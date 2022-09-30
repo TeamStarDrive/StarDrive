@@ -2303,38 +2303,57 @@ namespace Ship_Game
         public InfluenceNode[] SensorNodes = Empty<InfluenceNode>.Array;
         public BorderNodeCache BorderNodeCache = new();
 
-        public void AddBorderNode(Ship ship)
+        public bool IsBorderNode(Ship ship)
+        {
+            return ship.IsSubspaceProjector
+                || (WeAreRemnants && ship.Name == data.RemnantPortal)
+                || (WeArePirates && Pirates.IsBase(ship));
+        }
+
+        // @return True if ship is a border node which provides influence in InfluenceTree
+        public bool AddBorderNode(Ship ship)
         {
             bool known = IsShipKnownToPlayer(ship);
-
-            bool isBorderNode = ship.IsSubspaceProjector
-                            || (WeAreRemnants && ship.Name == data.RemnantPortal)
-                            || (WeArePirates && Pirates.IsBase(ship));
-
+            bool isBorderNode = IsBorderNode(ship);
             if (isBorderNode)
             {
-                var borderNode = new InfluenceNode(ship, GetProjectorRadius(), known);
-                OurBorderShips.Add(borderNode);
+                OurBorderShips.Add(new(ship, GetProjectorRadius(), known));
             }
 
             // all ships/stations/SSP-s are sensor nodes
-            var sensorNode = new InfluenceNode(ship, ship.SensorRange, known);
-            OurSensorShips.Add(sensorNode);
+            OurSensorShips.Add(new(ship, ship.SensorRange, known));
+            return isBorderNode;
         }
-
+        
         public void AddBorderNode(Planet planet)
         {
             bool empireKnown = IsThisEmpireKnownByPlayer();
             bool known = empireKnown || planet.IsExploredBy(Universe.Player);
 
-            var borderNode = new InfluenceNode(planet, planet.GetProjectorRange(), known);
-            OurBorderPlanets.Add(borderNode);
-
-            var sensorNode = new InfluenceNode(planet, planet.SensorRange, empireKnown);
-            OurSensorPlanets.Add(sensorNode);
+            // NOTE: planets always provide influence
+            OurBorderPlanets.Add(new(planet, planet.GetProjectorRange(), known));
+            OurSensorPlanets.Add(new(planet, planet.SensorRange, empireKnown));
+        }
+        
+        // @return True if source is a border node which provides influence in InfluenceTree
+        public bool RemoveBorderNode(GameObject source)
+        {
+            if (source is Ship s)
+            {
+                RemoveBorderNode(source, OurBorderShips);
+                RemoveBorderNode(source, OurSensorShips);
+                return IsBorderNode(s);
+            }
+            else if (source is Planet)
+            {
+                RemoveBorderNode(source, OurBorderPlanets);
+                RemoveBorderNode(source, OurSensorPlanets);
+                return true;
+            }
+            return false;
         }
 
-        void RemoveBorderNode(GameObject source, Array<InfluenceNode> nodes)
+        static void RemoveBorderNode(GameObject source, Array<InfluenceNode> nodes)
         {
             int count = nodes.Count;
             InfluenceNode[] rawNodes = nodes.GetInternalArrayItems();
@@ -2345,20 +2364,6 @@ namespace Ship_Game
                     nodes.RemoveAtSwapLast(i);
                     break;
                 }
-            }
-        }
-
-        public void RemoveBorderNode(GameObject source)
-        {
-            if (source is Ship)
-            {
-                RemoveBorderNode(source, OurBorderShips);
-                RemoveBorderNode(source, OurSensorShips);
-            }
-            else if (source is Planet)
-            {
-                RemoveBorderNode(source, OurBorderPlanets);
-                RemoveBorderNode(source, OurSensorPlanets);
             }
         }
 
@@ -3573,22 +3578,6 @@ namespace Ship_Game
             public float Radius;
             public GameObject Source; // Planet OR Ship
             public bool KnownToPlayer;
-
-            public InfluenceNode(Planet planet, bool known)
-            {
-                Position = planet.Position;
-                Radius = planet.SensorRange;
-                Source = planet;
-                KnownToPlayer = known;
-            }
-            public InfluenceNode(Ship ship, bool known = false)
-            {
-                Position = ship.Position;
-                Radius = ship.SensorRange;
-                Source = ship;
-                KnownToPlayer = known || ship.InSensorRange;
-            }
-
             public InfluenceNode(GameObject source, float radius, bool knowToPlayer)
             {
                 Position = source.Position;
