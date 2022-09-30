@@ -316,7 +316,9 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         bool CanShowDesign(Ship ship, string filter)
         {
-            if (filter.NotEmpty() && !ship.Name.ToLower().Contains(filter))
+            if (filter.NotEmpty()
+                && !ship.Name.ToLower().Contains(filter)
+                && !ship.BaseHull.HullName.ToLower().Contains(filter))
                 return false;
 
             if (ShowOnlyPlayerDesigns && !ship.ShipData.IsPlayerDesign)
