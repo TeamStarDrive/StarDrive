@@ -28,7 +28,7 @@ namespace Ship_Game.Ships.Components
         // Classic chicken-egg paradox
         public void OnSpawn(Ship ship)
         {
-            if (ship.Loyalty != EmpireManager.Void)
+            if (ship.Loyalty != Empire.Void)
                 SetLoyaltyForNewShip(ship.Loyalty);
         }
 
@@ -126,7 +126,7 @@ namespace Ship_Game.Ships.Components
 
             ship.Loyalty = newLoyalty;
 
-            oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
+            oldLoyalty.AI.ThreatMatrix.ClearPin(ship);
             ship.ShipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, newLoyalty);
             ship.ReCalculateTroopsAfterBoard();

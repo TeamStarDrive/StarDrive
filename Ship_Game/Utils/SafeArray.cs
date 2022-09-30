@@ -65,6 +65,15 @@ namespace Ship_Game.Utils
             }
         }
 
+        public void AddRange(IReadOnlyList<T> items)
+        {
+            lock (Sync)
+            {
+                for (int i = 0; i < items.Count; i++)
+                    AddUnlocked(items[i]);
+            }
+        }
+
         public void Clear()
         {
             if (Count == 0)

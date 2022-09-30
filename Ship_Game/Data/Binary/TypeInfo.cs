@@ -1,44 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.Data.Serialization;
 
-namespace Ship_Game.Data.Binary
+namespace Ship_Game.Data.Binary;
+
+public class TypeInfo
 {
-    public class TypeInfo
+    // TypeId in Stream
+    public readonly ushort StreamTypeId;
+    public readonly string Name;
+
+    // Actual serializer, can be null if type is deleted
+    public TypeSerializer Ser;
+
+    // for UserClasses, these are all the STREAM fields
+    // ordered as they appear in the stream, eg Fields[0] == streamFieldIdx(0)
+    public readonly FieldInfo[] Fields;
+    public readonly bool IsStruct;
+    public readonly SerializerCategory Category;
+
+    public Type Type => Ser.Type;
+
+    public override string ToString() => $"{StreamTypeId}:{Name}{FieldString}";
+
+    string FieldString => Fields != null ? $" Fields={Fields.Length}" : "";
+
+    public TypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields,
+                    bool isStruct, SerializerCategory c)
     {
-        public readonly ushort StreamTypeId; // TypeId in Stream
-        public readonly string Name;
-        public TypeSerializer Ser; // Actual serializer
-        public readonly FieldInfo[] Fields;
-        public readonly bool IsPointerType;
-        public readonly SerializerCategory Category;
+        StreamTypeId = (ushort)streamTypeId;
+        Name = name;
+        Fields = fields;
+        IsStruct = s?.IsStruct ?? isStruct;
+        Category = c;
+        Ser = s;
 
-        public Type Type => Ser.Type;
-
-        public override string ToString() => $"{Name} Id={StreamTypeId} Fields={Fields?.Length}";
-
-        public TypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields,
-                        bool isPointer, SerializerCategory c)
-        {
-            StreamTypeId = (ushort)streamTypeId;
-            Name = name;
-            Fields = fields;
-            IsPointerType = isPointer;
-            Category = c;
-            SetType(s);
-        }
-
-        public void SetType(TypeSerializer s)
-        {
-            Ser = s;
-            if (Fields != null && s is UserTypeSerializer us)
-                ResolveFields(us);
-        }
-
-        public void ResolveFields(UserTypeSerializer us)
+        if (Fields != null && s is UserTypeSerializer us)
         {
             for (uint fieldIdx = 0; fieldIdx < Fields.Length; ++fieldIdx)
             {
@@ -49,5 +45,5 @@ namespace Ship_Game.Data.Binary
             }
         }
     }
-
 }
+

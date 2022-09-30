@@ -18,6 +18,7 @@ namespace Ship_Game
     {
         Planet P;
         readonly UniverseScreen Screen;
+        Empire Player => Screen.Player;
         readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
 
         Rectangle MoneyRect;
@@ -120,7 +121,7 @@ namespace Ship_Game
             else if (P.Name.Length < 17) { font = Fonts.Arial10;     namePos.X += 5; }
            
             P.UpdateMaxPopulation();
-            if (P.Owner == null || !P.IsExploredBy(EmpireManager.Player))
+            if (P.Owner == null || !P.IsExploredBy(Player))
             {
                 DrawUnexploredUninhabited(namePos, Screen.Input.CursorPosition);
                 return;
@@ -141,7 +142,7 @@ namespace Ship_Game
             MoneyRect = new Rectangle(PopRect.X - 60, PopRect.Y, 22, 22);
             var moneyCursor = new Vector2((float)MoneyRect.X + 24, cursor.Y);
 
-            if (P.Owner == EmpireManager.Player)
+            if (P.Owner == Player)
             {
                 string sNetIncome = P.Money.NetRevenue.String(2);
                 batch.DrawString(Fonts.Arial12Bold, sNetIncome, moneyCursor, P.Money.NetRevenue > 0.0 ? Color.LightGreen : Color.Salmon);
@@ -195,7 +196,7 @@ namespace Ship_Game
         {
             if (P.Owner != null)
             {
-                var budget = P.Owner.GetEmpireAI().PlanetBudgets?.Filter(b => b.P == P) ?? Array.Empty<PlanetBudget>();
+                var budget = P.Owner.AI.PlanetBudgets?.Filter(b => b.P == P) ?? Array.Empty<PlanetBudget>();
                 if (budget.Length == 1)
                     budget[0].DrawBudgetInfo(Screen);
             }
@@ -205,7 +206,7 @@ namespace Ship_Game
         {
             SpriteBatch batch = ScreenManager.SpriteBatch;
 
-            if (!P.IsExploredBy(EmpireManager.Player))
+            if (!P.IsExploredBy(Player))
             {
                 batch.DrawString(Fonts.Arial20Bold,
                     Localizer.Token(GameText.Unexplored) + P.LocalizedCategory, namePos, tColor);
@@ -246,16 +247,16 @@ namespace Ship_Game
             DrawFertProdStats(batch);
             AddUnExploredTips();
 
-            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(P.Category);
+            float fertEnvMultiplier = Player.PlayerEnvModifier(P.Category);
             int numHabitableTile    = P.TotalHabitableTiles;
             float popPerTile        = P.BasePopPerTile * fertEnvMultiplier;
-            float biospherePop      = P.PotentialMaxPopBillionsFor(EmpireManager.Player, true);
+            float biospherePop      = P.PotentialMaxPopBillionsFor(Player, true);
 
             DrawPlanetStats(TilesRect, $"{numHabitableTile}", "NewUI/icon_tiles", Color.White, Color.White);
             DrawPlanetStats(PopPerTileRect, $"{popPerTile.String(0)}m", "NewUI/icon_poppertile", Color.White, Color.White);
             DrawPlanetStats(BiospheredPopRect, biospherePop.String(2), "NewUI/icon_biospheres", Color.White, Color.White);
 
-            float terraformedPop = P.PotentialMaxPopBillionsWithTerraformFor(EmpireManager.Player);
+            float terraformedPop = P.PotentialMaxPopBillionsWithTerraformFor(Player);
             DrawPlanetStats(TerraformedPopRect, terraformedPop.String(1),
                 "NewUI/icon_terraformer", Color.White, Color.White);
 
@@ -268,7 +269,7 @@ namespace Ship_Game
 
         void DrawSendTroops(SpriteBatch batch, Vector2 mousePos)
         {
-            if (P.Owner == EmpireManager.Player || EmpireManager.Player.IsNAPactWith(P.Owner))
+            if (P.Owner == Player || Player.IsNAPactWith(P.Owner))
                 return; // Cannot send troops to this planet or different UI for player owner.
 
             Vector2 textPos        = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Font12.LineSpacing / 2 - 2);
@@ -333,7 +334,7 @@ namespace Ship_Game
 
             LocalizedText tip = GameText.MarkThisPlanetForColonization;
             LocalizedText tipText = GameText.Colonize;
-            if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.ColonizationTarget == P))
+            if (P.Universe.Player.AI.HasGoal(g => g.IsColonizationGoal(P)))
             {
                 tip = GameText.CancelTheColonizationMissionThat;
                 tipText = GameText.CancelColonize;
@@ -352,12 +353,12 @@ namespace Ship_Game
             ToolTipItems.Add(new TippedItem(fIcon, GameText.IndicatesHowMuchFoodThis));
 
             var tcurs = new Vector2(fIcon.X + 25, Housing.Y + 205);
-            float fertility   = P.FertilityFor(EmpireManager.Player);
-            float maxFert     = P.MaxFertilityFor(EmpireManager.Player);
+            float fertility   = P.FertilityFor(Player);
+            float maxFert     = P.MaxFertilityFor(Player);
             string fertString = fertility.AlmostEqual(maxFert) ? fertility.String(2) : $"{fertility.String(2)}/{maxFert.String(2)}";
             batch.DrawString(Fonts.Arial12Bold, fertString, tcurs, tColor);
 
-            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(P.Category);
+            float fertEnvMultiplier = Player.PlayerEnvModifier(P.Category);
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
@@ -412,20 +413,20 @@ namespace Ship_Game
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.type == GoalType.Colonize && g.ColonizationTarget == P))
+                if (P.Universe.Player.AI.HasGoal(g => g.IsColonizationGoal(P)))
                 {
-                    EmpireManager.Player.GetEmpireAI().CancelColonization(P);
+                    P.Universe.Player.AI.CancelColonization(P);
                     GameAudio.EchoAffirmative();
                 }
                 else
                 {
                     GameAudio.EchoAffirmative();
-                    EmpireManager.Player.GetEmpireAI().Goals.Add(new MarkForColonization(P, EmpireManager.Player));
+                    P.Universe.Player.AI.RemoveGoal(new MarkForColonization(P, P.Universe.Player));
                 }
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, P.Position, P.Name))
+                if (P.Universe.Player.GetTroopShipForRebase(out Ship troopShip, P.Position, P.Name))
                 {
                     GameAudio.EchoAffirmative();
                     troopShip.AI.OrderLandAllTroops(P, clearOrders:true);
@@ -434,11 +435,11 @@ namespace Ship_Game
                     GameAudio.BlipClick();
             }
 
-            if (P.Owner != null && P.Owner != EmpireManager.Player 
+            if (P.Owner != null && P.Owner != P.Universe.Player 
                                 && CancelInvasionRect.HitTest(input.CursorPosition) 
                                 && input.InGameSelect)
             {
-                var shipList = EmpireManager.Player.OwnedShips;
+                var shipList = P.Universe.Player.OwnedShips;
                 foreach (Ship ship in shipList)
                 {
                     if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))
@@ -453,7 +454,7 @@ namespace Ship_Game
 
             if (Inspect.Hover)
             {
-                if (P.Owner == null || P.Owner != EmpireManager.Player)
+                if (P.Owner == null || P.Owner != Player)
                 {
                     ToolTip.CreateTooltip(GameText.ViewPlanetDetails);
                 }
@@ -491,7 +492,7 @@ namespace Ship_Game
             if (P != p)
             {
                 P = p;
-                if (p != null && P.Owner == EmpireManager.Player)
+                if (p != null && P.Owner == Player)
                 {
                     int x = PlanetIconRect.Right + 20;
                     var sliderRect = new RectF(x, PlanetIconRect.Y-40,

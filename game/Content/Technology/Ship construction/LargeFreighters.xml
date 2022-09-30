@@ -4,7 +4,6 @@
   <UID>LargeFreighters</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>450</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>601</NameIndex>
   <DescriptionIndex>602</DescriptionIndex>
   <LeadsTo />

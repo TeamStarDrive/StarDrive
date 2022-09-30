@@ -66,7 +66,6 @@ namespace Ship_Game
         public static Map<string, Artifact> ArtifactsDict      = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
 
-        public static HostileFleets HostileFleets                = new HostileFleets();
         public static ShipNames ShipNames                        = new ShipNames();
         public static AgentMissionData AgentMissionData          = new AgentMissionData();
         public static MainMenuShipList MainMenuShipList          = new MainMenuShipList();
@@ -121,7 +120,7 @@ namespace Ship_Game
             if (EventsDict.TryGetValue(eventName, out ExplorationEvent events))
                 return events;
             Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
-            return EventsDict["default"];
+            return EventsDict["Default"];
         }
 
         /// <summary>
@@ -360,7 +359,6 @@ namespace Ship_Game
             RandomItemsList.Clear();
             WeaponsDict.Clear();
 
-            HostileFleets.Fleets.Clear();
             ShipNames.Clear();
             MainMenuShipList.ModelPaths.Clear();
 
@@ -379,7 +377,6 @@ namespace Ship_Game
             DiplomacyTraits = null;
             AgentMissionData = new AgentMissionData();
             EmpireHullBonuses.Clear();
-            EmpireManager.Clear(disposeVoidEmpire: true);
 
             UnloadGraphicsResources(manager);
         }
@@ -689,7 +686,7 @@ namespace Ship_Game
         }
 
         // Refactored by RedFox
-        public static void DeleteShip(string shipName)
+        public static void DeleteShip(UniverseState us, string shipName)
         {
             string appData = Dir.StarDriveAppData;
             DeleteShipFromDir(appData + "/Saved Designs", shipName);
@@ -697,7 +694,7 @@ namespace Ship_Game
 
             Ships.Delete(shipName);
 
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in us.Empires)
             {
                 if (e.ShipsWeCanBuild.Remove(shipName))
                     e.UpdateShipsWeCanBuild();
@@ -1709,11 +1706,12 @@ namespace Ship_Game
             var rootTechs = new Array<Technology>();
             foreach (Technology rootTech in techs)
             {
-                if (rootTech.RootNode == 0)
-                    continue;
-                if (rootTechs.Contains(rootTech))
-                    Log.Warning($"Duplicate root tech : '{rootTech}'");
-                rootTechs.Add(rootTech);
+                if (rootTech.IsRootNode)
+                {
+                    if (rootTechs.Contains(rootTech))
+                        Log.Warning($"Duplicate root tech : '{rootTech}'");
+                    rootTechs.Add(rootTech);
+                }
             }
 
             void WalkTechTree(Technology technology)
@@ -1740,7 +1738,7 @@ namespace Ship_Game
             }
             foreach (Technology notInTree in techs)
             {
-                if (notInTree.RootNode != 1 && notInTree.ComesFrom.Count == 0)
+                if (!notInTree.IsRootNode && notInTree.ComesFrom.Count == 0)
                     notInTree.Discovered = false;
             }
 
@@ -1851,21 +1849,18 @@ namespace Ship_Game
                 Log.Error("Failed to load any ShipRoles! Make sure Content/ShipRoles/*.xml exist!");
         }
 
-        static readonly Map<string, EconomicResearchStrategy> EconStrategies = new Map<string, EconomicResearchStrategy>();
+        static readonly Map<string, EconomicResearchStrategy> EconStrategies = new();
+
         public static EconomicResearchStrategy GetEconomicStrategy(string name) => EconStrategies[name];
+
         static void LoadEcoResearchStrats()
         {
             EconStrategies.Clear();
-            foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
-            {
-                // the story here: some mods have bugged <Name> refs, so we do manual
-                // hand holding to fix their bugs...
-                pair.Entity.Name = pair.Info.NameNoExt();
-                EconStrategies[pair.Entity.Name] = pair.Entity;
-            }
+            foreach (var s in YamlParser.DeserializeArray<EconomicResearchStrategy>("EconomicResearchStrategies.yaml"))
+                EconStrategies[s.Name] = s;
         }
 
-        static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new Map<SunZone, Array<PlanetCategory>>();
+        static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new();
 
         public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)
         {
@@ -1904,7 +1899,6 @@ namespace Ship_Game
         // Added by RedFox
         static void LoadBlackboxSpecific()
         {
-            TryDeserialize("HostileFleets/HostileFleets.xml",    ref HostileFleets);
             TryDeserialize("ShipNames/ShipNames.xml",            ref ShipNames);
             TryDeserialize("MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
             TryDeserialize("AgentMissions/AgentMissionData.xml", ref AgentMissionData);

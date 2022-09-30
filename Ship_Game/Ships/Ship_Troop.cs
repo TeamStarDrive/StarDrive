@@ -3,24 +3,19 @@ using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-        /// <summary>
-        /// NOTE: By the original game design, this list contains
-        /// our troops and also enemy troops.
-        /// It can get mighty confusing, but that's what we got.
-        /// </summary>
-        Array<Troop> OurTroops = new Array<Troop>();
-
-        Array<Troop> HostileTroops = new Array<Troop>();
+        [StarData] Array<Troop> OurTroops = new();
+        [StarData] Array<Troop> HostileTroops = new();
 
         // OUR troops count
         public int TroopCount => OurTroops.Count;
 
-        private float TroopUpdateTimer = GlobalStats.TurnTimer;
+        float TroopUpdateTimer = GlobalStats.TurnTimer;
 
         // TRUE if we have any troops present on this ship
         // @warning Some of these MAY be enemy troops!

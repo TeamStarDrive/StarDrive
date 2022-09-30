@@ -16,7 +16,7 @@ namespace Ship_Game.Debug.Page
             Screen = screen;
             if (TextColumns.Count <= 1)
                 TextColumns.Add(Label(Rect.X, Rect.Y + 300, ""));
-            EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
+            EmpireAtWar = screen.UState.GetEmpireById(EmpireID);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -38,10 +38,10 @@ namespace Ship_Game.Debug.Page
         {
             do
             {
-                EmpireID = EmpireID + (increase ? 1 : -1);
-                if (EmpireID > EmpireManager.NumEmpires) EmpireID = 1;
-                if (EmpireID < 1) EmpireID = EmpireManager.NumEmpires;
-                EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
+                EmpireID += (increase ? 1 : -1);
+                if (EmpireID > Screen.UState.NumEmpires) EmpireID = 1;
+                if (EmpireID < 1) EmpireID = Screen.UState.NumEmpires;
+                EmpireAtWar = Screen.UState.GetEmpireById(EmpireID);
             }
             while (EmpireAtWar.data.Defeated);
 
@@ -57,9 +57,9 @@ namespace Ship_Game.Debug.Page
             var ourShips = new Array<Ship>(EmpireAtWar.OwnedShips);
             var hangarShips = ourShips.Filter(s => s.IsHangarShip);
             var civilianShips = ourShips.Filter(s => s.DesignRoleType == RoleType.Civilian);
-            var AOs = EmpireAtWar.GetEmpireAI().AreasOfOperations.ToArray();
+            var AOs = EmpireAtWar.AI.AreasOfOperations.ToArray();
             var aoShips = EmpireAtWar.AIManagedShips;
-            var fleets = EmpireAtWar.GetFleetsDict().Values;
+            var fleets = EmpireAtWar.Fleets;
 
             var text = new Array<DebugTextBlock>();
 
@@ -75,7 +75,7 @@ namespace Ship_Game.Debug.Page
             column.AddLine($"Civilian Ships: {civilianShips.Length}");
             column.AddLine($"EmpirePool Ready: {aoShips.InitialReadyShips}");
             column.AddLine($"EmpirePool fleets: {aoShips.CurrentUseableFleets}");
-            column.AddLine($"Fleets in use: {fleets.Count}");
+            column.AddLine($"Fleets in use: {fleets.Length}");
             column.AddLine($"AO's {AOs.Length}");
             foreach(var ao in AOs)
             {
@@ -176,7 +176,7 @@ namespace Ship_Game.Debug.Page
             column.Header= $"--Tasks--";
             column.AddLine($"Empire Tasks");
 
-            var tasks = EmpireAtWar.GetEmpireAI().GetAtomicTasksCopy();
+            var tasks = EmpireAtWar.AI.GetAtomicTasksCopy();
 
             foreach (var task in tasks)
             {
@@ -204,7 +204,7 @@ namespace Ship_Game.Debug.Page
                 foreach (var qi in q)
                 {
                     if (!qi.isShip) continue;
-                    shipData.Add(qi.sData);
+                    shipData.Add(qi.ShipData);
                 }
             }
 
@@ -233,9 +233,9 @@ namespace Ship_Game.Debug.Page
                 foreach (var item in items)
                 {
                     if (item?.isShip != true ||// item.DisplayName.IsEmpty() ||
-                            !(ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
-                            ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
-                    column.AddLine(item.sData.Name);
+                            !(ShipDesign.ShipRoleToRoleType(item.ShipData.Role) == RoleType.Warship ||
+                            ShipDesign.ShipRoleToRoleType(item.ShipData.Role) == RoleType.WarSupport)) continue;
+                    column.AddLine(item.ShipData.Name);
                 }
             }
 
@@ -259,8 +259,8 @@ namespace Ship_Game.Debug.Page
                     foreach (var item in items)
                     {
                         if (!item.isShip ||// item.DisplayName.IsEmpty() ||
-                                !(ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
-                                ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
+                                !(ShipDesign.ShipRoleToRoleType(item.ShipData.Role) == RoleType.Warship ||
+                                ShipDesign.ShipRoleToRoleType(item.ShipData.Role) == RoleType.WarSupport)) continue;
                         column.AddLine(item.Planet.Name);
                     }
                 }

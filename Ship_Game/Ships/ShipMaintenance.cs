@@ -11,9 +11,16 @@ namespace Ship_Game.Ships
         static bool IsFreeUpkeepShip(Empire empire, Ship ship)
         {
             return empire.WeAreRemnants
-                   || empire?.data == null
-                   || ship.Name == empire.data.PrototypeShip
-                   || !ship.CanBeRefitted;
+                || empire?.data == null
+                || ship.Name == empire.data.PrototypeShip
+                || !ship.CanBeRefitted;
+        }
+
+        static bool IsFreeUpkeepShip(Empire empire, IShipDesign ship)
+        {
+            return empire.WeAreRemnants
+                || empire?.data == null
+                || ship.Name == empire.data.PrototypeShip;
         }
 
         public static float GetMaintenanceCost(Ship ship, Empire empire, int troopCount)
@@ -25,6 +32,9 @@ namespace Ship_Game.Ships
 
         public static float GetBaseMaintenance(IShipDesign ship, Empire empire, int numTroops)
         {
+            if (IsFreeUpkeepShip(empire, ship))
+                return 0;
+
             bool hullUpkeep = GlobalStats.UseUpkeepByHullSize;
             float maint;
             if (ship.FixedUpkeep > 0)

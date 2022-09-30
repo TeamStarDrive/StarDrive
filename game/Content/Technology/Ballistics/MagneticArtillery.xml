@@ -4,7 +4,6 @@
   <UID>MagneticArtillery</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>530</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>606</NameIndex>
   <DescriptionIndex>607</DescriptionIndex>
   <LeadsTo>

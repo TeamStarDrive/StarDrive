@@ -22,8 +22,8 @@ namespace Ship_Game.Utils
         T[] Items;
         int Head; // index of the First element
         public int Count { get; private set; }
-        ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        AutoResetEvent ItemAdded = new AutoResetEvent(false);
+        ReaderWriterLockSlim ThisLock = new(LockRecursionPolicy.SupportsRecursion);
+        AutoResetEvent ItemAdded = new(false);
 
         // This is relatively atomic, no reason to lock on this
         // as it wouldn't provide any benefits or thread safety
@@ -53,14 +53,14 @@ namespace Ship_Game.Utils
         // You must use the C# using block to ensure deterministic release of the lock
         // using (queue.AcquireReadLock())
         //     item = queue.First();
-        public ScopedReadLock AcquireReadLock() => new ScopedReadLock(ThisLock);
+        public ScopedReadLock AcquireReadLock() => new(ThisLock);
 
 
         // Acquires a deterministic Write Lock on this Collection
         // You must use the C# using block to ensure deterministic release of the lock
         // using (queue.AcquireWriteLock())
         //     queue.Add(item);
-        public ScopedWriteLock AcquireWriteLock() => new ScopedWriteLock(ThisLock);
+        public ScopedWriteLock AcquireWriteLock() => new(ThisLock);
 
 
         // This is intentionally left as non-threadsafe
@@ -96,103 +96,132 @@ namespace Ship_Game.Utils
         // the last item you get when calling Dequeue()
         public void Enqueue(T item)
         {
-            ThisLock.EnterWriteLock();
-            int length = Items.Length;
-            if (Count == length)
+            try
             {
-                int cap = length < 4 ? 4 : length * 3 / 2;
-                int rem = cap % 4;
-                if (rem != 0) cap += 4 - rem;
+                ThisLock.EnterWriteLock();
+                int length = Items.Length;
+                if (Count == length)
+                {
+                    int cap = length < 4 ? 4 : length * 3 / 2;
+                    int rem = cap % 4;
+                    if (rem != 0) cap += 4 - rem;
 
-                var newArray = new T[cap];
-                if (length > 0)
-                { 
-                    // @note This is different from PushToFront
-                    // reorder the ring buffer to a clean layout
-                    for (int j = 0, i = Head; j < length;)
-                    {
-                        newArray[j++] = Items[i++];
-                        if (i == length) i = 0;
+                    var newArray = new T[cap];
+                    if (length > 0)
+                    { 
+                        // @note This is different from PushToFront
+                        // reorder the ring buffer to a clean layout
+                        for (int j = 0, i = Head; j < length;)
+                        {
+                            newArray[j++] = Items[i++];
+                            if (i == length) i = 0;
+                        }
+                        Head = 0;
                     }
-                    Head = 0;
+                    Items = newArray;
                 }
-                Items = newArray;
+
+                Items[(Head + Count) % Items.Length] = item;
+                ++Count;
+                ItemAdded.Set();
             }
-
-            Items[(Head + Count) % Items.Length] = item;
-            ++Count;
-            ItemAdded.Set();
-            ThisLock.ExitWriteLock();
+            finally
+            {
+                ThisLock.ExitWriteLock();
+            }
         }
-
 
         // This will push the item to the front of the queue
         // which will cut in line of everyone else
         // If Dequeue is called, this will be the item returned
         public void PushToFront(T item)
         {
-            ThisLock.EnterWriteLock();
-            int length = Items.Length;
-            if (Count == length) // grow
+            try
             {
-                int cap = length < 4 ? 4 : length * 3 / 2;
-                int rem = cap % 4;
-                if (rem != 0) cap += 4 - rem;
-
-                var newArray = new T[cap];
-                if (length > 0)
+                ThisLock.EnterWriteLock();
+                int length = Items.Length;
+                if (Count == length) // grow
                 {
-                    // @note This is different from ENQUEUE grow
-                    // reorder the ring buffer to a clean layout
-                    for (int j = 1, i = Head, n = length+1; j < n;)
+                    int cap = length < 4 ? 4 : length * 3 / 2;
+                    int rem = cap % 4;
+                    if (rem != 0) cap += 4 - rem;
+
+                    var newArray = new T[cap];
+                    if (length > 0)
                     {
-                        newArray[j++] = Items[i++];
-                        if (i == length) i = 0;
+                        // @note This is different from ENQUEUE grow
+                        // reorder the ring buffer to a clean layout
+                        for (int j = 1, i = Head, n = length+1; j < n;)
+                        {
+                            newArray[j++] = Items[i++];
+                            if (i == length) i = 0;
+                        }
+                        Head = 0;
                     }
-                    Head = 0;
+                    Items = newArray;
                 }
-                Items = newArray;
+                else
+                {
+                    if (--Head < 0) Head = length - 1;
+                }
+                Items[Head] = item;
+                ++Count;
+                ItemAdded.Set();
             }
-            else
+            finally
             {
-                if (--Head < 0) Head = length - 1;
+                ThisLock.ExitWriteLock();
             }
-            Items[Head] = item;
-            ++Count;
-            ItemAdded.Set();
-            ThisLock.ExitWriteLock();
         }
 
 
         // Will dequeue the FIRST item from the queue, which is the first item that was Enqueued
         public T Dequeue()
         {
-            if (Count == 0)
-                return default;
-
-            ThisLock.EnterWriteLock();
-            T item = Items[Head];
-            if (++Head == Items.Length) Head = 0;
-            --Count;
-            ThisLock.ExitWriteLock();
-            return item;
+            try
+            {
+                ThisLock.EnterWriteLock();
+                if (Count > 0)
+                {
+                    T item = Items[Head];
+                    if (++Head == Items.Length) Head = 0;
+                    --Count;
+                    return item;
+                }
+                else
+                {
+                    return default;
+                }
+            }
+            finally
+            {
+                ThisLock.ExitWriteLock();
+            }
         }
 
         // Will TRY to dequeue the FIRST item from the queue, which is the first item that was Enqueued
         public bool TryDequeue(out T item)
         {
-            ThisLock.EnterWriteLock();
-            if (Count == 0)
+            try
             {
-                item = default;
-                ThisLock.ExitWriteLock();
-                return false;
+                ThisLock.EnterWriteLock();
+                if (Count > 0)
+                {
+                    item = Items[Head];
+                    if (++Head == Items.Length) Head = 0;
+                    --Count;
+                    return true;
+                }
+                else
+                {
+                    item = default;
+                    return false;
+                }
             }
-            item = Items[Head];
-            if (++Head == Items.Length) Head = 0;
-            --Count;
-            ThisLock.ExitWriteLock();
-            return true;
+            finally
+            {
+                ThisLock.ExitWriteLock();
+            }
         }
 
         // This will Set the ItemAdded event,
@@ -207,12 +236,21 @@ namespace Ship_Game.Utils
         {
             if (ItemAdded.WaitOne(millisecondTimeout) && Count > 0)
             {
-                ThisLock.EnterWriteLock();
-                item = Items[Head];
-                if (++Head == Items.Length) Head = 0;
-                --Count;
-                ThisLock.ExitWriteLock();
-                return true;
+                try
+                {
+                    ThisLock.EnterWriteLock();
+                    if (Count > 0)
+                    {
+                        item = Items[Head];
+                        if (++Head == Items.Length) Head = 0;
+                        --Count;
+                        return true;
+                    }
+                }
+                finally
+                {
+                    ThisLock.ExitWriteLock();
+                }
             }
             item = default;
             return false;
@@ -221,24 +259,38 @@ namespace Ship_Game.Utils
         // Same as Dequeue, but doesn't return any value
         public void RemoveFirst()
         {
-            if (Count == 0)
-                return;
-            ThisLock.EnterWriteLock();
-            Items[Head] = default; // clear the item
-            if (++Head == Items.Length) Head = 0;
-            --Count;
-            ThisLock.ExitWriteLock();
+            try
+            {
+                ThisLock.EnterWriteLock();
+                if (Count > 0)
+                {
+                    Items[Head] = default; // clear the item
+                    if (++Head == Items.Length) Head = 0;
+                    --Count;
+                }
+            }
+            finally
+            {
+                ThisLock.ExitWriteLock();
+            }
         }
 
         // Will remove the last item in the queue, which would be the last item Dequeued
         public void RemoveLast()
         {
-            if (Count == 0)
-                return;
-            ThisLock.EnterWriteLock();
-            Items[(Head + Count - 1) % Items.Length] = default; // clear the item
-            --Count;
-            ThisLock.ExitWriteLock();
+            try
+            {
+                ThisLock.EnterWriteLock();
+                if (Count > 0)
+                {
+                    Items[(Head + Count - 1) % Items.Length] = default; // clear the item
+                    --Count;
+                }
+            }
+            finally
+            {
+                ThisLock.ExitWriteLock();
+            }
         }
 
         // Peeks the first element that would be dequeued
@@ -247,20 +299,32 @@ namespace Ship_Game.Utils
         {
             get
             {
-                ThisLock.EnterReadLock();
-                T result = Count > 0 ? Items[Head] : default;
-                ThisLock.ExitReadLock();
-                return result;
+                try
+                {
+                    ThisLock.EnterReadLock();
+                    T result = Count > 0 ? Items[Head] : default;
+                    return result;
+                }
+                finally
+                {
+                    ThisLock.ExitReadLock();
+                }
             }
         }
 
         public bool TryPeekFirst(out T result)
         {
-            ThisLock.EnterReadLock();
-            bool success = Count > 0;
-            result = success ? Items[Head] : default;
-            ThisLock.ExitReadLock();
-            return success;
+            try
+            {
+                ThisLock.EnterReadLock();
+                bool success = Count > 0;
+                result = success ? Items[Head] : default;
+                return success;
+            }
+            finally
+            {
+                ThisLock.ExitReadLock();
+            }
         }
 
         // Peek the last element in the queue
@@ -269,95 +333,150 @@ namespace Ship_Game.Utils
         {
             get
             {
-                ThisLock.EnterReadLock();
-                T result = Count > 0 ? Items[(Head + Count - 1) % Items.Length] : default;
-                ThisLock.ExitReadLock();
-                return result;
+                try
+                {
+                    ThisLock.EnterReadLock();
+                    T result = Count > 0 ? Items[(Head + Count - 1) % Items.Length] : default;
+                    return result;
+                }
+                finally
+                {
+                    ThisLock.ExitReadLock();
+                }
             }
         }
 
         public bool TryPeekLast(out T result)
         {
-            ThisLock.EnterReadLock();
-            bool success = Count > 0;
-            result = success ? Items[(Head + Count - 1) % Items.Length] : default;
-            ThisLock.ExitReadLock();
-            return success;
+            try
+            {
+                ThisLock.EnterReadLock();
+                bool success = Count > 0;
+                result = success ? Items[(Head + Count - 1) % Items.Length] : default;
+                return success;
+            }
+            finally
+            {
+                ThisLock.ExitReadLock();
+            }
         }
 
         public void Clear()
         {
-            ThisLock.EnterWriteLock();
-            Array.Clear(Items, 0, Items.Length);
-            Head  = 0;
-            Count = 0;
-            ThisLock.ExitWriteLock();
+            try
+            {
+                ThisLock.EnterWriteLock();
+                Array.Clear(Items, 0, Items.Length);
+                Head  = 0;
+                Count = 0;
+            }
+            finally
+            {
+                ThisLock.ExitWriteLock();
+            }
         }
 
         public bool Contains(T item)
         {
-            ThisLock.EnterReadLock();
-            int length = Items.Length;
-            int count  = Count;
-            if (item == null)
+            try
             {
+                ThisLock.EnterReadLock();
+                int length = Items.Length;
+                int count  = Count;
+                if (item == null)
+                {
+                    for (int j = 0, i = Head; j < count; ++j)
+                    {
+                        if (Items[i] == null) return true;
+                        if (++i == length) i = 0;
+                    }
+                }
+                else
+                {
+                    var c = EqualityComparer<T>.Default;
+                    for (int j = 0, i = Head; j < count; ++j)
+                    {
+                        if (c.Equals(Items[i], item)) return true;
+                        if (++i == length) i = 0;
+                    }
+                }
+                return false;
+            }
+            finally
+            {
+                ThisLock.ExitReadLock();
+            }
+        }
+
+        // @returns TRUE if any item matches the Predicate
+        public bool Any(Predicate<T> predicate)
+        {
+            try
+            {
+                ThisLock.EnterReadLock();
+                int length = Items.Length;
+                int count = Count;
                 for (int j = 0, i = Head; j < count; ++j)
                 {
-                    if (Items[i] == null)
-                    {
-                        ThisLock.ExitReadLock();
-                        return true;
-                    }
+                    if (predicate(Items[i])) return true;
                     if (++i == length) i = 0;
                 }
+                return false;
             }
-            else
+            finally
             {
-                var c = EqualityComparer<T>.Default;
-                for (int j = 0, i = Head; j < count; ++j)
-                {
-                    if (c.Equals(Items[i], item))
-                    {
-                        ThisLock.ExitReadLock();
-                        return true;
-                    }
-                    if (++i == length) i = 0;
-                }
+                ThisLock.ExitReadLock();
             }
-            ThisLock.ExitReadLock();
-            return false;
         }
 
         public T[] ToArray()
         {
-            ThisLock.EnterReadLock();
-            int count = Count;
-            var arr = new T[count];
-            for (int j = 0, i = Head; j < count;)
+            try
             {
-                arr[j++] = Items[i++];
-                if (i == Items.Length) i = 0;
+                ThisLock.EnterReadLock();
+                int count = Count;
+                var arr = new T[count];
+                for (int j = 0, i = Head; j < count;)
+                {
+                    arr[j++] = Items[i++];
+                    if (i == Items.Length) i = 0;
+                }
+                return arr;
             }
-            ThisLock.ExitReadLock();
-            return arr;
+            finally
+            {
+                ThisLock.ExitReadLock();
+            }
         }
 
-        
         public T[] TakeAll()
         {
-            ThisLock.EnterReadLock();
-            int count = Count;
-            var arr = new T[count];
-            for (int j = 0, i = Head; j < count;)
+            try
             {
-                arr[j++] = Items[i++];
-                if (i == Items.Length) i = 0;
+                ThisLock.EnterWriteLock();
+                int count = Count;
+                var arr = new T[count];
+                for (int j = 0, i = Head; j < count;)
+                {
+                    arr[j++] = Items[i++];
+                    if (i == Items.Length) i = 0;
+                }
+                Array.Clear(Items, 0, Items.Length);
+                Head  = 0;
+                Count = 0;
+                return arr;
             }
-            Array.Clear(Items, 0, Items.Length);
-            Head  = 0;
-            Count = 0;
-            ThisLock.ExitReadLock();
-            return arr;
+            finally
+            {
+                ThisLock.ExitWriteLock();
+            }
+        }
+
+        public void SetRange(IReadOnlyList<T> items)
+        {
+            Clear();
+            foreach (var item in items)
+                Enqueue(item);
         }
 
         public override string ToString()
@@ -397,17 +516,15 @@ namespace Ship_Game.Utils
         {
             int Head;
             int Index;
-            readonly int Count;
-            readonly T[] Items;
+            readonly SafeQueue<T> Queue;
             public T Current { get; private set; }
             object IEnumerator.Current => Current;
 
             public Enumerator(SafeQueue<T> queue)
             {
-                Head  = queue.Head;
+                Head = queue.Head;
                 Index = 0;
-                Count = queue.Count;
-                Items = queue.Items;
+                Queue = queue;
                 Current = default;
             }
             public void Dispose()
@@ -415,12 +532,24 @@ namespace Ship_Game.Utils
             }
             public bool MoveNext()
             {
-                if (++Index > Count)
-                    return false;
-                Current = Items[Head];
-                if (++Head >= Items.Length)
-                    Head = 0;
-                return true;
+                // lock to ensure SafeQueue's thread-safety, during foreach or LINQ loops
+                try
+                {
+                    Queue.ThisLock.EnterReadLock();
+                    if (++Index > Queue.Count)
+                        return false;
+
+                    if (Head >= Queue.Items.Length)
+                        Head = 0;
+
+                    Current = Queue.Items[Head];
+                    ++Head;
+                    return true;
+                }
+                finally
+                {
+                    Queue.ThisLock.ExitReadLock();
+                }
             }
             public void Reset()
             {

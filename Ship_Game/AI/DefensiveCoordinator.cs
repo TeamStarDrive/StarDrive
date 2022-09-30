@@ -12,9 +12,10 @@ namespace Ship_Game.AI
     public sealed class DefensiveCoordinator : IShipPool, IDisposable
     {
         readonly Empire Us;
+        readonly Empire Player;
         public float DefenseDeficit;
-        public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
-        public Array<Ship> DefensiveForcePool = new Array<Ship>();
+        public Map<SolarSystem, SystemCommander> DefenseDict = new();
+        public Array<Ship> DefensiveForcePool = new();
         int TotalValue;
         public float TroopsToTroopsWantedRatio;
 
@@ -27,6 +28,7 @@ namespace Ship_Game.AI
         {
             Id = id;
             Us = e;
+            Player = e.Universe.Player;
             Name = name;
         }
 
@@ -146,12 +148,12 @@ namespace Ship_Game.AI
 
         void ClearEmptyPlanetsOfTroops()
         {
-            foreach (Planet p in Us.Universum.Planets)
+            foreach (Planet p in Us.Universe.Planets)
                 //@TODO move this to planet.
                 // FB - This code is crappy. And it launches troops into space combat zones as well
                 // and it doesnt only clear empty planets but also adds the planet to defense dict. very misleading
             {
-                if (Us != EmpireManager.Player 
+                if (Us != Player 
                     && p.Owner != Us 
                     && !p.EventsOnTiles() 
                     && !p.RecentCombat
@@ -299,7 +301,7 @@ namespace Ship_Game.AI
 
         public SolarSystem GetNearestSystemNeedingTroops(Vector2 fromPos, Empire empire)
         {
-            float width = empire.Universum.Size;
+            float width = empire.Universe.Size;
             return DefenseDict.FindMaxKeyByValuesFiltered(
                 com => com.TroopStrengthNeeded > 0
                        && com.System.PlanetList.Count > 0

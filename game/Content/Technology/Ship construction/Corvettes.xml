@@ -4,7 +4,6 @@
   <UID>Corvettes</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>585</NameIndex>
   <DescriptionIndex>586</DescriptionIndex>
   <LeadsTo>

@@ -4,7 +4,6 @@
   <UID>AdvancedWarp</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>400</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>10091</NameIndex>
   <DescriptionIndex>10092</DescriptionIndex>
   <LeadsTo>

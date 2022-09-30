@@ -15,10 +15,10 @@ namespace Ship_Game.AI
         float GetTotalConstructionGoalsMaintenance()
         {
             float maintenance = 0f;
-            foreach (Goal g in Goals)
+            foreach (Goal g in GoalsList)
             {
-                if (g is BuildConstructionShip)
-                    maintenance += ResourceManager.GetShipTemplate(g.ToBuildUID).GetMaintCost(OwnerEmpire);
+                if (g is BuildConstructionShip b)
+                    maintenance += b.ToBuild.GetMaintenanceCost(OwnerEmpire, 0);
             }
             return maintenance;
         }
@@ -58,15 +58,15 @@ namespace Ship_Game.AI
 
         public static bool InfluenceNodeExistsAt(Vector2 pos, Empire empire)
         {
-            return empire.Universum.Influence.IsInInfluenceOf(empire, pos);
+            return empire.Universe.Influence.IsInInfluenceOf(empire, pos);
         }
 
         public bool NodeAlreadyExistsAt(Vector2 pos)
         {
             float projectorRadius = OwnerEmpire.GetProjectorRadius();
-            for (int gi = 0; gi < Goals.Count; gi++)
+            for (int gi = 0; gi < GoalsList.Count; gi++)
             {
-                Goal g = Goals[gi];
+                Goal g = GoalsList[gi];
                 if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, projectorRadius))
                     return true;
             }
@@ -155,7 +155,7 @@ namespace Ship_Game.AI
                     {
                         node.Platform = null;
                         Log.Info($"BuildProjector {node.Position}");
-                        Goals.Add(new BuildConstructionShip(node.Position, "Subspace Projector", OwnerEmpire));
+                        AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", OwnerEmpire));
                     }
                 }
             }
@@ -175,13 +175,13 @@ namespace Ship_Game.AI
                         continue;
                     }
 
-                    for (int x = 0; x < Goals.Count; x++)
+                    for (int x = 0; x < GoalsList.Count; x++)
                     {
-                        Goal g = Goals[x];
-                        if (g.type != GoalType.DeepSpaceConstruction || !g.BuildPosition.AlmostEqual(node.Position))
+                        Goal g = GoalsList[x];
+                        if (g.Type != GoalType.DeepSpaceConstruction || !g.BuildPosition.AlmostEqual(node.Position))
                             continue;
 
-                        Goals.QueuePendingRemoval(g);
+                        RemoveGoal(g);
                         IReadOnlyList<Planet> ps = OwnerEmpire.GetPlanets();
                         for (int pi = 0; pi < ps.Count; pi++)
                         { 
@@ -195,7 +195,7 @@ namespace Ship_Game.AI
                             Ship ship = ships[si];
                             ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
                             if (goal?.Goal != null &&
-                                goal.Goal.type == GoalType.DeepSpaceConstruction &&
+                                goal.Goal.Type == GoalType.DeepSpaceConstruction &&
                                 goal.Goal.BuildPosition == node.Position)
                             {
                                 ship.AI.OrderScrapShip();
@@ -203,8 +203,6 @@ namespace Ship_Game.AI
                             }
                         }
                     }
-
-                    Goals.ApplyPendingRemovals();
                 }
 
                 OwnerEmpire.SpaceRoadsList.Remove(road);

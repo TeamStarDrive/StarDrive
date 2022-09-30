@@ -7,22 +7,23 @@ using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
     public partial class Empire
     {
-        public bool AutoFreighters;
-        public bool AutoPickBestFreighter;
-        public float FastVsBigFreighterRatio      { get; private set; } = 0.5f;
+        [StarData] public bool AutoFreighters;
+        [StarData] public bool AutoPickBestFreighter;
+        [StarData] public float FastVsBigFreighterRatio      { get; private set; } = 0.5f;
         public float TradeMoneyAddedThisTurn      { get; private set; }
         public float TotalTradeMoneyAddedThisTurn { get; private set; }
-        public float AverageFreighterCargoCap     { get; private set; } = 10;
-        public int AverageFreighterFTLSpeed       { get; private set; } = 20000;
+        [StarData] public float AverageFreighterCargoCap     { get; private set; } = 10;
+        [StarData] public int AverageFreighterFTLSpeed       { get; private set; } = 20000;
         public int  TotalProdExportSlots          { get; private set; }
 
         public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
-        public int FreightersBeingBuilt  => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
+        public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue => (int)(Math.Ceiling(2 * Research.Strategy.IndustryRatio));
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
         public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
@@ -30,15 +31,14 @@ namespace Ship_Game
         public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
         public int NumTradeTreaties      => TradeTreaties.Count;
 
-        Array<OurRelationsToThem> TradeTreaties = new Array<OurRelationsToThem>();
-        public IReadOnlyList<OurRelationsToThem> TradeRelations => TradeTreaties;
+        Array<Relationship> TradeTreaties = new();
+        public IReadOnlyList<Relationship> TradeRelations => TradeTreaties;
 
         void UpdateTradeTreaties()
         {
-            var tradeTreaties = new Array<OurRelationsToThem>();
-            foreach (OurRelationsToThem r in ActiveRelations)
-                if (r.Rel.Treaty_Trade)
-                    tradeTreaties.Add(r);
+            var tradeTreaties = new Array<Relationship>();
+            foreach (Relationship r in ActiveRelations)
+                if (r.Treaty_Trade) tradeTreaties.Add(r);
 
             TradeTreaties = tradeTreaties;
         }
@@ -46,9 +46,9 @@ namespace Ship_Game
         public BatchRemovalCollection<Planet> TradingEmpiresPlanetList()
         {
             var list = new BatchRemovalCollection<Planet>();
-            foreach ((Empire them, Relationship rel) in TradeTreaties)
+            foreach (Relationship rel in TradeTreaties)
             {
-                list.AddRange(them.OwnedPlanets);
+                list.AddRange(rel.Them.OwnedPlanets);
             }
             return list;
         }
@@ -131,7 +131,7 @@ namespace Ship_Game
             }
         }
 
-        void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList, bool interTrade)
+        void DispatchOrBuildFreighters(Goods goods, Array<Planet> importPlanetList, bool interTrade)
         {
             // Order importing planets to balance freighters distribution
             Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
@@ -214,11 +214,13 @@ namespace Ship_Game
 
         void BuildFreighter()
         {
-            if (ManualTrade || FreightersBeingBuilt >= MaxFreightersInQueue)
+            if (ManualTrade)
                 return;
 
-            if (FreighterCap > TotalFreighters + FreightersBeingBuilt && MaxFreightersInQueue >= FreightersBeingBuilt)
-                EmpireAI.Goals.Add(new IncreaseFreighters(this));
+            int beingBuilt = FreightersBeingBuilt;
+            int queueMax = MaxFreightersInQueue;
+            if (beingBuilt < queueMax && (TotalFreighters + beingBuilt) < FreighterCap)
+                AI.AddGoal(new IncreaseFreighters(this));
         }
 
         int NumFreightersTrading(Goods goods)
@@ -263,7 +265,7 @@ namespace Ship_Game
         public float TotalTradeTreatiesIncome()
         {
             float total = 0f;
-            foreach ((Empire them, Relationship rel) in ActiveRelations)
+            foreach (Relationship rel in ActiveRelations)
                 if (rel.Treaty_Trade) total += rel.TradeIncome(this);
             return total;
         }
@@ -298,7 +300,7 @@ namespace Ship_Game
                  betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
 
             if (betterFreighter != null && betterFreighter.Name != freighter.Name)
-                GetEmpireAI().Goals.Add(new RefitShip(freighter, betterFreighter.Name, this));
+                AI.AddGoal(new RefitShip(freighter, betterFreighter.Name, this));
         }
 
         public void UpdateAverageFreightFTL(float value)

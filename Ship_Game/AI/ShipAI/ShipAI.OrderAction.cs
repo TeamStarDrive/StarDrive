@@ -1,5 +1,6 @@
 using System;
 using SDUtils;
+using Ship_Game.Commands.Goals;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -137,15 +138,15 @@ namespace Ship_Game.AI
             OrderMoveAndColonize(toColonize, g);
         }
 
-        public void OrderDeepSpaceBuild(Goal goal)
+        public void OrderDeepSpaceBuild(DeepSpaceBuildGoal bg)
         {
             ClearOrders(State, priority:true);
-            Vector2 pos = goal.BuildPosition;
+            Vector2 pos = bg.BuildPosition;
             Vector2 dir = Owner.Position.DirectionToTarget(pos);
-            if (goal.type == GoalType.DeepSpaceConstruction || goal.TetherPlanetId == 0) // deep space structures
-                AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
+            if (bg.IsBuildingOrbitalFor(null)) // deep space structures
+                AddShipGoal(Plan.DeployStructure, pos, dir, bg, bg.ToBuild.Name, 0f, AIState.MoveTo);
             else // orbitals for planet defense
-                AddShipGoal(Plan.DeployOrbital, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
+                AddShipGoal(Plan.DeployOrbital, pos, dir, bg, bg.ToBuild.Name, 0f, AIState.MoveTo);
         }
 
         public void OrderScout(SolarSystem target, Goal g)
@@ -517,13 +518,13 @@ namespace Ship_Game.AI
             var planets = Owner.Loyalty.GetPlanets();
             if (planets.Count == 0)
             {
-                if (Owner.Loyalty.isFaction)
+                if (Owner.Loyalty.IsFaction)
                 {
                     OrderScuttleShip();
                     return;
                 }
 
-                planets = Owner.Loyalty.Universum.Planets;
+                planets = Owner.Loyalty.Universe.Planets;
             }
 
             Planet planet = planets.FindClosestTo(Owner.Position, p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);
@@ -597,13 +598,13 @@ namespace Ship_Game.AI
         // Move to closest colony and get back some resources
         public void OrderScrapShip()
         {
-            Owner.Loyalty.GetEmpireAI().AddScrapShipGoal(Owner, immediateScuttle:false);
+            Owner.Loyalty.AI.AddScrapShipGoal(Owner, immediateScuttle:false);
         }
 
         // Immediately self-destruct
         public void OrderScuttleShip()
         {
-            Owner.Loyalty.GetEmpireAI().AddScrapShipGoal(Owner, immediateScuttle:true);
+            Owner.Loyalty.AI.AddScrapShipGoal(Owner, immediateScuttle:true);
         }
 
         public void AddSupplyShipGoal(Ship supplyTarget, Plan plan = Plan.SupplyShip)
@@ -701,7 +702,7 @@ namespace Ship_Game.AI
 
         bool SetAwaitClosestForFaction()
         {
-            if (!Owner.Loyalty.isFaction)
+            if (!Owner.Loyalty.IsFaction)
                 return false;
 
             AwaitClosest = Owner.System?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
@@ -740,7 +741,7 @@ namespace Ship_Game.AI
 
         bool SetAwaitClosestForAIEmpire()
         {
-            if (Owner.Loyalty.isFaction || Owner.Loyalty.isPlayer)
+            if (Owner.Loyalty.IsFaction || Owner.Loyalty.isPlayer)
                 return false;
 
             SolarSystem home = Owner.System?.OwnerList.Contains(Owner.Loyalty) != true? null : Owner.System;
@@ -830,7 +831,7 @@ namespace Ship_Game.AI
             {
                 if (SystemToDefend != null)
                 {
-                    Planet p = Owner.Loyalty.GetEmpireAI().DefensiveCoordinator.AssignIdleShips(Owner);
+                    Planet p = Owner.Loyalty.AI.DefensiveCoordinator.AssignIdleShips(Owner);
                     if (p != null)
                     {
                         Orbit.Orbit(p, timeStep);
@@ -844,7 +845,7 @@ namespace Ship_Game.AI
                     Orbit.Orbit(AwaitClosest, timeStep);
                     return;
                 }
-                AwaitClosest = Owner.Loyalty.GetEmpireAI().GetKnownPlanets(Owner.Universe)
+                AwaitClosest = Owner.Loyalty.AI.GetKnownPlanets(Owner.Universe)
                     .FindMin(p => p.Position.SqDist(Owner.Position) + (Owner.Loyalty != p.Owner ? 300000 : 0));
                 return;
             }

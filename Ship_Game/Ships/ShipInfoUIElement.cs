@@ -18,6 +18,7 @@ namespace Ship_Game.Ships
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
         private readonly UniverseScreen Universe;
+        Empire Player => Universe.Player;
         public Ship Ship;
         private readonly Selector Sel;
         public Rectangle LeftRect;
@@ -402,7 +403,7 @@ namespace Ship_Game.Ships
             }
             else
             {
-                Color statusColor = Ship.Loyalty == EmpireManager.Player ? Color.LightGreen : Color.Red;
+                Color statusColor = Ship.Loyalty == Player ? Color.LightGreen : Color.Red;
                 DrawHorizontalValues(allTroops, statusColor, ref troopPos, withSlash: false);
             }
 
@@ -519,14 +520,14 @@ namespace Ship_Game.Ships
                 return;
 
             Ship = s;
-            CanRename = s.Loyalty == EmpireManager.Player;
+            CanRename = s.Loyalty == Player;
             ShipNameArea.Enabled = CanRename;
             ShipNameArea.Reset(s.ShipName);
 
             Orders.Clear();
             Ship = s;
             OrdersButtons.ResetButtons(Ship);
-            if (Ship.Loyalty != EmpireManager.Player)
+            if (Ship.Loyalty != Player)
                 return;
 
             if (Ship.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)

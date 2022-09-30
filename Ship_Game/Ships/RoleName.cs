@@ -2,7 +2,7 @@ namespace Ship_Game.Ships
 {
     public enum RoleName
     {
-        disabled = 1,
+        disabled,
         shipyard,
         ssp,
         platform,

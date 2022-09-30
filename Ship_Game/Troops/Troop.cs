@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using Ship_Game.Ships;
 using System;
 using System.IO;
@@ -13,8 +12,9 @@ using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
+    // Initial refactor by Fat Bastard - March 16, 2019. FB: Added Launch and Land Logic - April 27, 2019
     [StarDataType]
-    public sealed class Troop // Initial refactor by Fat Bastard - March 16, 2019. FB: Added Launch and Land Logic - April 27, 2019
+    public sealed class Troop
     {
         [StarData] public string Name;
         [StarData] public string RaceType;
@@ -34,7 +34,6 @@ namespace Ship_Game
         [StarData] public string attack_path;
         [StarData] public bool facingRight;
         [StarData] public string Description;
-        [StarData] public string OwnerString;
         [StarData] public int BoardingStrength;
         [StarData] public int MaxStoredActions = 1;
         [StarData] public float MoveTimer;   // FB - use UpdateMoveTimer or ResetMoveTimer
@@ -52,40 +51,43 @@ namespace Ship_Game
         [StarData] public string Class;
         [StarData] public TargetType TargetType;
         [StarData] public float Cost;
-        [StarData] public string sound_attack;
         [StarData] public int Range;
         [StarData] public float Launchtimer = 10f; // FB - use UpdateLaunchTimer or ResetLaunchTimer
         [StarData] public string Type;
 
-        [XmlIgnore][JsonIgnore] public Planet HostPlanet { get; private set; }
-        [XmlIgnore][JsonIgnore] Empire Owner;
-        [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
-        [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
-        [XmlIgnore][JsonIgnore] public Rectangle ClickRect { get; private set; }
-        [XmlIgnore][JsonIgnore] public bool Hovered;
-        [XmlIgnore][JsonIgnore] public static float Consumption = 0.1f; // Consumption of food per turn (or prod, if cybernetic)
+        // The [XmlIgnore] is required because we load some Troop data from XML
+        [StarData] [XmlIgnore] public Empire Loyalty;
+        
+        // Consumption of food per turn (or prod, if cybernetic)
+        public const float Consumption = 0.1f;
 
-        [XmlIgnore][JsonIgnore] float UpdateTimer;
-        [XmlIgnore][JsonIgnore] public string DisplayName   => DisplayNameEmpire(Owner);
-        [XmlIgnore][JsonIgnore] public float ActualCost     => Cost * CurrentGame.ProductionPace;
-        [XmlIgnore][JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
-        [XmlIgnore][JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;
-        [XmlIgnore][JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);
-        [XmlIgnore][JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.05f * Level * SoftAttack);
-        [XmlIgnore][JsonIgnore] public Empire Loyalty       => Owner ??= EmpireManager.GetEmpireByName(OwnerString);
-        [XmlIgnore][JsonIgnore] public int ActualRange      => Level < 5 ? Range : Range + 1;  // veterans have bigger range
-        [XmlIgnore][JsonIgnore] public bool IsHealthFull    => Strength.AlmostEqual(ActualStrengthMax);
-        [XmlIgnore][JsonIgnore] public bool IsWounded       => !IsHealthFull;
-        [XmlIgnore][JsonIgnore] public bool CanLaunchWounded => CanMove;
+        [StarData] [XmlIgnore] public Planet HostPlanet { get; private set; }
+        [StarData] [XmlIgnore] public Ship HostShip { get; private set; }
 
-        [XmlIgnore][JsonIgnore] public SubTexture IconTexture =>  ResourceManager.Texture("TroopIcons/" + Icon + "_icon");
+        [XmlIgnore] public Rectangle FromRect { get; private set; }
+        [XmlIgnore] public Rectangle ClickRect { get; private set; }
+        [XmlIgnore] public bool Hovered;
+
+        [XmlIgnore] float UpdateTimer;
+        [XmlIgnore] public string DisplayName   => DisplayNameEmpire(Loyalty);
+        [XmlIgnore] public float ActualCost     => Cost * UniverseState.DummyProductionPacePlaceholder;
+        [XmlIgnore] public bool CanMove         => AvailableMoveActions > 0;
+        [XmlIgnore] public bool CanAttack       => AvailableAttackActions > 0;
+        [XmlIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);
+        [XmlIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.05f * Level * SoftAttack);
+        [XmlIgnore] public int ActualRange      => Level < 5 ? Range : Range + 1;  // veterans have bigger range
+        [XmlIgnore] public bool IsHealthFull    => Strength.AlmostEqual(ActualStrengthMax);
+        [XmlIgnore] public bool IsWounded       => !IsHealthFull;
+        [XmlIgnore] public bool CanLaunchWounded => CanMove;
+
+        [XmlIgnore] public SubTexture IconTexture =>  ResourceManager.Texture("TroopIcons/" + Icon + "_icon");
 
         /// <summary>
         /// A troop can be launched if it is at full health and can move
         /// unless there is no planet owner of the troop belongs to the player and then
         /// it can launch if it can move
         /// </summary>
-        [XmlIgnore] [JsonIgnore] public bool CanLaunch =>
+        [XmlIgnore] public bool CanLaunch =>
                 HostPlanet?.Owner == null || Loyalty.isPlayer ? CanMove : CanMove && IsHealthFull;
 
         SpriteSystem.TextureAtlas TroopAnim;
@@ -108,23 +110,23 @@ namespace Ship_Game
 
         public string DisplayNameEmpire(Empire empire = null)
         {
-            empire = Owner ?? empire;
+            empire = Loyalty ?? empire;
             if (empire == null || !empire.data.IsRebelFaction) return Name;
             return empire.data.TroopName.Text;
         }
 
         public Troop Clone()
         {
-            var t        = (Troop)MemberwiseClone();
+            var t = (Troop)MemberwiseClone();
             t.HostPlanet = null;
-            t.Owner      = null;
-            t.HostShip   = null;
+            t.Loyalty = null;
+            t.HostShip = null;
             return t;
         }
 
         public void ChangeLoyalty(Empire newOwner)
         {
-            Owner = newOwner;
+            Loyalty = newOwner;
         }
 
         public void DoAttack()
@@ -293,9 +295,7 @@ namespace Ship_Game
 
         public void SetOwner(Empire e)
         {
-            Owner = e;
-            if (e != null)
-                OwnerString = e.data.Traits.Name;
+            Loyalty = e;
         }
 
         public void SetPlanet(Planet newPlanet)
@@ -400,7 +400,7 @@ namespace Ship_Game
                 if (StrengthMax <= 0)
                     StrengthMax = ResourceManager.GetTroopTemplate(Name).Strength;
 
-                float modifiedStrength = (StrengthMax + Level) * (1 + Owner?.data.Traits.GroundCombatModifier ?? 1f);
+                float modifiedStrength = (StrengthMax + Level) * (1 + Loyalty?.data.Traits.GroundCombatModifier ?? 1f);
                 return (float)Math.Round(modifiedStrength, 0);
             }
         }
@@ -437,23 +437,17 @@ namespace Ship_Game
             if (!CanLaunch && !ignoreMovement)
                 return null;
 
-            using (HostPlanet.TroopsHere.AcquireWriteLock())
-            {
-                using (tile.TroopsHere.AcquireWriteLock())
-                {
-                    tile.TroopsHere.Remove(this);
-                    HostPlanet.TroopsHere.Remove(this);
-                    Ship troopShip = CreateShipForTroop(HostPlanet);
-                    HostPlanet     = null;
-                    return troopShip;
-                }
-            }
+            tile.TroopsHere.Remove(this);
+            HostPlanet.TroopsHere.Remove(this);
+            Ship troopShip = CreateShipForTroop(HostPlanet);
+            HostPlanet     = null;
+            return troopShip;
         }
 
         Ship CreateShipForTroop(Planet planet)
         {
             Vector2 createAt = planet.Position + RandomMath.Vector2D(planet.Radius * 2);
-            return Ship.CreateTroopShipAtPoint(planet.Universe, Owner.data.DefaultTroopShip, Owner, createAt, this);
+            return Ship.CreateTroopShipAtPoint(planet.Universe, Loyalty.data.DefaultTroopShip, Loyalty, createAt, this);
         }
 
         // FB - this is the main logic for land troops
@@ -502,7 +496,7 @@ namespace Ship_Game
             PlanetGridSquare tileToLand = PickTileToLand(planet, freeTiles);
             AssignTroopToTile(planet, tileToLand, resetMove);
             // some buildings can injure landing troops
-            if (Owner != planet.Owner)
+            if (Loyalty != planet.Owner)
                 DamageTroop(planet.TotalInvadeInjure, planet, tileToLand,  out bool _);
 
             tileToLand.CheckAndTriggerEvent(planet, Loyalty);
@@ -531,7 +525,7 @@ namespace Ship_Game
             if (!planet.RecentCombat && planet.GetEnemyAssets(Loyalty) == 0)
                 return freeTiles.RandItem(); // Non Combat landing
 
-            SDUtils.Array<PlanetGridSquare> bestTiles = new SDUtils.Array<PlanetGridSquare>();
+            var bestTiles = new Array<PlanetGridSquare>();
             int bestScore = int.MinValue;
             for (int i = 0; i < freeTiles.Length; ++i)
             {

@@ -1,20 +1,22 @@
 ﻿using System;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PirateRaidTransport : Goal
     {
-        public const string ID = "PirateRaidTransport";
-        public override string UID => ID;
-        private Pirates Pirates;
+        [StarData] public sealed override Ship TargetShip { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
 
-        public PirateRaidTransport(int id, UniverseState us)
-            : base(GoalType.PirateRaidTransport, id, us)
+        Pirates Pirates => Owner.Pirates;
+
+        [StarDataConstructor]
+        public PirateRaidTransport(Empire owner) : base(GoalType.PirateRaidTransport, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -24,20 +26,10 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateRaidTransport(Empire owner, Empire targetEmpire)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateRaidTransport(Empire owner, Empire targetEmpire) : this(owner)
         {
-            empire        = owner;
-            TargetEmpire  = targetEmpire;
-            StarDateAdded = empire.Universum.StarDate;
-
-            PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Transport Raid vs. {targetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates = empire.Pirates;
+            TargetEmpire = targetEmpire;
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Transport Raid vs. {targetEmpire.Name} ----");
         }
 
         Ship BoardingShip
@@ -71,7 +63,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Try locating viable freighters for 1 year (10 turns), else just give up
-            return empire.Universum.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            return Owner.Universe.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()

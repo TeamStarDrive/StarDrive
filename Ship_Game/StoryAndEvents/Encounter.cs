@@ -32,7 +32,7 @@ namespace Ship_Game
                 return;
             }
 
-            Empire player    = EmpireManager.Player;
+            Empire player = screen.Player;
             Relationship rel = player.GetRelations(faction);
             int requiredStep = playerInitiated ? rel.PlayerContactStep : rel.FactionContactStep;
 

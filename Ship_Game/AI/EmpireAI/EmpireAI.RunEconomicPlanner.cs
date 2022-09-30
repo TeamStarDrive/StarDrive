@@ -42,7 +42,6 @@ namespace Ship_Game.AI
         /// </summary>
         public float ProjectedMoney { get; private set; } = 0;
 
-        BudgetPriorities BudgetSettings;
         /// <summary>
         /// This a ratio of projectedMoney and the normalized money then multiplied by 2 then add 1 - taxrate
         /// then the whole thing divided by 3. This puts a large emphasis on money goal to money ratio
@@ -127,7 +126,7 @@ namespace Ship_Game.AI
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal * 0.5f, colony);
             PlanetBudgetDebugInfo();
             float allianceBudget = 0;
-            foreach (var ally in EmpireManager.GetAllies(OwnerEmpire)) allianceBudget += ally.GetEmpireAI().BuildCapacity;
+            foreach (var ally in OwnerEmpire.Universe.GetAllies(OwnerEmpire)) allianceBudget += ally.AI.BuildCapacity;
             AllianceBuildCapacity = BuildCapacity + allianceBudget;
         }
 
@@ -163,7 +162,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return 0;
 
-            bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Rel.Known && !r.Them.isFaction);
+            bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Known && !r.Them.IsFaction);
             if (notKnown) return 0;
 
             float trustworthiness = OwnerEmpire.data.DiplomaticPersonality?.Trustworthiness ?? 100;
@@ -187,7 +186,7 @@ namespace Ship_Game.AI
 
         private void PlanetBudgetDebugInfo()
         {
-            if (!OwnerEmpire.Universum.Debug)
+            if (!OwnerEmpire.Universe.Debug)
                 return;
 
             var pBudgets = new Array<PlanetBudget>();
@@ -302,9 +301,9 @@ namespace Ship_Game.AI
             float borderRisk = 0;
             float enemyRisk  = 0;
 
-            foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (other.data.Defeated || !rel.Known) continue;
+                if (rel.Them.data.Defeated || !rel.Known) continue;
                 if (rel.Risk.Risk <= 0)
                     continue;
                 maxRisk    = Math.Max(maxRisk, rel.Risk.Risk);

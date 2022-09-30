@@ -24,8 +24,8 @@ namespace Ship_Game.GameScreens.Espionage
             //OperationsSL = new ScrollList<OperationsListItem>(new Submenu(opsRect), Fonts.Arial12Bold.LineSpacing + 5);
 
             var empires = new Array<Empire>();
-            foreach (Empire e in EmpireManager.Empires)
-                if (!e.isFaction) empires.Add(e);
+            foreach (Empire e in Screen.Universe.UState.Empires)
+                if (!e.IsFaction) empires.Add(e);
 
             float x = Screen.ScreenWidth / 2f - (148f * empires.Count) / 2f;
             Pos = new Vector2(x, rect.Y + 10);
@@ -39,12 +39,12 @@ namespace Ship_Game.GameScreens.Espionage
                 list.Add(new EmpireButton(screen, e, new Rectangle(0, 0, 134, 148), OnEmpireSelected));
 
             Size = new Vector2(list.Width, 188);
-            Screen.SelectedEmpire = EmpireManager.Player;
+            Screen.SelectedEmpire = Screen.Universe.Player;
         }
 
         void OnEmpireSelected(EmpireButton button)
         {
-            if (EmpireManager.Player == button.Empire || EmpireManager.Player.IsKnown(button.Empire))
+            if (Screen.Universe.Player == button.Empire || Screen.Universe.Player.IsKnown(button.Empire))
             {
                 Screen.SelectedEmpire = button.Empire;
                 Screen.Agents.Reinitialize();

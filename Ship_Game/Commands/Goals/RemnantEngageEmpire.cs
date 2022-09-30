@@ -3,21 +3,27 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class RemnantEngageEmpire : Goal
+    [StarDataType]
+    public class RemnantEngageEmpire : FleetGoal
     {
-        public const string ID = "RemnantEngageEmpire";
-        public override string UID => ID;
-        private Remnants Remnants;
-        private int BombersLevel;
+        [StarData] public sealed override Ship TargetShip { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        [StarData] int BombersLevel;
+        [StarData] public override Planet TargetPlanet { get; set; }
+        
+        Remnants Remnants => Owner.Remnants;
+        
+        public override bool IsRaid => true;
+        public override bool IsRemnantEngageAtPlanet(Planet p) => TargetPlanet == p;
 
-        public RemnantEngageEmpire(int id, UniverseState us)
-            : base(GoalType.RemnantEngageEmpire, id, us)
+        [StarDataConstructor]
+        public RemnantEngageEmpire(Empire owner) : base(GoalType.RemnantEngageEmpire, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -28,20 +34,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public RemnantEngageEmpire(Empire owner, Ship portal, Empire target)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public RemnantEngageEmpire(Empire owner, Ship portal, Empire target) : this(owner)
         {
-            empire       = owner;
             TargetEmpire = target;
-            TargetShip   = portal;
-            PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Engagement: {TargetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Remnants     = empire.Remnants;
-            BombersLevel = ShipLevel;
+            TargetShip = portal;
+            Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Engagement: {TargetEmpire.Name} ----");
         }
 
         Ship Portal
@@ -50,8 +47,6 @@ namespace Ship_Game.Commands.Goals
             set => TargetShip = value;
         }
 
-        public override bool IsRaid => true;
-       
         bool SelectTargetPlanet()
         {
             // Target owned planet in the portal system first, target empire is not relevant
@@ -62,7 +57,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Find closest planet in the map to Portal and target a planet from the victim's planet list
-            var planets   = empire.Universum.Planets.Filter(p => p.Owner != null);
+            var planets   = Owner.Universe.Planets.Filter(p => p.Owner != null);
             Planet planet = planets.FindMin(p => p.Position.Distance(Portal.Position));
             if (!Remnants.TargetNextPlanet(TargetEmpire, planet, 0, out Planet targetPlanet))
                 return false; // Could not find a target planet
@@ -73,7 +68,7 @@ namespace Ship_Game.Commands.Goals
 
         void ChangeTaskTargetPlanet()
         {
-            var tasks = empire.GetEmpireAI().GetTasks().Filter(t => t.Fleet == Fleet);
+            var tasks = Owner.AI.GetTasks().Filter(t => t.Fleet == Fleet);
             switch (tasks.Length)
             {
                 case 0:                                                                                  return;
@@ -84,10 +79,10 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
-            float strDiv        = TargetEmpire.TotalPopBillion / (TargetEmpire.isPlayer ? 150 : 60);
-            float strMultiplier = ((int)CurrentGame.Difficulty + 1) * 0.4f;
-            float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv.LowerBound(1);
-            str                 = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
+            float strDiv = TargetEmpire.TotalPopBillion / (TargetEmpire.isPlayer ? 150 : 60);
+            float strMultiplier = ((int)UState.Difficulty + 1) * 0.4f;
+            float str = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv.LowerBound(1);
+            str = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
 
             return str.LowerBound(Remnants.Level * Remnants.Level * 200 * strMultiplier);
         }
@@ -131,9 +126,9 @@ namespace Ship_Game.Commands.Goals
                 Ship ship = ships[i];
                 if (i == 0)
                 {
-                    var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, empire);
-                    empire.GetEmpireAI().AddPendingTask(task);
-                    task.CreateRemnantFleet(empire, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
+                    var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, Owner);
+                    Owner.AI.AddPendingTask(task);
+                    task.CreateRemnantFleet(Owner, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
                     continue;
                 }
 
@@ -159,7 +154,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep DetermineNumBombers()
         {
-            ShipLevel = BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
+            BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
             return GoalStep.GoToNextStep;
         }
 
@@ -234,8 +229,13 @@ namespace Ship_Game.Commands.Goals
 
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
             {
+                if (!Remnants.FindValidTarget(out Empire newVictim))
+                    return ReturnToPortal();
+
+                TargetEmpire = newVictim;
+
                 // New target is too strong, need to get a new fleet
-                if (!Remnants.FindValidTarget(out TargetEmpire) || RequiredFleetStr() > Fleet.GetStrength())
+                if (RequiredFleetStr() > Fleet.GetStrength())
                     return ReturnToPortal();
             }
 

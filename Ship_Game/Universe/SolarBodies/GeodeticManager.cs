@@ -131,13 +131,13 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                               && TurnsSinceTurnover > 10
                               && bomb.Owner.isPlayer)
             {
-                Owner.GetEmpireAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
+                Owner.AI.DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
             }
         }
 
         private void DamageColonyShields(Bomb bomb)
         {
-            if (P.Universe.Screen.IsSystemViewOrCloser
+            if (P.Universe.IsSystemViewOrCloser
                 && P.Universe.Screen.IsInFrustum(P.Position, P.OrbitalRadius * 2))
             {
                 Shield.HitShield(P, bomb, Position, P.Radius + 100f);
@@ -156,7 +156,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 return;
 
             for (int i = 0; i < ourShipsNeedRearm.Length && remainingSupplyShuttles-- > 0; i++)
-               Owner.GetEmpireAI().AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
+               Owner.AI.AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
         }
 
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
@@ -173,7 +173,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     continue;
 
                 bool loyaltyMatch = ship.Loyalty == Owner || ship.Loyalty.IsAlliedWith(Owner);
-                if (ship.Loyalty.isFaction)
+                if (ship.Loyalty.IsFaction)
                     AddTroopsForFactions(ship);
 
                 if (loyaltyMatch

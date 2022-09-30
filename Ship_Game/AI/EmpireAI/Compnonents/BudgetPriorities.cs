@@ -34,7 +34,7 @@ namespace Ship_Game.AI.Compnonents
 
         public BudgetPriorities(Empire empire)
         {
-            Budgets = new Map<BudgetAreas, float>();
+            Budgets = new();
             LoadBudgetSettings(empire);
             Total = 0;
 

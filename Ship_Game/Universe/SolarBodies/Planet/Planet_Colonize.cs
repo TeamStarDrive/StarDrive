@@ -28,7 +28,7 @@ namespace Ship_Game
                 else
                     newOwner.AddPlanet(this);
 
-                if (attacker != null && attacker.isPlayer && oldOwner == EmpireManager.Cordrazine)
+                if (attacker != null && attacker.isPlayer && oldOwner == newOwner.Universe.Cordrazine)
                     attacker.IncrementCordrazineCapture();
             }
 
@@ -55,18 +55,18 @@ namespace Ship_Game
             SetInGroundCombat(Owner);
             AbortLandingPlayerFleets();
             Owner.TryTransferCapital(this);
-            StatTracker.StatAddColony(Universe.StarDate, this);
+            Universe.Stats.StatAddColony(Universe.StarDate, this);
         }
 
         void SetupColonyType()
         {
             if (OwnerIsPlayer && !Owner.AutoColonize)
-                colonyType = ColonyType.Colony;
+                CType = ColonyType.Colony;
             else
-                colonyType = Owner.AssessColonyNeeds(this);
+                CType = Owner.AssessColonyNeeds(this);
 
             if (OwnerIsPlayer)
-                Universe.Notifications.AddColonizedNotification(this, EmpireManager.Player);
+                Universe.Notifications.AddColonizedNotification(this, Universe.Player);
         }
 
         void NewColonyAffectRelations()
@@ -86,12 +86,11 @@ namespace Ship_Game
 
         public void AbortLandingPlayerFleets()
         {
-            Empire player = EmpireManager.Player;
+            Empire player = Universe.Player;
             if (player == Owner || player.IsAtWarWith(Owner)) 
                 return;
 
-            var fleets = player.GetFleetsDict();
-            foreach (Fleet fleet in fleets.Values)
+            foreach (Fleet fleet in player.Fleets)
             {
                 if (fleet.Ships.Any(s => s.IsTroopShipAndRebasingOrAssaulting(this)))
                 {
@@ -111,7 +110,7 @@ namespace Ship_Game
                 Troop t = TroopsHere[i];
                 Empire tLoyalty = t?.Loyalty;
 
-                if (tLoyalty != null && !tLoyalty.isFaction && tLoyalty.data.DefaultTroopShip != null
+                if (tLoyalty != null && !tLoyalty.IsFaction && tLoyalty.data.DefaultTroopShip != null
                     && tLoyalty != Owner && !Owner.IsAtWarWith(tLoyalty))
                 {
                     Ship troopship = t.Launch(ignoreMovement: true);

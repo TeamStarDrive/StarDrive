@@ -8,6 +8,7 @@ using SDUtils;
 using Ship_Game.ExtensionMethods;
 using static Ship_Game.AI.CombatStanceType;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.AI
 {
@@ -186,13 +187,13 @@ namespace Ship_Game.AI
 
         void DoDeploy(ShipGoal g, FixedSimTime timeStep)
         {
-            if (g.Goal == null)
+            if (g.Goal is not DeepSpaceBuildGoal bg)
                 return;
 
             Planet target = g.TargetPlanet;
-            if (target == null && g.Goal.TetherPlanetId != 0)
+            if (target == null && bg.TetherPlanet != null)
             {
-                target = Owner.Universe.GetPlanet(g.Goal.TetherPlanetId);
+                target = bg.TetherPlanet;
                 if (target == null) 
                 {
                     OrderScrapShip();
@@ -204,19 +205,19 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital == null)
                 return;
 
             AddStructureToRoadsList(g, orbital);
 
-            if (g.Goal.TetherPlanetId != 0)
+            if (bg.TetherPlanet != null)
             {
-                Planet planetToTether = Owner.Universe.GetPlanet(g.Goal.TetherPlanetId);
+                Planet planetToTether = bg.TetherPlanet;
                 orbital.TetherToPlanet(planetToTether);
-                orbital.TetherOffset = g.Goal.TetherOffset;
+                orbital.TetherOffset = bg.TetherOffset;
                 planetToTether.OrbitalStations.Add(orbital);
-                if (planetToTether.IsOverOrbitalsLimit(orbital))
+                if (planetToTether.IsOverOrbitalsLimit(orbital.ShipData))
                     planetToTether.TryRemoveExcessOrbital(orbital);
             }
 
@@ -227,14 +228,14 @@ namespace Ship_Game.AI
 
         void DoDeployOrbital(ShipGoal g, FixedSimTime timeStep)
         {
-            if (g.Goal == null)
+            if (g.Goal is not DeepSpaceBuildGoal bg)
             {
-                Log.Info($"There was no goal for Construction ship deploying orbital");
+                Log.Info("There was no goal for Construction ship deploying orbital");
                 OrderScrapShip();
                 return;
             }
 
-            Planet target = Owner.Universe.GetPlanet(g.Goal.TetherPlanetId);
+            Planet target = bg.TetherPlanet;
             if (target == null || target.Owner != Owner.Loyalty) // FB - Planet owner has changed
             {
                 OrderScrapShip();
@@ -245,7 +246,7 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital != null)
             {
                 orbital.Position = g.Goal.BuildPosition;
@@ -268,7 +269,7 @@ namespace Ship_Game.AI
                     if (node.Position == g.Goal.BuildPosition)
                     {
                         node.Platform = platform;
-                        StatTracker.StatAddRoad(Owner.Universe.StarDate, node, Owner.Loyalty);
+                        Owner.Universe.Stats.StatAddRoad(Owner.Universe.StarDate, node, Owner.Loyalty);
                         return;
                     }
                 }
@@ -281,12 +282,12 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
-                if (!Owner.Loyalty.GetEmpireAI().ExpansionAI.AssignExplorationTargetSystem(Owner, out ExplorationTarget))
+                if (!Owner.Loyalty.AI.ExpansionAI.AssignExplorationTargetSystem(Owner, out ExplorationTarget))
                     ClearOrders(); // FB - could not find a new system to explore
             }
             else if (DoExploreSystem(timeStep))
             {
-                Owner.Loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
+                Owner.Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
                 ExplorationTarget.AddSystemExploreSuccessMessage(Owner.Loyalty);
                 ExplorationTarget = null;
             }

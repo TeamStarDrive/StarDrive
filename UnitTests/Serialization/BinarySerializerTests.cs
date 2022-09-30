@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,9 +8,13 @@ using SDUtils;
 using Ship_Game;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
+using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
+using UnitTests.Ships;
 using Vector4 = SDGraphics.Vector4;
 using Point = SDGraphics.Point;
+using ResourceManager = Ship_Game.ResourceManager;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
@@ -23,25 +26,30 @@ namespace UnitTests.Serialization
     [TestClass]
     public class BinarySerializerTests : StarDriveTest
     {
-        static byte[] Serialize<T>(BinarySerializer ser, T instance)
+        static byte[] Serialize<T>(BinarySerializer ser, T instance, bool verbose = false)
         {
             var ms = new MemoryStream();
-            var writer = new BinaryWriter(ms);
-            ser.Serialize(writer, instance);
+            using var writer = new Writer(ms);
+            ser.Serialize(writer, instance, verbose);
             return ms.ToArray();
         }
 
-        static T Deserialize<T>(BinarySerializer ser, byte[] bytes)
+        static T Deserialize<T>(BinarySerializer ser, byte[] bytes, bool verbose = false)
         {
-            var reader = new BinaryReader(new MemoryStream(bytes));
-            return (T)ser.Deserialize(reader);
+            using var reader = new Reader(new MemoryStream(bytes));
+            return (T)ser.Deserialize(reader, verbose);
         }
 
-        static T SerDes<T>(T instance, out byte[] bytes)
+        static T SerDes<T>(T instance, out byte[] bytes, bool verbose = false)
         {
-            var ser = new BinarySerializer(typeof(T));
-            bytes = Serialize<T>(ser, instance);
-            return Deserialize<T>(ser, bytes);
+            var ser = new BinarySerializer(instance);
+            bytes = Serialize(ser, instance, verbose);
+            return Deserialize<T>(ser, bytes, verbose);
+        }
+
+        static T SerDes<T>(T instance, bool verbose = false)
+        {
+            return SerDes(instance, out _, verbose);
         }
 
         [StarDataType]
@@ -72,7 +80,7 @@ namespace UnitTests.Serialization
                 ByteZero = 0, ByteMin = byte.MinValue, ByteMax = byte.MaxValue,
             };
 
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(result.IntZero, (int)0);
             Assert.AreEqual(result.IntMin, int.MinValue);
             Assert.AreEqual(result.IntMax, int.MaxValue);
@@ -119,11 +127,11 @@ namespace UnitTests.Serialization
                 DoubleMax = double.MaxValue,
             };
 
-            var result = SerDes(instance, out byte[] bytes);
-            Assert.AreEqual(result.FloatZero, (float)0.0f);
+            var result = SerDes(instance);
+            Assert.AreEqual(result.FloatZero, 0.0f);
             Assert.AreEqual(result.FloatMin, float.MinValue);
             Assert.AreEqual(result.FloatMax, float.MaxValue);
-            Assert.AreEqual(result.DoubleZero, (double)0.0);
+            Assert.AreEqual(result.DoubleZero, 0.0);
             Assert.AreEqual(result.DoubleMin, double.MinValue);
             Assert.AreEqual(result.DoubleMax, double.MaxValue);
         }
@@ -161,7 +169,7 @@ namespace UnitTests.Serialization
                 RangeZero = new Range(), RangeMin = new Range(-24,-25), RangeMax = new Range(24,25),
             };
 
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(result.Vector2Zero, Vector2.Zero);
             Assert.AreEqual(result.Vector2Min, new Vector2(-1,-2));
             Assert.AreEqual(result.Vector2Max, new Vector2(1,2));
@@ -215,7 +223,7 @@ namespace UnitTests.Serialization
                 LocRawText = new LocalizedText("RawText123", LocalizationMethod.RawText),
                 LocParse = new LocalizedText("{1234}", LocalizationMethod.Parse),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
 
             Assert.AreEqual(instance.StrNull, result.StrNull);
             Assert.AreEqual(instance.StrEmpty, result.StrEmpty);
@@ -243,7 +251,7 @@ namespace UnitTests.Serialization
                 TimeZero = TimeSpan.Zero, TimeMin = new TimeSpan(10000), TimeMax = new TimeSpan(1000000000L),
                 DateTimeMin = DateTime.MinValue, DateTimeMax = DateTime.MaxValue, DateTimeNow = DateTime.UtcNow,
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(result.TimeZero, TimeSpan.Zero);
             Assert.AreEqual(result.TimeMin, new TimeSpan(10000));
             Assert.AreEqual(result.TimeMax, new TimeSpan(1000000000L));
@@ -253,12 +261,19 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
+        class RecursiveAtDepth1
+        {
+            [StarData] public RecursiveType Owner;
+        }
+
+        [StarDataType]
         class RecursiveType
         {
-            [StarData] public RecursiveType RecursiveSelf;
-            [StarData] public string Text;
-            [StarData] public int Count;
-            [StarData] public string DefaultIsNotNull = "Default is not null";
+            [StarData] public readonly RecursiveType RecursiveSelf;
+            [StarData] public readonly string Text;
+            [StarData] public readonly int Count;
+            [StarData] public readonly string DefaultIsNotNull = "Default is not null";
+            [StarData] public readonly RecursiveAtDepth1 AtDepth1;
             public RecursiveType() {}
             public RecursiveType(string text, int count)
             {
@@ -266,25 +281,27 @@ namespace UnitTests.Serialization
                 Count = count;
                 RecursiveSelf = this;
                 DefaultIsNotNull = null; // override the default
+                AtDepth1 = new() { Owner = this };
             }
         }
 
         [TestMethod]
-        public void BasicRecursiveType()
+        public void RecursiveTypes()
         {
             var instance = new RecursiveType("Hello", 42);
-            var result = SerDes(instance, out byte[] bytes);
-            Assert.AreEqual(result.RecursiveSelf, result, "Recursive self reference must match");
+            var result = SerDes(instance);
+            Assert.AreEqual(result, result.RecursiveSelf, "Recursive self reference must match");
             Assert.AreEqual(instance.Text, result.Text, "string must match");
             Assert.AreEqual(instance.Count, result.Count, "int field must match");
             Assert.AreEqual(null, result.DefaultIsNotNull, "null field must match");
+            Assert.AreEqual(result, result.AtDepth1.Owner, "Recursive self reference at depth 1 must match");
         }
 
         [StarDataType]
         struct SmallStruct
         {
-            [StarData] public int Id;
-            [StarData] public string Name;
+            [StarData] public readonly int Id;
+            [StarData] public readonly string Name;
 
             public SmallStruct(int id, string name)
             {
@@ -293,8 +310,14 @@ namespace UnitTests.Serialization
             }
         }
 
+        static void AreEqual(in SmallStruct expected, in SmallStruct actual, string message = null)
+        {
+            Assert.AreEqual(expected.Id, actual.Id, $"Nested SmallStruct Id fields must match. {message}");
+            Assert.AreEqual(expected.Name, actual.Name, $"Nested SmallStruct Name fields must match. {message}");
+        }
+
         [StarDataType]
-        class StructContainer
+        class StructContainer : IEquatable<StructContainer>
         {
             [StarData] public SmallStruct SS;
 
@@ -303,54 +326,82 @@ namespace UnitTests.Serialization
             {
                 SS = new SmallStruct(id, name);
             }
+            public override int GetHashCode() => SS.GetHashCode();
+            public override bool Equals(object obj) => Equals((StructContainer)obj);
+            public bool Equals(StructContainer other)
+            {
+                if (other is null) return false;
+                return ReferenceEquals(this, other)
+                    || SS.Id == other.SS.Id && SS.Name == other.SS.Name;
+            }
         }
 
         [TestMethod]
         public void NestedUserTypeStruct()
         {
             var instance = new StructContainer(15, "Laika");
-            var result = SerDes(instance, out byte[] bytes);
-            Assert.AreEqual(instance.SS.Id, result.SS.Id, "Nested SmallStruct Id fields must match");
-            Assert.AreEqual(instance.SS.Name, result.SS.Name, "Nested SmallStruct Name fields must match");
+            var result = SerDes(instance);
+            AreEqual(instance.SS, result.SS);
         }
 
-        T[] Arr<T>(params T[] elements) => elements;
-        Array<T> List<T>(params T[] elements) => new Array<T>(elements);
-        Map<K,V> Map<K,V>(params ValueTuple<K, V>[] elements) => new Map<K,V>(elements);
+        static T[] Arr<T>(params T[] elements) => elements;
+        static Array<T> List<T>(params T[] elements) => new(elements);
+        static Map<K,V> Map<K,V>(params ValueTuple<K, V>[] elements) => new(elements);
+        static HashSet<T> Set<T>(params T[] elements) => new(elements);
 
         [StarDataType]
-        class RawArrayType
+        class ContainsRawArrays
         {
             [StarData] public int[] Integers;
             [StarData] public Vector2[] Points;
             [StarData] public string[] Names;
             [StarData] public string[] Empty;
             [StarData] public StructContainer[] Structs;
+
+            // Special array handlers
+            [StarData] public byte[] Bytes;
+
+            // A special edge-case which is difficult to handle
+            [StarData] public StructWithArrays Struct;
+
+            [StarDataType]
+            public struct StructWithArrays
+            {
+                [StarData] public int[] Integers;
+                [StarData] public StructContainer[] Structs;
+            }
         }
 
         [TestMethod]
         public void RawArrayTypes()
         {
-            var instance = new RawArrayType()
+            var instance = new ContainsRawArrays()
             {
                 Integers = Arr(17, 19, 56, 123, 57),
                 Points = Arr(Vector2.One, Vector2.UnitX, Vector2.UnitY),
                 Names = Arr("Laika", "Strelka", "Bobby", "Rex", "Baron"),
                 Empty = new string[0],
                 Structs = Arr(new StructContainer(27, "27"), new StructContainer(42, "42")),
+                Bytes = new byte[]{ 100, 200, 255, 115, 143, 0, 42 },
+                Struct = new()
+                {
+                    Integers = Arr(23, 49, 95, 495, 945),
+                    Structs = Arr(new StructContainer(45, "45")),
+                }
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance, verbose:true);
             Assert.That.Equal(instance.Integers, result.Integers);
             Assert.That.Equal(instance.Points, result.Points);
             Assert.That.Equal(instance.Names, result.Names);
             Assert.That.Equal(instance.Empty, result.Empty);
-            Assert.That.Equal(instance.Structs.Length, result.Structs.Length);
-            for (int i = 0; i < instance.Structs.Length; ++i)
-                Assert.That.Equal(instance.Structs[i].SS, result.Structs[i].SS);
+            Assert.That.Equal(instance.Structs, result.Structs);
+            Assert.That.Equal(instance.Bytes, result.Bytes);
+            Assert.That.Equal(instance.Struct.Integers, result.Struct.Integers);
+            Assert.That.Equal(instance.Struct.Structs, result.Struct.Structs);
         }
 
         [StarDataType]
-        class GenericArrayType
+        class ArrayOfT_Type
         {
             [StarData] public Array<int> Integers;
             [StarData] public Array<Vector2> Points;
@@ -364,9 +415,9 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void GenericArrayTypes()
+        public void ArrayOfT_Types()
         {
-            var instance = new GenericArrayType()
+            var instance = new ArrayOfT_Type()
             {
                 Integers = List(17, 19, 56, 123, 57),
                 Points = List(Vector2.One, Vector2.UnitX, Vector2.UnitY),
@@ -378,14 +429,12 @@ namespace UnitTests.Serialization
                 Collection = List("Morocco", "Italy", "Spain"),
                 Enumerable = List("Miami", "New York", "Austin"),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.Integers, result.Integers);
             Assert.That.Equal(instance.Points, result.Points);
             Assert.That.Equal(instance.Names, result.Names);
             Assert.That.Equal(instance.Empty, result.Empty);
-            Assert.That.Equal(instance.Structs.Count, result.Structs.Count);
-            for (int i = 0; i < instance.Structs.Count; ++i)
-                Assert.That.Equal(instance.Structs[i].SS, result.Structs[i].SS);
+            Assert.That.Equal(instance.Structs, result.Structs);
             Assert.That.Equal(instance.ReadOnlyList, result.ReadOnlyList);
             Assert.That.Equal(instance.List, result.List);
             Assert.That.Equal(instance.Collection, result.Collection);
@@ -393,7 +442,20 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
-        class GenericMapType
+        public class MyTech : IEquatable<MyTech>
+        {
+            [StarData] public string UID;
+            [StarData] public bool Unlocked;
+
+            public bool Equals(MyTech other) => UID == other?.UID;
+            public override bool Equals(object obj) => Equals((MyTech)obj);
+            public override int GetHashCode() => UID.GetHashCode();
+        }
+
+        MyTech Tech(string uid, bool unlocked) => new(){ UID = uid, Unlocked = unlocked };
+
+        [StarDataType]
+        class MapType
         {
             [StarData] public Map<string,string> TextToText;
             [StarData] public Map<string, string> Empty;
@@ -402,31 +464,71 @@ namespace UnitTests.Serialization
             [StarData] public Dictionary<string, string> Dictionary;
             [StarData] public IDictionary<string,string> Interface;
             [StarData] public IReadOnlyDictionary<string, string> ReadOnly;
+            [StarData] public Map<string, MyTech> TechDict1;
+            [StarData] public Map<string, MyTech> TechDict2;
         }
 
         [TestMethod]
-        public void GenericMapTypes()
+        public void MapTypes()
         {
-            var instance = new GenericMapType()
+            var instance = new MapType()
             {
                 TextToText = Map(("BuildingType","Aeroponics"), ("TechName","Foodstuffs")),
                 Empty = Map<string,string>(),
-                TextToClass = Map(("First", new StructContainer(27, "27")), ("Second", new StructContainer(42, "42"))),
+                TextToClass = Map(("First", new StructContainer(27, "27")), ("Second", new(42, "42"))),
                 IntToText = Map((0,"Zero"), (1,"One"), (2,"Two")),
                 Dictionary = Map(("Star","Betelgeuse"), ("Type","SuperGiant"), ("Color","Red")),
                 Interface = Map(("EarthAlliance","StarFury"), ("Minbari","Nial")),
                 ReadOnly = Map(("Name","Orion"), ("Type","Constellation")),
+                TechDict1 = Map(("Aeroponics",Tech("Aeroponics",true)), ("RoverBay",Tech("RoverBay",false))),
+                TechDict2 = Map(("Aeroponics",Tech("Aeroponics",true)), ("RoverBay",Tech("RoverBay",false))),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.TextToText, result.TextToText);
             Assert.That.Equal(instance.Empty, result.Empty);
             Assert.That.Equal(instance.TextToClass.Count, result.TextToClass.Count);
             foreach (var kv in instance.TextToClass)
-                Assert.AreEqual(instance.TextToClass[kv.Key].SS, result.TextToClass[kv.Key].SS);
+                AreEqual(instance.TextToClass[kv.Key].SS, result.TextToClass[kv.Key].SS);
             Assert.That.Equal(instance.IntToText, result.IntToText);
             Assert.That.Equal(instance.Dictionary, result.Dictionary);
             Assert.That.Equal(instance.Interface, result.Interface);
             Assert.That.Equal(instance.ReadOnly, result.ReadOnly);
+            Assert.That.Equal(instance.TechDict1, result.TechDict1);
+            Assert.That.Equal(instance.TechDict2, result.TechDict2);
+
+            // this is an issue with objects that inherit from IEquatable<T>
+            // where they can be accidentally squashed
+            Assert.IsFalse(ReferenceEquals(result.TechDict1["Aeroponics"], result.TechDict2["Aeroponics"]),
+                           "Map deserializer should not accidentally squash objects");
+        }
+
+        [StarDataType]
+        class HashSetType
+        {
+            [StarData] public HashSet<string> Empty;
+            [StarData] public HashSet<int> Integers;
+            [StarData] public HashSet<string> Strings;
+            [StarData] public HashSet<SmallStruct> Structs;
+            [StarData] public HashSet<HashSet<string>> SetOfSets;
+        }
+
+        [TestMethod]
+        public void HashSetTypes()
+        {
+            var instance = new HashSetType()
+            {
+                Empty = new(),
+                Integers = Set(1,2,3,4,5,6,7,8,9,10),
+                Strings = Set("BuildingType","Aeroponics","TechName","Foodstuffs"),
+                Structs = Set(new SmallStruct(27, "27"), new SmallStruct(42, "42")),
+                SetOfSets = Set(Set("A","B","C"), Set("D","E","F")),
+            };
+            var result = SerDes(instance);
+            Assert.That.Equal(instance.Empty, result.Empty);
+            Assert.That.Equal(instance.Integers, result.Integers);
+            Assert.That.Equal(instance.Strings, result.Strings);
+            Assert.That.Equal(instance.Structs, result.Structs);
+            Assert.That.Equal(instance.SetOfSets, result.SetOfSets);
         }
 
         [StarDataType]
@@ -444,7 +546,7 @@ namespace UnitTests.Serialization
                 ListOfArrays = List(Arr("A", "B", "C"), Arr("D", "E", "F") ),
                 ListOfLists = List(List("Regulus", "Orion", "Andromeda"), List("Orion", "Cassiopeia")),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.ListOfArrays, result.ListOfArrays);
             Assert.That.Equal(instance.ListOfLists, result.ListOfLists);
         }
@@ -465,7 +567,7 @@ namespace UnitTests.Serialization
                     Map(("Orion", "Constellation"), ("Cassiopeia", "Constellation"))
                 ),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.ListOfMaps, result.ListOfMaps);
         }
 
@@ -492,7 +594,7 @@ namespace UnitTests.Serialization
                     ("Cassiopeia2", List("Constellation21", "W1"))
                 ),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.MapOfArrays, result.MapOfArrays);
             Assert.That.Equal(instance.MapOfLists, result.MapOfLists);
         }
@@ -529,7 +631,7 @@ namespace UnitTests.Serialization
                     )
                 )),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.MapOfMaps, result.MapOfMaps);
             Assert.That.Equal(instance.MapOfMapsOfMaps, result.MapOfMapsOfMaps);
         }
@@ -577,7 +679,7 @@ namespace UnitTests.Serialization
         public void ComplexTypeTest()
         {
             var instance = new ComplexType("root", createSubTypes:true);
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(instance.TestText, result.TestText);
 
             Assert.AreEqual(result.RecursiveType, result.RecursiveType.RecursiveSelf);
@@ -588,13 +690,8 @@ namespace UnitTests.Serialization
             Assert.AreEqual(instance.SCont.SS, result.SCont.SS);
 
             Assert.AreEqual(instance.Number, result.Number);
-            Assert.AreEqual(instance.Struct, result.Struct);
-
-            Assert.AreEqual(instance.Structs.Count, result.Structs.Count);
-            for (int i = 0; i < instance.Structs.Count; ++i)
-            {
-               Assert.AreEqual(instance.Structs[i].SS, result.Structs[i].SS);
-            }
+            AreEqual(instance.Struct, result.Struct);
+            Assert.That.Equal(instance.Structs, result.Structs);
 
             Assert.AreEqual("Subtype0", result.ComplexTypes[0].TestText);
             Assert.AreEqual("Subtype1", result.ComplexTypes[1].TestText);
@@ -617,28 +714,32 @@ namespace UnitTests.Serialization
             return Convert.ToBase64String(bytes, Base64FormattingOptions.None);
         }
 
-        //[StarDataType] class MovedType {[StarData] public Vector4 Value4; }
+        // FROM HERE
+        //[StarDataType] class MovedType { [StarData] public Vector4 Value4; }
         [StarDataType]
         class ContainsMovedType
         {
             [StarData] public Vector3 Pos;
             [StarData] public MovedType MT;
             [StarData] public string Name;
-            // MOVED TYPE:
-            [StarDataType] public class MovedType {[StarData] public Vector4 Value4; }
+            // MOVED TO HERE:
+            [StarDataType] public class MovedType { [StarData] public Vector4 Value4; }
         }
 
         // Handles the case where a Type is simply moved from one namespace/class to another
         [TestMethod]
         public void ContainsMovedTypes()
         {
-            //string containsMovedType = CreateByteStreamForDeletedTypeTest(new ContainsMovedType
+            string containsMovedType = "Tz8vHwEAAgAhBQUBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhFDb250YWluc01vdmVkVHlwZQlNb3ZlZFR5cGUEAk1UBE5hbWUDUG9zBlZhbHVlNCEAAAEEAQ4DIAAAAAQDDQIhABUBDQEBDgECFQEDIQEEIAEFDQEAIPpEAED6RABg+kQOAQAQekUAIHpFADB6RQBAekUVARVDb250YWlucyBhIG1vdmVkIHR5cGUhAQACIAEAAQQD";
+
+            //containsMovedType = CreateByteStreamForDeletedTypeTest(new ContainsMovedType
             //{
             //    Pos = new Vector3(2001, 2002, 2003),
             //    MT = new MovedType { Value4 = new Vector4(4001, 4002, 4003, 4004) },
             //    Name = "Contains a moved type",
             //});
-            string containsMovedType = "AQACACEDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCEUNvbnRhaW5zTW92ZWRUeXBlCU1vdmVkVHlwZQQCTVQETmFtZQNQb3MGVmFsdWU0IAAAAAEDIQATAQ0CIQAAAQEBDgMTASABIQEVQ29udGFpbnMgYSBtb3ZlZCB0eXBlIQADEwEBDQIAIPpEAED6RABg+kQOAAAQekUAIHpFADB6RQBAekU=";
+            //Log.Write("\"" + containsMovedType + "\";");
+
             var ser = new BinarySerializer(typeof(ContainsMovedType));
             var result = Deserialize<ContainsMovedType>(ser, Convert.FromBase64String(containsMovedType));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
@@ -646,15 +747,16 @@ namespace UnitTests.Serialization
             Assert.AreEqual("Contains a moved type", result.Name);
         }
 
-        //[StarDataType] class DeletedType {[StarData] public Vector4 Value4; }
-        //[StarDataType] struct DeletedStruct {[StarData] public Vector4 Value4; }
+        // DELETED FROM HERE
+        //[StarDataType] class DeletedType { [StarData] public Vector4 Value4; }
+        //[StarDataType] struct DeletedStruct { [StarData] public Vector4 Value4; }
 
         [StarDataType]
         class ContainsDeletedType
         {
             [StarData] public Vector3 Pos;
-            //[StarData] public DeletedType DT;
-            //[StarData] public DeletedStruct DS;
+            //[StarData] public DeletedType DT; // this field deleted because of deleted type
+            //[StarData] public DeletedStruct DS; // this field deleted because of deleted type
             [StarData] public string Name;
         }
 
@@ -663,14 +765,17 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsDeletedTypes()
         {
-            //string containsDeletedType = CreateByteStreamForDeletedTypeTest(new ContainsDeletedType
+            string containsDeletedType = "Tz8vHwEAAwAiBgcBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxNDb250YWluc0RlbGV0ZWRUeXBlDURlbGV0ZWRTdHJ1Y3QLRGVsZXRlZFR5cGUFAkRTAkRUBE5hbWUDUG9zBlZhbHVlNCIAAAEFAQ4EIQAAAgQBDgQgAAAABAQNAyEBIgAVAg0BAQ4CAhUBBCIBBSEBBiABBw0BACD6RABA+kQAYPpEDgIAEHpFACB6RQAwekUAQHpFAEicRQBQnEUAWJxFAGCcRRUBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMiAQADIQEAAiABAAEGBQQ=";
+
+            //containsDeletedType = CreateByteStreamForDeletedTypeTest(new ContainsDeletedType
             //{
             //    Pos = new Vector3(2001, 2002, 2003),
             //    DT = new DeletedType { Value4 = new Vector4(4001, 4002, 4003, 4004) },
             //    DS = new DeletedStruct { Value4 = new Vector4(5001, 5002, 5003, 5004) },
             //    Name = "Contains deleted types",
             //});
-            string containsDeletedType = "AQADACIDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMDE0NvbnRhaW5zRGVsZXRlZFR5cGUNRGVsZXRlZFN0cnVjdAtEZWxldGVkVHlwZQUCRFMCRFQETmFtZQNQb3MGVmFsdWU0IgAAAQABDgQgAAAAAQQiACEBEwINAyEAAAIBAQ4EEwEgASEBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMiAA4AAEicRQBQnEUAWJxFAGCcRSEBAxMCAQ0DACD6RABA+kQAYPpEDgAAEHpFACB6RQAwekUAQHpF";
+            //Log.Write("\"" + containsDeletedType + "\";");
+
             var ser = new BinarySerializer(typeof(ContainsDeletedType));
             var result = Deserialize<ContainsDeletedType>(ser, Convert.FromBase64String(containsDeletedType));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
@@ -681,7 +786,7 @@ namespace UnitTests.Serialization
         class ContainsRemovedFieldType
         {
             [StarData] public Vector3 Pos;
-            //[StarData] public RecursiveType Removed;
+            //[StarData] public RecursiveType Removed; // this field was removed in new version of the game
             [StarData] public string Name;
             [StarData] public Vector2 Pos2;
         }
@@ -691,14 +796,17 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsRemovedFieldTypes()
         {
-            //string containsRemovedField = CreateByteStreamForDeletedTypeTest(new ContainsRemovedFieldType
+            string containsRemovedField = "Tz8vHwEAAwAiBwYBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxhDb250YWluc1JlbW92ZWRGaWVsZFR5cGURUmVjdXJzaXZlQXREZXB0aDENUmVjdXJzaXZlVHlwZQoIQXREZXB0aDEFQ291bnQQRGVmYXVsdElzTm90TnVsbAROYW1lBU93bmVyA1BvcwRQb3MyDVJlY3Vyc2l2ZVNlbGYHUmVtb3ZlZARUZXh0IAAAAAQEDQUhCBUDDAYhAAACBAUhBxUJBgEVAiIAIgAAAQQBIQQGAQEMAQINAQMVAgQgAQYhAQciAQgGAZITDAEAoHpFAEB7RQ0BACD6RABA+kQAYPpEFQIPV2lsbCBiZSByZW1vdmVkGENvbnRhaW5zIGEgcmVtb3ZlZCBmaWVsZCABAAMHBQIhAQAHBAEACCIBAAc=";
+
+            //containsRemovedField = CreateByteStreamForDeletedTypeTest(new ContainsRemovedFieldType
             //{
             //    Pos = new Vector3(2001, 2002, 2003),
             //    Removed = new RecursiveType("Will be removed", 1234),
             //    Name = "Contains a removed field",
             //    Pos2 = new Vector2(4010, 4020),
             //});
-            string containsRemovedField = "AQACACEDAgEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCGENvbnRhaW5zUmVtb3ZlZEZpZWxkVHlwZQ1SZWN1cnNpdmVUeXBlCAVDb3VudBBEZWZhdWx0SXNOb3ROdWxsBE5hbWUDUG9zBFBvczINUmVjdXJzaXZlU2VsZgdSZW1vdmVkBFRleHQgAAAAAQQTAg0DDAQhBiEAAAEBBAYAEwEhBRMHEwIgASEBGENvbnRhaW5zIGEgcmVtb3ZlZCBmaWVsZA9XaWxsIGJlIHJlbW92ZWQTAAENAQAg+kQAQPpEAGD6RAwCAKB6RQBAe0UhAwQGAJITEwEAIQIEEwMC";
+            //Log.Write("\"" + containsRemovedField + "\";");
+
             var ser = new BinarySerializer(typeof(ContainsRemovedFieldType));
             var result = Deserialize<ContainsRemovedFieldType>(ser, Convert.FromBase64String(containsRemovedField));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
@@ -716,7 +824,7 @@ namespace UnitTests.Serialization
         public void CustomTypeNameTypes()
         {
             var instance = new CustomTypeNameType{ Pos = new Vector3(1001, 1002, 1003) };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(instance.Pos, result.Pos);
         }
 
@@ -730,7 +838,7 @@ namespace UnitTests.Serialization
         public void FieldNameRemapTypes()
         {
             var instance = new FieldNameRemapType { Pos = new Vector3(1001, 1002, 1003) };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(instance.Pos, result.Pos);
         }
 
@@ -741,5 +849,377 @@ namespace UnitTests.Serialization
         //    Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
         //    byte[] bytes = Serialize(ship);
         //}
+
+        public enum NestedEnum
+        {
+            One,
+            Two,
+            Three,
+        }
+
+        [Flags]
+        public enum FlagsEnum
+        {
+            None,
+            Flag1 = 8,
+            Flag2 = 16,
+            Flag3 = 32,
+            Flag4 = 64,
+        }
+
+        [Flags]
+        public enum FlagsEnumByte : byte
+        {
+            None,
+            Flag1 = 8,
+            Flag2 = 16,
+            Flag3 = 32,
+            Flag4 = 64,
+        }
+
+        [StarDataType]
+        public class EnumType
+        {
+            public enum NestedEnum2
+            {
+                Seven, Eight, Nine
+            }
+
+            [StarData] public NestedEnum Key1;
+            [StarData] public GlobalEnum Key2;
+            [StarData] public NestedEnum2 Key3;
+            [StarData] public FlagsEnum Key4;
+            [StarData] public FlagsEnumByte Key5;
+            [StarData] public Array<NestedEnum> Values1;
+            [StarData] public Array<GlobalEnum> Values2;
+            [StarData] public Array<NestedEnum2> Values3;
+            [StarData] public Array<FlagsEnum> Values4;
+            [StarData] public Array<FlagsEnumByte> Values5;
+        }
+
+        [TestMethod]
+        public void EnumTypes()
+        {
+            var instance = new EnumType
+            {
+                Key1 = NestedEnum.Three,
+                Key2 = GlobalEnum.Five,
+                Key3 = EnumType.NestedEnum2.Eight,
+                Key4 = FlagsEnum.Flag1|FlagsEnum.Flag2,
+                Key5 = FlagsEnumByte.Flag1|FlagsEnumByte.Flag2,
+                Values1 = List(NestedEnum.Three,NestedEnum.One,NestedEnum.Two),
+                Values2 = List(GlobalEnum.Six,GlobalEnum.Four,GlobalEnum.Five),
+                Values3 = List(EnumType.NestedEnum2.Seven,EnumType.NestedEnum2.Nine,EnumType.NestedEnum2.Eight),
+                Values4 = List(FlagsEnum.Flag1|FlagsEnum.Flag2, FlagsEnum.Flag4, FlagsEnum.Flag3|FlagsEnum.Flag4),
+                Values5 = List(FlagsEnumByte.Flag1|FlagsEnumByte.Flag2, FlagsEnumByte.Flag4, FlagsEnumByte.Flag3|FlagsEnumByte.Flag4),
+            };
+            var result = SerDes(instance);
+            Assert.AreEqual(instance.Key1, result.Key1);
+            Assert.AreEqual(instance.Key2, result.Key2);
+            Assert.AreEqual(instance.Key3, result.Key3);
+            Assert.AreEqual(instance.Key4, result.Key4);
+            Assert.AreEqual(instance.Key5, result.Key5);
+            Assert.That.EqualCollections(instance.Values1, result.Values1);
+            Assert.That.EqualCollections(instance.Values2, result.Values2);
+            Assert.That.EqualCollections(instance.Values3, result.Values3);
+            Assert.That.EqualCollections(instance.Values4, result.Values4);
+            Assert.That.EqualCollections(instance.Values5, result.Values5);
+        }
+
+        [StarDataType]
+        public class NestedClass1
+        {
+            [StarData] public NestedClass2 Nested;
+            
+            [StarDataType]
+            public class NestedClass2
+            {
+                [StarData] public string Name;
+            }
+        }
+
+        [TestMethod]
+        public void SupportsMultipleNestedClasses()
+        {
+            var instance = new NestedClass1
+            {
+                Nested = new NestedClass1.NestedClass2{ Name = "Nested2" }
+            };
+            var result = SerDes(instance);
+            Assert.AreEqual(instance.Nested.Name, result.Nested.Name);
+        }
+
+        [StarDataType]
+        class VirtualBaseClass
+        {
+            // base class must be allowed to not mark this as [StarData]
+            public virtual string Name { get; set; }
+            [StarData] public string NonVirtual;
+        }
+        [StarDataType]
+        class VirtualClassA : VirtualBaseClass
+        {
+            [StarData] public override string Name { get; set; }
+        }
+        [StarDataType]
+        class ContainsVirtualTypes
+        {
+            [StarData] public VirtualBaseClass Virt;
+        }
+
+        [TestMethod]
+        public void SupportsVirtualClasses()
+        {
+            var instance = new ContainsVirtualTypes
+            {
+                Virt = new VirtualClassA
+                {
+                    Name = "virtualname",
+                    NonVirtual = "nonvirtual",
+                }
+            };
+            var result = SerDes(instance);
+            Assert.AreEqual(instance.Virt.Name, result.Virt.Name);
+            Assert.AreEqual(instance.Virt.NonVirtual, result.Virt.NonVirtual);
+        }
+
+
+        [StarDataType]
+        abstract class AbstractBaseClass
+        {
+            // base class must be allowed to not mark this as [StarData]
+            public abstract string Name { get; set; }
+            [StarData] public string NonVirtual;
+        }
+        [StarDataType]
+        class AbstractClassA : AbstractBaseClass
+        {
+            [StarData] public override string Name { get; set; }
+        }
+        [StarDataType]
+        class ContainsAbstractTypes
+        {
+            [StarData] public AbstractBaseClass Abstr;
+        }
+
+        [TestMethod]
+        public void SupportsAbstractClasses()
+        {
+            var instance = new ContainsAbstractTypes
+            {
+                Abstr = new AbstractClassA
+                {
+                    Name = "abstractname",
+                    NonVirtual = "nonvirtual",
+                }
+            };
+
+            var result = SerDes(instance);
+            Assert.AreEqual(instance.Abstr.Name, result.Abstr.Name);
+            Assert.AreEqual(instance.Abstr.NonVirtual, result.Abstr.NonVirtual);
+        }
+
+        [TestMethod]
+        public void CanSerializeShipDesign()
+        {
+            var instance = (ShipDesign)ResourceManager.Ships.GetDesign("Terran-Prototype");
+
+            var designBytes = instance.GetDesignBytes(new ShipDesignWriter());
+            var result = SerDes(instance, out byte[] bytes);
+            Log.Info($"ShipDesign Binary={bytes.Length} DesignBytes={designBytes.Length}");
+
+            ShipDataTests.AssertAreEqual(instance, result, checkModules:true);
+        }
+
+        [StarDataType]
+        class SavesContainer
+        {
+            [StarData] public ShipDesign[] Designs;
+        }
+
+        [TestMethod]
+        public void CanSerializeAllShipDesigns()
+        {
+            Setup();
+
+            ShipDesign[] designs = ResourceManager.Ships.Designs.Select(s => s as ShipDesign);
+
+            var t1 = new PerfTimer();
+            var sw = new ShipDesignWriter();
+            int textBytes = 0;
+            var designsByteData = new Array<byte[]>();
+            foreach (ShipDesign design in designs)
+            {
+                var designBytes = design.GetDesignBytes(sw);
+                designsByteData.Add(designBytes);
+                textBytes += designBytes.Length;
+            }
+            for (int i = 0; i < designs.Length; ++i)
+            {
+                ShipDesign.FromBytes(designsByteData[i]);
+            }
+            double e1 = t1.Elapsed;
+
+            var t2 = new PerfTimer();
+            var instances = new SavesContainer { Designs = designs };
+            var ser = new BinarySerializer(typeof(SavesContainer));
+            byte[] bytes = Serialize(ser, instances);
+            double e2 = t2.Elapsed;
+            var saves = Deserialize<SavesContainer>(ser, bytes);
+            Log.Write($"ShipDesigns {designs.Length} Binary={bytes.Length} Text={textBytes}");
+            Log.Write($"Binary.Elapsed={e2*1000:0.00}ms Text.Elapsed={e1*1000:0.00}ms");
+
+            for (int i = 0; i < designs.Length; i++)
+            {
+                ShipDataTests.AssertAreEqual(designs[i], saves.Designs[i], checkModules:true);
+            }
+        }
+
+        [StarDataType]
+        class HeaderType
+        {
+            [StarData] public int Version;
+            [StarData] public string Name;
+        }
+
+        [StarDataType]
+        class PayloadType
+        {
+            [StarData] public string Data;
+            [StarData] public Vector2 Size;
+        }
+
+        // this tests whether we can aggregate two completely different types into a single binary file
+        // and then read it back partially or completely without issues
+        // For savegames we plan to store tiny header object in front and then
+        // the huge payload which doesn't need to be parsed at all
+        [TestMethod]
+        public void MultiTypeSerialize()
+        {
+            var msOut = new MemoryStream();
+            var writer = new Writer(msOut);
+
+            var header = new HeaderType { Version = 11, Name = "Savegame1" };
+            var payload = new PayloadType { Data = "123456", Size = new Vector2(1000,1000) };
+
+            BinarySerializer.SerializeMultiType(writer, new object[]{ header, payload });
+
+            var msIn = new MemoryStream(msOut.ToArray());
+            var reader = new Reader(msIn);
+
+            var results1 = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderType) });
+            Assert.AreEqual(1, results1.Length);
+            Assert.AreEqual(typeof(HeaderType), results1[0].GetType());
+
+            var header1 = (HeaderType)results1[0];
+            Assert.AreEqual(header.Version, header1.Version);
+            Assert.AreEqual(header.Name, header1.Name);
+
+            reader.BaseStream.Position = 0;
+            var results2 = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderType), typeof(PayloadType) });
+            Assert.AreEqual(2, results2.Length);
+            Assert.AreEqual(typeof(HeaderType), results2[0].GetType());
+            Assert.AreEqual(typeof(PayloadType), results2[1].GetType());
+
+            var header2 = (HeaderType)results2[0];
+            Assert.AreEqual(header.Version, header2.Version);
+            Assert.AreEqual(header.Name, header2.Name);
+
+            var payload2 = (PayloadType)results2[1];
+            Assert.AreEqual(payload.Data, payload2.Data);
+            Assert.AreEqual(payload.Size, payload2.Size);
+        }
+
+        bool LoadedExtraData;
+
+        void Setup()
+        {
+            LoadedExtraData = true;
+            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
+            ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
+            GlobalStats.AsteroidVisibility = ObjectVisibility.None; // dont create Asteroid SO's
+
+            ResourceManager.UnloadAllData(ScreenManager.Instance);
+            ResourceManager.LoadItAll(ScreenManager.Instance, null);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            if (LoadedExtraData)
+            {
+                LoadedExtraData = false;
+                ResourceManager.UnloadAllData(ScreenManager.Instance);
+                StarDriveTestContext.LoadStarterContent();
+                GlobalStats.AsteroidVisibility = ObjectVisibility.Rendered;
+            }
+        }
+
+        // this is the actual big test for SavedGame
+        [TestMethod]
+        public void SavedGameSerialize()
+        {
+            Setup();
+
+            CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large);
+            Universe.SingleSimulationStep(TestSimStep);
+
+            Empire E(UniverseScreen u) => u.UState.Empires[0];
+
+            string firstEmpName = E(Universe).Name;
+            int numShips = E(Universe).OwnedShips.Count;
+            float firstShipHealth = E(Universe).OwnedShips[0].Health;
+            var unlocked1 = E(Universe).UnlockedTechs;
+
+            double GetMemory(bool gc) => GC.GetTotalMemory(gc) / (1024.0*1024.0);
+            double memory1 = GetMemory(false);
+
+            var save = new SavedGame(Universe);
+            save.Verbose = true;
+            save.Save("BinarySerializer.Test", async:false);
+            Universe.ExitScreen();
+
+            double memory2 = GetMemory(false);
+
+            // peek the header as per specs
+            HeaderData header = LoadGame.PeekHeader(save.SaveFile);
+            Assert.AreEqual(SavedGame.SaveGameVersion, header.Version);
+            Assert.AreEqual("BinarySerializer.Test", header.SaveName);
+
+            double memory3 = GetMemory(false);
+
+            var load = new LoadGame(save.SaveFile);
+            load.Verbose = true;
+            UniverseScreen us = load.Load(noErrorDialogs:true, startSimThread:false);
+            Assert.IsNotNull(us, "Loaded universe cannot be null");
+            us.SingleSimulationStep(TestSimStep);
+
+            double memory4 = GetMemory(false);
+
+            Log.Info($"BeforeSave: {memory1:0.0}MB");
+            Log.Info($"AfterSave:  {memory2:0.0}MB  delta:{memory2-memory1:0.0}MB");
+            Log.Info($"BeforeLoad: {memory3:0.0}MB  delta:{memory3-memory2:0.0}MB");
+            Log.Info($"AfterLoad:  {memory4:0.0}MB  delta:{memory4-memory3:0.0}MB");
+
+            Assert.AreEqual(firstEmpName, E(us).Name, "First empire name should match");
+            Assert.AreEqual(numShips, E(us).OwnedShips.Count, "Empire should have same # of ships");
+            Assert.AreEqual(firstShipHealth, E(us).OwnedShips[0].Health, "Ships should have health");
+
+            var unlocked2 = E(us).UnlockedTechs;
+            Assert.AreEqual(unlocked1.Length, unlocked2.Length, "Unlocked techs count must match");
+            Assert.That.Equal(unlocked1.Select(t=>t.UID), unlocked2.Select(t=>t.UID), "Unlocked techs UID-s must match");
+        }
+    }
+
+    // Global enums and Nested enums have different resolution rules
+    public enum GlobalEnum
+    {
+        Four, Five, Six
+    }
+
+    [StarDataType]
+    public class GlobalUserType
+    {
+        [StarData] public GlobalEnum Enum1;
     }
 }

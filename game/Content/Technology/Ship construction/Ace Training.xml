@@ -4,7 +4,6 @@
   <UID>Ace Training</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>750</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>2011</NameIndex>
   <DescriptionIndex>2012</DescriptionIndex>
   <LeadsTo>

@@ -42,8 +42,8 @@ namespace Ship_Game
             Technology tech = ResourceManager.TechTree[theEntry.UID];
             TechName = tech.Name.Text;
             TechTemplate = ResourceManager.TechTree[Entry.UID];
-            Complete = EmpireManager.Player.HasUnlocked(Entry);
-            UnlocksGridItems = UnlockItem.CreateUnlocksList(TechTemplate, maxUnlocks: MaxUnlockItems);
+            Complete = screen.Player.HasUnlocked(Entry);
+            UnlocksGridItems = UnlockItem.CreateUnlocksList(TechTemplate, Screen.Player, maxUnlocks: MaxUnlockItems);
             SetPos(pos);
         }
 
@@ -90,7 +90,7 @@ namespace Ship_Game
                 DrawGlow(batch, Entry.Tech.Secret ? Color.Green : Color.White);
             }
 
-            bool queued = EmpireManager.Player.Research.IsQueued(Entry.UID);
+            bool queued = Screen.Player.Research.IsQueued(Entry.UID);
             bool active = Complete || queued;
 
             string techBaseRectSuffix = "";
@@ -175,7 +175,7 @@ namespace Ship_Game
 
             batch.Draw(ResourceManager.Texture(progressIcon), ProgressRect, Color.White);
 
-            int progress = (int)(ProgressRect.Height - EmpireManager.Player.TechProgress(Entry) / EmpireManager.Player.TechCost(Entry) * (double)ProgressRect.Height);
+            int progress = (int)(ProgressRect.Height - Screen.Player.TechProgress(Entry) / Screen.Player.TechCost(Entry) * (double)ProgressRect.Height);
             Rectangle progressRect2 = ProgressRect;
             progressRect2.Height = progress;
             batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), progressRect2, Color.White);
@@ -206,7 +206,7 @@ namespace Ship_Game
             }
 
             // draw an orange + if there are more techs unlocked
-            if (TechTemplate.NumStuffUnlocked(EmpireManager.Player) > MaxUnlockItems)
+            if (TechTemplate.NumStuffUnlocked(Screen.Player) > MaxUnlockItems)
             { 
                 PlusRect = new Rectangle(UnlocksRect.X + 60, UnlocksRect.Y + UnlocksRect.Height, 20, 20);
                 batch.DrawString(Fonts.Arial20Bold, "+", new Vector2(PlusRect.X, PlusRect.Y), Color.Orange);
@@ -273,14 +273,14 @@ namespace Ship_Game
                         ShipHull unlocked = gi.item.hull;
                         ToolTip.CreateTooltip(unlocked == null
                             ? $"{gi.item.Title}\n\n{gi.item.Description}"
-                            : $"{unlocked.VisibleName} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
+                            : $"{unlocked.VisibleName} ({Localizer.GetRole(unlocked.Role, Screen.Player)})");
                     }
                 }
             }
             else
             {
                 string text = $"Right Click to Expand \n\n{ResourceManager.TechTree[Entry.UID].Description.Text}";
-                if (Complete && !Entry.MultiLevelComplete && !EmpireManager.Player.Research.IsQueued(Entry.UID))
+                if (Complete && !Entry.MultiLevelComplete && !Screen.Player.Research.IsQueued(Entry.UID))
                     text = $"Left Click to research level {Entry.Level+1} of this tech.\n\n{text}";
 
                 ToolTip.CreateTooltip(text);

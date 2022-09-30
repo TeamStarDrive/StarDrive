@@ -15,6 +15,7 @@ namespace Ship_Game
         private Vector2 Cursor = Vector2.Zero;
         private readonly Fleet F;
         private readonly FleetDesignScreen Fds;
+        Empire Player => Fds.Universe.Player;
         private BlueButton AssignNow;
         private BlueButton BuildNow;
         private BlueButton BuildNowRush;
@@ -66,7 +67,7 @@ namespace Ship_Game
             {
                 ship.ShowSceneObjectAt(ship.RelativeFleetOffset, -1000000f);
             }                       
-            F.Owner.GetFleetsDict()[Fds.FleetToEdit] = F;
+            F.Owner.SetFleet(Fds.FleetToEdit, F);
             Fds.ChangeFleet(Fds.FleetToEdit);
             UpdateRequisitionStatus();
         }
@@ -75,12 +76,12 @@ namespace Ship_Game
         {
             foreach (FleetDataNode node in F.DataNodes)
             {
-                if (node.Ship != null || node.GoalId != 0)
+                if (node.Ship != null || node.Goal != null)
                     continue;
 
-                var g = new FleetRequisition(node.ShipName, F.Owner, rush) {Fleet = F};
-                node.GoalId = g.Id;
-                F.Owner.GetEmpireAI().Goals.Add(g);
+                var g = new FleetRequisition(node.ShipName, F.Owner, F, rush);
+                node.Goal = g;
+                F.Owner.AI.AddGoal(g);
                 g.Evaluate();
             }
         }
@@ -173,7 +174,7 @@ namespace Ship_Game
 
             AutoRequisition.Draw(batch, elapsed);
             if (F.AutoRequisition)
-                batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), AutoRequisitionRect, ApplyCurrentAlphaToColor(EmpireManager.Player.EmpireColor));
+                batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), AutoRequisitionRect, ApplyCurrentAlphaToColor(Player.EmpireColor));
 
             ScreenManager.SpriteBatch.End();
         }
@@ -273,9 +274,9 @@ namespace Ship_Game
             }
 
             NumBeingBuilt = 0;
-            foreach (Goal g in F.Owner.GetEmpireAI().Goals)
+            foreach (Goal g in F.Owner.AI.Goals)
             {
-                if (F.GoalIdExists(g.Id))
+                if (F.GoalExists(g))
                     NumBeingBuilt++;
             }
         }

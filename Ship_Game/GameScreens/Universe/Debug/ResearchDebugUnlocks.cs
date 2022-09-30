@@ -10,14 +10,17 @@ namespace Ship_Game.GameScreens.Universe.Debug
 {
     public class ResearchDebugUnlocks : UIElementContainer
     {
+        UniverseScreen Universe;
+        Empire Player => Universe.Player;
         Vector2 BtnSize = new Vector2(84, 50);
         const float BtnSpacing = 84 + 2;
 
         Action OnResearchChanged;
 
-        public ResearchDebugUnlocks(Action onResearchChanged)
+        public ResearchDebugUnlocks(UniverseScreen us, Action onResearchChanged)
             : base(0, 0, w:BtnSpacing*5, h:50)
         {
+            Universe = us;
             OnResearchChanged = onResearchChanged;
 
             InputState input = ScreenManager.Instance.input;
@@ -73,37 +76,37 @@ namespace Ship_Game.GameScreens.Universe.Debug
 
         void OnResearchChange()
         {
-            EmpireManager.Player.UpdateForNewTech();
+            Player.UpdateForNewTech();
             OnResearchChanged?.Invoke();
         }
 
         void OnResetAllTechsClicked()
         {
-            EmpireManager.Player.ResetAllTechsAndBonuses();
+            Player.ResetAllTechsAndBonuses();
             OnResearchChange();
         }
 
         void OnUnlockAllTechsClicked(bool unlockBonuses)
         {
-            UnlockAllResearch(EmpireManager.Player, unlockBonuses);
+            UnlockAllResearch(Player, unlockBonuses);
             OnResearchChange();
         }
 
         void OnUnlockRaceTechClicked(bool unlockBonuses)
         {
-            UnlockCurrentTechTree(EmpireManager.Player, unlockBonuses);
+            UnlockCurrentTechTree(Player, unlockBonuses);
             OnResearchChange();
         }
 
         void OnRunAIPlannerClicked()
         {
-            RunAIResearchPlanner(EmpireManager.Player);
+            RunAIResearchPlanner(Player);
             OnResearchChange();
         }
 
         void OnUnlockCurrentResearchClicked()
         {
-            UnlockCurrentResearchTopic(EmpireManager.Player);
+            UnlockCurrentResearchTopic(Player);
             OnResearchChange();
         }
 
@@ -124,7 +127,7 @@ namespace Ship_Game.GameScreens.Universe.Debug
                 }
                 else if (ratioUnlocked > 0.9f)
                 {
-                    foreach (var them in EmpireManager.Empires)
+                    foreach (var them in empire.Universe.Empires)
                     {
                         if (them != empire && !techEntry.SpiedFrom(them))
                         {
@@ -153,14 +156,14 @@ namespace Ship_Game.GameScreens.Universe.Debug
         {
             empire.AutoResearch = true;
             empire.Research.Reset();
-            empire.GetEmpireAI().DebugRunResearchPlanner();
+            empire.AI.DebugRunResearchPlanner();
         }
 
         public static void UnlockCurrentResearchTopic(Empire empire)
         {
             if (empire.Research.HasTopic)
             {
-                empire.Research.Current.Unlock(EmpireManager.Player);
+                empire.Research.Current.Unlock(empire.Universe.Player);
                 empire.UpdateShipsWeCanBuild();
             }
             else

@@ -4,7 +4,6 @@
   <UID>XenoMining</UID>
   <TechnologyType>Industry</TechnologyType>
   <Cost>450</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>705</NameIndex>
   <DescriptionIndex>706</DescriptionIndex>
   <LeadsTo>

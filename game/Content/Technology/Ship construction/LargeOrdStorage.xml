@@ -4,7 +4,6 @@
   <UID>LargeOrdStorage</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>650</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17542</NameIndex>
   <DescriptionIndex>17544</DescriptionIndex>
   <LeadsTo>

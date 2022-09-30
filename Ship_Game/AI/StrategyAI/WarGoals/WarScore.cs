@@ -1,25 +1,29 @@
 ﻿using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    [StarDataType]
     public class WarScore
     {
-        readonly War OwnerWar;
+        [StarData] readonly War OwnerWar;
+        [StarData] readonly Empire Us;
+        Empire Them => OwnerWar.Them;
+
         int StartingNumContestedSystems => OwnerWar.StartingNumContestedSystems;
         public SolarSystem[] ContestedSystems => OwnerWar.ContestedSystems;
-        Empire Them => OwnerWar.Them;
-        Empire Us;
         float LostColonyPercent => OwnerWar.LostColonyPercent;
-        float SpaceWarKd => OwnerWar.SpaceWarKd;
         float TotalThreatAgainst => OwnerWar.TotalThreatAgainst;
+        float SpaceWarKd => OwnerWar.SpaceWarKd;
 
-
+        [StarDataConstructor]
         public WarScore(War war, Empire us)
         {
             OwnerWar = war;
             Us       = us;
         }
+
         public WarState GetBorderConflictState() => GetBorderConflictState(null);
 
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered)

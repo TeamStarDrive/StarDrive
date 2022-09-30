@@ -43,10 +43,9 @@ namespace Ship_Game
             if (data == null)
                 return null;
 
-            var fleet = new Fleet(universe.CreateId())
+            var fleet = new Fleet(universe.CreateId(), owner)
             {
-                FinalPosition = position,
-                Owner = owner
+                FinalPosition = position
             };
             foreach (FleetDataNode node in data.Data)
             {
@@ -246,7 +245,7 @@ namespace Ship_Game
 
         public static bool DataVisibleToPlayer(Empire empire)
         {
-            if (empire.isPlayer || empire.IsAlliedWith(EmpireManager.Player) || empire.Universum.Debug)
+            if (empire.isPlayer || empire.IsAlliedWith(empire.Universe.Player) || empire.Universe.Debug)
                 return true;
 
             return empire.DifficultyModifiers.DataVisibleToPlayer;

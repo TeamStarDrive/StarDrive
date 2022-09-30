@@ -126,6 +126,19 @@ namespace UnitTests
                 return;
             }
 
+            if (expected is IEnumerable expectedEnumerable)
+            {
+                if (actual is IEnumerable actualEnumerable)
+                {
+                    Equal(assert, expectedEnumerable, actualEnumerable);
+                }
+                else
+                {
+                    throw new AssertFailedException($"Expected {expected} - enumerable but got Actual {actual}. {message}");
+                }
+                return;
+            }
+
             if (IsKeyValuePair(expected) && IsKeyValuePair(actual))
             {
                 var (key1, val1) = DecomposeKeyValuePair(expected);
@@ -138,13 +151,33 @@ namespace UnitTests
             Assert.AreEqual(expected, actual, message);
         }
 
-        static object[] ToArray(ICollection c)
+        static int CountOf(IEnumerable enumerable)
         {
-            var items = new object[c.Count];
-            int i = 0;
-            foreach (object o in c)
-                items[i++] = o;
-            return items;
+            if (enumerable is ICollection c)
+                return c.Count;
+            int count = 0;
+            var e = enumerable.GetEnumerator();
+            while (e.MoveNext()) ++count;
+            return count;
+        }
+
+        static object[] ToArray(IEnumerable enumerable)
+        {
+            if (enumerable is ICollection c)
+            {
+                var items = new object[c.Count];
+                int i = 0;
+                foreach (object o in c)
+                    items[i++] = o;
+                return items;
+            }
+            else
+            {
+                var items = new Array<object>();
+                var e = enumerable.GetEnumerator();
+                while (e.MoveNext()) items.Add(e.Current);
+                return items.ToArray();
+            }
         }
 
         static T[] ToArray<T>(ICollection<T> c)
@@ -168,12 +201,7 @@ namespace UnitTests
             return sb.ToString();
         }
 
-        static string ToString<T>(ICollection<T> c)
-        {
-            return ToString((ICollection)ToArray(c));
-        }
-
-        public static void Equal(this Assert assert, ICollection expected, ICollection actual, string message = "")
+        public static void Equal(this Assert assert, IEnumerable expected, IEnumerable actual, string message = "")
         {
             if (expected == null)
             {
@@ -181,23 +209,19 @@ namespace UnitTests
                 throw new AssertFailedException($"Expected null does not match Actual {actual}. {message}");
             }
 
+            object[] e = ToArray(expected);
+            object[] a = ToArray(actual);
+            if (e.Length != a.Length)
+                throw new AssertFailedException($"Expected.Length {e.Length} does not match Actual.Length {a.Length}. {message}");
+
             try
             {
-                if (expected.Count != actual.Count)
-                    throw new AssertFailedException(
-                        $"Expected.Length {expected.Count} does not match Actual.Length {actual.Count}. {message}");
-
-                object[] e = ToArray(expected);
-                object[] a = ToArray(actual);
-
                 for (int i = 0; i < e.Length; ++i)
-                {
                     assert.Equal(e[i], a[i], message);
-                }
             }
             catch (AssertFailedException ex)
             {
-                throw new AssertFailedException($"{ex.Message}\nExpected: {ToString(expected)}\nActual: {ToString(actual)}");
+                throw new AssertFailedException($"{ex.Message}\nExpected: {ToString(e)}\nActual: {ToString(a)}");
             }
         }
 
@@ -210,22 +234,18 @@ namespace UnitTests
             }
 
             if (expected.Count != actual.Count)
-                throw new AssertFailedException(
-                    $"Expected.Length {expected.Count} does not match Actual.Length {actual.Count}. {message}");
+                throw new AssertFailedException($"Expected.Length {expected.Count} does not match Actual.Length {actual.Count}. {message}");
 
             T[] e = ToArray(expected);
             T[] a = ToArray(actual);
-
             try
             {
                 for (int i = 0; i < e.Length; ++i)
-                {
                     assert.Equal(e[i], a[i], message);
-                }
             }
             catch (AssertFailedException ex)
             {
-                throw new AssertFailedException($"{ex.Message}\nExpected: {ToString(expected)}\nActual: {ToString(actual)}");
+                throw new AssertFailedException($"{ex.Message}\nExpected: {ToString(e)}\nActual: {ToString(a)}");
             }
         }
 

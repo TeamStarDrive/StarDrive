@@ -4,7 +4,6 @@
   <UID>Cruisers</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>1200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>536</NameIndex>
   <DescriptionIndex>537</DescriptionIndex>
   <LeadsTo>

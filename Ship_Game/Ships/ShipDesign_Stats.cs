@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
@@ -15,10 +16,6 @@ namespace Ship_Game.Ships
     {
         // Role assigned to the Hull, such as `Cruiser`
         public RoleName HullRole => BaseHull.Role;
-
-        // Role expressed by this ShipDesign's modules, such as `Carrier`
-        // This is saved in Shipyard, or can be updated via --fix-roles
-        public RoleName Role { get; private set; } = RoleName.fighter;
 
         static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
         public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
@@ -135,9 +132,9 @@ namespace Ship_Game.Ships
         public float GetCost(Empire e)
         {
             if (FixedCost > 0)
-                return FixedCost * CurrentGame.ProductionPace;
+                return FixedCost * e.Universe.ProductionPace;
 
-            float cost = BaseCost * CurrentGame.ProductionPace;
+            float cost = BaseCost * e.Universe.ProductionPace;
             cost += Bonuses.StartingCost;
             cost += cost * e.data.Traits.ShipCostMod;
             cost *= 1f - Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness

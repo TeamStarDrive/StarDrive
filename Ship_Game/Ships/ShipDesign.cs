@@ -7,6 +7,7 @@ using System.IO;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
 {
@@ -16,43 +17,42 @@ namespace Ship_Game.Ships
     ///
     /// This class is Serialized/Deserialized using a custom text-based format
     /// </summary>
+    [StarDataType]
     public sealed partial class ShipDesign : IShipDesign
     {
         // Current version of ShipData files
         // If we introduce incompatibilities we need to convert old to new
         const int Version = 1;
-
-        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
-            throw new InvalidOperationException(
-                $"BUG! ShipData must not be automatically serialized! Add [XmlIgnore][JsonIgnore] to `public ShipData XXX;` PROPERTIES/FIELDS. {this}");
-
-        public string Name { get; set; } // ex: "Dodaving", just an arbitrary name
-        public string Hull { get; set; }  // ID of the hull, ex: "Cordrazine/Dodaving"
-        public string ModName { get; set; } = ""; // "" if vanilla, else mod name eg "Combined Arms"
-        public string ShipStyle { get; set; } // "Terran"
-        public string Description { get; set; } // "Early Rocket fighter, great against unshielded foes, but die easily"
-        public string IconPath { get; set; } // "ShipIcons/shuttle"
+        [StarData] public string Name { get; set; } // ex: "Dodaving", just an arbitrary name
+        [StarData] public string Hull { get; set; }  // ID of the hull, ex: "Cordrazine/Dodaving"
+        [StarData] public string ModName { get; set; } = ""; // "" if vanilla, else mod name eg "Combined Arms"
+        [StarData] public string ShipStyle { get; set; } // "Terran"
+        [StarData] public string Description { get; set; } // "Early Rocket fighter, great against unshielded foes, but die easily"
+        [StarData] public string IconPath { get; set; } // "ShipIcons/shuttle"
         
-        public string EventOnDeath { get; set; }
-        public string SelectionGraphic { get; set; } = "";
+        // Role expressed by this ShipDesign's modules, such as `Carrier`
+        // This is saved in Shipyard, or can be updated via --fix-roles
+        [StarData] public RoleName Role { get; private set; } = RoleName.fighter;
 
-        public float FixedUpkeep { get; set; }
-        public int FixedCost { get; set; }
-        public bool IsShipyard { get; set; }
-        public bool IsOrbitalDefense { get; set; }
-        public bool IsCarrierOnly { get; set; } // this ship is restricted to Carriers only
+        [StarData] public string EventOnDeath { get; set; }
+        [StarData] public string SelectionGraphic { get; set; } = "";
 
-        public ShipCategory ShipCategory { get; set; } = ShipCategory.Unclassified;
-        public HangarOptions HangarDesignation { get; set; } = HangarOptions.General;
-        public AIState DefaultAIState { get; set; } = AIState.AwaitingOrders;
-        public CombatState DefaultCombatState { get; set; } = CombatState.AttackRuns;
+        [StarData] public float FixedUpkeep { get; set; }
+        [StarData] public int FixedCost { get; set; }
+        [StarData] public bool IsShipyard { get; set; }
+        [StarData] public bool IsOrbitalDefense { get; set; }
+        [StarData] public bool IsCarrierOnly { get; set; } // this ship is restricted to Carriers only
+
+        [StarData] public ShipCategory ShipCategory { get; set; } = ShipCategory.Unclassified;
+        [StarData] public HangarOptions HangarDesignation { get; set; } = HangarOptions.General;
+        [StarData] public CombatState DefaultCombatState { get; set; }
 
         public ModuleGridFlyweight Grid { get; private set; }
-        public ShipGridInfo GridInfo { get; set; }
+        [StarData] public ShipGridInfo GridInfo { get; set; }
 
         // All the slots of the ShipDesign
         // NOTE: This is loaded on-demand when a new ship is being initialized
-        DesignSlot[] DesignSlots;
+        [StarData] DesignSlot[] DesignSlots;
 
         // Complete list of all the unique module UID-s found in this design
         public string[] UniqueModuleUIDs { get; private set; } = Empty<string>.Array;
@@ -61,15 +61,15 @@ namespace Ship_Game.Ships
         public ushort[] SlotModuleUIDMapping { get; private set; } = Empty<ushort>.Array;
 
         public bool Unlockable { get; set; } = true; // unlocked=true by default
-        public HashSet<string> TechsNeeded { get; set; } = new HashSet<string>();
+        public HashSet<string> TechsNeeded { get; set; } = new();
 
         // BaseHull is the template layout of the ship hull design
-        public ShipHull BaseHull { get; }
-        public HullBonus Bonuses { get; }
+        public ShipHull BaseHull { get; private set; }
+        public HullBonus Bonuses { get; private set; }
         public FileInfo Source { get; set; }
 
-        public bool IsPlayerDesign { get; set; }
-        public bool IsReadonlyDesign { get; set; }
+        [StarData] public bool IsPlayerDesign { get; set; }
+        [StarData] public bool IsReadonlyDesign { get; set; }
         public bool Deleted { get; set; }
         public bool IsFromSave { get; set; }
 
@@ -111,6 +111,24 @@ namespace Ship_Game.Ships
             InitializeCommonStats(BaseHull, DesignSlots);
         }
 
+        // called when this object has been fully deserialized
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+            if (!ResourceManager.Hull(Hull, out ShipHull hull)) // If the hull is invalid, then ship loading fails!
+                return;
+
+            if (!IsValidForCurrentMod || !hull.IsValidForCurrentMod)
+            {
+                Role = RoleName.disabled;
+                return; // this design doesn't need to be parsed
+            }
+
+            BaseHull = hull;
+            Bonuses = hull.Bonuses;
+            SetDesignSlots(DesignSlots, updateRole:false);
+        }
+
         // Deep clone of this ShipDesign
         // Feel free to edit the cloned design
         public ShipDesign GetClone(string newName)
@@ -138,7 +156,7 @@ namespace Ship_Game.Ships
         }
 
         // Sets the new design slots and calculates Unique Module UIDs
-        public void SetDesignSlots(DesignSlot[] slots)
+        public void SetDesignSlots(DesignSlot[] slots, bool updateRole = true)
         {
             var moduleUIDs = new HashSet<string>();
             for (int i = 0; i < slots.Length; ++i)
@@ -147,8 +165,10 @@ namespace Ship_Game.Ships
             DesignSlots = slots;
             SetModuleUIDs(moduleUIDs.ToArr());
 
-            Role = HullRole; // make sure to reset ship role before recalculating it
-            InitializeCommonStats(BaseHull, slots, updateRole:true);
+            // TODO: this violates proper software design, @see RoleData and fix this
+            if (updateRole)
+                Role = HullRole; // make sure to reset ship role before recalculating it
+            InitializeCommonStats(BaseHull, slots, updateRole);
         }
 
         void SetModuleUIDs(string[] moduleUIDs)

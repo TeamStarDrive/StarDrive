@@ -235,7 +235,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < repeat; i++)
             {
-                if (P.IsOutOfOrbitalsLimit(ship))
+                if (P.IsOutOfOrbitalsLimit(ship.ShipData))
                 {
                     GameAudio.NegativeClick();
                     return;

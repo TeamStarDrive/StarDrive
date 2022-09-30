@@ -36,7 +36,7 @@ namespace Ship_Game.GameScreens.Espionage
 
             // @todo Why is this here?
             if (agent.HomePlanet.IsEmpty())
-                agent.HomePlanet = EmpireManager.Player.data.Traits.HomeworldName;
+                agent.HomePlanet = Screen.Universe.Player.data.Traits.HomeworldName;
 
             cursor.Y += 24;
             DrawText(GameText.Alias, agent.Name, Color.Orange);

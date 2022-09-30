@@ -4,7 +4,6 @@
   <UID>Battleships</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>3500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>522</NameIndex>
   <DescriptionIndex>523</DescriptionIndex>
   <LeadsTo>

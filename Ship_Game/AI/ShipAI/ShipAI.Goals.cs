@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships.AI;
 using Ship_Game.Universe;
@@ -56,7 +57,7 @@ namespace Ship_Game.AI
             ChangeAIState(newState); // Must come after ExitCombatState since ExitCombatState change the AIstate to awaiting orders.
             if (ExplorationTarget != null)
             {
-                Owner.Loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
+                Owner.Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
                 ExplorationTarget = null;
             }
 
@@ -125,20 +126,9 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public void AddGoalFromSave(SavedGame.ShipGoalSave sg, UniverseState us)
-        {
-            var goal = new ShipGoal(sg, us, Owner);
-            EnqueueGoal(goal);
-        }
-
         void AddShipGoal(Plan plan, AIState wantedState, bool pushToFront = false)
         {
             EnqueueOrPush(new ShipGoal(plan, wantedState), pushToFront);
-        }
-
-        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, AIState wantedState)
-        {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, 0f, "", 0f, wantedState, null));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal,
@@ -291,15 +281,16 @@ namespace Ship_Game.AI
             return NewMathExt.RandomOffsetAndDistance(p.Position, p.Radius);
         }
 
+        [StarDataType]
         public class ShipGoal : IDisposable
         {
             bool IsDisposed;
             // ship goal variables are read-only by design, do not allow writes!
-            public readonly Plan Plan;
+            [StarData] public readonly Plan Plan;
 
             Vector2 StaticMovePosition;
 
-            public Vector2 MovePosition
+            [StarData] public Vector2 MovePosition
             {
                 get
                 {
@@ -316,17 +307,17 @@ namespace Ship_Game.AI
                 set => StaticMovePosition = value;
             }
 
-            public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings
-            public readonly Planet TargetPlanet;
-            public readonly Ship TargetShip;
-            public readonly Goal Goal; // Empire AI Goal
-            public readonly Fleet Fleet;
-            public readonly float SpeedLimit;
-            public readonly string VariableString;
-            public readonly float VariableNumber;
-            public readonly AIState WantedState; 
-            public TradePlan Trade;
-            public readonly MoveOrder MoveOrder = MoveOrder.Regular;
+            [StarData] public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings
+            [StarData] public readonly Planet TargetPlanet;
+            [StarData] public readonly Ship TargetShip;
+            [StarData] public readonly Goal Goal; // Empire AI Goal
+            [StarData] public readonly Fleet Fleet;
+            [StarData] public readonly float SpeedLimit;
+            [StarData] public readonly string VariableString;
+            [StarData] public readonly float VariableNumber;
+            [StarData] public readonly AIState WantedState; 
+            [StarData] public TradePlan Trade;
+            [StarData] public readonly MoveOrder MoveOrder = MoveOrder.Regular;
 
             /// If this is a Move Order, is it an Aggressive move?
             public bool HasAggressiveMoveOrder => (MoveOrder & MoveOrder.Aggressive) != 0;
@@ -338,6 +329,7 @@ namespace Ship_Game.AI
 
             public override string ToString() => $"{Plan} {MoveOrder} pos:{MovePosition} dir:{Direction}";
 
+            [StarDataConstructor]
             public ShipGoal(Plan plan, AIState wantedState)
             {
                 Plan        = plan;
@@ -380,89 +372,11 @@ namespace Ship_Game.AI
             }
 
             // restore from SaveGame
-            public ShipGoal(SavedGame.ShipGoalSave sg, UniverseState us, Ship ship)
+            [StarDataDeserialized]
+            void OnDeserialized()
             {
-                Plan         = sg.Plan;
-                MovePosition = sg.MovePosition;
-                Direction    = sg.Direction;
-                WantedState  = sg.WantedState;
-
-                TargetPlanet = us.GetPlanet(sg.TargetPlanetId);
-                TargetShip   = us.GetShip(sg.TargetShipId);
-
-                if (sg.TargetPlanetId != 0 && TargetPlanet == null)
-                {
-                    Log.Warning($"ShipGoal: failed to find TargetPlanet={sg.TargetPlanetId}");
-                }
-
-                VariableString = sg.VariableString;
-                VariableNumber = sg.VariableNumber;
-                SpeedLimit = sg.SpeedLimit;
-                MoveOrder  = sg.MoveOrder;
-
-                Empire loyalty = ship.Loyalty;
-
-                if (sg.FleetId != 0)
-                {
-                    foreach (KeyValuePair<int, Fleet> empireFleet in loyalty.GetFleetsDict())
-                        if (empireFleet.Value.Id == sg.FleetId)
-                            Fleet = empireFleet.Value;
-                }
-
-                if (sg.GoalId != 0)
-                {
-                    Array<Goal> goals = loyalty.GetEmpireAI().Goals;
-                    foreach (Goal empireGoal in goals)
-                    {
-                        if (sg.GoalId == empireGoal.Id)
-                        {
-                            Goal = empireGoal;
-                            break;
-                        }
-                    }
-                    if (Goal == null)
-                        Log.Warning($"ShipGoalSave {sg.Plan}: failed to find Empire.Goal {sg.GoalId}");
-                }
-
-                if (sg.Trade != null)
-                    Trade = new TradePlan(sg.Trade, us, ship);
-
                 if (Plan is Plan.SupplyShip or Plan.RearmShipFromPlanet)
-                    ship.AI.EscortTarget?.Supply.ChangeIncomingOrdnance(ship.Ordinance);
-            }
-
-            // Convert this ShipGoal into a ShipGoalSave
-            public SavedGame.ShipGoalSave ToSaveData()
-            {
-                var s = new SavedGame.ShipGoalSave
-                {
-                    Plan             = Plan,
-                    Direction        = Direction,
-                    VariableString   = VariableString,
-                    SpeedLimit       = SpeedLimit,
-                    MovePosition     = MovePosition,
-                    FleetId        = Fleet?.Id ?? 0,
-                    GoalId         = Goal?.Id ?? 0,
-                    TargetPlanetId = TargetPlanet?.Id ?? 0,
-                    TargetShipId   = TargetShip?.Id ?? 0,
-                    MoveOrder        = MoveOrder,
-                    VariableNumber   = VariableNumber,
-                    WantedState      = WantedState
-                };
-
-                if (Trade != null)
-                {
-                    s.Trade = new SavedGame.TradePlanSave
-                    {
-                        Goods         = Trade.Goods,
-                        ExportFrom    = Trade.ExportFrom?.Id ?? 0,
-                        ImportTo      = Trade.ImportTo?.Id ?? 0,
-                        BlockadeTimer = Trade.BlockadeTimer,
-                        StardateAdded = Trade.StardateAdded
-                    };
-                }
-
-                return s;
+                    TargetShip.AI.EscortTarget?.Supply.ChangeIncomingOrdnance(TargetShip.Ordinance);
             }
 
             ~ShipGoal() { Destroy(); } // finalizer
@@ -480,14 +394,17 @@ namespace Ship_Game.AI
             }
         }
 
+        [StarDataType]
         public class TradePlan
         {
-            public readonly Goods Goods;
-            public readonly Planet ExportFrom;
-            public readonly Planet ImportTo;
-            public readonly Ship Freighter;
-            public readonly float StardateAdded;
-            public float BlockadeTimer; // Indicates how much time to wait with freight when trade is blocked
+            [StarData] public readonly Goods Goods;
+            [StarData] public readonly Planet ExportFrom;
+            [StarData] public readonly Planet ImportTo;
+            [StarData] public readonly Ship Freighter;
+            [StarData] public readonly float StardateAdded;
+            [StarData] public float BlockadeTimer; // Indicates how much time to wait with freight when trade is blocked
+
+            TradePlan() { }
 
             public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer)
             {
@@ -500,16 +417,6 @@ namespace Ship_Game.AI
 
                 ExportFrom.AddToOutgoingFreighterList(freighter);
                 ImportTo.AddToIncomingFreighterList(freighter);
-            }
-
-            public TradePlan(SavedGame.TradePlanSave save, UniverseState us, Ship freighter)
-            {
-                Goods         = save.Goods;
-                ExportFrom    = us.GetPlanet(save.ExportFrom);
-                ImportTo      = us.GetPlanet(save.ImportTo);
-                BlockadeTimer = save.BlockadeTimer;
-                Freighter     = freighter;
-                StardateAdded = save.StardateAdded;
             }
 
             public void UnRegisterTrade(Ship freighter)

@@ -157,7 +157,7 @@ namespace Ship_Game
             perCol += (1 - Storage.FoodRatio) * Fertility;
             flat   += 1 - Storage.FoodRatio;
 
-            if (colonyType == ColonyType.Agricultural)
+            if (CType == ColonyType.Agricultural)
                 perCol *= Fertility;
 
             float flatMulti = Food.NetMaxPotential <= 0 ? 3 : 1;
@@ -281,7 +281,7 @@ namespace Ship_Game
         float ApplyGovernorBonus(float value, float core, float industrial, float research, float agricultural, float military)
         {
             float multiplier;
-            switch (colonyType)
+            switch (CType)
             {
                 case ColonyType.Core:         multiplier = core;         break;
                 case ColonyType.Industrial:   multiplier = industrial;   break;
@@ -578,15 +578,15 @@ namespace Ship_Game
             if (IsCybernetic)
                 return b.MaxFertilityOnBuild > 0 ? 0.25f : 1;
 
-            if (b.MaxFertilityOnBuild < 0 && colonyType == ColonyType.Agricultural)
+            if (b.MaxFertilityOnBuild < 0 && CType == ColonyType.Agricultural)
                 return 0; // Never build fertility reducers on Agricultural colonies
 
             float projectedMaxFertility = MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category);
             if (projectedMaxFertility < 1)
             {
                 // Multiplier will be smaller in direct relation to its effect if not Core
-                if (colonyType == ColonyType.Core)
-                    return colonyType == ColonyType.Core ? 0 : projectedMaxFertility.LowerBound(0);
+                if (CType == ColonyType.Core)
+                    return CType == ColonyType.Core ? 0 : projectedMaxFertility.LowerBound(0);
             }
 
             return 1;
@@ -833,7 +833,7 @@ namespace Ship_Game
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding && !q.Building.IsBiospheres)
                 {
-                    switch (colonyType)
+                    switch (CType)
                     {
                         case ColonyType.Core:
                         case ColonyType.Agricultural when q.Building.ProducesFood:

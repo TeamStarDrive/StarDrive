@@ -1,21 +1,58 @@
 ﻿using System;
 using System.Collections;
-using System.IO;
+using System.Linq.Expressions;
 using SDUtils;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
+using TypeInfo = Ship_Game.Data.Binary.TypeInfo;
 
 namespace Ship_Game.Data.Serialization.Types
 {
+    using E = Expression;
+
     internal class ArrayListSerializer : CollectionSerializer
     {
-        public override string ToString() => $"ArrayListSerializer<{ElemType.GetTypeName()}>";
+        public override string ToString() => $"{TypeId}:ListSer<{ElemSerializer.TypeId}:{ElemType.GetTypeName()}>";
         readonly Type GenericArrayType;
+
+        delegate IList New();
+        delegate void Resize(IList list, int newSize);
+        delegate void Add(IList list, object item);
+        readonly New NewList;
+        readonly Resize ResizeTo;
+        readonly Add AddToList;
 
         public ArrayListSerializer(Type type, Type elemType, TypeSerializer elemSerializer)
             : base(type, elemType, elemSerializer)
         {
             GenericArrayType = typeof(Array<>).MakeGenericType(elemType);
+
+            var list = E.Parameter(typeof(IList), "list");
+            var newSize = E.Parameter(typeof(int), "newSize");
+            var item = E.Parameter(typeof(object), "item");
+            var toArrayT = E.Convert(list, GenericArrayType);
+
+            // () => (IList)new Array<T>();
+            NewList = E.Lambda<New>(E.Convert(E.New(GenericArrayType), typeof(IList))).Compile();
+
+            // (object list, int newSize) => ((Array<T>)list).Resize(newSize);
+            var resize = GenericArrayType.GetMethod("Resize");
+            if (resize != null)
+                ResizeTo = E.Lambda<Resize>(E.Call(toArrayT, resize, newSize), list, newSize).Compile();
+
+            // (object list, object item) => ((Array<T>)list).Add((T)item);
+            var add = GenericArrayType.GetMethod("Add") ?? throw new MissingMethodException("Array<T>.Add(T)");
+            AddToList = E.Lambda<Add>(E.Call(toArrayT, add, E.Convert(item, elemType)), list, item).Compile();
+        }
+
+        bool TryResize(IList list, int count)
+        {
+            if (ResizeTo != null)
+            {
+                ResizeTo(list, count);
+                return true;
+            }
+            return false;
         }
 
         public override object Convert(object value)
@@ -26,16 +63,32 @@ namespace Ship_Game.Data.Serialization.Types
             if (value is object[] array)
             {
                 var list = (IList)Activator.CreateInstance(GenericArrayType);
-                for (int i = 0; i < array.Length; ++i)
-                {
-                    object element = ElemSerializer.Convert(array[i]);
-                    list.Add(element);
-                }
-                return list;
+                return ConvertList(list, array, ElemSerializer);
             }
 
             Error(value, "Array convert failed -- expected a list of values [*, *, *]");
             return value;
+        }
+
+        object ConvertList(IList list, object[] array, TypeSerializer elemSer)
+        {
+            if (TryResize(list, array.Length))
+            {
+                for (int i = 0; i < array.Length; ++i)
+                {
+                    object element = elemSer.Convert(array[i]);
+                    list[i] = element;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < array.Length; ++i)
+                {
+                    object element = elemSer.Convert(array[i]);
+                    list.Add(element);
+                }
+            }
+            return list;
         }
 
         public override object Deserialize(YamlNode node)
@@ -50,10 +103,21 @@ namespace Ship_Game.Data.Serialization.Types
             if (nodes?.Count > 0)
             {
                 var list = (IList)Activator.CreateInstance(GenericArrayType);
-                for (int i = 0; i < nodes.Count; ++i)
+                if (TryResize(list, nodes.Count))
                 {
-                    object element = ElemSerializer.Deserialize(nodes[i]);
-                    list.Add(element);
+                    for (int i = 0; i < nodes.Count; ++i)
+                    {
+                        object element = ElemSerializer.Deserialize(nodes[i]);
+                        list[i] = element;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < nodes.Count; ++i)
+                    {
+                        object element = ElemSerializer.Deserialize(nodes[i]);
+                        list.Add(element);
+                    }
                 }
                 return list;
             }
@@ -98,62 +162,62 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override void Serialize(YamlNode parent, object obj)
         {
-            var list = (IList)obj;
-            Serialize(list, ElemSerializer, parent);
+            Serialize((IList)obj, ElemSerializer, parent);
         }
 
         public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            var list = (IList)obj;
-
-            int count = list.Count;
-            writer.BW.WriteVLu32((uint)count);
-            for (int i = 0; i < count; ++i)
-            {
-                object element = list[i];
-                writer.WriteElement(ElemSerializer, element);
-            }
+            throw new NotSupportedException();
         }
 
         public override object Deserialize(BinarySerializerReader reader)
         {
-            int count = (int)reader.BR.ReadVLu32();
-            var list = (IList)Activator.CreateInstance(GenericArrayType);
-            TypeInfo elementType = reader.GetType(ElemSerializer);
-            for (int i = 0; i < count; ++i)
-            {
-                object element = reader.ReadElement(elementType, ElemSerializer);
-                list.Add(element);
-            }
+            var list = NewList();
+            Deserialize(reader, list, ElemSerializer);
             return list;
         }
 
         public override int Count(object instance)
         {
-            var list = (IList)instance;
-            return list.Count;
+            return ((IList)instance).Count;
         }
 
         public override object GetElementAt(object instance, int index)
         {
-            var list = (IList)instance;
-            return list[index];
+            return ((IList)instance)[index];
         }
 
         public override object CreateInstance()
         {
-            return Activator.CreateInstance(GenericArrayType);
+            return NewList();
         }
 
         public override void Deserialize(BinarySerializerReader reader, object instance)
         {
+            Deserialize(reader, (IList)instance, ElemSerializer);
+        }
+
+        void Deserialize(BinarySerializerReader reader, IList list, TypeSerializer elemSer)
+        {
             int count = (int)reader.BR.ReadVLu32();
-            var list = (IList)instance;
-            TypeInfo elementType = reader.GetType(ElemSerializer);
-            for (int i = 0; i < count; ++i)
+            if (count <= 0)
+                return;
+
+            if (TryResize(list, count))
             {
-                object element = reader.ReadElement(elementType, ElemSerializer);
-                list.Add(element);
+                for (int i = 0; i < count; ++i)
+                {
+                    object element = reader.ReadCollectionElement(elemSer);
+                    list[i] = element;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < count; ++i)
+                {
+                    object element = reader.ReadCollectionElement(elemSer);
+                    AddToList(list, element);
+                }
             }
         }
     }

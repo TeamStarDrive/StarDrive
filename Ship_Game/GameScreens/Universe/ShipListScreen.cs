@@ -361,7 +361,7 @@ namespace Ship_Game
         public void ResetList(int category)
         {
             ShipSL.Reset();
-            IReadOnlyList<Ship> ships = EmpireManager.Player.OwnedShips;
+            IReadOnlyList<Ship> ships = Universe.Player.OwnedShips;
             if (ships.Count <= 0)
                 return;
 
