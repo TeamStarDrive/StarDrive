@@ -8,6 +8,7 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -15,6 +16,9 @@ namespace Ship_Game
     public class ModuleSelection : Submenu
     {
         readonly ShipDesignScreen Screen;
+        UniverseState Universe => Screen.ParentUniverse.UState;
+        Empire Player => Screen.Player;
+
         readonly FighterScrollList ChooseFighterSL;
         readonly ModuleSelectScrollList ModuleSelectList;
         readonly Submenu ActiveModSubMenu;
@@ -90,10 +94,10 @@ namespace Ship_Game
                 ShipModule m = Screen.ActiveModule;
                 if (input.LeftMouseClick && m != null)
                 {
-                    if (!m.IsObsolete())
-                        Screen.Player.ObsoletePlayerShipModules.Add(m.UID);
+                    if (!m.IsObsolete(Player))
+                        Player.ObsoletePlayerShipModules.Add(m.UID);
                     else
-                        Screen.Player.ObsoletePlayerShipModules.Remove(m.UID);
+                        Player.ObsoletePlayerShipModules.Remove(m.UID);
 
                     return true;
                 }
@@ -148,9 +152,9 @@ namespace Ship_Game
         // Gets the tech cost of the tech which unlocks the module provided, this is for modders in debug
         float DebugGetModuleTechCost(ShipModule module)
         {
-            foreach (TechEntry tech in Screen.ParentUniverse.Player.TechEntries)
+            foreach (TechEntry tech in Player.TechEntries)
             {
-                if (tech.GetUnlockableModules(Screen.ParentUniverse.Player).Any(m => m.ModuleUID == module.UID))
+                if (tech.GetUnlockableModules(Player).Any(m => m.ModuleUID == module.UID))
                     return tech.Tech.ActualCost;
             }
 
@@ -164,7 +168,7 @@ namespace Ship_Game
             if (ActiveModSubMenu.SelectedIndex != 0 || mod == null)
                 return;
 
-            bool isObsolete = mod.IsObsolete();
+            bool isObsolete = mod.IsObsolete(Player);
             Color nameColor = isObsolete ? Color.Red : Color.White;
             Obsolete.BaseColor = nameColor;
             Obsolete.Draw(batch);
@@ -319,8 +323,8 @@ namespace Ship_Game
 
         void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
-            DrawStat(ref modTitlePos, GameText.Cost, mod.ActualCost, GameText.IndicatesTheProductionCostOf);
-            DrawStat(ref modTitlePos, GameText.Mass2, mod.GetActualMass(Screen.Player, 1), GameText.TT_Mass);
+            DrawStat(ref modTitlePos, GameText.Cost, mod.ActualCost(Universe), GameText.IndicatesTheProductionCostOf);
+            DrawStat(ref modTitlePos, GameText.Mass2, mod.GetActualMass(Player, 1), GameText.TT_Mass);
             DrawStat(ref modTitlePos, GameText.Health, mod.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
 
             float powerDraw = mod.ActualPowerFlowMax - mod.PowerDraw;
@@ -380,7 +384,7 @@ namespace Ship_Game
             // added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
             // FB improved it to use the Power struct
             ShipModule[] modList = { mod };
-            Power modNetWarpPowerDraw = Power.Calculate(modList, Screen.Player, true);
+            Power modNetWarpPowerDraw = Power.Calculate(modList, Player, true);
             DrawStat(ref modTitlePos, GameText.PowerWarp, -modNetWarpPowerDraw.NetWarpPowerDraw, GameText.TheEffectivePowerDrainOf);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
@@ -484,14 +488,14 @@ namespace Ship_Game
 
             float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage) * GetHullDamageBonus();
             float beamDamage      = rawDamage * beamMultiplier;
-            float ballisticDamage = rawDamage + rawDamage * Screen.Player.data.OrdnanceEffectivenessBonus;
+            float ballisticDamage = rawDamage + rawDamage * Player.data.OrdnanceEffectivenessBonus;
             float energyDamage    = rawDamage;
 
-            float cost  = m.ActualCost;
+            float cost = m.ActualCost(Universe);
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
             DrawStat(ref cursor, GameText.Cost, cost, GameText.IndicatesTheProductionCostOf);
-            DrawStat(ref cursor, GameText.Mass2, m.GetActualMass(Screen.Player, 1), GameText.TT_Mass);
+            DrawStat(ref cursor, GameText.Mass2, m.GetActualMass(Player, 1), GameText.TT_Mass);
             DrawStat(ref cursor, GameText.Health, m.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
             DrawStat(ref cursor, GameText.Power, power, GameText.IndicatesHowMuchPowerThis);
             DrawStat(ref cursor, GameText.Range, range, GameText.IndicatesTheMaximumRangeOf);
@@ -576,13 +580,13 @@ namespace Ship_Game
             DrawResistancePercent(ref cursor, wOrMirv, "VS Shield", WeaponStat.Shield);
             if (!wOrMirv.TruePD)
             {
-                int actualArmorPen = wOrMirv.ArmorPen + (wOrMirv.Tag_Kinetic ? Screen.Player.data.ArmorPiercingBonus : 0);
+                int actualArmorPen = wOrMirv.ArmorPen + (wOrMirv.Tag_Kinetic ? Player.data.ArmorPiercingBonus : 0);
                 if (actualArmorPen > wOrMirv.ArmorPen)
                     DrawStatCustomColor(ref cursor, GameText.ArmorPen, actualArmorPen, GameText.ArmorPenetrationEnablesThisWeapon, Color.Gold, isPercent: false);
                 else
                     DrawStat(ref cursor, "Armor Pen", actualArmorPen, GameText.ArmorPenetrationEnablesThisWeapon);
 
-                float actualShieldPenChance = Screen.Player.data.ShieldPenBonusChance + wOrMirv.ShieldPenChance / 100;
+                float actualShieldPenChance = Player.data.ShieldPenBonusChance + wOrMirv.ShieldPenChance / 100;
                 for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
                 {
                     CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
@@ -616,7 +620,7 @@ namespace Ship_Game
 
         void CheckShieldPenModifier(WeaponTag tag, ref float actualShieldPenChance)
         {
-            WeaponTagModifier weaponTag = Screen.Player.data.WeaponTags[tag];
+            WeaponTagModifier weaponTag = Player.data.WeaponTags[tag];
             actualShieldPenChance += weaponTag.ShieldPenetration;
         }
 
@@ -655,7 +659,7 @@ namespace Ship_Game
         {
             float value = GetStatForWeapon(stat, weapon);
             foreach (WeaponTag tag in weapon.ActiveWeaponTags)
-                value += value * Screen.Player.data.GetStatBonusForWeaponTag(stat, tag);
+                value += value * Player.data.GetStatBonusForWeaponTag(stat, tag);
             return value;
         }
 

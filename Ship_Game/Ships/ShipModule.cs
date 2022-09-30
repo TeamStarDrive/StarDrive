@@ -222,7 +222,7 @@ namespace Ship_Game.Ships
                                    || ModuleType == ShipModuleType.Drone
                                    || ModuleType == ShipModuleType.Bomb;
 
-        public float ActualCost => Cost * Parent.Universe.ProductionPace;
+        public float ActualCost(UniverseState us) => Cost * us.ProductionPace;
 
         // the actual hit radius is a bit bigger for some legacy reason
         public float ShieldHitRadius => Flyweight.ShieldRadius + 10f;
@@ -597,9 +597,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsObsolete()
+        public bool IsObsolete(Empire player)
         {
-            return Player.ObsoletePlayerShipModules.Contains(UID);
+            return player.ObsoletePlayerShipModules.Contains(UID);
         }
 
         public struct UpdateEveryFrameArgs

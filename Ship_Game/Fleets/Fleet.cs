@@ -2195,8 +2195,6 @@ namespace Ship_Game.Fleets
                     }
                     return;
                 }
-                Owner.AI.UsedFleets.Remove(which);
-
                 Reset();
             }
         }
@@ -2297,6 +2295,7 @@ namespace Ship_Game.Fleets
             RemoveAllShips(returnShipsToEmpireAI, clearOrders: clearOrders);
             TaskStep = 0;
             FleetTask = null;
+            Key = 0;
         }
 
         /// <summary>

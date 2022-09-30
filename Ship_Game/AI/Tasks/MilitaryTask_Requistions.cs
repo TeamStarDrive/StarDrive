@@ -91,9 +91,8 @@ namespace Ship_Game.AI.Tasks
                 Name  = name
             };
 
-            int fleetNum = FindUnusedFleetNumber();
+            int fleetNum = Owner.CreateFleetKey();
             Owner.SetFleet(fleetNum, newFleet);
-            Owner.AI.UsedFleets.Add(fleetNum);
             WhichFleet = fleetNum;
             newFleet.FleetTask = this;
             foreach (Ship ship in ships)
@@ -112,9 +111,8 @@ namespace Ship_Game.AI.Tasks
                 Name = name,
             };
 
-            int fleetNum = FindUnusedFleetNumber();
+            int fleetNum = Owner.CreateFleetKey();
             Owner.SetFleet(fleetNum, newFleet);
-            Owner.AI.UsedFleets.Add(fleetNum);
             WhichFleet = fleetNum;
             newFleet.FleetTask = this;
             ship.AI.ClearOrders();
