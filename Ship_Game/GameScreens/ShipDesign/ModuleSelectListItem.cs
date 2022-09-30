@@ -10,10 +10,15 @@ namespace Ship_Game
     public class ModuleSelectListItem : ScrollListItem<ModuleSelectListItem>
     {
         public ShipModule Module;
-        public ModuleSelectListItem(string headerText) : base(headerText) {}
-
-        public ModuleSelectListItem(ShipModule module)
+        Empire Player;
+        public ModuleSelectListItem(Empire player, string headerText) : base(headerText)
         {
+            Player = player;
+        }
+
+        public ModuleSelectListItem(Empire player, ShipModule module)
+        {
+            Player = player;
             Module = module;
         }
 
@@ -30,7 +35,7 @@ namespace Ship_Game
         void DrawModule(SpriteBatch batch)
         {
             ShipModule m = Module;
-            bool isObsolete = m.IsObsolete();
+            bool isObsolete = m.IsObsolete(Player);
 
             var bCursor = new Vector2(List.X + 15, Y);
             SubTexture tex = m.ModuleTexture;
