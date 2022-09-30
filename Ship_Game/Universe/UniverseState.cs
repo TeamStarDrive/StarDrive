@@ -452,20 +452,14 @@ namespace Ship_Game.Universe
 
         void AddShipInfluence(Ship ship, Empire newLoyalty)
         {
-            newLoyalty.AddBorderNode(ship);
-            if (ship.IsSubspaceProjector)
-            {
+            if (newLoyalty.AddBorderNode(ship))
                 Influence.Insert(newLoyalty, ship);
-            }
         }
 
         void RemoveShipInfluence(Ship ship, Empire oldLoyalty)
         {
-            if (ship.IsSubspaceProjector)
-            {
-                oldLoyalty.RemoveBorderNode(ship);
+            if (oldLoyalty.RemoveBorderNode(ship))
                 Influence.Remove(oldLoyalty, ship);
-            }
         }
         
         public void OnPlanetOwnerAdded(Empire owner, Planet planet)
