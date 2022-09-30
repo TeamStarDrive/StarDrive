@@ -219,6 +219,12 @@ namespace Ship_Game
             P.Construction.Reorder(oldIndex, newIndex);
         }
 
+        void OnConstructionItemHovered(ConstructionQueueScrollListItem item)
+        {
+            if (item != null && item.Item.isShip)
+                ShipInfoOverlay.ShowToLeftOf(item.Pos, item.Item.ShipData);
+        }
+
         public bool Build(Building b, PlanetGridSquare where = null)
         {
             if (P.Construction.Enqueue(b, where, true))
