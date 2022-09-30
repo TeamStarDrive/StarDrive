@@ -162,8 +162,8 @@ namespace Ship_Game
         public float MaxColonyValue { get; private set; }
         public float TotalColonyValues { get; private set; }
         public float TotalColonyPotentialValues { get; private set; }
-        public Ship BestPlatformWeCanBuild { get; private set; }
-        public Ship BestStationWeCanBuild { get; private set; }
+        public IShipDesign BestPlatformWeCanBuild { get; private set; }
+        public IShipDesign BestStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new();
         [StarData] public Vector2 WeightedCenter;
         [StarData] public bool RushAllConstruction;
@@ -1462,6 +1462,8 @@ namespace Ship_Game
 
                 empireShipTotal = 0;
                 empireShipCombat = 0;
+
+                // NOTE: Regarding Inhibitors, they should only be added here, to avoid bugs
                 Inhibitors.Clear();
                 var ships = OwnedShips;
                 for (int i = 0; i < ships.Count; i++)

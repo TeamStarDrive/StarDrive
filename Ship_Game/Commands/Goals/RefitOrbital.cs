@@ -27,11 +27,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitOrbital(Ship oldShip, string toBuildName, Empire owner) : this(owner)
+        public RefitOrbital(Ship oldShip, IShipDesign toBuild, Empire owner) : this(owner)
         {
             OldShip = oldShip;
             Planet targetPlanet = oldShip.GetTether();
-            Initialize(toBuildName, Vector2.Zero, targetPlanet, Vector2.Zero);
+            Initialize(toBuild.Name, Vector2.Zero, targetPlanet, Vector2.Zero);
         }
 
         GoalStep FindOrbitalAndPlanetToRefit()

@@ -1,10 +1,6 @@
 ﻿using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SDGraphics;
 using SDUtils;
 
@@ -138,5 +134,16 @@ namespace Ship_Game.GameScreens.ShipDesign
         public bool HasOrdnance() => S.OrdinanceMax > 0;
         public bool HasOrdFinite() => HasOrdnance() && NetOrdnanceUsePerSec > 0;
         public bool HasOrdInfinite() => HasOrdnance() && NetOrdnanceUsePerSec < 0;
+
+        public int CompletionPercent
+        {
+            get
+            {
+                if (S == null)
+                    return 0;
+                int slots = S.Modules.Sum(m => m.Area);
+                return (int)((slots == S.SurfaceArea ? 1f : slots / (float)S.SurfaceArea) * 100);
+            }
+        }
     }
 }

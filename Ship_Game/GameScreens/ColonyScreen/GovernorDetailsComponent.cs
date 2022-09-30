@@ -726,7 +726,7 @@ namespace Ship_Game
 
         void OnBuildShipyardClick(UIButton b)
         {
-            Ship shipyard = ResourceManager.GetShipTemplate(Planet.Owner.data.DefaultShipyard);
+            IShipDesign shipyard = ResourceManager.Ships.GetDesign(Planet.Owner.data.DefaultShipyard);
 
             if (Planet.Owner.CanBuildShipyards && BuildOrbital(shipyard))
                 GameAudio.AffirmativeClick();
@@ -734,9 +734,9 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
         }
 
-        bool BuildOrbital(Ship orbital)
+        bool BuildOrbital(IShipDesign orbital)
         {
-            if (orbital == null || Planet.IsOutOfOrbitalsLimit(orbital.ShipData))
+            if (orbital == null || Planet.IsOutOfOrbitalsLimit(orbital))
                 return false;
 
             Planet.AddOrbital(orbital);
