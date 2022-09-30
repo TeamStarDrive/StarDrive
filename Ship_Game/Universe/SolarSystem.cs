@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
-using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
@@ -641,15 +640,19 @@ namespace Ship_Game
             return true;
         }
 
-        Vector2 GenerateAsteroidPos(RandomBase random, float ringRadius, float spread)
+        (float OrbitalRadius, float OrbitalAngle) GenerateAsteroidOrbit(RandomBase random, float ringRadius, float spread)
         {
+            float orbitalRadius = 0f;
+            float orbitalAngle = 0f;
             for (int i = 0; i < 100; ++i) // while (true) would be unsafe, so give up after 100 turns
             {
-                Vector2 pos = Vector2.Zero.GenerateRandomPointOnCircle(ringRadius + random.Float(-spread, spread));
+                orbitalRadius = ringRadius + random.Float(-spread, spread);
+                orbitalAngle = RandomMath.Float(0f, RadMath.TwoPI);
+                Vector2 pos = Vector2.Zero.PointFromRadians(orbitalAngle, orbitalRadius);
                 if (NoAsteroidProximity(pos))
-                    return pos;
+                    break;
             }
-            return Vector2.Zero.GenerateRandomPointOnCircle(ringRadius + random.Float(-spread, spread));
+            return (OrbitalRadius: orbitalRadius, OrbitalAngle: orbitalAngle);
         }
 
         void GenerateAsteroidRing(RandomBase random, float orbitalDistance, float spread, float scaleMin=0.75f, float scaleMax=1.6f)
@@ -658,8 +661,8 @@ namespace Ship_Game
             AsteroidsList.Capacity += numberOfAsteroids;
             for (int i = 0; i < numberOfAsteroids; ++i)
             {
-                var pos = GenerateAsteroidPos(random, orbitalDistance, spread);
-                AsteroidsList.Add(new Asteroid(Universe.CreateId(), random, scaleMin, scaleMax, pos));
+                var (orbitalRadius, orbitalAngle) = GenerateAsteroidOrbit(random, orbitalDistance, spread);
+                AsteroidsList.Add(new(Universe.CreateId(), random, scaleMin, scaleMax, orbitalRadius, orbitalAngle));
             }
             RingList.Add(new Ring
             {
