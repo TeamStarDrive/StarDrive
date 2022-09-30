@@ -11,6 +11,7 @@ namespace Ship_Game
     public class FighterScrollList : ScrollList2<FighterListItem>
     {
         readonly ShipDesignScreen Screen;
+        Empire Player => Screen.ParentUniverse.Player;
         public ShipModule ActiveHangarModule;
         public ShipModule ActiveModule;
         public string HangarShipUIDLast = "";
@@ -53,7 +54,7 @@ namespace Ship_Game
                     ShipModule tempMod = Screen.CreateDesignModule(ActiveHangarModule.UID, ModuleOrientation.Normal, 0, "");
                     tempMod.HangarShipUID = item.Ship.Name;
                     tempMod.SetDynamicHangarFromShip();
-                    string hangarShip = tempMod.GetHangarShipName();
+                    string hangarShip = tempMod.GetHangarShipName(Player);
                     Ship hs = ResourceManager.GetShipTemplate(hangarShip, false);
                     if (hs != null)
                     {
