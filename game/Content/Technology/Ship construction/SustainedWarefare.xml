@@ -4,7 +4,6 @@
   <UID>SustainedWarefare</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>750</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17613</NameIndex>
   <DescriptionIndex>2039</DescriptionIndex>
   <LeadsTo />

@@ -31,7 +31,7 @@ namespace Ship_Game
         public float OwnerTroopStrength           => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
 
         public int NumTroopsCanLaunchFor(Empire empire)      => TroopList.Count(t => t.Loyalty == empire && t.CanLaunch);
-        private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
+        private Array<Troop> TroopList => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
 
         private float DecisionTimer;
@@ -107,19 +107,16 @@ namespace Ship_Game
             foreach (Troop t in TroopList)
             {
                 if (t.Loyalty.data.AbsorbedBy.NotEmpty())
-                    t.ChangeLoyalty(EmpireManager.GetEmpireByName(t.Loyalty.data.AbsorbedBy));
+                    t.ChangeLoyalty(Ground.Universe.GetEmpireByName(t.Loyalty.data.AbsorbedBy));
             }
         }
 
         private void PerformTroopsGroundActions(PlanetGridSquare tile)
         {
-            using (tile.TroopsHere.AcquireWriteLock())
+            for (int i = 0; i < tile.TroopsHere.Count; ++i)
             {
-                for (int i = 0; i < tile.TroopsHere.Count; ++i)
-                {
-                    Troop troop = tile.TroopsHere[i];
-                    PerformGroundActions(troop, tile);
-                }
+                Troop troop = tile.TroopsHere[i];
+                PerformGroundActions(troop, tile);
             }
         }
 
@@ -375,19 +372,19 @@ namespace Ship_Game
                 return; // FB - nothing to change if no new troops invade
 
             Empire player = Ground.Universe.Player;
-            if (invadingEmpires.Any(e => e.isPlayer) && !Owner.isFaction && !player.IsAtWarWith(Owner))
+            if (invadingEmpires.Any(e => e.isPlayer) && !Owner.IsFaction && !player.IsAtWarWith(Owner))
             {
                 if (player.IsNAPactWith(Owner))
                 {
                     DiplomacyScreen.Show(Owner, "Invaded NA Pact", ParentSystem);
-                    Owner.GetEmpireAI().DeclareWarOn(player, WarType.ImperialistWar);
+                    Owner.AI.DeclareWarOn(player, WarType.ImperialistWar);
                     Owner.GetRelations(player).Trust -= 50f;
                     Owner.GetRelations(player).AddAngerDiplomaticConflict(50);
                 }
                 else
                 {
                     DiplomacyScreen.Show(Owner, "Invaded Start War", ParentSystem);
-                    Owner.GetEmpireAI().DeclareWarOn(player, WarType.ImperialistWar);
+                    Owner.AI.DeclareWarOn(player, WarType.ImperialistWar);
                     Owner.GetRelations(player).Trust -= 25f;
                     Owner.GetRelations(player).AddAngerDiplomaticConflict(25);
                 }
@@ -448,13 +445,13 @@ namespace Ship_Game
 
         void IncreaseTrustAlliesWon(Empire newOwner, Array<Empire> empires)
         {
-            if (newOwner == null || newOwner.isPlayer || newOwner.isFaction)
+            if (newOwner == null || newOwner.isPlayer || newOwner.IsFaction)
                 return;
 
             for (int i = 0; i < empires.Count; i++)
             {
                 Empire e = empires[i];
-                if (e != newOwner && !e.isFaction)
+                if (e != newOwner && !e.IsFaction)
                 {
                     Relationship rel = newOwner.GetRelations(e);
                     rel.Trust += newOwner.data.DiplomaticPersonality.Territorialism / 5f;
@@ -468,17 +465,14 @@ namespace Ship_Game
             if (Owner == empire)
                 strength += BuildingList.Sum(BuildingCombatStrength);
 
-            using (TroopList.AcquireReadLock())
-                strength += TroopList.Where(t => t.Loyalty == empire).Sum(str => str.ActualStrengthMax);
+            strength += TroopList.Where(t => t.Loyalty == empire).Sum(str => str.ActualStrengthMax);
             return strength;
         }
 
         public float TroopStrength()
         {
             float strength = 0;
-
-            using (TroopList.AcquireReadLock())
-                strength += TroopList.Where(t => t.Loyalty == Ground.Owner).Sum(str => str.ActualStrengthMax);
+            strength += TroopList.Where(t => t.Loyalty == Ground.Owner).Sum(str => str.ActualStrengthMax);
             return strength;
         }
 
@@ -495,8 +489,7 @@ namespace Ship_Game
 
         public float GroundStrengthOther(Empire allButThisEmpire)
         {
-            float enemyTroopStrength = TroopList.Where(t => 
-                t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.ActualStrengthMax);
+            float enemyTroopStrength = TroopList.Where(t => t.Loyalty != allButThisEmpire).Sum(t => t.ActualStrengthMax);
 
             if (Owner == allButThisEmpire)
                 return enemyTroopStrength; // The planet is ours, so no need to check from buildings
@@ -531,19 +524,17 @@ namespace Ship_Game
         public bool TroopsHereAreEnemies(Empire empire)
         {
             bool enemies = false;
-            using (TroopList.AcquireReadLock())
-                foreach (Troop t in TroopList)
+            foreach (Troop t in TroopList)
+            {
+                if (t.Loyalty == empire)
+                    continue;
+
+                if (empire.IsAtWarWith(t.Loyalty))
                 {
-                    if (t.Loyalty == empire)
-                        continue;
-
-                    if (empire.IsAtWarWith(t.Loyalty))
-                    {
-                        enemies = true;
-                        break;
-                    }
+                    enemies = true;
+                    break;
                 }
-
+            }
             return enemies;
         }
 
@@ -582,12 +573,11 @@ namespace Ship_Game
             if (RecentCombat)
                 return;
 
-            using (TroopList.AcquireReadLock())
-                foreach (Troop troop in TroopList)
-                {
-                    if (Ground.CanRepairOrHeal())
-                        troop.HealTroop(healAmount);
-                }
+            foreach (Troop troop in TroopList)
+            {
+                if (Ground.CanRepairOrHeal())
+                    troop.HealTroop(healAmount);
+            }
         }
 
         public struct Forces

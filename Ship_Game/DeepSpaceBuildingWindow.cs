@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -16,10 +15,11 @@ namespace Ship_Game
     public sealed class DeepSpaceBuildingWindow : UIElementContainer
     {
         readonly UniverseScreen Screen;
+        Empire Player => Screen.Player;
         ScrollList2<ConstructionListItem> SL;
-        public Ship itemToBuild;
+        public IShipDesign ShipToBuild;
         Vector2 TetherOffset;
-        int TargetPlanetId;
+        Planet TargetPlanet;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         public DeepSpaceBuildingWindow(UniverseScreen screen)
@@ -39,30 +39,30 @@ namespace Ship_Game
             background.Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
             background.AddTab("Build Menu");
             SL = Add(new ScrollList2<ConstructionListItem>(background, 40));
-            SL.OnClick = (item) => { itemToBuild = item.Ship; };
+            SL.OnClick = (item) => { ShipToBuild = item.Template; };
             SL.EnableItemHighlight = true;
 
             //The Doctor: Ensure Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
-            foreach (string s in EmpireManager.Player.structuresWeCanBuild)
+            foreach (string s in Player.SpaceStationsWeCanBuild)
             {
                 if (s == "Subspace Projector")
                 {
-                    SL.AddItem(new ConstructionListItem{Ship = ResourceManager.GetShipTemplate(s)});
+                    SL.AddItem(new ConstructionListItem(Screen, ResourceManager.Ships.GetDesign(s)));
                     break;
                 }
             }
-            foreach (string s in EmpireManager.Player.structuresWeCanBuild)
+            foreach (string s in Player.SpaceStationsWeCanBuild)
             {
                 if (s != "Subspace Projector")
                 {
-                    SL.AddItem(new ConstructionListItem{Ship = ResourceManager.GetShipTemplate(s)});
+                    SL.AddItem(new ConstructionListItem(Screen, ResourceManager.Ships.GetDesign(s)));
                 }
             }
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen, Screen.UState));
             SL.OnHovered = (item) =>
             {
-                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Template);
             };
 
             Visible = true;
@@ -70,7 +70,14 @@ namespace Ship_Game
 
         class ConstructionListItem : ScrollListItem<ConstructionListItem>
         {
-            public Ship Ship;
+            readonly UniverseScreen Universe;
+            public readonly IShipDesign Template;
+
+            public ConstructionListItem(UniverseScreen universe, IShipDesign template)
+            {
+                Universe = universe;
+                Template = template;
+            }
 
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
@@ -79,17 +86,17 @@ namespace Ship_Game
                 SubTexture projector = ResourceManager.Texture("ShipIcons/subspace_projector");
                 SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
 
-                SubTexture icon = Ship.IsSubspaceProjector ? projector : Ship.ShipData.Icon;
+                SubTexture icon = Template.IsSubspaceProjector ? projector : Template.Icon;
                 float iconSize = Height;
                 batch.Draw(icon, new Vector2(X, Y), new Vector2(iconSize));
           
-                batch.DrawString(Fonts.Arial10, Ship.Name, X+iconSize+2, Y+4);
-                batch.DrawString(Fonts.Arial8Bold, Ship.ShipData.GetRole(), X+iconSize+2, Y+18, Color.Orange);
+                batch.DrawString(Fonts.Arial10, Template.Name, X+iconSize+2, Y+4);
+                batch.DrawString(Fonts.Arial8Bold, Template.GetRole(), X+iconSize+2, Y+18, Color.Orange);
 
                 float prodX = Right - 120;
-                batch.DrawString(Fonts.Arial8Bold, Ship.GetMaintCost(EmpireManager.Player).String(2)+" BC/Y", prodX, Y+4, Color.Salmon); // Maintenance Cost
+                batch.DrawString(Fonts.Arial8Bold, Template.GetMaintenanceCost(Universe.Player, 0).String(2)+" BC/Y", prodX, Y+4, Color.Salmon); // Maintenance Cost
                 batch.Draw(iconProd, new Vector2(prodX+50, Y+4), iconProd.SizeF); // Production Icon
-                batch.DrawString(Fonts.Arial12Bold, Ship.GetCost(EmpireManager.Player).String(1), prodX+50+iconProd.Width+2, Y+4); // Build Production Cost
+                batch.DrawString(Fonts.Arial12Bold, Template.GetCost(Universe.Player).String(1), prodX+50+iconProd.Width+2, Y+4); // Build Production Cost
             }
         }
 
@@ -99,7 +106,7 @@ namespace Ship_Game
                 return false;
 
             // only capture input from window UI if we haven't made a selection
-            if (itemToBuild == null)
+            if (ShipToBuild == null)
             {
                 if (input.Escaped) // exit this screen
                 {
@@ -116,7 +123,7 @@ namespace Ship_Game
             if (hovered) // disallow input while in placement and hovering our window
             {
                 if (input.RightMouseClick)
-                    itemToBuild = null;
+                    ShipToBuild = null;
 
                 ShipInfoOverlay.Show();
                 return true;
@@ -126,7 +133,7 @@ namespace Ship_Game
             // right mouse click or Esc, we cancel the placement mode
             if (input.RightMouseClick || input.Escaped)
             {
-                itemToBuild = null;
+                ShipToBuild = null;
                 return true;
             }
 
@@ -137,7 +144,7 @@ namespace Ship_Game
                 if (input.IsShiftKeyDown) // if we hold down shift, continue placing next frame
                     return true;
 
-                itemToBuild = null;
+                ShipToBuild = null;
                 return true;
             }
 
@@ -146,25 +153,19 @@ namespace Ship_Game
 
         void TryPlaceBuildable()
         {
-            Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
-
-            bool okToBuild = TargetPlanetId == 0 && !itemToBuild.ShipData.IsShipyard
-                || TargetPlanetId > 0 && !Screen.UState.GetPlanet(TargetPlanetId).IsOutOfOrbitalsLimit(itemToBuild);
+            bool okToBuild = TargetPlanet == null && !ShipToBuild.IsShipyard
+                || TargetPlanet != null && !TargetPlanet.IsOutOfOrbitalsLimit(ShipToBuild);
 
             if (okToBuild)
             {
-                Goal buildStuff = new BuildConstructionShip(cursorWorldPos, itemToBuild.Name, EmpireManager.Player);
-                if (TargetPlanetId != 0)
-                {
-                    buildStuff.TetherOffset = TetherOffset;
-                    buildStuff.TetherPlanetId = TargetPlanetId;
-                }
-
-                EmpireManager.Player.GetEmpireAI().Goals.Add(buildStuff);
+                Vector2 worldPos = Screen.CursorWorldPosition2D;
+                Player.AI.AddGoal(new BuildConstructionShip(worldPos, ShipToBuild.Name, Player, TargetPlanet, TetherOffset));
                 GameAudio.EchoAffirmative();
             }
             else
+            {
                 GameAudio.NegativeClick();
+            }
 
             Screen.UpdateClickableItems();
         }
@@ -184,12 +185,12 @@ namespace Ship_Game
 
             base.Draw(batch, elapsed);
 
-            if (itemToBuild != null)
+            if (ShipToBuild != null)
             {
                 SubTexture platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
                 var IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
 
-                double scale = (double)itemToBuild.SurfaceArea / platform.Width;
+                double scale = (double)ShipToBuild.Grid.SurfaceArea / platform.Width;
                 scale *= 4000.0 / Screen.CamPos.Z;
                 if (scale > 1f)
                     scale = 1f;
@@ -197,14 +198,14 @@ namespace Ship_Game
                     scale = 0.15f;
 
                 Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
-                TargetPlanetId = 0;
+                TargetPlanet = null;
                 TetherOffset = Vector2.Zero;
                 foreach (UniverseScreen.ClickablePlanet p in Screen.ClickablePlanets)
                 {
                     if (p.Planet.Position.Distance(cursorWorldPos) <= (2500f * p.Planet.Scale))
                     {
                         TetherOffset = cursorWorldPos - p.Planet.Position;
-                        TargetPlanetId = p.Planet.Id;
+                        TargetPlanet = p.Planet;
                         batch.DrawLine(p.ScreenPos, Screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
                         batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + p.Planet.Name,
                             new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);
@@ -237,7 +238,7 @@ namespace Ship_Game
 
                     if (item.UID == "Subspace Projector")
                     {
-                        Screen.DrawCircle(posOnScreen, EmpireManager.Player.GetProjectorRadius(), Color.Orange, 2f);
+                        Screen.DrawCircle(posOnScreen, Player.GetProjectorRadius(), Color.Orange, 2f);
                     }
                     else if (buildTemplate.SensorRange > 0f)
                     {
@@ -247,10 +248,10 @@ namespace Ship_Game
             }
 
             // show the object placement/build circle
-            if (itemToBuild != null && itemToBuild.IsSubspaceProjector && Screen.AdjustCamTimer <= 0f)
+            if (ShipToBuild != null && ShipToBuild.IsSubspaceProjector && Screen.AdjustCamTimer <= 0f)
             {
                 Vector2 center = Screen.Input.CursorPosition;
-                float screenRadius = (float)Screen.ProjectToScreenSize(EmpireManager.Player.GetProjectorRadius());
+                float screenRadius = (float)Screen.ProjectToScreenSize(Player.GetProjectorRadius());
 
                 CurrentRadiusSmoothed = CurrentRadiusSmoothed.SmoothStep(screenRadius, 0.3);
                 Screen.DrawCircle(center, CurrentRadiusSmoothed, Color.Orange, 2f);

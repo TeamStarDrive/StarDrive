@@ -4,7 +4,6 @@
   <UID>Centralized Banking</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>3200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>528</NameIndex>
   <DescriptionIndex>529</DescriptionIndex>
   <LeadsTo />

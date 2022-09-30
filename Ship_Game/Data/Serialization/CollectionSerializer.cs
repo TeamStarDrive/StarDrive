@@ -8,8 +8,6 @@ namespace Ship_Game.Data.Serialization
         public readonly Type ElemType;
         public readonly TypeSerializer ElemSerializer;
 
-        public bool IsMapType { get; protected set; }
-
         protected CollectionSerializer(Type type, Type elemType, TypeSerializer elemSerializer) : base(type)
         {
             IsCollection = true;
@@ -18,14 +16,15 @@ namespace Ship_Game.Data.Serialization
             ElemSerializer = elemSerializer;
         }
 
+        /// <summary>
+        /// Get number of elements in a collection instance
+        /// </summary>
         public abstract int Count(object instance);
 
-        public abstract object GetElementAt(object instance, int index);
-
         /// <summary>
-        /// Collections only: Create an expandable collection instance
+        /// Get an element from a collection instance
         /// </summary>
-        public abstract object CreateInstance();
+        public abstract object GetElementAt(object instance, int index);
 
         /// <summary>
         /// Collections only: Deserialize into an existing object instance

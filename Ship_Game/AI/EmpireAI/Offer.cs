@@ -20,6 +20,7 @@ namespace Ship_Game
         public bool OpenBorders;
         public bool TradeTreaty;
         public Empire Them;
+        public Empire Player => Them.Universe.Player;
 
         string TechOffer(int i) => ResourceManager.TechTree[TechnologiesOffered[i]].Name.Text;
         string ArtifactOffer(int i) => ResourceManager.ArtifactsDict[ArtifactsOffered[i]].NameText.Text;
@@ -120,7 +121,7 @@ namespace Ship_Game
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
             {
-                if (!EmpireManager.Player.IsAlliedWith(TheirOffer.Them))
+                if (!Player.IsAlliedWith(TheirOffer.Them))
                 {
                     if (GetNumberOfDemands(this) > 0 && GetNumberOfDemands(TheirOffer) == 1)
                     {
@@ -302,7 +303,7 @@ namespace Ship_Game
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
             {
-                if (!EmpireManager.Player.IsAlliedWith(TheirOffer.Them))
+                if (!Player.IsAlliedWith(TheirOffer.Them))
                 {
                     if (GetNumberOfDemands(this) > 0 && GetNumberOfDemands(TheirOffer) == 1)
                     {
@@ -516,7 +517,7 @@ namespace Ship_Game
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
             {
-                if (!EmpireManager.Player.IsAlliedWith(TheirOffer.Them))
+                if (!Player.IsAlliedWith(TheirOffer.Them))
                 {
                     if (GetNumberOfDemands(this) > 0 && GetNumberOfDemands(TheirOffer) == 1)
                     {

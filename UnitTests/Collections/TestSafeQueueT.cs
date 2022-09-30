@@ -12,7 +12,7 @@ namespace UnitTests.Collections
     public class TestSafeQueueT
     {
         [TestMethod]
-        public void TestEnqueueDequeue()
+        public void SafeQueueEnqueueDequeue()
         {
             var queue = new SafeQueue<string>();
 
@@ -47,7 +47,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestPushToFront()
+        public void SafeQueuePushToFront()
         {
             var queue = new SafeQueue<string>();
 
@@ -67,7 +67,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestRemove()
+        public void SafeQueueRemove()
         {
             var queue = new SafeQueue<string>();
             queue.Enqueue("Jim");
@@ -86,7 +86,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestSequence()
+        public void SafeQueueSequence()
         {
             var queue = new SafeQueue<string>();
             queue.Enqueue("Jim");
@@ -106,7 +106,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestContains()
+        public void SafeQueueContains()
         {
             var queue = new SafeQueue<string>();
             queue.Enqueue("Jim");
@@ -129,30 +129,50 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestDotNetQueueOrder()
+        public void DotNetQueueOrder()
         {
-            var dotQueue = new Queue<string>();
-            dotQueue.Enqueue("A");
-            dotQueue.Enqueue("B");
-            dotQueue.Enqueue("C");
-            dotQueue.Enqueue("D");
+            var queue = new Queue<string>();
+            queue.Enqueue("A");
+            queue.Enqueue("B");
+            queue.Enqueue("C");
+            queue.Enqueue("D");
 
-            foreach (string item in dotQueue)
-                Console.WriteLine($".NET QueueItem: {item}");
+            Assert.AreEqual("A", queue.First());
+            Assert.AreEqual("B", queue.ElementAt(1));
+            Assert.AreEqual("C", queue.ElementAt(2));
+            Assert.AreEqual("D", queue.Last());
 
-            Assert.AreEqual("A", dotQueue.First());
-            Assert.AreEqual("B", dotQueue.ElementAt(1));
-            Assert.AreEqual("C", dotQueue.ElementAt(2));
-            Assert.AreEqual("D", dotQueue.Last());
-
-            Assert.AreEqual("A", dotQueue.Dequeue());
-            Assert.AreEqual("B", dotQueue.Dequeue());
-            Assert.AreEqual("C", dotQueue.Dequeue());
-            Assert.AreEqual("D", dotQueue.Dequeue());
+            Assert.AreEqual("A", queue.Dequeue());
+            Assert.AreEqual("B", queue.Dequeue());
+            Assert.AreEqual("C", queue.Dequeue());
+            Assert.AreEqual("D", queue.Dequeue());
         }
 
         [TestMethod]
-        public void TestElementAt()
+        public void SafeQueueLINQ()
+        {
+            var queue = new SafeQueue<string>();
+            queue.Enqueue("A");
+            queue.Enqueue("B");
+            queue.Enqueue("C");
+            queue.Enqueue("D");
+
+            Assert.AreEqual("A", queue.First());
+            Assert.AreEqual("B", queue.ElementAt(1));
+            Assert.AreEqual("C", queue.ElementAt(2));
+            Assert.AreEqual("D", queue.Last());
+
+            Assert.IsTrue(queue.Any(s => s == "D"));
+            Assert.IsFalse(queue.Any(s => s == "X"));
+
+            Assert.AreEqual("A", queue.Dequeue());
+            Assert.AreEqual("B", queue.Dequeue());
+            Assert.AreEqual("C", queue.Dequeue());
+            Assert.AreEqual("D", queue.Dequeue());
+        }
+
+        [TestMethod]
+        public void SafeQueueElementAt()
         {
             var queue = new SafeQueue<string>();
             queue.Enqueue("A");
@@ -168,6 +188,58 @@ namespace UnitTests.Collections
             Assert.ThrowsException<IndexOutOfRangeException>(() => queue.ElementAt(-1));
             Assert.ThrowsException<IndexOutOfRangeException>(() => queue.ElementAt(5));
             Assert.ThrowsException<IndexOutOfRangeException>(() => queue.ElementAt(10));
+        }
+
+        // This tests the ability of SafeQueue to concurrently modify
+        // and access its elements. One thread will be adding/removing items,
+        // while the other one will simply be iterating the queue
+        [TestMethod]
+        public void SafeQueueConcurrentModification()
+        {
+            var queue = new SafeQueue<string>();
+            var t = new PerfTimer();
+            var r = new SeededRandom();
+
+            var writer = Parallel.Run(() =>
+            {
+                var items = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
+
+                while (t.Elapsed < 1.0)
+                {
+                    int toAdd = r.Int(1, 3);
+                    int toRemove = r.Int(1, 3);
+                    for (int i = 0; i < toAdd; ++i)
+                        queue.Enqueue(items.RandItem());
+                    for (int i = 0; i < toRemove; ++i)
+                    {
+                        Assert.IsTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
+                        queue.Dequeue();
+                        Assert.IsTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
+                    }
+                }
+            });
+
+            var reader = Parallel.Run(() =>
+            {
+                while (t.Elapsed < 1.0)
+                {
+                    Assert.IsTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
+                    queue.TryPeekFirst(out string first);
+                    queue.TryPeekLast(out string last);
+
+                    if (queue.Any(s => s == "A") || queue.Contains("B"))
+                    {
+                    }
+
+                    queue.TryDequeue(out string first1);
+                    Assert.IsTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
+                }
+            });
+
+            writer.Wait();
+            reader.Wait();
+
+            // If it didn't crash here, the test succeeded
         }
     }
 }

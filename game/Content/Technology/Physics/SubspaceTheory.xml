@@ -4,7 +4,6 @@
   <UID>SubspaceTheory</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>120</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>672</NameIndex>
   <DescriptionIndex>673</DescriptionIndex>
   <LeadsTo>

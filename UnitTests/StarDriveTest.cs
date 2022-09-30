@@ -72,8 +72,6 @@ namespace UnitTests
 
             var sw = new Stopwatch();
 
-            EmpireManager.Clear();
-
             IEmpireData playerData = ResourceManager.MajorRaces[0];
             IEmpireData enemyData = ResourceManager.MajorRaces[1];
             if (playerArchetype != null)
@@ -92,7 +90,7 @@ namespace UnitTests
             Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
             Player.TestInitModifiers();
             Player.SetRelationsAsKnown(Enemy);
-            Player.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
+            Player.AI.DeclareWarOn(Enemy, WarType.BorderConflict);
             Empire.UpdateBilateralRelations(Player, Enemy);
             
             Log.Info($"CreateUniverseAndPlayerEmpire elapsed: {sw.Elapsed.TotalMilliseconds}ms");
@@ -102,14 +100,38 @@ namespace UnitTests
         {
             Universe = DeveloperUniverse.Create(playerPreference, numOpponents);
             Player = Universe.Player;
-            Enemy  = EmpireManager.NonPlayerEmpires[0];
+            Enemy  = UState.NonPlayerEmpires[0];
         }
 
         public void CreateCustomUniverse(UniverseGenerator.Params p)
         {
             Universe = new UniverseGenerator(p).Generate();
             Player = Universe.Player;
-            Enemy = EmpireManager.NonPlayerEmpires[0];
+            Enemy = UState.NonPlayerEmpires[0];
+        }
+
+        public void CreateCustomUniverseSandbox(int numOpponents, GalSize galSize)
+        {
+            (int numStars, float starNumModifier) = RaceDesignScreen.GetNumStars(
+                RaceDesignScreen.StarsAbundance.Abundant, galSize, numOpponents
+            );
+
+            EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
+            playerData.DiplomaticPersonality = new DTrait();
+
+            CreateCustomUniverse(new UniverseGenerator.Params
+            {
+                PlayerData = playerData,
+                Mode = RaceDesignScreen.GameMode.Sandbox,
+                UniverseSize = galSize,
+                NumSystems = numStars,
+                NumOpponents = numOpponents,
+                StarNumModifier = starNumModifier,
+                Pace = 1.0f,
+                Difficulty = GameDifficulty.Normal,
+            });
+            Universe.CreateSimThread = false;
+            Universe.LoadContent();
         }
 
         public void DestroyUniverse()
@@ -121,7 +143,7 @@ namespace UnitTests
 
         public void CreateThirdMajorEmpire()
         {
-            ThirdMajor = EmpireManager.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[2], isPlayer:false);
+            ThirdMajor = UState.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[2], isPlayer:false);
             UState.AddEmpire(ThirdMajor);
 
             Player.SetRelationsAsKnown(ThirdMajor);
@@ -133,7 +155,7 @@ namespace UnitTests
         public void CreateRebelFaction()
         {
             IEmpireData data = ResourceManager.MajorRaces.FirstOrDefault(e => e.Name == Player.data.Name);
-            Faction = EmpireManager.CreateRebelsFromEmpireData(data, Player);
+            Faction = UState.CreateRebelsFromEmpireData(data, Player);
         }
 
         public void UnlockAllShipsFor(Empire empire)
@@ -227,7 +249,7 @@ namespace UnitTests
             ship.Rotation = shipDirection.Normalized().ToRadians();
             ship.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             ship.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
-            ship.SetSystem(null);
+            ship.System = null;
             Assert.IsTrue(ship.Active, "Spawned ship is Inactive! This is a bug in Status update!");
 
             return ship;
@@ -248,7 +270,7 @@ namespace UnitTests
             p.OrbitalAngle = p.Position.AngleToTarget(s.Position);
             p.TestSetOrbitalRadius(p.Position.Distance(s.Position) + p.Radius);
 
-            s.RingList.Add(new SolarSystem.Ring { Asteroids = false, OrbitalDistance = p.OrbitalRadius, planet = p });
+            s.RingList.Add(new SolarSystem.Ring { Asteroids = false, OrbitalDistance = p.OrbitalRadius, Planet = p });
             s.PlanetList.Add(p);
             UState.AddSolarSystem(s);
         }

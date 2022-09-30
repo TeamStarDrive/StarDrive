@@ -4,7 +4,6 @@
   <UID>Pulse Capacitors</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>600</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>643</NameIndex>
   <DescriptionIndex>644</DescriptionIndex>
   <LeadsTo />

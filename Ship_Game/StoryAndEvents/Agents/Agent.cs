@@ -1,7 +1,3 @@
-using NAudio.Wave;
-using Newtonsoft.Json;
-using Ship_Game.Gameplay;
-using System;
 using System.Xml.Serialization;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
@@ -34,10 +30,10 @@ namespace Ship_Game
         [StarData] public short Robberies;
         [StarData] public short Rebellions;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsNovice => Level < 3;
         
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public LocalizedText MissionName => ResourceManager.AgentMissionData.GetMissionName(Mission);
 
         public Agent()
@@ -52,20 +48,11 @@ namespace Ship_Game
 
             if (mission == AgentMission.Undercover)
             {
-                foreach (Mole m in owner.data.MoleList)
-                {
-                    if (m.PlanetId != TargetPlanetId)
-                    {
-                        continue;
-                    }
-                    owner.data.MoleList.QueuePendingRemoval(m);
-                    break;
-                }
+                owner.data.MoleList.RemoveFirst(m => m.PlanetId == TargetPlanetId);
             }
 
-            owner.data.MoleList.ApplyPendingRemovals();
             owner.AddMoney(-cost);
-            owner.GetEmpireAI().DeductSpyBudget(cost);
+            owner.AI.DeductSpyBudget(cost);
 
             Mission = mission;
             TargetEmpire = targetEmpire;
@@ -418,7 +405,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            if (!victim.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialTechs, true))
+            if (!victim.AI.TradableTechs(us, out Array<TechEntry> potentialTechs, true))
             {
                 aftermath.Message = GameText.AbortedTheStealTechnologyMission;
                 aftermath.ShouldAddXp = false;
@@ -481,7 +468,7 @@ namespace Ship_Game
         {
             AgentMissionData data = ResourceManager.AgentMissionData;
             spyMute = us.data.SpyMute;
-            Empire victim = EmpireManager.GetEmpireByName(TargetEmpire);
+            Empire victim = us.Universe.GetEmpireByName(TargetEmpire);
 
             if (ReassignedDueToVictimDefeated(us, victim))
                 return;
@@ -502,7 +489,7 @@ namespace Ship_Game
                 case AgentMission.Recovering:      aftermath = ResolveRecovery(us);                             break;
             }
 
-            aftermath.PerformPostMissionActions(us.Universum, this, xpToAdd, missionStatus);
+            aftermath.PerformPostMissionActions(us.Universe, this, xpToAdd, missionStatus);
             RepeatMission(us);
         }
 
@@ -534,29 +521,20 @@ namespace Ship_Game
             Agent targetAgent = victim.data.AgentList.RandItem(); // TODO - a target specific agent base on threat
             targetName = targetAgent.Name;
             victim.data.AgentList.Remove(targetAgent);
-            if (targetAgent.Mission != AgentMission.Undercover)
-                return;
-
-            foreach (Mole mole in us.data.MoleList)
+            if (targetAgent.Mission == AgentMission.Undercover)
             {
-                if (mole.PlanetId == targetAgent.TargetPlanetId)
-                {
-                    us.data.MoleList.QueuePendingRemoval(mole);
-                    break;
-                }
+                us.data.MoleList.RemoveFirst(m => m.PlanetId == targetAgent.TargetPlanetId);
             }
-
-            us.data.MoleList.ApplyPendingRemovals();
         }
 
         void AddRebellion(Empire victim, Planet targetPlanet, int numTroops)
         {
             Empire rebels = null;
             if (!victim.data.RebellionLaunched)
-                rebels = EmpireManager.CreateRebelsFromEmpireData(victim.data, victim);
+                rebels = victim.Universe.CreateRebelsFromEmpireData(victim.data, victim);
 
             if (rebels == null) 
-                rebels = EmpireManager.GetEmpireByName(victim.data.RebelName);
+                rebels = victim.Universe.GetEmpireByName(victim.data.RebelName);
 
             for (int i = 0; i < numTroops; i++)
             {
@@ -569,7 +547,7 @@ namespace Ship_Game
                     t.Name        = rebels.data.TroopName.Text;
                     t.Description = rebels.data.TroopDescription.Text;
                     if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 &&
-                        !targetPlanet.BumpOutTroop(EmpireManager.Corsairs) &&
+                        !targetPlanet.BumpOutTroop(victim.Universe.Corsairs) &&
                         !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
                     {
                         t.Launch(targetPlanet); // launch the rebels
@@ -596,7 +574,7 @@ namespace Ship_Game
                         if (Mission == AgentMission.Training && Level == 3 && owner.data.SpyMissionRepeat)
                             message += "\nTraining is stopped since the agent has reached Level 3";
 
-                        owner.Universum.Notifications.AddAgentResult(true, message, owner);
+                        owner.Universe.Notifications.AddAgentResult(true, message, owner);
                     }
                 }
                 else
@@ -612,8 +590,8 @@ namespace Ship_Game
                              $"All agents below Level 6 gain 1 Level\n" +
                              "due to this agent's tutoring and vast experience";
 
-            owner.Universum.Notifications.AddAgentResult(true, message, owner);
-            owner.data.AgentList.QueuePendingRemoval(this);
+            owner.Universe.Notifications.AddAgentResult(true, message, owner);
+            owner.data.AgentList.Remove(this);
             for (int i = 0; i < owner.data.AgentList.Count; i++)
             {
                 Agent agent = owner.data.AgentList[i];
@@ -662,7 +640,7 @@ namespace Ship_Game
             {
                 if (AgentKilled)
                 {
-                    Us.data.AgentList.QueuePendingRemoval(agent);
+                    Us.data.AgentList.Remove(agent);
                 }
                 else if (AgentInjured)
                 {

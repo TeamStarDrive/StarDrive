@@ -3,6 +3,7 @@ using Ship_Game.Ships;
 using System;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Empires;
 using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
@@ -13,7 +14,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        public CombatState CombatState = CombatState.AttackRuns;
+        [StarData] public CombatState CombatState = CombatState.AttackRuns;
         public CombatAI CombatAI;
 
         public Ship[] PotentialTargets = Empty<Ship>.Array;
@@ -25,15 +26,15 @@ namespace Ship_Game.AI
         float EnemyScanTimer;
         float FriendScanTimer;
 
-        public Ship EscortTarget;
+        [StarData] public Ship EscortTarget;
         public Planet ExterminationTarget;
 
-        public Ship Target;
-        public Array<Ship> TargetQueue = new Array<Ship>();
+        [StarData] public Ship Target;
+        public Array<Ship> TargetQueue = new();
         float TriggerDelay;
-        Array<Ship> ScannedTargets = new Array<Ship>();
-        Array<Ship> ScannedFriendlies = new Array<Ship>();
-        Array<Projectile> ScannedProjectiles = new Array<Projectile>();
+        Array<Ship> ScannedTargets = new();
+        Array<Ship> ScannedFriendlies = new();
+        Array<Projectile> ScannedProjectiles = new();
 
         void InitializeTargeting()
         {

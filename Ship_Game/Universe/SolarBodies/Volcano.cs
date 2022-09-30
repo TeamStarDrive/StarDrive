@@ -1,17 +1,22 @@
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Universe.SolarBodies
 {
+    [StarDataType]
     public class Volcano // Created by Fat Bastard, Mar 2021
     {
-        public bool Active { get; private set; }
-        public bool Erupting { get; private set; }
-        public float ActivationChance { get; private set; }
-        public readonly PlanetGridSquare Tile;
-        public readonly Planet P;
-        private const float MaxActivationChance = 0.1f;
+        [StarData] public bool Active { get; private set; }
+        [StarData] public bool Erupting { get; private set; }
+        [StarData] public float ActivationChance { get; private set; }
+        [StarData] public readonly PlanetGridSquare Tile;
+        [StarData] public readonly Planet P;
+        const float MaxActivationChance = 0.1f;
+
+        [StarDataConstructor]
+        Volcano() {}
 
         public Volcano(PlanetGridSquare tile, Planet planet)
         {
@@ -21,18 +26,8 @@ namespace Ship_Game.Universe.SolarBodies
             CreateDormantVolcano();
         }
 
-        // From save
-        public Volcano(SavedGame.PGSData data, PlanetGridSquare tile, Planet planet)
-        {
-            ActivationChance = data.VolcanoActivationChance;
-            Active           = data.VolcanoActive;
-            Erupting         = data.VolcanoErupting;
-            Tile             = tile;
-            P                = planet;
-        }
-
-        public Empire Player           => EmpireManager.Player;
-        public bool Dormant            => !Active;
+        public Empire Player => P.Universe.Player;
+        public bool Dormant => !Active;
         float DeactivationChance       => ActivationChance * 5;
         float ActiveEruptionChance     => ActivationChance * 10;
         float InitActivationChance()   => RandomMath.Float(0.01f, MaxActivationChance) * GlobalStats.VolcanicActivity;
@@ -248,7 +243,7 @@ namespace Ship_Game.Universe.SolarBodies
                     // Lava solidifies into a special building 
                     Building b = ResourceManager.CreateBuilding(planet, potentials.RandItem());
                     tile.PlaceBuilding(b, planet);
-                    if (planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player) || planet.ParentSystem.ShipList.
+                    if (planet.ParentSystem.HasPlanetsOwnedBy(planet.Universe.Player) || planet.ParentSystem.ShipList.
                             Any(s => s.Loyalty.isPlayer && s.Position.InRadius(planet.Position, s.SensorRange)))
                     {
                         string message = $"{Localizer.Token(GameText.ALavaPoolHasSolidified)}" +

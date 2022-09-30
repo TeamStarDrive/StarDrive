@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -13,12 +13,13 @@ namespace Ship_Game.Gameplay
     public sealed class Asteroid : GameObject
     {
         [StarData] public float Scale = 1.0f; // serialized
-        [XmlIgnore][JsonIgnore] Vector3 RotationRadians;
-        [XmlIgnore][JsonIgnore] Vector3 Spin;
-        [XmlIgnore][JsonIgnore] int AsteroidId;
-        [XmlIgnore][JsonIgnore] SceneObject So;
+        Vector3 RotationRadians;
+        Vector3 Spin;
+        int AsteroidId;
+        SceneObject So;
 
         // Serialized (SaveGame) asteroid
+        [StarDataConstructor]
         public Asteroid() : base(0, GameObjectType.Asteroid)
         {
             Radius = 50f; // some default radius for now
@@ -28,17 +29,24 @@ namespace Ship_Game.Gameplay
         public Asteroid(int id, RandomBase random, float scaleMin, float scaleMax, Vector2 pos)
              : base(id, GameObjectType.Asteroid)
         {
+            Active = true;
             Radius = 50f; // some default radius for now
             Scale = random.Float(scaleMin, scaleMax);
             Position = pos;
             Initialize(random);
         }
 
-        public void Initialize(RandomBase random)
+        void Initialize(RandomBase random)
         {
             Spin            = random.Vector3D(0.01f, 0.2f);
             RotationRadians = random.Vector3D(0.01f, 1.02f);
             AsteroidId      = random.InRange(ResourceManager.NumAsteroidModels);
+        }
+
+        [StarDataDeserialized]
+        public void OnDeserialize(UniverseState us)
+        {
+            Initialize(us.Random);
         }
 
         void CreateSceneObject(Vector2 systemPos)

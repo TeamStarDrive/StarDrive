@@ -225,11 +225,11 @@ namespace Ship_Game
             AdjustCamTimer -= elapsedTime;
             if (ViewingShip && !snappingToShip)
             {
-                CamPos.X = ShipToView.Position.X;
-                CamPos.Y = ShipToView.Position.Y;
-                CamPos.Z = CamPos.Z.SmoothStep(CamDestination.Z, 0.2);
-                if (CamPos.Z < minCamHeight)
-                    CamPos.Z = minCamHeight;
+                UState.CamPos.X = ShipToView.Position.X;
+                UState.CamPos.Y = ShipToView.Position.Y;
+                UState.CamPos.Z = UState.CamPos.Z.SmoothStep(CamDestination.Z, 0.2);
+                if (UState.CamPos.Z < minCamHeight)
+                    UState.CamPos.Z = minCamHeight;
             }
 
             if (AdjustCamTimer > 0.0)
@@ -266,24 +266,24 @@ namespace Ship_Game
                         AdjustCamTimer = -1f;
                     }
                 }
-                if (CamPos.Z < minCamHeight)
-                    CamPos.Z = minCamHeight;
+                if (UState.CamPos.Z < minCamHeight)
+                    UState.CamPos.Z = minCamHeight;
             }
             else if (LookingAtPlanet && SelectedPlanet != null)
             {
-                CamPos.X = CamPos.X.SmoothStep(SelectedPlanet.Position.X, 0.2);
-                CamPos.Y = CamPos.Y.SmoothStep(SelectedPlanet.Position.Y + 400f, 0.2);
+                UState.CamPos.X = UState.CamPos.X.SmoothStep(SelectedPlanet.Position.X, 0.2);
+                UState.CamPos.Y = UState.CamPos.Y.SmoothStep(SelectedPlanet.Position.Y + 400f, 0.2);
             }
             else if (!ViewingShip) // regular free camera movement in Universe
             {
-                CamPos = CamPos.SmoothStep(CamDestination, 0.2);
-                if (CamPos.Z < minCamHeight)
-                    CamPos.Z = minCamHeight;
+                UState.CamPos = UState.CamPos.SmoothStep(CamDestination, 0.2);
+                if (UState.CamPos.Z < minCamHeight)
+                    UState.CamPos.Z = minCamHeight;
             }
 
-            CamPos.X = CamPos.X.Clamped(-UState.Size, +UState.Size);
-            CamPos.Y = CamPos.Y.Clamped(-UState.Size, +UState.Size);
-            CamPos.Z = CamPos.Z.Clamped(minCamHeight, MaxCamHeight);
+            UState.CamPos.X = UState.CamPos.X.Clamped(-UState.Size, +UState.Size);
+            UState.CamPos.Y = UState.CamPos.Y.Clamped(-UState.Size, +UState.Size);
+            UState.CamPos.Z = UState.CamPos.Z.Clamped(minCamHeight, MaxCamHeight);
 
             //Log.Write(ConsoleColor.Green, $"CamPos {CamPos.X:0.00} {CamPos.Y:0.00} {CamPos.Z:0.00}  Dest {CamDestination.X:0.00} {CamDestination.Y:0.00} {CamDestination.Z:0.00}");
 

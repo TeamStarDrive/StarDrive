@@ -100,16 +100,13 @@ namespace Ship_Game
 
             if (pgs.TroopsAreOnTile)
             {
-                using (pgs.TroopsHere.AcquireReadLock())
+                for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                 {
-                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
-                    {
-                        Troop troop = pgs.TroopsHere[i];
-                        troop.SetColonyScreenRect(pgs);
-                        troop.DrawIcon(batch, troop.ClickRect);
-                        if (troop.Level > 0)
-                            DrawTroopLevel(troop);
-                    }
+                    Troop troop = pgs.TroopsHere[i];
+                    troop.SetColonyScreenRect(pgs);
+                    troop.DrawIcon(batch, troop.ClickRect);
+                    if (troop.Level > 0)
+                        DrawTroopLevel(troop);
                 }
             }
 
@@ -234,7 +231,7 @@ namespace Ship_Game
                 fertility = $"{P.FertilityFor(Player).String(2)} / {P.MaxFertilityFor(Player).LowerBound(0).String(2)}";
                 batch.DrawString(TextFont, fertility, position3, fertColor);
             }
-            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(P.Category);
+            float fertEnvMultiplier = Player.PlayerEnvModifier(P.Category);
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
@@ -635,7 +632,7 @@ namespace Ship_Game
 
             DrawMultiLine(ref bCursor, desc);
             desc = "";
-            if (P.colonyType == Planet.ColonyType.Colony)
+            if (P.CType == Planet.ColonyType.Colony)
             {
                 switch (P.PS)
                 {

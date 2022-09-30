@@ -10,6 +10,7 @@ using SDUtils;
 using Ship_Game.Empires.Components;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -233,7 +234,7 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            foreach (Empire empire in EmpireManager.Empires)
+            foreach (Empire empire in UState.Empires)
                 RemoveDuplicateProjectorWorkAround(empire); 
 
             // We need to update objects at least once to have visibility
@@ -293,8 +294,6 @@ namespace Ship_Game
             EmpireMiscPerf.Stop();
         }
 
-        public readonly int MaxTaskCores = Parallel.NumPhysicalCores - 1;
-
         // FB todo: this a work around from duplicate SSP create somewhere in the game but are not seen before loading the game
         void RemoveDuplicateProjectorWorkAround(Empire empire)
         {
@@ -318,9 +317,9 @@ namespace Ship_Game
         {
             EmpireInfluPerf.Start();
 
-            for (int i = 0; i < EmpireManager.Empires.Count; ++i)
+            for (int i = 0; i < UState.Empires.Count; ++i)
             {
-                Empire empireToUpdate = EmpireManager.Empires[i];
+                Empire empireToUpdate = UState.Empires[i];
                 empireToUpdate.UpdateContactsAndBorders(us, timeStep);
             }
 
@@ -398,22 +397,22 @@ namespace Ship_Game
                 {
                     for (int i = start; i < end; i++)
                     {
-                        var empire = EmpireManager.Empires[i];
+                        var empire = UState.Empires[i];
                         empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
-                        empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
-                        foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
+                        empire.AI.ThreatMatrix.ProcessPendingActions();
+                        foreach (Fleet fleet in empire.Fleets)
                         {
-                            if (kv.Value.Ships.NotEmpty)
+                            if (fleet.Ships.NotEmpty)
                             {
-                                kv.Value.AveragePosition();
-                                kv.Value.UpdateSpeedLimit();
+                                fleet.AveragePosition();
+                                fleet.UpdateSpeedLimit();
                             }
                         }
                     }
                 }
-                Parallel.For(EmpireManager.Empires.Count, PostEmpireUpdate, MaxTaskCores);
+                Parallel.For(UState.Empires.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
             }
 
             PostEmpirePerf.Stop();
@@ -421,9 +420,9 @@ namespace Ship_Game
 
         void UpdateEmpires(FixedSimTime timeStep)
         {
-            for (int i = 0; i < EmpireManager.NumEmpires; i++)
+            for (int i = 0; i < UState.NumEmpires; i++)
             {
-                Empire empire = EmpireManager.Empires[i];
+                Empire empire = UState.Empires[i];
                 if (!empire.data.Defeated)
                 {
                     empire.Update(UState, timeStep);
@@ -456,7 +455,7 @@ namespace Ship_Game
                 UState.GameSpeed = 1f;
             else if (input.SpeedUp || input.SpeedDown)
             {
-                bool unlimited = GlobalStats.UnlimitedSpeed || Debug;
+                bool unlimited = GlobalStats.UnlimitedSpeed || Debug || Debugger.IsAttached;
                 float speedMin = unlimited ? 0.0625f : 0.25f;
                 float speedMax = unlimited ? 128f    : 6f;
                 UState.GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);

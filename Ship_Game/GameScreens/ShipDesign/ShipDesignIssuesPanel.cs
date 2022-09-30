@@ -60,7 +60,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             S = ship;
             if (ship == null)
                 return;
-            Issues = new ShipDesignIssues(ship.ShipData);
+            Issues = new ShipDesignIssues(Screen.ParentUniverse, ship.ShipData);
         }
 
         UIButton AddTextButton(string text)

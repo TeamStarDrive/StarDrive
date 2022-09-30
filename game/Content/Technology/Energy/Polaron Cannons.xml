@@ -4,7 +4,6 @@
   <UID>Polaron Cannons</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>3500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>638</NameIndex>
   <DescriptionIndex>639</DescriptionIndex>
   <LeadsTo>

@@ -25,7 +25,7 @@ namespace Ship_Game
 
         void AutoSaveCurrentGame()
         {
-            Save("Autosave" + Auto);
+            Save("Autosave" + Auto, async: false);
             if (++Auto > 3) Auto = 1;
         }
     }

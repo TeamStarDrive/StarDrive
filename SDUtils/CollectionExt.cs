@@ -280,6 +280,28 @@ namespace SDUtils
             Array.Sort(keys, array, 0, array.Length);
         }
 
+        internal readonly struct Comparer<T> : IComparer<T>
+        {
+            readonly Comparison<T> Comparison;
+            public Comparer(Comparison<T> comparison)
+            {
+                Comparison = comparison;
+            }
+            public int Compare(T x, T y)
+            {
+                return Comparison(x, y);
+            }
+        }
+
+        // Sorts array items by calling comparsion(a, b) between all items
+        // comparison(): return -1: a is less than b, thus a should be first
+        //               return  0: a is equal to b, order does not matter
+        //               return +1: a is greater than b, thus b should be first
+        public static void Sort<T>(this T[] array, Comparison<T> comparison)
+        {
+            Array.Sort(array, 0, array.Length, new Comparer<T>(comparison));
+        }
+
         /// <summary>
         /// Returns a sorted copy of the original items
         /// The ordering of elements is decided by the keyPredicate.
@@ -409,6 +431,24 @@ namespace SDUtils
             return truncated;
         }
 
+        // Fast concat of two arrays
+        public static T[] Concat<T>(this T[] array1, T[] array2)
+        {
+            var result = new T[array1.Length + array2.Length];
+            array1.CopyTo(result, 0);
+            array2.CopyTo(result, array1.Length);
+            return result;
+        }
+        // Fast concat of three arrays
+        public static T[] Concat<T>(this T[] array1, T[] array2, T[] array3)
+        {
+            var result = new T[array1.Length + array2.Length + array3.Length];
+            array1.CopyTo(result, 0);
+            array2.CopyTo(result, array1.Length);
+            array3.CopyTo(result, array1.Length+array2.Length);
+            return result;
+        }
+
         /// <summary>
         /// Group items by selector
         /// </summary>
@@ -469,14 +509,20 @@ namespace SDUtils
         /// <summary>
         /// Returns the unique groups
         /// </summary>
-        public static Array<T> Unique<T>(this ICollection<T> items)
+        public static HashSet<T> UniqueSet<T>(this ICollection<T> items)
         {
             var unique = new HashSet<T>();
             foreach (var item in items)
-            {
                 unique.Add(item);
-            }
-            return unique.ToArrayList();
+            return unique;
+        }
+
+        /// <summary>
+        /// Returns the unique groups
+        /// </summary>
+        public static Array<T> Unique<T>(this ICollection<T> items)
+        {
+            return UniqueSet(items).ToArrayList();
         }
 
         // Disposes all objects AND clears the Map

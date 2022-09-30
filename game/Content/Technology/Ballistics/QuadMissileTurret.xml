@@ -4,7 +4,6 @@
   <UID>QuadMissileTurret</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>5500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17508</NameIndex>
   <DescriptionIndex>17509</DescriptionIndex>
   <LeadsTo>

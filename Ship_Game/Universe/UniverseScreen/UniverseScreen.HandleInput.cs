@@ -101,16 +101,16 @@ namespace Ship_Game
 
         void HandleDebugEvents(InputState input)
         {
-            Empire empire = EmpireManager.Player;
+            Empire player = Player;
 
             if (input.EmpireToggle) 
-                empire  = input.RemnantToggle ? EmpireManager.Remnants : EmpireManager.Corsairs;
+                player  = input.RemnantToggle ? UState.Remnants : UState.Corsairs;
 
             if (input.SpawnShip)
-                Ship.CreateShipAtPoint(UState, "Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
+                Ship.CreateShipAtPoint(UState, "Bondage-Class Mk IIIa Cruiser", player, mouseWorldPos);
 
-            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 2", empire, mouseWorldPos);
-            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 1", empire, mouseWorldPos);
+            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 2", player, mouseWorldPos);
+            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 1", player, mouseWorldPos);
 
             if (SelectedShip != null)
             {
@@ -132,12 +132,12 @@ namespace Ship_Game
             else if (SelectedPlanet != null && input.DebugKillShip)
             {
                 foreach (string troopType in ResourceManager.TroopTypes)
-                    if (ResourceManager.TryCreateTroop(troopType, EmpireManager.Remnants, out Troop t))
+                    if (ResourceManager.TryCreateTroop(troopType, UState.Remnants, out Troop t))
                         t.TryLandTroop(SelectedPlanet);
             }
 
             if (input.SpawnRemnant)
-                EmpireManager.Remnants.Remnants.DebugSpawnRemnant(input, mouseWorldPos);
+                UState.Remnants.Remnants.DebugSpawnRemnant(input, mouseWorldPos);
 
             if (input.ToggleSpatialManagerType)
                 UState.Spatial.ToggleSpatialType();
@@ -297,7 +297,7 @@ namespace Ship_Game
 
             if (input.QuickSave && !SavedGame.IsSaving)
             {
-                string saveName = $"Quicksave, {EmpireManager.Player.data.Traits.Name}, {UState.StarDate.String()}";
+                string saveName = $"Quicksave, {Player.data.Traits.Name}, {UState.StarDate.String()}";
                 RunOnEmpireThread(() => Save(saveName));
             }
 
@@ -334,7 +334,7 @@ namespace Ship_Game
                 SelectedSystem = null;
             }
 
-            if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.empire == Player))
+            if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.Owner == Player))
                 OnScrapSelectedItem();
 
             pickedSomethingThisFrame = false;
@@ -432,7 +432,7 @@ namespace Ship_Game
             if (index == -1) 
                 return;
 
-            Fleet selectedFleet = Player.GetFleetsDict()[index];
+            Fleet selectedFleet = Player.GetFleet(index);
 
             if (input.ReplaceFleet)
             {
@@ -466,7 +466,7 @@ namespace Ship_Game
             fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
             fleet.Owner = Player;
 
-            Player.GetFleetsDict()[index] = fleet;
+            Player.SetFleet(index, fleet);
             RecomputeFleetButtons(true);
             UpdateFleetSelection(fleet);
         }
@@ -495,7 +495,7 @@ namespace Ship_Game
             else
             {
                 fleet = AddSelectedShipsToNewFleet(SelectedShipList);
-                Player.GetFleetsDict()[index] = fleet;
+                Player.SetFleet(index, fleet);
             }
 
             UpdateFleetSelection(fleet);
@@ -610,7 +610,7 @@ namespace Ship_Game
                 {
                     SolarSystem sys = ClickableSystems[index].System;
 
-                    if (sys.IsExploredBy(EmpireManager.Player))
+                    if (sys.IsExploredBy(Player))
                     {
                         for (int i = 0; i < sys.PlanetList.Count; i++)
                         {
@@ -833,7 +833,7 @@ namespace Ship_Game
                 pInfoUI.SetPlanet(SelectedPlanet);
                 if (input.LeftMouseDoubleClick)
                 {
-                    SnapViewColony(SelectedPlanet.Owner != EmpireManager.Player && !Debug);
+                    SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
                     SelectionBox = new Rectangle();
                 }
                 else
@@ -972,7 +972,9 @@ namespace Ship_Game
         public void UpdateClickableItems()
         {
             var buildGoals = new Array<ClickableSpaceBuildGoal>();
-            EmpireAI playerAI = Player.GetEmpireAI();
+            EmpireAI playerAI = Player.AI;
+
+            // ToArray() used for thread safety
             foreach (Goal goal in playerAI.Goals.ToArray())
             {
                 if (goal.IsDeploymentGoal)
@@ -983,7 +985,7 @@ namespace Ship_Game
                         ScreenPos = buildPos.ToVec2f(),
                         BuildPos = goal.BuildPosition,
                         Radius = (float)(clickableRadius + 10),
-                        UID = goal.ToBuildUID,
+                        UID = goal.ToBuild.Name,
                         AssociatedGoal = goal
                     });
                 }
@@ -1325,7 +1327,7 @@ namespace Ship_Game
 
         void OnScrapSelectedItem()
         {
-            Player.GetEmpireAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
+            Player.AI.RemoveGoal(SelectedItem.AssociatedGoal);
 
             bool found = false;
             var ships = Player.OwnedShips;
@@ -1364,7 +1366,6 @@ namespace Ship_Game
                 GameAudio.BlipClick();
             }
 
-            Player.GetEmpireAI().Goals.ApplyPendingRemovals();
             SelectedItem = null;
         }
 
@@ -1403,15 +1404,15 @@ namespace Ship_Game
 
             var buttons = new Array<FleetButton>();
             int shipCounter = 0;
-            foreach (KeyValuePair<int, Fleet> kv in Player.GetFleetsDict())
+            foreach (Fleet fleet in Player.Fleets)
             {
-                if (kv.Value.Ships.Count <= 0) continue;
+                if (fleet.Ships.Count <= 0) continue;
 
                 buttons.Add(new FleetButton
                 {
                     ClickRect = new Rectangle(20, 60 + shipCounter * 60, 52, 48),
-                    Fleet = kv.Value,
-                    Key = kv.Key
+                    Fleet = fleet,
+                    Key = fleet.Key
                 });
                 ++shipCounter;
             }
@@ -1509,23 +1510,23 @@ namespace Ship_Game
             if (!input.YButtonHeld && !input.ScrollIn || LookingAtPlanet)
                 return;
 
-            CamDestination.Z = CamPos.Z - scrollAmount;
-            if (CamPos.Z >= 16000f)
+            CamDestination.Z = UState.CamPos.Z - scrollAmount;
+            if (UState.CamPos.Z >= 16000f)
             {
                 CamDestination.Z -= 2000f;
-                if (CamPos.Z > 32000.0)
+                if (UState.CamPos.Z > 32000.0)
                     CamDestination.Z -= 7500.0;
-                if (CamPos.Z > 150000.0)
+                if (UState.CamPos.Z > 150000.0)
                     CamDestination.Z -= 40000.0;
             }
 
-            if (input.IsCtrlKeyDown && CamPos.Z > 10000.0)
-                CamDestination.Z = CamPos.Z <= 65000.0 ? 10000.0 : 60000.0;
+            if (input.IsCtrlKeyDown && UState.CamPos.Z > 10000.0)
+                CamDestination.Z = UState.CamPos.Z <= 65000.0 ? 10000.0 : 60000.0;
 
             if (ViewingShip)
                 return;
-            if (CamPos.Z <= 450.0)
-                CamPos.Z = 450.0;
+            if (UState.CamPos.Z <= 450.0)
+                UState.CamPos.Z = 450.0;
 
             double camDestinationZ = CamDestination.Z;
 

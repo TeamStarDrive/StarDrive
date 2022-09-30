@@ -4,7 +4,6 @@
   <UID>WirelessPower</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>400</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17609</NameIndex>
   <DescriptionIndex>17610</DescriptionIndex>
   <LeadsTo>

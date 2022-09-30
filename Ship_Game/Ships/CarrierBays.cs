@@ -5,10 +5,12 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics;
 using Ship_Game.Audio;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships
 {
+    [StarDataType]
     public class CarrierBays  // Created by Fat Bastard in to better deal with hangars
     {
         public ShipModule[] AllHangars { get; private set; }
@@ -16,7 +18,7 @@ namespace Ship_Game.Ships
         public ShipModule[] AllSupplyBays { get; private set; }
         public ShipModule[] AllFighterHangars { get; private set; }
         public ShipModule[] AllTransporters { get; private set; }
-        Ship Owner;
+        [StarData] Ship Owner;
         public readonly bool HasHangars;
         public readonly bool HasSupplyBays;
         public readonly bool HasFighterBays;
@@ -24,11 +26,11 @@ namespace Ship_Game.Ships
         public readonly bool HasActiveTroopBays;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
-        public float OrdnanceInSpace { get; private set; }
-        public bool FightersLaunched { get; private set; }
-        public bool TroopsLaunched { get; private set; }
-        public bool SendTroopsToShip { get; private set; }
-        public bool RecallFightersBeforeFTL { get; private set; }
+        [StarData] public float OrdnanceInSpace { get; private set; }
+        [StarData] public bool FightersLaunched { get; private set; }
+        [StarData] public bool TroopsLaunched { get; private set; }
+        [StarData] public bool SendTroopsToShip { get; private set; }
+        [StarData] public bool RecallFightersBeforeFTL { get; private set; }
         public bool RecallingShipsBeforeWarp { get; private set; }
 
         // for testing purposes, disable fighters
@@ -59,6 +61,10 @@ namespace Ship_Game.Ships
             return fighters;
         }
 
+        CarrierBays()
+        {
+        }
+
         CarrierBays(Ship owner, ShipModule[] slots)
         {
             AllHangars        = slots.Filter(module => module.Is(ShipModuleType.Hangar));
@@ -81,7 +87,12 @@ namespace Ship_Game.Ships
             TroopTactics            = new AssaultShipCombat(owner);
         }
 
-        static readonly CarrierBays None = new CarrierBays(null, Empty<ShipModule>.Array); // NIL object pattern
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+        }
+
+        static readonly CarrierBays None = new(null, Empty<ShipModule>.Array); // NIL object pattern
 
         public static CarrierBays Create(Ship owner, ShipModule[] slots)
         {
@@ -159,18 +170,6 @@ namespace Ship_Game.Ships
         public bool HasSupplyShuttlesInSpace => AllSupplyBays.Any(hangar => hangar.IsHangarShipActive);
         public ShipModule[] SupplyHangarsAlive => AllSupplyBays.Filter(hangar => hangar.Active);
 
-        public void InitFromSave(SavedGame.ShipSaveData save)
-        {
-            if (Owner == null)
-                return;
-
-            FightersLaunched = save.FightersLaunched;
-            TroopsLaunched   = save.TroopsLaunched;
-            SendTroopsToShip = save.SendTroopsToShip;
-            OrdnanceInSpace  = save.OrdnanceInSpace;
-            SetRecallFightersBeforeFTL(save.RecallFightersBeforeFTL);
-        }
-        
         public int NumTroopsInShipAndInSpace
         {
             get
@@ -640,9 +639,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public static string GetDynamicShipNameShipDesign(ShipModule hangar) => GetDynamicShipName(hangar, EmpireManager.Player);
-
-        static string GetDynamicShipName(ShipModule hangar, Empire empire)
+        public static string GetDynamicShipName(ShipModule hangar, Empire empire)
         {
             HangarOptions desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
             float strongest = 0;

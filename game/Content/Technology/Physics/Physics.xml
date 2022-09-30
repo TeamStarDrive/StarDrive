@@ -4,7 +4,7 @@
   <UID>Physics</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
-  <RootNode>1</RootNode>
+  <RootNode>5</RootNode>
   <NameIndex>629</NameIndex>
   <DescriptionIndex>630</DescriptionIndex>
   <IconPath>icons_techroot_physics</IconPath>

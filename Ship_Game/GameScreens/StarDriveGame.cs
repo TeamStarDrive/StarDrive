@@ -51,9 +51,7 @@ namespace Ship_Game
             Directory.CreateDirectory(appData + "/Saved Setups"); // for saving new game setups
             Directory.CreateDirectory(appData + "/Fleet Designs");
             Directory.CreateDirectory(appData + "/Saved Designs");
-            Directory.CreateDirectory(appData + "/WIP"); // huh????? @todo What's this for? CG:unfinished designs
-            Directory.CreateDirectory(appData + "/Saved Games/Headers");
-            Directory.CreateDirectory(appData + "/Saved Games/Fog Maps");
+            Directory.CreateDirectory(appData + "/WIP"); // This is for unfinished Shipyard designs
 
             IsFixedTimeStep = true;
         }

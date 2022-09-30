@@ -57,7 +57,7 @@ namespace Ship_Game.Graphics.Particles
 
         public void Unload()
         {
-            GameBase.ScreenManager.RemoveHotLoadTarget("3DParticles/Particles.yaml");
+            GameBase.ScreenManager?.RemoveHotLoadTarget("3DParticles/Particles.yaml");
 
             var effects = Effects.Values.ToArr();
             lock (Effects)

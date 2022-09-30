@@ -4,16 +4,16 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
-using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-        public readonly ShipStats Stats;
+        public ShipStats Stats;
 
         // Universe where this ship was added
         // If this is null, the Ship is not in any universe
@@ -24,6 +24,7 @@ namespace Ship_Game.Ships
         protected Ship(UniverseState us, int id, Ship template, Empire owner, Vector2 position)
             : base(id, GameObjectType.Ship)
         {
+            Active = true;
             Universe = us;
             Position     = position;
             Name         = template.Name;
@@ -31,7 +32,7 @@ namespace Ship_Game.Ships
             ShipData     = template.ShipData;
 
             // loyalty must be set before modules are initialized
-            LoyaltyTracker = new Components.LoyaltyChanges(this, owner);
+            LoyaltyTracker = new(this, owner);
 
             if (!CreateModuleSlotsFromData(template.ShipData.GetOrLoadDesignSlots()))
                 return; // return and crash again...
@@ -39,44 +40,13 @@ namespace Ship_Game.Ships
             // ship must not be added to empire ship list until after modules are validated.
             LoyaltyChangeAtSpawn(owner);
 
-            Stats = new ShipStats(this);
-            KnownByEmpires = new Components.KnownByEmpire();
-            HasSeenEmpires = new Components.KnownByEmpire();
-
             VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, ShipData.Role);
 
+            Active = true;
+            InitializeStats(us);
             InitializeThrusters(template.ShipData.BaseHull);
             InitializeShip();
             SetInitialCrewLevel();
-        }
-
-        // Create a ship from a SavedGame
-        // You should call Ship.CreateShip() functions to spawn ships
-        protected Ship(UniverseState us, int id, Empire empire, IShipDesign data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules)
-            : base(id, GameObjectType.Ship)
-        {
-            Universe = us;
-            Name       = save.Name;
-            VanityName = save.VanityName;
-            Level      = save.Level;
-            Experience = save.Experience;
-            ShipData   = data;
-
-            // loyalty must be set before modules are initialized
-            LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
-
-            if (!CreateModuleSlotsFromData(savedModules))
-                return;
-
-            // ship must not be added to empire ship list until after modules are validated.
-            LoyaltyChangeAtSpawn(empire);
-
-            Stats = new ShipStats(this);
-            KnownByEmpires = new Components.KnownByEmpire();
-            HasSeenEmpires = new Components.KnownByEmpire();
-
-            InitializeThrusters(data.BaseHull);
-            InitializeStatus(fromSave:true);
         }
 
         // Create a ship as a new template or shipyard WIP design
@@ -96,7 +66,7 @@ namespace Ship_Game.Ships
             ShipData = data;
 
             // loyalty must be set before modules are initialized
-            LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
+            LoyaltyTracker = new(this, empire);
 
             if (!CreateModuleSlotsFromData(data.GetOrLoadDesignSlots(), isTemplate, shipyardDesign))
                 return;
@@ -105,10 +75,8 @@ namespace Ship_Game.Ships
             if (!isTemplate && !shipyardDesign) // don't trigger adding to empire lists for template designs
                 LoyaltyChangeAtSpawn(empire);
 
-            Stats = new ShipStats(this);
-            KnownByEmpires = new Components.KnownByEmpire();
-            HasSeenEmpires = new Components.KnownByEmpire();
-
+            Active = true;
+            InitializeStats(us);
             InitializeThrusters(data.BaseHull);
             InitializeStatus(fromSave: false);
 
@@ -117,6 +85,13 @@ namespace Ship_Game.Ships
             {
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");
             }
+        }
+
+        void InitializeStats(UniverseState us)
+        {
+            Stats = new(this);
+            KnownByEmpires = new(us);
+            HasSeenEmpires = new(us);
         }
 
         protected static Ship GetShipTemplate(string shipName)
@@ -197,93 +172,6 @@ namespace Ship_Game.Ships
             CreateModuleGrid(ShipData, isTemplate:true, shipyardDesign:true);
         }
 
-        // initialize modules from saved game
-        protected bool CreateModuleSlotsFromData(ModuleSaveData[] moduleSaves)
-        {
-            ResetSlots(moduleSaves.Length);
-
-            if (ModuleSlotList.Length == 0)
-            {
-                Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
-                return false;
-            }
-
-            for (int i = 0; i < moduleSaves.Length; ++i)
-            {
-                ModuleSaveData slot = moduleSaves[i];
-                if (!ResourceManager.ModuleExists(slot.ModuleUID))
-                {
-                    Log.Warning($"Invalid Module '{slot.ModuleUID}' in '{Name}'");
-                    // replace it with a simple module
-                    var ds = new DesignSlot(slot.Pos, "OrdnanceLockerSmall", new Point(1,1), 0, ModuleOrientation.Normal, null);
-                    slot = new ModuleSaveData(ds, slot.Health, 0, 0);
-                }
-                ModuleSlotList[i] = ShipModule.Create(Universe, slot, this);
-            }
-
-            CreateModuleGrid(ShipData, isTemplate: false, shipyardDesign: false);
-            return true;
-        }
-
-        void InitializeFromSaveData(SavedGame.ShipSaveData save)
-        {
-            Position     = save.Position;
-            Experience   = save.Experience;
-            Kills        = save.Kills;
-            PowerCurrent = save.Power;
-            YRotation    = save.YRotation;
-            Rotation     = save.Rotation;
-            Velocity     = save.Velocity;
-            IsSpooling   = save.AfterBurnerOn;
-            TetheredId   = save.TetheredTo;
-            TetherOffset = save.TetherOffset;
-            InCombat     = save.InCombat;
-            ScuttleTimer = save.ScuttleTimer;
-
-            TransportingFood          = save.TransportingFood;
-            TransportingProduction    = save.TransportingProduction;
-            TransportingColonists     = save.TransportingColonists;
-            AllowInterEmpireTrade     = save.AllowInterEmpireTrade;
-            TradeRoutes               = save.TradeRoutes ?? new Array<int>(); // the null check is here in order to not break saves.
-            MechanicalBoardingDefense = save.MechanicalBoardingDefense;
-
-            VanityName = ShipData.Role == RoleName.troop && save.TroopList.NotEmpty
-                            ? save.TroopList[0].Name : save.VanityName;
-
-            HealthMax = RecalculateMaxHealth();
-            CalcTroopBoardingDefense();
-            ChangeOrdnance(save.Ordnance);
-
-            if (save.HomePlanetId != 0)
-                HomePlanet = Loyalty.FindPlanet(save.HomePlanetId);
-
-            if (Loyalty.WeAreRemnants)
-                IsGuardian = true;
-
-            if (save.TroopList != null)
-            {
-                foreach (Troop t in save.TroopList)
-                {
-                    t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
-                    AddTroop(t);
-                }
-            }
-
-            if (save.AreaOfOperation != null)
-            {
-                foreach (Rectangle aoRect in save.AreaOfOperation)
-                    AreaOfOperation.Add(aoRect);
-            }
-
-            Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
-            Carrier.InitFromSave(save);
-
-            InitializeAIFromAISave(save.AISave);
-            LoadFood(save.FoodCount);
-            LoadProduction(save.ProdCount);
-            LoadColonists(save.PopCount);
-        }
-
         void SetInitialCrewLevel()
         {
             Level = 0;
@@ -327,52 +215,65 @@ namespace Ship_Game.Ships
             return ship.HasModules ? ship : null;
         }
 
-        public static Ship CreateShipFromSave(UniverseState us, Empire empire,
-                                              SavedGame.UniverseSaveData uSave,
-                                              SavedGame.ShipSaveData save)
+        [StarDataConstructor] // for Deserializer
+        Ship() : base(0, GameObjectType.Ship)
         {
-            ModuleSaveData[] savedModules;
-            string[] moduleUIDs;
-            try
+        }
+
+        [StarData] ModuleSaveData[] SavedModules;
+
+        [StarDataSerialize]
+        StarDataDynamicField[] OnSerialize()
+        {
+            return new StarDataDynamicField[]
             {
-                (savedModules, moduleUIDs) = ShipDesign.GetModuleSaveFromBytes(save.ModuleSaveData);
-            }
-            catch (Exception e)
+                new(nameof(SavedModules), GetModuleSaveData())
+            };
+        }
+
+        // Create a ship from a SavedGame: Ship.OnDeserialized
+        [StarDataDeserialized(typeof(ShipDesign))]
+        void OnDeserialized(UniverseState us)
+        {
+            Universe = us;
+            var moduleSaves = SavedModules ?? Empty<ModuleSaveData>.Array;
+            SavedModules = null;
+
+            ResetSlots(moduleSaves.Length);
+
+            for (int i = 0; i < moduleSaves.Length; ++i)
             {
-                Log.Error(e, $"Failed to deserialize ShipSave Name='{save.Name}'");
-                return null;
+                ModuleSaveData slot = moduleSaves[i];
+                if (!ResourceManager.ModuleExists(slot.ModuleUID))
+                {
+                    Log.Warning($"Invalid Module '{slot.ModuleUID}' in '{Name}'");
+                    // replace it with a simple module
+                    var ds = new DesignSlot(slot.Pos, "OrdnanceLockerSmall", new Point(1,1), 0, ModuleOrientation.Normal, null);
+                    slot = new ModuleSaveData(ds, slot.Health, 0, null);
+                }
+                ModuleSlotList[i] = ShipModule.Create(Universe, slot, this);
             }
 
-            IShipDesign design = uSave.GetDesign(save.Name);
+            CreateModuleGrid(ShipData, isTemplate: false, shipyardDesign: false);
 
             // add the design to ships list if it doesn't exist
             // if there is a newer version of this design, it will not be overwritten
-            if (!ResourceManager.Ships.Exists(design.Name))
+            if (!ResourceManager.Ships.Exists(ShipData.Name))
             {
-                ResourceManager.AddShipTemplate((ShipDesign)design, playerDesign: true, readOnly: true);
+                ResourceManager.AddShipTemplate((ShipDesign)ShipData, playerDesign: true, readOnly: true);
             }
 
-            Ship ship;
-            try
-            {
-                ship = new Ship(us, save.Id, empire, design, save, savedModules);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e);
-                // fallback, recreate the ship from design template
-                if (!ResourceManager.GetShipTemplate(save.Name, out Ship template))
-                    return null;
-                ship = new Ship(us, save.Id, template, empire, save.Position);
-            }
+            HealthMax = RecalculateMaxHealth();
+            CalcTroopBoardingDefense();
 
-            if (ship.HasModules)
-            {
-                ship.InitializeFromSaveData(save);
-                us.AddShip(ship);
-                return ship;
-            }
-            return null; // module creation failed
+            IsGuardian = Loyalty.WeAreRemnants;
+            // loyalty must be set before modules are initialized
+            LoyaltyTracker = new(this, Loyalty);
+
+            InitializeStats(us);
+            InitializeThrusters(ShipData.BaseHull);
+            InitializeStatus(fromSave:true);
+            SetOrdnance(Ordinance);
         }
 
         public static Ship CreateShipAtPoint(UniverseState us, string shipName, Empire owner, Vector2 position)
@@ -399,7 +300,7 @@ namespace Ship_Game.Ships
             if (!ship.HasModules)
                 return null;
 
-            us?.AddShip(ship);
+            us.AddShip(ship);
             return ship;
         }
 
@@ -471,16 +372,6 @@ namespace Ship_Game.Ships
                 AI.CombatState = ShipData.DefaultCombatState;
         }
 
-        void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
-        {
-            InitializeAI();
-            AI.State          = aiSave.State;
-            AI.DefaultAIState = aiSave.DefaultState;
-            AI.CombatState    = aiSave.CombatState;
-            AI.StateBits      = aiSave.StateBits;
-            AI.MovePosition   = aiSave.MovePosition;
-        }
-
         // This should be called when a Ship is ready to enter the universe
         // Before this call, the ship doesn't have an AI instance
         public void InitializeShip(bool loadingFromSaveGame = false)
@@ -491,12 +382,10 @@ namespace Ship_Game.Ships
             if (ShipData.Role == RoleName.platform)
                 IsPlatform = true;
 
-            // Begin: ShipSubClass Initialization. Put all ship sub class initializations here
             if (AI == null)
             {
                 InitializeAI();
             }
-            // End: ship subclass initializations.
 
             RecalculatePower(); // NOTE: Must be before InitializeStatus
 
@@ -602,8 +491,6 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule module = ModuleSlotList[i];
-                if (module.UID == "Dummy") // ignore legacy dummy modules
-                    continue;
 
                 if (!fromSave && module.TroopsSupplied > 0)
                     SpawnTroopsForNewShip(module);

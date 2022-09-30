@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game
 {
@@ -19,15 +20,8 @@ namespace Ship_Game
             // See if it already has a command building or not.
             bool needCommandBuilding = BuildingList.All(b => !b.IsCapitalOrOutpost);
 
-            foreach (KeyValuePair<string, bool> keyValuePair in Owner.GetBDict())
+            foreach (Building b in Owner.GetUnlockedBuildings())
             {
-                if (!keyValuePair.Value)
-                    continue;
-
-                // when loading from savegames, unlocked BDict can contain invalid entries
-                if (!ResourceManager.GetBuilding(keyValuePair.Key, out Building b))
-                    continue;
-
                 // Skip adding + food buildings for cybernetic races
                 if (IsCybernetic && !b.ProducesProduction && !b.ProducesResearch && b.ProducesFood)
                     continue;
@@ -73,11 +67,11 @@ namespace Ship_Game
 
         public bool CanBuildInfantry         => BuildingList.Any(b => b.AllowInfantry);
         public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);
-        public bool OrbitalsInTheWorks       => ConstructionQueue.Any(b => b.isOrbital || b.sData != null && b.sData.IsShipyard);
+        public bool OrbitalsInTheWorks       => ConstructionQueue.Any(b => b.isOrbital || b.ShipData?.IsShipyard == true);
         public int NumShipsInTheWorks        => ConstructionQueue.Count(s => s.isShip);
         public int NumOrbitalsInTheWorks     => ConstructionQueue.Count(b => b.isOrbital);
         public int NumTroopsInTheWorks       => ConstructionQueue.Count(t => t.isTroop);
-        public int NumShipYardsInTheWorks    => ConstructionQueue.Count(s => s.sData != null && s.sData.IsShipyard);
+        public int NumShipYardsInTheWorks    => ConstructionQueue.Count(s => s.ShipData?.IsShipyard == true);
         public bool BiosphereInTheWorks      => BuildingInQueue(Building.BiospheresId);
         public bool TerraformerInTheWorks    => BuildingInQueue(Building.TerraformerId);
         public bool BuildingBuilt(int bid)   => BuildingList.Any(existing => existing.BID == bid);
@@ -151,7 +145,7 @@ namespace Ship_Game
                 var qi = new QueueItem(this)
                 {
                     isShip  = !forTroop,
-                    sData   = sData,
+                    ShipData = sData,
                     isTroop = forTroop,
                     Cost    = forTroop ? cost : cost * ShipBuildingModifier,
                 };
@@ -164,7 +158,7 @@ namespace Ship_Game
         // Adding all refit goals as a new items to calculate these as well
         Array<QueueItem> CreateItemsForTurnsCompleted(QueueItem newItem)
         {
-            Array<QueueItem> items = new Array<QueueItem>();
+            var items = new Array<QueueItem>();
             if (TryGetQueueItemsFromRefitGoals(out Array<QueueItem> refitItems))
                 items.AddRange(refitItems);
 
@@ -174,28 +168,24 @@ namespace Ship_Game
             // Local Method
             bool TryGetQueueItemsFromRefitGoals(out Array<QueueItem> refitQueue)
             {
-                refitQueue = new Array<QueueItem>();
-                var refitGoals = Owner.GetEmpireAI().Goals
-                    .Filter(g => (g.type == GoalType.Refit || g.type == GoalType.RefitOrbital) && g.PlanetBuildingAt == this);
-
+                refitQueue = new();
+                var refitGoals = Owner.AI.FindGoals(g => g.IsRefitGoalAtPlanet(this));
                 if (refitGoals.Length == 0)
                     return false;
 
                 for (int i = 0; i < refitGoals.Length; i++)
                 {
-                    Goal goal  = refitGoals[i];
-                    if (goal.ToBuildUID.NotEmpty())
+                    Goal goal = refitGoals[i];
+                    if (goal.ToBuild != null)
                     {
-                        var newShip = ResourceManager.GetShipTemplate(goal.ToBuildUID, false);
-                        if (goal.OldShip != null && newShip != null)
+                        if (goal.OldShip != null && goal.ToBuild != null)
                         {
                             var qi = new QueueItem(this)
                             {
                                 isShip = true,
-                                Cost   = goal.OldShip.RefitCost(newShip) * ShipBuildingModifier,
-                                sData  = newShip.ShipData
+                                Cost   = goal.OldShip.RefitCost(goal.ToBuild) * ShipBuildingModifier,
+                                ShipData = goal.ToBuild
                             };
-
                             refitQueue.Add(qi);
                         }
                     }
@@ -215,7 +205,7 @@ namespace Ship_Game
             float effectiveProd         = ProdHere + IncomingProd;
             if (scrapGoals.Length > 0)
             {
-                var scrapGoalsTargetingThis = scrapGoals.Filter(g => g.type == GoalType.ScrapShip && g.PlanetBuildingAt == this);
+                var scrapGoalsTargetingThis = scrapGoals.Filter(g => g is ScrapShip && g.PlanetBuildingAt == this);
                 if (scrapGoalsTargetingThis.Length > 0)
                     effectiveProd += scrapGoalsTargetingThis.Sum(g => g.OldShip?.GetScrapCost() ?? 0);
             }
@@ -235,7 +225,7 @@ namespace Ship_Game
             {
                 if (s.isShip)
                 {
-                    var ship = ResourceManager.GetShipTemplate(s.sData.Name);
+                    var ship = ResourceManager.GetShipTemplate(s.ShipData.Name);
                     if (roles == null || roles.Contains(ship.DesignRole))
                         ships.Add(ship);
                 }
@@ -249,7 +239,7 @@ namespace Ship_Game
             {
                 if (s.isShip)
                 {
-                    var ship = ResourceManager.GetShipTemplate(s.sData.Name);
+                    var ship = ResourceManager.GetShipTemplate(s.ShipData.Name);
                     if (ship.DesignRole == role)
                         return ship;
                 }
@@ -283,7 +273,7 @@ namespace Ship_Game
 
         public bool HasColonyShipFirstInQueue()
         {
-            return ConstructionQueue.Count > 0 && ConstructionQueue[0].Goal?.type == GoalType.Colonize;
+            return ConstructionQueue.Count > 0 && ConstructionQueue[0].Goal?.Type == GoalType.MarkForColonization;
         }
     }
 }

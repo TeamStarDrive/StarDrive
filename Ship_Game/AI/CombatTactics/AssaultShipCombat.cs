@@ -22,7 +22,7 @@ namespace Ship_Game.AI.CombatTactics
 
             if (!Owner.Carrier.HasActiveTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;
-            if (!Owner.Loyalty.isFaction && Target?.ShipData.Role <= RoleName.drone)
+            if (!Owner.Loyalty.IsFaction && Target?.ShipData.Role <= RoleName.drone)
                 return;
 
             float totalTroopStrengthToCommit = Owner.Carrier.MaxTroopStrengthInShipToCommit + Owner.Carrier.MaxTroopStrengthInSpaceToCommit;
@@ -52,7 +52,7 @@ namespace Ship_Game.AI.CombatTactics
             float enemyStrength = targetShip.BoardingDefenseTotal / 2;
 
             if ((Owner.Loyalty.isPlayer && Owner.AI.HasPriorityTarget || totalTroopStrengthToCommit > enemyStrength) 
-                && (Owner.Loyalty.isFaction || targetShip.GetStrength() > 0f))
+                && (Owner.Loyalty.IsFaction || targetShip.GetStrength() > 0f))
             {
                 if (Carrier.MaxTroopStrengthInSpaceToCommit.AlmostZero() || Carrier.MaxTroopStrengthInSpaceToCommit < enemyStrength)
                     // This will launch salvos of assault shuttles if possible

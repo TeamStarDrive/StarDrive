@@ -4,7 +4,6 @@
   <UID>WeatherManipulation</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>3500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>10045</NameIndex>
   <DescriptionIndex>10046</DescriptionIndex>
   <LeadsTo />

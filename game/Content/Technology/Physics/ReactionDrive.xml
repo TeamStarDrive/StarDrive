@@ -4,7 +4,6 @@
   <UID>ReactionDrive</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>220</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>649</NameIndex>
   <DescriptionIndex>650</DescriptionIndex>
   <LeadsTo>

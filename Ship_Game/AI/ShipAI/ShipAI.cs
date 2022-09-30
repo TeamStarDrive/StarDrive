@@ -6,26 +6,33 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using SDUtils;
-using Ship_Game.Ships.AI;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {
+    [StarDataType]
     public sealed partial class ShipAI : IDisposable
     {
         Planet AwaitClosest;
         Planet PatrolTarget;
         float UtilityModuleCheckTimer;
-        public FleetDataNode FleetNode;
+        [StarData] public FleetDataNode FleetNode;
+        [StarData] public Ship Owner;
+        [StarData] public AIState State = AIState.AwaitingOrders;
+        [StarData] public Planet ResupplyTarget;
+        [StarData] public SolarSystem SystemToDefend;
+        [StarData] public SolarSystem ExplorationTarget;
+        [StarData] public AIState DefaultAIState = AIState.AwaitingOrders;
 
-        public Ship Owner;
-        public AIState State = AIState.AwaitingOrders;
-        public Planet ResupplyTarget;
-        public SolarSystem SystemToDefend;
-        public SolarSystem ExplorationTarget;
-        public AIState DefaultAIState = AIState.AwaitingOrders;
-        public SafeQueue<ShipGoal> OrderQueue  = new SafeQueue<ShipGoal>();
-        public Array<ShipWeight>   NearByShips = new Array<ShipWeight>();
+        public SafeQueue<ShipGoal> OrderQueue  = new();
+        public Array<ShipWeight>   NearByShips = new();
+
+        [StarData] ShipGoal[] GoalsSave
+        {
+            get => OrderQueue.ToArray();
+            set => OrderQueue.SetRange(value);
+        }
 
         // TODO: We should not keep these around, it increases memory usage by a lot
         DropOffGoods DropOffGoods;
@@ -52,7 +59,7 @@ namespace Ship_Game.AI
             BadShipsOrPlanetsNear = BadShipsNear | BadPlanetsNear,
         }
 
-        public Flags StateBits;
+        [StarData] public Flags StateBits;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void Bit(Flags tag, bool value) => StateBits = value ? StateBits|tag : StateBits & ~tag;
@@ -91,14 +98,29 @@ namespace Ship_Game.AI
         { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.ReturnToHangarSoon); 
           [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.ReturnToHangarSoon, value); }
 
+        [StarDataConstructor]
+        ShipAI() {}
+
         public ShipAI(Ship owner)
         {
             Owner = owner;
+            CreateShipAIPlans();
+            InitializeTargeting();
+        }
+
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+            CreateShipAIPlans();
+        }
+
+        void CreateShipAIPlans()
+        {
+            // TODO: THESE SHOULD BE REMOVED BECAUSE THEY EAT UP A LOT OF MEMORY
             DropOffGoods = new DropOffGoods(this);
             PickupGoods = new PickupGoods(this);
             Orbit = new OrbitPlan(this);
             CombatAI = new CombatAI(this);
-            InitializeTargeting();
         }
 
         void DisposeOrders()
@@ -266,7 +288,7 @@ namespace Ship_Game.AI
             }
 
             // Waiting to be scrapped by Empire goal
-            if (!Owner.Loyalty.GetEmpireAI().Goals.Any(g => g.type == GoalType.ScrapShip && g.OldShip == Owner))
+            if (!Owner.Loyalty.AI.HasGoal(g => g.Type == GoalType.ScrapShip && g.OldShip == Owner))
                 ClearOrders(); // Could not find empire scrap goal
         }
 
@@ -414,7 +436,6 @@ namespace Ship_Game.AI
             if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
-            Owner.TrackOrdnancePercentageBug();
             if (Owner.Supply.DoneResupplying(supplyType) || terminateIfEnemiesNear && Owner.AI.BadGuysNear)
             {
                 DequeueCurrentOrder();
@@ -434,8 +455,8 @@ namespace Ship_Game.AI
             if (Owner.GetTether()?.Owner == Owner.Loyalty)
                 return;
 
-            EmpireAI ai = Owner.Loyalty.GetEmpireAI();
-            if (ai.Goals.Any(g => g.type == GoalType.RearmShipFromPlanet && g.TargetShip == Owner))
+            EmpireAI ai = Owner.Loyalty.AI;
+            if (ai.HasGoal(g => g.Type == GoalType.RearmShipFromPlanet && g.TargetShip == Owner))
                 return; // Supply ship is on the way
 
             var possiblePlanets = Owner.Loyalty.GetPlanets().Filter(p => p.NumSupplyShuttlesCanLaunch() > 0);
@@ -744,7 +765,7 @@ namespace Ship_Game.AI
 
         void PrioritizePlayerCommands()
         {
-            if (Owner.Loyalty == EmpireManager.Player &&
+            if (Owner.Loyalty == Owner.Universe.Player &&
                 (State is AIState.Bombard or AIState.AssaultPlanet 
                  || State == AIState.Rebase 
                  || State == AIState.Scrap 

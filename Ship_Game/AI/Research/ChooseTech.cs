@@ -31,20 +31,20 @@ namespace Ship_Game.AI.Research
 
         public ChooseTech(Empire empire)
         {
-            OwnerEmpire    = empire;
-            Strategy       = OwnerEmpire.Research.Strategy;
-            ResearchMods   = new ResearchOptions(empire);
-            LineFocus      = new ShipTechLineFocusing(empire, ResearchMods);
-            ScriptType     = Strategy?.TechPath?.Count > 0 ? ResearchStrategy.Scripted : ResearchStrategy.Random;
+            OwnerEmpire = empire;
+            Strategy = OwnerEmpire.Research.Strategy;
+            ResearchMods = new(empire);
+            LineFocus = new(empire, ResearchMods);
+            ScriptType = Strategy?.TechPath.Length > 0 ? ResearchStrategy.Scripted : ResearchStrategy.Random;
         }
 
-        private void DebugLog(string text) => OwnerEmpire.Universum?.DebugWin?.ResearchLog(text, OwnerEmpire);
+        private void DebugLog(string text) => OwnerEmpire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
         public ResearchPriorities GetPriorities() => ResearchPriorities;
 
         public void PickResearchTopic(string command)
         {
-            OwnerEmpire.Universum?.DebugWin?.ClearResearchLog(OwnerEmpire);
+            OwnerEmpire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
             OwnerEmpire.data.TechDelayTime++;
             ResearchPriorities = new ResearchPriorities(OwnerEmpire, ResearchMods);
             CostNormalizer = OwnerEmpire.Research.NetResearch.LowerBound(1) / 100f;
@@ -77,9 +77,9 @@ namespace Ship_Game.AI.Research
             var strategy       = Strategy;
 
             Start:
-            if (strategy != null && ScriptIndex < strategy.TechPath.Count && loopCount < strategy.TechPath.Count)
+            if (strategy != null && ScriptIndex < strategy.TechPath.Length && loopCount < strategy.TechPath.Length)
             {
-                string scriptEntry   = strategy.TechPath[ScriptIndex].id;
+                string scriptEntry   = strategy.TechPath[ScriptIndex];
                 string scriptCommand = OwnerEmpire.HasTechEntry(scriptEntry) ? scriptEntry : scriptEntry.Split(':')[0];
                 string modifier      = "";
                 string[] script      = scriptEntry.Split(':');
@@ -101,7 +101,7 @@ namespace Ship_Game.AI.Research
                         loopCount++;
                         goto Start;
                     case "LOOP":
-                        ScriptIndex = int.Parse(OwnerEmpire.Research.Strategy.TechPath[ScriptIndex].id.Split(':')[1]);
+                        ScriptIndex = int.Parse(OwnerEmpire.Research.Strategy.TechPath[ScriptIndex].Split(':')[1]);
                         loopCount++;
                         goto Start;
                     case "CHEAPEST":
@@ -204,14 +204,14 @@ namespace Ship_Game.AI.Research
                             goto Start;
                         }
 
-                        foreach (EconomicResearchStrategy.Tech tech in OwnerEmpire.Research.Strategy.TechPath)
+                        foreach (string tech in OwnerEmpire.Research.Strategy.TechPath)
                         {
-                            if (OwnerEmpire.HasTechEntry(tech.id) && !OwnerEmpire.HasUnlocked(tech.id) &&
-                                OwnerEmpire.HavePreReq(tech.id))
+                            if (OwnerEmpire.HasTechEntry(tech) && !OwnerEmpire.HasUnlocked(tech) &&
+                                OwnerEmpire.HavePreReq(tech))
                             {
-                                OwnerEmpire.Research.SetTopic(tech.id);
+                                OwnerEmpire.Research.SetTopic(tech);
                                 ScriptIndex++;
-                                if (tech.id.NotEmpty())
+                                if (tech.NotEmpty())
                                     return true;
                             }
                         }
@@ -223,7 +223,7 @@ namespace Ship_Game.AI.Research
             if (OwnerEmpire.Research.NoTopic)
             {
                 GoRandomOnce();
-                if (loopCount >= OwnerEmpire.Research.Strategy.TechPath.Count)
+                if (loopCount >= OwnerEmpire.Research.Strategy.TechPath.Length)
                     ScriptType = ResearchStrategy.Random;
 
             }
@@ -243,7 +243,7 @@ namespace Ship_Game.AI.Research
         {
             if (check)
             {
-                ScriptIndex = int.Parse(OwnerEmpire.Research.Strategy.TechPath[ScriptIndex].id.Split(':')[1]);
+                ScriptIndex = int.Parse(OwnerEmpire.Research.Strategy.TechPath[ScriptIndex].Split(':')[1]);
                 return 1;
             }
             ScriptIndex++;

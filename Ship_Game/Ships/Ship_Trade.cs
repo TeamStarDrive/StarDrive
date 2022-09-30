@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
         public float TradeTimer = 300;
-        public bool TransportingColonists  { get; set; }
-        public bool TransportingFood       { get; set; }
-        public bool TransportingProduction { get; set; }
-        public bool AllowInterEmpireTrade  { get; set; }
-        public Array<int> TradeRoutes      { get; private set; } = new Array<int>();
+        [StarData] public bool TransportingColonists  { get; set; }
+        [StarData] public bool TransportingFood       { get; set; }
+        [StarData] public bool TransportingProduction { get; set; }
+        [StarData] public bool AllowInterEmpireTrade  { get; set; }
+        [StarData] public Array<int> TradeRoutes      { get; private set; } = new();
 
         public bool IsCandidateForTradingBuild => ShipData.IsCandidateForTradingBuild;
         public bool IsFreighter => ShipData.IsFreighter;

@@ -4,7 +4,6 @@
   <UID>Thalaron Blaster</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>450</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>685</NameIndex>
   <DescriptionIndex>686</DescriptionIndex>
   <LeadsTo />

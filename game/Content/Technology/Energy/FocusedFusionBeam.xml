@@ -4,7 +4,6 @@
   <UID>FocusedFusionBeam</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>660</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17524</NameIndex>
   <DescriptionIndex>17525</DescriptionIndex>
   <LeadsTo>

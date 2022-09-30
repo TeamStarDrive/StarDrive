@@ -4,7 +4,6 @@
   <UID>Ascension</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>3500</Cost>
-  <RootNode>0</RootNode>
   <Secret>true</Secret>
   <NameIndex>5083</NameIndex>
   <DescriptionIndex>5084</DescriptionIndex>

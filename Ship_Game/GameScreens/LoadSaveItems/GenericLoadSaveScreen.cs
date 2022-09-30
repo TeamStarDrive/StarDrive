@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -30,7 +31,6 @@ namespace Ship_Game
         protected string Path = "";
         protected string TabText;
 
-        protected FileData FileToDelete;
         protected FileData SelectedFile;
         protected int EntryHeight = 55; // element height
         protected bool SaveExport;
@@ -74,16 +74,16 @@ namespace Ship_Game
         {
         }
 
-        protected virtual void DeleteFile()
+        protected void DeleteFile(FileData toDelete)
         {
             GameAudio.EchoAffirmative();
             
             try
             {
-                FileToDelete.FileLink.Delete(); // delete the file
+                toDelete.FileLink.Delete(); // delete the file
             } catch { }
 
-            SavesSL.RemoveFirstIf(item => item.Data == FileToDelete);
+            SavesSL.RemoveFirstIf(item => item.Data == toDelete);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -140,10 +140,7 @@ namespace Ship_Game
                     Load();
             });
 
-            ExportBtn = ButtonBigDip(sub.X + sub.Width - 200, EnterNameArea.Y - 48, "Export Save", b =>
-            {
-                ExportSave();
-            });
+            ExportBtn = ButtonBigDip(sub.X + sub.Width - 200, EnterNameArea.Y - 48, "Export Save", b => ExportSave());
 
             ExportBtn.Visible = SaveExport;
             ExportBtn.Tooltip = GameText.ThisWillLetYouEasily;
@@ -232,10 +229,10 @@ namespace Ship_Game
             }
             void OnDeleteClicked()
             {
-                Screen.FileToDelete = Data;
+                var toDelete = Data;
                 Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, "Confirm Delete:")
                 {
-                    Accepted = Screen.DeleteFile
+                    Accepted = () => Screen.DeleteFile(toDelete)
                 });
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -275,6 +272,17 @@ namespace Ship_Game
                 Data = data;
                 Icon = icon ?? ResourceManager.Texture("ShipIcons/Wisp");
                 IconColor = iconColor;
+            }
+
+            public static FileData FromSaveHeader(FileInfo file, HeaderData header)
+            {
+                string info = $"{header.PlayerName} StarDate {header.StarDate}";
+                string extraInfo = header.RealDate;
+
+                IEmpireData empire = ResourceManager.AllRaces.FirstOrDefault(e => e.Name == header.PlayerName)
+                                  ?? ResourceManager.AllRaces[0];
+                return new FileData(file, header, header.SaveName, info, extraInfo,
+                                       empire.Traits.FlagIcon, empire.Traits.Color);
             }
         }
     }

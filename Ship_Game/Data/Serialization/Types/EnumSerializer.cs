@@ -1,25 +1,46 @@
 ﻿using System;
-using System.IO;
+using System.Linq.Expressions;
+using System.Reflection;
 using SDUtils;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
+    using E = Expression;
+
     internal class EnumSerializer : TypeSerializer
     {
-        public override string ToString() => $"EnumSerializer {Type.GetTypeName()}";
-        readonly Map<int, object> Mapping = new Map<int, object>();
-        readonly object DefaultValue;
+        public override string ToString() => $"{TypeId}:EnumSerializer {NiceTypeName}";
+        readonly Map<int, object> Mapping = new();
+        readonly bool IsFlagsEnum;
+
+        delegate int GetIntValue(object enumValue);
+        readonly GetIntValue GetValueOf;
 
         public EnumSerializer(Type toEnum) : base(toEnum)
         {
-            Array values = Enum.GetValues(toEnum);
+            Array values = toEnum.GetEnumValues();
             DefaultValue = values.GetValue(0);
+            IsFlagsEnum = toEnum.GetCustomAttribute<FlagsAttribute>() != null;
+
+            // precompile enum to integer conversion, otherwise it's too slow
+            var enumVal = E.Parameter(typeof(object), "enumValue");
+            
+            Type underlyingType = toEnum.GetEnumUnderlyingType();
+
+            // (object enumValue) => (int)enumValue;
+            // (object enumValue) => (int)(T)enumValue;
+            E toInteger = underlyingType == typeof(int)
+                ? E.Convert(enumVal, typeof(int))
+                : E.Convert(E.Convert(enumVal, underlyingType), typeof(int));
+
+            GetValueOf = E.Lambda<GetIntValue>(toInteger, enumVal).Compile();
+
             for (int i = 0; i < values.Length; ++i)
             {
-                object enumValue = values.GetValue(i);
-                int enumIndex = (int)enumValue;
+                var enumValue = values.GetValue(i);
+                int enumIndex = GetValueOf(enumValue);
                 Mapping[enumIndex] = enumValue;
             }
         }
@@ -38,7 +59,7 @@ namespace Ship_Game.Data.Serialization.Types
             {
                 Error(value, $"Enum '{Type.Name}' -- {e.Message}");
             }
-            return Type.GetEnumValues().GetValue(0);
+            return DefaultValue;
         }
 
         public override void Serialize(YamlNode parent, object obj)
@@ -49,7 +70,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            int enumIndex = (int)obj;
+            int enumIndex = GetValueOf(obj);
             writer.BW.WriteVLi32(enumIndex);
         }
         
@@ -58,6 +79,21 @@ namespace Ship_Game.Data.Serialization.Types
             int enumIndex = reader.BR.ReadVLi32();
             if (Mapping.TryGetValue(enumIndex, out object enumValue))
                 return enumValue;
+
+            // 0 is now equivalent of DefaultValue
+            if (enumIndex == 0)
+                return DefaultValue;
+
+            if (IsFlagsEnum)
+            {
+                try
+                {
+                    return Enum.ToObject(Type, enumIndex);
+                }
+                catch
+                {
+                }
+            }
 
             Error(enumIndex, $"Enum '{Type.Name}' -- using Default value '{DefaultValue}' instead");
             return DefaultValue;

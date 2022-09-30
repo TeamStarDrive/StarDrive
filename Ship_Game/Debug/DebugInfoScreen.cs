@@ -13,11 +13,10 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Ships.AI;
-using static Ship_Game.AI.ShipAI;
 using Ship_Game.Fleets;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Debug
 {
@@ -52,6 +51,7 @@ namespace Ship_Game.Debug
     {
         public bool IsOpen = true;
         readonly UniverseScreen Screen;
+        readonly UniverseState Universe;
         Rectangle Win = new(30, 100, 1200, 700);
 
         // TODO: Use these stats in some DebugPage
@@ -67,6 +67,7 @@ namespace Ship_Game.Debug
         public DebugInfoScreen(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
+            Universe = screen.UState;
         }
 
         readonly Dictionary<string, Array<string>> ResearchText = new();
@@ -206,9 +207,9 @@ namespace Ship_Game.Debug
         {
             TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
             int column = 0;
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in Universe.Empires)
             {
-                if (e.isFaction || e.data.Defeated)
+                if (e.IsFaction || e.data.Defeated)
                     continue;
 
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);
@@ -233,7 +234,7 @@ namespace Ship_Game.Debug
                 {
                     DrawString($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0} ({e.Research.NetResearch.String()} / {e.Research.MaxResearchPotential.String()})");
                     DrawString("   --" + e.Research.Topic);
-                    Ship bestShip = e.GetEmpireAI().TechChooser.LineFocus.BestCombatShip;
+                    Ship bestShip = e.AI.TechChooser.LineFocus.BestCombatShip;
                     if (bestShip != null)
                     {
                         var neededTechs = bestShip.ShipData.TechsNeeded.Except(e.ShipTechs);
@@ -432,11 +433,11 @@ namespace Ship_Game.Debug
                 DrawString($"ENG:{ship.ShipEngines.EngineStatus} FTL:{ship.ShipEngines.ReadyForWarp} FLEET:{ship.ShipEngines.ReadyForFormationWarp}");
 
                 VisualizeShipOrderQueue(ship);
-                if (Screen.IsSystemViewOrCloser && Mode == DebugModes.Normal && !Screen.ShowShipNames)
+                if (Screen.UState.IsSystemViewOrCloser && Mode == DebugModes.Normal && !Screen.ShowShipNames)
                     DrawWeaponArcs(ship);
                 DrawSensorInfo(ship);
 
-                DrawString($"On Defense: {ship.Loyalty.GetEmpireAI().DefensiveCoordinator.Contains(ship)}");
+                DrawString($"On Defense: {ship.Loyalty.AI.DefensiveCoordinator.Contains(ship)}");
                 if (ship.Fleet != null)
                 {
                     DrawString($"Fleet: {ship.Fleet.Name}  {(int)ship.Fleet.FinalPosition.X}x{(int)ship.Fleet.FinalPosition.Y}  Vmax:{ship.Fleet.SpeedLimit}");
@@ -467,7 +468,7 @@ namespace Ship_Game.Debug
                 if (ship.IsFreighter)
                 {
                     DrawString($"Trade Timer:{ship.TradeTimer}");
-                    ShipGoal g = ship.AI.OrderQueue.PeekLast;
+                    ShipAI.ShipGoal g = ship.AI.OrderQueue.PeekLast;
                     if (g?.Trade != null && g.Trade.BlockadeTimer < 120)
                         DrawString($"Blockade Timer:{g.Trade.BlockadeTimer}");
                 }
@@ -486,7 +487,7 @@ namespace Ship_Game.Debug
                 DrawString($"IntSlots: {ship.ActiveInternalModuleSlots}/{ship.NumInternalSlots}  ({ship.InternalSlotsHealthPercent.PercentString()})");
                 DrawString($"DPS: {ship.TotalDps}");
                 SetTextCursor(Win.X + 250, 600f, Color.White);
-                foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.Loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
+                foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.Loyalty.AI.DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.OurShips) {
                         if (defender.Key == ship.Id)
                             DrawString(entry.Value.System.Name);
@@ -529,7 +530,7 @@ namespace Ship_Game.Debug
         {
             if (ship?.AI.OrderQueue.NotEmpty == true)
             {
-                ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
+                ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
                 Vector2 pos = ship.AI.GoalTarget;
 
                 DrawLineImm(ship.Position, pos, Color.YellowGreen);
@@ -586,13 +587,13 @@ namespace Ship_Game.Debug
         {
             if (ship.AI.OrderQueue.NotEmpty)
             {
-                ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
+                ShipAI.ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
                 Vector2 pos = ship.AI.GoalTarget;
                 DrawString($"AIState: {ship.AI.State}  CombatState: {ship.AI.CombatState}  FromTarget: {pos.Distance(ship.Position).String(0)}");
                 DrawString($"OrderQueue ({goals.Length}):");
                 for (int i = 0; i < goals.Length; ++i)
                 {
-                    ShipGoal g = goals[i];
+                    ShipAI.ShipGoal g = goals[i];
                     DrawString($"  {i+1}:  {g.Plan}  {g.MoveOrder}");
                 }
             }
@@ -617,24 +618,24 @@ namespace Ship_Game.Debug
         void Pirates()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.PirateFactions)
+            foreach (Empire e in Universe.PirateFactions)
             {
                 if (e.data.Defeated)
                     continue;
 
-                var goals = e.Pirates.Goals;
+                IReadOnlyList<Goal> goals = e.Pirates.Owner.AI.Goals;
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
                 DrawString("------------------------");
                 DrawString(e.Name);
                 DrawString("------------------------");
                 DrawString($"Level: {e.Pirates.Level}");
-                DrawString($"Pirate Bases Goals: {goals.Count(g => g.type == GoalType.PirateBase)}");
+                DrawString($"Pirate Bases Goals: {goals.Count(g => g.Type == GoalType.PirateBase)}");
                 DrawString($"Spawned Ships: {e.Pirates.SpawnedShips.Count}");
                 NewLine();
-                DrawString($"Payment Management Goals ({goals.Count(g => g.type == GoalType.PirateDirectorPayment)})");
+                DrawString($"Payment Management Goals ({goals.Count(g => g.Type == GoalType.PirateDirectorPayment)})");
                 DrawString("---------------------------------------------"); foreach (Goal g in goals)
                 {
-                    if (g.type == GoalType.PirateDirectorPayment)
+                    if (g.Type == GoalType.PirateDirectorPayment)
                     {
                         Empire target     = g.TargetEmpire;
                         string targetName = target.Name;
@@ -644,11 +645,11 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine();
-                DrawString($"Raid Management Goals ({goals.Count(g => g.type == GoalType.PirateDirectorRaid)})");
+                DrawString($"Raid Management Goals ({goals.Count(g => g.Type == GoalType.PirateDirectorRaid)})");
                 DrawString("---------------------------------------------");
                 foreach (Goal g in goals)
                 {
-                    if (g.type == GoalType.PirateDirectorRaid)
+                    if (g.Type == GoalType.PirateDirectorRaid)
                     {
                         Empire target = g.TargetEmpire;
                         string targetName = target.Name;
@@ -668,17 +669,17 @@ namespace Ship_Game.Debug
                         string targetName = target.Name;
                         Ship targetShip = g.TargetShip;
                         string shipName = targetShip?.Name ?? "None";
-                        DrawString(target.EmpireColor, $"{g.type} vs. {targetName}, Target Ship: {shipName} in {targetShip?.SystemName ?? "None"}");
+                        DrawString(target.EmpireColor, $"{g.Type} vs. {targetName}, Target Ship: {shipName} in {targetShip?.SystemName ?? "None"}");
                     }
                 }
 
                 NewLine();
 
-                DrawString($"Base Defense Goals ({goals.Count(g => g.type == GoalType.PirateDefendBase)})");
+                DrawString($"Base Defense Goals ({goals.Count(g => g.Type == GoalType.PirateDefendBase)})");
                 DrawString("---------------------------------------------");
                 foreach (Goal g in goals)
                 {
-                    if (g.type == GoalType.PirateDefendBase)
+                    if (g.Type == GoalType.PirateDefendBase)
                     {
                         Ship targetShip = g.TargetShip;
                         string shipName = targetShip?.Name ?? "None";
@@ -686,7 +687,7 @@ namespace Ship_Game.Debug
                     }
                 }
 
-                NewLine(1);
+                NewLine();
 
                 DrawString($"Fighter Designs We Can Launch ({e.Pirates.ShipsWeCanBuild.Count})");
                 DrawString("---------------------------------------------");
@@ -707,7 +708,7 @@ namespace Ship_Game.Debug
         void AgentsInfo()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in Universe.MajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -722,7 +723,7 @@ namespace Ship_Game.Debug
                 DrawString("------------------------");
                 foreach (Agent agent in e.data.AgentList.Sorted(a => a.Level))
                 {
-                    Empire target = EmpireManager.GetEmpireByName(agent.TargetEmpire);
+                    Empire target = Universe.GetEmpireByName(agent.TargetEmpire);
                     Color color   = target?.EmpireColor ?? e.EmpireColor;
                     DrawString(color, $"Level: {agent.Level}, Mission: {agent.Mission}, Turns: {agent.TurnsRemaining}");
                 }
@@ -734,7 +735,7 @@ namespace Ship_Game.Debug
         void Tasks()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.NonPlayerMajorEmpires)
+            foreach (Empire e in Universe.NonPlayerMajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -747,7 +748,7 @@ namespace Ship_Game.Debug
                 DrawString("----------------------------");
                 int taskEvalLimit   = e.IsAtWarWithMajorEmpire ? (int)e.GetAverageWarGrade().LowerBound(3) : 10;
                 int taskEvalCounter = 0;
-                var tasks = e.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
+                var tasks = e.AI.GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
                     .ThenByDescending(t => t.MinimumTaskForceStrength).ToArr();
 
                 var tasksWithFleets = tasks.Filter(t => t.Fleet != null);
@@ -795,7 +796,7 @@ namespace Ship_Game.Debug
         void Relationships()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.NonPlayerMajorEmpires)
+            foreach (Empire e in Universe.NonPlayerMajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -806,34 +807,34 @@ namespace Ship_Game.Debug
                 DrawString($"{e.Personality}");
                 DrawString($"Average War Grade: {e.GetAverageWarGrade()}");
                 DrawString("----------------------------");
-                foreach ((Empire them, Relationship rel) in e.AllRelations)
+                foreach (Relationship rel in e.AllRelations)
                 {
-                    if (them.isFaction || GlobalStats.RestrictAIPlayerInteraction && them.isPlayer || them.data.Defeated)
+                    if (rel.Them.IsFaction || GlobalStats.RestrictAIPlayerInteraction && rel.Them.isPlayer || rel.Them.data.Defeated)
                         continue;
 
-                    DrawString(them.EmpireColor, $"{them.Name}");
-                    DrawString(them.EmpireColor, $"Posture: {rel.Posture}");
-                    DrawString(them.EmpireColor, $"Trust (A/U/T)   : {rel.AvailableTrust.String(2)}/{rel.TrustUsed.String(2)}/{rel.Trust.String(2)}");
-                    DrawString(them.EmpireColor, $"Anger Diplomatic: {rel.Anger_DiplomaticConflict.String(2)}");
-                    DrawString(them.EmpireColor, $"Anger Border    : {rel.Anger_FromShipsInOurBorders.String(2)}");
-                    DrawString(them.EmpireColor, $"Anger Military  : {rel.Anger_MilitaryConflict.String(2)}");
-                    DrawString(them.EmpireColor, $"Anger Territory : {rel.Anger_TerritorialConflict.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"{rel.Them.Name}");
+                    DrawString(rel.Them.EmpireColor, $"Posture: {rel.Posture}");
+                    DrawString(rel.Them.EmpireColor, $"Trust (A/U/T)   : {rel.AvailableTrust.String(2)}/{rel.TrustUsed.String(2)}/{rel.Trust.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"Anger Diplomatic: {rel.Anger_DiplomaticConflict.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"Anger Border    : {rel.Anger_FromShipsInOurBorders.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"Anger Military  : {rel.Anger_MilitaryConflict.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"Anger Territory : {rel.Anger_TerritorialConflict.String(2)}");
                     string nap   = rel.Treaty_NAPact      ? "NAP "      : "";
                     string trade = rel.Treaty_Trade       ? ",Trade "   : "";
                     string open  = rel.Treaty_OpenBorders ? ",Borders " : "";
                     string ally  = rel.Treaty_Alliance    ? ",Allied "  : "";
                     string peace = rel.Treaty_Peace       ? "Peace"     : "";
-                    DrawString(them.EmpireColor, $"Treaties: {nap}{trade}{open}{ally}{peace}");
+                    DrawString(rel.Them.EmpireColor, $"Treaties: {nap}{trade}{open}{ally}{peace}");
                     if (rel.NumTechsWeGave > 0)
-                        DrawString(them.EmpireColor, $"Techs We Gave Them: {rel.NumTechsWeGave}");
+                        DrawString(rel.Them.EmpireColor, $"Techs We Gave Them: {rel.NumTechsWeGave}");
 
                     if (rel.ActiveWar != null)
-                        DrawString(them.EmpireColor, "*** At War! ***");
+                        DrawString(rel.Them.EmpireColor, "*** At War! ***");
 
                     if (rel.PreparingForWar)
-                        DrawString(them.EmpireColor, "*** Preparing for War! ***");
+                        DrawString(rel.Them.EmpireColor, "*** Preparing for War! ***");
                     if (rel.PreparingForWar)
-                        DrawString(them.EmpireColor, $"*** {rel.PreparingForWarType} ***");
+                        DrawString(rel.Them.EmpireColor, $"*** {rel.PreparingForWarType} ***");
 
                     DrawString(e.EmpireColor, "----------------------------");
                 }
@@ -845,7 +846,7 @@ namespace Ship_Game.Debug
         void FleetMultipliers()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.ActiveNonPlayerMajorEmpires)
+            foreach (Empire e in Universe.ActiveNonPlayerMajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -858,18 +859,18 @@ namespace Ship_Game.Debug
                 NewLine(2);
                 DrawString("Remnants Strength Multipliers");
                 DrawString("---------------------------");
-                Empire remnants = EmpireManager.Remnants;
+                Empire remnants = Universe.Remnants;
                 DrawString(remnants.EmpireColor, $"{remnants.Name}: {e.GetFleetStrEmpireMultiplier(remnants).String(2)}");
                 NewLine(2);
                 DrawString("Empire Strength Multipliers");
                 DrawString("---------------------------");
-                foreach (Empire empire in EmpireManager.ActiveMajorEmpires.Filter(empire => empire != e))
+                foreach (Empire empire in Universe.ActiveMajorEmpires.Filter(empire => empire != e))
                     DrawString($"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
 
                 NewLine(2);
                 DrawString("Pirates Strength Multipliers");
                 DrawString("---------------------------");
-                foreach (Empire empire in EmpireManager.PirateFactions.Filter(faction => faction != EmpireManager.Unknown))
+                foreach (Empire empire in Universe.PirateFactions.Filter(faction => faction != Universe.Unknown))
                     DrawString(empire.EmpireColor, $"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
 
                 column += 1;
@@ -878,7 +879,7 @@ namespace Ship_Game.Debug
 
         void RemnantInfo()
         {
-            Empire e = EmpireManager.Remnants;
+            Empire e = Universe.Remnants;
             SetTextCursor(Win.X + 10 + 255, Win.Y + 250, e.EmpireColor);
             DrawString($"Remnant Story: {e.Remnants.Story}");
             DrawString(!e.Remnants.Activated
@@ -896,15 +897,15 @@ namespace Ship_Game.Debug
             DrawString($"Resources: {e.Remnants.Production.String()}");
             NewLine();
             DrawString("Empires Population and Strength:");
-            for (int i = 0; i < EmpireManager.MajorEmpires.Length; i++)
+            for (int i = 0; i < Universe.MajorEmpires.Length; i++)
             {
-                Empire empire = EmpireManager.MajorEmpires[i];
+                Empire empire = Universe.MajorEmpires[i];
                 if (!empire.data.Defeated)
                     DrawString(empire.EmpireColor, $"{empire.data.Name} - Pop: {empire.TotalPopBillion.String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
             }
 
-            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerMajorEmpires.Filter(emp => !emp.data.Defeated)
-                                                                      : EmpireManager.MajorEmpires.Filter(emp => !emp.data.Defeated);
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? Universe.NonPlayerMajorEmpires.Filter(emp => !emp.data.Defeated)
+                                                                      : Universe.MajorEmpires.Filter(emp => !emp.data.Defeated);
 
             NewLine();
             float averagePop = empiresList.Average(empire => empire.TotalPopBillion);
@@ -927,22 +928,22 @@ namespace Ship_Game.Debug
 
             NewLine();
             DrawString("Goals:");
-            foreach (Goal goal in e.GetEmpireAI().Goals)
+            foreach (Goal goal in e.AI.Goals)
             {
-                if (goal.type != GoalType.RemnantEngageEmpire)
+                if (goal.TargetPlanet != null)
                 {
-                    DrawString($"{goal.type}");
+                    Color color = goal.TargetPlanet.Owner?.EmpireColor ?? e.EmpireColor;
+                    DrawString(color, $"{goal.Type}, Target Planet: {goal.TargetPlanet.Name}");
                 }
                 else
                 {
-                    Color color = goal.ColonizationTarget?.Owner?.EmpireColor ?? e.EmpireColor;
-                    DrawString(color, $"{goal.type}, Target Planet: {goal.ColonizationTarget?.Name}, Bombers Wanted: {goal.ShipLevel}");
+                    DrawString($"{goal.Type}");
                 }
             }
 
             NewLine();
             DrawString("Fleets:");
-            foreach (Fleet fleet in e.GetFleetsDict().Values)
+            foreach (Fleet fleet in e.Fleets)
             {
                 if (fleet.FleetTask == null)
                     continue;
@@ -956,11 +957,11 @@ namespace Ship_Game.Debug
         void EmpireInfo()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in Universe.MajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
-                EmpireAI eAI = e.GetEmpireAI();
+                EmpireAI eAI = e.AI;
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
                 DrawString(e.data.Traits.Name);
 
@@ -971,16 +972,16 @@ namespace Ship_Game.Debug
                 }
                 DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
                 float normalizedBudget = e.NormalizedMoney;
-                float treasuryGoal = e.GetEmpireAI().TreasuryGoal(normalizedBudget);
+                float treasuryGoal = e.AI.TreasuryGoal(normalizedBudget);
                
-                DrawString($"Treasury Goal: {(int)eAI.ProjectedMoney} {(int)( e.GetEmpireAI().CreditRating * 100)}%");
+                DrawString($"Treasury Goal: {(int)eAI.ProjectedMoney} {(int)( e.AI.CreditRating * 100)}%");
                 float taxRate = e.data.TaxRate * 100f;
                 
                 var ships = e.OwnedShips;
                 DrawString($"Threat : av:{eAI.ThreatLevel:#0.00} $:{eAI.EconomicThreat:#0.00} " +
                            $"b:{eAI.BorderThreat:#0.00} e:{eAI.EnemyThreat:#0.00}");
                 DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
-                DrawString($"War Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
+                DrawString($"War Maint:  ({(int)e.AI.BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
                            $"Trp:{(int)(e.TotalTroopShipMaintenance + e.TroopCostOnPlanets)}");
                 var warShips = ships.Filter(s => s.DesignRoleType == RoleType.Warship ||
                                                  s.DesignRoleType == RoleType.WarSupport ||
@@ -995,7 +996,7 @@ namespace Ship_Game.Debug
                            $" m{warShips.Count(warship => warship?.DesignRole == RoleName.bomber)}"
                            );
                 DrawString($"Civ Maint:  " +
-                           $"({(int)e.GetEmpireAI().CivShipBudget}) {(int)e.TotalCivShipMaintenance} " +
+                           $"({(int)e.AI.CivShipBudget}) {(int)e.TotalCivShipMaintenance} " +
                            $"#{ships.Count(freighter => freighter?.DesignRoleType == RoleType.Civilian)} " +
                            $"Inc({e.AverageTradeIncome})");
                 DrawString($"Other Ship Maint:  Orb:{(int)e.TotalOrbitalMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}" +
@@ -1025,29 +1026,29 @@ namespace Ship_Game.Debug
                 DrawString("Military Str: "+ (int)e.CurrentMilitaryStrength);
                 DrawString("Offensive Str: " + (int)e.OffensiveStrength);
                 DrawString($"Fleets: Str: {(int)e.AIManagedShips.InitialStrength} Avail: {e.AIManagedShips.InitialReadyFleets}");
-                for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
+                for (int x = 0; x < e.AI.Goals.Count; x++)
                 {
-                    Goal g = e.GetEmpireAI().Goals[x];
-                    if (!(g is MarkForColonization))
-                        continue;
+                    Goal g = e.AI.Goals[x];
+                    if (g is MarkForColonization)
+                    {
+                        NewLine();
+                        DrawString($"{g.TypeName} {g.TargetPlanet.Name}" +
+                                   $" (x{e.GetFleetStrEmpireMultiplier(g.TargetEmpire).String(1)})");
 
-                    NewLine();
-                    DrawString($"{g.UID} {g.ColonizationTarget.Name}" +
-                               $" (x{e.GetFleetStrEmpireMultiplier(g.TargetEmpire).String(1)})");
-
-                    DrawString(15f, $"Step: {g.StepName}");
-                    if (g.FinishedShip != null && g.FinishedShip.Active)
-                        DrawString(15f, "Has ship");
+                        DrawString(15f, $"Step: {g.StepName}");
+                        if (g.FinishedShip != null && g.FinishedShip.Active)
+                            DrawString(15f, "Has ship");
+                    }
                 }
 
-                MilitaryTask[] tasks = e.GetEmpireAI().GetTasks().ToArr();
+                MilitaryTask[] tasks = e.AI.GetTasks().ToArr();
                 for (int j = 0; j < tasks.Length; j++)
                 {
                     MilitaryTask task = tasks[j];
                     string sysName = "Deep Space";
-                    for (int i = 0; i < e.Universum.Systems.Count; i++)
+                    for (int i = 0; i < e.Universe.Systems.Count; i++)
                     {
-                        SolarSystem sys = e.Universum.Systems[i];
+                        SolarSystem sys = e.Universe.Systems[i];
                         if (task.AO.InRadius(sys.Position, sys.Radius))
                             sysName = sys.Name;
                     }
@@ -1068,20 +1069,21 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine();
-                foreach ((Empire them, Relationship rel) in e.AllRelations)
+                foreach (Relationship rel in e.AllRelations)
                 {
-                    TextColor = them.EmpireColor;
+                    string plural = rel.Them.data.Traits.Plural;
+                    TextColor = rel.Them.EmpireColor;
                     if (rel.Treaty_NAPact)
-                        DrawString(15f, "NA Pact with "+ them.data.Traits.Plural);
+                        DrawString(15f, "NA Pact with " + plural);
 
                     if (rel.Treaty_Trade)
-                        DrawString(15f, "Trade Pact with "+ them.data.Traits.Plural);
+                        DrawString(15f, "Trade Pact with " + plural);
 
                     if (rel.Treaty_OpenBorders)
-                        DrawString(15f, "Open Borders with "+ them.data.Traits.Plural);
+                        DrawString(15f, "Open Borders with " + plural);
 
                     if (rel.AtWar)
-                        DrawString(15f, $"War with {them.data.Traits.Plural} ({rel.ActiveWar?.WarType})");
+                        DrawString(15f, $"War with {plural} ({rel.ActiveWar?.WarType})");
                 }
                 ++column;
                 if (Screen.SelectedSystem != null)
@@ -1099,9 +1101,9 @@ namespace Ship_Game.Debug
 
         void DefcoInfo()
         {
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in Universe.Empires)
             {
-                DefensiveCoordinator defco = e.GetEmpireAI().DefensiveCoordinator;
+                DefensiveCoordinator defco = e.AI.DefensiveCoordinator;
                 foreach (var kv in defco.DefenseDict)
                 {
                     Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.RankImportance * 100, e.EmpireColor, 6);
@@ -1111,22 +1113,22 @@ namespace Ship_Game.Debug
                 foreach(Ship ship in defco.DefensiveForcePool)
                     Screen.DrawCircleProjectedZ(ship.Position, 50f, e.EmpireColor, 6);
 
-                foreach(AO ao in e.GetEmpireAI().AreasOfOperations)
+                foreach(AO ao in e.AI.AreasOfOperations)
                     Screen.DrawCircleProjectedZ(ao.Center, ao.Radius, e.EmpireColor, 16);
             }
         }
 
         void ThreatMatrixInfo()
         {
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in Universe.Empires)
             {
-                var pins = e.GetEmpireAI().ThreatMatrix.GetPins();
+                var pins = e.AI.ThreatMatrix.GetPinsCopy();
                 for (int i = 0; i < pins.Length; i++)
                 {
                     ThreatMatrix.Pin pin = pins[i];
                     if (pin?.Ship == null || pin.Position == Vector2.Zero)
                         continue;
-                    float increaser = (int) e.Universum.Screen.viewState / 100f;
+                    float increaser = (int) e.Universe.Screen.viewState / 100f;
                     Screen.DrawCircleProjected(pin.Position,
                         increaser + pin.Ship.Radius, 6, e.EmpireColor);
 
