@@ -56,7 +56,7 @@ namespace Ship_Game
             Icon = troopTemplate?.IconTexture ?? ResourceManager.InvalidTexture;
         }
 
-        public UnlockItem(string tech, in Technology.UnlockedHull unlockedHull)
+        public UnlockItem(string tech, Empire player, in Technology.UnlockedHull unlockedHull)
         {
             // Allow NULL, so we can display error icon
             if (!ResourceManager.Hull(unlockedHull.Name, out ShipHull hullData))
@@ -66,7 +66,7 @@ namespace Ship_Game
             hull = hullData;
             Title = hullData?.VisibleName ?? unlockedHull.Name;
             Description = Localizer.Token(GameText.UnlocksANewHullType) + " " +
-                          (hullData != null ? Localizer.GetRole(hullData.Role, EmpireManager.Player) + $" ({hullData.HullSlots.Length} slots)"
+                          (hullData != null ? Localizer.GetRole(hullData.Role, player) + $" ({hullData.HullSlots.Length} slots)"
                                             : "Hull: " + unlockedHull.Name); 
             Icon = hullData?.Icon ?? ResourceManager.InvalidTexture;
         }
@@ -115,11 +115,10 @@ namespace Ship_Game
             return r;
         }
 
-        public static Array<UnlockItem> CreateUnlocksList(Technology tech, int maxUnlocks = int.MaxValue)
+        public static Array<UnlockItem> CreateUnlocksList(Technology tech, Empire player, int maxUnlocks = int.MaxValue)
         {
             bool IsValidTypeForPlayer(string type)
             {
-                Empire player = EmpireManager.Player;
                 return type == null
                     || type == "ALL"
                     || type == player.data.Traits.ShipType
@@ -133,7 +132,7 @@ namespace Ship_Game
             {
                 if (unlocks.Count >= maxUnlocks) break;
                 if (IsValidTypeForPlayer(hull.ShipType))
-                    unlocks.Add(new UnlockItem(tech.UID, hull));
+                    unlocks.Add(new UnlockItem(tech.UID, player, hull));
             }
             foreach (Technology.UnlockedMod module in tech.ModulesUnlocked)
             {

@@ -15,7 +15,7 @@ namespace Ship_Game.Empires.ShipPools
         public int Id { get; }
         public string Name { get; }
         public Empire OwnerEmpire => Owner;
-        public EmpireAI OwnerAI => Owner.GetEmpireAI();
+        public EmpireAI OwnerAI => Owner.AI;
         public Array<Ship> Ships => ForcePool.Items;
 
         public float InitialStrength  { get; private set; }
@@ -45,7 +45,7 @@ namespace Ship_Game.Empires.ShipPools
         /// </summary>
         public bool Add(Ship s)
         {
-            if (s.Pool == this || Owner.isPlayer || Owner.isFaction || s.Loyalty != Owner ||
+            if (s.Pool == this || Owner.isPlayer || Owner.IsFaction || s.Loyalty != Owner ||
                 s.ShouldNotBeAddedToForcePools())
                 return false;
 

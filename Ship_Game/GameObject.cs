@@ -1,13 +1,9 @@
 using System.Diagnostics.Contracts;
-
-using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System.Xml.Serialization;
 using System;
 using System.Runtime.CompilerServices;
 using Ship_Game.Data.Serialization;
-using Ship_Game.ExtensionMethods;
 using SDGraphics;
 
 namespace Ship_Game
@@ -30,20 +26,15 @@ namespace Ship_Game
     [StarDataType]
     public abstract class GameObject
     {
-        /**
-         *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
-         *        will be accidentally serialized!
-         */
-        
         [StarData] public readonly int Id;
-        [XmlIgnore][JsonIgnore] public bool Active = true;
-        [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
+        [StarData] public bool Active; // this must be set during concrete object Initialization
+        [StarData] public SolarSystem System;
         
         [StarData] public Vector2 Position;
         [StarData] public Vector2 Velocity;
 
         // Velocity magnitude (scalar), always absolute
-        [XmlIgnore][JsonIgnore] public float CurrentVelocity => Velocity.Length();
+        public float CurrentVelocity => Velocity.Length();
 
         // important for hi-precision impact predictor and accurate Position integration
         [StarData] public Vector2 Acceleration;
@@ -58,32 +49,32 @@ namespace Ship_Game
 
         [StarData] public readonly GameObjectType Type;
 
-        [XmlIgnore][JsonIgnore] public GameObject LastDamagedBy;
+        public GameObject LastDamagedBy;
 
-        [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
-        [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
-        [XmlIgnore][JsonIgnore] public bool ReinsertSpatial = false; // if true, this object should be reinserted to spatial manager
-        [XmlIgnore][JsonIgnore] public bool InFrustum; // Updated by UniverseObjectManager
+        public int SpatialIndex = -1;
+        public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
+        public bool ReinsertSpatial = false; // if true, this object should be reinserted to spatial manager
+        public bool InFrustum; // Updated by UniverseObjectManager
 
         /// <summary>
         /// Current Rotation converted into a Direction unit vector
         /// </summary>
-        [XmlIgnore][JsonIgnore] public Vector2 Direction
+        public Vector2 Direction
         {
             get => Rotation.RadiansToDirection();
             set => Rotation = value.ToRadians(); // allow setting the rotation with a direction vector
         }
-        [XmlIgnore][JsonIgnore] public Vector3 Direction3D
+        public Vector3 Direction3D
         {
             get => Rotation.RadiansToDirection3D();
             set => Rotation = new Vector2(value.X, value.Y).ToRadians();
         }
 
         // Current direction of the Velocity vector, or Vector2.Zero if Velocity is Zero
-        [XmlIgnore][JsonIgnore] public Vector2 VelocityDirection => Velocity.Normalized();
+        public Vector2 VelocityDirection => Velocity.Normalized();
 
         // gets/set the Rotation in Degrees; Properly normalizes input degrees to [0; +2PI]
-        [XmlIgnore][JsonIgnore] public float RotationDegrees
+        public float RotationDegrees
         {
             get => Rotation.ToDegrees();
             set => Rotation = value.ToRadians();
@@ -112,21 +103,18 @@ namespace Ship_Game
 
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
 
+        [StarDataConstructor]
         protected GameObject(int id, GameObjectType type)
         {
             Id = id;
             Type = type;
         }
 
-        [XmlIgnore][JsonIgnore] public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
+        public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
 
         public virtual void Damage(GameObject source, float damageAmount, float beamModifier = 1f)
         {
         }
-
-        //public virtual void Initialize()
-        //{
-        //}
 
         public virtual void Die(GameObject source, bool cleanupOnly)
         {
@@ -139,9 +127,8 @@ namespace Ship_Game
 
         // in system view and inside frustum
         public bool IsInFrustum(UniverseScreen u) =>
-            u.IsSystemViewOrCloser && u.IsInFrustum(Position, 2000f);
+            u.UState.IsSystemViewOrCloser && u.IsInFrustum(Position, 2000f);
 
-        [XmlIgnore][JsonIgnore]
         public string SystemName => System?.Name ?? "Deep Space";
 
         public void SetSystem(SolarSystem system)

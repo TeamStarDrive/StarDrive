@@ -2,24 +2,28 @@
 using System.Collections.Generic;
 using SDGraphics;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
 {
+    [StarDataType]
     public class EmpireRiskAssessment
     {
-        public float Expansion   { get; private set; }
-        public float Border      { get; private set; }
-        public float KnownThreat { get; private set; }
+        [StarData] public float Expansion   { get; private set; }
+        [StarData] public float Border      { get; private set; }
+        [StarData] public float KnownThreat { get; private set; }
 
-        public float Risk        { get; private set; }
-        public float MaxRisk     { get; private set; }
-        private readonly Empire Them;
-        private readonly Relationship Relation;
+        [StarData] public float Risk        { get; private set; }
+        [StarData] public float MaxRisk     { get; private set; }
+        [StarData] readonly Empire Them;
+        [StarData] readonly Relationship Relation;
+
+        [StarDataConstructor] EmpireRiskAssessment() {}
 
         public EmpireRiskAssessment(Relationship relation)
         {
-            Them = EmpireManager.GetEmpireByName(relation.Name);
+            Them = relation.Them;
             Relation = relation;
         }
 
@@ -42,24 +46,23 @@ namespace Ship_Game.AI
         /// </summary>
         private float ExpansionRiskAssessment(Empire us)
         {
-            if (!Relation.Known  || Them == null || Them.data.Defeated)
+            if (!Relation.Known || Them == null || Them.data.Defeated)
                 return 0;
             if (Relation.Treaty_OpenBorders)
                 return 0;
 
             float expansion = us.GetExpansionRatio() / 4;
 
-            float risk = 0;
-            if (Them.isFaction || us.isFaction)
+            if (Them.IsFaction || us.IsFaction)
             {
-                if (us.GetEmpireAI().CreditRating > 0.75f && (Relation.AtWar || Relation.IsHostile))
+                if (us.AI.CreditRating > 0.75f && (Relation.AtWar || Relation.IsHostile))
                 {
-                    float strengthNeeded = us.GetEmpireAI().GetAvgStrengthNeededByExpansionTasks(Them);
+                    float strengthNeeded = us.AI.GetAvgStrengthNeededByExpansionTasks(Them);
 
                     if (strengthNeeded > 0)
                     {
                         float currentStrength = us.AIManagedShips.EmpireReadyFleets?.AccumulatedStrength ?? 1;
-                        float currentThreat = us.GetEmpireAI().ThreatLevel;
+                        float currentThreat = us.AI.ThreatLevel;
                         float possibleStrength = currentStrength / currentThreat;
                         if (possibleStrength > strengthNeeded)
                             return 10;
@@ -69,8 +72,7 @@ namespace Ship_Game.AI
             }
 
             float expansionRatio = Them.ExpansionScore / us.ExpansionScore.LowerBound(1);
-            risk = (expansionRatio).LowerBound(0);
-
+            float risk = (expansionRatio).LowerBound(0);
             return (risk + expansion) / 2;
         }
 
@@ -81,11 +83,11 @@ namespace Ship_Game.AI
         /// </summary>
         private float BorderRiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.data.Defeated || us.NumSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == EmpireManager.Unknown)
+            if (!Relation.Known || Them.data.Defeated || us.NumSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == us.Universe.Unknown)
                 return 0;
 
             // if we have an open borders treaty or they are a faction return 0
-            if (Relation.Treaty_OpenBorders || Them.isFaction)
+            if (Relation.Treaty_OpenBorders || Them.IsFaction)
                 return 0;
 
             float ourOffensiveRatio = us.GetWarOffensiveRatio();
@@ -102,7 +104,7 @@ namespace Ship_Game.AI
             }
 
             // size is only the positive half of the universe. so double it.
-            float space = us.Universum.Size * 2;
+            float space = us.Universe.Size * 2;
             float distanceThreat = (space - distanceToNearest) / space;
             float threat = (float)Them.TotalScore / us.TotalScore;
             float risk = (threat * distanceThreat - 0.5f).LowerBound(0);
@@ -117,9 +119,9 @@ namespace Ship_Game.AI
 
         private float RiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.data.Defeated || Them == EmpireManager.Unknown)
+            if (!Relation.Known || Them.data.Defeated || Them == us.Universe.Unknown)
                 return 0;
-            if (Them.isFaction || Relation.Treaty_Alliance)
+            if (Them.IsFaction || Relation.Treaty_Alliance)
                 return 0;
 
             var riskBase = us.GetWarOffensiveRatio();

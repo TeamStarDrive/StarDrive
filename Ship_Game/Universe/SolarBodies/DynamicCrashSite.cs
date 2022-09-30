@@ -1,19 +1,24 @@
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Universe.SolarBodies
 {
-    public struct DynamicCrashSite // Created by Fat Bastard, Nov 2020
+    [StarDataType]
+    public class DynamicCrashSite // Created by Fat Bastard, Nov 2020
     {
-        public Empire Loyalty { get; private set; }
-        public string ShipName { get; private set; }
-        public int NumTroopsSurvived { get; private set; }
-        public bool Active { get; private set; }
-        public string TroopName { get; private set; }
-        public bool RecoverShip { get; private set; }
+        [StarData] public Empire Loyalty { get; private set; }
+        [StarData] public string ShipName { get; private set; }
+        [StarData] public int NumTroopsSurvived { get; private set; }
+        [StarData] public bool Active { get; private set; }
+        [StarData] public string TroopName { get; private set; }
+        [StarData] public bool RecoverShip { get; private set; }
+
+        [StarDataConstructor]
+        private DynamicCrashSite() {}
 
         public DynamicCrashSite(bool active)
         {
@@ -26,7 +31,7 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         public void CrashShip(Empire empire, string shipName, string troopName, int numTroopsSurvived,
-            Planet p, PlanetGridSquare tile, int shipSize,  bool fromSave = false)
+                              Planet p, PlanetGridSquare tile, int shipSize)
         {
             if (!TryCreateCrashSite(p, tile, out string message))
                 return;
@@ -37,20 +42,9 @@ namespace Ship_Game.Universe.SolarBodies
             TroopName         = troopName;
             NumTroopsSurvived = numTroopsSurvived;
 
-            if (!fromSave)
-            {
-                p.SetInGroundCombat(p.Owner);
-                NotifyPlayerAndAi(p, message, shipSize);
-                RecoverShip = RecoverChance();
-            }
-        }
-
-        public void CrashShip(SavedGame.PGSData d, Planet p, PlanetGridSquare tile)
-        {
-            Empire e = EmpireManager.GetEmpireById(d.CrashSiteEmpireId);
-            // ShipSize 0 since it is not relevant when called from save
-            CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, p, tile, 0, true);
-            RecoverShip = d.CrashSiteRecoverShip;
+            p.SetInGroundCombat(p.Owner);
+            NotifyPlayerAndAi(p, message, shipSize);
+            RecoverShip = RecoverChance();
         }
 
         bool TryCreateCrashSite(Planet p, PlanetGridSquare tile, out string message)
@@ -87,7 +81,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         void NotifyPlayerAndAi(Planet p, string message, int shipSize)
         {
-            foreach (Empire e in EmpireManager.ActiveMajorEmpires)
+            foreach (Empire e in p.Universe.ActiveMajorEmpires)
             {
                 var ships = e.OwnedShips;
                 if (p.Owner == e 
@@ -107,7 +101,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (p.Owner == null)
             {
                 if (!p.ParentSystem.OwnerList.Any(empire => empire.IsNAPactWith(e)) && shipSize >= 100)
-                    e.GetEmpireAI().SendExplorationFleet(p);
+                    e.AI.SendExplorationFleet(p);
             }
             else if (!p.TroopsInTheWorks && !p.AnyOfOurTroops(e) && !p.SpaceCombatNearPlanet) // owner is this empire
             {
@@ -120,7 +114,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (e.GetTroopShipForRebase(out Ship troopShip, p.Position, p.Name))
                 troopShip.AI.OrderLandAllTroops(p, clearOrders:true);
             else
-                e.GetEmpireAI().SendExplorationFleet(p); // Create a task to be processed normally
+                e.AI.SendExplorationFleet(p); // Create a task to be processed normally
         }
 
         public void ActivateSite(UniverseState u, Planet p, Empire activatingEmpire, PlanetGridSquare tile)
@@ -183,13 +177,13 @@ namespace Ship_Game.Universe.SolarBodies
             if (Loyalty != owner)
                 rel = owner.GetRelations(Loyalty);
 
-            if (rel?.AtWar == false && rel.CanAttack && !Loyalty.isFaction)
+            if (rel?.AtWar == false && rel.CanAttack && !Loyalty.IsFaction)
             {
                 NumTroopsSurvived = 0;
                 return; // Dont spawn troops, risking war
             }
 
-            bool shouldLandTroop = Loyalty == owner || rel?.AtWar == true || Loyalty.isFaction;
+            bool shouldLandTroop = Loyalty == owner || rel?.AtWar == true || Loyalty.IsFaction;
             for (int i = 1; i <= NumTroopsSurvived; i++)
             {
                 if (ResourceManager.TryCreateTroop(TroopName, Loyalty, out Troop t))
@@ -205,7 +199,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (NumTroopsSurvived == 0)
                 return;
 
-            bool playerTroopsRecovered = Loyalty == EmpireManager.Player && owner != EmpireManager.Player;
+            bool playerTroopsRecovered = Loyalty == p.Universe.Player && owner != p.Universe.Player;
             if (Loyalty == owner)
             {
                 message = "Friendly Troops have Survived.";

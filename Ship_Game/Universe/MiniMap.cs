@@ -169,7 +169,7 @@ namespace Ship_Game
             }
 
             //foreach (var system in Screen.SolarSystemDict)
-            foreach (var system in Player.GetEmpireAI().ThreatMatrix.GetAllSystemsWithFactions())
+            foreach (var system in Player.AI.ThreatMatrix.GetAllSystemsWithFactions())
             {
                 if (system.OwnerList.Count > 0) continue;
                 var pin = system;
@@ -182,12 +182,12 @@ namespace Ship_Game
                     SpriteEffects.None, 1f);
             }
 
-            foreach (ThreatMatrix.Pin badBase in Player.GetEmpireAI().ThreatMatrix.GetAllFactionBases())
+            foreach (ThreatMatrix.Pin badBase in Player.AI.ThreatMatrix.GetAllFactionBases())
             {
                 var pin = badBase;
                 var point = WorldToMiniPos(pin.Position);
                 radius = 0.025f * Universe.SlowFlashTimer;
-                var color = pin.GetEmpire().EmpireColor;
+                var color = pin.Empire.EmpireColor;
                 var warningColor = new Color(Color.Yellow, 200);
                 batch.Draw(Node1, point, warningColor, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.005f, SpriteEffects.None, 1f);

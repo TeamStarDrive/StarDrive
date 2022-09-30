@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -13,13 +14,14 @@ namespace Ship_Game
     internal sealed class ReplayElement
     {
         UniverseScreen Universe;
+        UniverseState UState;
         private GenericButton ShipCount;
 
         private GenericButton MilStrength;
 
         private GenericButton Population;
 
-        private Array<GenericButton> Buttons = new Array<GenericButton>();
+        private Array<GenericButton> Buttons = new();
 
         public Rectangle ElementRect;
 
@@ -39,7 +41,7 @@ namespace Ship_Game
 
         private float MaxPop;
 
-        public Array<string> TextMessages = new Array<string>();
+        public Array<string> TextMessages = new();
 
         public float StarDate = 1000.1f;
 
@@ -53,6 +55,8 @@ namespace Ship_Game
         public ReplayElement(UniverseScreen u, Rectangle r)
         {
             Universe = u;
+            UState = u.UState;
+
             ElementRect = r;
             TextRect = new Rectangle(r.X, r.Y + r.Height, r.Width, 128);
             ShipCount = new GenericButton(new Vector2(ElementRect.X - 10, ElementRect.Y + 40), "Ship Count", Fonts.Pirulen16, Fonts.Pirulen12);
@@ -62,8 +66,8 @@ namespace Ship_Game
             Population = new GenericButton(new Vector2(ElementRect.X - 10, MilStrength.R.Y + Fonts.Pirulen16.LineSpacing + 4), "Population", Fonts.Pirulen16, Fonts.Pirulen12);
             Buttons.Add(Population);
 
-            TurnsRepresented = StatTracker.NumRecordedTurns;
-            foreach (SerializableDictionary<int, Snapshot> snapshots in StatTracker.Snapshots)
+            TurnsRepresented = UState.Stats.NumRecordedTurns;
+            foreach (Map<int, Snapshot> snapshots in UState.Stats.Snapshots)
             {
                 foreach (Snapshot shot in snapshots.Values)
                 {
@@ -110,7 +114,7 @@ namespace Ship_Game
             DrawSolarSystemStats(batch, scale);
             
             string starDateStr = StarDate.StarDateString();
-            if (!StatTracker.GetAllSnapshotsFor(StarDate, out SerializableDictionary<int, Snapshot> allSnapshots))
+            if (!UState.Stats.GetAllSnapshotsFor(StarDate, out Map<int, Snapshot> allSnapshots))
             {
                 TextMessages.Clear();
             }
@@ -138,7 +142,7 @@ namespace Ship_Game
                     if (FrameCount == 15)
                         FrameCount = 0;
                 }
-                else if (state == State.Playing && StatTracker.ContainsDate(StarDate + 0.1f))
+                else if (state == State.Playing && UState.Stats.ContainsDate(StarDate + 0.1f))
                 {
                     StarDate += 0.1f;
                 }
@@ -202,7 +206,7 @@ namespace Ship_Game
                 star.Sun.DrawIcon(batch, starRect);
             }
 
-            foreach (SerializableDictionary<int, Snapshot> snap in StatTracker.Snapshots)
+            foreach (Map<int, Snapshot> snap in UState.Stats.Snapshots)
             {
                 foreach (KeyValuePair<int, Snapshot> entry in snap)
                 {
@@ -218,7 +222,7 @@ namespace Ship_Game
                                 (int) starPos.Y - (int) (nro.Radius * scale),
                                 (int) (nro.Radius * scale * 2f),
                                 (int) (nro.Radius * scale * 2f));
-                            var empire = EmpireManager.Empires[entry.Key];
+                            var empire = UState.Empires[entry.Key];
                             batch.Draw(ResourceManager.Texture("UI/node"), starRect, new Color(empire.EmpireColor, 128));
                         }
                     }
@@ -240,8 +244,8 @@ namespace Ship_Game
             {
                 float nextStarDate = currStarDate + 0.1f;
 
-                if (StatTracker.GetAllSnapshotsFor(currStarDate, out SerializableDictionary<int, Snapshot> currSnapshots) &&
-                    StatTracker.GetAllSnapshotsFor(nextStarDate, out SerializableDictionary<int, Snapshot> nextSnapshots))
+                if (UState.Stats.GetAllSnapshotsFor(currStarDate, out Map<int, Snapshot> currSnapshots) &&
+                    UState.Stats.GetAllSnapshotsFor(nextStarDate, out Map<int, Snapshot> nextSnapshots))
                 {
                     foreach (KeyValuePair<int, Snapshot> currEntry in currSnapshots)
                     {
@@ -251,7 +255,7 @@ namespace Ship_Game
                             Snapshot nextShot = nextEntry.Value;
                             if (nextEntry.Key == currEntry.Key)
                             {
-                                Empire empire = EmpireManager.Empires[currEntry.Key];
+                                Empire empire = UState.Empires[currEntry.Key];
                                 onSnapshotPair(turn, empire, currShot, nextShot);
                             }
                         }
@@ -301,7 +305,7 @@ namespace Ship_Game
             if (input.KeysCurr.IsKeyDown(Keys.Right))
             {
                 state = State.Paused;
-                if (StatTracker.ContainsDate((StarDate + 0.1f)))
+                if (UState.Stats.ContainsDate((StarDate + 0.1f)))
                 {
                     StarDate = StarDate + 0.1f;
                 }

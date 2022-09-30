@@ -4,7 +4,6 @@
   <UID>ImperialUni</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>3000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>10344</NameIndex>
   <DescriptionIndex>10345</DescriptionIndex>
   <LeadsTo>

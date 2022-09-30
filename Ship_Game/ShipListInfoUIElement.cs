@@ -16,6 +16,7 @@ namespace Ship_Game
     public sealed class ShipListInfoUIElement : UIElement
     {
         public readonly UniverseScreen Screen;
+        Empire Player => Screen.Player;
 
         public ShipStanceButtons OrdersButtons;
         readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
@@ -405,11 +406,12 @@ namespace Ship_Game
                     entry = new SelectedShipListItem(this, OnSelectedShipsListButtonClicked);
                 }
 
-                if (ship.AI.State != AIState.Resupply)    allResupply    = false;
-                if (ship.Loyalty != EmpireManager.Player) AllShipsMine   = false;
-                if (!ship.IsFreighter)                    allFreighters  = false;
-                if (ship.Carrier.HasFighterBays)          carriersHere   = true;
-                if (ship.Carrier.HasTroopBays)            troopShipsHere = true;
+                if (ship.AI.State != AIState.Resupply) allResupply    = false;
+                if (ship.Loyalty != Player)            AllShipsMine   = false;
+                if (!ship.IsFreighter)                 allFreighters  = false;
+                if (ship.Carrier.HasFighterBays)       carriersHere   = true;
+                if (ship.Carrier.HasTroopBays)         troopShipsHere = true;
+
                 if (ship.DesignRole < RoleName.carrier || ship.ShipData.ShipCategory == ShipCategory.Civilian 
                                                        || ship.AI.State == AIState.Colonize 
                                                        || ship.IsHangarShip)

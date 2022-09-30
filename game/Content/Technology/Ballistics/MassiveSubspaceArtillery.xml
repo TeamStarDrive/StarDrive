@@ -4,7 +4,6 @@
   <UID>MassiveSubspaceArtillery</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>4560</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>665</NameIndex>
   <DescriptionIndex>666</DescriptionIndex>
   <LeadsTo>

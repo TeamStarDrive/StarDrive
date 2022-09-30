@@ -18,6 +18,7 @@ namespace Ship_Game
         private readonly GameScreen Screen;
         private readonly SubTexture PortraitShine = ResourceManager.Texture("Portraits/portrait_shine");
         private Planet Planet;
+        Empire Player => Planet.Universe.Player;
         private DrawableSprite PortraitSprite;
         private UIPanel Portrait;
         private UILabel WorldType, WorldDescription;
@@ -137,7 +138,7 @@ namespace Ship_Game
             ColonyTypeList.AddOption(option:GameText.Research, Planet.ColonyType.Research);
             ColonyTypeList.AddOption(option:GameText.Military, Planet.ColonyType.Military);
             ColonyTypeList.AddOption(option:GameText.TradeHub, Planet.ColonyType.TradeHub);
-            ColonyTypeList.ActiveValue = Planet.colonyType;
+            ColonyTypeList.ActiveValue = Planet.CType;
             ColonyTypeList.OnValueChange = OnColonyTypeChanged;
 
             ButtonUpdateTimer    = 1;
@@ -309,7 +310,7 @@ namespace Ship_Game
 
         void OnColonyTypeChanged(Planet.ColonyType type)
         {
-            Planet.colonyType = type;
+            Planet.CType = type;
             WorldType.Text = Planet.WorldType;
             WorldDescription.Text = GetParsedDescription();
         }
@@ -334,9 +335,9 @@ namespace Ship_Game
                     BuildCapital.Visible = false; // This is for old save support. It can be removed post Mars.
 
                 // Not for trade hubs, which do not build structures anyway
-                GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer;
+                GovNoScrap.Visible = GovernorTabView && Planet.CType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer;
 
-                int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(EmpireManager.Player);
+                int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(Planet.Universe.Player);
                 Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
                 CallTroops.Visible        = DefenseTabView && Planet.OwnerIsPlayer;
                 LaunchSingleTroop.Visible = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 0;
@@ -423,9 +424,9 @@ namespace Ship_Game
         void DrawGovernorTab(SpriteBatch batch)
         {
             // Governor portrait overlay stuff
-            Portrait.Color = Planet.colonyType == Planet.ColonyType.Colony ? new Color(64, 64, 64) : Color.White;
+            Portrait.Color = Planet.CType == Planet.ColonyType.Colony ? new Color(64, 64, 64) : Color.White;
             Color borderColor;
-            switch (Planet.colonyType)
+            switch (Planet.CType)
             {
                 default:                             borderColor = Color.White; break;
                 case Planet.ColonyType.TradeHub:     borderColor = Color.Yellow; break;
@@ -482,7 +483,7 @@ namespace Ship_Game
 
         void OnSendTroopsClicked(UIButton b)
         {
-            if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, Planet.Position, Planet.Name))
+            if (Planet.Universe.Player.GetTroopShipForRebase(out Ship troopShip, Planet.Position, Planet.Name))
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderRebase(Planet, true);
@@ -504,7 +505,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in Planet.TilesList)
             {
-                if (pgs.TroopsAreOnTile && pgs.LockOnPlayerTroop(out Troop troop) && troop.CanLaunch)
+                if (pgs.TroopsAreOnTile && pgs.LockOnOurTroop(us:Player, out Troop troop) && troop.CanLaunch)
                 {
                     play = true;
                     troop.Launch(pgs);
@@ -522,7 +523,7 @@ namespace Ship_Game
 
         void OnLaunchSingleTroopClicked(UIButton b)
         {
-            var potentialTroops = Planet.TroopsHere.Filter(t => t.Loyalty == EmpireManager.Player && t.CanLaunch);
+            var potentialTroops = Planet.TroopsHere.Filter(t => t.Loyalty == Planet.Universe.Player && t.CanLaunch);
             if (potentialTroops.Length == 0)
                 GameAudio.NegativeClick();
             else
@@ -735,7 +736,7 @@ namespace Ship_Game
 
         bool BuildOrbital(Ship orbital)
         {
-            if (orbital == null || Planet.IsOutOfOrbitalsLimit(orbital))
+            if (orbital == null || Planet.IsOutOfOrbitalsLimit(orbital.ShipData))
                 return false;
 
             Planet.AddOrbital(orbital);

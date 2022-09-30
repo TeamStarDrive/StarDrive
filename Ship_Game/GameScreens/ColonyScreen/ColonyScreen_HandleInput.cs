@@ -29,10 +29,9 @@ namespace Ship_Game
             {
                 if (pgs.TroopsAreOnTile)
                 {
-                    using (pgs.TroopsHere.AcquireReadLock())
-                        for (int i = 0; i < pgs.TroopsHere.Count; ++i)
-                            if (pgs.TroopsHere[i].ClickRect.HitTest(input.CursorPosition))
-                                return pgs.TroopsHere[i];
+                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                        if (pgs.TroopsHere[i].ClickRect.HitTest(input.CursorPosition))
+                            return pgs.TroopsHere[i];
                 }
             }
 
@@ -66,7 +65,7 @@ namespace Ship_Game
             P.UpdateIncomes();
 
             // We are monitoring AI Colonies
-            if (P.Owner != EmpireManager.Player && !Log.HasDebugger)
+            if (P.Owner != Player && !Log.HasDebugger)
             {
                 // Input not captured, let Universe Screen manager what happens
                 return false;
@@ -106,29 +105,26 @@ namespace Ship_Game
 
                 if (pgs.TroopsAreOnTile)
                 {
-                    using (pgs.TroopsHere.AcquireWriteLock())
+                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                     {
-                        for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                        Troop troop = pgs.TroopsHere[i];
+                        if (troop.ClickRect.HitTest(MousePos))
                         {
-                            Troop troop = pgs.TroopsHere[i];
-                            if (troop.ClickRect.HitTest(MousePos))
+                            if (input.RightMouseClick && troop.Loyalty == Player)
                             {
-                                if (input.RightMouseClick && troop.Loyalty == EmpireManager.Player)
+                                Ship troopShip = troop.Launch(pgs);
+                                if (troopShip != null)
                                 {
-                                    Ship troopShip = troop.Launch(pgs);
-                                    if (troopShip != null)
-                                    {
-                                        GameAudio.TroopTakeOff();
-                                        ClickedTroop = true;
-                                    }
-                                    else
-                                    {
-                                        GameAudio.NegativeClick();
-                                    }
+                                    GameAudio.TroopTakeOff();
+                                    ClickedTroop = true;
                                 }
-
-                                return true;
+                                else
+                                {
+                                    GameAudio.NegativeClick();
+                                }
                             }
+
+                            return true;
                         }
                     }
                 }

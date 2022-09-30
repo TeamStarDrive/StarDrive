@@ -4,7 +4,6 @@
   <UID>Battle_Stations</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>2000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17605</NameIndex>
   <DescriptionIndex>17606</DescriptionIndex>
   <LeadsTo />

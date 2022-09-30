@@ -9,7 +9,7 @@ namespace Ship_Game.AI
     {
         float ArtifactValue => OwnerEmpire.Research.MaxResearchPotential.LowerBound(30)
                                * (1 + OwnerEmpire.data.Traits.Spiritual)
-                               * CurrentGame.SettingsResearchModifier.LowerBound(1);
+                               * OwnerEmpire.Universe.SettingsResearchModifier.LowerBound(1);
 
         void AcceptNAPact(Empire us, Empire them,  Offer.Attitude attitude)
         {
@@ -101,7 +101,7 @@ namespace Ship_Game.AI
 
                     if (!them.isPlayer)
                     {
-                        p.colonyType = them.AssessColonyNeeds(p);
+                        p.CType = them.AssessColonyNeeds(p);
                     }
                     if (!us.isPlayer)
                     {
@@ -138,7 +138,7 @@ namespace Ship_Game.AI
             Relationship rel = us.GetRelations(them);
             rel.AtWar = false;
             rel.CancelPrepareForWar();
-            rel.ActiveWar.EndStarDate = us.Universum.StarDate;
+            rel.ActiveWar.EndStarDate = us.Universe.StarDate;
             rel.WarHistory.Add(rel.ActiveWar);
 
             DTrait persona = us.data.DiplomaticPersonality;
@@ -159,9 +159,9 @@ namespace Ship_Game.AI
             rel.HaveRejected_TRADE = false;
             rel.HasDefenseFleet = false;
             if (rel.DefenseFleet != -1)
-                us.GetFleetsDict()[rel.DefenseFleet].FleetTask.EndTask();
+                us.GetFleet(rel.DefenseFleet).FleetTask.EndTask();
 
-            us.GetEmpireAI().RemoveMilitaryTasksTargeting(them);
+            us.AI.RemoveMilitaryTasksTargeting(them);
             rel.ActiveWar = null;
         }
 
@@ -173,7 +173,7 @@ namespace Ship_Game.AI
                 Relationship rel = OwnerEmpire.GetRelations(them);
                 bool neededPeace = them.isPlayer  // player asked peace since they is in a real bad state
                                      && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
-                                     && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(CurrentGame.Difficulty + 1);
+                                     && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(us.Universe.Difficulty + 1);
 
                 if (!neededPeace && them.TheyAreAlliedWithOurEnemies(OwnerEmpire, out Array<Empire> empiresAlliedWithThem))
                     CheckAIEmpiresResponse(OwnerEmpire, empiresAlliedWithThem, them, true);
@@ -183,10 +183,10 @@ namespace Ship_Game.AI
                 AcceptPeaceTreaty(them, us, attitude);
 
                 if (us.isPlayer || them.isPlayer ||
-                    (us.Universum.Player.IsKnown(us) &&
-                     us.Universum.Player.IsKnown(them)))
+                    (us.Universe.Player.IsKnown(us) &&
+                     us.Universe.Player.IsKnown(them)))
                 {
-                    us.Universum.Notifications.AddPeaceTreatyEnteredNotification(us, them);
+                    us.Universe.Notifications.AddPeaceTreatyEnteredNotification(us, them);
                 }
             }
 
@@ -240,13 +240,13 @@ namespace Ship_Game.AI
         }
 
         string ProcessPeace(Offer theirOffer, Offer ourOffer, Empire them,
-                           Offer.Attitude attitude)
+                            Offer.Attitude attitude)
         {
             PeaceAnswer answer = AnalyzePeaceOffer(theirOffer, ourOffer, them);
             Relationship rel   = OwnerEmpire.GetRelations(them);
             bool neededPeace   = them.isPlayer  // player asked peace since they is in a real bad state
                                  && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
-                                 && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(CurrentGame.Difficulty + 1);
+                                 && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(them.Universe.Difficulty + 1);
 
             if (answer.Peace)
                 AcceptOffer(ourOffer, theirOffer, OwnerEmpire, them, attitude);
@@ -292,9 +292,9 @@ namespace Ship_Game.AI
             {
                 totalTrustRequiredFromUs += dt.NAPact;
                 int numWars = 0;
-                foreach ((Empire relThem, Relationship rel)  in us.AllRelations)
+                foreach (Relationship rel in us.AllRelations)
                 {
-                    if (rel.AtWar && !relThem.isFaction)
+                    if (rel.AtWar && !rel.Them.IsFaction)
                         ++numWars;
                 }
                 if (numWars > 0 && !usToThem.AtWar)
@@ -535,7 +535,7 @@ namespace Ship_Game.AI
 
             if (usToThem.ActiveWar != null)
             {
-                if (us.Universum.StarDate - usToThem.ActiveWar.StartDate < 10)
+                if (us.Universe.StarDate - usToThem.ActiveWar.StartDate < 10)
                     return ProcessPeace("REJECT_OFFER_PEACE_UNWILLING_BC");
             }
 

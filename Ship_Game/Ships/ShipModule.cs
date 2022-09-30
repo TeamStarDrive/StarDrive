@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics.Contracts;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
@@ -16,10 +17,6 @@ namespace Ship_Game.Ships
 {
     public sealed class ShipModule : GameObject
     {
-        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
-            throw new InvalidOperationException(
-                $"BUG! ShipModule must not be serialized! Add [XmlIgnore][JsonIgnore] to `public ShipModule XXX;` PROPERTIES/FIELDS. {this}");
-
         //private static int TotalModules = 0;
         //public int ID = ++TotalModules;
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
@@ -46,19 +43,19 @@ namespace Ship_Game.Ships
 
         // Gets the size of this Module, correctly oriented
         // Required by ModuleGrid
-        public Point GetSize() => new Point(XSize, YSize);
+        public Point GetSize() => new(XSize, YSize);
         
         // Size of this module in World Coordinates
-        public Vector2 WorldSize => new Vector2(XSize * 16, YSize * 16);
+        public Vector2 WorldSize => new(XSize * 16, YSize * 16);
 
         // Slot top-left Grid Position in the Ship design
-        public Point Pos;
+        [StarData] public Point Pos;
 
         // Center of the module in World Coordinates, relative to ship center
         public Vector2 LocalCenter;
 
         float ZPos;
-        public Vector3 Center3D => new Vector3(Position, ZPos);
+        public Vector3 Center3D => new(Position, ZPos);
 
         public int Area => XSize * YSize;
 
@@ -70,6 +67,7 @@ namespace Ship_Game.Ships
         ShipModuleDamageVisualization DamageVisualizer;
         public EmpireHullBonuses Bonuses = EmpireHullBonuses.Default;
         Ship Parent;
+        Empire Player => Parent.Universe.Player;
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
@@ -78,8 +76,7 @@ namespace Ship_Game.Ships
         public Restrictions Restrictions;
         public Shield Shield { get; private set; }
         public string HangarShipUID;
-        Ship HangarShip;
-        public int HangarShipId;
+        [StarData] public Ship HangarShip;
         public float HangarTimer;
         public bool IsWeapon;
         public Weapon InstalledWeapon;
@@ -225,7 +222,7 @@ namespace Ship_Game.Ships
                                    || ModuleType == ShipModuleType.Drone
                                    || ModuleType == ShipModuleType.Bomb;
 
-        public float ActualCost => Cost * CurrentGame.ProductionPace;
+        public float ActualCost => Cost * Parent.Universe.ProductionPace;
 
         // the actual hit radius is a bit bigger for some legacy reason
         public float ShieldHitRadius => Flyweight.ShieldRadius + 10f;
@@ -319,6 +316,7 @@ namespace Ship_Game.Ships
         public bool IsHangarShipActive => TryGetHangarShip(out Ship ship) && ship.Active;
         public bool TryGetHangarShipActive(out Ship ship) => TryGetHangarShip(out ship) && ship.Active;
 
+        [StarDataConstructor]
         ShipModule(int id) : base(id, GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
@@ -387,8 +385,9 @@ namespace Ship_Game.Ships
         public static ShipModule CreateNoParent(UniverseState us, ShipModule template, Empire loyalty, ShipHull hull)
         {
             var bonuses = EmpireHullBonuses.Get(loyalty, hull);
-            var module = new ShipModule(us?.CreateId() ?? -1)
+            var module = new ShipModule(us?.CreateId() ?? -1) // null during template creation
             {
+                Active = true,
                 Flyweight         = template.Flyweight,
                 Bonuses           = bonuses,
                 DescriptionIndex  = template.DescriptionIndex,
@@ -444,7 +443,7 @@ namespace Ship_Game.Ships
             m.Active = slot.Health > 0.01f;
             m.ShieldPower = slot.ShieldPower;
             m.SetHealth(slot.Health, "init", fromSave: true);
-            m.HangarShipId = slot.HangarShipId;
+            m.HangarShip = slot.HangarShip;
             return m;
         }
 
@@ -452,14 +451,14 @@ namespace Ship_Game.Ships
                                                     int turretAngle, string hangarShipUID, ShipHull hull)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(uid);
-            ShipModule m = CreateNoParent(us, template, EmpireManager.Player, hull);
+            ShipModule m = CreateNoParent(us, template, us.Player, hull);
 
             // Don't set HangarShipUID if this isn't actually a Hangar (because Shipyard sets default to DynamicLaunch)
             // Also, supply bays get the default supply shuttle
             if (m.IsSupplyBay)
-                m.HangarShipUID = EmpireManager.Player.GetSupplyShuttleName();
+                m.HangarShipUID = us.Player.GetSupplyShuttleName();
             else if (m.ModuleType == ShipModuleType.Hangar)
-                m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : hangarShipUID;
+                m.HangarShipUID = m.IsTroopBay ? us.Player.GetAssaultShuttleName() : hangarShipUID;
 
             m.SetModuleRotation(m.XSize, m.YSize, moduleRot, turretAngle);
             m.InstallModule(null, hull, Point.Zero);
@@ -578,7 +577,7 @@ namespace Ship_Game.Ships
         public string GetHangarShipName()
         {
             if (ShipBuilder.IsDynamicHangar(HangarShipUID))
-                return CarrierBays.GetDynamicShipNameShipDesign(this);
+                return CarrierBays.GetDynamicShipName(this, Player);
             return HangarShipUID;
         }
 
@@ -600,7 +599,7 @@ namespace Ship_Game.Ships
 
         public bool IsObsolete()
         {
-            return EmpireManager.Player.ObsoletePlayerShipModules.Contains(UID);
+            return Player.ObsoletePlayerShipModules.Contains(UID);
         }
 
         public struct UpdateEveryFrameArgs
@@ -803,7 +802,7 @@ namespace Ship_Game.Ships
 
         void Deflect(GameObject source)
         {
-            if (!Parent.InFrustum || Parent.Universe.Screen.IsShipViewOrCloser == false)
+            if (!Parent.InFrustum || !Parent.Universe.IsShipViewOrCloser)
                 return;
 
             if (source is Projectile proj && !proj.Explodes && proj.Duration >= 0)
@@ -1147,13 +1146,6 @@ namespace Ship_Game.Ships
         public void SetHangarShip(Ship ship)
         {
             HangarShip = ship;
-            HangarShipId = ship?.Id ?? 0;
-        }
-
-        public void ResetHangarShip(Ship newShipToLink)
-        {
-            SetHangarShip(newShipToLink);
-            newShipToLink.Mothership = Parent;
         }
 
         public void ResetHangarShipWithReturnToHangar(Ship newShipToLink)
@@ -1575,7 +1567,7 @@ namespace Ship_Game.Ships
             HangarShip = null;
             InstalledWeapon?.Dispose(ref InstalledWeapon);
             LastDamagedBy = null;
-            SetSystem(null);
+            System = null;
         }
     }
 }

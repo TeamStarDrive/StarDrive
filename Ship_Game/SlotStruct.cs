@@ -1,6 +1,4 @@
-using System;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDGraphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -92,19 +90,19 @@ namespace Ship_Game
         }
 
         // Center of the module in WORLD coordinates
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public Vector2 Center => WorldPos + WorldSize/2f;
 
         // Gets the size of the module rectangle in WORLD coordinates
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public Vector2 WorldSize => Module?.WorldSize ?? new Vector2(16f);
 
         // Gets the design grid size of the module, such as [1,1] or [2,2]
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public Point Size => Module?.GetSize() ?? new Point(1,1);
 
         // Gets the module rectangle in WORLD coordinates
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public RectF WorldRect => new RectF(WorldPos, WorldSize);
         public RectF GetWorldRectFor(ShipModule m) => new RectF(WorldPos, m.WorldSize);
 
@@ -116,7 +114,7 @@ namespace Ship_Game
             Tex       = null;
         }
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public SlotStruct Root => Parent ?? this;
 
         public bool IsModuleReplaceableWith(ShipModule other)

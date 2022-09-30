@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 using SDUtils;
 using Sentry;
+using Ship_Game.UI;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -187,7 +188,7 @@ namespace Ship_Game
         // specialized for Log Entry formatting, because it's very slow
         class LogStringBuffer
         {
-            public readonly char[] Characters = new char[1024 * 32];
+            public char[] Characters = new char[1024 * 32];
             public int Length;
 
             public void Append(char ch)
@@ -197,8 +198,24 @@ namespace Ship_Game
             public void Append(string s)
             {
                 int n = s.Length;
-                s.CopyTo(0, Characters, Length, n);
-                Length += n;
+                int pos = Expand(n);
+                s.CopyTo(0, Characters, pos, n);
+            }
+            int Expand(int count)
+            {
+                int len = Length;
+                int newLength = len + count;
+                if (newLength > Characters.Length)
+                {
+                    int newCapacity = Characters.Length * 2;
+                    while (newCapacity < newLength) newCapacity *= 2;
+
+                    char[] newChars = new char[newCapacity];
+                    Array.Copy(Characters, newChars, len);
+                    Characters = newChars;
+                }
+                Length = newLength;
+                return len;
             }
             // it only outputs 2 char length positive integers
             // and always prefixes with 0
@@ -705,7 +722,8 @@ namespace Ship_Game
             }
             else ShowWindow(handle, 5/*SW_SHOW*/);
 
-            Console.BufferHeight = bufferHeight;
+            if (Console.BufferHeight < bufferHeight)
+                Console.BufferHeight = bufferHeight;
 
             // Move the console window to a secondary screen if we have multiple monitors
             if (Screen.AllScreens.Length > 1 && (handle = GetConsoleWindow()) != IntPtr.Zero)

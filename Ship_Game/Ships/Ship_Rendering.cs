@@ -349,7 +349,7 @@ namespace Ship_Game.Ships
                 if (ShieldPower > 0.0)
                 {
                     batch.Draw(ResourceManager.Texture(icon + "_shields"), destRect,
-                               new Color(Color.White, (float)ShieldPercent));
+                               new Color(Color.White, ShieldPercent));
                 }
                 return;
             }

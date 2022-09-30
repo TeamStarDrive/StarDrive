@@ -4,16 +4,18 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using SDGraphics;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 using SDUtils;
 using System.Linq;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Universe.SolarBodies
 {
     // Production facilities
+    [StarDataType]
     public class SBProduction
     {
-        readonly Planet P;
+        [StarData] readonly Planet P;
         Empire Owner => P.Owner;
 
         public bool NotEmpty => ConstructionQueue.NotEmpty;
@@ -23,7 +25,7 @@ namespace Ship_Game.Universe.SolarBodies
         /// <summary>
         /// The Construction queue should be protected
         /// </summary>
-        readonly Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
+        [StarData] readonly Array<QueueItem> ConstructionQueue = new();
 
         float ProductionHere
         {
@@ -31,8 +33,9 @@ namespace Ship_Game.Universe.SolarBodies
             set => P.ProdHere = value;
         }
 
-        float SurplusThisTurn;
-
+        [StarData] float SurplusThisTurn;
+        
+        [StarDataConstructor]
         public SBProduction(Planet planet)
         {
             P = planet;
@@ -192,14 +195,14 @@ namespace Ship_Game.Universe.SolarBodies
 
         bool OnShipComplete(QueueItem q)
         {
-            if (!ResourceManager.ShipTemplateExists(q.sData.Name))
+            if (!ResourceManager.ShipTemplateExists(q.ShipData.Name))
                 return false;
 
-            Ship shipAt = Ship.CreateShipAt(P.Universe, q.sData.Name, Owner, P, true);
+            Ship shipAt = Ship.CreateShipAt(P.Universe, q.ShipData.Name, Owner, P, true);
             q.Goal?.ReportShipComplete(shipAt);
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {
-                shipAt.VanityName = q.sData.Name;
+                shipAt.VanityName = q.ShipData.Name;
                 shipAt.AI.SetPriorityOrder(true);
             }
 
@@ -249,7 +252,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (item.Rush || Owner.RushAllConstruction)
             {
                 float prodToRush = item.ProductionNeeded.UpperBound(P.ProdHere);
-                if (prodToRush * GlobalStats.RushCostPercentage + 1000 < EmpireManager.Player.Money)
+                if (prodToRush * GlobalStats.RushCostPercentage + 1000 < P.Universe.Player.Money)
                     RushProduction(0, prodToRush);
             }
         }
@@ -275,7 +278,6 @@ namespace Ship_Game.Universe.SolarBodies
                 ProductionSpent = 0.0f,
                 NotifyOnEmpty   = false,
                 Rush            = P.Owner.RushAllConstruction,
-                QueueNumber     = ConstructionQueue.Count
             };
 
             if (b.AssignBuildingToTile(b, ref where, P))
@@ -290,8 +292,11 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void Enqueue(Ship platform, IShipDesign constructor, Goal goal = null)
+        public void Enqueue(IShipDesign platform, IShipDesign constructor, Goal goal = null)
         {
+            if (goal != null && goal.PlanetBuildingAt == null)
+                throw new InvalidOperationException($"CQ.Enqueue not allowed if Goal.PlanetBuildingAt is null!");
+
             var qi = new QueueItem(P)
             {
                 isShip        = true,
@@ -299,8 +304,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Goal          = goal,
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({platform.Name})",
-                QueueNumber   = ConstructionQueue.Count,
-                sData         = constructor,
+                ShipData      = constructor,
                 Cost          = platform.GetCost(Owner),
                 Rush          = P.Owner.RushAllConstruction
             };
@@ -308,7 +312,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void Enqueue(Ship orbitalRefit, IShipDesign constructor, float refitCost, Goal goal)
+        public void Enqueue(IShipDesign orbitalRefit, IShipDesign constructor, float refitCost, Goal goal)
         {
             var qi = new QueueItem(P)
             {
@@ -317,8 +321,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Goal          = goal,
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({orbitalRefit.Name})",
-                QueueNumber   = ConstructionQueue.Count,
-                sData         = constructor,
+                ShipData      = constructor,
                 Cost          = refitCost,
                 Rush          = P.Owner.RushAllConstruction,
             };
@@ -328,22 +331,24 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Enqueue(IShipDesign ship, Goal goal = null, bool notifyOnEmpty = true, string displayName = "")
         {
+            if (goal != null && goal.PlanetBuildingAt == null)
+                throw new InvalidOperationException($"CQ.Enqueue not allowed if Goal.PlanetBuildingAt is null!");
+
             var qi = new QueueItem(P)
             {
                 isShip        = true,
                 isOrbital     = ship.IsPlatformOrStation,
                 Goal          = goal,
-                sData         = ship,
+                ShipData      = ship,
                 Cost          = GetShipCost(),
                 NotifyOnEmpty = notifyOnEmpty,
-                QueueNumber   = ConstructionQueue.Count,
                 Rush          = P.Owner.RushAllConstruction
             };  
 
             if (displayName.NotEmpty())
                 qi.DisplayName = displayName;
 
-            if (goal != null) 
+            if (goal != null)
                 goal.PlanetBuildingAt = P;
 
             ConstructionQueue.Add(qi);
@@ -372,10 +377,12 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Enqueue(Troop template, Goal goal = null)
         {
+            if (goal != null && goal.PlanetBuildingAt == null)
+                throw new InvalidOperationException($"CQ.Enqueue not allowed if Goal.PlanetBuildingAt is null!");
+
             var qi = new QueueItem(P)
             {
                 isTroop     = true,
-                QueueNumber = ConstructionQueue.Count,
                 TroopType   = template.Name,
                 Goal        = goal,
                 Cost        = template.ActualCost,
@@ -428,12 +435,12 @@ namespace Ship_Game.Universe.SolarBodies
             if (q.Goal != null)
             {
                 if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
-                    Owner.GetEmpireAI().Goals.Remove(q.Goal);
+                    Owner.AI.RemoveGoal(q.Goal);
 
-                if (q.Goal.Fleet != null)
+                if (q.Goal is FleetGoal fg)
                 {
-                    q.Goal.Fleet.RemoveGoalGuid(q.Goal.Id);
-                    Owner.GetEmpireAI().Goals.Remove(q.Goal);
+                    fg.Fleet?.RemoveGoal(q.Goal);
+                    Owner.AI.RemoveGoal(q.Goal);
                 }
 
                 if (q.Goal is RefitOrbital)
@@ -454,7 +461,7 @@ namespace Ship_Game.Universe.SolarBodies
                 for (int i = queueOffset; i < ConstructionQueue.Count; ++i)
                 {
                     QueueItem q = ConstructionQueue[i];
-                    if (q.isShip && q.sData == ship)
+                    if (q.isShip && q.ShipData == ship)
                     {
                         MoveTo(queueOffset, i);
                         break;
@@ -470,7 +477,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (q.isShip 
                     && q.DisplayName != null
                     && q.DisplayName.Contains("Subspace Projector")
-                    && q.Goal?.BuildPosition == buildPos)
+                    && q.Goal.BuildPosition == buildPos)
                 {
                     MoveTo(0, i);
                     break;
@@ -483,10 +490,10 @@ namespace Ship_Game.Universe.SolarBodies
             float refitCost = oldShip.RefitCost(newShip);
             foreach (QueueItem q in ConstructionQueue)
             {
-                if (q.isShip && q.sData.Name == oldShip.Name)
+                if (q.isShip && q.ShipData.Name == oldShip.Name)
                 {
                     float percentCompleted = q.ProductionSpent / q.ActualCost;
-                    q.sData = newShip.ShipData;
+                    q.ShipData = newShip.ShipData;
                     q.Cost = percentCompleted.AlmostZero() 
                            ? newShip.GetCost(Owner) 
                            : q.Cost + refitCost * percentCompleted * P.ShipBuildingModifier;
@@ -508,12 +515,12 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public bool ContainsShipDesignName(string name) => ConstructionQueue.Any(q => q.isShip && q.sData.Name == name);
+        public bool ContainsShipDesignName(string name) => ConstructionQueue.Any(q => q.isShip && q.ShipData.Name == name);
         public bool ContainsTroopWithGoal(Goal g) => ConstructionQueue.Any(q => q.isTroop && q.Goal == g);
 
         public bool CancelShipyard()
         {
-            QueueItem shipyard = ConstructionQueue.Where(q => q.isShip && q.sData.IsShipyard).LastOrDefault();
+            QueueItem shipyard = ConstructionQueue.LastOrDefault(q => q.isShip && q.ShipData.IsShipyard);
             if (shipyard != null)
             {
                 Cancel(shipyard);

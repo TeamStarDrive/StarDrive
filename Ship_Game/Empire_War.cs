@@ -12,7 +12,7 @@ namespace Ship_Game
     {
         bool HasWarMissionTargeting(Planet planet)
         {
-            return EmpireAI.Goals.Any(g => g.IsWarMission && g.TargetPlanet == planet);
+            return AI.HasGoal(g => g.IsWarMissionTarget(planet));
         }
 
         public bool GetPotentialTargetPlanets(Empire enemy, WarType warType, out Planet[] targetPlanets)
@@ -100,7 +100,7 @@ namespace Ship_Game
                 Goal     = goal
             };
 
-            EmpireAI.AddPendingTask(task);
+            AI.AddPendingTask(task);
         }
 
         public void CreateWarTask(Planet targetPlanet, Empire enemy, Goal goal)
@@ -122,15 +122,14 @@ namespace Ship_Game
                 }
             }
 
-            MilitaryTask task = new MilitaryTask(targetPlanet, this)
+            var task = new MilitaryTask(targetPlanet, this)
             {
-                Type                 = taskType,
-                GoalId             = goal.Id,
-                Goal                 = goal,
+                Goal = goal,
+                Type = taskType,
                 TargetPlanetWarValue = (int)(targetPlanet.ColonyBaseValue(enemy) + targetPlanet.ColonyPotentialValue(enemy))
             };
 
-            EmpireAI.AddPendingTask(task);
+            AI.AddPendingTask(task);
         }
 
         public bool TryGetPrepareForWarType(Empire enemy, out WarType warType)
@@ -162,22 +161,22 @@ namespace Ship_Game
             if (them.data.Defeated || !rel.PreparingForWar || rel.AtWar || IsPeaceTreaty(them))
                 return false;
 
-            var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.isFaction, 
+            var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.IsFaction, 
                 w => GetRelations(w.Them).KnownInformation);
 
-            int minStr                = (int)(CurrentGame.GalaxySize + 1) * 5000;
+            int minStr                = (int)(Universe.GalaxySize + 1) * 5000;
             float currentEnemyStr     = currentWarInformation.Sum(i => i.OffensiveStrength);
             float currentEnemyBuild   = currentWarInformation.Sum(i => i.EconomicStrength);
             float ourCurrentStrength  = AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
             float theirKnownStrength  = (rel.KnownInformation.AllianceTotalStrength + currentEnemyStr).LowerBound(minStr);
             float theirBuildCapacity  = (rel.KnownInformation.AllianceEconomicStrength + currentEnemyBuild).LowerBound(10);
-            float ourBuildCapacity    = GetEmpireAI().BuildCapacity;
+            float ourBuildCapacity    = AI.BuildCapacity;
 
-            var array = EmpireManager.GetAllies(this);
+            var array = Universe.GetAllies(this);
             for (int i = 0; i < array.Count; i++)
             {
                 var ally = array[i];
-                ourBuildCapacity   += ally.GetEmpireAI().BuildCapacity;
+                ourBuildCapacity   += ally.AI.BuildCapacity;
                 ourCurrentStrength += ally.OffensiveStrength;
             }
 
@@ -189,38 +188,38 @@ namespace Ship_Game
 
         bool IsAlreadyStriking()
         {
-            return EmpireAI.GetTasks().Any(t => t.Type == MilitaryTask.TaskType.StrikeForce);
+            return AI.GetTasks().Any(t => t.Type == MilitaryTask.TaskType.StrikeForce);
         }
 
         bool IsAlreadyGlassingPlanet(Planet planet)
         {
-            return EmpireAI.GetTasks().Any(t => t.Type == MilitaryTask.TaskType.GlassPlanet && t.TargetPlanet == planet);
+            return AI.GetTasks().Any(t => t.Type == MilitaryTask.TaskType.GlassPlanet && t.TargetPlanet == planet);
         }
 
         public bool CanAddAnotherWarGoal(Empire enemy)
         {
-            return EmpireAI.Goals.Count(g => g.IsWarMission && g.TargetEmpire == enemy) <= DifficultyModifiers.NumWarTasksPerWar;
+            return AI.CountGoals(g => g.IsWarMissionTarget(enemy)) <= DifficultyModifiers.NumWarTasksPerWar;
         }
 
         public bool TryGetMissionsVsEmpire(Empire enemy, out Goal[] goals)
         {
-            goals = EmpireAI.Goals.Filter(g => g.IsWarMission && g.TargetEmpire == enemy);
+            goals = AI.FindGoals(g => g.IsWarMissionTarget(enemy));
             return goals.Length > 0;
         }
 
         public bool NoEmpireDefenseGoal()
         {
-            return !EmpireAI.Goals.Any(g => g.type == GoalType.EmpireDefense);
+            return !AI.HasGoal(g => g.Type == GoalType.EmpireDefense);
         }
 
         public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, int fleetCount)
         {
-            EmpireAI.Goals.Add(new DefendSystem(this, system, strengthWanted, fleetCount));
+            AI.AddGoal(new DefendSystem(this, system, strengthWanted, fleetCount));
         }
 
         public bool HasWarTaskTargetingSystem(SolarSystem system)
         {
-            return EmpireAI.GetTasks().Any(t => t.IsWarTask && (t.TargetPlanet?.ParentSystem == system || t.TargetSystem == system));
+            return AI.GetTasks().Any(t => t.IsWarTask && (t.TargetPlanet?.ParentSystem == system || t.TargetSystem == system));
         }
     }
 

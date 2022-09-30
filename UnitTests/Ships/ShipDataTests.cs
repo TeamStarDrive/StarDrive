@@ -23,7 +23,7 @@ namespace UnitTests.Ships
         }
 
         // Makes sure two ShipData are absolutely equal
-        static void AssertAreEqual(ShipDesign a, ShipDesign b, bool checkModules)
+        public static void AssertAreEqual(ShipDesign a, ShipDesign b, bool checkModules)
         {
             Assert.AreEqual(a.Name, b.Name);
             Assert.AreEqual(a.ModName, b.ModName);
@@ -43,7 +43,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.Role, b.Role);
             Assert.AreEqual(a.ShipCategory, b.ShipCategory);
             Assert.AreEqual(a.HangarDesignation, b.HangarDesignation);
-            Assert.AreEqual(a.DefaultAIState, b.DefaultAIState);
             Assert.AreEqual(a.DefaultCombatState, b.DefaultCombatState);
 
             Assert.AreEqual(a.GridInfo.SurfaceArea, b.GridInfo.SurfaceArea);
@@ -87,7 +86,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.Role.ToString(), b.Role.ToString());
             Assert.AreEqual(a.ShipCategory.ToString(), b.ShipCategory.ToString());
             Assert.AreEqual(a.HangarDesignation.ToString(), b.HangarDesignation.ToString());
-            Assert.AreEqual(a.DefaultAIState, b.DefaultAIState);
             Assert.AreEqual(a.CombatState, b.DefaultCombatState);
 
             Assert.AreEqual(a.ThrusterList.Length, b.BaseHull.Thrusters.Length);
@@ -177,29 +175,6 @@ namespace UnitTests.Ships
             ShipDesign original = ShipDesign.Parse("Content/ShipDesigns/Prototypes/Terran-Prototype.design");
             ShipDesign clone = original.GetClone(null);
             AssertAreEqual(original, clone, true);
-        }
-
-        [TestMethod]
-        public void ShipDesign_Base64_Serialization()
-        {
-            CreateUniverseAndPlayerEmpire("Human");
-            Ship ship = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
-
-            // completely nulls this module, this catches empty serialization line bug
-            ship.Modules[5].Health = 0f;
-
-            ModuleSaveData[] toSave = ship.GetModuleSaveData();
-            byte[] bytes = ShipDesign.GetModulesBytes(new ShipDesignWriter(), toSave, ship.ShipData);
-
-            Log.Info(Encoding.ASCII.GetString(bytes));
-
-            (ModuleSaveData[] loaded, _) = ShipDesign.GetModuleSaveFromBytes(bytes);
-
-            for (int i = 0; i < toSave.Length && i < loaded.Length; ++i)
-            {
-                ShipModuleTests.AssertAreEqual(toSave[i], loaded[i]);
-            }
-            Assert.AreEqual(toSave.Length, loaded.Length, "Loaded modules are not the same length");
         }
     }
 }

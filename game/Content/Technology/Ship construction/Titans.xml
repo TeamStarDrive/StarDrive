@@ -4,7 +4,6 @@
   <UID>Titans</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>6500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>687</NameIndex>
   <DescriptionIndex>688</DescriptionIndex>
  <LeadsTo />

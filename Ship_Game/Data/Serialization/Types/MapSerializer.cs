@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections;
+using System.Linq.Expressions;
 using SDUtils;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
+    using E = Expression;
+
     internal class MapSerializer : CollectionSerializer
     {
-        public override string ToString() => $"MapSerializer<{KeyType.GetTypeName()}, {ElemType.GetTypeName()}>";
+        public override string ToString() => $"{TypeId}:MapSer<{KeySerializer.TypeId}:{KeyType.GetTypeName()},{ElemSerializer.TypeId}:{ElemType.GetTypeName()}>";
         public readonly Type KeyType;
         public readonly TypeSerializer KeySerializer;
         public readonly Type GenericMapType;
+
+        delegate IDictionary New();
+        readonly New NewMap;
 
         public MapSerializer(Type type,
                              Type keyType, TypeSerializer keySerializer,
@@ -22,6 +28,9 @@ namespace Ship_Game.Data.Serialization.Types
             KeySerializer = keySerializer;
             IsMapType = true;
             GenericMapType = typeof(Map<,>).MakeGenericType(keyType, valType);
+
+            // () => (IDictionary)new Map<TKey, TValue>();
+            NewMap = E.Lambda<New>(E.Convert(E.New(GenericMapType), typeof(IDictionary))).Compile();
         }
 
         public override object Convert(object value)
@@ -41,7 +50,7 @@ namespace Ship_Game.Data.Serialization.Types
             Array<YamlNode> nodes = node.SequenceOrSubNodes;
             if (nodes?.Count > 0)
             {
-                var dict = (IDictionary)Activator.CreateInstance(GenericMapType);
+                var dict = NewMap();
                 for (int i = 0; i < nodes.Count; ++i)
                 {
                     YamlNode keyVal = nodes[i];
@@ -87,14 +96,15 @@ namespace Ship_Game.Data.Serialization.Types
             var e = dict.GetEnumerator();
             while (e.MoveNext())
             {
-                writer.WriteElement(KeySerializer, e.Key);
-                writer.WriteElement(ElemSerializer, e.Value);
+                throw new NotImplementedException();
+                //writer.WriteElement(KeySerializer, e.Key);
+                //writer.WriteElement(ElemSerializer, e.Value);
             }
         }
 
         public override object Deserialize(BinarySerializerReader reader)
         {
-            object dict = Activator.CreateInstance(GenericMapType);
+            IDictionary dict = NewMap();
             Deserialize(reader, dict);
             return dict;
         }
@@ -112,7 +122,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object CreateInstance()
         {
-            return Activator.CreateInstance(GenericMapType);
+            return NewMap();
         }
 
         public override void Deserialize(BinarySerializerReader reader, object instance)
@@ -120,13 +130,10 @@ namespace Ship_Game.Data.Serialization.Types
             var dict = (IDictionary)instance;
             int count = (int)reader.BR.ReadVLu32();
 
-            TypeInfo keyType = reader.GetType(KeySerializer);
-            TypeInfo elementType = reader.GetType(ElemSerializer);
-
-            for (int i = 0; i < count; ++i)
+            for (int i = 0; i < count; i += 2)
             {
-                object key = reader.ReadElement(keyType, KeySerializer);
-                object val = reader.ReadElement(elementType, ElemSerializer);
+                object key = reader.ReadCollectionElement(KeySerializer);
+                object val = reader.ReadCollectionElement(ElemSerializer);
                 dict.Add(key, val);
             }
         }

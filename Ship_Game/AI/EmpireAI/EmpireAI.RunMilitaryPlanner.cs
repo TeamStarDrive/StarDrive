@@ -7,6 +7,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.Tasks;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Data.Serialization;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -15,9 +16,16 @@ namespace Ship_Game.AI
 
     public sealed partial class EmpireAI
     {
-        readonly Array<MilitaryTask> TaskList      = new Array<MilitaryTask>();
-        readonly Array<MilitaryTask> TasksToAdd    = new Array<MilitaryTask>();
-        readonly Array<MilitaryTask> TasksToRemove = new Array<MilitaryTask>();
+        [StarData] readonly Array<MilitaryTask> TaskList = new();
+        readonly Array<MilitaryTask> TasksToAdd    = new();
+        readonly Array<MilitaryTask> TasksToRemove = new();
+
+        [StarDataSerialize]
+        StarDataDynamicField[] OnSerialize()
+        {
+            ApplyPendingChanges();
+            return null;
+        }
 
         void RunMilitaryPlanner()
         {
@@ -33,12 +41,11 @@ namespace Ship_Game.AI
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
 
             BuildWarShips(offensiveGoals.Count);
-            Goals.ApplyPendingRemovals();
             PrioritizeTasks();
             int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
             int taskEvalCounter = 0;
 
-            var tasks = OwnerEmpire.GetEmpireAI()
+            var tasks = OwnerEmpire.AI
                 .GetTasks()
                 .Filter(t => !t.QueuedForRemoval)
                 .OrderByDescending(t => t.Priority)
@@ -144,8 +151,7 @@ namespace Ship_Game.AI
 
         public Goal[] GetRemnantEngagementGoalsFor(Planet p)
         {
-            return Goals.Filter(g => g.type == GoalType.RemnantEngageEmpire
-                                        && g.TargetPlanet == p && g.Fleet?.TaskStep < 9);
+            return FindGoals(g => g.IsRemnantEngageAtPlanet(p) && g is FleetGoal { Fleet.TaskStep: < 9 });
         }
         
         public MilitaryTask[] GetAssaultPirateTasks()
@@ -223,23 +229,6 @@ namespace Ship_Game.AI
             return militaryTask != null;
         }
 
-        public void WriteToSave(SavedGame.GSAISAVE aiSave)
-        {
-            ApplyPendingChanges();
-            aiSave.MilitaryTaskList = new Array<MilitaryTask>(TaskList);
-            foreach (MilitaryTask task in aiSave.MilitaryTaskList)
-            {
-                if (task.TargetPlanet != null)
-                    task.TargetPlanetId = task.TargetPlanet.Id;
-            }
-        }
-
-        public void ReadFromSave(SavedGame.GSAISAVE aiSave)
-        {
-            TaskList.Clear();
-            TaskList.AddRange(aiSave.MilitaryTaskList);
-        }
-
         public void SendExplorationFleet(Planet p)
         {
             if (!TaskList.Any(t => t.Type == MilitaryTask.TaskType.Exploration && t.TargetPlanet == p))
@@ -260,7 +249,7 @@ namespace Ship_Game.AI
                 if (string.IsNullOrEmpty(s))
                     break;
 
-                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));
+                AddGoal(new BuildOffensiveShips(s, OwnerEmpire));
                 goalsInConstruction++;
             }
         }

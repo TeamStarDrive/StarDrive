@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Vector4 = SDGraphics.Vector4;
@@ -299,8 +297,6 @@ namespace Ship_Game
                 int numErrors = 0;
                 foreach (FieldInfo field in fields)
                 {
-                    if (field.GetCustomAttribute<JsonIgnoreAttribute>() != null)
-                        continue;
                     object val1 = field.GetValue(firstObj);
                     object val2 = field.GetValue(secondObj);
                     if (!CheckEqual(field, val1, val2))
@@ -308,8 +304,6 @@ namespace Ship_Game
                 }
                 foreach (PropertyInfo prop in properties)
                 {
-                    if (prop.GetCustomAttribute<JsonIgnoreAttribute>() != null)
-                        continue;
                     object val1 = prop.GetValue(firstObj);
                     object val2 = prop.GetValue(secondObj);
                     if (!CheckEqual(prop, val1, val2))

@@ -320,7 +320,7 @@ namespace Ship_Game
                 }
                 if (input.KeyPressed(Keys.Home))
                 {
-                    if (EmpireManager.Player.GetCurrentCapital(out Planet capital))
+                    if (Player.GetCurrentCapital(out Planet capital))
                     {
                         GameAudio.SubBassWhoosh();
                         Universe.SelectedPlanet = capital;

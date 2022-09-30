@@ -1,16 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.GameScreens.LoadGame;
 using System.IO;
-using System.Threading;
 using SDUtils;
 using Ship_Game.AI;
-using Ship_Game.GameScreens.NewGame;
 using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
@@ -48,29 +42,9 @@ namespace UnitTests.Universe
             ResourceManager.UnloadAllData(ScreenManager.Instance);
             ResourceManager.LoadItAll(ScreenManager.Instance, null);
 
-            int shipsPerEmpire = 6000;
-            int numOpponents = 7;
-            var galSize = GalSize.Large;
-            (int numStars, float starNumModifier) = RaceDesignScreen.GetNumStars(
-                RaceDesignScreen.StarsAbundance.Abundant, galSize, numOpponents
-            );
+            int shipsPerEmpire = 750;
 
-            EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
-            playerData.DiplomaticPersonality = new DTrait();
-
-            CreateCustomUniverse(new UniverseGenerator.Params
-            {
-                PlayerData = playerData,
-                Mode = RaceDesignScreen.GameMode.Sandbox,
-                UniverseSize = galSize,
-                NumSystems = numStars,
-                NumOpponents = numOpponents,
-                StarNumModifier = starNumModifier,
-                Pace = 1.0f,
-                Difficulty = GameDifficulty.Normal,
-            });
-            Universe.CreateSimThread = false;
-            Universe.LoadContent();
+            CreateCustomUniverseSandbox(numOpponents:6, galSize:GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);
 
             // unlock all techs so we get full selection of ships
@@ -89,8 +63,8 @@ namespace UnitTests.Universe
                                  ?? ShipBuilder.BestShipWeCanBuild(RoleName.carrier, e)
                                  ?? ShipBuilder.BestShipWeCanBuild(RoleName.frigate, e)
                                  ?? ShipBuilder.BestShipWeCanBuild(RoleName.prototype, e);
-
-                    Assert.IsNotNull(bestShip, "failed to choose best ship");
+                    
+                    Assert.IsNotNull(bestShip, $"failed to choose best ship for {e}");
                     for (int i = 0; i < shipsPerEmpire; ++i)
                     {
                         Ship.CreateShipAt(Universe.UState, bestShip.ShipData.Name, e, e.Capital, true);
@@ -117,15 +91,13 @@ namespace UnitTests.Universe
             SavedGame save1 = Universe.Save("UnitTest.IntegrityTest", async:false);
             if (save1 == null) throw new AssertFailedException("Save1 failed");
             DestroyUniverse();
-            SavedGame.UniverseSaveData snap1 = save1.SaveData;
 
-            UniverseScreen us = LoadGame.Load(save1.PackedFile, noErrorDialogs:true, startSimThread:false);
+            UniverseScreen us = LoadGame.Load(save1.SaveFile, noErrorDialogs:true, startSimThread:false);
             SavedGame save2 = us.Save("UnitTest.IntegrityTest", async:false);
             if (save1 == null) throw new AssertFailedException("Save2 failed");
             DestroyUniverse();
-            SavedGame.UniverseSaveData snap2 = save2.SaveData;
 
-            Array<string> results = snap1.MemberwiseCompare(snap2);
+            Array<string> results = save1.State.MemberwiseCompare(save2.State);
             results.ForEach(Console.WriteLine);
 
             // TODO: disabling these tests right now because it's really hard to fix in one go

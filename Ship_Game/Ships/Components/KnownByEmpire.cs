@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Web.UI;
+using SDUtils;
 using Ship_Game.Empires;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Ships.Components
 {
@@ -18,22 +19,21 @@ namespace Ship_Game.Ships.Components
         /// <value>
         ///   <c>true</c> if [known by player]; otherwise, <c>false</c>.
         /// </value>
-        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] > 0f;
+        public bool KnownByPlayer(UniverseState us) => SeenByID[us.Player.Id-1] > 0f;
 
-        public KnownByEmpire()
+        public KnownByEmpire(UniverseState us)
         {
-            SeenByID = new float[EmpireManager.NumEmpires];
+            SeenByID = us != null ? new float[us.NumEmpires] : Empty<float>.Array;
             for (int i = 0; i < SeenByID.Length; i++)
                 SeenByID[i] = -100;
         }
 
-        float[] GetSeenByID()
+        float[] GetSeenByID(UniverseState us)
         {
             float[] seenById = SeenByID;
-            int numEmpires = EmpireManager.NumEmpires;
-            if (seenById.Length < numEmpires)
+            if (seenById.Length < us.NumEmpires)
             {
-                var newArray = new float[numEmpires];
+                var newArray = new float[us.NumEmpires];
                 Array.Copy(seenById, newArray, seenById.Length);
                 SeenByID = newArray;
                 return newArray;
@@ -47,7 +47,7 @@ namespace Ship_Game.Ships.Components
         /// </summary>
         public void Update(FixedSimTime timeStep, Empire owner)
         {
-            float[] seenById = GetSeenByID();
+            float[] seenById = GetSeenByID(owner.Universe);
             for (int i = 0; i < seenById.Length; i++)
             {
                 seenById[i] -= timeStep.FixedTime;
@@ -61,7 +61,7 @@ namespace Ship_Game.Ships.Components
         /// <param name="empire">The empire.</param>
         public void SetSeen(Empire empire)
         {
-            float[] seenById = GetSeenByID();
+            float[] seenById = GetSeenByID(empire.Universe);
             seenById[empire.Id-1] = EmpireConstants.KnownContactTimer;
         }
 
@@ -70,7 +70,7 @@ namespace Ship_Game.Ships.Components
         /// </summary>
         public bool KnownBy(Empire empire)
         {
-            float[] seenById = GetSeenByID();
+            float[] seenById = GetSeenByID(empire.Universe);
             return seenById[empire.Id-1] > 0f;
         }
 
@@ -79,13 +79,8 @@ namespace Ship_Game.Ships.Components
         /// </summary>
         public bool IsSet(Empire empire)
         {
-            float[] seenById = GetSeenByID();
+            float[] seenById = GetSeenByID(empire.Universe);
             return seenById[empire.Id-1] > 0f;
         }
-
-        /// <summary>
-        /// Sets the ship as seen by player. Unlike "knownByPlayer" this can be used anywhere. 
-        /// </summary>
-        public void SetSeenByPlayer() => SetSeen(EmpireManager.Player);
     }
 }

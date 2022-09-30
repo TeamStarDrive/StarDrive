@@ -20,12 +20,12 @@ namespace Ship_Game.GameScreens.ShipDesign
         private readonly Empire Player;
         private EmpireShipDesignStats EmpireStats;
 
-        public ShipDesignIssues(IShipDesign hull)
+        public ShipDesignIssues(UniverseScreen screen, IShipDesign hull)
         {
             Hull   = hull;
             Role   = hull.Role;
-            Player = EmpireManager.Player;
-            EmpireStats         = new EmpireShipDesignStats(Player);
+            Player = screen.Player;
+            EmpireStats = new(Player);
         }
 
         void AddDesignIssue(DesignIssueType type, WarningLevel severity, string addRemediationText = "")

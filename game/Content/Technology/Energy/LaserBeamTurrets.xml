@@ -4,7 +4,6 @@
   <UID>LaserBeamTurrets</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>160</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17618</NameIndex>
   <DescriptionIndex>17619</DescriptionIndex>
   <LeadsTo>

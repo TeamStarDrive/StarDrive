@@ -165,7 +165,7 @@ namespace Ship_Game
                 return;
             }
      
-            if (!Universe.Screen.IsSystemViewOrCloser ||
+            if (!Universe.IsSystemViewOrCloser ||
                 !Universe.Screen.IsInFrustum(Position, 10f))
                 return;
 

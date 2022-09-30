@@ -1,10 +1,6 @@
 using System;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -52,12 +48,12 @@ namespace Ship_Game
         [StarData] public float PowerIncrease;
         [StarData] public float TrustGainedAtPeace;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsTrusting => Trustworthiness >= 80;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool Careless   => Trustworthiness <= 60;
         [XmlIgnore]
-        [JsonIgnore]
+        
         public PersonalityType TraitName
         {
             get
@@ -140,8 +136,7 @@ namespace Ship_Game
     [StarDataType]
     public sealed class EmpireData : IEmpireData
     {
-        [StarData] public SerializableDictionary<WeaponTag, WeaponTagModifier> WeaponTags
-                        = new SerializableDictionary<WeaponTag, WeaponTagModifier>();
+        [StarData] public Map<WeaponTag, WeaponTagModifier> WeaponTags = new();
         [StarData] public string WarpStart { get; set; }
         [StarData] public string WarpEnd { get; set; }
         [StarData] public string CurrentAutoFreighter = "";
@@ -162,9 +157,9 @@ namespace Ship_Game
             set => TaxRateValue = value.NaNChecked(0.25f, "EmpireData.TaxRate");
         }
 
-        [StarData] public Array<string> ExcludedDTraits = new Array<string>();
-        [StarData] public Array<string> ExcludedETraits = new Array<string>();
-        [StarData] public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
+        [StarData] public Array<string> ExcludedDTraits = new();
+        [StarData] public Array<string> ExcludedETraits = new();
+        [StarData] public Array<Agent> AgentList = new();
         [StarData] public string AbsorbedBy;
         [StarData] public string StartingShip;
         [StarData] public string StartingScout;
@@ -179,8 +174,8 @@ namespace Ship_Game
         [StarData] public float MilitaryScoreTotal;
         [StarData] public int ScoreAverage;
         [StarData] public string MusicCue;
-        [StarData] public Array<string> ResearchQueue = new Array<string>();
-        [StarData] public BatchRemovalCollection<Mole> MoleList = new BatchRemovalCollection<Mole>();
+        [StarData] public Array<string> ResearchQueue = new();
+        [StarData] public Array<Mole> MoleList = new();
         [StarData] public float CounterIntelligenceBudget;
 
         // NOTE: This is currently the main unique identifier?
@@ -189,8 +184,8 @@ namespace Ship_Game
         [StarData] public string RebelPlur;
         [StarData] public int TroopNameIndex;
         [StarData] public int TroopDescriptionIndex;
-        [XmlIgnore][JsonIgnore] public LocalizedText TroopName => new LocalizedText(TroopNameIndex);
-        [XmlIgnore][JsonIgnore] public LocalizedText TroopDescription => new LocalizedText(TroopDescriptionIndex);
+        [XmlIgnore] public LocalizedText TroopName => new(TroopNameIndex);
+        [XmlIgnore] public LocalizedText TroopDescription => new(TroopDescriptionIndex);
         [StarData] public string RebelName;
         [StarData] public bool IsRebelFaction;
         [StarData] public RacialTrait Traits { get; set; }
@@ -216,7 +211,7 @@ namespace Ship_Game
         [StarData] public float DefensiveSpyBonus;
         [StarData] public float OffensiveSpyBonus;
         [StarData] public float FTLPowerDrainModifier = 2f;
-        [StarData] public Array<Artifact> OwnedArtifacts = new Array<Artifact>();
+        [StarData] public Array<Artifact> OwnedArtifacts = new();
         [StarData] public int BonusFighterLevels;
         [StarData] public float MissileDodgeChance;
         [StarData] public float MissileHPModifier = 1f;
@@ -236,14 +231,14 @@ namespace Ship_Game
         [StarData] public float DefenseBudget = 0;
 
         // unlock at start
-        [StarData] public Array<string> unlockBuilding = new Array<string>();
-        [StarData] public Array<string> unlockShips    = new Array<string>();
+        [StarData] public Array<string> unlockBuilding = new();
+        [StarData] public Array<string> unlockShips    = new();
 
         // designsWeHave our techTree has techs for.
         // sortsaves
-        [StarData] public SortButton PLSort = new SortButton();
-        [StarData] public SortButton ESSort = new SortButton();
-        [StarData] public SortButton SLSort = new SortButton();
+        public SortButton PLSort = new();
+        public SortButton ESSort = new();
+        public SortButton SLSort = new();
 
         // techTimers
         [StarData] public short TechDelayTime    = 0;
@@ -325,60 +320,60 @@ namespace Ship_Game
         [StarData] public float OngoingDiplomaticModifier;
         [StarData] public int[] RoleLevels = new int[Enum.GetNames(typeof(RoleName)).Length];
 
-        [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
-        [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;
+        [XmlIgnore] public string Name => Traits.Name;
+        [XmlIgnore] public string ArchetypeName => PortraitName;
 
-        [XmlIgnore][JsonIgnore] public SubTexture PortraitTex
+        [XmlIgnore] public SubTexture PortraitTex
             => ResourceManager.Texture("Portraits/" + PortraitName);
 
         public override string ToString() => $"Name: '{Name}' ShipType: {ShipType}";
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public string ScoutShip => CurrentAutoScout.NotEmpty() ? CurrentAutoScout
                                  : StartingScout.NotEmpty()    ? StartingScout
                                  : "Unarmed Scout";
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public string FreighterShip => CurrentAutoFreighter.NotEmpty()  ? CurrentAutoFreighter
                                      : DefaultSmallTransport.NotEmpty() ? DefaultSmallTransport
                                      : "Small Transport";
         
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public string ColonyShip => CurrentAutoColony.NotEmpty() ? CurrentAutoColony
                                   : DefaultColonyShip.NotEmpty() ? DefaultColonyShip
                                   : "Colony Ship";
                 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public string ConstructorShip => CurrentConstructor.NotEmpty()    ? CurrentConstructor
                                        : DefaultConstructor.NotEmpty()    ? DefaultConstructor
                                        : DefaultSmallTransport.NotEmpty() ? DefaultSmallTransport
                                        : "Terran Constructor";
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsCybernetic => Traits.Cybernetic > 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsFaction => Faction > 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsFactionOrMinorRace => Faction > 0 || MinorRace;
 
-        [XmlIgnore] [JsonIgnore] public float EnvPerfTerran  => EnvTerran;
-        [XmlIgnore] [JsonIgnore] public float EnvPerfOceanic => EnvOceanic;
-        [XmlIgnore] [JsonIgnore] public float EnvPerfSteppe  => EnvSteppe;
-        [XmlIgnore] [JsonIgnore] public float EnvPerfTundra  => EnvTundra;
-        [XmlIgnore] [JsonIgnore] public float EnvPerfSwamp   => EnvSwamp;
-        [XmlIgnore] [JsonIgnore] public float EnvPerfDesert  => EnvDesert;
-        [XmlIgnore] [JsonIgnore] public float EnvPerfIce     => EnvIce;
-        [XmlIgnore] [JsonIgnore] public float EnvPerfBarren  => EnvBarren;
-        [XmlIgnore] [JsonIgnore] public PlanetCategory PreferredEnvPlanet => PreferredEnv;
+        [XmlIgnore]  public float EnvPerfTerran  => EnvTerran;
+        [XmlIgnore]  public float EnvPerfOceanic => EnvOceanic;
+        [XmlIgnore]  public float EnvPerfSteppe  => EnvSteppe;
+        [XmlIgnore]  public float EnvPerfTundra  => EnvTundra;
+        [XmlIgnore]  public float EnvPerfSwamp   => EnvSwamp;
+        [XmlIgnore]  public float EnvPerfDesert  => EnvDesert;
+        [XmlIgnore]  public float EnvPerfIce     => EnvIce;
+        [XmlIgnore]  public float EnvPerfBarren  => EnvBarren;
+        [XmlIgnore]  public PlanetCategory PreferredEnvPlanet => PreferredEnv;
 
-        [XmlIgnore] [JsonIgnore] public string ShipType  => Traits.ShipType;
-        [XmlIgnore] [JsonIgnore] public string VideoPath => Traits.VideoPath;
-        [XmlIgnore] [JsonIgnore] public string Singular => Traits.Singular;
-        [XmlIgnore] [JsonIgnore] public string Plural   => Traits.Plural;
-        [XmlIgnore] [JsonIgnore] public string HomeSystemName => Traits.HomeSystemName;
-        [XmlIgnore] [JsonIgnore] public string HomeWorldName  => Traits.HomeworldName;
-        [XmlIgnore] [JsonIgnore] public string Adj1 => Traits.Adj1;
-        [XmlIgnore] [JsonIgnore] public string Adj2 => Traits.Adj2;
+        [XmlIgnore]  public string ShipType  => Traits.ShipType;
+        [XmlIgnore]  public string VideoPath => Traits.VideoPath;
+        [XmlIgnore]  public string Singular => Traits.Singular;
+        [XmlIgnore]  public string Plural   => Traits.Plural;
+        [XmlIgnore]  public string HomeSystemName => Traits.HomeSystemName;
+        [XmlIgnore]  public string HomeWorldName  => Traits.HomeworldName;
+        [XmlIgnore]  public string Adj1 => Traits.Adj1;
+        [XmlIgnore]  public string Adj2 => Traits.Adj2;
 
         public EmpireData()
         {

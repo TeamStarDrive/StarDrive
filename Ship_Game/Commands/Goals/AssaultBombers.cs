@@ -3,19 +3,20 @@ using Ship_Game.Ships;
 using System;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
-using Ship_Game.Universe;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
+    [StarDataType]
     class AssaultBombers : Goal
     {
-        public const string ID = "AssaultBombers";
-        public override string UID => ID;
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
 
-        public AssaultBombers(int id, UniverseState us)
-            : base(GoalType.AssaultBombers, id, us)
+        [StarDataConstructor]
+        public AssaultBombers(Empire owner) : base(GoalType.AssaultBombers, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -24,25 +25,22 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public AssaultBombers(Planet planet, Empire owner, Empire enemy)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public AssaultBombers(Planet planet, Empire owner, Empire enemy) : this(owner)
         {
             PlanetBuildingAt = planet;
-            empire           = owner;
-            TargetEmpire     = enemy;
-            Evaluate();
+            TargetEmpire = enemy;
         }
 
         GoalStep LaunchBoardingShips()
         {
-            if (PlanetBuildingAt.Owner != empire)
+            if (PlanetBuildingAt.Owner != Owner)
                 return GoalStep.GoalFailed;
 
-            int numTroopCanLaunch = PlanetBuildingAt.NumTroopsCanLaunchFor(empire);
+            int numTroopCanLaunch = PlanetBuildingAt.NumTroopsCanLaunchFor(Owner);
             if (numTroopCanLaunch == 0)
                 return GoalStep.GoToNextStep; // Cant do anything about it, just wait until combat ends
 
-            int numTroopsWanted = (int)(empire.PersonalityModifiers.AssaultBomberRatio * numTroopCanLaunch);
+            int numTroopsWanted = (int)(Owner.PersonalityModifiers.AssaultBomberRatio * numTroopCanLaunch);
             if (numTroopsWanted == 0)
                 return GoalStep.GoalFailed;
 
@@ -55,7 +53,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 for (int i = PlanetBuildingAt.TroopsHere.Count - 1; i >= 0; i--)
                 {
                     Troop troop = PlanetBuildingAt.TroopsHere[i];
-                    if (troop.Loyalty == empire && troop.CanLaunchWounded)
+                    if (troop.Loyalty == Owner && troop.CanLaunchWounded)
                     {
                         float str      = troop.ActualStrengthMax;
                         Ship troopShip = troop.Launch(ignoreMovement: true);
@@ -67,7 +65,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                             {
                                 launchedTroops = true;
                                 if (TargetEmpire.isPlayer)
-                                    empire.Universum.Notifications.AddEnemyLaunchedTroopsVsFleet(PlanetBuildingAt, empire);
+                                    Owner.Universe.Notifications.AddEnemyLaunchedTroopsVsFleet(PlanetBuildingAt, Owner);
                             }
 
                             float distance = ship.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 1500) ? 300 : 600;
@@ -89,10 +87,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep WaitForCombatEnd()
         {
-            if (PlanetBuildingAt.Owner != empire)
+            if (PlanetBuildingAt.Owner != Owner)
                 return GoalStep.GoalFailed;
 
-            return PlanetBuildingAt.ParentSystem.DangerousForcesPresent(empire) ? GoalStep.TryAgain : GoalStep.GoalComplete;
+            return PlanetBuildingAt.ParentSystem.DangerousForcesPresent(Owner) ? GoalStep.TryAgain : GoalStep.GoalComplete;
         }
     }
 }

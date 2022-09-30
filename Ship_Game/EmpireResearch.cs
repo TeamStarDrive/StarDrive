@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public class EmpireResearch
     {
-        readonly Empire Empire;
-        public bool NoResearchLeft { get; private set; }
+        [StarData] readonly Empire Empire;
+        [StarData] public bool NoResearchLeft { get; private set; }
 
         // The FIRST item (0) is always the Current research topic
         Array<string> Queue => Empire.data.ResearchQueue;
@@ -33,17 +35,19 @@ namespace Ship_Game
 
         // The CURRENT research topic is simply the first item in our ResearchQueue
         public string Topic => Queue.NotEmpty ? Queue.First : "";
-        public TechEntry Current => Queue.NotEmpty ? Empire.TechnologyDict[Queue.First] : TechEntry.None;
+        public TechEntry Current => Queue.NotEmpty ? Empire.GetTechEntry(Queue.First) : TechEntry.None;
 
         public LocalizedText TopicLocText => ResourceManager.TryGetTech(Topic, out Technology tech)
                                    ? new LocalizedText(tech.NameIndex) : GameText.None;
 
+        [StarData]
         public EconomicResearchStrategy Strategy { get; private set; }
 
+        [StarDataConstructor]
         public EmpireResearch(Empire empire)
         {
             // @warning EmpireResearch is constructed while Empire is still uninitialized
-            //          Do NOT perform any sensitive initialization here and use
+            //          Do NOT perform any sensitive initialization here
             Empire = empire;
         }
 
@@ -55,31 +59,31 @@ namespace Ship_Game
             Queue.Clear();
         }
 
-        public void Update()
-        { 
-            UpdateNetResearch();
-            ApplyResearchPoints();
-        }
-        
-        public void UpdateNetResearch()
-        {
-            SetResearchStrategy();
-            NetResearch = 0;
-            MaxResearchPotential = 0;
-            foreach (Planet planet in Empire.GetPlanets())
-            {
-                NetResearch          += planet.Res.NetIncome;
-                MaxResearchPotential += planet.Res.GrossMaxPotential;
-            }
-        }
-
-        public void SetResearchStrategy()
+        public void Initialize()
         {
             if (Strategy == null)
             {
                 if (Empire.data.EconomicPersonality == null)
                     Empire.data.EconomicPersonality = new ETrait { Name = "Generalists" };
                 Strategy = ResourceManager.GetEconomicStrategy(Empire.data.EconomicPersonality.Name);
+            }
+        }
+
+        public void Update()
+        {
+            UpdateNetResearch();
+            ApplyResearchPoints();
+        }
+        
+        public void UpdateNetResearch()
+        {
+            Initialize();
+            NetResearch = 0;
+            MaxResearchPotential = 0;
+            foreach (Planet planet in Empire.GetPlanets())
+            {
+                NetResearch          += planet.Res.NetIncome;
+                MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
         }
 
@@ -102,7 +106,7 @@ namespace Ship_Game
             {
                 Empire.UnlockTech(tech, TechUnlockType.Normal, null);
                 if (Empire.isPlayer)
-                    Empire.Universum?.Notifications.AddResearchComplete(tech.UID, Empire);
+                    Empire.Universe?.Notifications.AddResearchComplete(tech.UID, Empire);
             }
         }
 
@@ -133,7 +137,7 @@ namespace Ship_Game
         // @return TRUE if tech was added to the queue and wasn't already present
         public bool AddToQueue(string techUID)
         {
-            if (!Empire.TechnologyDict.ContainsKey(techUID))
+            if (!Empire.TryGetTechEntry(techUID, out _))
             {
                 Log.Error($"AddToResearchQueue: Unrecognized tech: {techUID}");
                 return false;

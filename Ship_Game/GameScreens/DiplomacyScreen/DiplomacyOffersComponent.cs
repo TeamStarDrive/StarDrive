@@ -98,9 +98,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             List.Reset();
             AddRelationItems(Us.GetRelations(Them));
-            var theirDesigns = Them.GetOurFactionShips();
+            var theirDesigns = Them.AllFactionShipDesigns;
             ItemToOffer techs = AddHeader(GameText.Technology);
-            Us.GetEmpireAI().TradableTechs(Them, out Array<TechEntry> tradeAbleTechs);
+            Us.AI.TradableTechs(Them, out Array<TechEntry> tradeAbleTechs);
             foreach (TechEntry entry in tradeAbleTechs)
             {
                 Technology tech = entry.Tech;

@@ -1,12 +1,8 @@
-using System;
-using System.Data.Common;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -15,10 +11,10 @@ namespace Ship_Game
     [StarDataType]
     public sealed class FleetDataNode
     {
-        [XmlIgnore][JsonIgnore] public Ship Ship { get; set; }
+        [XmlIgnore] public Ship Ship { get; set; }
 
         [StarData] public int ShipId;
-        [StarData] public int GoalId;
+        [StarData] public Goal Goal;
         [StarData] public string ShipName;
         [StarData] public Vector2 FleetOffset;
         [StarData] public float VultureWeight = 0.5f;
@@ -101,7 +97,7 @@ namespace Ship_Game
         [StarData] public Array<FleetDataNode> Data = new Array<FleetDataNode>();
         [StarData] public int FleetIconIndex;
         [StarData] public string Name;
-        [XmlIgnore][JsonIgnore] public SubTexture Icon => ResourceManager.FleetIcon(FleetIconIndex);
+        [XmlIgnore] public SubTexture Icon => ResourceManager.FleetIcon(FleetIconIndex);
 
         public void Rotate(float facing)
         {

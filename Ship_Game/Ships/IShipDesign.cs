@@ -4,6 +4,7 @@ using System.IO;
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -12,6 +13,7 @@ namespace Ship_Game.Ships
     /// <summary>
     /// Read-Only version of ShipDesign
     /// </summary>
+    [StarDataType]
     public interface IShipDesign
     {
         string Name { get; } // ex: "Dodaving", just an arbitrary name
@@ -31,7 +33,6 @@ namespace Ship_Game.Ships
 
         ShipCategory ShipCategory  { get; }
         HangarOptions HangarDesignation  { get; }
-        AIState DefaultAIState { get; }
         CombatState DefaultCombatState { get; }
 
         ModuleGridFlyweight Grid { get; }

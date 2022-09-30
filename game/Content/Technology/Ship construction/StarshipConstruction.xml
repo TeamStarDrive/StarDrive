@@ -4,7 +4,7 @@
   <UID>StarshipConstruction</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
-  <RootNode>1</RootNode>
+  <RootNode>3</RootNode>
   <NameIndex>663</NameIndex>
   <DescriptionIndex>664</DescriptionIndex>
   <IconPath>icons_techroot_starships</IconPath>

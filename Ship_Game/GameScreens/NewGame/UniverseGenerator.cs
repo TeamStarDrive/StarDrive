@@ -21,7 +21,7 @@ namespace Ship_Game.GameScreens.NewGame
     public class UniverseGenerator
     {
         readonly int NumSystems;
-        readonly Array<Vector2> ClaimedSpots = new Array<Vector2>();
+        readonly Array<Vector2> ClaimedSpots = new();
         readonly RaceDesignScreen.GameMode Mode;
         readonly Empire Player;
         readonly GameDifficulty Difficulty;
@@ -57,7 +57,6 @@ namespace Ship_Game.GameScreens.NewGame
             Mode = p.Mode;
             NumOpponents = p.NumOpponents;
             NumSystems = p.NumSystems;
-            EmpireManager.Clear();
             ResourceManager.LoadEncounters();
 
             float uSize;
@@ -82,9 +81,12 @@ namespace Ship_Game.GameScreens.NewGame
             UState.Difficulty = p.Difficulty;
             UState.GalaxySize = p.UniverseSize;
             UState.BackgroundSeed = new Random().Next();
+            UState.Pace = p.Pace;
+            UState.StarsModifier = p.StarNumModifier;
+            UState.ExtraPlanets = GlobalStats.ExtraPlanets;
 
             GlobalStats.DisableInhibitionWarning = UState.Difficulty > GameDifficulty.Hard;
-            CurrentGame.StartNew(UState, p.Pace, p.StarNumModifier, GlobalStats.ExtraPlanets, NumOpponents + 1); // +1 is the player empire
+
             Player = new Empire(UState)
             {
                 EmpireColor = p.PlayerData.Traits.Color,
@@ -99,8 +101,6 @@ namespace Ship_Game.GameScreens.NewGame
             Player.data.CurrentAutoColony = Player.data.ColonyShip;
             Player.data.CurrentAutoFreighter = Player.data.FreighterShip;
             Player.data.CurrentConstructor = Player.data.ConstructorShip;
-
-            StatTracker.Reset();
         }
 
         public readonly ProgressCounter Progress = new ProgressCounter();
@@ -139,7 +139,7 @@ namespace Ship_Game.GameScreens.NewGame
             foreach (Empire empire in UState.Empires)
             {
                 step.Advance();
-                if (empire.isFaction)
+                if (empire.IsFaction)
                     continue;
 
                 IReadOnlyList<Planet> planets = empire.GetPlanets();
@@ -166,7 +166,7 @@ namespace Ship_Game.GameScreens.NewGame
 
             foreach (Empire e in UState.Empires)
             {
-                if (e.isFaction)
+                if (e.IsFaction)
                     continue;
 
                 e.InitFleetEmpireStrMultiplier();
@@ -187,7 +187,7 @@ namespace Ship_Game.GameScreens.NewGame
                 }
             }
 
-            EmpireHullBonuses.RefreshBonuses();
+            EmpireHullBonuses.RefreshBonuses(UState);
         }
 
         class SystemPlaceHolder
@@ -258,7 +258,7 @@ namespace Ship_Game.GameScreens.NewGame
 
         void CreateSystemPlaceHolders(ProgressCounter step)
         {
-            Empire[] majorEmpires = UState.Empires.Filter(e => !e.isFaction);
+            Empire[] majorEmpires = UState.Empires.Filter(e => !e.IsFaction);
             
             step.Start(NumSystems + majorEmpires.Length);
 

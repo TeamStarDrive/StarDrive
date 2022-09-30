@@ -127,7 +127,7 @@ namespace Ship_Game
                     break;
 
                 PlanetGridSquare tile = potentialTiles.RandItem();
-                if (p.Owner == EmpireManager.Player && tile.BuildingOnTile && !tile.VolcanoHere)
+                if (p.Owner == p.Universe.Player && tile.BuildingOnTile && !tile.VolcanoHere)
                     p.Universe.Notifications.AddBuildingDestroyed(p, tile.Building, Localizer.Token(GameText.WasDestroyedInAnExploration));
 
                 p.DestroyTile(tile);
@@ -143,7 +143,7 @@ namespace Ship_Game
                 return;
             }
 
-            var universe = triggeredBy.Universum;
+            var universe = triggeredBy.Universe;
             foreach (string shipName in FriendlyShipsToSpawn)
             {
                 Ship.CreateShipAt(universe, shipName, triggeredBy, p, true);
@@ -151,14 +151,14 @@ namespace Ship_Game
 
             foreach (string shipName in RemnantShipsToSpawn)
             {
-                Ship ship = Ship.CreateShipAt(universe, shipName, EmpireManager.Remnants, p, true);
+                Ship ship = Ship.CreateShipAt(universe, shipName, p.Universe.Remnants, p, true);
                 ship.AI.DefaultAIState = AIState.Exterminate;
             }
 
-            if (PirateShipsToSpawn.Count == 0 || EmpireManager.PirateFactions.Length == 0)
+            if (PirateShipsToSpawn.Count == 0 || p.Universe.PirateFactions.Length == 0)
                 return;
 
-            Empire pirates = EmpireManager.PirateFactions.RandItem();
+            Empire pirates = p.Universe.PirateFactions.RandItem();
             foreach (string shipName in PirateShipsToSpawn)
             {
                 Ship.CreateShipAt(universe, shipName, pirates, p, doOrbit:true);
@@ -219,18 +219,18 @@ namespace Ship_Game
             {
                 foreach (string troopName in TroopsToSpawn)
                 {
-                    if (p.GetFreeTiles(EmpireManager.Unknown) == 0 && !p.BumpOutTroop(EmpireManager.Unknown))
+                    if (p.GetFreeTiles(p.Universe.Unknown) == 0 && !p.BumpOutTroop(p.Universe.Unknown))
                     {
                         Log.Warning($"Could not bump out any troop from {p.Name} after event");
                         return;
                     }
 
-                    if (!ResourceManager.TryCreateTroop(troopName, EmpireManager.Unknown, out Troop t))
+                    if (!ResourceManager.TryCreateTroop(troopName, p.Universe.Unknown, out Troop t))
                         continue;
 
                     if (!t.TryLandTroop(p, eventLocation))
                     {
-                        t.SetOwner(EmpireManager.Remnants);
+                        t.SetOwner(p.Universe.Remnants);
                         t.Launch(p);
                         Log.Warning($"Troop spawned but could not be landed on {p.Name} after event. Transformed to Remnant.");
                     }
@@ -280,7 +280,7 @@ namespace Ship_Game
                 BuildingActions(p, eventLocation);
                 TroopActions(triggeredBy, p, eventLocation);
             }
-            else if (SetRandomPlanet(triggeredBy.Universum)) //events that trigger on other planets
+            else if (SetRandomPlanet(triggeredBy.Universe)) //events that trigger on other planets
             {
                 p = SelectedPlanet;
 

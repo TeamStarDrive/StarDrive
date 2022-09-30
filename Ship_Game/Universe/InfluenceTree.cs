@@ -446,7 +446,7 @@ namespace Ship_Game.Universe
             {
                 int empireIdx = e.Id - 1;
                 if (empireIdx >= InfluenceByEmpire.Length)
-                    Array.Resize(ref InfluenceByEmpire, e.Universum.NumEmpires);
+                    Array.Resize(ref InfluenceByEmpire, e.Universe.NumEmpires);
                 InfluenceByEmpire[empireIdx] = inf;
                 NumEmpires += inf != null ? +1 : -1;
             }

@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
             S.NetPower = Power.Calculate(modules, e);
             S.PowerStoreMax  = S.NetPower.PowerStoreMax;
             S.PowerFlowMax   = S.NetPower.PowerFlowMax;
-            S.ShieldPercent = (100.0 * S.ShieldPower / S.ShieldMax.LowerBound(0.1f)).LowerBound(0);
+            S.ShieldPercent = (100f * S.ShieldPower / S.ShieldMax.LowerBound(0.1f)).LowerBound(0);
             S.SensorRange   += maxSensorBonus;
 
             // Apply modifiers to stats
@@ -231,6 +231,10 @@ namespace Ship_Game.Ships
         // This will also update shield max power of modules if there are amplifiers
         float UpdateShieldPowerMax(float shieldAmplify)
         {
+            // NOTE: this can happen with serialized dead ships which we need to keep around in serialized Goals
+            if (S.Modules.Length == 0)
+                return 0f;
+
             float shieldMax = 0;
             foreach (ShipModule shield in S.GetShields())
             {
@@ -246,6 +250,10 @@ namespace Ship_Game.Ships
         public void UpdateShieldAmplification()
         {
             TotalShieldAmplification = ShieldAmplifyPerShield = 0;
+
+            // NOTE: this can happen with serialized dead ships which we need to keep around in serialized Goals
+            if (S.Modules.Length == 0)
+                return;
 
             int numMainShields = S.GetShields().Count(s => s.ModuleType == ShipModuleType.Shield);
             if (numMainShields == 0)

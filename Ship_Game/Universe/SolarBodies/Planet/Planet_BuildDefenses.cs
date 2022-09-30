@@ -5,27 +5,28 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.Budget;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
     public partial class Planet 
     {
-        public byte WantedPlatforms { get; private set; }
-        public byte WantedStations  { get; private set; }
-        public byte WantedShipyards { get; private set; }
-        public bool GovOrbitals      = false;
-        public bool GovGroundDefense = false;
-        public bool AutoBuildTroops  = false;
-        public bool ManualOrbitals   = false;
-        public int GarrisonSize;
-        public float ManualCivilianBudget { get; private set; } = 0; // 0 is Auto Budget
-        public float ManualGrdDefBudget   { get; private set; } = 0; // 0 is Auto Budget
-        public float ManualSpcDefBudget   { get; private set; } = 0; // 0 is Auto Budget
+        [StarData] public byte WantedPlatforms { get; private set; }
+        [StarData] public byte WantedStations  { get; private set; }
+        [StarData] public byte WantedShipyards { get; private set; }
+        [StarData] public bool GovOrbitals      = false;
+        [StarData] public bool GovGroundDefense = false;
+        [StarData] public bool AutoBuildTroops  = false;
+        [StarData] public bool ManualOrbitals   = false;
+        [StarData] public int GarrisonSize;
+        [StarData] public float ManualCivilianBudget { get; private set; } = 0; // 0 is Auto Budget
+        [StarData] public float ManualGrdDefBudget   { get; private set; } = 0; // 0 is Auto Budget
+        [StarData] public float ManualSpcDefBudget   { get; private set; } = 0; // 0 is Auto Budget
 
         private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {
-            if (colonyType == ColonyType.Colony || OwnerIsPlayer && !GovOrbitals
+            if (CType == ColonyType.Colony || OwnerIsPlayer && !GovOrbitals
                                                 || SpaceCombatNearPlanet
                                                 || !HasSpacePort)
             {
@@ -79,18 +80,15 @@ namespace Ship_Game
 
             // this also counts construction ships on the way, by checking the empire goals
             int numOrbitals = 0;
-            var goals = owner.GetEmpireAI().Goals;
+            var goals = owner.AI.Goals;
             for (int i = 0; i < goals.Count; i++)
             {
                 Goal g = goals[i];
-                if (g != null && g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this 
-                              || g.type == GoalType.DeepSpaceConstruction && g.TetherPlanetId == Id)
+                if (g is DeepSpaceBuildGoal bg && bg.IsBuildingOrbitalFor(this))
                 {
-                    if (ResourceManager.GetShipTemplate(g.ToBuildUID, out Ship orbital) && orbital.ShipData.Role == role
-                                                                                        && !orbital.ShipData.IsShipyard)
-                    {
-                        numOrbitals++;
-                    }
+                    IShipDesign orbital = bg.ToBuild;
+                    if (orbital.Role == role && !orbital.IsShipyard)
+                        ++numOrbitals;
                 }
             }
 
@@ -104,14 +102,9 @@ namespace Ship_Game
             if (owner == null)
                 return 0;
 
-            int shipyardsInQ = 0;
-            foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
-                                                                     || g.type == GoalType.DeepSpaceConstruction && g.TetherPlanetId == Id))
-            {
-                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.ShipData.IsShipyard)
-                    shipyardsInQ++;
-            }
-
+            int shipyardsInQ = owner.AI.CountGoals(g => g is DeepSpaceBuildGoal b
+                                                     && b.IsBuildingOrbitalFor(this)
+                                                     && b.ToBuild.IsShipyard);
             return shipyardsInQ;
         }
 
@@ -120,7 +113,7 @@ namespace Ship_Game
             int orbitalsWeHave = orbitalList.Filter(o => !o.ShipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
-            var eAI = Owner.GetEmpireAI();
+            var eAI = Owner.AI;
 
             if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || (budget < 0 && !eAI.EmpireCanSupportSpcDefense)))
             {
@@ -182,7 +175,7 @@ namespace Ship_Game
                          $"cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
 
             Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
-            Owner.GetEmpireAI().Goals.Add(buildOrbital);
+            Owner.AI.AddGoal(buildOrbital);
         }
 
         private void ReplaceOrbital(Array<Ship> orbitalList, RoleName role, float budget)
@@ -207,7 +200,7 @@ namespace Ship_Game
             if (weakestWeHave.DesignRole == bestWeCanBuild.DesignRole)
             {
                 Goal refitOrbital = new RefitOrbital(weakestWeHave, bestWeCanBuild.Name, Owner);
-                Owner.GetEmpireAI().Goals.Add(refitOrbital);
+                Owner.AI.AddGoal(refitOrbital);
                 debugReplaceOrRefit = "REFITTING";
             }
             else
@@ -298,7 +291,7 @@ namespace Ship_Game
             if (MaxPopulationBillion.LessOrEqual(3))
                 rank -= 2;
 
-            switch (colonyType)
+            switch (CType)
             {
                 case ColonyType.Core: rank += 1; break;
                 case ColonyType.Military: rank += 3; break;
@@ -344,17 +337,17 @@ namespace Ship_Game
         public int NumPlatforms => FilterOrbitals(RoleName.platform).Count;
         public int NumStations  => FilterOrbitals(RoleName.station).Count;
 
-        public bool IsOutOfOrbitalsLimit(Ship ship) => IsOutOfOrbitalsLimit(ship, Owner, 0);
-        public bool IsOverOrbitalsLimit(Ship ship)  => IsOutOfOrbitalsLimit(ship, Owner, 1);
+        public bool IsOutOfOrbitalsLimit(IShipDesign ship) => IsOutOfOrbitalsLimit(ship, Owner, 0);
+        public bool IsOverOrbitalsLimit(IShipDesign ship)  => IsOutOfOrbitalsLimit(ship, Owner, 1);
 
-        bool IsOutOfOrbitalsLimit(Ship ship, Empire owner, int overLimit)
+        bool IsOutOfOrbitalsLimit(IShipDesign ship, Empire owner, int overLimit)
         {
-            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.ShipData.Role, owner);
+            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.Role, owner);
             int numShipyards = OrbitalStations.Count(s => s.ShipData.IsShipyard) + ShipyardsBeingBuilt(owner);
             if (numOrbitals >= ShipBuilder.OrbitalsLimit + overLimit && ship.IsPlatformOrStation)
                 return true;
 
-            if (numShipyards >= ShipBuilder.ShipYardsLimit + overLimit && ship.ShipData.IsShipyard)
+            if (numShipyards >= ShipBuilder.ShipYardsLimit + overLimit && ship.IsShipyard)
                 return true;
 
             return false;
@@ -363,12 +356,12 @@ namespace Ship_Game
         // Used when mostly the player places orbital in orbit of unowned planet
         public void TryRemoveExcessOrbital(Ship orbital)
         {
-            if (Owner == orbital.Loyalty || !IsOverOrbitalsLimit(orbital))
+            if (Owner == orbital.Loyalty || !IsOverOrbitalsLimit(orbital.ShipData))
                 return;
 
             float cost = orbital.GetCost(orbital.Loyalty) * orbital.Loyalty.DifficultyModifiers.CreditsMultiplier;
             orbital.Loyalty.AddMoney(cost);
-            if (orbital.Loyalty == EmpireManager.Player)
+            if (orbital.Loyalty == Universe.Player)
                 Universe.Notifications.AddOrbitalOverLimit(this, (int)cost, orbital.BaseHull.IconPath);
 
             orbital.QueueTotalRemoval();
@@ -490,7 +483,7 @@ namespace Ship_Game
             }
 
             // Research planets are not a good platform for building ships
-            if (colonyType == ColonyType.Research)
+            if (CType == ColonyType.Research)
                 WantedShipyards = 0;
         }
 

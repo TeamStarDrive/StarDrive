@@ -57,7 +57,7 @@ namespace Ship_Game
         public static ModEntry ActiveMod;
         public static bool HasMod => ActiveMod != null;
         public static ModInformation ActiveModInfo;
-        public static string ModName = ""; // "Combined Arms"
+        public static string ModName = ""; // "Combined Arms" or "" if there's no active mod
         public static string ModPath = ""; // "Mods/Combined Arms/"
         public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/Combined Arms/Combined Arms.xml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
@@ -99,7 +99,7 @@ namespace Ship_Game
         // global sticky checkboxes the player changes in game
         public static bool SuppressOnBuildNotifications;
         public static bool PlanetScreenHideOwned;
-        public static bool PlanetsScreenHideUnhabitable = true;
+        public static bool PlanetsScreenHideInhospitable = true;
         public static bool ShipListFilterPlayerShipsOnly;
         public static bool ShipListFilterInFleetsOnly;
         public static bool ShipListFilterNotInFleets;

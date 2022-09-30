@@ -1,21 +1,17 @@
-// Type: Ship_Game.Goal
-// Assembly: StarDrive, Version=1.0.9.0, Culture=neutral, PublicKeyToken=null
-// MVID: C34284EE-F947-460F-BF1D-3C6685B19387
-// Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
-
-using Ship_Game.Commands.Goals;
-using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
+using System.Linq;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.AI
 {
     public enum GoalType
     {
-        Colonize,
+        MarkForColonization,
         DeepSpaceConstruction,
         BuildTroop,
         BuildOffensiveShips,
@@ -63,178 +59,115 @@ namespace Ship_Game.AI
         GoalFailed    // abort, abort!!
     }
 
+    [StarDataType]
     public abstract class Goal
     {
-        public readonly int Id;
-        public UniverseState UState;
-        public Empire empire;
-        public GoalType type;
-        public int Step { get; private set; }
-        public Fleet Fleet;
-        public Vector2 TetherOffset;
-        public int TetherPlanetId;
-        Vector2 StaticBuildPosition;
-        public string ToBuildUID;
-        public string VanityName;
-        public int ShipLevel;
-        public Planet PlanetBuildingAt;
-        public Planet ColonizationTarget { get; set; }
-        public IShipDesign ShipToBuild;  // this is a template
-        private Ship ShipBuilt; // this is the actual ship that was built
-        public Ship OldShip;      // this is the ship which needs refit
-        public Ship TargetShip;      // this is targeted by this goal (raids)
-        public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
-        public Planet TargetPlanet;
-        public SolarSystem TargetSystem;
-        public float StarDateAdded;  
+        public UniverseState UState; // automatically set during OnDeserialize evt
+        [StarData] public Empire Owner; // the empire which owns this Goal
+        [StarData] public float StarDateAdded;
+        [StarData] public GoalType Type;
+        [StarData] public int Step { get; private set; }
         public string StepName => Steps[Step].Method.Name;
-        protected bool MainGoalCompleted;
+
+        [StarData] Ship ShipBuilt; // this is the actual ship that was built
+
+        [StarData] protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
         protected Func<bool> Holding;
-        public Vector2 MovePosition
-        {
-            get
-            {
-                Planet targetPlanet = GetTetherPlanet;
-                targetPlanet = targetPlanet ?? ColonizationTarget;
 
-                if (targetPlanet != null)
-                    return targetPlanet.Position + TetherOffset;
-                return BuildPosition;
-            }
-        }
+        // NOTE: the following properties have empty get/set to avoid unnecessary backing fields
+        //       calling `set` is an invalid operation because there is no backing field
+        //       this is quite flaky design though and these properties should be removed
+        // TODO: find a way to move these out of the base Goal class
 
-        public Vector2 BuildPosition
-        {
-            get
-            {
-                if (GetTetherPlanet != null)
-                    return GetTetherPlanet.Position + TetherOffset;
-                return StaticBuildPosition;
-            }
-            set => StaticBuildPosition = value;
-        }
+        // planet where construction or troop training is being done
+        public virtual Planet PlanetBuildingAt { get => null; set => throw new InvalidOperationException(); }
+        // this Ship is targeted by this goal (raids)
+        public virtual Ship TargetShip { get => null; set => throw new InvalidOperationException(); }
+         // Empire target of this goal (for instance, pirate goals)
+        public virtual Empire TargetEmpire { get => null; set => throw new InvalidOperationException(); }
+        public virtual Planet TargetPlanet { get => null; set => throw new InvalidOperationException(); }
+        // this is the ship which needs refit
+        public virtual Ship OldShip { get => null; set => throw new InvalidOperationException(); }
+        // manages ship building for goals which construct ships
+        public virtual BuildableShip Build { get => null; set => throw new InvalidOperationException(); }
 
-        public Planet GetTetherPlanet => empire.Universum.GetPlanet(TetherPlanetId);
-
-        public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
-        public abstract string UID { get; }
+        // this is the ship to be built
+        public virtual IShipDesign ToBuild => null;
+        public virtual bool IsDeploymentGoal => false;
+        public virtual Vector2 MovePosition => BuildPosition;
+        public virtual Vector2 BuildPosition => Vector2.Zero;
+        // Is this goal a pirate raid?
+        public virtual bool IsRaid => false;
 
         public Ship FinishedShip
         {
             get
             {
+                // in case a ship gets destroyed while en route to final deployment
                 if (ShipBuilt?.Active != true)
                     ShipBuilt = null;
                 return ShipBuilt;
             }
             set => ShipBuilt = value;
         }
+        
+        /////////////////////////////////////////////////////
+        /// --- Virtual accessors for filtering Goals --- ///
 
-        public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
+        /** @return True if this goal is a type of refit goal */
+        public virtual bool IsRefitGoalAtPlanet(Planet planet) => false; // Implement at relevant classes
+        /** @return True if this goal is targeting the given planet for colonization */
+        public virtual bool IsColonizationGoal(Planet planet) => false;
 
-        protected Goal(GoalType type, int id, UniverseState us)
+        /** @return True if this goal is building an orbital for this planet */
+        public virtual bool IsBuildingOrbitalFor(Planet planet) => false;
+
+        /** @return True if this goal is Remnants targeting this planet */
+        public virtual bool IsRemnantEngageAtPlanet(Planet planet) => false;
+
+        /** @return True if this is a WarMission goal targeting this planet */
+        public virtual bool IsWarMissionTarget(Planet planet) => false;
+        /** @return True if this is a WarMission goal targeting this empire */
+        public virtual bool IsWarMissionTarget(Empire empire) => false;
+
+        /////////////////////////////////////////////////////
+
+        public string TypeName => GetType().GetTypeName();
+        public override string ToString() => $"{Type} Goal.{TypeName}";
+
+        [StarDataConstructor]
+        protected Goal(GoalType type, Empire owner)
         {
-            this.type = type;
-            Id = id;
+            Type = type;
+            if (owner != null) // owner is null during initial serialization
+            {
+                Owner = owner;
+                UState = owner?.Universe;
+                StarDateAdded = owner.Universe.StarDate;
+            }
+        }
+
+        [StarDataDeserialized]
+        protected void OnDeserialized(UniverseState us)
+        {
             UState = us;
-        }
-
-        static Goal CreateInstance(string uid, int id, UniverseState us)
-        {
-            switch (uid)
+            if ((uint)Step >= Steps.Length)
             {
-                case BuildConstructionShip.ID:  return new BuildConstructionShip(id, us);
-                case BuildOffensiveShips.ID:    return new BuildOffensiveShips(id, us);
-                case BuildScout.ID:             return new BuildScout(id, us);
-                case BuildTroop.ID:             return new BuildTroop(id, us);
-                case FleetRequisition.ID:       return new FleetRequisition(id, us);
-                case IncreaseFreighters.ID:     return new IncreaseFreighters(id, us);
-                case MarkForColonization.ID:    return new MarkForColonization(id, us);
-                case RefitShip.ID:              return new RefitShip(id, us);
-                case RefitOrbital.ID:           return new RefitOrbital(id, us);
-                case BuildOrbital.ID:           return new BuildOrbital(id, us);
-                case RemnantInit.ID:            return new RemnantInit(id, us);
-                case PirateAI.ID:               return new PirateAI(id, us);
-                case PirateDirectorPayment.ID:  return new PirateDirectorPayment(id, us);
-                case PirateDirectorRaid.ID:     return new PirateDirectorRaid(id, us);
-                case PirateRaidTransport.ID:    return new PirateRaidTransport(id, us);
-                case PirateRaidOrbital.ID:      return new PirateRaidOrbital(id, us);
-                case PirateRaidProjector.ID:    return new PirateRaidProjector(id, us);
-                case PirateRaidCombatShip.ID:   return new PirateRaidCombatShip(id, us);
-                case PirateBase.ID:             return new PirateBase(id, us);
-                case PirateDefendBase.ID:       return new PirateDefendBase(id, us);
-                case PirateProtection.ID:       return new PirateProtection(id, us);
-                case AssaultPirateBase.ID:      return new AssaultPirateBase(id, us);
-                case DeployFleetProjector.ID:   return new DeployFleetProjector(id, us);
-                case RemnantEngagements.ID:     return new RemnantEngagements(id, us);
-                case RemnantPortal.ID:          return new RemnantPortal(id, us);
-                case RemnantEngageEmpire.ID:    return new RemnantEngageEmpire(id, us);
-                case ScrapShip.ID:              return new ScrapShip(id, us);
-                case RearmShipFromPlanet.ID:    return new RearmShipFromPlanet(id, us);
-                case DefendVsRemnants.ID:       return new DefendVsRemnants(id, us);
-                case StandbyColonyShip.ID:      return new StandbyColonyShip(id, us);
-                case ScoutSystem.ID:            return new ScoutSystem(id, us);
-                case AssaultBombers.ID:         return new AssaultBombers(id, us);
-                case EmpireDefense.ID:          return new EmpireDefense(id, us);
-                case DefendSystem.ID:           return new DefendSystem(id, us);
-                case WarMission.ID:             return new WarMission(id, us);
-                case WarManager.ID:             return new WarManager(id, us);
-                case PrepareForWar.ID:          return new PrepareForWar(id, us);
-                default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
+                Log.Error($"Deserialize {Type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+                Step = Steps.Length - 1;
             }
         }
 
-        public static Goal Deserialize(string uid, UniverseState us, Empire e, SavedGame.GoalSave gsave)
+        protected GoalStep DummyStepTryAgain() => GoalStep.TryAgain;
+
+        protected GoalStep WaitForShipBuilt()
         {
-            Goal g = CreateInstance(uid, gsave.GoalId, us);
-            g.empire        = e;
-            g.ToBuildUID    = gsave.ToBuildUID;
-            g.Step          = gsave.GoalStep;
-            g.BuildPosition = gsave.BuildPosition;
-            g.VanityName    = gsave.VanityName;
-            g.ShipLevel     = gsave.ShipLevel;
-            g.StarDateAdded = gsave.StarDateAdded;
-            g.TetherPlanetId  = gsave.TetherTarget;
-            g.TetherOffset  = gsave.TetherOffset;
-            if ((uint)g.Step >= g.Steps.Length)
-            {
-                Log.Error($"Deserialize {g.type} invalid Goal.Step: {g.Step}, Steps.Length: {g.Steps.Length}");
-                g.Step = g.Steps.Length-1;
-            }
+            // When Ship finished, the CQ will call ReportShipComplete() and set FinishedShip
+            if (FinishedShip != null)
+                return GoalStep.GoalComplete;
 
-            return g;
-        }
-
-        // This is used to assign variables for better code readability in specific goals
-        // after they are created or loaded from save
-        public virtual void PostInit()
-        {
-        }
-
-        public virtual bool IsRaid => false; // Is this goal a pirate raid?
-        public virtual bool IsWarMission => false; // Is this goal related to war logic?
-
-        protected GoalStep DummyStepTryAgain()     => GoalStep.TryAgain;
-        protected GoalStep DummyStepGoalComplete() => GoalStep.GoalComplete;
-        protected GoalStep WaitMainGoalCompletion()
-        {
-            if (MainGoalCompleted)
-            {
-                MainGoalCompleted = false;
-                if (Step == Steps.Length-1)
-                    return GoalStep.GoalComplete;
-                return GoalStep.GoToNextStep;
-            }
-            return GoalStep.TryAgain;
-        }
-
-        protected GoalStep WaitForShipBuilt() 
-        {
-            // When the Ship is finished, the goal is moved externally to next step (ReportShipComplete).
-            // So no need for GotoNextStep here.
-
-            if (PlanetBuildingAt.ConstructionQueue.Filter(q => q.Goal == this).Length == 0 && FinishedShip == null)
+            if (PlanetBuildingAt.ConstructionQueue.All(q => q.Goal != this) && FinishedShip == null)
                 return GoalStep.GoalFailed;
 
             return GoalStep.TryAgain;
@@ -248,20 +181,15 @@ namespace Ship_Game.AI
         /// <summary>
         /// 1 is 10 turns, 5 is 50 turns
         /// </summary>
-        public float LifeTime => empire.Universum.StarDate - StarDateAdded;
+        public float LifeTime => UState.StarDate - StarDateAdded;
         public bool IsMainGoalCompleted => MainGoalCompleted;
 
         // @note Goals are mainly evaluated during Empire update
         public GoalStep Evaluate()
         {
-            // CG hrmm i guess this should just be part of the goal enum.
-            // But that will require more cleanup of the goals.
-            if (Holding?.Invoke() == true)
-                return GoalStep.TryAgain;
-
             if ((uint)Step >= Steps.Length)
             {
-                Log.Error($"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+                Log.Error($"{Type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
                 RemoveThisGoal(); // don't crash, just remove the step
                 return GoalStep.GoalFailed;
             }
@@ -284,7 +212,7 @@ namespace Ship_Game.AI
 
         void RemoveThisGoal()
         {
-            empire?.GetEmpireAI().Goals.QueuePendingRemoval(this);
+            Owner.AI.RemoveGoal(this);
         }
 
         public void AdvanceToNextStep()
@@ -292,7 +220,7 @@ namespace Ship_Game.AI
             ++Step;
             if ((uint)Step >= Steps.Length)
             {
-                Log.Error($"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+                Log.Error($"{Type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
                 RemoveThisGoal();
             }
         }
@@ -301,7 +229,7 @@ namespace Ship_Game.AI
         {
             if (!Steps.Contains(step))
             {
-                Log.Error($"{type} invalid Goal.Step: {step}, Steps.Length: {Steps.Length}");
+                Log.Error($"{Type} invalid Goal.Step: {step}, Steps.Length: {Steps.Length}");
                 RemoveThisGoal();
             }
             Step = Steps.IndexOf(step);
@@ -310,7 +238,10 @@ namespace Ship_Game.AI
         public void ReportShipComplete(Ship ship)
         {
             FinishedShip = ship;
-            AdvanceToNextStep();
+            if (Step < Steps.Length - 1)
+                AdvanceToNextStep();
+            else
+                RemoveThisGoal();
         }
     }
 }

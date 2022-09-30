@@ -64,7 +64,7 @@ namespace UnitTests.AITests.Ships
             // explored (not fully explored, though).
             scout.Position = CloseSystem.Position.GenerateRandomPointInsideCircle(scout.ExploreSystemDistance);
             UState.Objects.Update(TestSimStep);
-            scout.SetSystem(CloseSystem);
+            scout.System = CloseSystem;
 
             Assert.IsTrue(CloseSystem.IsExploredBy(Player), $"{CloseSystem.Name} is not set as explored but it should be explored" +
                                                              " as the ship is within explore range of system center");
@@ -93,7 +93,7 @@ namespace UnitTests.AITests.Ships
             UState.Objects.Update(TestSimStep);
             CloseSystem.ShipList.Add(enemy);
             CloseSystem.ShipList.Add(scout);
-            scout.SetSystem(CloseSystem);
+            scout.System = CloseSystem;
             Assert.IsTrue(enemy.AI.Target == scout, "Enemy's target is not the scout ship");
 
             // Scout should now detect it is being targeted, find an escape vector and

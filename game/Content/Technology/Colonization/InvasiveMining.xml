@@ -4,7 +4,6 @@
   <UID>InvasiveMining</UID>
   <TechnologyType>Industry</TechnologyType>
   <Cost>5500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>8075</NameIndex>
   <DescriptionIndex>8076</DescriptionIndex>
  <LeadsTo />
