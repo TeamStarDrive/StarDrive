@@ -54,13 +54,13 @@ namespace Ship_Game.GameScreens.ShipDesign
         public float WarpTime;
 
 
-        public ShipDesignStats(Ship s)
+        public ShipDesignStats(Ship s, Empire player)
         {
             S = s;
-            Update();
+            Update(player);
         }
 
-        public void Update()
+        public void Update(Empire player)
         {
             // select only powered modules and powered weapons
             ShipModule[] modules = S.Modules.Filter(m => m.PowerDraw <= 0 || m.Powered);
@@ -82,7 +82,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             WeaponPowerNeeded = weapons.Sum(w => w.PowerFireUsagePerSecond);
             BurstOrdnance = weapons.Sum(w => w.TotalOrdnanceUsagePerFire);
 
-            float bayOrdPerSec = modules.Sum(m => m.BayOrdnanceUsagePerSecond);
+            float bayOrdPerSec = modules.Sum(m => m.BayOrdnanceUsagePerSecond(player));
             float avgOrdPerSec = weapons.Sum(w => w.AverageOrdnanceUsagePerSecond);
             AvgOrdnanceUsed = bayOrdPerSec + avgOrdPerSec;
             NetOrdnanceUsePerSec = AvgOrdnanceUsed - S.OrdAddedPerSecond;

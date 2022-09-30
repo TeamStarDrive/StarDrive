@@ -426,7 +426,7 @@ namespace Ship_Game
                 return;
 
             var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.HangarShipUID);
-            string hangarShip = mod.GetHangarShipName();
+            string hangarShip = mod.GetHangarShipName(Player);
             Ship hs = ResourceManager.GetShipTemplate(hangarShip, false);
             if (hs != null)
             {
