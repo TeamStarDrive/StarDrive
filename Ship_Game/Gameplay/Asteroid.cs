@@ -1,4 +1,5 @@
-using System.Xml.Serialization;
+using System;
+using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
@@ -12,11 +13,14 @@ namespace Ship_Game.Gameplay
     [StarDataType]
     public sealed class Asteroid : GameObject
     {
-        [StarData] public float Scale = 1.0f; // serialized
-        Vector3 RotationRadians;
-        Vector3 Spin;
-        int AsteroidId;
-        SceneObject So;
+        [StarData] public float Scale;
+        [StarData] readonly float OrbitalRadius; // distance from sun
+        [StarData] float OrbitalAngle; // current RADIANS angle of the orbit
+
+        Vector3 CurrentSpin; // asteroid's current rotation around its own axis
+        Vector3 SpinSpeed; // the speed of rotation around its own axis
+        int AsteroidId; // which asteroid?
+        SceneObject So; // 3D mesh
 
         // Serialized (SaveGame) asteroid
         [StarDataConstructor]
@@ -26,27 +30,33 @@ namespace Ship_Game.Gameplay
         }
 
         // New asteroid
-        public Asteroid(int id, RandomBase random, float scaleMin, float scaleMax, Vector2 pos)
+        public Asteroid(int id, RandomBase random, float scaleMin, float scaleMax, float orbitalRadius, float orbitalAngle)
              : base(id, GameObjectType.Asteroid)
         {
             Active = true;
             Radius = 50f; // some default radius for now
             Scale = random.Float(scaleMin, scaleMax);
-            Position = pos;
+            OrbitalRadius = orbitalRadius;
+            OrbitalAngle = orbitalAngle;
             Initialize(random);
         }
 
         void Initialize(RandomBase random)
         {
-            Spin            = random.Vector3D(0.01f, 0.2f);
-            RotationRadians = random.Vector3D(0.01f, 1.02f);
-            AsteroidId      = random.InRange(ResourceManager.NumAsteroidModels);
+            SpinSpeed = random.Vector3D(0.01f, 0.05f);
+            CurrentSpin = random.Vector3D(0.01f, 1.02f);
+            AsteroidId = random.InRange(ResourceManager.NumAsteroidModels);
         }
 
         [StarDataDeserialized]
         public void OnDeserialize(UniverseState us)
         {
             Initialize(us.Random);
+        }
+
+        void UpdatePosition(Vector2 systemPos)
+        {
+            Position = systemPos.PointFromRadians(OrbitalAngle, OrbitalRadius);
         }
 
         void CreateSceneObject(Vector2 systemPos)
@@ -62,7 +72,8 @@ namespace Ship_Game.Gameplay
                 Visibility = GlobalStats.AsteroidVisibility
             };
             Radius = So.ObjectBoundingSphere.Radius * Scale * 0.65f;
-            So.AffineTransform(new Vector3(systemPos + Position, -500f), RotationRadians, Scale);
+            UpdatePosition(systemPos);
+            So.AffineTransform(new(Position, -500f), CurrentSpin, Scale);
             ScreenManager.Instance.AddObject(So);
         }
 
@@ -81,8 +92,14 @@ namespace Ship_Game.Gameplay
         {
             if (So != null)
             {
-                RotationRadians += Spin * timeStep.FixedTime;
-                So.AffineTransform(new Vector3(systemPos + Position, -500f), RotationRadians, Scale);
+                float orbitSpeed = (10f * Scale) / OrbitalRadius;
+                OrbitalAngle += orbitSpeed * timeStep.FixedTime;
+                if (OrbitalAngle >= RadMath.TwoPI)
+                    OrbitalAngle -= RadMath.TwoPI;
+
+                CurrentSpin += SpinSpeed * timeStep.FixedTime;
+                UpdatePosition(systemPos);
+                So.AffineTransform(new(Position, -500f), CurrentSpin, Scale);
             }
             else
             {
