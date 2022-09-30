@@ -10,6 +10,7 @@ namespace Ship_Game
     public class ModuleSelectScrollList : ScrollList2<ModuleSelectListItem>
     {
         public readonly ShipDesignScreen Screen;
+        Empire Player => Screen.Player;
 
         public ModuleSelectScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
         {
@@ -36,7 +37,7 @@ namespace Ship_Game
 
         bool ShouldBeFiltered(ShipModule m)
         {
-            return CanNeverFitModuleGrid(m) || m.IsObsolete() && Screen.IsFilterOldModulesMode;
+            return CanNeverFitModuleGrid(m) || m.IsObsolete(Player) && Screen.IsFilterOldModulesMode;
         }
 
         readonly Map<int, ModuleSelectListItem> Categories = new Map<int, ModuleSelectListItem>();
@@ -48,10 +49,10 @@ namespace Ship_Game
 
             if (!Categories.TryGetValue(categoryId, out ModuleSelectListItem e))
             {
-                e = AddItem(new ModuleSelectListItem(categoryName));
+                e = AddItem(new(Player, categoryName));
                 Categories.Add(categoryId, e);
             }
-            e.AddSubItem(new ModuleSelectListItem(mod));
+            e.AddSubItem(new ModuleSelectListItem(Player, mod));
         }
 
         bool OpenCategory(int categoryId)
@@ -94,7 +95,7 @@ namespace Ship_Game
         // Tries to get a ModuleListItem, if the ShipModule is unlocked and available for current hull
         bool TryGetModuleListItem(ShipModule template, out ShipModule m)
         {
-            if (Screen.Player.IsModuleUnlocked(template.UID))
+            if (Player.IsModuleUnlocked(template.UID))
             {
                 if (IsModuleAvailableForHullRole(Screen.CurrentHull.Role, template))
                 {
