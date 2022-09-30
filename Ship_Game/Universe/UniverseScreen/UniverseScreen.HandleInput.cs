@@ -1420,6 +1420,8 @@ namespace Ship_Game
             FleetButtons = buttons.ToArray();
         }
 
+        Vector2 StartDragPos;
+
         void HandleEdgeDetection(InputState input)
         {
             if (LookingAtPlanet)
@@ -1443,29 +1445,47 @@ namespace Ship_Game
             bool enableKeys = !ViewingShip;
             bool arrowKeys = Debug == false;
 
-            if (InRange(x, minLeft, maxLeft) || (enableKeys && input.KeysLeftHeld(arrowKeys)))
+            if (input.MiddleMouseClick)
             {
-                CamDestination.X -= 0.008f * worldWidthOnScreen;
+                StartDragPos = input.CursorPosition;
+            }
+
+            if (input.MiddleMouseHeld())
+            {
+                float dx = input.CursorPosition.X - StartDragPos.X;
+                float dy = input.CursorPosition.Y - StartDragPos.Y;
+                StartDragPos = input.CursorPosition;
+                CamDestination.X += -dx * worldWidthOnScreen * 0.001f;
+                CamDestination.Y += -dy * worldWidthOnScreen * 0.001f;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (InRange(x, minRight, maxRight) || (enableKeys && input.KeysRightHeld(arrowKeys)))
+            else
             {
-                CamDestination.X += 0.008f * worldWidthOnScreen;
-                snappingToShip = false;
-                ViewingShip    = false;
-            }
-            if (InRange(y, minTop, maxTop) || (enableKeys && input.KeysUpHeld(arrowKeys)))
-            {
-                CamDestination.Y -= 0.008f * worldWidthOnScreen;
-                snappingToShip = false;
-                ViewingShip    = false;
-            }
-            if (InRange(y, minBottom, maxBottom) || (enableKeys && input.KeysDownHeld(arrowKeys)))
-            {
-                CamDestination.Y += 0.008f * worldWidthOnScreen;
-                snappingToShip = false;
-                ViewingShip    = false;
+                if (InRange(x, minLeft, maxLeft) || (enableKeys && input.KeysLeftHeld(arrowKeys)))
+                {
+                    CamDestination.X -= 0.008f * worldWidthOnScreen;
+                    snappingToShip = false;
+                    ViewingShip    = false;
+                }
+                if (InRange(x, minRight, maxRight) || (enableKeys && input.KeysRightHeld(arrowKeys)))
+                {
+                    CamDestination.X += 0.008f * worldWidthOnScreen;
+                    snappingToShip = false;
+                    ViewingShip    = false;
+                }
+                if (InRange(y, minTop, maxTop) || (enableKeys && input.KeysUpHeld(arrowKeys)))
+                {
+                    CamDestination.Y -= 0.008f * worldWidthOnScreen;
+                    snappingToShip = false;
+                    ViewingShip    = false;
+                }
+                if (InRange(y, minBottom, maxBottom) || (enableKeys && input.KeysDownHeld(arrowKeys)))
+                {
+                    CamDestination.Y += 0.008f * worldWidthOnScreen;
+                    snappingToShip = false;
+                    ViewingShip    = false;
+                }
             }
 
             CamDestination.X = CamDestination.X.Clamped(-UState.Size, UState.Size);

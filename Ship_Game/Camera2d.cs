@@ -86,19 +86,6 @@ namespace Ship_Game
             CamPos = CamPos.Clamped(min.X, min.Y, max.X, max.Y);
         }
 
-        public Vector2 WASDCamMovement(InputState input, GameScreen screen, float limit)
-        {
-            Vector2 adjustCam = Vector2.Zero;
-            Vector2 c = screen.ScreenCenter;
-            if (input.WASDLeft  && CamPos.X - c.X  > -limit) adjustCam.X -= GlobalStats.CameraPanSpeed * (5 - Zoom);
-            if (input.WASDRight && CamPos.X - c.X  <  limit) adjustCam.X += GlobalStats.CameraPanSpeed * (5 - Zoom);
-            if (input.WASDUp    && CamPos.Y - c.Y > -limit)  adjustCam.Y -= GlobalStats.CameraPanSpeed * (5 - Zoom);
-            if (input.WASDDown  && CamPos.Y - c.Y <  limit)  adjustCam.Y += GlobalStats.CameraPanSpeed * (5 - Zoom);
-
-            CamPos += adjustCam;
-            return CamPos - c;
-        }
-
         private Vector2 CameraVelocity = Vector2.Zero;
 
         public void CameraDrag(InputState input)
