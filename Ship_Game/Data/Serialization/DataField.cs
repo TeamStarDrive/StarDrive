@@ -13,6 +13,7 @@ namespace Ship_Game.Data.Serialization
         public int FieldIdx;
         public readonly string Name;
         public readonly TypeSerializer Serializer;
+        public StarDataAttribute A;
 
         // The class which declared this field
         public readonly Type DeclaringType;
@@ -27,6 +28,7 @@ namespace Ship_Game.Data.Serialization
         public DataField(TypeSerializerMap typeMap, Type instanceType, StarDataAttribute a,
                          PropertyInfo prop, FieldInfo field)
         {
+            A = a;
             Name = a.NameId;
             Type type;
             MemberInfo m;
