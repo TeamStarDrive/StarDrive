@@ -29,22 +29,23 @@ namespace Ship_Game
         [StarData] public bool WinsGame;
         [StarData] public bool BuildOnlyOnce;
         [StarData] public string EventOnBuild;
-        [StarData] public string EventTriggerUID = "";
+        [StarData(DefaultValue="")] public string EventTriggerUID = "";
+        [StarData(DefaultValue=15)] public byte EventSpawnChance = 15;
         [StarData] public bool CanBuildAnywhere;
         [StarData] public float PlusTerraformPoints;
-        [StarData] public int Strength = 5;
         [StarData] public float PlusProdPerRichness;
         [StarData] public float PlanetaryShieldStrengthAdded;
         [StarData] public float PlusFlatPopulation;
         [StarData] public float MaxFertilityOnBuild;
         [StarData] public string Icon;
-        [StarData] public bool Scrappable = true;
-        [StarData] public bool Unique = true;
+        [StarData(DefaultValue=5)] public int Strength = 5;
+        [StarData(DefaultValue=true)] public bool Scrappable = true;
+        [StarData(DefaultValue=true)] public bool Unique = true;
         [StarData] public bool isWeapon;
         [StarData] public string Weapon = "";
         [StarData] public float WeaponTimer;
         [StarData] public float AttackTimer;
-        [StarData] public int AvailableAttackActions = 1; // FB - use UpdateAttackActions
+        [StarData] public int AvailableAttackActions; // FB - use UpdateAttackActions
         [StarData] public int CombatStrength;
         [StarData] public int SoftAttack;
         [StarData] public int HardAttack;
@@ -67,16 +68,15 @@ namespace Ship_Game
         [StarData] public bool IsProjector;
         [StarData] public float ProjectorRange;
         [StarData] public float ShipRepair;
-        [StarData] public BuildingCategory Category = BuildingCategory.General;
-        [StarData] public bool IsPlayerAdded = false;
+        [StarData] public BuildingCategory Category;
+        [StarData] public bool IsPlayerAdded;
         [StarData] public int InvadeInjurePoints;
         [StarData] public int DefenseShipsCapacity;
-        [StarData] public RoleName DefenseShipsRole = RoleName.disabled;
+        [StarData] public RoleName DefenseShipsRole;
         [StarData] public float Infrastructure;
         [StarData] public bool DetectsRemnantFleet;
         [StarData] public bool CannotBeBombed;
         [StarData] public float IncreaseRichness;
-        [StarData] public byte EventSpawnChance = 15;
         [StarData] public float FoodCache; // Works with Flat food only
         [StarData] public float ProdCache; // Works with Prod per colonist only
         [StarData] public bool CanBeCreatedFromLava; // Can be created when lava is solidified

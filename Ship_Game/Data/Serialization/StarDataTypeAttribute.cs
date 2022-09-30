@@ -47,6 +47,13 @@ public class StarDataAttribute : Attribute
     public bool IsPrimaryKeyName;
     public bool IsPrimaryKeyValue;
 
+    // If true, then this ValueType Field or Property has no default value
+    // and should always be serialized. This has no effect on ReferenceTypes.
+    public bool NoDefaults;
+
+    // Overrides the default value for this Field or Property
+    public object DefaultValue;
+
     public StarDataAttribute()
     {
     }
