@@ -17,7 +17,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             : base(us, us.CreateId(), us.Player, designHull, isTemplate:true, shipyardDesign:true)
         {
             Design = designHull;
-            DesignStats = new ShipDesignStats(this);
+            DesignStats = new ShipDesignStats(this, us.Player);
             Position = new Vector2(0, 0);
         }
 
@@ -29,7 +29,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             PrevModules = placedModules;
             CreateModuleSlotsFromShipyardModules(placedModules, Design);
             InitializeShip();
-            DesignStats.Update();
+            DesignStats.Update(Universe.Player);
         }
 
         static bool AreEqual(Array<ShipModule> a, Array<ShipModule> b)
