@@ -212,9 +212,6 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            if (Fleet != null && !Fleet.IsCoreFleet && !FleetNeededForNextTask)
-                Owner.AI.UsedFleets.Remove(WhichFleet);
-
             if (FindClosestAO() == null)
             {
                 if (Fleet.IsCoreFleet || Owner.isPlayer)
@@ -369,7 +366,6 @@ namespace Ship_Game.AI.Tasks
                         }
                     }
                     TaskForce.Clear();
-                    Owner.AI.UsedFleets.Remove(WhichFleet);
                     fleet.Reset();
                 }
 
@@ -452,16 +448,6 @@ namespace Ship_Game.AI.Tasks
         public void SetTargetPlanet(Planet p)
         {
             TargetPlanet = p;
-        }
-
-        //need to examine this fleet key thing. i believe there is a leak.
-        int FindUnusedFleetNumber()
-        {
-            var used = Owner.AI.UsedFleets;
-            int key = 1;
-            while (used.Contains(key))
-                ++key;
-            return key;
         }
 
         public enum TaskType
