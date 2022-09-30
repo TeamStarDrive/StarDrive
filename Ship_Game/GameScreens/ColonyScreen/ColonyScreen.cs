@@ -232,6 +232,7 @@ namespace Ship_Game
 
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
             ConstructionQueue.EnableItemHighlight = true;
+            ConstructionQueue.OnHovered = OnConstructionItemHovered;
             if (p.OwnerIsPlayer || p.Universe.Debug)
                 ConstructionQueue.OnDragReorder = OnConstructionItemReorder;
 
