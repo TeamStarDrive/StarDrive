@@ -439,7 +439,7 @@ namespace Ship_Game
             float value = 0;
             value += ColonyRawValue(empire);
             value += BuildingList.Any(b => b.IsCapital) ? 100 : 0;
-            value += BuildingList.Sum(b => b.ActualCost) / 100;
+            value += BuildingList.Sum(b => b.ActualCost) * 0.01f;
             value += PopulationBillion * 5;
 
             return value;
@@ -462,28 +462,35 @@ namespace Ship_Game
 
             float value = 0;
             if (empire.NonCybernetic)
-                value += PotentialMaxFertilityFor(empire) * 10;
+            {
+                float potentialFert = PotentialMaxFertilityFor(empire);
+                value += potentialFert * potentialFert * 50;
+                value += MineralRichness * 5;
+            }
             else
-                value += TilesList.Count(t => t.VolcanoHere) * 5; // Volcanoes can increase production, which is good for cybernetics
+            {
+                value += MineralRichness * 10;
+                value += TilesList.Count(t => t.VolcanoHere) * 3; // Volcanoes can increase production, which is good for cybernetics;
+            }
 
-            value += SpecialCommodities * 20;
-            value += MineralRichness * 10;
-            value += PotentialMaxPopBillionsFor(empire) * PopMultiplier();
+            value += SpecialCommodities * 10;
+            value += PotentialMaxPopBillionsFor(empire) * HabitableMultiplier();
 
             return value;
 
-            float PopMultiplier()
+            float HabitableMultiplier()
             {
-                float multiplier = 5;
-                if (empire.NonCybernetic 
-                    && HabitablePercentage < 0.25f
-                    && empire.IsBuildingUnlocked(Building.BiospheresId)
-                    && !empire.CanFullTerraformPlanets)
+                // Avoid crappy barren planets unless they have really large pop potential
+                float multiplier = 10;
+                if (!empire.CanFullTerraformPlanets)
                 {
-                    multiplier = 2.5f; // Avoid crappy barren planets unless they have really large pop potential
+                    float habitablePercentage = HabitablePercentage;
+                    multiplier = habitablePercentage * 10;
+                    if (empire.IsBuildingUnlocked(Building.BiospheresId))
+                        multiplier += (1 - habitablePercentage) * 5;
                 }
 
-                return multiplier;
+                return multiplier.LowerBound(0.02f);
             }
         }
     
