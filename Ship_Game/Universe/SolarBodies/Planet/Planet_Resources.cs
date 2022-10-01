@@ -199,25 +199,22 @@ namespace Ship_Game
                 return;
             }
 
-            if (Prod.FlatBonus > 0)
+            if (IsCybernetic)  //Account for excess food for the filthy Opteris
             {
-                if (IsCybernetic)  //Account for excess food for the filthy Opteris
+                if (Prod.FlatBonus > PopulationBillion)
                 {
-                    if (Prod.FlatBonus > PopulationBillion)
-                    {
-                        float offsetAmount = (Prod.FlatBonus - PopulationBillion) * 0.05f;
-                        offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
-                        importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
-                        exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
-                    }
-                }
-                else if (importThreshold > 0 || Construction.Count > 0)
-                {
-                    float offsetAmount = Prod.FlatBonus * 0.05f;
+                    float offsetAmount = (Prod.FlatBonus - PopulationBillion) * 0.05f;
                     offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
                     importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                     exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                 }
+            }
+            else if (importThreshold > 0 || Construction.Count > 0)
+            {
+                float offsetAmount = Prod.FlatBonus * 0.05f;
+                offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
+                importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
+                exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
             }
 
             float ratio = Storage.ProdRatio;
