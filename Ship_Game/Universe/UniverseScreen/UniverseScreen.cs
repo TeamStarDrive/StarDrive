@@ -56,6 +56,7 @@ namespace Ship_Game
         public BatchRemovalCollection<Bomb> BombList  = new();
         readonly AutoResetEvent DrawCompletedEvt = new(false);
 
+        public const double MinCamHeight = 450.0;
         protected double MaxCamHeight;
         public Vector3d CamDestination;
         public Vector3d CamPos { get => UState.CamPos; set => UState.CamPos = value; }
