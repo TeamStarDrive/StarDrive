@@ -3,68 +3,65 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
-namespace Ship_Game.Debug.Page
+namespace Ship_Game.Debug.Page;
+
+internal class TradeDebug : DebugPage
 {
-    internal class TradeDebug : DebugPage
+    public TradeDebug(DebugInfoScreen parent) : base(parent, DebugModes.Trade)
     {
-        readonly UniverseScreen Screen;
-        public TradeDebug(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Trade)
-        {
-            Screen = screen;
-        }
+    }
 
-        public override void Update(float fixedDeltaTime)
-        {
-            Planet planet = Screen.SelectedPlanet;
+    public override void Update(float fixedDeltaTime)
+    {
+        Planet planet = Screen.SelectedPlanet;
 
-            if (planet?.Owner == null)
+        if (planet?.Owner == null)
+        {
+            var text = new Array<DebugTextBlock>();
+            foreach (Empire empire in Universe.Empires)
             {
-                var text = new Array<DebugTextBlock>();
-                foreach (Empire empire in Screen.UState.Empires)
+                if (!empire.IsFaction && !empire.data.Defeated)
+                    text.Add(empire.DebugEmpireTradeInfo());
+            }
+            SetTextColumns(text);
+        }
+        else
+        {
+            SetTextColumns(new Array<DebugTextBlock> { planet.DebugPlanetInfo() });
+        }
+        base.Update(fixedDeltaTime);
+    }
+
+    public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+    {
+        if (!Visible)
+            return;
+
+        foreach (Empire e in Universe.Empires)
+        {
+            var ships = e.OwnedShips;
+            foreach (Ship ship in ships)
+            {
+                if (ship?.Active != true) continue;
+                ShipAI ai = ship.AI;
+                if (ai.State != AIState.SystemTrader) continue;
+                if (ai.OrderQueue.Count == 0) continue;
+                /*
+                switch (ai.OrderQueue.PeekLast.Plan)
                 {
-                    if (!empire.IsFaction && !empire.data.Defeated)
-                        text.Add(empire.DebugEmpireTradeInfo());
-                }
-                SetTextColumns(text);
+                    case ShipAI.Plan.DropOffGoods:
+                        Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
+                        break;
+                    case ShipAI.Plan.PickupGoods:
+                        Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
+                        break;
+                    case ShipAI.Plan.PickupPassengers:
+                    case ShipAI.Plan.DropoffPassengers:
+                        Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 32);
+                        break;
+                }*/
             }
-            else
-            {
-                SetTextColumns(new Array<DebugTextBlock> { planet.DebugPlanetInfo() });
-            }
-            base.Update(fixedDeltaTime);
         }
-
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-        {
-            if (!Visible)
-                return;
-
-            foreach (Empire e in Screen.UState.Empires)
-            {
-                var ships = e.OwnedShips;
-                foreach (Ship ship in ships)
-                {
-                    if (ship?.Active != true) continue;
-                    ShipAI ai = ship.AI;
-                    if (ai.State != AIState.SystemTrader) continue;
-                    if (ai.OrderQueue.Count == 0) continue;
-                    /*
-                    switch (ai.OrderQueue.PeekLast.Plan)
-                    {
-                        case ShipAI.Plan.DropOffGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
-                            break;
-                        case ShipAI.Plan.PickupGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
-                            break;
-                        case ShipAI.Plan.PickupPassengers:
-                        case ShipAI.Plan.DropoffPassengers:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 32);
-                            break;
-                    }*/
-                }
-            }
-            base.Draw(batch, elapsed);
-        }
+        base.Draw(batch, elapsed);
     }
 }

@@ -986,7 +986,6 @@ namespace Ship_Game.Ships
 
         public override void Die(GameObject source, bool cleanupOnly)
         {
-            ++DebugInfoScreen.ModulesDied;
             ShieldPower = 0f;
             ShieldPower = 0f;
             Shield?.RemoveLight(Parent.Universe.Screen);

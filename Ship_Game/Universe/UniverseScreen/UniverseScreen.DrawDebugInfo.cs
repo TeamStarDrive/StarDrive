@@ -61,7 +61,7 @@ namespace Ship_Game
         {
             if (DebugStats == null)
             {
-                DebugStats = Add(new ScrollList2<DebugStatItem>(220f, 40f, 440f, 600f, 20));
+                DebugStats = Add(new ScrollList2<DebugStatItem>(360f, 90f, 440f, 600f, 20));
                 DebugStats.EnableItemEvents = true;
 
                 var uObjects = UState.Objects;
