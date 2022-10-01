@@ -82,6 +82,9 @@ namespace Ship_Game
 
         public static bool PreventFederations;
         public static bool EliminationMode;
+
+        // If set to true, scrolling will always zoom into selected objects
+        // Otherwise you can use Shift+Scroll to zoom to selected objects
         public static bool ZoomTracking;
         public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
 
