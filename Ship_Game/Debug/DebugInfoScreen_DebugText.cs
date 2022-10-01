@@ -1,6 +1,5 @@
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
-using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Debug
@@ -10,30 +9,6 @@ namespace Ship_Game.Debug
         Vector2 TextCursor = Vector2.Zero;
         Color TextColor = Color.White;
         Graphics.Font TextFont = Fonts.Arial12Bold;
-        Array<UILabel> DebugText;
-
-        void HideAllDebugGameInfo()
-        {
-            if (DebugText == null) return;
-            for (int i = 0; i < DebugText.Count; i++)
-            {
-                var column = DebugText[i];
-                column.Hide();
-            }
-        }
-
-        void ShowDebugGameInfo(int column, Array<string> lines, float x, float y)
-        {
-            if (DebugText == null)
-                DebugText = new Array<UILabel>();
-
-            if (DebugText.Count <= column)
-                DebugText.Add(Label(x, y, ""));
-
-
-            DebugText[column].Show();
-            DebugText[column].MultilineText = lines;
-        }
 
         void SetTextCursor(float x, float y, Color color)
         {
@@ -41,13 +16,13 @@ namespace Ship_Game.Debug
             TextColor = color;
         }
 
-        void DrawString(string text)
+        public void DrawString(string text)
         {
             ScreenManager.SpriteBatch.DrawString(TextFont, text, TextCursor, TextColor);
             NewLine(text.Count(c => c == '\n') + 1);
         }
 
-        void DrawString(float offsetX, string text)
+        public void DrawString(float offsetX, string text)
         {
             Vector2 pos = TextCursor;
             pos.X += offsetX;
@@ -55,7 +30,7 @@ namespace Ship_Game.Debug
             NewLine(text.Count(c => c == '\n') + 1);
         }
 
-        void DrawString(Color color, string text)
+        public void DrawString(Color color, string text)
         {
             ScreenManager.SpriteBatch.DrawString(TextFont, text, TextCursor, color);
             NewLine(text.Count(c => c == '\n') + 1);

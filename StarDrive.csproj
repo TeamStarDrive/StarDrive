@@ -229,7 +229,19 @@
     <Compile Include="Ship_Game\Data\Serialization\Types\ByteArraySerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\HashSetSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
+    <Compile Include="Ship_Game\Debug\Page\AgentsDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\DefenseCoordinatorDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\EmpireInfoDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\FleetMultipliersDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\InputDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\ParticleDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\PiratesDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\RelationshipDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\RemnantsDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\TargetingDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\TasksDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\TechDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\ThreatMatrixDebug.cs" />
     <Compile Include="Ship_Game\Empire_Fleets.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
@@ -386,7 +398,7 @@
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngageEmpire.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantPortal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngagements.cs" />
-    <Compile Include="Ship_Game\Debug\Page\DebugAO.cs" />
+    <Compile Include="Ship_Game\Debug\Page\AODebug.cs" />
     <Compile Include="Ship_Game\EmpirePersonalityModifiers.cs" />
     <Compile Include="Ship_Game\Empires\Components\EmpireInformation.cs" />
     <Compile Include="Ship_Game\Empires\Components\IncomingThreat.cs" />
@@ -412,7 +424,7 @@
     <Compile Include="Ship_Game\Commands\Goals\ScrapShip.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
     <Compile Include="Ship_Game\Data\LocalizedText.cs" />
-    <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
+    <Compile Include="Ship_Game\Debug\Page\WarDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\SpatialDebug.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
