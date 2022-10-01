@@ -24,7 +24,7 @@ namespace Ship_Game
 
         public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
         public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
-        public int MaxFreightersInQueue => (int)(Math.Ceiling(2 * Research.Strategy.IndustryRatio));
+        public int MaxFreightersInQueue => (int)Math.Ceiling((OwnedPlanets.Count / 3f)).Clamped(1, 5);
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
         public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
         public bool ManualTrade          => isPlayer && !AutoFreighters;
@@ -218,8 +218,7 @@ namespace Ship_Game
                 return;
 
             int beingBuilt = FreightersBeingBuilt;
-            int queueMax = MaxFreightersInQueue;
-            if (beingBuilt < queueMax && (TotalFreighters + beingBuilt) < FreighterCap)
+            if (beingBuilt < MaxFreightersInQueue && (TotalFreighters + beingBuilt) < FreighterCap)
                 AI.AddGoal(new IncreaseFreighters(this));
         }
 
