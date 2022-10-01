@@ -102,7 +102,8 @@ namespace UnitTests.AITests.Empire
             RunObjectsSim(TestSimStep);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
 
-            ship.AI.OrderRefitTo(Homeworld, new RefitShip(ship, "Rocket Scout", Enemy));
+            IShipDesign refitTo = ResourceManager.Ships.GetDesign("Rocket Scout");
+            ship.AI.OrderRefitTo(Homeworld, new RefitShip(ship, refitTo, Enemy));
             RunObjectsSim(TestSimStep);
             Assert.AreEqual(null, ship.Pool, "Ship must be removed from ShipPools after OrderScrap");
         }
