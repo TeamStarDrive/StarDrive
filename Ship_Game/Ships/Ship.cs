@@ -1606,7 +1606,6 @@ namespace Ship_Game.Ships
 
             QueueTotalRemoval(); // sets Active=false
             
-            ++DebugInfoScreen.ShipsDied;
             pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
             pSource?.Module?.GetParent().AddKill(this);
             DamageRelationsOnDeath(pSource);

@@ -3,68 +3,65 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
-namespace Ship_Game.Debug.Page
+namespace Ship_Game.Debug.Page;
+
+internal class PlanetDebug : DebugPage
 {
-    internal class PlanetDebug : DebugPage
+    public PlanetDebug(DebugInfoScreen parent) : base(parent, DebugModes.Planets)
     {
-        readonly UniverseScreen Screen;
-        public PlanetDebug(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Planets)
-        {
-            Screen = screen;
-        }
+    }
 
-        public override void Update(float fixedDeltaTime)
+    public override void Update(float fixedDeltaTime)
+    {
+        Planet planet = Screen.SelectedPlanet;
+        if (planet == null)
         {
-            Planet planet = Screen.SelectedPlanet;
-            if (planet == null)
+            var text = new Array<DebugTextBlock>();
+            foreach (Empire empire in Universe.Empires)
             {
-                var text = new Array<DebugTextBlock>();
-                foreach (Empire empire in Screen.UState.Empires)
-                {
-                    if (!empire.IsFaction && !empire.data.Defeated)
-                        text.Add(empire.DebugEmpirePlanetInfo());
-                }
-                SetTextColumns(text);
+                if (!empire.IsFaction && !empire.data.Defeated)
+                    text.Add(empire.DebugEmpirePlanetInfo());
             }
-            else
-            {
-                SetTextColumns(new Array<DebugTextBlock>{ planet.DebugPlanetInfo() });
-            }
-            base.Update(fixedDeltaTime);
+            SetTextColumns(text);
         }
-
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        else
         {
-            if (!Visible)
-                return;
+            SetTextColumns(new Array<DebugTextBlock>{ planet.DebugPlanetInfo() });
+        }
+        base.Update(fixedDeltaTime);
+    }
 
-            foreach (Empire e in Screen.UState.Empires)
+    public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+    {
+        if (!Visible)
+            return;
+
+        foreach (Empire e in Universe.Empires)
+        {
+            var ships = e.OwnedShips;
+            foreach (Ship ship in ships)
             {
-                var ships = e.OwnedShips;
-                foreach (Ship ship in ships)
-                {
-                    if (ship?.Active != true) continue;
-                    ShipAI ai = ship.AI;
-                    if (ai.State != AIState.SystemTrader) continue;
-                    if (ai.OrderQueue.Count == 0) continue;
-                    Color debugColor = Color.Aqua;
-                    if (ship.GetCargo(Goods.Food) > 0)
-                        debugColor = Color.GreenYellow;
-                    else if (ship.GetCargo(Goods.Production) > 0)
-                        debugColor = Color.SteelBlue;
+                if (ship?.Active != true) continue;
+                ShipAI ai = ship.AI;
+                if (ai.State != AIState.SystemTrader) continue;
+                if (ai.OrderQueue.Count == 0) continue;
+                Color debugColor = Color.Aqua;
+                if (ship.GetCargo(Goods.Food) > 0)
+                    debugColor = Color.GreenYellow;
+                else if (ship.GetCargo(Goods.Production) > 0)
+                    debugColor = Color.SteelBlue;
 
-                    switch (ai.OrderQueue.PeekLast.Plan)
-                    {
-                        case ShipAI.Plan.DropOffGoods:
-                            Screen.DrawCircleProjectedZ(ship.Position, 50f, debugColor, 6);
-                            break;
-                        case ShipAI.Plan.PickupGoods:
-                            Screen.DrawCircleProjectedZ(ship.Position, 50f, debugColor, 3);
-                            break;
-                    }
+                switch (ai.OrderQueue.PeekLast.Plan)
+                {
+                    case ShipAI.Plan.DropOffGoods:
+                        Screen.DrawCircleProjectedZ(ship.Position, 50f, debugColor, 6);
+                        break;
+                    case ShipAI.Plan.PickupGoods:
+                        Screen.DrawCircleProjectedZ(ship.Position, 50f, debugColor, 3);
+                        break;
                 }
             }
-            base.Draw(batch, elapsed);
         }
+        base.Draw(batch, elapsed);
     }
 }
