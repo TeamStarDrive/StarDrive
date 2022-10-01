@@ -22,7 +22,7 @@ namespace Ship_Game
         [StarData] public int AverageFreighterFTLSpeed       { get; private set; } = 20000;
         public int  TotalProdExportSlots          { get; private set; }
 
-        public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
+        public int FreighterCap          => OwnedPlanets.Count * (IsCybernetic ? 2 : 3) + Research.Strategy.ExpansionPriority;
         public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue => (int)Math.Ceiling((OwnedPlanets.Count / 3f)).Clamped(1, 5);
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
