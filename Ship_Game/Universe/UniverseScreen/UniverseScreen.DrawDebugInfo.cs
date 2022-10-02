@@ -65,18 +65,18 @@ namespace Ship_Game
                 DebugStats.EnableItemEvents = true;
 
                 var uObjects = UState.Objects;
-                DebugStats.AddItem(new DebugStatItem("Time",
+                DebugStats.AddItem(new("Time",
                     () => $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime - CurrentSimTime) * 1000:0.0}ms"));
-                DebugStats.AddItem(new DebugStatItem("Ships", () => uObjects.NumShips.ToString()));
-                DebugStats.AddItem(new DebugStatItem("Proj", () => uObjects.NumProjectiles.ToString()));
-                DebugStats.AddItem(new DebugStatItem("DyLights", () => ScreenManager.ActiveDynamicLights.ToString()));
-                DebugStats.AddItem(new DebugStatItem("Perf", () => "avg-sample  max-sample  total/sec"));
+                DebugStats.AddItem(new("Ships", () => uObjects.NumShips.ToString()));
+                DebugStats.AddItem(new("Proj", () => uObjects.NumProjectiles.ToString()));
+                DebugStats.AddItem(new("DyLights", () => ScreenManager.ActiveDynamicLights.ToString()));
+                DebugStats.AddItem(new("Perf", () => "avg-sample  max-sample  total/sec"));
 
-                var sim = DebugStats.AddItem(new DebugStatItem("Sim", ProcessSimTurnsPerf, true));
+                var sim = DebugStats.AddItem(new("Sim", ProcessSimTurnsPerf, true));
                 sim.AddSubItem(new DebugStatItem("FPS", () => $"actual:{ActualSimFPS}  target:{CurrentSimFPS}"));
                 sim.AddSubItem(new DebugStatItem("NumTurns", () => ProcessSimTurnsPerf.MeasuredSamples.ToString()));
 
-                var turn = DebugStats.AddItem(new DebugStatItem("Turn", TurnTimePerf, true));
+                var turn = DebugStats.AddItem(new("Turn", TurnTimePerf, true));
                 turn.AddSubItem(new DebugStatItem("PreEmp", PreEmpirePerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Empire", EmpireUpdatePerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Influence", EmpireInfluPerf, TurnTimePerf));
@@ -87,7 +87,7 @@ namespace Ship_Game
                 turn.AddSubItem(new DebugStatItem("Misc", EmpireMiscPerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("PostEmp", PostEmpirePerf, TurnTimePerf));
 
-                var objects = DebugStats.AddItem(new DebugStatItem("Objects", uObjects.TotalTime, true));
+                var objects = DebugStats.AddItem(new("Objects", uObjects.TotalTime, true));
                 objects.AddSubItem(new DebugStatItem("List", uObjects.ListTime, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("SysShips", uObjects.SysShipsPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Systems", uObjects.SysPerf, uObjects.TotalTime));
@@ -101,9 +101,9 @@ namespace Ship_Game
                 objects.AddSubItem(new DebugStatItem("Sensors", uObjects.SensorPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("    Sensors", () => $"current:{uObjects.Scans} per/s:{uObjects.ScansPerSec}"));
 
-                DebugStats.AddItem(new DebugStatItem("TotalDraw", DrawGroupTotalPerf, true));
+                DebugStats.AddItem(new("TotalDraw", DrawGroupTotalPerf, true));
 
-                var render = DebugStats.AddItem(new DebugStatItem("Render", RenderGroupTotalPerf, true));
+                var render = DebugStats.AddItem(new("Render", RenderGroupTotalPerf, true));
                 render.AddSubItem(new DebugStatItem("Sunburn.Begin", BeginSunburnPerf, RenderGroupTotalPerf));
                 render.AddSubItem(new DebugStatItem("Backdrop", BackdropPerf, RenderGroupTotalPerf));
                 render.AddSubItem(new DebugStatItem("Sunburn.Draw", SunburnDrawPerf, RenderGroupTotalPerf));
@@ -113,13 +113,13 @@ namespace Ship_Game
                 render.AddSubItem(new DebugStatItem("Explosions", DrawExplosionsPerf, RenderGroupTotalPerf));
                 render.AddSubItem(new DebugStatItem("Sunburn.End", EndSunburnPerf, RenderGroupTotalPerf));
 
-                var overlays = DebugStats.AddItem(new DebugStatItem("Overlays", OverlaysGroupTotalPerf, true));
+                var overlays = DebugStats.AddItem(new("Overlays", OverlaysGroupTotalPerf, true));
                 overlays.AddSubItem(new DebugStatItem("Influence", DrawFogInfluence, OverlaysGroupTotalPerf));
                 overlays.AddSubItem(new DebugStatItem("Borders", DrawBorders, OverlaysGroupTotalPerf));
                 overlays.AddSubItem(new DebugStatItem("FogOfWar", DrawFogOfWar, OverlaysGroupTotalPerf));
                 overlays.AddSubItem(new DebugStatItem("OverFog", DrawOverFog, OverlaysGroupTotalPerf));
 
-                var icons = DebugStats.AddItem(new DebugStatItem("Icons", IconsGroupTotalPerf, true));
+                var icons = DebugStats.AddItem(new("Icons", IconsGroupTotalPerf, true));
                 icons.AddSubItem(new DebugStatItem("Projectiles", DrawProj, IconsGroupTotalPerf));
                 icons.AddSubItem(new DebugStatItem("ShipOveray", DrawShips, IconsGroupTotalPerf));
                 icons.AddSubItem(new DebugStatItem("Icons", DrawIcons, IconsGroupTotalPerf));

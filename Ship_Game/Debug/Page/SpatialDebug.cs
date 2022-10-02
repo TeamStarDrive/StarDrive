@@ -84,25 +84,25 @@ internal class SpatialDebug : DebugPage
 
         Spatial.DebugVisualize(Screen);
 
-        SetTextCursor(50, 80, Color.White);
-        DrawString($"Type: {Spatial.Name}");
-        DrawString($"Collisions: {Spatial.Collisions}");
-        DrawString($"ActiveObjects: {Spatial.Count}");
-        DrawString($"FindNearby W={(int)SearchArea.Width} H={(int)SearchArea.Height}");
-        DrawString($"FindNearby {Found.Length}  {FindElapsed*1000,4:0.000}ms");
+        Text.SetCursor(50, 80, Color.White);
+        Text.String($"Type: {Spatial.Name}");
+        Text.String($"Collisions: {Spatial.Collisions}");
+        Text.String($"ActiveObjects: {Spatial.Count}");
+        Text.String($"FindNearby W={(int)SearchArea.Width} H={(int)SearchArea.Height}");
+        Text.String($"FindNearby {Found.Length}  {FindElapsed*1000,4:0.000}ms");
 
         Ship ship = Screen.SelectedShip;
         if (ship != null)
         {
-            SetTextCursor(Width - 150f, 250f, Color.White);
+            Text.SetCursor(Width - 150f, 250f, Color.White);
 
             float radius = ship.AI.GetSensorRadius();
             ship.AI.ScanForFriendlies(ship, radius);
             ship.AI.ScanForEnemies(ship, radius);
 
-            DrawString($"ScanRadius: {radius}");
-            DrawString($"Friends: {ship.AI.FriendliesNearby.Length}");
-            DrawString($"Enemies: {ship.AI.PotentialTargets.Length}");
+            Text.String($"ScanRadius: {radius}");
+            Text.String($"Friends: {ship.AI.FriendliesNearby.Length}");
+            Text.String($"Enemies: {ship.AI.PotentialTargets.Length}");
         }
 
         base.Draw(batch, elapsed);

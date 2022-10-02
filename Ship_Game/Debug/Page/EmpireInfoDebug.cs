@@ -35,82 +35,81 @@ public class EmpireInfoDebug : DebugPage
     void DrawEmpire(Empire e, int column)
     {
         EmpireAI eAI = e.AI;
-        SetTextCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 95, e.EmpireColor);
-        DrawString(e.data.Traits.Name);
+        Text.SetCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 95, e.EmpireColor);
+        Text.String(e.data.Traits.Name);
 
         if (e.data.DiplomaticPersonality != null)
         {
-            DrawString(e.data.DiplomaticPersonality.Name);
-            DrawString(e.data.EconomicPersonality.Name);
+            Text.String(e.data.DiplomaticPersonality.Name);
+            Text.String(e.data.EconomicPersonality.Name);
         }
-        DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
+        Text.String($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
        
-        DrawString($"Treasury Goal: {(int)eAI.ProjectedMoney} {(int)( e.AI.CreditRating * 100)}%");
+        Text.String($"Treasury Goal: {(int)eAI.ProjectedMoney} {(int)( e.AI.CreditRating * 100)}%");
         float taxRate = e.data.TaxRate * 100f;
         
         var ships = e.OwnedShips;
-        DrawString($"Threat : av:{eAI.ThreatLevel:#0.00} $:{eAI.EconomicThreat:#0.00} " +
-                   $"b:{eAI.BorderThreat:#0.00} e:{eAI.EnemyThreat:#0.00}");
-        DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
-        DrawString($"War Maint:  ({(int)e.AI.BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
-                   $"Trp:{(int)(e.TotalTroopShipMaintenance + e.TroopCostOnPlanets)}");
+        Text.String($"Threat : av:{eAI.ThreatLevel:#0.00} $:{eAI.EconomicThreat:#0.00} " +
+                    $"b:{eAI.BorderThreat:#0.00} e:{eAI.EnemyThreat:#0.00}");
+        Text.String("Tax Rate:     "+taxRate.ToString("#.0")+"%");
+        Text.String($"War Maint:  ({(int)e.AI.BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
+                    $"Trp:{(int)(e.TotalTroopShipMaintenance + e.TroopCostOnPlanets)}");
 
         var warShips = ships.Filter(s => s.DesignRoleType == RoleType.Warship ||
                                          s.DesignRoleType == RoleType.WarSupport ||
                                          s.DesignRoleType == RoleType.Troop);
-        DrawString($"   #:({warShips.Length})" +
-                   $" f{warShips.Count(warship => warship?.DesignRole == RoleName.fighter || warship?.DesignRole == RoleName.corvette)}" +
-                   $" g{warShips.Count(warship => warship?.DesignRole == RoleName.frigate || warship.DesignRole == RoleName.prototype)}" +
-                   $" c{warShips.Count(warship => warship?.DesignRole == RoleName.cruiser)}" +
-                   $" b{warShips.Count(warship => warship?.DesignRole == RoleName.battleship)}" +
-                   $" c{warShips.Count(warship => warship?.DesignRole == RoleName.capital)}" +
-                   $" v{warShips.Count(warship => warship?.DesignRole == RoleName.carrier)}" +
-                   $" m{warShips.Count(warship => warship?.DesignRole == RoleName.bomber)}"
-                   );
-        DrawString("Civ Maint:  " +
-                   $"({(int)e.AI.CivShipBudget}) {(int)e.TotalCivShipMaintenance} " +
-                   $"#{ships.Count(freighter => freighter?.DesignRoleType == RoleType.Civilian)} " +
-                   $"Inc({e.AverageTradeIncome})");
-        DrawString($"Other Ship Maint:  Orb:{(int)e.TotalOrbitalMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}" +
-                   $" #{ships.Count(warship => warship?.DesignRole == RoleName.platform || warship?.DesignRole == RoleName.station)}");
-        DrawString($"Scrap:  {(int)e.TotalMaintenanceInScrap}");
+        Text.String($"   #:({warShips.Length})" +
+                    $" f{warShips.Count(warship => warship?.DesignRole == RoleName.fighter || warship?.DesignRole == RoleName.corvette)}" +
+                    $" g{warShips.Count(warship => warship?.DesignRole == RoleName.frigate || warship.DesignRole == RoleName.prototype)}" +
+                    $" c{warShips.Count(warship => warship?.DesignRole == RoleName.cruiser)}" +
+                    $" b{warShips.Count(warship => warship?.DesignRole == RoleName.battleship)}" +
+                    $" c{warShips.Count(warship => warship?.DesignRole == RoleName.capital)}" +
+                    $" v{warShips.Count(warship => warship?.DesignRole == RoleName.carrier)}" +
+                    $" m{warShips.Count(warship => warship?.DesignRole == RoleName.bomber)}");
+        Text.String("Civ Maint:  " +
+                    $"({(int)e.AI.CivShipBudget}) {(int)e.TotalCivShipMaintenance} " +
+                    $"#{ships.Count(freighter => freighter?.DesignRoleType == RoleType.Civilian)} " +
+                    $"Inc({e.AverageTradeIncome})");
+        Text.String($"Other Ship Maint:  Orb:{(int)e.TotalOrbitalMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}" +
+                    $" #{ships.Count(warship => warship?.DesignRole == RoleName.platform || warship?.DesignRole == RoleName.station)}");
+        Text.String($"Scrap:  {(int)e.TotalMaintenanceInScrap}");
 
-        DrawString($"Build Maint:   ({(int)e.data.ColonyBudget}) {(int)e.TotalBuildingMaintenance}");
-        DrawString($"Spy Count:     ({(int)e.data.SpyBudget}) {e.data.AgentList.Count}");
-        DrawString("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
-        DrawString("Planet Count:  "+e.GetPlanets().Count);
+        Text.String($"Build Maint:   ({(int)e.data.ColonyBudget}) {(int)e.TotalBuildingMaintenance}");
+        Text.String($"Spy Count:     ({(int)e.data.SpyBudget}) {e.data.AgentList.Count}");
+        Text.String("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
+        Text.String("Planet Count:  "+e.GetPlanets().Count);
         if (e.Research.HasTopic)
         {
-            DrawString($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0}({e.Research.NetResearch.String()})");
-            DrawString("   --" + e.Research.Topic);
+            Text.String($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0}({e.Research.NetResearch.String()})");
+            Text.String("   --" + e.Research.Topic);
         }
         else
         {
-            NewLine(2);
+            Text.NewLine(2);
         }
 
-        NewLine(3);
-        DrawString("Total Pop: "+ e.TotalPopBillion.String(1) 
-                                + "/" + e.MaxPopBillion.String(1) 
-                                + "/" + e.GetTotalPopPotential().String(1));
+        Text.NewLine(3);
+        Text.String("Total Pop: "+ e.TotalPopBillion.String(1) 
+                                 + "/" + e.MaxPopBillion.String(1) 
+                                 + "/" + e.GetTotalPopPotential().String(1));
 
-        DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
-        DrawString("Military Str: "+ (int)e.CurrentMilitaryStrength);
-        DrawString("Offensive Str: " + (int)e.OffensiveStrength);
-        DrawString($"Fleets: Str: {(int)e.AIManagedShips.InitialStrength} Avail: {e.AIManagedShips.InitialReadyFleets}");
+        Text.String("Gross Food: "+ e.GetGrossFoodPerTurn().String());
+        Text.String("Military Str: "+ (int)e.CurrentMilitaryStrength);
+        Text.String("Offensive Str: " + (int)e.OffensiveStrength);
+        Text.String($"Fleets: Str: {(int)e.AIManagedShips.InitialStrength} Avail: {e.AIManagedShips.InitialReadyFleets}");
         
         for (int x = 0; x < e.AI.Goals.Count; x++)
         {
             Goal g = e.AI.Goals[x];
             if (g is MarkForColonization)
             {
-                NewLine();
-                DrawString($"{g.TypeName} {g.TargetPlanet.Name}" +
-                           $" (x{e.GetFleetStrEmpireMultiplier(g.TargetEmpire).String(1)})");
+                Text.NewLine();
+                Text.String($"{g.TypeName} {g.TargetPlanet.Name}" +
+                            $" (x{e.GetFleetStrEmpireMultiplier(g.TargetEmpire).String(1)})");
 
-                DrawString(15f, $"Step: {g.StepName}");
+                Text.String(15f, $"Step: {g.StepName}");
                 if (g.FinishedShip != null && g.FinishedShip.Active)
-                    DrawString(15f, "Has ship");
+                    Text.String(15f, "Has ship");
             }
         }
 
@@ -126,48 +125,48 @@ public class EmpireInfoDebug : DebugPage
                     sysName = sys.Name;
             }
 
-            NewLine();
+            Text.NewLine();
             var planet =task.TargetPlanet?.Name ?? "";
-            DrawString($"FleetTask: {task.Type} {sysName} {planet}");
-            DrawString(15f, $"Priority:{task.Priority}");
+            Text.String($"FleetTask: {task.Type} {sysName} {planet}");
+            Text.String(15f, $"Priority:{task.Priority}");
             float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
             string strMultiplier = $" (x{e.GetFleetStrEmpireMultiplier(task.TargetEmpire).String(1)})";
             
-            DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength} {strMultiplier}");
+            Text.String(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength} {strMultiplier}");
             if (task.WhichFleet != -1)
             {
-                DrawString(15f, "Fleet: " + task.Fleet?.Name);
-                DrawString(15f, $" Ships: {task.Fleet?.Ships.Count} CanWin: {task.Fleet?.CanTakeThisFight(task.EnemyStrength, task,true)}");
+                Text.String(15f, "Fleet: " + task.Fleet?.Name);
+                Text.String(15f, $" Ships: {task.Fleet?.Ships.Count} CanWin: {task.Fleet?.CanTakeThisFight(task.EnemyStrength, task,true)}");
             }
         }
 
-        NewLine();
+        Text.NewLine();
         foreach (Relationship rel in e.AllRelations)
         {
             string plural = rel.Them.data.Traits.Plural;
-            TextColor = rel.Them.EmpireColor;
+            Text.Color = rel.Them.EmpireColor;
             if (rel.Treaty_NAPact)
-                DrawString(15f, "NA Pact with " + plural);
+                Text.String(15f, "NA Pact with " + plural);
 
             if (rel.Treaty_Trade)
-                DrawString(15f, "Trade Pact with " + plural);
+                Text.String(15f, "Trade Pact with " + plural);
 
             if (rel.Treaty_OpenBorders)
-                DrawString(15f, "Open Borders with " + plural);
+                Text.String(15f, "Open Borders with " + plural);
 
             if (rel.AtWar)
-                DrawString(15f, $"War with {plural} ({rel.ActiveWar?.WarType})");
+                Text.String(15f, $"War with {plural} ({rel.ActiveWar?.WarType})");
         }
 
         if (Screen.SelectedSystem != null)
         {
-            SetTextCursor(Parent.Win.X + 10, 600f, Color.White);
+            Text.SetCursor(Parent.Win.X + 10, 600f, Color.White);
             foreach (Ship ship in Screen.SelectedSystem.ShipList)
             {
-                DrawString(ship?.Active == true ? ship.Name : ship?.Name + " (inactive)");
+                Text.String(ship?.Active == true ? ship.Name : ship?.Name + " (inactive)");
             }
 
-            SetTextCursor(Parent.Win.X + 300, 600f, Color.White);
+            Text.SetCursor(Parent.Win.X + 300, 600f, Color.White);
         }
     }
 

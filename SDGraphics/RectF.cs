@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
 
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaRect = Microsoft.Xna.Framework.Rectangle;
@@ -59,6 +58,14 @@ public struct RectF
         Y = pos.Y;
         W = w;
         H = h;
+    }
+
+    public RectF(float x, float y, Vector2 size)
+    {
+        X = x;
+        Y = y;
+        W = size.X;
+        H = size.Y;
     }
 
     public RectF(Vector2 pos, Vector2 size)
@@ -212,4 +219,9 @@ public struct RectF
         float extrudeY = (H*extrude);
         return new RectF(X - extrudeX, Y - extrudeY, W + extrudeX*2, H + extrudeY*2);
     }
+
+    // Cut a chunk off the top of the rectangle
+    [Pure]
+    public readonly RectF CutTop(int amount) => new(X, Y + amount, W, H - amount);
+
 }

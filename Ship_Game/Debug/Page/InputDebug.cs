@@ -15,18 +15,18 @@ public class InputDebug : DebugPage
         if (!Visible)
             return;
 
-        SetTextCursor(50, 100, Color.White);
-        DrawString($"Mouse Moved {Screen.Input.MouseMoved}");
+        Text.SetCursor(50, 100, Color.White);
+        Text.String($"Mouse Moved {Screen.Input.MouseMoved}");
 
-        DrawString($"RightHold Held  {Screen.Input.RightHold.IsHolding}");
-        DrawString($"RightHold Time  {Screen.Input.RightHold.Time}");
-        DrawString($"RightHold Start {Screen.Input.RightHold.StartPos}");
-        DrawString($"RightHold End   {Screen.Input.RightHold.EndPos}");
+        Text.String($"RightHold Held  {Screen.Input.RightHold.IsHolding}");
+        Text.String($"RightHold Time  {Screen.Input.RightHold.Time}");
+        Text.String($"RightHold Start {Screen.Input.RightHold.StartPos}");
+        Text.String($"RightHold End   {Screen.Input.RightHold.EndPos}");
 
-        DrawString($"LeftHold Held   {Screen.Input.LeftHold.IsHolding}");
-        DrawString($"LeftHold Time   {Screen.Input.LeftHold.Time}");
-        DrawString($"LeftHold Start  {Screen.Input.LeftHold.StartPos}");
-        DrawString($"LeftHold End    {Screen.Input.LeftHold.EndPos}");
+        Text.String($"LeftHold Held   {Screen.Input.LeftHold.IsHolding}");
+        Text.String($"LeftHold Time   {Screen.Input.LeftHold.Time}");
+        Text.String($"LeftHold Start  {Screen.Input.LeftHold.StartPos}");
+        Text.String($"LeftHold End    {Screen.Input.LeftHold.EndPos}");
 
         base.Draw(batch, elapsed);
     }

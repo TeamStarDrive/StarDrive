@@ -19,40 +19,40 @@ public class RemnantsDebug : DebugPage
             return;
 
         Empire e = Universe.Remnants;
-        SetTextCursor(Parent.Win.X + 10 + 255, Parent.Win.Y + 250, e.EmpireColor);
-        DrawString($"Remnant Story: {e.Remnants.Story}");
-        DrawString(!e.Remnants.Activated
+        Text.SetCursor(Parent.Win.X + 10 + 255, Parent.Win.Y + 250, e.EmpireColor);
+        Text.String($"Remnant Story: {e.Remnants.Story}");
+        Text.String(!e.Remnants.Activated
             ? $"Trigger Progress: {e.Remnants.StoryTriggerKillsXp}/{e.Remnants.ActivationXpNeeded.String()}"
             : $"Level Up Stardate: {e.Remnants.NextLevelUpDate}");
 
-        DrawString(!e.Remnants.Hibernating
+        Text.String(!e.Remnants.Hibernating
             ? $"Next Hibernation in: {e.Remnants.NextLevelUpDate - e.Remnants.NeededHibernationTurns / 10f}"
             : $"Hibernating for: {e.Remnants.HibernationTurns} turns");
 
         string activatedString = e.Remnants.Activated ? "Yes" : "No";
         activatedString        = e.data.Defeated ? "Defeated" : activatedString;
-        DrawString($"Activated: {activatedString}");
-        DrawString($"Level: {e.Remnants.Level}");
-        DrawString($"Resources: {e.Remnants.Production.String()}");
-        NewLine();
-        DrawString("Empires Population and Strength:");
+        Text.String($"Activated: {activatedString}");
+        Text.String($"Level: {e.Remnants.Level}");
+        Text.String($"Resources: {e.Remnants.Production.String()}");
+        Text.NewLine();
+        Text.String("Empires Population and Strength:");
         for (int i = 0; i < Universe.MajorEmpires.Length; i++)
         {
             Empire empire = Universe.MajorEmpires[i];
             if (!empire.data.Defeated)
-                DrawString(empire.EmpireColor, $"{empire.data.Name} - Pop: {empire.TotalPopBillion.String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
+                Text.String(empire.EmpireColor, $"{empire.data.Name} - Pop: {empire.TotalPopBillion.String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
         }
 
         var empiresList = GlobalStats.RestrictAIPlayerInteraction ? Universe.NonPlayerMajorEmpires.Filter(emp => !emp.data.Defeated)
                                                                   : Universe.MajorEmpires.Filter(emp => !emp.data.Defeated);
 
-        NewLine();
+        Text.NewLine();
         float averagePop = empiresList.Average(empire => empire.TotalPopBillion);
         float averageStr = empiresList.Average(empire => empire.CurrentMilitaryStrength);
-        DrawString($"AI Empire Average Pop:         {averagePop.String(1)}");
-        DrawString($"AI Empire Average Strength: {averageStr.String(0)}");
+        Text.String($"AI Empire Average Pop:         {averagePop.String(1)}");
+        Text.String($"AI Empire Average Strength: {averageStr.String(0)}");
 
-        NewLine();
+        Text.NewLine();
         Empire bestPop  = empiresList.FindMax(empire => empire.TotalPopBillion);
         Empire bestStr  = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
         Empire worstStr = empiresList.FindMin(empire => empire.CurrentMilitaryStrength);
@@ -61,34 +61,34 @@ public class RemnantsDebug : DebugPage
         float diffFromAverageStrBest  = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
         float diffFromAverageStrWorst = worstStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
 
-        DrawString(bestPop.EmpireColor, $"Highest Pop Empire: {bestPop.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
-        DrawString(bestStr.EmpireColor, $"Strongest Empire:   {bestStr.data.Name} ({(diffFromAverageStrBest - 100).String(1)}% above average)");
-        DrawString(worstStr.EmpireColor, $"Weakest Empire:     {worstStr.data.Name} ({(diffFromAverageStrWorst - 100).String(1)}% below average)");
+        Text.String(bestPop.EmpireColor, $"Highest Pop Empire: {bestPop.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
+        Text.String(bestStr.EmpireColor, $"Strongest Empire:   {bestStr.data.Name} ({(diffFromAverageStrBest - 100).String(1)}% above average)");
+        Text.String(worstStr.EmpireColor, $"Weakest Empire:     {worstStr.data.Name} ({(diffFromAverageStrWorst - 100).String(1)}% below average)");
 
-        NewLine();
-        DrawString("Goals:");
+        Text.NewLine();
+        Text.String("Goals:");
         foreach (Goal goal in e.AI.Goals)
         {
             if (goal.TargetPlanet != null)
             {
                 Color color = goal.TargetPlanet.Owner?.EmpireColor ?? e.EmpireColor;
-                DrawString(color, $"{goal.Type}, Target Planet: {goal.TargetPlanet.Name}");
+                Text.String(color, $"{goal.Type}, Target Planet: {goal.TargetPlanet.Name}");
             }
             else
             {
-                DrawString($"{goal.Type}");
+                Text.String($"{goal.Type}");
             }
         }
 
-        NewLine();
-        DrawString("Fleets:");
+        Text.NewLine();
+        Text.String("Fleets:");
         foreach (Fleet fleet in e.Fleets)
         {
             if (fleet.FleetTask == null)
                 continue;
 
             Color color = fleet.FleetTask.TargetPlanet?.Owner?.EmpireColor ?? e.EmpireColor;
-            DrawString(color,$"Target Planet: {fleet.FleetTask.TargetPlanet?.Name ?? ""}, Ships: {fleet.Ships.Count}" +
+            Text.String(color,$"Target Planet: {fleet.FleetTask.TargetPlanet?.Name ?? ""}, Ships: {fleet.Ships.Count}" +
                               $", str: {fleet.GetStrength().String()}, Task Step: {fleet.TaskStep}");
         }
 

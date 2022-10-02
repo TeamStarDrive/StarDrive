@@ -9,6 +9,7 @@ using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
+using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -24,29 +25,34 @@ namespace Ship_Game
         readonly Submenu ActiveModSubMenu;
         readonly TexturedButton Obsolete;
 
-        public ModuleSelection(ShipDesignScreen screen, in Rectangle window) : base(window)
+        public ModuleSelection(ShipDesignScreen screen, LocalPos pos, Vector2 size) : base(pos, size)
         {
             Screen = screen;
             // rounded black background
-            Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210));
+            SetBackground(new(0,0,0,210));
 
             AddTab("Wpn");
             AddTab("Pwr");
             AddTab("Def");
             AddTab("Spc");
-            ModuleSelectList = Add(new ModuleSelectScrollList(this, Screen));
+            base.PerformLayout();
+
+            ModuleSelectList = Add(new ModuleSelectScrollList(LocalPos.Zero, Size, Screen));
 
             var acsub = new Rectangle(Rect.X, Rect.Bottom + 15, 305, 400);
 
             ActiveModSubMenu = Add(new Submenu(acsub));
             ActiveModSubMenu.AddTab("Active Module");
             // rounded black background
-            ActiveModSubMenu.Background = new Selector(ActiveModSubMenu.Rect.CutTop(25), new Color(0, 0, 0, 210));
+            ActiveModSubMenu.SetBackground(new(0,0,0,210));
+
+            // obsolete button
             int obsoleteW = ResourceManager.Texture("NewUI/icon_queue_delete").Width;
             int obsoleteH = ResourceManager.Texture("NewUI/icon_queue_delete").Height;
-            Rectangle obsoletePos = new Rectangle((int)(ActiveModSubMenu.X + ActiveModSubMenu.Width - obsoleteW - 10), (int)ActiveModSubMenu.Y + 38, obsoleteW, obsoleteH);
-            Obsolete = new TexturedButton(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
+            var obsoletePos = new RectF(ActiveModSubMenu.X + ActiveModSubMenu.Width - obsoleteW - 10, ActiveModSubMenu.Y + 38, obsoleteW, obsoleteH);
+            Obsolete = new(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
             Obsolete.Tooltip = GameText.MarkThisModuleAsObsolete;
+            
             var chooseFighterRect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
             if (chooseFighterRect.Bottom > Screen.ScreenHeight)
             {

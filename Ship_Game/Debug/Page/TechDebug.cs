@@ -16,7 +16,7 @@ public class TechDebug : DebugPage
         if (!Visible)
             return;
 
-        TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
+        Text.Cursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
         int column = 0;
         foreach (Empire e in Universe.Empires)
         {
@@ -31,28 +31,29 @@ public class TechDebug : DebugPage
     }
     void DrawEmpireTech(Empire e, int column)
     {
-        SetTextCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 10, e.EmpireColor);
-        DrawString(e.data.Traits.Name);
+        Text.SetCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 10, e.EmpireColor);
+        Text.String(e.data.Traits.Name);
 
         if (e.data.DiplomaticPersonality != null)
         {
-            DrawString(e.data.DiplomaticPersonality.Name);
-            DrawString(e.data.EconomicPersonality.Name);
+            Text.String(e.data.DiplomaticPersonality.Name);
+            Text.String(e.data.EconomicPersonality.Name);
         }
 
-        DrawString($"Corvettes: {e.canBuildCorvettes}");
-        DrawString($"Frigates: {e.canBuildFrigates}");
-        DrawString($"Cruisers: {e.canBuildCruisers}");
-        DrawString($"Battleships: {e.CanBuildBattleships}");
-        DrawString($"Capitals: {e.canBuildCapitals}");
-        DrawString($"Bombers: {e.canBuildBombers}");
-        DrawString($"Carriers: {e.canBuildCarriers}");
-        DrawString($"Troopships: {e.canBuildTroopShips}");
-        NewLine();
+        Text.String($"Corvettes: {e.canBuildCorvettes}");
+        Text.String($"Frigates: {e.canBuildFrigates}");
+        Text.String($"Cruisers: {e.canBuildCruisers}");
+        Text.String($"Battleships: {e.CanBuildBattleships}");
+        Text.String($"Capitals: {e.canBuildCapitals}");
+        Text.String($"Bombers: {e.canBuildBombers}");
+        Text.String($"Carriers: {e.canBuildCarriers}");
+        Text.String($"Troopships: {e.canBuildTroopShips}");
+        Text.NewLine();
+
         if (e.Research.HasTopic)
         {
-            DrawString($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0} ({e.Research.NetResearch.String()} / {e.Research.MaxResearchPotential.String()})");
-            DrawString("   --" + e.Research.Topic);
+            Text.String($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0} ({e.Research.NetResearch.String()} / {e.Research.MaxResearchPotential.String()})");
+            Text.String("   --" + e.Research.Topic);
             Ship bestShip = e.AI.TechChooser.LineFocus.BestCombatShip;
             if (bestShip != null)
             {
@@ -61,19 +62,20 @@ public class TechDebug : DebugPage
                 foreach(var tech in neededTechs)
                     techCost += e.TechCost(tech);
 
-                DrawString($"Ship : {bestShip.Name}");
-                DrawString($"Hull : {bestShip.BaseHull.Role}");
-                DrawString($"Role : {bestShip.DesignRole}");
-                DrawString($"Str : {(int)bestShip.BaseStrength} - Tech : {techCost}");
+                Text.String($"Ship : {bestShip.Name}");
+                Text.String($"Hull : {bestShip.BaseHull.Role}");
+                Text.String($"Role : {bestShip.DesignRole}");
+                Text.String($"Str : {(int)bestShip.BaseStrength} - Tech : {techCost}");
             }
         }
-        DrawString("");
+
         if (Parent.GetResearchLog(e, out var empireLog))
         {
+            Text.NewLine();
             for (int x = 0; x < empireLog.Count - 1; x++)
             {
                 var text = empireLog[x];
-                DrawString(text ?? "Error");
+                Text.String(text ?? "Error");
             }
         }
     }

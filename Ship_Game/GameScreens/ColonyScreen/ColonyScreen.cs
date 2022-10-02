@@ -208,11 +208,11 @@ namespace Ship_Game
                 Pos     = new Vector2(filterRect.Right + 10, filterRect.Y + 3)
             });
 
-            BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 40, 
-                                        RightMenu.Width - 40, 0.5f*(RightMenu.Height-40));
+            BuildableTabs = Add(new Submenu(RightMenu.X + 20, RightMenu.Y + 40, 
+                                            RightMenu.Width - 40, 0.5f*(RightMenu.Height-40)));
             BuildableTabs.OnTabChange = OnBuildableTabChanged;
 
-            BuildableList = Add(new ScrollList2<BuildableListItem>(BuildableTabs));
+            BuildableList = BuildableTabs.Add(new ScrollList2<BuildableListItem>(BuildableTabs.Rect.CutTop(5)));
             BuildableList.EnableItemHighlight = true;
             BuildableList.OnDoubleClick       = OnBuildableItemDoubleClicked;
             BuildableList.OnHovered           = OnBuildableHoverChange;
@@ -227,10 +227,13 @@ namespace Ship_Game
 
             ResetBuildableTabs();
 
-            var queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 60 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - BuildableTabs.Height - 75);
+            float queueBottom = RightMenu.Bottom - 20;
+            float queueTop = BuildableTabs.Bottom + 10;
+            var queue = new Submenu(RightMenu.X + 20, queueTop, RightMenu.Width - 40, queueBottom - queueTop);
             queue.AddTab(Localizer.Token(GameText.ConstructionQueue));
+            Add(queue);
 
-            ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
+            ConstructionQueue = queue.Add(new ScrollList2<ConstructionQueueScrollListItem>(queue.Rect.CutTop(5)));
             ConstructionQueue.EnableItemHighlight = true;
             ConstructionQueue.OnHovered = OnConstructionItemHovered;
             if (p.OwnerIsPlayer || p.Universe.Debug)

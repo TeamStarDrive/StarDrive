@@ -11,6 +11,7 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 using Ship_Game.Universe;
 using Point = SDGraphics.Point;
 using Rectangle = SDGraphics.Rectangle;
@@ -449,7 +450,7 @@ namespace Ship_Game
         void CreateGUI()
         {
             RemoveAll();
-            ModuleSelectComponent = Add(new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490))));
+            ModuleSelectComponent = Add(new ModuleSelection(this, new(5, LowRes ? 45 : 100), new(305, LowRes ? 350 : 490)));
 
             BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
             ClassifCursor = new Vector2(ScreenWidth * .5f,ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
@@ -529,18 +530,19 @@ namespace Ship_Game
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomListRight.Y, 210, 25);
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
 
-            int hullSelY = SelectSize(45, 100, 100);
             int hullSelW = SelectSize(260, 280, 320);
             int hullSelH = SelectSize(250, 400, 500);
-            var hullSelectionBkg = new Submenu(ScreenWidth - 285, hullSelY, hullSelW, hullSelH);
+            var hullSelectPos = new LocalPos(ScreenWidth - hullSelW, ModuleSelectComponent.LocalPos.Y);
+            var hullSelBkg = Add(new Submenu(hullSelectPos, new(hullSelW, hullSelH)));
             // rounded black background
-            hullSelectionBkg.Background = new Selector(hullSelectionBkg.Rect.CutTop(25), new Color(0,0,0,210));
-            hullSelectionBkg.AddTab(Localizer.Token(GameText.SelectHull));
+            hullSelBkg.SetBackground(new Color(0,0,0,210));
+            hullSelBkg.AddTab(Localizer.Token(GameText.SelectHull));
 
-            HullSelectList = Add(new ScrollList2<ShipHullListItem>(hullSelectionBkg));
+            HullSelectList = hullSelBkg.Add(new ScrollList2<ShipHullListItem>(new LocalPos(0,5), new(hullSelW, hullSelH)));
             HullSelectList.OnClick = OnHullListItemClicked;
             HullSelectList.EnableItemHighlight = true;
             RefreshHullSelectList();
+            hullSelBkg.PerformLayout();
 
             var dropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 125, 18);
 
@@ -574,7 +576,7 @@ namespace Ship_Game
                 debugUnlocks.SetAbsPos(10, 45);
             }
 
-            CloseButton(ScreenWidth - 27, 99);
+            CloseButton(ScreenWidth - 27, 75);
         }
 
         void UpdateAvailableHulls()
