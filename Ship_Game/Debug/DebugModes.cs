@@ -14,7 +14,7 @@ public enum DebugModes
     SpatialManager,
     Input,
     Tech,
-    Solar, // Sun timers, black hole data, pulsar radiation radius...
+    Solar, // Sun timers, black hole data, pulsar radiation radius, InfluenceTree
     War,
     Pirates,
     Remnants,
@@ -24,6 +24,10 @@ public enum DebugModes
     StoryAndEvents,
     Tasks,
     Particles,
+
+
+    // this should always be the last valid page
+    Perf,
 
     // special value, turns debug mode off
     Disabled,

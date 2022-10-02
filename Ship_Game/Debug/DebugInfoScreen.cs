@@ -8,7 +8,6 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Universe;
 using System.Linq;
-using Ship_Game.UI;
 
 namespace Ship_Game.Debug;
 
@@ -41,6 +40,8 @@ public sealed partial class DebugInfoScreen : GameScreen
         {
             ModesTab.AddTab(mode.ToString());
         }
+
+        ModesTab.SelectedIndex = (int)Mode;
             
         ShipInfoPanel = ModesTab.Add(new ShipInfoPanel(this, new(10,35), new(300, 500)));
     }
@@ -112,14 +113,15 @@ public sealed partial class DebugInfoScreen : GameScreen
     {
         return mode switch
         {
+            DebugModes.Normal => null, // nothing in normal
+            DebugModes.Empire => new EmpireInfoDebug(this),
             DebugModes.Targeting => new TargetingDebug(this),
+            DebugModes.PathFinder => new PathFinderDebug(this),
             DebugModes.Tech => new TechDebug(this),
             DebugModes.Input => new InputDebug(this),
-            DebugModes.Empire => new EmpireInfoDebug(this),
             DebugModes.Pirates => new PiratesDebug(this),
             DebugModes.Remnants => new RemnantsDebug(this),
             DebugModes.Agents => new AgentsDebug(this),
-            DebugModes.PathFinder => new PathFinderDebug(this),
             DebugModes.Relationship => new RelationshipDebug(this),
             DebugModes.FleetMulti => new FleetMultipliersDebug(this),
             DebugModes.Trade => new TradeDebug(this),
@@ -133,6 +135,7 @@ public sealed partial class DebugInfoScreen : GameScreen
             DebugModes.ThreatMatrix => new ThreatMatrixDebug(this),
             DebugModes.DefenseCo => new DefenseCoordinatorDebug(this),
             DebugModes.Tasks => new TasksDebug(this),
+            DebugModes.Perf => new PerfDebug(this),
             _ => null
         };
     }
