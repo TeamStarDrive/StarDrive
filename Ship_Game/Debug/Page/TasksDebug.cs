@@ -32,12 +32,12 @@ public class TasksDebug : DebugPage
 
     void DrawTasks(Empire e, int column)
     {
-        SetTextCursor(Parent.Win.X + 10 + 300 * column, Parent.Win.Y + 200, e.EmpireColor);
-        DrawString("--------------------------");
-        DrawString(e.Name);
-        DrawString($"{e.Personality}");
-        DrawString($"Average War Grade: {e.GetAverageWarGrade()}");
-        DrawString("----------------------------");
+        Text.SetCursor(Parent.Win.X + 10 + 300 * column, Parent.Win.Y + 200, e.EmpireColor);
+        Text.String("--------------------------");
+        Text.String(e.Name);
+        Text.String($"{e.Personality}");
+        Text.String($"Average War Grade: {e.GetAverageWarGrade()}");
+        Text.String("----------------------------");
         int taskEvalLimit   = e.IsAtWarWithMajorEmpire ? (int)e.GetAverageWarGrade().LowerBound(3) : 10;
         int taskEvalCounter = 0;
         var tasks = e.AI.GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
@@ -46,7 +46,7 @@ public class TasksDebug : DebugPage
         var tasksWithFleets = tasks.Filter(t => t.Fleet != null);
         if (tasksWithFleets.Length > 0)
         {
-            DrawString(Color.Gray, "-----Tasks with Fleets------");
+            Text.String(Color.Gray, "-----Tasks with Fleets------");
             for (int i = tasksWithFleets.Length - 1; i >= 0; i--)
             {
                 MilitaryTask task = tasksWithFleets[i];
@@ -55,14 +55,14 @@ public class TasksDebug : DebugPage
         }
 
         var tasksForEval = tasks.Filter(t => t.NeedEvaluation);
-        NewLine();
-        DrawString(Color.Gray, "--Tasks Being Evaluated ---");
+        Text.NewLine();
+        Text.String(Color.Gray, "--Tasks Being Evaluated ---");
         for (int i = tasksForEval.Length - 1; i >= 0; i--)
         {
             if (taskEvalCounter == taskEvalLimit)
             {
-                NewLine();
-                DrawString(Color.Gray, "--------Queued Tasks--------");
+                Text.NewLine();
+                Text.String(Color.Gray, "--------Queued Tasks--------");
             }
 
             MilitaryTask task = tasksForEval[i];
@@ -78,7 +78,7 @@ public class TasksDebug : DebugPage
         string target = t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "";
         string fleet  = t.Fleet != null ? $"Fleet Step: {t.Fleet.TaskStep}" : "";
         float str     = t.Fleet?.GetStrength() ?? t.MinimumTaskForceStrength;
-        DrawString(color, $"({t.Priority}) {t.Type}, {target}, str: {(int)str}, {fleet}");
+        Text.String(color, $"({t.Priority}) {t.Type}, {target}, str: {(int)str}, {fleet}");
     }
 
     public override bool HandleInput(InputState input)

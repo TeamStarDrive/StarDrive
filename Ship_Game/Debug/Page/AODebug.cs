@@ -61,7 +61,7 @@ public class AODebug : DebugPage
 
         var text = new Array<DebugTextBlock>();
 
-        /// empire data
+        // empire data
         var column = new DebugTextBlock();
         column.AddLine($"{EmpireID} {EmpireAtWar.Name}", EmpireAtWar.EmpireColor);
         text.Add(column);

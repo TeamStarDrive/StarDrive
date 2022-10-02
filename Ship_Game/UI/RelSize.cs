@@ -20,6 +20,8 @@ namespace Ship_Game.UI
         public float W;
         public float H;
 
+        public static readonly RelSize One = new(1f, 1f);
+
         public RelSize(float w, float h)
         {
             W = w;

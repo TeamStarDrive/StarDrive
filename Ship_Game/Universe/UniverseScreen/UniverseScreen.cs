@@ -575,20 +575,6 @@ namespace Ship_Game
 
             NotificationManager.Update(fixedDeltaTime);
 
-            // if the debug window hits a cyclic crash it can be turned off in game.
-            // i don't see a point in crashing the game because of a debug window error.
-            try
-            {
-                if (UState.Debug)
-                    DebugWin?.Update(fixedDeltaTime);
-            }
-            catch (Exception e)
-            {
-                UState.SetDebugMode(false);
-                DebugWin = null;
-                Log.Error(e, "DebugWindowCrashed");
-            }
-
             GameAudio.Update3DSound(new Vector3((float)CamPos.X, (float)CamPos.Y, 0.0f));
 
             ScreenManager.UpdateSceneObjects(fixedDeltaTime);

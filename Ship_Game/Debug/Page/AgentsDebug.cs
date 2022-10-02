@@ -29,19 +29,19 @@ public class AgentsDebug : DebugPage
 
     void DrawAgents(Empire e, int column)
     {
-        SetTextCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 95, e.EmpireColor);
-        DrawString("------------------------");
-        DrawString(e.Name);
-        DrawString("------------------------");
+        Text.SetCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 95, e.EmpireColor);
+        Text.String("------------------------");
+        Text.String(e.Name);
+        Text.String("------------------------");
 
-        NewLine();
-        DrawString($"Agent list ({e.data.AgentList.Count}):");
-        DrawString("------------------------");
+        Text.NewLine();
+        Text.String($"Agent list ({e.data.AgentList.Count}):");
+        Text.String("------------------------");
         foreach (Agent agent in e.data.AgentList.Sorted(a => a.Level))
         {
             Empire target = Universe.GetEmpireByName(agent.TargetEmpire);
             Color color = target?.EmpireColor ?? e.EmpireColor;
-            DrawString(color, $"Level: {agent.Level}, Mission: {agent.Mission}, Turns: {agent.TurnsRemaining}");
+            Text.String(color, $"Level: {agent.Level}, Mission: {agent.Mission}, Turns: {agent.TurnsRemaining}");
         }
     }
 

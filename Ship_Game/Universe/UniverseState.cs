@@ -261,10 +261,10 @@ namespace Ship_Game.Universe
         public void SetDebugMode(bool debug)
         {
             Debug = debug;
-            // if not in debug, we set DebugMode to invalid value
-            DebugMode = debug ? PrevDebugMode : DebugModes.Last;
+            // if not in debug, we set DebugMode to Disabled
+            DebugMode = debug ? PrevDebugMode : DebugModes.Disabled;
             if (!debug)
-                Screen.DebugWin = null;
+                Screen.HideDebugWindow();
         }
 
         public void SetDebugMode(DebugModes mode)

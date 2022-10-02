@@ -1,9 +1,11 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -12,7 +14,7 @@ namespace Ship_Game
         public readonly ShipDesignScreen Screen;
         Empire Player => Screen.Player;
 
-        public ModuleSelectScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
+        public ModuleSelectScrollList(LocalPos pos, Vector2 size, ShipDesignScreen shipDesignScreen) : base(pos, size)
         {
             Screen = shipDesignScreen;
             EnableItemHighlight = true;

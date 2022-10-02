@@ -33,29 +33,29 @@ public class PiratesDebug : DebugPage
     void DrawPirates(Empire e, int column)
     {
         IReadOnlyList<Goal> goals = e.Pirates.Owner.AI.Goals;
-        SetTextCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 95, e.EmpireColor);
-        DrawString("------------------------");
-        DrawString(e.Name);
-        DrawString("------------------------");
-        DrawString($"Level: {e.Pirates.Level}");
-        DrawString($"Pirate Bases Goals: {goals.Count(g => g.Type == GoalType.PirateBase)}");
-        DrawString($"Spawned Ships: {e.Pirates.SpawnedShips.Count}");
-        NewLine();
-        DrawString($"Payment Management Goals ({goals.Count(g => g.Type == GoalType.PirateDirectorPayment)})");
-        DrawString("---------------------------------------------"); foreach (Goal g in goals)
+        Text.SetCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 95, e.EmpireColor);
+        Text.String("------------------------");
+        Text.String(e.Name);
+        Text.String("------------------------");
+        Text.String($"Level: {e.Pirates.Level}");
+        Text.String($"Pirate Bases Goals: {goals.Count(g => g.Type == GoalType.PirateBase)}");
+        Text.String($"Spawned Ships: {e.Pirates.SpawnedShips.Count}");
+        Text.NewLine();
+        Text.String($"Payment Management Goals ({goals.Count(g => g.Type == GoalType.PirateDirectorPayment)})");
+        Text.String("---------------------------------------------"); foreach (Goal g in goals)
         {
             if (g.Type == GoalType.PirateDirectorPayment)
             {
                 Empire target     = g.TargetEmpire;
                 string targetName = target.Name;
                 int threatLevel   = e.Pirates.ThreatLevelFor(g.TargetEmpire);
-                DrawString(target.EmpireColor, $"Payment Director For: {targetName}, Threat Level: {threatLevel}, Timer: {e.Pirates.PaymentTimerFor(target)}");
+                Text.String(target.EmpireColor, $"Payment Director For: {targetName}, Threat Level: {threatLevel}, Timer: {e.Pirates.PaymentTimerFor(target)}");
             }
         }
 
-        NewLine();
-        DrawString($"Raid Management Goals ({goals.Count(g => g.Type == GoalType.PirateDirectorRaid)})");
-        DrawString("---------------------------------------------");
+        Text.NewLine();
+        Text.String($"Raid Management Goals ({goals.Count(g => g.Type == GoalType.PirateDirectorRaid)})");
+        Text.String("---------------------------------------------");
         foreach (Goal g in goals)
         {
             if (g.Type == GoalType.PirateDirectorRaid)
@@ -63,13 +63,13 @@ public class PiratesDebug : DebugPage
                 Empire target = g.TargetEmpire;
                 string targetName = target.Name;
                 int threatLevel = e.Pirates.ThreatLevelFor(g.TargetEmpire);
-                DrawString(target.EmpireColor, $"Raid Director For: {targetName}, Threat Level: {threatLevel}");
+                Text.String(target.EmpireColor, $"Raid Director For: {targetName}, Threat Level: {threatLevel}");
             }
         }
 
-        NewLine();
-        DrawString($"Ongoing Raids ({goals.Count(g => g.IsRaid)}/{e.Pirates.Level})");
-        DrawString("---------------------------------------------");
+        Text.NewLine();
+        Text.String($"Ongoing Raids ({goals.Count(g => g.IsRaid)}/{e.Pirates.Level})");
+        Text.String("---------------------------------------------");
         foreach (Goal g in goals)
         {
             if (g.IsRaid)
@@ -78,37 +78,37 @@ public class PiratesDebug : DebugPage
                 string targetName = target.Name;
                 Ship targetShip = g.TargetShip;
                 string shipName = targetShip?.Name ?? "None";
-                DrawString(target.EmpireColor, $"{g.Type} vs. {targetName}, Target Ship: {shipName} in {targetShip?.SystemName ?? "None"}");
+                Text.String(target.EmpireColor, $"{g.Type} vs. {targetName}, Target Ship: {shipName} in {targetShip?.SystemName ?? "None"}");
             }
         }
 
-        NewLine();
+        Text.NewLine();
 
-        DrawString($"Base Defense Goals ({goals.Count(g => g.Type == GoalType.PirateDefendBase)})");
-        DrawString("---------------------------------------------");
+        Text.String($"Base Defense Goals ({goals.Count(g => g.Type == GoalType.PirateDefendBase)})");
+        Text.String("---------------------------------------------");
         foreach (Goal g in goals)
         {
             if (g.Type == GoalType.PirateDefendBase)
             {
                 Ship targetShip = g.TargetShip;
                 string shipName = targetShip?.Name ?? "None";
-                DrawString($"Defending {shipName} in {targetShip?.SystemName ?? "None"}");
+                Text.String($"Defending {shipName} in {targetShip?.SystemName ?? "None"}");
             }
         }
 
-        NewLine();
+        Text.NewLine();
 
-        DrawString($"Fighter Designs We Can Launch ({e.Pirates.ShipsWeCanBuild.Count})");
-        DrawString("---------------------------------------------");
+        Text.String($"Fighter Designs We Can Launch ({e.Pirates.ShipsWeCanBuild.Count})");
+        Text.String("---------------------------------------------");
         foreach (string shipName in e.Pirates.ShipsWeCanBuild)
-            DrawString(shipName);
+            Text.String(shipName);
 
-        NewLine();
+        Text.NewLine();
 
-        DrawString($"Ship Designs We Can Spawn ({e.Pirates.ShipsWeCanSpawn.Count})");
-        DrawString("---------------------------------------------");
+        Text.String($"Ship Designs We Can Spawn ({e.Pirates.ShipsWeCanSpawn.Count})");
+        Text.String("---------------------------------------------");
         foreach (string shipName in e.Pirates.ShipsWeCanSpawn)
-            DrawString(shipName);
+            Text.String(shipName);
     }
 
     public override bool HandleInput(InputState input)
