@@ -346,9 +346,6 @@ namespace Ship_Game
 
             DrawGeneralStatusText(batch, elapsed);
 
-            if (Debug) ShowDebugGameInfo();
-            else HideDebugGameInfo();
-
             base.Draw(batch, elapsed);  // UIElementV2 Draw
 
             DrawUI.Stop();
