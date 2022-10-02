@@ -254,6 +254,9 @@ namespace Ship_Game
 
         void CalcMoneyPriorities()
         {
+            if (PopulationBillion < 1)
+                return;
+             
             float ratio   = 1 - MoneyBuildingRatio;
             float tax     = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
             float credits = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
@@ -543,7 +546,8 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.SpacePort],       b.IsSpacePort ? 5 : 0);
             score += EvalTraits(Priorities[ColonyPriority.InfraStructure],  b.Infrastructure * 3);
 
-            if (b.Maintenance < 0) // positive maintenance building bonus
+            // positive maintenance building bonus (only if it worth something in the first place)
+            if (b.Maintenance < 0 && score > 0) 
                 score += -b.Maintenance * 10;
 
             score *= FertilityMultiplier(b);
