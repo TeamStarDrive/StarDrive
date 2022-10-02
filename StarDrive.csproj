@@ -370,6 +370,7 @@
     <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
     <Compile Include="Ship_Game\UI\LayoutExporter.cs" />
     <Compile Include="Ship_Game\UI\LocalPos.cs" />
+    <Compile Include="Ship_Game\UI\NineSliceSprite.cs" />
     <Compile Include="Ship_Game\UI\RelPos.cs" />
     <Compile Include="Ship_Game\UI\RelSize.cs" />
     <Compile Include="Ship_Game\UI\UILine.cs" />
@@ -1146,7 +1147,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Submenu.cs">
+    <Compile Include="Ship_Game\UI\Submenu.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1230,7 +1231,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Selector.cs">
+    <Compile Include="Ship_Game\UI\Selector.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

@@ -36,7 +36,7 @@ namespace Ship_Game
             Rect = new Rectangle(Screen.ScreenWidth - 15 - windowWidth, 100, windowWidth, 300);
 
             var background = new Submenu(Rect);
-            background.Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
+            background.SetBackground(Colors.TransparentBlackFill);
             background.AddTab("Build Menu");
             SL = Add(new ScrollList2<ConstructionListItem>(background, 40));
             SL.OnClick = (item) => { ShipToBuild = item.Template; };
