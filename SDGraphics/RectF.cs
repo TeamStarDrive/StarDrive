@@ -18,6 +18,7 @@ public struct RectF
     public readonly float Right => X + W;
     public readonly float Bottom => Y + H;
     
+    public readonly Vector2 Pos => new(X,Y);
     public readonly Vector2 Center => new(X + W*0.5f, Y + H*0.5f);
     public readonly Vector2 Size => new(W, H);
 
