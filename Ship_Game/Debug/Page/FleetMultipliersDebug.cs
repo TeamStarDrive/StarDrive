@@ -29,27 +29,27 @@ public class FleetMultipliersDebug : DebugPage
     }
     void DrawMultipliers(Empire e, int column)
     {
-        SetTextCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 95, e.EmpireColor);
-        DrawString("--------------------------");
-        DrawString(e.Name);
-        DrawString($"{e.Personality}");
-        DrawString("----------------------------");
-        NewLine(2);
-        DrawString("Remnants Strength Multipliers");
-        DrawString("---------------------------");
+        Text.SetCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 95, e.EmpireColor);
+        Text.String("--------------------------");
+        Text.String(e.Name);
+        Text.String($"{e.Personality}");
+        Text.String("----------------------------");
+        Text.NewLine(2);
+        Text.String("Remnants Strength Multipliers");
+        Text.String("---------------------------");
         Empire remnants = Universe.Remnants;
-        DrawString(remnants.EmpireColor, $"{remnants.Name}: {e.GetFleetStrEmpireMultiplier(remnants).String(2)}");
-        NewLine(2);
-        DrawString("Empire Strength Multipliers");
-        DrawString("---------------------------");
+        Text.String(remnants.EmpireColor, $"{remnants.Name}: {e.GetFleetStrEmpireMultiplier(remnants).String(2)}");
+        Text.NewLine(2);
+        Text.String("Empire Strength Multipliers");
+        Text.String("---------------------------");
         foreach (Empire empire in Universe.ActiveMajorEmpires.Filter(empire => empire != e))
-            DrawString($"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
+            Text.String($"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
 
-        NewLine(2);
-        DrawString("Pirates Strength Multipliers");
-        DrawString("---------------------------");
+        Text.NewLine(2);
+        Text.String("Pirates Strength Multipliers");
+        Text.String("---------------------------");
         foreach (Empire empire in Universe.PirateFactions.Filter(faction => faction != Universe.Unknown))
-            DrawString(empire.EmpireColor, $"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
+            Text.String(empire.EmpireColor, $"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
     }
 
     public override bool HandleInput(InputState input)

@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.UI;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
@@ -87,12 +89,12 @@ namespace Ship_Game
             }
         }
 
-        static Rectangle GetOurRectFromBackground(UIElementV2 background)
+        static RectF GetOurRectFromBackground(UIElementV2 background)
         {
-            Rectangle r = background.Rect;
+            RectF r = new(background.Rect);
             if (background is Menu1)
             {
-                r.Width -= 5;
+                r.W -= 5;
             }
             else if (background is Submenu)
             {
@@ -115,13 +117,22 @@ namespace Ship_Game
         }
 
         public ScrollList2(float x, float y, float w, float h, int entryHeight, ListStyle style = ListStyle.Default)
-            : this(new Rectangle((int)x, (int)y, (int)w, (int)h), entryHeight, style)
+            : this(new RectF(x, y, w, h), entryHeight, style)
         {
         }
 
         public ScrollList2(in Rectangle rect, int entryHeight = 40, ListStyle style = ListStyle.Default)
         {
             Rect = rect;
+            Style = style;
+            EntryHeight = entryHeight;
+            SetItemsHousing();
+        }
+
+        public ScrollList2(LocalPos pos, Vector2 size, int entryHeight = 40, ListStyle style = ListStyle.Default)
+        {
+            SetLocalPos(pos);
+            Size = size;
             Style = style;
             EntryHeight = entryHeight;
             SetItemsHousing();

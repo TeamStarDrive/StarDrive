@@ -219,6 +219,20 @@ namespace Ship_Game
             }
         }
 
+        public void ToggleDebugWindow() // toggle Debug Window overlay
+        {
+            if (DebugWin == null)
+                DebugWin = Add(new DebugInfoScreen(this));
+            else
+                HideDebugWindow();
+        }
+
+        public void HideDebugWindow()
+        {
+            DebugWin?.RemoveFromParent();
+            DebugWin = null;
+        }
+
         public override bool HandleInput(InputState input)
         {
             Input = input;
@@ -245,15 +259,12 @@ namespace Ship_Game
             {
                 if (input.ShowDebugWindow)
                 {
-                    // toggle Debug Window overlay
-                    // if it is disable, the DebugWin is set to null
-                    DebugWin = (DebugWin == null) ? new DebugInfoScreen(this) : null;
+                    ToggleDebugWindow();
                 }
-                if (DebugWin?.HandleInput(input) == true)
-                    return true;
+
                 if (input.GetMemory)
                 {
-                    GC.GetTotalMemory(false);
+                    GC.Collect(-1, GCCollectionMode.Forced, blocking: true, compacting: true);
                 }
             }
 

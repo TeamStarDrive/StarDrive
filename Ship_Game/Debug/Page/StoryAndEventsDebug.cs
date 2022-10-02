@@ -1,8 +1,4 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
@@ -51,7 +47,7 @@ class StoryAndEventsDebug : DebugPage
         Menu.AddTab("Encounters");
         Menu.OnTabChange = OnTabChanged;
 
-        ExplorationEvents = Menu.Add(new ScrollList2<EvtItem>(new Submenu(Menu.Rect)));
+        ExplorationEvents = Menu.Add(new ScrollList2<EvtItem>(Menu.Rect.CutTop(20)));
         ExplorationEvents.EnableItemEvents = true;
         ExplorationEvents.EnableItemHighlight = true;
 

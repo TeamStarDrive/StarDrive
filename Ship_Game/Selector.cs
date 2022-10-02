@@ -1,5 +1,7 @@
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using Ship_Game.UI;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
@@ -19,31 +21,65 @@ namespace Ship_Game
         private readonly Color Fill;
         private readonly Color EdgeColor;
 
-        public Selector(Rectangle theMenu)
-        {
-            EdgeColor = Color.White;
-            Initialize(theMenu);
-        }
-
-        public Selector(Rectangle theMenu, Color fillColor)
+        public Selector(UIElementContainer parent, LocalPos pos, RelSize size, Color fillColor)
+            : base(pos, size)
         {
             Fill = fillColor;
             EdgeColor = Color.White;
-            Initialize(theMenu);
+
+            parent.Add(this);
+            PerformLayout();
         }
 
-        public Selector(Rectangle theMenu, Color fillColor, float textureAlpha)
+        public Selector(UIElementContainer parent, LocalPos pos, Vector2 size, Color fillColor)
+            : base(pos, size)
         {
             Fill = fillColor;
-            EdgeColor = new Color(Color.White, (byte)textureAlpha);
-            Initialize(theMenu);
+            EdgeColor = Color.White;
+
+            parent.Add(this);
+            PerformLayout();
         }
 
-        public Selector(Rectangle theMenu, Color fillColor, Color edgeColor)
+        public Selector(Rectangle theMenu) : base(theMenu)
+        {
+            EdgeColor = Color.White;
+            PerformLayout();
+        }
+
+        public Selector(LocalPos pos, Vector2 size, Color fillColor) : base(new RectF(pos.X, pos.Y, size))
+        {
+            Fill = fillColor;
+            EdgeColor = Color.White;
+            PerformLayout();
+        }
+
+        public Selector(Rectangle theMenu, Color fillColor) : base(theMenu)
+        {
+            Fill = fillColor;
+            EdgeColor = Color.White;
+            PerformLayout();
+        }
+
+        public Selector(Rectangle theMenu, Color fillColor, float textureAlpha) : base(theMenu)
+        {
+            Fill = fillColor;
+            EdgeColor = new(Color.White, (byte)textureAlpha);
+            PerformLayout();
+        }
+
+        public Selector(Rectangle theMenu, Color fillColor, Color edgeColor) : base(theMenu)
         {
             Fill = fillColor;
             EdgeColor = edgeColor;
-            Initialize(theMenu);
+            PerformLayout();
+        }
+
+        public override void PerformLayout()
+        {
+            base.PerformLayout();
+            Height = Math.Max(12, Height); // height must be at least 12px
+            Initialize((int)X, (int)Y, (int)Width, (int)Height);
         }
 
         class ElementTextures
@@ -56,13 +92,8 @@ namespace Ship_Game
         static int ContentId;
         static ElementTextures Tex;
 
-        void Initialize(Rectangle theMenu)
+        void Initialize(int x, int y, int w, int h)
         {
-            theMenu.Height = System.Math.Max(12, theMenu.Height); // height must be at least 12px
-            Rect = theMenu;
-            int x = theMenu.X,     y = theMenu.Y;
-            int w = theMenu.Width, h = theMenu.Height;
-
             if (Tex == null || ContentId != ResourceManager.ContentId)
             {
                 ContentId = ResourceManager.ContentId;
@@ -80,14 +111,14 @@ namespace Ship_Game
                 };
             }
 
-            TL = new Rectangle(x, y - 2, Tex.CornerTL.Width, Tex.CornerTL.Height);
-            TR = new Rectangle(x + w - Tex.CornerTR.Width, y - 2, Tex.CornerTR.Width, Tex.CornerTR.Height);
-            BL = new Rectangle(x, y + h - Tex.CornerBL.Height + 2, Tex.CornerBL.Width, Tex.CornerBL.Height);
-            BR = new Rectangle(x + w - Tex.CornerBR.Width, y + h + 2 - Tex.CornerBR.Height, Tex.CornerBR.Width, Tex.CornerBR.Height);
-            HT = new Rectangle(x + Tex.CornerTL.Width, y - 2, w - TR.Width - Tex.CornerTL.Width, 2);
-            HB = new Rectangle(x + BL.Width, y + h, w - BL.Width - BR.Width, 2);
-            VL = new Rectangle(x, y + TR.Height - 2, 2, h - BL.Height - 2);
-            VR = new Rectangle(x + w - 2, y + TR.Height - 2, 2, h - BR.Height - 2);
+            TL = new(x, y - 2, Tex.CornerTL.Width, Tex.CornerTL.Height);
+            TR = new(x + w - Tex.CornerTR.Width, y - 2, Tex.CornerTR.Width, Tex.CornerTR.Height);
+            BL = new(x, y + h - Tex.CornerBL.Height + 2, Tex.CornerBL.Width, Tex.CornerBL.Height);
+            BR = new(x + w - Tex.CornerBR.Width, y + h + 2 - Tex.CornerBR.Height, Tex.CornerBR.Width, Tex.CornerBR.Height);
+            HT = new(x + Tex.CornerTL.Width, y - 2, w - TR.Width - Tex.CornerTL.Width, 2);
+            HB = new(x + BL.Width, y + h, w - BL.Width - BR.Width, 2);
+            VL = new(x, y + TR.Height - 2, 2, h - BL.Height - 2);
+            VR = new(x + w - 2, y + TR.Height - 2, 2, h - BR.Height - 2);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
