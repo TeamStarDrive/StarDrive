@@ -576,23 +576,21 @@ namespace Ship_Game
 
             // Fertility increasing buildings score should be very high in order to be worth building by cybernetics
             if (IsCybernetic)
-                return b.MaxFertilityOnBuild > 0 ? 0.25f : 1;
+                return b.MaxFertilityOnBuild > 0 ? 0.2f : 1;
 
             if (b.MaxFertilityOnBuild < 0 && CType == ColonyType.Agricultural)
                 return 0; // Never build fertility reducers on Agricultural colonies
 
             float projectedMaxFertility = MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category);
-            if (projectedMaxFertility < 1)
-            {
-                // Multiplier will be smaller in direct relation to its effect if not Core
-                if (CType == ColonyType.Core)
-                    return CType == ColonyType.Core ? 0 : projectedMaxFertility.LowerBound(0);
-            }
+            // Multiplier will be smaller in direct relation to its effect if not Core or not homeworld
+            int threshold = IsHomeworld ? 2 : 1;
+            if (projectedMaxFertility < threshold)
+                return CType == ColonyType.Core || IsHomeworld ? 0 : projectedMaxFertility.LowerBound(0);
 
             return 1;
         }
 
-        // Hard limits on mulfi functional buildings which are useless due to per col needs being 0.
+        // Hard limits on multi functional buildings which are useless due to per col needs being 0.
         bool IsLimitedByPerCol(Building b)
         {
             if (Priorities[ColonyPriority.ProdPerCol].AlmostZero() && b.PlusProdPerColonist.Greater(0))         return true;
