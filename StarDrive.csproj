@@ -237,6 +237,7 @@
     <Compile Include="Ship_Game\Debug\Page\FleetMultipliersDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\InputDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\ParticleDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\PerfDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\PiratesDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\RelationshipDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\RemnantsDebug.cs" />

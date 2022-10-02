@@ -23,18 +23,18 @@ namespace Ship_Game
         Thread SimThread;
 
         // This is our current time in simulation time axis [0 .. current .. target]
-        float CurrentSimTime;
+        public float CurrentSimTime;
 
         // This is the known end time in simulation time axis [0 ... target]
-        float TargetSimTime;
+        public float TargetSimTime;
 
         // Modifier to increase or reduce simulation fidelity
         int SimFPSModifier;
 
         readonly PerfTimer TimeSinceLastAutoFPS = new PerfTimer();
 
-        int CurrentSimFPS => GlobalStats.SimulationFramesPerSecond + SimFPSModifier;
-        int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / UState.GameSpeed);
+        public int CurrentSimFPS => GlobalStats.SimulationFramesPerSecond + SimFPSModifier;
+        public int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / UState.GameSpeed);
 
         /// <summary>
         /// NOTE: This must be called from UI Update thread to advance the simulation time forward
