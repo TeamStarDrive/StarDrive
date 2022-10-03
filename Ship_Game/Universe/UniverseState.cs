@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.Xna.Framework;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -103,12 +102,11 @@ namespace Ship_Game.Universe
         public event Action<Ship> EvtOnShipRemoved;
 
         [StarData] readonly Array<Empire> EmpireList = new();
-
-        [StarData] readonly Map<int, SolarSystem> SolarSystemDict = new();
         [StarData] readonly Array<SolarSystem> SolarSystemList = new();
-
-        [StarData] readonly Map<int, Planet> PlanetsDict = new();
         [StarData] readonly Array<Planet> AllPlanetsList = new();
+
+        // TODO: remove PlanetsDict
+        [StarData] readonly Map<int, Planet> PlanetsDict = new();
 
         // @return All SolarSystems in the Universe
         public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
@@ -248,12 +246,17 @@ namespace Ship_Game.Universe
             Params.UpdateGlobalStats();
             SettingsResearchModifier = GetResearchMultiplier();
             RemnantPaceModifier = CalcRemnantPace();
+            
+            // NOTE: This will automatically call AddShipInfluence() to update InfluenceTree
+            Objects.AddRange(save.Ships);
+            Objects.AddRange(save.Projectiles);
 
-            // TODO: AddRange
-            foreach (Ship ship in save.Ships)
-                Objects.Add(ship);
-            foreach (Projectile projectile in save.Projectiles)
-                Objects.Add(projectile);
+            // updated InfluenceTree with all universe planets
+            foreach (Planet planet in AllPlanetsList)
+            {
+                if (planet.Owner != null)
+                    OnPlanetOwnerAdded(planet.Owner, planet);
+            }
 
             InitializeEmpiresFromSave();
         }
@@ -287,7 +290,6 @@ namespace Ship_Game.Universe
             ClearSpaceJunk();
             ClearEmpires();
             PlanetsDict.Clear();
-            SolarSystemDict.Clear();
             Spatial.Destroy();
         }
 
@@ -338,7 +340,6 @@ namespace Ship_Game.Universe
                 throw new InvalidOperationException($"AddSolarSystem System was not created for this Universe: {system}");
             if (system.Id <= 0)
                 throw new InvalidOperationException($"AddSolarSystem System.Id must be valid: {system}");
-            SolarSystemDict.Add(system.Id, system);
             SolarSystemList.Add(system);
             foreach (Planet planet in system.PlanetList)
             {
@@ -351,15 +352,6 @@ namespace Ship_Game.Universe
             }
         }
 
-        public SolarSystem GetSystem(int id)
-        {
-            if (id <= 0) return null;
-            if (SolarSystemDict.TryGetValue(id, out SolarSystem system))
-                return system;
-            Log.Error($"System not found: {id}");
-            return null;
-        }
-
         public Planet GetPlanet(int id)
         {
             if (id <= 0) return null;
@@ -369,19 +361,9 @@ namespace Ship_Game.Universe
             return null;
         }
 
-        public bool GetPlanet(int id, out Planet found)
-        {
-            return (found = GetPlanet(id)) != null;
-        }
-
         public SolarSystem FindClosestSystem(Vector2 pos)
         {
             return SolarSystemList.FindClosestTo(pos);
-        }
-
-        public Planet FindClosestPlanet(Vector2 pos)
-        {
-            return AllPlanetsList.FindClosestTo(pos);
         }
 
         public SolarSystem FindSolarSystemAt(Vector2 point)
@@ -394,31 +376,10 @@ namespace Ship_Game.Universe
             return null;
         }
 
-        public bool FindSystem(int id, out SolarSystem foundSystem)
-        {
-            return SolarSystemDict.TryGetValue(id, out foundSystem);
-        }
-
-        public SolarSystem FindSystem(int id)
-        {
-            return SolarSystemDict.TryGetValue(id, out SolarSystem system) ? system : null;
-        }
-
         public Array<SolarSystem> GetFiveClosestSystems(SolarSystem system)
         {
             return SolarSystemList.FindMinItemsFiltered(5, filter => filter != system,
                                                            select => select.Position.SqDist(system.Position));
-        }
-
-        public Array<SolarSystem> GetSolarSystemsFromIds(Array<int> ids)
-        {
-            var systems = new Array<SolarSystem>();
-            for (int i = 0; i < ids.Count; i++)
-            {
-                if (SolarSystemDict.TryGetValue(ids[i], out SolarSystem s))
-                    systems.Add(s);
-            }
-            return systems;
         }
 
         // Returns all solar systems within frustum
