@@ -53,8 +53,8 @@ namespace Ship_Game
             Add(new Menu2(mainBkg));
             Add(new CloseButton(mainBkg.Right - 40, mainBkg.Y + 20));
 
-            ColoniesList = Add(new ScrollList2<ColoniesListItem>(mainBkg.X + 20, titleRect.Bottom + 30,
-                                                                ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40), 80));
+            RectF colonies = new(mainBkg.X + 20, titleRect.Bottom + 30, ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40));
+            ColoniesList = Add(new ScrollList2<ColoniesListItem>(colonies, 80));
             ColoniesList.OnClick       = OnColonyListItemClicked;
             ColoniesList.OnDoubleClick = OnColonyListItemDoubleClicked;
             ColoniesList.EnableItemHighlight = true;

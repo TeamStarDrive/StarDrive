@@ -7,6 +7,7 @@ using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
@@ -20,7 +21,7 @@ namespace Ship_Game
         public readonly string ShipName;
         UITextEntry EnterNameArea;
         string BaseWIPName;
-        Submenu SubAllDesigns;
+        SubmenuScrollList<ShipDesignListItem> SubAllDesigns;
         ScrollList2<ShipDesignListItem> ShipDesigns;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
@@ -79,8 +80,8 @@ namespace Ship_Game
             background.SetBackground(new Menu1(Rect));
             background.AddTab(Hulls ? GameText.SaveHullDesign : GameText.SaveShipDesign);
 
-            SubAllDesigns = new Submenu(background.X, background.Y + 90, background.Width,
-                                        Rect.Height - background.Height - 50);
+            RectF subAllDesignsR = new(background.X, background.Y + 90, background.Width, Rect.Height - background.Height - 50);
+            SubAllDesigns = Add(new SubmenuScrollList<ShipDesignListItem>(subAllDesignsR));
             SubAllDesigns.AddTab(GameText.SimilarDesignNames);
 
             EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), GameText.DesignName));
@@ -88,7 +89,7 @@ namespace Ship_Game
             EnterNameArea.Color = Colors.Cream;
             EnterNameArea.OnTextChanged = PopulateDesigns;
 
-            ShipDesigns = SubAllDesigns.Add(new ScrollList2<ShipDesignListItem>(SubAllDesigns.ClientArea));
+            ShipDesigns = SubAllDesigns.List;
             ShipDesigns.EnableItemHighlight = true;
             ShipDesigns.OnClick = OnShipDesignItemClicked;
 

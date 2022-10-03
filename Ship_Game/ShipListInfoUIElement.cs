@@ -75,8 +75,8 @@ namespace Ship_Game
 
             OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
 
-            var slsubRect = new Rectangle(RightRect.X-10, Housing.Y + 85, RightRect.Width - 5, 140);
-            SelectedShipsSL = new ScrollList2<SelectedShipListItem>(slsubRect, 24);
+            RectF selected = new(RightRect.X-10, Housing.Y + 85, RightRect.Width - 5, 140);
+            SelectedShipsSL = new ScrollList2<SelectedShipListItem>(selected, 24);
         }
 
         public void ClearShipList()

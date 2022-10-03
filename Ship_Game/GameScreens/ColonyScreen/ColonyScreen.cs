@@ -5,6 +5,7 @@ using Ship_Game.Graphics;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -20,7 +21,6 @@ namespace Ship_Game
         readonly Submenu PlanetInfo;
         readonly Submenu PStorage;
         readonly Submenu PFacilities;
-        readonly Submenu BuildableTabs;
         readonly UITextEntry PlanetName;
         readonly Rectangle PlanetIcon;
         public EmpireUIOverlay Eui;
@@ -34,7 +34,8 @@ namespace Ship_Game
         readonly Rectangle PlanetShieldIconRect;
         readonly ProgressBar PlanetShieldBar;
         readonly UILabel FilterBuildableItemsLabel;
-
+        
+        readonly SubmenuScrollList<BuildableListItem> BuildableTabs;
         readonly ScrollList2<BuildableListItem> BuildableList;
         readonly ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
         readonly DropDownMenu FoodDropDown;
@@ -208,11 +209,12 @@ namespace Ship_Game
                 Pos     = new Vector2(filterRect.Right + 10, filterRect.Y + 3)
             });
 
-            BuildableTabs = Add(new Submenu(RightMenu.X + 20, RightMenu.Y + 40, 
-                                            RightMenu.Width - 40, 0.5f*(RightMenu.Height-40)));
+            RectF buildableR = new(RightMenu.X + 20, RightMenu.Y + 40, 
+                                   RightMenu.Width - 40, 0.5f*(RightMenu.Height-40));
+            BuildableTabs = base.Add(new SubmenuScrollList<BuildableListItem>(buildableR));
             BuildableTabs.OnTabChange = OnBuildableTabChanged;
 
-            BuildableList = BuildableTabs.Add(new ScrollList2<BuildableListItem>(BuildableTabs.Rect.CutTop(5)));
+            BuildableList = BuildableTabs.List;
             BuildableList.EnableItemHighlight = true;
             BuildableList.OnDoubleClick       = OnBuildableItemDoubleClicked;
             BuildableList.OnHovered           = OnBuildableHoverChange;
@@ -229,11 +231,11 @@ namespace Ship_Game
 
             float queueBottom = RightMenu.Bottom - 20;
             float queueTop = BuildableTabs.Bottom + 10;
-            var queue = new Submenu(RightMenu.X + 20, queueTop, RightMenu.Width - 40, queueBottom - queueTop);
+            RectF queueR = new(RightMenu.X + 20, queueTop, RightMenu.Width - 40, queueBottom - queueTop);
+            var queue = base.Add(new SubmenuScrollList<ConstructionQueueScrollListItem>(queueR));
             queue.AddTab(Localizer.Token(GameText.ConstructionQueue));
-            Add(queue);
 
-            ConstructionQueue = queue.Add(new ScrollList2<ConstructionQueueScrollListItem>(queue.Rect.CutTop(5)));
+            ConstructionQueue = queue.List;
             ConstructionQueue.EnableItemHighlight = true;
             ConstructionQueue.OnHovered = OnConstructionItemHovered;
             if (p.OwnerIsPlayer || p.Universe.Debug)

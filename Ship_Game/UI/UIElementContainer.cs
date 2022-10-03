@@ -262,6 +262,14 @@ namespace Ship_Game
             Elements.Sort(ZOrderSorter);
         }
 
+        // sends this child object to the backmost element
+        public void SendToBackZOrder(UIElementV2 child)
+        {
+            int minZOrder = Elements.Min(e => e.ZOrder);
+            child.ZOrder = minZOrder - 1;
+            RefreshZOrder();
+        }
+
         protected override int NextZOrder()
         {
             if (Elements.NotEmpty)

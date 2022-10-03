@@ -793,7 +793,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(GameText.SendOffer), Fonts.Pirulen20);
 
-            var offerTextMenu = new Rectangle(R.X, R.Y, R.Width, R.Height - 30);
+            RectF offerTextMenu = new(R.X, R.Y, R.Width, R.Height - 30);
             OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
             StatementsSL = Add(new ScrollList2<DialogOptionListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
 
