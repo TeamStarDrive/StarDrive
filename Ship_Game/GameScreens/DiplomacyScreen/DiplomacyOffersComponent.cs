@@ -27,15 +27,13 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             int backW = background.Width + 40;
             int backH = (int)background.GetHeightFromWidthAspect(backW);
             var back = new Rectangle(rect.X-5, rect.Y-5, backW, backH);
-            Add(new UIPanel(back, background));
+            base.Add(new UIPanel(back, background));
 
-            var list = new Rectangle(rect.X + 10, rect.Y + 30,
-                                     rect.Width - 10, rect.Height - 40);
-            List = Add(new ScrollList2<ItemToOffer>(list));
+            RectF list = new(rect.X + 10, rect.Y + 30, rect.Width - 10, rect.Height - 40);
+            List = base.Add(new ScrollList2<ItemToOffer>(list));
 
             GameText title = empire.isPlayer ? GameText.WeHave : GameText.TheyHave;
-            Add(new UILabel(new Vector2(rect.X + 26, rect.Y + 14),
-                            title, Fonts.Pirulen12));
+            base.Add(new UILabel(new Vector2(rect.X + 26, rect.Y + 14), title, Fonts.Pirulen12));
         }
 
         public void StartNegotiation(DiplomacyOffersComponent theirs, Offer ourOffer, Offer theirOffer)

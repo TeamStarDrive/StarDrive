@@ -533,16 +533,16 @@ namespace Ship_Game
             int hullSelW = SelectSize(260, 280, 320);
             int hullSelH = SelectSize(250, 400, 500);
             var hullSelectPos = new LocalPos(ScreenWidth - hullSelW, ModuleSelectComponent.LocalPos.Y);
-            var hullSelBkg = Add(new Submenu(hullSelectPos, new(hullSelW, hullSelH)));
+            var hullSelectSub = Add(new SubmenuScrollList<ShipHullListItem>(hullSelectPos, new(hullSelW, hullSelH)));
             // rounded black background
-            hullSelBkg.SetBackground(Colors.TransparentBlackFill);
-            hullSelBkg.AddTab(Localizer.Token(GameText.SelectHull));
+            hullSelectSub.SetBackground(Colors.TransparentBlackFill);
+            hullSelectSub.AddTab(Localizer.Token(GameText.SelectHull));
 
-            HullSelectList = hullSelBkg.Add(new ScrollList2<ShipHullListItem>(new LocalPos(0,5), new(hullSelW, hullSelH)));
+            HullSelectList = hullSelectSub.List;
             HullSelectList.OnClick = OnHullListItemClicked;
             HullSelectList.EnableItemHighlight = true;
             RefreshHullSelectList();
-            hullSelBkg.PerformLayout();
+            hullSelectSub.PerformLayout();
 
             var dropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 125, 18);
 

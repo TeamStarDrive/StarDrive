@@ -89,20 +89,7 @@ namespace Ship_Game
             }
         }
 
-        public ScrollList2(float x, float y, float w, float h, int entryHeight, ListStyle style = ListStyle.Default)
-            : this(new RectF(x, y, w, h), entryHeight, style)
-        {
-        }
-
         public ScrollList2(in RectF rect, int entryHeight = 40, ListStyle style = ListStyle.Default)
-        {
-            Rect = rect;
-            Style = style;
-            EntryHeight = entryHeight;
-            SetItemsHousing();
-        }
-
-        public ScrollList2(in Rectangle rect, int entryHeight = 40, ListStyle style = ListStyle.Default)
         {
             Rect = rect;
             Style = style;

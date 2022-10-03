@@ -20,6 +20,8 @@ public struct RectF
     
     public readonly Vector2 Pos => new(X,Y);
     public readonly Vector2 Center => new(X + W*0.5f, Y + H*0.5f);
+    public readonly float CenterX => X + W*0.5f;
+    public readonly float CenterY => Y + H*0.5f;
     public readonly Vector2 Size => new(W, H);
 
     public readonly Vector2 TopLeft => new(X, Y);
@@ -43,6 +45,14 @@ public struct RectF
         Y = (float)y;
         W = (float)w;
         H = (float)h;
+    }
+
+    public RectF(int x, int y, int w, int h)
+    {
+        X = x;
+        Y = y;
+        W = w;
+        H = h;
     }
 
     public RectF(Vector2 pos, float w, float h)

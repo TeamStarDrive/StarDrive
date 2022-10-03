@@ -106,6 +106,7 @@ public class Submenu : UIPanel
     {
         Background?.RemoveFromParent();
         Background = new Selector(this, new LocalPos(0, TabHeight-2), Rect.CutTop(TabHeight-2).Size(), color);
+        SendToBackZOrder(Background);
     }
 
     // Adds a background to this submenu
@@ -113,6 +114,7 @@ public class Submenu : UIPanel
     {
         Background?.RemoveFromParent();
         Background = Add(background);
+        SendToBackZOrder(Background);
     }
 
     public Array<Tab> Tabs = new();
