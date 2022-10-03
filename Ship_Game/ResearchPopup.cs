@@ -13,7 +13,7 @@ namespace Ship_Game
         public bool fade;
         public bool FromGame;
         public string TechUID;
-        ScrollList2<UnlockListItem> UnlockSL;
+        ScrollList<UnlockListItem> UnlockSL;
         readonly Technology Technology;
         
         public ResearchPopup(UniverseScreen us, string uid) : base(us, 600, 600)
@@ -45,7 +45,7 @@ namespace Ship_Game
                              MidContainer.Y + MidContainer.Height - 20, 
                              Rect.Width - 40, 
                              Rect.Height - MidContainer.Height - TitleRect.Height - 20);
-            UnlockSL = Add(new ScrollList2<UnlockListItem>(rect, 100));
+            UnlockSL = Add(new ScrollList<UnlockListItem>(rect, 100));
 
             Array<UnlockItem> unlocks = UnlockItem.CreateUnlocksList(Technology, Universe.Player);
             UnlockSL.SetItems(unlocks.Select(u => new UnlockListItem(u)));

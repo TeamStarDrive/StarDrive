@@ -9,7 +9,7 @@ using Ship_Game.UI;
 
 namespace Ship_Game
 {
-    public class ModuleSelectScrollList : ScrollList2<ModuleSelectListItem>
+    public class ModuleSelectScrollList : ScrollList<ModuleSelectListItem>
     {
         public readonly ShipDesignScreen Screen;
         Empire Player => Screen.Player;

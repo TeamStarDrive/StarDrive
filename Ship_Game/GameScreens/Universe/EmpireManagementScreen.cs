@@ -15,7 +15,7 @@ namespace Ship_Game
     {
         UniverseScreen Universe;
         EmpireUIOverlay eui;
-        private readonly ScrollList2<ColoniesListItem> ColoniesList;
+        private readonly ScrollList<ColoniesListItem> ColoniesList;
         private readonly GovernorDetailsComponent GovernorDetails;
         private readonly Rectangle eRect;
 
@@ -54,7 +54,7 @@ namespace Ship_Game
             Add(new CloseButton(mainBkg.Right - 40, mainBkg.Y + 20));
 
             RectF colonies = new(mainBkg.X + 20, titleRect.Bottom + 30, ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40));
-            ColoniesList = Add(new ScrollList2<ColoniesListItem>(colonies, 80));
+            ColoniesList = Add(new ScrollList<ColoniesListItem>(colonies, 80));
             ColoniesList.OnClick       = OnColonyListItemClicked;
             ColoniesList.OnDoubleClick = OnColonyListItemDoubleClicked;
             ColoniesList.EnableItemHighlight = true;

@@ -18,9 +18,9 @@ namespace Ship_Game.GameScreens.Espionage
         public RectF SubRect;
         public RectF OpsSubRect;
 
-        public ScrollList2<AgentListItem> AgentSL;
+        public ScrollList<AgentListItem> AgentSL;
         
-        public ScrollList2<MissionListItem> OpsSL;
+        public ScrollList<MissionListItem> OpsSL;
 
         private ScreenManager ScreenManager;
 

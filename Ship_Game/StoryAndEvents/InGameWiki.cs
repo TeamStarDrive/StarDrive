@@ -13,10 +13,10 @@ namespace Ship_Game
     public sealed class InGameWiki : PopupWindow
     {
         readonly HelpTopics HelpTopics;
-        ScrollList2<WikiHelpCategoryListItem> HelpCategories;
+        ScrollList<WikiHelpCategoryListItem> HelpCategories;
         RectF TextRect;
         Vector2 TitlePosition;
-        ScrollList2<TextListItem> HelpEntries;
+        ScrollList<TextListItem> HelpEntries;
 
         ScreenMediaPlayer Player;
         RectF SmallViewer;
@@ -53,10 +53,10 @@ namespace Ship_Game
             };
 
             RectF CategoriesRect = new(Rect.X + 25, MidSepBot.Y + 10, 330, 430);
-            HelpCategories = Add(new ScrollList2<WikiHelpCategoryListItem>(CategoriesRect));
+            HelpCategories = Add(new ScrollList<WikiHelpCategoryListItem>(CategoriesRect));
 
             RectF textSlRect = new(CategoriesRect.X + CategoriesRect.W + 5, CategoriesRect.Y + 10, 375, 420);
-            HelpEntries = Add(new ScrollList2<TextListItem>(textSlRect, Fonts.Arial12Bold.LineSpacing + 2));
+            HelpEntries = Add(new ScrollList<TextListItem>(textSlRect, Fonts.Arial12Bold.LineSpacing + 2));
             TextRect = new(HelpCategories.X + HelpCategories.Width + 5, HelpCategories.Y + 10, 375, 420);
             
             ResetActiveTopic();

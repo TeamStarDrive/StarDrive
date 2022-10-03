@@ -20,7 +20,7 @@ namespace Ship_Game
         protected SubmenuScrollList<SaveLoadListItem> AllSaves;
         protected Vector2 TitlePosition;
         protected UITextEntry EnterNameArea;
-        protected ScrollList2<SaveLoadListItem> SavesSL;
+        protected ScrollList<SaveLoadListItem> SavesSL;
         protected UIButton DoBtn;
         protected UIButton ExportBtn;
         public enum SLMode { Load, Save }

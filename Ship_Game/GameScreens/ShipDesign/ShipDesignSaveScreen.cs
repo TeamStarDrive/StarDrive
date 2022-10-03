@@ -22,7 +22,7 @@ namespace Ship_Game
         UITextEntry EnterNameArea;
         string BaseWIPName;
         SubmenuScrollList<ShipDesignListItem> SubAllDesigns;
-        ScrollList2<ShipDesignListItem> ShipDesigns;
+        ScrollList<ShipDesignListItem> ShipDesigns;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         readonly bool Hulls;

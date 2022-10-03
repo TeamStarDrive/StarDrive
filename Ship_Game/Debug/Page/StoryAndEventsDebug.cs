@@ -36,8 +36,8 @@ class StoryAndEventsDebug : DebugPage
         }
     }
 
-    readonly ScrollList2<EvtItem> ExplorationEvents;
-    readonly ScrollList2<EvtItem> EncounterDialogs;
+    readonly ScrollList<EvtItem> ExplorationEvents;
+    readonly ScrollList<EvtItem> EncounterDialogs;
 
     public StoryAndEventsDebug(DebugInfoScreen parent) : base(parent, DebugModes.StoryAndEvents)
     {

@@ -61,7 +61,7 @@ namespace Ship_Game
 
         // this contains module selection list and active module selection info
         public ModuleSelection ModuleSelectComponent { get; private set; }
-        ScrollList2<ShipHullListItem> HullSelectList;
+        ScrollList<ShipHullListItem> HullSelectList;
 
         public ShipModule HighlightedModule;
         SlotStruct ProjectedSlot;

@@ -14,7 +14,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         private readonly Menu2 Window;
         private readonly Color Cream = Colors.Cream;
         private readonly Array<DesignIssueDetails> DesignIssues;
-        private readonly ScrollList2<ShipDesignIssuesListItem> IssueList;
+        private readonly ScrollList<ShipDesignIssuesListItem> IssueList;
         private readonly Graphics.Font LargeFont = Fonts.Arial20Bold;
 
         public ShipDesignIssuesScreen(GameScreen screen, Array<DesignIssueDetails> issues) : base(screen, toPause: null)
@@ -30,7 +30,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             int w  = (int)Window.Width - 30;
             int h  = (int)Window.Height - 80;
 
-            IssueList = Add(new ScrollList2<ShipDesignIssuesListItem>(new RectF(x, y, w, h), 80));
+            IssueList = Add(new ScrollList<ShipDesignIssuesListItem>(new RectF(x, y, w, h), 80));
             IssueList.EnableItemHighlight = true;
             //IssueList.DebugDrawScrollList = true;
             //IssueList.DebugDraw = true;

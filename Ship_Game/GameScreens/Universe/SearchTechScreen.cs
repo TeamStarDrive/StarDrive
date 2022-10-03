@@ -13,7 +13,7 @@ namespace Ship_Game
     {
         readonly ResearchScreenNew Screen;
         Menu2 Window;
-        ScrollList2<SearchTechItem> TechList;
+        ScrollList<SearchTechItem> TechList;
         UITextEntry SearchTech;
 
         public SearchTechScreen(ResearchScreenNew screen) : base(screen, toPause: null)
