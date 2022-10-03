@@ -11,11 +11,11 @@ using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
-    public class UIElementContainer : UIElementV2
+    public class UIElementContainer : UIElementV2, IClientArea
     {
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
+        protected readonly Array<UIElementV2> Elements = new();
 
         /// <summary>
         /// If enabled, UI elements will be drawn with a fixed delay
@@ -34,6 +34,11 @@ namespace Ship_Game
         /// Hack: NEW Multi-Layered draw mode disables child element drawing
         /// </summary>
         public bool NewMultiLayeredDrawMode;
+
+        /// <summary>
+        /// ClientArea: the usable working area that our child elements can use
+        /// </summary>
+        public virtual RectF ClientArea { get => RectF; set => RectF = value; }
 
         public override string ToString() => $"{TypeName} {ElementDescr} Elements={Elements.Count}";
 

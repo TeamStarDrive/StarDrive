@@ -4,6 +4,7 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -17,7 +18,7 @@ namespace Ship_Game
         public string HangarShipUIDLast = "";
         ShipInfoOverlayComponent HangarShipInfoOverlay;
 
-        public FighterScrollList(in RectF rect, ShipDesignScreen shipDesignScreen) : base(rect)
+        public FighterScrollList(IClientArea rectSource, ShipDesignScreen shipDesignScreen) : base(rectSource)
         {
             Screen = shipDesignScreen;
         }
@@ -79,7 +80,7 @@ namespace Ship_Game
                 {
                     if (ActiveModule?.HangarShipUID == e.Design.Name)
                     {
-                        Highlight = new(new RectF(e.X-15, e.Y-5, e.Width+12, e.Height));
+                        Highlight = new(e.Rect.Bevel(4,2), new(Color.Yellow, 25));
                     }
                 }
             }

@@ -30,7 +30,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             int w  = (int)Window.Width - 30;
             int h  = (int)Window.Height - 80;
 
-            IssueList = Add(new ScrollList2<ShipDesignIssuesListItem>(new(x, y, w, h), 80));
+            IssueList = Add(new ScrollList2<ShipDesignIssuesListItem>(new RectF(x, y, w, h), 80));
             IssueList.EnableItemHighlight = true;
             //IssueList.DebugDrawScrollList = true;
             //IssueList.DebugDraw = true;
