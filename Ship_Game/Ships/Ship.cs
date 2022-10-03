@@ -1490,19 +1490,6 @@ namespace Ship_Game.Ships
 
         public void AddToShipLevel(int amountToAdd) => Level = (Level + amountToAdd).Clamped(0,10);
 
-        public bool NotThreatToPlayer()
-        {
-            if (Loyalty == Universe.Player || IsInWarp)
-                return true;
-
-            if (Loyalty == Universe.Remnants)
-                return false;
-
-            return BaseStrength.LessOrEqual(0)
-                   || IsFreighter
-                   || !Universe.Player.IsAtWarWith(Loyalty);
-        }
-
         public void UpdateEmpiresOnKill(Ship killedShip)
         {
             Loyalty.WeKilledTheirShip(killedShip.Loyalty, killedShip);

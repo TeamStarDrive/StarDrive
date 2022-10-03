@@ -9,7 +9,7 @@ namespace Ship_Game.Utils
     /// </summary>
     public struct BitArray
     {
-        readonly uint[] Values;
+        public readonly uint[] Values;
 
         public BitArray(int size)
         {

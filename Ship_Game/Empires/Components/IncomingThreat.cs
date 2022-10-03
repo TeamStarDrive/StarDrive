@@ -53,9 +53,9 @@ namespace Ship_Game.Empires.Components
                 return false;
             }
 
-            NearestFleet      = Fleets.FindMin(f => f.AveragePosition().SqDist(TargetSystem.Position));
-            ThreatDistance    = NearestFleet?.AveragePosition().Distance(TargetSystem.Position) ?? float.MaxValue;
-            PulseTime        -= simTime.FixedTime;
+            NearestFleet = Fleets.FindMin(f => f.AveragePosition().SqDist(TargetSystem.Position));
+            ThreatDistance = NearestFleet?.AveragePosition().Distance(TargetSystem.Position) ?? float.MaxValue;
+            PulseTime -= simTime.FixedTime;
             ProcessFleetThreat();
 
             if (PulseTime <= 0) 
