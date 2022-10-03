@@ -92,6 +92,11 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (beamTotalDuration > 0)
                     BeamAverageDuration = beamTotalDuration / beamWeapons.Length;
             }
+            else
+            {
+                BeamPeakPowerNeeded = 0;
+                BeamAverageDuration = 0;
+            }
 
             WeaponPowerNeededNoBeams = weapons.Sum(w => !w.IsBeam ? w.PowerFireUsagePerSecond : 0);
 
