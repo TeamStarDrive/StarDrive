@@ -29,7 +29,7 @@ namespace Ship_Game
         {
             Screen = screen;
             // rounded black background
-            SetBackground(new(0,0,0,210));
+            SetBackground(Colors.TransparentBlackFill);
 
             AddTab("Wpn");
             AddTab("Pwr");
@@ -44,7 +44,7 @@ namespace Ship_Game
             ActiveModSubMenu = Add(new Submenu(acsub));
             ActiveModSubMenu.AddTab("Active Module");
             // rounded black background
-            ActiveModSubMenu.SetBackground(new(0,0,0,210));
+            ActiveModSubMenu.SetBackground(Colors.TransparentBlackFill);
 
             // obsolete button
             int obsoleteW = ResourceManager.Texture("NewUI/icon_queue_delete").Width;
@@ -61,9 +61,9 @@ namespace Ship_Game
             }
             chooseFighterRect.Height = acsub.Height;
 
-            var chooseFighterSub = new Submenu(chooseFighterRect);
-            chooseFighterSub.AddTab("Choose Fighter");
-            ChooseFighterSL = Add(new FighterScrollList(chooseFighterSub, Screen));
+            var fighterSub = Add(new Submenu(chooseFighterRect));
+            fighterSub.AddTab("Choose Fighter");
+            ChooseFighterSL = fighterSub.Add(new FighterScrollList(fighterSub.ClientArea, Screen));
             ChooseFighterSL.EnableItemHighlight = true;
         }
 

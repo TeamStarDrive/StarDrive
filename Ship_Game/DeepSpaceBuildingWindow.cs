@@ -1,14 +1,13 @@
-using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -33,12 +32,12 @@ namespace Ship_Game
             RemoveAll();
 
             const int windowWidth = 320;
-            Rect = new Rectangle(Screen.ScreenWidth - 15 - windowWidth, 100, windowWidth, 300);
+            Rect = new(Screen.ScreenWidth - 15 - windowWidth, 100, windowWidth, 300);
 
-            var background = new Submenu(Rect);
-            background.SetBackground(Colors.TransparentBlackFill);
-            background.AddTab("Build Menu");
-            SL = Add(new ScrollList2<ConstructionListItem>(background, 40));
+            var sl = Add(new SubmenuScrollList<ConstructionListItem>(new RectF(Rect)));
+            sl.SetBackground(Colors.TransparentBlackFill);
+            sl.AddTab("Build Menu");
+            SL = sl.List;
             SL.OnClick = (item) => { ShipToBuild = item.Template; };
             SL.EnableItemHighlight = true;
 
@@ -47,7 +46,7 @@ namespace Ship_Game
             {
                 if (s == "Subspace Projector")
                 {
-                    SL.AddItem(new ConstructionListItem(Screen, ResourceManager.Ships.GetDesign(s)));
+                    SL.AddItem(new(Screen, ResourceManager.Ships.GetDesign(s)));
                     break;
                 }
             }
@@ -55,7 +54,7 @@ namespace Ship_Game
             {
                 if (s != "Subspace Projector")
                 {
-                    SL.AddItem(new ConstructionListItem(Screen, ResourceManager.Ships.GetDesign(s)));
+                    SL.AddItem(new(Screen, ResourceManager.Ships.GetDesign(s)));
                 }
             }
 

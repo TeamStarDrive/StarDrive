@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -16,7 +17,7 @@ namespace Ship_Game
         protected Rectangle Window;
         protected Menu1 SaveMenu;
         protected Submenu NameSave;
-        protected Submenu AllSaves;
+        protected SubmenuScrollList<SaveLoadListItem> AllSaves;
         protected Vector2 TitlePosition;
         protected UITextEntry EnterNameArea;
         protected ScrollList2<SaveLoadListItem> SavesSL;
@@ -119,10 +120,12 @@ namespace Ship_Game
             NameSave = new Submenu(sub);
             NameSave.AddTab(Title);
             TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
-            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
-            AllSaves = new Submenu(scrollList);
+
+            RectF scrollList = new(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
+
+            AllSaves = Add(new SubmenuScrollList<SaveLoadListItem>(scrollList, EntryHeight));
             AllSaves.AddTab(TabText);
-            SavesSL = Add(new ScrollList2<SaveLoadListItem>(AllSaves, EntryHeight));
+            SavesSL = AllSaves.List;
             SavesSL.OnClick = OnSaveLoadItemClicked;
             SavesSL.OnDoubleClick = OnSaveLoadItemDoubleClicked;
             SavesSL.EnableItemHighlight = true;

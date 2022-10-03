@@ -1,4 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
+using Ship_Game.UI;
 using System;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -29,9 +31,9 @@ namespace Ship_Game
 
         public Rectangle ItemsRect => ItemsList.ItemsHousing;
 
-        public UITextBox(Submenu background) : base(background.Rect, Color.TransparentBlack)
+        public UITextBox(in RectF rect) : base(rect, Color.TransparentBlack)
         {
-            ItemsList = Add(new ScrollList2<TextBoxItem>(background));
+            ItemsList = base.Add(new SubmenuScrollList<TextBoxItem>(rect)).List;
         }
 
         public void Clear()
