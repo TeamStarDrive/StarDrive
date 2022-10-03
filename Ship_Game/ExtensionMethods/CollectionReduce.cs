@@ -163,7 +163,7 @@ namespace Ship_Game
         /// Optimized version of LINQ Min(x => x.Value), tailored specifically to T[].
         /// </summary>
         /// <returns>Min item from selected range</returns>
-        public static float Min<T>(this Array<T> items, Func<T, int> valueFromItem)
+        public static int Min<T>(this Array<T> items, Func<T, int> valueFromItem)
         {
             return Min(items.GetInternalArrayItems(), items.Count, valueFromItem);
         }

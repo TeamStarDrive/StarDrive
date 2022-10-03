@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -40,11 +41,10 @@ namespace Ship_Game
         {
             base.LoadContent();
 
-            var rect = new Rectangle(MidContainer.X + 20, 
-                                     MidContainer.Y + MidContainer.Height - 20, 
-                                     Rect.Width - 40, 
-                                     Rect.Height - MidContainer.Height - TitleRect.Height - 20);
-
+            RectF rect = new(MidContainer.X + 20, 
+                             MidContainer.Y + MidContainer.Height - 20, 
+                             Rect.Width - 40, 
+                             Rect.Height - MidContainer.Height - TitleRect.Height - 20);
             UnlockSL = Add(new ScrollList2<UnlockListItem>(rect, 100));
 
             Array<UnlockItem> unlocks = UnlockItem.CreateUnlocksList(Technology, Universe.Player);

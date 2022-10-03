@@ -26,7 +26,7 @@ namespace Ship_Game
         private readonly SortButton SortRole;
         private readonly SortButton SortOrder;
         private readonly SortButton SortFleet;
-        private readonly Rectangle ERect;
+        private readonly RectF ERect;
 
         private bool PlayerDesignsOnly
         {
@@ -57,15 +57,15 @@ namespace Ship_Game
         }
 
         private static int IndexLast;
-        private Rectangle StrIconRect;
+        private RectF StrIconRect;
         private readonly SortButton SB_STR;
-        private Rectangle MaintRect;
+        private RectF MaintRect;
         private readonly SortButton Maint;
-        private Rectangle TroopRect;
+        private RectF TroopRect;
         private readonly SortButton SB_Troop;
-        private Rectangle FTL;
+        private RectF FTL;
         private readonly SortButton SB_FTL;
-        private Rectangle STL;
+        private RectF STL;
         private readonly SortButton SB_STL;
 
         public ShipListScreen(UniverseScreen parent, EmpireUIOverlay empUi, string audioCue = "")
@@ -85,11 +85,10 @@ namespace Ship_Game
             LeftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(LeftRect);
             Add(new CloseButton(LeftRect.Right - 40, LeftRect.Y + 20));
-            ERect = new Rectangle(20, titleRect.Y + titleRect.Height + 35, ScreenWidth - 40, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
-            while (ERect.Height % 80 != 0)
-            {
-                ERect.Height = ERect.Height - 1;
-            }
+
+
+            ERect = new(20, titleRect.Y + titleRect.Height + 35, ScreenWidth - 40, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
+            ERect.H = ERect.H.RoundDownTo(80);
 
             ShipSL = Add(new ScrollList2<ShipListScreenItem>(ERect, 30));
             ShipSL.OnDoubleClick = OnShipListScreenItemClicked;
@@ -180,27 +179,27 @@ namespace Ship_Game
                 SortOrder.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(SortOrder.Text), font.LineSpacing);
                 SortOrder.Draw(ScreenManager, font);
 
-                StrIconRect = new Rectangle(e1.StrRect.X + e1.StrRect.Width / 2 - 6, ERect.Y, 18, 18);
+                StrIconRect = new(e1.StrRect.X + e1.StrRect.Width / 2 - 6, ERect.Y, 18, 18);
                 SB_STR.rect = StrIconRect;
                 batch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), StrIconRect, Color.White);
-                MaintRect = new Rectangle(e1.MaintRect.X + e1.MaintRect.Width / 2 - 7, ERect.Y - 2, 21, 20);
+                MaintRect = new(e1.MaintRect.X + e1.MaintRect.Width / 2 - 7, ERect.Y - 2, 21, 20);
                 Maint.rect = MaintRect;
                 batch.Draw(ResourceManager.Texture("NewUI/icon_money"), MaintRect, Color.White);
-                TroopRect = new Rectangle(e1.TroopRect.X + e1.TroopRect.Width / 2 - 5, ERect.Y - 2, 18, 22);
+                TroopRect = new(e1.TroopRect.X + e1.TroopRect.Width / 2 - 5, ERect.Y - 2, 18, 22);
                 SB_Troop.rect = TroopRect;
                 batch.Draw(ResourceManager.Texture("UI/icon_troop"), TroopRect, Color.White);
                 cursor = new Vector2(e1.FTLRect.X + e1.FTLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, ERect.Y - Fonts.Arial12Bold.LineSpacing + 18);
                 cursor = cursor.ToFloored();
                 batch.DrawString(Fonts.Arial12Bold, "FTL", cursor, Colors.Cream);
-                FTL = new Rectangle(e1.FTLRect.X, ERect.Y - 20 + 35, e1.FTLRect.Width, 20);
+                FTL = new(e1.FTLRect.X, ERect.Y - 20 + 35, e1.FTLRect.Width, 20);
                 SB_FTL.rect = FTL;
-                STL = new Rectangle(e1.STLRect.X, ERect.Y - 20 + 35, e1.STLRect.Width, 20);
+                STL = new(e1.STLRect.X, ERect.Y - 20 + 35, e1.STLRect.Width, 20);
                 SB_STL.rect = STL;
                 cursor = new Vector2(e1.STLRect.X + e1.STLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, ERect.Y - Fonts.Arial12Bold.LineSpacing + 18);
                 cursor = cursor.ToFloored();
                 batch.DrawString(Fonts.Arial12Bold, "STL", cursor, Colors.Cream);
 
-                void DrawLine(int aX, int aY, int bX, int bY)
+                void DrawLine(float aX, float aY, float bX, float bY)
                 {
                     batch.DrawLine(new Vector2(aX, aY), new Vector2(bX, bY), new Color(118, 102, 67, 255));
                 }
@@ -208,7 +207,7 @@ namespace Ship_Game
                 {
                     DrawLine(x, ERect.Y + 26, x, ERect.Bottom - 10);
                 }
-                void DrawHorizontalSeparator(int y)
+                void DrawHorizontalSeparator(float y)
                 {
                      DrawLine(e1.TotalEntrySize.X, y, e1.TotalEntrySize.Right, y);
                 }
@@ -399,7 +398,7 @@ namespace Ship_Game
             {
                 if (ShouldAddForCategory(ship, category))
                 {
-                    ShipSL.AddItem(new ShipListScreenItem(ship, ERect.X + 130, LeftRect.Y + 20, EMenu.Menu.Width - 30, 30, this));
+                    ShipSL.AddItem(new ShipListScreenItem(ship, (int)ERect.X + 130, LeftRect.Y + 20, EMenu.Menu.Width - 30, 30, this));
                 }
             }
 

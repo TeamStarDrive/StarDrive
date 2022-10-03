@@ -21,6 +21,7 @@ namespace Ship_Game
         Empire Player => Screen.Player;
 
         readonly FighterScrollList ChooseFighterSL;
+        readonly SubmenuScrollList<FighterListItem> ChooseFighterSub;
         readonly ModuleSelectScrollList ModuleSelectList;
         readonly Submenu ActiveModSubMenu;
         readonly TexturedButton Obsolete;
@@ -37,11 +38,11 @@ namespace Ship_Game
             AddTab("Spc");
             base.PerformLayout();
 
-            ModuleSelectList = Add(new ModuleSelectScrollList(LocalPos.Zero, Size, Screen));
+            ModuleSelectList = base.Add(new ModuleSelectScrollList(LocalPos.Zero, Size, Screen));
 
             var acsub = new Rectangle(Rect.X, Rect.Bottom + 15, 305, 400);
 
-            ActiveModSubMenu = Add(new Submenu(acsub));
+            ActiveModSubMenu = base.Add(new Submenu(acsub));
             ActiveModSubMenu.AddTab("Active Module");
             // rounded black background
             ActiveModSubMenu.SetBackground(Colors.TransparentBlackFill);
@@ -53,18 +54,20 @@ namespace Ship_Game
             Obsolete = new(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
             Obsolete.Tooltip = GameText.MarkThisModuleAsObsolete;
             
-            var chooseFighterRect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
+            RectF chooseFighterRect = new(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
             if (chooseFighterRect.Bottom > Screen.ScreenHeight)
             {
-                int diff = chooseFighterRect.Bottom - Screen.ScreenHeight;
-                chooseFighterRect.Height -= (diff + 10);
+                float diff = chooseFighterRect.Bottom - Screen.ScreenHeight;
+                chooseFighterRect.H -= (diff + 10);
             }
-            chooseFighterRect.Height = acsub.Height;
+            chooseFighterRect.H = acsub.Height;
 
-            var fighterSub = Add(new Submenu(chooseFighterRect));
-            fighterSub.AddTab("Choose Fighter");
-            ChooseFighterSL = fighterSub.Add(new FighterScrollList(fighterSub.ClientArea, Screen));
+            ChooseFighterSL = new FighterScrollList(chooseFighterRect, Screen);
             ChooseFighterSL.EnableItemHighlight = true;
+
+            ChooseFighterSub = base.Add(new SubmenuScrollList<FighterListItem>(chooseFighterRect, ChooseFighterSL));
+            ChooseFighterSub.AddTab("Choose Fighter");
+            ChooseFighterSub.SetBackground(Colors.TransparentBlackFill);
         }
 
         protected override void OnTabChangedEvt(int newIndex)
@@ -82,7 +85,7 @@ namespace Ship_Game
 
         public bool HitTest(InputState input)
         {
-            return Rect.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
+            return base.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
         }
 
         public override bool HandleInput(InputState input)
@@ -118,6 +121,8 @@ namespace Ship_Game
                 SelectedIndex = 0; // this will trigger OnTabChangedEvt
 
             ActiveModSubMenu.Visible = Screen.ActiveModule != null || Screen.HighlightedModule != null;
+            ChooseFighterSub.Visible = ChooseFighterSL.GetFighterHangar() != null;
+
             base.Update(fixedDeltaTime);
         }
 

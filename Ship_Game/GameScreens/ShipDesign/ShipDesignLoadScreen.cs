@@ -8,6 +8,7 @@ using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Universe;
+using Ship_Game.UI;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -154,16 +155,18 @@ namespace Ship_Game.GameScreens.ShipDesign
             Elements.Clear();
 
             Rect = new(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
-            var background = new Submenu(X + 20, Y + 60, Width - 40, Height - 80);
-            background.SetBackground(new Menu1(Rect));
-            background.AddTab(Localizer.Token(GameText.AvailableDesigns));
 
-            AvailableDesignsList = background.Add(new ScrollList2<DesignListItem>(background.ClientArea));
+            RectF designsRect = new(X + 20, Y + 60, Width - 40, Height - 80);
+            var designs = Add(new SubmenuScrollList<DesignListItem>(designsRect));
+            designs.AddTab(Localizer.Token(GameText.AvailableDesigns));
+            designs.SetBackground(new Menu1(Rect));
+
+            AvailableDesignsList = designs.List;
             AvailableDesignsList.EnableItemHighlight = true;
             AvailableDesignsList.OnClick       = OnDesignListItemClicked;
             AvailableDesignsList.OnDoubleClick = OnDesignListItemDoubleClicked;
 
-            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(background.Right - 44, background.Y)));
+            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(designs.Right - 44, designs.Y)));
             PlayerDesignsToggle.OnClick = p =>
             {
                 GameAudio.AcceptClick();
@@ -174,7 +177,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             };
             
             DefaultFilterText = Localizer.Token(GameText.ChooseAShipToLoad);
-            Filter = Add(new UITextEntry(X + 20, Y + 20, background.Width - 120, Fonts.Arial20Bold, DefaultFilterText));
+            Filter = Add(new UITextEntry(X + 20, Y + 20, designs.Width - 120, Fonts.Arial20Bold, DefaultFilterText));
             Filter.AutoCaptureOnKeys = true;
             Filter.AutoCaptureLoseFocusTime = 0.5f;
             Filter.OnTextChanged = LoadShipTemplates;
@@ -184,7 +187,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Filter.Text = "";
             };
 
-            ButtonSmall(background.Right - 88, Filter.Y - 2, text:GameText.Load, click: b =>
+            ButtonSmall(designs.Right - 88, Filter.Y - 2, text:GameText.Load, click: b =>
             {
                 LoadShipToScreen();
             });

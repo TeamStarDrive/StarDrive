@@ -17,14 +17,14 @@ namespace Ship_Game
         public string HangarShipUIDLast = "";
         ShipInfoOverlayComponent HangarShipInfoOverlay;
 
-        public FighterScrollList(in Rectangle rect, ShipDesignScreen shipDesignScreen) : base(rect)
+        public FighterScrollList(in RectF rect, ShipDesignScreen shipDesignScreen) : base(rect)
         {
             Screen = shipDesignScreen;
         }
 
         public bool HitTest(InputState input)
         {
-            return ActiveModule != null && Rect.HitTest(input.CursorPosition);
+            return ActiveModule != null && base.HitTest(input.CursorPosition);
         }
 
         void Populate()
@@ -99,26 +99,32 @@ namespace Ship_Game
             base.OnItemClicked(item);
         }
 
-        public override bool HandleInput(InputState input)
+        public ShipModule GetFighterHangar()
         {
             ShipModule activeModule = Screen.ActiveModule;
             ShipModule highlightedModule = Screen.HighlightedModule;
 
             activeModule ??= highlightedModule;
-            if (activeModule?.ModuleType == ShipModuleType.Hangar 
-                && !activeModule.IsTroopBay 
-                && !activeModule.IsSupplyBay)
+            if (activeModule?.ModuleType == ShipModuleType.Hangar &&
+                !activeModule.IsTroopBay && !activeModule.IsSupplyBay)
             {
-                ActiveModule = activeModule;
-                SetActiveHangarModule(activeModule, ActiveHangarModule);
+                return activeModule;
+            }
+            return null;
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            ActiveModule = GetFighterHangar();
+            if (ActiveModule != null)
+            {
+                SetActiveHangarModule(ActiveModule, ActiveHangarModule);
                 
-                base.HandleInput(input);
-                return HitTest(input);
+                // always capture input if mouse is hovering here
+                return base.HandleInput(input) || HitTest(input); 
             }
             
-            base.HandleInput(input);
             ActiveHangarModule = null;
-            ActiveModule = null;
             HangarShipUIDLast = "";
             return false;
         }
@@ -141,15 +147,6 @@ namespace Ship_Game
             }
 
             ActiveHangarModule.SetDynamicHangarFromShip();
-        }
-
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-        {
-            if (ActiveHangarModule == null)
-                return;
-
-            Screen.DrawRectangle(Rect, Color.TransparentWhite, Color.Black);
-            base.Draw(batch, elapsed);
         }
     }
 }

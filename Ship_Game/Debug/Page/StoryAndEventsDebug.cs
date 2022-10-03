@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SDGraphics;
 using SDUtils;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Debug.Page;
@@ -34,7 +36,6 @@ class StoryAndEventsDebug : DebugPage
         }
     }
 
-    Submenu Menu;
     readonly ScrollList2<EvtItem> ExplorationEvents;
     readonly ScrollList2<EvtItem> EncounterDialogs;
 
@@ -42,12 +43,12 @@ class StoryAndEventsDebug : DebugPage
     {
         ExplorationEvent[] events = ResourceManager.EventsDict.Values.ToArr();
 
-        Menu = Add(new Submenu(50, 260, 400, 600));
-        Menu.AddTab("ExpEvts");
-        Menu.AddTab("Encounters");
-        Menu.OnTabChange = OnTabChanged;
+        var menu = base.Add(new SubmenuScrollList<EvtItem>(new(50, 260, 400, 600)));
+        menu.AddTab("ExpEvts");
+        menu.AddTab("Encounters");
+        menu.OnTabChange = OnTabChanged;
 
-        ExplorationEvents = Menu.Add(new ScrollList2<EvtItem>(Menu.Rect.CutTop(20)));
+        ExplorationEvents = menu.List;
         ExplorationEvents.EnableItemEvents = true;
         ExplorationEvents.EnableItemHighlight = true;
 
@@ -66,8 +67,7 @@ class StoryAndEventsDebug : DebugPage
             }
         }
 
-        var submenu = new Submenu(Menu.Rect);
-        EncounterDialogs = Menu.Add(new ScrollList2<EvtItem>(submenu.ClientArea));
+        EncounterDialogs = menu.Add(new SubmenuScrollList<EvtItem>(new(menu.Rect))).List;
         EncounterDialogs.EnableItemEvents = true;
         EncounterDialogs.EnableItemHighlight = true;
 
@@ -81,7 +81,7 @@ class StoryAndEventsDebug : DebugPage
             };
         }
 
-        Menu.SelectedIndex = 0;
+        menu.SelectedIndex = 0;
 
         Label(Width - 200, 200, "Ctrl+M to spawn Meteors");
     }

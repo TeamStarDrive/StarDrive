@@ -1,6 +1,8 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -36,15 +38,17 @@ namespace Ship_Game
             CurrentResearchPanel = Add(new Submenu(current, SubmenuStyle.Blue));
             CurrentResearchPanel.AddTab(Localizer.Token(GameText.CurrentResearch));
             
-            var queue = new Rectangle(current.X, current.Y + 165, container.Width, container.Height - 165);
-            var queuePanel = Add(new Submenu(queue, SubmenuStyle.Blue));
-            queuePanel.AddTab(Localizer.Token(GameText.ResearchQueue));
-            ResearchQueueList = queuePanel.Add(new ScrollList2<ResearchQItem>(queuePanel.Rect.CutTop(5), 125, ListStyle.Blue));
+            RectF queue = new(current.X, current.Y + 165, container.Width, container.Height - 165);
+            var queueSub = Add(new SubmenuScrollList<ResearchQItem>(queue, 125, ListStyle.Blue));
+            queueSub.AddTab(Localizer.Token(GameText.ResearchQueue));
+            ResearchQueueList = queueSub.List;
+
             // FB Disabled due to being able to drag stuff to be before other research mandatory for it.
             //ResearchQueueList.OnDragReorder = OnResearchItemReorder; 
             ReloadResearchQueue();
         }
 
+        // TODO: check if we are moving item up before allowed item
         void OnResearchItemReorder(ResearchQItem item, int oldIndex, int newIndex)
         {
             // we use +1 here, because [0] is the current research item
