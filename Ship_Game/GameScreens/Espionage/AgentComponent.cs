@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -54,16 +55,14 @@ namespace Ship_Game.GameScreens.Espionage
             ScreenManager = Universe.ScreenManager;
             SubRect = new Rectangle(ComponentRect.X, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
             OpsSubRect = new Rectangle(operationsRect.X + 20, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
-            AgentSL = new ScrollList2<AgentListItem>(new Submenu(ComponentRect), 40);
+            AgentSL = Add(new SubmenuScrollList<AgentListItem>(new RectF(ComponentRect))).List;
             AgentSL.OnClick = OnAgentItemClicked;
             foreach (Agent agent in Universe.Player.data.AgentList)
                 AgentSL.AddItem(new AgentListItem(agent, Universe));
-            Add(AgentSL);
 
             Rectangle c = ComponentRect;
             c.X = OpsSubRect.X;
-            OpsSL = new ScrollList2<MissionListItem>(new Submenu(c), 30);
-            Add(OpsSL);
+            OpsSL = Add(new SubmenuScrollList<MissionListItem>(new RectF(c), 30)).List;
             Training        = new MissionListItem(AgentMission.Training, this);
             Infiltrate      = new MissionListItem(AgentMission.Infiltrate, this);
             Assassinate     = new MissionListItem(AgentMission.Assassinate, this);

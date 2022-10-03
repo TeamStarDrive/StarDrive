@@ -535,7 +535,7 @@ namespace Ship_Game
             var hullSelectPos = new LocalPos(ScreenWidth - hullSelW, ModuleSelectComponent.LocalPos.Y);
             var hullSelBkg = Add(new Submenu(hullSelectPos, new(hullSelW, hullSelH)));
             // rounded black background
-            hullSelBkg.SetBackground(new Color(0,0,0,210));
+            hullSelBkg.SetBackground(Colors.TransparentBlackFill);
             hullSelBkg.AddTab(Localizer.Token(GameText.SelectHull));
 
             HullSelectList = hullSelBkg.Add(new ScrollList2<ShipHullListItem>(new LocalPos(0,5), new(hullSelW, hullSelH)));

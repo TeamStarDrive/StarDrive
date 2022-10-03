@@ -89,7 +89,8 @@ namespace Ship_Game
 
         // If set to a valid UIElement instance, then this element will be drawn in the background
         UIElementV2 TheBackground;
-        protected void TakeOwnershipOfBackground(UIElementV2 background)
+
+        public void SetBackground(UIElementV2 background)
         {
             if (TheBackground != background)
             {

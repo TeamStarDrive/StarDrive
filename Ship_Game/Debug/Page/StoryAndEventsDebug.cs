@@ -66,7 +66,8 @@ class StoryAndEventsDebug : DebugPage
             }
         }
 
-        EncounterDialogs = Menu.Add(new ScrollList2<EvtItem>(new Submenu(Menu.Rect)));
+        var submenu = new Submenu(Menu.Rect);
+        EncounterDialogs = Menu.Add(new ScrollList2<EvtItem>(submenu.ClientArea));
         EncounterDialogs.EnableItemEvents = true;
         EncounterDialogs.EnableItemHighlight = true;
 

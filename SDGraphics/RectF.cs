@@ -225,4 +225,11 @@ public struct RectF
     [Pure]
     public readonly RectF CutTop(int amount) => new(X, Y + amount, W, H - amount);
 
+    [Pure]
+    public readonly RectF Bevel(float bevel)
+        => new(X - bevel, Y - bevel, W + bevel * 2, H + bevel * 2);
+
+    [Pure]
+    public readonly RectF Bevel(float bevelX, float bevelY)
+        => new(X - bevelX, Y - bevelY, W + bevelX * 2, H + bevelY * 2);
 }

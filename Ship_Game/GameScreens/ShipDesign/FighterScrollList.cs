@@ -17,7 +17,7 @@ namespace Ship_Game
         public string HangarShipUIDLast = "";
         ShipInfoOverlayComponent HangarShipInfoOverlay;
 
-        public FighterScrollList(Submenu fighterList, ShipDesignScreen shipDesignScreen) : base(fighterList, 40)
+        public FighterScrollList(in Rectangle rect, ShipDesignScreen shipDesignScreen) : base(rect)
         {
             Screen = shipDesignScreen;
         }
