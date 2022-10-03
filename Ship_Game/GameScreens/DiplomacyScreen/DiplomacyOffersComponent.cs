@@ -10,7 +10,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
     // Contains Scroll list and actions for ItemToOffer such as "Open Borders" etc
     class DiplomacyOffersComponent : UIElementContainer
     {
-        readonly ScrollList2<ItemToOffer> List;
+        readonly ScrollList<ItemToOffer> List;
         DiplomacyOffersComponent Theirs;
         readonly Empire Us;
         readonly Empire Them;
@@ -30,7 +30,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             base.Add(new UIPanel(back, background));
 
             RectF list = new(rect.X + 10, rect.Y + 30, rect.Width - 10, rect.Height - 40);
-            List = base.Add(new ScrollList2<ItemToOffer>(list));
+            List = base.Add(new ScrollList<ItemToOffer>(list));
 
             GameText title = empire.isPlayer ? GameText.WeHave : GameText.TheyHave;
             base.Add(new UILabel(new Vector2(rect.X + 26, rect.Y + 14), title, Fonts.Pirulen12));

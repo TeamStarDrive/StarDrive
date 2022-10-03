@@ -10,11 +10,11 @@ namespace Ship_Game.UI;
 /// </summary>
 public class SubmenuScrollList<T> : Submenu where T : ScrollListItem<T>
 {
-    public ScrollList2<T> List;
+    public ScrollList<T> List;
 
     static SubmenuStyle Style(ListStyle s) => s == ListStyle.Default ? SubmenuStyle.Brown : SubmenuStyle.Blue;
 
-    public SubmenuScrollList(RectF theMenu, LocalizedText title, ScrollList2<T> list, ListStyle style = ListStyle.Default)
+    public SubmenuScrollList(RectF theMenu, LocalizedText title, ScrollList<T> list, ListStyle style = ListStyle.Default)
         : base(theMenu, title, Style(style))
     {
         list.RectF = ClientArea;
@@ -25,31 +25,31 @@ public class SubmenuScrollList<T> : Submenu where T : ScrollListItem<T>
     public SubmenuScrollList(RectF menu, LocalizedText title, int itemHeight = 40, ListStyle style = ListStyle.Default)
         : base(menu, title, Style(style))
     {
-        List = base.Add(new ScrollList2<T>(this, itemHeight));
+        List = base.Add(new ScrollList<T>(this, itemHeight));
     }
 
     public SubmenuScrollList(LocalPos pos, Vector2 size, LocalizedText title, ListStyle style = ListStyle.Default)
         : base(pos, size, title, Style(style))
     {
         base.PerformLayout();
-        List = base.Add(new ScrollList2<T>(this));
+        List = base.Add(new ScrollList<T>(this));
     }
 
     public SubmenuScrollList(RectF menu, IEnumerable<LocalizedText> tabs, int itemHeight = 40, ListStyle style = ListStyle.Default)
         : base(menu, tabs, Style(style))
     {
-        List = base.Add(new ScrollList2<T>(this, itemHeight));
+        List = base.Add(new ScrollList<T>(this, itemHeight));
     }
 
     public SubmenuScrollList(RectF menu, ListStyle style = ListStyle.Default)
         : base(menu, Style(style))
     {
-        List = base.Add(new ScrollList2<T>(this, style:style));
+        List = base.Add(new ScrollList<T>(this, style:style));
     }
 
     public SubmenuScrollList(in RectF menu, int itemHeight, ListStyle style = ListStyle.Default)
         : base(menu, Style(style))
     {
-        List = base.Add(new ScrollList2<T>(this, itemHeight, style:style));
+        List = base.Add(new ScrollList<T>(this, itemHeight, style:style));
     }
 }

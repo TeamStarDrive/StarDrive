@@ -22,7 +22,7 @@ namespace Ship_Game
         Empire Player => Universe.Player;
 
         public Planet SelectedPlanet { get; private set; }
-        readonly ScrollList2<PlanetListScreenItem> PlanetSL;
+        readonly ScrollList<PlanetListScreenItem> PlanetSL;
 
         readonly SortButton sb_Sys;
         readonly SortButton sb_Name;
@@ -82,7 +82,7 @@ namespace Ship_Game
             eRect = new(leftRect.X + 20, titleRect.Bottom + 30, ScreenWidth - 40,
                         leftRect.Bottom - (titleRect.Bottom + 30) - 15);
 
-            PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect));
+            PlanetSL = Add(new ScrollList<PlanetListScreenItem>(eRect));
             PlanetSL.EnableItemHighlight = true;
 
             sb_Sys      = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.System));

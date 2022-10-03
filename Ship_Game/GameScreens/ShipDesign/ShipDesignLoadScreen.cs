@@ -23,7 +23,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         UITextEntry Filter;
         string DefaultFilterText;
         PlayerDesignToggleButton PlayerDesignsToggle;
-        ScrollList2<DesignListItem> AvailableDesignsList;
+        ScrollList<DesignListItem> AvailableDesignsList;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         IShipDesign SelectedShip;

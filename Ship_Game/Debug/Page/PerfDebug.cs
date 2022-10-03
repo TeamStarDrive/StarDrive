@@ -10,12 +10,12 @@ namespace Ship_Game.Debug.Page;
 
 public class PerfDebug : DebugPage
 {
-    ScrollList2<DebugStatItem> Stats;
+    ScrollList<DebugStatItem> Stats;
 
     public PerfDebug(DebugInfoScreen parent) : base(parent, DebugModes.Perf)
     {
         RectF statsR = new(parent.X + 360, parent.Y + 120, 440, 600);
-        Stats = base.Add(new ScrollList2<DebugStatItem>(statsR, 20));
+        Stats = base.Add(new ScrollList<DebugStatItem>(statsR, 20));
         Stats.EnableItemEvents = true;
 
         var o = Universe.Objects;

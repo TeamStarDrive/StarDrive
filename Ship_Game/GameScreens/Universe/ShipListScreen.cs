@@ -17,7 +17,7 @@ namespace Ship_Game
         private readonly Vector2 TitlePos;
         private readonly Menu2 EMenu;
         private Ship SelectedShip;
-        private readonly ScrollList2<ShipListScreenItem> ShipSL;
+        private readonly ScrollList<ShipListScreenItem> ShipSL;
         public EmpireUIOverlay EmpireUi;
         private readonly Rectangle LeftRect;
         private readonly DropOptions<int> ShowRoles;
@@ -90,7 +90,7 @@ namespace Ship_Game
             ERect = new(20, titleRect.Y + titleRect.Height + 35, ScreenWidth - 40, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
             ERect.H = ERect.H.RoundDownTo(80);
 
-            ShipSL = Add(new ScrollList2<ShipListScreenItem>(ERect, 30));
+            ShipSL = Add(new ScrollList<ShipListScreenItem>(ERect, 30));
             ShipSL.OnDoubleClick = OnShipListScreenItemClicked;
             ShipSL.EnableItemHighlight = true;
 

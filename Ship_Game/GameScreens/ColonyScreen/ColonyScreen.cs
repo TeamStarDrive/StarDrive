@@ -38,8 +38,8 @@ namespace Ship_Game
         readonly UILabel FilterBuildableItemsLabel;
         
         readonly SubmenuScrollList<BuildableListItem> BuildableTabs;
-        readonly ScrollList2<BuildableListItem> BuildableList;
-        readonly ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
+        readonly ScrollList<BuildableListItem> BuildableList;
+        readonly ScrollList<ConstructionQueueScrollListItem> ConstructionQueue;
         readonly DropDownMenu FoodDropDown;
         readonly DropDownMenu ProdDropDown;
         readonly ProgressBar FoodStorage;

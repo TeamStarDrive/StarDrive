@@ -27,7 +27,7 @@ namespace Ship_Game
         public Rectangle LeftRect;
         public Rectangle RightRect;
         public Rectangle ShipInfoRect;
-        ScrollList2<SelectedShipListItem> SelectedShipsSL;
+        ScrollList<SelectedShipListItem> SelectedShipsSL;
         public Rectangle Power;
         public Rectangle Shields;
         public ToggleButton GridButton;
@@ -76,7 +76,7 @@ namespace Ship_Game
             OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
 
             RectF selected = new(RightRect.X-10, Housing.Y + 85, RightRect.Width - 5, 140);
-            SelectedShipsSL = new ScrollList2<SelectedShipListItem>(selected, 24);
+            SelectedShipsSL = new ScrollList<SelectedShipListItem>(selected, 24);
         }
 
         public void ClearShipList()

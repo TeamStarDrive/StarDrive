@@ -8,7 +8,7 @@ namespace Ship_Game
 {
     public class UITextBox : UIPanel
     {
-        readonly ScrollList2<TextBoxItem> ItemsList;
+        readonly ScrollList<TextBoxItem> ItemsList;
         
         public UITextBox(in RectF rect) : base(rect, Color.TransparentBlack)
         {

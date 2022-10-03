@@ -15,7 +15,7 @@ namespace Ship_Game
     {
         readonly UniverseScreen Screen;
         Empire Player => Screen.Player;
-        ScrollList2<ConstructionListItem> SL;
+        ScrollList<ConstructionListItem> SL;
         public IShipDesign ShipToBuild;
         Vector2 TetherOffset;
         Planet TargetPlanet;
