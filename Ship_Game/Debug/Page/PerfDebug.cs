@@ -14,7 +14,8 @@ public class PerfDebug : DebugPage
 
     public PerfDebug(DebugInfoScreen parent) : base(parent, DebugModes.Perf)
     {
-        Stats = base.Add(new ScrollList2<DebugStatItem>(new LocalPos(360f, 120f), new(440f, 600f), 20));
+        RectF statsR = new(parent.X + 360, parent.Y + 120, 440, 600);
+        Stats = base.Add(new ScrollList2<DebugStatItem>(statsR, 20));
         Stats.EnableItemEvents = true;
 
         var o = Universe.Objects;

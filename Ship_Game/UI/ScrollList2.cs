@@ -91,16 +91,16 @@ namespace Ship_Game
 
         public ScrollList2(in RectF rect, int entryHeight = 40, ListStyle style = ListStyle.Default)
         {
-            Rect = rect;
+            RectF = rect;
             Style = style;
             EntryHeight = entryHeight;
             SetItemsHousing();
         }
 
-        public ScrollList2(LocalPos pos, Vector2 size, int entryHeight = 40, ListStyle style = ListStyle.Default)
+        public ScrollList2(IClientArea rectSource, int entryHeight = 40, ListStyle style = ListStyle.Default)
         {
-            SetLocalPos(pos);
-            Size = size;
+            ClientAreaSource = rectSource;
+            RectF = rectSource.ClientArea;
             Style = style;
             EntryHeight = entryHeight;
             SetItemsHousing();

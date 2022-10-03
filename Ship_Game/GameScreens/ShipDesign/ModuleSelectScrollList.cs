@@ -14,7 +14,7 @@ namespace Ship_Game
         public readonly ShipDesignScreen Screen;
         Empire Player => Screen.Player;
 
-        public ModuleSelectScrollList(RectF rect, ShipDesignScreen screen) : base(rect)
+        public ModuleSelectScrollList(IClientArea rectSource, ShipDesignScreen screen) : base(rectSource)
         {
             Screen = screen;
             EnableItemHighlight = true;

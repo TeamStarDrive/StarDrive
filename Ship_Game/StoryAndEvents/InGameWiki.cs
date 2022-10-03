@@ -52,7 +52,7 @@ namespace Ship_Game
                 Text  = Localizer.Token(GameText.SelectATopicOnThe)
             };
 
-            RectF CategoriesRect = new(Rect.X + 25, Rect.Y + 130, 330, 430);
+            RectF CategoriesRect = new(Rect.X + 25, MidSepBot.Y + 10, 330, 430);
             HelpCategories = Add(new ScrollList2<WikiHelpCategoryListItem>(CategoriesRect));
 
             RectF textSlRect = new(CategoriesRect.X + CategoriesRect.W + 5, CategoriesRect.Y + 10, 375, 420);

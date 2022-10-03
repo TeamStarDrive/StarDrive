@@ -5,6 +5,7 @@ using SDUtils;
 using Ship_Game.Graphics;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -46,11 +47,15 @@ namespace Ship_Game
         protected bool ShouldDrawScrollBar;
         protected bool FirstUpdateDone; // If true, ScrollList.Update() has been called
 
+        // if not null, this Rect will be updated during every PerformLayout()
+        // feel free to set this, but you will need to trigger PerformLayout()
+        public IClientArea ClientAreaSource;
+
         // Minimum time that must be elapsed before we start dragging
         protected const float DragBeginDelay = 0.075f;
 
         // By default, 4px padding between items, 0px from edges
-        public Vector2 ItemPadding = new Vector2(0f, 4f);
+        public Vector2 ItemPadding = new(0f, 4f);
         
         // this controls the visual style of the ScrollList
         // can be freely changed at any point
@@ -374,6 +379,10 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
+            // fetch ClientArea if source is set
+            if (ClientAreaSource != null)
+                RectF = ClientAreaSource.ClientArea;
+
             base.PerformLayout();
 
             SetItemsHousing();

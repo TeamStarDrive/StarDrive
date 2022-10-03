@@ -368,6 +368,7 @@
     <Compile Include="Ship_Game\Ships\ShipsManager.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
     <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
+    <Compile Include="Ship_Game\UI\IClientArea.cs" />
     <Compile Include="Ship_Game\UI\LayoutExporter.cs" />
     <Compile Include="Ship_Game\UI\LocalPos.cs" />
     <Compile Include="Ship_Game\UI\NineSliceSprite.cs" />
