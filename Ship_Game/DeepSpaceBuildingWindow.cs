@@ -32,11 +32,10 @@ namespace Ship_Game
             RemoveAll();
 
             const int windowWidth = 320;
-            Rect = new(Screen.ScreenWidth - 15 - windowWidth, 100, windowWidth, 300);
+            RectF = new(Screen.ScreenWidth - 15 - windowWidth, 100, windowWidth, 300);
 
-            var sl = Add(new SubmenuScrollList<ConstructionListItem>(new RectF(Rect)));
+            var sl = Add(new SubmenuScrollList<ConstructionListItem>(RectF, "Build Menu"));
             sl.SetBackground(Colors.TransparentBlackFill);
-            sl.AddTab("Build Menu");
             SL = sl.List;
             SL.OnClick = (item) => { ShipToBuild = item.Template; };
             SL.EnableItemHighlight = true;

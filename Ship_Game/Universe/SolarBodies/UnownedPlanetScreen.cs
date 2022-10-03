@@ -16,7 +16,7 @@ namespace Ship_Game
 		private Menu1 PlanetMenu;
 		private Vector2 NotePos;
 		private Submenu PlanetInfo;
-		private Rectangle PlanetIcon;
+		private RectF PlanetIcon;
 
 		public UnownedPlanetScreen(UniverseScreen universe, Planet p) : base(universe)
 		{
@@ -28,16 +28,15 @@ namespace Ship_Game
 			{
 				titleRect.Width = 365;
 			}
-			TitleBar = new Menu2(titleRect);
-			TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, 
-                ScreenHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * ScreenHeight));
-			PlanetMenu = new Menu1(leftRect);
-			Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-			NotePos = new Vector2(psubRect.X, psubRect.Y + 100);
-			PlanetInfo = new Submenu(psubRect);
-			PlanetInfo.AddTab("Planet Info");
-			PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 45, 128, 128);
+			TitleBar = new(titleRect);
+			TitlePos = new(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+			RectF leftRect = new(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, 
+                                 ScreenHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * ScreenHeight));
+			PlanetMenu = new(leftRect);
+			RectF psubRect = new(leftRect.X + 20, leftRect.Y + 20, leftRect.W - 40, leftRect.H - 40);
+			NotePos = new(psubRect.X, psubRect.Y + 100);
+			PlanetInfo = new(psubRect, "Planet Info");
+			PlanetIcon = new(psubRect.X + psubRect.W - 148, leftRect.Y + 45, 128, 128);
 		}
 
 		public override void Draw(SpriteBatch batch, DrawTimes elapsed)

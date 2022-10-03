@@ -139,10 +139,8 @@ namespace Ship_Game
             if (traitsList.H > 580)
                 traitsList.H = 580;
 
-            Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20)));
-            Traits.AddTab(Localizer.Token(GameText.Physical));
-            Traits.AddTab(Localizer.Token(GameText.Sociological));
-            Traits.AddTab(Localizer.Token(GameText.HistoryAndTradition));
+            LocalizedText[] traitNames = { GameText.Physical, GameText.Sociological, GameText.HistoryAndTradition };
+            Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20), traitNames));
             Traits.OnTabChange = OnTraitsTabChanged;
             Traits.SetBackground(new Menu1(traitsList));
 

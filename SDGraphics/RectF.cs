@@ -231,15 +231,20 @@ public struct RectF
         return new RectF(X - extrudeX, Y - extrudeY, W + extrudeX*2, H + extrudeY*2);
     }
 
+    // Example: r.RelativeX(0.5) == r.CenterX()
+    //          r.RelativeX(1.0) == r.Right
+    [Pure] public readonly float RelativeX(float percent) => X + W*percent;
+    [Pure] public readonly float RelativeY(float percent) => Y + H*percent;
+
     // Cut a chunk off the top of the rectangle
-    [Pure]
-    public readonly RectF CutTop(int amount) => new(X, Y + amount, W, H - amount);
+    [Pure] public readonly RectF CutTop(int amount) => new(X, Y + amount, W, H - amount);
+    [Pure] public readonly RectF Widen(int widen) => new(X - widen, Y, W + widen * 2, H);
+    [Pure] public readonly RectF Move(float dx, float dy) => new(X + dx, Y + dy, W, H);
 
-    [Pure]
-    public readonly RectF Bevel(float bevel)
+    [Pure] public readonly RectF Bevel(float bevel)
         => new(X - bevel, Y - bevel, W + bevel * 2, H + bevel * 2);
-
-    [Pure]
-    public readonly RectF Bevel(float bevelX, float bevelY)
+    [Pure] public readonly RectF Bevel(float bevelX, float bevelY)
         => new(X - bevelX, Y - bevelY, W + bevelX * 2, H + bevelY * 2);
+
+
 }

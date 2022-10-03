@@ -34,13 +34,9 @@ public sealed partial class DebugInfoScreen : GameScreen
                 .ToArr().Filter(m => m != DebugModes.Disabled);
 
         var modesRect = new RectF(10, 70, ScreenWidth - 20, ScreenHeight - 80);
-        ModesTab = Add(new Submenu(modesRect));
+        var modeStrings = Modes.Select(m => (LocalizedText)m.ToString());
+        ModesTab = Add(new Submenu(modesRect, modeStrings));
         ModesTab.OnTabChange = OnModesTabChange;
-        foreach (DebugModes mode in Modes)
-        {
-            ModesTab.AddTab(mode.ToString());
-        }
-
         ModesTab.SelectedIndex = (int)Mode;
             
         ShipInfoPanel = ModesTab.Add(new ShipInfoPanel(this, new(10,35), new(300, 500)));

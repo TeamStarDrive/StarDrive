@@ -43,9 +43,9 @@ class StoryAndEventsDebug : DebugPage
     {
         ExplorationEvent[] events = ResourceManager.EventsDict.Values.ToArr();
 
-        var menu = base.Add(new SubmenuScrollList<EvtItem>(new(50, 260, 400, 600)));
-        menu.AddTab("ExpEvts");
-        menu.AddTab("Encounters");
+        RectF evtR = new(50, 260, 400, 600);
+        LocalizedText[] evtTabs = { "ExpEvts", "Encounters" };
+        var menu = base.Add(new SubmenuScrollList<EvtItem>(evtR, evtTabs));
         menu.OnTabChange = OnTabChanged;
 
         ExplorationEvents = menu.List;

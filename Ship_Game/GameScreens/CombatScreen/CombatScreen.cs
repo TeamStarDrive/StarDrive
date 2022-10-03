@@ -82,8 +82,7 @@ namespace Ship_Game
                 Bombard.Style = ButtonStyle.DanButtonRed;
 
             RectF orbitalAssetRect = new(assetsX + 220, AssetsRect.Y, 200, AssetsRect.Height * 2);
-            var orbitalAssets = Add(new SubmenuScrollList<CombatScreenOrbitListItem>(orbitalAssetRect, ListStyle.Blue));
-            orbitalAssets.AddTab("In Orbit");
+            var orbitalAssets = Add(new SubmenuScrollList<CombatScreenOrbitListItem>(orbitalAssetRect, "In Orbit", style:ListStyle.Blue));
             OrbitSL = orbitalAssets.List;
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
             OrbitSL.OnDragOut = OnTroopItemDrag;

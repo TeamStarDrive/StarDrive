@@ -6,6 +6,7 @@ using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.UI;
+using System.Collections.Generic;
 
 namespace Ship_Game;
 
@@ -48,6 +49,36 @@ public class Submenu : UIPanel
     // EVT: Triggered when a tab is changed
     public Action<int> OnTabChange;
     int CurSelectedIndex = -1;
+
+    public Submenu(in RectF rect, LocalizedText title, SubmenuStyle style = SubmenuStyle.Brown)
+        : base(rect, Color.TransparentBlack)
+    {
+        Style = style;
+        AddTab(title);
+    }
+
+    public Submenu(LocalPos pos, Vector2 size, LocalizedText title, SubmenuStyle style = SubmenuStyle.Brown)
+        : base(pos, size, Color.TransparentBlack)
+    {
+        Style = style;
+        AddTab(title);
+    }
+
+    public Submenu(in RectF rect, IEnumerable<LocalizedText> tabs, SubmenuStyle style = SubmenuStyle.Brown)
+        : base(rect, Color.TransparentBlack)
+    {
+        Style = style;
+        foreach (LocalizedText tab in tabs)
+            AddTab(tab);
+    }
+
+    public Submenu(LocalPos pos, Vector2 size, IEnumerable<LocalizedText> tabs, SubmenuStyle style = SubmenuStyle.Brown)
+        : base(pos, size, Color.TransparentBlack)
+    {
+        Style = style;
+        foreach (LocalizedText tab in tabs)
+            AddTab(tab);
+    }
 
     public Submenu(in RectF theMenu, SubmenuStyle style = SubmenuStyle.Brown)
         : base(theMenu, Color.TransparentBlack)
