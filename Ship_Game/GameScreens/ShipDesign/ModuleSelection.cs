@@ -26,24 +26,18 @@ namespace Ship_Game
         readonly Submenu ActiveModSubMenu;
         readonly TexturedButton Obsolete;
 
-        public ModuleSelection(ShipDesignScreen screen, LocalPos pos, Vector2 size) : base(pos, size)
+        public ModuleSelection(ShipDesignScreen screen, LocalPos pos, Vector2 size)
+            : base(pos, size, new LocalizedText[]{ "Wpn", "Pwr", "Def", "Spc" })
         {
             Screen = screen;
             // rounded black background
             SetBackground(Colors.TransparentBlackFill);
+            base.PerformLayout(); // necessary
 
-            AddTab("Wpn");
-            AddTab("Pwr");
-            AddTab("Def");
-            AddTab("Spc");
-            base.PerformLayout();
+            ModuleSelectList = base.Add(new ModuleSelectScrollList(ClientArea, Screen));
 
-            ModuleSelectList = base.Add(new ModuleSelectScrollList(LocalPos.Zero, Size, Screen));
-
-            var acsub = new Rectangle(Rect.X, Rect.Bottom + 15, 305, 400);
-
-            ActiveModSubMenu = base.Add(new Submenu(acsub));
-            ActiveModSubMenu.AddTab("Active Module");
+            RectF acsub = new(Rect.X, Rect.Bottom + 15, 305, 400);
+            ActiveModSubMenu = base.Add(new Submenu(acsub, "Active Module"));
             // rounded black background
             ActiveModSubMenu.SetBackground(Colors.TransparentBlackFill);
 
@@ -54,19 +48,18 @@ namespace Ship_Game
             Obsolete = new(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
             Obsolete.Tooltip = GameText.MarkThisModuleAsObsolete;
             
-            RectF chooseFighterRect = new(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
-            if (chooseFighterRect.Bottom > Screen.ScreenHeight)
+            RectF fighterR = new(acsub.X + acsub.W + 5, acsub.Y - 90, 240, 270);
+            if (fighterR.Bottom > Screen.ScreenHeight)
             {
-                float diff = chooseFighterRect.Bottom - Screen.ScreenHeight;
-                chooseFighterRect.H -= (diff + 10);
+                float diff = fighterR.Bottom - Screen.ScreenHeight;
+                fighterR.H -= (diff + 10);
             }
-            chooseFighterRect.H = acsub.Height;
+            fighterR.H = acsub.H;
 
-            ChooseFighterSL = new FighterScrollList(chooseFighterRect, Screen);
+            ChooseFighterSL = new FighterScrollList(fighterR, Screen);
             ChooseFighterSL.EnableItemHighlight = true;
 
-            ChooseFighterSub = base.Add(new SubmenuScrollList<FighterListItem>(chooseFighterRect, ChooseFighterSL));
-            ChooseFighterSub.AddTab("Choose Fighter");
+            ChooseFighterSub = base.Add(new SubmenuScrollList<FighterListItem>(fighterR, "Choose Fighter", ChooseFighterSL));
             ChooseFighterSub.SetBackground(Colors.TransparentBlackFill);
         }
 

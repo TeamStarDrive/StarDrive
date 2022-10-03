@@ -188,10 +188,9 @@ namespace Ship_Game
             RectF shipDesignsRect = new(ScreenWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
             RightMenu = new Menu1(shipDesignsRect);
 
-            SubShips = Add(new SubmenuScrollList<FleetDesignShipListItem>(shipDesignsRect));
+            LocalizedText[] subShipsTabs = { "Designs", "Owned" };
+            SubShips = Add(new SubmenuScrollList<FleetDesignShipListItem>(shipDesignsRect, subShipsTabs));
             SubShips.Color = new Color(0, 0, 0, 130);
-            SubShips.AddTab("Designs");
-            SubShips.AddTab("Owned");
             SubShips.SelectedIndex = 0;
             SubShips.OnTabChange = OnSubShipsTabChanged;
 

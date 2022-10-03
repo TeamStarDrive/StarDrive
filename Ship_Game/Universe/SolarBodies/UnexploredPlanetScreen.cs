@@ -16,7 +16,7 @@ namespace Ship_Game
         Vector2 TitlePos;
         Menu1 PlanetInfoBkg;
         Submenu PlanetInfo;
-        Rectangle PlanetIcon;
+        RectF PlanetIcon;
 
         public UnexploredPlanetScreen(GameScreen screen, Planet p) : base(screen)
         {
@@ -31,11 +31,10 @@ namespace Ship_Game
             if (leftRect.Height < 350)
                 leftRect.Height = 350;
 
-            PlanetInfoBkg = new Menu1(leftRect);
-            var psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-            PlanetInfo = new Submenu(psubRect);
-            PlanetInfo.AddTab(GameText.PlanetInfo);
-            PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 55, 128, 128);
+            PlanetInfoBkg = new(leftRect);
+            RectF psubRect = new(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
+            PlanetInfo = new(psubRect, GameText.PlanetInfo);
+            PlanetIcon = new(psubRect.X + psubRect.W - 148, leftRect.Y + 55, 128, 128);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

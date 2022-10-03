@@ -54,8 +54,7 @@ namespace Ship_Game
             Add(new Menu1(Window));
 
             RectF sub = new(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
-            var nameSave = Add(new Submenu(sub));
-            nameSave.AddTab(Localizer.Token(GameText.LoadModification));
+            Add(new Submenu(sub, GameText.LoadModification));
 
             RectF scrollList = new(sub.X, sub.Y + 90, sub.W, Window.Height - sub.H - 50);
             LoadMods(scrollList);
@@ -74,9 +73,7 @@ namespace Ship_Game
 
         void LoadMods(RectF scrollList)
         {
-            AllSaves = Add(new SubmenuScrollList<ModsListItem>(scrollList, 140));
-            AllSaves.AddTab(Localizer.Token(GameText.LoadModification));
-
+            AllSaves = Add(new SubmenuScrollList<ModsListItem>(scrollList, GameText.LoadModification, 140));
             ModsList = AllSaves.List;
             ModsList.EnableItemHighlight = true;
             ModsList.OnClick = OnModItemClicked;

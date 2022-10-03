@@ -76,13 +76,12 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Submenu background = Add(new Submenu(Rect.X + 20, Rect.Y + 20, Rect.Width - 40, 80));
+            RectF bkg = new(Rect.X + 20, Rect.Y + 20, Rect.Width - 40, 80);
+            Submenu background = Add(new Submenu(bkg, Hulls ? GameText.SaveHullDesign : GameText.SaveShipDesign));
             background.SetBackground(new Menu1(Rect));
-            background.AddTab(Hulls ? GameText.SaveHullDesign : GameText.SaveShipDesign);
 
             RectF subAllDesignsR = new(background.X, background.Y + 90, background.Width, Rect.Height - background.Height - 50);
-            SubAllDesigns = Add(new SubmenuScrollList<ShipDesignListItem>(subAllDesignsR));
-            SubAllDesigns.AddTab(GameText.SimilarDesignNames);
+            SubAllDesigns = Add(new SubmenuScrollList<ShipDesignListItem>(subAllDesignsR, GameText.SimilarDesignNames));
 
             EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), GameText.DesignName));
             EnterNameArea.Text = ShipName;

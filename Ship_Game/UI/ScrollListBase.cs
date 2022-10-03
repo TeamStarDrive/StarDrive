@@ -24,23 +24,23 @@ namespace Ship_Game
     public abstract class ScrollListBase : UIElementContainer
     {
         // Top and Bottom padding for list items
-        const int PaddingTop   = 24;
-        const int PaddingBot   = 12;
-        const int PaddingLeft  = 12;
-        const int PaddingRight = 24;
+        const int PaddingTop   = 6;
+        const int PaddingBot   = 2;
+        const int PaddingLeft  = 8;
+        const int PaddingRight = 24; // leave extra room for scrollbar
 
         // inner housing rect for scroll list items
         // available for reading, BUT it will be recalculated in every PerformLayout()
-        public Rectangle ItemsHousing;
-        protected Rectangle ScrollUp, ScrollUpClickArea;
-        protected Rectangle ScrollDown, ScrollDownClickArea;
-        protected Rectangle ScrollBar, ScrollBarClickArea;
-        protected Rectangle ScrollHousing;
+        public RectF ItemsHousing;
+        protected RectF ScrollUp, ScrollUpClickArea;
+        protected RectF ScrollDown, ScrollDownClickArea;
+        protected RectF ScrollBar, ScrollBarClickArea;
+        protected RectF ScrollHousing;
         protected int ScrollBarHover;
         protected bool ScrollUpHover, ScrollDownHover;
         
         protected int DragStartMousePos;
-        protected int DragStartScrollPos;
+        protected float DragStartScrollPos;
         protected bool DraggingScrollBar;
         protected bool ScrollBarPosChanged;
         protected bool ShouldDrawScrollBar;
@@ -367,10 +367,9 @@ namespace Ship_Game
 
         protected void SetItemsHousing()
         {
-            ItemsHousing = new Rectangle((int)X + PaddingLeft,
-                                         (int)Y + PaddingTop,
-                                         (int)Width - (PaddingLeft + PaddingRight),
-                                         (int)Height - (PaddingTop + PaddingBot));
+            ItemsHousing = new(X + PaddingLeft, Y + PaddingTop,
+                               Width - (PaddingLeft + PaddingRight),
+                               Height - (PaddingTop + PaddingBot));
         }
 
         public override void PerformLayout()
@@ -381,9 +380,9 @@ namespace Ship_Game
             ScrollListStyleTextures s = GetStyle();
             SubTexture up = s.ScrollBarArrowUp.Normal;
             SubTexture dn = s.ScrollBarArrowDown.Normal;
-            ScrollUp   = new Rectangle((int)(Right - (up.Width + 5)), (int)Y + PaddingTop, up.Width, up.Height);
-            ScrollDown = new Rectangle((int)(Right - (dn.Width + 5)), (int)Bottom - PaddingBot - dn.Height, dn.Width, dn.Height);
-            ScrollHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Bottom + 3, s.ScrollBarMid.Normal.Width, ScrollDown.Y - ScrollUp.Bottom - 6);
+            ScrollUp   = new(Right - (up.Width + 5), Y + PaddingTop, up.Width, up.Height);
+            ScrollDown = new(Right - (dn.Width + 5), Bottom - PaddingBot - dn.Height, dn.Width, dn.Height);
+            ScrollHousing = new(ScrollUp.X + 1, ScrollUp.Bottom + 3, s.ScrollBarMid.Normal.Width, ScrollDown.Y - ScrollUp.Bottom - 6);
             ScrollBar.X = ScrollHousing.X;
             ScrollUpClickArea   = ScrollUp.Bevel(5);
             ScrollDownClickArea = ScrollDown.Bevel(5);
@@ -397,13 +396,13 @@ namespace Ship_Game
             }
 
             // PaddingBot gives padding bottom of the items when scrolling
-            float maxVisibleItemsF = (ItemsHousing.Height) / (EntryHeight + ItemPadding.Y);
+            float maxVisibleItemsF = (ItemsHousing.H) / (EntryHeight + ItemPadding.Y);
             MaxVisibleItems = (int)Math.Ceiling(maxVisibleItemsF);
             ShouldDrawScrollBar = FlatEntries.Count > (int)Math.Floor(maxVisibleItemsF);
 
             int itemX = (int)Math.Round(ItemsHousing.X + ItemPadding.X);
             int itemY = (int)Math.Round(ItemsHousing.Y + ItemPadding.Y);
-            int itemW = (int)Math.Round(ItemsHousing.Width - ItemPadding.X*2);
+            int itemW = (int)Math.Round(ItemsHousing.W - ItemPadding.X*2);
 
             if (ScrollBarPosChanged)
             {
@@ -449,27 +448,27 @@ namespace Ship_Game
         float GetRelativeScrollPosFromScrollBar()
         {
             float scrollBarPos = (ScrollBar.Y - ScrollHousing.Y);
-            float scrollSpan   = ScrollHousing.Height - ScrollBar.Height;
+            float scrollSpan   = ScrollHousing.H - ScrollBar.H;
             return (scrollBarPos / scrollSpan);
         }
 
         void UpdateScrollBarToCurrentIndex(float maxVisibleItemsF)
         {
-            int startOffset = (int)(ScrollHousing.Height * (VisibleItemsBegin / (float)FlatEntries.Count));
-            int barHeight   = (int)(ScrollHousing.Height * (maxVisibleItemsF / (float)FlatEntries.Count));
+            int startOffset = (int)(ScrollHousing.H * (VisibleItemsBegin / (float)FlatEntries.Count));
+            int barHeight   = (int)(ScrollHousing.H * (maxVisibleItemsF / (float)FlatEntries.Count));
 
-            ScrollBar = new Rectangle(ScrollHousing.X, ScrollHousing.Y + startOffset,
-                                      GetStyle().ScrollBarMid.Normal.Width, barHeight);
+            ScrollBar = new(ScrollHousing.X, ScrollHousing.Y + startOffset,
+                            GetStyle().ScrollBarMid.Normal.Width, barHeight);
             ScrollBarClickArea = ScrollBar.Widen(5);
         }
 
         // set scrollbar to requested position
-        void SetScrollBarPosition(int newScrollY)
+        void SetScrollBarPosition(float newScrollY)
         {
             if (newScrollY < ScrollHousing.Y)
                 newScrollY = ScrollHousing.Y;
-            else if ((newScrollY + ScrollBar.Height) > ScrollHousing.Bottom)
-                newScrollY = ScrollHousing.Bottom - ScrollBar.Height;
+            else if ((newScrollY + ScrollBar.H) > ScrollHousing.Bottom)
+                newScrollY = ScrollHousing.Bottom - ScrollBar.H;
             
             // This enables smooth scrollbar dragging: with every pixel changed we request layout
             if (ScrollBar.Y != newScrollY)
@@ -505,10 +504,10 @@ namespace Ship_Game
         void DrawScrollBar(SpriteBatch batch)
         {
             ScrollListStyleTextures s = GetStyle();
-            int upDownSize = (ScrollBar.Height - s.ScrollBarMid.Normal.Height) / 2;
-            var up  = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, upDownSize);
-            var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + upDownSize, ScrollBar.Width, s.ScrollBarMid.Normal.Height);
-            var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, upDownSize);
+            float upDownSize = (ScrollBar.H - s.ScrollBarMid.Normal.Height) / 2;
+            var up  = new RectF(ScrollBar.X, ScrollBar.Y, ScrollBar.W, upDownSize);
+            var mid = new RectF(ScrollBar.X, ScrollBar.Y + upDownSize, ScrollBar.W, s.ScrollBarMid.Normal.Height);
+            var bot = new RectF(ScrollBar.X, mid.Y + mid.H, ScrollBar.W, upDownSize);
 
             bool parentHovered      = (ScrollBarHover == 1);
             bool controlItemHovered = (ScrollBarHover == 2);
@@ -547,7 +546,7 @@ namespace Ship_Game
                 }
             }
             
-            if (DebugDrawScrollList)
+            if (DebugDrawScrollList) // scissored debug
             {
                 batch.DrawRectangle(ScrollHousing, Color.Red);
                 batch.DrawRectangle(ItemsHousing, Color.Magenta);
@@ -556,12 +555,18 @@ namespace Ship_Game
             if (EnableItemHighlight)
                 Highlight?.Draw(batch, elapsed);
 
-            RenderStates.EnableScissorTest(batch.GraphicsDevice, 
-                new Rectangle(ItemsHousing.X - 10, ItemsHousing.Y - 5, ItemsHousing.Width + 20, ItemsHousing.Height + 5));
+            // widen the scissor for Item highlights to be visible
+            RectF scissor = ItemsHousing.Bevel(1).Widen(8);
+            RenderStates.EnableScissorTest(batch.GraphicsDevice, scissor);
             batch.End();
             batch.Begin();
             RenderStates.DisableScissorTest(batch.GraphicsDevice);
             
+            if (DebugDrawScrollList) // non-scissored debug
+            {
+                batch.DrawRectangle(Rect, Color.AliceBlue);
+            }
+
             // Draw the currently dragged entry
             if (DraggedEntry != null)
             {
