@@ -212,4 +212,48 @@ namespace Ship_Game.Data.Serialization.Types
             return new SmallBitSet{ Values = reader.BR.ReadVLu32() };
         }
     }
+
+    internal class BitArraySerializer : TypeSerializer
+    {
+        public BitArraySerializer() : base(typeof(BitArray)) { }
+        public override string ToString() => $"{TypeId}:BitArraySerializer";
+
+        public override object Convert(object value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Serialize(YamlNode parent, object obj)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            uint[] values = ((BitArray)obj).Values;
+            if (values == null)
+            {
+                writer.BW.WriteVLu32(0);
+            }
+            else
+            {
+                writer.BW.WriteVLu32((uint)values.Length);
+                for (int i = 0; i < values.Length; ++i)
+                    writer.BW.WriteVLu32(values[i]);
+            }
+        }
+
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            int length = (int)reader.BR.ReadVLu32();
+            if (length == 0)
+                return new BitArray(0);
+
+            uint[] values = new uint[length];
+            for (int i = 0; i < length; ++i)
+                values[i] = reader.BR.ReadVLu32();
+
+            return new BitArray(values);
+        }
+    }
 }

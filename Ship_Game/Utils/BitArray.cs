@@ -16,6 +16,11 @@ namespace Ship_Game.Utils
             Values = new uint[(size / 32) + 1];
         }
 
+        public BitArray(uint[] bits)
+        {
+            Values = bits;
+        }
+
         // Maximum number of flags supported by this fixed size BitArray
         public int MaxFlags => Values.Length * 32;
 
