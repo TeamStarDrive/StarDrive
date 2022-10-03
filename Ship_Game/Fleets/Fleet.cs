@@ -740,7 +740,7 @@ namespace Ship_Game.Fleets
                     else
                         EndInvalidTask(--DefenseTurns <= 0 
                                        && !Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut 
-                                                                             && t.TargetSystem == task.TargetPlanet.ParentSystem));
+                                                                         && t.TargetSystem == task.TargetPlanet.ParentSystem));
 
                     break;
             }
