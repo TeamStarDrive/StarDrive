@@ -76,9 +76,8 @@ namespace Ship_Game
         public override void LoadContent()
         {
             RectF shipDesignsRect = new(ScreenWidth / 2 - 200, 200, 400, 500);
-            sub_ships = Add(new SubmenuScrollList<RefitShipListItem>(shipDesignsRect));
+            sub_ships = Add(new SubmenuScrollList<RefitShipListItem>(shipDesignsRect, "Refit to..."));
             sub_ships.SetBackground(Colors.TransparentBlackFill);
-            sub_ships.AddTab("Refit to...");
             
             RefitShipList = sub_ships.List;
             RefitShipList.EnableItemHighlight = true;

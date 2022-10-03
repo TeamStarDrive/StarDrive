@@ -46,7 +46,7 @@ namespace Ship_Game
         // Parses and WRAPS textblock into separate lines
         public void AddLines(string textBlock, Graphics.Font font, Color color)
         {
-            string[] lines = font.ParseTextToLines(textBlock, ItemsList.ItemsHousing.Width);
+            string[] lines = font.ParseTextToLines(textBlock, ItemsList.ItemsHousing.W);
             foreach (string line in lines)
                 AddLine(line, font, color);
         }

@@ -157,8 +157,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             Rect = new(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
 
             RectF designsRect = new(X + 20, Y + 60, Width - 40, Height - 80);
-            var designs = Add(new SubmenuScrollList<DesignListItem>(designsRect));
-            designs.AddTab(Localizer.Token(GameText.AvailableDesigns));
+            var designs = Add(new SubmenuScrollList<DesignListItem>(designsRect, GameText.AvailableDesigns));
             designs.SetBackground(new Menu1(Rect));
 
             AvailableDesignsList = designs.List;

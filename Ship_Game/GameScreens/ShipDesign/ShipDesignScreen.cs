@@ -530,13 +530,11 @@ namespace Ship_Game
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomListRight.Y, 210, 25);
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
 
-            int hullSelW = SelectSize(260, 280, 320);
-            int hullSelH = SelectSize(250, 400, 500);
-            var hullSelectPos = new LocalPos(ScreenWidth - hullSelW, ModuleSelectComponent.LocalPos.Y);
-            var hullSelectSub = Add(new SubmenuScrollList<ShipHullListItem>(hullSelectPos, new(hullSelW, hullSelH)));
+            Vector2 hullSelSize = new(SelectSize(260, 280, 320), SelectSize(250, 400, 500));
+            var hullSelectPos = new LocalPos(ScreenWidth - hullSelSize.X, ModuleSelectComponent.LocalPos.Y);
+            var hullSelectSub = Add(new SubmenuScrollList<ShipHullListItem>(hullSelectPos, hullSelSize, GameText.SelectHull));
             // rounded black background
             hullSelectSub.SetBackground(Colors.TransparentBlackFill);
-            hullSelectSub.AddTab(Localizer.Token(GameText.SelectHull));
 
             HullSelectList = hullSelectSub.List;
             HullSelectList.OnClick = OnHullListItemClicked;
