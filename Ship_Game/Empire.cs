@@ -3148,7 +3148,7 @@ namespace Ship_Game
                 }
             }
 
-            WeightedCenter=  avgPlanetCenter / planets.LowerBound(1);
+            WeightedCenter = avgPlanetCenter / planets.LowerBound(1);
         }
 
         public void TheyKilledOurShip(Empire they, Ship killedShip)
