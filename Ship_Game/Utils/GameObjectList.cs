@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SDUtils;
 
 namespace Ship_Game.Utils
@@ -109,6 +110,18 @@ namespace Ship_Game.Utils
             {
                 Changed = true;
                 Back.Add(item);
+            }
+        }
+
+        /// <summary>
+        /// Adds a range of items
+        /// </summary>
+        public void AddRange(IReadOnlyList<T> items)
+        {
+            lock (Back)
+            {
+                Changed = true;
+                Back.AddRange(items);
             }
         }
 

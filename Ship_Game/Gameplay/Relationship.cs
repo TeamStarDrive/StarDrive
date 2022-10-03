@@ -91,7 +91,9 @@ namespace Ship_Game.Gameplay
         [StarData] public bool XenoDemandedTech;
         [StarData] public bool HaveWarnedTwice;
         [StarData] public bool HaveWarnedThrice;
+        // TODO: remove ID
         [StarData] public int ContestedSystemId;
+        [StarData] public SolarSystem ContestedSystem;
         [StarData] public bool AtWar;
         [StarData] public bool PreparingForWar; // Use prepareForWar or CancelPrepareForWar
         [StarData] public WarType PreparingForWarType = WarType.ImperialistWar;  // Use prepareForWar or CancelPrepareForWar
@@ -437,7 +439,11 @@ namespace Ship_Game.Gameplay
                             WarnedAboutColonizing  = true;
 
                             if (p != null)
+                            {
+                                // TODO: remove ID
                                 ContestedSystemId = p.ParentSystem.Id;
+                                ContestedSystem = p.ParentSystem;
+                            }
                         }
                     }
                 }
@@ -463,12 +469,6 @@ namespace Ship_Game.Gameplay
                     AddAngerMilitaryConflict(amount);
                 }
             }
-        }
-
-        public bool GetContestedSystem(out SolarSystem contested)
-        {
-            contested = ContestedSystemId != 0 ? Them.Universe.GetSystem(ContestedSystemId) : null;
-            return contested != null;
         }
 
         public float GetStrength()
@@ -1313,8 +1313,8 @@ namespace Ship_Game.Gameplay
                 if (them.isPlayer && turnsSinceLastContact > FirstDemand)
                     if (!WarnedAboutColonizing)
                         DiplomacyScreen.Show(us, them, "Warning Ships");
-                    else if (GetContestedSystem(out SolarSystem contested))
-                        DiplomacyScreen.Show(us, them, "Warning Colonized then Ships", contested);
+                    else if (ContestedSystem != null)
+                        DiplomacyScreen.Show(us, them, "Warning Colonized then Ships", ContestedSystem);
 
                 turnsSinceLastContact = 0;
                 WarnedAboutShips = true;

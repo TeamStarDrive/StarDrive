@@ -132,9 +132,9 @@ namespace Ship_Game.AI
             switch (warType)
             {
                 case WarType.BorderConflict:
-                    if (aiRelationToPlayer.GetContestedSystem(out SolarSystem contested))
+                    if (aiRelationToPlayer.ContestedSystem != null)
                     {
-                        DiplomacyScreen.Show(OwnerEmpire, player, "Declare War BC TarSys", contested);
+                        DiplomacyScreen.Show(OwnerEmpire, player, "Declare War BC TarSys", aiRelationToPlayer.ContestedSystem);
                     }
                     else
                     {

@@ -669,7 +669,7 @@
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\MultiLayerDrawContainer.cs" />
     <Compile Include="Ship_Game\UI\PrettyText.cs" />
-    <Compile Include="Ship_Game\UI\ScrollList2.cs" />
+    <Compile Include="Ship_Game\UI\ScrollList.cs" />
     <Compile Include="Ship_Game\UI\ScrollListBase.cs" />
     <Compile Include="Ship_Game\UI\ScrollListItem.cs" />
     <Compile Include="Ship_Game\UI\ScrollListItemBase.cs" />
