@@ -35,7 +35,7 @@ public class Submenu : UIPanel
     // Rect area for the top menu, if we have added Tabs
     RectF MenuBar;
     // Client area where child objects should be inserted
-    public RectF ClientArea;
+    public override RectF ClientArea { get; set; }
 
     // nine-slice helper for the submenu border
     NineSliceSprite N;

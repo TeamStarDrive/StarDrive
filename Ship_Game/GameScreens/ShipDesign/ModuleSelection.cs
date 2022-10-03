@@ -34,7 +34,7 @@ namespace Ship_Game
             SetBackground(Colors.TransparentBlackFill);
             base.PerformLayout(); // necessary
 
-            ModuleSelectList = base.Add(new ModuleSelectScrollList(ClientArea, Screen));
+            ModuleSelectList = base.Add(new ModuleSelectScrollList(this, Screen));
 
             RectF acsub = new(Rect.X, Rect.Bottom + 15, 305, 400);
             ActiveModSubMenu = base.Add(new Submenu(acsub, "Active Module"));
@@ -48,19 +48,14 @@ namespace Ship_Game
             Obsolete = new(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
             Obsolete.Tooltip = GameText.MarkThisModuleAsObsolete;
             
-            RectF fighterR = new(acsub.X + acsub.W + 5, acsub.Y - 90, 240, 270);
-            if (fighterR.Bottom > Screen.ScreenHeight)
-            {
-                float diff = fighterR.Bottom - Screen.ScreenHeight;
-                fighterR.H -= (diff + 10);
-            }
-            fighterR.H = acsub.H;
-
-            ChooseFighterSL = new FighterScrollList(fighterR, Screen);
-            ChooseFighterSL.EnableItemHighlight = true;
-
-            ChooseFighterSub = base.Add(new SubmenuScrollList<FighterListItem>(fighterR, "Choose Fighter", ChooseFighterSL));
+            RectF fighterR = acsub.Move(acsub.W + 20, 0);
+            ChooseFighterSub = base.Add(new SubmenuScrollList<FighterListItem>(fighterR, "Choose Fighter"));
             ChooseFighterSub.SetBackground(Colors.TransparentBlackFill);
+            
+            ChooseFighterSL = ChooseFighterSub.Add(new FighterScrollList(ChooseFighterSub, Screen)
+            {
+                EnableItemHighlight = true
+            });
         }
 
         protected override void OnTabChangedEvt(int newIndex)
