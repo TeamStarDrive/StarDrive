@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Audio;
@@ -7,6 +8,7 @@ using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -15,7 +17,7 @@ namespace Ship_Game
         readonly ShipListScreen Screen;
         readonly Ship ShipToRefit;
         Empire Player => ShipToRefit.Universe.Player;
-        Submenu sub_ships;
+        SubmenuScrollList<RefitShipListItem> sub_ships;
         ScrollList2<RefitShipListItem> RefitShipList;
         UIButton RefitOne;
         UIButton RefitAll;
@@ -73,12 +75,12 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            var shipDesignsRect = new Rectangle(ScreenWidth / 2 - 200, 200, 400, 500);
-            sub_ships = new Submenu(shipDesignsRect);
-            sub_ships.Background = new Selector(sub_ships.Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
-            
-            RefitShipList = Add(new ScrollList2<RefitShipListItem>(sub_ships, 40));
+            RectF shipDesignsRect = new(ScreenWidth / 2 - 200, 200, 400, 500);
+            sub_ships = Add(new SubmenuScrollList<RefitShipListItem>(shipDesignsRect));
+            sub_ships.SetBackground(Colors.TransparentBlackFill);
             sub_ships.AddTab("Refit to...");
+            
+            RefitShipList = sub_ships.List;
             RefitShipList.EnableItemHighlight = true;
             RefitShipList.OnClick = OnRefitShipItemClicked;
 

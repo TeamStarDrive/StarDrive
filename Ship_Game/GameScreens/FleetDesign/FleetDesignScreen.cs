@@ -7,6 +7,7 @@ using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.Fleets;
 using Ship_Game.GameScreens.ShipDesign;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using XnaMatrix = SDGraphics.Matrix;
@@ -45,7 +46,7 @@ namespace Ship_Game
         //readonly Array<ToggleButton> OrdersButtons = new Array<ToggleButton>();
         FloatSlider OperationalRadius;
         SizeSlider SliderSize;
-        public Submenu SubShips;
+        public SubmenuScrollList<FleetDesignShipListItem> SubShips;
         Array<Ship> AvailableShips = new Array<Ship>();
         Vector3 CamPos = new Vector3(0f, 0f, 14000f);
         readonly Map<int, Rectangle> FleetsRects = new Map<int, Rectangle>();
@@ -184,16 +185,17 @@ namespace Ship_Game
             var shipRect = new Rectangle(ScreenWidth - 282, 140, 280, 80);
             ShipDesigns = new Menu2(shipRect);
             ShipDesignsTitlePos = new Vector2(shipRect.X + shipRect.Width / 2 - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            var shipDesignsRect = new Rectangle(ScreenWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
+            RectF shipDesignsRect = new(ScreenWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
             RightMenu = new Menu1(shipDesignsRect);
 
-            SubShips = new Submenu(shipDesignsRect);
+            SubShips = Add(new SubmenuScrollList<FleetDesignShipListItem>(shipDesignsRect));
             SubShips.Color = new Color(0, 0, 0, 130);
             SubShips.AddTab("Designs");
             SubShips.AddTab("Owned");
             SubShips.SelectedIndex = 0;
             SubShips.OnTabChange = OnSubShipsTabChanged;
-            ShipSL = Add(new ScrollList2<FleetDesignShipListItem>(SubShips, 40));
+
+            ShipSL = SubShips.List;
             ShipSL.OnClick = OnDesignShipItemClicked;
             ShipSL.EnableItemHighlight = true;
             ShipSL.OnHovered = (item) =>

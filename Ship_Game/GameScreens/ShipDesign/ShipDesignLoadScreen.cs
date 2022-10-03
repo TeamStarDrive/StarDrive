@@ -155,10 +155,10 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             Rect = new(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
             var background = new Submenu(X + 20, Y + 60, Width - 40, Height - 80);
-            background.Background = new Menu1(Rect);
+            background.SetBackground(new Menu1(Rect));
             background.AddTab(Localizer.Token(GameText.AvailableDesigns));
 
-            AvailableDesignsList = Add(new ScrollList2<DesignListItem>(background));
+            AvailableDesignsList = background.Add(new ScrollList2<DesignListItem>(background.ClientArea));
             AvailableDesignsList.EnableItemHighlight = true;
             AvailableDesignsList.OnClick       = OnDesignListItemClicked;
             AvailableDesignsList.OnDoubleClick = OnDesignListItemDoubleClicked;

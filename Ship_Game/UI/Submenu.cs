@@ -6,7 +6,6 @@ using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.UI;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Ship_Game;
 
@@ -35,7 +34,7 @@ public class Submenu : UIPanel
     // Rect area for the top menu, if we have added Tabs
     RectF MenuBar;
     // Client area where child objects should be inserted
-    RectF ClientArea;
+    public RectF ClientArea;
 
     // nine-slice helper for the submenu border
     NineSliceSprite N;
@@ -44,11 +43,18 @@ public class Submenu : UIPanel
     readonly SubmenuStyle Style;
 
     // If set, draws a background element before the Submenu itself is drawn
-    public UIElementV2 Background;
+    UIElementV2 Background;
         
     // EVT: Triggered when a tab is changed
     public Action<int> OnTabChange;
     int CurSelectedIndex = -1;
+
+    public Submenu(in RectF theMenu, SubmenuStyle style = SubmenuStyle.Brown)
+        : base(theMenu, Color.TransparentBlack)
+    {
+        Style = style;
+        this.PerformLayout();
+    }
 
     public Submenu(in Rectangle theMenu, SubmenuStyle style = SubmenuStyle.Brown)
         : base(theMenu, Color.TransparentBlack)
@@ -95,10 +101,18 @@ public class Submenu : UIPanel
         ClientArea = N.ClientArea; // use the default ClientArea
     }
 
+    // Adds a colored background Selector to this Submenu
     public void SetBackground(Color color)
     {
         Background?.RemoveFromParent();
-        Background = new Selector(this, LocalPos.Zero, RelSize.One, color);
+        Background = new Selector(this, new LocalPos(0, TabHeight-2), Rect.CutTop(TabHeight-2).Size(), color);
+    }
+
+    // Adds a background to this submenu
+    public void SetBackground(UIElementV2 background)
+    {
+        Background?.RemoveFromParent();
+        Background = Add(background);
     }
 
     public Array<Tab> Tabs = new();
@@ -220,16 +234,6 @@ public class Submenu : UIPanel
         base.Update(fixedDeltaTime);
     }
 
-    void DrawMenuBarTopLeft(SpriteBatch batch, Tab t, StyleTextures s)
-    {
-        bool selected = Tabs.Count == 1 || t.Selected;
-        SubTexture header = s.HeaderLeftUnsel;
-        if     (selected) header = s.HeaderLeft;
-        else if (t.Hover) header = s.HoverLeftEdge;
-
-        batch.Draw(header, new RectF(N.TL.X, t.Rect.Y, header.SizeF), Color.White);
-    }
-
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)
     {
         if (!Visible)
@@ -245,15 +249,16 @@ public class Submenu : UIPanel
             for (int i = 0; i < Tabs.Count; i++)
             {
                 Tab t = Tabs[i];
-                if (t.RowStart) DrawMenuBarTopLeft(batch, t, s);
-                    
+                bool selected = Tabs.Count == 1 || t.Selected;
+                if (t.RowStart) DrawMenuBarTopLeft(t, selected);
+
                 RectF r = t.Rect;
                 // middle part of a tab
                 var middle = new RectF(r.X, r.Y, r.W - s.HeaderRight.Width, TabHeight);
                 // right side of a tab
                 var right = new RectF(r.X + r.W - s.HeaderRight.Width, r.Y, s.HeaderRight.Width, TabHeight);
 
-                if   (t.Selected) DrawSelectedTab(t, middle, right);
+                if     (selected) DrawSelectedTab(t, middle, right);
                 else if (t.Hover) DrawHoveredTab(t, middle, right);
                 else              DrawUnselectedTab(t, middle, right);
 
@@ -265,11 +270,11 @@ public class Submenu : UIPanel
             }
 
             // if we have tabs, draw horizontal bars for every row
-            for (int i = 0; i < (TabRows+1); ++i)
+            for (int i = 1; i < (TabRows+1); ++i)
             {
                 N.DrawTopBar(batch, MenuBar.Y + i*(TabHeight-2));
             }
-            N.DrawVerticalBars(batch, MenuBar.Y);
+            N.DrawVerticalBars(batch, MenuBar.Y + (TabHeight-2));
             N.DrawBottomBar(batch);
         }
         else // only draw the border if there are no tabs
@@ -281,6 +286,16 @@ public class Submenu : UIPanel
         {
             N.DrawDebug(batch);
             batch.DrawRectangle(ClientArea, Color.Green);
+        }
+
+        
+        void DrawMenuBarTopLeft(Tab t, bool selected)
+        {
+            SubTexture header = s.HeaderLeftUnsel;
+            if     (selected) header = s.HeaderLeft;
+            else if (t.Hover) header = s.HoverLeftEdge;
+
+            batch.Draw(header, new RectF(N.TL.X, t.Rect.Y, header.SizeF), Color.White);
         }
 
         void DrawSelectedTab(Tab t, in RectF middle, in RectF right)

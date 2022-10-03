@@ -373,6 +373,7 @@
     <Compile Include="Ship_Game\UI\NineSliceSprite.cs" />
     <Compile Include="Ship_Game\UI\RelPos.cs" />
     <Compile Include="Ship_Game\UI\RelSize.cs" />
+    <Compile Include="Ship_Game\UI\SubmenuScrollList.cs" />
     <Compile Include="Ship_Game\UI\UILine.cs" />
     <Compile Include="Ship_Game\Universe\ExplorableGameObject.cs" />
     <Compile Include="Ship_Game\Universe\InfluenceTree.cs" />

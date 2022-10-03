@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -15,9 +17,7 @@ namespace Ship_Game
     {
         readonly MainMenuScreen MainMenu;
         Rectangle Window;
-        Menu1 SaveMenu;
-        Submenu NameSave;
-        Submenu AllSaves;
+        SubmenuScrollList<ModsListItem> AllSaves;
         Vector2 TitlePosition;
         UITextEntry EnterNameArea;
         UIButton Visit;
@@ -50,21 +50,21 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Window = new Rectangle(ScreenWidth / 2 - 425, ScreenHeight / 2 - 300, 850, 600);
-            SaveMenu = new Menu1(Window);
-            Rectangle sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
-            NameSave = new Submenu(sub);
-            NameSave.AddTab(Localizer.Token(GameText.LoadModification));
-            TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
-            Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
-            AllSaves = new Submenu(scrollList);
-            AllSaves.AddTab(Localizer.Token(GameText.LoadModification));
+            Window = new(ScreenWidth / 2 - 425, ScreenHeight / 2 - 300, 850, 600);
+            Add(new Menu1(Window));
 
-            LoadMods();
-            EnterNameArea = new UITextEntry(TitlePosition, Fonts.Arial12Bold, "");
+            RectF sub = new(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
+            var nameSave = Add(new Submenu(sub));
+            nameSave.AddTab(Localizer.Token(GameText.LoadModification));
+
+            RectF scrollList = new(sub.X, sub.Y + 90, sub.W, Window.Height - sub.H - 50);
+            LoadMods(scrollList);
+
+            TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
+            EnterNameArea = Add(new UITextEntry(TitlePosition, Fonts.Arial12Bold, ""));
             EnterNameArea.SetColors(Color.Orange, Color.White);
 
-            ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.Y - 2, text:GameText.Load, click: OnLoadClicked);
+            ButtonSmall(sub.X + sub.W - 88, EnterNameArea.Y - 2, text:GameText.Load, click: OnLoadClicked);
             Visit = Button(Window.X + 3, Window.Y + Window.Height + 20, text:GameText.LoadModsWeb, click: OnVisitClicked);
             UnloadMod = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Unload Mod", click:OnUnloadModClicked);
             UnloadMod.Enabled = GlobalStats.HasMod;
@@ -72,9 +72,12 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        void LoadMods()
+        void LoadMods(RectF scrollList)
         {
-            ModsList = Add(new ScrollList2<ModsListItem>(AllSaves, 140));
+            AllSaves = Add(new SubmenuScrollList<ModsListItem>(scrollList, 140));
+            AllSaves.AddTab(Localizer.Token(GameText.LoadModification));
+
+            ModsList = AllSaves.List;
             ModsList.EnableItemHighlight = true;
             ModsList.OnClick = OnModItemClicked;
             var ser = new XmlSerializer(typeof(ModInformation));
@@ -123,10 +126,6 @@ namespace Ship_Game
                 return;
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            SaveMenu.Draw(batch, elapsed);
-            NameSave.Draw(batch, elapsed);
-            AllSaves.Draw(batch, elapsed);
-            EnterNameArea.Draw(batch, elapsed);
             base.Draw(batch, elapsed);
             batch.End();
         }

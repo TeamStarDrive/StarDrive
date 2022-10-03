@@ -89,36 +89,17 @@ namespace Ship_Game
             }
         }
 
-        static RectF GetOurRectFromBackground(UIElementV2 background)
-        {
-            RectF r = new(background.Rect);
-            if (background is Menu1)
-            {
-                r.W -= 5;
-            }
-            else if (background is Submenu)
-            {
-                r.Y += 10;
-            }
-            return r;
-        }
-
-        // WARNING: ScrollList2 will take ownership of `background`
-        public ScrollList2(UIElementV2 background, ListStyle style = ListStyle.Default)
-            : this(background, 40, style)
-        {
-        }
-        
-        // WARNING: ScrollList2 will take ownership of `background`
-        public ScrollList2(UIElementV2 background, int entryHeight, ListStyle style = ListStyle.Default)
-            : this(GetOurRectFromBackground(background), entryHeight, style)
-        {
-            TakeOwnershipOfBackground(background);
-        }
-
         public ScrollList2(float x, float y, float w, float h, int entryHeight, ListStyle style = ListStyle.Default)
             : this(new RectF(x, y, w, h), entryHeight, style)
         {
+        }
+
+        public ScrollList2(in RectF rect, int entryHeight = 40, ListStyle style = ListStyle.Default)
+        {
+            Rect = rect;
+            Style = style;
+            EntryHeight = entryHeight;
+            SetItemsHousing();
         }
 
         public ScrollList2(in Rectangle rect, int entryHeight = 40, ListStyle style = ListStyle.Default)

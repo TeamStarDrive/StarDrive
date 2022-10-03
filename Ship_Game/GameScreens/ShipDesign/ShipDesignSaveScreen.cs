@@ -76,7 +76,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             Submenu background = Add(new Submenu(Rect.X + 20, Rect.Y + 20, Rect.Width - 40, 80));
-            background.Background = new Menu1(Rect);
+            background.SetBackground(new Menu1(Rect));
             background.AddTab(Hulls ? GameText.SaveHullDesign : GameText.SaveShipDesign);
 
             SubAllDesigns = new Submenu(background.X, background.Y + 90, background.Width,
@@ -88,7 +88,7 @@ namespace Ship_Game
             EnterNameArea.Color = Colors.Cream;
             EnterNameArea.OnTextChanged = PopulateDesigns;
 
-            ShipDesigns = Add(new ScrollList2<ShipDesignListItem>(SubAllDesigns));
+            ShipDesigns = SubAllDesigns.Add(new ScrollList2<ShipDesignListItem>(SubAllDesigns.ClientArea));
             ShipDesigns.EnableItemHighlight = true;
             ShipDesigns.OnClick = OnShipDesignItemClicked;
 
