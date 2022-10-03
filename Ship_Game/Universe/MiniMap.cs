@@ -158,8 +158,6 @@ namespace Ship_Game
             float ringRad = 0.023f * pulseTime;
             foreach (IncomingThreat threat in Player.SystemsWithThreat)
             {
-                if (threat.ThreatTimedOut) continue;
-
                 var system            = threat.TargetSystem;
                 Vector2 miniSystemPos = WorldToMiniPos(system.Position);
                 float pulseRad = radius + ringRad;
