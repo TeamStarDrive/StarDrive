@@ -23,7 +23,7 @@ namespace Ship_Game
         readonly Vector2 TitlePos;
         readonly Rectangle GridPos;
 
-        readonly ScrollList2<CombatScreenOrbitListItem> OrbitSL;
+        readonly ScrollList<CombatScreenOrbitListItem> OrbitSL;
         PlanetGridSquare HoveredSquare;
         readonly Rectangle SelectedItemRect;
         Rectangle HoveredItemRect;

@@ -18,7 +18,7 @@ namespace Ship_Game
         readonly Ship ShipToRefit;
         Empire Player => ShipToRefit.Universe.Player;
         SubmenuScrollList<RefitShipListItem> sub_ships;
-        ScrollList2<RefitShipListItem> RefitShipList;
+        ScrollList<RefitShipListItem> RefitShipList;
         UIButton RefitOne;
         UIButton RefitAll;
         IShipDesign RefitTo;

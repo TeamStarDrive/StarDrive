@@ -30,7 +30,7 @@ namespace Ship_Game
         Menu1 LeftMenu;
         Menu1 RightMenu;
         public Fleet SelectedFleet;
-        ScrollList2<FleetDesignShipListItem> ShipSL;
+        ScrollList<FleetDesignShipListItem> ShipSL;
         BlueButton RequisitionForces;
         BlueButton SaveDesign;
         BlueButton LoadDesign;

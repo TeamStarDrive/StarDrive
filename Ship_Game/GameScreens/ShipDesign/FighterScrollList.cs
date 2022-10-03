@@ -9,7 +9,7 @@ using Ship_Game.UI;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public class FighterScrollList : ScrollList2<FighterListItem>
+    public class FighterScrollList : ScrollList<FighterListItem>
     {
         readonly ShipDesignScreen Screen;
         Empire Player => Screen.ParentUniverse.Player;

@@ -191,7 +191,7 @@ namespace Ship_Game
             }
         }
 
-        public static void ResetWithParseText(this ScrollList2<TextListItem> list, 
+        public static void ResetWithParseText(this ScrollList<TextListItem> list, 
             Font font, string text, float maxLineWidth)
         {
             string[] lines = font.ParseTextToLines(text, maxLineWidth);

@@ -24,7 +24,7 @@ namespace Ship_Game
         UIButton UnloadMod;
         UIButton CurrentButton;
 
-        ScrollList2<ModsListItem> ModsList;
+        ScrollList<ModsListItem> ModsList;
         ModEntry SelectedMod;
 
         public ModManager(MainMenuScreen mainMenu) : base(mainMenu, toPause: null)

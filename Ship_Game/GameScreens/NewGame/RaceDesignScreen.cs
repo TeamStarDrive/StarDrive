@@ -24,13 +24,13 @@ namespace Ship_Game
         Menu1 NameMenu;
         EnvPreferencesPanel EnvMenu;
         SubmenuScrollList<TraitsListItem> Traits;
-        ScrollList2<TraitsListItem> TraitsList;
+        ScrollList<TraitsListItem> TraitsList;
         UIColorPicker Picker;
 
         UIButton ModeBtn;
         Rectangle FlagRect;
-        ScrollList2<RaceArchetypeListItem> ChooseRaceList;
-        ScrollList2<TextListItem> DescriptionTextList;
+        ScrollList<RaceArchetypeListItem> ChooseRaceList;
+        ScrollList<TextListItem> DescriptionTextList;
 
         GameMode Mode;
         StarsAbundance StarsCount = StarsAbundance.Normal;
@@ -149,7 +149,7 @@ namespace Ship_Game
             TraitsList.OnClick = OnTraitsListItemClicked;
 
             RectF chooseRace = new(5, (int)traitsList.Y, (int)traitsList.X - 10, (int)traitsList.H);
-            ChooseRaceList = Add(new ScrollList2<RaceArchetypeListItem>(chooseRace, 135));
+            ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
             ChooseRaceList.SetBackground(new Menu1(chooseRace));
             ChooseRaceList.OnClick = OnRaceArchetypeItemClicked;
 
@@ -213,7 +213,7 @@ namespace Ship_Game
                 tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare.");
 
             RectF description = new(traitsList.Right + 5, traitsList.Y, chooseRace.W, traitsList.H);
-            DescriptionTextList = Add(new ScrollList2<TextListItem>(description, DescriptionTextFont.LineSpacing));
+            DescriptionTextList = Add(new ScrollList<TextListItem>(description, DescriptionTextFont.LineSpacing));
             DescriptionTextList.SetBackground(new Menu1(description));
             DescriptionTextList.EnableItemEvents = false;
             Add(new SelectedTraitsSummary(this));

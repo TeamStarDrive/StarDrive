@@ -28,7 +28,7 @@ namespace Ship_Game
         public Empire SelectedEmpire;
 
         Array<RaceEntry> Races = new();
-        ScrollList2<ArtifactItemListItem> ArtifactsSL;
+        ScrollList<ArtifactItemListItem> ArtifactsSL;
 
         Empire Player;
         Array<Empire> Friends;
@@ -812,7 +812,7 @@ namespace Ship_Game
             OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             
             RectF artifacts = new(SelectedInfoRect.X , SelectedInfoRect.Y + 190, SelectedInfoRect.Width - 40, 130);
-            ArtifactsSL = Add(new ScrollList2<ArtifactItemListItem>(artifacts));
+            ArtifactsSL = Add(new ScrollList<ArtifactItemListItem>(artifacts));
             
             Contact = new DanButton(new Vector2(SelectedInfoRect.X + SelectedInfoRect.Width / 2 - 91, SelectedInfoRect.Y + SelectedInfoRect.Height - 45), Localizer.Token(GameText.Contact))
             {

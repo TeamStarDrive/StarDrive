@@ -17,7 +17,7 @@ namespace Ship_Game
         void AddElement(Vector2 relPos, in LocalizedText tooltip, Action onClick, Func<ScrollListStyleTextures.Hoverable> getHoverable)
         {
             var e = new Element{ Parent = this, RelPos = relPos, Tooltip = tooltip, OnClick = onClick, GetHoverable = getHoverable };
-            if (DynamicElements == null) DynamicElements = new Array<Element>();
+            if (DynamicElements == null) DynamicElements = new();
             DynamicElements.Add(e);
         }
 
