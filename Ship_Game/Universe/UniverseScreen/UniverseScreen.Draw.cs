@@ -77,7 +77,7 @@ namespace Ship_Game
             var nodeTex = ResourceManager.Texture("UI/node");
             var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
-            bool debug = DebugMode == DebugModes.Solar;
+            bool debug = false && DebugMode == DebugModes.Solar;
 
             Empire[] empires = UState.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)

@@ -266,14 +266,14 @@ namespace Ship_Game
                 // @todo QuadTree. need to have planets in the quad tree.
                 for (int i = 0; i < PlanetList.Count; i++)
                 {
-                    Planet planet                 = PlanetList[i];
-                    float wellReduction           = 1 - ship.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter;
+                    Planet planet= PlanetList[i];
+                    float wellReduction = 1 - ship.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter;
                     bool inFriendlyProjectorRange = ship.IsInFriendlyProjectorRange;
-                    bool planetInhibitsAtWar      = planet.Owner?.WillInhibit(ship.Loyalty) == true;
-                    bool checkGravityWell         = !inFriendlyProjectorRange || planetInhibitsAtWar;
-                    float wellRadius              = inFriendlyProjectorRange && planetInhibitsAtWar 
-                                                    ? planet.GravityWellRadius * wellReduction
-                                                    : planet.GravityWellRadius;
+                    bool planetInhibitsAtWar = planet.Owner?.WillInhibit(ship.Loyalty) == true;
+                    bool checkGravityWell = !inFriendlyProjectorRange || planetInhibitsAtWar;
+                    float wellRadius = inFriendlyProjectorRange && planetInhibitsAtWar 
+                                     ? planet.GravityWellRadius * wellReduction
+                                     : planet.GravityWellRadius;
 
                     if (checkGravityWell && ship.Position.InRadius(planet.Position, wellRadius))
                         return planet;

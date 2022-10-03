@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -11,7 +10,6 @@ using Ship_Game.AI;
 using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
 using Ship_Game.UI;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Debug;
 
