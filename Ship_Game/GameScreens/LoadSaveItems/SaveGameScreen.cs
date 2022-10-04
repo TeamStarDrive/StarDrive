@@ -20,10 +20,7 @@ namespace Ship_Game
         public override void DoSave()
         {
             // Save must run on the empire thread to ensure thread safety
-            RunOnEmpireThread(() =>
-            {
-                Screen.Save(EnterNameArea.Text);
-            });
+            Screen.SaveDuringNextUpdate(EnterNameArea.Text);
             ExitScreen();
         }
 

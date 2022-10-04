@@ -64,7 +64,6 @@ namespace Ship_Game
 
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
-        int Auto = 1;
         public bool ViewingShip = false;
         public float transDuration = 3f;
         public float SelectedSomethingTimer = 3f;
