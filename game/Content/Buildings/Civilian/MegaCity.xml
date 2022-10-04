@@ -3,9 +3,9 @@
   <Icon>megacity2</Icon>
   
   <Cost>390</Cost>
-  <Maintenance>0.4</Maintenance>
+  <Maintenance>0.3</Maintenance>
   
-  <MaxPopIncrease>1400</MaxPopIncrease>
+  <MaxPopIncrease>2000</MaxPopIncrease>
   <MaxFertilityOnBuild>-0.3</MaxFertilityOnBuild>
   <Infrastructure>2</Infrastructure>
   <Strength>30</Strength>
