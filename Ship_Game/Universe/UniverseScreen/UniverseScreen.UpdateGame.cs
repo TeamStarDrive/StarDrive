@@ -6,8 +6,8 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Empires.Components;
 using Vector2 = SDGraphics.Vector2;
-using Vector3 = SDGraphics.Vector3;
 using System.Diagnostics;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -112,7 +112,7 @@ namespace Ship_Game
             {
                 // Execute all the actions submitted from UI thread
                 // into this Simulation / Empire thread
-                ScreenManager.InvokePendingEmpireThreadActions();
+                InvokePendingSimThreadActions();
                 ++SimTurnId;
 
                 // recalculates empire stats and updates lists using current shiplists
@@ -201,7 +201,8 @@ namespace Ship_Game
         // This does a single simulation step with fixed time step
         public void SingleSimulationStep(FixedSimTime timeStep)
         {
-            ScreenManager.InvokePendingEmpireThreadActions();
+            InvokePendingSimThreadActions();
+
             if (ProcessTurnEmpires(timeStep))
             {
                 UpdateInfluenceForAllEmpires(this, timeStep);
@@ -463,6 +464,33 @@ namespace Ship_Game
             return increase
                 ? speed <= 1 ? speed * 2 : speed + 1
                 : speed <= 1 ? speed / 2 : speed - 1;
+        }
+
+        // Thread safe input queue for running UI input on empire thread
+        readonly SafeQueue<Action> PendingSimThreadActions = new SafeQueue<Action>();
+        
+        /// <summary>
+        /// Invokes all Pending actions. This should only be called from ProcessTurns !!!
+        /// </summary>
+        public void InvokePendingSimThreadActions()
+        {
+            while (PendingSimThreadActions.TryDequeue(out Action action))
+                action();
+        }
+
+        /// <summary>
+        /// Queues action to run on the Simulation thread, aka ProcessTurns thread.
+        /// </summary>
+        public void RunOnSimThread(Action action)
+        {
+            if (action != null)
+            {
+                PendingSimThreadActions.Enqueue(action);
+            }
+            else
+            {
+                Log.WarningWithCallStack("Null Action passed to RunOnEmpireThread method");
+            }
         }
     }
 }

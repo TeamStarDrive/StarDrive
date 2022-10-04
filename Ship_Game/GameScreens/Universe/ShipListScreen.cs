@@ -12,7 +12,7 @@ namespace Ship_Game
 {
     public sealed class ShipListScreen : GameScreen
     {
-        UniverseScreen Universe;
+        public readonly UniverseScreen Universe;
         private readonly Menu2 TitleBar;
         private readonly Vector2 TitlePos;
         private readonly Menu2 EMenu;
