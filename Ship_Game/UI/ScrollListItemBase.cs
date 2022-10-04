@@ -151,7 +151,6 @@ namespace Ship_Game
             }
         }
 
-        
         public override void PerformLayout()
         {
             if (DynamicElements != null)
@@ -173,7 +172,7 @@ namespace Ship_Game
             {
                 List.OnItemHovered(this);
             }
-            // Mouse Leave event is handled in List.HandleInput 
+            // Mouse Leave event is handled in ScrollListBase.HandleInput()
             return isHovered;
         }
 

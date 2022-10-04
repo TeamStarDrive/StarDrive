@@ -35,14 +35,20 @@ namespace Ship_Game
         ScrollListDragOutEvt<T> EvtDragOut;
         ScrollListDragReorderEvt<T> EvtDragReorder;
 
+        bool ShouldEnableItemEvents()
+        {
+            return EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+        }
+
         // EVENT: Called when a new item is focused with mouse
-        //        @note This is called again with <null> when mouse leaves focus
+        //        This is called again with `null` when mouse leaves focus
+        // EVENT: OnHoverEnded is trigged by calling this event with `null`
         public Action<T> OnHovered
         {
             set
             {
                 EvtHovered = value;
-                EnableItemEvents = EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+                EnableItemEvents = ShouldEnableItemEvents();
             }
         }
 
@@ -52,7 +58,7 @@ namespace Ship_Game
             set
             {
                 EvtClick = value;
-                EnableItemEvents = EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+                EnableItemEvents = ShouldEnableItemEvents();
             }
         }
 
@@ -62,7 +68,7 @@ namespace Ship_Game
             set
             {
                 EvtDoubleClick = value;
-                EnableItemEvents = EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+                EnableItemEvents = ShouldEnableItemEvents();
             }
         }
 
