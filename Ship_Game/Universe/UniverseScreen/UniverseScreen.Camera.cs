@@ -11,8 +11,12 @@ namespace Ship_Game
         {
             Vector2 mousePos = input.CursorPosition;
 
+            double currentZ = CamPos.Z;
+            if (currentZ == desiredCamZ) // currentZ cannot equal desiredCamZ, or we'll get NaN-s
+                currentZ += 1.0;
+
             // nearPoint is the point inside the camera lens
-            Vector3d nearPoint = Viewport.Unproject(new(mousePos, CamPos.Z), Projection, View);
+            Vector3d nearPoint = Viewport.Unproject(new(mousePos, currentZ), Projection, View);
             // farPoint points away into the world
             Vector3d farPoint = Viewport.Unproject(new(mousePos, desiredCamZ), Projection, View);
 
