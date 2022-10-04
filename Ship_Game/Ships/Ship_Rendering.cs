@@ -338,8 +338,9 @@ namespace Ship_Game.Ships
                 else if (status == WarpStatus.WaitingOrRecalling) color = Color.Yellow;
                 DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "UI/icon_ftloverlay", color);
 
-                // in debug, draw the formation WarpStatus
-                if (Universe.Debug && status is WarpStatus.UnableToWarp or WarpStatus.WaitingOrRecalling && ShipEngines.FormationStatus.NotEmpty())
+                // if FTL Overlay is enabled, or in debug, draw the formation WarpStatus
+                if (status is WarpStatus.UnableToWarp or WarpStatus.WaitingOrRecalling && 
+                    (us.Debug || us.ShowingFTLOverlay) && ShipEngines.FormationStatus.NotEmpty())
                 {
                     us.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, ShipEngines.FormationStatus, screenPos+offset, color);
                 }

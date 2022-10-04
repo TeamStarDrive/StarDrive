@@ -125,8 +125,8 @@ namespace Ship_Game
         public bool DefiningTradeRoutes; // are we defining  trade routes for a freighter?
         public Rectangle AORect; // used for showing current AO Rect definition
 
-        public bool showingFTLOverlay;
-        public bool showingRangeOverlay;
+        public bool ShowingFTLOverlay;
+        public bool ShowingRangeOverlay;
 
         /// <summary>
         /// Toggles Cinematic Mode (no UI) on or off
