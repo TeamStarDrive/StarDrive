@@ -13300,6 +13300,12 @@ FrigateLaunchPadDescrShort:
 FrigateLaunchPadDescr:
  Id: 10102
  ENG: "This facility will support a squadron of 4 Frigates that will leap into the colony's defense when an enemy is spotted. It will launch the best Frigates available in your empire. You will be able to control them only in battle. They cost Money to Launch, but you get it back if they make it back home."
+AntiFighterSystems:
+ Id: 10103
+ ENG: "Anti-Fighter Systems"
+AntiFighterSystemsDescr:
+ Id: 10104
+ ENG: "Potent weapon systems thats very effective against small crafts that dont have much armour and rely mostly on shields for defence."
 
 
 
