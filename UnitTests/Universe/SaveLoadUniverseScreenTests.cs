@@ -75,7 +75,7 @@ namespace UnitTests.Universe
 
             // now try to save the game
             Log.Write($"ShipsCount: {Universe.UState.Objects.NumShips}");
-            Universe.Save("MemoryStressTest", async:false, throwOnError:true);
+            Universe.Save("MemoryStressTest", throwOnError:true);
         }
 
         [TestMethod]
@@ -88,12 +88,12 @@ namespace UnitTests.Universe
             for (int i = 0; i < 60; ++i)
                 Universe.SingleSimulationStep(TestSimStep);
 
-            SavedGame save1 = Universe.Save("UnitTest.IntegrityTest", async:false);
+            SavedGame save1 = Universe.Save("UnitTest.IntegrityTest");
             if (save1 == null) throw new AssertFailedException("Save1 failed");
             DestroyUniverse();
 
             UniverseScreen us = LoadGame.Load(save1.SaveFile, noErrorDialogs:true, startSimThread:false);
-            SavedGame save2 = us.Save("UnitTest.IntegrityTest", async:false);
+            SavedGame save2 = us.Save("UnitTest.IntegrityTest");
             if (save1 == null) throw new AssertFailedException("Save2 failed");
             DestroyUniverse();
 

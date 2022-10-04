@@ -105,7 +105,10 @@ namespace Ship_Game
 
         void ProcessSimulationTurns()
         {
-            if (UState.Paused)
+            // process pending saves before entering the main loop 
+            CheckForPendingSaves();
+
+            if (UState.Paused || IsSaving)
             {
                 // Execute all the actions submitted from UI thread
                 // into this Simulation / Empire thread
@@ -120,8 +123,6 @@ namespace Ship_Game
             }
             else
             {
-                CheckAutoSaveTimer();
-
                 if (IsActive)
                 {
                     // Edge case: user manually edited global sim FPS
@@ -209,20 +210,6 @@ namespace Ship_Game
 
                 ProcessTurnUpdateMisc(timeStep);
                 EndOfTurnUpdate(timeStep);
-            }
-        }
-
-        void CheckAutoSaveTimer()
-        {
-            GameBase game = GameBase.Base;
-            if (LastAutosaveTime == 0f)
-                LastAutosaveTime = game.TotalElapsed;
-
-            float timeSinceLastAutoSave = (game.TotalElapsed - LastAutosaveTime);
-            if (timeSinceLastAutoSave >= GlobalStats.AutoSaveFreq)
-            {
-                LastAutosaveTime = game.TotalElapsed;
-                AutoSaveCurrentGame();
             }
         }
 
