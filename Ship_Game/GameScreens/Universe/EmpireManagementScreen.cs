@@ -13,7 +13,7 @@ namespace Ship_Game
 {
     public sealed class EmpireManagementScreen : GameScreen
     {
-        UniverseScreen Universe;
+        public readonly UniverseScreen Universe;
         EmpireUIOverlay eui;
         private readonly ScrollList<ColoniesListItem> ColoniesList;
         private readonly GovernorDetailsComponent GovernorDetails;
