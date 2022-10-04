@@ -3,7 +3,7 @@
   <Icon>Outpost</Icon>
   
   <Cost>50</Cost>
-  <SensorRange>6000</SensorRange>
+  <SensorRange>20000</SensorRange>
   <PlusResearchPerColonist>.1</PlusResearchPerColonist>
   <StorageAdded>60</StorageAdded>
   <Strength>10</Strength>
