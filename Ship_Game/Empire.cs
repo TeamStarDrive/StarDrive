@@ -522,7 +522,7 @@ namespace Ship_Game
                      => AI.ThreatMatrix.GetStrengthInSystem(system, filter);
 
         public float KnownEnemyStrengthIn(SolarSystem system)
-             => AI.ThreatMatrix.GetStrengthInSystem(system, p=> IsEmpireHostile(p.Empire));
+             => AI.ThreatMatrix.GetStrengthInSystem(system, p => IsEmpireHostile(p.Empire));
 
         public float KnownEmpireStrength(Empire empire) => AI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null);
         public float KnownEmpireOffensiveStrength(Empire empire)
@@ -1507,6 +1507,7 @@ namespace Ship_Game
 
         public void AssessSystemsInDanger(FixedSimTime timeStep)
         {
+            ThreatDetector ??= new(); // savegame compatibility
             ThreatDetector.Update(this, timeStep);
         }
 
