@@ -404,7 +404,7 @@ namespace Ship_Game
                 DrawTopCenterStatusText(batch, "Hyperspace Flux", Color.Yellow, 1);
             }
 
-            if (IsActive && SavedGame.IsSaving)
+            if (IsActive && IsSaving)
             {
                 DrawTopCenterStatusText(batch, "Saving...", CurrentFlashColor, 2);
             }

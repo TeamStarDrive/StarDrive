@@ -1,13 +1,8 @@
-using Ship_Game.AI;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
-using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Binary;
 
@@ -36,11 +31,7 @@ namespace Ship_Game
         public readonly UniverseState State;
         public FileInfo SaveFile;
 
-        public static bool IsSaving  => GetIsSaving();
-        public static bool NotSaving => !IsSaving;
         public static string DefaultSaveGameFolder => Dir.StarDriveAppData + "/Saved Games/";
-
-        static TaskResult SaveTask;
 
         public SavedGame(UniverseScreen screen)
         {
@@ -48,35 +39,31 @@ namespace Ship_Game
             State = screen.UState;
         }
 
-        static bool GetIsSaving()
+        public void Save(string saveAs)
         {
-            if (SaveTask == null)
-                return false;
-            if (!SaveTask.IsComplete)
-                return true;
-
-            SaveTask = null; // avoids some nasty memory leak issues
-            return false;
+            SaveFile = new($"{DefaultSaveGameFolder}{saveAs}.sav");
+            SaveUniverseData(State, SaveFile);
         }
 
-        public void Save(string saveAs, bool async)
+        public TaskResult SaveAsync(string saveAs, Action<Exception> finished)
         {
-            string destFolder = DefaultSaveGameFolder;
-            SaveFile = new FileInfo($"{destFolder}{saveAs}.sav");
+            SaveFile = new($"{DefaultSaveGameFolder}{saveAs}.sav");
 
-            if (!async)
+            // All of this data can be serialized in parallel,
+            // because we already built `SaveData` object, which no longer depends on UniverseScreen
+            var saveTask = Parallel.Run(() =>
             {
-                SaveUniverseData(State, SaveFile);
-            }
-            else
-            {
-                // All of this data can be serialized in parallel,
-                // because we already built `SaveData` object, which no longer depends on UniverseScreen
-                SaveTask = Parallel.Run(() =>
+                try
                 {
                     SaveUniverseData(State, SaveFile);
-                });
-            }
+                    finished(null);
+                }
+                catch (Exception e)
+                {
+                    finished(e);
+                }
+            });
+            return saveTask;
         }
 
         void SaveUniverseData(UniverseState state, FileInfo saveFile)
@@ -105,7 +92,6 @@ namespace Ship_Game
                 BinarySerializer.SerializeMultiType(writer, new object[] { header, state }, Verbose);
             }
 
-            SaveTask = null;
             Log.Info($"Binary Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length / (1024.0 * 1024.0):0.0}MB)");
 
             HelperFunctions.CollectMemory();
