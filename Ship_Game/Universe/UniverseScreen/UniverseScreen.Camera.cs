@@ -12,7 +12,7 @@ namespace Ship_Game
             Vector2 mousePos = input.CursorPosition;
 
             double currentZ = CamPos.Z;
-            if (currentZ == desiredCamZ) // currentZ cannot equal desiredCamZ, or we'll get NaN-s
+            if (currentZ.AlmostEqual(desiredCamZ)) // currentZ cannot equal desiredCamZ, or we'll get NaN-s
                 currentZ += 1.0;
 
             // nearPoint is the point inside the camera lens
