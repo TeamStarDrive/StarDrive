@@ -38,7 +38,7 @@ namespace Ship_Game.Universe
         [StarData] public bool FTLInNeutralSystems = true;
         [StarData] public GameDifficulty Difficulty;
         [StarData] public GalSize GalaxySize;
-        [StarData] public bool GravityWells;
+        [StarData] public bool GravityWells; // can be used to enable/disable gravity wells
 
         [StarData] public UnivScreenState ViewState;
         public bool IsSectorViewOrCloser => ViewState <= UnivScreenState.SectorView;
@@ -63,6 +63,7 @@ namespace Ship_Game.Universe
         // Id <= 0 is always invalid, valid ID-s start at 1
         [StarData] int UniqueObjectIds;
         
+        public bool CanShowDiplomacyScreen = true;
         public bool Paused = true; // always start paused
         public bool Debug;
         public DebugModes DebugMode;

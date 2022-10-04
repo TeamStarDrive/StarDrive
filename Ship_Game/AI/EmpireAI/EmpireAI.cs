@@ -39,6 +39,9 @@ namespace Ship_Game.AI
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
         BudgetPriorities BudgetSettings;
 
+        // Debug settings
+        public bool Disabled; // disables EmpireAI and FleetAI
+
         [StarDataConstructor]
         EmpireAI() {}
 
@@ -74,6 +77,25 @@ namespace Ship_Game.AI
         void OnDeserialized()
         {
             InitializeManagers(OwnerEmpire);
+        }
+
+        public void Update()
+        {
+            if (Disabled) // AI has been disabled for debugging purposes
+                return;
+
+            DefStr = DefensiveCoordinator.GetForcePoolStrength();
+            if (!OwnerEmpire.IsFaction)
+                RunManagers();
+            else
+                RemoveFactionEndedTasks();
+
+            for (int i = GoalsList.Count - 1; i >= 0; i--)
+            {
+                GoalsList[i].Evaluate();
+                if (GoalsList.Count == 0)
+                    break; // setting an empire as defeated within a goal clears the goals
+            }
         }
 
         void RunManagers()
@@ -317,22 +339,6 @@ namespace Ship_Game.AI
                 goal.FinishedShip?.AI.OrderOrbitNearest(true);
                 goal.PlanetBuildingAt?.Construction.Cancel(goal);
                 RemoveGoal(goal);
-            }
-        }
-
-        public void Update()
-        {
-            DefStr = DefensiveCoordinator.GetForcePoolStrength();
-            if (!OwnerEmpire.IsFaction)
-                RunManagers();
-            else
-                RemoveFactionEndedTasks();
-
-            for (int i = GoalsList.Count - 1; i >= 0; i--)
-            {
-                GoalsList[i].Evaluate();
-                if (GoalsList.Count == 0)
-                    break; // setting an empire as defeated within a goal clears the goals
             }
         }
 

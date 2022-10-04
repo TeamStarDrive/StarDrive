@@ -83,6 +83,7 @@
     <Compile Include="Collections\TestEnumFlatMap.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
+    <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="Fleets\FleetTests.cs" />
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="Collections\ArrayT_Tests.cs" />
