@@ -22,7 +22,15 @@ namespace Ship_Game
             double num = -nearPoint.Z / dir.Z;
             Vector3d pos2 = (nearPoint + dir * num);
             if (double.IsNaN(pos2.X) || double.IsNaN(pos2.Y))
+            {
                 Log.Error("CameraPos NaN!!!");
+
+                // TODO: this is here to avoid a fatal View matrix corruption
+                CamPos = new(0, 0, desiredCamZ);
+                Matrix cameraMatrix = Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
+                SetViewMatrix(cameraMatrix);
+                return CamPos;
+            }
 
             double newX = (pos2.X + CamPos.X) / 2.0;
             double newY = (pos2.Y + CamPos.Y) / 2.0;
