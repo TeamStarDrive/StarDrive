@@ -216,7 +216,7 @@ namespace Ship_Game
             set // used in the rush construction checkbox at start
             {
                 Universe.Player.RushAllConstruction = value;
-                RunOnEmpireThread(() => Universe.Player.SwitchRushAllConstruction(value));
+                Universe.RunOnSimThread(() => Universe.Player.SwitchRushAllConstruction(value));
             }
         }
     }
