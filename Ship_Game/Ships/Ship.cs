@@ -37,10 +37,10 @@ namespace Ship_Game.Ships
         [StarData] public float ScuttleTimer = -1f;
 
         // Ship's rotated offset from fleet center
-        public Vector2 FleetOffset;
+        [StarData] public Vector2 FleetOffset;
 
         // Unrotated fleet offset from [0,0]
-        public Vector2 RelativeFleetOffset;
+        [StarData] public Vector2 RelativeFleetOffset;
 
         public Array<ShipModule> BombBays = new();
         [StarData] public CarrierBays Carrier;
