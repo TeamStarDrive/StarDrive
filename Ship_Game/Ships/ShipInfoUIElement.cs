@@ -107,9 +107,11 @@ namespace Ship_Game.Ships
             float transitionOffset = 0f.SmoothStep(1f, TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
             SlidingElement.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
+
             DrawOrderButtons(batch, transitionOffset);
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             GridButton.Draw(batch, elapsed);
+
             var namePos       = new Vector2(Housing.X + 30, Housing.Y + 63);
             var shipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
             ShipNameArea.SetPos(namePos);
@@ -123,12 +125,9 @@ namespace Ship_Game.Ships
 
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
 
-            string text;
-            Vector2 shipStatus = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64);
-            text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(Ship), 120);
-            shipStatus = shipStatus.ToFloored();
+            var shipStatus = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64).ToFloored();
+            string text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(Ship), 120);
             batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
-            shipStatus.Y += Fonts.Arial12Bold.MeasureString(text).Y;
 
             Ship.RenderOverlay(batch, ShipInfoRect, ShowModules);
             batch.Draw(ResourceManager.Texture("Modules/NuclearReactorMedium"), Power, Color.White);
