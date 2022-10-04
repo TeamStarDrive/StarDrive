@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-  <Cost>6</Cost>
+  <Cost>11</Cost>
   <TechLevel>2</TechLevel>
   <!-- common traits shared by all ship modules -->
   <ModuleType>Turret</ModuleType>
@@ -13,7 +13,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/AF_Repeater</IconTexturePath>
-  <Mass>7</Mass>
+  <Mass>30</Mass>
   <Health>2060</Health>
   <HealthMax>2060</HealthMax>
   <energyreq>0</energyreq>

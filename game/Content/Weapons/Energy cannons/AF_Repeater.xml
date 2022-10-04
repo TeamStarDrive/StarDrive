@@ -20,10 +20,10 @@
   
   <UID>AF_Repeater</UID>
   <FireDelay>0.2</FireDelay>
-  <Range>5000</Range>
+  <Range>4600</Range>
   <PowerRequiredToFire>38</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
-  <EffectVsArmor>.75</EffectVsArmor>
+  <EffectVsArmor>.7</EffectVsArmor>
   <EffectVsShields>1</EffectVsShields>
   <ShieldPenChance>20</ShieldPenChance>
   <!-- name of XACT audio cue to play on firing this weapon -->
