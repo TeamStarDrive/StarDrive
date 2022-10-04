@@ -52,7 +52,7 @@ namespace Ship_Game.AI
         // Executes the active HoldPosition ShipGoal Plan while respecting MoveOrder stance
         void DoHoldPositionPlan(ShipGoal goal)
         {
-            State = AIState.HoldPosition;
+            ChangeAIState(AIState.HoldPosition);
 
             // if HoldPosition is not the last goal, then we should stop holding position
             if (OrderQueue.PeekLast != goal)

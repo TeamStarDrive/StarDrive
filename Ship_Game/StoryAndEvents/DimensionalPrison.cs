@@ -88,7 +88,6 @@ namespace Ship_Game
                 {
                     Ship enemy = Ship.CreateShipAtPoint(Universe, "Heavy Drone", Universe.Remnants, PlaformCenter);
                     enemy.Velocity = GenerateRandomV2(100f);
-                    enemy.AI.State = AIState.AwaitingOrders;
                     SpawnCountdown = 2f;
                     ++NumSpawnedRemnants;
                 }

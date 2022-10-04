@@ -278,13 +278,6 @@ namespace Ship_Game.Ships
             {
                 AI.OrderAllStop();
             }
-            else
-            {
-                // @todo Is this some sort of bug fix?
-                if (AI.State == AIState.HoldPosition)
-                    AI.State = AIState.AwaitingOrders;
-            }
-
             ShipStatusChanged = true;
         }
 
@@ -714,7 +707,7 @@ namespace Ship_Game.Ships
                     return;
                 }
                 Universe.Player.AI.DefensiveCoordinator.Add(this);
-                AI.State = AIState.SystemDefender;
+                AI.ChangeAIState(AIState.SystemDefender);
             }
         }
 
@@ -820,7 +813,7 @@ namespace Ship_Game.Ships
 
         public void Explore()
         {
-            AI.State = AIState.Explore;
+            AI.ChangeAIState(AIState.Explore);
             AI.SetPriorityOrder(true);
         }
 
@@ -912,7 +905,7 @@ namespace Ship_Game.Ships
 
         public void DoDefense()
         {
-            AI.State = AIState.SystemDefender;
+            AI.ChangeAIState(AIState.SystemDefender);
         }
 
         public void OrderToOrbit(Planet orbit, bool clearOrders, MoveOrder order = MoveOrder.Regular)

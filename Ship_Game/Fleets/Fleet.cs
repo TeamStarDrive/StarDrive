@@ -157,7 +157,6 @@ namespace Ship_Game.Fleets
 
             HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles ||
                                         ship.Carrier.HasSupplyBays && ship.Ordinance >= 100;
-
         }
 
         public void AddExistingShip(Ship ship, FleetDataNode node)
@@ -1671,7 +1670,7 @@ namespace Ship_Game.Fleets
                 if (ship.CanTakeFleetOrders && !ship.Position.OutsideRadius(pos, radius) &&
                     ship.AI.State == AIState.FormationMoveTo)
                 {
-                    ship.AI.State = AIState.AwaitingOrders;
+                    ship.AI.ChangeAIState(AIState.AwaitingOrders);
                     ship.AI.ClearPriorityOrderAndTarget();
                 }
             }
