@@ -145,7 +145,6 @@ namespace Ship_Game
 
         // Dev Options
         public static bool RestrictAIPlayerInteraction;
-        public static bool DisableAIEmpires;
 
         // If true, use software cursors (rendered by the game engine)
         // otherwise use OS Cursor (rendered by the OS ontop of current window)
@@ -260,7 +259,6 @@ namespace Ship_Game
             GetSetting("TestLoad"              , ref TestLoad);
             GetSetting("PreLoad"               , ref PreLoad);
             GetSetting("DamageIntensity"       , ref DamageIntensity);
-            GetSetting("DisableAIEmpires"      , ref DisableAIEmpires);
 
             Statreset();
 

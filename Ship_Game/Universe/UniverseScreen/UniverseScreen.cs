@@ -137,7 +137,7 @@ namespace Ship_Game
         /// <summary>
         /// Conditions to suppress diplomacy screen popups
         /// </summary>
-        public bool CanShowDiplomacyScreen => !IsCinematicModeEnabled;
+        public bool CanShowDiplomacyScreen => UState.CanShowDiplomacyScreen && !IsCinematicModeEnabled;
 
         public DeepSpaceBuildingWindow DeepSpaceBuildWindow;
         public DebugInfoScreen DebugWin;

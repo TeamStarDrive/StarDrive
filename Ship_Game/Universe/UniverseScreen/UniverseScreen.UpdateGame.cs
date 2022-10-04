@@ -1,9 +1,6 @@
-using Ship_Game.AI;
-using Ship_Game.Empires;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using SDGraphics;
 using SDUtils;
@@ -264,13 +261,16 @@ namespace Ship_Game
 
             UState.JunkList.ApplyPendingRemovals();
 
-            for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
+            if (anomalyManager != null)
             {
-                Anomaly anomaly = anomalyManager.AnomaliesList[i];
-                anomaly.Update(timeStep);
-            }
+                for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
+                {
+                    Anomaly anomaly = anomalyManager.AnomaliesList[i];
+                    anomaly.Update(timeStep);
+                }
 
-            anomalyManager.AnomaliesList.ApplyPendingRemovals();
+                anomalyManager.AnomaliesList.ApplyPendingRemovals();
+            }
 
             if (timeStep.FixedTime > 0)
             {
@@ -329,49 +329,24 @@ namespace Ship_Game
         bool ProcessTurnEmpires(FixedSimTime timeStep)
         {
             PreEmpirePerf.Start();
-
-            if (!IsActive)
             {
-                ShowingSysTooltip = false;
-                ShowingPlanetToolTip = false;
-            }
-
-            RecomputeFleetButtons(false);
-
-            if (SelectedShip != null)
-            {
-                ProjectPieMenu(new Vector3(SelectedShip.Position, 0.0f));
-            }
-            else if (SelectedPlanet != null)
-            {
-                ProjectPieMenu(SelectedPlanet.Position3D);
-            }
-
-            // todo figure what to do with this
-            /*
-            if (GlobalStats.RemnantArmageddon)
-            {
-                ArmageddonCountdown(timeStep);
-            }
-                ArmageddonTimer -= timeStep.FixedTime;
-                if (ArmageddonTimer < 0f)
+                if (!IsActive)
                 {
-                    ArmageddonTimer = 300f;
-                    ++ArmageddonCounter;
-                    if (ArmageddonCounter > 5)
-                        ArmageddonCounter = 5;
-                    for (int i = 0; i < ArmageddonCounter; ++i)
-                    {
-                        Ship exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
-                                player.WeightedCenter + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
-                                    RandomMath.RandomBetween(-500000f, 500000f)));
-                        exterminator.AI.DefaultAIState = AIState.Exterminate;
-                    }
+                    ShowingSysTooltip = false;
+                    ShowingPlanetToolTip = false;
+                }
+
+                RecomputeFleetButtons(false);
+
+                if (SelectedShip != null)
+                {
+                    ProjectPieMenu(new(SelectedShip.Position, 0f));
+                }
+                else if (SelectedPlanet != null)
+                {
+                    ProjectPieMenu(SelectedPlanet.Position3D);
                 }
             }
-            ArmageddonCountdown(timeStep);
-            */
-
             PreEmpirePerf.Stop();
             
             if (!UState.Paused && IsActive)
@@ -412,7 +387,11 @@ namespace Ship_Game
                         }
                     }
                 }
-                Parallel.For(UState.Empires.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
+
+                if (UState.Objects.EnableParallelUpdate)
+                    Parallel.For(UState.Empires.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
+                else
+                    PostEmpireUpdate(0, UState.Empires.Count);
             }
 
             PostEmpirePerf.Stop();
@@ -430,6 +409,35 @@ namespace Ship_Game
             }
         }
 
+        // TODO: This needs to be reimplemented
+        void HandleArmageddon()
+        {
+            // todo figure what to do with this
+            /*
+            if (GlobalStats.RemnantArmageddon)
+            {
+                ArmageddonCountdown(timeStep);
+            }
+                ArmageddonTimer -= timeStep.FixedTime;
+                if (ArmageddonTimer < 0f)
+                {
+                    ArmageddonTimer = 300f;
+                    ++ArmageddonCounter;
+                    if (ArmageddonCounter > 5)
+                        ArmageddonCounter = 5;
+                    for (int i = 0; i < ArmageddonCounter; ++i)
+                    {
+                        Ship exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
+                                player.WeightedCenter + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
+                                    RandomMath.RandomBetween(-500000f, 500000f)));
+                        exterminator.AI.DefaultAIState = AIState.Exterminate;
+                    }
+                }
+            }
+            ArmageddonCountdown(timeStep);
+            */
+        }
+        
         /*
         void ArmageddonCountdown(FixedSimTime timeStep)
         {

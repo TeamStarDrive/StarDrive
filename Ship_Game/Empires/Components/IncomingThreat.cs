@@ -1,91 +1,83 @@
 ﻿using SDUtils;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 
-namespace Ship_Game.Empires.Components
+namespace Ship_Game.Empires.Components;
+
+/// <summary>
+/// A solar system which has threats incoming
+/// </summary>
+[StarDataType]
+public class IncomingThreat
 {
-    public class IncomingThreat
+    [StarData] readonly Empire Owner;
+    [StarData] public readonly SolarSystem TargetSystem;
+
+    [StarData] public float ThreatTimer { get; private set; }
+    [StarData] public float PulseTime { get; private set; }
+
+    [StarData] Fleet[] Fleets;
+    [StarData] public Fleet NearestFleet { get; private set; }
+    [StarData] public float ThreatDistance { get; private set; }
+    [StarData] public float Strength { get; private set; }
+    [StarData] public bool HighPriority { get; private set; }
+
+    const float ThreatResetTime = 1;
+    public bool ThreatTimedOut => ThreatTimer <= 0;
+    public Empire[] Enemies => Fleets?.FilterSelect(f => f != null, f=>f.Owner);
+
+    [StarDataConstructor] IncomingThreat() {}
+
+    public IncomingThreat(Empire owner, SolarSystem system, Fleet[] fleets)
     {
-        public SolarSystem TargetSystem { get; private set; }
-        public float ThreatTimer { get; private set; }
-        const float ThreatResetTime = 1;
-        public bool ThreatTimedOut => ThreatTimer <= 0;
-        public float Strength { get; private set; }
-        Array<Fleet> Fleets;
-        public Fleet NearestFleet { get; private set; }
-        public float ThreatDistance { get; private set; }
-        public float PulseTime { get; private set; } = 5;
+        Owner = owner;
+        TargetSystem = system;
+        PulseTime = 5;
+        UpdateThreats(fleets);
+        ProcessFleetThreat();
+    }
 
-        public Empire[] Enemies => Fleets?.FilterSelect(f => f != null, f=>f.Owner);
-        readonly Empire Owner;
-        public bool HighPriority { get; private set; } = false;
-
-        public IncomingThreat (Empire owner, SolarSystem system, Fleet[] fleets)
+    public bool Update(FixedSimTime simTime)
+    {
+        ThreatTimer -= simTime.FixedTime;
+        if (ThreatTimedOut)
         {
-            TargetSystem = system;
-            Owner        = owner;
-            ThreatTimer  = ThreatResetTime;
-            Strength     = fleets.Sum(f => f.GetStrength() * Owner.GetFleetStrEmpireMultiplier(f.Owner));
-            Fleets       = new Array<Fleet>(fleets);
-            ProcessFleetThreat();
+            Fleets = Empty<Fleet>.Array; 
+            return false;
         }
 
-        public bool UpdateThreat(SolarSystem system, Fleet[] fleets)
+        NearestFleet = Fleets.FindMin(f => f.AveragePosition().SqDist(TargetSystem.Position));
+        ThreatDistance = NearestFleet?.AveragePosition().Distance(TargetSystem.Position) ?? float.MaxValue;
+        PulseTime -= simTime.FixedTime;
+        ProcessFleetThreat();
+
+        if (PulseTime <= 0) 
+            PulseTime = 1;
+
+        return true;
+    }
+    
+    public void UpdateThreats(Fleet[] fleets)
+    {
+        ThreatTimer = ThreatResetTime;
+        Fleets = fleets;
+        Strength = fleets.Sum(f => f.GetStrength() * Owner.GetFleetStrEmpireMultiplier(f.Owner));
+    }
+
+    void ProcessFleetThreat()
+    {
+        HighPriority = false;
+        
+        MilitaryTask.TaskCategory cat = MilitaryTask.TaskCategory.FleetNeeded | MilitaryTask.TaskCategory.War;
+
+        foreach (Fleet f in Fleets)
         {
-            if (system != TargetSystem) return false;
-
-            Strength    = fleets.Sum(f => f.GetStrength() * Owner.GetFleetStrEmpireMultiplier(f.Owner));
-            ThreatTimer = ThreatResetTime;
-
-            foreach(var fleetToAdd in fleets)
+            if (f.Owner.isPlayer && f.GetStrength() > 0 || f.FleetTask?.GetTaskCategory() == cat)
             {
-                Fleets.AddUnique(fleetToAdd);
+                HighPriority = true;
+                break;
             }
-            return true;
-        }
-
-        public bool UpdateTimer(FixedSimTime simTime)
-        {
-            ThreatTimer -= simTime.FixedTime;
-            if (ThreatTimedOut)
-            {
-                Fleets = new Array<Fleet>(); 
-                return false;
-            }
-
-            NearestFleet = Fleets.FindMin(f => f.AveragePosition().SqDist(TargetSystem.Position));
-            ThreatDistance = NearestFleet?.AveragePosition().Distance(TargetSystem.Position) ?? float.MaxValue;
-            PulseTime -= simTime.FixedTime;
-            ProcessFleetThreat();
-
-            if (PulseTime <= 0) 
-                PulseTime = 1;
-
-            return true;
-        }
-
-        void ProcessFleetThreat()
-        {
-            HighPriority  = false;
-            var newFleets = Fleets;
-
-            for (int i = 0; i < Fleets.Count; i++)
-            {
-                var fleet = Fleets[i];
-                if (fleet?.Ships.IsEmpty != false)
-                {
-                    newFleets.RemoveAtSwapLast(i);
-                    continue;
-                }
-
-                MilitaryTask.TaskCategory cat = MilitaryTask.TaskCategory.FleetNeeded | MilitaryTask.TaskCategory.War;
-                if (fleet.Owner.isPlayer && fleet.GetStrength() > 0 || fleet.FleetTask?.GetTaskCategory() == cat)
-                {
-                    HighPriority = true;
-                }
-            }
-
-            Fleets = newFleets;
         }
     }
 }

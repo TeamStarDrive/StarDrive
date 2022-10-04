@@ -65,7 +65,8 @@ namespace UnitTests
         }
 
         /// <param name="playerArchetype">for example "Human"</param>
-        public void CreateUniverseAndPlayerEmpire(string playerArchetype = null)
+        public void CreateUniverseAndPlayerEmpire(string playerArchetype = null,
+                                                  string enemyArchetype = null)
         {
             RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
             RequireStarterContentLoaded(nameof(CreateUniverseAndPlayerEmpire));
@@ -78,8 +79,14 @@ namespace UnitTests
             {
                 playerData = ResourceManager.MajorRaces.FirstOrDefault(e => e.ArchetypeName.Contains(playerArchetype));
                 if (playerData == null)
-                    throw new Exception($"Could not find MajorRace archetype matching '{playerArchetype}'");
+                    throw new($"Could not find MajorRace archetype matching '{playerArchetype}'");
                 enemyData = ResourceManager.MajorRaces.FirstOrDefault(e => e != playerData);
+            }
+            if (enemyArchetype != null)
+            {
+                enemyData = ResourceManager.MajorRaces.FirstOrDefault(e => e.ArchetypeName.Contains(enemyArchetype));
+                if (enemyData == null)
+                    throw new($"Could not find MajorRace archetype matching '{enemyArchetype}'");
             }
 
             Universe = new UniverseScreen(2_000_000f);
@@ -92,6 +99,9 @@ namespace UnitTests
             Player.SetRelationsAsKnown(Enemy);
             Player.AI.DeclareWarOn(Enemy, WarType.BorderConflict);
             Empire.UpdateBilateralRelations(Player, Enemy);
+
+            if (!Player.IsEmpireHostile(Enemy) || !Enemy.IsEmpireHostile(Player))
+                throw new($"Failed to declare war from Player to Enemy. IsEmpireHostile=false");
             
             Log.Info($"CreateUniverseAndPlayerEmpire elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
@@ -370,7 +380,34 @@ namespace UnitTests
             }
             return elapsedSimTime;
         }
+        
+        /// <summary>
+        /// Runs full universe simulation for up to `simTimeout` simulation seconds
+        /// Each step is taken using TestSimTimeStep (1/60)
+        /// if `fatal` == true, throws exception if timeout is reached and the test should fail
+        /// </summary>
+        /// <returns>Elapsed Simulation Time</returns>
+        public double RunFullSimWhile((double simTimeout, bool fatal) timeout, Func<bool> condition = null, Action body = null)
+        {
+            double elapsedSimTime = 0.0;
+            while (condition == null || condition())
+            {
+                body?.Invoke();
 
+                // update after invoking body, to avoid side-effects in condition()
+                // if we update universe before body(), then body() CAN observe condition() == false
+                Universe.SingleSimulationStep(TestSimStep);
+
+                elapsedSimTime += TestSimStepD;
+                if (elapsedSimTime >= timeout.simTimeout)
+                {
+                    if (timeout.fatal)
+                        throw new TimeoutException("Timed out in RunSimWhile");
+                    return elapsedSimTime; // timed out
+                }
+            }
+            return elapsedSimTime;
+        }
         /// <summary>
         /// Update Universe.Objects simulation for `totalSimSeconds`
         /// </summary>
