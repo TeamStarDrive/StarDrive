@@ -289,9 +289,9 @@ namespace Ship_Game.AI
             ////// --                                               -- //////
              ////// --  IF AND WHEN YOU FUBAR THIS ANYWAY INCREASE   -- //////
               ////// --       THIS COUNTER AS WARNING TO OTHERS       -- //////
-               ////// --        total_hours_wasted_here = 112          -- //////
+               ////// --        total_hours_wasted_here = 114          -- //////
                 /////////////////////////////////////////////////////////////////
-            AddMoveOrder(Plan.RotateToFaceMovePosition, wayPoints[0], State, speedLimit, o);
+            AddMoveOrder(Plan.RotateToFaceMovePosition, wayPoints[0], wantedState, speedLimit, o);
 
             // this allows fleets to keep their cohesion between waypoints
             // it makes fleet warps slower, but keeps the fleet together which is more important
@@ -304,29 +304,32 @@ namespace Ship_Game.AI
                 wp = wayPoints[i];
                 if (assembleBetweenWayPoints)
                 {
-                    AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, o|MoveOrder.DequeueWayPoint);
-                    AddMoveOrder(Plan.MakeFinalApproach, wp, State, speedLimit, o, goal);
+                    AddMoveOrder(Plan.MoveToWithin1000, wp, wantedState, speedLimit, o|MoveOrder.DequeueWayPoint);
+                    AddMoveOrder(Plan.MakeFinalApproach, wp, wantedState, speedLimit, o, goal);
                     (Vector2 dirToNext, float dist) = wp.Position.GetDirectionAndLength(wayPoints[i + 1].Position);
                     Vector2 nextPos = wp.Position + dirToNext*Math.Min(1000f, dist*0.25f);
-                    AddMoveOrder(Plan.RotateToFaceMovePosition, new WayPoint(nextPos, dirToNext), State, speedLimit, o, goal);
+                    AddMoveOrder(Plan.RotateToFaceMovePosition, new WayPoint(nextPos, dirToNext), wantedState, speedLimit, o, goal);
                 }
                 else
                 {
-                    AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, o|MoveOrder.DequeueWayPoint);
+                    AddMoveOrder(Plan.MoveToWithin1000, wp, wantedState, speedLimit, o|MoveOrder.DequeueWayPoint);
                 }
             }
 
             wp = wayPoints[wayPoints.Length - 1];
-            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, o|MoveOrder.DequeueWayPoint);
+            AddMoveOrder(Plan.MoveToWithin1000, wp, wantedState, speedLimit, o|MoveOrder.DequeueWayPoint);
 
             // FB - Do not make final approach and stop, since the ship has more orders which don't
             // require stopping or rotating. Otherwise go to the set pos and not to the dynamic target planet center.
             if (!order.IsSet(MoveOrder.NoStop))
             {
-                AddMoveOrder(Plan.MakeFinalApproach, wp, State, speedLimit, o, goal);
-                AddMoveOrder(Plan.RotateToDesiredFacing, wp, State, 0, o, goal);
+                AddMoveOrder(Plan.MakeFinalApproach, wp, wantedState, speedLimit, o, goal);
+                AddMoveOrder(Plan.RotateToDesiredFacing, wp, wantedState, 0, o, goal);
                 OrderHoldPosition(position, finalDir, o);
             }
+
+            // finally, we need to set the current AIState, because everything else modified it -_-
+            ChangeAIState(wantedState);
         }
 
         public void OrderAwaitOrders(bool clearPriorityOrder = true)
@@ -480,8 +483,8 @@ namespace Ship_Game.AI
                     Intercepting = true;
 
                     ClearWayPoints();
-
-                    State = AIState.AttackTarget;
+                    
+                    ChangeAIState(AIState.AttackTarget);
                     TargetQueue.Add(toAttack);
                     HasPriorityTarget = true;
                     SetPriorityOrder(false);
@@ -530,7 +533,7 @@ namespace Ship_Game.AI
             Planet planet = planets.FindClosestTo(Owner.Position, p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);
             if (planet == null)
             {
-                State = AIState.AwaitingOrders;
+                ChangeAIState(AIState.AwaitingOrders);
                 Log.Info($"Could not find a planet to rebase for {Owner.Name}.");
                 return;
             }
@@ -823,7 +826,7 @@ namespace Ship_Game.AI
 
             if (EscortTarget != null)
             {
-                State = AIState.Escort;
+                ChangeAIState(AIState.Escort);
                 return;
             }
 
