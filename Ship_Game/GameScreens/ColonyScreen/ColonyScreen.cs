@@ -226,8 +226,9 @@ namespace Ship_Game
 
             BuildableList = BuildableTabs.List;
             BuildableList.EnableItemHighlight = true;
-            BuildableList.OnDoubleClick       = OnBuildableItemDoubleClicked;
-            BuildableList.OnHovered           = OnBuildableHoverChange;
+            BuildableList.OnDoubleClick = OnBuildableItemDoubleClicked;
+            BuildableList.OnHovered = OnBuildableHoverChange;
+
             if (p.OwnerIsPlayer || p.Universe.Debug)
                 BuildableList.OnDragOut = OnBuildableListDrag;
 

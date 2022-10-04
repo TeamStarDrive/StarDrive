@@ -192,7 +192,14 @@ namespace Ship_Game
 
         void OnBuildableHoverChange(BuildableListItem item)
         {
-            ShipInfoOverlay.ShowToLeftOf(new Vector2(BuildableList.X, item?.Y ?? 0f), item?.Ship);
+            if (item == null) // lost hover
+            {
+                ShipInfoOverlay.Hide();
+            }
+            else
+            {
+                ShipInfoOverlay.ShowToLeftOf(new Vector2(BuildableList.X, item.Y), item.Ship);
+            }
         }
 
         void OnBuildableListDrag(BuildableListItem item, DragEvent evt, bool outside)
@@ -221,8 +228,14 @@ namespace Ship_Game
 
         void OnConstructionItemHovered(ConstructionQueueScrollListItem item)
         {
-            if (item != null && item.Item.isShip)
+            if (item == null) // lost hover
+            {
+                ShipInfoOverlay.Hide();
+            }
+            else if (item.Item.isShip)
+            {
                 ShipInfoOverlay.ShowToLeftOf(item.Pos, item.Item.ShipData);
+            }
         }
 
         public bool Build(Building b, PlanetGridSquare where = null)

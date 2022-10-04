@@ -10,9 +10,11 @@ namespace Ship_Game
     public partial class ColonyScreen
     {
         int PFacilitiesPlayerTabSelected;
+
         // Gets the item which we want to use for detail info text
         object GetHoveredDetailItem(InputState input)
         {
+            // TODO: replace with a popup window
             if (BuildableList.HitTest(input.CursorPosition))
             {
                 foreach (BuildableListItem e in BuildableList.AllEntries)
@@ -21,6 +23,17 @@ namespace Ship_Game
                     {
                         if (e.Building != null) return e.Building;
                         if (e.Troop != null) return e.Troop;
+                    }
+                }
+            }
+            else if (ConstructionQueue.HitTest(input.CursorPosition))
+            {
+                foreach (ConstructionQueueScrollListItem e in ConstructionQueue.AllEntries)
+                {
+                    if (e.Hovered)
+                    {
+                        if (e.Item.Building != null) return e.Item.Building;
+                        if (e.Item.TroopType != null) return ResourceManager.GetTroopTemplate(e.Item.TroopType);
                     }
                 }
             }
