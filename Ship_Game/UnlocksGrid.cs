@@ -95,23 +95,23 @@ namespace Ship_Game
         public int ModW => module?.XSize ?? 1;
         public int ModH => module?.YSize ?? 1;
 
-        public Rectangle GetModuleRect(int x, int y, int fillW, int fillH)
+        public RectF GetModuleRect(float x, float y, float fillW, float fillH)
         {
-            int modW = ModW;
-            int modH = ModH;
-            int w = fillW;
-            int h = fillH;
+            float modW = ModW;
+            float modH = ModH;
+            float w = fillW;
+            float h = fillH;
 
             if (modH > modW)
-                w = (int)((float)modW / modH * fillH);
+                w = (float)Math.Floor(modW / modH * fillH);
             else if (modW > modH)
-                h = (int)((float)modH / modW * fillW);
+                h = (float)Math.Floor(modH / modW * fillW);
 
-            Rectangle r;
-            r.X = x + (fillW / 2) - (w / 2);
-            r.Y = y + (fillH / 2) - (h / 2);
-            r.Width = w;
-            r.Height = h;
+            RectF r;
+            r.X = (float)Math.Floor(x + (fillW / 2) - (w / 2));
+            r.Y = (float)Math.Floor(y + (fillH / 2) - (h / 2));
+            r.W = w;
+            r.H = h;
             return r;
         }
 
@@ -171,14 +171,14 @@ namespace Ship_Game
     {
         public struct GridItem
         {
-            public UnlockItem item;
-            public Rectangle rect;
-            public Vector2 Pos => new Vector2(rect.X, rect.Y);
+            public UnlockItem Item;
+            public RectF Rect;
+            public Vector2 Pos => Rect.Pos;
         }
 
         public Array<GridItem> GridOfUnlocks = new Array<GridItem>();
 
-        public UnlocksGrid(IEnumerable<UnlockItem> unlocks, Rectangle r)
+        public UnlocksGrid(IEnumerable<UnlockItem> unlocks, RectF r)
         {
             int x = 0;
             int y = 0;
@@ -186,7 +186,7 @@ namespace Ship_Game
             {
                 GridOfUnlocks.Add(new GridItem
                 {
-                    item = item, rect = new Rectangle(r.X + 32 * x, r.Y + 32 * y, 32, 32),
+                    Item = item, Rect = new(r.X + 32 * x, r.Y + 32 * y, 32, 32),
                 });
                 if (++y == 2)
                 {
@@ -200,12 +200,12 @@ namespace Ship_Game
         {
             foreach (GridItem gi in GridOfUnlocks)
             {
-                UnlockItem unlock = gi.item;
-                Rectangle iconRect = gi.rect;
+                UnlockItem unlock = gi.Item;
+                Rectangle iconRect = gi.Rect;
 
                 if (unlock.Type == UnlockType.ShipModule)
                 {
-                    iconRect = unlock.GetModuleRect(gi.rect.X, gi.rect.Y, gi.rect.Width, gi.rect.Height);
+                    iconRect = unlock.GetModuleRect(gi.Rect.X, gi.Rect.Y, gi.Rect.W, gi.Rect.H);
                 }
 
                 batch.Draw(unlock.Icon, iconRect, Color.White);

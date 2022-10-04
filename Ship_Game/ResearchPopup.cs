@@ -4,6 +4,8 @@ using SDUtils;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Graphics;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -26,17 +28,20 @@ namespace Ship_Game
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0f;
             TechEntry techEntry = us.Player.GetTechEntry(uid);
-            if (techEntry == null)
-                return;
-
-            Technology = ResourceManager.Tech(uid);
-
-            string level = RomanNumerals.ToRoman(techEntry.Level);
-            string maxlvl = RomanNumerals.ToRoman(techEntry.MaxLevel);
-            TitleText  = Technology.Name.Text + (Technology.MaxLevel > 1 ? $" {level}/{maxlvl}" : "");
-            MiddleText = techEntry.Tech.Description.Text;
+            if (techEntry != null)
+            {
+                Technology = techEntry.Tech;
+                TitleText = Technology.Name.Text;
+                if (Technology.MaxLevel > 1)
+                {
+                    string level = RomanNumerals.ToRoman(techEntry.Level);
+                    string maxlvl = RomanNumerals.ToRoman(techEntry.MaxLevel);
+                    TitleText += $" {level}/{maxlvl}";
+                }
+                MiddleText = techEntry.Tech.Description.Text;
+            }
         }
-        
+
         public override void LoadContent()
         {
             base.LoadContent();
@@ -61,52 +66,65 @@ namespace Ship_Game
 
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                Rectangle iconRect = default;
+                RectF iconRect = default;
                 string comment = "";
                 string summary = "";
 
                 switch (Unlock.Type)
                 {
                     case UnlockType.ShipModule:
-                        iconRect = Unlock.GetModuleRect((int)X + 16, (int)Y + 16, 64, 64);
+                        iconRect = Unlock.GetModuleRect(X + 16, Y + 16, 64, 64);
                         comment = $" ({Unlock.ModW}x{Unlock.ModH})";
                         break;
                     case UnlockType.Troop:
-                        iconRect = new Rectangle((int)X + 16, (int)CenterY - 32, 64, 64);
+                        iconRect = new(X + 16, CenterY - 32, 64, 64);
                         break;
                     case UnlockType.Building:
-                        iconRect = new Rectangle((int)X + 16, (int)CenterY - 32, 64, 64);
+                        iconRect = new(X + 16, CenterY - 32, 64, 64);
+                        if (Unlock.building != null)
+                        {
+                            comment = $"    Production Cost: {Unlock.building.ActualCost}";
+                        }
                         summary = Unlock.building?.GetShortDescrText() ?? "";
                         break;
                     case UnlockType.Hull:
-                        iconRect = new Rectangle((int)X, (int)CenterY - 32, 96, 96);
+                        iconRect = new(X, CenterY - 32, 96, 96);
                         break;
                     case UnlockType.Advance:
-                        iconRect = new Rectangle((int)X + 24, (int)Y + 24, 48, 48);
+                        iconRect = new(X + 24, Y + 24, 48, 48);
                         break;
                 }
 
                 batch.Draw(Unlock.Icon, iconRect, Color.White);
 
-                string wrappedDescr = Fonts.Arial12.ParseText(Unlock.Description, Width - 100);
-                float textHeight = Fonts.Arial14Bold.LineSpacing + 5 + Fonts.Arial12.MeasureString(wrappedDescr).Y;
-                var pos = new Vector2(X + 100, CenterY - (int)(textHeight / 2f));
+                Font titleFont = Fonts.Arial14Bold;
+                Font textFont = Fonts.Arial12;
 
-                batch.DrawDropShadowText(Unlock.Title, pos, Fonts.Arial14Bold, Color.Orange);
+                string wrappedDescr = textFont.ParseText(Unlock.Description, Width - 100);
+                Vector2 descrSize = textFont.MeasureString(wrappedDescr);
+                float textHeight = titleFont.LineSpacing + 5 + descrSize.Y;
+                
+                // title text for the item
+                Vector2 titlePos = new(X + 100, CenterY - (int)(textHeight / 2f));
+                batch.DrawDropShadowText(Unlock.Title, titlePos, titleFont, Color.Orange);
+
+                // small comment text right next to the Title
                 if (comment.NotEmpty())
                 {
-                    var commentPos = Fonts.Arial14Bold.MeasureString(Unlock.Title);
-                    commentPos.X += pos.X;
-                    commentPos.Y  = pos.Y + 2;
-                    batch.DrawString(Fonts.Arial12, comment, commentPos, Color.Gray);
+                    float titleWidth = titleFont.TextWidth(Unlock.Title);
+                    Vector2 commentPos = titlePos + new Vector2(titleWidth, 2);
+                    batch.DrawString(textFont, comment, commentPos, Color.Gray);
                 }
 
-                batch.DrawString(Fonts.Arial12, wrappedDescr, pos + new Vector2(0f, Fonts.Arial14Bold.LineSpacing + 2), Color.LightGray);
+                // long description text
+                Vector2 descrPos = titlePos + new Vector2(0, titleFont.LineSpacing + 2);
+                batch.DrawString(textFont, wrappedDescr, descrPos, Color.LightGray);
+
                 if (summary.NotEmpty())
                 {
-                    string wrappedSummary = Fonts.Arial12.ParseText(summary, Width - 100);
-                    int lines = wrappedDescr.Split('\n').Length + 2;
-                    batch.DrawString(Fonts.Arial12, wrappedSummary, pos + new Vector2(0f, Fonts.Arial12.LineSpacing * lines - 3), Color.SteelBlue);
+                    string wrappedSummary = textFont.ParseText(summary, Width - 100);
+                    Vector2 summaryPos = descrPos + new Vector2(0, descrSize.Y + 2);
+                    batch.DrawString(textFont, wrappedSummary, summaryPos, Color.SteelBlue);
                 }
             }
         }
