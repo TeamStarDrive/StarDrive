@@ -307,25 +307,42 @@ namespace Ship_Game.Ships
             if (!HelperFunctions.DataVisibleToPlayer(Loyalty))
                 return;
 
-            Vector2 offSet = new Vector2(screenRadius * .75f, screenRadius * .75f);
+            var offset = new Vector2(screenRadius * 0.75f, screenRadius * 0.75f);
 
-            // display low ammo
-            if (OrdnancePercent < 0.5f)
+            if (OrdnancePercent < 0.5f) // display low ammo
             {
                 float criticalThreshold = InCombat ? ShipResupply.OrdnanceThresholdCombat : ShipResupply.OrdnanceThresholdNonCombat;
                 Color color             = OrdnancePercent <= criticalThreshold ? Color.Red : Color.Yellow;
-                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_ammo", color);
+                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "NewUI/icon_ammo", color);
             }
+
             // FB: display resupply icons
             switch (AI.State)
             {
-                case Ship_Game.AI.AIState.Resupply:
-                case Ship_Game.AI.AIState.ResupplyEscort:
-                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_resupply", Color.White);
+                case AIState.Resupply:
+                case AIState.ResupplyEscort:
+                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "NewUI/icon_resupply", Color.White);
                     break;
-                case Ship_Game.AI.AIState.ReturnToHangar:
-                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "UI/icon_hangar", Color.Yellow);
+                case AIState.ReturnToHangar:
+                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "UI/icon_hangar", Color.Yellow);
                     break;
+            }
+
+            // if fleet is warping, show warp ready status
+            if (Fleet is { InFormationMove: true } && Position.OutsideRadius(AI.GoalTarget, 7500f))
+            {
+                WarpStatus status = ShipEngines.ReadyForFormationWarp;
+
+                Color color = Color.Green;
+                if (status == WarpStatus.UnableToWarp) color = Color.Green;
+                else if (status == WarpStatus.WaitingOrRecalling) color = Color.Yellow;
+                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "UI/icon_ftloverlay", color);
+
+                // in debug, draw the formation WarpStatus
+                if (Universe.Debug && status is WarpStatus.UnableToWarp or WarpStatus.WaitingOrRecalling && ShipEngines.FormationStatus.NotEmpty())
+                {
+                    us.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, ShipEngines.FormationStatus, screenPos+offset, color);
+                }
             }
         }
 
