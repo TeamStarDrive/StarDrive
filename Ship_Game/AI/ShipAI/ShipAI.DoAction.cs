@@ -19,8 +19,8 @@ namespace Ship_Game.AI
         void DoBoardShip(FixedSimTime timeStep)
         {
             HasPriorityTarget = true;
-            State             = AIState.Boarding;
-            var escortTarget  = EscortTarget;
+            ChangeAIState(AIState.Boarding);
+            var escortTarget = EscortTarget;
             if (Owner.TroopCount < 1 || escortTarget == null || !escortTarget.Active || escortTarget.Loyalty == Owner.Loyalty)
             {
                 ClearOrders(State);

@@ -258,7 +258,7 @@ namespace Ship_Game.AI
                     if (ship.AI.SystemToDefend == null)
                         shipsAvailableForAssignment.Add(ship);
                     else
-                        ship.AI.State = AIState.SystemDefender;
+                        ship.AI.ChangeAIState(AIState.SystemDefender);
                 }
                 else if (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Resupply)
                     Remove(ship);

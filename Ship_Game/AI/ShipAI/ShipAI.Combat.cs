@@ -619,7 +619,7 @@ namespace Ship_Game.AI
             }
 
             // always override the combat state
-            State = combatState;
+            ChangeAIState(combatState);
 
             // check if DoCombat is already the first ShipGoal
             switch (OrderQueue.PeekFirst?.Plan)
