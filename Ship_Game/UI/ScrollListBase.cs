@@ -210,7 +210,8 @@ namespace Ship_Game
             if (!EnableDragOutEvents && !EnableDragReorderEvents)
                 return;
 
-            if (DraggedEntry == null)
+            // try to start item drag, but only if we're not dragging scrollbar
+            if (DraggedEntry == null && !DraggingScrollBar)
             {
                 if (input.LeftMouseHeld(DragBeginDelay) && Rect.HitTest(input.StartLeftHold))
                 {
