@@ -300,22 +300,20 @@ namespace Ship_Game.Ships
 
         void DrawInhibitWarning(SpriteBatch batch, int numStatus, Vector2 mousePos)
         {
-            if (GlobalStats.DisableInhibitionWarning || Universe.showingFTLOverlay)
+            if (GlobalStats.DisableInhibitionWarning || Universe.ShowingFTLOverlay)
                 return;
 
-            string text     = "Inhibited";
+            string text = "Inhibited";
             Graphics.Font font = Fonts.Arial20Bold;
-            var rect        = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y - 24,
-                        (int)font.MeasureString(text).X, (int)font.MeasureString(text).Y);
+            RectF rect = new(StatusArea.X + numStatus * 53, StatusArea.Y - 24, font.MeasureString(text));
 
-            batch.DrawString(Fonts.Arial20Bold, text, rect.PosVec(), Universe.CurrentFlashColorRed);
-            if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(GameText.ThisShipIsInhibitedAnd);
+            batch.DrawString(font, text, rect.Pos, Universe.CurrentFlashColorRed);
+            if (rect.HitTest(mousePos))
+                ToolTip.CreateTooltip(GameText.ThisShipIsInhibitedAnd);
 
             Planet p = Ship.System?.IdentifyGravityWell(Ship);
-            if (p == null)
-                return;
-
-            Universe.DrawCircleProjected(p.Position, p.GravityWellRadius, Universe.CurrentFlashColorRed);
+            if (p != null)
+                Universe.DrawCircleProjected(p.Position, p.GravityWellRadius, Universe.CurrentFlashColorRed);
         }
 
         void DrawCargoUsed(SpriteBatch batch, Vector2 mousePos, ref int numStatus)

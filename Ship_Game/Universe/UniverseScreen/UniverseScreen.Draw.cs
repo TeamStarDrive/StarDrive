@@ -440,7 +440,7 @@ namespace Ship_Game
 
         void DrawShipRangeOverlay()
         {
-            if (showingRangeOverlay && !LookingAtPlanet)
+            if (ShowingRangeOverlay && !LookingAtPlanet)
             {
                 var shipRangeTex = ResourceManager.Texture("UI/node_shiprange");
                 foreach (ClickableShip clickable in ClickableShips)
@@ -481,7 +481,7 @@ namespace Ship_Game
 
         void DrawFTLInhibitionNodes()
         {
-            if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
+            if (ShowingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
             {
                 var inhibit = ResourceManager.Texture("UI/node_inhibit");
                 foreach (ClickablePlanet cplanet in ClickablePlanets)
@@ -964,8 +964,8 @@ namespace Ship_Game
         void DrawTacticalIcon(Ship ship)
         {
             if (!LookingAtPlanet && (!ship.IsPlatform  && !ship.IsSubspaceProjector || 
-                                     ((showingFTLOverlay || viewState != UnivScreenState.GalaxyView) &&
-                                      (!showingFTLOverlay || ship.IsSubspaceProjector))))
+                                     ((ShowingFTLOverlay || viewState != UnivScreenState.GalaxyView) &&
+                                      (!ShowingFTLOverlay || ship.IsSubspaceProjector))))
             {
                 ship.DrawTacticalIcon(this, viewState);
             }
