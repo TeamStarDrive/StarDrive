@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
   <Version>2</Version>
-  <UID>Point Defense</UID>
+  <UID>AntiFighterSystems</UID>
   <TechnologyType>ShipDefense</TechnologyType>
-  <Cost>520</Cost>  
-  <NameIndex>2253</NameIndex>
-  <DescriptionIndex>2254</DescriptionIndex>
+  <Cost>900</Cost>  
+  <NameIndex>10103</NameIndex>
+  <DescriptionIndex>10104</DescriptionIndex>
   <LeadsTo>
+      <LeadsToTech>
+      <UID>RapidFirePD</UID>
+    </LeadsToTech>
     <LeadsToTech>
-      <UID>AntiFighterSystems</UID>
+      <UID>HeavyPD</UID>
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>
-      <ModuleUID>VulcanCannon</ModuleUID>
+      <ModuleUID>AF_Repeater</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
-      <ModuleUID>LaserCannon</ModuleUID>
+      <ModuleUID>Flechette AF Turret</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>
   <BuildingsUnlocked />
