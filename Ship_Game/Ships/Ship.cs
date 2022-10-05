@@ -1957,15 +1957,20 @@ namespace Ship_Game.Ships
             if (!Active)
                 return repairAmount;
 
+            ShipModule moduleToRepair = GetModuleToRepair(repairLevel);
+            return moduleToRepair.Repair(repairAmount);
+        }
+
+        public ShipModule GetModuleToRepair(int repairLevel)
+        {
             // RepairSkill Reduces the priority of mostly healed modules.
             // It allows a ship to become fully functional faster.
             float repairSkill = 1.0f - (repairLevel * 0.1f).Clamped(0.0f, 0.95f);
-
             ShipModule moduleToRepair = ModuleSlotList.FindMax(module =>
             {
                 if (module.HealthPercent.AlmostEqual(1)) return 0;
                 // fully damaged modules get priority 1.0
-                float damagePriority =  module.Health.Less(module.ActualMaxHealth * repairSkill)
+                float damagePriority = module.Health.Less(module.ActualMaxHealth * repairSkill)
                                     ? 1.0f
                                     : 1.0f - module.HealthPercent;
 
@@ -1974,7 +1979,7 @@ namespace Ship_Game.Ships
                 return damagePriority * moduleImportance;
             });
 
-            return moduleToRepair.Repair(repairAmount);
+            return moduleToRepair;
         }
 
         public void ApplyModuleHealthTechBonus(float bonus)
