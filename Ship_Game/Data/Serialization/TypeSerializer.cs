@@ -31,14 +31,6 @@ namespace Ship_Game.Data.Serialization
         public bool IsUserClass;
 
         /// <summary>
-        /// If TRUE, instances of this type should be represented by pointers,
-        /// all Classes fall in this category.
-        /// If FALSE, instances are value types such as primitives or structs,
-        /// and can't be represented by pointers.
-        /// </summary>
-        public bool IsPointerType;
-
-        /// <summary>
         /// Non-Pointer types are value types
         /// </summary>
         public bool IsValueType;
@@ -80,8 +72,7 @@ namespace Ship_Game.Data.Serialization
         protected TypeSerializer(Type type)
         {
             Type = type;
-            IsPointerType = !type.IsValueType;
-            IsValueType = !IsPointerType;
+            IsValueType = type.IsValueType;
             IsEnumType = type.IsEnum;
             TypeName = type.Name;
 

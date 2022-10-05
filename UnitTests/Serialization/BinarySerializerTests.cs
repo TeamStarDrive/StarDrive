@@ -716,6 +716,7 @@ namespace UnitTests.Serialization
 
         // FROM HERE
         //[StarDataType] class MovedType { [StarData] public Vector4 Value4; }
+
         [StarDataType]
         class ContainsMovedType
         {
@@ -730,7 +731,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsMovedTypes()
         {
-            string containsMovedType = "Tz8vHwEAAgAhBQUBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhFDb250YWluc01vdmVkVHlwZQlNb3ZlZFR5cGUEAk1UBE5hbWUDUG9zBlZhbHVlNCEAAAEEAQ4DIAAAAAQDDQIhABUBDQEBDgECFQEDIQEEIAEFDQEAIPpEAED6RABg+kQOAQAQekUAIHpFADB6RQBAekUVARVDb250YWlucyBhIG1vdmVkIHR5cGUhAQACIAEAAQQD";
+            string containsMovedType = "Ly8vLwEAAgAhBQUBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhFDb250YWluc01vdmVkVHlwZQlNb3ZlZFR5cGUEAk1UBE5hbWUDUG9zBlZhbHVlNCEAAAEEAQ4DIAAAAAQDDQIhABUBDQEBDgECFQEDIQEEIAEFDQEAIPpEAED6RABg+kQOAQAQekUAIHpFADB6RQBAekUVARVDb250YWlucyBhIG1vdmVkIHR5cGUhAQACIAEAAQQD";
 
             //containsMovedType = CreateByteStreamForDeletedTypeTest(new ContainsMovedType
             //{
@@ -765,7 +766,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsDeletedTypes()
         {
-            string containsDeletedType = "Tz8vHwEAAwAiBgcBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxNDb250YWluc0RlbGV0ZWRUeXBlDURlbGV0ZWRTdHJ1Y3QLRGVsZXRlZFR5cGUFAkRTAkRUBE5hbWUDUG9zBlZhbHVlNCIAAAEFAQ4EIQAAAgQBDgQgAAAABAQNAyEBIgAVAg0BAQ4CAhUBBCIBBSEBBiABBw0BACD6RABA+kQAYPpEDgIAEHpFACB6RQAwekUAQHpFAEicRQBQnEUAWJxFAGCcRRUBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMiAQADIQEAAiABAAEGBQQ=";
+            string containsDeletedType = "Ly8vLwEAAwAiBgcBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxNDb250YWluc0RlbGV0ZWRUeXBlDURlbGV0ZWRTdHJ1Y3QLRGVsZXRlZFR5cGUFAkRTAkRUBE5hbWUDUG9zBlZhbHVlNCIAAAEFAQ4EIQAAAgQBDgQgAAAABAQNAyEBIgAVAg0BAQ4CAhUBBCIBBSEBBiABBw0BACD6RABA+kQAYPpEDgIAEHpFACB6RQAwekUAQHpFAEicRQBQnEUAWJxFAGCcRRUBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMiAQADIQEAAiABAAEGBQQ=";
 
             //containsDeletedType = CreateByteStreamForDeletedTypeTest(new ContainsDeletedType
             //{
@@ -796,7 +797,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsRemovedFieldTypes()
         {
-            string containsRemovedField = "Tz8vHwEAAwAiBwYBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxhDb250YWluc1JlbW92ZWRGaWVsZFR5cGURUmVjdXJzaXZlQXREZXB0aDENUmVjdXJzaXZlVHlwZQoIQXREZXB0aDEFQ291bnQQRGVmYXVsdElzTm90TnVsbAROYW1lBU93bmVyA1BvcwRQb3MyDVJlY3Vyc2l2ZVNlbGYHUmVtb3ZlZARUZXh0IAAAAAQEDQUhCBUDDAYhAAACBAUhBxUJBgEVAiIAIgAAAQQBIQQGAQEMAQINAQMVAgQgAQYhAQciAQgGAZITDAEAoHpFAEB7RQ0BACD6RABA+kQAYPpEFQIPV2lsbCBiZSByZW1vdmVkGENvbnRhaW5zIGEgcmVtb3ZlZCBmaWVsZCABAAMHBQIhAQAHBAEACCIBAAc=";
+            string containsRemovedField = "Ly8vLwEAAwAiBwYBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxhDb250YWluc1JlbW92ZWRGaWVsZFR5cGURUmVjdXJzaXZlQXREZXB0aDENUmVjdXJzaXZlVHlwZQoIQXREZXB0aDEFQ291bnQQRGVmYXVsdElzTm90TnVsbAROYW1lBU93bmVyA1BvcwRQb3MyDVJlY3Vyc2l2ZVNlbGYHUmVtb3ZlZARUZXh0IAAAAAQEDQUhCBUDDAYhAAACBAUhBxUJBgEVAiIAIgAAAQQBIQQGAQEMAQINAQMVAgQgAQYhAQciAQgGAZITDAEAoHpFAEB7RQ0BACD6RABA+kQAYPpEFQIPV2lsbCBiZSByZW1vdmVkGENvbnRhaW5zIGEgcmVtb3ZlZCBmaWVsZCABAAMHBQIhAQAHBAEACCIBAAc=";
 
             //containsRemovedField = CreateByteStreamForDeletedTypeTest(new ContainsRemovedFieldType
             //{
