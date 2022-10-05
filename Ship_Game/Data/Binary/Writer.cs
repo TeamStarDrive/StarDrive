@@ -18,7 +18,8 @@ public class Writer : IDisposable
     {
         OutStream = outStream;
         Encoding = Encoding.UTF8;
-        Buffer = new byte[256 * 1024];
+        // the smallest savegame is around ~1MB, so reserve more than enough
+        Buffer = new byte[2 * 1024 * 1024];
         StringBuffer = new char[256 * 1024];
     }
 

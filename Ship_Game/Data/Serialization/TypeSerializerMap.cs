@@ -218,7 +218,7 @@ public abstract class TypeSerializerMap
             return Add(type, new ArrayListSerializer(type, listElemType, elemSerializer));
         }
 
-        if (type.GetCustomAttribute<StarDataTypeAttribute>() != null)
+        if (Attribute.IsDefined(type, typeof(StarDataTypeAttribute), inherit:false))
             return AddUserTypeSerializer(type);
 
         // Nullable<T>, ex: `[StarData] Color? MinColor;`
