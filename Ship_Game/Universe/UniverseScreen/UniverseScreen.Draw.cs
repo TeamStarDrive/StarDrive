@@ -893,7 +893,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
-                if (ship.InFrustum && ship.InSensorRange)
+                if (ship.InFrustum && ship.InPlayerSensorRange)
                 {
                     if (!IsCinematicModeEnabled)
                         DrawTacticalIcon(ship);

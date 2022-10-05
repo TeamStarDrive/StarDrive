@@ -726,7 +726,7 @@ namespace Ship_Game.Gameplay
         // cleanupOnly: just delete the projectile without showing visual death effects
         void ExplodeProjectile(bool cleanupOnly, ShipModule victim)
         {
-            bool visibleToPlayer = InFrustum && Module?.GetParent().InSensorRange == true;
+            bool visibleToPlayer = InFrustum && Module?.GetParent().InPlayerSensorRange == true;
             bool showFx = !cleanupOnly && visibleToPlayer && Universe.IsSectorViewOrCloser;
             bool flashFx = showFx && FlashExplode && Universe.IsSystemViewOrCloser;
 
