@@ -11,9 +11,8 @@ namespace Ship_Game
     [StarDataType]
     public sealed class FleetDataNode
     {
-        [XmlIgnore] public Ship Ship { get; set; }
+        public Ship Ship { get; set; }
 
-        [StarData] public int ShipId;
         [StarData] public Goal Goal;
         [StarData] public string ShipName;
         [StarData] public Vector2 FleetOffset;

@@ -13,6 +13,8 @@ namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen
     {
+        Color NeonGreen = new (0, 255, 0, 70);
+
         (Vector2 pos, float radius) GetPosAndRadiusOnScreen(Vector2 fleetOffset, float radius)
         {
             Vector2 pos1 = ProjectToScreenPos(new Vector3(fleetOffset, 0f));
@@ -29,193 +31,61 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Viewport viewport;
-            SubTexture nodeTexture = ResourceManager.Texture("UI/node");
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             Universe.DrawStarField(batch);
 
             batch.Begin();
-            DrawGrid();
-            
-            if (SelectedNodeList.Count == 1)
             {
-                viewport = Viewport;
-                Vector3 screenSpacePosition = new Vector3(
-                    viewport.Project(new Vector3(SelectedNodeList[0].FleetOffset.X
-                    , SelectedNodeList[0].FleetOffset.Y, 0f), Projection, View, Matrix.Identity)
-                );
-                var screenPos = new Vector2(screenSpacePosition.X, screenSpacePosition.Y);
-                Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointFromAngle(90f,
-                    (SelectedNodeList[0].Ship?.SensorRange ?? 500000) * OperationalRadius.RelativeValue);
-                viewport = Viewport;
-                Vector3 insetRadialPos = new Vector3(
-                    viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity)
-                );
-                Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                float ssRadius = Math.Abs(insetRadialSS.X - screenPos.X);
-                Rectangle nodeRect = new Rectangle((int) screenPos.X, (int) screenPos.Y, (int) ssRadius * 2,
-                    (int) ssRadius * 2);
-                Vector2 origin = new Vector2(nodeTexture.Width / 2f, nodeTexture.Height / 2f);
-                batch.Draw(nodeTexture, nodeRect, new Color(0, 255, 0, 75), 0f, origin, SpriteEffects.None, 1f);
+                DrawGrid(batch);
+                DrawSelectedNodeSensorRange(batch);
+                DrawHoveredNodes(batch);
+                DrawSelectedNodes(batch);
+                DrawFleetManagementIndicators(batch);
+
+                if (SelectionBox.W > 0)
+                    batch.DrawRectangle(SelectionBox, Color.Green);
             }
-
-            ClickableNodes.Clear();
-            foreach (FleetDataNode node in SelectedFleet.DataNodes)
-            {
-                if (node.Ship == null)
-                {
-                    var template = ResourceManager.GetShipTemplate(node.ShipName);
-                    float radius = template?.Radius ?? 150f;
-                    viewport = Viewport;
-                    Vector3 pScreenSpace = new Vector3(
-                        viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,
-                        Matrix.Identity)
-                    );
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
-                    viewport = Viewport;
-                    Vector3 insetRadialPos = new Vector3(
-                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity)
-                    );
-                    Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = insetRadialSS.Distance(pPos) + 10f;
-                    ClickableNode cs = new ClickableNode
-                    {
-                        Radius = radius,
-                        ScreenPos = pPos,
-                        NodeToClick = node
-                    };
-                    ClickableNodes.Add(cs);
-                }
-                else
-                {
-                    Ship ship = node.Ship;
-                    ship.ShowSceneObjectAt(ship.RelativeFleetOffset, 0f);
-
-                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(ship.RelativeFleetOffset, ship.Radius);
-                    var cs = new ClickableNode
-                    {
-                        Radius = screenRadius,
-                        ScreenPos = screenPos,
-                        NodeToClick = node
-                    };
-                    ClickableNodes.Add(cs);
-                }
-            }
-
-            foreach (FleetDataNode node in HoveredNodeList)
-            {
-                var ship = node.Ship;
-                if (ship == null)
-                {
-                    var template = ResourceManager.GetShipTemplate(node.ShipName);
-
-                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, template?.Radius ?? 150f);
-
-                    foreach (ClickableSquad squad in ClickableSquads)
-                    {
-                        if (!squad.Squad.DataNodes.Contains(node))
-                        {
-                            continue;
-                        }
-
-                        batch.DrawLine(squad.ScreenPos, screenPos, new Color(0, 255, 0, 70), 2f);
-                    }
-
-                    DrawCircle(screenPos, screenRadius, new Color(255, 255, 255, 70), 2f);
-                }
-                else
-                {
-                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(ship.RelativeFleetOffset, ship.Radius);
-
-                    foreach (ClickableSquad squad in ClickableSquads)
-                    {
-                        if (!squad.Squad.DataNodes.Contains(node))
-                        {
-                            continue;
-                        }
-
-                        batch.DrawLine(squad.ScreenPos, screenPos, new Color(0, 255, 0, 70), 2f);
-                    }
-
-                    DrawCircle(screenPos, screenRadius, new Color(255, 255, 255, 70), 2f);
-                }
-            }
-
-            foreach (FleetDataNode node in SelectedNodeList)
-            {
-                if (node.Ship == null)
-                {
-                    if (node.Ship != null)
-                    {
-                        continue;
-                    }
-                    
-                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, 150f);
-
-                    foreach (ClickableSquad squad in ClickableSquads)
-                    {
-                        if (!squad.Squad.DataNodes.Contains(node))
-                        {
-                            continue;
-                        }
-
-                        batch.DrawLine(squad.ScreenPos, screenPos, new Color(0, 255, 0, 70), 2f);
-                    }
-
-                    DrawCircle(screenPos, screenRadius, Color.White, 2f);
-                }
-                else
-                {
-                    Ship ship = node.Ship;
-                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(ship.RelativeFleetOffset, ship.GetSO().WorldBoundingSphere.Radius);
-
-                    foreach (ClickableSquad squad in ClickableSquads)
-                    {
-                        if (!squad.Squad.DataNodes.Contains(node))
-                        {
-                            continue;
-                        }
-
-                        batch.DrawLine(squad.ScreenPos, screenPos, new Color(0, 255, 0, 70), 2f);
-                    }
-
-                    DrawCircle(screenPos, screenRadius, Color.White, 2f);
-                }
-            }
-
-            DrawFleetManagementIndicators();
-            if (SelectionBox.W > 0)
-                batch.DrawRectangle(SelectionBox, Color.Green);
             batch.End();
 
+            // render 3D
             ScreenManager.RenderSceneObjects();
 
             batch.Begin();
+            {
+                DrawUI(batch, elapsed);
+                base.Draw(batch, elapsed); // draw automatic elements on top of everything else
+            }
+            batch.End();
+
+            ScreenManager.EndFrameRendering();
+        }
+
+        void DrawUI(SpriteBatch batch, DrawTimes elapsed)
+        {
             TitleBar.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, Colors.Cream);
+
             const int numEntries = 9;
             int k = 9;
             int m = 0;
+
             foreach (KeyValuePair<int, RectF> rect in FleetsRects)
             {
                 if (m == 9)
-                {
                     break;
-                }
 
-                Rectangle r = rect.Value;
+                RectF r = rect.Value;
                 float transitionOffset = ((TransitionPosition - 0.5f * k / numEntries) / 0.5f).Clamped(0f, 1f);
                 k--;
                 if (ScreenState != ScreenState.TransitionOn)
                 {
-                    r.X = r.X + (int) transitionOffset * 512;
+                    r.X += (int)transitionOffset * 512;
                 }
                 else
                 {
-                    r.X = r.X - (int) (transitionOffset * 256f);
+                    r.X -= (int)(transitionOffset * 256f);
                     if (Math.Abs(transitionOffset) < .1f)
                     {
                         GameAudio.BlipClick();
@@ -223,8 +93,7 @@ namespace Ship_Game
                 }
 
                 var sel = new Selector(r, Color.TransparentBlack);
-                batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r,
-                    rect.Key != FleetToEdit ? Color.Black : new Color(0, 0, 255, 80));
+                batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r, rect.Key != FleetToEdit ? Color.Black : new(0, 0, 255, 80));
                 sel.Draw(batch, elapsed);
 
                 Fleet f = Universe.Player.GetFleet(rect.Key);
@@ -235,18 +104,15 @@ namespace Ship_Game
                     if (f.AutoRequisition)
                     {
                         RectF autoReq = new(firect.X + 54, firect.Y + 12, 20, 27);
-                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, ApplyCurrentAlphaToColor(Universe.Player.EmpireColor));
+                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq,
+                            ApplyCurrentAlphaToColor(Universe.Player.EmpireColor));
                     }
-                    
                 }
 
-                Vector2 num = new Vector2(rect.Value.X + 4, rect.Value.Y + 4);
-                Graphics.Font pirulen12 = Fonts.Pirulen12;
-                int key = rect.Key;
-                batch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
-                num.X = num.X + (rect.Value.W + 5);
-                batch.DrawString(Fonts.Pirulen12, f.Name, num,
-                    rect.Key != FleetToEdit ? Color.Gray : Color.White);
+                Vector2 num = new(rect.Value.X + 4, rect.Value.Y + 4);
+                batch.DrawString(Fonts.Pirulen12, rect.Key.ToString(), num, Color.Orange);
+                num.X += (rect.Value.W + 5);
+                batch.DrawString(Fonts.Pirulen12, f.Name, num, rect.Key != FleetToEdit ? Color.Gray : Color.White);
                 m++;
             }
 
@@ -264,11 +130,11 @@ namespace Ship_Game
                 {
                     if (!ResourceManager.GetShipTemplate(node.ShipName, out Ship ship))
                         continue;
-                    
+
                     (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, 150f);
 
-                    var r = new Rectangle((int) screenPos.X - (int) screenRadius, (int) screenPos.Y - (int) screenRadius, 
-                                          (int) screenRadius * 2, (int) screenRadius * 2);
+                    var r = new Rectangle((int)screenPos.X - (int)screenRadius, (int)screenPos.Y - (int)screenRadius,
+                        (int)screenRadius * 2, (int)screenRadius * 2);
 
                     DrawIcon(ship, r);
                     if (node.Goal == null)
@@ -298,16 +164,17 @@ namespace Ship_Game
                 else
                 {
                     Ship ship = node.Ship;
-                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, ship.GetSO().WorldBoundingSphere.Radius);
+                    (Vector2 screenPos, float screenRadius) =
+                        GetPosAndRadiusOnScreen(node.FleetOffset, ship.GetSO().WorldBoundingSphere.Radius);
                     if (screenRadius < 10f)
                     {
                         screenRadius = 10f;
                     }
 
-                    Rectangle r = new Rectangle((int) screenPos.X - (int) screenRadius, (int) screenPos.Y - (int) screenRadius,
-                        (int) screenRadius * 2, (int) screenRadius * 2);
+                    Rectangle r = new Rectangle((int)screenPos.X - (int)screenRadius, (int)screenPos.Y - (int)screenRadius,
+                        (int)screenRadius * 2, (int)screenRadius * 2);
 
-                    DrawIcon(ship, r);   
+                    DrawIcon(ship, r);
                     if (NodeShipResupplying())
                         batch.DrawString(Fonts.Arial8Bold, "Resupplying", screenPos + new Vector2(5f, -5f), Color.White);
                 }
@@ -325,8 +192,8 @@ namespace Ship_Game
 
                 Color GetTacticalIconColor()
                 {
-                    if (Hovered())             return Color.White;
-                    if (node.Goal != null)     return Color.Yellow;
+                    if (Hovered()) return Color.White;
+                    if (node.Goal != null) return Color.Yellow;
                     if (NodeShipResupplying()) return Color.Gray;
 
                     return node.Ship != null ? Color.Green : Color.Red;
@@ -347,7 +214,7 @@ namespace Ship_Game
                 Vector2 iconOrigin = new Vector2(icon.Width, icon.Width) / 2f;
                 float scale = ActiveShipDesign.SurfaceArea / (float)(30 + icon.Width);
                 scale = scale * 4000f / CamPos.Z;
-                if (scale > 1f)    scale = 1f;
+                if (scale > 1f) scale = 1f;
                 if (scale < 0.15f) scale = 0.15f;
 
                 Color color = Universe.Player.EmpireColor;
@@ -357,62 +224,81 @@ namespace Ship_Game
             }
 
             DrawSelectedData(batch, elapsed);
-            
-            base.Draw(batch, elapsed); // draw automatic elements on top of everything else
-            batch.End();
-
-            ScreenManager.EndFrameRendering();
         }
 
-        void DrawFleetManagementIndicators()
+        void DrawSelectedNodes(SpriteBatch batch)
         {
-            Vector2 pPos = ProjectToScreenPos(new Vector3(0f, 0f, 0f));
-
-            var spriteBatch = ScreenManager.SpriteBatch;
-            spriteBatch.FillRectangle(new Rectangle((int) pPos.X - 3, (int) pPos.Y - 3, 6, 6),
-                new Color(255, 255, 255, 80));
-            spriteBatch.DrawString(Fonts.Arial12Bold, "Fleet Center",
-                new Vector2(pPos.X - Fonts.Arial12Bold.MeasureString("Fleet Center").X / 2f, pPos.Y + 5f),
-                new Color(255, 255, 255, 70));
-            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
+            foreach (FleetDataNode node in SelectedNodeList)
             {
-                foreach (Fleet.Squad squad in flank)
-                {
-                    pPos = ProjectToScreenPos(new Vector3(squad.Offset, 0f));
-                    spriteBatch.FillRectangle(new Rectangle((int) pPos.X - 2, (int) pPos.Y - 2, 4, 4),
-                        new Color(0, 255, 0, 110));
-                    spriteBatch.DrawString(Fonts.Arial8Bold, "Squad",
-                        new Vector2(pPos.X - Fonts.Arial8Bold.MeasureString("Squad").X / 2f, pPos.Y + 5f),
-                        new Color(0, 255, 0, 70));
-                }
+                (Vector2 screenPos, float screenRadius) = GetNodeScreenPosAndRadius(node);
+                foreach (ClickableSquad squad in ClickableSquads)
+                    if (squad.Squad.DataNodes.Contains(node))
+                        batch.DrawLine(squad.Rect.Center, screenPos, NeonGreen, 2f);
+
+                DrawCircle(screenPos, screenRadius, Color.White, 2f);
             }
         }
 
-        void DrawGrid()
+        void DrawHoveredNodes(SpriteBatch batch)
         {
-            var spriteBatch = ScreenManager.SpriteBatch;
+            foreach (FleetDataNode node in HoveredNodeList)
+            {
+                (Vector2 screenPos, float screenRadius) = GetNodeScreenPosAndRadius(node);
+                foreach (ClickableSquad squad in ClickableSquads)
+                    if (squad.Squad.DataNodes.Contains(node))
+                        batch.DrawLine(squad.Rect.Center, screenPos, NeonGreen, 2f);
+                DrawCircle(screenPos, screenRadius, new(255, 255, 255, 70), 2f);
+            }
+        }
 
+        void DrawSelectedNodeSensorRange(SpriteBatch batch)
+        {
+            if (SelectedNodeList.Count == 1)
+            {
+                SubTexture nodeTexture = ResourceManager.Texture("UI/node");
+                FleetDataNode node = SelectedNodeList[0];
+
+                float radius = (node.Ship?.SensorRange ?? 500000) * OperationalRadius.RelativeValue;
+                (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, radius);
+                RectF nodeRect = new(screenPos, screenRadius * 2, screenRadius * 2);
+                batch.Draw(nodeTexture, nodeRect, NeonGreen, 0f, nodeTexture.CenterF);
+            }
+        }
+
+        void DrawFleetManagementIndicators(SpriteBatch batch)
+        {
+            Vector2 pPos = ProjectToScreenPos(Vector3.Zero);
+            batch.FillRectangle(new(pPos.X - 3, pPos.Y - 3, 6, 6), new(255, 255, 255, 80));
+
+            float textW = Fonts.Arial12Bold.TextWidth("Fleet Center");
+            batch.DrawString(Fonts.Arial12Bold, "Fleet Center", new(pPos.X - textW / 2f, pPos.Y + 5f), new Color(255, 255, 255, 70));
+
+            // draw squad node markers
+            float squadTextW = Fonts.Arial10.TextWidth("Squad");
+            foreach (ClickableSquad squad in ClickableSquads)
+            {
+                batch.FillRectangle(RectF.FromCenter(squad.Rect.Center, 4, 4), new(0, 255, 0, 110));
+                batch.DrawRectangle(squad.Rect, NeonGreen);
+                batch.DrawString(Fonts.Arial10, "Squad", new(squad.Rect.CenterX - squadTextW / 2f, squad.Rect.Bottom + 5f), NeonGreen);
+            }
+        }
+
+        void DrawGrid(SpriteBatch batch)
+        {
             int size = 20000;
             for (int x = 0; x < 21; x++)
             {
-                Vector3 origin3 = new Vector3(x * size / 20 - size / 2, -(size / 2), 0f);
-                Vector3 end3 = new Vector3(x * size / 20 - size / 2, size - size / 2, 0f);
-
-                Vector2 origin = ProjectToScreenPos(origin3);
-                Vector2 end = ProjectToScreenPos(end3);
-
-                spriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
+                float wx = x * size / 20 - size / 2;
+                Vector2 origin = ProjectToScreenPos(new(wx, -(size / 2), 0));
+                Vector2 end = ProjectToScreenPos(new(wx, size - size / 2, 0));
+                batch.DrawLine(origin, end, new(211, 211, 211, 70));
             }
-
             for (int y = 0; y < 21; y++)
             {
-                Vector3 origin3 = new Vector3(-(size / 2), y * size / 20 - size / 2, 0f);
-                Vector3 end3 = new Vector3(size - size / 2, y * size / 20 - size / 2, 0f);
-                
-                Vector2 origin = ProjectToScreenPos(origin3);
-                Vector2 end = ProjectToScreenPos(end3);
-
-                spriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
+                float wy = y * size / 20 - size / 2;
+                Vector2 origin = ProjectToScreenPos(new(-(size / 2), wy, 0));
+                Vector2 end = ProjectToScreenPos(new(size - size / 2, wy, 0));
+                batch.DrawLine(origin, end, new(211, 211, 211, 70));
             }
         }
 
