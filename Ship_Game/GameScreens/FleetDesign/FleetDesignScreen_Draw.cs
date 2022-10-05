@@ -187,7 +187,8 @@ namespace Ship_Game
             }
 
             DrawFleetManagementIndicators();
-            batch.DrawRectangle(SelectionBox, Color.Green);
+            if (SelectionBox.W > 0)
+                batch.DrawRectangle(SelectionBox, Color.Green);
             batch.End();
 
             ScreenManager.RenderSceneObjects();
