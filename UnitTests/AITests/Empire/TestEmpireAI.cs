@@ -300,8 +300,8 @@ namespace UnitTests.AITests.Empire
             {
                 SpawnShip(shipName, Enemy, Vector2.Zero);
             }
-            Universe.ScreenManager.InvokePendingEmpireThreadActions();
-            UState.Objects.UpdateLists(true);
+            Universe.InvokePendingSimThreadActions();
+            UState.Objects.UpdateLists();
 
             int numberOfShips = Enemy.OwnedShips.Count;
             int shipsRemoved = 0;

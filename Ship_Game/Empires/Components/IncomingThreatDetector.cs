@@ -128,7 +128,7 @@ public class IncomingThreatDetector
 
     static bool IsShipAThreat(Ship s)
     {
-        return (s.BaseStrength > 0 && !s.IsFreighter);
+        return s.InPlayerSensorRange && !s.IsInWarp && s.BaseStrength > 0 && !s.IsFreighter;
     }
 
     bool IsHostilesPresent(Empire owner, SolarSystem s)
@@ -139,12 +139,10 @@ public class IncomingThreatDetector
             {
                 Ship ship = s.ShipList[j];
                 if (owner.GetRelations(ship.Loyalty).IsHostile && IsShipAThreat(ship))
-                {
-                    if (s.PlanetList.Any(p => p.Owner == owner.Universe.Player && p.ShipWithinSensorRange(ship)))
-                        return true;
-                }
+                    return true;
             }
         }
+
         return false;
     }
 

@@ -58,7 +58,7 @@ namespace Ship_Game.AI
 
             return Owner.Loyalty.isPlayer 
                    && HasPriorityTarget 
-                   && ship.InSensorRange
+                   && ship.InPlayerSensorRange
                    && !Owner.Loyalty.IsAlliedWith(ship.Loyalty);
         }
 
