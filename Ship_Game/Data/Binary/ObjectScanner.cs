@@ -9,8 +9,8 @@ namespace Ship_Game.Data.Binary;
 public struct SerializationTypeGroup
 {
     public TypeSerializer Type;
-    public Array<ObjectState> GroupedObjects;
-    public override string ToString() => $"SerTypeGroup {Type} GroupedObjs={GroupedObjects.Count}";
+    public ObjectState[] GroupedObjects;
+    public override string ToString() => $"SerTypeGroup {Type} GroupedObjs={GroupedObjects.Length}";
 }
 
 // Scanned object types, separated by category
@@ -32,11 +32,7 @@ public class ObjectScanner
 
     // maps Type -> object* -> ObjectState
     // allowing for much faster object lookup if you already know the object Type
-    FastTypeMap<Map<object, ObjectState>> InstanceMap;
-
-    // maps Type -> Array<ObjectState>
-    // grouping objects by their type
-    readonly FastTypeMap<Array<ObjectState>> Objects;
+    FastTypeMap InstanceMap;
 
     uint NextObjectId;
     public uint RootObjectId;
@@ -48,7 +44,6 @@ public class ObjectScanner
         RootSer = rootSer;
         RootObj = rootObject;
         InstanceMap = new(rootSer.TypeMap);
-        Objects = new(rootSer.TypeMap);
     }
 
     public void FinalizeTypes()
@@ -76,39 +71,15 @@ public class ObjectScanner
         {
             RootObjectId = ScanObjectState(RootSer, RootObj, null);
             FinalizeTypes();
-            InstanceMap = null; // no longer needed
             LinearRemapObjectIds();
-
-            var groups = new Array<SerializationTypeGroup>();
-            foreach (TypeSerializer ser in Types.All)
-            {
-                if (Objects.ContainsKey(ser))
-                {
-                    var groupedObjects = Objects.GetValue(ser);
-                    if (groupedObjects.NotEmpty)
-                        groups.Add(new() { Type = ser, GroupedObjects = groupedObjects });
-                }
-            }
-            TypeGroups = groups.ToArray();
         }
         catch (OutOfMemoryException e)
         {
-            var groups = Objects.Values.Sorted(arr => -arr.Count);
+            var groups = InstanceMap.Values.Sorted(stateMap => -stateMap.NumObjects);
             Log.Error(e, $"OOM during object scan! NumObjects={NumObjects} Types={groups.Length}\n"
-                         + $"Biggest Group {groups[0].GetType()} Count={groups[0].Count}");
+                         + $"Biggest Group {groups[0].GetType()} Count={groups[0].NumObjects}");
             throw;
         }
-    }
-
-    ObjectState NewObjectState(TypeSerializer ser, object instance)
-    {
-        ++NumObjects;
-        uint id = ++NextObjectId;
-
-        if (ser.IsFundamentalType || ser.IsEnumType) return new(instance, id);
-        if (ser.IsUserClass) return new UserTypeState(instance, id);
-        if (ser.IsCollection) return new CollectionState(instance, id);
-        throw new($"Unexpected type: {ser}");
     }
 
     internal static bool IsDefaultValue(TypeSerializer ser, object instance, DataField owner)
@@ -142,22 +113,15 @@ public class ObjectScanner
             ser = RootSer.TypeMap.Get(instance.GetType());
         }
 
-        ObjectState state;
-        if (!InstanceMap.TryGetValue(ser, out Map<object, ObjectState> instMap))
-        {
-            instMap = new();
-            InstanceMap.SetValue(ser, instMap);
-            Objects.SetValue(ser, new());
-        }
-        else if (instMap.TryGetValue(instance, out state))
-        {
+        (ObjectStateMap instMap, bool existing) = InstanceMap.GetOrAddNew(ser);
+        if (existing && instMap.Get(instance, out ObjectState state))
             return state.Id;
-        }
 
-        state = NewObjectState(ser, instance);
-        instMap.Add(instance, state);
-        Objects.GetValue(ser).Add(state);
+        ++NumObjects;
+        uint id = ++NextObjectId;
+        state = instMap.AddNew(instance, id);
 
+        // TODO: convert recursion into a loop instead
         if (!ser.IsFundamentalType)
             state.Scan(this, ser, owner); // scan for child objects
         return state.Id;
@@ -236,16 +200,25 @@ public class ObjectScanner
         var remap = new uint[NumObjects + 1];
         uint currentIndex = 0;
 
-        // create the mapping using the properly sorted Types list
-        foreach (TypeSerializer ser in Types.All)
+        // first create TypeGroups using the properly sorted Types list
+        var groups = new Array<SerializationTypeGroup>();
+        foreach (ObjectStateMap stateMap in InstanceMap.GetValues(Types.All))
         {
-            if (Objects.TryGetValue(ser, out Array<ObjectState> groupedObjects))
+            var groupedObjects = stateMap.Objects;
+            if (groupedObjects.Count != 0)
+                groups.Add(new() { Type = stateMap.Ser, GroupedObjects = groupedObjects.ToArr() });
+        }
+        TypeGroups = groups.ToArray();
+        InstanceMap = null; // no longer needed
+
+        // create the mapping using the sorted TypeGroups
+        for (int i = 0; i < TypeGroups.Length; ++i)
+        {
+            var objects = TypeGroups[i].GroupedObjects;
+            for (int j = 0; j < objects.Length; ++j) // using C-style for loops, because they are the fastest
             {
-                foreach (ObjectState objState in groupedObjects)
-                {
-                    uint newId = ++currentIndex;
-                    remap[objState.Id] = newId;
-                }
+                uint newId = ++currentIndex;
+                remap[objects[j].Id] = newId;
             }
         }
 
@@ -253,12 +226,11 @@ public class ObjectScanner
             throw new("Remap[0] must not happen! This is a bug!");
 
         // now remap write-commands inside the object states
-        foreach (Array<ObjectState> groupedObjects in Objects.GetValues())
+        for (int i = 0; i < TypeGroups.Length; ++i)
         {
-            foreach (ObjectState objState in groupedObjects)
-            {
-                objState.Remap(remap);
-            }
+            var objects = TypeGroups[i].GroupedObjects;
+            for (int j = 0; j < objects.Length; ++j) // using C-style for loops, because they are the fastest
+                objects[j].Remap(remap);
         }
 
         RootObjectId = remap[RootObjectId];
@@ -268,10 +240,16 @@ public class ObjectScanner
     public object GetObject(uint objectId)
     {
         // TODO: if needed, this can use binary search thanks to linear remapping
-        foreach (Array<ObjectState> groupedObjects in Objects.GetValues())
-            foreach (ObjectState obj in groupedObjects)
-                if (obj.Id == objectId)
-                    return obj.Obj;
+        for (int i = 0; i < TypeGroups.Length; ++i)
+        {
+            var objects = TypeGroups[i].GroupedObjects;
+            for (int j = 0; j < objects.Length; ++j) // using C-style for loops, because they are the fastest
+            {
+                ObjectState objState = objects[j];
+                if (objState.Id == objectId)
+                    return objState.Obj;
+            }
+        }
         return null;
     }
 }
