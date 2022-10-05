@@ -137,7 +137,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                     if (Fleet.FinalPosition == Vector2.Zero)
                         Fleet.FinalPosition = Owner.FindNearestRallyPoint(FinishedShip.Position).Position;
 
-                    FinishedShip.RelativeFleetOffset = node.FleetOffset;
+                    FinishedShip.RelativeFleetOffset = node.RelativeFleetOffset;
                     FinishedShip.AI.OrderMoveTo(Fleet.GetFinalPos(FinishedShip), Fleet.FinalDirection, AIState.AwaitingOrders);
                 }
             }
