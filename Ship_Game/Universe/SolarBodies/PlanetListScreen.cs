@@ -22,7 +22,7 @@ namespace Ship_Game
         Empire Player => Universe.Player;
 
         public Planet SelectedPlanet { get; private set; }
-        readonly ScrollList2<PlanetListScreenItem> PlanetSL;
+        readonly ScrollList<PlanetListScreenItem> PlanetSL;
 
         readonly SortButton sb_Sys;
         readonly SortButton sb_Name;
@@ -50,7 +50,7 @@ namespace Ship_Game
         private int NumAvailableTroops;
         readonly Array<Planet> ExploredPlanets = new Array<Planet>();
         readonly UILabel AvailableTroops;
-        Rectangle eRect;
+        RectF eRect;
         SortButton LastSorted;
 
         // FB - this will store each planet and it's distance to the closest player colony. If the planet is owned
@@ -79,11 +79,10 @@ namespace Ship_Game
             Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
             EMenu    = new Menu2(leftRect);
             Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
-            eRect = new Rectangle(leftRect.X + 20, titleRect.Bottom + 30,
-                                  ScreenWidth - 40,
-                                  leftRect.Bottom - (titleRect.Bottom + 30) - 15);
+            eRect = new(leftRect.X + 20, titleRect.Bottom + 30, ScreenWidth - 40,
+                        leftRect.Bottom - (titleRect.Bottom + 30) - 15);
 
-            PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect));
+            PlanetSL = Add(new ScrollList<PlanetListScreenItem>(eRect));
             PlanetSL.EnableItemHighlight = true;
 
             sb_Sys      = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.System));
@@ -191,11 +190,11 @@ namespace Ship_Game
                 sb_Owned.Update(textCursor);
                 sb_Owned.Draw(ScreenManager, fontStyle);
          
-                Color lineColor   = new Color(118, 102, 67, 255);
-                int columnTop     = eRect.Y + 35;
-                int columnBot     = eRect.Y + eRect.Height - 20;
-                Vector2 topLeftSL = new Vector2(e1.PlanetNameRect.X, columnTop);
-                Vector2 botSL     = new Vector2(topLeftSL.X, columnBot);
+                Color lineColor = new Color(118, 102, 67, 255);
+                float columnTop = eRect.Y + 35;
+                float columnBot = eRect.Y + eRect.H - 20;
+                Vector2 topLeftSL = new(e1.PlanetNameRect.X, columnTop);
+                Vector2 botSL = new(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((e1.DistanceRect.X), columnTop);
                 botSL     = new Vector2(topLeftSL.X, columnBot);

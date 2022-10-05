@@ -17,27 +17,18 @@ namespace Ship_Game
         UniverseScreen Universe;
         public DanButton Contact;
 
-        private Menu2 TitleBar;
-
-        private Vector2 TitlePos;
-
-        private Menu2 DMenu;
+        Menu2 TitleBar;
+        Vector2 TitlePos;
+        Menu2 DMenu;
 
         public Rectangle SelectedInfoRect;
-
         public Rectangle IntelligenceRect;
-
         public Rectangle OperationsRect;
 
         public Empire SelectedEmpire;
 
-        private Array<RaceEntry> Races = new Array<RaceEntry>();
-
-        //private ProgressBar Penetration;
-
-        private Rectangle ArtifactsRect;
-
-        private ScrollList2<ArtifactItemListItem> ArtifactsSL;
+        Array<RaceEntry> Races = new();
+        ScrollList<ArtifactItemListItem> ArtifactsSL;
 
         Empire Player;
         Array<Empire> Friends;
@@ -819,9 +810,10 @@ namespace Ship_Game
             SelectedInfoRect = new Rectangle(LeftRect.X + 60, LeftRect.Y + 250, 368, 376);
             IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
-            ArtifactsRect = new Rectangle(SelectedInfoRect.X , SelectedInfoRect.Y + 190, SelectedInfoRect.Width - 40, 130);
-            ArtifactsSL = new ScrollList2<ArtifactItemListItem>(ArtifactsRect);
-            Add(ArtifactsSL);
+            
+            RectF artifacts = new(SelectedInfoRect.X , SelectedInfoRect.Y + 190, SelectedInfoRect.Width - 40, 130);
+            ArtifactsSL = Add(new ScrollList<ArtifactItemListItem>(artifacts));
+            
             Contact = new DanButton(new Vector2(SelectedInfoRect.X + SelectedInfoRect.Width / 2 - 91, SelectedInfoRect.Y + SelectedInfoRect.Height - 45), Localizer.Token(GameText.Contact))
             {
                 Toggled = true

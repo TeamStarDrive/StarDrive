@@ -1,14 +1,13 @@
-using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -16,7 +15,7 @@ namespace Ship_Game
     {
         readonly UniverseScreen Screen;
         Empire Player => Screen.Player;
-        ScrollList2<ConstructionListItem> SL;
+        ScrollList<ConstructionListItem> SL;
         public IShipDesign ShipToBuild;
         Vector2 TetherOffset;
         Planet TargetPlanet;
@@ -33,12 +32,11 @@ namespace Ship_Game
             RemoveAll();
 
             const int windowWidth = 320;
-            Rect = new Rectangle(Screen.ScreenWidth - 15 - windowWidth, 100, windowWidth, 300);
+            RectF = new(Screen.ScreenWidth - 15 - windowWidth, 100, windowWidth, 300);
 
-            var background = new Submenu(Rect);
-            background.Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
-            background.AddTab("Build Menu");
-            SL = Add(new ScrollList2<ConstructionListItem>(background, 40));
+            var sl = Add(new SubmenuScrollList<ConstructionListItem>(RectF, "Build Menu"));
+            sl.SetBackground(Colors.TransparentBlackFill);
+            SL = sl.List;
             SL.OnClick = (item) => { ShipToBuild = item.Template; };
             SL.EnableItemHighlight = true;
 
@@ -47,7 +45,7 @@ namespace Ship_Game
             {
                 if (s == "Subspace Projector")
                 {
-                    SL.AddItem(new ConstructionListItem(Screen, ResourceManager.Ships.GetDesign(s)));
+                    SL.AddItem(new(Screen, ResourceManager.Ships.GetDesign(s)));
                     break;
                 }
             }
@@ -55,7 +53,7 @@ namespace Ship_Game
             {
                 if (s != "Subspace Projector")
                 {
-                    SL.AddItem(new ConstructionListItem(Screen, ResourceManager.Ships.GetDesign(s)));
+                    SL.AddItem(new(Screen, ResourceManager.Ships.GetDesign(s)));
                 }
             }
 
@@ -94,7 +92,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial8Bold, Template.GetRole(), X+iconSize+2, Y+18, Color.Orange);
 
                 float prodX = Right - 120;
-                batch.DrawString(Fonts.Arial8Bold, Template.GetMaintenanceCost(Universe.Player, 0).String(2)+" BC/Y", prodX, Y+4, Color.Salmon); // Maintenance Cost
+                batch.DrawString(Fonts.Arial8Bold, Template.GetMaintenanceCost(Universe.Player).String(2)+" BC/Y", prodX, Y+4, Color.Salmon); // Maintenance Cost
                 batch.Draw(iconProd, new Vector2(prodX+50, Y+4), iconProd.SizeF); // Production Icon
                 batch.DrawString(Fonts.Arial12Bold, Template.GetCost(Universe.Player).String(1), prodX+50+iconProd.Width+2, Y+4); // Build Production Cost
             }

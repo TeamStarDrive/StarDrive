@@ -1176,7 +1176,7 @@ namespace UnitTests.Serialization
 
             var save = new SavedGame(Universe);
             save.Verbose = true;
-            save.Save("BinarySerializer.Test", async:false);
+            save.Save("BinarySerializer.Test");
             Universe.ExitScreen();
 
             double memory2 = GetMemory(false);

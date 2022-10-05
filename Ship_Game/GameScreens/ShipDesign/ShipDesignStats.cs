@@ -1,10 +1,6 @@
 ﻿using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SDGraphics;
 using SDUtils;
 
@@ -54,13 +50,13 @@ namespace Ship_Game.GameScreens.ShipDesign
         public float WarpTime;
 
 
-        public ShipDesignStats(Ship s)
+        public ShipDesignStats(Ship s, Empire player)
         {
             S = s;
-            Update();
+            Update(player);
         }
 
-        public void Update()
+        public void Update(Empire player)
         {
             // select only powered modules and powered weapons
             ShipModule[] modules = S.Modules.Filter(m => m.PowerDraw <= 0 || m.Powered);
@@ -82,7 +78,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             WeaponPowerNeeded = weapons.Sum(w => w.PowerFireUsagePerSecond);
             BurstOrdnance = weapons.Sum(w => w.TotalOrdnanceUsagePerFire);
 
-            float bayOrdPerSec = modules.Sum(m => m.BayOrdnanceUsagePerSecond);
+            float bayOrdPerSec = modules.Sum(m => m.BayOrdnanceUsagePerSecond(player));
             float avgOrdPerSec = weapons.Sum(w => w.AverageOrdnanceUsagePerSecond);
             AvgOrdnanceUsed = bayOrdPerSec + avgOrdPerSec;
             NetOrdnanceUsePerSec = AvgOrdnanceUsed - S.OrdAddedPerSecond;
@@ -95,6 +91,11 @@ namespace Ship_Game.GameScreens.ShipDesign
                 float beamTotalDuration = beamWeapons.Sum(w => w.BeamDuration);
                 if (beamTotalDuration > 0)
                     BeamAverageDuration = beamTotalDuration / beamWeapons.Length;
+            }
+            else
+            {
+                BeamPeakPowerNeeded = 0;
+                BeamAverageDuration = 0;
             }
 
             WeaponPowerNeededNoBeams = weapons.Sum(w => !w.IsBeam ? w.PowerFireUsagePerSecond : 0);
@@ -138,5 +139,16 @@ namespace Ship_Game.GameScreens.ShipDesign
         public bool HasOrdnance() => S.OrdinanceMax > 0;
         public bool HasOrdFinite() => HasOrdnance() && NetOrdnanceUsePerSec > 0;
         public bool HasOrdInfinite() => HasOrdnance() && NetOrdnanceUsePerSec < 0;
+
+        public int CompletionPercent
+        {
+            get
+            {
+                if (S == null)
+                    return 0;
+                int slots = S.Modules.Sum(m => m.Area);
+                return (int)((slots == S.SurfaceArea ? 1f : slots / (float)S.SurfaceArea) * 100);
+            }
+        }
     }
 }

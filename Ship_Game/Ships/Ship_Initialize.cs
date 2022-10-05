@@ -547,9 +547,6 @@ namespace Ship_Game.Ships
             if (ShipData.Role == RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
 
-            if (InhibitionRadius.Greater(0))
-                Loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
-
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
         }
 

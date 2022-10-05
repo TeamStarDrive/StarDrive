@@ -184,7 +184,7 @@ namespace Ship_Game
                         anyTechsComplete = true;
 
                     TreeNode node = SubNodes[child.UID];
-                    var midPointOther = new Vector2(midPoint.X, node.BaseRect.CenterY() - 10);
+                    var midPointOther = new Vector2(midPoint.X, node.BaseRect.CenterY - 10);
                     batch.DrawResearchLineVertical(midPoint, midPointOther, child.Unlocked);
 
                     Vector2 destinationPos = midPointOther + new Vector2(rootNodeRight.Distance(nextNodeLeft) + 13f, 0.0f);
@@ -196,8 +196,8 @@ namespace Ship_Game
 
             foreach (TreeNode treeNode in SubNodes.Values)
             {
-                var vector21 = new Vector2(treeNode.BaseRect.X + treeNode.BaseRect.Width - 25,
-                                           treeNode.BaseRect.Y + treeNode.BaseRect.Height / 2 - 10);
+                var vector21 = new Vector2(treeNode.BaseRect.X + treeNode.BaseRect.W - 25,
+                                           treeNode.BaseRect.Y + treeNode.BaseRect.H / 2 - 10);
                 Vector2 vector22 = vector21 + new Vector2(GridWidth / 2f, 0.0f);
                 vector22.Y = vector21.Y;
 
@@ -208,7 +208,7 @@ namespace Ship_Game
                     if (techEntry1 != null)
                     {
                         var treeNode1 = SubNodes[techEntry1.UID];
-                        var vector23 = new Vector2(vector22.X, treeNode1.BaseRect.CenterY() - 10);
+                        var vector23 = new Vector2(vector22.X, treeNode1.BaseRect.CenterY - 10);
                         batch.DrawResearchLineVertical(vector22, vector23, techEntry1.Unlocked);
                     }
                 }
@@ -232,7 +232,7 @@ namespace Ship_Game
                                 complete1 = true;
 
                             TreeNode treeNode3 = (SubNodes[techEntry2.UID]);
-                            var leftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY() - 10);
+                            var leftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY - 10);
                             Vector2 rightPoint2 = leftPoint2 + new Vector2(leftPoint.Distance(rightPoint) + 13f, 0.0f);
                             batch.DrawResearchLineHorizontalGradient(leftPoint2, rightPoint2, techEntry2.Unlocked);
                         }

@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
-using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -13,20 +14,20 @@ namespace Ship_Game
     // @param T item that was dragged
     // @param DragEvent evt Description of the event
     // @param bool outside If TRUE, mouse cursor is outside of ScrollList Rect
-    public delegate void ScrollListDragOutEvt<T>(T item, DragEvent type, bool outside) where T : ScrollListItem<T>;
+    public delegate void ScrollListDragOutEvt<in T>(T item, DragEvent type, bool outside) where T : ScrollListItem<T>;
 
     // EVENT: Called when EnableDragReorderItems and an item changes its index
     // @param T item that was dragged
     // @param int oldIndex The old index that the dragged item had
     // @param int newIndex The new index of the dragged item
-    public delegate void ScrollListDragReorderEvt<T>(T item, int oldIndex, int newIndex) where T : ScrollListItem<T>;
+    public delegate void ScrollListDragReorderEvt<in T>(T item, int oldIndex, int newIndex) where T : ScrollListItem<T>;
 
 
     [DebuggerTypeProxy(typeof(ScrollListDebugView<>))]
     [DebuggerDisplay("{TypeName}  Entries = {Entries.Count}  Expanded = {FlatEntries.Count}")]
-    public class ScrollList2<T> : ScrollListBase where T : ScrollListItem<T>
+    public class ScrollList<T> : ScrollListBase where T : ScrollListItem<T>
     {
-        readonly Array<T> Entries = new Array<T>();
+        readonly Array<T> Entries = new();
 
         Action<T> EvtHovered;
         Action<T> EvtClick;
@@ -34,14 +35,20 @@ namespace Ship_Game
         ScrollListDragOutEvt<T> EvtDragOut;
         ScrollListDragReorderEvt<T> EvtDragReorder;
 
+        bool ShouldEnableItemEvents()
+        {
+            return EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+        }
+
         // EVENT: Called when a new item is focused with mouse
-        //        @note This is called again with <null> when mouse leaves focus
+        //        This is called again with `null` when mouse leaves focus
+        // EVENT: OnHoverEnded is trigged by calling this event with `null`
         public Action<T> OnHovered
         {
             set
             {
                 EvtHovered = value;
-                EnableItemEvents = EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+                EnableItemEvents = ShouldEnableItemEvents();
             }
         }
 
@@ -51,7 +58,7 @@ namespace Ship_Game
             set
             {
                 EvtClick = value;
-                EnableItemEvents = EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+                EnableItemEvents = ShouldEnableItemEvents();
             }
         }
 
@@ -61,7 +68,7 @@ namespace Ship_Game
             set
             {
                 EvtDoubleClick = value;
-                EnableItemEvents = EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+                EnableItemEvents = ShouldEnableItemEvents();
             }
         }
 
@@ -87,41 +94,18 @@ namespace Ship_Game
             }
         }
 
-        static Rectangle GetOurRectFromBackground(UIElementV2 background)
+        public ScrollList(in RectF rect, int entryHeight = 40, ListStyle style = ListStyle.Default)
         {
-            Rectangle r = background.Rect;
-            if (background is Menu1)
-            {
-                r.Width -= 5;
-            }
-            else if (background is Submenu)
-            {
-                r.Y += 10;
-            }
-            return r;
+            RectF = rect;
+            Style = style;
+            EntryHeight = entryHeight;
+            SetItemsHousing();
         }
 
-        // WARNING: ScrollList2 will take ownership of `background`
-        public ScrollList2(UIElementV2 background, ListStyle style = ListStyle.Default)
-            : this(background, 40, style)
+        public ScrollList(IClientArea rectSource, int entryHeight = 40, ListStyle style = ListStyle.Default)
         {
-        }
-        
-        // WARNING: ScrollList2 will take ownership of `background`
-        public ScrollList2(UIElementV2 background, int entryHeight, ListStyle style = ListStyle.Default)
-            : this(GetOurRectFromBackground(background), entryHeight, style)
-        {
-            TakeOwnershipOfBackground(background);
-        }
-
-        public ScrollList2(float x, float y, float w, float h, int entryHeight, ListStyle style = ListStyle.Default)
-            : this(new Rectangle((int)x, (int)y, (int)w, (int)h), entryHeight, style)
-        {
-        }
-
-        public ScrollList2(in Rectangle rect, int entryHeight = 40, ListStyle style = ListStyle.Default)
-        {
-            Rect = rect;
+            ClientAreaSource = rectSource;
+            RectF = rectSource.ClientArea;
             Style = style;
             EntryHeight = entryHeight;
             SetItemsHousing();
@@ -268,9 +252,9 @@ namespace Ship_Game
 
     internal sealed class ScrollListDebugView<T> where T : ScrollListItem<T>
     {
-        readonly ScrollList2<T> List;
+        readonly ScrollList<T> List;
         // ReSharper disable once UnusedMember.Global
-        public ScrollListDebugView(ScrollList2<T> list) { List = list; }
+        public ScrollListDebugView(ScrollList<T> list) { List = list; }
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         public T[] Items
         {

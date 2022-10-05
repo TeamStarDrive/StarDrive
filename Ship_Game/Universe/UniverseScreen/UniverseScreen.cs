@@ -56,6 +56,7 @@ namespace Ship_Game
         public BatchRemovalCollection<Bomb> BombList  = new();
         readonly AutoResetEvent DrawCompletedEvt = new(false);
 
+        public const double MinCamHeight = 450.0;
         protected double MaxCamHeight;
         public Vector3d CamDestination;
         public Vector3d CamPos { get => UState.CamPos; set => UState.CamPos = value; }
@@ -63,7 +64,6 @@ namespace Ship_Game
 
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
-        int Auto = 1;
         public bool ViewingShip = false;
         public float transDuration = 3f;
         public float SelectedSomethingTimer = 3f;
@@ -124,8 +124,8 @@ namespace Ship_Game
         public bool DefiningTradeRoutes; // are we defining  trade routes for a freighter?
         public Rectangle AORect; // used for showing current AO Rect definition
 
-        public bool showingFTLOverlay;
-        public bool showingRangeOverlay;
+        public bool ShowingFTLOverlay;
+        public bool ShowingRangeOverlay;
 
         /// <summary>
         /// Toggles Cinematic Mode (no UI) on or off
@@ -136,7 +136,7 @@ namespace Ship_Game
         /// <summary>
         /// Conditions to suppress diplomacy screen popups
         /// </summary>
-        public bool CanShowDiplomacyScreen => !IsCinematicModeEnabled;
+        public bool CanShowDiplomacyScreen => UState.CanShowDiplomacyScreen && !IsCinematicModeEnabled;
 
         public DeepSpaceBuildingWindow DeepSpaceBuildWindow;
         public DebugInfoScreen DebugWin;
@@ -573,20 +573,6 @@ namespace Ship_Game
             }
 
             NotificationManager.Update(fixedDeltaTime);
-
-            // if the debug window hits a cyclic crash it can be turned off in game.
-            // i don't see a point in crashing the game because of a debug window error.
-            try
-            {
-                if (UState.Debug)
-                    DebugWin?.Update(fixedDeltaTime);
-            }
-            catch (Exception e)
-            {
-                UState.SetDebugMode(false);
-                DebugWin = null;
-                Log.Error(e, "DebugWindowCrashed");
-            }
 
             GameAudio.Update3DSound(new Vector3((float)CamPos.X, (float)CamPos.Y, 0.0f));
 

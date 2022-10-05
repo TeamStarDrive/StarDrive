@@ -16,6 +16,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
         [StarData] public sealed override Empire TargetEmpire { get; set; }
         [StarData] public sealed override Planet TargetPlanet { get; set; }
+        [StarData] public bool IsManualColonizationOrder;
 
         public override bool IsColonizationGoal(Planet planet) => TargetPlanet == planet;
 
@@ -33,10 +34,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public MarkForColonization(Planet toColonize, Empire owner) : this(owner)
+        public MarkForColonization(Planet toColonize, Empire owner, bool isManual = false) : this(owner)
         {
             TargetPlanet = toColonize;
-            if (PositiveEnemyPresence(out _) && AIControlsColonization) 
+            IsManualColonizationOrder = isManual;
+            if (AIControlsColonization && PositiveEnemyPresence(out _)) 
                 return;
 
             // Fast track to colonize if planet is safe and we have a ready Colony Ship
@@ -56,6 +58,9 @@ namespace Ship_Game.Commands.Goals
         {
             TargetPlanet = toColonize;
             FinishedShip = colonyShip;
+            IsManualColonizationOrder = true;
+
+            colonyShip.AI.OrderColonization(toColonize);
             ChangeToStep(WaitForColonizationComplete);
         }
 
@@ -260,7 +265,7 @@ namespace Ship_Game.Commands.Goals
 
         bool PositiveEnemyPresence(out float spaceStrength)
         {
-            spaceStrength   = Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem);
+            spaceStrength = Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem);
             float groundStr = TargetPlanet.GetGroundStrengthOther(Owner);
             if (TargetPlanet.Owner?.IsFaction  == true && groundStr < 1)
                 groundStr += 40; // So AI will know to send fleets to remnant colonies, even if they are empty
@@ -294,7 +299,7 @@ namespace Ship_Game.Commands.Goals
             return null;
         }
 
-        bool AIControlsColonization => !Owner.isPlayer || Owner.isPlayer && Owner.AutoColonize;
+        bool AIControlsColonization => !Owner.isPlayer || (Owner.isPlayer && Owner.AutoColonize && !IsManualColonizationOrder);
 
         bool TryGetClaimTask(out MilitaryTask task)
         {

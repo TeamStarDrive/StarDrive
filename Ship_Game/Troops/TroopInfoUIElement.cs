@@ -35,14 +35,13 @@ namespace Ship_Game
             RangeRect         = new Rectangle(LeftRect.X + 12, HardAttackRect.Y + 16 + 5, 16, 16);
             DefenseRect.X    -= 3;
             ItemDisplayRect   = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 128, 128);
-            Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y + 5, LeftRect.Width + 8, 240);
-            Submenu sub       = new Submenu(desRect);
-            DescriptionBox    = Add(new UITextBox(sub));
+            var desRect = new RectF(RangeRect.X, RangeRect.Y + 5, LeftRect.Width + 8, 240);
+            DescriptionBox = Add(new UITextBox(desRect));
 
-            ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisUnitsGroundCombat));
-            ToolTipItems.Add(new TippedItem(SoftAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness));
-            ToolTipItems.Add(new TippedItem(HardAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness2));
-            ToolTipItems.Add(new TippedItem(RangeRect, GameText.IndicatesTheTileRangeThis));
+            ToolTipItems.Add(new(DefenseRect, GameText.IndicatesThisUnitsGroundCombat));
+            ToolTipItems.Add(new(SoftAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness));
+            ToolTipItems.Add(new(HardAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness2));
+            ToolTipItems.Add(new(RangeRect, GameText.IndicatesTheTileRangeThis));
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed) // refactored by  Fat Bastard Aug 6, 2018

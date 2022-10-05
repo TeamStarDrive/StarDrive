@@ -421,7 +421,7 @@ namespace Ship_Game
                 else
                 {
                     GameAudio.EchoAffirmative();
-                    Player.AI.AddGoal(new MarkForColonization(P, Player));
+                    Player.AI.AddGoal(new MarkForColonization(P, Player, isManual:true));
                 }
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)

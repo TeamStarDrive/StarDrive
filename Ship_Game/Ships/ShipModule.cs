@@ -574,27 +574,23 @@ namespace Ship_Game.Ships
             }
         }
 
-        public string GetHangarShipName()
+        public string GetHangarShipName(Empire player)
         {
             if (ShipBuilder.IsDynamicHangar(HangarShipUID))
-                return CarrierBays.GetDynamicShipName(this, Player);
+                return CarrierBays.GetDynamicShipName(this, player);
             return HangarShipUID;
         }
 
-        public float BayOrdnanceUsagePerSecond
+        public float BayOrdnanceUsagePerSecond(Empire player)
         {
-            get
+            float ordnancePerSecond = 0;
+            if (ModuleType == ShipModuleType.Hangar && HangarTimerConstant > 0)
             {
-                float ordnancePerSecond = 0;
-                if (ModuleType == ShipModuleType.Hangar && HangarTimerConstant > 0)
-                {
-                    string hangarShipName = GetHangarShipName();
-                    if (ResourceManager.GetShipTemplate(hangarShipName, out Ship template))
-                        ordnancePerSecond = (template.ShipOrdLaunchCost) / HangarTimerConstant;
-                }
-
-                return ordnancePerSecond;
+                string hangarShipName = GetHangarShipName(player);
+                if (ResourceManager.GetShipTemplate(hangarShipName, out Ship template))
+                    ordnancePerSecond = (template.ShipOrdLaunchCost) / HangarTimerConstant;
             }
+            return ordnancePerSecond;
         }
 
         public bool IsObsolete(Empire player)
@@ -990,7 +986,6 @@ namespace Ship_Game.Ships
 
         public override void Die(GameObject source, bool cleanupOnly)
         {
-            ++DebugInfoScreen.ModulesDied;
             ShieldPower = 0f;
             ShieldPower = 0f;
             Shield?.RemoveLight(Parent.Universe.Screen);

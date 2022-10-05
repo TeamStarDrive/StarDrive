@@ -158,7 +158,7 @@ namespace Ship_Game
             if (OrbitalsInTheWorks)
                 return;
 
-            Ship orbital = PickOrbitalToBuild(role, budget);
+            IShipDesign orbital = PickOrbitalToBuild(role, budget);
             if (orbital == null)
                 return;
 
@@ -168,7 +168,7 @@ namespace Ship_Game
         private int TimeVsCostThreshold => (int)(40 + EstimatedAverageProduction*Level + Owner.Money/250);
 
         // Adds an Orbital to ConstructionQueue
-        public void AddOrbital(Ship orbital)
+        public void AddOrbital(IShipDesign orbital)
         {
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green,$"{Name}, {Owner.Name} - ADDED Orbital ----- {orbital.Name}, " +
@@ -188,7 +188,7 @@ namespace Ship_Game
                 return; // refit one orbital at a time
 
             float weakestMaint  = weakestWeHave.GetMaintCost(Owner);
-            Ship bestWeCanBuild = PickOrbitalToBuild(role, budget + weakestMaint);
+            IShipDesign bestWeCanBuild = PickOrbitalToBuild(role, budget + weakestMaint);
 
             if (bestWeCanBuild == null)
                 return;
@@ -197,9 +197,9 @@ namespace Ship_Game
                 return; // replace only if str is 10% more than the current weakest orbital
 
             string debugReplaceOrRefit;
-            if (weakestWeHave.DesignRole == bestWeCanBuild.DesignRole)
+            if (weakestWeHave.DesignRole == bestWeCanBuild.Role)
             {
-                Goal refitOrbital = new RefitOrbital(weakestWeHave, bestWeCanBuild.Name, Owner);
+                Goal refitOrbital = new RefitOrbital(weakestWeHave, bestWeCanBuild, Owner);
                 Owner.AI.AddGoal(refitOrbital);
                 debugReplaceOrRefit = "REFITTING";
             }
@@ -215,9 +215,9 @@ namespace Ship_Game
                          $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
         }
 
-        private Ship PickOrbitalToBuild(RoleName role, float budget)
+        private IShipDesign PickOrbitalToBuild(RoleName role, float budget)
         {
-            Ship orbital = GetBestOrbital(role, budget);
+            IShipDesign orbital = GetBestOrbital(role, budget);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"Orbitals Budget: {budget}");
 
@@ -231,19 +231,19 @@ namespace Ship_Game
             // We cannot build the best in the empire, lets try building something cheaper for now
             // and check if this can be built in a timely manner.
             float maxCost = EstimatedAverageProduction * TimeVsCostThreshold + Storage.Prod;
-            maxCost      /= ShipBuildingModifier;
-            orbital       = GetBestOrbital(role, budget, maxCost);
+            maxCost /= ShipBuildingModifier;
+            orbital = GetBestOrbital(role, budget, maxCost);
 
             return orbital;
         }
 
         // This returns the best orbital the empire can build
-        private Ship GetBestOrbital(RoleName role, float budget)
+        private IShipDesign GetBestOrbital(RoleName role, float budget)
         {
             if (budget < 0)
                 return null;
-            Ship orbital = null;
 
+            IShipDesign orbital = null;
             switch (role)
             {
                 case RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
@@ -252,9 +252,8 @@ namespace Ship_Game
 
             if (orbital != null)
             {
-                budget     = (float)Math.Ceiling(budget);
-                float cost = orbital.GetMaintCost(Owner);
-
+                budget = (float)Math.Ceiling(budget);
+                float cost = orbital.GetMaintenanceCost(Owner);
                 if (cost > budget)
                     orbital = null;
             }
@@ -262,13 +261,13 @@ namespace Ship_Game
         }
 
         //This returns the best orbital the Planet can build based on cost
-        private Ship GetBestOrbital(RoleName role, float budget, float maxCost)
+        IShipDesign GetBestOrbital(RoleName role, float budget, float maxCost)
         {
-            Ship orbital = null;
+            IShipDesign orbital = null;
             switch (role)
             {
                 case RoleName.station:
-                case RoleName.platform: orbital = ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost, budget); break;
+                case RoleName.platform: orbital = ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost, budget)?.ShipData; break;
             }
             return orbital;
         }
@@ -314,8 +313,8 @@ namespace Ship_Game
             if (totalShipyards < numWantedShipyards)
             {
                 string shipyardName = Owner.data.DefaultShipyard;
-                if (ResourceManager.GetShipTemplate(shipyardName, out Ship shipyard)
-                    && shipyard.GetMaintCost(Owner) < budget
+                if (ResourceManager.Ships.GetDesign(shipyardName, out IShipDesign shipyard)
+                    && shipyard.GetMaintenanceCost(Owner) < budget
                     && LogicalBuiltTimeVsCost(shipyard.GetCost(Owner), TimeVsCostThreshold))
                 {
                     AddOrbital(shipyard);

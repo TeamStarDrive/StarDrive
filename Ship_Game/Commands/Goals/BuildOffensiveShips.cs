@@ -77,7 +77,7 @@ namespace Ship_Game.Commands.Goals
             public ShipInfo(Empire owner, BuildOffensiveShips g)
             {
                 Role = g.Build.Template.Role;
-                Upkeep = g.Build.Template.GetMaintenanceCost(owner, 0);
+                Upkeep = g.Build.Template.GetMaintenanceCost(owner);
             }
         }
     }

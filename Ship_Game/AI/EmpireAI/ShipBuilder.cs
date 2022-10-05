@@ -157,7 +157,7 @@ namespace Ship_Game.AI
             return true;
         }
 
-        public static Ship PickShipToRefit(Ship oldShip, Empire empire)
+        public static IShipDesign PickShipToRefit(Ship oldShip, Empire empire)
         {
             Array<Ship> ships = ShipsWeCanBuild(empire, s => s.ShipData.Hull == oldShip.ShipData.Hull
                                                         && s.DesignRole == oldShip.DesignRole
@@ -169,14 +169,14 @@ namespace Ship_Game.AI
             Ship picked = RandomMath.RandItem(ships);
             Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.BaseStrength}" +
                                             $" refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
-            return picked;
+            return picked.ShipData;
         }
 
-        public static Ship PickFreighter(Empire empire, float fastVsBig)
+        public static IShipDesign PickFreighter(Empire empire, float fastVsBig)
         {
-            if (empire.isPlayer && empire.AutoFreighters
-                                && !empire.Universe.Player.AutoPickBestFreighter
-                                && ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out Ship freighter))
+            if (empire.isPlayer && empire.AutoFreighters &&
+                !empire.Universe.Player.AutoPickBestFreighter &&
+                ResourceManager.Ships.GetDesign(empire.data.CurrentAutoFreighter, out IShipDesign freighter))
             {
                 return freighter;
             }
@@ -184,7 +184,7 @@ namespace Ship_Game.AI
             var freighters = new Array<Ship>();
             foreach (string shipId in empire.ShipsWeCanBuild)
             {
-                if (ResourceManager.GetShipTemplate(shipId, out Ship ship))
+                if (ResourceManager.Ships.Get(shipId, out Ship ship))
                 {
                     if (!ship.IsCandidateForTradingBuild)
                         continue;
@@ -202,7 +202,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            freighter = freighters.FindMax(ship => ship.FreighterValue(empire, fastVsBig));
+            freighter = freighters.FindMax(ship => ship.FreighterValue(empire, fastVsBig))?.ShipData;
 
             if (empire.Universe?.Debug == true)
                 Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter?.Name ?? "null"}");
@@ -289,12 +289,11 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public static Ship BestShipWeCanBuild(RoleName role, Empire empire)
+        public static IShipDesign BestShipWeCanBuild(RoleName role, Empire empire)
         {
-            Ship bestShip = PickFromCandidates(role, empire);
-            if (bestShip == null || bestShip.ShipData.IsShipyard || bestShip.IsSubspaceProjector) 
+            IShipDesign bestShip = PickFromCandidates(role, empire)?.ShipData;
+            if (bestShip == null || bestShip.IsShipyard || bestShip.IsSubspaceProjector) 
                 return null;
-
             return bestShip;
         }
     }

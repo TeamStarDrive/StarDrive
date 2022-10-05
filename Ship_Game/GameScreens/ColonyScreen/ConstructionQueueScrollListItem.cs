@@ -12,6 +12,7 @@ namespace Ship_Game
     public class ConstructionQueueScrollListItem : ScrollListItem<ConstructionQueueScrollListItem>
     {
         readonly Planet Planet;
+        UniverseScreen Universe => Planet.Universe.Screen;
         public readonly QueueItem Item;
         readonly bool LowRes;
 
@@ -34,22 +35,22 @@ namespace Ship_Game
             InputState input = GameBase.ScreenManager.input;
             if (input.IsCtrlKeyDown)
             {
-                RunOnEmpireThread(() =>
-                  {
-                      var index = Planet.ConstructionQueue.IndexOf(Item);
-                      if (index > 0)
-                      {
-                          MoveToConstructionQueuePosition(0, index);
-                      }
-                      else
-                      {
-                          Log.Warning($"Deferred Action: Move Queue to top: Failed {index}");
-                      }
-                  }); // move to top
+                Universe.RunOnSimThread(() =>
+                {
+                    var index = Planet.ConstructionQueue.IndexOf(Item);
+                    if (index > 0)
+                    {
+                        MoveToConstructionQueuePosition(0, index);
+                    }
+                    else
+                    {
+                        Log.Warning($"Deferred Action: Move Queue to top: Failed {index}");
+                    }
+                }); // move to top
             }
             else
             {
-                RunOnEmpireThread(() =>
+                Universe.RunOnSimThread(() =>
                 {
                     int index = Planet.ConstructionQueue.IndexOf(Item);
                     if (index > 0)
@@ -69,24 +70,23 @@ namespace Ship_Game
             InputState input = GameBase.ScreenManager.input;
             if (input.IsCtrlKeyDown)
             {
-                RunOnEmpireThread(() =>
-                  {
-                      var listBottom = Planet.ConstructionQueue.Count - 1;
-                      var index = Planet.ConstructionQueue.IndexOf(Item);
-                      if (index >=0 && index < listBottom)
-                      {
-                          MoveToConstructionQueuePosition(listBottom, index);
-                      }
-                      else
-                      {
-                          Log.Warning($"Deferred Action: Move Queue to bottom: Failed {index}");
-                      }
-
-                  }); // move to bottom
+                Universe.RunOnSimThread(() =>
+                {
+                    var listBottom = Planet.ConstructionQueue.Count - 1;
+                    var index = Planet.ConstructionQueue.IndexOf(Item);
+                    if (index >= 0 && index < listBottom)
+                    {
+                        MoveToConstructionQueuePosition(listBottom, index);
+                    }
+                    else
+                    {
+                        Log.Warning($"Deferred Action: Move Queue to bottom: Failed {index}");
+                    }
+                }); // move to bottom
             }
             else
             {
-                RunOnEmpireThread(() =>
+                Universe.RunOnSimThread(() =>
                 {
                     var listBottom = Planet.ConstructionQueue.Count - 1;
                     var index = Planet.ConstructionQueue.IndexOf(Item);
@@ -107,12 +107,12 @@ namespace Ship_Game
             InputState input = GameBase.ScreenManager.input;
             if (input.IsShiftKeyDown)
             {
-                RunOnEmpireThread(() => Item.Rush = !Item.Rush);
+                Universe.RunOnSimThread(() => Item.Rush = !Item.Rush);
                 return;
             }
 
             float maxAmount = (input.IsCtrlKeyDown ? Planet.ProdHere : 10f).UpperBound(Item.ProductionNeeded);
-            RunOnEmpireThread(() => RushProduction(Item, maxAmount.UpperBound(Planet.ProdHere)));
+            Universe.RunOnSimThread(() => RushProduction(Item, maxAmount.UpperBound(Planet.ProdHere)));
         }
 
         void RushProduction(QueueItem item, float amount)
@@ -131,7 +131,7 @@ namespace Ship_Game
         }
         void OnCancelClicked()
         {
-            RunOnEmpireThread(() =>
+            Universe.RunOnSimThread(() =>
             {
                 int index = Planet.ConstructionQueue.IndexOf(Item);
                 if (index >= 0 && !Item.IsComplete)

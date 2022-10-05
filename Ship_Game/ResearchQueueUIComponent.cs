@@ -1,6 +1,8 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -15,7 +17,7 @@ namespace Ship_Game
         readonly UILabel TimeLeftLabel;
 
         ResearchQItem CurrentResearch;
-        readonly ScrollList2<ResearchQItem> ResearchQueueList;
+        readonly ScrollList<ResearchQItem> ResearchQueueList;
         readonly UIButton BtnShowQueue;
 
         public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(container, Color.Black)
@@ -25,26 +27,26 @@ namespace Ship_Game
             BtnShowQueue = Button(ButtonStyle.BigDip, 
                 new Vector2(container.Right - 170, screen.ScreenHeight - 55), "", OnBtnShowQueuePressed);
 
-            var current = new Rectangle(container.X, container.Y, container.Width, 150);
-            var timeLeftRect = new Rectangle(current.X + current.Width - 119, current.Y + current.Height - 24, 111, 20);
+            RectF current = new(container.X, container.Y, container.Width, 150);
+            RectF timeLeftRect = new(current.X + current.W - 119, current.Y + current.H - 24, 111, 20);
             TimeLeft = Panel(timeLeftRect, Color.White, ResourceManager.Texture("ResearchMenu/timeleft"));
             
             var labelPos = new Vector2(TimeLeft.X + 26,
                                        TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2);
             TimeLeftLabel = TimeLeft.Label(labelPos, "", Fonts.Verdana14Bold, new Color(205, 229, 255));
 
-            CurrentResearchPanel = Add(new Submenu(current, SubmenuStyle.Blue));
-            CurrentResearchPanel.AddTab(Localizer.Token(GameText.CurrentResearch));
+            CurrentResearchPanel = Add(new Submenu(current, GameText.CurrentResearch, SubmenuStyle.Blue));
             
-            var queue = new Rectangle(current.X, current.Y + 165, container.Width, container.Height - 165);
-            var queuePanel = new Submenu(queue, SubmenuStyle.Blue);
-            queuePanel.AddTab(Localizer.Token(GameText.ResearchQueue));
-            ResearchQueueList = Add(new ScrollList2<ResearchQItem>(queuePanel, 125, ListStyle.Blue));
+            RectF queue = new(current.X, current.Y + 165, container.Width, container.Height - 165);
+            var queueSub = Add(new SubmenuScrollList<ResearchQItem>(queue, GameText.ResearchQueue, 125, ListStyle.Blue));
+            ResearchQueueList = queueSub.List;
+
             // FB Disabled due to being able to drag stuff to be before other research mandatory for it.
             //ResearchQueueList.OnDragReorder = OnResearchItemReorder; 
             ReloadResearchQueue();
         }
 
+        // TODO: check if we are moving item up before allowed item
         void OnResearchItemReorder(ResearchQItem item, int oldIndex, int newIndex)
         {
             // we use +1 here, because [0] is the current research item

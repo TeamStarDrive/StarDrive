@@ -16,7 +16,7 @@ namespace Ship_Game.Ships
     [StarDataType]
     public interface IShipDesign
     {
-        string Name { get; } // ex: "Dodaving", just an arbitrary name
+        string Name { get; } // ex: "Dodaving mk1-a", just an arbitrary unique name which will serve as the UID
         string Hull { get; } // ID of the hull, ex: "Cordrazine/Dodaving"
         string ModName { get; } // "" if vanilla, else mod name eg "Combined Arms"
         string ShipStyle { get; } // "Terran"
@@ -30,6 +30,7 @@ namespace Ship_Game.Ships
         bool IsShipyard { get; }
         bool IsOrbitalDefense { get; }
         bool IsCarrierOnly { get; } // this ship is restricted to Carriers only
+        bool IsBuildableByPlayer { get; }
 
         ShipCategory ShipCategory  { get; }
         HangarOptions HangarDesignation  { get; }
@@ -37,6 +38,7 @@ namespace Ship_Game.Ships
 
         ModuleGridFlyweight Grid { get; }
         ShipGridInfo GridInfo { get; }
+        int SurfaceArea { get; }
 
         // Complete list of all the unique module UID-s found in this design
         string[] UniqueModuleUIDs { get; }
@@ -125,7 +127,9 @@ namespace Ship_Game.Ships
 
         float GetCost(Empire e);
 
-        float GetMaintenanceCost(Empire empire, int troopCount);
+        float BaseStrength { get; }
+
+        float GetMaintenanceCost(Empire empire);
 
         // Role name as a string
         string GetRole();

@@ -157,7 +157,6 @@ namespace Ship_Game.Fleets
 
             HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles ||
                                         ship.Carrier.HasSupplyBays && ship.Ordinance >= 100;
-
         }
 
         public void AddExistingShip(Ship ship, FleetDataNode node)
@@ -166,8 +165,8 @@ namespace Ship_Game.Fleets
             base.AddShip(ship);
             ship.Fleet = this;
             ship.AI.FleetNode = node;
-            ship.FleetOffset = node.FleetOffset;
-            ship.RelativeFleetOffset = node.FleetOffset;
+            ship.FleetOffset = node.RelativeFleetOffset;
+            ship.RelativeFleetOffset = node.RelativeFleetOffset;
 
             for (int i = 0; i < AllFlanks.Count; i++)
             {
@@ -411,7 +410,7 @@ namespace Ship_Game.Fleets
 
         void SetAIDefaultTactics()
         {
-            if (Owner.isPlayer == true) return;
+            if (Owner.isPlayer) return;
 
             for (int i = 0; i < ScreenFlank.Count; i++)
             {
@@ -440,21 +439,14 @@ namespace Ship_Game.Fleets
 
             if (node == null)
             {
-                var offset = ship.RelativeFleetOffset;// ship.RelativeFleetOffset + GetRelativeSize();
-                node = new FleetDataNode
-                {
-                    
-                    FleetOffset  = offset,
-                    OrdersOffset = offset,
-                    CombatState  = ship.AI.CombatState
-            };
+                node = new() { CombatState = ship.AI.CombatState };
                 DataNodes.Add(node);
             }
 
-            node.Ship           = ship;
-            node.ShipName       = ship.Name;
-            node.OrdersRadius   = node.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : node.OrdersRadius;
-            ship.AI.FleetNode   = node;
+            node.Ship = ship;
+            node.ShipName = ship.Name;
+            node.OrdersRadius = node.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : node.OrdersRadius;
+            ship.AI.FleetNode = node;
             return nodeFound;
             
         }
@@ -531,14 +523,14 @@ namespace Ship_Game.Fleets
 
         static Vector2 ArrangeSquad(Array<Squad> squads, Vector2 size, FlankType flank)
         {
-            int upOrDown              = flank == FlankType.Screen ? -1 : 1;
-            float spacer              = 1000 * upOrDown;
-            Vector2 squadOffset       = new Vector2(0,spacer);
-            int row                   = 0;
-            int columns               = flank == FlankType.Screen ? 9 : 5;
-            int rowMax                = 1 +(squads.Count / columns).LowerBound(columns);
-            float tallestSquad        = 0;
-            Vector2 previousSizeLeft  = Vector2.Zero;
+            int upOrDown = flank == FlankType.Screen ? -1 : 1;
+            float spacer = 1000 * upOrDown;
+            Vector2 squadOffset = new(0,spacer);
+            int row = 0;
+            int columns = flank == FlankType.Screen ? 9 : 5;
+            int rowMax = 1 +(squads.Count / columns).LowerBound(columns);
+            float tallestSquad = 0;
+            Vector2 previousSizeLeft = Vector2.Zero;
             Vector2 previousSizeRight = Vector2.Zero;
 
             for (int index = 0; index < squads.Count; ++index)
@@ -550,7 +542,7 @@ namespace Ship_Game.Fleets
                     int wantedIndex = dir == 1 ? 0 : 3;
                     int wantedShip = squad.Ships.Count >= wantedIndex + 1? wantedIndex  : -1;
                     float height = dir == -1 ? 0 : squad.Ships[wantedShip].GridHeight * 16 * dir;
-                    squad.SetOffSets(new Vector2(previousSizeLeft.X, squadOffset.Y + height));
+                    squad.SetOffSets(new(previousSizeLeft.X, squadOffset.Y + height));
                     previousSizeLeft = squad.GetSquadSize();
                     previousSizeRight = -squad.GetSquadSize();
                 }
@@ -558,14 +550,14 @@ namespace Ship_Game.Fleets
                 {
                     int dir = squad.Ships.Count >= 3 ? 2 : -1;
                     float width = dir == -1 ? 0 : squad.Ships[dir].GridWidth * 16;
-                    squad.SetOffSets(new Vector2(previousSizeLeft.X + width , squadOffset.Y));
+                    squad.SetOffSets(new(previousSizeLeft.X + width, squadOffset.Y));
                     previousSizeLeft = squad.GetSquadSize();
                 }
                 else
                 {
                     int dir = squad.Ships.Count >= 2 ? 1 : -1;
                     float width = dir == -1 ? 0 : squad.Ships[dir].GridWidth * 16;
-                    squad.SetOffSets(new Vector2(previousSizeRight.X - width, squadOffset.Y));
+                    squad.SetOffSets(new(previousSizeRight.X - width, squadOffset.Y));
                     previousSizeRight = -squad.GetSquadSize();
                 }
 
@@ -595,9 +587,6 @@ namespace Ship_Game.Fleets
                 }
             }
         }
-
-        public void AssembleFleet2(Vector2 finalPosition, Vector2 finalDirection)
-            => AssembleFleet(finalPosition, finalDirection, IsCoreFleet);
 
         void EvaluateTask(FixedSimTime timeStep)
         {
@@ -740,7 +729,7 @@ namespace Ship_Game.Fleets
                     else
                         EndInvalidTask(--DefenseTurns <= 0 
                                        && !Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut 
-                                                                             && t.TargetSystem == task.TargetPlanet.ParentSystem));
+                                                                         && t.TargetSystem == task.TargetPlanet.ParentSystem));
 
                     break;
             }
@@ -1671,7 +1660,7 @@ namespace Ship_Game.Fleets
                 if (ship.CanTakeFleetOrders && !ship.Position.OutsideRadius(pos, radius) &&
                     ship.AI.State == AIState.FormationMoveTo)
                 {
-                    ship.AI.State = AIState.AwaitingOrders;
+                    ship.AI.ChangeAIState(AIState.AwaitingOrders);
                     ship.AI.ClearPriorityOrderAndTarget();
                 }
             }
@@ -1777,7 +1766,7 @@ namespace Ship_Game.Fleets
                     if (ship.IsSpoolingOrInWarp || ship.InCombat || ship.AI.State != AIState.AwaitingOrders)
                         continue;
                     if (ship.InRadius(position, radius)) continue;
-                    Vector2 movePos = position + ship.AI.FleetNode.FleetOffset / size;
+                    Vector2 movePos = position + ship.AI.FleetNode.RelativeFleetOffset / size;
                     ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO), AIState.AwaitingOrders, MoveOrder.Aggressive);
                 }
             }
@@ -2518,8 +2507,8 @@ namespace Ship_Game.Fleets
                     FleetDataNode n = DataNodes[i];
                     float width  = n.Ship?.GridWidth * 8f ?? 0;
                     float height = n.Ship?.GridHeight * 8f ?? 0;
-                    float nodeX  = Math.Abs((n.FleetOffset - Offset).X);
-                    float nodeY  = Math.Abs((n.FleetOffset - Offset).Y);
+                    float nodeX  = Math.Abs((n.RelativeFleetOffset - Offset).X);
+                    float nodeY  = Math.Abs((n.RelativeFleetOffset - Offset).Y);
 
                     x = Math.Max(x, nodeX) + width + SquadSpacing;
                     y = Math.Max(y, nodeY) + height + SquadSpacing;
@@ -2548,6 +2537,7 @@ namespace Ship_Game.Fleets
 
                         ship.FleetOffset = offset + (facing + radiansAngle).RadiansToDirection() * spacing;
                         ship.RelativeFleetOffset = Offset + radiansAngle.RadiansToDirection() * spacing;
+                        n.RelativeFleetOffset = ship.RelativeFleetOffset; // update the node offset also !
                         n.CombatState = n.Ship.AI.CombatState;
                     }
                 }
@@ -2559,8 +2549,7 @@ namespace Ship_Game.Fleets
                 for (int i = 0; i < DataNodes.Count; ++i)
                 {
                     FleetDataNode n = DataNodes[i];
-                    n.FleetOffset  = Vector2.Zero;
-                    n.OrdersOffset = Vector2.Zero;
+                    n.RelativeFleetOffset = Vector2.Zero;
 
                     if (n.Ship != null)
                     {
