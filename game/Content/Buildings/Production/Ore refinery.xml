@@ -2,7 +2,7 @@
   <Name>Ore refinery</Name>
   <Icon>Ore_refinery</Icon>
   
-  <Cost>150</Cost>
+  <Cost>120</Cost>
   <Maintenance>1</Maintenance>
   
   <PlusProdPerRichness>2</PlusProdPerRichness>
