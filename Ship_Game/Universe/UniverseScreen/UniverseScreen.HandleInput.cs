@@ -871,12 +871,7 @@ namespace Ship_Game
 
             if (input.LeftMouseHeld(0.1f)) // we started dragging selection box
             {
-                Vector2 a = input.StartLeftHold;
-                Vector2 b = input.EndLeftHold;
-                SelectionBox.X = (int)Math.Min(a.X, b.X);
-                SelectionBox.Y = (int)Math.Min(a.Y, b.Y);
-                SelectionBox.Width  = (int)Math.Max(a.X, b.X) - SelectionBox.X;
-                SelectionBox.Height = (int)Math.Max(a.Y, b.Y) - SelectionBox.Y;
+                SelectionBox = input.LeftHold.GetSelectionBox();
                 SelectingWithBox = true;
                 return;
             }
@@ -890,7 +885,7 @@ namespace Ship_Game
             SelectedShipList = GetAllShipsInArea(SelectionBox, input, out Fleet fleet);
             if (SelectedShipList.Count == 0)
             {
-                SelectionBox = new Rectangle(0, 0, -1, -1);
+                SelectionBox = new(0, 0, -1, -1);
                 return;
             }
 

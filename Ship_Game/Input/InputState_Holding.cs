@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
+using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -20,8 +21,8 @@ namespace Ship_Game
             public float Time      { get; private set; }
             public float TimeStart { get; private set; }
             public float TimeEnd   { get; private set; }
-            public Vector2 StartPos{ get; private set; }
-            public Vector2 EndPos  { get; private set; }
+            public Vector2 StartPos { get; private set; }
+            public Vector2 EndPos   { get; private set; }
 
             public void Update(UpdateTimes elapsed, ButtonState current, Vector2 cursorPos)
             {
@@ -47,6 +48,18 @@ namespace Ship_Game
                     Time = 0f;
                     TimeEnd = elapsed.CurrentGameTime;
                 }
+            }
+
+            public RectF GetSelectionBox()
+            {
+                Vector2 a = StartPos;
+                Vector2 b = EndPos;
+                RectF selection;
+                selection.X = Math.Min(a.X, b.X);
+                selection.Y = Math.Min(a.Y, b.Y);
+                selection.W = Math.Max(a.X, b.X) - selection.X;
+                selection.H = Math.Max(a.Y, b.Y) - selection.Y;
+                return selection;
             }
         }
 
