@@ -10,7 +10,6 @@ using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using XnaMatrix = SDGraphics.Matrix;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -48,7 +47,7 @@ namespace Ship_Game
         Vector3 CamPos = new(0f, 0f, 14000f);
         Vector3 DesiredCamPos = new(0f, 0f, 14000f);
 
-        readonly Map<int, RectF> FleetsRects = new();
+        readonly Map<int, RectF> FleetButtonRects = new();
         readonly Array<ClickableSquad> ClickableSquads = new();
         Ship ActiveShipDesign;
         public int FleetToEdit = -1;
@@ -89,22 +88,22 @@ namespace Ship_Game
             if (FleetToEdit != -1)
             {
                 foreach (Fleet f in Universe.Player.Fleets)
-                {
                     foreach (Ship ship in f.Ships)
-                    {
                         ship.RemoveSceneObject();
-                    }
-                }
             }
 
             FleetToEdit = which;
             Fleet fleet = Universe.Player.GetFleet(FleetToEdit);
+            SelectedFleet = fleet;
+
             var toRemove = new Array<FleetDataNode>();
             foreach (FleetDataNode node in fleet.DataNodes)
             {
-                if ((!ResourceManager.GetShipTemplate(node.ShipName, out Ship _) && node.Ship == null) ||
-                    (node.Ship == null && !Universe.Player.WeCanBuildThis(node.ShipName)))
-                    toRemove.Add(node);
+                if (node.Ship == null)
+                {
+                    if (!ResourceManager.Ships.Exists(node.ShipName) || !Universe.Player.WeCanBuildThis(node.ShipName))
+                        toRemove.Add(node);
+                }
             }
 
             var squadsToRemove = new Array<Fleet.Squad>();
@@ -128,14 +127,14 @@ namespace Ship_Game
                     if (flanks.Contains(squad))
                         flanks.Remove(squad);
             }
-
-            SelectedFleet = Universe.Player.GetFleet(which);
-            foreach (Ship ship in SelectedFleet.Ships)
+            
+            foreach (FleetDataNode node in fleet.DataNodes)
             {
-                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, 0f);
+                if (node.Ship != null)
+                    node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
             }
 
-            FleetNameEntry.Size = FleetNameEntry.Font.MeasureString(SelectedFleet.Name);
+            FleetNameEntry.Size = FleetNameEntry.Font.MeasureString(fleet.Name);
         }
 
         public void OnSubShipsTabChanged(int tabIndex)
@@ -178,7 +177,7 @@ namespace Ship_Game
             int i = 0;
             foreach (Fleet fleet in Universe.Player.Fleets)
             {
-                FleetsRects.Add(fleet.Key, new RectF(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
+                FleetButtonRects.Add(fleet.Key, new RectF(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
                 i++;
             }
 
@@ -248,10 +247,6 @@ namespace Ship_Game
             SliderSize.SetAmount(0.5f);
             SliderSize.Tooltip = GameText.DeterminesWhetherAShipPrefers;
 
-            foreach (Ship ship in SelectedFleet.Ships)
-            {
-                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, 0f);
-            }
             base.LoadContent();
         }
 
@@ -263,7 +258,7 @@ namespace Ship_Game
             for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = fleet.Ships[i];
-                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, -1000000f);
+                ship.RemoveSceneObject();
                 ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
             }
 

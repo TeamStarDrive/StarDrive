@@ -9,7 +9,6 @@ using SDGraphics;
 using SDUtils;
 using Ray = Microsoft.Xna.Framework.Ray;
 using static Ship_Game.Fleets.Fleet;
-using Ship_Game.PathFinder;
 
 namespace Ship_Game
 {
@@ -98,6 +97,7 @@ namespace Ship_Game
             if (SelectedNodeList.Count != 1 && FleetToEdit != -1 && FleetNameEntry.HandleInput(input))
                 return true;
 
+            // handle hotkeys
             InputSelectFleet(1, Input.Fleet1);
             InputSelectFleet(2, Input.Fleet2);
             InputSelectFleet(3, Input.Fleet3);
@@ -108,7 +108,8 @@ namespace Ship_Game
             InputSelectFleet(8, Input.Fleet8);
             InputSelectFleet(9, Input.Fleet9);
 
-            foreach (KeyValuePair<int, RectF> rect in FleetsRects)
+            // handle direct click on Fleet buttons
+            foreach (KeyValuePair<int, RectF> rect in FleetButtonRects)
             {
                 if (rect.Value.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
@@ -186,7 +187,7 @@ namespace Ship_Game
 
                     FleetDataNode node = new FleetDataNode
                     {
-                        FleetOffset = pickedPosition,
+                        RelativeFleetOffset = pickedPosition,
                         ShipName = ActiveShipDesign.Name
                     };
                     SelectedFleet.DataNodes.Add(node);
@@ -198,8 +199,7 @@ namespace Ship_Game
                         }
 
                         node.Ship = ActiveShipDesign;
-                        node.Ship.RelativeFleetOffset = node.FleetOffset;
-                        node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, -500000f);
+                        node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
                         AvailableShips.Remove(ActiveShipDesign);
                         SelectedFleet.AddShip(node.Ship);
 
@@ -261,13 +261,11 @@ namespace Ship_Game
                     foreach (FleetDataNode node in SelectedNodeList)
                     {
                         SelectedFleet.DataNodes.Remove(node);
-                        if (node.Ship == null)
+                        if (node.Ship != null)
                         {
-                            continue;
+                            node.Ship.RemoveSceneObject();
+                            node.Ship.Fleet?.RemoveShip(node.Ship, returnToEmpireAI: true, clearOrders: true);
                         }
-
-                        node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, -500000f);
-                        node.Ship.Fleet?.RemoveShip(node.Ship, returnToEmpireAI: true, clearOrders: true);
                     }
 
                     SelectedNodeList.Clear();
@@ -365,7 +363,7 @@ namespace Ship_Game
                 else if (!IsDragging && SelectedNodeList.Count == 1)
                 {
                     Vector2 newSpot = GetWorldSpaceFromScreenSpace(input.CursorPosition);
-                    if (newSpot.Distance(SelectedNodeList[0].FleetOffset) <= 1000f)
+                    if (newSpot.Distance(SelectedNodeList[0].RelativeFleetOffset) <= 1000f)
                     {
                         HandleSelectedNodeMove(newSpot, SelectedNodeList[0], input.CursorPosition);
                     }
@@ -398,8 +396,8 @@ namespace Ship_Game
             difference = newSpot - oldPos;
             if (difference.Length() > 30f)
             {
-                newSpot.X = newSpot.X.RoundUpTo(500);
-                newSpot.Y = newSpot.Y.RoundUpTo(500);
+                newSpot.X = newSpot.X.RoundUpTo(250);
+                newSpot.Y = newSpot.Y.RoundUpTo(250);
                 difference = (newSpot - oldPos);
                 return true;
             }
@@ -410,12 +408,12 @@ namespace Ship_Game
         // moving a single ship node
         void HandleSelectedNodeMove(Vector2 newSpot, FleetDataNode node, Vector2 mousePos)
         {
-            if (GetRoundedNodeMove(newSpot, node.FleetOffset, out Vector2 difference))
+            if (GetRoundedNodeMove(newSpot, node.RelativeFleetOffset, out Vector2 difference))
             {
-                node.FleetOffset += difference;
+                node.RelativeFleetOffset += difference;
                 if (node.Ship != null)
                 {
-                    node.Ship.RelativeFleetOffset = node.FleetOffset;
+                    node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
                 }
             }
 
@@ -450,7 +448,7 @@ namespace Ship_Game
                 selectedSquad.Offset += difference;
                 foreach (FleetDataNode node in selectedSquad.DataNodes)
                 {
-                    node.FleetOffset += difference;
+                    node.RelativeFleetOffset += difference;
                     if (node.Ship != null)
                     {
                         Ship ship = node.Ship;
@@ -559,7 +557,7 @@ namespace Ship_Game
         {
             if (node.Ship != null)
                 return (node.Ship.RelativeFleetOffset, node.Ship.Radius);
-            return (node.FleetOffset, ResourceManager.Ships.Get(node.ShipName).Radius);
+            return (node.RelativeFleetOffset, ResourceManager.Ships.Get(node.ShipName).Radius);
         }
 
         (Vector2 screenPos, float screenRadius) GetNodeScreenPosAndRadius(FleetDataNode node)

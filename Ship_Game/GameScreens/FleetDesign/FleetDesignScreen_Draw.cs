@@ -50,6 +50,14 @@ namespace Ship_Game
             batch.End();
 
             // render 3D
+            foreach (FleetDataNode node in SelectedFleet.DataNodes)
+            {
+                if (node.Ship != null)
+                {
+                    node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
+                    node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, 0);
+                }
+            }
             ScreenManager.RenderSceneObjects();
 
             batch.Begin();
@@ -71,7 +79,7 @@ namespace Ship_Game
             int k = 9;
             int m = 0;
 
-            foreach (KeyValuePair<int, RectF> rect in FleetsRects)
+            foreach (KeyValuePair<int, RectF> rect in FleetButtonRects)
             {
                 if (m == 9)
                     break;
@@ -131,7 +139,7 @@ namespace Ship_Game
                     if (!ResourceManager.GetShipTemplate(node.ShipName, out Ship ship))
                         continue;
 
-                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, 150f);
+                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.RelativeFleetOffset, 150f);
 
                     var r = new Rectangle((int)screenPos.X - (int)screenRadius, (int)screenPos.Y - (int)screenRadius,
                         (int)screenRadius * 2, (int)screenRadius * 2);
@@ -165,7 +173,7 @@ namespace Ship_Game
                 {
                     Ship ship = node.Ship;
                     (Vector2 screenPos, float screenRadius) =
-                        GetPosAndRadiusOnScreen(node.FleetOffset, ship.GetSO().WorldBoundingSphere.Radius);
+                        GetPosAndRadiusOnScreen(node.RelativeFleetOffset, ship.GetSO().WorldBoundingSphere.Radius);
                     if (screenRadius < 10f)
                     {
                         screenRadius = 10f;
@@ -259,7 +267,7 @@ namespace Ship_Game
                 FleetDataNode node = SelectedNodeList[0];
 
                 float radius = (node.Ship?.SensorRange ?? 500000) * OperationalRadius.RelativeValue;
-                (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, radius);
+                (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.RelativeFleetOffset, radius);
                 RectF nodeRect = new(screenPos, screenRadius * 2, screenRadius * 2);
                 batch.Draw(nodeTexture, nodeRect, NeonGreen, 0f, nodeTexture.CenterF);
             }

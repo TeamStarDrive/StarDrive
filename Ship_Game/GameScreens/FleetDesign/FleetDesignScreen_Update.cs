@@ -2,7 +2,6 @@ using Ship_Game.Fleets;
 using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
-using Vector3 = SDGraphics.Vector3;
 using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game

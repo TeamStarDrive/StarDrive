@@ -58,10 +58,10 @@ namespace Ship_Game
 
             foreach (FleetDataNode node in fleet.DataNodes)
             {
-                Ship s = Ship.CreateShipAtPoint(universe, node.ShipName, owner, position + node.FleetOffset);
+                Ship s = Ship.CreateShipAtPoint(universe, node.ShipName, owner, position + node.RelativeFleetOffset);
                 if (s == null) continue;
                 s.AI.CombatState = node.CombatState;
-                s.RelativeFleetOffset = node.FleetOffset;
+                s.RelativeFleetOffset = node.RelativeFleetOffset;
                 node.Ship = s;
                 node.OrdersRadius = node.OrdersRadius > 1 ? node.OrdersRadius : s.SensorRange * node.OrdersRadius;
                 fleet.AddShip(s);
