@@ -16,10 +16,10 @@ namespace Ship_Game.Data.Serialization.Types
         delegate int GetLength(object arr);
         delegate object GetValue(object arr, int index);
         delegate void SetValue(object arr, object value, int index);
-        readonly New NewArray;
-        readonly GetLength GetLengthOf;
-        readonly GetValue GetValueAt;
-        readonly SetValue SetValueAt;
+        New NewArray;
+        GetLength GetLengthOf;
+        GetValue GetValueAt;
+        SetValue SetValueAt;
 
         public RawArraySerializer(Type type, Type elemType, TypeSerializer elemSerializer)
             : base(type, elemType, elemSerializer)
@@ -28,26 +28,56 @@ namespace Ship_Game.Data.Serialization.Types
 
             // precompile array accesses to avoid horrible performance of naive Reflection
             // read more at: https://docs.microsoft.com/en-us/dotnet/api/system.linq.expressions.expression?view=netframework-4.8
-            var length = E.Parameter(typeof(int), "length");
+
+            // lazy initialization pattern, each method will replace itself with the compiled version when called
+            NewArray = InitNewArray;
+            GetLengthOf = InitGetLengthOf;
+            GetValueAt = InitGetValueAt;
+            SetValueAt = InitSetValueAt;
+        }
+
+        object InitNewArray(int length)
+        {
+            var len = E.Parameter(typeof(int), "length");
+            var newArray = E.NewArrayBounds(ElemType, len);
+
+            // (int length) => (object)new T[length];
+            NewArray = E.Lambda<New>(E.Convert(newArray, typeof(object)), len).Compile();
+            return NewArray(length);
+        }
+
+        int InitGetLengthOf(object arr)
+        {
+            var obj = E.Parameter(typeof(object), "obj");
+            var objAsArray = E.Convert(obj, Type);
+
+            // (object arr) => ((T[])arr).Length;
+            GetLengthOf = E.Lambda<GetLength>(E.ArrayLength(objAsArray), obj).Compile();
+            return GetLengthOf(arr);
+        }
+
+        object InitGetValueAt(object arr, int idx)
+        {
+            var obj = E.Parameter(typeof(object), "obj");
+            var index = E.Parameter(typeof(int), "index");
+            var arrayAt = E.ArrayAccess(E.Convert(obj, Type), index);
+
+            // (object arr, int index) => (object)((T[])arr)[index];
+            GetValueAt = E.Lambda<GetValue>(E.Convert(arrayAt, typeof(object)), obj, index).Compile();
+            return GetValueAt(arr, idx);
+        }
+
+        void InitSetValueAt(object arr, object val, int idx)
+        {
             var obj = E.Parameter(typeof(object), "obj");
             var value = E.Parameter(typeof(object), "value");
             var index = E.Parameter(typeof(int), "index");
-            var objAsArray = E.Convert(obj, type);
-            var valueAsElem = E.Convert(value, elemType);
-            var arrayAt = E.ArrayAccess(objAsArray, index);
-            var newArray = E.NewArrayBounds(elemType, length);
+            var valueAsElem = E.Convert(value, ElemType);
+            var arrayAt = E.ArrayAccess(E.Convert(obj, Type), index);
 
-            // (int length) => (object)new T[length];
-            NewArray = E.Lambda<New>(E.Convert(newArray, typeof(object)), length).Compile();
-            
-            // (object arr) => ((T[])arr).Length;
-            GetLengthOf = E.Lambda<GetLength>(E.ArrayLength(objAsArray), obj).Compile();
-            
-            // (object arr, int index) => (object)((T[])arr)[index];
-            GetValueAt = E.Lambda<GetValue>(E.Convert(arrayAt, typeof(object)), obj, index).Compile();
-            
             // (object arr, object value, int index) => ((T[])arr)[index] = (T)value;
             SetValueAt = E.Lambda<SetValue>(E.Assign(arrayAt, valueAsElem), obj, value, index).Compile();
+            SetValueAt(arr, val, idx);
         }
 
         public override object Convert(object value)

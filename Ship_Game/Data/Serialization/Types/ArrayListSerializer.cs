@@ -4,7 +4,6 @@ using System.Linq.Expressions;
 using SDUtils;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
-using TypeInfo = Ship_Game.Data.Binary.TypeInfo;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -16,40 +15,65 @@ namespace Ship_Game.Data.Serialization.Types
         readonly Type GenericArrayType;
 
         delegate IList New();
-        delegate void Resize(IList list, int newSize);
         delegate void Add(IList list, object item);
-        readonly New NewList;
-        readonly Resize ResizeTo;
-        readonly Add AddToList;
+        delegate void Resize(IList list, int newSize);
+
+        New NewList;
+        Add AddToList;
+        Resize ResizeTo;
 
         public ArrayListSerializer(Type type, Type elemType, TypeSerializer elemSerializer)
             : base(type, elemType, elemSerializer)
         {
             GenericArrayType = typeof(Array<>).MakeGenericType(elemType);
 
+            // precompile array accesses to avoid horrible performance of naive Reflection
+            // read more at: https://docs.microsoft.com/en-us/dotnet/api/system.linq.expressions.expression?view=netframework-4.8
+            // lazy initialization pattern, each method will replace itself with the compiled version when called
+            NewList = InitNewList;
+            AddToList = InitAdd;
+        }
+
+        IList InitNewList()
+        {
+            // () => (IList)new Array<T>();
+            NewList = E.Lambda<New>(E.Convert(E.New(GenericArrayType), typeof(IList))).Compile();
+            return NewList();
+        }
+
+        void InitAdd(IList lst, object itm)
+        {
             var list = E.Parameter(typeof(IList), "list");
-            var newSize = E.Parameter(typeof(int), "newSize");
             var item = E.Parameter(typeof(object), "item");
             var toArrayT = E.Convert(list, GenericArrayType);
 
-            // () => (IList)new Array<T>();
-            NewList = E.Lambda<New>(E.Convert(E.New(GenericArrayType), typeof(IList))).Compile();
-
-            // (object list, int newSize) => ((Array<T>)list).Resize(newSize);
-            var resize = GenericArrayType.GetMethod("Resize");
-            if (resize != null)
-                ResizeTo = E.Lambda<Resize>(E.Call(toArrayT, resize, newSize), list, newSize).Compile();
-
             // (object list, object item) => ((Array<T>)list).Add((T)item);
             var add = GenericArrayType.GetMethod("Add") ?? throw new MissingMethodException("Array<T>.Add(T)");
-            AddToList = E.Lambda<Add>(E.Call(toArrayT, add, E.Convert(item, elemType)), list, item).Compile();
+            AddToList = E.Lambda<Add>(E.Call(toArrayT, add, E.Convert(item, ElemType)), list, item).Compile();
+            AddToList(lst, itm);
         }
 
-        bool TryResize(IList list, int count)
+        bool InitializedResizeTo;
+
+        bool TryResize(IList lst, int count)
         {
+            if (!InitializedResizeTo)
+            {
+                InitializedResizeTo = true;
+
+                var list = E.Parameter(typeof(IList), "list");
+                var newSize = E.Parameter(typeof(int), "newSize");
+                var toArrayT = E.Convert(list, GenericArrayType);
+
+                // (object list, int newSize) => ((Array<T>)list).Resize(newSize);
+                var resize = GenericArrayType.GetMethod("Resize");
+                if (resize != null)
+                    ResizeTo = E.Lambda<Resize>(E.Call(toArrayT, resize, newSize), list, newSize).Compile();
+            }
+
             if (ResizeTo != null)
             {
-                ResizeTo(list, count);
+                ResizeTo(lst, count);
                 return true;
             }
             return false;

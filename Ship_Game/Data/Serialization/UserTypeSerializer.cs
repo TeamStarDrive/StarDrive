@@ -6,7 +6,6 @@ using SDUtils;
 
 namespace Ship_Game.Data.Serialization;
 
-using static Ship_Game.ScrollListItemBase;
 using E = Expression;
 
 public abstract class UserTypeSerializer : TypeSerializer
@@ -52,15 +51,13 @@ public abstract class UserTypeSerializer : TypeSerializer
         IsUserClass = true;
         Category = SerializerCategory.UserClass;
 
-        if (!Attribute.IsDefined(type, typeof(StarDataTypeAttribute), inherit:false))
+        if (Attribute.GetCustomAttribute(type, typeof(StarDataTypeAttribute), inherit:false) is not StarDataTypeAttribute a)
             throw new($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
 
-        var a = (StarDataTypeAttribute)Attribute.GetCustomAttribute(type, typeof(StarDataTypeAttribute), inherit:false);
         if (a.TypeName != null)
             TypeName = a.TypeName;
 
         IsAbstractOrVirtual = type.IsAbstract;
-        Constructor = GetDefaultConstructor();
 
         // This is an important edge case. If this is a Reference type and inherits from
         // IEquatable, the serializer will accidentally squash objects
