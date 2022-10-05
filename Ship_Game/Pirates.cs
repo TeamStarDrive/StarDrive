@@ -47,6 +47,9 @@ namespace Ship_Game
         [StarData] public Array<string> ShipsWeCanSpawn { get; private set; } = new();
         [StarData] public int Level { get; private set; }
 
+        // whether to log Pirates status
+        public bool Verbose;
+
         [StarDataConstructor]
         Pirates() {}
 

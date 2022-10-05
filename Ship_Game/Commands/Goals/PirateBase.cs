@@ -26,7 +26,8 @@ namespace Ship_Game.Commands.Goals
         public PirateBase(Empire owner, Ship ship, string systemName) : this(owner)
         {
             TargetShip = ship;
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Base in {systemName} ----");
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Base in {systemName} ----");
         }
 
         GoalStep SalvageShips()

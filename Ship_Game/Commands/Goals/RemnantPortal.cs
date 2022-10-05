@@ -30,7 +30,8 @@ namespace Ship_Game.Commands.Goals
         public RemnantPortal(Empire owner, Ship portal, string systemName) : this(owner)
         {
             TargetShip = portal;
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Portal in {systemName} ----");
+            if (Remnants.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Portal in {systemName} ----");
         }
 
         void UpdatePosition()

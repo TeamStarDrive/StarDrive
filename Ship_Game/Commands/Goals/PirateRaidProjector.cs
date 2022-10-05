@@ -30,7 +30,8 @@ namespace Ship_Game.Commands.Goals
         public PirateRaidProjector(Empire owner, Empire targetEmpire) : this(owner)
         {
             TargetEmpire  = targetEmpire;
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} SSP Raid vs. {targetEmpire.Name} ----");
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} SSP Raid vs. {targetEmpire.Name} ----");
         }
 
         Ship BoardingShip

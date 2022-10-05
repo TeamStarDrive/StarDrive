@@ -32,7 +32,8 @@ namespace Ship_Game.Commands.Goals
         {
             TargetEmpire = pirateEmpire;
             TargetShip = targetBase; // TargetShip is the pirate base
-            Log.Info(ConsoleColor.Green, $"---- Retaliation vs. Pirates: New {Owner.Name} Assault Base vs. {TargetEmpire.Name} ----");
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Retaliation vs. Pirates: New {Owner.Name} Assault Base vs. {TargetEmpire.Name} ----");
         }
 
         GoalStep FindPirateBase()

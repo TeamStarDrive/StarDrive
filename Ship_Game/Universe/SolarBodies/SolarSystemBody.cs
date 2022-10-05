@@ -297,13 +297,13 @@ namespace Ship_Game
                     if (template.BID == Building.VolcanoId)
                     {
                         TilesList.RandItem().CreateVolcano(this as Planet);
-                        Log.Info($"Volcano Created on '{Name}' ");
+                        //Log.Info($"Volcano Created on '{Name}' ");
                     }
                     else
                     {
                         Building b = ResourceManager.CreateBuilding(this as Planet, template);
                         b.AssignBuildingToRandomTile(this as Planet);
-                        Log.Info($"Resource Created : '{b.Name}' : on '{Name}' ");
+                        //Log.Info($"Resource Created : '{b.Name}' : on '{Name}' ");
                     }
                 }
             }

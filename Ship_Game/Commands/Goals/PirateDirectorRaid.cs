@@ -23,7 +23,8 @@ namespace Ship_Game.Commands.Goals
         public PirateDirectorRaid(Empire owner, Empire targetEmpire) : this(owner)
         {
             TargetEmpire = targetEmpire;
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Raid Director vs. {TargetEmpire.Name} ----");
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Raid Director vs. {TargetEmpire.Name} ----");
         }
 
         GoalStep PrepareRaid()

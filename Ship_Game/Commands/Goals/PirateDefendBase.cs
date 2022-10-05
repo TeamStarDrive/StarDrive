@@ -26,7 +26,8 @@ namespace Ship_Game.Commands.Goals
         public PirateDefendBase(Empire owner, Ship baseToDefend) : this(owner)
         {
             TargetShip = baseToDefend;
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Defend Base ----");
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Defend Base ----");
         }
 
         GoalStep SendDefenseForce()
