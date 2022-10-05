@@ -12,38 +12,46 @@ namespace Ship_Game.Data.Serialization.Types
     internal class EnumSerializer : TypeSerializer
     {
         public override string ToString() => $"{TypeId}:EnumSerializer {NiceTypeName}";
-        readonly Map<int, object> Mapping = new();
+        readonly Map<int, object> OrdinalMap = new();
         readonly bool IsFlagsEnum;
 
-        delegate int GetIntValue(object enumValue);
-        readonly GetIntValue GetValueOf;
+        delegate int GetOrdinal(object enumValue);
+        readonly GetOrdinal GetOrdinalOf;
 
         public EnumSerializer(Type toEnum) : base(toEnum)
         {
             Array values = toEnum.GetEnumValues();
             DefaultValue = values.GetValue(0);
-            IsFlagsEnum = toEnum.GetCustomAttribute<FlagsAttribute>() != null;
+            IsFlagsEnum = Attribute.IsDefined(toEnum, typeof(FlagsAttribute), inherit:false);
 
-            // precompile enum to integer conversion, otherwise it's too slow
-            var enumVal = E.Parameter(typeof(object), "enumValue");
-            
-            Type underlyingType = toEnum.GetEnumUnderlyingType();
-
-            // (object enumValue) => (int)enumValue;
-            // (object enumValue) => (int)(T)enumValue;
-            E toInteger = underlyingType == typeof(int)
-                ? E.Convert(enumVal, typeof(int))
-                : E.Convert(E.Convert(enumVal, underlyingType), typeof(int));
-
-            GetValueOf = E.Lambda<GetIntValue>(toInteger, enumVal).Compile();
+            GetOrdinalOf = InitGetOrdinalOf(toEnum);
 
             for (int i = 0; i < values.Length; ++i)
             {
                 var enumValue = values.GetValue(i);
-                int enumIndex = GetValueOf(enumValue);
-                Mapping[enumIndex] = enumValue;
+                int enumOrdinal = GetOrdinalOf(enumValue);
+                OrdinalMap[enumOrdinal] = enumValue;
             }
         }
+
+        GetOrdinal InitGetOrdinalOf(Type toEnum)
+        {
+            Type underlyingType = toEnum.GetEnumUnderlyingType();
+
+            // duplicating a lot of code here due to EnumSerializer init performance reasons
+            if (underlyingType == typeof(int)) return GetOrdinalInt;
+            if (underlyingType == typeof(uint)) return GetOrdinalUInt;
+            if (underlyingType == typeof(byte)) return GetOrdinalByte;
+            if (underlyingType == typeof(short)) return GetOrdinalShort;
+            if (underlyingType == typeof(ushort)) return GetOrdinalUShort;
+            return GetOrdinalInt;
+        }
+
+        static int GetOrdinalInt(object value) => (int)value;
+        static int GetOrdinalUInt(object value) => (int)(uint)value;
+        static int GetOrdinalByte(object value) => (byte)value;
+        static int GetOrdinalShort(object value) => (short)value;
+        static int GetOrdinalUShort(object value) => (ushort)value;
 
         public override object Convert(object value)
         {
@@ -70,14 +78,14 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            int enumIndex = GetValueOf(obj);
+            int enumIndex = GetOrdinalOf(obj);
             writer.BW.WriteVLi32(enumIndex);
         }
         
         public override object Deserialize(BinarySerializerReader reader)
         {
             int enumIndex = reader.BR.ReadVLi32();
-            if (Mapping.TryGetValue(enumIndex, out object enumValue))
+            if (OrdinalMap.TryGetValue(enumIndex, out object enumValue))
                 return enumValue;
 
             // 0 is now equivalent of DefaultValue
