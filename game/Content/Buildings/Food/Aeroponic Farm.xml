@@ -2,7 +2,7 @@
   <Name>Aeroponic Farm</Name>
   <Icon>aerofarm</Icon>
   
-  <Cost>150</Cost>
+  <Cost>120</Cost>
   <Maintenance>0.8</Maintenance>
   
   <PlusFlatFoodAmount>0.6</PlusFlatFoodAmount>
