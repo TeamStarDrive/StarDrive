@@ -2,7 +2,7 @@
   <Name>Research Lab</Name>
   <Icon>research_station</Icon>
   
-  <Cost>150</Cost>
+  <Cost>120</Cost>
   <Maintenance>1</Maintenance>
   
   <PlusResearchPerColonist>.25</PlusResearchPerColonist>

@@ -7,7 +7,7 @@
   
   <Infrastructure>1</Infrastructure>
   <MaxFertilityOnBuild>-0.2</MaxFertilityOnBuild>
-  <MaxPopIncrease>800</MaxPopIncrease>
+  <MaxPopIncrease>1200</MaxPopIncrease>
   <Strength>20</Strength>
   
   <!-- For localization in GameText.yaml -->
