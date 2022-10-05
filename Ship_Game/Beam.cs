@@ -382,6 +382,7 @@ namespace Ship_Game
     public sealed class DroneBeam : Beam
     {
         [StarData] readonly DroneAI AI;
+        [StarData] ShipModule ModuleToRepair;
 
         [StarDataConstructor] DroneBeam() {}
 
@@ -402,11 +403,22 @@ namespace Ship_Game
             Duration -= timeStep.FixedTime;
             Source = AI.Drone.Position;
             SetActualHitDestination(AI.DroneTarget?.Position ?? Source);
-            // apply drone repair effect, 5 times more if not in combat
+            // Apply drone repair effect, 5 times more if not in combat
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
-                float repairMultiplier = targetShip.OnLowAlert ? 5 : 1;
-                targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * timeStep.FixedTime, Owner?.Level ?? 0);
+                if (ModuleToRepair != null)
+                {
+                    float repairMultiplier = targetShip.OnLowAlert ? 5 : 1;
+                    float repairAmount = -DamageAmount * repairMultiplier * timeStep.FixedTime;
+                    ModuleToRepair.Repair(repairAmount);
+                    if (ModuleToRepair.HealthPercent > 0.99f)
+                        ModuleToRepair = null;
+                }
+                else
+                {
+                    int repairLevel = Owner?.Level ?? 0;
+                    ModuleToRepair = targetShip.GetModuleToRepair(repairLevel);
+                }
             }
 
             UpdateBeamMesh();
