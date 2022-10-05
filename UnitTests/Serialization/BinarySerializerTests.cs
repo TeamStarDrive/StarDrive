@@ -1215,7 +1215,7 @@ namespace UnitTests.Serialization
         public void SavedGameSerializerPerf()
         {
             Setup();
-            CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large);
+            CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large, numExtraShipsPerEmpire: 100);
             Universe.SingleSimulationStep(TestSimStep);
 
             const int iterations = 20;
@@ -1229,9 +1229,9 @@ namespace UnitTests.Serialization
             }
 
             double elapsed = timer.Elapsed;
-            Log.Info($"=========================================");
+            Log.Info("=========================================");
             Log.Info($"Save {iterations}x elapsed: {elapsed:0.00}s");
-            Log.Info($"=========================================");
+            Log.Info("=========================================");
         }
     }
 

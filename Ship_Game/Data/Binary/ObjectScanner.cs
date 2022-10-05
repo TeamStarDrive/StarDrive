@@ -23,6 +23,19 @@ public record struct ScannedTypes(
     TypeSerializer[] All  // Fundamental+Values+Classes+Collections in this order
 );
 
+public readonly struct PendingScan
+{
+    public readonly ObjectState State;
+    public readonly TypeSerializer Ser;
+    public readonly DataField Owner;
+    public PendingScan(ObjectState state, TypeSerializer ser, DataField owner)
+    {
+        State = state;
+        Ser = ser;
+        Owner = owner;
+    }
+}
+
 public class ObjectScanner
 {
     internal readonly BinarySerializer RootSer;
@@ -69,7 +82,7 @@ public class ObjectScanner
     {
         try
         {
-            RootObjectId = ScanObjectState(RootSer, RootObj, null);
+            RootObjectId = ScanFromRoot(RootSer, RootObj);
             FinalizeTypes();
             LinearRemapObjectIds();
         }
@@ -93,8 +106,43 @@ public class ObjectScanner
         // if A.DefaultValue is null, then classes use default value `null`
         return instance == owner?.A.DefaultValue;
     }
+    
+    int NumPending;
+    PendingScan[] PendingScan;
 
-    // Scans this object for serializable child-object
+    internal void AddToPendingScan(ObjectState state, TypeSerializer ser, DataField owner)
+    {
+        if (NumPending == PendingScan.Length)
+        {
+            Array.Resize(ref PendingScan, NumPending*2);
+        }
+        PendingScan[NumPending++] = new(state, ser, owner);
+    }
+
+    // Scans from Root object for serializable child-objects
+    internal uint ScanFromRoot(TypeSerializer rootSer, object rootObj)
+    {
+        NumPending = 0;
+        PendingScan = new PendingScan[4096];
+
+        ++NumObjects;
+        uint root = ++NextObjectId;
+
+        (ObjectStateMap instMap, bool _) = InstanceMap.GetOrAddNew(rootSer);
+        ObjectState rootState = instMap.AddNew(rootObj, root);
+
+        // scan for the first child-objects
+        rootState.Scan(this, rootSer, null);
+
+        while (NumPending != 0)
+        {
+            PendingScan p = PendingScan[--NumPending];
+            p.State.Scan(this, p.Ser, p.Owner); // scan for more children
+        }
+        return root;
+    }
+
+    // Scans this object for serializable child-objects
     // @param ser Base serializer for this object.
     //            For abstract/virtual objects the actual serializer is deduced automatically.
     // @param instance The object to be scanned. Can be null.
@@ -115,15 +163,16 @@ public class ObjectScanner
 
         (ObjectStateMap instMap, bool existing) = InstanceMap.GetOrAddNew(ser);
         if (existing && instMap.Get(instance, out ObjectState state))
-            return state.Id;
+            return state.Id; // this object was already scanned
 
         ++NumObjects;
         uint id = ++NextObjectId;
         state = instMap.AddNew(instance, id);
 
-        // TODO: convert recursion into a loop instead
         if (!ser.IsFundamentalType)
-            state.Scan(this, ser, owner); // scan for child objects
+        {
+            AddToPendingScan(state, ser, owner); // add to list of pending scans for child objects
+        }
         return state.Id;
     }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
+using Ship_Game.AI;
 using Ship_Game.Data;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
@@ -122,7 +123,7 @@ namespace UnitTests
             Enemy = UState.NonPlayerEmpires[0];
         }
 
-        public void CreateCustomUniverseSandbox(int numOpponents, GalSize galSize)
+        public void CreateCustomUniverseSandbox(int numOpponents, GalSize galSize, int numExtraShipsPerEmpire = 0)
         {
             (int numStars, float starNumModifier) = RaceDesignScreen.GetNumStars(
                 RaceDesignScreen.StarsAbundance.Abundant, galSize, numOpponents
@@ -144,6 +145,15 @@ namespace UnitTests
             });
             Universe.CreateSimThread = false;
             Universe.LoadContent();
+
+            if (numExtraShipsPerEmpire > 0)
+            {
+                foreach (Empire e in Universe.UState.MajorEmpires)
+                {
+                    for (int i = 0; i < numExtraShipsPerEmpire; ++i)
+                        Ship.CreateShipAt(UState, e.data.PrototypeShip, e, e.Capital, RandomMath.Vector2D(e.Capital.Radius * 3), true);
+                }
+            }
         }
 
         public void DestroyUniverse()
