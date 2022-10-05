@@ -2,7 +2,7 @@
   <Name>Science Facility</Name>
   <Icon>Science_facility</Icon>
   
-  <Cost>120</Cost>
+  <Cost>100</Cost>
   <Maintenance>0.5</Maintenance>
   
   <PlusResearchPerColonist>.15</PlusResearchPerColonist>
