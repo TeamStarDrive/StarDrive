@@ -2,15 +2,13 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using SDGraphics;
 using SDUtils;
-using Rectangle = SDGraphics.Rectangle;
 using Ray = Microsoft.Xna.Framework.Ray;
-using Point = SDGraphics.Point;
+using static Ship_Game.Fleets.Fleet;
 using Ship_Game.PathFinder;
 
 namespace Ship_Game
@@ -313,16 +311,18 @@ namespace Ship_Game
             if (SelectedNodeList.Count != 1)
                 return false;
 
+            var node = SelectedNodeList[0];
+
             bool setReturn = false;
-            setReturn |= SliderShield.HandleInput(input, ref SelectedNodeList[0].AttackShieldedWeight);
-            setReturn |= SliderDps.HandleInput(input, ref SelectedNodeList[0].DPSWeight);
-            setReturn |= SliderVulture.HandleInput(input, ref SelectedNodeList[0].VultureWeight);
-            setReturn |= SliderArmor.HandleInput(input, ref SelectedNodeList[0].ArmoredWeight);
-            setReturn |= SliderDefend.HandleInput(input, ref SelectedNodeList[0].DefenderWeight);
-            setReturn |= SliderAssist.HandleInput(input, ref SelectedNodeList[0].AssistWeight);
-            setReturn |= SliderSize.HandleInput(input, ref SelectedNodeList[0].SizeWeight);
-            setReturn |= OperationalRadius.HandleInput(input, ref SelectedNodeList[0].OrdersRadius,
-            SelectedNodeList[0].Ship?.SensorRange ?? 500000);
+            setReturn |= SliderShield.HandleInput(input, ref node.AttackShieldedWeight);
+            setReturn |= SliderDps.HandleInput(input, ref node.DPSWeight);
+            setReturn |= SliderVulture.HandleInput(input, ref node.VultureWeight);
+            setReturn |= SliderArmor.HandleInput(input, ref node.ArmoredWeight);
+            setReturn |= SliderDefend.HandleInput(input, ref node.DefenderWeight);
+            setReturn |= SliderAssist.HandleInput(input, ref node.AssistWeight);
+            setReturn |= SliderSize.HandleInput(input, ref node.SizeWeight);
+            setReturn |= OperationalRadius.HandleInput(input, ref node.OrdersRadius,
+            node.Ship?.SensorRange ?? 500000);
             if (setReturn)
                 return false;
 
@@ -332,12 +332,14 @@ namespace Ship_Game
             if (PrioritiesRect.HitTest(mousePos))
             {
                 //OperationalRadius.HandleInput(input);
-                //SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
+                //node.OrdersRadius = OperationalRadius.RelativeValue;
                 return true;
             }
 
             return false;
         }
+
+        bool IsDragging;
 
         void HandleSelectionBox(InputState input)
         {
@@ -347,55 +349,68 @@ namespace Ship_Game
                 return;
             }
 
-            Vector2 mousePosition = input.CursorPosition;
             UpdateHoveredNodesList(input);
-            HandleInputShipSelect(input);
+            UpdateClickableNodes();
 
-            if (SelectedSquad != null)
+            if (input.LeftMouseClick)
             {
-                if (input.LeftMouseHeld())
+                SelectedSquad = SelectNodesUnderMouse(input);
+            }
+            else if (input.LeftMouseHeld(0.05f))
+            {
+                if (!IsDragging && SelectedSquad != null)
                 {
-                    HandleSelectedSquadMove(mousePosition, SelectedSquad);
+                    HandleSelectedSquadMove(input.CursorPosition, SelectedSquad);
+                }
+                else if (!IsDragging && SelectedNodeList.Count == 1)
+                {
+                    Vector2 newSpot = GetWorldSpaceFromScreenSpace(input.CursorPosition);
+                    if (newSpot.Distance(SelectedNodeList[0].FleetOffset) <= 1000f)
+                    {
+                        HandleSelectedNodeMove(newSpot, SelectedNodeList[0], input.CursorPosition);
+                    }
+                }
+                else
+                {
+                    // start dragging state
+                    if (HoveredNodeList.IsEmpty)
+                        IsDragging = true;
+
+                    if (IsDragging)
+                    {
+                        SelectionBox = input.LeftHold.GetSelectionBox();
+                        SelectedNodeList.Clear();
+                        foreach (ClickableNode node in ClickableNodes)
+                            if (SelectionBox.HitTest(node.ScreenPos))
+                                SelectedNodeList.Add(node.NodeToClick);
+                    }
                 }
             }
-            else if (SelectedNodeList.Count != 1)
+            else if (input.LeftMouseReleased)
             {
-                if (input.LeftMouseHeldDown)
-                {
-                    SelectionBox = input.LeftHold.GetSelectionBox();
-
-                    SelectedNodeList.Clear();
-                    foreach (ClickableNode node in ClickableNodes)
-                        if (SelectionBox.HitTest(node.ScreenPos))
-                            SelectedNodeList.Add(node.NodeToClick);
-                }
-                else if (input.LeftMouseReleased)
-                {
-                    SelectionBox = new(0, 0, -1, -1);
-                }
-                else if (input.LeftMouseClick)
-                {
-                    var selection = new RectF(input.CursorPosition, 6,6).Move(-3,-3);
-
-                    foreach (ClickableNode node in ClickableNodes)
-                        if (selection.HitTest(node.ScreenPos))
-                            SelectedNodeList.Add(node.NodeToClick);
-                }
-            }
-            else if (input.LeftMouseHeld())
-            {
-                Vector2 newSpot = GetWorldSpaceFromScreenSpace(mousePosition);
-                if (newSpot.Distance(SelectedNodeList[0].FleetOffset) <= 1000f)
-                {
-                    HandleSelectedNodeMove(newSpot, SelectedNodeList[0], mousePosition);
-                }
+                IsDragging = false;
+                SelectionBox = new(0, 0, -1, -1);
             }
         }
 
+        bool GetRoundedNodeMove(Vector2 newSpot, Vector2 oldPos, out Vector2 difference)
+        {
+            difference = newSpot - oldPos;
+            if (difference.Length() > 30f)
+            {
+                newSpot.X = newSpot.X.RoundUpTo(500);
+                newSpot.Y = newSpot.Y.RoundUpTo(500);
+                difference = (newSpot - oldPos);
+                return true;
+            }
+            return false;
+        }
+
+
+        // moving a single ship node
         void HandleSelectedNodeMove(Vector2 newSpot, FleetDataNode node, Vector2 mousePos)
         {
-            Vector2 difference = newSpot - node.FleetOffset;
-            if (difference.Length() > 30f)
+            if (GetRoundedNodeMove(newSpot, node.FleetOffset, out Vector2 difference))
             {
                 node.FleetOffset += difference;
                 if (node.Ship != null)
@@ -404,13 +419,14 @@ namespace Ship_Game
                 }
             }
 
+            // this is some kind of cleanup function? TODO
             foreach (ClickableSquad cs in ClickableSquads)
             {
-                if (cs.ScreenPos.Distance(mousePos) < 5f && !cs.Squad.DataNodes.Contains(node))
+                if (cs.Rect.HitTest(mousePos) && !cs.Squad.DataNodes.Contains(node))
                 {
-                    foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
+                    foreach (Array<Squad> flank in SelectedFleet.AllFlanks)
                     {
-                        foreach (Fleet.Squad squad in flank)
+                        foreach (Squad squad in flank)
                         {
                             squad.DataNodes.Remove(node);
                             if (node.Ship != null)
@@ -425,11 +441,11 @@ namespace Ship_Game
             }
         }
 
-        void HandleSelectedSquadMove(Vector2 mousePos, Fleet.Squad selectedSquad)
+        // move an entire squad
+        void HandleSelectedSquadMove(Vector2 mousePos, Squad selectedSquad)
         {
             Vector2 newSpot = GetWorldSpaceFromScreenSpace(mousePos);
-            Vector2 difference = newSpot - selectedSquad.Offset;
-            if (difference.Length() > 30f)
+            if (GetRoundedNodeMove(newSpot, selectedSquad.Offset, out Vector2 difference))
             {
                 selectedSquad.Offset += difference;
                 foreach (FleetDataNode node in selectedSquad.DataNodes)
@@ -451,14 +467,12 @@ namespace Ship_Game
             bool hovering = false;
             foreach (ClickableSquad squad in ClickableSquads)
             {
-                if (!input.CursorPosition.OutsideRadius(squad.ScreenPos, 8f))
+                if (squad.Rect.HitTest(input.CursorPosition))
                 {
-                    HoveredSquad = squad.Squad;
                     hovering = true;
+                    HoveredSquad = squad.Squad;
                     foreach (FleetDataNode node in HoveredSquad.DataNodes)
-                    {
                         HoveredNodeList.Add(node);
-                    }
                     break;
                 }
             }
@@ -467,22 +481,16 @@ namespace Ship_Game
             {
                 foreach (ClickableNode node in ClickableNodes)
                 {
-                    if (input.CursorPosition.Distance(node.ScreenPos) <= node.Radius)
-                    {
+                    if (input.CursorPosition.InRadius(node.ScreenPos, node.Radius))
                         HoveredNodeList.Add(node.NodeToClick);
-                        hovering = true;
-                    }
                 }
             }
         }
 
-        void HandleInputShipSelect(InputState input)
+        Squad SelectNodesUnderMouse(InputState input)
         {
-            if (!input.LeftMouseClick)
-                return;
-
             bool hitSomething = false;
-            SelectedSquad = null;
+            Squad selected = null;
 
             foreach (ClickableNode node in ClickableNodes)
             {
@@ -504,28 +512,60 @@ namespace Ship_Game
 
             foreach (ClickableSquad squad in ClickableSquads)
             {
-                if (input.CursorPosition.InRadius(squad.ScreenPos, 4))
+                if (squad.Rect.HitTest(input.CursorPosition))
                 {
-                    SelectedSquad = squad.Squad;
+                    hitSomething = true;
+                    selected = squad.Squad;
                     if (SelectedNodeList.Count > 0 && !input.IsShiftKeyDown)
                         SelectedNodeList.Clear();
 
-                    hitSomething = true;
                     GameAudio.FleetClicked();
-                    SelectedNodeList.Assign(SelectedSquad.DataNodes);
+                    SelectedNodeList.Assign(selected.DataNodes);
 
-                    UpdateSliders(SelectedSquad.MasterDataNode);
+                    UpdateSliders(selected.MasterDataNode);
                     break;
                 }
             }
 
             if (!hitSomething)
             {
-                SelectedSquad = null;
                 SelectedNodeList.Clear();
             }
 
             OrdersButtons.ResetButtons(SelectedNodeList);
+
+            return selected;
+        }
+
+        void UpdateClickableNodes()
+        {
+            ClickableNodes.Clear();
+            if (SelectedFleet == null)
+                return;
+
+            foreach (FleetDataNode node in SelectedFleet.DataNodes)
+            {
+                (Vector2 screenPos, float screenRadius) = GetNodeScreenPosAndRadius(node);
+                ClickableNodes.Add(new()
+                {
+                    Radius = screenRadius,
+                    ScreenPos = screenPos,
+                    NodeToClick = node
+                });
+            }
+        }
+
+        static (Vector2 offset, float radius) GetNodeOffsetAndRadius(FleetDataNode node)
+        {
+            if (node.Ship != null)
+                return (node.Ship.RelativeFleetOffset, node.Ship.Radius);
+            return (node.FleetOffset, ResourceManager.Ships.Get(node.ShipName).Radius);
+        }
+
+        (Vector2 screenPos, float screenRadius) GetNodeScreenPosAndRadius(FleetDataNode node)
+        {
+            (Vector2 offset, float radius) = GetNodeOffsetAndRadius(node);
+            return GetPosAndRadiusOnScreen(offset, radius);
         }
 
         void UpdateSliders(FleetDataNode node)
