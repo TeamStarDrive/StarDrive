@@ -38,7 +38,8 @@ namespace Ship_Game.Commands.Goals
         {
             TargetEmpire = target;
             TargetShip = portal;
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Engagement: {TargetEmpire.Name} ----");
+            if (Remnants.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Engagement: {TargetEmpire.Name} ----");
         }
 
         Ship Portal

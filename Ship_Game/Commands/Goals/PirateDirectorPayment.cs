@@ -24,7 +24,8 @@ namespace Ship_Game.Commands.Goals
         public PirateDirectorPayment(Empire owner, Empire targetEmpire) : this(owner)
         {
             TargetEmpire = targetEmpire;
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Payment Director for {TargetEmpire.Name} ----");
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Payment Director for {TargetEmpire.Name} ----");
         }
 
         GoalStep UpdatePaymentStatus()

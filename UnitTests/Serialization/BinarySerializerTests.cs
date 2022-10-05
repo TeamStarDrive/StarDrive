@@ -1160,6 +1160,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void SavedGameSerialize()
         {
+            bool verbose = false;
             Setup();
 
             CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large);
@@ -1176,7 +1177,7 @@ namespace UnitTests.Serialization
             double memory1 = GetMemory(false);
 
             var save = new SavedGame(Universe);
-            save.Verbose = true;
+            save.Verbose = verbose;
             save.Save("BinarySerializer.Test");
             Universe.ExitScreen();
 
@@ -1190,7 +1191,7 @@ namespace UnitTests.Serialization
             double memory3 = GetMemory(false);
 
             var load = new LoadGame(save.SaveFile);
-            load.Verbose = true;
+            load.Verbose = verbose;
             UniverseScreen us = load.Load(noErrorDialogs:true, startSimThread:false);
             Assert.IsNotNull(us, "Loaded universe cannot be null");
             us.SingleSimulationStep(TestSimStep);

@@ -37,6 +37,9 @@ namespace Ship_Game
         [StarData] public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
         [StarData] public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
 
+        // whether to display verbose state logs
+        public bool Verbose;
+
         [StarDataConstructor]
         Remnants() {}
 

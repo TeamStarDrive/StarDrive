@@ -18,8 +18,6 @@ using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.AI;
 using Ship_Game.Data.Mesh;
-using Ship_Game.Data.Texture;
-using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships.Legacy;
 using Ship_Game.Universe;
 
@@ -84,6 +82,11 @@ namespace Ship_Game
 
         // This 1x1 White pixel texture is used for drawing Lines and other primitives
         public static Texture2D WhitePixel;
+
+        /// <summary>
+        /// Whether to print out verbose loading information. This is disabled in unit tests.
+        /// </summary>
+        public static bool Verbose { get; private set; } = true;
 
         /// <summary>
         /// This is where core game content is found. NOT Mod content.
@@ -165,7 +168,7 @@ namespace Ship_Game
                 UnloadAllData(manager);
                 LoadAllResources(manager, null);
             }
-            Log.Write($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
+            if (Verbose) Log.Write($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
         }
 
         static readonly Array<KeyValuePair<string, double>> PerfProfile = new Array<KeyValuePair<string, double>>();
@@ -178,14 +181,24 @@ namespace Ship_Game
         }
         static void Profiled(string uniqueName, Action body)
         {
-            var sw = Stopwatch.StartNew();
-            body();
-            double elapsed = sw.Elapsed.TotalSeconds;
-            PerfProfile.Add(new KeyValuePair<string, double>(uniqueName, elapsed));
+            if (Verbose)
+            {
+                var sw = Stopwatch.StartNew();
+                body();
+                double elapsed = sw.Elapsed.TotalSeconds;
+                PerfProfile.Add(new KeyValuePair<string, double>(uniqueName, elapsed));
+            }
+            else
+            {
+                body();
+            }
         }
         static void Profiled(Action body) => Profiled(body.Method.Name, body);
         static void EndPerfProfile()
         {
+            if (!Verbose)
+                return;
+
             PerfStopwatch.Stop();
             double elapsed = PerfStopwatch.Elapsed.TotalSeconds;
             PerfProfile.Sort(kv => kv.Value);
@@ -219,7 +232,7 @@ namespace Ship_Game
         {
             InitContentDir();
             CreateCoreGfxResources();
-            Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
+            if (Verbose) Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
 
             BeginPerfProfile();
             Profiled("LoadLanguage", () => LoadLanguage(GlobalStats.Language)); // must be before LoadFonts
@@ -1691,6 +1704,7 @@ namespace Ship_Game
 
         public static void LoadContentForTesting()
         {
+            Verbose = false;
             LoadContent(loadShips:false);
 
             // essential graphics:

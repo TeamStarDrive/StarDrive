@@ -27,7 +27,8 @@ namespace Ship_Game.Commands.Goals
         public PirateRaidCombatShip(Empire owner, Empire targetEmpire) : this(owner)
         {
             TargetEmpire = targetEmpire;
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Combat Ship Raid vs. {targetEmpire.Name} ----");
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Combat Ship Raid vs. {targetEmpire.Name} ----");
         }
 
         public override bool IsRaid => true;
