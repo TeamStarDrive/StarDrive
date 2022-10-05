@@ -109,14 +109,16 @@ namespace UnitTests
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
         {
             Universe = DeveloperUniverse.Create(playerPreference, numOpponents);
-            Player = Universe.Player;
+            UState = Universe.UState;
+            Player = UState.Player;
             Enemy  = UState.NonPlayerEmpires[0];
         }
 
         public void CreateCustomUniverse(UniverseGenerator.Params p)
         {
             Universe = new UniverseGenerator(p).Generate();
-            Player = Universe.Player;
+            UState = Universe.UState;
+            Player = UState.Player;
             Enemy = UState.NonPlayerEmpires[0];
         }
 

@@ -22,6 +22,12 @@ public abstract class UserTypeSerializer : TypeSerializer
     // if true, this UserClass contains abstract or virtual properties
     public bool IsAbstractOrVirtual;
 
+    // if true, this UserClass inherits from IEquatable<T>
+    // which requires special equality handling for REFERENCE types
+    // since, while two reference types might be "equal", they must be
+    // serialized separately
+    public bool IsIEquatableT;
+
     // Method which is called when an object is about to be serialized
     // [StarDataSerialize]
     // StarDataDynamicField[] OnSerialize() { ... }
@@ -66,13 +72,12 @@ public abstract class UserTypeSerializer : TypeSerializer
         if (!IsValueType)
         {
             // TODO: find an actual fix for this
-            //Type[] interfaces = type.GetInterfaces();
-            //if (interfaces.Length > 0)
-            //{
-            //    var equatableType = typeof(IEquatable<>).MakeGenericType(type);
-            //    if (interfaces.Contains(equatableType))
-            //        throw new($"Reference Type {type} implements IEquatable<> which will squash reference objects during serialization");
-            //}
+            Type[] interfaces = type.GetInterfaces();
+            if (interfaces.Length > 0)
+            {
+                var equatableType = typeof(IEquatable<>).MakeGenericType(type);
+                IsIEquatableT = interfaces.Contains(equatableType);
+            }
         }
 
         // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types

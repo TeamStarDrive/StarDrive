@@ -215,6 +215,7 @@
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerHeader.cs" />
     <Compile Include="Ship_Game\Data\Binary\CollectionState.cs" />
     <Compile Include="Ship_Game\Data\Binary\FastTypeMap.cs" />
+    <Compile Include="Ship_Game\Data\Binary\ObjectStateMap.cs" />
     <Compile Include="Ship_Game\Data\Binary\ObjectState.cs" />
     <Compile Include="Ship_Game\Data\Binary\Reader.cs" />
     <Compile Include="Ship_Game\Data\Binary\ObjectScanner.cs" />

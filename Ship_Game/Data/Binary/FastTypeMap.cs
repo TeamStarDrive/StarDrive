@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 
@@ -11,68 +12,77 @@ namespace Ship_Game.Data.Binary;
 /// a fast flat-map implementation equivalent to
 /// Map&lt;TypeSerializer, TValue&gt;
 /// </summary>
-[DebuggerTypeProxy(typeof(FastMapDebugView<>))]
-public class FastTypeMap<TValue> where TValue : class
+[DebuggerTypeProxy(typeof(FastMapDebugView))]
+public class FastTypeMap
 {
-    TValue[] TValues;
+    ObjectStateMap[] StateMaps;
 
     public FastTypeMap(TypeSerializerMap map)
     {
-        TValues = new TValue[map.NumTypes];
+        StateMaps = new ObjectStateMap[map.NumTypes];
     }
 
-    public bool ContainsKey(TypeSerializer key)
+    public (ObjectStateMap instMap, bool existing) GetOrAddNew(TypeSerializer ser)
     {
-        return TValues[key.TypeId] != null;
+        int index = ser.TypeId;
+        // we've encountered brand new abstract types, so map needs to expand
+        if (index >= StateMaps.Length)
+        {
+            int newLength = index.RoundUpToMultipleOf(32);
+            Array.Resize(ref StateMaps, newLength);
+        }
+
+        ObjectStateMap map = StateMaps[index];
+        if (map != null) return (map, existing:true);
+
+        // add brand new map
+        StateMaps[index] = map = new(ser);
+        return (map, existing:false);
     }
 
-    public TValue GetValue(TypeSerializer key)
-    {
-        return TValues[key.TypeId];
-    }
-
-    public void SetValue(TypeSerializer key, TValue value)
+    public void SetValue(TypeSerializer key, ObjectStateMap value)
     {
         int index = key.TypeId;
-        if (index >= TValues.Length) // we've encountered brand new abstract types, so map needs to expand
+        // we've encountered brand new abstract types, so map needs to expand
+        if (index >= StateMaps.Length) 
         {
             int newLength = index + 32;
-            Array.Resize(ref TValues, newLength);
+            Array.Resize(ref StateMaps, newLength);
         }
-        TValues[index] = value;
+        StateMaps[index] = value;
     }
 
-    public bool TryGetValue(TypeSerializer key, out TValue value)
+    public bool TryGetValue(TypeSerializer key, out ObjectStateMap value)
     {
         int index = key.TypeId;
-        if (index >= TValues.Length)
+        if (index >= StateMaps.Length)
         {
             value = default;
             return false;
         }
-        return (value = TValues[index]) != null;
+        return (value = StateMaps[index]) != null;
     }
 
-    public TValue[] Values => TValues.Filter(v => v != null);
+    // inefficient access to all valid items
+    public ObjectStateMap[] Values => StateMaps.Filter(v => v != null);
 
-    public TValue[] GetValues(Predicate<TValue> filter)
+    public IEnumerable<ObjectStateMap> GetValues(TypeSerializer[] types)
     {
-        return TValues.Filter(v => v != null && filter(v));
-    }
-
-    public IEnumerable<TValue> GetValues()
-    {
-        foreach (TValue v in TValues)
-            if (v != null) yield return v;
+        for (int i = 0; i < types.Length; ++i)
+        {
+            ObjectStateMap v = StateMaps[types[i].TypeId];
+            if (v != null) // it is allowed to be null, if no types were inserted
+                yield return v;
+        }
     }
 }
 
-internal sealed class FastMapDebugView<TValue> where TValue : class
+internal sealed class FastMapDebugView
 {
-    readonly FastTypeMap<TValue> Map;
+    readonly FastTypeMap Map;
 
-    public FastMapDebugView(FastTypeMap<TValue> map) { Map = map; }
+    public FastMapDebugView(FastTypeMap map) { Map = map; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    public TValue[] Items => Map.Values;
+    public ObjectStateMap[] Items => Map.Values;
 }

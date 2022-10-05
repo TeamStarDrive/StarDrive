@@ -222,7 +222,7 @@ public class BinarySerializerWriter
 
     void WritePreInstance(in SerializationTypeGroup g)
     {
-        int count = g.GroupedObjects.Count;
+        int count = g.GroupedObjects.Length;
         uint baseObjectId = g.GroupedObjects[0].Id;
         var t = g.Type;
         if (Verbose)
@@ -236,15 +236,16 @@ public class BinarySerializerWriter
 
     void WriteGroup(in SerializationTypeGroup g)
     {
-        int count = g.GroupedObjects.Count;
+        var objects = g.GroupedObjects;
         var t = g.Type;
         if (Verbose)
-            Log.Info($"WriteObjects {t.Category} {t.TypeId}:{t.NiceTypeName}  N={count}");
+            Log.Info($"WriteObjects {t.Category} {t.TypeId}:{t.NiceTypeName}  N={objects.Length}");
 
         BW.WriteVLu32((uint)t.TypeId);
-        BW.WriteVLu32((uint)count);
-        foreach (ObjectState state in g.GroupedObjects)
+        BW.WriteVLu32((uint)objects.Length);
+        for (int i = 0; i < objects.Length; ++i)
         {
+            ObjectState state = objects[i];
             state.Serialize(this, t);
         }
     }
