@@ -1156,24 +1156,23 @@ namespace UnitTests.Serialization
             }
         }
 
+        double GetMemory(bool gc) => GC.GetTotalMemory(gc) / (1024.0 * 1024.0);
+
         // this is the actual big test for SavedGame
         [TestMethod]
         public void SavedGameSerialize()
         {
             bool verbose = false;
             Setup();
-
             CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);
 
-            Empire E(UniverseScreen u) => u.UState.Empires[0];
-
+            static Empire E(UniverseScreen u) => u.UState.Empires[0];
             string firstEmpName = E(Universe).Name;
-            int numShips = E(Universe).OwnedShips.Count;
+            int numShips        = E(Universe).OwnedShips.Count;
             float firstShipHealth = E(Universe).OwnedShips[0].Health;
-            var unlocked1 = E(Universe).UnlockedTechs;
+            var unlocked1         = E(Universe).UnlockedTechs;
 
-            double GetMemory(bool gc) => GC.GetTotalMemory(gc) / (1024.0*1024.0);
             double memory1 = GetMemory(false);
 
             var save = new SavedGame(Universe);
@@ -1210,6 +1209,29 @@ namespace UnitTests.Serialization
             var unlocked2 = E(us).UnlockedTechs;
             Assert.AreEqual(unlocked1.Length, unlocked2.Length, "Unlocked techs count must match");
             Assert.That.Equal(unlocked1.Select(t=>t.UID), unlocked2.Select(t=>t.UID), "Unlocked techs UID-s must match");
+        }
+
+        [TestMethod]
+        public void SavedGameSerializerPerf()
+        {
+            Setup();
+            CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large);
+            Universe.SingleSimulationStep(TestSimStep);
+
+            const int iterations = 20;
+
+            var timer = new PerfTimer();
+
+            for (int i = 0; i < iterations; ++i)
+            {
+                var save = new SavedGame(Universe);
+                save.Save("BinarySerializer.Test");
+            }
+
+            double elapsed = timer.Elapsed;
+            Log.Info($"=========================================");
+            Log.Info($"Save {iterations}x elapsed: {elapsed:0.00}s");
+            Log.Info($"=========================================");
         }
     }
 
