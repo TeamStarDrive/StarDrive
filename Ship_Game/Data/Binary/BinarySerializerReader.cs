@@ -222,14 +222,16 @@ public class BinarySerializerReader
         {
             TypeNameCache.Add(a, (typeNamesMap = new()));
 
+            Type starDataAttr = typeof(StarDataTypeAttribute);
+
             // find type by name from all module types (including nested types)
             Module module = a.Modules.First();
             Type[] moduleTypes = module.GetTypes();
             foreach (Type t in moduleTypes)
             {
-                var attr = t.GetCustomAttribute<StarDataTypeAttribute>();
-                if (attr != null)
+                if (Attribute.IsDefined(t, starDataAttr, inherit:false))
                 {
+                    var attr = (StarDataTypeAttribute)Attribute.GetCustomAttribute(t, starDataAttr, inherit:false);
                     try
                     {
                         typeNamesMap.Add(attr.TypeName ?? t.Name, t);

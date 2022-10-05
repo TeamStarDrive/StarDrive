@@ -5,6 +5,8 @@ using System.Reflection;
 using SDUtils;
 
 namespace Ship_Game.Data.Serialization;
+
+using static Ship_Game.ScrollListItemBase;
 using E = Expression;
 
 public abstract class UserTypeSerializer : TypeSerializer
@@ -32,7 +34,6 @@ public abstract class UserTypeSerializer : TypeSerializer
     // [StarDataSerialize]
     // StarDataDynamicField[] OnSerialize() { ... }
     public delegate StarDataDynamicField[] OnSerialize(object obj);
-    readonly OnSerialize OnSerializeEvt;
 
     // Method which is called when type has finished serialization
     // [StarDataDeserialized]
@@ -41,10 +42,6 @@ public abstract class UserTypeSerializer : TypeSerializer
     // [StarDataDeserialized]
     // void OnDeserialized(RootObject root) { .. }
     public delegate void Deserialized(object obj, object root);
-
-    // if not null, CreateInstance() should use this constructor instead,
-    // substituting parameters with their default values
-    readonly ConstructorInfo Constructor;
 
     delegate object New();
     New Ctor;
@@ -55,15 +52,15 @@ public abstract class UserTypeSerializer : TypeSerializer
         IsUserClass = true;
         Category = SerializerCategory.UserClass;
 
-        var a = type.GetCustomAttribute<StarDataTypeAttribute>();
-        if (a == null)
+        if (!Attribute.IsDefined(type, typeof(StarDataTypeAttribute), inherit:false))
             throw new($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
+
+        var a = (StarDataTypeAttribute)Attribute.GetCustomAttribute(type, typeof(StarDataTypeAttribute), inherit:false);
         if (a.TypeName != null)
             TypeName = a.TypeName;
 
         IsAbstractOrVirtual = type.IsAbstract;
         Constructor = GetDefaultConstructor();
-        OnSerializeEvt = GetOnSerializeEvt();
 
         // This is an important edge case. If this is a Reference type and inherits from
         // IEquatable, the serializer will accidentally squash objects
@@ -83,12 +80,23 @@ public abstract class UserTypeSerializer : TypeSerializer
         // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
     }
 
+    bool CheckedDefaultConstructor;
+    // if not null, CreateInstance() should use this constructor instead,
+    // substituting parameters with their default values
+    ConstructorInfo Constructor;
+
     public override object CreateInstance()
     {
         try
         {
             if (Ctor == null)
             {
+                if (!CheckedDefaultConstructor)
+                {
+                    CheckedDefaultConstructor = true;
+                    Constructor = GetDefaultConstructor();
+                }
+
                 // for value types or parameterless constructors
                 if (Constructor == null)
                 {
@@ -129,26 +137,34 @@ public abstract class UserTypeSerializer : TypeSerializer
             if (ctor.GetParameters().Length == 0)
                 return null; // we're good, there's a default ctor
 
-            if (ctor.GetCustomAttribute<StarDataConstructor>() != null)
+            if (Attribute.IsDefined(ctor, typeof(StarDataConstructor)))
                 return ctor;
         }
 
         throw new($"Missing a default constructor or [StarDataConstructor] attribute on type {Type}");
     }
 
+    bool CheckedOnSerializeEvt;
+    OnSerialize OnSerializeEvt;
+
     public StarDataDynamicField[] InvokeOnSerializeEvt(object obj)
     {
-        return OnSerializeEvt?.Invoke(obj);
+        return GetOnSerializeEvt()?.Invoke(obj);
     }
 
     OnSerialize GetOnSerializeEvt()
     {
+        if (CheckedOnSerializeEvt)
+            return OnSerializeEvt;
+
+        CheckedOnSerializeEvt = true;
         var (onSerialize, _) = GetMethodWithAttribute<StarDataSerialize>(Type);
         if (onSerialize == null) return null;
 
         var obj = E.Parameter(typeof(object), "obj");
         E call = E.Call(E.Convert(obj, Type), onSerialize);
-        return E.Lambda<OnSerialize>(call, obj).Compile();
+        OnSerializeEvt = E.Lambda<OnSerialize>(call, obj).Compile();
+        return OnSerializeEvt;
     }
 
     public (Deserialized,StarDataDeserialized) GetOnDeserializedEvt()
@@ -178,9 +194,10 @@ public abstract class UserTypeSerializer : TypeSerializer
         var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
         foreach (MethodInfo mi in methods)
         {
-            var a = (A)mi.GetCustomAttribute(attrType);
-            if (a != null)
-                return (mi, a);
+            if (Attribute.IsDefined(mi, attrType, inherit: false)) // checking IsDefined is much faster than directly calling GetCustomAttribute
+            {
+                return (mi, (A)Attribute.GetCustomAttribute(mi, attrType, inherit: false));
+            }
         }
         return (null, null);
     }
@@ -237,10 +254,10 @@ public abstract class UserTypeSerializer : TypeSerializer
         for (int i = 0; i < fields.Length; ++i)
         {
             FieldInfo f = fields[i];
-            if (f.GetCustomAttribute(shouldSerializeAttr) is StarDataAttribute a)
+            if (Attribute.IsDefined(f, shouldSerializeAttr, inherit:false))
             {
-                var field = new DataField(TypeMap, Type, a, null, f)
-                { FieldIdx = dataFields.Count };
+                var a = (StarDataAttribute)Attribute.GetCustomAttribute(f, shouldSerializeAttr, inherit:false);
+                var field = new DataField(TypeMap, Type, a, null, f) { FieldIdx = dataFields.Count };
                 dataFields.Add(field);
                 CheckPrimaryKeys(a, field);
             }
@@ -249,13 +266,17 @@ public abstract class UserTypeSerializer : TypeSerializer
         for (int i = 0; i < props.Length; ++i)
         {
             PropertyInfo p = props[i];
+
+            // Always set virtual if there are virtual properties
+            // TODO: but what about methods?
+            // TODO: maybe this needs to be set for all classes using inheritance?
             if (p.GetGetMethod()?.IsVirtual == true)
                 IsAbstractOrVirtual = true;
 
-            if (p.GetCustomAttribute(shouldSerializeAttr) is StarDataAttribute a)
+            if (Attribute.IsDefined(p, shouldSerializeAttr, inherit:false))
             {
-                var field = new DataField(TypeMap, Type, a, p, null)
-                { FieldIdx = dataFields.Count };
+                var a = (StarDataAttribute)Attribute.GetCustomAttribute(p, shouldSerializeAttr, inherit:false);
+                var field = new DataField(TypeMap, Type, a, p, null) { FieldIdx = dataFields.Count };
                 dataFields.Add(field);
                 CheckPrimaryKeys(a, field);
             }
