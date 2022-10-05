@@ -200,17 +200,14 @@ namespace Ship_Game
 
             foreach (IncomingThreat threat in Player.SystemsWithThreat)
             {
-                if (!threat.ThreatTimedOut)
-                {
-                    var system = threat.TargetSystem;
-                    float pulseRad = PulseTimer * (threat.TargetSystem.Radius * 1.5f);
+                var system = threat.TargetSystem;
+                float pulseRad = PulseTimer * (threat.TargetSystem.Radius * 1.5f);
 
-                    Vector2d posOnScreen = ProjectToScreenPosition(system.Position);
-                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad), red, 10);
-                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.001f), black, 5);
-                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.3f), red, 10);
-                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.301f), black, 5);
-                }
+                Vector2d posOnScreen = ProjectToScreenPosition(system.Position);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad), red, 10);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.001f), black, 5);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.3f), red, 10);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.301f), black, 5);
             }
         }
 

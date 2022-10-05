@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SDGraphics;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
@@ -53,7 +54,7 @@ namespace Ship_Game.GameScreens.Espionage
             Add(new DossierPanel(this, dossierRect));
             Add(new OperationsPanel(this, operationsRect));
 
-            var agentComponentRect = new Rectangle(agentsRect.X + 20, agentsRect.Y + 35, agentsRect.Width - 40, agentsRect.Height - 95);
+            RectF agentComponentRect = new(agentsRect.X + 20, agentsRect.Y + 35, agentsRect.Width - 40, agentsRect.Height - 95);
             Agents = Add(new AgentComponent(this, agentComponentRect, operationsRect));
             
             GameAudio.MuteRacialMusic();

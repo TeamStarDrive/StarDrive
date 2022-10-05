@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.Xna.Framework;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -39,7 +38,7 @@ namespace Ship_Game.Universe
         [StarData] public bool FTLInNeutralSystems = true;
         [StarData] public GameDifficulty Difficulty;
         [StarData] public GalSize GalaxySize;
-        [StarData] public bool GravityWells;
+        [StarData] public bool GravityWells; // can be used to enable/disable gravity wells
 
         [StarData] public UnivScreenState ViewState;
         public bool IsSectorViewOrCloser => ViewState <= UnivScreenState.SectorView;
@@ -64,6 +63,7 @@ namespace Ship_Game.Universe
         // Id <= 0 is always invalid, valid ID-s start at 1
         [StarData] int UniqueObjectIds;
         
+        public bool CanShowDiplomacyScreen = true;
         public bool Paused = true; // always start paused
         public bool Debug;
         public DebugModes DebugMode;
@@ -103,12 +103,11 @@ namespace Ship_Game.Universe
         public event Action<Ship> EvtOnShipRemoved;
 
         [StarData] readonly Array<Empire> EmpireList = new();
-
-        [StarData] readonly Map<int, SolarSystem> SolarSystemDict = new();
         [StarData] readonly Array<SolarSystem> SolarSystemList = new();
-
-        [StarData] readonly Map<int, Planet> PlanetsDict = new();
         [StarData] readonly Array<Planet> AllPlanetsList = new();
+
+        // TODO: remove PlanetsDict
+        [StarData] readonly Map<int, Planet> PlanetsDict = new();
 
         // @return All SolarSystems in the Universe
         public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
@@ -248,12 +247,17 @@ namespace Ship_Game.Universe
             Params.UpdateGlobalStats();
             SettingsResearchModifier = GetResearchMultiplier();
             RemnantPaceModifier = CalcRemnantPace();
+            
+            // NOTE: This will automatically call AddShipInfluence() to update InfluenceTree
+            Objects.AddRange(save.Ships);
+            Objects.AddRange(save.Projectiles);
 
-            // TODO: AddRange
-            foreach (Ship ship in save.Ships)
-                Objects.Add(ship);
-            foreach (Projectile projectile in save.Projectiles)
-                Objects.Add(projectile);
+            // updated InfluenceTree with all universe planets
+            foreach (Planet planet in AllPlanetsList)
+            {
+                if (planet.Owner != null)
+                    OnPlanetOwnerAdded(planet.Owner, planet);
+            }
 
             InitializeEmpiresFromSave();
         }
@@ -261,10 +265,10 @@ namespace Ship_Game.Universe
         public void SetDebugMode(bool debug)
         {
             Debug = debug;
-            // if not in debug, we set DebugMode to invalid value
-            DebugMode = debug ? PrevDebugMode : DebugModes.Last;
+            // if not in debug, we set DebugMode to Disabled
+            DebugMode = debug ? PrevDebugMode : DebugModes.Disabled;
             if (!debug)
-                Screen.DebugWin = null;
+                Screen.HideDebugWindow();
         }
 
         public void SetDebugMode(DebugModes mode)
@@ -287,7 +291,6 @@ namespace Ship_Game.Universe
             ClearSpaceJunk();
             ClearEmpires();
             PlanetsDict.Clear();
-            SolarSystemDict.Clear();
             Spatial.Destroy();
         }
 
@@ -338,7 +341,6 @@ namespace Ship_Game.Universe
                 throw new InvalidOperationException($"AddSolarSystem System was not created for this Universe: {system}");
             if (system.Id <= 0)
                 throw new InvalidOperationException($"AddSolarSystem System.Id must be valid: {system}");
-            SolarSystemDict.Add(system.Id, system);
             SolarSystemList.Add(system);
             foreach (Planet planet in system.PlanetList)
             {
@@ -351,15 +353,6 @@ namespace Ship_Game.Universe
             }
         }
 
-        public SolarSystem GetSystem(int id)
-        {
-            if (id <= 0) return null;
-            if (SolarSystemDict.TryGetValue(id, out SolarSystem system))
-                return system;
-            Log.Error($"System not found: {id}");
-            return null;
-        }
-
         public Planet GetPlanet(int id)
         {
             if (id <= 0) return null;
@@ -369,19 +362,9 @@ namespace Ship_Game.Universe
             return null;
         }
 
-        public bool GetPlanet(int id, out Planet found)
-        {
-            return (found = GetPlanet(id)) != null;
-        }
-
         public SolarSystem FindClosestSystem(Vector2 pos)
         {
             return SolarSystemList.FindClosestTo(pos);
-        }
-
-        public Planet FindClosestPlanet(Vector2 pos)
-        {
-            return AllPlanetsList.FindClosestTo(pos);
         }
 
         public SolarSystem FindSolarSystemAt(Vector2 point)
@@ -394,31 +377,10 @@ namespace Ship_Game.Universe
             return null;
         }
 
-        public bool FindSystem(int id, out SolarSystem foundSystem)
-        {
-            return SolarSystemDict.TryGetValue(id, out foundSystem);
-        }
-
-        public SolarSystem FindSystem(int id)
-        {
-            return SolarSystemDict.TryGetValue(id, out SolarSystem system) ? system : null;
-        }
-
         public Array<SolarSystem> GetFiveClosestSystems(SolarSystem system)
         {
             return SolarSystemList.FindMinItemsFiltered(5, filter => filter != system,
                                                            select => select.Position.SqDist(system.Position));
-        }
-
-        public Array<SolarSystem> GetSolarSystemsFromIds(Array<int> ids)
-        {
-            var systems = new Array<SolarSystem>();
-            for (int i = 0; i < ids.Count; i++)
-            {
-                if (SolarSystemDict.TryGetValue(ids[i], out SolarSystem s))
-                    systems.Add(s);
-            }
-            return systems;
         }
 
         // Returns all solar systems within frustum
@@ -434,23 +396,32 @@ namespace Ship_Game.Universe
 
         public void OnShipAdded(Ship ship)
         {
-            Empire owner = ship.Loyalty;
-            owner.AddBorderNode(ship);
-
-            if (ship.IsSubspaceProjector)
-            {
-                Influence.Insert(owner, ship);
-            }
+            AddShipInfluence(ship, ship.Loyalty);
         }
 
         public void OnShipRemoved(Ship ship)
         {
-            if (ship.IsSubspaceProjector)
-            {
-                ship.Loyalty.RemoveBorderNode(ship);
-                Influence.Remove(ship.Loyalty, ship);
-            }
+            RemoveShipInfluence(ship, ship.Loyalty);
             EvtOnShipRemoved?.Invoke(ship);
+        }
+
+        // for loyalty changes, transfers influence from old loyalty to new loyalt
+        public void UpdateShipInfluence(Ship ship, Empire oldLoyalty, Empire newLoyalty)
+        {
+            RemoveShipInfluence(ship, oldLoyalty);
+            AddShipInfluence(ship, newLoyalty);
+        }
+
+        void AddShipInfluence(Ship ship, Empire newLoyalty)
+        {
+            if (newLoyalty.AddBorderNode(ship))
+                Influence.Insert(newLoyalty, ship);
+        }
+
+        void RemoveShipInfluence(Ship ship, Empire oldLoyalty)
+        {
+            if (oldLoyalty.RemoveBorderNode(ship))
+                Influence.Remove(oldLoyalty, ship);
         }
         
         public void OnPlanetOwnerAdded(Empire owner, Planet planet)

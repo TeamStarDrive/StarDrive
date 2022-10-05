@@ -102,7 +102,7 @@ public sealed partial class Empire
         foreach (Fleet fleet in Fleets)
         {
             fleet.Update(timeStep);
-            if (FleetUpdateTimer <= 0f)
+            if (FleetUpdateTimer <= 0f && !AI.Disabled)
                 fleet.UpdateAI(timeStep, fleet.Key);
         }
         if (FleetUpdateTimer < 0.0)
@@ -189,22 +189,33 @@ public sealed partial class Empire
         return readyShips;
     }
 
-    Array<Fleet> GetKnownFleets()
+    public Array<Fleet> GetKnownHostileFleets()
     {
         var knownFleets = new Array<Fleet>();
         foreach (Relationship rel in AllRelations)
         {
-            if (IsAtWarWith(rel.Them) || rel.Them.isPlayer && !IsNAPactWith(rel.Them))
+            if (IsAtWarWith(rel.Them) || (rel.Them.isPlayer && !IsNAPactWith(rel.Them)))
             {
                 // using fleet id-s here to avoid collection modification issues
                 for (int fleetId = FirstFleetId; fleetId <= LastFleetId; ++fleetId)
                 {
-                    var fleet = GetFleet(fleetId);
-                    if (fleet.Ships.Any(s => s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true))
-                        knownFleets.Add(fleet);
+                    var f = rel.Them.GetFleet(fleetId);
+                    if (f.Ships.NotEmpty)
+                    {
+                        if (IsHostileFleetKnown(f))
+                            knownFleets.Add(f);
+                    }
                 }
             }
         }
         return knownFleets;
+    }
+
+    bool IsHostileFleetKnown(Fleet f)
+    {
+        foreach (Ship s in f.Ships)
+            if (s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true)
+                return true;
+        return false;
     }
 }

@@ -254,6 +254,9 @@ namespace Ship_Game
 
         void CalcMoneyPriorities()
         {
+            if (PopulationBillion < 1)
+                return;
+             
             float ratio   = 1 - MoneyBuildingRatio;
             float tax     = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
             float credits = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
@@ -543,7 +546,8 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.SpacePort],       b.IsSpacePort ? 5 : 0);
             score += EvalTraits(Priorities[ColonyPriority.InfraStructure],  b.Infrastructure * 3);
 
-            if (b.Maintenance < 0) // positive maintenance building bonus
+            // positive maintenance building bonus (only if it worth something in the first place)
+            if (b.Maintenance < 0 && score > 0) 
                 score += -b.Maintenance * 10;
 
             score *= FertilityMultiplier(b);
@@ -576,23 +580,21 @@ namespace Ship_Game
 
             // Fertility increasing buildings score should be very high in order to be worth building by cybernetics
             if (IsCybernetic)
-                return b.MaxFertilityOnBuild > 0 ? 0.25f : 1;
+                return b.MaxFertilityOnBuild > 0 ? 0.2f : 1;
 
             if (b.MaxFertilityOnBuild < 0 && CType == ColonyType.Agricultural)
                 return 0; // Never build fertility reducers on Agricultural colonies
 
             float projectedMaxFertility = MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category);
-            if (projectedMaxFertility < 1)
-            {
-                // Multiplier will be smaller in direct relation to its effect if not Core
-                if (CType == ColonyType.Core)
-                    return CType == ColonyType.Core ? 0 : projectedMaxFertility.LowerBound(0);
-            }
+            // Multiplier will be smaller in direct relation to its effect if not Core or not homeworld
+            int threshold = IsHomeworld ? 2 : 1;
+            if (projectedMaxFertility < threshold)
+                return CType == ColonyType.Core || IsHomeworld ? 0 : projectedMaxFertility.LowerBound(0);
 
             return 1;
         }
 
-        // Hard limits on mulfi functional buildings which are useless due to per col needs being 0.
+        // Hard limits on multi functional buildings which are useless due to per col needs being 0.
         bool IsLimitedByPerCol(Building b)
         {
             if (Priorities[ColonyPriority.ProdPerCol].AlmostZero() && b.PlusProdPerColonist.Greater(0))         return true;

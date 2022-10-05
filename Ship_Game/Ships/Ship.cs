@@ -37,10 +37,10 @@ namespace Ship_Game.Ships
         [StarData] public float ScuttleTimer = -1f;
 
         // Ship's rotated offset from fleet center
-        public Vector2 FleetOffset;
+        [StarData] public Vector2 FleetOffset;
 
         // Unrotated fleet offset from [0,0]
-        public Vector2 RelativeFleetOffset;
+        [StarData] public Vector2 RelativeFleetOffset;
 
         public Array<ShipModule> BombBays = new();
         [StarData] public CarrierBays Carrier;
@@ -210,9 +210,9 @@ namespace Ship_Game.Ships
         /// <summary>
         /// Removes this ship from its assigned ShipPool
         /// </summary>
-        public bool RemoveFromPool()
+        public void RemoveFromPool()
         {
-            return Pool?.Remove(this) ?? false;
+            Pool?.Remove(this);
         }
 
         /// <summary>
@@ -278,13 +278,6 @@ namespace Ship_Game.Ships
             {
                 AI.OrderAllStop();
             }
-            else
-            {
-                // @todo Is this some sort of bug fix?
-                if (AI.State == AIState.HoldPosition)
-                    AI.State = AIState.AwaitingOrders;
-            }
-
             ShipStatusChanged = true;
         }
 
@@ -714,7 +707,7 @@ namespace Ship_Game.Ships
                     return;
                 }
                 Universe.Player.AI.DefensiveCoordinator.Add(this);
-                AI.State = AIState.SystemDefender;
+                AI.ChangeAIState(AIState.SystemDefender);
             }
         }
 
@@ -820,7 +813,7 @@ namespace Ship_Game.Ships
 
         public void Explore()
         {
-            AI.State = AIState.Explore;
+            AI.ChangeAIState(AIState.Explore);
             AI.SetPriorityOrder(true);
         }
 
@@ -912,7 +905,7 @@ namespace Ship_Game.Ships
 
         public void DoDefense()
         {
-            AI.State = AIState.SystemDefender;
+            AI.ChangeAIState(AIState.SystemDefender);
         }
 
         public void OrderToOrbit(Planet orbit, bool clearOrders, MoveOrder order = MoveOrder.Regular)
@@ -1490,19 +1483,6 @@ namespace Ship_Game.Ships
 
         public void AddToShipLevel(int amountToAdd) => Level = (Level + amountToAdd).Clamped(0,10);
 
-        public bool NotThreatToPlayer()
-        {
-            if (Loyalty == Universe.Player || IsInWarp)
-                return true;
-
-            if (Loyalty == Universe.Remnants)
-                return false;
-
-            return BaseStrength.LessOrEqual(0)
-                   || IsFreighter
-                   || !Universe.Player.IsAtWarWith(Loyalty);
-        }
-
         public void UpdateEmpiresOnKill(Ship killedShip)
         {
             Loyalty.WeKilledTheirShip(killedShip.Loyalty, killedShip);
@@ -1606,7 +1586,6 @@ namespace Ship_Game.Ships
 
             QueueTotalRemoval(); // sets Active=false
             
-            ++DebugInfoScreen.ShipsDied;
             pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
             pSource?.Module?.GetParent().AddKill(this);
             DamageRelationsOnDeath(pSource);
@@ -2029,16 +2008,7 @@ namespace Ship_Game.Ships
             return warpTimeGood;
         }
 
-        public bool IsBuildableByPlayer
-        {
-            get
-            {
-                ShipRole role = ShipData.ShipRole;
-                return  !ShipData.IsCarrierOnly && !ShipData.Deleted
-                    && !role.Protected && !role.NoBuild
-                    && (GlobalStats.ShowAllDesigns || ShipData.IsPlayerDesign);
-            }
-        }
+        public bool IsBuildableByPlayer => ShipData.IsBuildableByPlayer;
 
         public bool ShipGoodToBuild(Empire empire)
         {

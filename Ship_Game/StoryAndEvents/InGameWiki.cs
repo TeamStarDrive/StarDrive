@@ -1,12 +1,11 @@
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = SDGraphics.Rectangle;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -14,15 +13,14 @@ namespace Ship_Game
     public sealed class InGameWiki : PopupWindow
     {
         readonly HelpTopics HelpTopics;
-        ScrollList2<WikiHelpCategoryListItem> HelpCategories;
-        Rectangle CategoriesRect;
-        Rectangle TextRect;
+        ScrollList<WikiHelpCategoryListItem> HelpCategories;
+        RectF TextRect;
         Vector2 TitlePosition;
-        ScrollList2<TextListItem> HelpEntries;
+        ScrollList<TextListItem> HelpEntries;
 
         ScreenMediaPlayer Player;
-        Rectangle SmallViewer;
-        Rectangle BigViewer;
+        RectF SmallViewer;
+        RectF BigViewer;
         HelpTopic ActiveTopic;
 
         public InGameWiki(GameScreen parent) : base(parent, 750, 600)
@@ -38,13 +36,6 @@ namespace Ship_Game
             MiddleText = Localizer.Token(GameText.ThisHelpMenuContainsInformation);
         }
 
-        void InitHelpEntries()
-        {
-            HelpEntries.ResetWithParseText(Fonts.Arial12Bold, ActiveTopic.Text, TextRect.Width - 40);
-            TitlePosition = new Vector2((TextRect.X + TextRect.Width / 2)
-                - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TextRect.Y + 10);
-        }
-
         public override void LoadContent()
         {
             base.LoadContent();
@@ -55,25 +46,28 @@ namespace Ship_Game
                 MiddleText = $"Mod Loaded: {GlobalStats.ModName} Ver: {GlobalStats.ActiveModInfo.Version}";
             }
 
-            CategoriesRect = new Rectangle(Rect.X + 25, Rect.Y + 130, 330, 430);
-            HelpCategories = Add(new ScrollList2<WikiHelpCategoryListItem>(CategoriesRect));
-            TextRect       = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
-            var textSlRect = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
-            HelpEntries = Add(new ScrollList2<TextListItem>(textSlRect, Fonts.Arial12Bold.LineSpacing + 2));
-            SmallViewer = new Rectangle(TextRect.X + 20, TextRect.Y + 40, 336, 189);
-            BigViewer   = new Rectangle(ScreenWidth / 2 - 640, ScreenHeight / 2 - 360, 1280, 720);
-            Player = new ScreenMediaPlayer(ContentManager)
-            {
-                EnableInteraction = true,
-                OnPlayStatusChange = OnPlayerStatusChanged
-            };
             ActiveTopic = new HelpTopic
             {
                 Title = Localizer.Token(GameText.StardriveHelp),
                 Text  = Localizer.Token(GameText.SelectATopicOnThe)
             };
 
-            InitHelpEntries();
+            RectF CategoriesRect = new(Rect.X + 25, MidSepBot.Y + 10, 330, 430);
+            HelpCategories = Add(new ScrollList<WikiHelpCategoryListItem>(CategoriesRect));
+
+            RectF textSlRect = new(CategoriesRect.X + CategoriesRect.W + 5, CategoriesRect.Y + 10, 375, 420);
+            HelpEntries = Add(new ScrollList<TextListItem>(textSlRect, Fonts.Arial12Bold.LineSpacing + 2));
+            TextRect = new(HelpCategories.X + HelpCategories.Width + 5, HelpCategories.Y + 10, 375, 420);
+            
+            ResetActiveTopic();
+
+            SmallViewer = new(TextRect.X + 20, TextRect.Y + 40, 336, 189);
+            BigViewer = new(ScreenWidth / 2 - 640, ScreenHeight / 2 - 360, 1280, 720);
+            Player = new(ContentManager)
+            {
+                EnableInteraction = true,
+                OnPlayStatusChange = OnPlayerStatusChanged
+            };
 
             var categories = new HashSet<string>();
             foreach (HelpTopic topic in HelpTopics.HelpTopicsList)
@@ -87,6 +81,13 @@ namespace Ship_Game
                 }
             }
             HelpCategories.OnClick = OnHelpCategoryClicked;
+        }
+        
+        void ResetActiveTopic()
+        {
+            HelpEntries.ResetWithParseText(Fonts.Arial12Bold, ActiveTopic.Text, TextRect.W - 40);
+            float titleW = Fonts.Arial20Bold.TextWidth(ActiveTopic.Title);
+            TitlePosition = new(TextRect.CenterX - titleW / 2f - 15f, TextRect.Y + 10);
         }
 
         void OnHelpCategoryClicked(WikiHelpCategoryListItem item)
@@ -103,9 +104,7 @@ namespace Ship_Game
 
             if (ActiveTopic.Text != null)
             {
-                HelpEntries.ResetWithParseText(Fonts.Arial12Bold, ActiveTopic.Text, TextRect.Width - 40);
-                TitlePosition = new Vector2((TextRect.X + TextRect.Width / 2)
-                    - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TitlePosition.Y);
+                ResetActiveTopic();
             }
 
             if (ActiveTopic.Link.NotEmpty())

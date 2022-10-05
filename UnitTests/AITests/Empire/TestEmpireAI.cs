@@ -259,11 +259,11 @@ namespace UnitTests.AITests.Empire
 
             // test that a ship cant be added twice
             // debugwin will enable error checking
-            Universe.DebugWin = new Ship_Game.Debug.DebugInfoScreen(null);
+            Universe.ToggleDebugWindow();
             playerShips.AddNewShipAtEndOfTurn(ship);
             UState.Objects.UpdateLists(true);
             Assert.IsTrue(Player.OwnedShips.Count == 1);
-            Universe.DebugWin = null;
+            Universe.ToggleDebugWindow();
 
             // test that removing the same ship twice doesn't fail.
             playerShips.RemoveShipAtEndOfTurn(ship);

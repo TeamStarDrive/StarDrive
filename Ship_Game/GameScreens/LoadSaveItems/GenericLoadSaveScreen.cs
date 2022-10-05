@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -16,10 +17,10 @@ namespace Ship_Game
         protected Rectangle Window;
         protected Menu1 SaveMenu;
         protected Submenu NameSave;
-        protected Submenu AllSaves;
+        protected SubmenuScrollList<SaveLoadListItem> AllSaves;
         protected Vector2 TitlePosition;
         protected UITextEntry EnterNameArea;
-        protected ScrollList2<SaveLoadListItem> SavesSL;
+        protected ScrollList<SaveLoadListItem> SavesSL;
         protected UIButton DoBtn;
         protected UIButton ExportBtn;
         public enum SLMode { Load, Save }
@@ -115,14 +116,14 @@ namespace Ship_Game
             SaveMenu = new Menu1(Window);
             CloseButton(Window.X + Window.Width - 35, Window.Y + 10);
 
-            var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
-            NameSave = new Submenu(sub);
-            NameSave.AddTab(Title);
+            RectF sub = new(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
+            NameSave = new Submenu(sub, Title);
             TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
-            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
-            AllSaves = new Submenu(scrollList);
-            AllSaves.AddTab(TabText);
-            SavesSL = Add(new ScrollList2<SaveLoadListItem>(AllSaves, EntryHeight));
+
+            RectF scrollList = new(sub.X, sub.Y + 90, sub.W, Window.Height - sub.H - 50);
+
+            AllSaves = Add(new SubmenuScrollList<SaveLoadListItem>(scrollList, TabText, EntryHeight));
+            SavesSL = AllSaves.List;
             SavesSL.OnClick = OnSaveLoadItemClicked;
             SavesSL.OnDoubleClick = OnSaveLoadItemDoubleClicked;
             SavesSL.EnableItemHighlight = true;
@@ -132,7 +133,7 @@ namespace Ship_Game
             EnterNameArea.Enabled = (Mode == SLMode.Save); // Only enable name field change when saving
 
             string title = Mode == SLMode.Save ? "Save" : "Load";
-            DoBtn = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.Y - 2, title, b =>
+            DoBtn = ButtonSmall(sub.X + sub.W - 88, EnterNameArea.Y - 2, title, b =>
             {
                 if (Mode == SLMode.Save)
                     TrySave();
@@ -140,7 +141,7 @@ namespace Ship_Game
                     Load();
             });
 
-            ExportBtn = ButtonBigDip(sub.X + sub.Width - 200, EnterNameArea.Y - 48, "Export Save", b => ExportSave());
+            ExportBtn = ButtonBigDip(sub.X + sub.W - 200, EnterNameArea.Y - 48, "Export Save", b => ExportSave());
 
             ExportBtn.Visible = SaveExport;
             ExportBtn.Tooltip = GameText.ThisWillLetYouEasily;

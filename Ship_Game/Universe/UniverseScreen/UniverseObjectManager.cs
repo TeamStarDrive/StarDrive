@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SDUtils;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
@@ -107,15 +108,6 @@ namespace Ship_Game
                 p => p.Active && p.Type == GameObjectType.Proj && p.Owner == ship);
         }
 
-        /// <summary>SLOW !! Only for UNIT TESTS</summary>
-        public Beam[] GetBeams(Ship ship)
-        {
-            var projectiles = Projectiles.GetBackItemsSlow();
-            return projectiles.FilterSelect(
-                p => p.Active && p.Type == GameObjectType.Beam && p.Owner == ship,
-                p => (Beam)p);
-        }
-
         /// <summary>DEFERRED: Thread-safely Adds a new Object to the Universe</summary>
         public void Add(GameObject go)
         {
@@ -142,6 +134,26 @@ namespace Ship_Game
             projectile.ReinsertSpatial = true;
             Projectiles.Add(projectile);
             Objects.Add(projectile);
+        }
+
+        /// <summary>Thread-safely Adds Ships to the Universe</summary>
+        public void AddRange(IReadOnlyList<Ship> ships)
+        {
+            Ships.AddRange(ships);
+            Objects.AddRange(ships);
+            foreach (Ship ship in ships)
+            {
+                ship.ReinsertSpatial = true;
+                UState.OnShipAdded(ship);
+            }
+        }
+        /// <summary>Thread-safely Adds Projectiles to the Universe</summary>
+        public void AddRange(IReadOnlyList<Projectile> projectiles)
+        {
+            Projectiles.AddRange(projectiles);
+            Objects.AddRange(projectiles);
+            foreach (Projectile projectile in projectiles)
+                projectile.ReinsertSpatial = true;
         }
 
         public void Clear()

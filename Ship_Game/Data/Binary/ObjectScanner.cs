@@ -111,21 +111,28 @@ public class ObjectScanner
         throw new($"Unexpected type: {ser}");
     }
 
+    internal static bool IsDefaultValue(TypeSerializer ser, object instance, DataField owner)
+    {
+        if (ser.IsValueType)
+        {
+            if (owner?.A.NoDefaults == true) // should not check for default values?
+                return false;
+            return instance.Equals(owner?.A.DefaultValue ?? ser.DefaultValue);
+        }
+        // if A.DefaultValue is null, then classes use default value `null`
+        return instance == owner?.A.DefaultValue;
+    }
+
     // Scans this object for serializable child-object
     // @param ser Base serializer for this object.
     //            For abstract/virtual objects the actual serializer is deduced automatically.
-    // @param instance The object to be scanned
-    // @param owner DataField information for debugging purposes
+    // @param instance The object to be scanned. Can be null.
+    // @param owner DataField information for debugging purposes. Can be null.
     // @return generated object id
     internal uint ScanObjectState(TypeSerializer ser, object instance, DataField owner)
     {
         // if it's the default value, no need to map it or anything
-        if (ser.IsValueType)
-        {
-            if (instance.Equals(ser.DefaultValue))
-                return 0u;
-        }
-        else if (instance == null) // null is always the default for classes
+        if (IsDefaultValue(ser, instance, owner))
             return 0u;
 
         // if this class has any abstract or virtual members,

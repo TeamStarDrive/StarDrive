@@ -295,7 +295,7 @@ namespace Ship_Game.AI
         public void Update(FixedSimTime timeStep)
         {
             if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate)
-                State = AIState.Exterminate;
+                ChangeAIState(AIState.Exterminate);
 
             CheckTargetQueue();
             PrioritizePlayerCommands();
@@ -599,7 +599,7 @@ namespace Ship_Game.AI
             if (DoNearFleetOffset(timeStep))
             {
                 if (State != AIState.HoldPosition && Owner.CanTakeFleetMoveOrders())
-                    State = AIState.AwaitingOrders;
+                    ChangeAIState(AIState.AwaitingOrders);
                 return;
             }
 
@@ -632,7 +632,7 @@ namespace Ship_Game.AI
 
                 // blockade is going on for too long or manual quarantine, abort
                 ClearOrders();
-                State = AIState.AwaitingOrders;
+                ChangeAIState(AIState.AwaitingOrders);
                 Planet fallback = Owner.Loyalty.FindNearestRallyPoint(Owner.Position);
                 if (fallback != planet)
                     AddOrbitPlanetGoal(fallback, AIState.AwaitingOrders);
@@ -659,7 +659,7 @@ namespace Ship_Game.AI
             if (orbitPlanet != null)
                 AddOrbitPlanetGoal(orbitPlanet, AIState.AwaitingOrders);
             else
-                State = AIState.AwaitingOrders;
+                ChangeAIState(AIState.AwaitingOrders);
         }
 
         void UpdateUtilityModuleAI(FixedSimTime timeStep)
@@ -804,8 +804,8 @@ namespace Ship_Game.AI
                     OrderReturnToHangar();
                     return;
                 }
-
-                State = AIState.AwaitingOrders; //fbedard
+                
+                ChangeAIState(AIState.AwaitingOrders);
                 if (Owner.Loyalty.WeArePirates)
                     OrderPirateFleeHome();
 

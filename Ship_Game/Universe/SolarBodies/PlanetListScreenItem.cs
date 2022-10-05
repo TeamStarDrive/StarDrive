@@ -402,7 +402,7 @@ namespace Ship_Game
             GameAudio.EchoAffirmative();
             if (!MarkedForColonization)
             {
-                Player.AI.AddGoal(new MarkForColonization(Planet, Planet.Universe.Player));
+                Player.AI.AddGoal(new MarkForColonization(Planet, Planet.Universe.Player, isManual:true));
 
                 Colonize.Text = "Cancel Colonize";
                 Colonize.Style = ButtonStyle.Default;

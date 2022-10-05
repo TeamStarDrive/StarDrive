@@ -9,11 +9,16 @@ namespace Ship_Game.Utils
     /// </summary>
     public struct BitArray
     {
-        readonly uint[] Values;
+        public readonly uint[] Values;
 
         public BitArray(int size)
         {
             Values = new uint[(size / 32) + 1];
+        }
+
+        public BitArray(uint[] bits)
+        {
+            Values = bits;
         }
 
         // Maximum number of flags supported by this fixed size BitArray

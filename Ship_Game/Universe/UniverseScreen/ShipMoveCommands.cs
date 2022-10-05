@@ -92,7 +92,6 @@ namespace Ship_Game.Universe
         {
             if (planet.Owner == null && planet.Habitable)
             {
-                ship.AI.OrderColonization(planet);
                 Universe.Player.AI.AddGoal(new MarkForColonization(ship, planet, Universe.Player));
             }
             else

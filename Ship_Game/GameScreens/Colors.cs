@@ -17,6 +17,9 @@ namespace Ship_Game
         public static readonly Color Cream = new Color(255, 239, 208);
         public static readonly Color TransparentDarkGray = new Color(50, 50, 50, 128);
 
+        // used as background colors for multiple 
+        public static readonly Color TransparentBlackFill = new Color(0, 0, 0, 210);
+
         // multiplies color R,G,B with multiplier, leaving alpha untouched
         public static Color MultiplyRgb(this Color color, float multiplier)
         {
