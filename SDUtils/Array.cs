@@ -688,6 +688,15 @@ namespace SDUtils
             array.CopyTo(Items);
         }
 
+        /// Assigns all items from `array` to `this`
+        /// Internal buffer is resized only if needed
+        public void Assign(T[] array)
+        {
+            int count = array.Length;
+            Resize(count);
+            array.CopyTo(Items, 0);
+        }
+
         public void Sort()
         {
             Array.Sort(Items, 0, Count, null);

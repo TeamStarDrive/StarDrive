@@ -109,7 +109,7 @@ namespace Ship_Game
             InputSelectFleet(8, Input.Fleet8);
             InputSelectFleet(9, Input.Fleet9);
 
-            foreach (KeyValuePair<int, Rectangle> rect in FleetsRects)
+            foreach (KeyValuePair<int, RectF> rect in FleetsRects)
             {
                 if (rect.Value.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
@@ -140,11 +140,11 @@ namespace Ship_Game
                 SliderSize.HandleInput(input);
                 foreach (FleetDataNode node in SelectedNodeList)
                 {
-                    node.DPSWeight = SliderDps.amount;
-                    node.VultureWeight = SliderVulture.amount;
-                    node.ArmoredWeight = SliderArmor.amount;
-                    node.DefenderWeight = SliderDefend.amount;
-                    node.AssistWeight = SliderAssist.amount;
+                    node.DPSWeight = SliderDps.Amount;
+                    node.VultureWeight = SliderVulture.Amount;
+                    node.ArmoredWeight = SliderArmor.Amount;
+                    node.DefenderWeight = SliderDefend.Amount;
+                    node.AssistWeight = SliderAssist.Amount;
                     node.SizeWeight = SliderSize.amount;
                 }
 
@@ -359,7 +359,7 @@ namespace Ship_Game
         {
             if (LeftMenu.HitTest(input.CursorPosition) || RightMenu.HitTest(input.CursorPosition))
             {
-                SelectionBox = new Rectangle(0, 0, -1, -1);
+                SelectionBox = new(0, 0, -1, -1);
                 return;
             }
 
@@ -432,7 +432,7 @@ namespace Ship_Game
             {
                 if (Input.LeftMouseHeld())
                 {
-                    SelectionBox = new Rectangle(input.MouseX, input.MouseY, 0, 0);
+                    SelectionBox = new(input.MouseX, input.MouseY, 0, 0);
                 }
 
                 if (Input.LeftMouseHeldDown)
@@ -447,19 +447,17 @@ namespace Ship_Game
                         SelectionBox.Y = input.MouseY;
                     }
 
-                    SelectionBox.Width = Math.Abs(SelectionBox.Width);
-                    SelectionBox.Height = Math.Abs(SelectionBox.Height);
+                    SelectionBox.W = Math.Abs(SelectionBox.W);
+                    SelectionBox.H = Math.Abs(SelectionBox.H);
                     foreach (ClickableNode node in ClickableNodes)
                     {
-                        if (!SelectionBox.Contains(new Point((int) node.ScreenPos.X, (int) node.ScreenPos.Y)))
+                        if (SelectionBox.HitTest(node.ScreenPos))
                         {
-                            continue;
+                            SelectedNodeList.Add(node.NodeToClick);
                         }
-
-                        SelectedNodeList.Add(node.NodeToClick);
                     }
 
-                    SelectionBox = new Rectangle(0, 0, -1, -1);
+                    SelectionBox = new(0, 0, -1, -1);
                     return;
                 }
 
@@ -475,19 +473,17 @@ namespace Ship_Game
                         SelectionBox.Y = input.MouseY;
                     }
 
-                    SelectionBox.Width = Math.Abs(SelectionBox.Width);
-                    SelectionBox.Height = Math.Abs(SelectionBox.Height);
+                    SelectionBox.W = Math.Abs(SelectionBox.W);
+                    SelectionBox.H = Math.Abs(SelectionBox.H);
                     foreach (ClickableNode node in ClickableNodes)
                     {
-                        if (!SelectionBox.Contains(new Point((int) node.ScreenPos.X, (int) node.ScreenPos.Y)))
+                        if (SelectionBox.HitTest(node.ScreenPos))
                         {
-                            continue;
+                            SelectedNodeList.Add(node.NodeToClick);
                         }
-
-                        SelectedNodeList.Add(node.NodeToClick);
                     }
 
-                    SelectionBox = new Rectangle(0, 0, -1, -1);
+                    SelectionBox = new(0, 0, -1, -1);
                 }
             }
             else if (Input.LeftMouseHeld())
@@ -502,7 +498,7 @@ namespace Ship_Game
                 if (difference.Length() > 30f)
                 {
                     FleetDataNode item = SelectedNodeList[0];
-                    item.FleetOffset = item.FleetOffset + difference;
+                    item.FleetOffset += difference;
                     if (SelectedNodeList[0].Ship != null)
                     {
                         SelectedNodeList[0].Ship.RelativeFleetOffset = SelectedNodeList[0].FleetOffset;
@@ -511,33 +507,27 @@ namespace Ship_Game
 
                 foreach (ClickableSquad cs in ClickableSquads)
                 {
-                    if (cs.ScreenPos.Distance(mousePosition) >= 5f ||
-                        cs.Squad.DataNodes.Contains(SelectedNodeList[0]))
+                    if (cs.ScreenPos.Distance(mousePosition) < 5f &&
+                        !cs.Squad.DataNodes.Contains(SelectedNodeList[0]))
                     {
-                        continue;
-                    }
-
-                    foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
-                    {
-                        foreach (Fleet.Squad squad in flank)
+                        foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
                         {
-                            squad.DataNodes.Remove(SelectedNodeList[0]);
-                            if (SelectedNodeList[0].Ship == null)
+                            foreach (Fleet.Squad squad in flank)
                             {
-                                continue;
+                                squad.DataNodes.Remove(SelectedNodeList[0]);
+                                if (SelectedNodeList[0].Ship != null)
+                                {
+                                    squad.Ships.Remove(SelectedNodeList[0].Ship);
+                                }
                             }
+                        }
 
-                            squad.Ships.Remove(SelectedNodeList[0].Ship);
+                        cs.Squad.DataNodes.Add(SelectedNodeList[0]);
+                        if (SelectedNodeList[0].Ship != null)
+                        {
+                            cs.Squad.Ships.Add(SelectedNodeList[0].Ship);
                         }
                     }
-
-                    cs.Squad.DataNodes.Add(SelectedNodeList[0]);
-                    if (SelectedNodeList[0].Ship == null)
-                    {
-                        continue;
-                    }
-
-                    cs.Squad.Ships.Add(SelectedNodeList[0].Ship);
                 }
             }
         }
