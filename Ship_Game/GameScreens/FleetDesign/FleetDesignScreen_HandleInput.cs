@@ -227,53 +227,7 @@ namespace Ship_Game
 
             HandleEdgeDetection(input);
             HandleSelectionBox(input);
-            if (input.ScrollIn)
-            {
-                FleetDesignScreen desiredCamHeight = this;
-                desiredCamHeight.DesiredCamHeight = desiredCamHeight.DesiredCamHeight - 1500f;
-            }
-
-            if (input.ScrollOut)
-            {
-                FleetDesignScreen fleetDesignScreen = this;
-                fleetDesignScreen.DesiredCamHeight = fleetDesignScreen.DesiredCamHeight + 1500f;
-            }
-
-            if (DesiredCamHeight < 3000f)
-            {
-                DesiredCamHeight = 3000f;
-            }
-            else if (DesiredCamHeight > 100000f)
-            {
-                DesiredCamHeight = 100000f;
-            }
-
-            if (Input.RightMouseHeld())
-                if (Input.StartRightHold.OutsideRadius(Input.CursorPosition, 10f))
-                {
-                    CamVelocity = Input.CursorPosition.DirectionToTarget(Input.StartRightHold);
-                    CamVelocity = CamVelocity.Normalized() *
-                                  Input.StartRightHold.Distance(Input.CursorPosition);
-                }
-                else
-                {
-                    CamVelocity = Vector2.Zero;
-                }
-
-            if (!Input.RightMouseHeld() && !Input.LeftMouseHeld())
-            {
-                CamVelocity = Vector2.Zero;
-            }
-
-            if (CamVelocity.Length() > 150f)
-            {
-                CamVelocity = CamVelocity.Normalized(150f);
-            }
-
-            if (float.IsNaN(CamVelocity.X) || float.IsNaN(CamVelocity.Y))
-            {
-                CamVelocity = Vector2.Zero;
-            }
+            HandleCameraMovement(input);
 
             if (Input.FleetRemoveSquad)
             {
@@ -323,6 +277,35 @@ namespace Ship_Game
             }
 
             return false;
+        }
+        
+        Vector2 StartDragPos;
+
+        void HandleCameraMovement(InputState input)
+        {
+            const float minHeight = 3000;
+            const float maxHeight = 100_000;
+            float scrollSpeed = minHeight + (CamPos.Z / maxHeight)*10_000;
+
+            if      (input.ScrollIn)  DesiredCamPos.Z -= scrollSpeed;
+            else if (input.ScrollOut) DesiredCamPos.Z += scrollSpeed;
+
+            if (input.MiddleMouseClick)
+            {
+                StartDragPos = input.CursorPosition;
+            }
+
+            if (input.MiddleMouseHeld())
+            {
+                Vector2 dv = input.CursorPosition - StartDragPos;
+                StartDragPos = input.CursorPosition;
+                DesiredCamPos.X += -dv.X * (float)VisibleWorldRect.Width * 0.001f;
+                DesiredCamPos.Y += -dv.Y * (float)VisibleWorldRect.Width * 0.001f;
+            }
+            
+            DesiredCamPos.X = DesiredCamPos.X.Clamped(-20_000, 20_000);
+            DesiredCamPos.Y = DesiredCamPos.Y.Clamped(-20_000, 20_000);
+            DesiredCamPos.Z = DesiredCamPos.Z.Clamped(minHeight, maxHeight);
         }
 
         bool HandleSingleNodeSelection(InputState input, Vector2 mousePos)

@@ -11,7 +11,6 @@ using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using XnaMatrix = SDGraphics.Matrix;
-using Rectangle = SDGraphics.Rectangle;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -45,11 +44,12 @@ namespace Ship_Game
         SizeSlider SliderSize;
         public SubmenuScrollList<FleetDesignShipListItem> SubShips;
         Array<Ship> AvailableShips = new();
+
         Vector3 CamPos = new(0f, 0f, 14000f);
+        Vector3 DesiredCamPos = new(0f, 0f, 14000f);
+
         readonly Map<int, RectF> FleetsRects = new();
         readonly Array<ClickableSquad> ClickableSquads = new();
-        Vector2 CamVelocity = Vector2.Zero;
-        float DesiredCamHeight = 14000f;
         Ship ActiveShipDesign;
         public int FleetToEdit = -1;
         readonly UITextEntry FleetNameEntry;
@@ -353,22 +353,6 @@ namespace Ship_Game
                 }
             }
             SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
-        }
-
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            CamPos.X += CamVelocity.X;
-            CamPos.Y += CamVelocity.Y;
-            CamPos.Z = CamPos.Z.SmoothStep(DesiredCamHeight, 0.2f);
-
-            var camPos = new Vector3(-CamPos.X, CamPos.Y, CamPos.Z);
-            var lookAt = new Vector3(-CamPos.X, CamPos.Y, 0f);
-            SetViewMatrix(XnaMatrix.CreateRotationY(180f.ToRadians())
-                        * XnaMatrix.CreateLookAt(camPos, lookAt, Vector3.Down));
-            
-            ClickableSquads.Clear();
-            UpdateSelectedFleet();
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         public struct ClickableNode
