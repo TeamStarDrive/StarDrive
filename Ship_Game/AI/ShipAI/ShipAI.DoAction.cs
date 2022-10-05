@@ -121,7 +121,7 @@ namespace Ship_Game.AI
                     // TODO: need to move this into fleet.
                     if (Owner.Fleet.FleetTask == null)
                     {
-                        Vector2 nodePos = Owner.Fleet.AveragePosition() + FleetNode.FleetOffset;
+                        Vector2 nodePos = Owner.Fleet.AveragePosition() + FleetNode.RelativeFleetOffset;
                         if (target.Position.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                         {
                             if (Owner.Position.OutsideRadius(nodePos, 1000f))
