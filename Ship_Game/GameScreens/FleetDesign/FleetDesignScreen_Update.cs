@@ -1,4 +1,3 @@
-using Ship_Game.AI;
 using Ship_Game.Fleets;
 using SDGraphics;
 using SDUtils;
@@ -20,31 +19,29 @@ namespace Ship_Game
             SetViewMatrix(cameraMatrix);
 
             ClickableSquads.Clear();
-            UpdateSelectedFleet();
-
             if (SelectedFleet != null)
             {
                 UpdateClickableSquads();
-                SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
+                SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
             }
+
             base.Update(fixedDeltaTime);
         }
 
         void UpdateClickableSquads()
         {
             ClickableSquads.Clear();
+
             foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
             {
                 foreach (Fleet.Squad squad in flank)
                 {
-                    Vector3 pScreenSpace = new Vector3(Viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity));
-                    var pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    var cs = new ClickableSquad
+                    Vector2 pos = ProjectToScreenPos(new(squad.Offset, 0));
+                    ClickableSquads.Add(new()
                     {
-                        ScreenPos = pPos,
+                        Rect = RectF.FromCenter(pos, 24, 24),
                         Squad = squad
-                    };
-                    ClickableSquads.Add(cs);
+                    });
                 }
             }
         }

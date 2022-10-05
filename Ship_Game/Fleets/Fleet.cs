@@ -595,9 +595,6 @@ namespace Ship_Game.Fleets
             }
         }
 
-        public void AssembleFleet2(Vector2 finalPosition, Vector2 finalDirection)
-            => AssembleFleet(finalPosition, finalDirection, IsCoreFleet);
-
         void EvaluateTask(FixedSimTime timeStep)
         {
             if (Ships.Count == 0)

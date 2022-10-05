@@ -334,38 +334,18 @@ namespace Ship_Game
         {
             return ship.ShipData.Role != RoleName.troop && ship.DesignRole is not (RoleName.ssp or RoleName.construction);
         }
-        
-        void UpdateSelectedFleet()
-        {
-            if (SelectedFleet == null)
-                return;
-
-            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
-            {
-                foreach (Fleet.Squad squad in flank)
-                {
-                    var cs = new ClickableSquad
-                    {
-                        ScreenPos = ProjectToScreenPos(new(squad.Offset, 0)),
-                        Squad = squad
-                    };
-                    ClickableSquads.Add(cs);
-                }
-            }
-            SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
-        }
 
         public struct ClickableNode
         {
+            public FleetDataNode NodeToClick;
             public Vector2 ScreenPos;
             public float Radius;
-            public FleetDataNode NodeToClick;
         }
 
         struct ClickableSquad
         {
             public Fleet.Squad Squad;
-            public Vector2 ScreenPos;
+            public RectF Rect; // rect on screen
         }
     }
 }
