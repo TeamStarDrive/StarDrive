@@ -33,7 +33,8 @@ namespace Ship_Game.Commands.Goals
         {
             TargetEmpire = targetEmpire;
             TargetShip = targetShip;
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Protection for {targetEmpire.Name} ----");
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Protection for {targetEmpire.Name} ----");
         }
 
         GoalStep SpawnProtectionForce()

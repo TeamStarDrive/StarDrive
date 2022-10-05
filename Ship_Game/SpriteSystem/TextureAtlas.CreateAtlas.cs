@@ -125,12 +125,14 @@ namespace Ship_Game.SpriteSystem
                 ulong.TryParse(fs.ReadLine(), out ulong oldHash);
                 if (checkVersionAndHash && version != Version)
                 {
-                    Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (version-mismatch)");
+                    if (ResourceManager.Verbose)
+                        Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (version-mismatch)");
                     return false;
                 }
                 if (checkVersionAndHash && oldHash != Hash)
                 {
-                    Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (hash-mismatch)");
+                    if (ResourceManager.Verbose)
+                        Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (hash-mismatch)");
                     return false; // hash mismatch, we need to regenerate cache
                 }
 
@@ -146,7 +148,8 @@ namespace Ship_Game.SpriteSystem
 
                 if (NumPacked > 0 && !File.Exists(atlasTex))
                 {
-                    Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (texture-missing)");
+                    if (ResourceManager.Verbose)
+                        Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (texture-missing)");
                     return false; // regenerate!!
                 }
 
@@ -174,7 +177,8 @@ namespace Ship_Game.SpriteSystem
                 CreateLookup(textures);
             }
 
-            Log.Write(ConsoleColor.Blue, $"{Mod} Load   {this.ToString()}");
+            if (ResourceManager.Verbose)
+                Log.Write(ConsoleColor.Blue, $"{Mod} Load   {this.ToString()}");
             return true; // we loaded everything
         }
 
