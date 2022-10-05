@@ -20,7 +20,7 @@ namespace Ship_Game.Data.Serialization
 
         public delegate object Getter(object instance);
         public delegate void Setter(object instance, object value);
-        public readonly Getter Get;
+        public Getter Get;
         public readonly Setter Set;
 
         public override string ToString() => $"{Serializer?.NiceTypeName ?? "invalid"} {Name}:{FieldIdx}";
@@ -67,14 +67,19 @@ namespace Ship_Game.Data.Serialization
 
             try
             {
-                // precompile the getter
-                var obj = E.Parameter(typeof(object), "instance");
-                var castToClassType = E.Convert(obj, m.ReflectedType!);
-                var member = field != null
-                    ? E.Field(castToClassType, field)
-                    : E.Property(castToClassType, prop);
+                // lazy init the getter
+                Get = (object instance) =>
+                {
+                    var obj = E.Parameter(typeof(object), "instance");
+                    var castToClassType = E.Convert(obj, m.ReflectedType!);
+                    var member = field != null
+                        ? E.Field(castToClassType, field)
+                        : E.Property(castToClassType, prop!);
 
-                Get = E.Lambda<Getter>(E.Convert(member, typeof(object)), obj).Compile();
+                    // compiling is slightly faster, 7.4s --> 6s
+                    Get = E.Lambda<Getter>(E.Convert(member, typeof(object)), obj).Compile();
+                    return Get(instance);
+                };
 
                 // it's slow, but the only thing that really works for all cases
                 if (field != null)
