@@ -5,7 +5,6 @@ using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Matrix = SDGraphics.Matrix;
-using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
@@ -13,14 +12,15 @@ namespace Ship_Game
     {
         public override void Update(float fixedDeltaTime)
         {
-            CamPos.X += CamVelocity.X;
-            CamPos.Y += CamVelocity.Y;
-            CamPos.Z = Microsoft.Xna.Framework.MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
+            CamPos.X = CamPos.X.SmoothStep(DesiredCamPos.X, 0.2f);
+            CamPos.Y = CamPos.Y.SmoothStep(DesiredCamPos.Y, 0.2f);
+            CamPos.Z = CamPos.Z.SmoothStep(DesiredCamPos.Z, 0.2f);
 
-            var camPos = new Vector3(-CamPos.X, CamPos.Y, CamPos.Z);
-            var lookAt = new Vector3(-CamPos.X, CamPos.Y, 0f);
-            SetViewMatrix(Matrix.CreateRotationY(180f.ToRadians())
-                        * Matrix.CreateLookAt(camPos, lookAt, Vector3.Down));
+            Matrix cameraMatrix = Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
+            SetViewMatrix(cameraMatrix);
+
+            ClickableSquads.Clear();
+            UpdateSelectedFleet();
 
             if (SelectedFleet != null)
             {
