@@ -198,7 +198,7 @@ namespace Ship_Game
             const int numEntries = 9;
             int k = 9;
             int m = 0;
-            foreach (KeyValuePair<int, Rectangle> rect in FleetsRects)
+            foreach (KeyValuePair<int, RectF> rect in FleetsRects)
             {
                 if (m == 9)
                 {
@@ -229,12 +229,11 @@ namespace Ship_Game
                 Fleet f = Universe.Player.GetFleet(rect.Key);
                 if (f.DataNodes.Count > 0)
                 {
-                    var firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12,
-                        rect.Value.Width - 12);
+                    RectF firect = new(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.W - 12, rect.Value.W - 12);
                     batch.Draw(f.Icon, firect, Universe.Player.EmpireColor);
                     if (f.AutoRequisition)
                     {
-                        Rectangle autoReq = new Rectangle(firect.X + 54, firect.Y + 12, 20, 27);
+                        RectF autoReq = new(firect.X + 54, firect.Y + 12, 20, 27);
                         batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, ApplyCurrentAlphaToColor(Universe.Player.EmpireColor));
                     }
                     
@@ -244,7 +243,7 @@ namespace Ship_Game
                 Graphics.Font pirulen12 = Fonts.Pirulen12;
                 int key = rect.Key;
                 batch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
-                num.X = num.X + (rect.Value.Width + 5);
+                num.X = num.X + (rect.Value.W + 5);
                 batch.DrawString(Fonts.Pirulen12, f.Name, num,
                     rect.Key != FleetToEdit ? Color.Gray : Color.White);
                 m++;
@@ -500,7 +499,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", cursor, Colors.Cream);
                 cursor.Y += (Fonts.Arial20Bold.LineSpacing + 2);
                 string txt = "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet. \n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.";
-                txt = Fonts.Arial12Bold.ParseText(txt, SelectedStuffRect.Width - 40);
+                txt = Fonts.Arial12Bold.ParseText(txt, SelectedStuffRect.W - 40);
                 batch.DrawString(Fonts.Arial12Bold, txt, cursor, Colors.Cream);
             }
             else
@@ -528,7 +527,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", cursor1, Colors.Cream);
                 cursor1.Y += (Fonts.Pirulen12.LineSpacing + 2);
                 string txt0 = Localizer.Token(GameText.AddShipDesignsToThis);
-                txt0 = Fonts.Arial12Bold.ParseText(txt0, PrioritiesRect.Width - 40);
+                txt0 = Fonts.Arial12Bold.ParseText(txt0, PrioritiesRect.W - 40);
                 batch.DrawString(Fonts.Arial12Bold, txt0, cursor1, Colors.Cream);
             }
         }
