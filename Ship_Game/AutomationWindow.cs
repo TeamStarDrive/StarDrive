@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -60,12 +61,11 @@ namespace Ship_Game
             base.LoadContent();
             RemoveAll();
 
-            Rectangle win = Rect;
-            ConstructionSubMenu = new Submenu(win);
-            ConstructionSubMenu.AddTab(Localizer.Token(GameText.Automation));
+            RectF win = new(Rect);
+            ConstructionSubMenu = new(win, GameText.Automation);
 
-            UIList rest = AddList(new Vector2(win.X + 10f, win.Y + 200f));
-            rest.Padding = new Vector2(2f, 10f);
+            UIList rest = AddList(new(win.X + 10f, win.Y + 200f));
+            rest.Padding = new(2f, 10f);
             rest.AddCheckbox(() => Universe.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
             rest.AddCheckbox(() => Universe.Player.AutoPickBestFreighter, title: GameText.AutoPickFreighter, tooltip: GameText.IfAutoTradeIsChecked);
             rest.AddCheckbox(() => Universe.Player.AutoResearch,          title: GameText.AutoResearch, tooltip: GameText.YourEmpireWillAutomaticallySelect);
@@ -216,7 +216,7 @@ namespace Ship_Game
             set // used in the rush construction checkbox at start
             {
                 Universe.Player.RushAllConstruction = value;
-                RunOnEmpireThread(() => Universe.Player.SwitchRushAllConstruction(value));
+                Universe.RunOnSimThread(() => Universe.Player.SwitchRushAllConstruction(value));
             }
         }
     }

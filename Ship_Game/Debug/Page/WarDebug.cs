@@ -1,23 +1,19 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
-using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Gameplay;
-using System.Threading;
 
 namespace Ship_Game.Debug.Page
 {
-    public class DebugWar : DebugPage
+    public class WarDebug : DebugPage
     {
-        readonly UniverseScreen Screen;
         int EmpireID = 1;
         Empire EmpireAtWar;
 
-        public DebugWar(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.War)
+        public WarDebug(DebugInfoScreen parent) : base(parent, DebugModes.War)
         {
-            Screen = screen;
             if (TextColumns.Count <= 1)
                 TextColumns.Add(Label(Rect.X, Rect.Y + 300, ""));
-            EmpireAtWar = Screen.UState.GetEmpireById(EmpireID);
+            EmpireAtWar = Universe.GetEmpireById(EmpireID);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -42,9 +38,9 @@ namespace Ship_Game.Debug.Page
             do
             {
                 EmpireID += (increase ? 1 : -1);
-                if (EmpireID > Screen.UState.NumEmpires) EmpireID = 1;
-                if (EmpireID < 1) EmpireID = Screen.UState.NumEmpires;
-                EmpireAtWar = Screen.UState.GetEmpireById(EmpireID);
+                if (EmpireID > Universe.NumEmpires) EmpireID = 1;
+                if (EmpireID < 1) EmpireID = Universe.NumEmpires;
+                EmpireAtWar = Universe.GetEmpireById(EmpireID);
             }
             while (EmpireAtWar.data.Defeated);
             TextColumns[0].Text = $"Empire: {EmpireAtWar.Name}";

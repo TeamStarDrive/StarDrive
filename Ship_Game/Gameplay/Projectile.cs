@@ -224,7 +224,6 @@ namespace Ship_Game.Gameplay
 
         void Initialize(Vector2 origin, Vector2 direction, GameObject target, bool playSound, Vector2 inheritedVelocity, bool isMirv = false)
         {
-            ++DebugInfoScreen.ProjCreated;
             Position = origin;
             Emitter.Position = new Vector3(origin, 0f);
 
@@ -475,7 +474,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            ++DebugInfoScreen.ProjDied;
             if (Light != null)
                 Universe.Screen.RemoveLight(Light, dynamic:true);
 

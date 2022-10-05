@@ -95,6 +95,11 @@ namespace Ship_Game.Universe
             #endif
             };
 
+            // Use this for debugging specific cells
+            //var debugCell = new AABoundingBox2D(240000, 5280000, 960000, 6000000);
+            //if (debugCell.Overlaps(inf.Source.Position.X, inf.Source.Position.Y, 100f))
+            //    Log.Info("debug");
+
             float origin = WorldOrigin;
             float cellSize = CellSize;
 
@@ -105,6 +110,7 @@ namespace Ship_Game.Universe
                     float cx = origin + x * cellSize;
                     float cy = origin + y * cellSize;
                     var cellBounds = new AABoundingBox2D(cx, cy, cx + cellSize, cy + cellSize);
+                    // exclude this cell if the final radius check will always return false
                     if (!cellBounds.Overlaps(center.X, center.Y, maxRadius))
                         continue;
 
@@ -227,6 +233,8 @@ namespace Ship_Game.Universe
             var world = new AABoundingBox2D(WorldOrigin, WorldOrigin, -WorldOrigin, -WorldOrigin);
             screen.DrawRectProjected(world, Yellow, 2);
 
+            AABoundingBox2D worldRect = screen.VisibleWorldRect;
+
             for (float y = world.Y1; y < world.Y2; y += CellSize)
             {
                 for (float x = world.X1; x < world.X2; x += CellSize)
@@ -235,7 +243,10 @@ namespace Ship_Game.Universe
                     if (cell != null)
                     {
                         var bounds = new AABoundingBox2D(x, y, x + CellSize, y + CellSize);
-                        cell.Draw(screen, bounds);
+                        if (worldRect.Overlaps(bounds))
+                        {
+                            cell.Draw(screen, bounds);
+                        }
                     }
                 }
             }
@@ -465,10 +476,15 @@ namespace Ship_Game.Universe
 
             public void Insert(Empire owner, in InfluenceObj obj, ref IInfluence inf)
             {
-                if (!GetInfluence(owner, out IInfluence influences))
-                    SetInfluence(owner, new OneInfluence(owner, obj));
-                else
+                if (GetInfluence(owner, out IInfluence influences))
+                {
                     influences.Insert(owner, obj, ref influences);
+                    SetInfluence(owner, influences); // always update the modified influence!!
+                }
+                else
+                {
+                    SetInfluence(owner, new OneInfluence(owner, obj));
+                }
             }
 
             public bool Remove(Empire owner, GameObject source)

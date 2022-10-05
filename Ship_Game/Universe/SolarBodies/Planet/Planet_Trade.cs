@@ -125,9 +125,11 @@ namespace Ship_Game
                 if (ManualFoodImportSlots > 0 && Owner == Universe.Player)
                     return ManualFoodImportSlots;
 
+                float averageFreighterCargoCap = Owner.AverageFreighterCargoCap;
+                int maxSlots      = (int)(Storage.Max / averageFreighterCargoCap);
                 float foodMissing = Storage.Max - FoodHere - IncomingFood;
+
                 foodMissing      += (-Food.NetIncome * AverageFoodImportTurns).LowerBound(0);
-                int maxSlots      = ((int)(Universe.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
                 int foodSlots     = foodMissing < 5 ? 0 : (foodMissing / Owner.AverageFreighterCargoCap).RoundUpTo(1);
 
                 return foodSlots.Clamped(0, maxSlots);
@@ -144,15 +146,8 @@ namespace Ship_Game
                 if (ManualProdImportSlots > 0 && Owner == Universe.Player)
                     return ManualProdImportSlots;
 
-                int maxSlots = ((int)(Universe.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
-                if (CType == ColonyType.Industrial
-                    || CType == ColonyType.Core
-                    || CType == ColonyType.Colony)
-                {
-                    maxSlots = (int)(maxSlots * 1.5f);
-                }
-
-                float averageFreighterCargoCap = Owner.AverageFreighterCargoCap * Owner.FastVsBigFreighterRatio;
+                float averageFreighterCargoCap = Owner.AverageFreighterCargoCap;
+                int maxSlots = (int)(Storage.Max / averageFreighterCargoCap);
                 if (NonCybernetic)
                 {
                     switch (ConstructionQueue.Count)

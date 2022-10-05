@@ -10,6 +10,7 @@ using Ship_Game.Data;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -22,7 +23,7 @@ namespace Ship_Game
         readonly Vector2 TitlePos;
         readonly Rectangle GridPos;
 
-        readonly ScrollList2<CombatScreenOrbitListItem> OrbitSL;
+        readonly ScrollList<CombatScreenOrbitListItem> OrbitSL;
         PlanetGridSquare HoveredSquare;
         readonly Rectangle SelectedItemRect;
         Rectangle HoveredItemRect;
@@ -80,9 +81,9 @@ namespace Ship_Game
             if (IsPlayerBombing())
                 Bombard.Style = ButtonStyle.DanButtonRed;
 
-            var orbitalAssetsTab = new Submenu(assetsX + 220, AssetsRect.Y, 200, AssetsRect.Height * 2, SubmenuStyle.Blue);
-            orbitalAssetsTab.AddTab("In Orbit");
-            OrbitSL = Add(new ScrollList2<CombatScreenOrbitListItem>(orbitalAssetsTab, ListStyle.Blue));
+            RectF orbitalAssetRect = new(assetsX + 220, AssetsRect.Y, 200, AssetsRect.Height * 2);
+            var orbitalAssets = Add(new SubmenuScrollList<CombatScreenOrbitListItem>(orbitalAssetRect, "In Orbit", style:ListStyle.Blue));
+            OrbitSL = orbitalAssets.List;
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
             OrbitSL.OnDragOut = OnTroopItemDrag;
             OrbitSL.EnableDragOutEvents = true;

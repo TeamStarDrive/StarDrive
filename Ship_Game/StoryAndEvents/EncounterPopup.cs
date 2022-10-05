@@ -14,11 +14,9 @@ namespace Ship_Game
         public Encounter Encounter;
         public EncounterInstance Instance;
 
-        Rectangle ResponseRect;
-
         string DialogText;
         UITextBox DialogTextBox;
-        ScrollList2<ResponseListItem> ResponseSL;
+        ScrollList<ResponseListItem> ResponseSL;
         UIButton DismissButton;
 
         EncounterPopup(UniverseScreen s, Empire player, Empire targetEmp, Encounter e) : base(s, 600, 600)
@@ -47,12 +45,12 @@ namespace Ship_Game
             Rectangle fitRect = BottomBigFill.CutTop(10);
             int responseHeight = Instance.CurrentDialog.ResponseOptions.Count * 36 + 32;
 
-            var blackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, fitRect.Height - responseHeight);
+            RectF blackRect = new(fitRect.X, fitRect.Y, fitRect.Width, fitRect.Height - responseHeight);
             DialogTextBox = Add(new UITextBox(blackRect));
             SetDialogTextBoxContent();
 
-            ResponseRect = new Rectangle(fitRect.X, blackRect.Bottom, fitRect.Width, responseHeight);
-            ResponseSL = Add(new ScrollList2<ResponseListItem>(ResponseRect, 24));
+            RectF response = new(fitRect.X, blackRect.Bottom, fitRect.Width, responseHeight);
+            ResponseSL = Add(new ScrollList<ResponseListItem>(response, 24));
             ResponseSL.Reset();
             foreach (Response r in Instance.CurrentDialog.ResponseOptions)
             {

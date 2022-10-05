@@ -42,12 +42,7 @@ namespace Ship_Game.Commands.Goals
 
         bool  TryGetDefenseTask(out MilitaryTask task)
         {
-            task = null;
-            var tasks = Owner.AI.GetDefendSystemTasks().Filter(t => t.TargetSystem == TargetSystem);
-            if (tasks.Length > 0)
-                task = tasks[0];
-
-            return task != null;
+            return (task = Owner.AI.GetDefendSystemTasks().Find(t => t.TargetSystem == TargetSystem)) != null;
         }
 
         GoalStep WaitForFleet()

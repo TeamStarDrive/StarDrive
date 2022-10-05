@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SDUtils;
-using Ship_Game.Data.Serialization;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
@@ -38,6 +34,8 @@ namespace Ship_Game.Ships
         public float BaseWarpThrust { get; private set; }
         public bool  BaseCanWarp    { get; private set; }
 
+        public float BaseStrength { get; private set; }
+
         // Hangar Templates
         public ShipModule[] Hangars { get; private set; }
         public ShipModule[] AllFighterHangars { get; private set; }
@@ -57,10 +55,13 @@ namespace Ship_Game.Ships
             var info = GridInfo;
             info.SurfaceArea = hull.SurfaceArea;
             GridInfo = info;
-            Grid = new ModuleGridFlyweight(Name, info, designSlots);
+            Grid = new(Name, info, designSlots);
 
             float baseCost = 0f;
+            float baseStrength = 0f;
             float baseWarp = 0f;
+            int offensiveSlots = 0;
+
             var hangars = new Array<ShipModule>();
             var weapons = new Array<Weapon>();
             HashSet<string> invalidModules = null;
@@ -71,22 +72,30 @@ namespace Ship_Game.Ships
                 if (!ResourceManager.GetModuleTemplate(uid, out ShipModule m))
                 {
                     if (invalidModules == null)
-                        invalidModules = new HashSet<string>();
+                        invalidModules = new();
                     invalidModules.Add(uid);
                     continue;
                 }
 
                 baseCost += m.Cost;
                 baseWarp += m.WarpThrust;
+
                 if (m.Is(ShipModuleType.Hangar))
                     hangars.Add(m);
                 else if (m.Is(ShipModuleType.Colony))
                     IsColonyShip = true;
                 else if (m.InstalledWeapon != null)
+                {
+                    offensiveSlots += m.Area;
                     weapons.Add(m.InstalledWeapon);
+                }
 
                 if (m.IsSupplyBay)
                     IsSupplyCarrier = true;
+                if (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0)
+                    offensiveSlots += m.Area;
+
+                baseStrength += m.CalculateModuleOffenseDefense(info.SurfaceArea);
             }
 
             if (invalidModules != null)
@@ -96,7 +105,7 @@ namespace Ship_Game.Ships
             }
 
             BaseCost = baseCost;
-            BaseWarpThrust = baseWarp;
+            BaseStrength = ShipBuilder.GetModifiedStrength(info.SurfaceArea, offensiveSlots, 0, baseStrength);            BaseWarpThrust = baseWarp;
             BaseCanWarp = baseWarp > 0;
 
             Hangars = hangars.ToArray();
@@ -144,14 +153,25 @@ namespace Ship_Game.Ships
             return (int)cost;
         }
 
-        public float GetMaintenanceCost(Empire empire, int troopCount)
+        public float GetMaintenanceCost(Empire empire)
         {
-            return ShipMaintenance.GetBaseMaintenance(this, empire, troopCount);
+            return ShipMaintenance.GetBaseMaintenance(this, empire, 0);
         }
 
         public string GetRole()
         {
             return RoleArray[(int)Role -1];
+        }
+
+        public bool IsBuildableByPlayer
+        {
+            get
+            {
+                ShipRole role = ShipRole;
+                return  !IsCarrierOnly && !Deleted
+                    && !role.Protected && !role.NoBuild
+                    && (GlobalStats.ShowAllDesigns || IsPlayerDesign);
+            }
         }
 
         public static string GetRole(RoleName role)

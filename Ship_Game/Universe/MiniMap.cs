@@ -144,10 +144,10 @@ namespace Ship_Game
             batch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
             batch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
-            ShipScreen.IsToggled     = Universe.showingFTLOverlay;
+            ShipScreen.IsToggled     = Universe.ShowingFTLOverlay;
             DeepSpaceBuild.IsToggled = Universe.DeepSpaceBuildWindow.Visible;
             AIScreen.IsToggled       = Universe.aw.IsOpen;
-            Fleets.IsToggled         = Universe.showingRangeOverlay;
+            Fleets.IsToggled         = Universe.ShowingRangeOverlay;
             
             base.Draw(batch, elapsed);
         }
@@ -158,9 +158,7 @@ namespace Ship_Game
             float ringRad = 0.023f * pulseTime;
             foreach (IncomingThreat threat in Player.SystemsWithThreat)
             {
-                if (threat.ThreatTimedOut) continue;
-
-                var system            = threat.TargetSystem;
+                var system = threat.TargetSystem;
                 Vector2 miniSystemPos = WorldToMiniPos(system.Position);
                 float pulseRad = radius + ringRad;
                 batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, pulseRad + 0.009f, SpriteEffects.None, 0f);
@@ -336,13 +334,13 @@ namespace Ship_Game
         public void ShipScreen_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
-            Universe.showingFTLOverlay = !Universe.showingFTLOverlay;
+            Universe.ShowingFTLOverlay = !Universe.ShowingFTLOverlay;
         }
 
         public void Fleets_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
-            Universe.showingRangeOverlay = !Universe.showingRangeOverlay;            
+            Universe.ShowingRangeOverlay = !Universe.ShowingRangeOverlay;            
         }
 
         public void AIScreen_OnClick(ToggleButton toggleButton)

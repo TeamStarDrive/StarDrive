@@ -11,12 +11,11 @@ namespace Ship_Game
     [StarDataType]
     public sealed class FleetDataNode
     {
-        [XmlIgnore] public Ship Ship { get; set; }
-
-        [StarData] public int ShipId;
+        [StarData] public Ship Ship;
         [StarData] public Goal Goal;
+        // used to requisition new ships with the same name
         [StarData] public string ShipName;
-        [StarData] public Vector2 FleetOffset;
+        [StarData] public Vector2 RelativeFleetOffset;
         [StarData] public float VultureWeight = 0.5f;
         [StarData] public float AttackShieldedWeight = 0.5f;
         [StarData] public float AssistWeight = 0.5f;
@@ -25,8 +24,7 @@ namespace Ship_Game
         [StarData] public float SizeWeight = 0.5f;
         [StarData] public float ArmoredWeight = 0.5f;
         [StarData] public CombatState CombatState;
-        [StarData] public Vector2 OrdersOffset;
-        [StarData] public float OrdersRadius = 500000;//0.5f;
+        [StarData] public float OrdersRadius = 500000;
 
         public void SetCombatStance(CombatState stance)
         {
@@ -103,9 +101,9 @@ namespace Ship_Game
         {
             foreach (FleetDataNode node in Data)
             {
-                float radians = facing + Vector2.Zero.RadiansToTarget(node.FleetOffset);
-                float distance = node.FleetOffset.Length();
-                node.FleetOffset = Vector2.Zero.PointFromRadians(radians, distance);
+                float radians = facing + Vector2.Zero.RadiansToTarget(node.RelativeFleetOffset);
+                float distance = node.RelativeFleetOffset.Length();
+                node.RelativeFleetOffset = Vector2.Zero.PointFromRadians(radians, distance);
             }
         }
     }

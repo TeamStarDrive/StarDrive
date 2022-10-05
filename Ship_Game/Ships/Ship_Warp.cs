@@ -203,13 +203,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        // todo: Move to action queue
+        // TODO: This needs optimization, make use of InfluenceTree
         bool IsInhibitedFromEnemyShips()
         {
             for (int x = 0; x < Universe.Empires.Count; x++)
             {
                 Empire e = Universe.Empires[x];
-                if (e.WillInhibit(Loyalty))
+                if (e.Inhibitors.Count > 0 && e.WillInhibit(Loyalty))
                 {
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {

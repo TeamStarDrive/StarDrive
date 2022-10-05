@@ -5,6 +5,9 @@ using Ship_Game.Graphics;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.UI;
+using System;
+using SDUtils;
 
 namespace Ship_Game
 {
@@ -20,7 +23,6 @@ namespace Ship_Game
         readonly Submenu PlanetInfo;
         readonly Submenu PStorage;
         readonly Submenu PFacilities;
-        readonly Submenu BuildableTabs;
         readonly UITextEntry PlanetName;
         readonly Rectangle PlanetIcon;
         public EmpireUIOverlay Eui;
@@ -34,9 +36,10 @@ namespace Ship_Game
         readonly Rectangle PlanetShieldIconRect;
         readonly ProgressBar PlanetShieldBar;
         readonly UILabel FilterBuildableItemsLabel;
-
-        readonly ScrollList2<BuildableListItem> BuildableList;
-        readonly ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
+        
+        readonly SubmenuScrollList<BuildableListItem> BuildableTabs;
+        readonly ScrollList<BuildableListItem> BuildableList;
+        readonly ScrollList<ConstructionQueueScrollListItem> ConstructionQueue;
         readonly DropDownMenu FoodDropDown;
         readonly DropDownMenu ProdDropDown;
         readonly ProgressBar FoodStorage;
@@ -133,18 +136,20 @@ namespace Ship_Game
             LeftMenu = new Menu1(2, titleBar.Y + titleBar.Height + 5, titleBar.Width, ScreenHeight - (titleBar.Y + titleBar.Height) - 7);
             RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
             Add(new CloseButton(RightMenu.Right - 52, RightMenu.Y + 22));
-            PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.23f * (LeftMenu.Height - 80)));
-            PlanetInfo.AddTab(title:GameText.PlanetInfo);
-            Submenu pDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
+            RectF planetInfoR = new(LeftMenu.X + 20, LeftMenu.Y + 20, 
+                                    (int)(0.4f * LeftMenu.Width),
+                                    (int)(0.23f * (LeftMenu.Height - 80)));
+            PlanetInfo = new(planetInfoR, GameText.PlanetInfo);
+            Submenu pDescription = new(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
             var labor = new RectF(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + 40,
                                   0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
             AssignLabor = Add(new AssignLaborComponent(P, labor, useTitleFrame: true));
 
-            PStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + labor.H + 60, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
-            PStorage.AddTab(title:GameText.Storage);
+            RectF pStorageR = new(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + labor.H + 60, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            PStorage = new(pStorageR, GameText.Storage);
 
             Vector2 blockadePos = new Vector2(PStorage.X + 20, PStorage.Y + 35);
             BlockadeLabel = Add(new UILabel(blockadePos, Localizer.Token(GameText.Blockade2), Fonts.Pirulen16, Color.Red));
@@ -174,19 +179,25 @@ namespace Ship_Game
             ProdDropDown.AddOption(Localizer.Token(GameText.Export));
             ProdDropDown.ActiveIndex = (int)p.PS;
 
-            SubColonyGrid = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
-            SubColonyGrid.AddTab(Localizer.Token(GameText.Colony));
+            RectF subColonyR = new(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, 
+                                   LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
+            SubColonyGrid = new(subColonyR, GameText.Colony);
 
-            PFacilities = Add(new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20,
-                                          SubColonyGrid.Bottom + 20,
-                                          LeftMenu.Width - 60 - PlanetInfo.Width,
-                                          LeftMenu.Height - 20 - SubColonyGrid.Height - 40));
-            PFacilities.AddTab(GameText.Statistics2); // Statistics
-            PFacilities.AddTab(GameText.Description); // Description
-            PFacilities.AddTab(GameText.Trade2); // Trade
+            RectF pFacilitiesR = new(LeftMenu.X + 20 + PlanetInfo.Width + 20,
+                                     SubColonyGrid.Bottom + 20,
+                                     LeftMenu.Width - 60 - PlanetInfo.Width,
+                                     LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
+
+            Array<LocalizedText> pFacTabs = new()
+            {
+                GameText.Statistics2,
+                GameText.Description,
+                GameText.Trade2,
+            };
             if (Player.data.Traits.TerraformingLevel > 0 || P.Terraformable)
-                PFacilities.AddTab(GameText.BB_Tech_Terraforming_Name); // Terraforming
+                pFacTabs.Add(GameText.BB_Tech_Terraforming_Name); // Terraforming
 
+            PFacilities = base.Add(new Submenu(pFacilitiesR, pFacTabs));
             PFacilities.OnTabChange = OnPFacilitiesTabChange;
             // FB - sticky tab selection on colony change via arrows
             if (facilitiesTabSelected < PFacilities.Tabs.Count)
@@ -208,14 +219,16 @@ namespace Ship_Game
                 Pos     = new Vector2(filterRect.Right + 10, filterRect.Y + 3)
             });
 
-            BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 40, 
-                                        RightMenu.Width - 40, 0.5f*(RightMenu.Height-40));
+            RectF buildableR = new(RightMenu.X + 20, RightMenu.Y + 40, 
+                                   RightMenu.Width - 40, 0.5f*(RightMenu.Height-40));
+            BuildableTabs = base.Add(new SubmenuScrollList<BuildableListItem>(buildableR, BuildingsTabText));
             BuildableTabs.OnTabChange = OnBuildableTabChanged;
 
-            BuildableList = Add(new ScrollList2<BuildableListItem>(BuildableTabs));
+            BuildableList = BuildableTabs.List;
             BuildableList.EnableItemHighlight = true;
-            BuildableList.OnDoubleClick       = OnBuildableItemDoubleClicked;
-            BuildableList.OnHovered           = OnBuildableHoverChange;
+            BuildableList.OnDoubleClick = OnBuildableItemDoubleClicked;
+            BuildableList.OnHovered = OnBuildableHoverChange;
+
             if (p.OwnerIsPlayer || p.Universe.Debug)
                 BuildableList.OnDragOut = OnBuildableListDrag;
 
@@ -227,11 +240,14 @@ namespace Ship_Game
 
             ResetBuildableTabs();
 
-            var queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 60 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - BuildableTabs.Height - 75);
-            queue.AddTab(Localizer.Token(GameText.ConstructionQueue));
+            float queueBottom = RightMenu.Bottom - 20;
+            float queueTop = BuildableTabs.Bottom + 10;
+            RectF queueR = new(RightMenu.X + 20, queueTop, RightMenu.Width - 40, queueBottom - queueTop);
+            var queue = base.Add(new SubmenuScrollList<ConstructionQueueScrollListItem>(queueR, GameText.ConstructionQueue));
 
-            ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
+            ConstructionQueue = queue.List;
             ConstructionQueue.EnableItemHighlight = true;
+            ConstructionQueue.OnHovered = OnConstructionItemHovered;
             if (p.OwnerIsPlayer || p.Universe.Debug)
                 ConstructionQueue.OnDragReorder = OnConstructionItemReorder;
 
@@ -264,7 +280,7 @@ namespace Ship_Game
 
             if (p.Owner != null)
             {
-                GovernorDetails = Add(new GovernorDetailsComponent(this, p, pDescription.Rect, governorTabSelected));
+                GovernorDetails = Add(new GovernorDetailsComponent(this, p, pDescription.RectF, governorTabSelected));
             }
             else
             {

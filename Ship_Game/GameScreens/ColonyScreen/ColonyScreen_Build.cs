@@ -97,7 +97,7 @@ namespace Ship_Game
         class ShipCategory
         {
             public string Name;
-            public readonly Array<Ship> Ships = new Array<Ship>();
+            public readonly Array<IShipDesign> Ships = new();
             public int Size;
             public override string ToString() => $"Category {Name} Size={Size} Count={Ships.Count}";
         }
@@ -115,14 +115,14 @@ namespace Ship_Game
 
         void TryPopulateBuildableShips()
         {
-            Ship[] buildableShips;
+            IShipDesign[] buildableShips;
 
             // enable all ships in the sandbox
             if (P.Universe.Debug && P.Universe.Screen is DeveloperUniverse)
-                buildableShips = ResourceManager.ShipTemplates.ToArr();
+                buildableShips = ResourceManager.Ships.Designs.ToArr();
             else
                 buildableShips = P.Owner.ShipsWeCanBuild
-                    .Select(shipName => ResourceManager.GetShipTemplate(shipName))
+                    .Select(shipName => ResourceManager.Ships.GetDesign(shipName))
                     .Filter(ship => ship.IsBuildableByPlayer && !ship.Name.StartsWith("TEST_"));
             
             string filter = FilterBuildableItems.Text.ToLower();
@@ -143,12 +143,12 @@ namespace Ship_Game
 
             var categoryMap = new Map<string, ShipCategory>();
 
-            foreach (Ship ship in buildableShips)
+            foreach (IShipDesign ship in buildableShips)
             {
-                string name = Localizer.GetRole(ship.DesignRole, P.Owner);
+                string name = Localizer.GetRole(ship.Role, P.Owner);
                 if (!categoryMap.TryGetValue(name, out ShipCategory c))
                 {
-                    c = new ShipCategory{ Name = name, Size = ship.SurfaceArea };
+                    c = new(){ Name = name, Size = ship.SurfaceArea };
                     categoryMap.Add(name, c);
                 }
                 c.Ships.Add(ship);
@@ -175,9 +175,9 @@ namespace Ship_Game
                 foreach (ShipCategory category in categories)
                 {
                     // and add to Build list
-                    BuildableListItem catHeader = BuildableList.AddItem(new BuildableListItem(this, category.Name));
-                    foreach (Ship ship in category.Ships)
-                        catHeader.AddSubItem(new BuildableListItem(this, ship, !ship.ShipData.IsShipyard));
+                    BuildableListItem catHeader = BuildableList.AddItem(new(this, category.Name));
+                    foreach (IShipDesign ship in category.Ships)
+                        catHeader.AddSubItem(new BuildableListItem(this, ship, !ship.IsShipyard));
                 }
             }
         }
@@ -192,7 +192,14 @@ namespace Ship_Game
 
         void OnBuildableHoverChange(BuildableListItem item)
         {
-            ShipInfoOverlay.ShowToLeftOf(new Vector2(BuildableList.X, item?.Y ?? 0f), item?.Ship);
+            if (item == null) // lost hover
+            {
+                ShipInfoOverlay.Hide();
+            }
+            else
+            {
+                ShipInfoOverlay.ShowToLeftOf(new Vector2(BuildableList.X, item.Y), item.Ship);
+            }
         }
 
         void OnBuildableListDrag(BuildableListItem item, DragEvent evt, bool outside)
@@ -219,6 +226,18 @@ namespace Ship_Game
             P.Construction.Reorder(oldIndex, newIndex);
         }
 
+        void OnConstructionItemHovered(ConstructionQueueScrollListItem item)
+        {
+            if (item == null) // lost hover
+            {
+                ShipInfoOverlay.Hide();
+            }
+            else if (item.Item.isShip)
+            {
+                ShipInfoOverlay.ShowToLeftOf(item.Pos, item.Item.ShipData);
+            }
+        }
+
         public bool Build(Building b, PlanetGridSquare where = null)
         {
             if (P.Construction.Enqueue(b, where, true))
@@ -231,23 +250,23 @@ namespace Ship_Game
             return false;
         }
 
-        public void Build(Ship ship, int repeat = 1)
+        public void Build(IShipDesign ship, int repeat = 1)
         {
             for (int i = 0; i < repeat; i++)
             {
-                if (P.IsOutOfOrbitalsLimit(ship.ShipData))
+                if (P.IsOutOfOrbitalsLimit(ship))
                 {
                     GameAudio.NegativeClick();
                     return;
                 }
 
-                if (ship.IsPlatformOrStation || ship.ShipData.IsShipyard)
+                if (ship.IsPlatformOrStation || ship.IsShipyard)
                 {
                     P.AddOrbital(ship);
                 }
                 else
                 {
-                    P.Construction.Enqueue(ship.ShipData);
+                    P.Construction.Enqueue(ship);
                 }
             }
 

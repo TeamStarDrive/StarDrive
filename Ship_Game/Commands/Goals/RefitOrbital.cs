@@ -27,11 +27,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitOrbital(Ship oldShip, string toBuildName, Empire owner) : this(owner)
+        public RefitOrbital(Ship oldShip, IShipDesign toBuild, Empire owner) : this(owner)
         {
             OldShip = oldShip;
             Planet targetPlanet = oldShip.GetTether();
-            Initialize(toBuildName, Vector2.Zero, targetPlanet, Vector2.Zero);
+            Initialize(toBuild.Name, Vector2.Zero, targetPlanet, Vector2.Zero);
         }
 
         GoalStep FindOrbitalAndPlanetToRefit()
@@ -47,7 +47,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             PlanetBuildingAt = buildAt;
             OldShip.ClearFleet(returnToManagedPools: false, clearOrders: true);
-            OldShip.AI.State = AIState.Refit;
+            OldShip.AI.ChangeAIState(AIState.Refit);
             return GoalStep.GoToNextStep;
         }
 

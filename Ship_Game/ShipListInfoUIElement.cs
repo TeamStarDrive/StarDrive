@@ -27,7 +27,7 @@ namespace Ship_Game
         public Rectangle LeftRect;
         public Rectangle RightRect;
         public Rectangle ShipInfoRect;
-        ScrollList2<SelectedShipListItem> SelectedShipsSL;
+        ScrollList<SelectedShipListItem> SelectedShipsSL;
         public Rectangle Power;
         public Rectangle Shields;
         public ToggleButton GridButton;
@@ -75,8 +75,8 @@ namespace Ship_Game
 
             OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
 
-            var slsubRect = new Rectangle(RightRect.X-10, Housing.Y + 85, RightRect.Width - 5, 140);
-            SelectedShipsSL = new ScrollList2<SelectedShipListItem>(slsubRect, 24);
+            RectF selected = new(RightRect.X-10, Housing.Y + 85, RightRect.Width - 5, 140);
+            SelectedShipsSL = new ScrollList<SelectedShipListItem>(selected, 24);
         }
 
         public void ClearShipList()
@@ -110,9 +110,11 @@ namespace Ship_Game
                     ob.Draw(batch, ScreenManager.input.CursorPosition, r);
                 }
             }
+
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             var namePos = new Vector2(Housing.X + 41, Housing.Y + 64);
             byte alpha  = Screen.CurrentFlashColor.A;
+
             foreach (SelectedShipListItem item in SelectedShipsSL.AllEntries)
             {
                 foreach (SkinnableButton button in item.ShipButtons)
@@ -128,20 +130,20 @@ namespace Ship_Game
 
             SelectedShipsSL.Draw(batch, elapsed);
 
-            string text;
             if (HoveredShip == null)
             {
                 HoverOff += elapsed.RealTime.Seconds;
                 if (HoverOff > 0.5f)
                 {
-                    text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.Fleet == null ? "Multiple Ships" : ShipList.First.Fleet.Name);
+                    string text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.Fleet == null) ? "Multiple Ships" : ShipList.First.Fleet.Name;
                     batch.DrawString(Fonts.Arial20Bold, text, namePos, tColor);
-                    if (ShipList.Count > 1)
-                    {
-                        namePos.X += Fonts.Arial20Bold.MeasureString(text).X + 5;
-                        namePos.Y += 3;
-                        batch.DrawString(Fonts.Arial14Bold, $" ({ShipList.Count})", namePos, Color.LightBlue);
-                    }
+                    namePos.X += Fonts.Arial20Bold.TextWidth(text) + 5;
+                    namePos.Y += 3;
+                    batch.DrawString(Fonts.Arial14Bold, $" ({ShipList.Count})", namePos, Color.LightBlue);
+
+                    var shipStatus = new Vector2(Selector.Rect.X + Selector.Rect.Width - 168, Housing.Y + 64).ToFloored();
+                    string statusTxt = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(ShipList[0]), 120);
+                    batch.DrawString(Fonts.TahomaBold9, statusTxt, shipStatus, tColor);
 
                     CalcAndDrawProgressBars(batch);
                 }
@@ -150,7 +152,7 @@ namespace Ship_Game
             {
                 HoverOff = 0f;
                 HoveredShip.RenderOverlay(batch, ShipInfoRect, ShowModules);
-                text = HoveredShip.VanityName;
+                string text = HoveredShip.VanityName;
                 Vector2 tpos = new Vector2(Housing.X + 30, Housing.Y + 63);
                 string name = (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name);
                 Graphics.Font TitleFont = Fonts.Arial14Bold;

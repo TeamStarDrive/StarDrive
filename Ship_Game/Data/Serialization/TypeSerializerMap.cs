@@ -58,6 +58,7 @@ public abstract class TypeSerializerMap
         Set(id: 25, new TimeSpanSerializer());
         Set(id: 26, new ByteArraySerializer(this));
         Set(id: 27, new SmallBitSetSerializer());
+        Set(id: 28, new BitArraySerializer());
         // ADD new types here, up to `TypeSerializer.MaxFundamentalTypes`
     }
 

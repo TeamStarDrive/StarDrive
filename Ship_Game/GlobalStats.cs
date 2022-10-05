@@ -82,6 +82,9 @@ namespace Ship_Game
 
         public static bool PreventFederations;
         public static bool EliminationMode;
+
+        // If set to true, scrolling will always zoom into selected objects
+        // Otherwise you can use Shift+Scroll to zoom to selected objects
         public static bool ZoomTracking;
         public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
 
@@ -142,7 +145,6 @@ namespace Ship_Game
 
         // Dev Options
         public static bool RestrictAIPlayerInteraction;
-        public static bool DisableAIEmpires;
 
         // If true, use software cursors (rendered by the game engine)
         // otherwise use OS Cursor (rendered by the OS ontop of current window)
@@ -257,7 +259,6 @@ namespace Ship_Game
             GetSetting("TestLoad"              , ref TestLoad);
             GetSetting("PreLoad"               , ref PreLoad);
             GetSetting("DamageIntensity"       , ref DamageIntensity);
-            GetSetting("DisableAIEmpires"      , ref DisableAIEmpires);
 
             Statreset();
 

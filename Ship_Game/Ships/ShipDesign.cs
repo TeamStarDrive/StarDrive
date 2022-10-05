@@ -49,6 +49,7 @@ namespace Ship_Game.Ships
 
         public ModuleGridFlyweight Grid { get; private set; }
         [StarData] public ShipGridInfo GridInfo { get; set; }
+        public int SurfaceArea => GridInfo.SurfaceArea;
 
         // All the slots of the ShipDesign
         // NOTE: This is loaded on-demand when a new ship is being initialized

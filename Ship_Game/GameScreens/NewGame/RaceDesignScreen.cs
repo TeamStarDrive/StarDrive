@@ -6,6 +6,7 @@ using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.NewGame;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -22,14 +23,14 @@ namespace Ship_Game
         Menu2 TitleBar;
         Menu1 NameMenu;
         EnvPreferencesPanel EnvMenu;
-        Submenu Traits;
-        ScrollList2<TraitsListItem> TraitsList;
+        SubmenuScrollList<TraitsListItem> Traits;
+        ScrollList<TraitsListItem> TraitsList;
         UIColorPicker Picker;
 
         UIButton ModeBtn;
         Rectangle FlagRect;
-        ScrollList2<RaceArchetypeListItem> ChooseRaceList;
-        ScrollList2<TextListItem> DescriptionTextList;
+        ScrollList<RaceArchetypeListItem> ChooseRaceList;
+        ScrollList<TextListItem> DescriptionTextList;
 
         GameMode Mode;
         StarsAbundance StarsCount = StarsAbundance.Normal;
@@ -131,26 +132,25 @@ namespace Ship_Game
             SysEntry      = AddSplitter(raceCustomizatioForm,"{HomeSystemName}: ", SelectedData.HomeSystemName, splitItemWidth);
             HomeWorldName = SelectedData.HomeWorldName;
 
-            var traitsList = new Rectangle(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
+            RectF traitsList = new(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
                                          (int)NameMenu.Bottom + 5,
                                          (int)(ScreenWidth * 0.5f), 
                                          (int)(ScreenHeight - TitleBar.Bottom - 0.28f*ScreenHeight));
-            if (traitsList.Height > 580)
-                traitsList.Height = 580;
+            if (traitsList.H > 580)
+                traitsList.H = 580;
 
-            Traits = new Submenu(traitsList.Bevel(-20));
-            Traits.AddTab(Localizer.Token(GameText.Physical));
-            Traits.AddTab(Localizer.Token(GameText.Sociological));
-            Traits.AddTab(Localizer.Token(GameText.HistoryAndTradition));
+            LocalizedText[] traitNames = { GameText.Physical, GameText.Sociological, GameText.HistoryAndTradition };
+            Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20), traitNames));
             Traits.OnTabChange = OnTraitsTabChanged;
-            Traits.Background = new Menu1(traitsList); 
+            Traits.SetBackground(new Menu1(traitsList));
 
-            TraitsList = Add(new ScrollList2<TraitsListItem>(Traits, 40));
+            TraitsList = Traits.List;
             TraitsList.EnableItemHighlight = true;
             TraitsList.OnClick = OnTraitsListItemClicked;
 
-            var chooseRace = new Menu1(5, traitsList.Y, traitsList.X - 10, traitsList.Height);
-            ChooseRaceList = Add(new ScrollList2<RaceArchetypeListItem>(chooseRace, 135));
+            RectF chooseRace = new(5, (int)traitsList.Y, (int)traitsList.X - 10, (int)traitsList.H);
+            ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
+            ChooseRaceList.SetBackground(new Menu1(chooseRace));
             ChooseRaceList.OnClick = OnRaceArchetypeItemClicked;
 
             foreach (IEmpireData e in ResourceManager.MajorRaces)
@@ -212,8 +212,9 @@ namespace Ship_Game
             AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
                 tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare.");
 
-            var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
-            DescriptionTextList = Add(new ScrollList2<TextListItem>(description, DescriptionTextFont.LineSpacing));
+            RectF description = new(traitsList.Right + 5, traitsList.Y, chooseRace.W, traitsList.H);
+            DescriptionTextList = Add(new ScrollList<TextListItem>(description, DescriptionTextFont.LineSpacing));
+            DescriptionTextList.SetBackground(new Menu1(description));
             DescriptionTextList.EnableItemEvents = false;
             Add(new SelectedTraitsSummary(this));
 
@@ -242,7 +243,7 @@ namespace Ship_Game
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked)
                 .SetLocalPos(ChooseRaceList.Width / 2 + 10, ChooseRaceList.Height + 10);
 
-            var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.Height + 10);
+            var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.H + 10);
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
             Button(pos.X, pos.Y, text: GameText.RuleOptions, click: OnRuleOptionsClicked);

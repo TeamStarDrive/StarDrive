@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -14,15 +15,12 @@ namespace Ship_Game.GameScreens.Espionage
         public EspionageScreen EspionageScreen;
         public Agent SelectedAgent;
 
-        public Rectangle ComponentRect;
+        public RectF SubRect;
+        public RectF OpsSubRect;
 
-        public Rectangle SubRect;
-
-        public Rectangle OpsSubRect;
-
-        public ScrollList2<AgentListItem> AgentSL;
+        public ScrollList<AgentListItem> AgentSL;
         
-        public ScrollList2<MissionListItem> OpsSL;
+        public ScrollList<MissionListItem> OpsSL;
 
         private ScreenManager ScreenManager;
 
@@ -45,25 +43,23 @@ namespace Ship_Game.GameScreens.Espionage
         private int AvailableSpies;
         private int SpyLimit;
 
-        public AgentComponent(EspionageScreen espionageScreen, Rectangle r, Rectangle operationsRect) : base(r)
+        public AgentComponent(EspionageScreen espionageScreen, RectF r, Rectangle operationsRect) : base(r)
         {
             Universe = espionageScreen.Universe;
             EspionageScreen = espionageScreen;
 
-            ComponentRect = r;
+            RectF componentRect = r;
             ScreenManager = Universe.ScreenManager;
-            SubRect = new Rectangle(ComponentRect.X, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
-            OpsSubRect = new Rectangle(operationsRect.X + 20, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
-            AgentSL = new ScrollList2<AgentListItem>(new Submenu(ComponentRect), 40);
+            SubRect = new(componentRect.X, componentRect.Y + 25, componentRect.W, componentRect.H - 25);
+            OpsSubRect = new(operationsRect.X + 20, componentRect.Y + 25, componentRect.W, componentRect.H - 25);
+            AgentSL = Add(new SubmenuScrollList<AgentListItem>(new RectF(componentRect))).List;
             AgentSL.OnClick = OnAgentItemClicked;
             foreach (Agent agent in Universe.Player.data.AgentList)
                 AgentSL.AddItem(new AgentListItem(agent, Universe));
-            Add(AgentSL);
 
-            Rectangle c = ComponentRect;
+            RectF c = componentRect;
             c.X = OpsSubRect.X;
-            OpsSL = new ScrollList2<MissionListItem>(new Submenu(c), 30);
-            Add(OpsSL);
+            OpsSL = Add(new SubmenuScrollList<MissionListItem>(new RectF(c), 30)).List;
             Training        = new MissionListItem(AgentMission.Training, this);
             Infiltrate      = new MissionListItem(AgentMission.Infiltrate, this);
             Assassinate     = new MissionListItem(AgentMission.Assassinate, this);
@@ -78,7 +74,7 @@ namespace Ship_Game.GameScreens.Espionage
             OpsSL.AddItem(StealTech);
             OpsSL.AddItem(StealShip);
             OpsSL.AddItem(InciteRebellion);
-            RecruitButton = new DanButton(new Vector2(ComponentRect.X, ComponentRect.Y + ComponentRect.Height + 5f), Localizer.Token(GameText.TrainNew))
+            RecruitButton = new DanButton(new Vector2(componentRect.X, componentRect.Y + componentRect.H + 5f), Localizer.Token(GameText.TrainNew))
             {
                 Toggled = true
             };

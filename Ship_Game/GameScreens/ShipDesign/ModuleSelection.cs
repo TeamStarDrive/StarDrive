@@ -9,6 +9,7 @@ using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
+using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -20,45 +21,41 @@ namespace Ship_Game
         Empire Player => Screen.Player;
 
         readonly FighterScrollList ChooseFighterSL;
+        readonly SubmenuScrollList<FighterListItem> ChooseFighterSub;
         readonly ModuleSelectScrollList ModuleSelectList;
         readonly Submenu ActiveModSubMenu;
         readonly TexturedButton Obsolete;
 
-        public ModuleSelection(ShipDesignScreen screen, in Rectangle window) : base(window)
+        public ModuleSelection(ShipDesignScreen screen, LocalPos pos, Vector2 size)
+            : base(pos, size, new LocalizedText[]{ "Wpn", "Pwr", "Def", "Spc" })
         {
             Screen = screen;
             // rounded black background
-            Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210));
+            SetBackground(Colors.TransparentBlackFill);
+            base.PerformLayout(); // necessary
 
-            AddTab("Wpn");
-            AddTab("Pwr");
-            AddTab("Def");
-            AddTab("Spc");
-            ModuleSelectList = Add(new ModuleSelectScrollList(this, Screen));
+            ModuleSelectList = base.Add(new ModuleSelectScrollList(this, Screen));
 
-            var acsub = new Rectangle(Rect.X, Rect.Bottom + 15, 305, 400);
-
-            ActiveModSubMenu = Add(new Submenu(acsub));
-            ActiveModSubMenu.AddTab("Active Module");
+            RectF acsub = new(Rect.X, Rect.Bottom + 15, 305, 400);
+            ActiveModSubMenu = base.Add(new Submenu(acsub, "Active Module"));
             // rounded black background
-            ActiveModSubMenu.Background = new Selector(ActiveModSubMenu.Rect.CutTop(25), new Color(0, 0, 0, 210));
+            ActiveModSubMenu.SetBackground(Colors.TransparentBlackFill);
+
+            // obsolete button
             int obsoleteW = ResourceManager.Texture("NewUI/icon_queue_delete").Width;
             int obsoleteH = ResourceManager.Texture("NewUI/icon_queue_delete").Height;
-            Rectangle obsoletePos = new Rectangle((int)(ActiveModSubMenu.X + ActiveModSubMenu.Width - obsoleteW - 10), (int)ActiveModSubMenu.Y + 38, obsoleteW, obsoleteH);
-            Obsolete = new TexturedButton(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
+            var obsoletePos = new RectF(ActiveModSubMenu.X + ActiveModSubMenu.Width - obsoleteW - 10, ActiveModSubMenu.Y + 38, obsoleteW, obsoleteH);
+            Obsolete = new(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
             Obsolete.Tooltip = GameText.MarkThisModuleAsObsolete;
-            var chooseFighterRect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
-            if (chooseFighterRect.Bottom > Screen.ScreenHeight)
+            
+            RectF fighterR = acsub.Move(acsub.W + 20, 0);
+            ChooseFighterSub = base.Add(new SubmenuScrollList<FighterListItem>(fighterR, "Choose Fighter"));
+            ChooseFighterSub.SetBackground(Colors.TransparentBlackFill);
+            
+            ChooseFighterSL = ChooseFighterSub.Add(new FighterScrollList(ChooseFighterSub, Screen)
             {
-                int diff = chooseFighterRect.Bottom - Screen.ScreenHeight;
-                chooseFighterRect.Height -= (diff + 10);
-            }
-            chooseFighterRect.Height = acsub.Height;
-
-            var chooseFighterSub = new Submenu(chooseFighterRect);
-            chooseFighterSub.AddTab("Choose Fighter");
-            ChooseFighterSL = Add(new FighterScrollList(chooseFighterSub, Screen));
-            ChooseFighterSL.EnableItemHighlight = true;
+                EnableItemHighlight = true
+            });
         }
 
         protected override void OnTabChangedEvt(int newIndex)
@@ -76,7 +73,7 @@ namespace Ship_Game
 
         public bool HitTest(InputState input)
         {
-            return Rect.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
+            return base.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
         }
 
         public override bool HandleInput(InputState input)
@@ -112,6 +109,8 @@ namespace Ship_Game
                 SelectedIndex = 0; // this will trigger OnTabChangedEvt
 
             ActiveModSubMenu.Visible = Screen.ActiveModule != null || Screen.HighlightedModule != null;
+            ChooseFighterSub.Visible = ChooseFighterSL.GetFighterHangar() != null;
+
             base.Update(fixedDeltaTime);
         }
 
@@ -426,7 +425,7 @@ namespace Ship_Game
                 return;
 
             var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.HangarShipUID);
-            string hangarShip = mod.GetHangarShipName();
+            string hangarShip = mod.GetHangarShipName(Player);
             Ship hs = ResourceManager.GetShipTemplate(hangarShip, false);
             if (hs != null)
             {

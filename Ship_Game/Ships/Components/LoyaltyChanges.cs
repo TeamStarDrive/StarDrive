@@ -122,11 +122,19 @@ namespace Ship_Game.Ships.Components
 
         static void SafelyTransferShip(Ship ship, Empire oldLoyalty, Empire newLoyalty)
         {
-            // remove ship from fleet but do not add it back to empire pools.
+            // ship shouldn't stay in any pools or fleets after being captured or federated
+            // also, any orders should be cleared the ensure new owner can assign suitable jobs
+            ship.RemoveFromPoolAndFleet(clearOrders: true);
 
+            // set the new loyalty before updating anything else
             ship.Loyalty = newLoyalty;
 
+            // empire's border scan nodes and subspace influence needs to be transferred
+            ship.Universe.UpdateShipInfluence(ship, oldLoyalty, newLoyalty);
+
+            // TODO: clearing the pin in oldLoyalty makes no bloody sense! threatmatrix should be about enemy ships!!!
             oldLoyalty.AI.ThreatMatrix.ClearPin(ship);
+
             ship.ShipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, newLoyalty);
             ship.ReCalculateTroopsAfterBoard();
@@ -134,12 +142,8 @@ namespace Ship_Game.Ships.Components
             ship.PiratePostChangeLoyalty();
             ship.IsGuardian = newLoyalty.WeAreRemnants;
 
-            IEmpireShipLists oldShips = oldLoyalty;
-            IEmpireShipLists newShips = newLoyalty;
-
-            oldShips.RemoveShipAtEndOfTurn(ship);
-            ship.RemoveFromPool();
-            newShips.AddNewShipAtEndOfTurn(ship);
+            (oldLoyalty as IEmpireShipLists).RemoveShipAtEndOfTurn(ship);
+            (newLoyalty as IEmpireShipLists).AddNewShipAtEndOfTurn(ship);
         }
     }
 }

@@ -25,8 +25,10 @@ namespace Ship_Game.AI
             if (OrderQueue.TryDequeue(out ShipGoal goal))
             {
                 goal.Dispose();
-                ShipGoal nextGoal = OrderQueue.PeekFirst;
-                ChangeAIState(nextGoal?.WantedState ?? DefaultAIState);
+                if (OrderQueue.TryPeekFirst(out ShipGoal nextGoal))
+                    ChangeAIState(nextGoal.WantedState);
+                else
+                    ChangeAIState(DefaultAIState);
             }
         }
 
@@ -35,12 +37,18 @@ namespace Ship_Game.AI
             while (OrderQueue.TryDequeue(out ShipGoal goal))
             {
                 goal.Dispose();
-                ShipGoal nextGoal = OrderQueue.PeekFirst;
-                ChangeAIState(nextGoal?.WantedState ?? DefaultAIState);
-                if (goal.MoveOrder.IsSet(MoveOrder.DequeueWayPoint) && WayPoints.Count > 0)
+                if (OrderQueue.TryPeekFirst(out ShipGoal nextGoal))
                 {
-                    WayPoints.Dequeue();
-                    break;
+                    ChangeAIState(nextGoal.WantedState);
+                    if (goal.MoveOrder.IsSet(MoveOrder.DequeueWayPoint) && WayPoints.Count > 0)
+                    {
+                        WayPoints.Dequeue();
+                        break;
+                    }
+                }
+                else
+                {
+                    ChangeAIState(DefaultAIState);
                 }
             }
         }

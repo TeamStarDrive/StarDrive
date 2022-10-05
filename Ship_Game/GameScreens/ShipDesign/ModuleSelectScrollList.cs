@@ -1,20 +1,22 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
-    public class ModuleSelectScrollList : ScrollList2<ModuleSelectListItem>
+    public class ModuleSelectScrollList : ScrollList<ModuleSelectListItem>
     {
         public readonly ShipDesignScreen Screen;
         Empire Player => Screen.Player;
 
-        public ModuleSelectScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
+        public ModuleSelectScrollList(IClientArea rectSource, ShipDesignScreen screen) : base(rectSource)
         {
-            Screen = shipDesignScreen;
+            Screen = screen;
             EnableItemHighlight = true;
         }
 

@@ -10,11 +10,14 @@ namespace Ship_Game.GameScreens.ShipDesign
 {
     public class ShipInfoOverlayComponent : UIElementV2
     {
-        GameScreen Screen;
-        UniverseState Universe;
+        readonly GameScreen Screen;
+        readonly UniverseState Universe;
+        readonly bool LowRes;
         Empire Player => Universe.Player;
-        Ship SelectedShip;
-        bool LowRes;
+
+        IShipDesign SelectedDesign;
+        DesignShip TempShip;
+        ShipDesignStats Ds => TempShip.DesignStats;
         Graphics.Font TitleFont;
         Graphics.Font Font;
         int TextWidth;
@@ -27,58 +30,53 @@ namespace Ship_Game.GameScreens.ShipDesign
             LowRes = screen.LowRes;
         }
 
-        public void ShowToLeftOf(Vector2 leftOf, IShipDesign ship)
+        float GetSize()
         {
-            if (ship != null && ResourceManager.GetShipTemplate(ship.Name, out Ship template))
+            float minimumSize = LowRes ? 272 : 340;
+            return Math.Max(minimumSize, (Screen.Width * 0.16f).RoundTo10());
+        }
+
+        public void ShowToLeftOf(Vector2 leftOf, IShipDesign design)
+        {
+            Visible = design != null;
+            if (Visible)
             {
-                ShowToLeftOf(leftOf, template);
+                float size = GetSize();
+                ShowShip(design, new(leftOf.X - size*1.6f, leftOf.Y - size/4), size);
             }
         }
 
-        public void ShowToLeftOf(Vector2 leftOf, Ship ship)
+        public void ShowToTopOf(Vector2 topOf, IShipDesign design)
         {
-            if (ship == null)
+            Visible = design != null;
+            if (Visible)
             {
-                Visible = false;
-                return;
+                float size = GetSize();
+                ShowShip(design, new(topOf.X, topOf.Y - size - 20), size);
             }
-
-            float minimumSize = LowRes ? 256 : 320;
-            float size = Math.Max(minimumSize, (Screen.Width * 0.16f).RoundTo10());
-            Vector2 pos = new Vector2(leftOf.X - size*1.6f, leftOf.Y - size/4).RoundTo10();
-            pos.Y = Math.Max(100f, pos.Y);
-            ShowShip(ship, pos, size);
         }
 
-        public void ShowToTopOf(Vector2 topOf, Ship ship)
+        void ShowShip(IShipDesign design, Vector2 screenPos, float shipRectSize)
         {
-            if (ship == null)
-            {
-                Visible = false;
-                return;
-            }
+            screenPos = screenPos.RoundTo10();
+            screenPos.X = Math.Max(100f, screenPos.X);
 
-            float minimumSize = LowRes ? 256 : 320;
-            float size = Math.Max(minimumSize, (Screen.Width * 0.16f).RoundTo10());
-            Vector2 pos = new Vector2(topOf.X, topOf.Y - size - 20).RoundTo10();
-            pos.X = Math.Max(100f, pos.X);
-            ShowShip(ship, pos, size);
-        }
-
-        public void ShowShip(Ship ship, Vector2 screenPos, float shipRectSize)
-        {
-            if (SelectedShip != ship)
+            if (SelectedDesign != design)
             {
-                SelectedShip = ship;
-                ship.RecalculatePower();
-                ship.ShipStatusChange();
+                SelectedDesign = design;
+
+                TempShip = new(Universe, design as Ships.ShipDesign);
+                TempShip.RecalculatePower();
+                TempShip.ShipStatusChange();
             }
 
             Visible = true;
-
             TextWidth = (shipRectSize/2).RoundTo10();
-            Size = new Vector2(shipRectSize + TextWidth, shipRectSize);
+            Size = new(shipRectSize + TextWidth, shipRectSize);
             Pos = screenPos;
+            if (Pos.X < 0) Pos.X = 0;
+            if (Pos.Y < 0) Pos.Y = 0;
+            if (Bottom > Screen.Height) Pos.Y -= (Bottom - Screen.Height);
 
             TitleFont = LowRes ? Fonts.Arial12Bold : Fonts.Arial14Bold;
             Font      = LowRes ? Fonts.Arial8Bold : Fonts.Arial11Bold;
@@ -91,61 +89,103 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Ship ship = SelectedShip;
-            if (!Visible || ship == null)
+            Ship s = TempShip;
+            if (!Visible || s == null)
                 return;
 
             int size = (int)(Height - 56);
-            var shipOverlay = new Rectangle((int)X + TextWidth, (int)Y + 40, size, size);
-            new Menu2(Rect).Draw(batch, elapsed);
+            var shipOverlay = new Rectangle((int)Right - size - 24, (int)Y + 28, size, size);
+            new Menu2(Rect).Draw(batch, elapsed); // background with menu2 borders
 
-            ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
-            float mass          = ship.Stats.GetMass(Player);
-            float warpSpeed     = ship.Stats.GetFTLSpeed(mass, Player);
-            float subLightSpeed = ship.Stats.GetSTLSpeed(mass, Player);
-            float turnRateDeg   = ship.Stats.GetTurnRadsPerSec(ship.Level).ToDegrees();
-            var cursor = new Vector2(X + (Width*0.06f).RoundTo10(), Y + (int)(Height * 0.025f));
-            DrawShipValueLine(batch, TitleFont, ref cursor, ship.Name, "", Color.White);
-            DrawShipValueLine(batch, Font, ref cursor, ship.ShipData.ShipCategory + ", " + ship.ShipData.DefaultCombatState, "", Color.Gray);
-            WriteLine(ref cursor, Font);
-            DrawShipValueLine(batch, Font, ref cursor, "Weapons:", ship.Weapons.Count, Color.LightBlue);
-            DrawShipValueLine(batch, Font, ref cursor, "Max W.Range:", ship.WeaponsMaxRange, Color.LightBlue);
-            DrawShipValueLine(batch, Font, ref cursor, "Avg W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
-            DrawShipValueLine(batch, Font, ref cursor, "Warp:", warpSpeed, Color.LightGreen);
-            DrawShipValueLine(batch, Font, ref cursor, "Speed:", subLightSpeed, Color.LightGreen);
-            DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", turnRateDeg, Color.LightGreen);
-            DrawShipValueLine(batch, Font, ref cursor, "Repair:", ship.RepairRate, Color.Goldenrod);
-            DrawShipValueLine(batch, Font, ref cursor, "Shields:", ship.ShieldMax, Color.Goldenrod);
-            DrawShipValueLine(batch, Font, ref cursor, "EMP Def:", ship.EmpTolerance, Color.Goldenrod);
-            DrawShipValueLine(batch, Font, ref cursor, "Hangars:", ship.Carrier.AllFighterHangars.Length, Color.IndianRed);
-            DrawShipValueLine(batch, Font, ref cursor, "Troop Bays:", ship.Carrier.AllTroopBays.Length, Color.IndianRed);
-            DrawShipValueLine(batch, Font, ref cursor, "Troops:", ship.TroopCapacity, Color.IndianRed);
-            DrawShipValueLine(batch, Font, ref cursor, "Bomb Bays:", ship.BombBays.Count, Color.IndianRed);
-            DrawShipValueLine(batch, Font, ref cursor, "Cargo Space:", ship.CargoSpaceMax, Color.Khaki);
+            s.RenderOverlay(batch, shipOverlay, showModules:true, drawHullBackground:true, moduleHealthColor:false);
+            float mass          = s.Stats.GetMass(Player);
+            float warpSpeed     = s.Stats.GetFTLSpeed(mass, Player);
+            float subLightSpeed = s.Stats.GetSTLSpeed(mass, Player);
+            float turnRateDeg   = s.Stats.GetTurnRadsPerSec(s.Level).ToDegrees();
+
+            var p = new Vector2(X + 25, Y + 22);
+            DrawText(TitleFont, s.Name, "", Color.White);
+            DrawText(Font, $"{s.ShipData.ShipCategory}, {s.ShipData.DefaultCombatState}", "", Color.Gray);
+
+            Vector2 start = p;
+            // --- Core values with icons --- //
+            float charWidth = LowRes ? 8 : 10;
+
+            // left side
+            CoreValue(charWidth*3.5f, "UI/icon_offense", "DPS", Str(s.TotalDps), Color.OrangeRed);
+            if (Ds.HasEnergyWeapons)
+            {
+                float duration = Ds.HasBeams() ? Ds.BurstEnergyDuration : Ds.EnergyDuration;
+                bool isInf = Ds.HasBeams() ? Ds.HasBeamDurationPositive() : Ds.HasEnergyWepsPositive();
+                string energyTime = isInf ? "INF" : $"{duration}s";
+                CoreValue(charWidth*3.5f, "UI/lightningBolt", "ETM", energyTime, Color.LightGoldenrodYellow);
+            }
+            if (Ds.HasOrdnance())
+            {
+                string ammoTime = Ds.HasOrdInfinite() ? "INF" : $"{(int)Ds.AmmoTime}s";
+                CoreValue(charWidth*3.5f, "Modules/Ordnance", "OTM", ammoTime, Color.Khaki);
+            }
+
+            // right side
+            p = new(start.X + charWidth * 10, start.Y);
+            CoreValue(charWidth*2, "UI/icon_shield", "HP", Str(s.HealthMax), Color.CadetBlue);
+            if (s.ShieldMax > 0)
+            {
+                CoreValue(charWidth*2, "Modules/Shield_1KW", "SP", Str(s.ShieldMax), Color.AliceBlue);
+            }
+
+            ////////////////////////////////////
+
+            // verbose stats
+            p = new(start.X, start.Y + 60);
+
+            if (Ds.CompletionPercent != 100)
+            {
+                DrawText(Font, "WIP:", $"{Ds.CompletionPercent}%", Color.Yellow);
+            }
+
+            DrawValue("Weapons:", s.Weapons.Count, Color.LightBlue);
+            if (s.WeaponsMaxRange > 0)
+            {
+                DrawText(Font, "W.Range:", $"{Str(s.WeaponsAvgRange)}..{Str(s.WeaponsMaxRange)}", Color.LightBlue);
+            }
+            DrawValue("Warp:", warpSpeed, Color.LightGreen);
+            DrawValue("Speed:", subLightSpeed, Color.LightGreen);
+            DrawValue("TurnRate:", turnRateDeg, Color.LightGreen);
+            DrawValue("Repair:", s.RepairRate, Color.Goldenrod);
+            DrawValue("EMP Def:", s.EmpTolerance, Color.Goldenrod);
+            DrawValue("Hangars:", s.Carrier.AllFighterHangars.Length, Color.IndianRed);
+            DrawValue("Troops:", s.TroopCapacity, Color.IndianRed);
+            DrawValue("BombBays:", s.BombBays.Count, Color.IndianRed);
+            DrawValue("Cargo:", s.CargoSpaceMax, Color.Khaki);
+
+            void CoreValue(float ident, string icon, string title, string value, Color color)
+            {
+                batch.Draw(ResourceManager.Texture(icon), new RectF(p.X, p.Y, 20, 20), Color.White);
+                batch.DrawString(Font, title, new Vector2(p.X+22, p.Y+1).Rounded(), color);
+                batch.DrawString(Font, value, new Vector2(p.X+22+ident, p.Y+1).Rounded(), color);
+                p.Y += 20;
+            }
+
+            void DrawText(Graphics.Font font, string title, string text, Color color)
+            {
+                var ident = new Vector2(p.X + (TextWidth*0.36f).RoundTo10(), p.Y);
+                batch.DrawString(font, title, p, color);
+                batch.DrawString(font, text, ident, color);
+                p.Y += font.LineSpacing + 2;
+            }
+
+            void DrawValue(string title, float value, Color color)
+            {
+                if (value <= 0f)
+                    return;
+                var ident = new Vector2(p.X + (TextWidth*0.36f).RoundTo10(), p.Y);
+                batch.DrawString(Font, title, p, color);
+                batch.DrawString(Font, Str(value), ident, color);
+                p.Y += Font.LineSpacing + 2;
+            }
         }
 
-        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string title, string text, Color color)
-        {
-            WriteLine(ref cursor, font);
-            var ident = new Vector2(cursor.X + (TextWidth*0.5f).RoundTo10(), cursor.Y);
-            batch.DrawString(font, title, cursor, color);
-            batch.DrawString(font, text, ident, color);
-        }
-
-        void DrawShipValueLine(SpriteBatch batch, Graphics.Font font, ref Vector2 cursor, string title, float value, Color color)
-        {
-            if (value <= 0f)
-                return;
-
-            WriteLine(ref cursor, font);
-            var ident = new Vector2(cursor.X + (TextWidth*0.6f).RoundTo10(), cursor.Y);
-            batch.DrawString(font, title, cursor, color);
-            batch.DrawString(font, value.GetNumberString(), ident, color);
-        }
-
-        static void WriteLine(ref Vector2 cursor, Graphics.Font font)
-        {
-            cursor.Y += font.LineSpacing + 2;
-        }
+        static string Str(float value) => value.GetNumberString();
     }
 }

@@ -1,46 +1,44 @@
 using System;
 using SDGraphics;
-using Ship_Game.AI;
 using Ship_Game.Audio;
-using Ship_Game.GameScreens;
-using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
-using Ray = Microsoft.Xna.Framework.Ray;
 
 namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        private Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, double DesiredCamHeight)
+        Vector3d GetCameraPosFromCursorTarget(InputState input, double desiredCamZ)
         {
-            Vector2 vector2_1 = MousePosition - ScreenCenter;
-            Vector3 position1 = Viewport.Unproject(
-                new Vector3(MousePosition.X, MousePosition.Y, 0.0f), Projection, this.View, Matrix.Identity);
-            Vector3 direction1 =
-                Viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f),
-                    Projection, this.View, Matrix.Identity) - position1;
+            Vector2 mousePos = input.CursorPosition;
 
-            direction1.Normalize();
-            Ray ray = new Ray(position1, direction1);
-            float num1 = -ray.Position.Z / ray.Direction.Z;
-            Vector3 source = new Vector3(ray.Position.X + num1 * ray.Direction.X,
-                ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
+            double currentZ = CamPos.Z;
+            if (currentZ.AlmostEqual(desiredCamZ)) // currentZ cannot equal desiredCamZ, or we'll get NaN-s
+                currentZ += 1.0;
 
-            Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) *
-                          Matrix.CreateRotationX(0.0f.ToRadians()) *
-                          Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, DesiredCamHeight);
-            
-            Vector3 vector3 = Viewport.Project(source, Projection, view, Matrix.Identity);
-            var vector2_2 = new Vector2((int) vector3.X - vector2_1.X, (int) vector3.Y - vector2_1.Y);
-            Vector3 position2 = Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 0.0f), Projection, view, Matrix.Identity);
-            Vector3 direction2 =
-                Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 1f),
-                    Projection, view, Matrix.Identity) - position2;
-            direction2.Normalize();
-            ray = new Ray(position2, direction2);
-            float num2 = -ray.Position.Z / ray.Direction.Z;
-            return new Vector2(ray.Position.X + num2 * ray.Direction.X, ray.Position.Y + num2 * ray.Direction.Y);
+            // nearPoint is the point inside the camera lens
+            Vector3d nearPoint = Viewport.Unproject(new(mousePos, currentZ), Projection, View);
+            // farPoint points away into the world
+            Vector3d farPoint = Viewport.Unproject(new(mousePos, desiredCamZ), Projection, View);
+
+            // get the direction towards the world plane
+            Vector3d dir = (farPoint - nearPoint).Normalized();
+
+            double num = -nearPoint.Z / dir.Z;
+            Vector3d pos2 = (nearPoint + dir * num);
+            if (double.IsNaN(pos2.X) || double.IsNaN(pos2.Y))
+            {
+                Log.Error("CameraPos NaN!!!");
+
+                // TODO: this is here to avoid a fatal View matrix corruption
+                CamPos = new(0, 0, desiredCamZ);
+                Matrix cameraMatrix = Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
+                SetViewMatrix(cameraMatrix);
+                return CamPos;
+            }
+
+            double newX = (pos2.X + CamPos.X) / 2.0;
+            double newY = (pos2.Y + CamPos.Y) / 2.0;
+            return new(newX, newY, desiredCamZ);
         }
 
         public void ViewToShip()
@@ -58,7 +56,7 @@ namespace Ship_Game
             snappingToShip = true;
             AdjustCamTimer = 1.0f;
             transitionElapsedTime = 0.0f;
-            CamDestination.Z = CamDestination.Z.UpperBound(GetZfromScreenState(UniverseScreen.UnivScreenState.PlanetView));
+            CamDestination.Z = CamDestination.Z.UpperBound(GetZfromScreenState(UnivScreenState.PlanetView));
             snappingToShip = true;
             ViewingShip = true;
         }
@@ -327,11 +325,11 @@ namespace Ship_Game
             if (SelectedShip != null)
             {
                 ViewingShip = false;
-                ChaseCam();
+                ToggleViewingShip();
             }
             else if (SelectedPlanet != null)
             {
-                ViewPlanet( UnivScreenState.PlanetView);
+                ViewPlanet(UnivScreenState.PlanetView);
             }
             else if (SelectedSystem != null)
             {
@@ -362,21 +360,21 @@ namespace Ship_Game
             {
                 AdjustCamTimer = 1f;
                 transitionElapsedTime = 0.0f;
-                CamDestination = new Vector3d(CamPos.X, CamPos.Y, 1175000.0);
+                CamDestination = new(CamPos.X, CamPos.Y, 1175000.0);
             }
             else if (CamPos.Z > GetZfromScreenState(UnivScreenState.ShipView))
             {
                 AdjustCamTimer = 1f;
                 transitionElapsedTime = 0.0f;
-                CamDestination = new Vector3d(CamPos.X, CamPos.Y, 147000.0);
+                CamDestination = new(CamPos.X, CamPos.Y, 147000.0);
             }
             else if (viewState < UnivScreenState.SystemView)
             {
-                CamDestination = new Vector3d(CamPos.X, CamPos.Y, GetZfromScreenState(UnivScreenState.SystemView));
+                CamDestination = new(CamPos.X, CamPos.Y, GetZfromScreenState(UnivScreenState.SystemView));
             }
         }
 
-        void ChaseCam()
+        void ToggleViewingShip()
         {
             if (!ViewingShip)
             {

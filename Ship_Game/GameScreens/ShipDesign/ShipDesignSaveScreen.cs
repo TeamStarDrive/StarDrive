@@ -7,6 +7,7 @@ using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
@@ -20,8 +21,8 @@ namespace Ship_Game
         public readonly string ShipName;
         UITextEntry EnterNameArea;
         string BaseWIPName;
-        Submenu SubAllDesigns;
-        ScrollList2<ShipDesignListItem> ShipDesigns;
+        SubmenuScrollList<ShipDesignListItem> SubAllDesigns;
+        ScrollList<ShipDesignListItem> ShipDesigns;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         readonly bool Hulls;
@@ -75,20 +76,19 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Submenu background = Add(new Submenu(Rect.X + 20, Rect.Y + 20, Rect.Width - 40, 80));
-            background.Background = new Menu1(Rect);
-            background.AddTab(Hulls ? GameText.SaveHullDesign : GameText.SaveShipDesign);
+            RectF bkg = new(Rect.X + 20, Rect.Y + 20, Rect.Width - 40, 80);
+            Submenu background = Add(new Submenu(bkg, Hulls ? GameText.SaveHullDesign : GameText.SaveShipDesign));
+            background.SetBackground(new Menu1(Rect));
 
-            SubAllDesigns = new Submenu(background.X, background.Y + 90, background.Width,
-                                        Rect.Height - background.Height - 50);
-            SubAllDesigns.AddTab(GameText.SimilarDesignNames);
+            RectF subAllDesignsR = new(background.X, background.Y + 90, background.Width, Rect.Height - background.Height - 50);
+            SubAllDesigns = Add(new SubmenuScrollList<ShipDesignListItem>(subAllDesignsR, GameText.SimilarDesignNames));
 
             EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), GameText.DesignName));
             EnterNameArea.Text = ShipName;
             EnterNameArea.Color = Colors.Cream;
             EnterNameArea.OnTextChanged = PopulateDesigns;
 
-            ShipDesigns = Add(new ScrollList2<ShipDesignListItem>(SubAllDesigns));
+            ShipDesigns = SubAllDesigns.List;
             ShipDesigns.EnableItemHighlight = true;
             ShipDesigns.OnClick = OnShipDesignItemClicked;
 

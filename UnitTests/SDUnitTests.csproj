@@ -83,6 +83,7 @@
     <Compile Include="Collections\TestEnumFlatMap.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
+    <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="Fleets\FleetTests.cs" />
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="Collections\ArrayT_Tests.cs" />
@@ -178,7 +179,7 @@
     </ProjectReference>
     <ProjectReference Include="..\StarDrive.csproj">
       <Project>{8071e07a-300e-485d-b139-066e15e82178}</Project>
-      <Name>-p%3bl.47</Name>
+      <Name>StarDrive</Name>
     </ProjectReference>
     <ProjectReference Include="..\SynapseGaming-SunBurn-Pro\SDSunBurn.csproj">
       <Project>{bb003976-4764-4f4e-9a98-ddfb8449eccd}</Project>

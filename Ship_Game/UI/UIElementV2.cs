@@ -130,6 +130,7 @@ namespace Ship_Game
         public int ZOrder;
         
         public bool Visible = true; // If TRUE, this UIElement is rendered
+        public bool Hidden { get => !Visible; set => Visible = !value; }
         public bool Enabled = true; // If TRUE, this UIElement can receive input events
         protected internal bool DeferredRemove; // If TRUE, this UIElement will be deleted during update
 
@@ -144,7 +145,7 @@ namespace Ship_Game
 
         public Rectangle Rect
         {
-            get => new Rectangle((int)Pos.X, (int)Pos.Y, (int)Size.X, (int)Size.Y);
+            get => new((int)Pos.X, (int)Pos.Y, (int)Size.X, (int)Size.Y);
             set
             {
                 Pos.X = value.X;
@@ -156,7 +157,7 @@ namespace Ship_Game
 
         public RectF RectF
         {
-            get => new RectF(Pos, Size);
+            get => new(Pos, Size);
             set
             {
                 Pos.X = value.X;
@@ -370,6 +371,11 @@ namespace Ship_Game
             SetLocalPos(localPos);
             Size = size;
         }
+        protected UIElementV2(in LocalPos localPos, in RelSize size)
+        {
+            SetLocalPos(localPos);
+            SetRelSize(size);
+        }
         protected UIElementV2(in Rectangle rect)
         {
             Pos = new Vector2(rect.X, rect.Y);
@@ -441,8 +447,6 @@ namespace Ship_Game
 
         // 3. finally we draw
         public abstract void Draw(SpriteBatch batch, DrawTimes elapsed);
-
-        public void RunOnEmpireThread(Action action) => ScreenManager.Instance.RunOnEmpireThread(action);
 
         public void RemoveFromParent(bool deferred = false)
         {

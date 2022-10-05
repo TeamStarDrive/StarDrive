@@ -1,16 +1,13 @@
-using Ship_Game.AI;
-using Ship_Game.Empires;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Empires.Components;
 using Vector2 = SDGraphics.Vector2;
-using Vector3 = SDGraphics.Vector3;
 using System.Diagnostics;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -23,18 +20,18 @@ namespace Ship_Game
         Thread SimThread;
 
         // This is our current time in simulation time axis [0 .. current .. target]
-        float CurrentSimTime;
+        public float CurrentSimTime;
 
         // This is the known end time in simulation time axis [0 ... target]
-        float TargetSimTime;
+        public float TargetSimTime;
 
         // Modifier to increase or reduce simulation fidelity
         int SimFPSModifier;
 
         readonly PerfTimer TimeSinceLastAutoFPS = new PerfTimer();
 
-        int CurrentSimFPS => GlobalStats.SimulationFramesPerSecond + SimFPSModifier;
-        int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / UState.GameSpeed);
+        public int CurrentSimFPS => GlobalStats.SimulationFramesPerSecond + SimFPSModifier;
+        public int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / UState.GameSpeed);
 
         /// <summary>
         /// NOTE: This must be called from UI Update thread to advance the simulation time forward
@@ -108,11 +105,14 @@ namespace Ship_Game
 
         void ProcessSimulationTurns()
         {
-            if (UState.Paused)
+            // process pending saves before entering the main loop 
+            CheckForPendingSaves();
+
+            if (UState.Paused || IsSaving)
             {
                 // Execute all the actions submitted from UI thread
                 // into this Simulation / Empire thread
-                ScreenManager.InvokePendingEmpireThreadActions();
+                InvokePendingSimThreadActions();
                 ++SimTurnId;
 
                 // recalculates empire stats and updates lists using current shiplists
@@ -123,8 +123,6 @@ namespace Ship_Game
             }
             else
             {
-                CheckAutoSaveTimer();
-
                 if (IsActive)
                 {
                     // Edge case: user manually edited global sim FPS
@@ -203,7 +201,8 @@ namespace Ship_Game
         // This does a single simulation step with fixed time step
         public void SingleSimulationStep(FixedSimTime timeStep)
         {
-            ScreenManager.InvokePendingEmpireThreadActions();
+            InvokePendingSimThreadActions();
+
             if (ProcessTurnEmpires(timeStep))
             {
                 UpdateInfluenceForAllEmpires(this, timeStep);
@@ -212,20 +211,6 @@ namespace Ship_Game
 
                 ProcessTurnUpdateMisc(timeStep);
                 EndOfTurnUpdate(timeStep);
-            }
-        }
-
-        void CheckAutoSaveTimer()
-        {
-            GameBase game = GameBase.Base;
-            if (LastAutosaveTime == 0f)
-                LastAutosaveTime = game.TotalElapsed;
-
-            float timeSinceLastAutoSave = (game.TotalElapsed - LastAutosaveTime);
-            if (timeSinceLastAutoSave >= GlobalStats.AutoSaveFreq)
-            {
-                LastAutosaveTime = game.TotalElapsed;
-                AutoSaveCurrentGame();
             }
         }
 
@@ -264,13 +249,16 @@ namespace Ship_Game
 
             UState.JunkList.ApplyPendingRemovals();
 
-            for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
+            if (anomalyManager != null)
             {
-                Anomaly anomaly = anomalyManager.AnomaliesList[i];
-                anomaly.Update(timeStep);
-            }
+                for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
+                {
+                    Anomaly anomaly = anomalyManager.AnomaliesList[i];
+                    anomaly.Update(timeStep);
+                }
 
-            anomalyManager.AnomaliesList.ApplyPendingRemovals();
+                anomalyManager.AnomaliesList.ApplyPendingRemovals();
+            }
 
             if (timeStep.FixedTime > 0)
             {
@@ -329,49 +317,24 @@ namespace Ship_Game
         bool ProcessTurnEmpires(FixedSimTime timeStep)
         {
             PreEmpirePerf.Start();
-
-            if (!IsActive)
             {
-                ShowingSysTooltip = false;
-                ShowingPlanetToolTip = false;
-            }
-
-            RecomputeFleetButtons(false);
-
-            if (SelectedShip != null)
-            {
-                ProjectPieMenu(new Vector3(SelectedShip.Position, 0.0f));
-            }
-            else if (SelectedPlanet != null)
-            {
-                ProjectPieMenu(SelectedPlanet.Position3D);
-            }
-
-            // todo figure what to do with this
-            /*
-            if (GlobalStats.RemnantArmageddon)
-            {
-                ArmageddonCountdown(timeStep);
-            }
-                ArmageddonTimer -= timeStep.FixedTime;
-                if (ArmageddonTimer < 0f)
+                if (!IsActive)
                 {
-                    ArmageddonTimer = 300f;
-                    ++ArmageddonCounter;
-                    if (ArmageddonCounter > 5)
-                        ArmageddonCounter = 5;
-                    for (int i = 0; i < ArmageddonCounter; ++i)
-                    {
-                        Ship exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
-                                player.WeightedCenter + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
-                                    RandomMath.RandomBetween(-500000f, 500000f)));
-                        exterminator.AI.DefaultAIState = AIState.Exterminate;
-                    }
+                    ShowingSysTooltip = false;
+                    ShowingPlanetToolTip = false;
+                }
+
+                RecomputeFleetButtons(false);
+
+                if (SelectedShip != null)
+                {
+                    ProjectPieMenu(new(SelectedShip.Position, 0f));
+                }
+                else if (SelectedPlanet != null)
+                {
+                    ProjectPieMenu(SelectedPlanet.Position3D);
                 }
             }
-            ArmageddonCountdown(timeStep);
-            */
-
             PreEmpirePerf.Stop();
             
             if (!UState.Paused && IsActive)
@@ -412,7 +375,11 @@ namespace Ship_Game
                         }
                     }
                 }
-                Parallel.For(UState.Empires.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
+
+                if (UState.Objects.EnableParallelUpdate)
+                    Parallel.For(UState.Empires.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
+                else
+                    PostEmpireUpdate(0, UState.Empires.Count);
             }
 
             PostEmpirePerf.Stop();
@@ -430,6 +397,35 @@ namespace Ship_Game
             }
         }
 
+        // TODO: This needs to be reimplemented
+        void HandleArmageddon()
+        {
+            // todo figure what to do with this
+            /*
+            if (GlobalStats.RemnantArmageddon)
+            {
+                ArmageddonCountdown(timeStep);
+            }
+                ArmageddonTimer -= timeStep.FixedTime;
+                if (ArmageddonTimer < 0f)
+                {
+                    ArmageddonTimer = 300f;
+                    ++ArmageddonCounter;
+                    if (ArmageddonCounter > 5)
+                        ArmageddonCounter = 5;
+                    for (int i = 0; i < ArmageddonCounter; ++i)
+                    {
+                        Ship exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
+                                player.WeightedCenter + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
+                                    RandomMath.RandomBetween(-500000f, 500000f)));
+                        exterminator.AI.DefaultAIState = AIState.Exterminate;
+                    }
+                }
+            }
+            ArmageddonCountdown(timeStep);
+            */
+        }
+        
         /*
         void ArmageddonCountdown(FixedSimTime timeStep)
         {
@@ -468,6 +464,33 @@ namespace Ship_Game
             return increase
                 ? speed <= 1 ? speed * 2 : speed + 1
                 : speed <= 1 ? speed / 2 : speed - 1;
+        }
+
+        // Thread safe input queue for running UI input on empire thread
+        readonly SafeQueue<Action> PendingSimThreadActions = new SafeQueue<Action>();
+        
+        /// <summary>
+        /// Invokes all Pending actions. This should only be called from ProcessTurns !!!
+        /// </summary>
+        public void InvokePendingSimThreadActions()
+        {
+            while (PendingSimThreadActions.TryDequeue(out Action action))
+                action();
+        }
+
+        /// <summary>
+        /// Queues action to run on the Simulation thread, aka ProcessTurns thread.
+        /// </summary>
+        public void RunOnSimThread(Action action)
+        {
+            if (action != null)
+            {
+                PendingSimThreadActions.Enqueue(action);
+            }
+            else
+            {
+                Log.WarningWithCallStack("Null Action passed to RunOnEmpireThread method");
+            }
         }
     }
 }
