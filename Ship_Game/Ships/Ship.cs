@@ -114,7 +114,7 @@ namespace Ship_Game.Ships
         [StarData] public bool InCombat;
         public float XRotation;
         public float BonusEMPProtection;
-        public bool InSensorRange => KnownByEmpires.KnownByPlayer(Universe);
+        public bool InPlayerSensorRange => KnownByEmpires.KnownByPlayer(Universe);
         public KnownByEmpire KnownByEmpires;
         public KnownByEmpire HasSeenEmpires;
         public bool EMPDisabled;

@@ -2342,7 +2342,7 @@ namespace Ship_Game
                 {
                     ref InfluenceNode n = ref borderShips[i];
                     n.Position = n.Source.Position;
-                    n.KnownToPlayer = ((Ship)n.Source).InSensorRange;
+                    n.KnownToPlayer = ((Ship)n.Source).InPlayerSensorRange;
                 }
                 for (int i = 0; i < nBorderPlanets; ++i)
                 {
@@ -2355,7 +2355,7 @@ namespace Ship_Game
 
         bool IsShipKnownToPlayer(Ship ship)
         {
-            return ship.InSensorRange || IsThisEmpireKnownByPlayer();
+            return ship.InPlayerSensorRange || IsThisEmpireKnownByPlayer();
         }
 
         bool IsThisEmpireWellKnownByPlayer()
