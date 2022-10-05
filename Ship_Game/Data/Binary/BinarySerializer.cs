@@ -12,9 +12,6 @@ public class BinarySerializer : UserTypeSerializer
     // The currently supported version
     public const uint CurrentVersion = 1;
 
-    // Version from deserialized data
-    public uint Version { get; private set; } = CurrentVersion;
-
     // WARNING: this is unsafe on abstract/virtual types!
     public BinarySerializer(Type type) : base(type, new BinaryTypeMap())
     {
@@ -99,10 +96,10 @@ public class BinarySerializer : UserTypeSerializer
             return null;
         }
 
-        Version = header.Version;
-        if (Version != CurrentVersion)
+        uint version = header.Version;
+        if (version != CurrentVersion)
         {
-            Log.Warning($"BinarySerializer.Deserialize version mismatch: file({Version}) != current({CurrentVersion})");
+            Log.Warning($"BinarySerializer.Deserialize version mismatch: file({version}) != current({CurrentVersion})");
         }
 
         if (header.NumTypeGroups != 0)

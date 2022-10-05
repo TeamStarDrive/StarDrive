@@ -42,7 +42,7 @@ namespace Ship_Game
         public void Save(string saveAs)
         {
             SaveFile = new($"{DefaultSaveGameFolder}{saveAs}.sav");
-            SaveUniverseData(State, SaveFile);
+            SaveUniverseData(State, SaveFile, collectMemory: false);
         }
 
         public TaskResult SaveAsync(string saveAs, Action<Exception> finished)
@@ -55,7 +55,7 @@ namespace Ship_Game
             {
                 try
                 {
-                    SaveUniverseData(State, SaveFile);
+                    SaveUniverseData(State, SaveFile, collectMemory:false);
                     finished(null);
                 }
                 catch (Exception e)
@@ -66,7 +66,7 @@ namespace Ship_Game
             return saveTask;
         }
 
-        void SaveUniverseData(UniverseState state, FileInfo saveFile)
+        void SaveUniverseData(UniverseState state, FileInfo saveFile, bool collectMemory)
         {
             var t = new PerfTimer();
 
@@ -93,8 +93,8 @@ namespace Ship_Game
             }
 
             Log.Info($"Binary Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length / (1024.0 * 1024.0):0.0}MB)");
-
-            HelperFunctions.CollectMemory();
+            if (collectMemory)
+                HelperFunctions.CollectMemory();
         }
 
         public static UniverseState Deserialize(FileInfo saveFile, bool verbose)

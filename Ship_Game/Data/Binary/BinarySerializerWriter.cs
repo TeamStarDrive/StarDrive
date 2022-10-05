@@ -47,6 +47,8 @@ public class BinarySerializerWriter
         TypeGroups = rs.TypeGroups;
         Types = rs.Types;
 
+        Log.Info($"Serializer NumObjects={NumObjects} NumTypes={TypeGroups.Length}");
+
         // find the root object ID from the neatly sorted type groups
         RootObjectId = rs.RootObjectId;
     }
