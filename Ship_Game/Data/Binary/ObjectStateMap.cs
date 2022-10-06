@@ -12,14 +12,14 @@ namespace Ship_Game.Data.Binary;
 public class ObjectStateMap
 {
     public readonly TypeSerializer Ser;
-    IInstanceMap Instances;
+    readonly IInstanceMap Instances;
     public IReadOnlyCollection<ObjectState> Objects => Instances.Values;
     public int NumObjects => Instances.Values.Count;
 
     public ObjectStateMap(TypeSerializer ser)
     {
         Ser = ser;
-        if (ser is UserTypeSerializer us && us.IsIEquatableT && !us.IsValueType)
+        if (ser is UserTypeSerializer { IsIEquatableT: true, IsValueType: false })
         {
             var mapType = typeof(EquatableInstanceMap<>).MakeGenericType(ser.Type);
             Instances = (IInstanceMap)Activator.CreateInstance(mapType);
@@ -38,25 +38,24 @@ public class ObjectStateMap
         void Add(object instance, ObjectState state);
     }
 
-    class EquatableInstanceMap<T> : IInstanceMap where T : class
+    class EquatableInstanceMap<T> : Map<T, ObjectState>, IInstanceMap where T : class
     {
-        class Comparer : IEqualityComparer<T> // only ever use ReferenceEquals() for IEquatable instances
+        class EComparer : IEqualityComparer<T> // only ever use ReferenceEquals() for IEquatable instances
         {
             public bool Equals(T x, T y) => ReferenceEquals(x, y);
             public int GetHashCode(T obj) => obj.GetHashCode();
         }
-        readonly Map<T, ObjectState> Mapping = new(new Comparer());
-        public IReadOnlyCollection<ObjectState> Values => Mapping.Values;
-        public bool Get(object instance, out ObjectState state) => Mapping.TryGetValue((T)instance, out state);
-        public void Add(object instance, ObjectState state)     => Mapping.Add((T)instance, state);
+        public EquatableInstanceMap() : base(new EComparer()) {}
+        public new IReadOnlyCollection<ObjectState> Values => base.Values;
+        public bool Get(object instance, out ObjectState state) => TryGetValue((T)instance, out state);
+        public void Add(object instance, ObjectState state)     => base.Add((T)instance, state);
     }
 
-    class InstanceMap<T> : IInstanceMap
+    class InstanceMap<T> : Map<T, ObjectState>, IInstanceMap
     {
-        readonly Map<T, ObjectState> Mapping = new();
-        public IReadOnlyCollection<ObjectState> Values => Mapping.Values;
-        public bool Get(object instance, out ObjectState state) => Mapping.TryGetValue((T)instance, out state);
-        public void Add(object instance, ObjectState state)     => Mapping.Add((T)instance, state);
+        public new IReadOnlyCollection<ObjectState> Values => base.Values;
+        public bool Get(object instance, out ObjectState state) => TryGetValue((T)instance, out state);
+        public void Add(object instance, ObjectState state)     => base.Add((T)instance, state);
     }
 
     public bool Get(object instance, out ObjectState state)
