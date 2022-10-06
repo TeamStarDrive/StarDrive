@@ -19,7 +19,7 @@ namespace Ship_Game
         [StarData] public Vector2 Source;
         [StarData] public Vector2 Destination;
         [StarData] public Vector2 ActualHitDestination; // actual location where beam hits another ship
-        [StarData] public Ship TargetShip { get; } // setter used by serializer
+        [StarData] public Ship TargetShip { get; private set; } // setter used by serializer
         [StarData] int TargetModIdx; // TODO: can be removed if we support ShipModule serialization
 
         public GameObject Target
