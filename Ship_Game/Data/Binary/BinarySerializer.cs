@@ -17,7 +17,7 @@ public class BinarySerializer : UserTypeSerializer
     {
         if (type.IsAbstract)
             throw new InvalidOperationException($"BinarySerializer should not be initialized with an abstract class type: {type}");
-        TypeMap.Add(this);
+        ScanRootType();
     }
 
     public BinarySerializer(object instance) : this(instance.GetType())
