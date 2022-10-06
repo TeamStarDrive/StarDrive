@@ -19,17 +19,33 @@ namespace Ship_Game
         [StarData] public Vector2 Source;
         [StarData] public Vector2 Destination;
         [StarData] public Vector2 ActualHitDestination; // actual location where beam hits another ship
-        [StarData] public Ship TargetShip { get; private set; } // setter used by serializer
-        [StarData] public int TargetModule; // TODO: can be removed if we support ShipModule serialization
+        [StarData] public Ship TargetShip { get; } // setter used by serializer
+        [StarData] int TargetModIdx; // TODO: can be removed if we support ShipModule serialization
 
         public GameObject Target
         {
             get
             {
                 if (TargetShip == null) return null;
-                if (TargetModule == 0) return TargetShip;
+                if (TargetModIdx == 0) return TargetShip;
                 if (TargetShip.Modules.Length == 0) return null;
-                return TargetShip.Modules[TargetModule - 1];
+                return TargetShip.Modules[TargetModIdx - 1];
+            }
+        }
+
+        public ShipModule TargetModule
+        {
+            get
+            {
+                if (TargetShip == null || TargetModIdx == 0) return null;
+                return TargetShip.Modules[TargetModIdx - 1];
+            }
+            set
+            {
+                if (value != null && TargetShip != null)
+                    TargetModIdx = TargetShip.Modules.IndexOf(value) + 1;
+                else
+                    TargetModIdx = 0;
             }
         }
 
@@ -57,7 +73,7 @@ namespace Ship_Game
             var targetModule = (target as ShipModule);
             TargetShip = targetModule?.GetParent() ?? target as Ship;
             if (targetModule != null && TargetShip != null)
-                TargetModule = TargetShip.Modules.IndexOf(targetModule) + 1;
+                TargetModIdx = TargetShip.Modules.IndexOf(targetModule) + 1;
 
             BeamInit(source, destination);
         }
@@ -382,7 +398,6 @@ namespace Ship_Game
     public sealed class DroneBeam : Beam
     {
         [StarData] readonly DroneAI AI;
-        [StarData] ShipModule ModuleToRepair;
 
         [StarDataConstructor] DroneBeam() {}
 
@@ -404,20 +419,22 @@ namespace Ship_Game
             Source = AI.Drone.Position;
             SetActualHitDestination(AI.DroneTarget?.Position ?? Source);
             // Apply drone repair effect, 5 times more if not in combat
-            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
+            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && TargetShip is { } targetShip)
             {
-                if (ModuleToRepair != null)
+                ShipModule moduleToRepair = TargetModule;
+                if (moduleToRepair != null)
                 {
                     float repairMultiplier = targetShip.OnLowAlert ? 5 : 1;
                     float repairAmount = -DamageAmount * repairMultiplier * timeStep.FixedTime;
-                    ModuleToRepair.Repair(repairAmount);
-                    if (ModuleToRepair.HealthPercent > 0.99f)
-                        ModuleToRepair = null;
+
+                    moduleToRepair.Repair(repairAmount);
+                    if (moduleToRepair.HealthPercent > 0.99f)
+                        TargetModule = null;
                 }
                 else
                 {
                     int repairLevel = Owner?.Level ?? 0;
-                    ModuleToRepair = targetShip.GetModuleToRepair(repairLevel);
+                    TargetModule = targetShip.GetModuleToRepair(repairLevel);
                 }
             }
 
