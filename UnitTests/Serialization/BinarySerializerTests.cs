@@ -1218,7 +1218,7 @@ namespace UnitTests.Serialization
             CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large, numExtraShipsPerEmpire: 100);
             Universe.SingleSimulationStep(TestSimStep);
 
-            const int iterations = 20;
+            const int iterations = 5;
 
             var timer = new PerfTimer();
 
