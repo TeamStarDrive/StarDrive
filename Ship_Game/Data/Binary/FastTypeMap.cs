@@ -28,7 +28,7 @@ public class FastTypeMap
         // we've encountered brand new abstract types, so map needs to expand
         if (index >= StateMaps.Length)
         {
-            int newLength = index.RoundUpToMultipleOf(32);
+            int newLength = (index+32).RoundUpToMultipleOf(32);
             Array.Resize(ref StateMaps, newLength);
         }
 
