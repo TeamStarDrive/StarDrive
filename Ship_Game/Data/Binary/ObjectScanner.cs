@@ -136,6 +136,7 @@ public class ObjectScanner
     internal uint ScanObjectState(TypeSerializer ser, object instance, DataField owner)
     {
         // if it's the default value, no need to map it or anything
+        // this reduces the output binary size significantly
         if (IsDefaultValue(ser, instance, owner))
             return 0u;
 
