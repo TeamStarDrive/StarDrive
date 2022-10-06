@@ -17,7 +17,7 @@ namespace Ship_Game.Data.Serialization.Types
         public readonly Type GenericMapType;
 
         delegate IDictionary New();
-        readonly New NewMap;
+        New NewMap;
 
         public MapSerializer(Type type,
                              Type keyType, TypeSerializer keySerializer,
@@ -28,9 +28,14 @@ namespace Ship_Game.Data.Serialization.Types
             KeySerializer = keySerializer;
             IsMapType = true;
             GenericMapType = typeof(Map<,>).MakeGenericType(keyType, valType);
+            NewMap = InitNewMap;
+        }
 
+        IDictionary InitNewMap()
+        {
             // () => (IDictionary)new Map<TKey, TValue>();
             NewMap = E.Lambda<New>(E.Convert(E.New(GenericMapType), typeof(IDictionary))).Compile();
+            return NewMap();
         }
 
         public override object Convert(object value)
