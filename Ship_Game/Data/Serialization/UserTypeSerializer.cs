@@ -209,7 +209,7 @@ public abstract class UserTypeSerializer : TypeSerializer
 
     // This is somewhat slow, which is why it should be done only once,
     // and all fields should be immutable
-    public void ResolveTypes()
+    internal void ResolveTypes()
     {
         if (Mapping != null)
             return;
@@ -232,6 +232,16 @@ public abstract class UserTypeSerializer : TypeSerializer
 
         foreach (DataField field in Fields)
             Mapping.Add(field.Name, field);
+    }
+    
+    protected void ScanRootType()
+    {
+        TypeMap.Add(this);
+        while (TypeMap.PendingResolve.TryPopLast(out UserTypeSerializer us))
+        {
+            us.ResolveTypes();
+        }
+        TypeMap.PendingResolve = null; // disable pending resolver for further dynamic Get(type) calls
     }
 
     void GetFieldsAndProps(Array<DataField> dataFields, Type type, Type shouldSerializeAttr)

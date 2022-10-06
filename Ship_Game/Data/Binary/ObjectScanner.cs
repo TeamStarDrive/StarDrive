@@ -23,17 +23,11 @@ public record struct ScannedTypes(
     TypeSerializer[] All  // Fundamental+Values+Classes+Collections in this order
 );
 
-public readonly struct PendingScan
+public struct PendingScan
 {
-    public readonly ObjectState State;
-    public readonly TypeSerializer Ser;
-    public readonly DataField Owner;
-    public PendingScan(ObjectState state, TypeSerializer ser, DataField owner)
-    {
-        State = state;
-        Ser = ser;
-        Owner = owner;
-    }
+    public ObjectState State;
+    public TypeSerializer Ser;
+    public DataField Owner;
 }
 
 public class ObjectScanner
@@ -110,15 +104,6 @@ public class ObjectScanner
     int NumPending;
     PendingScan[] PendingScan;
 
-    internal void AddToPendingScan(ObjectState state, TypeSerializer ser, DataField owner)
-    {
-        if (NumPending == PendingScan.Length)
-        {
-            Array.Resize(ref PendingScan, NumPending*2);
-        }
-        PendingScan[NumPending++] = new(state, ser, owner);
-    }
-
     // Scans from Root object for serializable child-objects
     internal uint ScanFromRoot(TypeSerializer rootSer, object rootObj)
     {
@@ -171,7 +156,17 @@ public class ObjectScanner
 
         if (!ser.IsFundamentalType)
         {
-            AddToPendingScan(state, ser, owner); // add to list of pending scans for child objects
+            // add to list of pending scans for child objects, INLINED for performance
+            if (NumPending == PendingScan.Length)
+            {
+                Array.Resize(ref PendingScan, NumPending*2);
+            }
+        
+            // add the item in-place
+            ref PendingScan p = ref PendingScan[NumPending++];
+            p.State = state;
+            p.Ser = ser;
+            p.Owner = owner;
         }
         return state.Id;
     }

@@ -22,6 +22,9 @@ public abstract class TypeSerializerMap
     public int NumTypes => FlatMap.Count;
     public int MaxTypeId => FlatMap.Count - 1;
 
+    // UserClass types which are currently pending to be resolved
+    public Array<UserTypeSerializer> PendingResolve = new();
+
     protected TypeSerializerMap()
     {
         FlatMap.Resize(TypeSerializer.MaxFundamentalTypes);
@@ -94,7 +97,14 @@ public abstract class TypeSerializerMap
         FlatMap.Add(ser);
 
         if (ser is UserTypeSerializer userSer)
-            userSer.ResolveTypes();
+        {
+            // during serializer init, types are resolved lazily
+            if (PendingResolve != null)
+                PendingResolve.Add(userSer);
+            else // otherwise during serializer Scan, types are resolved immediately
+                userSer.ResolveTypes();
+        }
+
         return ser;
     }
 

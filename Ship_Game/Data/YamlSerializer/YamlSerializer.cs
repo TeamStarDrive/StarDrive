@@ -19,7 +19,7 @@ namespace Ship_Game.Data.YamlSerializer
 
         public YamlSerializer(Type type) : base(type, new YamlTypeMap())
         {
-            ResolveTypes();
+            ScanRootType();
         }
 
         public YamlSerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
