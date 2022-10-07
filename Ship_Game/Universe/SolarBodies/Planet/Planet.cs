@@ -132,6 +132,7 @@ namespace Ship_Game
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * Empire.RacialEnvModifer(Category, empire);
         public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * Empire.RacialEnvModifer(Category, empire);
+        public float MaxBaseFertilityFor(Empire empire) => BaseMaxFertility * Empire.RacialEnvModifer(Category, empire);
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -195,10 +196,12 @@ namespace Ship_Game
 
         public float BasePopPerBioSphere => BasePopPerTile / 2;
 
-        public float PotentialMaxFertilityFor(Empire empire)
+        // useBaseMaxFertility will give a more stable value
+        public float PotentialMaxFertilityFor(Empire empire, bool useBaseMaxFertility)
         {
             float minimumMaxFertilityPotential = empire.CanFullTerraformPlanets ? 1 : 0;
-            return MaxFertilityFor(empire).LowerBound(minimumMaxFertilityPotential);
+            float potentialFert = useBaseMaxFertility ? MaxBaseFertilityFor(empire) : MaxFertilityFor(empire);
+            return potentialFert.LowerBound(minimumMaxFertilityPotential);
         }
 
         public float MinimumPop => BasePopPerTile / 2; // At least 1/2 tile's worth population and any max pop bonus buildings have
@@ -455,7 +458,7 @@ namespace Ship_Game
             return value;
         }
 
-        public float ColonyPotentialValue(Empire empire)
+        public float ColonyPotentialValue(Empire empire, bool useBaseMaxFertility = false)
         {
             if (!Habitable)
                 return 0;
@@ -463,7 +466,7 @@ namespace Ship_Game
             float value = 0;
             if (empire.NonCybernetic)
             {
-                float potentialFert = PotentialMaxFertilityFor(empire);
+                float potentialFert = PotentialMaxFertilityFor(empire, useBaseMaxFertility);
                 value += potentialFert * potentialFert * 50;
                 value += MineralRichness * 5;
             }
