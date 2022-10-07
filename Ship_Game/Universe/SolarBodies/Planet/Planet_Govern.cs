@@ -105,7 +105,9 @@ namespace Ship_Game
                 // Note - dept tolerance is a positive number added to the budget for founded colonies.
                 // The bigger the colony, the less debt tolerance it has, it should be earning money
                 // No debt tolerance if the colony has 50% pop or more.
-                float baseOverSpend = (1 - PopulationRatio*2).LowerBound(0);
+                // For low pop planets (2 or less), there will be an over spend regardless
+                float minOverSpend = (2 - MaxPopulationBillion).LowerBound(0);
+                float baseOverSpend = (2 - PopulationRatio * 4).LowerBound(minOverSpend);
                 float envOverSpend  = Empire.PreferredEnvModifier(Owner).LowerBound(0.5f);
                 return (baseOverSpend * envOverSpend).LowerBound(0);
             }
