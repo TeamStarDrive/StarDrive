@@ -259,6 +259,9 @@ namespace Ship_Game.Universe.SolarBodies
         // maintenance costs from all buildings, with maintenance multiplier applied
         public float Maintenance { get; private set; }
 
+        // some buildings provide flat income
+        public float IncomeFromBuildings { get; private set; }
+
         // revenue after maintenance was deducted
         public float NetRevenue { get; private set; }
 
@@ -285,15 +288,17 @@ namespace Ship_Game.Universe.SolarBodies
             // Base tax rate comes from current empire tax %
             TaxRate = Planet.Owner.data.TaxRate;
 
-            Maintenance             = 0f;
-            IncomePerColonist       = 1f;
+            Maintenance         = 0f;
+            IncomePerColonist   = 1f;
+            IncomeFromBuildings = 0f;
             float taxRateMultiplier = 1f + Planet.Owner.data.Traits.TaxMod;
             for (int i = 0; i < Planet.BuildingList.Count; i++)
             {
-                Building b         = Planet.BuildingList[i];
-                IncomePerColonist += b.CreditsPerColonist;
-                taxRateMultiplier += b.PlusTaxPercentage;
-                Maintenance       += b.Maintenance;
+                Building b           = Planet.BuildingList[i];
+                IncomePerColonist   += b.CreditsPerColonist;
+                taxRateMultiplier   += b.PlusTaxPercentage;
+                Maintenance         += b.Maintenance.LowerBound(0);
+                IncomeFromBuildings += b.Income;
             }
 
             TroopMaint = Planet.TroopsHere.Count * ShipMaintenance.TroopMaint; // We count enemy troops as well
@@ -302,11 +307,11 @@ namespace Ship_Game.Universe.SolarBodies
             TaxRate     *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
 
-            GrossRevenue = Planet.PopulationBillion * IncomePerColonist * TaxRate;
+            GrossRevenue = ((Planet.PopulationBillion * IncomePerColonist) + IncomeFromBuildings) * TaxRate;
             NetRevenue   = GrossRevenue - Maintenance;
 
             // Needed for empire treasury goal
-            PotentialRevenue = Planet.PopulationBillion * IncomePerColonist * taxRateMultiplier;
+            PotentialRevenue = ((Planet.PopulationBillion * IncomePerColonist) + IncomeFromBuildings) * taxRateMultiplier;
         }
     }
 }

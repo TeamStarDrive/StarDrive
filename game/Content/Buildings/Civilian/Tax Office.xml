@@ -3,7 +3,7 @@
   <Icon>Tax_Office</Icon>
   
   <Cost>80</Cost>
-  <Maintenance>-0.5</Maintenance>
+  <Income>0.5</Income>
 
 
   <!-- For localization in GameText.yaml -->
