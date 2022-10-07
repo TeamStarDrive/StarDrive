@@ -320,6 +320,6 @@ namespace Ship_Game.AI
             return Math.Min(maxRisk, riskLimit);
         }
 
-        public PlanetBudget PlanetBudget(Planet planet) => new PlanetBudget(planet);
+        public PlanetBudget PlanetBudget(Planet planet) => new(planet);
     }
 }
