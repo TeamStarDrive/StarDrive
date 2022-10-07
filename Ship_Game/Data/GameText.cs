@@ -4410,7 +4410,8 @@ namespace Ship_Game
         RingGalaxyGameTip = 4382,
         /// <summary>Ring Galaxy</summary>
         RingGalaxyGame = 4383,
-
+        /// <summary>Flat Income per turn</summary>
+        FlatIncomePerTurn = 4384,
 
         /// <summary>on surface</summary>
         OnSurface = 4993,

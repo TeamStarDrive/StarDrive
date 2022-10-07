@@ -184,7 +184,7 @@ namespace Ship_Game
             return Screen.P.Owner.EstimateCreditCost(cost);
         }
 
-        float GetMaintenance(Building b) => b.ActualMaintenance(Screen.P);
+        float GetMaintenance(Building b) => b.ActualMaintenance(Screen.P) - b.Income;
 
         string BuildingShortDescription(Building b)
         {

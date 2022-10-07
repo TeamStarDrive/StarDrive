@@ -29,7 +29,8 @@ namespace Ship_Game
             TaxPercent,
             Fertility,
             SpacePort,
-            InfraStructure
+            InfraStructure,
+            BuildingIncome
         }
 
         bool IsPlanetExtraDebugTarget()
@@ -257,14 +258,17 @@ namespace Ship_Game
             if (PopulationBillion < 1)
                 return;
              
-            float ratio   = 1 - MoneyBuildingRatio;
-            float tax     = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
-            float credits = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
+            float ratio     = 1 - MoneyBuildingRatio;
+            float tax       = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
+            float credits   = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
+            float buildings = TotalHabitableTiles * ratio;
 
             tax     = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
             credits = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
-            Priorities[ColonyPriority.TaxPercent]    = tax;
-            Priorities[ColonyPriority.CreditsPerCol] = credits;
+            buildings = ApplyGovernorBonus(credits, 1.5f, 0.5f, 1f, 0.5f, 1f);
+            Priorities[ColonyPriority.TaxPercent]     = tax;
+            Priorities[ColonyPriority.CreditsPerCol]  = credits;
+            Priorities[ColonyPriority.BuildingIncome] = buildings;
         }
 
         void CalcFertilityPriorities()
@@ -542,13 +546,10 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol],  b.PlusResearchPerColonist * 10);
             score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol],   b.CreditsPerColonist * 3);
             score += EvalTraits(Priorities[ColonyPriority.TaxPercent],      b.PlusTaxPercentage * 20);
+            score += EvalTraits(Priorities[ColonyPriority.BuildingIncome],  b.Income * 10);
             score += EvalTraits(Priorities[ColonyPriority.Fertility],       b.MaxFertilityOnBuildFor(Owner, Category) * 2);
             score += EvalTraits(Priorities[ColonyPriority.SpacePort],       b.IsSpacePort ? 5 : 0);
             score += EvalTraits(Priorities[ColonyPriority.InfraStructure],  b.Infrastructure * 3);
-
-            // positive maintenance building bonus (only if it worth something in the first place)
-            if (b.Maintenance < 0 && (score > 0 || Population > 1)) 
-                score += -b.Maintenance * 10;
 
             score *= FertilityMultiplier(b);
 
