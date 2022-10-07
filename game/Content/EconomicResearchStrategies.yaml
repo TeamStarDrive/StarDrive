@@ -5,7 +5,7 @@
   ExpansionPriority: 2
   ResearchPriority: 1
   IndustryPriority: 1
-  TechPath: [ SoilEnrichment, IndustrialFoundations ]
+  TechPath: [ IndustrialFoundations ]
 
 - EconomicResearchStrategy:
   Name: Generalists
@@ -13,7 +13,7 @@
   ExpansionPriority: 1
   ResearchPriority: 1
   IndustryPriority: 1
-  TechPath: [ SoilEnrichment, IndustrialFoundations ]
+  TechPath: [ IndustrialFoundations ]
 
 - EconomicResearchStrategy:
   Name: Industrialists
@@ -21,7 +21,7 @@
   ExpansionPriority: 3
   ResearchPriority: 1
   IndustryPriority: 3
-  TechPath: [ SoilEnrichment, IndustrialFoundations ]
+  TechPath: [ IndustrialFoundations ]
 
 - EconomicResearchStrategy:
   Name: Militarists
@@ -29,7 +29,7 @@
   ExpansionPriority: 2
   ResearchPriority: 1
   IndustryPriority: 1
-  TechPath: [ SoilEnrichment, IndustrialFoundations ]
+  TechPath: [ IndustrialFoundations ]
 
 - EconomicResearchStrategy:
   Name: Technologists
@@ -37,4 +37,4 @@
   ExpansionPriority: 2
   ResearchPriority: 4
   IndustryPriority: 2
-  TechPath: [ SoilEnrichment, IndustrialFoundations ]
+  TechPath: [ IndustrialFoundations ]
