@@ -32,7 +32,7 @@ namespace Ship_Game
 
         private void MarkForColonization()
         {
-            Player.AI.AddGoal(new MarkForColonization(SelectedPlanet, Player, isManual:true));
+            Player.AI.AddGoalAndEvaluate(new MarkForColonization(SelectedPlanet, Player, isManual:true));
         }
     }
 }

@@ -26,21 +26,20 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public ScrapShip(Ship shipToScrap, Empire owner, bool immediateScuttle) : this(owner)
         {
             OldShip = shipToScrap;
+            // This will remove an older scrap goal if the ship is already in scrap state.
+            if (OldShip.AI.State == AIState.Scrap)
+                RemoveOldScrapGoal();
+
             if (immediateScuttle)
                 ChangeToStep(ImmediateScuttleSelfDestruct);
         }
 
         GoalStep FindPlanetToScrapAndOrderScrap()
         {
-            if (OldShip == null) return GoalStep.GoalFailed;
-            if (OldShip.AI.State == AIState.Scrap)
-                RemoveOldScrapGoal(); // todo test this
-
-            if (!OldShip.CanBeScrapped)
+            if (OldShip == null || !OldShip.CanBeScrapped) 
                 return GoalStep.GoalFailed;
 
             OldShip.RemoveFromPoolAndFleet(clearOrders: false);
-
             if (OldShip.ShipData.Role <= RoleName.station && OldShip.ScuttleTimer < 0
                 || !Owner.FindPlanetToScrapIn(OldShip, out Planet buildAt))
             {
