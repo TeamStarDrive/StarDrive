@@ -419,7 +419,7 @@ namespace Ship_Game
             Source = AI.Drone.Position;
             SetActualHitDestination(AI.DroneTarget?.Position ?? Source);
             // Apply drone repair effect, 5 times more if not in combat
-            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && TargetShip is { } targetShip)
+            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
                 ShipModule moduleToRepair = TargetModule;
                 if (moduleToRepair != null)
