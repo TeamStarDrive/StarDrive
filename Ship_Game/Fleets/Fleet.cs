@@ -1615,7 +1615,7 @@ namespace Ship_Game.Fleets
         void AddFleetProjectorGoal()
         {
             if (FleetTask?.TargetPlanet != null)
-                Owner.AI.AddGoal(new DeployFleetProjector(this, FleetTask.TargetPlanet, Owner));
+                Owner.AI.AddGoalAndEvaluate(new DeployFleetProjector(this, FleetTask.TargetPlanet, Owner));
         }
 
         bool FleetProjectorGoalInProgress(SolarSystem targetSystem)

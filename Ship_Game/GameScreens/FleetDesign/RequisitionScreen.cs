@@ -81,8 +81,7 @@ namespace Ship_Game
 
                 var g = new FleetRequisition(node.ShipName, F.Owner, F, rush);
                 node.Goal = g;
-                F.Owner.AI.AddGoal(g);
-                g.Evaluate();
+                F.Owner.AI.AddGoalAndEvaluate(g);
             }
         }
 

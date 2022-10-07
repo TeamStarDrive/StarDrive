@@ -21,7 +21,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             Steps = new Func<GoalStep>[]
             {
-                BuildConstructor,
                 WaitForShipBuilt,
                 OrderDeployOrbital,
                 WaitForDeployment
@@ -32,16 +31,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             PlanetBuildingAt = planet;
             Initialize(toBuildName, Vector2.Zero, planet, Vector2.Zero);
-        }
-
-        GoalStep BuildConstructor()
-        {
-            if (PlanetBuildingAt.Owner != Owner)
-                return GoalStep.GoalFailed;
-
             IShipDesign constructor = BuildableShip.GetConstructor(Owner);
             PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, this);
-            return GoalStep.GoToNextStep;
         }
 
         GoalStep OrderDeployOrbital()

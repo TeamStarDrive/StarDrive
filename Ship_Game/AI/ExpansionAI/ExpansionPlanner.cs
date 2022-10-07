@@ -163,7 +163,7 @@ namespace Ship_Game.AI.ExpansionAI
                 Log.Info(ConsoleColor.Magenta,
                     $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals()} | {planet} | {Owner}");
 
-                Owner.AI.AddGoal(new MarkForColonization(planet, Owner));
+                Owner.AI.AddGoalAndEvaluate(new MarkForColonization(planet, Owner));
                 netDesired--;
             }
         }

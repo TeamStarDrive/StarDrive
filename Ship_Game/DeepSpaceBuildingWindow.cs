@@ -157,7 +157,7 @@ namespace Ship_Game
             if (okToBuild)
             {
                 Vector2 worldPos = Screen.CursorWorldPosition2D;
-                Player.AI.AddGoal(new BuildConstructionShip(worldPos, ShipToBuild.Name, Player, TargetPlanet, TetherOffset));
+                Player.AI.AddGoalAndEvaluate(new BuildConstructionShip(worldPos, ShipToBuild.Name, Player, TargetPlanet, TetherOffset));
                 GameAudio.EchoAffirmative();
             }
             else
