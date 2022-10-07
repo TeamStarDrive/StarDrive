@@ -767,6 +767,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.MaxFertilityOnBuildFor(Player, P.Category), "NewUI/icon_food", GameText.MaxFertilityChangeOnBuild);
             DrawBuildingInfo(ref bCursor, batch, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", GameText.PlanetaryShieldStrengthAdded);
             DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", GameText.CreditsAddedPerColonist);
+            DrawBuildingInfo(ref bCursor, batch, b.Income, "NewUI/icon_money", GameText.FlatIncomePerTurn);
             DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", GameText.ProductionPerRichness);
             DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * P.Level, "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
             DrawBuildingInfo(ref bCursor, batch, b.Infrastructure, "NewUI/icon_queue_rushconstruction", GameText.ProductionInfrastructure);

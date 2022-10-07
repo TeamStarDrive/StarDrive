@@ -53,6 +53,7 @@ namespace Ship_Game
         [StarData] public float PlusTaxPercentage;
         [StarData] public bool AllowInfantry;
         [StarData] public float Maintenance;
+        [StarData] public float Income;
         [StarData] public float Cost;
         [StarData] public int StorageAdded;
         [StarData] public float PlusResearchPerColonist;
@@ -290,7 +291,7 @@ namespace Ship_Game
         [XmlIgnore]
         public bool CanAttack          => CombatStrength > 0 && AvailableAttackActions > 0;
         [XmlIgnore]
-        public bool IsMoneyBuilding    => CreditsPerColonist > 0 || PlusTaxPercentage > 0;
+        public bool IsMoneyBuilding    => CreditsPerColonist > 0 || PlusTaxPercentage > 0 || Income > 0;
         [XmlIgnore]
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         [XmlIgnore]

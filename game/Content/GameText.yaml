@@ -10261,6 +10261,9 @@ RingGalaxyGameTip:
 RingGalaxyGame:
  Id: 4383
  ENG: "Ring Galaxy"
+FlatIncomePerTurn:
+ Id: 4384
+ ENG: "Flat Income Per Turn" 
 OnSurface:
  Id: 4993
  ENG: "on surface"
