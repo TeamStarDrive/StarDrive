@@ -46,7 +46,7 @@ namespace Ship_Game.Commands.Goals
             {
                 if (Owner.CanAddAnotherWarGoal(TargetEmpire))
                 {
-                    Owner.AI.AddGoal(new WarMission(Owner, TargetEmpire, planet));
+                    Owner.AI.AddGoalAndEvaluate(new WarMission(Owner, TargetEmpire, planet));
                     return GoalStep.TryAgain;
                 }
             }

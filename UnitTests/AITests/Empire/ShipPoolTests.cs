@@ -105,7 +105,7 @@ namespace UnitTests.AITests.Empire
             IShipDesign refitTo = ResourceManager.Ships.GetDesign("Rocket Scout");
             ship.AI.OrderRefitTo(Homeworld, new RefitShip(ship, refitTo, Enemy));
             RunObjectsSim(TestSimStep);
-            Assert.AreEqual(null, ship.Pool, "Ship must be removed from ShipPools after OrderScrap");
+            Assert.AreEqual(null, ship.Pool, "Ship must be removed from ShipPools after OrderRefitTo");
         }
 
         // AIState.Resupply

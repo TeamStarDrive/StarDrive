@@ -156,8 +156,7 @@ public sealed partial class Empire
 
         var g = new FleetRequisition(ship.Name, this, fleet, false);
         node.Goal = g;
-        AI.AddGoal(g);
-        g.Evaluate();
+        AI.AddGoalAndEvaluate(g);
     }
 
     public Array<Ship> AllFleetReadyShips()

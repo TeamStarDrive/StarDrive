@@ -547,7 +547,7 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.InfraStructure],  b.Infrastructure * 3);
 
             // positive maintenance building bonus (only if it worth something in the first place)
-            if (b.Maintenance < 0 && score > 0) 
+            if (b.Maintenance < 0 && (score > 0 || Population > 1)) 
                 score += -b.Maintenance * 10;
 
             score *= FertilityMultiplier(b);

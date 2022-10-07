@@ -2453,7 +2453,7 @@ namespace Ship_Game
             if (enemy == this  || AI.HasGoal(g => g is AssaultBombers && g.PlanetBuildingAt == planet))
                 return;
 
-            AI.AddGoal(new AssaultBombers(planet, this, enemy));
+            AI.AddGoalAndEvaluate(new AssaultBombers(planet, this, enemy));
         }
 
         private void TakeTurn(UniverseState us)

@@ -249,7 +249,7 @@ namespace Ship_Game.AI
                 if (string.IsNullOrEmpty(s))
                     break;
 
-                AddGoal(new BuildOffensiveShips(s, OwnerEmpire));
+                AddGoalAndEvaluate(new BuildOffensiveShips(s, OwnerEmpire));
                 goalsInConstruction++;
             }
         }

@@ -41,13 +41,13 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             Fleet = oldShip.Fleet;
             if (oldShip.VanityName != oldShip.Name)
                 VanityName = oldShip.VanityName;
+
+            if (OldShip.AI.State == AIState.Refit)
+                RemoveOldRefitGoal();
         }
 
         GoalStep FindShipAndPlanetToRefit()
         {
-            if (OldShip.AI.State == AIState.Refit)
-                RemoveOldRefitGoal();
-
             if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, OldShip.RefitCost(Build.Template), 
                 OldShip, Build.Template, OldShip.Fleet != null, out Planet refitPlanet))
             {

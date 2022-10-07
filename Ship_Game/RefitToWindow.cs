@@ -141,7 +141,7 @@ namespace Ship_Game
 
         void OnRefitOneClicked(UIButton b)
         {
-            Player.AI.AddGoal(GetRefitGoal(ShipToRefit));
+            Player.AI.AddGoalAndEvaluate(GetRefitGoal(ShipToRefit));
             GameAudio.EchoAffirmative();
             ExitScreen();
         }
@@ -152,7 +152,7 @@ namespace Ship_Game
             foreach (Ship ship in ships)
             {
                 if (ship.Name == ShipToRefit.Name)
-                    Player.AI.AddGoal(GetRefitGoal(ship));
+                    Player.AI.AddGoalAndEvaluate(GetRefitGoal(ship));
             }
 
             foreach (Planet planet in Player.GetPlanets())

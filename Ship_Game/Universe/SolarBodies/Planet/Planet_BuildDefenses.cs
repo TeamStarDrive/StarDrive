@@ -200,7 +200,7 @@ namespace Ship_Game
             if (weakestWeHave.DesignRole == bestWeCanBuild.Role)
             {
                 Goal refitOrbital = new RefitOrbital(weakestWeHave, bestWeCanBuild, Owner);
-                Owner.AI.AddGoal(refitOrbital);
+                Owner.AI.AddGoalAndEvaluate(refitOrbital);
                 debugReplaceOrRefit = "REFITTING";
             }
             else

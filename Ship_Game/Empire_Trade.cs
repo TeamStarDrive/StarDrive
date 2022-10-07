@@ -299,7 +299,7 @@ namespace Ship_Game
                  betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
 
             if (betterFreighter != null && betterFreighter.Name != freighter.Name)
-                AI.AddGoal(new RefitShip(freighter, betterFreighter, this));
+                AI.AddGoalAndEvaluate(new RefitShip(freighter, betterFreighter, this));
         }
 
         public void UpdateAverageFreightFTL(float value)

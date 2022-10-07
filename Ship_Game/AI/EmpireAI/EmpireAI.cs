@@ -311,7 +311,7 @@ namespace Ship_Game.AI
                 IShipDesign newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
                 if (newShip != null)
                 {
-                    AddGoal(new RefitShip(ship, newShip, OwnerEmpire));
+                    AddGoalAndEvaluate(new RefitShip(ship, newShip, OwnerEmpire));
                     foreach (Planet p in OwnerEmpire.GetPlanets())
                         p.Construction.RefitShipsBeingBuilt(ship, newShip);
                 }
@@ -320,7 +320,7 @@ namespace Ship_Game.AI
 
         public void AddScrapShipGoal(Ship ship, bool immediateScuttle)
         {
-            AddGoal(new ScrapShip(ship, OwnerEmpire, immediateScuttle));
+            AddGoalAndEvaluate(new ScrapShip(ship, OwnerEmpire, immediateScuttle));
         }
 
         public void AddPlanetaryRearmGoal(Ship ship, Planet p, Ship existingSupplyShip = null)
@@ -403,6 +403,12 @@ namespace Ship_Game.AI
         public void AddGoal(Goal goal)
         {
             GoalsList.Add(goal);
+        }
+
+        public void AddGoalAndEvaluate(Goal goal)
+        {
+            GoalsList.Add(goal);
+            goal.Evaluate();
         }
 
         public void RemoveGoal(Goal goal)
