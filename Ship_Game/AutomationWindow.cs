@@ -24,7 +24,7 @@ namespace Ship_Game
         {
             Universe = universe;
             const int windowWidth = 210;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 420);
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 440);
         }
 
         class CheckedDropdown : UIElementV2
@@ -69,6 +69,7 @@ namespace Ship_Game
             rest.AddCheckbox(() => Universe.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
             rest.AddCheckbox(() => Universe.Player.AutoPickBestFreighter, title: GameText.AutoPickFreighter, tooltip: GameText.IfAutoTradeIsChecked);
             rest.AddCheckbox(() => Universe.Player.AutoResearch,          title: GameText.AutoResearch, tooltip: GameText.YourEmpireWillAutomaticallySelect);
+            rest.AddCheckbox(() => Universe.Player.AutoBuildTerraformers, title: GameText.AutoBuildTerraformers, tooltip: GameText.AutoBuildTerraformersTip);
             rest.AddCheckbox(() => Universe.Player.data.AutoTaxes,        title: GameText.AutoTaxes, tooltip: GameText.YourEmpireWillAutomaticallyManage3);
             rest.AddCheckbox(() => RushConstruction,                           title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
             rest.AddCheckbox(() => GlobalStats.SuppressOnBuildNotifications,   title: GameText.DisableBuildingAlerts, tooltip: GameText.NormallyWhenYouManuallyAdd);

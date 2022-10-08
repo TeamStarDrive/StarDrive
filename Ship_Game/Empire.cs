@@ -178,6 +178,7 @@ namespace Ship_Game
         // Empire IDs, for player only
         [StarData] public Array<DiplomacyQueueItem> DiplomacyContactQueue { get; private set; }
         [StarData] public bool AutoPickBestColonizer;
+        [StarData] public bool AutoBuildTerraformers;
         [StarData] public Array<string> ObsoletePlayerShipModules;
 
         public int AtWarCount;
@@ -1683,10 +1684,30 @@ namespace Ship_Game
         public void GovernPlanets()
         {
             if (!IsFaction && !data.Defeated)
+            {
                 UpdateMaxColonyValues();
+                UpdateTerraformerBudget();
+            }
 
             foreach (Planet planet in OwnedPlanets)
                 planet.DoGoverning();
+        }
+
+        void UpdateTerraformerBudget()
+        {
+            if (isPlayer && !AutoBuildTerraformers)
+                return;
+
+            Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
+            float maint = terraformer.Maintenance * data.Traits.MaintMultiplier;
+            if (CanTerraformVolcanoes && data.TerraformBudget >= maint)
+            {
+                float remainingBudget = data.TerraformBudget;
+                // Better potential planets will get the budget first
+                // We continue the loop even when the budget is finished so other planets will short circuit reset budgets
+                foreach (Planet planet in OwnedPlanets.SortedDescending(p => p.ColonyPotentialValue(this)))
+                    planet.UpdateTerraformBudget(ref remainingBudget, maint);
+            }
         }
 
         private void UpdateShipMaintenance()

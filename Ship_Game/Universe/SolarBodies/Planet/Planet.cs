@@ -72,6 +72,7 @@ namespace Ship_Game
         public float GroundDefMaintenance { get; private set; }
         public float InfraStructure { get; private set; }
         public bool HasDynamicBuildings { get; private set; } // Has buildings which should update per turn even if no owner
+        public float TerraformBudget { get; private set; }
         [StarData] public bool HasLimitedResourceBuilding { get; private set; } // if true, these buildings will be updated per turn until depleted
         [StarData] public int BombingIntensity { get; private set; } // The more bombs hitting the surface, the harder is to heal troops or repair buildings
 
