@@ -208,12 +208,13 @@ namespace Ship_Game
             OrdersButtons = new(this, ordersBarPos);
             Add(OrdersButtons);
 
-            RequisitionForces = new(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20), "Requisition...");
-            SaveDesign = new(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 50), "Save Design...");
-            LoadDesign = new(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 100), "Load Design...");
-            RequisitionForces.ToggleOn = true;
-            SaveDesign.ToggleOn = true;
-            LoadDesign.ToggleOn = true;
+            RequisitionForces = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20), "Requisition..."));
+            SaveDesign = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 50), "Save Design..."));
+            LoadDesign = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 100), "Load Design..."));
+
+            RequisitionForces.OnClick = (b) => ScreenManager.AddScreen(new RequisitionScreen(this));
+            SaveDesign.OnClick = (b) => ScreenManager.AddScreen(new SaveFleetDesignScreen(this, SelectedFleet));
+            LoadDesign.OnClick = (b) => ScreenManager.AddScreen(new LoadSavedFleetDesignScreen(this));
 
             OperationsRect = new(SelectedStuffRect.Right + 2, SelectedStuffRect.Y + 30, 360, SelectedStuffRect.H - 30);
 
