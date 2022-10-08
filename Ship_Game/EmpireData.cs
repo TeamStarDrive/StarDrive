@@ -226,9 +226,10 @@ namespace Ship_Game
         // economy
         [StarData] public float SSPBudget     = 0;
         [StarData] public float SpyBudget     = 0;
-        [StarData] public float FreightBudget    = 0;
+        [StarData] public float FreightBudget = 0;
         [StarData] public float ColonyBudget  = 0;
         [StarData] public float DefenseBudget = 0;
+        [StarData] public float TerraformBudget = 0;
 
         // unlock at start
         [StarData] public Array<string> unlockBuilding = new();
@@ -244,7 +245,7 @@ namespace Ship_Game
         [StarData] public short TechDelayTime    = 0;
         [StarData] public bool  SpyMute          = false;
         [StarData] public bool  SpyMissionRepeat = false;
-        [StarData] public float treasuryGoal     = 0.20f;
+        [StarData] public float treasuryGoal     = 0.2f;
         [StarData] public bool  AutoTaxes        = false;
         [StarData] public float BorderTolerance  = 40f;
         [StarData] public int   BaseShipLevel    = 0;
