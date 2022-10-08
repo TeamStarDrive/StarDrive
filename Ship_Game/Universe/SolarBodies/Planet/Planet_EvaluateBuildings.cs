@@ -54,7 +54,6 @@ namespace Ship_Game
             }
             else
             {
-                TryBuildTerraformers(budget); // Build Terraformers if needed
                 BuildOrReplaceBuilding(budget);
                 if (!TryBuildBiospheres(budget, out bool shouldScrapBiospheres) && shouldScrapBiospheres)
                     TryScrapBiospheres(); // Build or scrap Biospheres if needed
@@ -313,10 +312,10 @@ namespace Ship_Game
             return bestBuilding != null && Construction.Enqueue(bestBuilding);
         }
 
-        bool TryScrapBuilding(bool scrapZeroMaintenance = false)
+        bool TryScrapBuilding(bool scrapZeroMaintenance = false, bool terraformerOverride = false)
         {
-            if (GovernorShouldNotScrapBuilding)
-                return false;  // Player decided not to allow governors to scrap buildings
+            if (GovernorShouldNotScrapBuilding && !terraformerOverride)
+                return false;  // Player decided not to allow governors to scrap buildings and not terraform related
 
             ChooseWorstBuilding(BuildingList, scrapZeroMaintenance, false, out Building toScrap);
 
@@ -614,9 +613,23 @@ namespace Ship_Game
             return multiplier.LowerBound(0);
         }
 
+        public void UpdateTerraformBudget(ref float currentEmpireBudget, float terraformerMaint)
+        {
+            TerraformBudget = 0;
+            if (currentEmpireBudget >= terraformerMaint && Terraformable)
+            {
+                // This will let each planet to build 1 terraformer at a time and save the budget to other planets
+                // As the number of Terraformers here increases, the budget will increase as well.
+                float maxLocalBudget = TerraformerLimit * terraformerMaint;
+                float budget = ((TerraformersHere + 1) * terraformerMaint).UpperBound(maxLocalBudget);
+                TerraformBudget = budget.UpperBound(currentEmpireBudget);
+                currentEmpireBudget -= TerraformBudget;
+            }
+        }
+
         void TryBuildTerraformers(float budget)
         {
-            if (PopulationRatio < 0.95f
+            if (OwnerIsPlayer && !Owner.AutoBuildTerraformers
                 || !AreTerraformersNeeded
                 || IsStarving
                 || TerraformerInTheWorks
@@ -625,22 +638,25 @@ namespace Ship_Game
                 return;
             }
 
-            Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
-            if (terraformer.ActualMaintenance(this) > budget)
-                return;
+            Building terraformer   = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
+            float terraformerMaint = terraformer.ActualMaintenance(this);
+            float remainingBudget  = budget - (TerraformersHere * terraformerMaint);
 
-            var unHabitableTiles = TilesList.Filter(t => !t.Habitable && !t.BuildingOnTile);
-            if (unHabitableTiles.Length > 0) // try to build a terraformer on an unhabitable tile first
+            if (terraformerMaint <= remainingBudget) // we can build at least 1 terraformer with the budget
             {
-                PlanetGridSquare tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
-                Construction.Enqueue(terraformer, tile);
-            }
-            else if (!Construction.Enqueue(terraformer))
-            {
-                // If could not add a terraformer anywhere due to planet being full
-                // try to scrap a building and then retry construction
-                if (TryScrapBuilding(scrapZeroMaintenance: true))
-                    Construction.Enqueue(terraformer);
+                var unHabitableTiles = TilesList.Filter(t => !t.Habitable && !t.BuildingOnTile);
+                if (unHabitableTiles.Length > 0) // try to build a terraformer on an uninhabitable tile first
+                {
+                    PlanetGridSquare tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
+                    Construction.Enqueue(terraformer, tile);
+                }
+                else if (!Construction.Enqueue(terraformer))
+                {
+                    // If could not add a terraformer anywhere due to planet being full
+                    // try to scrap a building and then retry construction
+                    if (TryScrapBuilding(scrapZeroMaintenance: true, terraformerOverride: true))
+                        Construction.Enqueue(terraformer);
+                }
             }
         }
 

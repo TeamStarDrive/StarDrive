@@ -43,7 +43,7 @@ namespace Ship_Game.AI.Budget
             float defenseBudget = EmpireDefenseBudget * DefenseRatio;
             float groundRatio   = MilitaryBuildingsBudgetRatio();
             float orbitalRatio  = 1 - groundRatio;
-            float civBudget     = EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance;
+            float civBudget     = EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance + P.TerraformBudget;
 
             GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? defenseBudget * groundRatio : P.ManualGrdDefBudget;
             SpcDefAlloc   = P.ManualSpcDefBudget   <= 0 ? defenseBudget * orbitalRatio : P.ManualSpcDefBudget;

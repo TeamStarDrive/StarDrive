@@ -279,20 +279,18 @@ namespace Ship_Game
             return ratio < threshold;
         }
 
-        private int ApplyRankModifiers(int currentRank)
+        int ApplyRankModifiers(int currentRank)
         {
             int rank = currentRank + ((int)(Owner.Money / 10000)).Clamped(-3, 3);
-            if (Owner.Money < 500)
-                rank -= 2;
-            else if (Owner.Money < 1000)
-                rank -= 1;
+            if      (Owner.Money < 500)  rank -= 2;
+            else if (Owner.Money < 1000) rank -= 1;
 
             if (MaxPopulationBillion.LessOrEqual(3))
                 rank -= 2;
 
             switch (CType)
             {
-                case ColonyType.Core: rank += 1; break;
+                case ColonyType.Core:     rank += 1; break;
                 case ColonyType.Military: rank += 3; break;
             }
 
