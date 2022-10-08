@@ -10264,6 +10264,12 @@ RingGalaxyGame:
 FlatIncomePerTurn:
  Id: 4384
  ENG: "Flat Income Per Turn" 
+AutoBuildTerraformers:
+ Id: 4385
+ ENG: "Auto Terraform"  
+AutoBuildTerraformersTip:
+ Id: 4386
+ ENG: "Your empire will manage terraforming efforts automatically, building terraformers on the best potential valued planets first, based on a budget. Note that it will scrap buildings to make room for Terraformers even if the planet has no Governor or not allowed to scrap, since these orders are coming from your empire."   
 OnSurface:
  Id: 4993
  ENG: "on surface"
@@ -13834,7 +13840,7 @@ Tech_Terraforming_Name:
  ENG: "Terraforming I"
 Tech_Terraforming_Desc:
  Id: 18280
- ENG: "Terraforming planets is a slow process but it can produce excellent results. If researched, we would be able to construct Teraformers; Vast machines which can transform even the most deadly Volcano into a nice, harmless hill."
+ ENG: "Terraforming planets is a slow process but it can produce excellent results. If researched, we would be able to construct Terraformers; Vast machines which can transform even the most deadly Volcano into a nice, harmless hill."
 Tech_Terraforming2_Name:
  Id: 18281
  ENG: "Terraforming II"
