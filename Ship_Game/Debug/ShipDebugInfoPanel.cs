@@ -13,13 +13,13 @@ using Ship_Game.UI;
 
 namespace Ship_Game.Debug;
 
-public class ShipInfoPanel : Submenu
+public class ShipDebugInfoPanel : Submenu
 {
     new readonly DebugInfoScreen Parent;
     UniverseScreen Screen => Parent.Screen;
     readonly TextDrawerComponent Text;
 
-    public ShipInfoPanel(DebugInfoScreen parent, LocalPos pos, Vector2 size)
+    public ShipDebugInfoPanel(DebugInfoScreen parent, LocalPos pos, Vector2 size)
         : base(pos, size)
     {
         Parent = parent;

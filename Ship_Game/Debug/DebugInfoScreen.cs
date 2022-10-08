@@ -23,7 +23,7 @@ public sealed partial class DebugInfoScreen : GameScreen
     DebugPage Page;
 
     readonly Submenu ModesTab;
-    readonly ShipInfoPanel ShipInfoPanel;
+    readonly ShipDebugInfoPanel ShipInfoPanel;
 
     public DebugInfoScreen(UniverseScreen screen) : base(screen, toPause: null)
     {
@@ -39,7 +39,7 @@ public sealed partial class DebugInfoScreen : GameScreen
         ModesTab.OnTabChange = OnModesTabChange;
         ModesTab.SelectedIndex = (int)Mode;
             
-        ShipInfoPanel = ModesTab.Add(new ShipInfoPanel(this, new(10,35), new(300, 500)));
+        ShipInfoPanel = ModesTab.Add(new ShipDebugInfoPanel(this, new(10,35), new(300, 500)));
     }
 
     void OnModesTabChange(int modeIndex)
