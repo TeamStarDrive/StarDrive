@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using SDGraphics;
@@ -9,9 +8,9 @@ namespace Ship_Game
 {
     public enum ButtonTextAlign
     {
-        Center,
-        Left,
-        Right,
+        Center, // the default setting
+        Left, // text is left justified
+        Right, // text is right justified
     }
 
     // Refactored by RedFox

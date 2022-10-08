@@ -312,6 +312,10 @@ namespace Ship_Game
 
         void DrawSelectedData(SpriteBatch batch, DrawTimes elapsed)
         {
+            RequisitionForces.Visible = false;
+            SaveDesign.Visible = false;
+            LoadDesign.Visible = false;
+
             if (SelectedNodeList.Count == 1)
             {
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
@@ -413,9 +417,6 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, Colors.Cream);
                 var iconR = new RectF(cursor1.X + 12, cursor1.Y + Fonts.Pirulen12.LineSpacing + 5, 64, 64);
                 batch.Draw(f.Icon, iconR, f.Owner.EmpireColor);
-                RequisitionForces.Draw(ScreenManager);
-                SaveDesign.Draw(ScreenManager);
-                LoadDesign.Draw(ScreenManager);
                 Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
                 Priorityselector.Draw(batch, elapsed);
                 cursor1 = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
@@ -424,6 +425,10 @@ namespace Ship_Game
                 string txt0 = Localizer.Token(GameText.AddShipDesignsToThis);
                 txt0 = Fonts.Arial12Bold.ParseText(txt0, PrioritiesRect.W - 40);
                 batch.DrawString(Fonts.Arial12Bold, txt0, cursor1, Colors.Cream);
+
+                RequisitionForces.Visible = true;
+                SaveDesign.Visible = true;
+                LoadDesign.Visible = true;
             }
         }
     }

@@ -162,22 +162,6 @@ namespace Ship_Game
                     return true;
                 }
             }
-            else if (FleetToEdit != -1 && SelectedNodeList.Count == 0 &&
-                     SelectedStuffRect.HitTest(input.CursorPosition))
-            {
-                if (RequisitionForces.HandleInput(input))
-                {
-                    ScreenManager.AddScreen(new RequisitionScreen(this));
-                }
-                if (SaveDesign.HandleInput(input))
-                {
-                    ScreenManager.AddScreen(new SaveFleetDesignScreen(this, SelectedFleet));
-                }
-                if (LoadDesign.HandleInput(input))
-                {
-                    ScreenManager.AddScreen(new LoadSavedFleetDesignScreen(this));
-                }
-            }
 
             if (ActiveShipDesign != null)
             {
