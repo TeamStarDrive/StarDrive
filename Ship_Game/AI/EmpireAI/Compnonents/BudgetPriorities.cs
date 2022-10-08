@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
@@ -7,9 +8,8 @@ namespace Ship_Game.AI.Compnonents
 {
     public class BudgetPriorities
     {
-        float Total = 0;
-
-        Map<BudgetAreas, float> Budgets;
+        readonly float Total;
+        readonly Map<BudgetAreas, float> Budgets;
 
         public enum BudgetAreas
         {
@@ -18,7 +18,8 @@ namespace Ship_Game.AI.Compnonents
             Build,
             Spy,
             Colony,
-            Savings
+            Savings,
+            Terraform
         }
 
         public int Count()
@@ -34,18 +35,15 @@ namespace Ship_Game.AI.Compnonents
 
         public BudgetPriorities(Empire empire)
         {
-            Budgets = new();
-            LoadBudgetSettings(empire);
-            Total = 0;
-
-            foreach (var budget in Budgets.Values)
-                Total += budget;
+            Budgets = LoadBudgetSettings(empire);
+            Total = Budgets.Values.Sum();
         }
 
         public float GetBudgetFor(BudgetAreas area) => Budgets.TryGetValue(area, out float budget) ? budget / Total : 0;
 
-        public void LoadBudgetSettings(Empire empire)
+        Map<BudgetAreas, float> LoadBudgetSettings(Empire empire)
         {
+            Map<BudgetAreas, float> budgets = new();
             Array<BudgetSettings> budgetSettings = YamlParser.DeserializeArray<BudgetSettings>("Budgets.yaml");
             // Apply setting to "ALL" first. Apply specific empire settings next
             budgetSettings.Sort(i => i.PortraitName.Equals("All", StringComparison.InvariantCultureIgnoreCase));
@@ -56,9 +54,11 @@ namespace Ship_Game.AI.Compnonents
                 if (isAll || isUs)
                 {
                     foreach (var area in budget.Budgets)
-                        Budgets[area.Key] = area.Value;
+                        budgets[area.Key] = area.Value;
                 }
             }
+
+            return budgets;
         }
 
         [StarDataType]
