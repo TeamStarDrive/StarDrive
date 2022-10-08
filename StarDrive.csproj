@@ -230,6 +230,7 @@
     <Compile Include="Ship_Game\Data\Serialization\Types\ByteArraySerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\HashSetSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
+    <Compile Include="Ship_Game\Debug\DebugEmpireSelectionSubmenu.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_VisualizeShipGoals.cs" />
     <Compile Include="Ship_Game\Debug\DebugModes.cs" />
     <Compile Include="Ship_Game\Debug\Page\AgentsDebug.cs" />
@@ -246,7 +247,7 @@
     <Compile Include="Ship_Game\Debug\Page\TasksDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\TechDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\ThreatMatrixDebug.cs" />
-    <Compile Include="Ship_Game\Debug\ShipInfoPanel.cs" />
+    <Compile Include="Ship_Game\Debug\ShipDebugInfoPanel.cs" />
     <Compile Include="Ship_Game\Debug\TextDrawerComponent.cs" />
     <Compile Include="Ship_Game\Empires\Components\IncomingThreatDetector.cs" />
     <Compile Include="Ship_Game\Empire_Fleets.cs" />
