@@ -45,7 +45,7 @@ public class EmpireInfoDebug : DebugPage
         }
         Text.String($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
        
-        Text.String($"Treasury Goal: {(int)eAI.ProjectedMoney} {(int)( e.AI.CreditRating * 100)}%");
+        Text.String($"Treasury Goal: {(int)eAI.ProjectedMoney} ({(int)( e.AI.CreditRating * 100)}%)");
         float taxRate = e.data.TaxRate * 100f;
         
         var ships = e.OwnedShips;
@@ -55,17 +55,23 @@ public class EmpireInfoDebug : DebugPage
         Text.String($"War Maint:  ({(int)e.AI.BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
                     $"Trp:{(int)(e.TotalTroopShipMaintenance + e.TroopCostOnPlanets)}");
 
-        var warShips = ships.Filter(s => s.DesignRoleType == RoleType.Warship ||
-                                         s.DesignRoleType == RoleType.WarSupport ||
-                                         s.DesignRoleType == RoleType.Troop);
-        Text.String($"   #:({warShips.Length})" +
-                    $" f{warShips.Count(warship => warship?.DesignRole == RoleName.fighter || warship?.DesignRole == RoleName.corvette)}" +
-                    $" g{warShips.Count(warship => warship?.DesignRole == RoleName.frigate || warship.DesignRole == RoleName.prototype)}" +
-                    $" c{warShips.Count(warship => warship?.DesignRole == RoleName.cruiser)}" +
-                    $" b{warShips.Count(warship => warship?.DesignRole == RoleName.battleship)}" +
-                    $" c{warShips.Count(warship => warship?.DesignRole == RoleName.capital)}" +
-                    $" v{warShips.Count(warship => warship?.DesignRole == RoleName.carrier)}" +
-                    $" m{warShips.Count(warship => warship?.DesignRole == RoleName.bomber)}");
+        var warShips = ships.Filter(s => s.DesignRoleType is RoleType.Warship 
+                                    or RoleType.WarSupport
+                                    or RoleType.Troop);
+
+        Text.String($"Total Ships: {warShips.Length}");
+        Text.String($"--- Fi: {warShips.Count(warship => warship?.DesignRole == RoleName.fighter)}   " +
+                    $"Cv: {warShips.Count(warship => warship?.DesignRole == RoleName.corvette)}   " +
+                    $"Fr: {warShips.Count(warship => warship?.DesignRole == RoleName.frigate)}");
+
+        Text.String($"--- Cr: {warShips.Count(warship => warship?.DesignRole is RoleName.cruiser or RoleName.prototype)}   " +
+                    $"Bt: {warShips.Count(warship => warship?.DesignRole == RoleName.battleship)}   " +
+                    $"Dr: {warShips.Count(warship => warship?.DesignRole == RoleName.capital)}");
+
+        Text.String($"--- Ca: {warShips.Count(warship => warship?.DesignRole == RoleName.carrier)}   " +
+                    $"Bm: {warShips.Count(warship => warship?.DesignRole == RoleName.bomber)}   " +
+                    $"Sp: {warShips.Count(warship => warship?.DesignRole == RoleName.support)}");
+
         Text.String("Civ Maint:  " +
                     $"({(int)e.AI.CivShipBudget}) {(int)e.TotalCivShipMaintenance} " +
                     $"#{ships.Count(freighter => freighter?.DesignRoleType == RoleType.Civilian)} " +
@@ -74,8 +80,8 @@ public class EmpireInfoDebug : DebugPage
                     $" #{ships.Count(warship => warship?.DesignRole == RoleName.platform || warship?.DesignRole == RoleName.station)}");
         Text.String($"Scrap:  {(int)e.TotalMaintenanceInScrap}");
 
-        Text.String($"Build Maint:   ({(int)e.data.ColonyBudget}) {(int)e.TotalBuildingMaintenance}");
-        Text.String($"Spy Count:     ({(int)e.data.SpyBudget}) {e.data.AgentList.Count}");
+        Text.String($"Build Maint/Budget:   {(int)e.TotalBuildingMaintenance}/{(int)e.data.ColonyBudget}");
+        Text.String($"Spy Count (Budget):   {e.data.AgentList.Count} ({(int)e.data.SpyBudget})");
         Text.String("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
         Text.String("Planet Count:  "+e.GetPlanets().Count);
         if (e.Research.HasTopic)
@@ -110,33 +116,6 @@ public class EmpireInfoDebug : DebugPage
                 Text.String(15f, $"Step: {g.StepName}");
                 if (g.FinishedShip != null && g.FinishedShip.Active)
                     Text.String(15f, "Has ship");
-            }
-        }
-
-        MilitaryTask[] tasks = e.AI.GetTasks().ToArr();
-        for (int j = 0; j < tasks.Length; j++)
-        {
-            MilitaryTask task = tasks[j];
-            string sysName = "Deep Space";
-            for (int i = 0; i < e.Universe.Systems.Count; i++)
-            {
-                SolarSystem sys = e.Universe.Systems[i];
-                if (task.AO.InRadius(sys.Position, sys.Radius))
-                    sysName = sys.Name;
-            }
-
-            Text.NewLine();
-            var planet =task.TargetPlanet?.Name ?? "";
-            Text.String($"FleetTask: {task.Type} {sysName} {planet}");
-            Text.String(15f, $"Priority:{task.Priority}");
-            float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
-            string strMultiplier = $" (x{e.GetFleetStrEmpireMultiplier(task.TargetEmpire).String(1)})";
-            
-            Text.String(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength} {strMultiplier}");
-            if (task.WhichFleet != -1)
-            {
-                Text.String(15f, "Fleet: " + task.Fleet?.Name);
-                Text.String(15f, $" Ships: {task.Fleet?.Ships.Count} CanWin: {task.Fleet?.CanTakeThisFight(task.EnemyStrength, task,true)}");
             }
         }
 
