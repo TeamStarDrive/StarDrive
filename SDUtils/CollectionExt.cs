@@ -134,6 +134,15 @@ namespace SDUtils
             return n;
         }
 
+        public static int Count<T>(this IReadOnlyList<T> list, Predicate<T> match)
+        {
+            int n = 0;
+            int count = list.Count;
+            for (int i = 0; i < count; ++i)
+                if (match(list[i])) ++n;
+            return n;
+        }
+
         public static int Count<TKey, TValue>(this Map<TKey, TValue>.ValueCollection values, Predicate<TValue> match)
         {
             int count = 0;

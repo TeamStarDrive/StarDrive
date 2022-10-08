@@ -64,6 +64,13 @@ namespace Ship_Game
                 Pressed = Hover;
             }
 
+            public StyleTextures(string normal, string hover, string pressed)
+            {
+                Normal = ResourceManager.Texture(normal);
+                Hover = ResourceManager.Texture(hover);
+                Pressed = ResourceManager.Texture(pressed);
+            }
+
             public StyleTextures(string normal, ButtonStyle style)
             {
                 Normal = Hover = Pressed = ResourceManager.Texture(normal);
