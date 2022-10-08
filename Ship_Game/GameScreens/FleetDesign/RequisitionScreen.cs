@@ -19,7 +19,6 @@ namespace Ship_Game
         private BlueButton AssignNow;
         private BlueButton BuildNow;
         private BlueButton BuildNowRush;
-        private int NumBeingBuilt;
         private Rectangle FleetStatsRect;
         private readonly Array<Ship> AvailableShips = new Array<Ship>();
         private int NumThatFit;
@@ -85,31 +84,43 @@ namespace Ship_Game
             }
         }
 
+        int GetNumActiveShips()
+        {
+            return F.DataNodes.Count(n => n.Ship != null);
+        }
+
+        // TODO: clear node.Goal which are cancelled by player
+        int GetNumBeingBuilt()
+        {
+            return F.DataNodes.Count(n => n.Ship == null && n.Goal is FleetRequisition);
+        }
+
+        int GetSlotsToFill()
+        {
+            return F.DataNodes.Count(n => n.Ship == null && n.Goal == null);
+        }
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             string text;
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            ScreenManager.SpriteBatch.Begin();
+            batch.Begin();
             Color c = Colors.Cream;
             Selector fleetStats = new Selector(FleetStatsRect, new Color(0, 0, 0, 180));
-            fleetStats.Draw(ScreenManager.SpriteBatch, elapsed);
+            fleetStats.Draw(batch, elapsed);
             Cursor = new Vector2(FleetStatsRect.X + 25, FleetStatsRect.Y + 25);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Fleet Statistics", Cursor, c);
+            batch.DrawString(Fonts.Pirulen16, "Fleet Statistics", Cursor, c);
             Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
+
+            int activeShips = GetNumActiveShips();
+            int numBuilding = GetNumBeingBuilt();
+            int slotsToFill = GetSlotsToFill();
+
             DrawStat("# Ships in Design:", F.DataNodes.Count, ref Cursor);
-            int actualNumber = 0;
-            foreach (FleetDataNode node in F.DataNodes)
-            {
-                if (node.Ship== null)
-                {
-                    continue;
-                }
-                actualNumber++;
-            }
-            DrawStat("# Ships in Fleet:", actualNumber, ref Cursor);
-            DrawStat("# Ships being Built:", NumBeingBuilt, ref Cursor);
-            int toFill = F.DataNodes.Count - actualNumber - NumBeingBuilt;
-            DrawStat("# Slots To Fill:", toFill, ref Cursor, Color.LightPink);
+            DrawStat("# Active Ships:", activeShips, ref Cursor);
+            DrawStat("# Building Ships:", numBuilding, ref Cursor);
+            DrawStat("# Empty Slots:", slotsToFill, ref Cursor, Color.LightPink);
+
             float cost = 0f;
             foreach (FleetDataNode node in F.DataNodes)
             {
@@ -130,33 +141,32 @@ namespace Ship_Game
                 }
                 numShips++;
             }
-            if (toFill != 0)
+            if (slotsToFill != 0)
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Owned Ships", Cursor, c);
-                Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);
+                batch.DrawString(Fonts.Pirulen16, "Owned Ships", Cursor, c);
+                Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
                 if (NumThatFit <= 0)
                 {
                     text = "There are no ships in your empire that are not already assigned to a fleet that can fit any of the roles required by this fleet's design.";
                     text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
+                    batch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
                     AssignNow.ToggleOn = false;
                 }
                 else
                 {
-                    string[] str = { "Of the ", numShips.ToString(), " ships in your empire that are not assigned to fleets, ", NumThatFit.ToString(), " of them can be assigned to fill in this fleet" };
-                    text = string.Concat(str);
+                    text = $"Of the {numShips} ships in your empire that are not assigned to fleets, {NumThatFit} of them can be assigned to fill in this fleet";
                     text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
+                    batch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
                     AssignNow.Draw(ScreenManager);
                 }
                 Cursor.Y = AssignNow.Button.Y + 70;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Build New Ships", Cursor, c);
-                Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);
-                if (toFill > 0)
+                batch.DrawString(Fonts.Pirulen16, "Build New Ships", Cursor, c);
+                Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
+                if (slotsToFill > 0)
                 {
-                    text = string.Concat("Order ", toFill.ToString(), " new ships to be built at your best available shipyards");
+                    text = string.Concat("Order ", slotsToFill.ToString(), " new ships to be built at your best available shipyards");
                     text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
+                    batch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
                 }
 
                 BuildNow.Draw(ScreenManager);
@@ -164,18 +174,18 @@ namespace Ship_Game
             }
             else
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "No Requisition Needed", Cursor, c);
+                batch.DrawString(Fonts.Pirulen16, "No Requisition Needed", Cursor, c);
                 Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
                 text = "This fleet is at full strength, or has build orders in place to bring it to full strength, and does not require further requisitions";
                 text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
+                batch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
             }
 
             AutoRequisition.Draw(batch, elapsed);
             if (F.AutoRequisition)
                 batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), AutoRequisitionRect, ApplyCurrentAlphaToColor(Player.EmpireColor));
 
-            ScreenManager.SpriteBatch.End();
+            batch.End();
         }
 
         private void DrawStat(string text, int value, ref Vector2 cursor)
@@ -250,7 +260,7 @@ namespace Ship_Game
             UpdateRequisitionStatus();
         }
 
-        private void UpdateRequisitionStatus()
+        void UpdateRequisitionStatus()
         {
             NumThatFit = 0;
             AvailableShips.Clear();
@@ -270,13 +280,6 @@ namespace Ship_Game
                     NumThatFit++;
                     break;
                 }
-            }
-
-            NumBeingBuilt = 0;
-            foreach (Goal g in F.Owner.AI.Goals)
-            {
-                if (F.GoalExists(g))
-                    NumBeingBuilt++;
             }
         }
     }
