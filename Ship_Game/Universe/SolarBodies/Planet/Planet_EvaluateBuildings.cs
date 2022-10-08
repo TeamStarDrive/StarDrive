@@ -263,9 +263,10 @@ namespace Ship_Game
             float credits   = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
             float buildings = TotalHabitableTiles * ratio;
 
-            tax     = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
-            credits = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
-            buildings = ApplyGovernorBonus(credits, 1.5f, 0.5f, 1f, 0.5f, 1f);
+            tax       = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
+            credits   = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
+            buildings = ApplyGovernorBonus(buildings, 1.5f, 0.5f, 1f, 0.5f, 1f);
+
             Priorities[ColonyPriority.TaxPercent]     = tax;
             Priorities[ColonyPriority.CreditsPerCol]  = credits;
             Priorities[ColonyPriority.BuildingIncome] = buildings;
