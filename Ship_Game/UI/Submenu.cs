@@ -184,7 +184,8 @@ public class Submenu : UIPanel
         Tabs.Add(tab);
     }
 
-    public void Clear()
+    // Remove all Tabs
+    public void ClearTabs()
     {
         Tabs.Clear();
         CurSelectedIndex = -1; // don't trigger event during Clear()
