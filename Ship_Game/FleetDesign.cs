@@ -11,8 +11,8 @@ namespace Ship_Game
     [StarDataType]
     public sealed class FleetDataNode
     {
-        [StarData] public Ship Ship;
-        [StarData] public Goal Goal;
+        [StarData][XmlIgnore] public Ship Ship;
+        [StarData][XmlIgnore] public Goal Goal;
         // used to requisition new ships with the same name
         [StarData] public string ShipName;
         [StarData] public Vector2 RelativeFleetOffset;
