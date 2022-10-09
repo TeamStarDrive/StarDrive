@@ -6,8 +6,11 @@ namespace Ship_Game.Debug.Page;
 
 public class ThreatMatrixDebug : DebugPage
 {
+    readonly DebugEmpireSelectionSubmenu EmpireSelect;
+
     public ThreatMatrixDebug(DebugInfoScreen parent) : base(parent, DebugModes.ThreatMatrix)
     {
+        EmpireSelect = base.Add(new DebugEmpireSelectionSubmenu(parent, parent.ModesTab.ClientArea.CutTop(10)));
     }
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -17,19 +20,29 @@ public class ThreatMatrixDebug : DebugPage
 
         float baseRadius = (int)Universe.ViewState / 100f;
 
-        foreach (Empire e in Universe.Empires)
+        Empire e = EmpireSelect.Selected;
+        var pins = e.AI.ThreatMatrix.GetPinsCopy();
+        for (int i = 0; i < pins.Length; i++)
         {
-            var pins = e.AI.ThreatMatrix.GetPinsCopy();
-            for (int i = 0; i < pins.Length; i++)
+            ThreatMatrix.Pin pin = pins[i];
+            if (pin?.Ship != null && pin.Position != Vector2.Zero)
             {
-                ThreatMatrix.Pin pin = pins[i];
-                if (pin?.Ship != null && pin.Position != Vector2.Zero)
+                float radius = baseRadius + pin.Ship.Radius;
+                if (Screen.IsInFrustum(pin.Position, radius))
                 {
-                    Screen.DrawCircleProjected(pin.Position,
-                        baseRadius + pin.Ship.Radius, 6, e.EmpireColor);
+                    // the hexagon marks the observed pin with observed empire's color
+                    Screen.DrawCircleProjected(pin.Position, radius, 6, pin.Empire.EmpireColor);
+                    if (Universe.ViewState <= UniverseScreen.UnivScreenState.SystemView)
+                        Screen.DrawStringProjected(pin.Position, radius*0.25f, pin.Empire.EmpireColor, $"{pin.Ship}");
 
-                    if (pin.InBorders) Screen.DrawCircleProjected(pin.Position,
-                        baseRadius + pin.Ship.Radius, 3, e.EmpireColor);
+                    // if it's within our borders, draw "InBorders" using our color
+                    if (pin.InBorders && Universe.ViewState <= UniverseScreen.UnivScreenState.SystemView)
+                    {
+                        Screen.DrawStringProjected(pin.Position-new Vector2(radius,radius*1.5f), radius*0.5f, e.EmpireColor, "InBorders");
+                    }
+
+                    // put a rectangle around the pin to mark observed empire's color
+                    Screen.DrawRectangleProjected(pin.Position, new(radius*2), 0f, e.EmpireColor);
                 }
             }
         }

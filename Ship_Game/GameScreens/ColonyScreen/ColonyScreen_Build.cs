@@ -34,7 +34,7 @@ namespace Ship_Game
         {
             int selected = BuildableTabs.SelectedIndex;
 
-            BuildableTabs.Clear();
+            BuildableTabs.ClearTabs();
             BuildableTabs.AddTab(BuildingsTabText);
             if (P.HasSpacePort)     BuildableTabs.AddTab(ShipsTabText);
             if (P.CanBuildInfantry) BuildableTabs.AddTab(TroopsTabText);
