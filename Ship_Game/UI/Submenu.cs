@@ -45,6 +45,7 @@ public class Submenu : UIPanel
 
     // If set, draws a background element before the Submenu itself is drawn
     UIElementV2 Background;
+    bool AutoSizeBackground;
         
     // EVT: Triggered when a tab is changed
     public Action<int> OnTabChange;
@@ -113,7 +114,17 @@ public class Submenu : UIPanel
     public override void PerformLayout()
     {
         base.PerformLayout();
-        Background?.PerformLayout();
+
+        if (Background != null)
+        {
+            if (AutoSizeBackground)
+            {
+                var (localPos, size) = GetBackgroundRect();
+                Background.SetLocalPos(localPos);
+                Background.SetAbsSize(size);
+            }
+            Background.PerformLayout();
+        }
 
         InitializeRects();
         // this will update MenuBar and ClientArea
@@ -132,11 +143,19 @@ public class Submenu : UIPanel
         ClientArea = N.ClientArea; // use the default ClientArea
     }
 
+    (LocalPos, Vector2) GetBackgroundRect()
+    {
+        if (Tabs.IsEmpty) return (LocalPos.Zero, Size);
+        return (new LocalPos(0, TabHeight - 2), Rect.CutTop(TabHeight - 2).Size());
+    }
+
     // Adds a colored background Selector to this Submenu
     public void SetBackground(Color color)
     {
         Background?.RemoveFromParent();
-        Background = new Selector(this, new LocalPos(0, TabHeight-2), Rect.CutTop(TabHeight-2).Size(), color);
+        AutoSizeBackground = true;
+        var (localPos, size) = GetBackgroundRect();
+        Background = new Selector(this, localPos, size, color);
         SendToBackZOrder(Background);
     }
 
@@ -144,6 +163,7 @@ public class Submenu : UIPanel
     public void SetBackground(UIElementV2 background)
     {
         Background?.RemoveFromParent();
+        AutoSizeBackground = false;
         Background = Add(background);
         SendToBackZOrder(Background);
     }

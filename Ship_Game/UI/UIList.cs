@@ -71,6 +71,13 @@ namespace Ship_Game
             Color = Color.TransparentBlack;
         }
 
+        public UIList(Vector2 size, ListLayoutStyle style)
+        {
+            LayoutStyle = style;
+            Size = size;
+            Color = Color.TransparentBlack;
+        }
+
         public UIList(Vector2 pos, Vector2 size) : base(pos, size, Color.TransparentBlack)
         {
         }
@@ -263,6 +270,11 @@ namespace Ship_Game
         public UILabel AddLabel(in LocalizedText text)
         {
             return Add(new UILabel(text));
+        }
+
+        public UILabel AddLabel(in LocalizedText text, Graphics.Font font)
+        {
+            return Add(new UILabel(text, font));
         }
 
         public UILabel AddLabel(Vector2 minSize, in LocalizedText text)

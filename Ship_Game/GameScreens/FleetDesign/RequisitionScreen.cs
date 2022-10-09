@@ -1,37 +1,132 @@
-using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
-using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = SDGraphics.Rectangle;
+using System;
 
 namespace Ship_Game
 {
     public sealed class RequisitionScreen : GameScreen
     {
-        private Vector2 Cursor = Vector2.Zero;
-        private readonly Fleet F;
-        private readonly FleetDesignScreen Fds;
-        Empire Player => Fds.Universe.Player;
-        private BlueButton AssignNow;
-        private BlueButton BuildNow;
-        private BlueButton BuildNowRush;
-        private Rectangle FleetStatsRect;
-        private UICheckBox AutoRequisition;
-        Rectangle AutoRequisitionRect;
+        readonly Fleet F;
+        readonly FleetDesignScreen Fds;
+
+        Submenu Background;
+        BlueButton AssignNow;
+        UIList OwnedShips;
+        UIList BuildNewShips;
+        UIList NoRequisitionNeeded;
+
         public RequisitionScreen(FleetDesignScreen fds) : base(fds, toPause: null)
         {
-            Fds               = fds;
-            F                 = fds.SelectedFleet;
-            IsPopup           = true;
-            TransitionOnTime  = 0.25f;
+            Fds = fds;
+            F = fds.SelectedFleet;
+            IsPopup = true;
+            TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
+
+            RectF = new RectF(fds.CenterX - 172, fds.CenterY - 300, 345, 600);
         }
 
-        private void AssignAvailableShips()
+        public override void LoadContent()
+        {
+            Background = Add(new Submenu(RectF));
+            Background.SetBackground(new Color(0, 0, 0, 180));
+
+            var main = Background.Add(new UIList(Background.ClientArea, Color.TransparentBlack));
+            main.Padding = new(4, 8);
+
+            var stats = main.Add(new UIList(new(main.Width, 20), ListLayoutStyle.ResizeList));
+            void AddStatLabel(string title, Func<UILabel, string> getText)
+            {
+                var s = stats.AddSplit(new UILabel(title), new UILabel(getText));
+                s.Split = Background.ClientArea.W / 2;
+            }
+            stats.Add(new UILabel("Fleet Statistics", Fonts.Pirulen16));
+            AddStatLabel("# Ships in Design:", _ => F.DataNodes.Count.ToString());
+            AddStatLabel("# Active Ships:", _ => GetNumActiveShips().ToString());
+            AddStatLabel("# Building Ships:", _ => GetNumBeingBuilt().ToString());
+            AddStatLabel("# Empty Slots:", _ => GetSlotsToFill().ToString());
+            AddStatLabel("Total Production Cost:", _ => GetTotalProductionCost().String(0));
+
+            // OwnedShips: Only visible when we have slots to fill
+            OwnedShips = main.Add(new UIList(new(main.Width, 20), ListLayoutStyle.ResizeList));
+            OwnedShips.Add(new UILabel("Owned Ships", Fonts.Pirulen16));
+            OwnedShips.Add(new UILabel(_ => GetNumThatFitText()));
+            AssignNow = OwnedShips.Add(new BlueButton("Assign Now")
+            {
+                OnClick = (_) => AssignAvailableShips()
+            });
+
+            BuildNewShips = main.Add(new UIList(new(main.Width, 20), ListLayoutStyle.ResizeList));
+            BuildNewShips.Add(new UILabel("Build New Ships", Fonts.Pirulen16));
+            BuildNewShips.Add(new UILabel(_ => GetSlotsToFillText()));
+            BuildNewShips.Add(new BlueButton("Build Now")
+            {
+                OnClick = (_) => CreateFleetRequisitionGoals()
+            });
+            BuildNewShips.Add(new BlueButton("Rush Now")
+            {
+                Tooltip = GameText.BuildAllShipsNowPrioritize,
+                OnClick = (_) => CreateFleetRequisitionGoals(true)
+            });
+
+            // NoRequisitionNeeded: Only visible when all slots are filled
+            NoRequisitionNeeded = main.Add(new UIList(new(main.Width, 20), ListLayoutStyle.ResizeList));
+            NoRequisitionNeeded.Add(new UILabel("No Requisition Needed", Fonts.Pirulen16, Colors.Cream));
+            NoRequisitionNeeded.Add(new UILabel(_ => GetFullStrengthText()) { Color = Colors.Cream });
+
+            main.Add(new UICheckBox(() => F.AutoRequisition, Fonts.Arial12Bold,
+                                    title: GameText.AutomaticRequisition,
+                                    tooltip: GameText.IfCheckedEveryTimeA));
+        }
+
+        string GetNumThatFitText()
+        {
+            Ship[] available = GetAvailableShips();
+            int numThatFit = GetNumThatFit(available);
+
+            // TODO: implement dynamic text in GameText.yaml
+            string s = numThatFit > 0
+                ? $"Of the {available.Length} ships in your empire that are not assigned to fleets, {numThatFit} of them can be assigned to fill in this fleet"
+                : "There are no ships in your empire that are not already assigned to a fleet that can fit any of the roles required by this fleet's design.";
+
+            return Fonts.Arial12Bold.ParseText(s, Background.ClientArea.W - 40);
+        }
+
+        string GetSlotsToFillText()
+        {
+            string s = $"Order {GetSlotsToFill()} new ships to be built at your best available shipyards";
+            return Fonts.Arial12Bold.ParseText(s, Background.ClientArea.W - 40);
+        }
+
+        string GetFullStrengthText()
+        {
+            // TODO: Add auto-parse support for Labels
+            string s = "This fleet is at full strength, or has build orders in place to bring it to full strength, and does not require further requisitions";
+            return Fonts.Arial12Bold.ParseText(s, Background.ClientArea.W - 40);
+        }
+
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            batch.Begin();
+
+            int slotsToFill = GetSlotsToFill();
+            AssignNow.Visible = slotsToFill > 0 && GetNumThatFit(GetAvailableShips()) > 0;
+            OwnedShips.Visible = slotsToFill > 0;
+            BuildNewShips.Visible = slotsToFill > 0;
+            NoRequisitionNeeded.Visible = slotsToFill <= 0;
+
+            base.Draw(batch, elapsed);
+
+            batch.End();
+        }
+
+        void AssignAvailableShips()
         {
             Ship[] available = GetAvailableShips();
 
@@ -69,7 +164,7 @@ namespace Ship_Game
             Fds.ChangeFleet(Fds.FleetToEdit);
         }
 
-        private void CreateFleetRequisitionGoals(bool rush = false)
+        void CreateFleetRequisitionGoals(bool rush = false)
         {
             foreach (FleetDataNode node in F.DataNodes)
             {
@@ -87,7 +182,6 @@ namespace Ship_Game
             return F.DataNodes.Count(n => n.Ship != null);
         }
 
-        // TODO: clear node.Goal which are cancelled by player
         int GetNumBeingBuilt()
         {
             return F.DataNodes.Count(n => n.Ship == null && n.Goal is FleetRequisition);
@@ -117,131 +211,18 @@ namespace Ship_Game
             return numThatFit;
         }
 
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        float GetTotalProductionCost()
         {
-            string text;
-            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
-            Color c = Colors.Cream;
-            Selector fleetStats = new Selector(FleetStatsRect, new Color(0, 0, 0, 180));
-            fleetStats.Draw(batch, elapsed);
-            Cursor = new Vector2(FleetStatsRect.X + 25, FleetStatsRect.Y + 25);
-            batch.DrawString(Fonts.Pirulen16, "Fleet Statistics", Cursor, c);
-            Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
-
-            int activeShips = GetNumActiveShips();
-            int numBuilding = GetNumBeingBuilt();
-            int slotsToFill = GetSlotsToFill();
-
-            DrawStat(batch, "# Ships in Design:", F.DataNodes.Count, ref Cursor);
-            DrawStat(batch, "# Active Ships:", activeShips, ref Cursor);
-            DrawStat(batch, "# Building Ships:", numBuilding, ref Cursor);
-            DrawStat(batch, "# Empty Slots:", slotsToFill, ref Cursor, Color.LightPink);
-
             float cost = 0f;
             foreach (FleetDataNode node in F.DataNodes)
             {
                 if (node.Ship != null)
                     cost += node.Ship.GetCost(F.Owner);
-                else if (ResourceManager.GetShipTemplate(node.ShipName, out Ship ship))
+                else if (ResourceManager.Ships.GetDesign(node.ShipName, out IShipDesign ship))
                     cost += ship.GetCost(F.Owner);
             }
-            DrawStat(batch, "Total Production Cost:", (int)cost, ref Cursor);
-            Cursor.Y += 20f;
-
-            Ship[] available = GetAvailableShips();
-            int numThatFit = GetNumThatFit(available);
-
-            AssignNow.Visible = slotsToFill > 0 && numThatFit > 0;
-            BuildNow.Visible = slotsToFill > 0;
-            BuildNowRush.Visible = slotsToFill > 0;
-
-            if (slotsToFill > 0)
-            {
-                batch.DrawString(Fonts.Pirulen16, "Owned Ships", Cursor, c);
-                Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
-                if (numThatFit > 0)
-                {
-                    int unassigned = F.Owner.OwnedShips.Count(s => s.Fleet != null);
-                    text = $"Of the {unassigned} ships in your empire that are not assigned to fleets, {numThatFit} of them can be assigned to fill in this fleet";
-                    text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
-                    batch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
-                }
-                else
-                {
-                    text = "There are no ships in your empire that are not already assigned to a fleet that can fit any of the roles required by this fleet's design.";
-                    text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
-                    batch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
-                }
-
-                Cursor.Y = AssignNow.Button.Y + 70;
-                batch.DrawString(Fonts.Pirulen16, "Build New Ships", Cursor, c);
-                Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
-
-                text = string.Concat("Order ", slotsToFill.ToString(), " new ships to be built at your best available shipyards");
-                text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
-                batch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
-            }
-            else
-            {
-                batch.DrawString(Fonts.Pirulen16, "No Requisition Needed", Cursor, c);
-                Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
-                text = "This fleet is at full strength, or has build orders in place to bring it to full strength, and does not require further requisitions";
-                text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
-                batch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
-            }
-
-            AutoRequisition.Draw(batch, elapsed);
-            if (F.AutoRequisition)
-                batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), AutoRequisitionRect, ApplyCurrentAlphaToColor(Player.EmpireColor));
-
-            base.Draw(batch, elapsed);
-
-            batch.End();
+            return cost;
         }
 
-        void DrawStat(SpriteBatch batch, string text, int value, ref Vector2 cursor)
-        {
-            Color c = Colors.Cream;
-            float column1 = cursor.X;
-            float column2 = cursor.X + 175f;
-            cursor.X = column1;
-            batch.DrawString(Fonts.Arial12Bold, text, cursor, c);
-            cursor.X = column2;
-            batch.DrawString(Fonts.Arial12Bold, value.ToString(), cursor, c);
-            cursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
-            cursor.X = column1;
-        }
-
-        private void DrawStat(SpriteBatch batch, string text, int value, ref Vector2 cursor, Color statColor)
-        {
-            Color c = Colors.Cream;
-            float column1 = cursor.X;
-            float column2 = cursor.X + 175f;
-            cursor.X = column1;
-            batch.DrawString(Fonts.Arial12Bold, text, cursor, c);
-            cursor.X = column2;
-            batch.DrawString(Fonts.Arial12Bold, value.ToString(), cursor, statColor);
-            cursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
-            cursor.X = column1;
-        }
-
-        public override void LoadContent()
-        {
-            FleetStatsRect = new Rectangle(ScreenWidth / 2 - 172, ScreenHeight / 2 - 300, 345, 600);
-            AssignNow = Add(new BlueButton(new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 225), "Assign Now"));
-            AssignNow.OnClick = (b) => { AssignAvailableShips(); };
-
-            BuildNow = Add(new BlueButton(new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 365), "Build Now"));
-            BuildNow.OnClick = (b) => { CreateFleetRequisitionGoals(); };
-
-            BuildNowRush = Add(new BlueButton(new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 415), "Rush Now"));
-            BuildNowRush.Tooltip = GameText.BuildAllShipsNowPrioritize;
-            BuildNowRush.OnClick = (b) => { CreateFleetRequisitionGoals(true); };
-
-            AutoRequisition = Add(new UICheckBox(() => F.AutoRequisition, Fonts.Arial12Bold, title: GameText.AutomaticRequisition, tooltip: GameText.IfCheckedEveryTimeA));
-            AutoRequisition.Pos = new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 480);
-            AutoRequisitionRect = new Rectangle((int)AutoRequisition.Pos.X - 40, (int)AutoRequisition.Pos.Y - 14, 30, 40);
-        }
     }
 }
