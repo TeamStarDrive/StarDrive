@@ -134,7 +134,7 @@ namespace Ship_Game.AI
 
         float DetermineDefenseBudget(float money, float percentOfMoney, float risk)
         {
-            float budget = SetBudgetForeArea(percentOfMoney, money);
+            float budget = SetBudgetForeArea(percentOfMoney, money, risk);
             return budget;
         }
 
