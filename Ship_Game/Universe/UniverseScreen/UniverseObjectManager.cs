@@ -4,6 +4,7 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
 
@@ -341,9 +342,9 @@ namespace Ship_Game
                         continue; // all ships were killed, nothing to do here
 
                     //int debugId = (system.Name == "Opteris") ? 11 : 0;
-                    GameObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
-                                                                        system.Position, system.Radius,
-                                                                        maxResults:allShips.Length/*, debugId:debugId*/);
+                    SpatialObjectBase[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
+                                                                           system.Position, system.Radius,
+                                                                           maxResults:allShips.Length/*, debugId:debugId*/);
                     for (int j = 0; j < shipsInSystem.Length; ++j)
                     {
                         var ship = (Ship)shipsInSystem[j];
@@ -489,14 +490,14 @@ namespace Ship_Game
             if (UState.IsPlanetViewOrCloser)
             {
                 projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 2048)
-                               .FastCast<GameObject, Projectile>();
+                               .FastCast<SpatialObjectBase, Projectile>();
 
                 beams = Spatial.FindNearby(GameObjectType.Beam, visibleWorld, 2048)
-                               .FastCast<GameObject, Beam>();
+                               .FastCast<SpatialObjectBase, Beam>();
             }
 
             Ship[] ships = Spatial.FindNearby(GameObjectType.Ship, visibleWorld, 1024)
-                                  .FastCast<GameObject, Ship>();
+                                  .FastCast<SpatialObjectBase, Ship>();
 
             // Reset frustum value for ship visible in previous frame
             SetInFrustum(VisibleProjectiles, false);

@@ -5,7 +5,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Spatial
 {
-    public sealed partial class Qtree
+    public partial class Qtree
     {
         static readonly Color Brown = new(Color.SaddleBrown, 150);
         static readonly Color BrownDim = new(89, 39,  5, 150);
@@ -87,8 +87,8 @@ namespace Ship_Game.Spatial
             public AABoundingBox2D SearchArea;
             public Vector2 FilterOrigin;
             public float RadialFilter;
-            public Array<AABoundingBox2D> FindCells = new Array<AABoundingBox2D>();
-            public Array<GameObject> SearchResults = new Array<GameObject>();
+            public Array<AABoundingBox2D> FindCells = new();
+            public Array<SpatialObjectBase> SearchResults = new();
 
             public void Draw(GameScreen screen, VisualizerOptions opt)
             {
@@ -103,7 +103,7 @@ namespace Ship_Game.Spatial
 
                 if (opt.SearchResults)
                 {
-                    foreach (GameObject go in SearchResults)
+                    foreach (SpatialObjectBase go in SearchResults)
                     {
                         screen.DrawRectProjected(new AABoundingBox2D(go), YellowBright);
                     }

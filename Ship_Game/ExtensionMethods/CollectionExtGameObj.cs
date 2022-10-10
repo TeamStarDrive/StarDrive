@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Spatial;
 
 namespace Ship_Game;
 
 public static class CollectionExtGameObj
 {
-    public static void SortByDistance<T>(this T[] array, Vector2 fromPos) where T : GameObject
+    public static void SortByDistance<T>(this T[] array, Vector2 fromPos) where T : SpatialObjectBase
     {
         if (array.Length <= 1)
             return;

@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using SDGraphics;
+using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -59,7 +60,7 @@ namespace Ship_Game
             Y2 = botRight.Y;
         }
 
-        public AABoundingBox2D(GameObject go)
+        public AABoundingBox2D(SpatialObjectBase go)
         {
             float x = go.Position.X;
             float y = go.Position.Y;
@@ -154,7 +155,7 @@ namespace Ship_Game
             Y2 = (int)r.Bottom;
         }
 
-        public AABoundingBox2Di(GameObject go)
+        public AABoundingBox2Di(SpatialObjectBase go)
         {
             int x = (int)go.Position.X;
             int y = (int)go.Position.Y;

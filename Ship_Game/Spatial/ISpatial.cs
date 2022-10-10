@@ -34,8 +34,15 @@ namespace Ship_Game
         /// </summary>
         int Count { get; }
 
+        /// <summary>
+        /// Clears the entire state of the Spatial collection
+        /// </summary>
         void Clear();
-        void UpdateAll(GameObject[] allObjects);
+
+        /// <summary>
+        /// Insert/Update/Remove all objects
+        /// </summary>
+        void UpdateAll(SpatialObjectBase[] allObjects);
 
         /// <summary>
         /// Collides all objects
@@ -49,13 +56,13 @@ namespace Ship_Game
         /// Finds nearby GameplayObjects using multiple filters
         /// WARNING: DO NOT USE `in` Attribute in Interfaces, it adds a +70% perf hit for no damn reason
         /// </summary>
-        GameObject[] FindNearby(ref SearchOptions opt);
+        SpatialObjectBase[] FindNearby(ref SearchOptions opt);
 
         /// <summary>
         /// Performs a linear search instead of using the Quadtree
         /// WARNING: DO NOT USE `in` Attribute in Interfaces, it adds a +70% perf hit for no damn reason
         /// </summary>
-        GameObject[] FindLinear(ref SearchOptions opt);
+        SpatialObjectBase[] FindLinear(ref SearchOptions opt);
 
         /// <summary>
         /// Visualize this Spatial collection for debugging purposes

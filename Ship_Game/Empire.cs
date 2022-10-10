@@ -17,6 +17,7 @@ using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
@@ -1259,7 +1260,7 @@ namespace Ship_Game
         void ScanForShipsFromPlanet(Vector2 pos, float radius)
         {
             // find ships in radius of node.
-            GameObject[] targets = Universe.Spatial.FindNearby(
+            SpatialObjectBase[] targets = Universe.Spatial.FindNearby(
                 GameObjectType.Ship, pos, radius, maxResults:1024, excludeLoyalty:this
             );
 
