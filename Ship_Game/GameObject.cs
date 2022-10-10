@@ -1,10 +1,10 @@
-using System.Diagnostics.Contracts;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Runtime.CompilerServices;
 using Ship_Game.Data.Serialization;
 using SDGraphics;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
@@ -24,36 +24,26 @@ namespace Ship_Game
     }
 
     [StarDataType]
-    public abstract class GameObject
+    public abstract class GameObject : SpatialObjectBase
     {
         [StarData] public readonly int Id;
-        [StarData] public bool Active; // this must be set during concrete object Initialization
         [StarData] public SolarSystem System;
-        
-        [StarData] public Vector2 Position;
         [StarData] public Vector2 Velocity;
+        // important for hi-precision impact predictor and accurate Position integration
+        [StarData] public Vector2 Acceleration;
 
         // Velocity magnitude (scalar), always absolute
         public float CurrentVelocity => Velocity.Length();
-
-        // important for hi-precision impact predictor and accurate Position integration
-        [StarData] public Vector2 Acceleration;
 
         // rotation in RADIANS
         // MUST be normalized to [0; +2PI]
         [StarData] public float Rotation;
 
-        [StarData] public float Radius = 1f;
         [StarData] public float Mass = 1f;
         [StarData] public float Health;
 
-        [StarData] public readonly GameObjectType Type;
-
         public GameObject LastDamagedBy;
 
-        public int SpatialIndex = -1;
-        public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
-        public bool ReinsertSpatial = false; // if true, this object should be reinserted to spatial manager
         public bool InFrustum; // Updated by UniverseObjectManager
 
         /// <summary>
@@ -104,10 +94,9 @@ namespace Ship_Game
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
 
         [StarDataConstructor]
-        protected GameObject(int id, GameObjectType type)
+        protected GameObject(int id, GameObjectType type) : base(type)
         {
             Id = id;
-            Type = type;
         }
 
         public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
@@ -134,26 +123,6 @@ namespace Ship_Game
         public void SetSystem(SolarSystem system)
         {
             System = system;
-        }
-
-        [Pure] public int GetLoyaltyId()
-        {
-            if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty?.Id ?? 0;
-            if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty?.Id ?? 0;
-            if (Type == GameObjectType.Ship) return ((Ship)this).Loyalty.Id;
-            if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().Loyalty.Id;
-            if (Type == GameObjectType.Planet) return ((Planet)this).Owner?.Id ?? 0;
-            return 0;
-        }
-
-        [Pure] public Empire GetLoyalty()
-        {
-            if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty;
-            if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty;
-            if (Type == GameObjectType.Ship) return ((Ship)this).Loyalty;
-            if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().Loyalty;
-            if (Type == GameObjectType.Planet) return ((Planet)this).Owner;
-            return null;
         }
 
         public virtual bool IsAttackable(Empire attacker, Relationship attackerRelationThis)

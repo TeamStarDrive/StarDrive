@@ -7,6 +7,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
@@ -55,10 +56,10 @@ namespace Ship_Game.GameScreens.Sandbox
             }
             else if (CanFire)
             {
-                GameObject[] nearby = Universe.Spatial.FindNearby(GameObjectType.Ship, this, 4000f, maxResults:64);
+                SpatialObjectBase[] nearby = Universe.Spatial.FindNearby(GameObjectType.Ship, this, 4000f, maxResults:64);
                 nearby.SortByDistance(Position);
 
-                var nearbyShips = nearby.FastCast<GameObject, Ship>();
+                var nearbyShips = nearby.FastCast<SpatialObjectBase, Ship>();
                 var noProjectiles = Empty<Projectile>.Array;
 
                 foreach (Weapon weapon in Weapons)

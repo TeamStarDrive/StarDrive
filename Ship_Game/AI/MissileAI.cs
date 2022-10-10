@@ -6,6 +6,7 @@ using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Universe;
+using Ship_Game.Spatial;
 
 namespace Ship_Game.AI
 {
@@ -80,14 +81,14 @@ namespace Ship_Game.AI
                 var targets = new Array<Ship>();
 
                 // find nearby enemy ships
-                GameObject[] nearbyShips = Missile.Universe.Spatial.FindNearby(GameObjectType.Ship,
+                SpatialObjectBase[] nearbyShips = Missile.Universe.Spatial.FindNearby(GameObjectType.Ship,
                             Missile, Missile.Planet.GravityWellRadius, maxResults:32, excludeLoyalty:Missile.Loyalty);
 
-                foreach (GameObject go in nearbyShips)
+                foreach (SpatialObjectBase go in nearbyShips)
                 {
-                    if (Missile.Weapon!.TargetValid(go))
+                    var nearbyShip = (Ship)go;
+                    if (Missile.Weapon!.TargetValid(nearbyShip))
                     {
-                        var nearbyShip = (Ship) go;
                         if (Missile.Loyalty.IsEmpireAttackable(nearbyShip.Loyalty))
                             targets.Add(nearbyShip);
                     }

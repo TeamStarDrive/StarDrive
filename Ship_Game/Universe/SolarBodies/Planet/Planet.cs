@@ -126,7 +126,7 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
             => TroopManager.TakeEmpireTroops(empire, maxToTake);
 
-        public GameObject[] FindNearbyFriendlyShips()
+        public SpatialObjectBase[] FindNearbyFriendlyShips()
             => Universe.Spatial.FindNearby(GameObjectType.Ship, Position, GravityWellRadius, maxResults:128, onlyLoyalty:Owner);
 
         public float Fertility                      => FertilityFor(Owner);
@@ -662,7 +662,7 @@ namespace Ship_Game
                 MaxResults = 32,
                 ExcludeLoyalty = Owner,
             };
-            GameObject[] enemyShips = Universe.Spatial.FindNearby(ref opt);
+            SpatialObjectBase[] enemyShips = Universe.Spatial.FindNearby(ref opt);
 
             for (int j = 0; j < enemyShips.Length; ++j)
             {

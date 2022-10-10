@@ -56,7 +56,7 @@ namespace UnitTests.Universe
         {
             var opt = new SearchOptions(pos, r, type);
             opt.MaxResults = 128;
-            return tree.FindNearby(ref opt);
+            return tree.FindNearby(ref opt).FastCast<SpatialObjectBase, GameObject>();
         }
         
         [TestMethod]
@@ -108,11 +108,11 @@ namespace UnitTests.Universe
             Assert.AreEqual(24, f3.Length, "FindNearby center 26000 must match 24");
         }
 
-        void CheckFindNearby(GameObject[] found, GameObjectType expected,
+        void CheckFindNearby(SpatialObjectBase[] found, GameObjectType expected,
                              Vector2 pos, float radius)
         {
             Assert.AreNotEqual(0, found.Length);
-            foreach (GameObject go in found)
+            foreach (SpatialObjectBase go in found)
             {
                 Assert.AreEqual(expected, go.Type);
                 float distance = go.Position.Distance(pos);
@@ -121,10 +121,10 @@ namespace UnitTests.Universe
             }
         }
 
-        void CheckShipsLoyalty(GameObject[] found, Empire expected = null, 
+        void CheckShipsLoyalty(SpatialObjectBase[] found, Empire expected = null, 
                               Empire notExpected = null, Ship notShip = null)
         {
-            foreach (GameObject foundObj in found)
+            foreach (SpatialObjectBase foundObj in found)
                 if (foundObj is Ship foundShip)
                 {
                     if (notShip != null)
@@ -170,7 +170,7 @@ namespace UnitTests.Universe
                     Exclude = s,
                     OnlyLoyalty = s.Loyalty,
                 };
-                GameObject[] found = tree.FindNearby(ref opt);
+                SpatialObjectBase[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
                 CheckShipsLoyalty(found, expected:s.Loyalty, notShip:s);
             }
@@ -191,7 +191,7 @@ namespace UnitTests.Universe
                     Exclude = s,
                     ExcludeLoyalty = s.Loyalty,
                 };
-                GameObject[] found = tree.FindNearby(ref opt);
+                SpatialObjectBase[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
                 CheckShipsLoyalty(found, notExpected:s.Loyalty, notShip:s);
             }
@@ -215,7 +215,7 @@ namespace UnitTests.Universe
                 Exclude = s,
                 OnlyLoyalty = s.Loyalty, // loyalty must be '1', not '0'
             };
-            GameObject[] found = tree.FindNearby(ref opt);
+            SpatialObjectBase[] found = tree.FindNearby(ref opt);
             Assert.AreEqual(3, found.Length, "FindNearby must include all friends and not self");
             CheckFindNearby(found, GameObjectType.Ship, s.Position, 30000);
             CheckShipsLoyalty(found, expected:s.Loyalty, notShip:s);
@@ -335,14 +335,14 @@ namespace UnitTests.Universe
                         {
                             var shipOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Ship);
                             var projOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Proj);
-                            GameObject[] ships = tree.FindNearby(ref shipOpt);
-                            GameObject[] projectiles = tree.FindNearby(ref projOpt);
+                            SpatialObjectBase[] ships = tree.FindNearby(ref shipOpt);
+                            SpatialObjectBase[] projectiles = tree.FindNearby(ref projOpt);
 
-                            foreach (GameObject go in ships)
+                            foreach (SpatialObjectBase go in ships)
                             {
                                 Assert.IsTrue(go is Ship, $"FindNearby(Type=Ship) contains a non-ship: {go}");
                             }
-                            foreach (GameObject go in projectiles)
+                            foreach (SpatialObjectBase go in projectiles)
                             {
                                 Assert.IsTrue(go is Projectile, $"FindNearby(Type=Proj) contains a non-projectile: {go}");
                             }

@@ -5,7 +5,7 @@ using Ship_Game.Spatial;
 
 namespace Ship_Game.Spatial
 {
-    public sealed partial class Qtree
+    public partial class Qtree
     {
         unsafe class Collider
         {

@@ -11,6 +11,7 @@ using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
 using Ship_Game.UI;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
@@ -788,12 +789,12 @@ namespace Ship_Game
         Array<Troop> GetOrbitingTroops(Empire owner)
         {
             // get our friendly ships
-            GameObject[] orbitingShips = P.Universe.Spatial.FindNearby(GameObjectType.Ship,
+            SpatialObjectBase[] orbitingShips = P.Universe.Spatial.FindNearby(GameObjectType.Ship,
                                                 P.Position, P.Radius+1500f, maxResults:128, onlyLoyalty:owner);
 
             // get a list of all the troops on those ships
             var troops = new Array<Troop>();
-            foreach (GameObject go in orbitingShips)
+            foreach (SpatialObjectBase go in orbitingShips)
             {
                 var ship = (Ship)go;
                 if (ship.ShipData.Role != RoleName.troop)

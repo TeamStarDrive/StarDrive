@@ -5,7 +5,7 @@ using SDUtils;
 
 namespace Ship_Game.Spatial
 {
-    public sealed partial class Qtree
+    public partial class Qtree
     {
         /// <summary>
         /// Optimized temporary search buffer for FindNearby
@@ -13,7 +13,7 @@ namespace Ship_Game.Spatial
         class FindResultBuffer
         {
             public int Count = 0;
-            public GameObject[] Items = new GameObject[128];
+            public SpatialObjectBase[] Items = new SpatialObjectBase[128];
             public int NextNode = 0; // next node to pop
             public QtreeNode[] NodeStack = new QtreeNode[512];
             
@@ -32,14 +32,14 @@ namespace Ship_Game.Spatial
                 NodeStack[++NextNode] = node;
             }
 
-            public GameObject[] GetArrayAndClearBuffer()
+            public SpatialObjectBase[] GetArrayAndClearBuffer()
             {
                 int count = Count;
                 if (count == 0)
-                    return Empty<GameObject>.Array;
+                    return Empty<SpatialObjectBase>.Array;
 
                 Count = 0;
-                var arr = new GameObject[count];
+                var arr = new SpatialObjectBase[count];
                 Memory.HybridCopy(arr, 0, Items, count);
                 Array.Clear(Items, 0, count);
                 return arr;
@@ -47,8 +47,7 @@ namespace Ship_Game.Spatial
         }
 
         // NOTE: This is really fast
-        readonly ThreadLocal<FindResultBuffer> FindBuffer
-           = new ThreadLocal<FindResultBuffer>(() => new FindResultBuffer());
+        readonly ThreadLocal<FindResultBuffer> FindBuffer = new(() => new());
 
         FindResultBuffer GetThreadLocalTraversalBuffer(QtreeNode root)
         {
@@ -58,7 +57,7 @@ namespace Ship_Game.Spatial
             return buffer;
         }
 
-        public unsafe GameObject[] FindNearby(ref SearchOptions opt)
+        public unsafe SpatialObjectBase[] FindNearby(ref SearchOptions opt)
         {
             AABoundingBox2D searchRect = opt.SearchRect;
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
@@ -81,7 +80,7 @@ namespace Ship_Game.Spatial
             QtreeNode root = Root;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
             if (buffer.Items.Length < maxResults)
-                buffer.Items = new GameObject[maxResults];
+                buffer.Items = new SpatialObjectBase[maxResults];
 
             DebugFindNearby dfn = null;
             if (opt.DebugId != 0)
@@ -93,7 +92,7 @@ namespace Ship_Game.Spatial
                 FindNearbyDbg[opt.DebugId] = dfn;
             }
 
-            GameObject[] objects = Objects;
+            SpatialObjectBase[] objects = Objects;
             do
             {
                 QtreeNode current = buffer.Pop();
@@ -141,7 +140,7 @@ namespace Ship_Game.Spatial
 
                             idBitArray[wordIndex] |= idMask; // flag it as checked
 
-                            GameObject go = objects[id];
+                            SpatialObjectBase go = objects[id];
                             if (opt.FilterFunction == null || opt.FilterFunction(go))
                             {
                                 dfn?.SearchResults.Add(go);
@@ -159,9 +158,9 @@ namespace Ship_Game.Spatial
             return buffer.GetArrayAndClearBuffer();
         }
 
-        public GameObject[] FindLinear(ref SearchOptions opt)
+        public SpatialObjectBase[] FindLinear(ref SearchOptions opt)
         {
-            GameObject[] objects = Objects;
+            SpatialObjectBase[] objects = Objects;
             return LinearSearch.FindNearby(ref opt, objects, objects.Length);
         }
     }
