@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using SDUtils;
 using Ship_Game.Utils;
@@ -8,11 +7,8 @@ namespace Ship_Game.Spatial
 {
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-    public sealed partial class Qtree : ISpatial
+    public partial class Qtree : ISpatial
     {
-        public static readonly SpatialObj[] NoObjects = new SpatialObj[0];
-
         int Levels { get; }
         public float FullSize { get; }
 
@@ -29,11 +25,11 @@ namespace Ship_Game.Spatial
 
         QtreeNode Root;
 
-        GameObject[] Objects = Empty<GameObject>.Array;
-        SpatialObj[] SpatialObjects = new SpatialObj[0];
+        SpatialObjectBase[] Objects = Empty<SpatialObjectBase>.Array;
+        SpatialObj[] SpatialObjects = Empty<SpatialObj>.Array;
         GCHandle PinnedObjects;
-        QtreeRecycleBuffer FrontBuffer = new QtreeRecycleBuffer(10000);
-        QtreeRecycleBuffer BackBuffer  = new QtreeRecycleBuffer(20000);
+        QtreeRecycleBuffer FrontBuffer = new();
+        QtreeRecycleBuffer BackBuffer  = new();
 
         public float WorldSize { get; }
         public int Count { get; private set; }
@@ -59,7 +55,7 @@ namespace Ship_Game.Spatial
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
             Root = FrontBuffer.Create(-half, -half, +half, +half);
-            Objects = Empty<GameObject>.Array;
+            Objects = Empty<SpatialObjectBase>.Array;
         }
 
         struct OverlapsRect
@@ -172,7 +168,7 @@ namespace Ship_Game.Spatial
             }
         }
 
-        unsafe QtreeNode CreateFullTree(GameObject[] allObjects, SpatialObj* spatialObjects)
+        unsafe QtreeNode CreateFullTree(SpatialObjectBase[] allObjects, SpatialObj* spatialObjects)
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
@@ -180,7 +176,7 @@ namespace Ship_Game.Spatial
 
             for (int i = 0; i < allObjects.Length; ++i)
             {
-                GameObject go = allObjects[i];
+                SpatialObjectBase go = allObjects[i];
                 if (go.Active)
                 {
                     int objectId = i;
@@ -193,7 +189,7 @@ namespace Ship_Game.Spatial
             return newRoot;
         }
 
-        public unsafe void UpdateAll(GameObject[] allObjects)
+        public unsafe void UpdateAll(SpatialObjectBase[] allObjects)
         {
             // prepare our node buffer for allocation
             FrontBuffer.MarkAllNodesInactive();

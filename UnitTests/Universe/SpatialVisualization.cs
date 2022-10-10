@@ -14,7 +14,7 @@ namespace UnitTests.Universe
 {
     class SpatialVisualization : GameScreen
     {
-        GameObject[] AllObjects;
+        SpatialObjectBase[] AllObjects;
         ISpatial Spat;
         public bool MoveShips;
         Vector3 Camera;
@@ -27,7 +27,7 @@ namespace UnitTests.Universe
         float SearchTime;
         float LinearTime;
         int Collisions;
-        GameObject[] Found = Empty<GameObject>.Array;
+        SpatialObjectBase[] Found = Empty<SpatialObjectBase>.Array;
 
         readonly VisualizerOptions VisOpt = new VisualizerOptions()
         {

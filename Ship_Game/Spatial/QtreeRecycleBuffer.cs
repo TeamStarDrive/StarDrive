@@ -9,21 +9,18 @@ namespace Ship_Game.Spatial
     public class QtreeRecycleBuffer
     {
         // Active nodes that have been initialized
-        readonly Array<QtreeNode> Active = new Array<QtreeNode>();
+        readonly Array<QtreeNode> Active = new();
 
         // Inactive nodes are ready to be reused
-        readonly Array<QtreeNode> Inactive  = new Array<QtreeNode>();
-
-        int NodeIds;
+        readonly Array<QtreeNode> Inactive  = new();
 
         /// <summary>
         /// Number of active nodes
         /// </summary>
         public int NumActiveNodes => Active.Count;
 
-        public QtreeRecycleBuffer(int idStart)
+        public QtreeRecycleBuffer()
         {
-            NodeIds = idStart;
         }
 
         public QtreeNode Create(float x1, float y1, float x2, float y2)

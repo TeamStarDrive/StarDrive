@@ -2,7 +2,7 @@
 
 namespace Ship_Game.Spatial
 {
-    public delegate bool SearchFilterFunc(GameObject go);
+    public delegate bool SearchFilterFunc(SpatialObjectBase go);
 
     public struct SearchOptions
     {

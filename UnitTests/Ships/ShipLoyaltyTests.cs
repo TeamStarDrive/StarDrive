@@ -8,6 +8,7 @@ using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.ShipDesign;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Spatial;
 
 namespace UnitTests.Ships
 {
@@ -19,7 +20,7 @@ namespace UnitTests.Ships
             CreateUniverseAndPlayerEmpire();
         }
 
-        GameObject[] FindNearbyShips(Empire loyalty)
+        SpatialObjectBase[] FindNearbyShips(Empire loyalty)
         {
             return loyalty.Universe.Spatial.FindNearby(GameObjectType.Ship, Vector2.Zero,
                                                         1000, 10, onlyLoyalty: loyalty);
@@ -41,7 +42,7 @@ namespace UnitTests.Ships
 
             var nearbyPlayerShips = FindNearbyShips(Player);
             Assert.AreEqual(1, nearbyPlayerShips.Length, "There should be 1 Player ship nearby");
-            Assert.AreEqual(playerShip.Id, nearbyPlayerShips[0].Id);
+            Assert.AreEqual(playerShip.Id, ((Ship)nearbyPlayerShips[0]).Id);
 
             var nearbyEnemyShips = FindNearbyShips(Enemy);
             Assert.AreEqual(0, nearbyEnemyShips.Length, "There should be 0 Enemy ships nearby");
@@ -65,7 +66,7 @@ namespace UnitTests.Ships
 
             var nearbyEnemyShips = FindNearbyShips(Enemy);
             Assert.AreEqual(1, nearbyEnemyShips.Length, "There should be 1 Enemy ship nearby");
-            Assert.AreEqual(transferredShip.Id, nearbyEnemyShips[0].Id);
+            Assert.AreEqual(transferredShip.Id, ((Ship)nearbyEnemyShips[0]).Id);
         }
 
         [TestMethod]

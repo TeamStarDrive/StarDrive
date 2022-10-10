@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 
 namespace Ship_Game.Debug.Page;
 
@@ -18,7 +19,7 @@ internal class SpatialDebug : DebugPage
     double FindElapsed;
     AABoundingBox2D SearchArea;
 
-    GameObject[] Found = Empty<GameObject>.Array;
+    SpatialObjectBase[] Found = Empty<SpatialObjectBase>.Array;
 
     public SpatialDebug(DebugInfoScreen parent) : base(parent, DebugModes.SpatialManager)
     {
