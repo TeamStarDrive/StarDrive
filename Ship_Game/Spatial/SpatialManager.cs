@@ -98,7 +98,7 @@ namespace Ship_Game.Gameplay
 
         public SpatialObjectBase[] FindNearby(ref SearchOptions opt)
         {
-            return Spatial.FindNearby(ref opt);
+            return Spatial.FindNearby(in opt);
         }
 
         /// <param name="type"></param>
@@ -122,7 +122,7 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(ref opt);
+            return Spatial.FindNearby(in opt);
         }
 
         public SpatialObjectBase[] FindNearby(GameObjectType type,
@@ -140,7 +140,7 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(ref opt);
+            return Spatial.FindNearby(in opt);
         }
 
         public SpatialObjectBase[] FindNearby(GameObjectType type, 
@@ -158,7 +158,7 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(ref opt);
+            return Spatial.FindNearby(in opt);
         }
 
         public void ProjectileExplode(Projectile source, ShipModule victim)

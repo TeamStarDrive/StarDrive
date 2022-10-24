@@ -3,6 +3,7 @@ using SDGraphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Diagnostics.Contracts;
+using Ship_Game.AI;
 
 namespace Ship_Game.Spatial;
 
@@ -29,24 +30,31 @@ public class SpatialObjectBase
         Type = type;
     }
     
+    // TODO: make this abstract
     [Pure] public int GetLoyaltyId()
     {
         if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty?.Id ?? 0;
         if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty?.Id ?? 0;
         if (Type == GameObjectType.Ship) return ((Ship)this).Loyalty.Id;
         if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().Loyalty.Id;
+
+        //if (Type == GameObjectType.SolarSystem) return 0;
+        //if (Type == GameObjectType.SolarBody) return 0; // Asteroid, Moon
         if (Type == GameObjectType.Planet) return ((Planet)this).Owner?.Id ?? 0;
+        if (Type == GameObjectType.ThreatCluster) return ((ThreatCluster)this).Loyalty?.Id ?? 0;
         return 0;
     }
-
+    
+    // TODO: make this abstract
     [Pure] public Empire GetLoyalty()
     {
         if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty;
         if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty;
         if (Type == GameObjectType.Ship) return ((Ship)this).Loyalty;
         if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().Loyalty;
+
         if (Type == GameObjectType.Planet) return ((Planet)this).Owner;
+        if (Type == GameObjectType.ThreatCluster) return ((ThreatCluster)this).Loyalty;
         return null;
     }
-
 }

@@ -17,10 +17,10 @@ namespace Ship_Game
         ShipModule = 2,
         Proj       = 4, // this is a projectile, NOT a beam
         Beam       = 8, // this is a BEAM, not a projectile
-        Asteroid   = 16,
-        Moon       = 32,
-        SolarSystem = 64,
-        Planet      = 128,
+        SolarSystem = 16,
+        SolarBody   = 32, // Asteroid, Moon,
+        Planet      = 64,
+        ThreatCluster = 128,
     }
 
     [StarDataType]

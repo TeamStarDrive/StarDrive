@@ -26,14 +26,14 @@ namespace Ship_Game.Gameplay
         public Vector3 Position3D => new(Position, ZPos);
 
         [StarDataConstructor]
-        public Moon() : base(0, GameObjectType.Moon)
+        public Moon() : base(0, GameObjectType.SolarBody)
         {
         }
 
         // Creating new game:
         public Moon(SolarSystem system, Planet orbitPlanet, int moon, float moonScale,
                     float orbitRadius, float orbitalAngle, Vector2 pos)
-            : base(system.Universe.CreateId(), GameObjectType.Moon)
+            : base(system.Universe.CreateId(), GameObjectType.SolarBody)
         {
             Active = true;
             System = system;
