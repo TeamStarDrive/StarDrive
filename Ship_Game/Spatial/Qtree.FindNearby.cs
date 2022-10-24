@@ -57,7 +57,7 @@ namespace Ship_Game.Spatial
             return buffer;
         }
 
-        public unsafe SpatialObjectBase[] FindNearby(ref SearchOptions opt)
+        public unsafe SpatialObjectBase[] FindNearby(in SearchOptions opt)
         {
             AABoundingBox2D searchRect = opt.SearchRect;
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
@@ -158,10 +158,10 @@ namespace Ship_Game.Spatial
             return buffer.GetArrayAndClearBuffer();
         }
 
-        public SpatialObjectBase[] FindLinear(ref SearchOptions opt)
+        public SpatialObjectBase[] FindLinear(in SearchOptions opt)
         {
             SpatialObjectBase[] objects = Objects;
-            return LinearSearch.FindNearby(ref opt, objects, objects.Length);
+            return LinearSearch.FindNearby(in opt, objects, objects.Length);
         }
     }
 }

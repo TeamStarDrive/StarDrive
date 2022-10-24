@@ -199,7 +199,7 @@ namespace Ship_Game.Spatial
             return numCollisions;
         }
 
-        public SpatialObjectBase[] FindNearby(ref SearchOptions opt)
+        public SpatialObjectBase[] FindNearby(in SearchOptions opt)
         {
             if (opt.MaxResults == 0)
                 return Empty<SpatialObjectBase>.Array;
@@ -245,10 +245,10 @@ namespace Ship_Game.Spatial
             return LinearSearch.Copy(objectIds, resultCount, objects);
         }
 
-        public SpatialObjectBase[] FindLinear(ref SearchOptions opt)
+        public SpatialObjectBase[] FindLinear(in SearchOptions opt)
         {
             SpatialObjectBase[] objects = Objects;
-            return LinearSearch.FindNearby(ref opt, objects, objects.Length);
+            return LinearSearch.FindNearby(in opt, objects, objects.Length);
         }
         
         [StructLayout(LayoutKind.Sequential)]

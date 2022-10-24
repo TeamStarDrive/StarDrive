@@ -56,13 +56,13 @@ namespace Ship_Game
         /// Finds nearby GameplayObjects using multiple filters
         /// WARNING: DO NOT USE `in` Attribute in Interfaces, it adds a +70% perf hit for no damn reason
         /// </summary>
-        SpatialObjectBase[] FindNearby(ref SearchOptions opt);
+        SpatialObjectBase[] FindNearby(in SearchOptions opt);
 
         /// <summary>
         /// Performs a linear search instead of using the Quadtree
         /// WARNING: DO NOT USE `in` Attribute in Interfaces, it adds a +70% perf hit for no damn reason
         /// </summary>
-        SpatialObjectBase[] FindLinear(ref SearchOptions opt);
+        SpatialObjectBase[] FindLinear(in SearchOptions opt);
 
         /// <summary>
         /// Visualize this Spatial collection for debugging purposes
