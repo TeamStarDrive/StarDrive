@@ -82,6 +82,9 @@
     <ClCompile Include="TestFindNearby.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\ReCpp\rpp\paths.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ReCpp\rpp\collections.h">
@@ -149,6 +152,9 @@
     </ClInclude>
     <ClInclude Include="LoyaltyFilterType.h">
       <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReCpp\rpp\paths.h">
+      <Filter>rpp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
