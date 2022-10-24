@@ -24,14 +24,14 @@ namespace Ship_Game.Gameplay
 
         // Serialized (SaveGame) asteroid
         [StarDataConstructor]
-        public Asteroid() : base(0, GameObjectType.Asteroid)
+        public Asteroid() : base(0, GameObjectType.SolarBody)
         {
             Radius = 50f; // some default radius for now
         }
 
         // New asteroid
         public Asteroid(int id, RandomBase random, float scaleMin, float scaleMax, float orbitalRadius, float orbitalAngle)
-             : base(id, GameObjectType.Asteroid)
+             : base(id, GameObjectType.SolarBody)
         {
             Active = true;
             Radius = 50f; // some default radius for now
