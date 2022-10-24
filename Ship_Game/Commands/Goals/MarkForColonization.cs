@@ -104,8 +104,8 @@ namespace Ship_Game.Commands.Goals
 
             if (PositiveEnemyPresence(out float spaceStrength))
             {
-                EmpireAI empireAi   = Owner.AI;
-                TargetEmpire        = empireAi.ThreatMatrix.GetDominantEmpireInSystem(TargetPlanet.ParentSystem);
+                EmpireAI empireAi = Owner.AI;
+                TargetEmpire = empireAi.ThreatMatrix.GetStrongestHostileAt(TargetPlanet.ParentSystem);
                 float strMultiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
                 var task            = MilitaryTask.CreateClaimTask(Owner, TargetPlanet, 
                                        (spaceStrength * strMultiplier).LowerBound(20), TargetEmpire, (int)strMultiplier);

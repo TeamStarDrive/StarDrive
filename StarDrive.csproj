@@ -207,6 +207,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Compnonents\BudgetPriorities.cs" />
+    <Compile Include="Ship_Game\AI\ThreatCluster.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DeepSpaceBuildGoal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetGoal.cs" />

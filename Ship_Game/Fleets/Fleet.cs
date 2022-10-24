@@ -623,7 +623,7 @@ namespace Ship_Game.Fleets
             Planet targetPlanet     = task.TargetPlanet;
             bool eventBuildingFound = targetPlanet.EventsOnTiles();
             if (task.TargetEmpire == null)
-                task.TargetEmpire = Owner.AI.ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
+                task.TargetEmpire = Owner.AI.ThreatMatrix.GetStrongestHostileAt(targetPlanet.ParentSystem);
 
             if (EndInvalidTask(!eventBuildingFound
                                || targetPlanet.Owner != null && !Owner.IsAtWarWith(targetPlanet.Owner)
@@ -1487,9 +1487,9 @@ namespace Ship_Game.Fleets
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
             if (task.TargetEmpire == null && FleetTask.TargetSystem != null)
-                task.TargetEmpire = Owner.AI.ThreatMatrix.GetDominantEmpireInSystem(FleetTask.TargetSystem);
+                task.TargetEmpire = Owner.AI.ThreatMatrix.GetStrongestHostileAt(FleetTask.TargetSystem);
 
-            float enemyStrength = Owner.AI.ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
+            float enemyStrength = Owner.AI.ThreatMatrix.GetHostileStrengthAt(task.AO, task.AORadius);
 
             if (EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
                 return;
@@ -1775,24 +1775,24 @@ namespace Ship_Game.Fleets
 
         Ship[] AvailableShips => AllButRearShips.Filter(ship => !ship.AI.HasPriorityOrder);
 
-        bool AttackEnemyStrengthClumpsInAO(MilitaryTask task) => AttackEnemyStrengthClumpsInAO(task, AvailableShips);
+        bool AttackEnemyStrengthClumpsInAO(MilitaryTask task)
+        {
+            return AttackEnemyStrengthClumpsInAO(task, AvailableShips);
+        }
 
         bool AttackEnemyStrengthClumpsInAO(MilitaryTask task, IReadOnlyList<Ship> ships)
         {
             if (ships.Count == 0)
                 return false;
 
-            var availableShips = new Array<Ship>(ships);
-            Map<Vector2, float> enemyClumpsDict = Owner.AI.ThreatMatrix
-                .PingRadarStrengthClusters(task.AO, task.AORadius, 10000, Owner);
-
-            if (enemyClumpsDict.Count == 0)
+            ThreatCluster[] clusters = Owner.AI.ThreatMatrix.FindHostileClustersByDist(task.AO, task.AORadius);
+            if (clusters.Length == 0)
                 return false;
-
+            
+            var availableShips = new Array<Ship>(ships);
             while (availableShips.Count > 0)
             {
-                var sortedClumps = System.Linq.Enumerable.OrderBy(enemyClumpsDict, dis => dis.Key.SqDist(task.AO));
-                foreach (KeyValuePair<Vector2, float> kv in sortedClumps)
+                foreach (ThreatCluster c in clusters)
                 {
                     if (availableShips.Count == 0)
                         break;
@@ -1806,25 +1806,27 @@ namespace Ship_Game.Fleets
                             || ship.AI.State == AIState.AssaultPlanet
                             || ship.AI.State == AIState.Bombard)
                         {
-                            availableShips.RemoveAtSwapLast(i);
-                            continue;
                         }
-                        Vector2 vFacing = ship.Position.DirectionToTarget(kv.Key);
-                        ship.AI.OrderMoveTo(kv.Key, vFacing, MoveOrder.Aggressive);
+                        else
+                        {
+                            ship.AI.OrderAttackMoveTo(c.Position);
+                            attackStr += ship.GetStrength();
+                        }
 
                         availableShips.RemoveAtSwapLast(i);
-                        attackStr += ship.GetStrength();
                     }
                 }
             }
 
             foreach (Ship needEscort in RearShips)
             {
-                if (availableShips.IsEmpty) break;
-                Ship ship = availableShips.PopLast();
-                ship.DoEscort(needEscort);
+                if (availableShips.TryPopLast(out Ship ship))
+                    ship.DoEscort(needEscort);
+                else
+                    break; // no more ships for escort duties
             }
 
+            // other ships should move 
             foreach (Ship ship in availableShips)
                 ship.AI.OrderMoveTo(task.AO, FinalPosition.DirectionToTarget(task.AO));
 
@@ -1833,20 +1835,22 @@ namespace Ship_Game.Fleets
 
         bool MoveFleetToNearestCluster(MilitaryTask task)
         {
-            var strengthCluster = new ThreatMatrix.StrengthCluster
+            ThreatCluster[] clusters = Owner.AI.ThreatMatrix.FindHostileClusters(task.AO, task.AORadius);
+            if (clusters.Length != 0)
             {
-                Empire      = Owner,
-                Granularity = 5000f,
-                Position    = task.AO,
-                Radius      = task.AORadius
-            };
+                float totalStrength = clusters.Sum(c => c.Strength);
 
-            strengthCluster = Owner.AI.ThreatMatrix.FindLargestStrengthClusterLimited(strengthCluster, GetStrength(), AveragePosition());
-            if (strengthCluster.Strength <= 0) 
-                return false;
-
-            FleetMoveToPosition(strengthCluster.Position, 7500, MoveOrder.Aggressive);
-            return true;
+                // if we are stronger than them?
+                // TODO: For AI, use difficulty-based ratios, on EASY, AI should engage even if they are going to lose
+                //                                            on HARD, the AI should be more careful and engage with superiority
+                if (totalStrength < GetStrength())
+                {
+                    ThreatCluster strongest = clusters.FindMax(c => c.Strength);
+                    FleetMoveToPosition(strongest.Position, 7500, MoveOrder.Aggressive);
+                    return true;
+                }
+            }
+            return false;
         }
 
         bool ShipsOffMission(MilitaryTask task)
@@ -1914,7 +1918,7 @@ namespace Ship_Game.Fleets
 
         bool StillCombatEffective(MilitaryTask task)
         {
-            float enemyStrength = Owner.AI.ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
+            float enemyStrength = Owner.AI.ThreatMatrix.GetHostileStrengthAt(task.AO, task.AORadius);
             if (CanTakeThisFight(enemyStrength, task))
                 return true;
 

@@ -132,9 +132,6 @@ namespace Ship_Game.Ships.Components
             // empire's border scan nodes and subspace influence needs to be transferred
             ship.Universe.UpdateShipInfluence(ship, oldLoyalty, newLoyalty);
 
-            // TODO: clearing the pin in oldLoyalty makes no bloody sense! threatmatrix should be about enemy ships!!!
-            oldLoyalty.AI.ThreatMatrix.ClearPin(ship);
-
             ship.ShipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, newLoyalty);
             ship.ReCalculateTroopsAfterBoard();

@@ -961,12 +961,6 @@ namespace Ship_Game
                     ship.OrderToOrbit(p, clearOrders:true, MoveOrder.Aggressive);
                     ship.SetSystem(p.ParentSystem); // needed for Threat Matrix update pins to register the threatened system 
                     ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
-
-                    foreach (Empire e in Universe.MajorEmpires)
-                    {
-                        if (p.IsExploredBy(e))
-                            e.AI.ThreatMatrix.AddOrUpdatePin(ship, false);
-                    }
                 }
             }
         }
