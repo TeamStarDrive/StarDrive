@@ -84,7 +84,7 @@ namespace Ship_Game.AI
         public void UpdateThreatLevel()
         {
             if (--ThreatTimer > 0) return;
-            ThreatLevel = (int)Owner.AI.ThreatMatrix.PingRadarStrengthLargestCluster(Center, Radius, Owner, 50000);
+            ThreatLevel = (int)Owner.AI.ThreatMatrix.GetHostileStrengthAt(Center, Radius);
             // arbitrary performance consideration.
             ThreatTimer = 5;
         }

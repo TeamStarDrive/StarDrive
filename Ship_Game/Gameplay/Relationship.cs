@@ -756,7 +756,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Alliance || Treaty_OpenBorders) 
                 return;
 
-            float strShipsInBorders = us.AI.ThreatMatrix.StrengthOfAllEmpireShipsInBorders(us, them);
+            float strShipsInBorders = us.AI.ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
             if (strShipsInBorders > 0)
             {
                 float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength * 25

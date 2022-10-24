@@ -365,7 +365,7 @@ namespace Ship_Game.Ships
         }
         
         public float EmpTolerance  => SurfaceArea + BonusEMPProtection;
-        public float HealthPercent => Health / HealthMax;
+        public float HealthPercent => HealthMax > 0f ? Health / HealthMax : 0f;
 
         public float EmpRecovery
         {
@@ -1731,11 +1731,6 @@ namespace Ship_Game.Ships
 
             Carrier?.Dispose();
 
-            if (Universe != null)
-                foreach (Empire empire in Universe.Empires)
-                    if (KnownByEmpires.KnownBy(empire))
-                        empire.AI?.ThreatMatrix.ClearPin(this);
-
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 ModuleSlotList[i].Dispose();
 
@@ -2002,7 +1997,7 @@ namespace Ship_Game.Ships
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
         public override string ToString() =>
-            $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
+            $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} {(Active?"Active":"DEAD")} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {

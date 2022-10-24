@@ -221,8 +221,11 @@ namespace Ship_Game
         public PersonalityModifiers PersonalityModifiers { get; private set; }
 
 
-        // Empire unique ID. If this is 0, then this empire is invalid!
-        // Set in UniverseState_Empires.cs
+        /// <summary>
+        /// Empire unique ID. If this is 0, then this empire is invalid!
+        /// Set in UniverseState_Empires.cs
+        /// Also: UniverseState.Empires.IndexOf(this) == (Id - 1)
+        /// </summary>
         [StarData] public int Id;
 
         public string Name => data.Traits.Name;
@@ -520,15 +523,9 @@ namespace Ship_Game
             return planet != null;
         }
 
-        public float KnownEnemyStrengthIn(SolarSystem system, Predicate<ThreatMatrix.Pin> filter)
-                     => AI.ThreatMatrix.GetStrengthInSystem(system, filter);
-
-        public float KnownEnemyStrengthIn(SolarSystem system)
-             => AI.ThreatMatrix.GetStrengthInSystem(system, p => IsEmpireHostile(p.Empire));
-
-        public float KnownEmpireStrength(Empire empire) => AI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null);
-        public float KnownEmpireOffensiveStrength(Empire empire)
-            => AI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null && p.Ship?.IsPlatformOrStation == false);
+        public float KnownEnemyStrengthIn(SolarSystem s, Empire e) => AI.ThreatMatrix.GetHostileStrengthAt(e, s.Position, s.Radius);
+        public float KnownEnemyStrengthIn(SolarSystem s) => AI.ThreatMatrix.GetHostileStrengthAt(s.Position, s.Radius);
+        public float KnownEmpireStrength(Empire e) => AI.ThreatMatrix.KnownEmpireStrength(e);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
 
@@ -3359,7 +3356,7 @@ namespace Ship_Game
                 ThreatMatrixUpdateTimer = ResetThreatMatrixSeconds;
 
                 us.ThreatMatrixPerf.Start();
-                Parallel.Run(() => AI.ThreatMatrix.UpdateAllPins(this));
+                AI.ThreatMatrix.UpdateAllPins();
                 us.ThreatMatrixPerf.Stop();
             }
         }

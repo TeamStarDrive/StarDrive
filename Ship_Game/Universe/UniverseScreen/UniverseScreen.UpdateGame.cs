@@ -364,7 +364,6 @@ namespace Ship_Game
                         empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
-                        empire.AI.ThreatMatrix.ProcessPendingActions();
                         foreach (Fleet fleet in empire.Fleets)
                         {
                             if (fleet.Ships.NotEmpty)

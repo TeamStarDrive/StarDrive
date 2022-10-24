@@ -1,12 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using System.Threading;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Utils;
+using Ship_Game.Spatial;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
@@ -14,538 +11,201 @@ namespace Ship_Game.AI
     [StarDataType]
     public sealed class ThreatMatrix
     {
-        [StarData] Empire Owner;
+        [StarData] readonly Empire Owner;
 
-        [StarDataType]
-        public class Pin
-        {
-            [StarData] public Vector2 Position;
-            [StarData] public float Strength;
+        // All clusters that we know about, this is thread-safe
+        // and updated atomically as a COPY
+        [StarData] public ThreatCluster[] AllClusters { get; private set; }
 
-            /// <summary>
-            /// This indicates that the PIN is in borders not the current ship status. 
-            /// </summary>
-            [StarData] public bool InBorders;
-            [StarData] public int PinId;
-            // this will be nulled when the ship dies
-            // but our empire should not know the ship has died
-            // before checking it with sensors
-            [StarData] public Ship Ship;
-            [StarData] public Empire Empire;
-            [StarData] public SolarSystem System;
+        // Clusters organized by solar-systems
+        [StarData] Map<SolarSystem, ThreatCluster[]> ClustersBySystem = new();
 
-            [StarDataConstructor] Pin(){}
+        // QuadTree for quickly finding nearby clusters
+        [StarData] public Qtree ClustersMap { get; private set; }
 
-            public Pin(Ship ship, bool inBorders)
-            {
-                Ship = ship;
-                Position = ship.Position;
-                Strength = ship.GetStrength();
-                InBorders = inBorders;
-                Empire = ship.Loyalty;
-                System = ship.System;
-            }
+        [StarDataConstructor] ThreatMatrix() { }
 
-            // Refreshes a pin which is in sensor range
-            public void RefreshPinInSensors(Ship ship, bool shipInBorders)
-            {
-                Position = ship.Position;
-                Strength = ship.GetStrength();
-                Empire = ship.Loyalty;
-                System = ship.System; // incase this ship reappears in another system
-                InBorders = shipInBorders;
-            }
-        }
-
-        [StarDataConstructor]
-        public ThreatMatrix(Empire empire)
-        {
-            Owner = empire;
-        }
-
-        public void SetOwner(Empire owner)
+        public ThreatMatrix(Empire owner)
         {
             Owner = owner;
+            InitializeOnConstruct(Owner.Universe);
         }
 
-        Pin[] KnownBases = new Pin[0];
-        SolarSystem[] KnownSystemsWithEnemies = new SolarSystem[0];
-        Map<SolarSystem, Pin[]> SystemThreatMap = new();
-        Map<Empire, Pin[]> KnownEmpireStrengths = new();
-
-        public ThreatMatrix(Map<int,Pin> matrix, Empire empire)
+        [StarDataDeserialized]
+        public void OnDeserialized(UniverseState us)
         {
-            Pins = matrix;
-            Owner = empire;
+            InitializeOnConstruct(us);
         }
-        // not sure we need this.
-        readonly ReaderWriterLockSlim PinsMutex = new();
-        [StarData] Map<int, Pin> Pins = new();
 
-        readonly SafeQueue<Action> PendingThreadActions = new();
-
-        public float StrengthOfAllEmpireShipsInBorders(Empire us, Empire them)
+        void InitializeOnConstruct(UniverseState us)
         {
-            float str = 0f;
-            using (PinsMutex.AcquireReadLock())
+            ClustersMap = new(us.Size, smallestCell:1024);
+        }
+
+        public float StrengthOfAllEmpireShipsInBorders(Empire them)
+        {
+            float theirStrength = 0f;
+            InfluenceTree influence = Owner.Universe.Influence;
+
+            ThreatCluster[] clusters = AllClusters;
+            for (int i = 0; i < clusters.Length; ++i)
             {
-                foreach (Pin pin in Pins.Values)
+                ThreatCluster cluster = clusters[i];
+                // TODO: this only triggers if cluster's center is within borders
+                //       add a fast way to test with Radius in InfluenceTree
+                if (cluster.Loyalty == them && influence.IsInInfluenceOf(Owner, cluster.Position))
                 {
-                    Empire pinEmpire = pin.Empire;
-                    if (pinEmpire == them && pin.Ship?.IsInBordersOf(us) == true)
-                    {
-                        if (pin.Ship != null && (pin.Ship.System?.IsExclusivelyOwnedBy(us) ?? true))
-                            str += pin.Strength;
-                    }
+                    theirStrength += cluster.Strength;
                 }
             }
-            return str;
+            return theirStrength;
         }
 
-        Array<Ship> PingRadarShip(Vector2 position, float radius, Empire empire)
+        ThreatCluster[] FindClusters(in SearchOptions opt)
         {
-            var results = new Array<Ship>();
-            var pins = Pins.Values.ToArr();
-            for (int i = pins.Length - 1; i >= 0; i--)
-            {
-                Pin pin = pins[i];
-                Ship ship = pin.Ship;
-                if (ship != null && position.InRadius(pin.Position, radius) && empire.IsEmpireHostile(ship.Loyalty))
-                {
-                    results.Add(pin.Ship);
-                }
-            }
-
-            return results;
-        }
-
-        Array<Pin> PingRadarPins(Vector2 position, float radius, Empire empire)
-        {
-            var results = new Array<Pin>();
-            var pins = Pins.Values.ToArr();
-            for (int i = pins.Length - 1; i >= 0; i--)
-            {
-                Pin pin = pins[i];
-                if (position.InRadius(pin.Position, radius) && empire.IsEmpireHostile(pin.Empire))
-                {
-                    results.Add(pin);
-                }
-            }
-
-            return results;
-        }
-
-        // Pings for enemy ships, chooses the closest enemy ship
-        // and then pings around that ship to create a cluster of enemies
-        public Array<Ship> PingRadarClosestEnemyCluster(Vector2 position, float radius, float granularity, Empire empire)
-        {
-            Array<Pin> pings = GetEnemyPinsInRadius(position, radius, empire);
-            if (pings.IsEmpty)
-                return new Array<Ship>();
-
-            Pin closest = pings.FindMin(ship => ship.Position.SqDist(position));
-            return PingRadarShip(closest.Position, granularity, empire);
-        }
-
-        public Map<Vector2, float> PingRadarStrengthClusters(Vector2 position, float radius, float granularity, Empire empire)
-        {
-            var retList       = new Map<Vector2, float>();
-            Array<Pin> pings  = GetEnemyPinsInRadius(position, radius, empire);
-            var filter        = new HashSet<Pin>();
-
-            for (int i = 0; i < pings.Count; i++)
-            {
-                var ping = pings[i];
-                if ((filter.Contains(ping) || retList.ContainsKey(ping.Position)))
-                    continue;
-
-                Array<Pin> cluster = PingRadarPins(ping.Position, granularity, empire);
-                if (cluster.NotEmpty)
-                {
-                    retList.Add(ping.Position, cluster.Sum(str => str.Strength));
-                    filter.UnionWith(cluster);
-                }
-            }
-            return retList;
-        }
-
-        public struct StrengthCluster
-        {
-            public float Strength;
-            public Vector2 Position;
-            public float Radius;
-            public float Granularity;
-            public Empire Empire;
-        }
-
-        public StrengthCluster FindLargestStrengthClusterLimited(StrengthCluster strengthCluster, float maxStrength, Vector2 posOffSetInArea)
-        {            
-            Map<Vector2, float> strengthClusters = PingRadarStrengthClusters(strengthCluster.Position, strengthCluster.Radius,
-                strengthCluster.Granularity, strengthCluster.Empire);
-
-            Vector2 clusterPos = strengthClusters
-                .FindMaxKeyByValuesFiltered(str => str < maxStrength, str => str);
-
-            if (clusterPos == default)
-            {
-                strengthCluster.Strength = 0;
-                return strengthCluster;
-            }
-
-            strengthCluster.Position = clusterPos;
-            strengthCluster.Strength  = strengthClusters[clusterPos];
-            return strengthCluster;
-        }
-
-
-        public float PingRadarStrengthLargestCluster(Vector2 position, float radius, Empire empire, float granularity = 50000f)
-        {
-            var filter = new HashSet<Ship>();
-            Array<Pin> pings = GetEnemyPinsInRadius(position, radius, empire);
-            float largestCluster = 0;
-
-            for (int i = 0; i < pings.Count; i++)
-            {
-                var pin = pings[i];
-                Ship ship = pin.Ship;
-                if (ship == null || ship.IsGuardian || filter.Contains(ship))
-                    continue;
-
-                Array<Ship> cluster = PingRadarShip(pin.Position, granularity, empire);
-                if (cluster.Count != 0)
-                {
-                    float clusterStrength = cluster.Sum(str => str.GetStrength());
-                    if (clusterStrength > largestCluster) largestCluster = clusterStrength;
-                    filter.UnionWith(cluster);
-                }
-            }
-            return largestCluster;
-
-        }
-
-        public float PingHostileStr(Vector2 position, float radius, Empire us)
-            => PingRadarStr(position, radius, us, netStrength: false, true);
-        public float PingNetHostileStr(Vector2 position, float radius, Empire us)
-            => PingRadarStr(position, radius, us, netStrength: true, true);
-
-        public float PingRadarStr(Vector2 position, float radius, Empire us, bool netStrength = false, bool hostileOnly = false)
-        {
-            float str = 0f;
-            Pin[] pins = GetPinsCopy();
-            for (int i = 0; i < pins.Length; i++)
-            {
-                Pin pin = pins[i];
-                if (pin?.Position.InRadius(position, radius) == true)
-                {
-                    Empire pinEmpire = pin.Empire;
-                    if (!hostileOnly)
-                    {
-                        str += us.IsEmpireAttackable(pinEmpire) ? pin.Strength : 0;
-                    }
-                    else
-                    {
-                        str += us.IsEmpireHostile(pinEmpire) ? pin.Strength : 0;
-                    }
-
-                    if (netStrength)
-                        str -= pinEmpire == us ? pin.Strength : 0;
-                }
-            }
-
-            return str;
-        }
-
-        /// <summary> ThreadSafe </summary>
-        public Pin[] GetAllFactionBases()
-        {
-            using (PinsMutex.AcquireReadLock())
-                return KnownBases.Filter(b => b.Empire.IsFaction) ?? Empty<Pin>.Array;
-        }
-
-        Pin[] GetAllHostileBases() => FilterPins(p => p.Ship?.IsPlatformOrStation == true && Owner?.IsEmpireHostile(p.Empire) == true);
-
-        /// <summary> Return the ship strength of filtered ships in a system. It will not tell you if no pins were in the system. </summary>
-        public float GetStrengthInSystem(SolarSystem system, Predicate<Pin> filter)
-        {
-            using (PinsMutex.AcquireReadLock())
-                if (SystemThreatMap.TryGetValue(system, out Pin[] pins))
-                {
-                    return pins.Filter(filter).Sum(p => p.Strength);
-                }
-
-            return 0;
+            return ClustersMap.FindNearby(in opt).FastCast<SpatialObjectBase, ThreatCluster>();
         }
 
         /// <summary>
-        /// Returns the strongest empire in this system. Can return null.
+        /// Find hostile clusters at pos+radius, 
+        /// if `maybeEnemy` is not hostile, empty array is returned
         /// </summary>
-        /// <returns></returns>
-        public Empire GetDominantEmpireInSystem(SolarSystem system)
+        public ThreatCluster[] FindClusters(Empire empire, Vector2 pos, float radius)
         {
-            using (PinsMutex.AcquireReadLock())
-                if (SystemThreatMap.TryGetValue(system, out Pin[] pins))
-                {
-                    Map<Empire, float> empires = new Map<Empire, float>();
-                    for (int i = 0; i < pins.Length; i++)
-                    {
-                        Pin pin        = pins[i];
-                        Empire loyalty = pin.Empire;
-                        float str      = pin.Strength;
-
-                        if (empires.ContainsKey(loyalty))
-                            empires[loyalty] += str;
-
-                        else if (Owner != loyalty)
-                        {
-                            var rel = Owner.GetRelations(loyalty);
-                            if (rel.IsHostile)
-                                empires.Add(loyalty, str);
-                        }
-                    }
-
-                    return empires.Count == 0 ? null : empires.SortedDescending(s => s.Value).First().Key;
-                }
-
-            return null;
+            return FindClusters(new(pos, radius, GameObjectType.ThreatCluster)
+            {
+                OnlyLoyalty = empire
+            });
         }
 
-        public SolarSystem[] GetAllSystemsWithFactions() => GetAllSystemsWith(pins => 
-            pins.Any(p => p.Empire.IsFaction && Owner.IsEmpireHostile(p.Empire)));
-
-        SolarSystem[] GetAllSystemsWith(Predicate<Pin[]> filter)
+        public ThreatCluster[] FindHostileClusters(Vector2 pos, float radius)
         {
-            Array<SolarSystem> systems = new Array<SolarSystem>();
-            using (PinsMutex.AcquireReadLock())
+            return FindClusters(new(pos, radius)
             {
-                foreach(var kv in SystemThreatMap)
-                {
-                    if (filter(kv.Value)) 
-                        systems.AddUnique(kv.Key);
-                }
-                return systems.ToArray();
-            }
+                ExcludeLoyalty = Owner,
+                Type = GameObjectType.ThreatCluster,
+                FilterFunction = (o) => ((ThreatCluster)o).IsHostileTo(Owner)
+            });
         }
 
-        Map<SolarSystem, Pin[]> GetSystemPinMap()
+        // Find all enemy clusters within radius
+        public ThreatCluster[] FindHostileClustersByDist(Vector2 pos, float radius)
         {
-            Map<SolarSystem, Array<KeyValuePair<int, Pin>>> map;
-            using (PinsMutex.AcquireReadLock())
-                map = Pins.GroupByFiltered(p => p.Value.System, p => p.Value.System != null && Owner.IsEmpireHostile(p.Value.Empire));
-
-            var newMap = new Map<SolarSystem, Pin[]>();
-            foreach (var pair in map)
+            return FindClusters(new(pos, radius)
             {
-                Pin[] values = pair.Value.Select(v=> v.Value);
-                newMap.Add(pair.Key, values);
-            }
-            return newMap;
+                ExcludeLoyalty = Owner,
+                Type = GameObjectType.ThreatCluster,
+                SortByDistance = true,
+                FilterFunction = (o) => ((ThreatCluster)o).IsHostileTo(Owner)
+            });
         }
 
-        public float KnownEmpireStrength(Empire empire, Predicate<Pin> filter)
+        static float GetStrength(ThreatCluster[] clusters)
         {
-            float str = 0;
-            if (KnownEmpireStrengths.TryGetValue(empire, out var pins))
-            {
-                for (int i = 0; i < pins.Length; i++)
-                {
-                    var pin = pins[i];
-                    if (filter(pin))
-                        str += pin.Strength;
-                }
-            }
-
-            return str;
+            float strength = 0f;
+            for (int i = 0; i < clusters.Length; ++i) // PERF: using for loop instead of lambdas
+                strength += clusters[i].Strength;
+            return strength;
         }
 
-        Map<Empire, Pin[]> GetEmpirePinMap()
+        /// <summary> Get all strength of a specific empire (can be this.Owner) in a system</summary>
+        public float GetStrengthAt(Empire empire, Vector2 pos, float radius)
         {
-            Map<Empire, Array<KeyValuePair<int, Pin>>> map;
-            using (PinsMutex.AcquireReadLock())
-                map = Pins.GroupByFiltered(p => p.Value.Empire, p => p.Value.Strength > 0);
-
-            var newMap = new Map<Empire, Pin[]>();
-            foreach (var pair in map)
-            {
-                Pin[] values = pair.Value.Select(v => v.Value);
-                newMap.Add(pair.Key, values);
-            }
-            return newMap;
+            return GetStrength(FindClusters(empire, pos, radius));
         }
 
-        public Pin[] FilterPins(Predicate<Pin> predicate)
+        /// <summary> Get all strength of a specific hostile in a system</summary>
+        public float GetHostileStrengthAt(Empire enemy, Vector2 pos, float radius)
         {
-            using (PinsMutex.AcquireReadLock())
-                return Pins.Values.Filter(predicate);
+            return Owner.IsEmpireHostile(enemy)
+                ? GetStrength(FindClusters(enemy, pos, radius))
+                : 0f;
         }
 
-        public Array<Pin> GetEnemyPinsInRadius(Vector2 position, float radius, Empire us)
+        /// <summary> Get all strength of all hostiles in a system</summary>
+        public float GetHostileStrengthAt(Vector2 pos, float radius)
         {
-            var pins = new Array<Pin>();
-            {
-                Pin[] pins1 = GetPinsCopy();
-                for (int i = 0; i < pins1.Length; i++)
-                {
-                    Pin pin = pins1[i];
-                    if (pin?.Position.InRadius(position, radius) != true) continue;
-                    Empire pinEmpire = pin.Ship?.Loyalty ?? pin.Empire;
-                    {
-                        if (us.IsEmpireHostile(pinEmpire))
-                            pins.Add(pin);
-                    }
-                }
-            }
-            return pins;
+            return GetStrength(FindHostileClusters(pos, radius));
+        }
+                
+        record struct ThreatAggregate(Empire Loyalty, float Strength);
+
+        public Empire GetStrongestHostileAt(SolarSystem s)
+        {
+            return GetStrongestHostileAt(s.Position, s.Radius);
         }
 
-        // Adds or Updates a pin for a ship which is within sensor range
-        public void AddOrUpdatePin(Ship ship, bool shipInBorders)
+        /// <summary>
+        /// Returns the strongest empire at pos+radius. EXCLUDING US
+        /// </summary>
+        public Empire GetStrongestHostileAt(Vector2 pos, float radius)
         {
-            if (!Pins.TryGetValue(ship.Id, out Pin pin))
+            ThreatCluster[] clusters = FindHostileClusters(pos, radius);
+            if (clusters.Length == 0) return null;
+            if (clusters.Length == 1) return clusters[0].Loyalty;
+
+            var strengths = new ThreatAggregate[Owner.Universe.NumEmpires];
+            foreach (ThreatCluster c in clusters)
             {
-                Pins.Add(ship.Id, new(ship, shipInBorders));
+                ref ThreatAggregate aggregate = ref strengths[c.Loyalty.Id - 1];
+                aggregate.Loyalty = c.Loyalty;
+                aggregate.Strength += c.Strength;
             }
-            // only update active ships,
-            // inactive ships will be removed atomically in UpdateAllPins()
-            else if (ship.Active)
-            {
-                pin.RefreshPinInSensors(ship, shipInBorders);
-            }
+            return strengths.FindMax(c => c.Strength).Loyalty;
         }
 
-        public void ProcessPendingActions()
+        /// <summary>
+        /// Gets all Faction clusters with a station
+        /// </summary>
+        public ThreatCluster[] GetAllFactionBases()
         {
-            try
+            return AllClusters.Filter(c => c.HasStarBases && c.Loyalty.IsFaction);
+        }
+        
+        // TODO: Maybe add clusters-by-system?
+        public SolarSystem[] GetAllSystemsWithFactions()
+        {
+            return AllClusters.FilterSelect(
+                c => c.System != null && c.Loyalty.IsFaction && c.Loyalty.IsEmpireHostile(Owner),
+                c => c.System);
+        }
+        
+        /// <summary>
+        /// Gets the known strength for an empire
+        /// </summary>
+        public float KnownEmpireStrength(Empire empire)
+        {
+            // TODO: Maybe add clusters-by-faction ?
+            float strength = 0f;
+            ThreatCluster[] clusters = AllClusters;
+            for (int i = 0; i < clusters.Length; ++i) // NOTE: using a raw loop for performance
             {
-                while (PendingThreadActions.NotEmpty)
-                {
-                    PendingThreadActions.Dequeue()?.Invoke();
-                }
+                ThreatCluster c = clusters[i];
+                if (c.Loyalty == empire)
+                    strength += c.Strength;
             }
-            catch
-            {
-                Log.Error($"ThreatMatrix Update Failed with {PendingThreadActions.Count} in queue");
-            }
+            return strength;
         }
 
-        public bool UpdateAllPins(Empire owner)
-        {
-            if (PendingThreadActions.NotEmpty ) return false;
-
-            ThreatMatrix threatCopy;
-            using (PinsMutex.AcquireReadLock())
-            {
-                threatCopy = new ThreatMatrix(new Map<int, Pin>(Pins), owner);
-            }
-
-            var ships = new Array<Ship>(owner.OwnedShips);
-            ships.AddRange(owner.OwnedProjectors);
-
-            var array = owner.Universe.GetAllies(owner);
-            for (int i = 0; i < array.Count; i++)
-            {
-                var empire = array[i];
-                ships.AddRange(empire.OwnedShips);
-                ships.AddRange(empire.OwnedProjectors);
-            }
-
-            var pinsNeedRemoval = new Array<KeyValuePair<int, Pin>>();
-            // add or update pins for ship targets
-            for (int i = 0; i < ships.Count; i++)
-            {
-                var ship = ships[i];
-                if (ship?.Active != true)
-                    continue;
-
-                var targets = ship.AI.PotentialTargets.ToArr();
-                for (int x = 0; x < targets.Length; x++)
-                {
-                    var target = targets[x];
-                    if (target != null)
-                        threatCopy.AddOrUpdatePin(target, target.IsInBordersOf(owner));
-                }
-
-                var threatCopyPins = threatCopy.GetPinsCopy();
-                for (int x = threatCopyPins.Length - 1; x >= 0; x--)
-                {
-                    Pin pin = threatCopyPins[x];
-                    if (ship.Position.InRadius(pin.Position, ship.SensorRange))
-                    {
-                        if (pin.Ship?.Active != true)
-                            threatCopy.Pins.Remove(pin.PinId);
-                        else if (!ship.Position.InRadius(pin.Ship.Position, ship.SensorRange))
-                            threatCopy.Pins.Remove(pin.PinId);
-                    }
-                }
-            }
-
-            foreach (var kv in threatCopy.Pins)
-            {
-                var pinShip = kv.Value.Ship;
-
-                // Deal with only pins ships that are known to the empire
-                if (pinShip?.KnownByEmpires.KnownBy(owner) == true)
-                {
-                    if (pinShip.Active && !pinShip.Dying && pinShip.Loyalty != owner &&
-                        !owner.IsAlliedWith(pinShip.Loyalty))
-                    {
-                        threatCopy.AddOrUpdatePin(pinShip, pinShip.IsInBordersOf(owner));
-                    }
-                    else
-                    {
-                        pinsNeedRemoval.Add(kv);
-                    }
-                }
-            }
-
-            for (int x = 0; x < pinsNeedRemoval.Count; x++)
-            {
-                var pin = pinsNeedRemoval[x];
-                threatCopy.Pins.Remove(pin.Key);
-            }
-
-            using (PinsMutex.AcquireWriteLock())
-            {
-                Pins = threatCopy.Pins;
-            }
-
-            KnownBases              = GetAllHostileBases();
-            SystemThreatMap         = GetSystemPinMap();
-            KnownSystemsWithEnemies = GetAllSystemsWith(pins => pins.Any(p => Owner.IsEmpireHostile(p.Empire)));
-            KnownEmpireStrengths    = GetEmpirePinMap();
-            return true;
-        }
-
-        // Atomic copy of the Pins array
-        public Pin[] GetPinsCopy()
-        {
-            using (PinsMutex.AcquireReadLock())
-                return Pins.Values.ToArr();
-        }
-
-        // This "Clears" the pin, setting the Ship to null
-        // Other empires will not know if the pin ship has died
-        // before visiting the Pin site or seeing the same ship again
-        public void ClearPin(Ship ship)
-        {
-            using (PinsMutex.AcquireWriteLock())
-            {
-                if (Pins.TryGetValue(ship.Id, out Pin pin))
-                    pin.Ship = null;
-            }
-        }
-
+        // This should realistically only get called once, when DiplomacyScreen is opened
         public void GetTechsFromPins(HashSet<string> techs, Empire empire)
         {
-            using (PinsMutex.AcquireReadLock())
+            foreach (ThreatCluster c in AllClusters)
             {
-                Pin[] pins = Pins.Values.ToArr();
-                for (int i = 0; i < pins.Length; i++)
+                if (c.Loyalty == empire)
                 {
-                    Pin pin = pins[i];
-                    if (pin.Ship != null && pin.Ship.Loyalty == empire)
-                        techs.UnionWith(pin.Ship.ShipData.TechsNeeded);
+                    foreach (Ship s in c.Ships)
+                        techs.UnionWith(s.ShipData.TechsNeeded); // SLOW !!
                 }
             }
+        }
+        
+        /// <summary>
+        /// Atomically creates a new array of threat clusters
+        /// </summary>
+        public void UpdateAllPins()
+        {
+
         }
     }
 }
