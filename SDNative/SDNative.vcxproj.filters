@@ -154,6 +154,9 @@
     <ClCompile Include="util\byte_buffer.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="ReCpp\rpp\paths.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
@@ -320,6 +323,9 @@
     </ClInclude>
     <ClInclude Include="util\shared_image_utils.h">
       <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\paths.h">
+      <Filter>rpp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
