@@ -173,13 +173,13 @@ namespace UnitTests.Universe
 
                 var timer2 = new PerfTimer();
                 {
-                    Spat.FindLinear(ref opt);
+                    Spat.FindLinear(in opt);
                 }
                 LinearTime = timer2.Elapsed;
 
                 var timer = new PerfTimer();
                 {
-                    Found = Spat.FindNearby(ref opt);
+                    Found = Spat.FindNearby(in opt);
                 }
                 SearchTime = timer.Elapsed;
             }
