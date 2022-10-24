@@ -19,31 +19,28 @@ public class ThreatMatrixDebug : DebugPage
             return;
 
         float baseRadius = (int)Universe.ViewState / 100f;
-
         Empire e = EmpireSelect.Selected;
-        var pins = e.AI.ThreatMatrix.GetPinsCopy();
-        for (int i = 0; i < pins.Length; i++)
+
+        ThreatCluster[] clusters = e.AI.ThreatMatrix.AllClusters;
+        for (int i = 0; i < clusters.Length; i++)
         {
-            ThreatMatrix.Pin pin = pins[i];
-            if (pin?.Ship != null && pin.Position != Vector2.Zero)
+            ThreatCluster c = clusters[i];
+            float radius = baseRadius + c.Radius;
+            if (Screen.IsInFrustum(c.Position, radius))
             {
-                float radius = baseRadius + pin.Ship.Radius;
-                if (Screen.IsInFrustum(pin.Position, radius))
+                // the hexagon marks the observed pin with observed empire's color
+                Screen.DrawCircleProjected(c.Position, radius, 6, c.Loyalty.EmpireColor);
+                if (Universe.ViewState <= UniverseScreen.UnivScreenState.SystemView)
+                    Screen.DrawStringProjected(c.Position, radius*0.25f, c.Loyalty.EmpireColor, c.ToString());
+
+                // if it's within our borders, draw "InBorders" using our color
+                if (c.InBorders && Universe.ViewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    // the hexagon marks the observed pin with observed empire's color
-                    Screen.DrawCircleProjected(pin.Position, radius, 6, pin.Empire.EmpireColor);
-                    if (Universe.ViewState <= UniverseScreen.UnivScreenState.SystemView)
-                        Screen.DrawStringProjected(pin.Position, radius*0.25f, pin.Empire.EmpireColor, $"{pin.Ship}");
-
-                    // if it's within our borders, draw "InBorders" using our color
-                    if (pin.InBorders && Universe.ViewState <= UniverseScreen.UnivScreenState.SystemView)
-                    {
-                        Screen.DrawStringProjected(pin.Position-new Vector2(radius,radius*1.5f), radius*0.5f, e.EmpireColor, "InBorders");
-                    }
-
-                    // put a rectangle around the pin to mark observed empire's color
-                    Screen.DrawRectangleProjected(pin.Position, new(radius*2), 0f, e.EmpireColor);
+                    Screen.DrawStringProjected(c.Position-new Vector2(radius,radius*1.5f), radius*0.5f, e.EmpireColor, "InBorders");
                 }
+
+                // put a rectangle around the pin to mark observed empire's color
+                Screen.DrawRectangleProjected(c.Position, new(radius*2), 0f, e.EmpireColor);
             }
         }
 

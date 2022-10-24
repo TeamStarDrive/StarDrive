@@ -137,11 +137,11 @@ public class ShipDebugInfoPanel : Submenu
             Text.String($"IntSlots: {s.ActiveInternalModuleSlots}/{s.NumInternalSlots}  ({s.InternalSlotsHealthPercent.PercentString()})");
             Text.String($"DPS: {s.TotalDps}");
             Text.SetCursor(Pos.X + 250, 600f, Color.White);
-            foreach (KeyValuePair<SolarSystem, SystemCommander> entry in s.Loyalty.AI.DefensiveCoordinator.DefenseDict)
-                foreach (var defender in entry.Value.OurShips) {
-                    if (defender.Key == s.Id)
-                        Text.String(entry.Value.System.Name);
-                }
+            foreach (SystemCommander sc in s.Loyalty.AI.DefensiveCoordinator.DefenseDict.Values)
+            {
+                if (sc.ContainsShip(s))
+                    Text.String(sc.System.Name);
+            }
         }
         else if (Screen.SelectedShipList.NotEmpty)
         {

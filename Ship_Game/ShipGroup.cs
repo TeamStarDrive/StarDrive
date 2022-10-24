@@ -456,7 +456,8 @@ namespace Ship_Game
                 ao = FinalPosition;
             radius = radius.AlmostZero() ? GetRelativeSize().Length() : radius;
 
-            float netStrengthInAO = Owner.AI.ThreatMatrix.PingNetHostileStr(ao, radius, Owner);
+            float ourStrengthInAO = Owner.AI.ThreatMatrix.GetStrengthAt(Owner, ao, radius);
+            float enemyStrengthInAO = Owner.AI.ThreatMatrix.GetHostileStrengthAt(ao, radius);
 
             MoveStatus moveStatus = MoveStatus.None;
             float assembled       = 0;
@@ -492,7 +493,8 @@ namespace Ship_Game
 
                         moveStatus |= MoveStatus.Assembled;
 
-                        if (netStrengthInAO > 0 && ship.AI.Target?.BaseStrength > 0 && ship.AI.Target.Position.InRadius(ship.Position, ship.AI.FleetNode.OrdersRadius))
+                        if (ourStrengthInAO > enemyStrengthInAO && 
+                            ship.AI.Target?.BaseStrength > 0 && ship.AI.Target.Position.InRadius(ship.Position, ship.AI.FleetNode.OrdersRadius))
                         {
                             moveStatus |= MoveStatus.AssembledInCombat;
                         }

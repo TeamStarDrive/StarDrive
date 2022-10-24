@@ -76,7 +76,8 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateExploration(Planet tgtPlanet, Empire owner)
         {
-            Empire dominant = owner.AI.ThreatMatrix.GetDominantEmpireInSystem(tgtPlanet.ParentSystem);
+            SolarSystem s = tgtPlanet.ParentSystem;
+            Empire dominant = owner.AI.ThreatMatrix.GetStrongestHostileAt(tgtPlanet.ParentSystem);
             return new(TaskType.Exploration, owner, tgtPlanet.Position, aoRadius: 50000f, tgtPlanet)
             {
                 TargetEmpire = dominant
@@ -103,7 +104,7 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, Empire empire)
         {
-            float pingStr = empire.AI.ThreatMatrix.PingRadarStr(targetShip.Position, 20000, empire);
+            float pingStr = empire.AI.ThreatMatrix.GetHostileStrengthAt(targetShip.Position, 20000);
             return new(TaskType.AssaultPirateBase, empire, targetShip.Position, aoRadius: 20000f)
             {
                 TargetShip = targetShip,
@@ -142,7 +143,7 @@ namespace Ship_Game.AI.Tasks
         public MilitaryTask(TaskType type, Empire owner, Vector2 center, float radius, SolarSystem system,
                             float strengthWanted) : this(type, owner, center, radius)
         {
-            Empire dominant = owner.AI.ThreatMatrix.GetDominantEmpireInSystem(system);
+            Empire dominant = owner.AI.ThreatMatrix.GetStrongestHostileAt(system.Position, system.Radius);
             TargetSystem = system;
             TargetEmpire = dominant;
             EnemyStrength = MinimumTaskForceStrength;
@@ -155,20 +156,19 @@ namespace Ship_Game.AI.Tasks
             TargetEmpire = target.Owner;
 
             float strWanted = target.BuildingGeodeticOffense + GetKnownEnemyStrInClosestSystems(target.ParentSystem, owner, target.Owner);
-            MinimumTaskForceStrength = strWanted.LowerBound(owner.KnownEmpireOffensiveStrength(target.Owner) / 10) 
+            MinimumTaskForceStrength = strWanted.LowerBound(owner.KnownEmpireStrength(target.Owner) / 10) 
                                        * owner.GetFleetStrEmpireMultiplier(target.Owner);
         }
 
         float GetKnownEnemyStrInClosestSystems(SolarSystem system, Empire owner, Empire enemy)
         {
             var threatMatrix = owner.AI.ThreatMatrix;
-            float strWanted  = threatMatrix.PingRadarStr(system.Position, system.Radius, owner);
+            float strWanted = threatMatrix.GetHostileStrengthAt(enemy, system.Position, system.Radius);
 
             for (int i = 0; i < system.FiveClosestSystems.Count; i++)
             {
                 SolarSystem closeSystem = system.FiveClosestSystems[i];
-                strWanted += owner.KnownEnemyStrengthIn(closeSystem, 
-                    p => p.Empire == enemy && !p.Ship?.IsPlatformOrStation == true);
+                strWanted += owner.KnownEnemyStrengthIn(closeSystem, enemy);
             }
 
             return strWanted;
