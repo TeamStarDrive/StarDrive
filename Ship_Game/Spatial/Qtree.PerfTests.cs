@@ -12,7 +12,7 @@ namespace Ship_Game.Spatial
     {
         public delegate Ship SpawnShipFunc(string name, Empire loyalty, Vector2 pos, Vector2 dir);
 
-        public static GameObject[] CreateTestSpace(ISpatial tree, int numShips,
+        public static SpatialObjectBase[] CreateTestSpace(ISpatial tree, int numShips,
             float spawnProjectilesWithOffset, Empire player, Empire enemy, SpawnShipFunc spawnShip)
         {
             var allObjects = new Array<GameObject>();
@@ -86,7 +86,7 @@ namespace Ship_Game.Spatial
         public static void RunSearchPerfTest()
         {
             var tree = new Qtree(500_000f);
-            GameObject[] ships = CreateTestSpace(tree, 10000, 0,
+            SpatialObjectBase[] ships = CreateTestSpace(tree, 10000, 0,
                 Empire.Void, Empire.Void, SpawnShip);
 
             const float defaultSensorRange = 30000f;
@@ -131,7 +131,7 @@ namespace Ship_Game.Spatial
         public static void RunCollisionPerfTest()
         {
             var tree = new Qtree(500_000f);
-            GameObject[] ships = CreateTestSpace(tree, 10000, 0,
+            SpatialObjectBase[] ships = CreateTestSpace(tree, 10000, 0,
                 Empire.Void, Empire.Void, SpawnShip);
 
             const int iterations = 1000;

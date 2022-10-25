@@ -15,7 +15,7 @@ namespace UnitTests.Universe
     {
         protected static bool EnableVisualization = false;
         protected static bool EnableMovingShips = true;
-        protected GameObject[] AllObjects = Empty<GameObject>.Array;
+        protected SpatialObjectBase[] AllObjects = Empty<SpatialObjectBase>.Array;
 
         protected TestSpatialCommon()
         {
@@ -37,7 +37,7 @@ namespace UnitTests.Universe
             if (AllObjects.Length != 0)
             {
                 UState.Objects.Clear();
-                AllObjects = Empty<GameObject>.Array;
+                AllObjects = Empty<SpatialObjectBase>.Array;
             }
             AllObjects = QtreePerfTests.CreateTestSpace(tree, numShips, spawnProjectilesWithOffset, 
                                                         Player, Enemy, SpawnShip);
@@ -52,11 +52,11 @@ namespace UnitTests.Universe
             Game.ShowAndRun(screen: vis);
         }
 
-        protected GameObject[] FindNearby(ISpatial tree, GameObjectType type, Vector2 pos, float r)
+        protected SpatialObjectBase[] FindNearby(ISpatial tree, GameObjectType type, Vector2 pos, float r)
         {
             var opt = new SearchOptions(pos, r, type);
             opt.MaxResults = 128;
-            return tree.FindNearby(in opt).FastCast<SpatialObjectBase, GameObject>();
+            return tree.FindNearby(in opt);
         }
         
         [TestMethod]
@@ -65,9 +65,9 @@ namespace UnitTests.Universe
             ISpatial tree = CreateQuadTree(100_000, 100);
             Assert.AreEqual(AllObjects.Length, tree.Count);
 
-            foreach (GameObject go in AllObjects)
+            foreach (SpatialObjectBase go in AllObjects)
             {
-                GameObject[] ships = FindNearby(tree, GameObjectType.Ship, go.Position, go.Radius);
+                SpatialObjectBase[] ships = FindNearby(tree, GameObjectType.Ship, go.Position, go.Radius);
                 Assert.AreEqual(1, ships.Length);
                 Assert.AreEqual(go, ships[0]);
             }
@@ -83,13 +83,13 @@ namespace UnitTests.Universe
 
             Ship s = (Ship)AllObjects[0];
             var offset = new Vector2(0, 256);
-            GameObject[] found1 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 256);
+            SpatialObjectBase[] found1 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 256);
             Assert.AreEqual(1, found1.Length, "FindNearby exact 256 must return match");
 
-            GameObject[] found2 = FindNearby(tree, GameObjectType.Any, s.Position+offset, (256-s.Radius)+0.001f);
+            SpatialObjectBase[] found2 = FindNearby(tree, GameObjectType.Any, s.Position+offset, (256-s.Radius)+0.001f);
             Assert.AreEqual(1, found2.Length, "FindNearby touching radius must return match");
             
-            GameObject[] found3 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 255-s.Radius);
+            SpatialObjectBase[] found3 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 255-s.Radius);
             Assert.AreEqual(0, found3.Length, "FindNearby outside radius must not match");
         }
         
@@ -98,13 +98,13 @@ namespace UnitTests.Universe
         {
             ISpatial tree = CreateQuadTree(100_000, 100);
 
-            GameObject[] f1 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 7200);
+            SpatialObjectBase[] f1 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 7200);
             Assert.AreEqual(4, f1.Length, "FindNearby center 7200 must match 4");
 
-            GameObject[] f2 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 16000);
+            SpatialObjectBase[] f2 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 16000);
             Assert.AreEqual(12, f2.Length, "FindNearby center 16000 must match 12");
             
-            GameObject[] f3 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 26000);
+            SpatialObjectBase[] f3 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 26000);
             Assert.AreEqual(24, f3.Length, "FindNearby center 26000 must match 24");
         }
 
@@ -122,7 +122,7 @@ namespace UnitTests.Universe
         }
 
         void CheckShipsLoyalty(SpatialObjectBase[] found, Empire expected = null, 
-                              Empire notExpected = null, Ship notShip = null)
+                               Empire notExpected = null, Ship notShip = null)
         {
             foreach (SpatialObjectBase foundObj in found)
                 if (foundObj is Ship foundShip)
@@ -143,14 +143,14 @@ namespace UnitTests.Universe
         {
             ISpatial tree = CreateQuadTree(100_000, 100, spawnProjectilesWithOffset:100f);
 
-            foreach (GameObject obj in AllObjects)
+            foreach (SpatialObjectBase obj in AllObjects)
             {
                 if (!(obj is Ship s))
                     continue;
-                GameObject[] projectiles = FindNearby(tree, GameObjectType.Proj, s.Position, 10000);
+                SpatialObjectBase[] projectiles = FindNearby(tree, GameObjectType.Proj, s.Position, 10000);
                 CheckFindNearby(projectiles, GameObjectType.Proj, s.Position, 10000);
 
-                GameObject[] ships = FindNearby(tree, GameObjectType.Ship, s.Position, 10000);
+                SpatialObjectBase[] ships = FindNearby(tree, GameObjectType.Ship, s.Position, 10000);
                 CheckFindNearby(ships, GameObjectType.Ship, s.Position, 10000);
             }
         }
@@ -160,7 +160,7 @@ namespace UnitTests.Universe
         {
             ISpatial tree = CreateQuadTree(10_000, 100, spawnProjectilesWithOffset:100f);
 
-            foreach (GameObject obj in AllObjects)
+            foreach (SpatialObjectBase obj in AllObjects)
             {
                 if (!(obj is Ship s))
                     continue;
@@ -181,7 +181,7 @@ namespace UnitTests.Universe
         {
             ISpatial tree = CreateQuadTree(10_000, 100, spawnProjectilesWithOffset:100f);
 
-            foreach (GameObject obj in AllObjects)
+            foreach (SpatialObjectBase obj in AllObjects)
             {
                 if (!(obj is Ship s))
                     continue;
@@ -208,7 +208,7 @@ namespace UnitTests.Universe
             ISpatial tree = CreateQuadTree(30_000, 8);
 
             // second ship, this created the specific bitmask 0010+0001 for search fail
-            var s = AllObjects[2] as Ship;
+            var s = (Ship)AllObjects[2];
             var opt = new SearchOptions(s.Position, 30000, GameObjectType.Ship)
             {
                 MaxResults = 32,
@@ -317,7 +317,7 @@ namespace UnitTests.Universe
                     tree.UpdateAll(AllObjects);
 
                     allObjects.RemoveInActiveObjects();
-                    AllObjects = allObjects.ToArray();
+                    AllObjects = allObjects.ToArray().FastCast<GameObject, SpatialObjectBase>();
 
                     tree.CollideAll(TestSimStep, showCollisions: false);
                 }
@@ -386,7 +386,7 @@ namespace UnitTests.Universe
                 }
             }
 
-            AllObjects = allObjects.ToArray();
+            AllObjects = allObjects.ToArray().FastCast<GameObject, SpatialObjectBase>();
             tree.UpdateAll(AllObjects);
             //DebugVisualize(tree, enableMovingShips:false, updateObjects:true);
 
@@ -396,7 +396,7 @@ namespace UnitTests.Universe
             var t1 = new PerfTimer();
             for (int i = 0; i < iterations; ++i)
             {
-                foreach (GameObject go in AllObjects)
+                foreach (SpatialObjectBase go in AllObjects)
                 {
                     if (go is Ship s)
                     {
