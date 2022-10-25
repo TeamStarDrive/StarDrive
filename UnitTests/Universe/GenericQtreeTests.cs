@@ -15,7 +15,6 @@ namespace UnitTests.Universe
     public class GenericQtreeTests : StarDriveTest
     {
         protected static bool EnableVisualization = false;
-        protected SpatialObjectBase[] AllObjects = Empty<SpatialObjectBase>.Array;
 
         public GenericQtreeTests()
         {
@@ -24,12 +23,28 @@ namespace UnitTests.Universe
 
         protected void DebugVisualize(GenericQtree tree)
         {
-            var vis = new GenericQtreeVisualization(AllObjects, tree, moving);
-            vis.MoveShips |= updateObjects;
-            Game.ShowAndRun(screen: vis);
+            var vis = new GenericQtreeVisualization(tree.Objects.ToArr(), tree);
+            EnableMockInput(false); // switch from mocked input to real input
+            Game.ShowAndRun(screen: vis); // run the sim
+            EnableMockInput(true); // restore the mock input
         }
 
         [TestMethod]
-        public void Test
+        public void SearchForSolarSystems()
+        {
+            Planet playerHome = AddHomeWorldToEmpire(new(500_000, 750_000f), Player);
+            Planet enemyHome = AddHomeWorldToEmpire(new(-500_000, -750_000f), Enemy);
+
+            var tree = new GenericQtree(UState.Size * 2f);
+
+            tree.Insert(playerHome.ParentSystem);
+            tree.Insert(enemyHome.ParentSystem);
+
+            tree.Insert(playerHome);
+            tree.Insert(enemyHome);
+
+            if (EnableVisualization)
+                DebugVisualize(tree);
+        }
     }
 }

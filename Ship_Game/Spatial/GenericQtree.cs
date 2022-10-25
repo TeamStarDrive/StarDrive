@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 
@@ -23,22 +24,35 @@ public partial class GenericQtree
     /// <summary>
     /// How many objects to store per cell before subdividing
     /// </summary>
-    public const int CellThreshold = 64;
+    public const int CellThreshold = 8;
 
     Node Root;
-    
+    int NextObjectId = 1;
+
+    Array<SpatialObjectBase> AllObjects = new();
+    public IReadOnlyList<SpatialObjectBase> Objects => AllObjects;
+    public int Count => AllObjects.Count;
+
     public string Name => "GenericQtree";
 
-    public GenericQtree(float universeSize, float smallestCell = 512f)
+    public GenericQtree(float universeSize, float smallestCell = 2048f)
     {
-
+        WorldSize = universeSize;
+        Levels = 1;
+        FullSize = smallestCell;
+        while (FullSize < universeSize)
+        {
+            ++Levels;
+            FullSize *= 2;
+        }
+        Clear();
     }
 
     public void Clear()
     {
         // universe is centered at [0,0], so Root node goes from [-half, +half)
         float half = FullSize / 2;
-        Root = new Node(-half, -half, +half, +half);
+        Root = new(-half, -half, +half, +half);
     }
 
     public class ObjectRef
@@ -49,9 +63,10 @@ public partial class GenericQtree
         public byte Loyalty; // Loyalty ID
         public uint LoyaltyMask; // mask for matching loyalty, see GetLoyaltyMask
         public SpatialObjectBase Source; // the actual object
+        public int ObjectId; // unique object id for this ref
         public AABoundingBox2D AABB;
 
-        public ObjectRef(SpatialObjectBase go)
+        public ObjectRef(SpatialObjectBase go, int objectId)
         {
             Active = 1;
             var type = go.Type;
@@ -60,7 +75,8 @@ public partial class GenericQtree
             Loyalty = (byte)loyaltyId;
             LoyaltyMask = NativeSpatialObject.GetLoyaltyMask(loyaltyId);
             Source = go;
-            AABB = new AABoundingBox2D(go);
+            ObjectId = objectId;
+            AABB = new(go);
         }
     }
 
@@ -152,12 +168,25 @@ public partial class GenericQtree
 
     public void Insert(SpatialObjectBase obj)
     {
-        var spatialObj = new ObjectRef(obj);
+        // TODO: Thread safety?
+        if (!AllObjects.AddUniqueRef(obj))
+        {
+            return; // this object already exists in this Qtree
+        }
+
+        int objectId = NextObjectId++;
+        var spatialObj = new ObjectRef(obj, objectId);
         InsertAt(Root, Levels, spatialObj);
     }
 
     public void Remove(SpatialObjectBase obj)
     {
+        // TODO: Thread safety?
+        if (!AllObjects.RemoveRef(obj))
+        {
+            return; // this object does not exist in this Qtree
+        }
+
         AABoundingBox2D objectRect = new(obj);
         RemoveAt(Root, Levels, obj, objectRect);
     }
@@ -209,10 +238,10 @@ public partial class GenericQtree
             float midX = (x1 + x2) * 0.5f;
             float midY = (y1 + y2) * 0.5f;
 
-            leaf.NW = new Node(x1, y1, midX, midY);
-            leaf.NE = new Node(midX, y1, x2, midY);
-            leaf.SE = new Node(midX, midY, x2, y2);
-            leaf.SW = new Node(x1, midY, midX, y2);
+            leaf.NW = new(x1, y1, midX, midY);
+            leaf.NE = new(midX, y1, x2, midY);
+            leaf.SE = new(midX, midY, x2, y2);
+            leaf.SW = new(x1, midY, midX, y2);
 
             int count = leaf.Count;
             ObjectRef[] oldItems = leaf.Items;

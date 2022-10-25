@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDUtils;
 
 namespace Ship_Game.Spatial;
 
@@ -16,6 +17,8 @@ public partial class GenericQtree
     static readonly Color YellowBright = new(255, 255, 0, 255);
     static readonly Color Blue = new(95, 158, 160, 200);
     static readonly Color Red = new(255, 80, 80, 200);
+    
+    static Map<int, DebugQtreeFind> FindNearbyDbg = new();
 
     public void DebugVisualize(GameScreen screen, VisualizerOptions opt)
     {
@@ -73,5 +76,10 @@ public partial class GenericQtree
                 }
             }
         } while (buffer.NextNode >= 0);
+
+        foreach (var kv in FindNearbyDbg)
+        {
+            kv.Value.Draw(screen, opt);
+        }
     }
 }
