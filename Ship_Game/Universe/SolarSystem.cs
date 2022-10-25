@@ -569,33 +569,33 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
-        public float GetActualStrengthPresent(Empire e)
+        /// <summary>
+        /// Gets all ships in this SolarSystem whose owner is `empire`
+        /// </summary>
+        public IEnumerable<Ship> GetShips(Empire empire)
         {
-            float strength = 0f;
             for (int i = 0; i < ShipList.Count; i++)
             {
                 Ship ship = ShipList[i];
-                if (ship?.Active != true) continue;
-                if (ship.Loyalty != e)
-                    continue;
-                strength += ship.GetStrength();
+                if (ship.Active && ship.Loyalty == empire)
+                    yield return ship;
             }
+        }
 
+        public float GetActualStrengthPresent(Empire e)
+        {
+            float strength = 0f;
+            foreach (Ship ship in GetShips(e))
+                strength += ship.GetStrength();
             return strength;
         }
 
         public float GetKnownStrengthHostileTo(Empire e)
         {
             float strength = 0f;
-            for (int i = 0; i < ShipList.Count; i++)
-            {
-                Ship ship = ShipList[i];
-                if (ship?.Active != true || !ship.KnownByEmpires.KnownBy(e)) continue;
-                if (!ship.Loyalty.IsAtWarWith(e))
-                    continue;
-                strength += ship.GetStrength();
-            }
-
+            foreach (Ship ship in GetShips(e))
+                if (ship.KnownByEmpires.KnownBy(e) && ship.Loyalty.IsAtWarWith(e))
+                    strength += ship.GetStrength();
             return strength;
         }
 

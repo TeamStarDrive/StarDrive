@@ -28,7 +28,7 @@ namespace Ship_Game.Commands.Goals
                 }
             }
 
-            Owner.Universe.Player.AI.ThreatMatrix.UpdateAllPins();
+            Owner.Universe.Player.AI.ThreatMatrix.Update();
             return GoalStep.GoToNextStep;
         }
 
