@@ -374,6 +374,10 @@
     <Compile Include="Ship_Game\Ships\ShipsManager.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
     <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
+    <Compile Include="Ship_Game\Spatial\GenericQtree.cs" />
+    <Compile Include="Ship_Game\Spatial\GenericQtree.Debug.cs" />
+    <Compile Include="Ship_Game\Spatial\GenericQtree.Find.cs" />
+    <Compile Include="Ship_Game\Spatial\OverlapsRect.cs" />
     <Compile Include="Ship_Game\Spatial\SpatialObjectBase.cs" />
     <Compile Include="Ship_Game\UI\IClientArea.cs" />
     <Compile Include="Ship_Game\UI\LayoutExporter.cs" />

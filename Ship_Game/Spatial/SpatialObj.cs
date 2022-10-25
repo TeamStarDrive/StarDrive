@@ -8,7 +8,7 @@ namespace Ship_Game.Spatial
     {
         // NOTE: These are ordered by the order of access pattern
         public byte Active;  // 1 if this item is active, 0 if DEAD and pending removal
-        public byte Type;
+        public byte Type; // for filtering by type, application defined
         public byte CollisionMask; // mask which matches objects this object can collide with
         public byte Loyalty; // Loyalty ID
         public uint LoyaltyMask; // mask for matching loyalty, see GetLoyaltyMask

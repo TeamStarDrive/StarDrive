@@ -20,6 +20,12 @@ namespace Ship_Game.Spatial
             Items = NoObjects;
         }
 
+        public QtreeNode(float x1, float y1, float x2, float y2)
+        {
+            AABB = new(x1, y1, x2, y2);
+            Items = NoObjects;
+        }
+
         public override string ToString()
         {
             return $"N={Count} {AABB}";

@@ -135,6 +135,9 @@
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
+    <Compile Include="Universe\CommonVisualization.cs" />
+    <Compile Include="Universe\GenericQtreeTests.cs" />
+    <Compile Include="Universe\GenericQtreeVisualization.cs" />
     <Compile Include="Universe\ThreatMatrixTests.cs" />
     <Compile Include="Universe\SaveLoadUniverseScreenTests.cs" />
     <Compile Include="Universe\SpatialVisualization.cs" />
