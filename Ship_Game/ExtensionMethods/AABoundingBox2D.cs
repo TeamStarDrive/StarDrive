@@ -27,6 +27,9 @@ namespace Ship_Game
         public readonly Vector2 TopLeft => new(X1,Y1);
         public readonly Vector2 BotRight => new(X2,Y2);
 
+        // Gets the averaged radius of this bounding box (not accurate)
+        public readonly float Radius => ((X2 - X1) + (Y2 - Y1)) * 0.25f;
+
         public readonly bool IsEmpty => (X1 == X2) || (Y1 == Y2);
 
         public override string ToString()
@@ -101,6 +104,17 @@ namespace Ship_Game
             float dx = nearestX - cx;
             float dy = nearestY - cy;
             return (dx*dx + dy*dy) <= (radius*radius);
+        }
+
+        // expands this bounding box to include the new point
+        public void Expand(in Vector2 pos)
+        {
+            float x = pos.X;
+            if      (x < X1) X1 = x;
+            else if (X2 < x) X2 = x;
+            float y = pos.Y;
+            if      (y < Y1) Y1 = y;
+            else if (Y2 < y) Y2 = y;
         }
 
         // Create a rectangle from 2 points that don't need to be sorted in screen space
