@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using SDUtils;
-using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Spatial;
@@ -89,10 +88,6 @@ namespace Ship_Game
         public Ship FindShip(int id) => Ships.Find(id);
         public bool FindShip(int id, out Ship found) => Ships.Find(id, out found);
         public bool ContainsShip(int id) => Ships.Contains(id);
-
-        public GameObject FindObject(int id) => Objects.Find(id);
-        public bool FindObject(int id, out GameObject found) => Objects.Find(id, out found);
-        public bool ContainsObject(int id) => Objects.Contains(id);
 
         // NOTE: SLOW !! Should only be used for UNIT TESTS
         public Projectile[] GetAllProjectilesAndBeams()

@@ -92,6 +92,7 @@ namespace UnitTests
 
             Universe = new UniverseScreen(2_000_000f);
             UState = Universe.UState;
+            UState.CanShowDiplomacyScreen = false;
             Player = UState.CreateEmpire(playerData, isPlayer:true);
             Enemy = UState.CreateEmpire(enemyData, isPlayer:false);
             

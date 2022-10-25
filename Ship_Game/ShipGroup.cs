@@ -298,6 +298,8 @@ namespace Ship_Game
             return true;
         }
 
+        // Gets the average position of a group of ship, weighing the center
+        // towards the biggest ship
         public static Vector2 GetAveragePosition(Array<Ship> ships)
         {
             int count = ships.Count;
