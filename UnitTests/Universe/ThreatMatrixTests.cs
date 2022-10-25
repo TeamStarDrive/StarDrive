@@ -1,10 +1,4 @@
-﻿
-using Ship_Game;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UnitTests.Ships;
 using Ship_Game.Utils;

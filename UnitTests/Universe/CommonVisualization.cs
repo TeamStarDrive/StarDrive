@@ -3,6 +3,9 @@ using System;
 using SDGraphics;
 
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
+using Ship_Game.Spatial;
+
 namespace UnitTests.Universe;
 
 /// <summary>
@@ -13,6 +16,10 @@ internal abstract class CommonVisualization : GameScreen
     public Vector3 Camera;
     public float CamHeight;
     public AABoundingBox2D SearchArea;
+
+    public SpatialObjectBase[] AllObjects;
+    public SpatialObjectBase[] Found = Empty<SpatialObjectBase>.Array;
+    public VisualizerOptions VisOpt = new();
 
     protected CommonVisualization(float fullSize)
         : base(null, toPause: null)

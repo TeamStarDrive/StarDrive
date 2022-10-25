@@ -14,12 +14,12 @@ namespace Ship_Game.Spatial
         static readonly Color VioletDim = new(199, 21, 133, 100 );
         static readonly Color VioletBright = new(199, 21, 133, 150);
         static readonly Color Purple = new(96, 63, 139, 150);
-        static readonly Color Yellow = new(Color.Yellow, 100);
-        static readonly Color YellowBright = new(255, 255, 0, 255);
-        static readonly Color Blue   = new(95, 158, 160, 200);
+        public static readonly Color Yellow = new(Color.Yellow, 100);
+        public static readonly Color YellowBright = new(255, 255, 0, 255);
+        public static readonly Color Blue   = new(95, 158, 160, 200);
         static readonly Color Red    = new(255, 80, 80, 200);
 
-        static Map<int, DebugFindNearby> FindNearbyDbg = new();
+        static Map<int, DebugQtreeFind> FindNearbyDbg = new();
 
         public unsafe void DebugVisualize(GameScreen screen, VisualizerOptions opt)
         {
@@ -79,35 +79,6 @@ namespace Ship_Game.Spatial
             foreach (var kv in FindNearbyDbg)
             {
                 kv.Value.Draw(screen, opt);
-            }
-        }
-
-        class DebugFindNearby
-        {
-            public AABoundingBox2D SearchArea;
-            public Vector2 FilterOrigin;
-            public float RadialFilter;
-            public Array<AABoundingBox2D> FindCells = new();
-            public Array<SpatialObjectBase> SearchResults = new();
-
-            public void Draw(GameScreen screen, VisualizerOptions opt)
-            {
-                if (!SearchArea.IsEmpty)
-                    screen.DrawRectProjected(SearchArea, Yellow);
-
-                if (RadialFilter > 0)
-                    screen.DrawCircleProjected(FilterOrigin, RadialFilter, Yellow);
-
-                foreach (AABoundingBox2D r in FindCells)
-                    screen.DrawRectProjected(r, Blue);
-
-                if (opt.SearchResults)
-                {
-                    foreach (SpatialObjectBase go in SearchResults)
-                    {
-                        screen.DrawRectProjected(new AABoundingBox2D(go), YellowBright);
-                    }
-                }
             }
         }
     }

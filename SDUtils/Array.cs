@@ -937,6 +937,9 @@ namespace SDUtils
             return n;
         }
 
+        /// <summary>
+        /// Returns TRUE if this item did not exist before and was newly added
+        /// </summary>
         public static bool AddUniqueRef<T>(this Array<T> list, T item) where T : class
         {
             if (!list.ContainsRef(item))
