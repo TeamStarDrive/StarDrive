@@ -82,10 +82,10 @@ namespace Ship_Game.Spatial
             if (buffer.Items.Length < maxResults)
                 buffer.Items = new SpatialObjectBase[maxResults];
 
-            DebugFindNearby dfn = null;
+            DebugQtreeFind dfn = null;
             if (opt.DebugId != 0)
             {
-                dfn = new DebugFindNearby();
+                dfn = new DebugQtreeFind();
                 dfn.SearchArea = opt.SearchRect;
                 dfn.FilterOrigin = opt.FilterOrigin;
                 dfn.RadialFilter = opt.FilterRadius;
@@ -155,7 +155,10 @@ namespace Ship_Game.Spatial
                 }
             } while (buffer.NextNode >= 0 && buffer.Count < maxResults);
 
-            return buffer.GetArrayAndClearBuffer();
+            SpatialObjectBase[] results = buffer.GetArrayAndClearBuffer();
+            if (opt.SortByDistance)
+                LinearSearch.SortByDistance(opt, results);
+            return results;
         }
 
         public SpatialObjectBase[] FindLinear(in SearchOptions opt)

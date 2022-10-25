@@ -374,6 +374,7 @@
     <Compile Include="Ship_Game\Ships\ShipsManager.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
     <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
+    <Compile Include="Ship_Game\Spatial\DebugQtreeFind.cs" />
     <Compile Include="Ship_Game\Spatial\GenericQtree.cs" />
     <Compile Include="Ship_Game\Spatial\GenericQtree.Debug.cs" />
     <Compile Include="Ship_Game\Spatial\GenericQtree.Find.cs" />

@@ -15,7 +15,6 @@ namespace UnitTests.Universe;
 class SpatialVisualization : CommonVisualization
 {
     readonly ISpatial Spat;
-    readonly SpatialObjectBase[] AllObjects;
 
     public bool MoveShips;
     public int NumShips;
@@ -26,8 +25,6 @@ class SpatialVisualization : CommonVisualization
     float SearchTime;
     float LinearTime;
     int Collisions;
-    public SpatialObjectBase[] Found = Empty<SpatialObjectBase>.Array;
-    public VisualizerOptions VisOpt = new();
 
     protected override float FullSize => Spat.FullSize;
     protected override float WorldSize => Spat.WorldSize;
