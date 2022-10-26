@@ -1,7 +1,4 @@
 ﻿using SDUtils;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
-using Ship_Game.Spatial;
 
 namespace Ship_Game.Spatial
 {
@@ -87,17 +84,14 @@ namespace Ship_Game.Spatial
         {
             (SpatialObjectBase[] objects, QtreeNode root) = GetObjectsAndRootSafe();
             var collider = new Collider(objects.Length);
-            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
+            FindResultBuffer<QtreeNode> buffer = GetThreadLocalTraversalBuffer(root);
 
             do
             {
                 QtreeNode current = buffer.Pop();
                 if (current.NW != null) // isBranch
                 {
-                    buffer.PushBack(current.SW);
-                    buffer.PushBack(current.SE);
-                    buffer.PushBack(current.NE);
-                    buffer.PushBack(current.NW);
+                    buffer.PushAllQuadrants(current);
                 }
                 else // isLeaf
                 {

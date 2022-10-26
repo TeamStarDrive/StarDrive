@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using SDUtils;
-using System.Collections.Generic;
 
 namespace Ship_Game.Spatial;
 
@@ -34,7 +32,7 @@ public partial class GenericQtree
         VisualizerOptions o = opt.Enabled ? opt : VisualizerOptions.None;
 
         AABoundingBox2D visibleWorld = screen.VisibleWorldRect;
-        FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
+        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(Root);
         screen.DrawRectProjected(Root.AABB, Yellow);
         do
         {
@@ -51,11 +49,7 @@ public partial class GenericQtree
                 if (o.NodeText)
                     screen.DrawStringProjected(center, current.AABB.Width / 2, Yellow, "BR");
 
-                var over = new OverlapsRect(current.AABB, visibleWorld);
-                if (over.NW != 0) buffer.PushBack(current.NW);
-                if (over.NE != 0) buffer.PushBack(current.NE);
-                if (over.SE != 0) buffer.PushBack(current.SE);
-                if (over.SW != 0) buffer.PushBack(current.SW);
+                buffer.PushOverlappingQuadrants(current, visibleWorld);
             }
             else // isLeaf
             {
