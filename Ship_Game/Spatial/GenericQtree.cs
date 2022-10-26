@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SDGraphics;
 using SDUtils;
 
 namespace Ship_Game.Spatial;
@@ -113,23 +112,24 @@ public partial class GenericQtree
         {
             if (node.NW != null) // isBranch
             {
-                var over = new OverlapsRect(node.AABB, objectRect);
-                int overlaps = over.NW + over.NE + over.SE + over.SW;
+                (bool NW, bool NE, bool SE, bool SW, int overlaps) = OverlapsRect.GetWithCount(node.AABB, objectRect);
+                if (overlaps == 0)
+                    return; // fast exit
 
                 // this is an optimal case, we only overlap 1 sub-quadrant, so we go deeper
                 if (overlaps == 1)
                 {
-                    if      (over.NW != 0) { node = node.NW; --level; }
-                    else if (over.NE != 0) { node = node.NE; --level; }
-                    else if (over.SE != 0) { node = node.SE; --level; }
-                    else if (over.SW != 0) { node = node.SW; --level; }
+                    if      (NW) { node = node.NW; --level; }
+                    else if (NE) { node = node.NE; --level; }
+                    else if (SE) { node = node.SE; --level; }
+                    else if (SW) { node = node.SW; --level; }
                 }
                 else // target overlaps multiple quadrants, so it has to be inserted into several of them:
                 {
-                    if (over.NW != 0) { InsertAt(node.NW, level-1, obj); }
-                    if (over.NE != 0) { InsertAt(node.NE, level-1, obj); }
-                    if (over.SE != 0) { InsertAt(node.SE, level-1, obj); }
-                    if (over.SW != 0) { InsertAt(node.SW, level-1, obj); }
+                    if (NW) { InsertAt(node.NW, level-1, obj); }
+                    if (NE) { InsertAt(node.NE, level-1, obj); }
+                    if (SE) { InsertAt(node.SE, level-1, obj); }
+                    if (SW) { InsertAt(node.SW, level-1, obj); }
                     return;
                 }
             }
@@ -182,23 +182,24 @@ public partial class GenericQtree
         {
             if (node.NW != null) // isBranch
             {
-                var over = new OverlapsRect(node.AABB, objectRect);
-                int overlaps = over.NW + over.NE + over.SE + over.SW;
+                (bool NW, bool NE, bool SE, bool SW, int overlaps) = OverlapsRect.GetWithCount(node.AABB, objectRect);
+                if (overlaps == 0)
+                    return; // fast exit
 
                 // this is an optimal case, we only overlap 1 sub-quadrant, so we go deeper
                 if (overlaps == 1)
                 {
-                    if      (over.NW != 0) { node = node.NW; --level; }
-                    else if (over.NE != 0) { node = node.NE; --level; }
-                    else if (over.SE != 0) { node = node.SE; --level; }
-                    else if (over.SW != 0) { node = node.SW; --level; }
+                    if      (NW) { node = node.NW; --level; }
+                    else if (NE) { node = node.NE; --level; }
+                    else if (SE) { node = node.SE; --level; }
+                    else if (SW) { node = node.SW; --level; }
                 }
                 else // target overlaps multiple quadrants, so it has to be removed from several of them:
                 {
-                    if (over.NW != 0) { RemoveAt(node.NW, level-1, obj, in objectRect); }
-                    if (over.NE != 0) { RemoveAt(node.NE, level-1, obj, in objectRect); }
-                    if (over.SE != 0) { RemoveAt(node.SE, level-1, obj, in objectRect); }
-                    if (over.SW != 0) { RemoveAt(node.SW, level-1, obj, in objectRect); }
+                    if (NW) { RemoveAt(node.NW, level-1, obj, in objectRect); }
+                    if (NE) { RemoveAt(node.NE, level-1, obj, in objectRect); }
+                    if (SE) { RemoveAt(node.SE, level-1, obj, in objectRect); }
+                    if (SW) { RemoveAt(node.SW, level-1, obj, in objectRect); }
                     return;
                 }
             }
@@ -235,12 +236,10 @@ public partial class GenericQtree
         }
     }
 
-    public class Node
+    public class Node : QtreeNodeBase<Node>
     {
         public static readonly ObjectRef[] NoObjects = Empty<ObjectRef>.Array;
 
-        public AABoundingBox2D AABB;
-        public Node NW, NE, SE, SW;
         public int Count;
         public ObjectRef[] Items;
 

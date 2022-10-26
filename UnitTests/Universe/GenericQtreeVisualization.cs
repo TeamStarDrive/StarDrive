@@ -16,6 +16,9 @@ internal class GenericQtreeVisualization : CommonVisualization
     float FindLinearTime;
     SpatialObjectBase FoundOne;
     SpatialObjectBase[] FoundLinear = Empty<SpatialObjectBase>.Array;
+
+    // run more iterations to get some actual stats
+    int Iterations = 1000;
     
     protected override float FullSize => Tree.FullSize;
     protected override float WorldSize => Tree.WorldSize;
@@ -32,15 +35,18 @@ internal class GenericQtreeVisualization : CommonVisualization
         var opt = new SearchOptions(SearchArea) { MaxResults = 1000, DebugId = 1, };
 
         var t1 = new PerfTimer();
-        FoundOne = Tree.FindOne(opt);
+        for (int i = 0; i < Iterations; ++i)
+            FoundOne = Tree.FindOne(opt);
         FindOneTime = t1.Elapsed;
 
         var t2 = new PerfTimer();
-        Found = Tree.Find(opt);
+        for (int i = 0; i < Iterations; ++i)
+            Found = Tree.Find(opt);
         FindMultiTime = t2.Elapsed;
 
         var t3 = new PerfTimer();
-        FoundLinear = Tree.FindLinear(opt, AllObjects);
+        for (int i = 0; i < Iterations; ++i)
+            FoundLinear = Tree.FindLinear(opt, AllObjects);
         FindLinearTime = t3.Elapsed;
     }
 
@@ -60,9 +66,9 @@ internal class GenericQtreeVisualization : CommonVisualization
         DrawText(ref cursor, $"Camera: {Camera}");
         DrawText(ref cursor, $"NumObjects: {AllObjects.Length}");
         DrawText(ref cursor, $"SearchArea: {SearchArea.Width}x{SearchArea.Height}");
-        DrawText(ref cursor, $"FindOneTime:  {(FindOneTime*1000).String(4)}ms");
-        DrawText(ref cursor, $"FindLinearTime: {(FindLinearTime*1000).String(4)}ms");
-        DrawText(ref cursor, $"FindMultiTime: {(FindMultiTime*1000).String(4)}ms");
+        DrawText(ref cursor, $"FindOneTime {Iterations}x:  {(FindOneTime*1000).String(4)}ms");
+        DrawText(ref cursor, $"FindLinearTime {Iterations}x: {(FindLinearTime*1000).String(4)}ms");
+        DrawText(ref cursor, $"FindMultiTime {Iterations}x: {(FindMultiTime*1000).String(4)}ms");
         DrawText(ref cursor, $"FindOne:  {FoundOne?.ToString() ?? "<none>"}");
         DrawText(ref cursor, $"FindLinear: {FoundLinear.Length}");
         DrawText(ref cursor, $"FindMulti: {Found.Length}");

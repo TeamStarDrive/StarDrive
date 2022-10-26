@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
+﻿using System.Threading;
 using SDGraphics;
-using SDUtils;
 
 namespace Ship_Game.Spatial;
 
@@ -33,65 +29,62 @@ public partial class GenericQtree
         return Find(opt);
     }
 
-    static IEnumerable<Node> TraverseLeafNodes(FindResultBuffer buffer, AABoundingBox2D searchRect)
-    {
-        do
-        {
-            Node current = buffer.Pop();
-            if (current.NW != null) // isBranch
-            {
-                var over = new OverlapsRect(current.AABB, searchRect);
-                if (over.SW != 0) buffer.PushBack(current.SW);
-                if (over.SE != 0) buffer.PushBack(current.SE);
-                if (over.NE != 0) buffer.PushBack(current.NE);
-                if (over.NW != 0) buffer.PushBack(current.NW);
-            }
-            else // isLeaf
-            {
-                yield return current;
-            }
-        }
-        while (buffer.NextNode >= 0);
-    }
-
     /// <summary>
     /// Finds the first object that matches the search criteria
     /// </summary>
-    public SpatialObjectBase FindOne(in SearchOptions opt)
+    public unsafe SpatialObjectBase FindOne(in SearchOptions opt)
     {
-        // TODO: figure out a faster way to test C# objects
-        HashSet<int> alreadyChecked = new();
-        
         AABoundingBox2D searchRect = opt.SearchRect;
         bool useSearchRadius = opt.FilterRadius > 0f;
+
+        int idBitArraySize = ((NextObjectId / 32) + 1) * sizeof(uint);
+        uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
+        for (int i = 0; i < idBitArraySize; ++i) idBitArray[i] = 0; // so we need to zero the idBitArray
+
         uint loyaltyMask = NativeSpatialObject.GetLoyaltyMask(opt);
         uint typeMask = opt.Type == GameObjectType.Any ? 0xff : (uint)opt.Type;
         SpatialObjectBase exclude = opt.Exclude;
         DebugQtreeFind dfn = GetFindDebug(opt);
         
-        FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
-        foreach (Node leaf in TraverseLeafNodes(buffer, searchRect))
+        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(Root);
+        do
         {
-            int count = leaf.Count;
-            if (count == 0 || (leaf.LoyaltyMask & loyaltyMask) == 0)
-                continue;
-
-            dfn?.FindCells.Add(leaf.AABB);
-
-            ObjectRef[] items = leaf.Items;
-            for (int i = 0; i < count; ++i) // this is the perf hotspot
+            Node current = buffer.Pop();
+            if (current.NW != null) // isBranch
             {
-                ObjectRef so = items[i];
+                buffer.PushOverlappingQuadrants(current, searchRect);
+            }
+            else // isLeaf
+            {
+                int count = current.Count;
+                if (count == 0 || (current.LoyaltyMask & loyaltyMask) == 0)
+                    continue;
 
-                // FLAGS: either 0x00 (failed) or some bits 0100 (success)
-                if ((so.LoyaltyMask & loyaltyMask) != 0 &&
-                    ((uint)so.Type & typeMask) != 0 &&
-                    (exclude == null || so.Source != exclude))
+                dfn?.FindCells.Add(current.AABB);
+
+                ObjectRef[] items = current.Items;
+                for (int i = 0; i < count; ++i) // this is the perf hotspot
                 {
-                    if (so.AABB.Overlaps(searchRect) &&
-                        (!useSearchRadius || so.AABB.Overlaps(opt.FilterOrigin.X, opt.FilterOrigin.Y, opt.FilterRadius)) &&
-                        alreadyChecked.Add(so.ObjectId))
+                    ObjectRef so = items[i];
+
+                    // FLAGS: either 0x00 (failed) or some bits 0100 (success)
+                    if ((so.LoyaltyMask & loyaltyMask) != 0 &&
+                        ((uint)so.Type & typeMask) != 0 &&
+                        (exclude == null || so.Source != exclude))
                     {
+                        if (!so.AABB.Overlaps(searchRect) ||
+                            useSearchRadius && !so.AABB.Overlaps(opt.FilterOrigin.X, opt.FilterOrigin.Y, opt.FilterRadius))
+                            continue; // AABB not in SearchRadius
+
+                        // PERF: this is the fastest point for duplicate check
+                        int id = so.ObjectId;
+                        int wordIndex = id / 32;
+                        uint idMask = (uint)(1 << (id % 32));
+                        if ((idBitArray[wordIndex] & idMask) != 0)
+                            continue; // object was already checked
+
+                        idBitArray[wordIndex] |= idMask; // flag it as checked
+
                         SpatialObjectBase go = so.Source;
                         if (opt.FilterFunction == null || opt.FilterFunction(go))
                         {
@@ -101,20 +94,23 @@ public partial class GenericQtree
                     }
                 }
             }
-        }
+        } while (buffer.NextNode >= 0);
+
         return null;
     }
     
     /// <summary>
     /// Finds all objects that match the search criteria
     /// </summary>
-    public SpatialObjectBase[] Find(in SearchOptions opt)
+    public unsafe SpatialObjectBase[] Find(in SearchOptions opt)
     {
-        // TODO: figure out a faster way to test C# objects
-        HashSet<int> alreadyChecked = new();
-        
         AABoundingBox2D searchRect = opt.SearchRect;
         bool useSearchRadius = opt.FilterRadius > 0f;
+
+        int idBitArraySize = ((NextObjectId / 32) + 1) * sizeof(uint);
+        uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
+        for (int i = 0; i < idBitArraySize; ++i) idBitArray[i] = 0; // so we need to zero the idBitArray
+
         uint loyaltyMask = NativeSpatialObject.GetLoyaltyMask(opt);
         uint typeMask = opt.Type == GameObjectType.Any ? 0xff : (uint)opt.Type;
         SpatialObjectBase exclude = opt.Exclude;
@@ -122,29 +118,45 @@ public partial class GenericQtree
 
         int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
         
-        FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root, maxResults);
-        foreach (Node leaf in TraverseLeafNodes(buffer, searchRect))
+        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(Root, maxResults);
+        do
         {
-            int count = leaf.Count;
-            if (count == 0 || (leaf.LoyaltyMask & loyaltyMask) == 0)
-                continue; // no objects here, or the loyalty we are searching is not present
-
-            dfn?.FindCells.Add(leaf.AABB);
-
-            ObjectRef[] items = leaf.Items;
-            for (int i = 0; i < count; ++i) // this is the perf hotspot
+            Node current = buffer.Pop();
+            if (current.NW != null) // isBranch
             {
-                ObjectRef so = items[i];
+                buffer.PushOverlappingQuadrants(current, searchRect);
+            }
+            else // isLeaf
+            {
+                int count = current.Count;
+                if (count == 0 || (current.LoyaltyMask & loyaltyMask) == 0)
+                    continue; // no objects here, or the loyalty we are searching is not present
 
-                // FLAGS: either 0x00 (failed) or some bits 0100 (success)
-                if ((so.LoyaltyMask & loyaltyMask) != 0 &&
-                    ((uint)so.Type & typeMask) != 0 &&
-                    (exclude == null || so.Source != exclude))
+                dfn?.FindCells.Add(current.AABB);
+
+                ObjectRef[] items = current.Items;
+                for (int i = 0; i < count; ++i) // this is the perf hotspot
                 {
-                    if (so.AABB.Overlaps(searchRect) &&
-                        (!useSearchRadius || so.AABB.Overlaps(opt.FilterOrigin.X, opt.FilterOrigin.Y, opt.FilterRadius)) &&
-                        alreadyChecked.Add(so.ObjectId))
+                    ObjectRef so = items[i];
+
+                    // FLAGS: either 0x00 (failed) or some bits 0100 (success)
+                    if ((so.LoyaltyMask & loyaltyMask) != 0 &&
+                        ((uint)so.Type & typeMask) != 0 &&
+                        (exclude == null || so.Source != exclude))
                     {
+                        if (!so.AABB.Overlaps(searchRect) ||
+                            useSearchRadius && !so.AABB.Overlaps(opt.FilterOrigin.X, opt.FilterOrigin.Y, opt.FilterRadius))
+                            continue; // AABB not in SearchRadius
+
+                        // PERF: this is the fastest point for duplicate check
+                        int id = so.ObjectId;
+                        int wordIndex = id / 32;
+                        uint idMask = (uint)(1 << (id % 32));
+                        if ((idBitArray[wordIndex] & idMask) != 0)
+                            continue; // object was already checked
+
+                        idBitArray[wordIndex] |= idMask; // flag it as checked
+
                         SpatialObjectBase go = so.Source;
                         if (opt.FilterFunction == null || opt.FilterFunction(go))
                         {
@@ -156,7 +168,8 @@ public partial class GenericQtree
                     }
                 }
             }
-        }
+        } while (buffer.NextNode >= 0);
+
         done:
         SpatialObjectBase[] results = buffer.GetArrayAndClearBuffer();
         if (opt.SortByDistance)
@@ -170,57 +183,11 @@ public partial class GenericQtree
         return LinearSearch.FindNearby(in opt, objects, objects.Length);
     }
 
-    /// <summary>
-    /// Optimized temporary search buffer for FindNearby
-    /// </summary>
-    class FindResultBuffer
-    {
-        public int Count = 0;
-        public SpatialObjectBase[] Items = new SpatialObjectBase[128];
-        public int NextNode = 0; // next node to pop
-        public Node[] NodeStack = new Node[512];
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Node Pop()
-        {
-            Node node = NodeStack[NextNode];
-            NodeStack[NextNode] = default; // don't leak refs
-            --NextNode;
-            return node;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PushBack(Node node)
-        {
-            NodeStack[++NextNode] = node;
-        }
-
-        public SpatialObjectBase[] GetArrayAndClearBuffer()
-        {
-            int count = Count;
-            if (count == 0)
-                return Empty<SpatialObjectBase>.Array;
-
-            Count = 0;
-            var arr = new SpatialObjectBase[count];
-            Memory.HybridCopy(arr, 0, Items, count);
-            Array.Clear(Items, 0, count);
-            return arr;
-        }
-    }
-    
     // NOTE: This is really fast
-    readonly ThreadLocal<FindResultBuffer> FindBuffer = new(() => new());
+    readonly ThreadLocal<FindResultBuffer<Node>> FindBuffer = new(() => new());
 
-    FindResultBuffer GetThreadLocalTraversalBuffer(Node root, int maxResults = 0)
+    FindResultBuffer<Node> GetThreadLocalTraversalBuffer(Node root, int maxResults = 0)
     {
-        FindResultBuffer buffer = FindBuffer.Value;
-        buffer.NextNode = 0;
-        buffer.NodeStack[0] = root;
-        if (maxResults != 0 && buffer.Items.Length < maxResults)
-        {
-            buffer.Items = new SpatialObjectBase[maxResults];
-        }
-        return buffer;
+        return FindBuffer.Value.Get(root, maxResults);
     }
 }
