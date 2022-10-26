@@ -26,7 +26,9 @@ namespace Ship_Game.Universe
         /// Stars are generated within XY range [-Size, +Size],
         /// so {0,0} is center of the universe
         /// </summary>
-        [StarData] public readonly float Size;
+        [StarData] public readonly float Size; // TODO: rename to UniverseRadius?
+        public float UniverseWidth => Size*2f;
+        public float UniverseRadius => Size;
         [StarData] public Empire Player;
         [StarData] public Empire Cordrazine;
         [StarData] public Empire Remnants;

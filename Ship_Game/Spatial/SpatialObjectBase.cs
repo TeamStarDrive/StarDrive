@@ -16,9 +16,11 @@ public class SpatialObjectBase
     [StarData] public Vector2 Position;
     [StarData] public float Radius = 1f;
 
+    // this is the unique Spatial ObjectId, which means this SpatialObjectBase can only
+    // be inserted into a single Spatial tree
     public int SpatialIndex = -1;
 
-    // if true, object is never added to spatial manager
+    // if true, object does not participate in collision events
     public bool DisableSpatialCollision = false;
 
     // if true, this object should be reinserted to spatial manager

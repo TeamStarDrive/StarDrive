@@ -85,8 +85,9 @@ namespace Ship_Game.Spatial
 
         public unsafe int CollideAll(FixedSimTime timeStep, bool showCollisions)
         {
-            var collider = new Collider(SpatialObjects.Length);
-            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
+            (SpatialObjectBase[] objects, QtreeNode root) = GetObjectsAndRootSafe();
+            var collider = new Collider(objects.Length);
+            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
 
             do
             {
@@ -115,7 +116,7 @@ namespace Ship_Game.Spatial
 
             fixed (CollisionPair* candidatesPtr = candidates)
             {
-                int numCollisions = NarrowPhase.Collide(timeStep, candidatesPtr, numCandidates, Objects);
+                int numCollisions = NarrowPhase.Collide(timeStep, candidatesPtr, numCandidates, objects);
                 return numCollisions;
             }
         }

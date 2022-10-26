@@ -169,10 +169,13 @@ namespace Ship_Game
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.P == p;
         public bool IsViewingColonyScreen(Planet p) => LookingAtPlanet && workersPanel is ColonyScreen cs && cs.P == p;
-
-        public UniverseScreen(float universeSize) : base(null, toPause: null)
+        
+        /// <summary>
+        /// RADIUS of the universe, Stars are generated within XY range [-universeRadius, +universeRadius]
+        /// </summary>
+        public UniverseScreen(float universeRadius) : base(null, toPause: null)
         {
-            UState = new UniverseState(this, universeSize);
+            UState = new UniverseState(this, universeRadius);
             Initialize();
         }
 

@@ -46,14 +46,18 @@ namespace Ship_Game.Spatial
             }
         }
 
-        // NOTE: This is really fast
+        // NOTE: This .NET ThreadLocal implementation is incredibly fast
         readonly ThreadLocal<FindResultBuffer> FindBuffer = new(() => new());
 
-        FindResultBuffer GetThreadLocalTraversalBuffer(QtreeNode root)
+        FindResultBuffer GetThreadLocalTraversalBuffer(QtreeNode root, int maxResults = 0)
         {
             FindResultBuffer buffer = FindBuffer.Value;
             buffer.NextNode = 0;
             buffer.NodeStack[0] = root;
+            if (maxResults != 0 && buffer.Items.Length < maxResults)
+            {
+                buffer.Items = new SpatialObjectBase[maxResults];
+            }
             return buffer;
         }
 
@@ -61,9 +65,10 @@ namespace Ship_Game.Spatial
         {
             AABoundingBox2D searchRect = opt.SearchRect;
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
-            SpatialObj[] spatialObjects = SpatialObjects;
-            
-            int idBitArraySize = ((spatialObjects.Length / 32) + 1) * sizeof(uint);
+
+            (SpatialObjectBase[] objects, QtreeNode root) = GetObjectsAndRootSafe();
+
+            int idBitArraySize = ((objects.Length / 32) + 1) * sizeof(uint);
             uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
             for (int i = 0; i < idBitArraySize; ++i) // so we need to zero the idBitArray
                 idBitArray[i] = 0;
@@ -77,22 +82,9 @@ namespace Ship_Game.Spatial
             float searchFR = opt.FilterRadius;
             bool useSearchRadius = searchFR > 0f;
 
-            QtreeNode root = Root;
-            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
-            if (buffer.Items.Length < maxResults)
-                buffer.Items = new SpatialObjectBase[maxResults];
+            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root, maxResults);
+            DebugQtreeFind dfn = GetFindDebug(opt);
 
-            DebugQtreeFind dfn = null;
-            if (opt.DebugId != 0)
-            {
-                dfn = new DebugQtreeFind();
-                dfn.SearchArea = opt.SearchRect;
-                dfn.FilterOrigin = opt.FilterOrigin;
-                dfn.RadialFilter = opt.FilterRadius;
-                FindNearbyDbg[opt.DebugId] = dfn;
-            }
-
-            SpatialObjectBase[] objects = Objects;
             do
             {
                 QtreeNode current = buffer.Pop();
@@ -163,7 +155,7 @@ namespace Ship_Game.Spatial
 
         public SpatialObjectBase[] FindLinear(in SearchOptions opt)
         {
-            SpatialObjectBase[] objects = Objects;
+            (SpatialObjectBase[] objects, _) = GetObjectsAndRootSafe();
             return LinearSearch.FindNearby(in opt, objects, objects.Length);
         }
     }
