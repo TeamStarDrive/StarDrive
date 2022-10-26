@@ -2,12 +2,16 @@
 
 namespace Ship_Game.Spatial
 {
-    public unsafe class QtreeNode
+    public class QtreeNodeBase<T> where T : class
+    {
+        public AABoundingBox2D AABB;
+        public T NW, NE, SE, SW;
+    }
+
+    public sealed unsafe class QtreeNode : QtreeNodeBase<QtreeNode>
     {
         public static readonly SpatialObj*[] NoObjects = new SpatialObj*[0];
 
-        public AABoundingBox2D AABB;
-        public QtreeNode NW, NE, SE, SW;
         public int Count;
         public SpatialObj*[] Items;
 

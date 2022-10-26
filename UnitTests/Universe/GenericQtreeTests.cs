@@ -2,6 +2,7 @@
 using Ship_Game;
 using Ship_Game.Spatial;
 using SDUtils;
+using SDGraphics;
 
 namespace UnitTests.Universe;
 
@@ -9,7 +10,7 @@ namespace UnitTests.Universe;
 [TestClass]
 public class GenericQtreeTests : StarDriveTest
 {
-    protected static bool EnableVisualization = true;
+    protected static bool EnableVisualization = false;
 
     public GenericQtreeTests()
     {
@@ -31,32 +32,27 @@ public class GenericQtreeTests : StarDriveTest
         EnableMockInput(true); // restore the mock input
     }
 
-    SpatialObjectBase[] GetSystemsAndPlanets()
-    {
-        var solarBodies = new Array<SpatialObjectBase>();
-        foreach (SolarSystem s in UState.Systems)
-        {
-            solarBodies.Add(s);
-            foreach (Planet p in s.PlanetList)
-                solarBodies.Add(p);
-        }
-        return solarBodies.ToArr();
-    }
+    SpatialObjectBase[] GetSystems() => UState.Systems.Select(s => (SpatialObjectBase)s);
+    SpatialObjectBase[] GetPlanets() => UState.Planets.Select(p => (SpatialObjectBase)p);
+    SpatialObjectBase[] GetSystemsAndPlanets() => GetSystems().Concat(GetPlanets());
 
     [TestMethod]
     public void SearchForSolarSystems()
     {
-        CreateUniverseAndPlayerEmpire(universeRadius:5_000_000f);
-        Planet playerHome = AddHomeWorldToEmpire(new(500_000, 750_000f), Player);
-        Planet enemyHome = AddHomeWorldToEmpire(new(-500_000, -750_000f), Enemy);
-        SpatialObjectBase[] solarBodies = GetSystemsAndPlanets();
+        CreateCustomUniverseSandbox(numOpponents:5, GalSize.Epic);
+        SpatialObjectBase[] systems = GetSystems();
 
-        var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:16, smallestCell:16_000);
-        foreach (SpatialObjectBase so in solarBodies)
-            tree.Insert(so);
+        var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:8, smallestCell:64_000);
+        System.Array.ForEach(systems, tree.Insert);
+
+        //var searchArea = new AABoundingBox2D(Vector2.Zero, UState.Size * 0.2f);
+        //SearchOptions opt = new(searchArea);
+        //for (int i = 0; i < 1_000_000; ++i)
+        //    tree.Find(opt);
+        //return;
 
         if (EnableVisualization)
-            DebugVisualize(tree, solarBodies);
+            DebugVisualize(tree, systems);
     }
 
     [TestMethod]
@@ -66,8 +62,7 @@ public class GenericQtreeTests : StarDriveTest
         SpatialObjectBase[] solarBodies = GetSystemsAndPlanets();
 
         var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:16, smallestCell:16_000);
-        foreach (SpatialObjectBase so in solarBodies)
-            tree.Insert(so);
+        System.Array.ForEach(solarBodies, tree.Insert);
 
         if (EnableVisualization)
             DebugVisualize(tree, solarBodies);
