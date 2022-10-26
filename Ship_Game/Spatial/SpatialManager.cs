@@ -68,7 +68,7 @@ namespace Ship_Game.Gameplay
             Spatial.DebugVisualize(screen, VisOpt);
         }
 
-        public void Update(GameObject[] allObjects)
+        public void Update(SpatialObjectBase[] allObjects)
         {
             if (ResetToNewSpatial != null)
             {

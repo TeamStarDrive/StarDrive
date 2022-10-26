@@ -13,7 +13,9 @@ internal class GenericQtreeVisualization : CommonVisualization
 
     float FindOneTime;
     float FindMultiTime;
+    float FindLinearTime;
     SpatialObjectBase FoundOne;
+    SpatialObjectBase[] FoundLinear = Empty<SpatialObjectBase>.Array;
     
     protected override float FullSize => Tree.FullSize;
     protected override float WorldSize => Tree.WorldSize;
@@ -24,7 +26,6 @@ internal class GenericQtreeVisualization : CommonVisualization
         Tree = tree;
         AllObjects = allObjects;
     }
-
     
     protected override void Search(in AABoundingBox2D searchArea)
     {
@@ -37,6 +38,10 @@ internal class GenericQtreeVisualization : CommonVisualization
         var t2 = new PerfTimer();
         Found = Tree.Find(opt);
         FindMultiTime = t2.Elapsed;
+
+        var t3 = new PerfTimer();
+        FoundLinear = Tree.FindLinear(opt, AllObjects);
+        FindLinearTime = t3.Elapsed;
     }
 
     protected override void UpdateSim(float fixedDeltaTime)
@@ -48,22 +53,6 @@ internal class GenericQtreeVisualization : CommonVisualization
         Tree.DebugVisualize(this, VisOpt);
     }
 
-    protected override void DrawObjects()
-    {
-        AABoundingBox2D visibleWorldRect = VisibleWorldRect;
-        foreach (SpatialObjectBase go in AllObjects)
-        {
-            if (go is SolarSystem sys)
-            {
-                DrawCircleProjected(sys.Position, sys.Radius, Color.AliceBlue);
-            }
-            else if (go is Planet p)
-            {
-                DrawCircleProjected(p.Position, p.Radius, Color.Green);
-            }
-        }
-    }
-
     protected override void DrawStats()
     {
         var cursor = new Vector2(20, 20);
@@ -71,9 +60,11 @@ internal class GenericQtreeVisualization : CommonVisualization
         DrawText(ref cursor, $"Camera: {Camera}");
         DrawText(ref cursor, $"NumObjects: {AllObjects.Length}");
         DrawText(ref cursor, $"SearchArea: {SearchArea.Width}x{SearchArea.Height}");
-        DrawText(ref cursor, $"FindOneTime:   {(FindOneTime*1000).String(4)}ms");
+        DrawText(ref cursor, $"FindOneTime:  {(FindOneTime*1000).String(4)}ms");
+        DrawText(ref cursor, $"FindLinearTime: {(FindLinearTime*1000).String(4)}ms");
         DrawText(ref cursor, $"FindMultiTime: {(FindMultiTime*1000).String(4)}ms");
-        DrawText(ref cursor, $"FindOne:   {FoundOne?.ToString() ?? "<none>"}");
+        DrawText(ref cursor, $"FindOne:  {FoundOne?.ToString() ?? "<none>"}");
+        DrawText(ref cursor, $"FindLinear: {FoundLinear.Length}");
         DrawText(ref cursor, $"FindMulti: {Found.Length}");
         for (int i = 0; i < Found.Length && i < 10; ++i)
         {

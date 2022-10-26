@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
-using Ship_Game.AI;
 using Ship_Game.Data;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
@@ -12,8 +12,10 @@ using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
+using SynapseGaming.LightingSystem.Core;
 using UnitTests.Ships;
 using UnitTests.UI;
+using ResourceManager = Ship_Game.ResourceManager;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests
@@ -67,7 +69,8 @@ namespace UnitTests
 
         /// <param name="playerArchetype">for example "Human"</param>
         public void CreateUniverseAndPlayerEmpire(string playerArchetype = null,
-                                                  string enemyArchetype = null)
+                                                  string enemyArchetype = null,
+                                                  float universeRadius = 2_000_000f)
         {
             RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
             RequireStarterContentLoaded(nameof(CreateUniverseAndPlayerEmpire));
@@ -90,7 +93,7 @@ namespace UnitTests
                     throw new($"Could not find MajorRace archetype matching '{enemyArchetype}'");
             }
 
-            Universe = new UniverseScreen(2_000_000f);
+            Universe = new UniverseScreen(universeRadius: universeRadius);
             UState = Universe.UState;
             UState.CanShowDiplomacyScreen = false;
             Player = UState.CreateEmpire(playerData, isPlayer:true);
@@ -124,14 +127,43 @@ namespace UnitTests
             Enemy = UState.NonPlayerEmpires[0];
         }
 
+        protected bool LoadedExtraData;
+
+        // Temporarily loads all game data. It will be unloaded after the current TestMethod finishes.
+        public void LoadAllGameData()
+        {
+            LoadedExtraData = true;
+            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
+
+            ResourceManager.UnloadAllData(ScreenManager.Instance);
+            ResourceManager.LoadItAll(ScreenManager.Instance, null);
+        }
+
+        // this will clean up any extra data after a TestMethod finishes
+        [TestCleanup]
+        public virtual void Cleanup()
+        {
+            if (LoadedExtraData)
+            {
+                LoadedExtraData = false;
+                ResourceManager.UnloadAllData(ScreenManager.Instance);
+                StarDriveTestContext.LoadStarterContent();
+            }
+        }
+
         public void CreateCustomUniverseSandbox(int numOpponents, GalSize galSize, int numExtraShipsPerEmpire = 0)
         {
+            LoadAllGameData();
+
             (int numStars, float starNumModifier) = RaceDesignScreen.GetNumStars(
                 RaceDesignScreen.StarsAbundance.Abundant, galSize, numOpponents
             );
 
             EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
             playerData.DiplomaticPersonality = new DTrait();
+
+            ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
+            GlobalStats.AsteroidVisibility = ObjectVisibility.None; // dont create Asteroid SO's
 
             CreateCustomUniverse(new UniverseGenerator.Params
             {

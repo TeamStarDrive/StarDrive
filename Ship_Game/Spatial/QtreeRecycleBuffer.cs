@@ -12,10 +12,10 @@ namespace Ship_Game.Spatial
         readonly Array<QtreeNode> Active = new();
 
         // Inactive nodes are ready to be reused
-        readonly Array<QtreeNode> Inactive  = new();
+        readonly Array<QtreeNode> Inactive = new();
 
         /// <summary>
-        /// Number of active nodes
+        /// Number of active nodes, informational
         /// </summary>
         public int NumActiveNodes => Active.Count;
 
