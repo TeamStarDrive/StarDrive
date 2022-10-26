@@ -37,6 +37,7 @@ namespace Ship_Game.AI
         public ThreatCluster(Empire loyalty) : base(GameObjectType.Ship)
         {
             Loyalty = loyalty;
+            Active = true;
         }
 
         public bool IsHostileTo(Empire threatMatrixOwner)

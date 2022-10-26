@@ -7,8 +7,6 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
-using ResourceManager = Ship_Game.ResourceManager;
 
 namespace UnitTests.Universe
 {
@@ -21,27 +19,11 @@ namespace UnitTests.Universe
     {
         public SaveLoadUniverseScreenTests()
         {
-            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
-            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder+"Headers/");
-            ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
-            GlobalStats.AsteroidVisibility = ObjectVisibility.None; // dont create Asteroid SO's
-        }
-
-        [ClassCleanup]
-        public static void Cleanup()
-        {
-            ResourceManager.UnloadAllData(ScreenManager.Instance);
-            StarDriveTestContext.LoadStarterContent();
-            GlobalStats.AsteroidVisibility = ObjectVisibility.Rendered;
         }
 
         [TestMethod]
         public void EnsureSaveGamesFitInMemory()
         {
-            // load absolutely everything for this test
-            ResourceManager.UnloadAllData(ScreenManager.Instance);
-            ResourceManager.LoadItAll(ScreenManager.Instance, null);
-
             int shipsPerEmpire = 750;
 
             CreateCustomUniverseSandbox(numOpponents:6, galSize:GalSize.Large);

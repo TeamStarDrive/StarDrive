@@ -12,7 +12,7 @@ namespace Ship_Game.Spatial
         public byte CollisionMask; // mask which matches objects this object can collide with
         public byte Loyalty; // Loyalty ID
         public uint LoyaltyMask; // mask for matching loyalty, see GetLoyaltyMask
-        public int ObjectId;
+        public int ObjectId; // index of this object in the Qtree.Objects list
         public AABoundingBox2D AABB;
 
         public SpatialObj(SpatialObjectBase go, int objectId)

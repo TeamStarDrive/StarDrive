@@ -1,50 +1,90 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.Spatial;
 using SDUtils;
 
-namespace UnitTests.Universe
+namespace UnitTests.Universe;
+
+// NOTE: This tests GenericQtree only. For collision quadtree check TestNativeSpatial
+[TestClass]
+public class GenericQtreeTests : StarDriveTest
 {
-    // NOTE: This tests GenericQtree only. For collision quadtree check TestNativeSpatial
-    [TestClass]
-    public class GenericQtreeTests : StarDriveTest
+    protected static bool EnableVisualization = true;
+
+    public GenericQtreeTests()
     {
-        protected static bool EnableVisualization = false;
+    }
 
-        public GenericQtreeTests()
+    protected void DebugVisualize(GenericQtree tree, SpatialObjectBase[] objects)
+    {
+        var vis = new GenericQtreeVisualization(objects, tree);
+        EnableMockInput(false); // switch from mocked input to real input
+        Game.ShowAndRun(screen: vis); // run the sim
+        EnableMockInput(true); // restore the mock input
+    }
+        
+    protected void DebugVisualize(ISpatial tree, SpatialObjectBase[] objects)
+    {
+        var vis = new SpatialVisualization(objects, tree, moveShips:false);
+        EnableMockInput(false); // switch from mocked input to real input
+        Game.ShowAndRun(screen: vis); // run the sim
+        EnableMockInput(true); // restore the mock input
+    }
+
+    SpatialObjectBase[] GetSystemsAndPlanets()
+    {
+        var solarBodies = new Array<SpatialObjectBase>();
+        foreach (SolarSystem s in UState.Systems)
         {
-            CreateUniverseAndPlayerEmpire();
+            solarBodies.Add(s);
+            foreach (Planet p in s.PlanetList)
+                solarBodies.Add(p);
         }
+        return solarBodies.ToArr();
+    }
 
-        protected void DebugVisualize(GenericQtree tree)
-        {
-            var vis = new GenericQtreeVisualization(tree.Objects.ToArr(), tree);
-            EnableMockInput(false); // switch from mocked input to real input
-            Game.ShowAndRun(screen: vis); // run the sim
-            EnableMockInput(true); // restore the mock input
-        }
+    [TestMethod]
+    public void SearchForSolarSystems()
+    {
+        CreateUniverseAndPlayerEmpire(universeRadius:5_000_000f);
+        Planet playerHome = AddHomeWorldToEmpire(new(500_000, 750_000f), Player);
+        Planet enemyHome = AddHomeWorldToEmpire(new(-500_000, -750_000f), Enemy);
+        SpatialObjectBase[] solarBodies = GetSystemsAndPlanets();
 
-        [TestMethod]
-        public void SearchForSolarSystems()
-        {
-            Planet playerHome = AddHomeWorldToEmpire(new(500_000, 750_000f), Player);
-            Planet enemyHome = AddHomeWorldToEmpire(new(-500_000, -750_000f), Enemy);
+        var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:16, smallestCell:16_000);
+        foreach (SpatialObjectBase so in solarBodies)
+            tree.Insert(so);
 
-            var tree = new GenericQtree(UState.Size * 2f);
+        if (EnableVisualization)
+            DebugVisualize(tree, solarBodies);
+    }
 
-            tree.Insert(playerHome.ParentSystem);
-            tree.Insert(enemyHome.ParentSystem);
+    [TestMethod]
+    public void GenerateUniverseAndFindAllSystems()
+    {
+        CreateCustomUniverseSandbox(numOpponents:5, GalSize.Epic);
+        SpatialObjectBase[] solarBodies = GetSystemsAndPlanets();
 
-            tree.Insert(playerHome);
-            tree.Insert(enemyHome);
+        var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:16, smallestCell:16_000);
+        foreach (SpatialObjectBase so in solarBodies)
+            tree.Insert(so);
 
-            if (EnableVisualization)
-                DebugVisualize(tree);
-        }
+        if (EnableVisualization)
+            DebugVisualize(tree, solarBodies);
+    }
+
+    [TestMethod]
+    public void GenerateUniverseAndFindAllSystems2()
+    {
+        CreateCustomUniverseSandbox(numOpponents:5, GalSize.Epic);
+        SpatialObjectBase[] solarBodies = GetSystemsAndPlanets();
+
+        var tree = new Qtree(UState.UniverseWidth, 16_000);
+        tree.UpdateAll(solarBodies);
+        tree.UpdateAll(solarBodies);
+        tree.UpdateAll(solarBodies);
+
+        if (EnableVisualization)
+            DebugVisualize(tree, solarBodies);
     }
 }

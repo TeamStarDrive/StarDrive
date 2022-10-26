@@ -1,6 +1,5 @@
 ﻿using SDGraphics;
 using SDUtils;
-
 namespace Ship_Game.Spatial;
 
 class DebugQtreeFind
@@ -28,6 +27,33 @@ class DebugQtreeFind
             {
                 screen.DrawRectProjected(new AABoundingBox2D(go), Qtree.YellowBright);
             }
+        }
+    }
+}
+
+class QtreeDebug
+{
+    readonly Map<int, DebugQtreeFind> FindNearbyDbg = new();
+
+    public DebugQtreeFind GetFindDebug(in SearchOptions opt)
+    {
+        if (opt.DebugId == 0)
+            return null;
+        var dfn = new DebugQtreeFind
+        {
+            SearchArea = opt.SearchRect,
+            FilterOrigin = opt.FilterOrigin,
+            RadialFilter = opt.FilterRadius
+        };
+        FindNearbyDbg[opt.DebugId] = dfn;
+        return dfn;
+    }
+
+    public void Draw(GameScreen screen, VisualizerOptions opt)
+    {
+        foreach (var kv in FindNearbyDbg)
+        {
+            kv.Value.Draw(screen, opt);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game;
 using Ship_Game.Gameplay;
@@ -93,39 +92,19 @@ class SpatialVisualization : CommonVisualization
             CollideTime = timer2.Elapsed;
         }
 
+        // update # of projectiles while they die
         NumShips = 0;
         NumProjectiles = 0;
         foreach (GameObject go in AllObjects)
         {
             if (go is Ship) ++NumShips;
-            else if (go is Projectile p && p.Active) ++NumProjectiles;
+            else if (go is Projectile { Active: true }) ++NumProjectiles;
         }
     }
 
     protected override void DrawTree()
     {
         Spat.DebugVisualize(this, VisOpt);
-    }
-
-    protected override void DrawObjects()
-    {
-        AABoundingBox2D visibleWorldRect = VisibleWorldRect;
-        foreach (GameObject go in AllObjects)
-        {
-            if (CamHeight <= 10_000f && visibleWorldRect.Overlaps(go.Position.X, go.Position.Y, go.Radius))
-            {
-                if (go is Ship s)
-                {
-                    bool found = Found.Contains(go);
-                    s.DrawModulesOverlay(this, CamHeight, showDebugSelect: found, showDebugStats: false);
-                }
-                else if (go is Projectile)
-                {
-                    Vector2 screenPos = ProjectToScreenPosition(go.Position).ToVec2f();
-                    DrawLine(screenPos, screenPos+go.Direction*10, Color.Red);
-                }
-            }
-        }
     }
 
     protected override void DrawStats()

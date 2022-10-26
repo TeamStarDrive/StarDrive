@@ -1,10 +1,11 @@
 ﻿using Ship_Game;
 using System;
 using SDGraphics;
-
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game.Spatial;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace UnitTests.Universe;
 
@@ -32,7 +33,6 @@ internal abstract class CommonVisualization : GameScreen
 
     protected abstract void UpdateSim(float fixedDeltaTime);
     protected abstract void DrawTree();
-    protected abstract void DrawObjects();
     protected abstract void DrawStats();
     protected abstract void Search(in AABoundingBox2D searchArea);
 
@@ -47,6 +47,38 @@ internal abstract class CommonVisualization : GameScreen
         UpdateSim(fixedDeltaTime);
 
         base.Update(fixedDeltaTime);
+    }
+
+    protected virtual void DrawObjects()
+    {
+        AABoundingBox2D visibleWorldRect = VisibleWorldRect;
+        foreach (SpatialObjectBase go in AllObjects)
+        {
+            if (visibleWorldRect.Overlaps(go.Position.X, go.Position.Y, go.Radius))
+            {
+                if (CamHeight <= 10_000f)
+                {
+                    if (go is Ship s)
+                    {
+                        bool found = Found.Contains(go);
+                        s.DrawModulesOverlay(this, CamHeight, showDebugSelect: found, showDebugStats: false);
+                    }
+                    else if (go is Projectile p)
+                    {
+                        Vector2 screenPos = ProjectToScreenPosition(go.Position).ToVec2f();
+                        DrawLine(screenPos, screenPos+p.Direction*10, Color.Red);
+                    }
+                }
+                if (go is SolarSystem sys)
+                {
+                    DrawCircleProjected(sys.Position, sys.Radius, Color.AliceBlue);
+                }
+                else if (go is Planet p)
+                {
+                    DrawCircleProjected(p.Position, p.Radius, Color.Green);
+                }
+            }
+        }
     }
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)

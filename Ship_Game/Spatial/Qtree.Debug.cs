@@ -19,7 +19,15 @@ namespace Ship_Game.Spatial
         public static readonly Color Blue   = new(95, 158, 160, 200);
         static readonly Color Red    = new(255, 80, 80, 200);
 
-        static Map<int, DebugQtreeFind> FindNearbyDbg = new();
+        QtreeDebug Debug;
+
+        DebugQtreeFind GetFindDebug(in SearchOptions opt)
+        {
+            if (opt.DebugId == 0)
+                return null;
+            Debug ??= new();
+            return Debug.GetFindDebug(opt);
+        }
 
         public unsafe void DebugVisualize(GameScreen screen, VisualizerOptions opt)
         {
@@ -76,10 +84,7 @@ namespace Ship_Game.Spatial
                 }
             } while (buffer.NextNode >= 0);
 
-            foreach (var kv in FindNearbyDbg)
-            {
-                kv.Value.Draw(screen, opt);
-            }
+            Debug?.Draw(screen, opt);
         }
     }
 }
