@@ -37,7 +37,7 @@ public partial class GenericQtree
         AABoundingBox2D searchRect = opt.SearchRect;
         bool useSearchRadius = opt.FilterRadius > 0f;
 
-        int idBitArraySize = ((NextObjectId / 32) + 1) * sizeof(uint);
+        int idBitArraySize = ((Count / 32) + 1) * sizeof(uint);
         uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
         for (int i = 0; i < idBitArraySize; ++i) idBitArray[i] = 0; // so we need to zero the idBitArray
 
@@ -107,7 +107,7 @@ public partial class GenericQtree
         AABoundingBox2D searchRect = opt.SearchRect;
         bool useSearchRadius = opt.FilterRadius > 0f;
 
-        int idBitArraySize = ((NextObjectId / 32) + 1) * sizeof(uint);
+        int idBitArraySize = ((Count / 32) + 1) * sizeof(uint);
         uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
         for (int i = 0; i < idBitArraySize; ++i) idBitArray[i] = 0; // so we need to zero the idBitArray
 

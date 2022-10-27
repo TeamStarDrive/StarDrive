@@ -30,11 +30,10 @@ public partial class GenericQtree
     public float WorldSize { get; }
 
     Node Root;
-    int NextObjectId = 1;
 
-    Array<SpatialObjectBase> AllObjects = new();
-    public IReadOnlyList<SpatialObjectBase> Objects => AllObjects;
-    public int Count => AllObjects.Count;
+    // We need to keep a list of all ObjectRef's to enable accurate Remove and Update
+    readonly StableCollection<ObjectRef> ObjectRefs = new();
+    public int Count => ObjectRefs.Count;
 
     public string Name => "GenericQtree";
 
@@ -65,44 +64,55 @@ public partial class GenericQtree
         Root = new(-half, -half, +half, +half);
     }
 
+    ObjectRef Find(SpatialObjectBase obj)
+    {
+        foreach (ObjectRef objRef in ObjectRefs)
+            if (objRef.Source == obj)
+                return objRef;
+        return null;
+    }
+
+    public bool Contains(SpatialObjectBase obj)
+    {
+        foreach (ObjectRef objRef in ObjectRefs)
+            if (objRef.Source == obj)
+                return true;
+        return false;
+    }
+
     public void Insert(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
-        if (!AllObjects.AddUniqueRef(obj))
-        {
-            return; // this object already exists in this Qtree
-        }
+        if (Contains(obj))
+            return; // this object already exists in this Qtree, do nothing
 
-        int objectId = NextObjectId++;
-        var spatialObj = new ObjectRef(obj, objectId);
-        InsertAt(Root, Levels, spatialObj);
+        var objRef = new ObjectRef(obj);
+        objRef.ObjectId = ObjectRefs.Insert(objRef);
+        InsertAt(Root, Levels, objRef);
     }
 
     public void Remove(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
-        if (!AllObjects.RemoveRef(obj))
-        {
-            return; // this object does not exist in this Qtree
-        }
-
-        AABoundingBox2D objectRect = new(obj);
-        RemoveAt(Root, Levels, obj, objectRect);
+        ObjectRef toRemove = Find(obj);
+        if (toRemove == null)
+            return; // this object does not exist in this Qtree, do nothing
+        
+        RemoveAt(Root, Levels, toRemove, in toRemove.AABB);
+        ObjectRefs.RemoveAt(toRemove.ObjectId);
     }
 
-    // update the position of a single item, this is a slow operation
+    // update the position of a single item, this will remove the node and reinsert it
     public void Update(SpatialObjectBase obj)
     {
-        if (AllObjects.ContainsRef(obj))
-        {
-            AABoundingBox2D objectRect = new(obj);
-            RemoveAt(Root, Levels, obj, objectRect);
+        // TODO: Thread safety?
+        ObjectRef toUpdate = Find(obj);
+        if (toUpdate == null)
+            return; // this object does not exist in this Qtree, do nothing
 
-            // TODO: find the ObjectRef instead of creating new
-            int objectId = NextObjectId++;
-            var spatialObj = new ObjectRef(obj, objectId);
-            InsertAt(Root, Levels, spatialObj);
-        }
+        RemoveAt(Root, Levels, toUpdate, in toUpdate.AABB);
+        toUpdate.UpdateBounds();
+        InsertAt(Root, Levels, toUpdate);
     }
 
     void InsertAt(Node node, int level, ObjectRef obj)
@@ -176,7 +186,7 @@ public partial class GenericQtree
         }
     }
 
-    static void RemoveAt(Node node, int level, SpatialObjectBase obj, in AABoundingBox2D objectRect)
+    static void RemoveAt(Node node, int level, ObjectRef toRemove, in AABoundingBox2D objectRect)
     {
         for (;;)
         {
@@ -196,21 +206,21 @@ public partial class GenericQtree
                 }
                 else // target overlaps multiple quadrants, so it has to be removed from several of them:
                 {
-                    if (NW) { RemoveAt(node.NW, level-1, obj, in objectRect); }
-                    if (NE) { RemoveAt(node.NE, level-1, obj, in objectRect); }
-                    if (SE) { RemoveAt(node.SE, level-1, obj, in objectRect); }
-                    if (SW) { RemoveAt(node.SW, level-1, obj, in objectRect); }
+                    if (NW) { RemoveAt(node.NW, level-1, toRemove, in objectRect); }
+                    if (NE) { RemoveAt(node.NE, level-1, toRemove, in objectRect); }
+                    if (SE) { RemoveAt(node.SE, level-1, toRemove, in objectRect); }
+                    if (SW) { RemoveAt(node.SW, level-1, toRemove, in objectRect); }
                     return;
                 }
             }
             else // isLeaf
             {
-                node.Remove(obj);
+                node.Remove(toRemove);
                 return;
             }
         }
     }
-    
+
     public class ObjectRef
     {
         // NOTE: These are ordered by the order of access pattern
@@ -222,7 +232,7 @@ public partial class GenericQtree
         public int ObjectId; // unique object id for this ref
         public AABoundingBox2D AABB;
 
-        public ObjectRef(SpatialObjectBase go, int objectId)
+        public ObjectRef(SpatialObjectBase go)
         {
             Active = 1;
             var type = go.Type;
@@ -231,8 +241,12 @@ public partial class GenericQtree
             Loyalty = (byte)loyaltyId;
             LoyaltyMask = NativeSpatialObject.GetLoyaltyMask(loyaltyId);
             Source = go;
-            ObjectId = objectId;
             AABB = new(go);
+        }
+
+        public void UpdateBounds()
+        {
+            AABB = new(Source);
         }
     }
 
@@ -293,7 +307,7 @@ public partial class GenericQtree
             LoyaltyMask |= thisMask;
         }
 
-        public void Remove(SpatialObjectBase obj)
+        public void Remove(ObjectRef toRemove)
         {
             // every time we remove an item, we need to recalculate the LoyaltyMask
             LoyaltyMask = 0;
@@ -302,7 +316,7 @@ public partial class GenericQtree
             for (int i = items.Length - 1; i >= 0; --i)
             {
                 ObjectRef item = items[i];
-                if (item.Source == obj)
+                if (item == toRemove)
                 {
                     // RemoveAtSwapLast
                     int last = --Count;
