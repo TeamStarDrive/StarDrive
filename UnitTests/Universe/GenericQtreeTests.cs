@@ -3,6 +3,7 @@ using Ship_Game;
 using Ship_Game.Spatial;
 using SDUtils;
 using SDGraphics;
+using System;
 
 namespace UnitTests.Universe;
 
@@ -42,14 +43,16 @@ public class GenericQtreeTests : StarDriveTest
         CreateCustomUniverseSandbox(numOpponents:5, GalSize.Epic);
         SpatialObjectBase[] systems = GetSystems();
 
-        var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:8, smallestCell:64_000);
+        var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:8, smallestCell:32_000);
         System.Array.ForEach(systems, tree.Insert);
 
+        //var t1 = new PerfTimer();
         //var searchArea = new AABoundingBox2D(Vector2.Zero, UState.Size * 0.2f);
         //SearchOptions opt = new(searchArea);
         //for (int i = 0; i < 1_000_000; ++i)
         //    tree.Find(opt);
-        //return;
+        //float elapsed = t1.ElapsedMillis;
+        //Console.WriteLine($"Elapsed: {elapsed:0.00}ms");
 
         if (EnableVisualization)
             DebugVisualize(tree, systems);
