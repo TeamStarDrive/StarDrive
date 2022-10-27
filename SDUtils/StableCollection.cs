@@ -41,9 +41,9 @@ public class StableCollection<T> : ICollection<T>
 
         public void Clear()
         {
-            MaxItems = 0;
+            Array.Clear(Items, 0, MaxItems);
             FreeSlots.Clear();
-            Array.Clear(Items, 0, SlabSize);
+            MaxItems = 0;
         }
 
         public void Free(int itemIndex)
@@ -70,11 +70,17 @@ public class StableCollection<T> : ICollection<T>
         }
     }
 
+    /// <summary>
+    /// Create a new StableCollection with a single default slab
+    /// </summary>
     public StableCollection()
     {
         Slabs.Add(new());
     }
 
+    /// <summary>
+    /// Dumps all slabs and only keeps the first one as reserve
+    /// </summary>
     public void Clear()
     {
         Count = 0;
@@ -94,6 +100,20 @@ public class StableCollection<T> : ICollection<T>
         if (slab.IsFree(itemIndex))
             throw new IndexOutOfRangeException($"Item was freed at index={index}");
         return ref slab.Items[itemIndex];
+    }
+
+    void ICollection<T>.Add(T item)
+    {
+        Insert(item);
+    }
+
+    bool GetFreeSlot(out int index)
+    {
+        for (int i = 0; i < Slabs.Count; ++i)
+            if (Slabs[i].PopFreeSlot(out index))
+                return true;
+        index = -1;
+        return false;
     }
 
     /// <summary>
@@ -131,15 +151,9 @@ public class StableCollection<T> : ICollection<T>
         }
     }
 
-    bool GetFreeSlot(out int index)
-    {
-        for (int i = 0; i < Slabs.Count; ++i)
-            if (Slabs[i].PopFreeSlot(out index))
-                return true;
-        index = -1;
-        return false;
-    }
-
+    /// <summary>
+    /// Removes an item at `index` if that item is not already freed
+    /// </summary>
     public void RemoveAt(int index)
     {
         int whichSlab = index / SlabSize;
@@ -152,29 +166,22 @@ public class StableCollection<T> : ICollection<T>
         }
     }
 
-    void ICollection<T>.Add(T item)
-    {
-        Insert(item);
-    }
-
-    public bool Contains(T item)
-    {
-        return IndexOf(item) != -1;
-    }
-
+    /// <summary>
+    /// Removes an item if it exists and isn't freed.
+    /// Item cannot be null.
+    /// </summary>
     public bool Remove(T item)
     {
         if (item == null)
             throw new NullReferenceException(nameof(item));
 
-        EqualityComparer<T> c = EqualityComparer<T>.Default;
+        var c = EqualityComparer<T>.Default;
         for (int slabIndex = 0; slabIndex < Slabs.Count; ++slabIndex)
         {
             Slab slab = Slabs[slabIndex];
             for (int itemIndex = 0; itemIndex < slab.MaxItems; ++itemIndex)
             {
-                if (!slab.IsFree(itemIndex) && 
-                    c.Equals(slab.Items[itemIndex], item))
+                if (!slab.IsFree(itemIndex) && c.Equals(slab.Items[itemIndex], item))
                 {
                     slab.Free(itemIndex);
                     --Count;
@@ -184,28 +191,37 @@ public class StableCollection<T> : ICollection<T>
         }
         return false;
     }
-
+    
+    /// <summary>
+    /// TRUE if an item exists and isn't freed. Item cannot be null
+    /// </summary>
+    public bool Contains(T item)
+    {
+        return IndexOf(item) != -1;
+    }
+    
+    /// <summary>
+    /// Index of an item, or -1 if it doesn't exist or has been freed.
+    /// Item cannot be null.
+    /// </summary>
     public int IndexOf(T item)
     {
         if (item == null)
             throw new NullReferenceException(nameof(item));
 
-        EqualityComparer<T> c = EqualityComparer<T>.Default;
+        var c = EqualityComparer<T>.Default;
         for (int slabIndex = 0; slabIndex < Slabs.Count; ++slabIndex)
         {
             Slab slab = Slabs[slabIndex];
             for (int itemIndex = 0; itemIndex < slab.MaxItems; ++itemIndex)
-            {
-                if (!slab.IsFree(itemIndex) && 
-                    c.Equals(slab.Items[itemIndex], item))
+                if (!slab.IsFree(itemIndex) && c.Equals(slab.Items[itemIndex], item))
                     return slab.BaseIndex + itemIndex;
-            }
         }
         return -1;
     }
     
     /// <summary>
-    /// Enumerates through all Items using an IEnumerable generator
+    /// Enumerates through all items using an IEnumerable generator
     /// </summary>
     public IEnumerable<T> Items
     {
@@ -215,29 +231,32 @@ public class StableCollection<T> : ICollection<T>
             {
                 Slab slab = Slabs[slabIndex];
                 for (int itemIndex = 0; itemIndex < slab.MaxItems; ++itemIndex)
-                {
                     if (!slab.IsFree(itemIndex))
                         yield return slab.Items[itemIndex];
-                }
             }
         }
     }
 
+    /// <summary>
+    /// Enumerates through all items using a generator
+    /// </summary>
     public IEnumerator<T> GetEnumerator()
     {
         for (int slabIndex = 0; slabIndex < Slabs.Count; ++slabIndex)
         {
             Slab slab = Slabs[slabIndex];
             for (int itemIndex = 0; itemIndex < slab.MaxItems; ++itemIndex)
-            {
                 if (!slab.IsFree(itemIndex))
                     yield return slab.Items[itemIndex];
-            }
         }
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    /// <summary>
+    /// Copies all elements to destination `array`.
+    /// It must have at least `this.Count` items of free space.
+    /// </summary>
     public void CopyTo(T[] array, int arrayIndex)
     {
         int offset = arrayIndex;
