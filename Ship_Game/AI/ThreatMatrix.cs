@@ -61,8 +61,7 @@ public sealed class ThreatMatrix
 
     ThreatCluster[] FindClusters(in SearchOptions opt)
     {
-        // TODO: remove requirement for FastCast
-        return ClustersMap.Find(in opt).FastCast<SpatialObjectBase, ThreatCluster>();
+        return ClustersMap.Find<ThreatCluster>(in opt);
     }
 
     /// <summary>

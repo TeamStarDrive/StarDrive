@@ -27,14 +27,14 @@ internal sealed class FindResultBuffer<T> where T : QtreeNodeBase<T>
         }
     }
 
-    public SpatialObjectBase[] GetArrayAndClearBuffer()
+    public TResult[] GetArrayAndClearBuffer<TResult>() where TResult : SpatialObjectBase
     {
         int count = Count;
         if (count == 0)
-            return Empty<SpatialObjectBase>.Array;
+            return Empty<TResult>.Array;
 
         Count = 0;
-        var arr = new SpatialObjectBase[count];
+        var arr = new TResult[count];
         Memory.HybridCopy(arr, 0, Items, count);
         Array.Clear(Items, 0, count);
         return arr;

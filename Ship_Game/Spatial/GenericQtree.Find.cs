@@ -17,18 +17,6 @@ public partial class GenericQtree
         return FindOne(opt);
     }
 
-    public SpatialObjectBase[] Find(Vector2 pos, float radius)
-    {
-        SearchOptions opt = new(pos, radius);
-        return Find(opt);
-    }
-
-    public SpatialObjectBase[] Find(in AABoundingBox2D searchArea)
-    {
-        SearchOptions opt = new(searchArea);
-        return Find(opt);
-    }
-
     /// <summary>
     /// Finds the first object that matches the search criteria
     /// </summary>
@@ -99,10 +87,51 @@ public partial class GenericQtree
         return null;
     }
     
+    public SpatialObjectBase[] Find(Vector2 pos, float radius)
+    {
+        SearchOptions opt = new(pos, radius);
+        return Find(opt);
+    }
+
+    public SpatialObjectBase[] Find(in AABoundingBox2D searchArea)
+    {
+        SearchOptions opt = new(searchArea);
+        return Find(opt);
+    }
     /// <summary>
     /// Finds all objects that match the search criteria
     /// </summary>
-    public unsafe SpatialObjectBase[] Find(in SearchOptions opt)
+    public SpatialObjectBase[] Find(in SearchOptions opt)
+    {
+        return Find<SpatialObjectBase>(opt);
+    }
+    
+    public T[] Find<T>(in AABoundingBox2D searchArea) where T : SpatialObjectBase
+    {
+        SearchOptions opt = new(searchArea);
+        return Find<T>(opt);
+    }
+    
+    public T[] Find<T>(Vector2 pos, float radius) where T : SpatialObjectBase
+    {
+        SearchOptions opt = new(pos, radius);
+        return Find<T>(opt);
+    }
+
+    /// <summary>
+    /// Finds all objects that match the search criteria,
+    /// while casting the results array into T
+    /// </summary>
+    public T[] Find<T>(in SearchOptions opt) where T : SpatialObjectBase
+    {
+        FindResultBuffer<Node> buffer = FindBuffered(opt);
+        T[] results = buffer.GetArrayAndClearBuffer<T>();
+        if (opt.SortByDistance)
+            LinearSearch.SortByDistance(opt, results);
+        return results;
+    }
+
+    unsafe FindResultBuffer<Node> FindBuffered(in SearchOptions opt)
     {
         AABoundingBox2D searchRect = opt.SearchRect;
         bool useSearchRadius = opt.FilterRadius > 0f;
@@ -163,18 +192,13 @@ public partial class GenericQtree
                             dfn?.SearchResults.Add(go);
                             buffer.Items[buffer.Count++] = go;
                             if (buffer.Count == maxResults)
-                                goto done; // we are done !
+                                return buffer; // we are done !
                         }
                     }
                 }
             }
         } while (buffer.NextNode >= 0);
-
-        done:
-        SpatialObjectBase[] results = buffer.GetArrayAndClearBuffer();
-        if (opt.SortByDistance)
-            LinearSearch.SortByDistance(opt, results);
-        return results;
+        return buffer;
     }
 
     // NOTE: For debugging only

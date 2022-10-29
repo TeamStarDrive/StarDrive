@@ -80,7 +80,7 @@ namespace Ship_Game.Spatial
             return found;
         }
 
-        public static void SortByDistance(in SearchOptions opt, SpatialObjectBase[] objects)
+        public static void SortByDistance<T>(in SearchOptions opt, T[] objects) where T : SpatialObjectBase
         {
             objects.SortByDistance(opt.SearchRect.Center);
         }
