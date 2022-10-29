@@ -34,7 +34,7 @@ namespace Ship_Game.AI
         [StarData] public float ScanTimer;
 
         [StarDataConstructor]
-        public ThreatCluster(Empire loyalty) : base(GameObjectType.Ship)
+        public ThreatCluster(Empire loyalty) : base(GameObjectType.ThreatCluster)
         {
             Loyalty = loyalty;
             Active = true;

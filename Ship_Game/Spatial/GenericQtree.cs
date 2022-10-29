@@ -313,7 +313,7 @@ public partial class GenericQtree
             LoyaltyMask = 0;
 
             ObjectRef[] items = Items;
-            for (int i = items.Length - 1; i >= 0; --i)
+            for (int i = Count - 1; i >= 0; --i)
             {
                 ObjectRef item = items[i];
                 if (item == toRemove)

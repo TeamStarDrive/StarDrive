@@ -19,13 +19,10 @@ public sealed class ThreatMatrix
 
     // All clusters that we know about, this is thread-safe
     // and updated atomically as a COPY
-    [StarData] public ThreatCluster[] AllClusters { get; private set; }
+    [StarData] public ThreatCluster[] AllClusters { get; private set; } = Empty<ThreatCluster>.Array;
 
-    // Clusters organized by solar-systems
-    [StarData] Map<SolarSystem, ThreatCluster[]> ClustersBySystem = new();
-
-    // QuadTree for quickly finding nearby clusters
-    [StarData] public Qtree ClustersMap { get; private set; }
+    // Qtree for quickly finding nearby clusters
+    public GenericQtree ClustersMap { get; private set; }
 
     [StarDataConstructor] ThreatMatrix() { }
 
@@ -64,7 +61,8 @@ public sealed class ThreatMatrix
 
     ThreatCluster[] FindClusters(in SearchOptions opt)
     {
-        return ClustersMap.FindNearby(in opt).FastCast<SpatialObjectBase, ThreatCluster>();
+        // TODO: remove requirement for FastCast
+        return ClustersMap.Find(in opt).FastCast<SpatialObjectBase, ThreatCluster>();
     }
 
     /// <summary>
