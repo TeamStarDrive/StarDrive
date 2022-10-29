@@ -7,6 +7,8 @@ public class TypeInfo
 {
     // TypeId in Stream
     public readonly ushort StreamTypeId;
+
+    // name is informational only
     public readonly string Name;
 
     // Actual serializer, can be null if type is deleted
