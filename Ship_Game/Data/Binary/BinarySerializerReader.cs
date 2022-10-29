@@ -48,12 +48,14 @@ public class BinarySerializerReader
         }
     }
 
+    // name is informational only
     void AddTypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields, bool isStruct, SerializerCategory c)
     {
         var info = new TypeInfo(streamTypeId, name, s, fields, isStruct, c);
         StreamTypes[streamTypeId] = info;
     }
-
+    
+    // name is informational only
     void AddDeletedTypeInfo(uint streamTypeId, string name, FieldInfo[] fields, bool isStruct, SerializerCategory c)
     {
         var info = new TypeInfo(streamTypeId, name, null, fields, isStruct, c);
@@ -177,26 +179,43 @@ public class BinarySerializerReader
             throw new($"Missing StreamType={streamType} keyType={keyType} (the stream is corrupted)");
         }
 
-        Type cType = null;
-        if (cTypeId == 1)
-            cType = valTypeInfo.Type.MakeArrayType();
-        else if (cTypeId == 2)
-            cType = typeof(Array<>).MakeGenericType(valTypeInfo.Type);
-        else if (cTypeId == 3)
-            cType = typeof(Map<,>).MakeGenericType(keyTypeInfo!.Type, valTypeInfo.Type);
-        else if (cTypeId == 4)
-            cType = typeof(HashSet<>).MakeGenericType(valTypeInfo.Type);
-        else
-            Log.Error($"Unrecognized cTypeId={cTypeId} for Collection<{valTypeInfo}>");
-
-        if (cType != null)
+        SerializerCategory c = cTypeId == 1 ? SerializerCategory.RawArray : SerializerCategory.Collection;
+        
+        if (valTypeInfo.Ser != null) // if Ser is null, this is a deleted type
         {
-            TypeSerializer cTypeSer = TypeMap.Get(cType);
-            SerializerCategory c = cTypeId == 1 ? SerializerCategory.RawArray : SerializerCategory.Collection;
+            Type cType = null;
+            if (cTypeId == 1)
+                cType = valTypeInfo.Type.MakeArrayType();
+            else if (cTypeId == 2)
+                cType = typeof(Array<>).MakeGenericType(valTypeInfo.Type);
+            else if (cTypeId == 3)
+                cType = typeof(Map<,>).MakeGenericType(keyTypeInfo!.Type, valTypeInfo.Type);
+            else if (cTypeId == 4)
+                cType = typeof(HashSet<>).MakeGenericType(valTypeInfo.Type);
+            else
+                Log.Error($"Unrecognized cTypeId={cTypeId} for Collection<{valTypeInfo}>");
 
-            if (Verbose) Log.Info($"Read {c} {streamType}:{cType.GetTypeName()}");
-            AddTypeInfo(streamType, cType.GetTypeName(), cTypeSer, null, isStruct:false, c);
+            if (cType != null)
+            {
+                TypeSerializer cTypeSer = TypeMap.Get(cType);
+                if (Verbose) Log.Info($"Read {c} {streamType}:{cType.GetTypeName()}");
+                AddTypeInfo(streamType, cType.GetTypeName(), cTypeSer, null, isStruct: false, c);
+                return;
+            }
         }
+
+        // if it reaches this point, then the type is deleted
+        string name;
+        if      (cTypeId == 1) name = "DeletedType[]";
+        else if (cTypeId == 2) name = "Array<DeletedType>";
+        else if (cTypeId == 3) name = $"Map<{keyTypeInfo!.Ser?.NiceTypeName ?? "DeletedType"}, DeletedType>";
+        else if (cTypeId == 4) name = "HashSet<DeletedType>";
+        else                   name = "UnknownCollection<DeletedType>";
+
+        throw new InvalidDataException($"Unable to continue decoding because of a deleted collection type: {name}");
+
+        // FIXME: add a CollectionSkippingSerializer for deserializing (skipping) over deleted types
+        //AddDeletedTypeInfo(streamType, name, null, isStruct: false, c);
     }
 
     Map<Assembly, Map<string, Type>> TypeNameCache;
@@ -374,6 +393,7 @@ public class BinarySerializerReader
             for (int i = 0; i < count; ++i)
             {
                 object instance = ObjectsList[baseId + i];
+                // FIXME: because CollectionSerializer might be null, deleted types cannot be skipped...
                 cs.Deserialize(this, instance);
             }
         }
