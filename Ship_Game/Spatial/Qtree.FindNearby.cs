@@ -93,7 +93,7 @@ namespace Ship_Game.Spatial
                 }
             } while (buffer.NextNode >= 0 && buffer.Count < maxResults);
 
-            SpatialObjectBase[] results = buffer.GetArrayAndClearBuffer();
+            SpatialObjectBase[] results = buffer.GetArrayAndClearBuffer<SpatialObjectBase>();
             if (opt.SortByDistance)
                 LinearSearch.SortByDistance(opt, results);
             return results;
