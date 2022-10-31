@@ -7,6 +7,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 using Ship_Game.Utils;
 using static Ship_Game.UniverseScreen;
 using Vector2 = SDGraphics.Vector2;
@@ -89,9 +90,19 @@ namespace Ship_Game.Universe
         public UniverseObjectManager Objects;
 
         /// <summary>
-        /// Spatial search interface for Universe Objects, updated once per frame
+        /// Spatial search interface for Universe Ships/Projectiles/Beams, updated once per frame
         /// </summary>
         public SpatialManager Spatial;
+
+        /// <summary>
+        /// Spatial search interface for all SolarSystems
+        /// </summary>
+        public GenericQtree SystemsTree;
+
+        /// <summary>
+        /// Spatial search interface for all Planets
+        /// </summary>
+        public Qtree PlanetsTree;
 
         /// <summary>
         /// Global influence tree for fast influence checks, updated every time
@@ -160,6 +171,9 @@ namespace Ship_Game.Universe
         {
             Spatial = new SpatialManager();
             Spatial.Setup(universeRadius);
+            SystemsTree = new(universeRadius*2f, cellThreshold:8, smallestCell:32_000);
+            PlanetsTree = new(universeRadius*2f, smallestCell:16_000);
+
             DefaultProjectorRadius = (float)Math.Round(universeRadius * 0.04f);
             Influence = new InfluenceTree(universeRadius, DefaultProjectorRadius);
 
@@ -261,6 +275,10 @@ namespace Ship_Game.Universe
                     OnPlanetOwnerAdded(planet.Owner, planet);
             }
 
+            // update systems tree and planets tree
+            SolarSystemList.ForEach(SystemsTree.Insert);
+            PlanetsTree.UpdateAll(AllPlanetsList.ToArr());
+
             InitializeEmpiresFromSave();
         }
 
@@ -343,13 +361,17 @@ namespace Ship_Game.Universe
                 throw new InvalidOperationException($"AddSolarSystem System was not created for this Universe: {system}");
             if (system.Id <= 0)
                 throw new InvalidOperationException($"AddSolarSystem System.Id must be valid: {system}");
+
             SolarSystemList.Add(system);
+            SystemsTree.Insert(system);
+
             foreach (Planet planet in system.PlanetList)
             {
                 if (planet.Id <= 0)
                     throw new InvalidOperationException($"AddSolarSystem Planet.Id must be valid: {planet}");
                 if (planet.ParentSystem != system)
                     throw new InvalidOperationException($"AddSolarSystem Planet.ParentSystem must be valid: {planet.ParentSystem} != {system}");
+                
                 PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
             }

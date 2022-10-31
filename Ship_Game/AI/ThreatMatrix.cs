@@ -115,7 +115,7 @@ public sealed partial class ThreatMatrix
     {
         return GetStrength(FindHostileClusters(pos, radius));
     }
-                
+
     record struct ThreatAggregate(Empire Loyalty, float Strength);
 
     public Empire GetStrongestHostileAt(SolarSystem s)
