@@ -282,10 +282,14 @@ namespace Ship_Game
             return GetRelationsOrNull(otherEmpire)?.Treaty_OpenBorders == true;
         }
 
-        public void AddRelation(Empire empire)
+        public Relationship AddRelation(Empire empire)
         {
-            if (!GetRelations(empire, out _))
-                AddNewRelationToThem(empire, new(empire));
+            if (!GetRelations(empire, out Relationship rel))
+            {
+                rel = new(empire);
+                AddNewRelationToThem(empire, rel);
+            }
+            return rel;
         }
 
         public void SetRelationsAsKnown(Relationship rel, Empire other)
@@ -301,33 +305,6 @@ namespace Ship_Game
 
             if (!other.IsKnown(this))
                 other.SetRelationsAsKnown(this);
-        }
-
-        public static void InitializeRelationships(IReadOnlyList<Empire> empires,
-                                                   GameDifficulty difficulty)
-        {
-            foreach (Empire ourEmpire in empires)
-            {
-                foreach (Empire them in empires)
-                {
-                    if (ourEmpire == them)
-                        continue;
-
-                    var rel = new Relationship(them);
-
-                    if (them.isPlayer && difficulty > GameDifficulty.Hard) // TODO see if this increased anger bit can be removed
-                    {
-                        float difficultyRatio = (int) difficulty / 10f;
-                        float trustMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
-                        rel.Trust -= trustMod;
-
-                        float territoryMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
-                        rel.AddAngerTerritorialConflict(territoryMod);
-                    }
-
-                    ourEmpire.AddNewRelationToThem(them, rel);
-                }
-            }
         }
 
         public void DamageRelationship(Empire e, string why, float amount, Planet p)

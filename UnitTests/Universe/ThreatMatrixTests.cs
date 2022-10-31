@@ -6,7 +6,7 @@ using UnitTests.Ships;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI;
-using Ship_Game.Spatial;
+using SgMotion;
 
 namespace UnitTests.Universe;
 
@@ -19,6 +19,7 @@ public class ThreatMatrixTests : StarDriveTest
 
     public ThreatMatrixTests()
     {
+        LoadStarterShips("Corsair Asteroid Base");
         CreateUniverseAndPlayerEmpire();
         CreateThirdMajorEmpire();
 
@@ -126,72 +127,173 @@ public class ThreatMatrixTests : StarDriveTest
     }
 
     [TestMethod]
-    public void GetStrengthAt_OfPlayer()
+    public void GetStrengthAt_OfSelf()
     {
-        throw new NotImplementedException();
+        Vector2 pos = PlayerPlanet.Position;
+        float str1 = CreateShipsAt(pos, 5000, Player, 40);
+        float str2 = CreateShipsAt(pos, 5000, Enemy, 20);
+        ScanAndUpdateThreats(Player, Enemy);
+
+        Assert.AreEqual(str1, Player.Threats.GetStrengthAt(Player, pos, 5000));
+        Assert.AreEqual(str2, Enemy.Threats.GetStrengthAt(Enemy, pos, 5000));
     }
 
     [TestMethod]
     public void GetStrengthAt_OfRival()
     {
-        
-        throw new NotImplementedException();
+        Vector2 pos = PlayerPlanet.Position;
+        float str1 = CreateShipsAt(pos, 5000, Player, 40);
+        float str2 = CreateShipsAt(pos, 5000, Enemy, 20);
+        ScanAndUpdateThreats(Player, Enemy);
+
+        Assert.AreEqual(str2, Player.Threats.GetStrengthAt(Enemy, pos, 5000));
+        Assert.AreEqual(str1, Enemy.Threats.GetStrengthAt(Player, pos, 5000));
     }
 
     [TestMethod]
     public void GetHostileStrengthAt_OfSpecific()
     {
-        
-        throw new NotImplementedException();
+        Vector2 pos = PlayerPlanet.Position;
+        float str1 = CreateShipsAt(pos, 5000, Player, 40);
+        float str2 = CreateShipsAt(pos, 6000, Enemy, 20);
+        CreateShipsAt(pos, 7000, ThirdMajor, 10);
+        ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
+
+        Assert.AreEqual(str2, Player.Threats.GetHostileStrengthAt(Enemy, pos, 5000));
+        Assert.AreEqual(str1, Enemy.Threats.GetHostileStrengthAt(Player, pos, 5000));
+
+        // neutrals shouldn't be reported
+        Assert.AreEqual(0, Player.Threats.GetHostileStrengthAt(ThirdMajor, pos, 5000),
+            "GetHostileStrengthAt(NeutralFaction) should always give 0");
+        Assert.AreEqual(0, Enemy.Threats.GetHostileStrengthAt(ThirdMajor, pos, 5000),
+            "GetHostileStrengthAt(NeutralFaction) should always give 0");
     }
     
     [TestMethod]
     public void GetHostileStrengthAt_OfAnyHostile()
     {
-        
-        throw new NotImplementedException();
+        Vector2 pos = PlayerPlanet.Position;
+        float str1 = CreateShipsAt(pos, 5000, Player, 40);
+        float str2 = CreateShipsAt(pos, 6000, Enemy, 20);
+        CreateShipsAt(pos, 7000, ThirdMajor, 10);
+        ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
+
+        Assert.AreEqual(str2, Player.Threats.GetHostileStrengthAt(pos, 5000));
+        Assert.AreEqual(str1, Enemy.Threats.GetHostileStrengthAt(pos, 5000));
     }
     
     [TestMethod]
     public void GetStrongestHostileAt_System()
     {
-        
-        throw new NotImplementedException();
+        Vector2 pos = PlayerPlanet.Position;
+        CreateShipsAt(pos, 5000, Player, 40);
+        CreateShipsAt(pos, 6000, Enemy, 20);
+        CreateShipsAt(pos, 7000, ThirdMajor, 10);
+        ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
+
+        Assert.AreEqual(Enemy, Player.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
+        Assert.AreEqual(Player, Enemy.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
+
+        // a neutral faction does not see Player or Enemy as a hostile
+        Assert.AreEqual(null, ThirdMajor.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
     }
     
     [TestMethod]
     public void GetStrongestHostileAt_Location()
     {
-        
-        throw new NotImplementedException();
+        Vector2 pos = PlayerPlanet.Position;
+        CreateShipsAt(pos, 5000, Player, 40);
+        CreateShipsAt(pos, 6000, Enemy, 20);
+        CreateShipsAt(pos, 7000, ThirdMajor, 10);
+        ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
+
+        Assert.AreEqual(Enemy, Player.Threats.GetStrongestHostileAt(pos, 5000));
+        Assert.AreEqual(Player, Enemy.Threats.GetStrongestHostileAt(pos, 5000));
+
+        // a neutral faction does not see Player or Enemy as a hostile
+        Assert.AreEqual(null, ThirdMajor.Threats.GetStrongestHostileAt(pos, 5000));
     }
     
     [TestMethod]
     public void GetAllFactionBases()
     {
-        
-        throw new NotImplementedException();
+        Vector2 pos1 = PlayerPlanet.Position;
+        Vector2 pos2 = EnemyPlanet.Position;
+        CreateAMinorFaction("Corsair");
+        float str1 = SpawnShip("Corsair Asteroid Base", Faction, pos1).GetStrength();
+        float str2 = SpawnShip("Corsair Asteroid Base", Faction, pos2).GetStrength();
+        CreateShipsAt(pos1, 5000, Player, 20);
+        CreateShipsAt(pos2, 5000, Player, 20);
+        ScanAndUpdateThreats(Player);
+
+        ThreatCluster[] baseClusters = Player.Threats.GetAllFactionBases();
+        Assert.AreEqual(str1+str2, Str(baseClusters), "Must find Faction Bases");
+        Assert.AreEqual(2, baseClusters.Length);
     }
     
     [TestMethod]
     public void GetAllSystemsWithFactions()
     {
-        
-        throw new NotImplementedException();
+        Vector2 pos1 = PlayerPlanet.Position;
+        Vector2 pos2 = EnemyPlanet.Position;
+        CreateAMinorFaction("Corsair");
+        float str1 = SpawnShip("Corsair Asteroid Base", Faction, pos1).GetStrength();
+        float str2 = SpawnShip("Corsair Asteroid Base", Faction, pos2).GetStrength();
+        CreateShipsAt(pos1, 5000, Player, 20);
+        CreateShipsAt(pos2, 5000, Player, 20);
+        ScanAndUpdateThreats(Player);
+
+        SolarSystem[] systemsWithFactions = Player.Threats.GetAllSystemsWithFactions();
+        Assert.AreEqual(2, systemsWithFactions.Length);
     }
 
     [TestMethod]
     public void KnownEmpireStrength()
     {
-        
-        throw new NotImplementedException();
+        Vector2 pos1 = PlayerPlanet.Position;
+        Vector2 pos2 = EnemyPlanet.Position;
+        float pla1 = CreateShipsAt(pos1, 5000, Player, 40);
+        float pla2 = CreateShipsAt(pos2, 5000, Player, 5);
+        float ene1 = CreateShipsAt(pos2, 5000, Enemy, 20);
+        float ene2 = CreateShipsAt(pos2+new Vector2(15000), 5000, Enemy, 20);
+        ScanAndUpdateThreats(Player, Enemy);
+
+        Assert.AreEqual(ene1+ene2, Player.Threats.KnownEmpireStrength(Enemy),
+            "Player should know about both Enemy groups thanks to scouts");
+        Assert.AreEqual(pla2, Enemy.Threats.KnownEmpireStrength(Player),
+            "Enemy should only know of Player scout group");
+    }
+
+    
+    [TestMethod]
+    public void KnownEmpireStrength_AfterVisionLost()
+    {
+        Vector2 pos1 = PlayerPlanet.Position;
+        Vector2 pos2 = EnemyPlanet.Position;
+        float pla1 = CreateShipsAt(pos1, 5000, Player, 40);
+        TestShip scout = SpawnShip("TEST_Vulcan Scout", Player, pos2);
+        float ene1 = CreateShipsAt(pos2, 5000, Enemy, 20);
+        float ene2 = CreateShipsAt(pos2+new Vector2(10000), 5000, Enemy, 20);
+        ScanAndUpdateThreats(Player, Enemy);
+
+        Assert.AreEqual(ene1+ene2, Player.Threats.KnownEmpireStrength(Enemy),
+            "Player should know about both Enemy groups thanks to scouts");
+        Assert.AreEqual(scout.GetStrength(), Enemy.Threats.KnownEmpireStrength(Player),
+            "Enemy should only know of Player scout group");
+
+        scout.InstantKill();
+        ScanAndUpdateThreats(Player, Enemy);
+
+        Assert.AreEqual(ene1+ene2, Player.Threats.KnownEmpireStrength(Enemy),
+            "player should still remember about enemy groups");
+        Assert.AreEqual(0f, Enemy.Threats.KnownEmpireStrength(Player),
+            "enemy should not know anything about Player's strength since they saw the ship die");
     }
 
     [TestMethod]
     public void KnownEmpireStrengthInBorders()
     {
-        
-        throw new NotImplementedException();
+
     }
 
     [TestMethod]
