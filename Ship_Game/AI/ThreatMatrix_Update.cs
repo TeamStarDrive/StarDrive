@@ -161,6 +161,7 @@ public sealed partial class ThreatMatrix
         else if (!updates.TryGetValue(cluster, out update)) // update existing
         {
             update = new(cluster, fullyObserved:false);
+            updates.Add(cluster, update);
         }
 
         update.AddShip(ship);

@@ -6,7 +6,8 @@ using UnitTests.Ships;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI;
-using SgMotion;
+using System.Collections.Generic;
+using Ship_Game.GameScreens.NewGame;
 
 namespace UnitTests.Universe;
 
@@ -17,9 +18,12 @@ public class ThreatMatrixTests : StarDriveTest
     Planet PlayerPlanet;
     Planet EnemyPlanet;
 
+    const string SCOUT_NAME = "TEST_Vulcan Scout";
+    const string ASTEROID_BASE = "Corsair Asteroid Base";
+
     public ThreatMatrixTests()
     {
-        LoadStarterShips("Corsair Asteroid Base");
+        LoadStarterShips(ASTEROID_BASE);
         CreateUniverseAndPlayerEmpire();
         CreateThirdMajorEmpire();
 
@@ -42,7 +46,7 @@ public class ThreatMatrixTests : StarDriveTest
         float spawnedStrength = 0f;
         for (int i = 0; i < numShips; ++i)
         {
-            TestShip s = SpawnShip("TEST_Vulcan Scout", owner, pos+random.Vector2D(radius));
+            TestShip s = SpawnShip(SCOUT_NAME, owner, pos+random.Vector2D(radius));
             spawnedStrength += s.GetStrength();
         }
         return spawnedStrength;
@@ -80,6 +84,32 @@ public class ThreatMatrixTests : StarDriveTest
         ScanAndUpdateThreats(Player);
         Assert.AreEqual(str2+str4, Str(Player.Threats.FindClusters(Enemy, pos, 30000)));
         Assert.AreEqual(2, Player.Threats.FindClusters(Enemy, pos, 30000).Length);
+    }
+
+    [TestMethod]
+    public void FindClusters_RememberEvenAfterVisionLost()
+    {
+        Vector2 pos1 = PlayerPlanet.Position;
+        Vector2 pos2 = EnemyPlanet.Position;
+        float str1 = CreateShipsAt(pos1, 5000, Player, 40);
+        TestShip scout = SpawnShip(SCOUT_NAME, Player, pos2);
+        float str2 = CreateShipsAt(pos2, 5000, Enemy, 40);
+        ScanAndUpdateThreats(Player, Enemy);
+
+        Assert.AreEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos2, 5000)));
+        Assert.AreEqual(scout.GetStrength(), Str(Enemy.Threats.FindClusters(Player, pos2, 5000)));
+
+        // now lose vision
+        scout.InstantKill();
+        ScanAndUpdateThreats(Player, Enemy);
+        
+        // we should still remember enemy stuff
+        Assert.AreEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos2, 5000)),
+            "Should remember clusters missing from vision");
+
+        // enemy should know that we just lost the scout because they saw it
+        Assert.AreEqual(0, Str(Enemy.Threats.FindClusters(Player, pos2, 5000)),
+            "Enemy should not remember our scout because they saw it die");
     }
 
     [TestMethod]
@@ -220,8 +250,8 @@ public class ThreatMatrixTests : StarDriveTest
         Vector2 pos1 = PlayerPlanet.Position;
         Vector2 pos2 = EnemyPlanet.Position;
         CreateAMinorFaction("Corsair");
-        float str1 = SpawnShip("Corsair Asteroid Base", Faction, pos1).GetStrength();
-        float str2 = SpawnShip("Corsair Asteroid Base", Faction, pos2).GetStrength();
+        float str1 = SpawnShip(ASTEROID_BASE, Faction, pos1).GetStrength();
+        float str2 = SpawnShip(ASTEROID_BASE, Faction, pos2).GetStrength();
         CreateShipsAt(pos1, 5000, Player, 20);
         CreateShipsAt(pos2, 5000, Player, 20);
         ScanAndUpdateThreats(Player);
@@ -237,8 +267,8 @@ public class ThreatMatrixTests : StarDriveTest
         Vector2 pos1 = PlayerPlanet.Position;
         Vector2 pos2 = EnemyPlanet.Position;
         CreateAMinorFaction("Corsair");
-        float str1 = SpawnShip("Corsair Asteroid Base", Faction, pos1).GetStrength();
-        float str2 = SpawnShip("Corsair Asteroid Base", Faction, pos2).GetStrength();
+        float str1 = SpawnShip(ASTEROID_BASE, Faction, pos1).GetStrength();
+        float str2 = SpawnShip(ASTEROID_BASE, Faction, pos2).GetStrength();
         CreateShipsAt(pos1, 5000, Player, 20);
         CreateShipsAt(pos2, 5000, Player, 20);
         ScanAndUpdateThreats(Player);
@@ -264,14 +294,13 @@ public class ThreatMatrixTests : StarDriveTest
             "Enemy should only know of Player scout group");
     }
 
-    
     [TestMethod]
     public void KnownEmpireStrength_AfterVisionLost()
     {
         Vector2 pos1 = PlayerPlanet.Position;
         Vector2 pos2 = EnemyPlanet.Position;
-        float pla1 = CreateShipsAt(pos1, 5000, Player, 40);
-        TestShip scout = SpawnShip("TEST_Vulcan Scout", Player, pos2);
+        CreateShipsAt(pos1, 5000, Player, 40);
+        TestShip scout = SpawnShip(SCOUT_NAME, Player, pos2);
         float ene1 = CreateShipsAt(pos2, 5000, Enemy, 20);
         float ene2 = CreateShipsAt(pos2+new Vector2(10000), 5000, Enemy, 20);
         ScanAndUpdateThreats(Player, Enemy);
@@ -286,21 +315,48 @@ public class ThreatMatrixTests : StarDriveTest
 
         Assert.AreEqual(ene1+ene2, Player.Threats.KnownEmpireStrength(Enemy),
             "player should still remember about enemy groups");
-        Assert.AreEqual(0f, Enemy.Threats.KnownEmpireStrength(Player),
+        Assert.AreEqual(0, Enemy.Threats.KnownEmpireStrength(Player),
             "enemy should not know anything about Player's strength since they saw the ship die");
     }
 
     [TestMethod]
     public void KnownEmpireStrengthInBorders()
     {
+        Vector2 pos1 = PlayerPlanet.Position;
+        Vector2 pos2 = EnemyPlanet.Position;
+        CreateShipsAt(pos1, 5000, Player, 40);
+        TestShip scout = SpawnShip(SCOUT_NAME, Player, pos2);
+        CreateShipsAt(pos2, 5000, Enemy, 20);
+        CreateShipsAt(pos2+new Vector2(10000), 5000, Enemy, 20);
+        ScanAndUpdateThreats(Player, Enemy);
 
+        Assert.AreEqual(0, Player.Threats.KnownEmpireStrengthInBorders(Enemy));
+        Assert.AreEqual(scout.GetStrength(), Enemy.Threats.KnownEmpireStrengthInBorders(Player),
+            "Enemy should only know of Player scout group");
+
+        scout.InstantKill();
+        ScanAndUpdateThreats(Player, Enemy);
+
+        Assert.AreEqual(0, Player.Threats.KnownEmpireStrengthInBorders(Enemy));
+        Assert.AreEqual(0, Enemy.Threats.KnownEmpireStrengthInBorders(Player),
+            "enemy should not know anything about Player's strength since they saw the ship die");
+
+        // TODO expand this test
     }
 
     [TestMethod]
     public void GetTechsFromPins()
     {
-        
-        throw new NotImplementedException();
+        ShipDesignUtils.MarkDesignsUnlockable();
+
+        Vector2 pos1 = PlayerPlanet.Position;
+        CreateShipsAt(pos1, 5000, Player, 40);
+        CreateShipsAt(pos1, 5000, Enemy, 20);
+        ScanAndUpdateThreats(Player, Enemy);
+
+        HashSet<string> techs = new();
+        Player.Threats.GetTechsFromPins(techs, Enemy);
+        Assert.AreNotEqual(0, techs.Count);
     }
     
     [TestMethod]
