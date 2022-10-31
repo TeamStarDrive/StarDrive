@@ -103,16 +103,18 @@ public partial class GenericQtree
     }
 
     // update the position of a single item, this will remove the node and reinsert it
-    public void Update(SpatialObjectBase obj)
+    // @return TRUE if update was done
+    public bool Update(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
         ObjectRef toUpdate = Find(obj);
         if (toUpdate == null)
-            return; // this object does not exist in this Qtree, do nothing
+            return false; // this object does not exist in this Qtree, do nothing
 
         RemoveAt(Root, Levels, toUpdate, in toUpdate.AABB);
         toUpdate.UpdateBounds();
         InsertAt(Root, Levels, toUpdate);
+        return true;
     }
 
     // Resets this Qtree by updating all objects

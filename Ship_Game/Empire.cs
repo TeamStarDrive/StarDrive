@@ -102,6 +102,7 @@ namespace Ship_Game
         [StarData] public UniverseState Universe;
 
         [StarData] public EmpireAI AI;
+        public ThreatMatrix Threats => AI.ThreatMatrix;
 
         float UpdateTimer;
         [StarData] public bool isPlayer;

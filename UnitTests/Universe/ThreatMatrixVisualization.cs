@@ -2,12 +2,14 @@
 using Ship_Game.Spatial;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.AI;
 
 namespace UnitTests.Universe;
 
 // Debug & Test visualizer for GenericQtree
-internal class GenericQtreeVisualization : CommonVisualization
+internal class ThreatMatrixVisualization : CommonVisualization
 {
+    ThreatMatrix Threats;
     readonly GenericQtree Tree;
 
     float FindOneTime;
@@ -22,11 +24,11 @@ internal class GenericQtreeVisualization : CommonVisualization
     protected override float FullSize => Tree.FullSize;
     protected override float WorldSize => Tree.WorldSize;
 
-    public GenericQtreeVisualization(SpatialObjectBase[] allObjects, GenericQtree tree)
-        : base(tree.FullSize)
+    public ThreatMatrixVisualization(Empire owner)
+        : base(owner.Threats.ClustersMap.FullSize)
     {
-        Tree = tree;
-        AllObjects = allObjects;
+        Tree = owner.Threats.ClustersMap;
+        AllObjects = owner.Threats.AllClusters;
     }
     
     protected override void Search(in AABoundingBox2D searchArea)

@@ -160,6 +160,7 @@
     <Compile Include="Universe\TestNativeSpatial.cs" />
     <Compile Include="Universe\TestSpatialCommon.cs" />
     <Compile Include="Collections\GameObjectListTests.cs" />
+    <Compile Include="Universe\ThreatMatrixVisualization.cs" />
     <Compile Include="Universe\UniverseObjectManagerTests.cs" />
     <Compile Include="Utils\BitArrayTests.cs" />
     <Compile Include="Utils\PerfTimerTests.cs" />

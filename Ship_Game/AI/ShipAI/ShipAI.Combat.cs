@@ -174,7 +174,7 @@ namespace Ship_Game.AI
                 // update two-way visibility,
                 // enemy is known by our Empire - this information is used by our Empire later
                 // the enemy itself does not care about it
-                us.AI.ThreatMatrix.SetSeen(enemy);
+                us.AI.ThreatMatrix.SetSeen(enemy, fromBackgroundThread:true);
                 // and our ship has seen other empire
                 sensorShip.HasSeenEmpires.SetSeen(other);
 

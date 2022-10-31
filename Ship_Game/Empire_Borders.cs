@@ -5,6 +5,7 @@ using Ship_Game.Empires.Components;
 using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.Universe;
+using Ship_Game.AI;
 
 namespace Ship_Game;
 
@@ -69,7 +70,8 @@ public sealed partial class Empire
 
         us.ScanFromPlanetsPerf.Start();
         {
-            ScanFromAllSensorPlanets();
+            // this will add SetSeen entries to ThreatMatrix
+            ScanFromAllSensorPlanets(AI.ThreatMatrix);
         }
         us.ScanFromPlanetsPerf.Stop();
 
@@ -86,18 +88,18 @@ public sealed partial class Empire
         }
     }
 
-    void ScanFromAllSensorPlanets()
+    void ScanFromAllSensorPlanets(ThreatMatrix threatMatrix)
     {
         InfluenceNode[] sensorNodes = SensorNodes;
         for (int i = 0; i < sensorNodes.Length; i++)
         {
             ref InfluenceNode node = ref sensorNodes[i];
             if (node.Source is Planet)
-                ScanForShipsFromPlanet(node.Position, node.Radius);
+                ScanForShipsFromPlanet(node.Position, node.Radius, threatMatrix);
         }
     }
 
-    void ScanForShipsFromPlanet(Vector2 pos, float radius)
+    void ScanForShipsFromPlanet(Vector2 pos, float radius, ThreatMatrix threatMatrix)
     {
         // find ships in radius of node.
         SpatialObjectBase[] targets = Universe.Spatial.FindNearby(
@@ -107,7 +109,7 @@ public sealed partial class Empire
         for (int i = 0; i < targets.Length; i++)
         {
             var maybeEnemy = (Ship)targets[i];
-            AI.ThreatMatrix.SetSeen(maybeEnemy);
+            threatMatrix.SetSeen(maybeEnemy, fromBackgroundThread:false);
         }
     }
 

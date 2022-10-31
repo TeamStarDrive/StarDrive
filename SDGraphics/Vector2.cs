@@ -136,7 +136,9 @@ public struct Vector2 : IEquatable<Vector2>
     // True if this given position is within the radius of Circle [center,radius]
     [Pure] public readonly bool InRadius(Vector2 center, float radius)
     {
-         return SqDist(center) <= radius*radius;
+        float dx = X - center.X;
+        float dy = Y - center.Y;
+        return (dx*dx + dy*dy) <= (radius*radius);
     }
     
     /// <summary>
