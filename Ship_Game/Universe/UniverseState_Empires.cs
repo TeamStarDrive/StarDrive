@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Universe;
@@ -53,12 +55,41 @@ public partial class UniverseState
             empire.UpdatePopulation();
     }
 
-    public Empire CreateEmpire(IEmpireData readOnlyData, bool isPlayer)
+    public Empire CreateEmpire(IEmpireData readOnlyData, bool isPlayer, GameDifficulty difficulty = GameDifficulty.Normal)
     {
         if (GetEmpireByName(readOnlyData.Name) != null)
             throw new InvalidOperationException($"BUG: Empire already created! {readOnlyData.Name}");
         Empire e = CreateEmpireFromEmpireData(readOnlyData, isPlayer);
-        return AddEmpire(e);
+        AddEmpire(e);
+        InitRelationships(e, difficulty);
+        return e;
+    }
+
+    void InitRelationships(Empire us, GameDifficulty difficulty)
+    {
+        foreach (Empire them in Empires)
+        {
+            if (us != them)
+            {
+                Relationship usToThem = us.AddRelation(them);
+                them.AddRelation(us);
+
+                // TODO see if this increased anger bit can be removed
+                if (them.isPlayer && difficulty > GameDifficulty.Hard)
+                {
+                    float difficultyRatio = (int) difficulty / 10f;
+                    float trust = (100 - us.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
+
+                    // this makes AI trust the player less and hate him because of an unknown
+                    // territorial grievance
+                    // TODO: do we really want this? maybe just make them easier to anger or something
+                    usToThem.Trust -= difficultyRatio * trust;
+                    usToThem.AddAngerTerritorialConflict(difficultyRatio * trust);
+                }
+
+                Empire.UpdateBilateralRelations(us, them);
+            }
+        }
     }
 
     public Empire CreateTestEmpire(string name)

@@ -67,6 +67,39 @@ namespace UnitTests
                 throw new Exception($"LoadStarterContent() or LoadStarterShips() must be called BEFORE {functionName}() !");
         }
 
+        void SetEveryoneAsKnown(Empire us)
+        {
+            foreach (Empire them in UState.Empires)
+            {
+                if (them != us)
+                {
+                    them.SetRelationsAsKnown(us);
+                    Empire.UpdateBilateralRelations(them, us);
+                }
+            }
+        }
+
+        public void CreateThirdMajorEmpire()
+        {
+            IEmpireData data = ResourceManager.MajorRaces.First(e => UState.GetEmpireByName(e.Name) == null);
+            ThirdMajor = UState.CreateEmpire(data, isPlayer:false);
+            SetEveryoneAsKnown(ThirdMajor);
+        }
+
+        public void CreateRebelFaction()
+        {
+            IEmpireData data = ResourceManager.MajorRaces.First(e => e.Name == Player.data.Name);
+            Faction = UState.CreateRebelsFromEmpireData(data, Player);
+            SetEveryoneAsKnown(ThirdMajor);
+        }
+
+        public void CreateAMinorFaction(string name)
+        {
+            IEmpireData data = ResourceManager.MinorRaces.First(e => e.Name.Contains(name) && UState.GetEmpireByName(e.Name) == null);
+            Faction = UState.CreateEmpire(data, isPlayer: false);
+            SetEveryoneAsKnown(Faction);
+        }
+
         /// <param name="playerArchetype">for example "Human"</param>
         public void CreateUniverseAndPlayerEmpire(string playerArchetype = null,
                                                   string enemyArchetype = null,
@@ -194,29 +227,6 @@ namespace UnitTests
             Universe?.ExitScreen();
             Universe?.Dispose();
             Universe = null;
-        }
-
-        public void CreateThirdMajorEmpire()
-        {
-            IEmpireData data = ResourceManager.MajorRaces.First(e => UState.GetEmpireByName(e.Name) == null);
-            ThirdMajor = UState.CreateEmpire(data, isPlayer:false);
-
-            Player.SetRelationsAsKnown(ThirdMajor);
-            Enemy.SetRelationsAsKnown(ThirdMajor);
-            Empire.UpdateBilateralRelations(Player, ThirdMajor);
-            Empire.UpdateBilateralRelations(Enemy, ThirdMajor);
-        }
-
-        public void CreateRebelFaction()
-        {
-            IEmpireData data = ResourceManager.MajorRaces.First(e => e.Name == Player.data.Name);
-            Faction = UState.CreateRebelsFromEmpireData(data, Player);
-        }
-
-        public void CreateAMinorFaction()
-        {
-            IEmpireData data = ResourceManager.MinorRaces.First(e => UState.GetEmpireByName(e.Name) == null);
-            Faction = UState.CreateEmpire(data, isPlayer: false);
         }
 
         public void UnlockAllShipsFor(Empire empire)

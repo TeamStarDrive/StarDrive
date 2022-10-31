@@ -250,6 +250,8 @@ public sealed partial class ThreatMatrix
             bool inBorders = false;
             bool hasStarBases = false;
             float strength = 0f;
+            SolarSystem system = null;
+
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship s = ships[i];
@@ -259,6 +261,8 @@ public sealed partial class ThreatMatrix
 
                 if (!inBorders && s.IsInBordersOf(owner))
                     inBorders = true;
+
+                system ??= s.System;
             }
 
             //// TODO: add a fast way to test with Radius in InfluenceTree
@@ -269,6 +273,7 @@ public sealed partial class ThreatMatrix
             Cluster.Ships = ships;
             Cluster.HasStarBases = hasStarBases;
             Cluster.InBorders = inBorders;
+            Cluster.System = system ?? (SolarSystem)owner.Universe.SystemsTree.FindOne(Cluster.Position, Cluster.Radius);
             return true;
         }
     }
