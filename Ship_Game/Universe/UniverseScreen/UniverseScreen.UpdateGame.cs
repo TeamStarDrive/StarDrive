@@ -205,6 +205,7 @@ namespace Ship_Game
 
             if (ProcessTurnEmpires(timeStep))
             {
+                // TODO: maybe this should happen inside UniverseObjectManager for proper sequencing
                 UpdateInfluenceForAllEmpires(this, timeStep);
 
                 UState.Objects.Update(timeStep);
