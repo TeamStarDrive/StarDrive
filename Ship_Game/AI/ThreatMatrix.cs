@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
@@ -9,12 +9,14 @@ using Vector2 = SDGraphics.Vector2;
 namespace Ship_Game.AI;
 
 /// <summary>
-/// Contains ThreatClusters of OUR ships and other Empires ships.
+/// Contains ThreatClusters of OUR ships and other RIVAL Empires ships.
+/// Some of the rivals may be HOSTILE.
 /// The ships are organized by Empires and Solar systems
 /// </summary>
 [StarDataType]
-public sealed class ThreatMatrix
+public sealed partial class ThreatMatrix
 {
+    // The empire which owns this ThreatMatrix
     [StarData] readonly Empire Owner;
 
     // All clusters that we know about, this is thread-safe
@@ -40,23 +42,9 @@ public sealed class ThreatMatrix
 
     void InitializeOnConstruct(UniverseState us)
     {
-        ClustersMap = new(us.Size, smallestCell:1024);
-    }
-
-    public float StrengthOfAllEmpireShipsInBorders(Empire them)
-    {
-        float theirStrength = 0f;
-
-        ThreatCluster[] clusters = AllClusters;
-        for (int i = 0; i < clusters.Length; ++i)
-        {
-            ThreatCluster cluster = clusters[i];
-            if (cluster.Loyalty == them && cluster.InBorders)
-            {
-                theirStrength += cluster.Strength;
-            }
-        }
-        return theirStrength;
+        ClustersMap = new(us.Size, cellThreshold:16, smallestCell:8000);
+        foreach (ThreatCluster cluster in AllClusters)
+            ClustersMap.Insert(cluster);
     }
 
     ThreatCluster[] FindClusters(in SearchOptions opt)
@@ -65,8 +53,7 @@ public sealed class ThreatMatrix
     }
 
     /// <summary>
-    /// Find hostile clusters at pos+radius, 
-    /// if `maybeEnemy` is not hostile, empty array is returned
+    /// Find clusters at pos+radius of a single Empire
     /// </summary>
     public ThreatCluster[] FindClusters(Empire empire, Vector2 pos, float radius)
     {
@@ -76,6 +63,9 @@ public sealed class ThreatMatrix
         });
     }
 
+    /// <summary>
+    /// Find HOSTILE clusters at pos+radius
+    /// </summary>
     public ThreatCluster[] FindHostileClusters(Vector2 pos, float radius)
     {
         return FindClusters(new(pos, radius)
@@ -184,6 +174,23 @@ public sealed class ThreatMatrix
         }
         return strength;
     }
+    
+    /// <summary>
+    /// Gets the total strength for an empire's ThreatClusters
+    /// which are within our Borders
+    /// </summary>
+    public float KnownEmpireStrengthInBorders(Empire empire)
+    {
+        float strength = 0f;
+        ThreatCluster[] clusters = AllClusters;
+        for (int i = 0; i < clusters.Length; ++i)
+        {
+            ThreatCluster cluster = clusters[i];
+            if (cluster.Loyalty == empire && cluster.InBorders)
+                strength += cluster.Strength;
+        }
+        return strength;
+    }
 
     // This should realistically only get called once, when DiplomacyScreen is opened
     public void GetTechsFromPins(HashSet<string> techs, Empire empire)
@@ -197,109 +204,4 @@ public sealed class ThreatMatrix
             }
         }
     }
-
-    Array<Ship> Seen = new();
-    HashSet<int> AlreadySeen = new();
-
-    /// <summary>
-    /// Mark this other loyalty ship as seen, so that
-    /// ThreatMatrix Update can group them together into ThreatClusters
-    /// </summary>
-    public void SetSeen(Ship other)
-    {
-        if (other.Loyalty == Owner)
-        {
-            Log.Error("ThreatMatrix.SetSeen does not accept our own ships!");
-            return;
-        }
-
-        other.KnownByEmpires.SetSeen(Owner);
-
-        // add new unique entry
-        if (AlreadySeen.Add(other.Id))
-            Seen.Add(other);
-    }
-        
-    /// <summary>
-    /// Atomically updates the ThreatMatrix and
-    /// creates a new array of threat clusters
-    /// </summary>
-    public void Update()
-    {
-        // 1. update our ships
-        // 2. update all seen ships, which should be only other empires ships
-
-        var newClusters = new Array<ThreatCluster>();
-
-        Ship[] ourShips = Owner.EmpireShips.OwnedShips;
-        for (int i = 0; i < ourShips.Length; ++i)
-        {
-            AddShipToThreatCluster(newClusters, Owner, ourShips[i]);
-        }
-
-        int numSeen = Seen.Count;
-        Ship[] seenShips = Seen.GetInternalArrayItems();
-        for (int i = 0; i < numSeen; ++i)
-        {
-            Ship seen = seenShips[i];
-            AddShipToThreatCluster(newClusters, seen.Loyalty, seen);
-        }
-
-        Seen.Clear();
-        AlreadySeen.Clear();
-            
-        AllClusters = newClusters.ToArr();
-        ClustersMap.UpdateAll(AllClusters);
-    }
-
-    void AddShipToThreatCluster(Array<ThreatCluster> newClusters, Empire loyalty, Ship ship)
-    {
-
-    }
-
-    // Utility for atomically updating a ThreatCluster
-    class ClusterUpdate
-    {
-        public ThreatCluster Cluster; // cluster to be updated
-        public Array<Ship> Ships = new(); // ships to be added
-
-        /// <summary>
-        /// Updates the ThreatCluster with its new state.
-        /// </summary>
-        /// <param name="owner"></param>
-        /// <returns>TRUE if cluster was updated, FALSE if it's empty and cleared</returns>
-        public bool Apply(Empire owner)
-        {
-            if (Ships.IsEmpty)
-                return false;
-
-            Ship[] ships = Ships.ToArr();
-            Vector2 pos = ShipGroup.GetAveragePosition(Ships);
-                
-            bool hasStarBases = false;
-            float strength = 0f;
-            AABoundingBox2D bounds = new(pos, 100);
-            for (int i = 0; i < ships.Length; ++i)
-            {
-                Ship s = ships[i];
-                strength += s.GetStrength();
-                bounds.Expand(s.Position);
-                if (s.IsStation)
-                    hasStarBases = true;
-            }
-                
-            // TODO: this only triggers if cluster's center is within borders
-            //       add a fast way to test with Radius in InfluenceTree
-            bool inBorders = owner.Universe.Influence.IsInInfluenceOf(owner, pos);
-
-            Cluster.Position = pos;
-            Cluster.Radius = bounds.Radius;
-            Cluster.Strength = strength;
-            Cluster.Ships = ships;
-            Cluster.HasStarBases = hasStarBases;
-            Cluster.InBorders = inBorders;
-            return true;
-        }
-    }
-
 }

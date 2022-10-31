@@ -6,6 +6,7 @@ using SDUtils;
 using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.AI;
 
 namespace UnitTests.Universe;
 
@@ -76,6 +77,20 @@ internal abstract class CommonVisualization : GameScreen
                 else if (go is Planet p)
                 {
                     DrawCircleProjected(p.Position, p.Radius, Color.Green);
+                }
+                else if (go is ThreatCluster c)
+                {
+                    DrawCircleProjected(c.Position, c.Radius, c.Loyalty.EmpireColor);
+
+                    Color yellow = new(Color.Yellow, 100);
+                    bool selected = Found.Contains(c);
+                    foreach (Ship s in c.Ships)
+                    {
+                        if (selected)
+                            DrawLineWideProjected(c.Position, s.Position, yellow, 3);
+                        DrawLineProjected(c.Position, s.Position, c.Loyalty.EmpireColor);
+                        DrawCircleProjected(s.Position, s.Radius, s.Loyalty.EmpireColor);
+                    }
                 }
             }
         }
