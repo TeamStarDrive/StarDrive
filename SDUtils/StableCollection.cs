@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SDUtils;
 
@@ -16,6 +15,7 @@ public class StableCollection<T> : ICollection<T>
 
     public int Count { get; private set; }
     public bool IsReadOnly => false;
+    public int Capacity => Slabs.Count * SlabSize;
 
     readonly Array<Slab> Slabs = new(); // for random access
 
@@ -30,7 +30,10 @@ public class StableCollection<T> : ICollection<T>
         // this makes finding free slots easier since we can check `bits != 0`
         BitArray FreeSlots = new(SlabSize);
 
-        public Slab() {}
+        public Slab(int baseIndex)
+        {
+            BaseIndex = baseIndex;
+        }
 
         public Slab(T item, int baseIndex)
         {
@@ -75,7 +78,7 @@ public class StableCollection<T> : ICollection<T>
     /// </summary>
     public StableCollection()
     {
-        Slabs.Add(new());
+        Slabs.Add(new(baseIndex:0));
     }
 
     /// <summary>
@@ -86,6 +89,35 @@ public class StableCollection<T> : ICollection<T>
         Count = 0;
         Slabs.Resize(1);
         Slabs.Last.Clear();
+    }
+
+    /// <summary>
+    /// A convenience method which resets all items
+    /// without having to free the underlying slabs
+    /// </summary>
+    public void Reset(IReadOnlyList<T> newItems)
+    {
+        foreach (Slab s in Slabs)
+        {
+            s.Clear();
+        }
+        while (Capacity < newItems.Count)
+        {
+            int baseIndex = Slabs.Count * SlabSize;
+            Slabs.Add(new(baseIndex: baseIndex));
+        }
+
+        for (int slab = 0; slab < Slabs.Count; ++slab)
+        {
+            Slab s = Slabs[slab];
+            int src = slab*SlabSize;
+            for (int i = 0; i < SlabSize && src < newItems.Count; ++i)
+            {
+                s.Items[s.MaxItems++] = newItems[src++];
+            }
+        }
+
+        Count = newItems.Count;
     }
 
     /// <summary>

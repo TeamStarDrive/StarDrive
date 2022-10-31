@@ -35,6 +35,19 @@ public class StableCollectionTests : StarDriveTest
     }
 
     [TestMethod]
+    public void Reset()
+    {
+        var c = new StableCollection<string>();
+        c.Reset(ArrABCDE());
+        Assert.That.EqualCollections(ArrABCDE(), c.ToArr());
+        for (int i = 0; i < 10; ++i)
+            c.Insert(i.ToString());
+
+        c.Reset(ArrABCDE());
+        Assert.That.EqualCollections(ArrABCDE(), c.ToArr());
+    }
+
+    [TestMethod]
     public void IndexOf()
     {
         var c = MakeABCDE();
@@ -119,6 +132,20 @@ public class StableCollectionTests : StarDriveTest
     public void MultipleSlabsInsert()
     {
         (StableCollection<string> c, Array<string> arr) = CreateMultipleSlabs();
+        Assert.That.EqualCollections(arr, c.ToArr());
+    }
+
+    [TestMethod]
+    public void MultipleSlabsReset()
+    {
+        (StableCollection<string> c, Array<string> arr) = CreateMultipleSlabs();
+        c.Reset(arr);
+        Assert.That.EqualCollections(arr, c.ToArr());
+
+        c.Reset(ArrABCDE());
+        Assert.That.EqualCollections(ArrABCDE(), c.ToArr());
+
+        c.Reset(arr);
         Assert.That.EqualCollections(arr, c.ToArr());
     }
 
