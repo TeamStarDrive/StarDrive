@@ -115,6 +115,26 @@ public partial class GenericQtree
         InsertAt(Root, Levels, toUpdate);
     }
 
+    // Resets this Qtree by updating all objects
+    public void UpdateAll<T>(T[] newObjects) where T : SpatialObjectBase
+    {
+        // TODO: Thread safety?
+
+        float half = FullSize / 2;
+        Node newRoot = new(-half, -half, +half, +half);
+
+        var newRefs = new Array<ObjectRef>(newObjects.Length);
+        for (int i = 0; i < newObjects.Length; ++i)
+        {
+            var objRef = new ObjectRef(newObjects[i]) { ObjectId = i };
+            newRefs.Add(objRef);
+            InsertAt(newRoot, Levels, objRef);
+        }
+
+        Root = newRoot;
+        ObjectRefs.Reset(newRefs);
+    }
+
     void InsertAt(Node node, int level, ObjectRef obj)
     {
         AABoundingBox2D objectRect = obj.AABB;
