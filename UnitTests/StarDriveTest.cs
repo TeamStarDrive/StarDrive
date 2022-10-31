@@ -106,7 +106,7 @@ namespace UnitTests
             Empire.UpdateBilateralRelations(Player, Enemy);
 
             if (!Player.IsEmpireHostile(Enemy) || !Enemy.IsEmpireHostile(Player))
-                throw new($"Failed to declare war from Player to Enemy. IsEmpireHostile=false");
+                throw new("Failed to declare war from Player to Enemy. IsEmpireHostile=false");
             
             Log.Info($"CreateUniverseAndPlayerEmpire elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
@@ -198,8 +198,8 @@ namespace UnitTests
 
         public void CreateThirdMajorEmpire()
         {
-            ThirdMajor = UState.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[2], isPlayer:false);
-            UState.AddEmpire(ThirdMajor);
+            IEmpireData data = ResourceManager.MajorRaces.First(e => UState.GetEmpireByName(e.Name) == null);
+            ThirdMajor = UState.CreateEmpire(data, isPlayer:false);
 
             Player.SetRelationsAsKnown(ThirdMajor);
             Enemy.SetRelationsAsKnown(ThirdMajor);
@@ -209,8 +209,14 @@ namespace UnitTests
 
         public void CreateRebelFaction()
         {
-            IEmpireData data = ResourceManager.MajorRaces.FirstOrDefault(e => e.Name == Player.data.Name);
+            IEmpireData data = ResourceManager.MajorRaces.First(e => e.Name == Player.data.Name);
             Faction = UState.CreateRebelsFromEmpireData(data, Player);
+        }
+
+        public void CreateAMinorFaction()
+        {
+            IEmpireData data = ResourceManager.MinorRaces.First(e => UState.GetEmpireByName(e.Name) == null);
+            Faction = UState.CreateEmpire(data, isPlayer: false);
         }
 
         public void UnlockAllShipsFor(Empire empire)
