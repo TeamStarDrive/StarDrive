@@ -10,12 +10,9 @@ namespace UnitTests.Technologies
     [TestClass]
     public class TestTechnologyUnlock : StarDriveTest
     {
-        Empire MajorEnemy;
-
         public TestTechnologyUnlock()
         {
             CreateUniverseAndPlayerEmpire();
-            MajorEnemy = UState.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[1], isPlayer:false);
             Universe.aw = new AutomationWindow(Universe);
             LoadStarterShips("TEST_Heavy Carrier mk1");
         }
@@ -39,7 +36,7 @@ namespace UnitTests.Technologies
             //spy tech currently has a random chance to unlock.
             for (int x =0; x< 100; x++)
             {
-                Player.UnlockTech("IndustrialFoundations", TechUnlockType.Spy, MajorEnemy);
+                Player.UnlockTech("IndustrialFoundations", TechUnlockType.Spy, Enemy);
                 if (spyTech.Unlocked)
                     break;
             }
@@ -65,7 +62,7 @@ namespace UnitTests.Technologies
             }
 
             //Unlock hulls from other empire.
-            Player.UnlockTech("FrigateConstruction", TechUnlockType.Diplomacy, MajorEnemy);
+            Player.UnlockTech("FrigateConstruction", TechUnlockType.Diplomacy, Enemy);
             int foreignHulls = 0;
             foreach (string item in hullTech.GetUnLockableHulls(Player))
             {
@@ -162,10 +159,10 @@ namespace UnitTests.Technologies
         public void UnlockByConquest()
         {
             TechEntry[] playerTechs = Player.UnlockedTechs;
-            UnlockTech(MajorEnemy, "Centralized Banking");
-            UnlockTech(MajorEnemy, "Disintegrator Array");
-            TechEntry[] enemyTechs = MajorEnemy.UnlockedTechs;
-            Player.AssimilateTech(MajorEnemy);
+            UnlockTech(Enemy, "Centralized Banking");
+            UnlockTech(Enemy, "Disintegrator Array");
+            TechEntry[] enemyTechs = Enemy.UnlockedTechs;
+            Player.AssimilateTech(Enemy);
 
             TechEntry[] playerTechs2 = Player.UnlockedTechs.Sorted(e => e.UID);
             TechEntry[] expected = playerTechs.Union(enemyTechs).Sorted(e => e.UID);
@@ -174,10 +171,10 @@ namespace UnitTests.Technologies
             Assert.AreEqual(2, newUnlocks.Length);
             Assert.AreEqual("Centralized Banking", newUnlocks[0].UID);
             Assert.AreEqual("Disintegrator Array", newUnlocks[1].UID);
-            Assert.AreEqual(MajorEnemy.data.ShipType, newUnlocks[0].ConqueredSource[0]);
-            Assert.AreEqual(MajorEnemy.data.ShipType, newUnlocks[1].ConqueredSource[0]);
-            Assert.AreEqual(MajorEnemy.data.ShipType, newUnlocks[0].WasAcquiredFrom[0]);
-            Assert.AreEqual(MajorEnemy.data.ShipType, newUnlocks[1].WasAcquiredFrom[0]);
+            Assert.AreEqual(Enemy.data.ShipType, newUnlocks[0].ConqueredSource[0]);
+            Assert.AreEqual(Enemy.data.ShipType, newUnlocks[1].ConqueredSource[0]);
+            Assert.AreEqual(Enemy.data.ShipType, newUnlocks[0].WasAcquiredFrom[0]);
+            Assert.AreEqual(Enemy.data.ShipType, newUnlocks[1].WasAcquiredFrom[0]);
 
             Assert.That.Equal(expected, playerTechs2, "Assimilated techs should be equal to conquered empire techs");
         }

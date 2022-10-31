@@ -41,7 +41,7 @@ public partial class UniverseState
         {
             if (e.data.AbsorbedBy != null)
             {
-                Empire masterEmpire = GetEmpire(e.data.AbsorbedBy);
+                Empire masterEmpire = GetEmpireByName(e.data.AbsorbedBy);
                 masterEmpire.AssimilateTech(e);
             }
         }
@@ -57,7 +57,7 @@ public partial class UniverseState
     {
         if (GetEmpireByName(readOnlyData.Name) != null)
             throw new InvalidOperationException($"BUG: Empire already created! {readOnlyData.Name}");
-        Empire e = CreateEmpireFromEmpireData(this, readOnlyData, isPlayer);
+        Empire e = CreateEmpireFromEmpireData(readOnlyData, isPlayer);
         return AddEmpire(e);
     }
 
@@ -76,7 +76,7 @@ public partial class UniverseState
     public Empire AddEmpire(Empire e)
     {
         if (e.Universe == null)
-            throw new ArgumentNullException("Empire.Universum cannot be null");
+            throw new ArgumentNullException(nameof(e.Universe));
 
         if (FindDuplicateEmpire(e) != null)
             throw new InvalidOperationException("Empire already added");
@@ -129,11 +129,6 @@ public partial class UniverseState
             if (EmpireList[i].Id == empireId)
                 return EmpireList[i];
         return null;
-    }
-
-    public Empire GetEmpire(string loyalty)
-    {
-        return EmpireList.Find(e => e.data.Traits.Name == loyalty);
     }
 
     public Empire[] MajorEmpiresAtWarWith(Empire empire)
@@ -238,11 +233,11 @@ public partial class UniverseState
         return null;
     }
 
-    public Empire CreateEmpireFromEmpireData(UniverseState us, IEmpireData readOnlyData, bool isPlayer)
+    Empire CreateEmpireFromEmpireData(IEmpireData readOnlyData, bool isPlayer)
     {
         EmpireData data = readOnlyData.CreateInstance();
         DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
-        var empire = new Empire(us)
+        var empire = new Empire(us: this)
         {
             data = data, 
             isPlayer = isPlayer,
