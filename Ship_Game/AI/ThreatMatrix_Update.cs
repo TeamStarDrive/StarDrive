@@ -12,13 +12,13 @@ public sealed partial class ThreatMatrix
     /// The default distance for joining an existing cluster
     /// and thus expanding it. For OUR clusters.
     /// </summary>
-    const float OwnClusterJoinRadius = 20_000f;
+    const float OwnClusterJoinRadius = 12_000f;
     
     /// <summary>
     /// The default distance for joining an existing cluster
     /// and thus expanding it. For RIVALS.
     /// </summary>
-    const float RivalClusterJoinRadius = 10_000f;
+    const float RivalClusterJoinRadius = 8000f;
 
     /// <summary>
     /// How much beyond a Cluster's center until a cluster
@@ -134,11 +134,14 @@ public sealed partial class ThreatMatrix
             HashSet<ThreatCluster> observed = new();
 
             // scan for rival clusters from all of our new clusters
-            foreach (ThreatCluster cluster in ours)
+            foreach (ThreatCluster c in ours)
             {
-                float maxSensorRange = cluster.Ships.Max(s => s.AI.GetSensorRadius());
-                float scanRadius = cluster.Radius + maxSensorRange;
-                ObserveRivalsFrom(observed, cluster.Position, scanRadius);
+                if (CanObserveRivals(c))
+                {
+                    float maxSensorRange = c.Ships.Max(s => s.AI.GetSensorRadius());
+                    float scanRadius = c.Radius + maxSensorRange;
+                    ObserveRivalsFrom(observed, c.Position, scanRadius);
+                }
             }
 
             // TODO: should we also scan from planets?
@@ -170,6 +173,15 @@ public sealed partial class ThreatMatrix
             }
         }
 
+        // A ThreatCluster can only observe rivals if it has alive ships
+        // Dying ships would just fail to scan anything
+        static bool CanObserveRivals(ThreatCluster c)
+        {
+            foreach (Ship s in c.Ships)
+                if (s.IsAlive) return true;
+            return false;
+        }
+
         ClusterUpdate AddUpdate(ThreatCluster cluster)
         {
             ClusterUpdate update = new(cluster, fullyObserved:false);
@@ -177,10 +189,8 @@ public sealed partial class ThreatMatrix
             return update;
         }
 
-        ClusterUpdate GetOrCreateUpdate(Empire loyalty, ThreatCluster cluster)
+        ClusterUpdate GetOrCreateUpdate(ThreatCluster cluster)
         {
-            if (cluster == null) // create new!
-                return AddUpdate(new(loyalty));
             if (Updates.TryGetValue(cluster, out ClusterUpdate update)) // update existing
                 return update;
             return AddUpdate(cluster); // add new
@@ -197,7 +207,8 @@ public sealed partial class ThreatMatrix
             ThreatCluster cluster = MergeClusters(clusters);
 
             bool addNew = (cluster == null);
-            ClusterUpdate update = GetOrCreateUpdate(loyalty, cluster);
+            ClusterUpdate update = addNew ? AddUpdate(new(loyalty))
+                                          : GetOrCreateUpdate(cluster);
             update.AddShip(ship);
 
             if (addNew) Threats.ClustersMap.Insert(update.Cluster);
@@ -214,7 +225,7 @@ public sealed partial class ThreatMatrix
                 {
                     ThreatCluster c2 = clusters[i];
 
-                    Updates[c1].Merge(Updates[c2]);
+                    GetOrCreateUpdate(c1).Merge(GetOrCreateUpdate(c2));
                     Updates.Remove(c2);
                     Threats.ClustersMap.Remove(c2);
                 }
@@ -257,7 +268,15 @@ public sealed partial class ThreatMatrix
 
         public void Merge(ClusterUpdate u)
         {
-            Bounds = Bounds.Merge(u.Bounds);
+            // if ships are empty, then Bounds will be invalid
+            if (u.Ships.NotEmpty) // is it even worth to merge?
+            {
+                if (Ships.NotEmpty) // full merge
+                    Bounds = Bounds.Merge(u.Bounds);
+                else
+                    Bounds = u.Bounds; // use u.Bounds, whatever it is
+            }
+
             Ships.AddRange(u.Ships);
             ApplyBoundsOnly();
         }
