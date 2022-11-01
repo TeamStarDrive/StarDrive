@@ -27,7 +27,13 @@ public sealed partial class Empire
     }
 
     float ThreatMatrixUpdateTimer;
-    const float ResetThreatMatrixSeconds = 2;
+
+    /// <summary>
+    /// How often the ThreatMatrix is updated.
+    /// It's not necessary to do it every frame.
+    /// Somewhere around 0.5 - 1.0 seconds should be good enough
+    /// </summary>
+    const float ResetThreatMatrixSeconds = 1.0f;
         
     public EmpireFirstContact FirstContact = new();
 
