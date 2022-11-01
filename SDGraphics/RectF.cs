@@ -24,8 +24,10 @@ public struct RectF
     public readonly float CenterY => Y + H*0.5f;
     public readonly Vector2 Size => new(W, H);
 
-    public readonly Vector2 TopLeft => new(X, Y);
-    public readonly Vector2 BotRight => new(X + W, Y + H);
+    public readonly Vector2 TopLeft  => new(X,   Y);
+    public readonly Vector2 TopRight => new(X+W, Y);
+    public readonly Vector2 BotLeft  => new(X,   Y+H);
+    public readonly Vector2 BotRight => new(X+W, Y+H);
     
     // Gets the averaged radius of this bounding box (not accurate)
     public readonly float Radius => (W + H) * 0.25f;

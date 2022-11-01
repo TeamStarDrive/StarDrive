@@ -21,7 +21,12 @@ public class ThreatMatrixDebug : DebugPage
             return;
 
         // make the radius a bit bigger if we zoom out, so we can see it
-        float baseRadius = (int)Universe.ViewState / 100f;
+        float baseRadius = 1f;
+        if (Universe.ViewState > UniverseScreen.UnivScreenState.SectorView)
+            baseRadius = 16;
+        else if (Universe.ViewState > UniverseScreen.UnivScreenState.SystemView)
+            baseRadius = 8;
+
         Empire owner = EmpireSelect.Selected;
 
         VisualizerOptions opt = new();
@@ -38,10 +43,10 @@ public class ThreatMatrixDebug : DebugPage
 
     void DrawCluster(ThreatCluster c, Empire owner, float baseRadius)
     {
-        float radius = baseRadius + c.Radius;
+        float radius = c.Radius*baseRadius;
         if (Screen.IsInFrustum(c.Position, radius))
         {
-            RectF screenR = Screen.ProjectToScreenRectF(RectF.FromPointRadius(c.Position, c.Radius));
+            RectF screenR = Screen.ProjectToScreenRectF(RectF.FromPointRadius(c.Position, radius));
             Color clusterColor = c.Loyalty.EmpireColor;
             Color ownerColor = owner.EmpireColor;
 
@@ -50,11 +55,12 @@ public class ThreatMatrixDebug : DebugPage
 
             if (Universe.ViewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                Vector2 cursor = screenR.TopLeft.Rounded();
+                Vector2 cursor = screenR.TopRight.Rounded();
                 DrawLine(ref cursor, clusterColor, $"Ships={c.Ships.Length}");
                 DrawLine(ref cursor, clusterColor, $"Strength={c.Strength}");
                 DrawLine(ref cursor, clusterColor, $"InBorders={c.InBorders}");
                 DrawLine(ref cursor, clusterColor, $"Loyalty={c.Loyalty}");
+                DrawLine(ref cursor, clusterColor, $"System={c.System?.Name??"none"}");
 
                 // draw lines from center of cluster to 
                 foreach (Ship s in c.Ships)
@@ -72,7 +78,7 @@ public class ThreatMatrixDebug : DebugPage
 
     void DrawLine(ref Vector2 cursor, Color color, string text)
     {
-        Screen.DrawString(cursor, color, text, Fonts.Arial12);
-        cursor.Y += Fonts.Arial12.LineSpacing + 2;
+        Screen.DrawString(cursor, color, text, Fonts.Arial10);
+        cursor.Y += Fonts.Arial10.LineSpacing;
     }
 }
