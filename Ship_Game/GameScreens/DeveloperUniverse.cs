@@ -65,7 +65,7 @@ namespace Ship_Game
             var random = new SeededRandom();
             foreach (IEmpireData data in races)
             {
-                Empire e = us.CreateEmpire(data, isPlayer: (data == player));
+                Empire e = us.CreateEmpire(data, isPlayer: (data == player), difficulty: GameDifficulty.Hard);
                 e.data.CurrentAutoScout     = e.data.ScoutShip;
                 e.data.CurrentAutoColony    = e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = e.data.FreighterShip;
@@ -81,10 +81,8 @@ namespace Ship_Game
 
             foreach (IEmpireData data in ResourceManager.MinorRaces) // init minor races
             {
-                us.CreateEmpire(data, isPlayer: false);
+                us.CreateEmpire(data, isPlayer: false, difficulty: GameDifficulty.Hard);
             }
-
-            Empire.InitializeRelationships(us.Empires, GameDifficulty.Hard);
 
             foreach (SolarSystem system in universe.UState.Systems)
             {

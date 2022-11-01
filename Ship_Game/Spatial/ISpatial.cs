@@ -40,7 +40,9 @@ namespace Ship_Game
         void Clear();
 
         /// <summary>
-        /// Insert/Update/Remove all objects
+        /// Insert/Update/Remove all objects.
+        /// The `allObjects` array must be immutable and must not be modified after
+        /// submitting it to UpdateAll()
         /// </summary>
         void UpdateAll(SpatialObjectBase[] allObjects);
 

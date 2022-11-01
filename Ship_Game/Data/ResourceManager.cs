@@ -48,6 +48,11 @@ namespace Ship_Game
      */
     public sealed class ResourceManager // Refactored by RedFox
     {
+        /// <summary>
+        /// If TRUE, some resource loading is disabling because it's not needed in tests
+        /// </summary>
+        public static bool IsUnitTest = false;
+
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
         static readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
@@ -280,7 +285,8 @@ namespace Ship_Game
             Profiled(LoadAsteroids);
             Profiled(LoadProjectileTextures);
             Profiled(LoadProjectileMeshes);
-            Profiled("LoadSunTypes", () => SunType.LoadSunTypes()); // Hotspot #3 174.8ms  7.91%
+            // Hotspot #3 174.8ms  7.91%
+            Profiled("LoadSunTypes", () => SunType.LoadSunTypes(loadIcons: !IsUnitTest));
             Profiled("LoadBeamFX", () =>
             {
                 ShieldManager.LoadContent(RootContent);

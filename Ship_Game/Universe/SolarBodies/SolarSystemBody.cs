@@ -191,6 +191,7 @@ namespace Ship_Game
 
         protected AudioEmitter Emit = new();
 
+        // TODO: replace with GameObject.System
         [StarData] public SolarSystem ParentSystem;
         public SceneObject SO;
 

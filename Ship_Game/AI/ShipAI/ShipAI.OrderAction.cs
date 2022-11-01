@@ -86,6 +86,12 @@ namespace Ship_Game.AI
             }
         }
 
+        public void OrderAttackMoveTo(Vector2 to)
+        {
+            Vector2 finalDir = Owner.Position.DirectionToTarget(to);
+            OrderMoveTo(to, finalDir, MoveOrder.Aggressive);
+        }
+
         public void OrderAttackSpecificTarget(Ship toAttack)
         {
             TargetQueue.Clear();

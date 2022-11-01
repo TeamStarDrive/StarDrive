@@ -79,6 +79,7 @@
     <Compile Include="Collections\SafeArrayLockTests.cs" />
     <Compile Include="Collections\SafeArrayTests.cs" />
     <Compile Include="Collections\SafeArrayTypesTestBase.cs" />
+    <Compile Include="Collections\StableCollectionTests.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="Collections\TestEnumFlatMap.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
@@ -135,6 +136,10 @@
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
+    <Compile Include="Universe\CommonVisualization.cs" />
+    <Compile Include="Universe\GenericQtreeTests.cs" />
+    <Compile Include="Universe\GenericQtreeVisualization.cs" />
+    <Compile Include="Universe\ThreatMatrixTests.cs" />
     <Compile Include="Universe\SaveLoadUniverseScreenTests.cs" />
     <Compile Include="Universe\SpatialVisualization.cs" />
     <Compile Include="Universe\TestManagedQuadTree.cs" />
@@ -155,6 +160,7 @@
     <Compile Include="Universe\TestNativeSpatial.cs" />
     <Compile Include="Universe\TestSpatialCommon.cs" />
     <Compile Include="Collections\GameObjectListTests.cs" />
+    <Compile Include="Universe\ThreatMatrixVisualization.cs" />
     <Compile Include="Universe\UniverseObjectManagerTests.cs" />
     <Compile Include="Utils\BitArrayTests.cs" />
     <Compile Include="Utils\PerfTimerTests.cs" />

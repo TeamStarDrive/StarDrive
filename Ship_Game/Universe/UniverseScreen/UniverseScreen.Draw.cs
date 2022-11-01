@@ -470,9 +470,9 @@ namespace Ship_Game
                             Color color = (ship.Loyalty.isPlayer)
                                 ? new Color(0, 100, 200, 20)
                                 : new Color(200, 0, 0, 10);
-                            byte edgeAlpha = 85;
-                            DrawTextureProjected(shipRangeTex, ship.Position, ship.SensorRange, color);
-                            DrawCircleProjected(ship.Position, ship.SensorRange, new Color(Color.Blue, edgeAlpha));
+                            float sensorRange = ship.AI.GetSensorRadius();
+                            DrawTextureProjected(shipRangeTex, ship.Position, sensorRange, color);
+                            DrawCircleProjected(ship.Position, sensorRange, new Color(Color.Blue, 85));
                         }
                     }
                 }

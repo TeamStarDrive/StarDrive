@@ -27,6 +27,20 @@ namespace Ship_Game
         public readonly Vector2 TopLeft => new(X1,Y1);
         public readonly Vector2 BotRight => new(X2,Y2);
 
+        // Gets the averaged radius of this bounding box (not accurate)
+        public readonly float Radius => ((X2 - X1) + (Y2 - Y1)) * 0.25f;
+
+        // Length of the diagonal which crosses this AABB from TopLeft to BottomRight
+        public readonly float Diagonal
+        {
+            get
+            {
+                float w = X2 - X1;
+                float h = Y2 - Y1;
+                return (float)Math.Sqrt(w*w + h*h);
+            }
+        }
+
         public readonly bool IsEmpty => (X1 == X2) || (Y1 == Y2);
 
         public override string ToString()
@@ -101,6 +115,26 @@ namespace Ship_Game
             float dx = nearestX - cx;
             float dy = nearestY - cy;
             return (dx*dx + dy*dy) <= (radius*radius);
+        }
+
+        // expands this bounding box to include the new point
+        public void Expand(in Vector2 pos)
+        {
+            float x = pos.X;
+            if      (x < X1) X1 = x;
+            else if (X2 < x) X2 = x;
+            float y = pos.Y;
+            if      (y < Y1) Y1 = y;
+            else if (Y2 < y) Y2 = y;
+        }
+
+        // merges two bounding box into a new bigger bounding box
+        public AABoundingBox2D Merge(in AABoundingBox2D bounds)
+        {
+            return new(Math.Min(X1, bounds.X1),
+                       Math.Min(Y1, bounds.Y1),
+                       Math.Max(X2, bounds.X2),
+                       Math.Max(Y2, bounds.Y2));
         }
 
         // Create a rectangle from 2 points that don't need to be sorted in screen space

@@ -205,6 +205,7 @@ namespace Ship_Game
 
             if (ProcessTurnEmpires(timeStep))
             {
+                // TODO: maybe this should happen inside UniverseObjectManager for proper sequencing
                 UpdateInfluenceForAllEmpires(this, timeStep);
 
                 UState.Objects.Update(timeStep);
@@ -364,7 +365,6 @@ namespace Ship_Game
                         empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
-                        empire.AI.ThreatMatrix.ProcessPendingActions();
                         foreach (Fleet fleet in empire.Fleets)
                         {
                             if (fleet.Ships.NotEmpty)

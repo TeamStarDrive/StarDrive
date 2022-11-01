@@ -589,7 +589,7 @@ namespace Ship_Game
                     continue;
                 }
 
-                visibleShields.AddRange(ship.GetShields().Select(s => s.Shield).ToArray());
+                visibleShields.AddRange(ship.GetActiveShields().Select(s => s.Shield).ToArray());
                 ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
                 clickable.Add(new ClickableShip
                 {
@@ -598,7 +598,8 @@ namespace Ship_Game
                     Ship = ship
                 });
             }
-
+            
+            // TODO: this needs to be rewritten
             ShieldManager.SetVisibleShields(visibleShields);
             ClickableShips = clickable.ToArray();
         }

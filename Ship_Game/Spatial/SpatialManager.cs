@@ -22,9 +22,9 @@ namespace Ship_Game.Gameplay
 
         public VisualizerOptions VisOpt = new();
 
-        public void Setup(float universeRadius)
+        public SpatialManager(float universeWidth)
         {
-            UniverseWidth = (int)(universeRadius * 2f);
+            UniverseWidth = (int)universeWidth;
             Spatial = Create(Type);
             ResetToNewSpatial = null;
         }
@@ -68,7 +68,7 @@ namespace Ship_Game.Gameplay
             Spatial.DebugVisualize(screen, VisOpt);
         }
 
-        public void Update(GameObject[] allObjects)
+        public void Update(SpatialObjectBase[] allObjects)
         {
             if (ResetToNewSpatial != null)
             {

@@ -35,12 +35,17 @@ namespace Ship_Game.Ships
         [StarData] float JumpTimer = 3f;
         public AudioEmitter SoundEmitter = new();
         [StarData] public float ScuttleTimer = -1f;
-
+        
+        [StarData] public Fleet Fleet;
         // Ship's rotated offset from fleet center
         [StarData] public Vector2 FleetOffset;
 
         // Unrotated fleet offset from [0,0]
         [StarData] public Vector2 RelativeFleetOffset;
+
+        // This is the current cluster that our ship
+        // belongs to in ThreatMatrix's clusters
+        [StarData] public ThreatCluster CurrentCluster;
 
         public Array<ShipModule> BombBays = new();
         [StarData] public CarrierBays Carrier;
@@ -52,7 +57,6 @@ namespace Ship_Game.Ships
         [StarData] Planet TetheredTo;
         [StarData] public Vector2 TetherOffset;
         public float EMPDamage { get; private set; }
-        [StarData] public Fleet Fleet;
         [StarData] public float YRotation;
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
@@ -365,7 +369,7 @@ namespace Ship_Game.Ships
         }
         
         public float EmpTolerance  => SurfaceArea + BonusEMPProtection;
-        public float HealthPercent => Health / HealthMax;
+        public float HealthPercent => HealthMax > 0f ? Health / HealthMax : 0f;
 
         public float EmpRecovery
         {
@@ -1323,7 +1327,7 @@ namespace Ship_Game.Ships
             UpdateTroops(timeSinceLastUpdate);
 
             if (!AI.BadGuysNear)
-                ShieldManager.RemoveShieldLights(Universe.Screen, GetShields());
+                ShieldManager.RemoveShieldLights(Universe.Screen, GetActiveShields());
         }
 
         public bool CanRepair => !AI.BadGuysNear || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair;
@@ -1731,11 +1735,6 @@ namespace Ship_Game.Ships
 
             Carrier?.Dispose();
 
-            if (Universe != null)
-                foreach (Empire empire in Universe.Empires)
-                    if (KnownByEmpires.KnownBy(empire))
-                        empire.AI?.ThreatMatrix.ClearPin(this);
-
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 ModuleSlotList[i].Dispose();
 
@@ -2002,7 +2001,7 @@ namespace Ship_Game.Ships
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
         public override string ToString() =>
-            $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
+            $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} {(Active?"Active":"DEAD")} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {

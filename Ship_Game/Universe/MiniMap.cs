@@ -166,31 +166,24 @@ namespace Ship_Game
                 batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, radius , SpriteEffects.None, 0f);
             }
 
-            //foreach (var system in Screen.SolarSystemDict)
             foreach (var system in Player.AI.ThreatMatrix.GetAllSystemsWithFactions())
             {
                 if (system.OwnerList.Count > 0) continue;
-                var pin = system;
-                var point = WorldToMiniPos(pin.Position);
+                var point = WorldToMiniPos(system.Position);
                 radius = 0.025f * Universe.SlowFlashTimer;
-                var color = Color.Yellow;
                 batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
-                batch.Draw(Node1, point, color, 0f, Node.CenterF, radius - 0.0055f, SpriteEffects.None, 1f);
-                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.0055f * 2,
-                    SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, Color.Yellow, 0f, Node.CenterF, radius - 0.0055f, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.0055f * 2, SpriteEffects.None, 1f);
             }
 
-            foreach (ThreatMatrix.Pin badBase in Player.AI.ThreatMatrix.GetAllFactionBases())
+            foreach (ThreatCluster c in Player.AI.ThreatMatrix.GetAllFactionBases())
             {
-                var pin = badBase;
-                var point = WorldToMiniPos(pin.Position);
+                var point = WorldToMiniPos(c.Position);
                 radius = 0.025f * Universe.SlowFlashTimer;
-                var color = pin.Empire.EmpireColor;
                 var warningColor = new Color(Color.Yellow, 200);
                 batch.Draw(Node1, point, warningColor, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.005f, SpriteEffects.None, 1f);
-                batch.Draw(Node1, point, color, 0f, Node.CenterF, 0.012f,
-                    SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, c.Loyalty.EmpireColor, 0f, Node.CenterF, 0.012f, SpriteEffects.None, 1f);
             }
         }
 
