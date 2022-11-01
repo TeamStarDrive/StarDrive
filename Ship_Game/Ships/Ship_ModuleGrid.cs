@@ -121,7 +121,7 @@ namespace Ship_Game.Ships
         {
             float maxPower = 0f;
             shield = null;
-            foreach (ShipModule m in GetShields())
+            foreach (ShipModule m in GetActiveShields())
             {
                 float power = m.ShieldPower;
                 if (power > maxPower && m.HitTestShield(internalModule.Position, internalModule.Radius))

@@ -431,9 +431,9 @@ namespace Ship_Game
 
         bool GetBaseSpotDeepSpace(out Vector2 position)
         {
-            position               = Vector2.Zero;
+            position = Vector2.Zero;
             var sortedThreatLevels = ThreatLevels.SortedDescending(l => l.Value);
-            var empires            = new Array<Empire>();
+            var empires = new Array<Empire>();
 
             foreach (KeyValuePair<int, int> threatLevel in sortedThreatLevels)
                 empires.Add(Universe.GetEmpireById(threatLevel.Key));

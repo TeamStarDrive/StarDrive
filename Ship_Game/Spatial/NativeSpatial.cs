@@ -69,7 +69,7 @@ namespace Ship_Game.Spatial
         IntPtr Spat; // The spatial structure interface
         IntPtr Root; // Current active Root
         SpatialObjectBase[] Objects = Empty<SpatialObjectBase>.Array;
-        readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        readonly ReaderWriterLockSlim Lock = new(LockRecursionPolicy.NoRecursion);
 
         public SpatialType Type { get; }
         public float WorldSize { get; }
@@ -116,7 +116,7 @@ namespace Ship_Game.Spatial
             {
                 SpatialClear(Spat);
                 Root = SpatialGetRoot(Spat);
-                Objects = Empty<GameObject>.Array;
+                Objects = Empty<SpatialObjectBase>.Array;
             }
         }
 

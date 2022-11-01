@@ -1041,7 +1041,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void CanSerializeAllShipDesigns()
         {
-            Setup();
+            LoadAllGameData();
 
             ShipDesign[] designs = ResourceManager.Ships.Designs.Select(s => s as ShipDesign);
 
@@ -1131,31 +1131,6 @@ namespace UnitTests.Serialization
             Assert.AreEqual(payload.Size, payload2.Size);
         }
 
-        bool LoadedExtraData;
-
-        void Setup()
-        {
-            LoadedExtraData = true;
-            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
-            ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
-            GlobalStats.AsteroidVisibility = ObjectVisibility.None; // dont create Asteroid SO's
-
-            ResourceManager.UnloadAllData(ScreenManager.Instance);
-            ResourceManager.LoadItAll(ScreenManager.Instance, null);
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            if (LoadedExtraData)
-            {
-                LoadedExtraData = false;
-                ResourceManager.UnloadAllData(ScreenManager.Instance);
-                StarDriveTestContext.LoadStarterContent();
-                GlobalStats.AsteroidVisibility = ObjectVisibility.Rendered;
-            }
-        }
-
         double GetMemory(bool gc) => GC.GetTotalMemory(gc) / (1024.0 * 1024.0);
 
         // this is the actual big test for SavedGame
@@ -1163,7 +1138,6 @@ namespace UnitTests.Serialization
         public void SavedGameSerialize()
         {
             bool verbose = false;
-            Setup();
             CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);
 
@@ -1214,7 +1188,6 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void SavedGameSerializerPerf()
         {
-            Setup();
             CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large, numExtraShipsPerEmpire: 100);
             Universe.SingleSimulationStep(TestSimStep);
 

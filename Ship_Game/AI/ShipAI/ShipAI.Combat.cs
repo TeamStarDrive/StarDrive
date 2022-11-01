@@ -174,15 +174,15 @@ namespace Ship_Game.AI
                 // update two-way visibility,
                 // enemy is known by our Empire - this information is used by our Empire later
                 // the enemy itself does not care about it
-                enemy.KnownByEmpires.SetSeen(us);
-                // and our ship has seen nearbyShip
+                us.AI.ThreatMatrix.SetSeen(enemy, fromBackgroundThread:true);
+                // and our ship has seen other empire
                 sensorShip.HasSeenEmpires.SetSeen(other);
 
                 if (!us.IsKnown(other))
                 {
-                    us.SetReadyForFirstContact(other);
+                    us.FirstContact.SetReadyForContact(other);
                 }
-                if (us.IsEmpireScannedAsEnemy(other, enemy))
+                if (us.IsEmpireAttackable(other, enemy, scanOnly:true))
                 {
                     BadGuysNear = true;
                     ScannedTargets.Add(enemy);

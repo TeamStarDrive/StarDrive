@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework.Graphics;
-using SDUtils;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Spatial
@@ -14,19 +12,27 @@ namespace Ship_Game.Spatial
         static readonly Color VioletDim = new(199, 21, 133, 100 );
         static readonly Color VioletBright = new(199, 21, 133, 150);
         static readonly Color Purple = new(96, 63, 139, 150);
-        static readonly Color Yellow = new(Color.Yellow, 100);
-        static readonly Color YellowBright = new(255, 255, 0, 255);
-        static readonly Color Blue   = new(95, 158, 160, 200);
+        public static readonly Color Yellow = new(Color.Yellow, 100);
+        public static readonly Color YellowBright = new(255, 255, 0, 255);
+        public static readonly Color Blue   = new(95, 158, 160, 200);
         static readonly Color Red    = new(255, 80, 80, 200);
 
-        static Map<int, DebugFindNearby> FindNearbyDbg = new();
+        QtreeDebug Debug;
+
+        DebugQtreeFind GetFindDebug(in SearchOptions opt)
+        {
+            if (opt.DebugId == 0)
+                return null;
+            Debug ??= new();
+            return Debug.GetFindDebug(opt);
+        }
 
         public unsafe void DebugVisualize(GameScreen screen, VisualizerOptions opt)
         {
             VisualizerOptions o = opt.Enabled ? opt : VisualizerOptions.None;
 
             AABoundingBox2D visibleWorld = screen.VisibleWorldRect;
-            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
+            FindResultBuffer<QtreeNode> buffer = GetThreadLocalTraversalBuffer(Root);
             screen.DrawRectProjected(Root.AABB, Yellow);
             do
             {
@@ -42,12 +48,8 @@ namespace Ship_Game.Spatial
                 {
                     if (o.NodeText)
                         screen.DrawStringProjected(center, current.AABB.Width/2, Yellow, "BR");
-
-                    var over = new OverlapsRect(current.AABB, visibleWorld);
-                    if (over.NW != 0) buffer.PushBack(current.NW);
-                    if (over.NE != 0) buffer.PushBack(current.NE);
-                    if (over.SE != 0) buffer.PushBack(current.SE);
-                    if (over.SW != 0) buffer.PushBack(current.SW);
+                    
+                    buffer.PushOverlappingQuadrants(current, visibleWorld);
                 }
                 else // isLeaf
                 {
@@ -76,39 +78,7 @@ namespace Ship_Game.Spatial
                 }
             } while (buffer.NextNode >= 0);
 
-            foreach (var kv in FindNearbyDbg)
-            {
-                kv.Value.Draw(screen, opt);
-            }
-        }
-
-        class DebugFindNearby
-        {
-            public AABoundingBox2D SearchArea;
-            public Vector2 FilterOrigin;
-            public float RadialFilter;
-            public Array<AABoundingBox2D> FindCells = new();
-            public Array<SpatialObjectBase> SearchResults = new();
-
-            public void Draw(GameScreen screen, VisualizerOptions opt)
-            {
-                if (!SearchArea.IsEmpty)
-                    screen.DrawRectProjected(SearchArea, Yellow);
-
-                if (RadialFilter > 0)
-                    screen.DrawCircleProjected(FilterOrigin, RadialFilter, Yellow);
-
-                foreach (AABoundingBox2D r in FindCells)
-                    screen.DrawRectProjected(r, Blue);
-
-                if (opt.SearchResults)
-                {
-                    foreach (SpatialObjectBase go in SearchResults)
-                    {
-                        screen.DrawRectProjected(new AABoundingBox2D(go), YellowBright);
-                    }
-                }
-            }
+            Debug?.Draw(screen, opt);
         }
     }
 }

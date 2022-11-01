@@ -7,6 +7,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 using Ship_Game.Utils;
 using static Ship_Game.UniverseScreen;
 using Vector2 = SDGraphics.Vector2;
@@ -26,7 +27,9 @@ namespace Ship_Game.Universe
         /// Stars are generated within XY range [-Size, +Size],
         /// so {0,0} is center of the universe
         /// </summary>
-        [StarData] public readonly float Size;
+        [StarData] public readonly float Size; // TODO: rename to UniverseRadius?
+        public float UniverseWidth => Size*2f;
+        public float UniverseRadius => Size;
         [StarData] public Empire Player;
         [StarData] public Empire Cordrazine;
         [StarData] public Empire Remnants;
@@ -87,9 +90,19 @@ namespace Ship_Game.Universe
         public UniverseObjectManager Objects;
 
         /// <summary>
-        /// Spatial search interface for Universe Objects, updated once per frame
+        /// Spatial search interface for Universe Ships/Projectiles/Beams, updated once per frame
         /// </summary>
         public SpatialManager Spatial;
+
+        /// <summary>
+        /// Spatial search interface for all SolarSystems
+        /// </summary>
+        public GenericQtree SystemsTree;
+
+        /// <summary>
+        /// Spatial search interface for all Planets
+        /// </summary>
+        public Qtree PlanetsTree;
 
         /// <summary>
         /// Global influence tree for fast influence checks, updated every time
@@ -147,22 +160,24 @@ namespace Ship_Game.Universe
             if (Size < 1f)
                 throw new ArgumentException("UniverseSize not set!");
 
-            Initialize(universeRadius);
+            Initialize(universeRadius*2f);
 
-            Events = new RandomEventManager(); // serialized
-            Stats = new StatTracker(this); // serialized
-            Params = new UniverseParams(); // serialized
+            Events = new(); // serialized
+            Stats = new(this); // serialized
+            Params = new(); // serialized
         }
 
-        void Initialize(float universeRadius)
+        void Initialize(float universeWidth)
         {
-            Spatial = new SpatialManager();
-            Spatial.Setup(universeRadius);
-            DefaultProjectorRadius = (float)Math.Round(universeRadius * 0.04f);
-            Influence = new InfluenceTree(universeRadius, DefaultProjectorRadius);
+            Spatial = new(universeWidth);
+            SystemsTree = new(universeWidth, cellThreshold:8, smallestCell:32_000);
+            PlanetsTree = new(universeWidth, smallestCell:16_000);
+
+            DefaultProjectorRadius = (float)Math.Round(universeWidth * 0.02f);
+            Influence = new(universeWidth, DefaultProjectorRadius);
 
             // Screen will be null during deserialization, so it must be set later
-            Objects = new UniverseObjectManager(Screen, this, Spatial);
+            Objects = new(Screen, this, Spatial);
         }
 
         public void OnUniverseScreenLoaded(UniverseScreen screen)
@@ -259,6 +274,10 @@ namespace Ship_Game.Universe
                     OnPlanetOwnerAdded(planet.Owner, planet);
             }
 
+            // update systems tree and planets tree
+            SolarSystemList.ForEach(SystemsTree.Insert);
+            PlanetsTree.UpdateAll(AllPlanetsList.ToArr());
+
             InitializeEmpiresFromSave();
         }
 
@@ -341,13 +360,17 @@ namespace Ship_Game.Universe
                 throw new InvalidOperationException($"AddSolarSystem System was not created for this Universe: {system}");
             if (system.Id <= 0)
                 throw new InvalidOperationException($"AddSolarSystem System.Id must be valid: {system}");
+
             SolarSystemList.Add(system);
+            SystemsTree.Insert(system);
+
             foreach (Planet planet in system.PlanetList)
             {
                 if (planet.Id <= 0)
                     throw new InvalidOperationException($"AddSolarSystem Planet.Id must be valid: {planet}");
                 if (planet.ParentSystem != system)
                     throw new InvalidOperationException($"AddSolarSystem Planet.ParentSystem must be valid: {planet.ParentSystem} != {system}");
+                
                 PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
             }
