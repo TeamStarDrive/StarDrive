@@ -22,6 +22,7 @@ namespace Ship_Game.AI
 
         // These are the ships which we saw in this clusters
         // @warning DO NOT USE Ships[i].Position !! Because that would violate AI vision rules !!
+        // @warning InActive ships will be deleted automatically from this list !!
         [StarData] public Ship[] Ships = Empty<Ship>.Array;
 
         // TRUE if this cluster contains any starbases or pirate bases

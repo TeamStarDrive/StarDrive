@@ -281,7 +281,11 @@ public sealed partial class ThreatMatrix
             {
                 if (FullyObserved)
                     return false; // fully observed but empty clusters MUST be removed
-                return true; // keep it
+
+                // keep it, BUT remove inactive ships to avoid ships remaining
+                // in stale clusters and causing OOM
+                RemoveInactiveShips();
+                return true;
             }
 
             // In the case when we have observed some ships
@@ -325,6 +329,11 @@ public sealed partial class ThreatMatrix
             Cluster.InBorders = inBorders;
             Cluster.System = system ?? (SolarSystem)owner.Universe.SystemsTree.FindOne(Cluster.Position, Cluster.Radius);
             return true; // keep it
+        }
+
+        void RemoveInactiveShips()
+        {
+            Cluster.Ships = Cluster.Ships.Filter(s => s.Active);
         }
     }
 
