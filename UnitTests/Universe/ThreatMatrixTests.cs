@@ -272,8 +272,8 @@ public class ThreatMatrixTests : StarDriveTest
         CreateShipsAt(pos2, 5000, Player, 20);
         ScanAndUpdateThreats(Player);
 
-        SolarSystem[] systemsWithFactions = Player.Threats.GetAllSystemsWithFactions();
-        Assert.AreEqual(2, systemsWithFactions.Length);
+        var systemsWithFactions = Player.Threats.GetAllSystemsWithFactions();
+        Assert.AreEqual(2, systemsWithFactions.Count);
     }
 
     [TestMethod]
@@ -381,7 +381,7 @@ public class ThreatMatrixTests : StarDriveTest
         float knownStr = Player.AI.ThreatMatrix.KnownEmpireStrength(Player);
         Assert.AreEqual(str, knownStr, $"KnownEmpireStrength(Player)={knownStr} must equal spawnedStr={str}");
 
-        Assert.AreEqual(2, Player.AI.ThreatMatrix.AllClusters.Length, "There should be only 2 clusters");
+        Assert.AreEqual(2, Player.AI.ThreatMatrix.OurClusters.Length, "There should be only 2 clusters");
     }
 
 }
