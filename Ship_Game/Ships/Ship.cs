@@ -35,12 +35,17 @@ namespace Ship_Game.Ships
         [StarData] float JumpTimer = 3f;
         public AudioEmitter SoundEmitter = new();
         [StarData] public float ScuttleTimer = -1f;
-
+        
+        [StarData] public Fleet Fleet;
         // Ship's rotated offset from fleet center
         [StarData] public Vector2 FleetOffset;
 
         // Unrotated fleet offset from [0,0]
         [StarData] public Vector2 RelativeFleetOffset;
+
+        // This is the current cluster that our ship
+        // belongs to in ThreatMatrix's clusters
+        [StarData] public ThreatCluster CurrentCluster;
 
         public Array<ShipModule> BombBays = new();
         [StarData] public CarrierBays Carrier;
@@ -52,7 +57,6 @@ namespace Ship_Game.Ships
         [StarData] Planet TetheredTo;
         [StarData] public Vector2 TetherOffset;
         public float EMPDamage { get; private set; }
-        [StarData] public Fleet Fleet;
         [StarData] public float YRotation;
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;

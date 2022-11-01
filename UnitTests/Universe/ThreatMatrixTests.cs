@@ -286,11 +286,11 @@ public class ThreatMatrixTests : StarDriveTest
         float ene1 = CreateShipsAt(pos2, 5000, Enemy, 20);
         float ene2 = CreateShipsAt(pos2+new Vector2(15000), 5000, Enemy, 20);
         ScanAndUpdateThreats(Player, Enemy);
+        
+        static float KnownStr(Empire owner, Empire of) => owner.Threats.KnownEmpireStrength(of);
 
-        Assert.AreEqual(ene1+ene2, Player.Threats.KnownEmpireStrength(Enemy),
-            "Player should know about both Enemy groups thanks to scouts");
-        Assert.AreEqual(pla2, Enemy.Threats.KnownEmpireStrength(Player),
-            "Enemy should only know of Player scout group");
+        Assert.AreEqual(ene1+ene2, KnownStr(Player, Enemy), "Player should know about both Enemy groups thanks to scouts");
+        Assert.AreEqual(pla2, KnownStr(Enemy, Player), "Enemy should only know of Player scout group");
     }
 
     [TestMethod]
@@ -303,19 +303,17 @@ public class ThreatMatrixTests : StarDriveTest
         float ene1 = CreateShipsAt(pos2, 5000, Enemy, 20);
         float ene2 = CreateShipsAt(pos2+new Vector2(10000), 5000, Enemy, 20);
         ScanAndUpdateThreats(Player, Enemy);
+        
+        static float KnownStr(Empire owner, Empire of) => owner.Threats.KnownEmpireStrength(of);
 
-        Assert.AreEqual(ene1+ene2, Player.Threats.KnownEmpireStrength(Enemy),
-            "Player should know about both Enemy groups thanks to scouts");
-        Assert.AreEqual(scout.GetStrength(), Enemy.Threats.KnownEmpireStrength(Player),
-            "Enemy should only know of Player scout group");
+        Assert.AreEqual(ene1+ene2, KnownStr(Player, Enemy), "Player should know about both Enemy groups thanks to scouts");
+        Assert.AreEqual(scout.GetStrength(), KnownStr(Enemy, Player), "Enemy should only know of Player scout group");
 
         scout.InstantKill();
         ScanAndUpdateThreats(Player, Enemy);
 
-        Assert.AreEqual(ene1+ene2, Player.Threats.KnownEmpireStrength(Enemy),
-            "player should still remember about enemy groups");
-        Assert.AreEqual(0, Enemy.Threats.KnownEmpireStrength(Player),
-            "enemy should not know anything about Player's strength since they saw the ship die");
+        Assert.AreEqual(ene1+ene2, KnownStr(Player, Enemy), "player should still remember about enemy groups");
+        Assert.AreEqual(0, KnownStr(Enemy, Player), "enemy should not know anything about Player's strength since they saw the ship die");
     }
 
     [TestMethod]
@@ -323,22 +321,24 @@ public class ThreatMatrixTests : StarDriveTest
     {
         Vector2 pos1 = PlayerPlanet.Position;
         Vector2 pos2 = EnemyPlanet.Position;
-        CreateShipsAt(pos1, 5000, Player, 40);
+        float str1 = CreateShipsAt(pos1, 5000, Player, 40);
         TestShip scout = SpawnShip(SCOUT_NAME, Player, pos2);
-        CreateShipsAt(pos2, 5000, Enemy, 20);
-        CreateShipsAt(pos2+new Vector2(10000), 5000, Enemy, 20);
+        float str3 = CreateShipsAt(pos2, 5000, Enemy, 20);
+        float str4 = CreateShipsAt(pos2+new Vector2(10000), 5000, Enemy, 20);
         ScanAndUpdateThreats(Player, Enemy);
 
-        Assert.AreEqual(0, Player.Threats.KnownEmpireStrengthInBorders(Enemy));
-        Assert.AreEqual(scout.GetStrength(), Enemy.Threats.KnownEmpireStrengthInBorders(Player),
-            "Enemy should only know of Player scout group");
+        static float KnownStr(Empire owner, Empire of) => owner.Threats.KnownEmpireStrengthInBorders(of);
+
+        Assert.AreEqual(0, KnownStr(Player, Enemy));
+        Assert.AreEqual(str1, KnownStr(Player, Player), "Player should know about his own ships");
+        Assert.AreEqual(str3+str4, KnownStr(Enemy, Enemy), "Enemy should know about his own ships");
+        Assert.AreEqual(scout.GetStrength(), KnownStr(Enemy, Player), "Enemy should only know of Player scout group");
 
         scout.InstantKill();
         ScanAndUpdateThreats(Player, Enemy);
 
-        Assert.AreEqual(0, Player.Threats.KnownEmpireStrengthInBorders(Enemy));
-        Assert.AreEqual(0, Enemy.Threats.KnownEmpireStrengthInBorders(Player),
-            "enemy should not know anything about Player's strength since they saw the ship die");
+        Assert.AreEqual(0, KnownStr(Player, Enemy));
+        Assert.AreEqual(0, KnownStr(Enemy, Player), "enemy should not know anything about Player's strength since they saw the ship die");
 
         // TODO expand this test
     }
