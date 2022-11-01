@@ -40,8 +40,9 @@ namespace SDUtils
                 map[i] = keep ? (byte)1 : (byte)0;
             }
 
-            if (resultCount == 0)
-                return Empty<T>.Array;
+            if (resultCount == 0) return Empty<T>.Array;
+            // optimization: if resultCount == count, then all items are valid
+            if (resultCount == count && items.Length == count) return items;
 
             var results = new T[resultCount];
             resultCount = 0;
