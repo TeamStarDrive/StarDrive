@@ -54,7 +54,7 @@ public sealed partial class ThreatMatrix
 
     void InitializeOnConstruct(UniverseState us)
     {
-        ClustersMap = new(us.Size, cellThreshold:16, smallestCell:8000);
+        ClustersMap = new(us.UniverseWidth, cellThreshold:16, smallestCell:8000);
         foreach (ThreatCluster c in OurClusters)
             ClustersMap.Insert(c);
         foreach (ThreatCluster c in RivalClusters)

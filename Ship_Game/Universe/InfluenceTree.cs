@@ -29,10 +29,10 @@ namespace Ship_Game.Universe
         IInfluence[] Grid;
         public readonly float WorldSize;
 
-        public InfluenceTree(float universeRadius, float projectorRadius)
+        public InfluenceTree(float universeWidth, float projectorRadius)
         {
-            WorldSize = universeRadius * 2f;
-            WorldOrigin = -universeRadius;
+            WorldSize = universeWidth;
+            WorldOrigin = -(universeWidth/2);
 
             CellSize = (float)Math.Floor(projectorRadius * 1.5f * 1000) / 1000;
             Size = (int)Math.Ceiling(WorldSize / CellSize);
