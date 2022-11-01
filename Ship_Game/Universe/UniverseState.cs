@@ -160,25 +160,24 @@ namespace Ship_Game.Universe
             if (Size < 1f)
                 throw new ArgumentException("UniverseSize not set!");
 
-            Initialize(universeRadius);
+            Initialize(universeRadius*2f);
 
-            Events = new RandomEventManager(); // serialized
-            Stats = new StatTracker(this); // serialized
-            Params = new UniverseParams(); // serialized
+            Events = new(); // serialized
+            Stats = new(this); // serialized
+            Params = new(); // serialized
         }
 
-        void Initialize(float universeRadius)
+        void Initialize(float universeWidth)
         {
-            Spatial = new SpatialManager();
-            Spatial.Setup(universeRadius);
-            SystemsTree = new(universeRadius*2f, cellThreshold:8, smallestCell:32_000);
-            PlanetsTree = new(universeRadius*2f, smallestCell:16_000);
+            Spatial = new(universeWidth);
+            SystemsTree = new(universeWidth, cellThreshold:8, smallestCell:32_000);
+            PlanetsTree = new(universeWidth, smallestCell:16_000);
 
-            DefaultProjectorRadius = (float)Math.Round(universeRadius * 0.04f);
-            Influence = new InfluenceTree(universeRadius, DefaultProjectorRadius);
+            DefaultProjectorRadius = (float)Math.Round(universeWidth * 0.02f);
+            Influence = new(universeWidth, DefaultProjectorRadius);
 
             // Screen will be null during deserialization, so it must be set later
-            Objects = new UniverseObjectManager(Screen, this, Spatial);
+            Objects = new(Screen, this, Spatial);
         }
 
         public void OnUniverseScreenLoaded(UniverseScreen screen)

@@ -18,7 +18,7 @@ public struct RectF
     public readonly float Right => X + W;
     public readonly float Bottom => Y + H;
     
-    public readonly Vector2 Pos => new(X,Y);
+    public readonly Vector2 Pos => new(X,Y); // TopLeft
     public readonly Vector2 Center => new(X + W*0.5f, Y + H*0.5f);
     public readonly float CenterX => X + W*0.5f;
     public readonly float CenterY => Y + H*0.5f;
@@ -26,6 +26,12 @@ public struct RectF
 
     public readonly Vector2 TopLeft => new(X, Y);
     public readonly Vector2 BotRight => new(X + W, Y + H);
+    
+    // Gets the averaged radius of this bounding box (not accurate)
+    public readonly float Radius => (W + H) * 0.25f;
+
+    // Length of the diagonal which crosses this AABB from TopLeft to BottomRight
+    public readonly float Diagonal => (float)Math.Sqrt(W*W + H*H);
 
     public override string ToString() => $"{{X:{X} Y:{Y} W:{W} H:{H}}}";
 

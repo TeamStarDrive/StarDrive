@@ -37,6 +37,11 @@ namespace Ship_Game.AI
             Loyalty = loyalty;
             Active = true;
         }
+        
+        public override string ToString()
+        {
+            return $"Ships={Ships.Length} Strength={Strength} InBorders={InBorders} Loyalty={Loyalty}";
+        }
 
         public bool IsHostileTo(Empire threatMatrixOwner)
         {
