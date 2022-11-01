@@ -207,6 +207,8 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Compnonents\BudgetPriorities.cs" />
+    <Compile Include="Ship_Game\AI\ThreatCluster.cs" />
+    <Compile Include="Ship_Game\AI\ThreatMatrix_Update.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DeepSpaceBuildGoal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetGoal.cs" />
@@ -249,7 +251,9 @@
     <Compile Include="Ship_Game\Debug\Page\ThreatMatrixDebug.cs" />
     <Compile Include="Ship_Game\Debug\ShipDebugInfoPanel.cs" />
     <Compile Include="Ship_Game\Debug\TextDrawerComponent.cs" />
+    <Compile Include="Ship_Game\Empires\Components\EmpireFirstContact.cs" />
     <Compile Include="Ship_Game\Empires\Components\IncomingThreatDetector.cs" />
+    <Compile Include="Ship_Game\Empire_Borders.cs" />
     <Compile Include="Ship_Game\Empire_Fleets.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
@@ -371,6 +375,12 @@
     <Compile Include="Ship_Game\Ships\ShipsManager.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
     <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
+    <Compile Include="Ship_Game\Spatial\DebugQtreeFind.cs" />
+    <Compile Include="Ship_Game\Spatial\FindResultBuffer.cs" />
+    <Compile Include="Ship_Game\Spatial\GenericQtree.cs" />
+    <Compile Include="Ship_Game\Spatial\GenericQtree.Debug.cs" />
+    <Compile Include="Ship_Game\Spatial\GenericQtree.Find.cs" />
+    <Compile Include="Ship_Game\Spatial\OverlapsRect.cs" />
     <Compile Include="Ship_Game\Spatial\SpatialObjectBase.cs" />
     <Compile Include="Ship_Game\UI\IClientArea.cs" />
     <Compile Include="Ship_Game\UI\LayoutExporter.cs" />
@@ -391,7 +401,6 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Save.cs" />
     <Compile Include="Ship_Game\Universe\UniverseState.cs" />
     <Compile Include="Ship_Game\Universe\UniverseState_Empires.cs" />
-    <Compile Include="Ship_Game\Utils\BitArray.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
     <Compile Include="Ship_Game\Empire_War.cs" />

@@ -58,7 +58,11 @@ namespace Ship_Game.Spatial
                 if (resultCount == maxResults)
                     break; // we are done !
             }
-            return Copy(objectIds, resultCount, objects);
+
+            SpatialObjectBase[] results = Copy(objectIds, resultCount, objects);
+            if (opt.SortByDistance)
+                SortByDistance(opt, results);
+            return results;
         }
 
         public static SpatialObjectBase[] Copy(int* objectIds, int count, SpatialObjectBase[] objects)
@@ -74,6 +78,11 @@ namespace Ship_Game.Spatial
                 found[i] = go;
             }
             return found;
+        }
+
+        public static void SortByDistance<T>(in SearchOptions opt, T[] objects) where T : SpatialObjectBase
+        {
+            objects.SortByDistance(opt.SearchRect.Center);
         }
     }
 }

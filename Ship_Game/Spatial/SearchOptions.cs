@@ -39,7 +39,7 @@ namespace Ship_Game.Spatial
         /// <summary>
         /// Filter search results by excluding this specific object
         /// </summary>
-        public GameObject Exclude;
+        public SpatialObjectBase Exclude;
 
         /// <summary>
         /// Filter search results by excluding objects with this loyalty

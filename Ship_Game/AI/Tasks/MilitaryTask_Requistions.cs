@@ -17,12 +17,16 @@ namespace Ship_Game.AI.Tasks
         [StarData] public float Completeness = 1f;
         RequisitionStatus ReqStatus = RequisitionStatus.None;
 
-        float GetEnemyShipStrengthInAO()
+        float GetHostileStrengthAtAO()
         {
             // RedFox: I removed ClampMin(minimumStrength) because this was causing infinite
             //         Create-Destroy-Create loop of ClearAreaOfEnemies MilitaryTasks
             //         Lets just report what the actual strength is.
-            return Owner.AI.ThreatMatrix.PingHostileStr(AO, AORadius, Owner);
+            return GetHostileStrengthAt(AO, AORadius);
+        }
+        float GetHostileStrengthAt(Vector2 pos, float radius)
+        {
+            return Owner.AI.ThreatMatrix.GetHostileStrengthAt(pos, radius);
         }
 
         private int GetTargetPlanetGroundStrength(int minimumStrength)
@@ -185,7 +189,7 @@ namespace Ship_Game.AI.Tasks
             if (closestAO == null)
                 return;
 
-            EnemyStrength = Owner.AI.ThreatMatrix.PingRadarStr(AO, 10000, Owner);
+            EnemyStrength = Owner.AI.ThreatMatrix.GetHostileStrengthAt(AO, 10000);
             if (EnemyStrength < 1f)
                 return;
 
@@ -241,9 +245,9 @@ namespace Ship_Game.AI.Tasks
             int requiredTroopStrength = 0;
             if (TargetPlanet != null)
             {
-                AO                    = TargetPlanet.Position;
+                AO = TargetPlanet.Position;
                 requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
-                EnemyStrength         = (Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) + TargetPlanet.BuildingGeodeticOffense).LowerBound(100);
+                EnemyStrength = (Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) + TargetPlanet.BuildingGeodeticOffense).LowerBound(100);
                 UpdateMinimumTaskForceStrength();
             }
 
@@ -293,8 +297,7 @@ namespace Ship_Game.AI.Tasks
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
                 return;
 
-            EnemyStrength = Owner.AI.ThreatMatrix.PingRadarStr(TargetShip.Position,
-                   40000, Owner, true).LowerBound(100);
+            EnemyStrength = GetHostileStrengthAt(TargetShip.Position, 40000).LowerBound(100);
 
             UpdateMinimumTaskForceStrength();
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
@@ -339,9 +342,9 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {Type}");
 
             AO = TargetPlanet.Position;
+            AORadius = TargetPlanet.ParentSystem.Radius;
             float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
-            EnemyStrength = Owner.AI.ThreatMatrix.PingRadarStr(TargetPlanet.Position,
-                               TargetPlanet.ParentSystem.Radius, Owner, true).LowerBound(100);
+            EnemyStrength = GetHostileStrengthAtAO().LowerBound(100);
 
             float minTroopStr = TargetPlanet.Owner == null ? 10 : TargetPlanet.GetGroundStrengthOther(Owner).LowerBound(40);
             UpdateMinimumTaskForceStrength(buildingGeodeticOffense);
@@ -370,8 +373,8 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet.Position;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
-            float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
-            EnemyStrength         = (GetEnemyShipStrengthInAO() + geodeticOffense).LowerBound(EnemyStrength);
+            float lowerBound = GetMinimumStrLowerBound(geodeticOffense, enemy);
+            EnemyStrength = (GetHostileStrengthAtAO() + geodeticOffense).LowerBound(EnemyStrength);
 
             UpdateMinimumTaskForceStrength(lowerBound);
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 40 ,minBombMinutes: 3);
@@ -398,7 +401,7 @@ namespace Ship_Game.AI.Tasks
             AO = TargetPlanet.Position;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
             float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
-            EnemyStrength         = (GetEnemyShipStrengthInAO() + geodeticOffense).LowerBound(EnemyStrength);
+            EnemyStrength         = (GetHostileStrengthAtAO() + geodeticOffense).LowerBound(EnemyStrength);
 
             UpdateMinimumTaskForceStrength(lowerBound);
             int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 5).LowerBound(5) + (int)Math.Ceiling(TargetPlanet.PopulationBillion) * 2;
@@ -410,7 +413,7 @@ namespace Ship_Game.AI.Tasks
 
         float GetMinimumStrLowerBound(float geodeticOffense, Empire enemy)
         {
-            float initialStr     = geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10;
+            float initialStr     = geodeticOffense + Owner.KnownEmpireStrength(enemy) / 10;
             float enemyStrNearby = geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy);
             // Todo advanced tasks also get multiplier;
             float multiplier     = Type == TaskType.StrikeForce || Type == TaskType.StageFleet ? 2 : 1; 
@@ -423,7 +426,7 @@ namespace Ship_Game.AI.Tasks
                 EnemyStrength += TargetShip.BaseStrength;
 
             MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound);
-            float multiplier         = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
+            float multiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
             MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier)
                 .UpperBound(Owner.OffensiveStrength / GetBuildCapacityDivisor());
 
@@ -626,7 +629,7 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            EnemyStrength            = GetEnemyShipStrengthInAO();
+            EnemyStrength = GetHostileStrengthAtAO();
             MinimumTaskForceStrength = minFleetStrength;
         }
 

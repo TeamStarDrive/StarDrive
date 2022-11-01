@@ -233,7 +233,7 @@ namespace Ship_Game.GameScreens.NewGame
 
             foreach (IEmpireData readOnlyData in opponents)
             {
-                Empire e = UState.CreateEmpire(readOnlyData, isPlayer: false);
+                Empire e = UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);
                 RacialTrait t = e.data.Traits;
 
                 e.data.FlatMoneyBonus += e.DifficultyModifiers.FlatMoneyBonus;
@@ -249,11 +249,9 @@ namespace Ship_Game.GameScreens.NewGame
 
             foreach (IEmpireData readOnlyData in ResourceManager.MinorRaces)
             {
-                UState.CreateEmpire(readOnlyData, isPlayer: false);
+                UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);
                 step.Advance();
             }
-
-            Empire.InitializeRelationships(UState.Empires, Difficulty);
         }
 
         void CreateSystemPlaceHolders(ProgressCounter step)
