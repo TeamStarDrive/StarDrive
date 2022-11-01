@@ -2,14 +2,12 @@
 using Ship_Game.Spatial;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI;
 
 namespace UnitTests.Universe;
 
 // Debug & Test visualizer for GenericQtree
 internal class ThreatMatrixVisualization : CommonVisualization
 {
-    ThreatMatrix Threats;
     readonly GenericQtree Tree;
 
     float FindOneTime;

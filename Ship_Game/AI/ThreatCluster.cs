@@ -30,9 +30,6 @@ namespace Ship_Game.AI
         // TRUE if this PIN is inside the parent owner's borders
         [StarData] public bool InBorders;
 
-        // Timer for when this cluster is considered stale
-        [StarData] public float ScanTimer;
-
         [StarDataConstructor]
         public ThreatCluster(Empire loyalty) : base(GameObjectType.ThreatCluster)
         {

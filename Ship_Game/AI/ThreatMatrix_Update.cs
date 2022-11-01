@@ -8,7 +8,29 @@ namespace Ship_Game.AI;
 
 public sealed partial class ThreatMatrix
 {
-    HashSet<Ship> Seen = new();
+    /// <summary>
+    /// The default distance for joining an existing cluster
+    /// and thus expanding it. For OUR clusters.
+    /// </summary>
+    const float OwnClusterJoinRadius = 20_000f;
+    
+    /// <summary>
+    /// The default distance for joining an existing cluster
+    /// and thus expanding it. For RIVALS.
+    /// </summary>
+    const float RivalClusterJoinRadius = 10_000f;
+
+    /// <summary>
+    /// How much beyond a Cluster's center until a cluster
+    /// is considered as fully observed.
+    /// If a fully observed cluster contains no ships, it is then deleted.
+    /// </summary>
+    const float FullyObservedClusterRadius = 1000f;
+    
+    /// <summary>
+    /// Other loyalty ships which were SCANNED between two updates
+    /// </summary>
+    readonly HashSet<Ship> Seen = new();
 
     /// <summary>
     /// Mark this other loyalty ship as seen, so that
@@ -34,17 +56,6 @@ public sealed partial class ThreatMatrix
             Seen.Add(other);
         }
     }
-    /// <summary>
-    /// The default distance for joining an existing cluster
-    /// and thus expanding it. For OUR clusters.
-    /// </summary>
-    const float OwnClusterJoinRadius = 20_000f;
-    
-    /// <summary>
-    /// The default distance for joining an existing cluster
-    /// and thus expanding it. For RIVALS.
-    /// </summary>
-    const float RivalClusterJoinRadius = 10_000f;
 
     /// <summary>
     /// Atomically updates the ThreatMatrix and
@@ -54,159 +65,179 @@ public sealed partial class ThreatMatrix
     {
         Ship[] ourShips = Owner.EmpireShips.OwnedShips;
         Ship[] ourProjectors = Owner.EmpireShips.OwnedProjectors;
-        
-        // 1. get new clusters for us
-        // 2. get new clusters for rivals
-        // 3. update the Qtree
-        Array<ThreatCluster> clusters = GetOurClusters(ourShips);
-        UpdateRivalClusters(clusters, ourShips, ourProjectors);
 
+        Array<ThreatCluster> clusters = new();
+
+        // 1. our clusters are always visible, so just get them out
+        ClusterUpdates ourClusters = new(this);
+        ourClusters.CreateOurClusters(Owner, ourShips);
+        ourClusters.GetResults(clusters, Owner, isOwnerCluster:true);
+
+        // 2. get all the clusters for rivals
+        ClusterUpdates rivalClusters = new(this);
+        rivalClusters.CreateAndUpdateRivalClusters(clusters, ourProjectors);
+        rivalClusters.GetResults(clusters, Owner, isOwnerCluster:false);
+
+        // 3. Update the list of clusters and UpdateAll ClustersMap
+        //    to handle deleted clusters
         Seen.Clear();
-
-        // update the clusters map
         AllClusters = clusters.ToArr();
         ClustersMap.UpdateAll(AllClusters);
     }
 
-    // our clusters are always visible, so just get them out
-    Array<ThreatCluster> GetOurClusters(Ship[] ourShips)
+    class ClusterUpdates
     {
-        // first create an observation of our own forces, these are always fully explored
-        Array<ThreatCluster> clusters = new();
-        Map<ThreatCluster, ClusterUpdate> ourClusterUpdates = new();
+        readonly ThreatMatrix Threats;
+        readonly Map<ThreatCluster, ClusterUpdate> Updates = new();
 
-        for (int i = 0; i < ourShips.Length; ++i)
+        public ClusterUpdates(ThreatMatrix threats)
         {
-            var u = AddSeenShip(ourClusterUpdates, Owner, ourShips[i], OwnClusterJoinRadius);
-            u.FullyExplored = true;
-        }
-
-        // apply the clusters updates
-        foreach (var kv in ourClusterUpdates)
-        {
-            ClusterUpdate update = kv.Value;
-            if (update.Apply(Owner))
-                clusters.Add(update.Cluster);
-        }
-        return clusters;
-    }
-
-    void UpdateRivalClusters(Array<ThreatCluster> newClusters, Ship[] ourShips, Ship[] ourProjectors)
-    {
-        HashSet<ThreatCluster> observed = new();
-
-        // this should be pretty slow 😬
-        for (int i = 0; i < ourShips.Length; ++i)
-            ScanForRivalClusters(observed, ourShips[i]);
-        for (int i = 0; i < ourProjectors.Length; ++i)
-            ScanForRivalClusters(observed, ourProjectors[i]);
-
-        // create initial updates map
-        Map<ThreatCluster, ClusterUpdate> updates = new();
-        foreach (ThreatCluster c in observed)
-            updates.Add(c, new(c, fullyObserved:true));
-
-        foreach (Ship seen in Seen)
-        {
-            AddSeenShip(updates, seen.Loyalty, seen, RivalClusterJoinRadius);
+            Threats = threats;
         }
         
-        // apply the updates
-        foreach (var kv in updates)
+        public void GetResults(Array<ThreatCluster> results, Empire owner, bool isOwnerCluster)
         {
-            ClusterUpdate update = kv.Value;
-            if (update.Apply(Owner))
+            foreach (KeyValuePair<ThreatCluster, ClusterUpdate> kv in Updates)
+                if (kv.Value.Apply(owner, isOwnerCluster: isOwnerCluster))
+                    results.Add(kv.Key);
+        }
+
+        public void CreateOurClusters(Empire owner, Ship[] ourShips)
+        {
+            // create an observation of our own forces, these are always fully observed
+            for (int i = 0; i < ourShips.Length; ++i)
             {
-                newClusters.Add(update.Cluster);
+                var u = AddSeenShip(owner, ourShips[i], OwnClusterJoinRadius);
+                u.FullyObserved = true;
             }
         }
-    }
 
-    void ScanForRivalClusters(HashSet<ThreatCluster> observed, Ship source)
-    {
-        float scanRadius = source.AI.GetSensorRadius(out source);
-        Vector2 pos = source.Position;
-        ThreatCluster[] clusters = FindClusters(new(pos, scanRadius, GameObjectType.ThreatCluster)
+        public void CreateAndUpdateRivalClusters(Array<ThreatCluster> ownerClusters, Ship[] ourProjectors)
         {
-            ExcludeLoyalty = Owner,
-            Type = GameObjectType.ThreatCluster,
-        });
+            foreach (ThreatCluster cluster in Threats.AllClusters)
+                if (cluster.Loyalty != Threats.Owner)
+                    Updates.Add(cluster, new(cluster));
 
-        for (int i = 0; i < clusters.Length; ++i)
-        {
-            ThreatCluster c = clusters[i];
-            // in order for a cluster to register as observed, its center must be fully scanned
-            if (c.Position.InRadius(pos, scanRadius+1000f))
-                observed.Add(c);
-        }
-    }
+            // set whether these clusters were fully observed or not
+            HashSet<ThreatCluster> observed = ObserveRivalClusters(ownerClusters, ourProjectors);
+            foreach (ThreatCluster c in observed)
+                Updates[c].FullyObserved = true;
 
-    ClusterUpdate AddSeenShip(Map<ThreatCluster, ClusterUpdate> updates, 
-                              Empire loyalty, Ship ship, float clusterJoinRadius)
-    {
-        SearchOptions opt = new(ship.Position, clusterJoinRadius)
-        {
-            OnlyLoyalty = loyalty
-        };
-
-        ThreatCluster[] clusters = FindClusters(opt);
-        ThreatCluster cluster = MergeClusters(updates, clusters);
-
-        bool addNew = (cluster == null);
-        ClusterUpdate update;
-
-        if (addNew) // create new!
-        {
-            cluster = new(loyalty);
-            update = new(cluster, fullyObserved:false);
-            updates.Add(cluster, update);
-        }
-        else if (!updates.TryGetValue(cluster, out update)) // update existing
-        {
-            update = new(cluster, fullyObserved:false);
-            updates.Add(cluster, update);
+            // insert new observation, creating&merging clusters along the way
+            foreach (Ship seen in Threats.Seen)
+                AddSeenShip(seen.Loyalty, seen, RivalClusterJoinRadius);
         }
 
-        update.AddShip(ship);
-
-        if (addNew)
-            ClustersMap.Insert(cluster);
-        else
-            ClustersMap.Update(cluster);
-        return update;
-    }
-    
-    ThreatCluster MergeClusters(Map<ThreatCluster, ClusterUpdate> updates, ThreatCluster[] clusters)
-    {
-        if (clusters.Length > 1)
+        HashSet<ThreatCluster> ObserveRivalClusters(Array<ThreatCluster> ownerClusters, Ship[] ourProjectors)
         {
-            ThreatCluster c1 = clusters[0];
-            for (int i = 1; i < clusters.Length; ++i)
+            HashSet<ThreatCluster> observed = new();
+
+            // scan for rival clusters from all of our new clusters
+            foreach (ThreatCluster cluster in ownerClusters)
             {
-                ThreatCluster c2 = clusters[i];
-
-                updates[c1].Merge(updates[c2]);
-                updates.Remove(c2);
-                ClustersMap.Remove(c2);
+                float maxSensorRange = cluster.Ships.Max(s => s.AI.GetSensorRadius());
+                float scanRadius = cluster.Radius + maxSensorRange;
+                ObserveRivalsFrom(observed, cluster.Position, scanRadius);
             }
-            return c1;
+
+            // TODO: should we also scan from planets?
+
+            // projectors are not part of any clusters, so we have to scan from each one
+            for (int i = 0; i < ourProjectors.Length; ++i)
+            {
+                float scanRadius = ourProjectors[i].AI.GetSensorRadius(out Ship source);
+                ObserveRivalsFrom(observed, source.Position, scanRadius);
+            }
+
+            return observed;
         }
-        return clusters.Length == 1 ? clusters[0] : null;
+
+        void ObserveRivalsFrom(HashSet<ThreatCluster> observed, Vector2 pos, float scanRadius)
+        {
+            ThreatCluster[] clusters = Threats.FindClusters(new(pos, scanRadius, GameObjectType.ThreatCluster)
+            {
+                ExcludeLoyalty = Threats.Owner,
+                Type = GameObjectType.ThreatCluster,
+            });
+
+            for (int i = 0; i < clusters.Length; ++i)
+            {
+                ThreatCluster c = clusters[i];
+                // in order for a cluster to register as observed, its center must be fully scanned
+                if (c.Position.InRadius(pos, scanRadius+FullyObservedClusterRadius))
+                    observed.Add(c);
+            }
+        }
+
+        ClusterUpdate AddUpdate(ThreatCluster cluster)
+        {
+            ClusterUpdate update = new(cluster, fullyObserved:false);
+            Updates.Add(cluster, update);
+            return update;
+        }
+
+        ClusterUpdate GetOrCreateUpdate(Empire loyalty, ThreatCluster cluster)
+        {
+            if (cluster == null) // create new!
+                return AddUpdate(new(loyalty));
+            if (Updates.TryGetValue(cluster, out ClusterUpdate update)) // update existing
+                return update;
+            return AddUpdate(cluster); // add new
+        }
+
+        ClusterUpdate AddSeenShip(Empire loyalty, Ship ship, float clusterJoinRadius)
+        {
+            SearchOptions opt = new(ship.Position, clusterJoinRadius)
+            {
+                OnlyLoyalty = loyalty
+            };
+
+            ThreatCluster[] clusters = Threats.FindClusters(opt);
+            ThreatCluster cluster = MergeClusters(clusters);
+
+            bool addNew = (cluster == null);
+            ClusterUpdate update = GetOrCreateUpdate(loyalty, cluster);
+            update.AddShip(ship);
+
+            if (addNew) Threats.ClustersMap.Insert(update.Cluster);
+            else        Threats.ClustersMap.Update(update.Cluster);
+            return update;
+        }
+
+        ThreatCluster MergeClusters(ThreatCluster[] clusters)
+        {
+            if (clusters.Length > 1)
+            {
+                ThreatCluster c1 = clusters[0];
+                for (int i = 1; i < clusters.Length; ++i)
+                {
+                    ThreatCluster c2 = clusters[i];
+
+                    Updates[c1].Merge(Updates[c2]);
+                    Updates.Remove(c2);
+                    Threats.ClustersMap.Remove(c2);
+                }
+                return c1;
+            }
+            return clusters.Length == 1 ? clusters[0] : null;
+        }
     }
 
     // Utility for atomically updating a ThreatCluster
     class ClusterUpdate
     {
-        public ThreatCluster Cluster; // cluster to be updated
-        public Array<Ship> Ships = new(); // ships to be added
-        public AABoundingBox2D Bounds;
+        public readonly ThreatCluster Cluster; // cluster to be updated
+        readonly Array<Ship> Ships = new(); // ships to be added
+        AABoundingBox2D Bounds;
 
-        public bool FullyExplored;
+        // whether this cluster was fully observed by us
+        // if a cluster is fully observed and has no ships, it will be removed from threats
+        public bool FullyObserved;
 
-        public ClusterUpdate(ThreatCluster cluster, bool fullyObserved)
+        public ClusterUpdate(ThreatCluster cluster, bool fullyObserved = false)
         {
             Cluster = cluster;
-            FullyExplored = fullyObserved;
+            FullyObserved = fullyObserved;
         }
         
         public void AddShip(Ship s)
@@ -241,14 +272,26 @@ public sealed partial class ThreatMatrix
         /// <summary>
         /// Updates the ThreatCluster with its new state.
         /// </summary>
-        /// <param name="owner"></param>
-        /// <returns>TRUE if cluster was updated, FALSE if it's empty and cleared</returns>
-        public bool Apply(Empire owner)
+        /// <param name="owner">The empire which owns the ThreatMatrix</param>
+        /// <param name="isOwnerCluster">if true, this cluster belongs to Owner (observation of self)</param>
+        /// <returns>TRUE if cluster is valid and should be added, FALSE if it should be removed</returns>
+        public bool Apply(Empire owner, bool isOwnerCluster)
         {
             if (Ships.IsEmpty)
-                return false;
+            {
+                if (FullyObserved)
+                    return false; // fully observed but empty clusters MUST be removed
+                return true; // keep it
+            }
 
-            // TODO: filter out old ships versus new ships?
+            // In the case when we have observed some ships
+            // we will always take the observed amount at face value.
+            // This makes everything simpler and Proper sensor ranges
+            // will most edge cases automatically
+            //
+            // The AI difficulty settings should ensure a little bit more
+            // ships are always sent.
+
             Ship[] ships = Ships.ToArr();
 
             bool inBorders = false;
@@ -267,6 +310,9 @@ public sealed partial class ThreatMatrix
                     inBorders = true;
 
                 system ??= s.System;
+
+                if (isOwnerCluster)
+                    s.CurrentCluster = Cluster;
             }
 
             //// TODO: add a fast way to test with Radius in InfluenceTree
@@ -278,7 +324,7 @@ public sealed partial class ThreatMatrix
             Cluster.HasStarBases = hasStarBases;
             Cluster.InBorders = inBorders;
             Cluster.System = system ?? (SolarSystem)owner.Universe.SystemsTree.FindOne(Cluster.Position, Cluster.Radius);
-            return true;
+            return true; // keep it
         }
     }
 
