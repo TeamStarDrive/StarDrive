@@ -58,34 +58,37 @@ public sealed partial class ThreatMatrix
         // 1. get new clusters for us
         // 2. get new clusters for rivals
         // 3. update the Qtree
-        var newClusters = new Array<ThreatCluster>();
-        UpdateOurClusters(newClusters, ourShips);
-        UpdateRivalClusters(newClusters, ourShips, ourProjectors);
+        Array<ThreatCluster> clusters = GetOurClusters(ourShips);
+        UpdateRivalClusters(clusters, ourShips, ourProjectors);
 
         Seen.Clear();
 
         // update the clusters map
-        AllClusters = newClusters.ToArr();
+        AllClusters = clusters.ToArr();
         ClustersMap.UpdateAll(AllClusters);
     }
 
-    void UpdateOurClusters(Array<ThreatCluster> newClusters, Ship[] ourShips)
+    // our clusters are always visible, so just get them out
+    Array<ThreatCluster> GetOurClusters(Ship[] ourShips)
     {
         // first create an observation of our own forces, these are always fully explored
+        Array<ThreatCluster> clusters = new();
         Map<ThreatCluster, ClusterUpdate> ourClusterUpdates = new();
+
         for (int i = 0; i < ourShips.Length; ++i)
         {
             var u = AddSeenShip(ourClusterUpdates, Owner, ourShips[i], OwnClusterJoinRadius);
             u.FullyExplored = true;
         }
 
-        // initialize with our own clusters first
+        // apply the clusters updates
         foreach (var kv in ourClusterUpdates)
         {
             ClusterUpdate update = kv.Value;
             if (update.Apply(Owner))
-                newClusters.Add(update.Cluster);
+                clusters.Add(update.Cluster);
         }
+        return clusters;
     }
 
     void UpdateRivalClusters(Array<ThreatCluster> newClusters, Ship[] ourShips, Ship[] ourProjectors)
