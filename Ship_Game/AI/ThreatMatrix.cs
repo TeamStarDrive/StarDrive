@@ -16,14 +16,26 @@ namespace Ship_Game.AI;
 [StarDataType]
 public sealed partial class ThreatMatrix
 {
-    // The empire which owns this ThreatMatrix
+    /// <summary>
+    /// The empire which owns this ThreatMatrix
+    /// </summary>
     [StarData] readonly Empire Owner;
 
-    // All clusters that we know about, this is thread-safe
-    // and updated atomically as a COPY
-    [StarData] public ThreatCluster[] AllClusters { get; private set; } = Empty<ThreatCluster>.Array;
+    /// <summary>
+    /// OUR observed clusters, always up-to-date.
+    /// This is thread-safe and updated atomically as a COPY
+    /// </summary>
+    [StarData] public ThreatCluster[] OurClusters { get; private set; } = Empty<ThreatCluster>.Array;
 
-    // Qtree for quickly finding nearby clusters
+    /// <summary>
+    /// RIVALS observed cluster, Ships list is cleared periodically to avoid stale entries.
+    /// This is thread-safe and updated atomically as a COPY
+    /// </summary>
+    [StarData] public ThreatCluster[] RivalClusters { get; private set; } = Empty<ThreatCluster>.Array;
+
+    /// <summary>
+    /// Qtree for quickly finding nearby clusters
+    /// </summary>
     public GenericQtree ClustersMap { get; private set; }
 
     [StarDataConstructor] ThreatMatrix() { }
@@ -43,8 +55,10 @@ public sealed partial class ThreatMatrix
     void InitializeOnConstruct(UniverseState us)
     {
         ClustersMap = new(us.Size, cellThreshold:16, smallestCell:8000);
-        foreach (ThreatCluster cluster in AllClusters)
-            ClustersMap.Insert(cluster);
+        foreach (ThreatCluster c in OurClusters)
+            ClustersMap.Insert(c);
+        foreach (ThreatCluster c in RivalClusters)
+            ClustersMap.Insert(c);
     }
 
     ThreatCluster[] FindClusters(in SearchOptions opt)
@@ -143,19 +157,23 @@ public sealed partial class ThreatMatrix
     }
 
     /// <summary>
-    /// Gets all Faction clusters with a station
+    /// Gets all Rival Faction clusters with a station
     /// </summary>
     public ThreatCluster[] GetAllFactionBases()
     {
-        return AllClusters.Filter(c => c.HasStarBases && c.Loyalty.IsFaction);
+        return RivalClusters.Filter(c => c.HasStarBases && c.Loyalty.IsFaction);
     }
         
-    // TODO: Maybe add clusters-by-system?
-    public SolarSystem[] GetAllSystemsWithFactions()
+    /// <summary>
+    /// Gets all systems where rival hostile factions exist
+    /// </summary>
+    public ICollection<SolarSystem> GetAllSystemsWithFactions()
     {
-        return AllClusters.FilterSelect(
-            c => c.System != null && c.Loyalty.IsFaction && c.Loyalty.IsEmpireHostile(Owner),
-            c => c.System);
+        HashSet<SolarSystem> systems = new();
+        foreach (ThreatCluster c in RivalClusters)
+            if (c.System != null && c.Loyalty.IsFaction && c.Loyalty.IsEmpireHostile(Owner))
+                systems.Add(c.System);
+        return systems;
     }
         
     /// <summary>
@@ -165,7 +183,7 @@ public sealed partial class ThreatMatrix
     {
         // TODO: Maybe add clusters-by-faction ?
         float strength = 0f;
-        ThreatCluster[] clusters = AllClusters;
+        ThreatCluster[] clusters = (empire == Owner) ? OurClusters : RivalClusters;
         for (int i = 0; i < clusters.Length; ++i) // NOTE: using a raw loop for performance
         {
             ThreatCluster c = clusters[i];
@@ -182,7 +200,7 @@ public sealed partial class ThreatMatrix
     public float KnownEmpireStrengthInBorders(Empire empire)
     {
         float strength = 0f;
-        ThreatCluster[] clusters = AllClusters;
+        ThreatCluster[] clusters = (empire == Owner) ? OurClusters : RivalClusters;
         for (int i = 0; i < clusters.Length; ++i)
         {
             ThreatCluster cluster = clusters[i];
@@ -195,7 +213,8 @@ public sealed partial class ThreatMatrix
     // This should realistically only get called once, when DiplomacyScreen is opened
     public void GetTechsFromPins(HashSet<string> techs, Empire empire)
     {
-        foreach (ThreatCluster c in AllClusters)
+        ThreatCluster[] clusters = (empire == Owner) ? OurClusters : RivalClusters;
+        foreach (ThreatCluster c in clusters)
         {
             if (c.Loyalty == empire)
             {

@@ -26,7 +26,7 @@ internal class ThreatMatrixVisualization : CommonVisualization
         : base(owner.Threats.ClustersMap.FullSize)
     {
         Tree = owner.Threats.ClustersMap;
-        AllObjects = owner.Threats.AllClusters;
+        AllObjects = owner.Threats.OurClusters.Concat(owner.Threats.RivalClusters);
     }
     
     protected override void Search(in AABoundingBox2D searchArea)

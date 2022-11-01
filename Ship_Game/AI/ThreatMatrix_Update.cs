@@ -66,23 +66,23 @@ public sealed partial class ThreatMatrix
         Ship[] ourShips = Owner.EmpireShips.OwnedShips;
         Ship[] ourProjectors = Owner.EmpireShips.OwnedProjectors;
 
-        Array<ThreatCluster> clusters = new();
-
         // 1. our clusters are always visible, so just get them out
         ClusterUpdates ourClusters = new(this);
         ourClusters.CreateOurClusters(Owner, ourShips);
-        ourClusters.GetResults(clusters, Owner, isOwnerCluster:true);
+        ThreatCluster[] ours = ourClusters.GetResults(Owner, isOwnerCluster:true);
 
         // 2. get all the clusters for rivals
         ClusterUpdates rivalClusters = new(this);
-        rivalClusters.CreateAndUpdateRivalClusters(clusters, ourProjectors);
-        rivalClusters.GetResults(clusters, Owner, isOwnerCluster:false);
+        rivalClusters.CreateAndUpdateRivalClusters(ours, ourProjectors);
+        ThreatCluster[] rivals = rivalClusters.GetResults(Owner, isOwnerCluster:false);
 
         // 3. Update the list of clusters and UpdateAll ClustersMap
         //    to handle deleted clusters
         Seen.Clear();
-        AllClusters = clusters.ToArr();
-        ClustersMap.UpdateAll(AllClusters);
+        OurClusters = ours;
+        RivalClusters = rivals;
+        ThreatCluster[] allClusters = ours.Concat(rivals);
+        ClustersMap.UpdateAll(allClusters);
     }
 
     class ClusterUpdates
@@ -95,11 +95,13 @@ public sealed partial class ThreatMatrix
             Threats = threats;
         }
         
-        public void GetResults(Array<ThreatCluster> results, Empire owner, bool isOwnerCluster)
+        public ThreatCluster[] GetResults(Empire owner, bool isOwnerCluster)
         {
+            Array<ThreatCluster> results = new();
             foreach (KeyValuePair<ThreatCluster, ClusterUpdate> kv in Updates)
                 if (kv.Value.Apply(owner, isOwnerCluster: isOwnerCluster))
                     results.Add(kv.Key);
+            return results.ToArr();
         }
 
         public void CreateOurClusters(Empire owner, Ship[] ourShips)
@@ -112,14 +114,13 @@ public sealed partial class ThreatMatrix
             }
         }
 
-        public void CreateAndUpdateRivalClusters(Array<ThreatCluster> ownerClusters, Ship[] ourProjectors)
+        public void CreateAndUpdateRivalClusters(ThreatCluster[] ours, Ship[] ourProjectors)
         {
-            foreach (ThreatCluster cluster in Threats.AllClusters)
-                if (cluster.Loyalty != Threats.Owner)
-                    Updates.Add(cluster, new(cluster));
+            foreach (ThreatCluster cluster in Threats.RivalClusters)
+                Updates.Add(cluster, new(cluster));
 
             // set whether these clusters were fully observed or not
-            HashSet<ThreatCluster> observed = ObserveRivalClusters(ownerClusters, ourProjectors);
+            HashSet<ThreatCluster> observed = ObserveRivalClusters(ours, ourProjectors);
             foreach (ThreatCluster c in observed)
                 Updates[c].FullyObserved = true;
 
@@ -128,12 +129,12 @@ public sealed partial class ThreatMatrix
                 AddSeenShip(seen.Loyalty, seen, RivalClusterJoinRadius);
         }
 
-        HashSet<ThreatCluster> ObserveRivalClusters(Array<ThreatCluster> ownerClusters, Ship[] ourProjectors)
+        HashSet<ThreatCluster> ObserveRivalClusters(ThreatCluster[] ours, Ship[] ourProjectors)
         {
             HashSet<ThreatCluster> observed = new();
 
             // scan for rival clusters from all of our new clusters
-            foreach (ThreatCluster cluster in ownerClusters)
+            foreach (ThreatCluster cluster in ours)
             {
                 float maxSensorRange = cluster.Ships.Max(s => s.AI.GetSensorRadius());
                 float scanRadius = cluster.Radius + maxSensorRange;
