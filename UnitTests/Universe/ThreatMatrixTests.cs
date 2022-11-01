@@ -1,5 +1,4 @@
-﻿using System;
-using Ship_Game;
+﻿using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Ships;
 using UnitTests.Ships;
