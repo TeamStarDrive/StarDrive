@@ -959,7 +959,7 @@ namespace Ship_Game
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p, clearOrders:true, MoveOrder.Aggressive);
-                    ship.SetSystem(p.ParentSystem); // needed for Threat Matrix update pins to register the threatened system 
+                    p.ParentSystem.NewGameAddRemnantShipToList(ship);
                     ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
                 }
             }
