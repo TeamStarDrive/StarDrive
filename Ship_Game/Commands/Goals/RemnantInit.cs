@@ -26,6 +26,12 @@ namespace Ship_Game.Commands.Goals
                 {
                     Owner.Remnants.GenerateRemnantPresence(p);
                 }
+
+                foreach (Empire e in Owner.Universe.MajorEmpires)
+                {
+                    if (solarSystem.IsFullyExploredBy(e) && solarSystem.ShipList.Count > 0)
+                        e.AI.ThreatMatrix.UpdateRemanantPresenceAstronomers(solarSystem);
+                }
             }
 
             Owner.Universe.Player.AI.ThreatMatrix.Update();

@@ -164,6 +164,14 @@ namespace Ship_Game
             }
         }
 
+        // Need in order for threat matrix to update starting remanants for Astronomers trait
+        public void NewGameAddRemnantShipToList(Ship s)
+        {
+            ShipList.Add(s);
+            s.SetSystem(this);
+        }
+            
+
         public void SetPiratePresence(bool value)
         {
             PiratePresence = value;
