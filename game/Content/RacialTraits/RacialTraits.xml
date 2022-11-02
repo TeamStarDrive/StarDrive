@@ -248,7 +248,7 @@
       <Category>Special</Category>
       <Cost>2</Cost>
       <Description>81</Description>
-      <BonusExplored>20</BonusExplored>
+      <BonusExplored>15</BonusExplored>
       <Excludes>5091</Excludes>
     </RacialTrait>
     <RacialTrait>
