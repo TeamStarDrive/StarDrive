@@ -52,7 +52,7 @@ namespace Ship_Game.Gameplay
 
         void CreateSceneObject()
         {
-            if (So != null)
+            if (So != null || ResourceManager.IsUnitTest)
                 return;
 
             PlanetType moon = ResourceManager.Planets.Planet(MoonId);

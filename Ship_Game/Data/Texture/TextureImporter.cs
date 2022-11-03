@@ -45,9 +45,16 @@ namespace Ship_Game.Data.Texture
 
         Texture2D LoadXna(string fullPath)
         {
-            TextureCreationParameters p = XGraphics.Texture.GetCreationParameters(Device, fullPath);
-            var tex = (Texture2D)XGraphics.Texture.FromFile(Device, fullPath, p);
-            return tex;
+            try
+            {
+                TextureCreationParameters p = XGraphics.Texture.GetCreationParameters(Device, fullPath);
+                var tex = (Texture2D)XGraphics.Texture.FromFile(Device, fullPath, p);
+                return tex;
+            }
+            catch (Exception e)
+            {
+                throw new($"LoadTexture XNA failed: {fullPath}", e);
+            }
         }
 
         Texture2D ImageUtilsPNG_XnaDDS(string fullPath)

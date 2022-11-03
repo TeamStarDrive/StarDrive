@@ -7,6 +7,7 @@ using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.AI;
+using System.Windows.Forms;
 
 namespace UnitTests.Universe;
 
@@ -80,7 +81,15 @@ internal abstract class CommonVisualization : GameScreen
                 }
                 else if (go is ThreatCluster c)
                 {
-                    DrawCircleProjected(c.Position, c.Radius, c.Loyalty.EmpireColor);
+                    RectF screenR = ProjectToScreenRectF(RectF.FromPointRadius(c.Position, c.Radius));
+                    Color clusterColor = c.Loyalty.EmpireColor;
+
+                    DrawCircle(screenR.Center, screenR.Radius, c.Loyalty.EmpireColor);
+
+                    Vector2 cursor = screenR.TopRight.Rounded();
+                    DrawText(ref cursor, clusterColor, $"Ships={c.Ships.Length}");
+                    DrawText(ref cursor, clusterColor, $"Size={c.Update.Bounds.Size}");
+                    DrawText(ref cursor, clusterColor, $"Loyalty={c.Loyalty}");
 
                     Color yellow = new(Color.Yellow, 100);
                     bool selected = Found.Contains(c);
@@ -94,6 +103,12 @@ internal abstract class CommonVisualization : GameScreen
                 }
             }
         }
+    }
+
+    void DrawText(ref Vector2 cursor, Color color, string text)
+    {
+        DrawString(cursor, color, text, Fonts.Arial10);
+        cursor.Y += Fonts.Arial10.LineSpacing;
     }
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)

@@ -47,13 +47,13 @@ namespace Ship_Game.Universe.SolarBodies
 
             Types = Types.Sorted(p => p.Id);
 
-            PlanetTypeMap = new Map<int, PlanetType>(Types.Length);
+            PlanetTypeMap = new(Types.Length);
             foreach (PlanetType type in Types)
             {
                 PlanetTypeMap[type.Id] = type;
             }
 
-            PlanetTypesByCategory = new Map<PlanetCategory, PlanetType[]>();
+            PlanetTypesByCategory = new();
             foreach (PlanetCategory c in Enum.GetValues(typeof(PlanetCategory)))
             {
                 PlanetTypesByCategory[c] = Types.Filter(pt => pt.Category == c);
@@ -65,7 +65,7 @@ namespace Ship_Game.Universe.SolarBodies
             HaloScaleMatrix = Matrix.CreateScale(HaloScale);
             GlowScaleMatrix = Matrix.CreateScale(GlowScale);
 
-            Renderer = new PlanetRenderer(content, this);
+            Renderer = new(content, this);
 
             BasePlanetRadius = Renderer.MeshSphere.Meshes[0].BoundingSphere.Radius;
 

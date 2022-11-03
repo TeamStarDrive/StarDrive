@@ -13,7 +13,7 @@ namespace UnitTests.Universe;
 [TestClass]
 public class ThreatMatrixTests : StarDriveTest
 {
-    protected bool EnableVisualization = false;
+    protected bool EnableVisualization = true;
     Planet PlayerPlanet;
     Planet EnemyPlanet;
 
@@ -140,7 +140,7 @@ public class ThreatMatrixTests : StarDriveTest
     {
         Vector2 pos = PlayerPlanet.Position;
         Vector2 pos2 = pos + new Vector2(20000);
-        Vector2 pos3 = pos + new Vector2(30000);
+        Vector2 pos3 = pos + new Vector2(40000);
         CreateShipsAt(pos, 40000, Player, 40); // need to create some ships to act as scanners
         float str1 = CreateShipsAt(pos, 5000, Enemy, 30);
         float str2 = CreateShipsAt(pos2, 5000, Enemy, 20);
@@ -150,7 +150,7 @@ public class ThreatMatrixTests : StarDriveTest
         if (EnableVisualization)
             DebugVisualizeThreats(Player);
 
-        ThreatCluster[] clusters = Player.Threats.FindHostileClustersByDist(pos, 45000);
+        ThreatCluster[] clusters = Player.Threats.FindHostileClustersByDist(pos, 55000);
         Assert.AreEqual(str1+str2+str3, Str(clusters));
         Assert.AreEqual(3, clusters.Length);
     }

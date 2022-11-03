@@ -385,7 +385,7 @@ namespace Ship_Game
             ZoneDistribution.Clear();
             BuildRatios.Clear();
 
-            Planets.Dispose(ref Planets);
+            Planets?.Dispose(ref Planets);
 
             DiplomacyDialogs.Clear();
             Empires.Clear();
