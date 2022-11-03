@@ -14,6 +14,20 @@ internal sealed class FindResultBuffer<T> where T : QtreeNodeBase<T>
     public int NextNode; // next node to pop
     public readonly T[] NodeStack = new T[512];
 
+    public const int MaxFound = 512;
+    public int NumCellsFound;
+    public int NumObjectsFound;
+    public readonly T[] FoundCells = new T[MaxFound];
+
+    public void AddFound(T cell, int count)
+    {
+        if (NumCellsFound != MaxFound)
+        {
+            FoundCells[NumCellsFound++] = cell;
+            NumObjectsFound += count;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Pop()
     {
@@ -45,6 +59,14 @@ internal sealed class FindResultBuffer<T> where T : QtreeNodeBase<T>
     {
         NextNode = 0;
         NodeStack[0] = root;
+
+        if (NumCellsFound != 0)
+        {
+            Array.Clear(FoundCells, 0, NumCellsFound);
+            NumCellsFound = 0;
+            NumObjectsFound = 0;
+        }
+
         if (maxResults != 0 && Items.Length < maxResults)
         {
             Items = new SpatialObjectBase[maxResults];

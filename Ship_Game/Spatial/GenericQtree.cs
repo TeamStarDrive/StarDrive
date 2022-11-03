@@ -80,6 +80,9 @@ public partial class GenericQtree
         return false;
     }
 
+    /// <summary>
+    /// Inserts a new object if it doesn't already exist
+    /// </summary>
     public void Insert(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
@@ -91,6 +94,9 @@ public partial class GenericQtree
         InsertAt(Root, Levels, objRef);
     }
 
+    /// <summary>
+    /// Removes an object if it exists
+    /// </summary>
     public void Remove(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
@@ -102,8 +108,10 @@ public partial class GenericQtree
         ObjectRefs.RemoveAt(toRemove.ObjectId);
     }
 
-    // update the position of a single item, this will remove the node and reinsert it
-    // @return TRUE if update was done
+    /// <summary>
+    /// Update the position of a single item, this will remove the node and reinsert it.
+    /// Returns TRUE if update was done.
+    /// </summary>
     public bool Update(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
@@ -117,7 +125,30 @@ public partial class GenericQtree
         return true;
     }
 
-    // Resets this Qtree by updating all objects
+    /// <summary>
+    /// Updates or Inserts a single object. Returns TRUE if a new object was inserted
+    /// </summary>
+    public bool InsertOrUpdate(SpatialObjectBase obj)
+    {
+        // TODO: Thread safety?
+        ObjectRef toUpdate = Find(obj);
+        if (toUpdate == null)
+        {
+            var objRef = new ObjectRef(obj);
+            objRef.ObjectId = ObjectRefs.Insert(objRef);
+            InsertAt(Root, Levels, objRef);
+            return true;
+        }
+
+        RemoveAt(Root, Levels, toUpdate, in toUpdate.AABB);
+        toUpdate.UpdateBounds();
+        InsertAt(Root, Levels, toUpdate);
+        return false;
+    }
+
+    /// <summary>
+    /// Resets this entire Qtree by updating all objects
+    /// </summary>
     public void UpdateAll<T>(T[] newObjects) where T : SpatialObjectBase
     {
         // TODO: Thread safety?
@@ -232,6 +263,7 @@ public partial class GenericQtree
                     if (NE) { RemoveAt(node.NE, level-1, toRemove, in objectRect); }
                     if (SE) { RemoveAt(node.SE, level-1, toRemove, in objectRect); }
                     if (SW) { RemoveAt(node.SW, level-1, toRemove, in objectRect); }
+
                     return;
                 }
             }
@@ -308,6 +340,13 @@ public partial class GenericQtree
                 }
                 else // oldItems.Length == Count
                 {
+                    // check for dups
+                    for (int i = 0; i < oldItems.Length; ++i)
+                    {
+                        if (oldItems[i].Source == obj.Source)
+                            throw new InvalidOperationException($"Double Insert bug: {obj} -> {oldItems[i]} Source={oldItems[i].Source}");
+                    }
+
                     //Array.Resize(ref Items, Count * 2);
                     var newItems = new ObjectRef[oldItems.Length * 2];
                     for (int i = 0; i < oldItems.Length; ++i)
