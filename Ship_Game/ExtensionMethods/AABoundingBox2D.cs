@@ -27,6 +27,8 @@ namespace Ship_Game
         public readonly Vector2 TopLeft => new(X1,Y1);
         public readonly Vector2 BotRight => new(X2,Y2);
 
+        public readonly float Area => (X2 - X1) * (Y2 - Y1);
+
         // Gets the averaged radius of this bounding box (not accurate)
         public readonly float Radius => ((X2 - X1) + (Y2 - Y1)) * 0.25f;
 

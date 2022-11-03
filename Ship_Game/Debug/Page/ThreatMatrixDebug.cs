@@ -56,11 +56,11 @@ public class ThreatMatrixDebug : DebugPage
             if (Universe.ViewState <= UniverseScreen.UnivScreenState.SystemView)
             {
                 Vector2 cursor = screenR.TopRight.Rounded();
-                DrawLine(ref cursor, clusterColor, $"Ships={c.Ships.Length}");
-                DrawLine(ref cursor, clusterColor, $"Strength={c.Strength}");
-                DrawLine(ref cursor, clusterColor, $"InBorders={c.InBorders}");
-                DrawLine(ref cursor, clusterColor, $"Loyalty={c.Loyalty}");
-                DrawLine(ref cursor, clusterColor, $"System={c.System?.Name??"none"}");
+                DrawText(ref cursor, clusterColor, $"Ships={c.Ships.Length}");
+                DrawText(ref cursor, clusterColor, $"Strength={c.Strength}");
+                DrawText(ref cursor, clusterColor, $"InBorders={c.InBorders}");
+                DrawText(ref cursor, clusterColor, $"Loyalty={c.Loyalty}");
+                DrawText(ref cursor, clusterColor, $"System={c.System?.Name??"none"}");
 
                 // draw lines from center of cluster to 
                 foreach (Ship s in c.Ships)
@@ -76,7 +76,7 @@ public class ThreatMatrixDebug : DebugPage
         }
     }
 
-    void DrawLine(ref Vector2 cursor, Color color, string text)
+    void DrawText(ref Vector2 cursor, Color color, string text)
     {
         Screen.DrawString(cursor, color, text, Fonts.Arial10);
         cursor.Y += Fonts.Arial10.LineSpacing;

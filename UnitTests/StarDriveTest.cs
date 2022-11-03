@@ -346,7 +346,7 @@ namespace UnitTests
             UState.AddSolarSystem(s);
         }
 
-        public Planet AddDummyPlanet(Vector2 sysPos, float fertility, float minerals, float pop)
+        public Planet AddDummyPlanet(Vector2 sysPos, float fertility=1f, float minerals=1f, float pop=4f)
         {
             return AddDummyPlanet(sysPos, fertility, minerals, pop, sysPos+new Vector2(5000), explored:false);
         }

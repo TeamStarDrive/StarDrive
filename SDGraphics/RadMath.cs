@@ -15,6 +15,7 @@ public static class RadMath
     public const double Inv360D   = 1.0 / 360.0;
     public const double RadianToDegreeD = 180.0 / PID;
     public const double DegreeToRadianD = PID / 180.0;
+    public const double SqrtTwoD  = 1.41421356237; // sqrt(2)
 
     public const float PI        = (float)PID;     // 180 degrees
     public const float TwoPI     = (float)TwoPID;  // 360 degrees
@@ -23,6 +24,7 @@ public static class RadMath
     public const float Inv360    = (float)Inv360D;
     public const float RadianToDegree = (float)RadianToDegreeD;
     public const float DegreeToRadian = (float)DegreeToRadianD;
+    public const float SqrtTwo   = (float)SqrtTwoD; // sqrt(2)
 
     public const float Deg1AsRads = PI / 180f; // 1 degree, expressed as radians
     public const float Deg5AsRads = PI / 9; // 5 degrees, expressed as radians

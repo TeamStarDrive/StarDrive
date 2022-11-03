@@ -8,16 +8,21 @@ namespace Ship_Game;
 
 public static class CollectionExtGameObj
 {
-    public static void SortByDistance<T>(this T[] array, Vector2 fromPos) where T : SpatialObjectBase
+    public static void SortByDistance<T>(this T[] items, Vector2 fromPos) where T : SpatialObjectBase
     {
-        if (array.Length <= 1)
+        SortByDistance(items, items.Length, fromPos);
+    }
+
+    public static void SortByDistance<T>(this T[] items, int count, Vector2 fromPos) where T : SpatialObjectBase
+    {
+        if (count <= 1)
             return;
 
-        var keys = new float[array.Length];
-        for (int i = 0; i < array.Length; ++i)
-            keys[i] = array[i].Position.SqDist(fromPos);
+        var keys = new float[count];
+        for (int i = 0; i < count; ++i)
+            keys[i] = items[i].Position.SqDist(fromPos);
 
-        Array.Sort(keys, array, 0, array.Length);
+        Array.Sort(keys, items, 0, count);
     }
 
     public static T RandItem<T>(this T[] items)
