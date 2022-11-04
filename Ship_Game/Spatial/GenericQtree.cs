@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SDGraphics;
 using SDUtils;
 
 namespace Ship_Game.Spatial;
@@ -64,7 +65,7 @@ public partial class GenericQtree
         Root = new(-half, -half, +half, +half);
     }
 
-    ObjectRef Find(SpatialObjectBase obj)
+    ObjectRef FindObjectRef(SpatialObjectBase obj)
     {
         foreach (ObjectRef objRef in ObjectRefs)
             if (objRef.Source == obj)
@@ -100,7 +101,7 @@ public partial class GenericQtree
     public void Remove(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
-        ObjectRef toRemove = Find(obj);
+        ObjectRef toRemove = FindObjectRef(obj);
         if (toRemove == null)
             return; // this object does not exist in this Qtree, do nothing
         
@@ -115,7 +116,7 @@ public partial class GenericQtree
     public bool Update(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
-        ObjectRef toUpdate = Find(obj);
+        ObjectRef toUpdate = FindObjectRef(obj);
         if (toUpdate == null)
             return false; // this object does not exist in this Qtree, do nothing
 
@@ -131,7 +132,7 @@ public partial class GenericQtree
     public bool InsertOrUpdate(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
-        ObjectRef toUpdate = Find(obj);
+        ObjectRef toUpdate = FindObjectRef(obj);
         if (toUpdate == null)
         {
             var objRef = new ObjectRef(obj);
@@ -273,6 +274,27 @@ public partial class GenericQtree
                 return;
             }
         }
+    }
+
+    // For TESTING purposes only
+    public int CountNumberOfNodes()
+    {
+        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(Root);
+        int numNodes = 0;
+        do
+        {
+            Node current = buffer.Pop();
+            ++numNodes;
+            if (current.NW != null) // isBranch
+            {
+                buffer.NodeStack[++buffer.NextNode] = current.NW;
+                buffer.NodeStack[++buffer.NextNode] = current.NE;
+                buffer.NodeStack[++buffer.NextNode] = current.SE;
+                buffer.NodeStack[++buffer.NextNode] = current.SW;
+            }
+        } while (buffer.NextNode >= 0);
+
+        return numNodes;
     }
 
     public class ObjectRef
