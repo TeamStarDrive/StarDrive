@@ -22,6 +22,12 @@ public sealed class ClusterUpdate
         ApplyBoundsOnly();
     }
 
+    public ClusterUpdate(ThreatCluster cluster)
+    {
+        Cluster = cluster;
+        Bounds = new (cluster.Position, cluster.Radius);
+    }
+
     public void Reset()
     {
         Ships.Clear();
@@ -48,7 +54,7 @@ public sealed class ClusterUpdate
         u.Reset();
     }
 
-    void ApplyBoundsOnly()
+    public void ApplyBoundsOnly()
     {
         Cluster.Position = Bounds.Center;
         // this is a bit bigger than the actual radius, but only way to ensure

@@ -47,7 +47,7 @@ namespace UnitTests.Universe
         protected void DebugVisualize(ISpatial tree, bool enableMovingShips = true, bool updateObjects = false)
         {
             bool moving = enableMovingShips && EnableMovingShips;
-            var vis = new SpatialVisualization(AllObjects, tree, moving);
+            var vis = new SpatialVisualization(this, AllObjects, tree, moving);
             vis.MoveShips |= updateObjects;
             Game.ShowAndRun(screen: vis);
         }

@@ -8,6 +8,7 @@ namespace UnitTests.Universe;
 // Debug & Test visualizer for GenericQtree
 internal class GenericQtreeVisualization : CommonVisualization
 {
+    StarDriveTest Test;
     readonly GenericQtree Tree;
 
     float FindOneTime;
@@ -22,9 +23,10 @@ internal class GenericQtreeVisualization : CommonVisualization
     protected override float FullSize => Tree.FullSize;
     protected override float WorldSize => Tree.WorldSize;
 
-    public GenericQtreeVisualization(SpatialObjectBase[] allObjects, GenericQtree tree)
+    public GenericQtreeVisualization(StarDriveTest test, SpatialObjectBase[] allObjects, GenericQtree tree)
         : base(tree.FullSize)
     {
+        Test = test;
         Tree = tree;
         AllObjects = allObjects;
     }
@@ -49,6 +51,27 @@ internal class GenericQtreeVisualization : CommonVisualization
         FindLinearTime = t3.Elapsed;
     }
 
+    protected override void InsertAt(Vector2 pos, float radius)
+    {
+        Planet p = Test.AddDummyPlanet(pos);
+        p.Position = pos;
+        p.Radius = radius;
+        Tree.Insert(p);
+        AllObjects.Add(p, out AllObjects);
+    }
+
+    protected override void RemoveAt(Vector2 pos, float radius)
+    {
+        var opt = new SearchOptions(pos, radius) { MaxResults = 1000 };
+        Found = Tree.Find(opt);
+        if (Found.Length != 0)
+        {
+            foreach (SpatialObjectBase o in Found)
+                Tree.Remove(o);
+            AllObjects = AllObjects.Filter(o => !Found.Contains(o));
+        }
+    }
+
     protected override void UpdateSim(float fixedDeltaTime)
     {
     }
@@ -61,9 +84,10 @@ internal class GenericQtreeVisualization : CommonVisualization
     protected override void DrawStats()
     {
         var cursor = new Vector2(20, 20);
-        DrawText(ref cursor, "Press ESC to quit");
+        DrawText(ref cursor, "Press ESC to quit, Ctrl+LMB to Insert, Ctrl+RMB to Remove");
         DrawText(ref cursor, $"Camera: {Camera}");
         DrawText(ref cursor, $"NumObjects: {AllObjects.Length}");
+        DrawText(ref cursor, $"NumCells: {Tree.CountNumberOfNodes()}");
         DrawText(ref cursor, $"SearchArea: {SearchArea.Width}x{SearchArea.Height}");
         DrawText(ref cursor, $"FindOneTime {Iterations}x:  {(FindOneTime*1000).String(4)}ms");
         DrawText(ref cursor, $"FindLinearTime {Iterations}x: {(FindLinearTime*1000).String(4)}ms");

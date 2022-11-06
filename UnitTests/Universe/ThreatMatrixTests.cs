@@ -13,7 +13,7 @@ namespace UnitTests.Universe;
 [TestClass]
 public class ThreatMatrixTests : StarDriveTest
 {
-    protected bool EnableVisualization = true;
+    protected bool EnableVisualization = false;
     Planet PlayerPlanet;
     Planet EnemyPlanet;
 
@@ -33,7 +33,7 @@ public class ThreatMatrixTests : StarDriveTest
     
     protected void DebugVisualizeThreats(Empire owner)
     {
-        var vis = new ThreatMatrixVisualization(owner);
+        var vis = new ThreatMatrixVisualization(this, owner);
         EnableMockInput(false); // switch from mocked input to real input
         Game.ShowAndRun(screen: vis); // run the sim
         EnableMockInput(true); // restore the mock input
@@ -98,10 +98,17 @@ public class ThreatMatrixTests : StarDriveTest
         Assert.AreEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos2, 5000)));
         Assert.AreEqual(scout.GetStrength(), Str(Enemy.Threats.FindClusters(Player, pos2, 5000)));
 
+        if (EnableVisualization)
+            DebugVisualizeThreats(Enemy);
+
         // now lose vision
         scout.InstantKill();
         ScanAndUpdateThreats(Player, Enemy);
-        
+
+
+        if (EnableVisualization)
+            DebugVisualizeThreats(Enemy);
+
         // we should still remember enemy stuff
         Assert.AreEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos2, 5000)),
             "Should remember clusters missing from vision");

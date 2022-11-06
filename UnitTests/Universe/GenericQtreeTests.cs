@@ -20,7 +20,7 @@ public class GenericQtreeTests : StarDriveTest
 
     protected void DebugVisualize(GenericQtree tree, SpatialObjectBase[] objects)
     {
-        var vis = new GenericQtreeVisualization(objects, tree);
+        var vis = new GenericQtreeVisualization(this, objects, tree);
         EnableMockInput(false); // switch from mocked input to real input
         Game.ShowAndRun(screen: vis); // run the sim
         EnableMockInput(true); // restore the mock input
@@ -30,23 +30,35 @@ public class GenericQtreeTests : StarDriveTest
     Planet[] GetPlanets() => UState.Planets.ToArr();
     SpatialObjectBase[] GetSystemsAndPlanets() => GetSystems().Concat<SpatialObjectBase>(GetPlanets());
 
+    Planet SpawnPlanetAt(Vector2 pos)
+    {
+        Planet p = AddDummyPlanet(pos);
+        p.Position = pos;
+        p.Radius = 50000;
+        return p;
+    }
+
     [TestMethod]
     public void Insert()
     {
         CreateUniverseAndPlayerEmpire();
-        var tree = new GenericQtree(UState.UniverseWidth);
+        // set node threshold to 2 so we can actually test
+        // the subdivision logic somewhat
+        var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:2);
+        Assert.That.GreaterThan(tree.FullSize, tree.WorldSize);
 
-        float r = UState.UniverseRadius;
-        Planet NW = AddDummyPlanet(new(-r,-r));
-        Planet NE = AddDummyPlanet(new(+r,-r));
-        Planet SE = AddDummyPlanet(new(+r,+r));
-        Planet SW = AddDummyPlanet(new(-r,+r));
+        float r4 = UState.UniverseRadius / 2;
+        Planet NW = SpawnPlanetAt(new(-r4, -r4));
+        Planet NE = SpawnPlanetAt(new(+r4, -r4));
+        Planet SE = SpawnPlanetAt(new(+r4, +r4));
+        Planet SW = SpawnPlanetAt(new(-r4, +r4));
 
         tree.Insert(NW);
         Assert.AreEqual(1, tree.Count);
         Assert.IsTrue(tree.Contains(NW));
         Assert.IsFalse(tree.Contains(NE));
         Assert.AreEqual(NW, tree.FindOne(NW.Position, 1000));
+        Assert.AreEqual(1, tree.CountNumberOfNodes());
 
         tree.Insert(NW); // double-insert
         Assert.AreEqual(1, tree.Count); // nothing should happen
@@ -55,57 +67,102 @@ public class GenericQtreeTests : StarDriveTest
         Assert.AreEqual(2, tree.Count);
         Assert.IsTrue(tree.Contains(NE));
         Assert.AreEqual(NE, tree.FindOne(NE.Position, 1000));
-        
+        Assert.AreEqual(1, tree.CountNumberOfNodes());
+
         tree.Insert(SE);
         Assert.AreEqual(3, tree.Count);
         Assert.IsTrue(tree.Contains(SE));
         Assert.AreEqual(SE, tree.FindOne(SE.Position, 1000));
+        // now qtree should subdivide, because cellThreshold:2
+        // subdivision always adds +4 nodes
+        Assert.AreEqual(1+4, tree.CountNumberOfNodes());
 
         tree.Insert(SW);
         Assert.AreEqual(4, tree.Count);
         Assert.IsTrue(tree.Contains(SW));
         Assert.AreEqual(SW, tree.FindOne(SW.Position, 1000));
+        Assert.AreEqual(1+4, tree.CountNumberOfNodes());
     }
 
+    // remove will also test the # of nodes after removal
     [TestMethod]
     public void Remove()
     {
         CreateUniverseAndPlayerEmpire();
-        var tree = new GenericQtree(UState.UniverseWidth);
+        // set cell threshold to 1, so we can actually test cell node behavior
+        var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:1);
 
-        float r = UState.UniverseRadius;
-        Planet NW = AddDummyPlanet(new(-r,-r));
-        Planet NE = AddDummyPlanet(new(+r,-r));
-        Planet SE = AddDummyPlanet(new(+r,+r));
-        Planet SW = AddDummyPlanet(new(-r,+r));
-        tree.Insert(NW); tree.Insert(NE); tree.Insert(SE); tree.Insert(SW);
+        float r2 = UState.UniverseRadius / 2;
+        Vector2 NW = new(-r2, -r2);
+        Vector2 NE = new(+r2, -r2);
+        Vector2 SE = new(+r2, +r2);
+        Vector2 SW = new(-r2, +r2);
+        float r4 = r2 / 2;
+
+        // add 4 planets at each cardinal quadrant
+        Array<Planet> InsertPlanets(Vector2 center)
+        {
+            Array<Planet> planets = new();
+            planets.Add(SpawnPlanetAt(center + new Vector2(-r4, -r4)));
+            planets.Add(SpawnPlanetAt(center + new Vector2(+r4, -r4)));
+            planets.Add(SpawnPlanetAt(center + new Vector2(+r4, +r4)));
+            planets.Add(SpawnPlanetAt(center + new Vector2(-r4, +r4)));
+            foreach (Planet p in planets) tree.Insert(p);
+            return planets;
+        }
+        void CanFind(Planet p) => Assert.IsTrue(tree.Find(p.Position, 1).Contains(p));
+        void CannotFind(Planet p) => Assert.IsFalse(tree.Find(p.Position, 1).Contains(p));
+
+        Array<Planet> NWPlanets = InsertPlanets(NW);
+        Array<Planet> NEPlanets = InsertPlanets(NE);
+        Array<Planet> SEPlanets = InsertPlanets(SE);
+        Array<Planet> SWPlanets = InsertPlanets(SW);
+
+        // now we should have 4 cardinal directions filled
+        // with each cardinal quadrant holding 4 nodes:
+        Assert.AreEqual(16, tree.Count);
+        Assert.AreEqual(1 + 1*4 + 4*4, tree.CountNumberOfNodes());
+
+        // Remove all NW nodes
+        NWPlanets.ForEach(CanFind);
+        NWPlanets.ForEach(p => Assert.IsTrue(tree.Contains(p)));
+        NWPlanets.ForEach(p => tree.Remove(p));
+        Assert.AreEqual(12, tree.Count);
+        Assert.AreEqual(1 + 1*4 + 3*4, tree.CountNumberOfNodes());
+        NWPlanets.ForEach(p => Assert.IsFalse(tree.Contains(p)));
+        NWPlanets.ForEach(CannotFind);
+
+        // Remove all NE nodes
+        NEPlanets.ForEach(CanFind);
+        NEPlanets.ForEach(p => Assert.IsTrue(tree.Contains(p)));
+        NEPlanets.ForEach(p => tree.Remove(p));
+        Assert.AreEqual(8, tree.Count);
+        Assert.AreEqual(1 + 1*4 + 2*4, tree.CountNumberOfNodes());
+        NEPlanets.ForEach(p => Assert.IsFalse(tree.Contains(p)));
+        NEPlanets.ForEach(CannotFind);
+
+        // Remove all SE nodes
+        SEPlanets.ForEach(CanFind);
+        SEPlanets.ForEach(p => Assert.IsTrue(tree.Contains(p)));
+        SEPlanets.ForEach(p => tree.Remove(p));
         Assert.AreEqual(4, tree.Count);
+        Assert.AreEqual(1 + 1*4 + 1*4, tree.CountNumberOfNodes());
+        SEPlanets.ForEach(p => Assert.IsFalse(tree.Contains(p)));
+        SEPlanets.ForEach(CannotFind);
 
-        tree.Remove(NW);
-        Assert.AreEqual(3, tree.Count);
-        Assert.IsFalse(tree.Contains(NW));
-        Assert.IsTrue(tree.Contains(NE));
-        Assert.AreEqual(null, tree.FindOne(NW.Position, 1000));
-
-        tree.Remove(NE);
-        Assert.AreEqual(2, tree.Count);
-        Assert.IsFalse(tree.Contains(NE));
-        Assert.AreEqual(null, tree.FindOne(NE.Position, 1000));
-
-        tree.Remove(SE);
-        Assert.AreEqual(1, tree.Count);
-        Assert.IsFalse(tree.Contains(SE));
-        Assert.AreEqual(null, tree.FindOne(SE.Position, 1000));
-
-        tree.Remove(SW);
+        // Remove all SW nodes
+        SWPlanets.ForEach(CanFind);
+        SWPlanets.ForEach(p => Assert.IsTrue(tree.Contains(p)));
+        SWPlanets.ForEach(p => tree.Remove(p));
         Assert.AreEqual(0, tree.Count);
-        Assert.IsFalse(tree.Contains(SW));
-        Assert.AreEqual(null, tree.FindOne(SW.Position, 1000));
+        Assert.AreEqual(1 + 0*4 + 0*4, tree.CountNumberOfNodes());
+        SWPlanets.ForEach(p => Assert.IsFalse(tree.Contains(p)));
+        SWPlanets.ForEach(CannotFind);
 
-        // make sure it's completely empty
+        // make sure it's completely empty and no ghosts are returned
         Assert.AreEqual(null, tree.FindOne(Vector2.Zero, UState.UniverseRadius));
     }
-    
+
     [TestMethod]
     public void Update()
     {
@@ -144,13 +201,15 @@ public class GenericQtreeTests : StarDriveTest
     public void InsertOrUpdateCrowdedTree()
     {
         CreateUniverseAndPlayerEmpire();
-        var tree = new GenericQtree(UState.UniverseWidth);
+        // set a low cell threshold to ensure lots of subdivisions
+        var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:4);
 
         var rand = new SeededRandom(1337);
         float crowdRadius = 100_000;
         for (int i = 0; i < 100; ++i)
         {
-            Planet crowd = AddDummyPlanet(rand.Vector2D(crowdRadius));
+            Planet crowd = SpawnPlanetAt(rand.Vector2D(crowdRadius));
+            crowd.Radius = 1000;
             tree.Insert(crowd);
         }
 
@@ -163,14 +222,20 @@ public class GenericQtreeTests : StarDriveTest
             new(-50_000, +50_000),
         };
 
-        Planet p = AddDummyPlanet(new(1,1));
+        Planet p = SpawnPlanetAt(new(1,1));
+        p.Radius = 1000;
 
         foreach (Vector2 pos in path)
         {
             p.Position = pos;
             tree.InsertOrUpdate(p);
-            var results = tree.Find(pos, 1000);
-            Assert.IsTrue(results.Contains(p));
+            var results = tree.Find(pos, 1);
+            Assert.IsTrue(results.Contains(p),
+                "Finding inside of updated bounds should match");
+
+            var outsideResults = tree.Find(pos+new Vector2(1001), 1);
+            Assert.IsFalse(outsideResults.Contains(p),
+                "Finding outside of updated bounds should not match");
         }
     }
 
@@ -192,7 +257,7 @@ public class GenericQtreeTests : StarDriveTest
         SolarSystem[] systems = GetSystems();
 
         var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:8, smallestCell:32_000);
-        System.Array.ForEach(systems, tree.Insert);
+        Array.ForEach(systems, tree.Insert);
 
         foreach (SolarSystem s in systems)
         {
@@ -213,7 +278,7 @@ public class GenericQtreeTests : StarDriveTest
         Planet[] planets = GetPlanets();
 
         var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:8, smallestCell:32_000);
-        System.Array.ForEach(planets, tree.Insert);
+        Array.ForEach(planets, tree.Insert);
 
         foreach (Planet p in planets)
         {
@@ -233,7 +298,7 @@ public class GenericQtreeTests : StarDriveTest
         SolarSystem[] systems = GetSystems();
 
         var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:16, smallestCell:16_000);
-        System.Array.ForEach(solarBodies, tree.Insert);
+        Array.ForEach(solarBodies, tree.Insert);
         
         foreach (SolarSystem s in systems)
         {

@@ -6,6 +6,9 @@ namespace Ship_Game.Spatial
     {
         public AABoundingBox2D AABB;
         public T NW, NE, SE, SW;
+
+        public bool IsBranch => NW != null;
+        public bool IsLeaf => NW == null;
     }
 
     public sealed unsafe class QtreeNode : QtreeNodeBase<QtreeNode>

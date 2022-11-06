@@ -8,6 +8,7 @@ namespace UnitTests.Universe;
 // Debug & Test visualizer for GenericQtree
 internal class ThreatMatrixVisualization : CommonVisualization
 {
+    StarDriveTest Test;
     readonly GenericQtree Tree;
 
     float FindOneTime;
@@ -22,9 +23,10 @@ internal class ThreatMatrixVisualization : CommonVisualization
     protected override float FullSize => Tree.FullSize;
     protected override float WorldSize => Tree.WorldSize;
 
-    public ThreatMatrixVisualization(Empire owner)
+    public ThreatMatrixVisualization(StarDriveTest test, Empire owner)
         : base(owner.Threats.ClustersMap.FullSize)
     {
+        Test = test;
         Tree = owner.Threats.ClustersMap;
         AllObjects = owner.Threats.OurClusters.Concat(owner.Threats.RivalClusters);
     }
@@ -47,6 +49,27 @@ internal class ThreatMatrixVisualization : CommonVisualization
         for (int i = 0; i < Iterations; ++i)
             FoundLinear = Tree.FindLinear(opt, AllObjects);
         FindLinearTime = t3.Elapsed;
+    }
+
+    protected override void InsertAt(Vector2 pos, float radius)
+    {
+        Planet p = Test.AddDummyPlanet(pos);
+        p.Position = pos;
+        p.Radius = radius;
+        Tree.Insert(p);
+        AllObjects.Add(p, out AllObjects);
+    }
+
+    protected override void RemoveAt(Vector2 pos, float radius)
+    {
+        var opt = new SearchOptions(pos, radius) { MaxResults = 1000 };
+        Found = Tree.Find(opt);
+        if (Found.Length != 0)
+        {
+            foreach (SpatialObjectBase o in Found)
+                Tree.Remove(o);
+            AllObjects = AllObjects.Filter(o => !Found.Contains(o));
+        }
     }
 
     protected override void UpdateSim(float fixedDeltaTime)

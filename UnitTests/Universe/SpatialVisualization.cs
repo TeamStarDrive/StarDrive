@@ -13,6 +13,7 @@ namespace UnitTests.Universe;
 /// </summary>
 class SpatialVisualization : CommonVisualization
 {
+    StarDriveTest Test;
     readonly ISpatial Spat;
 
     public bool MoveShips;
@@ -28,9 +29,10 @@ class SpatialVisualization : CommonVisualization
     protected override float FullSize => Spat.FullSize;
     protected override float WorldSize => Spat.WorldSize;
 
-    public SpatialVisualization(SpatialObjectBase[] allObjects, ISpatial spat, bool moveShips)
+    public SpatialVisualization(StarDriveTest test, SpatialObjectBase[] allObjects, ISpatial spat, bool moveShips)
         : base(spat.FullSize)
     {
+        Test = test;
         AllObjects = allObjects;
         Spat = spat;
         MoveShips = moveShips;
@@ -55,6 +57,28 @@ class SpatialVisualization : CommonVisualization
         var t2 = new PerfTimer();
         Found = Spat.FindNearby(in opt);
         SearchTime = t2.Elapsed;
+    }
+
+    protected override void InsertAt(Vector2 pos, float radius)
+    {
+        Planet p = Test.AddDummyPlanet(pos);
+        p.Position = pos;
+        p.Radius = radius;
+        AllObjects.Add(p, out AllObjects);
+        Spat.UpdateAll(AllObjects);
+    }
+
+    protected override void RemoveAt(Vector2 pos, float radius)
+    {
+        var opt = new SearchOptions(pos, radius) { MaxResults = 1000 };
+        Found = Spat.FindNearby(opt);
+        if (Found.Length != 0)
+        {
+            foreach (SpatialObjectBase o in Found)
+                o.Active = false;
+            Spat.UpdateAll(AllObjects); // let UpdateAll to see Active=false objects, and remove them
+            AllObjects = AllObjects.Filter(o => !Found.Contains(o));
+        }
     }
 
     protected override void UpdateSim(float fixedDeltaTime)
