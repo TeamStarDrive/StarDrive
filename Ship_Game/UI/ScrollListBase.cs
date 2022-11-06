@@ -25,8 +25,8 @@ namespace Ship_Game
     public abstract class ScrollListBase : UIElementContainer
     {
         // Top and Bottom padding for list items
-        const int PaddingTop   = 6;
-        const int PaddingBot   = 2;
+        const int PaddingTop   = 15;
+        const int PaddingBot   = 15;
         const int PaddingLeft  = 8;
         const int PaddingRight = 24; // leave extra room for scrollbar
 
