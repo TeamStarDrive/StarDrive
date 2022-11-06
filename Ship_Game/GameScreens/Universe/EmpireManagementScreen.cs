@@ -17,7 +17,7 @@ namespace Ship_Game
         EmpireUIOverlay eui;
         private readonly ScrollList<ColoniesListItem> ColoniesList;
         private readonly GovernorDetailsComponent GovernorDetails;
-        private readonly Rectangle eRect;
+        private readonly RectF ERect;
 
         private readonly SortButton SbPop;
         private readonly SortButton SbFood;
@@ -53,12 +53,12 @@ namespace Ship_Game
             Add(new Menu2(mainBkg));
             Add(new CloseButton(mainBkg.Right - 40, mainBkg.Y + 20));
 
-            RectF colonies = new(mainBkg.X + 20, titleRect.Bottom + 30, ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40));
+            ERect = new(mainBkg.X + 20, titleRect.Bottom + 30, ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40));
+            RectF colonies = new(ERect.X, ERect.Y + 15, ERect.W, ERect.H - 15);
             ColoniesList = Add(new ScrollList<ColoniesListItem>(colonies, 80));
             ColoniesList.OnClick       = OnColonyListItemClicked;
             ColoniesList.OnDoubleClick = OnColonyListItemDoubleClicked;
             ColoniesList.EnableItemHighlight = true;
-            eRect = ColoniesList.Rect;
 
             SbPop   = new SortButton(eui.Player.data.ESSort, "pop");
             SbFood  = new SortButton(eui.Player.data.ESSort, "food");
@@ -93,7 +93,7 @@ namespace Ship_Game
 
             base.Draw(batch, elapsed);
             
-            var PlanetInfoRect = new Rectangle(eRect.X + 22, eRect.Y + eRect.Height, (int)(ScreenWidth * 0.3f), ScreenHeight - eRect.Y - eRect.Height - 22);
+            var PlanetInfoRect = new Rectangle((int)ERect.X + 22, (int)(ERect.Y + ERect.H), (int)(ScreenWidth * 0.3f), (int)(ScreenHeight - ERect.Y - ERect.H - 22));
             int iconSize = PlanetInfoRect.X + PlanetInfoRect.Height - (int)((PlanetInfoRect.X + PlanetInfoRect.Height) * 0.4f);
             var PlanetIconRect = new Rectangle(PlanetInfoRect.X + 10, PlanetInfoRect.Y + PlanetInfoRect.Height / 2 - iconSize / 2, iconSize, iconSize);
             var nameCursor = new Vector2(PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Pirulen16.MeasureString(SelectedPlanet.Name).X / 2f, PlanetInfoRect.Y + 15);
@@ -190,7 +190,7 @@ namespace Ship_Game
             if (ColoniesList.NumEntries > 0)
             {
                 ColoniesListItem entry = ColoniesList.ItemAtTop;
-                var textCursor         = new Vector2(entry.SysNameRect.X + 30, eRect.Y);
+                var textCursor         = new Vector2(entry.SysNameRect.X + 30, ERect.Y);
                 SubTexture iconPop     = ResourceManager.Texture("UI/icon_pop");
                 SubTexture iconFood    = ResourceManager.Texture("NewUI/icon_food");
                 SubTexture iconProd    = ResourceManager.Texture("NewUI/icon_production");
@@ -198,7 +198,7 @@ namespace Ship_Game
                 SubTexture iconMoney   = ResourceManager.Texture("NewUI/icon_money");
 
                 batch.DrawString(NormalFont, Localizer.Token(GameText.System), textCursor, Cream);
-                textCursor = new Vector2(entry.PlanetNameRect.X + 30, eRect.Y);
+                textCursor = new Vector2(entry.PlanetNameRect.X + 30, ERect.Y);
                 batch.DrawString(NormalFont, Localizer.Token(GameText.Planet), textCursor, Cream);
                 SbPop.rect   = DrawStatTexture(entry.PopRect.X, (int)textCursor.Y, iconPop);
                 SbFood.rect  = DrawStatTexture(entry.FoodRect.X, (int)textCursor.Y, iconFood);
@@ -210,17 +210,17 @@ namespace Ship_Game
                 batch.Draw(iconProd, SbProd.rect, White);
                 batch.Draw(iconRes, SbRes.rect, White);
                 batch.Draw(iconMoney, SbMoney.rect, White);
-                textCursor = new Vector2(entry.SliderRect.X + 30, eRect.Y);
+                textCursor = new Vector2(entry.SliderRect.X + 30, ERect.Y);
                 batch.DrawString(NormalFont, Localizer.Token(GameText.Labor), textCursor, Cream);
-                textCursor = new Vector2(entry.StorageRect.X + 30, eRect.Y);
+                textCursor = new Vector2(entry.StorageRect.X + 30, ERect.Y);
                 batch.DrawString(NormalFont, Localizer.Token(GameText.Storage2), textCursor, Cream);
-                textCursor = new Vector2(entry.QueueRect.X + 30, eRect.Y);
+                textCursor = new Vector2(entry.QueueRect.X + 30, ERect.Y);
                 batch.DrawString(NormalFont, Localizer.Token(GameText.Construction2), textCursor, Cream);
             }
 
             var lineColor = new Color(118, 102, 67, 255);
-            int columnTop = eRect.Y + 35;
-            int columnBot = PlanetInfoRect.Y - 20;
+            float columnTop = ERect.Y + 35;
+            float columnBot = PlanetInfoRect.Y - 20;
 
             var topLeftSL = new Vector2(e1.PlanetNameRect.X, columnTop);
             var botSL     = new Vector2(topLeftSL.X, columnBot);

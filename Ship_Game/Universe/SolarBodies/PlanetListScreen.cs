@@ -50,7 +50,7 @@ namespace Ship_Game
         private int NumAvailableTroops;
         readonly Array<Planet> ExploredPlanets = new Array<Planet>();
         readonly UILabel AvailableTroops;
-        RectF eRect;
+        RectF ERect;
         SortButton LastSorted;
 
         // FB - this will store each planet and it's distance to the closest player colony. If the planet is owned
@@ -79,10 +79,10 @@ namespace Ship_Game
             Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
             EMenu    = new Menu2(leftRect);
             Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
-            eRect = new(leftRect.X + 20, titleRect.Bottom + 30, ScreenWidth - 40,
-                        leftRect.Bottom - (titleRect.Bottom + 30) - 15);
-
-            PlanetSL = Add(new ScrollList<PlanetListScreenItem>(eRect));
+            ERect = new(leftRect.X + 20, titleRect.Bottom + 50, ScreenWidth - 40,
+                        leftRect.Bottom - (titleRect.Bottom + 46) - 31);
+            RectF slRect = new(ERect.X, ERect.Y-10, ERect.W, ERect.H+10);
+            PlanetSL = Add(new ScrollList<PlanetListScreenItem>(slRect));
             PlanetSL.EnableItemHighlight = true;
 
             sb_Sys      = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.System));
@@ -143,7 +143,7 @@ namespace Ship_Game
         Vector2 GetCenteredTextOffset(Rectangle rect, GameText text)
         {
             return new Vector2(rect.X + rect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(text)).X / 2f, 
-                               eRect.Y - Fonts.Arial20Bold.LineSpacing + 16);
+                               ERect.Y - Fonts.Arial20Bold.LineSpacing);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -191,8 +191,8 @@ namespace Ship_Game
                 sb_Owned.Draw(ScreenManager, fontStyle);
          
                 Color lineColor = new Color(118, 102, 67, 255);
-                float columnTop = eRect.Y + 35;
-                float columnBot = eRect.Y + eRect.H - 20;
+                float columnTop = ERect.Y + 15;
+                float columnBot = ERect.Y + ERect.H -20;
                 Vector2 topLeftSL = new(e1.PlanetNameRect.X, columnTop);
                 Vector2 botSL = new(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);

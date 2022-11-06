@@ -89,8 +89,9 @@ namespace Ship_Game
 
             ERect = new(20, titleRect.Y + titleRect.Height + 35, ScreenWidth - 40, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
             ERect.H = ERect.H.RoundDownTo(80);
+            RectF slRect = new(ERect.X, ERect.Y + 15, ERect.W, ERect.H - 15);
 
-            ShipSL = Add(new ScrollList<ShipListScreenItem>(ERect, 30));
+            ShipSL = Add(new ScrollList<ShipListScreenItem>(slRect, 30));
             ShipSL.OnDoubleClick = OnShipListScreenItemClicked;
             ShipSL.EnableItemHighlight = true;
 
