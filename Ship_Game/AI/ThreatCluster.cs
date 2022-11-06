@@ -34,7 +34,10 @@ public sealed class ThreatCluster : SpatialObjectBase
     // This is scratch-space for the ThreatMatrix
     public readonly ClusterUpdate Update;
 
-    [StarDataConstructor] ThreatCluster() : base(GameObjectType.ThreatCluster) { }
+    [StarDataConstructor] ThreatCluster() : base(GameObjectType.ThreatCluster)
+    {
+        Update = new(this);
+    }
 
     public ThreatCluster(Empire loyalty, Ship ship) : base(GameObjectType.ThreatCluster)
     {

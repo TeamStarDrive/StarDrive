@@ -168,6 +168,8 @@ public sealed partial class ThreatMatrix
                     {
                         ThreatCluster root = ChooseBiggestCluster(clusters);
                         MergeClusters(root, clusters);
+
+                        root.Update.ApplyBoundsOnly();
                         Threats.ClustersMap.InsertOrUpdate(root);
                     }
                 }

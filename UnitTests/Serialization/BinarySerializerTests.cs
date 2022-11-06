@@ -10,7 +10,6 @@ using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
 using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
 using UnitTests.Ships;
 using Vector4 = SDGraphics.Vector4;
 using Point = SDGraphics.Point;

@@ -65,6 +65,7 @@ public class StableCollection<T> : ICollection<T>
             int freeItemIndex = FreeSlots.GetFirstSetBitIndex();
             if (freeItemIndex != -1)
             {
+                FreeSlots.Unset(freeItemIndex);
                 globalIndex = BaseIndex + freeItemIndex;
                 return true;
             }
@@ -301,5 +302,13 @@ public class StableCollection<T> : ICollection<T>
         var arr = new T[Count];
         CopyTo(arr, 0);
         return arr;
+    }
+
+    // For TESTING
+    public bool IsFreeSlot(int index)
+    {
+        int whichSlab = index / SlabSize;
+        int itemIndex = index % SlabSize;
+        return Slabs[whichSlab].IsFree(itemIndex);
     }
 }

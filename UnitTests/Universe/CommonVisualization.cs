@@ -38,6 +38,9 @@ internal abstract class CommonVisualization : GameScreen
     protected abstract void DrawStats();
     protected abstract void Search(in AABoundingBox2D searchArea);
 
+    protected abstract void InsertAt(Vector2 pos, float radius);
+    protected abstract void RemoveAt(Vector2 pos, float radius);
+
     public override void Update(float fixedDeltaTime)
     {
         CamHeight = CamHeight.Clamped(80f, FullSize*2f);
@@ -133,19 +136,30 @@ internal abstract class CommonVisualization : GameScreen
         if (input.ScrollIn)  { CamHeight -= MoveStep(2.5f); return true; }
         if (input.ScrollOut) { CamHeight += MoveStep(2.5f); return true; }
 
-        if (input.LeftMouseHeldDown)
+        if (input.IsCtrlKeyDown)
         {
-            Vector2 delta = input.CursorVelocity;
-            Camera.X += MoveStep(0.01f) * delta.X;
-            Camera.Y += MoveStep(0.01f) * delta.Y;
+            float radius = UnprojectToWorldSize(10); // 10px radius
+            if (input.LeftMouseClick)
+                InsertAt(CursorWorldPosition2D, radius);
+            else if (input.RightMouseClick)
+                RemoveAt(CursorWorldPosition2D, radius);
         }
-
-        if (input.RightMouseHeldDown)
+        else
         {
-            Vector2 a = UnprojectToWorldPosition(input.StartRightHold);
-            Vector2 b = UnprojectToWorldPosition(input.EndRightHold);
-            SearchArea = AABoundingBox2D.FromIrregularPoints(a, b);
-            Search(SearchArea);
+            if (input.LeftMouseHeldDown)
+            {
+                Vector2 delta = input.CursorVelocity;
+                Camera.X += MoveStep(0.01f) * delta.X;
+                Camera.Y += MoveStep(0.01f) * delta.Y;
+            }
+
+            if (input.RightMouseHeldDown)
+            {
+                Vector2 a = UnprojectToWorldPosition(input.StartRightHold);
+                Vector2 b = UnprojectToWorldPosition(input.EndRightHold);
+                SearchArea = AABoundingBox2D.FromIrregularPoints(a, b);
+                Search(SearchArea);
+            }
         }
 
         return base.HandleInput(input);

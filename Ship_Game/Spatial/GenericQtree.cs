@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SDGraphics;
 using SDUtils;
 
@@ -27,7 +28,14 @@ public partial class GenericQtree
     /// </summary>
     readonly int Levels;
 
+    /// <summary>
+    /// Full width of the Qtree, should be >= than WorldSize
+    /// </summary>
     public float FullSize { get; }
+
+    /// <summary>
+    /// Real width of the universe
+    /// </summary>
     public float WorldSize { get; }
 
     Node Root;
@@ -35,6 +43,7 @@ public partial class GenericQtree
     // We need to keep a list of all ObjectRef's to enable accurate Remove and Update
     readonly StableCollection<ObjectRef> ObjectRefs = new();
     public int Count => ObjectRefs.Count;
+    public SpatialObjectBase[] Objects => ObjectRefs.Items.Select(o => o.Source).ToArr();
 
     public string Name => "GenericQtree";
 
@@ -96,17 +105,21 @@ public partial class GenericQtree
     }
 
     /// <summary>
-    /// Removes an object if it exists
+    /// Removes an object if it exists.
+    /// Returns TRUE if the object was successfully removed
     /// </summary>
-    public void Remove(SpatialObjectBase obj)
+    public bool Remove(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
         ObjectRef toRemove = FindObjectRef(obj);
         if (toRemove == null)
-            return; // this object does not exist in this Qtree, do nothing
+            return false; // this object does not exist in this Qtree, do nothing
         
-        RemoveAt(Root, Levels, toRemove, in toRemove.AABB);
+        bool removed = RemoveAt(Root, Root, Levels, toRemove, in toRemove.AABB);
+        if (removed && Root.HasEmptyLeafNodes)
+            Root.ClearCells();
         ObjectRefs.RemoveAt(toRemove.ObjectId);
+        return removed;
     }
 
     /// <summary>
@@ -120,7 +133,7 @@ public partial class GenericQtree
         if (toUpdate == null)
             return false; // this object does not exist in this Qtree, do nothing
 
-        RemoveAt(Root, Levels, toUpdate, in toUpdate.AABB);
+        RemoveAt(Root, Root, Levels, toUpdate, in toUpdate.AABB);
         toUpdate.UpdateBounds();
         InsertAt(Root, Levels, toUpdate);
         return true;
@@ -141,7 +154,7 @@ public partial class GenericQtree
             return true;
         }
 
-        RemoveAt(Root, Levels, toUpdate, in toUpdate.AABB);
+        RemoveAt(Root, Root, Levels, toUpdate, in toUpdate.AABB);
         toUpdate.UpdateBounds();
         InsertAt(Root, Levels, toUpdate);
         return false;
@@ -180,13 +193,15 @@ public partial class GenericQtree
                 if (overlaps == 0)
                     return; // fast exit
 
-                // this is an optimal case, we only overlap 1 sub-quadrant, so we go deeper
+                // this is an optimal case, we only overlap 1 sub-quadrant, so we can go deeper
+                // without recursion
                 if (overlaps == 1)
                 {
                     if      (NW) { node = node.NW; --level; }
                     else if (NE) { node = node.NE; --level; }
                     else if (SE) { node = node.SE; --level; }
                     else if (SW) { node = node.SW; --level; }
+                    continue; // loop back to check the node again
                 }
                 else // target overlaps multiple quadrants, so it has to be inserted into several of them:
                 {
@@ -208,19 +223,9 @@ public partial class GenericQtree
     void InsertAtLeaf(Node leaf, int level, ObjectRef obj)
     {
         // are we maybe over Threshold and should Subdivide ?
-        if (level > 0 && leaf.Count >= CellThreshold)
+        if (level > 2 && leaf.Count >= CellThreshold)
         {
-            float x1 = leaf.AABB.X1;
-            float x2 = leaf.AABB.X2;
-            float y1 = leaf.AABB.Y1;
-            float y2 = leaf.AABB.Y2;
-            float midX = (x1 + x2) * 0.5f;
-            float midY = (y1 + y2) * 0.5f;
-
-            leaf.NW = new(x1, y1, midX, midY);
-            leaf.NE = new(midX, y1, x2, midY);
-            leaf.SE = new(midX, midY, x2, y2);
-            leaf.SW = new(x1, midY, midX, y2);
+            leaf.ConvertToLeaf();
 
             int count = leaf.Count;
             ObjectRef[] oldItems = leaf.Items;
@@ -240,7 +245,8 @@ public partial class GenericQtree
         }
     }
 
-    static void RemoveAt(Node node, int level, ObjectRef toRemove, in AABoundingBox2D objectRect)
+    // @return TRUE if object was removed
+    static bool RemoveAt(Node parent, Node node, int level, ObjectRef toRemove, in AABoundingBox2D objectRect)
     {
         for (;;)
         {
@@ -248,30 +254,40 @@ public partial class GenericQtree
             {
                 (bool NW, bool NE, bool SE, bool SW, int overlaps) = OverlapsRect.GetWithCount(node.AABB, objectRect);
                 if (overlaps == 0)
-                    return; // fast exit
+                    return false; // fast exit
 
                 // this is an optimal case, we only overlap 1 sub-quadrant, so we go deeper
                 if (overlaps == 1)
                 {
-                    if      (NW) { node = node.NW; --level; }
-                    else if (NE) { node = node.NE; --level; }
-                    else if (SE) { node = node.SE; --level; }
-                    else if (SW) { node = node.SW; --level; }
+                    parent = node;
+                    if      (NW)  { node = node.NW; --level; }
+                    else if (NE)  { node = node.NE; --level; }
+                    else if (SE)  { node = node.SE; --level; }
+                    else/*if(SW)*/{ node = node.SW; --level; }
                 }
                 else // target overlaps multiple quadrants, so it has to be removed from several of them:
                 {
-                    if (NW) { RemoveAt(node.NW, level-1, toRemove, in objectRect); }
-                    if (NE) { RemoveAt(node.NE, level-1, toRemove, in objectRect); }
-                    if (SE) { RemoveAt(node.SE, level-1, toRemove, in objectRect); }
-                    if (SW) { RemoveAt(node.SW, level-1, toRemove, in objectRect); }
+                    bool removed = false;
+                    if (NW) { removed |= RemoveAt(parent, node.NW, level-1, toRemove, in objectRect); }
+                    if (NE) { removed |= RemoveAt(parent, node.NE, level-1, toRemove, in objectRect); }
+                    if (SE) { removed |= RemoveAt(parent, node.SE, level-1, toRemove, in objectRect); }
+                    if (SW) { removed |= RemoveAt(parent, node.SW, level-1, toRemove, in objectRect); }
 
-                    return;
+                    if (removed && parent.HasEmptyLeafNodes)
+                        parent.ClearCells();
+
+                    return removed;
                 }
             }
             else // isLeaf
             {
-                node.Remove(toRemove);
-                return;
+                bool removed = node.Remove(toRemove);
+
+                // if ALL siblings are empty LEAF nodes, then delete them
+                if (removed && parent.HasEmptyLeafNodes)
+                    parent.ClearCells();
+
+                return removed;
             }
         }
     }
@@ -308,6 +324,8 @@ public partial class GenericQtree
         public int ObjectId; // unique object id for this ref
         public AABoundingBox2D AABB;
 
+        public override string ToString() => $"Id={ObjectId} Center={AABB.Center} Size={AABB.Size} Source={Source}";
+
         public ObjectRef(SpatialObjectBase go)
         {
             Active = 1;
@@ -340,6 +358,35 @@ public partial class GenericQtree
         {
             AABB = new(x1, y1, x2, y2);
             Items = NoObjects;
+        }
+
+        public bool HasEmptyLeafNodes => NW != null 
+                                      && NW.Count == 0 && NW.IsLeaf
+                                      && NE.Count == 0 && NE.IsLeaf
+                                      && SE.Count == 0 && SE.IsLeaf
+                                      && SW.Count == 0 && SW.IsLeaf;
+
+        public void ClearCells()
+        {
+            NW = null;
+            NE = null;
+            SE = null;
+            SW = null;
+        }
+
+        public void ConvertToLeaf()
+        {
+            float x1 = AABB.X1;
+            float x2 = AABB.X2;
+            float y1 = AABB.Y1;
+            float y2 = AABB.Y2;
+            float midX = (x1 + x2) * 0.5f;
+            float midY = (y1 + y2) * 0.5f;
+
+            NW = new(x1, y1, midX, midY);
+            NE = new(midX, y1, x2, midY);
+            SE = new(midX, midY, x2, y2);
+            SW = new(x1, midY, midX, y2);
         }
 
         public override string ToString()
@@ -390,8 +437,10 @@ public partial class GenericQtree
             LoyaltyMask |= thisMask;
         }
 
-        public void Remove(ObjectRef toRemove)
+        public bool Remove(ObjectRef toRemove)
         {
+            bool removed = false;
+
             // every time we remove an item, we need to recalculate the LoyaltyMask
             LoyaltyMask = 0;
 
@@ -405,6 +454,7 @@ public partial class GenericQtree
                     int last = --Count;
                     Items[i] = Items[last];
                     Items[last] = default;
+                    removed = true;
                 }
                 else
                 {
@@ -414,6 +464,8 @@ public partial class GenericQtree
                     LoyaltyMask |= thisMask;
                 }
             }
+
+            return removed;
         }
     }
 }
