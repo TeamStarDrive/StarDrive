@@ -404,7 +404,7 @@ namespace SDUtils
         {
             int newLength = array.Length + 1;
             Memory.HybridCopyRefs(result = new T[newLength], 0, array, array.Length);
-            result[newLength] = item;
+            result[newLength-1] = item;
         }
 
         public static T[] CloneArray<T>(this T[] items)

@@ -25,9 +25,11 @@ public class StableCollectionTests : StarDriveTest
 
         Assert.AreEqual(0, c.Insert("dog"));
         Assert.AreEqual(1, c.Count);
+        Assert.IsFalse(c.IsFreeSlot(0));
 
         Assert.AreEqual(1, c.Insert("cat"));
         Assert.AreEqual(2, c.Count);
+        Assert.IsFalse(c.IsFreeSlot(1));
 
         Assert.ThrowsException<NullReferenceException>(() => c.Insert(null));
 
@@ -59,6 +61,12 @@ public class StableCollectionTests : StarDriveTest
         Assert.AreEqual(4, c.IndexOf("e"));
         Assert.ThrowsException<NullReferenceException>(() => c.IndexOf(null));
 
+        Assert.IsFalse(c.IsFreeSlot(0));
+        Assert.IsFalse(c.IsFreeSlot(1));
+        Assert.IsFalse(c.IsFreeSlot(2));
+        Assert.IsFalse(c.IsFreeSlot(3));
+        Assert.IsFalse(c.IsFreeSlot(4));
+
         Assert.That.EqualCollections(ArrABCDE(), c.ToArr());
     }
 
@@ -86,10 +94,12 @@ public class StableCollectionTests : StarDriveTest
         c.RemoveAt(0);
         Assert.IsFalse(c.Contains("a"));
         Assert.AreEqual(4, c.Count); // but the count does change!
+        Assert.IsTrue(c.IsFreeSlot(0));
 
         c.RemoveAt(2);
         Assert.IsFalse(c.Contains("c"));
         Assert.AreEqual(3, c.Count);
+        Assert.IsTrue(c.IsFreeSlot(2));
 
         Assert.That.EqualCollections(new[]{"b","d","e"}, c.ToArr());
     }
@@ -98,11 +108,35 @@ public class StableCollectionTests : StarDriveTest
     public void Remove()
     {
         var c = MakeABCDE();
+        Assert.IsFalse(c.IsFreeSlot(0));
+        Assert.IsFalse(c.IsFreeSlot(2));
         Assert.IsTrue(c.Remove("a"));
         Assert.IsTrue(c.Remove("c"));
+        Assert.IsTrue(c.IsFreeSlot(0));
+        Assert.IsTrue(c.IsFreeSlot(2));
 
         Assert.IsFalse(c.Remove("a"));
         Assert.IsFalse(c.Remove("x"));
+    }
+
+    [TestMethod]
+    public void ReInsert()
+    {
+        var c = MakeABCDE();
+        Assert.IsTrue(c.Remove("a"));
+        Assert.IsTrue(c.Remove("c"));
+        Assert.IsTrue(c.IsFreeSlot(0));
+        Assert.IsTrue(c.IsFreeSlot(2));
+
+        Assert.AreEqual(0, c.Insert("0"));
+        Assert.IsFalse(c.IsFreeSlot(0));
+        Assert.AreEqual(2, c.Insert("2"));
+        Assert.IsFalse(c.IsFreeSlot(2));
+
+        Assert.IsTrue(c.Remove("0"));
+        Assert.IsTrue(c.IsFreeSlot(0));
+        Assert.AreEqual(0, c.Insert("new"));
+        Assert.IsFalse(c.IsFreeSlot(0));
     }
 
     [TestMethod]

@@ -710,6 +710,14 @@ namespace Ship_Game
             return new AABoundingBox2Dd(topLeft, botRight);
         }
 
+        public float UnprojectToWorldSize(float sizeOnScreen)
+        {
+            Vector3d left  = UnprojectToWorldPosition3D(new Vector2(-sizeOnScreen/2, 0));
+            Vector3d right = UnprojectToWorldPosition3D(new Vector2(+sizeOnScreen/2, 0));
+
+            return (float)left.Distance(right);
+        }
+
         // Unprojects cursor screen pos to world 3D position
         public Vector3 CursorWorldPosition => UnprojectToWorldPosition3D(Input.CursorPosition).ToVec3f();
         public Vector2 CursorWorldPosition2D => UnprojectToWorldPosition(Input.CursorPosition);
