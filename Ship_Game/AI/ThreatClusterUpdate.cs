@@ -35,11 +35,12 @@ public sealed class ClusterUpdate
     }
 
     // Reset for the start of a new observation update
-    public void ResetForObservation()
+    public void ResetForObservation(bool isOwnerCluster)
     {
         Ships.Clear();
         ForceRemove = false;
-        FullyObserved = false;
+        // owner's own clusters are always fully observed
+        FullyObserved = isOwnerCluster;
     }
 
     public void AddShip(Ship s)
@@ -81,7 +82,7 @@ public sealed class ClusterUpdate
     public bool ShouldBeRemoved
     {
         // fully observed but empty clusters MUST be removed
-        get => ForceRemove || (Ships.IsEmpty && FullyObserved);
+        get => ForceRemove || (FullyObserved && Ships.IsEmpty);
         set => ForceRemove = value;
     }
 
@@ -129,6 +130,16 @@ public sealed class ClusterUpdate
 
             if (isOwnerCluster)
                 s.CurrentCluster = Cluster;
+        }
+        
+        // Unfortunately we also need to recalculate the Bounds
+        // since the cluster can be a traveling fleet, in which case
+        // the regular AddShip() bounds would forever expand the cluster
+        Bounds = new(ships[0].Position, ThreatMatrix.InitialClusterRadius);
+        for (int i = 1; i < ships.Length; ++i)
+        {
+            Ship s = ships[i];
+            Bounds = Bounds.Merge(new(s.Position, s.Radius));
         }
 
         //// TODO: add a fast way to test with Radius in InfluenceTree
