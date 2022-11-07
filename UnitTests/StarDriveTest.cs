@@ -354,7 +354,7 @@ namespace UnitTests
         public Planet AddDummyPlanet(Vector2 sysPos, float fertility, float minerals, float pop, Vector2 pos, bool explored)
         {
             SolarSystem s = CreateRandomSolarSystem(sysPos);
-            var p = new Planet(UState.CreateId(), s, fertility, minerals, pop) { Position = pos };
+            var p = new Planet(UState.CreateId(), s, pos, fertility, minerals, pop);
             AddPlanetToSolarSystem(s, p);
 
             if (explored)

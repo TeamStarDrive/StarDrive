@@ -1,4 +1,5 @@
-﻿using SDUtils;
+﻿using System;
+using SDUtils;
 using Ship_Game.Utils;
 using Ship_Game.Data.Serialization;
 
@@ -39,11 +40,34 @@ public class EventContextOnDeserialized
     {
         Event[] events = GetEvents(allGroups);
 
-        DependencySorter<Event>.Sort(events, e =>
+        Map<Event, Array<Event>> evtRequirements = new();
+        foreach (Event e in events)
+            evtRequirements[e] = new();
+
+        // build event requirements for each event type
+        foreach (Event e in events)
         {
-            // find all Event instances that match the Type's from Attr.Required
-            return e.Attr.Required?.Select(t => events.Find(d => d.Group.Type.Type == t)!);
-        });
+            if (e.Attr.Required != null) // first add all straight up requirements
+            {
+                foreach (Type requiredType in e.Attr.Required)
+                {
+                    Event weRequire = events.Find(d => d.Group.Type.Type == requiredType)!;
+                    evtRequirements[e].AddUniqueRef(weRequire);
+                }
+            }
+
+            // then update all `DeserializeBefore` events to Require this `e`
+            if (e.Attr.DeserializeBefore != null)
+            {
+                foreach (Type requiredType in e.Attr.DeserializeBefore)
+                {
+                    Event requiresUs = events.Find(d => d.Group.Type.Type == requiredType)!;
+                    evtRequirements[requiresUs].AddUniqueRef(e);
+                }
+            }
+        }
+
+        DependencySorter<Event>.Sort(events, e => evtRequirements[e].ToArr());
 
         // Call the events
         foreach (Event e in events)

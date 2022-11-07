@@ -209,7 +209,9 @@ namespace SDUtils
                 if (value > Items.Length) // manually inlined to improve performance
                 {
                     var newArray = new T[value];
-                    Array.Copy(Items, 0, newArray, 0, Items.Length);
+                    int count = Count;
+                    if (count > 0)
+                        Array.Copy(Items, 0, newArray, 0, count);
                     Items = newArray;
                 }
             }
