@@ -216,7 +216,7 @@ namespace Ship_Game.Ships
         }
 
         [StarDataConstructor] // for Deserializer
-        Ship() : base(0, GameObjectType.Ship)
+        protected Ship() : base(0, GameObjectType.Ship)
         {
         }
 
@@ -233,7 +233,7 @@ namespace Ship_Game.Ships
 
         // Create a ship from a SavedGame: Ship.OnDeserialized
         [StarDataDeserialized(typeof(ShipDesign))]
-        void OnDeserialized(UniverseState us)
+        public void OnDeserialized(UniverseState us)
         {
             Universe = us;
             var moduleSaves = SavedModules ?? Empty<ModuleSaveData>.Array;

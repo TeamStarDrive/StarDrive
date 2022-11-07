@@ -23,23 +23,41 @@ public sealed partial class ThreatMatrix
         {
             Array<ThreatCluster> results = new();
             foreach (ThreatCluster c in Clusters)
-                if (c.Update.Apply(owner, isOwnerCluster: isOwnerCluster))
+            {
+                if (c.Update.ShouldBeRemoved)
+                {
+                    Threats.ClustersMap.Remove(c);
+                }
+                else
+                {
+                    c.Update.Update(owner, isOwnerCluster: isOwnerCluster);
                     results.Add(c);
+                }
+            }
             return results.ToArr();
+        }
+
+        void InitClusters(ThreatCluster[] clusters)
+        {
+            Clusters.Capacity = clusters.Length;
+            // also reset the clusters for observation
+            for (int i = 0; i < clusters.Length; ++i)
+            {
+                ThreatCluster c = clusters[i];
+                Clusters.Add(c);
+                c.Update.ResetForObservation();
+            }
         }
 
         public void CreateOurClusters(Empire owner, Ship[] ourShips)
         {
-            // reset all of our clusters
-            ThreatCluster[] ours = Threats.OurClusters;
-            for (int i = 0; i < ours.Length; ++i)
-                ours[i].Update.Reset();
+            InitClusters(Threats.OurClusters);
 
             // create an observation of our own forces, these are always fully observed
             for (int i = 0; i < ourShips.Length; ++i)
             {
                 var u = AddSeenShip(owner, ourShips[i], OwnClusterJoinRadius);
-                u.Update.FullyObserved = true;
+                u.Update.FullyObserved = true; // our clusters always fully explored
             }
 
             MergeOverlappingClusters();
@@ -47,8 +65,7 @@ public sealed partial class ThreatMatrix
 
         public void CreateAndUpdateRivalClusters(ThreatCluster[] ours, Ship[] ourProjectors)
         {
-            foreach (ThreatCluster cluster in Threats.RivalClusters)
-                cluster.Update.Reset();
+            InitClusters(Threats.RivalClusters);
 
             // set whether these clusters were fully observed or not
             HashSet<ThreatCluster> observed = ObserveRivalClusters(ours, ourProjectors);
@@ -118,6 +135,9 @@ public sealed partial class ThreatMatrix
         ThreatCluster AddNewCluster(Empire loyalty, Ship ship)
         {
             ThreatCluster c = new(loyalty, ship);
+            // new clusters are always fully explored, this ensures they get removed
+            // after merging
+            c.Update.FullyObserved = true;
             Clusters.Add(c);
             Threats.ClustersMap.Insert(c);
             return c;
@@ -126,6 +146,10 @@ public sealed partial class ThreatMatrix
         ThreatCluster AddToExistingCluster(ThreatCluster c, Ship ship)
         {
             c.Update.AddShip(ship);
+            #if DEBUG
+            if (!Clusters.Contains(c))
+                throw new KeyNotFoundException("Existing Qtree ThreatCluster was not found in generator Clusters");
+            #endif
             Threats.ClustersMap.InsertOrUpdate(c);
             return c;
         }
@@ -168,9 +192,8 @@ public sealed partial class ThreatMatrix
                     {
                         ThreatCluster root = ChooseBiggestCluster(clusters);
                         MergeClusters(root, clusters);
-
-                        root.Update.ApplyBoundsOnly();
-                        Threats.ClustersMap.InsertOrUpdate(root);
+                        if (!Threats.ClustersMap.Update(root))
+                            throw new("Failed to update ThreatCluster");
                     }
                 }
             }
@@ -194,8 +217,8 @@ public sealed partial class ThreatMatrix
                 ThreatCluster c = clusters[i];
                 if (root != c && c.Update.Ships.NotEmpty)
                 {
-                    Threats.ClustersMap.Remove(c);
                     root.Update.Merge(c.Update);
+                    Threats.ClustersMap.Remove(c);
                 }
             }
         }

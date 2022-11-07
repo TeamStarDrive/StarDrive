@@ -1,12 +1,15 @@
-﻿using Ship_Game;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.IO;
+using System.Collections.Generic;
+using Ship_Game;
 using Ship_Game.Ships;
 using UnitTests.Ships;
 using Ship_Game.Utils;
-using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI;
-using System.Collections.Generic;
 using Ship_Game.GameScreens.NewGame;
+using Ship_Game.Data.Binary;
+using Ship_Game.Universe;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Universe;
 
@@ -55,7 +58,7 @@ public class ThreatMatrixTests : StarDriveTest
 
     void ScanAndUpdateThreats(params Empire[] owners)
     {
-        UState.Objects.Update(FixedSimTime.One);
+        UState.Objects.Update(new(time:2.0f));
         foreach (Empire owner in owners)
             owner.Threats.Update();
     }
@@ -95,27 +98,36 @@ public class ThreatMatrixTests : StarDriveTest
         float str2 = CreateShipsAt(pos2, 5000, Enemy, 40);
         ScanAndUpdateThreats(Player, Enemy);
 
-        Assert.AreEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos2, 5000)));
-        Assert.AreEqual(scout.GetStrength(), Str(Enemy.Threats.FindClusters(Player, pos2, 5000)));
-
-        if (EnableVisualization)
-            DebugVisualizeThreats(Enemy);
+        // GetStrengthAt is actually an alias for FindClusters
+        Assert.AreEqual(str2, Player.Threats.GetStrengthAt(Enemy, pos2, 5000));
+        Assert.AreEqual(scout.GetStrength(), Enemy.Threats.GetStrengthAt(Player, pos2, 5000));
 
         // now lose vision
         scout.InstantKill();
         ScanAndUpdateThreats(Player, Enemy);
 
-
-        if (EnableVisualization)
-            DebugVisualizeThreats(Enemy);
-
         // we should still remember enemy stuff
-        Assert.AreEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos2, 5000)),
+        Assert.AreEqual(str2, Player.Threats.GetStrengthAt(Enemy, pos2, 5000),
             "Should remember clusters missing from vision");
 
         // enemy should know that we just lost the scout because they saw it
-        Assert.AreEqual(0, Str(Enemy.Threats.FindClusters(Player, pos2, 5000)),
+        Assert.AreEqual(0, Enemy.Threats.GetStrengthAt(Player, pos2, 5000),
             "Enemy should not remember our scout because they saw it die");
+    }
+    
+    // forget about ships that we saw die
+    [TestMethod]
+    public void FindClusters_ForgetKilledShip()
+    {
+        Vector2 pos = PlayerPlanet.Position;
+        TestShip playerShip = SpawnShip(SCOUT_NAME, Player, pos);
+        TestShip enemyShip = SpawnShip(SCOUT_NAME, Enemy, pos);
+        ScanAndUpdateThreats(Player);
+        Assert.AreEqual(enemyShip.GetStrength(), Player.Threats.GetStrengthAt(Enemy, pos, 5000));
+
+        enemyShip.InstantKill();
+        ScanAndUpdateThreats(Player);
+        Assert.AreEqual(0, Player.Threats.GetStrengthAt(Enemy, pos, 5000));
     }
 
     [TestMethod]
@@ -391,4 +403,87 @@ public class ThreatMatrixTests : StarDriveTest
         Assert.AreEqual(2, Player.AI.ThreatMatrix.OurClusters.Length, "There should be only 2 clusters");
     }
 
+    // just to make sure that the updating logic will
+    // not create crazy infinite amount of ClustersMap entries, causing
+    // horrible perf
+    [TestMethod]
+    public void ClustersWillNotGrowInfinitely()
+    {
+        Vector2 pos = PlayerPlanet.Position;
+        CreateShipsAt(pos, 5000, Player, numShips:40);
+        CreateShipsAt(pos, 5000, Enemy, numShips:40);
+        ScanAndUpdateThreats(Player, Enemy);
+
+        int ours1 = Player.Threats.OurClusters.Length;
+        int ours2 = Enemy.Threats.OurClusters.Length;
+        int rivals1 = Player.Threats.RivalClusters.Length;
+        int rivals2 = Enemy.Threats.RivalClusters.Length;
+        int mapSize1 = Player.Threats.ClustersMap.Count;
+        int mapSize2 = Enemy.Threats.ClustersMap.Count;
+
+        for (int i = 0; i < 100; ++i)
+        {
+            ScanAndUpdateThreats(Player, Enemy);
+            Assert.AreEqual(ours1, Player.Threats.OurClusters.Length);
+            Assert.AreEqual(ours2, Enemy.Threats.OurClusters.Length);
+            Assert.AreEqual(rivals1, Player.Threats.RivalClusters.Length);
+            Assert.AreEqual(rivals2, Enemy.Threats.RivalClusters.Length);
+            Assert.AreEqual(mapSize1, Player.Threats.ClustersMap.Count);
+            Assert.AreEqual(mapSize2, Enemy.Threats.ClustersMap.Count);
+        }
+    }
+
+    static T SerDes<T>(T instance)
+    {
+        var ser = new BinarySerializer(instance);
+        var ms = new MemoryStream();
+        using var writer = new Writer(ms);
+        ser.Serialize(writer, instance);
+
+        ms.Position = 0;
+        using var reader = new Reader(ms);
+        return (T)ser.Deserialize(reader);
+    }
+
+    void AreEqual(ThreatCluster expected, ThreatCluster actual)
+    {
+        Assert.AreEqual(expected.Loyalty?.Name, actual.Loyalty?.Name);
+        Assert.AreEqual(expected.System?.Name, actual.System?.Name);
+        Assert.AreEqual(expected.Strength, actual.Strength);
+        Assert.AreEqual(expected.Ships.Length, actual.Ships.Length);
+        Assert.AreEqual(expected.HasStarBases, actual.HasStarBases);
+        Assert.AreEqual(expected.InBorders, actual.InBorders);
+
+        Assert.AreEqual(expected.Active, actual.Active);
+        Assert.AreEqual(expected.Type, actual.Type);
+        Assert.AreEqual(expected.Position, actual.Position);
+        Assert.AreEqual(expected.Radius, actual.Radius);
+    }
+
+    [TestMethod]
+    public void SerializedThreatMatricesAreEqual()
+    {
+        Vector2 pos = PlayerPlanet.Position;
+        CreateShipsAt(pos, 5000, Player, numShips:40);
+        CreateShipsAt(pos, 5000, Enemy, numShips:40);
+        ScanAndUpdateThreats(Player, Enemy);
+
+        UniverseState us = SerDes(UState);
+
+        ThreatMatrix ser = UState.Player.Threats;
+        ThreatMatrix des = us.Player.Threats;
+
+        Assert.AreEqual(ser.Owner.Name, des.Owner.Name);
+        Assert.AreEqual(ser.OurClusters.Length, des.OurClusters.Length, "OurClusters.Length");
+        Assert.AreEqual(ser.RivalClusters.Length, des.RivalClusters.Length, "RivalClusters.Length");
+        
+        for (int i = 0; i < ser.OurClusters.Length; ++i)
+            AreEqual(ser.OurClusters[i], des.OurClusters[i]);
+
+        for (int i = 0; i < ser.RivalClusters.Length; ++i)
+            AreEqual(ser.RivalClusters[i], des.RivalClusters[i]);
+
+        Assert.AreEqual(ser.ClustersMap.Count, des.ClustersMap.Count, "ClustersMap.Count");
+        Assert.AreEqual(ser.ClustersMap.FullSize, des.ClustersMap.FullSize, "ClustersMap.FullSize");
+    }
 }

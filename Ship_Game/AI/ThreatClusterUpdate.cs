@@ -1,4 +1,6 @@
-﻿using SDUtils;
+﻿using System;
+using SDGraphics;
+using SDUtils;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI;
@@ -14,6 +16,10 @@ public sealed class ClusterUpdate
     // if a cluster is fully observed and has no ships, it will be removed from threats
     public bool FullyObserved;
 
+    // if true, this cluster will be dumped at the end of the update
+    // otherwise it is kept in ThreatMatrix 'memory'
+    bool ForceRemove;
+
     public ClusterUpdate(ThreatCluster cluster, Ship s)
     {
         Cluster = cluster;
@@ -22,15 +28,18 @@ public sealed class ClusterUpdate
         ApplyBoundsOnly();
     }
 
-    public ClusterUpdate(ThreatCluster cluster)
+    public ClusterUpdate(ThreatCluster cluster, Vector2 pos, float radius)
     {
         Cluster = cluster;
-        Bounds = new (cluster.Position, cluster.Radius);
+        Bounds = new(pos, radius);
     }
 
-    public void Reset()
+    // Reset for the start of a new observation update
+    public void ResetForObservation()
     {
         Ships.Clear();
+        ForceRemove = false;
+        FullyObserved = false;
     }
 
     public void AddShip(Ship s)
@@ -40,6 +49,7 @@ public sealed class ClusterUpdate
         ApplyBoundsOnly();
     }
 
+    // merge this cluster with `u`, and mark `u` for deletion
     public void Merge(ClusterUpdate u)
     {
         if (u.Ships.NotEmpty)
@@ -47,11 +57,16 @@ public sealed class ClusterUpdate
             foreach (Ship s in u.Ships)
             {
                 Bounds = Bounds.Merge(new(s.Position, s.Radius));
+                #if DEBUG
+                    if (Ships.Contains(s))
+                        throw new InvalidOperationException("ThreatCluster Merge Double Insert bug");
+                #endif
                 Ships.Add(s);
             }
+            u.Ships.Clear();
+            u.ForceRemove = true;
             ApplyBoundsOnly();
         }
-        u.Reset();
     }
 
     public void ApplyBoundsOnly()
@@ -62,26 +77,27 @@ public sealed class ClusterUpdate
         Cluster.Radius = Bounds.Diagonal*0.5f;
     }
 
+    // TRUE if this cluster should be removed from Threats
+    public bool ShouldBeRemoved
+    {
+        // fully observed but empty clusters MUST be removed
+        get => ForceRemove || (Ships.IsEmpty && FullyObserved);
+        set => ForceRemove = value;
+    }
+
     /// <summary>
     /// Updates the ThreatCluster with its new state.
     /// </summary>
     /// <param name="owner">The empire which owns the ThreatMatrix</param>
     /// <param name="isOwnerCluster">if true, this cluster belongs to Owner (observation of self)</param>
-    /// <returns>TRUE if cluster is valid and should be added, FALSE if it should be removed</returns>
-    public bool Apply(Empire owner, bool isOwnerCluster)
+    public void Update(Empire owner, bool isOwnerCluster)
     {
         if (Ships.IsEmpty)
         {
-            if (FullyObserved)
-            {
-                Reset();
-                return false; // fully observed but empty clusters MUST be removed
-            }
-
-            // keep it, BUT remove inactive ships to avoid ships remaining
+            // remove inactive ships to avoid ships remaining
             // in stale clusters and causing OOM
-            RemoveInactiveShips();
-            return true;
+            Cluster.Ships = Cluster.Ships.Filter(s => s.Active);
+            return;
         }
 
         // In the case when we have observed some ships
@@ -124,11 +140,5 @@ public sealed class ClusterUpdate
         Cluster.HasStarBases = hasStarBases;
         Cluster.InBorders = inBorders;
         Cluster.System = system ?? (SolarSystem)owner.Universe.SystemsTree.FindOne(Cluster.Position, Cluster.Radius);
-        return true; // keep it
-    }
-
-    void RemoveInactiveShips()
-    {
-        Cluster.Ships = Cluster.Ships.Filter(s => s.Active);
     }
 }
