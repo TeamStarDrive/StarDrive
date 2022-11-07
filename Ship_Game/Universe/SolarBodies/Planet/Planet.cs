@@ -264,16 +264,21 @@ namespace Ship_Game
 
         // For TESTING only
         // You can't call GeneratePlanet / GenerateNewHomeworld after calling this
-        public Planet(int id, SolarSystem system, float fertility, float minerals, float maxPop) : this(id)
+        // It will set planet scale/radius to default values
+        public Planet(int id, SolarSystem system, Vector2 pos, 
+                      float fertility, float minerals, float maxPop) : this(id)
         {
             ParentSystem = system;
             BaseFertility     = fertility;
             MineralRichness   = minerals;
             BasePopPerTileVal = maxPop;
+            Position = pos;
             if (fertility > 0)
                 PType = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
             else
                 PType = ResourceManager.Planets.PlanetOrRandom(0);
+            Scale = 1f;
+            Radius = PType.Types.BasePlanetRadius;
         }
 
         public Planet(int id, RandomBase random, SolarSystem system, float randomAngle, float ringRadius, string name,

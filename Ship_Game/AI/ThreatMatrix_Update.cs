@@ -85,7 +85,12 @@ public sealed partial class ThreatMatrix
         Seen.Clear();
         OurClusters = ours;
         RivalClusters = rivals;
-        ThreatCluster[] allClusters = ours.Concat(rivals);
+
+        // TODO: Based on playtesting, figure out if we need this anymore
+        //       the new GenericQtree design should make it unnecessary
+        //// Deletes excluded clusters from the clusters map
+        //// Empty clusters which were fully explored will be removed here
+        //ThreatCluster[] allClusters = ours.Concat(rivals);
         //ClustersMap.UpdateAll(allClusters);
     }
 }

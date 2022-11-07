@@ -32,11 +32,17 @@ public sealed class ThreatCluster : SpatialObjectBase
     [StarData] public bool InBorders;
 
     // This is scratch-space for the ThreatMatrix
-    public readonly ClusterUpdate Update;
+    public ClusterUpdate Update;
 
     [StarDataConstructor] ThreatCluster() : base(GameObjectType.ThreatCluster)
     {
-        Update = new(this);
+    }
+
+    [StarDataDeserialized]
+    public void OnDeserialized()
+    {
+        // calling inside OnDeserialized so that we have a valid Pos and Radius
+        Update = new(this, Position, Radius);
     }
 
     public ThreatCluster(Empire loyalty, Ship ship) : base(GameObjectType.ThreatCluster)

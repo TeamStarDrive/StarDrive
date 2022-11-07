@@ -19,7 +19,7 @@ public sealed partial class ThreatMatrix
     /// <summary>
     /// The empire which owns this ThreatMatrix
     /// </summary>
-    [StarData] readonly Empire Owner;
+    [StarData] public readonly Empire Owner;
 
     /// <summary>
     /// OUR observed clusters, always up-to-date.

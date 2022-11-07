@@ -100,7 +100,12 @@ public class StarDataSerialize : Attribute
 [AttributeUsage(AttributeTargets.Method)]
 public class StarDataDeserialized : Attribute
 {
+    // types that must call OnDeserialized() before us
     public Type[] Required;
+
+    // we must call OnDeserialized() before these types
+    public Type[] DeserializeBefore;
+
     public StarDataDeserialized() {}
     public StarDataDeserialized(params Type[] requiredTypes)
     {
