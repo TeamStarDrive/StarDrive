@@ -25,7 +25,7 @@ public class ThreatMatrixTests : StarDriveTest
 
     public ThreatMatrixTests()
     {
-        LoadStarterShips(ASTEROID_BASE);
+        LoadStarterShips(ASTEROID_BASE, SCOUT_NAME);
         CreateUniverseAndPlayerEmpire();
         CreateThirdMajorEmpire();
 
@@ -120,14 +120,28 @@ public class ThreatMatrixTests : StarDriveTest
     public void FindClusters_ForgetKilledShip()
     {
         Vector2 pos = PlayerPlanet.Position;
-        TestShip playerShip = SpawnShip(SCOUT_NAME, Player, pos);
-        TestShip enemyShip = SpawnShip(SCOUT_NAME, Enemy, pos);
+        TestShip playerShip = SpawnShip(SCOUT_NAME, Player, pos+new Vector2(500));
+        TestShip enemyShip = SpawnShip(SCOUT_NAME, Enemy, pos-new Vector2(500));
         ScanAndUpdateThreats(Player);
+
+        Assert.AreEqual(1, Player.Threats.FindClusters(Enemy, pos, 5000).Length);
         Assert.AreEqual(enemyShip.GetStrength(), Player.Threats.GetStrengthAt(Enemy, pos, 5000));
 
         enemyShip.InstantKill();
         ScanAndUpdateThreats(Player);
-        Assert.AreEqual(0, Player.Threats.GetStrengthAt(Enemy, pos, 5000));
+        ThreatCluster[] clusters = Player.Threats.FindClusters(Enemy, pos, 5000);
+        Assert.AreEqual(0, Str(clusters));
+        Assert.AreEqual(0, clusters.Length);
+
+        // and also, WE must forget about OUR clusters if our ship dies!
+        Assert.AreEqual(1, Player.Threats.OurClusters.Length);
+        Assert.AreEqual(1, Player.Threats.FindClusters(Player, pos, 5000).Length);
+        
+        playerShip.InstantKill();
+        ScanAndUpdateThreats(Player);
+
+        Assert.AreEqual(0, Player.Threats.OurClusters.Length);
+        Assert.AreEqual(0, Player.Threats.FindClusters(Player, pos, 5000).Length);
     }
 
     [TestMethod]

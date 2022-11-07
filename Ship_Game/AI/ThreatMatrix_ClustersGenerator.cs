@@ -30,28 +30,26 @@ public sealed partial class ThreatMatrix
                 }
                 else
                 {
+                    // this will update the bounds and all cluster stats
                     c.Update.Update(owner, isOwnerCluster: isOwnerCluster);
+                    Threats.ClustersMap.Update(c);
                     results.Add(c);
                 }
             }
             return results.ToArr();
         }
 
-        void InitClusters(ThreatCluster[] clusters)
+        void InitClusters(ThreatCluster[] clusters, bool isOwnerCluster)
         {
-            Clusters.Capacity = clusters.Length;
-            // also reset the clusters for observation
+            Clusters.AddRange(clusters);
+            // reset the clusters for observation
             for (int i = 0; i < clusters.Length; ++i)
-            {
-                ThreatCluster c = clusters[i];
-                Clusters.Add(c);
-                c.Update.ResetForObservation();
-            }
+                clusters[i].Update.ResetForObservation(isOwnerCluster);
         }
 
         public void CreateOurClusters(Empire owner, Ship[] ourShips)
         {
-            InitClusters(Threats.OurClusters);
+            InitClusters(Threats.OurClusters, isOwnerCluster: true);
 
             // create an observation of our own forces, these are always fully observed
             for (int i = 0; i < ourShips.Length; ++i)
@@ -65,7 +63,7 @@ public sealed partial class ThreatMatrix
 
         public void CreateAndUpdateRivalClusters(ThreatCluster[] ours, Ship[] ourProjectors)
         {
-            InitClusters(Threats.RivalClusters);
+            InitClusters(Threats.RivalClusters, isOwnerCluster: false);
 
             // set whether these clusters were fully observed or not
             HashSet<ThreatCluster> observed = ObserveRivalClusters(ours, ourProjectors);
