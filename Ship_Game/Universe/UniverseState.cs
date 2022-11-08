@@ -192,7 +192,6 @@ namespace Ship_Game.Universe
         {
             // globally stored ship designs
             [StarData] public ShipDesign[] Designs;
-            Map<string, IShipDesign> DesignsMap;
 
             [StarData] public IReadOnlyList<Ship> Ships;
             [StarData] public IReadOnlyList<Projectile> Projectiles;
@@ -202,25 +201,31 @@ namespace Ship_Game.Universe
                 Designs = designs.Select(d => (ShipDesign)d);
             }
 
-            public IShipDesign GetDesign(string name)
+            public void UpdateAllDesignsFromSave()
             {
-                if (DesignsMap == null)
-                {
-                    DesignsMap = new();
-                    foreach (ShipDesign fromSave in Designs)
-                    {
-                        fromSave.IsFromSave = true;
+                Array<(ShipDesign saved, IShipDesign existing)> remapDesigns = new();
 
-                        if (ResourceManager.Ships.GetDesign(fromSave.Name, out IShipDesign existing) &&
-                            existing.AreModulesEqual(fromSave))
-                            // use the existing one
-                            DesignsMap[fromSave.Name] = existing;
-                        else
-                            // from save only
-                            DesignsMap[fromSave.Name] = fromSave;
+                foreach (ShipDesign fromSave in Designs)
+                {
+                    fromSave.IsFromSave = true;
+
+                    if (ResourceManager.Ships.GetDesign(fromSave.Name, out IShipDesign existing) &&
+                        existing.AreModulesEqual(fromSave))
+                    {
+                        // remap to use the existing one
+                        RemapShipDesigns(fromSave, existing);
                     }
+                    // else: design is from save only, so nothing needs to be done
                 }
-                return DesignsMap[name];
+            }
+
+            void RemapShipDesigns(ShipDesign saved, IShipDesign existing)
+            {
+                foreach (Ship s in Ships)
+                {
+                    if (s.ShipData == saved)
+                        s.ShipData = existing;
+                }
             }
         }
 
@@ -256,6 +261,7 @@ namespace Ship_Game.Universe
         {
             SaveState save = Save;
             Save = null;
+            save.UpdateAllDesignsFromSave();
 
             Initialize(Size);
 
