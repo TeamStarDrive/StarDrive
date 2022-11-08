@@ -10,6 +10,7 @@ using Ship_Game.Data.Binary;
 using Ship_Game.Universe;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Vector2 = SDGraphics.Vector2;
+using UnitTests.Serialization;
 
 namespace UnitTests.Universe;
 
@@ -447,18 +448,6 @@ public class ThreatMatrixTests : StarDriveTest
         }
     }
 
-    static T SerDes<T>(T instance)
-    {
-        var ser = new BinarySerializer(instance);
-        var ms = new MemoryStream();
-        using var writer = new Writer(ms);
-        ser.Serialize(writer, instance);
-
-        ms.Position = 0;
-        using var reader = new Reader(ms);
-        return (T)ser.Deserialize(reader);
-    }
-
     void AreEqual(ThreatCluster expected, ThreatCluster actual)
     {
         Assert.AreEqual(expected.Loyalty?.Name, actual.Loyalty?.Name);
@@ -482,7 +471,7 @@ public class ThreatMatrixTests : StarDriveTest
         CreateShipsAt(pos, 5000, Enemy, numShips:40);
         ScanAndUpdateThreats(Player, Enemy);
 
-        UniverseState us = SerDes(UState);
+        UniverseState us = BinarySerializerTests.SerDes(UState);
 
         ThreatMatrix ser = UState.Player.Threats;
         ThreatMatrix des = us.Player.Threats;

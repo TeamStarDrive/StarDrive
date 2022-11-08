@@ -7,6 +7,8 @@ using Ship_Game.Data.Binary;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
+using Ship_Game.Universe;
+using UnitTests.Serialization;
 
 namespace UnitTests.Ships
 {
@@ -29,16 +31,9 @@ namespace UnitTests.Ships
         public void Regression_LoadSavedShip()
         {
             Ship toSave = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
-
-            UState.Save = new();
-            UState.Save.SetDesigns(new HashSet<IShipDesign>{ toSave.ShipData });
-
-            var ms = new MemoryStream();
-            var ser = new BinarySerializer(toSave.GetType());
-            ser.Serialize(new Writer(ms), toSave);
-            ms.Position = 0;
-            var deserialized = (Ship)ser.Deserialize(new Reader(ms));
-
+            UniverseState us = BinarySerializerTests.SerDes(UState);
+            
+            Ship deserialized = us.Player.OwnedShips[0];
             Assert.AreEqual(new Point(20,28), deserialized.GridSize);
             Assert.AreEqual(toSave.Modules.Length, deserialized.Modules.Length);
 
@@ -50,20 +45,14 @@ namespace UnitTests.Ships
         [TestMethod]
         public void Regression_LoadSavedShip_NoExistingDesign()
         {
-            ShipDesign unknownDesign = ResourceManager.Ships.GetDesign("Terran-Prototype").GetClone("Unknown-Ship");
+            ShipDesign unknownDesign = ResourceManager.Ships.GetDesign("Terran-Prototype")
+                                       .GetClone("Unknown-Ship");
             Ship unknownTemplate = Ship.CreateNewShipTemplate(Empire.Void, unknownDesign);
 
             Ship toSave = SpawnShip(unknownTemplate, Player, Vector2.Zero);
-            
-            UState.Save = new();
-            UState.Save.SetDesigns(new HashSet<IShipDesign>{ toSave.ShipData });
+            UniverseState us = BinarySerializerTests.SerDes(UState);
 
-            var ms = new MemoryStream();
-            var ser = new BinarySerializer(toSave.GetType());
-            ser.Serialize(new Writer(ms), toSave);
-            ms.Position = 0;
-            var deserialized = (Ship)ser.Deserialize(new Reader(ms));
-
+            Ship deserialized = us.Player.OwnedShips[0];
             Assert.AreEqual(new Point(20,28), deserialized.GridSize);
             Assert.AreEqual(toSave.Modules.Length, deserialized.Modules.Length);
 

@@ -18,6 +18,7 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
+using Ship_Game.Universe;
 #pragma warning disable CS0649
 
 namespace UnitTests.Serialization
@@ -46,7 +47,7 @@ namespace UnitTests.Serialization
             return Deserialize<T>(ser, bytes, verbose);
         }
 
-        static T SerDes<T>(T instance, bool verbose = false)
+        public static T SerDes<T>(T instance, bool verbose = false)
         {
             return SerDes(instance, out _, verbose);
         }
@@ -1022,13 +1023,13 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void CanSerializeShipDesign()
         {
-            var instance = (ShipDesign)ResourceManager.Ships.GetDesign("Terran-Prototype");
+            CreateUniverseAndPlayerEmpire();
+            Ship spawned = SpawnShip("Terran-Prototype", Player, Vector2.One);
+            UniverseState us = SerDes(UState);
 
-            var designBytes = instance.GetDesignBytes(new ShipDesignWriter());
-            var result = SerDes(instance, out byte[] bytes);
-            Log.Info($"ShipDesign Binary={bytes.Length} DesignBytes={designBytes.Length}");
-
-            ShipDataTests.AssertAreEqual(instance, result, checkModules:true);
+            Ship deserialized = us.Player.OwnedShips[0];
+            ShipDataTests.AssertAreEqual((ShipDesign)spawned.ShipData, (ShipDesign)deserialized.ShipData,
+                                         checkModules:true);
         }
 
         [StarDataType]

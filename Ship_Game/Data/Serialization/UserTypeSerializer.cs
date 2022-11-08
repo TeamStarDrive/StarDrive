@@ -59,8 +59,8 @@ public abstract class UserTypeSerializer : TypeSerializer
 
         IsAbstractOrVirtual = type.IsAbstract;
 
-        // This is an important edge case. If this is a Reference type and inherits from
-        // IEquatable, the serializer will accidentally squash objects
+        // This is an important edge case. If this is a Reference type and inherits
+        // from IEquatable, the serializer will accidentally squash objects
         // Better to log an error here than try and look for these weird bugs
         // Business logic should instead implement IEqualityComparer<T>
         if (!IsValueType)
@@ -74,7 +74,8 @@ public abstract class UserTypeSerializer : TypeSerializer
             }
         }
 
-        // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
+        // NOTE: We cannot resolve types in the constructor,
+        // it would cause a stack overflow due to nested types
     }
 
     bool CheckedDefaultConstructor;
@@ -185,16 +186,44 @@ public abstract class UserTypeSerializer : TypeSerializer
         return (evt, a);
     }
 
+    // the NonPublic methods are only retrieved for current type, not for base type(s)
+    const BindingFlags PublicFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+    const BindingFlags PrivateFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+
     static (MethodInfo, A) GetMethodWithAttribute<A>(Type type) where A : Attribute
     {
         Type attrType = typeof(A);
-        var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+        (MethodInfo info, A attr) = GetMethodsWithAttribute<A>(type, attrType, PublicFlags);
+        if (info != null) return (info, attr);
+
+        // if the class has inheritance, check non-public members of the parent
+        Type baseType = GetClassBaseType(type);
+        return baseType != null ? GetPrivateMethodWithAttributeRecursive<A>(baseType, attrType) : (null, null);
+    }
+
+    static (MethodInfo, A) GetPrivateMethodWithAttributeRecursive<A>(Type type, Type attrType) where A : Attribute
+    {
+        while (true)
+        {
+            (MethodInfo info, A attr) = GetMethodsWithAttribute<A>(type, attrType, PrivateFlags);
+            if (info != null) return (info, attr);
+
+            Type baseType = GetClassBaseType(type);
+            if (baseType == null)
+                return (null, null);
+
+            type = baseType;
+        }
+    }
+
+    static (MethodInfo, A) GetMethodsWithAttribute<A>(Type type, Type attrType, BindingFlags flags) where A : Attribute
+    {
+        var methods = type.GetMethods(flags);
         foreach (MethodInfo mi in methods)
         {
-            if (Attribute.IsDefined(mi, attrType, inherit: false)) // checking IsDefined is much faster than directly calling GetCustomAttribute
-            {
+            // checking IsDefined is much faster than directly calling GetCustomAttribute
+            if (Attribute.IsDefined(mi, attrType, inherit: false))
                 return (mi, (A)Attribute.GetCustomAttribute(mi, attrType, inherit: false));
-            }
         }
         return (null, null);
     }
@@ -244,16 +273,19 @@ public abstract class UserTypeSerializer : TypeSerializer
         TypeMap.PendingResolve = null; // disable pending resolver for further dynamic Get(type) calls
     }
 
+    static Type GetClassBaseType(Type type)
+    {
+        if (type.IsValueType) return null;
+        Type baseType = type.BaseType;
+        return baseType != null && baseType != typeof(object) ? baseType : null;
+    }
+
     void GetFieldsAndProps(Array<DataField> dataFields, Type type, Type shouldSerializeAttr)
     {
         // depth first search
-        Type baseType = type.BaseType;
+        Type baseType = GetClassBaseType(type);
         if (baseType != null)
-        {
-            var systemBaseType = type.IsValueType ? typeof(ValueType) : typeof(object);
-            if (baseType != systemBaseType)
-                GetFieldsAndProps(dataFields, baseType, shouldSerializeAttr);
-        }
+            GetFieldsAndProps(dataFields, baseType, shouldSerializeAttr);
 
         FieldInfo[] fields = type.GetFields(InstanceFlags);
         PropertyInfo[] props = type.GetProperties(InstanceFlags);
