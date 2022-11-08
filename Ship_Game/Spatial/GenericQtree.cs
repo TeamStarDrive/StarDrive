@@ -98,10 +98,11 @@ public partial class GenericQtree
         // TODO: Thread safety?
         if (Contains(obj))
             return; // this object already exists in this Qtree, do nothing
-
+        
+        Node root = Root;
         var objRef = new ObjectRef(obj);
         objRef.ObjectId = ObjectRefs.Insert(objRef);
-        InsertAt(Root, Levels, objRef);
+        InsertAt(root, Levels, objRef);
     }
 
     /// <summary>
@@ -115,9 +116,11 @@ public partial class GenericQtree
         if (toRemove == null)
             return false; // this object does not exist in this Qtree, do nothing
         
-        bool removed = RemoveAt(Root, Root, Levels, toRemove, in toRemove.AABB);
-        if (removed && Root.HasEmptyLeafNodes)
-            Root.ClearCells();
+        Node root = Root;
+        bool removed = RemoveAt(root, root, Levels, toRemove, in toRemove.AABB);
+        if (removed && root.HasEmptyLeafNodes)
+            root.ClearCells();
+
         ObjectRefs.RemoveAt(toRemove.ObjectId);
         return removed;
     }
@@ -132,10 +135,11 @@ public partial class GenericQtree
         ObjectRef toUpdate = FindObjectRef(obj);
         if (toUpdate == null)
             return false; // this object does not exist in this Qtree, do nothing
-
-        RemoveAt(Root, Root, Levels, toUpdate, in toUpdate.AABB);
+        
+        Node root = Root;
+        RemoveAt(root, root, Levels, toUpdate, in toUpdate.AABB);
         toUpdate.UpdateBounds();
-        InsertAt(Root, Levels, toUpdate);
+        InsertAt(root, Levels, toUpdate);
         return true;
     }
 
@@ -145,18 +149,19 @@ public partial class GenericQtree
     public bool InsertOrUpdate(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
+        Node root = Root;
         ObjectRef toUpdate = FindObjectRef(obj);
         if (toUpdate == null)
         {
             var objRef = new ObjectRef(obj);
             objRef.ObjectId = ObjectRefs.Insert(objRef);
-            InsertAt(Root, Levels, objRef);
+            InsertAt(root, Levels, objRef);
             return true;
         }
-
-        RemoveAt(Root, Root, Levels, toUpdate, in toUpdate.AABB);
+        
+        RemoveAt(root, root, Levels, toUpdate, in toUpdate.AABB);
         toUpdate.UpdateBounds();
-        InsertAt(Root, Levels, toUpdate);
+        InsertAt(root, Levels, toUpdate);
         return false;
     }
 
