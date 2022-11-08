@@ -77,7 +77,7 @@ public sealed partial class ThreatMatrix
 
         // 2. get all the clusters for rivals
         ClustersGenerator rivalClusters = new(this);
-        rivalClusters.CreateAndUpdateRivalClusters(ours, ourProjectors);
+        rivalClusters.CreateAndUpdateRivalClusters(Owner, ours, ourProjectors);
         ThreatCluster[] rivals = rivalClusters.GetResults(Owner, isOwnerCluster:false);
 
         // 3. Update the list of clusters and UpdateAll ClustersMap

@@ -12,7 +12,7 @@ public sealed partial class ThreatMatrix
     class ClustersGenerator
     {
         readonly ThreatMatrix Threats;
-        readonly Array<ThreatCluster> Clusters = new();
+        readonly HashSet<ThreatCluster> Clusters = new();
 
         public ClustersGenerator(ThreatMatrix threats)
         {
@@ -41,10 +41,13 @@ public sealed partial class ThreatMatrix
 
         void InitClusters(ThreatCluster[] clusters, bool isOwnerCluster)
         {
-            Clusters.AddRange(clusters);
             // reset the clusters for observation
             for (int i = 0; i < clusters.Length; ++i)
-                clusters[i].Update.ResetForObservation(isOwnerCluster);
+            {
+                ThreatCluster c = clusters[i];
+                Clusters.Add(c);
+                c.Update.ResetForObservation(isOwnerCluster);
+            }
         }
 
         public void CreateOurClusters(Empire owner, Ship[] ourShips)
@@ -54,14 +57,19 @@ public sealed partial class ThreatMatrix
             // create an observation of our own forces, these are always fully observed
             for (int i = 0; i < ourShips.Length; ++i)
             {
-                var u = AddSeenShip(owner, ourShips[i], OwnClusterJoinRadius);
-                u.Update.FullyObserved = true; // our clusters always fully explored
+                Ship s = ourShips[i];
+                if (s.Loyalty == owner) // this can mismatch if our ship suddenly gets captured
+                {
+                    var u = AddSeenShip(owner, ourShips[i], OwnClusterJoinRadius);
+                    u.Update.FullyObserved = true; // our clusters always fully explored
+                }
+                // else: this is no longer our ship, it was probably captured by someone
             }
 
             MergeOverlappingClusters();
         }
 
-        public void CreateAndUpdateRivalClusters(ThreatCluster[] ours, Ship[] ourProjectors)
+        public void CreateAndUpdateRivalClusters(Empire owner, ThreatCluster[] ours, Ship[] ourProjectors)
         {
             InitClusters(Threats.RivalClusters, isOwnerCluster: false);
 
@@ -72,7 +80,14 @@ public sealed partial class ThreatMatrix
 
             // insert new observation, creating&merging clusters along the way
             foreach (Ship seen in Threats.Seen)
-                AddSeenShip(seen.Loyalty, seen, RivalClusterJoinRadius);
+            {
+                Empire sLoyalty = seen.Loyalty;
+                if (sLoyalty != owner) // this can accidentally equal if THEIR ship gets captured by US
+                {
+                    AddSeenShip(sLoyalty, seen, RivalClusterJoinRadius);
+                }
+                // else: we have captured one of the seen ships, just ignore it
+            }
 
             MergeOverlappingClusters();
         }
@@ -133,8 +148,7 @@ public sealed partial class ThreatMatrix
         ThreatCluster AddNewCluster(Empire loyalty, Ship ship)
         {
             ThreatCluster c = new(loyalty, ship);
-            // new clusters are always fully explored, this ensures they get removed
-            // after merging
+            // new clusters are always fully explored, this ensures they get removed after merging
             c.Update.FullyObserved = true;
             Clusters.Add(c);
             Threats.ClustersMap.Insert(c);
@@ -145,6 +159,8 @@ public sealed partial class ThreatMatrix
         {
             c.Update.AddShip(ship);
             #if DEBUG
+            // !!! IF THIS HAPPENS, THEN THERE IS A MAJOR DEFECT IN THE THREAT MATRIX GENERATOR !!!
+            // !!! THIS SHOULD NORMALLY NEVER HAPPEN, UNLESS WE HAVE A BUG !!!
             if (!Clusters.Contains(c))
                 throw new KeyNotFoundException("Existing Qtree ThreatCluster was not found in generator Clusters");
             #endif
