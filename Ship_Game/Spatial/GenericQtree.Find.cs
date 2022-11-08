@@ -158,6 +158,9 @@ public partial class GenericQtree
             for (int i = 0; i < size; ++i) // this is the perf hotspot
             {
                 ObjectRef o = items[i];
+                // BUG: Thread-Safety issue here; in order to fix it, requires total refactor of GenericQtree
+                if (o == null)
+                    continue;
 
                 // FLAGS: either 0x00 (failed) or some bits 0100 (success)
                 if ((o.LoyaltyMask & loyaltyMask) != 0 &&
