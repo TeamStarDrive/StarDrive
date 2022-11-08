@@ -10,6 +10,10 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
+    /// <summary>
+    /// A tech entry which is bound to a specific Faction's tech tree.
+    /// It references a `Technology` template via `UID`
+    /// </summary>
     [StarDataType]
     public sealed class TechEntry
     {
@@ -84,7 +88,7 @@ namespace Ship_Game
         public static readonly TechEntry None = new("");
 
         public override string ToString()
-            => $"TechEntry Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched} {UID}";
+            => $"TechEntry {UID}: Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched}";
 
         public TechEntry()
         {

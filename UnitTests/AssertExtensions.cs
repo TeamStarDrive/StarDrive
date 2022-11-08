@@ -212,7 +212,11 @@ namespace UnitTests
             object[] e = ToArray(expected);
             object[] a = ToArray(actual);
             if (e.Length != a.Length)
-                throw new AssertFailedException($"Expected.Length {e.Length} does not match Actual.Length {a.Length}. {message}");
+            {
+                throw new AssertFailedException(
+                    $"Expected.Length {e.Length} does not match Actual.Length {a.Length}:"+
+                    $"{(message.IsEmpty() ? "" : "\n"+message)}\nExpected: {ToString(e)}\nActual: {ToString(a)}");
+            }
 
             try
             {
@@ -221,7 +225,8 @@ namespace UnitTests
             }
             catch (AssertFailedException ex)
             {
-                throw new AssertFailedException($"{ex.Message}\nExpected: {ToString(e)}\nActual: {ToString(a)}");
+                throw new AssertFailedException(
+                    $"{(ex.Message.IsEmpty() ? "" : "\n"+message)}\nExpected: {ToString(e)}\nActual: {ToString(a)}");
             }
         }
 
