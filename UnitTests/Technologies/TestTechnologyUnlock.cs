@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using SDUtils;
 using Ship_Game;
@@ -165,8 +164,13 @@ namespace UnitTests.Technologies
             Player.AssimilateTech(Enemy);
 
             TechEntry[] playerTechs2 = Player.UnlockedTechs.Sorted(e => e.UID);
-            TechEntry[] expected = playerTechs.Union(enemyTechs).Sorted(e => e.UID);
             TechEntry[] newUnlocks = playerTechs2.Except(playerTechs).Sorted(e => e.UID);
+
+            string[] expected = playerTechs.Select(e => e.UID)
+                                .Concat(enemyTechs.Select(e => e.UID))
+                                .Unique()
+                                .Sorted(e => e);
+            string[] actual = playerTechs2.Select(e => e.UID);
 
             Assert.AreEqual(2, newUnlocks.Length);
             Assert.AreEqual("Centralized Banking", newUnlocks[0].UID);
@@ -176,7 +180,7 @@ namespace UnitTests.Technologies
             Assert.AreEqual(Enemy.data.ShipType, newUnlocks[0].WasAcquiredFrom[0]);
             Assert.AreEqual(Enemy.data.ShipType, newUnlocks[1].WasAcquiredFrom[0]);
 
-            Assert.That.Equal(expected, playerTechs2, "Assimilated techs should be equal to conquered empire techs");
+            Assert.That.Equal(expected, actual, "Assimilated techs should be equal to conquered empire techs");
         }
     }
 }
