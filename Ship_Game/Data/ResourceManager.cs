@@ -285,7 +285,6 @@ namespace Ship_Game
             Profiled("LoadSunTypes", () => SunType.LoadSunTypes(loadIcons: !IsUnitTest));
             Profiled("LoadBeamFX", () =>
             {
-                ShieldManager.LoadContent(RootContent);
                 Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
                 Blank = Texture("blank");
             });
@@ -333,7 +332,6 @@ namespace Ship_Game
             ProjectileMeshDict.Clear();
 
             SunType.Unload();
-            ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
             WhitePixel?.Dispose(ref WhitePixel);
 

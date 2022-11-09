@@ -649,6 +649,12 @@ namespace SDUtils
             collection.CopyTo(Items, i);
         }
 
+        public void AddRange(IEnumerable<T> collection)
+        {
+            foreach (T item in collection)
+                Add(item);
+        }
+
         public void AddRange(IReadOnlyList<T> list)
         {
             int n = list.Count;
