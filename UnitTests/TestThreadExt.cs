@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace UnitTests
 {
     [TestClass]
-    public class TestThreadExt
+    public class TestThreadExt : StarDriveTest
     {
         [TestMethod]
         public void TestParallelRange()
@@ -36,7 +36,7 @@ namespace UnitTests
                 sum2 += (long)Math.Sqrt(value);
             Console.WriteLine("SingleThread  elapsed: {0:0.000}s  result: {1}", timer.Elapsed, sum2);
 
-            Assert.AreEqual(sum2, sum, "ParallelRange result incorrect. Incorrect loop logic?");
+            AssertEqual(sum2, sum, "ParallelRange result incorrect. Incorrect loop logic?");
 
             // Test the parallel loop a second time to ensure it doesn't deadlock etc
             int poolSize = Parallel.PoolSize;
@@ -54,8 +54,8 @@ namespace UnitTests
             numbers = null;
             GC.Collect(); // Fixes Test OOM in Debug mode
 
-            Assert.AreEqual(sum2, sum3, "ParallelRange result incorrect. Incorrect loop logic?");
-            Assert.AreEqual(poolSize, Parallel.PoolSize, "Parallel.For pool is growing, but it shouldn't. Incorrect ParallelTask states?");
+            AssertEqual(sum2, sum3, "ParallelRange result incorrect. Incorrect loop logic?");
+            AssertEqual(poolSize, Parallel.PoolSize, "Parallel.For pool is growing, but it shouldn't. Incorrect ParallelTask states?");
         }
 
         [TestMethod]
@@ -85,7 +85,7 @@ namespace UnitTests
                 sum2 += (long)Math.Sqrt(value);
             Console.WriteLine("SingleThread elapsed: {0:0.000}s  result: {1}", timer.Elapsed, sum2);
 
-            Assert.AreEqual(sum2, sum, "Parallel.For result incorrect. Incorrect loop logic?");
+            AssertEqual(sum2, sum, "Parallel.For result incorrect. Incorrect loop logic?");
 
             // Test the parallel loop a second time to ensure it doesn't deadlock etc
             int poolSize = Parallel.PoolSize;
@@ -103,8 +103,8 @@ namespace UnitTests
             numbers = null;
             GC.Collect(); // Fixes Test OOM in Debug mode
 
-            Assert.AreEqual(sum2, sum3, "Parallel.For result incorrect. Incorrect loop logic?");
-            Assert.AreEqual(poolSize, Parallel.PoolSize, "Parallel.For pool is growing, but it shouldn't. Incorrect ParallelTask states?");
+            AssertEqual(sum2, sum3, "Parallel.For result incorrect. Incorrect loop logic?");
+            AssertEqual(poolSize, Parallel.PoolSize, "Parallel.For pool is growing, but it shouldn't. Incorrect ParallelTask states?");
         }
 
         [TestMethod]
@@ -152,14 +152,14 @@ namespace UnitTests
             if (Parallel.MaxParallelism == 1)
             {
                 var ex = Assert.ThrowsException<ArgumentException>((Action)Action);
-                Assert.AreEqual("Test", ex.Message);
+                AssertEqual("Test", ex.Message);
             }
             else
             {
                 var ex = Assert.ThrowsException<ParallelTaskException>((Action)Action);
-                Assert.AreEqual(typeof(ArgumentException), ex.InnerException?.GetType());
-                Assert.AreEqual("Test", ex.InnerException?.Message);
-                Assert.AreEqual("Parallel.For task threw an exception", ex.Message);
+                AssertEqual(typeof(ArgumentException), ex.InnerException?.GetType());
+                AssertEqual("Test", ex.InnerException?.Message);
+                AssertEqual("Parallel.For task threw an exception", ex.Message);
             }
         }
     }

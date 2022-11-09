@@ -45,15 +45,15 @@ namespace UnitTests.NotificationTests
         public void TestRemoveTooManyNotifications()
         {
             AddNotifications(Player);
-            Assert.AreEqual(12, NotifMgr.NumberOfNotifications);
+            AssertEqual(12, NotifMgr.NumberOfNotifications);
             NotifMgr.Update(10f);
-            Assert.AreEqual(11, NotifMgr.NumberOfNotifications);
+            AssertEqual(11, NotifMgr.NumberOfNotifications);
             NotifMgr.Update(10f);
-            Assert.AreEqual(10, NotifMgr.NumberOfNotifications);
+            AssertEqual(10, NotifMgr.NumberOfNotifications);
             NotifMgr.Update(10f);
             NotifMgr.Update(10f);
             NotifMgr.Update(10f);
-            Assert.AreEqual(7, NotifMgr.NumberOfNotifications);
+            AssertEqual(7, NotifMgr.NumberOfNotifications);
         }
     }
 }

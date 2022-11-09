@@ -24,7 +24,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void EnsureSaveGamesFitInMemory()
         {
-            int shipsPerEmpire = 750;
+            int shipsPerEmpire = 500;
 
             CreateCustomUniverseSandbox(numOpponents:6, galSize:GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);
@@ -63,9 +63,9 @@ namespace UnitTests.Universe
         [TestMethod]
         public void EnsureSaveGameIntegrity()
         {
-            CreateDeveloperSandboxUniverse("United", numOpponents:1, paused:true);
-            Universe.CreateSimThread = false;
-            Universe.LoadContent();
+            CreateCustomUniverseSandbox(numOpponents:1, galSize:GalSize.Small);
+            UState.Paused = true;
+
             // manually run a few turns
             for (int i = 0; i < 60; ++i)
                 Universe.SingleSimulationStep(TestSimStep);
@@ -83,7 +83,7 @@ namespace UnitTests.Universe
             results.ForEach(Console.WriteLine);
 
             // TODO: disabling these tests right now because it's really hard to fix in one go
-            //Assert.That.MemberwiseEqual(snap1, snap2, "SaveGame did not load correctly");
+            //AssertMemberwiseEqual(snap1, snap2, "SaveGame did not load correctly");
         }
     }
 }

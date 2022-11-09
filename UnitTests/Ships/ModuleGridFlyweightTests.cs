@@ -55,18 +55,18 @@ namespace UnitTests.Ships
             Assert.ThrowsException<IndexOutOfRangeException>(() => grid.Get(modules, gridIndex:6));
 
             // COVERAGE: test all overloads for Get module
-            Assert.AreEqual(null,       grid[modules, 0, 0]);
-            Assert.AreEqual(modules[0], grid[modules, 1, 0]);
-            Assert.AreEqual(modules[3], grid[modules, 5, 0]);
-            Assert.AreEqual(null,       grid.Get(modules, 0, 0));
-            Assert.AreEqual(modules[0], grid.Get(modules, 1, 0));
-            Assert.AreEqual(modules[3], grid.Get(modules, 5, 0));
-            Assert.AreEqual(null,       grid.Get(modules, new Point(0, 0)));
-            Assert.AreEqual(modules[0], grid.Get(modules, new Point(1, 0)));
-            Assert.AreEqual(modules[3], grid.Get(modules, new Point(5, 0)));
-            Assert.AreEqual(null,       grid.Get(modules, gridIndex:0));
-            Assert.AreEqual(modules[0], grid.Get(modules, gridIndex:1));
-            Assert.AreEqual(modules[3], grid.Get(modules, gridIndex:5));
+            AssertEqual(null,       grid[modules, 0, 0]);
+            AssertEqual(modules[0], grid[modules, 1, 0]);
+            AssertEqual(modules[3], grid[modules, 5, 0]);
+            AssertEqual(null,       grid.Get(modules, 0, 0));
+            AssertEqual(modules[0], grid.Get(modules, 1, 0));
+            AssertEqual(modules[3], grid.Get(modules, 5, 0));
+            AssertEqual(null,       grid.Get(modules, new Point(0, 0)));
+            AssertEqual(modules[0], grid.Get(modules, new Point(1, 0)));
+            AssertEqual(modules[3], grid.Get(modules, new Point(5, 0)));
+            AssertEqual(null,       grid.Get(modules, gridIndex:0));
+            AssertEqual(modules[0], grid.Get(modules, gridIndex:1));
+            AssertEqual(modules[3], grid.Get(modules, gridIndex:5));
         }
 
         [TestMethod]
@@ -100,18 +100,18 @@ namespace UnitTests.Ships
             Assert.ThrowsException<IndexOutOfRangeException>(() => gs.Get(gridIndex:6));
 
             // COVERAGE: test all overloads for Get module
-            Assert.AreEqual(null,       gs[0, 0]);
-            Assert.AreEqual(modules[0], gs[1, 0]);
-            Assert.AreEqual(modules[3], gs[5, 0]);
-            Assert.AreEqual(null,       gs.Get(0, 0));
-            Assert.AreEqual(modules[0], gs.Get(1, 0));
-            Assert.AreEqual(modules[3], gs.Get(5, 0));
-            Assert.AreEqual(null,       gs.Get(new Point(0, 0)));
-            Assert.AreEqual(modules[0], gs.Get(new Point(1, 0)));
-            Assert.AreEqual(modules[3], gs.Get(new Point(5, 0)));
-            Assert.AreEqual(null,       gs.Get(gridIndex:0));
-            Assert.AreEqual(modules[0], gs.Get(gridIndex:1));
-            Assert.AreEqual(modules[3], gs.Get(gridIndex:5));
+            AssertEqual(null,       gs[0, 0]);
+            AssertEqual(modules[0], gs[1, 0]);
+            AssertEqual(modules[3], gs[5, 0]);
+            AssertEqual(null,       gs.Get(0, 0));
+            AssertEqual(modules[0], gs.Get(1, 0));
+            AssertEqual(modules[3], gs.Get(5, 0));
+            AssertEqual(null,       gs.Get(new Point(0, 0)));
+            AssertEqual(modules[0], gs.Get(new Point(1, 0)));
+            AssertEqual(modules[3], gs.Get(new Point(5, 0)));
+            AssertEqual(null,       gs.Get(gridIndex:0));
+            AssertEqual(modules[0], gs.Get(gridIndex:1));
+            AssertEqual(modules[3], gs.Get(gridIndex:5));
         }
 
         [TestMethod]
@@ -130,24 +130,24 @@ namespace UnitTests.Ships
             var gridInfo = new ShipGridInfo(design);
             var grid = new ModuleGridFlyweight("test", gridInfo, design);
 
-            Assert.AreEqual(4, gridInfo.SurfaceArea);
-            Assert.AreEqual(new Point(3, 2), gridInfo.Size);
+            AssertEqual(4, gridInfo.SurfaceArea);
+            AssertEqual(new Point(3, 2), gridInfo.Size);
 
-            Assert.AreEqual(4, grid.SurfaceArea);
-            Assert.AreEqual(new Point(3, 2), new Point(grid.Width, grid.Height));
-            Assert.AreEqual(new Vector2(16f, 16f), grid.GridLocalCenter);
-            Assert.AreEqual(28.84f, grid.Radius, 0.01f);
-            Assert.AreEqual(1, grid.NumInternalSlots);
+            AssertEqual(4, grid.SurfaceArea);
+            AssertEqual(new Point(3, 2), new Point(grid.Width, grid.Height));
+            AssertEqual(new Vector2(16f, 16f), grid.GridLocalCenter);
+            AssertEqual(0.01f, 28.84f, grid.Radius);
+            AssertEqual(1, grid.NumInternalSlots);
             
             Ship dummy = SpawnShip("TEST_Vulcan Scout", Player, Vector2.Zero);
             ShipModule[] modules = design.Select(slot => ShipModule.Create(null, slot, dummy, false));
 
-            Assert.AreEqual(null,       grid[modules, 0, 0]); // line0
-            Assert.AreEqual(modules[0], grid[modules, 1, 0]);
-            Assert.AreEqual(null,       grid[modules, 2, 0]);
-            Assert.AreEqual(modules[1], grid[modules, 0, 1]); // line1
-            Assert.AreEqual(modules[2], grid[modules, 1, 1]);
-            Assert.AreEqual(modules[3], grid[modules, 2, 1]);
+            AssertEqual(null,       grid[modules, 0, 0]); // line0
+            AssertEqual(modules[0], grid[modules, 1, 0]);
+            AssertEqual(null,       grid[modules, 2, 0]);
+            AssertEqual(modules[1], grid[modules, 0, 1]); // line1
+            AssertEqual(modules[2], grid[modules, 1, 1]);
+            AssertEqual(modules[3], grid[modules, 2, 1]);
             Assert.IsFalse(grid.Get(modules, 0, 0, out _)); // line0
             Assert.IsTrue( grid.Get(modules, 1, 0, out _));
             Assert.IsFalse(grid.Get(modules, 2, 0, out _));
@@ -169,7 +169,7 @@ namespace UnitTests.Ships
         {
             Ship ship = SpawnShip("TEST_Vulcan Scout", Player, Vector2.Zero);
             ShipModule[] modules = ship.Modules;
-            Assert.AreEqual(10, modules.Length);
+            AssertEqual(10, modules.Length);
 
             // TEST Vulcan Scout has 1x2 cannons in the front, so modules 0-1 are duplicated
             // ___|IO_|IO_|___   line0 modules 0-1
@@ -178,35 +178,35 @@ namespace UnitTests.Ships
             // IO_|E__|E__|IO_   line3 modules 6-9
             ModuleGridFlyweight grid = ship.ShipData.Grid;
             var gridInfo = ship.ShipData.GridInfo;
-            Assert.AreEqual(12, gridInfo.SurfaceArea);
-            Assert.AreEqual(new Point(4, 4), gridInfo.Size);
+            AssertEqual(12, gridInfo.SurfaceArea);
+            AssertEqual(new Point(4, 4), gridInfo.Size);
 
-            Assert.AreEqual(12, grid.SurfaceArea);
-            Assert.AreEqual(new Point(4, 4), new Point(grid.Width, grid.Height));
-            Assert.AreEqual(new Vector2(32f, 32f), grid.GridLocalCenter);
-            Assert.AreEqual(45.25f, grid.Radius, 0.01f);
-            Assert.AreEqual(9, grid.NumInternalSlots);
+            AssertEqual(12, grid.SurfaceArea);
+            AssertEqual(new Point(4, 4), new Point(grid.Width, grid.Height));
+            AssertEqual(new Vector2(32f, 32f), grid.GridLocalCenter);
+            AssertEqual(0.01f, 45.25f, grid.Radius);
+            AssertEqual(9, grid.NumInternalSlots);
 
             // check all 16 slots
-            Assert.AreEqual(null,       grid[modules, 0, 0]); // line0
-            Assert.AreEqual(modules[0], grid[modules, 1, 0]);
-            Assert.AreEqual(modules[1], grid[modules, 2, 0]);
-            Assert.AreEqual(null,       grid[modules, 3, 0]);
+            AssertEqual(null,       grid[modules, 0, 0]); // line0
+            AssertEqual(modules[0], grid[modules, 1, 0]);
+            AssertEqual(modules[1], grid[modules, 2, 0]);
+            AssertEqual(null,       grid[modules, 3, 0]);
 
-            Assert.AreEqual(null,       grid[modules, 0, 1]); // line1
-            Assert.AreEqual(modules[0], grid[modules, 1, 1]);
-            Assert.AreEqual(modules[1], grid[modules, 2, 1]);
-            Assert.AreEqual(null,       grid[modules, 3, 1]);
+            AssertEqual(null,       grid[modules, 0, 1]); // line1
+            AssertEqual(modules[0], grid[modules, 1, 1]);
+            AssertEqual(modules[1], grid[modules, 2, 1]);
+            AssertEqual(null,       grid[modules, 3, 1]);
 
-            Assert.AreEqual(modules[2], grid[modules, 0, 2]); // line2
-            Assert.AreEqual(modules[3], grid[modules, 1, 2]);
-            Assert.AreEqual(modules[4], grid[modules, 2, 2]);
-            Assert.AreEqual(modules[5], grid[modules, 3, 2]);
+            AssertEqual(modules[2], grid[modules, 0, 2]); // line2
+            AssertEqual(modules[3], grid[modules, 1, 2]);
+            AssertEqual(modules[4], grid[modules, 2, 2]);
+            AssertEqual(modules[5], grid[modules, 3, 2]);
 
-            Assert.AreEqual(modules[6], grid[modules, 0, 3]); // line3
-            Assert.AreEqual(modules[7], grid[modules, 1, 3]);
-            Assert.AreEqual(modules[8], grid[modules, 2, 3]);
-            Assert.AreEqual(modules[9], grid[modules, 3, 3]);
+            AssertEqual(modules[6], grid[modules, 0, 3]); // line3
+            AssertEqual(modules[7], grid[modules, 1, 3]);
+            AssertEqual(modules[8], grid[modules, 2, 3]);
+            AssertEqual(modules[9], grid[modules, 3, 3]);
 
             // check all 16 slots using the Get() wrapper which allows index out of bounds
             Assert.IsFalse(grid.Get(modules, 0, 0, out _)); // line0
@@ -245,8 +245,8 @@ namespace UnitTests.Ships
 
             ShipModule[] shields = ship.GetShields().ToArr();
             ShipModule[] amplifiers = ship.GetAmplifiers().ToArr();
-            Assert.AreEqual(2, shields.Length);
-            Assert.AreEqual(52, amplifiers.Length);
+            AssertEqual(2, shields.Length);
+            AssertEqual(52, amplifiers.Length);
         }
 
         [TestMethod]
@@ -257,7 +257,7 @@ namespace UnitTests.Ships
             // All other modules are covered
             // A few modules in the center have dual coverage
             Ship ship = SpawnShip("TEST_Type VII mk1-c", Player, Vector2.Zero);
-            Assert.AreEqual(2, ship.GetShields().Count());
+            AssertEqual(2, ship.GetShields().Count());
             ModuleGridFlyweight grid = ship.Grid;
 
             // get the shields
@@ -267,39 +267,39 @@ namespace UnitTests.Ships
             Assert.IsTrue(shield2.ShieldsAreActive);
 
             // BottomLeft of front 2x2 armor
-            Assert.AreEqual(null, ship.GetActiveShieldAt(4, 1));
+            AssertEqual(null, ship.GetActiveShieldAt(4, 1));
 
             // TopLeft of front 2x2 ordnance
-            Assert.AreEqual(shield1, ship.GetActiveShieldAt(4, 2));
+            AssertEqual(shield1, ship.GetActiveShieldAt(4, 2));
             // Random PlastSteel 1x1 module
-            Assert.AreEqual(shield1, ship.GetActiveShieldAt(3, 8));
+            AssertEqual(shield1, ship.GetActiveShieldAt(3, 8));
 
             // 2x2 AdvancedKineticTurret is covered by both shields
-            Assert.AreEqual(2, grid.GetNumShieldsAt(3, 13));
+            AssertEqual(2, grid.GetNumShieldsAt(3, 13));
 
             // 2x2 NuclearReactorMed should also be covered by both shields
-            Assert.AreEqual(2, grid.GetNumShieldsAt(4, 15));
-            Assert.AreEqual(shield1, ship.GetActiveShieldAt(4, 15));
+            AssertEqual(2, grid.GetNumShieldsAt(4, 15));
+            AssertEqual(shield1, ship.GetActiveShieldAt(4, 15));
 
             // if first shield goes down, the second shield should be chosen
             shield1.Active = false;
-            Assert.AreEqual(shield2, ship.GetActiveShieldAt(4, 15));
+            AssertEqual(shield2, ship.GetActiveShieldAt(4, 15));
             shield1.Active = true;
 
             // make sure the shields themselves are covered
-            Assert.AreEqual(shield1, ship.GetActiveShieldAt(4, 8));
-            Assert.AreEqual(shield2, ship.GetActiveShieldAt(4, 19));
+            AssertEqual(shield1, ship.GetActiveShieldAt(4, 8));
+            AssertEqual(shield2, ship.GetActiveShieldAt(4, 19));
 
             // a point inside the grid which is not covered by shields
-            Assert.AreEqual(null, ship.GetActiveShieldAt(0,0));
-            Assert.AreEqual(null, ship.GetActiveShieldAt(7,1));
+            AssertEqual(null, ship.GetActiveShieldAt(0,0));
+            AssertEqual(null, ship.GetActiveShieldAt(7,1));
 
             // a point inside the grid which is covered by shield
             // BUT does not contain any valid modules
-            Assert.AreEqual(shield1, ship.GetActiveShieldAt(0,8));
-            Assert.AreEqual(shield1, ship.GetActiveShieldAt(9,8));
-            Assert.AreEqual(shield2, ship.GetActiveShieldAt(0,16));
-            Assert.AreEqual(shield2, ship.GetActiveShieldAt(9,16));
+            AssertEqual(shield1, ship.GetActiveShieldAt(0,8));
+            AssertEqual(shield1, ship.GetActiveShieldAt(9,8));
+            AssertEqual(shield2, ship.GetActiveShieldAt(0,16));
+            AssertEqual(shield2, ship.GetActiveShieldAt(9,16));
         }
 
         [TestMethod]
@@ -308,7 +308,7 @@ namespace UnitTests.Ships
             // A long Vulfar frigate with 2 shields, 10x26 grid
             Vector2 c = Vector2.Zero;
             Ship ship = SpawnShip("TEST_Type VII mk1-c", Player, c);
-            Assert.AreEqual(2, ship.GetShields().Count());
+            AssertEqual(2, ship.GetShields().Count());
 
             // get the shields
             ShipModule shield1 = ship.GetModuleAt(4,8);
@@ -319,32 +319,32 @@ namespace UnitTests.Ships
             ShipModule HitTestShields(int x, int y)
                 => ship.HitTestShields(ship.GridLocalPointToWorld(new Point(x,y)), 8f);
 
-            Assert.AreEqual(null, HitTestShields(0,0)); // nothing
-            Assert.AreEqual(null, HitTestShields(9,0)); // nothing
+            AssertEqual(null, HitTestShields(0,0)); // nothing
+            AssertEqual(null, HitTestShields(9,0)); // nothing
 
-            Assert.AreEqual(null, HitTestShields(4,0)); // unshielded 2x2 armor
-            Assert.AreEqual(null, HitTestShields(4,1)); // unshielded 2x2 armor
-            Assert.AreEqual(null, HitTestShields(5,1)); // unshielded 2x2 armor
+            AssertEqual(null, HitTestShields(4,0)); // unshielded 2x2 armor
+            AssertEqual(null, HitTestShields(4,1)); // unshielded 2x2 armor
+            AssertEqual(null, HitTestShields(5,1)); // unshielded 2x2 armor
 
-            Assert.AreEqual(shield1, HitTestShields(4,2)); // shielded 2x2 ordnance
-            Assert.AreEqual(shield1, HitTestShields(0, 6)); // shielded empty slot
-            Assert.AreEqual(shield1, HitTestShields(9, 4)); // shielded empty slot
+            AssertEqual(shield1, HitTestShields(4,2)); // shielded 2x2 ordnance
+            AssertEqual(shield1, HitTestShields(0, 6)); // shielded empty slot
+            AssertEqual(shield1, HitTestShields(9, 4)); // shielded empty slot
 
-            Assert.AreEqual(shield1, HitTestShields(4, 14)); // two shields overlapping 2x2 turret
+            AssertEqual(shield1, HitTestShields(4, 14)); // two shields overlapping 2x2 turret
             shield1.Active = false;
-            Assert.AreEqual(shield2, HitTestShields(4, 14)); // two shields overlapping 2x2 turret
+            AssertEqual(shield2, HitTestShields(4, 14)); // two shields overlapping 2x2 turret
             shield1.Active = true;
 
-            Assert.AreEqual(shield1, HitTestShields(4, 15)); // shielded 2x2 reactor
-            Assert.AreEqual(shield2, HitTestShields(4, 16)); // shielded 2x2 reactor
+            AssertEqual(shield1, HitTestShields(4, 15)); // shielded 2x2 reactor
+            AssertEqual(shield2, HitTestShields(4, 16)); // shielded 2x2 reactor
             
-            Assert.AreEqual(shield2, HitTestShields(0, 19)); // shielded empty slot
-            Assert.AreEqual(shield2, HitTestShields(9, 25)); // shielded empty slot
+            AssertEqual(shield2, HitTestShields(0, 19)); // shielded empty slot
+            AssertEqual(shield2, HitTestShields(9, 25)); // shielded empty slot
 
-            Assert.AreEqual(shield2, HitTestShields(0, 20)); // shielded 1x1 armor
-            Assert.AreEqual(shield2, HitTestShields(8, 20)); // shielded 1x1 ordnance
-            Assert.AreEqual(shield2, HitTestShields(4, 25)); // shielded 2x2 engine
-            Assert.AreEqual(shield2, HitTestShields(5, 20)); // shielded 2x2 shield (self)
+            AssertEqual(shield2, HitTestShields(0, 20)); // shielded 1x1 armor
+            AssertEqual(shield2, HitTestShields(8, 20)); // shielded 1x1 ordnance
+            AssertEqual(shield2, HitTestShields(4, 25)); // shielded 2x2 engine
+            AssertEqual(shield2, HitTestShields(5, 20)); // shielded 2x2 shield (self)
         }
     }
 }

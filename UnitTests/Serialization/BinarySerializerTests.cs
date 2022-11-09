@@ -81,30 +81,30 @@ namespace UnitTests.Serialization
             };
 
             var result = SerDes(instance);
-            Assert.AreEqual(result.IntZero, (int)0);
-            Assert.AreEqual(result.IntMin, int.MinValue);
-            Assert.AreEqual(result.IntMax, int.MaxValue);
-            Assert.AreEqual(result.UIntZero, (uint)0);
-            Assert.AreEqual(result.UIntMin, uint.MinValue);
-            Assert.AreEqual(result.UIntMax, uint.MaxValue);
-            Assert.AreEqual(result.LongZero, (long)0);
-            Assert.AreEqual(result.LongMin, long.MinValue);
-            Assert.AreEqual(result.LongMax, long.MaxValue);
-            Assert.AreEqual(result.ULongZero, (ulong)0);
-            Assert.AreEqual(result.ULongMin, ulong.MinValue);
-            Assert.AreEqual(result.ULongMax, ulong.MaxValue);
-            Assert.AreEqual(result.ShortZero, (short)0);
-            Assert.AreEqual(result.ShortMin, short.MinValue);
-            Assert.AreEqual(result.ShortMax, short.MaxValue);
-            Assert.AreEqual(result.UShortZero, (ushort)0);
-            Assert.AreEqual(result.UShortMin, ushort.MinValue);
-            Assert.AreEqual(result.UShortMax, ushort.MaxValue);
-            Assert.AreEqual(result.SByteZero, (sbyte)0);
-            Assert.AreEqual(result.SByteMin, sbyte.MinValue);
-            Assert.AreEqual(result.SByteMax, sbyte.MaxValue);
-            Assert.AreEqual(result.ByteZero, (byte)0);
-            Assert.AreEqual(result.ByteMin, byte.MinValue);
-            Assert.AreEqual(result.ByteMax, byte.MaxValue);
+            AssertEqual(result.IntZero, (int)0);
+            AssertEqual(result.IntMin, int.MinValue);
+            AssertEqual(result.IntMax, int.MaxValue);
+            AssertEqual(result.UIntZero, (uint)0);
+            AssertEqual(result.UIntMin, uint.MinValue);
+            AssertEqual(result.UIntMax, uint.MaxValue);
+            AssertEqual(result.LongZero, (long)0);
+            AssertEqual(result.LongMin, long.MinValue);
+            AssertEqual(result.LongMax, long.MaxValue);
+            AssertEqual(result.ULongZero, (ulong)0);
+            AssertEqual(result.ULongMin, ulong.MinValue);
+            AssertEqual(result.ULongMax, ulong.MaxValue);
+            AssertEqual(result.ShortZero, (short)0);
+            AssertEqual(result.ShortMin, short.MinValue);
+            AssertEqual(result.ShortMax, short.MaxValue);
+            AssertEqual(result.UShortZero, (ushort)0);
+            AssertEqual(result.UShortMin, ushort.MinValue);
+            AssertEqual(result.UShortMax, ushort.MaxValue);
+            AssertEqual(result.SByteZero, (sbyte)0);
+            AssertEqual(result.SByteMin, sbyte.MinValue);
+            AssertEqual(result.SByteMax, sbyte.MaxValue);
+            AssertEqual(result.ByteZero, (byte)0);
+            AssertEqual(result.ByteMin, byte.MinValue);
+            AssertEqual(result.ByteMax, byte.MaxValue);
         }
 
         [StarDataType]
@@ -128,12 +128,12 @@ namespace UnitTests.Serialization
             };
 
             var result = SerDes(instance);
-            Assert.AreEqual(result.FloatZero, 0.0f);
-            Assert.AreEqual(result.FloatMin, float.MinValue);
-            Assert.AreEqual(result.FloatMax, float.MaxValue);
-            Assert.AreEqual(result.DoubleZero, 0.0);
-            Assert.AreEqual(result.DoubleMin, double.MinValue);
-            Assert.AreEqual(result.DoubleMax, double.MaxValue);
+            AssertEqual(result.FloatZero, 0.0f);
+            AssertEqual(result.FloatMin, float.MinValue);
+            AssertEqual(result.FloatMax, float.MaxValue);
+            AssertEqual(result.DoubleZero, 0.0);
+            AssertEqual(result.DoubleMin, double.MinValue);
+            AssertEqual(result.DoubleMax, double.MaxValue);
         }
 
         [StarDataType]
@@ -170,38 +170,38 @@ namespace UnitTests.Serialization
             };
 
             var result = SerDes(instance);
-            Assert.AreEqual(result.Vector2Zero, Vector2.Zero);
-            Assert.AreEqual(result.Vector2Min, new Vector2(-1,-2));
-            Assert.AreEqual(result.Vector2Max, new Vector2(1,2));
-            Assert.AreEqual(result.Vector3Zero, Vector3.Zero);
-            Assert.AreEqual(result.Vector3Min, new Vector3(-3,-4,-5));
-            Assert.AreEqual(result.Vector3Max, new Vector3(3,4,5));
-            Assert.AreEqual(result.Vector4Zero, Vector4.Zero);
-            Assert.AreEqual(result.Vector4Min, new Vector4(-6,-7,-8,-9));
-            Assert.AreEqual(result.Vector4Max, new Vector4(6,7,8,9));
-            Assert.AreEqual(result.Vector2dZero, Vector2d.Zero);
-            Assert.AreEqual(result.Vector2dMin, new Vector2d(-11,-12));
-            Assert.AreEqual(result.Vector2dMax, new Vector2d(11,12));
-            Assert.AreEqual(result.Vector3dZero, Vector3d.Zero);
-            Assert.AreEqual(result.Vector3dMin, new Vector3d(-13,-14,-15));
-            Assert.AreEqual(result.Vector3dMax, new Vector3d(13,14,15));
+            AssertEqual(result.Vector2Zero, Vector2.Zero);
+            AssertEqual(result.Vector2Min, new Vector2(-1,-2));
+            AssertEqual(result.Vector2Max, new Vector2(1,2));
+            AssertEqual(result.Vector3Zero, Vector3.Zero);
+            AssertEqual(result.Vector3Min, new Vector3(-3,-4,-5));
+            AssertEqual(result.Vector3Max, new Vector3(3,4,5));
+            AssertEqual(result.Vector4Zero, Vector4.Zero);
+            AssertEqual(result.Vector4Min, new Vector4(-6,-7,-8,-9));
+            AssertEqual(result.Vector4Max, new Vector4(6,7,8,9));
+            AssertEqual(result.Vector2dZero, Vector2d.Zero);
+            AssertEqual(result.Vector2dMin, new Vector2d(-11,-12));
+            AssertEqual(result.Vector2dMax, new Vector2d(11,12));
+            AssertEqual(result.Vector3dZero, Vector3d.Zero);
+            AssertEqual(result.Vector3dMin, new Vector3d(-13,-14,-15));
+            AssertEqual(result.Vector3dMax, new Vector3d(13,14,15));
 
-            Assert.AreEqual(result.PointZero, Point.Zero);
-            Assert.AreEqual(result.PointMin, new Point(-16, -17));
-            Assert.AreEqual(result.PointMax, new Point(16, 17));
-            Assert.AreEqual(result.RectZero, Rectangle.Empty);
-            Assert.AreEqual(result.RectMin, new Rectangle(-30,-31,-32,-33));
-            Assert.AreEqual(result.RectMax, new Rectangle(30,31,32,33));
-            Assert.AreEqual(result.RectFZero, RectF.Empty);
-            Assert.AreEqual(result.RectFMin, new RectF(-40,-41,-42,-43));
-            Assert.AreEqual(result.RectFMax, new RectF(40,41,42,43));
+            AssertEqual(result.PointZero, Point.Zero);
+            AssertEqual(result.PointMin, new Point(-16, -17));
+            AssertEqual(result.PointMax, new Point(16, 17));
+            AssertEqual(result.RectZero, Rectangle.Empty);
+            AssertEqual(result.RectMin, new Rectangle(-30,-31,-32,-33));
+            AssertEqual(result.RectMax, new Rectangle(30,31,32,33));
+            AssertEqual(result.RectFZero, RectF.Empty);
+            AssertEqual(result.RectFMin, new RectF(-40,-41,-42,-43));
+            AssertEqual(result.RectFMax, new RectF(40,41,42,43));
 
-            Assert.AreEqual(result.ColorZero, new Color(0, 0, 0));
-            Assert.AreEqual(result.ColorMin, new Color(21, 22, 23));
-            Assert.AreEqual(result.ColorMax, new Color(245, 250, 255));
-            Assert.AreEqual(result.RangeZero, new Range());
-            Assert.AreEqual(result.RangeMin, new Range(-24, -25));
-            Assert.AreEqual(result.RangeMax, new Range(24, 25));
+            AssertEqual(result.ColorZero, new Color(0, 0, 0));
+            AssertEqual(result.ColorMin, new Color(21, 22, 23));
+            AssertEqual(result.ColorMax, new Color(245, 250, 255));
+            AssertEqual(result.RangeZero, new Range());
+            AssertEqual(result.RangeMin, new Range(-24, -25));
+            AssertEqual(result.RangeMax, new Range(24, 25));
         }
 
         [StarDataType]
@@ -225,15 +225,15 @@ namespace UnitTests.Serialization
             };
             var result = SerDes(instance);
 
-            Assert.AreEqual(instance.StrNull, result.StrNull);
-            Assert.AreEqual(instance.StrEmpty, result.StrEmpty);
-            Assert.AreEqual(instance.StrShort, result.StrShort);
-            Assert.AreEqual(instance.StrLong, result.StrLong);
+            AssertEqual(instance.StrNull, result.StrNull);
+            AssertEqual(instance.StrEmpty, result.StrEmpty);
+            AssertEqual(instance.StrShort, result.StrShort);
+            AssertEqual(instance.StrLong, result.StrLong);
 
-            Assert.AreEqual(instance.LocId, result.LocId);
-            Assert.AreEqual(instance.LocNameId, result.LocNameId);
-            Assert.AreEqual(instance.LocRawText, result.LocRawText);
-            Assert.AreEqual(instance.LocParse, result.LocParse);
+            AssertEqual(instance.LocId, result.LocId);
+            AssertEqual(instance.LocNameId, result.LocNameId);
+            AssertEqual(instance.LocRawText, result.LocRawText);
+            AssertEqual(instance.LocParse, result.LocParse);
         }
 
         [StarDataType]
@@ -252,12 +252,12 @@ namespace UnitTests.Serialization
                 DateTimeMin = DateTime.MinValue, DateTimeMax = DateTime.MaxValue, DateTimeNow = DateTime.UtcNow,
             };
             var result = SerDes(instance);
-            Assert.AreEqual(result.TimeZero, TimeSpan.Zero);
-            Assert.AreEqual(result.TimeMin, new TimeSpan(10000));
-            Assert.AreEqual(result.TimeMax, new TimeSpan(1000000000L));
-            Assert.AreEqual(result.DateTimeMin, DateTime.MinValue);
-            Assert.AreEqual(result.DateTimeMax, DateTime.MaxValue);
-            Assert.AreEqual(result.DateTimeNow, instance.DateTimeNow);
+            AssertEqual(result.TimeZero, TimeSpan.Zero);
+            AssertEqual(result.TimeMin, new TimeSpan(10000));
+            AssertEqual(result.TimeMax, new TimeSpan(1000000000L));
+            AssertEqual(result.DateTimeMin, DateTime.MinValue);
+            AssertEqual(result.DateTimeMax, DateTime.MaxValue);
+            AssertEqual(result.DateTimeNow, instance.DateTimeNow);
         }
 
         [StarDataType]
@@ -290,11 +290,11 @@ namespace UnitTests.Serialization
         {
             var instance = new RecursiveType("Hello", 42);
             var result = SerDes(instance);
-            Assert.AreEqual(result, result.RecursiveSelf, "Recursive self reference must match");
-            Assert.AreEqual(instance.Text, result.Text, "string must match");
-            Assert.AreEqual(instance.Count, result.Count, "int field must match");
-            Assert.AreEqual(null, result.DefaultIsNotNull, "null field must match");
-            Assert.AreEqual(result, result.AtDepth1.Owner, "Recursive self reference at depth 1 must match");
+            AssertEqual(result, result.RecursiveSelf, "Recursive self reference must match");
+            AssertEqual(instance.Text, result.Text, "string must match");
+            AssertEqual(instance.Count, result.Count, "int field must match");
+            AssertEqual(null, result.DefaultIsNotNull, "null field must match");
+            AssertEqual(result, result.AtDepth1.Owner, "Recursive self reference at depth 1 must match");
         }
 
         [StarDataType]
@@ -312,8 +312,8 @@ namespace UnitTests.Serialization
 
         static void AreEqual(in SmallStruct expected, in SmallStruct actual, string message = null)
         {
-            Assert.AreEqual(expected.Id, actual.Id, $"Nested SmallStruct Id fields must match. {message}");
-            Assert.AreEqual(expected.Name, actual.Name, $"Nested SmallStruct Name fields must match. {message}");
+            AssertEqual(expected.Id, actual.Id, $"Nested SmallStruct Id fields must match. {message}");
+            AssertEqual(expected.Name, actual.Name, $"Nested SmallStruct Name fields must match. {message}");
         }
 
         [StarDataType]
@@ -390,14 +390,14 @@ namespace UnitTests.Serialization
                 }
             };
             var result = SerDes(instance, verbose:true);
-            Assert.That.Equal(instance.Integers, result.Integers);
-            Assert.That.Equal(instance.Points, result.Points);
-            Assert.That.Equal(instance.Names, result.Names);
-            Assert.That.Equal(instance.Empty, result.Empty);
-            Assert.That.Equal(instance.Structs, result.Structs);
-            Assert.That.Equal(instance.Bytes, result.Bytes);
-            Assert.That.Equal(instance.Struct.Integers, result.Struct.Integers);
-            Assert.That.Equal(instance.Struct.Structs, result.Struct.Structs);
+            AssertEqual(instance.Integers, result.Integers);
+            AssertEqual(instance.Points, result.Points);
+            AssertEqual(instance.Names, result.Names);
+            AssertEqual(instance.Empty, result.Empty);
+            AssertEqual(instance.Structs, result.Structs);
+            AssertEqual(instance.Bytes, result.Bytes);
+            AssertEqual(instance.Struct.Integers, result.Struct.Integers);
+            AssertEqual(instance.Struct.Structs, result.Struct.Structs);
         }
 
         [StarDataType]
@@ -430,15 +430,15 @@ namespace UnitTests.Serialization
                 Enumerable = List("Miami", "New York", "Austin"),
             };
             var result = SerDes(instance);
-            Assert.That.Equal(instance.Integers, result.Integers);
-            Assert.That.Equal(instance.Points, result.Points);
-            Assert.That.Equal(instance.Names, result.Names);
-            Assert.That.Equal(instance.Empty, result.Empty);
-            Assert.That.Equal(instance.Structs, result.Structs);
-            Assert.That.Equal(instance.ReadOnlyList, result.ReadOnlyList);
-            Assert.That.Equal(instance.List, result.List);
-            Assert.That.Equal(instance.Collection, result.Collection);
-            Assert.That.Equal(instance.Enumerable, result.Enumerable);
+            AssertEqual(instance.Integers, result.Integers);
+            AssertEqual(instance.Points, result.Points);
+            AssertEqual(instance.Names, result.Names);
+            AssertEqual(instance.Empty, result.Empty);
+            AssertEqual(instance.Structs, result.Structs);
+            AssertEqual(instance.ReadOnlyList, result.ReadOnlyList);
+            AssertEqual(instance.List, result.List);
+            AssertEqual(instance.Collection, result.Collection);
+            AssertEqual(instance.Enumerable, result.Enumerable);
         }
 
         [StarDataType]
@@ -484,17 +484,17 @@ namespace UnitTests.Serialization
                 TechDict2 = Map(("Aeroponics",Tech("Aeroponics",true)), ("RoverBay",Tech("RoverBay",false))),
             };
             var result = SerDes(instance);
-            Assert.That.Equal(instance.TextToText, result.TextToText);
-            Assert.That.Equal(instance.Empty, result.Empty);
-            Assert.That.Equal(instance.TextToClass.Count, result.TextToClass.Count);
+            AssertEqual(instance.TextToText, result.TextToText);
+            AssertEqual(instance.Empty, result.Empty);
+            AssertEqual(instance.TextToClass.Count, result.TextToClass.Count);
             foreach (var kv in instance.TextToClass)
                 AreEqual(instance.TextToClass[kv.Key].SS, result.TextToClass[kv.Key].SS);
-            Assert.That.Equal(instance.IntToText, result.IntToText);
-            Assert.That.Equal(instance.Dictionary, result.Dictionary);
-            Assert.That.Equal(instance.Interface, result.Interface);
-            Assert.That.Equal(instance.ReadOnly, result.ReadOnly);
-            Assert.That.Equal(instance.TechDict1, result.TechDict1);
-            Assert.That.Equal(instance.TechDict2, result.TechDict2);
+            AssertEqual(instance.IntToText, result.IntToText);
+            AssertEqual(instance.Dictionary, result.Dictionary);
+            AssertEqual(instance.Interface, result.Interface);
+            AssertEqual(instance.ReadOnly, result.ReadOnly);
+            AssertEqual(instance.TechDict1, result.TechDict1);
+            AssertEqual(instance.TechDict2, result.TechDict2);
 
             // this is an issue with objects that inherit from IEquatable<T>
             // where they can be accidentally squashed
@@ -524,11 +524,11 @@ namespace UnitTests.Serialization
                 SetOfSets = Set(Set("A","B","C"), Set("D","E","F")),
             };
             var result = SerDes(instance);
-            Assert.That.Equal(instance.Empty, result.Empty);
-            Assert.That.Equal(instance.Integers, result.Integers);
-            Assert.That.Equal(instance.Strings, result.Strings);
-            Assert.That.Equal(instance.Structs, result.Structs);
-            Assert.That.Equal(instance.SetOfSets, result.SetOfSets);
+            AssertEqual(instance.Empty, result.Empty);
+            AssertEqual(instance.Integers, result.Integers);
+            AssertEqual(instance.Strings, result.Strings);
+            AssertEqual(instance.Structs, result.Structs);
+            AssertEqual(instance.SetOfSets, result.SetOfSets);
         }
 
         [StarDataType]
@@ -547,8 +547,8 @@ namespace UnitTests.Serialization
                 ListOfLists = List(List("Regulus", "Orion", "Andromeda"), List("Orion", "Cassiopeia")),
             };
             var result = SerDes(instance);
-            Assert.That.Equal(instance.ListOfArrays, result.ListOfArrays);
-            Assert.That.Equal(instance.ListOfLists, result.ListOfLists);
+            AssertEqual(instance.ListOfArrays, result.ListOfArrays);
+            AssertEqual(instance.ListOfLists, result.ListOfLists);
         }
 
         [StarDataType]
@@ -568,7 +568,7 @@ namespace UnitTests.Serialization
                 ),
             };
             var result = SerDes(instance);
-            Assert.That.Equal(instance.ListOfMaps, result.ListOfMaps);
+            AssertEqual(instance.ListOfMaps, result.ListOfMaps);
         }
 
         [StarDataType]
@@ -595,8 +595,8 @@ namespace UnitTests.Serialization
                 ),
             };
             var result = SerDes(instance);
-            Assert.That.Equal(instance.MapOfArrays, result.MapOfArrays);
-            Assert.That.Equal(instance.MapOfLists, result.MapOfLists);
+            AssertEqual(instance.MapOfArrays, result.MapOfArrays);
+            AssertEqual(instance.MapOfLists, result.MapOfLists);
         }
 
         [StarDataType]
@@ -632,8 +632,8 @@ namespace UnitTests.Serialization
                 )),
             };
             var result = SerDes(instance);
-            Assert.That.Equal(instance.MapOfMaps, result.MapOfMaps);
-            Assert.That.Equal(instance.MapOfMapsOfMaps, result.MapOfMapsOfMaps);
+            AssertEqual(instance.MapOfMaps, result.MapOfMaps);
+            AssertEqual(instance.MapOfMapsOfMaps, result.MapOfMapsOfMaps);
         }
 
         [StarDataType]
@@ -680,31 +680,31 @@ namespace UnitTests.Serialization
         {
             var instance = new ComplexType("root", createSubTypes:true);
             var result = SerDes(instance);
-            Assert.AreEqual(instance.TestText, result.TestText);
+            AssertEqual(instance.TestText, result.TestText);
 
-            Assert.AreEqual(result.RecursiveType, result.RecursiveType.RecursiveSelf);
-            Assert.AreEqual(instance.RecursiveType.Text, result.RecursiveType.Text);
-            Assert.AreEqual(instance.RecursiveType.Count, result.RecursiveType.Count);
+            AssertEqual(result.RecursiveType, result.RecursiveType.RecursiveSelf);
+            AssertEqual(instance.RecursiveType.Text, result.RecursiveType.Text);
+            AssertEqual(instance.RecursiveType.Count, result.RecursiveType.Count);
 
-            Assert.That.Equal(instance.Names, result.Names);
-            Assert.AreEqual(instance.SCont.SS, result.SCont.SS);
+            AssertEqual(instance.Names, result.Names);
+            AssertEqual(instance.SCont.SS, result.SCont.SS);
 
-            Assert.AreEqual(instance.Number, result.Number);
+            AssertEqual(instance.Number, result.Number);
             AreEqual(instance.Struct, result.Struct);
-            Assert.That.Equal(instance.Structs, result.Structs);
+            AssertEqual(instance.Structs, result.Structs);
 
-            Assert.AreEqual("Subtype0", result.ComplexTypes[0].TestText);
-            Assert.AreEqual("Subtype1", result.ComplexTypes[1].TestText);
+            AssertEqual("Subtype0", result.ComplexTypes[0].TestText);
+            AssertEqual("Subtype1", result.ComplexTypes[1].TestText);
 
-            Assert.AreEqual("Subtype0", result.ComplexTypesArr[0].TestText);
-            Assert.AreEqual("Subtype1", result.ComplexTypesArr[1].TestText);
+            AssertEqual("Subtype0", result.ComplexTypesArr[0].TestText);
+            AssertEqual("Subtype1", result.ComplexTypesArr[1].TestText);
 
-            Assert.AreEqual(1, result.Map["Key1"]);
-            Assert.AreEqual(2, result.Map["Key2"]);
-            Assert.AreEqual(1, result.ComplexTypes[0].Map["Key1"]);
-            Assert.AreEqual(2, result.ComplexTypes[0].Map["Key2"]);
-            Assert.AreEqual(1, result.ComplexTypes[1].Map["Key1"]);
-            Assert.AreEqual(2, result.ComplexTypes[1].Map["Key2"]);
+            AssertEqual(1, result.Map["Key1"]);
+            AssertEqual(2, result.Map["Key2"]);
+            AssertEqual(1, result.ComplexTypes[0].Map["Key1"]);
+            AssertEqual(2, result.ComplexTypes[0].Map["Key2"]);
+            AssertEqual(1, result.ComplexTypes[1].Map["Key1"]);
+            AssertEqual(2, result.ComplexTypes[1].Map["Key2"]);
         }
 
         static string CreateByteStreamForDeletedTypeTest(object instance)
@@ -743,9 +743,9 @@ namespace UnitTests.Serialization
 
             var ser = new BinarySerializer(typeof(ContainsMovedType));
             var result = Deserialize<ContainsMovedType>(ser, Convert.FromBase64String(containsMovedType));
-            Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
-            Assert.AreEqual(new Vector4(4001, 4002, 4003, 4004), result.MT.Value4);
-            Assert.AreEqual("Contains a moved type", result.Name);
+            AssertEqual(new Vector3(2001, 2002, 2003), result.Pos);
+            AssertEqual(new Vector4(4001, 4002, 4003, 4004), result.MT.Value4);
+            AssertEqual("Contains a moved type", result.Name);
         }
 
         // DELETED FROM HERE
@@ -779,8 +779,8 @@ namespace UnitTests.Serialization
 
             var ser = new BinarySerializer(typeof(ContainsDeletedType));
             var result = Deserialize<ContainsDeletedType>(ser, Convert.FromBase64String(containsDeletedType));
-            Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
-            Assert.AreEqual("Contains deleted types", result.Name);
+            AssertEqual(new Vector3(2001, 2002, 2003), result.Pos);
+            AssertEqual("Contains deleted types", result.Name);
         }
 
         [StarDataType]
@@ -810,9 +810,9 @@ namespace UnitTests.Serialization
 
             var ser = new BinarySerializer(typeof(ContainsRemovedFieldType));
             var result = Deserialize<ContainsRemovedFieldType>(ser, Convert.FromBase64String(containsRemovedField));
-            Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
-            Assert.AreEqual("Contains a removed field", result.Name);
-            Assert.AreEqual(new Vector2(4010, 4020), result.Pos2);
+            AssertEqual(new Vector3(2001, 2002, 2003), result.Pos);
+            AssertEqual("Contains a removed field", result.Name);
+            AssertEqual(new Vector2(4010, 4020), result.Pos2);
         }
 
         [StarDataType(TypeName = "ThisTypeNameDoesNotReflectTheRealProduct")]
@@ -826,7 +826,7 @@ namespace UnitTests.Serialization
         {
             var instance = new CustomTypeNameType{ Pos = new Vector3(1001, 1002, 1003) };
             var result = SerDes(instance);
-            Assert.AreEqual(instance.Pos, result.Pos);
+            AssertEqual(instance.Pos, result.Pos);
         }
 
         [StarDataType]
@@ -840,7 +840,7 @@ namespace UnitTests.Serialization
         {
             var instance = new FieldNameRemapType { Pos = new Vector3(1001, 1002, 1003) };
             var result = SerDes(instance);
-            Assert.AreEqual(instance.Pos, result.Pos);
+            AssertEqual(instance.Pos, result.Pos);
         }
 
         //[TestMethod]
@@ -915,16 +915,16 @@ namespace UnitTests.Serialization
                 Values5 = List(FlagsEnumByte.Flag1|FlagsEnumByte.Flag2, FlagsEnumByte.Flag4, FlagsEnumByte.Flag3|FlagsEnumByte.Flag4),
             };
             var result = SerDes(instance);
-            Assert.AreEqual(instance.Key1, result.Key1);
-            Assert.AreEqual(instance.Key2, result.Key2);
-            Assert.AreEqual(instance.Key3, result.Key3);
-            Assert.AreEqual(instance.Key4, result.Key4);
-            Assert.AreEqual(instance.Key5, result.Key5);
-            Assert.That.EqualCollections(instance.Values1, result.Values1);
-            Assert.That.EqualCollections(instance.Values2, result.Values2);
-            Assert.That.EqualCollections(instance.Values3, result.Values3);
-            Assert.That.EqualCollections(instance.Values4, result.Values4);
-            Assert.That.EqualCollections(instance.Values5, result.Values5);
+            AssertEqual(instance.Key1, result.Key1);
+            AssertEqual(instance.Key2, result.Key2);
+            AssertEqual(instance.Key3, result.Key3);
+            AssertEqual(instance.Key4, result.Key4);
+            AssertEqual(instance.Key5, result.Key5);
+            AssertEqualCollections(instance.Values1, result.Values1);
+            AssertEqualCollections(instance.Values2, result.Values2);
+            AssertEqualCollections(instance.Values3, result.Values3);
+            AssertEqualCollections(instance.Values4, result.Values4);
+            AssertEqualCollections(instance.Values5, result.Values5);
         }
 
         [StarDataType]
@@ -947,7 +947,7 @@ namespace UnitTests.Serialization
                 Nested = new NestedClass1.NestedClass2{ Name = "Nested2" }
             };
             var result = SerDes(instance);
-            Assert.AreEqual(instance.Nested.Name, result.Nested.Name);
+            AssertEqual(instance.Nested.Name, result.Nested.Name);
         }
 
         [StarDataType]
@@ -980,8 +980,8 @@ namespace UnitTests.Serialization
                 }
             };
             var result = SerDes(instance);
-            Assert.AreEqual(instance.Virt.Name, result.Virt.Name);
-            Assert.AreEqual(instance.Virt.NonVirtual, result.Virt.NonVirtual);
+            AssertEqual(instance.Virt.Name, result.Virt.Name);
+            AssertEqual(instance.Virt.NonVirtual, result.Virt.NonVirtual);
         }
 
 
@@ -1016,8 +1016,8 @@ namespace UnitTests.Serialization
             };
 
             var result = SerDes(instance);
-            Assert.AreEqual(instance.Abstr.Name, result.Abstr.Name);
-            Assert.AreEqual(instance.Abstr.NonVirtual, result.Abstr.NonVirtual);
+            AssertEqual(instance.Abstr.Name, result.Abstr.Name);
+            AssertEqual(instance.Abstr.NonVirtual, result.Abstr.NonVirtual);
         }
 
         [TestMethod]
@@ -1109,26 +1109,26 @@ namespace UnitTests.Serialization
             var reader = new Reader(msIn);
 
             var results1 = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderType) });
-            Assert.AreEqual(1, results1.Length);
-            Assert.AreEqual(typeof(HeaderType), results1[0].GetType());
+            AssertEqual(1, results1.Length);
+            AssertEqual(typeof(HeaderType), results1[0].GetType());
 
             var header1 = (HeaderType)results1[0];
-            Assert.AreEqual(header.Version, header1.Version);
-            Assert.AreEqual(header.Name, header1.Name);
+            AssertEqual(header.Version, header1.Version);
+            AssertEqual(header.Name, header1.Name);
 
             reader.BaseStream.Position = 0;
             var results2 = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderType), typeof(PayloadType) });
-            Assert.AreEqual(2, results2.Length);
-            Assert.AreEqual(typeof(HeaderType), results2[0].GetType());
-            Assert.AreEqual(typeof(PayloadType), results2[1].GetType());
+            AssertEqual(2, results2.Length);
+            AssertEqual(typeof(HeaderType), results2[0].GetType());
+            AssertEqual(typeof(PayloadType), results2[1].GetType());
 
             var header2 = (HeaderType)results2[0];
-            Assert.AreEqual(header.Version, header2.Version);
-            Assert.AreEqual(header.Name, header2.Name);
+            AssertEqual(header.Version, header2.Version);
+            AssertEqual(header.Name, header2.Name);
 
             var payload2 = (PayloadType)results2[1];
-            Assert.AreEqual(payload.Data, payload2.Data);
-            Assert.AreEqual(payload.Size, payload2.Size);
+            AssertEqual(payload.Data, payload2.Data);
+            AssertEqual(payload.Size, payload2.Size);
         }
 
         double GetMemory(bool gc) => GC.GetTotalMemory(gc) / (1024.0 * 1024.0);
@@ -1158,8 +1158,8 @@ namespace UnitTests.Serialization
 
             // peek the header as per specs
             HeaderData header = LoadGame.PeekHeader(save.SaveFile);
-            Assert.AreEqual(SavedGame.SaveGameVersion, header.Version);
-            Assert.AreEqual("BinarySerializer.Test", header.SaveName);
+            AssertEqual(SavedGame.SaveGameVersion, header.Version);
+            AssertEqual("BinarySerializer.Test", header.SaveName);
 
             double memory3 = GetMemory(false);
 
@@ -1176,13 +1176,13 @@ namespace UnitTests.Serialization
             Log.Info($"BeforeLoad: {memory3:0.0}MB  delta:{memory3-memory2:0.0}MB");
             Log.Info($"AfterLoad:  {memory4:0.0}MB  delta:{memory4-memory3:0.0}MB");
 
-            Assert.AreEqual(firstEmpName, E(us).Name, "First empire name should match");
-            Assert.AreEqual(numShips, E(us).OwnedShips.Count, "Empire should have same # of ships");
-            Assert.AreEqual(firstShipHealth, E(us).OwnedShips[0].Health, "Ships should have health");
+            AssertEqual(firstEmpName, E(us).Name, "First empire name should match");
+            AssertEqual(numShips, E(us).OwnedShips.Count, "Empire should have same # of ships");
+            AssertEqual(firstShipHealth, E(us).OwnedShips[0].Health, "Ships should have health");
 
             var unlocked2 = E(us).UnlockedTechs;
-            Assert.AreEqual(unlocked1.Length, unlocked2.Length, "Unlocked techs count must match");
-            Assert.That.Equal(unlocked1.Select(t=>t.UID), unlocked2.Select(t=>t.UID), "Unlocked techs UID-s must match");
+            AssertEqual(unlocked1.Length, unlocked2.Length, "Unlocked techs count must match");
+            AssertEqual(unlocked1.Select(t=>t.UID), unlocked2.Select(t=>t.UID), "Unlocked techs UID-s must match");
         }
 
         [TestMethod]

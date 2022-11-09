@@ -7,7 +7,7 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests.LinearAlgebra
 {
     [TestClass]
-    public class TestVectorMath
+    public class TestVectorMath : StarDriveTest
     {
         static Vector2 Vec(float x, float y) => new Vector2(x, y);
 
@@ -15,45 +15,45 @@ namespace UnitTests.LinearAlgebra
         public void TestDotProduct()
         {
             // same direction yields 1
-            Assert.AreEqual(1f,  Vec(1, 0).Dot( Vec(1, 0) ));
-            Assert.AreEqual(1f,  Vec(0, 1).Dot( Vec(0, 1) ));
+            AssertEqual(1f,  Vec(1, 0).Dot( Vec(1, 0) ));
+            AssertEqual(1f,  Vec(0, 1).Dot( Vec(0, 1) ));
 
             // magnitude matters, so we need normalize
-            Assert.AreEqual(1f,  Vec(8, 0).Normalized().Dot( Vec(10, 0).Normalized() ));
+            AssertEqual(1f,  Vec(8, 0).Normalized().Dot( Vec(10, 0).Normalized() ));
 
             // reverse direction yields -1
-            Assert.AreEqual(-1f,  Vec(-1, 0).Dot( Vec(+1, 0) ));
-            Assert.AreEqual(-1f,  Vec(+1, 0).Dot( Vec(-1, 0) )); // order doesn't matter
+            AssertEqual(-1f,  Vec(-1, 0).Dot( Vec(+1, 0) ));
+            AssertEqual(-1f,  Vec(+1, 0).Dot( Vec(-1, 0) )); // order doesn't matter
 
             // perpendicular directions yield 0
-            Assert.AreEqual(0f,  Vec(-1, 0).Dot( Vec(0, +1) ));
-            Assert.AreEqual(0f,  Vec(-1, 0).Dot( Vec(0, -1) ));
-            Assert.AreEqual(0f,  Vec(+1, 0).Dot( Vec(0, +1) ));
-            Assert.AreEqual(0f,  Vec(+1, 0).Dot( Vec(0, -1) ));
+            AssertEqual(0f,  Vec(-1, 0).Dot( Vec(0, +1) ));
+            AssertEqual(0f,  Vec(-1, 0).Dot( Vec(0, -1) ));
+            AssertEqual(0f,  Vec(+1, 0).Dot( Vec(0, +1) ));
+            AssertEqual(0f,  Vec(+1, 0).Dot( Vec(0, -1) ));
 
             // and magnitude does not matter
-            Assert.AreEqual(0f,  Vec(+2, +2).Dot( Vec(-2, +2) ));
-            Assert.AreEqual(0f,  Vec(+2, -2).Dot( Vec(+2, +2) ));
+            AssertEqual(0f,  Vec(+2, +2).Dot( Vec(-2, +2) ));
+            AssertEqual(0f,  Vec(+2, -2).Dot( Vec(+2, +2) ));
         }
 
         [TestMethod]
         public void TestUnitDotProduct()
         {
             // same direction yields 1
-            Assert.AreEqual(1f,  Vec(1, 0).UnitDot( Vec(1, 0) ));
-            Assert.AreEqual(1f,  Vec(0, 1).UnitDot( Vec(0, 1) ));
+            AssertEqual(1f,  Vec(1, 0).UnitDot( Vec(1, 0) ));
+            AssertEqual(1f,  Vec(0, 1).UnitDot( Vec(0, 1) ));
 
             // reverse direction yields -1
-            Assert.AreEqual(-1f,  Vec(-1, 0).UnitDot( Vec(+1, 0) ));
-            Assert.AreEqual(-1f,  Vec(+1, 0).UnitDot( Vec(-1, 0) )); // order doesn't matter
+            AssertEqual(-1f,  Vec(-1, 0).UnitDot( Vec(+1, 0) ));
+            AssertEqual(-1f,  Vec(+1, 0).UnitDot( Vec(-1, 0) )); // order doesn't matter
 
             // values beyond unit vector are clamped within [-1; +1]
-            Assert.AreEqual(1f,  Vec(1, 0).UnitDot( Vec(1, 0) ));
-            Assert.AreEqual(1f,  Vec(0, 1).UnitDot( Vec(0, 1) ));
+            AssertEqual(1f,  Vec(1, 0).UnitDot( Vec(1, 0) ));
+            AssertEqual(1f,  Vec(0, 1).UnitDot( Vec(0, 1) ));
 
             // values beyond unit vector are clamped within [-1; +1]
-            Assert.AreEqual(-1f,  Vec(-1.01f, 0).UnitDot( Vec(+1.01f, 0) ));
-            Assert.AreEqual(-1f,  Vec(+1.01f, 0).UnitDot( Vec(-1.01f, 0) ));
+            AssertEqual(-1f,  Vec(-1.01f, 0).UnitDot( Vec(+1.01f, 0) ));
+            AssertEqual(-1f,  Vec(+1.01f, 0).UnitDot( Vec(-1.01f, 0) ));
         }
 
         [TestMethod]
@@ -94,20 +94,20 @@ namespace UnitTests.LinearAlgebra
                 => Vectors.AngleDifference(Vec(a.x, a.y), Vec(b.x, b.y));
 
             // facing opposite side, angle difference should 1 PI, regardless of orientation
-            Assert.AreEqual(RadMath.PI, AngleDifference( (0, +1), (0, -1) ));
-            Assert.AreEqual(RadMath.PI, AngleDifference( (0, -1), (0, +1) ));
-            Assert.AreEqual(RadMath.PI, AngleDifference( (+1, 0), (-1, 0) ));
-            Assert.AreEqual(RadMath.PI, AngleDifference( (-1, 0), (+1, 0) ));
+            AssertEqual(RadMath.PI, AngleDifference( (0, +1), (0, -1) ));
+            AssertEqual(RadMath.PI, AngleDifference( (0, -1), (0, +1) ));
+            AssertEqual(RadMath.PI, AngleDifference( (+1, 0), (-1, 0) ));
+            AssertEqual(RadMath.PI, AngleDifference( (-1, 0), (+1, 0) ));
 
             // if facing same direction, make sure we don't get a NaN
-            Assert.AreEqual(0f, AngleDifference( (1,1), (1,1) ));
-            Assert.AreEqual(0f, AngleDifference( (-1,1), (-1,1) ));
-            Assert.AreEqual(0f, AngleDifference( (1,-1), (1,-1) ));
-            Assert.AreEqual(0f, AngleDifference( (-1,-1), (-1,-1) ));
+            AssertEqual(0f, AngleDifference( (1,1), (1,1) ));
+            AssertEqual(0f, AngleDifference( (-1,1), (-1,1) ));
+            AssertEqual(0f, AngleDifference( (1,-1), (1,-1) ));
+            AssertEqual(0f, AngleDifference( (-1,-1), (-1,-1) ));
 
             // 90 degs
-            Assert.AreEqual(RadMath.HalfPI, AngleDifference( (0,1), (1,0) ));
-            Assert.AreEqual(RadMath.HalfPI, AngleDifference( (0,1), (-1,0) ));
+            AssertEqual(RadMath.HalfPI, AngleDifference( (0,1), (1,0) ));
+            AssertEqual(RadMath.HalfPI, AngleDifference( (0,1), (-1,0) ));
         }
 
         [TestMethod]
@@ -131,7 +131,7 @@ namespace UnitTests.LinearAlgebra
                     float difference = Vectors.AngleDifference(wantedF, currentF);
                     float expectedDiff = Math.Abs(wanted - current);
 
-                    Assert.That.Equal(0.01f, expectedDiff, difference,
+                    AssertEqual(0.01f, expectedDiff, difference,
                                       $"wanted={wanted} current={current}");
                 }
             }

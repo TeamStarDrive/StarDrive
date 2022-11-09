@@ -34,9 +34,9 @@ namespace UnitTests.Serialization
                 ParserDump(parser);
 
                 var items = parser.Root.Nodes;
-                Assert.AreEqual("Value", items[0].Value);
-                Assert.AreEqual("String Text # with : characters[{:\r\n\t", items[1].Value);
-                Assert.AreEqual("Value Text", items[2].Value);
+                AssertEqual("Value", items[0].Value);
+                AssertEqual("String Text # with : characters[{:\r\n\t", items[1].Value);
+                AssertEqual("Value Text", items[2].Value);
             }
         }
 
@@ -54,10 +54,10 @@ namespace UnitTests.Serialization
                 ParserDump(parser);
 
                 var root = parser.Root;
-                Assert.AreEqual(-1234567, root.GetSubNode("Int1").ValueInt);
-                Assert.AreEqual(+1234567, root.GetSubNode("Int2").ValueInt);
-                Assert.AreEqual(-123.4567, root.GetSubNode("Float1").ValueFloat, 0.0001);
-                Assert.AreEqual(+123.4567, root.GetSubNode("Float2").ValueFloat, 0.0001);
+                AssertEqual(-1234567, root.GetSubNode("Int1").ValueInt);
+                AssertEqual(+1234567, root.GetSubNode("Int2").ValueInt);
+                AssertEqual(0.0001f, -123.4567f, root.GetSubNode("Float1").ValueFloat);
+                AssertEqual(0.0001f, +123.4567f, root.GetSubNode("Float2").ValueFloat);
             }
         }
 
@@ -77,10 +77,10 @@ namespace UnitTests.Serialization
                 ParserDump(parser);
 
                 var root = parser.Root;
-                Assert.That.Equal(Array(0,1,2), root[0].ValueArray);
-                Assert.That.Equal(Array(Array(0,1),Array(2,3),Array(4,5)), root[1].ValueArray);
-                Assert.That.Equal(Array(3,2,1, "{:#takeoff:["), root[2].ValueArray);
-                Assert.That.Equal(Array(20,-20.22f, +15.5f, 14.4f), root[3].ValueArray);
+                AssertEqual(Array(0,1,2), root[0].ValueArray);
+                AssertEqual(Array(Array(0,1),Array(2,3),Array(4,5)), root[1].ValueArray);
+                AssertEqual(Array(3,2,1, "{:#takeoff:["), root[2].ValueArray);
+                AssertEqual(Array(20,-20.22f, +15.5f, 14.4f), root[3].ValueArray);
             }
         }
 
@@ -101,17 +101,17 @@ namespace UnitTests.Serialization
                 ParserDump(parser);
 
                 var root = parser.Root;
-                Assert.AreEqual(0,       root[0]["A"].ValueInt);
-                Assert.AreEqual("Value", root[0]["B"].ValueText);
-                Assert.AreEqual("String value:", root[0]["C"].ValueText);
+                AssertEqual(0,       root[0]["A"].ValueInt);
+                AssertEqual("Value", root[0]["B"].ValueText);
+                AssertEqual("String value:", root[0]["C"].ValueText);
 
-                Assert.AreEqual(0,       root[1]["A"].ValueInt);
-                Assert.AreEqual("Value", root[1]["B"].ValueText);
-                Assert.AreEqual("String value:", root[1]["C"].ValueText);
-                Assert.AreEqual(true, root[1]["D"].ValueBool);
+                AssertEqual(0,       root[1]["A"].ValueInt);
+                AssertEqual("Value", root[1]["B"].ValueText);
+                AssertEqual("String value:", root[1]["C"].ValueText);
+                AssertEqual(true, root[1]["D"].ValueBool);
 
-                Assert.That.Equal(Array(1,2),  root[2]["A"].ValueArray);
-                Assert.AreEqual("Y", root[2]["B"]["X"].Value);
+                AssertEqual(Array(1,2),  root[2]["A"].ValueArray);
+                AssertEqual("Y", root[2]["B"]["X"].Value);
             }
         }
 
@@ -131,12 +131,12 @@ namespace UnitTests.Serialization
 
                 var seq1 = parser.Root["Sequence"];
                 Assert.IsTrue(seq1.HasSequence);
-                Assert.AreEqual(4, seq1.Count);
-                Assert.AreEqual(1234,    seq1.Sequence[0].Value);
-                Assert.AreEqual("hello", seq1.Sequence[1].Value);
-                Assert.AreEqual("abc",   seq1.Sequence[2].Value);
-                Assert.AreEqual("key",   seq1.Sequence[3].Key);
-                Assert.AreEqual("value", seq1.Sequence[3].Value);
+                AssertEqual(4, seq1.Count);
+                AssertEqual(1234,    seq1.Sequence[0].Value);
+                AssertEqual("hello", seq1.Sequence[1].Value);
+                AssertEqual("abc",   seq1.Sequence[2].Value);
+                AssertEqual("key",   seq1.Sequence[3].Key);
+                AssertEqual("value", seq1.Sequence[3].Value);
             }
         }
 
@@ -160,28 +160,28 @@ namespace UnitTests.Serialization
 
                 var seq2 = parser.Root["Sequence"];
                 Assert.IsTrue(seq2.HasSequence);
-                Assert.AreEqual(2, seq2.Count);
+                AssertEqual(2, seq2.Count);
 
                 var elem1 = seq2.GetElement(0);
                 Assert.IsTrue(elem1.HasSequence);
-                Assert.AreEqual(2, elem1.Count);
-                Assert.AreEqual("elem1", elem1.Name);
-                Assert.AreEqual("a", elem1.GetElement(0).Name);
-                Assert.AreEqual(1,   elem1.GetElement(0).Value);
-                Assert.AreEqual("b", elem1.GetElement(1).Name);
-                Assert.AreEqual(2,   elem1.GetElement(1).Value);
+                AssertEqual(2, elem1.Count);
+                AssertEqual("elem1", elem1.Name);
+                AssertEqual("a", elem1.GetElement(0).Name);
+                AssertEqual(1,   elem1.GetElement(0).Value);
+                AssertEqual("b", elem1.GetElement(1).Name);
+                AssertEqual(2,   elem1.GetElement(1).Value);
 
                 var elem2 = seq2.GetElement(1);
                 Assert.IsTrue(elem2.HasSequence);
-                Assert.AreEqual(2, elem2.Count);
-                Assert.AreEqual("elem2", elem2.Name);
-                Assert.AreEqual("c", elem2.GetElement(0).Name);
-                Assert.AreEqual(3,   elem2.GetElement(0).Value);
-                Assert.AreEqual(4,   elem2.GetElement(0)["d"].Value);
+                AssertEqual(2, elem2.Count);
+                AssertEqual("elem2", elem2.Name);
+                AssertEqual("c", elem2.GetElement(0).Name);
+                AssertEqual(3,   elem2.GetElement(0).Value);
+                AssertEqual(4,   elem2.GetElement(0)["d"].Value);
 
-                Assert.AreEqual("e", elem2.GetElement(1).Name);
-                Assert.AreEqual(5,   elem2.GetElement(1).Value);
-                Assert.AreEqual(6,   elem2.GetElement(1)["f"].Value);
+                AssertEqual("e", elem2.GetElement(1).Name);
+                AssertEqual(5,   elem2.GetElement(1).Value);
+                AssertEqual(6,   elem2.GetElement(1)["f"].Value);
             }
         }
 
@@ -201,20 +201,20 @@ namespace UnitTests.Serialization
 
                 var seq = parser.Root["Sequence"];
                 Assert.IsTrue(seq.HasSequence);
-                Assert.AreEqual(2, seq.Count);
+                AssertEqual(2, seq.Count);
 
                 var seq1 = seq.GetElement(0);
                 var seq2 = seq.GetElement(1);
                 Assert.IsTrue(seq1.HasSequence);
                 Assert.IsTrue(seq2.HasSequence);
-                Assert.AreEqual(1, seq1.Count);
-                Assert.AreEqual(1, seq2.Count);
+                AssertEqual(1, seq1.Count);
+                AssertEqual(1, seq2.Count);
 
-                Assert.That.Equal(Array(0,1,2), seq1.ValueArray);
-                Assert.That.Equal(Array(3,4,5), seq1.Sequence[0].ValueArray);
+                AssertEqual(Array(0,1,2), seq1.ValueArray);
+                AssertEqual(Array(3,4,5), seq1.Sequence[0].ValueArray);
 
-                Assert.That.Equal(Array(5,6,7), seq2.ValueArray);
-                Assert.That.Equal(Array(8,9,10), seq2.Sequence[0].ValueArray);
+                AssertEqual(Array(5,6,7), seq2.ValueArray);
+                AssertEqual(Array(8,9,10), seq2.Sequence[0].ValueArray);
             }
         }
 
@@ -233,20 +233,20 @@ namespace UnitTests.Serialization
 
                 var seq = parser.Root["Sequence"];
                 Assert.IsTrue(seq.HasSequence);
-                Assert.AreEqual(3, seq.Count);
+                AssertEqual(3, seq.Count);
                 
-                Assert.AreEqual(null, seq.Sequence[0].Name);
-                Assert.AreEqual(null, seq.Sequence[0].Value);
+                AssertEqual(null, seq.Sequence[0].Name);
+                AssertEqual(null, seq.Sequence[0].Value);
 
-                Assert.AreEqual(0, seq.Sequence[0]["Id"].Value);
-                Assert.AreEqual(5, seq.Sequence[0]["Size"].Value);
+                AssertEqual(0, seq.Sequence[0]["Id"].Value);
+                AssertEqual(5, seq.Sequence[0]["Size"].Value);
 
-                Assert.AreEqual(1, seq.Sequence[1]["Id"].Value);
-                Assert.AreEqual(10, seq.Sequence[1]["Size"].Value);
+                AssertEqual(1, seq.Sequence[1]["Id"].Value);
+                AssertEqual(10, seq.Sequence[1]["Size"].Value);
 
-                Assert.AreEqual("NamedItem", seq.Sequence[2].Name);
-                Assert.AreEqual(2, seq.Sequence[2]["Id"].Value);
-                Assert.AreEqual(15, seq.Sequence[2]["Size"].Value);
+                AssertEqual("NamedItem", seq.Sequence[2].Name);
+                AssertEqual(2, seq.Sequence[2]["Id"].Value);
+                AssertEqual(15, seq.Sequence[2]["Size"].Value);
             }
         }
 
@@ -274,27 +274,27 @@ namespace UnitTests.Serialization
                 ParserDump(parser);
 
                 var o = parser.Root["Object"];
-                Assert.AreEqual("Value",        o["Key1"].Value);
-                Assert.That.Equal(Array(0,1,2), o["Key2"].Value);
-                Assert.That.Equal("Mike",       o["Key3"]["Name"].Value);
-                Assert.That.Equal(10,           o["Key3"]["Age"].Value);
+                AssertEqual("Value",        o["Key1"].Value);
+                AssertEqual(Array(0,1,2), o["Key2"].Value);
+                AssertEqual("Mike",       o["Key3"]["Name"].Value);
+                AssertEqual(10,           o["Key3"]["Age"].Value);
 
                 var seq1 = o["Sequence1"];
-                Assert.That.Equal("Element0", seq1.Sequence[0].Name);
-                Assert.That.Equal("Value0",   seq1.Sequence[0].Value);
-                Assert.That.Equal("Element1", seq1.Sequence[1].Name);
-                Assert.That.Equal(Array(0,1), seq1.Sequence[1].Value);
-                Assert.That.Equal("Mike",     seq1.Sequence[2]["Name"].Value);
-                Assert.That.Equal(Array(3,2,1,"{:#takeoff:["),             seq1.Sequence[2]["Sub"].Value);
-                Assert.That.Equal(Array(Array(0,1),Array(2,3),Array(4,5)), seq1.Sequence[3].ValueArray);
+                AssertEqual("Element0", seq1.Sequence[0].Name);
+                AssertEqual("Value0",   seq1.Sequence[0].Value);
+                AssertEqual("Element1", seq1.Sequence[1].Name);
+                AssertEqual(Array(0,1), seq1.Sequence[1].Value);
+                AssertEqual("Mike",     seq1.Sequence[2]["Name"].Value);
+                AssertEqual(Array(3,2,1,"{:#takeoff:["),             seq1.Sequence[2]["Sub"].Value);
+                AssertEqual(Array(Array(0,1),Array(2,3),Array(4,5)), seq1.Sequence[3].ValueArray);
                 
                 var seq2 = o["Sequence2"];
-                Assert.That.Equal("Name",   seq2.Sequence[0].Name);
-                Assert.That.Equal(":Mike:", seq2.Sequence[0].Value);
-                Assert.That.Equal(20,       seq2.Sequence[0]["Age"].Value);
-                Assert.That.Equal("Name",   seq2.Sequence[1].Name);
-                Assert.That.Equal(":Lisa:", seq2.Sequence[1].Value);
-                Assert.That.Equal(19,       seq2.Sequence[1]["Age"].Value);
+                AssertEqual("Name",   seq2.Sequence[0].Name);
+                AssertEqual(":Mike:", seq2.Sequence[0].Value);
+                AssertEqual(20,       seq2.Sequence[0]["Age"].Value);
+                AssertEqual("Name",   seq2.Sequence[1].Name);
+                AssertEqual(":Lisa:", seq2.Sequence[1].Value);
+                AssertEqual(19,       seq2.Sequence[1]["Age"].Value);
             }
         }
 

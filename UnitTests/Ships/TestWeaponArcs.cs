@@ -39,7 +39,7 @@ namespace UnitTests.Ships
             Ship target = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
 
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Fire at target must succeed");
-            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
+            AssertEqual(1, GetProjectileCount(ship), "Invalid projectile count");
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace UnitTests.Ships
             Ship target = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
 
             Assert.IsFalse(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Weapon cannot shoot behind its firing ARC!");
-            Assert.AreEqual(0, GetProjectileCount(ship), "No projectiles should launch");
+            AssertEqual(0, GetProjectileCount(ship), "No projectiles should launch");
         }
 
         [TestMethod]
@@ -61,8 +61,8 @@ namespace UnitTests.Ships
 
             var otherShips = new[]{ opportune };
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(main, NoProjectiles, otherShips), "Fire at target must succeed");
-            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
-            Assert.AreEqual(((ShipModule)weapon.FireTarget).GetParent(), opportune, "Weapon must have fired at target of opportunity");
+            AssertEqual(1, GetProjectileCount(ship), "Invalid projectile count");
+            AssertEqual(((ShipModule)weapon.FireTarget).GetParent(), opportune, "Weapon must have fired at target of opportunity");
         }
 
         [TestMethod]
@@ -83,8 +83,8 @@ namespace UnitTests.Ships
 
             var projectiles = GetProjectiles(enemy).ToArr();
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(enemy, projectiles, NoShips), "Fire PD at a projectile must succeed");
-            Assert.AreEqual(1, GetProjectileCount(us), "Invalid projectile count");
-            Assert.AreEqual(weapon.FireTarget.Type, GameObjectType.Proj, "TruePD must only fire at projectiles");
+            AssertEqual(1, GetProjectileCount(us), "Invalid projectile count");
+            AssertEqual(weapon.FireTarget.Type, GameObjectType.Proj, "TruePD must only fire at projectiles");
         }
 
         [TestMethod]

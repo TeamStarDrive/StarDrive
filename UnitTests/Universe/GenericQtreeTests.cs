@@ -45,7 +45,7 @@ public class GenericQtreeTests : StarDriveTest
         // set node threshold to 2 so we can actually test
         // the subdivision logic somewhat
         var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:2);
-        Assert.That.GreaterThan(tree.FullSize, tree.WorldSize);
+        AssertGreaterThan(tree.FullSize, tree.WorldSize);
 
         float r4 = UState.UniverseRadius / 2;
         Planet NW = SpawnPlanetAt(new(-r4, -r4));
@@ -54,34 +54,34 @@ public class GenericQtreeTests : StarDriveTest
         Planet SW = SpawnPlanetAt(new(-r4, +r4));
 
         tree.Insert(NW);
-        Assert.AreEqual(1, tree.Count);
+        AssertEqual(1, tree.Count);
         Assert.IsTrue(tree.Contains(NW));
         Assert.IsFalse(tree.Contains(NE));
-        Assert.AreEqual(NW, tree.FindOne(NW.Position, 1000));
-        Assert.AreEqual(1, tree.CountNumberOfNodes());
+        AssertEqual(NW, tree.FindOne(NW.Position, 1000));
+        AssertEqual(1, tree.CountNumberOfNodes());
 
         tree.Insert(NW); // double-insert
-        Assert.AreEqual(1, tree.Count); // nothing should happen
+        AssertEqual(1, tree.Count); // nothing should happen
 
         tree.Insert(NE);
-        Assert.AreEqual(2, tree.Count);
+        AssertEqual(2, tree.Count);
         Assert.IsTrue(tree.Contains(NE));
-        Assert.AreEqual(NE, tree.FindOne(NE.Position, 1000));
-        Assert.AreEqual(1, tree.CountNumberOfNodes());
+        AssertEqual(NE, tree.FindOne(NE.Position, 1000));
+        AssertEqual(1, tree.CountNumberOfNodes());
 
         tree.Insert(SE);
-        Assert.AreEqual(3, tree.Count);
+        AssertEqual(3, tree.Count);
         Assert.IsTrue(tree.Contains(SE));
-        Assert.AreEqual(SE, tree.FindOne(SE.Position, 1000));
+        AssertEqual(SE, tree.FindOne(SE.Position, 1000));
         // now qtree should subdivide, because cellThreshold:2
         // subdivision always adds +4 nodes
-        Assert.AreEqual(1+4, tree.CountNumberOfNodes());
+        AssertEqual(1+4, tree.CountNumberOfNodes());
 
         tree.Insert(SW);
-        Assert.AreEqual(4, tree.Count);
+        AssertEqual(4, tree.Count);
         Assert.IsTrue(tree.Contains(SW));
-        Assert.AreEqual(SW, tree.FindOne(SW.Position, 1000));
-        Assert.AreEqual(1+4, tree.CountNumberOfNodes());
+        AssertEqual(SW, tree.FindOne(SW.Position, 1000));
+        AssertEqual(1+4, tree.CountNumberOfNodes());
     }
 
     // remove will also test the # of nodes after removal
@@ -120,15 +120,15 @@ public class GenericQtreeTests : StarDriveTest
 
         // now we should have 4 cardinal directions filled
         // with each cardinal quadrant holding 4 nodes:
-        Assert.AreEqual(16, tree.Count);
-        Assert.AreEqual(1 + 1*4 + 4*4, tree.CountNumberOfNodes());
+        AssertEqual(16, tree.Count);
+        AssertEqual(1 + 1*4 + 4*4, tree.CountNumberOfNodes());
 
         // Remove all NW nodes
         NWPlanets.ForEach(CanFind);
         NWPlanets.ForEach(p => Assert.IsTrue(tree.Contains(p)));
         NWPlanets.ForEach(p => tree.Remove(p));
-        Assert.AreEqual(12, tree.Count);
-        Assert.AreEqual(1 + 1*4 + 3*4, tree.CountNumberOfNodes());
+        AssertEqual(12, tree.Count);
+        AssertEqual(1 + 1*4 + 3*4, tree.CountNumberOfNodes());
         NWPlanets.ForEach(p => Assert.IsFalse(tree.Contains(p)));
         NWPlanets.ForEach(CannotFind);
 
@@ -136,8 +136,8 @@ public class GenericQtreeTests : StarDriveTest
         NEPlanets.ForEach(CanFind);
         NEPlanets.ForEach(p => Assert.IsTrue(tree.Contains(p)));
         NEPlanets.ForEach(p => tree.Remove(p));
-        Assert.AreEqual(8, tree.Count);
-        Assert.AreEqual(1 + 1*4 + 2*4, tree.CountNumberOfNodes());
+        AssertEqual(8, tree.Count);
+        AssertEqual(1 + 1*4 + 2*4, tree.CountNumberOfNodes());
         NEPlanets.ForEach(p => Assert.IsFalse(tree.Contains(p)));
         NEPlanets.ForEach(CannotFind);
 
@@ -145,8 +145,8 @@ public class GenericQtreeTests : StarDriveTest
         SEPlanets.ForEach(CanFind);
         SEPlanets.ForEach(p => Assert.IsTrue(tree.Contains(p)));
         SEPlanets.ForEach(p => tree.Remove(p));
-        Assert.AreEqual(4, tree.Count);
-        Assert.AreEqual(1 + 1*4 + 1*4, tree.CountNumberOfNodes());
+        AssertEqual(4, tree.Count);
+        AssertEqual(1 + 1*4 + 1*4, tree.CountNumberOfNodes());
         SEPlanets.ForEach(p => Assert.IsFalse(tree.Contains(p)));
         SEPlanets.ForEach(CannotFind);
 
@@ -154,13 +154,13 @@ public class GenericQtreeTests : StarDriveTest
         SWPlanets.ForEach(CanFind);
         SWPlanets.ForEach(p => Assert.IsTrue(tree.Contains(p)));
         SWPlanets.ForEach(p => tree.Remove(p));
-        Assert.AreEqual(0, tree.Count);
-        Assert.AreEqual(1 + 0*4 + 0*4, tree.CountNumberOfNodes());
+        AssertEqual(0, tree.Count);
+        AssertEqual(1 + 0*4 + 0*4, tree.CountNumberOfNodes());
         SWPlanets.ForEach(p => Assert.IsFalse(tree.Contains(p)));
         SWPlanets.ForEach(CannotFind);
 
         // make sure it's completely empty and no ghosts are returned
-        Assert.AreEqual(null, tree.FindOne(Vector2.Zero, UState.UniverseRadius));
+        AssertEqual(null, tree.FindOne(Vector2.Zero, UState.UniverseRadius));
     }
 
     [TestMethod]
@@ -178,23 +178,23 @@ public class GenericQtreeTests : StarDriveTest
 
         p.Position = NW;
         tree.Insert(p);
-        Assert.AreEqual(1, tree.Count);
-        Assert.AreEqual(p, tree.FindOne(NW, 1000));
+        AssertEqual(1, tree.Count);
+        AssertEqual(p, tree.FindOne(NW, 1000));
 
         p.Position = NE;
         tree.Update(p);
-        Assert.AreEqual(1, tree.Count);
-        Assert.AreEqual(p, tree.FindOne(NE, 1000));
+        AssertEqual(1, tree.Count);
+        AssertEqual(p, tree.FindOne(NE, 1000));
 
         p.Position = SE;
         tree.Update(p);
-        Assert.AreEqual(1, tree.Count);
-        Assert.AreEqual(p, tree.FindOne(SE, 1000));
+        AssertEqual(1, tree.Count);
+        AssertEqual(p, tree.FindOne(SE, 1000));
         
         p.Position = SW;
         tree.Update(p);
-        Assert.AreEqual(1, tree.Count);
-        Assert.AreEqual(p, tree.FindOne(SW, 1000));
+        AssertEqual(1, tree.Count);
+        AssertEqual(p, tree.FindOne(SW, 1000));
     }
 
     [TestMethod]
@@ -262,7 +262,7 @@ public class GenericQtreeTests : StarDriveTest
         foreach (SolarSystem s in systems)
         {
             SpatialObjectBase found = tree.FindOne(s.Position, 1_000);
-            Assert.AreEqual(s, found, "Must find the same system");
+            AssertEqual(s, found, "Must find the same system");
         }
 
         //DoPerfTest(tree);
@@ -283,7 +283,7 @@ public class GenericQtreeTests : StarDriveTest
         foreach (Planet p in planets)
         {
             SpatialObjectBase found = tree.FindOne(p.Position, 1_000);
-            Assert.AreEqual(p, found, "Must find the same planet");
+            AssertEqual(p, found, "Must find the same planet");
         }
 
         if (EnableVisualization)
@@ -307,7 +307,7 @@ public class GenericQtreeTests : StarDriveTest
             Assert.IsTrue(found.Contains(s));
             foreach (Planet p in s.PlanetList)
                 Assert.IsTrue(found.Contains(p));
-            Assert.AreEqual(s.PlanetList.Count + 1, found.Length);
+            AssertEqual(s.PlanetList.Count + 1, found.Length);
         }
 
         if (EnableVisualization)

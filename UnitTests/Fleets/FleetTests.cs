@@ -55,19 +55,19 @@ namespace UnitTests.Fleets
             Fleet fleet = CreateTestFleet(PlayerShips, PlayerFleets);
 
             // verify fleet created and has the expected ships
-            Assert.AreEqual(10, fleet.CountShips, $"Expected 10 ships in fleet but got {fleet.CountShips}");
+            AssertEqual(10, fleet.CountShips, $"Expected 10 ships in fleet but got {fleet.CountShips}");
 
             fleet.AutoArrange();
 
             int flankCount = fleet.AllFlanks.Count;
-            Assert.AreEqual(5, flankCount, $"Expected 5 flanks got {flankCount}");
+            AssertEqual(5, flankCount, $"Expected 5 flanks got {flankCount}");
 
             Array<Array<Fleet.Squad>> flanks = fleet.AllFlanks;
             int squadCount = flanks.Sum(sq => sq.Count);
-            Assert.AreEqual(3, squadCount, $"Expected 3 squads got {squadCount}");
+            AssertEqual(3, squadCount, $"Expected 3 squads got {squadCount}");
 
             int squadShipCount = flanks.Sum(sq => sq.Sum(s=> s.Ships.Count));
-            Assert.AreEqual(10, squadShipCount, $"Expected 10 ships in fleet got {squadShipCount}");
+            AssertEqual(10, squadShipCount, $"Expected 10 ships in fleet got {squadShipCount}");
         }
 
         [TestMethod]

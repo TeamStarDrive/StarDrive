@@ -65,8 +65,8 @@ public class IncomingThreatDetectorTests : StarDriveTest
     public void NoThreatsLoggedByDefault()
     {
         Universe.SingleSimulationStep(TestSimStep);
-        Assert.AreEqual(0, Player.SystemsWithThreat.Length, "No systems should be under threat");
-        Assert.AreEqual(0, Enemy.SystemsWithThreat.Length, "No systems should be under threat");
+        AssertEqual(0, Player.SystemsWithThreat.Length, "No systems should be under threat");
+        AssertEqual(0, Enemy.SystemsWithThreat.Length, "No systems should be under threat");
     }
 
     void MoveTo(Fleet f, Vector2 pos) => f.MoveTo(pos, f.AveragePosition().DirectionToTarget(pos));
@@ -80,15 +80,15 @@ public class IncomingThreatDetectorTests : StarDriveTest
         RunFullSimWhile((simTimeout: 80.0, fatal: true),
             () => PlayerFleet.AveragePosition().OutsideRadius(EnemyPlanet.Position, 15_000));
 
-        Assert.AreEqual(0, Player.SystemsWithThreat.Length, "Player system should be safe");
-        Assert.AreEqual(1, Enemy.SystemsWithThreat.Length, "Enemy system should be under threat");
+        AssertEqual(0, Player.SystemsWithThreat.Length, "Player system should be safe");
+        AssertEqual(1, Enemy.SystemsWithThreat.Length, "Enemy system should be under threat");
 
         // now kill all of our ships and wait a bit for SystemsWithThreat to reset:
         foreach (Ship s in PlayerFleet.Ships) s.InstantKill();
         RunFullSimWhile((simTimeout:20.0, fatal:false), () => Enemy.SystemsWithThreat.Length > 0);
 
-        Assert.AreEqual(0, Player.SystemsWithThreat.Length, "Player system should be safe");
-        Assert.AreEqual(0, Enemy.SystemsWithThreat.Length, "Enemy system should now be safe as well");
+        AssertEqual(0, Player.SystemsWithThreat.Length, "Player system should be safe");
+        AssertEqual(0, Enemy.SystemsWithThreat.Length, "Enemy system should now be safe as well");
     }
 
     // Players have special conditions in the codebase, so we need to run another test from AI-s perspective
@@ -101,14 +101,14 @@ public class IncomingThreatDetectorTests : StarDriveTest
         RunFullSimWhile((simTimeout: 80.0, fatal: true),
             () => EnemyFleet.AveragePosition().OutsideRadius(PlayerPlanet.Position, 15_000));
 
-        Assert.AreEqual(0, Enemy.SystemsWithThreat.Length, "Enemy system should be safe");
-        Assert.AreEqual(1, Player.SystemsWithThreat.Length, "Player system should be under threat");
+        AssertEqual(0, Enemy.SystemsWithThreat.Length, "Enemy system should be safe");
+        AssertEqual(1, Player.SystemsWithThreat.Length, "Player system should be under threat");
 
         // now kill all of our ships and wait a bit for SystemsWithThreat to reset:
         foreach (Ship s in EnemyFleet.Ships) s.InstantKill();
         RunFullSimWhile((simTimeout:20.0, fatal:false), () => Player.SystemsWithThreat.Length > 0);
 
-        Assert.AreEqual(0, Enemy.SystemsWithThreat.Length, "Enemy system should be safe");
-        Assert.AreEqual(0, Player.SystemsWithThreat.Length, "Player system should now be safe as well");
+        AssertEqual(0, Enemy.SystemsWithThreat.Length, "Enemy system should be safe");
+        AssertEqual(0, Player.SystemsWithThreat.Length, "Player system should now be safe as well");
     }
 }
