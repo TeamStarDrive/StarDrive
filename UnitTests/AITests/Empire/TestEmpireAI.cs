@@ -53,19 +53,19 @@ namespace UnitTests.AITests.Empire
             TestEmpire.AutoColonize = true;
             expansionAI.RunExpansionPlanner();
 
-            Assert.AreEqual(13, expansionAI.RankedPlanets.Length,
+            AssertEqual(13, expansionAI.RankedPlanets.Length,
                 "Colonization target list should be 13");
 
             var markedPlanet = expansionAI.GetColonizationGoalPlanets();
-            Assert.AreEqual(3, markedPlanet.Length, "Expected 3 colony goals ");
+            AssertEqual(3, markedPlanet.Length, "Expected 3 colony goals ");
 
             //mock colonization success
             expansionAI.DesiredPlanets[0].Owner = TestEmpire;
             TestEmpire.GetEmpireAI().EndAllTasks();
             expansionAI.RunExpansionPlanner();
-            Assert.AreEqual(13, expansionAI.RankedPlanets.Length);
+            AssertEqual(13, expansionAI.RankedPlanets.Length);
             markedPlanet = expansionAI.GetColonizationGoalPlanets();
-            Assert.AreEqual(3, markedPlanet.Length, "Expected 3 colony goals ");
+            AssertEqual(3, markedPlanet.Length, "Expected 3 colony goals ");
             expansionAI.RunExpansionPlanner();
 
         }*/
@@ -119,7 +119,7 @@ namespace UnitTests.AITests.Empire
 
             Assert.IsTrue(count < 49, $"Test failure! Loop completed! Investigate");
 
-            Assert.AreEqual(build.RoleCount(combatRole), (int)(roleBudget / roleUnitMaint));
+            AssertEqual(build.RoleCount(combatRole), (int)(roleBudget / roleUnitMaint));
         }
         
         [TestMethod]
@@ -143,7 +143,7 @@ namespace UnitTests.AITests.Empire
 
             // The expected maintenance for the Fang Strafer is 0.144, based on the cost of the ship
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
-            Assert.AreEqual(0.147f, roleUnitMaint, 0.001f, "Unexpected maintenance value");
+            AssertEqual(0.001f, 0.147f, roleUnitMaint, "Unexpected maintenance value");
 
             // simulate building a bunch of ships by lowering the role build budget by the role maintenance.
             // Keep building until it starts to scrap.
@@ -159,7 +159,7 @@ namespace UnitTests.AITests.Empire
                 int expectedBuildCount = (int)Math.Ceiling(build.RoleBudget(combatRole) / roleUnitMaint);
 
                 // test that formula for building ships matches the actual building ships process.
-                Assert.AreEqual(expectedBuildCount, roleCountWanted, $"{combatRole}: expected number of ships to build did not match actual");
+                AssertEqual(expectedBuildCount, roleCountWanted, $"{combatRole}: expected number of ships to build did not match actual");
 
                 float currentMain      = build.RoleCurrentMaintenance(combatRole);
                 int shipsBeingScrapped = Player.OwnedShips.Filter(s => s.AI.State == AIState.Scrap).Length;
@@ -277,7 +277,7 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void ShipListConcurrencyStressTest()
         {
-            Assert.AreEqual(0, Enemy.OwnedShips.Count);
+            AssertEqual(0, Enemy.OwnedShips.Count);
 
             // create areas of operation among empires
             foreach(var empire in UState.Empires)
@@ -327,7 +327,7 @@ namespace UnitTests.AITests.Empire
                         {
                             if (s.Active)
                             {
-                                Assert.AreEqual(s.Loyalty, empire);
+                                AssertEqual(s.Loyalty, empire);
                                 float random = RandomMath.AvgInt(1, 100);
                                 if (random > 80)
                                 {
@@ -375,7 +375,7 @@ namespace UnitTests.AITests.Empire
             }
 
             numberOfShips -= shipsRemoved;
-            Assert.AreEqual(numberOfShips, actualShipCount);
+            AssertEqual(numberOfShips, actualShipCount);
             Log.Info($"loyalty Changes: {loyaltyChanges} Removed Ships: {shipsRemoved} Active Ships: {actualShipCount}");
 
             Enemy.data.IsRebelFaction = true;
@@ -431,7 +431,7 @@ namespace UnitTests.AITests.Empire
             // test that ship is added to empire on merge
             Assert.IsTrue(Player.OwnedShips.Count == 1);
             // test that ship is removed from target empire
-            Assert.AreEqual(0, Enemy.OwnedShips.Count);
+            AssertEqual(0, Enemy.OwnedShips.Count);
         }
 
         

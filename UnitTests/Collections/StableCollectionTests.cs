@@ -23,17 +23,17 @@ public class StableCollectionTests : StarDriveTest
     {
         var c = new StableCollection<string>();
 
-        Assert.AreEqual(0, c.Insert("dog"));
-        Assert.AreEqual(1, c.Count);
+        AssertEqual(0, c.Insert("dog"));
+        AssertEqual(1, c.Count);
         Assert.IsFalse(c.IsFreeSlot(0));
 
-        Assert.AreEqual(1, c.Insert("cat"));
-        Assert.AreEqual(2, c.Count);
+        AssertEqual(1, c.Insert("cat"));
+        AssertEqual(2, c.Count);
         Assert.IsFalse(c.IsFreeSlot(1));
 
         Assert.ThrowsException<NullReferenceException>(() => c.Insert(null));
 
-        Assert.That.EqualCollections(new[]{"dog","cat"}, c.ToArr());
+        AssertEqualCollections(new[]{"dog","cat"}, c.ToArr());
     }
 
     [TestMethod]
@@ -41,24 +41,24 @@ public class StableCollectionTests : StarDriveTest
     {
         var c = new StableCollection<string>();
         c.Reset(ArrABCDE());
-        Assert.That.EqualCollections(ArrABCDE(), c.ToArr());
+        AssertEqualCollections(ArrABCDE(), c.ToArr());
         for (int i = 0; i < 10; ++i)
             c.Insert(i.ToString());
 
         c.Reset(ArrABCDE());
-        Assert.That.EqualCollections(ArrABCDE(), c.ToArr());
+        AssertEqualCollections(ArrABCDE(), c.ToArr());
     }
 
     [TestMethod]
     public void IndexOf()
     {
         var c = MakeABCDE();
-        Assert.AreEqual(5, c.Count);
-        Assert.AreEqual(0, c.IndexOf("a"));
-        Assert.AreEqual(1, c.IndexOf("b"));
-        Assert.AreEqual(2, c.IndexOf("c"));
-        Assert.AreEqual(3, c.IndexOf("d"));
-        Assert.AreEqual(4, c.IndexOf("e"));
+        AssertEqual(5, c.Count);
+        AssertEqual(0, c.IndexOf("a"));
+        AssertEqual(1, c.IndexOf("b"));
+        AssertEqual(2, c.IndexOf("c"));
+        AssertEqual(3, c.IndexOf("d"));
+        AssertEqual(4, c.IndexOf("e"));
         Assert.ThrowsException<NullReferenceException>(() => c.IndexOf(null));
 
         Assert.IsFalse(c.IsFreeSlot(0));
@@ -67,14 +67,14 @@ public class StableCollectionTests : StarDriveTest
         Assert.IsFalse(c.IsFreeSlot(3));
         Assert.IsFalse(c.IsFreeSlot(4));
 
-        Assert.That.EqualCollections(ArrABCDE(), c.ToArr());
+        AssertEqualCollections(ArrABCDE(), c.ToArr());
     }
 
     [TestMethod]
     public void Contains()
     {
         var c = MakeABCDE();
-        Assert.AreEqual(5, c.Count);
+        AssertEqual(5, c.Count);
         Assert.IsTrue(c.Contains("a"));
         Assert.IsTrue(c.Contains("b"));
         Assert.IsTrue(c.Contains("c"));
@@ -93,15 +93,15 @@ public class StableCollectionTests : StarDriveTest
         // this is a bit funky. Even if we remove elements, their INDEX will remain the same!
         c.RemoveAt(0);
         Assert.IsFalse(c.Contains("a"));
-        Assert.AreEqual(4, c.Count); // but the count does change!
+        AssertEqual(4, c.Count); // but the count does change!
         Assert.IsTrue(c.IsFreeSlot(0));
 
         c.RemoveAt(2);
         Assert.IsFalse(c.Contains("c"));
-        Assert.AreEqual(3, c.Count);
+        AssertEqual(3, c.Count);
         Assert.IsTrue(c.IsFreeSlot(2));
 
-        Assert.That.EqualCollections(new[]{"b","d","e"}, c.ToArr());
+        AssertEqualCollections(new[]{"b","d","e"}, c.ToArr());
     }
 
     [TestMethod]
@@ -128,14 +128,14 @@ public class StableCollectionTests : StarDriveTest
         Assert.IsTrue(c.IsFreeSlot(0));
         Assert.IsTrue(c.IsFreeSlot(2));
 
-        Assert.AreEqual(0, c.Insert("0"));
+        AssertEqual(0, c.Insert("0"));
         Assert.IsFalse(c.IsFreeSlot(0));
-        Assert.AreEqual(2, c.Insert("2"));
+        AssertEqual(2, c.Insert("2"));
         Assert.IsFalse(c.IsFreeSlot(2));
 
         Assert.IsTrue(c.Remove("0"));
         Assert.IsTrue(c.IsFreeSlot(0));
-        Assert.AreEqual(0, c.Insert("new"));
+        AssertEqual(0, c.Insert("new"));
         Assert.IsFalse(c.IsFreeSlot(0));
     }
 
@@ -146,7 +146,7 @@ public class StableCollectionTests : StarDriveTest
         var items = new Array<string>();
         foreach (string s in c)
             items.Add(s);
-        Assert.That.EqualCollections(ArrABCDE(), items);
+        AssertEqualCollections(ArrABCDE(), items);
     }
 
     (StableCollection<string>, Array<string>) CreateMultipleSlabs()
@@ -166,7 +166,7 @@ public class StableCollectionTests : StarDriveTest
     public void MultipleSlabsInsert()
     {
         (StableCollection<string> c, Array<string> arr) = CreateMultipleSlabs();
-        Assert.That.EqualCollections(arr, c.ToArr());
+        AssertEqualCollections(arr, c.ToArr());
     }
 
     [TestMethod]
@@ -174,13 +174,13 @@ public class StableCollectionTests : StarDriveTest
     {
         (StableCollection<string> c, Array<string> arr) = CreateMultipleSlabs();
         c.Reset(arr);
-        Assert.That.EqualCollections(arr, c.ToArr());
+        AssertEqualCollections(arr, c.ToArr());
 
         c.Reset(ArrABCDE());
-        Assert.That.EqualCollections(ArrABCDE(), c.ToArr());
+        AssertEqualCollections(ArrABCDE(), c.ToArr());
 
         c.Reset(arr);
-        Assert.That.EqualCollections(arr, c.ToArr());
+        AssertEqualCollections(arr, c.ToArr());
     }
 
     void DeleteRandomItems(StableCollection<string> c, Array<string> arr, Action<int> delete)
@@ -200,7 +200,7 @@ public class StableCollectionTests : StarDriveTest
         (StableCollection<string> c, Array<string> arr) = CreateMultipleSlabs();
         DeleteRandomItems(c, arr, (idx) => c.RemoveAt(idx));
 
-        Assert.That.EqualCollections(arr, c.ToArr());
+        AssertEqualCollections(arr, c.ToArr());
     }
 
     [TestMethod]
@@ -209,7 +209,7 @@ public class StableCollectionTests : StarDriveTest
         (StableCollection<string> c, Array<string> arr) = CreateMultipleSlabs();
         DeleteRandomItems(c, arr, (idx) => c.Remove(idx.ToString()));
 
-        Assert.That.EqualCollections(arr, c.ToArr());
+        AssertEqualCollections(arr, c.ToArr());
     }
 
     [TestMethod]
@@ -219,18 +219,18 @@ public class StableCollectionTests : StarDriveTest
         for (int i = 0; i < 1000; ++i)
         {
             string s = i.ToString();
-            Assert.AreEqual(i, c.IndexOf(s)); // yep, this found some issues
+            AssertEqual(i, c.IndexOf(s)); // yep, this found some issues
         }
 
         for (int i = 11; i < 1000; i += 33)
         {
             string s = i.ToString();
-            Assert.AreEqual(i, c.IndexOf(s));
+            AssertEqual(i, c.IndexOf(s));
             c.RemoveAt(i);
             arr.Remove(s);
-            Assert.AreEqual(-1, c.IndexOf(s));
+            AssertEqual(-1, c.IndexOf(s));
 
-            Assert.That.EqualCollections(arr, c.ToArr());
+            AssertEqualCollections(arr, c.ToArr());
         }
     }
 }

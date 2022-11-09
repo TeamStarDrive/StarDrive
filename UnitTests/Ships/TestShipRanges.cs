@@ -43,11 +43,11 @@ namespace UnitTests.Ships
         {
             Ship ship = SpawnShipWithBaseRanges("Dreadnought mk1-a", 4000, 8000);
             UpdateStatus(ship, CombatState.Artillery);
-            Assert.That.Equal(8000, ship.WeaponsMaxRange);
-            Assert.That.Equal(4000, ship.WeaponsMinRange);
-            Assert.That.Equal(6000, ship.WeaponsAvgRange);
-            Assert.That.Equal(7200, ship.DesiredCombatRange);
-            Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
+            AssertEqual(8000, ship.WeaponsMaxRange);
+            AssertEqual(4000, ship.WeaponsMinRange);
+            AssertEqual(6000, ship.WeaponsAvgRange);
+            AssertEqual(7200, ship.DesiredCombatRange);
+            AssertEqual(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
             AssertRanges(ship);
         }
 
@@ -57,11 +57,11 @@ namespace UnitTests.Ships
             Ship ship = SpawnShipWithBaseRanges("Heavy Carrier mk5-b", 4000, 8000);
             // including DefaultHangarRange = 7500
             UpdateStatus(ship, CombatState.Artillery);
-            Assert.That.Equal(8000, ship.WeaponsMaxRange);
-            Assert.That.Equal(7500, ship.WeaponsMinRange);
-            Assert.That.Equal(6500, ship.WeaponsAvgRange);
-            Assert.That.Equal(7200, ship.DesiredCombatRange);
-            Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
+            AssertEqual(8000, ship.WeaponsMaxRange);
+            AssertEqual(7500, ship.WeaponsMinRange);
+            AssertEqual(6500, ship.WeaponsAvgRange);
+            AssertEqual(7200, ship.DesiredCombatRange);
+            AssertEqual(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
             AssertRanges(ship);
         }
         
@@ -73,41 +73,41 @@ namespace UnitTests.Ships
             Player.WeaponBonuses(WeaponTag.Guided).Range = 1;
 
             UpdateStatus(ship, CombatState.Artillery);
-            Assert.That.Equal(16000, ship.WeaponsMaxRange);
-            Assert.That.Equal(8000, ship.WeaponsMinRange);
-            Assert.That.Equal(12000, ship.WeaponsAvgRange);
-            Assert.That.Equal(14400, ship.DesiredCombatRange);
-            Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
+            AssertEqual(16000, ship.WeaponsMaxRange);
+            AssertEqual(8000, ship.WeaponsMinRange);
+            AssertEqual(12000, ship.WeaponsAvgRange);
+            AssertEqual(14400, ship.DesiredCombatRange);
+            AssertEqual(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
         }
 
         void AssertRanges(Ship ship)
         {
             UpdateStatus(ship, CombatState.Evade);
-            Assert.That.Equal(Ship.UnarmedRange, ship.DesiredCombatRange);
+            AssertEqual(Ship.UnarmedRange, ship.DesiredCombatRange);
 
             UpdateStatus(ship, CombatState.HoldPosition);
-            Assert.That.Equal(ship.WeaponsMaxRange, ship.DesiredCombatRange);
+            AssertEqual(ship.WeaponsMaxRange, ship.DesiredCombatRange);
 
             UpdateStatus(ship, CombatState.ShortRange);
-            Assert.That.Equal(ship.WeaponsMinRange*0.9f, ship.DesiredCombatRange);
+            AssertEqual(ship.WeaponsMinRange*0.9f, ship.DesiredCombatRange);
             
             UpdateStatus(ship, CombatState.Artillery);
-            Assert.That.Equal(ship.WeaponsMaxRange*0.9f, ship.DesiredCombatRange);
+            AssertEqual(ship.WeaponsMaxRange*0.9f, ship.DesiredCombatRange);
 
             UpdateStatus(ship, CombatState.BroadsideLeft);
-            Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
+            AssertEqual(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
             UpdateStatus(ship, CombatState.BroadsideRight);
-            Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
+            AssertEqual(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
 
             UpdateStatus(ship, CombatState.OrbitLeft);
-            Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
+            AssertEqual(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
             UpdateStatus(ship, CombatState.OrbitRight);
-            Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
+            AssertEqual(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
 
             UpdateStatus(ship, CombatState.AssaultShip);
-            Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
+            AssertEqual(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
             UpdateStatus(ship, CombatState.OrbitalDefense);
-            Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
+            AssertEqual(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
         }
     }
 }

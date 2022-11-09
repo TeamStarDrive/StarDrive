@@ -9,7 +9,7 @@ using Vector2 = SDGraphics.Vector2;
 namespace UnitTests
 {
     [TestClass]
-    public partial class TestImpactPredictor
+    public partial class TestImpactPredictor : StarDriveTest
     {
         Vector2 Pos(float x, float y) => new Vector2(x, y);
         
@@ -20,8 +20,8 @@ namespace UnitTests
         [TestMethod]
         public void TimeToTarget()
         {
-            Assert.AreEqual(1f, ImpactPredictor.TimeToTarget(Pos(0,0), Pos(0,100), 100));
-            Assert.AreEqual(0f, ImpactPredictor.TimeToTarget(Pos(0,0), Pos(0,100), 0));
+            AssertEqual(1f, ImpactPredictor.TimeToTarget(Pos(0,0), Pos(0,100), 100));
+            AssertEqual(0f, ImpactPredictor.TimeToTarget(Pos(0,0), Pos(0,100), 0));
         }
 
         [TestMethod]

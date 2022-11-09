@@ -116,7 +116,7 @@ namespace UnitTests.AITests.Empire
 
             // The budget from empire should be at least twice the maint of a terraformer for this test to pass
             // If its not, maybe terraformer maint was increase in xml or something was changed with budgets.xml
-            Assert.That.GreaterThan(budget, terraformerMaint * 2,
+            AssertGreaterThan(budget, terraformerMaint * 2,
                 $"Terraformer budget form empire {budget} is lower than terraformer maintenance {terraformerMaint}");
 
             Player.GovernPlanets();
@@ -126,11 +126,11 @@ namespace UnitTests.AITests.Empire
             Player.GovernPlanets();
 
             // We need 2 Terraformers for this test and it should get a minimum of 2
-            Assert.That.GreaterThan(homeworld.TerraformerLimit, 1);
+            AssertGreaterThan(homeworld.TerraformerLimit, 1);
 
             // The budget the planet gets must be like the maint of the terraformer
             // It will be increased differentially when terraformers are built
-            Assert.That.Equal(homeworld.TerraformBudget, terraformerMaint);
+            AssertEqual(homeworld.TerraformBudget, terraformerMaint);
             Assert.IsTrue(homeworld.TerraformerInTheWorks, "Planet should be building a Terraformer now");
             UState.Debug = true; // to get the debug rush
             homeworld.Construction.RushProduction(0, 10000, rushButton: true);
@@ -138,7 +138,7 @@ namespace UnitTests.AITests.Empire
             Player.GovernPlanets();
 
             // The budget the planet should now be the maint of 2 terraformers
-            Assert.That.Equal(homeworld.TerraformBudget, terraformerMaint*2);
+            AssertEqual(homeworld.TerraformBudget, terraformerMaint*2);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace UnitTests.Utils
                 Assert.IsTrue(bits.IsAnyBitsSet);
             }
 
-            Assert.AreEqual(count, bits.NumBitsSet());
+            AssertEqual(count, bits.NumBitsSet());
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@ namespace UnitTests.Utils
                 Assert.IsFalse(bits.IsSet(i), $"Bit {i} must be unset");
 
             Assert.IsFalse(bits.IsAnyBitsSet);
-            Assert.AreEqual(0, bits.NumBitsSet());
+            AssertEqual(0, bits.NumBitsSet());
         }
 
         [TestMethod]
@@ -72,7 +72,7 @@ namespace UnitTests.Utils
             }
 
             Assert.IsFalse(bits.IsAnyBitsSet);
-            Assert.AreEqual(0, bits.NumBitsSet());
+            AssertEqual(0, bits.NumBitsSet());
         }
 
         
@@ -82,20 +82,20 @@ namespace UnitTests.Utils
             const int count = 256;
             var bits = new BitArray(count);
 
-            Assert.AreEqual(-1, bits.GetFirstSetBitIndex());
+            AssertEqual(-1, bits.GetFirstSetBitIndex());
 
             bits.Set(63);
-            Assert.AreEqual(63, bits.GetFirstSetBitIndex());
+            AssertEqual(63, bits.GetFirstSetBitIndex());
             bits.Unset(63);
 
             for (int i = 0; i < count; ++i)
             {
                 bits.Set(i);
-                Assert.AreEqual(i, bits.GetFirstSetBitIndex());
+                AssertEqual(i, bits.GetFirstSetBitIndex());
                 bits.Unset(i);
             }
 
-            Assert.AreEqual(-1, bits.GetFirstSetBitIndex());
+            AssertEqual(-1, bits.GetFirstSetBitIndex());
         }
     }
 }

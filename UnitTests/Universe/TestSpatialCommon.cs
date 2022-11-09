@@ -63,13 +63,13 @@ namespace UnitTests.Universe
         public void BasicInsert()
         {
             ISpatial tree = CreateQuadTree(100_000, 100);
-            Assert.AreEqual(AllObjects.Length, tree.Count);
+            AssertEqual(AllObjects.Length, tree.Count);
 
             foreach (SpatialObjectBase go in AllObjects)
             {
                 SpatialObjectBase[] ships = FindNearby(tree, GameObjectType.Ship, go.Position, go.Radius);
-                Assert.AreEqual(1, ships.Length);
-                Assert.AreEqual(go, ships[0]);
+                AssertEqual(1, ships.Length);
+                AssertEqual(go, ships[0]);
             }
 
             if (EnableVisualization)
@@ -84,13 +84,13 @@ namespace UnitTests.Universe
             Ship s = (Ship)AllObjects[0];
             var offset = new Vector2(0, 256);
             SpatialObjectBase[] found1 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 256);
-            Assert.AreEqual(1, found1.Length, "FindNearby exact 256 must return match");
+            AssertEqual(1, found1.Length, "FindNearby exact 256 must return match");
 
             SpatialObjectBase[] found2 = FindNearby(tree, GameObjectType.Any, s.Position+offset, (256-s.Radius)+0.001f);
-            Assert.AreEqual(1, found2.Length, "FindNearby touching radius must return match");
+            AssertEqual(1, found2.Length, "FindNearby touching radius must return match");
             
             SpatialObjectBase[] found3 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 255-s.Radius);
-            Assert.AreEqual(0, found3.Length, "FindNearby outside radius must not match");
+            AssertEqual(0, found3.Length, "FindNearby outside radius must not match");
         }
         
         [TestMethod]
@@ -99,13 +99,13 @@ namespace UnitTests.Universe
             ISpatial tree = CreateQuadTree(100_000, 100);
 
             SpatialObjectBase[] f1 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 7200);
-            Assert.AreEqual(4, f1.Length, "FindNearby center 7200 must match 4");
+            AssertEqual(4, f1.Length, "FindNearby center 7200 must match 4");
 
             SpatialObjectBase[] f2 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 16000);
-            Assert.AreEqual(12, f2.Length, "FindNearby center 16000 must match 12");
+            AssertEqual(12, f2.Length, "FindNearby center 16000 must match 12");
             
             SpatialObjectBase[] f3 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 26000);
-            Assert.AreEqual(24, f3.Length, "FindNearby center 26000 must match 24");
+            AssertEqual(24, f3.Length, "FindNearby center 26000 must match 24");
         }
 
         void CheckFindNearby(SpatialObjectBase[] found, GameObjectType expected,
@@ -114,7 +114,7 @@ namespace UnitTests.Universe
             Assert.AreNotEqual(0, found.Length);
             foreach (SpatialObjectBase go in found)
             {
-                Assert.AreEqual(expected, go.Type);
+                AssertEqual(expected, go.Type);
                 float distance = go.Position.Distance(pos);
                 float maxError = 0.5f;
                 Assert.IsTrue(distance-maxError <= radius, $"distance:{distance} <= radius:{radius} is false");
@@ -130,7 +130,7 @@ namespace UnitTests.Universe
                     if (notShip != null)
                         Assert.AreNotEqual(notShip, foundShip);
                     if (expected != null)
-                        Assert.AreEqual(expected, foundShip.Loyalty);
+                        AssertEqual(expected, foundShip.Loyalty);
                     else if (notExpected != null)
                         Assert.AreNotEqual(notExpected, foundShip.Loyalty);
                 }
@@ -216,7 +216,7 @@ namespace UnitTests.Universe
                 OnlyLoyalty = s.Loyalty, // loyalty must be '1', not '0'
             };
             SpatialObjectBase[] found = tree.FindNearby(in opt);
-            Assert.AreEqual(3, found.Length, "FindNearby must include all friends and not self");
+            AssertEqual(3, found.Length, "FindNearby must include all friends and not self");
             CheckFindNearby(found, GameObjectType.Ship, s.Position, 30000);
             CheckShipsLoyalty(found, expected:s.Loyalty, notShip:s);
         }

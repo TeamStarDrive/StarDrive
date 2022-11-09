@@ -71,7 +71,7 @@ namespace UnitTests.Serialization
                   SrcDstBlend: [BlendFactor,InverseBlendFactor]
                 ".Replace("\r\n", "\n").Replace("                ", "");
 
-            Assert.That.Equal(yaml, text);
+            AssertEqual(yaml, text);
         }
         
         enum MapKeys { House, Plane, Ship, Potato, Bullet } 
@@ -111,7 +111,7 @@ namespace UnitTests.Serialization
               @"PrimitivesList:
                   Primitives: [1,2,3]
                 ".Replace("\r\n", "\n").Replace("                ", "");
-            Assert.That.Equal(yaml, text);
+            AssertEqual(yaml, text);
         }
 
         [TestMethod]
@@ -134,7 +134,7 @@ namespace UnitTests.Serialization
                     - { Key:Plane, Value:2.2 }
                     - { Key:Ship, Value:3.3 }
                 ".Replace("\r\n", "\n").Replace("                ", "");
-            Assert.That.Equal(yaml, text);
+            AssertEqual(yaml, text);
         }
 
         [StarDataType]
@@ -178,7 +178,7 @@ namespace UnitTests.Serialization
                       Value2: 3.4
                       Value3: 4.6
                 ".Replace("\r\n", "\n").Replace("                ", "");
-            Assert.That.Equal(yaml, text);
+            AssertEqual(yaml, text);
         }
         
 
@@ -207,7 +207,7 @@ namespace UnitTests.Serialization
               @"SmallPrimitivesMap:
                   Map: { House:1.1, Plane:2.2, Ship:3.3 }
                 ".Replace("\r\n", "\n").Replace("                ", "");
-            Assert.That.Equal(yaml, text);
+            AssertEqual(yaml, text);
         }
 
         [StarDataType]
@@ -242,7 +242,7 @@ namespace UnitTests.Serialization
                     Potato: 4.4
                     Bullet: 5.5
                 ".Replace("\r\n", "\n").Replace("                ", "");
-            Assert.That.Equal(yaml, text);
+            AssertEqual(yaml, text);
         }
     }
 

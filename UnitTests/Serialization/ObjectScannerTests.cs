@@ -81,14 +81,14 @@ public class ObjectScannerTests : StarDriveTest
         (RootObject _, var rs) = CreateDefaultRootObject();
         rs.FinalizeTypes();
 
-        Assert.AreEqual(1, rs.Types.Values.Length);
-        Assert.AreEqual("ShipInfo", rs.Types.Values[0].NiceTypeName);
-        Assert.AreEqual(2, rs.Types.Classes.Length);
-        Assert.AreEqual("ShipObject", rs.Types.Classes[0].NiceTypeName, "RootObject depends on ShipObject");
-        Assert.AreEqual("RootObject", rs.Types.Classes[1].NiceTypeName, "RootObject should be last");
-        Assert.AreEqual(2, rs.Types.Collections.Length);
-        Assert.AreEqual("Array<ShipObject>", rs.Types.Collections[0].NiceTypeName);
-        Assert.AreEqual("Array<Array<ShipObject>>", rs.Types.Collections[1].NiceTypeName);
+        AssertEqual(1, rs.Types.Values.Length);
+        AssertEqual("ShipInfo", rs.Types.Values[0].NiceTypeName);
+        AssertEqual(2, rs.Types.Classes.Length);
+        AssertEqual("ShipObject", rs.Types.Classes[0].NiceTypeName, "RootObject depends on ShipObject");
+        AssertEqual("RootObject", rs.Types.Classes[1].NiceTypeName, "RootObject should be last");
+        AssertEqual(2, rs.Types.Collections.Length);
+        AssertEqual("Array<ShipObject>", rs.Types.Collections[0].NiceTypeName);
+        AssertEqual("Array<Array<ShipObject>>", rs.Types.Collections[1].NiceTypeName);
     }
 
     [TestMethod]
@@ -97,23 +97,23 @@ public class ObjectScannerTests : StarDriveTest
         (RootObject root, var rs) = CreateDefaultRootObject();
         rs.CreateWriteCommands();
 
-        Assert.AreEqual(19, rs.NumObjects);
-        Assert.AreEqual(14u, rs.RootObjectId);
-        Assert.AreEqual(9, rs.TypeGroups.Length);
+        AssertEqual(19, rs.NumObjects);
+        AssertEqual(14u, rs.RootObjectId);
+        AssertEqual(9, rs.TypeGroups.Length);
 
         var rootGroup = rs.TypeGroups.First(g => g.Type.Type == typeof(RootObject));
-        Assert.AreEqual("RootObject", rootGroup.Type.NiceTypeName);
+        AssertEqual("RootObject", rootGroup.Type.NiceTypeName);
         var rootOS = (UserTypeState)rootGroup.GroupedObjects[0];
-        Assert.AreEqual(rs.RootObjectId, rootOS.Id);
-        Assert.AreEqual(root, rootOS.Obj);
-        Assert.AreEqual(3, rootOS.Fields.Length);
+        AssertEqual(rs.RootObjectId, rootOS.Id);
+        AssertEqual(root, rootOS.Obj);
+        AssertEqual(3, rootOS.Fields.Length);
 
         var name = rs.GetObject(rootOS.Fields[0]);
         var ships = rs.GetObject(rootOS.Fields[1]);
         var nullShip = rs.GetObject(rootOS.Fields[2]);
-        Assert.AreEqual(root.Name, name);
-        Assert.AreEqual(root.Ships, ships);
-        Assert.AreEqual(null, nullShip);
+        AssertEqual(root.Name, name);
+        AssertEqual(root.Ships, ships);
+        AssertEqual(null, nullShip);
     }
 
     [StarDataType]
@@ -190,13 +190,13 @@ public class ObjectScannerTests : StarDriveTest
         Assert.IsFalse(DependsOn(mainType, mapOfArrs), "Main type should NOT depend on Map<K,Array<Main>>");
         Assert.IsFalse(DependsOn(mainType, mapOfMaps), "Main type should NOT depend on Map<K,Map<K,Main>>");
 
-        Assert.That.LessThan(IndexOf(mainType), IndexOf(arrType), "Main type must be before Array<Main>");
-        Assert.That.LessThan(IndexOf(arrType),  IndexOf(arrOfArrs), "Array<Main> must be before Array<Array<Main>>");
-        Assert.That.LessThan(IndexOf(mainType), IndexOf(mapOfMain), "Main type must be before Map<K,Main>");
-        Assert.That.LessThan(IndexOf(mainType), IndexOf(mapOfArrs), "Main type must be before Map<K,Array<Main>>");
-        Assert.That.LessThan(IndexOf(arrType),  IndexOf(mapOfArrs), "Array<Main> type must be before Map<K,Array<Main>>");
-        Assert.That.LessThan(IndexOf(mainType),  IndexOf(mapOfMaps), "Main type must be before Map<K,Map<K,Main>>");
-        Assert.That.LessThan(IndexOf(mapOfMain), IndexOf(mapOfMaps), "Map<K,Main> type must be before Map<K,Map<K,Main>>");
+        AssertLessThan(IndexOf(mainType), IndexOf(arrType), "Main type must be before Array<Main>");
+        AssertLessThan(IndexOf(arrType),  IndexOf(arrOfArrs), "Array<Main> must be before Array<Array<Main>>");
+        AssertLessThan(IndexOf(mainType), IndexOf(mapOfMain), "Main type must be before Map<K,Main>");
+        AssertLessThan(IndexOf(mainType), IndexOf(mapOfArrs), "Main type must be before Map<K,Array<Main>>");
+        AssertLessThan(IndexOf(arrType),  IndexOf(mapOfArrs), "Array<Main> type must be before Map<K,Array<Main>>");
+        AssertLessThan(IndexOf(mainType),  IndexOf(mapOfMaps), "Main type must be before Map<K,Map<K,Main>>");
+        AssertLessThan(IndexOf(mapOfMain), IndexOf(mapOfMaps), "Map<K,Main> type must be before Map<K,Map<K,Main>>");
     }
 
     [StarDataType]
@@ -220,7 +220,7 @@ public class ObjectScannerTests : StarDriveTest
         var mapOfSnaps = Find<Map<string, Map<int, Snapshot>>>();
 
         // arrays have to be read before userclasses
-        Assert.That.LessThan(IndexOf(snaps), IndexOf(arrOfMaps), "Map<int,Snapshot> must be before Map<int,Snapshot>[] array");
-        Assert.That.LessThan(IndexOf(snaps), IndexOf(mapOfSnaps), "Map<int,Snapshot> must be before Map<string, Map<int,Snapshot>> type");
+        AssertLessThan(IndexOf(snaps), IndexOf(arrOfMaps), "Map<int,Snapshot> must be before Map<int,Snapshot>[] array");
+        AssertLessThan(IndexOf(snaps), IndexOf(mapOfSnaps), "Map<int,Snapshot> must be before Map<string, Map<int,Snapshot>> type");
     }
 }
