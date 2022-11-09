@@ -201,11 +201,24 @@ namespace Ship_Game.Ships
             return Math.Min(radsPerSec, Ship.MaxTurnRadians);
         }
 
+        public static float GetBaseTurnRadsPerSec(IShipDesign s)
+        {
+            float radsPerSec = s.BaseTurnThrust / s.BaseMass / 700f;
+            return Math.Min(radsPerSec, Ship.MaxTurnRadians);
+        }
+
         public float GetFTLSpeed(float mass, Empire e)
         {
             if (WarpThrust.AlmostZero())
                 return 0;
             return Math.Max(WarpThrust / mass * e.data.FTLModifier, Ship.LightSpeedConstant);
+        }
+
+        public static float GetFTLSpeed(IShipDesign s, Empire e)
+        {
+            if (s.BaseWarpThrust.AlmostZero())
+                return 0;
+            return Math.Max(s.BaseWarpThrust / s.BaseMass * e.data.FTLModifier, Ship.LightSpeedConstant);
         }
 
         public float GetSTLSpeed(float mass, Empire e)

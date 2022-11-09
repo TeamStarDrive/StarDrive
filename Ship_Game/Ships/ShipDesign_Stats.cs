@@ -31,10 +31,15 @@ namespace Ship_Game.Ships
         public bool IsBomber          { get; private set; }
 
         public float BaseCost       { get; private set; }
+        public float BaseThrust     { get; private set; }
+        public float BaseTurnThrust { get; private set; }
         public float BaseWarpThrust { get; private set; }
         public bool  BaseCanWarp    { get; private set; }
+        public float BaseMass       { get; private set; }
+        public float BaseStrength   { get; private set; }
 
-        public float BaseStrength { get; private set; }
+        public float StartingColonyGoods { get; private set; }
+        public int NumBuildingsDeployed { get; private set; }
 
         // Hangar Templates
         public ShipModule[] Hangars { get; private set; }
@@ -58,9 +63,14 @@ namespace Ship_Game.Ships
             Grid = new(Name, info, designSlots);
 
             float baseCost = 0f;
-            float baseStrength = 0f;
+            float baseThrust = 0f;
+            float baseTurnThrust = 0f;
             float baseWarp = 0f;
+            float baseMass = 0f;
+            float baseStrength = 0f;
             int offensiveSlots = 0;
+            float startingColonyGoods = 0f;
+            int numBuildingsDeployed = 0;
 
             var hangars = new Array<ShipModule>();
             var weapons = new Array<Weapon>();
@@ -78,7 +88,10 @@ namespace Ship_Game.Ships
                 }
 
                 baseCost += m.Cost;
+                baseThrust += m.Thrust;
+                baseTurnThrust += m.TurnThrust;
                 baseWarp += m.WarpThrust;
+                baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
 
                 if (m.Is(ShipModuleType.Hangar))
                     hangars.Add(m);
@@ -94,7 +107,10 @@ namespace Ship_Game.Ships
                     IsSupplyCarrier = true;
                 if (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0)
                     offensiveSlots += m.Area;
-
+                if (m.DeployBuildingOnColonize.NotEmpty())
+                    ++numBuildingsDeployed;
+                
+                startingColonyGoods += m.NumberOfEquipment + m.NumberOfFood;
                 baseStrength += m.CalculateModuleOffenseDefense(info.SurfaceArea);
             }
 
@@ -105,8 +121,15 @@ namespace Ship_Game.Ships
             }
 
             BaseCost = baseCost;
-            BaseStrength = ShipBuilder.GetModifiedStrength(info.SurfaceArea, offensiveSlots, 0, baseStrength);            BaseWarpThrust = baseWarp;
+            BaseStrength = ShipBuilder.GetModifiedStrength(info.SurfaceArea, offensiveSlots, 0, baseStrength);
+            BaseThrust = baseThrust;
+            BaseTurnThrust = baseTurnThrust;
+            BaseWarpThrust = baseWarp;
             BaseCanWarp = baseWarp > 0;
+            BaseMass = baseMass;
+
+            StartingColonyGoods = startingColonyGoods;
+            NumBuildingsDeployed = numBuildingsDeployed;
 
             Hangars = hangars.ToArray();
             AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);

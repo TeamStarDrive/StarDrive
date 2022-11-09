@@ -21,7 +21,7 @@ namespace UnitTests.Ships
         {
             Assert.IsTrue(DefaultDroneName.NotEmpty(), "DefaultEventDrone Must contain a ship name");
 
-            Ship drone = ShipBuilder.PickCostEffectiveShipToBuild(RoleName.drone, Player, 1000, 1000);
+            IShipDesign drone = ShipBuilder.PickCostEffectiveShipToBuild(RoleName.drone, Player, 1000, 1000);
             Assert.IsTrue(drone != null, "Drone Ship picked by Shipbuilder is null!");
             Assert.IsTrue(drone.Name == DefaultDroneName, $"Drone Ship Name is not {DefaultDroneName}");
         }

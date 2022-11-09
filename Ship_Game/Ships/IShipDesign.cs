@@ -92,9 +92,18 @@ namespace Ship_Game.Ships
         bool IsTroopShip       { get; }
         bool IsBomber          { get; }
 
+        // base stats like cost and mass
         float BaseCost       { get; }
+        float BaseThrust     { get; }
+        float BaseTurnThrust { get; }
         float BaseWarpThrust { get; }
         bool  BaseCanWarp    { get; }
+        float BaseMass       { get; }
+        float BaseStrength   { get; }
+
+        // specific ship type stats
+        float StartingColonyGoods { get; }
+        int NumBuildingsDeployed { get; }
 
         // Hangar Templates
         ShipModule[] Hangars { get; }
@@ -126,8 +135,6 @@ namespace Ship_Game.Ships
         void LoadModel(out SceneObject shipSO, GameContentManager content);
 
         float GetCost(Empire e);
-
-        float BaseStrength { get; }
 
         float GetMaintenanceCost(Empire empire);
 

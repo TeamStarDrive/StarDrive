@@ -32,10 +32,10 @@ namespace Ship_Game.Commands.Goals
 
         public static IShipDesign GetConstructor(Empire owner)
         {
-            Ship constructor = ShipBuilder.PickConstructor(owner);
+            IShipDesign constructor = ShipBuilder.PickConstructor(owner);
             if (constructor == null)
                 throw new(ErrMsg(owner, "PickConstructor"));
-            return constructor.ShipData;
+            return constructor;
         }
 
         public static IShipDesign GetFreighter(Empire owner)

@@ -60,10 +60,10 @@ public sealed class ShieldManager : IDisposable
         VisiblePlanetShields = visibleShields;
     }
 
-    public void RemoveShieldLights(UniverseScreen u, IEnumerable<ShipModule> shields)
+    public void RemoveShieldLights(IEnumerable<ShipModule> shields)
     {
         foreach (ShipModule shield in shields)
-            shield.Shield.RemoveLight(u);
+            shield.Shield.RemoveLight(Universe);
     }
 
     public void Update(FixedSimTime timeStep)
