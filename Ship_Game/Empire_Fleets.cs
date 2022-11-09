@@ -22,20 +22,6 @@ public sealed partial class Empire
 
     float FleetUpdateTimer = 5f;
 
-    public Fleet FirstFleet
-    {
-        get => GetFleet(FirstFleetId);
-        set
-        {
-            Fleet existing = GetFleet(FirstFleetId);
-            if (existing != value)
-            {
-                existing.Reset();
-                SetFleet(FirstFleetId, value);
-            }
-        }
-    }
-
     void InitializeFleets()
     {
         if (Fleets == null) // first time init
@@ -85,6 +71,12 @@ public sealed partial class Empire
 
     public void SetFleet(int fleetId, Fleet fleet)
     {
+        if (fleet.Owner != this)
+        {
+            // this is a mandatory requirement, otherwise AI or Player could manipulate AI fleets
+            throw new($"Empire.SetFleet({fleetId}) fleet.Owner:{fleet.Owner} != {this}");
+        }
+
         fleet.Key = fleetId;
         Fleets[fleetId - 1] = fleet;
     }

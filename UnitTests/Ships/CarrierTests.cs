@@ -180,7 +180,7 @@ namespace UnitTests.Ships
             fleet.AddShips(new Array<Ship>{ Carrier, friendlyShip });
             fleet.SetCommandShip(Carrier);
             fleet.AutoArrange();
-            Player.FirstFleet = fleet;
+            Player.SetFleet(1, fleet);
             return fleet;
         }
 

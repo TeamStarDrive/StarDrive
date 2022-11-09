@@ -369,7 +369,7 @@ namespace Ship_Game
         {
             get
             {
-                int terraLevel = ContainsEventTerraformers ? 3 : Owner.data.Traits.TerraformingLevel;
+                int terraLevel = ContainsEventTerraformers ? 3 : Owner?.data.Traits.TerraformingLevel ?? 0;
                 return terraLevel >= 1 && HasTerrainToTerraform
                     || terraLevel >= 2 && HasTilesToTerraform
                     || terraLevel == 3 && BioSpheresToTerraform

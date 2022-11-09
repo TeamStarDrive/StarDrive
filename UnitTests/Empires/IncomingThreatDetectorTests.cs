@@ -33,8 +33,8 @@ public class IncomingThreatDetectorTests : StarDriveTest
         PlayerFleet = CreateTestFleet("TEST_Vulcan Scout", 12, Player, PlayerPlanet.Position);
         EnemyFleet = CreateTestFleet("TEST_Vulcan Scout", 12, Enemy, EnemyPlanet.Position);
 
-        Player.FirstFleet = PlayerFleet;
-        Enemy.FirstFleet = EnemyFleet;
+        Player.SetFleet(1, PlayerFleet);
+        Enemy.SetFleet(1, EnemyFleet);
 
         // unpause the universe to allow EmpireUpdate to run
         UState.Paused = false;

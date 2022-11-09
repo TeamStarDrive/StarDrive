@@ -304,10 +304,22 @@ namespace Ship_Game
                 }
                 foreach (PropertyInfo prop in properties)
                 {
-                    object val1 = prop.GetValue(firstObj);
-                    object val2 = prop.GetValue(secondObj);
-                    if (!CheckEqual(prop, val1, val2))
-                        ++numErrors;
+                    var getMethod = prop.GetMethod;
+                    if (getMethod == null) continue; // no getter, it's a set-only property
+                    
+                    var parameters = getMethod.GetParameters();
+                    if (parameters.Length > 0) continue; // indexer property with multiple args
+                    try
+                    {
+                        object val1 = prop.GetValue(firstObj);
+                        object val2 = prop.GetValue(secondObj);
+                        if (!CheckEqual(prop, val1, val2))
+                            ++numErrors;
+                    }
+                    catch (Exception e)
+                    {
+                        throw new($"Error while getting Property {type.Name}::{prop.Name}", e);
+                    }
                 }
                 return numErrors == 0;
             }
