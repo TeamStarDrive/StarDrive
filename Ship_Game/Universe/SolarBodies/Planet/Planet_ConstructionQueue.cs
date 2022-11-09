@@ -275,5 +275,10 @@ namespace Ship_Game
         {
             return ConstructionQueue.Count > 0 && ConstructionQueue[0].Goal?.Type == GoalType.MarkForColonization;
         }
+
+        public int NumColonyShipInQueue()
+        {
+            return ConstructionQueue.Count(q => q.isShip && q.ShipData.IsColonyShip);
+        }
     }
 }

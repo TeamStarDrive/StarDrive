@@ -149,7 +149,7 @@ namespace Ship_Game.AI.Tasks
             int bombTime =  TargetPlanet.TotalDefensiveStrength / 20  ;
 
             //shields are a real pain. this may need a lot more code to deal with. 
-            bombTime    += (int)TargetPlanet.ShieldStrengthMax / 50;
+            bombTime += (int)TargetPlanet.ShieldStrengthMax / 50;
             return bombTime;
         }
 
@@ -584,7 +584,7 @@ namespace Ship_Game.AI.Tasks
             return moreTroops.Count > 0;
         }
 
-        private int WantedNumberOfFleets()
+        int WantedNumberOfFleets()
         {
             int maxFleets = Owner.AIManagedShips.CurrentUseableFleets;
             int wantedNumberOfFleets = FleetCount;
@@ -598,7 +598,7 @@ namespace Ship_Game.AI.Tasks
                         int extraFleets = TargetPlanet.Level > 4 ? 1 : 0;
                         extraFleets += TargetPlanet.HasWinBuilding ? 1 : 0;
                         extraFleets += TargetPlanet.BuildingList.Any(b => b.IsCapital) ? 1 : 0;
-                        extraFleets += TargetPlanet.Owner.CurrentMilitaryStrength > Owner.CurrentMilitaryStrength || TargetPlanet.Owner.TechScore > Owner.TechScore ? 1 : 0;
+                        extraFleets += TargetPlanet.Owner.CurrentMilitaryStrength > Owner.CurrentMilitaryStrength ? 1 : 0;
 
                         return extraFleets;
                     }
@@ -607,7 +607,7 @@ namespace Ship_Game.AI.Tasks
                 });
             }
 
-            return wantedNumberOfFleets.UpperBound(maxFleets);
+            return wantedNumberOfFleets.Clamped(1, maxFleets);
         }
 
         void InitFleetRequirements(float minFleetStrength, int minTroopStrength, int minBombMinutes)

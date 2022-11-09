@@ -163,7 +163,6 @@ namespace Ship_Game.AI
         {
             float totalStrength = 0;
             int completeFleets = 0;
-            int neededFleets = wantedFleetCount.LowerBound(1);
             do
             {
                 if(!GetCoreFleet(results))
@@ -173,10 +172,10 @@ namespace Ship_Game.AI
                 ++completeFleets;
                 ++ShipSetsExtracted;
 
-            } while (completeFleets < neededFleets || totalStrength < strengthNeeded);
+            } while (completeFleets < wantedFleetCount || totalStrength < strengthNeeded);
 
             // in case we have more room for ships, or all ships in get core are carriers or something.
-            int unfilledFleets = (neededFleets - completeFleets).LowerBound(0);
+            int unfilledFleets = (wantedFleetCount - completeFleets).LowerBound(0);
             for (int i = 0; i < unfilledFleets; i++)
                 GetSupplementalFleet(results);
 
@@ -209,7 +208,7 @@ namespace Ship_Game.AI
 
         public void GetCoreFleetRole(HashSet<Ship> results, RoleName role)
         {
-            float wanted = role == RoleName.prototype ? 1 :  Ratios.GetWanted(role);
+            float wanted = role == RoleName.prototype ? 1 : Ratios.GetWanted(role);
             GetShips(results, wanted, role);
         }
 
@@ -270,6 +269,9 @@ namespace Ship_Game.AI
         void GetShips(HashSet<Ship> results, float wanted, RoleName role)
         {
             int setWanted = (int)(wanted * WantedFleetCompletePercentage);
+            if (wanted > 0) // ensure minimum of 1 fleet needed even if percentage is less than 100%
+                setWanted = setWanted.LowerBound(1);
+
             if (setWanted > 0)
             {
                 int shipsFound = 0;
@@ -290,9 +292,9 @@ namespace Ship_Game.AI
         /// </summary>
         /// <param name="minStrength">Combat strength of fleet ships</param>
         /// <param name="planetTroops">Troops still on planets</param>
-        /// <param name="minimumFleetSize">Attempt to get this many fleets</param>
+        /// <param name="wantedFleetCount">Attempt to get this many fleets</param>
         /// <returns></returns>
-        public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int minimumFleetSize, MilitaryTask task)
+        public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int wantedFleetCount, MilitaryTask task)
         {
             if (BombSecsAvailable < task.TaskBombTimeNeeded)
                 return new Array<Ship>();
@@ -300,7 +302,7 @@ namespace Ship_Game.AI
             SortShipsByDistanceToPoint(task.AO);
 
             var ships = new HashSet<Ship>();
-            int fleetCount = GetFleetShipsUpToStrength(ships, minStrength, minimumFleetSize);
+            int fleetCount = GetFleetShipsUpToStrength(ships, minStrength, wantedFleetCount);
             if (fleetCount == 0 || ships.Count == 0)
                 return new Array<Ship>();
             

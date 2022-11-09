@@ -41,7 +41,6 @@ namespace Ship_Game.Commands.Goals
 
             PlanetBuildingAt = planet;
             planet.Construction.Enqueue(colonyShip, this);
-            planet.Construction.PrioritizeShip(colonyShip, 2);
             return GoalStep.GoToNextStep;
         }
 
