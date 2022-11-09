@@ -267,7 +267,7 @@ namespace Ship_Game
             switch (role)
             {
                 case RoleName.station:
-                case RoleName.platform: orbital = ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost, budget)?.ShipData; break;
+                case RoleName.platform: orbital = ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost, budget); break;
             }
             return orbital;
         }

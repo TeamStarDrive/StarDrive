@@ -11,8 +11,9 @@ namespace Ship_Game.AI
         public const int OrbitalsLimit  = 27; // FB - Maximum of 27 stations or platforms (or shipyards)
         public const int ShipYardsLimit = 2; // FB - Maximum of 2 shipyards
 
-        public static Ship PickFromCandidates(RoleName role, Empire empire, int maxSize = 0,
-                      HangarOptions designation = HangarOptions.General)
+        public static IShipDesign PickFromCandidates(
+            RoleName role, Empire empire, int maxSize = 0,
+            HangarOptions designation = HangarOptions.General)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level.
             // This allows it to choose the toughest ships to build. This is normalized by ship total slots
@@ -43,25 +44,25 @@ namespace Ship_Game.AI
             Log.DebugInfo(ConsoleColor.Blue, message);
         }
 
-        private static Array<Ship> ShipsWeCanBuild(Empire empire, Predicate<Ship> filter)
+        static Array<IShipDesign> ShipsWeCanBuild(Empire empire, Predicate<IShipDesign> filter)
         {
-            var ships = new Array<Ship>();
-            foreach (string shipWeCanBuild in empire.ShipsWeCanBuild)
+            var ships = new Array<IShipDesign>();
+            foreach (string uid in empire.ShipsWeCanBuild)
             {
-                if (ResourceManager.GetShipTemplate(shipWeCanBuild, out Ship template) && filter(template))
-                    ships.Add(template);
+                if (ResourceManager.Ships.GetDesign(uid, out IShipDesign design) && filter(design))
+                    ships.Add(design);
             }
             return ships;
         }
 
         // Pick the strongest ship to build with a cost limit and a role
-        public static Ship PickCostEffectiveShipToBuild(RoleName role, Empire empire, 
+        public static IShipDesign PickCostEffectiveShipToBuild(RoleName role, Empire empire, 
             float maxCost, float maintBudget)
         {
-            Array<Ship> potentialShips = ShipsWeCanBuild(empire,
-                s => s.DesignRole == role && s.GetCost(empire).LessOrEqual(maxCost) 
-                                          && s.GetMaintCost(empire).Less(maintBudget)
-                                          && !s.ShipData.IsShipyard
+            Array<IShipDesign> potentialShips = ShipsWeCanBuild(empire,
+                s => s.Role == role && s.GetCost(empire).LessOrEqual(maxCost) 
+                                          && s.GetMaintenanceCost(empire).Less(maintBudget)
+                                          && !s.IsShipyard
                                           && !s.IsSubspaceProjector);
 
             if (potentialShips.Count == 0)
@@ -75,31 +76,31 @@ namespace Ship_Game.AI
         }
 
         // Try to get a pre-defined default drone for event buildings which can launch drones
-        static Ship GetDefaultEventDrone()
+        static IShipDesign GetDefaultEventDrone()
         {
-            Ship drone;
+            IShipDesign drone;
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.DefaultEventDrone.NotEmpty())
             {
-                drone = ResourceManager.GetShipTemplate(GlobalStats.ActiveModInfo.DefaultEventDrone, false);
+                drone = ResourceManager.Ships.GetDesign(GlobalStats.ActiveModInfo.DefaultEventDrone, false);
                 if (drone != null)
                     return drone;
 
                 Log.Warning($"Could not find default drone - {GlobalStats.DefaultEventDrone} in mod ShipDesigns folder");
             }
 
-            drone = ResourceManager.GetShipTemplate(GlobalStats.DefaultEventDrone, false);
+            drone = ResourceManager.Ships.GetDesign(GlobalStats.DefaultEventDrone, false);
             if (drone == null)
                 Log.Warning($"Could not find default drone - {GlobalStats.DefaultEventDrone} - in Vanilla SavedDesigns folder");
 
             return drone;
         }
         
-        static Ship PickFromCandidatesByStrength(RoleName role, Empire empire,
+        static IShipDesign PickFromCandidatesByStrength(RoleName role, Empire empire,
             int maxSize, HangarOptions designation)
         {
-            Array<Ship> potentialShips = ShipsWeCanBuild(empire, ship => ship.DesignRole == role
-                && (maxSize == 0 || ship.SurfaceArea <= maxSize)
-                && (designation == HangarOptions.General || designation == ship.ShipData.HangarDesignation)
+            Array<IShipDesign> potentialShips = ShipsWeCanBuild(empire, design => design.Role == role
+                && (maxSize == 0 || design.SurfaceArea <= maxSize)
+                && (designation == HangarOptions.General || designation == design.HangarDesignation)
             );
 
             if (potentialShips.Count == 0)
@@ -115,20 +116,26 @@ namespace Ship_Game.AI
             if (bestShips.Length == 0)
                 return null;
 
-            Ship pickedShip = RandomMath.RandItem(bestShips);
+            IShipDesign pickedShip = RandomMath.RandItem(bestShips);
 
             if (false && empire.Universe?.Debug == true)
             {
                 Debug($"    Sorted Ship List ({bestShips.Length})");
-                foreach (Ship loggedShip in bestShips)
+                foreach (IShipDesign loggedShip in bestShips)
                 {
                     Debug($"    -- Name: {loggedShip.Name}, Strength: {loggedShip.BaseStrength}");
                 }
-                Debug($"    Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.ShipData.Hull}\n" +
+                Debug($"    Chosen Role: {pickedShip.Role}  Chosen Hull: {pickedShip.Hull}\n" +
                       $"    Strength: {pickedShip.BaseStrength}\n" +
                       $"    Name: {pickedShip.Name}. Range: {levelAdjust}");
             }
             return pickedShip;
+        }
+
+        static float GetColonyShipScore(IShipDesign s, Empire empire)
+        {
+            float maxFTL = ShipStats.GetFTLSpeed(s, empire);
+            return s.StartingColonyGoods + s.NumBuildingsDeployed * 20 + maxFTL / 1000;
         }
 
         public static bool PickColonyShip(Empire empire, out IShipDesign colonyShip)
@@ -139,9 +146,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                Ship ship = ShipsWeCanBuild(empire, s => s.ShipData.IsColonyShip)
-                           .FindMax(s => s.StartingColonyGoods() + s.NumBuildingsDeployedOnColonize() * 20 + s.MaxFTLSpeed / 1000);
-                colonyShip = ship?.ShipData;
+                colonyShip = ShipsWeCanBuild(empire, s => s.IsColonyShip).FindMax(s => GetColonyShipScore(s, empire));
             }
 
             if (colonyShip == null)
@@ -157,19 +162,21 @@ namespace Ship_Game.AI
             return true;
         }
 
+
+
         public static IShipDesign PickShipToRefit(Ship oldShip, Empire empire)
         {
-            Array<Ship> ships = ShipsWeCanBuild(empire, s => s.ShipData.Hull == oldShip.ShipData.Hull
-                                                        && s.DesignRole == oldShip.DesignRole
-                                                        && s.BaseStrength.Greater(oldShip.BaseStrength * 1.1f)
-                                                        && s.Name != oldShip.Name);
+            Array<IShipDesign> ships = ShipsWeCanBuild(empire, s => s.Hull == oldShip.ShipData.Hull
+                                                            && s.Role == oldShip.DesignRole
+                                                            && s.BaseStrength.Greater(oldShip.BaseStrength * 1.1f)
+                                                            && s.Name != oldShip.Name);
             if (ships.Count == 0)
                 return null;
 
-            Ship picked = RandomMath.RandItem(ships);
+            IShipDesign picked = RandomMath.RandItem(ships);
             Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.BaseStrength}" +
                                             $" refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
-            return picked.ShipData;
+            return picked;
         }
 
         public static IShipDesign PickFreighter(Empire empire, float fastVsBig)
@@ -210,17 +217,28 @@ namespace Ship_Game.AI
             return freighter;
         }
 
-        public static Ship PickConstructor(Empire empire)
+        static float GetConstructorValue(IShipDesign s, Empire empire)
         {
-            Ship constructor = null;
+            if (!s.IsConstructor)
+                return 0;
+            float maxFTL = ShipStats.GetFTLSpeed(s, empire);
+            float warpK = maxFTL / 1000;
+            float turnRate = ShipStats.GetBaseTurnRadsPerSec(s);
+            float score = warpK + maxFTL / 10 + turnRate.ToDegrees();
+            return score;
+        }
+
+        public static IShipDesign PickConstructor(Empire empire)
+        {
+            IShipDesign constructor = null;
             if (empire.isPlayer)
             {
                 string constructorId = empire.data.ConstructorShip;
-                if (!ResourceManager.GetShipTemplate(constructorId, out constructor))
+                if (!ResourceManager.Ships.GetDesign(constructorId, out constructor))
                 {
                     Log.Warning($"PickConstructor: no construction ship with uid={constructorId}, falling back to default");
                     constructorId = empire.data.DefaultConstructor;
-                    if (!ResourceManager.GetShipTemplate(constructorId, out constructor))
+                    if (!ResourceManager.Ships.GetDesign(constructorId, out constructor))
                     {
                         Log.Warning($"PickConstructor: no construction ship with uid={constructorId}");
                         return null;
@@ -229,10 +247,10 @@ namespace Ship_Game.AI
             }
             else
             {
-                var constructors = new Array<Ship>();
+                var constructors = new Array<IShipDesign>();
                 foreach (string shipId in empire.ShipsWeCanBuild)
                 {
-                    if (ResourceManager.GetShipTemplate(shipId, out Ship ship) && ship.IsConstructor)
+                    if (ResourceManager.Ships.GetDesign(shipId, out IShipDesign ship) && ship.IsConstructor)
                         constructors.Add(ship);
                 }
 
@@ -242,7 +260,7 @@ namespace Ship_Game.AI
                     return null;
                 }
 
-                constructor = constructors.FindMax(s => s.ConstructorValue(empire));
+                constructor = constructors.FindMax(s => GetConstructorValue(s, empire));
             }
 
             return constructor;
@@ -291,7 +309,7 @@ namespace Ship_Game.AI
 
         public static IShipDesign BestShipWeCanBuild(RoleName role, Empire empire)
         {
-            IShipDesign bestShip = PickFromCandidates(role, empire)?.ShipData;
+            IShipDesign bestShip = PickFromCandidates(role, empire);
             if (bestShip == null || bestShip.IsShipyard || bestShip.IsSubspaceProjector) 
                 return null;
             return bestShip;
