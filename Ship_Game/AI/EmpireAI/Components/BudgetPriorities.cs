@@ -4,7 +4,7 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 
-namespace Ship_Game.AI.Compnonents
+namespace Ship_Game.AI.Components
 {
     public class BudgetPriorities
     {
