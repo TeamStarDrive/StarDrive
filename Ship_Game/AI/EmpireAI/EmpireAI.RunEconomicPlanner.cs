@@ -4,9 +4,9 @@ using Ship_Game.AI.Budget;
 using System;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI.Compnonents;
+using Ship_Game.AI.Components;
 using Ship_Game.Gameplay;
-using static Ship_Game.AI.Compnonents.BudgetPriorities;
+using static Ship_Game.AI.Components.BudgetPriorities;
 
 namespace Ship_Game.AI
 {

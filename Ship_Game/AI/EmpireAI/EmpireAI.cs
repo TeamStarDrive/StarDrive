@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI.Compnonents;
+using Ship_Game.AI.Components;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
