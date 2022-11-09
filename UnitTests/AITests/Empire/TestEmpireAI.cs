@@ -1,15 +1,9 @@
 ﻿using System;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SDGraphics;
 using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
-using Ship_Game.AI.Compnonents;
-using Ship_Game.Empires;
 using Ship_Game.Empires.Components;
-using Ship_Game.GameScreens.NewGame;
-using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -32,43 +26,17 @@ namespace UnitTests.AITests.Empire
 
             CreateUniverseAndPlayerEmpire("Cordrazine");
 
-            AddDummyPlanet(new Vector2(1000), 2, 2, 40000, Vector2.One, explored:true);
-            AddDummyPlanet(new Vector2(1000), 1.9f, 1.9f, 40000, new Vector2(5000), explored:true);
-            AddDummyPlanet(new Vector2(1000), 1.7f, 1.7f, 40000, new Vector2(-5000), explored:true);
+            AddDummyPlanet(new(1000), 2, 2, 40000, Vector2.One, explored:true);
+            AddDummyPlanet(new(1000), 1.9f, 1.9f, 40000, new(5000), explored:true);
+            AddDummyPlanet(new(1000), 1.7f, 1.7f, 40000, new(-5000), explored:true);
             for (int x = 0; x < 50; x++)
-                AddDummyPlanet(new Vector2(1000), 0.1f, 0.1f, 1000, Vector2.One, explored:true);
-            AddHomeWorldToEmpire(new Vector2(1000), Player, Vector2.Zero, explored:true);
-            AddHomeWorldToEmpire(new Vector2(1000), Enemy, new Vector2(2000), explored:true);
+                AddDummyPlanet(new(1000), 0.1f, 0.1f, 1000, Vector2.One, explored:true);
+            AddHomeWorldToEmpire(new(1000), Player, Vector2.Zero, explored:true);
+            AddHomeWorldToEmpire(new(1000), Enemy, new(2000), explored:true);
 
             UnlockAllShipsFor(Player);
-
             UState.Objects.UpdateLists(true);
         }
-
-        /* going to add tests here
-        [TestMethod]
-        public void TestExpansionPlannerColonize()
-        {
-            var expansionAI = TestEmpire.GetEmpireAI().ExpansionAI;
-            TestEmpire.AutoColonize = true;
-            expansionAI.RunExpansionPlanner();
-
-            AssertEqual(13, expansionAI.RankedPlanets.Length,
-                "Colonization target list should be 13");
-
-            var markedPlanet = expansionAI.GetColonizationGoalPlanets();
-            AssertEqual(3, markedPlanet.Length, "Expected 3 colony goals ");
-
-            //mock colonization success
-            expansionAI.DesiredPlanets[0].Owner = TestEmpire;
-            TestEmpire.GetEmpireAI().EndAllTasks();
-            expansionAI.RunExpansionPlanner();
-            AssertEqual(13, expansionAI.RankedPlanets.Length);
-            markedPlanet = expansionAI.GetColonizationGoalPlanets();
-            AssertEqual(3, markedPlanet.Length, "Expected 3 colony goals ");
-            expansionAI.RunExpansionPlanner();
-
-        }*/
 
         [TestMethod]
         public void MilitaryPlannerShouldCreateBestKnownFighter()
@@ -88,36 +56,33 @@ namespace UnitTests.AITests.Empire
             var build = new RoleBuildInfo(2, Player.AI, true);
 
             // init base variables
-            var combatRole      = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(RoleName.fighter);
-            float roleBudget    = build.RoleBudget(combatRole);
+            var combatRole = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(RoleName.fighter);
+            float roleBudget = build.RoleBudget(combatRole);
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
             int count;
 
             // try to build a lot of ships. this loop should break
-            for(count = 1; count < 50; count++)
+            for (count = 1; count < 50; count++)
             {
-                string shipName   = Player.AI.GetAShip(build);
+                string shipName = Player.AI.GetAShip(build);
 
                 if (shipName.IsEmpty())
                 {
                     bool canBuildMore = build.CanBuildMore(combatRole);
-                    Assert.IsFalse(canBuildMore, "Role says it cant build more but build process says no");
+                    AssertFalse(canBuildMore, "Role says it cant build more but build process says no");
                     break;
                 }
 
                 // create the ship
-                var ship            = SpawnShip(shipName, Player, Vector2.Zero);
-                float shipMaint     = ship.GetMaintCost();
-
-                Assert.IsFalse(shipMaint > roleUnitMaint
-                    , $"Ship maintenance: {shipMaint} should never be more than per unit maintenance: {roleUnitMaint}");
+                var ship = SpawnShip(shipName, Player, Vector2.Zero);
+                float shipMaint = ship.GetMaintCost();
+                AssertLessThan(shipMaint, roleUnitMaint, "Ship maintenance must be less than role unit maintenance");
 
                 float currentMaint = build.RoleCurrentMaintenance(combatRole);
-                Assert.IsTrue((roleUnitMaint * count).AlmostEqual(currentMaint)
-                    , $"Current Maintenance: {currentMaint} should equal projected: {roleUnitMaint * count}");
+                AssertEqual(roleUnitMaint * count, currentMaint, "Current maintenance should equal projected");
             }
 
-            Assert.IsTrue(count < 49, $"Test failure! Loop completed! Investigate");
+            AssertTrue(count < 49, "GetAShip failed to terminate correctly");
 
             AssertEqual(build.RoleCount(combatRole), (int)(roleBudget / roleUnitMaint));
         }
@@ -168,16 +133,16 @@ namespace UnitTests.AITests.Empire
                 if (currentMain + roleUnitMaint > buildCapacity)
                 {
                     string shipName = Player.AI.GetAShip(build);
-                    Assert.IsTrue(shipName.IsEmpty(), $"Current maintenance {currentMain}" +
+                    AssertTrue(shipName.IsEmpty(), $"Current maintenance {currentMain}" +
                                                       $" + new ship maintenance {roleUnitMaint} was greater than build cap {buildCapacity}" +
                                                       $" but we still built a ship.");
                 }
                 else
                 {
-                    Assert.IsFalse(build.RoleIsScrapping(combatRole), "We have build budget and we are set to scrap");
-                    Assert.IsTrue(shipsBeingScrapped <= 0, $"We have build budget and we have ships scrapping: {shipsBeingScrapped}");
+                    AssertFalse(build.RoleIsScrapping(combatRole), "We have build budget and we are set to scrap");
+                    AssertTrue(shipsBeingScrapped <= 0, $"We have build budget and we have ships scrapping: {shipsBeingScrapped}");
                     string shipName = Player.AI.GetAShip(build);
-                    Assert.IsTrue(shipName.NotEmpty(), "We have build budget but we aren't building");
+                    AssertTrue(shipName.NotEmpty(), "We have build budget but we aren't building");
                 }
 
                 // once we bottom out then kill all scrapping ships, reset build capacity, and add more ships
@@ -215,7 +180,7 @@ namespace UnitTests.AITests.Empire
                 float percent = x * 0.1f;
                 float overSpend = Player.AI.OverSpendRatio(1000, percent, 10f);
                 percent = 2 - percent;
-                Assert.IsTrue(overSpend.AlmostEqual(percent), $"Expected {percent} got {overSpend}");
+                AssertEqual(overSpend, percent);
             }
         }
 
@@ -230,14 +195,14 @@ namespace UnitTests.AITests.Empire
                 float percent = x * 0.05f;
                 float overSpend = Player.AI.OverSpendRatio(1000, percent, 10f);
                 percent = 0.2f - percent;
-                Assert.IsTrue(overSpend.AlmostEqual(percent), $"Expected {percent} got {overSpend}");
+                AssertEqual(overSpend, percent);
             }
         }
 
         [TestMethod]
         public void TestShipListTracking()
         {
-            Assert.IsTrue(Player.OwnedShips.Count == 0);
+            AssertEqual(0, Player.OwnedShips.Count);
             IEmpireShipLists playerShips = Player;
 
             string shipName = "Fang Strafer";
@@ -245,33 +210,33 @@ namespace UnitTests.AITests.Empire
             // test that ship is added to empire on creation
             var ship = SpawnShip(shipName, Player, Vector2.Zero);
             UState.Objects.UpdateLists(true);
-            Assert.IsTrue(Player.OwnedShips.Count == 1);
+            AssertEqual(1, Player.OwnedShips.Count);
 
             // test that removed ship removes the ship from ship list
             playerShips.RemoveShipAtEndOfTurn(ship);
             UState.Objects.UpdateLists(true);
-            Assert.IsTrue(Player.OwnedShips.Count == 0);
+            AssertEqual(0, Player.OwnedShips.Count);
 
             // test that a ship added to empire directly is added.
             playerShips.AddNewShipAtEndOfTurn(ship);
             UState.Objects.UpdateLists(true);
-            Assert.IsTrue(Player.OwnedShips.Count == 1);
+            AssertEqual(1, Player.OwnedShips.Count);
 
             // test that a ship cant be added twice
             // debugwin will enable error checking
             Universe.ToggleDebugWindow();
             playerShips.AddNewShipAtEndOfTurn(ship);
             UState.Objects.UpdateLists(true);
-            Assert.IsTrue(Player.OwnedShips.Count == 1);
+            AssertEqual(1, Player.OwnedShips.Count);
             Universe.ToggleDebugWindow();
 
             // test that removing the same ship twice doesn't fail.
             playerShips.RemoveShipAtEndOfTurn(ship);
-            Assert.IsTrue(Player.OwnedShips.Count == 1);
+            AssertEqual(1, Player.OwnedShips.Count);
             UState.Objects.UpdateLists(true);
             playerShips.RemoveShipAtEndOfTurn(ship);
             UState.Objects.UpdateLists(true);
-            Assert.IsTrue(Player.OwnedShips.Count == 0);
+            AssertEqual(0, Player.OwnedShips.Count);
         }
 
         [TestMethod]
@@ -356,7 +321,6 @@ namespace UnitTests.AITests.Empire
                                 {
                                     SpawnShip(shipName, empire, Vector2.Zero);
                                 }
-
                             }
                         }
                     );
@@ -405,36 +369,34 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void TestDefeatedEmpireShipRemoval()
         {
-            Assert.IsTrue(Player.OwnedShips.Count == 0);
+            AssertEqual(0, Player.OwnedShips.Count);
             string shipName = "Fang Strafer";
 
             // test that ships are removed from empire on defeat
             SpawnShip(shipName, Player, Vector2.Zero);
             UState.Objects.UpdateLists();
-            Assert.IsTrue(Player.OwnedShips.Count == 1);
+            AssertEqual(1, Player.OwnedShips.Count);
             Player.SetAsDefeated();
             UState.Objects.UpdateLists();
-            Assert.IsTrue(Player.OwnedShips.Count == 0);
+            AssertEqual(0, Player.OwnedShips.Count);
         }
 
         [TestMethod]
         public void TestMergedEmpireShipRemoval()
         {
-            Assert.IsTrue(Player.OwnedShips.Count == 0);
+            AssertEqual(0, Player.OwnedShips.Count);
             string shipName = "Fang Strafer";
 
             SpawnShip(shipName, Enemy, Vector2.Zero);
             UState.Objects.UpdateLists();
-            Assert.IsTrue(Enemy.OwnedShips.Count == 1);
+            AssertEqual(1, Enemy.OwnedShips.Count);
             Player.AbsorbEmpire(Enemy);
             UState.Objects.UpdateLists();
             // test that ship is added to empire on merge
-            Assert.IsTrue(Player.OwnedShips.Count == 1);
+            AssertEqual(1, Player.OwnedShips.Count);
             // test that ship is removed from target empire
             AssertEqual(0, Enemy.OwnedShips.Count);
         }
-
-        
     }
 }
 

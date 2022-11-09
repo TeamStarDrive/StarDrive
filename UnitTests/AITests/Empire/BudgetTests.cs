@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
-using Ship_Game.AI.Compnonents;
+using Ship_Game.AI.Components;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire

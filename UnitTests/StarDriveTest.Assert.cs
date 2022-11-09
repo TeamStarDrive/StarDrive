@@ -49,6 +49,11 @@ public partial class StarDriveTest
     {
         if (!value) throw new AssertFailedException(Msg(message, expected:true, actual:false));
     }
+    
+    public static void AssertFalse(bool value, string message = "")
+    {
+        if (value) throw new AssertFailedException(Msg(message, expected:false, actual:true));
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
 
