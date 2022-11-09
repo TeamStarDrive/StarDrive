@@ -439,12 +439,12 @@ public class ThreatMatrixTests : StarDriveTest
         for (int i = 0; i < 100; ++i)
         {
             ScanAndUpdateThreats(Player, Enemy);
-            AssertEqual(ours1, Player.Threats.OurClusters.Length);
-            AssertEqual(ours2, Enemy.Threats.OurClusters.Length);
-            AssertEqual(rivals1, Player.Threats.RivalClusters.Length);
-            AssertEqual(rivals2, Enemy.Threats.RivalClusters.Length);
-            AssertEqual(mapSize1, Player.Threats.ClustersMap.Count);
-            AssertEqual(mapSize2, Enemy.Threats.ClustersMap.Count);
+            AssertEqual(ours1, Player.Threats.OurClusters.Length, $"Loop {i} Player OurClusters");
+            AssertEqual(ours2, Enemy.Threats.OurClusters.Length, $"Loop {i} Enemy OurClusters");
+            AssertEqual(rivals1, Player.Threats.RivalClusters.Length, $"Loop {i} Player RivalClusters");
+            AssertEqual(rivals2, Enemy.Threats.RivalClusters.Length, $"Loop {i} Enemy RivalClusters");
+            AssertEqual(mapSize1, Player.Threats.ClustersMap.Count, $"Loop {i} Player ClustersMap");
+            AssertEqual(mapSize2, Enemy.Threats.ClustersMap.Count, $"Loop {i} Enemy ClustersMap");
         }
     }
 
