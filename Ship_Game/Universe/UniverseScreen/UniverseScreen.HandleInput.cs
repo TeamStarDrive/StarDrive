@@ -578,7 +578,7 @@ namespace Ship_Game
         {
             Ship[] ships = UState.Objects.VisibleShips;
             var clickable = new Array<ClickableShip>();
-            var visibleShields = new BatchRemovalCollection<Shield>();
+            var visibleShields = new Array<Shield>();
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
@@ -589,7 +589,7 @@ namespace Ship_Game
                     continue;
                 }
 
-                visibleShields.AddRange(ship.GetActiveShields().Select(s => s.Shield).ToArray());
+                visibleShields.AddRange(ship.GetActiveShields().Select(s => s.Shield));
                 ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
                 clickable.Add(new ClickableShip
                 {
@@ -600,7 +600,7 @@ namespace Ship_Game
             }
             
             // TODO: this needs to be rewritten
-            ShieldManager.SetVisibleShields(visibleShields);
+            Shields.SetVisibleShields(visibleShields.ToArr());
             ClickableShips = clickable.ToArray();
         }
 
@@ -620,7 +620,7 @@ namespace Ship_Game
             if (viewState <= UnivScreenState.SectorView)
             {
                 var planets = new Array<ClickablePlanet>();
-                var visibleShields = new BatchRemovalCollection<Shield>();
+                var visibleShields = new Array<Shield>();
                 for (int index = 0; index < ClickableSystems.Length; index++)
                 {
                     SolarSystem sys = ClickableSystems[index].System;
@@ -647,8 +647,8 @@ namespace Ship_Game
                         }
                     }
                 }
-                ClickablePlanets = planets.ToArray();
-                ShieldManager.SetVisiblePlanetShields(visibleShields);
+                ClickablePlanets = planets.ToArr();
+                Shields.SetVisiblePlanetShields(visibleShields.ToArr());
             }
             else
             {

@@ -98,6 +98,7 @@ namespace Ship_Game
         public Effect basicFogOfWarEffect;
         public Rectangle SelectedStuffRect;
         public NotificationManager NotificationManager;
+        public ShieldManager Shields;
         public Rectangle MinimapDisplayRect;
         public Rectangle mmShowBorders;
         public Rectangle mmHousing;
@@ -304,6 +305,8 @@ namespace Ship_Game
 
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = Add(new AutomationWindow(this));
+
+            Shields = new ShieldManager(this, ContentManager);
 
             InitializeCamera(); // ResetLighting requires MaxCamHeight
             ResetLighting(forceReset: true);
