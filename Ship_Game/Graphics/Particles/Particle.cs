@@ -203,6 +203,12 @@ namespace Ship_Game
             ParticleId = id;
 
             MaxParticles = settings.MaxParticles;
+            if (MaxParticles == 0) // special case, the particle system is totally disabled
+            {
+                IsEnabled = false;
+                return;
+            }
+
             Settings = settings.Clone();
             Settings.MaxParticles = MaxParticles; 
 

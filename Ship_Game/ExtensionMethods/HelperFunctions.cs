@@ -73,7 +73,7 @@ namespace Ship_Game
         {
             Fleet fleet = CreateFleetFromData(universe, LoadFleetDesign(fleetUid), owner, position);
             if (fleet != null)
-                owner.FirstFleet = fleet;
+                owner.SetFleet(1, fleet);
         }
 
         public static bool IsInUniverseBounds(float universeSize, Vector2 pos)

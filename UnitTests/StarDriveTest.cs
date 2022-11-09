@@ -150,10 +150,15 @@ public partial class StarDriveTest : IDisposable
 
     public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
     {
+        LoadAllGameData(); // we need all ships and stuff
         Universe = DeveloperUniverse.Create(playerPreference, numOpponents);
         UState = Universe.UState;
+        UState.Paused = paused;
         Player = UState.Player;
         Enemy  = UState.NonPlayerEmpires[0];
+
+        Universe.CreateSimThread = false;
+        Universe.LoadContent();
     }
 
     public void CreateCustomUniverse(UniverseGenerator.Params p)
@@ -171,6 +176,9 @@ public partial class StarDriveTest : IDisposable
     {
         LoadedExtraData = true;
         Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
+
+        ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
+        GlobalStats.AsteroidVisibility = ObjectVisibility.None; // dont create Asteroid SO's
 
         ResourceManager.UnloadAllData(ScreenManager.Instance);
         ResourceManager.LoadItAll(ScreenManager.Instance, null);
@@ -191,16 +199,12 @@ public partial class StarDriveTest : IDisposable
     public void CreateCustomUniverseSandbox(int numOpponents, GalSize galSize, int numExtraShipsPerEmpire = 0)
     {
         LoadAllGameData();
-
         (int numStars, float starNumModifier) = RaceDesignScreen.GetNumStars(
             RaceDesignScreen.StarsAbundance.Abundant, galSize, numOpponents
         );
 
         EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
         playerData.DiplomaticPersonality = new DTrait();
-
-        ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
-        GlobalStats.AsteroidVisibility = ObjectVisibility.None; // dont create Asteroid SO's
 
         CreateCustomUniverse(new UniverseGenerator.Params
         {

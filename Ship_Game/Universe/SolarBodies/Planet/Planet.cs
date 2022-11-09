@@ -80,10 +80,8 @@ namespace Ship_Game
 
         float NoSpaceCombatTargetsFoundDelay = 0;
 
-        public bool RecentCombat    => TroopManager.RecentCombat;
-        public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
-
-        public float ConsumptionPerColonist     => 1 + Owner.data.Traits.ConsumptionModifier;
+        public bool RecentCombat => TroopManager.RecentCombat;
+        public float ConsumptionPerColonist => 1 + (Owner?.data.Traits.ConsumptionModifier ?? 0);
         public float FoodConsumptionPerColonist => NonCybernetic ? ConsumptionPerColonist : 0;
         public float ProdConsumptionPerColonist => IsCybernetic ? ConsumptionPerColonist : 0;
 

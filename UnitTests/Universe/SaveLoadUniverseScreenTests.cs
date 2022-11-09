@@ -24,7 +24,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void EnsureSaveGamesFitInMemory()
         {
-            int shipsPerEmpire = 500;
+            int shipsPerEmpire = 750;
 
             CreateCustomUniverseSandbox(numOpponents:6, galSize:GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);
@@ -63,8 +63,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void EnsureSaveGameIntegrity()
         {
-            CreateCustomUniverseSandbox(numOpponents:1, galSize:GalSize.Small);
-            UState.Paused = true;
+            CreateDeveloperSandboxUniverse("United", numOpponents:1, paused:true);
 
             // manually run a few turns
             for (int i = 0; i < 60; ++i)
@@ -72,12 +71,10 @@ namespace UnitTests.Universe
 
             SavedGame save1 = Universe.Save("UnitTest.IntegrityTest");
             if (save1 == null) throw new AssertFailedException("Save1 failed");
-            DestroyUniverse();
 
             UniverseScreen us = LoadGame.Load(save1.SaveFile, noErrorDialogs:true, startSimThread:false);
             SavedGame save2 = us.Save("UnitTest.IntegrityTest");
             if (save1 == null) throw new AssertFailedException("Save2 failed");
-            DestroyUniverse();
 
             Array<string> results = save1.State.MemberwiseCompare(save2.State);
             results.ForEach(Console.WriteLine);
