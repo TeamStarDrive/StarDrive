@@ -1327,7 +1327,7 @@ namespace Ship_Game.Ships
             UpdateTroops(timeSinceLastUpdate);
 
             if (!AI.BadGuysNear)
-                ShieldManager.RemoveShieldLights(Universe.Screen, GetActiveShields());
+                Universe.Shields.RemoveShieldLights(Universe.Screen, GetActiveShields());
         }
 
         public bool CanRepair => !AI.BadGuysNear || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair;

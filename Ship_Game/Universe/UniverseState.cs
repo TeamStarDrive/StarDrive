@@ -147,6 +147,8 @@ namespace Ship_Game.Universe
         public DebugInfoScreen DebugWin => Screen.DebugWin;
         public NotificationManager Notifications => Screen.NotificationManager;
 
+        public ShieldManager Shields => Screen.Shields;
+
         public float DefaultProjectorRadius;
 
         public readonly RandomBase Random = new ThreadSafeRandom();
