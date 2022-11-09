@@ -157,23 +157,22 @@ namespace Ship_Game.AI.ExpansionAI
             if (netDesired < 1) 
                 return;
 
-            for (int i = 0; i < RankedPlanets.Length && netDesired > 0; i++)
+            for (int i = netDesired-1; i >= 0; i--)
             {
                 Planet planet = RankedPlanets[i].Planet;
                 Log.Info(ConsoleColor.Magenta,
                     $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals()} | {planet} | {Owner}");
 
                 Owner.AI.AddGoalAndEvaluate(new MarkForColonization(planet, Owner));
-                netDesired--;
             }
         }
 
         bool CanBeColonized(SolarSystem s)
         {
-            return s.IsFullyExploredBy(Owner)
+            return s.IsExploredBy(Owner)
                 && !s.HasPlanetsOwnedBy(Owner)
                 && s.PlanetList.Any(p => p.Habitable)
-                && Owner.KnownEnemyStrengthIn(s).LessOrEqual(Owner.OffensiveStrength/4)
+                && Owner.KnownEnemyStrengthIn(s).LessOrEqual(Owner.OffensiveStrength/3)
                 && !s.OwnerList.Any(o=> !o.IsFaction && Owner.IsAtWarWith(o));
         }
 

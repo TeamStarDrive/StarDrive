@@ -586,11 +586,18 @@ namespace Ship_Game
             if (b.MaxFertilityOnBuild < 0 && CType == ColonyType.Agricultural)
                 return 0; // Never build fertility reducers on Agricultural colonies
 
-            float projectedMaxFertility = MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category);
+            float projectedMaxFertility = (MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category)).LowerBound(0);
+
+            if (CType == ColonyType.Industrial)
+            {
+                if (MaxFertility > 1) return 0.5f;
+                else                  return 1;
+            }
+
             // Multiplier will be smaller in direct relation to its effect if not Core or not homeworld
             int threshold = IsHomeworld ? 2 : 1;
             if (projectedMaxFertility < threshold)
-                return CType == ColonyType.Core || IsHomeworld ? 0 : projectedMaxFertility.LowerBound(0);
+                return CType == ColonyType.Core || IsHomeworld ? 0 : projectedMaxFertility;
 
             return 1;
         }
@@ -855,11 +862,11 @@ namespace Ship_Game
                 {
                     switch (CType)
                     {
-                        case ColonyType.Core:
-                        case ColonyType.Agricultural when q.Building.ProducesFood:
-                        case ColonyType.Industrial   when q.Building.ProducesProduction:
-                        case ColonyType.Research     when q.Building.ProducesResearch:
-                        case ColonyType.Military     when q.Building.IsMilitary: Construction.MoveTo(1, i); return true;
+                        case ColonyType.Agricultural when  q.Building.ProducesFood:
+                        case ColonyType.Industrial   when  q.Building.ProducesProduction:
+                        case ColonyType.Research     when  q.Building.ProducesResearch:
+                        case ColonyType.Military     when  q.Building.IsMilitary: Construction.MoveTo(1, i); return true;
+                        case ColonyType.Core         when !q.Building.IsMilitary: Construction.MoveTo(2, i); return true;
                     }
                 }
             }
