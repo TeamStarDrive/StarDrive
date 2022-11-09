@@ -24,7 +24,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void EnsureSaveGamesFitInMemory()
         {
-            int shipsPerEmpire = 750;
+            int shipsPerEmpire = 700;
 
             CreateCustomUniverseSandbox(numOpponents:6, galSize:GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);

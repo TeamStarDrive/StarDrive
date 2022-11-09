@@ -51,7 +51,7 @@ namespace UnitTests.LinearAlgebra
             s2.Stop();
             Console.WriteLine($".NETMath Sin: {s2.ElapsedMilliseconds}ms {y}");
 
-            Assert.IsTrue(s1.Elapsed.TotalSeconds < s2.Elapsed.TotalSeconds,
+            AssertLessThan(s1.Elapsed.TotalSeconds, s2.Elapsed.TotalSeconds,
                 "RadMath Sin implementation MUST be faster than .NET Math");
 
             Console.WriteLine($"RadMath Sin is {s2.Elapsed.TotalSeconds / s1.Elapsed.TotalSeconds:0.0}x faster");
@@ -95,7 +95,7 @@ namespace UnitTests.LinearAlgebra
             s2.Stop();
             Console.WriteLine($".NETMath Cos: {s2.ElapsedMilliseconds}ms {y}");
 
-            Assert.IsTrue(s1.Elapsed.TotalSeconds < s2.Elapsed.TotalSeconds,
+            AssertLessThan(s1.Elapsed.TotalSeconds, s2.Elapsed.TotalSeconds,
                 "RadMath Cos implementation MUST be faster than .NET Math");
 
             Console.WriteLine($"RadMath Cos is {s2.Elapsed.TotalSeconds / s1.Elapsed.TotalSeconds:0.0}x faster");
