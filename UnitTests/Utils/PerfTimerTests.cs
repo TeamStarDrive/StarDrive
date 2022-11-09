@@ -11,7 +11,7 @@ using Ship_Game;
 namespace UnitTests.Utils
 {
     [TestClass]
-    public class PerfTimerTests
+    public class PerfTimerTests : StarDriveTest
     {
         const float _100ms = 100/1000f;
         const float _50ms = 50/1000f;
@@ -29,7 +29,7 @@ namespace UnitTests.Utils
             var timer = new PerfTimer(start:true);
             PerfTimer.SpinWait(_20ms);
             float elapsed = timer.Elapsed;
-            Assert.AreEqual(_20ms, elapsed, 0.005f);
+            AssertEqual(0.005f, _20ms, elapsed);
         }
 
         [TestMethod]
@@ -37,7 +37,7 @@ namespace UnitTests.Utils
         {
             var timer = new AggregatePerfTimer(statRefreshInterval:1f);
             timer.Start();
-            Assert.AreEqual(1f, timer.TimeUntilNextRefresh, 0.001f);
+            AssertEqual(0.001f, 1f, timer.TimeUntilNextRefresh);
         }
 
         [TestMethod]
@@ -55,10 +55,10 @@ namespace UnitTests.Utils
             }
             
             Assert.IsTrue(didRefresh, "Timer should have refreshed after 100ms");
-            Assert.AreEqual(n, timer.MeasuredSamples);
-            Assert.AreEqual(_100ms, timer.MeasuredTotal, 0.01f);
-            Assert.AreEqual(_20ms, timer.MeasuredMax, 0.01f);
-            Assert.AreEqual(_20ms, timer.AvgTime, 0.01f);
+            AssertEqual(n, timer.MeasuredSamples);
+            AssertEqual(0.01f, _100ms, timer.MeasuredTotal);
+            AssertEqual(0.01f, _20ms, timer.MeasuredMax);
+            AssertEqual(0.01f, _20ms, timer.AvgTime);
         }
 
         [TestMethod]
@@ -68,12 +68,12 @@ namespace UnitTests.Utils
             timer.Start();
             PerfTimer.SpinWait(_50ms);
             bool didRefresh = timer.Stop();
-            Assert.AreEqual(_50ms, timer.TimeUntilNextRefresh, 0.001f);
+            AssertEqual(0.001f, _50ms, timer.TimeUntilNextRefresh);
             Assert.IsTrue(didRefresh, "Timer should have refreshed");
-            Assert.AreEqual(1, timer.MeasuredSamples);
-            Assert.AreEqual(_50ms, timer.MeasuredTotal, 0.001f);
-            Assert.AreEqual(_50ms, timer.MeasuredMax, 0.001f);
-            Assert.AreEqual(_50ms, timer.AvgTime, 0.001f);
+            AssertEqual(1, timer.MeasuredSamples);
+            AssertEqual(0.001f,_50ms, timer.MeasuredTotal);
+            AssertEqual(0.001f,_50ms, timer.MeasuredMax);
+            AssertEqual(0.001f,_50ms, timer.AvgTime);
         }
     }
 }

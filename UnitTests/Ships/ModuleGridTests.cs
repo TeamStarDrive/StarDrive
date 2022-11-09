@@ -30,19 +30,19 @@ namespace UnitTests.Ships
             };
 
             var gridInfo = new ShipGridInfo(design);
-            Assert.AreEqual(new Point(3, 2), gridInfo.Size);
-            Assert.AreEqual(4, gridInfo.SurfaceArea);
+            AssertEqual(new Point(3, 2), gridInfo.Size);
+            AssertEqual(4, gridInfo.SurfaceArea);
 
             var grid = new ModuleGrid<HullSlot>(gridInfo, design);
-            Assert.AreEqual(3, grid.Width);
-            Assert.AreEqual(2, grid.Height);
+            AssertEqual(3, grid.Width);
+            AssertEqual(2, grid.Height);
 
-            Assert.AreEqual(null,      grid[0, 0]);
-            Assert.AreEqual(design[0], grid[1, 0]);
-            Assert.AreEqual(null,      grid[2, 0]);
-            Assert.AreEqual(design[1], grid[0, 1]);
-            Assert.AreEqual(design[2], grid[1, 1]);
-            Assert.AreEqual(design[3], grid[2, 1]);
+            AssertEqual(null,      grid[0, 0]);
+            AssertEqual(design[0], grid[1, 0]);
+            AssertEqual(null,      grid[2, 0]);
+            AssertEqual(design[1], grid[0, 1]);
+            AssertEqual(design[2], grid[1, 1]);
+            AssertEqual(design[3], grid[2, 1]);
             Assert.IsFalse(grid.Get(new Point(0, 0), out _));
             Assert.IsTrue( grid.Get(new Point(1, 0), out _));
             Assert.IsFalse(grid.Get(new Point(2, 0), out _));
@@ -81,19 +81,19 @@ namespace UnitTests.Ships
             ShipModule[] modules = design.Select(slot => ShipModule.Create(null, slot, ship, false));
 
             var gridInfo = new ShipGridInfo(modules);
-            Assert.AreEqual(4, gridInfo.SurfaceArea);
-            Assert.AreEqual(new Point(3, 2), gridInfo.Size);
+            AssertEqual(4, gridInfo.SurfaceArea);
+            AssertEqual(new Point(3, 2), gridInfo.Size);
 
             var grid = new ModuleGrid<ShipModule>(gridInfo, modules);
-            Assert.AreEqual(4, gridInfo.SurfaceArea);
-            Assert.AreEqual(new Point(3, 2), gridInfo.Size);
+            AssertEqual(4, gridInfo.SurfaceArea);
+            AssertEqual(new Point(3, 2), gridInfo.Size);
 
-            Assert.AreEqual(null,       grid[0, 0]);
-            Assert.AreEqual(modules[0], grid[1, 0]);
-            Assert.AreEqual(null,       grid[2, 0]);
-            Assert.AreEqual(modules[1], grid[0, 1]);
-            Assert.AreEqual(modules[2], grid[1, 1]);
-            Assert.AreEqual(modules[3], grid[2, 1]);
+            AssertEqual(null,       grid[0, 0]);
+            AssertEqual(modules[0], grid[1, 0]);
+            AssertEqual(null,       grid[2, 0]);
+            AssertEqual(modules[1], grid[0, 1]);
+            AssertEqual(modules[2], grid[1, 1]);
+            AssertEqual(modules[3], grid[2, 1]);
             Assert.IsFalse(grid.Get(new Point(0, 0), out _));
             Assert.IsTrue( grid.Get(new Point(1, 0), out _));
             Assert.IsFalse(grid.Get(new Point(2, 0), out _));

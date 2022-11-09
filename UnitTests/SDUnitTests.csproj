@@ -123,6 +123,7 @@
     <Compile Include="Ships\TestShipWarpStates.cs" />
     <Compile Include="Ships\ShipAITests.cs" />
     <Compile Include="Ships\ShipDesignUtilsTests.cs" />
+    <Compile Include="StarDriveTest.Assert.cs" />
     <Compile Include="StarDriveTestContext.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />

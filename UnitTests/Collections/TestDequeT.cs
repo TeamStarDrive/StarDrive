@@ -5,7 +5,7 @@ using Ship_Game;
 namespace UnitTests.Collections
 {
     [TestClass]
-    public class TestDequeT
+    public class TestDequeT : StarDriveTest
     {
         [TestMethod]
         public void PushToFront()
@@ -14,11 +14,11 @@ namespace UnitTests.Collections
             for (int i = 0; i < 32; ++i)
             {
                 deque.PushToFront(i+1);
-                Assert.AreEqual(i+1, deque.Count);
+                AssertEqual(i+1, deque.Count);
             }
             for (int i = 0; i < 32; ++i)
             {
-                Assert.AreEqual(32-i, deque.PopFirst());
+                AssertEqual(32-i, deque.PopFirst());
             }
         }
         
@@ -29,11 +29,11 @@ namespace UnitTests.Collections
             for (int i = 0; i < 32; ++i)
             {
                 deque.Add(i+1);
-                Assert.AreEqual(i+1, deque.Count);
+                AssertEqual(i+1, deque.Count);
             }
             for (int i = 0; i < 32; ++i)
             {
-                Assert.AreEqual(32-i, deque.PopLast());
+                AssertEqual(32-i, deque.PopLast());
             }
         }
 
@@ -45,12 +45,12 @@ namespace UnitTests.Collections
             {
                 deque.Add(i+1);
                 deque.PushToFront(i+2);
-                Assert.AreEqual(i+2, deque.Count);
+                AssertEqual(i+2, deque.Count);
             }
             for (int i = 0; i < 32; i += 2)
             {
-                Assert.AreEqual((32-i)-1, deque.PopLast());
-                Assert.AreEqual(32-i, deque.PopFirst());
+                AssertEqual((32-i)-1, deque.PopLast());
+                AssertEqual(32-i, deque.PopFirst());
             }
         }
 
@@ -64,7 +64,7 @@ namespace UnitTests.Collections
             deque.PushToFront("2");
             deque.PushToFront("1");
             deque.PushToFront("5");
-            Assert.AreEqual(6, deque.Count);
+            AssertEqual(6, deque.Count);
             
             Assert.IsTrue(deque.Contains("6"));
             Assert.IsTrue(deque.Contains("5"));
@@ -83,13 +83,13 @@ namespace UnitTests.Collections
             deque.Add("3");
             deque.PushToFront("1");
             deque.PushToFront("0");
-            Assert.AreEqual(4, deque.Count);
+            AssertEqual(4, deque.Count);
 
-            Assert.AreEqual(0, deque.IndexOf("0"));
-            Assert.AreEqual(1, deque.IndexOf("1"));
-            Assert.AreEqual(2, deque.IndexOf("2"));
-            Assert.AreEqual(3, deque.IndexOf("3"));
-            Assert.AreEqual(-1, deque.IndexOf("batteries"));
+            AssertEqual(0, deque.IndexOf("0"));
+            AssertEqual(1, deque.IndexOf("1"));
+            AssertEqual(2, deque.IndexOf("2"));
+            AssertEqual(3, deque.IndexOf("3"));
+            AssertEqual(-1, deque.IndexOf("batteries"));
         }
 
         
@@ -101,27 +101,27 @@ namespace UnitTests.Collections
             deque.Add("3");
             deque.PushToFront("1");
             deque.PushToFront("0");
-            Assert.AreEqual(4, deque.Count);
+            AssertEqual(4, deque.Count);
 
             deque.Insert(0, "x");
-            Assert.AreEqual(5, deque.Count);
-            Assert.AreEqual(0, deque.IndexOf("x"));
+            AssertEqual(5, deque.Count);
+            AssertEqual(0, deque.IndexOf("x"));
 
             deque.Insert(5, "y");
-            Assert.AreEqual(6, deque.Count);
-            Assert.AreEqual(5, deque.IndexOf("y"));
+            AssertEqual(6, deque.Count);
+            AssertEqual(5, deque.IndexOf("y"));
 
             deque.Insert(2, "z");
-            Assert.AreEqual(7, deque.Count);
-            Assert.AreEqual(2, deque.IndexOf("z"));
+            AssertEqual(7, deque.Count);
+            AssertEqual(2, deque.IndexOf("z"));
             
             deque.Insert(1, "r");
-            Assert.AreEqual(8, deque.Count);
-            Assert.AreEqual(1, deque.IndexOf("r"));
+            AssertEqual(8, deque.Count);
+            AssertEqual(1, deque.IndexOf("r"));
 
             deque.Insert(6, "s");
-            Assert.AreEqual(9, deque.Count);
-            Assert.AreEqual(6, deque.IndexOf("s"));
+            AssertEqual(9, deque.Count);
+            AssertEqual(6, deque.IndexOf("s"));
         }
 
         [TestMethod]
@@ -134,36 +134,36 @@ namespace UnitTests.Collections
             deque.PushToFront("2");
             deque.PushToFront("1");
             deque.PushToFront("0");
-            Assert.AreEqual(6, deque.Count);
+            AssertEqual(6, deque.Count);
 
-            Assert.AreEqual(0, deque.IndexOf("0"));
+            AssertEqual(0, deque.IndexOf("0"));
             deque.RemoveAt(0);
-            Assert.AreEqual(5, deque.Count);
-            Assert.AreEqual(-1, deque.IndexOf("0"));
+            AssertEqual(5, deque.Count);
+            AssertEqual(-1, deque.IndexOf("0"));
             deque.PushToFront("0");
-            Assert.AreEqual(0, deque.IndexOf("0"));
+            AssertEqual(0, deque.IndexOf("0"));
 
-            Assert.AreEqual(2, deque.IndexOf("2"));
+            AssertEqual(2, deque.IndexOf("2"));
             deque.RemoveAt(2);
-            Assert.AreEqual(5, deque.Count);
-            Assert.AreEqual(-1, deque.IndexOf("2"));
+            AssertEqual(5, deque.Count);
+            AssertEqual(-1, deque.IndexOf("2"));
             deque.Insert(2, "2");
-            Assert.AreEqual(2, deque.IndexOf("2"));
+            AssertEqual(2, deque.IndexOf("2"));
 
-            Assert.AreEqual(3, deque.IndexOf("3"));
+            AssertEqual(3, deque.IndexOf("3"));
             deque.RemoveAt(3);
-            Assert.AreEqual(5, deque.Count);
-            Assert.AreEqual(-1, deque.IndexOf("3"));
+            AssertEqual(5, deque.Count);
+            AssertEqual(-1, deque.IndexOf("3"));
             deque.Insert(3, "3");
-            Assert.AreEqual(3, deque.IndexOf("3"));
+            AssertEqual(3, deque.IndexOf("3"));
 
             
-            Assert.AreEqual(5, deque.IndexOf("5"));
+            AssertEqual(5, deque.IndexOf("5"));
             deque.RemoveAt(5);
-            Assert.AreEqual(5, deque.Count);
-            Assert.AreEqual(-1, deque.IndexOf("5"));
+            AssertEqual(5, deque.Count);
+            AssertEqual(-1, deque.IndexOf("5"));
             deque.Insert(5, "5");
-            Assert.AreEqual(5, deque.IndexOf("5"));
+            AssertEqual(5, deque.IndexOf("5"));
         }
     }
 }

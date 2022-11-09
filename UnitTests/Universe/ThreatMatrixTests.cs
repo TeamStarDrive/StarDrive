@@ -73,20 +73,20 @@ public class ThreatMatrixTests : StarDriveTest
         float str3 = CreateShipsAt(pos, 5000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player);
 
-        Assert.AreEqual(str1, Str(Player.Threats.FindClusters(Player, pos, 5000)));
-        Assert.AreEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos, 5000)));
-        Assert.AreEqual(str3, Str(Player.Threats.FindClusters(ThirdMajor, pos, 5000)));
+        AssertEqual(str1, Str(Player.Threats.FindClusters(Player, pos, 5000)));
+        AssertEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos, 5000)));
+        AssertEqual(str3, Str(Player.Threats.FindClusters(ThirdMajor, pos, 5000)));
 
-        Assert.AreEqual(1, Player.Threats.FindClusters(Player, pos, 5000).Length);
-        Assert.AreEqual(1, Player.Threats.FindClusters(Enemy, pos, 5000).Length);
-        Assert.AreEqual(1, Player.Threats.FindClusters(ThirdMajor, pos, 5000).Length);
+        AssertEqual(1, Player.Threats.FindClusters(Player, pos, 5000).Length);
+        AssertEqual(1, Player.Threats.FindClusters(Enemy, pos, 5000).Length);
+        AssertEqual(1, Player.Threats.FindClusters(ThirdMajor, pos, 5000).Length);
 
         // make sure we can find multiple clusters
         Vector2 pos2 = pos + new Vector2(20000);
         float str4 = CreateShipsAt(pos2, 5000, Enemy, 15);
         ScanAndUpdateThreats(Player);
-        Assert.AreEqual(str2+str4, Str(Player.Threats.FindClusters(Enemy, pos, 30000)));
-        Assert.AreEqual(2, Player.Threats.FindClusters(Enemy, pos, 30000).Length);
+        AssertEqual(str2+str4, Str(Player.Threats.FindClusters(Enemy, pos, 30000)));
+        AssertEqual(2, Player.Threats.FindClusters(Enemy, pos, 30000).Length);
     }
 
     [TestMethod]
@@ -100,19 +100,19 @@ public class ThreatMatrixTests : StarDriveTest
         ScanAndUpdateThreats(Player, Enemy);
 
         // GetStrengthAt is actually an alias for FindClusters
-        Assert.AreEqual(str2, Player.Threats.GetStrengthAt(Enemy, pos2, 5000));
-        Assert.AreEqual(scout.GetStrength(), Enemy.Threats.GetStrengthAt(Player, pos2, 5000));
+        AssertEqual(str2, Player.Threats.GetStrengthAt(Enemy, pos2, 5000));
+        AssertEqual(scout.GetStrength(), Enemy.Threats.GetStrengthAt(Player, pos2, 5000));
 
         // now lose vision
         scout.InstantKill();
         ScanAndUpdateThreats(Player, Enemy);
 
         // we should still remember enemy stuff
-        Assert.AreEqual(str2, Player.Threats.GetStrengthAt(Enemy, pos2, 5000),
+        AssertEqual(str2, Player.Threats.GetStrengthAt(Enemy, pos2, 5000),
             "Should remember clusters missing from vision");
 
         // enemy should know that we just lost the scout because they saw it
-        Assert.AreEqual(0, Enemy.Threats.GetStrengthAt(Player, pos2, 5000),
+        AssertEqual(0, Enemy.Threats.GetStrengthAt(Player, pos2, 5000),
             "Enemy should not remember our scout because they saw it die");
     }
     
@@ -125,24 +125,24 @@ public class ThreatMatrixTests : StarDriveTest
         TestShip enemyShip = SpawnShip(SCOUT_NAME, Enemy, pos-new Vector2(500));
         ScanAndUpdateThreats(Player);
 
-        Assert.AreEqual(1, Player.Threats.FindClusters(Enemy, pos, 5000).Length);
-        Assert.AreEqual(enemyShip.GetStrength(), Player.Threats.GetStrengthAt(Enemy, pos, 5000));
+        AssertEqual(1, Player.Threats.FindClusters(Enemy, pos, 5000).Length);
+        AssertEqual(enemyShip.GetStrength(), Player.Threats.GetStrengthAt(Enemy, pos, 5000));
 
         enemyShip.InstantKill();
         ScanAndUpdateThreats(Player);
         ThreatCluster[] clusters = Player.Threats.FindClusters(Enemy, pos, 5000);
-        Assert.AreEqual(0, Str(clusters));
-        Assert.AreEqual(0, clusters.Length);
+        AssertEqual(0, Str(clusters));
+        AssertEqual(0, clusters.Length);
 
         // and also, WE must forget about OUR clusters if our ship dies!
-        Assert.AreEqual(1, Player.Threats.OurClusters.Length);
-        Assert.AreEqual(1, Player.Threats.FindClusters(Player, pos, 5000).Length);
+        AssertEqual(1, Player.Threats.OurClusters.Length);
+        AssertEqual(1, Player.Threats.FindClusters(Player, pos, 5000).Length);
         
         playerShip.InstantKill();
         ScanAndUpdateThreats(Player);
 
-        Assert.AreEqual(0, Player.Threats.OurClusters.Length);
-        Assert.AreEqual(0, Player.Threats.FindClusters(Player, pos, 5000).Length);
+        AssertEqual(0, Player.Threats.OurClusters.Length);
+        AssertEqual(0, Player.Threats.FindClusters(Player, pos, 5000).Length);
     }
 
     [TestMethod]
@@ -155,18 +155,18 @@ public class ThreatMatrixTests : StarDriveTest
         float str3 = CreateShipsAt(pos2, 5000, Enemy, 15);
         ScanAndUpdateThreats(Player, Enemy);
 
-        Assert.AreEqual(str2, Str(Player.Threats.FindHostileClusters(pos, 5000)));
-        Assert.AreEqual(1, Player.Threats.FindHostileClusters(pos, 5000).Length);
+        AssertEqual(str2, Str(Player.Threats.FindHostileClusters(pos, 5000)));
+        AssertEqual(1, Player.Threats.FindHostileClusters(pos, 5000).Length);
 
-        Assert.AreEqual(str3, Str(Player.Threats.FindHostileClusters(pos2, 5000)));
-        Assert.AreEqual(1, Player.Threats.FindHostileClusters(pos2, 5000).Length);
+        AssertEqual(str3, Str(Player.Threats.FindHostileClusters(pos2, 5000)));
+        AssertEqual(1, Player.Threats.FindHostileClusters(pos2, 5000).Length);
 
-        Assert.AreEqual(str2+str3, Str(Player.Threats.FindHostileClusters(pos, 30000)));
-        Assert.AreEqual(2, Player.Threats.FindHostileClusters(pos, 30000).Length);
+        AssertEqual(str2+str3, Str(Player.Threats.FindHostileClusters(pos, 30000)));
+        AssertEqual(2, Player.Threats.FindHostileClusters(pos, 30000).Length);
 
         // and make sure enemy sees us as well:
-        Assert.AreEqual(str1, Str(Enemy.Threats.FindHostileClusters(pos, 5000)));
-        Assert.AreEqual(1, Enemy.Threats.FindHostileClusters(pos, 5000).Length);
+        AssertEqual(str1, Str(Enemy.Threats.FindHostileClusters(pos, 5000)));
+        AssertEqual(1, Enemy.Threats.FindHostileClusters(pos, 5000).Length);
     }
 
     [TestMethod]
@@ -185,8 +185,8 @@ public class ThreatMatrixTests : StarDriveTest
             DebugVisualizeThreats(Player);
 
         ThreatCluster[] clusters = Player.Threats.FindHostileClustersByDist(pos, 55000);
-        Assert.AreEqual(str1+str2+str3, Str(clusters));
-        Assert.AreEqual(3, clusters.Length);
+        AssertEqual(str1+str2+str3, Str(clusters));
+        AssertEqual(3, clusters.Length);
     }
 
     [TestMethod]
@@ -197,8 +197,8 @@ public class ThreatMatrixTests : StarDriveTest
         float str2 = CreateShipsAt(pos, 5000, Enemy, 20);
         ScanAndUpdateThreats(Player, Enemy);
 
-        Assert.AreEqual(str1, Player.Threats.GetStrengthAt(Player, pos, 5000));
-        Assert.AreEqual(str2, Enemy.Threats.GetStrengthAt(Enemy, pos, 5000));
+        AssertEqual(str1, Player.Threats.GetStrengthAt(Player, pos, 5000));
+        AssertEqual(str2, Enemy.Threats.GetStrengthAt(Enemy, pos, 5000));
     }
 
     [TestMethod]
@@ -209,8 +209,8 @@ public class ThreatMatrixTests : StarDriveTest
         float str2 = CreateShipsAt(pos, 5000, Enemy, 20);
         ScanAndUpdateThreats(Player, Enemy);
 
-        Assert.AreEqual(str2, Player.Threats.GetStrengthAt(Enemy, pos, 5000));
-        Assert.AreEqual(str1, Enemy.Threats.GetStrengthAt(Player, pos, 5000));
+        AssertEqual(str2, Player.Threats.GetStrengthAt(Enemy, pos, 5000));
+        AssertEqual(str1, Enemy.Threats.GetStrengthAt(Player, pos, 5000));
     }
 
     [TestMethod]
@@ -222,13 +222,13 @@ public class ThreatMatrixTests : StarDriveTest
         CreateShipsAt(pos, 7000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
 
-        Assert.AreEqual(str2, Player.Threats.GetHostileStrengthAt(Enemy, pos, 5000));
-        Assert.AreEqual(str1, Enemy.Threats.GetHostileStrengthAt(Player, pos, 5000));
+        AssertEqual(str2, Player.Threats.GetHostileStrengthAt(Enemy, pos, 5000));
+        AssertEqual(str1, Enemy.Threats.GetHostileStrengthAt(Player, pos, 5000));
 
         // neutrals shouldn't be reported
-        Assert.AreEqual(0, Player.Threats.GetHostileStrengthAt(ThirdMajor, pos, 5000),
+        AssertEqual(0, Player.Threats.GetHostileStrengthAt(ThirdMajor, pos, 5000),
             "GetHostileStrengthAt(NeutralFaction) should always give 0");
-        Assert.AreEqual(0, Enemy.Threats.GetHostileStrengthAt(ThirdMajor, pos, 5000),
+        AssertEqual(0, Enemy.Threats.GetHostileStrengthAt(ThirdMajor, pos, 5000),
             "GetHostileStrengthAt(NeutralFaction) should always give 0");
     }
     
@@ -241,8 +241,8 @@ public class ThreatMatrixTests : StarDriveTest
         CreateShipsAt(pos, 7000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
 
-        Assert.AreEqual(str2, Player.Threats.GetHostileStrengthAt(pos, 5000));
-        Assert.AreEqual(str1, Enemy.Threats.GetHostileStrengthAt(pos, 5000));
+        AssertEqual(str2, Player.Threats.GetHostileStrengthAt(pos, 5000));
+        AssertEqual(str1, Enemy.Threats.GetHostileStrengthAt(pos, 5000));
     }
     
     [TestMethod]
@@ -254,11 +254,11 @@ public class ThreatMatrixTests : StarDriveTest
         CreateShipsAt(pos, 7000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
 
-        Assert.AreEqual(Enemy, Player.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
-        Assert.AreEqual(Player, Enemy.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
+        AssertEqual(Enemy, Player.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
+        AssertEqual(Player, Enemy.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
 
         // a neutral faction does not see Player or Enemy as a hostile
-        Assert.AreEqual(null, ThirdMajor.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
+        AssertEqual(null, ThirdMajor.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
     }
     
     [TestMethod]
@@ -270,11 +270,11 @@ public class ThreatMatrixTests : StarDriveTest
         CreateShipsAt(pos, 7000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
 
-        Assert.AreEqual(Enemy, Player.Threats.GetStrongestHostileAt(pos, 5000));
-        Assert.AreEqual(Player, Enemy.Threats.GetStrongestHostileAt(pos, 5000));
+        AssertEqual(Enemy, Player.Threats.GetStrongestHostileAt(pos, 5000));
+        AssertEqual(Player, Enemy.Threats.GetStrongestHostileAt(pos, 5000));
 
         // a neutral faction does not see Player or Enemy as a hostile
-        Assert.AreEqual(null, ThirdMajor.Threats.GetStrongestHostileAt(pos, 5000));
+        AssertEqual(null, ThirdMajor.Threats.GetStrongestHostileAt(pos, 5000));
     }
     
     [TestMethod]
@@ -290,8 +290,8 @@ public class ThreatMatrixTests : StarDriveTest
         ScanAndUpdateThreats(Player);
 
         ThreatCluster[] baseClusters = Player.Threats.GetAllFactionBases();
-        Assert.AreEqual(str1+str2, Str(baseClusters), "Must find Faction Bases");
-        Assert.AreEqual(2, baseClusters.Length);
+        AssertEqual(str1+str2, Str(baseClusters), "Must find Faction Bases");
+        AssertEqual(2, baseClusters.Length);
     }
     
     [TestMethod]
@@ -307,7 +307,7 @@ public class ThreatMatrixTests : StarDriveTest
         ScanAndUpdateThreats(Player);
 
         var systemsWithFactions = Player.Threats.GetAllSystemsWithFactions();
-        Assert.AreEqual(2, systemsWithFactions.Count);
+        AssertEqual(2, systemsWithFactions.Count);
     }
 
     [TestMethod]
@@ -323,8 +323,8 @@ public class ThreatMatrixTests : StarDriveTest
         
         static float KnownStr(Empire owner, Empire of) => owner.Threats.KnownEmpireStrength(of);
 
-        Assert.AreEqual(ene1+ene2, KnownStr(Player, Enemy), "Player should know about both Enemy groups thanks to scouts");
-        Assert.AreEqual(pla2, KnownStr(Enemy, Player), "Enemy should only know of Player scout group");
+        AssertEqual(ene1+ene2, KnownStr(Player, Enemy), "Player should know about both Enemy groups thanks to scouts");
+        AssertEqual(pla2, KnownStr(Enemy, Player), "Enemy should only know of Player scout group");
     }
 
     [TestMethod]
@@ -340,14 +340,14 @@ public class ThreatMatrixTests : StarDriveTest
         
         static float KnownStr(Empire owner, Empire of) => owner.Threats.KnownEmpireStrength(of);
 
-        Assert.AreEqual(ene1+ene2, KnownStr(Player, Enemy), "Player should know about both Enemy groups thanks to scouts");
-        Assert.AreEqual(scout.GetStrength(), KnownStr(Enemy, Player), "Enemy should only know of Player scout group");
+        AssertEqual(ene1+ene2, KnownStr(Player, Enemy), "Player should know about both Enemy groups thanks to scouts");
+        AssertEqual(scout.GetStrength(), KnownStr(Enemy, Player), "Enemy should only know of Player scout group");
 
         scout.InstantKill();
         ScanAndUpdateThreats(Player, Enemy);
 
-        Assert.AreEqual(ene1+ene2, KnownStr(Player, Enemy), "player should still remember about enemy groups");
-        Assert.AreEqual(0, KnownStr(Enemy, Player), "enemy should not know anything about Player's strength since they saw the ship die");
+        AssertEqual(ene1+ene2, KnownStr(Player, Enemy), "player should still remember about enemy groups");
+        AssertEqual(0, KnownStr(Enemy, Player), "enemy should not know anything about Player's strength since they saw the ship die");
     }
 
     [TestMethod]
@@ -363,16 +363,16 @@ public class ThreatMatrixTests : StarDriveTest
 
         static float KnownStr(Empire owner, Empire of) => owner.Threats.KnownEmpireStrengthInBorders(of);
 
-        Assert.AreEqual(0, KnownStr(Player, Enemy));
-        Assert.AreEqual(str1, KnownStr(Player, Player), "Player should know about his own ships");
-        Assert.AreEqual(str3+str4, KnownStr(Enemy, Enemy), "Enemy should know about his own ships");
-        Assert.AreEqual(scout.GetStrength(), KnownStr(Enemy, Player), "Enemy should only know of Player scout group");
+        AssertEqual(0, KnownStr(Player, Enemy));
+        AssertEqual(str1, KnownStr(Player, Player), "Player should know about his own ships");
+        AssertEqual(str3+str4, KnownStr(Enemy, Enemy), "Enemy should know about his own ships");
+        AssertEqual(scout.GetStrength(), KnownStr(Enemy, Player), "Enemy should only know of Player scout group");
 
         scout.InstantKill();
         ScanAndUpdateThreats(Player, Enemy);
 
-        Assert.AreEqual(0, KnownStr(Player, Enemy));
-        Assert.AreEqual(0, KnownStr(Enemy, Player), "enemy should not know anything about Player's strength since they saw the ship die");
+        AssertEqual(0, KnownStr(Player, Enemy));
+        AssertEqual(0, KnownStr(Enemy, Player), "enemy should not know anything about Player's strength since they saw the ship die");
 
         // TODO expand this test
     }
@@ -404,18 +404,18 @@ public class ThreatMatrixTests : StarDriveTest
 
         Ship[] allShips = Player.EmpireShips.OwnedShips;
         float allStrength = allShips.Sum(s => s.GetStrength());
-        Assert.AreEqual(str, allStrength, "Total ships strength must equal expected spawned strength");
+        AssertEqual(str, allStrength, "Total ships strength must equal expected spawned strength");
 
         float strAt1 = Player.AI.ThreatMatrix.GetStrengthAt(Player, pos1, 5000);
-        Assert.AreEqual(str1, strAt1, $"GetStrengthAt={strAt1} must equal str1={str1}");
+        AssertEqual(str1, strAt1, $"GetStrengthAt={strAt1} must equal str1={str1}");
 
         float strAt2 = Player.AI.ThreatMatrix.GetStrengthAt(Player, pos2, 5000);
-        Assert.AreEqual(str2, strAt2, $"GetStrengthAt={strAt2} must equal str2={str2}");
+        AssertEqual(str2, strAt2, $"GetStrengthAt={strAt2} must equal str2={str2}");
 
         float knownStr = Player.AI.ThreatMatrix.KnownEmpireStrength(Player);
-        Assert.AreEqual(str, knownStr, $"KnownEmpireStrength(Player)={knownStr} must equal spawnedStr={str}");
+        AssertEqual(str, knownStr, $"KnownEmpireStrength(Player)={knownStr} must equal spawnedStr={str}");
 
-        Assert.AreEqual(2, Player.AI.ThreatMatrix.OurClusters.Length, "There should be only 2 clusters");
+        AssertEqual(2, Player.AI.ThreatMatrix.OurClusters.Length, "There should be only 2 clusters");
     }
 
     // just to make sure that the updating logic will
@@ -439,28 +439,28 @@ public class ThreatMatrixTests : StarDriveTest
         for (int i = 0; i < 100; ++i)
         {
             ScanAndUpdateThreats(Player, Enemy);
-            Assert.AreEqual(ours1, Player.Threats.OurClusters.Length);
-            Assert.AreEqual(ours2, Enemy.Threats.OurClusters.Length);
-            Assert.AreEqual(rivals1, Player.Threats.RivalClusters.Length);
-            Assert.AreEqual(rivals2, Enemy.Threats.RivalClusters.Length);
-            Assert.AreEqual(mapSize1, Player.Threats.ClustersMap.Count);
-            Assert.AreEqual(mapSize2, Enemy.Threats.ClustersMap.Count);
+            AssertEqual(ours1, Player.Threats.OurClusters.Length);
+            AssertEqual(ours2, Enemy.Threats.OurClusters.Length);
+            AssertEqual(rivals1, Player.Threats.RivalClusters.Length);
+            AssertEqual(rivals2, Enemy.Threats.RivalClusters.Length);
+            AssertEqual(mapSize1, Player.Threats.ClustersMap.Count);
+            AssertEqual(mapSize2, Enemy.Threats.ClustersMap.Count);
         }
     }
 
     void AreEqual(ThreatCluster expected, ThreatCluster actual)
     {
-        Assert.AreEqual(expected.Loyalty?.Name, actual.Loyalty?.Name);
-        Assert.AreEqual(expected.System?.Name, actual.System?.Name);
-        Assert.AreEqual(expected.Strength, actual.Strength);
-        Assert.AreEqual(expected.Ships.Length, actual.Ships.Length);
-        Assert.AreEqual(expected.HasStarBases, actual.HasStarBases);
-        Assert.AreEqual(expected.InBorders, actual.InBorders);
+        AssertEqual(expected.Loyalty?.Name, actual.Loyalty?.Name);
+        AssertEqual(expected.System?.Name, actual.System?.Name);
+        AssertEqual(expected.Strength, actual.Strength);
+        AssertEqual(expected.Ships.Length, actual.Ships.Length);
+        AssertEqual(expected.HasStarBases, actual.HasStarBases);
+        AssertEqual(expected.InBorders, actual.InBorders);
 
-        Assert.AreEqual(expected.Active, actual.Active);
-        Assert.AreEqual(expected.Type, actual.Type);
-        Assert.AreEqual(expected.Position, actual.Position);
-        Assert.AreEqual(expected.Radius, actual.Radius);
+        AssertEqual(expected.Active, actual.Active);
+        AssertEqual(expected.Type, actual.Type);
+        AssertEqual(expected.Position, actual.Position);
+        AssertEqual(expected.Radius, actual.Radius);
     }
 
     [TestMethod]
@@ -476,9 +476,9 @@ public class ThreatMatrixTests : StarDriveTest
         ThreatMatrix ser = UState.Player.Threats;
         ThreatMatrix des = us.Player.Threats;
 
-        Assert.AreEqual(ser.Owner.Name, des.Owner.Name);
-        Assert.AreEqual(ser.OurClusters.Length, des.OurClusters.Length, "OurClusters.Length");
-        Assert.AreEqual(ser.RivalClusters.Length, des.RivalClusters.Length, "RivalClusters.Length");
+        AssertEqual(ser.Owner.Name, des.Owner.Name);
+        AssertEqual(ser.OurClusters.Length, des.OurClusters.Length, "OurClusters.Length");
+        AssertEqual(ser.RivalClusters.Length, des.RivalClusters.Length, "RivalClusters.Length");
         
         for (int i = 0; i < ser.OurClusters.Length; ++i)
             AreEqual(ser.OurClusters[i], des.OurClusters[i]);
@@ -486,7 +486,7 @@ public class ThreatMatrixTests : StarDriveTest
         for (int i = 0; i < ser.RivalClusters.Length; ++i)
             AreEqual(ser.RivalClusters[i], des.RivalClusters[i]);
 
-        Assert.AreEqual(ser.ClustersMap.Count, des.ClustersMap.Count, "ClustersMap.Count");
-        Assert.AreEqual(ser.ClustersMap.FullSize, des.ClustersMap.FullSize, "ClustersMap.FullSize");
+        AssertEqual(ser.ClustersMap.Count, des.ClustersMap.Count, "ClustersMap.Count");
+        AssertEqual(ser.ClustersMap.FullSize, des.ClustersMap.FullSize, "ClustersMap.FullSize");
     }
 }

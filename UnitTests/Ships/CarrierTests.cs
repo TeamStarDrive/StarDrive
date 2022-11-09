@@ -44,10 +44,10 @@ namespace UnitTests.Ships
             var fighters = Carrier.Carrier.GetActiveFighters();
             
             // looks like some ships have already returned to hangar?
-            Assert.AreEqual(active, fighters.Count, "BUG: not all fighters are active");
+            AssertEqual(active, fighters.Count, "BUG: not all fighters are active");
 
             int actualRecalling = fighters.Count(s => s.AI.State == AIState.ReturnToHangar);
-            Assert.AreEqual(recalling, actualRecalling, recallMsg);
+            AssertEqual(recalling, actualRecalling, recallMsg);
         }
 
         void MoveFightersBy(Vector2 offset)
@@ -215,24 +215,24 @@ namespace UnitTests.Ships
 
             // NOTE: This requires Carrier to have low ordnance production capability
             ResupplyReason resupplyReason = Carrier.Supply.Resupply();
-            Assert.AreEqual(resupplyReason, ResupplyReason.LowOrdnanceNonCombat, "Carrier should want to resupply non combat");
+            AssertEqual(resupplyReason, ResupplyReason.LowOrdnanceNonCombat, "Carrier should want to resupply non combat");
 
             Carrier.ChangeOrdnance(Carrier.OrdinanceMax); // add all ordnance
-            Assert.AreEqual(Carrier.Ordinance, Carrier.OrdinanceMax, "Carrier ordnance storage should be full");
+            AssertEqual(Carrier.Ordinance, Carrier.OrdinanceMax, "Carrier ordnance storage should be full");
 
             SpawnEnemyShipAndEnsureFightersLaunch();
             float totalFightersOrdCost = Carrier.Carrier.GetActiveFighters().Sum(f => f.ShipOrdLaunchCost);
             float ordnanceInSpace      = Carrier.Carrier.OrdnanceInSpace;
-            Assert.AreEqual(totalFightersOrdCost, ordnanceInSpace, "Carrier should track the fighter ord cost is launched");
+            AssertEqual(totalFightersOrdCost, ordnanceInSpace, "Carrier should track the fighter ord cost is launched");
 
             float ordCombatThreshold = Carrier.OrdinanceMax * ShipResupply.OrdnanceThresholdCombat;
             Carrier.ChangeOrdnance(-Carrier.OrdinanceMax); // remove all ordnance
-            Assert.That.GreaterThan(Carrier.OrdnancePercent, 0, "Carrier should track its ordnance in space (launched fighters), even with empty local storage");
+            AssertGreaterThan(Carrier.OrdnancePercent, 0, "Carrier should track its ordnance in space (launched fighters), even with empty local storage");
 
             // set the carrier storage just below the threshold so it would want to resupply if it had no fighters launched
             Carrier.ChangeOrdnance(ordCombatThreshold - 40); 
             resupplyReason = Carrier.Supply.Resupply();
-            Assert.AreEqual(resupplyReason, ResupplyReason.NotNeeded, "Carrier should not want to resupply when in combat and has fighters launched");
+            AssertEqual(resupplyReason, ResupplyReason.NotNeeded, "Carrier should not want to resupply when in combat and has fighters launched");
         }
     }
 }

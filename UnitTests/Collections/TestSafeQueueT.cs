@@ -9,7 +9,7 @@ using Ship_Game.Utils;
 namespace UnitTests.Collections
 {
     [TestClass]
-    public class TestSafeQueueT
+    public class TestSafeQueueT : StarDriveTest
     {
         [TestMethod]
         public void SafeQueueEnqueueDequeue()
@@ -17,33 +17,33 @@ namespace UnitTests.Collections
             var queue = new SafeQueue<string>();
 
             queue.Enqueue("Jim");
-            Assert.AreEqual("Jim", queue.PeekFirst);
-            Assert.AreEqual("Jim", queue.PeekLast);
+            AssertEqual("Jim", queue.PeekFirst);
+            AssertEqual("Jim", queue.PeekLast);
             queue.Enqueue("Tim");
-            Assert.AreEqual("Jim", queue.PeekFirst);
-            Assert.AreEqual("Tim", queue.PeekLast);
+            AssertEqual("Jim", queue.PeekFirst);
+            AssertEqual("Tim", queue.PeekLast);
             queue.Enqueue("Bob");
-            Assert.AreEqual("Jim", queue.PeekFirst);
-            Assert.AreEqual("Bob", queue.PeekLast);
+            AssertEqual("Jim", queue.PeekFirst);
+            AssertEqual("Bob", queue.PeekLast);
             queue.Enqueue("Mike");
-            Assert.AreEqual("Jim", queue.PeekFirst);
-            Assert.AreEqual("Mike", queue.PeekLast);
+            AssertEqual("Jim", queue.PeekFirst);
+            AssertEqual("Mike", queue.PeekLast);
             queue.Enqueue("Jake");
-            Assert.AreEqual("Jim", queue.PeekFirst);
-            Assert.AreEqual("Jake", queue.PeekLast);
+            AssertEqual("Jim", queue.PeekFirst);
+            AssertEqual("Jake", queue.PeekLast);
 
             Assert.IsTrue(queue.Count == 5, "Queue should have 5 elements");
             Assert.IsFalse(queue.IsEmpty, "Queue should have 5 elements, so IsEmpty should be false");
 
-            Assert.AreEqual("Jim", queue.Dequeue());
-            Assert.AreEqual("Tim", queue.Dequeue());
-            Assert.AreEqual("Bob", queue.Dequeue());
-            Assert.AreEqual("Mike", queue.Dequeue());
-            Assert.AreEqual("Jake", queue.Dequeue());
+            AssertEqual("Jim", queue.Dequeue());
+            AssertEqual("Tim", queue.Dequeue());
+            AssertEqual("Bob", queue.Dequeue());
+            AssertEqual("Mike", queue.Dequeue());
+            AssertEqual("Jake", queue.Dequeue());
 
             Assert.IsTrue(queue.Count == 0, "Queue must be empty after dequeuing all");
             Assert.IsTrue(queue.IsEmpty, "Queue must be empty after dequeueing all");
-            Assert.AreEqual(null, queue.Dequeue(), "Empty queue Dequeue must result in default(T)");
+            AssertEqual(null, queue.Dequeue(), "Empty queue Dequeue must result in default(T)");
         }
 
         [TestMethod]
@@ -54,14 +54,14 @@ namespace UnitTests.Collections
             queue.Enqueue("Jim");
             queue.Enqueue("Tim");
             queue.Enqueue("Bob");
-            Assert.AreEqual("Jim", queue.PeekFirst);
-            Assert.AreEqual("Bob", queue.PeekLast);
+            AssertEqual("Jim", queue.PeekFirst);
+            AssertEqual("Bob", queue.PeekLast);
             queue.PushToFront("Mike");
-            Assert.AreEqual("Mike", queue.PeekFirst);
-            Assert.AreEqual("Bob", queue.PeekLast);
+            AssertEqual("Mike", queue.PeekFirst);
+            AssertEqual("Bob", queue.PeekLast);
             queue.PushToFront("Jake");
-            Assert.AreEqual("Jake", queue.PeekFirst);
-            Assert.AreEqual("Bob", queue.PeekLast);
+            AssertEqual("Jake", queue.PeekFirst);
+            AssertEqual("Bob", queue.PeekLast);
 
             Assert.IsTrue(queue.Count == 5, "Queue should have 5 elements");
         }
@@ -77,12 +77,12 @@ namespace UnitTests.Collections
             queue.Enqueue("Jake");
 
             queue.RemoveFirst();
-            Assert.AreEqual("Tim", queue.PeekFirst);
-            Assert.AreEqual(4, queue.Count);
+            AssertEqual("Tim", queue.PeekFirst);
+            AssertEqual(4, queue.Count);
 
             queue.RemoveLast();
-            Assert.AreEqual("Mike", queue.PeekLast);
-            Assert.AreEqual(3, queue.Count);
+            AssertEqual("Mike", queue.PeekLast);
+            AssertEqual(3, queue.Count);
         }
 
         [TestMethod]
@@ -96,13 +96,13 @@ namespace UnitTests.Collections
             queue.Enqueue("Jake");
 
             string[] array = queue.ToArray();
-            CollectionAssert.AreEqual(array, new[] { "Jim", "Tim", "Bob", "Mike", "Jake" });
+            AssertEqualCollections(array, new[] { "Jim", "Tim", "Bob", "Mike", "Jake" });
 
             var list = new Array<string>();
             foreach (string str in queue)
                 list.Add(str);
 
-            CollectionAssert.AreEqual(list, new[] { "Jim", "Tim", "Bob", "Mike", "Jake" });
+            AssertEqualCollections(list, new[] { "Jim", "Tim", "Bob", "Mike", "Jake" });
         }
 
         [TestMethod]
@@ -137,15 +137,15 @@ namespace UnitTests.Collections
             queue.Enqueue("C");
             queue.Enqueue("D");
 
-            Assert.AreEqual("A", queue.First());
-            Assert.AreEqual("B", queue.ElementAt(1));
-            Assert.AreEqual("C", queue.ElementAt(2));
-            Assert.AreEqual("D", queue.Last());
+            AssertEqual("A", queue.First());
+            AssertEqual("B", queue.ElementAt(1));
+            AssertEqual("C", queue.ElementAt(2));
+            AssertEqual("D", queue.Last());
 
-            Assert.AreEqual("A", queue.Dequeue());
-            Assert.AreEqual("B", queue.Dequeue());
-            Assert.AreEqual("C", queue.Dequeue());
-            Assert.AreEqual("D", queue.Dequeue());
+            AssertEqual("A", queue.Dequeue());
+            AssertEqual("B", queue.Dequeue());
+            AssertEqual("C", queue.Dequeue());
+            AssertEqual("D", queue.Dequeue());
         }
 
         [TestMethod]
@@ -157,18 +157,18 @@ namespace UnitTests.Collections
             queue.Enqueue("C");
             queue.Enqueue("D");
 
-            Assert.AreEqual("A", queue.First());
-            Assert.AreEqual("B", queue.ElementAt(1));
-            Assert.AreEqual("C", queue.ElementAt(2));
-            Assert.AreEqual("D", queue.Last());
+            AssertEqual("A", queue.First());
+            AssertEqual("B", queue.ElementAt(1));
+            AssertEqual("C", queue.ElementAt(2));
+            AssertEqual("D", queue.Last());
 
             Assert.IsTrue(queue.Any(s => s == "D"));
             Assert.IsFalse(queue.Any(s => s == "X"));
 
-            Assert.AreEqual("A", queue.Dequeue());
-            Assert.AreEqual("B", queue.Dequeue());
-            Assert.AreEqual("C", queue.Dequeue());
-            Assert.AreEqual("D", queue.Dequeue());
+            AssertEqual("A", queue.Dequeue());
+            AssertEqual("B", queue.Dequeue());
+            AssertEqual("C", queue.Dequeue());
+            AssertEqual("D", queue.Dequeue());
         }
 
         [TestMethod]
@@ -180,11 +180,11 @@ namespace UnitTests.Collections
             queue.Enqueue("C");
             queue.Enqueue("D");
             queue.Enqueue("E");
-            Assert.AreEqual("A", queue.ElementAt(0));
-            Assert.AreEqual("B", queue.ElementAt(1));
-            Assert.AreEqual("C", queue.ElementAt(2));
-            Assert.AreEqual("D", queue.ElementAt(3));
-            Assert.AreEqual("E", queue.ElementAt(4));
+            AssertEqual("A", queue.ElementAt(0));
+            AssertEqual("B", queue.ElementAt(1));
+            AssertEqual("C", queue.ElementAt(2));
+            AssertEqual("D", queue.ElementAt(3));
+            AssertEqual("E", queue.ElementAt(4));
             Assert.ThrowsException<IndexOutOfRangeException>(() => queue.ElementAt(-1));
             Assert.ThrowsException<IndexOutOfRangeException>(() => queue.ElementAt(5));
             Assert.ThrowsException<IndexOutOfRangeException>(() => queue.ElementAt(10));

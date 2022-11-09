@@ -20,14 +20,14 @@ namespace UnitTests.Collections
         {
             var arr = New<int>();
             arr.Add(1);
-            Assert.AreEqual(arr.Count, 1, "Count should be 1");
-            Assert.AreEqual(arr.Capacity, 4, "Capacity should be 4");
+            AssertEqual(arr.Count, 1, "Count should be 1");
+            AssertEqual(arr.Capacity, 4, "Capacity should be 4");
             arr.Add(2);
             arr.Add(3);
             arr.Add(4);
             arr.Add(5);
-            Assert.AreEqual(5, arr.Count, "Count should be 5");
-            Assert.AreEqual(8, arr.Capacity, "Capacity should grow aligned to 4, expected 8");
+            AssertEqual(5, arr.Count, "Count should be 5");
+            AssertEqual(8, arr.Capacity, "Capacity should grow aligned to 4, expected 8");
         }
 
         [TestMethod]
@@ -36,9 +36,9 @@ namespace UnitTests.Collections
             var arr = New<string>();
             arr.Insert(0, "a");
             arr.Insert(1, "c");
-            Assert.That.Equal(new[] { "a", "c" }, arr);
+            AssertEqual(new[] { "a", "c" }, arr);
             arr.Insert(1, "b");
-            Assert.That.Equal(new[] { "a", "b", "c" }, arr);
+            AssertEqual(new[] { "a", "b", "c" }, arr);
         }
 
         [TestMethod]
@@ -55,10 +55,10 @@ namespace UnitTests.Collections
         public void IndexOf()
         {
             var arr = New("a", "b", "c", "d");
-            Assert.AreEqual(2 , arr.IndexOf("c"), "IndexOf should work for existing items");
-            Assert.AreEqual(-1, arr.IndexOf("x"), "IndexOf should not give false positives");
+            AssertEqual(2 , arr.IndexOf("c"), "IndexOf should work for existing items");
+            AssertEqual(-1, arr.IndexOf("x"), "IndexOf should not give false positives");
             arr.Add(null);
-            Assert.AreEqual(4, arr.IndexOf((string)null), "IndexOf must detect null properly");
+            AssertEqual(4, arr.IndexOf((string)null), "IndexOf must detect null properly");
         }
 
         [TestMethod]
@@ -66,13 +66,13 @@ namespace UnitTests.Collections
         {
             var arr = MakeABCDE();
             arr.RemoveAt(2);
-            Assert.That.Equal(new[] { "a", "b", "d", "e" }, arr);
+            AssertEqual(new[] { "a", "b", "d", "e" }, arr);
             arr.RemoveAt(0);
-            Assert.That.Equal(new[] { "b", "d", "e" }, arr);
+            AssertEqual(new[] { "b", "d", "e" }, arr);
             arr.RemoveAt(arr.Count - 1);
-            Assert.That.Equal(new[] { "b", "d" }, arr);
+            AssertEqual(new[] { "b", "d" }, arr);
             arr.RemoveAt(arr.Count - 1);
-            Assert.That.Equal(new[] { "b" }, arr);
+            AssertEqual(new[] { "b" }, arr);
             arr.RemoveAt(0);
             Assert.IsTrue(arr.IsEmpty);
         }
@@ -84,13 +84,13 @@ namespace UnitTests.Collections
             // of doing an expensive array unshift
             var arr = MakeABCDE();
             arr.RemoveAtSwapLast(2);
-            Assert.That.Equal(new[] { "a", "b", "e", "d" }, arr);
+            AssertEqual(new[] { "a", "b", "e", "d" }, arr);
             arr.RemoveAtSwapLast(0);
-            Assert.That.Equal(new[] { "d", "b", "e" }, arr);
+            AssertEqual(new[] { "d", "b", "e" }, arr);
             arr.RemoveAtSwapLast(arr.Count - 1);
-            Assert.That.Equal(new[] { "d", "b" }, arr);
+            AssertEqual(new[] { "d", "b" }, arr);
             arr.RemoveAtSwapLast(arr.Count - 1);
-            Assert.That.Equal(new[] { "d" }, arr);
+            AssertEqual(new[] { "d" }, arr);
             arr.RemoveAtSwapLast(0);
             Assert.IsTrue(arr.IsEmpty);
         }
@@ -100,15 +100,15 @@ namespace UnitTests.Collections
         {
             var arr = New("a", "b", "c", "b", "d");
             arr.Remove("b");
-            Assert.That.Equal(new[] { "a", "c", "b", "d" }, arr);
+            AssertEqual(new[] { "a", "c", "b", "d" }, arr);
             arr.Remove("nope");
-            Assert.That.Equal(new[] { "a", "c", "b", "d" }, arr);
+            AssertEqual(new[] { "a", "c", "b", "d" }, arr);
             arr.Remove("d");
-            Assert.That.Equal(new[] { "a", "c", "b" }, arr);
+            AssertEqual(new[] { "a", "c", "b" }, arr);
             arr.Remove("a");
-            Assert.That.Equal(new[] { "c", "b" }, arr);
+            AssertEqual(new[] { "c", "b" }, arr);
             arr.Remove("b");
-            Assert.That.Equal(new[] { "c" }, arr);
+            AssertEqual(new[] { "c" }, arr);
             arr.Remove("c");
             Assert.IsTrue(arr.IsEmpty);
         }
@@ -118,8 +118,8 @@ namespace UnitTests.Collections
         {
             var arr = New("a", "b", "c", "d");
             arr.RemoveSwapLast("b");
-            Assert.AreEqual(3, arr.Count);
-            Assert.That.Equal(new[] { "a", "d", "c" }, arr);
+            AssertEqual(3, arr.Count);
+            AssertEqual(new[] { "a", "d", "c" }, arr);
         }
 
         [TestMethod]
@@ -127,13 +127,13 @@ namespace UnitTests.Collections
         {
             var arr = new Array<string> { "a", "b", "c" };
 
-            Assert.AreEqual("a", arr.PopFirst());
-            Assert.That.Equal(new[] { "b", "c" }, arr);
+            AssertEqual("a", arr.PopFirst());
+            AssertEqual(new[] { "b", "c" }, arr);
 
-            Assert.AreEqual("b", arr.PopFirst());
-            Assert.That.Equal(new[] { "c" }, arr);
+            AssertEqual("b", arr.PopFirst());
+            AssertEqual(new[] { "c" }, arr);
 
-            Assert.AreEqual("c", arr.PopFirst());
+            AssertEqual("c", arr.PopFirst());
             Assert.IsTrue(arr.IsEmpty);
         }
 
@@ -142,13 +142,13 @@ namespace UnitTests.Collections
         {
             var arr = new Array<string> { "a", "b", "c" };
 
-            Assert.AreEqual("c", arr.PopLast());
-            Assert.That.Equal(new[] { "a", "b" }, arr);
+            AssertEqual("c", arr.PopLast());
+            AssertEqual(new[] { "a", "b" }, arr);
 
-            Assert.AreEqual("b", arr.PopLast());
-            Assert.That.Equal(new[] { "a" }, arr);
+            AssertEqual("b", arr.PopLast());
+            AssertEqual(new[] { "a" }, arr);
 
-            Assert.AreEqual("a", arr.PopFirst());
+            AssertEqual("a", arr.PopFirst());
             Assert.IsTrue(arr.IsEmpty);
         }
 
@@ -158,15 +158,15 @@ namespace UnitTests.Collections
             var arr = new Array<string> { "a", "b", "c" };
 
             Assert.IsTrue(arr.TryPopLast(out string c));
-            Assert.AreEqual("c", c);
-            Assert.That.Equal(new[] { "a", "b" }, arr);
+            AssertEqual("c", c);
+            AssertEqual(new[] { "a", "b" }, arr);
             
             Assert.IsTrue(arr.TryPopLast(out string b));
-            Assert.AreEqual("b", b);
-            Assert.That.Equal(new[] { "a" }, arr);
+            AssertEqual("b", b);
+            AssertEqual(new[] { "a" }, arr);
             
             Assert.IsTrue(arr.TryPopLast(out string a));
-            Assert.AreEqual("a", a);
+            AssertEqual("a", a);
             Assert.IsTrue(arr.IsEmpty);
 
             Assert.IsFalse(arr.TryPopLast(out string _));

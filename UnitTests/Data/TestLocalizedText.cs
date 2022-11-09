@@ -29,10 +29,10 @@ namespace UnitTests.Data
             Assert.IsTrue(textNewGame.NotEmpty);
 
             ResourceManager.LoadLanguage(Language.English);
-            Assert.AreEqual("New Game", textNewGame.Text);
+            AssertEqual("New Game", textNewGame.Text);
 
             ResourceManager.LoadLanguage(Language.Spanish);
-            Assert.AreEqual("Nueva partida", textNewGame.Text);
+            AssertEqual("Nueva partida", textNewGame.Text);
         }
 
         [TestMethod]
@@ -42,10 +42,10 @@ namespace UnitTests.Data
             Assert.IsTrue(textNewGame.NotEmpty);
 
             ResourceManager.LoadLanguage(Language.English);
-            Assert.AreEqual("New Game", textNewGame.Text);
+            AssertEqual("New Game", textNewGame.Text);
 
             ResourceManager.LoadLanguage(Language.Spanish);
-            Assert.AreEqual("Nueva partida", textNewGame.Text);
+            AssertEqual("Nueva partida", textNewGame.Text);
         }
 
         [TestMethod]
@@ -55,10 +55,10 @@ namespace UnitTests.Data
             Assert.IsTrue(rawText.NotEmpty);
 
             ResourceManager.LoadLanguage(Language.English);
-            Assert.AreEqual("RawText: {1}", rawText.Text);
+            AssertEqual("RawText: {1}", rawText.Text);
 
             ResourceManager.LoadLanguage(Language.Spanish);
-            Assert.AreEqual("RawText: {1}", rawText.Text); // should not change
+            AssertEqual("RawText: {1}", rawText.Text); // should not change
         }
 
         [TestMethod]
@@ -69,19 +69,19 @@ namespace UnitTests.Data
             Assert.IsTrue(parsed1.NotEmpty);
 
             ResourceManager.LoadLanguage(Language.English);
-            Assert.AreEqual("Parsed: New Game ", parsed1.Text);
-            Assert.AreEqual("Parsed: New Game Load Game ", parsed2.Text);
+            AssertEqual("Parsed: New Game ", parsed1.Text);
+            AssertEqual("Parsed: New Game Load Game ", parsed2.Text);
 
             ResourceManager.LoadLanguage(Language.Spanish);
-            Assert.AreEqual("Parsed: Nueva partida ", parsed1.Text);
-            Assert.AreEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
+            AssertEqual("Parsed: Nueva partida ", parsed1.Text);
+            AssertEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
         }
 
         [TestMethod]
         public void ParseTextSplitsCorrectlyOnSpaces()
         {
             string text = "Big brown fox   jumps over  the gray dog";
-            Assert.AreEqual("Big brown fox jumps over the gray dog",
+            AssertEqual("Big brown fox jumps over the gray dog",
                             Fonts.Arial12.ParseText(text, 300));
         }
 
@@ -89,7 +89,7 @@ namespace UnitTests.Data
         public void ParseTextSplitsCorrectlyOnNewLines()
         {
             string text = "Big brown fox, \n jumps over\nthe gray\n dog";
-            Assert.That.Equal(new string[]{"Big brown fox,", "jumps over", "the gray", "dog"},
+            AssertEqual(new string[]{"Big brown fox,", "jumps over", "the gray", "dog"},
                               Fonts.Arial12.ParseTextToLines(text, 300));
         }
 
@@ -97,7 +97,7 @@ namespace UnitTests.Data
         public void ParseTextSplitsCorrectlyOnNewLinesThatNeverFit()
         {
             string text = "Terraforming Planet";
-            Assert.AreEqual("Terraforming\nPlanet",
+            AssertEqual("Terraforming\nPlanet",
                             Fonts.Tahoma10.ParseText(text, 73));
         }
         
@@ -105,7 +105,7 @@ namespace UnitTests.Data
         public void ParseTextHandlesTabCharacter()
         {
             string text = "Big brown fox,\n\tjumps over\nthe gray\t\n\tdog";
-            Assert.That.Equal(new string[]{"Big brown fox,", "    jumps over",
+            AssertEqual(new string[]{"Big brown fox,", "    jumps over",
                                            "the gray    ",   "    dog"},
                               Fonts.Arial12.ParseTextToLines(text, 300));
         }
@@ -118,12 +118,12 @@ namespace UnitTests.Data
 
             // 8 chars: "xxxx xxxx" is still too long, so it should split
             //          every block
-            Assert.AreEqual("xxxx\nxxxx\nxxxx\nxxxx\nxxxx\nxxxx",
+            AssertEqual("xxxx\nxxxx\nxxxx\nxxxx\nxxxx\nxxxx",
                             Fonts.Arial12.ParseText(text, wx*8));
 
             // 9 chars: "xxxx xxxx" is 9 chars, it should split perfectly
             //          into 3 chunks
-            Assert.AreEqual("xxxx xxxx\nxxxx xxxx\nxxxx xxxx",
+            AssertEqual("xxxx xxxx\nxxxx xxxx\nxxxx xxxx",
                             Fonts.Arial12.ParseText(text, wx*9));
         }
 
@@ -202,12 +202,12 @@ namespace UnitTests.Data
             Assert.IsTrue(parsed1.NotEmpty);
 
             ResourceManager.LoadLanguage(Language.English);
-            Assert.AreEqual("Parsed: New Game ", parsed1.Text);
-            Assert.AreEqual("Parsed: New Game Load Game ", parsed2.Text);
+            AssertEqual("Parsed: New Game ", parsed1.Text);
+            AssertEqual("Parsed: New Game Load Game ", parsed2.Text);
 
             ResourceManager.LoadLanguage(Language.Spanish);
-            Assert.AreEqual("Parsed: Nueva partida ", parsed1.Text);
-            Assert.AreEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
+            AssertEqual("Parsed: Nueva partida ", parsed1.Text);
+            AssertEqual("Parsed: Nueva partida Cargar partida ", parsed2.Text);
         }
 
         double MB(long mem) => mem / (1024.0*1024.0);

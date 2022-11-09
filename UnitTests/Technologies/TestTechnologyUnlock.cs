@@ -110,13 +110,13 @@ namespace UnitTests.Technologies
             float expectedHealth = ship.Health * (1 + expectedBonus);
             TechEntry bonusTech = UnlockTech(Player, hpTechName);
 
-            Assert.AreEqual(hpTechName, bonusTech.Tech.UID, $"{hpTechName} not found.");
+            AssertEqual(hpTechName, bonusTech.Tech.UID, $"{hpTechName} not found.");
             Assert.IsTrue(bonusTech.Tech.BonusUnlocked.NotEmpty, $"No bonus unlocks found in {bonusTech.Tech.UID}");
-            Assert.AreEqual(bonusName, bonusTech.Tech.BonusUnlocked[0].Name, $"Expxcted bonus name: {bonusName}");
+            AssertEqual(bonusName, bonusTech.Tech.BonusUnlocked[0].Name, $"Expxcted bonus name: {bonusName}");
 
             float bonus = bonusTech.Tech.BonusUnlocked[0].Bonus;
-            Assert.AreEqual(expectedBonus, bonus, $"Bonus should be equal to expected bonus({expectedBonus})");
-            Assert.AreEqual(expectedHealth, ship.Health, $"Ship health after HP bonus " +
+            AssertEqual(expectedBonus, bonus, $"Bonus should be equal to expected bonus({expectedBonus})");
+            AssertEqual(expectedHealth, ship.Health, $"Ship health after HP bonus " +
                 $"unload should be {expectedBonus * 100}% more");
         }
 
@@ -144,13 +144,13 @@ namespace UnitTests.Technologies
             foreach (var item in bonus.Tech.BonusUnlocked)
             {
                 Assert.IsTrue(Player.data.BonusFighterLevels > 0, $"Bonus not unlocked {item.Name}");
-                Assert.That.Equal(0, Player.data.BonusFighterLevels - item.Bonus);
+                AssertEqual(0, Player.data.BonusFighterLevels - item.Bonus);
             }
             TechEntry bonusStack = UnlockTech(Player, "Ace Training");
             foreach (var item in bonusStack.Tech.BonusUnlocked)
             {
                 Assert.IsTrue(Player.data.BonusFighterLevels > 0, "Bonus not unlocked");
-                Assert.That.Equal(0, Player.data.BonusFighterLevels - item.Bonus);
+                AssertEqual(0, Player.data.BonusFighterLevels - item.Bonus);
             }
         }
 
@@ -172,15 +172,15 @@ namespace UnitTests.Technologies
                                 .Sorted(e => e);
             string[] actual = playerTechs2.Select(e => e.UID);
 
-            Assert.AreEqual(2, newUnlocks.Length);
-            Assert.AreEqual("Centralized Banking", newUnlocks[0].UID);
-            Assert.AreEqual("Disintegrator Array", newUnlocks[1].UID);
-            Assert.AreEqual(Enemy.data.ShipType, newUnlocks[0].ConqueredSource[0]);
-            Assert.AreEqual(Enemy.data.ShipType, newUnlocks[1].ConqueredSource[0]);
-            Assert.AreEqual(Enemy.data.ShipType, newUnlocks[0].WasAcquiredFrom[0]);
-            Assert.AreEqual(Enemy.data.ShipType, newUnlocks[1].WasAcquiredFrom[0]);
+            AssertEqual(2, newUnlocks.Length);
+            AssertEqual("Centralized Banking", newUnlocks[0].UID);
+            AssertEqual("Disintegrator Array", newUnlocks[1].UID);
+            AssertEqual(Enemy.data.ShipType, newUnlocks[0].ConqueredSource[0]);
+            AssertEqual(Enemy.data.ShipType, newUnlocks[1].ConqueredSource[0]);
+            AssertEqual(Enemy.data.ShipType, newUnlocks[0].WasAcquiredFrom[0]);
+            AssertEqual(Enemy.data.ShipType, newUnlocks[1].WasAcquiredFrom[0]);
 
-            Assert.That.Equal(expected, actual, "Assimilated techs should be equal to conquered empire techs");
+            AssertEqual(expected, actual, "Assimilated techs should be equal to conquered empire techs");
         }
     }
 }

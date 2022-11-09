@@ -29,7 +29,7 @@ namespace UnitTests.Technologies
             researchMods.LoadResearchOptions(Enemy);
             var researchPriorities = new ResearchPriorities(Enemy, researchMods);
             int researchAreas = researchPriorities.TechCategoryPrioritized.Split(':').Length;
-            Assert.AreEqual(10, researchAreas, $"Unexpected number of tech areas: {researchPriorities.TechCategoryPrioritized}");
+            AssertEqual(10, researchAreas, $"Unexpected number of tech areas: {researchPriorities.TechCategoryPrioritized}");
         }
         
         
@@ -43,7 +43,7 @@ namespace UnitTests.Technologies
 
             var priorities = new ResearchPriorities(Enemy, opts, enableRandomizer: false);
             string firstPriority = priorities.TechCategoryPrioritized.Split(':')[1]; // skip "TECH:"
-            Assert.AreEqual(expected, firstPriority,
+            AssertEqual(expected, firstPriority,
                             $"{area} Was not the highest priority: {priorities.TechCategoryPrioritized}");
         }
 
