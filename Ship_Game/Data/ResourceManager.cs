@@ -55,25 +55,25 @@ namespace Ship_Game
 
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
-        static readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
+        static readonly Map<string, SubTexture> Textures = new();
 
-        public static Map<string, Technology> TechTree          = new Map<string, Technology>(GlobalStats.CaseControl);
-        public static Array<Encounter> Encounters               = new Array<Encounter>();
-        public static Map<string, Building> BuildingsDict       = new Map<string, Building>();
-        public static Map<string, Good> GoodsDict               = new Map<string, Good>();
-        static readonly Map<string, ShipModule> ModuleTemplates = new Map<string, ShipModule>(GlobalStats.CaseControl);
-        public static Map<string, Texture2D> ProjTextDict       = new Map<string, Texture2D>();
+        public static Map<string, Technology> TechTree = new(GlobalStats.CaseControl);
+        static readonly Map<string, ShipModule> ModuleTemplates = new(GlobalStats.CaseControl);
+        public static Array<Encounter> Encounters = new();
+        public static Map<string, Building> BuildingsDict = new();
+        public static Map<string, Good> GoodsDict = new();
+        public static Map<string, Texture2D> ProjTextDict = new();
 
-        public static Array<RandomItem> RandomItemsList = new Array<RandomItem>();
+        public static Array<RandomItem> RandomItemsList = new();
 
-        public static Map<string, Artifact> ArtifactsDict      = new Map<string, Artifact>();
-        public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
+        public static Map<string, Artifact> ArtifactsDict = new();
+        public static Map<string, ExplorationEvent> EventsDict = new(GlobalStats.CaseControl);
 
-        public static ShipNames ShipNames                        = new ShipNames();
-        public static AgentMissionData AgentMissionData          = new AgentMissionData();
-        public static MainMenuShipList MainMenuShipList          = new MainMenuShipList();
-        public static Map<RoleName, ShipRole> ShipRoles = new Map<RoleName, ShipRole>();
-        public static Map<string, HullBonus> HullBonuses         = new Map<string, HullBonus>();
+        public static ShipNames ShipNames = new();
+        public static AgentMissionData AgentMissionData = new();
+        public static MainMenuShipList MainMenuShipList = new();
+        public static Map<RoleName, ShipRole> ShipRoles = new();
+        public static Map<string, HullBonus> HullBonuses = new();
 
         static RacialTraits RacialTraits;
         static DiplomaticTraits DiplomacyTraits;
@@ -115,13 +115,9 @@ namespace Ship_Game
             ModContentDirectory = GlobalStats.ModPath;
         }
 
-        public static Technology Tech(string techUid)
-        {
-            return TechTree[techUid];
-        }
-
-        public static bool TryGetTech(string techUid, out Technology tech)
-            => TechTree.TryGetValue(techUid, out tech);
+        public static Technology Tech(string techUid) => TechTree[techUid];
+        public static bool TryGetTech(string techUid, out Technology t) => TechTree.TryGetValue(techUid, out t);
+        public static IReadOnlyCollection<Technology> TechsList => TechTree.Values;
 
         public static ExplorationEvent Event(string eventName)
         {
@@ -1076,7 +1072,7 @@ namespace Ship_Game
 
                 foreach (Message message in e.MessageList)
                     foreach (Response response in message.ResponseOptions)
-                        if (TechTree.TryGetValue(response.UnlockTech ?? "", out Technology tech))
+                        if (TryGetTech(response.UnlockTech ?? "", out Technology tech))
                             tech.Unlockable = true;
             }
         }
@@ -1090,9 +1086,9 @@ namespace Ship_Game
                 EventsDict[pair.Entity.FileName] = pair.Entity;
                 foreach (var outcome in pair.Entity.PotentialOutcomes)
                 {
-                    if (TechTree.TryGetValue(outcome.UnlockTech ?? "", out Technology tech))
+                    if (TryGetTech(outcome.UnlockTech ?? "", out Technology tech))
                         tech.Unlockable = true;
-                    if (TechTree.TryGetValue(outcome.SecretTechDiscovered ?? "", out tech))
+                    if (TryGetTech(outcome.SecretTechDiscovered ?? "", out tech))
                         tech.Unlockable = true;
                 }
             }
@@ -1722,7 +1718,7 @@ namespace Ship_Game
         static void TechValidator()
         {
             GameLoadingScreen.SetStatus("TechValidator");
-            Array<Technology> techs = TechTree.Values.ToArrayList();
+            Array<Technology> techs = TechsList.ToArrayList();
             var rootTechs = new Array<Technology>();
             foreach (Technology rootTech in techs)
             {
@@ -1768,7 +1764,7 @@ namespace Ship_Game
                     Log.WarningVerbose($"Tech {tech.UID} has no way to unlock! Source: '{tech.DebugSourceFile}'");
             }
 
-            foreach (Technology tech in TechTree.Values)
+            foreach (Technology tech in TechsList)
                 tech.ResolveLeadsToTechs();
         }
 

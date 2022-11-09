@@ -66,9 +66,9 @@ namespace UnitTests.AITests.Ships
         void SpawnStrongerEnemyGroup()
         {
             ScoutTarget = SpawnNonCombat(ScoutName, Enemy, 0, -500);
-            RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -600);
-            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -700);
-            FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -800);
+            RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -530);
+            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -560);
+            FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -650);
             RunObjectsSim(EnemyScanInterval);
             AssertEqual(1+4, UState.Objects.NumShips, "Expected limited # of Ships in AI Combat test");
             PrintTargets();
@@ -77,10 +77,10 @@ namespace UnitTests.AITests.Ships
         void SpawnStrongEnemyGroupWithCarrier()
         {
             ScoutTarget = SpawnNonCombat(ScoutName, Enemy, 0, -500);
-            RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -600);
-            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -700);
-            FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -800);
-            CarrierTarget = SpawnNonCombat(CarrierName, Enemy, 0, -900);
+            RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -530);
+            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -560);
+            FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -650);
+            CarrierTarget = SpawnNonCombat(CarrierName, Enemy, 0, -700);
             RunObjectsSim(EnemyScanInterval);
             AssertEqual(1+5, UState.Objects.NumShips, "Expected limited # of Ships in AI Combat test");
             PrintTargets();

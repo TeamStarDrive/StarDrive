@@ -412,8 +412,8 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            string stolenTech     = potentialTechs.RandItem().UID;
-            string stolenTechName = ResourceManager.TechTree[stolenTech].Name.Text;
+            string stolenTech = potentialTechs.RandItem().UID;
+            string stolenTechName = ResourceManager.Tech(stolenTech).Name.Text;
 
             switch (missionStatus)
             {

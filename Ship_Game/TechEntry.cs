@@ -17,9 +17,12 @@ namespace Ship_Game
     [StarDataType]
     public sealed class TechEntry
     {
+        public static readonly TechEntry None = new("");
+
         [StarData] public string UID;
         [StarData] public float Progress;
         [StarData] public bool Discovered;
+
         // true if Tech has been unlocked at least once (multi-level tech Level > 0)
         [StarData] public bool Unlocked;
         [StarData] public int Level;
@@ -27,23 +30,27 @@ namespace Ship_Game
         [StarData] public bool shipDesignsCanuseThis = true;
         [StarData] public Array<string> WasAcquiredFrom;
 
-        public bool Locked => !Unlocked;
+        public Technology Tech { get; private set; }
+        public Array<string> ConqueredSource = new();
+        readonly Map<TechnologyType, float> TechTypeCostLookAhead = new();
+
+        public override string ToString()
+            => $"TechEntry {UID}: Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched}";
 
         /// Can this tech be researched further?
         /// For multi-level techs this will be true when Level > 0 and until Level >= MaxLevel
         public bool CanBeResearched => !Unlocked || (0 < Level && Level < MaxLevel);
-
         public bool MultiLevelComplete => Level == MaxLevel && MaxLevel > 1 || MaxLevel == 1;
 
-        /// <summary>
-        /// Checks if list  contains restricted trade type. 
-        /// </summary>
-        private bool AllowRacialTrade(Empire us, Empire them)
-        {
-            return us.GetRelations(them).AllowRacialTrade();
-        }
+        public float PercentResearched => Progress / TechCost;
+        public bool IsRoot => Tech.IsRootNode;
+        public TechnologyType TechnologyType => Tech.TechnologyTypes.First();
+        public bool IsTechnologyType(TechnologyType type) => Tech.TechnologyTypes.Contains(type);
+        public int MaxLevel => Tech.MaxLevel;
+        public float MultiLevelCostMultiplier => Tech.MultiLevelCostMultiplier;
+        public bool IsMultiLevel => Tech.MaxLevel > 1;
+        public bool Locked => !Unlocked;
 
-        [XmlIgnore]
         public float TechCost
         {
             get
@@ -55,47 +62,9 @@ namespace Ship_Game
             }
         }
 
-        [XmlIgnore]
-        public float PercentResearched => Progress / TechCost;
-
-        // add initializer for tech
-        [XmlIgnore]
-        public Technology Tech { get; private set; }
-
-        [XmlIgnore]
-        public bool IsRoot => Tech.IsRootNode;
-
-        [XmlIgnore]
-        public Array<string> ConqueredSource = new();
-
-        [XmlIgnore]
-        public TechnologyType TechnologyType => Tech.TechnologyTypes.First();
-
-        public bool IsTechnologyType(TechnologyType type) => Tech.TechnologyTypes.Contains(type);
-
-        [XmlIgnore]
-        public int MaxLevel => Tech.MaxLevel;
-
-        [XmlIgnore]
-        public float MultiLevelCostMultiplier => Tech.MultiLevelCostMultiplier;
-
-        [XmlIgnore]
-        public bool IsMultiLevel => Tech.MaxLevel > 1;
-
-        [XmlIgnore]
-        readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new();
-
-        public static readonly TechEntry None = new("");
-
-        public override string ToString()
-            => $"TechEntry {UID}: Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched}";
-
         public TechEntry()
         {
-            WasAcquiredFrom = new Array<string>();
-            if (AcquiredFrom.NotEmpty())
-                WasAcquiredFrom.AddUnique(AcquiredFrom);
-
+            WasAcquiredFrom = new();
             foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
                 TechTypeCostLookAhead.Add(techType, 0);
         }
@@ -106,6 +75,21 @@ namespace Ship_Game
             ResolveTech();
         }
 
+        public TechEntry(TechEntry clone)
+        {
+            UID = clone.UID;
+            Progress = clone.Progress;
+            Discovered = clone.Discovered;
+            Unlocked = clone.Unlocked;
+            Level = clone.Level;
+            AcquiredFrom = clone.AcquiredFrom;
+            shipDesignsCanuseThis = clone.shipDesignsCanuseThis;
+            WasAcquiredFrom = new(clone.WasAcquiredFrom);
+            Tech = clone.Tech;
+            ConqueredSource = new(clone.ConqueredSource);
+            TechTypeCostLookAhead = new(clone.TechTypeCostLookAhead);
+        }
+
         [StarDataDeserialized]
         void OnDeserialized()
         {
@@ -114,7 +98,7 @@ namespace Ship_Game
 
         public void ResolveTech()
         {
-            Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;
+            Tech = UID.NotEmpty() ? ResourceManager.Tech(UID) : Technology.Dummy;
         }
 
         /// <summary>
@@ -233,6 +217,12 @@ namespace Ship_Game
 
         public bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
         public bool SpiedFromAnyBut(Empire them) => WasAcquiredFrom.Count > 1 && !WasAcquiredFrom.Contains(them.data.Traits.ShipType);
+        
+        /// <summary>Checks if list  contains restricted trade type</summary>
+        static bool AllowRacialTrade(Empire us, Empire them)
+        {
+            return us.GetRelations(them).AllowRacialTrade();
+        }
 
         public bool TheyCanUseThis(Empire us, Empire them)
         {

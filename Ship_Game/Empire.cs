@@ -138,8 +138,6 @@ namespace Ship_Game
         // empire retakes this planet. This value should never be changed after it was set.
         [StarData] public Planet Capital { get; private set; } 
 
-        public int EmpireShipCountReserve;
-        public int empireShipTotal;
         public int empireShipCombat;    //fbedard
         public int empirePlanetCombat;  //fbedard
         public bool canBuildCapitals;
@@ -269,9 +267,18 @@ namespace Ship_Game
             ObsoletePlayerShipModules = new();
         }
 
-        public Empire(UniverseState us, Empire parentEmpire) : this(us)
+        // Create REBELS
+        public Empire(UniverseState us, Empire parentEmpire, EmpireData data) : this(us)
         {
-            TechnologyDict = parentEmpire.TechnologyDict;
+            this.data = data;
+            IsFaction = true;
+            EmpireColor = new Color(128, 128, 128, 255);
+
+            foreach (var tech in parentEmpire.TechnologyDict)
+                TechnologyDict[tech.Key] = new TechEntry(tech.Value);
+
+            Initialize();
+            UpdatePopulation();
         }
 
         [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData))]
@@ -1030,7 +1037,10 @@ namespace Ship_Game
 
         void CreateEmpireTechTree()
         {
-            foreach (Technology tech in ResourceManager.TechTree.Values)
+            if (TechnologyDict.Count > 0) // only if it's not already initialized
+                return;
+
+            foreach (Technology tech in ResourceManager.TechsList)
             {
                 var entry = new TechEntry(tech.UID);
                 if (entry.IsHidden(this))
@@ -1255,96 +1265,19 @@ namespace Ship_Game
             #endif
 
             UpdateTimer -= timeStep.FixedTime;
-
             if (UpdateTimer <= 0f && !data.Defeated)
             {
-                if (isPlayer)
-                {
-                    Universe.Screen.UpdateStarDateAndTriggerEvents(Universe.StarDate + 0.1f);
-                    Universe.Stats.StatUpdateStarDate(Universe.StarDate);
-                    if (Universe.StarDate.AlmostEqual(1000.09f))
-                    {
-                        foreach (Empire empire in Universe.Empires)
-                        {
-                            foreach (Planet planet in empire.OwnedPlanets)
-                                Universe.Stats.StatAddPlanetNode(Universe.StarDate, planet);
-                        }
-                    }
-
-                    ThreatDetector.AssessHostilePresenceForPlayerWarnings(this);
-                }
-                //added by gremlin. empire ship reserve.
-
-                EmpireShipCountReserve = 0;
-
-                if (!isPlayer)
-                {
-                    foreach (Planet planet in GetPlanets())
-                    {
-
-                        if (planet == Capital)
-                            EmpireShipCountReserve = +5;
-                        else
-                            EmpireShipCountReserve += planet.Level;
-                        if (EmpireShipCountReserve > 50)
-                        {
-                            EmpireShipCountReserve = 50;
-                            break;
-                        }
-                    }
-                }
-
-                //fbedard: Number of planets where you have combat
-                empirePlanetCombat = 0;
-                if (isPlayer)
-                    foreach (SolarSystem system in Universe.Systems)
-                    {
-                        foreach (Planet p in system.PlanetList)
-                        {
-                            if (!p.IsExploredBy(Universe.Player) || !p.RecentCombat)
-                                continue;
-
-                            if (p.Owner != Universe.Player)
-                            {
-                                foreach (Troop troop in p.TroopsHere)
-                                {
-                                    if ((troop?.Loyalty) == Universe.Player)
-                                    {
-                                        empirePlanetCombat++;
-                                        break;
-                                    }
-                                }
-                            }
-                            else empirePlanetCombat++;
-                        }
-                    }
-
-                empireShipTotal = 0;
-                empireShipCombat = 0;
-
-                // NOTE: Regarding Inhibitors, they should only be added here, to avoid bugs
-                Inhibitors.Clear();
-                var ships = OwnedShips;
-                for (int i = 0; i < ships.Count; i++)
-                {
-                    Ship ship = OwnedShips[i];
-                    if (ship.InhibitionRadius > 0.0f)
-                        Inhibitors.Add(ship);
-
-                    if (ship.Fleet == null && ship.InCombat && !ship.IsHangarShip) //fbedard: total ships in combat
-                        empireShipCombat++;
-
-                    if (ship.IsHangarShip || ship.DesignRole == RoleName.troop
-                                          || ship.DesignRole == RoleName.freighter
-                                          || ship.ShipData.ShipCategory == ShipCategory.Civilian)
-                    {
-                        continue;
-                    }
-
-                    empireShipTotal++;
-                }
-
                 UpdateTimer = GlobalStats.TurnTimer + (Id -1) * timeStep.FixedTime;
+
+                if (isPlayer)
+                {
+                    UpdateStats();
+                    ThreatDetector.AssessHostilePresenceForPlayerWarnings(this);
+                    empirePlanetCombat = GetNumPlanetsWithTroopCombat();
+                    empireShipCombat = GetNumShipsInCombat(EmpireShips.OwnedShips);
+                }
+
+                UpdateInhibitors(EmpireShips.OwnedShips);
                 UpdateEmpirePlanets();
                 UpdatePopulation();
                 UpdateTroopsInSpaceConsumption();
@@ -1357,6 +1290,68 @@ namespace Ship_Game
             }
 
             UpdateFleets(timeStep);
+        }
+
+        void UpdateStats()
+        {
+            Universe.Screen.UpdateStarDateAndTriggerEvents(Universe.StarDate + 0.1f);
+            Universe.Stats.StatUpdateStarDate(Universe.StarDate);
+            if (Universe.StarDate.AlmostEqual(1000.09f))
+            {
+                foreach (Empire empire in Universe.Empires)
+                {
+                    foreach (Planet planet in empire.OwnedPlanets)
+                        Universe.Stats.StatAddPlanetNode(Universe.StarDate, planet);
+                }
+            }
+        }
+
+        void UpdateInhibitors(Ship[] ourShips)
+        {
+            // NOTE: Regarding Inhibitors, they should only be added here, to avoid bugs
+            Inhibitors.Clear();
+            foreach (Ship s in ourShips)
+                if (s.InhibitionRadius > 0.0f)
+                    Inhibitors.Add(s);
+        }
+
+        int GetNumShipsInCombat(Ship[] ourShips)
+        {
+            int inCombat = 0;
+            foreach (Ship s in ourShips)
+                if (s.Fleet == null && s.InCombat && !s.IsHangarShip) //fbedard: total ships in combat
+                    ++inCombat;
+            return inCombat;
+        }
+
+        int GetNumPlanetsWithTroopCombat() //fbedard: Number of planets where you have combat
+        {
+            int inCombat = 0;
+            foreach (SolarSystem system in Universe.Systems)
+            {
+                foreach (Planet p in system.PlanetList)
+                {
+                    if (p.IsExploredBy(Universe.Player) && p.RecentCombat)
+                    {
+                        if (p.Owner == Universe.Player)
+                        {
+                            ++inCombat;
+                        }
+                        else
+                        {
+                            foreach (Troop troop in p.TroopsHere)
+                            {
+                                if ((troop?.Loyalty) == Universe.Player)
+                                {
+                                    ++inCombat;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return inCombat;
         }
 
         // FB - for unittest only!
@@ -2736,6 +2731,13 @@ namespace Ship_Game
         {
             if (!isPlayer && AI.CountGoals(g => g.Type == GoalType.ScoutSystem) < DifficultyModifiers.NumSystemsToSniff)
                 AI.AddGoal(new ScoutSystem(this));
+        }
+
+        public IShipDesign ChooseScoutShipToBuild()
+        {
+            if (!ChooseScoutShipToBuild(out IShipDesign scout))
+                throw new($"{Name} is not able to find any Scout ships! ShipsWeCanBuild={string.Join(",", ShipsWeCanBuild)}");
+            return scout;
         }
 
         public bool ChooseScoutShipToBuild(out IShipDesign scout)

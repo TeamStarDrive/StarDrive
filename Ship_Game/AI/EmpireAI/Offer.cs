@@ -6,23 +6,23 @@ namespace Ship_Game
 {
     public sealed class Offer
     {
-        public Array<string> TechnologiesOffered = new Array<string>();
-        public Array<string> ArtifactsOffered = new Array<string>();
+        public Array<string> TechnologiesOffered = new();
+        public Array<string> ArtifactsOffered = new();
         public Ref<bool> ValueToModify;
         public bool PeaceTreaty;
         public bool Alliance;
         public string AcceptDL;
         public string RejectDL;
-        public Array<string> ColoniesOffered = new Array<string>();
+        public Array<string> ColoniesOffered = new();
         public bool NAPact;
-        public Array<string> EmpiresToWarOn = new Array<string>();
-        public Array<string> EmpiresToMakePeaceWith = new Array<string>();
+        public Array<string> EmpiresToWarOn = new();
+        public Array<string> EmpiresToMakePeaceWith = new();
         public bool OpenBorders;
         public bool TradeTreaty;
         public Empire Them;
         public Empire Player => Them.Universe.Player;
 
-        string TechOffer(int i) => ResourceManager.TechTree[TechnologiesOffered[i]].Name.Text;
+        string TechOffer(int i) => ResourceManager.Tech(TechnologiesOffered[i]).Name.Text;
         string ArtifactOffer(int i) => ResourceManager.ArtifactsDict[ArtifactsOffered[i]].NameText.Text;
         string ColonyOffer(int i) => ColoniesOffered[i];
 

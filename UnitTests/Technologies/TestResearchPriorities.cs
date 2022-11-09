@@ -62,7 +62,7 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void ResearchPrioritiesResearch()
         {
-            Technology tech = ResourceManager.TechTree.Values.First(t => t.TechnologyTypes.First() == TechnologyType.Research);
+            Technology tech = ResourceManager.TechsList.First(t => t.TechnologyTypes.First() == TechnologyType.Research);
             
             foreach (Technology.LeadsToTech techName in tech.ComesFrom)
             {
