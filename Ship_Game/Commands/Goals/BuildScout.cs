@@ -20,7 +20,7 @@ namespace Ship_Game.Commands.Goals
         public BuildScout(Empire owner) : base(GoalType.BuildScout, owner)
         {
             InitSteps();
-            Owner.ChooseScoutShipToBuild(out IShipDesign scout);
+            IShipDesign scout = Owner.ChooseScoutShipToBuild();
             Build = new(scout);
         }
 

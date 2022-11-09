@@ -305,29 +305,19 @@ public partial class UniverseState
         Empire rebelEmpire = GetEmpireByName(data.RebelName);
         if (rebelEmpire != null) return rebelEmpire;
 
-        var empire = new Empire(parent.Universe, parent)
-        {
-            IsFaction = true,
-            data = data
-        };
-
-        // Added by McShooterz: mod folder support
         DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
         data.DiplomaticPersonality = RandomMath.RandItem(dt.DiplomaticTraitsList);
         data.DiplomaticPersonality = RandomMath.RandItem(dt.DiplomaticTraitsList);
         data.EconomicPersonality   = RandomMath.RandItem(dt.EconomicTraitsList);
         data.EconomicPersonality   = RandomMath.RandItem(dt.EconomicTraitsList);
         data.SpyModifier = data.Traits.SpyMultiplier;
-        empire.EmpireColor = new Color(128, 128, 128, 255);
-
         data.IsRebelFaction  = true;
         data.Traits.Name     = data.RebelName;
         data.Traits.Singular = data.RebelSing;
         data.Traits.Plural   = data.RebelPlur;
+        data.RebellionLaunched = true;
 
-        empire.Initialize();
-        empire.UpdatePopulation();
-
+        var empire = new Empire(parent.Universe, parent, data);
         AddEmpire(empire);
 
         foreach (Empire otherEmpire in Empires)
@@ -340,7 +330,6 @@ public partial class UniverseState
             }
         }
 
-        data.RebellionLaunched = true;
         return empire;
     }
 }

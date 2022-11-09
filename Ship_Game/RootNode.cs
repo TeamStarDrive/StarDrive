@@ -30,7 +30,7 @@ namespace Ship_Game
 				TitleFont = Fonts.Arial10;
 			}
 			Entry = entry;
-			var tech = ResourceManager.TechTree[entry.UID];
+			var tech = ResourceManager.Tech(entry.UID);
 			TechName = tech.Name.Text;
 			RootRect.X = (int)position.X;
 			RootRect.Y = (int)position.Y;
@@ -63,7 +63,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/"+ResourceManager.TechTree[Entry.UID].IconPath), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture($"ResearchMenu/{ResourceManager.Tech(Entry.UID).IconPath}"), IconRect, Color.White);
 					return;
 				}
 				case NodeState.Hover:
@@ -84,7 +84,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_selhover"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[Entry.UID].IconPath, "_hover")), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture($"ResearchMenu/{ResourceManager.Tech(Entry.UID).IconPath}_hover"), IconRect, Color.White);
 					return;
 				}
 				case NodeState.Press:
@@ -105,7 +105,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_press"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[Entry.UID].IconPath, "_hover")), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture($"ResearchMenu/{ResourceManager.Tech(Entry.UID).IconPath}_hover"), IconRect, Color.White);
 					return;
 				}
 				default:
