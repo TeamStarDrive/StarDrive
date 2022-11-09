@@ -20,7 +20,9 @@ namespace UnitTests.AITests.Empire
 
         public ShipPoolTests()
         {
-            LoadStarterShips("Heavy Carrier mk5-b", "Medium Freighter");
+            LoadStarterShips("Heavy Carrier mk5-b", "Medium Freighter", 
+                             "Vulcan Scout", "Unarmed Scout",
+                             "Vingscout");
             CreateUniverseAndPlayerEmpire();
             Homeworld = AddHomeWorldToEmpire(new Vector2(2000), Enemy);
             Enemy.Update(UState, TestSimStep); // need to update the empire first to create AO's

@@ -490,7 +490,7 @@ namespace Ship_Game
             cols++;
             if (cols > colmax)
                 colmax = cols;
-            Technology technology = ResourceManager.TechTree[uid];
+            Technology technology = ResourceManager.Tech(uid);
             //look for branches and make space for them
             if (technology.LeadsTo.Count >0)
             {

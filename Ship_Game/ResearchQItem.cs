@@ -91,7 +91,7 @@ namespace Ship_Game
         }
 
         string ResearchUidAt(int index) => Screen.Player.data.ResearchQueue[index];
-        Technology PlayerResearchAt(int index) => ResourceManager.TechTree[ResearchUidAt(index)];
+        Technology PlayerResearchAt(int index) => ResourceManager.Tech(ResearchUidAt(index));
 
         bool AboveIsPreReq(int indexOfThis)
         {
@@ -116,7 +116,7 @@ namespace Ship_Game
             void RemoveLeadsToRecursive(string tech)
             {
                 Screen.Player.Research.RemoveFromQueue(tech);
-                foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[tech].LeadsTo)
+                foreach (Technology.LeadsToTech dependent in ResourceManager.Tech(tech).LeadsTo)
                     RemoveLeadsToRecursive(dependent.UID);
             }
 

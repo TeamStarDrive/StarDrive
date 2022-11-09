@@ -124,7 +124,7 @@ namespace Ship_Game
             if (techUID.IsEmpty())
                 return; // ignore empty topics
 
-            if (techUID.NotEmpty() && !ResourceManager.TechTree.ContainsKey(techUID))
+            if (techUID.NotEmpty() && !ResourceManager.TryGetTech(techUID, out _))
             {
                 Log.Error($"SetResearchTopic: Unrecognized tech: {techUID}");
                 return;
