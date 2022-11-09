@@ -173,7 +173,7 @@ namespace Ship_Game
 
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100;
 
-        static Ship GetDefenseShipName(RoleName roleName, Empire empire) 
+        static IShipDesign GetDefenseShipName(RoleName roleName, Empire empire) 
                     => ShipBuilder.PickCostEffectiveShipToBuild(roleName, empire, 
                         empire.Money - 90, empire.Money/10);
 
@@ -182,7 +182,7 @@ namespace Ship_Game
             if (CurrentNumDefenseShips <= 0 || target == null)
                 return;
 
-            Ship selectedShip = GetDefenseShipName(DefenseShipsRole, empire);
+            IShipDesign selectedShip = GetDefenseShipName(DefenseShipsRole, empire);
             if (selectedShip == null) // the empire does not have any ship of this role to launch
                 return;
 
@@ -218,7 +218,7 @@ namespace Ship_Game
 
             Offense = 0;
             UpdateOffense(p);
-            Ship pickedShip = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
+            IShipDesign pickedShip = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
 
             if (pickedShip != null && ResourceManager.GetShipTemplate(pickedShip.Name, out Ship ship))
                 DefenseShipStrength = ship.CalculateShipStrength() * DefenseShipsCapacity;

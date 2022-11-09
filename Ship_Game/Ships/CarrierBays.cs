@@ -646,7 +646,8 @@ namespace Ship_Game.Ships
             string bestShip = string.Empty;
             foreach (var role in hangar.HangarRoles)
             {
-                Ship selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize,
+                IShipDesign selectedShip = ShipBuilder.PickFromCandidates(
+                    role, empire, maxSize: hangar.MaximumHangarShipSize,
                     designation: desiredShipCategory);
 
                 // If no desired category is available in the empire, try to get the best ship we have regardless of category for this role

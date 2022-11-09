@@ -570,7 +570,7 @@ namespace Ship_Game.AI
 
             foreach (var kv in pickRoles.OrderByDescending(val => val.Value))
             {
-                Ship ship = PickFromCandidates(kv.Key, OwnerEmpire);
+                IShipDesign ship = PickFromCandidates(kv.Key, OwnerEmpire);
                 if (ship == null)
                     continue;
 

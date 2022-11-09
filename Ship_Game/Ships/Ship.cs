@@ -742,16 +742,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public float ConstructorValue(Empire empire)
-        {
-            if (!IsConstructor)
-                return 0;
-
-            float warpK = MaxFTLSpeed / 1000;
-            float score = warpK + MaxSTLSpeed / 10 + RotationRadsPerSecond.ToDegrees();
-            return score;
-        }
-
         // Calculates estimated trip time by turns
         public float GetAstrogateTimeTo(Planet destination)
         {
@@ -1327,7 +1317,7 @@ namespace Ship_Game.Ships
             UpdateTroops(timeSinceLastUpdate);
 
             if (!AI.BadGuysNear)
-                Universe.Shields.RemoveShieldLights(Universe.Screen, GetActiveShields());
+                Universe.Shields?.RemoveShieldLights(GetActiveShields());
         }
 
         public bool CanRepair => !AI.BadGuysNear || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair;
@@ -1837,21 +1827,6 @@ namespace Ship_Game.Ships
                 if (maxHealthDebug) Log.Info($"Health is  {Health} / {HealthMax}");
             #endif
             return healthMax;
-        }
-
-        public bool AnyModulesOf(ShipModuleType moduleType)
-        {
-            return ModuleSlotList.Any(moduleType);
-        }
-
-        public float StartingColonyGoods()
-        {
-            return ModuleSlotList.Sum(m => m.NumberOfEquipment + m.NumberOfFood);
-        }
-
-        public int NumBuildingsDeployedOnColonize()
-        {
-            return ModuleSlotList.Count(m => m.DeployBuildingOnColonize.NotEmpty());
         }
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
