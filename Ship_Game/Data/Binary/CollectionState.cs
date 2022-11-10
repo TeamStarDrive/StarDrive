@@ -72,6 +72,12 @@ public class CollectionState : ObjectState
                 }
             }
         }
+        catch (OutOfMemoryException)
+        {
+            // there is no point trying to recover from this
+            // because we will have an invalid serialization state, just explode gracefully
+            throw;
+        }
         catch (Exception ex)
         {
             // This can happen due to a multi-threading violation during Autosave

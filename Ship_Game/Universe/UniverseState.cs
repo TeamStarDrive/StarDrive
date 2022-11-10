@@ -198,15 +198,24 @@ namespace Ship_Game.Universe
             [StarData] public IReadOnlyList<Ship> Ships;
             [StarData] public IReadOnlyList<Projectile> Projectiles;
 
-            public void SetDesigns(HashSet<IShipDesign> designs)
+            // gather a list of all designs in the universe
+            public void SetAllDesigns(UniverseState us)
             {
-                Designs = designs.Select(d => (ShipDesign)d);
+                HashSet<ShipDesign> designs = new();
+
+                foreach (Ship s in Ships)
+                    designs.Add((ShipDesign)s.ShipData);
+
+                foreach (Empire e in us.EmpireList)
+                    foreach (IShipDesign s in e.ShipsWeCanBuild)
+                        designs.Add((ShipDesign)s);
+
+                Designs = designs.ToArr();
             }
 
-            public void UpdateAllDesignsFromSave()
+            // restored all designs
+            public void UpdateAllDesignsFromSave(UniverseState us)
             {
-                Array<(ShipDesign saved, IShipDesign existing)> remapDesigns = new();
-
                 foreach (ShipDesign fromSave in Designs)
                 {
                     fromSave.IsFromSave = true;
@@ -215,18 +224,27 @@ namespace Ship_Game.Universe
                         existing.AreModulesEqual(fromSave))
                     {
                         // remap to use the existing one
-                        RemapShipDesigns(fromSave, existing);
+                        RemapShipDesigns(us, fromSave, existing);
                     }
                     // else: design is from save only, so nothing needs to be done
                 }
             }
 
-            void RemapShipDesigns(ShipDesign saved, IShipDesign existing)
+            void RemapShipDesigns(UniverseState us, ShipDesign fromSave, IShipDesign replaceWith)
             {
                 foreach (Ship s in Ships)
                 {
-                    if (s.ShipData == saved)
-                        s.ShipData = existing;
+                    if (s.ShipData == fromSave)
+                        s.ShipData = replaceWith;
+                }
+
+                foreach (Empire e in us.EmpireList)
+                {
+                    if (e.CanBuildShip(fromSave))
+                    {
+                        e.RemoveBuildableShip(fromSave);
+                        e.AddBuildableShip(replaceWith);
+                    }
                 }
             }
         }
@@ -245,7 +263,7 @@ namespace Ship_Game.Universe
                 Ships = Objects.GetShips(),
                 Projectiles = Objects.GetProjectiles()
             };
-            save.SetDesigns(Ships.Select(s => s.ShipData).UniqueSet());
+            save.SetAllDesigns(this);
 
             // FogMap is converted to a Alpha bytes so that it can be included in the savegame
             var fogMapBytes = Screen.ContentManager.RawContent.TexExport.ToAlphaBytes(Screen.FogMap);
@@ -261,11 +279,11 @@ namespace Ship_Game.Universe
         [StarDataDeserialized(typeof(Empire), typeof(Ship), typeof(Projectile), typeof(Beam))]
         void OnDeserialized()
         {
+            Initialize(Size);
+
             SaveState save = Save;
             Save = null;
-            save.UpdateAllDesignsFromSave();
-
-            Initialize(Size);
+            save.UpdateAllDesignsFromSave(this);
 
             Params.UpdateGlobalStats();
             SettingsResearchModifier = GetResearchMultiplier();

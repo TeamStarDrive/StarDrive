@@ -10,6 +10,7 @@ using SDGraphics;
 using SDUtils;
 using Vector4 = SDGraphics.Vector4;
 using Rectangle = SDGraphics.Rectangle;
+using System.IO;
 
 namespace Ship_Game
 {
@@ -250,6 +251,13 @@ namespace Ship_Game
                     return true;
 
                 Type subType = val1.GetType();
+                if (subType == typeof(FileInfo))
+                {
+                    if (((FileInfo)val1).FullName == ((FileInfo)val2).FullName)
+                        return true;
+                    Error(member, $"first={((FileInfo)val1).FullName} != second={((FileInfo)val2).FullName}");
+                    return false;
+                }
 
                 // for floats we need special treatment because of parser issues
                 if (subType == typeof(float))
