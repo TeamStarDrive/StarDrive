@@ -122,7 +122,6 @@ namespace Ship_Game
                 buildableShips = ResourceManager.Ships.Designs.ToArr();
             else
                 buildableShips = P.Owner.ShipsWeCanBuild
-                    .Select(shipName => ResourceManager.Ships.GetDesign(shipName))
                     .Filter(ship => ship.IsBuildableByPlayer && !ship.Name.StartsWith("TEST_"));
             
             string filter = FilterBuildableItems.Text.ToLower();

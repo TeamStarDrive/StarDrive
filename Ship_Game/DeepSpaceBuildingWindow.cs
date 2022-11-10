@@ -41,20 +41,18 @@ namespace Ship_Game
             SL.EnableItemHighlight = true;
 
             //The Doctor: Ensure Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
-            foreach (string s in Player.SpaceStationsWeCanBuild)
+            foreach (IShipDesign s in Player.SpaceStationsWeCanBuild)
             {
-                if (s == "Subspace Projector")
+                if (s.IsSubspaceProjector)
                 {
-                    SL.AddItem(new(Screen, ResourceManager.Ships.GetDesign(s)));
+                    SL.AddItem(new(Screen, s));
                     break;
                 }
             }
-            foreach (string s in Player.SpaceStationsWeCanBuild)
+            foreach (IShipDesign s in Player.SpaceStationsWeCanBuild)
             {
-                if (s != "Subspace Projector")
-                {
-                    SL.AddItem(new(Screen, ResourceManager.Ships.GetDesign(s)));
-                }
+                if (!s.IsSubspaceProjector)
+                    SL.AddItem(new(Screen, s));
             }
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen, Screen.UState));

@@ -149,24 +149,24 @@ namespace Ship_Game
         {
             var sb = new StringBuilder("Player.ShipsWeCanBuild = {\n");
 
-            foreach (string ship in Universe.Player.ShipsWeCanBuild)
-                sb.Append("  '").Append(ship).Append("',\n");
+            foreach (IShipDesign ship in Universe.Player.ShipsWeCanBuild)
+                sb.Append("  '").Append(ship.Name).Append("',\n");
             sb.Append("}");
 
             Log.Warning(sb.ToString());
         }
 
-        void InitDropOptions(DropOptions<int> options, ref string automationShip, string defaultShip, Func<Ship, bool> predicate)
+        void InitDropOptions(DropOptions<int> options, ref string automationShip, string defaultShip, Func<IShipDesign, bool> predicate)
         {
             if (options == null)
                 return;
             options.Clear();
 
 
-            foreach (string ship in Universe.Player.ShipsWeCanBuild)
+            foreach (IShipDesign ship in Universe.Player.ShipsWeCanBuild)
             {
-                if (ResourceManager.GetShipTemplate(ship, out Ship template) && predicate(template))
-                    options.AddOption(template.Name, 0);
+                if (predicate(ship))
+                    options.AddOption(ship.Name, 0);
             }
 
             if (!options.SetActiveEntry(automationShip)) // try set the current automationShip active
@@ -188,26 +188,26 @@ namespace Ship_Game
             EmpireData playerData = Universe.Player.data;
 
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
-                ship => ship.ShipGoodToBuild(Universe.Player) && ship.IsFreighter);
+                ship => ship.IsShipGoodToBuild(Universe.Player) && ship.IsFreighter);
 
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
-                ship => ship.ShipGoodToBuild(Universe.Player) && ship.ShipData.IsColonyShip);
+                ship => ship.IsShipGoodToBuild(Universe.Player) && ship.IsColonyShip);
 
             InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor,
-                ship => ship.ShipGoodToBuild(Universe.Player) && ship.IsConstructor);
+                ship => ship.IsShipGoodToBuild(Universe.Player) && ship.IsConstructor);
 
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 
                 ship =>
                 {
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.reconDropDown)
-                        return ship.ShipGoodToBuild(Universe.Player) && 
-                              (ship.DesignRole == RoleName.scout || 
-                               ship.ShipData?.ShipCategory == ShipCategory.Recon);
+                        return ship.IsShipGoodToBuild(Universe.Player) && 
+                              (ship.Role == RoleName.scout || 
+                               ship.ShipCategory == ShipCategory.Recon);
 
-                    return ship.ShipGoodToBuild(Universe.Player) && 
-                          (ship.DesignRole == RoleName.scout ||
-                           ship.DesignRole == RoleName.fighter ||
-                           ship.ShipData?.ShipCategory == ShipCategory.Recon);
+                    return ship.IsShipGoodToBuild(Universe.Player) && 
+                          (ship.Role == RoleName.scout ||
+                           ship.Role == RoleName.fighter ||
+                           ship.ShipCategory == ShipCategory.Recon);
                 });
         }
 

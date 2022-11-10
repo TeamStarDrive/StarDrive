@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
 using SDGraphics;
@@ -283,31 +284,26 @@ namespace Ship_Game
             ShipSL.Reset();
             if (SubShips.SelectedIndex == 0)
             {
-                var shipList = new Array<Ship>();
-                foreach (string shipName in Universe.Player.ShipsWeCanBuild)
-                {
-                    Ship ship = ResourceManager.GetShipTemplate(shipName);
-                    shipList.Add(ship);
-                }
-
-                SortShipSL(shipList);
+                IShipDesign[] designs = Universe.Player.ShipsWeCanBuild.ToArr();
+                InitShipSL(designs);
             }
             else if (SubShips.SelectedIndex == 1)
             {
                 var ships = Universe.Player.OwnedShips;
                 AvailableShips.Assign(ships.Filter(s => s.Fleet == null && s.Active));
 
-                SortShipSL(AvailableShips);
+                IShipDesign[] designs = AvailableShips.Select(s => s.ShipData).Unique();
+                InitShipSL(designs);
             }
         }
 
-        void SortShipSL(Array<Ship> shipList)
+        void InitShipSL(IReadOnlyList<IShipDesign> designs)
         {
             var roles = new Array<string>();
-            foreach (Ship ship in shipList)
+            foreach (IShipDesign s in designs)
             {
-                if (IsCandidateShip(ship))
-                    roles.AddUnique(ship.DesignRoleName);
+                if (IsCandidateShip(s))
+                    roles.AddUnique(s.GetRole());
             }
 
             roles.Sort();
@@ -315,20 +311,19 @@ namespace Ship_Game
             {
                 FleetDesignShipListItem header = ShipSL.AddItem(new(this, role));
 
-                foreach (string shipName in Universe.Player.ShipsWeCanBuild)
+                foreach (IShipDesign d in Universe.Player.ShipsWeCanBuild)
                 {
-                    if (ResourceManager.GetShipTemplate(shipName, out Ship ship) && 
-                        IsCandidateShip(ship) && ship.DesignRoleName == header.HeaderText)
+                    if (IsCandidateShip(d) && d.GetRole() == header.HeaderText)
                     {
-                        header.AddSubItem(new FleetDesignShipListItem(this, ship));
+                        header.AddSubItem(new FleetDesignShipListItem(this, d));
                     }
                 }
             }
         }
 
-        static bool IsCandidateShip(Ship ship)
+        static bool IsCandidateShip(IShipDesign s)
         {
-            return ship.ShipData.Role != RoleName.troop && ship.DesignRole is not (RoleName.ssp or RoleName.construction);
+            return s.Role != RoleName.troop && s.Role is not (RoleName.ssp or RoleName.construction);
         }
 
         public struct ClickableNode

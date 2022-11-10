@@ -83,13 +83,12 @@ namespace Ship_Game
             RefitShipList.EnableItemHighlight = true;
             RefitShipList.OnClick = OnRefitShipItemClicked;
 
-            foreach (string shipId in ShipToRefit.Loyalty.ShipsWeCanBuild)
+            foreach (IShipDesign design in ShipToRefit.Loyalty.ShipsWeCanBuild)
             {
-                IShipDesign weCanBuild = ResourceManager.Ships.GetDesign(shipId);
-                if (weCanBuild.Hull == ShipToRefit.ShipData.Hull && shipId != ShipToRefit.Name &&
-                    !weCanBuild.ShipRole.Protected)
+                if (design.Hull == ShipToRefit.ShipData.Hull && design != ShipToRefit.ShipData &&
+                    !design.ShipRole.Protected)
                 {
-                    RefitShipList.AddItem(new RefitShipListItem(this, weCanBuild));
+                    RefitShipList.AddItem(new RefitShipListItem(this, design));
                 }
             }
 

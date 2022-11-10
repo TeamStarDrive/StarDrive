@@ -98,7 +98,7 @@ namespace Ship_Game
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, Universe));
             ShipDesigns.OnHovered = (item) =>
             {
-                if (item != null && (Screen.EnableDebugFeatures || Screen.Player.ShipsWeCanBuild.Contains(item.ShipName)))
+                if (item != null && (Screen.EnableDebugFeatures || Screen.Player.CanBuildShip(item.Design)))
                     ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Design);
                 else
                     ShipInfoOverlay.Hide();
@@ -123,7 +123,7 @@ namespace Ship_Game
                     .Filter(s => !s.Deleted && s.Name.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(shipList.Select(s => 
-                    new ShipDesignListItem(s, Screen.Player.ShipsWeCanBuild.Contains(s.Name))));
+                    new ShipDesignListItem(s, Screen.Player.CanBuildShip(s))));
             }
         }
 

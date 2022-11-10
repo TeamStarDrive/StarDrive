@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
-using Ship_Game.Debug;
 using Ship_Game.Empires.Components;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
@@ -269,12 +268,6 @@ namespace Ship_Game.Ships
                    && DesignRole == RoleName.scout;
         }
 
-        public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != RoleName.prototype && DesignRole != RoleName.disabled
-                                               && !ResourceManager.ShipRoles[ShipData.Role].Protected && !ShipData.Deleted
-                                               && DesignRole != RoleName.supply
-                                               && (empire.isPlayer || ShipGoodToBuild(empire))
-                                               && (!ShipData.IsPlayerDesign || GlobalStats.UsePlayerDesigns || empire.isPlayer);
-
         public void SetCombatStance(CombatState stance)
         {
             AI.CombatState = stance;
@@ -415,7 +408,6 @@ namespace Ship_Game.Ships
 
         public RoleName DesignRole => ShipData.Role;
         public RoleType DesignRoleType => ShipDesign.ShipRoleToRoleType(DesignRole);
-        public string DesignRoleName => ShipDesign.GetRole(DesignRole);
 
         public (SubTexture primaryIcon, SubTexture secondaryIcon, Color statusColor) TacticalIconWithStatusColor()
         {
@@ -1829,26 +1821,6 @@ namespace Ship_Game.Ships
             return healthMax;
         }
 
-        public void MarkShipRolesUsableForEmpire(Empire empire)
-        {
-            switch (DesignRole)
-            {
-                case RoleName.bomber:     empire.canBuildBombers      = true; break;
-                case RoleName.carrier:    empire.canBuildCarriers     = true; break;
-                case RoleName.support:    empire.canBuildSupportShips = true; break;
-                case RoleName.troopShip:  empire.canBuildTroopShips   = true; break;
-                case RoleName.corvette:   empire.canBuildCorvettes    = true; break;
-                case RoleName.frigate:    empire.canBuildFrigates     = true; break;
-                case RoleName.cruiser:    empire.canBuildCruisers     = true; break;
-                case RoleName.battleship: empire.CanBuildBattleships  = true; break;
-                case RoleName.capital:    empire.canBuildCapitals     = true; break;
-                case RoleName.platform:   empire.CanBuildPlatforms    = true; break;
-                case RoleName.station:    empire.CanBuildStations     = true; break;
-            }
-            if (ShipData.IsShipyard)
-                empire.CanBuildShipyards = true;
-        }
-
         // For Unit Tests
         public ShipModule TestGetModule(string uid)
         {
@@ -1978,24 +1950,13 @@ namespace Ship_Game.Ships
         public override string ToString() =>
             $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} {(Active?"Active":"DEAD")} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
 
-        public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
+        // TODO: this is duplicated
+        public bool ShipIsGoodForGoals()
         {
             if (!Active)
                 return false;
-
-            bool warpTimeGood = (empire ?? Loyalty) != null && IsWarpRangeGood(GlobalStats.MinAcceptableShipWarpRange);
+            bool warpTimeGood = IsWarpRangeGood(GlobalStats.MinAcceptableShipWarpRange);
             return warpTimeGood;
-        }
-
-        public bool IsBuildableByPlayer => ShipData.IsBuildableByPlayer;
-
-        public bool ShipGoodToBuild(Empire empire)
-        {
-            if (IsPlatformOrStation || ShipData.IsCarrierOnly)
-                return true;
-
-            NetPower = Power.Calculate(ModuleSlotList, empire);
-            return ShipIsGoodForGoals(0f, empire);
         }
 
         public Status ToShipStatus(float valueToCheck, float maxValue)
