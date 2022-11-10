@@ -24,7 +24,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void EnsureSaveGamesFitInMemory()
         {
-            int shipsPerEmpire = 700;
+            int shipsPerEmpire = 600;
 
             CreateCustomUniverseSandbox(numOpponents:6, galSize:GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);
@@ -78,6 +78,8 @@ namespace UnitTests.Universe
 
             Array<string> results = save1.State.MemberwiseCompare(save2.State);
             results.ForEach(Console.WriteLine);
+
+            Log.Write($"Total Mismatches: {results.Count}");
 
             // TODO: disabling these tests right now because it's really hard to fix in one go
             //AssertMemberwiseEqual(snap1, snap2, "SaveGame did not load correctly");
