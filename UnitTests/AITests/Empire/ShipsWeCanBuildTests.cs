@@ -110,7 +110,7 @@ namespace UnitTests.AITests.Empire
             Player.ClearShipsWeCanBuild();
             ShipDesign structure = CreateTemplate("Platform Base mk1-a", Player, playerDesign:false);
             Assert.IsTrue(Player.CanBuildShip(structure), "Update Structures: ShipsWeCanBuild was not updated.");
-            Assert.IsTrue(Player.SpaceStationsWeCanBuild.Contains(structure), "Update Structures: StructuresWeCanBuild Was Not Updated");
+            Assert.IsTrue(Player.CanBuildStation(structure), "Update Structures: StructuresWeCanBuild Was Not Updated");
         }
 
         ShipDesign CreateTemplate(string baseDesign, Ship_Game.Empire empire, bool playerDesign)

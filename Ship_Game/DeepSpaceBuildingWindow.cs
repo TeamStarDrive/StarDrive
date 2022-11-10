@@ -232,7 +232,7 @@ namespace Ship_Game
                     Screen.DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
                                             platform.Height * scale, new Color(0, 255, 0, 100));
 
-                    if (item.UID == "Subspace Projector")
+                    if (buildTemplate.IsSubspaceProjector)
                     {
                         Screen.DrawCircle(posOnScreen, Player.GetProjectorRadius(), Color.Orange, 2f);
                     }
