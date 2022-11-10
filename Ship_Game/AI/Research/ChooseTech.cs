@@ -352,7 +352,7 @@ namespace Ship_Game.AI.Research
             if (researchTech.IsTechnologyType(techType))
                 cost = NormalizeTechCost(researchTech.TechCost);
 
-            else if (!researchTech.IsPrimaryShipTech() && LineFocus.BestCombatShip?.ShipData.TechsNeeded.Contains(researchTech.UID) == true)
+            else if (!researchTech.IsPrimaryShipTech() && LineFocus.BestCombatShip?.TechsNeeded.Contains(researchTech.UID) == true)
                 cost = NormalizeTechCost(researchTech.TechCost);
 
             else  if (!techType.ToString().Contains("Ship"))
@@ -416,7 +416,7 @@ namespace Ship_Game.AI.Research
                         {
                             if (!tech.ContainsShipTech())
                             {
-                                foreach (var shipTech in LineFocus.BestCombatShip.ShipData.TechsNeeded)
+                                foreach (var shipTech in LineFocus.BestCombatShip.TechsNeeded)
                                 {
                                     bool foundTech = tech.Tech.UID == shipTech;
                                     if (foundTech && tech.Tech.ActualCost > 0)
@@ -459,9 +459,9 @@ namespace Ship_Game.AI.Research
         bool IsLineFocusedShipTech(TechEntry tech)
         {
             bool isShipTech = false;
-            var shipTechs = LineFocus.BestCombatShip?.ShipData.TechsNeeded;
+            var shipTechs = LineFocus.BestCombatShip?.TechsNeeded;
             if (shipTechs != null)
-                isShipTech = LineFocus.BestCombatShip?.ShipData.TechsNeeded.Contains(tech.Tech.UID) == true;
+                isShipTech = LineFocus.BestCombatShip?.TechsNeeded.Contains(tech.Tech.UID) == true;
             return isShipTech;
         }
 

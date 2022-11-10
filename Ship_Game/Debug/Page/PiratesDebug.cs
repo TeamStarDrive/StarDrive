@@ -98,10 +98,10 @@ public class PiratesDebug : DebugPage
 
         Text.NewLine();
 
-        Text.String($"Fighter Designs We Can Launch ({e.Pirates.ShipsWeCanBuild.Count})");
+        Text.String($"Fighter Designs We Can Launch ({e.Pirates.Owner.ShipsWeCanBuild.Count})");
         Text.String("---------------------------------------------");
-        foreach (string shipName in e.Pirates.ShipsWeCanBuild)
-            Text.String(shipName);
+        foreach (IShipDesign s in e.Pirates.Owner.ShipsWeCanBuild)
+            Text.String(s.Name);
 
         Text.NewLine();
 

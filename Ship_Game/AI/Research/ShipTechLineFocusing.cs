@@ -9,7 +9,7 @@ namespace Ship_Game.AI.Research
     public partial class ShipTechLineFocusing
     {
         readonly Empire OwnerEmpire;
-        public Ship BestCombatShip { get; private set; }
+        public IShipDesign BestCombatShip { get; private set; }
         public ShipPicker PickShipToResearch;
         ResearchOptions ResearchMods;
 
@@ -26,12 +26,12 @@ namespace Ship_Game.AI.Research
         {
             if (BestCombatShip != null)
             {
-                if (OwnerEmpire.ShipsWeCanBuild.Contains(BestCombatShip.Name)
-                    || OwnerEmpire.SpaceStationsWeCanBuild.Contains(BestCombatShip.Name)
-                    || BestCombatShip.ShipData.IsShipyard)
+                if (OwnerEmpire.CanBuildShip(BestCombatShip)
+                    || OwnerEmpire.SpaceStationsWeCanBuild.Contains(BestCombatShip)
+                    || BestCombatShip.IsShipyard)
                     BestCombatShip = null;
                 else
-                if (!BestCombatShip.ShipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Any())
+                if (!BestCombatShip.TechsNeeded.Except(OwnerEmpire.ShipTechs).Any())
                     BestCombatShip = null;
             }
             HashSet<string> shipFilteredTechs = FindBestShip(modifier, availableTechs, scriptedOrRandom);
@@ -77,9 +77,9 @@ namespace Ship_Game.AI.Research
             return true;
         }
 
-        private bool ShipHasUndiscoveredTech(Ship ship)
+        private bool ShipHasUndiscoveredTech(IShipDesign ship)
         {
-            foreach (string techName in ship.ShipData.TechsNeeded)
+            foreach (string techName in ship.TechsNeeded)
             {
                 if (!OwnerEmpire.HasDiscovered(techName))
                     return true;
@@ -87,9 +87,9 @@ namespace Ship_Game.AI.Research
             return false;
         }
 
-        private bool ShipHasResearchableTech(Ship ship)
+        private bool ShipHasResearchableTech(IShipDesign ship)
         {
-            foreach (string techName in ship.ShipData.TechsNeeded)
+            foreach (string techName in ship.TechsNeeded)
             {
                 var tech = OwnerEmpire.GetTechEntry(techName);
                 if (tech.Locked && tech.ContainsShipTech())
@@ -98,51 +98,50 @@ namespace Ship_Game.AI.Research
             return false;
         }
 
-        private Array<Ship> GetResearchableShips(Array<Ship> racialShips)
+        private Array<IShipDesign> GetResearchableShips(Array<IShipDesign> racialShips)
         {
-            var researchableShips = new Array<Ship>();
-            foreach (Ship shortTermBest in racialShips)
+            var researchableShips = new Array<IShipDesign>();
+            foreach (IShipDesign shortTermBest in racialShips)
             {
                 // don't try to research ships we have all the tech for.
                 if (!ShipHasResearchableTech(shortTermBest)) continue;
                 // Don't build ships intended for carriers if there arent any carriers.
-                if (!OwnerEmpire.canBuildCarriers && shortTermBest.ShipData.IsCarrierOnly)
+                if (!OwnerEmpire.canBuildCarriers && shortTermBest.IsCarrierOnly)
                     continue;
                 // filter out bad roles....
-                if (!IsRoleValid(shortTermBest.ShipData.HullRole)) continue;
-                if (!IsRoleValid(shortTermBest.DesignRole)) continue;
-                if (!IsRoleValid(shortTermBest.ShipData.Role)) continue;
-                if (!shortTermBest.ShipData.Unlockable) continue;
+                if (!IsRoleValid(shortTermBest.HullRole)) continue;
+                if (!IsRoleValid(shortTermBest.Role)) continue;
+                if (!shortTermBest.Unlockable) continue;
                 if (ShipHasUndiscoveredTech(shortTermBest)) continue;
-                if (!shortTermBest.ShipGoodToBuild(OwnerEmpire)) continue;
+                if (!shortTermBest.IsShipGoodToBuild(OwnerEmpire)) continue;
 
                 researchableShips.Add(shortTermBest);
             }
             return researchableShips;
         }
 
-        Array<Ship> FilterRacialShips()
+        Array<IShipDesign> FilterRacialShips()
         {
-            var racialShips = new Array<Ship>();
-            foreach (Ship shortTermBest in ResourceManager.ShipTemplates)
+            var racialShips = new Array<IShipDesign>();
+            foreach (IShipDesign shortTermBest in ResourceManager.Ships.Designs)
             {
                 // restrict to to ships available to this empire.
-                string shipStyle = shortTermBest.ShipData.ShipStyle ?? shortTermBest.ShipData.BaseHull?.Style;
+                string shipStyle = shortTermBest.ShipStyle ?? shortTermBest.BaseHull?.Style;
                 if (shipStyle.IsEmpty())
                 {
                     Log.Warning($"Ship {shortTermBest?.Name} Tech FilterRacialShip found a bad ship");
                     continue;
                 }
-                if (shortTermBest.ShipData.ShipStyle == null)
+                if (shortTermBest.ShipStyle == null)
                     continue;
 
-                if (shortTermBest.ShipData.IsShipyard)
+                if (shortTermBest.IsShipyard)
                     continue;
 
                 if (!OwnerEmpire.ShipStyleMatch(shipStyle))
                     continue;
 
-                if (shortTermBest.ShipData.TechsNeeded.Count == 0)
+                if (shortTermBest.TechsNeeded.Count == 0)
                 {
                     if (OwnerEmpire.Universe.Debug)
                     {
@@ -181,8 +180,8 @@ namespace Ship_Game.AI.Research
 
             // Doesn't have a best ship so find one
             // Filter out ships we cant use
-            Array<Ship> racialShips = FilterRacialShips();
-            Array<Ship> researchableShips = GetResearchableShips(racialShips);
+            Array<IShipDesign> racialShips = FilterRacialShips();
+            Array<IShipDesign> researchableShips = GetResearchableShips(racialShips);
 
             if (researchableShips.Count <= 0)
                 return nonShipTechs;
@@ -201,15 +200,15 @@ namespace Ship_Game.AI.Research
         private HashSet<string> UseBestShipTechs(HashSet<string> shipTechs, HashSet<string> nonShipTechs)
         {
             // Match researchable techs to techs ship needs.
-            if (OwnerEmpire.ShipsWeCanBuild.Contains(BestCombatShip?.Name))
+            if (OwnerEmpire.CanBuildShip(BestCombatShip))
                 BestCombatShip = null;
 
             if (BestCombatShip != null)
             {
-                var bestShipTechs = shipTechs.Intersect(BestCombatShip.ShipData.TechsNeeded);
+                var bestShipTechs = shipTechs.Intersect(BestCombatShip.TechsNeeded);
                 if (!bestShipTechs.Any())
                 {
-                    var bestNoneShipTechs = nonShipTechs.Intersect(BestCombatShip.ShipData.TechsNeeded);
+                    var bestNoneShipTechs = nonShipTechs.Intersect(BestCombatShip.TechsNeeded);
                     if (!bestNoneShipTechs.Any())
                         BestCombatShip = null;
                     else
@@ -252,11 +251,11 @@ namespace Ship_Game.AI.Research
 
         public TechEntry BestShipsHull(Array<TechEntry> availableTechs) => ShipHullTech(BestCombatShip, availableTechs);
 
-        public TechEntry ShipHullTech(Ship bestShip, Array<TechEntry> availableTechs)
+        public TechEntry ShipHullTech(IShipDesign bestShip, Array<TechEntry> availableTechs)
         {
             if (bestShip == null) return null;
 
-            var shipTechs = ConvertStringToTech(bestShip.ShipData.TechsNeeded);
+            var shipTechs = ConvertStringToTech(bestShip.TechsNeeded);
             foreach (TechEntry tech in shipTechs)
             {
                 if (tech.GetUnlockableHulls(OwnerEmpire).Count > 0)

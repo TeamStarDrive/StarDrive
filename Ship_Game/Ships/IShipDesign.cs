@@ -94,12 +94,13 @@ namespace Ship_Game.Ships
 
         // base stats like cost and mass
         float BaseCost       { get; }
+        float BaseStrength   { get; }
         float BaseThrust     { get; }
         float BaseTurnThrust { get; }
         float BaseWarpThrust { get; }
         bool  BaseCanWarp    { get; }
         float BaseMass       { get; }
-        float BaseStrength   { get; }
+        float BaseCargoSpace { get; }
 
         // specific ship type stats
         float StartingColonyGoods { get; }
@@ -143,5 +144,15 @@ namespace Ship_Game.Ships
 
         // Are this designs modules equal to the saved design?
         bool AreModulesEqual(ShipDesign savedDesign);
+
+        // Is this ship good to build for Empire e?
+        bool IsShipGoodToBuild(Empire e);
+
+        // Is this ship good for goals?
+        bool IsShipGoodForGoals(Empire e);
+
+        bool IsWarpRangeGood(float neededRange, float maxFTLSpeed);
+
+        bool CanBeAddedToBuildableShips(Empire empire);
     }
 }

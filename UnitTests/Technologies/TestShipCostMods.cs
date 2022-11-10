@@ -49,8 +49,8 @@ namespace UnitTests.Technologies
         public int ShipPickerReturnsATechCost()
         {
             var lineFocus = new ShipPicker(CreateResearchMod());
-            var ship      = ResourceManager.GetShipTemplate("Rocket Scout");
-            int techCost  = lineFocus.GetModifiedShipCost(ship, Enemy, 1);
+            var ship = ResourceManager.Ships.GetDesign("Rocket Scout");
+            int techCost = lineFocus.GetModifiedShipCost(ship, Enemy, 1);
             Assert.IsTrue(techCost > 0);
             return techCost;
         }
@@ -63,7 +63,7 @@ namespace UnitTests.Technologies
             // adjust researchModsToMakeSureValuesWork
             researchMods.ChangePriority(ResearchOptions.ShipCosts.BalanceToInfraIntensity, 100);
             var lineFocus  = new ShipPicker(researchMods);
-            var ship       = ResourceManager.GetShipTemplate("Rocket Scout");
+            var ship = ResourceManager.Ships.GetDesign("Rocket Scout");
             float techCost = lineFocus.GetModifiedShipCost(ship, Enemy, 1);
             Assert.IsTrue(techCost < baseCost);
         }
@@ -76,7 +76,7 @@ namespace UnitTests.Technologies
             // adjust researchModsToMakeSureValuesWork
             researchMods.ChangePriority(WeaponTag.Missile, 0.1f);
             var lineFocus  = new ShipPicker(researchMods);
-            var ship       = ResourceManager.GetShipTemplate("Rocket Scout");
+            var ship = ResourceManager.Ships.GetDesign("Rocket Scout");
             float techCost = lineFocus.GetModifiedShipCost(ship, Enemy, 1);
             Assert.IsTrue(techCost < baseCost);
         }
@@ -89,7 +89,7 @@ namespace UnitTests.Technologies
             // adjust researchModsToMakeSureValuesWork
             researchMods.ChangePriority(TechnologyType.ShipWeapons, 0.1f);
             var lineFocus  = new ShipPicker(researchMods);
-            var ship       = ResourceManager.GetShipTemplate("Rocket Scout");
+            var ship = ResourceManager.Ships.GetDesign("Rocket Scout");
             float techCost = lineFocus.GetModifiedShipCost(ship, Enemy, 1);
             Assert.IsTrue(techCost < baseCost);
         }

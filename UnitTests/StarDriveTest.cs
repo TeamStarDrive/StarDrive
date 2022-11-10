@@ -239,10 +239,10 @@ public partial class StarDriveTest : IDisposable
 
     public void UnlockAllShipsFor(Empire empire)
     {
-        foreach (string uid in ResourceManager.ShipTemplateIds)
-            empire.ShipsWeCanBuild.Add(uid);
+        foreach (IShipDesign design in ResourceManager.ShipDesigns)
+            empire.AddBuildableShip(design);
     }
-        
+
     public void UnlockAllTechsForShip(Empire empire, string shipName)
     {
         Ship ship = ResourceManager.GetShipTemplate(shipName);
@@ -269,8 +269,8 @@ public partial class StarDriveTest : IDisposable
     {
         ShipDesignUtils.MarkDesignsUnlockable();
 
-        Player.ShipsWeCanBuild.Clear();
-        Enemy.ShipsWeCanBuild.Clear();
+        Player.ClearShipsWeCanBuild();
+        Enemy.ClearShipsWeCanBuild();
         var techs = Enemy.TechEntries;
         foreach (var tech in techs)
         {

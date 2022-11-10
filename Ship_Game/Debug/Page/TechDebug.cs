@@ -54,17 +54,17 @@ public class TechDebug : DebugPage
         {
             Text.String($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0} ({e.Research.NetResearch.String()} / {e.Research.MaxResearchPotential.String()})");
             Text.String("   --" + e.Research.Topic);
-            Ship bestShip = e.AI.TechChooser.LineFocus.BestCombatShip;
+            IShipDesign bestShip = e.AI.TechChooser.LineFocus.BestCombatShip;
             if (bestShip != null)
             {
-                var neededTechs = bestShip.ShipData.TechsNeeded.Except(e.ShipTechs);
+                var neededTechs = bestShip.TechsNeeded.Except(e.ShipTechs);
                 float techCost = 0;
                 foreach(var tech in neededTechs)
                     techCost += e.TechCost(tech);
 
                 Text.String($"Ship : {bestShip.Name}");
                 Text.String($"Hull : {bestShip.BaseHull.Role}");
-                Text.String($"Role : {bestShip.DesignRole}");
+                Text.String($"Role : {bestShip.Role}");
                 Text.String($"Str : {(int)bestShip.BaseStrength} - Tech : {techCost}");
             }
         }

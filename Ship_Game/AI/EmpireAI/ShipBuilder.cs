@@ -47,9 +47,9 @@ namespace Ship_Game.AI
         static Array<IShipDesign> ShipsWeCanBuild(Empire empire, Predicate<IShipDesign> filter)
         {
             var ships = new Array<IShipDesign>();
-            foreach (string uid in empire.ShipsWeCanBuild)
+            foreach (IShipDesign design in empire.ShipsWeCanBuild)
             {
-                if (ResourceManager.Ships.GetDesign(uid, out IShipDesign design) && filter(design))
+                if (filter(design))
                     ships.Add(design);
             }
             return ships;
@@ -179,6 +179,26 @@ namespace Ship_Game.AI
             return picked;
         }
 
+        
+        static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)
+        {
+            float maxFTL = ShipStats.GetFTLSpeed(s, empire);
+            float maxSTL = ShipStats.GetSTLSpeed(s, empire);
+            float cargo = ShipStats.GetCargoSpace(s.BaseCargoSpace, s);
+            float turnRate = ShipStats.GetTurnRadsPerSec(s);
+            float area = s.SurfaceArea;
+
+            float warpK           = maxFTL / 1000;
+            float movementWeight  = warpK + maxSTL / 10 + turnRate.ToDegrees() - s.GetCost(empire) / 5;
+            float cargoWeight     = cargo.Clamped(0, 80) - area / 25;
+            float lowCargoPenalty = cargo < area * 0.5f ? cargo / area : 1;
+            float score           = movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
+
+            // For faster , cheaper ships vs big and maybe slower ships
+            return score * lowCargoPenalty;
+        }
+
+
         public static IShipDesign PickFreighter(Empire empire, float fastVsBig)
         {
             if (empire.isPlayer && empire.AutoFreighters &&
@@ -188,28 +208,21 @@ namespace Ship_Game.AI
                 return freighter;
             }
 
-            var freighters = new Array<Ship>();
-            foreach (string shipId in empire.ShipsWeCanBuild)
+            var freighters = new Array<IShipDesign>();
+            foreach (IShipDesign design in empire.ShipsWeCanBuild)
             {
-                if (ResourceManager.Ships.Get(shipId, out Ship ship))
-                {
-                    if (!ship.IsCandidateForTradingBuild)
+                    if (!design.IsCandidateForTradingBuild)
                         continue;
 
-                    freighters.Add(ship);
+                    freighters.Add(design);
                     if (empire.Universe?.Debug == true)
                     {
-                        Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: " +
-                                                    $"Value: {ship.FreighterValue(empire, fastVsBig)}");
+                        Log.Info(ConsoleColor.Cyan, $"pick freighter: {design.Name}: " +
+                                                    $"Value: {FreighterValue(design, empire, fastVsBig)}");
                     }
-                }
-                else
-                {
-                    Log.Warning($"Could not find shipID '{shipId}' in ship dictionary");
-                }
             }
 
-            freighter = freighters.FindMax(ship => ship.FreighterValue(empire, fastVsBig))?.ShipData;
+            freighter = freighters.FindMax(ship => FreighterValue(ship, empire, fastVsBig));
 
             if (empire.Universe?.Debug == true)
                 Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter?.Name ?? "null"}");
@@ -223,7 +236,7 @@ namespace Ship_Game.AI
                 return 0;
             float maxFTL = ShipStats.GetFTLSpeed(s, empire);
             float warpK = maxFTL / 1000;
-            float turnRate = ShipStats.GetBaseTurnRadsPerSec(s);
+            float turnRate = ShipStats.GetTurnRadsPerSec(s);
             float score = warpK + maxFTL / 10 + turnRate.ToDegrees();
             return score;
         }
@@ -248,11 +261,9 @@ namespace Ship_Game.AI
             else
             {
                 var constructors = new Array<IShipDesign>();
-                foreach (string shipId in empire.ShipsWeCanBuild)
-                {
-                    if (ResourceManager.Ships.GetDesign(shipId, out IShipDesign ship) && ship.IsConstructor)
-                        constructors.Add(ship);
-                }
+                foreach (IShipDesign design in empire.ShipsWeCanBuild)
+                    if (design.IsConstructor)
+                        constructors.Add(design);
 
                 if (constructors.Count == 0)
                 {

@@ -39,13 +39,10 @@ namespace Ship_Game.AI.Research
             }
         }
 
-        public Ship FindCheapestShipInList(Empire empire, Array<Ship> ships, HashSet<string> techs)
+        public IShipDesign FindCheapestShipInList(Empire empire, Array<IShipDesign> ships, HashSet<string> techs)
         {
-
             PopulateKnownTechs(empire);
-
-            var buildableShips = ResourceManager.ShipTemplates.Filter(t => empire.ShipsWeCanBuild.Contains(t.Name));
-
+            var buildableShips = empire.ShipsWeCanBuild.ToArr();
             PopulateMostTechs(buildableShips, KnownTechs);
             PopulateMostTechs(ships, KnownTechs);
 
@@ -65,12 +62,12 @@ namespace Ship_Game.AI.Research
             return pickedShip;
         }
 
-        public int GetModifiedShipCost(Ship s, Empire empire, float minTechCost)
+        public int GetModifiedShipCost(IShipDesign s, Empire empire, float minTechCost)
         {
             float techScore = 0;
 
             // first adjust cost by the techs in the ship.
-            foreach (string techName in s.ShipData.TechsNeeded)
+            foreach (string techName in s.TechsNeeded)
             {
                 var tech = empire.GetTechEntry(techName);
                 if (tech.Locked && !tech.IsRoot)
@@ -98,7 +95,7 @@ namespace Ship_Game.AI.Research
 
 
             // now adjust cost by the role of the ship.
-            switch (s.DesignRole)
+            switch (s.Role)
             {
                 case RoleName.platform:
                 case RoleName.station: techScore *= Options.CostMultiplier(Orbitals); break;
@@ -111,7 +108,7 @@ namespace Ship_Game.AI.Research
             }
 
             // adjust cost by how much it varies from already known tech.
-            float researchDepth = MostTechs.TryGetValue(s.DesignRole, out int depth) ? depth : 1;
+            float researchDepth = MostTechs.TryGetValue(s.Role, out int depth) ? depth : 1;
             float techsResearched = CountTechsAlreadyResearched(s, KnownTechs);
             float techRatio = Math.Min(researchDepth / techsResearched, 200);
 
@@ -128,19 +125,19 @@ namespace Ship_Game.AI.Research
         /// <summary>
         /// With the provided lists of ships and techs, populate a dictionary of design roles that use the most of those techs
         /// </summary>
-        public void PopulateMostTechs(IReadOnlyList<Ship> ships, Array<TechEntry> knownTechs)
+        public void PopulateMostTechs(IReadOnlyList<IShipDesign> ships, Array<TechEntry> knownTechs)
         {
             foreach (var ship in ships)
             {
                 int knownNumber = CountTechsAlreadyResearched(ship, KnownTechs);
 
-                if (MostTechs.TryGetValue(ship.DesignRole, out int known))
+                if (MostTechs.TryGetValue(ship.Role, out int known))
                 {
                     if (knownNumber > known)
-                        MostTechs[ship.DesignRole] = knownNumber;
+                        MostTechs[ship.Role] = knownNumber;
                 }
                 else
-                    MostTechs[ship.DesignRole] = 1;
+                    MostTechs[ship.Role] = 1;
             }
         }
 
@@ -149,11 +146,11 @@ namespace Ship_Game.AI.Research
         /// but only count items that have a tech it leads to already researched.
         /// This provides line focusing.
         /// </summary>
-        int CountTechsAlreadyResearched(Ship ship, Array<TechEntry> knowTechs)
+        int CountTechsAlreadyResearched(IShipDesign ship, Array<TechEntry> knowTechs)
         {
             int alreadyResearched = 0;
             int lineFocusBonus = (int)Options.CostMultiplier(LineFocusIntensity);
-            foreach (var techName in ship.ShipData.TechsNeeded)
+            foreach (var techName in ship.TechsNeeded)
             {
                 var tech = knowTechs.Find(t => t.UID == techName);
 

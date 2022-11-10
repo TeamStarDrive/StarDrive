@@ -705,12 +705,14 @@ namespace Ship_Game
             DeleteShipFromDir(appData + "/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/WIP", shipName);
 
+            IShipDesign design = Ships.GetDesign(shipName, throwIfError: false);
             Ships.Delete(shipName);
 
-            foreach (Empire e in us.Empires)
+            if (design != null)
             {
-                if (e.ShipsWeCanBuild.Remove(shipName))
-                    e.UpdateShipsWeCanBuild();
+                foreach (Empire e in us.Empires)
+                    if (e.RemoveBuildableShip(design))
+                        e.UpdateShipsWeCanBuild();
             }
         }
 
@@ -1593,7 +1595,7 @@ namespace Ship_Game
             }
 
             Parallel.For(descriptors.Length, LoadShips);
-            //LoadShips(0, shipDescriptors.Length); // test without parallel for
+            //LoadShips(0, descriptors.Length); // test without parallel for
         }
 
         static void ConvertOldDesigns(ShipDesignInfo[] shipDescriptors)

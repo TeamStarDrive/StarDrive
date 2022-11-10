@@ -76,9 +76,13 @@ namespace Ship_Game
         [StarData] public IncomingThreatDetector ThreatDetector;
         public IncomingThreat[] SystemsWithThreat => ThreatDetector.SystemsWithThreat;
 
-        [StarData] public HashSet<string> ShipsWeCanBuild;
+        [StarData] public HashSet<IShipDesign> ShipsWeCanBuild;
         // shipyards, platforms, SSP-s
-        [StarData] public HashSet<string> SpaceStationsWeCanBuild;
+        [StarData] public HashSet<IShipDesign> SpaceStationsWeCanBuild;
+
+        // For TESTING
+        public string[] ShipsWeCanBuildIds => ShipsWeCanBuild.Select(s => s.Name);
+
         int TurnCount = 1;
 
         [StarData] public EmpireData data;
@@ -1070,7 +1074,7 @@ namespace Ship_Game
             UnlockedHullsDict.Clear();
             UnlockedTroopDict.Clear();
             UnlockedTroops.Clear();
-            ShipsWeCanBuild.Clear();
+            ClearShipsWeCanBuild();
         }
 
         void InitEmpireUnlocks()
@@ -1079,7 +1083,10 @@ namespace Ship_Game
                 UnlockedBuildingsDict[building] = true;
             
             foreach (string ship in data.unlockShips)
-                ShipsWeCanBuild.Add(ship);
+            {
+                IShipDesign design = ResourceManager.Ships.GetDesign(ship);
+                AddBuildableShip(design);
+            }
 
             foreach (TechEntry entry in TechEntries) // unlock racial techs
                 if (entry.Discovered) data.Traits.UnlockAtGameStart(entry, this);
@@ -1470,6 +1477,26 @@ namespace Ship_Game
                 p.UpdateDefenseShipBuildingOffense();
             }
         }
+        
+        public void MarkShipRolesUsableForEmpire(IShipDesign s)
+        {
+            switch (s.Role)
+            {
+                case RoleName.bomber:     canBuildBombers      = true; break;
+                case RoleName.carrier:    canBuildCarriers     = true; break;
+                case RoleName.support:    canBuildSupportShips = true; break;
+                case RoleName.troopShip:  canBuildTroopShips   = true; break;
+                case RoleName.corvette:   canBuildCorvettes    = true; break;
+                case RoleName.frigate:    canBuildFrigates     = true; break;
+                case RoleName.cruiser:    canBuildCruisers     = true; break;
+                case RoleName.battleship: CanBuildBattleships  = true; break;
+                case RoleName.capital:    canBuildCapitals     = true; break;
+                case RoleName.platform:   CanBuildPlatforms    = true; break;
+                case RoleName.station:    CanBuildStations     = true; break;
+            }
+            if (s.IsShipyard)
+                CanBuildShipyards = true;
+        }
 
         public void ApplyModuleHealthTechBonus(float bonus)
         {
@@ -1696,7 +1723,31 @@ namespace Ship_Game
         /// @return TRUE if this Empire can build this ship
         public bool CanBuildShip(string shipUID)
         {
-            return ShipsWeCanBuild.Contains(shipUID);
+            if (ResourceManager.Ships.GetDesign(shipUID, out IShipDesign design))
+                return ShipsWeCanBuild.Contains(design);
+            return false;
+        }
+
+        public bool CanBuildShip(IShipDesign design)
+        {
+            return design != null && ShipsWeCanBuild.Contains(design);
+        }
+
+        // @return TRUE if ship did not already exist and was actually added
+        public bool AddBuildableShip(IShipDesign design)
+        {
+            return ShipsWeCanBuild.Add(design);
+        }
+
+        // @return TRUE if the ship was actually found and removed
+        public bool RemoveBuildableShip(IShipDesign design)
+        {
+            return ShipsWeCanBuild.Remove(design);
+        }
+
+        public void ClearShipsWeCanBuild()
+        {
+            ShipsWeCanBuild.Clear();
         }
 
         public void FactionShipsWeCanBuild()
@@ -1707,16 +1758,16 @@ namespace Ship_Game
                 if ((data.Traits.ShipType == ship.ShipData.ShipStyle
                     || ship.ShipData.ShipStyle == "Misc"
                     || ship.ShipData.ShipStyle.IsEmpty())
-                    && ship.CanBeAddedToBuildableShips(this))
+                    && ship.ShipData.CanBeAddedToBuildableShips(this))
                 {
-                    ShipsWeCanBuild.Add(ship.Name);
+                    AddBuildableShip(ship.ShipData);
                     foreach (ShipModule hangar in ship.Carrier.AllHangars)
                     {
                         if (hangar.HangarShipUID.NotEmpty())
                         {
-                            var hangarShip = ResourceManager.GetShipTemplate(hangar.HangarShipUID, throwIfError: false);
+                            var hangarShip = ResourceManager.Ships.GetDesign(hangar.HangarShipUID, throwIfError: false);
                             if (hangarShip?.CanBeAddedToBuildableShips(this) == true)
-                                ShipsWeCanBuild.Add(hangar.HangarShipUID);
+                                AddBuildableShip(hangarShip);
                         }
                     }
                 }
@@ -1735,23 +1786,23 @@ namespace Ship_Game
 
             // TODO: This should operate on IShipDesign instead of Ship template
             //       which requires a lot of utilities in Ship.cs to be moved
-            foreach (Ship ship in ResourceManager.ShipTemplates)
+            foreach (IShipDesign sd in ResourceManager.Ships.Designs)
             {
-                if (hulls != null && !hulls.Contains(ship.ShipData.Hull))
+                if (hulls != null && !hulls.Contains(sd.Hull))
                     continue;
 
                 // we can already build this
-                if (ShipsWeCanBuild.Contains(ship.Name))
+                if (CanBuildShip(sd))
                     continue;
-                if (!ship.CanBeAddedToBuildableShips(this))
+                if (!sd.CanBeAddedToBuildableShips(this))
                     continue;
 
-                if (WeCanBuildThis(ship.ShipData, debug))
+                if (WeCanBuildThis(sd, debug))
                 {
-                    if (ship.ShipData.Role <= RoleName.station)
-                        SpaceStationsWeCanBuild.Add(ship.Name);
+                    if (sd.Role <= RoleName.station)
+                        SpaceStationsWeCanBuild.Add(sd);
 
-                    bool shipAdded = ShipsWeCanBuild.Add(ship.Name);
+                    bool shipAdded = AddBuildableShip(sd);
 
                     if (isPlayer)
                         Universe.Screen?.OnPlayerBuildableShipsUpdated();
@@ -1760,7 +1811,7 @@ namespace Ship_Game
                     {
                         UpdateBestOrbitals();
                         UpdateDefenseShipBuildingOffense();
-                        ship.MarkShipRolesUsableForEmpire(this);
+                        MarkShipRolesUsableForEmpire(sd);
                     }
                 }
             }
@@ -2736,7 +2787,7 @@ namespace Ship_Game
         public IShipDesign ChooseScoutShipToBuild()
         {
             if (!ChooseScoutShipToBuild(out IShipDesign scout))
-                throw new($"{Name} is not able to find any Scout ships! ShipsWeCanBuild={string.Join(",", ShipsWeCanBuild)}");
+                throw new($"{Name} is not able to find any Scout ships! ShipsWeCanBuild={string.Join(",", ShipsWeCanBuildIds)}");
             return scout;
         }
 
@@ -2746,14 +2797,9 @@ namespace Ship_Game
                 return true;
 
             var scoutShipsWeCanBuild = new Array<IShipDesign>();
-            foreach (string shipName in ShipsWeCanBuild)
-            {
-                if (ResourceManager.Ships.GetDesign(shipName, out IShipDesign ship) &&
-                    ship.Role == RoleName.scout)
-                {
-                    scoutShipsWeCanBuild.Add(ship);
-                }
-            }
+            foreach (IShipDesign design in ShipsWeCanBuild)
+                if (design.Role == RoleName.scout)
+                    scoutShipsWeCanBuild.Add(design);
 
             if (scoutShipsWeCanBuild.IsEmpty)
             {
@@ -3083,7 +3129,7 @@ namespace Ship_Game
             ResetUnlocks();
 
             Inhibitors.Clear();
-            ShipsWeCanBuild.Clear();
+            ClearShipsWeCanBuild();
             SpaceStationsWeCanBuild.Clear();
             Research.Reset();
 
