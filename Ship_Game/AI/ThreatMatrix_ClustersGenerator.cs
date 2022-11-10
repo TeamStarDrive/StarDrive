@@ -177,20 +177,20 @@ public sealed partial class ThreatMatrix
             {
                 return AddNewCluster(loyalty, ship);
             }
-            if (clusters.Length == 1) // add to existing cluster
+            if (clusters.Length == 1 && CanJoinCluster(clusters[0], ship)) // add to existing cluster
             {
                 return AddToExistingCluster(clusters[0], ship);
             }
 
             // there are more than 1 clusters, perhaps because new ship
             // was inserted between 2 existing ones
-
-            // choose an existing ThreatCluster with the most ships
-            // and merge all other clusters into it
-            ThreatCluster c = ChooseBiggestCluster(clusters);
-            MergeClusters(c, clusters);
-
+            ThreatCluster c = ChooseClosestJoinableCluster(clusters, ship);
+            if (c == null) // we could not join any of the clusters
+                return AddNewCluster(loyalty, ship);
+            
+            // attempt to merge clusters if they are close enough
             // and don't forget to add the ship to the new merged cluster
+            MergeClusters(c, clusters);
             return AddToExistingCluster(c, ship);
         }
 
@@ -205,36 +205,93 @@ public sealed partial class ThreatMatrix
                     if (clusters.Length > 1)
                     {
                         ThreatCluster root = ChooseBiggestCluster(clusters);
-                        MergeClusters(root, clusters);
-                        if (!Threats.ClustersMap.Update(root))
-                            throw new("Failed to update ThreatCluster");
+                        if (MergeClusters(root, clusters))
+                        {
+                            if (!Threats.ClustersMap.Update(root))
+                                throw new("Failed to update ThreatCluster");
+                        }
                     }
                 }
             }
         }
 
-        static ThreatCluster ChooseBiggestCluster(ThreatCluster[] clusters)
+        static bool CanJoinCluster(ThreatCluster cluster, Ship ship)
         {
-            ThreatCluster c = clusters.FindMax(cl => cl.Update.Ships.Count);
-            if (c.Update.Ships.Count != 0) return c;
-
-            c = clusters.FindMax(cl => cl.Ships.Length);
-            if (c.Ships.Length != 0) return c;
-
-            return clusters.FindMax(cl => cl.Update.Bounds.Area);
+            return ship.Position.InRadius(cluster.Position, MaxClusterJoinDistance);
         }
 
-        void MergeClusters(ThreatCluster root, ThreatCluster[] clusters)
+        // choose a closest cluster that we can actually join as well
+        static ThreatCluster ChooseClosestJoinableCluster(ThreatCluster[] clusters, Ship toShip)
         {
+            // this is FindMinFiltered, but inlined for perf reasons
+            float closestDist = float.MaxValue;
+            ThreatCluster closest = null;
+            for (int i = 0 ; i < clusters.Length; ++i)
+            {
+                ThreatCluster c = clusters[i];
+                float sqDist = c.Position.SqDist(toShip.Position);
+                if (sqDist < closestDist && CanJoinCluster(c, toShip))
+                {
+                    closestDist = sqDist;
+                    closest = c;
+                }
+            }
+            return closest;
+        }
+
+        static ThreatCluster ChooseBiggestCluster(ThreatCluster[] clusters)
+        {
+            // this is a series of FindMax's inlined for perf reasons
+            ThreatCluster biggest = null;
+            int biggestCount = 0;
             for (int i = 0; i < clusters.Length; ++i)
             {
                 ThreatCluster c = clusters[i];
-                if (root != c && c.Update.Ships.NotEmpty)
+                if (biggestCount < c.Update.Ships.Count)
                 {
+                    biggestCount = c.Update.Ships.Count;
+                    biggest = c;
+                }
+                else if (biggestCount < c.Ships.Length)
+                {
+                    biggestCount = c.Ships.Length;
+                    biggest = c;
+                }
+            }
+            if (biggestCount > 0)
+                return biggest;
+
+            // fall back to finding cluster with biggest area
+            float biggestArea = 0f;
+            for (int i = 0; i < clusters.Length; ++i)
+            {
+                ThreatCluster c = clusters[i];
+                float area = c.Update.Bounds.Area;
+                if (biggestArea < area)
+                {
+                    biggestArea = area;
+                    biggest = c;
+                }
+            }
+            return biggest;
+        }
+
+        // @return TRUE if anything was merged
+        bool MergeClusters(ThreatCluster root, ThreatCluster[] clusters)
+        {
+            bool anyMerges = false;
+            for (int i = 0; i < clusters.Length; ++i)
+            {
+                ThreatCluster c = clusters[i];
+                if (root != c && c.Update.Ships.NotEmpty &&
+                    root.Position.InRadius(c.Position, MaxClustersMergeDistance))
+                {
+                    anyMerges = true;
                     root.Update.Merge(c.Update);
                     Threats.ClustersMap.Remove(c);
                 }
             }
+            return anyMerges;
         }
     }
 }

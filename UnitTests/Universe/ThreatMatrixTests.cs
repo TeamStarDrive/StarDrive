@@ -9,6 +9,7 @@ using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Data.Binary;
 using Ship_Game.Universe;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
 using UnitTests.Serialization;
 
@@ -38,6 +39,19 @@ public class ThreatMatrixTests : StarDriveTest
     protected void DebugVisualizeThreats(Empire owner)
     {
         var vis = new ThreatMatrixVisualization(this, owner);
+        vis.OnInsert = (GameObject o) =>
+        {
+            ScanAndUpdateThreats(owner);
+        };
+        vis.OnRemove = (SpatialObjectBase[] objects) =>
+        {
+            foreach (SpatialObjectBase o in objects)
+                if (o is ThreatCluster c)
+                    foreach (Ship s in c.Ships)
+                        s.InstantKill();
+            ScanAndUpdateThreats(owner);
+        };
+
         EnableMockInput(false); // switch from mocked input to real input
         Game.ShowAndRun(screen: vis); // run the sim
         EnableMockInput(true); // restore the mock input
@@ -49,7 +63,7 @@ public class ThreatMatrixTests : StarDriveTest
         float spawnedStrength = 0f;
         for (int i = 0; i < numShips; ++i)
         {
-            TestShip s = SpawnShip(SCOUT_NAME, owner, pos+random.Vector2D(radius));
+            TestShip s = SpawnShipNoCombatHoldPos(SCOUT_NAME, owner, pos+random.Vector2D(radius));
             spawnedStrength += s.GetStrength();
         }
         return spawnedStrength;
