@@ -2,6 +2,9 @@
 using Ship_Game.Spatial;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.AI;
+using UnitTests.Ships;
+using Ship_Game.Ships;
 
 namespace UnitTests.Universe;
 
@@ -9,7 +12,8 @@ namespace UnitTests.Universe;
 internal class ThreatMatrixVisualization : CommonVisualization
 {
     StarDriveTest Test;
-    readonly GenericQtree Tree;
+    Empire Owner;
+    public readonly GenericQtree Tree;
 
     float FindOneTime;
     float FindMultiTime;
@@ -27,8 +31,14 @@ internal class ThreatMatrixVisualization : CommonVisualization
         : base(owner.Threats.ClustersMap.FullSize)
     {
         Test = test;
+        Owner = owner;
         Tree = owner.Threats.ClustersMap;
-        AllObjects = owner.Threats.OurClusters.Concat(owner.Threats.RivalClusters);
+        AllObjects = GetAllObjects(owner.Threats);
+    }
+
+    SpatialObjectBase[] GetAllObjects(ThreatMatrix threats)
+    {
+        return threats.OurClusters.Concat(threats.RivalClusters).FastCast<ThreatCluster, SpatialObjectBase>();
     }
     
     protected override void Search(in AABoundingBox2D searchArea)
@@ -53,11 +63,18 @@ internal class ThreatMatrixVisualization : CommonVisualization
 
     protected override void InsertAt(Vector2 pos, float radius)
     {
-        Planet p = Test.AddDummyPlanet(pos);
-        p.Position = pos;
-        p.Radius = radius;
-        Tree.Insert(p);
-        AllObjects.Add(p, out AllObjects);
+        TestShip s = Test.SpawnShipNoCombatHoldPos("Vulcan Scout", Owner, pos);
+        s.Radius = radius;
+        if (OnInsert != null)
+        {
+            OnInsert(s);
+            AllObjects = GetAllObjects(Owner.Threats);
+        }
+        else
+        {
+            Tree.Insert(s);
+            AllObjects.Add(s, out AllObjects);
+        }
     }
 
     protected override void RemoveAt(Vector2 pos, float radius)
@@ -66,9 +83,17 @@ internal class ThreatMatrixVisualization : CommonVisualization
         Found = Tree.Find(opt);
         if (Found.Length != 0)
         {
-            foreach (SpatialObjectBase o in Found)
-                Tree.Remove(o);
-            AllObjects = AllObjects.Filter(o => !Found.Contains(o));
+            if (OnRemove != null)
+            {
+                OnRemove(Found);
+                AllObjects = GetAllObjects(Owner.Threats);
+            }
+            else
+            {
+                foreach (SpatialObjectBase o in Found)
+                    Tree.Remove(o);
+                AllObjects = AllObjects.Filter(o => !Found.Contains(o));
+            }
         }
     }
 

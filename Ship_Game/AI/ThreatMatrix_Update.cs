@@ -19,6 +19,19 @@ public sealed partial class ThreatMatrix
     public const float RivalClusterJoinRadius = 8000f;
 
     /// <summary>
+    /// This will prevent clusters from growing infinitely big,
+    /// by setting a maximum participation radius.
+    /// Ships that diverge outside of this radius will form a new cluster
+    /// </summary>
+    public const float MaxClusterJoinDistance = 40_000f;
+
+    /// <summary>
+    /// Clusters can only be merged together if they are closer than this
+    /// distance
+    /// </summary>
+    public const float MaxClustersMergeDistance = 30_000f;
+
+    /// <summary>
     /// How much beyond a Cluster's center until a cluster
     /// is considered as fully observed.
     /// If a fully observed cluster contains no ships, it is then deleted.

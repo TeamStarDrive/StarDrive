@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using SDUtils;
 using Ship_Game;
+using Ship_Game.AI;
 using Ship_Game.Data;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
@@ -332,6 +333,14 @@ public partial class StarDriveTest : IDisposable
         AssertTrue(ship.Active, "Spawned ship is Inactive! This is a bug in Status update!");
 
         return ship;
+    }
+
+    public TestShip SpawnShipNoCombatHoldPos(string shipName, Empire empire, Vector2 position)
+    {
+        TestShip s = SpawnShip(shipName, empire, position);
+        s.AI.IgnoreCombat = true;
+        s.AI.OrderHoldPosition(MoveOrder.StandGround|MoveOrder.HoldPosition);
+        return s;
     }
 
     SolarSystem CreateRandomSolarSystem(Vector2 sysPos)
