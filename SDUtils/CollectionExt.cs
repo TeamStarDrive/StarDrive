@@ -534,6 +534,14 @@ namespace SDUtils
             return UniqueSet(items).ToArrayList();
         }
 
+        public static T[] Unique<T>(this T[] items)
+        {
+            var unique = new HashSet<T>();
+            foreach (var item in items)
+                unique.Add(item);
+            return unique.ToArr();
+        }
+
         // Disposes all objects AND clears the Map
         public static void ClearAndDispose<TKey,TValue>(this Map<TKey, TValue> map)
             where TValue : IDisposable

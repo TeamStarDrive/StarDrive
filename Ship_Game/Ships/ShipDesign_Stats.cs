@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using static Ship_Game.Ships.Ship;
 
 namespace Ship_Game.Ships
 {
@@ -31,12 +32,15 @@ namespace Ship_Game.Ships
         public bool IsBomber          { get; private set; }
 
         public float BaseCost       { get; private set; }
+        public float BaseStrength   { get; private set; }
         public float BaseThrust     { get; private set; }
         public float BaseTurnThrust { get; private set; }
         public float BaseWarpThrust { get; private set; }
         public bool  BaseCanWarp    { get; private set; }
         public float BaseMass       { get; private set; }
-        public float BaseStrength   { get; private set; }
+        public float BaseCargoSpace { get; private set; }
+
+        public Power NetPower;
 
         public float StartingColonyGoods { get; private set; }
         public int NumBuildingsDeployed { get; private set; }
@@ -68,10 +72,12 @@ namespace Ship_Game.Ships
             float baseWarp = 0f;
             float baseMass = 0f;
             float baseStrength = 0f;
+            float baseCargoSpace = 0f;
             int offensiveSlots = 0;
             float startingColonyGoods = 0f;
             int numBuildingsDeployed = 0;
 
+            var mTemplates = new Array<ShipModule>();
             var hangars = new Array<ShipModule>();
             var weapons = new Array<Weapon>();
             HashSet<string> invalidModules = null;
@@ -87,11 +93,13 @@ namespace Ship_Game.Ships
                     continue;
                 }
 
+                mTemplates.Add(m);
                 baseCost += m.Cost;
                 baseThrust += m.Thrust;
                 baseTurnThrust += m.TurnThrust;
                 baseWarp += m.WarpThrust;
                 baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
+                baseCargoSpace += m.CargoCapacity;
 
                 if (m.Is(ShipModuleType.Hangar))
                     hangars.Add(m);
@@ -127,6 +135,7 @@ namespace Ship_Game.Ships
             BaseWarpThrust = baseWarp;
             BaseCanWarp = baseWarp > 0;
             BaseMass = baseMass;
+            BaseCargoSpace = baseCargoSpace;
 
             StartingColonyGoods = startingColonyGoods;
             NumBuildingsDeployed = numBuildingsDeployed;
@@ -134,6 +143,8 @@ namespace Ship_Game.Ships
             Hangars = hangars.ToArray();
             AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
             Weapons = weapons.ToArray();
+
+            NetPower = Power.Calculate(mTemplates, null, designModule: true);
 
             // Updating the Design Role is always done in the Shipyard
             // However, it can be overriden with --fix-roles to update all ship designs
@@ -202,5 +213,41 @@ namespace Ship_Game.Ships
             int roleNum = (int)role - 1;
             return RoleArray[roleNum];
         }
+
+        public bool IsShipGoodToBuild(Empire e)
+        {
+            if (IsPlatformOrStation || IsCarrierOnly)
+                return true;
+            return IsShipGoodForGoals(e);
+        }
+
+        public bool IsShipGoodForGoals(Empire e)
+        {
+            float neededRange = GlobalStats.MinAcceptableShipWarpRange;
+            if (neededRange <= 0f) return true;
+
+            float maxFTLSpeed = ShipStats.GetFTLSpeed(this, e);
+            bool good = IsWarpRangeGood(neededRange, maxFTLSpeed);
+            return good;
+        }
+
+        public bool IsWarpRangeGood(float neededRange, float maxFTLSpeed)
+        {
+            if (neededRange <= 0f) return true;
+            float powerDuration = NetPower.PowerDuration(MoveState.Warp, NetPower.PowerStoreMax);
+            return ShipStats.IsWarpRangeGood(neededRange, powerDuration, maxFTLSpeed);
+        }
+
+        public bool CanBeAddedToBuildableShips(Empire empire)
+        {
+            return Role != RoleName.prototype 
+                && Role != RoleName.disabled
+                && Role != RoleName.supply
+                && !ShipRole.Protected
+                && !Deleted
+                && (empire.isPlayer || IsShipGoodForGoals(empire))
+                && (!IsPlayerDesign || GlobalStats.UsePlayerDesigns || empire.isPlayer);
+        }
+
     }
 }

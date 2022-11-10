@@ -301,7 +301,7 @@ namespace Ship_Game
         private void BuildOrScrapShipyard(int numWantedShipyards, float budget)
         {
             if (numWantedShipyards == 0 || OrbitalsInTheWorks
-                                        || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard)
+                                        || !Owner.CanBuildShip(Owner.data.DefaultShipyard)
                                         || !HasSpacePort)
             {
                 return;

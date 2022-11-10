@@ -124,7 +124,7 @@ public sealed partial class Empire
         if (!isPlayer || fleet == null || !fleet.AutoRequisition)
             return;
 
-        if (!ShipsWeCanBuild.Contains(ship.Name) || !fleet.FindShipNode(ship, out FleetDataNode node))
+        if (!ShipsWeCanBuild.Contains(ship.ShipData) || !fleet.FindShipNode(ship, out FleetDataNode node))
             return;
         var ships = OwnedShips;
 

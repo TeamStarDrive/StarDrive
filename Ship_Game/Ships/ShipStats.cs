@@ -110,8 +110,8 @@ namespace Ship_Game.Ships
             if (S.IsPlatform) S.SensorRange = S.SensorRange.LowerBound(10000);
             S.SensorRange   *= e.data.SensorModifier;
             S.SensorRange   *= Hull.Bonuses.SensorModifier;
-            S.CargoSpaceMax *= Hull.Bonuses.CargoModifier;
             S.RepairRate    += (float)(S.RepairRate * S.Level * 0.05);
+            S.CargoSpaceMax = GetCargoSpace(S.CargoSpaceMax, Hull);
 
             S.SetActiveInternalSlotCount(activeInternalSlots);
 
@@ -201,7 +201,7 @@ namespace Ship_Game.Ships
             return Math.Min(radsPerSec, Ship.MaxTurnRadians);
         }
 
-        public static float GetBaseTurnRadsPerSec(IShipDesign s)
+        public static float GetTurnRadsPerSec(IShipDesign s)
         {
             float radsPerSec = s.BaseTurnThrust / s.BaseMass / 700f;
             return Math.Min(radsPerSec, Ship.MaxTurnRadians);
@@ -229,6 +229,13 @@ namespace Ship_Game.Ships
             return Math.Min(speed, Ship.MaxSubLightSpeed);
         }
 
+        public static float GetSTLSpeed(IShipDesign s, Empire e)
+        {
+            float thrustWeightRatio = s.BaseThrust / s.BaseMass;
+            float speed = thrustWeightRatio * e.data.SubLightModifier;
+            return Math.Min(speed, Ship.MaxSubLightSpeed);
+        }
+
         public float GetFTLSpoolTime(ShipModule[] modules, Empire e)
         {
             float spoolTime = 0f;
@@ -239,6 +246,18 @@ namespace Ship_Game.Ships
             if (spoolTime <= 0f)
                 spoolTime = 3f;
             return spoolTime;
+        }
+
+        public static float GetCargoSpace(float cargoMax, IShipDesign s)
+        {
+            return cargoMax * s.Bonuses.CargoModifier;
+        }
+        
+        /// @return TRUE if ship can effectively warp the given distance in 1 jump
+        public static bool IsWarpRangeGood(float neededRange, float powerDuration, float maxFTLSpeed)
+        {
+            float maxFTLRange = powerDuration * maxFTLSpeed;
+            return maxFTLRange >= neededRange;
         }
 
         // This will also update shield max power of modules if there are amplifiers

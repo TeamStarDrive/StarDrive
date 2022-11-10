@@ -59,7 +59,6 @@ namespace Ship_Game
             ai.AddGoal(new PirateAI(Owner));
         }
 
-        public HashSet<string> ShipsWeCanBuild => Owner.ShipsWeCanBuild;
         public int MinimumColoniesForPayment   => Owner.data.MinimumColoniesForStartPayment;
         int PaymentPeriodTurns                 => Owner.data.PiratePaymentPeriodTurns;
         public bool PaidBy(Empire victim)      => !Owner.IsAtWarWith(victim);
@@ -587,11 +586,11 @@ namespace Ship_Game
             if (shipToAdd.NotEmpty())
             {
                 ShipsWeCanSpawn.AddUnique(shipToAdd);
-                Ship fighter = ResourceManager.GetShipTemplate(shipToAdd);
-                if (fighter != null && fighter.ShipData.HullRole == RoleName.fighter
-                                    && !ShipsWeCanBuild.Contains(shipToAdd))
+                IShipDesign fighter = ResourceManager.Ships.GetDesign(shipToAdd, throwIfError: false);
+                if (fighter != null && fighter.HullRole == RoleName.fighter
+                                    && !Owner.CanBuildShip(shipToAdd))
                 {
-                    ShipsWeCanBuild.Add(shipToAdd); // For carriers to spawn the default fighters
+                    Owner.AddBuildableShip(fighter); // For carriers to spawn the default fighters
                 }
             }
             else
@@ -863,11 +862,12 @@ namespace Ship_Game
 
         void PopulateDefaultBasicShips(bool fromSave)
         {
-            ShipsWeCanBuild.Clear();
-            if (Owner.data.PirateFighterBasic.NotEmpty()
-                && !ShipsWeCanBuild.Contains(Owner.data.PirateFighterBasic))
+            Owner.ClearShipsWeCanBuild();
+            if (Owner.data.PirateFighterBasic.NotEmpty() &&
+                !Owner.CanBuildShip(Owner.data.PirateFighterBasic))
             {
-                ShipsWeCanBuild.Add(Owner.data.PirateFighterBasic); // For carriers
+                if (ResourceManager.Ships.GetDesign(Owner.data.PirateFighterBasic, out IShipDesign fighter))
+                    Owner.AddBuildableShip(fighter); // For carriers
             }
 
             if (!fromSave)

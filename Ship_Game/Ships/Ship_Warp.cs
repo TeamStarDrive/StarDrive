@@ -225,9 +225,9 @@ namespace Ship_Game.Ships
         /// @return TRUE if ship can effectively warp the given distance in 1 jump
         public bool IsWarpRangeGood(float neededRange)
         {
+            if (neededRange <= 0f) return true;
             float powerDuration = NetPower.PowerDuration(MoveState.Warp, PowerCurrent);
-            float maxFTLRange = powerDuration * MaxFTLSpeed;
-            return maxFTLRange >= neededRange;
+            return ShipStats.IsWarpRangeGood(neededRange, powerDuration, MaxFTLSpeed);
         }
 
         public void SetWarpPercent(FixedSimTime timeStep, float warpPercent)

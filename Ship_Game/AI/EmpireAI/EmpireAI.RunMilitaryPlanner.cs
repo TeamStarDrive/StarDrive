@@ -316,12 +316,11 @@ namespace Ship_Game.AI
 
             public void PopulateRoleCountWithBuildableShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> buildableShips)
             {
-                foreach (var shipName in empire.ShipsWeCanBuild)
+                foreach (IShipDesign design in empire.ShipsWeCanBuild)
                 {
-                    var ship = ResourceManager.GetShipTemplate(shipName);
-                    var combatRole = RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
+                    var combatRole = RoleCounts.ShipRoleToCombatRole(design.Role);
                     if (buildableShips.TryGetValue(combatRole, out RoleCounts roleCounts))
-                        roleCounts.AddToBuildableShips(ship);
+                        roleCounts.AddToBuildableShips(design);
                 }
             }
 
@@ -377,8 +376,8 @@ namespace Ship_Game.AI
                 public bool CanBuildMore => CurrentMaintenance + PerUnitMaintenanceMax < RoleBuildBudget;
                 public CombatRole Role { get; }
                 private Empire Empire { get; }
-                readonly Array<Ship> BuildableShips = new Array<Ship>();
-                readonly Array<Ship> CurrentShips   = new Array<Ship>();
+                readonly Array<IShipDesign> BuildableShips = new();
+                readonly Array<Ship> CurrentShips = new();
                 public bool WeAreScrapping = false;
 
                 public RoleCounts(CombatRole role, Empire empire)
@@ -397,7 +396,7 @@ namespace Ship_Game.AI
 
                     CurrentMaintenance += MaintenanceInConstruction;
                     if (BuildableShips.NotEmpty)
-                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost(Empire));
+                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintenanceCost(Empire));
 
                     float minimum = CombatRoleToRatioMin(ratio);
                     FleetRatioMaintenance = PerUnitMaintenanceMax * minimum;
@@ -455,7 +454,7 @@ namespace Ship_Game.AI
 
                 public void AddToCurrentShips(Ship ship) => CurrentShips.Add(ship);
 
-                public void AddToBuildableShips(Ship ship) => BuildableShips.Add(ship);
+                public void AddToBuildableShips(IShipDesign ship) => BuildableShips.Add(ship);
 
                 public void AddToBuildingCost(float cost)
                 {

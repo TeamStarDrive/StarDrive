@@ -125,12 +125,11 @@ namespace Ship_Game.AI
                     int maxStrength   = 0;
                     int maxTechScore  = 0;
                     Log.Write($"------- ship list -----{OwnerEmpire.Universe?.StarDate} Ship list for {OwnerEmpire.Name}");
-                    foreach (var logit in OwnerEmpire.ShipsWeCanBuild)
+                    foreach (IShipDesign design in OwnerEmpire.ShipsWeCanBuild)
                     {
-                        var template = ResourceManager.GetShipTemplate(logit, false);
-                        Log.Write(ConsoleColor.Green ,$"{template.BaseHull.Role}, {template.DesignRole}, '{logit}'");
-                        int strength   = (int)template.GetStrength();
-                        techScore     += template.ShipData.TechsNeeded.Count;
+                        Log.Write(ConsoleColor.Green ,$"{design.BaseHull.Role}, {design.Role}, '{design}'");
+                        int strength   = (int)design.BaseStrength;
+                        techScore     += design.TechsNeeded.Count;
                         totalStrength += strength;
                         maxStrength    = Math.Max(maxStrength, strength);
                         maxTechScore   = Math.Max(maxTechScore, techScore);
