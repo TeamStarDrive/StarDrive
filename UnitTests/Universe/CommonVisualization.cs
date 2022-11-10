@@ -7,7 +7,6 @@ using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.AI;
-using System.Windows.Forms;
 
 namespace UnitTests.Universe;
 
@@ -23,6 +22,9 @@ internal abstract class CommonVisualization : GameScreen
     public SpatialObjectBase[] AllObjects;
     public SpatialObjectBase[] Found = Empty<SpatialObjectBase>.Array;
     public VisualizerOptions VisOpt = new();
+
+    public Action<GameObject> OnInsert;
+    public Action<SpatialObjectBase[]> OnRemove;
 
     protected CommonVisualization(float fullSize)
         : base(null, toPause: null)
