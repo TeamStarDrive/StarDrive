@@ -160,9 +160,9 @@ namespace Ship_Game
             if (CType == ColonyType.Agricultural)
                 perCol *= Fertility;
 
-            float flatMulti = Food.NetMaxPotential <= 0 ? 3 : 1;
-            flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f) * flatMulti;
-            perCol = ApplyGovernorBonus(perCol, 1.75f, 0.25f, 0.25f, 3f, 0.25f);
+            float flatMulti = Food.NetMaxPotential <= 0 ? 4 : 1;
+            flat   = ApplyGovernorBonus(flat, 1.25f, 2f, 2f, 2.5f, 2f) * flatMulti;
+            perCol = ApplyGovernorBonus(perCol, 1.75f, 0.25f, 0.25f, 4f, 0.25f);
             Priorities[ColonyPriority.FoodFlat]   = flat;
             Priorities[ColonyPriority.FoodPerCol] = perCol;
         }
@@ -193,7 +193,7 @@ namespace Ship_Game
             perCol += (1 - Storage.ProdRatio) * MineralRichness;
             perCol *= PopulationRatio;
 
-            float flatMulti = Prod.NetMaxPotential < 1 ? 3 : 1;
+            float flatMulti = Prod.NetMaxPotential < 1 ? 4 : 1;
             flat        = ApplyGovernorBonus(flat, 1f, 2f, 1f, 1f, 1.5f) * flatMulti;
             perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f);
             perCol      = ApplyGovernorBonus(perCol, 1f, 2f, 0.5f, 0.5f, 1.5f);
@@ -244,8 +244,8 @@ namespace Ship_Game
             }
             else
             {
-                flat   = ApplyGovernorBonus(flat, 0.8f, 0.2f, 2f, 0.2f, 0.25f);
-                perCol = ApplyGovernorBonus(perCol, 1f, 0.1f, 2f, 0.1f, 0.1f);
+                flat   = ApplyGovernorBonus(flat, 0.8f, 0.2f, 3f, 0.2f, 0.5f);
+                perCol = ApplyGovernorBonus(perCol, 1f, 0.1f, 3f, 0.1f, 0.25f);
             }
 
             Priorities[ColonyPriority.ResearchFlat]   = flat;
@@ -534,9 +534,9 @@ namespace Ship_Game
             float score = 0;
 
             score += EvalTraits(Priorities[ColonyPriority.FoodFlat],        b.PlusFlatFoodAmount);
-            score += EvalTraits(Priorities[ColonyPriority.FoodPerCol],      b.PlusFoodPerColonist);
-            score += EvalTraits(Priorities[ColonyPriority.ProdFlat],        b.PlusFlatProductionAmount);
-            score += EvalTraits(Priorities[ColonyPriority.ProdPerCol],      b.PlusProdPerColonist);
+            score += EvalTraits(Priorities[ColonyPriority.FoodPerCol],      b.PlusFoodPerColonist * 3);
+            score += EvalTraits(Priorities[ColonyPriority.ProdFlat],        b.PlusFlatProductionAmount * 2);
+            score += EvalTraits(Priorities[ColonyPriority.ProdPerCol],      b.PlusProdPerColonist * 2);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.IncreaseRichness * 50);
             score += EvalTraits(Priorities[ColonyPriority.PopGrowth],       b.PlusFlatPopulation / 10);

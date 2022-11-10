@@ -50,11 +50,11 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             var queue    = planet.Construction.GetConstructionQueue();
-            int priority = queue.Count > 0 && !planet.HasColonyShipFirstInQueue() && queue[0].ProductionNeeded > scout.GetCost(Owner) * 2 ? 0 : 1;
+            int priority = Owner.GetPlanets().Count / 3;
 
             PlanetBuildingAt = planet;
             planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
-            planet.Construction.PrioritizeShip(scout, priority, 2);
+            planet.Construction.PrioritizeShip(scout, priority, priority * 2);
 
             return GoalStep.GoToNextStep;
         }
