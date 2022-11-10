@@ -172,7 +172,7 @@ namespace Ship_Game.Commands.Goals
                                         notifyOnEmpty:Owner.isPlayer,
                                         displayName: $"{colonyShip.Name} ({TargetPlanet.Name})");
 
-            int priority = planet.NumColonyShipInQueue() + (Owner.IsExpansionists ? 0 : 1);
+            int priority = Owner.GetPlanets().Count / 3 + (Owner.IsExpansionists ? 0 : 1);
             planet.Construction.PrioritizeShip(colonyShip, priority, atWar: priority * 2);
 
             return GoalStep.GoToNextStep;

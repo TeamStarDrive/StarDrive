@@ -35,8 +35,8 @@ namespace Ship_Game.Commands.Goals
 
             PlanetBuildingAt = planet;
             planet.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
-            if (Owner.TotalFreighters < Owner.GetPlanets().Count)
-                planet.Construction.PrioritizeShip(Build.Template, 1);
+            int priority = Owner.TotalFreighters < Owner.GetPlanets().Count ? 1 : Owner.GetPlanets().Count / 3;
+            planet.Construction.PrioritizeShip(Build.Template, priority, priority * 2);
 
             return GoalStep.GoToNextStep;
         }

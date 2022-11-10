@@ -39,12 +39,10 @@ namespace Ship_Game.Commands.Goals
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, ToBuild, out Planet buildAt))
                 return GoalStep.TryAgain;
 
-            var queue = buildAt.Construction.GetConstructionQueue();
-            int priority = queue.Count > 0 && !buildAt.HasColonyShipFirstInQueue() && queue[0].ProductionNeeded > Build.Template.GetCost(Owner) * 2 ? 0 : 1;
-            
             PlanetBuildingAt = buildAt;
             buildAt.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
-            buildAt.Construction.PrioritizeShip(Build.Template, priority, 2);
+            int priority = Owner.GetPlanets().Count / 3;
+            buildAt.Construction.PrioritizeShip(Build.Template, priority, priority * 2);
 
             return GoalStep.GoToNextStep;
         }
