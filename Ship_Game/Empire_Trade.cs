@@ -278,7 +278,7 @@ namespace Ship_Game
         // FB - Refit some idle freighters to better ones, if unlocked
         public void TriggerFreightersRefit()
         {
-            if (ManualTrade)
+            if (ManualTrade || TotalFreighters / FreighterCap <= 0.75f)
                 return;
 
             IShipDesign betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
@@ -292,14 +292,14 @@ namespace Ship_Game
         // Percentage to check if there is better suited freighter model available
         public void CheckForRefitFreighter(Ship freighter, int percentage, IShipDesign betterFreighter = null)
         {
-            if (ManualTrade || !RandomMath.RollDice(percentage))
-                return;
+            if (!ManualTrade && !RandomMath.RollDice(percentage) && TotalFreighters / FreighterCap > 0.5f)
+            {
+                if (betterFreighter == null)
+                    betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
 
-            if (betterFreighter == null)
-                 betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
-
-            if (betterFreighter != null && betterFreighter.Name != freighter.Name)
-                AI.AddGoalAndEvaluate(new RefitShip(freighter, betterFreighter, this));
+                if (betterFreighter != null && betterFreighter.Name != freighter.Name)
+                    AI.AddGoalAndEvaluate(new RefitShip(freighter, betterFreighter, this));
+            }
         }
 
         public void UpdateAverageFreightFTL(float value)
