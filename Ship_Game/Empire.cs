@@ -1106,7 +1106,8 @@ namespace Ship_Game
                 if (UnlockedTroopDict.Count == 0) Log.Error($"Empire UnlockedTroopDict is empty! {this}");
                 if (UnlockedTroops.Count == 0) Log.Error($"Empire UnlockedTroops is empty! {this}");
                 if (ShipsWeCanBuild.Count == 0) Log.Error($"Empire ShipsWeCanBuild is empty! {this}");
-                if (SpaceStationsWeCanBuild.Count == 0) Log.Error($"Empire ShipsWeCanBuild is empty! {this}");
+                if (SpaceStationsWeCanBuild.Count == 0 && ShipsWeCanBuild.Any(s => s.Role <= RoleName.station))
+                    Log.Error($"Empire SpaceStationsWeCanBuild is empty! {this}");
             }
         }
 
@@ -1728,21 +1729,37 @@ namespace Ship_Game
             return false;
         }
 
-        public bool CanBuildShip(IShipDesign design)
+        public bool CanBuildShip(IShipDesign ship)
         {
-            return design != null && ShipsWeCanBuild.Contains(design);
+            return ship != null && ShipsWeCanBuild.Contains(ship);
+        }
+
+        public bool CanBuildStation(IShipDesign station)
+        {
+            return station != null && SpaceStationsWeCanBuild.Contains(station);
         }
 
         // @return TRUE if ship did not already exist and was actually added
-        public bool AddBuildableShip(IShipDesign design)
+        public bool AddBuildableShip(IShipDesign ship)
         {
-            return ShipsWeCanBuild.Add(design);
+            return ShipsWeCanBuild.Add(ship);
+        }
+
+        public void AddBuildableStation(IShipDesign ship)
+        {
+            SpaceStationsWeCanBuild.Add(ship);
         }
 
         // @return TRUE if the ship was actually found and removed
-        public bool RemoveBuildableShip(IShipDesign design)
+        public bool RemoveBuildableShip(IShipDesign ship)
         {
-            return ShipsWeCanBuild.Remove(design);
+            return ShipsWeCanBuild.Remove(ship);
+        }
+
+        // @return TRUE if the ship was actually found and removed
+        public bool RemoveBuildableStation(IShipDesign ship)
+        {
+            return ShipsWeCanBuild.Remove(ship);
         }
 
         public void ClearShipsWeCanBuild()
@@ -1800,7 +1817,7 @@ namespace Ship_Game
                 if (WeCanBuildThis(sd, debug))
                 {
                     if (sd.Role <= RoleName.station)
-                        SpaceStationsWeCanBuild.Add(sd);
+                        AddBuildableStation(sd);
 
                     bool shipAdded = AddBuildableShip(sd);
 

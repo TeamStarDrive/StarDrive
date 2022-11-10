@@ -202,14 +202,15 @@ namespace Ship_Game.Universe
             public void SetAllDesigns(UniverseState us)
             {
                 HashSet<ShipDesign> designs = new();
-
                 foreach (Ship s in Ships)
                     designs.Add((ShipDesign)s.ShipData);
-
                 foreach (Empire e in us.EmpireList)
+                {
                     foreach (IShipDesign s in e.ShipsWeCanBuild)
                         designs.Add((ShipDesign)s);
-
+                    foreach (IShipDesign s in e.SpaceStationsWeCanBuild)
+                        designs.Add((ShipDesign)s);
+                }
                 Designs = designs.ToArr();
             }
 
@@ -244,6 +245,11 @@ namespace Ship_Game.Universe
                     {
                         e.RemoveBuildableShip(fromSave);
                         e.AddBuildableShip(replaceWith);
+                    }
+                    if (e.CanBuildStation(fromSave)) // a station will appear in both lists
+                    {
+                        e.RemoveBuildableStation(fromSave);
+                        e.AddBuildableStation(replaceWith);
                     }
                 }
             }

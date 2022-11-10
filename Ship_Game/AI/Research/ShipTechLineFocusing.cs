@@ -27,7 +27,7 @@ namespace Ship_Game.AI.Research
             if (BestCombatShip != null)
             {
                 if (OwnerEmpire.CanBuildShip(BestCombatShip)
-                    || OwnerEmpire.SpaceStationsWeCanBuild.Contains(BestCombatShip)
+                    || OwnerEmpire.CanBuildStation(BestCombatShip)
                     || BestCombatShip.IsShipyard)
                     BestCombatShip = null;
                 else
