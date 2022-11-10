@@ -19,7 +19,7 @@
 
   <IconTexturePath>Modules/Cockpit</IconTexturePath>
   <IsCommandModule>true</IsCommandModule>
-  <Mass>8</Mass>
+  <Mass>2</Mass>
   <Health>500</Health>
   <HealthMax>500</HealthMax>
   <energyreq>0</energyreq>
