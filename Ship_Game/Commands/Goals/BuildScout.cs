@@ -40,10 +40,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = buildAt;
-            buildAt.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
-            int priority = Owner.GetPlanets().Count / 3;
-            buildAt.Construction.PrioritizeShip(Build.Template, priority, priority * 2);
-
+            buildAt.Construction.Enqueue(Build.Template, QueueItemType.Scout, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
        

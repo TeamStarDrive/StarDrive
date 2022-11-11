@@ -32,6 +32,8 @@ namespace Ship_Game
         [StarData] public float Cost;
         [StarData] public float ProductionSpent;
         [StarData] public Goal Goal;
+        [StarData] public int Priority;
+        [StarData] public QueueItemType QType;
         [StarData] public bool Rush;
         [StarData] public bool NotifyOnEmpty = true;
         [StarData] public bool IsPlayerAdded = false;
@@ -132,4 +134,15 @@ namespace Ship_Game
 
         public override string ToString() => $"QueueItem DisplayText={DisplayText}";
     }
+
+    public enum QueueItemType
+    {
+        ColonyShip,
+        Frieghter,
+        Scout,
+        Troop,
+        CombatShip,
+        Building
+    }
+
 }

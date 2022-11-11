@@ -40,7 +40,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = planet;
-            planet.Construction.Enqueue(colonyShip, this);
+            planet.Construction.Enqueue(colonyShip, QueueItemType.ColonyShip, this);
             return GoalStep.GoToNextStep;
         }
 

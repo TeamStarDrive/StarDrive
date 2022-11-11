@@ -101,13 +101,14 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 isShip          = true,
                 TradeRoutes     = OldShip.TradeRoutes,
                 AreaOfOperation = OldShip.AreaOfOperation,
+                QType           = OldShip.IsFreighter ? QueueItemType.Frieghter : QueueItemType.CombatShip,
                 TransportingColonists  = OldShip.TransportingColonists,
                 TransportingFood       = OldShip.TransportingFood,
                 TransportingProduction = OldShip.TransportingProduction,
                 AllowInterEmpireTrade  = OldShip.AllowInterEmpireTrade
             };
 
-            PlanetBuildingAt.Construction.Enqueue(qi);
+            PlanetBuildingAt.Construction.EnqueueRefitShip(qi);
             OldShip.QueueTotalRemoval();
             OldShip = null; // clean up dangling reference to avoid serializing it
             return GoalStep.GoToNextStep;

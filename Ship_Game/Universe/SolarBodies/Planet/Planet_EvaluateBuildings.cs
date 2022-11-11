@@ -63,15 +63,9 @@ namespace Ship_Game
         void BuildOrReplaceBuilding(float budget)
         {
             if (FreeHabitableTiles > 0)
-            {
                 SimpleBuild(budget); // Let's try to build something within our budget
-                if (TryPrioritizeColonyBuilding())
-                    return;
-            }
             else
-            {
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
-            }
 
             PrioritizeCriticalFoodBuildings();
             PrioritizeCriticalProductionBuildings();
@@ -821,11 +815,8 @@ namespace Ship_Game
 
         void PrioritizeCriticalFoodBuildings()
         {
-            if (IsCybernetic || !IsStarving)
+            if (IsCybernetic || !IsStarving || PlayerAddedFirstConstructionItem)
                 return;
-
-            if (PlayerAddedFirstConstructionItem)
-                return; // Do not prioritize over player added queue
 
             for (int i = 1; i < ConstructionQueue.Count; ++i)
             {
@@ -849,38 +840,33 @@ namespace Ship_Game
             }
         }
 
-        bool TryPrioritizeColonyBuilding()
+        public int PrioritizeColonyBuilding(Building b)
         {
-            // This will prioritize important buildings based on colony type to be 2nd in queue, if possible.
-            if (ConstructionQueue.Count <= 2 || PlayerAddedFirstConstructionItem)
-                return false;
-
-            for (int i = ConstructionQueue.Count - 1; i > 1; --i)
+            if (b == null)
             {
-                QueueItem q = ConstructionQueue[i];
-                if (q.isBuilding && !q.Building.IsBiospheres)
-                {
-                    switch (CType)
-                    {
-                        case ColonyType.Agricultural when  q.Building.ProducesFood:
-                        case ColonyType.Industrial   when  q.Building.ProducesProduction:
-                        case ColonyType.Research     when  q.Building.ProducesResearch:
-                        case ColonyType.Military     when  q.Building.IsMilitary: Construction.MoveTo(1, i); return true;
-                        case ColonyType.Core         when !q.Building.IsMilitary: Construction.MoveTo(2, i); return true;
-                    }
-                }
+                Log.Warning($"PrioritizeColonyBuilding - building was null in planet{Name}!");
             }
 
-            return false;
+            switch (CType)
+            {
+                case ColonyType.Agricultural when b.ProducesFood:
+                case ColonyType.Industrial   when b.ProducesProduction:
+                case ColonyType.Research     when b.ProducesResearch:
+                case ColonyType.Core         when !b.IsMilitary:
+                case ColonyType.Military     when b.IsMilitary:
+                    return 0;
+            }
+
+            return 2;
         }
 
         void PrioritizeCriticalProductionBuildings()
         {
-            if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level)
+            if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level
+                || PlayerAddedFirstConstructionItem)
+            {
                 return;
-
-            if (PlayerAddedFirstConstructionItem)
-                return; // Do not prioritize over player added queue
+            }
 
             for (int i = 0; i < ConstructionQueue.Count; ++i)
             {

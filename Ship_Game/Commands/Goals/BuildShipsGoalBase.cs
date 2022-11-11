@@ -1,6 +1,4 @@
-﻿using System;
-using Ship_Game;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 
@@ -49,7 +47,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
             
             PlanetBuildingAt = planet;
-            planet.Construction.Enqueue(Build.Template, this);
+            planet.Construction.Enqueue(Build.Template, QueueItemType.CombatShip, this);
             return GoalStep.GoToNextStep;
         }
     }
