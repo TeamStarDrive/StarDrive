@@ -34,7 +34,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             PlanetBuildingAt = planet;
-            planet.Construction.Enqueue(Build.Template, QueueItemType.Frieghter, this, notifyOnEmpty: false);
+            planet.Construction.Enqueue(Build.Template, QueueItemType.Freighter, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
     }
