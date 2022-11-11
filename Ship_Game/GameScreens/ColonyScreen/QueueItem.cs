@@ -138,7 +138,7 @@ namespace Ship_Game
     public enum QueueItemType
     {
         ColonyShip,
-        Frieghter,
+        Freighter,
         Scout,
         Troop,
         CombatShip,

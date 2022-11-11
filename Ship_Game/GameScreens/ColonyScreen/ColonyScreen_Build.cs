@@ -265,7 +265,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    P.Construction.Enqueue(ship, ship.IsFreighter ? QueueItemType.Frieghter : QueueItemType.CombatShip);
+                    P.Construction.Enqueue(ship, ship.IsFreighter ? QueueItemType.Freighter : QueueItemType.CombatShip);
                 }
             }
 

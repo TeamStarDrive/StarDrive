@@ -101,7 +101,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 isShip          = true,
                 TradeRoutes     = OldShip.TradeRoutes,
                 AreaOfOperation = OldShip.AreaOfOperation,
-                QType           = OldShip.IsFreighter ? QueueItemType.Frieghter : QueueItemType.CombatShip,
+                QType           = OldShip.IsFreighter ? QueueItemType.Freighter : QueueItemType.CombatShip,
                 TransportingColonists  = OldShip.TransportingColonists,
                 TransportingFood       = OldShip.TransportingFood,
                 TransportingProduction = OldShip.TransportingProduction,
