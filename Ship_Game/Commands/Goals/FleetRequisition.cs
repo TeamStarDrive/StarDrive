@@ -40,7 +40,7 @@ namespace Ship_Game.Commands.Goals
                 PlanetBuildingAt = buildAt;
             }
 
-            PlanetBuildingAt.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
+            PlanetBuildingAt.Construction.Enqueue(Build.Template, QueueItemType.CombatShip, this, notifyOnEmpty: false);
             if (Build.Rush)
                 PlanetBuildingAt.Construction.MoveToAndContinuousRushFirstItem();
 

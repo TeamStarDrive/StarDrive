@@ -49,13 +49,9 @@ namespace Ship_Game.Commands.Goals
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, scout, out Planet planet))
                 return GoalStep.TryAgain;
 
-            var queue    = planet.Construction.GetConstructionQueue();
-            int priority = Owner.GetPlanets().Count / 3;
-
+            var queue = planet.Construction.GetConstructionQueue();
             PlanetBuildingAt = planet;
-            planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
-            planet.Construction.PrioritizeShip(scout, priority, priority * 2);
-
+            planet.Construction.Enqueue(scout, QueueItemType.Scout, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
        

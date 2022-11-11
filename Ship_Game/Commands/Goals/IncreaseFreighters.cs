@@ -34,10 +34,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             PlanetBuildingAt = planet;
-            planet.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
-            int priority = Owner.TotalFreighters < Owner.GetPlanets().Count ? 1 : Owner.GetPlanets().Count / 3;
-            planet.Construction.PrioritizeShip(Build.Template, priority, priority * 2);
-
+            planet.Construction.Enqueue(Build.Template, QueueItemType.Frieghter, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
     }

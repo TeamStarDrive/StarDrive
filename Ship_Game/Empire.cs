@@ -21,6 +21,7 @@ using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
+    using static Ship_Game.Planet;
     using static ShipBuilder;
     public enum TechUnlockType
     {
@@ -215,6 +216,7 @@ namespace Ship_Game
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
 
+        public int TotalScouts => OwnedShips.Count(s => s?.IsGoodScout() == true);
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
         [StarData] public readonly EmpireResearch Research;
@@ -2923,6 +2925,37 @@ namespace Ship_Game
             data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
             EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
             ForceUpdateSensorRadiuses = true;
+        }
+
+        public int GetPriorityForPlanetBuildQeueue(QueueItemType type, Planet planet, Building building)
+        {
+            int priority = 5000;
+            
+            switch (type)
+            {
+                case QueueItemType.Building:    priority = planet.PrioritizeColonyBuilding(building);                          break;
+                case QueueItemType.Troop:       priority = (int)(AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 20) + 1;  break;
+                case QueueItemType.Scout:       priority = (TotalScouts - 1).LowerBound(0);                                    break;
+                case QueueItemType.ColonyShip:  priority = OwnedPlanets.Count / 3 + (IsExpansionists ? 0 : 1);                 break;
+                case QueueItemType.Frieghter:   priority = TotalFreighters < OwnedPlanets.Count ? 1 : TotalFreighters / 3;     break;
+                case QueueItemType.CombatShip: 
+                    priority = (int)(TotalWarShipMaintenance / AI.BuildCapacity.LowerBound(1) * 10);
+                    if (IsMilitarists) 
+                        priority /= 2;
+                    break;
+            }
+
+            if (!isPlayer && IsAtWarWithMajorEmpire)
+            {
+                switch (type)
+                {
+                    case QueueItemType.Troop:                     break;
+                    case QueueItemType.CombatShip: priority /= 2; break;
+                    default:                       priority *= 2; break;
+                }
+            }
+
+            return priority;
         }
 
         void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);
