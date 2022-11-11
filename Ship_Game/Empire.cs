@@ -2937,7 +2937,7 @@ namespace Ship_Game
                 case QueueItemType.Troop:       priority = (int)(AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 20) + 1;  break;
                 case QueueItemType.Scout:       priority = (TotalScouts - 1).LowerBound(0);                                    break;
                 case QueueItemType.ColonyShip:  priority = OwnedPlanets.Count / 3 + (IsExpansionists ? 0 : 1);                 break;
-                case QueueItemType.Frieghter:   priority = TotalFreighters < OwnedPlanets.Count ? 1 : TotalFreighters / 3;     break;
+                case QueueItemType.Freighter:   priority = TotalFreighters < OwnedPlanets.Count ? 1 : TotalFreighters / 3;     break;
                 case QueueItemType.CombatShip: 
                     priority = (int)(TotalWarShipMaintenance / AI.BuildCapacity.LowerBound(1) * 10);
                     if (IsMilitarists) 
