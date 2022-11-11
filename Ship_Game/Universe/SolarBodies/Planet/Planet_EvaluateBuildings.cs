@@ -852,12 +852,11 @@ namespace Ship_Game
                 case ColonyType.Agricultural when b.ProducesFood:
                 case ColonyType.Industrial   when b.ProducesProduction:
                 case ColonyType.Research     when b.ProducesResearch:
-                case ColonyType.Core         when !b.IsMilitary:
-                case ColonyType.Military     when b.IsMilitary:
-                    return 0;
+                case ColonyType.Military     when b.IsMilitary: return 0;
+                case ColonyType.Core when !b.IsMilitary:        return BuildingList.Count / 5;
             }
 
-            return 2;
+            return BuildingList.Count / 3;
         }
 
         void PrioritizeCriticalProductionBuildings()

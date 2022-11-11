@@ -482,6 +482,12 @@ namespace Ship_Game
             // Research planets are not a good platform for building ships
             if (CType == ColonyType.Research)
                 WantedShipyards = 0;
+
+            if (!Owner.IsAtWarWithMajorEmpire)
+            {
+                WantedPlatforms /= 2;
+                WantedStations  /= 2;
+            }
         }
 
         public void SetWantedPlatforms(byte num)

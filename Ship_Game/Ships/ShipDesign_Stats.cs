@@ -223,8 +223,12 @@ namespace Ship_Game.Ships
 
         public bool IsShipGoodForGoals(Empire e)
         {
+            if (IsPlatformOrStation)
+                return true;
+
             float neededRange = GlobalStats.MinAcceptableShipWarpRange;
-            if (neededRange <= 0f) return true;
+            if (neededRange <= 0f) 
+                return true;
 
             float maxFTLSpeed = ShipStats.GetFTLSpeed(this, e);
             bool good = IsWarpRangeGood(neededRange, maxFTLSpeed);
