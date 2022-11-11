@@ -316,7 +316,7 @@ namespace Ship_Game.AI
             BorderThreat   = borderRisk;
             EnemyThreat    = enemyRisk;
 
-            return Math.Min(maxRisk, riskLimit);
+            return maxRisk.Clamped(0.25f, riskLimit);
         }
 
         public PlanetBudget PlanetBudget(Planet planet) => new(planet);

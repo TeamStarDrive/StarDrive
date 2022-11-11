@@ -142,7 +142,8 @@ namespace Ship_Game
         Scout,
         Troop,
         CombatShip,
-        Building
+        Building,
+        Orbital
     }
 
 }

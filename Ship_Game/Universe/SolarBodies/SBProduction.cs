@@ -293,7 +293,7 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void Enqueue(IShipDesign platform, IShipDesign constructor, Goal goal = null)
+        public void Enqueue(IShipDesign orbital, IShipDesign constructor, Goal goal = null)
         {
             if (goal != null && goal.PlanetBuildingAt == null)
                 throw new InvalidOperationException($"CQ.Enqueue not allowed if Goal.PlanetBuildingAt is null!");
@@ -304,11 +304,11 @@ namespace Ship_Game.Universe.SolarBodies
                 isOrbital     = true,
                 Goal          = goal,
                 NotifyOnEmpty = false,
-                DisplayName   = $"{constructor.Name} ({platform.Name})",
+                DisplayName   = $"{constructor.Name} ({orbital.Name})",
                 ShipData      = constructor,
-                Cost          = platform.GetCost(Owner),
+                Cost          = orbital.GetCost(Owner),
                 Rush          = P.Owner.RushAllConstruction,
-                QType         = QueueItemType.CombatShip
+                QType         = QueueItemType.Orbital
             };
             if (goal != null) 
                 goal.PlanetBuildingAt = P;
