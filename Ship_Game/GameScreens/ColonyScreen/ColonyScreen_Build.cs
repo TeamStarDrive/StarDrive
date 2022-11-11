@@ -265,7 +265,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    P.Construction.Enqueue(ship);
+                    P.Construction.Enqueue(ship, ship.IsFreighter ? QueueItemType.Frieghter : QueueItemType.CombatShip);
                 }
             }
 
@@ -276,7 +276,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < repeat; i++)
             {
-                P.Construction.Enqueue(troop);
+                P.Construction.Enqueue(troop, QueueItemType.Troop);
             }
 
             GameAudio.AcceptClick();

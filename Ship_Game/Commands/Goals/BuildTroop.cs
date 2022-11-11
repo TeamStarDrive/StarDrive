@@ -38,10 +38,8 @@ namespace Ship_Game.Commands.Goals
             Troop troopTemplate = ResourceManager.GetTroopTemplate(TroopName);
             if (Owner.FindPlanetToBuildTroopAt(Owner.MilitaryOutposts, troopTemplate, 0.1f, out Planet planet))
             {
-                // submit troop into queue
-                // let the colony governor prioritize troops
                 PlanetBuildingAt = planet;
-                planet.Construction.Enqueue(troopTemplate, this);
+                planet.Construction.Enqueue(troopTemplate, QueueItemType.Troop, this);
                 return GoalStep.GoToNextStep;
             }
 
