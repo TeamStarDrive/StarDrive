@@ -9,8 +9,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        public float SpyBudget { get; private set; }
-
         public float SpyCost      => ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost;
         public int EmpireSpyLimit => (OwnerEmpire.GetPlanets().Count / 3).LowerBound(3);
 
@@ -18,8 +16,6 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer)
                 return;
-
-            SpyBudget = OwnerEmpire.data.SpyBudget;
 
             if (OwnerEmpire.data.DiplomaticPersonality.Name != null && CanEmpireAffordSpy())
                     CreateAgent();

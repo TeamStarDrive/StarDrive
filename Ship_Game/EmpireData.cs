@@ -223,14 +223,6 @@ namespace Ship_Game
         [StarData] public float ShieldPowerMod = 0f;
         [StarData] public float ExperienceMod  = 0f;
 
-        // economy
-        [StarData] public float SSPBudget     = 0;
-        [StarData] public float SpyBudget     = 0;
-        [StarData] public float FreightBudget = 0;
-        [StarData] public float ColonyBudget  = 0;
-        [StarData] public float DefenseBudget = 0;
-        [StarData] public float TerraformBudget = 0;
-
         // unlock at start
         [StarData] public Array<string> unlockBuilding = new();
         [StarData] public Array<string> unlockShips    = new();

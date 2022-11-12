@@ -92,8 +92,8 @@ namespace Ship_Game.AI
             float perNodeMaintenance  = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(OwnerEmpire);
             float roadMaintenance     = GetCurrentProjectorCount() * perNodeMaintenance;
             float underConstruction   = GetTotalConstructionGoalsMaintenance();
-            float availableRoadBudget = OwnerEmpire.data.SSPBudget -roadMaintenance - underConstruction;
-            float totalRoadBudget     = OwnerEmpire.data.SSPBudget;
+            float availableRoadBudget = SSPBudget -roadMaintenance - underConstruction;
+            float totalRoadBudget     = SSPBudget;
 
             if (availableRoadBudget > perNodeMaintenance * 2)
             {

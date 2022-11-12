@@ -80,8 +80,8 @@ public class EmpireInfoDebug : DebugPage
                     $" #{ships.Count(warship => warship?.DesignRole == RoleName.platform || warship?.DesignRole == RoleName.station)}");
         Text.String($"Scrap:  {(int)e.TotalMaintenanceInScrap}");
 
-        Text.String($"Build Maint/Budget:   {(int)e.TotalBuildingMaintenance}/{(int)e.data.ColonyBudget}");
-        Text.String($"Spy Count (Budget):   {e.data.AgentList.Count} ({(int)e.data.SpyBudget})");
+        Text.String($"Build Maint/Budget:   {(int)e.TotalBuildingMaintenance}/{(int)e.AI.ColonyBudget}");
+        Text.String($"Spy Count (Budget):   {e.data.AgentList.Count} ({(int)e.AI.SpyBudget})");
         Text.String("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
         Text.String("Planet Count:  "+e.GetPlanets().Count);
         if (e.Research.HasTopic)
