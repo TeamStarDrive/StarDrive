@@ -1,15 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
-using System.Runtime;
-using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
 using Ship_Game.Ships;
@@ -292,6 +288,11 @@ namespace Ship_Game
             }
 
             return designInQueue;
+        }
+
+        static public float ExponentialMovingAverage(float oldValue, float newValue, float oldWeight = 0.9f)
+        {
+            return (oldValue * oldWeight) + (newValue * (1 - oldWeight));
         }
     }
 }
