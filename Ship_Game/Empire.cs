@@ -431,17 +431,6 @@ namespace Ship_Game
             return false;
         }
 
-        public bool FindPlanetToSabotage(IReadOnlyList<Planet> ports, out Planet chosen)
-        {
-            if (ports.Count != 0)
-            {
-                chosen = ports.FindMax(p => p.Prod.NetMaxPotential);
-                return true;
-            }
-            chosen = null;
-            return false;
-        }
-
         Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, IShipDesign sData, float priority = 1f)
         {
             // focus on the best producing planets (number depends on the empire size)
@@ -2933,12 +2922,12 @@ namespace Ship_Game
             
             switch (type)
             {
-                case QueueItemType.Building:    priority = planet.PrioritizeColonyBuilding(building);                              break;
-                case QueueItemType.Troop:       priority = (int)(AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 20) + 1;      break;
-                case QueueItemType.Scout:       priority = (TotalScouts - 1).LowerBound(0);                                        break;
-                case QueueItemType.ColonyShip:  priority = OwnedPlanets.Count / 3 + (IsExpansionists ? 0 : 1);                     break;
-                case QueueItemType.Freighter:   priority = TotalFreighters < OwnedPlanets.Count ? 0 : TotalFreighters / 2;         break;
-                case QueueItemType.Orbital:     priority = (int)(TotalOrbitalMaintenance / data.DefenseBudget.LowerBound(1) * 10); break;
+                case QueueItemType.Building:    priority = planet.PrioritizeColonyBuilding(building);                                  break;
+                case QueueItemType.Troop:       priority = (int)(AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 20) + 1;          break;
+                case QueueItemType.Scout:       priority = (TotalScouts - 1).LowerBound(0);                                            break;
+                case QueueItemType.ColonyShip:  priority = OwnedPlanets.Count / 3 + (IsExpansionists ? 0 : 1);                         break;
+                case QueueItemType.Freighter:   priority = TotalFreighters < OwnedPlanets.Count ? 0 : TotalFreighters / 2;             break;
+                case QueueItemType.Orbital:     priority = (int)(TotalOrbitalMaintenance / data.DefenseBudget.LowerBound(1) * 10) + 1; break;
                 case QueueItemType.CombatShip: 
                     priority = (int)(TotalWarShipMaintenance / AI.BuildCapacity.LowerBound(1) * 10);
                     if (IsMilitarists) 

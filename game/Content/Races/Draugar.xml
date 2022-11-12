@@ -3,7 +3,7 @@
   <Faction>1</Faction>
   <IsPirateFaction>true</IsPirateFaction>
   <PaymentPeriodTurns>350</PaymentPeriodTurns> <!-- Every turn is 5 seconds by default-->
-  <MinimumColoniesForStartPayment>5</MinimumColoniesForStartPayment>
+  <MinimumColoniesForStartPayment>7</MinimumColoniesForStartPayment>
   <PortraitName>Imperium</PortraitName>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
   

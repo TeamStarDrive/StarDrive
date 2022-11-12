@@ -3,6 +3,7 @@ using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using SDUtils;
+using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -232,7 +233,7 @@ namespace Ship_Game
             }
 
             int crippledTurns;
-            if (!victim.FindPlanetToSabotage(victim.SpacePorts, out Planet targetPlanet)) 
+            if (!FindPlanetToSabotage(victim.SpacePorts, out Planet targetPlanet)) 
             {
                 // no planet was found, abort mission
                 aftermath.ShouldAddXp = false;
@@ -599,6 +600,18 @@ namespace Ship_Game
                     agent.Level++;
             }
 
+        }
+
+        bool FindPlanetToSabotage(IReadOnlyList<Planet> ports, out Planet chosen)
+        {
+            if (ports.Count != 0)
+            {
+                chosen = ports.FindMax(p => p.Prod.NetMaxPotential);
+                return true;
+            }
+
+            chosen = null;
+            return false;
         }
 
         struct MissionResolve
