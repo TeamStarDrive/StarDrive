@@ -133,10 +133,10 @@ namespace Ship_Game.GameScreens
         private void BudgetTab(Rectangle budgetRect)
         {
             SummaryPanel budget = Add(new SummaryPanel(GameText.GovernorBudget, budgetRect, new Color(30, 26, 19)));
-            budget.AddItem("Colony", () => Player.data.ColonyBudget);
-            budget.AddItem("SpaceRoad", () => Player.data.SSPBudget);
-            budget.AddItem("Defense", () => Player.data.DefenseBudget);
-            budget.SetTotalFooter(() => Player.data.ColonyBudget + Player.data.SSPBudget + Player.data.DefenseBudget);
+            budget.AddItem("Colony", () => Player.AI.ColonyBudget);
+            budget.AddItem("SpaceRoad", () => Player.AI.SSPBudget);
+            budget.AddItem("Defense", () => Player.AI.DefenseBudget);
+            budget.SetTotalFooter(() => Player.AI.ColonyBudget + Player.AI.SSPBudget + Player.AI.DefenseBudget);
         }
 
         private void TradeTab(Rectangle tradeRect)

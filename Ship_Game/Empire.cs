@@ -1644,9 +1644,9 @@ namespace Ship_Game
 
             Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
             float maint = terraformer.Maintenance * data.Traits.MaintMultiplier;
-            if (CanTerraformVolcanoes && data.TerraformBudget >= maint)
+            if (CanTerraformVolcanoes && AI.TerraformBudget >= maint)
             {
-                float remainingBudget = data.TerraformBudget;
+                float remainingBudget = AI.TerraformBudget;
                 // Better potential planets will get the budget first
                 // We continue the loop even when the budget is finished so other planets will short circuit reset budgets
                 foreach (Planet planet in OwnedPlanets.SortedDescending(p => p.ColonyPotentialValue(this)))
@@ -1671,11 +1671,11 @@ namespace Ship_Game
                     TotalMaintenanceInScrap += maintenance;
                     continue;
                 }
-                if (data.DefenseBudget > 0 && ((ship.ShipData.HullRole == RoleName.platform && ship.IsTethered)
-                                               || (ship.ShipData.HullRole == RoleName.station &&
-                                                   (ship.ShipData.IsOrbitalDefense || !ship.ShipData.IsShipyard))))
+                if (AI.DefenseBudget > 0 && ((ship.ShipData.HullRole == RoleName.platform && ship.IsTethered)
+                                            || (ship.ShipData.HullRole == RoleName.station &&
+                                               (ship.ShipData.IsOrbitalDefense || !ship.ShipData.IsShipyard))))
                 {
-                    data.DefenseBudget -= maintenance;
+                    AI.DefenseBudget -= maintenance;
                 }
                 switch (ship.DesignRoleType)
                 {
@@ -1695,9 +1695,9 @@ namespace Ship_Game
 
             foreach (Ship ship in OwnedProjectors)
             {
-                if (data.SSPBudget > 0)
+                if (AI.SSPBudget > 0)
                 {
-                    data.SSPBudget -= ship.GetMaintCost();
+                    AI.SSPBudget -= ship.GetMaintCost();
                     continue;
                 }
                 TotalShipMaintenance += ship.GetMaintCost();
@@ -2922,12 +2922,12 @@ namespace Ship_Game
             
             switch (type)
             {
-                case QueueItemType.Building:    priority = planet.PrioritizeColonyBuilding(building);                                  break;
-                case QueueItemType.Troop:       priority = (int)(AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 20) + 1;          break;
-                case QueueItemType.Scout:       priority = (TotalScouts - 1).LowerBound(0);                                            break;
-                case QueueItemType.ColonyShip:  priority = OwnedPlanets.Count / 3 + (IsExpansionists ? 0 : 1);                         break;
-                case QueueItemType.Freighter:   priority = TotalFreighters < OwnedPlanets.Count ? 0 : TotalFreighters / 2;             break;
-                case QueueItemType.Orbital:     priority = (int)(TotalOrbitalMaintenance / data.DefenseBudget.LowerBound(1) * 10) + 1; break;
+                case QueueItemType.Building:    priority = planet.PrioritizeColonyBuilding(building);                                break;
+                case QueueItemType.Troop:       priority = (int)(AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 20) + 1;        break;
+                case QueueItemType.Scout:       priority = (TotalScouts - 1).LowerBound(0);                                          break;
+                case QueueItemType.ColonyShip:  priority = OwnedPlanets.Count / 3 + (IsExpansionists ? 0 : 1);                       break;
+                case QueueItemType.Freighter:   priority = TotalFreighters < OwnedPlanets.Count ? 0 : TotalFreighters / 2;           break;
+                case QueueItemType.Orbital:     priority = (int)(TotalOrbitalMaintenance / AI.DefenseBudget.LowerBound(1) * 10) + 1; break;
                 case QueueItemType.CombatShip: 
                     priority = (int)(TotalWarShipMaintenance / AI.BuildCapacity.LowerBound(1) * 10);
                     if (IsMilitarists) 

@@ -26,8 +26,8 @@ namespace Ship_Game.AI.Budget
         readonly float EmpireRatio;
         readonly Empire Owner;
 
-        float EmpireColonizationBudget => Owner.data.ColonyBudget;
-        private float EmpireDefenseBudget => Owner.data.DefenseBudget;
+        float EmpireColonizationBudget => Owner.AI.ColonyBudget;
+        float EmpireDefenseBudget => Owner.AI.DefenseBudget;
 
         public PlanetBudget(Planet planet)
         {

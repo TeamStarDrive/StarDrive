@@ -20,8 +20,8 @@ namespace Ship_Game.AI
     public sealed partial class EmpireAI
     {
         [StarData] int NumberOfShipGoals = 6;
-        public float BuildCapacity { get; private set; }
-        public float CivShipBudget => OwnerEmpire.data.FreightBudget;
+        [StarData] public float BuildCapacity { get; private set; }
+        public float CivShipBudget => OwnerEmpire.AI.FreightBudget;
         public float AllianceBuildCapacity { get; private set; }
 
         UniverseState UState => OwnerEmpire.Universe;
@@ -135,7 +135,7 @@ namespace Ship_Game.AI
                         maxTechScore   = Math.Max(maxTechScore, techScore);
                     }
                     Log.Write($"ShipTechCount= {techScore} MaxShipTechs={maxTechScore} MaxShipStrength= {maxStrength}");
-                    Log.Write($"PlanetBudget= {OwnerEmpire.data.ColonyBudget:0.0}/{OwnerEmpire.TotalBuildingMaintenance:0.0} Population= {OwnerEmpire.TotalPopBillion:0.0} Planets= {OwnerEmpire.NumPlanets}");
+                    Log.Write($"PlanetBudget= {ColonyBudget:0.0}/{OwnerEmpire.TotalBuildingMaintenance:0.0} Population= {OwnerEmpire.TotalPopBillion:0.0} Planets= {OwnerEmpire.NumPlanets}");
                     Log.Write($"------- ship list -----{OwnerEmpire.Universe?.StarDate} Ship list for {OwnerEmpire.Name}");
                 }
             }
