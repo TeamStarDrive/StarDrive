@@ -7,6 +7,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
+    using static HelperFunctions;
     public partial class Planet // Created by Fat Bastard
     {
         [StarData] public readonly Array<Ship> IncomingFreighters = new();
@@ -353,13 +354,13 @@ namespace Ship_Game
             if (importPlanet == exportPlanet || startTime == 0)  // startTime is 0 in older saves
                 return; // Express import, ignore
 
-            float numTurns = (Universe.StarDate - startTime).LowerBound(0.5f); // not * 10 for turns since we are using 10% of value anyway
+            float numTurns = (Universe.StarDate - startTime).LowerBound(0.5f) * 10;
             switch (goods)
             {
-                case Goods.Food       when importPlanet == this: AverageFoodImportTurns = AverageFoodImportTurns * 0.9f + numTurns; break;
-                case Goods.Production when importPlanet == this: AverageProdImportTurns = AverageProdImportTurns * 0.9f + numTurns; break;
-                case Goods.Food       when exportPlanet == this: AverageFoodExportTurns = AverageFoodExportTurns * 0.9f + numTurns; break;
-                case Goods.Production when exportPlanet == this: AverageProdExportTurns = AverageProdExportTurns * 0.9f + numTurns; break;
+                case Goods.Food       when importPlanet == this: AverageFoodImportTurns = ExponentialMovingAverage(AverageFoodImportTurns, numTurns); break;
+                case Goods.Production when importPlanet == this: AverageProdImportTurns = ExponentialMovingAverage(AverageProdImportTurns, numTurns); break;
+                case Goods.Food       when exportPlanet == this: AverageFoodExportTurns = ExponentialMovingAverage(AverageFoodExportTurns, numTurns); break;
+                case Goods.Production when exportPlanet == this: AverageProdExportTurns = ExponentialMovingAverage(AverageProdExportTurns, numTurns); break;
             }
         }
 

@@ -11,18 +11,22 @@ using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    using static HelperFunctions;
     public partial class Empire
     {
         [StarData] public bool AutoFreighters;
         [StarData] public bool AutoPickBestFreighter;
-        [StarData] public float FastVsBigFreighterRatio      { get; private set; } = 0.5f;
-        public float TradeMoneyAddedThisTurn      { get; private set; }
+        [StarData] public float FastVsBigFreighterRatio { get; private set; } = 0.5f;
+        public float TradeMoneyAddedThisTurn { get; private set; }
         public float TotalTradeMoneyAddedThisTurn { get; private set; }
-        [StarData] public float AverageFreighterCargoCap     { get; private set; } = 10;
-        [StarData] public int AverageFreighterFTLSpeed       { get; private set; } = 20000;
-        public int  TotalProdExportSlots          { get; private set; }
+        [StarData] public float AverageFreighterCargoCap { get; private set; } = 20;
+        [StarData] public int AverageFreighterFTLSpeed { get; private set; } = 20000;
+        [StarData] public float AveragePlanetStorage { get; private set; } = 100;
+        public int  TotalProdExportSlots { get; private set; }
 
-        public int FreighterCap          => OwnedPlanets.Count * (IsCybernetic ? 2 : 3) + Research.Strategy.ExpansionPriority;
+        int FreighterCapUpperBound => OwnedPlanets.Count * (IsCybernetic ? 2 : 3);
+        public int FreighterCap => (int)(AveragePlanetStorage / AverageFreighterCargoCap
+            * OwnedPlanets.Count * (IsCybernetic ? 1.2f : 1.8f)).UpperBound(FreighterCapUpperBound);
         public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue  => (int)Math.Ceiling((OwnedPlanets.Count / 5f)).Clamped(2, 5);
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
@@ -304,22 +308,21 @@ namespace Ship_Game
 
         public void UpdateAverageFreightFTL(float value)
         {
-            AverageFreighterFTLSpeed = (int)(AverageFreighterFTLSpeed * 0.9f + value * 0.1f);
+            AverageFreighterFTLSpeed = (int)ExponentialMovingAverage(AverageFreighterFTLSpeed, value);
         }
 
         public void UpdateAverageFreightCargoCap(float value)
         {
-            AverageFreighterCargoCap = (AverageFreighterCargoCap * 0.9f + value * 0.1f).RoundToFractionOf10();
+            AverageFreighterCargoCap = ExponentialMovingAverage(AverageFreighterCargoCap, value).RoundToFractionOf10();
         }
 
-        public void SetAverageFreighterCargoCap(float value)
+        public void UpdateAveragePlanetStorage()
         {
-            AverageFreighterCargoCap = value.LowerBound(10);
-        }
-
-        public void SetAverageFreighterFTLSpeed(int value)
-        {
-            AverageFreighterFTLSpeed = value.LowerBound(5000);
+            if (OwnedPlanets.Count > 0)
+            {
+                float average = OwnedPlanets.Average(p => p.Storage.Max);
+                AveragePlanetStorage = ExponentialMovingAverage(AveragePlanetStorage, average);
+            }
         }
 
         public float TotalPlanetsTradeValue => OwnedPlanets.Sum(p => p.Level).LowerBound(1);

@@ -1562,6 +1562,7 @@ namespace Ship_Game
             UpdateTradeIncome();
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
+            UpdateAveragePlanetStorage();
             Money += NetIncome;
         }
 
