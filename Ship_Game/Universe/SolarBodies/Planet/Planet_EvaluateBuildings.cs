@@ -840,7 +840,7 @@ namespace Ship_Game
             }
         }
 
-        public int PrioritizeColonyBuilding(Building b)
+        public float PrioritizeColonyBuilding(Building b)
         {
             if (b == null)
             {
@@ -852,11 +852,11 @@ namespace Ship_Game
                 case ColonyType.Agricultural when b.ProducesFood:
                 case ColonyType.Industrial   when b.ProducesProduction:
                 case ColonyType.Research     when b.ProducesResearch:
-                case ColonyType.Military     when b.IsMilitary: return 0;
-                case ColonyType.Core when !b.IsMilitary:        return BuildingList.Count / 5;
+                case ColonyType.Military     when b.IsMilitary:  return 0;
+                case ColonyType.Core         when !b.IsMilitary: return BuildingList.Count * 0.2f;
             }
 
-            return BuildingList.Count / 3;
+            return BuildingList.Count * 0.33f;
         }
 
         void PrioritizeCriticalProductionBuildings()
