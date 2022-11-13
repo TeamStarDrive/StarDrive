@@ -110,7 +110,7 @@ namespace UnitTests.AITests.Empire
             Player.AddMoney(2000);
             Player.UpdateNetPlanetIncomes();
             Player.AI.RunEconomicPlanner();
-            float budget = Player.data.TerraformBudget;
+            float budget = Player.AI.TerraformBudget = 4; // fake budget for testing
             Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
             float terraformerMaint = terraformer.ActualMaintenance(homeworld);
 

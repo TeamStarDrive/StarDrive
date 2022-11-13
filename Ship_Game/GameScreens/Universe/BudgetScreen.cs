@@ -184,7 +184,7 @@ namespace Ship_Game.GameScreens
             Player.data.treasuryGoal = s.RelativeValue;
             Player.data.treasuryGoal = s.AbsoluteValue;
             
-            int goal = (int)Player.AI.TreasuryGoal(Player.NormalizedMoney) / 2;
+            int goal = (int)Player.AI.TreasuryGoal(Player.Money) / 2;
             s.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {goal}";
             Player.AI.RunEconomicPlanner();
 

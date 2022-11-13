@@ -43,21 +43,6 @@ namespace Ship_Game
         [StarData] readonly Map<string, bool> UnlockedModulesDict;
 
         [StarData] readonly Array<Troop> UnlockedTroops;
-
-        /// <summary>
-        /// Returns an average of empire money over several turns.
-        /// </summary>
-        [StarData] public float NormalizedMoney { get; private set; }
-
-        public void UpdateNormalizedMoney(float money, bool fromSave = false)
-        {
-            const float rate = 0.1f;
-            if (fromSave || NormalizedMoney == 0f)
-                NormalizedMoney = money;
-            else // simple moving average:
-                NormalizedMoney = NormalizedMoney*(1f-rate) + money*rate;
-        }
-
         [StarData] public Array<Ship> Inhibitors;
         [StarData] public Array<SpaceRoad> SpaceRoadsList;
 

@@ -61,7 +61,7 @@ namespace Ship_Game.AI
         {
             get
             {
-                float normalMoney = OwnerEmpire.NormalizedMoney;
+                float normalMoney = OwnerEmpire.Money;
                 float goalRatio = normalMoney / ProjectedMoney;
 
                 return (goalRatio.UpperBound(1) * 3 + (1 - OwnerEmpire.data.TaxRate)) / 4f;
@@ -94,15 +94,7 @@ namespace Ship_Game.AI
         public void RunEconomicPlanner(bool fromSave = false)
         {
             float money = OwnerEmpire.Money;
-            if (!fromSave)
-            {
-                OwnerEmpire.UpdateNormalizedMoney(money);
-            }
-
-            float normalizedBudget = OwnerEmpire.NormalizedMoney;
-            normalizedBudget = money < 0 ? money : normalizedBudget;
-
-            float treasuryGoal = TreasuryGoal(normalizedBudget);
+            float treasuryGoal = TreasuryGoal(money);
             ProjectedMoney = treasuryGoal;
             AutoSetTaxes(ProjectedMoney, money);
 
@@ -124,7 +116,7 @@ namespace Ship_Game.AI
             // spy budget is a special case currently and is not distributed.
             if (OwnerEmpire.isPlayer)
             {
-                float budgetBalance = (build + spy) / 3f;
+                float budgetBalance = (build + spy) / 2f;
                 defense            += budgetBalance;
                 colony             += budgetBalance;
                 SSP                += budgetBalance;
@@ -142,8 +134,6 @@ namespace Ship_Game.AI
             foreach (var ally in OwnerEmpire.Universe.GetAllies(OwnerEmpire)) allianceBudget += ally.AI.BuildCapacity;
             AllianceBuildCapacity = BuildCapacity + allianceBudget;
         }
-
-
 
         float DetermineDefenseBudget(float treasuryGoal, float percentOfMoney, float risk)
         {
@@ -241,7 +231,7 @@ namespace Ship_Game.AI
         /// </summary>
         public float OverSpendRatio(float treasuryGoal, float percentageOfTreasuryToSave, float maxRatio)
         {
-            float money    = OwnerEmpire.NormalizedMoney;
+            float money    = OwnerEmpire.Money;
             float treasury = treasuryGoal.LowerBound(1);
             float minMoney = money - treasury * percentageOfTreasuryToSave;
             float ratio    = (money + minMoney) / treasury.LowerBound(1);
