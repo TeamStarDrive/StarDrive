@@ -138,12 +138,14 @@ namespace Ship_Game
     public enum QueueItemType
     {
         ColonyShip,
+        ColonyShipClaim,
         Freighter,
         Scout,
         Troop,
         CombatShip,
         Building,
-        Orbital
+        Orbital,
+        OrbitalUrgent
     }
 
 }
