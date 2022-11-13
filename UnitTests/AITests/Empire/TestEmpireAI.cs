@@ -173,7 +173,6 @@ namespace UnitTests.AITests.Empire
         {
             // normalized money is not reset to zero
             Player.Money = 1000;
-            Player.UpdateNormalizedMoney(Player.Money);
 
             for (int x = -1; x < 11; x++)
             {
@@ -189,7 +188,6 @@ namespace UnitTests.AITests.Empire
         {
             // normalized money is not reset to zero
             Player.Money = 100;
-            Player.UpdateNormalizedMoney(Player.Money);
             for (int x = -1; x < 1; x++)
             {
                 float percent = x * 0.05f;
