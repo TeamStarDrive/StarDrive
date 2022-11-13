@@ -11,7 +11,7 @@ using Ship_Game.Gameplay;
 namespace Ship_Game.Commands.Goals
 {
     [StarDataType]
-    public class MarkForColonization : Goal
+    public class MarkForColonization : FleetGoal
     {
         [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
         [StarData] public sealed override Empire TargetEmpire { get; set; }
@@ -168,8 +168,10 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = planet;
-            planet.Construction.Enqueue(colonyShip, QueueItemType.ColonyShip, this,
-                                        notifyOnEmpty:Owner.isPlayer,
+            planet.Construction.Enqueue(ship: colonyShip, 
+                                        type: TryGetClaimTask(out _) ?  QueueItemType.ColonyShipClaim : QueueItemType.ColonyShip, 
+                                        goal: this, 
+                                        notifyOnEmpty:Owner.isPlayer, 
                                         displayName: $"{colonyShip.Name} ({TargetPlanet.Name})");
 
             return GoalStep.GoToNextStep;

@@ -44,10 +44,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = planet;
-            planet.Construction.Enqueue(ToBuild, constructor, this);
-            if (Build.Rush)
-                planet.Construction.MoveToAndContinuousRushFirstItem();
-
+            planet.Construction.Enqueue(ToBuild, constructor, Build.Rush, this);
             return GoalStep.GoToNextStep;
         }
 

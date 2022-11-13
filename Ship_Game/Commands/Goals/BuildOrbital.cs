@@ -32,7 +32,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             PlanetBuildingAt = planet;
             Initialize(toBuildName, Vector2.Zero, planet, Vector2.Zero);
             IShipDesign constructor = BuildableShip.GetConstructor(Owner);
-            PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, this);
+            PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, rush: false, this);
         }
 
         GoalStep OrderDeployOrbital()
