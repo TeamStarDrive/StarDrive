@@ -114,8 +114,14 @@ namespace Ship_Game.AI
             var bestShips     = potentialShips.Filter(ship => levelAdjust.InRange(ship.BaseStrength));
 
             if (bestShips.Length == 0)
-                return null;
-
+            {
+                // If ther are ships which not in the level adjust range, take them all instead of
+                // returning nothing. Better to get something and maybe refit later.
+                if (potentialShips.Count > 0) 
+                    bestShips = potentialShips.ToArray(); 
+                else
+                    return null;
+            }
             IShipDesign pickedShip = RandomMath.RandItem(bestShips);
 
             if (false && empire.Universe?.Debug == true)
