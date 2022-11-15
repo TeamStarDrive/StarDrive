@@ -26,7 +26,7 @@ namespace Ship_Game
 
         int FreighterCapUpperBound => OwnedPlanets.Count * (IsCybernetic ? 2 : 3);
         public int FreighterCap => (int)(AveragePlanetStorage / AverageFreighterCargoCap
-            * OwnedPlanets.Count * (IsCybernetic ? 1.2f : 1.8f)).UpperBound(FreighterCapUpperBound);
+            * OwnedPlanets.Count * (IsCybernetic ? 1.2f : 1.8f)).Clamped(1, FreighterCapUpperBound);
         public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue  => (int)Math.Ceiling((OwnedPlanets.Count / 5f)).Clamped(2, 5);
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
