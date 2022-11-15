@@ -285,7 +285,7 @@ namespace Ship_Game.Universe
         [StarDataDeserialized(typeof(Empire), typeof(Ship), typeof(Projectile), typeof(Beam))]
         void OnDeserialized()
         {
-            Initialize(Size);
+            Initialize(UniverseWidth);
 
             SaveState save = Save;
             Save = null;
