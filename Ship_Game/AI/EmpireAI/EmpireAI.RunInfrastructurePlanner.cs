@@ -37,11 +37,13 @@ namespace Ship_Game.AI
         int GetSystemDevelopmentLevel(SolarSystem system)
         {
             int level = 0;
-            foreach (Planet p in system.PlanetList)
+            for (int i = 0; i < system.PlanetList.Count; i++)
             {
+                Planet p = system.PlanetList[i];
                 if (p.Owner == OwnerEmpire)
                     level += p.Level;
             }
+
             return level;
         }
 
@@ -96,14 +98,11 @@ namespace Ship_Game.AI
             float totalRoadBudget     = SSPBudget;
 
             if (availableRoadBudget > perNodeMaintenance * 2)
-            {
-                CreateNewRoads(availableRoadBudget, perNodeMaintenance, underConstruction);
-            }
-            
-            var toRemove = new Array<SpaceRoad>();
+                CreateNewRoads(availableRoadBudget, perNodeMaintenance);
 
             // iterate spaceroads. remove invalid roads. remove roads that exceed budget. replace and build 
             // missing projectors in roads. 
+            var toRemove = new Array<SpaceRoad>();
             foreach (SpaceRoad road in OwnerEmpire.SpaceRoadsList.OrderBy(road => road.NumberOfProjectors))
             {
                 // no nodes is invalid. remove. 
@@ -124,8 +123,7 @@ namespace Ship_Game.AI
                 }
 
                 // road end points are invalid remove. 
-                if (!road.Origin.OwnerList.Contains(OwnerEmpire) ||
-                                    !road.Destination.OwnerList.Contains(OwnerEmpire))
+                if (!road.Origin.HasPlanetsOwnedBy(OwnerEmpire) || !road.Destination.HasPlanetsOwnedBy(OwnerEmpire))
                 {
                     toRemove.Add(road);
                     totalRoadBudget += road.NumberOfProjectors * perNodeMaintenance;
@@ -209,7 +207,7 @@ namespace Ship_Game.AI
             }
         }
 
-        float CreateNewRoads(float roadBudget, float nodeMaintenance, float underConstruction)
+        void CreateNewRoads(float roadBudget, float nodeMaintenance)
         {
             IReadOnlyList<SolarSystem> list = OwnerEmpire.GetOwnedSystems();
             for (int i = 0; i < list.Count; i++)
@@ -221,9 +219,10 @@ namespace Ship_Game.AI
 
                 SolarSystem[] systemsByDistance = OwnerEmpire.GetOwnedSystems()
                     .Sorted(s => s.Position.Distance(destination.Position));
-                for (int si = 0; si < systemsByDistance.Length; si++)
+
+                for (int j = 0; j < systemsByDistance.Length; j++)
                 {
-                    SolarSystem origin = systemsByDistance[si];
+                    SolarSystem origin = systemsByDistance[j];
                     if (!SpaceRoadExists(origin, destination))
                     {
                         int roadDevLevel = destSystemDevLevel + GetSystemDevelopmentLevel(origin);
@@ -232,14 +231,11 @@ namespace Ship_Game.AI
                         if (newRoad.NumberOfProjectors != 0 && newRoad.NumberOfProjectors <= roadDevLevel)
                         {
                             roadBudget -= newRoad.NumberOfProjectors * nodeMaintenance;
-                            underConstruction += newRoad.NumberOfProjectors * nodeMaintenance;
                             OwnerEmpire.SpaceRoadsList.Add(newRoad);
                         }
                     }
                 }
             }
-
-            return underConstruction;
         }
     }
 }

@@ -2909,13 +2909,13 @@ namespace Ship_Game
             switch (type)
             {
                 case QueueItemType.OrbitalUrgent:
-                case QueueItemType.ColonyShipClaim: priority = 0;                                                                       break;
-                case QueueItemType.Building:        priority = planet.PrioritizeColonyBuilding(building);                               break;
-                case QueueItemType.Troop:           priority = AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 10;                  break;
-                case QueueItemType.Scout:           priority = (TotalScouts - 1).LowerBound(0);                                         break;
-                case QueueItemType.ColonyShip:      priority = (OwnedPlanets.Count * 0.33f + (IsExpansionists ? -1 : 0)).LowerBound(0); break;
-                case QueueItemType.Freighter:       priority = TotalFreighters < OwnedPlanets.Count ? 0 : TotalFreighters * 0.5f;       break;
-                case QueueItemType.Orbital:         priority = TotalOrbitalMaintenance / AI.DefenseBudget.LowerBound(1) * 10;           break;
+                case QueueItemType.ColonyShipClaim: priority = 0;                                                                     break;
+                case QueueItemType.Building:        priority = planet.PrioritizeColonyBuilding(building);                             break;
+                case QueueItemType.Troop:           priority = AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 10;                break;
+                case QueueItemType.Scout:           priority = (TotalScouts - 1).LowerBound(0);                                       break;
+                case QueueItemType.ColonyShip:      priority = (OwnedPlanets.Count * (IsExpansionists ? 0.05f : 0.1f)).LowerBound(0); break;
+                case QueueItemType.Freighter:       priority = TotalFreighters < OwnedPlanets.Count ? 0 : TotalFreighters * 0.5f;     break;
+                case QueueItemType.Orbital:         priority = TotalOrbitalMaintenance / AI.DefenseBudget.LowerBound(1) * 10;         break;
                 case QueueItemType.CombatShip: 
                     priority = (int)(TotalWarShipMaintenance / AI.BuildCapacity.LowerBound(1) * 10);
                     if (IsMilitarists) 

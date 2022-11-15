@@ -33,7 +33,7 @@ namespace Ship_Game.Gameplay
 
             float projectorRadius = empire.GetProjectorRadius() * 1.75f;
             float distance = origin.Position.Distance(destination.Position);
-            NumberOfProjectors = (int)(Math.Ceiling(distance / projectorRadius));
+            NumberOfProjectors = 1 + (int)(Math.Ceiling(distance / projectorRadius));
 
             // can we afford the whole road?
             if (roadBudget - (nodeMaintenance * NumberOfProjectors) <= 0f)
