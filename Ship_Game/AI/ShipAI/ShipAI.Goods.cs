@@ -162,6 +162,7 @@ namespace Ship_Game.AI
                                                      : Plan.PickupGoods;
 
             SetTradePlan(plan, exportPlanet, importPlanet, goods);
+            Owner.Loyalty.AI.AddSpaceRoadHeat(exportPlanet.ParentSystem, importPlanet.ParentSystem);
             if (plan == Plan.DropOffGoods)
                 Owner.Loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrogateTimeTo(importPlanet));
         }
