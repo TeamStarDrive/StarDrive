@@ -1,6 +1,6 @@
 using System;
 using SDUtils;
-using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -17,47 +17,124 @@ namespace Ship_Game.Gameplay
     [StarDataType]
     public sealed class SpaceRoad
     {
+        [StarData] readonly Empire Owner;
         [StarData] public Array<RoadNode> RoadNodesList = new();
-        [StarData] public SolarSystem Origin;
-        [StarData] public SolarSystem Destination;
-        [StarData] public readonly int NumberOfProjectors;
+        [StarData] public SolarSystem System1;
+        [StarData] public SolarSystem System2;
+        [StarData] public readonly int NumProjectors;
+        [StarData] public readonly string Name;
+        [StarData] public SpaceRoadStatus Status { get; private set; }
+        [StarData] public float Heat { get; private set; }
+        [StarData] public float Maintenance { get; private set; }
+
+        const float ProjectorDensity = 1.75f;
+        const float SpacingOffset = 0.5f;
+
+        public bool Hot => Heat > NumProjectors;
+        public bool Frozen => Heat < -NumProjectors && NumProjectors > 2;
 
         public SpaceRoad()
         {
         }
 
-        public SpaceRoad(SolarSystem origin, SolarSystem destination, Empire empire, float roadBudget, float nodeMaintenance)
+        public SpaceRoad(SolarSystem sys1, SolarSystem sys2, Empire owner, int numProjectors, string name)
         {
-            Origin = origin;
-            Destination = destination;
+            System1 = sys1;
+            System2 = sys2;
+            NumProjectors = numProjectors;
+            Status = SpaceRoadStatus.Down;
+            Owner = owner;
+            Name = name;
 
-            float projectorRadius = empire.GetProjectorRadius() * 1.75f;
-            float distance = origin.Position.Distance(destination.Position);
-            NumberOfProjectors = 1 + (int)(Math.Ceiling(distance / projectorRadius));
+            float distance = sys1.Position.Distance(sys2.Position);
+            float projectorSpacing = distance / NumProjectors;
+            float baseOffset = projectorSpacing * SpacingOffset;
 
-            // can we afford the whole road?
-            if (roadBudget - (nodeMaintenance * NumberOfProjectors) <= 0f)
+            for (int i = 0; i <= NumProjectors; i++)
             {
-                NumberOfProjectors = 0;
-                return;
-            }
-
-            float projectorSpacing = distance / NumberOfProjectors;
-            float baseOffset = projectorSpacing * 0.5f;
-
-            for (int i = 0; i < NumberOfProjectors; i++)
-            {
-                float nodeOffset = baseOffset + projectorSpacing*i;
-                Vector2 roadDirection = origin.Position.DirectionToTarget(destination.Position);
+                float nodeOffset = baseOffset + projectorSpacing * i;
+                Vector2 roadDirection = sys1.Position.DirectionToTarget(sys2.Position);
 
                 var node = new RoadNode
                 {
-                    Position = origin.Position + roadDirection * nodeOffset
+                    Position = sys1.Position + roadDirection * nodeOffset
                 };
 
-                if (!EmpireAI.InfluenceNodeExistsAt(node.Position, empire))
-                    RoadNodesList.Add(node);
+                //if (i > 0 && i < NumProjectors && !EmpireAI.InfluenceNodeExistsAt(node.Position, owner))
+                RoadNodesList.Add(node);
+            }
+
+            UpdateMaintenance();
+            AddHeat();
+        }
+
+        public void AddHeat()
+        {
+            Heat += 1f;
+        }
+
+        public void CoolDown()
+        {
+            Heat -= 1f;
+        }
+
+        void UpdateMaintenance()
+        {
+            Maintenance = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(Owner) * NumProjectors;
+        }
+        public static int GetNeededNumProjectors(SolarSystem origin, SolarSystem destination, Empire owner)
+        {
+            float projectorRadius = owner.GetProjectorRadius() * ProjectorDensity;
+            float distance = origin.Position.Distance(destination.Position);
+            return (int)(Math.Ceiling(distance / projectorRadius));
+        }
+
+        public static string GetSpaceRoadName(SolarSystem sys1, SolarSystem sys2)
+        {
+            string[] names = { sys1.Name, sys2.Name };
+            names.Sort(s => s);
+            return $"{names[0]}-{names[1]}";
+        }
+
+        public void DeployAllProjectors()
+        {
+            Status = SpaceRoadStatus.InProgress;
+            foreach (RoadNode node in RoadNodesList)
+            {
+                Log.Info($"BuildProjector - {Owner.Name} - at {node.Position}");
+                Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
             }
         }
+
+        public void FillGaps()
+        {
+            for (int i = 0; i < RoadNodesList.Count; i++)
+            {
+                RoadNode node = RoadNodesList[i];
+                if (node.Platform?.Active != true && !Owner.AI.NodeAlreadyExistsAt(node.Position))
+                {
+                    Log.Info($"BuildProjector - {Owner.Name} - fill gap at {node.Position}");
+                    Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
+                }
+            }
+        }
+
+        public void Scrap()
+        {
+
+        }
+
+        public bool IsValid()
+        {
+            return false;
+        }
+
+        public enum SpaceRoadStatus
+        {
+            Down,
+            InProgress,
+            Online,
+        }
+
     }
 }
