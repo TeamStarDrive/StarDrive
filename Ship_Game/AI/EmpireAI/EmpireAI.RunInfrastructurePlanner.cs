@@ -55,7 +55,7 @@ namespace Ship_Game.AI
             if (!OwnerEmpire.CanBuildPlatforms || OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuild)
                 return;
 
-            if (OwnerEmpire.Universe.StarDate % 10 == 0)
+            if (OwnerEmpire.Universe.StarDate % 1 == 0)
                 CoolDownRoads();
 
             float roadMaintenance = ProjectorHeatMap.Values.Sum(r => r.Maintenance);
