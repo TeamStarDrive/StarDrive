@@ -1,5 +1,6 @@
 using System;
 using SDUtils;
+using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
@@ -11,13 +12,19 @@ namespace Ship_Game.Gameplay
     public sealed class RoadNode
     {
         [StarData] public Vector2 Position;
-        [StarData] public Ship Platform;
+        [StarData] public Ship Projector { get; private set; }
+        public bool ProjectorExists => Projector is { Active: true };
+
+        public void SetProjector(Ship projector)
+        {
+            Projector = projector;
+        }
     }
 
     [StarDataType]
     public sealed class SpaceRoad
     {
-        [StarData] readonly Empire Owner;
+        [StarData] public Empire Owner { get; private set; }
         [StarData] public Array<RoadNode> RoadNodesList = new();
         [StarData] public SolarSystem System1;
         [StarData] public SolarSystem System2;
@@ -30,8 +37,8 @@ namespace Ship_Game.Gameplay
         const float ProjectorDensity = 1.75f;
         const float SpacingOffset = 0.5f;
 
-        public bool Hot => Heat > NumProjectors;
-        public bool Frozen => Heat < -NumProjectors && NumProjectors > 2;
+        public bool IsHot => Heat > NumProjectors;
+        bool IsCold => Heat < -NumProjectors && NumProjectors > 2;
 
         public SpaceRoad()
         {
@@ -78,7 +85,7 @@ namespace Ship_Game.Gameplay
             Heat -= 1f;
         }
 
-        void UpdateMaintenance()
+        public void UpdateMaintenance()
         {
             Maintenance = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(Owner) * NumProjectors;
         }
@@ -111,7 +118,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < RoadNodesList.Count; i++)
             {
                 RoadNode node = RoadNodesList[i];
-                if (node.Platform?.Active != true && !Owner.AI.NodeAlreadyExistsAt(node.Position))
+                if (node.Projector?.Active != true && !Owner.AI.NodeAlreadyExistsAt(node.Position))
                 {
                     Log.Info($"BuildProjector - {Owner.Name} - fill gap at {node.Position}");
                     Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
@@ -119,14 +126,54 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void Scrap()
+        public void Scrap(Array<Goal> goalsList)
         {
-
+            foreach (RoadNode node in RoadNodesList)
+            {
+                if (node.Projector != null && node.Projector.Active)
+                    node.Projector.AI.OrderScuttleShip();
+                else
+                    RemoveProjectorGoal(goalsList, node.Position);
+            }
         }
 
-        public bool IsValid()
+        void RemoveProjectorGoal(Array<Goal>  goalsList, Vector2 nodePos)
         {
-            return false;
+            for (int i = goalsList.Count - 1; i >= 0; i--)
+            {
+                Goal g = goalsList[i];
+                if (g.Type == GoalType.DeepSpaceConstruction && g.BuildPosition.AlmostEqual(nodePos))
+                {
+                    g.PlanetBuildingAt.Construction.Cancel(g);
+                    g.FinishedShip?.AI.OrderScrapShip();
+                    Owner.AI.RemoveGoal(g);
+                    break;
+                }
+            }
+        }
+
+        public bool IsInvalid()
+        {
+            return IsCold 
+                   || !System1.HasPlanetsOwnedBy(Owner)
+                   || !System1.HasPlanetsOwnedBy(Owner); 
+        }
+
+        public void RecalculateStatus()
+        {
+            Status = RoadNodesList.Any(n => !n.ProjectorExists) ? SpaceRoadStatus.InProgress : SpaceRoadStatus.Online;
+        }
+
+        public void SetProjectorInNode(RoadNode node, Ship projector)
+        {
+            node.SetProjector(projector);
+            RecalculateStatus();
+        }
+
+        public void TransferOwnerShipTo(Empire empire)
+        {
+            Owner = empire;
+            UpdateMaintenance();
         }
 
         public enum SpaceRoadStatus

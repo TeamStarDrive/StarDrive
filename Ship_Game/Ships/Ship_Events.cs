@@ -80,5 +80,16 @@ namespace Ship_Game.Ships
         {
             BombBays.Add(m);
         }
+
+        // EVT: when a ship dies
+        // note that pSource can be null
+        public virtual void OnShipDie(Projectile pSource)
+        {
+            if (IsSubspaceProjector)
+                Loyalty.AI.RemoveProjectorFromRoadList(this);
+
+            DamageRelationsOnDeath(pSource);
+            CreateEventOnDeath();
+        }
     }
 }
