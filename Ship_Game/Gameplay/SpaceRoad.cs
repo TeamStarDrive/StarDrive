@@ -118,7 +118,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < RoadNodesList.Count; i++)
             {
                 RoadNode node = RoadNodesList[i];
-                if (node.Projector?.Active != true && !Owner.AI.NodeAlreadyExistsAt(node.Position))
+                if (!node.ProjectorExists && !Owner.AI.NodeAlreadyExistsAt(node.Position))
                 {
                     Log.Info($"BuildProjector - {Owner.Name} - fill gap at {node.Position}");
                     Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
@@ -130,7 +130,7 @@ namespace Ship_Game.Gameplay
         {
             foreach (RoadNode node in RoadNodesList)
             {
-                if (node.Projector != null && node.Projector.Active)
+                if (node.ProjectorExists)
                     node.Projector.AI.OrderScuttleShip();
                 else
                     RemoveProjectorGoal(goalsList, node.Position);
