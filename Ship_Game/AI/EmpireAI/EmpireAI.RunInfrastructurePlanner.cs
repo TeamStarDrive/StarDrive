@@ -40,9 +40,9 @@ namespace Ship_Game.AI
 
         public bool NodeAlreadyExistsAt(Vector2 pos)
         {
-            for (int gi = 0; gi < GoalsList.Count; gi++)
+            for (int i = 0; i < GoalsList.Count; i++)
             {
-                Goal g = GoalsList[gi];
+                Goal g = GoalsList[i];
                 if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, 1000))
                     return true;
             }
