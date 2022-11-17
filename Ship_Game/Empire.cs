@@ -1219,6 +1219,7 @@ namespace Ship_Game
         public void UpdateForNewTech()
         {
             UpdateShipsWeCanBuild();
+            AI.UpdateRoadMaintenance();
             AI.TriggerRefit();
             TriggerFreightersRefit();
         }
@@ -2612,13 +2613,6 @@ namespace Ship_Game
                 ship.LoyaltyChangeByGift(this, addNotification: false);
             }
 
-            var projectors = target.OwnedProjectors;
-            for (int i = projectors.Count - 1; i >= 0; i--)
-            {
-                Ship ship = projectors[i];
-                ship.LoyaltyChangeByGift(this, addNotification: false);
-            }
-
             target.AIManagedShips.Clear();
             AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
@@ -2652,6 +2646,8 @@ namespace Ship_Game
                 Money += target.Money;
                 target.Money = 0.0f;
             }
+
+            AI.AbsorbSpaceRoadOwnershipFrom(target, target.AI.ProjectorHeatMap);
 
             target.SetAsMerged();
             ResetBorders();
