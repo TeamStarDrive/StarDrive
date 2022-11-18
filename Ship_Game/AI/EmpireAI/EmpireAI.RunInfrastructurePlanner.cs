@@ -54,8 +54,6 @@ namespace Ship_Game.AI
 
             float roadMaintenance = SpaceRoads.Sum(r => r.Maintenance);
             float availableRoadBudget = SSPBudget - roadMaintenance;
-
-
             if (!TryScrapSpaceRoad(lowBudgetMustScrap: availableRoadBudget  < 0))
                 CreateNewRoad(availableRoadBudget);
         }
