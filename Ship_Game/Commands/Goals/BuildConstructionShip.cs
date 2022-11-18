@@ -44,7 +44,11 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = planet;
-            planet.Construction.Enqueue(ToBuild, constructor, Build.Rush, this);
+            QueueItemType itemType = ToBuild.IsSubspaceProjector ? QueueItemType.RoadNode : QueueItemType.Orbital;
+            if (Build.Rush)
+                itemType = QueueItemType.OrbitalUrgent;
+            
+            planet.Construction.Enqueue(itemType, ToBuild, constructor, Build.Rush, this);
             return GoalStep.GoToNextStep;
         }
 
