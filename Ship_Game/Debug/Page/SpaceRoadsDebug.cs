@@ -13,7 +13,8 @@ public class SpaceRoadsDebug : DebugPage
     int InProgress;
     int Online;
     float Maint;
-    float timer;
+    float Timer;
+
     public SpaceRoadsDebug(DebugInfoScreen parent) : base(parent, DebugModes.Tasks)
     {
     }
@@ -38,15 +39,15 @@ public class SpaceRoadsDebug : DebugPage
 
     void DrawSpaceRoads(Empire e, int column)
     {
-        Text.SetCursor(Parent.Win.X + 10 + 150 * column, Parent.Win.Y + 200, e.EmpireColor);
+        Text.SetCursor(Parent.Win.X + 10 + 300 * column, Parent.Win.Y + 50, e.EmpireColor);
         Text.String("--------------------------");
         Text.String(e.Name);
-        if (--timer < 0)
+        if (--Timer < 0)
         {
             (Down, InProgress, Online, Maint) = CountRoads(e.AI.SpaceRoads);
-            timer = 60;
+            Timer = 60;
         }
-        Text.String($"Number of Roads: {e.AI.SpaceRoads.Count} - (d{Down}, ip{InProgress}, o{Online}");
+        Text.String($"Number of Roads: {e.AI.SpaceRoads.Count} - (Dn {Down}, Ip {InProgress}, On {Online})");
         Text.String($"Total Maintenance/Budget: {Maint.String(2)}/{e.AI.SSPBudget.String(2)}");
         Text.String("----------------------------");
         Text.NewLine();
@@ -54,7 +55,8 @@ public class SpaceRoadsDebug : DebugPage
         var spaceRoads = e.AI.SpaceRoads.SortedDescending(r => r.Heat);
         foreach (SpaceRoad road in spaceRoads)
         {
-            Text.String($"{road.System1.Name}-{road.System2.Name}, (SSPs {road.NumProjectors}), (Heat {road.Heat}), {road.Status}");
+            Text.String($"{road.System1.Name}-{road.System2.Name}, (maint {road.Maintenance.String(2)}), " +
+                        $"(SSPs {road.NumProjectors}), (Heat {road.Heat}), {road.Status}");
         }
     }
 
@@ -77,14 +79,6 @@ public class SpaceRoadsDebug : DebugPage
         }
 
         return (down, inProgress, online, maint);
-    }
-    void DrawTask(MilitaryTask t, Empire e)
-    {
-        Color color = t.TargetEmpire?.EmpireColor ?? e.EmpireColor;
-        string target = t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "";
-        string fleet = t.Fleet != null ? $"Fleet Step: {t.Fleet.TaskStep}" : "";
-        float str = t.Fleet?.GetStrength() ?? t.MinimumTaskForceStrength;
-        Text.String(color, $"({t.Priority}) {t.Type}, {target}, str: {(int)str}, {fleet}");
     }
 
     public override bool HandleInput(InputState input)

@@ -32,7 +32,7 @@ public class TasksDebug : DebugPage
 
     void DrawTasks(Empire e, int column)
     {
-        Text.SetCursor(Parent.Win.X + 10 + 150 * column, Parent.Win.Y + 200, e.EmpireColor);
+        Text.SetCursor(Parent.Win.X + 10 + 300 * column, Parent.Win.Y + 50, e.EmpireColor);
         Text.String("--------------------------");
         Text.String(e.Name);
         Text.String($"{e.Personality}");
