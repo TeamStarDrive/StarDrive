@@ -44,7 +44,6 @@ namespace Ship_Game
 
         [StarData] readonly Array<Troop> UnlockedTroops;
         [StarData] public Array<Ship> Inhibitors;
-        [StarData] public Array<SpaceRoad> SpaceRoadsList;
 
         public const float StartingMoney = 1000f;
         float MoneyValue = StartingMoney;
@@ -245,7 +244,6 @@ namespace Ship_Game
             UnlockedTroops = new();
 
             Inhibitors = new();
-            SpaceRoadsList = new();
             OwnedPlanets = new();
             OwnedSolarSystems = new();
 
@@ -2911,7 +2909,7 @@ namespace Ship_Game
                 case QueueItemType.Scout:           priority = (TotalScouts - 1).LowerBound(0);                                        break;
                 case QueueItemType.ColonyShip:      priority = (OwnedPlanets.Count * (IsExpansionists ? 0.01f : 0.05f)).LowerBound(0); break;
                 case QueueItemType.Orbital:         priority = 1 + (TotalOrbitalMaintenance / AI.DefenseBudget.LowerBound(1) * 10);    break;
-                case QueueItemType.RoadNode:        priority = SpaceRoadsList.Count * 0.1f;                                            break;
+                case QueueItemType.RoadNode:        priority = AI.SpaceRoads.Count * 0.1f;                                             break;
                 case QueueItemType.Freighter:
                     int totalFreighters = TotalFreighters;
                     priority = totalFreighters * (totalFreighters  < OwnedPlanets.Count ? 0.1f : 0.5f);
@@ -3153,7 +3151,6 @@ namespace Ship_Game
             ThreatDetector.Clear();
             ClearInfluenceList();
             TechnologyDict.Clear();
-            SpaceRoadsList.Clear();
             ResetFleets(returnShipsToEmpireAI: false);
             Fleets = Empty<Fleet>.Array;
 
