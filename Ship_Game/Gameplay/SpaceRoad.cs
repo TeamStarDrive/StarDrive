@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -15,6 +16,9 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly Vector2 Position;
         [StarData] public Ship Projector { get; private set; }
         public bool ProjectorExists => Projector is { Active: true };
+
+        [StarDataConstructor]
+        public RoadNode() {}
 
         public RoadNode(Vector2 pos)
         {
@@ -37,14 +41,17 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly string Name;
         [StarData] public SpaceRoadStatus Status { get; private set; }
         [StarData] public float Heat { get; private set; }
-        [StarData] public float Maintenance { get; private set; }
+        [StarData] public float OnlineMaintenance { get; private set; }
 
         const float ProjectorDensity = 1.75f;
         const float SpacingOffset = 0.5f;
 
-        public bool IsHot => Heat > NumProjectors;
-        public bool IsCold => Heat < -NumProjectors;
+        public bool IsHot => Heat >= NumProjectors*2;
+        public bool IsCold => Heat <= -NumProjectors*2;
 
+        public float Maintenance => Status == SpaceRoadStatus.Down ? 0 : OnlineMaintenance;
+
+        [StarDataConstructor]
         public SpaceRoad()
         {
         }
@@ -62,7 +69,7 @@ namespace Ship_Game.Gameplay
             float projectorSpacing = distance / NumProjectors;
             float baseOffset = projectorSpacing * SpacingOffset;
 
-            for (int i = 0; i <= NumProjectors; i++)
+            for (int i = 1; i <= NumProjectors; i++)
             {
                 float nodeOffset = baseOffset + projectorSpacing * i;
                 Vector2 roadDirection = sys1.Position.DirectionToTarget(sys2.Position);
@@ -74,19 +81,19 @@ namespace Ship_Game.Gameplay
             AddHeat();
         }
 
-        public void AddHeat()
+        public void AddHeat(float extraHeat = 0)
         {
-            Heat = (Heat +1).UpperBound(NumProjectors * 2);
+            Heat = (Heat + 1 + NumProjectors / 5f ).UpperBound(NumProjectors * 3);
         }
 
         public void CoolDown()
         {
-            Heat = (Heat - 1).LowerBound(NumProjectors * 2);
+            Heat--;
         }
 
         public void UpdateMaintenance()
         {
-            Maintenance = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(Owner) * NumProjectors;
+            OnlineMaintenance = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(Owner) * NumProjectors;
         }
         public static int GetNeededNumProjectors(SolarSystem origin, SolarSystem destination, Empire owner)
         {
