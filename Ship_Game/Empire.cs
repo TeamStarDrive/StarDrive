@@ -2902,20 +2902,24 @@ namespace Ship_Game
             ForceUpdateSensorRadiuses = true;
         }
 
-        public float GetPriorityForPlanetBuildQeueue(QueueItemType type, Planet planet, Building building)
+        public float GetPriorityForPlanetBuildQueue(QueueItemType type, Planet planet, Building building)
         {
             float priority = 5000;
             
             switch (type)
             {
                 case QueueItemType.OrbitalUrgent:
-                case QueueItemType.ColonyShipClaim: priority = 0;                                                                     break;
-                case QueueItemType.Building:        priority = planet.PrioritizeColonyBuilding(building);                             break;
-                case QueueItemType.Troop:           priority = AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 10;                break;
-                case QueueItemType.Scout:           priority = (TotalScouts - 1).LowerBound(0);                                       break;
-                case QueueItemType.ColonyShip:      priority = (OwnedPlanets.Count * (IsExpansionists ? 0.05f : 0.1f)).LowerBound(0); break;
-                case QueueItemType.Freighter:       priority = TotalFreighters < OwnedPlanets.Count ? 0 : TotalFreighters * 0.5f;     break;
-                case QueueItemType.Orbital:         priority = TotalOrbitalMaintenance / AI.DefenseBudget.LowerBound(1) * 10;         break;
+                case QueueItemType.ColonyShipClaim: priority = 0;                                                                      break;
+                case QueueItemType.Building:        priority = planet.PrioritizeColonyBuilding(building);                              break;
+                case QueueItemType.Troop:           priority = AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 10;                 break;
+                case QueueItemType.Scout:           priority = (TotalScouts - 1).LowerBound(0);                                        break;
+                case QueueItemType.ColonyShip:      priority = (OwnedPlanets.Count * (IsExpansionists ? 0.01f : 0.05f)).LowerBound(0); break;
+                case QueueItemType.Orbital:         priority = 1 + (TotalOrbitalMaintenance / AI.DefenseBudget.LowerBound(1) * 10);    break;
+                case QueueItemType.RoadNode:        priority = SpaceRoadsList.Count * 0.1f;                                            break;
+                case QueueItemType.Freighter:
+                    int totalFreighters = TotalFreighters;
+                    priority = totalFreighters * (totalFreighters  < OwnedPlanets.Count ? 0.1f : 0.5f);
+                    break;
                 case QueueItemType.CombatShip: 
                     priority = (int)(TotalWarShipMaintenance / AI.BuildCapacity.LowerBound(1) * 10);
                     if (IsMilitarists) 
@@ -2928,11 +2932,14 @@ namespace Ship_Game
                 switch (type)
                 {
                     case QueueItemType.Troop:
-                    case QueueItemType.CombatShip: priority *= 0.5f;            break;
-                    case QueueItemType.Orbital:    priority = priority * 0.66f; break;
+                    case QueueItemType.CombatShip: priority *= 0.5f;  break;
+                    case QueueItemType.Orbital:    priority *= 0.66f; break;
                 }
             }
-
+            if (planet.HasCapital)
+            {
+                Log.Info($"{type} - priority: {priority}");
+            }
             return priority;
         }
 
