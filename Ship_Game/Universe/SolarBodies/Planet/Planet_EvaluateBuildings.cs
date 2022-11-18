@@ -845,6 +845,7 @@ namespace Ship_Game
             if (b == null)
             {
                 Log.Warning($"PrioritizeColonyBuilding - building was null in planet{Name}!");
+                return 5000;
             }
 
             switch (CType)
@@ -853,10 +854,10 @@ namespace Ship_Game
                 case ColonyType.Industrial   when b.ProducesProduction:
                 case ColonyType.Research     when b.ProducesResearch:
                 case ColonyType.Military     when b.IsMilitary:  return 0;
-                case ColonyType.Core         when !b.IsMilitary: return BuildingList.Count * 0.2f;
+                case ColonyType.Core         when !b.IsMilitary: return BuildingList.Count * 0.01f;
             }
 
-            return BuildingList.Count * 0.33f;
+            return BuildingList.Count * 0.1f;
         }
 
         void PrioritizeCriticalProductionBuildings()
