@@ -44,6 +44,11 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public bool InfluenceNodeExistsAt(Vector2 pos)
+        {
+            return OwnerEmpire.Universe.Influence.IsInInfluenceOf(OwnerEmpire, pos);
+        }
+
         void RunInfrastructurePlanner()
         {
             if (!OwnerEmpire.CanBuildPlatforms || OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuild)
@@ -137,6 +142,8 @@ namespace Ship_Game.AI
                 road.UpdateMaintenance();
             }
         }
+
+        public int NumOnlineSpaceRoads => SpaceRoads.Count(r => r.Status == SpaceRoad.SpaceRoadStatus.Online);
 
         public void AbsorbSpaceRoadOwnershipFrom(Empire them, Array<SpaceRoad> theirRoads)
         {
