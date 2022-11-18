@@ -1,3 +1,4 @@
+using System.Linq;
 using SDUtils;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
@@ -12,8 +13,7 @@ namespace Ship_Game.AI
     {
         [StarData] public readonly Array<SpaceRoad> SpaceRoads = new();
 
-
-        public void AddSpaceRoadHeat(SolarSystem origin, SolarSystem destination)
+        public void AddSpaceRoadHeat(SolarSystem origin, SolarSystem destination, float extraHeat)
         {
             if (origin == destination)
                 return;
@@ -22,7 +22,7 @@ namespace Ship_Game.AI
             SpaceRoad existingRoad = SpaceRoads.Find(r => r.Name == name);
             if (existingRoad != null)
             {
-                existingRoad.AddHeat();
+                existingRoad.AddHeat(extraHeat);
             }
             else
             {
@@ -30,11 +30,6 @@ namespace Ship_Game.AI
                 if (numProjectors > 0)
                     SpaceRoads.Add(new SpaceRoad(origin, destination, OwnerEmpire, numProjectors, name));
             }
-        }
-
-        public static bool InfluenceNodeExistsAt(Vector2 pos, Empire empire)
-        {
-            return empire.Universe.Influence.IsInInfluenceOf(empire, pos);
         }
 
         public bool NodeAlreadyExistsAt(Vector2 pos)
@@ -60,10 +55,9 @@ namespace Ship_Game.AI
             float roadMaintenance = SpaceRoads.Sum(r => r.Maintenance);
             float availableRoadBudget = SSPBudget - roadMaintenance;
 
-            if (availableRoadBudget / SSPBudget < 0.25f)
-                TryScrapSpaceRoads();
-            else
-                CreateNewRoads(availableRoadBudget);
+
+            if (!TryScrapSpaceRoad(lowBudgetMustScrap: availableRoadBudget  < 0))
+                CreateNewRoad(availableRoadBudget);
         }
 
         void CoolDownRoads()
@@ -78,29 +72,35 @@ namespace Ship_Game.AI
             SpaceRoads.Remove(road);
         }
 
-        void TryScrapSpaceRoads()
+        // Scrap one road per turn, if applicable
+        bool TryScrapSpaceRoad(bool lowBudgetMustScrap)
         {
             SpaceRoad coldestRoad = SpaceRoads.FindMin(r => r.Heat);
-            if (coldestRoad is { IsCold: true })
+            if (coldestRoad != null && (coldestRoad.IsCold || lowBudgetMustScrap))
+            {
                 RemoveRoad(coldestRoad);
+                return true;
+            }
+
+            return false;
         }
 
-        void CreateNewRoads(float roadBudget)
+        // Dealing with one road till its completed
+        void CreateNewRoad(float roadBudget)
         {
             if (roadBudget <= 0)
                 return;
 
-            var projectorsByHeat = SpaceRoads.SortedDescending(r => r.Heat);
-            for (int i = 0; i < projectorsByHeat.Length; i++)
+            var hottestRoad = SpaceRoads.FindMaxFiltered(r => r.Status != SpaceRoad.SpaceRoadStatus.Online, r => r.Heat);
+            if (hottestRoad != null) 
             {
-                SpaceRoad road = projectorsByHeat[i];
-                switch (road.Status)
+                switch (hottestRoad.Status)
                 {
-                    case SpaceRoad.SpaceRoadStatus.Down when road.IsHot && road.Maintenance < roadBudget:
-                        road.DeployAllProjectors();
+                    case SpaceRoad.SpaceRoadStatus.Down when hottestRoad.IsHot && hottestRoad.OnlineMaintenance < roadBudget:
+                        hottestRoad.DeployAllProjectors();
                         return;
-                    case SpaceRoad.SpaceRoadStatus.InProgress: 
-                        road.FillGaps();
+                    case SpaceRoad.SpaceRoadStatus.InProgress:
+                        hottestRoad.FillGaps();
                         return;
                 }
             }
@@ -110,7 +110,7 @@ namespace Ship_Game.AI
         public void AddProjectorToRoadList(Ship projector, Vector2 buildPosition) 
             => ManageProjectorInRoadsList(projector, buildPosition);
 
-        // This is rarely called (mostly in destruction or
+        // This is rarely called (mostly in destruction or when a new projector is placed
         void ManageProjectorInRoadsList(Ship projector, Vector2 buildPosition = default)
         {
             bool remove = buildPosition == default;
