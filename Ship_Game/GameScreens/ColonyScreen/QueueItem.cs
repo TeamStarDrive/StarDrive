@@ -145,7 +145,8 @@ namespace Ship_Game
         CombatShip,
         Building,
         Orbital,
-        OrbitalUrgent
+        OrbitalUrgent,
+        RoadNode
     }
 
 }
