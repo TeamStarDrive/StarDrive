@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using SDUtils;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
@@ -12,7 +10,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        [StarData] public readonly Map<string, SpaceRoad> ProjectorHeatMap = new();
+        [StarData] public readonly Array<SpaceRoad> SpaceRoads = new();
 
 
         public void AddSpaceRoadHeat(SolarSystem origin, SolarSystem destination)
@@ -21,15 +19,16 @@ namespace Ship_Game.AI
                 return;
 
             string name = SpaceRoad.GetSpaceRoadName(origin, destination);
-            if (ProjectorHeatMap.TryGetValue(name, out SpaceRoad spaceRoad))
+            SpaceRoad existingRoad = SpaceRoads.Find(r => r.Name == name);
+            if (existingRoad != null)
             {
-                spaceRoad.AddHeat();
+                existingRoad.AddHeat();
             }
             else
             {
                 int numProjectors = SpaceRoad.GetNeededNumProjectors(origin, destination, OwnerEmpire);
                 if (numProjectors > 0)
-                    ProjectorHeatMap.Add(name, new SpaceRoad(origin, destination, OwnerEmpire, numProjectors, name));
+                    SpaceRoads.Add(new SpaceRoad(origin, destination, OwnerEmpire, numProjectors, name));
             }
         }
 
@@ -58,44 +57,32 @@ namespace Ship_Game.AI
             if (OwnerEmpire.Universe.StarDate % 1 == 0)
                 CoolDownRoads();
 
-            float roadMaintenance = ProjectorHeatMap.Values.Sum(r => r.Maintenance);
+            float roadMaintenance = SpaceRoads.Sum(r => r.Maintenance);
             float availableRoadBudget = SSPBudget - roadMaintenance;
 
-            if (!TryScrapSpaceRoads(availableRoadBudget))
+            if (availableRoadBudget / SSPBudget < 0.25f)
+                TryScrapSpaceRoads();
+            else
                 CreateNewRoads(availableRoadBudget);
         }
 
         void CoolDownRoads()
         {
-            var ships = OwnerEmpire.OwnedShips;
-            if (ships.Any(s => s.IsIdleFreighter))
-            {
-                foreach (SpaceRoad road in ProjectorHeatMap.Values)
-                    road.CoolDown();
-            }
+            for (int i = 0; i < SpaceRoads.Count; i++)
+                SpaceRoads[i].CoolDown();
         }
 
         void RemoveRoad(SpaceRoad road)
         {
             road.Scrap(GoalsList);
-            ProjectorHeatMap.Remove(road.Name);
+            SpaceRoads.Remove(road);
         }
 
-        bool TryScrapSpaceRoads(float availableBudget)
+        void TryScrapSpaceRoads()
         {
-            var projectorsByHeat = ProjectorHeatMap.Values.Sorted(r => r.Heat);
-            bool mustRemove = availableBudget < 0;
-            for (int i = 0; i < projectorsByHeat.Length; i++)
-            {
-                SpaceRoad road = projectorsByHeat[i];
-                if (mustRemove || road.IsInvalid())
-                {
-                    RemoveRoad(road);
-                    return true;
-                }
-            }
-
-            return false;
+            SpaceRoad coldestRoad = SpaceRoads.FindMin(r => r.Heat);
+            if (coldestRoad is { IsCold: true })
+                RemoveRoad(coldestRoad);
         }
 
         void CreateNewRoads(float roadBudget)
@@ -103,7 +90,7 @@ namespace Ship_Game.AI
             if (roadBudget <= 0)
                 return;
 
-            var projectorsByHeat = ProjectorHeatMap.Values.SortedDescending(r => r.Heat);
+            var projectorsByHeat = SpaceRoads.SortedDescending(r => r.Heat);
             for (int i = 0; i < projectorsByHeat.Length; i++)
             {
                 SpaceRoad road = projectorsByHeat[i];
@@ -123,15 +110,17 @@ namespace Ship_Game.AI
         public void AddProjectorToRoadList(Ship projector, Vector2 buildPosition) 
             => ManageProjectorInRoadsList(projector, buildPosition);
 
+        // This is rarely called (mostly in destruction or
         void ManageProjectorInRoadsList(Ship projector, Vector2 buildPosition = default)
         {
             bool remove = buildPosition == default;
-            foreach (SpaceRoad road in ProjectorHeatMap.Values)
+            for (int i = 0; i < SpaceRoads.Count; i++)
             {
-                for (int i = 0; i < road.RoadNodesList.Count; i++)
+                SpaceRoad road = SpaceRoads[i];
+                for (int j = 0; j < road.RoadNodesList.Count; j++)
                 {
-                    RoadNode node = road.RoadNodesList[i];
-                    if (remove && node.Projector == projector 
+                    RoadNode node = road.RoadNodesList[j];
+                    if (remove && node.Projector == projector
                         || !remove && node.Position.InRadius(buildPosition, 100))
                     {
                         road.SetProjectorInNode(node, projector); // will be set to null if remove is true
@@ -144,30 +133,33 @@ namespace Ship_Game.AI
 
         public void UpdateRoadMaintenance()
         {
-            foreach (SpaceRoad road in ProjectorHeatMap.Values)
+            for (int i = 0; i < SpaceRoads.Count; i++)
             {
+                SpaceRoad road = SpaceRoads[i];
                 road.UpdateMaintenance();
             }
         }
 
-        public void AbsorbSpaceRoadOwnershipFrom(Empire them, Map<string, SpaceRoad> theirRoads)
+        public void AbsorbSpaceRoadOwnershipFrom(Empire them, Array<SpaceRoad> theirRoads)
         {
-            foreach (KeyValuePair<string,SpaceRoad> theirSpaceRoad in theirRoads)
+            for (int i = 0; i < theirRoads.Count; i++)
             {
-                if (ProjectorHeatMap.TryGetValue(theirSpaceRoad.Key, out _))
+                SpaceRoad theirSpaceRoad = theirRoads[i];
+                SpaceRoad existingRoad = SpaceRoads.Find(r => r.Name == theirSpaceRoad.Name);
+                if (existingRoad != null)
                 {
-                    theirSpaceRoad.Value.Scrap(them.AI.GoalsList); // we have that road as well
+                    theirSpaceRoad.Scrap(them.AI.GoalsList); // we have that road as well
                 }
                 else
                 {
-                    theirSpaceRoad.Value.TransferOwnerShipTo(OwnerEmpire);
-                    ProjectorHeatMap.Add(theirSpaceRoad.Key, theirSpaceRoad.Value);
+                    theirSpaceRoad.TransferOwnerShipTo(OwnerEmpire);
+                    SpaceRoads.Add(theirSpaceRoad);
                 }
             }
 
             theirRoads.Clear();
 
-            // Iterating all projectors since their might be projectors which are not in roads
+            // Iterating all projectors since there might be projectors which are not in roads
             var projectors = them.OwnedProjectors;
             for (int i = projectors.Count - 1; i >= 0; i--)
             {

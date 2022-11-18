@@ -2647,7 +2647,7 @@ namespace Ship_Game
                 target.Money = 0.0f;
             }
 
-            AI.AbsorbSpaceRoadOwnershipFrom(target, target.AI.ProjectorHeatMap);
+            AI.AbsorbSpaceRoadOwnershipFrom(target, target.AI.SpaceRoads);
 
             target.SetAsMerged();
             ResetBorders();

@@ -1,4 +1,5 @@
 using System;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
@@ -11,10 +12,14 @@ namespace Ship_Game.Gameplay
     [StarDataType]
     public sealed class RoadNode
     {
-        [StarData] public Vector2 Position;
+        [StarData] public readonly Vector2 Position;
         [StarData] public Ship Projector { get; private set; }
         public bool ProjectorExists => Projector is { Active: true };
 
+        public RoadNode(Vector2 pos)
+        {
+            Position = pos;
+        }
         public void SetProjector(Ship projector)
         {
             Projector = projector;
@@ -38,7 +43,7 @@ namespace Ship_Game.Gameplay
         const float SpacingOffset = 0.5f;
 
         public bool IsHot => Heat > NumProjectors;
-        bool IsCold => Heat < -NumProjectors && NumProjectors > 2;
+        public bool IsCold => Heat < -NumProjectors;
 
         public SpaceRoad()
         {
@@ -61,13 +66,7 @@ namespace Ship_Game.Gameplay
             {
                 float nodeOffset = baseOffset + projectorSpacing * i;
                 Vector2 roadDirection = sys1.Position.DirectionToTarget(sys2.Position);
-
-                var node = new RoadNode
-                {
-                    Position = sys1.Position + roadDirection * nodeOffset
-                };
-
-                //if (i > 0 && i < NumProjectors && !EmpireAI.InfluenceNodeExistsAt(node.Position, owner))
+                var node = new RoadNode(sys1.Position + roadDirection * nodeOffset);
                 RoadNodesList.Add(node);
             }
 
@@ -77,12 +76,12 @@ namespace Ship_Game.Gameplay
 
         public void AddHeat()
         {
-            Heat += 1f;
+            Heat = (Heat +1).UpperBound(NumProjectors * 2);
         }
 
         public void CoolDown()
         {
-            Heat -= 1f;
+            Heat = (Heat - 1).LowerBound(NumProjectors * 2);
         }
 
         public void UpdateMaintenance()
@@ -98,9 +97,7 @@ namespace Ship_Game.Gameplay
 
         public static string GetSpaceRoadName(SolarSystem sys1, SolarSystem sys2)
         {
-            string[] names = { sys1.Name, sys2.Name };
-            names.Sort(s => s);
-            return $"{names[0]}-{names[1]}";
+            return sys1.Id < sys2.Id ? $"{sys1.Id}-{sys2.Id}" : $"{sys2.Id}-{sys1.Id}";
         }
 
         public void DeployAllProjectors()
@@ -150,13 +147,6 @@ namespace Ship_Game.Gameplay
                     break;
                 }
             }
-        }
-
-        public bool IsInvalid()
-        {
-            return IsCold 
-                   || !System1.HasPlanetsOwnedBy(Owner)
-                   || !System1.HasPlanetsOwnedBy(Owner); 
         }
 
         public void RecalculateStatus()
