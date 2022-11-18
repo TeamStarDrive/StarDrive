@@ -38,27 +38,27 @@ public class SpaceRoadsDebug : DebugPage
 
     void DrawSpaceRoads(Empire e, int column)
     {
-        Text.SetCursor(Parent.Win.X + 10 + 300 * column, Parent.Win.Y + 200, e.EmpireColor);
+        Text.SetCursor(Parent.Win.X + 10 + 150 * column, Parent.Win.Y + 200, e.EmpireColor);
         Text.String("--------------------------");
         Text.String(e.Name);
         if (--timer < 0)
         {
-            (Down, InProgress, Online, Maint) = CountRoads(e.AI.ProjectorHeatMap.Values.ToArray());
+            (Down, InProgress, Online, Maint) = CountRoads(e.AI.SpaceRoads);
             timer = 60;
         }
-        Text.String($"Number of Roads: {e.AI.ProjectorHeatMap.Count} - (d{Down}, ip{InProgress}, o{Online}");
+        Text.String($"Number of Roads: {e.AI.SpaceRoads.Count} - (d{Down}, ip{InProgress}, o{Online}");
         Text.String($"Total Maintenance/Budget: {Maint.String(2)}/{e.AI.SSPBudget.String(2)}");
         Text.String("----------------------------");
         Text.NewLine();
 
-        var spaceRoads = e.AI.ProjectorHeatMap.Values.SortedDescending(r => r.Heat);
+        var spaceRoads = e.AI.SpaceRoads.SortedDescending(r => r.Heat);
         foreach (SpaceRoad road in spaceRoads)
         {
-            Text.String($"{road.Name}, #P {road.NumProjectors}, #H {road.Heat}, S {road.Status}");
+            Text.String($"{road.System1.Name}-{road.System2.Name}, (SSPs {road.NumProjectors}), (Heat {road.Heat}), {road.Status}");
         }
     }
 
-    (int down, int inProgress, int active, float maint) CountRoads(SpaceRoad[]roads)
+    (int down, int inProgress, int active, float maint) CountRoads(Array<SpaceRoad>roads)
     {
         int down = 0;
         int inProgress = 0;
