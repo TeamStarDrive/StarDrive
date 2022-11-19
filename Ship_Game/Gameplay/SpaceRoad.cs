@@ -41,15 +41,16 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly string Name;
         [StarData] public SpaceRoadStatus Status { get; private set; }
         [StarData] public float Heat { get; private set; }
-        [StarData] public float OnlineMaintenance { get; private set; }
+
+        // The expected maintenance if the road is online or in progress
+        [StarData] public float OperationalMaintenance { get; private set; }
 
         const float ProjectorDensity = 1.75f;
         const float SpacingOffset = 0.5f;
 
         public bool IsHot => Heat >= NumProjectors*2;
         public bool IsCold => Heat <= -NumProjectors*2;
-
-        public float Maintenance => Status == SpaceRoadStatus.Down ? 0 : OnlineMaintenance;
+        public float Maintenance => Status == SpaceRoadStatus.Down ? 0 : OperationalMaintenance;
 
         [StarDataConstructor]
         public SpaceRoad()
@@ -83,7 +84,7 @@ namespace Ship_Game.Gameplay
 
         public void AddHeat(float extraHeat = 0)
         {
-            Heat = (Heat + 1 + NumProjectors / 5f ).UpperBound(NumProjectors * 3);
+            Heat = (Heat + 1 + extraHeat + NumProjectors / 5f ).UpperBound(NumProjectors * 3);
         }
 
         public void CoolDown()
@@ -93,7 +94,7 @@ namespace Ship_Game.Gameplay
 
         public void UpdateMaintenance()
         {
-            OnlineMaintenance = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(Owner) * NumProjectors;
+            OperationalMaintenance = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(Owner) * NumProjectors;
         }
         public static int GetNeededNumProjectors(SolarSystem origin, SolarSystem destination, Empire owner)
         {
@@ -102,6 +103,7 @@ namespace Ship_Game.Gameplay
             return (int)(Math.Ceiling(distance / projectorRadius));
         }
 
+        // This ensures a road will be the same object, regardless of the order of sys1 and sys2
         public static string GetSpaceRoadName(SolarSystem sys1, SolarSystem sys2)
         {
             return sys1.Id < sys2.Id ? $"{sys1.Id}-{sys2.Id}" : $"{sys2.Id}-{sys1.Id}";
@@ -175,9 +177,9 @@ namespace Ship_Game.Gameplay
 
         public enum SpaceRoadStatus
         {
-            Down,
-            InProgress,
-            Online,
+            Down, // Road is set up, but is too cold to be created or no budget, this status is the default
+            InProgress, // Road in in progress of being created or a node is missing
+            Online, // full operational with all SSPs active
         }
 
     }

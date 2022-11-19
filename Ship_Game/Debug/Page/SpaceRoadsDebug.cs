@@ -53,10 +53,11 @@ public class SpaceRoadsDebug : DebugPage
         Text.NewLine();
 
         var spaceRoads = e.AI.SpaceRoads.SortedDescending(r => r.Heat);
-        foreach (SpaceRoad road in spaceRoads)
+        for (int i = 0; i < spaceRoads.Length; i++)
         {
-            Text.String($"{road.System1.Name}-{road.System2.Name}, (maint {road.Maintenance.String(2)}), " +
-                        $"(SSPs {road.NumProjectors}), (Heat {road.Heat}), {road.Status}");
+            SpaceRoad road = spaceRoads[i];
+            Text.String($"{i+1}. {road.System1.Name}-{road.System2.Name}, (maint {road.Maintenance.String(2)}), " +
+                        $"(SSPs {road.NumProjectors}), (Heat {road.Heat.String(2)}), {road.Status}");
         }
     }
 

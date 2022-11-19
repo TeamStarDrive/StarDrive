@@ -11,8 +11,18 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
+        // Fat Bastard
+        /* This will maintain the space roads (Subspace Projector lanes) the empire needs
+           When freighters set up a trade plan, a space road will be created between the the 2 planets.
+           The more freighter follow that lane, the more heat this lane will get. If the heat is higher 
+           then a certain threshold and there is budget, all the related projectors will be deployed.
+           Roads also cool down if not used for quite some time and after a certain threshold, the road will
+           be scrapped.
+        */
+
         [StarData] public readonly Array<SpaceRoad> SpaceRoads = new();
 
+        // Adds heat to an existing road or set ups a new road is it does not exist
         public void AddSpaceRoadHeat(SolarSystem origin, SolarSystem destination, float extraHeat)
         {
             if (origin == destination)
@@ -94,15 +104,16 @@ namespace Ship_Game.AI
             if (roadBudget <= 0)
                 return;
 
-            var hottestRoad = SpaceRoads.FindMaxFiltered(r => r.Status != SpaceRoad.SpaceRoadStatus.Online, r => r.Heat);
+            // Look for the hottest road which is not yet online and deal with it
+            SpaceRoad hottestRoad = SpaceRoads.FindMaxFiltered(r => r.Status != SpaceRoad.SpaceRoadStatus.Online, r => r.Heat);
             if (hottestRoad != null) 
             {
                 switch (hottestRoad.Status)
                 {
-                    case SpaceRoad.SpaceRoadStatus.Down when hottestRoad.IsHot && hottestRoad.OnlineMaintenance < roadBudget:
+                    case SpaceRoad.SpaceRoadStatus.Down when hottestRoad.IsHot && hottestRoad.OperationalMaintenance < roadBudget:
                         hottestRoad.DeployAllProjectors();
                         return;
-                    case SpaceRoad.SpaceRoadStatus.InProgress:
+                    case SpaceRoad.SpaceRoadStatus.InProgress: // This is tagged as some projectors are missing
                         hottestRoad.FillGaps();
                         return;
                 }
@@ -113,7 +124,7 @@ namespace Ship_Game.AI
         public void AddProjectorToRoadList(Ship projector, Vector2 buildPosition) 
             => ManageProjectorInRoadsList(projector, buildPosition);
 
-        // This is rarely called (mostly in destruction or when a new projector is placed
+        // This is rarely called (when a projector is placed or destroyed)
         void ManageProjectorInRoadsList(Ship projector, Vector2 buildPosition = default)
         {
             bool remove = buildPosition == default;
@@ -127,14 +138,16 @@ namespace Ship_Game.AI
                         || !remove && node.Position.InRadius(buildPosition, 100))
                     {
                         road.SetProjectorInNode(node, projector); // will be set to null if remove is true
-                        projector.Universe.Stats.StatAddRoad(projector.Universe.StarDate, node, OwnerEmpire);
+                        if (!remove)
+                            projector.Universe.Stats.StatAddRoad(projector.Universe.StarDate, node, OwnerEmpire);
+
                         return;
                     }
                 }
             }
         }
 
-        public void UpdateRoadMaintenance()
+        public void UpdateAllRoadsMaintenance()
         {
             for (int i = 0; i < SpaceRoads.Count; i++)
             {
