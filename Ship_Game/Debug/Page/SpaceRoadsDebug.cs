@@ -39,7 +39,7 @@ public class SpaceRoadsDebug : DebugPage
 
     void DrawSpaceRoads(Empire e, int column)
     {
-        Text.SetCursor(Parent.Win.X + 10 + 300 * column, Parent.Win.Y + 50, e.EmpireColor);
+        Text.SetCursor(Parent.Win.X + 10 + 400 * column, Parent.Win.Y + 50, e.EmpireColor);
         Text.String("--------------------------");
         Text.String(e.Name);
         if (--Timer < 0)

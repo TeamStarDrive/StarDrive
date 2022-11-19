@@ -100,7 +100,7 @@ namespace Ship_Game.Gameplay
         {
             float projectorRadius = owner.GetProjectorRadius() * ProjectorDensity;
             float distance = origin.Position.Distance(destination.Position);
-            return (int)(Math.Ceiling(distance / projectorRadius));
+            return (int)(distance / projectorRadius);
         }
 
         // This ensures a road will be the same object, regardless of the order of sys1 and sys2
