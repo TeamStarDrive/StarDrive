@@ -1217,7 +1217,7 @@ namespace Ship_Game
         public void UpdateForNewTech()
         {
             UpdateShipsWeCanBuild();
-            AI.UpdateRoadMaintenance();
+            AI.UpdateAllRoadsMaintenance();
             AI.TriggerRefit();
             TriggerFreightersRefit();
         }
@@ -1678,13 +1678,9 @@ namespace Ship_Game
                 TotalShipMaintenance += maintenance;
             }
 
-            foreach (Ship ship in OwnedProjectors)
+            for (int i = 0; i < OwnedProjectors.Count; i++)
             {
-                if (AI.SSPBudget > 0)
-                {
-                    AI.SSPBudget -= ship.GetMaintCost();
-                    continue;
-                }
+                Ship ship = OwnedProjectors[i];
                 TotalShipMaintenance += ship.GetMaintCost();
             }
         }
@@ -2930,10 +2926,7 @@ namespace Ship_Game
                     case QueueItemType.Orbital:    priority *= 0.66f; break;
                 }
             }
-            if (planet.HasCapital)
-            {
-                Log.Info($"{type} - priority: {priority}");
-            }
+
             return priority;
         }
 
