@@ -16,7 +16,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public Vector2 StaticBuildPosition;
 
         [StarDataConstructor]
-        public ProjectorBridge(Empire owner) : base(GoalType.Refit, owner)
+        public ProjectorBridge(Empire owner) : base(GoalType.ProjectorBridge, owner)
         {
             Steps = new Func<GoalStep>[]
             {

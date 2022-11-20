@@ -15,6 +15,7 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.Ships
 {
@@ -1560,16 +1561,15 @@ namespace Ship_Game.Ships
             if (!Active)
                 return; // already dead
 
+            var pSource = source as Projectile;
+            OnShipDie(pSource);
+            Mothership?.OnLaunchedShipDie(this);
+
             // Mostly for supply ships to remove incoming supply
             AI.ChangeAIState(AIState.AwaitingOrders);
-
-            var pSource = source as Projectile;
             ReallyDie = cleanupOnly || WillShipDieNow(pSource);
             if (Dying && !ReallyDie)
                 return; // planet crash or tumble
-
-            OnShipDie(pSource);
-            Mothership?.OnLaunchedShipDie(this);
 
             QueueTotalRemoval(); // sets Active=false
             
@@ -1673,6 +1673,24 @@ namespace Ship_Game.Ships
                     amount = ResourceManager.ShipRoles[ShipData.Role].DamageRelations;
 
                 Loyalty.DamageRelationship(pSource.Owner.Loyalty, "Destroyed Ship", amount, null);
+            }
+        }
+
+        void SetupProjectorBridgeIfNeeded()
+        {
+            if (System == null
+                || Loyalty.IsFaction
+                || Loyalty.isPlayer && !Loyalty.AutoBuildSpaceRoads)
+            {
+                return;
+            }
+
+            if (ShipData.IsColonyShip && AI.State == AIState.Colonize 
+                                      && !Loyalty.AI.InfluenceNodeExistsAt(Position))
+            {
+                Goal colonizationGoal = Loyalty.AI.FindGoal(g => g.FinishedShip == this);
+                if (colonizationGoal?.PlanetBuildingAt != null)
+                    Loyalty.AI.AddGoal(new ProjectorBridge(System, colonizationGoal.PlanetBuildingAt.ParentSystem, Loyalty));
             }
         }
 
