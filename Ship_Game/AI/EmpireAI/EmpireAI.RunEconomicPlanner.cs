@@ -137,7 +137,7 @@ namespace Ship_Game.AI
 
         float DetermineDefenseBudget(float treasuryGoal, float percentOfMoney, float risk)
         {
-            float budget = SetBudgetForeArea(percentOfMoney, treasuryGoal, risk);
+            float budget = SetBudgetForArea(percentOfMoney, treasuryGoal, risk);
             return budget;
         }
 
@@ -145,18 +145,18 @@ namespace Ship_Game.AI
         {
             var strat  = OwnerEmpire.Research.Strategy;
             float risk = (1 + (strat.IndustryRatio + strat.ExpansionRatio)) * 0.5f;
-            return SetBudgetForeArea(percentOfMoney, treasuryGoal, risk);
+            return SetBudgetForArea(percentOfMoney, treasuryGoal, risk);
         }
 
         float DetermineBuildCapacity(float treasuryGoal, float risk, float percentOfMoney)
         {
-            float buildBudget    = SetBudgetForeArea(percentOfMoney, treasuryGoal, risk);
+            float buildBudget    = SetBudgetForArea(percentOfMoney, treasuryGoal, risk);
             return buildBudget;
         }
 
         float DetermineColonyBudget(float treasuryGoal, float percentOfMoney)
         {
-            var budget = SetBudgetForeArea(percentOfMoney, treasuryGoal);
+            var budget = SetBudgetForArea(percentOfMoney, treasuryGoal);
             return budget;
         }
 
@@ -278,9 +278,9 @@ namespace Ship_Game.AI
 
         public Array<PlanetBudget> PlanetBudgets;
 
-        private float SetBudgetForeArea(float percentOfIncome, float money, float risk = 1)
+        float SetBudgetForArea(float percentOfIncome, float treasuryGoal, float risk = 1)
         {
-            float budget = money * percentOfIncome * (OwnerEmpire.isPlayer ? 1 : risk);
+            float budget = treasuryGoal * percentOfIncome * (OwnerEmpire.isPlayer ? 1 : risk);
             return budget.LowerBound(1);
         }
 

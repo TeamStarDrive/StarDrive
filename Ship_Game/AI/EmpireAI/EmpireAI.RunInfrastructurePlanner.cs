@@ -119,32 +119,18 @@ namespace Ship_Game.AI
             }
         }
 
-        public void RemoveProjectorFromRoadList(Ship projector) => ManageProjectorInRoadsList(projector);
-        public void AddProjectorToRoadList(Ship projector, Vector2 buildPosition) 
-            => ManageProjectorInRoadsList(projector, buildPosition);
-
-        // This is rarely called (when a projector is placed or destroyed)
-        void ManageProjectorInRoadsList(Ship projector, Vector2 buildPosition = default)
+        public void AddProjectorToRoadList(Ship projector, Vector2 buildPos)
         {
-            bool remove = buildPosition == default;
             for (int i = 0; i < SpaceRoads.Count; i++)
-            {
-                SpaceRoad road = SpaceRoads[i];
-                for (int j = 0; j < road.RoadNodesList.Count; j++)
-                {
-                    RoadNode node = road.RoadNodesList[j];
-                    switch (remove)
-                    {
-                        case true when node.Projector == projector:
-                            road.RemoveProjectorAtNode(node);
-                            return;
-                        case false when node.Position.InRadius(buildPosition, 100):
-                            road.SetProjectorAtNode(node, projector); // will be set to null if remove is true
-                            projector.Universe.Stats.StatAddRoad(projector.Universe.StarDate, node, OwnerEmpire);
-                            return;
-                    }
-                }
-            }
+                if (SpaceRoads[i].AddProjector(projector, buildPos))
+                    return; // removed successfully
+        }
+
+        public void RemoveProjectorFromRoadList(Ship projector)
+        {
+            for (int i = 0; i < SpaceRoads.Count; i++)
+                if (SpaceRoads[i].RemoveProjector(projector))
+                    return; // removed successfully
         }
 
         public void UpdateAllRoadsMaintenance()
