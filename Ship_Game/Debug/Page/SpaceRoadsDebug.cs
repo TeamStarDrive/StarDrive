@@ -44,15 +44,15 @@ public class SpaceRoadsDebug : DebugPage
         Text.String(e.Name);
         if (--Timer < 0)
         {
-            (Down, InProgress, Online, Maint) = CountRoads(e.AI.SpaceRoads);
+            (Down, InProgress, Online, Maint) = CountRoads(e.AI.SpaceRoadsManager.SpaceRoads);
             Timer = 60;
         }
-        Text.String($"Number of Roads: {e.AI.SpaceRoads.Count} - (Dn {Down}, Ip {InProgress}, On {Online})");
+        Text.String($"Number of Roads: {e.AI.SpaceRoadsManager.SpaceRoads.Count} - (Dn {Down}, Ip {InProgress}, On {Online})");
         Text.String($"Total Maintenance/Budget: {Maint.String(2)}/{e.AI.SSPBudget.String(2)}");
         Text.String("----------------------------");
         Text.NewLine();
 
-        var spaceRoads = e.AI.SpaceRoads.SortedDescending(r => r.Heat);
+        var spaceRoads = e.AI.SpaceRoadsManager.SpaceRoads.SortedDescending(r => r.Heat);
         for (int i = 0; i < spaceRoads.Length; i++)
         {
             SpaceRoad road = spaceRoads[i];

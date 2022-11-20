@@ -210,7 +210,7 @@ namespace Ship_Game.AI
                 return;
 
             if (orbital.IsSubspaceProjector)
-                Owner.Loyalty.AI.AddProjectorToRoadList(orbital, g.Goal.BuildPosition);
+                Owner.Loyalty.AI.SpaceRoadsManager.AddProjectorToRoadList(orbital, g.Goal.BuildPosition);
 
             if (bg.TetherPlanet != null)
             {

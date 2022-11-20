@@ -1217,7 +1217,7 @@ namespace Ship_Game
         public void UpdateForNewTech()
         {
             UpdateShipsWeCanBuild();
-            AI.UpdateAllRoadsMaintenance();
+            AI.SpaceRoadsManager.UpdateAllRoadsMaintenance();
             AI.TriggerRefit();
             TriggerFreightersRefit();
         }
@@ -2641,7 +2641,7 @@ namespace Ship_Game
                 target.Money = 0.0f;
             }
 
-            AI.AbsorbSpaceRoadOwnershipFrom(target, target.AI.SpaceRoads);
+            AI.SpaceRoadsManager.AbsorbSpaceRoadOwnershipFrom(target, target.AI.SpaceRoadsManager.SpaceRoads);
 
             target.SetAsMerged();
             ResetBorders();
@@ -2905,7 +2905,7 @@ namespace Ship_Game
                 case QueueItemType.Scout:           priority = (TotalScouts - 1).LowerBound(0);                                        break;
                 case QueueItemType.ColonyShip:      priority = (OwnedPlanets.Count * (IsExpansionists ? 0.01f : 0.05f)).LowerBound(0); break;
                 case QueueItemType.Orbital:         priority = 1 + (TotalOrbitalMaintenance / AI.DefenseBudget.LowerBound(1) * 10);    break;
-                case QueueItemType.RoadNode:        priority = 0.1f + AI.NumOnlineSpaceRoads * 0.1f;                                   break;
+                case QueueItemType.RoadNode:        priority = 0.1f + AI.SpaceRoadsManager.NumOnlineSpaceRoads * 0.1f;                 break;
                 case QueueItemType.Freighter:
                     int totalFreighters = TotalFreighters;
                     priority = totalFreighters * (totalFreighters  < OwnedPlanets.Count ? 0.1f : 0.5f);

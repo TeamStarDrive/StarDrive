@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -124,7 +123,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < RoadNodesList.Count; i++)
             {
                 RoadNode node = RoadNodesList[i];
-                if (!node.ProjectorExists && !Owner.AI.NodeAlreadyExistsAt(node.Position))
+                if (!node.ProjectorExists && !Owner.AI.SpaceRoadsManager.NodeAlreadyExistsAt(node.Position))
                 {
                     Log.Info($"BuildProjector - {Owner.Name} - fill gap at {node.Position}");
                     Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
@@ -132,7 +131,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void Scrap(Array<Goal> goalsList)
+        public void Scrap(IReadOnlyList<Goal> goalsList)
         {
             foreach (RoadNode node in RoadNodesList)
             {
@@ -173,7 +172,7 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        void RemoveProjectorGoal(Array<Goal>  goalsList, Vector2 nodePos)
+        void RemoveProjectorGoal(IReadOnlyList<Goal> goalsList, Vector2 nodePos)
         {
             for (int i = goalsList.Count - 1; i >= 0; i--)
             {
