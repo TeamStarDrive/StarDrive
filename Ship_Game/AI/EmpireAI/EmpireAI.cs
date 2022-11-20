@@ -455,13 +455,47 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (ship.ShipData.IsColonyShip && ship.AI.State == AIState.Colonize
-                                      && !OwnerEmpire.AI.InfluenceNodeExistsAt(ship.Position))
+            if (!CheckBridgeNeededColonyShip())
+                CheckBridgeNeededTrade();
+
+            bool CheckBridgeNeededColonyShip()
             {
-                Goal colonizationGoal = OwnerEmpire.AI.FindGoal(g => g.FinishedShip == ship);
-                if (colonizationGoal?.PlanetBuildingAt != null)
-                    OwnerEmpire.AI.AddGoal(new ProjectorBridge(ship.System, 
-                        colonizationGoal.PlanetBuildingAt.ParentSystem, OwnerEmpire));
+                if (ship.ShipData.IsColonyShip && ship.AI.State == AIState.Colonize
+                                          && !OwnerEmpire.AI.InfluenceNodeExistsAt(ship.Position))
+                {
+                    // find where the ship was coming from and setup a projector bridge
+                    Goal colonizationGoal = OwnerEmpire.AI.FindGoal(g => g.FinishedShip == ship);
+                    if (colonizationGoal?.PlanetBuildingAt != null)
+                    {
+                        OwnerEmpire.AI.AddGoal(new ProjectorBridge(ship.System,
+                            colonizationGoal.PlanetBuildingAt.ParentSystem.Position, OwnerEmpire));
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            void CheckBridgeNeededTrade()
+            {
+                if (ship.IsFreighter && !OwnerEmpire.AI.InfluenceNodeExistsAt(ship.Position))
+                {
+                    // find where the ship was coming from and setup a projector bridge
+                    if (ship.AI.State == AIState.SystemTrader)
+                    {
+                        ship.AI.FindGoal(ShipAI.Plan.Trade, out ShipAI.ShipGoal goal);
+                        if (goal?.Trade != null)
+                        {
+                            OwnerEmpire.AI.AddGoal(new ProjectorBridge(ship.System,
+                                goal.Trade.ExportFrom.ParentSystem.Position, OwnerEmpire));
+
+                            return;
+                        }
+                    }
+                    // fallback to ship position for bridge direction
+                    OwnerEmpire.AI.AddGoal(new ProjectorBridge(ship.System, ship.Position, OwnerEmpire));
+                }
             }
         }
     }

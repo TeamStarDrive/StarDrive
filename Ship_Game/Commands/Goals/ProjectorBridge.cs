@@ -34,12 +34,12 @@ namespace Ship_Game.Commands.Goals
         }
 
         // This will create projector coverage for ships, if they pass in a dangerous system
-        public ProjectorBridge(SolarSystem targetSystem, SolarSystem origin, Empire e) : this(e)
+        public ProjectorBridge(SolarSystem targetSystem, Vector2 originPos, Empire e) : this(e)
         {
             TargetSystem = targetSystem;
 
             float distanceToDeploy = Owner.GetProjectorRadius() * 0.5f;
-            Vector2 dir = targetSystem.Position.DirectionToTarget(origin.Position);
+            Vector2 dir = targetSystem.Position.DirectionToTarget(originPos);
             StaticBuildPosition = TargetSystem.Position + dir * distanceToDeploy;
             BuildGoal = new BuildConstructionShip(StaticBuildPosition, "Subspace Projector", Owner, rush: true);
         }
