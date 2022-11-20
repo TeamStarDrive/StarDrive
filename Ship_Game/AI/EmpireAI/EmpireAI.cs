@@ -38,6 +38,7 @@ namespace Ship_Game.AI
         [StarData] public float DefStr;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
         BudgetPriorities BudgetSettings;
+        public SpaceRoadsManager SpaceRoadsManager;
 
         // Debug settings
         public bool Disabled; // disables EmpireAI and FleetAI
@@ -71,6 +72,7 @@ namespace Ship_Game.AI
             TechChooser = new(e);
             OffensiveForcePoolManager = new(e);
             BudgetSettings = new(e);
+            SpaceRoadsManager = new(e);
         }
 
         [StarDataDeserialized]
@@ -114,7 +116,7 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
                 ExpansionAI.RunExpansionPlanner();
-                RunInfrastructurePlanner();
+                SpaceRoadsManager.RunSpaceRoadsManager();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
                 RunAgentManager();
@@ -443,59 +445,6 @@ namespace Ship_Game.AI
                     continue;
 
                 task.DebugDraw(ref debug);
-            }
-        }
-
-        public void SetupProjectorBridgeIfNeeded(Ship ship)
-        {
-            if (ship.System == null
-                || OwnerEmpire.IsFaction
-                || OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuildSpaceRoads)
-            {
-                return;
-            }
-
-            if (!CheckBridgeNeededColonyShip())
-                CheckBridgeNeededTrade();
-
-            bool CheckBridgeNeededColonyShip()
-            {
-                if (ship.ShipData.IsColonyShip && ship.AI.State == AIState.Colonize
-                                          && !OwnerEmpire.AI.InfluenceNodeExistsAt(ship.Position))
-                {
-                    // find where the ship was coming from and setup a projector bridge
-                    Goal colonizationGoal = OwnerEmpire.AI.FindGoal(g => g.FinishedShip == ship);
-                    if (colonizationGoal?.PlanetBuildingAt != null)
-                    {
-                        OwnerEmpire.AI.AddGoal(new ProjectorBridge(ship.System,
-                            colonizationGoal.PlanetBuildingAt.ParentSystem.Position, OwnerEmpire));
-
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            void CheckBridgeNeededTrade()
-            {
-                if (ship.IsFreighter && !OwnerEmpire.AI.InfluenceNodeExistsAt(ship.Position))
-                {
-                    // find where the ship was coming from and setup a projector bridge
-                    if (ship.AI.State == AIState.SystemTrader)
-                    {
-                        ship.AI.FindGoal(ShipAI.Plan.Trade, out ShipAI.ShipGoal goal);
-                        if (goal?.Trade != null)
-                        {
-                            OwnerEmpire.AI.AddGoal(new ProjectorBridge(ship.System,
-                                goal.Trade.ExportFrom.ParentSystem.Position, OwnerEmpire));
-
-                            return;
-                        }
-                    }
-                    // fallback to ship position for bridge direction
-                    OwnerEmpire.AI.AddGoal(new ProjectorBridge(ship.System, ship.Position, OwnerEmpire));
-                }
             }
         }
     }
