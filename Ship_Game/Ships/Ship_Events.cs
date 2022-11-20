@@ -89,7 +89,7 @@ namespace Ship_Game.Ships
                 Loyalty.AI.RemoveProjectorFromRoadList(this);
 
             if (Loyalty.CanBuildPlatforms)
-                SetupProjectorBridgeIfNeeded();
+                Loyalty.AI.SetupProjectorBridgeIfNeeded(this);
 
             DamageRelationsOnDeath(pSource);
             CreateEventOnDeath();

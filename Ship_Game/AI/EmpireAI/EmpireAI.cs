@@ -445,5 +445,24 @@ namespace Ship_Game.AI
                 task.DebugDraw(ref debug);
             }
         }
+
+        public void SetupProjectorBridgeIfNeeded(Ship ship)
+        {
+            if (ship.System == null
+                || OwnerEmpire.IsFaction
+                || OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuildSpaceRoads)
+            {
+                return;
+            }
+
+            if (ship.ShipData.IsColonyShip && ship.AI.State == AIState.Colonize
+                                      && !OwnerEmpire.AI.InfluenceNodeExistsAt(ship.Position))
+            {
+                Goal colonizationGoal = OwnerEmpire.AI.FindGoal(g => g.FinishedShip == ship);
+                if (colonizationGoal?.PlanetBuildingAt != null)
+                    OwnerEmpire.AI.AddGoal(new ProjectorBridge(ship.System, 
+                        colonizationGoal.PlanetBuildingAt.ParentSystem, OwnerEmpire));
+            }
+        }
     }
 }

@@ -1676,24 +1676,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        void SetupProjectorBridgeIfNeeded()
-        {
-            if (System == null
-                || Loyalty.IsFaction
-                || Loyalty.isPlayer && !Loyalty.AutoBuildSpaceRoads)
-            {
-                return;
-            }
-
-            if (ShipData.IsColonyShip && AI.State == AIState.Colonize 
-                                      && !Loyalty.AI.InfluenceNodeExistsAt(Position))
-            {
-                Goal colonizationGoal = Loyalty.AI.FindGoal(g => g.FinishedShip == this);
-                if (colonizationGoal?.PlanetBuildingAt != null)
-                    Loyalty.AI.AddGoal(new ProjectorBridge(System, colonizationGoal.PlanetBuildingAt.ParentSystem, Loyalty));
-            }
-        }
-
         public void SetReallyDie()
         {
             ReallyDie = true;

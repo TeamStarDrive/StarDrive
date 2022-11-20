@@ -143,6 +143,36 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public bool AddProjector(Ship projector, Vector2 buildPos)
+        {
+            for (int i = 0; i < RoadNodesList.Count; i++)
+            {
+                RoadNode node = RoadNodesList[i];
+                if (node.Position.InRadius(buildPos, 100))
+                {
+                    SetProjectorAtNode(node, projector);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool RemoveProjector(Ship projector)
+        {
+            for (int i = 0; i < RoadNodesList.Count; i++)
+            {
+                RoadNode node = RoadNodesList[i];
+                if (node.Projector == projector)
+                {
+                    RemoveProjectorAtNode(node);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         void RemoveProjectorGoal(Array<Goal>  goalsList, Vector2 nodePos)
         {
             for (int i = goalsList.Count - 1; i >= 0; i--)
@@ -158,18 +188,18 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void RecalculateStatus()
+        void RecalculateStatus()
         {
             Status = RoadNodesList.Any(n => !n.ProjectorExists) ? SpaceRoadStatus.InProgress : SpaceRoadStatus.Online;
         }
 
-        public void SetProjectorAtNode(RoadNode node, Ship projector)
+        void SetProjectorAtNode(RoadNode node, Ship projector)
         {
             node.SetProjector(projector);
             RecalculateStatus();
         }
 
-        public void RemoveProjectorAtNode(RoadNode node)
+        void RemoveProjectorAtNode(RoadNode node)
         {
             node.SetProjector(null);
             RecalculateStatus();

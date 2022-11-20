@@ -6,6 +6,13 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
+     /* Fat Bastard
+     AI (and for players with auto build projectors) will create SSP coverage to cover systems with remnants
+     (or other enemies) in the way of other colonization target. This will allow colony ships to arrive to the
+     colonization target safely. This is triggered once a colony ship or freighter is destroyed in a gravity well
+     of a hostile system - so the next ship will pass safely.
+     */
+
     [StarDataType]
     public class ProjectorBridge : Goal
     {
