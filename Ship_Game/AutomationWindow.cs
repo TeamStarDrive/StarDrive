@@ -86,7 +86,7 @@ namespace Ship_Game
                 .Create(() => Universe.Player.AutoColonize, title:GameText.Autocolonize, tooltip:GameText.YourEmpireWillAutomaticallyCreate);
 
             ConstructorDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => Universe.Player.AutoBuild, Localizer.Token(GameText.Autobuild) + " Projectors", GameText.YourEmpireWillAutomaticallyCreate2);
+                .Create(() => Universe.Player.AutoBuildSpaceRoads, Localizer.Token(GameText.Autobuild) + " Projectors", GameText.YourEmpireWillAutomaticallyCreate2);
 
             FreighterDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => Universe.Player.AutoFreighters, title: GameText.AutomaticTrade, tooltip: GameText.YourEmpireWillAutomaticallyManage2);

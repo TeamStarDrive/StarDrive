@@ -44,7 +44,6 @@ namespace Ship_Game
 
         [StarData] readonly Array<Troop> UnlockedTroops;
         [StarData] public Array<Ship> Inhibitors;
-        [StarData] public Array<SpaceRoad> SpaceRoadsList;
 
         public const float StartingMoney = 1000f;
         float MoneyValue = StartingMoney;
@@ -113,7 +112,7 @@ namespace Ship_Game
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
         public float MoneyLastTurn;
         public int AllTimeTradeIncome;
-        [StarData] public bool AutoBuild;
+        [StarData] public bool AutoBuildSpaceRoads;
         [StarData] public bool AutoExplore;
         [StarData] public bool AutoColonize;
         [StarData] public bool AutoResearch;
@@ -245,7 +244,6 @@ namespace Ship_Game
             UnlockedTroops = new();
 
             Inhibitors = new();
-            SpaceRoadsList = new();
             OwnedPlanets = new();
             OwnedSolarSystems = new();
 
@@ -1219,6 +1217,7 @@ namespace Ship_Game
         public void UpdateForNewTech()
         {
             UpdateShipsWeCanBuild();
+            AI.UpdateAllRoadsMaintenance();
             AI.TriggerRefit();
             TriggerFreightersRefit();
         }
@@ -1679,13 +1678,9 @@ namespace Ship_Game
                 TotalShipMaintenance += maintenance;
             }
 
-            foreach (Ship ship in OwnedProjectors)
+            for (int i = 0; i < OwnedProjectors.Count; i++)
             {
-                if (AI.SSPBudget > 0)
-                {
-                    AI.SSPBudget -= ship.GetMaintCost();
-                    continue;
-                }
+                Ship ship = OwnedProjectors[i];
                 TotalShipMaintenance += ship.GetMaintCost();
             }
         }
@@ -2612,13 +2607,6 @@ namespace Ship_Game
                 ship.LoyaltyChangeByGift(this, addNotification: false);
             }
 
-            var projectors = target.OwnedProjectors;
-            for (int i = projectors.Count - 1; i >= 0; i--)
-            {
-                Ship ship = projectors[i];
-                ship.LoyaltyChangeByGift(this, addNotification: false);
-            }
-
             target.AIManagedShips.Clear();
             AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
@@ -2652,6 +2640,8 @@ namespace Ship_Game
                 Money += target.Money;
                 target.Money = 0.0f;
             }
+
+            AI.AbsorbSpaceRoadOwnershipFrom(target, target.AI.SpaceRoads);
 
             target.SetAsMerged();
             ResetBorders();
@@ -2915,7 +2905,7 @@ namespace Ship_Game
                 case QueueItemType.Scout:           priority = (TotalScouts - 1).LowerBound(0);                                        break;
                 case QueueItemType.ColonyShip:      priority = (OwnedPlanets.Count * (IsExpansionists ? 0.01f : 0.05f)).LowerBound(0); break;
                 case QueueItemType.Orbital:         priority = 1 + (TotalOrbitalMaintenance / AI.DefenseBudget.LowerBound(1) * 10);    break;
-                case QueueItemType.RoadNode:        priority = SpaceRoadsList.Count * 0.1f;                                            break;
+                case QueueItemType.RoadNode:        priority = 0.1f + AI.NumOnlineSpaceRoads * 0.1f;                                   break;
                 case QueueItemType.Freighter:
                     int totalFreighters = TotalFreighters;
                     priority = totalFreighters * (totalFreighters  < OwnedPlanets.Count ? 0.1f : 0.5f);
@@ -2936,10 +2926,7 @@ namespace Ship_Game
                     case QueueItemType.Orbital:    priority *= 0.66f; break;
                 }
             }
-            if (planet.HasCapital)
-            {
-                Log.Info($"{type} - priority: {priority}");
-            }
+
             return priority;
         }
 
@@ -3157,7 +3144,6 @@ namespace Ship_Game
             ThreatDetector.Clear();
             ClearInfluenceList();
             TechnologyDict.Clear();
-            SpaceRoadsList.Clear();
             ResetFleets(returnShipsToEmpireAI: false);
             Fleets = Empty<Fleet>.Array;
 

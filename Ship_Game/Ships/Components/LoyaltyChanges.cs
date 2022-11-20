@@ -96,6 +96,9 @@ namespace Ship_Game.Ships.Components
         static void LoyaltyChangeDueToBoarding(Ship ship, Empire newLoyalty, bool notification)
         {
             Empire oldLoyalty = ship.Loyalty;
+            if (ship.IsSubspaceProjector)
+                oldLoyalty.AI.RemoveProjectorFromRoadList(ship);
+
             ship.RemoveFromPoolAndFleet(clearOrders: true);
             oldLoyalty.TheyKilledOurShip(newLoyalty, ship);
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
