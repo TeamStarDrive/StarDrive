@@ -158,12 +158,18 @@ namespace Ship_Game.AI
     {
         public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)
         {
-            Plan plan = importPlanet == exportPlanet ? Plan.DropOffGoods  // fast track
-                                                     : Plan.PickupGoods;
+            Plan plan = Plan.PickupGoods;
+            if (importPlanet == exportPlanet)
+            {
+                plan = Plan.DropOffGoods;  // fast track since needed cargo was already on board
+                Owner.Loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrogateTimeTo(importPlanet));
+            }
+            else
+            {
+                Owner.Loyalty.AI.AddSpaceRoadHeat(exportPlanet.ParentSystem, importPlanet.ParentSystem, Owner.CargoSpaceMax * 0.02f);
+            }
 
             SetTradePlan(plan, exportPlanet, importPlanet, goods);
-            if (plan == Plan.DropOffGoods)
-                Owner.Loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrogateTimeTo(importPlanet));
         }
     }
 

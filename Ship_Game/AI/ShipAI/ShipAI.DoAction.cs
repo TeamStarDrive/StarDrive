@@ -209,7 +209,8 @@ namespace Ship_Game.AI
             if (orbital == null)
                 return;
 
-            AddStructureToRoadsList(g, orbital);
+            if (orbital.IsSubspaceProjector)
+                Owner.Loyalty.AI.AddProjectorToRoadList(orbital, g.Goal.BuildPosition);
 
             if (bg.TetherPlanet != null)
             {
@@ -257,22 +258,6 @@ namespace Ship_Game.AI
                     g.Goal.OldShip.QueueTotalRemoval();
                 else 
                     target.TryRemoveExcessOrbital(orbital);
-            }
-        }
-
-        void AddStructureToRoadsList(ShipGoal g, Ship platform)
-        {
-            foreach (SpaceRoad road in Owner.Loyalty.SpaceRoadsList)
-            {
-                foreach (RoadNode node in road.RoadNodesList)
-                {
-                    if (node.Position == g.Goal.BuildPosition)
-                    {
-                        node.Platform = platform;
-                        Owner.Universe.Stats.StatAddRoad(Owner.Universe.StarDate, node, Owner.Loyalty);
-                        return;
-                    }
-                }
             }
         }
 
