@@ -47,7 +47,8 @@ namespace Ship_Game.AI
         DefendSystem,
         WarManager,
         WarMission,
-        PrepareForWar
+        PrepareForWar,
+        ProjectorBridge,
     }
 
     public enum GoalStep
