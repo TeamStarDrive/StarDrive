@@ -112,7 +112,7 @@ namespace Ship_Game
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
         public float MoneyLastTurn;
         public int AllTimeTradeIncome;
-        [StarData] public bool AutoBuild;
+        [StarData] public bool AutoBuildSpaceRoads;
         [StarData] public bool AutoExplore;
         [StarData] public bool AutoColonize;
         [StarData] public bool AutoResearch;

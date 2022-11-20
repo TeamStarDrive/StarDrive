@@ -150,7 +150,7 @@ namespace Ship_Game.Gameplay
                 Goal g = goalsList[i];
                 if (g.Type == GoalType.DeepSpaceConstruction && g.BuildPosition.AlmostEqual(nodePos))
                 {
-                    g.PlanetBuildingAt.Construction.Cancel(g);
+                    g.PlanetBuildingAt?.Construction.Cancel(g);
                     g.FinishedShip?.AI.OrderScrapShip();
                     Owner.AI.RemoveGoal(g);
                     break;
@@ -163,9 +163,15 @@ namespace Ship_Game.Gameplay
             Status = RoadNodesList.Any(n => !n.ProjectorExists) ? SpaceRoadStatus.InProgress : SpaceRoadStatus.Online;
         }
 
-        public void SetProjectorInNode(RoadNode node, Ship projector)
+        public void SetProjectorAtNode(RoadNode node, Ship projector)
         {
             node.SetProjector(projector);
+            RecalculateStatus();
+        }
+
+        public void RemoveProjectorAtNode(RoadNode node)
+        {
+            node.SetProjector(null);
             RecalculateStatus();
         }
 
@@ -181,6 +187,5 @@ namespace Ship_Game.Gameplay
             InProgress, // Road in in progress of being created or a node is missing
             Online, // full operational with all SSPs active
         }
-
     }
 }

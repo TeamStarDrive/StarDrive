@@ -7457,9 +7457,7 @@ YourEmpireWillAutomaticallyCreate:
  SPA: "Tu imperio creará y desplegará automáticamente naves coloniales en los planetas convenientes. Las naves coloniales no se enviarán a planetas con presencia enemiga cercana"
 YourEmpireWillAutomaticallyCreate2:
  Id: 2228
- ENG: "Your empire will automatically create and deploy subspace projectors for the creation of star lanes between your systems"
- RUS: "Ваша империя будет автоматически создавать и размещать субпространственные проекторы для создания звездных путей между вашими системами."
- SPA: "Tu imperio construirá y desplegará automáticamente proyectores subespaciales para crear vías estelares entre tus sistemas"
+ ENG: "Your empire will automatically create and deploy subspace projectors for the creation of star lanes between your systems. Note that this depends on your freighter lanes traffic. The more traffic passes between 2 systems, the better the chance a lane will be created."
 YourEmpireWillAutomaticallyManage2:
  Id: 2229
  ENG: "Your empire will automatically manage your freighter needs, creating freighters to transport food and passengers where needed. You will still need to designate which planets import and export various goods or select a Governor for them. You may select here a specific Freighter name you wish your Empire will use."

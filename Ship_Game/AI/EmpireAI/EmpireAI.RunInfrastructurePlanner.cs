@@ -61,7 +61,7 @@ namespace Ship_Game.AI
 
         void RunInfrastructurePlanner()
         {
-            if (!OwnerEmpire.CanBuildPlatforms || OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuild)
+            if (!OwnerEmpire.CanBuildPlatforms || OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuildSpaceRoads)
                 return;
 
             if (OwnerEmpire.Universe.StarDate % 1 == 0)
@@ -134,14 +134,15 @@ namespace Ship_Game.AI
                 for (int j = 0; j < road.RoadNodesList.Count; j++)
                 {
                     RoadNode node = road.RoadNodesList[j];
-                    if (remove && node.Projector == projector
-                        || !remove && node.Position.InRadius(buildPosition, 100))
+                    switch (remove)
                     {
-                        road.SetProjectorInNode(node, projector); // will be set to null if remove is true
-                        if (!remove)
+                        case true when node.Projector == projector:
+                            road.RemoveProjectorAtNode(node);
+                            return;
+                        case false when node.Position.InRadius(buildPosition, 100):
+                            road.SetProjectorAtNode(node, projector); // will be set to null if remove is true
                             projector.Universe.Stats.StatAddRoad(projector.Universe.StarDate, node, OwnerEmpire);
-
-                        return;
+                            return;
                     }
                 }
             }
@@ -184,6 +185,12 @@ namespace Ship_Game.AI
                 Ship ship = projectors[i];
                 ship.LoyaltyChangeByGift(OwnerEmpire, addNotification: false);
             }
+        }
+
+        // Used only for tests
+        public void TestRunInfrastructurePlanner()
+        {
+            RunInfrastructurePlanner();
         }
     }
 }
