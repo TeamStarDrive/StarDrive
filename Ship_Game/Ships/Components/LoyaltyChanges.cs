@@ -97,7 +97,7 @@ namespace Ship_Game.Ships.Components
         {
             Empire oldLoyalty = ship.Loyalty;
             if (ship.IsSubspaceProjector)
-                oldLoyalty.AI.RemoveProjectorFromRoadList(ship);
+                oldLoyalty.AI.SpaceRoadsManager.RemoveProjectorFromRoadList(ship);
 
             ship.RemoveFromPoolAndFleet(clearOrders: true);
             oldLoyalty.TheyKilledOurShip(newLoyalty, ship);

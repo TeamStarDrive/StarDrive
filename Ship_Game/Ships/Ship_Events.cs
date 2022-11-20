@@ -86,10 +86,10 @@ namespace Ship_Game.Ships
         public virtual void OnShipDie(Projectile pSource)
         {
             if (IsSubspaceProjector)
-                Loyalty.AI.RemoveProjectorFromRoadList(this);
+                Loyalty.AI.SpaceRoadsManager.RemoveProjectorFromRoadList(this);
 
             if (Loyalty.CanBuildPlatforms)
-                Loyalty.AI.SetupProjectorBridgeIfNeeded(this);
+                Loyalty.AI.SpaceRoadsManager.SetupProjectorBridgeIfNeeded(this);
 
             DamageRelationsOnDeath(pSource);
             CreateEventOnDeath();

@@ -1,16 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Security.Cryptography;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
-using Ship_Game.AI.Components;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire
@@ -21,6 +15,7 @@ namespace UnitTests.AITests.Empire
         SolarSystem System1;
         SolarSystem System2;
         SpaceRoad Road;
+        SpaceRoadsManager Manager;
 
         void CreateSystemsAndPlanets(float distance)
         {
@@ -32,6 +27,7 @@ namespace UnitTests.AITests.Empire
             System2 = Player.GetOwnedSystems()[1];
             float radius = Player.GetProjectorRadius();
             AssertEqual(radius, 80000);
+            Manager = Player.AI.SpaceRoadsManager;
         }
 
         void CreateSystemsAndRoad() // 5 projectors
@@ -52,7 +48,7 @@ namespace UnitTests.AITests.Empire
                 RoadNode node = Road.RoadNodesList[i];
                 Ship projector = Ship.CreateShipAtPoint(Player.Universe, "Subspace Projector", Player, node.Position);
                 Assert.IsNotNull(projector, "Expected to get a projector from CreateShipAtPoint, got null");
-                Player.AI.AddProjectorToRoadList(projector, node.Position);
+                Manager.AddProjectorToRoadList(projector, node.Position);
             }
         }
 
@@ -167,7 +163,7 @@ namespace UnitTests.AITests.Empire
             foreach (RoadNode node in Road.RoadNodesList)
             {
                 // check that at least 1 construction goal has the related build pos per node
-                Assert.IsTrue(Player.AI.NodeAlreadyExistsAt(node.Position));
+                Assert.IsTrue(Manager.NodeAlreadyExistsAt(node.Position));
             }
         }
 
@@ -175,7 +171,7 @@ namespace UnitTests.AITests.Empire
         public void TestSpaceRoadFillGaps()
         {
             CreateSystemsAndRoad();
-            Player.AI.SpaceRoads.Add(Road);
+            Manager.SpaceRoads.Add(Road);
             AssertEqual(Road.NumProjectors, 5);
             Road.DeployAllProjectors();
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.InProgress);
@@ -199,7 +195,7 @@ namespace UnitTests.AITests.Empire
             AssertEqual(Player.AI.Goals.Count, 1);
             Goal constructionGoal = Player.AI.Goals[0];
             AssertEqual(constructionGoal.Type, GoalType.DeepSpaceConstruction);
-            Assert.IsTrue(Player.AI.NodeAlreadyExistsAt(Road.RoadNodesList[2].Position),
+            Assert.IsTrue(Manager.NodeAlreadyExistsAt(Road.RoadNodesList[2].Position),
                 $"Goal's build position is not near {Road.RoadNodesList[2].Position}");
         }
 
@@ -209,7 +205,7 @@ namespace UnitTests.AITests.Empire
             CreateSystemsAndRoad();
             Player.AutoBuildSpaceRoads = true;
             Player.CanBuildPlatforms = true;
-            Player.AI.SpaceRoads.Add(Road);
+            Manager.SpaceRoads.Add(Road);
             Player.AI.SSPBudget = 10;
 
             // Should not deploy projectors, as it was just created.
@@ -237,7 +233,7 @@ namespace UnitTests.AITests.Empire
             Road.AddProjector(projector, node.Position);
             AssertEqual(node.Projector, projector);
 
-            Player.AI.TestRunInfrastructurePlanner();
+            Manager.RunSpaceRoadsManager();
             // Should still be in progress, since since there is a new gap
             // but now a new goal should be added to fill the gap
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.InProgress);
@@ -258,9 +254,9 @@ namespace UnitTests.AITests.Empire
             CreateSystemsAndRoad();
             Player.AutoBuildSpaceRoads = true;
             Player.CanBuildPlatforms= true;
-            Player.AI.SpaceRoads.Add(Road);
+            Manager.SpaceRoads.Add(Road);
             Player.AI.SSPBudget = 10;
-            Player.AI.TestRunInfrastructurePlanner();
+            Manager.RunSpaceRoadsManager();
 
             // Should not deploy projectors, since the road is not hot
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.Down);
@@ -269,23 +265,23 @@ namespace UnitTests.AITests.Empire
             Road.AddHeat(10);
             Assert.IsTrue(Road.IsHot, "Road should be hot");
             Player.AI.SSPBudget = Road.OperationalMaintenance - 0.1f;
-            Player.AI.TestRunInfrastructurePlanner();
+            Manager.RunSpaceRoadsManager();
 
             // Should not deploy projectors, although the road it hot, since there is not budget
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.Down);
 
             Player.AI.SSPBudget = Road.OperationalMaintenance + 1;
-            Player.AI.TestRunInfrastructurePlanner();
+            Manager.RunSpaceRoadsManager();
 
             // Should now be deployed, since its hot and there is budget
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.InProgress);
 
             Player.AI.SSPBudget = Road.OperationalMaintenance - 0.2f;
-            Player.AI.TestRunInfrastructurePlanner();
+            Manager.RunSpaceRoadsManager();
 
             // All projectors should be removed from the road and the road list should be empty since 
             AssertEqual(Player.AI.Goals.Count, 0);
-            AssertEqual(Player.AI.SpaceRoads.Count, 0);
+            AssertEqual(Manager.SpaceRoads.Count, 0);
         }
     }
 }
