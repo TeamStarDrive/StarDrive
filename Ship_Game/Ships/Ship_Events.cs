@@ -88,6 +88,9 @@ namespace Ship_Game.Ships
             if (IsSubspaceProjector)
                 Loyalty.AI.RemoveProjectorFromRoadList(this);
 
+            if (Loyalty.CanBuildPlatforms)
+                SetupProjectorBridgeIfNeeded();
+
             DamageRelationsOnDeath(pSource);
             CreateEventOnDeath();
         }
