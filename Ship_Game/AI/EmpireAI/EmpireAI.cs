@@ -37,8 +37,8 @@ namespace Ship_Game.AI
         [StarData] public ThreatMatrix ThreatMatrix;
         [StarData] public float DefStr;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
+        [StarData] public SpaceRoadsManager SpaceRoadsManager;
         BudgetPriorities BudgetSettings;
-        public SpaceRoadsManager SpaceRoadsManager;
 
         // Debug settings
         public bool Disabled; // disables EmpireAI and FleetAI
@@ -55,7 +55,7 @@ namespace Ship_Game.AI
             AreasOfOperations = new();
 
             InitializeManagers(e);
-
+            SpaceRoadsManager = new(e);
             if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals += OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
@@ -72,7 +72,6 @@ namespace Ship_Game.AI
             TechChooser = new(e);
             OffensiveForcePoolManager = new(e);
             BudgetSettings = new(e);
-            SpaceRoadsManager = new(e);
         }
 
         [StarDataDeserialized]
@@ -116,7 +115,7 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
                 ExpansionAI.RunExpansionPlanner();
-                SpaceRoadsManager.RunSpaceRoadsManager();
+                SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
                 RunAgentManager();
