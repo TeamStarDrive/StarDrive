@@ -233,7 +233,7 @@ namespace UnitTests.AITests.Empire
             Road.AddProjector(projector, node.Position);
             AssertEqual(node.Projector, projector);
 
-            Manager.RunSpaceRoadsManager();
+            Manager.Update();
             // Should still be in progress, since since there is a new gap
             // but now a new goal should be added to fill the gap
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.InProgress);
@@ -256,7 +256,7 @@ namespace UnitTests.AITests.Empire
             Player.CanBuildPlatforms= true;
             Manager.SpaceRoads.Add(Road);
             Player.AI.SSPBudget = 10;
-            Manager.RunSpaceRoadsManager();
+            Manager.Update();
 
             // Should not deploy projectors, since the road is not hot
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.Down);
@@ -265,19 +265,19 @@ namespace UnitTests.AITests.Empire
             Road.AddHeat(10);
             Assert.IsTrue(Road.IsHot, "Road should be hot");
             Player.AI.SSPBudget = Road.OperationalMaintenance - 0.1f;
-            Manager.RunSpaceRoadsManager();
+            Manager.Update();
 
             // Should not deploy projectors, although the road it hot, since there is not budget
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.Down);
 
             Player.AI.SSPBudget = Road.OperationalMaintenance + 1;
-            Manager.RunSpaceRoadsManager();
+            Manager.Update();
 
             // Should now be deployed, since its hot and there is budget
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.InProgress);
 
             Player.AI.SSPBudget = Road.OperationalMaintenance - 0.2f;
-            Manager.RunSpaceRoadsManager();
+            Manager.Update();
 
             // All projectors should be removed from the road and the road list should be empty since 
             AssertEqual(Player.AI.Goals.Count, 0);

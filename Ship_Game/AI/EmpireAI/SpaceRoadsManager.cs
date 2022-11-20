@@ -68,7 +68,7 @@ namespace Ship_Game.AI
             return Owner.Universe.Influence.IsInInfluenceOf(Owner, pos);
         }
 
-        public void RunSpaceRoadsManager()
+        public void Update()
         {
             if (!Owner.CanBuildPlatforms || Owner.isPlayer && !Owner.AutoBuildSpaceRoads)
                 return;
