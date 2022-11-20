@@ -212,6 +212,7 @@
     <Compile Include="Ship_Game\AI\ThreatMatrix_ClustersGenerator.cs" />
     <Compile Include="Ship_Game\AI\ThreatMatrix_Update.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\Projectord.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DeepSpaceBuildGoal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetGoal.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerReader.cs" />
