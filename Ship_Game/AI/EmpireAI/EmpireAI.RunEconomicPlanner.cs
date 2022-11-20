@@ -145,8 +145,7 @@ namespace Ship_Game.AI
         {
             var strat  = OwnerEmpire.Research.Strategy;
             float risk = (1 + (strat.IndustryRatio + strat.ExpansionRatio)) * 0.5f;
-            float debt = TreasuryProtection(treasuryGoal, 0.1f);
-            return SetBudgetForeArea(percentOfMoney, treasuryGoal, risk) * debt;
+            return SetBudgetForeArea(percentOfMoney, treasuryGoal, risk);
         }
 
         float DetermineBuildCapacity(float treasuryGoal, float risk, float percentOfMoney)
@@ -236,17 +235,6 @@ namespace Ship_Game.AI
             float minMoney = money - treasury * percentageOfTreasuryToSave;
             float ratio    = (money + minMoney) / treasury.LowerBound(1);
             return ratio.Clamped(0f, maxRatio);
-        }
-
-        /// <summary>
-        /// calculate treasury to money ratio as debt. if debt is under threshold then the ratio of debt to threshold.
-        /// eg debt under threshold return debt / threshold. else return 1
-        /// </summary>
-        public float TreasuryProtection(float treasury, float threshold, float minRatio = 0.5f)
-        {
-            float debt       = OverSpendRatio(treasury, 1.5f, 1);
-            float protection = debt < threshold ? (debt + minRatio) / (threshold + minRatio): 1;
-            return protection;
         }
 
         private void AutoSetTaxes(float treasuryGoal, float money)

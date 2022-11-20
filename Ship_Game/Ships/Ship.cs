@@ -1568,13 +1568,13 @@ namespace Ship_Game.Ships
             if (Dying && !ReallyDie)
                 return; // planet crash or tumble
 
+            OnShipDie(pSource);
             Mothership?.OnLaunchedShipDie(this);
 
             QueueTotalRemoval(); // sets Active=false
             
             pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
             pSource?.Module?.GetParent().AddKill(this);
-            DamageRelationsOnDeath(pSource);
 
             bool visible = IsVisibleToPlayer;
             Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);
@@ -1582,7 +1582,6 @@ namespace Ship_Game.Ships
             NotifyPlayerIfDiedExploring();
             Loyalty.TryAutoRequisitionShip(Fleet, this);
             CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly);
-            CreateEventOnDeath();
         }
 
         bool WillShipDieNow(Projectile proj)
