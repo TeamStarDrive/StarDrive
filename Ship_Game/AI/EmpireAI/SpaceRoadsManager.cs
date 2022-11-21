@@ -117,17 +117,20 @@ namespace Ship_Game.AI
                 return;
 
             // Look for the hottest road which is not yet online and deal with it
-            SpaceRoad hottestRoad = SpaceRoads.FindMaxFiltered(r => r.Status != SpaceRoad.SpaceRoadStatus.Online, r => r.Heat);
-            if (hottestRoad != null) 
+            SpaceRoad[] hotRoads = SpaceRoads.Filter(r => r.Status != SpaceRoad.SpaceRoadStatus.Online && r.IsHot);
+            if (hotRoads.Length > 0)
             {
-                switch (hottestRoad.Status)
+                foreach (SpaceRoad road in hotRoads)
                 {
-                    case SpaceRoad.SpaceRoadStatus.Down when hottestRoad.IsHot && hottestRoad.OperationalMaintenance < roadBudget:
-                        hottestRoad.DeployAllProjectors();
-                        return;
-                    case SpaceRoad.SpaceRoadStatus.InProgress: // This is tagged as some projectors are missing
-                        hottestRoad.FillGaps();
-                        return;
+                    switch (road.Status)
+                    {
+                        case SpaceRoad.SpaceRoadStatus.Down when road.OperationalMaintenance < roadBudget:
+                            road.DeployAllProjectors();
+                            return;
+                        case SpaceRoad.SpaceRoadStatus.InProgress: // This is tagged as some projectors are missing
+                            road.FillGaps();
+                            return;
+                    }
                 }
             }
         }

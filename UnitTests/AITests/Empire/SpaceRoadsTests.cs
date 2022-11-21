@@ -234,8 +234,17 @@ namespace UnitTests.AITests.Empire
             AssertEqual(node.Projector, projector);
 
             Manager.Update();
+            Assert.IsFalse(Road.IsHot, "Road should not be hot now but it is hot");
             // Should still be in progress, since since there is a new gap
-            // but now a new goal should be added to fill the gap
+            // and no new goal should be added to fill the gap since the road is not hot
+            AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.InProgress);
+            AssertEqual(Player.AI.Goals.Count, 0);
+
+            Road.AddHeat(extraHeat: 1000);
+            Assert.IsTrue(Road.IsHot, "Road should be hot now but it is not hot enough");
+            Manager.Update();
+            // Should still be in progress, since since there is a new gap
+            // but now a new goal should be added to fill the gap since the road is hot
             AssertEqual(Road.Status, SpaceRoad.SpaceRoadStatus.InProgress);
             AssertEqual(Player.AI.Goals.Count, 1);
 
