@@ -1039,7 +1039,7 @@ namespace Ship_Game.Fleets
             if (potentialSystems.Length == 0)
                 return null;
 
-            SolarSystem potentialSystem = potentialSystems.FindMin(s => s.GetKnownStrengthHostileTo(Owner));
+            SolarSystem potentialSystem = potentialSystems.FindMin(s => Owner.KnownEnemyStrengthIn(s));
             return potentialSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
         }
 
