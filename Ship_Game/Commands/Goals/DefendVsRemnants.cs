@@ -64,7 +64,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             if (Fleet == null || Fleet.Ships.Count == 0)
             {
-                float str = TargetPlanet.ParentSystem.GetKnownStrengthHostileTo(Owner);
+                float str =  Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem, TargetEmpire);
                 var task  = MilitaryTask.CreateDefendVsRemnant(TargetPlanet, Owner, str);
                 Owner.AI.AddPendingTask(task); // Try creating a new fleet to defend
                 return GoalStep.GoalFailed;

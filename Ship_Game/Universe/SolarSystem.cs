@@ -590,36 +590,21 @@ namespace Ship_Game
             }
         }
 
-        public float GetActualStrengthPresent(Empire e)
-        {
-            float strength = 0f;
-            foreach (Ship ship in GetShips(e))
-                strength += ship.GetStrength();
-            return strength;
-        }
-
-        public float GetKnownStrengthHostileTo(Empire e)
-        {
-            float strength = 0f;
-            foreach (Ship ship in GetShips(e))
-                if (ship.KnownByEmpires.KnownBy(e) && ship.Loyalty.IsAtWarWith(e))
-                    strength += ship.GetStrength();
-            return strength;
-        }
-
         public bool IsAnomalyOnAnyKnownPlanets(Empire player)
         {
-            foreach (Planet planet in PlanetList)
+            for (int i = 0; i < PlanetList.Count; i++)
             {
+                Planet planet = PlanetList[i];
                 if (planet.IsExploredBy(player))
                 {
-                    for (int i = 0; i < planet.BuildingList.Count; ++i)
+                    for (int j = 0; j < planet.BuildingList.Count; ++j)
                     {
-                        if (planet.BuildingList[i].EventHere)
+                        if (planet.BuildingList[j].EventHere)
                             return true;
                     }
                 }
             }
+
             return false;
         }
 

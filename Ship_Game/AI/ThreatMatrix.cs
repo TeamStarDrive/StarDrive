@@ -226,7 +226,7 @@ public sealed partial class ThreatMatrix
 
     // When an empire has the Astronomers trait, it needs to be aware of remnant presence
     // in the system so it wont send lone colony ships
-    public void UpdateRemanantPresenceAstronomers(SolarSystem s)
+    public void UpdateRemnantPresenceAstronomers(SolarSystem s)
     {
         for (int i = 0; i < s.ShipList.Count; i++)
         {

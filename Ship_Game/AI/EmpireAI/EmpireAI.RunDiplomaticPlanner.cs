@@ -228,7 +228,7 @@ namespace Ship_Game.AI
         {
             float modifiedWeight = weight;
             float ourStr         = OwnerEmpire.CurrentMilitaryStrength.LowerBound(1);
-            modifiedWeight      *= (system.GetActualStrengthPresent(others) / ourStr).UpperBound(1f);
+            modifiedWeight      *= (OwnerEmpire.KnownEnemyStrengthIn(system, others) / ourStr).UpperBound(1f);
 
             if (usToThem.Treaty_Trade)
                 modifiedWeight *= 0.5f;

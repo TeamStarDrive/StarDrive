@@ -30,7 +30,7 @@ namespace Ship_Game.Commands.Goals
                 foreach (Empire e in Owner.Universe.MajorEmpires)
                 {
                     if (solarSystem.IsFullyExploredBy(e) && solarSystem.ShipList.Count > 0)
-                        e.AI.ThreatMatrix.UpdateRemanantPresenceAstronomers(solarSystem);
+                        e.AI.ThreatMatrix.UpdateRemnantPresenceAstronomers(solarSystem);
                 }
             }
 
