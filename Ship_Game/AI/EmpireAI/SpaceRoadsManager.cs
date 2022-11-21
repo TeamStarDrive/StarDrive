@@ -97,7 +97,10 @@ namespace Ship_Game.AI
         // Scrap one road per turn, if applicable
         bool TryScrapSpaceRoad(bool lowBudgetMustScrap)
         {
-            SpaceRoad coldestRoad = SpaceRoads.FindMin(r => r.Heat);
+            SpaceRoad coldestRoad = lowBudgetMustScrap 
+                    ? SpaceRoads.FindMin(r => r.Heat)
+                    : SpaceRoads.FindMinFiltered(r => r.IsCold, r => r.Heat);
+
             if (coldestRoad != null && (coldestRoad.IsCold || lowBudgetMustScrap))
             {
                 RemoveRoad(coldestRoad);
