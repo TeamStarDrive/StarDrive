@@ -1,22 +1,43 @@
-﻿using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Debug.Page;
 
 public class SpaceRoadsDebug : DebugPage
 {
-
-    int Down;
-    int InProgress;
-    int Online;
-    float Maint;
+    readonly Map<int, RoadStats> EmpireRoadStats = new();
     float Timer;
 
-    public SpaceRoadsDebug(DebugInfoScreen parent) : base(parent, DebugModes.Tasks)
+    class RoadStats
     {
+        public int Down, InProgress, Online;
+        public float Maint; 
+
+        public void CountRoads(Array<SpaceRoad> roads)
+        {
+            Down       = 0;
+            InProgress = 0;
+            Online     = 0;
+            Maint      = 0;
+            foreach (SpaceRoad road in roads)
+            {
+                Maint += road.Maintenance;
+                switch (road.Status)
+                {
+                    case SpaceRoad.SpaceRoadStatus.Down:       Down++;       break;
+                    case SpaceRoad.SpaceRoadStatus.InProgress: InProgress++; break;
+                    case SpaceRoad.SpaceRoadStatus.Online:     Online++;     break;
+                }
+            }
+        }
+    }
+
+
+    public SpaceRoadsDebug(DebugInfoScreen parent) : base(parent, DebugModes.SpaceRoads)
+    {
+        foreach (Empire e in Universe.MajorEmpires)
+            EmpireRoadStats.Add(e.Id, new RoadStats());
     }
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -24,31 +45,35 @@ public class SpaceRoadsDebug : DebugPage
         if (!Visible)
             return;
 
+        Timer--;
         int column = 0;
-        foreach (Empire e in Universe.NonPlayerMajorEmpires)
+        for (int i = 0; i < Universe.MajorEmpires.Length; i++)
         {
-            if (!e.data.Defeated)
+            Empire e = Universe.MajorEmpires[i];
+            if (!e.data.Defeated && (!e.isPlayer || e.AutoBuildSpaceRoads))
             {
-                DrawSpaceRoads(e, column);
+                DrawSpaceRoads(e, column, Timer < 0);
                 ++column;
             }
         }
 
+        if (Timer < 0)
+            Timer = 60;
+
         base.Draw(batch, elapsed);
     }
 
-    void DrawSpaceRoads(Empire e, int column)
+    void DrawSpaceRoads(Empire e, int column, bool recount)
     {
         Text.SetCursor(Parent.Win.X + 10 + 400 * column, Parent.Win.Y + 50, e.EmpireColor);
         Text.String("--------------------------");
         Text.String(e.Name);
-        if (--Timer < 0)
-        {
-            (Down, InProgress, Online, Maint) = CountRoads(e.AI.SpaceRoadsManager.SpaceRoads);
-            Timer = 60;
-        }
-        Text.String($"Number of Roads: {e.AI.SpaceRoadsManager.SpaceRoads.Count} - (Dn {Down}, Ip {InProgress}, On {Online})");
-        Text.String($"Total Maintenance/Budget: {Maint.String(2)}/{e.AI.SSPBudget.String(2)}");
+        RoadStats stats = EmpireRoadStats[e.Id];
+        if (recount)
+            stats.CountRoads(e.AI.SpaceRoadsManager.SpaceRoads);
+        
+        Text.String($"Number of Roads: {e.AI.SpaceRoadsManager.SpaceRoads.Count} - (Dn {stats.Down}, Ip {stats.InProgress}, On {stats.Online})");
+        Text.String($"Total Maintenance/Budget: {stats.Maint.String(2)}/{e.AI.SSPBudget.String(2)}");
         Text.String("----------------------------");
         Text.NewLine();
 
@@ -56,30 +81,9 @@ public class SpaceRoadsDebug : DebugPage
         for (int i = 0; i < spaceRoads.Length; i++)
         {
             SpaceRoad road = spaceRoads[i];
-            Text.String($"{i+1}. {road.System1.Name}-{road.System2.Name}, (maint {road.Maintenance.String(2)}), " +
-                        $"(SSPs {road.NumProjectors}), (Heat {road.Heat.String(2)}), {road.Status}");
+            Text.String($"{i+1}. {road.System1.Name}-{road.System2.Name}, maint: {road.Maintenance.String(2)}, " +
+                        $"SSPs: {road.NumProjectors}, Heat: {road.Heat.String(2)}, {road.Status}");
         }
-    }
-
-    (int down, int inProgress, int active, float maint) CountRoads(Array<SpaceRoad>roads)
-    {
-        int down = 0;
-        int inProgress = 0;
-        int online = 0;
-        float maint = 0;
-
-        foreach (SpaceRoad road in roads)
-        {
-            maint += road.Maintenance;
-            switch (road.Status)
-            {
-                case SpaceRoad.SpaceRoadStatus.Down:       down++;       break;
-                case SpaceRoad.SpaceRoadStatus.InProgress: inProgress++; break;
-                case SpaceRoad.SpaceRoadStatus.Online:     online++;     break;
-            }
-        }
-
-        return (down, inProgress, online, maint);
     }
 
     public override bool HandleInput(InputState input)
