@@ -159,7 +159,7 @@ namespace Ship_Game.AI
                     && !p.RecentCombat
                     && !p.TroopsHereAreEnemies(Us))
                 {
-                    Troop[] troopsToLaunch = p.TroopsHere.Filter(t => t != null && t.Loyalty == Us);
+                    Troop[] troopsToLaunch = p.TroopsHere.Filter(t => t.Loyalty == Us);
                     p.LaunchTroops(troopsToLaunch);
                 }
                 else if (p.Owner == Us) //This should stay here.

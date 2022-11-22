@@ -45,11 +45,11 @@ namespace Ship_Game.Gameplay
         // The expected maintenance if the road is online or in progress
         [StarData] public float OperationalMaintenance { get; private set; }
 
-        const float ProjectorDensity = 1.75f;
+        const float ProjectorDensity = 1.7f;
         const float SpacingOffset = 0.5f;
 
         public bool IsHot => Heat >= NumProjectors*2;
-        public bool IsCold => Heat <= -NumProjectors*2;
+        public bool IsCold => Heat <= -(NumProjectors+2);
         public float Maintenance => Status == SpaceRoadStatus.Down ? 0 : OperationalMaintenance;
 
         [StarDataConstructor]
@@ -70,7 +70,7 @@ namespace Ship_Game.Gameplay
             float projectorSpacing = distance / NumProjectors;
             float baseOffset = projectorSpacing * SpacingOffset;
 
-            for (int i = 1; i <= NumProjectors; i++)
+            for (int i = 0; i < NumProjectors; i++)
             {
                 float nodeOffset = baseOffset + projectorSpacing * i;
                 Vector2 roadDirection = sys1.Position.DirectionToTarget(sys2.Position);

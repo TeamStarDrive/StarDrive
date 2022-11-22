@@ -289,14 +289,18 @@ namespace Ship_Game
             if (betterFreighter == null)
                 return;
 
-            foreach (Ship idleFreighter in GetIdleFreighters(false))
+            var ships = GetIdleFreighters(false);
+            for (int i = 0; i < ships.Length; i++)
+            {
+                Ship idleFreighter = ships[i];
                 CheckForRefitFreighter(idleFreighter, 20, betterFreighter);
+            }
         }
 
         // Percentage to check if there is better suited freighter model available
         public void CheckForRefitFreighter(Ship freighter, int percentage, IShipDesign betterFreighter = null)
         {
-            if (!ManualTrade && !RandomMath.RollDice(percentage) && TotalFreighters / (float)FreighterCap > 0.5f)
+            if (!ManualTrade && RandomMath.RollDice(percentage) && TotalFreighters / (float)FreighterCap > 0.75f)
             {
                 if (betterFreighter == null)
                     betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
