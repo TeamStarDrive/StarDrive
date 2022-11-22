@@ -50,7 +50,9 @@ public sealed partial class Empire
             if (fleet.Key == 0 || fleet.Ships.IsEmpty)
                 return fleetId;
         }
-        throw new("No available fleet keys!");
+
+        Log.WarningWithCallStack("No available fleet keys! This is a BUG that will cause AI fleets to mess up");
+        return LastFleetId; // falling back to last fleet Id instead, but this will be buggy
     }
 
     public Fleet GetFleetOrNull(int fleetKey)
