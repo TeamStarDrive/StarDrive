@@ -361,7 +361,7 @@ namespace Ship_Game
         public void LaunchTroops(Troop[] troopsToLaunch)
         {
             foreach (Troop troop in troopsToLaunch)
-                troop.Launch();
+                troop?.Launch();
         }
 
         public void ForceLaunchInvadingTroops(Empire loyaltyToLaunch)
