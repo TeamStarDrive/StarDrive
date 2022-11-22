@@ -42,7 +42,7 @@ namespace Ship_Game.AI.Tasks
             if (strengthNeeded <= 0) return potentialTroops;
 
             var defenseDict     = Owner.AI.DefensiveCoordinator.DefenseDict;
-            var troopSystems    = Owner.GetOwnedSystems().Sorted(dist => -1 * dist.Position.SqDist(rallyPoint));
+            var troopSystems    = Owner.GetOwnedSystems().Sorted(dist => dist.Position.SqDist(rallyPoint));
             
             for (int x = 0; x < troopSystems.Length; x++)
             {
@@ -70,7 +70,7 @@ namespace Ship_Game.AI.Tasks
                     {
                         potentialTroops.AddRange(planet.GetEmpireTroops(Owner, (int)maxCanTake));
 
-                        totalStrength += potentialTroops.Sum(t => t.ActualStrengthMax);
+                        totalStrength = potentialTroops.Sum(t => t.ActualStrengthMax);
 
                         if (strengthNeeded <= totalStrength)
                         {

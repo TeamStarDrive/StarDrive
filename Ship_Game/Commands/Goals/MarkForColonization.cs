@@ -130,8 +130,16 @@ namespace Ship_Game.Commands.Goals
             if (TryGetClaimTask(out MilitaryTask task))
             {
                 if (!PositiveEnemyPresence(out float enemyStr) || task.Fleet != null && task.Fleet.TaskStep == 9)
-                    return GoalStep.GoToNextStep;
+                {
+                    if (TargetPlanet.Owner != null && TargetPlanet.GetGroundStrength(Owner) == 0) // ground invasion failed
+                    {
+                        task.Fleet?.FleetTask.EndTask();
+                        task.EndTask();
+                        return GoalStep.GoalFailed;
+                    }
 
+                    return GoalStep.GoToNextStep;
+                }
                 if (enemyStr > Owner.OffensiveStrength)
                 {
                     task.Fleet?.FleetTask.EndTask();
