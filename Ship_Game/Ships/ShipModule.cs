@@ -1552,9 +1552,10 @@ namespace Ship_Game.Ships
 
         public void Dispose()
         {
-            // TODO: nulling the parent will cause a big can of worms -_-, we get a lot of null ref exceptions
+            // nulling the parent will cause a big can of worms -_-,
+            // we get a lot of null ref exceptions
             //Parent = null;
-            Flyweight = null;
+            //Flyweight = null;
 
             DamageVisualizer = null;
             Bonuses = null;
