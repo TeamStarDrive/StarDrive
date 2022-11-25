@@ -34,6 +34,7 @@ namespace Ship_Game
         [StarData] public Goal Goal;
         [StarData] public int Priority;
         [StarData] public QueueItemType QType;
+        [StarData] public float PriorityBonus { get; private set; } // Gets bigger as the queue is prioritized
         [StarData] public bool Rush;
         [StarData] public bool NotifyOnEmpty = true;
         [StarData] public bool IsPlayerAdded = false;
@@ -130,6 +131,43 @@ namespace Ship_Game
                     return TroopType;
                 return "";
             }
+        }
+
+        // This also increases the priority bonus of the item. So it will be bumped up in the list a little next time
+        public float GetAndUpdatePriority(Planet planet)
+        {
+            float priority = 5000;
+            Empire owner = planet.Owner;
+            switch (QType)
+            {
+                case QueueItemType.OrbitalUrgent:
+                case QueueItemType.ColonyShipClaim: priority = 0;                                                                               break;
+                case QueueItemType.Building:        priority = planet.PrioritizeColonyBuilding(Building);                                       break;
+                case QueueItemType.Troop:           priority = 0.2f + owner.AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 5;              break;
+                case QueueItemType.Scout:           priority = owner.GetPlanets().Count * 0.2f;                                                 break;
+                case QueueItemType.ColonyShip:      priority = (owner.GetPlanets().Count * (owner.IsExpansionists ? 0.01f : 0.05f));            break;
+                case QueueItemType.Orbital:         priority = 1 + (owner.TotalOrbitalMaintenance / owner.AI.DefenseBudget.LowerBound(1) * 10); break;
+                case QueueItemType.RoadNode:        priority = 0.5f + owner.AI.SpaceRoadsManager.NumOnlineSpaceRoads * 0.1f;                    break;
+                case QueueItemType.Freighter:       priority = owner.AI.SpaceRoadsManager.SpaceRoads.Count * 0.5f;                              break;
+                case QueueItemType.CombatShip:      
+                    priority = (owner.TotalWarShipMaintenance / owner.AI.BuildCapacity.LowerBound(1) * 10);
+                    if (owner.IsMilitarists)
+                        priority *= 0.5f;
+                    break;
+            }
+
+            if (!owner.isPlayer && owner.IsAtWarWithMajorEmpire)
+            {
+                switch (QType)
+                {
+                    case QueueItemType.Troop:
+                    case QueueItemType.CombatShip: priority *= 0.5f;  break;
+                    case QueueItemType.Orbital:    priority *= 0.66f; break;
+                }
+            }
+
+            PriorityBonus += 0.05f;
+            return (priority - PriorityBonus).LowerBound(0);
         }
 
         public override string ToString() => $"QueueItem DisplayText={DisplayText}";
