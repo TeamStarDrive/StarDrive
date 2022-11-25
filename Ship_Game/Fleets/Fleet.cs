@@ -81,18 +81,6 @@ namespace Ship_Game.Fleets
             UpdateSpeedLimit();
         }
 
-        public void SetNameByFleetIndex(int index)
-        {
-            string suffix = "th";
-            switch (index % 10)
-            {
-                case 1: suffix = "st"; break;
-                case 2: suffix = "nd"; break;
-                case 3: suffix = "rd"; break;
-            }
-            Name = index + suffix + " fleet";
-        }
-
         public void AddShips(IReadOnlyList<Ship> ships)
         {
             for (int i = 0; i < ships.Count; i++)
@@ -980,9 +968,8 @@ namespace Ship_Game.Fleets
             bool invasionEffective = StillInvasionEffective(task);
             bool combatEffective   = StillCombatEffective(task);
             bool remnantsTargeting = !Owner.WeAreRemnants
-                                        && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && Owner.Universe.Remnants.Fleets
-                                           .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
+                && CommandShip?.System == task.TargetPlanet.ParentSystem
+                && Owner.Universe.Remnants.AnyActiveFleetsTargetingSystem(task.TargetPlanet.ParentSystem);
 
             EndInvalidTask(remnantsTargeting 
                            || !MajorityTroopShipsAreInWell(task.TargetPlanet) && (!invasionEffective || !combatEffective));
@@ -1497,9 +1484,8 @@ namespace Ship_Game.Fleets
             }
 
             bool remnantsTargeting = !Owner.WeAreRemnants
-                                        && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && Owner.Universe.Remnants.Fleets
-                                           .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
+                && CommandShip?.System == task.TargetPlanet.ParentSystem
+                && Owner.Universe.Remnants.AnyActiveFleetsTargetingSystem(task.TargetPlanet.ParentSystem);
 
             if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
                 return;
@@ -2612,8 +2598,23 @@ namespace Ship_Game.Fleets
                 case 7: return "Seventh";
                 case 8: return "Eight";
                 case 9: return "Ninth";
+                // 10th, 11th, 12th, 13th
+                case 10: return "10th";
+                case 11: return "11th";
+                case 12: return "12th";
+                case 13: return "13th";
+                default: // 14th, ..., 21st, 22nd, 23rd, 24th, ...
+                {
+                    string suffix = "th";
+                    switch (index % 10)
+                    {
+                        case 1: suffix = "st"; break;
+                        case 2: suffix = "nd"; break;
+                        case 3: suffix = "rd"; break;
+                    }
+                    return index + suffix + " fleet";
+                }
             }
-            return "";
         }
     }
 }

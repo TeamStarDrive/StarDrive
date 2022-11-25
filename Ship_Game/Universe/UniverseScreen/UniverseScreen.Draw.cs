@@ -599,9 +599,8 @@ namespace Ship_Game
                 bool doDraw = debug || !(Player.DifficultyModifiers.HideTacticalData && viewer.IsEmpireAttackable(empire));
                 if (doDraw)
                 {
-                    foreach (Fleet f in empire.Fleets)
-                        if (f.Ships.NotEmpty)
-                            DrawVisibleShips(batch, f, viewer, debug);
+                    foreach (Fleet f in empire.ActiveFleets)
+                        DrawVisibleShips(batch, f, viewer, debug);
                 }
             }
         }

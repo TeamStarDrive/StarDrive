@@ -15,7 +15,6 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Rectangle = SDGraphics.Rectangle;
-using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.Ships
 {

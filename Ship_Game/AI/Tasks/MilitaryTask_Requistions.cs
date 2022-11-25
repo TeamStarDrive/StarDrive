@@ -115,9 +115,9 @@ namespace Ship_Game.AI.Tasks
                 Name = name,
             };
 
-            int fleetNum = Owner.CreateFleetKey();
-            Owner.SetFleet(fleetNum, newFleet);
-            WhichFleet = fleetNum;
+            int fleetKey = Owner.CreateFleetKey();
+            Owner.SetFleet(fleetKey, newFleet);
+            WhichFleet = fleetKey;
             newFleet.FleetTask = this;
             ship.AI.ClearOrders();
             newFleet.AddShip(ship);
