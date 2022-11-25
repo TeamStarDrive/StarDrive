@@ -29,11 +29,11 @@
   <HealthMax>9200</HealthMax>
 
   <!-- Armor resistance -->
-	<KineticResist>0.04</KineticResist>
+	<KineticResist>0.02</KineticResist>
 	<BeamResist>0</BeamResist>
 	<EnergyResist>0</EnergyResist>    
 	<PlasmaResist>0</PlasmaResist>
-	<ExplosiveResist>0.07</ExplosiveResist>
+	<ExplosiveResist>0.04</ExplosiveResist>
 
   <!-- Description -->
   <Description>This is a medium-sized slab of thick steel armor.  It is cheap and heavy but provides significant protection.</Description>
