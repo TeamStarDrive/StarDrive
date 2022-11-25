@@ -42,10 +42,10 @@
   <RepairDifficulty>1</RepairDifficulty>
   <Deflection>0</Deflection>		  
   <!-- Armor resistance -->
-  <KineticResist>0.07</KineticResist>
+  <KineticResist>0.06</KineticResist>
   <BeamResist>0</BeamResist>  
   <PlasmaResist>0</PlasmaResist>
-  <ExplosiveResist>0.15</ExplosiveResist>
+  <ExplosiveResist>0.12</ExplosiveResist>
 
   <!-- Description -->
   <Description>New generation of Ceramic Armor.</Description>
