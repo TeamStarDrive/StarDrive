@@ -200,7 +200,6 @@ namespace Ship_Game
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
 
-        public int TotalScouts => OwnedShips.Count(s => s?.IsGoodScout() == true);
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
         [StarData] public readonly EmpireResearch Research;
@@ -2890,44 +2889,6 @@ namespace Ship_Game
             data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
             EmpireHullBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
             ForceUpdateSensorRadiuses = true;
-        }
-
-        public float GetPriorityForPlanetBuildQueue(QueueItemType type, Planet planet, Building building)
-        {
-            float priority = 5000;
-            
-            switch (type)
-            {
-                case QueueItemType.OrbitalUrgent:
-                case QueueItemType.ColonyShipClaim: priority = 0;                                                                      break;
-                case QueueItemType.Building:        priority = planet.PrioritizeColonyBuilding(building);                              break;
-                case QueueItemType.Troop:           priority = AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 10;                 break;
-                case QueueItemType.Scout:           priority = (TotalScouts - 1).LowerBound(0);                                        break;
-                case QueueItemType.ColonyShip:      priority = (OwnedPlanets.Count * (IsExpansionists ? 0.01f : 0.05f)).LowerBound(0); break;
-                case QueueItemType.Orbital:         priority = 1 + (TotalOrbitalMaintenance / AI.DefenseBudget.LowerBound(1) * 10);    break;
-                case QueueItemType.RoadNode:        priority = 0.1f + AI.SpaceRoadsManager.NumOnlineSpaceRoads * 0.1f;                 break;
-                case QueueItemType.Freighter:
-                    int totalFreighters = TotalFreighters;
-                    priority = totalFreighters * (totalFreighters  < OwnedPlanets.Count ? 0.1f : 0.5f);
-                    break;
-                case QueueItemType.CombatShip: 
-                    priority = (int)(TotalWarShipMaintenance / AI.BuildCapacity.LowerBound(1) * 10);
-                    if (IsMilitarists) 
-                        priority *= 0.5f;
-                    break;
-            }
-
-            if (!isPlayer && IsAtWarWithMajorEmpire)
-            {
-                switch (type)
-                {
-                    case QueueItemType.Troop:
-                    case QueueItemType.CombatShip: priority *= 0.5f;  break;
-                    case QueueItemType.Orbital:    priority *= 0.66f; break;
-                }
-            }
-
-            return priority;
         }
 
         void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);
