@@ -12,11 +12,11 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => $"{TypeId}:RawArrSer<{ElemSerializer.TypeId}:{ElemType.GetTypeName()}>";
 
-        delegate object New(int length);
+        public delegate object New(int length);
         delegate int GetLength(object arr);
         delegate object GetValue(object arr, int index);
         delegate void SetValue(object arr, object value, int index);
-        New NewArray;
+        public New NewArray;
         GetLength GetLengthOf;
         GetValue GetValueAt;
         SetValue SetValueAt;
