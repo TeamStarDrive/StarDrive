@@ -1,8 +1,6 @@
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -278,13 +276,15 @@ namespace Ship_Game
         public Vector2 GetRelativeSize()
         {
             Vector2 min = default, max = default;
-            foreach (Ship ship in Ships)
+            for (int i = 0; i < Ships.Count; i++)
             {
+                Ship ship = Ships[i];
                 if (ship.FleetOffset.X < min.X) min.X = ship.FleetOffset.X;
                 if (ship.FleetOffset.X > max.X) max.X = ship.FleetOffset.X;
                 if (ship.FleetOffset.Y < min.Y) min.Y = ship.FleetOffset.Y;
                 if (ship.FleetOffset.Y > max.Y) max.Y = ship.FleetOffset.Y;
             }
+
             return max - min;
         }
 
@@ -298,13 +298,17 @@ namespace Ship_Game
             return true;
         }
 
-        // Gets the average position of a group of ship, weighing the center
-        // towards the biggest ship
-        public static Vector2 GetAveragePosition(Array<Ship> ships)
+        // Gets the average position of a group of ships, weighing the center
+        // towards the biggest ship, unless there is a command ship (which is the biggest)
+        // and then return that as the position. it is much faster and also looks better in the UI.
+        public static Vector2 GetAveragePosition(Array<Ship> ships, Ship commandShip = null)
         {
             int count = ships.Count;
             if (count == 0)
                 return Vector2.Zero;
+
+            if (commandShip != null)
+                return commandShip.Position;
 
             Ship[] items = ships.GetInternalArrayItems();
 
@@ -348,7 +352,7 @@ namespace Ship_Game
             if (force || StarDriveGame.Instance == null || LastAveragePosUpdate != StarDriveGame.Instance.FrameId)
             {
                 LastAveragePosUpdate = StarDriveGame.Instance?.FrameId ?? 0;
-                AveragePos = GetAveragePosition(Ships);
+                AveragePos = GetAveragePosition(Ships, commandShip: force ? null : CommandShip);
             }
             return AveragePos;
         }
@@ -452,31 +456,25 @@ namespace Ship_Game
             
         }
 
-        public MoveStatus FleetMoveStatus(float radius = 0, Vector2 ao = default)
+        public MoveStatus FleetMoveStatus(float radius, Vector2 ao = default)
         {
             if (ao == default)
                 ao = FinalPosition;
-            radius = radius.AlmostZero() ? GetRelativeSize().Length() : radius;
 
             float ourStrengthInAO = Owner.AI.ThreatMatrix.GetStrengthAt(Owner, ao, radius);
             float enemyStrengthInAO = Owner.AI.ThreatMatrix.GetHostileStrengthAt(ao, radius);
 
             MoveStatus moveStatus = MoveStatus.None;
-            float assembled       = 0;
-            int totalShipCount    = 0;
+            float surfaceAssembled = 0;
+            int totalShipSurface = 0;
 
             for (int i = 0; i < Ships.Count; i++)
             {
-                if (moveStatus.IsSet(MoveStatus.All)) break;
-
                 Ship ship = Ships[i];
-                if (ship.AI.State == AIState.Bombard || ship.AI.State == AIState.AssaultPlanet
-                                                     || ship.AI.State == AIState.Resupply)
-                {
+                if (ship.AI.State is AIState.Bombard or AIState.AssaultPlanet or AIState.Resupply)
                     continue;
-                }
 
-                totalShipCount++;
+                totalShipSurface += ship.SurfaceArea;
                 if (!ship.IsSpoolingOrInWarp)
                 {
                     var combatRadius = radius;
@@ -489,10 +487,9 @@ namespace Ship_Game
                         if (cantAttackValidTarget && ship.AI.Target.Position.InRadius(ship.Position, ship.AI.FleetNode.OrdersRadius))
                             moveStatus |= MoveStatus.DispersedInCombat;
                     }
-                    else //Ship is in AO
+                    else // Ship is in AO
                     {
-                        assembled++;
-
+                        surfaceAssembled += ship.SurfaceArea;
                         moveStatus |= MoveStatus.Assembled;
 
                         if (ourStrengthInAO > enemyStrengthInAO && 
@@ -505,8 +502,10 @@ namespace Ship_Game
                 else if (ship.CanTakeFleetOrders)
                     moveStatus |= MoveStatus.Dispersed;
             }
-            if (assembled / totalShipCount > 0.75f)
+
+            if (surfaceAssembled / totalShipSurface > 0.85f)
                 moveStatus |= MoveStatus.MajorityAssembled;
+
             return moveStatus;
         }
 
