@@ -612,7 +612,7 @@ namespace Ship_Game
             if (visibleShips.Length >= (fleet.Ships.Count * 0.75f))
             {
                 SubTexture icon = fleet.Icon;
-                Vector2 fleetCenterOnScreen = ProjectToScreenPosition(fleet.CachedAveragePos).ToVec2fRounded();
+                Vector2 fleetCenterOnScreen = ProjectToScreenPosition(fleet.AveragePosition()).ToVec2fRounded();
 
                 FleetIconLines(batch, visibleShips, fleetCenterOnScreen);
 
