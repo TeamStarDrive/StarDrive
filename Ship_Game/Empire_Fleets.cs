@@ -24,14 +24,7 @@ public sealed partial class Empire
 
     // Refactored how fleets are stored, now only valid fleets exist in this list
     // This list is no longer sorted by Fleet.Key
-    [StarData] Array<Fleet> FleetsList = new();
-
-    // TODO: remove once we no longer need backwards compatibility to testing saves
-    // TODO: OR upgrade the serializer to auto-convert T[] <-> Array<T>
-    [StarData] Fleet[] Fleet
-    {
-        set => FleetsList = new(value);
-    }
+    [StarData] readonly Array<Fleet> Fleets = new();
 
     float FleetUpdateTimer = 5f;
 
@@ -40,9 +33,9 @@ public sealed partial class Empire
     {
         get
         {
-            for (int i = 0; i < FleetsList.Count; ++i)
+            for (int i = 0; i < Fleets.Count; ++i)
             {
-                Fleet f = FleetsList[i];
+                Fleet f = Fleets[i];
                 // we need this check, because current code allows
                 // clearing f.Ships without calling Owner.RemoveFleet()
                 if (f.Ships.NotEmpty)
@@ -69,14 +62,14 @@ public sealed partial class Empire
 
     void ResetFleets(bool returnShipsToEmpireAI = true)
     {
-        foreach (Fleet fleet in FleetsList)
+        foreach (Fleet fleet in Fleets)
             fleet.Reset(returnShipsToEmpireAI);
-        FleetsList.Clear();
+        Fleets.Clear();
     }
     
     public void RemoveFleet(Fleet fleet)
     {
-        FleetsList.RemoveRef(fleet);
+        Fleets.RemoveRef(fleet);
     }
 
     public int CreateFleetKey()
@@ -92,14 +85,14 @@ public sealed partial class Empire
         // we got more than LastFleetKey fleets?
         if (isPlayer) // for players, fall back to LastFleetKey
             return LastFleetKey;
-        return FleetsList.Max(f => f.Key) + 1;
+        return Fleets.Max(f => f.Key) + 1;
     }
 
     public Fleet GetFleetOrNull(int fleetKey)
     {
-        for (int i = 0; i < FleetsList.Count; ++i)
+        for (int i = 0; i < Fleets.Count; ++i)
         {
-            Fleet fleet = FleetsList[i];
+            Fleet fleet = Fleets[i];
             if (fleet.Key == fleetKey)
                 return fleet;
         }
@@ -128,11 +121,11 @@ public sealed partial class Empire
         fleet.Key = fleetId;
 
         // replace existing?
-        int index = FleetsList.IndexOf(f => f.Key == fleetId);
+        int index = Fleets.IndexOf(f => f.Key == fleetId);
         if (index != -1)
-            FleetsList[index] = fleet;
+            Fleets[index] = fleet;
         else
-            FleetsList.Add(fleet);
+            Fleets.Add(fleet);
     }
 
     void UpdateFleets(FixedSimTime timeStep)

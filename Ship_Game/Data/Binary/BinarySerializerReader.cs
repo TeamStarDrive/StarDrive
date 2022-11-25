@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -485,6 +486,17 @@ public class BinarySerializerReader
         {
             fi.Field.Set(instance, fieldValue);
         }
+        catch (ArgumentException ex)
+        {
+            if (TryConvertValue(fi, fieldValue, out object convertedValue))
+            {
+                fi.Field.Set(instance, convertedValue);
+            }
+            else
+            {
+                Log.Error(ex, $"Failed to set and convert FieldValue={fieldValue} (Pointer={pointer}) into Field={fi}");
+            }
+        }
         catch (Exception ex)
         {
             Log.Error(ex, $"Failed to set FieldValue={fieldValue} (Pointer={pointer}) into Field={fi}");
@@ -499,5 +511,44 @@ public class BinarySerializerReader
         if (pointer == 0)
             return elemType.DefaultValue;
         return ObjectsList[pointer];
+    }
+
+    bool TryConvertValue(FieldInfo fi, object fieldValue, out object convertedValue)
+    {
+        try
+        {
+            TypeSerializer valueSer = TypeMap.Get(fieldValue.GetType());
+
+            // TODO: maybe move this to some other utility?
+
+            // field is Array<T> but value is T[] ?
+            if (fi.Ser is ArrayListSerializer destListSer && valueSer is RawArraySerializer srcArraySer)
+            {
+                var toList = (IList)destListSer.CreateInstance();
+                int count = srcArraySer.Count(fieldValue);
+                for (int i = 0; i < count; ++i)
+                {
+                    object element = srcArraySer.GetElementAt(fieldValue, i);
+                    toList.Add(element);
+                }
+                convertedValue = toList;
+                return true;
+            }
+
+            // field is T[] but value is Array<T>
+            if (fi.Ser is RawArraySerializer destArraySer && valueSer is ArrayListSerializer srcListSer)
+            {
+                var list = (IList)fieldValue;
+                var toArray = (Array)destArraySer.NewArray(list.Count);
+                list.CopyTo(toArray, 0);
+                convertedValue = toArray;
+                return true;
+            }
+        }
+        catch (Exception)
+        {
+        }
+        convertedValue = null;
+        return false;
     }
 }
