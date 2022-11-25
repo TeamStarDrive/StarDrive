@@ -17,6 +17,9 @@ namespace Ship_Game.Empires.Components
         bool ProjecterListChanged;
 
         [StarData] readonly Empire Owner;
+
+        // when iterating OwnedShips, you should first copy it to a temporary variable
+        // var ships = Lists.OwnedShips;
         [StarData] public Ship[] OwnedShips { get; private set; } = Empty<Ship>.Array;
         [StarData] public Ship[] OwnedProjectors { get; private set; } = Empty<Ship>.Array;
 

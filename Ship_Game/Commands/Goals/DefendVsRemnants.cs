@@ -1,5 +1,6 @@
 ﻿using Ship_Game.AI;
 using System;
+using System.Linq;
 using SDUtils;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Data.Serialization;
@@ -37,12 +38,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool TryChangeTargetPlanet()
         {
-            var remnantFleets = TargetEmpire.Fleets;
-            if (!remnantFleets.Any(f => f.FleetTask?.TargetPlanet?.Owner == Owner))
-                return false;
+            var remnantsTargetingUs = TargetEmpire.GetActiveFleetsTargetingEmpire(Owner).ToArrayList();
 
             var defenseTasks = Owner.AI.GetDefendVsRemnantTasks();
-            foreach (Fleet remnantFleet in remnantFleets.Filter(f => f.FleetTask?.TargetPlanet?.Owner == Owner))
+            foreach (Fleet remnantFleet in remnantsTargetingUs)
             {
                 // Check if we have other defense task vs. this remnant fleet target planet
                 foreach (MilitaryTask task in defenseTasks)

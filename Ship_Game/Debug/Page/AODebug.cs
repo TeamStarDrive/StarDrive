@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Debug.Page;
@@ -57,7 +58,7 @@ public class AODebug : DebugPage
         var civilianShips = ourShips.Filter(s => s.DesignRoleType == RoleType.Civilian);
         var AOs = EmpireAtWar.AI.AreasOfOperations.ToArray();
         var aoShips = EmpireAtWar.AIManagedShips;
-        var fleets = EmpireAtWar.Fleets;
+        var fleets = EmpireAtWar.ActiveFleets.ToArr();
 
         var text = new Array<DebugTextBlock>();
 
@@ -85,10 +86,9 @@ public class AODebug : DebugPage
         text.Add(column);
 
         column = new DebugTextBlock();
-        column.AddLine($"fleets");
-        foreach (var fleet in fleets)
+        column.AddLine("fleets");
+        foreach (Fleet fleet in fleets)
         {
-            if (fleet.Ships.IsEmpty) continue;
             column.AddLine($"{fleet.Name}  -  Ships: {fleet.Ships.Count}");
         }
 

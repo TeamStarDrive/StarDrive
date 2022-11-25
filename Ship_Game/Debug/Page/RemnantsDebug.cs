@@ -82,7 +82,7 @@ public class RemnantsDebug : DebugPage
 
         Text.NewLine();
         Text.String("Fleets:");
-        foreach (Fleet fleet in e.Fleets)
+        foreach (Fleet fleet in e.ActiveFleets)
         {
             if (fleet.FleetTask == null)
                 continue;

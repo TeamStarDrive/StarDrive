@@ -113,7 +113,7 @@ namespace Ship_Game.Commands.Goals
                 empireAi.AddPendingTask(task);
                 empireAi.AddGoal(new StandbyColonyShip(Owner));
             }
-            else if (Owner.Fleets.Filter(f => f.FleetTask?.TargetPlanet?.ParentSystem == TargetPlanet.ParentSystem).Length == 0)
+            else if (!Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.ParentSystem))
             {
                 var task = MilitaryTask.CreateGuardTask(Owner, TargetPlanet);
                 Owner.AI.AddPendingTask(task);

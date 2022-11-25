@@ -117,11 +117,11 @@ namespace Ship_Game.AI
 
         public AO(UniverseState us, Planet p, float radius) : this(us)
         {
-            Radius        = radius;
-            CoreWorld     = p;
-            Owner         = p.Owner;
-            Center        = p.Position;
-            WhichFleet    = p.Owner.CreateFleetKey();
+            Radius = radius;
+            CoreWorld = p;
+            Owner = p.Owner;
+            Center = p.Position;
+            WhichFleet = p.Owner.CreateFleetKey();
 
             CoreFleet = new(p.Universe.CreateId(), p.Owner)
             {
@@ -274,8 +274,10 @@ namespace Ship_Game.AI
             else
                 AOFull = false;
         }
+        
 
-        public void ClearOut()
+        // Clears this AO, disbands the fleets, etc
+        public void Clear()
         {
             if (CoreFleet != null)
             {

@@ -1,4 +1,3 @@
-using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -9,56 +8,102 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game;
 
 public sealed partial class Empire
 {
-    public const int FirstFleetId = 1;
-    public const int LastFleetId = 9;
+    // The first player-addressable key, this is also the first fleet key for AI-s
+    public const int FirstFleetKey = 1;
 
-    // All 9 fleets (most are placeholders by default)
-    [StarData] public Fleet[] Fleets { get; private set; }
+    // The last player-addressable key, but AI is not limited by this
+    public const int LastFleetKey = 9;
+
+    // Refactored how fleets are stored, now only valid fleets exist in this list
+    // This list is no longer sorted by Fleet.Key
+    [StarData] Array<Fleet> FleetsList = new();
+
+    // TODO: remove once we no longer need backwards compatibility to testing saves
+    // TODO: OR upgrade the serializer to auto-convert T[] <-> Array<T>
+    [StarData] Fleet[] Fleet
+    {
+        set => FleetsList = new(value);
+    }
 
     float FleetUpdateTimer = 5f;
 
-    void InitializeFleets()
+    /// <summary>Returns only active fleets which have ships</summary>
+    public IEnumerable<Fleet> ActiveFleets
     {
-        if (Fleets == null) // first time init
+        get
         {
-            Fleets = new Fleet[LastFleetId];
-            for (int i = FirstFleetId; i <= LastFleetId; ++i)
+            for (int i = 0; i < FleetsList.Count; ++i)
             {
-                var fleet = new Fleet(Universe.CreateId(), this);
-                fleet.SetNameByFleetIndex(i);
-                SetFleet(i, fleet);
+                Fleet f = FleetsList[i];
+                // we need this check, because current code allows
+                // clearing f.Ships without calling Owner.RemoveFleet()
+                if (f.Ships.NotEmpty)
+                    yield return f;
             }
         }
     }
 
+    /// <summary>Check if any of the active fleets matches the predicate test</summary>
+    public IEnumerable<Fleet> GetActiveFleetsTargetingEmpire(Empire empire)
+    {
+        foreach (Fleet f in ActiveFleets)
+            if (f.FleetTask?.TargetPlanet?.Owner == empire)
+                yield return f;
+    }
+
+    public bool AnyActiveFleetsTargetingSystem(SolarSystem system)
+    {
+        foreach (Fleet f in ActiveFleets)
+            if (f.FleetTask?.TargetPlanet?.ParentSystem == system)
+                return true;
+        return false;
+    }
+
     void ResetFleets(bool returnShipsToEmpireAI = true)
     {
-        foreach (Fleet fleet in Fleets)
+        foreach (Fleet fleet in FleetsList)
             fleet.Reset(returnShipsToEmpireAI);
+        FleetsList.Clear();
+    }
+    
+    public void RemoveFleet(Fleet fleet)
+    {
+        FleetsList.RemoveRef(fleet);
     }
 
     public int CreateFleetKey()
     {
-        for (int fleetId = FirstFleetId; fleetId <= LastFleetId; ++fleetId)
+        // find any keys that could be reused
+        for (int fleetId = FirstFleetKey; fleetId <= LastFleetKey; ++fleetId)
         {
-            Fleet fleet = GetFleet(fleetId);
-            if (fleet.Key == 0 || fleet.Ships.IsEmpty)
+            Fleet fleet = GetFleetOrNull(fleetId);
+            if (fleet == null || fleet.Key == 0 || fleet.Ships.IsEmpty)
                 return fleetId;
         }
 
-        Log.WarningWithCallStack("No available fleet keys! This is a BUG that will cause AI fleets to mess up");
-        return LastFleetId; // falling back to last fleet Id instead, but this will be buggy
+        // we got more than LastFleetKey fleets?
+        if (isPlayer) // for players, fall back to LastFleetKey
+            return LastFleetKey;
+        return FleetsList.Max(f => f.Key) + 1;
     }
 
     public Fleet GetFleetOrNull(int fleetKey)
     {
-        int fleetIdx = fleetKey - 1;
-        return (uint)fleetIdx < Fleets.Length ? Fleets[fleetIdx] : null;
+        for (int i = 0; i < FleetsList.Count; ++i)
+        {
+            Fleet fleet = FleetsList[i];
+            if (fleet.Key == fleetKey)
+                return fleet;
+        }
+        return null;
     }
 
     public Fleet GetFleet(int fleetId)
@@ -71,6 +116,7 @@ public sealed partial class Empire
         return (fleet = GetFleetOrNull(fleetId)) != null;
     }
 
+    // Adds a new fleet or Replaces an existing fleet at [fleetId]
     public void SetFleet(int fleetId, Fleet fleet)
     {
         if (fleet.Owner != this)
@@ -80,20 +126,19 @@ public sealed partial class Empire
         }
 
         fleet.Key = fleetId;
-        Fleets[fleetId - 1] = fleet;
-    }
 
-    public void RemoveFleet(Fleet fleet)
-    {
-        var newFleet = new Fleet(Universe.CreateId(), this);
-        newFleet.SetNameByFleetIndex(fleet.Key);
-        SetFleet(fleet.Key, newFleet);
+        // replace existing?
+        int index = FleetsList.IndexOf(f => f.Key == fleetId);
+        if (index != -1)
+            FleetsList[index] = fleet;
+        else
+            FleetsList.Add(fleet);
     }
 
     void UpdateFleets(FixedSimTime timeStep)
     {
         FleetUpdateTimer -= timeStep.FixedTime;
-        foreach (Fleet fleet in Fleets)
+        foreach (Fleet fleet in ActiveFleets)
         {
             fleet.Update(timeStep);
             if (FleetUpdateTimer <= 0f && !AI.Disabled)
@@ -128,9 +173,9 @@ public sealed partial class Empire
 
         if (!ShipsWeCanBuild.Contains(ship.ShipData) || !fleet.FindShipNode(ship, out FleetDataNode node))
             return;
-        var ships = OwnedShips;
 
-        for (int i = 0; i < ships.Count; i++)
+        var ships = EmpireShips.OwnedShips; // grab temp ref because OwnedShips can be reassigned
+        for (int i = 0; i < ships.Length; i++)
         {
             Ship s = ships[i];
             if (s.Fleet == null
@@ -156,7 +201,7 @@ public sealed partial class Empire
     public Array<Ship> AllFleetReadyShips()
     {
         //Get all available ships from AO's
-        var ships = isPlayer ? new(OwnedShips)
+        var ships = isPlayer ? new(EmpireShips.OwnedShips)
                              : AIManagedShips.GetShipsFromOffensePools();
 
         var readyShips = new Array<Ship>();
@@ -189,15 +234,10 @@ public sealed partial class Empire
         {
             if (IsAtWarWith(rel.Them) || (rel.Them.isPlayer && !IsNAPactWith(rel.Them)))
             {
-                // using fleet id-s here to avoid collection modification issues
-                for (int fleetId = FirstFleetId; fleetId <= LastFleetId; ++fleetId)
+                foreach (Fleet f in rel.Them.ActiveFleets)
                 {
-                    var f = rel.Them.GetFleet(fleetId);
-                    if (f.Ships.NotEmpty)
-                    {
-                        if (IsHostileFleetKnown(f))
-                            knownFleets.Add(f);
-                    }
+                    if (IsHostileFleetKnown(f))
+                        knownFleets.Add(f);
                 }
             }
         }
@@ -207,7 +247,7 @@ public sealed partial class Empire
     bool IsHostileFleetKnown(Fleet f)
     {
         foreach (Ship s in f.Ships)
-            if (s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true)
+            if (s != null && (s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
                 return true;
         return false;
     }

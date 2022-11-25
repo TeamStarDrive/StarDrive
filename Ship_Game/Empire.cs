@@ -948,7 +948,6 @@ namespace Ship_Game
             InitDifficultyModifiers();
             InitPersonalityModifiers();
             CreateThrusterColors();
-            InitializeFleets();
 
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
@@ -3106,7 +3105,6 @@ namespace Ship_Game
             ClearInfluenceList();
             TechnologyDict.Clear();
             ResetFleets(returnShipsToEmpireAI: false);
-            Fleets = Empty<Fleet>.Array;
 
             ResetUnlocks();
 

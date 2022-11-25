@@ -76,12 +76,12 @@ namespace Ship_Game
             batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, Colors.Cream);
 
             const int numEntries = 9;
-            int k = 9;
+            int k = Empire.LastFleetKey;
             int m = 0;
 
             foreach (KeyValuePair<int, RectF> rect in FleetButtonRects)
             {
-                if (m == 9)
+                if (m == Empire.LastFleetKey)
                     break;
 
                 RectF r = rect.Value;

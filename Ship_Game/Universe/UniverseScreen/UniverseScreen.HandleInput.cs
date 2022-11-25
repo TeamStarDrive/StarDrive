@@ -1414,10 +1414,10 @@ namespace Ship_Game
 
             var buttons = new Array<FleetButton>();
             int shipCounter = 0;
-            foreach (Fleet fleet in Player.Fleets)
-            {
-                if (fleet.Ships.Count <= 0) continue;
 
+            var fleets = Player.ActiveFleets.Sorted(f => f.Key);
+            foreach (Fleet fleet in fleets)
+            {
                 buttons.Add(new FleetButton
                 {
                     ClickRect = new Rectangle(20, 60 + shipCounter * 60, 52, 48),
