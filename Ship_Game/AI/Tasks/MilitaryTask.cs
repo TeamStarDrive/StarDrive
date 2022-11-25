@@ -45,7 +45,7 @@ namespace Ship_Game.AI.Tasks
         public bool QueuedForRemoval;
 
         public Fleet Fleet => Owner?.GetFleetOrNull(WhichFleet);
-        public Planet RallyPlanet => Owner.FindNearestRallyPoint(AO);
+        [StarData] public Planet RallyPlanet { get; private set; }
 
         [StarDataConstructor]
         MilitaryTask(Empire owner)
@@ -322,7 +322,6 @@ namespace Ship_Game.AI.Tasks
             }
 
             NeedEvaluation = Fleet == null;
-
             if (!NeedEvaluation)
                 return false;
 
@@ -341,6 +340,11 @@ namespace Ship_Game.AI.Tasks
             }
 
             return true;
+        }
+
+        public void GetRallyPlanet(Vector2 pos)
+        {
+            RallyPlanet = Owner.FindNearestSafeRallyPoint(pos);
         }
 
         public void FactionEndTask()

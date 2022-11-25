@@ -102,7 +102,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (task.Fleet?.TaskStep == 2)
+            if (task.Fleet?.TaskStep == 3)
             {
                 if (!Owner.TryGetPrepareForWarType(TargetEmpire, out WarType warType)
                     || !Owner.GetPotentialTargetPlanets(TargetEmpire, warType, out _))
