@@ -410,8 +410,8 @@ namespace Ship_Game.Universe.SolarBodies
         void AddToQueueAndPrioritize(QueueItem item)
         {
             ConstructionQueue.Add(item);
-            if (!P.OwnerIsPlayer)
-                ConstructionQueue.Sort(q => Owner.GetPriorityForPlanetBuildQueue(q.QType, P, q.Building));
+            if (P.CType != Planet.ColonyType.Colony)
+                ConstructionQueue.Sort(q => q.GetAndUpdatePriority(P));
         }
 
         void Finish(QueueItem q, bool success)
