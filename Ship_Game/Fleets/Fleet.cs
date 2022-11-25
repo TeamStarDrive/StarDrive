@@ -588,14 +588,19 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void EvaluateTask(FixedSimTime timeStep)
+        void EvaluateTask()
         {
             if (Ships.Count == 0)
                 FleetTask.EndTask();
+
             if (FleetTask == null)
                 return;
+
             if (Owner.Universe.Screen.SelectedFleet == this)
                 Owner.Universe.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, FleetTask.AORadius, Color.AntiqueWhite);
+
+            if (FleetTask.RallyPlanet == null)
+                FleetTask.GetRallyPlanet(AveragePosition(force: true));
 
             TaskCombatStatus = FleetInAreaInCombat(FleetTask.AO, FleetTask.AORadius);
 
@@ -635,15 +640,16 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    if (!GatherAtRallyFirst(task))
+                    if (ShouldGatherAtRallyFirst(task))
+                    {
+                        FleetTaskGatherAtRally(task);
+                        TaskStep = 1;
+                    }
+                    else
                     {
                         AddFleetProjectorGoal();
                         TaskStep = 2;
-                        break;
                     }
-
-                    if (FleetTaskGatherAtRally(task))
-                        TaskStep = 1;
 
                     break;
                 case 1:
@@ -789,11 +795,11 @@ namespace Ship_Game.Fleets
             owner.AI.AddPendingTask(strikeFleet);
         }
 
-        bool GatherAtRallyFirst(MilitaryTask task)
+        bool ShouldGatherAtRallyFirst(MilitaryTask task)
         {
             Vector2 enemySystemPos = task.TargetPlanet.ParentSystem.Position;
             Vector2 rallySystemPos = task.RallyPlanet.ParentSystem.Position;
-            Vector2 fleetPos       = AveragePosition();
+            Vector2 fleetPos       = AveragePosition(force: true);
 
             return fleetPos.SqDist(rallySystemPos) < fleetPos.SqDist(enemySystemPos) * 2;
         }
@@ -803,17 +809,25 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    if (FleetTaskGatherAtRally(task))
-                        TaskStep = 1;
+                    FleetTaskGatherAtRally(task); // rally is closest planet to fleet average pos now
+                    TaskStep = 1;
                     break;
                 case 1:
+                    if (!HasArrivedAtRallySafely())
+                        break;
+
+                    task.GetRallyPlanet(task.TargetPlanet.Position);
+                    FleetTaskGatherAtRally(task); // move the fleet to the closest system to target planet
+                    TaskStep = 2; 
+                    break;
+                case 2:
                     if (!HasArrivedAtRallySafely())
                         break;
 
                     if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
                         AddFleetProjectorGoal();
 
-                    TaskStep = 2; // Wait for staging goal to handle this fleet
+                    TaskStep = 3; // Wait for PrepareForWar.cs goal to handle this fleet
                     break;
             }
         }
@@ -834,15 +848,16 @@ namespace Ship_Game.Fleets
                         break;
                     }
 
-                    if (!GatherAtRallyFirst(task))
+                    if (ShouldGatherAtRallyFirst(task))
+                    {
+                        FleetTaskGatherAtRally(task);
+                        TaskStep = 1;
+                    }
+                    else
                     {
                         AddFleetProjectorGoal();
                         TaskStep = 2;
-                        break;
                     }
-
-                    if (FleetTaskGatherAtRally(task))
-                        TaskStep = 1;
 
                     break;
                 case 1:
@@ -1063,15 +1078,16 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    if (!GatherAtRallyFirst(task))
+                    if (ShouldGatherAtRallyFirst(task))
+                    {
+                        FleetTaskGatherAtRally(task);
+                        TaskStep = 1;
+                    }
+                    else
                     {
                         AddFleetProjectorGoal();
                         TaskStep = 2;
-                        break;
                     }
-
-                    if (FleetTaskGatherAtRally(task))
-                        TaskStep = 1;
 
                     break;
                 case 1:
@@ -1307,9 +1323,8 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    if (FleetTaskGatherAtRally(task))
-                        TaskStep = 1;
-
+                    FleetTaskGatherAtRally(task);
+                    TaskStep = 1;
                     break;
                 case 1:
                     if (!HasArrivedAtRallySafely(checkRadiusMultiplier: 5)
@@ -1404,15 +1419,16 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    if (!GatherAtRallyFirst(task))
+                    if (ShouldGatherAtRallyFirst(task))
+                    {
+                        FleetTaskGatherAtRally(task);
+                        TaskStep = 1;
+                    }
+                    else
                     {
                         AddFleetProjectorGoal();
                         TaskStep = 2;
-                        break;
                     }
-
-                    if (FleetTaskGatherAtRally(task))
-                        TaskStep = 1;
 
                     break;
                 case 1:
@@ -1685,22 +1701,12 @@ namespace Ship_Game.Fleets
             }
         }
 
-        bool FleetTaskGatherAtRally(MilitaryTask task)
+        void FleetTaskGatherAtRally(MilitaryTask task)
         {
-            var ownerSystems = Owner.GetOwnedSystems().Filter(s => AveragePos.InRadius(s.Position, s.Radius));
-            if (ownerSystems.Length == 1)
-            {
-                SolarSystem system = ownerSystems[0];
-                if (system.DangerousForcesPresent(Owner) && Ships.Any(s => s.System == system && s.InCombat))
-                    return false;
-            }
-            
             Planet planet       = task.RallyPlanet;
             Vector2 movePoint   = planet.Position;
             Vector2 finalFacing = movePoint.DirectionToTarget(task.AO);
-
             MoveTo(movePoint, finalFacing);
-            return true;
         }
 
         bool HasArrivedAtRallySafely(float checkRadiusMultiplier = 2)
@@ -2179,7 +2185,7 @@ namespace Ship_Game.Fleets
         {
             if (FleetTask != null)
             {
-                EvaluateTask(timeStep);
+                EvaluateTask();
             }
             else // no fleet task
             {

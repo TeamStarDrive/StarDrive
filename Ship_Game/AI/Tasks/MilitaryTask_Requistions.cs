@@ -494,7 +494,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             // where the fleet will gather after requisition before moving to target AO.
-            Planet rallyPoint = TargetPlanet ?? RallyPlanet;
+            Planet rallyPoint = TargetPlanet ?? Owner.FindNearestRallyPoint(AO); 
             if (rallyPoint == null)
             {
                 ReqStatus = RequisitionStatus.NoRallyPoint;
