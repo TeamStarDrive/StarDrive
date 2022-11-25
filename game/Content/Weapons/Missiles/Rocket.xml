@@ -36,7 +36,7 @@
   <ModelPath>missile</ModelPath>
 
   <FireCone>10</FireCone>
-  <Scale>0.4</Scale>
+  <Scale>0.6</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>
   
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
@@ -45,5 +45,5 @@
   <WeaponDeathEffect></WeaponDeathEffect>
   <WeaponTrailEffect>RocketTrail</WeaponTrailEffect>
 
-  <TrailOffset>-32</TrailOffset>
+  <TrailOffset>-22</TrailOffset>
 </Weapon>
