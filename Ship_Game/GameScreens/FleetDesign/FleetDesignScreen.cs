@@ -88,7 +88,7 @@ namespace Ship_Game
             // so make sure that the so's are removed and added at each fleet button press.
             if (FleetToEdit != -1)
             {
-                foreach (Fleet f in Universe.Player.Fleets)
+                foreach (Fleet f in Universe.Player.ActiveFleets)
                     foreach (Ship ship in f.Ships)
                         ship.RemoveSceneObject();
             }
@@ -175,11 +175,9 @@ namespace Ship_Game
             RectF leftRect = new(2, titleRect.Y + titleRect.H + 5, titleRect.W, 500);
             LeftMenu = new(leftRect, true);
 
-            int i = 0;
-            foreach (Fleet fleet in Universe.Player.Fleets)
+            for (int key = Empire.FirstFleetKey; key <= Empire.LastFleetKey; ++key)
             {
-                FleetButtonRects.Add(fleet.Key, new RectF(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
-                i++;
+                FleetButtonRects.Add(key, new RectF(leftRect.X + 2, leftRect.Y + (key-1) * 53, 52, 48));
             }
 
             RectF shipRect = new(ScreenWidth - 282, 140, 280, 80);

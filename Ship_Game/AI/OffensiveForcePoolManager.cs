@@ -27,7 +27,7 @@ namespace Ship_Game.AI
                 if (aoCoreWorld?.Owner != Owner)
                 {
                     EmpireAI.AreasOfOperations.RemoveAt(index);
-                    areasOfOperation.ClearOut();
+                    areasOfOperation.Clear();
                 }
             }
             

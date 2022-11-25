@@ -365,13 +365,10 @@ namespace Ship_Game
                         empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
-                        foreach (Fleet fleet in empire.Fleets)
+                        foreach (Fleet fleet in empire.ActiveFleets)
                         {
-                            if (fleet.Ships.NotEmpty)
-                            {
-                                fleet.AveragePosition();
-                                fleet.UpdateSpeedLimit();
-                            }
+                            fleet.AveragePosition();
+                            fleet.UpdateSpeedLimit();
                         }
                     }
                 }
