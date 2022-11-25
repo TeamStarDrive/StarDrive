@@ -66,7 +66,7 @@ namespace Ship_Game
             dirInfo.Create();
             string tmpDir = dirInfo.FullName;
 
-            save.FileLink.CopyTo($"{tmpDir}/{save.FileName}", overwrite:true);
+            save.FileLink.CopyTo($"{tmpDir}/{save.FileName}{save.FileLink.Extension}", overwrite:true);
 
             // also add both logfiles
             if (File.Exists("blackbox.log"))
