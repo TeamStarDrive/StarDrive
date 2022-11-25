@@ -413,7 +413,7 @@ namespace Ship_Game.AI
 
             // engage StarDrive if we're moderately far
             bool inFleet = Owner.Fleet != null && State == AIState.FormationMoveTo;
-            if (inFleet) // FLEET MOVE
+            if (inFleet && Owner.Fleet.CommandShip != Owner) // FLEET MOVE if not command ship
             {
                 float distFromFleet = Owner.Fleet.AveragePosition().Distance(Owner.Position);
                 if (distFromFleet > 15000f)

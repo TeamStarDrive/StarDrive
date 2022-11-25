@@ -211,7 +211,7 @@ namespace Ship_Game
             else
             {
                 Vector2 finalPos = UnprojectToWorldPosition(Input.StartRightHold);
-                Ship centerMost = fleet.GetClosestShipTo(fleet.AveragePosition());
+                Ship centerMost = fleet.GetClosestShipTo(fleet.AveragePosition(force: true));
                 Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
                 ShipCommands.MoveFleetToLocation(targetShip, targetPlanet, finalPos, finalDir, fleet);
             }
@@ -260,7 +260,7 @@ namespace Ship_Game
             else // move existing group
             {
                 Log.Info("MoveShipGroupToMouse (existing)");
-                Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition());
+                Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition(force: true));
                 Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
                 CurrentGroup.MoveTo(finalPos, finalDir, moveType);
             }
