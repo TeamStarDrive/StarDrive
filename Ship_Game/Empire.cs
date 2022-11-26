@@ -1381,6 +1381,7 @@ namespace Ship_Game
             UpdateRelationships(takeTurn: false);
             UpdateShipMaintenance();
             UpdateMaxColonyValues();
+            CalcWeightedCenter(calcNow: true);
             AI.RunEconomicPlanner(fromSave: true);
             if (!isPlayer)
                 AI.OffensiveForcePoolManager.ManageAOs();
@@ -2716,19 +2717,17 @@ namespace Ship_Game
             if (!calcNow && (Universe.StarDate % 1).Greater(0))
                 return; // Once per year
 
-            int planets = 0;
+            float popRatio = 0;
             var avgPlanetCenter = new Vector2();
 
-            foreach (Planet planet in OwnedPlanets)
+            for (int i = 0; i < OwnedPlanets.Count; i++)
             {
-                for (int x = 0; x < planet.PopulationBillion; ++x)
-                {
-                    ++planets;
-                    avgPlanetCenter += planet.Position;
-                }
+                Planet planet = OwnedPlanets[i];
+                popRatio += planet.PopulationBillion;
+                avgPlanetCenter += planet.Position * planet.PopulationBillion;
             }
 
-            WeightedCenter = avgPlanetCenter / planets.LowerBound(1);
+            WeightedCenter = avgPlanetCenter / popRatio.LowerBound(1);
         }
 
         public void TheyKilledOurShip(Empire they, Ship killedShip)

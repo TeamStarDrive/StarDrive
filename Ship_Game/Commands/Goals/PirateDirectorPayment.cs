@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
 
             if (victimPlanets > Pirates.MinimumColoniesForPayment
                 || victimPlanets == Pirates.MinimumColoniesForPayment 
-                && RandomMath.RollDice(10)) //  TODO need to be 10, 100 is for testing
+                && RandomMath.RollDice(10))
             {
                 return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
             }
@@ -106,7 +106,7 @@ namespace Ship_Game.Commands.Goals
 
         void DemandMoneyFromAI()
         {
-            bool error = true; ;
+            bool error = true;
             if (Encounter.GetEncounterForAI(Pirates.Owner, 0, out Encounter e))
             {
                 if (e.PercentMoneyDemanded > 0)
@@ -135,7 +135,7 @@ namespace Ship_Game.Commands.Goals
             if (error)
                 Log.Warning($"Could not find PercentMoneyDemanded in {Pirates.Owner.Name} encounters for {TargetEmpire.Name}. " +
                             $"Make sure there is a step 0 encounter for {Pirates.Owner.Name} in encounter dialogs and " +
-                            $"with <BaseMoneyRequested> xml tag");
+                            "with <BaseMoneyRequested> xml tag");
         }
     }
 }
