@@ -15,7 +15,6 @@ namespace Ship_Game.AI.ExpansionAI
     {
         [StarData] readonly Empire Owner;
         [StarData] readonly Array<SolarSystem> MarkedForExploration = new();
-        [StarData] public PlanetRanker[] RankedPlanets { get; private set; }
         [StarData] public int ExpandSearchTimer { get; private set; }
         [StarData] public int MaxSystemsToCheckedDiv { get; private set; }
 
@@ -141,30 +140,22 @@ namespace Ship_Game.AI.ExpansionAI
             }
 
             ResetExpandSearchTimer();
-            RankedPlanets = allPlanetsRanker.SortedDescending(pr => pr.Value);
-
-            // Take action on the found planets
-            CreateColonyGoals(currentColonizationGoals, desiredGoals);
+            if (allPlanetsRanker.Count > 0)
+            {
+                PlanetRanker bestValuePlanet = allPlanetsRanker.FindMax(pr => pr.Value);
+                    CreateColonyGoals(bestValuePlanet.Planet, currentColonizationGoals.Length);
+            }
         }
 
         /// <summary>
         /// Send colony ships to best targets;
         /// </summary>
-        void CreateColonyGoals(Planet[] markedPlanets, int desiredGoals)
+        void CreateColonyGoals(Planet planet, int currentColonizationGoals)
         {
-            int netDesired = (desiredGoals - markedPlanets.Length).UpperBound(RankedPlanets.Length);
-
-            if (netDesired < 1) 
-                return;
-
-            for (int i = netDesired-1; i >= 0; i--)
-            {
-                Planet planet = RankedPlanets[i].Planet;
                 Log.Info(ConsoleColor.Magenta,
-                    $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals()} | {planet} | {Owner}");
+                    $"Colonize {currentColonizationGoals + 1}/{DesiredColonyGoals()} | {planet} | {Owner}");
 
                 Owner.AI.AddGoalAndEvaluate(new MarkForColonization(planet, Owner));
-            }
         }
 
         bool CanBeColonized(SolarSystem s)
