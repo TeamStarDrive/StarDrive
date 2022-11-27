@@ -1390,20 +1390,18 @@ namespace Ship_Game
         public void UpdateMilitaryStrengths()
         {
             CurrentMilitaryStrength = 0;
-            CurrentTroopStrength    = 0;
-            OffensiveStrength       = 0;
+            CurrentTroopStrength = 0;
+            OffensiveStrength = 0;
+
             var ships = OwnedShips;
             for (int i = 0; i < ships.Count; ++i)
             {
-                Ship ship = OwnedShips[i];
-                if (ship != null)
-                {
-                    float str                = ship.GetStrength();
-                    CurrentMilitaryStrength += str;
-                    CurrentTroopStrength    += ship.Carrier.MaxTroopStrengthInShipToCommit;
-                    if (!ship.IsPlatformOrStation)
-                        OffensiveStrength += str;
-                }
+                Ship ship = ships[i];
+                float str = ship.GetStrength();
+                CurrentMilitaryStrength += str;
+                CurrentTroopStrength += ship.Carrier.MaxTroopStrengthInShipToCommit;
+                if (!ship.IsPlatformOrStation)
+                    OffensiveStrength += str;
             }
 
             for (int x = 0; x < OwnedPlanets.Count; x++)
