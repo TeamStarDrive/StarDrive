@@ -100,13 +100,17 @@ public sealed partial class Empire
         for (int i = 0; i < sensorNodes.Length; i++)
         {
             ref InfluenceNode node = ref sensorNodes[i];
-            if (node.Source is Planet)
-                ScanForShipsFromPlanet(node.Position, node.Radius, threatMatrix);
+            if (node.Source is Planet p)
+                ScanForShipsFromPlanet(p, node.Position, node.Radius, threatMatrix);
         }
     }
 
-    void ScanForShipsFromPlanet(Vector2 pos, float radius, ThreatMatrix threatMatrix)
+    void ScanForShipsFromPlanet(Planet p, Vector2 pos, float radius, ThreatMatrix threatMatrix)
     {
+        // small optimization to avoid scanning empty systems
+        if (p.ParentSystem.ShipList.IsEmpty)
+            return;
+
         // find ships in radius of node.
         SpatialObjectBase[] targets = Universe.Spatial.FindNearby(
             GameObjectType.Ship, pos, radius, maxResults:1024, excludeLoyalty:this
