@@ -77,8 +77,15 @@ namespace Ship_Game
             Size = size;
             Color = Color.TransparentBlack;
         }
+        
+        public UIList(in LocalPos pos, Vector2 size, ListLayoutStyle style)
+            : base(pos, size, Color.TransparentBlack)
+        {
+            LayoutStyle = style;
+        }
 
-        public UIList(Vector2 pos, Vector2 size) : base(pos, size, Color.TransparentBlack)
+        public UIList(Vector2 pos, Vector2 size)
+            : base(pos, size, Color.TransparentBlack)
         {
         }
 

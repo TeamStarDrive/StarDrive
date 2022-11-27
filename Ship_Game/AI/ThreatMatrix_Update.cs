@@ -1,4 +1,5 @@
-﻿using SDUtils;
+﻿using System;
+using SDUtils;
 using Ship_Game.Ships;
 using System.Collections.Generic;
 
@@ -95,7 +96,7 @@ public sealed partial class ThreatMatrix
 
         // 3. Update the list of clusters and UpdateAll ClustersMap
         //    to handle deleted clusters
-        Seen.Clear();
+        lock (Seen) Seen.Clear();
         OurClusters = ours;
         RivalClusters = rivals;
 
