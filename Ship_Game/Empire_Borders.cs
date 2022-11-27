@@ -107,19 +107,21 @@ public sealed partial class Empire
 
     void ScanForShipsFromPlanet(Planet p, Vector2 pos, float radius, ThreatMatrix threatMatrix)
     {
-        // small optimization to avoid scanning empty systems
-        if (p.ParentSystem.ShipList.IsEmpty)
+        // TODO: sort System.ShipList into per-empire basis
+        Array<Ship> ships = p.ParentSystem.ShipList;
+        int count = ships.Count;
+        if (count == 0) // micro-optimization to avoid scanning empty systems
             return;
 
-        // find ships in radius of node.
-        SpatialObjectBase[] targets = Universe.Spatial.FindNearby(
-            GameObjectType.Ship, pos, radius, maxResults:1024, excludeLoyalty:this
-        );
-
-        for (int i = 0; i < targets.Length; i++)
+        // This loop ended up being much faster than Spatial.FindNearby
+        Ship[] items = ships.GetInternalArrayItems();
+        for (int i = 0; i < count; ++i)
         {
-            var maybeEnemy = (Ship)targets[i];
-            threatMatrix.SetSeen(maybeEnemy, fromBackgroundThread:false);
+            Ship maybeEnemy = items[i];
+            if (maybeEnemy.Loyalty != this && maybeEnemy.Position.InRadius(pos, radius))
+            {
+                threatMatrix.SetSeen(maybeEnemy, fromBackgroundThread: false);
+            }
         }
     }
 
