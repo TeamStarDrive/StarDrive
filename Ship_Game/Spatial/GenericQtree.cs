@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using SDGraphics;
 using SDUtils;
 
 namespace Ship_Game.Spatial;
@@ -41,9 +38,18 @@ public partial class GenericQtree
     Node Root;
 
     // We need to keep a list of all ObjectRef's to enable accurate Remove and Update
-    readonly StableCollection<ObjectRef> ObjectRefs = new();
-    public int Count => ObjectRefs.Count;
-    public SpatialObjectBase[] Objects => ObjectRefs.Items.Select(o => o.Source).ToArr();
+    readonly Map<SpatialObjectBase, ObjectRef> ObjectRefsMap = new();
+
+    // List of unique ID-s that can be reassigned
+    readonly Array<int> FreeIds = new();
+
+    // Currently maximum applied object Id
+    int MaxObjectId;
+
+    public int Count => ObjectRefsMap.Count;
+
+    // Should be used for TESTING or DEBUGGING only, because it's expensive
+    public SpatialObjectBase[] Objects => ObjectRefsMap.Keys.ToArr();
 
     public string Name => "GenericQtree";
 
@@ -69,6 +75,7 @@ public partial class GenericQtree
 
     public void Clear()
     {
+        ClearObjectRefs();
         // universe is centered at [0,0], so Root node goes from [-half, +half)
         float half = FullSize / 2;
         Root = new(-half, -half, +half, +half);
@@ -76,18 +83,40 @@ public partial class GenericQtree
 
     ObjectRef FindObjectRef(SpatialObjectBase obj)
     {
-        foreach (ObjectRef objRef in ObjectRefs)
-            if (objRef.Source == obj)
-                return objRef;
-        return null;
+        return ObjectRefsMap.TryGetValue(obj, out ObjectRef objRef) ? objRef : null;
     }
 
     public bool Contains(SpatialObjectBase obj)
     {
-        foreach (ObjectRef objRef in ObjectRefs)
-            if (objRef.Source == obj)
-                return true;
-        return false;
+        return ObjectRefsMap.ContainsKey(obj);
+    }
+
+    ObjectRef InsertNewObjectRef(SpatialObjectBase obj)
+    {
+        var objRef = new ObjectRef(obj);
+        ObjectRefsMap.Add(obj, objRef); // throws on duplicate insert
+
+        int objectId;
+        if (FreeIds.IsEmpty)
+            objectId = ++MaxObjectId;
+        else
+            objectId = FreeIds.PopLast();
+
+        objRef.ObjectId = objectId;
+        return objRef;
+    }
+
+    void RemoveObjectRef(SpatialObjectBase obj, ObjectRef toRemove)
+    {
+        FreeIds.Add(toRemove.ObjectId);
+        ObjectRefsMap.Remove(obj);
+    }
+
+    void ClearObjectRefs()
+    {
+        ObjectRefsMap.Clear();
+        FreeIds.Clear();
+        MaxObjectId = 0;
     }
 
     /// <summary>
@@ -100,8 +129,7 @@ public partial class GenericQtree
             return; // this object already exists in this Qtree, do nothing
         
         Node root = Root;
-        var objRef = new ObjectRef(obj);
-        objRef.ObjectId = ObjectRefs.Insert(objRef);
+        ObjectRef objRef = InsertNewObjectRef(obj);
         InsertAt(root, Levels, objRef);
     }
 
@@ -121,7 +149,7 @@ public partial class GenericQtree
         if (removed && root.HasEmptyLeafNodes)
             root.ClearCells();
 
-        ObjectRefs.RemoveAt(toRemove.ObjectId);
+        RemoveObjectRef(obj, toRemove);
         return removed;
     }
 
@@ -153,8 +181,7 @@ public partial class GenericQtree
         ObjectRef toUpdate = FindObjectRef(obj);
         if (toUpdate == null)
         {
-            var objRef = new ObjectRef(obj);
-            objRef.ObjectId = ObjectRefs.Insert(objRef);
+            ObjectRef objRef = InsertNewObjectRef(obj);
             InsertAt(root, Levels, objRef);
             return true;
         }
@@ -171,20 +198,17 @@ public partial class GenericQtree
     public void UpdateAll<T>(T[] newObjects) where T : SpatialObjectBase
     {
         // TODO: Thread safety?
-
+        ClearObjectRefs();
         float half = FullSize / 2;
         Node newRoot = new(-half, -half, +half, +half);
 
-        var newRefs = new Array<ObjectRef>(newObjects.Length);
         for (int i = 0; i < newObjects.Length; ++i)
         {
-            var objRef = new ObjectRef(newObjects[i]) { ObjectId = i };
-            newRefs.Add(objRef);
+            ObjectRef objRef = InsertNewObjectRef(newObjects[i]);
             InsertAt(newRoot, Levels, objRef);
         }
 
         Root = newRoot;
-        ObjectRefs.Reset(newRefs);
     }
 
     void InsertAt(Node node, int level, ObjectRef obj)

@@ -104,7 +104,7 @@ public sealed partial class ThreatMatrix
         //       the new GenericQtree design should make it unnecessary
         //// Deletes excluded clusters from the clusters map
         //// Empty clusters which were fully explored will be removed here
-        //ThreatCluster[] allClusters = ours.Concat(rivals);
-        //ClustersMap.UpdateAll(allClusters);
+        ThreatCluster[] allClusters = ours.Concat(rivals);
+        ClustersMap.UpdateAll(allClusters);
     }
 }
