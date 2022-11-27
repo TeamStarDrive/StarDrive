@@ -79,16 +79,19 @@ public sealed partial class ThreatMatrix
                 c.Update.FullyObserved = true;
 
             // insert new observation, creating&merging clusters along the way
-            foreach (Ship seen in Threats.Seen)
+            lock (Threats.Seen)
             {
-                Empire sLoyalty = seen.Loyalty;
-                if (sLoyalty != owner) // this can accidentally equal if THEIR ship gets captured by US
+                foreach (Ship seen in Threats.Seen)
                 {
-                    AddSeenShip(sLoyalty, seen, RivalClusterJoinRadius);
+                    Empire sLoyalty = seen.Loyalty;
+                    if (sLoyalty != owner) // this can accidentally equal if THEIR ship gets captured by US
+                    {
+                        AddSeenShip(sLoyalty, seen, RivalClusterJoinRadius);
+                    }
+                    // else: we have captured one of the seen ships, just ignore it
                 }
-                // else: we have captured one of the seen ships, just ignore it
             }
-
+            
             MergeOverlappingClusters();
         }
 
@@ -186,7 +189,9 @@ public sealed partial class ThreatMatrix
             // was inserted between 2 existing ones
             ThreatCluster c = ChooseClosestJoinableCluster(clusters, ship);
             if (c == null) // we could not join any of the clusters
+            {
                 return AddNewCluster(loyalty, ship);
+            }
             
             // attempt to merge clusters if they are close enough
             // and don't forget to add the ship to the new merged cluster

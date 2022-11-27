@@ -125,7 +125,8 @@ public partial class GenericQtree
         // we use a bit array to ignore duplicate objects
         // duplication is present by design to handle grid border overlap
         // this filtering is faster than other more complicated structural methods
-        int idBitArraySize = ((Count / 32) + 1) * sizeof(uint);
+        int idBitArraySize = ((ObjectRefs.Capacity / 32) + 1) * sizeof(uint);
+        // WARNING: any overrun at this point is going to lead to stack smash and an errorless exit
         uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
         for (int i = 0; i < idBitArraySize; ++i) idBitArray[i] = 0; // so we need to zero the idBitArray
 
