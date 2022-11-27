@@ -82,7 +82,8 @@ public sealed class ClusterUpdate
     public bool ShouldBeRemoved
     {
         // fully observed but empty clusters MUST be removed
-        get => ForceRemove || (FullyObserved && Ships.IsEmpty);
+        // also, no point in observing 0 strength clusters
+        get => ForceRemove || Cluster.Strength == 0 || (FullyObserved && Ships.IsEmpty);
         set => ForceRemove = value;
     }
 
