@@ -9,7 +9,7 @@ namespace Ship_Game.AI;
 public sealed class ClusterUpdate
 {
     public readonly ThreatCluster Cluster; // cluster to be updated
-    public readonly Array<Ship> Ships = new(); // ships to be added
+    public readonly Array<Ship> ObservedShips = new(); // ships to be added
     public AABoundingBox2D Bounds;
 
     // whether this cluster was fully observed by us
@@ -23,9 +23,13 @@ public sealed class ClusterUpdate
     public ClusterUpdate(ThreatCluster cluster, Ship s)
     {
         Cluster = cluster;
-        Bounds = new(s.Position, ThreatMatrix.InitialClusterRadius);
-        Ships.Add(s);
-        ApplyBoundsOnly();
+        ObservedShips.Add(s);
+        
+        AABoundingBox2D newBounds = new(s.Position, ThreatMatrix.InitialClusterRadius);
+        SetBounds(newBounds);
+
+        // new clusters are always fully explored, this ensures they get removed after merging
+        FullyObserved = true;
     }
 
     public ClusterUpdate(ThreatCluster cluster, Vector2 pos, float radius)
@@ -37,45 +41,64 @@ public sealed class ClusterUpdate
     // Reset for the start of a new observation update
     public void ResetForObservation(bool isOwnerCluster)
     {
-        Ships.Clear();
+        ObservedShips.Clear();
         ForceRemove = false;
         // owner's own clusters are always fully observed
         FullyObserved = isOwnerCluster;
     }
 
-    public void AddShip(Ship s)
+    /// <summary>
+    /// Adds a ship to the cluster update.
+    /// Returns TRUE if ThreatCluster bounds was updated
+    /// </summary>
+    public bool AddShip(Ship s)
     {
-        Bounds = Bounds.Merge(new(s.Position, s.Radius));
-        Ships.Add(s);
-        ApplyBoundsOnly();
+        ObservedShips.Add(s);
+
+        AABoundingBox2D newBounds = new(s.Position, s.Radius);
+        return SetBounds(newBounds);
     }
 
-    // merge this cluster with `u`, and mark `u` for deletion
-    public void Merge(ClusterUpdate u)
+    /// <summary>
+    /// Merge this cluster with `u`, and mark `u` for deletion
+    /// Returns true if Merge resulted in bounds change
+    /// </summary>
+    public bool Merge(ClusterUpdate u)
     {
-        if (u.Ships.NotEmpty)
+        if (u.ObservedShips.NotEmpty)
         {
-            foreach (Ship s in u.Ships)
+            AABoundingBox2D newBounds = Bounds;
+            foreach (Ship s in u.ObservedShips)
             {
-                Bounds = Bounds.Merge(new(s.Position, s.Radius));
+                newBounds = newBounds.Merge(new(s.Position, s.Radius));
                 #if DEBUG
-                    if (Ships.Contains(s))
+                    if (ObservedShips.ContainsRef(s))
                         throw new InvalidOperationException("ThreatCluster Merge Double Insert bug");
                 #endif
-                Ships.Add(s);
+                ObservedShips.Add(s);
             }
-            u.Ships.Clear();
+
+            // mark for deletion
+            u.ObservedShips.Clear();
             u.ForceRemove = true;
-            ApplyBoundsOnly();
+
+            return SetBounds(newBounds);
         }
+        return false;
     }
 
-    public void ApplyBoundsOnly()
+    bool SetBounds(in AABoundingBox2D newBounds)
     {
-        Cluster.Position = Bounds.Center;
-        // this is a bit bigger than the actual radius, but only way to ensure
-        // that all ships are within the radius, without having to loop over all ships
-        Cluster.Radius = Bounds.Diagonal*0.5f;
+        if (Bounds != newBounds)
+        {
+            Bounds = newBounds;
+            Cluster.Position = Bounds.Center;
+            // this is a bit bigger than the actual radius, but only way to ensure
+            // that all ships are within the radius, without having to loop over all ships
+            Cluster.Radius = Bounds.Diagonal*0.5f;
+            return true;
+        }
+        return false;
     }
 
     // TRUE if this cluster should be removed from Threats
@@ -83,23 +106,30 @@ public sealed class ClusterUpdate
     {
         // fully observed but empty clusters MUST be removed
         // also, no point in observing 0 strength clusters
-        get => ForceRemove || Cluster.Strength == 0 || (FullyObserved && Ships.IsEmpty);
+        get => ForceRemove
+            || Cluster.Strength == 0f
+            || Cluster.TimeToLive < 0f
+            || (FullyObserved && ObservedShips.IsEmpty);
         set => ForceRemove = value;
     }
 
     /// <summary>
     /// Updates the ThreatCluster with its new state.
+    /// Returns TRUE if cluster bounds changed.
     /// </summary>
+    /// <param name="timeStep">Elapsed time since last update</param>
     /// <param name="owner">The empire which owns the ThreatMatrix</param>
     /// <param name="isOwnerCluster">if true, this cluster belongs to Owner (observation of self)</param>
-    public void Update(Empire owner, bool isOwnerCluster)
+    public bool Update(FixedSimTime timeStep, Empire owner, bool isOwnerCluster)
     {
-        if (Ships.IsEmpty)
+        // nothing was observed this frame
+        if (ObservedShips.IsEmpty)
         {
             // remove inactive ships to avoid ships remaining
             // in stale clusters and causing OOM
             Cluster.Ships = Cluster.Ships.Filter(s => s.Active);
-            return;
+            Cluster.TimeToLive -= timeStep.FixedTime;
+            return false;
         }
 
         // In the case when we have observed some ships
@@ -110,7 +140,7 @@ public sealed class ClusterUpdate
         // The AI difficulty settings should ensure a little bit more
         // ships are always sent.
 
-        Ship[] ships = Ships.ToArr();
+        Ship[] ships = ObservedShips.ToArr();
 
         bool inBorders = false;
         bool hasStarBases = false;
@@ -136,21 +166,25 @@ public sealed class ClusterUpdate
         // Unfortunately we also need to recalculate the Bounds
         // since the cluster can be a traveling fleet, in which case
         // the regular AddShip() bounds would forever expand the cluster
-        Bounds = new(ships[0].Position, ThreatMatrix.InitialClusterRadius);
+        AABoundingBox2D newBounds = new(ships[0].Position, ThreatMatrix.InitialClusterRadius);
         for (int i = 1; i < ships.Length; ++i)
         {
             Ship s = ships[i];
-            Bounds = Bounds.Merge(new(s.Position, s.Radius));
+            newBounds = newBounds.Merge(new(s.Position, s.Radius));
         }
+
+        bool boundsChanged = SetBounds(newBounds);
 
         //// TODO: add a fast way to test with Radius in InfluenceTree
         //bool inBorders = owner.Universe.Influence.IsInInfluenceOf(owner, AveragePos);
 
-        ApplyBoundsOnly();
         Cluster.Strength = strength;
         Cluster.Ships = ships;
         Cluster.HasStarBases = hasStarBases;
         Cluster.InBorders = inBorders;
         Cluster.System = system ?? (SolarSystem)owner.Universe.SystemsTree.FindOne(Cluster.Position, Cluster.Radius);
+        Cluster.SetTimeToLive(Cluster.System != null);
+
+        return boundsChanged;
     }
 }

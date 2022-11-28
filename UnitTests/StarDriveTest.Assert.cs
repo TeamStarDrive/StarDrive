@@ -18,8 +18,8 @@ public partial class StarDriveTest
     public const float DefaultTolerance = 0.000001f;
     public const double DefaultToleranceD = 0.000001;
 
-    static bool Eq(float tolerance, float expected, float actual) => expected == actual || expected.AlmostEqual(expected, tolerance) || object.Equals(expected, actual);
-    static bool Eq(double tolerance, double expected, double actual) => expected == actual || expected.AlmostEqual(expected, tolerance) || object.Equals(expected, actual);
+    static bool Eq(float tolerance, float expected, float actual) => expected == actual || expected.AlmostEqual(actual, tolerance) || object.Equals(expected, actual);
+    static bool Eq(double tolerance, double expected, double actual) => expected == actual || expected.AlmostEqual(actual, tolerance) || object.Equals(expected, actual);
     static bool Eq(float expected, float actual) => Eq(DefaultTolerance, expected, actual);
     static bool Eq(double expected, double actual) => Eq(DefaultToleranceD, expected, actual);
 

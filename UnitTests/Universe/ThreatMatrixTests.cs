@@ -1,12 +1,10 @@
-﻿using System.IO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Ship_Game;
 using Ship_Game.Ships;
 using UnitTests.Ships;
 using Ship_Game.Utils;
 using Ship_Game.AI;
 using Ship_Game.GameScreens.NewGame;
-using Ship_Game.Data.Binary;
 using Ship_Game.Universe;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Spatial;
@@ -75,7 +73,7 @@ public class ThreatMatrixTests : StarDriveTest
     {
         UState.Objects.Update(new(time:2.0f));
         foreach (Empire owner in owners)
-            owner.Threats.Update();
+            owner.Threats.Update(new(time:2.0f));
     }
 
     [TestMethod]
@@ -99,6 +97,9 @@ public class ThreatMatrixTests : StarDriveTest
         Vector2 pos2 = pos + new Vector2(20000);
         float str4 = CreateShipsAt(pos2, 5000, Enemy, 15);
         ScanAndUpdateThreats(Player);
+
+        //DebugVisualizeThreats(Player);
+
         AssertEqual(str2+str4, Str(Player.Threats.FindClusters(Enemy, pos, 30000)));
         AssertEqual(2, Player.Threats.FindClusters(Enemy, pos, 30000).Length);
     }
@@ -157,6 +158,33 @@ public class ThreatMatrixTests : StarDriveTest
 
         AssertEqual(0, Player.Threats.OurClusters.Length);
         AssertEqual(0, Player.Threats.FindClusters(Player, pos, 5000).Length);
+    }
+
+    // regression test: forget empty clusters
+    [TestMethod]
+    public void FindClusters_ForgetEmptyClusters()
+    {
+        Vector2 pos = PlayerPlanet.Position;
+        TestShip playerScoutShip = SpawnShip(SCOUT_NAME, Player, pos+new Vector2(500));
+
+        // run the update several times, and spawn the ship in a new location every time
+        var random = new SeededRandom(1337);
+        for (int i = 0; i < 10; ++i)
+        {
+            TestShip enemyShip = SpawnShip(SCOUT_NAME, Enemy, pos + random.Vector2D(8_000));
+            ScanAndUpdateThreats(Player);
+            
+            AssertEqual(1, Player.Threats.OurClusters.Length, "OurClusters.Length");
+            AssertEqual(1, Player.Threats.RivalClusters.Length, "RivalClusters.Length");
+            AssertEqual(1, Player.Threats.FindClusters(Enemy, pos, 10_000).Length);
+
+            enemyShip.InstantKill();
+            ScanAndUpdateThreats(Player);
+
+            AssertEqual(1, Player.Threats.OurClusters.Length, "OurClusters.Length");
+            AssertEqual(0, Player.Threats.RivalClusters.Length, "RivalClusters.Length");
+            AssertEqual(0, Player.Threats.FindClusters(Enemy, pos, 10_000).Length);
+        }
     }
 
     [TestMethod]
@@ -420,16 +448,16 @@ public class ThreatMatrixTests : StarDriveTest
         float allStrength = allShips.Sum(s => s.GetStrength());
         AssertEqual(str, allStrength, "Total ships strength must equal expected spawned strength");
 
-        float strAt1 = Player.AI.ThreatMatrix.GetStrengthAt(Player, pos1, 5000);
+        float strAt1 = Player.Threats.GetStrengthAt(Player, pos1, 5000);
         AssertEqual(str1, strAt1, $"GetStrengthAt={strAt1} must equal str1={str1}");
 
-        float strAt2 = Player.AI.ThreatMatrix.GetStrengthAt(Player, pos2, 5000);
+        float strAt2 = Player.Threats.GetStrengthAt(Player, pos2, 5000);
         AssertEqual(str2, strAt2, $"GetStrengthAt={strAt2} must equal str2={str2}");
 
-        float knownStr = Player.AI.ThreatMatrix.KnownEmpireStrength(Player);
+        float knownStr = Player.Threats.KnownEmpireStrength(Player);
         AssertEqual(str, knownStr, $"KnownEmpireStrength(Player)={knownStr} must equal spawnedStr={str}");
 
-        AssertEqual(2, Player.AI.ThreatMatrix.OurClusters.Length, "There should be only 2 clusters");
+        AssertEqual(2, Player.Threats.OurClusters.Length, "There should be only 2 clusters");
     }
 
     // just to make sure that the updating logic will
