@@ -13,24 +13,29 @@ public class ThreatMatrixDebug : DebugPage
     Empire SelEmpire => EmpireSelect.Selected;
     ThreatMatrix SelThreats => SelEmpire.Threats;
 
+    UIList DebugStatus;
+
     public ThreatMatrixDebug(DebugInfoScreen parent) : base(parent, DebugModes.ThreatMatrix)
     {
         EmpireSelect = base.Add(new DebugEmpireSelectionSubmenu(parent, parent.ModesTab.ClientArea.CutTop(10)));
 
-        var list = EmpireSelect.Add(new UIList(new LocalPos(50, 100), new Vector2(100), ListLayoutStyle.ResizeList));
-        list.Add(new UILabel(_ => $"Us: {SelEmpire.Name}"));
-        list.Add(new UILabel(_ => $"OurClusters: {SelThreats.OurClusters.Length}"));
-        list.Add(new UILabel(_ => $"RivalClusters: {SelThreats.RivalClusters.Length}"));
+        DebugStatus = EmpireSelect.Add(new UIList(new LocalPos(50, 100), new Vector2(100), ListLayoutStyle.ResizeList));
+        DebugStatus.Add(new UILabel(_ => $"Us: {SelEmpire.Name}"));
+        DebugStatus.Add(new UILabel(_ => $"OurClusters: {SelThreats.OurClusters.Length}"));
+        DebugStatus.Add(new UILabel(_ => $"RivalClusters: {SelThreats.RivalClusters.Length}"));
 
         // we shouldn't keep track of any empty clusters, because they should be auto-pruned
-        list.Add(new UILabel(_ => $"# of Empty OurClusters (BUG): {SelThreats.OurClusters.Count(c => c.Ships.Length == 0)}"));
-        list.Add(new UILabel(_ => $"# of Empty RivalClusters (BUG): {SelThreats.RivalClusters.Count(c => c.Ships.Length == 0)}"));
+        DebugStatus.Add(new UILabel(_ => $"# of Empty OurClusters (BUG): {SelThreats.OurClusters.Count(c => c.Ships.Length == 0)}"));
+        DebugStatus.Add(new UILabel(_ => $"# of Empty RivalClusters (check TTL): {SelThreats.RivalClusters.Count(c => c.Ships.Length == 0)}"));
     }
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)
     {
         if (!Visible)
             return;
+
+        // only show debug status if we're not showing ship info
+        DebugStatus.Visible = Parent.ShipInfoPanel.Hidden;
 
         // make the radius a bit bigger if we zoom out, so we can see it
         float baseRadius = 1f;
@@ -74,6 +79,7 @@ public class ThreatMatrixDebug : DebugPage
                 DrawText(ref cursor, clusterColor, $"InBorders={c.InBorders}");
                 DrawText(ref cursor, clusterColor, $"Loyalty={c.Loyalty}");
                 DrawText(ref cursor, clusterColor, $"System={c.System?.Name??"none"}");
+                DrawText(ref cursor, clusterColor, $"TimeToLive={c.TimeToLive:0.0}s");
 
                 // draw lines from center of cluster to 
                 foreach (Ship s in c.Ships)

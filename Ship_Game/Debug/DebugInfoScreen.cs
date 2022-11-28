@@ -23,7 +23,7 @@ public sealed partial class DebugInfoScreen : GameScreen
     DebugPage Page;
 
     public readonly Submenu ModesTab;
-    readonly ShipDebugInfoPanel ShipInfoPanel;
+    public readonly ShipDebugInfoPanel ShipInfoPanel;
 
     public DebugInfoScreen(UniverseScreen screen) : base(screen, toPause: null)
     {
