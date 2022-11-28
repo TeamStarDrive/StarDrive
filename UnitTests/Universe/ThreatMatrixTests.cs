@@ -85,23 +85,22 @@ public class ThreatMatrixTests : StarDriveTest
         float str3 = CreateShipsAt(pos, 5000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player);
 
-        AssertEqual(str1, Str(Player.Threats.FindClusters(Player, pos, 5000)));
-        AssertEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos, 5000)));
-        AssertEqual(str3, Str(Player.Threats.FindClusters(ThirdMajor, pos, 5000)));
+        AssertEqual(str1, Str(Player.Threats.FindClusters(Player, pos, 6000)));
+        AssertEqual(str2, Str(Player.Threats.FindClusters(Enemy, pos, 6000)));
+        AssertEqual(str3, Str(Player.Threats.FindClusters(ThirdMajor, pos, 6000)));
 
-        AssertEqual(1, Player.Threats.FindClusters(Player, pos, 5000).Length);
-        AssertEqual(1, Player.Threats.FindClusters(Enemy, pos, 5000).Length);
-        AssertEqual(1, Player.Threats.FindClusters(ThirdMajor, pos, 5000).Length);
+        AssertEqual(1, Player.Threats.FindClusters(Player, pos, 6000).Length);
+        AssertEqual(1, Player.Threats.FindClusters(Enemy, pos, 6000).Length);
+        AssertEqual(1, Player.Threats.FindClusters(ThirdMajor, pos, 6000).Length);
 
         // make sure we can find multiple clusters
-        Vector2 pos2 = pos + new Vector2(20000);
-        float str4 = CreateShipsAt(pos2, 5000, Enemy, 15);
+        float str4 = CreateShipsAt(pos + new Vector2(20000), 5000, Enemy, 15);
         ScanAndUpdateThreats(Player);
 
         //DebugVisualizeThreats(Player);
 
-        AssertEqual(str2+str4, Str(Player.Threats.FindClusters(Enemy, pos, 30000)));
-        AssertEqual(2, Player.Threats.FindClusters(Enemy, pos, 30000).Length);
+        AssertEqual(str2+str4, Str(Player.Threats.FindClusters(Enemy, pos, 40000)));
+        AssertEqual(2, Player.Threats.FindClusters(Enemy, pos, 40000).Length);
     }
 
     [TestMethod]

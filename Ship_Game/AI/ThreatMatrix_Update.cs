@@ -17,7 +17,7 @@ public sealed partial class ThreatMatrix
     /// The default distance for joining an existing cluster
     /// and thus expanding it. For RIVALS.
     /// </summary>
-    public const float RivalClusterJoinRadius = 8000f;
+    public const float RivalClusterJoinRadius = 10_000f;
 
     /// <summary>
     /// This will prevent clusters from growing infinitely big,
