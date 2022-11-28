@@ -89,7 +89,7 @@ public sealed partial class Empire
             ThreatMatrixUpdateTimer = ResetThreatMatrixSeconds;
 
             us.ThreatMatrixPerf.Start();
-            AI.ThreatMatrix.Update();
+            AI.ThreatMatrix.Update(new(time:ResetThreatMatrixSeconds));
             us.ThreatMatrixPerf.Stop();
         }
     }

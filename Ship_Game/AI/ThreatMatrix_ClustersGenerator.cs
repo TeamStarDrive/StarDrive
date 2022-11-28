@@ -19,7 +19,7 @@ public sealed partial class ThreatMatrix
             Threats = threats;
         }
         
-        public ThreatCluster[] GetResults(Empire owner, bool isOwnerCluster)
+        public ThreatCluster[] UpdateAndGetResults(FixedSimTime timeStep, Empire owner, bool isOwnerCluster)
         {
             Array<ThreatCluster> results = new();
             foreach (ThreatCluster c in Clusters)
@@ -30,9 +30,10 @@ public sealed partial class ThreatMatrix
                 }
                 else
                 {
-                    // this will update the bounds and all cluster stats
-                    c.Update.Update(owner, isOwnerCluster: isOwnerCluster);
-                    Threats.ClustersMap.Update(c);
+                    // this will update all cluster stats and bounds
+                    if (c.Update.Update(timeStep, owner, isOwnerCluster: isOwnerCluster))
+                        Threats.ClustersMap.Update(c);
+
                     results.Add(c);
                 }
             }
@@ -151,8 +152,6 @@ public sealed partial class ThreatMatrix
         ThreatCluster AddNewCluster(Empire loyalty, Ship ship)
         {
             ThreatCluster c = new(loyalty, ship);
-            // new clusters are always fully explored, this ensures they get removed after merging
-            c.Update.FullyObserved = true;
             Clusters.Add(c);
             Threats.ClustersMap.Insert(c);
             return c;
@@ -160,14 +159,27 @@ public sealed partial class ThreatMatrix
 
         ThreatCluster AddToExistingCluster(ThreatCluster c, Ship ship)
         {
-            c.Update.AddShip(ship);
+            bool boundsChanged = c.Update.AddShip(ship);
+
             #if DEBUG
-            // !!! IF THIS HAPPENS, THEN THERE IS A MAJOR DEFECT IN THE THREAT MATRIX GENERATOR !!!
-            // !!! THIS SHOULD NORMALLY NEVER HAPPEN, UNLESS WE HAVE A BUG !!!
-            if (!Clusters.Contains(c))
-                throw new KeyNotFoundException("Existing Qtree ThreatCluster was not found in generator Clusters");
+                // !!! IF THIS HAPPENS, THEN THERE IS A MAJOR DEFECT IN THE THREAT MATRIX GENERATOR !!!
+                // !!! THIS SHOULD NORMALLY NEVER HAPPEN, UNLESS WE HAVE A BUG !!!
+                if (!Clusters.Contains(c))
+                    throw new KeyNotFoundException("Existing Qtree ThreatCluster was not found in generator Clusters");
             #endif
-            Threats.ClustersMap.InsertOrUpdate(c);
+
+            if (boundsChanged)
+            {
+                Threats.ClustersMap.Update(c);
+            }
+            else
+            {
+                #if DEBUG
+                    if (!Threats.ClustersMap.Contains(c))
+                        throw new KeyNotFoundException("Existing Qtree ThreatCluster was not found in ClustersMap");
+                #endif
+            }
+
             return c;
         }
 
@@ -203,7 +215,7 @@ public sealed partial class ThreatMatrix
         {
             foreach (ThreatCluster c in Clusters)
             {
-                if (c.Update.Ships.NotEmpty)
+                if (c.Update.ObservedShips.NotEmpty)
                 {
                     SearchOptions opt = new(c.Position, c.Radius) { OnlyLoyalty = c.Loyalty };
                     ThreatCluster[] clusters = Threats.FindClusters(opt);
@@ -252,9 +264,9 @@ public sealed partial class ThreatMatrix
             for (int i = 0; i < clusters.Length; ++i)
             {
                 ThreatCluster c = clusters[i];
-                if (biggestCount < c.Update.Ships.Count)
+                if (biggestCount < c.Update.ObservedShips.Count)
                 {
-                    biggestCount = c.Update.Ships.Count;
+                    biggestCount = c.Update.ObservedShips.Count;
                     biggest = c;
                 }
                 else if (biggestCount < c.Ships.Length)
@@ -288,12 +300,14 @@ public sealed partial class ThreatMatrix
             for (int i = 0; i < clusters.Length; ++i)
             {
                 ThreatCluster c = clusters[i];
-                if (root != c && c.Update.Ships.NotEmpty &&
+                if (root != c && c.Update.ObservedShips.NotEmpty &&
                     root.Position.InRadius(c.Position, MaxClustersMergeDistance))
                 {
                     anyMerges = true;
-                    root.Update.Merge(c.Update);
+                    bool boundsChanged = root.Update.Merge(c.Update);
                     Threats.ClustersMap.Remove(c);
+                    if (boundsChanged)
+                        Threats.ClustersMap.Update(root);
                 }
             }
             return anyMerges;

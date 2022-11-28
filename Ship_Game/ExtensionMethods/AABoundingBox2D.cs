@@ -150,6 +150,31 @@ namespace Ship_Game
             r.Y2 = Math.Max(a.Y, b.Y);
             return r;
         }
+        
+        public static bool operator==(in AABoundingBox2D a, in AABoundingBox2D b)
+        {
+            return a.X1 == b.X1 && a.X2 == b.X2 && a.Y1 == b.Y1 && a.Y2 == b.Y2;
+        }
+
+        public static bool operator!=(in AABoundingBox2D a, in AABoundingBox2D b)
+        {
+            return a.X1 != b.X1 || a.X2 != b.X2 || a.Y1 != b.Y1 || a.Y2 != b.Y2;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is AABoundingBox2D d && X1 == d.X1 && Y1 == d.Y1 && X2 == d.X2 && Y2 == d.Y2;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 268039418;
+            hashCode = hashCode * -1521134295 + X1.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y1.GetHashCode();
+            hashCode = hashCode * -1521134295 + X2.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y2.GetHashCode();
+            return hashCode;
+        }
     }
 
     /// <summary>
