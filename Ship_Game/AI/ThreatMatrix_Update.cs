@@ -44,7 +44,17 @@ public sealed partial class ThreatMatrix
     /// many tiny clusters and miss some cluster merging opportunities
     /// </summary>
     public const float InitialClusterRadius = 1000f;
+
+    /// <summary>
+    /// Time to Live in seconds for unobserved In-System clusters
+    /// </summary>
+    public const float TimeToLiveInSystem = 10 * 60;
     
+    /// <summary>
+    /// Time to Live in seconds for unobserved Deep Space clusters
+    /// </summary>
+    public const float TimeToLiveInDeepSpace = 1 * 60;
+
     /// <summary>
     /// Other loyalty ships which were SCANNED between two updates
     /// </summary>
@@ -79,7 +89,7 @@ public sealed partial class ThreatMatrix
     /// Atomically updates the ThreatMatrix and
     /// creates a new array of threat clusters
     /// </summary>
-    public void Update()
+    public void Update(FixedSimTime timeStep)
     {
         Ship[] ourShips = Owner.EmpireShips.OwnedShips;
         Ship[] ourProjectors = Owner.EmpireShips.OwnedProjectors;
@@ -87,12 +97,12 @@ public sealed partial class ThreatMatrix
         // 1. our clusters are always visible, so just get them out
         ClustersGenerator ourClusters = new(this);
         ourClusters.CreateOurClusters(Owner, ourShips);
-        ThreatCluster[] ours = ourClusters.GetResults(Owner, isOwnerCluster:true);
+        ThreatCluster[] ours = ourClusters.UpdateAndGetResults(timeStep, Owner, isOwnerCluster:true);
 
         // 2. get all the clusters for rivals
         ClustersGenerator rivalClusters = new(this);
         rivalClusters.CreateAndUpdateRivalClusters(Owner, ours, ourProjectors);
-        ThreatCluster[] rivals = rivalClusters.GetResults(Owner, isOwnerCluster:false);
+        ThreatCluster[] rivals = rivalClusters.UpdateAndGetResults(timeStep, Owner, isOwnerCluster:false);
 
         // 3. Update the list of clusters and UpdateAll ClustersMap
         //    to handle deleted clusters
@@ -102,9 +112,8 @@ public sealed partial class ThreatMatrix
 
         // TODO: Based on playtesting, figure out if we need this anymore
         //       the new GenericQtree design should make it unnecessary
-        //// Deletes excluded clusters from the clusters map
-        //// Empty clusters which were fully explored will be removed here
-        ThreatCluster[] allClusters = ours.Concat(rivals);
-        ClustersMap.UpdateAll(allClusters);
+        // Cleans up the clusters map
+        //ThreatCluster[] allClusters = ours.Concat(rivals);
+        //ClustersMap.UpdateAll(allClusters);
     }
 }

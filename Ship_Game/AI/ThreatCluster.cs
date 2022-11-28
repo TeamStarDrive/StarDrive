@@ -31,6 +31,11 @@ public sealed class ThreatCluster : SpatialObjectBase
     // TRUE if this PIN is inside the parent owner's borders
     [StarData] public bool InBorders;
 
+    // The maximum time to live for this cluster,
+    // the default value depends on what kind of a cluster this is
+    // Generally in-system clusters survive longer
+    [StarData] public float TimeToLive;
+
     // This is scratch-space for the ThreatMatrix
     public ClusterUpdate Update;
 
@@ -50,6 +55,17 @@ public sealed class ThreatCluster : SpatialObjectBase
         Loyalty = loyalty;
         Active = true;
         Update = new(this, ship);
+
+        // set some defaults to avoid this cluster being immediately deleted
+        Strength = ship.GetStrength();
+        SetTimeToLive(ship.System != null);
+    }
+
+    public void SetTimeToLive(bool inSystem)
+    {
+        TimeToLive = inSystem
+            ? ThreatMatrix.TimeToLiveInSystem
+            : ThreatMatrix.TimeToLiveInDeepSpace;
     }
 
     public override string ToString()
