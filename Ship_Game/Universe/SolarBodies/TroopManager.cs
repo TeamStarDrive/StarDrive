@@ -6,9 +6,7 @@ using SDUtils;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Point = SDGraphics.Point;
 using Ship_Game.Data.Serialization;
-using System.Collections;
 using System.Collections.Generic;
-using Ship_Game.AI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -55,8 +53,8 @@ namespace Ship_Game
             InCombatTimer = timer;
         }
 
-        // ReSharper disable once UnusedParameter.Local Habital concept here is to not use this class if the planet cant have
-        // ground combat. but that will be a future project.
+        [StarDataConstructor] TroopManager() {}
+
         public TroopManager(Planet planet)
         {
             Ground = planet;

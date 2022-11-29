@@ -74,6 +74,7 @@ public class ShipDebugInfoPanel : Submenu
         else if (Screen.SelectedShip is { } s)
         {
             Text.String($"Ship {s.ShipName}  x {s.Position.X:0} y {s.Position.Y:0}");
+            Text.String($"ID: {s.Id}");
             Text.String($"VEL: {s.Velocity.Length():0}  "
                        +$"LIMIT: {s.SpeedLimit:0}  "
                        +$"Vmax: {s.VelocityMax:0}  ");
