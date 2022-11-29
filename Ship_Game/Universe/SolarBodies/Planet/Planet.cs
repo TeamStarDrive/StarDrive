@@ -816,19 +816,24 @@ namespace Ship_Game
             return ParentSystem.InSafeDistanceFromRadiation(Position);
         }
 
+        // this is done once per turn
         public void UpdateOwnedPlanet(RandomBase random)
         {
             TurnsSinceTurnover += 1;
             CrippledTurns = (CrippledTurns - 1).LowerBound(0);
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
+
             GeodeticManager.AffectNearbyShips();
             ApplyTerraforming(random);
+
             UpdateColonyValue();
-            CalcIncomingGoods();
+            UpdateIncomingTradeGoods();
+
             InitResources(); // must be done before Governing
             UpdateOrbitalsMaintenance();
             UpdateMilitaryBuildingMaintenance();
+
             NotifyEmptyQueue();
             RechargePlanetaryShields();
             ApplyResources();

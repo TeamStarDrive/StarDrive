@@ -251,7 +251,7 @@ namespace UnitTests.AITests.Empire
                     if (RandomMath.RollDice(50))
                     {
                         planet.SetOwner(empire);
-                        empire.AI.AreasOfOperations.Add(new AO(UState, Enemy.Capital, 10));
+                        empire.AI.AreasOfOperations.Add(new AO(UState, Enemy.Capital, Enemy, 10));
                     }
                 }
             }

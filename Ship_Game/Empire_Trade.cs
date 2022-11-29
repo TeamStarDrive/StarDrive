@@ -76,6 +76,7 @@ namespace Ship_Game
             AllTimeTradeIncome      += (int)taxedGoods;
         }
 
+        // once per turn
         void DispatchBuildAndScrapFreighters()
         {
             UpdateTradeTreaties();
@@ -138,11 +139,11 @@ namespace Ship_Game
         void DispatchOrBuildFreighters(Goods goods, Array<Planet> importPlanetList, bool interTrade)
         {
             // Order importing planets to balance freighters distribution
-            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
-                .OrderBy(p => p.FreighterTraffic(p.IncomingFreighters, goods)).ToArr();
+            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
             if (importingPlanets.Length == 0)
                 return;
 
+            // TODO: maybe use IEnumerable generators for these?
             Planet[] exportingPlanets = OwnedPlanets.Filter(p => p.FreeGoodsExportSlots(goods) > 0);
             if (exportingPlanets.Length == 0)
                 return;
@@ -155,6 +156,8 @@ namespace Ship_Game
 
                 return;
             }
+
+            importingPlanets.Sort(p => p.GetCachedIncomingCargo(goods));
 
             for (int i = 0; i < importingPlanets.Length; i++)
             {

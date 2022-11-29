@@ -239,7 +239,7 @@ namespace Ship_Game
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
 
-            UpdateData();
+            UpdatePlanetDataForDrawing();
             rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
@@ -858,7 +858,8 @@ namespace Ship_Game
             return "";
         }
 
-        void UpdateData() // This will update statistics in an interval to reduce threading issues
+        // Fat_Bastard: This will update statistics in an interval to reduce threading issues
+        void UpdatePlanetDataForDrawing()
         {
             if (UpdateTimer <= 0)
             {
@@ -871,9 +872,9 @@ namespace Ship_Game
                 OutgoingProdFreighters = P.OutgoingProdFreighters;
                 OutgoingColoFreighters = P.OutGoingColonistsFreighters;
                 BioSpheresResearched   = Player.IsBuildingUnlocked(Building.BiospheresId);
-                IncomingFood           = TotalIncomingCargo(Goods.Food).RoundUpTo(1);
-                IncomingProd           = TotalIncomingCargo(Goods.Production).RoundUpTo(1);
-                IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
+                IncomingFood           = P.IncomingFood.RoundUpTo(1);
+                IncomingProd           = P.IncomingProd.RoundUpTo(1);
+                IncomingPop            = (P.IncomingPop / 1000f).RoundToFractionOf100();
                 Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
                 TroopConsumption       = P.TotalTroopConsumption;
                 Terraformable          = P.Terraformable;
@@ -894,12 +895,6 @@ namespace Ship_Game
             {
                 UpdateTimer -= 1;
             }
-        }
-
-        float TotalIncomingCargo(Goods goods)
-        {
-            var freighterList = P.IncomingFreighters.Filter(s => s.AI.HasTradeGoal(goods));
-            return freighterList.Sum(s => s.GetCargo(goods));
         }
     }
 }

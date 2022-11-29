@@ -154,11 +154,12 @@ namespace Ship_Game.Ships
             TradeRoutes = tradeRoutes.Clone();
         }
 
-        public float CheckExpectedGoods(Goods goods)
+        // # of goods that are being dropped off towards some destination
+        // 0 if no drop-off goal is present
+        public float GetGoodsBeingDroppedOff(Goods goods)
         {
             if (AI.FindGoal(ShipAI.Plan.DropOffGoods, out _))
                 return GetCargo(goods);
-
             return 0;
         }
     }
