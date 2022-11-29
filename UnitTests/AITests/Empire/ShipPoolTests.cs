@@ -38,7 +38,7 @@ namespace UnitTests.AITests.Empire
             RunObjectsSim(TestSimStep);
 
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
-            AssertEqual(ship.Loyalty, ship.Pool.OwnerEmpire);
+            AssertEqual(ship.Loyalty, ship.Pool.Owner);
             AssertTrue(ship.Pool is AO, "Ship should be assigned to an AO");
         }
         
@@ -50,7 +50,7 @@ namespace UnitTests.AITests.Empire
             RunObjectsSim(TestSimStep);
 
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
-            AssertEqual(ship.Loyalty, ship.Pool.OwnerEmpire);
+            AssertEqual(ship.Loyalty, ship.Pool.Owner);
             AssertTrue(ship.Pool is ShipPool, "Ship should be assigned to Empire's Core pool");
         }
         
@@ -146,7 +146,7 @@ namespace UnitTests.AITests.Empire
         public void ShipIsMovedToNewPoolAfterLoyaltyChange()
         {
             CreateThirdMajorEmpire();
-            Enemy.AI.AreasOfOperations.Add(new AO(UState));
+            Enemy.AI.AreasOfOperations.Add(new AO(UState, Enemy));
             Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
             RunObjectsSim(TestSimStep);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");

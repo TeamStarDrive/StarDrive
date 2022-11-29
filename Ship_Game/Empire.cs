@@ -586,8 +586,8 @@ namespace Ship_Game
             var safeWorlds = new Array<Planet>();
             for (int i = 0; i < AI.AreasOfOperations.Count; i++)
             {
-                var ao      = AI.AreasOfOperations[i];
-                var planets = ao.GetOurPlanets().Filter(p => p.ParentSystem.OwnerList.Count == 1);
+                var ao = AI.AreasOfOperations[i];
+                var planets = ao.OurPlanets.Filter(p => p.ParentSystem.OwnerList.Count == 1);
                 safeWorlds.AddRange(planets);
             }
 
@@ -618,7 +618,7 @@ namespace Ship_Game
             if (home == null)
             {
                 var nearestAO = ship.Loyalty.AI.FindClosestAOTo(ship.Position);
-                home = nearestAO.GetOurPlanets().FindClosestTo(ship);
+                home = nearestAO.OurPlanets.FindClosestTo(ship);
             }
 
             if (home == null)
