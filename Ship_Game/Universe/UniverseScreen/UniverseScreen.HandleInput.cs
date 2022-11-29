@@ -446,7 +446,7 @@ namespace Ship_Game
             if (index == -1) 
                 return;
 
-            Fleet selectedFleet = Player.GetFleet(index);
+            Fleet selectedFleet = Player.GetFleetOrNull(index);
 
             if (input.ReplaceFleet)
             {
@@ -467,13 +467,13 @@ namespace Ship_Game
             // clear the fleet if no ships selected and pressing Ctrl + NumKey[1-9]
             if (SelectedShipList.Count == 0)
             {
-                selectedFleet.Reset();
+                selectedFleet?.Reset();
                 RecomputeFleetButtons(true);
                 return;
             }
 
             // else: we have selected some ships, delete old fleet
-            selectedFleet.Reset(returnShipsToEmpireAI: true, clearOrders: false);
+            selectedFleet?.Reset(returnShipsToEmpireAI: true, clearOrders: false);
 
             // create new fleet
             var fleet = AddSelectedShipsToNewFleet(SelectedShipList);
