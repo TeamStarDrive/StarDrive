@@ -63,9 +63,17 @@ public sealed class ThreatCluster : SpatialObjectBase
 
     public void SetTimeToLive(bool inSystem)
     {
-        TimeToLive = inSystem
-            ? ThreatMatrix.TimeToLiveInSystem
-            : ThreatMatrix.TimeToLiveInDeepSpace;
+        // in system clusters should live remarkably longer
+        if (inSystem)
+        {
+            // extra time to live based on strength factor
+            float extraTime = (Strength / 5_000f) * ThreatMatrix.TimeToLiveInSystem;
+            TimeToLive = ThreatMatrix.TimeToLiveInSystem + extraTime;
+        }
+        else
+        {
+            TimeToLive = ThreatMatrix.TimeToLiveInDeepSpace;
+        }
     }
 
     public override string ToString()
