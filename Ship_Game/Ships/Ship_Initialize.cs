@@ -239,8 +239,11 @@ namespace Ship_Game.Ships
             var moduleSaves = SavedModules ?? Empty<ModuleSaveData>.Array;
             SavedModules = null;
 
+            // use ShipData from ResourceManager if it exists
+            if (ShipData.IsAnExistingSavedDesign)
+                ShipData = ResourceManager.Ships.GetDesign(ShipData.Name);
+            
             ResetSlots(moduleSaves.Length);
-
             for (int i = 0; i < moduleSaves.Length; ++i)
             {
                 ModuleSaveData slot = moduleSaves[i];

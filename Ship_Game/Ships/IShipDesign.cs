@@ -63,6 +63,9 @@ namespace Ship_Game.Ships
         // it's from save only and does not exist in a file
         bool IsFromSave { get; }
 
+        // it's from a save and matches an existing design
+        bool IsAnExistingSavedDesign { get; }
+
         bool IsValidForCurrentMod { get; }
 
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
