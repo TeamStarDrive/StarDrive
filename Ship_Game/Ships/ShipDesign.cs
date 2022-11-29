@@ -73,6 +73,7 @@ namespace Ship_Game.Ships
         [StarData] public bool IsReadonlyDesign { get; set; }
         public bool Deleted { get; set; }
         public bool IsFromSave { get; set; }
+        public bool IsAnExistingSavedDesign { get; set; }
 
         public bool IsValidForCurrentMod => ModName.IsEmpty() || ModName == GlobalStats.ModName;
 
@@ -113,9 +114,10 @@ namespace Ship_Game.Ships
         }
 
         // called when this object has been fully deserialized
-        [StarDataDeserialized]
+        [StarDataDeserialized(requires: typeof(ShipDesign))]
         void OnDeserialized()
         {
+            IsFromSave = true;
             if (!ResourceManager.Hull(Hull, out ShipHull hull)) // If the hull is invalid, then ship loading fails!
                 return;
 
@@ -128,6 +130,17 @@ namespace Ship_Game.Ships
             BaseHull = hull;
             Bonuses = hull.Bonuses;
             SetDesignSlots(DesignSlots, updateRole:false);
+
+            if (ResourceManager.Ships.GetDesign(Name, out IShipDesign existing) &&
+                existing.AreModulesEqual(this))
+            {
+                IsAnExistingSavedDesign = true;
+            }
+            else // design is from save only, add it to ship templates list
+            {
+                // TODO: use UniverseState to store temporary designs
+                ResourceManager.AddShipTemplate(this, playerDesign: true, readOnly: true);
+            }
         }
 
         // Deep clone of this ShipDesign
