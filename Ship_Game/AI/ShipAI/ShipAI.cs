@@ -388,7 +388,7 @@ namespace Ship_Game.AI
                         return;
                     }
 
-                    nearestRallyPoint = Owner.Loyalty.SafeSpacePorts.FindMax(p => p.TroopsHere.Count);
+                    nearestRallyPoint = Owner.Loyalty.SafeSpacePorts.FindMax(p => p.Troops.Count);
                     break;
                 case ResupplyReason.NotNeeded:
                     TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: false);

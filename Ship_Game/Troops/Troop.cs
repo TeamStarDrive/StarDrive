@@ -360,12 +360,7 @@ namespace Ship_Game
             Strength = (Strength - amount).Clamped(0, ActualStrengthMax);
             if (Strength < 1)
             {
-                planet.TroopsHere.Remove(this); // not using RemoveSwapLast since the order of troop is important for allied invasion
-                if (tile.TroopsHere.Any(t => t == this))
-                    tile.TroopsHere.Remove(this);
-                else
-                    planet.SearchAndRemoveTroopFromTile(this);
-
+                planet.Troops.TryRemoveTroop(tile, this);
                 dead = true;
             }
         }
@@ -406,7 +401,8 @@ namespace Ship_Game
         }
 
         // Launch a troop which it's tile location is unknown
-        public Ship Launch(bool ignoreMovement = false)
+        // @param forceLaunch if true, then even wounded troops will be launched
+        public Ship Launch(bool forceLaunch = false)
         {
             if (HostPlanet == null)
                 return null;
@@ -414,16 +410,16 @@ namespace Ship_Game
             foreach (PlanetGridSquare tile in HostPlanet.TilesList)
             {
                 if (tile.TroopsHere.ContainsRef(this))
-                    return LaunchToSpace(tile, ignoreMovement);
+                    return LaunchToSpace(tile, forceLaunch);
             }
             // Tile not found
             return null;
         }
 
         // Launch a troop from a specific tile
-        public Ship Launch(PlanetGridSquare tile, bool ignoreMovement = false)
+        public Ship Launch(PlanetGridSquare tile, bool forceLaunch = false)
         {
-            return HostPlanet != null ? LaunchToSpace(tile, ignoreMovement) : null;
+            return HostPlanet != null ? LaunchToSpace(tile, forceLaunch) : null;
         }
 
         // Launch a troop which was created in a planet but there was no room for it.
@@ -432,20 +428,25 @@ namespace Ship_Game
             return CreateShipForTroop(planet);
         }
 
-        Ship LaunchToSpace(PlanetGridSquare tile, bool ignoreMovement = false)
+        // tries to launch troop to space, returns null on failure
+        // @param forceLaunch if true, always tries to launch, even if troops are wounded
+        Ship LaunchToSpace(PlanetGridSquare tile, bool forceLaunch = false)
         {
-            if (!CanLaunch && !ignoreMovement)
+            if (!forceLaunch && !CanLaunch)
+                return null;
+            if (HostPlanet?.Troops.TryRemoveTroop(tile, this) != true)
                 return null;
 
-            tile.TroopsHere.Remove(this);
-            HostPlanet.TroopsHere.Remove(this);
             Ship troopShip = CreateShipForTroop(HostPlanet);
-            HostPlanet     = null;
+            HostPlanet = null;
             return troopShip;
         }
 
         Ship CreateShipForTroop(Planet planet)
         {
+            if (Loyalty.data.DefaultTroopShip.IsEmpty())
+                Log.Error($"{Loyalty.Name} has no DefaultTroopShip !");
+            
             Vector2 createAt = planet.Position + RandomMath.Vector2D(planet.Radius * 2);
             return Ship.CreateTroopShipAtPoint(planet.Universe, Loyalty.data.DefaultTroopShip, Loyalty, createAt, this);
         }

@@ -1315,20 +1315,9 @@ namespace Ship_Game
                     if (p.IsExploredBy(Universe.Player) && p.RecentCombat)
                     {
                         if (p.Owner == Universe.Player)
-                        {
                             ++inCombat;
-                        }
-                        else
-                        {
-                            foreach (Troop troop in p.TroopsHere)
-                            {
-                                if ((troop?.Loyalty) == Universe.Player)
-                                {
-                                    ++inCombat;
-                                    break;
-                                }
-                            }
-                        }
+                        else if (p.Troops.WeHaveTroopsHere(Universe.Player))
+                            ++inCombat;
                     }
                 }
             }
@@ -1407,7 +1396,7 @@ namespace Ship_Game
             for (int x = 0; x < OwnedPlanets.Count; x++)
             {
                 var planet = OwnedPlanets[x];
-                CurrentTroopStrength += planet.TroopManager.OwnerTroopStrength;
+                CurrentTroopStrength += planet.Troops.OwnerTroopStrength;
             }
         }
 
@@ -1484,7 +1473,8 @@ namespace Ship_Game
         public float GetTroopMaintThisTurn()
         {
             // Troops maintenance on ships are calculated as part of ship maintenance
-            int troopsOnPlanets = OwnedPlanets.Sum(p => p.TroopsHere.Count);
+            // TODO: are troops on unowned planets for free? 
+            int troopsOnPlanets = OwnedPlanets.Sum(p => p.Troops.NumTroopsHere(this));
             return troopsOnPlanets * ShipMaintenance.TroopMaint;
         }
 
@@ -1933,15 +1923,17 @@ namespace Ship_Game
         private bool LaunchNearestTroopForRebase(out Ship troopShip, Vector2 objectCenter, string planetName = "")
         {
             troopShip = null;
-            Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
-                .Filter(p => p.NumTroopsCanLaunch > 0 && p.TroopsHere.Any(t => t.CanLaunch) && p.Name != planetName)
-                .OrderBy(distance => distance.Position.Distance(objectCenter)));
+            var candidatePlanets = new Array<Planet>(OwnedPlanets
+                .Filter(p => p.NumTroopsCanLaunch > 0 && p.Name != planetName)
+                .OrderBy(distance => distance.Position.SqDist(objectCenter)));
 
-            if (candidatePlanets.Count == 0)
+            var launchFrom = candidatePlanets.FirstOrDefault();
+            if (launchFrom == null)
                 return false;
 
-            var troops = candidatePlanets.First().TroopsHere;
-            troopShip = troops.FirstOrDefault(t => t.Loyalty == this)?.Launch();
+            var toLaunch = launchFrom.Troops.GetLaunchableTroops(this, 1);
+            troopShip = toLaunch.FirstOrDefault()?.Launch();
+
             return troopShip != null;
         }
 
@@ -2359,11 +2351,14 @@ namespace Ship_Game
 
                             var chance = (planet.TileArea - planet.GetFreeTiles(this)) / planet.TileArea;
 
-                            if (planet.TroopsHere.NotEmpty && RandomMath.Roll3DiceAvg(chance * 50))
+                            if (planet.Troops.Count > 0 && RandomMath.Roll3DiceAvg(chance * 50))
                             {
-                                var t = RandomMath.RandItem(planet.TroopsHere);
-                                if (t != null)
-                                    troop.ChangeLoyalty(rebels);
+                                // convert some random troops to rebels
+                                var troops = planet.Troops.GetLaunchableTroops(this).ToArr();
+                                if (troops.Length != 0)
+                                {
+                                    RandomMath.RandItem(troops).ChangeLoyalty(rebels);
+                                }
                             }
 
                             if (planet.BuildingList.NotEmpty && RandomMath.Roll3DiceAvg(chance * 50))
@@ -2591,9 +2586,8 @@ namespace Ship_Game
 
             foreach (Planet planet in Universe.Planets)
             {
-                foreach (Troop troop in planet.TroopsHere)
-                    if (troop.Loyalty == target)
-                        troop.ChangeLoyalty(this);
+                foreach (Troop troop in planet.Troops.GetTroopsOf(target))
+                    troop.ChangeLoyalty(this);
             }
 
             target.ClearAllPlanets();

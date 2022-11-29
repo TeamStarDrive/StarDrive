@@ -50,13 +50,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             foreach (Ship ship in potentialTargets)
             {
                 float defenseToOvercome = ship.BoardingDefenseTotal * 1.2f;
-                for (int i = PlanetBuildingAt.TroopsHere.Count - 1; i >= 0; i--)
+                foreach (Troop troop in PlanetBuildingAt.Troops.GetTroopsOf(Owner))
                 {
-                    Troop troop = PlanetBuildingAt.TroopsHere[i];
-                    if (troop.Loyalty == Owner && troop.CanLaunchWounded)
+                    if (troop.CanLaunchWounded)
                     {
-                        float str      = troop.ActualStrengthMax;
-                        Ship troopShip = troop.Launch(ignoreMovement: true);
+                        float str = troop.ActualStrengthMax;
+                        Ship troopShip = troop.Launch(forceLaunch: true);
                         if (troopShip != null)
                         {
                             defenseToOvercome -= str;

@@ -12,7 +12,6 @@ namespace Ship_Game
         [StarDataConstructor]
         Planet() : base(0, GameObjectType.Planet)
         {
-            TroopManager    = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
             Money = new ColonyMoney(this);
         }
@@ -20,6 +19,9 @@ namespace Ship_Game
         [StarDataDeserialized]
         void OnDeserialized()
         {
+            // TODO: just for save compatibility, remove later
+            Troops ??= new(this);
+
             UpdatePositionOnly();
             InitPlanetType(PType, Scale, fromSave: true);
 
