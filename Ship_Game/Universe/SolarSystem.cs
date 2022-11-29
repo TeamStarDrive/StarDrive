@@ -272,6 +272,7 @@ namespace Ship_Game
             if (Universe.GravityWells)
             {
                 // @todo QuadTree. need to have planets in the quad tree.
+                // @todo check UniverseState.PlanetsTree if it makes sense to filter planets through that
                 for (int i = 0; i < PlanetList.Count; i++)
                 {
                     Planet planet= PlanetList[i];
