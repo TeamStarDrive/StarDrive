@@ -130,7 +130,7 @@ namespace Ship_Game
 
         public void AddTroop(Troop troop)
         {
-            TroopsHere.Add(troop);
+            TroopsHere.AddUniqueRef(troop);
         }
 
         public void CreateVolcano(Planet p)

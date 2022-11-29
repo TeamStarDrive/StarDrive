@@ -523,7 +523,7 @@ namespace Ship_Game
 
         void OnLaunchSingleTroopClicked(UIButton b)
         {
-            var potentialTroops = Planet.TroopsHere.Filter(t => t.Loyalty == Planet.Universe.Player && t.CanLaunch);
+            var potentialTroops = Planet.Troops.GetLaunchableTroops(Planet.Universe.Player).ToArr();
             if (potentialTroops.Length == 0)
                 GameAudio.NegativeClick();
             else
@@ -557,7 +557,7 @@ namespace Ship_Game
                 CallTroops.Style = ButtonStyle.Default;
             }
 
-            UpdateButtonText(LaunchAllTroops, Planet.TroopsHere.Count(t => t.CanMove), Localizer.Token(GameText.LaunchAllTroops));
+            UpdateButtonText(LaunchAllTroops, Planet.Troops.NumTroopsCanMoveFor(Planet.Owner), Localizer.Token(GameText.LaunchAllTroops));
         }
 
         void UpdateGovOrbitalStats()

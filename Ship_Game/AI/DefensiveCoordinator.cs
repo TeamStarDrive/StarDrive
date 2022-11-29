@@ -159,8 +159,7 @@ namespace Ship_Game.AI
                     && !p.RecentCombat
                     && !p.TroopsHereAreEnemies(Us))
                 {
-                    Troop[] troopsToLaunch = p.TroopsHere.Filter(t => t.Loyalty == Us);
-                    p.LaunchTroops(troopsToLaunch);
+                    p.LaunchAllTroops(Us);
                 }
                 else if (p.Owner == Us) //This should stay here.
                 {
@@ -353,8 +352,8 @@ namespace Ship_Game.AI
                 {
                     if (p.GetDefendingTroopCount() > sysCom.PlanetTroopMin(p))
                     {
-                        Troop l = p.TroopsHere.Find(loyalty => loyalty.Loyalty == Us);
-                        l?.Launch();
+                        foreach (Troop l in p.Troops.GetLaunchableTroops(Us, 1))
+                            l.Launch();
                     }
                 }
             }

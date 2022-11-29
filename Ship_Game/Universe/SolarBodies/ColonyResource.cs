@@ -301,7 +301,7 @@ namespace Ship_Game.Universe.SolarBodies
                 IncomeFromBuildings += b.Income;
             }
 
-            TroopMaint = Planet.TroopsHere.Count * ShipMaintenance.TroopMaint; // We count enemy troops as well
+            TroopMaint = Planet.Troops.Count * ShipMaintenance.TroopMaint; // We count enemy troops as well
 
             // And finally we adjust local TaxRate by the bonus multiplier
             TaxRate     *= taxRateMultiplier;

@@ -608,6 +608,7 @@ namespace Ship_Game
             return inputCaptured;
         }
 
+        // TODO: this needs a majro refactor
         bool HandleInputPlanetGridSquares()
         {
             bool capturedInput = false;
@@ -694,14 +695,12 @@ namespace Ship_Game
                         if (ourTroop.CanMove && MovementTiles.Contains(pgs))
                         {
                             ourTroop.facingRight = pgs.X > ActiveTile.X;
-                            pgs.AddTroop(ourTroop);
-                            ourTroop.UpdateMoveActions(-1);
-                            ourTroop.ResetMoveTimer();
-                            ourTroop.MovingTimer = 0.75f;
+
+                            P.Troops.MoveTowardsTarget(ourTroop, ActiveTile, pgs);
+
                             P.SetInGroundCombat(ourTroop.Loyalty);
-                            ourTroop.SetFromRect(ourTroop.ClickRect);
                             GameAudio.PlaySfxAsync(ourTroop.MovementCue);
-                            ActiveTile.TroopsHere.Remove(ourTroop);
+
                             ActiveTile = pgs;
                             MovementTiles.Remove(pgs);
                             capturedInput = true;
@@ -781,7 +780,7 @@ namespace Ship_Game
             foreach (Troop troop in toAdd)
                 OrbitSL.AddItem(new CombatScreenOrbitListItem(P.Universe, troop));
 
-            UpdateLaunchAllButton(P.TroopsHere.Count(t => t.Loyalty == P.Universe.Player && t.CanLaunch));
+            UpdateLaunchAllButton(P.Troops.NumTroopsCanLaunchFor(P.Universe.Player));
             UpdateLandAllButton(OrbitSL.NumEntries);
             UpdateBombersButton();
         }

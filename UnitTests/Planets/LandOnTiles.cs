@@ -66,7 +66,7 @@ namespace UnitTests.Planets
         public void LandEnemiesAndFriends()
         {
             Assert.IsTrue(Enemy1.TryLandTroop(P));
-            Assert.IsTrue(P.TroopsHere.Contains(Enemy1));
+            Assert.IsTrue(P.Troops.Contains(Enemy1));
             Assert.IsTrue(GetCapitalTile(out PlanetGridSquare capitalTile));
             Assert.IsTrue(GetTroopTile(Enemy1, out PlanetGridSquare enemy1Tile));
 
@@ -75,7 +75,7 @@ namespace UnitTests.Planets
 
             // land a second enemy
             Assert.IsTrue(Enemy2.TryLandTroop(P));
-            Assert.IsTrue(P.TroopsHere.Contains(Enemy2));
+            Assert.IsTrue(P.Troops.Contains(Enemy2));
             Assert.IsTrue(GetTroopTile(Enemy2, out PlanetGridSquare enemy2Tile));
             Assert.IsTrue(enemy1Tile != enemy2Tile, "Enemies are on the same tile!");
 

@@ -157,7 +157,7 @@ namespace Ship_Game
         public UIButton ShipsInCombat;
         public UIButton PlanetsInCombat;
         public int lastshipcombat   = 0;
-        public int lastplanetcombat = 0;
+        public int nextPlanetCombat = 0;
 
         ShipMoveCommands ShipCommands;
 

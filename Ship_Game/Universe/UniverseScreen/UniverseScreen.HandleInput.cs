@@ -1258,41 +1258,28 @@ namespace Ship_Game
             if (Player.empirePlanetCombat > 0)
             {
                 Planet planetToView = null;
-                int nbrplanet = 0;
-                if (lastplanetcombat >= Player.empirePlanetCombat)
-                    lastplanetcombat = 0;
-                bool flagPlanet;
+                int planetIdx = 0;
 
+                // try to select the next planet which is in combat
                 foreach (SolarSystem system in UState.Systems)
                 {
                     foreach (Planet p in system.PlanetList)
                     {
-                        if (!p.IsExploredBy(Player) || !p.RecentCombat) continue;
-                        if (p.Owner.isPlayer)
+                        if (p.IsExploredBy(Player) && p.RecentCombat)
                         {
-                            if (nbrplanet == lastplanetcombat)
-                                planetToView = p;
-                            nbrplanet++;
-                        }
-                        else
-                        {
-                            flagPlanet = false;
-                            foreach (Troop troop in p.TroopsHere)
+                            if (p.Owner.isPlayer || p.Troops.WeHaveTroopsHere(UState.Player))
                             {
-                                if (troop.Loyalty != null && troop.Loyalty.isPlayer)
-                                {
-                                    flagPlanet = true;
-                                    break;
-                                }
+                                if (planetIdx == nextPlanetCombat)
+                                    planetToView = p;
+                                ++planetIdx;
                             }
-
-                            if (!flagPlanet) continue;
-                            if (nbrplanet == lastplanetcombat)
-                                planetToView = p;
-                            nbrplanet++;
                         }
                     }
                 }
+                
+                ++nextPlanetCombat;
+                if (nextPlanetCombat >= Player.empirePlanetCombat)
+                    nextPlanetCombat = 0;
 
                 if (planetToView == null) return;
                 if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
@@ -1304,7 +1291,6 @@ namespace Ship_Game
                 SelectedPlanet = planetToView;
                 SelectedShipList.Clear();
                 pInfoUI.SetPlanet(planetToView);
-                lastplanetcombat++;
 
                 CamDestination = new Vector3d(SelectedPlanet.Position.X, SelectedPlanet.Position.Y, 9000.0);
                 transitionStartPosition = CamPos;

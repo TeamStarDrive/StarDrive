@@ -35,8 +35,16 @@ namespace Ship_Game
             $"{Name} ({Owner?.Name ?? "No Owner"}) T:{CType} NET(FD:{Food.NetIncome.String()} PR:{Prod.NetIncome.String()}) {ImportsDescr()}";
 
         public GeodeticManager GeodeticManager;
-        public TroopManager TroopManager;
         public SpaceStation Station;
+        
+        [StarData] public TroopManager Troops;
+        
+        // TODO: this is only for save compatibility, remove later
+        [StarData] Array<Troop> TroopsHere
+        {
+            get => Troops?.TroopsHere;
+            set => (Troops ??= new(this)).TroopsHere = value;
+        }
 
         [StarData] public bool DontScrapBuildings = false;
         [StarData] public bool Quarantine         = false;
@@ -80,7 +88,7 @@ namespace Ship_Game
 
         float NoSpaceCombatTargetsFoundDelay = 0;
 
-        public bool RecentCombat => TroopManager.RecentCombat;
+        public bool RecentCombat => Troops.RecentCombat;
         public float ConsumptionPerColonist => 1 + (Owner?.data.Traits.ConsumptionModifier ?? 0);
         public float FoodConsumptionPerColonist => NonCybernetic ? ConsumptionPerColonist : 0;
         public float ProdConsumptionPerColonist => IsCybernetic ? ConsumptionPerColonist : 0;
@@ -89,40 +97,40 @@ namespace Ship_Game
 
         public bool WeCanLandTroopsViaSpacePort(Empire us) => HasSpacePort && Owner == us && !SpaceCombatNearPlanet;
 
-        public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
-        public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
+        public int CountEmpireTroops(Empire us) => Troops.NumTroopsHere(us);
+        public int GetDefendingTroopCount()     => Troops.NumDefendingTroopCount;
 
 
         public bool Safe => !MightBeAWarZone(Owner) && !Quarantine;
 
-        public int NumTroopsCanLaunchFor(Empire empire) => TroopManager.NumTroopsCanLaunchFor(empire);
+        public int NumTroopsCanLaunchFor(Empire empire) => Troops.NumTroopsCanLaunchFor(empire);
 
-        public float GetDefendingTroopStrength()  => TroopManager.OwnerTroopStrength;
+        public float GetDefendingTroopStrength()  => Troops.OwnerTroopStrength;
 
         public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
         {
-            float strength = TroopManager.GroundStrength(Owner); //.ClampMin(100);
+            float strength = Troops.GroundStrength(Owner); //.ClampMin(100);
             return strength > 0 ? (int)Math.Ceiling(strength / bestTroopStrength.LowerBound(1)) : 0;
 
         }
-        public bool AnyOfOurTroops(Empire us)           => TroopManager.WeHaveTroopsHere(us);
-        public int GetFreeTiles(Empire us)              => TroopManager.NumFreeTiles(us);
-        public int GetEnemyAssets(Empire us)            => TroopManager.GetEnemyAssets(this, us);
-        public float GetGroundStrength(Empire empire)   => TroopManager.GroundStrength(empire);
-        public int GetPotentialGroundTroops()           => TroopManager.GetPotentialGroundTroops();
-        public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
-        public bool WeAreInvadingHere(Empire empire)    => TroopManager.WeAreInvadingHere(empire);
-        public bool MightBeAWarZone(Empire empire)      => TroopManager.MightBeAWarZone(empire);
-        public bool ForeignTroopHere(Empire empire)     => TroopManager.ForeignTroopHere(empire);
+        public bool AnyOfOurTroops(Empire us)           => Troops.WeHaveTroopsHere(us);
+        public int GetFreeTiles(Empire us)              => Troops.NumFreeTiles(us);
+        public int GetEnemyAssets(Empire us)            => Troops.GetEnemyAssets(us);
+        public float GetGroundStrength(Empire empire)   => Troops.GroundStrength(empire);
+        public int GetPotentialGroundTroops()           => Troops.GetPotentialGroundTroops();
+        public bool TroopsHereAreEnemies(Empire empire) => Troops.TroopsHereAreEnemies(empire);
+        public bool WeAreInvadingHere(Empire empire)    => Troops.WeAreInvadingHere(empire);
+        public bool MightBeAWarZone(Empire empire)      => Troops.MightBeAWarZone(empire);
+        public bool ForeignTroopHere(Empire empire)     => Troops.ForeignTroopHere(empire);
         public bool NoGovernorAndNotTradeHub            => !Governor && CType != ColonyType.TradeHub;
         public int SpecialCommodities                   => BuildingList.Count(b => b.IsCommodity);
         public bool Governor                            => CType != ColonyType.Colony;
         public bool IsCrippled                          => CrippledTurns > 0 || RecentCombat;
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
-            => TroopManager.GroundStrengthOther(allButThisEmpire);
-        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
-            => TroopManager.TakeEmpireTroops(empire, maxToTake);
+            => Troops.GroundStrengthOther(allButThisEmpire);
+        public IEnumerable<Troop> GetEmpireTroops(Empire empire, int maxToTake = int.MaxValue) 
+            => Troops.GetLaunchableTroops(empire, maxToTake);
 
         public SpatialObjectBase[] FindNearbyFriendlyShips()
             => Universe.Spatial.FindNearby(GameObjectType.Ship, Position, GravityWellRadius, maxResults:128, onlyLoyalty:Owner);
@@ -235,7 +243,7 @@ namespace Ship_Game
 
         void CreateManagers()
         {
-            TroopManager    = new TroopManager(this);
+            Troops = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
             Storage         = new ColonyStorage(this);
             Construction    = new SBProduction(this);
@@ -358,30 +366,28 @@ namespace Ship_Game
         }
 
         // This will launch troops without having issues with modifying it's own TroopsHere
-        public void LaunchTroops(Troop[] troopsToLaunch)
+        public void LaunchAllTroops(Empire of, bool orderRebase = false)
         {
-            foreach (Troop troop in troopsToLaunch)
-                troop?.Launch();
+            foreach (Troop troop in Troops.GetLaunchableTroops(of))
+            {
+                Ship troopTransport = troop.Launch();
+                if (orderRebase)
+                    troopTransport?.AI.OrderRebaseToNearest();
+            }
         }
 
         public void ForceLaunchInvadingTroops(Empire loyaltyToLaunch)
         {
-            for (int i = TroopsHere.Count - 1; i >= 0; i--)
+            foreach (Troop t in Troops.GetLaunchableTroops(loyaltyToLaunch))
             {
-                Troop t      = TroopsHere[i];
-                Empire owner = t?.Loyalty;
-
-                if (owner == loyaltyToLaunch && owner?.data.DefaultTroopShip != null)
-                {
-                    Ship troopship = t.Launch(ignoreMovement: true);
-                    troopship?.AI.OrderRebaseToNearest();
-                }
+                Ship troopTransport = t.Launch(forceLaunch: true);
+                troopTransport?.AI.OrderRebaseToNearest();
             }
         }
 
         float GetTotalTroopConsumption()
         {
-            int numTroops = TroopsHere.Count(t => t.Loyalty == Owner);
+            int numTroops = Troops.NumTroopsHere(Owner);
 
             float consumption = numTroops * Troop.Consumption * (1 + Owner.data.Traits.ConsumptionModifier);
 
@@ -435,7 +441,7 @@ namespace Ship_Game
             if (!RecentCombat && notify && Owner == Universe.Player && Owner.IsAtWarWith(empire))
                 Universe.Notifications.AddEnemyTroopsLandedNotification(this, empire);
 
-            TroopManager.SetInCombat();
+            Troops.SetInCombat();
         }
 
         public float EmpireFertility(Empire empire) =>
@@ -564,7 +570,7 @@ namespace Ship_Game
                 PlanetUpdatePerTurnTimer = GlobalStats.TurnTimer;
             }
 
-            TroopManager.Update(timeStep);
+            Troops.Update(timeStep);
             GeodeticManager.Update(timeStep);
             // this needs some work
             UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
@@ -839,7 +845,7 @@ namespace Ship_Game
             ApplyResources();
             UpdateLimitedResourceCaches();
             GrowPopulation();
-            TroopManager.HealTroops(2);
+            Troops.HealTroops(2);
             RepairBuildings(1);
             CallForHelp();
             UpdatePlanetShields();
@@ -977,7 +983,7 @@ namespace Ship_Game
             else if (Res.NetIncome > 5.0)
                 DevelopmentStatus += Localizer.Token(GameText.TheQualityOfTheUniversities); // universities are good
 
-            if (AllowInfantry && TroopsHere.Count > 6)
+            if (AllowInfantry && Troops.Count > 6)
                 DevelopmentStatus += Localizer.Token(GameText.ThisPlanetIsHeavilyFortified); // military culture
         }
 
@@ -1127,7 +1133,7 @@ namespace Ship_Game
 
             SetSensorRange(sensorRange);
             UpdateMaxPopulation();
-            TotalDefensiveStrength = (int)TroopManager.GroundStrength(Owner);
+            TotalDefensiveStrength = (int)Troops.GroundStrength(Owner);
 
             ShieldStrengthMax *= 1 + Owner.data.ShieldPowerMod;
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
@@ -1234,13 +1240,11 @@ namespace Ship_Game
             }
         }
 
-        public void SearchAndRemoveTroopFromTile(Troop t)
+        public void SearchAndRemoveTroopFromAllTiles(Troop t)
         {
             for (int i = 0; i < TilesList.Count; i++)
-            {
-                PlanetGridSquare tile = TilesList[i];
-                tile.TroopsHere.Remove(t);
-            }
+                if (TilesList[i].TroopsHere.Remove(t))
+                    return;
         }
 
         public void TryCrashOn(Ship ship)
@@ -1504,7 +1508,7 @@ namespace Ship_Game
                 if (OwnerIsPlayer)
                     threshold = AutoBuildTroops ? 0 : GarrisonSize;
 
-                return (TroopsHere.Count - threshold).LowerBound(0);
+                return (Troops.Count - threshold).LowerBound(0);
             }
         }
 
@@ -1603,11 +1607,11 @@ namespace Ship_Game
         // Bump out an enemy troop to make room available (usually for spawned troops via events)
         public bool BumpOutTroop(Empire empire)
         {
-            Troop[] enemyTroops = TroopsHere.Filter(t => t.Loyalty != empire);
+            Troop[] enemyTroops = Troops.GetTroopsNotOf(empire).ToArr();
             if (enemyTroops.Length == 0) // we completely filled the planet by ourselves
                 return false;
             Troop lastEnemyTroop = enemyTroops[enemyTroops.Length - 1];
-            return lastEnemyTroop.Launch(ignoreMovement: true) != null;
+            return lastEnemyTroop.Launch(forceLaunch: true) != null;
         }
 
         public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);
@@ -1695,11 +1699,10 @@ namespace Ship_Game
         {
             ActiveCombats?.Dispose(ref ActiveCombats);
             OrbitalDropList?.Dispose(ref OrbitalDropList);
-            Construction    = null;
-            Storage   = null;
-            TroopManager    = null;
+            Construction = null;
+            Storage = null;
+            Troops = null;
             GeodeticManager = null;
-            TroopsHere = null;
         }
 
         public DebugTextBlock DebugPlanetInfo()

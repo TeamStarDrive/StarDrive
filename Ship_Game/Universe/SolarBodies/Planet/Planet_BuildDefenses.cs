@@ -366,7 +366,7 @@ namespace Ship_Game
 
         public void BuildTroopsForEvents()
         {
-            if (TroopsHere.Count > 0 || OwnerIsPlayer || TroopsInTheWorks || !EventsOnTiles())
+            if (Troops.Count > 0 || OwnerIsPlayer || TroopsInTheWorks || !EventsOnTiles())
                 return;
 
             if (CanBuildInfantry)
@@ -382,7 +382,7 @@ namespace Ship_Game
             if (numTroopsInTheWorks > 0)
                 return; // We are already building troops
 
-            int troopsWeHave = TroopsHere.Count; // No need to filter our troops here since the planet must not be in RecentCombat
+            int troopsWeHave = Troops.Count; // No need to filter our troops here since the planet must not be in RecentCombat
             if (troopsWeHave < GarrisonSize && GetFreeTiles(Owner) > 0)
             {
                 if (CanBuildInfantry)
@@ -449,8 +449,7 @@ namespace Ship_Game
 
         public void AddTroop(Troop troop, PlanetGridSquare tile)
         {
-            TroopsHere.Add(troop);
-            tile.AddTroop(troop);
+            Troops.AddTroop(tile, troop);
             troop.SetPlanet(this);
         }
 
