@@ -225,9 +225,12 @@ namespace Ship_Game.Universe
                         existing.AreModulesEqual(fromSave))
                     {
                         // remap to use the existing one
-                        RemapShipDesigns(us, fromSave, existing);
+                        //RemapShipDesigns(us, fromSave, existing);
                     }
-                    // else: design is from save only, so nothing needs to be done
+                    else // design is from save only, add it to ship templates list
+                    {
+                        ResourceManager.AddShipTemplate(fromSave, playerDesign: true, readOnly: true);
+                    }
                 }
             }
 
