@@ -61,12 +61,12 @@ namespace Ship_Game
             IncomingProdAmount.Text = $"({IncomingProd.String()})";
             IncomingColoAmount.Text = $"({IncomingPopString})";
 
-            P.SetManualFoodImportSlots((int)Math.Round(ImportFoodSlotSlider.AbsoluteValue));
-            P.SetManualProdImportSlots((int)Math.Round(ImportProdSlotSlider.AbsoluteValue));
-            P.SetManualColoImportSlots((int)Math.Round(ImportColoSlotSlider.AbsoluteValue));
-            P.SetManualFoodExportSlots((int)Math.Round(ExportFoodSlotSlider.AbsoluteValue));
-            P.SetManualProdExportSlots((int)Math.Round(ExportProdSlotSlider.AbsoluteValue));
-            P.SetManualColoExportSlots((int)Math.Round(ExportColoSlotSlider.AbsoluteValue));
+            P.ManualFoodImportSlots = (int)Math.Round(ImportFoodSlotSlider.AbsoluteValue);
+            P.ManualProdImportSlots = (int)Math.Round(ImportProdSlotSlider.AbsoluteValue);
+            P.ManualColoImportSlots = (int)Math.Round(ImportColoSlotSlider.AbsoluteValue);
+            P.ManualFoodExportSlots = (int)Math.Round(ExportFoodSlotSlider.AbsoluteValue);
+            P.ManualProdExportSlots = (int)Math.Round(ExportProdSlotSlider.AbsoluteValue);
+            P.ManualColoExportSlots = (int)Math.Round(ExportColoSlotSlider.AbsoluteValue);
 
             IncomingTradeTitle.Color = GetIncomingTradeTitleColor();
             OutgoingTradeTitle.Color = GetOutgoingTradeTitleColor();

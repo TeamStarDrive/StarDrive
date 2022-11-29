@@ -429,12 +429,8 @@ namespace Ship_Game.AI
 
             public void UnRegisterTrade(Ship freighter)
             {
-                // NOTE: rare issue with a double dispose from multiple threads
-                lock (this)
-                {
-                    ExportFrom.RemoveFromOutgoingFreighterList(freighter);
-                    ImportTo.RemoveFromIncomingFreighterList(freighter);
-                }
+                ExportFrom.RemoveFromOutgoingFreighterList(freighter);
+                ImportTo.RemoveFromIncomingFreighterList(freighter);
             }
         }
 
