@@ -30,6 +30,7 @@ public static class RadMath
     public const float Deg5AsRads = PI / 9; // 5 degrees, expressed as radians
     public const float Deg10AsRads = PI / 18; // 10 degrees, expressed as radians
     public const float Deg20AsRads = Deg10AsRads*2; // 20 degrees, expressed as radians
+    public const float Deg30AsRads = Deg10AsRads*3; // 30 degrees, expressed as radians
     public const float Deg3AsRads  = Deg10AsRads * 0.3f; // 3 degrees, expressed as radians
     public const float Deg45AsRads = PI / 4; // 45 degrees, expressed as radians
     public const float Deg90AsRads = PI / 2; // 90 degrees, expressed as radians
