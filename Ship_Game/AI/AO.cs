@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using SDGraphics;
@@ -40,16 +41,19 @@ namespace Ship_Game.AI
     [StarDataType]
     public sealed class AO : IShipPool
     {
-        public static readonly Planet[] NoPlanets = new Planet[0];
+        public static readonly Planet[] NoPlanets = Empty<Planet>.Array;
 
         [StarData] public Planet CoreWorld { get; private set; }
         [StarData] public Fleet CoreFleet { get; private set; }
         [StarData] Array<Ship> OffensiveForcePool = new();
         [StarData] Array<Ship> ShipsWaitingForCoreFleet = new();
-        Planet[] PlanetsInAo = NoPlanets;
+
+        Planet[] AllPlanetsInAO = NoPlanets;
         AOPlanetData[] PlanetData;
-        [StarData] Planet[] OurPlanetsInAo = NoPlanets;
-        [StarData] Empire Owner;
+
+        // Planets owned by this Owner
+        [StarData] public Planet[] OurPlanets { get; private set; } = NoPlanets;
+        [StarData] public Empire Owner { get; private set; }
         [StarData] int ThreatTimer;
 
         [StarData] public int Id { get; set; }
@@ -60,12 +64,8 @@ namespace Ship_Game.AI
         [StarData] public Vector2 Center;
         public float WarValueOfPlanets;
 
-        public Empire OwnerEmpire => Owner;
-        public Array<Ship> Ships => OffensiveForcePool;
-
-        public Fleet GetCoreFleet() => CoreFleet;
-        public Planet GetPlanet() => CoreWorld;
-        public Planet[] GetOurPlanets() => OurPlanetsInAo;
+        public Empire OwnerEmpire => Owner; // IShipPool
+        public Array<Ship> Ships => OffensiveForcePool; // IShipPool
 
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
         public bool AOFull { get; private set; } = true;
@@ -93,39 +93,31 @@ namespace Ship_Game.AI
         public bool OffensiveForcePoolContains(Ship s) => OffensiveForcePool.ContainsRef(s);
         public bool WaitingShipsContains(Ship s)       => ShipsWaitingForCoreFleet.ContainsRef(s);
 
-        // for deserialization only
-        public AO()
-        {
-        }
+        [StarDataConstructor] AO() {}
 
-        public AO(UniverseState us)
+        AO(UniverseState us)
         {
             Id = us.CreateId();
         }
 
-        public AO(UniverseState us, Vector2 center, float radius) : this(us)
-        {
-            Center = center;
-            Radius = radius;
-        }
-
         public AO(UniverseState us, Empire empire) : this(us)
         {
+            Owner = empire ?? throw new NullReferenceException(nameof(empire));
             Center = empire.WeightedCenter;
             Radius = empire.Universe.Size / 4;
         }
 
-        public AO(UniverseState us, Planet p, float radius) : this(us)
+        public AO(UniverseState us, Planet p, Empire empire, float radius) : this(us)
         {
+            Owner = empire ?? throw new NullReferenceException(nameof(empire));
             Radius = radius;
             CoreWorld = p;
-            Owner = p.Owner;
             Center = p.Position;
             WhichFleet = p.Owner.CreateFleetKey();
 
             CoreFleet = new(p.Universe.CreateId(), p.Owner)
             {
-                Name = "Core Fleet",
+                Name = "Core Fleet "+WhichFleet,
                 FinalPosition = p.Position,
                 IsCoreFleet = true
             };
@@ -134,13 +126,13 @@ namespace Ship_Game.AI
             SetupPlanetsInAO();
         }
 
-        public AO(UniverseState us, Planet p, float radius, int whichFleet, Fleet coreFleet) : this(us)
+        public AO(UniverseState us, Planet p, Empire empire, float radius, int whichFleet, Fleet coreFleet) : this(us)
         {
-            Radius        = radius;
-            CoreWorld     = p;
-            Owner         = p.Owner;
-            Center        = p.Position;
-            WhichFleet    = whichFleet;
+            Owner = empire ?? throw new NullReferenceException(nameof(empire));
+            Radius = radius;
+            CoreWorld = p;
+            Center = p.Position;
+            WhichFleet = whichFleet;
 
             if (coreFleet == null)
             {
@@ -171,6 +163,9 @@ namespace Ship_Game.AI
         [StarDataDeserialized]
         void OnDeserialized()
         {
+            if (Owner == null)
+                return; // BUG: save is corrupted
+
             SetupPlanetsInAO();
         }
 
@@ -221,12 +216,12 @@ namespace Ship_Game.AI
                 systems.AddUniqueRef(planet.ParentSystem);
             }
 
-            PlanetsInAo = planets.ToArray();
-            PlanetData  = new AOPlanetData[PlanetsInAo.Length];
+            AllPlanetsInAO = planets.ToArray();
+            PlanetData  = new AOPlanetData[AllPlanetsInAO.Length];
 
-            for (int i = 0; i < PlanetsInAo.Length; i++)
+            for (int i = 0; i < AllPlanetsInAO.Length; i++)
             {
-                var p  = PlanetsInAo[i];
+                var p  = AllPlanetsInAO[i];
                 var pd = new AOPlanetData(p, Owner);
                 PlanetData[i] = pd;
                 WarValueOfPlanets += pd.WarValue;
@@ -236,9 +231,11 @@ namespace Ship_Game.AI
         public void Update()
         {
             //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.AO, Center, Radius, Owner.EmpireColor, 1);
-            if (PlanetsInAo.Length == 0 && Owner != null) SetupPlanetsInAO();
+            if (AllPlanetsInAO.Length == 0 && Owner != null)
+                SetupPlanetsInAO();
 
-            if (OurPlanetsInAo.Length == 0 && Owner != null && PlanetsInAo.Length > 0) OurPlanetsInAo = PlanetsInAo.Filter(p => p.Owner == Owner);
+            if (OurPlanets.Length == 0 && Owner != null && AllPlanetsInAO.Length > 0)
+                OurPlanets = AllPlanetsInAO.Filter(p => p.Owner == Owner);
 
             UpdateThreatLevel();
 
@@ -298,8 +295,8 @@ namespace Ship_Game.AI
             CoreFleet?.Reset();
             CoreFleet      = null;
             CoreWorld      = null;
-            PlanetsInAo    = null;
-            OurPlanetsInAo = null;
+            AllPlanetsInAO    = null;
+            OurPlanets = null;
         }
 
         void ReassignShips(Array<Ship> ships)

@@ -175,9 +175,9 @@ namespace Ship_Game.AI.Tasks
                 return null;
             }
 
-            AO closestAo = aos.FindMinFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted,
+            AO closestAo = aos.FindMinFiltered(ao => ao.CoreFleet.GetStrength() > strWanted,
                                                ao => ao.Center.SqDist(AO));
-            return closestAo?.GetCoreFleet();
+            return closestAo?.CoreFleet;
         }
 
         void RequisitionCoreFleet()
@@ -194,12 +194,12 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             MinimumTaskForceStrength = EnemyStrength;
-            if (closestAO.GetCoreFleet().FleetTask == null &&
-                closestAO.GetCoreFleet().GetStrength() > MinimumTaskForceStrength)
+            if (closestAO.CoreFleet.FleetTask == null &&
+                closestAO.CoreFleet.GetStrength() > MinimumTaskForceStrength)
             {
                 WhichFleet = closestAO.WhichFleet;
-                closestAO.GetCoreFleet().FleetTask = this;
-                closestAO.GetCoreFleet().TaskStep = 1;
+                closestAO.CoreFleet.FleetTask = this;
+                closestAO.CoreFleet.TaskStep = 1;
                 IsCoreFleetTask = true;
                 NeedEvaluation = false;
             }
