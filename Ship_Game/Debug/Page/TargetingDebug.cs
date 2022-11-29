@@ -103,7 +103,7 @@ public class TargetingDebug : DebugPage
         Ship ship = Universe.Screen.SelectedShip;
         if (ship != null)
         {
-            if (input.LeftMouseDoubleClick)
+            if (input.LeftMouseClick)
             {
                 Vector2 pos = Screen.CursorWorldPosition2D;
                 SelectedModule = ship.GetModuleAt(ship.WorldToGridLocalPointClipped(pos));

@@ -256,13 +256,6 @@ namespace Ship_Game.Ships
 
             CreateModuleGrid(ShipData, isTemplate: false, shipyardDesign: false);
 
-            // add the design to ships list if it doesn't exist
-            // if there is a newer version of this design, it will not be overwritten
-            if (!ResourceManager.Ships.Exists(ShipData.Name))
-            {
-                ResourceManager.AddShipTemplate((ShipDesign)ShipData, playerDesign: true, readOnly: true);
-            }
-
             HealthMax = RecalculateMaxHealth();
             CalcTroopBoardingDefense();
 
