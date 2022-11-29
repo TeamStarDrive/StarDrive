@@ -107,9 +107,9 @@ public class StarDataDeserialized : Attribute
     public Type[] DeserializeBefore;
 
     public StarDataDeserialized() {}
-    public StarDataDeserialized(params Type[] requiredTypes)
+    public StarDataDeserialized(params Type[] requires)
     {
-        Required = requiredTypes;
+        Required = requires;
     }
 }
 

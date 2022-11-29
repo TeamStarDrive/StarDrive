@@ -219,28 +219,18 @@ namespace Ship_Game.Universe
             {
                 foreach (ShipDesign fromSave in Designs)
                 {
-                    fromSave.IsFromSave = true;
-
-                    if (ResourceManager.Ships.GetDesign(fromSave.Name, out IShipDesign existing) &&
-                        existing.AreModulesEqual(fromSave))
+                    if (fromSave.IsAnExistingSavedDesign)
                     {
                         // remap to use the existing one
-                        //RemapShipDesigns(us, fromSave, existing);
-                    }
-                    else // design is from save only, add it to ship templates list
-                    {
-                        ResourceManager.AddShipTemplate(fromSave, playerDesign: true, readOnly: true);
+                        IShipDesign existing = ResourceManager.Ships.GetDesign(fromSave.Name);
+                        RemapShipDesigns(us, fromSave, existing);
                     }
                 }
             }
 
             void RemapShipDesigns(UniverseState us, ShipDesign fromSave, IShipDesign replaceWith)
             {
-                foreach (Ship s in Ships)
-                {
-                    if (s.ShipData == fromSave)
-                        s.ShipData = replaceWith;
-                }
+                // NOTE: individual ships are updated inside Ship.OnDeserialized()
 
                 foreach (Empire e in us.EmpireList)
                 {

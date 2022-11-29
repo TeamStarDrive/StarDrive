@@ -39,7 +39,7 @@ namespace UnitTests.Ships
 
             // if the UniverseSaveData design is exactly equal to an existing design,
             // then the existing one will be used and the one from savegame is discarded
-            AssertEqual(toSave.ShipData, deserialized.ShipData);
+            AssertEqual(toSave.ShipData, deserialized.ShipData, "Expected matching ShipData to be replaced from ShipsManager");
         }
 
         [TestMethod]
