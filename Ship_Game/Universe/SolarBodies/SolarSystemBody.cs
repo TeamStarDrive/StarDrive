@@ -182,7 +182,6 @@ namespace Ship_Game
         [StarData] public SBProduction Construction;
         public BatchRemovalCollection<Combat> ActiveCombats = new();
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new();
-        [StarData] public Array<Troop> TroopsHere = new();
         protected Array<Building> BuildingsCanBuild = new();
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;

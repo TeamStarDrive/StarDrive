@@ -66,41 +66,36 @@ namespace Ship_Game
             {
                 for (int i = 0; i < Sys.PlanetList.Count; i++)
                 {
-                    Vector2d planetPos = pPos.PointFromAngle(Sys.PlanetList[i].OrbitalAngle, 40 + 40 * i);
+                    Planet p = Sys.PlanetList[i];
+                    Vector2d planetPos = pPos.PointFromAngle(p.OrbitalAngle, 40 + 40 * i);
                     planetPos -= ((planetPos - pPos).Normalized() * (40 + 40 * i) * transitionOffset);
 
-                    Color color = Sys.PlanetList[i].Owner == null ? new Color(50, 50, 50, 90) : new Color(Sys.PlanetList[i].Owner.EmpireColor, 100);
+                    Color color = p.Owner == null ? new Color(50, 50, 50, 90) : new Color(p.Owner.EmpireColor, 100);
                     ScreenManager.SpriteBatch.DrawCircle(pPos, pPos.Distance(planetPos), color, 2f);
                 }
 
                 for (int i = 0; i < Sys.PlanetList.Count; i++)
                 {
-                    Planet planet = Sys.PlanetList[i];
-                    Vector2d planetPos = pPos.PointFromAngle(Sys.PlanetList[i].OrbitalAngle, 40 + 40 * i);
+                    Planet p = Sys.PlanetList[i];
+                    Vector2d planetPos = pPos.PointFromAngle(p.OrbitalAngle, 40 + 40 * i);
                     planetPos -= ((planetPos - pPos).Normalized() * (40 + 40 * i) * transitionOffset);
 
-                    float fIconScale = 1.0f + ((float)Math.Log(Sys.PlanetList[i].Scale));
+                    float fIconScale = 1.0f + ((float)Math.Log(p.Scale));
                     Rectangle PlanetRect = new Rectangle((int)planetPos.X - (int)(16 * fIconScale / 2), (int)planetPos.Y - (int)(16 * fIconScale / 2), (int)(16 * fIconScale), (int)(16 * fIconScale));
                     if (PlanetRect.HitTest(Universe.Input.CursorPosition))
                     {
                         Hovering = true;
                         int widthplus = (int)(4f * (HoverTimer / 0.2f));
                         PlanetRect = new Rectangle((int)planetPos.X - ((int)(16 * fIconScale / 2) + widthplus), (int)planetPos.Y - ((int)(16 * fIconScale / 2) + widthplus), 2 * ((int)(16 * fIconScale / 2) + widthplus), 2 * ((int)(16 * fIconScale / 2) + widthplus));
-                        ClickMe cm = new ClickMe
-                        {
-                            p = Sys.PlanetList[i],
-                            r = PlanetRect
-                        };
-                        ClickList.Add(cm);
+                        ClickList.Add(new ClickMe { p = p, r = PlanetRect });
                     }
-                    batch.Draw(Sys.PlanetList[i].PlanetTexture, PlanetRect, Color.White);
+                    batch.Draw(p.PlanetTexture, PlanetRect, Color.White);
             
-                    if (Universe.SelectedPlanet == Sys.PlanetList[i])
+                    if (Universe.SelectedPlanet == p)
                     {
-                        batch.BracketRectangle(PlanetRect, (Sys.PlanetList[i].Owner != null ? Sys.PlanetList[i].Owner.EmpireColor : Color.Gray), 3);
+                        batch.BracketRectangle(PlanetRect, p.Owner?.EmpireColor ?? Color.Gray, 3);
                     }
 
-                    Planet p = Sys.PlanetList[i];
                     var planetTypeCursor = new Vector2(PlanetRect.X + PlanetRect.Width / 2 - SysFont.MeasureString(p.Name).X / 2f, PlanetRect.Y + PlanetRect.Height + 4);
                     planetTypeCursor = planetTypeCursor.Rounded();
                     bool hasAnamoly = false;
@@ -114,9 +109,9 @@ namespace Ship_Game
                     {
                         int j = 0;
 
-                        while (j < Sys.PlanetList[i].BuildingList.Count)
+                        while (j < p.BuildingList.Count)
                         {
-                            Building building = Sys.PlanetList[i].BuildingList[j];
+                            Building building = p.BuildingList[j];
                             
                             if (building.EventHere)
                             {
@@ -131,20 +126,10 @@ namespace Ship_Game
                             j++;
                         }
 
-                        j = 0;
-                        if (planet.OwnerIsPlayer)
-                        while (j < Sys.PlanetList[i].TroopsHere.Count)
+                        if (p.OwnerIsPlayer)
                         {
-                            if (!Sys.PlanetList[i].TroopsHere[j].Loyalty.isPlayer)
-                            {
-                                //hasEnemyTroop = true;
-                            }
-                            else
-                            {
-                                hastroops = true;
-                                playerTroops++;
-                            }
-                            j++;
+                            playerTroops += p.Troops.NumTroopsHere(p.Owner);
+                            hastroops |= playerTroops > 0;
                         }
 
                         if (hasAnamoly)

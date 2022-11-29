@@ -105,18 +105,14 @@ namespace Ship_Game
             bool troopsRemoved       = false;
             bool playerTroopsRemoved = false;
 
-            for (int i = TroopsHere.Count - 1; i >= 0; i--)
+            foreach (Troop t in Troops.GetTroopsNotOf(Owner))
             {
-                Troop t = TroopsHere[i];
-                Empire tLoyalty = t?.Loyalty;
-
-                if (tLoyalty != null && !tLoyalty.IsFaction && tLoyalty.data.DefaultTroopShip != null
-                    && tLoyalty != Owner && !Owner.IsAtWarWith(tLoyalty))
+                if (!Owner.IsAtWarWith(t.Loyalty))
                 {
-                    Ship troopship = t.Launch(ignoreMovement: true);
-                    troopsRemoved  = true;
+                    Ship troopTransport = t.Launch(forceLaunch: true);
+                    troopsRemoved |= troopTransport != null;
                     playerTroopsRemoved |= t.Loyalty.isPlayer;
-                    troopship?.AI.OrderRebaseToNearest();
+                    troopTransport?.AI.OrderRebaseToNearest();
                 }
             }
 

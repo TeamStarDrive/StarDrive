@@ -82,7 +82,7 @@ namespace Ship_Game.AI
                         if (pgs.TroopsAreOnTile && pgs.LockOnOurTroop(us, out Troop troop))
                         {
                             troop.SetPlanet(p); // FB - this is for making sure there is a host planet for the troops? strange
-                            troopShips.Add(troop.Launch(ignoreMovement: true));
+                            troopShips.Add(troop.Launch(forceLaunch: true));
                         }
                     }
 

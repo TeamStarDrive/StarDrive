@@ -237,26 +237,16 @@ namespace Ship_Game.AI.Tasks
                 RemoveTaskTroopsFromPlanet();
         }
 
-        private void RemoveTaskTroopsFromPlanet()
+        void RemoveTaskTroopsFromPlanet()
         {
-            Array<Troop> toLaunch = new Array<Troop>();
             if (TargetPlanet.ParentSystem.DangerousForcesPresent(Owner))
                 return;
 
-            for (int index = TargetPlanet.TroopsHere.Count - 1; index >= 0; index--)
+            foreach (Troop t in TargetPlanet.Troops.GetLaunchableTroops(Owner))
             {
-                Troop t = TargetPlanet.TroopsHere[index];
-                if (t.Loyalty == Owner)
-                    toLaunch.Add(t);
-            }
-                
-            foreach (Troop t in toLaunch)
-            {
-                Ship troopship = t.Launch();
+                Ship troopship = t.Launch(); // returns null on failure
                 troopship?.AI.OrderRebaseToNearest();
             }
-
-            toLaunch.Clear();
         }
 
         private void ClearCoreFleetTask()
@@ -375,21 +365,7 @@ namespace Ship_Game.AI.Tasks
 
                 if (Type == TaskType.Exploration)
                 {
-                    Array<Troop> toLaunch = new Array<Troop>();
-                    foreach (Troop t in TargetPlanet.TroopsHere)
-                    {
-                        if (t.Loyalty != Owner)
-                            continue;
-
-                        toLaunch.Add(t);
-                    }
-
-                    foreach (Troop t in toLaunch)
-                    {
-                        Ship troopship = t.Launch();
-                        troopship?.AI.OrderRebaseToNearest();
-                    }
-                    toLaunch.Clear();
+                    TargetPlanet.LaunchAllTroops(Owner, orderRebase: true);
                 }
             }
             Owner.AI.QueueForRemoval(this);

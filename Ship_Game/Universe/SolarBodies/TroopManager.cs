@@ -5,33 +5,44 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Point = SDGraphics.Point;
+using Ship_Game.Data.Serialization;
+using System.Collections;
+using System.Collections.Generic;
+using Ship_Game.AI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
+    [StarDataType]
     public class TroopManager // Refactored by Fat Bastard. Feb 6, 2019
     {
-        private readonly Planet Ground;
+        [StarData] readonly Planet Ground;
 
-        private Empire Owner           => Ground.Owner;
+        // TODO: make private after Planet.TroopsHere is removed
+        [StarData] public Array<Troop> TroopsHere = new();
+
+        Empire Owner => Ground.Owner;
+        public int Count => TroopsHere.Count;
+
         public bool RecentCombat       => InCombatTimer > 0 && ForeignTroopHere(Owner);
-        private bool NoTroopsOnPlanet  => Ground.TroopsHere.Count == 0;
-        private bool TroopsAreOnPlanet => Ground.TroopsHere.Count > 0;
+        private bool NoTroopsOnPlanet  => TroopsHere.IsEmpty;
+        private bool TroopsAreOnPlanet => TroopsHere.NotEmpty;
 
         private Array<PlanetGridSquare> TilesList => Ground.TilesList;
         private Array<Building> BuildingList      => Ground.BuildingList;
         private SolarSystem ParentSystem          => Ground.ParentSystem;
-        public int NumEmpireTroops(Empire us)     => TroopList.Count(t => t.Loyalty == us);
-        public int NumDefendingTroopCount         => NumEmpireTroops(Owner);
-        public bool WeHaveTroopsHere(Empire us)   => TroopList.Any(t => t.Loyalty == us);
+
+        // TODO: refactor these getters
         public bool WeAreInvadingHere(Empire us)  => WeHaveTroopsHere(us) && Ground.Owner != us;
-        public bool ForeignTroopHere(Empire us)   => TroopList.Any(t => t.Loyalty != null && t.Loyalty != us);
+        public bool ForeignTroopHere(Empire us)   => TroopsHere.Any(t => t.Loyalty != null && t.Loyalty != us);
         public bool MightBeAWarZone(Empire us)    => RecentCombat || Ground.SpaceCombatNearPlanet || ForeignTroopHere(us);
         public bool MightBeAWarZone()             => MightBeAWarZone(Ground.Owner);
-        public float OwnerTroopStrength           => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
+        public float OwnerTroopStrength           => TroopsHere.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
 
-        public int NumTroopsCanLaunchFor(Empire empire)      => TroopList.Count(t => t.Loyalty == empire && t.CanLaunch);
-        private Array<Troop> TroopList => Ground.TroopsHere;
+        public int NumDefendingTroopCount => NumTroopsHere(Owner);
+        public int NumTroopsCanLaunchFor(Empire empire) => TroopsHere.Count(t => t.Loyalty == empire && t.CanLaunch);
+        public int NumTroopsCanMoveFor(Empire empire) => GetTroopsOf(empire).Count(t => t.CanMove);
+
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
 
         private float DecisionTimer;
@@ -51,6 +62,41 @@ namespace Ship_Game
             Ground = planet;
         }
 
+        #region Troop List Add/Remove
+
+        public bool Contains(Troop troop) // troop exists here?
+        {
+            return TroopsHere.ContainsRef(troop);
+        }
+
+        public void AddTroop(PlanetGridSquare tile, Troop troop)
+        {
+            lock (TroopsHere)
+            {
+                if (TroopsHere.AddUniqueRef(troop))
+                {
+                    tile.AddTroop(troop);
+                }
+            }
+        }
+
+        public bool TryRemoveTroop(PlanetGridSquare tile, Troop troop)
+        {
+            lock (TroopsHere)
+            {
+                // not using RemoveSwapLast since the order of troop is important for allied invasion
+                if (TroopsHere.Remove(troop))
+                {
+                    if (tile == null || !tile.TroopsHere.Remove(troop))
+                        Ground.SearchAndRemoveTroopFromAllTiles(troop);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        #endregion
+
         public void Update(FixedSimTime timeStep)
         {
             if (Ground.Universe.Paused) 
@@ -69,7 +115,7 @@ namespace Ship_Game
                 {
                     MakeCombatDecisions();
                     DecisionTimer = 0.5f;
-                    if (Ground.EventsOnTiles() && TroopList.Count > 0)
+                    if (Ground.EventsOnTiles() && TroopsHere.Count > 0)
                         startCombatTimer = true;
                 }
 
@@ -104,7 +150,7 @@ namespace Ship_Game
         // To reproduce - need a before federation save
         void ChangeLoyaltyAbsorbed()
         {
-            foreach (Troop t in TroopList)
+            foreach (Troop t in TroopsHere)
             {
                 if (t.Loyalty.data.AbsorbedBy.NotEmpty())
                     t.ChangeLoyalty(Ground.Universe.GetEmpireByName(t.Loyalty.data.AbsorbedBy));
@@ -188,12 +234,12 @@ namespace Ship_Game
                 possibleEventTile.CheckAndTriggerEvent(Ground, empire);
         }
 
-        private void MoveTowardsTarget(Troop t, PlanetGridSquare ourTile, PlanetGridSquare targetTile)
+        public void MoveTowardsTarget(Troop t, PlanetGridSquare ourTile, PlanetGridSquare targetTile)
         {
             if (!t.CanMove || ourTile == targetTile)
                 return;
 
-            TileDirection direction     = ourTile.GetDirectionTo(targetTile);
+            TileDirection direction = ourTile.GetDirectionTo(targetTile);
             PlanetGridSquare moveToTile = PickTileToMoveTo(direction, ourTile, t.Loyalty);
             if (moveToTile == null)
                 return; // no free tile
@@ -308,20 +354,16 @@ namespace Ship_Game
             if (NoTroopsOnPlanet)
                 return;
 
-            for (int x = TroopList.Count - 1; x >= 0; x--)
+            for (int x = TroopsHere.Count - 1; x >= 0; x--)
             {
-                Troop troop = TroopList[x];
+                Troop troop = TroopsHere[x];
                 if (troop == null)
                     continue;
 
                 if (troop.Strength <= 0f)
                 {
-                    for (int i = TilesList.Count - 1; i >= 0; i--)
-                    {
-                        TilesList[i].TroopsHere.RemoveRef(troop);
-                        Log.Warning("Removed Ghost 0 Str troop");
-                    }
-                    TroopList.RemoveAtSwapLast(x);
+                    TryRemoveTroop(null, troop);
+                    Log.Warning($"Removed 0 strength troop: {troop}");
                     continue;
                 }
 
@@ -432,9 +474,9 @@ namespace Ship_Game
             Empire newOwner = null;
             switch (empires.Count)
             {
-                case 0:                                                            return;
-                case 1: newOwner = empires[0];                                     break;
-                default: if (TroopList.Count > 1) newOwner = TroopList[0].Loyalty; break;
+                case 0: return;
+                case 1: newOwner = empires[0]; break;
+                default: if (TroopsHere.Count > 1) newOwner = TroopsHere[0].Loyalty; break;
             }
 
             if (Owner != null)
@@ -465,14 +507,7 @@ namespace Ship_Game
             if (Owner == empire)
                 strength += BuildingList.Sum(BuildingCombatStrength);
 
-            strength += TroopList.Where(t => t.Loyalty == empire).Sum(str => str.ActualStrengthMax);
-            return strength;
-        }
-
-        public float TroopStrength()
-        {
-            float strength = 0;
-            strength += TroopList.Where(t => t.Loyalty == Ground.Owner).Sum(str => str.ActualStrengthMax);
+            strength += TroopsHere.Sum(t => t.Loyalty == empire ? t.ActualStrengthMax : 0);
             return strength;
         }
 
@@ -489,7 +524,7 @@ namespace Ship_Game
 
         public float GroundStrengthOther(Empire allButThisEmpire)
         {
-            float enemyTroopStrength = TroopList.Where(t => t.Loyalty != allButThisEmpire).Sum(t => t.ActualStrengthMax);
+            float enemyTroopStrength = TroopsHere.Sum(t => t.Loyalty != allButThisEmpire ? t.ActualStrengthMax : 0);
 
             if (Owner == allButThisEmpire)
                 return enemyTroopStrength; // The planet is ours, so no need to check from buildings
@@ -521,21 +556,27 @@ namespace Ship_Game
             return strength;
         }
 
+        public int NumTroopsHere(Empire empire)
+        {
+            int count = 0;
+            for (int i = 0; i < TroopsHere.Count; ++i) // using loop for perf
+                if (TroopsHere[i].Loyalty == empire) ++count;
+            return count;
+        }
+
+        public bool WeHaveTroopsHere(Empire empire)
+        {
+            for (int i = 0; i < TroopsHere.Count; ++i) // using loop for perf
+                if (TroopsHere[i].Loyalty == empire) return true;
+            return false;
+        }
+
         public bool TroopsHereAreEnemies(Empire empire)
         {
-            bool enemies = false;
-            foreach (Troop t in TroopList)
-            {
-                if (t.Loyalty == empire)
-                    continue;
-
-                if (empire.IsAtWarWith(t.Loyalty))
-                {
-                    enemies = true;
-                    break;
-                }
-            }
-            return enemies;
+            foreach (Troop t in TroopsHere)
+                if (t.Loyalty != empire && empire.IsAtWarWith(t.Loyalty))
+                    return true;
+            return false;
         }
 
         public int NumFreeTiles(Empire empire)
@@ -543,28 +584,43 @@ namespace Ship_Game
             return TilesList.Count(t => t.IsTileFree(empire));
         }
 
-        public int GetEnemyAssets(Planet planet, Empire empire)
+        public int GetEnemyAssets(Empire empire)
         {
-            int numTroops          = planet.TroopsHere.Count(t => t.Loyalty != empire);
-            int numCombatBuildings = planet.Owner != empire ? planet.BuildingList.Count(b => b.IsAttackable) : 0;
+            int numTroops = TroopsHere.Count(t => t.Loyalty != empire);
+            int numCombatBuildings = Owner != empire ? Ground.BuildingList.Count(b => b.IsAttackable) : 0;
 
             return numTroops + numCombatBuildings;
         }
 
-        public Array<Troop> TakeEmpireTroops(Empire empire, int maxToTake)
+        // tries to take up to N Launchable troops
+        public IEnumerable<Troop> GetLaunchableTroops(Empire of, int maxToTake = int.MaxValue)
         {
-            var troops = new Array<Troop>();
-            for (int x = 0; x < TroopList.Count; x++)
+            for (int i = 0; i < TroopsHere.Count; ++i)
             {
-                Troop troop = TroopList[x];
-                if (troop.Loyalty == empire && troop.CanLaunch)
-                {
-                    if (maxToTake-- > 0)
-                        troops.Add(troop);
-                }
+                Troop troop = TroopsHere[i];
+                if (troop.Loyalty == of && troop.CanLaunch && maxToTake-- > 0)
+                    yield return troop;
             }
+        }
 
-            return troops;
+        public IEnumerable<Troop> GetTroopsOf(Empire of)
+        {
+            for (int i = 0; i < TroopsHere.Count; ++i)
+            {
+                Troop troop = TroopsHere[i];
+                if (troop.Loyalty == of)
+                    yield return troop;
+            }
+        }
+
+        public IEnumerable<Troop> GetTroopsNotOf(Empire notOf)
+        {
+            for (int i = 0; i < TroopsHere.Count; ++i)
+            {
+                Troop troop = TroopsHere[i];
+                if (troop.Loyalty != notOf)
+                    yield return troop;
+            }
         }
 
         // Added by McShooterz: heal builds and troops every turn
@@ -573,7 +629,7 @@ namespace Ship_Game
             if (RecentCombat)
                 return;
 
-            foreach (Troop troop in TroopList)
+            foreach (Troop troop in TroopsHere)
             {
                 if (Ground.CanRepairOrHeal())
                     troop.HealTroop(healAmount);
@@ -589,32 +645,25 @@ namespace Ship_Game
 
             public Forces(Empire planetOwner, Planet ground)
             {
-                DefendingForces  = 0;
-                InvadingForces   = 0;
-                InvadingEmpires  = new Array<Empire>();
-                DefendingEmpires = new Array<Empire>();
+                InvadingForces = 0;
+                InvadingEmpires = new();
+                DefendingEmpires = new();
 
                 if (ground.Owner != null)
                     DefendingEmpires.Add(ground.Owner);
+                DefendingForces = ground.Troops.NumDefendingTroopCount;
 
-                for (int i = 0; i < ground.TroopsHere.Count; i++)
+                foreach (Troop t in ground.Troops.GetTroopsNotOf(planetOwner))
                 {
-                    Troop troop = ground.TroopsHere[i];
-                    if (troop == null)
-                        continue;
-
-                    if (troop.Loyalty != null
-                        && troop.Loyalty != planetOwner
-                        && !troop.Loyalty.IsAlliedWith(planetOwner))
+                    if (!t.Loyalty.IsAlliedWith(planetOwner))
                     {
                         InvadingForces += 1;
-                        InvadingEmpires.AddUnique(troop.Loyalty);
+                        InvadingEmpires.AddUnique(t.Loyalty);
                     }
                     else
                     {
                         DefendingForces += 1;
-                        if (troop.Loyalty != ground.Owner)
-                            DefendingEmpires.AddUnique(troop.Loyalty);
+                        DefendingEmpires.AddUnique(t.Loyalty);
                     }
                 }
 

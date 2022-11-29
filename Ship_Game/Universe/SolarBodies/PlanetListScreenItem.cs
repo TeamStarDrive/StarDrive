@@ -372,17 +372,13 @@ namespace Ship_Game
         void OnRecallTroopsClicked(UIButton b)
         {
             bool troopLaunched = false;
-            for (int i = Planet.TroopsHere.Count-1; i >= 0; i--)
+            foreach (Troop t in Planet.Troops.GetLaunchableTroops(Player))
             {
-                Troop t = Planet.TroopsHere[i];
-                if (t.Loyalty != Player)
-                    continue;
-
-                Ship troopShip = t.Launch();
-                if (troopShip != null)
+                Ship troopTransport = t.Launch();
+                if (troopTransport != null)
                 {
                     troopLaunched = true;
-                    troopShip.AI.OrderRebaseToNearest();
+                    troopTransport.AI.OrderRebaseToNearest();
                 }
             }
 
