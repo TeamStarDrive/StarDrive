@@ -39,7 +39,7 @@ public sealed partial class DebugInfoScreen : GameScreen
         ModesTab.OnTabChange = OnModesTabChange;
         ModesTab.SelectedIndex = (int)Mode;
             
-        ShipInfoPanel = ModesTab.Add(new ShipDebugInfoPanel(this, new(10,135), new(300, 500)));
+        ShipInfoPanel = ModesTab.Add(new ShipDebugInfoPanel(this, new(10,135), new(350, 500)));
     }
 
     void OnModesTabChange(int modeIndex)
@@ -97,8 +97,10 @@ public sealed partial class DebugInfoScreen : GameScreen
             DrawDebugPrimitives(elapsed.RealTime.Seconds);
             VisualizeShipGoals();
 
-            ShipInfoPanel.Hidden = Mode is DebugModes.Particles 
-                or DebugModes.StoryAndEvents || !ShipInfoPanel.HasSelectedSomething();
+            ShipInfoPanel.Hidden = (Mode is DebugModes.Particles 
+                or DebugModes.StoryAndEvents) || !ShipInfoPanel.HasSelectedSomething();
+
+            ModesTab.Hidden = Screen.workersPanel.Visible;
 
             base.Draw(batch, elapsed);
         }

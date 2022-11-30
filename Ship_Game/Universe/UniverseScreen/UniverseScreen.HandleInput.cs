@@ -583,7 +583,8 @@ namespace Ship_Game
             {
                 Ship ship = ships[i];
                 if (!ship.IsVisibleToPlayerInMap
-                    || ship.IsSubspaceProjector && viewState > UnivScreenState.PlanetView
+                    // feature: if we're zoomed out a lot, ignore subspace projector clicks
+                    || ship.IsSubspaceProjector && CamPos.Z > 1_200_000.0
                     || !ship.Active)
                 {
                     continue;
@@ -803,6 +804,7 @@ namespace Ship_Game
             SelectedShip    = null;
             SelectedPlanet  = null;
             SelectedFleet   = null;
+            CurrentGroup    = null;
             SelectedSystem  = null;
             SelectedItem    = null;
             Project.Started = false;
@@ -1399,18 +1401,22 @@ namespace Ship_Game
                 return;
 
             var buttons = new Array<FleetButton>();
-            int shipCounter = 0;
+
+            // if we're showing debug window, move the fleet buttons down a bit
+            bool showingDebugTabs = Debug && DebugWin?.ModesTab.Visible == true;
+            int startY = showingDebugTabs ? 120 : 60;
+            int index = 0;
 
             var fleets = Player.ActiveFleets.Sorted(f => f.Key);
             foreach (Fleet fleet in fleets)
             {
                 buttons.Add(new FleetButton
                 {
-                    ClickRect = new Rectangle(20, 60 + shipCounter * 60, 52, 48),
+                    ClickRect = new Rectangle(20, startY + index * 60, 52, 48),
                     Fleet = fleet,
                     Key = fleet.Key
                 });
-                ++shipCounter;
+                ++index;
             }
             FBTimer = 0;
             FleetButtons = buttons.ToArray();

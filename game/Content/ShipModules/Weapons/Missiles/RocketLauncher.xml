@@ -15,7 +15,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/missileRack</IconTexturePath>
-  <Mass>24</Mass>
+  <Mass>6</Mass>
   <Health>500</Health>
   <HealthMax>500</HealthMax>
   <energyreq>0</energyreq>
