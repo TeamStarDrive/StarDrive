@@ -100,7 +100,7 @@ public sealed partial class DebugInfoScreen : GameScreen
             ShipInfoPanel.Hidden = (Mode is DebugModes.Particles 
                 or DebugModes.StoryAndEvents) || !ShipInfoPanel.HasSelectedSomething();
 
-            ModesTab.Hidden = Screen.workersPanel.Visible;
+            ModesTab.Hidden = Screen.workersPanel?.Visible == true;
 
             base.Draw(batch, elapsed);
         }
