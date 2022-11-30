@@ -114,7 +114,7 @@ namespace Ship_Game.Ships
         }
 
         // called when this object has been fully deserialized
-        [StarDataDeserialized(requires: typeof(ShipDesign))]
+        [StarDataDeserialized]
         void OnDeserialized()
         {
             IsFromSave = true;
