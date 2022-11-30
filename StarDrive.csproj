@@ -254,6 +254,7 @@
     <Compile Include="Ship_Game\Debug\Page\TechDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\ThreatMatrixDebug.cs" />
     <Compile Include="Ship_Game\Debug\ShipDebugInfoPanel.cs" />
+    <Compile Include="Ship_Game\Debug\ShipModuleInfoPanel.cs" />
     <Compile Include="Ship_Game\Debug\TextDrawerComponent.cs" />
     <Compile Include="Ship_Game\Empires\Components\EmpireFirstContact.cs" />
     <Compile Include="Ship_Game\Empires\Components\IncomingThreatDetector.cs" />
