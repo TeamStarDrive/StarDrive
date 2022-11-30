@@ -32,7 +32,7 @@
 
 
   <!-- Mass and Health -->
-  <Mass>5</Mass>
+  <Mass>4</Mass>
   <Health>1200</Health>
   <HealthMax>1200</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>

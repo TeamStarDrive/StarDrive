@@ -17,7 +17,7 @@
 
   <TexturePath>Textures/transparent</TexturePath>
   <IconTexturePath>Modules/NuclearReactorSmall</IconTexturePath>
-  <Mass>12</Mass>
+  <Mass>7</Mass>
   <Health>200</Health>
   <HealthMax>200</HealthMax>
   <energyreq>0</energyreq>
