@@ -36,9 +36,9 @@
     <!-- Less Fertile -->
     <TraitName>38</TraitName>
     <Category>Physical</Category>
-    <Cost>-2</Cost>
+    <Cost>-3</Cost>
     <Description>39</Description>
-    <PopGrowthMax>0.01</PopGrowthMax>
+    <PopGrowthMax>0.015</PopGrowthMax>
     <Excludes>36</Excludes>
     <Excludes>5091</Excludes>
   </RacialTrait>
@@ -246,7 +246,7 @@
       <!-- Astronomers -->
       <TraitName>80</TraitName>
       <Category>Special</Category>
-      <Cost>2</Cost>
+      <Cost>1</Cost>
       <Description>81</Description>
       <BonusExplored>15</BonusExplored>
       <Excludes>5091</Excludes>
@@ -307,7 +307,7 @@
       <Category>Special</Category>
       <Cost>3</Cost>
       <Description>89</Description>
-      <HomeworldSizeMod>0.15</HomeworldSizeMod>
+      <HomeworldSizeMod>0.25</HomeworldSizeMod>
       <Excludes>90</Excludes>
       <Excludes>5091</Excludes>
     </RacialTrait>
