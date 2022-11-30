@@ -64,7 +64,7 @@
 	<PhysicalTraitGluttonous>false</PhysicalTraitGluttonous> 							<!--(-3)-->
 	<PhysicalTraitFertile>false</PhysicalTraitFertile> 									<!--( 3)-->
 	<PhysicalTraitLessFertile>false</PhysicalTraitLessFertile> 							<!--(-3)-->
-	<PhysicalTraitSmart>true</PhysicalTraitSmart> 										<!--( 3)-->
+	<PhysicalTraitSmart>false</PhysicalTraitSmart> 										<!--( 3)-->
 	<PhysicalTraitDumb>false</PhysicalTraitDumb> 										<!--(-3)-->
 	<PhysicalTraitReflexes>false</PhysicalTraitReflexes> 								<!--( 3)-->
 	<PhysicalTraitPonderous>false</PhysicalTraitPonderous> 								<!--(-3)-->
@@ -76,22 +76,22 @@
 	<SociologicalTraitLazy>false</SociologicalTraitLazy> 								<!--(-3)-->
 	<SociologicalTraitMercantile>false</SociologicalTraitMercantile> 					<!--( 3)-->
 	<SociologicalTraitMeticulous>true</SociologicalTraitMeticulous> 					<!--( 1)-->
-	<SociologicalTraitCorrupt>false</SociologicalTraitCorrupt> 							<!--(-1)-->
+	<SociologicalTraitCorrupt>true</SociologicalTraitCorrupt> 							<!--(-1)-->
 	<SociologicalTraitSkilledEngineers>false</SociologicalTraitSkilledEngineers> 		<!--( 2)-->
 	<SociologicalTraitHaphazardEngineers>false</SociologicalTraitHaphazardEngineers> 	<!--(-2)-->
-	<HistoryTraitAstronomers>false</HistoryTraitAstronomers> 							<!--( 2)-->
+	<HistoryTraitAstronomers>true</HistoryTraitAstronomers> 							<!--( 2)-->
 	<HistoryTraitCybernetic>false</HistoryTraitCybernetic> 								<!--( 7)-->
 	<HistoryTraitManifestDestiny>false</HistoryTraitManifestDestiny> 					<!--( 3)-->
-	<HistoryTraitMilitaristic>false</HistoryTraitMilitaristic> 							<!--( 4)-->
+	<HistoryTraitMilitaristic>true</HistoryTraitMilitaristic> 							<!--( 4)-->
 	<HistoryTraitNavalTraditions>false</HistoryTraitNavalTraditions> 					<!--( 4)-->
 	<HistoryTraitPackMentality>false</HistoryTraitPackMentality> 						<!--( 2)-->
 	<HistoryTraitPrototypeFlagship>true</HistoryTraitPrototypeFlagship> 				<!--( 1)-->
 	<HistoryTraitSpiritual>false</HistoryTraitSpiritual> 								<!--( 2)-->
-	<HistoryTraitPollutedHomeWorld>false</HistoryTraitPollutedHomeWorld> 				<!--(-2)-->
+	<HistoryTraitPollutedHomeWorld>true</HistoryTraitPollutedHomeWorld> 				<!--(-2)-->
 	<HistoryTraitIndustrializedHomeWorld>false</HistoryTraitIndustrializedHomeWorld> 	<!--( 1)-->
 	<HistoryTraitDuplicitous>false</HistoryTraitDuplicitous> 							<!--( 2)-->
 	<HistoryTraitHonest>false</HistoryTraitHonest> 										<!--(-2)-->
-	<HistoryTraitHugeHomeWorld>false</HistoryTraitHugeHomeWorld>			 			<!--( 3)-->
+	<HistoryTraitHugeHomeWorld>true</HistoryTraitHugeHomeWorld>			 			<!--( 3)-->
 	<HistoryTraitSmallHomeWorld>false</HistoryTraitSmallHomeWorld>						<!--(-3)-->
   </Traits>
   <Faction>0</Faction>

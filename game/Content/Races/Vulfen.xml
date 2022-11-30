@@ -64,7 +64,7 @@
     <RaceDescription>The Vulfen Imperium believes in the superiority of the Vulfen race. They are an aggressive an industrialist race preferring strength through numbers in their many and varied conflicts. </RaceDescription>
     <Cost>0</Cost>
     <ConsumptionModifier>0</ConsumptionModifier>
-    <PopGrowthMin>.01</PopGrowthMin>
+    <PopGrowthMin>0</PopGrowthMin>
     <DiplomacyMod>-.2</DiplomacyMod>
     <GenericMaxPopMod>0</GenericMaxPopMod>
     <Aquatic>0</Aquatic>
@@ -78,13 +78,13 @@
     <Spiritual>0</Spiritual>
     <HomeworldFertMod>0</HomeworldFertMod>
     <DodgeMod>-0.25</DodgeMod>
-    <EnergyDamageMod>0</EnergyDamageMod>
+    <EnergyDamageMod>0.2</EnergyDamageMod>
     <ResearchMod>-.35</ResearchMod>
     <Mercantile>0</Mercantile>
     <Miners>0</Miners>
     <ProductionMod>.35</ProductionMod>
     <MaintMod>-0.30</MaintMod>
-    <TaxMod>-0.25</TaxMod>
+    <TaxMod>0</TaxMod>
     <ShipCostMod>-.35</ShipCostMod>
     <ModHpModifier>-.2</ModHpModifier>
     <SmallSize>0</SmallSize>
@@ -93,7 +93,7 @@
     <RepairRateMod>0</RepairRateMod>
     <Pack>true</Pack>
     <Cybernetic>0</Cybernetic>
-    <PassengerBonus>2</PassengerBonus>
+    <PassengerBonus>0</PassengerBonus>
     <Prototype>1</Prototype>
   </Traits>
   <Faction>0</Faction>

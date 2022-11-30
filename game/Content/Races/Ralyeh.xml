@@ -54,7 +54,8 @@
     <B>253</B>
     <RaceDescription>KWAK!</RaceDescription>
     <Cost>0</Cost>
-    <ConsumptionModifier>0</ConsumptionModifier>
+    <PopGrowthMin>0.01</PopGrowthMin>
+    <ConsumptionModifier>0.1</ConsumptionModifier>
     <ReproductionMod>0</ReproductionMod>
     <DiplomacyMod>0</DiplomacyMod>
     <GenericMaxPopMod>0</GenericMaxPopMod>
