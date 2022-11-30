@@ -263,7 +263,7 @@ namespace Ship_Game
 
                 if (input.GetMemory)
                 {
-                    GC.Collect(-1, GCCollectionMode.Forced, blocking: true, compacting: true);
+                    GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
                 }
             }
 
