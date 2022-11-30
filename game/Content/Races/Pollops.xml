@@ -65,7 +65,7 @@
     <RaceDescription>Pollops are a peculiar race of mobile plant-like organisms. Though physically weak, they grow at a rapid pace and have long lifespans. Pollops tend to be quite friendly.</RaceDescription>
     <Cost>0</Cost>
     <ConsumptionModifier>-.25</ConsumptionModifier>
-    <PopGrowthMin>.01</PopGrowthMin>
+    <PopGrowthMin>.005</PopGrowthMin>
     <DiplomacyMod>0</DiplomacyMod>
     <GenericMaxPopMod>0</GenericMaxPopMod>
     <Aquatic>0</Aquatic>
@@ -77,12 +77,12 @@
     <Prewarp>0</Prewarp>
     <Spiritual>0</Spiritual>
     <HomeworldFertMod>0</HomeworldFertMod>
-    <DodgeMod>-.25</DodgeMod>
+    <DodgeMod>0.25</DodgeMod>
     <EnergyDamageMod>0</EnergyDamageMod>
     <ResearchMod>0</ResearchMod>
     <Mercantile>0</Mercantile>
     <Miners>0</Miners>
-    <ProductionMod>0</ProductionMod>
+    <ProductionMod>-0.15</ProductionMod>
     <MaintMod>-.25</MaintMod>
     <TaxMod>0</TaxMod>
     <ShipCostMod>0</ShipCostMod>
@@ -92,7 +92,8 @@
     <GroundCombatModifier>-.20</GroundCombatModifier>
     <RepairRateMod>0</RepairRateMod>
     <Cybernetic>0</Cybernetic>
-    <HomeworldSizeMod>.25</HomeworldSizeMod>
+    <HomeworldSizeMod>0</HomeworldSizeMod>
+    <PassengerBonus>2</PassengerBonus>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>
