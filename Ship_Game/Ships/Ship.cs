@@ -1882,10 +1882,9 @@ namespace Ship_Game.Ships
                 return;
 
             int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
-            for (int x =0; x < damagedModules; x++)
+            for (int i = 0; repairAmount > 0 && i < damagedModules; ++i)
             {
-                if (repairAmount > 0)
-                    repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
+                repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
             }
 
             ApplyRepairToShields(repairAmount);
@@ -1907,19 +1906,33 @@ namespace Ship_Game.Ships
 
         public ShipModule GetModuleToRepair(int repairLevel)
         {
-            // RepairSkill Reduces the priority of mostly healed modules.
-            // It allows a ship to become fully functional faster.
-            float repairSkill = 1.0f - (repairLevel * 0.1f).Clamped(0.0f, 0.95f);
+            // Critical module percent allows skilled crews to get modules barely functional
+            // before moving on to repairing next critical modules.
+            // Above skill 5 there is no more benefit.
+            // The default value is 50%, and lowest threshold is 5%
+            float criticalModulePercent = (0.5f - (repairLevel * 0.1f)).Clamped(0.05f, 0.5f);
+
             ShipModule moduleToRepair = ModuleSlotList.FindMax(module =>
             {
-                if (module.HealthPercent.AlmostEqual(1)) return 0;
-                // fully damaged modules get priority 1.0
-                float damagePriority = module.Health.Less(module.ActualMaxHealth * repairSkill)
-                                    ? 1.0f
-                                    : 1.0f - module.HealthPercent;
+                float maxHealth = module.ActualMaxHealth;
+                float healthPercent = module.Health / maxHealth;
+                if (healthPercent.AlmostEqual(1.0f))
+                    return 0;
+
+                // < critical modules get priority 1.0, non-critical modules are repaired linearly
+                float damagePriority = healthPercent < criticalModulePercent ? 1f : 1f - healthPercent;
 
                 // best modules get priority 1.0
-                float moduleImportance = 1.1f - (float)module.ModulePriority / ShipModule.MaxPriority;
+                float moduleImportance = 1.0f - ((float)module.ModulePriority / ShipModule.MaxPriority);
+
+                // conduits don't need to be fully repaired
+                // prefer regular engines instead of maneuver thrusters
+                if (module.ModuleType == ShipModuleType.PowerConduit ||
+                    (module.ModuleType == ShipModuleType.Engine && module.Thrust == 0f && module.WarpThrust == 0f))
+                {
+                    moduleImportance *= 0.75f;
+                }
+
                 return damagePriority * moduleImportance;
             });
 
