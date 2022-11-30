@@ -492,9 +492,9 @@ Types:
     SpecularPower: 4
     AtmosphereType: [TundraBlue,Clouds]
     Habitable: true
-    HabitableTileChance: [20, 45]
-    PopPerTile: [150, 500]
-    BaseFertility: [0.25, 0.5]
+    HabitableTileChance: [20, 40]
+    PopPerTile: [200, 500]
+    BaseFertility: [0.25, 0.8]
     MoonTypes: [Barren,Desert,Volcanic,Ice]
 
   # Tundra, dense
@@ -512,7 +512,7 @@ Types:
     AtmosphereType: [TundraBlue,Clouds]
     Habitable: true
     HabitableTileChance: [35, 65]
-    PopPerTile: [125, 250]
+    PopPerTile: [150, 250]
     BaseFertility: [0.25, 1.5]
     MoonTypes: [Barren,Desert,Volcanic,Ice]
   

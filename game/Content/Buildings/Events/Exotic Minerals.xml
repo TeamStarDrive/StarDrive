@@ -3,8 +3,8 @@
   <Icon>Exotic_Mineral</Icon>
   
   <Cost>250</Cost>
-  <ProdCache>12000</ProdCache>
-  <IncreaseRichness>0.5</IncreaseRichness>
+  <ProdCache>18000</ProdCache>
+  <IncreaseRichness>0.6</IncreaseRichness>
   <PlusProdPerColonist>0.8</PlusProdPerColonist>
   <IsCommodity>true</IsCommodity>
   <CanBeCreatedFromLava>true</CanBeCreatedFromLava>
