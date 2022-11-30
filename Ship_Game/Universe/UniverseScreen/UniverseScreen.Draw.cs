@@ -386,10 +386,9 @@ namespace Ship_Game
 
         void DrawTopCenterStatusText(SpriteBatch batch, in LocalizedText status, Color color, int lineOffset)
         {
-            Graphics.Font font = Fonts.Pirulen16;
-            string text = status.Text;
-            var pos = new Vector2(ScreenCenter.X - font.TextWidth(text) / 2f, 45f + (font.LineSpacing + 2)*lineOffset);
-            batch.DrawString(font, text, pos, color);
+            Font font = Fonts.Pirulen16;
+            var pos = new Vector2(ScreenCenter.X - font.TextWidth(status) / 2f, 45f + (font.LineSpacing + 2)*lineOffset);
+            batch.DrawString(font, status, pos, color);
         }
 
         void DrawGeneralStatusText(SpriteBatch batch, DrawTimes elapsed)
@@ -407,6 +406,10 @@ namespace Ship_Game
             if (IsActive && IsSaving)
             {
                 DrawTopCenterStatusText(batch, "Saving...", CurrentFlashColor, 2);
+            }
+            else if (Debug)
+            {
+                DrawTopCenterStatusText(batch, "Debug", Color.GreenYellow, 2);
             }
 
             if (IsActive && UState.GameSpeed.NotEqual(1)) //don't show "1.0x"
