@@ -140,10 +140,12 @@ namespace Ship_Game
             Vector2 start = capsuleOnScreen.Start;
             Vector2 end   = capsuleOnScreen.End;
             float radius  = capsuleOnScreen.Radius;
-            Vector2 left = (end - start).LeftVector().Normalized() * radius;
+            Vector2 leftDir = (end - start).LeftVector().Normalized();
+            Vector2 left = leftDir * (radius);
+            Vector2 right = leftDir * (thickness - radius);
 
             DrawLine(batch, start + left, end + left, color, thickness);
-            DrawLine(batch, start - left, end - left, color, thickness);
+            DrawLine(batch, start + right, end + right, color, thickness);
             DrawCircle(batch, start, radius, color, thickness);
             DrawCircle(batch, end, radius, color, thickness);
         }
