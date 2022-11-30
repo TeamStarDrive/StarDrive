@@ -104,8 +104,8 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r, rect.Key != FleetToEdit ? Color.Black : new(0, 0, 255, 80));
                 sel.Draw(batch, elapsed);
 
-                Fleet f = Universe.Player.GetFleet(rect.Key);
-                if (f.DataNodes.Count > 0)
+                Fleet f = Universe.Player.GetFleetOrNull(rect.Key);
+                if (f?.DataNodes.Count > 0)
                 {
                     RectF firect = new(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.W - 12, rect.Value.W - 12);
                     batch.Draw(f.Icon, firect, Universe.Player.EmpireColor);
@@ -120,7 +120,9 @@ namespace Ship_Game
                 Vector2 num = new(rect.Value.X + 4, rect.Value.Y + 4);
                 batch.DrawString(Fonts.Pirulen12, rect.Key.ToString(), num, Color.Orange);
                 num.X += (rect.Value.W + 5);
-                batch.DrawString(Fonts.Pirulen12, f.Name, num, rect.Key != FleetToEdit ? Color.Gray : Color.White);
+                if (f != null)
+                    batch.DrawString(Fonts.Pirulen12, f.Name, num, rect.Key != FleetToEdit ? Color.Gray : Color.White);
+
                 m++;
             }
 
@@ -406,7 +408,10 @@ namespace Ship_Game
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
                 StuffSelector.Draw(batch, elapsed);
 
-                Fleet f = Universe.Player.GetFleet(FleetToEdit);
+                Fleet f = Universe.Player.GetFleetOrNull(FleetToEdit);
+                if (f == null)
+                    return;
+
                 Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
                 FleetNameEntry.Text = f.Name;
                 FleetNameEntry.SetPos(cursor1);

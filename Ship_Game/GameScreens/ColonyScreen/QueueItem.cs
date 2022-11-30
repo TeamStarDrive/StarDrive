@@ -166,8 +166,8 @@ namespace Ship_Game
                 }
             }
 
-            PriorityBonus += 0.05f;
-            return (priority - PriorityBonus).LowerBound(0);
+            PriorityBonus += QType is QueueItemType.ColonyShip or QueueItemType.Building ? 0.15f : 0.05f;
+            return (priority - PriorityBonus);
         }
 
         public override string ToString() => $"QueueItem DisplayText={DisplayText}";
