@@ -94,7 +94,10 @@ namespace Ship_Game
             }
 
             FleetToEdit = which;
-            Fleet fleet = Universe.Player.GetFleet(FleetToEdit);
+            Fleet fleet = Universe.Player.GetFleetOrNull(FleetToEdit);
+            if (fleet == null)
+                return;
+
             SelectedFleet = fleet;
 
             var toRemove = new Array<FleetDataNode>();
