@@ -745,10 +745,10 @@ namespace Ship_Game.Fleets
         {
             fleet.RemoveTroopShips();
             task.FlagFleetNeededForAnotherTask();
-            fleet.TaskStep   = 0;
+            fleet.TaskStep = 0;
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
-            fleet.Name       = name;
-            fleet.FleetTask  = postInvasion;
+            fleet.Name = name;
+            fleet.FleetTask = postInvasion;
             owner.AI.QueueForRemoval(task);
             owner.AI.AddPendingTask(postInvasion);
         }
@@ -757,9 +757,9 @@ namespace Ship_Game.Fleets
         public static void CreateReclaimFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner)
         {
             task.FlagFleetNeededForAnotherTask();
-            fleet.TaskStep   = 0;
-            var reclaim      = MilitaryTask.CreateReclaimTask(owner, task.TargetPlanet, task.WhichFleet);
-            fleet.Name       = "Reclaim Fleet";
+            fleet.TaskStep = 0;
+            var reclaim = MilitaryTask.CreateReclaimTask(owner, task.TargetPlanet, task.WhichFleet);
+            fleet.Name = "Reclaim Fleet " + fleet.Key;
             fleet.FleetTask  = reclaim;
             owner.AI.QueueForRemoval(task);
             owner.AI.AddPendingTask(reclaim);
@@ -768,7 +768,7 @@ namespace Ship_Game.Fleets
         public static void CreateStrikeFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, Goal goal)
         {
             task.FlagFleetNeededForAnotherTask();
-            fleet.TaskStep  = 2;
+            fleet.TaskStep = 2;
             var strikeFleet = new MilitaryTask(task.TargetPlanet, owner)
             {
                 Goal = goal,
@@ -777,7 +777,7 @@ namespace Ship_Game.Fleets
                 NeedEvaluation = false,
             };
 
-            fleet.Name      = "Strike Fleet";
+            fleet.Name = "Strike Fleet " + fleet.Key;
             fleet.FleetTask = strikeFleet;
             owner.AI.QueueForRemoval(task);
             owner.AI.AddPendingTask(strikeFleet);

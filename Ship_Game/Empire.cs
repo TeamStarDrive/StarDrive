@@ -618,7 +618,8 @@ namespace Ship_Game
             if (home == null)
             {
                 var nearestAO = ship.Loyalty.AI.FindClosestAOTo(ship.Position);
-                home = nearestAO.OurPlanets.FindClosestTo(ship);
+                if (nearestAO != null)
+                    home = nearestAO.OurPlanets.FindClosestTo(ship);
             }
 
             if (home == null)

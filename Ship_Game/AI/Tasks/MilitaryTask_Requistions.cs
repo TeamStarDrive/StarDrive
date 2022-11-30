@@ -92,7 +92,7 @@ namespace Ship_Game.AI.Tasks
         {
             var newFleet = new Fleet(Owner.Universe.CreateId(), Owner)
             {
-                Name  = name
+                Name = name
             };
 
             int fleetNum = Owner.CreateFleetKey();
@@ -178,31 +178,6 @@ namespace Ship_Game.AI.Tasks
             AO closestAo = aos.FindMinFiltered(ao => ao.CoreFleet.GetStrength() > strWanted,
                                                ao => ao.Center.SqDist(AO));
             return closestAo?.CoreFleet;
-        }
-
-        void RequisitionCoreFleet()
-        {
-            AO closestAO = Owner.AI.AreasOfOperations
-                .OrderByDescending(ao => ao.OffensiveForcePoolStrength >= MinimumTaskForceStrength)
-                .ThenBy(ao => AO.Distance(ao.Center))
-                .FirstOrDefault();
-            if (closestAO == null)
-                return;
-
-            EnemyStrength = Owner.AI.ThreatMatrix.GetHostileStrengthAt(AO, 10000);
-            if (EnemyStrength < 1f)
-                return;
-
-            MinimumTaskForceStrength = EnemyStrength;
-            if (closestAO.CoreFleet.FleetTask == null &&
-                closestAO.CoreFleet.GetStrength() > MinimumTaskForceStrength)
-            {
-                WhichFleet = closestAO.WhichFleet;
-                closestAO.CoreFleet.FleetTask = this;
-                closestAO.CoreFleet.TaskStep = 1;
-                IsCoreFleetTask = true;
-                NeedEvaluation = false;
-            }
         }
 
         void RequisitionDefenseForce()

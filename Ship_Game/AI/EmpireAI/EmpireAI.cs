@@ -182,12 +182,15 @@ namespace Ship_Game.AI
             return knownPlanets;
         }
 
+        // @return Closest AO (defaults to Capital AO), or null if there is no capital at all
         public AO FindClosestAOTo(Vector2 position)
         {
             var aos = AreasOfOperations;
             if (aos.Count == 0)
             {
-                var ao = new AO(OwnerEmpire.Universe, OwnerEmpire);
+                Planet capital = OwnerEmpire.Capital;
+                float aoSize = capital.Position.Distance(capital.System.Position);
+                var ao = new AO(OwnerEmpire.Universe, capital, OwnerEmpire, aoSize);
                 AreasOfOperations.Add(ao);
                 return ao;
             }

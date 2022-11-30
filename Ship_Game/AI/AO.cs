@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -68,30 +67,9 @@ namespace Ship_Game.AI
         public Array<Ship> Ships => OffensiveForcePool; // IShipPool
 
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
-        public bool AOFull { get; private set; } = true;
-
-        public float OffensiveForcePoolStrength
-        {
-            get
-            {
-                float strength = 0f;
-                for (int i = 0; i < OffensiveForcePool.Count -1; ++i)
-                    strength += OffensiveForcePool[i].GetStrength();
-                return strength;
-            }
-        }
-
-        public void UpdateThreatLevel()
-        {
-            if (--ThreatTimer > 0) return;
-            ThreatLevel = (int)Owner.AI.ThreatMatrix.GetHostileStrengthAt(Center, Radius);
-            // arbitrary performance consideration.
-            ThreatTimer = 5;
-        }
-
         public int GetNumOffensiveForcePoolShips() => OffensiveForcePool.Count;
-        public bool OffensiveForcePoolContains(Ship s) => OffensiveForcePool.ContainsRef(s);
-        public bool WaitingShipsContains(Ship s)       => ShipsWaitingForCoreFleet.ContainsRef(s);
+
+        public bool AOFull { get; private set; } = true;
 
         [StarDataConstructor] AO() {}
 
@@ -100,28 +78,22 @@ namespace Ship_Game.AI
             Id = us.CreateId();
         }
 
-        public AO(UniverseState us, Empire empire) : this(us)
+        public AO(UniverseState us, Planet planet, Empire empire, float radius) : this(us)
         {
             Owner = empire ?? throw new NullReferenceException(nameof(empire));
-            Center = empire.WeightedCenter;
-            Radius = empire.Universe.Size / 4;
-        }
+            CoreWorld = planet ?? throw new NullReferenceException(nameof(planet));
 
-        public AO(UniverseState us, Planet p, Empire empire, float radius) : this(us)
-        {
-            Owner = empire ?? throw new NullReferenceException(nameof(empire));
             Radius = radius;
-            CoreWorld = p;
-            Center = p.Position;
-            WhichFleet = p.Owner.CreateFleetKey();
+            Center = planet.Position;
+            WhichFleet = planet.Owner.CreateFleetKey();
 
-            CoreFleet = new(p.Universe.CreateId(), p.Owner)
+            CoreFleet = new(planet.Universe.CreateId(), planet.Owner)
             {
                 Name = "Core Fleet "+WhichFleet,
-                FinalPosition = p.Position,
+                FinalPosition = planet.Position,
                 IsCoreFleet = true
             };
-            p.Owner.SetFleet(WhichFleet, CoreFleet);
+            planet.Owner.SetFleet(WhichFleet, CoreFleet);
 
             SetupPlanetsInAO();
         }
@@ -202,6 +174,14 @@ namespace Ship_Game.AI
         }
 
         public bool Contains(Ship ship) => ship.Pool == this;
+
+        public void UpdateThreatLevel()
+        {
+            if (--ThreatTimer > 0) return;
+            ThreatLevel = (int)Owner.AI.ThreatMatrix.GetHostileStrengthAt(Center, Radius);
+            // arbitrary performance consideration.
+            ThreatTimer = 5;
+        }
 
         void SetupPlanetsInAO()
         {
