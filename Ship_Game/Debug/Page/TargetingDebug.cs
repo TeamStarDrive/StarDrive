@@ -9,9 +9,6 @@ namespace Ship_Game.Debug.Page;
 
 public class TargetingDebug : DebugPage
 {
-    ShipModule SelectedModule;
-    Submenu ModuleInfo;
-
     public TargetingDebug(DebugInfoScreen parent) : base(parent, DebugModes.Targeting)
     {
     }
@@ -55,65 +52,11 @@ public class TargetingDebug : DebugPage
             }
         }
         
-        DrawModuleInfo(batch);
-
         base.Draw(batch, elapsed);
-    }
-
-    void DrawModuleInfo(SpriteBatch batch)
-    {
-        if (SelectedModule == null)
-        {
-            ModuleInfo?.Hide();
-            return;
-        }
-
-        ModuleInfo ??= CreateModuleInfo();
-        ModuleInfo.Show();
-        Screen.DrawCircleProjected(SelectedModule.Position, SelectedModule.Radius, Color.Green, thickness:5);
-    }
-
-    Submenu CreateModuleInfo()
-    {
-        var info = Add(new Submenu(new LocalPos(-300, 200), new Vector2(300, 300))
-        {
-            Visible = false,
-            ParentAlign = Align.TopRight
-        });
-
-        var list = info.Add(new UIList(LocalPos.Zero, new Vector2(300), ListLayoutStyle.ResizeList));
-        list.Add(new UILabel(_ => $"Module UID: {SelectedModule.UID}"));
-        list.Add(new UILabel(_ => $"ID: {SelectedModule.Id} Active={SelectedModule.Active}"));
-        list.Add(new UILabel(_ => $"Size: {SelectedModule.XSize} x {SelectedModule.YSize}"));
-        list.Add(new UILabel(_ => $"Restrictions: {SelectedModule.Restrictions}"));
-        list.Add(new UILabel(_ => $"GridPos: {SelectedModule.Pos}"));
-        list.Add(new UILabel(_ => $"LocalCenter: {SelectedModule.LocalCenter}"));
-        list.Add(new UILabel(_ => $"WorldPos: {SelectedModule.Position}"));
-        list.Add(new UILabel(_ => $"HP: {SelectedModule.Health}/{SelectedModule.ActualMaxHealth} {SelectedModule.HealthPercent*100:0.0}%"));
-        list.Add(new UILabel(_ => $"Ship: {SelectedModule.GetParent()?.Name}"));
-
-        // since we are creating it during drawing, need to manually layout the elements
-        info.PerformLayout();
-        return info;
     }
 
     public override bool HandleInput(InputState input)
     {
-        // if we've selected a ship and double-click on something, try to get the module info
-        Ship ship = Universe.Screen.SelectedShip;
-        if (ship != null)
-        {
-            if (input.LeftMouseClick)
-            {
-                Vector2 pos = Screen.CursorWorldPosition2D;
-                SelectedModule = ship.GetModuleAt(ship.WorldToGridLocalPointClipped(pos));
-            }
-        }
-        else
-        {
-            SelectedModule = null;
-        }
-
         return base.HandleInput(input);
     }
 
