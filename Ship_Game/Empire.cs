@@ -199,6 +199,7 @@ namespace Ship_Game
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
+        Planet[] SafePlanets => OwnedPlanets.Filter(p => p.Safe);
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -327,7 +328,7 @@ namespace Ship_Game
 
         public Planet FindNearestSafeRallyPoint(Vector2 location)
         {
-            return SafeSpacePorts.FindMin(p => p.Position.SqDist(location))
+            return SafePlanets.FindMin(p => p.Position.SqDist(location))
                 ?? OwnedPlanets.FindMin(p => p.Position.SqDist(location));
         }
 

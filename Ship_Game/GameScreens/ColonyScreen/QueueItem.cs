@@ -166,7 +166,10 @@ namespace Ship_Game
                 }
             }
 
-            PriorityBonus += QType is QueueItemType.ColonyShip or QueueItemType.Building ? 0.15f : 0.05f;
+            PriorityBonus += QType is QueueItemType.ColonyShip 
+                or QueueItemType.Building
+                or QueueItemType.Scout ? 0.15f : 0.05f;
+
             return (priority - PriorityBonus);
         }
 
