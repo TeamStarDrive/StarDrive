@@ -179,7 +179,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 if (loyaltyMatch
                     && (ship.Position.InRadius(Position, 5000f) || ship.IsOrbiting(P) || ship.GetTether() == P))
                 {
-                    SupplyShip(ship);
+                    SupplyShip(ship, spaceCombat);
                     RepairShip(ship, repairPool, repairLevel);
                     if (!spaceCombat && ship.Loyalty == Owner) // dont do this for allies
                     {
@@ -190,7 +190,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             }
         }
 
-        private void SupplyShip(Ship ship)
+        private void SupplyShip(Ship ship, bool spaceCombat)
         {
             if (ship.ShipData.Role == RoleName.platform) // platforms always get max ordnance to retain platforms Vanilla functionality
             {
@@ -201,7 +201,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             {
                 float supply = Level;
                 supply *= HasSpacePort ? 5f : 2f;
-                supply *= ship.OnHighAlert ? 0.1f : 10f;
+                supply *= spaceCombat ? 0.1f : 10f;
                 supply = Math.Max(.1f, supply);
                 ship.AddPower(supply*10);
                 ship.ChangeOrdnance(supply);
