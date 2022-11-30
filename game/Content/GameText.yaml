@@ -182,9 +182,9 @@ Fertile:
  SPA: "Fértil"
 PromiscuousNaturesShortGestationPeriods:
  Id: 37
- ENG: "Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is 0.01 (10 Million) per turn. "
- RUS: "Склонность к беспорядочным связям, короткие сроки беременности и большое количество детенышей в приплоде очень благоприятно влияют на скорость воспроизводства этой расы естественным путем. Минимальный естественный прирост населения - .01 в ход."
- SPA: "La promiscuidad, los periodos de gestación breves y las grandes camadas incrementan considerablemente la tasa de reproducción de una raza. El crecimiento demográfico mínimo es de 0,01 por turno. "
+ ENG: "Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is 0.05 (5 Million) per turn. "
+ RUS: "Склонность к беспорядочным связям, короткие сроки беременности и большое количество детенышей в приплоде очень благоприятно влияют на скорость воспроизводства этой расы естественным путем. Минимальный естественный прирост населения - .005 в ход."
+ SPA: "La promiscuidad, los periodos de gestación breves y las grandes camadas incrementan considerablemente la tasa de reproducción de una raza. El crecimiento demográfico mínimo es de 0,005 por turno. "
 LessFertile:
  Id: 38
  ENG: "Less Fertile"
@@ -192,8 +192,8 @@ LessFertile:
  SPA: "Menos fértil"
 LongGestationPeriodsAndDifficult:
  Id: 39
- ENG: "Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is 0.02 (20 Million) per turn."
- RUS: "Долгие сроки беременности и сложность репродуктивного процесса в целом значительно ограничивают воспроизводство этой расы естественным путем. Максимальный естественный прирост населения - .02 в ход."
+ ENG: "Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is 0.15 (15 Million) per turn."
+ RUS: "Долгие сроки беременности и сложность репродуктивного процесса в целом значительно ограничивают воспроизводство этой расы естественным путем. Максимальный естественный прирост населения - .015 в ход."
  SPA: "Los periodos de gestación largos y los procesos reproductivos complejos reducen sustancialmente la tasa de reproducción natural de esta raza. El crecimiento demográfico máximo es de 0,02 por turno."
 Savage:
  Id: 40
@@ -12274,7 +12274,7 @@ HighlyExoticMineralVeinsRarely:
  RUS: "Сложные экзотические минеральные жилы, редко встречающиеся на планетах земного типа."
 ProdPerAssignedColonistTotal:
  Id: 18108
- ENG: "+0.8 prod per assigned colonist, total worth of 12000 production,+0.5 planet richness."
+ ENG: "+0.8 prod per assigned colonist, total worth of 18000 production,+0.6 planet richness."
  RUS: "Планеты с этими минералами более богаты. (+5 к продукции)"
 ExoticFruits:
  Id: 18222
@@ -12286,8 +12286,8 @@ TastyFruitsThatAreA:
  RUS: "Вкусные природные афродизиаки."
 ProvidesFoodPerTurnTotal4:
  Id: 18224
- ENG: "Provides 0.6 food per turn, total total worth of 2000 food, +4 Million population per turn."
- RUS: "Дает +0.6 еды за ход, всего 700 еды и +25 миллионов населения за ход."
+ ENG: "Provides 0.8 food per turn, total total worth of 9000 food, +5 Million population per turn."
+ RUS: "Дает +0.8 еды за ход, всего 9000 еды и +5 миллионов населения за ход."
 WorldSeed:
  Id: 18175
  ENG: "World seed"
