@@ -12,7 +12,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/TurnThrust1x1</IconTexturePath>
-  <Mass>5</Mass>
+  <Mass>2</Mass>
   <Health>400</Health>
   <HealthMax>400</HealthMax>
 
@@ -40,7 +40,7 @@
   <!-- for Weapons -->
   
   <!-- for Engines -->
-  <Thrust>0</Thrust>
+  <Thrust>2500</Thrust>
   <!-- power draw w after burner is Additional to PowerDraw-->
 
   <TurnThrust>18000</TurnThrust>
