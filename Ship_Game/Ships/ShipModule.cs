@@ -279,8 +279,8 @@ namespace Ship_Game.Ships
         public void SetHealth(float newHealth, object source, bool fromSave = false)
         {
             float maxHealth = ActualMaxHealth;
-            newHealth = newHealth.Clamped(0, maxHealth);
-            if (maxHealth - newHealth < 2)
+            newHealth = newHealth.Clamped(0f, maxHealth);
+            if ((maxHealth - newHealth) < 2f)
                 newHealth = maxHealth; // FB - round almost healed modules
 
             float healthChange = newHealth - Health;
@@ -1257,6 +1257,13 @@ namespace Ship_Game.Ships
             float repairLeft      = (repairAmount - actualRepair).Clamped(0, repairAmount);
             SetHealth(Health + actualRepair, "Repair");
             VisualizeRepair();
+
+            var u = Parent.Universe;
+            if (u.Debug && u.IsSystemViewOrCloser && u.Screen.ShowShipNames)
+            {
+                var blinkingColor = GameBase.Base.FrameId % 2 == 0 ? Color.GreenYellow : Color.LightGreen;
+                u.DebugWin.DrawGameObject(u.DebugWin.Mode, this, blinkingColor, 1f);
+            }
 
             return repairLeft;
         }
