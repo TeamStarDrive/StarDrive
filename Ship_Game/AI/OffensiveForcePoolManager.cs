@@ -50,7 +50,7 @@ namespace Ship_Game.AI
                 }
 
                 bool hasAnyAOsCloserToCoreWorld = EmpireAI.AreasOfOperations.Any(
-                    ao => ao.CoreWorld.Position.Distance(coreWorld.Position) < aoSize);
+                    ao => ao.CoreWorld != null && ao.CoreWorld.Position.Distance(coreWorld.Position) < aoSize);
 
                 if (!hasAnyAOsCloserToCoreWorld)
                 {
