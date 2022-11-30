@@ -24,6 +24,7 @@ public class ShipDebugInfoPanel : Submenu
     {
         Parent = parent;
         Text = new(parent);
+        Color = new Color(0, 0, 0, 50);
     }
 
     public bool HasSelectedSomething()
