@@ -766,7 +766,7 @@ namespace Ship_Game.Ships
             float travelSTL    = distanceSTL / MaxSTLSpeed.LowerBound(1);
             float travelFTL    = distanceFTL / MaxFTLSpeed.LowerBound(1);
 
-            return (travelFTL + travelSTL + rotationTime + Stats.FTLSpoolTime) / Universe.Params.TurnTimer;
+            return (travelFTL + travelSTL + rotationTime + Stats.FTLSpoolTime) / Universe.P.TurnTimer;
         }
 
         public void TetherToPlanet(Planet p)

@@ -1,74 +1,69 @@
 ﻿using System.IO;
-using System.Linq;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
+using Ship_Game.Data.Yaml;
+using Ship_Game.Data.YamlSerializer;
+using Ship_Game.Universe;
 
-namespace Ship_Game
+namespace Ship_Game;
+
+public sealed class SaveNewGameSetupScreen : GenericLoadSaveScreen
 {
-    public sealed class SaveNewGameSetupScreen : GenericLoadSaveScreen
+    readonly SetupSave SavedSetup;
+
+    public SaveNewGameSetupScreen(RaceDesignScreen screen, UniverseParams settings) 
+        : base(screen, SLMode.Save, "New Saved Setup", "Save Setup", "Saved Setups", 
+            "Saved Setup already exists.  Overwrite?")
     {
-        readonly SetupSave SS;
+        Path = Dir.StarDriveAppData + "/Saved Setups/";
+        SavedSetup = new(settings);
+    }
 
-        public SaveNewGameSetupScreen(RaceDesignScreen screen,
-            GameDifficulty gameDifficulty,
-            RaceDesignScreen.StarsAbundance numStars,
-            GalSize galaxySize,
-            int gamePacing,
-            ExtraRemnantPresence extraRemnant,
-            int numOpponents,
-            RaceDesignScreen.GameMode mode) 
-            : base(screen, SLMode.Save, "New Saved Setup", "Save Setup", "Saved Setups", 
-                                        "Saved Setup already exists.  Overwrite?")
-        {
-            Path = Dir.StarDriveAppData + "/Saved Setups/";
-            SS = new SetupSave(gameDifficulty, numStars, galaxySize, gamePacing, extraRemnant, numOpponents, mode);
-        }
+    public override void DoSave()
+    {
+        SavedSetup.Name = EnterNameArea.Text;
 
-        public override void DoSave()
-        {
-            SS.Name = EnterNameArea.Text;
-            XmlSerializer Serializer = new XmlSerializer(typeof(SetupSave));
-            TextWriter WriteFileStream = new StreamWriter(string.Concat(Path, EnterNameArea.Text, ".xml"));
-            Serializer.Serialize(WriteFileStream, SS);
-            WriteFileStream.Dispose();
-            ExitScreen();
-        }
+        var s = new YamlSerializer(typeof(SetupSave));
+        using (var writer = new StreamWriter(Path + SavedSetup.Name + ".yaml"))
+            s.SerializeRoot(writer, SavedSetup);
 
-        protected override void InitSaveList()        // Set list of files to show
+        ExitScreen();
+    }
+
+    protected override void InitSaveList()        // Set list of files to show
+    {
+        var saves = new Array<FileData>();
+        foreach (FileInfo file in Dir.GetFiles(Path, "yaml"))
         {
-            var saves = new Array<FileData>();
-            foreach (FileInfo fileInfo in Dir.GetFiles(Path))
+            try
             {
-                try
+                SetupSave data = YamlParser.DeserializeOne<SetupSave>(file);
+                if (data.Name.IsEmpty())
                 {
-                    SetupSave data = fileInfo.Deserialize<SetupSave>();
-                    if (string.IsNullOrEmpty(data.Name))
-                    {
-                        data.Name = fileInfo.NameNoExt();
-                        data.Version = 0;
-                    }
+                    data.Name = file.NameNoExt();
+                    data.Version = 0;
+                }
 
-                    string info;
-                    string extraInfo;
-                    if (data.Version < 308)     // Version checking
-                    {
-                        info = "Invalid Setup File";
-                        extraInfo = "";
-                    }
-                    else
-                    {
-                        info = data.Date;
-                        extraInfo = (data.ModName != "" ? "Mod: " + data.ModName : "Default");
-                    }
-                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo, null, Color.White));
-                }
-                catch
+                string info;
+                string extraInfo;
+                if (data.Version < 308)     // Version checking
                 {
+                    info = "Invalid Setup File";
+                    extraInfo = "";
                 }
+                else
+                {
+                    info = data.Date;
+                    extraInfo = (data.ModName != "" ? "Mod: " + data.ModName : "Default");
+                }
+                saves.Add(new FileData(file, data, data.Name, info, extraInfo, null, Color.White));
             }
-            
-            AddItemsToSaveSL(saves.OrderBy(data => data.FileName));
+            catch
+            {
+            }
         }
+        
+        saves.Sort(data => data.FileName);
+        AddItemsToSaveSL(saves);
     }
 }

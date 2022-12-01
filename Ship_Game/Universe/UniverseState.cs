@@ -28,6 +28,9 @@ namespace Ship_Game.Universe
         /// so {0,0} is center of the universe
         /// </summary>
         [StarData] public readonly float Size; // TODO: rename to UniverseRadius?
+
+        [StarData] public UniverseParams P;
+
         public float UniverseWidth => Size*2f;
         public float UniverseRadius => Size;
         [StarData] public Empire Player;
@@ -36,23 +39,17 @@ namespace Ship_Game.Universe
         [StarData] public Empire Unknown;
         [StarData] public Empire Corsairs;
 
-        [StarData] public GameDifficulty Difficulty;
-        [StarData] public GalSize GalaxySize;
-
         [StarData] public UnivScreenState ViewState;
         public bool IsSectorViewOrCloser => ViewState <= UnivScreenState.SectorView;
         public bool IsSystemViewOrCloser => ViewState <= UnivScreenState.SystemView;
         public bool IsPlanetViewOrCloser => ViewState <= UnivScreenState.PlanetView;
         public bool IsShipViewOrCloser   => ViewState <= UnivScreenState.ShipView;
 
-        [StarData] public float Pace = 1f;
-
         // TODO: This was too hard to fix, so added this placeholder until code is fixed
         public static float DummyPacePlaceholder = 1f;
         public static float DummySettingsResearchModifier = 1f;
         public static float DummyProductionPacePlaceholder = 1f;
 
-        [StarData] public float StarsModifier = 1f;
         [StarData] public float SettingsResearchModifier = 1f;
         public float RemnantPaceModifier = 20;
         public string ResearchRootUIDToDisplay;
@@ -70,7 +67,6 @@ namespace Ship_Game.Universe
 
         public bool GameOver = false;
         [StarData] public bool NoEliminationVictory;
-        [StarData] public float GamePace = 1f;
         [StarData] public float GameSpeed = 1f;
         [StarData] public float StarDate = 1000f;
 
@@ -132,7 +128,6 @@ namespace Ship_Game.Universe
 
         [StarData] public RandomEventManager Events;
         [StarData] public StatTracker Stats;
-        [StarData] public UniverseParams Params;
 
         // TODO: attempt to stop relying on visual state
         public UniverseScreen Screen;
@@ -155,7 +150,7 @@ namespace Ship_Game.Universe
         {
             Screen = screen;
             Size = universeRadius;
-            Params = settings ?? throw new NullReferenceException(nameof(settings));
+            P = settings ?? throw new NullReferenceException(nameof(settings));
             if (Size < 1f)
                 throw new ArgumentException("UniverseSize not set!");
 
@@ -281,7 +276,7 @@ namespace Ship_Game.Universe
             Save = null;
             save.UpdateAllDesignsFromSave(this);
 
-            Params.UpdateGlobalStats();
+            P.UpdateGlobalStats();
             SettingsResearchModifier = GetResearchMultiplier();
             RemnantPaceModifier = CalcRemnantPace();
             
@@ -483,9 +478,9 @@ namespace Ship_Game.Universe
 
         float CalcRemnantPace()
         {
-            float stars = StarsModifier * 4; // 1-8
-            float size = (int)GalaxySize + 1; // 1-7
-            int extra = Params.ExtraPlanets; // 1-3
+            float stars = P.StarsModifier * 4; // 1-8
+            float size = (int)P.GalaxySize + 1; // 1-7
+            int extra = P.ExtraPlanets; // 1-3
             int numMajorEmpires = EmpireList.Count(e => !e.IsFaction);
             float numEmpires = numMajorEmpires / 2f; // 1-4.5
 
@@ -498,19 +493,19 @@ namespace Ship_Game.Universe
             if (!GlobalStats.Settings.ChangeResearchCostBasedOnSize)
                 return 1f;
 
-            int idealNumPlayers   = (int)GalaxySize + 3;
-            float galSizeModifier = GalaxySize <= GalSize.Medium 
-                ? ((int)GalaxySize / 2f).LowerBound(0.25f) // 0.25, 0.5 or 1
-                : 1 + ((int)GalaxySize - (int)GalSize.Medium) * 0.25f; // 1.25, 1.5, 1.75, 2
+            int idealNumPlayers   = (int)P.GalaxySize + 3;
+            float galSizeModifier = P.GalaxySize <= GalSize.Medium 
+                ? ((int)P.GalaxySize / 2f).LowerBound(0.25f) // 0.25, 0.5 or 1
+                : 1 + ((int)P.GalaxySize - (int)GalSize.Medium) * 0.25f; // 1.25, 1.5, 1.75, 2
 
-            float extraPlanetsMod = 1 + Params.ExtraPlanets * 0.25f;
+            float extraPlanetsMod = 1 + P.ExtraPlanets * 0.25f;
             int numMajorEmpires = EmpireList.Count(e => !e.IsFaction);
             float playerRatio     = (float)idealNumPlayers / numMajorEmpires;
-            float settingsRatio   = galSizeModifier * extraPlanetsMod * playerRatio * StarsModifier;
+            float settingsRatio   = galSizeModifier * extraPlanetsMod * playerRatio * P.StarsModifier;
 
             return settingsRatio;
         }
 
-        public float ProductionPace => 1 + (Pace - 1) * 0.5f;
+        public float ProductionPace => 1 + (P.Pace - 1) * 0.5f;
     }
 }
