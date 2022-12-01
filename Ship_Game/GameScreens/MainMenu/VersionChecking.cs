@@ -8,50 +8,59 @@ namespace Ship_Game.GameScreens.MainMenu
     {
         readonly ReadRestAPIFromSite BlackBoxVersionCheck;
         readonly ReadRestAPIFromSite ModVersionCheck;
-        const string URL = "http://api.bitbucket.org/2.0/repositories/codegremlins/stardrive-blackbox/downloads";
+        string URL = "";
+        string DownloadSite = "";
         string ModURL = "";
-        const string DownLoadSite = "http://bitbucket.org/codegremlins/stardrive-blackbox/downloads/";
-        string ModDownLoadSite = "";
+        string ModDownloadSite = "";
+
         public VersionChecking(GameScreen parent, int width, int height) : base(parent, width, height)
         {
             IsPopup = true;
             BlackBoxVersionCheck = new ReadRestAPIFromSite();
             ModVersionCheck = new ReadRestAPIFromSite();
         }
+
         public VersionChecking(GameScreen parent) : this(parent, 500, 600)
         {
         }
+
         public override void LoadContent()
         {            
             TitleText = "Version Check";
-            var verMod = "Vanilla";
+            var settings = GlobalStats.Settings;
+            var modSettings = GlobalStats.ActiveMod?.Settings;
+
             var mod = GlobalStats.ActiveMod;
             var versionText = GlobalStats.Version.Split(' ')[0];
             var modVersionText = mod?.Version;
             
-            if (mod?.mi != null)
+            URL = settings.URL;
+            DownloadSite = settings.DownloadSite;
+
+            if (modSettings != null)
             {
-                if (mod?.mi.BitbucketAPIString != null)
-                {
-                    verMod = $"{mod.ModName} - {mod.Version}";
-                    ModURL = mod.mi.BitbucketAPIString;
-                    ModDownLoadSite = mod.mi.DownLoadSite;
-                }
-                else
-                {
-                    verMod = "Unsupported";
-                }
+                if (modSettings.BitbucketAPIString != null)
+                    ModURL = modSettings.BitbucketAPIString;
+                if (modSettings.URL != null)
+                    ModDownloadSite = modSettings.DownloadSite;
+
+                MiddleText = $"{GlobalStats.ExtendedVersion}\nMod: {mod.ModName} - {mod.Version}";
+            }
+            else
+            {
+                MiddleText = $"{GlobalStats.ExtendedVersion}\nVanilla";
             }
 
-            MiddleText = $"{GlobalStats.ExtendedVersion}\nMod: {verMod}";
             base.LoadContent();            
             BlackBoxVersionCheck.LoadContent(URL);
             ModVersionCheck.LoadContent(ModURL);
+
             if (BlackBoxVersionCheck.FilesAvailable == null)
             {
                 ExitScreen();
                 return;
             }
+
             Vector2 drawLoc = BodyTextStart;            
             Add(new UILabel(drawLoc, "Click to download\n========== BlackBox =========="));
             drawLoc.Y += 32;
@@ -80,8 +89,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override bool HandleInput(InputState input)
         {
-            return BlackBoxVersionCheck.HandleInput(input, DownLoadSite)
-                || ModVersionCheck.HandleInput(input, ModDownLoadSite)
+            return BlackBoxVersionCheck.HandleInput(input, DownloadSite)
+                || ModVersionCheck.HandleInput(input, ModDownloadSite)
                 || base.HandleInput(input);
         }
     }

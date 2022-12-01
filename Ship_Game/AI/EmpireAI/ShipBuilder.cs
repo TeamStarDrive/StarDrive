@@ -78,17 +78,7 @@ namespace Ship_Game.AI
         // Try to get a pre-defined default drone for event buildings which can launch drones
         static IShipDesign GetDefaultEventDrone()
         {
-            IShipDesign drone;
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.DefaultEventDrone.NotEmpty())
-            {
-                drone = ResourceManager.Ships.GetDesign(GlobalStats.ActiveModInfo.DefaultEventDrone, false);
-                if (drone != null)
-                    return drone;
-
-                Log.Warning($"Could not find default drone - {GlobalStats.DefaultEventDrone} in mod ShipDesigns folder");
-            }
-
-            drone = ResourceManager.Ships.GetDesign(GlobalStats.DefaultEventDrone, false);
+            IShipDesign drone = ResourceManager.Ships.GetDesign(GlobalStats.DefaultEventDrone, false);
             if (drone == null)
                 Log.Warning($"Could not find default drone - {GlobalStats.DefaultEventDrone} - in Vanilla SavedDesigns folder");
 

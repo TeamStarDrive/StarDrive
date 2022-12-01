@@ -1027,7 +1027,7 @@ namespace Ship_Game
             MajorEmpires.Clear();
             MinorEmpires.Clear();
 
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisableDefaultRaces)
+            if (GlobalStats.HasMod && GlobalStats.Settings.Mod.DisableDefaultRaces)
                 Empires.AddRange(LoadModEntities<EmpireData>("Races", "LoadEmpires"));
             else
                 Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires"));
@@ -1409,11 +1409,13 @@ namespace Ship_Game
         static void LoadHullBonuses()
         {
             HullBonuses.Clear();
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+            if (GlobalStats.Settings.UseHullBonuses)
             {
                 foreach (HullBonus hullBonus in LoadEntities<HullBonus>("HullBonuses", "LoadHullBonuses"))
                     HullBonuses[hullBonus.Hull] = hullBonus;
-                GlobalStats.ActiveModInfo.UseHullBonuses = HullBonuses.Count != 0;
+
+                // if there are no bonuses, then disable the flag
+                GlobalStats.Settings.UseHullBonuses = HullBonuses.Count != 0;
             }
         }
 
@@ -1625,7 +1627,7 @@ namespace Ship_Game
             var designs = new Map<string, ShipDesignInfo>();
             // saved designs are loaded first, to ensure they don't overwrite mod ShipDesigns
             CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "design"), readOnly: false, playerDesign: true);
-            if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.UseVanillaShips) // only get mod files
+            if (GlobalStats.HasMod && !GlobalStats.Settings.Mod.UseVanillaShips) // only get mod files
                 CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "ShipDesigns", "design"), readOnly: true, playerDesign: false);
             else // first get Vanilla files, then override with ShipDesigns from the mod
                 CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "design"), readOnly: true, playerDesign: false);
@@ -1636,7 +1638,7 @@ namespace Ship_Game
         {
             var designs = new Map<string, ShipDesignInfo>();
             CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "xml"), readOnly: false, playerDesign: true);
-            if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.UseVanillaShips)
+            if (GlobalStats.HasMod && !GlobalStats.Settings.Mod.UseVanillaShips)
             {
                 CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "StarterShips", "xml"), readOnly: true, playerDesign: false);
                 CombineOverwrite(designs, Dir.GetFiles(ModContentDirectory + "SavedDesigns", "xml"), readOnly: true, playerDesign: false);
@@ -1772,7 +1774,7 @@ namespace Ship_Game
         {
             TechTree.Clear();
 
-            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.ClearVanillaTechs;
+            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.Settings.Mod.ClearVanillaTechs;
             Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
 
             var duplicateTech = new Map<string, Technology>();
@@ -1839,7 +1841,7 @@ namespace Ship_Game
         static void LoadWeapons() // Refactored by RedFox
         {
             WeaponsDict.Clear();
-            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.ClearVanillaWeapons;
+            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.Settings.Mod.ClearVanillaWeapons;
             foreach (var pair in LoadEntitiesWithInfo<WeaponTemplate>("Weapons", "LoadWeapons", modTechsOnly))
             {
                 WeaponTemplate w = pair.Entity;

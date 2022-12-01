@@ -186,9 +186,7 @@ namespace Ship_Game.Gameplay
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
             FireDelay = Math.Max(0.016f, FireDelay);
             SalvoDuration = Math.Max(0, SalvoDuration);
-
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo != null)
-                ExplosionRadiusVisual *= GlobalStats.ActiveModInfo.GlobalExplosionVisualIncreaser;
+            ExplosionRadiusVisual *= GlobalStats.Settings.ExplosionVisualIncreaser;
 
             if (PlaySoundOncePerSalvo) // @note Backwards compatibility
                 SalvoSoundInterval = 9999;
@@ -369,7 +367,7 @@ namespace Ship_Game.Gameplay
                 damageAmount += damageAmount * owner.Level * 0.05f;
 
             // Hull bonus damage increase
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses && owner != null &&
+            if (GlobalStats.Settings.UseHullBonuses && owner != null &&
                 ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
             {
                 damageAmount += damageAmount * mod.DamageBonus;

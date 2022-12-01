@@ -142,7 +142,7 @@ namespace Ship_Game
 
         float ResearchMultiplier()
         {
-            if (!GlobalStats.ModChangeResearchCost)
+            if (!GlobalStats.ChangeResearchCost)
                 return Cost;
 
             float settingResearchMultiplier = UniverseState.DummySettingsResearchModifier;
@@ -159,7 +159,7 @@ namespace Ship_Game
                 if (settingResearchMultiplier <= 1f)
                     return 0;
 
-                int costThreshold = GlobalStats.ActiveModInfo.CostBasedOnSizeThreshold;
+                int costThreshold = GlobalStats.Settings.CostBasedOnSizeThreshold;
                 return Cost > costThreshold ? 1 : Cost / costThreshold;
             }
         }

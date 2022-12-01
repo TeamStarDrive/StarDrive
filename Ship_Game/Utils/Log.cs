@@ -598,7 +598,7 @@ namespace Ship_Game
                 if (GlobalStats.HasMod)
                 {
                     evt["Mod"]        = GlobalStats.ActiveMod.ModName;
-                    evt["ModVersion"] = GlobalStats.ActiveModInfo.Version;
+                    evt["ModVersion"] = GlobalStats.ActiveMod.Version;
                 }
                 else
                 {

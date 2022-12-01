@@ -93,7 +93,7 @@ namespace Ship_Game
             if (GlobalStats.HasMod)
             {
                 string title = GlobalStats.ModName;
-                string version = GlobalStats.ActiveModInfo.Version;
+                string version = GlobalStats.Settings.Mod.Version;
                 if (version.NotEmpty() && !title.Contains(version))
                     modTitle = title + "-" + version;
 

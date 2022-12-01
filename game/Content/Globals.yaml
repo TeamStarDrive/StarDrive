@@ -1,0 +1,45 @@
+# global BlackBox game settings
+Globals:
+  MaxOpponents: 7
+  DefaultNumOpponents: 5
+  SpaceportScale: 0.5
+
+  RemnantDesignStrMultiplier: 2
+  CostBasedOnSizeThreshold: 3000
+  HangarCombatShipCostMultiplier: 1
+  ShipyardBonus: 0.25 # default 0.25
+
+  DisableShipPicker: true
+  ChangeResearchCostBasedOnSize: true
+  DisplayEnvPerfInRaceDesign: true
+  EnableShipTechLineFocusing: true
+  UseHullBonuses: false
+  UseDestroyers: false
+  EnableECM: false
+  UseCombatRepair: false
+  RemoveRemnantStory: false
+  UsePlanetaryProjection: false
+
+  # In case an event building has defense drones and drones are not researched
+  DefaultEventDrone: "Xeno Fighter"
+
+  ExplosionVisualIncreaser: 1 # default: 1
+  ShipExplosionVisualIncreaser: 1 # default: 1
+
+  # Urls for accessing auto-updater, should be changed for mods, if unused, set to ""
+  URL: "http://bitbucket.org/codegremlins/stardrive-blackbox"
+  DownloadSite: "http://bitbucket.org/codegremlins/stardrive-blackbox/downloads/"
+  BitbucketAPIString: "http://api.bitbucket.org/2.0/repositories/codegremlins/stardrive-blackbox/downloads"
+
+  ## mod information
+  #Mod:
+  #  Name: "Combined Arms"
+  #  Version: "8.1"
+  #  SupportedBlackBoxVersions: "develop,mars-1.40,mars-1.41"
+  #  IconPath: small.png
+  #  Description: "Combo mod taken into the next level. More Technologies, more hulls, more weapons and a lot of balance work."
+  #  Author: "Moonster and Fat_Bastard"
+  #  UseVanillaShips: false
+  #  ClearVanillaTechs: true
+
+
