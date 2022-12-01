@@ -231,9 +231,10 @@ namespace Ship_Game.Ships
                             sc.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
                         }
 
-                        // draw the debug x/y pos
-                        sc.DrawString(posOnScreen.ToVec2f(), shipRotation, (float)(600.0 / camHeight), Color.Red,
-                                      $"X{slot.Pos.X} Y{slot.Pos.Y}\nF{slotFacing}");
+                        // draw the module restriction info
+                        string info = slot.HasInternalRestrictions ? "Int" : slot.IsExternal ? "Ext" : null;
+                        if (info.NotEmpty())
+                            sc.DrawString(posOnScreen.ToVec2f(), shipRotation, (float)(600.0 / camHeight), Color.Yellow, info);
                     }
                 }
             }
