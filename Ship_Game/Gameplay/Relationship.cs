@@ -217,7 +217,7 @@ namespace Ship_Game.Gameplay
         public float GetTurnsForFederationWithPlayer(Empire us) => TurnsAbove95Federation(us);
 
         int TurnsAbove95Federation(Empire us) => us.PersonalityModifiers.TurnsAbove95FederationNeeded 
-                                                 * (int)(us.Universe.GalaxySize + 1);
+                                                 * (int)(us.Universe.P.GalaxySize + 1);
         
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
@@ -723,7 +723,7 @@ namespace Ship_Game.Gameplay
  
                 if (them.isPlayer)
                 {
-                    gain /= ((int)us.Universe.Difficulty).LowerBound(1);
+                    gain /= ((int)us.Universe.P.Difficulty).LowerBound(1);
                 }
 
                 return gain;

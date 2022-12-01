@@ -32,29 +32,29 @@ namespace Ship_Game
 
         private bool PlayerDesignsOnly
         {
-            get => UState.Params.ShipListFilterPlayerShipsOnly;
-            set => UState.Params.ShipListFilterPlayerShipsOnly = value;
+            get => UState.P.ShipListFilterPlayerShipsOnly;
+            set => UState.P.ShipListFilterPlayerShipsOnly = value;
         }
         private bool InFleetsOnly
         {
-            get => UState.Params.ShipListFilterInFleetsOnly;
+            get => UState.P.ShipListFilterInFleetsOnly;
             set
             {
-                UState.Params.ShipListFilterInFleetsOnly = value;
-                if (UState.Params.ShipListFilterInFleetsOnly && UState.Params.ShipListFilterNotInFleets)
-                    UState.Params.ShipListFilterNotInFleets = false;
+                UState.P.ShipListFilterInFleetsOnly = value;
+                if (UState.P.ShipListFilterInFleetsOnly && UState.P.ShipListFilterNotInFleets)
+                    UState.P.ShipListFilterNotInFleets = false;
             }
 
         }
 
         private bool NotInFleets
         {
-            get => UState.Params.ShipListFilterNotInFleets;
+            get => UState.P.ShipListFilterNotInFleets;
             set
             {
-                UState.Params.ShipListFilterNotInFleets = value;
-                if (UState.Params.ShipListFilterNotInFleets && UState.Params.ShipListFilterInFleetsOnly)
-                    UState.Params.ShipListFilterInFleetsOnly = false;
+                UState.P.ShipListFilterNotInFleets = value;
+                if (UState.P.ShipListFilterNotInFleets && UState.P.ShipListFilterInFleetsOnly)
+                    UState.P.ShipListFilterInFleetsOnly = false;
             }
         }
 

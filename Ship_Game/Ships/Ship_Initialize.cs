@@ -417,7 +417,7 @@ namespace Ship_Game.Ships
             Carrier = CarrierBays.Create(this, ModuleSlotList);
             Supply = new ShipResupply(this);
             ShipEngines = new ShipEngines(this, ModuleSlotList);
-            TroopUpdateTimer = Universe?.Params.TurnTimer ?? 0; // null for Templates
+            TroopUpdateTimer = Universe?.P.TurnTimer ?? 0; // null for Templates
 
             // power calc needs to be the first thing
             // otherwise stats update below will fail

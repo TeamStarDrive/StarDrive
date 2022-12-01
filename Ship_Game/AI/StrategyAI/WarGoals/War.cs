@@ -47,7 +47,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             get
             {
-                float minStr      = 10000 * ((int)Us.Universe.Difficulty + 1);
+                float minStr      = 10000 * ((int)Us.Universe.P.Difficulty + 1);
                 float ourStr      = Us.CurrentMilitaryStrength.LowerBound(minStr);
                 float theirStr    = Them.CurrentMilitaryStrength.LowerBound(minStr);
                 float killPercent = StrengthKilled / theirStr;

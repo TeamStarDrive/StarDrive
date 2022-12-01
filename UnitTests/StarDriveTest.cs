@@ -163,7 +163,7 @@ public partial class StarDriveTest : IDisposable
         Universe.LoadContent();
     }
 
-    public void CreateCustomUniverse(UniverseGenerator.Params p)
+    public void CreateCustomUniverse(UniverseParams p)
     {
         Universe = new UniverseGenerator(p).Generate();
         UState = Universe.UState;
@@ -208,14 +208,14 @@ public partial class StarDriveTest : IDisposable
         EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
         playerData.DiplomaticPersonality = new DTrait();
 
-        CreateCustomUniverse(new UniverseGenerator.Params
+        CreateCustomUniverse(new UniverseParams
         {
             PlayerData = playerData,
             Mode = RaceDesignScreen.GameMode.Sandbox,
-            UniverseSize = galSize,
+            GalaxySize = galSize,
             NumSystems = numStars,
             NumOpponents = numOpponents,
-            StarNumModifier = starNumModifier,
+            StarsModifier = starNumModifier,
             Pace = 1.0f,
             Difficulty = GameDifficulty.Normal,
         });

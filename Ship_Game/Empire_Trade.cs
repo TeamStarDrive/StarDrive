@@ -122,16 +122,16 @@ namespace Ship_Game
                 Ship freighter = ownedFreighters[i];
                 if (freighter.IsIdleFreighter)
                 {
-                    freighter.TradeTimer -= Universe.Params.TurnTimer;
+                    freighter.TradeTimer -= Universe.P.TurnTimer;
                     if (freighter.TradeTimer < 0)
                     {
                         freighter.AI.OrderScrapShip();
-                        freighter.TradeTimer = Universe.Params.TurnTimer * 60;
+                        freighter.TradeTimer = Universe.P.TurnTimer * 60;
                     }
                 }
                 else
                 {
-                    freighter.TradeTimer = Universe.Params.TurnTimer * 60;
+                    freighter.TradeTimer = Universe.P.TurnTimer * 60;
                 }
             }
         }

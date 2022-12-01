@@ -173,7 +173,7 @@ namespace Ship_Game.AI
                 Relationship rel = OwnerEmpire.GetRelations(them);
                 bool neededPeace = them.isPlayer  // player asked peace since they is in a real bad state
                                      && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
-                                     && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(us.Universe.Difficulty + 1);
+                                     && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(us.Universe.P.Difficulty + 1);
 
                 if (!neededPeace && them.TheyAreAlliedWithOurEnemies(OwnerEmpire, out Array<Empire> empiresAlliedWithThem))
                     CheckAIEmpiresResponse(OwnerEmpire, empiresAlliedWithThem, them, true);
@@ -246,7 +246,7 @@ namespace Ship_Game.AI
             Relationship rel   = OwnerEmpire.GetRelations(them);
             bool neededPeace   = them.isPlayer  // player asked peace since they is in a real bad state
                                  && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
-                                 && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(them.Universe.Difficulty + 1);
+                                 && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(them.Universe.P.Difficulty + 1);
 
             if (answer.Peace)
                 AcceptOffer(ourOffer, theirOffer, OwnerEmpire, them, attitude);

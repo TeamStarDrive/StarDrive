@@ -333,7 +333,7 @@ namespace Ship_Game
             UpdateDescription();
             CreatePlanetSceneObject();
 
-            GravityWellRadius = (float)(Universe.Params.GravityWellRange * (1 + ((Math.Log(Scale)) / 1.5)));
+            GravityWellRadius = (float)(Universe.P.GravityWellRange * (1 + ((Math.Log(Scale)) / 1.5)));
         }
 
         protected void UpdatePositionOnly()

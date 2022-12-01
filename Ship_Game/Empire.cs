@@ -932,7 +932,7 @@ namespace Ship_Game
 
         void InitDifficultyModifiers()
         {
-            DifficultyModifiers = new DifficultyModifiers(this, Universe.Difficulty);
+            DifficultyModifiers = new DifficultyModifiers(this, Universe.P.Difficulty);
         }
 
         void InitPersonalityModifiers()
@@ -1252,7 +1252,7 @@ namespace Ship_Game
             UpdateTimer -= timeStep.FixedTime;
             if (UpdateTimer <= 0f && !data.Defeated)
             {
-                UpdateTimer = us.Params.TurnTimer + (Id -1) * timeStep.FixedTime;
+                UpdateTimer = us.P.TurnTimer + (Id -1) * timeStep.FixedTime;
 
                 if (isPlayer)
                 {
@@ -1336,7 +1336,7 @@ namespace Ship_Game
             if (isPlayer | IsFaction)
                 return;
 
-            if (!Universe.Params.EliminationMode 
+            if (!Universe.P.EliminationMode 
                 && Capital?.Owner != this 
                 && !OwnedPlanets.Any(p => p.IsHomeworld))
             {
@@ -2298,7 +2298,7 @@ namespace Ship_Game
 
         void CheckFederationVsPlayer(UniverseState us)
         {
-            if (us.Params.PreventFederations || us.StarDate < 1100f || (us.StarDate % 1).NotZero())
+            if (us.P.PreventFederations || us.StarDate < 1100f || (us.StarDate % 1).NotZero())
                 return;
 
             float playerScore    = TotalScore;
@@ -2399,9 +2399,9 @@ namespace Ship_Game
         {
             if (IsFaction) return false;
             if (data.Defeated) return true;
-            if (!Universe.Params.EliminationMode && OwnedPlanets.Count != 0)
+            if (!Universe.P.EliminationMode && OwnedPlanets.Count != 0)
                 return false;
-            if (Universe.Params.EliminationMode && (Capital == null || Capital.Owner == this) && OwnedPlanets.Count != 0)
+            if (Universe.P.EliminationMode && (Capital == null || Capital.Owner == this) && OwnedPlanets.Count != 0)
                 return false;
 
             SetAsDefeated();
@@ -2747,7 +2747,7 @@ namespace Ship_Game
             if (!WeAreRemnants)
                 return false;
 
-            if (Universe.Params.DisableRemnantStory)
+            if (Universe.P.DisableRemnantStory)
                 return false;
 
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
@@ -2815,7 +2815,7 @@ namespace Ship_Game
 
             float desiredScouts = unexplored * Research.Strategy.ExpansionRatio;
             if (!isPlayer)
-                desiredScouts *= ((int)Universe.Difficulty).LowerBound(1);
+                desiredScouts *= ((int)Universe.P.Difficulty).LowerBound(1);
 
             int numScouts = 0;
             for (int i = 0; i < ships.Count; i++)
@@ -3002,10 +3002,10 @@ namespace Ship_Game
 
         public void IncrementCordrazineCapture()
         {
-            if (!Universe.Params.CordrazinePlanetCaptured)
+            if (!Universe.P.CordrazinePlanetCaptured)
                 Universe.Notifications.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
 
-            Universe.Params.CordrazinePlanetCaptured = true;
+            Universe.P.CordrazinePlanetCaptured = true;
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);

@@ -47,7 +47,7 @@ namespace Ship_Game
         public static bool HasMod => ActiveMod != null;
         public static string ModName = ""; // "Combined Arms" or "" if there's no active mod
         public static string ModPath = ""; // "Mods/Combined Arms/"
-        public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/Combined Arms/Combined Arms.xml"
+        public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}Globals.yaml" : ""; // "Mods/Combined Arms/Globals.yaml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
         
         // TODO: get rid of this global state variable
@@ -129,9 +129,10 @@ namespace Ship_Game
         public const bool UseSoftwareCursor = true;
         
         // DEV CONSTANT ONLY
-        // graphics options to turn of background nebula rendering, used for testing too
-        public const bool DrawNebulas = true;
-        public const bool DrawStarfield = true;
+        // graphics options to turn of background nebula rendering
+        // used for testing too
+        public static bool DrawNebulas = true;
+        public static bool DrawStarfield = true;
         
         // DEV CONSTANT ONLY
         // If TRUE, then all ShipDesign's DesignSlot[] arrays will be lazy-loaded on demand

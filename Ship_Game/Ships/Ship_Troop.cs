@@ -267,7 +267,7 @@ namespace Ship_Game.Ships
         {
             if (OurTroops.Count == 0 && HostileTroops.Count == 0)
             {
-                TroopUpdateTimer = Universe.Params.TurnTimer;
+                TroopUpdateTimer = Universe.P.TurnTimer;
                 return;
             }
 
@@ -276,7 +276,7 @@ namespace Ship_Game.Ships
             if (TroopUpdateTimer > 0)
                 return;
 
-            TroopUpdateTimer = Universe.Params.TurnTimer;
+            TroopUpdateTimer = Universe.P.TurnTimer;
             if (OurTroops.Count > 0)
             {
                 // leave a garrison of 1 if a ship without barracks was boarded

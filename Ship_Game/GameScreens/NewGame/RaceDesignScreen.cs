@@ -18,7 +18,7 @@ namespace Ship_Game
         readonly MainMenuScreen MainMenu;
         readonly Array<TraitEntry> AllTraits = new();
         RacialTrait RaceSummary = new();
-        UniverseParams Settings = new();
+        UniverseParams P = new();
 
         Rectangle FlagLeft;
         Rectangle FlagRight;
@@ -34,18 +34,12 @@ namespace Ship_Game
         ScrollList<RaceArchetypeListItem> ChooseRaceList;
         ScrollList<TextListItem> DescriptionTextList;
 
-        GameMode Mode;
-        StarsAbundance StarsCount = StarsAbundance.Normal;
-        GalSize GalaxySize = GalSize.Medium;
-        int Pacing = 100;
-        int NumOpponents;
         UILabel NumSystemsLabel;
         UILabel ExtraPlanetsLabel;
         UILabel PerformanceWarning;
         int FlagIndex;
         public int TotalPointsUsed { get; private set; } = 8;
 
-        GameDifficulty SelectedDifficulty = GameDifficulty.Normal;
         public IEmpireData SelectedData { get; private set; }
 
         UITextEntry NameEntry;
@@ -65,12 +59,8 @@ namespace Ship_Game
             TransitionOnTime = 0.75f;
             TransitionOffTime = 0.25f;
             foreach (RacialTrait t in ResourceManager.RaceTraits.TraitList)
-            {
                 AllTraits.Add(new TraitEntry { trait = t });
-            }
             GlobalStats.Statreset();
-            int maxOpponentsLimit = ResourceManager.MajorRaces.Count - 1;
-            NumOpponents = GlobalStats.Settings.DefaultNumOpponents.UpperBound(maxOpponentsLimit);
         }
 
         RacialTrait GetRacialTraits()
@@ -88,17 +78,9 @@ namespace Ship_Game
             return t;
         }
         
-        public void SetCustomSetup(GameDifficulty gameDifficulty,
-            StarsAbundance numStars, GalSize galaxySize, int pacing,
-            ExtraRemnantPresence extraRemnants, int numOpponents, GameMode mode)
+        public void SetCustomSetup(UniverseParams settings)
         {
-            SelectedDifficulty = gameDifficulty;
-            StarsCount = numStars;
-            GalaxySize = galaxySize;
-            Pacing = pacing;
-            Settings.ExtraRemnant = extraRemnants;
-            NumOpponents = numOpponents;
-            Mode = mode;
+            P = settings;
         }
         
         Graphics.Font DescriptionTextFont => LowRes ? Fonts.Arial10 : Fonts.Arial12;
@@ -201,14 +183,14 @@ namespace Ship_Game
             if (GlobalStats.Settings.ChangeResearchCostBasedOnSize)
                 opponentsTip += ". On a large scale galaxy, this might also affect research cost of technologies.";
 
-            AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(), tip: galaxySizeTip);
-            AddOption("{SolarSystems} : ", OnNumberStarsClicked, label => StarsCount.ToString(), tip: solarSystemsTip);
-            AddOption("{Opponents} : ",  OnNumOpponentsClicked,  label => NumOpponents.ToString(), tip: opponentsTip);
-            ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
-            AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameText.TheGamesPaceModifiesThe);
-            AddOption("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
+            AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  _ => P.GalaxySize.ToString(), tip:galaxySizeTip);
+            AddOption("{SolarSystems} : ", OnNumberStarsClicked, _ => P.StarsCount.ToString(), tip:solarSystemsTip);
+            AddOption("{Opponents} : ",  OnNumOpponentsClicked,  _ => P.NumOpponents.ToString(), tip:opponentsTip);
+            ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, _ => GetModeText().Text, tip:GetModeTip());
+            AddOption("{Pacing} : ", OnPacingClicked, _ => (P.Pace == 1f) ? "1x" : $"{P.Pace:0.##}x slower", tip:GameText.TheGamesPaceModifiesThe);
+            AddOption("{Difficulty} : ", OnDifficultyClicked, _ => P.Difficulty.ToString(),
                 tip:"Hard and above increase AI Aggressiveness and gives them extra bonuses");
-            AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, label => Settings.ExtraRemnant.ToString(),
+            AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, _ => P.ExtraRemnant.ToString(),
                 tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare.");
 
             RectF description = new(traitsList.Right + 5, traitsList.Y, chooseRace.W, traitsList.H);
@@ -291,7 +273,7 @@ namespace Ship_Game
 
         int GetSystemsNum()
         {
-            (int numStars, _) = GetNumStars(StarsCount, GalaxySize, NumOpponents);
+            (int numStars, _) = GetNumStars(P.StarsCount, P.GalaxySize, P.NumOpponents);
             return numStars;
         }
 
@@ -335,7 +317,7 @@ namespace Ship_Game
 
         void OnRuleOptionsClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new RuleOptionsScreen(this, Settings));
+            ScreenManager.AddScreen(new RuleOptionsScreen(this, P));
         }
 
         void OnAbortClicked(UIButton b)
@@ -367,8 +349,7 @@ namespace Ship_Game
 
         void OnSaveSetupClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new SaveNewGameSetupScreen(this,
-                SelectedDifficulty, StarsCount, GalaxySize, Pacing, Settings.ExtraRemnant, NumOpponents, Mode));
+            ScreenManager.AddScreen(new SaveNewGameSetupScreen(this, P));
         }
 
         // If we had a left mouse click, increment forward, otherwise decrement
@@ -376,12 +357,12 @@ namespace Ship_Game
 
         void OnGalaxySizeClicked(UIButton b)
         {
-            GalaxySize = GalaxySize.IncrementWithWrap(OptionIncrement);
+            P.GalaxySize = P.GalaxySize.IncrementWithWrap(OptionIncrement);
         }
 
         LocalizedText GetModeText()
         {
-            switch (Mode)
+            switch (P.Mode)
             {
                 default:
                 case GameMode.Sandbox:       return GameText.Sandbox;
@@ -395,7 +376,7 @@ namespace Ship_Game
 
         LocalizedText GetModeTip()
         {
-            switch (Mode)
+            switch (P.Mode)
             {
                 default:
                 case GameMode.Sandbox:       return GameText.InTheSandboxGameMode;
@@ -409,39 +390,39 @@ namespace Ship_Game
 
         void OnGameModeClicked(UIButton b)
         {
-            Mode = Mode.IncrementWithWrap(OptionIncrement);
-            if (Mode == GameMode.Corners) NumOpponents = 3;
+            P.Mode = P.Mode.IncrementWithWrap(OptionIncrement);
+            if (P.Mode == GameMode.Corners) P.NumOpponents = 3;
             ModeBtn.Tooltip = GetModeTip();
         }
 
         void OnNumberStarsClicked(UIButton b)
         {
-            StarsCount = StarsCount.IncrementWithWrap(OptionIncrement);
+            P.StarsCount = P.StarsCount.IncrementWithWrap(OptionIncrement);
         }
 
         void OnNumOpponentsClicked(UIButton b)
         {
-            int maxOpponents = Mode == GameMode.Corners ? 3 : GlobalStats.Settings.MaxOpponents;
-            NumOpponents += OptionIncrement;
-            if (NumOpponents > maxOpponents) NumOpponents = 1;
-            else if (NumOpponents < 1)       NumOpponents = maxOpponents;
+            int maxOpponents = P.Mode == GameMode.Corners ? 3 : GlobalStats.Settings.MaxOpponents;
+            P.NumOpponents += OptionIncrement;
+            if (P.NumOpponents > maxOpponents) P.NumOpponents = 1;
+            else if (P.NumOpponents < 1)       P.NumOpponents = maxOpponents;
         }
 
         void OnPacingClicked(UIButton b)
         {
-            Pacing += 25*OptionIncrement;
-            if (Pacing > 400) Pacing = 100;
-            if (Pacing < 100) Pacing = 400;
+            P.Pace += OptionIncrement*0.25f;
+            if (P.Pace > 4f) P.Pace = 1f;
+            if (P.Pace < 1f) P.Pace = 4f;
         }
         
         void OnDifficultyClicked(UIButton b)
         {
-            SelectedDifficulty = SelectedDifficulty.IncrementWithWrap(OptionIncrement);
+            P.Difficulty = P.Difficulty.IncrementWithWrap(OptionIncrement);
         }
         
         void OnExtraRemnantClicked(UIButton b)
         {
-            Settings.ExtraRemnant = Settings.ExtraRemnant.IncrementWithWrap(OptionIncrement);
+            P.ExtraRemnant = P.ExtraRemnant.IncrementWithWrap(OptionIncrement);
         }
 
         public override bool HandleInput(InputState input)
@@ -530,8 +511,8 @@ namespace Ship_Game
 
         void OnEngageClicked(UIButton b)
         {
-            if (Mode == GameMode.Elimination)
-                Settings.EliminationMode = true;
+            if (P.Mode == GameMode.Elimination)
+                P.EliminationMode = true;
 
             RaceSummary.Color          = Picker.CurrentColor;
             RaceSummary.Singular       = Singular;
@@ -545,25 +526,13 @@ namespace Ship_Game
             RaceSummary.Adj1           = SelectedData.Adj1;
             RaceSummary.Adj2           = SelectedData.Adj2;
 
-            EmpireData playerData = SelectedData.CreateInstance(copyTraits: false);
-            playerData.SpyModifier = RaceSummary.SpyMultiplier;
-            playerData.Traits      = RaceSummary;
-            playerData.DiplomaticPersonality = new DTrait();
+            P.PlayerData = SelectedData.CreateInstance(copyTraits: false);
+            P.PlayerData.SpyModifier = RaceSummary.SpyMultiplier;
+            P.PlayerData.Traits      = RaceSummary;
+            P.PlayerData.DiplomaticPersonality = new DTrait();
 
-            (int numStars, float starNumModifier) = GetNumStars(StarsCount, GalaxySize, NumOpponents);
-            var parameters = new UniverseGenerator.Params
-            {
-                PlayerData = playerData,
-                UniverseSize = GalaxySize,
-                NumSystems = numStars,
-                StarNumModifier = starNumModifier,
-                NumOpponents = NumOpponents,
-                Mode = Mode,
-                Pace = Pacing / 100f,
-                Difficulty = SelectedDifficulty,
-                Settings = Settings,
-            };
-            var ng = new CreatingNewGameScreen(MainMenu, parameters);
+            (P.NumSystems, P.StarsModifier) = GetNumStars(P.StarsCount, P.GalaxySize, P.NumOpponents);
+            var ng = new CreatingNewGameScreen(MainMenu, P);
 
             ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
@@ -581,7 +550,7 @@ namespace Ship_Game
             int numSystems = GetSystemsNum();
             NumSystemsLabel.Text = $"Solar Systems: {numSystems}";
             ShowPerformanceWarning(numSystems);
-            ShowExtraPlanetsNum(Settings.ExtraPlanets);
+            ShowExtraPlanetsNum(P.ExtraPlanets);
 
             batch.Begin();
             base.Draw(batch, elapsed);

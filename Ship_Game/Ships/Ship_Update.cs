@@ -187,7 +187,7 @@ namespace Ship_Game.Ships
                         else if (p.Owner == null)
                         {
                             Loyalty.AI.SendExplorationFleet(p);
-                            if (Universe.Difficulty > GameDifficulty.Hard 
+                            if (Universe.P.Difficulty > GameDifficulty.Hard 
                                 && PlanetRanker.IsGoodValueForUs(p, Loyalty)
                                 && Loyalty.KnownEnemyStrengthIn(p.ParentSystem) == 0)
                             {

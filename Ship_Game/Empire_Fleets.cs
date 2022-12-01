@@ -149,7 +149,7 @@ public sealed partial class Empire
         if (p.EventsOnTiles())
             AI.SendExplorationFleet(p);
 
-        if (Universe.Difficulty <= GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
+        if (Universe.P.Difficulty <= GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
             return;
 
         if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
