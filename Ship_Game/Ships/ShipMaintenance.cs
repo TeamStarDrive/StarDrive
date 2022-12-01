@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
             if (IsFreeUpkeepShip(empire, ship))
                 return 0;
 
-            bool hullUpkeep = GlobalStats.UseUpkeepByHullSize;
+            bool hullUpkeep = GlobalStats.Settings.UseUpkeepByHullSize;
             float maint;
             if (ship.FixedUpkeep > 0)
             {

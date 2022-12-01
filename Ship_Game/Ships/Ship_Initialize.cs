@@ -414,9 +414,10 @@ namespace Ship_Game.Ships
 
         void InitializeStatus(bool fromSave)
         {
-            Carrier     = CarrierBays.Create(this, ModuleSlotList);
-            Supply      = new ShipResupply(this);
+            Carrier = CarrierBays.Create(this, ModuleSlotList);
+            Supply = new ShipResupply(this);
             ShipEngines = new ShipEngines(this, ModuleSlotList);
+            TroopUpdateTimer = Universe?.Params.TurnTimer ?? 0; // null for Templates
 
             // power calc needs to be the first thing
             // otherwise stats update below will fail

@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
         // OUR troops count
         public int TroopCount => OurTroops.Count;
 
-        float TroopUpdateTimer = GlobalStats.TurnTimer;
+        float TroopUpdateTimer;
 
         // TRUE if we have any troops present on this ship
         // @warning Some of these MAY be enemy troops!
@@ -267,7 +267,7 @@ namespace Ship_Game.Ships
         {
             if (OurTroops.Count == 0 && HostileTroops.Count == 0)
             {
-                TroopUpdateTimer = GlobalStats.TurnTimer;
+                TroopUpdateTimer = Universe.Params.TurnTimer;
                 return;
             }
 
@@ -276,7 +276,7 @@ namespace Ship_Game.Ships
             if (TroopUpdateTimer > 0)
                 return;
 
-            TroopUpdateTimer = GlobalStats.TurnTimer;
+            TroopUpdateTimer = Universe.Params.TurnTimer;
             if (OurTroops.Count > 0)
             {
                 // leave a garrison of 1 if a ship without barracks was boarded

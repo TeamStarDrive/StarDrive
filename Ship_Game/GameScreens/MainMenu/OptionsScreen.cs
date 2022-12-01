@@ -262,6 +262,13 @@ namespace Ship_Game
             AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.AutosaveFrequency, 60, 540, GlobalStats.AutoSaveFreq));
             SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.SimulationFps, 10, 120, GlobalStats.SimulationFramesPerSecond));
             
+            MusicVolumeSlider.OnChange = (s) => GlobalStats.MusicVolume = s.AbsoluteValue;
+            EffectsVolumeSlider.OnChange = (s) => GlobalStats.EffectsVolume = s.AbsoluteValue;
+            MaxDynamicLightSources.OnChange = (s) => GlobalStats.MaxDynamicLightSources = (int)s.AbsoluteValue;
+            IconSize.OnChange = (s) => GlobalStats.IconSize = (int)s.AbsoluteValue;
+            AutoSaveFreq.OnChange = (s) => GlobalStats.AutoSaveFreq = (int)s.AbsoluteValue;
+            SimulationFps.OnChange = (s) => GlobalStats.SimulationFramesPerSecond = (int)s.AbsoluteValue;
+
             MaxDynamicLightSources.Tip = GameText.TT_MaxDynamicLightSources;
             AutoSaveFreq.Tip = GameText.TheDelayBetweenAutoSaves;
             SimulationFps.Tip = GameText.ChangesTheSimulationFrequencyLower;
@@ -422,12 +429,6 @@ namespace Ship_Game
         {
             if (base.HandleInput(input))
             {
-                GlobalStats.IconSize      = (int)IconSize.AbsoluteValue;
-                GlobalStats.AutoSaveFreq  = (int)AutoSaveFreq.AbsoluteValue;
-                GlobalStats.MusicVolume   = MusicVolumeSlider.RelativeValue;
-                GlobalStats.EffectsVolume = EffectsVolumeSlider.RelativeValue;
-                GlobalStats.SimulationFramesPerSecond = (int)SimulationFps.AbsoluteValue;
-                GlobalStats.MaxDynamicLightSources = (int)MaxDynamicLightSources.AbsoluteValue;
                 GameAudio.ConfigureAudioSettings();
                 return true;
             }

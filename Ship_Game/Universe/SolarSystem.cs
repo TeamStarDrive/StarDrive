@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -73,7 +72,7 @@ namespace Ship_Game
         [StarData] public Array<SolarSystem> FiveClosestSystems = new();
         public Array<Anomaly> AnomaliesList = new();
         public bool IsStartingSystem;
-        [XmlIgnore] bool WasVisibleLastFrame;
+        bool WasVisibleLastFrame;
 
         SolarSystem() : base(0, GameObjectType.SolarSystem)
         {
@@ -269,7 +268,7 @@ namespace Ship_Game
 
         public Planet IdentifyGravityWell(Ship ship)
         {
-            if (Universe.GravityWellRange > 0f)
+            if (Universe.Params.GravityWellRange > 0f)
             {
                 // @todo QuadTree. need to have planets in the quad tree.
                 // @todo check UniverseState.PlanetsTree if it makes sense to filter planets through that
@@ -405,7 +404,7 @@ namespace Ship_Game
             int starRadius = random.Int(250, 500);
             float sysMaxRingRadius = starRadius * 300;
             float firstRingRadius = sysMaxRingRadius * 0.1f;
-            int minR = random.AvgInt(GlobalStats.ExtraPlanets, 3, iterations: 2);
+            int minR = random.AvgInt(us.Params.ExtraPlanets, 3, iterations: 2);
             int maxR = random.Int(minR, 7 + minR);
             NumberOfRings = random.Int(minR, maxR);
 
@@ -468,7 +467,7 @@ namespace Ship_Game
 
             // now, if number of planets is <= 2 and they are barren,
             // then 33% chance to have neutron star:
-            if (PlanetList.Count <= 2 + GlobalStats.ExtraPlanets && PlanetList.All(p => p.IsBarrenGasOrVolcanic)
+            if (PlanetList.Count <= 2 + us.Params.ExtraPlanets && PlanetList.All(p => p.IsBarrenGasOrVolcanic)
                 && random.RollDice(percent:15))
             {
                 Sun = SunType.RandomBarrenSun();

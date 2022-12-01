@@ -197,15 +197,12 @@ namespace Ship_Game.Ships
             return RoleArray[(int)Role -1];
         }
 
-        public bool IsBuildableByPlayer
+        public bool IsBuildableByPlayer(Empire player)
         {
-            get
-            {
-                ShipRole role = ShipRole;
-                return  !IsCarrierOnly && !Deleted
-                    && !role.Protected && !role.NoBuild
-                    && (GlobalStats.ShowAllDesigns || IsPlayerDesign);
-            }
+            ShipRole role = ShipRole;
+            return !IsCarrierOnly && !Deleted
+                && !role.Protected && !role.NoBuild
+                && (player.Universe.Params.ShowAllDesigns || IsPlayerDesign);
         }
 
         public static string GetRole(RoleName role)

@@ -448,7 +448,7 @@ namespace Ship_Game
                 UState.GameSpeed = 1f;
             else if (input.SpeedUp || input.SpeedDown)
             {
-                bool unlimited = GlobalStats.UnlimitedSpeed || Debug || Debugger.IsAttached;
+                bool unlimited = Debug || Debugger.IsAttached;
                 float speedMin = unlimited ? 0.0625f : 0.25f;
                 float speedMax = unlimited ? 128f    : 6f;
                 UState.GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);

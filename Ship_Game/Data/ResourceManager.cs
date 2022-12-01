@@ -57,8 +57,8 @@ namespace Ship_Game
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
         static readonly Map<string, SubTexture> Textures = new();
 
-        public static Map<string, Technology> TechTree = new(GlobalStats.CaseControl);
-        static readonly Map<string, ShipModule> ModuleTemplates = new(GlobalStats.CaseControl);
+        public static Map<string, Technology> TechTree = new();
+        static readonly Map<string, ShipModule> ModuleTemplates = new();
         public static Array<Encounter> Encounters = new();
         public static Map<string, Building> BuildingsDict = new();
         public static Map<string, Good> GoodsDict = new();
@@ -67,7 +67,7 @@ namespace Ship_Game
         public static Array<RandomItem> RandomItemsList = new();
 
         public static Map<string, Artifact> ArtifactsDict = new();
-        public static Map<string, ExplorationEvent> EventsDict = new(GlobalStats.CaseControl);
+        public static Map<string, ExplorationEvent> EventsDict = new();
 
         public static ShipNames ShipNames = new();
         public static AgentMissionData AgentMissionData = new();

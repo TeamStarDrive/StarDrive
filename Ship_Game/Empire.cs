@@ -75,6 +75,8 @@ namespace Ship_Game
         public string PortraitName => data.PortraitName;
         public bool ScanComplete = true;
 
+        [StarData] public bool AutoTaxes;
+
         // faction means it's not an actual Empire like Humans or Kulrathi
         // it doesn't normally colonize or make war plans.
         // it gets special instructions, usually event based, for example Corsairs
@@ -1250,7 +1252,7 @@ namespace Ship_Game
             UpdateTimer -= timeStep.FixedTime;
             if (UpdateTimer <= 0f && !data.Defeated)
             {
-                UpdateTimer = GlobalStats.TurnTimer + (Id -1) * timeStep.FixedTime;
+                UpdateTimer = us.Params.TurnTimer + (Id -1) * timeStep.FixedTime;
 
                 if (isPlayer)
                 {
@@ -1334,7 +1336,7 @@ namespace Ship_Game
             if (isPlayer | IsFaction)
                 return;
 
-            if (!GlobalStats.EliminationMode 
+            if (!Universe.Params.EliminationMode 
                 && Capital?.Owner != this 
                 && !OwnedPlanets.Any(p => p.IsHomeworld))
             {
@@ -2296,7 +2298,7 @@ namespace Ship_Game
 
         void CheckFederationVsPlayer(UniverseState us)
         {
-            if (GlobalStats.PreventFederations || us.StarDate < 1100f || (us.StarDate % 1).NotZero())
+            if (us.Params.PreventFederations || us.StarDate < 1100f || (us.StarDate % 1).NotZero())
                 return;
 
             float playerScore    = TotalScore;
@@ -2397,9 +2399,9 @@ namespace Ship_Game
         {
             if (IsFaction) return false;
             if (data.Defeated) return true;
-            if (!GlobalStats.EliminationMode && OwnedPlanets.Count != 0)
+            if (!Universe.Params.EliminationMode && OwnedPlanets.Count != 0)
                 return false;
-            if (GlobalStats.EliminationMode && (Capital == null || Capital.Owner == this) && OwnedPlanets.Count != 0)
+            if (Universe.Params.EliminationMode && (Capital == null || Capital.Owner == this) && OwnedPlanets.Count != 0)
                 return false;
 
             SetAsDefeated();
@@ -2745,7 +2747,7 @@ namespace Ship_Game
             if (!WeAreRemnants)
                 return false;
 
-            if (GlobalStats.Settings.RemoveRemnantStory)
+            if (Universe.Params.DisableRemnantStory)
                 return false;
 
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
@@ -3000,10 +3002,10 @@ namespace Ship_Game
 
         public void IncrementCordrazineCapture()
         {
-            if (!GlobalStats.CordrazinePlanetCaptured)
+            if (!Universe.Params.CordrazinePlanetCaptured)
                 Universe.Notifications.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
 
-            GlobalStats.CordrazinePlanetCaptured = true;
+            Universe.Params.CordrazinePlanetCaptured = true;
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);

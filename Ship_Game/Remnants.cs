@@ -750,7 +750,7 @@ namespace Ship_Game
                 dieModifier -= 5;
 
             int d100 = RollDie(100) + dieModifier;
-            switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
+            switch (Universe.Params.ExtraRemnant) // Refactored by FB (including all remnant methods)
             {
                 case ExtraRemnantPresence.VeryRare:   VeryRarePresence(quality, d100, p);   break;
                 case ExtraRemnantPresence.Rare:       RarePresence(quality, d100, p);       break;

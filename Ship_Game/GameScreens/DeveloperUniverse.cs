@@ -11,7 +11,7 @@ namespace Ship_Game
 {
     public class DeveloperUniverse : UniverseScreen
     {
-        public DeveloperUniverse(float universeSize) : base(universeSize)
+        public DeveloperUniverse(UniverseParams settings, float universeSize) : base(settings, universeSize)
         {
             UState.NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
             UState.Paused = false; // start simulating right away for Sandbox
@@ -46,12 +46,9 @@ namespace Ship_Game
             var s = Stopwatch.StartNew();
             ScreenManager.Instance.ClearScene();
 
-            var universe = new DeveloperUniverse(1_000_000f);
+            var settings = new UniverseParams();
+            var universe = new DeveloperUniverse(settings, 1_000_000f);
             UniverseState us = universe.UState;
-            us.FTLModifier      = GlobalStats.FTLInSystemModifier;
-            us.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
-            us.GravityWellRange = GlobalStats.Settings.GravityWellRange;
-            us.FTLInNeutralSystems = GlobalStats.WarpInSystem;
 
             IEmpireData[] candidates = ResourceManager.MajorRaces.Filter(d => PlayerFilter(d, playerPreference));
             IEmpireData player = candidates[0];

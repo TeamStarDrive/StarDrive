@@ -43,6 +43,7 @@ namespace Ship_Game.GameScreens.NewGame
             public float StarNumModifier;
             public float Pace;
             public GameDifficulty Difficulty;
+            public UniverseParams Settings;
         }
 
         public UniverseGenerator(Params p)
@@ -72,20 +73,16 @@ namespace Ship_Game.GameScreens.NewGame
                 case GalSize.TrulyEpic: uSize = 20_000_000; break;
             }
 
-            us = new UniverseScreen(uSize);
+            us = new UniverseScreen(p.Settings, uSize);
             UState = us.UState;
-            UState.FTLModifier = GlobalStats.FTLInSystemModifier;
-            UState.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
-            UState.GravityWellRange = GlobalStats.Settings.GravityWellRange;
-            UState.FTLInNeutralSystems = GlobalStats.WarpInSystem;
+
+            UState.Pace = p.Pace;
             UState.Difficulty = p.Difficulty;
             UState.GalaxySize = p.UniverseSize;
-            UState.BackgroundSeed = new Random().Next();
-            UState.Pace = p.Pace;
             UState.StarsModifier = p.StarNumModifier;
-            UState.ExtraPlanets = GlobalStats.ExtraPlanets;
+            UState.BackgroundSeed = new Random().Next();
 
-            GlobalStats.DisableInhibitionWarning = UState.Difficulty > GameDifficulty.Hard;
+            UState.Params.DisableInhibitionWarning = UState.Difficulty > GameDifficulty.Hard;
 
             Player = new Empire(UState)
             {
