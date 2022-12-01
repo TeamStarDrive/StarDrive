@@ -18,7 +18,6 @@ namespace Ship_Game.Ships
         public const int OrdnanceProductionThresholdCombat    = 75;
         public const float ResupplyShuttleOrdnanceThreshold    = 0.4f;
 
-        public const float ShipDestroyThreshold = GlobalStats.ShipDestroyThreshold;
         public const float RepairDroneThreshold = 0.9f;
         public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
@@ -49,7 +48,8 @@ namespace Ship_Game.Ships
                 case ShipCategory.Kamikaze:     threshold = 0.0f;  break;
             }
 
-            threshold = threshold * (1 - ShipDestroyThreshold) + ShipDestroyThreshold;
+            float baseThreshold = GlobalStats.Settings.ShipDestroyThreshold;
+            threshold = threshold * (1 - baseThreshold) + baseThreshold;
             return threshold;
         }
 
@@ -109,7 +109,7 @@ namespace Ship_Game.Ships
 
         private bool ResupplyNeededLowHealth()
         {
-            if (Ship.InternalSlotsHealthPercent < ShipDestroyThreshold) // ship is dying or in init
+            if (Ship.InternalSlotsHealthPercent < GlobalStats.Settings.ShipDestroyThreshold) // ship is dying or in init
                 return false;
 
             return Ship.InternalSlotsHealthPercent < DamageThreshold(Ship.ShipData.ShipCategory)

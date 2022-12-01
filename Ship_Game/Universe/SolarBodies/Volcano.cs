@@ -96,7 +96,7 @@ namespace Ship_Game.Universe.SolarBodies
             RemoveVolcanoBeforeReplacing();
             Active     = true;
             CreateVolcanoBuilding(Building.ActiveVolcanoId);
-            if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
+            if (!P.Universe.Params.DisableVolcanoWarning && ShouldNotifyPlayer)
                 P.Universe.Notifications.AddVolcanoRelated(P, Localizer.Token(GameText.ADormantVolcanoBecameActivenit), ActiveVolcanoTexPath);
         }
 
@@ -140,7 +140,7 @@ namespace Ship_Game.Universe.SolarBodies
                 P.MineralRichness += increaseBy;
             }
 
-            if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
+            if (!P.Universe.Params.DisableVolcanoWarning && ShouldNotifyPlayer)
                 P.Universe.Notifications.AddVolcanoRelated(P, message, DormantVolcanoTexPath);
         }
 
@@ -152,7 +152,7 @@ namespace Ship_Game.Universe.SolarBodies
             Active   = false;
             Erupting = false;
             CreateDormantVolcano();
-            if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
+            if (!P.Universe.Params.DisableVolcanoWarning && ShouldNotifyPlayer)
                 P.Universe.Notifications.AddVolcanoRelated(P, Localizer.Token(GameText.AnActiveVolcanoBecameDormant), DormantVolcanoTexPath);
 
             return true;
@@ -256,7 +256,7 @@ namespace Ship_Game.Universe.SolarBodies
                 else
                 {
                     // Just make the tile habitable
-                    if (planet.OwnerIsPlayer && !GlobalStats.DisableVolcanoWarning)
+                    if (planet.OwnerIsPlayer && !planet.Universe.Params.DisableVolcanoWarning)
                         planet.Universe.Notifications.AddVolcanoRelated(planet, Localizer.Token(GameText.ALavaPoolHasSolidified), lavaPath);
                 }
             }

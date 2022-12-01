@@ -30,7 +30,7 @@ namespace Ship_Game.Ships
         bool IsShipyard { get; }
         bool IsOrbitalDefense { get; }
         bool IsCarrierOnly { get; } // this ship is restricted to Carriers only
-        bool IsBuildableByPlayer { get; }
+        bool IsBuildableByPlayer(Empire player);
 
         ShipCategory ShipCategory  { get; }
         HangarOptions HangarDesignation  { get; }

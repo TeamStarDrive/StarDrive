@@ -92,8 +92,8 @@ namespace Ship_Game
 
         public bool IsFilterOldModulesMode
         {
-            get => GlobalStats.FilterOldModules;
-            set => GlobalStats.FilterOldModules = value;
+            get => ParentUniverse.UState.Params.FilterOldModules;
+            set => ParentUniverse.UState.Params.FilterOldModules = value;
         }
           
         struct MirrorSlot

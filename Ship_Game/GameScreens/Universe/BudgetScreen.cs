@@ -82,7 +82,7 @@ namespace Ship_Game.GameScreens
 
             // background panels for TaxRate, incomes, cost, trade: 6138
             SummaryPanel tax = Add(new SummaryPanel("", taxRect, new Color(17, 21, 28)));
-            var taxTitle = Player.data.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
+            var taxTitle = Player.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
 
             TaxSlider = tax.AddSlider(Localizer.Token(taxTitle), Player.data.TaxRate);
             TaxSlider.Tip = GameText.TaxesAreCollectedFromYour;
@@ -114,7 +114,7 @@ namespace Ship_Game.GameScreens
 
         private UICheckBox AutoTaxCheckBox(Rectangle footerRect)
         {
-            var autoTax = Checkbox(new Vector2(footerRect.X, footerRect.Y), () => Player.data.AutoTaxes, 
+            var autoTax = Checkbox(new Vector2(footerRect.X, footerRect.Y), () => Player.AutoTaxes, 
                                    GameText.AutoTaxes, GameText.YourEmpireWillAutomaticallyManage3);
             autoTax.OnChange = cb =>
             {
@@ -124,7 +124,7 @@ namespace Ship_Game.GameScreens
                     TaxSlider.RelativeValue = Player.data.TaxRate;
                 }
                 TaxSlider.Enabled = !cb.Checked;
-                TaxSlider.Text = Player.data.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
+                TaxSlider.Text = Player.AutoTaxes ? GameText.AutoTaxes : GameText.TaxRate;
             };
             TaxSlider.Enabled = !autoTax.Checked;
             return autoTax;
@@ -188,7 +188,7 @@ namespace Ship_Game.GameScreens
             s.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {goal}";
             Player.AI.RunEconomicPlanner();
 
-            if (Player.data.AutoTaxes)
+            if (Player.AutoTaxes)
                 TaxSlider.RelativeValue = Player.data.TaxRate;
         }
 

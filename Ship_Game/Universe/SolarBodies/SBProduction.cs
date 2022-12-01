@@ -172,7 +172,7 @@ namespace Ship_Game.Universe.SolarBodies
             Building b = ResourceManager.CreateBuilding(P, q.Building.Name);
             b.IsPlayerAdded = q.IsPlayerAdded;
             q.pgs.PlaceBuilding(b, P);
-            if (!GlobalStats.SuppressOnBuildNotifications
+            if (!P.Universe.Params.SuppressOnBuildNotifications
                 && !P.Universe.Screen.IsViewingColonyScreen(P)
                 && P.OwnerIsPlayer
                 && (q.IsPlayerAdded || q.Building.IsCapital))

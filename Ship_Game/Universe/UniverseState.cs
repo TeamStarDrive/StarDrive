@@ -36,21 +36,8 @@ namespace Ship_Game.Universe
         [StarData] public Empire Unknown;
         [StarData] public Empire Corsairs;
 
-        [StarData] public float FTLModifier = 1f;
-        [StarData] public float EnemyFTLModifier = 1f;
-        [StarData] public bool FTLInNeutralSystems = true;
         [StarData] public GameDifficulty Difficulty;
         [StarData] public GalSize GalaxySize;
-
-        // configured gravity wells for this game, if 0, then gravity wells are disabled
-        [StarData] public float GravityWellRange;
-
-        // TODO: SAVE COMPATIBILITY ONLY, REMOVE [StarData] LATER
-        [StarData] public bool GravityWells
-        {
-            get => GravityWellRange > 0;
-            set => GravityWellRange = value ? GlobalStats.Settings.GravityWellRange : 0;
-        }
 
         [StarData] public UnivScreenState ViewState;
         public bool IsSectorViewOrCloser => ViewState <= UnivScreenState.SectorView;
@@ -65,7 +52,6 @@ namespace Ship_Game.Universe
         public static float DummySettingsResearchModifier = 1f;
         public static float DummyProductionPacePlaceholder = 1f;
 
-        [StarData] public int ExtraPlanets;
         [StarData] public float StarsModifier = 1f;
         [StarData] public float SettingsResearchModifier = 1f;
         public float RemnantPaceModifier = 20;
@@ -165,10 +151,11 @@ namespace Ship_Game.Universe
 
         [StarDataConstructor] UniverseState() {}
 
-        public UniverseState(UniverseScreen screen, float universeRadius)
+        public UniverseState(UniverseScreen screen, UniverseParams settings, float universeRadius)
         {
             Screen = screen;
             Size = universeRadius;
+            Params = settings ?? throw new NullReferenceException(nameof(settings));
             if (Size < 1f)
                 throw new ArgumentException("UniverseSize not set!");
 
@@ -176,7 +163,6 @@ namespace Ship_Game.Universe
 
             Events = new(); // serialized
             Stats = new(this); // serialized
-            Params = new(); // serialized
         }
 
         void Initialize(float universeWidth)
@@ -285,7 +271,8 @@ namespace Ship_Game.Universe
         }
 
         // Only call OnDeserialized evt if Empire and Ship have finished their events
-        [StarDataDeserialized(typeof(Empire), typeof(Ship), typeof(Projectile), typeof(Beam))]
+        [StarDataDeserialized(typeof(Empire), typeof(Ship), typeof(Projectile),
+                              typeof(Beam), typeof(UniverseParams))]
         void OnDeserialized()
         {
             Initialize(UniverseWidth);
@@ -498,7 +485,7 @@ namespace Ship_Game.Universe
         {
             float stars = StarsModifier * 4; // 1-8
             float size = (int)GalaxySize + 1; // 1-7
-            int extra = ExtraPlanets; // 1-3
+            int extra = Params.ExtraPlanets; // 1-3
             int numMajorEmpires = EmpireList.Count(e => !e.IsFaction);
             float numEmpires = numMajorEmpires / 2f; // 1-4.5
 
@@ -508,7 +495,7 @@ namespace Ship_Game.Universe
 
         float GetResearchMultiplier()
         {
-            if (!GlobalStats.ChangeResearchCost)
+            if (!GlobalStats.Settings.ChangeResearchCostBasedOnSize)
                 return 1f;
 
             int idealNumPlayers   = (int)GalaxySize + 3;
@@ -516,7 +503,7 @@ namespace Ship_Game.Universe
                 ? ((int)GalaxySize / 2f).LowerBound(0.25f) // 0.25, 0.5 or 1
                 : 1 + ((int)GalaxySize - (int)GalSize.Medium) * 0.25f; // 1.25, 1.5, 1.75, 2
 
-            float extraPlanetsMod = 1 + ExtraPlanets * 0.25f;
+            float extraPlanetsMod = 1 + Params.ExtraPlanets * 0.25f;
             int numMajorEmpires = EmpireList.Count(e => !e.IsFaction);
             float playerRatio     = (float)idealNumPlayers / numMajorEmpires;
             float settingsRatio   = galSizeModifier * extraPlanetsMod * playerRatio * StarsModifier;

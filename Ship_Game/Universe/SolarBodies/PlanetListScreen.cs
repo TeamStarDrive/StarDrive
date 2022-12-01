@@ -8,6 +8,7 @@ using SDUtils;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -18,6 +19,7 @@ namespace Ship_Game
         readonly Menu2 EMenu;
 
         public UniverseScreen Universe;
+        public UniverseState UState => Universe.UState;
         public EmpireUIOverlay EmpireUI;
         Empire Player => Universe.Player;
 
@@ -37,14 +39,14 @@ namespace Ship_Game
 
         bool HideOwned
         {
-            get => GlobalStats.PlanetScreenHideOwned;
-            set => GlobalStats.PlanetScreenHideOwned = value;
+            get => UState.Params.PlanetScreenHideOwned;
+            set => UState.Params.PlanetScreenHideOwned = value;
         }
 
         bool HideUninhab
         {
-            get => GlobalStats.PlanetsScreenHideInhospitable;
-            set => GlobalStats.PlanetsScreenHideInhospitable = value;
+            get => UState.Params.PlanetsScreenHideInhospitable;
+            set => UState.Params.PlanetsScreenHideInhospitable = value;
         }
 
         private int NumAvailableTroops;

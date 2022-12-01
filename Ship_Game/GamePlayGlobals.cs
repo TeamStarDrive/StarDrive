@@ -11,11 +11,15 @@ namespace Ship_Game;
 [StarDataType]
 public class GamePlayGlobals
 {
+    // core game settings
     [StarData] public int MaxOpponents = 7;
     [StarData] public int DefaultNumOpponents = 5; // Default AIs to start on default settings
+    [StarData] public int TurnTimer = 5; // default time in seconds for a single turn
+
     
-    
-    // gameplay modifiers
+    // GamePlay modifiers
+    // How easy ships are to destroy. Ships which have active internal slots below this ratio, will Die()
+    [StarData] public float ShipDestroyThreshold = 0.5f;
     // How tougher are remnant designs in the mod. This affects starting fleet multipliers and also increases with difficulty. Vanilla is 2
     [StarData] public float RemnantDesignStrMultiplier; 
     [StarData] public int CostBasedOnSizeThreshold = 2500;  // Allow tuning the change up/down
@@ -36,13 +40,12 @@ public class GamePlayGlobals
 
     // feature flags
     [StarData] public bool UseHullBonuses;
-    [StarData] public bool RemoveRemnantStory;
     [StarData] public bool UseCombatRepair;
     [StarData] public bool EnableECM;
     [StarData] public bool UseDestroyers;
     [StarData] public bool UsePlanetaryProjection;
     [StarData] public bool ReconDropDown;
-    [StarData] public bool DisplayEnvPerfInRaceDesign;
+    [StarData] public bool DisplayEnvPreferenceInRaceDesign;
     // Research costs will be increased based on map size to balance the increased capacity of larger maps
     [StarData] public bool ChangeResearchCostBasedOnSize;
     // Use short term researchable techs with no best ship
@@ -54,6 +57,9 @@ public class GamePlayGlobals
     // for mods that don't require pirates
     [StarData] public bool DisablePirates;
     [StarData] public bool AIUsesPlayerDesigns = true; // Can AI use player designs? This will make the AI stronger.
+    // changes how upkeep is calculated, default:false means upkeep depends on ship cost
+    // setting this to true means upkeep depends on number of hull design slots
+    [StarData] public bool UseUpkeepByHullSize;
 
 
     // visual modifiers

@@ -238,7 +238,6 @@ namespace Ship_Game
         [StarData] public bool  SpyMute          = false;
         [StarData] public bool  SpyMissionRepeat = false;
         [StarData] public float treasuryGoal     = 0.2f;
-        [StarData] public bool  AutoTaxes        = false;
         [StarData] public float BorderTolerance  = 40f;
         [StarData] public int   BaseShipLevel    = 0;
 

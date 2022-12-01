@@ -239,7 +239,7 @@ namespace Ship_Game.AI
 
         private void AutoSetTaxes(float treasuryGoal, float money)
         {
-            if (OwnerEmpire.isPlayer && !OwnerEmpire.data.AutoTaxes)
+            if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoTaxes)
                 return;
 
             if (money <= 0)

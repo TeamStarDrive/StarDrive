@@ -7,12 +7,14 @@ using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
     public sealed class ShipListScreen : GameScreen
     {
         public readonly UniverseScreen Universe;
+        public UniverseState UState => Universe.UState;
         private readonly Menu2 TitleBar;
         private readonly Vector2 TitlePos;
         private readonly Menu2 EMenu;
@@ -30,29 +32,29 @@ namespace Ship_Game
 
         private bool PlayerDesignsOnly
         {
-            get => GlobalStats.ShipListFilterPlayerShipsOnly;
-            set => GlobalStats.ShipListFilterPlayerShipsOnly = value;
+            get => UState.Params.ShipListFilterPlayerShipsOnly;
+            set => UState.Params.ShipListFilterPlayerShipsOnly = value;
         }
         private bool InFleetsOnly
         {
-            get => GlobalStats.ShipListFilterInFleetsOnly;
+            get => UState.Params.ShipListFilterInFleetsOnly;
             set
             {
-                GlobalStats.ShipListFilterInFleetsOnly = value;
-                if (GlobalStats.ShipListFilterInFleetsOnly && GlobalStats.ShipListFilterNotInFleets)
-                    GlobalStats.ShipListFilterNotInFleets = false;
+                UState.Params.ShipListFilterInFleetsOnly = value;
+                if (UState.Params.ShipListFilterInFleetsOnly && UState.Params.ShipListFilterNotInFleets)
+                    UState.Params.ShipListFilterNotInFleets = false;
             }
 
         }
 
         private bool NotInFleets
         {
-            get => GlobalStats.ShipListFilterNotInFleets;
+            get => UState.Params.ShipListFilterNotInFleets;
             set
             {
-                GlobalStats.ShipListFilterNotInFleets = value;
-                if (GlobalStats.ShipListFilterNotInFleets && GlobalStats.ShipListFilterInFleetsOnly)
-                    GlobalStats.ShipListFilterInFleetsOnly = false;
+                UState.Params.ShipListFilterNotInFleets = value;
+                if (UState.Params.ShipListFilterNotInFleets && UState.Params.ShipListFilterInFleetsOnly)
+                    UState.Params.ShipListFilterInFleetsOnly = false;
             }
         }
 

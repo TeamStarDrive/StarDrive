@@ -108,7 +108,8 @@ public partial class StarDriveTest : IDisposable
     /// <param name="playerArchetype">for example "Human"</param>
     public void CreateUniverseAndPlayerEmpire(string playerArchetype = null,
         string enemyArchetype = null,
-        float universeRadius = 2_000_000f)
+        float universeRadius = 2_000_000f,
+        UniverseParams settings = null)
     {
         RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
         RequireStarterContentLoaded(nameof(CreateUniverseAndPlayerEmpire));
@@ -131,7 +132,7 @@ public partial class StarDriveTest : IDisposable
                 throw new($"Could not find MajorRace archetype matching '{enemyArchetype}'");
         }
 
-        Universe = new UniverseScreen(universeRadius: universeRadius);
+        Universe = new UniverseScreen(settings ?? new UniverseParams(), universeRadius: universeRadius);
         UState = Universe.UState;
         UState.CanShowDiplomacyScreen = false;
         Player = UState.CreateEmpire(playerData, isPlayer:true);
