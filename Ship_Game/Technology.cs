@@ -142,7 +142,7 @@ namespace Ship_Game
 
         float ResearchMultiplier()
         {
-            if (!GlobalStats.ChangeResearchCost)
+            if (!GlobalStats.Settings.ChangeResearchCostBasedOnSize)
                 return Cost;
 
             float settingResearchMultiplier = UniverseState.DummySettingsResearchModifier;

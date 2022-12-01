@@ -1234,7 +1234,7 @@ namespace Ship_Game.Fleets
             float distanceToPlanet = AveragePosition().Distance(task.TargetPlanet.Position);
             float slowestWarpSpeed = Ships.Min(s => s.MaxFTLSpeed).LowerBound(1000);
             float secondsToTarget = distanceToPlanet / slowestWarpSpeed;
-            float turnsToTarget = secondsToTarget / GlobalStats.TurnTimer;
+            float turnsToTarget = secondsToTarget / Owner.Universe.Params.TurnTimer;
             starDateEta = (Owner.Universe.StarDate + turnsToTarget / 10).RoundToFractionOf10();
 
             return starDateEta.Greater(0);

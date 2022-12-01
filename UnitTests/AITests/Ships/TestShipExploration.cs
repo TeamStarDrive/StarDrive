@@ -2,6 +2,7 @@
 using Ship_Game;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
@@ -15,8 +16,10 @@ namespace UnitTests.AITests.Ships
 
         public TestShipExploration()
         {
-            CreateUniverseAndPlayerEmpire();
-            GlobalStats.ExtraPlanets     = 2; // Ensures there is at least 2 planets to explore
+            CreateUniverseAndPlayerEmpire(settings: new UniverseParams()
+            {
+                ExtraPlanets = 2, // Ensures there is at least 2 planets to explore
+            });
             GlobalStats.DisableAsteroids = true; // Ensures no asteroids will be created instead of a planet
 
             var random = new SeededRandom();

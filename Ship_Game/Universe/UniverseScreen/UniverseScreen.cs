@@ -174,9 +174,9 @@ namespace Ship_Game
         /// <summary>
         /// RADIUS of the universe, Stars are generated within XY range [-universeRadius, +universeRadius]
         /// </summary>
-        public UniverseScreen(float universeRadius) : base(null, toPause: null)
+        public UniverseScreen(UniverseParams settings, float universeRadius) : base(null, toPause: null)
         {
-            UState = new UniverseState(this, universeRadius);
+            UState = new UniverseState(this, settings, universeRadius);
             Initialize();
         }
 

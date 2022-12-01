@@ -9,14 +9,16 @@ using Ship_Game.GameScreens.NewGame;
 using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
     public partial class RaceDesignScreen : GameScreen
     {
         readonly MainMenuScreen MainMenu;
-        readonly Array<TraitEntry> AllTraits = new Array<TraitEntry>();
-        RacialTrait RaceSummary = new RacialTrait();
+        readonly Array<TraitEntry> AllTraits = new();
+        RacialTrait RaceSummary = new();
+        UniverseParams Settings = new();
 
         Rectangle FlagLeft;
         Rectangle FlagRight;
@@ -37,7 +39,6 @@ namespace Ship_Game
         GalSize GalaxySize = GalSize.Medium;
         int Pacing = 100;
         int NumOpponents;
-        ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
         UILabel NumSystemsLabel;
         UILabel ExtraPlanetsLabel;
         UILabel PerformanceWarning;
@@ -91,13 +92,13 @@ namespace Ship_Game
             StarsAbundance numStars, GalSize galaxySize, int pacing,
             ExtraRemnantPresence extraRemnants, int numOpponents, GameMode mode)
         {
-            SelectedDifficulty        = gameDifficulty;
-            StarsCount     = numStars;
-            GalaxySize   = galaxySize;
-            Pacing       = pacing;
-            ExtraRemnant = extraRemnants;
+            SelectedDifficulty = gameDifficulty;
+            StarsCount = numStars;
+            GalaxySize = galaxySize;
+            Pacing = pacing;
+            Settings.ExtraRemnant = extraRemnants;
             NumOpponents = numOpponents;
-            Mode         = mode;
+            Mode = mode;
         }
         
         Graphics.Font DescriptionTextFont => LowRes ? Fonts.Arial10 : Fonts.Arial12;
@@ -189,15 +190,15 @@ namespace Ship_Game
             }
 
             string galaxySizeTip = "Sets the scale of the generated galaxy";
-            if (GlobalStats.ChangeResearchCost)
+            if (GlobalStats.Settings.ChangeResearchCostBasedOnSize)
                 galaxySizeTip += ". Scale other than Medium will increase/decrease research cost of technologies.";
-
+            
             string solarSystemsTip = "Number of Solar Systems packed into the Universe";
-            if (GlobalStats.ChangeResearchCost)
+            if (GlobalStats.Settings.ChangeResearchCostBasedOnSize)
                 solarSystemsTip += ". Technology research costs will scale up or down as well";
 
             string opponentsTip = "Sets the number of AI opponents you must face";
-            if (GlobalStats.ChangeResearchCost)
+            if (GlobalStats.Settings.ChangeResearchCostBasedOnSize)
                 opponentsTip += ". On a large scale galaxy, this might also affect research cost of technologies.";
 
             AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(), tip: galaxySizeTip);
@@ -207,7 +208,7 @@ namespace Ship_Game
             AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameText.TheGamesPaceModifiesThe);
             AddOption("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
                 tip:"Hard and above increase AI Aggressiveness and gives them extra bonuses");
-            AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
+            AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, label => Settings.ExtraRemnant.ToString(),
                 tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare.");
 
             RectF description = new(traitsList.Right + 5, traitsList.Y, chooseRace.W, traitsList.H);
@@ -234,7 +235,7 @@ namespace Ship_Game
 
             var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width + 5, 150);
             EnvMenu = Add(new EnvPreferencesPanel(this, envRect));
-            EnvMenu.Visible = GlobalStats.Settings.DisplayEnvPerfInRaceDesign;
+            EnvMenu.Visible = GlobalStats.Settings.DisplayEnvPreferenceInRaceDesign;
 
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
                 .SetLocalPos(ChooseRaceList.Width / 2 - 142, ChooseRaceList.Height + 10);
@@ -334,7 +335,7 @@ namespace Ship_Game
 
         void OnRuleOptionsClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new RuleOptionsScreen(this));
+            ScreenManager.AddScreen(new RuleOptionsScreen(this, Settings));
         }
 
         void OnAbortClicked(UIButton b)
@@ -367,7 +368,7 @@ namespace Ship_Game
         void OnSaveSetupClicked(UIButton b)
         {
             ScreenManager.AddScreen(new SaveNewGameSetupScreen(this,
-                SelectedDifficulty, StarsCount, GalaxySize, Pacing, ExtraRemnant, NumOpponents, Mode));
+                SelectedDifficulty, StarsCount, GalaxySize, Pacing, Settings.ExtraRemnant, NumOpponents, Mode));
         }
 
         // If we had a left mouse click, increment forward, otherwise decrement
@@ -440,7 +441,7 @@ namespace Ship_Game
         
         void OnExtraRemnantClicked(UIButton b)
         {
-            ExtraRemnant = ExtraRemnant.IncrementWithWrap(OptionIncrement);
+            Settings.ExtraRemnant = Settings.ExtraRemnant.IncrementWithWrap(OptionIncrement);
         }
 
         public override bool HandleInput(InputState input)
@@ -521,7 +522,7 @@ namespace Ship_Game
             SelectedData = item.EmpireData;
             SetRacialTraits(SelectedData.Traits);
 
-            if (GlobalStats.Settings.DisplayEnvPerfInRaceDesign)
+            if (GlobalStats.Settings.DisplayEnvPreferenceInRaceDesign)
             {
                 EnvMenu.UpdateArchetype(SelectedData);
             }
@@ -529,9 +530,9 @@ namespace Ship_Game
 
         void OnEngageClicked(UIButton b)
         {
-            if (Mode == GameMode.Elimination) GlobalStats.EliminationMode = true;
+            if (Mode == GameMode.Elimination)
+                Settings.EliminationMode = true;
 
-            GlobalStats.ExtraRemnantGS = ExtraRemnant;
             RaceSummary.Color          = Picker.CurrentColor;
             RaceSummary.Singular       = Singular;
             RaceSummary.Plural         = Plural;
@@ -560,6 +561,7 @@ namespace Ship_Game
                 Mode = Mode,
                 Pace = Pacing / 100f,
                 Difficulty = SelectedDifficulty,
+                Settings = Settings,
             };
             var ng = new CreatingNewGameScreen(MainMenu, parameters);
 
@@ -579,7 +581,7 @@ namespace Ship_Game
             int numSystems = GetSystemsNum();
             NumSystemsLabel.Text = $"Solar Systems: {numSystems}";
             ShowPerformanceWarning(numSystems);
-            ShowExtraPlanetsNum(GlobalStats.ExtraPlanets);
+            ShowExtraPlanetsNum(Settings.ExtraPlanets);
 
             batch.Begin();
             base.Draw(batch, elapsed);

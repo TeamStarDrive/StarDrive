@@ -4,8 +4,10 @@ Globals:
   # game start settings
   MaxOpponents: 7
   DefaultNumOpponents: 5
+  TurnTimer: 5 # default time in seconds for a single turn
 
   # gameplay modifiers
+  ShipDestroyThreshold: 0.5 # ships with internal slots below this ratio will Die
   RemnantDesignStrMultiplier: 2
   CostBasedOnSizeThreshold: 3000
   HangarCombatShipCostMultiplier: 1
@@ -21,13 +23,12 @@ Globals:
   # feature flags
   DisableShipPicker: true
   ChangeResearchCostBasedOnSize: true
-  DisplayEnvPerfInRaceDesign: true
+  DisplayEnvPreferenceInRaceDesign: false
   EnableShipTechLineFocusing: true
   UseHullBonuses: false
   UseDestroyers: false
   EnableECM: false
   UseCombatRepair: false
-  RemoveRemnantStory: false
   UsePlanetaryProjection: false
   DisableRemnantStory: false
   DisablePirates: false

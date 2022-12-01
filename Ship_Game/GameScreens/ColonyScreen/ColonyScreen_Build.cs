@@ -25,8 +25,8 @@ namespace Ship_Game
 
         void OnPlayerDesignsToggleClicked(ToggleButton button)
         {
-            GlobalStats.ShowAllDesigns = !GlobalStats.ShowAllDesigns;
-            PlayerDesignsToggle.IsToggled = GlobalStats.ShowAllDesigns;
+            Universe.Params.ShowAllDesigns = !Universe.Params.ShowAllDesigns;
+            PlayerDesignsToggle.IsToggled = Universe.Params.ShowAllDesigns;
             ResetBuildableList = true;
         }
 
@@ -122,7 +122,7 @@ namespace Ship_Game
                 buildableShips = ResourceManager.Ships.Designs.ToArr();
             else
                 buildableShips = P.Owner.ShipsWeCanBuild
-                    .Filter(ship => ship.IsBuildableByPlayer && !ship.Name.StartsWith("TEST_"));
+                    .Filter(ship => ship.IsBuildableByPlayer(P.Universe.Player) && !ship.Name.StartsWith("TEST_"));
             
             string filter = FilterBuildableItems.Text.ToLower();
             if (filter.IsEmpty() && FilterItemsText.NotEmpty())
