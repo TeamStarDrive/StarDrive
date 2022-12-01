@@ -550,7 +550,7 @@ namespace Ship_Game.Ships
                 {
                     // If Player has deleted a Fighter Ship Design, this design would not have a
                     // valid fighter so we check if we can build it, otherwise we set DynamicLaunch
-                    Log.Error($"InitHangar: Cannot build '{HangarShipUID}', reverting to DynamicLaunch");
+                    Log.Error($"InitHangar: Ship={Parent} CanBuildShip('{HangarShipUID}') == False, reverting to DynamicLaunch");
                     DynamicHangar = DynamicHangarOptions.DynamicLaunch;
                     HangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
                 }
