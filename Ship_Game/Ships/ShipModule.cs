@@ -1564,9 +1564,9 @@ namespace Ship_Game.Ships
             // we get a lot of null ref exceptions
             //Parent = null;
             //Flyweight = null;
+            //Bonuses = null;
 
             DamageVisualizer = null;
-            Bonuses = null;
             Shield = null;
             HangarShip = null;
             InstalledWeapon?.Dispose(ref InstalledWeapon);
