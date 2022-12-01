@@ -242,7 +242,7 @@
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
 
-                if (empire.Universe.Params.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
+                if (empire.Universe.P.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
                     CreditsMultiplier = 0.2f;
             }
         }

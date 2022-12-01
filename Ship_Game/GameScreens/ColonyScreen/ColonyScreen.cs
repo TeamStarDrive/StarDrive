@@ -234,7 +234,7 @@ namespace Ship_Game
 
             PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y),
                                                        ToggleButtonStyle.Grid, "SelectionBox/icon_grid"));
-            PlayerDesignsToggle.IsToggled = Universe.Params.ShowAllDesigns;
+            PlayerDesignsToggle.IsToggled = Universe.P.ShowAllDesigns;
             PlayerDesignsToggle.Tooltip = GameText.ToggleToDisplayOnlyPlayerdesigned;
             PlayerDesignsToggle.OnClick = OnPlayerDesignsToggleClicked;
 

@@ -78,9 +78,9 @@ namespace Ship_Game.Ships
             if (System != null)
             {
                 if (IsInFriendlyProjectorRange)
-                    projectorBonus = Universe.Params.FTLModifier;
-                else if (!Universe.Params.FTLInNeutralSystems || IsInHostileProjectorRange)
-                    projectorBonus = Universe.Params.EnemyFTLModifier;
+                    projectorBonus = Universe.P.FTLModifier;
+                else if (!Universe.P.FTLInNeutralSystems || IsInHostileProjectorRange)
+                    projectorBonus = Universe.P.EnemyFTLModifier;
             }
 
             FTLModifier = 1f;
@@ -298,7 +298,7 @@ namespace Ship_Game.Ships
             if (!InCombat && !ignoreNonCombat) // No need for escape position if not in combat - turn around
                 return false;
 
-            if (IsInFriendlyProjectorRange || Universe.Params.GravityWellRange == 0f)
+            if (IsInFriendlyProjectorRange || Universe.P.GravityWellRange == 0f)
                 return true; // Wont be inhibited - straight through
 
             if (System == null)

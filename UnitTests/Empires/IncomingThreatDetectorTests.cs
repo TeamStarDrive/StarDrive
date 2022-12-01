@@ -26,7 +26,7 @@ public class IncomingThreatDetectorTests : StarDriveTest
         // set up two solar systems
         PlayerPlanet = AddDummyPlanetToEmpire(new(200_000, 200_000), Player);
         EnemyPlanet = AddDummyPlanetToEmpire(new(-200_000, -200_000), Enemy);
-        UState.GravityWellRange = 0;
+        UState.P.GravityWellRange = 0;
         Player.InitEmpireFromSave(UState);
         Enemy.InitEmpireFromSave(UState);
 

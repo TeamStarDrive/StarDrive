@@ -202,7 +202,7 @@ namespace Ship_Game.Ships
             ShipRole role = ShipRole;
             return !IsCarrierOnly && !Deleted
                 && !role.Protected && !role.NoBuild
-                && (player.Universe.Params.ShowAllDesigns || IsPlayerDesign);
+                && (player.Universe.P.ShowAllDesigns || IsPlayerDesign);
         }
 
         public static string GetRole(RoleName role)

@@ -39,14 +39,14 @@ namespace Ship_Game
 
         bool HideOwned
         {
-            get => UState.Params.PlanetScreenHideOwned;
-            set => UState.Params.PlanetScreenHideOwned = value;
+            get => UState.P.PlanetScreenHideOwned;
+            set => UState.P.PlanetScreenHideOwned = value;
         }
 
         bool HideUninhab
         {
-            get => UState.Params.PlanetsScreenHideInhospitable;
-            set => UState.Params.PlanetsScreenHideInhospitable = value;
+            get => UState.P.PlanetsScreenHideInhospitable;
+            set => UState.P.PlanetsScreenHideInhospitable = value;
         }
 
         private int NumAvailableTroops;

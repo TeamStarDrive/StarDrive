@@ -108,7 +108,7 @@ public class ShipDebugInfoPanel : Submenu
                                       :  s.IsInHostileProjectorRange  ? "Hostile" : "Neutral")
                                       + " | " + string.Join(",", influence));
 
-            string gravityWell = s.Universe.Params.GravityWellRange > 0f ? s.System?.IdentifyGravityWell(s)?.Name : "disabled";
+            string gravityWell = s.Universe.P.GravityWellRange > 0f ? s.System?.IdentifyGravityWell(s)?.Name : "disabled";
             Text.String($"GravityWell: {gravityWell}   Inhibited:{s.IsInhibitedByUnfriendlyGravityWell}");
 
             var combatColor = s.InCombat ? Color.Green : Color.LightPink;

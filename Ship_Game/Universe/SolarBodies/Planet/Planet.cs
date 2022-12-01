@@ -412,7 +412,7 @@ namespace Ship_Game
 
         public float GravityWellForEmpire(Empire empire)
         {
-            if (Universe.Params.GravityWellRange == 0f)
+            if (Universe.P.GravityWellRange == 0f)
                 return 0;
 
             if (Owner == null)
@@ -564,7 +564,7 @@ namespace Ship_Game
             PlanetUpdatePerTurnTimer -= timeStep.FixedTime;
             if (PlanetUpdatePerTurnTimer < 0)
             {
-                PlanetUpdatePerTurnTimer = Universe.Params.TurnTimer;
+                PlanetUpdatePerTurnTimer = Universe.P.TurnTimer;
                 UpdateBaseFertility();
                 UpdateDynamicBuildings();
                 Mend(((int)InfraStructure + Level).LowerBound(1));

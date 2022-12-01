@@ -1,15 +1,35 @@
-﻿using Ship_Game.Data.Serialization;
+﻿using SDGraphics;
+using Ship_Game.Data.Serialization;
+using static Ship_Game.RaceDesignScreen;
 
 namespace Ship_Game.Universe;
 
-// TODO: Use these directly, instead of updating GlobalStats which should remain readonly !
 [StarDataType]
 public class UniverseParams
 {
+    // this is only used during first time universe generation and shouldn't be serialized
+    public EmpireData PlayerData;
+
+    // Universe Generator parameters:
+    [StarData(DefaultValue=ExtraRemnantPresence.Normal)]
+    public GameDifficulty Difficulty = GameDifficulty.Normal;
+    
+    [StarData(DefaultValue=StarsAbundance.Normal)]
+    public StarsAbundance StarsCount = StarsAbundance.Normal;
+    
+    [StarData(DefaultValue=GalSize.Medium)]
+    public GalSize GalaxySize = GalSize.Medium;
     
     [StarData(DefaultValue=ExtraRemnantPresence.Normal)]
     public ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
+    
+    [StarData] public int NumSystems;
+    [StarData] public int NumOpponents;
+    [StarData] public GameMode Mode = GameMode.Sandbox;
+    [StarData(DefaultValue=1f)] public float Pace = 1f;
+    [StarData(DefaultValue=1f)] public float StarsModifier = 1f;
 
+    // Universe customization parameters:
     [StarData] public float MinAcceptableShipWarpRange;
     [StarData] public int TurnTimer;
     [StarData] public bool PreventFederations;
@@ -51,6 +71,8 @@ public class UniverseParams
     {
         // initialize defaults from Settings
         var s = GlobalStats.Settings;
+
+        NumOpponents = s.DefaultNumOpponents.UpperBound(ResourceManager.MajorRaces.Count - 1);
         MinAcceptableShipWarpRange = s.MinAcceptableShipWarpRange;
         TurnTimer = s.TurnTimer;
         GravityWellRange = s.GravityWellRange;

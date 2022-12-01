@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
-using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
@@ -33,20 +28,7 @@ namespace Ship_Game.GameScreens.NewGame
 
         readonly RandomBase Random;
 
-        public class Params
-        {
-            public EmpireData PlayerData;
-            public RaceDesignScreen.GameMode Mode;
-            public GalSize UniverseSize;
-            public int NumSystems;
-            public int NumOpponents;
-            public float StarNumModifier;
-            public float Pace;
-            public GameDifficulty Difficulty;
-            public UniverseParams Settings;
-        }
-
-        public UniverseGenerator(Params p)
+        public UniverseGenerator(UniverseParams p)
         {
             // TODO: allow players to enter their own universe seed
             Random = new SeededRandom();
@@ -61,7 +43,7 @@ namespace Ship_Game.GameScreens.NewGame
             ResourceManager.LoadEncounters();
 
             float uSize;
-            switch (p.UniverseSize)
+            switch (p.GalaxySize)
             {
                 default:
                 case GalSize.Tiny: uSize = 2_000_000; break;
@@ -73,16 +55,12 @@ namespace Ship_Game.GameScreens.NewGame
                 case GalSize.TrulyEpic: uSize = 20_000_000; break;
             }
 
-            us = new UniverseScreen(p.Settings, uSize);
-            UState = us.UState;
 
-            UState.Pace = p.Pace;
-            UState.Difficulty = p.Difficulty;
-            UState.GalaxySize = p.UniverseSize;
-            UState.StarsModifier = p.StarNumModifier;
+            us = new UniverseScreen(p, uSize);
+            UState = us.UState;
             UState.BackgroundSeed = new Random().Next();
 
-            UState.Params.DisableInhibitionWarning = UState.Difficulty > GameDifficulty.Hard;
+            UState.P.DisableInhibitionWarning = p.Difficulty > GameDifficulty.Hard;
 
             Player = new Empire(UState)
             {
