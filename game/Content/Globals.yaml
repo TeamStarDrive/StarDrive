@@ -1,14 +1,24 @@
-# global BlackBox game settings
+# global BlackBox game settings, see GamePlayGlobals.cs for more info
+# mods will inherit these values as defaults
 Globals:
+  # game start settings
   MaxOpponents: 7
   DefaultNumOpponents: 5
-  SpaceportScale: 0.5
 
+  # gameplay modifiers
   RemnantDesignStrMultiplier: 2
   CostBasedOnSizeThreshold: 3000
   HangarCombatShipCostMultiplier: 1
   ShipyardBonus: 0.25 # default 0.25
+  CustomMineralDecay: 1 # default 1
+  VolcanicActivity: 1 # default 1
+  GravityWellRange: 8000 # sets the default gravity well range, 0 means disabled
+  StartingPlanetRichness: 1 # base richness for empire capitals
+  ShipMaintenanceMultiplier: 1 # default 1
+  RushCostPercentage: 1 # default 1, How much rushing costs in percentage of production cost
+  MinAcceptableShipWarpRange: 600000 # minimum ship warp range which is accepted as good
 
+  # feature flags
   DisableShipPicker: true
   ChangeResearchCostBasedOnSize: true
   DisplayEnvPerfInRaceDesign: true
@@ -19,12 +29,21 @@ Globals:
   UseCombatRepair: false
   RemoveRemnantStory: false
   UsePlanetaryProjection: false
+  DisableRemnantStory: false
+  DisablePirates: false
+  AIUsesPlayerDesigns: true
 
-  # In case an event building has defense drones and drones are not researched
-  DefaultEventDrone: "Xeno Fighter"
-
+  # visuals modifiers
+  SpaceportScale: 0.5
   ExplosionVisualIncreaser: 1 # default: 1
   ShipExplosionVisualIncreaser: 1 # default: 1
+  ModuleDamageVisualIntensity: 1 # default: 1
+
+  # misc settings
+  CustomMenuMusic: ""
+  # In case an event building has defense drones and drones are not researched
+  DefaultEventDrone: "Xeno Fighter"
+  ResearchRootUIDToDisplay: "Colonization"
 
   # Urls for accessing auto-updater, should be changed for mods, if unused, set to ""
   URL: "http://bitbucket.org/codegremlins/stardrive-blackbox"

@@ -7,6 +7,7 @@ using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Universe
 {
+    // TODO: Use these directly, instead of updating GlobalStats which should remain readonly !
     [StarDataType]
     public class UniverseParams
     {
@@ -19,7 +20,7 @@ namespace Ship_Game.Universe
         [StarData] public float CustomMineralDecay;
         [StarData] public float VolcanicActivity;
         [StarData] public float ShipMaintenanceMultiplier;
-        [StarData] public bool UsePlayerDesigns;
+        [StarData] public bool AIUsesPlayerDesigns;
         [StarData] public bool UseUpkeepByHullSize;
 
         [StarData] public bool SuppressOnBuildNotifications;
@@ -34,16 +35,16 @@ namespace Ship_Game.Universe
 
         public UniverseParams()
         {
-            MinAcceptableShipWarpRange = GlobalStats.MinAcceptableShipWarpRange;
+            MinAcceptableShipWarpRange = GlobalStats.Settings.MinAcceptableShipWarpRange;
             TurnTimer             = (byte)GlobalStats.TurnTimer;
             IconSize              = GlobalStats.IconSize;
             PreventFederations    = GlobalStats.PreventFederations;
             EliminationMode       = GlobalStats.EliminationMode;
-            GravityWellRange      = GlobalStats.GravityWellRange;
-            CustomMineralDecay    = GlobalStats.CustomMineralDecay;
-            VolcanicActivity      = GlobalStats.VolcanicActivity;
-            ShipMaintenanceMultiplier = GlobalStats.ShipMaintenanceMulti;
-            UsePlayerDesigns      = GlobalStats.UsePlayerDesigns;
+            GravityWellRange      = GlobalStats.Settings.GravityWellRange;
+            CustomMineralDecay    = GlobalStats.Settings.CustomMineralDecay;
+            VolcanicActivity      = GlobalStats.Settings.VolcanicActivity;
+            ShipMaintenanceMultiplier = GlobalStats.Settings.ShipMaintenanceMultiplier;
+            AIUsesPlayerDesigns   = GlobalStats.Settings.AIUsesPlayerDesigns;
             UseUpkeepByHullSize   = GlobalStats.UseUpkeepByHullSize;
 
             SuppressOnBuildNotifications  = GlobalStats.SuppressOnBuildNotifications;
@@ -59,14 +60,14 @@ namespace Ship_Game.Universe
 
         public void UpdateGlobalStats()
         {
-            GlobalStats.GravityWellRange     = GravityWellRange;
-            GlobalStats.IconSize             = IconSize;
-            GlobalStats.MinAcceptableShipWarpRange = MinAcceptableShipWarpRange;
-            GlobalStats.ShipMaintenanceMulti = ShipMaintenanceMultiplier;
-            GlobalStats.PreventFederations   = PreventFederations;
-            GlobalStats.EliminationMode      = EliminationMode;
-            GlobalStats.CustomMineralDecay   = CustomMineralDecay;
-            GlobalStats.TurnTimer            = TurnTimer != 0 ? TurnTimer : 5;
+            GlobalStats.Settings.GravityWellRange = GravityWellRange;
+            GlobalStats.Settings.CustomMineralDecay = CustomMineralDecay;
+            GlobalStats.Settings.MinAcceptableShipWarpRange = MinAcceptableShipWarpRange;
+            GlobalStats.Settings.ShipMaintenanceMultiplier = ShipMaintenanceMultiplier;
+            GlobalStats.PreventFederations = PreventFederations;
+            GlobalStats.EliminationMode = EliminationMode;
+            GlobalStats.IconSize = IconSize;
+            GlobalStats.TurnTimer = TurnTimer != 0 ? TurnTimer : 5;
 
             GlobalStats.SuppressOnBuildNotifications  = SuppressOnBuildNotifications;
             GlobalStats.PlanetScreenHideOwned         = PlanetScreenHideOwned;
@@ -77,7 +78,7 @@ namespace Ship_Game.Universe
             GlobalStats.DisableInhibitionWarning      = DisableInhibitionWarning;
             GlobalStats.DisableVolcanoWarning         = DisableVolcanoWarning;
             GlobalStats.CordrazinePlanetCaptured      = CordrazinePlanetCaptured;
-            GlobalStats.UsePlayerDesigns              = UsePlayerDesigns;
+            GlobalStats.Settings.AIUsesPlayerDesigns  = AIUsesPlayerDesigns;
             GlobalStats.UseUpkeepByHullSize           = UseUpkeepByHullSize;
         }
     }

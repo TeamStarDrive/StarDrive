@@ -88,11 +88,7 @@ namespace Ship_Game
 
         public HangarOptions HangarDesignation => HangarOptionsList.ActiveValue;
 
-        public bool IsSymmetricDesignMode
-        {
-            get => GlobalStats.SymmetricDesign;
-            set => GlobalStats.SymmetricDesign = value;
-        }
+        public bool IsSymmetricDesignMode { get; set; } = true; // start with enabled by default
 
         public bool IsFilterOldModulesMode
         {
@@ -444,8 +440,8 @@ namespace Ship_Game
             UpdateDesignedShip(forceUpdate:true);
         }
 
-        ButtonStyle SymmetricDesignBtnStyle  => GlobalStats.SymmetricDesign ? ButtonStyle.Military : ButtonStyle.BigDip;
-        ButtonStyle FilterModulesBtnStyle    => GlobalStats.FilterOldModules ? ButtonStyle.Military : ButtonStyle.BigDip;
+        ButtonStyle SymmetricDesignBtnStyle  => IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
+        ButtonStyle FilterModulesBtnStyle    => IsFilterOldModulesMode ? ButtonStyle.Military : ButtonStyle.BigDip;
 
         void CreateGUI()
         {

@@ -269,7 +269,7 @@ namespace Ship_Game
 
         public Planet IdentifyGravityWell(Ship ship)
         {
-            if (Universe.GravityWells)
+            if (Universe.GravityWellRange > 0f)
             {
                 // @todo QuadTree. need to have planets in the quad tree.
                 // @todo check UniverseState.PlanetsTree if it makes sense to filter planets through that

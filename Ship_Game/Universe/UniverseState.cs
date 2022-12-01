@@ -41,7 +41,16 @@ namespace Ship_Game.Universe
         [StarData] public bool FTLInNeutralSystems = true;
         [StarData] public GameDifficulty Difficulty;
         [StarData] public GalSize GalaxySize;
-        [StarData] public bool GravityWells; // can be used to enable/disable gravity wells
+
+        // configured gravity wells for this game, if 0, then gravity wells are disabled
+        [StarData] public float GravityWellRange;
+
+        // TODO: SAVE COMPATIBILITY ONLY, REMOVE [StarData] LATER
+        [StarData] public bool GravityWells
+        {
+            get => GravityWellRange > 0;
+            set => GravityWellRange = value ? GlobalStats.Settings.GravityWellRange : 0;
+        }
 
         [StarData] public UnivScreenState ViewState;
         public bool IsSectorViewOrCloser => ViewState <= UnivScreenState.SectorView;
@@ -60,6 +69,7 @@ namespace Ship_Game.Universe
         [StarData] public float StarsModifier = 1f;
         [StarData] public float SettingsResearchModifier = 1f;
         public float RemnantPaceModifier = 20;
+        public string ResearchRootUIDToDisplay;
 
         // Global unique ID counter for this Universe
         // Can be used to assign ID-s for any kind of object

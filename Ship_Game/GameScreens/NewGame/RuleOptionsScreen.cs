@@ -40,14 +40,14 @@ namespace Ship_Game
             {
                 GlobalStats.FTLInSystemModifier      = FTLPenaltySlider.RelativeValue;
                 GlobalStats.EnemyFTLInSystemModifier = EnemyFTLPenaltySlider.RelativeValue;
-                GlobalStats.GravityWellRange         = GravityWellSize.AbsoluteValue;
+                GlobalStats.Settings.GravityWellRange = GravityWellSize.AbsoluteValue;
                 GlobalStats.ExtraPlanets             = (int)ExtraPlanets.AbsoluteValue;
-                GlobalStats.MinAcceptableShipWarpRange = MinAcceptableShipWarpRange.AbsoluteValue;
-                GlobalStats.ShipMaintenanceMulti     = IncreaseMaintenance.AbsoluteValue;
-                GlobalStats.StartingPlanetRichness   = StartingRichness.AbsoluteValue;
+                GlobalStats.Settings.MinAcceptableShipWarpRange = MinAcceptableShipWarpRange.AbsoluteValue;
+                GlobalStats.Settings.ShipMaintenanceMultiplier = IncreaseMaintenance.AbsoluteValue;
+                GlobalStats.Settings.StartingPlanetRichness = StartingRichness.AbsoluteValue;
                 GlobalStats.TurnTimer                = (byte)TurnTimer.AbsoluteValue;
-                GlobalStats.CustomMineralDecay       = (CustomMineralDecay.AbsoluteValue).RoundToFractionOf10();
-                GlobalStats.VolcanicActivity         = (VolcanicActivity.AbsoluteValue).RoundToFractionOf10();
+                GlobalStats.Settings.CustomMineralDecay = (CustomMineralDecay.AbsoluteValue).RoundToFractionOf10();
+                GlobalStats.Settings.VolcanicActivity = (VolcanicActivity.AbsoluteValue).RoundToFractionOf10();
                 return true;
             }
             return false;
@@ -73,37 +73,36 @@ namespace Ship_Game
             var eftlRect = new Rectangle(x, leftRect.Y + 150, 270, 50);
             EnemyFTLPenaltySlider = SliderPercent(eftlRect, Localizer.Token(GameText.InsystemEnemyFtlSpeedModifier), 0f, 1f, GlobalStats.EnemyFTLInSystemModifier);
             int indent = (int)(width / 4.5f); 
-            Checkbox(ftlRect.X + indent, ftlRect.Y, () => GlobalStats.PlanetaryGravityWells, title: GameText.PlanetaryGravityWells, tooltip: GameText.EnablesPlanetaryGravityWellsWhich);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 25, ()  => GlobalStats.PreventFederations,    title: GameText.PreventAiFederations, tooltip: GameText.PreventsAiEmpiresFromMerging);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 50,()   => GlobalStats.WarpInSystem,          title: GameText.TreatNeutralSystemsAsUnfriendly, tooltip: GameText.TreatNeutralSystemsAsUnfriendly);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 75, ()  => GlobalStats.FixedPlayerCreditCharge, title: GameText.FixedShipAndBuildingsCost, tooltip: GameText.KeepFixedCreditCostOf);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => GlobalStats.UsePlayerDesigns, title: GameText.UsePlayerDesignsTitle, tooltip: GameText.UsePlayerDesignsTip);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.DisablePirates, title: GameText.DisablePirates, tooltip: GameText.DisablesAllPirateFactionsFor);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 150, () => GlobalStats.DisableRemnantStory, title: GameText.DisableRemnantStory, tooltip: GameText.IfCheckedRemnantForcesIn);
-            Checkbox(ftlRect.X + indent, ftlRect.Y + 175, () => GlobalStats.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
+            Checkbox(ftlRect.X + indent, ftlRect.Y, () => GlobalStats.PreventFederations, title: GameText.PreventAiFederations, tooltip: GameText.PreventsAiEmpiresFromMerging);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 25,() => GlobalStats.WarpInSystem, title: GameText.TreatNeutralSystemsAsUnfriendly, tooltip: GameText.TreatNeutralSystemsAsUnfriendly);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 50, () => GlobalStats.FixedPlayerCreditCharge, title: GameText.FixedShipAndBuildingsCost, tooltip: GameText.KeepFixedCreditCostOf);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 75, () => GlobalStats.Settings.AIUsesPlayerDesigns, title: GameText.UsePlayerDesignsTitle, tooltip: GameText.UsePlayerDesignsTip);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => GlobalStats.Settings.DisablePirates, title: GameText.DisablePirates, tooltip: GameText.DisablesAllPirateFactionsFor);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.Settings.DisableRemnantStory, title: GameText.DisableRemnantStory, tooltip: GameText.IfCheckedRemnantForcesIn);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 150, () => GlobalStats.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
 
             var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 230, 270, 50);
-            CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(GameText.MineralDecayRate), 0.5f, 3, GlobalStats.CustomMineralDecay);
+            CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(GameText.MineralDecayRate), 0.5f, 3, GlobalStats.Settings.CustomMineralDecay);
 
             var vaRect = new Rectangle(ftlRect.X + indent + 2, ftlRect.Y + 290, 270, 50);
-            VolcanicActivity = SliderDecimal1(vaRect, Localizer.Token(GameText.VolcanicActivity), 0.5f, 3, GlobalStats.VolcanicActivity);
+            VolcanicActivity = SliderDecimal1(vaRect, Localizer.Token(GameText.VolcanicActivity), 0.5f, 3, GlobalStats.Settings.VolcanicActivity);
 
             var gwRect = new Rectangle(x, leftRect.Y + 210, 270, 50);
             var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
             var richnessRect = new Rectangle(x, leftRect.Y + 330, 270, 50);
 
-            GravityWellSize  = Slider(gwRect,  GameText.GravityWellRadius, 0, 20000, GlobalStats.GravityWellRange);
+            GravityWellSize  = Slider(gwRect,  GameText.GravityWellRadius, 0, 20000, GlobalStats.Settings.GravityWellRange);
             ExtraPlanets     = Slider(epRect, GameText.ExtraPlanets, 0, 3f, GlobalStats.ExtraPlanets);
-            StartingRichness = Slider(richnessRect, GameText.StartingPlanetRichnessBonus, 0, 5f, GlobalStats.StartingPlanetRichness);
+            StartingRichness = Slider(richnessRect, GameText.StartingPlanetRichnessBonus, 0, 5f, GlobalStats.Settings.StartingPlanetRichness);
 
 
             var optionTurnTimer  = new Rectangle(x, leftRect.Y + 390, 270, 50);
             var minimumWarpRange = new Rectangle(x, leftRect.Y + 450, 270, 50);
             var maintenanceRect  = new Rectangle(x, leftRect.Y + 510, 270, 50);
 
-            TurnTimer           = Slider(optionTurnTimer,  GameText.SecondsPerTurn, 2, 18f, GlobalStats.TurnTimer);
-            MinAcceptableShipWarpRange    = Slider(minimumWarpRange, GameText.MinAcceptableShipWarpRange, 0, 1200000f, GlobalStats.MinAcceptableShipWarpRange);
-            IncreaseMaintenance = Slider(maintenanceRect,  GameText.MaintenanceMultiplier, 1, 10f, GlobalStats.ShipMaintenanceMulti);
+            TurnTimer = Slider(optionTurnTimer,  GameText.SecondsPerTurn, 2, 18f, GlobalStats.TurnTimer);
+            MinAcceptableShipWarpRange = Slider(minimumWarpRange, GameText.MinAcceptableShipWarpRange, 0, 1200000f, GlobalStats.Settings.MinAcceptableShipWarpRange);
+            IncreaseMaintenance = Slider(maintenanceRect,  GameText.MaintenanceMultiplier, 1, 10f, GlobalStats.Settings.ShipMaintenanceMultiplier);
 
             FTLPenaltySlider.Tip      = GameText.UsingThisSliderYouCan;
             EnemyFTLPenaltySlider.Tip = GameText.UsingThisSliderYouCan2;

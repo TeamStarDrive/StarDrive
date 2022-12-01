@@ -4,9 +4,7 @@ using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Xml.Serialization;
 using SDGraphics;
-using SDUtils;
 using Ship_Game.Data.Yaml;
 using SynapseGaming.LightingSystem.Core;
 
@@ -33,24 +31,11 @@ namespace Ship_Game
         public static string ExtendedVersion = ""; // "Mars : 1.20.12000 develop/f83ab4a"
         public static string ExtendedVersionNoHash = ""; // "Mars : 1.20.12000"
 
-        public static float RushCostPercentage = 1; // How much rushing costs in percentage of production cost
-
         public static bool TakingInput = false;
-        public static bool WarpInSystem = true;
-        public static float FTLInSystemModifier = 1f;
-        public static float EnemyFTLInSystemModifier = 1f;
+        public static int TimesPlayed = 0;
 
         //case control for UIDs set by filename. Legacy support.
         public static StringComparer CaseControl;
-
-        public static bool ShowAllDesigns        = true;
-        public static bool SymmetricDesign       = true;
-        public static bool FilterOldModules      = true;
-        public static bool LimitSpeed            = true;
-        public static float GravityWellRange;
-        public static bool PlanetaryGravityWells = true;
-        public static float CustomMineralDecay   = 1;
-        public static float VolcanicActivity     = 1;
 
         // Global gameplay options for BB+ and for Mods
         public static GamePlayGlobals Settings;
@@ -58,27 +43,19 @@ namespace Ship_Game
 
         // Option for keyboard hotkey based arc movement
         public static bool AltArcControl; // "Keyboard Fire Arc Locking"
-        public static int TimesPlayed = 0;
         public static ModEntry ActiveMod;
         public static bool HasMod => ActiveMod != null;
         public static string ModName = ""; // "Combined Arms" or "" if there's no active mod
         public static string ModPath = ""; // "Mods/Combined Arms/"
         public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/Combined Arms/Combined Arms.xml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
-        public static string ResearchRootUIDToDisplay = "Colonization";
         public static bool CordrazinePlanetCaptured;
         public static string DefaultEventDrone => Settings.DefaultEventDrone; 
 
-        public static bool ExtraNotifications;
+        public static bool NotifyEmptyPlanetQueue;
         public static bool PauseOnNotification;
         public static int ExtraPlanets;
-        public static bool DisablePirates;
-        public static bool DisableRemnantStory;
-        public static bool UsePlayerDesigns;
-        public static float ShipMaintenanceMulti = 1;
-        public static float MinAcceptableShipWarpRange;
 
-        public static float StartingPlanetRichness;
         public static int IconSize;
 
         // Time in seconds for a single turn
@@ -90,20 +67,23 @@ namespace Ship_Game
         // If set to true, scrolling will always zoom into selected objects
         // Otherwise you can use Shift+Scroll to zoom to selected objects
         public static bool ZoomTracking;
+        public static int CameraPanSpeed = 2;
+
         public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
-
-        public static bool DisableAsteroids;
-        public static bool FixedPlayerCreditCharge;
-        public static bool NotifyEnemyInSystemAfterLoad = true;
-        public static bool EnableEngineTrails = true;
-
+        public static bool FixedPlayerCreditCharge; // TODO: this option is incomplete
+        
         // Puts an absolute limit to dynamic lights in scenes
         public static int MaxDynamicLightSources = 100;
+
+        // Disable asteroids for increased perf
+        public static bool DisableAsteroids;
 
         public static int AutoSaveFreq = 300;   //Added by Gretman
         public static ExtraRemnantPresence ExtraRemnantGS;
 
         // global sticky checkboxes the player changes in game
+        // TODO: many of these should be moved into UniverseState into a separate UniverseSettings class
+        public static bool EnableEngineTrails = true;
         public static bool SuppressOnBuildNotifications;
         public static bool PlanetScreenHideOwned;
         public static bool PlanetsScreenHideInhospitable = true;
@@ -111,8 +91,16 @@ namespace Ship_Game
         public static bool ShipListFilterInFleetsOnly;
         public static bool ShipListFilterNotInFleets;
         public static bool DisableInhibitionWarning = true;
-        public static bool DisableVolcanoWarning;
-        public static bool UseUpkeepByHullSize;
+        public static bool DisableVolcanoWarning = false;
+        public static bool UseUpkeepByHullSize = false;
+        public static bool ShowAllDesigns = true; // temporary global variable
+        public static bool FilterOldModules = true; // temporary global variable
+        public static bool WarpInSystem = true;
+
+        public static float FTLInSystemModifier = 1f;
+        public static float EnemyFTLInSystemModifier = 1f;
+
+        public static bool NotifyEnemyInSystemAfterLoad = true;
 
         // if true, Ships will try to keep their distance from nearby friends
         // to prevent stacking
@@ -140,11 +128,8 @@ namespace Ship_Game
         // modifying all ship designs
         public static bool FixDesignRoleAndCategory = false;
 
-        public static int CameraPanSpeed    = 2;
-        public static float DamageIntensity = 1;
-
         // Simulation options
-        public static bool UnlimitedSpeed = false;
+        public static bool UnlimitedSpeed = false; // unlimited sim speed, you can go to 100x if you want
         public static int SimulationFramesPerSecond = 60; // RedFox: physics simulation interval, bigger is slower
 
         // Dev Options
@@ -187,8 +172,6 @@ namespace Ship_Game
 
         // Debug log options
         public static bool VerboseLogging;
-        public static bool TestLoad;
-        public static bool PreLoad;
 
         // Concurrency and Parallelism options
         // Unlimited Parallelism: <= 0
@@ -243,8 +226,6 @@ namespace Ship_Game
             ExtendedVersion       = $"Mars : {Version}";
             ExtendedVersionNoHash = $"Mars : {Version.Split(' ')[0]}";
 
-            GetSetting("GravityWellRange"      , ref GravityWellRange);
-            GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf"                  , ref RestrictAIPlayerInteraction);
             GetSetting("AutoSaveFreq"          , ref AutoSaveFreq);
             GetSetting("WindowMode"            , ref WindowMode);
@@ -260,9 +241,6 @@ namespace Ship_Game
             GetSetting("ActiveMod"             , ref ModName);
             GetSetting("CameraPanSpeed"        , ref CameraPanSpeed);
             GetSetting("VerboseLogging"        , ref VerboseLogging);
-            GetSetting("TestLoad"              , ref TestLoad);
-            GetSetting("PreLoad"               , ref PreLoad);
-            GetSetting("DamageIntensity"       , ref DamageIntensity);
 
             Statreset();
 
@@ -337,18 +315,15 @@ namespace Ship_Game
 
         public static void Statreset()
         {
-            GetSetting("ExtraNotifications",   ref ExtraNotifications);
+            GetSetting("ExtraNotifications",   ref NotifyEmptyPlanetQueue);
             GetSetting("PauseOnNotification",  ref PauseOnNotification);
             GetSetting("ExtraPlanets",         ref ExtraPlanets);
-            GetSetting("MinAcceptableShipWarpRange", ref MinAcceptableShipWarpRange);
-            GetSetting("ShipMaintenanceMulti", ref ShipMaintenanceMulti);
             GetSetting("IconSize",             ref IconSize);
-            GetSetting("preventFederations",   ref PreventFederations);
+            GetSetting("PreventFederations",   ref PreventFederations);
             GetSetting("EliminationMode",      ref EliminationMode);
             GetSetting("ZoomTracking",         ref ZoomTracking);
             GetSetting("TurnTimer",            ref TurnTimer);
             GetSetting("AltArcControl",        ref AltArcControl);
-            GetSetting("LimitSpeed",           ref LimitSpeed);
             GetSetting("DisableAsteroids",     ref DisableAsteroids);
             GetSetting("EnableEngineTrails",   ref EnableEngineTrails);
             GetSetting("MaxDynamicLightSources", ref MaxDynamicLightSources);
@@ -362,8 +337,6 @@ namespace Ship_Game
             YRES = StarDriveGame.Instance.Graphics.PreferredBackBufferHeight;
 
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            WriteSetting(config, "GravityWellRange",       GravityWellRange);
-            WriteSetting(config, "StartingPlanetRichness", StartingPlanetRichness);
             WriteSetting(config, "perf", RestrictAIPlayerInteraction);
             WriteSetting(config, "AutoSaveFreq",     AutoSaveFreq);
             WriteSetting(config, "WindowMode",       WindowMode);
@@ -378,18 +351,15 @@ namespace Ship_Game
             WriteSetting(config, "AutoErrorReport",  AutoErrorReport);
             WriteSetting(config, "ActiveMod",        ModName);
 
-            WriteSetting(config, "ExtraNotifications",  ExtraNotifications);
+            WriteSetting(config, "ExtraNotifications",  NotifyEmptyPlanetQueue);
             WriteSetting(config, "PauseOnNotification", PauseOnNotification);
             WriteSetting(config, "ExtraPlanets",        ExtraPlanets);
-            WriteSetting(config, "MinAcceptableShipWarpRange", MinAcceptableShipWarpRange);
-            WriteSetting(config, "ShipMaintenanceMulti",ShipMaintenanceMulti);
             WriteSetting(config, "IconSize",            IconSize);
             WriteSetting(config, "PreventFederations",  PreventFederations);
             WriteSetting(config, "EliminationMode",     EliminationMode);
             WriteSetting(config, "ZoomTracking",        ZoomTracking);
             WriteSetting(config, "TurnTimer",           TurnTimer);
             WriteSetting(config, "AltArcControl",       AltArcControl);
-            WriteSetting(config, "LimitSpeed",          LimitSpeed);
             WriteSetting(config, "DisableAsteroids",    DisableAsteroids);
             WriteSetting(config, "EnableEngineTrails",  EnableEngineTrails);
             WriteSetting(config, "MaxDynamicLightSources", MaxDynamicLightSources);
@@ -405,8 +375,6 @@ namespace Ship_Game
             WriteSetting(config, "YRES",           YRES);
             WriteSetting(config, "CameraPanSpeed", CameraPanSpeed);
             WriteSetting(config, "VerboseLogging", VerboseLogging);
-            WriteSetting(config, "TestLoad",       TestLoad);
-            WriteSetting(config, "PreLoad",        PreLoad);
 
             config.Save();
             ConfigurationManager.RefreshSection("appSettings");
