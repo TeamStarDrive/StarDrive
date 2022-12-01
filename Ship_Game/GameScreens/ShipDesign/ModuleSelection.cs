@@ -210,11 +210,11 @@ namespace Ship_Game
             }
 
             // Concat ship class restrictions
-            string shipRest    = "";
+            string shipRest = "";
             bool specialString = false;
-            bool modDestroyers = GlobalStats.ActiveModInfo?.useDestroyers == true;
+            bool destroyers = GlobalStats.Settings.UseDestroyers;
 
-            if (modDestroyers)
+            if (destroyers)
             {
                 if (mod.DroneModule && mod.FighterModule && mod.CorvetteModule 
                     && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule 
@@ -226,7 +226,7 @@ namespace Ship_Game
                 }
             }
 
-            if (GlobalStats.ActiveModInfo == null || !modDestroyers)
+            if (!destroyers)
             {
                 if (mod.FighterModule && mod.CorvetteModule && mod.FrigateModule 
                     && mod.CruiserModule && mod.CruiserModule && mod.CapitalModule 
@@ -236,7 +236,7 @@ namespace Ship_Game
                 }
             }
 
-            if (!specialString && !mod.DroneModule || (!mod.DestroyerModule && modDestroyers) 
+            if (!specialString && !mod.DroneModule || (!mod.DestroyerModule && destroyers) 
                      || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule 
                      || !mod.CruiserModule || !mod.BattleshipModule  || !mod.CapitalModule 
                      || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
@@ -245,7 +245,7 @@ namespace Ship_Game
                  if (mod.FighterModule)                       shipRest += "Fi ";
                  if (mod.CorvetteModule)                      shipRest += "Co ";
                  if (mod.FrigateModule)                       shipRest += "Fr ";
-                 if (mod.DestroyerModule && modDestroyers)    shipRest += "Dy ";
+                 if (mod.DestroyerModule && destroyers)       shipRest += "Dy ";
                  if (mod.CruiserModule)                       shipRest += "Cr ";
                  if (mod.BattleshipModule)                    shipRest += "Bs ";
                  if (mod.CapitalModule)                       shipRest += "Ca ";
@@ -257,6 +257,7 @@ namespace Ship_Game
             modTitlePos.Y += Fonts.Arial8Bold.LineSpacing;
             batch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
             modTitlePos.Y += (Fonts.Arial8Bold.LineSpacing + 11);
+
             int startx = (int)modTitlePos.X;
             if (moduleTemplate.IsWeapon)
             {
@@ -386,7 +387,7 @@ namespace Ship_Game
             Power modNetWarpPowerDraw = Power.Calculate(modList, Player, true);
             DrawStat(ref modTitlePos, GameText.PowerWarp, -modNetWarpPowerDraw.NetWarpPowerDraw, GameText.TheEffectivePowerDrainOf);
 
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
+            if (GlobalStats.Settings.EnableECM)
             {
                 DrawStat(ref modTitlePos, GameText.Ecm2, mod.ECM, GameText.IndicatesTheChanceOfEcm, isPercent: true);
 
@@ -572,7 +573,7 @@ namespace Ship_Game
             DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, GameText.IndicatesTheAmountOfOrdnance);
             DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, GameText.IndicatesTheAmountOfPower);
 
-            if (w.Tag_Guided && GlobalStats.HasMod && GlobalStats.ActiveModInfo.enableECM)
+            if (w.Tag_Guided && GlobalStats.Settings.EnableECM)
                 DrawStatPercentLine(ref cursor, GameText.EcmResist, w.ECMResist, GameText.IndicatesTheResistanceOfThis);
 
             DrawResistancePercent(ref cursor, wOrMirv, "VS Armor", WeaponStat.Armor);
@@ -671,14 +672,14 @@ namespace Ship_Game
 
         float GetHullDamageBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+            if (GlobalStats.Settings.UseHullBonuses)
                 return 1f + Screen.CurrentHull.Bonuses.DamageBonus;
             return 1f;
         }
 
         float GetHullFireRateBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+            if (GlobalStats.Settings.UseHullBonuses)
                 return 1f - Screen.CurrentHull.Bonuses.FireRateBonus;
             return 1f;
         }

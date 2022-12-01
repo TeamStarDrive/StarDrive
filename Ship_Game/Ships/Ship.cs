@@ -1312,7 +1312,7 @@ namespace Ship_Game.Ships
                 Universe.Shields?.RemoveShieldLights(GetActiveShields());
         }
 
-        public bool CanRepair => !InCombat || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair;
+        public bool CanRepair => !InCombat || GlobalStats.Settings.UseCombatRepair;
 
         void PerformRegeneration()
         {
@@ -1505,10 +1505,7 @@ namespace Ship_Game.Ships
         {
             var position = new Vector3(Position.X, Position.Y, -100f);
 
-            float boost = 1f;
-            if (GlobalStats.HasMod)
-                boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
-
+            float boost = GlobalStats.Settings.ShipExplosionVisualIncreaser;
             float diameter = 2f * Radius * (ShipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
             float explosionSize = PlanetCrash != null ? diameter * 0.05f : diameter * boost;
 

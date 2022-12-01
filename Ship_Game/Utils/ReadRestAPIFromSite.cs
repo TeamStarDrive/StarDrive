@@ -29,7 +29,9 @@ namespace Ship_Game.Utils
 
         public void LoadContent(string url)
         {
-            if (url.IsEmpty()) return;
+            if (url.IsEmpty())
+                return;
+
             FilesAvailable = new();
             try
             {

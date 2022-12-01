@@ -10,6 +10,7 @@ using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game
 {
@@ -77,18 +78,15 @@ namespace Ship_Game
             ModsList = AllSaves.List;
             ModsList.EnableItemHighlight = true;
             ModsList.OnClick = OnModItemClicked;
-            var ser = new XmlSerializer(typeof(ModInformation));
             foreach (DirectoryInfo info in Dir.GetDirs("Mods", SearchOption.TopDirectoryOnly))
             {
-                string modFile = $"Mods/{info.Name}/{info.Name}.xml";
+                string modFile = $"Mods/{info.Name}/Globals.yaml";
                 try
-                {                    
+                {
                     var file = new FileInfo(modFile);
-                    var modInfo = ser.Deserialize<ModInformation>(file);
-                    if (modInfo == null)
-                        throw new FileNotFoundException($"Mod XML not found: {modFile}");
+                    var modSettings = YamlParser.DeserializeOne<GamePlayGlobals>(file);
 
-                    var e = new ModEntry(modInfo);
+                    var e = new ModEntry(modSettings);
                     e.LoadPortrait(MainMenu);
                     ModsList.AddItem(new ModsListItem(e));
                 }
@@ -104,7 +102,7 @@ namespace Ship_Game
         {
             SelectedMod = item.Mod;
             EnterNameArea.Text = SelectedMod.ModName;
-            Visit.Text = SelectedMod.mi.URL.IsEmpty() ? Localizer.Token(GameText.LoadModsWeb) : "Goto Mod URL";
+            Visit.Text = SelectedMod.Settings.URL.IsEmpty() ? Localizer.Token(GameText.LoadModsWeb) : "Goto Mod URL";
         }
 
         public override bool HandleInput(InputState input)
@@ -141,26 +139,15 @@ namespace Ship_Game
 
         void OnVisitClicked(UIButton b)
         {
-            if (string.IsNullOrEmpty(SelectedMod?.mi.URL))
+            if (!string.IsNullOrEmpty(SelectedMod?.Settings.URL))
             {
                 try
                 {
-                    SteamManager.ActivateOverlayWebPage("https://bitbucket.org/codegremlins/combinedarms/downloads/");
+                    SteamManager.ActivateOverlayWebPage(SelectedMod.Settings.URL);
                 }
                 catch
                 {
-                    Process.Start("https://bitbucket.org/codegremlins/combinedarms/downloads/");
-                }
-            }
-            else
-            {
-                try
-                {
-                    SteamManager.ActivateOverlayWebPage(SelectedMod.mi.URL);
-                }
-                catch
-                {
-                    Process.Start(SelectedMod.mi.URL);
+                    Process.Start(SelectedMod.Settings.URL);
                 }
             }
         }

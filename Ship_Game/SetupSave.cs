@@ -47,7 +47,7 @@ namespace Ship_Game
         {
             if (GlobalStats.HasMod)
             {
-                ModName = GlobalStats.ActiveMod.mi.ModName;
+                ModName = GlobalStats.ActiveMod.ModName;
                 ModPath = GlobalStats.ActiveMod.ModName;
             }
             Version = SavedGame.SaveGameVersion;

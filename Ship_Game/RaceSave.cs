@@ -19,7 +19,7 @@ namespace Ship_Game
             Name = traits.Name;
             if (GlobalStats.HasMod)
             {
-                ModName = GlobalStats.ActiveMod.mi.ModName;
+                ModName = GlobalStats.ActiveMod.ModName;
                 ModPath = GlobalStats.ActiveMod.ModName;
             }
             Version = SavedGame.SaveGameVersion;

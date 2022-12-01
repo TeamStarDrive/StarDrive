@@ -2745,7 +2745,7 @@ namespace Ship_Game
             if (!WeAreRemnants)
                 return false;
 
-            if (GlobalStats.ActiveModInfo?.RemoveRemnantStory == true)
+            if (GlobalStats.Settings.RemoveRemnantStory)
                 return false;
 
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
