@@ -1262,7 +1262,7 @@ namespace Ship_Game.Ships
             if (u.Debug && u.IsSystemViewOrCloser && u.Screen.ShowShipNames)
             {
                 var blinkingColor = GameBase.Base.FrameId % 2 == 0 ? Color.GreenYellow : Color.LightGreen;
-                u.DebugWin.DrawGameObject(u.DebugWin.Mode, this, blinkingColor, 1f);
+                u.DebugWin.DrawCircle(u.DebugWin.Mode, Position, Radius+2, blinkingColor, 1f);
             }
 
             return repairLeft;
