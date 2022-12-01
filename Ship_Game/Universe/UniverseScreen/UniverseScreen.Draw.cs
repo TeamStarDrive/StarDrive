@@ -484,7 +484,7 @@ namespace Ship_Game
 
         void DrawFTLInhibitionNodes()
         {
-            if (ShowingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
+            if (ShowingFTLOverlay && UState.GravityWellRange > 0f && !LookingAtPlanet)
             {
                 var inhibit = ResourceManager.Texture("UI/node_inhibit");
                 foreach (ClickablePlanet cplanet in ClickablePlanets)

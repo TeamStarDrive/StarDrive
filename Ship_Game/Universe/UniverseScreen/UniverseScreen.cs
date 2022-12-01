@@ -301,7 +301,7 @@ namespace Ship_Game
             RemoveAll();
             UnloadGraphics();
 
-            GlobalStats.ResearchRootUIDToDisplay = "Colonization";
+            UState.ResearchRootUIDToDisplay = GlobalStats.Settings.ResearchRootUIDToDisplay;
 
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = Add(new AutomationWindow(this));

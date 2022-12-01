@@ -70,8 +70,6 @@ namespace Ship_Game
             GlobalStats.Statreset();
             int maxOpponentsLimit = ResourceManager.MajorRaces.Count - 1;
             NumOpponents = GlobalStats.Settings.DefaultNumOpponents.UpperBound(maxOpponentsLimit);
-            if (!GlobalStats.HasMod) // Vanilla uses player designs by default
-                GlobalStats.UsePlayerDesigns = true;
         }
 
         RacialTrait GetRacialTraits()

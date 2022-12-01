@@ -50,7 +50,7 @@ namespace Ship_Game
             UniverseState us = universe.UState;
             us.FTLModifier      = GlobalStats.FTLInSystemModifier;
             us.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
-            us.GravityWells        = GlobalStats.PlanetaryGravityWells;
+            us.GravityWellRange = GlobalStats.Settings.GravityWellRange;
             us.FTLInNeutralSystems = GlobalStats.WarpInSystem;
 
             IEmpireData[] candidates = ResourceManager.MajorRaces.Filter(d => PlayerFilter(d, playerPreference));
