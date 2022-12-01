@@ -227,6 +227,8 @@ namespace Ship_Game
             GC.Collect();
         }
 
+        // Gets a more human readable number string that also supports large numbers
+        // ex: 950.7k 
         public static string GetNumberString(this float stat)
         {
             CultureInfo invariant = CultureInfo.InvariantCulture;

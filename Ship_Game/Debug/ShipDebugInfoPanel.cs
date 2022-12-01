@@ -138,6 +138,8 @@ public class ShipDebugInfoPanel : Submenu
             Text.String($"EMP Damage: {s.EMPDamage} / {s.EmpTolerance} :Recovery: {s.EmpRecovery}");
             Text.String($"IntSlots: {s.ActiveInternalModuleSlots}/{s.NumInternalSlots}  ({s.InternalSlotsHealthPercent.PercentString()})");
             Text.String($"DPS: {s.TotalDps}");
+            Text.String($"Sensor: {s.AI.GetSensorRadius().GetNumberString()} "+
+                        $"BadGuys:{s.AI.BadGuysNear}[{s.AI.PotentialTargets.Length}] CanRepair:{s.CanRepair}");
             Text.SetCursor(Pos.X + 250, 600f, Color.White);
             foreach (SystemCommander sc in s.Loyalty.AI.DefensiveCoordinator.DefenseDict.Values)
             {
