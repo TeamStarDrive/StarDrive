@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Yaml;
 using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
@@ -51,19 +52,22 @@ namespace Ship_Game
         public static float CustomMineralDecay   = 1;
         public static float VolcanicActivity     = 1;
 
+        // Global gameplay options for BB+ and for Mods
+        public static GamePlayGlobals Settings;
+        public static GamePlayGlobals DefaultSettings;
+
         // Option for keyboard hotkey based arc movement
         public static bool AltArcControl; // "Keyboard Fire Arc Locking"
         public static int TimesPlayed = 0;
         public static ModEntry ActiveMod;
         public static bool HasMod => ActiveMod != null;
-        public static ModInformation ActiveModInfo;
         public static string ModName = ""; // "Combined Arms" or "" if there's no active mod
         public static string ModPath = ""; // "Mods/Combined Arms/"
         public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/Combined Arms/Combined Arms.xml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
         public static string ResearchRootUIDToDisplay = "Colonization";
         public static bool CordrazinePlanetCaptured;
-        public static string DefaultEventDrone = "Xeno Fighter"; // In case an event building has defense drones and drones are not researched
+        public static string DefaultEventDrone => Settings.DefaultEventDrone; 
 
         public static bool ExtraNotifications;
         public static bool PauseOnNotification;
@@ -207,7 +211,7 @@ namespace Ship_Game
             if (ShadowDetail <= 0) AsteroidVisibility = ObjectVisibility.RenderedAndCastShadows;
         }
 
-        public static bool ModChangeResearchCost => HasMod && ActiveModInfo.ChangeResearchCostBasedOnSize;
+        public static bool ChangeResearchCost => Settings.ChangeResearchCostBasedOnSize;
 
         public static float GetShadowQuality(int shadowDetail)
         {
@@ -291,13 +295,23 @@ namespace Ship_Game
 
             if (modName.NotEmpty())
             {
-                var modInfo = new FileInfo($"Mods/{modName}/{modName}.xml");
+                var modInfo = new FileInfo($"Mods/{modName}/Globals.yaml");
                 if (modInfo.Exists)
                 {
-                    var info = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(modInfo);
-                    var me = new ModEntry(info);
+                    var settings = YamlParser.DeserializeOne<GamePlayGlobals>(modInfo);
+                    var me = new ModEntry(settings);
                     SetActiveModNoSave(me);
                 }
+            }
+            else // load vanilla
+            {
+                if (DefaultSettings == null)
+                {
+                    var defaultSettings = new FileInfo("Content/Globals.yaml");
+                    DefaultSettings = YamlParser.DeserializeOne<GamePlayGlobals>(defaultSettings);
+                }
+
+                Settings = DefaultSettings;
             }
             SaveActiveMod();
         }
@@ -306,17 +320,17 @@ namespace Ship_Game
         {
             if (me != null)
             {
-                ModName       = me.ModName;
-                ModPath       = "Mods/" + ModName + "/";
-                ActiveModInfo = me.mi;
-                ActiveMod     = me;
+                ModName = me.ModName;
+                ModPath = "Mods/" + ModName + "/";
+                ActiveMod = me;
+                Settings = me.Settings;
             }
             else
             {
-                ModName       = "";
-                ModPath       = "";
-                ActiveMod     = null;
-                ActiveModInfo = null;
+                ModName = "";
+                ModPath = "";
+                ActiveMod = null;
+                Settings = DefaultSettings;
             }
 
         }

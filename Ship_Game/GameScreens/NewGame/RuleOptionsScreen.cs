@@ -112,7 +112,7 @@ namespace Ship_Game
             VolcanicActivity.Tip      = GameText.ThisWillControlTheChances;
 
             string extraPlanetsTip = Localizer.Token(GameText.AddExtraPlanetsToEach);
-            if (GlobalStats.ModChangeResearchCost)
+            if (GlobalStats.ChangeResearchCost)
                 extraPlanetsTip = $"{extraPlanetsTip} {Localizer.Token(GameText.ThisWillSlightlyIncreaseResearch)}";
 
             ExtraPlanets.Tip        = extraPlanetsTip;

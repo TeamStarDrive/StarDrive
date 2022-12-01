@@ -69,7 +69,7 @@ namespace Ship_Game
             }
             GlobalStats.Statreset();
             int maxOpponentsLimit = ResourceManager.MajorRaces.Count - 1;
-            NumOpponents = GlobalStats.ActiveMod?.mi?.DefaultNumOpponents.UpperBound(maxOpponentsLimit) ?? maxOpponentsLimit;
+            NumOpponents = GlobalStats.Settings.DefaultNumOpponents.UpperBound(maxOpponentsLimit);
             if (!GlobalStats.HasMod) // Vanilla uses player designs by default
                 GlobalStats.UsePlayerDesigns = true;
         }
@@ -191,15 +191,15 @@ namespace Ship_Game
             }
 
             string galaxySizeTip = "Sets the scale of the generated galaxy";
-            if (GlobalStats.ModChangeResearchCost)
+            if (GlobalStats.ChangeResearchCost)
                 galaxySizeTip += ". Scale other than Medium will increase/decrease research cost of technologies.";
 
             string solarSystemsTip = "Number of Solar Systems packed into the Universe";
-            if (GlobalStats.ModChangeResearchCost)
+            if (GlobalStats.ChangeResearchCost)
                 solarSystemsTip += ". Technology research costs will scale up or down as well";
 
             string opponentsTip = "Sets the number of AI opponents you must face";
-            if (GlobalStats.ModChangeResearchCost)
+            if (GlobalStats.ChangeResearchCost)
                 opponentsTip += ". On a large scale galaxy, this might also affect research cost of technologies.";
 
             AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(), tip: galaxySizeTip);
@@ -236,7 +236,7 @@ namespace Ship_Game
 
             var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width + 5, 150);
             EnvMenu = Add(new EnvPreferencesPanel(this, envRect));
-            EnvMenu.Visible = GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisplayEnvPerfInRaceDesign;
+            EnvMenu.Visible = GlobalStats.Settings.DisplayEnvPerfInRaceDesign;
 
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
                 .SetLocalPos(ChooseRaceList.Width / 2 - 142, ChooseRaceList.Height + 10);
@@ -422,7 +422,7 @@ namespace Ship_Game
 
         void OnNumOpponentsClicked(UIButton b)
         {
-            int maxOpponents = Mode == GameMode.Corners ? 3 : GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
+            int maxOpponents = Mode == GameMode.Corners ? 3 : GlobalStats.Settings.MaxOpponents;
             NumOpponents += OptionIncrement;
             if (NumOpponents > maxOpponents) NumOpponents = 1;
             else if (NumOpponents < 1)       NumOpponents = maxOpponents;
@@ -523,7 +523,7 @@ namespace Ship_Game
             SelectedData = item.EmpireData;
             SetRacialTraits(SelectedData.Traits);
 
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisplayEnvPerfInRaceDesign)
+            if (GlobalStats.Settings.DisplayEnvPerfInRaceDesign)
             {
                 EnvMenu.UpdateArchetype(SelectedData);
             }

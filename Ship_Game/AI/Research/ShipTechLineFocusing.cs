@@ -264,8 +264,8 @@ namespace Ship_Game.AI.Research
             return null;
         }
         
-        bool DisableShipPicker => GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisableShipPicker;
-        bool EnableTechLineFocusing => !GlobalStats.HasMod || GlobalStats.HasMod && GlobalStats.ActiveModInfo.EnableShipTechLineFocusing;
+        bool DisableShipPicker => GlobalStats.Settings.DisableShipPicker;
+        bool EnableTechLineFocusing => GlobalStats.Settings.EnableShipTechLineFocusing;
 
         bool ShouldUseExistingCombatShip(string command) =>
             BestCombatShip != null && command == "RANDOM" && (EnableTechLineFocusing || !DisableShipPicker);
