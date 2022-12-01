@@ -76,7 +76,7 @@ namespace Ship_Game.GameScreens.NewGame
             UState = us.UState;
             UState.FTLModifier = GlobalStats.FTLInSystemModifier;
             UState.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
-            UState.GravityWells = GlobalStats.PlanetaryGravityWells;
+            UState.GravityWellRange = GlobalStats.Settings.GravityWellRange;
             UState.FTLInNeutralSystems = GlobalStats.WarpInSystem;
             UState.Difficulty = p.Difficulty;
             UState.GalaxySize = p.UniverseSize;
@@ -146,7 +146,7 @@ namespace Ship_Game.GameScreens.NewGame
                 for (int planetId = 0; planetId < planets.Count; planetId++)
                 {
                     Planet planet = planets[planetId];
-                    planet.MineralRichness += GlobalStats.StartingPlanetRichness;
+                    planet.MineralRichness += GlobalStats.Settings.StartingPlanetRichness;
                     planet.ParentSystem.SetExploredBy(empire);
                     planet.SetExploredBy(empire);
 

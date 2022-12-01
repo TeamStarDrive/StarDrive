@@ -1963,7 +1963,7 @@ namespace Ship_Game.Ships
         {
             if (!Active)
                 return false;
-            bool warpTimeGood = IsWarpRangeGood(GlobalStats.MinAcceptableShipWarpRange);
+            bool warpTimeGood = IsWarpRangeGood(GlobalStats.Settings.MinAcceptableShipWarpRange);
             return warpTimeGood;
         }
 

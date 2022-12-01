@@ -298,7 +298,7 @@ namespace Ship_Game.Ships
             if (!InCombat && !ignoreNonCombat) // No need for escape position if not in combat - turn around
                 return false;
 
-            if (IsInFriendlyProjectorRange || !Universe.GravityWells)
+            if (IsInFriendlyProjectorRange || Universe.GravityWellRange == 0f)
                 return true; // Wont be inhibited - straight through
 
             if (System == null)

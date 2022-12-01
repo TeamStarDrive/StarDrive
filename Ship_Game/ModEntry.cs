@@ -10,7 +10,6 @@ namespace Ship_Game
         public GamePlayGlobals Settings;
         public ModInformation Mod => Settings.Mod;
         public string ModName;
-        public string MainMenuMusic;
         public string Version;
         public bool IsSupported { get; }
         SubTexture PortraitTex;
@@ -20,7 +19,6 @@ namespace Ship_Game
             Settings = settings;
             ModName = Mod.Name;
             Version = Mod.Version;
-            MainMenuMusic = settings.CustomMenuMusic;
             IsSupported = CheckSupport(Mod.SupportedBlackBoxVersions);
         }
 

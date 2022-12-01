@@ -74,7 +74,7 @@ namespace Ship_Game.Ships
             }
 
             maint += maint * empire.data.Traits.MaintMod + numTroops * TroopMaint;
-            maint *= GlobalStats.ShipMaintenanceMulti;
+            maint *= GlobalStats.Settings.ShipMaintenanceMultiplier;
 
             // Projectors do not get any more modifiers
             if (ship.IsSubspaceProjector)

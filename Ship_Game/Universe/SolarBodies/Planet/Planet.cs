@@ -412,7 +412,7 @@ namespace Ship_Game
 
         public float GravityWellForEmpire(Empire empire)
         {
-            if (!Universe.GravityWells)
+            if (Universe.GravityWellRange == 0f)
                 return 0;
 
             if (Owner == null)
@@ -867,7 +867,7 @@ namespace Ship_Game
 
         private void NotifyEmptyQueue()
         {
-            if (!GlobalStats.ExtraNotifications || !OwnerIsPlayer)
+            if (!GlobalStats.NotifyEmptyPlanetQueue || !OwnerIsPlayer)
                 return;
 
             if (ConstructionQueue.Count == 0 && !QueueEmptySent)
@@ -1462,7 +1462,7 @@ namespace Ship_Game
                 return;
 
             // If the planet outputs 100 production on Brutal, the chance to decay is 2.5%, normal will be 1%
-            float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / GlobalStats.CustomMineralDecay);
+            float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / GlobalStats.Settings.CustomMineralDecay);
 
             // Larger planets have less chance for reduction
             decayChance /= Scale.LowerBound(0.1f);

@@ -23,22 +23,21 @@ namespace Ship_Game
                 SetupSave ss = (SetupSave)SelectedFile.Data;
                 GlobalStats.FTLInSystemModifier      = ss.FTLModifier;
                 GlobalStats.EnemyFTLInSystemModifier = ss.EnemyFTLModifier;
-                GlobalStats.ShipMaintenanceMulti     = ss.OptionIncreaseShipMaintenance;
-                GlobalStats.MinAcceptableShipWarpRange = ss.MinAcceptableShipWarpRange;
+                GlobalStats.Settings.ShipMaintenanceMultiplier = ss.OptionIncreaseShipMaintenance;
+                GlobalStats.Settings.MinAcceptableShipWarpRange = ss.MinAcceptableShipWarpRange;
                 GlobalStats.TurnTimer                = ss.TurnTimer;
                 GlobalStats.PreventFederations       = ss.PreventFederations;
-                GlobalStats.GravityWellRange         = ss.GravityWellRange;
+                GlobalStats.Settings.GravityWellRange = ss.GravityWellRange;
                 GlobalStats.ExtraPlanets             = ss.ExtraPlanets;
-                GlobalStats.StartingPlanetRichness   = ss.StartingPlanetRichness;
-                GlobalStats.PlanetaryGravityWells    = ss.PlanetaryGravityWells;
+                GlobalStats.Settings.StartingPlanetRichness = ss.StartingPlanetRichness;
                 GlobalStats.WarpInSystem             = ss.WarpInSystem;
                 GlobalStats.FixedPlayerCreditCharge  = ss.FixedPlayerCreditCharge;
-                GlobalStats.UsePlayerDesigns         = ss.UsePlayerDesigns;
-                GlobalStats.DisablePirates           = ss.DisablePirates;
-                GlobalStats.DisableRemnantStory      = ss.DisableRemnantStory;
+                GlobalStats.Settings.AIUsesPlayerDesigns = ss.AIUsesPlayerDesigns;
+                GlobalStats.Settings.DisablePirates  = ss.DisablePirates;
+                GlobalStats.Settings.DisableRemnantStory = ss.DisableRemnantStory;
                 GlobalStats.UseUpkeepByHullSize      = ss.UseUpkeepByHullSize;
-                GlobalStats.CustomMineralDecay       = ss.CustomMineralDecay;
-                GlobalStats.VolcanicActivity         = ss.VolcanicActivity;
+                GlobalStats.Settings.CustomMineralDecay = ss.CustomMineralDecay;
+                GlobalStats.Settings.VolcanicActivity   = ss.VolcanicActivity;
                 Screen.SetCustomSetup(ss.GameDifficulty, ss.StarEnum, ss.GalaxySize, ss.Pacing, ss.ExtraRemnant, ss.NumOpponents, ss.Mode);
             }
             else

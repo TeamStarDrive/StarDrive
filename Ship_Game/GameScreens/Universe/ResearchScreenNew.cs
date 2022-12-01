@@ -95,7 +95,7 @@ namespace Ship_Game
                 PopulateAllTechsFromRoot(node);
             }
 
-            RootNode root = RootNodes[GlobalStats.ResearchRootUIDToDisplay];
+            RootNode root = RootNodes[Universe.UState.ResearchRootUIDToDisplay];
             PopulateNodesFromRoot(root);
 
             // Create queue once all techs are populated
@@ -246,7 +246,7 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            GlobalStats.ResearchRootUIDToDisplay = GetCurrentlySelectedRootNode().Entry.UID;
+            Universe.UState.ResearchRootUIDToDisplay = GetCurrentlySelectedRootNode().Entry.UID;
             base.ExitScreen();
         }
 

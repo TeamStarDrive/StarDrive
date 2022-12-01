@@ -251,7 +251,6 @@ namespace Ship_Game
 
                     solarSystem.UpdateFullyExploredBy(Player);
                 }
-                GlobalStats.LimitSpeed = GlobalStats.LimitSpeed || Debug;
             }
 
             if (Debug)
