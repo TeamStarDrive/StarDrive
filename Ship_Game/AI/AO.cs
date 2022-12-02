@@ -86,14 +86,9 @@ namespace Ship_Game.AI
             Radius = radius;
             Center = planet.Position;
             WhichFleet = planet.Owner.CreateFleetKey();
-
-            CoreFleet = new(planet.Universe.CreateId(), planet.Owner)
-            {
-                Name = "Core Fleet "+WhichFleet,
-                FinalPosition = planet.Position,
-                IsCoreFleet = true
-            };
-            planet.Owner.SetFleet(WhichFleet, CoreFleet);
+            CoreFleet = planet.Owner.CreateFleet(WhichFleet, "Core Fleet "+WhichFleet);
+            CoreFleet.FinalPosition = planet.Position;
+            CoreFleet.IsCoreFleet = true;
 
             SetupPlanetsInAO();
         }
@@ -108,13 +103,9 @@ namespace Ship_Game.AI
 
             if (coreFleet == null)
             {
-                CoreFleet = new(p.Universe.CreateId(), p.Owner)
-                {
-                    Name = "Core Fleet",
-                    FinalPosition = p.Position,
-                    IsCoreFleet = true
-                };
-                p.Owner.SetFleet(WhichFleet, CoreFleet);
+                CoreFleet = p.Owner.CreateFleet(WhichFleet, "Core Fleet "+WhichFleet);
+                CoreFleet.FinalPosition = p.Position;
+                CoreFleet.IsCoreFleet = true;
             }
             else
             {

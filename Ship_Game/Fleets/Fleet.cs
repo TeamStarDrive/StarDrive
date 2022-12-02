@@ -11,6 +11,7 @@ using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Fleets
 {
@@ -61,13 +62,13 @@ namespace Ship_Game.Fleets
         [StarData] public bool InFormationMove { get; private set; }
 
         public override string ToString()
-            => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} ID={Id} task={FleetTask?.WhichFleet ?? -1}";
+            => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} ID={Id} task={FleetTask?.Type}";
 
         [StarDataConstructor] Fleet() {}
 
-        public Fleet(int id, Empire owner)
+        public Fleet(UniverseState us, Empire owner)
         {
-            Id = id;
+            Id = us.CreateId();
             Owner = owner;
             FleetIconIndex = RandomMath.Int(1, 30);
             SetCommandShip(null);
@@ -746,7 +747,7 @@ namespace Ship_Game.Fleets
             fleet.RemoveTroopShips();
             task.FlagFleetNeededForAnotherTask();
             fleet.TaskStep = 0;
-            var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
+            var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.Fleet, owner);
             fleet.Name = name;
             fleet.FleetTask = postInvasion;
             owner.AI.QueueForRemoval(task);
@@ -758,7 +759,7 @@ namespace Ship_Game.Fleets
         {
             task.FlagFleetNeededForAnotherTask();
             fleet.TaskStep = 0;
-            var reclaim = MilitaryTask.CreateReclaimTask(owner, task.TargetPlanet, task.WhichFleet);
+            var reclaim = MilitaryTask.CreateReclaimTask(owner, task.TargetPlanet, task.Fleet);
             fleet.Name = "Reclaim Fleet " + fleet.Key;
             fleet.FleetTask  = reclaim;
             owner.AI.QueueForRemoval(task);
@@ -769,10 +770,9 @@ namespace Ship_Game.Fleets
         {
             task.FlagFleetNeededForAnotherTask();
             fleet.TaskStep = 2;
-            var strikeFleet = new MilitaryTask(task.TargetPlanet, owner)
+            var strikeFleet = new MilitaryTask(task.TargetPlanet, owner, fleet)
             {
                 Goal = goal,
-                WhichFleet = task.WhichFleet,
                 Type = MilitaryTask.TaskType.StrikeForce,
                 NeedEvaluation = false,
             };
@@ -2579,13 +2579,12 @@ namespace Ship_Game.Fleets
             }
         }
 
-        public enum FleetGoalType
+        public static string GetDefaultFleetName(int index)
         {
-            AttackMoveTo,
-            MoveTo
+            return GetFleetPrefix(index) + " Fleet";
         }
-
-        public static string GetDefaultFleetNames(int index)
+        
+        static string GetFleetPrefix(int index)
         {
             switch (index)
             {
@@ -2612,7 +2611,7 @@ namespace Ship_Game.Fleets
                         case 2: suffix = "nd"; break;
                         case 3: suffix = "rd"; break;
                     }
-                    return index + suffix + " fleet";
+                    return index + suffix;
                 }
             }
         }

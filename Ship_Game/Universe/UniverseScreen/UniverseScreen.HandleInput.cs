@@ -475,11 +475,8 @@ namespace Ship_Game
             selectedFleet?.Reset(returnShipsToEmpireAI: true, clearOrders: false);
 
             // create new fleet
-            var fleet = AddSelectedShipsToNewFleet(SelectedShipList);
-            fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
-            fleet.Owner = Player;
+            Fleet fleet = CreateNewFleet(index, SelectedShipList);
 
-            Player.SetFleet(index, fleet);
             RecomputeFleetButtons(true);
             UpdateFleetSelection(fleet);
         }
@@ -507,14 +504,13 @@ namespace Ship_Game
             }
             else
             {
-                fleet = AddSelectedShipsToNewFleet(SelectedShipList);
-                Player.SetFleet(index, fleet);
+                fleet = CreateNewFleet(index, SelectedShipList);
             }
 
             UpdateFleetSelection(fleet);
 
             if (fleet.Name.IsEmpty() || fleet.Name.Contains("Fleet"))
-                fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
+                fleet.Name = Fleet.GetDefaultFleetName(index);
 
             fleet.Update(FixedSimTime.Zero /*paused during init*/);
 
@@ -1366,12 +1362,12 @@ namespace Ship_Game
             SelectedItem = null;
         }
 
-        Fleet AddSelectedShipsToNewFleet(IReadOnlyList<Ship> ships)
+        Fleet CreateNewFleet(int fleetId, IReadOnlyList<Ship> ships)
         {
             if (ships.Count == 0)
                 return null;
 
-            var newFleet = new Fleet(UState.CreateId(), Player);
+            Fleet newFleet = Player.CreateFleet(fleetId, null);
             AddShipsToFleet(newFleet, ships);
             return newFleet;
         }

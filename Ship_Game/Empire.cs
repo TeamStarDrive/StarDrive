@@ -272,7 +272,7 @@ namespace Ship_Game
             UpdatePopulation();
         }
 
-        [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData))]
+        [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData), typeof(UniverseParams))]
         void OnDeserialized(UniverseState us)
         {
             AIManagedShips = new(us.CreateId(), this, "AIManagedShips");

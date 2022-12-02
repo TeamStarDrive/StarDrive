@@ -37,12 +37,13 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => Score.GetBorderConflictState(coloniesOffered);
         public WarState GetWarScoreState() => WarType == WarType.BorderConflict ? Score.GetBorderConflictState() : Score.GetWarScoreState();
 
-        [StarData] public Empire Them { get; private set; }
+        [StarData] public Empire Them { get; private set; } // setters required for serializer
         [StarData] public SolarSystem[] ContestedSystems { get; private set; }
         
         public float LostColonyPercent  => (float)ColoniesValueLost / (1 + InitialColoniesValue + ColoniesValueWon);
         public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
         public const float MaxWarGrade = 10;
+
         public float SpaceWarKd
         {
             get

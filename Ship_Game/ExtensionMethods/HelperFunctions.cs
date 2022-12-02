@@ -34,27 +34,23 @@ namespace Ship_Game
             return null;
         }
 
-        static Fleet CreateFleetFromData(UniverseState universe, FleetDesign data, Empire owner, Vector2 position)
+        static Fleet CreateFleetFromData(UniverseState u, FleetDesign data, int fleetId, Empire owner, Vector2 position)
         {
             if (data == null)
                 return null;
 
-            var fleet = new Fleet(universe.CreateId(), owner)
-            {
-                FinalPosition = position
-            };
-            foreach (FleetDataNode node in data.Data)
-            {
-                FleetDataNode cloned = node.Clone();
-                cloned.CombatState = node.CombatState;
-                fleet.DataNodes.Add(cloned);
-            }
-            fleet.Name = data.Name;
+            Fleet fleet = owner.CreateFleet(fleetId, data.Name);
+            fleet.FinalPosition = position;
             fleet.FleetIconIndex = data.FleetIconIndex;
+
+            foreach (FleetDataDesignNode node in data.Nodes)
+            {
+                fleet.DataNodes.Add(new FleetDataNode(node));
+            }
 
             foreach (FleetDataNode node in fleet.DataNodes)
             {
-                Ship s = Ship.CreateShipAtPoint(universe, node.ShipName, owner, position + node.RelativeFleetOffset);
+                Ship s = Ship.CreateShipAtPoint(u, node.ShipName, owner, position + node.RelativeFleetOffset);
                 if (s == null) continue;
                 s.AI.CombatState = node.CombatState;
                 s.RelativeFleetOffset = node.RelativeFleetOffset;
@@ -67,9 +63,7 @@ namespace Ship_Game
 
         public static void CreateFirstFleetAt(UniverseState universe, string fleetUid, Empire owner, Vector2 position)
         {
-            Fleet fleet = CreateFleetFromData(universe, LoadFleetDesign(fleetUid), owner, position);
-            if (fleet != null)
-                owner.SetFleet(1, fleet);
+            CreateFleetFromData(universe, LoadFleetDesign(fleetUid), 1, owner, position);
         }
 
         public static bool IsInUniverseBounds(float universeSize, Vector2 pos)

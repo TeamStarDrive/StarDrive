@@ -88,36 +88,22 @@ namespace Ship_Game.AI.Tasks
             return potentialTroops;
         }
 
-        private void CreateFleet(Array<Ship> ships, string name)
+        void CreateFleet(Array<Ship> ships, string name)
         {
-            var newFleet = new Fleet(Owner.Universe.CreateId(), Owner)
-            {
-                Name = name
-            };
-
-            int fleetNum = Owner.CreateFleetKey();
-            Owner.SetFleet(fleetNum, newFleet);
-            WhichFleet = fleetNum;
-            newFleet.FleetTask = this;
+            Fleet = Owner.CreateFleet(Owner.CreateFleetKey(), name);
+            Fleet.FleetTask = this;
             foreach (Ship ship in ships)
             {
                 ship.RemoveFromPoolAndFleet(clearOrders: true);
-                newFleet.AddShip(ship);
+                Fleet.AddShip(ship);
             }
 
-            newFleet.AutoArrange();
+            Fleet.AutoArrange();
         }
 
-        public void CreateRemnantFleet(Empire owner, Ship ship, string name, out Fleet newFleet)
+        public void CreateRemnantFleet(Empire remnants, Ship ship, string name, out Fleet newFleet)
         {
-            newFleet = new Fleet(owner.Universe.CreateId(), owner)
-            {
-                Name = name,
-            };
-
-            int fleetKey = Owner.CreateFleetKey();
-            Owner.SetFleet(fleetKey, newFleet);
-            WhichFleet = fleetKey;
+            Fleet = newFleet = remnants.CreateFleet(remnants.CreateFleetKey(), name);
             newFleet.FleetTask = this;
             ship.AI.ClearOrders();
             newFleet.AddShip(ship);

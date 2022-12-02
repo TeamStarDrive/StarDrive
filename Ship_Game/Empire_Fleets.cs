@@ -104,11 +104,6 @@ public sealed partial class Empire
         return GetFleetOrNull(fleetId) ?? throw new IndexOutOfRangeException($"No fleetId={fleetId}");
     }
 
-    public bool GetFleet(int fleetId, out Fleet fleet)
-    {
-        return (fleet = GetFleetOrNull(fleetId)) != null;
-    }
-
     // Adds a new fleet or Replaces an existing fleet at [fleetId]
     public void SetFleet(int fleetId, Fleet fleet)
     {
@@ -128,6 +123,18 @@ public sealed partial class Empire
             Fleets.Add(fleet);
     }
 
+    // Creates a fleet with specified ID and overwrites that fleet slot
+    // Any existing fleets will be lost
+    public Fleet CreateFleet(int fleetId, string name)
+    {
+        Fleet fleet = new(Universe, this)
+        {
+            Name = name ?? Fleet.GetDefaultFleetName(fleetId)
+        };
+        SetFleet(fleetId, fleet);
+        return fleet;
+    }
+
     void UpdateFleets(FixedSimTime timeStep)
     {
         FleetUpdateTimer -= timeStep.FixedTime;
@@ -137,7 +144,7 @@ public sealed partial class Empire
             if (FleetUpdateTimer <= 0f && !AI.Disabled)
                 fleet.UpdateAI(timeStep, fleet.Key);
         }
-        if (FleetUpdateTimer < 0.0)
+        if (FleetUpdateTimer < 0f)
             FleetUpdateTimer = 5f;
     }
 

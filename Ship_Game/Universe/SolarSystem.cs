@@ -74,6 +74,7 @@ namespace Ship_Game
         public bool IsStartingSystem;
         bool WasVisibleLastFrame;
 
+        [StarDataConstructor]
         SolarSystem() : base(0, GameObjectType.SolarSystem)
         {
         }
@@ -90,6 +91,11 @@ namespace Ship_Game
         public SolarSystem(UniverseState us, Vector2 position) : this(us, us.CreateId())
         {
             Position = position;
+        }
+
+        [StarDataDeserialized(requires: typeof(UniverseParams))]
+        public void OnDeserialized()
+        {
         }
 
         public void Update(FixedSimTime timeStep, UniverseScreen universe)

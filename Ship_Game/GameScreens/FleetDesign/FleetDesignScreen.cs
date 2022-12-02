@@ -11,6 +11,9 @@ using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using System.Linq;
+using Ship_Game.Data.Yaml;
+using System.IO;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -18,7 +21,9 @@ namespace Ship_Game
     public sealed partial class FleetDesignScreen : GameScreen
     {
         public readonly UniverseScreen Universe;
-        public EmpireUIOverlay EmpireUI;
+        public readonly EmpireUIOverlay EmpireUI;
+        public readonly Empire Player;
+
         Menu2 TitleBar;
         Menu2 ShipDesigns;
         Vector2 TitlePos;
@@ -69,34 +74,42 @@ namespace Ship_Game
             : base(u, toPause: u)
         {
             Universe = u;
-            GameAudio.PlaySfxAsync(audioCue);
-            SelectedFleet = new(u.UState.CreateId(), u.Player);
             EmpireUI = empireUI;
+            Player = u.Player;
+
             TransitionOnTime = 0.75f;
-            EmpireUI.Player.UpdateShipsWeCanBuild();
+            Player.UpdateShipsWeCanBuild();
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, u.UState));
 
             FleetNameEntry = new();
-            FleetNameEntry.OnTextChanged = (text) => u.Player.GetFleet(FleetToEdit).Name = text;
+            FleetNameEntry.OnTextChanged = (text) => Player.GetFleet(FleetToEdit).Name = text;
             FleetNameEntry.SetColors(Colors.Cream, Color.Orange);
+            
+            GameAudio.PlaySfxAsync(audioCue);
+            
+            // chose the first active fleet we have, or -1 to let it auto create fleet 1
+            Fleet anyFleet = Player.ActiveFleets.Sorted(f => f.Key).FirstOrDefault();
+            ChangeFleet(anyFleet?.Key ?? -1);
+        }
+        
+        public override void ExitScreen()
+        {
+            if (!StarDriveGame.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
+                Universe.RecomputeFleetButtons(true);
+            base.ExitScreen();
         }
 
         public void ChangeFleet(int which)
         {
             SelectedNodeList.Clear();
-            // dear scroll list branch. How are you? the object visiblility is being changed here.
-            // so make sure that the so's are removed and added at each fleet button press.
-            if (FleetToEdit != -1)
-            {
-                foreach (Fleet f in Universe.Player.ActiveFleets)
-                    foreach (Ship ship in f.Ships)
-                        ship.RemoveSceneObject();
-            }
+            RemoveSceneObjects(SelectedFleet);
 
             FleetToEdit = which;
-            Fleet fleet = Universe.Player.GetFleetOrNull(FleetToEdit);
-            if (fleet == null)
-                return;
+            Fleet fleet = Player.GetFleetOrNull(FleetToEdit);
+            if (fleet == null) // fleet hasn't been created, so make a new one
+            {
+                fleet = Player.CreateFleet(which, null);
+            }
 
             SelectedFleet = fleet;
 
@@ -105,7 +118,7 @@ namespace Ship_Game
             {
                 if (node.Ship == null)
                 {
-                    if (!ResourceManager.Ships.Exists(node.ShipName) || !Universe.Player.WeCanBuildThis(node.ShipName))
+                    if (!ResourceManager.Ships.Exists(node.ShipName) || !Player.WeCanBuildThis(node.ShipName))
                         toRemove.Add(node);
                 }
             }
@@ -150,15 +163,6 @@ namespace Ship_Game
         {
             SelectedFleet = null;
             base.Destroy();
-        }
-
-        public override void ExitScreen()
-        {
-            if (!StarDriveGame.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
-            {
-                Universe.RecomputeFleetButtons(true);
-            }
-            base.ExitScreen();
         }
 
         public override void LoadContent()
@@ -216,7 +220,7 @@ namespace Ship_Game
 
             RequisitionForces.OnClick = (b) => ScreenManager.AddScreen(new RequisitionScreen(this));
             SaveDesign.OnClick = (b) => ScreenManager.AddScreen(new SaveFleetDesignScreen(this, SelectedFleet));
-            LoadDesign.OnClick = (b) => ScreenManager.AddScreen(new LoadSavedFleetDesignScreen(this));
+            LoadDesign.OnClick = (b) => ScreenManager.AddScreen(new LoadFleetDesignScreen(this));
 
             OperationsRect = new(SelectedStuffRect.Right + 2, SelectedStuffRect.Y + 30, 360, SelectedStuffRect.H - 30);
 
@@ -253,31 +257,30 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-
-        public void LoadData(FleetDesign data)
+        void RemoveSceneObjects(Fleet fleet)
         {
-            var fleet = Universe.Player.GetFleet(FleetToEdit);
+            if (fleet != null)
+                foreach (Ship ship in fleet.Ships)
+                    ship.RemoveSceneObject();
+        }
 
-            for (int i = fleet.Ships.Count - 1; i >= 0; i--)
-            {
-                Ship ship = fleet.Ships[i];
-                ship.RemoveSceneObject();
-                ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
-            }
+        public void LoadFleetDesign(FileInfo file)
+        {
+            FleetDesign data = YamlParser.Deserialize<FleetDesign>(file);
+            RemoveSceneObjects(SelectedFleet);
 
-            SelectedFleet.Reset();
+            SelectedFleet.Reset(returnShipsToEmpireAI: true, clearOrders: true);
             SelectedFleet.DataNodes.Clear();
             ClickableNodes.Clear();
             foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
-            {
                 flank.Clear();
-            }
+
             SelectedFleet.Name = data.Name;
-            foreach (FleetDataNode node in data.Data)
-            {
-                SelectedFleet.DataNodes.Add(node);
-            }
             SelectedFleet.FleetIconIndex = data.FleetIconIndex;
+            foreach (FleetDataDesignNode node in data.Nodes)
+            {
+                SelectedFleet.DataNodes.Add(new FleetDataNode(node));
+            }
         }
 
         public void ResetLists()
@@ -285,12 +288,12 @@ namespace Ship_Game
             ShipSL.Reset();
             if (SubShips.SelectedIndex == 0)
             {
-                IShipDesign[] designs = Universe.Player.ShipsWeCanBuild.ToArr();
+                IShipDesign[] designs = Player.ShipsWeCanBuild.ToArr();
                 InitShipSL(designs);
             }
             else if (SubShips.SelectedIndex == 1)
             {
-                var ships = Universe.Player.OwnedShips;
+                var ships = Player.OwnedShips;
                 AvailableShips.Assign(ships.Filter(s => s.Fleet == null && s.Active));
 
                 IShipDesign[] designs = AvailableShips.Select(s => s.ShipData).Unique();
@@ -312,7 +315,7 @@ namespace Ship_Game
             {
                 FleetDesignShipListItem header = ShipSL.AddItem(new(this, role));
 
-                foreach (IShipDesign d in Universe.Player.ShipsWeCanBuild)
+                foreach (IShipDesign d in Player.ShipsWeCanBuild)
                 {
                     if (IsCandidateShip(d) && d.GetRole() == header.HeaderText)
                     {

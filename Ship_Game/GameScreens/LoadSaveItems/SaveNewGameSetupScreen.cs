@@ -22,11 +22,7 @@ public sealed class SaveNewGameSetupScreen : GenericLoadSaveScreen
     public override void DoSave()
     {
         SavedSetup.Name = EnterNameArea.Text;
-
-        var s = new YamlSerializer(typeof(SetupSave));
-        using (var writer = new StreamWriter(Path + SavedSetup.Name + ".yaml"))
-            s.SerializeRoot(writer, SavedSetup);
-
+        YamlSerializer.SerializeRoot(Path + SavedSetup.Name + ".yaml", SavedSetup);
         ExitScreen();
     }
 

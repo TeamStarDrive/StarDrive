@@ -55,7 +55,7 @@ public class IncomingThreatDetectorTests : StarDriveTest
                 throw new InvalidOperationException($"Invalid ship: '{ship.Name}' CANNOT WARP! MaxFTLSpeed: {ship.MaxFTLSpeed:0}");
         }
 
-        var fleet = new Fleet(UState.CreateId(), owner);
+        Fleet fleet = owner.CreateFleet(1, null);
         fleet.AddShips(ships);
         fleet.AutoArrange();
         return fleet;

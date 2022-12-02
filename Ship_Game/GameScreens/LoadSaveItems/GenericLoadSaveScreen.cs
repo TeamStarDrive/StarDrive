@@ -205,13 +205,6 @@ namespace Ship_Game
             }
         }
 
-        protected void AddItemToSaveSL(FileInfo info, SubTexture icon)
-        {
-            var data = new FileData(info, info, info.NameNoExt(), "", "", icon, Color.White);
-            var item = new SaveLoadListItem(this, data);
-            SavesSL.AddItem(item);
-        }
-
         protected void AddItemsToSaveSL(IEnumerable<FileData> files)
         {
             foreach (FileData data in files)
@@ -243,7 +236,8 @@ namespace Ship_Game
                 batch.Draw(Data.Icon, Pos, new Vector2(iconWidth, iconHeight), Data.IconColor);
 
                 var tCursor = new Vector2(X + 50f, Y);
-                batch.DrawString(Fonts.Arial20Bold, Data.FileName, tCursor, Color.Orange);
+                var mainColor = Data.Enabled ? Color.Orange : Color.Gray;
+                batch.DrawString(Fonts.Arial20Bold, Data.FileName, tCursor, mainColor);
 
                 tCursor.Y += Fonts.Arial20Bold.LineSpacing;
                 batch.DrawString(Fonts.Arial12Bold, Data.Info, tCursor, Color.White);
@@ -262,6 +256,7 @@ namespace Ship_Game
             public Color IconColor;
             public FileInfo FileLink;
             public object Data;
+            public bool Enabled = true; // new feature: show incompatible entries as grayed out and unselectable
 
             public FileData(FileInfo fileLink, object data, 
                 string fileName, string info, string extraInfo, SubTexture icon, Color iconColor)

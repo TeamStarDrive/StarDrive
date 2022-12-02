@@ -295,6 +295,9 @@ namespace Ship_Game.Data.Yaml
             if (Key != null)
             {
                 Write(tw, Key).Write(':');
+                // - Key:\n   # because YAML doesn't support sequence - Key:Value
+                if (sequenceElement && Value == null)
+                    tw.Write('\n');
             }
             if (Value != null)
             {
@@ -327,8 +330,7 @@ namespace Ship_Game.Data.Yaml
                     for (int i = 0; i < SubNodes.Count; ++i)
                     {
                         YamlNode node = SubNodes[i];
-                        bool noSpaces = sequenceElement && i == 0;
-                        node.SerializeTo(tw, depth+2, noSpacePrefix: noSpaces);
+                        node.SerializeTo(tw, depth+2);
                     }
                 }
             }
