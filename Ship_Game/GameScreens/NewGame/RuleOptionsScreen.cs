@@ -86,8 +86,8 @@ public sealed class RuleOptionsScreen : GameScreen
         ExtraPlanets = Slider(epRect, GameText.ExtraPlanets, 0, 3f, P.ExtraPlanets);
         ExtraPlanets.OnChange = (s) => P.ExtraPlanets = (int)s.AbsoluteValue;
 
-        StartingRichness = Slider(richnessRect, GameText.StartingPlanetRichnessBonus, 0, 5f, P.StartingPlanetRichness);
-        StartingRichness.OnChange = (s) => P.StartingPlanetRichness = s.AbsoluteValue;
+        StartingRichness = Slider(richnessRect, GameText.StartingPlanetRichnessBonus, 0, 5f, P.StartingPlanetRichnessBonus);
+        StartingRichness.OnChange = (s) => P.StartingPlanetRichnessBonus = s.AbsoluteValue;
 
 
         var optionTurnTimer  = new Rectangle(x, leftRect.Y + 390, 270, 50);

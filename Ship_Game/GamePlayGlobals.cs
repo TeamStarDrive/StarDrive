@@ -30,7 +30,7 @@ public class GamePlayGlobals
     // sets the default gravity well range, 0 means disabled
     [StarData] public float GravityWellRange = 8000;
     // base richness for empire capitals
-    [StarData] public float StartingPlanetRichness = 1;
+    [StarData] public float StartingPlanetRichnessBonus = 1;
     [StarData] public float ShipMaintenanceMultiplier = 1;
     // How much rushing costs in percentage of production cost
     [StarData] public float RushCostPercentage = 1;
