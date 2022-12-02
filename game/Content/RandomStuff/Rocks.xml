@@ -6,23 +6,23 @@
   <!-- the maximum number of instances that will appear (may want only 1, or to have them appear in groups) -->
   <TerranInstanceMax>3</TerranInstanceMax>
 
-  <OceanicChance>6</OceanicChance>
+  <OceanicChance>0</OceanicChance>
   <OceanicInstanceMax>3</OceanicInstanceMax>
 
-  <DesertChance>18</DesertChance>
+  <DesertChance>3</DesertChance>
   <DesertInstanceMax>9</DesertInstanceMax>
 
-  <SwampChance>6</SwampChance>
+  <SwampChance>0</SwampChance>
   <SwampInstanceMax>3</SwampInstanceMax>
 
   <TundraChance>8</TundraChance>
-  <TundraInstanceMax>3</TundraInstanceMax>
+  <TundraInstanceMax>6</TundraInstanceMax>
 
-  <IceChance>13</IceChance>
+  <IceChance>3</IceChance>
   <IceInstanceMax>8</IceInstanceMax>
 
   <SteppeChance>8</SteppeChance>
-  <SteppeInstanceMax>3</SteppeInstanceMax>
+  <SteppeInstanceMax>6</SteppeInstanceMax>
 
   <BarrenChance>35</BarrenChance>
   <BarrenInstanceMax>10</BarrenInstanceMax>

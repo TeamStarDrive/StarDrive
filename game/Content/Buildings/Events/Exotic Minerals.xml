@@ -3,12 +3,11 @@
   <Icon>Exotic_Mineral</Icon>
   
   <Cost>250</Cost>
-  <ProdCache>18000</ProdCache>
-  <IncreaseRichness>0.6</IncreaseRichness>
-  <PlusProdPerColonist>0.8</PlusProdPerColonist>
+  <ProdCache>500</ProdCache>
+  <PlusProdPerColonist>5</PlusProdPerColonist>
   <IsCommodity>true</IsCommodity>
   <CanBeCreatedFromLava>true</CanBeCreatedFromLava>
-  
+  <CanBuildAnywhere>true</CanBuildAnywhere>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18106</NameTranslationIndex>
   <DescriptionIndex>18107</DescriptionIndex>
