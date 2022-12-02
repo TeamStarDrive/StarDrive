@@ -216,6 +216,35 @@ Types:
     AtmosphereType: [VolcanicRed]
     MoonTypes: [Barren,Desert,Volcanic,Ice]
 
+  - PlanetType: 
+    Id: 42 # Hestess
+    Name: Volcanic_Hestess
+    Category: Volcanic
+    Composition: 1718
+    IconPath: Planets/23
+    DiffuseMap:    Model/SpaceObjects/planet_tex23_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_23spec.dds
+    NormalMap:     Model/SpaceObjects/planet_23normalalt.dds
+    EmissiveMap:   Model/SpaceObjects/planet_23emis.dds
+    SpecularPower: 4
+    AtmosphereType: [VolcanicRed]
+
+  - PlanetType:
+    Id: 43 # Noldor hospitable
+    Name: Volcanic_Noldor
+    Category: Volcanic
+    Composition: 1718
+    IconPath: Planets/43
+    DiffuseMap:    Model/SpaceObjects/planet_tex43.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/planet_tex43_normal.dds
+    EmissiveMap:   Model/SpaceObjects/planet_tex43_emis.dds
+    SpecularPower: 4
+    AtmosphereType: [VolcanicRed]
+    Habitable: true
+    HabitableTileChance: 0
+    PopPerTile: [20, 80]
+    BaseFertility: 0
   #################################################################
   # Ice
   - PlanetType:
