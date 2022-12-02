@@ -17,21 +17,16 @@ namespace Ship_Game
             Screen = screen;
         }
 
-        // TODO: IMPLEMENT THIS PROPERLY, WE SHOULD SEE THE ACTIVE SHIPS
         public FleetDesignShipListItem(FleetDesignScreen screen, Ship ship)
         {
             Screen = screen;
             Ship = ship;
-            AddPlus(new Vector2(-50, 0), "FleetDesignShipListItem.Add");
-            AddEdit(new Vector2(-20, 0), "FleetDesignShipListItem.Edit");
         }
 
         public FleetDesignShipListItem(FleetDesignScreen screen, IShipDesign design)
         {
             Screen = screen;
             Design = design;
-            AddPlus(new Vector2(-50, 0), "FleetDesignShipListItem.Add");
-            AddEdit(new Vector2(-20, 0), "FleetDesignShipListItem.Edit");
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
-using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using SDGraphics;
-using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
@@ -78,126 +75,107 @@ namespace Ship_Game
             TitleBar.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, Colors.Cream);
 
-            if (FleetToEdit != -1)
-            {
-                ShipDesigns.Draw(batch, elapsed);
-                batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, Colors.Cream);
-            }
+            ShipDesigns.Draw(batch, elapsed);
+            batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, Colors.Cream);
 
             EmpireUI.Draw(batch);
+
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
-            {
-                Color color = GetTacticalIconColor();
-                if (node.Ship == null || CamPos.Z <= 15000f)
-                {
-                    if (!ResourceManager.GetShipTemplate(node.ShipName, out Ship ship))
-                        continue;
-
-                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.RelativeFleetOffset, 150f);
-
-                    var r = new Rectangle((int)screenPos.X - (int)screenRadius, (int)screenPos.Y - (int)screenRadius,
-                        (int)screenRadius * 2, (int)screenRadius * 2);
-
-                    DrawIcon(ship, r);
-                    if (node.Goal == null)
-                    {
-                        if (NodeShipResupplying())
-                            batch.DrawString(Fonts.Arial8Bold, "Resupplying", screenPos + new Vector2(5f, -5f), Color.White);
-                    }
-                    else
-                    {
-                        string buildingAt = "";
-                        foreach (Goal g in SelectedFleet.Owner.AI.Goals)
-                        {
-                            if (g != node.Goal || g.PlanetBuildingAt == null)
-                                continue;
-
-                            buildingAt = g.Type == GoalType.Refit
-                                ? $"Refitting at:\n{g.PlanetBuildingAt.Name}"
-                                : $"Building at:\n{g.PlanetBuildingAt.Name}";
-                        }
-
-                        if (buildingAt.IsEmpty())
-                            buildingAt = "Need spaceport";
-
-                        batch.DrawString(Fonts.Arial8Bold, buildingAt, screenPos + new Vector2(5f, -5f), Color.White);
-                    }
-                }
-                else
-                {
-                    Ship ship = node.Ship;
-                    (Vector2 screenPos, float screenRadius) =
-                        GetPosAndRadiusOnScreen(node.RelativeFleetOffset, ship.GetSO().WorldBoundingSphere.Radius);
-                    if (screenRadius < 10f)
-                    {
-                        screenRadius = 10f;
-                    }
-
-                    Rectangle r = new Rectangle((int)screenPos.X - (int)screenRadius, (int)screenPos.Y - (int)screenRadius,
-                        (int)screenRadius * 2, (int)screenRadius * 2);
-
-                    DrawIcon(ship, r);
-                    if (NodeShipResupplying())
-                        batch.DrawString(Fonts.Arial8Bold, "Resupplying", screenPos + new Vector2(5f, -5f), Color.White);
-                }
-
-                void DrawIcon(Ship ship, Rectangle r)
-                {
-                    if (!ShouldDrawTacticalIcon())
-                        return;
-
-                    (SubTexture icon, SubTexture secondary) = ship.TacticalIcon();
-                    batch.Draw(icon, r, color);
-                    if (secondary != null)
-                        batch.Draw(secondary, r, color);
-                }
-
-                Color GetTacticalIconColor()
-                {
-                    if (Hovered()) return Color.White;
-                    if (node.Goal != null) return Color.Yellow;
-                    if (NodeShipResupplying()) return Color.Gray;
-
-                    return node.Ship != null ? Color.Green : Color.Red;
-                }
-
-                bool ShouldDrawTacticalIcon()
-                {
-                    return CamPos.Z > 15000f || node.Ship == null || NodeShipResupplying();
-                }
-
-                bool NodeShipResupplying() => node.Ship?.Resupplying == true;
-                bool Hovered() => HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node);
-            }
+                DrawFleetNode(batch, node);
 
             if (ActiveShipDesign != null)
-            {
-                (SubTexture icon, SubTexture secondary) = ActiveShipDesign.TacticalIcon();
-                Vector2 iconOrigin = new Vector2(icon.Width, icon.Width) / 2f;
-                float scale = ActiveShipDesign.SurfaceArea / (float)(30 + icon.Width);
-                scale = scale * 4000f / CamPos.Z;
-                if (scale > 1f) scale = 1f;
-                if (scale < 0.15f) scale = 0.15f;
-
-                Color color = Player.EmpireColor;
-                batch.Draw(icon, Input.CursorPosition, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
-                if (secondary != null)
-                    batch.Draw(secondary, Input.CursorPosition, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
-            }
+                DrawActiveShipDesign(batch);
 
             DrawSelectedData(batch, elapsed);
+        }
+
+        void DrawFleetNode(SpriteBatch batch, FleetDataNode node)
+        {
+            Ship ship = node.Ship;
+            // if ship doesn't exist, grab a template instead
+            if (ship == null || CamPos.Z <= 15000f)
+                if (!ResourceManager.GetShipTemplate(node.ShipName, out ship))
+                    return;
+
+            float radius = node.Ship?.Radius ?? ship.Radius;
+            (Vector2 screenPos, float screenR) = GetPosAndRadiusOnScreen(node.RelativeFleetOffset, radius);
+            if (screenR < 10f) screenR = 10f;
+            RectF r = RectF.FromPointRadius(screenPos, screenR*0.5f);
+
+            Color color = GetTacticalIconColor(node);
+            DrawIcon(batch, node, ship, r, color);
+
+            if (node.Ship?.Resupplying == true)
+            {
+                batch.DrawString(Fonts.Arial8Bold, "Resupplying", screenPos + new Vector2(5f, -5f), Color.White);
+            }
+            else if (node.Goal != null)
+            {
+                string buildingAt = "";
+                foreach (Goal g in SelectedFleet.Owner.AI.Goals)
+                {
+                    if (g != node.Goal || g.PlanetBuildingAt == null)
+                        continue;
+
+                    buildingAt = g.Type == GoalType.Refit
+                        ? $"Refitting at:\n{g.PlanetBuildingAt.Name}"
+                        : $"Building at:\n{g.PlanetBuildingAt.Name}";
+                }
+
+                if (buildingAt.IsEmpty())
+                    buildingAt = "Need spaceport";
+
+                batch.DrawString(Fonts.Arial8Bold, buildingAt, screenPos + new Vector2(5f, -5f), Color.White);
+            }
+        }
+
+        Color GetTacticalIconColor(FleetDataNode node)
+        {
+            if (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node))
+                return Color.White;
+            if (node.Goal != null) return Color.Yellow;
+            if (node.Ship?.Resupplying == true) return Color.Gray;
+
+            return node.Ship != null ? Color.Green : Color.Red;
+        }
+
+        // this is the active ship or ship template that we're trying to place
+        // into the fleet
+        void DrawActiveShipDesign(SpriteBatch batch)
+        {
+            float radius = (float)ProjectToScreenSize(ActiveShipDesign.Radius);
+            RectF screenR = RectF.FromPointRadius(Input.CursorPosition, radius);
+            
+            (SubTexture icon, SubTexture secondary) = ActiveShipDesign.TacticalIcon();
+            batch.Draw(icon, screenR, Player.EmpireColor);
+            if (secondary != null)
+                batch.Draw(secondary, screenR, Player.EmpireColor);
+
+            float boundingR = Math.Max(radius*1.5f, 16);
+            DrawCircle(Input.CursorPosition, boundingR, Player.EmpireColor);
+        }
+        
+        void DrawIcon(SpriteBatch batch, FleetDataNode node, Ship ship, in RectF r, Color color)
+        {
+            if (CamPos.Z > 5000f || node.Ship == null || node.Ship?.Resupplying == true)
+            {
+                (SubTexture icon, SubTexture secondary) = ship.TacticalIcon();
+                batch.Draw(icon, r, color);
+                if (secondary != null)
+                    batch.Draw(secondary, r, color);
+            }
         }
 
         void DrawSelectedNodes(SpriteBatch batch)
         {
             foreach (FleetDataNode node in SelectedNodeList)
             {
-                (Vector2 screenPos, float screenRadius) = GetNodeScreenPosAndRadius(node);
+                (Vector2 screenPos, float screenR) = GetNodeScreenPosAndRadius(node);
                 foreach (ClickableSquad squad in ClickableSquads)
                     if (squad.Squad.DataNodes.Contains(node))
                         batch.DrawLine(squad.Rect.Center, screenPos, NeonGreen, 2f);
 
-                DrawCircle(screenPos, screenRadius, Color.White, 2f);
+                DrawCircle(screenPos, screenR, Color.White, 2f);
             }
         }
 
@@ -239,8 +217,11 @@ namespace Ship_Game
             float squadTextW = Fonts.Arial10.TextWidth("Squad");
             foreach (ClickableSquad squad in ClickableSquads)
             {
+                bool isSelected = SelectedSquad == squad.Squad;
+                Color squadNode = isSelected ? Color.Yellow : NeonGreen;
+
                 batch.FillRectangle(RectF.FromCenter(squad.Rect.Center, 4, 4), new(0, 255, 0, 110));
-                batch.DrawRectangle(squad.Rect, NeonGreen);
+                batch.DrawRectangle(squad.Rect, squadNode);
                 batch.DrawString(Fonts.Arial10, "Squad", new(squad.Rect.CenterX - squadTextW / 2f, squad.Rect.Bottom + 5f), NeonGreen);
             }
         }
@@ -302,8 +283,8 @@ namespace Ship_Game
                 SliderDps.Draw(batch);
                 SliderShield.Draw(batch);
                 SliderVulture.Draw(batch);
-                Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
-                Priorityselector.Draw(batch, elapsed);
+                PrioritySelector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
+                PrioritySelector.Draw(batch, elapsed);
                 cursor = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
                 batch.DrawString(Fonts.Pirulen12, "Priorities", cursor, Colors.Cream);
                 OperationalRadius.Draw(batch, elapsed);
@@ -330,30 +311,12 @@ namespace Ship_Game
                 SliderDps.Draw(batch);
                 SliderShield.Draw(batch);
                 SliderVulture.Draw(batch);
-                Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
-                Priorityselector.Draw(batch, elapsed);
+                PrioritySelector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
+                PrioritySelector.Draw(batch, elapsed);
                 cursor = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
                 batch.DrawString(Fonts.Pirulen12, "Group Priorities", cursor, Colors.Cream);
                 OperationalRadius.Draw(batch, elapsed);
                 SliderSize.Draw(ScreenManager);
-            }
-            else if (FleetToEdit == -1)
-            {
-                float transitionOffset = (float) Math.Pow(TransitionPosition, 2);
-                Rectangle r = SelectedStuffRect;
-                if (ScreenState == ScreenState.TransitionOn)
-                {
-                    r.Y += (int) (transitionOffset * 256f);
-                }
-
-                StuffSelector = new Selector(r, new Color(0, 0, 0, 180));
-                StuffSelector.Draw(batch, elapsed);
-                Vector2 cursor = new Vector2(r.X + 20, r.Y + 10);
-                batch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", cursor, Colors.Cream);
-                cursor.Y += (Fonts.Arial20Bold.LineSpacing + 2);
-                string txt = "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet. \n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.";
-                txt = Fonts.Arial12Bold.ParseText(txt, SelectedStuffRect.W - 40);
-                batch.DrawString(Fonts.Arial12Bold, txt, cursor, Colors.Cream);
             }
             else
             {
@@ -374,8 +337,8 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, Colors.Cream);
                 var iconR = new RectF(cursor1.X + 12, cursor1.Y + Fonts.Pirulen12.LineSpacing + 5, 64, 64);
                 batch.Draw(f.Icon, iconR, f.Owner.EmpireColor);
-                Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
-                Priorityselector.Draw(batch, elapsed);
+                PrioritySelector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
+                PrioritySelector.Draw(batch, elapsed);
                 cursor1 = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
                 batch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", cursor1, Colors.Cream);
                 cursor1.Y += (Fonts.Pirulen12.LineSpacing + 2);
