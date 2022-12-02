@@ -427,6 +427,13 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
+        /// <summary>
+        /// Begins a group element transition effect
+        /// </summary>
+        /// <typeparam name="T">Type of child elements to consider</typeparam>
+        /// <param name="offset">Offset from element.Pos where to start animation</param>
+        /// <param name="direction">-1 if transition in, +1 if transition out</param>
+        /// <param name="time">How fast should it animate</param>
         public void StartGroupTransition<T>(Vector2 offset, float direction, float time = 1f) where T : UIElementV2
         {
             var candidates = new Array<UIElementV2>();

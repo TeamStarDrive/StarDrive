@@ -1,72 +1,15 @@
-using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
-using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using SDGraphics;
 using SDUtils;
-using Ray = Microsoft.Xna.Framework.Ray;
 using static Ship_Game.Fleets.Fleet;
 
 namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen
     {
-        Vector3 GetPointInWorld(in Vector2 screenPoint, float screenZ)
-        {
-            return (Vector3)Viewport.Unproject(new Vector3(screenPoint, screenZ), Projection, View, Matrix.XnaIdentity);
-        }
-
-        Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenSpace)
-        {
-            Vector3 nearPoint = GetPointInWorld(screenSpace, 0f);
-            Vector3 farPoint = GetPointInWorld(screenSpace, 1f);
-
-            Vector3 direction = (farPoint - nearPoint).Normalized();
-            var pickRay = new Ray(nearPoint, direction);
-            float k = -pickRay.Position.Z / pickRay.Direction.Z;
-            var pickedPosition = new Vector3(
-                pickRay.Position.X + k * pickRay.Direction.X,
-                pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-            return new Vector2(pickedPosition.X, pickedPosition.Y);
-        }
-
-        void HandleEdgeDetection(InputState input)
-        {
-            EmpireUI.HandleInput(input, this);
-            if (FleetNameEntry.HandlingInput)
-                return;
-
-            Vector2 mousePos = input.CursorPosition;
-            PresentationParameters pp = ScreenManager.GraphicsDevice.PresentationParameters;
-            Vector2 upperLeftWorldSpace = GetWorldSpaceFromScreenSpace(new Vector2(0f, 0f));
-            Vector2 lowerRightWorldSpace = GetWorldSpaceFromScreenSpace(new Vector2(pp.BackBufferWidth, pp.BackBufferHeight));
-            float xDist = lowerRightWorldSpace.X - upperLeftWorldSpace.X;
-            if ((int) mousePos.X == 0 || input.KeysCurr.IsKeyDown(Keys.Left) || input.KeysCurr.IsKeyDown(Keys.A))
-            {
-                CamPos.X = CamPos.X - 0.008f * xDist;
-            }
-
-            if ((int) mousePos.X == pp.BackBufferWidth - 1 || input.KeysCurr.IsKeyDown(Keys.Right) ||
-                input.KeysCurr.IsKeyDown(Keys.D))
-            {
-                CamPos.X = CamPos.X + 0.008f * xDist;
-            }
-
-            if ((int) mousePos.Y == 0 || input.KeysCurr.IsKeyDown(Keys.Up) || input.KeysCurr.IsKeyDown(Keys.W))
-            {
-                CamPos.Y = CamPos.Y - 0.008f * xDist;
-            }
-
-            if ((int) mousePos.Y == pp.BackBufferHeight - 1 || input.KeysCurr.IsKeyDown(Keys.Down) ||
-                input.KeysCurr.IsKeyDown(Keys.S))
-            {
-                CamPos.Y = CamPos.Y + 0.008f * xDist;
-            }
-        }
-
         void InputSelectFleet(int whichFleet, bool keyPressed)
         {
             if (keyPressed)
@@ -107,16 +50,6 @@ namespace Ship_Game
             InputSelectFleet(7, Input.Fleet7);
             InputSelectFleet(8, Input.Fleet8);
             InputSelectFleet(9, Input.Fleet9);
-
-            // handle direct click on Fleet buttons
-            foreach (KeyValuePair<int, RectF> rect in FleetButtonRects)
-            {
-                if (rect.Value.HitTest(input.CursorPosition) && input.LeftMouseClick)
-                {
-                    FleetToEdit = rect.Key;
-                    InputSelectFleet(FleetToEdit, true);
-                }
-            }
 
             ShipSL.Visible = FleetToEdit != -1;
             if (base.HandleInput(input))
@@ -167,7 +100,7 @@ namespace Ship_Game
             {
                 if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
                 {
-                    Vector2 pickedPosition = GetWorldSpaceFromScreenSpace(input.CursorPosition);
+                    Vector2 pickedPosition = CursorWorldPosition2D;
 
                     FleetDataNode node = new FleetDataNode
                     {
@@ -207,7 +140,6 @@ namespace Ship_Game
                 }
             }
 
-            HandleEdgeDetection(input);
             HandleSelectionBox(input);
             HandleCameraMovement(input);
 
@@ -226,9 +158,9 @@ namespace Ship_Game
 
                 if (SelectedNodeList.Count > 0)
                 {
-                    foreach (Array<Fleet.Squad> flanks in SelectedFleet.AllFlanks)
+                    foreach (Array<Squad> flanks in SelectedFleet.AllFlanks)
                     {
-                        foreach (Fleet.Squad squad in flanks)
+                        foreach (Squad squad in flanks)
                         {
                             foreach (FleetDataNode node in SelectedNodeList)
                             {
@@ -266,6 +198,7 @@ namespace Ship_Game
             const float minHeight = 3000;
             const float maxHeight = 100_000;
             float scrollSpeed = minHeight + (CamPos.Z / maxHeight)*10_000;
+            float worldWidthOnScreen = (float)VisibleWorldRect.Width;
 
             if      (input.ScrollIn)  DesiredCamPos.Z -= scrollSpeed;
             else if (input.ScrollOut) DesiredCamPos.Z += scrollSpeed;
@@ -279,8 +212,27 @@ namespace Ship_Game
             {
                 Vector2 dv = input.CursorPosition - StartDragPos;
                 StartDragPos = input.CursorPosition;
-                DesiredCamPos.X += -dv.X * (float)VisibleWorldRect.Width * 0.001f;
-                DesiredCamPos.Y += -dv.Y * (float)VisibleWorldRect.Width * 0.001f;
+                DesiredCamPos.X += -dv.X * worldWidthOnScreen * 0.001f;
+                DesiredCamPos.Y += -dv.Y * worldWidthOnScreen * 0.001f;
+            }
+            else
+            {
+                float outer = -50f;
+                float inner = +5.0f;
+                float minLeft = outer, maxLeft = inner;
+                float minTop  = outer, maxTop  = inner;
+                float minRight  = ScreenWidth  - inner, maxRight  = ScreenWidth  - outer;
+                float minBottom = ScreenHeight - inner, maxBottom = ScreenHeight - outer;
+                bool InRange(float pos, float min, float max) => min <= pos && pos <= max;
+
+                if (InRange(input.CursorX, minLeft, maxLeft) || input.KeysLeftHeld(arrowKeys:true))
+                    DesiredCamPos.X -= 0.008f * worldWidthOnScreen;
+                if (InRange(input.CursorX, minRight, maxRight) || input.KeysRightHeld(arrowKeys:true))
+                    DesiredCamPos.X += 0.008f * worldWidthOnScreen;
+                if (InRange(input.CursorY, minTop, maxTop) || input.KeysUpHeld(arrowKeys:true))
+                    DesiredCamPos.Y -= 0.008f * worldWidthOnScreen;
+                if (InRange(input.CursorY, minBottom, maxBottom) || input.KeysDownHeld(arrowKeys:true))
+                    DesiredCamPos.Y += 0.008f * worldWidthOnScreen;
             }
             
             DesiredCamPos.X = DesiredCamPos.X.Clamped(-20_000, 20_000);
@@ -308,17 +260,7 @@ namespace Ship_Game
             if (setReturn)
                 return false;
 
-            if (OperationsRect.HitTest(mousePos))
-                return true;
-
-            if (PrioritiesRect.HitTest(mousePos))
-            {
-                //OperationalRadius.HandleInput(input);
-                //node.OrdersRadius = OperationalRadius.RelativeValue;
-                return true;
-            }
-
-            return false;
+            return OperationsRect.HitTest(mousePos) || PrioritiesRect.HitTest(mousePos);
         }
 
         bool IsDragging;
@@ -342,11 +284,11 @@ namespace Ship_Game
             {
                 if (!IsDragging && SelectedSquad != null)
                 {
-                    HandleSelectedSquadMove(input.CursorPosition, SelectedSquad);
+                    HandleSelectedSquadMove(SelectedSquad);
                 }
                 else if (!IsDragging && SelectedNodeList.Count == 1)
                 {
-                    Vector2 newSpot = GetWorldSpaceFromScreenSpace(input.CursorPosition);
+                    Vector2 newSpot = CursorWorldPosition2D;
                     if (newSpot.Distance(SelectedNodeList[0].RelativeFleetOffset) <= 1000f)
                     {
                         HandleSelectedNodeMove(newSpot, SelectedNodeList[0], input.CursorPosition);
@@ -424,9 +366,9 @@ namespace Ship_Game
         }
 
         // move an entire squad
-        void HandleSelectedSquadMove(Vector2 mousePos, Squad selectedSquad)
+        void HandleSelectedSquadMove(Squad selectedSquad)
         {
-            Vector2 newSpot = GetWorldSpaceFromScreenSpace(mousePos);
+            Vector2 newSpot = CursorWorldPosition2D;
             if (GetRoundedNodeMove(newSpot, selectedSquad.Offset, out Vector2 difference))
             {
                 selectedSquad.Offset += difference;

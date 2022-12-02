@@ -14,6 +14,7 @@ using Vector3 = SDGraphics.Vector3;
 using System.Linq;
 using Ship_Game.Data.Yaml;
 using System.IO;
+using Ship_Game.GameScreens.FleetDesign;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -53,7 +54,6 @@ namespace Ship_Game
         Vector3 CamPos = new(0f, 0f, 14000f);
         Vector3 DesiredCamPos = new(0f, 0f, 14000f);
 
-        readonly Map<int, RectF> FleetButtonRects = new();
         readonly Array<ClickableSquad> ClickableSquads = new();
         Ship ActiveShipDesign;
         public int FleetToEdit = -1;
@@ -179,13 +179,28 @@ namespace Ship_Game
             TitleBar = new(titleRect);
             TitlePos = new(titleRect.CenterX - titleFont.TextWidth("Fleet Hotkeys") / 2f,
                            titleRect.CenterY - titleFont.LineSpacing / 2f);
-            RectF leftRect = new(2, titleRect.Y + titleRect.H + 5, titleRect.W, 500);
+            RectF leftRect = new(2, titleRect.Bottom + 5, titleRect.W, 500);
             LeftMenu = new(leftRect, true);
+            
+            Vector2 buttonSize = new(52, 48);
+            UIList buttons = Add(new UIList(leftRect, Color.TransparentBlack));
+            buttons.LayoutStyle = ListLayoutStyle.Clip;
 
             for (int key = Empire.FirstFleetKey; key <= Empire.LastFleetKey; ++key)
             {
-                FleetButtonRects.Add(key, new RectF(leftRect.X + 2, leftRect.Y + (key-1) * 53, 52, 48));
+                buttons.Add(new FleetButton(Universe, key, buttonSize)
+                {
+                    FleetDesigner = true,
+                    OnClick = (b) => InputSelectFleet(b.FleetKey, true),
+                    IsActive = (b) => SelectedFleet?.Key == b.FleetKey,
+                });
             }
+
+            // Animate the buttons in and out
+            buttons.PerformLayout();
+            var animOffset = new Vector2(-256, 0);
+            buttons.StartGroupTransition<FleetButton>(animOffset, -1, time:0.5f);
+            OnExit += () => buttons.StartGroupTransition<FleetButton>(animOffset, +1, time:0.5f);
 
             RectF shipRect = new(ScreenWidth - 282, 140, 280, 80);
             ShipDesigns = new Menu2(shipRect);

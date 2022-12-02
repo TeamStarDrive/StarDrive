@@ -78,59 +78,6 @@ namespace Ship_Game
             TitleBar.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, Colors.Cream);
 
-            const int numEntries = 9;
-            int k = Empire.LastFleetKey;
-            int m = 0;
-
-            // need to create all placeholder fleet button rectangles,
-            // because most fleet might not even exist yet
-            foreach (KeyValuePair<int, RectF> rect in FleetButtonRects)
-            {
-                if (m == Empire.LastFleetKey)
-                    break;
-
-                RectF r = rect.Value;
-                float transitionOffset = ((TransitionPosition - 0.5f * k / numEntries) / 0.5f).Clamped(0f, 1f);
-                k--;
-                if (ScreenState != ScreenState.TransitionOn)
-                {
-                    r.X += (int)transitionOffset * 512;
-                }
-                else
-                {
-                    r.X -= (int)(transitionOffset * 256f);
-                    if (Math.Abs(transitionOffset) < .1f)
-                    {
-                        GameAudio.BlipClick();
-                    }
-                }
-
-                var sel = new Selector(r, Color.TransparentBlack);
-                batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r, rect.Key != FleetToEdit ? Color.Black : new(0, 0, 255, 80));
-                sel.Draw(batch, elapsed);
-
-                Fleet f = Player.GetFleetOrNull(rect.Key);
-                if (f?.DataNodes.Count > 0)
-                {
-                    RectF firect = new(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.W - 12, rect.Value.W - 12);
-                    batch.Draw(f.Icon, firect, Player.EmpireColor);
-                    if (f.AutoRequisition)
-                    {
-                        RectF autoReq = new(firect.X + 54, firect.Y + 12, 20, 27);
-                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq,
-                            ApplyCurrentAlphaToColor(Player.EmpireColor));
-                    }
-                }
-
-                Vector2 num = new(rect.Value.X + 4, rect.Value.Y + 4);
-                batch.DrawString(Fonts.Pirulen12, rect.Key.ToString(), num, Color.Orange);
-                num.X += (rect.Value.W + 5);
-                if (f != null)
-                    batch.DrawString(Fonts.Pirulen12, f.Name, num, rect.Key != FleetToEdit ? Color.Gray : Color.White);
-
-                m++;
-            }
-
             if (FleetToEdit != -1)
             {
                 ShipDesigns.Draw(batch, elapsed);
