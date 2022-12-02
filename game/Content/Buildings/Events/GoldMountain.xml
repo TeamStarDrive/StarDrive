@@ -1,0 +1,19 @@
+﻿<Building>
+  <Name>GoldMountain</Name>
+  <Icon>GoldMountain</Icon>
+  
+  <IsCommodity>true</IsCommodity>
+  <Infrastructure>-1</Infrastructure>
+  <MaxPopIncrease>-700</MaxPopIncrease>
+  <IncreaseRichness>2</IncreaseRichness>
+  <ProdCache>3000</ProdCache>
+  <PlusProdPerColonist>1.5</PlusProdPerColonist>
+  <CannotBeBombed>true</CannotBeBombed>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>18288</NameTranslationIndex>
+  <DescriptionIndex>18289</DescriptionIndex>
+  <ShortDescriptionIndex>18290</ShortDescriptionIndex>
+</Building>
