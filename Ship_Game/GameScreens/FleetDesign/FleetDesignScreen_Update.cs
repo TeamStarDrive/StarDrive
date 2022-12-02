@@ -17,12 +17,8 @@ namespace Ship_Game
             Matrix cameraMatrix = Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
             SetViewMatrix(cameraMatrix);
 
-            ClickableSquads.Clear();
-            if (SelectedFleet != null)
-            {
-                UpdateClickableSquads();
-                SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
-            }
+            UpdateClickableSquads();
+            SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
 
             base.Update(fixedDeltaTime);
         }
@@ -31,17 +27,14 @@ namespace Ship_Game
         {
             ClickableSquads.Clear();
 
-            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
+            foreach (Fleet.Squad squad in AllSquads)
             {
-                foreach (Fleet.Squad squad in flank)
+                Vector2 pos = ProjectToScreenPos(new(squad.Offset, 0));
+                ClickableSquads.Add(new()
                 {
-                    Vector2 pos = ProjectToScreenPos(new(squad.Offset, 0));
-                    ClickableSquads.Add(new()
-                    {
-                        Rect = RectF.FromCenter(pos, 24, 24),
-                        Squad = squad
-                    });
-                }
+                    Rect = RectF.FromCenter(pos, 32, 32),
+                    Squad = squad
+                });
             }
         }
     }
