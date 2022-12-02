@@ -31,7 +31,14 @@ namespace Ship_Game
         Vector2 ShipDesignsTitlePos;
         Menu1 LeftMenu;
         Menu1 RightMenu;
+
+        // never null, if a fleet doesn't exist, an empty one is created
         public Fleet SelectedFleet;
+
+        // the currently dragged Ship Design
+        // it might be a ship that we own, or it could be a Ship template
+        Ship ActiveShipDesign;
+
         ScrollList<FleetDesignShipListItem> ShipSL;
         BlueButton RequisitionForces;
         BlueButton SaveDesign;
@@ -49,18 +56,17 @@ namespace Ship_Game
         FloatSlider OperationalRadius;
         SizeSlider SliderSize;
         public SubmenuScrollList<FleetDesignShipListItem> SubShips;
-        Array<Ship> AvailableShips = new();
+        Array<Ship> ActiveShips = new();
 
         Vector3 CamPos = new(0f, 0f, 14000f);
         Vector3 DesiredCamPos = new(0f, 0f, 14000f);
 
         readonly Array<ClickableSquad> ClickableSquads = new();
-        Ship ActiveShipDesign;
-        public int FleetToEdit = -1;
+
         readonly UITextEntry FleetNameEntry;
         Selector StuffSelector;
         Selector OperationsSelector;
-        Selector Priorityselector;
+        Selector PrioritySelector;
         readonly Array<ClickableNode> ClickableNodes = new();
         Fleet.Squad SelectedSquad;
         Fleet.Squad HoveredSquad;
@@ -82,7 +88,7 @@ namespace Ship_Game
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, u.UState));
 
             FleetNameEntry = new();
-            FleetNameEntry.OnTextChanged = (text) => Player.GetFleet(FleetToEdit).Name = text;
+            FleetNameEntry.OnTextChanged = (text) => SelectedFleet.Name = text;
             FleetNameEntry.SetColors(Colors.Cream, Color.Orange);
             
             GameAudio.PlaySfxAsync(audioCue);
@@ -99,18 +105,13 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-        public void ChangeFleet(int which)
+        public void ChangeFleet(int fleetKey)
         {
             SelectedNodeList.Clear();
             RemoveSceneObjects(SelectedFleet);
 
-            FleetToEdit = which;
-            Fleet fleet = Player.GetFleetOrNull(FleetToEdit);
-            if (fleet == null) // fleet hasn't been created, so make a new one
-            {
-                fleet = Player.CreateFleet(which, null);
-            }
-
+            Fleet fleet = Player.GetFleetOrNull(fleetKey)
+                       ?? Player.CreateFleet(fleetKey, null);
             SelectedFleet = fleet;
 
             var toRemove = new Array<FleetDataNode>();
@@ -127,14 +128,11 @@ namespace Ship_Game
             foreach (FleetDataNode node in toRemove)
             {
                 fleet.DataNodes.Remove(node);
-                foreach (Array<Fleet.Squad> flanks in fleet.AllFlanks)
+                foreach (Fleet.Squad squad in AllSquads)
                 {
-                    foreach (Fleet.Squad squad in flanks)
-                    {
-                        squad.DataNodes.Remove(node);
-                        if (squad.DataNodes.Count == 0)
-                            squadsToRemove.Add(squad);
-                    }
+                    squad.DataNodes.Remove(node);
+                    if (squad.DataNodes.Count == 0)
+                        squadsToRemove.Add(squad);
                 }
             }
 
@@ -161,7 +159,6 @@ namespace Ship_Game
 
         protected override void Destroy()
         {
-            SelectedFleet = null;
             base.Destroy();
         }
 
@@ -198,7 +195,7 @@ namespace Ship_Game
 
             // Animate the buttons in and out
             buttons.PerformLayout();
-            var animOffset = new Vector2(-256, 0);
+            var animOffset = new Vector2(-128, 0);
             buttons.StartGroupTransition<FleetButton>(animOffset, -1, time:0.5f);
             OnExit += () => buttons.StartGroupTransition<FleetButton>(animOffset, +1, time:0.5f);
 
@@ -216,10 +213,19 @@ namespace Ship_Game
 
             ShipSL = SubShips.List;
             ShipSL.OnClick = OnDesignShipItemClicked;
+            ShipSL.OnDoubleClick = OnDesignShipItemDoubleClicked;
             ShipSL.EnableItemHighlight = true;
             ShipSL.OnHovered = (item) =>
             {
-                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship?.ShipData);
+                if (item == null) // deselected?
+                {
+                    ToolTip.Clear();
+                    ShipInfoOverlay.ShowToLeftOf(Vector2.Zero, null); // hide it
+                    return;
+                }
+                string tooltip = "Drag and drop this Ship into the Fleet our double click to auto-add to a squad";
+                ToolTip.CreateTooltip(tooltip, "", item.BotLeft, 2f);
+                ShipInfoOverlay.ShowToLeftOf(item.Pos, item.Ship?.ShipData ?? item.Design);
             };
 
             ResetLists();
@@ -287,8 +293,7 @@ namespace Ship_Game
             SelectedFleet.Reset(returnShipsToEmpireAI: true, clearOrders: true);
             SelectedFleet.DataNodes.Clear();
             ClickableNodes.Clear();
-            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
-                flank.Clear();
+            SelectedFleet.AllFlanks.ForEach(f => f.Clear());
 
             SelectedFleet.Name = data.Name;
             SelectedFleet.FleetIconIndex = data.FleetIconIndex;
@@ -300,49 +305,69 @@ namespace Ship_Game
 
         public void ResetLists()
         {
-            ShipSL.Reset();
+            ActiveShipDesign = null; // this must be reset if tabs change
+
             if (SubShips.SelectedIndex == 0)
             {
                 IShipDesign[] designs = Player.ShipsWeCanBuild.ToArr();
-                InitShipSL(designs);
+                ShipSL.SetItems(InitShipSL(designs));
             }
             else if (SubShips.SelectedIndex == 1)
             {
-                var ships = Player.OwnedShips;
-                AvailableShips.Assign(ships.Filter(s => s.Fleet == null && s.Active));
-
-                IShipDesign[] designs = AvailableShips.Select(s => s.ShipData).Unique();
-                InitShipSL(designs);
+                // go through ships that we own and allow player to add those existing ships
+                // to our fleet
+                ActiveShips.Assign(Player.OwnedShips.Filter(s => s.Fleet == null && s.IsAlive));
+                ShipSL.SetItems(InitShipSL(ActiveShips));
             }
         }
 
-        void InitShipSL(IReadOnlyList<IShipDesign> designs)
+        // init with ship design templates
+        Array<FleetDesignShipListItem> InitShipSL(IReadOnlyList<IShipDesign> designs)
         {
+            Array<FleetDesignShipListItem> items = new();
             var roles = new Array<string>();
             foreach (IShipDesign s in designs)
-            {
                 if (IsCandidateShip(s))
                     roles.AddUnique(s.GetRole());
-            }
 
             roles.Sort();
             foreach (string role in roles)
             {
-                FleetDesignShipListItem header = ShipSL.AddItem(new(this, role));
-
+                FleetDesignShipListItem header = new(this, role);
+                items.Add(header);
                 foreach (IShipDesign d in Player.ShipsWeCanBuild)
-                {
                     if (IsCandidateShip(d) && d.GetRole() == header.HeaderText)
-                    {
-                        header.AddSubItem(new FleetDesignShipListItem(this, d));
-                    }
-                }
+                        items.Add(new FleetDesignShipListItem(this, d));
             }
+            return items;
+        }
+
+        // init with actually owned ships that are waiting for orders
+        Array<FleetDesignShipListItem> InitShipSL(IReadOnlyList<Ship> aliveShips)
+        {
+            Array<FleetDesignShipListItem> items = new();
+            var roles = new HashSet<string>();
+            foreach (Ship s in aliveShips)
+                if (IsCandidateShip(s.ShipData))
+                    roles.Add(s.ShipData.GetRole());
+
+            var roleItems = roles.ToArrayList();
+            roleItems.Sort();
+            foreach (string role in roleItems)
+            {
+                FleetDesignShipListItem header = new(this, role);
+                items.Add(header);
+                foreach (Ship s in aliveShips)
+                    if (IsCandidateShip(s.ShipData) && s.ShipData.GetRole() == header.HeaderText)
+                        items.Add(new FleetDesignShipListItem(this, s));
+            }
+            return items;
         }
 
         static bool IsCandidateShip(IShipDesign s)
         {
-            return s.Role != RoleName.troop && s.Role is not (RoleName.ssp or RoleName.construction);
+            return s.Role != RoleName.troop
+                && s.Role is not (RoleName.ssp or RoleName.construction);
         }
 
         public struct ClickableNode

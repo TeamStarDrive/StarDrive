@@ -160,8 +160,8 @@ namespace Ship_Game
                 ship.ShowSceneObjectAt(ship.RelativeFleetOffset, -1000000f);
             }
 
-            F.Owner.SetFleet(Fds.FleetToEdit, F);
-            Fds.ChangeFleet(Fds.FleetToEdit);
+            F.Owner.SetFleet(Fds.SelectedFleet.Key, F);
+            Fds.ChangeFleet(Fds.SelectedFleet.Key);
         }
 
         void CreateFleetRequisitionGoals(bool rush = false)
@@ -201,11 +201,12 @@ namespace Ship_Game
             {
                 foreach (FleetDataNode node in F.DataNodes)
                 {
-                    if (node.ShipName != ship.Name || node.Ship != null || ship.IsHomeDefense || ship.IsHangarShip)
-                        continue;
-
-                    ++numThatFit;
-                    break;
+                    if (node.ShipName == ship.Name && node.Ship == null &&
+                        !ship.IsHomeDefense && !ship.IsHangarShip)
+                    {
+                        ++numThatFit;
+                        break;
+                    }
                 }
             }
             return numThatFit;

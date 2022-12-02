@@ -1,10 +1,10 @@
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 using SDGraphics;
 using SDUtils;
 using static Ship_Game.Fleets.Fleet;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -21,12 +21,24 @@ namespace Ship_Game
         
         void OnDesignShipItemClicked(FleetDesignShipListItem item)
         {
-            if (FleetToEdit != -1 && item.Ship != null)
-            {
+            SelectedNodeList.Clear();
+            SelectedSquad = null;
+
+            // set the design as active so it can be placed
+            if (item.Ship != null)
                 ActiveShipDesign = item.Ship;
-                SelectedNodeList.Clear();
-                SelectedSquad = null;
-            }
+            else if (item.Design != null)
+                ActiveShipDesign = ResourceManager.Ships.Get(item.Design.Name);
+        }
+        
+        // if double clicked, automatically add this ship or design into a squad
+        void OnDesignShipItemDoubleClicked(FleetDesignShipListItem item)
+        {
+            SelectedNodeList.Clear();
+            SelectedSquad = null;
+            // always clear the design, because OnDesignShipItemClicked will set it
+            AddDesignToFleet(ActiveShipDesign, null);
+            ActiveShipDesign = null;
         }
 
         public override bool HandleInput(InputState input)
@@ -37,7 +49,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (SelectedNodeList.Count != 1 && FleetToEdit != -1 && FleetNameEntry.HandleInput(input))
+            if (SelectedNodeList.Count != 1 && FleetNameEntry.HandleInput(input))
                 return true;
 
             // handle hotkeys
@@ -51,7 +63,6 @@ namespace Ship_Game
             InputSelectFleet(8, Input.Fleet8);
             InputSelectFleet(9, Input.Fleet9);
 
-            ShipSL.Visible = FleetToEdit != -1;
             if (base.HandleInput(input))
                 return true;
 
@@ -82,113 +93,139 @@ namespace Ship_Game
                 }
 
                 if (OperationsRect.HitTest(input.CursorPosition))
-                {
-                    //DragTimer = 0f;
                     return true;
-                }
 
                 if (PrioritiesRect.HitTest(input.CursorPosition))
                 {
-                    //DragTimer = 0f;
                     OperationalRadius.HandleInput(input);
                     SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
                     return true;
                 }
             }
 
-            if (ActiveShipDesign != null)
-            {
-                if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
-                {
-                    Vector2 pickedPosition = CursorWorldPosition2D;
-
-                    FleetDataNode node = new FleetDataNode
-                    {
-                        RelativeFleetOffset = pickedPosition,
-                        ShipName = ActiveShipDesign.Name
-                    };
-                    SelectedFleet.DataNodes.Add(node);
-                    if (AvailableShips.Contains(ActiveShipDesign))
-                    {
-                        if (SelectedFleet.Ships.Count == 0)
-                        {
-                            SelectedFleet.FinalPosition = ActiveShipDesign.Position;
-                        }
-
-                        node.Ship = ActiveShipDesign;
-                        node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
-                        AvailableShips.Remove(ActiveShipDesign);
-                        SelectedFleet.AddShip(node.Ship);
-
-                        if (SubShips.SelectedIndex == 1)
-                        {
-                            ShipSL.RemoveFirstIf(item => item.Ship != null && item.Ship == ActiveShipDesign);
-                        }
-
-                        ActiveShipDesign = null;
-                    }
-
-                    if (!input.KeysCurr.IsKeyDown(Keys.LeftShift))
-                    {
-                        ActiveShipDesign = null;
-                    }
-                }
-
-                if (input.RightMouseClick)
-                {
-                    ActiveShipDesign = null;
-                }
-            }
+            if (ActiveShipDesign != null && HandleActiveShipDesignInput(input))
+                return true;
 
             HandleSelectionBox(input);
             HandleCameraMovement(input);
 
             if (Input.FleetRemoveSquad)
-            {
-                if (SelectedSquad != null)
-                {
-                    SelectedFleet.CenterFlank.Remove(SelectedSquad);
-                    SelectedFleet.LeftFlank.Remove(SelectedSquad);
-                    SelectedFleet.RearFlank.Remove(SelectedSquad);
-                    SelectedFleet.RightFlank.Remove(SelectedSquad);
-                    SelectedFleet.ScreenFlank.Remove(SelectedSquad);
-                    SelectedSquad = null;
-                    SelectedNodeList.Clear();
-                }
-
-                if (SelectedNodeList.Count > 0)
-                {
-                    foreach (Array<Squad> flanks in SelectedFleet.AllFlanks)
-                    {
-                        foreach (Squad squad in flanks)
-                        {
-                            foreach (FleetDataNode node in SelectedNodeList)
-                            {
-                                if (squad.DataNodes.Contains(node))
-                                {
-                                    squad.DataNodes.RemoveRef(node);
-                                    if (node.Ship != null)
-                                        squad.Ships.RemoveRef(node.Ship);
-                                }
-                            }
-                        }
-                    }
-
-                    foreach (FleetDataNode node in SelectedNodeList)
-                    {
-                        SelectedFleet.DataNodes.Remove(node);
-                        if (node.Ship != null)
-                        {
-                            node.Ship.RemoveSceneObject();
-                            node.Ship.Fleet?.RemoveShip(node.Ship, returnToEmpireAI: true, clearOrders: true);
-                        }
-                    }
-
-                    SelectedNodeList.Clear();
-                }
-            }
+                RemoveSelectedSquad();
 
             return false;
+        }
+
+        bool HandleActiveShipDesignInput(InputState input)
+        {
+            // we're dragging an active ship design,
+            // assign it to the fleet on Left click
+            if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
+            {
+                Vector2 pickedPosition = CursorWorldPosition2D;
+                AddDesignToFleet(ActiveShipDesign, pickedPosition);
+
+                // if we're holding shift key down, allow placing multiple designs
+                if (!input.IsShiftKeyDown)
+                    ActiveShipDesign = null;
+            }
+
+            if (input.RightMouseClick)
+            {
+                ActiveShipDesign = null;
+                return true;
+            }
+            return false;
+        }
+
+        public IEnumerable<Squad> AllSquads
+        {
+            get
+            {
+                foreach (var flank in SelectedFleet.AllFlanks)
+                    foreach (var squad in flank)
+                        yield return squad;
+            }
+        }
+
+        void AddDesignToFleet(Ship shipOrTemplate, Vector2? fleetOffset)
+        {
+            FleetDataNode node = new() { ShipName = shipOrTemplate.Name };
+
+            if (fleetOffset.HasValue)
+            {
+                node.RelativeFleetOffset = fleetOffset.Value;
+            }
+            else
+            {
+                // TODO
+            }
+
+            SelectedFleet.DataNodes.Add(node);
+
+            // is this an actual alive ship?
+            bool isActualActiveShip = ActiveShips.ContainsRef(shipOrTemplate);
+            if (isActualActiveShip)
+            {
+                if (SelectedFleet.Ships.Count == 0)
+                    SelectedFleet.FinalPosition = shipOrTemplate.Position;
+
+                // if so, immediately assigned the node
+                node.Ship = shipOrTemplate;
+                node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
+                ActiveShips.RemoveRef(shipOrTemplate);
+                SelectedFleet.AddShip(node.Ship);
+                ShipSL.RemoveFirstIf(item => item.Ship == shipOrTemplate);
+
+                // always clear active design for alive ships
+                ActiveShipDesign = null;
+            }
+            // else: otherwise we will just have a data node
+        }
+
+        // delete all selected ships
+        void RemoveSelectedSquad()
+        {
+            if (SelectedSquad != null)
+            {
+                SelectedFleet.CenterFlank.Remove(SelectedSquad);
+                SelectedFleet.LeftFlank.Remove(SelectedSquad);
+                SelectedFleet.RearFlank.Remove(SelectedSquad);
+                SelectedFleet.RightFlank.Remove(SelectedSquad);
+                SelectedFleet.ScreenFlank.Remove(SelectedSquad);
+                SelectedSquad = null;
+            }
+
+            if (SelectedNodeList.NotEmpty)
+            {
+                foreach (Squad squad in AllSquads)
+                {
+                    foreach (FleetDataNode node in SelectedNodeList)
+                    {
+                        if (squad.DataNodes.Contains(node))
+                        {
+                            squad.DataNodes.Remove(node);
+                            if (node.Ship != null)
+                                squad.Ships.Remove(node.Ship);
+                        }
+                    }
+                }
+
+                foreach (FleetDataNode node in SelectedNodeList)
+                {
+                    SelectedFleet.DataNodes.Remove(node);
+                    if (node.Ship != null)
+                    {
+                        node.Ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
+                        node.Ship.RemoveSceneObject();
+                    }
+                }
+
+                SelectedNodeList.Clear();
+            }
+
+            // need to reset the list if any active ships were removed and return to global pool
+            if (SubShips.SelectedIndex == 1)
+                ResetLists();
         }
         
         Vector2 StartDragPos;
@@ -267,7 +304,9 @@ namespace Ship_Game
 
         void HandleSelectionBox(InputState input)
         {
-            if (LeftMenu.HitTest(input.CursorPosition) || RightMenu.HitTest(input.CursorPosition))
+            if (LeftMenu.HitTest(input.CursorPosition) ||
+                RightMenu.HitTest(input.CursorPosition) ||
+                ShipSL.HitTest(input.CursorPosition))
             {
                 SelectionBox = new(0, 0, -1, -1);
                 return;
@@ -297,7 +336,8 @@ namespace Ship_Game
                 else
                 {
                     // start dragging state
-                    if (HoveredNodeList.IsEmpty)
+                    // but only if we're not placing ActiveShipDesign
+                    if (HoveredNodeList.IsEmpty && ActiveShipDesign == null)
                         IsDragging = true;
 
                     if (IsDragging)
@@ -322,8 +362,8 @@ namespace Ship_Game
             difference = newSpot - oldPos;
             if (difference.Length() > 30f)
             {
-                newSpot.X = newSpot.X.RoundUpTo(250);
-                newSpot.Y = newSpot.Y.RoundUpTo(250);
+                newSpot.X = (float)System.Math.Round(newSpot.X / 250) * 250;
+                newSpot.Y = (float)System.Math.Round(newSpot.Y / 250) * 250;
                 difference = (newSpot - oldPos);
                 return true;
             }
@@ -348,14 +388,11 @@ namespace Ship_Game
             {
                 if (cs.Rect.HitTest(mousePos) && !cs.Squad.DataNodes.Contains(node))
                 {
-                    foreach (Array<Squad> flank in SelectedFleet.AllFlanks)
+                    foreach (Squad squad in AllSquads)
                     {
-                        foreach (Squad squad in flank)
-                        {
-                            squad.DataNodes.Remove(node);
-                            if (node.Ship != null)
-                                squad.Ships.Remove(node.Ship);
-                        }
+                        squad.DataNodes.Remove(node);
+                        if (node.Ship != null)
+                            squad.Ships.Remove(node.Ship);
                     }
 
                     cs.Squad.DataNodes.Add(node);
