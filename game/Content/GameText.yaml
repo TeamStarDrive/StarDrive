@@ -12270,11 +12270,11 @@ ExoticMineral:
  RUS: "Экзотический минерал"
 HighlyExoticMineralVeinsRarely:
  Id: 18107
- ENG: "Highly exotic mineral veins, rarely found on terrestrial worlds. Easily mined but in a very limited amount."
+ ENG: "Highly exotic mineral veins, rarely found on terrestrial worlds. Easily mined but in a very limited amount. The mined ore is excelent conductor helping with data transfers."
  RUS: "Сложные экзотические минеральные жилы, редко встречающиеся на планетах земного типа."
 ProdPerAssignedColonistTotal:
  Id: 18108
- ENG: "+0.8 prod per assigned colonist, total worth of 18000 production,+0.6 planet richness."
+ ENG: "+5 production per assigned colonist, total worth of 500 production,"
  RUS: "Планеты с этими минералами более богаты. (+5 к продукции)"
 ExoticFruits:
  Id: 18222
@@ -12282,12 +12282,12 @@ ExoticFruits:
  RUS: "Экзотические фрукты"
 TastyFruitsThatAreA:
  Id: 18223
- ENG: "Tasty fruits that are a natural aphrodisiac."
+ ENG: "Tasty fruits that are a natural aphrodisiac that releases neuro enhancing enzymes."
  RUS: "Вкусные природные афродизиаки."
 ProvidesFoodPerTurnTotal4:
  Id: 18224
- ENG: "Provides 0.8 food per turn, total total worth of 9000 food, +5 Million population per turn."
- RUS: "Дает +0.8 еды за ход, всего 9000 еды и +5 миллионов населения за ход."
+ ENG: "Provides 1 food per turn,  +4 flat research, +8 Million population per turn, total total worth of 250 food."
+ RUS: "Дает +1 еды за ход, всего 350 еды и +8 миллионов населения за ход."
 WorldSeed:
  Id: 18175
  ENG: "World seed"
@@ -12430,8 +12430,8 @@ LargePatchesOfTerrainHeavily:
  RUS: "Большие участки местности, покрытые огромными скалами. Из них можно добывать некоторые минералы."
 ProvidesProductionPerColonistTotal6:
  Id: 18151
- ENG: "Provides 0.2 production per colonist, total worth of 5000 production, -1 infrastructure."
- RUS: "Дает 0,2 продукции за каждого колониста, всего 5000 продукции , -1 к инфраструктуре."
+ ENG: "Provides 0.4 production per colonist, total worth of 250 production, -1 infrastructure."
+ RUS: "Дает 0,4 продукции за каждого колониста, всего 250 продукции , -1 к инфраструктуре."
 ScanInterferance:
  Id: 18152
  ENG: "Scan Interferance"
@@ -13851,3 +13851,21 @@ Tech_Terraforming3_Name:
 Tech_Terraforming3_Desc:
  Id: 18284
  ENG: "The most advanced technology avaialble for Terraformers. They will be able to transform any habitable planet to the planet environment type our population prefers. This is a true technological marvel!"
+BB_Golddeposit:
+ Id: 18285
+ ENG: "Gold Deposit"
+BB_GolddepositDesc:
+ Id: 18286
+ ENG: "Easily extractable gold deposit that was formed when planet had a lot of active volcanoes"
+BB_GolddepositDescShort:
+ Id: 18287
+ ENG: "Provides 2 production per colonist, +3 credits, total worth of 350 production"
+BB_GoldMoutain:
+ Id: 18288
+ ENG: "Golden Mountain"
+BB_GoldMountainDesc:
+ Id: 18289
+ ENG: "Huge Mountain that is filled with gold deposits."
+BB_GoldMountainDescShort:
+ Id: 18290
+ ENG: "Provides 1.5 production per colonist, increases planet richness by 2, total worth of 3000 production"
