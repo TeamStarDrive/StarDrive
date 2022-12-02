@@ -44,6 +44,8 @@ public sealed partial class Empire
         }
     }
 
+    public Fleet[] GetFleets() => Fleets.ToArray();
+
     /// <summary>Check if any of the active fleets matches the predicate test</summary>
     public IEnumerable<Fleet> GetActiveFleetsTargetingEmpire(Empire empire)
     {

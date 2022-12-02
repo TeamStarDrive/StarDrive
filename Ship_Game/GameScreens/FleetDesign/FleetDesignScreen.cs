@@ -43,6 +43,7 @@ namespace Ship_Game
         BlueButton RequisitionForces;
         BlueButton SaveDesign;
         BlueButton LoadDesign;
+        BlueButton AutoArrange;
         RectF SelectedStuffRect;
         RectF OperationsRect;
         RectF PrioritiesRect;
@@ -92,10 +93,11 @@ namespace Ship_Game
             FleetNameEntry.SetColors(Colors.Cream, Color.Orange);
             
             GameAudio.PlaySfxAsync(audioCue);
-            
+            /*
             // chose the first active fleet we have, or -1 to let it auto create fleet 1
-            Fleet anyFleet = Player.ActiveFleets.Sorted(f => f.Key).FirstOrDefault();
-            ChangeFleet(anyFleet?.Key ?? -1);
+            Fleet anyFleet = Player.GetFleets().Sorted(f => f.Key).FirstOrDefault();
+            if (anyFleet != null)
+                ChangeFleet(anyFleet.Key);*/
         }
         
         public override void ExitScreen()
@@ -110,8 +112,7 @@ namespace Ship_Game
             SelectedNodeList.Clear();
             RemoveSceneObjects(SelectedFleet);
 
-            Fleet fleet = Player.GetFleetOrNull(fleetKey)
-                       ?? Player.CreateFleet(fleetKey, null);
+            Fleet fleet = Player.GetFleetOrNull(fleetKey) ?? Player.CreateFleet(fleetKey, null);
             SelectedFleet = fleet;
 
             var toRemove = new Array<FleetDataNode>();
@@ -229,19 +230,21 @@ namespace Ship_Game
             };
 
             ResetLists();
-            SelectedStuffRect = new(ScreenWidth / 2 - 220, -13 + ScreenHeight - 200, 440, 210);
+            SelectedStuffRect = new(ScreenWidth / 2 - 220, -13 + ScreenHeight - 210, 440, 210);
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
             OrdersButtons = new(this, ordersBarPos);
             Add(OrdersButtons);
 
-            RequisitionForces = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20), "Requisition..."));
-            SaveDesign = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 50), "Save Design..."));
-            LoadDesign = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 100), "Load Design..."));
+            RequisitionForces = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 - 10), "Requisition..."));
+            SaveDesign = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 30), "Save Design..."));
+            LoadDesign = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 70), "Load Design..."));
+            AutoArrange = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 110), "Auto Arrange..."));
 
             RequisitionForces.OnClick = (b) => ScreenManager.AddScreen(new RequisitionScreen(this));
             SaveDesign.OnClick = (b) => ScreenManager.AddScreen(new SaveFleetDesignScreen(this, SelectedFleet));
             LoadDesign.OnClick = (b) => ScreenManager.AddScreen(new LoadFleetDesignScreen(this));
+            AutoArrange.OnClick = (b) => SelectedFleet.AutoArrange();   
 
             OperationsRect = new(SelectedStuffRect.Right + 2, SelectedStuffRect.Y + 30, 360, SelectedStuffRect.H - 30);
 
