@@ -54,11 +54,7 @@ namespace Ship_Game.UI
 
         void SaveLayout()
         {
-            var serializer = new YamlSerializer(typeof(RootElementInfo));
-            using (var writer = new StreamWriter(OutFile.FullName, append:false, Encoding.UTF8))
-            {
-                serializer.SerializeRoot(writer, Root);
-            }
+            YamlSerializer.SerializeRoot(OutFile, Root);
         }
 
         void SaveTypeBindings()

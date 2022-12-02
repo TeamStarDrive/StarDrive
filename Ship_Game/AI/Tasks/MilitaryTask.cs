@@ -26,7 +26,6 @@ namespace Ship_Game.AI.Tasks
 
         [StarData] public float EnemyStrength;
         [StarData] public float MinimumTaskForceStrength;
-        [StarData] public int WhichFleet = -1;
         [StarData] public int Priority = 5;
         [StarData] public int NeededTroopStrength;
         [StarData] public int TaskBombTimeNeeded;
@@ -44,7 +43,7 @@ namespace Ship_Game.AI.Tasks
 
         public bool QueuedForRemoval;
 
-        public Fleet Fleet => Owner?.GetFleetOrNull(WhichFleet);
+        [StarData] public Fleet Fleet { get; private set; }
         [StarData] public Planet RallyPlanet { get; private set; }
 
         [StarDataConstructor]
@@ -93,11 +92,11 @@ namespace Ship_Game.AI.Tasks
             };
         }
 
-        public static MilitaryTask CreateReclaimTask(Empire owner, Planet targetPlanet, int fleetId)
+        public static MilitaryTask CreateReclaimTask(Empire owner, Planet targetPlanet, Fleet fleet)
         {
             return new(TaskType.ReclaimPlanet, owner, targetPlanet.Position, targetPlanet.ParentSystem.Radius, targetPlanet)
             {
-                WhichFleet = fleetId,
+                Fleet = fleet,
                 NeedEvaluation = false // We have ships
             };
         }
@@ -114,11 +113,11 @@ namespace Ship_Game.AI.Tasks
             };
         }
 
-        public static MilitaryTask CreatePostInvasion(Planet planet, int fleetId, Empire owner)
+        public static MilitaryTask CreatePostInvasion(Planet planet, Fleet fleet, Empire owner)
         {
             return new(TaskType.DefendPostInvasion, owner, planet.Position, aoRadius: 10000f, planet)
             {
-                WhichFleet = fleetId,
+                Fleet = fleet,
                 NeedEvaluation = false
             };
         }
@@ -158,6 +157,12 @@ namespace Ship_Game.AI.Tasks
             float strWanted = target.BuildingGeodeticOffense + GetKnownEnemyStrInClosestSystems(target.ParentSystem, owner, target.Owner);
             MinimumTaskForceStrength = strWanted.LowerBound(owner.KnownEmpireStrength(target.Owner) / 10) 
                                        * owner.GetFleetStrEmpireMultiplier(target.Owner);
+        }
+
+        public MilitaryTask(Planet target, Empire owner, Fleet fleet)
+            : this(target, owner)
+        {
+            Fleet = fleet;
         }
 
         float GetKnownEnemyStrInClosestSystems(SolarSystem system, Empire owner, Empire enemy)
@@ -206,7 +211,7 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            if (WhichFleet == -1 || Fleet == null)
+            if (Fleet == null)
             {
                 DisbandTaskForce(Fleet);
                 return;
@@ -298,11 +303,11 @@ namespace Ship_Game.AI.Tasks
         public bool Evaluate(Empire e)
         {
             Owner = e;
-            if (WhichFleet > - 1)
+            if (Fleet != null)
             {
-                if (!e.GetFleet(WhichFleet, out Fleet fleet) || fleet == null || fleet.Ships.Count == 0)
+                if (Fleet == null || Fleet.Ships.Count == 0)
                 {
-                    if (fleet?.IsCoreFleet != true)
+                    if (!Fleet.IsCoreFleet)
                     {
                         Log.Warning($"MilitaryTask Evaluate found task with missing fleet {Type}");
                         EndTask();
@@ -339,14 +344,11 @@ namespace Ship_Game.AI.Tasks
 
         public void FactionEndTask()
         {
-            if (WhichFleet != -1)
+            if (Fleet != null)
             {
                 if (!IsCoreFleetTask)
                 {
-                    if (!Owner.GetFleet(WhichFleet, out Fleet fleet))
-                        return;
-
-                    foreach (Ship ship in fleet.Ships)
+                    foreach (Ship ship in Fleet.Ships)
                     {
                         ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
 
@@ -360,7 +362,7 @@ namespace Ship_Game.AI.Tasks
                         }
                     }
                     TaskForce.Clear();
-                    fleet.Reset();
+                    Fleet.Reset();
                 }
 
                 if (Type == TaskType.Exploration)

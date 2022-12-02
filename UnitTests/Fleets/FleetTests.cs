@@ -39,11 +39,8 @@ namespace UnitTests.Fleets
 
         Fleet CreateTestFleet(Array<Ship> ships, Array<Fleet> fleets)
         {
-            var fleet = new Fleet(UState.CreateId(), ships[0].Loyalty);
-            foreach(var ship in ships)
-            {
-                fleet.AddShip(ship);
-            }
+            Fleet fleet = ships[0].Loyalty.CreateFleet(1, null);
+            fleet.AddShips(ships);
             fleets.Add(fleet);
             return fleet;
         }

@@ -1264,7 +1264,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\FleetDesign\LoadSavedFleetDesignScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\LoadFleetDesignScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

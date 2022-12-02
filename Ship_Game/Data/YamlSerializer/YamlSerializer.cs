@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Text;
-using SDUtils;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
@@ -122,14 +120,6 @@ namespace Ship_Game.Data.YamlSerializer
             }
         }
 
-        // Serializes root object without outputting its Key
-        public void SerializeRoot(TextWriter writer, object obj)
-        {
-            var root = new YamlNode();
-            Serialize(root, obj);
-            root.SerializeTo(writer, depth:-2, noSpacePrefix:true);
-        }
-
         public override void Serialize(TextWriter writer, object obj)
         {
             var root = new YamlNode
@@ -150,6 +140,43 @@ namespace Ship_Game.Data.YamlSerializer
         {
             Log.Error($"Deserialize (binary) not supported for {this}");
             return null;
+        }
+
+        
+        // Serializes root object without outputting its Key
+        public void SerializeRoot(TextWriter writer, object obj)
+        {
+            var root = new YamlNode();
+            Serialize(root, obj);
+            root.SerializeTo(writer, depth:-2, noSpacePrefix:true);
+        }
+
+        // Serializes root object without outputting its Key
+        public void SerializeRoot(FileInfo file, object obj)
+        {
+            using var writer = new StreamWriter(file.OpenWrite(), Encoding.UTF8);
+            SerializeRoot(writer, obj);
+        }
+
+        // Serializes root object without outputting its Key
+        public void SerializeRoot(string filePath, object obj)
+        {
+            using var writer = new StreamWriter(filePath, append:false, Encoding.UTF8);
+            SerializeRoot(writer, obj);
+        }
+        
+        // Serializes root object without outputting its Key
+        public static void SerializeRoot<T>(FileInfo file, T obj)
+        {
+            var s = new YamlSerializer(typeof(T));
+            s.SerializeRoot(file, obj);
+        }
+        
+        // Serializes root object without outputting its Key
+        public static void SerializeRoot<T>(string filePath, T obj)
+        {
+            var s = new YamlSerializer(typeof(T));
+            s.SerializeRoot(filePath, obj);
         }
     }
 }

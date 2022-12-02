@@ -26,6 +26,11 @@ namespace Ship_Game.Universe.SolarBodies
             CreateDormantVolcano();
         }
 
+        [StarDataDeserialized(typeof(UniverseParams))]
+        public void OnDeserialized()
+        {
+        }
+
         public Empire Player => P.Universe.Player;
         public bool Dormant => !Active;
         float DeactivationChance       => ActivationChance * 5;

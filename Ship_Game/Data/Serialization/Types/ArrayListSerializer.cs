@@ -176,7 +176,7 @@ namespace Ship_Game.Data.Serialization.Types
                     for (int i = 0; i < count; ++i)
                     {
                         object element = list[i];
-                        var seqElem = new YamlNode();
+                        var seqElem = new YamlNode() { Key = ser.TypeName };
                         ser.Serialize(seqElem, element);
                         parent.AddSequenceElement(seqElem);
                     }
