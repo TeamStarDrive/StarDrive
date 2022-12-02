@@ -80,8 +80,12 @@ namespace Ship_Game
 
             EmpireUI.Draw(batch);
 
-            foreach (FleetDataNode node in SelectedFleet.DataNodes)
-                DrawFleetNode(batch, node);
+            if (SelectedFleet != null)
+            {
+                foreach (FleetDataNode node in SelectedFleet.DataNodes)
+                    DrawFleetNode(batch, node);
+
+            }
 
             if (ActiveShipDesign != null)
                 DrawActiveShipDesign(batch);
@@ -250,6 +254,7 @@ namespace Ship_Game
             RequisitionForces.Visible = false;
             SaveDesign.Visible = false;
             LoadDesign.Visible = false;
+            AutoArrange.Visible = false;
 
             if (SelectedNodeList.Count == 1)
             {
@@ -349,6 +354,8 @@ namespace Ship_Game
                 RequisitionForces.Visible = true;
                 SaveDesign.Visible = true;
                 LoadDesign.Visible = true;
+                if (f.Ships.Count > 0 )
+                    AutoArrange.Visible = true;
             }
         }
     }
