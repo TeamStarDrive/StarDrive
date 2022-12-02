@@ -39,7 +39,7 @@ public class UniverseParams
     [StarData] public float ShipMaintenanceMultiplier;
     [StarData] public bool AIUsesPlayerDesigns;
     [StarData] public bool UseUpkeepByHullSize;
-    [StarData] public float StartingPlanetRichness;
+    [StarData] public float StartingPlanetRichnessBonus;
 
     [StarData(DefaultValue=1f)] public float FTLModifier = 1f; // in-system FTL modifier
     [StarData(DefaultValue=1f)] public float EnemyFTLModifier = 1f; // in-system FTL modifier for enemies
@@ -81,7 +81,7 @@ public class UniverseParams
         ShipMaintenanceMultiplier = s.ShipMaintenanceMultiplier;
         AIUsesPlayerDesigns = s.AIUsesPlayerDesigns;
         UseUpkeepByHullSize = s.UseUpkeepByHullSize;
-        StartingPlanetRichness = s.StartingPlanetRichness;
+        StartingPlanetRichnessBonus = s.StartingPlanetRichnessBonus;
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;
     }
