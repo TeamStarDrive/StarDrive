@@ -339,7 +339,7 @@ namespace Ship_Game
         public Color CurrentFlashColor => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
         public Color CurrentFlashColorRed => ApplyCurrentAlphaToColor(new Color(255, 0, 0));
 
-        protected Color ApplyCurrentAlphaToColor(Color color)
+        public Color ApplyCurrentAlphaToColor(Color color)
         {
             float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed)) * 255f;
             return new Color(color, (byte)f);
