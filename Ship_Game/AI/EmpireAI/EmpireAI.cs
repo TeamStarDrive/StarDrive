@@ -189,6 +189,9 @@ namespace Ship_Game.AI
             if (aos.Count == 0)
             {
                 Planet capital = OwnerEmpire.Capital;
+                if (capital == null)
+                    return null;
+
                 float aoSize = capital.Position.Distance(capital.System.Position);
                 var ao = new AO(OwnerEmpire.Universe, capital, OwnerEmpire, aoSize);
                 AreasOfOperations.Add(ao);
