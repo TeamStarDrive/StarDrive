@@ -232,7 +232,7 @@ namespace Ship_Game.Ships
         }
 
         // Create a ship from a SavedGame: Ship.OnDeserialized
-        [StarDataDeserialized(requires: typeof(ShipDesign))]
+        [StarDataDeserialized(typeof(ShipDesign), typeof(UniverseParams))]
         public void OnDeserialized(UniverseState us)
         {
             Universe = us;

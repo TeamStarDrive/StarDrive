@@ -50,12 +50,15 @@ namespace Ship_Game
             batch.End();
 
             // render 3D
-            foreach (FleetDataNode node in SelectedFleet.DataNodes)
+            if (SelectedFleet != null)
             {
-                if (node.Ship != null)
+                foreach (FleetDataNode node in SelectedFleet.DataNodes)
                 {
-                    node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
-                    node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, 0);
+                    if (node.Ship != null)
+                    {
+                        node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
+                        node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, 0);
+                    }
                 }
             }
             ScreenManager.RenderSceneObjects();
@@ -79,6 +82,8 @@ namespace Ship_Game
             int k = Empire.LastFleetKey;
             int m = 0;
 
+            // need to create all placeholder fleet button rectangles,
+            // because most fleet might not even exist yet
             foreach (KeyValuePair<int, RectF> rect in FleetButtonRects)
             {
                 if (m == Empire.LastFleetKey)
@@ -104,16 +109,16 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r, rect.Key != FleetToEdit ? Color.Black : new(0, 0, 255, 80));
                 sel.Draw(batch, elapsed);
 
-                Fleet f = Universe.Player.GetFleetOrNull(rect.Key);
+                Fleet f = Player.GetFleetOrNull(rect.Key);
                 if (f?.DataNodes.Count > 0)
                 {
                     RectF firect = new(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.W - 12, rect.Value.W - 12);
-                    batch.Draw(f.Icon, firect, Universe.Player.EmpireColor);
+                    batch.Draw(f.Icon, firect, Player.EmpireColor);
                     if (f.AutoRequisition)
                     {
                         RectF autoReq = new(firect.X + 54, firect.Y + 12, 20, 27);
                         batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq,
-                            ApplyCurrentAlphaToColor(Universe.Player.EmpireColor));
+                            ApplyCurrentAlphaToColor(Player.EmpireColor));
                     }
                 }
 
@@ -227,7 +232,7 @@ namespace Ship_Game
                 if (scale > 1f) scale = 1f;
                 if (scale < 0.15f) scale = 0.15f;
 
-                Color color = Universe.Player.EmpireColor;
+                Color color = Player.EmpireColor;
                 batch.Draw(icon, Input.CursorPosition, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
                 if (secondary != null)
                     batch.Draw(secondary, Input.CursorPosition, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
@@ -408,7 +413,7 @@ namespace Ship_Game
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
                 StuffSelector.Draw(batch, elapsed);
 
-                Fleet f = Universe.Player.GetFleetOrNull(FleetToEdit);
+                Fleet f = SelectedFleet;
                 if (f == null)
                     return;
 

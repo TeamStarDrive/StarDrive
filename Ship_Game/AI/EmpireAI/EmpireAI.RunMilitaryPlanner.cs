@@ -133,7 +133,7 @@ namespace Ship_Game.AI
             var tasks = GetExpansionTasks(targetEmpire);
             if (tasks.Length == 0) return 0;
 
-            return tasks.Average(task =>  task.WhichFleet >0 ? task.MinimumTaskForceStrength : 0);
+            return tasks.Average(task =>  task.Fleet != null ? task.MinimumTaskForceStrength : 0);
         }
 
         public IReadOnlyList<MilitaryTask> GetTasks() => TaskList;
