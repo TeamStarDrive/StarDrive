@@ -75,7 +75,7 @@
 	<SociologicalTraitIndustrious>true</SociologicalTraitIndustrious> 					<!--( 3)-->
 	<SociologicalTraitLazy>false</SociologicalTraitLazy> 								<!--(-3)-->
 	<SociologicalTraitMercantile>false</SociologicalTraitMercantile> 					<!--( 3)-->
-	<SociologicalTraitMeticulous>true</SociologicalTraitMeticulous> 					<!--( 1)-->
+	<SociologicalTraitMeticulous>false</SociologicalTraitMeticulous> 					<!--( 1)-->
 	<SociologicalTraitCorrupt>true</SociologicalTraitCorrupt> 							<!--(-1)-->
 	<SociologicalTraitSkilledEngineers>false</SociologicalTraitSkilledEngineers> 		<!--( 2)-->
 	<SociologicalTraitHaphazardEngineers>false</SociologicalTraitHaphazardEngineers> 	<!--(-2)-->

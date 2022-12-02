@@ -246,7 +246,7 @@
       <!-- Astronomers -->
       <TraitName>80</TraitName>
       <Category>Special</Category>
-      <Cost>1</Cost>
+      <Cost>2</Cost>
       <Description>81</Description>
       <BonusExplored>15</BonusExplored>
       <Excludes>5091</Excludes>
