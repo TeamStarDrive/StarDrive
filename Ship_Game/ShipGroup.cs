@@ -401,7 +401,7 @@ namespace Ship_Game
             bool forceAssembly = order.IsSet(MoveOrder.AddWayPoint) || order.IsSet(MoveOrder.ForceReassembly);
             AssembleFleet(finalPos, finalDir, forceAssembly: forceAssembly);
 
-            UpdateSpeedLimit();
+            UpdateSpeedLimit(ftl: AveragePos.Distance(finalPos) > 20_000);
 
             foreach (Ship ship in Ships)
             {
@@ -600,12 +600,12 @@ namespace Ship_Game
             return 0; // otherwise, there is no limit
         }
 
-        public void UpdateSpeedLimit()
+        public void UpdateSpeedLimit(bool ftl = false)
         {
             if (Ships.Count == 0)
                 return;
 
-            bool gotShipsWithinFormation = false;
+            bool allResponsiveShipsWithinFormation = true;
             float slowestSpeed = float.MaxValue;
 
             for (int i = 0; i < Ships.Count; i++)
@@ -614,25 +614,17 @@ namespace Ship_Game
 
                 if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
-                    if (IsShipInFormation(ship, 15000f))
-                    {
-                        gotShipsWithinFormation = true;
-                        slowestSpeed = Math.Min(ship.VelocityMax, slowestSpeed);
-                    }
+                    slowestSpeed = (ftl ? ship.MaxFTLSpeed : ship.VelocityMax).UpperBound(slowestSpeed);
+                    if (!IsShipInFormation(ship, 30000f))
+                        allResponsiveShipsWithinFormation = false;
                 }
             }
 
-            // none of the ships are close to the formation
-            if (!gotShipsWithinFormation)
-            {
-                SpeedLimit = 0f; // no speed limit at all
-            }
-            else
-            {
-                // in order to allow ships to speed up / slow down
-                // slightly to hold formation, set the fleet speed a bit lower
-                SpeedLimit = Math.Max(50, (float)Math.Round(slowestSpeed * 0.8f));
-            }
+            // in order to allow ships to speed up / slow down
+            // slightly to hold formation, set the fleet speed a bit lower (if some ships are not in formation)
+            SpeedLimit = allResponsiveShipsWithinFormation 
+                ? slowestSpeed 
+                : Math.Max(50, (float)Math.Round(slowestSpeed * 0.8f));
         }
     }
 }
