@@ -243,7 +243,7 @@ Types:
     AtmosphereType: [VolcanicRed]
     Habitable: true
     HabitableTileChance: 0
-    PopPerTile: [20, 80]
+    PopPerTile: [40, 150]
     BaseFertility: 0
   #################################################################
   # Ice
