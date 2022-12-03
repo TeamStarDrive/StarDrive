@@ -365,11 +365,6 @@ namespace Ship_Game
                         empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
-                        foreach (Fleet fleet in empire.ActiveFleets)
-                        {
-                            fleet.AveragePosition();
-                            fleet.UpdateSpeedLimit();
-                        }
                     }
                 }
 
