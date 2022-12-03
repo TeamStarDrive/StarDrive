@@ -299,19 +299,14 @@ namespace Ship_Game
         }
 
         // Gets the average position of a group of ships, weighing the center
-        // towards the biggest ship, unless there is a command ship (which is the biggest)
-        // and then return that as the position. it is much faster and also looks better in the UI.
-        public static Vector2 GetAveragePosition(Array<Ship> ships, Ship commandShip = null)
+        // towards the biggest ship
+        public static Vector2 GetAveragePosition(Array<Ship> ships)
         {
             int count = ships.Count;
             if (count == 0)
                 return Vector2.Zero;
 
-            if (commandShip != null)
-                return commandShip.Position;
-
             Ship[] items = ships.GetInternalArrayItems();
-
             Ship biggestShip = items[0];
             float biggestSize = biggestShip.SurfaceArea;
             for (int i = 1; i < count; ++i)
@@ -342,6 +337,8 @@ namespace Ship_Game
             return avg / totalRatioSum;
         }
 
+        public Vector2 FleetCommandShipPosition => CommandShip != null ? CommandShip.Position : AveragePosition();
+
         /// <summary> Use for DrawThread </summary>
         public Vector2 CachedAveragePos => AveragePos;
 
@@ -352,7 +349,7 @@ namespace Ship_Game
             if (force || StarDriveGame.Instance == null || LastAveragePosUpdate != StarDriveGame.Instance.FrameId)
             {
                 LastAveragePosUpdate = StarDriveGame.Instance?.FrameId ?? 0;
-                AveragePos = GetAveragePosition(Ships, commandShip: force ? null : CommandShip);
+                AveragePos = GetAveragePosition(Ships);
             }
             return AveragePos;
         }
@@ -617,7 +614,7 @@ namespace Ship_Game
 
                 if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
-                    if (CommandShip == null || IsShipInFormation(ship, 15000f))
+                    if (IsShipInFormation(ship, 15000f))
                     {
                         gotShipsWithinFormation = true;
                         slowestSpeed = Math.Min(ship.VelocityMax, slowestSpeed);
