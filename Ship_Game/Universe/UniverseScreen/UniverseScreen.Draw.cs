@@ -614,24 +614,31 @@ namespace Ship_Game
             if (visibleShips.Length >= (fleet.Ships.Count * 0.75f))
             {
                 SubTexture icon = fleet.Icon;
-                Vector2 fleetCenterOnScreen = ProjectToScreenPosition(fleet.AveragePosition()).ToVec2fRounded();
+                Vector2 commandShipCenterOnScreen = ProjectToScreenPosition(fleet.FleetCommandShipPosition).ToVec2fRounded();
 
-                FleetIconLines(batch, visibleShips, fleetCenterOnScreen);
+                FleetIconLines(batch, visibleShips, commandShipCenterOnScreen);
 
                 ClickableFleetsList.Add(new ClickableFleet
                 {
                     fleet = fleet,
-                    ScreenPos = fleetCenterOnScreen,
+                    ScreenPos = commandShipCenterOnScreen,
                     ClickRadius = 15f
                 });
 
-                batch.Draw(icon, fleetCenterOnScreen, fleet.Owner.EmpireColor, 0.0f, icon.CenterF, 0.35f, SpriteEffects.None, 1f);
+                batch.Draw(icon, commandShipCenterOnScreen, fleet.Owner.EmpireColor, 0.0f, icon.CenterF, 0.35f, SpriteEffects.None, 1f);
                 
                 if (!Player.DifficultyModifiers.HideTacticalData || debug || fleet.Owner.isPlayer || fleet.Owner.IsAlliedWith(viewer))
                 {
-                    batch.DrawDropShadowText(fleet.Name, fleetCenterOnScreen + FleetNameOffset, Fonts.Arial8Bold);
+                    batch.DrawDropShadowText(fleet.Name, commandShipCenterOnScreen + FleetNameOffset, Fonts.Arial8Bold);
+                    
                 }
 
+                if (debug)
+                {
+                    Vector2 fleetAveragePosOnScreen = ProjectToScreenPosition(fleet.AveragePosition()).ToVec2fRounded();
+                    batch.Draw(icon, fleetAveragePosOnScreen, fleet.Owner.EmpireColor.Alpha(0.5f), 0.0f, icon.CenterF, 0.35f, SpriteEffects.None, 1f); ;
+                    FleetAveragePosLine(batch, commandShipCenterOnScreen, fleetAveragePosOnScreen, fleet.Owner.EmpireColor);
+                }
             }
         }
 
@@ -649,6 +656,13 @@ namespace Ship_Game
                     batch.DrawLine(shipScreenPos, fleetCenterOnScreen, FleetLineColor);
                 }
             }
+        }
+
+        void FleetAveragePosLine(SpriteBatch batch, Vector2 comanfshipCenterOnScreen, Vector2 fleetCenterOnScreen, Color color)
+        {
+            if (comanfshipCenterOnScreen != fleetCenterOnScreen)
+                batch.DrawLine(comanfshipCenterOnScreen, fleetCenterOnScreen, color.Alpha(0.75f));
+
         }
 
         void DrawTacticalPlanetIcons(SpriteBatch batch)

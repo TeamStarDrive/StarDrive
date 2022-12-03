@@ -12,6 +12,7 @@ using Ship_Game.Debug;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Fleets;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -91,11 +92,21 @@ namespace Ship_Game.AI
             else
                 RemoveFactionEndedTasks();
 
+            UpdateFleetsPosAndSpeed();
             for (int i = GoalsList.Count - 1; i >= 0; i--)
             {
                 GoalsList[i].Evaluate();
                 if (GoalsList.Count == 0)
                     break; // setting an empire as defeated within a goal clears the goals
+            }
+        }
+
+        void UpdateFleetsPosAndSpeed()
+        {
+            foreach (Fleet fleet in OwnerEmpire.ActiveFleets)
+            {
+                fleet.AveragePosition();
+                fleet.UpdateSpeedLimit();
             }
         }
 
