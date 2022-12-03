@@ -169,6 +169,7 @@ namespace Ship_Game.AI
             // FB - but, for a carrier which is waiting for fighters to board before
             // warp, we must give a speed limit. The limit is reset when all relevant
             // ships are recalled, so no issue with Warp
+            // FB - we are also setting speet limit for group formation movement
             float speedLimit = Owner.Carrier.RecallingShipsBeforeWarp ? Owner.SpeedLimit : 0;
             Vector2 movePos = goal.MovePosition; // dynamic move position
             ThrustOrWarpToPos(movePos, timeStep, speedLimit);
@@ -413,23 +414,32 @@ namespace Ship_Game.AI
 
             // engage StarDrive if we're moderately far
             bool inFleet = Owner.Fleet != null && State == AIState.FormationMoveTo;
-            if (inFleet && Owner.Fleet.CommandShip != Owner) // FLEET MOVE if not command ship
+            if (inFleet) // FLEET MOVE if not command ship
             {
+                speedLimit = GetFormationSpeed(speedLimit);
                 float distFromFleet = Owner.Fleet.AveragePosition().Distance(Owner.Position);
                 if (distFromFleet > 15000f)
                 {
                     // This ship is far away from the fleet
                     // Enter warp and continue next frame in UpdateWarpThrust()
+                    bool closerToFinalPos = Owner.Position.SqDist(Owner.Fleet.FinalPosition) 
+                        < Owner.Fleet.AveragePosition().SqDist(Owner.Fleet.FinalPosition);
+
+                    Owner.SetSpeedLimit(closerToFinalPos ? speedLimit : 0);
                     Owner.EngageStarDrive();
                 }
                 else
                 {
                     if (distance > 7500f) // Not near destination
+                    {
+                        Owner.SetSpeedLimit(speedLimit);
                         EngageFormationWarp();
+                    }
                     else
+                    {
                         DisEngageFormationWarp();
+                    }
 
-                    speedLimit = GetFormationSpeed(speedLimit);
                     Owner.SubLightAccelerate(speedLimit);
                 }
             }
