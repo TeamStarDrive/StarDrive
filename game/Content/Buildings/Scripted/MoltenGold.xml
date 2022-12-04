@@ -1,0 +1,19 @@
+<Building>
+  <Name>MoltenGold</Name>
+  <Icon>MoltenGold</Icon>
+  
+  <Cost>0</Cost>
+  <Maintenance>0</Maintenance>
+
+  <IncreaseRichness>0.25</IncreaseRichness>
+  <PlusProdPerColonist>0.2</PlusProdPerColonist>
+  <Scrappable>false</Scrappable>
+  <CannotBeBombed>true</CannotBeBombed>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <CanBeTerraformed>true</CanBeTerraformed>
+  <IsCommodity>true</IsCommodity>
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>18291</NameTranslationIndex>
+  <DescriptionIndex>18292</DescriptionIndex>
+  <ShortDescriptionIndex>18293</ShortDescriptionIndex>
+</Building>

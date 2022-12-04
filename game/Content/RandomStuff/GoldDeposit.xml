@@ -27,8 +27,8 @@
   <BarrenChance>5</BarrenChance>
   <BarrenInstanceMax>3</BarrenInstanceMax>
 
-  <VolcanicChance>45</VolcanicChance>
-  <VolcanicInstanceMax>6</VolcanicInstanceMax>
+  <VolcanicChance>35</VolcanicChance>
+  <VolcanicInstanceMax>4</VolcanicInstanceMax>
 
   <GasChance>0</GasChance>
   <GasInstanceMax>0</GasInstanceMax>

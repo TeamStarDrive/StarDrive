@@ -2,10 +2,10 @@
   <Name>CoreExtractor</Name>
   <Icon>CoreExtractor</Icon>
   
-  <Cost>320</Cost>
+  <Cost>380</Cost>
   <Maintenance>2</Maintenance>
   
-  <PlusProdPerRichness>5</PlusProdPerRichness>
+  <PlusProdPerRichness>3</PlusProdPerRichness>
   <PlusProdPerColonist>1</PlusProdPerColonist>
   <MaxFertilityOnBuild>-0.65</MaxFertilityOnBuild>
   
