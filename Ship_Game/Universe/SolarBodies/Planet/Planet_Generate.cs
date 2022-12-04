@@ -488,8 +488,8 @@ namespace Ship_Game
 
             foreach (RandomItem item in ResourceManager.RandomItemsList)
             {
-                (float chance, int maxInstance) = item.ChanceAndMaxInstance(Category);
-                SpawnRandomItem(item, chance, maxInstance);
+                (float chance, int minInstance, int maxInstance) = item.ChanceMinMaxInstance(Category);
+                SpawnRandomItem(item, chance, minInstance, maxInstance);
             }
             AddTileEvents();
         }
