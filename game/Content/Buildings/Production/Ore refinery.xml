@@ -2,10 +2,10 @@
   <Name>Ore refinery</Name>
   <Icon>Ore_refinery</Icon>
   
-  <Cost>120</Cost>
+  <Cost>160</Cost>
   <Maintenance>1</Maintenance>
   
-  <PlusProdPerRichness>2</PlusProdPerRichness>
+  <PlusProdPerRichness>1.5</PlusProdPerRichness>
   <MaxFertilityOnBuild>-0.3</MaxFertilityOnBuild>
   
   <!-- For localization in GameText.yaml -->

@@ -1,33 +1,33 @@
 ﻿<RandomItem>
   <!-- this references a building file by name; the item will be a "building" as far as the code is concerned -->
-  <BuildingID>GoldDeposit</BuildingID>
+  <BuildingID>LavaPool</BuildingID>
   <!-- The chances that this will appear on a terran planet -->
-  <TerranChance>4</TerranChance>
+  <TerranChance>0</TerranChance>
   <!-- the maximum number of instances that will appear (may want only 1, or to have them appear in groups) -->
-  <TerranInstanceMax>2</TerranInstanceMax>
+  <TerranInstanceMax>1</TerranInstanceMax>
 
   <OceanicChance>0</OceanicChance>
   <OceanicInstanceMax>1</OceanicInstanceMax>
 
-  <DesertChance>7</DesertChance>
-  <DesertInstanceMax>5</DesertInstanceMax>
+  <DesertChance>0</DesertChance>
+  <DesertInstanceMax>1</DesertInstanceMax>
 
   <SwampChance>0</SwampChance>
   <SwampInstanceMax>1</SwampInstanceMax>
 
-  <TundraChance>1</TundraChance>
+  <TundraChance>0</TundraChance>
   <TundraInstanceMax>1</TundraInstanceMax>
 
-  <IceChance>4</IceChance>
-  <IceInstanceMax>3</IceInstanceMax>
+  <IceChance>0</IceChance>
+  <IceInstanceMax>1</IceInstanceMax>
 
-  <SteppeChance>2</SteppeChance>
+  <SteppeChance>0</SteppeChance>
   <SteppeInstanceMax>1</SteppeInstanceMax>
 
-  <BarrenChance>5</BarrenChance>
-  <BarrenInstanceMax>3</BarrenInstanceMax>
+  <BarrenChance>0</BarrenChance>
+  <BarrenInstanceMax>1</BarrenInstanceMax>
 
-  <VolcanicChance>35</VolcanicChance>
+  <VolcanicChance>100</VolcanicChance>
   <VolcanicInstanceMax>4</VolcanicInstanceMax>
 
   <GasChance>0</GasChance>

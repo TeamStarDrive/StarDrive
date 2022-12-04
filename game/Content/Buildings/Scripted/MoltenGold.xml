@@ -5,8 +5,8 @@
   <Cost>0</Cost>
   <Maintenance>0</Maintenance>
 
-  <IncreaseRichness>0.35</IncreaseRichness>
-  <PlusProdPerColonist>0.5</PlusProdPerColonist>
+  <IncreaseRichness>0.25</IncreaseRichness>
+  <PlusProdPerColonist>0.2</PlusProdPerColonist>
   <Scrappable>false</Scrappable>
   <CannotBeBombed>true</CannotBeBombed>
   <CanBuildAnywhere>true</CanBuildAnywhere>
