@@ -280,7 +280,7 @@ namespace Ship_Game
             }
         }
 
-        public void SpawnRandomItem(RandomItem randItem, float chance, int instanceMax)
+        public void SpawnRandomItem(RandomItem randItem, float chance, int instanceMin, int instanceMax)
         {
             if (randItem.HardCoreOnly)
                 return; // hardcore is disabled, bail
@@ -291,7 +291,7 @@ namespace Ship_Game
                 if (template == null)
                     return;
 
-                int itemCount = RandomMath.RollDie(instanceMax);
+                int itemCount = RandomMath.RollDie(instanceMax).LowerBound(instanceMin);
                 for (int i = 0; i < itemCount; ++i)
                 {
                     if (template.BID == Building.VolcanoId)
