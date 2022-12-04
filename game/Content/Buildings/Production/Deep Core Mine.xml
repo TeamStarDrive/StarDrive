@@ -2,10 +2,10 @@
   <Name>Deep Core Mine</Name>
   <Icon>mine_deepcore</Icon>
   
-  <Cost>220</Cost>
+  <Cost>260</Cost>
   <Maintenance>1.5</Maintenance>
   
-  <PlusProdPerRichness>3</PlusProdPerRichness>
+  <PlusProdPerRichness>2</PlusProdPerRichness>
   <PlusProdPerColonist>0.7</PlusProdPerColonist>
   <MaxFertilityOnBuild>-0.45</MaxFertilityOnBuild>
   

@@ -5,7 +5,7 @@
   <Cost>0</Cost>
   <Maintenance>0</Maintenance>
   
-  <PlusFlatResearchAmount>0.2</PlusFlatResearchAmount>
+  <PlusFlatResearchAmount>0.1</PlusFlatResearchAmount>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Strength>30</Strength>
