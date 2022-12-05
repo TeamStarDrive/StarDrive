@@ -2636,8 +2636,7 @@ namespace Ship_Game
                 target.Money = 0.0f;
             }
 
-            AI.SpaceRoadsManager.AbsorbSpaceRoadOwnershipFrom(target, target.AI.SpaceRoadsManager.SpaceRoads);
-
+            target.AI.SpaceRoadsManager.RemoveSpaceRoadsByAbsorb();
             target.SetAsMerged();
             ResetBorders();
             UpdateShipsWeCanBuild();

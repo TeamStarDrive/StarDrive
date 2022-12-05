@@ -82,7 +82,8 @@ public class SpaceRoadsDebug : DebugPage
         {
             SpaceRoad road = spaceRoads[i];
             Text.String($"{i+1}. {road.System1.Name}-{road.System2.Name}, maint: {road.Maintenance.String(2)}, " +
-                        $"SSPs: {road.NumProjectors}, Heat: {road.Heat.String(2)}, {road.Status}");
+                        $"SSPs: {road.NumProjectors}, overlap: {road.RoadNodesList.Count(n => n.Overlapping)}, " +
+                        $"Heat: {road.Heat.String(2)}, {road.Status}");
         }
     }
 

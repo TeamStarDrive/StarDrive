@@ -134,7 +134,7 @@ namespace Ship_Game
         }
 
         // This also increases the priority bonus of the item. So it will be bumped up in the list a little next time
-        public float GetAndUpdatePriority(Planet planet)
+        public float GetAndUpdatePriority(Planet planet,int totalFreighters)
         {
             float priority = 5000;
             Empire owner = planet.Owner;
@@ -148,7 +148,9 @@ namespace Ship_Game
                 case QueueItemType.ColonyShip:      priority = (owner.GetPlanets().Count * (owner.IsExpansionists ? 0.01f : 0.05f));            break;
                 case QueueItemType.Orbital:         priority = 1 + (owner.TotalOrbitalMaintenance / owner.AI.DefenseBudget.LowerBound(1) * 10); break;
                 case QueueItemType.RoadNode:        priority = 0.5f + owner.AI.SpaceRoadsManager.NumOnlineSpaceRoads * 0.1f;                    break;
-                case QueueItemType.Freighter:       priority = owner.AI.SpaceRoadsManager.SpaceRoads.Count * 0.5f;                              break;
+                case QueueItemType.Freighter: 
+                    priority =  totalFreighters < owner.GetPlanets().Count ? 0 : 0.9f * totalFreighters / owner.FreighterCap;
+                    break;
                 case QueueItemType.CombatShip:      
                     priority = (owner.TotalWarShipMaintenance / owner.AI.BuildCapacity.LowerBound(1) * 10);
                     if (owner.IsMilitarists)
@@ -166,9 +168,17 @@ namespace Ship_Game
                 }
             }
 
-            PriorityBonus += QType is QueueItemType.ColonyShip 
-                or QueueItemType.Building
-                or QueueItemType.Scout ? 0.15f : 0.05f;
+            switch (QType)
+            {
+                case QueueItemType.Scout:
+                case QueueItemType.ColonyShip: PriorityBonus += 0.1f;  break;
+                case QueueItemType.Building:   PriorityBonus += 0.15f; break;
+                case QueueItemType.Freighter:  PriorityBonus += 0.2f;  break;
+                default:                       PriorityBonus += 0.05f; break;
+            }
+
+            if (DisplayText.Contains("Subspace Projector"))
+                PriorityBonus += 1f;
 
             return (priority - PriorityBonus);
         }

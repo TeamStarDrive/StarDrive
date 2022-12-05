@@ -35,7 +35,8 @@ namespace UnitTests.AITests.Empire
             CreateSystemsAndPlanets(800000);
             int numProjectors = SpaceRoad.GetNeededNumProjectors(System1, System2, Player);
             string name = SpaceRoad.GetSpaceRoadName(System1, System2);
-            Road = new(System1, System2, Player, numProjectors, name);
+            Road = new(System1, System2, Player, numProjectors, name, 
+                Player.AI.SpaceRoadsManager.GetNonDownEmpireRoadNodes());
         }
 
         void CreateProjectorsAtRoad(int skipProjectorNodeNumber = -1)
@@ -154,8 +155,8 @@ namespace UnitTests.AITests.Empire
         {
             CreateSystemsAndRoad();
             AssertEqual(Road.NumProjectors, 5);
-            Road.DeployAllProjectors();
-            var goals = Player.AI.Goals.Filter(g => g.Type == Ship_Game.AI.GoalType.DeepSpaceConstruction);
+            Road.DeployAllProjectors(Player.AI.SpaceRoadsManager.GetNonDownEmpireRoadNodes());
+            var goals = Player.AI.Goals.Filter(g => g.Type == GoalType.DeepSpaceConstruction);
             AssertEqual(SpaceRoad.SpaceRoadStatus.InProgress, Road.Status);
 
             AssertEqual(5, goals.Length);
@@ -163,7 +164,7 @@ namespace UnitTests.AITests.Empire
             foreach (RoadNode node in Road.RoadNodesList)
             {
                 // check that at least 1 construction goal has the related build pos per node
-                Assert.IsTrue(Manager.NodeAlreadyExistsAt(node.Position));
+                Assert.IsTrue(Manager.NodeGoalAlreadyExistsFor(node.Position));
             }
         }
 
@@ -173,7 +174,7 @@ namespace UnitTests.AITests.Empire
             CreateSystemsAndRoad();
             Manager.SpaceRoads.Add(Road);
             AssertEqual(5, Road.NumProjectors);
-            Road.DeployAllProjectors();
+            Road.DeployAllProjectors(Player.AI.SpaceRoadsManager.GetNonDownEmpireRoadNodes());
             AssertEqual(SpaceRoad.SpaceRoadStatus.InProgress, Road.Status);
 
             Player.AI.ClearGoals();
@@ -191,11 +192,11 @@ namespace UnitTests.AITests.Empire
                 Assert.IsNotNull(node.Projector);
             }
 
-            Road.FillGaps();
+            Road.FillProjectorGaps();
             AssertEqual(1, Player.AI.Goals.Count);
             Goal constructionGoal = Player.AI.Goals[0];
             AssertEqual(GoalType.DeepSpaceConstruction, constructionGoal.Type);
-            Assert.IsTrue(Manager.NodeAlreadyExistsAt(Road.RoadNodesList[2].Position),
+            Assert.IsTrue(Manager.NodeGoalAlreadyExistsFor(Road.RoadNodesList[2].Position),
                 $"Goal's build position is not near {Road.RoadNodesList[2].Position}");
         }
 
@@ -228,7 +229,7 @@ namespace UnitTests.AITests.Empire
             RoadNode node = Road.RoadNodesList[1];
             projector = node.Projector;
             Assert.IsNotNull(projector);
-            Road.RemoveProjector(projector);
+            Road.RemoveProjectorRef(projector);
             Assert.IsNull(node.Projector);
             Road.AddProjector(projector, node.Position);
             AssertEqual(node.Projector, projector);
@@ -248,8 +249,7 @@ namespace UnitTests.AITests.Empire
             AssertEqual(SpaceRoad.SpaceRoadStatus.InProgress, Road.Status);
             AssertEqual(1, Player.AI.Goals.Count);
 
-            Array<Goal> goals = Player.AI.Goals.ToArrayList();
-            Road.Scrap(goals);
+            Road.Scrap();
             foreach (RoadNode roadNode in Road.RoadNodesList)
                 if (roadNode.Projector != null)
                     AssertEqual(roadNode.Projector.ScuttleTimer, 1);
