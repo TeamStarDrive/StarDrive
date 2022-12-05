@@ -152,28 +152,6 @@ namespace Ship_Game
 
         void AddDesignToFleet(Ship shipOrTemplate, Vector2? fleetOffset)
         {
-            if (SelectedFleet == null)
-            {
-                Fleet[] fleets = Player.GetFleets().Sorted(f => f.Key);
-                if (fleets.Length == 0)
-                {
-                    SelectedFleet = Player.CreateFleet(1, null);
-                }
-                else
-                {
-                    int lastKey = fleets.Last().Key;
-                    if (lastKey <= 9)
-                    {
-                        SelectedFleet = Player.CreateFleet(lastKey + 1, null);
-                    }
-                    else
-                    {
-                        GameAudio.NegativeClick();
-                        return;
-                    }
-                }
-            }
-
             FleetDataNode node = new() { ShipName = shipOrTemplate.Name };
 
             if (fleetOffset.HasValue)

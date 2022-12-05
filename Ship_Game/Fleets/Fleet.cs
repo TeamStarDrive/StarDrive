@@ -88,20 +88,6 @@ namespace Ship_Game.Fleets
                 AddShip(ships[i]);
         }
 
-        public void AddShips(IReadOnlyList<Ship> ships, bool removeFromExisting, bool clearOrders)
-        {
-            for (int i = 0; i < ships.Count; i++)
-            {
-                Ship ship = ships[i];
-                if (ship.Fleet != this)
-                {
-                    if (removeFromExisting)
-                        ship.ClearFleet(returnToManagedPools: false, clearOrders: clearOrders);
-                    AddShip(ship);
-                }
-            }
-        }
-
         /// @return TRUE if ship was added to the Fleet,
         /// FALSE if ship cannot be assigned to a fleet (already in fleet, or a platform/station)
         public override bool AddShip(Ship newShip)
