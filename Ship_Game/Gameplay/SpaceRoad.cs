@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -15,6 +15,7 @@ namespace Ship_Game.Gameplay
     {
         [StarData] public readonly Vector2 Position;
         [StarData] public Ship Projector { get; private set; }
+        [StarData] public bool Overlapping { get; private set; }
         public bool ProjectorExists => Projector is { Active: true };
 
         [StarDataConstructor]
@@ -28,17 +29,22 @@ namespace Ship_Game.Gameplay
         {
             Projector = projector;
         }
+
+        public void SetOverlappingAs(bool value)
+        {
+            Overlapping = value;
+        }
     }
 
     [StarDataType]
     public sealed class SpaceRoad
     {
-        [StarData] public Empire Owner { get; private set; }
+        [StarData] public readonly Empire Owner;
         [StarData] public Array<RoadNode> RoadNodesList = new();
         [StarData] public SolarSystem System1;
         [StarData] public SolarSystem System2;
-        [StarData] public readonly int NumProjectors;
         [StarData] public readonly string Name;
+        [StarData] public readonly int NumProjectors;
         [StarData] public SpaceRoadStatus Status { get; private set; }
         [StarData] public float Heat { get; private set; }
 
@@ -47,6 +53,7 @@ namespace Ship_Game.Gameplay
 
         const float ProjectorDensity = 1.7f;
         const float SpacingOffset = 0.5f;
+        const float OverlapRadius = 0.85f;
 
         public bool IsHot => Heat >= NumProjectors*2;
         public bool IsCold => Heat <= -(NumProjectors+2);
@@ -57,7 +64,8 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        public SpaceRoad(SolarSystem sys1, SolarSystem sys2, Empire owner, int numProjectors, string name)
+        public SpaceRoad(SolarSystem sys1, SolarSystem sys2, Empire owner, int numProjectors, 
+            string name, IReadOnlyCollection<RoadNode> allEmpireActiveNodes)
         {
             System1 = sys1;
             System2 = sys2;
@@ -66,20 +74,31 @@ namespace Ship_Game.Gameplay
             Owner = owner;
             Name = name;
 
-            float distance = sys1.Position.Distance(sys2.Position);
+            InitNodes(allEmpireActiveNodes);
+            AddHeat();
+        }
+
+        // Need to check that all nodes are needed, since roads are dynamic and there
+        // is a possibility that other active roads cover some parts fo this road.
+        // if there is an over lap, the note will be set as overlap and it is a signal
+        // a projector is not needed at this node currently
+        void InitNodes(IReadOnlyCollection<RoadNode> allEmpireActiveNodes)
+        {
+            float distance = System1.Position.Distance(System2.Position);
             float projectorSpacing = distance / NumProjectors;
             float baseOffset = projectorSpacing * SpacingOffset;
 
             for (int i = 0; i < NumProjectors; i++)
             {
                 float nodeOffset = baseOffset + projectorSpacing * i;
-                Vector2 roadDirection = sys1.Position.DirectionToTarget(sys2.Position);
-                var node = new RoadNode(sys1.Position + roadDirection * nodeOffset);
+                Vector2 roadDirection = System1.Position.DirectionToTarget(System2.Position);
+                Vector2 desiredNodePos = System1.Position + roadDirection * nodeOffset;
+                var node = new RoadNode(desiredNodePos);
                 RoadNodesList.Add(node);
+                node.SetOverlappingAs(NodePosOverlappingAnotherNode(node, allEmpireActiveNodes));
             }
 
             UpdateMaintenance();
-            AddHeat();
         }
 
         public void AddHeat(float extraHeat = 0)
@@ -94,8 +113,10 @@ namespace Ship_Game.Gameplay
 
         public void UpdateMaintenance()
         {
-            OperationalMaintenance = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(Owner) * NumProjectors;
+            float maint = ResourceManager.GetShipTemplate("Subspace Projector").GetMaintCost(Owner);
+            OperationalMaintenance = maint * RoadNodesList.Count(r => !r.Overlapping);
         }
+
         public static int GetNeededNumProjectors(SolarSystem origin, SolarSystem destination, Empire owner)
         {
             float projectorRadius = owner.GetProjectorRadius() * ProjectorDensity;
@@ -109,22 +130,33 @@ namespace Ship_Game.Gameplay
             return sys1.Id < sys2.Id ? $"{sys1.Id}-{sys2.Id}" : $"{sys2.Id}-{sys1.Id}";
         }
 
-        public void DeployAllProjectors()
+        public void DeployAllProjectors(IReadOnlyCollection<RoadNode> allEmpireActiveNodes)
         {
-            Status = SpaceRoadStatus.InProgress;
+            CalculateNodeOverlapping(allEmpireActiveNodes);
             foreach (RoadNode node in RoadNodesList)
             {
-                Log.Info($"BuildProjector - {Owner.Name} - at {node.Position}");
-                Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
+                if (node.Overlapping)
+                {
+                    Log.Info($"DeployAllProjectors - {Owner.Name} - node position {node.Position} overlaps with another road" +
+                             " skipping node deployment.");
+                }
+                else
+                {
+                    Log.Info($"BuildProjector - {Owner.Name} - at {node.Position}");
+                    Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
+                    Status = SpaceRoadStatus.InProgress;
+                }
             }
         }
 
-        public void FillGaps()
+        public void FillProjectorGaps()
         {
             for (int i = 0; i < RoadNodesList.Count; i++)
             {
                 RoadNode node = RoadNodesList[i];
-                if (!node.ProjectorExists && !Owner.AI.SpaceRoadsManager.NodeAlreadyExistsAt(node.Position))
+                if (!node.ProjectorExists 
+                    && !node.Overlapping 
+                    && !Owner.AI.SpaceRoadsManager.NodeGoalAlreadyExistsFor(node.Position))
                 {
                     Log.Info($"BuildProjector - {Owner.Name} - fill gap at {node.Position}");
                     Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
@@ -132,14 +164,58 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void Scrap(IReadOnlyList<Goal> goalsList)
+        // Need to check that all nodes are needed, since roads are dynamic and there
+        // is a possibility that other active roads cover some parts fo this road.
+        // if there is an over lap, the note will be set as overlap and it is a signal
+        // a projector is not needed at this node currently
+        public void CalculateNodeOverlapping(IReadOnlyCollection<RoadNode> nodesList)
+        {
+            for (int i = 0; i < RoadNodesList.Count; i++)
+            {
+                RoadNode node = RoadNodesList[i];
+                if (NodePosOverlappingAnotherNode(node, nodesList))
+                {
+                    node.SetOverlappingAs(true);
+                    ScuttleAndRemoveProjectorRefFrom(node);
+                    Log.Info($"CalculateNodeOverlapping - {Owner.Name} {System1.Name}-{System2.Name} - node not needed since it " +
+                             $"overlaps with another at pos {node.Position}");
+                }
+                else if (node.Overlapping)
+                {
+                    node.SetOverlappingAs(false);
+                    Log.Info($"CalculateNodeOverlapping - {Owner.Name} - filling node gap at {node.Position}");
+                }
+            }
+
+            UpdateMaintenance();
+            RecalculateStatus();
+        }
+
+        public void FillNodeGaps(IReadOnlyCollection<RoadNode> removedNodes)
+        {
+            bool nodeGapFilled = false;
+            for (int i = 0; i < RoadNodesList.Count; i++)
+            {
+                RoadNode node = RoadNodesList[i];
+                if (node.Overlapping && NodePosOverlappingAnotherNode(node, removedNodes))
+                {
+                    nodeGapFilled = true;
+                    node.SetOverlappingAs(false);
+                    Log.Info($"FillNodeGaps - {Owner.Name} - filling node gap at {node.Position}");
+                }
+            }
+
+            if (nodeGapFilled)
+                UpdateMaintenance();
+
+            RecalculateStatus();
+        }
+
+        public void Scrap()
         {
             foreach (RoadNode node in RoadNodesList)
             {
-                if (node.ProjectorExists)
-                    node.Projector.AI.OrderScuttleShip();
-                else
-                    RemoveProjectorGoal(goalsList, node.Position);
+                ScuttleAndRemoveProjectorRefFrom(node);
             }
         }
 
@@ -157,15 +233,16 @@ namespace Ship_Game.Gameplay
 
             return false;
         }
-
-        public bool RemoveProjector(Ship projector)
+        
+        // Note - this does not remove the projector itself
+        public bool RemoveProjectorRef(Ship projector)
         {
             for (int i = 0; i < RoadNodesList.Count; i++)
             {
                 RoadNode node = RoadNodesList[i];
                 if (node.Projector == projector)
                 {
-                    RemoveProjectorAtNode(node);
+                    RemoveProjectorRefAtNode(node);
                     return true;
                 }
             }
@@ -188,9 +265,18 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        bool NodePosOverlappingAnotherNode(RoadNode node, IReadOnlyCollection<RoadNode> nodesList)
+        {
+            float projectorRadius = Owner.GetProjectorRadius();
+            return nodesList.Any(n => node != n 
+                                      && !n.Overlapping 
+                                      && node.Position.InRadius(n.Position, projectorRadius * OverlapRadius));
+        }
+
         void RecalculateStatus()
         {
-            Status = RoadNodesList.Any(n => !n.ProjectorExists) ? SpaceRoadStatus.InProgress : SpaceRoadStatus.Online;
+            Status = RoadNodesList.Any(n => !n.ProjectorExists && !n.Overlapping) 
+                ? SpaceRoadStatus.InProgress : SpaceRoadStatus.Online;
         }
 
         void SetProjectorAtNode(RoadNode node, Ship projector)
@@ -199,17 +285,22 @@ namespace Ship_Game.Gameplay
             RecalculateStatus();
         }
 
-        void RemoveProjectorAtNode(RoadNode node)
+        void RemoveProjectorRefAtNode(RoadNode node)
         {
             node.SetProjector(null);
             RecalculateStatus();
         }
 
-        public void TransferOwnerShipTo(Empire empire)
+        void ScuttleAndRemoveProjectorRefFrom(RoadNode node)
         {
-            Owner = empire;
-            UpdateMaintenance();
+            if (node.ProjectorExists)
+                node.Projector.AI.OrderScuttleShip();
+            else if (Status == SpaceRoadStatus.InProgress)
+                RemoveProjectorGoal(Owner.AI.Goals, node.Position);
+
+            RemoveProjectorRefAtNode(node);
         }
+
 
         public enum SpaceRoadStatus
         {
