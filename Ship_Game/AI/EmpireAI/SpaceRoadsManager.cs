@@ -3,6 +3,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System.Collections.Generic;
 using Vector2 = SDGraphics.Vector2;
 
 // ReSharper disable once CheckNamespace
@@ -47,11 +48,11 @@ namespace Ship_Game.AI
             {
                 int numProjectors = SpaceRoad.GetNeededNumProjectors(origin, destination, Owner);
                 if (numProjectors > 0)
-                    SpaceRoads.Add(new SpaceRoad(origin, destination, Owner, numProjectors, name));
+                    SpaceRoads.Add(new SpaceRoad(origin, destination, Owner, numProjectors, name, GetNonDownEmpireRoadNodes()));
             }
         }
 
-        public bool NodeAlreadyExistsAt(Vector2 pos)
+        public bool NodeGoalAlreadyExistsFor(Vector2 pos)
         {
             for (int i = 0; i < Owner.AI.Goals.Count; i++)
             {
@@ -88,10 +89,20 @@ namespace Ship_Game.AI
                 SpaceRoads[i].CoolDown();
         }
 
-        void RemoveRoad(SpaceRoad road)
+        void RemoveRoad(SpaceRoad roadToRemove, bool fillGapsInOtherRoads)
         {
-            road.Scrap(Owner.AI.Goals);
-            SpaceRoads.Remove(road);
+            if (fillGapsInOtherRoads)
+            {
+                foreach (SpaceRoad road in SpaceRoads.SortedDescending(r => r.Heat)
+                             .Filter(r => r.Status is SpaceRoad.SpaceRoadStatus.Online
+                                                   or SpaceRoad.SpaceRoadStatus.InProgress))
+                {
+                    road.FillNodeGaps(roadToRemove.RoadNodesList);
+                }
+            }
+
+            roadToRemove.Scrap();
+            SpaceRoads.Remove(roadToRemove);
         }
 
         // Scrap one road per turn, if applicable
@@ -103,7 +114,7 @@ namespace Ship_Game.AI
 
             if (coldestRoad != null && (coldestRoad.IsCold || lowBudgetMustScrap))
             {
-                RemoveRoad(coldestRoad);
+                RemoveRoad(coldestRoad, fillGapsInOtherRoads: true);
                 return true;
             }
 
@@ -125,10 +136,10 @@ namespace Ship_Game.AI
                     switch (road.Status)
                     {
                         case SpaceRoad.SpaceRoadStatus.Down when road.OperationalMaintenance < roadBudget:
-                            road.DeployAllProjectors();
+                            road.DeployAllProjectors(GetNonDownEmpireRoadNodes());
                             return;
                         case SpaceRoad.SpaceRoadStatus.InProgress: // This is tagged as some projectors are missing
-                            road.FillGaps();
+                            road.FillProjectorGaps();
                             return;
                     }
                 }
@@ -139,13 +150,13 @@ namespace Ship_Game.AI
         {
             for (int i = 0; i < SpaceRoads.Count; i++)
                 if (SpaceRoads[i].AddProjector(projector, buildPos))
-                    return; // removed successfully
+                    return; // added successfully
         }
 
         public void RemoveProjectorFromRoadList(Ship projector)
         {
             for (int i = 0; i < SpaceRoads.Count; i++)
-                if (SpaceRoads[i].RemoveProjector(projector))
+                if (SpaceRoads[i].RemoveProjectorRef(projector))
                     return; // removed successfully
         }
 
@@ -160,32 +171,36 @@ namespace Ship_Game.AI
 
         public int NumOnlineSpaceRoads => SpaceRoads.Count(r => r.Status == SpaceRoad.SpaceRoadStatus.Online);
 
-        public void AbsorbSpaceRoadOwnershipFrom(Empire them, Array<SpaceRoad> theirRoads)
+        // This removes all space roads of the empire and lest the absorbing empire 
+        // space road manager to rebuild roads that are needed in the future
+        public void RemoveSpaceRoadsByAbsorb()
         {
-            for (int i = 0; i < theirRoads.Count; i++)
+            for (int i = SpaceRoads.Count - 1; i >= 0; i--)
             {
-                SpaceRoad theirSpaceRoad = theirRoads[i];
-                SpaceRoad existingRoad = SpaceRoads.Find(r => r.Name == theirSpaceRoad.Name);
-                if (existingRoad != null)
-                {
-                    theirSpaceRoad.Scrap(them.AI.Goals); // we have that road as well
-                }
-                else
-                {
-                    theirSpaceRoad.TransferOwnerShipTo(Owner);
-                    SpaceRoads.Add(theirSpaceRoad);
-                }
+                SpaceRoad spaceRoad = SpaceRoads[i];
+                RemoveRoad(spaceRoad, fillGapsInOtherRoads: false);
             }
 
-            theirRoads.Clear();
+            SpaceRoads.Clear();
 
             // Iterating all projectors since there might be projectors which are not in roads
-            var projectors = them.OwnedProjectors;
+            var projectors = Owner.OwnedProjectors;
             for (int i = projectors.Count - 1; i >= 0; i--)
             {
-                Ship ship = projectors[i];
-                ship.LoyaltyChangeByGift(Owner, addNotification: false);
+                Ship projector = projectors[i];
+                projector.AI.OrderScuttleShip();
             }
+        }
+
+        public IReadOnlyCollection<RoadNode> GetNonDownEmpireRoadNodes()
+        {
+            Array<RoadNode> nodePositions = new();
+            foreach (SpaceRoad road in SpaceRoads.Filter(r => r.Status != SpaceRoad.SpaceRoadStatus.Down)) 
+            {
+                nodePositions.AddRange(road.RoadNodesList);
+            }
+
+            return nodePositions;
         }
 
         public void SetupProjectorBridgeIfNeeded(Ship ship)
