@@ -17,11 +17,8 @@ namespace Ship_Game
             Matrix cameraMatrix = Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
             SetViewMatrix(cameraMatrix);
 
-            if (SelectedFleet != null)
-            {
-                UpdateClickableSquads();
-                SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
-            }
+            UpdateClickableSquads();
+            SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
 
             base.Update(fixedDeltaTime);
         }

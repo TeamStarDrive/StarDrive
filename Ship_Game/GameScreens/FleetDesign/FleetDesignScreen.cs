@@ -93,11 +93,11 @@ namespace Ship_Game
             FleetNameEntry.SetColors(Colors.Cream, Color.Orange);
             
             GameAudio.PlaySfxAsync(audioCue);
-            /*
-            // chose the first active fleet we have, or -1 to let it auto create fleet 1
-            Fleet anyFleet = Player.GetFleets().Sorted(f => f.Key).FirstOrDefault();
-            if (anyFleet != null)
-                ChangeFleet(anyFleet.Key);*/
+
+            // choose the first active fleet we have, or default to first fleet key
+            Fleet anyFleet = Player.ActiveFleets.Sorted(f => f.Key).FirstOrDefault();
+            int fleetId = (anyFleet?.Key ?? Empire.FirstFleetKey).Clamped(Empire.FirstFleetKey, Empire.LastFleetKey);
+            ChangeFleet(fleetId);
         }
         
         public override void ExitScreen()
