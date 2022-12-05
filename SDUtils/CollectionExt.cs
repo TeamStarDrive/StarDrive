@@ -501,18 +501,17 @@ namespace SDUtils
 
 
         /// <summary>
-        /// Returns the unique groups Found in item data
+        /// Returns all unique filtered values found in a collection
         /// </summary>
-        public static Array<TKey> UniqueValues<T, TKey>(this ICollection<T> items, Func<T, TKey> keySelector)
+        public static IEnumerable<TValue> UniqueValues<T, TValue>(this ICollection<T> items, Func<T, TValue> selector)
         {
-            var unique = new Map<TKey, T>();
+            var uniqueValues = new HashSet<TValue>();
             foreach (T item in items)
             {
-                TKey key = keySelector(item);
-                if (!unique.ContainsKey(key))
-                    unique.Add(key, item);
+                TValue value = selector(item);
+                if (uniqueValues.Add(value))
+                    yield return value;
             }
-            return unique.Keys.ToArrayList();
         }
 
         /// <summary>

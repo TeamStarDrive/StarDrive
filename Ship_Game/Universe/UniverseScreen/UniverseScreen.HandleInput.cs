@@ -1376,7 +1376,9 @@ namespace Ship_Game
         {
             if (ships.Count != 0)
             {
-                fleet.AddShips(ships, removeFromExisting: true, clearOrders: false);
+                ClearShipFleetsWithDataNodes(ships);
+                fleet.AddShips(ships);
+
                 fleet.SetCommandShip(null);
                 fleet.AutoArrange(); // arrange new ships into formation
                 fleet.Update(FixedSimTime.Zero/*paused during init*/);
@@ -1386,6 +1388,19 @@ namespace Ship_Game
                 return fleet;
             }
             return fleet;
+        }
+
+        // to handle the case where a ship is being reassigned,
+        // the original datanodes must be cleared as well, which is only necessary
+        // during reassignment
+        void ClearShipFleetsWithDataNodes(IReadOnlyList<Ship> ships)
+        {
+            foreach (Ship ship in ships)
+            {
+                // remove the DataNode
+                ship.Fleet?.DataNodes.RemoveFirst(n => n.Ship == ship);
+                ship.ClearFleet(returnToManagedPools: false, clearOrders: false);
+            }
         }
 
         // move to thread safe update
