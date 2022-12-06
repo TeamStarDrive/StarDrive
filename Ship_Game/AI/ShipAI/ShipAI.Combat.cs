@@ -432,7 +432,7 @@ namespace Ship_Game.AI
             if (tgt.AI.Target == Owner && distance < tgt.DesiredCombatRange) // prefer enemies targeting us (within range)
                 value *= 2.0f;
             if (tgt.Resupplying) // lower priority to enemies that are retreating
-                value *= 0.1f;
+                value *= 0.75f;
 
             float relDist = (distance / Owner.DesiredCombatRange) * 10;
             value /= relDist; // prefer targets that are closer, but in 50m increments
