@@ -67,7 +67,7 @@ namespace UnitTests.AITests.Ships
         {
             ScoutTarget = SpawnNonCombat(ScoutName, Enemy, 0, -500);
             RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -530);
-            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -560);
+            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -540);
             FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -650);
             RunObjectsSim(EnemyScanInterval);
             AssertEqual(1+4, UState.Objects.NumShips, "Expected limited # of Ships in AI Combat test");
