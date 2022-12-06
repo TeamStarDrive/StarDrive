@@ -19,7 +19,6 @@ namespace Ship_Game
 
             UpdateClickableSquads();
             SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
-
             base.Update(fixedDeltaTime);
         }
 
