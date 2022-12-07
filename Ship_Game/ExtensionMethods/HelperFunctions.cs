@@ -15,7 +15,7 @@ using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
-    internal static class HelperFunctions
+    public static class HelperFunctions
     {
         public static bool ClickedRect(Rectangle toClick, InputState input)
         {

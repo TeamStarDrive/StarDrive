@@ -5,6 +5,7 @@ using SDGraphics;
 using SDUtils;
 using System.Diagnostics;
 using Ship_Game.Utils;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -201,8 +202,11 @@ namespace Ship_Game
             if (!UState.Paused)
             {
                 UState.Objects.Update(timeStep);
-
                 UpdateMiscComponents(timeStep);
+
+                // update systems in danger
+                foreach (Empire empire in UState.Empires)
+                    empire.AssessSystemsInDanger(timeStep);
             }
 
             EndOfTurnUpdate(updated, timeStep);
@@ -326,7 +330,6 @@ namespace Ship_Game
                         Empire empire = wereUpdated[i];
                         empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
-                        empire.AssessSystemsInDanger(timeStep);
                     }
                 }
 

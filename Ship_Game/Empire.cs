@@ -1257,7 +1257,7 @@ namespace Ship_Game
             UpdateTimer -= timeStep.FixedTime;
             if (UpdateTimer <= 0f && !IsDefeated)
             {
-                UpdateTimer = us.P.TurnTimer + (Id -1) * timeStep.FixedTime;
+                UpdateTimer = us.P.TurnTimer + (Id - 1) * timeStep.FixedTime;
 
                 if (isPlayer)
                 {

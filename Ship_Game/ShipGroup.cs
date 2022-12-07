@@ -453,13 +453,11 @@ namespace Ship_Game
             
         }
 
-        public MoveStatus FleetMoveStatus(float radius, Vector2 ao = default)
+        public MoveStatus FleetMoveStatus(float radius, Vector2? ao = null)
         {
-            if (ao == default)
-                ao = FinalPosition;
-
-            float ourStrengthInAO = Owner.AI.ThreatMatrix.GetStrengthAt(Owner, ao, radius);
-            float enemyStrengthInAO = Owner.AI.ThreatMatrix.GetHostileStrengthAt(ao, radius);
+            Vector2 finalPos = ao ?? FinalPosition;
+            float ourStrengthInAO = Owner.AI.ThreatMatrix.GetStrengthAt(Owner, finalPos, radius);
+            float enemyStrengthInAO = Owner.AI.ThreatMatrix.GetHostileStrengthAt(finalPos, radius);
 
             MoveStatus moveStatus = MoveStatus.None;
             float surfaceAssembled = 0;
@@ -474,8 +472,7 @@ namespace Ship_Game
                 totalShipSurface += ship.SurfaceArea;
                 if (!ship.IsSpoolingOrInWarp)
                 {
-                    var combatRadius = radius;
-                    if (ship.Position.OutsideRadius(ao , combatRadius))
+                    if (ship.Position.OutsideRadius(finalPos, radius))
                     {
                         if (ship.CanTakeFleetOrders)
                             moveStatus |= MoveStatus.Dispersed;

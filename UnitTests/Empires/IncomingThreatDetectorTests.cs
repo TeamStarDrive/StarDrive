@@ -6,6 +6,7 @@ using System;
 using SDGraphics;
 using Ship_Game;
 using Ship_Game.Utils;
+using System.Linq;
 
 namespace UnitTests.Empires;
 
@@ -41,6 +42,10 @@ public class IncomingThreatDetectorTests : StarDriveTest
         UState.CanShowDiplomacyScreen = false;
         UState.Objects.EnableParallelUpdate = false;
         Enemy.AI.Disabled = true;
+
+        // required for full sim
+        IEmpireData data = ResourceManager.AllRaces.First(e => e.Name == "Unknown");
+        UState.CreateEmpire(data, isPlayer:false);
     }
 
     Fleet CreateTestFleet(string shipName, int numberWanted, Empire owner, Vector2 pos)
@@ -71,6 +76,13 @@ public class IncomingThreatDetectorTests : StarDriveTest
 
     void MoveTo(Fleet f, Vector2 pos) => f.MoveTo(pos, f.AveragePosition().DirectionToTarget(pos));
 
+    void PrintFleetStatus(string name, Fleet f)
+    {
+        Log.Info($"{name} Fleet={f.Name} AvgPos={f.AveragePosition()} Status={f.FleetMoveStatus(UState.P.GravityWellRange)}");
+        foreach (Ship s in f.Ships)
+            Log.Info($"  Ship Dist={s.Position.Distance(f.FinalPosition).GetNumberString()} Spd={s.CurrentVelocity.GetNumberString()} InWarp={s.IsInWarp} AI={s.AI.State} Plan={s.AI.OrderQueue.PeekFirst?.Plan} FormationWarp:{s.ShipEngines.ReadyForFormationWarp}");
+    }
+
     [TestMethod]
     public void PlayerEntersEnemySystem()
     {
@@ -91,15 +103,19 @@ public class IncomingThreatDetectorTests : StarDriveTest
         AssertEqual(0, Enemy.SystemsWithThreat.Length, "Enemy system should now be safe as well");
     }
 
-    // Players have special conditions in the codebase, so we need to run another test from AI-s perspective
+    // Players have special conditions in the codebase,
+    // so we need to run another test from AI-s perspective
     [TestMethod]
     public void EnemyEntersPlayerSystem()
     {
         Universe.SingleSimulationStep(TestSimStep);
         MoveTo(EnemyFleet, PlayerPlanet.Position);
 
-        RunFullSimWhile((simTimeout: 80.0, fatal: true),
-            () => EnemyFleet.AveragePosition().OutsideRadius(PlayerPlanet.Position, 15_000));
+        RunFullSimWhile((simTimeout: 80, fatal: true),
+            () => EnemyFleet.Ships.Any(s => !s.Position.InRadius(PlayerPlanet.Position, 10_000)));
+
+        PrintFleetStatus("PLAYER", PlayerFleet);
+        PrintFleetStatus("ENEMY", EnemyFleet);
 
         AssertEqual(0, Enemy.SystemsWithThreat.Length, "Enemy system should be safe");
         AssertEqual(1, Player.SystemsWithThreat.Length, "Player system should be under threat");
