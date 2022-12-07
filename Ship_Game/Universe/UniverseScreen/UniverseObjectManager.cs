@@ -210,17 +210,15 @@ namespace Ship_Game
 
                 // trigger all Hit events
                 Spatial.CollideAll(timeStep, showCollisions: UState.Debug);
+                
+                // update empire borders after ships were moved
+                // TODO: this should be split into two stages
+                UpdateAllEmpireContactsAndBorders(timeStep);
 
                 // update sensors AFTER spatial update, but only if we are not paused!
                 // more like ScanForTargets ?
                 UpdateAllSensors(timeStep);
-            }
 
-            // always update empire border nodes
-            UpdateAllEmpireContactsAndBorders(timeStep);
-
-            if (isRunning)
-            {
                 // now that we have a complete view of the universe
                 // allow ships to make decisions
                 UpdateAllShipAI(timeStep);
@@ -242,8 +240,8 @@ namespace Ship_Game
                 var objects = Objects.GetItems();
                 Spatial.Update(objects);
             }
-            UpdateAllSensors(FixedSimTime.Zero);
             UpdateAllEmpireContactsAndBorders(FixedSimTime.Zero);
+            UpdateAllSensors(FixedSimTime.Zero);
             UpdateVisibleObjects();
         }
 
