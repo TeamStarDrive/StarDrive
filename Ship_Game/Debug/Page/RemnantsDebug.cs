@@ -30,7 +30,7 @@ public class RemnantsDebug : DebugPage
             : $"Hibernating for: {e.Remnants.HibernationTurns} turns");
 
         string activatedString = e.Remnants.Activated ? "Yes" : "No";
-        activatedString        = e.data.Defeated ? "Defeated" : activatedString;
+        activatedString        = e.IsDefeated ? "Defeated" : activatedString;
         Text.String($"Activated: {activatedString}");
         Text.String($"Level: {e.Remnants.Level}");
         Text.String($"Resources: {e.Remnants.Production.String()}");
@@ -39,12 +39,12 @@ public class RemnantsDebug : DebugPage
         for (int i = 0; i < Universe.MajorEmpires.Length; i++)
         {
             Empire empire = Universe.MajorEmpires[i];
-            if (!empire.data.Defeated)
+            if (!empire.IsDefeated)
                 Text.String(empire.EmpireColor, $"{empire.data.Name} - Pop: {empire.TotalPopBillion.String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
         }
 
-        var empiresList = GlobalStats.RestrictAIPlayerInteraction ? Universe.NonPlayerMajorEmpires.Filter(emp => !emp.data.Defeated)
-                                                                  : Universe.MajorEmpires.Filter(emp => !emp.data.Defeated);
+        var empiresList = GlobalStats.RestrictAIPlayerInteraction ? Universe.NonPlayerMajorEmpires.Filter(emp => !emp.IsDefeated)
+                                                                  : Universe.MajorEmpires.Filter(emp => !emp.IsDefeated);
 
         Text.NewLine();
         float averagePop = empiresList.Average(empire => empire.TotalPopBillion);

@@ -371,8 +371,8 @@ namespace Ship_Game
 
             if (UState.StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
             {
-                UpdateEmpires(FixedSimTime.Zero);
-                EndOfTurnUpdate(FixedSimTime.Zero);
+                Array<Empire> updated = UpdateEmpires(FixedSimTime.Zero);
+                EndOfTurnUpdate(updated, FixedSimTime.Zero);
             }
             CreateUniverseSimThread();
         }

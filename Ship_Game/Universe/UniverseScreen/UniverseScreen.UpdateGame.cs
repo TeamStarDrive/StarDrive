@@ -1,11 +1,8 @@
-using Ship_Game.Fleets;
-using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.Empires.Components;
-using Vector2 = SDGraphics.Vector2;
 using System.Diagnostics;
 using Ship_Game.Utils;
 
@@ -115,11 +112,7 @@ namespace Ship_Game
                 InvokePendingSimThreadActions();
                 ++SimTurnId;
 
-                // recalculates empire stats and updates lists using current shiplists
-                EndOfTurnUpdate(FixedSimTime.Zero/*paused*/);
-
                 UState.Objects.Update(FixedSimTime.Zero/*paused*/);
-                RecomputeFleetButtons(true);
             }
             else
             {
@@ -203,16 +196,16 @@ namespace Ship_Game
         {
             InvokePendingSimThreadActions();
 
-            if (ProcessTurnEmpires(timeStep))
-            {
-                // TODO: maybe this should happen inside UniverseObjectManager for proper sequencing
-                UpdateInfluenceForAllEmpires(this, timeStep);
+            Array<Empire> updated = ProcessTurnEmpires(timeStep);
 
+            if (!UState.Paused)
+            {
                 UState.Objects.Update(timeStep);
 
-                ProcessTurnUpdateMisc(timeStep);
-                EndOfTurnUpdate(timeStep);
+                UpdateMiscComponents(timeStep);
             }
+
+            EndOfTurnUpdate(updated, timeStep);
         }
 
         /// <summary>
@@ -220,15 +213,10 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            foreach (Empire empire in UState.Empires)
-                RemoveDuplicateProjectorWorkAround(empire); 
-
             // We need to update objects at least once to have visibility
             UState.Objects.InitializeFromSave();
 
-            // makes sure all empire vision is updated.
-            UpdateInfluenceForAllEmpires(this, FixedSimTime.Zero);
-            EndOfTurnUpdate(FixedSimTime.Zero);
+            EndOfTurnUpdate(UState.Empires, FixedSimTime.Zero);
         }
 
         public void UpdateStarDateAndTriggerEvents(float newStarDate)
@@ -243,7 +231,9 @@ namespace Ship_Game
             }
         }
 
-        void ProcessTurnUpdateMisc(FixedSimTime timeStep)
+        // TODO: all of these updates are kind of annoying to set up,
+        //       we should consider a Component oriented design now that code is sufficiently clean
+        void UpdateMiscComponents(FixedSimTime timeStep)
         {
             EmpireMiscPerf.Start();
             UpdateClickableItems();
@@ -283,39 +273,8 @@ namespace Ship_Game
             EmpireMiscPerf.Stop();
         }
 
-        // FB todo: this a work around from duplicate SSP create somewhere in the game but are not seen before loading the game
-        void RemoveDuplicateProjectorWorkAround(Empire empire)
-        {
-            var ourSSPs = empire.OwnedProjectors;
-            for (int i = ourSSPs.Count - 1; i >= 0; i--)
-            {
-                Ship projector = ourSSPs[i];
-                Vector2 center = projector.Position;
-                var sspInSameSpot = ourSSPs.Filter(s => s.Position.AlmostEqual(center, 1));
-                if (sspInSameSpot.Length > 1)
-                {
-                    ((IEmpireShipLists)empire).RemoveShipAtEndOfTurn(projector);
-                    projector.QueueTotalRemoval();
-                    Log.Error($"Removed Duplicate SSP for {empire.Name} - Center {center}");
-                }
-            }
-        }
-
-        // sensor scan is heavy
-        void UpdateInfluenceForAllEmpires(UniverseScreen us, FixedSimTime timeStep)
-        {
-            EmpireInfluPerf.Start();
-
-            for (int i = 0; i < UState.Empires.Count; ++i)
-            {
-                Empire empireToUpdate = UState.Empires[i];
-                empireToUpdate.UpdateContactsAndBorders(us, timeStep);
-            }
-
-            EmpireInfluPerf.Stop();
-        }
-
-        bool ProcessTurnEmpires(FixedSimTime timeStep)
+        /// <summary>Returns list of updated Empires</summary>
+        Array<Empire> ProcessTurnEmpires(FixedSimTime timeStep)
         {
             PreEmpirePerf.Start();
             {
@@ -338,22 +297,25 @@ namespace Ship_Game
             }
             PreEmpirePerf.Stop();
             
+            Array<Empire> updated = null;
             if (!UState.Paused && IsActive)
             {
                 EmpireUpdatePerf.Start();
-                UpdateEmpires(timeStep);
+                updated = UpdateEmpires(timeStep);
                 EmpireUpdatePerf.Stop();
             }
-            
-            return !UState.Paused;
+            return updated ?? new();
         }
 
         /// <summary>
         /// Should be run once at the end of a game turn, once before game start, and once after load.
         /// Anything that the game needs at the start should be placed here.
         /// </summary>
-        public void EndOfTurnUpdate(FixedSimTime timeStep)
+        public void EndOfTurnUpdate(IReadOnlyList<Empire> wereUpdated, FixedSimTime timeStep)
         {
+            if (wereUpdated.Count == 0)
+                return; // nothing to do
+
             PostEmpirePerf.Start();
             if (IsActive)
             {
@@ -361,7 +323,7 @@ namespace Ship_Game
                 {
                     for (int i = start; i < end; i++)
                     {
-                        var empire = UState.Empires[i];
+                        Empire empire = wereUpdated[i];
                         empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
@@ -369,24 +331,25 @@ namespace Ship_Game
                 }
 
                 if (UState.Objects.EnableParallelUpdate)
-                    Parallel.For(UState.Empires.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
+                    Parallel.For(wereUpdated.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
                 else
-                    PostEmpireUpdate(0, UState.Empires.Count);
+                    PostEmpireUpdate(0, wereUpdated.Count);
             }
 
             PostEmpirePerf.Stop();
         }
 
-        void UpdateEmpires(FixedSimTime timeStep)
+        /// <summary>Returns list of updated empires</summary>
+        Array<Empire> UpdateEmpires(FixedSimTime timeStep)
         {
+            Array<Empire> updated = new();
             for (int i = 0; i < UState.NumEmpires; i++)
             {
                 Empire empire = UState.Empires[i];
-                if (!empire.data.Defeated)
-                {
-                    empire.Update(UState, timeStep);
-                }
+                if (!empire.IsDefeated && empire.Update(UState, timeStep))
+                    updated.Add(empire);
             }
+            return updated;
         }
 
         // TODO: This needs to be reimplemented

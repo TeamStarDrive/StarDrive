@@ -66,7 +66,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep RequestPeaceOrEscalate()
         {
-            if (!Owner.IsAtWarWith(TargetEmpire) || TargetEmpire.IsEmpireDead())
+            if (!Owner.IsAtWarWith(TargetEmpire) || TargetEmpire.IsDefeated)
                 return GoalStep.GoalComplete;
 
             var warType = GetWarType();

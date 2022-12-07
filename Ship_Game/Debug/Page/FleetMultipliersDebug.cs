@@ -18,7 +18,7 @@ public class FleetMultipliersDebug : DebugPage
         int column = 0;
         foreach (Empire e in Universe.ActiveNonPlayerMajorEmpires)
         {
-            if (!e.data.Defeated)
+            if (!e.IsDefeated)
             {
                 DrawMultipliers(e, column);
                 ++column;

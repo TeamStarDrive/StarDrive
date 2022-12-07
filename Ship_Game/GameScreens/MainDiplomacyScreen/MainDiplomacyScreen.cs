@@ -133,7 +133,7 @@ namespace Ship_Game
                     continue;
                 }
                 Vector2 NameCursor = new Vector2(race.container.X + 62 - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, race.container.Y + 148 + 8);
-                if (race.e.data.Defeated)
+                if (race.e.IsDefeated)
                 {
                     if (race.e.data.AbsorbedBy == null)
                     {
@@ -154,7 +154,7 @@ namespace Ship_Game
                 }
                 else if (Player != race.e && Player.IsKnown(race.e))
                 {
-                    if (Player.IsAtWarWith(race.e) && !race.e.data.Defeated)
+                    if (Player.IsAtWarWith(race.e) && !race.e.IsDefeated)
                     {
                         Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
                         batch.FillRectangle(war, Color.Red);
@@ -188,7 +188,7 @@ namespace Ship_Game
             var flagRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width - 60, SelectedInfoRect.Y + 10, 40, 40);
             batch.Draw(ResourceManager.Flag(SelectedEmpire.data.Traits.FlagIndex), flagRect, SelectedEmpire.EmpireColor);
             textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 4);
-            if (Player == SelectedEmpire && !SelectedEmpire.data.Defeated)
+            if (Player == SelectedEmpire && !SelectedEmpire.IsDefeated)
             {
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.You), textCursor, Color.White);
                 Vector2 ColumnBCursor = textCursor;
@@ -198,7 +198,7 @@ namespace Ship_Game
                 var sortlist = new Array<Empire>();
                 foreach (Empire e in Universe.UState.Empires)
                 {
-                    if (e.IsFaction || e.data.Defeated)
+                    if (e.IsFaction || e.IsDefeated)
                     {
                         if (SelectedEmpire == e)
                             sortlist.Add(e);
@@ -291,7 +291,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.OwnedArtifacts), ArtifactsCursor, Color.White);
                 ArtifactsCursor.Y += Fonts.Arial12Bold.LineSpacing;
             }
-            else if (SelectedEmpire.data.Defeated)
+            else if (SelectedEmpire.IsDefeated)
             {
                 if (SelectedEmpire.data.AbsorbedBy != null)
                 {
@@ -300,7 +300,7 @@ namespace Ship_Game
                     textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 }
             }
-            else if (!SelectedEmpire.data.Defeated)
+            else if (!SelectedEmpire.IsDefeated)
             {
                 Relationship relation = Player.GetRelations(SelectedEmpire);
                 if (IntelligenceLevel(SelectedEmpire) > 0)
@@ -352,7 +352,7 @@ namespace Ship_Game
                 var Sortlist = new Array<Empire>();
                 foreach (Empire e in Universe.UState.Empires)
                 {
-                    if (e.IsFaction || e.data.Defeated)
+                    if (e.IsFaction || e.IsDefeated)
                     {
                         if (SelectedEmpire == e)
                             Sortlist.Add(e);
@@ -502,7 +502,7 @@ namespace Ship_Game
             //Diplomatic Relations
             foreach (Relationship rel in SelectedEmpire.AllRelations)
             {
-                if (!rel.Known || rel.Them.IsFaction || rel.Them.data.Defeated)
+                if (!rel.Known || rel.Them.IsFaction || rel.Them.IsDefeated)
                     continue;
 
                 Color color = rel.Them.EmpireColor;
@@ -773,7 +773,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (SelectedEmpire != Player && !SelectedEmpire.data.Defeated && Contact.HandleInput(input))
+            if (SelectedEmpire != Player && !SelectedEmpire.IsDefeated && Contact.HandleInput(input))
             {
                 DiplomacyScreen.Show(SelectedEmpire, "Greeting", parent: this);
             }

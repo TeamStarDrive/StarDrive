@@ -169,7 +169,6 @@ namespace Ship_Game
         [StarData] public string DefaultTroopShip;
         [StarData] public string DefaultConstructor;
         [StarData] public string DefaultShipyard = "Shipyard";
-        [StarData] public bool Defeated;
         [StarData] public bool RebellionLaunched;
         [StarData] public float MilitaryScoreTotal;
         [StarData] public int ScoreAverage;

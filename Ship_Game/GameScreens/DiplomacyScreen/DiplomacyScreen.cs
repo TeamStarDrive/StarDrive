@@ -1102,7 +1102,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             foreach (Relationship rel in Them.AllRelations)
             {
                 if (rel.Them != Us && rel.Known && !rel.Them.IsFaction
-                    && !rel.Them.data.Defeated && Us.IsKnown(rel.Them))
+                    && !rel.Them.IsDefeated && Us.IsKnown(rel.Them))
                 {
                     var option = new DialogOption(n1, Localizer.Token(GameText.LetsDiscuss) + " " + rel.Them.data.Traits.Name)
                     {

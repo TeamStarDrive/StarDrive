@@ -217,7 +217,7 @@ namespace Ship_Game
 
         public bool VictimIsDefeated(Empire victim)
         {
-            return victim.data.Defeated;
+            return victim.IsDefeated;
         }
 
         public void LevelDown()
@@ -441,7 +441,7 @@ namespace Ship_Game
             for (int i = 0; i <= 50; i++)
             {
                 int spaceReduction = i * 2000;
-                foreach (Empire victim in empires.Filter(e => !e.data.Defeated))
+                foreach (Empire victim in empires.Filter(e => !e.IsDefeated))
                 {
                     SolarSystem system = victim.GetOwnedSystems().RandItem();
                     var pos = PickAPositionNearSystem(system, 400000 - spaceReduction);

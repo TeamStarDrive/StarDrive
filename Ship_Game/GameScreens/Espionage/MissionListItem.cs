@@ -134,7 +134,7 @@ namespace Ship_Game.GameScreens.Espionage
             }
 
             if (Player.Money < cost 
-                || Component.EspionageScreen.SelectedEmpire.data.Defeated 
+                || Component.EspionageScreen.SelectedEmpire.IsDefeated 
                 || Component.SelectedAgent?.Mission != AgentMission.Defending && Component.SelectedAgent?.Mission != AgentMission.Undercover
                 || TheMission == AgentMission.Training && Component.SelectedAgent?.Level >= 3)
             {

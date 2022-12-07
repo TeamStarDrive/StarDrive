@@ -20,7 +20,7 @@ public class TechDebug : DebugPage
         int column = 0;
         foreach (Empire e in Universe.Empires)
         {
-            if (!e.IsFaction && !e.data.Defeated)
+            if (!e.IsFaction && !e.IsDefeated)
             {
                 DrawEmpireTech(e, column);
                 ++column;

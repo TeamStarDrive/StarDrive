@@ -20,7 +20,7 @@ internal class TradeDebug : DebugPage
             var text = new Array<DebugTextBlock>();
             foreach (Empire empire in Universe.Empires)
             {
-                if (!empire.IsFaction && !empire.data.Defeated)
+                if (!empire.IsFaction && !empire.IsDefeated)
                     text.Add(empire.DebugEmpireTradeInfo());
             }
             SetTextColumns(text);

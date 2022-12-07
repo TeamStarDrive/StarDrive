@@ -65,7 +65,7 @@ public sealed partial class Empire
 
     public void UpdateContactsAndBorders(UniverseScreen us, FixedSimTime timeStep)
     {
-        if (IsEmpireDead())
+        if (IsDefeated)
             return;
 
         us.ResetBordersPerf.Start();
