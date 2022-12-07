@@ -17,7 +17,7 @@ public class AgentsDebug : DebugPage
         int column = 0;
         foreach (Empire e in Universe.MajorEmpires)
         {
-            if (!e.data.Defeated)
+            if (!e.IsDefeated)
             {
                 DrawAgents(e, column);
                 ++column;

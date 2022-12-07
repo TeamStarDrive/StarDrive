@@ -112,7 +112,7 @@ namespace Ship_Game.AI
 
         void RunManagers()
         {
-            if (OwnerEmpire.data.IsRebelFaction || OwnerEmpire.data.Defeated)
+            if (OwnerEmpire.data.IsRebelFaction || OwnerEmpire.IsDefeated)
                 return;
 
             if (!OwnerEmpire.isPlayer)

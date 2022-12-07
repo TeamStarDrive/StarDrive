@@ -292,7 +292,7 @@ namespace Ship_Game.AI
             float enemyRisk  = 0;
 
             foreach (Relationship rel in OwnerEmpire.AllRelations
-                         .Filter(rel => !rel.Them.data.Defeated && rel.Known && rel.Risk.Risk > 0))
+                         .Filter(rel => !rel.Them.IsDefeated && rel.Known && rel.Risk.Risk > 0))
             {
                 maxRisk    = Math.Max(maxRisk, rel.Risk.Risk);
                 econRisk   = Math.Max(econRisk, rel.Risk.Expansion);

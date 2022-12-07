@@ -498,7 +498,7 @@ namespace Ship_Game
             activeWars = new Array<War>();
             foreach (Relationship rel in AllRelations)
             {
-                if (rel.ActiveWar != null && !rel.Them.IsFaction && !rel.Them.data.Defeated)
+                if (rel.ActiveWar != null && !rel.Them.IsFaction && !rel.Them.IsDefeated)
                     activeWars.Add(rel.ActiveWar);
             }
 

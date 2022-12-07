@@ -62,7 +62,7 @@ namespace Ship_Game
 
         bool ReassignedDueToVictimDefeated(Empire us, Empire victim)
         {
-            if (victim != null && victim.data.Defeated)
+            if (victim != null && victim.IsDefeated)
             {
                 AssignMission(AgentMission.Defending, us, "");
                 return true;

@@ -25,9 +25,10 @@ namespace UnitTests.Universe
         public void SpawnedShipIsAddedToEmpireAndUniverse()
         {
             var spawnedShip = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            UState.Objects.EnableParallelUpdate = false;
             RunObjectsSim(TestSimStep);
-            AssertEqual(Player.OwnedShips.Count, 1, "Ship was not added to Player's Empire OwnedShips");
             Assert.IsTrue(UState.Objects.ContainsShip(spawnedShip.Id), "Ship was not added to UniverseObjectManager");
+            Assert.IsTrue(Player.OwnedShips.Contains(spawnedShip), "Ship was not added to Player's Empire OwnedShips");
         }
 
         [TestMethod]

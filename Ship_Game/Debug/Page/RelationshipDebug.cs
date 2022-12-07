@@ -19,7 +19,7 @@ public class RelationshipDebug : DebugPage
         int column = 0;
         foreach (Empire e in Universe.NonPlayerMajorEmpires)
         {
-            if (!e.data.Defeated)
+            if (!e.IsDefeated)
             {
                 DrawRelationships(e, column);
                 ++column;
@@ -40,7 +40,7 @@ public class RelationshipDebug : DebugPage
 
         foreach (Relationship rel in e.AllRelations)
         {
-            if (rel.Them.IsFaction || GlobalStats.RestrictAIPlayerInteraction && rel.Them.isPlayer || rel.Them.data.Defeated)
+            if (rel.Them.IsFaction || GlobalStats.RestrictAIPlayerInteraction && rel.Them.isPlayer || rel.Them.IsDefeated)
                 continue;
 
             Text.String(rel.Them.EmpireColor, $"{rel.Them.Name}");

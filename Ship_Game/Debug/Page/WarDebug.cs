@@ -42,7 +42,7 @@ namespace Ship_Game.Debug.Page
                 if (EmpireID < 1) EmpireID = Universe.NumEmpires;
                 EmpireAtWar = Universe.GetEmpireById(EmpireID);
             }
-            while (EmpireAtWar.data.Defeated);
+            while (EmpireAtWar.IsDefeated);
             TextColumns[0].Text = $"Empire: {EmpireAtWar.Name}";
             TextColumns[0].Color = EmpireAtWar.EmpireColor;
         }
@@ -50,7 +50,7 @@ namespace Ship_Game.Debug.Page
         public override void Update(float fixedDeltaTime)
         {
             var text = new Array<DebugTextBlock>();
-            if (EmpireAtWar.data.Defeated)
+            if (EmpireAtWar.IsDefeated)
                 return;
             
             var column = new DebugTextBlock();
@@ -59,7 +59,7 @@ namespace Ship_Game.Debug.Page
 
             foreach (Relationship rel in EmpireAtWar.AllRelations.Sorted(r => r.AtWar))
             {
-                if (rel.Known && !rel.Them.IsFaction && rel.Them != EmpireAtWar && !rel.Them.data.Defeated)
+                if (rel.Known && !rel.Them.IsFaction && rel.Them != EmpireAtWar && !rel.Them.IsDefeated)
                     text.Add(rel.DebugWar(EmpireAtWar));
             }
 

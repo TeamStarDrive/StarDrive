@@ -352,7 +352,7 @@ namespace Ship_Game.AI
             {
                 if (rel.Known
                     && !rel.Them.IsFaction
-                    && !rel.Them.data.Defeated
+                    && !rel.Them.IsDefeated
                     && (rel.Posture == Posture.Hostile 
                         || !OwnerEmpire.IsHonorable && !OwnerEmpire.IsPacifist && rel.Posture == Posture.Neutral))
                 {

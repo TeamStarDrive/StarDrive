@@ -25,13 +25,13 @@ public partial class UniverseState
         EmpireList.Filter(empire => !empire.isPlayer);
 
     public Empire[] ActiveNonPlayerMajorEmpires =>
-        EmpireList.Filter(empire => !empire.IsFaction && !empire.isPlayer && !empire.data.Defeated);
+        EmpireList.Filter(empire => !empire.IsFaction && !empire.isPlayer && !empire.IsDefeated);
 
     public Empire[] ActiveMajorEmpires =>
-        EmpireList.Filter(empire => !empire.IsFaction && !empire.data.Defeated);
+        EmpireList.Filter(empire => !empire.IsFaction && !empire.IsDefeated);
 
     public Empire[] ActiveEmpires =>
-        EmpireList.Filter(empire => !empire.data.Defeated);
+        EmpireList.Filter(empire => !empire.IsDefeated);
 
     public Empire[] MajorEmpires => EmpireList.Filter(empire => !empire.IsFaction);
     public Empire[] Factions => EmpireList.Filter(empire => empire.IsFaction);
@@ -51,7 +51,7 @@ public partial class UniverseState
         foreach (Empire empire in MajorEmpires)
             empire.UpdateDefenseShipBuildingOffense();
 
-        foreach (Empire empire in EmpireList.Filter(e => !e.data.Defeated))
+        foreach (Empire empire in EmpireList.Filter(e => !e.IsDefeated))
             empire.UpdatePopulation();
     }
 

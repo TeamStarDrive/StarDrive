@@ -158,7 +158,7 @@ namespace Ship_Game
 
         public bool ShouldGoToWar(Relationship rel, Empire them)
         {
-            if (them.data.Defeated || !rel.PreparingForWar || rel.AtWar || IsPeaceTreaty(them))
+            if (them.IsDefeated || !rel.PreparingForWar || rel.AtWar || IsPeaceTreaty(them))
                 return false;
 
             var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.IsFaction, 

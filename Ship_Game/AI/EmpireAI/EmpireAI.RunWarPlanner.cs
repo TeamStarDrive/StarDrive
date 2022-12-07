@@ -88,7 +88,7 @@ namespace Ship_Game.AI
             Relationship usToThem = us.GetRelations(them);
             Relationship themToUs = them.GetRelations(OwnerEmpire);
             usToThem.CancelPrepareForWar();
-            if (us.IsFaction || us.data.Defeated || them.IsFaction || them.data.Defeated)
+            if (us.IsFaction || us.IsDefeated || them.IsFaction || them.IsDefeated)
                 return;
 
             usToThem.FedQuest = null;
@@ -193,7 +193,7 @@ namespace Ship_Game.AI
             Empire us = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
             usToThem.CancelPrepareForWar();
-            if (us.IsFaction || us.data.Defeated || them.data.Defeated || them.IsFaction)
+            if (us.IsFaction || us.IsDefeated || them.IsDefeated || them.IsFaction)
                 return;
 
             usToThem.FedQuest = null;
@@ -268,7 +268,7 @@ namespace Ship_Game.AI
         private void RunWarPlanner()
         {
             if (OwnerEmpire.isPlayer
-                || OwnerEmpire.data.Defeated
+                || OwnerEmpire.IsDefeated
                 || OwnerEmpire.GetPlanets().Count == 0)
             {
                 return;
@@ -277,7 +277,7 @@ namespace Ship_Game.AI
             UpdateEmpireDefense();
             foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (rel.Them.data.Defeated && rel.ActiveWar != null)
+                if (rel.Them.IsDefeated && rel.ActiveWar != null)
                 {
                     rel.AtWar = false;
                     rel.CancelPrepareForWar();

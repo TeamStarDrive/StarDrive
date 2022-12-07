@@ -528,7 +528,7 @@ namespace Ship_Game.Gameplay
         // but doesn't create big side-effects
         public void UpdateRelationship(Empire us, Empire them)
         {
-            if (us.data.Defeated)
+            if (us.IsDefeated)
                 return;
 
             Risk.UpdateRiskAssessment(us);
@@ -550,7 +550,7 @@ namespace Ship_Game.Gameplay
         // This should be done only once per turn in Empire.UpdateRelationships
         public void AdvanceRelationshipTurn(Empire us, Empire them)
         {
-            if (them.data.Defeated && AtWar)
+            if (them.IsDefeated && AtWar)
             {
                 CancelPrepareForWar();
                 AtWar = false;
@@ -775,7 +775,7 @@ namespace Ship_Game.Gameplay
 
             Empire player = aiEmpire.Universe.Player;
             Empire enemyEmpire = aiEmpire.Universe.GetEmpireByName(FedQuest.EnemyName);
-            if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
+            if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.IsDefeated)
             {
                 DiplomacyScreen.ShowEndOnly(aiEmpire, player, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
                 player.AbsorbEmpire(aiEmpire);
@@ -785,7 +785,7 @@ namespace Ship_Game.Gameplay
 
             if (FedQuest.type == QuestType.AllyFriend)
             {
-                if (enemyEmpire.data.Defeated)
+                if (enemyEmpire.IsDefeated)
                 {
                     FedQuest = null;
                 }

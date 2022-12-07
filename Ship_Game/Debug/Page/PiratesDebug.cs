@@ -20,7 +20,7 @@ public class PiratesDebug : DebugPage
         int column = 0;
         foreach (Empire e in Universe.PirateFactions)
         {
-            if (!e.data.Defeated)
+            if (!e.IsDefeated)
             {
                 DrawPirates(e, column);
                 column += 3;
