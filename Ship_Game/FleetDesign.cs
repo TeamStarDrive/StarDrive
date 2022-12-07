@@ -11,6 +11,8 @@ namespace Ship_Game;
 [StarDataType]
 public class FleetDataDesignNode
 {
+    // NOTE: also update YamlSerializerTests if you change any of this
+
     // used to requisition new ships with the same name
     [StarData] public string ShipName;
     [StarData] public Vector2 RelativeFleetOffset;
