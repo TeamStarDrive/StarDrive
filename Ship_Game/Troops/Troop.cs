@@ -455,7 +455,7 @@ namespace Ship_Game
         // if tile != null, it will assign troops to nearest available tile
         public bool TryLandTroop(Planet planet, PlanetGridSquare tile = null)
         {
-            planet = planet ?? HostPlanet;
+            planet ??= HostPlanet;
             if (planet.GetFreeTiles(Loyalty) == 0)
                 return false;
 
@@ -549,13 +549,13 @@ namespace Ship_Game
 
         int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)
         {
-            int score  = 0;
-            Ping ping  = new Ping(tile, planet, 1);
-            for (int x = ping.Left; x <= ping.Right; ++x)
+            int score = 0;
+            Ping ping = new(tile, planet, 1);
+            for (int y = ping.Top; y <= ping.Bottom; ++y)
             {
-                for (int y = ping.Top; y <= ping.Bottom; ++y)
+                for (int x = ping.Left; x <= ping.Right; ++x)
                 {
-                    PlanetGridSquare checkedTile = planet.TilesList[x * ping.Width + y];
+                    PlanetGridSquare checkedTile = planet.TilesList[x + y*ping.Width];
                     score += checkedTile.CalculateNearbyTileScore(this, planet.Owner);
                 }
             }
@@ -566,13 +566,13 @@ namespace Ship_Game
         public bool AcquireTarget(PlanetGridSquare tile, Planet planet, out PlanetGridSquare targetTile)
         {
             int bestScore = 0;
-            targetTile    = null;
-            Ping ping     = new Ping(tile, planet, ActualRange);
-            for (int x = ping.Left; x <= ping.Right; ++x)
+            targetTile = null;
+            Ping ping = new(tile, planet, ActualRange);
+            for (int y = ping.Top; y <= ping.Bottom; ++y)
             {
-                for (int y = ping.Top; y <= ping.Bottom; ++y)
+                for (int x = ping.Left; x <= ping.Right; ++x)
                 {
-                    PlanetGridSquare checkedTile = planet.TilesList[x * ping.Width + y];
+                    PlanetGridSquare checkedTile = planet.TilesList[x + y*ping.Width];
                     int score = checkedTile.CalculateTargetValue(this, planet);
                     if (score > bestScore)
                     {
@@ -599,7 +599,7 @@ namespace Ship_Game
                 Right  = (tile.X + pingSize).UpperBound(planet.TileMaxX - 1);
                 Top    = (tile.Y - pingSize).LowerBound(0);
                 Bottom = (tile.Y + pingSize).UpperBound(planet.TileMaxY - 1);
-                Width  = planet.TileMaxY;
+                Width  = planet.TileMaxX;
             }
         }
 

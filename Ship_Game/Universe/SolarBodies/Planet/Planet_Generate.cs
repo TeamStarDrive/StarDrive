@@ -182,15 +182,15 @@ namespace Ship_Game
             numHabitableTiles = 0;
 
             TilesList.Clear();
-            for (int x = 0; x < TileMaxX; ++x)
+            for (int y = 0; y < TileMaxY; ++y) // row-major
             {
-                for (int y = 0; y < TileMaxY; ++y)
+                for (int x = 0; x < TileMaxX; ++x)
                 {
-                    bool habitableTile = random.RollDice(tileChance);
-                    bool terraformable = !habitableTile && random.RollDice(25) || habitableTile;
-                    TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile, terraformable));
-                    if (habitableTile)
-                        ++numHabitableTiles;
+                        bool habitableTile = random.RollDice(tileChance);
+                        bool terraformable = !habitableTile && random.RollDice(25) || habitableTile;
+                        TilesList.Add(new PlanetGridSquare(this, x, y, null, habitableTile, terraformable));
+                        if (habitableTile)
+                            ++numHabitableTiles;
                 }
             }
         }
