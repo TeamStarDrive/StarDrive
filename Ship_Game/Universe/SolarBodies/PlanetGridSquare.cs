@@ -5,7 +5,6 @@ using Ship_Game.Universe.SolarBodies;
 using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 using Point = SDGraphics.Point;
-using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -14,6 +13,7 @@ namespace Ship_Game
     [StarDataType]
     public sealed class PlanetGridSquare
     {
+        [StarData] public Planet P;
         [StarData] public int X;
         [StarData] public int Y;
         public bool ShowAttackHover;
@@ -49,15 +49,28 @@ namespace Ship_Game
         [StarData] public DynamicCrashSite CrashSite;
         [StarData] public Volcano Volcano;
         
-        public PlanetGridSquare() { }
+        [StarDataConstructor] PlanetGridSquare() { }
 
-        public PlanetGridSquare(int x, int y, Building b, bool hab, bool terraformable)
+        public PlanetGridSquare(Planet p, int x, int y, Building b, bool hab, bool terraformable)
         {
-            X             = x;
-            Y             = y;
+            P = p;
+            X = x;
+            Y = y;
             Habitable     = hab;
             Building      = b;
             Terraformable = terraformable;
+        }
+
+        public override string ToString()
+        {
+            string stuffOnTile = "";
+            if (BuildingOnTile)
+                stuffOnTile += "building="+Building.Name;
+            if (TroopsAreOnTile)
+                stuffOnTile += ":troops="+TroopsHere.Count;
+            if (Biosphere)
+                stuffOnTile += ":biosphere";
+            return $"Tile X:{X} Y:{Y} {stuffOnTile} Planet={P}";
         }
 
         public bool IsTileFree(Empire empire)
@@ -192,13 +205,16 @@ namespace Ship_Game
         public int CalculateNearbyTileScore(Troop troop, Empire planetOwner)
         {
             int score = 0;
-            if (CombatBuildingOnTile)
+            if (CombatBuildingOnTile) // is attackable building on tile?
             {
                 if (troop.Loyalty != planetOwner) // hostile building
                 {
                     score += Building.CanAttack ? -1 : 1;
                     if (Building.Strength > troop.Strength)
                         score -= 1; // Stay away from stronger buildings
+
+                    if (Building.IsCapital)
+                        score = -2; // never land on capital directly
 
                     if (Building.PlanetaryShieldStrengthAdded > 0)
                         score += 2; // Land near shields to destroy them
@@ -254,13 +270,8 @@ namespace Ship_Game
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
         {
-            return Math.Abs(X - tileToCheck.X) <= range && Math.Abs(Y - tileToCheck.Y) <= range;
-        }
-
-        public void DirectionToTarget(PlanetGridSquare target, out int xDiff, out int yDiff)
-        {
-            xDiff = (target.X - X).Clamped(-1, 1);
-            yDiff = (target.Y - Y).Clamped(-1, 1);
+            return Math.Abs(X - tileToCheck.X) <= range
+                && Math.Abs(Y - tileToCheck.Y) <= range;
         }
 
         public void CrashShip(Empire empire, string shipName, string troopName, int numTroopsSurvived,

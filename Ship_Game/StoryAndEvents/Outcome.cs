@@ -286,7 +286,7 @@ namespace Ship_Game
 
                 if (eventLocation == null)
                 {
-                    eventLocation = p.TilesList[17];
+                    eventLocation = p.TilesList[p.TilesList.Count / 2];
                 }
 
                 BuildingActions(p, eventLocation);
