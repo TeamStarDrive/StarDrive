@@ -156,8 +156,8 @@ namespace Ship_Game.Universe
 
             Initialize(universeRadius*2f);
 
-            Events = new(); // serialized
-            Stats = new(this); // serialized
+            Events = new();
+            Stats = new(this);
         }
 
         void Initialize(float universeWidth)

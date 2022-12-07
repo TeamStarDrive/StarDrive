@@ -245,7 +245,6 @@ namespace UnitTests.AITests.Empire
             // create areas of operation among empires
             foreach(var empire in UState.Empires)
             {
-                empire.data.Defeated = false;
                 foreach(var planet in UState.Planets)
                 {
                     if (RandomMath.RollDice(50))

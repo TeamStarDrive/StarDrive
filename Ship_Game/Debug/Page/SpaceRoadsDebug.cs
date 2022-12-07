@@ -50,7 +50,7 @@ public class SpaceRoadsDebug : DebugPage
         for (int i = 0; i < Universe.MajorEmpires.Length; i++)
         {
             Empire e = Universe.MajorEmpires[i];
-            if (!e.data.Defeated && (!e.isPlayer || e.AutoBuildSpaceRoads))
+            if (!e.IsDefeated && (!e.isPlayer || e.AutoBuildSpaceRoads))
             {
                 DrawSpaceRoads(e, column, Timer < 0);
                 ++column;

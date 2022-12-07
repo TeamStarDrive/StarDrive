@@ -85,8 +85,8 @@ namespace Ship_Game
             Spatial = spatial;
         }
 
+        // For TESTING
         public Ship FindShip(int id) => Ships.Find(id);
-        public bool FindShip(int id, out Ship found) => Ships.Find(id, out found);
         public bool ContainsShip(int id) => Ships.Contains(id);
 
         // NOTE: SLOW !! Should only be used for UNIT TESTS
@@ -212,8 +212,15 @@ namespace Ship_Game
                 Spatial.CollideAll(timeStep, showCollisions: UState.Debug);
 
                 // update sensors AFTER spatial update, but only if we are not paused!
+                // more like ScanForTargets ?
                 UpdateAllSensors(timeStep);
+            }
 
+            // always update empire border nodes
+            UpdateAllEmpireContactsAndBorders(timeStep);
+
+            if (isRunning)
+            {
                 // now that we have a complete view of the universe
                 // allow ships to make decisions
                 UpdateAllShipAI(timeStep);
@@ -236,6 +243,7 @@ namespace Ship_Game
                 Spatial.Update(objects);
             }
             UpdateAllSensors(FixedSimTime.Zero);
+            UpdateAllEmpireContactsAndBorders(FixedSimTime.Zero);
             UpdateVisibleObjects();
         }
 
@@ -449,6 +457,29 @@ namespace Ship_Game
                 ScansPerSec = ScansAcc;
                 ScansAcc = 0;
             }
+        }
+
+        void UpdateAllEmpireContactsAndBorders(FixedSimTime timeStep)
+        {
+            // sensor scan is heavy
+            Universe.EmpireInfluPerf.Start();
+
+            Empire[] allEmpires = UState.Empires.ToArr();
+            void UpdateContactsAndBorders(int start, int end)
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    Empire empireToUpdate = allEmpires[i];
+                    empireToUpdate.UpdateContactsAndBorders(Universe, timeStep);
+                }
+            }
+
+            if (EnableParallelUpdate)
+                Parallel.For(allEmpires.Length, UpdateContactsAndBorders, MaxTaskCores);
+            else
+                UpdateContactsAndBorders(0, allEmpires.Length);
+
+            Universe.EmpireInfluPerf.Stop();
         }
 
         void UpdateAllShipAI(FixedSimTime timeStep)

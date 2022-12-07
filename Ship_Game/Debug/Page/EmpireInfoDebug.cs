@@ -23,7 +23,7 @@ public class EmpireInfoDebug : DebugPage
         int column = 0;
         foreach (Empire e in Universe.MajorEmpires)
         {
-            if (!e.data.Defeated)
+            if (!e.IsDefeated)
             {
                 DrawEmpire(e, column);
                 ++column;

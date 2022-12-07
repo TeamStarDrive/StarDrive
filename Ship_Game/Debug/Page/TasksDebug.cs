@@ -20,7 +20,7 @@ public class TasksDebug : DebugPage
         int column = 0;
         foreach (Empire e in Universe.NonPlayerMajorEmpires)
         {
-            if (!e.data.Defeated)
+            if (!e.IsDefeated)
             {
                 DrawTasks(e, column);
                 ++column;

@@ -96,7 +96,10 @@ namespace Ship_Game
         public ThreatMatrix Threats => AI.ThreatMatrix;
 
         float UpdateTimer;
+
         [StarData] public bool isPlayer;
+        [StarData] public bool IsDefeated { get; private set; }
+
         public float TotalShipMaintenance { get; private set; }
         public float TotalWarShipMaintenance { get; private set; }
         public float TotalCivShipMaintenance { get; private set; }
@@ -292,12 +295,12 @@ namespace Ship_Game
 
         public void SetAsPirates(EmpireAI ai)
         {
-            if (data.Defeated)
+            if (IsDefeated)
                 return;
 
             if (GlobalStats.Settings.DisablePirates)
             {
-                data.Defeated = true;
+                IsDefeated = true;
             }
             else
             {
@@ -713,10 +716,10 @@ namespace Ship_Game
 
         public void SetAsDefeated()
         {
-            if (data.Defeated)
+            if (IsDefeated)
                 return;
 
-            data.Defeated = true;
+            IsDefeated = true;
             ClearInfluenceList();
             foreach (SolarSystem solarSystem in Universe.Systems)
                 solarSystem.OwnerList.Remove(this);
@@ -753,10 +756,10 @@ namespace Ship_Game
 
         public void SetAsMerged()
         {
-            if (data.Defeated)
+            if (IsDefeated)
                 return;
 
-            data.Defeated = true;
+            IsDefeated = true;
             ClearInfluenceList();
             foreach (SolarSystem solarSystem in Universe.Systems)
                 solarSystem.OwnerList.Remove(this);
@@ -1239,18 +1242,20 @@ namespace Ship_Game
             UnlockTech(techID, techUnlockType, target);
         }
 
-        public void Update(UniverseState us, FixedSimTime timeStep)
+        /// <summary>Return TRUE if Empire Turn update was triggered</summary>
+        public bool Update(UniverseState us, FixedSimTime timeStep)
         {
             #if PLAYERONLY
                 if(!this.isPlayer && !this.isFaction)
-                foreach (Ship ship in this.OwnedShips)
-                    ship.GetAI().OrderScrapShip();
+                    foreach (Ship ship in this.OwnedShips)
+                        ship.GetAI().OrderScrapShip();
                 if (this.OwnedShips.Count == 0)
-                    return;
+                    return false;
             #endif
 
+            bool didUpdate = false;
             UpdateTimer -= timeStep.FixedTime;
-            if (UpdateTimer <= 0f && !data.Defeated)
+            if (UpdateTimer <= 0f && !IsDefeated)
             {
                 UpdateTimer = us.P.TurnTimer + (Id -1) * timeStep.FixedTime;
 
@@ -1272,9 +1277,15 @@ namespace Ship_Game
                 AssignNewHomeWorldIfNeeded();
                 TakeTurn(us);
                 SetRallyPoints();
+
+                didUpdate = true;
             }
 
+            // TODO: should this even be here? Maybe we should try a Component oriented design?
+            //       so that components are updated automatically
             UpdateFleets(timeStep);
+
+            return didUpdate;
         }
 
         void UpdateStats()
@@ -1603,7 +1614,7 @@ namespace Ship_Game
 
         public void GovernPlanets()
         {
-            if (!IsFaction && !data.Defeated)
+            if (!IsFaction && !IsDefeated)
             {
                 UpdateMaxColonyValues();
                 UpdateTerraformerBudget();
@@ -2159,7 +2170,7 @@ namespace Ship_Game
 
         void TakeTurn(UniverseState us)
         {
-            if (IsEmpireDead())
+            if (UpdateIsEmpireDefeated())
                 return;
 
             var list1 = new Array<Planet>();
@@ -2221,7 +2232,7 @@ namespace Ship_Game
                     if (allEmpiresDead)
                     {
                         Empire remnants = Universe.Remnants;
-                        if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated || !remnants.Remnants.Activated)
+                        if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.IsDefeated || !remnants.Remnants.Activated)
                         {
                             Universe.Screen.OnPlayerWon();
                         }
@@ -2395,10 +2406,11 @@ namespace Ship_Game
             }
         }
 
-        public bool IsEmpireDead()
+        /// <summary>Returns TRUE if empire is defeated</summary>
+        public bool UpdateIsEmpireDefeated()
         {
             if (IsFaction) return false;
-            if (data.Defeated) return true;
+            if (IsDefeated) return true;
             if (!Universe.P.EliminationMode && OwnedPlanets.Count != 0)
                 return false;
             if (Universe.P.EliminationMode && (Capital == null || Capital.Owner == this) && OwnedPlanets.Count != 0)
@@ -2408,7 +2420,7 @@ namespace Ship_Game
             if (!isPlayer)
             {
                 if (Universe.Player.IsKnown(this))
-                    Universe.Notifications.AddEmpireDiedNotification(this);
+                    Universe.Notifications?.AddEmpireDiedNotification(this);
                 return true;
             }
 
@@ -3108,7 +3120,6 @@ namespace Ship_Game
             Research.Reset();
 
             // TODO: These should not be in EmpireData !!!
-            data.Defeated = false;
             data.OwnedArtifacts.Clear();
             data.AgentList.Clear();
             data.MoleList.Clear();

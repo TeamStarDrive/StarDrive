@@ -279,7 +279,7 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            if (checkOnlyDefeated && !currentTarget.data.Defeated)
+            if (checkOnlyDefeated && !currentTarget.IsDefeated)
                 return true;
 
             FindValidTarget(out Empire expectedTarget);

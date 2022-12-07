@@ -42,7 +42,7 @@ public class AODebug : DebugPage
             if (EmpireID < 1) EmpireID = Screen.UState.NumEmpires;
             EmpireAtWar = Screen.UState.GetEmpireById(EmpireID);
         }
-        while (EmpireAtWar.data.Defeated);
+        while (EmpireAtWar.IsDefeated);
 
         TextColumns[0].Text = $"Empire: {EmpireAtWar.Name}";
         TextColumns[0].Color = EmpireAtWar.EmpireColor;
@@ -50,7 +50,7 @@ public class AODebug : DebugPage
 
     public override void Update(float fixedDeltaTime)
     {
-        if (EmpireAtWar.data.Defeated) return;
+        if (EmpireAtWar.IsDefeated) return;
 
         var allShips = Screen.UState.Ships.Filter(s => s.Loyalty == EmpireAtWar && s.Active);
         var ourShips = new Array<Ship>(EmpireAtWar.OwnedShips);

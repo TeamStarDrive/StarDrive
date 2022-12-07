@@ -27,7 +27,7 @@ namespace Ship_Game.AI
 
             foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (!rel.Them.IsFaction && !OwnerEmpire.IsFaction && !rel.Them.data.Defeated)
+                if (!rel.Them.IsFaction && !OwnerEmpire.IsFaction && !rel.Them.IsDefeated)
                     CheckColonizationClaims(rel.Them, rel);
             }
         }
@@ -137,7 +137,7 @@ namespace Ship_Game.AI
         {
             return !relations.Known
                    || them.IsFaction
-                   || them.data.Defeated
+                   || them.IsDefeated
                    || GlobalStats.RestrictAIPlayerInteraction && Player == them;
         }
 
@@ -147,7 +147,7 @@ namespace Ship_Game.AI
             foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
                 if (!rel.Them.IsFaction
-                    && !rel.Them.data.Defeated 
+                    && !rel.Them.IsDefeated 
                     && (rel.AtWar || rel.PreparingForWar))
                 {
                     enemyStr += (int)rel.Them.CurrentMilitaryStrength;

@@ -38,7 +38,7 @@ namespace Ship_Game.GameScreens.Espionage
             Empire player = Empire.Universe.Player;
 
             // red background:
-            if (player != Empire && player.IsAtWarWith(Empire) && !Empire.data.Defeated)
+            if (player != Empire && player.IsAtWarWith(Empire) && !Empire.IsDefeated)
             {
                 batch.FillRectangle(Rect.Bevel(2), Color.Red);
             }
@@ -53,7 +53,7 @@ namespace Ship_Game.GameScreens.Espionage
                 batch.DrawString(Fonts.Arial12Bold, Empire.data.Traits.Name, nameCursor, Color.White);
             }
 
-            if (Empire.data.Defeated)
+            if (Empire.IsDefeated)
             {
                 DrawRacePortrait();
 
