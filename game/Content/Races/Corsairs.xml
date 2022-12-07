@@ -4,7 +4,7 @@
   <IsPirateFaction>true</IsPirateFaction>
   <PaymentPeriodTurns>250</PaymentPeriodTurns> <!-- Every turn is 5 seconds by default-->
   <MinimumColoniesForStartPayment>5</MinimumColoniesForStartPayment>
-  <PortraitName>Imperium</PortraitName>
+  <PortraitName>unknown</PortraitName>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
   
   <StartingShip>Corsair-Fighter</StartingShip>
