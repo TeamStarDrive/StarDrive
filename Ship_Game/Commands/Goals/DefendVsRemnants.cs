@@ -1,20 +1,21 @@
 ﻿using Ship_Game.AI;
 using System;
+using System.Linq;
 using SDUtils;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
-using Ship_Game.Universe;
-
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
-    class DefendVsRemnants : Goal
+    [StarDataType]
+    class DefendVsRemnants : FleetGoal
     {
-        public const string ID = "DefendVsRemnants";
-        public override string UID => ID;
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        [StarData] public sealed override Planet TargetPlanet { get; set; }
 
-        public DefendVsRemnants(int id, UniverseState us)
-            : base(GoalType.DefendVsRemnants, id, us)
+        [StarDataConstructor]
+        public DefendVsRemnants(Empire owner) : base(GoalType.DefendVsRemnants, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,29 +23,25 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public DefendVsRemnants(Planet targetPlanet, Empire owner, Fleet fleet)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public DefendVsRemnants(Planet targetPlanet, Empire owner, Fleet fleet) : this(owner)
         {
-            empire             = owner;
-            TargetPlanet       = targetPlanet;
-            Fleet              = fleet;
-            TargetEmpire       = EmpireManager.Remnants;
+            Fleet = fleet;
+            TargetPlanet = targetPlanet;
+            TargetEmpire = owner.Universe.Remnants;
         }
 
         bool RemnantGoalExists()
         {
-            var goals = TargetEmpire.GetEmpireAI().GetRemnantEngagementGoalsFor(TargetPlanet);
+            var goals = TargetEmpire.AI.GetRemnantEngagementGoalsFor(TargetPlanet);
             return goals.Length != 0;
         }
 
         bool TryChangeTargetPlanet()
         {
-            var remnantFleets = TargetEmpire.GetFleetsDict().Values.ToArr();
-            if (!remnantFleets.Any(f => f.FleetTask?.TargetPlanet?.Owner == empire))
-                return false;
+            var remnantsTargetingUs = TargetEmpire.GetActiveFleetsTargetingEmpire(Owner).ToArrayList();
 
-            var defenseTasks = empire.GetEmpireAI().GetDefendVsRemnantTasks();
-            foreach (Fleet remnantFleet in remnantFleets.Filter(f => f.FleetTask?.TargetPlanet?.Owner == empire))
+            var defenseTasks = Owner.AI.GetDefendVsRemnantTasks();
+            foreach (Fleet remnantFleet in remnantsTargetingUs)
             {
                 // Check if we have other defense task vs. this remnant fleet target planet
                 foreach (MilitaryTask task in defenseTasks)
@@ -66,15 +63,15 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             if (Fleet == null || Fleet.Ships.Count == 0)
             {
-                float str = TargetPlanet.ParentSystem.GetKnownStrengthHostileTo(empire);
-                var task  = MilitaryTask.CreateDefendVsRemnant(TargetPlanet, empire, str);
-                empire.GetEmpireAI().AddPendingTask(task); // Try creating a new fleet to defend
+                float str =  Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem, TargetEmpire);
+                var task  = MilitaryTask.CreateDefendVsRemnant(TargetPlanet, Owner, str);
+                Owner.AI.AddPendingTask(task); // Try creating a new fleet to defend
                 return GoalStep.GoalFailed;
             }
 
-            if (TargetPlanet.Owner != empire && !TryChangeTargetPlanet())
+            if (TargetPlanet.Owner != Owner && !TryChangeTargetPlanet())
             {
-                empire.DecreaseFleetStrEmpireMultiplier(EmpireManager.Remnants);
+                Owner.DecreaseFleetStrEmpireMultiplier(Owner.Universe.Remnants);
                 return GoalStep.GoalComplete;
             }
 

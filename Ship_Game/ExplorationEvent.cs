@@ -54,7 +54,7 @@ namespace Ship_Game
             if (triggeredOutcome != null)
             {
                 EventPopup popup = null;
-                if (triggeredBy == EmpireManager.Player)
+                if (triggeredBy == screen.Player)
                     popup = new EventPopup(screen, triggeredBy, this, triggeredOutcome, false, p);
 
                 triggeredOutcome.CheckOutComes(p, eventLocation, triggeredBy, popup);
@@ -125,9 +125,9 @@ namespace Ship_Game
         {
             Outcome triggeredOutcome = GetRandomOutcome();
 
-            Empire empire = EmpireManager.Player;
-            screen.ScreenManager.AddScreen(new EventPopup(screen, empire, this, triggeredOutcome, false));
-            TriggerOutcome(empire, triggeredOutcome);
+            Empire player = screen.Player;
+            screen.ScreenManager.AddScreen(new EventPopup(screen, player, this, triggeredOutcome, false));
+            TriggerOutcome(player, triggeredOutcome);
         }
     }
 }

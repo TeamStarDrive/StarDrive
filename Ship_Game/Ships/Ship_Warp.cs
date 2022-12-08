@@ -1,5 +1,6 @@
 ﻿using SDGraphics;
 using Ship_Game.Audio;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 
@@ -23,7 +24,7 @@ namespace Ship_Game.Ships
         public const float MaxTurnRadians = 3.14159f;
 
         // Ship is trying to enter Warp
-        public bool IsSpooling { get; private set; }
+        [StarData] public bool IsSpooling { get; private set; }
 
         // Timer for doing Warp Inhibit checks
         // Setting a default value here to reduce impact of ship respawn loops.
@@ -124,7 +125,7 @@ namespace Ship_Game.Ships
 
             if (InhibitedCheckTimer <= 0f)
             {
-                if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
+                if (Universe.Events.ActiveEvent?.InhibitWarp == true)
                 {
                     SetWarpInhibited(source: InhibitionType.GlobalEvent, secondsToInhibit: 5f);
                     return true;
@@ -202,13 +203,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        // todo: Move to action queue
+        // TODO: This needs optimization, make use of InfluenceTree
         bool IsInhibitedFromEnemyShips()
         {
-            for (int x = 0; x < EmpireManager.Empires.Count; x++)
+            for (int x = 0; x < Universe.Empires.Count; x++)
             {
-                Empire e = EmpireManager.Empires[x];
-                if (e.WillInhibit(Loyalty))
+                Empire e = Universe.Empires[x];
+                if (e.Inhibitors.Count > 0 && e.WillInhibit(Loyalty))
                 {
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {
@@ -224,9 +225,9 @@ namespace Ship_Game.Ships
         /// @return TRUE if ship can effectively warp the given distance in 1 jump
         public bool IsWarpRangeGood(float neededRange)
         {
+            if (neededRange <= 0f) return true;
             float powerDuration = NetPower.PowerDuration(MoveState.Warp, PowerCurrent);
-            float maxFTLRange = powerDuration * MaxFTLSpeed;
-            return maxFTLRange >= neededRange;
+            return ShipStats.IsWarpRangeGood(neededRange, powerDuration, MaxFTLSpeed);
         }
 
         public void SetWarpPercent(FixedSimTime timeStep, float warpPercent)

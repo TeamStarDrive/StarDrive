@@ -1,0 +1,65 @@
+# global BlackBox game settings, see GamePlayGlobals.cs for more info
+# mods will inherit these values as defaults
+Globals:
+  # game start settings
+  MaxOpponents: 7
+  DefaultNumOpponents: 5
+  TurnTimer: 5 # default time in seconds for a single turn
+
+  # gameplay modifiers
+  ShipDestroyThreshold: 0.5 # ships with internal slots below this ratio will Die
+  RemnantDesignStrMultiplier: 2
+  CostBasedOnSizeThreshold: 3000
+  HangarCombatShipCostMultiplier: 1
+  ShipyardBonus: 0.25 # default 0.25
+  CustomMineralDecay: 1 # default 1
+  VolcanicActivity: 1 # default 1
+  GravityWellRange: 8000 # sets the default gravity well range, 0 means disabled
+  StartingPlanetRichnessBonus: 1 # bonus richness for empire capitals (default is 1 for richness of 2)
+  ShipMaintenanceMultiplier: 1 # default 1
+  RushCostPercentage: 1 # default 1, How much rushing costs in percentage of production cost
+  MinAcceptableShipWarpRange: 600000 # minimum ship warp range which is accepted as good
+
+  # feature flags
+  DisableShipPicker: true
+  ChangeResearchCostBasedOnSize: true
+  DisplayEnvPreferenceInRaceDesign: false
+  EnableShipTechLineFocusing: true
+  UseHullBonuses: false
+  UseDestroyers: false
+  EnableECM: false
+  UseCombatRepair: false
+  UsePlanetaryProjection: false
+  DisableRemnantStory: false
+  DisablePirates: false
+  AIUsesPlayerDesigns: true
+
+  # visuals modifiers
+  SpaceportScale: 0.5
+  ExplosionVisualIncreaser: 1 # default: 1
+  ShipExplosionVisualIncreaser: 1 # default: 1
+  ModuleDamageVisualIntensity: 1 # default: 1
+
+  # misc settings
+  CustomMenuMusic: ""
+  # In case an event building has defense drones and drones are not researched
+  DefaultEventDrone: "Xeno Fighter"
+  ResearchRootUIDToDisplay: "Colonization"
+
+  # Urls for accessing auto-updater, should be changed for mods, if unused, set to ""
+  URL: "http://bitbucket.org/codegremlins/stardrive-blackbox"
+  DownloadSite: "http://bitbucket.org/codegremlins/stardrive-blackbox/downloads/"
+  BitbucketAPIString: "http://api.bitbucket.org/2.0/repositories/codegremlins/stardrive-blackbox/downloads"
+
+  ## mod information
+  #Mod:
+  #  Name: "Combined Arms"
+  #  Version: "8.1"
+  #  SupportedBlackBoxVersions: "develop,mars-1.40,mars-1.41"
+  #  IconPath: small.png
+  #  Description: "Combo mod taken into the next level. More Technologies, more hulls, more weapons and a lot of balance work."
+  #  Author: "Moonster and Fat_Bastard"
+  #  UseVanillaShips: false
+  #  ClearVanillaTechs: true
+
+

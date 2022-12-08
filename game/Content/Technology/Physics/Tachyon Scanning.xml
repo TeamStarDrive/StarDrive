@@ -4,7 +4,6 @@
   <UID>Tachyon Scanning</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>2300</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>680</NameIndex>
   <DescriptionIndex>681</DescriptionIndex>
   <LeadsTo />

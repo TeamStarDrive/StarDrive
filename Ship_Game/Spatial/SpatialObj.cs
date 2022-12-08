@@ -8,18 +8,19 @@ namespace Ship_Game.Spatial
     {
         // NOTE: These are ordered by the order of access pattern
         public byte Active;  // 1 if this item is active, 0 if DEAD and pending removal
-        public GameObjectType Type; // GameObjectType : byte
+        public byte Type; // for filtering by type, application defined
         public byte CollisionMask; // mask which matches objects this object can collide with
         public byte Loyalty; // Loyalty ID
         public uint LoyaltyMask; // mask for matching loyalty, see GetLoyaltyMask
-        public int ObjectId;
+        public int ObjectId; // index of this object in the Qtree.Objects list
         public AABoundingBox2D AABB;
 
-        public SpatialObj(GameObject go, int objectId)
+        public SpatialObj(SpatialObjectBase go, int objectId)
         {
             Active = 1;
-            Type = go.Type;
-            CollisionMask = go.DisableSpatialCollision ? (byte)0 : NativeSpatialObject.GetCollisionMask(Type);
+            var type = go.Type;
+            Type = (byte)type;
+            CollisionMask = go.DisableSpatialCollision ? (byte)0 : NativeSpatialObject.GetCollisionMask(type);
             int loyaltyId = go.GetLoyaltyId();
             Loyalty = (byte)loyaltyId;
             LoyaltyMask = NativeSpatialObject.GetLoyaltyMask(loyaltyId);

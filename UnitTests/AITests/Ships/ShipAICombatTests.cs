@@ -26,7 +26,7 @@ namespace UnitTests.AITests.Ships
         {
             LoadStarterShips(ScoutName, RocketFName, CorvetteName, FrigateName, CarrierName);
             CreateUniverseAndPlayerEmpire("Human");
-            Assert.AreEqual(0, UState.Objects.NumShips);
+            AssertEqual(0, UState.Objects.NumShips);
 
             // settings these flags to get detailed and readable debug output
             UState.Objects.EnableParallelUpdate = false;
@@ -51,7 +51,7 @@ namespace UnitTests.AITests.Ships
             RunObjectsSim(TestSimStep);
             Assert.IsFalse(Us.InCombat, "ship should not be in combat yet");
             Assert.IsTrue(Us.Active, "Our ship should be Active");
-            Assert.AreEqual(Us, Universe.UState.Objects.FindShip(Us.Id), "Our ship should be in UniverseObjectManager");
+            AssertEqual(Us, Universe.UState.Objects.FindShip(Us.Id), "Our ship should be in UniverseObjectManager");
         }
 
         void SpawnEnemyShips()
@@ -59,30 +59,30 @@ namespace UnitTests.AITests.Ships
             ScoutTarget = SpawnNonCombat(ScoutName, Enemy, 0, -800);
             RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -900);
             RunObjectsSim(EnemyScanInterval);
-            Assert.AreEqual(1+2, UState.Objects.NumShips, "Expected limited # of Ships in AI Combat test");
+            AssertEqual(1+2, UState.Objects.NumShips, "Expected limited # of Ships in AI Combat test");
             PrintTargets();
         }
 
         void SpawnStrongerEnemyGroup()
         {
             ScoutTarget = SpawnNonCombat(ScoutName, Enemy, 0, -500);
-            RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -600);
-            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -700);
-            FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -800);
+            RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -530);
+            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -540);
+            FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -650);
             RunObjectsSim(EnemyScanInterval);
-            Assert.AreEqual(1+4, UState.Objects.NumShips, "Expected limited # of Ships in AI Combat test");
+            AssertEqual(1+4, UState.Objects.NumShips, "Expected limited # of Ships in AI Combat test");
             PrintTargets();
         }
 
         void SpawnStrongEnemyGroupWithCarrier()
         {
             ScoutTarget = SpawnNonCombat(ScoutName, Enemy, 0, -500);
-            RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -600);
-            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -700);
-            FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -800);
-            CarrierTarget = SpawnNonCombat(CarrierName, Enemy, 0, -900);
+            RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -530);
+            CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -560);
+            FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -650);
+            CarrierTarget = SpawnNonCombat(CarrierName, Enemy, 0, -700);
             RunObjectsSim(EnemyScanInterval);
-            Assert.AreEqual(1+5, UState.Objects.NumShips, "Expected limited # of Ships in AI Combat test");
+            AssertEqual(1+5, UState.Objects.NumShips, "Expected limited # of Ships in AI Combat test");
             PrintTargets();
         }
 
@@ -99,13 +99,13 @@ namespace UnitTests.AITests.Ships
         {
             SpawnOurShip(ScoutName);
             SpawnEnemyShips();
-            Assert.AreEqual(2, Us.AI.PotentialTargets.Length);
-            Assert.AreEqual(0, Us.AI.FriendliesNearby.Length);
-            Assert.AreEqual(0, Us.AI.TrackProjectiles.Length);
+            AssertEqual(2, Us.AI.PotentialTargets.Length);
+            AssertEqual(0, Us.AI.FriendliesNearby.Length);
+            AssertEqual(0, Us.AI.TrackProjectiles.Length);
 
-            Assert.AreEqual(1, ScoutTarget.AI.PotentialTargets.Length);
-            Assert.AreEqual(1, ScoutTarget.AI.FriendliesNearby.Length);
-            Assert.AreEqual(0, ScoutTarget.AI.TrackProjectiles.Length);
+            AssertEqual(1, ScoutTarget.AI.PotentialTargets.Length);
+            AssertEqual(1, ScoutTarget.AI.FriendliesNearby.Length);
+            AssertEqual(0, ScoutTarget.AI.TrackProjectiles.Length);
         }
 
         [TestMethod]
@@ -113,15 +113,15 @@ namespace UnitTests.AITests.Ships
         {
             SpawnOurShip(ScoutName);
             SpawnEnemyShips();
-            Assert.AreEqual(2, Us.AI.PotentialTargets.Length);
-            Assert.AreEqual(1, ScoutTarget.AI.PotentialTargets.Length);
+            AssertEqual(2, Us.AI.PotentialTargets.Length);
+            AssertEqual(1, ScoutTarget.AI.PotentialTargets.Length);
 
             Assert.IsNotNull(ScoutTarget.AI.Target, "No Target! BUG in ScanForCombatTargets()");
-            Assert.AreEqual(Us, ScoutTarget.AI.Target);
+            AssertEqual(Us, ScoutTarget.AI.Target);
 
             var highestPriority = Us.AI.GetHighestPriorityTarget();
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
-            Assert.AreEqual(highestPriority, Us.AI.Target, "Expected highest priority target to be selected");
+            AssertEqual(highestPriority, Us.AI.Target, "Expected highest priority target to be selected");
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@ namespace UnitTests.AITests.Ships
             SpawnOurShip(ScoutName);
             SpawnStrongerEnemyGroup();
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
-            Assert.AreEqual(ScoutTarget, Us.AI.Target, "Expected weakest fighter to be selected");
+            AssertEqual(ScoutTarget, Us.AI.Target, "Expected weakest fighter to be selected");
         }
 
         [TestMethod]
@@ -143,7 +143,7 @@ namespace UnitTests.AITests.Ships
             SpawnStrongerEnemyGroup();
 
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
-            Assert.AreEqual(FrigateTarget, Us.AI.Target, "Expected large target to be selected since designation is AntiShip");
+            AssertEqual(FrigateTarget, Us.AI.Target, "Expected large target to be selected since designation is AntiShip");
         }
 
         [TestMethod]
@@ -156,7 +156,7 @@ namespace UnitTests.AITests.Ships
             SpawnStrongerEnemyGroup();
 
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
-            Assert.AreEqual(ScoutTarget, Us.AI.Target, "Expected small target to be selected since designation is Interceptor");
+            AssertEqual(ScoutTarget, Us.AI.Target, "Expected small target to be selected since designation is Interceptor");
         }
 
         [TestMethod]
@@ -165,7 +165,7 @@ namespace UnitTests.AITests.Ships
             SpawnOurShip(CorvetteName);
             SpawnStrongerEnemyGroup();
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
-            Assert.AreEqual(CorvetteTarget, Us.AI.Target, "Expected frigate to target another frigate");
+            AssertEqual(CorvetteTarget, Us.AI.Target, "Expected frigate to target another frigate");
         }
 
         [TestMethod]
@@ -174,7 +174,7 @@ namespace UnitTests.AITests.Ships
             SpawnOurShip(FrigateName);
             SpawnStrongerEnemyGroup();
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
-            Assert.AreEqual(FrigateTarget, Us.AI.Target, "Expected frigate to target another frigate");
+            AssertEqual(FrigateTarget, Us.AI.Target, "Expected frigate to target another frigate");
         }
 
         [TestMethod]
@@ -183,7 +183,7 @@ namespace UnitTests.AITests.Ships
             SpawnOurShip(FrigateName);
             SpawnStrongEnemyGroupWithCarrier();
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
-            Assert.AreEqual(CarrierTarget, Us.AI.Target, "Expected frigate to target another frigate");
+            AssertEqual(CarrierTarget, Us.AI.Target, "Expected frigate to target another frigate");
         }
 
         [TestMethod]
@@ -191,8 +191,8 @@ namespace UnitTests.AITests.Ships
         {
             SpawnOurShip(ScoutName);
             SpawnEnemyShips();
-            Assert.AreEqual(2, Us.AI.PotentialTargets.Length);
-            Assert.AreEqual(0, Us.AI.TrackProjectiles.Length);
+            AssertEqual(2, Us.AI.PotentialTargets.Length);
+            AssertEqual(0, Us.AI.TrackProjectiles.Length);
             
             RocketFTarget.AI.SetCombatTriggerDelay(0f); // enable weapons
             Assert.IsNotNull(RocketFTarget.AI.Target, "No Target! BUG in ScanForCombatTargets()");
@@ -202,8 +202,8 @@ namespace UnitTests.AITests.Ships
             var minTime = new FixedSimTime(EmpireConstants.ProjectileScanInterval);
             RunObjectsSim(minTime);
             PrintTargets();
-            Assert.AreEqual(2, Us.AI.PotentialTargets.Length);
-            Assert.That.GreaterThan(Us.AI.TrackProjectiles.Length, 1, "Rockets weren't detected! BUG!");
+            AssertEqual(2, Us.AI.PotentialTargets.Length);
+            AssertGreaterThan(Us.AI.TrackProjectiles.Length, 1, "Rockets weren't detected! BUG!");
         }
 
         [TestMethod]
@@ -269,7 +269,7 @@ namespace UnitTests.AITests.Ships
             Log.Write($"Target.HighAlertTimer After: {Us.GetHighAlertTimer():0.#####}");
 
             // delta must be set to EnemyScanInterval, because that is the accuracy of HighAlert status
-            Assert.AreEqual(Ship.HighAlertSeconds, highAlertTime, delta:EmpireConstants.EnemyScanInterval,
+            AssertEqual(tolerance:EmpireConstants.EnemyScanInterval, Ship.HighAlertSeconds, highAlertTime,
                 $"Ship should remain OnHighAlert for {Ship.HighAlertSeconds} seconds after combat was over");
         }
 
@@ -326,7 +326,7 @@ namespace UnitTests.AITests.Ships
                 Assert.IsTrue(Us.InCombat || !colonyShip.Active, "ship must stay in combat until target destroyed");
                 Assert.IsTrue(Us.OnHighAlert);
                 colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim, maybe ship is Evading?
-                Assert.AreEqual(CombatState.HoldPosition, colonyShip.AI.CombatState);
+                AssertEqual(CombatState.HoldPosition, colonyShip.AI.CombatState);
             });
 
             if (colonyShip.Active && !colonyShip.Dying)

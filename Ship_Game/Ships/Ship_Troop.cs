@@ -3,24 +3,19 @@ using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-        /// <summary>
-        /// NOTE: By the original game design, this list contains
-        /// our troops and also enemy troops.
-        /// It can get mighty confusing, but that's what we got.
-        /// </summary>
-        Array<Troop> OurTroops = new Array<Troop>();
-
-        Array<Troop> HostileTroops = new Array<Troop>();
+        [StarData] Array<Troop> OurTroops = new();
+        [StarData] Array<Troop> HostileTroops = new();
 
         // OUR troops count
         public int TroopCount => OurTroops.Count;
 
-        private float TroopUpdateTimer = GlobalStats.TurnTimer;
+        float TroopUpdateTimer;
 
         // TRUE if we have any troops present on this ship
         // @warning Some of these MAY be enemy troops!
@@ -272,7 +267,7 @@ namespace Ship_Game.Ships
         {
             if (OurTroops.Count == 0 && HostileTroops.Count == 0)
             {
-                TroopUpdateTimer = GlobalStats.TurnTimer;
+                TroopUpdateTimer = Universe.P.TurnTimer;
                 return;
             }
 
@@ -281,7 +276,7 @@ namespace Ship_Game.Ships
             if (TroopUpdateTimer > 0)
                 return;
 
-            TroopUpdateTimer = GlobalStats.TurnTimer;
+            TroopUpdateTimer = Universe.P.TurnTimer;
             if (OurTroops.Count > 0)
             {
                 // leave a garrison of 1 if a ship without barracks was boarded

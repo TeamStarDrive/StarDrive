@@ -9,8 +9,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        public float SpyBudget { get; private set; }
-
         public float SpyCost      => ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost;
         public int EmpireSpyLimit => (OwnerEmpire.GetPlanets().Count / 3).LowerBound(3);
 
@@ -18,8 +16,6 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer)
                 return;
-
-            SpyBudget = OwnerEmpire.data.SpyBudget;
 
             if (OwnerEmpire.data.DiplomaticPersonality.Name != null && CanEmpireAffordSpy())
                     CreateAgent();
@@ -51,7 +47,7 @@ namespace Ship_Game.AI
             AssignSpyMissions(currentMissions, wantedMissions);
         }
 
-        float GetSpyModifier() => (1 + (int)CurrentGame.Difficulty) * OwnerEmpire.PersonalityModifiers.WantedAgentMissionMultiplier;
+        float GetSpyModifier() => (1 + (int)UState.P.Difficulty) * OwnerEmpire.PersonalityModifiers.WantedAgentMissionMultiplier;
 
         void AssignSpyMissions(int currentMissions, int wantedMissions)
         {
@@ -352,15 +348,15 @@ namespace Ship_Game.AI
         bool TryFindEmpireTargets(out Array<Empire> targets)
         {
             targets = new Array<Empire>();
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
                 if (rel.Known
-                    && !them.isFaction
-                    && !them.data.Defeated
+                    && !rel.Them.IsFaction
+                    && !rel.Them.IsDefeated
                     && (rel.Posture == Posture.Hostile 
                         || !OwnerEmpire.IsHonorable && !OwnerEmpire.IsPacifist && rel.Posture == Posture.Neutral))
                 {
-                    targets.Add(them);
+                    targets.Add(rel.Them);
                 }
             }
 

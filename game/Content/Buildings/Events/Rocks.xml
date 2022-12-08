@@ -4,8 +4,8 @@
   
   <Cost>250</Cost>
   
-  <ProdCache>5000</ProdCache>
-  <PlusProdPerColonist>0.2</PlusProdPerColonist>
+  <ProdCache>240</ProdCache>
+  <PlusProdPerColonist>0.5</PlusProdPerColonist>
   <Infrastructure>-1</Infrastructure>
   <IsCommodity>true</IsCommodity>
   <CanBeCreatedFromLava>true</CanBeCreatedFromLava>

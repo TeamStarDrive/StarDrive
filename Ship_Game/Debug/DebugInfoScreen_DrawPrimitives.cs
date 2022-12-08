@@ -1,7 +1,6 @@
-using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using Ship_Game.Ships;
+using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 
@@ -9,6 +8,8 @@ namespace Ship_Game.Debug
 {
     public sealed partial class DebugInfoScreen
     {
+        readonly Array<DebugPrimitive> Primitives = new();
+
         void AddPrimitive(DebugPrimitive primitive)
         {
             lock (Primitives) Primitives.Add(primitive);

@@ -4,7 +4,6 @@
   <UID>Rapid Cloning</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>1200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>647</NameIndex>
   <DescriptionIndex>648</DescriptionIndex>
   <LeadsTo />

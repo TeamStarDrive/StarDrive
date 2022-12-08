@@ -4,7 +4,6 @@
   <UID>MassivePhotonCannons</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>2400</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17533</NameIndex>
   <DescriptionIndex>17534</DescriptionIndex>
   <LeadsTo />

@@ -84,6 +84,7 @@
     <GroundCombatModifier>-.20</GroundCombatModifier>
     <RepairRateMod>0</RepairRateMod>
     <Cybernetic>0</Cybernetic>
+    <Prototype>1</Prototype>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

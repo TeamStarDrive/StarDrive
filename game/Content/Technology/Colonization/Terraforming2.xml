@@ -4,7 +4,6 @@
   <UID>Terraforming2</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>4000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>18281</NameIndex>
   <DescriptionIndex>18282</DescriptionIndex>
   <LeadsTo>

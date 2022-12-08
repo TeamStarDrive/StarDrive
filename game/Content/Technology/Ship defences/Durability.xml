@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>400</Cost>
   <MaxLevel>10</MaxLevel>
-  <RootNode>0</RootNode>
   <NameIndex>17645</NameIndex>
   <DescriptionIndex>17646</DescriptionIndex>
   <LeadsTo />

@@ -144,10 +144,10 @@ namespace Ship_Game
             batch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
             batch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
-            ShipScreen.IsToggled     = Universe.showingFTLOverlay;
+            ShipScreen.IsToggled     = Universe.ShowingFTLOverlay;
             DeepSpaceBuild.IsToggled = Universe.DeepSpaceBuildWindow.Visible;
             AIScreen.IsToggled       = Universe.aw.IsOpen;
-            Fleets.IsToggled         = Universe.showingRangeOverlay;
+            Fleets.IsToggled         = Universe.ShowingRangeOverlay;
             
             base.Draw(batch, elapsed);
         }
@@ -158,9 +158,7 @@ namespace Ship_Game
             float ringRad = 0.023f * pulseTime;
             foreach (IncomingThreat threat in Player.SystemsWithThreat)
             {
-                if (threat.ThreatTimedOut) continue;
-
-                var system            = threat.TargetSystem;
+                var system = threat.TargetSystem;
                 Vector2 miniSystemPos = WorldToMiniPos(system.Position);
                 float pulseRad = radius + ringRad;
                 batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, pulseRad + 0.009f, SpriteEffects.None, 0f);
@@ -168,31 +166,24 @@ namespace Ship_Game
                 batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, radius , SpriteEffects.None, 0f);
             }
 
-            //foreach (var system in Screen.SolarSystemDict)
-            foreach (var system in Player.GetEmpireAI().ThreatMatrix.GetAllSystemsWithFactions())
+            foreach (var system in Player.AI.ThreatMatrix.GetAllSystemsWithFactions())
             {
                 if (system.OwnerList.Count > 0) continue;
-                var pin = system;
-                var point = WorldToMiniPos(pin.Position);
+                var point = WorldToMiniPos(system.Position);
                 radius = 0.025f * Universe.SlowFlashTimer;
-                var color = Color.Yellow;
                 batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
-                batch.Draw(Node1, point, color, 0f, Node.CenterF, radius - 0.0055f, SpriteEffects.None, 1f);
-                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.0055f * 2,
-                    SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, Color.Yellow, 0f, Node.CenterF, radius - 0.0055f, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.0055f * 2, SpriteEffects.None, 1f);
             }
 
-            foreach (ThreatMatrix.Pin badBase in Player.GetEmpireAI().ThreatMatrix.GetAllFactionBases())
+            foreach (ThreatCluster c in Player.AI.ThreatMatrix.GetAllFactionBases())
             {
-                var pin = badBase;
-                var point = WorldToMiniPos(pin.Position);
+                var point = WorldToMiniPos(c.Position);
                 radius = 0.025f * Universe.SlowFlashTimer;
-                var color = pin.GetEmpire().EmpireColor;
                 var warningColor = new Color(Color.Yellow, 200);
                 batch.Draw(Node1, point, warningColor, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.005f, SpriteEffects.None, 1f);
-                batch.Draw(Node1, point, color, 0f, Node.CenterF, 0.012f,
-                    SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, c.Loyalty.EmpireColor, 0f, Node.CenterF, 0.012f, SpriteEffects.None, 1f);
             }
         }
 
@@ -336,13 +327,13 @@ namespace Ship_Game
         public void ShipScreen_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
-            Universe.showingFTLOverlay = !Universe.showingFTLOverlay;
+            Universe.ShowingFTLOverlay = !Universe.ShowingFTLOverlay;
         }
 
         public void Fleets_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
-            Universe.showingRangeOverlay = !Universe.showingRangeOverlay;            
+            Universe.ShowingRangeOverlay = !Universe.ShowingRangeOverlay;            
         }
 
         public void AIScreen_OnClick(ToggleButton toggleButton)

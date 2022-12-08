@@ -4,7 +4,6 @@
   <UID>Spaceport</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17655</NameIndex>
   <DescriptionIndex>17656</DescriptionIndex>
   <LeadsTo>

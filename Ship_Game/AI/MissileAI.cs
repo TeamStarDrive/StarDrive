@@ -5,6 +5,8 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Universe;
+using Ship_Game.Spatial;
 
 namespace Ship_Game.AI
 {
@@ -13,7 +15,7 @@ namespace Ship_Game.AI
         readonly Projectile Missile;
         public GameObject Target { get; set; }
 
-        readonly Ship[] TargetList;
+        Ship[] TargetList;
         float TargetUpdateTimer = 0.15f;
 
         public bool Jammed { get; private set; }
@@ -31,11 +33,10 @@ namespace Ship_Game.AI
         float InitialPhaseTimer = 0.5f;
         float DelayedIgnitionTimer;
 
-
         public MissileAI(Projectile missile, GameObject target, Vector2 initialVelocity)
         {
-            Missile              = missile;
-            Target               = target;
+            Missile = missile;
+            Target = target;
             DelayedIgnitionTimer = missile.Weapon.DelayedIgnition;
             
             if (Missile.Weapon.DelayedIgnition > 0f)
@@ -52,39 +53,12 @@ namespace Ship_Game.AI
             if (Missile.Weapon != null && Missile.Weapon.Tag_Torpedo)
                 MaxNozzleDirection = 0.02f; // Torpedoes wiggle less
 
-            var universe = Missile.Owner?.Universe ?? Missile.Planet?.Universe;
-            if (universe == null)
-                return;
-            
-            Ship owningShip = Missile.Owner;
-            if (owningShip != null)
-            {
-                TargetList = owningShip.AI.PotentialTargets;
-                Level      = owningShip.Level;
-            }
-            else if (Missile.Planet != null)
-            {
-                var targets = new Array<Ship>();
-
-                // find nearby enemy ships
-                GameObject[] nearbyShips = universe.Spatial.FindNearby(GameObjectType.Ship,
-                            Missile, Missile.Planet.GravityWellRadius, maxResults:32, excludeLoyalty:Missile.Loyalty);
-
-                foreach (GameObject go in nearbyShips)
-                {
-                    if (missile.Weapon.TargetValid(go))
-                    {
-                        var nearbyShip = (Ship) go;
-                        if (missile.Loyalty.IsEmpireAttackable(nearbyShip.Loyalty))
-                            targets.Add(nearbyShip);
-                    }
-                }
-
-                TargetList = targets.ToArray();
-                Level = missile.Planet.Level;
-            }
-
             InitialPhaseDirection = RandomMath.RollDice(50) ? -1f : +1f;
+
+            if (Missile.Owner != null)
+                Level = Missile.Owner.Level;
+            else if (Missile.Planet != null)
+                Level = Missile.Planet.Level;
         }
 
         bool TargetValid(Ship ship)
@@ -96,66 +70,88 @@ namespace Ship_Game.AI
                    && Missile.Loyalty.IsEmpireAttackable(ship.Loyalty);
         }
 
+        Ship[] GetTargetList()
+        {
+            if (Missile.Owner != null)
+            {
+                return Missile.Owner.AI.PotentialTargets;
+            }
+            if (Missile.Planet != null)
+            {
+                var targets = new Array<Ship>();
+
+                // find nearby enemy ships
+                SpatialObjectBase[] nearbyShips = Missile.Universe.Spatial.FindNearby(GameObjectType.Ship,
+                            Missile, Missile.Planet.GravityWellRadius, maxResults:32, excludeLoyalty:Missile.Loyalty);
+
+                foreach (SpatialObjectBase go in nearbyShips)
+                {
+                    var nearbyShip = (Ship)go;
+                    if (Missile.Weapon!.TargetValid(nearbyShip))
+                    {
+                        if (Missile.Loyalty.IsEmpireAttackable(nearbyShip.Loyalty))
+                            targets.Add(nearbyShip);
+                    }
+                }
+                return targets.ToArray();
+            }
+            return Empty<Ship>.Array;
+        }
+
         //added by gremlin deveks ChooseTarget
-        public void ChooseTarget()
+        GameObject ChooseTarget()
         {
             if (Missile.Weapon.Tag_Torpedo)
-                return;  // Torps will not choose new targets but continue straight.
+                return null;  // Torps will not choose new targets but continue straight.
 
             if (!Missile.Loyalty.data.Traits.SmartMissiles)
             {
                 Missile.Die(Missile, false);
-                return;
+                return null;
             }
 
             Ship owningShip = Missile.Owner;
-            if (owningShip != null && owningShip.Active && !owningShip.Dying)
+            if (owningShip is { Active: true, Dying: false })
             {
-                if (owningShip.AI.Target is Ship targetShip)
-                {
-                    if (TargetValid(targetShip))
-                    {
-                        Target = targetShip.GetRandomInternalModule(Missile);
-                        return;
-                    }
-                }
+                if (owningShip.AI.Target is { } targetShip && TargetValid(targetShip))
+                    return targetShip.GetRandomInternalModule(Missile);
 
                 foreach (Ship ship in owningShip.AI.PotentialTargets)
-                {
                     if (TargetValid(ship))
-                    {
-                        Target = ship.GetRandomInternalModule(Missile);
-                        return;
-                    }
-                }
+                        return ship.GetRandomInternalModule(Missile);
             }
 
+            TargetList ??= GetTargetList();
+
             Empire owner = owningShip?.Loyalty ?? Missile.Planet.Owner;
-            if (owner == null || TargetList == null )
+            if (owner == null)
             {
                 Missile.Die(Missile, false);
-                return;
+                return null;
             }
 
             float bestSqDist = float.MaxValue;
             Ship bestTarget = null;
             foreach (Ship sourceTargetShip in TargetList)
             {
-                if (!TargetValid(sourceTargetShip))
-                    continue;
-
-                float sqDist = Missile.Position.SqDist(sourceTargetShip.Position);
-                if (sqDist > bestSqDist)
-                    continue;
-
-                bestSqDist = sqDist;
-                bestTarget = sourceTargetShip;
+                if (TargetValid(sourceTargetShip))
+                {
+                    float sqDist = Missile.Position.SqDist(sourceTargetShip.Position);
+                    if (sqDist <= bestSqDist)
+                    {
+                        bestSqDist = sqDist;
+                        bestTarget = sourceTargetShip;
+                    }
+                }
             }
 
-            if (bestTarget != null && bestSqDist < 30000 * 30000)
-                Target = bestTarget.GetRandomInternalModule(Missile);
-            else
+            if (bestTarget == null || bestSqDist >= 30000 * 30000)
+            {
                 Missile.Die(Missile, false);
+                return null;
+            }
+
+            return bestTarget.GetRandomInternalModule(Missile);
         }
 
         void MoveTowardsTargetJammed(FixedSimTime timeStep)
@@ -246,8 +242,7 @@ namespace Ship_Game.AI
                 TargetUpdateTimer = 0.15f;
                 if (Target == null || !Target.Active || Target is ShipModule targetModule && targetModule.GetParent().Dying)
                 {
-                    Target = null;
-                    ChooseTarget();
+                    Target = ChooseTarget();
                     ErrorAdjustTimer = 0f; // readjust error
                 }
             }

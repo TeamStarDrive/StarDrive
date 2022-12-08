@@ -78,7 +78,7 @@ namespace Ship_Game
             //if (sys.Sun.DoubleLayered) // draw second sun layer
             //    DrawSunMesh(sys, sys.Zrotate / -2.0f);
 
-            if (!sys.IsExploredBy(EmpireManager.Player))
+            if (!sys.IsExploredBy(Player))
                 return;
 
             for (int i = 0; i < sys.PlanetList.Count; i++)
@@ -171,8 +171,8 @@ namespace Ship_Game
 
         void DrawEnemiesDetectedByProjectors(SpriteBatch batch)
         {
-            var enemies = EmpireManager.GetEnemies(Player);
-            var playerProjectors = Player.GetProjectors();
+            var enemies = UState.GetEnemies(Player);
+            var playerProjectors = Player.OwnedProjectors;
             for (int i = 0; i < playerProjectors.Count; i++)
             {
                 Ship projector = playerProjectors[i];
@@ -200,17 +200,14 @@ namespace Ship_Game
 
             foreach (IncomingThreat threat in Player.SystemsWithThreat)
             {
-                if (!threat.ThreatTimedOut)
-                {
-                    var system = threat.TargetSystem;
-                    float pulseRad = PulseTimer * (threat.TargetSystem.Radius * 1.5f);
+                var system = threat.TargetSystem;
+                float pulseRad = PulseTimer * (threat.TargetSystem.Radius * 1.5f);
 
-                    Vector2d posOnScreen = ProjectToScreenPosition(system.Position);
-                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad), red, 10);
-                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.001f), black, 5);
-                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.3f), red, 10);
-                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.301f), black, 5);
-                }
+                Vector2d posOnScreen = ProjectToScreenPosition(system.Position);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad), red, 10);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.001f), black, 5);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.3f), red, 10);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.301f), black, 5);
             }
         }
 
@@ -306,7 +303,7 @@ namespace Ship_Game
                 if (enemyRect.HitTest(Input.CursorPosition))
                     ToolTip.CreateTooltip(GameText.IndicatesThatHostileForcesWere);
 
-                if (sys.HasPlanetsOwnedBy(EmpireManager.Player) && sys.PlanetList.Any(p => p.SpaceCombatNearPlanet))
+                if (sys.HasPlanetsOwnedBy(Player) && sys.PlanetList.Any(p => p.SpaceCombatNearPlanet))
                 {
                     var battleHere = ResourceManager.Texture("Ground_UI/Ground_Attack");
                     var battleRect = new RectF(sysPos.X, sysPos.Y, battleHere.Width, battleHere.Height);
@@ -328,7 +325,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
-                if (ship.InSensorRange)
+                if (ship.InPlayerSensorRange)
                 {
                     ship.RenderThrusters(ref View, ref Projection);
                 }

@@ -61,6 +61,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
     <Reference Include="XNAnimation, Version=0.7.0.0, Culture=neutral, PublicKeyToken=0c21691816f8c6d0, processorArchitecture=x86">
       <HintPath>..\game\XNAnimation.dll</HintPath>
       <Private>False</Private>
@@ -68,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AITests\Empire\BudgetTests.cs" />
+    <Compile Include="AITests\Empire\SpaceRoadsTests.cs" />
     <Compile Include="AITests\Empire\ShipsWeCanBuildTests.cs" />
     <Compile Include="AITests\Empire\TestEmpireAI.cs" />
     <Compile Include="AITests\Ships\ShipAICombatTests.cs" />
@@ -78,10 +80,12 @@
     <Compile Include="Collections\SafeArrayLockTests.cs" />
     <Compile Include="Collections\SafeArrayTests.cs" />
     <Compile Include="Collections\SafeArrayTypesTestBase.cs" />
+    <Compile Include="Collections\StableCollectionTests.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="Collections\TestEnumFlatMap.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
+    <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
     <Compile Include="Fleets\FleetTests.cs" />
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="Collections\ArrayT_Tests.cs" />
@@ -92,7 +96,9 @@
     <Compile Include="Planets\LandOnTiles.cs" />
     <Compile Include="Planets\TestOrbitalBomb.cs" />
     <Compile Include="Serialization\BinaryReadWriteTests.cs" />
+    <Compile Include="Serialization\ObjectScannerTests.cs" />
     <Compile Include="Serialization\StringViewTests.cs" />
+    <Compile Include="Serialization\TypeSerializerTests.cs" />
     <Compile Include="Serialization\YamlSerializerTests.cs" />
     <Compile Include="Ships\ExternalSlotGridTests.cs" />
     <Compile Include="Ships\ModuleGridFlyweightTests.cs" />
@@ -118,6 +124,7 @@
     <Compile Include="Ships\TestShipWarpStates.cs" />
     <Compile Include="Ships\ShipAITests.cs" />
     <Compile Include="Ships\ShipDesignUtilsTests.cs" />
+    <Compile Include="StarDriveTest.Assert.cs" />
     <Compile Include="StarDriveTestContext.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
@@ -131,7 +138,10 @@
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
-    <Compile Include="Serialization\TestSerialization.cs" />
+    <Compile Include="Universe\CommonVisualization.cs" />
+    <Compile Include="Universe\GenericQtreeTests.cs" />
+    <Compile Include="Universe\GenericQtreeVisualization.cs" />
+    <Compile Include="Universe\ThreatMatrixTests.cs" />
     <Compile Include="Universe\SaveLoadUniverseScreenTests.cs" />
     <Compile Include="Universe\SpatialVisualization.cs" />
     <Compile Include="Universe\TestManagedQuadTree.cs" />
@@ -152,6 +162,7 @@
     <Compile Include="Universe\TestNativeSpatial.cs" />
     <Compile Include="Universe\TestSpatialCommon.cs" />
     <Compile Include="Collections\GameObjectListTests.cs" />
+    <Compile Include="Universe\ThreatMatrixVisualization.cs" />
     <Compile Include="Universe\UniverseObjectManagerTests.cs" />
     <Compile Include="Utils\BitArrayTests.cs" />
     <Compile Include="Utils\PerfTimerTests.cs" />
@@ -176,7 +187,7 @@
     </ProjectReference>
     <ProjectReference Include="..\StarDrive.csproj">
       <Project>{8071e07a-300e-485d-b139-066e15e82178}</Project>
-      <Name>-p%3bl.47</Name>
+      <Name>StarDrive</Name>
     </ProjectReference>
     <ProjectReference Include="..\SynapseGaming-SunBurn-Pro\SDSunBurn.csproj">
       <Project>{bb003976-4764-4f4e-9a98-ddfb8449eccd}</Project>

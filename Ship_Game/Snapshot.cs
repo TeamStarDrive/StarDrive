@@ -19,11 +19,11 @@ namespace Ship_Game
     [StarDataType]
     public sealed class Snapshot
     {
-        [StarData] public Array<NRO> EmpireNodes = new Array<NRO>();
+        [StarData] public Array<NRO> EmpireNodes = new();
         [StarData] public int ShipCount;
         [StarData] public float MilitaryStrength;
         [StarData] public float Population;
-        [StarData] public Array<string> Events = new Array<string>();
+        [StarData] public Array<string> Events = new();
         [StarData] public float TaxRate;
         [StarData] public float StarDate;
         [StarData] public int TotalShips;

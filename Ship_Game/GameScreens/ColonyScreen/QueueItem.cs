@@ -1,48 +1,51 @@
-using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
-using Ship_Game.Audio;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game
 {
     public delegate void QueueItemCompleted(bool success);
 
+    [StarDataType]
     public class QueueItem
     {
-        public Planet Planet;
-        public bool isBuilding;
-        public bool IsMilitary; // Military building
-        public bool isShip;
-        public bool isOrbital;
-        public bool isTroop;
+        [StarData] public Planet Planet;
+        [StarData] public bool isBuilding;
+        [StarData] public bool IsMilitary; // Military building
+        [StarData] public bool isShip;
+        [StarData] public bool isOrbital;
+        [StarData] public bool isTroop;
+        [StarData] public IShipDesign ShipData;
+        [StarData] public Building Building;
+        [StarData] public string TroopType;
+        [StarData] public Array<int> TradeRoutes = new();
+        [StarData] public Array<Rectangle> AreaOfOperation = new();
+        [StarData] public PlanetGridSquare pgs;
+        [StarData] public string DisplayName;
+        [StarData] public float Cost;
+        [StarData] public float ProductionSpent;
+        [StarData] public Goal Goal;
+        [StarData] public int Priority;
+        [StarData] public QueueItemType QType;
+        [StarData] public float PriorityBonus { get; private set; } // Gets bigger as the queue is prioritized
+        [StarData] public bool Rush;
+        [StarData] public bool NotifyOnEmpty = true;
+        [StarData] public bool IsPlayerAdded = false;
+        [StarData] public bool TransportingColonists  = true;
+        [StarData] public bool TransportingFood       = true;
+        [StarData] public bool TransportingProduction = true;
+        [StarData] public bool AllowInterEmpireTrade  = true;
+
         public bool IsCivilianBuilding => isBuilding && !IsMilitary;
-        public IShipDesign sData;
-        public Building Building;
-        public string TroopType;
-        public Array<int> TradeRoutes = new Array<int>();
-        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         public Rectangle rect;
         public Rectangle removeRect;
-        public int QueueNumber;
-        public int ShipLevel;
-        public PlanetGridSquare pgs;
-        public string DisplayName;
-        public float Cost;
-        public float ProductionSpent;
-        public Goal Goal;
-        public bool Rush;
-        public bool NotifyOnEmpty = true;
-        public bool IsPlayerAdded = false;
-        public bool TransportingColonists  = true;
-        public bool TransportingFood       = true;
-        public bool TransportingProduction = true;
-        public bool AllowInterEmpireTrade  = true;
 
         // Event action for when this QueueItem is finished
         public QueueItemCompleted OnComplete;
@@ -55,6 +58,8 @@ namespace Ship_Game
 
         // if TRUE, this QueueItem will be cancelled during next production queue update
         public bool IsCancelled;
+
+        public QueueItem() { }
 
         public QueueItem(Planet planet)
         {
@@ -79,10 +84,10 @@ namespace Ship_Game
             }
             else if (isShip)
             {
-                batch.Draw(sData.Icon, r);
-                string name = DisplayName.IsEmpty() ? sData.Name : DisplayName;
-                if (Goal?.Fleet != null)
-                    name = $"{name} ({Goal.Fleet.Name})";
+                batch.Draw(ShipData.Icon, r);
+                string name = DisplayName.IsEmpty() ? ShipData.Name : DisplayName;
+                if (Goal is FleetGoal fg && fg.Fleet != null)
+                    name = $"{name} ({fg.Fleet.Name})";
 
                 batch.DrawString(Fonts.Arial12Bold, name, tCursor, Color.White);
                 pb.Draw(batch);
@@ -107,7 +112,7 @@ namespace Ship_Game
             get
             {
                 float cost = Cost;
-                if (isShip && !sData.IsSingleTroopShip)
+                if (isShip && !ShipData.IsSingleTroopShip)
                     cost *= Planet.ShipBuildingModifier; // single troop ships do not get shipyard bonus
 
                 return (int)cost; // FB - int to avoid float issues in release which prevent items from being complete
@@ -121,41 +126,78 @@ namespace Ship_Game
                 if (isBuilding)
                     return Building.TranslatedName.Text;
                 if (isShip || isOrbital)
-                    return DisplayName ?? sData.Name;
+                    return DisplayName ?? ShipData.Name;
                 if (isTroop)
                     return TroopType;
                 return "";
             }
         }
 
-        public override string ToString() => $"QueueItem DisplayText={DisplayText}";
-
-        public SavedGame.QueueItemSave Serialize()
+        // This also increases the priority bonus of the item. So it will be bumped up in the list a little next time
+        public float GetAndUpdatePriority(Planet planet,int totalFreighters)
         {
-            var qi = new SavedGame.QueueItemSave
+            float priority = 5000;
+            Empire owner = planet.Owner;
+            switch (QType)
             {
-                IsBuilding  = isBuilding,
-                IsMilitary  = IsMilitary,
-                Cost        = Cost,
-                IsShip      = isShip,
-                DisplayName = DisplayName,
-                IsTroop     = isTroop,
-                Rush        = Rush,
-                ProgressTowards = ProductionSpent,
-                IsPlayerAdded   = IsPlayerAdded,
-                TradeRoutes     = TradeRoutes,
-                AreaOfOperation = AreaOfOperation.Select(r => new RectangleData(r)),
-                TransportingColonists  = TransportingColonists,
-                TransportingFood       = TransportingFood,
-                TransportingProduction = TransportingProduction,
-                AllowInterEmpireTrade  = AllowInterEmpireTrade
-        };
-            if (qi.IsBuilding) qi.UID = Building.Name;
-            if (qi.IsShip)     qi.UID = sData.Name;
-            if (qi.IsTroop)    qi.UID = TroopType;
-            if (Goal != null) qi.GoalId  = Goal.Id;
-            if (pgs != null)  qi.PGSVector = new Vector2(pgs.X, pgs.Y);
-            return qi;
+                case QueueItemType.OrbitalUrgent:
+                case QueueItemType.ColonyShipClaim: priority = 0;                                                                               break;
+                case QueueItemType.Building:        priority = planet.PrioritizeColonyBuilding(Building);                                       break;
+                case QueueItemType.Troop:           priority = 0.2f + owner.AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 5;              break;
+                case QueueItemType.Scout:           priority = owner.GetPlanets().Count * 0.05f;                                                break;
+                case QueueItemType.ColonyShip:      priority = (owner.GetPlanets().Count * (owner.IsExpansionists ? 0.01f : 0.05f));            break;
+                case QueueItemType.Orbital:         priority = 1 + (owner.TotalOrbitalMaintenance / owner.AI.DefenseBudget.LowerBound(1) * 10); break;
+                case QueueItemType.RoadNode:        priority = 0.5f + owner.AI.SpaceRoadsManager.NumOnlineSpaceRoads * 0.1f;                    break;
+                case QueueItemType.Freighter: 
+                    priority =  totalFreighters < owner.GetPlanets().Count ? 0 : 0.9f * totalFreighters / owner.FreighterCap;
+                    break;
+                case QueueItemType.CombatShip:      
+                    priority = (owner.TotalWarShipMaintenance / owner.AI.BuildCapacity.LowerBound(1) * 10);
+                    if (owner.IsMilitarists)
+                        priority *= 0.5f;
+                    break;
+            }
+
+            if (!owner.isPlayer && owner.IsAtWarWithMajorEmpire)
+            {
+                switch (QType)
+                {
+                    case QueueItemType.Troop:
+                    case QueueItemType.CombatShip: priority *= 0.5f;  break;
+                    case QueueItemType.Orbital:    priority *= 0.66f; break;
+                }
+            }
+
+            switch (QType)
+            {
+                case QueueItemType.Scout:
+                case QueueItemType.ColonyShip: PriorityBonus += 0.1f;  break;
+                case QueueItemType.Building:   PriorityBonus += 0.15f; break;
+                case QueueItemType.Freighter:  PriorityBonus += 0.2f;  break;
+                default:                       PriorityBonus += 0.05f; break;
+            }
+
+            if (DisplayText.Contains("Subspace Projector"))
+                PriorityBonus += 1f;
+
+            return (priority - PriorityBonus);
         }
+
+        public override string ToString() => $"QueueItem DisplayText={DisplayText}";
     }
+
+    public enum QueueItemType
+    {
+        ColonyShip,
+        ColonyShipClaim,
+        Freighter,
+        Scout,
+        Troop,
+        CombatShip,
+        Building,
+        Orbital,
+        OrbitalUrgent,
+        RoadNode
+    }
+
 }

@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using SDGraphics;
+using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -25,6 +26,22 @@ namespace Ship_Game
         public readonly Vector2 Size => new(Width, Height);
         public readonly Vector2 TopLeft => new(X1,Y1);
         public readonly Vector2 BotRight => new(X2,Y2);
+
+        public readonly float Area => (X2 - X1) * (Y2 - Y1);
+
+        // Gets the averaged radius of this bounding box (not accurate)
+        public readonly float Radius => ((X2 - X1) + (Y2 - Y1)) * 0.25f;
+
+        // Length of the diagonal which crosses this AABB from TopLeft to BottomRight
+        public readonly float Diagonal
+        {
+            get
+            {
+                float w = X2 - X1;
+                float h = Y2 - Y1;
+                return (float)Math.Sqrt(w*w + h*h);
+            }
+        }
 
         public readonly bool IsEmpty => (X1 == X2) || (Y1 == Y2);
 
@@ -59,7 +76,7 @@ namespace Ship_Game
             Y2 = botRight.Y;
         }
 
-        public AABoundingBox2D(GameObject go)
+        public AABoundingBox2D(SpatialObjectBase go)
         {
             float x = go.Position.X;
             float y = go.Position.Y;
@@ -102,6 +119,26 @@ namespace Ship_Game
             return (dx*dx + dy*dy) <= (radius*radius);
         }
 
+        // expands this bounding box to include the new point
+        public void Expand(in Vector2 pos)
+        {
+            float x = pos.X;
+            if      (x < X1) X1 = x;
+            else if (X2 < x) X2 = x;
+            float y = pos.Y;
+            if      (y < Y1) Y1 = y;
+            else if (Y2 < y) Y2 = y;
+        }
+
+        // merges two bounding box into a new bigger bounding box
+        public AABoundingBox2D Merge(in AABoundingBox2D bounds)
+        {
+            return new(Math.Min(X1, bounds.X1),
+                       Math.Min(Y1, bounds.Y1),
+                       Math.Max(X2, bounds.X2),
+                       Math.Max(Y2, bounds.Y2));
+        }
+
         // Create a rectangle from 2 points that don't need to be sorted in screen space
         // This is ideal for user selection cases where Start and End points can be anywhere on screen
         public static AABoundingBox2D FromIrregularPoints(in Vector2 a, in Vector2 b)
@@ -112,6 +149,31 @@ namespace Ship_Game
             r.Y1 = Math.Min(a.Y, b.Y);
             r.Y2 = Math.Max(a.Y, b.Y);
             return r;
+        }
+        
+        public static bool operator==(in AABoundingBox2D a, in AABoundingBox2D b)
+        {
+            return a.X1 == b.X1 && a.X2 == b.X2 && a.Y1 == b.Y1 && a.Y2 == b.Y2;
+        }
+
+        public static bool operator!=(in AABoundingBox2D a, in AABoundingBox2D b)
+        {
+            return a.X1 != b.X1 || a.X2 != b.X2 || a.Y1 != b.Y1 || a.Y2 != b.Y2;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is AABoundingBox2D d && X1 == d.X1 && Y1 == d.Y1 && X2 == d.X2 && Y2 == d.Y2;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 268039418;
+            hashCode = hashCode * -1521134295 + X1.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y1.GetHashCode();
+            hashCode = hashCode * -1521134295 + X2.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y2.GetHashCode();
+            return hashCode;
         }
     }
 
@@ -154,7 +216,7 @@ namespace Ship_Game
             Y2 = (int)r.Bottom;
         }
 
-        public AABoundingBox2Di(GameObject go)
+        public AABoundingBox2Di(SpatialObjectBase go)
         {
             int x = (int)go.Position.X;
             int y = (int)go.Position.Y;

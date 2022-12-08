@@ -8,6 +8,7 @@ using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.GameScreens.ShipDesign;
 
 namespace Ship_Game.Ships
 {
@@ -230,9 +231,10 @@ namespace Ship_Game.Ships
                             sc.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
                         }
 
-                        // draw the debug x/y pos
-                        sc.DrawString(posOnScreen.ToVec2f(), shipRotation, (float)(600.0 / camHeight), Color.Red,
-                                      $"X{slot.Pos.X} Y{slot.Pos.Y}\nF{slotFacing}");
+                        // draw the module restriction info
+                        string info = slot.HasInternalRestrictions ? "Int" : slot.IsExternal ? "Ext" : null;
+                        if (info.NotEmpty())
+                            sc.DrawString(posOnScreen.ToVec2f(), shipRotation, (float)(600.0 / camHeight), Color.Yellow, info);
                     }
                 }
             }
@@ -306,25 +308,43 @@ namespace Ship_Game.Ships
             if (!HelperFunctions.DataVisibleToPlayer(Loyalty))
                 return;
 
-            Vector2 offSet = new Vector2(screenRadius * .75f, screenRadius * .75f);
+            var offset = new Vector2(screenRadius * 0.75f, screenRadius * 0.75f);
 
-            // display low ammo
-            if (OrdnancePercent < 0.5f)
+            if (OrdnancePercent < 0.5f) // display low ammo
             {
                 float criticalThreshold = InCombat ? ShipResupply.OrdnanceThresholdCombat : ShipResupply.OrdnanceThresholdNonCombat;
                 Color color             = OrdnancePercent <= criticalThreshold ? Color.Red : Color.Yellow;
-                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_ammo", color);
+                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "NewUI/icon_ammo", color);
             }
+
             // FB: display resupply icons
             switch (AI.State)
             {
-                case Ship_Game.AI.AIState.Resupply:
-                case Ship_Game.AI.AIState.ResupplyEscort:
-                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_resupply", Color.White);
+                case AIState.Resupply:
+                case AIState.ResupplyEscort:
+                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "NewUI/icon_resupply", Color.White);
                     break;
-                case Ship_Game.AI.AIState.ReturnToHangar:
-                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "UI/icon_hangar", Color.Yellow);
+                case AIState.ReturnToHangar:
+                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "UI/icon_hangar", Color.Yellow);
                     break;
+            }
+
+            // if fleet is warping, show warp ready status
+            if (Fleet is { InFormationMove: true } && Position.OutsideRadius(AI.GoalTarget, 7500f))
+            {
+                WarpStatus status = ShipEngines.ReadyForFormationWarp;
+
+                Color color = Color.Green;
+                if (status == WarpStatus.UnableToWarp) color = Color.Green;
+                else if (status == WarpStatus.WaitingOrRecalling) color = Color.Yellow;
+                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "UI/icon_ftloverlay", color);
+
+                // if FTL Overlay is enabled, or in debug, draw the formation WarpStatus
+                if (status is WarpStatus.UnableToWarp or WarpStatus.WaitingOrRecalling && 
+                    (us.Debug || us.ShowingFTLOverlay) && ShipEngines.FormationStatus.NotEmpty())
+                {
+                    us.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, ShipEngines.FormationStatus, screenPos+offset, color);
+                }
             }
         }
 
@@ -337,7 +357,9 @@ namespace Ship_Game.Ships
         }
 
         public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, 
-                                  bool showModules, bool moduleHealthColor = true)
+                                  bool showModules, 
+                                  bool drawHullBackground = false,
+                                  bool moduleHealthColor = true)
         {
             bool drawIconOnly = !showModules || ModuleSlotList.Length == 0;
             if (drawIconOnly && ShipData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
@@ -349,7 +371,7 @@ namespace Ship_Game.Ships
                 if (ShieldPower > 0.0)
                 {
                     batch.Draw(ResourceManager.Texture(icon + "_shields"), destRect,
-                               new Color(Color.White, (float)ShieldPercent));
+                               new Color(Color.White, ShieldPercent));
                 }
                 return;
             }
@@ -364,24 +386,45 @@ namespace Ship_Game.Ships
                     drawRect.Y + (int)(rectCenter.Y - (gridCenter.Y * moduleSize)),
                     (int)(Grid.Width * moduleSize), (int)(Grid.Height * moduleSize));
 
+            SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
+
+            if (drawHullBackground)
+            {
+                foreach (HullSlot slot in ShipData.BaseHull.HullSlots)
+                {
+                    Vector2 modulePos = new Vector2(slot.Pos.X, slot.Pos.Y) * moduleSize;
+                    var rect = new RectF(shipDrawRect.X + modulePos.X,
+                                         shipDrawRect.Y + modulePos.Y,
+                                         moduleSize, moduleSize);
+                    batch.Draw(concreteGlass, rect, Color.Gray);
+                }
+            }
+
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule m = ModuleSlotList[i];
-                int x = m.Pos.X;
-                int y = m.Pos.Y;
-                Vector2 modulePos = new Vector2(x, y) * moduleSize;
-                Color healthColor = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40, 40, 40);
-                Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
-                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X,
-                                         shipDrawRect.Y + (int)modulePos.Y,
-                                         (int)moduleSize * m.XSize,
-                                         (int)moduleSize * m.YSize);
+                Vector2 modulePos = new Vector2(m.Pos.X, m.Pos.Y) * moduleSize;
+                var rect = new RectF(shipDrawRect.X + modulePos.X,
+                                     shipDrawRect.Y + modulePos.Y,
+                                     moduleSize * m.XSize,
+                                     moduleSize * m.YSize);
 
                 SubTexture tex = m.ModuleTexture;
                 m.GetOrientedModuleTexture(ref tex, m.ModuleRot);
 
-                batch.FillRectangle(rect, healthColor);
-                batch.Draw(tex, rect, moduleColorMultiply);
+                if (moduleHealthColor)
+                {
+                    Color healthColor = m.GetHealthStatusColor();
+                    if (!drawHullBackground)
+                        batch.FillRectangle(rect, healthColor);
+                    batch.Draw(tex, rect, healthColor.AddRgb(0.66f));
+                }
+                else
+                {
+                    if (!drawHullBackground)
+                        batch.FillRectangle(rect, new Color(40, 40, 40));
+                    batch.Draw(tex, rect, Color.White);
+                }
             }
         }
 

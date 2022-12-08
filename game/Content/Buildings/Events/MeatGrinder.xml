@@ -6,7 +6,7 @@
   
   <IsCommodity>false</IsCommodity>
   <PlusFlatFoodAmount>2</PlusFlatFoodAmount>
-  <PlusFlatPopulation>-10</PlusFlatPopulation>
+  <PlusFlatPopulation>-5</PlusFlatPopulation>
   <Scrappable>true</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   

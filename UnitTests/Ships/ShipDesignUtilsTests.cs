@@ -80,9 +80,9 @@ namespace UnitTests.Ships
             {
                 if (legacyUnlockable.TryGetValue(@new.Name, out ShipDesign legacy))
                 {
-                    Assert.That.Equal(ToArray(legacy.TechsNeeded), ToArray(@new.TechsNeeded),
+                    AssertEqual(ToArray(legacy.TechsNeeded), ToArray(@new.TechsNeeded),
                                       $"{@new.Name} TechsNeeded must be equal");
-                    Assert.AreEqual(legacy.Unlockable, @new.Unlockable, $"{@new.Name} Not same Unlockable");
+                    AssertEqual(legacy.Unlockable, @new.Unlockable, $"{@new.Name} Not same Unlockable");
                 } 
                 else
                 {

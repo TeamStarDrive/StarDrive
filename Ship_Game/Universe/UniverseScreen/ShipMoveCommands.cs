@@ -92,8 +92,7 @@ namespace Ship_Game.Universe
         {
             if (planet.Owner == null && planet.Habitable)
             {
-                ship.AI.OrderColonization(planet);
-                Universe.Player.GetEmpireAI().Goals.Add(new MarkForColonization(ship, planet, EmpireManager.Player));
+                Universe.Player.AI.AddGoalAndEvaluate(new MarkForColonization(ship, planet, Universe.Player));
             }
             else
             {
@@ -237,7 +236,7 @@ namespace Ship_Game.Universe
                     ship.AI.ResetPriorityOrder(!Input.QueueAction);
             }
 
-            Universe.Player.GetEmpireAI().DefensiveCoordinator.RemoveShipList(Universe.SelectedShipList);
+            Universe.Player.AI.DefensiveCoordinator.RemoveShipList(Universe.SelectedShipList);
 
             if (TryFleetAttackShip(fleet, shipClicked))
                 return;

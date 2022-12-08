@@ -39,7 +39,7 @@ namespace UnitTests.Planets
         {
             float expectedPop = 14 * Player.data.Traits.HomeworldSizeMultiplier;
             float actualPop   = P.MaxPopulationBillion;
-            Assert.That.Equal(0.1f, expectedPop, actualPop);
+            AssertEqual(0.1f, expectedPop, actualPop);
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace UnitTests.Planets
         {
             float expectedMaxPop = P.MaxPopulation - P.BasePopPerTile * Empire.RacialEnvModifer(P.Category, Player);
             P.DestroyTile(FindHabitableTargetTile(P));
-            Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
+            AssertEqual(expectedMaxPop, P.MaxPopulation);
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@ namespace UnitTests.Planets
             P.UpdateMaxPopulation();
             float expectedMaxPop = P.MaxPopulation - P.PopPerBiosphere(Player);
             P.DestroyTile(bioTile);
-            Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
+            AssertEqual(expectedMaxPop, P.MaxPopulation);
             Assert.IsFalse(bioTile.Biosphere);
             Assert.IsFalse(bioTile.Habitable);
         }

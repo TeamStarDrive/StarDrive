@@ -1,22 +1,24 @@
 ﻿using System;
 using SDGraphics;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class RemnantPortal : Goal
     {
-        public const string ID = "RemnantPortal";
-        public override string UID => ID;
-        private Remnants Remnants;
-        private Ship Portal;
+        [StarData] public sealed override Ship TargetShip { get; set; }
+        [StarData] Vector2 TetherOffset;
 
-        public RemnantPortal(int id, UniverseState us)
-            : base(GoalType.RemnantPortal, id, us)
+        Remnants Remnants => Owner.Remnants;
+        Ship Portal => TargetShip;
+
+        [StarDataConstructor]
+        public RemnantPortal(Empire owner) : base(GoalType.RemnantPortal, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -25,19 +27,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public RemnantPortal(Empire owner, Ship portal, string systemName)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public RemnantPortal(Empire owner, Ship portal, string systemName) : this(owner)
         {
-            empire     = owner;
             TargetShip = portal;
-            PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Portal in {systemName} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Remnants = empire.Remnants;
-            Portal   = TargetShip;
+            if (Remnants.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Portal in {systemName} ----");
         }
 
         void UpdatePosition()
@@ -80,11 +74,8 @@ namespace Ship_Game.Commands.Goals
 
         void ReturnToSpawnPos()
         {
-            if (TetherOffset == Vector2.Zero)
-                return; // save support - can be removed in 2021
-
             Vector2 systemPos = Portal.System?.Position 
-                                ?? empire.Universum.Systems.FindMin(s => s.Position.SqDist(Portal.Position)).Position;
+                                ?? Owner.Universe.Systems.FindMin(s => s.Position.SqDist(Portal.Position)).Position;
 
             Vector2 desiredPos = Portal.Position = systemPos + TetherOffset;
             if (!Portal.Position.InRadius(desiredPos, 1000))
@@ -115,12 +106,12 @@ namespace Ship_Game.Commands.Goals
             UpdatePosition();
             if (Portal.System != null)
             {
-                float production = empire.Universum.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
+                float production = Owner.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
                 if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
                     production /= 2;
 
-                production *= empire.DifficultyModifiers.RemnantResourceMod;
-                production *= (int)(CurrentGame.GalaxySize + 1) * 2 * CurrentGame.StarsModifier / EmpireManager.MajorEmpires.Length;
+                production *= Owner.DifficultyModifiers.RemnantResourceMod;
+                production *= (int)(UState.P.GalaxySize + 1) * 2 * UState.P.StarsModifier / UState.MajorEmpires.Length;
                 Remnants.TryGenerateProduction(production);
             }
 

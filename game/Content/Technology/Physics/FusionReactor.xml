@@ -4,7 +4,6 @@
   <UID>FusionReactor</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>450</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>8045</NameIndex>
   <DescriptionIndex>17450</DescriptionIndex>
   <LeadsTo>

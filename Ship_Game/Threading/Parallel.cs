@@ -46,7 +46,7 @@ namespace Ship_Game
             if (!IsComplete)
                 Finished.WaitOne(millisecondTimeout);
             if (Error != null)
-                throw Error;
+                throw new ParallelTaskException("Parallel Task throw an exception", Error);
             return IsComplete;
         }
         
@@ -78,7 +78,7 @@ namespace Ship_Game
         void ITaskResult.SetResult(object value, Exception e)
         {
             Error = e;
-            Result = (T)value;
+            Result = value != null ? (T)value : default;
             IsComplete = true;
             Finished.Set();
         }
@@ -91,7 +91,7 @@ namespace Ship_Game
             if (!IsComplete)
                 Finished.WaitOne(millisecondTimeout);
             if (Error != null)
-                throw Error;
+                throw new ParallelTaskException("Parallel Task throw an exception", Error);
             return IsComplete;
         }
         

@@ -1,4 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
+using Ship_Game.UI;
 using System;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -6,14 +8,11 @@ namespace Ship_Game
 {
     public class UITextBox : UIPanel
     {
-        readonly ScrollList2<TextBoxItem> ItemsList;
-        const int PaddingTop = 24; // This is an old hack in ScrollList, will have to be fixed in the future
+        readonly ScrollList<TextBoxItem> ItemsList;
         
-        public UITextBox(in Rectangle rect)
-            : base(new Rectangle(rect.X, rect.Y - PaddingTop, 
-                                 rect.Width, rect.Height + PaddingTop), Color.TransparentBlack)
+        public UITextBox(in RectF rect) : base(rect, Color.TransparentBlack)
         {
-            ItemsList = Add(new ScrollList2<TextBoxItem>(Rect));
+            ItemsList = base.Add(new SubmenuScrollList<TextBoxItem>(rect)).List;
             ItemsList.EnableItemEvents = false;
         }
 
@@ -28,11 +27,6 @@ namespace Ship_Game
         }
 
         public Rectangle ItemsRect => ItemsList.ItemsHousing;
-
-        public UITextBox(Submenu background) : base(background.Rect, Color.TransparentBlack)
-        {
-            ItemsList = Add(new ScrollList2<TextBoxItem>(background));
-        }
 
         public void Clear()
         {
@@ -52,7 +46,7 @@ namespace Ship_Game
         // Parses and WRAPS textblock into separate lines
         public void AddLines(string textBlock, Graphics.Font font, Color color)
         {
-            string[] lines = font.ParseTextToLines(textBlock, ItemsList.ItemsHousing.Width);
+            string[] lines = font.ParseTextToLines(textBlock, ItemsList.ItemsHousing.W);
             foreach (string line in lines)
                 AddLine(line, font, color);
         }

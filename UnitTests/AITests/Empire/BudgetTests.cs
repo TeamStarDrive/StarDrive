@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
-using Ship_Game.AI.Compnonents;
+using Ship_Game.AI.Components;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire
@@ -26,6 +27,12 @@ namespace UnitTests.AITests.Empire
                 AddDummyPlanetToEmpire(new Vector2(1000), Enemy);
         }
 
+        Planet CreateEmpireAndHomeWorld()
+        {
+            CreateUniverseAndPlayerEmpire("Cordrazine");
+            return AddHomeWorldToEmpire(new Vector2(1000), Player);
+        }
+
         [TestMethod]
         public void TestBudgetLoad()
         {
@@ -47,12 +54,12 @@ namespace UnitTests.AITests.Empire
 
             Assert.IsTrue(budget.Count() == budgetAreas);
 
-            var eAI = Enemy.GetEmpireAI();
+            var eAI = Enemy.AI;
 
             var colonyShip = SpawnShip("Colony Ship", Enemy, Vector2.Zero);
             Enemy.UpdateEmpirePlanets();
             Enemy.UpdateNetPlanetIncomes();
-            Enemy.GetEmpireAI().RunEconomicPlanner();
+            Enemy.AI.RunEconomicPlanner();
 
             foreach (var planet in UState.Planets)
             {
@@ -81,12 +88,57 @@ namespace UnitTests.AITests.Empire
             Enemy.data.TaxRate = 1;
             Enemy.UpdateEmpirePlanets();
             Enemy.UpdateNetPlanetIncomes();
-            Enemy.GetEmpireAI().RunEconomicPlanner();
+            Enemy.AI.RunEconomicPlanner();
             Assert.IsTrue(Enemy.data.TaxRate < 1, $"Tax Rate should be less than 100% was {Enemy.data.TaxRate * 100}%");
 
-            Enemy.Money = Enemy.GetEmpireAI().ProjectedMoney * 10;
-            Enemy.GetEmpireAI().RunEconomicPlanner();
+            Enemy.Money = Enemy.AI.ProjectedMoney * 10;
+            Enemy.AI.RunEconomicPlanner();
             Assert.IsTrue(Enemy.data.TaxRate <= 0.00001, $"Tax Rate should be zero was {Enemy.data.TaxRate * 100}%");
+        }
+
+        [TestMethod]
+        public void TestTerraformerBudget()
+        {
+            Planet homeworld = CreateEmpireAndHomeWorld();
+            Assert.IsTrue(homeworld.TilesList.Any(t => !t.Habitable), "Homeworld should contain at list 1 uninhabitable tile");
+            if (!homeworld.TilesList.Any(t => t.Terraformable))
+            {
+                PlanetGridSquare tile = homeworld.TilesList.Filter(t => !t.Habitable).First();
+                tile.Terraformable = true;
+            }
+
+            Player.AddMoney(2000);
+            Player.UpdateNetPlanetIncomes();
+            Player.AI.RunEconomicPlanner();
+            float budget = Player.AI.TerraformBudget = 4; // fake budget for testing
+            Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
+            float terraformerMaint = terraformer.ActualMaintenance(homeworld);
+
+            // The budget from empire should be at least twice the maint of a terraformer for this test to pass
+            // If its not, maybe terraformer maint was increase in xml or something was changed with budgets.xml
+            AssertGreaterThan(budget, terraformerMaint * 2,
+                $"Terraformer budget form empire {budget} is lower than terraformer maintenance {terraformerMaint}");
+
+            Player.GovernPlanets();
+            Player.AutoBuildTerraformers = true;
+            Player.UnlockEmpireBuilding(terraformer.Name);
+            Player.data.Traits.TerraformingLevel = 3;
+            Player.GovernPlanets();
+
+            // We need 2 Terraformers for this test and it should get a minimum of 2
+            AssertGreaterThan(homeworld.TerraformerLimit, 1);
+
+            // The budget the planet gets must be like the maint of the terraformer
+            // It will be increased differentially when terraformers are built
+            AssertEqual(homeworld.TerraformBudget, terraformerMaint);
+            Assert.IsTrue(homeworld.TerraformerInTheWorks, "Planet should be building a Terraformer now");
+            UState.Debug = true; // to get the debug rush
+            homeworld.Construction.RushProduction(0, 10000, rushButton: true);
+            Assert.IsTrue(homeworld.TerraformersHere == 1, "Planet should have a built Terraformer");
+            Player.GovernPlanets();
+
+            // The budget the planet should now be the maint of 2 terraformers
+            AssertEqual(homeworld.TerraformBudget, terraformerMaint*2);
         }
     }
 }

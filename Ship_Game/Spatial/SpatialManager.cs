@@ -13,18 +13,18 @@ namespace Ship_Game.Gameplay
         ISpatial ResetToNewSpatial;
         int UniverseWidth;
 
-        public readonly AggregatePerfTimer UpdateTime = new AggregatePerfTimer();
-        public readonly AggregatePerfTimer CollisionTime = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer UpdateTime = new();
+        public readonly AggregatePerfTimer CollisionTime = new();
 
         public string Name => Spatial?.Name ?? "";
         public int Collisions { get; private set; }
         public int Count => Spatial?.Count ?? 0;
 
-        public VisualizerOptions VisOpt = new VisualizerOptions();
+        public VisualizerOptions VisOpt = new();
 
-        public void Setup(float universeRadius)
+        public SpatialManager(float universeWidth)
         {
-            UniverseWidth = (int)(universeRadius * 2f);
+            UniverseWidth = (int)universeWidth;
             Spatial = Create(Type);
             ResetToNewSpatial = null;
         }
@@ -68,7 +68,7 @@ namespace Ship_Game.Gameplay
             Spatial.DebugVisualize(screen, VisOpt);
         }
 
-        public void Update(GameObject[] allObjects)
+        public void Update(SpatialObjectBase[] allObjects)
         {
             if (ResetToNewSpatial != null)
             {
@@ -96,9 +96,9 @@ namespace Ship_Game.Gameplay
             CollisionTime.Stop();
         }
 
-        public GameObject[] FindNearby(ref SearchOptions opt)
+        public SpatialObjectBase[] FindNearby(ref SearchOptions opt)
         {
-            return Spatial.FindNearby(ref opt);
+            return Spatial.FindNearby(in opt);
         }
 
         /// <param name="type"></param>
@@ -106,12 +106,12 @@ namespace Ship_Game.Gameplay
         /// <param name="radius"></param>
         /// <param name="maxResults">Maximum results to get.
         /// PROTIP: if numResults > maxResults, then results are sorted by distance and far objects are discarded</param>
-        public GameObject[] FindNearby(GameObjectType type,
-                                       GameObject obj, float radius,
-                                       int maxResults,
-                                       Empire excludeLoyalty = null,
-                                       Empire onlyLoyalty = null,
-                                       int debugId = 0)
+        public SpatialObjectBase[] FindNearby(GameObjectType type,
+                                              GameObject obj, float radius,
+                                              int maxResults,
+                                              Empire excludeLoyalty = null,
+                                              Empire onlyLoyalty = null,
+                                              int debugId = 0)
         {
             var opt = new SearchOptions(obj.Position, radius, type)
             {
@@ -122,15 +122,15 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(ref opt);
+            return Spatial.FindNearby(in opt);
         }
 
-        public GameObject[] FindNearby(GameObjectType type,
-                                       Vector2 worldPos, float radius,
-                                       int maxResults,
-                                       Empire excludeLoyalty = null,
-                                       Empire onlyLoyalty = null,
-                                       int debugId = 0)
+        public SpatialObjectBase[] FindNearby(GameObjectType type,
+                                              Vector2 worldPos, float radius,
+                                              int maxResults,
+                                              Empire excludeLoyalty = null,
+                                              Empire onlyLoyalty = null,
+                                              int debugId = 0)
         {
             var opt = new SearchOptions(worldPos, radius, type)
             {
@@ -140,15 +140,15 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(ref opt);
+            return Spatial.FindNearby(in opt);
         }
 
-        public GameObject[] FindNearby(GameObjectType type, 
-                                       in AABoundingBox2D searchArea,
-                                       int maxResults,
-                                       Empire excludeLoyalty = null,
-                                       Empire onlyLoyalty = null,
-                                       int debugId = 0)
+        public SpatialObjectBase[] FindNearby(GameObjectType type, 
+                                              in AABoundingBox2D searchArea,
+                                              int maxResults,
+                                              Empire excludeLoyalty = null,
+                                              Empire onlyLoyalty = null,
+                                              int debugId = 0)
         {
             var opt = new SearchOptions(searchArea, type)
             {
@@ -158,7 +158,7 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(ref opt);
+            return Spatial.FindNearby(in opt);
         }
 
         public void ProjectileExplode(Projectile source, ShipModule victim)
@@ -174,9 +174,9 @@ namespace Ship_Game.Gameplay
             if (radius >= 256f)
             {
                 Vector2 center = source.Position;
-                GameObject[] ships = FindNearby(GameObjectType.Ship, center, radius,
-                                                maxResults:32, excludeLoyalty:source.Owner?.Loyalty);
-                foreach (GameObject go in ships)
+                SpatialObjectBase[] ships = FindNearby(GameObjectType.Ship, center, radius,
+                                                       maxResults:32, excludeLoyalty:source.Owner?.Loyalty);
+                foreach (SpatialObjectBase go in ships)
                 {
                     var ship = (Ship)go;
                     if (ship.Active && !ship.Dying)
@@ -196,7 +196,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             // find any nearby ship -- even allies
-            GameObject[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64, maxResults:32);
+            SpatialObjectBase[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64, maxResults:32);
 
             for (int i = 0; i < nearby.Length && damageAmount > 0f; ++i)
             {

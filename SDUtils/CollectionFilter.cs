@@ -40,8 +40,13 @@ namespace SDUtils
                 map[i] = keep ? (byte)1 : (byte)0;
             }
 
-            if (resultCount == 0)
-                return Empty<T>.Array;
+            if (resultCount == 0) return Empty<T>.Array;
+
+            // WARNING: A lot of our code relies on Filter() results being a new array,
+            //          so this optimization breaks things silently when results are modified
+            //          by something like Sort()
+            // optimization: if resultCount == count, then all items are valid
+            //if (resultCount == count && items.Length == count) return items;
 
             var results = new T[resultCount];
             resultCount = 0;

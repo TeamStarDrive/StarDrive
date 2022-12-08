@@ -3,7 +3,7 @@
   <Step>2</Step>
   <Name>Renewing our "Contract"</Name>
   <FactionInitiated>true</FactionInitiated>
-  <PercentMoneyDemanded>10</PercentMoneyDemanded> <!-- this percentage of total treasury request will be modified and overwrite any MoneyToThem below -->
+  <PercentMoneyDemanded>7</PercentMoneyDemanded> <!-- this percentage of total treasury request will be modified and overwrite any MoneyToThem below -->
   <DescriptionText>Your sub-space transmitter hums with a new Corsairs message:</DescriptionText>
   <MessageList>
     <Message>

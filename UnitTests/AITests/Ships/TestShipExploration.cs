@@ -2,6 +2,7 @@
 using Ship_Game;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
@@ -15,8 +16,10 @@ namespace UnitTests.AITests.Ships
 
         public TestShipExploration()
         {
-            CreateUniverseAndPlayerEmpire();
-            GlobalStats.ExtraPlanets     = 2; // Ensures there is at least 2 planets to explore
+            CreateUniverseAndPlayerEmpire(settings: new UniverseParams()
+            {
+                ExtraPlanets = 2, // Ensures there is at least 2 planets to explore
+            });
             GlobalStats.DisableAsteroids = true; // Ensures no asteroids will be created instead of a planet
 
             var random = new SeededRandom();
@@ -64,7 +67,7 @@ namespace UnitTests.AITests.Ships
             // explored (not fully explored, though).
             scout.Position = CloseSystem.Position.GenerateRandomPointInsideCircle(scout.ExploreSystemDistance);
             UState.Objects.Update(TestSimStep);
-            scout.SetSystem(CloseSystem);
+            scout.System = CloseSystem;
 
             Assert.IsTrue(CloseSystem.IsExploredBy(Player), $"{CloseSystem.Name} is not set as explored but it should be explored" +
                                                              " as the ship is within explore range of system center");
@@ -93,14 +96,14 @@ namespace UnitTests.AITests.Ships
             UState.Objects.Update(TestSimStep);
             CloseSystem.ShipList.Add(enemy);
             CloseSystem.ShipList.Add(scout);
-            scout.SetSystem(CloseSystem);
+            scout.System = CloseSystem;
             Assert.IsTrue(enemy.AI.Target == scout, "Enemy's target is not the scout ship");
 
             // Scout should now detect it is being targeted, find an escape vector and
             // a final move position out of the system, and then add a new exploration order
             // to the queue in order to resume exploring
             scout.AI.DoExplore(TestSimStep); 
-            Assert.AreEqual(3, scout.AI.OrderQueue.Count, "Scout should have 1 rotate order for the escape vector," +
+            AssertEqual(3, scout.AI.OrderQueue.Count, "Scout should have 1 rotate order for the escape vector," +
                                                           " 1 move order and 1 explore order in the end of the queue.");
             Assert.IsTrue(scout.AI.OrderQueue.PeekLast.Plan == Ship_Game.AI.ShipAI.Plan.Explore, "Scout last order should be exploration but it is not.");
         }

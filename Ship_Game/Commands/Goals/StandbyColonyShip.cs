@@ -2,17 +2,17 @@
 using Ship_Game.Ships;
 using System;
 using SDGraphics;
-using Ship_Game.Universe;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class StandbyColonyShip : Goal
     {
-        public const string ID = "StandbyColonyShip";
-        public override string UID => ID;
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
 
-        public StandbyColonyShip(int id, UniverseState us)
-            : base(GoalType.StandbyColonyShip, id, us)
+        [StarDataConstructor]
+        public StandbyColonyShip(Empire owner) : base(GoalType.StandbyColonyShip, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,34 +23,24 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public StandbyColonyShip(Empire e)
-            : this(e.Universum.CreateId(), e.Universum)
-        {
-            empire        = e;
-            StarDateAdded = empire.Universum.StarDate;
-
-            Evaluate();
-        }
-
         GoalStep CheckIfStandbyShipNeeded()
         {
-            return empire.GetEmpireAI().Goals.Filter(g => g.type == GoalType.StandbyColonyShip)
-                       .Length > empire.DifficultyModifiers.StandByColonyShips.UpperBound(empire.GetPlanets().Count) 
-
+            var goals = Owner.AI.CountGoals(g => g.Type == GoalType.StandbyColonyShip);
+            return goals > Owner.DifficultyModifiers.StandByColonyShips.UpperBound(Owner.GetPlanets().Count) 
                 ? GoalStep.GoalFailed  // reached standby colony ship limit
                 : GoalStep.GoToNextStep;
         }
 
         GoalStep BuildColonyShip()
         {
-            if (!ShipBuilder.PickColonyShip(empire, out IShipDesign colonyShip))
+            if (!ShipBuilder.PickColonyShip(Owner, out IShipDesign colonyShip))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, colonyShip, out Planet planet))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
-            planet.Construction.Enqueue(colonyShip, this);
-            planet.Construction.PrioritizeShip(colonyShip, 2);
+            PlanetBuildingAt = planet;
+            planet.Construction.Enqueue(colonyShip, QueueItemType.ColonyShip, this);
             return GoalStep.GoToNextStep;
         }
 

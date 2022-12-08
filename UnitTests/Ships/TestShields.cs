@@ -19,19 +19,19 @@ namespace UnitTests.Ships
         {
             Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);;
             Assert.IsNotNull(ship);
-            Assert.That.Equal(ship.ShieldMax, 1400);
+            AssertEqual(ship.ShieldMax, 1400);
 
             ShipModule amplifier = ship.TestGetModule("TEST_ModuleAmplifier");
             Assert.IsNotNull(amplifier);
-            Assert.That.Equal(amplifier.AmplifyShields, 200);
+            AssertEqual(amplifier.AmplifyShields, 200);
 
             amplifier.Active = false;
             ship.ShipStatusChange();
-            Assert.That.Equal(ship.ShieldMax, 1200);
+            AssertEqual(ship.ShieldMax, 1200);
 
             amplifier.Active = true;
             ship.ShipStatusChange();
-            Assert.That.Equal(ship.ShieldMax, 1400);
+            AssertEqual(ship.ShieldMax, 1400);
         }
     }
 }

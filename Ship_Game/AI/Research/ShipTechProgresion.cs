@@ -8,14 +8,15 @@ namespace Ship_Game.AI.Research
 {
     public partial class ShipTechLineFocusing
     {
-        HashSet<string> UseShipTechProgression(Array<Ship> researchableShips, HashSet<string> shipTechs, HashSet<string> nonShipTechs)
+        HashSet<string> UseShipTechProgression(Array<IShipDesign> researchableShips, HashSet<string> shipTechs, HashSet<string> nonShipTechs)
         {
             // Filter out all current ship techs that aren't in researchableShips.
-            BestCombatShip                = null;
-            bool containsOnlyHullTech     = true;
-            var sortedShips               = researchableShips.Sorted(ExtractTechCost);
-            HashSet<string> goodShipTechs = new HashSet<string>();
-            foreach (var ship in sortedShips)
+            BestCombatShip = null;
+            bool containsOnlyHullTech = true;
+            IShipDesign[] sortedShips = researchableShips.Sorted(ExtractTechCost);
+            HashSet<string> goodShipTechs = new();
+
+            foreach (IShipDesign ship in sortedShips)
             {
                 if (!TryExtractNeedTechs(ship, out HashSet<string> techs, out bool onlyHullLeft))
                     continue;
@@ -68,10 +69,10 @@ namespace Ship_Game.AI.Research
             return researchTurns <= turnsThreshold;
         }
 
-        float ExtractTechCost(Ship ship)
+        float ExtractTechCost(IShipDesign ship)
         {
             float totalCost = 0;
-            var shipTechs   = ConvertStringToTech(ship.ShipData.TechsNeeded);
+            var shipTechs   = ConvertStringToTech(ship.TechsNeeded);
             for (int i = 0; i < shipTechs.Count; i++)
             {
                 TechEntry tech = shipTechs[i];
@@ -92,14 +93,14 @@ namespace Ship_Game.AI.Research
             return totalCost;
         }
 
-        bool TryExtractNeedTechs(Ship ship, out HashSet<string> techsToAdd, out bool onlyHullLeft)
+        bool TryExtractNeedTechs(IShipDesign ship, out HashSet<string> techsToAdd, out bool onlyHullLeft)
         {
             onlyHullLeft  = false;
-            var shipTechs = ConvertStringToTech(ship.ShipData.TechsNeeded);
-            if (OwnerEmpire.IsHullUnlocked(ship.ShipData.Hull)
+            var shipTechs = ConvertStringToTech(ship.TechsNeeded);
+            if (OwnerEmpire.IsHullUnlocked(ship.Hull)
                 && !shipTechs.Any(t => t.Locked && t.ContainsHullTech()))
             {
-                techsToAdd = ship.ShipData.TechsNeeded;
+                techsToAdd = ship.TechsNeeded;
                 return true;
             }
 

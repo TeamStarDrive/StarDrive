@@ -28,7 +28,7 @@ namespace Ship_Game
                 else
                     newOwner.AddPlanet(this);
 
-                if (attacker != null && attacker.isPlayer && oldOwner == EmpireManager.Cordrazine)
+                if (attacker != null && attacker.isPlayer && oldOwner == newOwner.Universe.Cordrazine)
                     attacker.IncrementCordrazineCapture();
             }
 
@@ -55,18 +55,18 @@ namespace Ship_Game
             SetInGroundCombat(Owner);
             AbortLandingPlayerFleets();
             Owner.TryTransferCapital(this);
-            StatTracker.StatAddColony(Universe.StarDate, this);
+            Universe.Stats.StatAddColony(Universe.StarDate, this);
         }
 
         void SetupColonyType()
         {
             if (OwnerIsPlayer && !Owner.AutoColonize)
-                colonyType = ColonyType.Colony;
+                CType = ColonyType.Colony;
             else
-                colonyType = Owner.AssessColonyNeeds(this);
+                CType = Owner.AssessColonyNeeds(this);
 
             if (OwnerIsPlayer)
-                Universe.Notifications.AddColonizedNotification(this, EmpireManager.Player);
+                Universe.Notifications?.AddColonizedNotification(this, Universe.Player);
         }
 
         void NewColonyAffectRelations()
@@ -86,12 +86,11 @@ namespace Ship_Game
 
         public void AbortLandingPlayerFleets()
         {
-            Empire player = EmpireManager.Player;
+            Empire player = Universe.Player;
             if (player == Owner || player.IsAtWarWith(Owner)) 
                 return;
 
-            var fleets = player.GetFleetsDict();
-            foreach (Fleet fleet in fleets.Values)
+            foreach (Fleet fleet in player.ActiveFleets)
             {
                 if (fleet.Ships.Any(s => s.IsTroopShipAndRebasingOrAssaulting(this)))
                 {
@@ -106,18 +105,14 @@ namespace Ship_Game
             bool troopsRemoved       = false;
             bool playerTroopsRemoved = false;
 
-            for (int i = TroopsHere.Count - 1; i >= 0; i--)
+            foreach (Troop t in Troops.GetTroopsNotOf(Owner))
             {
-                Troop t = TroopsHere[i];
-                Empire tLoyalty = t?.Loyalty;
-
-                if (tLoyalty != null && !tLoyalty.isFaction && tLoyalty.data.DefaultTroopShip != null
-                    && tLoyalty != Owner && !Owner.IsAtWarWith(tLoyalty))
+                if (!Owner.IsAtWarWith(t.Loyalty))
                 {
-                    Ship troopship = t.Launch(ignoreMovement: true);
-                    troopsRemoved  = true;
+                    Ship troopTransport = t.Launch(forceLaunch: true);
+                    troopsRemoved |= troopTransport != null;
                     playerTroopsRemoved |= t.Loyalty.isPlayer;
-                    troopship?.AI.OrderRebaseToNearest();
+                    troopTransport?.AI.OrderRebaseToNearest();
                 }
             }
 

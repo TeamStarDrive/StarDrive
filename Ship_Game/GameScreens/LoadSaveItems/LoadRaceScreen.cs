@@ -28,7 +28,7 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        protected override void InitSaveList()        // Set list of files to show
+        protected override void InitSaveList()
         {
             var saves = new Array<FileData>();
             foreach (FileInfo fileInfo in Dir.GetFiles(Path))

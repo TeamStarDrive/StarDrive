@@ -1,19 +1,19 @@
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public class ShipGroup
     {
-        public readonly Array<Ship> Ships = new Array<Ship>();
-        public Empire Owner;
+        [StarData] public readonly Array<Ship> Ships = new();
+        [StarData] public Empire Owner;
 
         public Ship CommandShip
         {
@@ -26,15 +26,15 @@ namespace Ship_Game
         public void SetCommandShip(Ship ship) => CommandShip = ship;
 
         // Speed LIMIT of the entire ship group, so the ships can stay together
-        public float SpeedLimit { get; private set; }
+        [StarData] public float SpeedLimit { get; private set; }
 
         // FINAL DESTINATION center position of the ship group
         // This can also be considered as the ASSEMBLY POSITION
         // If you set this to X location, ships will gather around it when idle
-        public Vector2 FinalPosition;
+        [StarData] public Vector2 FinalPosition;
 
         // FINAL direction facing of this ship group
-        public Vector2 FinalDirection = Vectors.Up;
+        [StarData] public Vector2 FinalDirection = Vectors.Up;
 
         // Holo-Projection of the ship group
         public Vector2 ProjectedPos;
@@ -45,7 +45,6 @@ namespace Ship_Game
         /// The average pos is the command ship's pos, if exists
         /// </summary>
         protected Vector2 AveragePos;
-
         int LastAveragePosUpdate = -1;
 
         protected float Strength;
@@ -277,13 +276,15 @@ namespace Ship_Game
         public Vector2 GetRelativeSize()
         {
             Vector2 min = default, max = default;
-            foreach (Ship ship in Ships)
+            for (int i = 0; i < Ships.Count; i++)
             {
+                Ship ship = Ships[i];
                 if (ship.FleetOffset.X < min.X) min.X = ship.FleetOffset.X;
                 if (ship.FleetOffset.X > max.X) max.X = ship.FleetOffset.X;
                 if (ship.FleetOffset.Y < min.Y) min.Y = ship.FleetOffset.Y;
                 if (ship.FleetOffset.Y > max.Y) max.Y = ship.FleetOffset.Y;
             }
+
             return max - min;
         }
 
@@ -297,6 +298,8 @@ namespace Ship_Game
             return true;
         }
 
+        // Gets the average position of a group of ships, weighing the center
+        // towards the biggest ship
         public static Vector2 GetAveragePosition(Array<Ship> ships)
         {
             int count = ships.Count;
@@ -304,7 +307,6 @@ namespace Ship_Game
                 return Vector2.Zero;
 
             Ship[] items = ships.GetInternalArrayItems();
-
             Ship biggestShip = items[0];
             float biggestSize = biggestShip.SurfaceArea;
             for (int i = 1; i < count; ++i)
@@ -334,6 +336,8 @@ namespace Ship_Game
             }
             return avg / totalRatioSum;
         }
+
+        public Vector2 FleetCommandShipPosition => CommandShip != null ? CommandShip.Position : AveragePosition();
 
         /// <summary> Use for DrawThread </summary>
         public Vector2 CachedAveragePos => AveragePos;
@@ -397,7 +401,7 @@ namespace Ship_Game
             bool forceAssembly = order.IsSet(MoveOrder.AddWayPoint) || order.IsSet(MoveOrder.ForceReassembly);
             AssembleFleet(finalPos, finalDir, forceAssembly: forceAssembly);
 
-            UpdateSpeedLimit();
+            UpdateSpeedLimit(ftl: AveragePos.Distance(finalPos) > 20_000);
 
             foreach (Ship ship in Ships)
             {
@@ -449,34 +453,26 @@ namespace Ship_Game
             
         }
 
-        public MoveStatus FleetMoveStatus(float radius = 0, Vector2 ao = default)
+        public MoveStatus FleetMoveStatus(float radius, Vector2? ao = null)
         {
-            if (ao == default)
-                ao = FinalPosition;
-            radius = radius.AlmostZero() ? GetRelativeSize().Length() : radius;
-
-            float netStrengthInAO = Owner.GetEmpireAI().ThreatMatrix.PingNetHostileStr(ao, radius, Owner);
+            Vector2 finalPos = ao ?? FinalPosition;
+            float ourStrengthInAO = Owner.AI.ThreatMatrix.GetStrengthAt(Owner, finalPos, radius);
+            float enemyStrengthInAO = Owner.AI.ThreatMatrix.GetHostileStrengthAt(finalPos, radius);
 
             MoveStatus moveStatus = MoveStatus.None;
-            float assembled       = 0;
-            int totalShipCount    = 0;
+            float surfaceAssembled = 0;
+            int totalShipSurface = 0;
 
             for (int i = 0; i < Ships.Count; i++)
             {
-                if (moveStatus.IsSet(MoveStatus.All)) break;
-
                 Ship ship = Ships[i];
-                if (ship.AI.State == AIState.Bombard || ship.AI.State == AIState.AssaultPlanet
-                                                     || ship.AI.State == AIState.Resupply)
-                {
+                if (ship.AI.State is AIState.Bombard or AIState.AssaultPlanet or AIState.Resupply)
                     continue;
-                }
 
-                totalShipCount++;
+                totalShipSurface += ship.SurfaceArea;
                 if (!ship.IsSpoolingOrInWarp)
                 {
-                    var combatRadius = radius;
-                    if (ship.Position.OutsideRadius(ao , combatRadius))
+                    if (ship.Position.OutsideRadius(finalPos, radius))
                     {
                         if (ship.CanTakeFleetOrders)
                             moveStatus |= MoveStatus.Dispersed;
@@ -485,13 +481,13 @@ namespace Ship_Game
                         if (cantAttackValidTarget && ship.AI.Target.Position.InRadius(ship.Position, ship.AI.FleetNode.OrdersRadius))
                             moveStatus |= MoveStatus.DispersedInCombat;
                     }
-                    else //Ship is in AO
+                    else // Ship is in AO
                     {
-                        assembled++;
-
+                        surfaceAssembled += ship.SurfaceArea;
                         moveStatus |= MoveStatus.Assembled;
 
-                        if (netStrengthInAO > 0 && ship.AI.Target?.BaseStrength > 0 && ship.AI.Target.Position.InRadius(ship.Position, ship.AI.FleetNode.OrdersRadius))
+                        if (ourStrengthInAO > enemyStrengthInAO && 
+                            ship.AI.Target?.BaseStrength > 0 && ship.AI.Target.Position.InRadius(ship.Position, ship.AI.FleetNode.OrdersRadius))
                         {
                             moveStatus |= MoveStatus.AssembledInCombat;
                         }
@@ -500,8 +496,10 @@ namespace Ship_Game
                 else if (ship.CanTakeFleetOrders)
                     moveStatus |= MoveStatus.Dispersed;
             }
-            if (assembled / totalShipCount > 0.75f)
+
+            if (surfaceAssembled / totalShipSurface > 0.85f)
                 moveStatus |= MoveStatus.MajorityAssembled;
+
             return moveStatus;
         }
 
@@ -599,12 +597,12 @@ namespace Ship_Game
             return 0; // otherwise, there is no limit
         }
 
-        public void UpdateSpeedLimit()
+        public void UpdateSpeedLimit(bool ftl = false)
         {
             if (Ships.Count == 0)
                 return;
 
-            bool gotShipsWithinFormation = false;
+            bool allResponsiveShipsWithinFormation = true;
             float slowestSpeed = float.MaxValue;
 
             for (int i = 0; i < Ships.Count; i++)
@@ -613,25 +611,17 @@ namespace Ship_Game
 
                 if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
-                    if (CommandShip == null || IsShipInFormation(ship, 15000f))
-                    {
-                        gotShipsWithinFormation = true;
-                        slowestSpeed = Math.Min(ship.VelocityMax, slowestSpeed);
-                    }
+                    slowestSpeed = (ftl ? ship.MaxFTLSpeed : ship.VelocityMax).UpperBound(slowestSpeed);
+                    if (!IsShipInFormation(ship, 30000f))
+                        allResponsiveShipsWithinFormation = false;
                 }
             }
 
-            // none of the ships are close to the formation
-            if (!gotShipsWithinFormation)
-            {
-                SpeedLimit = 0f; // no speed limit at all
-            }
-            else
-            {
-                // in order to allow ships to speed up / slow down
-                // slightly to hold formation, set the fleet speed a bit lower
-                SpeedLimit = Math.Max(50, (float)Math.Round(slowestSpeed * 0.8f));
-            }
+            // in order to allow ships to speed up / slow down
+            // slightly to hold formation, set the fleet speed a bit lower (if some ships are not in formation)
+            SpeedLimit = allResponsiveShipsWithinFormation 
+                ? slowestSpeed 
+                : Math.Max(50, (float)Math.Round(slowestSpeed * 0.8f));
         }
     }
 }

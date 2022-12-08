@@ -29,7 +29,8 @@ namespace Ship_Game
             TaxPercent,
             Fertility,
             SpacePort,
-            InfraStructure
+            InfraStructure,
+            BuildingIncome
         }
 
         bool IsPlanetExtraDebugTarget()
@@ -53,7 +54,6 @@ namespace Ship_Game
             }
             else
             {
-                TryBuildTerraformers(budget); // Build Terraformers if needed
                 BuildOrReplaceBuilding(budget);
                 if (!TryBuildBiospheres(budget, out bool shouldScrapBiospheres) && shouldScrapBiospheres)
                     TryScrapBiospheres(); // Build or scrap Biospheres if needed
@@ -63,15 +63,9 @@ namespace Ship_Game
         void BuildOrReplaceBuilding(float budget)
         {
             if (FreeHabitableTiles > 0)
-            {
                 SimpleBuild(budget); // Let's try to build something within our budget
-                if (TryPrioritizeColonyBuilding())
-                    return;
-            }
             else
-            {
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
-            }
 
             PrioritizeCriticalFoodBuildings();
             PrioritizeCriticalProductionBuildings();
@@ -157,12 +151,12 @@ namespace Ship_Game
             perCol += (1 - Storage.FoodRatio) * Fertility;
             flat   += 1 - Storage.FoodRatio;
 
-            if (colonyType == ColonyType.Agricultural)
+            if (CType == ColonyType.Agricultural)
                 perCol *= Fertility;
 
-            float flatMulti = Food.NetMaxPotential <= 0 ? 3 : 1;
-            flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f) * flatMulti;
-            perCol = ApplyGovernorBonus(perCol, 1.75f, 0.25f, 0.25f, 3f, 0.25f);
+            float flatMulti = Food.NetMaxPotential <= 0 ? 4 : 1;
+            flat   = ApplyGovernorBonus(flat, 1.25f, 2f, 2f, 2.5f, 2f) * flatMulti;
+            perCol = ApplyGovernorBonus(perCol, 1.75f, 0.25f, 0.25f, 4f, 0.25f);
             Priorities[ColonyPriority.FoodFlat]   = flat;
             Priorities[ColonyPriority.FoodPerCol] = perCol;
         }
@@ -193,7 +187,7 @@ namespace Ship_Game
             perCol += (1 - Storage.ProdRatio) * MineralRichness;
             perCol *= PopulationRatio;
 
-            float flatMulti = Prod.NetMaxPotential < 1 ? 3 : 1;
+            float flatMulti = Prod.NetMaxPotential < 1 ? 4 : 1;
             flat        = ApplyGovernorBonus(flat, 1f, 2f, 1f, 1f, 1.5f) * flatMulti;
             perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f);
             perCol      = ApplyGovernorBonus(perCol, 1f, 2f, 0.5f, 0.5f, 1.5f);
@@ -244,8 +238,8 @@ namespace Ship_Game
             }
             else
             {
-                flat   = ApplyGovernorBonus(flat, 0.8f, 0.2f, 2f, 0.2f, 0.25f);
-                perCol = ApplyGovernorBonus(perCol, 1f, 0.1f, 2f, 0.1f, 0.1f);
+                flat   = ApplyGovernorBonus(flat, 0.8f, 0.2f, 3f, 0.2f, 0.5f);
+                perCol = ApplyGovernorBonus(perCol, 1f, 0.1f, 3f, 0.1f, 0.25f);
             }
 
             Priorities[ColonyPriority.ResearchFlat]   = flat;
@@ -254,14 +248,21 @@ namespace Ship_Game
 
         void CalcMoneyPriorities()
         {
-            float ratio   = 1 - MoneyBuildingRatio;
-            float tax     = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
-            float credits = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
+            if (PopulationBillion < 1)
+                return;
+             
+            float ratio     = 1 - MoneyBuildingRatio;
+            float tax       = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
+            float credits   = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
+            float buildings = TotalHabitableTiles * ratio;
 
-            tax     = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
-            credits = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
-            Priorities[ColonyPriority.TaxPercent]    = tax;
-            Priorities[ColonyPriority.CreditsPerCol] = credits;
+            tax       = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
+            credits   = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
+            buildings = ApplyGovernorBonus(buildings, 1.5f, 0.5f, 1f, 0.5f, 1f);
+
+            Priorities[ColonyPriority.TaxPercent]     = tax;
+            Priorities[ColonyPriority.CreditsPerCol]  = credits;
+            Priorities[ColonyPriority.BuildingIncome] = buildings;
         }
 
         void CalcFertilityPriorities()
@@ -281,7 +282,7 @@ namespace Ship_Game
         float ApplyGovernorBonus(float value, float core, float industrial, float research, float agricultural, float military)
         {
             float multiplier;
-            switch (colonyType)
+            switch (CType)
             {
                 case ColonyType.Core:         multiplier = core;         break;
                 case ColonyType.Industrial:   multiplier = industrial;   break;
@@ -305,10 +306,10 @@ namespace Ship_Game
             return bestBuilding != null && Construction.Enqueue(bestBuilding);
         }
 
-        bool TryScrapBuilding(bool scrapZeroMaintenance = false)
+        bool TryScrapBuilding(bool scrapZeroMaintenance = false, bool terraformerOverride = false)
         {
-            if (GovernorShouldNotScrapBuilding)
-                return false;  // Player decided not to allow governors to scrap buildings
+            if (GovernorShouldNotScrapBuilding && !terraformerOverride)
+                return false;  // Player decided not to allow governors to scrap buildings and not terraform related
 
             ChooseWorstBuilding(BuildingList, scrapZeroMaintenance, false, out Building toScrap);
 
@@ -527,9 +528,9 @@ namespace Ship_Game
             float score = 0;
 
             score += EvalTraits(Priorities[ColonyPriority.FoodFlat],        b.PlusFlatFoodAmount);
-            score += EvalTraits(Priorities[ColonyPriority.FoodPerCol],      b.PlusFoodPerColonist);
-            score += EvalTraits(Priorities[ColonyPriority.ProdFlat],        b.PlusFlatProductionAmount);
-            score += EvalTraits(Priorities[ColonyPriority.ProdPerCol],      b.PlusProdPerColonist);
+            score += EvalTraits(Priorities[ColonyPriority.FoodPerCol],      b.PlusFoodPerColonist * 3);
+            score += EvalTraits(Priorities[ColonyPriority.ProdFlat],        b.PlusFlatProductionAmount * 2);
+            score += EvalTraits(Priorities[ColonyPriority.ProdPerCol],      b.PlusProdPerColonist * 2);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.IncreaseRichness * 50);
             score += EvalTraits(Priorities[ColonyPriority.PopGrowth],       b.PlusFlatPopulation / 10);
@@ -539,12 +540,10 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol],  b.PlusResearchPerColonist * 10);
             score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol],   b.CreditsPerColonist * 3);
             score += EvalTraits(Priorities[ColonyPriority.TaxPercent],      b.PlusTaxPercentage * 20);
+            score += EvalTraits(Priorities[ColonyPriority.BuildingIncome],  b.Income * 10);
             score += EvalTraits(Priorities[ColonyPriority.Fertility],       b.MaxFertilityOnBuildFor(Owner, Category) * 2);
             score += EvalTraits(Priorities[ColonyPriority.SpacePort],       b.IsSpacePort ? 5 : 0);
             score += EvalTraits(Priorities[ColonyPriority.InfraStructure],  b.Infrastructure * 3);
-
-            if (b.Maintenance < 0) // positive maintenance building bonus
-                score += -b.Maintenance * 10;
 
             score *= FertilityMultiplier(b);
 
@@ -576,23 +575,28 @@ namespace Ship_Game
 
             // Fertility increasing buildings score should be very high in order to be worth building by cybernetics
             if (IsCybernetic)
-                return b.MaxFertilityOnBuild > 0 ? 0.25f : 1;
+                return b.MaxFertilityOnBuild > 0 ? 0.2f : 1;
 
-            if (b.MaxFertilityOnBuild < 0 && colonyType == ColonyType.Agricultural)
+            if (b.MaxFertilityOnBuild < 0 && CType == ColonyType.Agricultural)
                 return 0; // Never build fertility reducers on Agricultural colonies
 
-            float projectedMaxFertility = MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category);
-            if (projectedMaxFertility < 1)
+            float projectedMaxFertility = (MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category)).LowerBound(0);
+
+            if (CType == ColonyType.Industrial)
             {
-                // Multiplier will be smaller in direct relation to its effect if not Core
-                if (colonyType == ColonyType.Core)
-                    return colonyType == ColonyType.Core ? 0 : projectedMaxFertility.LowerBound(0);
+                if (MaxFertility > 1) return 0.5f;
+                else                  return 1;
             }
+
+            // Multiplier will be smaller in direct relation to its effect if not Core or not homeworld
+            int threshold = IsHomeworld ? 2 : 1;
+            if (projectedMaxFertility < threshold)
+                return CType == ColonyType.Core || IsHomeworld ? 0 : projectedMaxFertility;
 
             return 1;
         }
 
-        // Hard limits on mulfi functional buildings which are useless due to per col needs being 0.
+        // Hard limits on multi functional buildings which are useless due to per col needs being 0.
         bool IsLimitedByPerCol(Building b)
         {
             if (Priorities[ColonyPriority.ProdPerCol].AlmostZero() && b.PlusProdPerColonist.Greater(0))         return true;
@@ -610,9 +614,23 @@ namespace Ship_Game
             return multiplier.LowerBound(0);
         }
 
+        public void UpdateTerraformBudget(ref float currentEmpireBudget, float terraformerMaint)
+        {
+            TerraformBudget = 0;
+            if (currentEmpireBudget >= terraformerMaint && Terraformable)
+            {
+                // This will let each planet to build 1 terraformer at a time and save the budget to other planets
+                // As the number of Terraformers here increases, the budget will increase as well.
+                float maxLocalBudget = TerraformerLimit * terraformerMaint;
+                float budget = ((TerraformersHere + 1) * terraformerMaint).UpperBound(maxLocalBudget);
+                TerraformBudget = budget.UpperBound(currentEmpireBudget);
+                currentEmpireBudget -= TerraformBudget;
+            }
+        }
+
         void TryBuildTerraformers(float budget)
         {
-            if (PopulationRatio < 0.95f
+            if (OwnerIsPlayer && !Owner.AutoBuildTerraformers
                 || !AreTerraformersNeeded
                 || IsStarving
                 || TerraformerInTheWorks
@@ -621,22 +639,25 @@ namespace Ship_Game
                 return;
             }
 
-            Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
-            if (terraformer.ActualMaintenance(this) > budget)
-                return;
+            Building terraformer   = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
+            float terraformerMaint = terraformer.ActualMaintenance(this);
+            float remainingBudget  = budget - (TerraformersHere * terraformerMaint);
 
-            var unHabitableTiles = TilesList.Filter(t => !t.Habitable && !t.BuildingOnTile);
-            if (unHabitableTiles.Length > 0) // try to build a terraformer on an unhabitable tile first
+            if (terraformerMaint <= remainingBudget) // we can build at least 1 terraformer with the budget
             {
-                PlanetGridSquare tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
-                Construction.Enqueue(terraformer, tile);
-            }
-            else if (!Construction.Enqueue(terraformer))
-            {
-                // If could not add a terraformer anywhere due to planet being full
-                // try to scrap a building and then retry construction
-                if (TryScrapBuilding(scrapZeroMaintenance: true))
-                    Construction.Enqueue(terraformer);
+                var unHabitableTiles = TilesList.Filter(t => !t.Habitable && !t.BuildingOnTile);
+                if (unHabitableTiles.Length > 0) // try to build a terraformer on an uninhabitable tile first
+                {
+                    PlanetGridSquare tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
+                    Construction.Enqueue(terraformer, tile);
+                }
+                else if (!Construction.Enqueue(terraformer))
+                {
+                    // If could not add a terraformer anywhere due to planet being full
+                    // try to scrap a building and then retry construction
+                    if (TryScrapBuilding(scrapZeroMaintenance: true, terraformerOverride: true))
+                        Construction.Enqueue(terraformer);
+                }
             }
         }
 
@@ -794,11 +815,8 @@ namespace Ship_Game
 
         void PrioritizeCriticalFoodBuildings()
         {
-            if (IsCybernetic || !IsStarving)
+            if (IsCybernetic || !IsStarving || PlayerAddedFirstConstructionItem)
                 return;
-
-            if (PlayerAddedFirstConstructionItem)
-                return; // Do not prioritize over player added queue
 
             for (int i = 1; i < ConstructionQueue.Count; ++i)
             {
@@ -822,38 +840,33 @@ namespace Ship_Game
             }
         }
 
-        bool TryPrioritizeColonyBuilding()
+        public float PrioritizeColonyBuilding(Building b)
         {
-            // This will prioritize important buildings based on colony type to be 2nd in queue, if possible.
-            if (ConstructionQueue.Count <= 2 || PlayerAddedFirstConstructionItem)
-                return false;
-
-            for (int i = ConstructionQueue.Count - 1; i > 1; --i)
+            if (b == null)
             {
-                QueueItem q = ConstructionQueue[i];
-                if (q.isBuilding && !q.Building.IsBiospheres)
-                {
-                    switch (colonyType)
-                    {
-                        case ColonyType.Core:
-                        case ColonyType.Agricultural when q.Building.ProducesFood:
-                        case ColonyType.Industrial   when q.Building.ProducesProduction:
-                        case ColonyType.Research     when q.Building.ProducesResearch:
-                        case ColonyType.Military     when q.Building.IsMilitary: Construction.MoveTo(1, i); return true;
-                    }
-                }
+                Log.Warning($"PrioritizeColonyBuilding - building was null in planet{Name}!");
+                return 5000;
             }
 
-            return false;
+            switch (CType)
+            {
+                case ColonyType.Agricultural when b.ProducesFood:
+                case ColonyType.Industrial   when b.ProducesProduction:
+                case ColonyType.Research     when b.ProducesResearch:
+                case ColonyType.Military     when b.IsMilitary:  return 0;
+                case ColonyType.Core         when !b.IsMilitary: return BuildingList.Count * 0.01f;
+            }
+
+            return BuildingList.Count * 0.1f;
         }
 
         void PrioritizeCriticalProductionBuildings()
         {
-            if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level)
+            if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level
+                || PlayerAddedFirstConstructionItem)
+            {
                 return;
-
-            if (PlayerAddedFirstConstructionItem)
-                return; // Do not prioritize over player added queue
+            }
 
             for (int i = 0; i < ConstructionQueue.Count; ++i)
             {

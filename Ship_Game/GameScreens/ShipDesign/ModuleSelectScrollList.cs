@@ -1,19 +1,22 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
-    public class ModuleSelectScrollList : ScrollList2<ModuleSelectListItem>
+    public class ModuleSelectScrollList : ScrollList<ModuleSelectListItem>
     {
         public readonly ShipDesignScreen Screen;
+        Empire Player => Screen.Player;
 
-        public ModuleSelectScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
+        public ModuleSelectScrollList(IClientArea rectSource, ShipDesignScreen screen) : base(rectSource)
         {
-            Screen = shipDesignScreen;
+            Screen = screen;
             EnableItemHighlight = true;
         }
 
@@ -36,7 +39,7 @@ namespace Ship_Game
 
         bool ShouldBeFiltered(ShipModule m)
         {
-            return CanNeverFitModuleGrid(m) || m.IsObsolete() && Screen.IsFilterOldModulesMode;
+            return CanNeverFitModuleGrid(m) || m.IsObsolete(Player) && Screen.IsFilterOldModulesMode;
         }
 
         readonly Map<int, ModuleSelectListItem> Categories = new Map<int, ModuleSelectListItem>();
@@ -48,10 +51,10 @@ namespace Ship_Game
 
             if (!Categories.TryGetValue(categoryId, out ModuleSelectListItem e))
             {
-                e = AddItem(new ModuleSelectListItem(categoryName));
+                e = AddItem(new(Player, categoryName));
                 Categories.Add(categoryId, e);
             }
-            e.AddSubItem(new ModuleSelectListItem(mod));
+            e.AddSubItem(new ModuleSelectListItem(Player, mod));
         }
 
         bool OpenCategory(int categoryId)
@@ -94,7 +97,7 @@ namespace Ship_Game
         // Tries to get a ModuleListItem, if the ShipModule is unlocked and available for current hull
         bool TryGetModuleListItem(ShipModule template, out ShipModule m)
         {
-            if (EmpireManager.Player.IsModuleUnlocked(template.UID) && template.UID != "Dummy")
+            if (Player.IsModuleUnlocked(template.UID))
             {
                 if (IsModuleAvailableForHullRole(Screen.CurrentHull.Role, template))
                 {

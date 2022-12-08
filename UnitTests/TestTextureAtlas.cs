@@ -26,7 +26,7 @@ namespace UnitTests
         public void ContentManager()
         {
             var nonExistent = Content.Load<SubTexture>("TestForAtlasDoesNotExist");
-            Assert.AreEqual(nonExistent, null, "nonExistent SubTexture must be null");
+            AssertEqual(nonExistent, null, "nonExistent SubTexture must be null");
 
             var reactor = Content.Load<SubTexture>("Textures/Modules/AncientReactorMed");
             Assert.AreNotEqual(reactor, null, "reactor != null");

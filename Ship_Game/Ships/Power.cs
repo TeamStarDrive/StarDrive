@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace Ship_Game.Ships
 {
@@ -11,7 +13,7 @@ namespace Ship_Game.Ships
         public float PowerFlowMax;
         public float PowerStoreMax;
 
-        public static Power Calculate(ShipModule[] modules, Empire empire, bool designModule = false)
+        public static Power Calculate(IReadOnlyList<ShipModule> modules, Empire empire, bool designModule = false)
         {
             float nonShieldPowerDraw = 0f;
             float shieldPowerDraw    = 0f;
@@ -22,29 +24,29 @@ namespace Ship_Game.Ships
             if (modules == null)
                 return new Power();
 
-            for (int i = 0; i < modules.Length; i++)
+            for (int i = 0; i < modules.Count; i++)
             {
                 ShipModule module = modules[i];
-                if (!module.Active || (!module.Powered && module.PowerDraw > 0f) && !designModule)
-                    continue;
-                
-                powerFlowMax  += module.ActualPowerFlowMax;
-                powerStoreMax += module.ActualPowerStoreMax;
+                if (designModule || (module.Active && (module.Powered || module.PowerDraw <= 0f)))
+                {
+                    powerFlowMax += module.ActualPowerFlowMax;
+                    powerStoreMax += module.ActualPowerStoreMax;
 
-                if (module.Is(ShipModuleType.Shield))
-                {
-                    shieldPowerDraw    += module.PowerDraw;
-                    warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
-                }
-                else
-                {
-                    nonShieldPowerDraw += module.PowerDraw;
-                    warpPowerDrawBonus += module.PowerDrawAtWarp;
+                    if (module.Is(ShipModuleType.Shield))
+                    {
+                        shieldPowerDraw += module.PowerDraw;
+                        warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
+                    }
+                    else
+                    {
+                        nonShieldPowerDraw += module.PowerDraw;
+                        warpPowerDrawBonus += module.PowerDrawAtWarp;
+                    }
                 }
             }
 
             float subLightPowerDraw      = shieldPowerDraw + nonShieldPowerDraw;
-            float warpPowerDrainModifier = empire.data.FTLPowerDrainModifier;
+            float warpPowerDrainModifier = empire?.data.FTLPowerDrainModifier ?? 1f;
             float warpPowerDraw          = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier + (warpPowerDrawBonus * warpPowerDrainModifier / 2);
             float subLightPowerDuration  = PowerDuration(powerFlowMax, subLightPowerDraw, powerStoreMax);
             float warpPowerDuration      = PowerDuration(powerFlowMax, warpPowerDraw, powerStoreMax);
@@ -77,8 +79,11 @@ namespace Ship_Game.Ships
         /// <summary>
         /// Returns the numbers of updates of power depending on the move state.
         /// </summary>
-        public float PowerDuration(Ship.MoveState moveState, float currentPower)
+        [Pure] public float PowerDuration(Ship.MoveState moveState, float currentPower)
         {
+            if (PowerStoreMax == 0f)
+                return 0f;
+
             float powerSupplyRatio = currentPower / PowerStoreMax;
             switch (moveState)
             {

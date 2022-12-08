@@ -28,7 +28,6 @@ namespace Ship_Game
                 selected[i] = selector(items[i]);
             return selected;
         }
-        
 
         /// <summary>
         /// Converts items from one type T to another type U

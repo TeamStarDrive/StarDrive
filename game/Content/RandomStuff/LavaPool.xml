@@ -1,0 +1,36 @@
+﻿<RandomItem>
+  <!-- this references a building file by name; the item will be a "building" as far as the code is concerned -->
+  <BuildingID>LavaPool</BuildingID>
+  <!-- The chances that this will appear on a terran planet -->
+  <TerranChance>0</TerranChance>
+  <!-- the maximum number of instances that will appear (may want only 1, or to have them appear in groups) -->
+  <TerranInstanceMax>1</TerranInstanceMax>
+
+  <OceanicChance>0</OceanicChance>
+  <OceanicInstanceMax>1</OceanicInstanceMax>
+
+  <DesertChance>0</DesertChance>
+  <DesertInstanceMax>1</DesertInstanceMax>
+
+  <SwampChance>0</SwampChance>
+  <SwampInstanceMax>1</SwampInstanceMax>
+
+  <TundraChance>0</TundraChance>
+  <TundraInstanceMax>1</TundraInstanceMax>
+
+  <IceChance>0</IceChance>
+  <IceInstanceMax>1</IceInstanceMax>
+
+  <SteppeChance>0</SteppeChance>
+  <SteppeInstanceMax>1</SteppeInstanceMax>
+
+  <BarrenChance>0</BarrenChance>
+  <BarrenInstanceMax>1</BarrenInstanceMax>
+
+  <VolcanicChance>100</VolcanicChance>
+  <VolcanicInstanceMax>4</VolcanicInstanceMax>
+
+  <GasChance>0</GasChance>
+  <GasInstanceMax>0</GasInstanceMax>
+
+</RandomItem>

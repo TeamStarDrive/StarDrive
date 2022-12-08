@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using Ship_Game.Ships;
 using System.Xml.Serialization;
 using SDUtils;
@@ -26,7 +24,7 @@ namespace Ship_Game
         [StarData] public float SensorMod;
         [StarData] public float ModuleHPMod;
 
-        [XmlIgnore][JsonIgnore] public LocalizedText NameText => new LocalizedText(NameIndex); 
+        [XmlIgnore] public LocalizedText NameText => new(NameIndex);
 
         bool TrySetArtifactEffect(ref float outModifier, float inModifier, RacialTrait traits,
                                   string text, EventPopup popup, bool percent = true)
@@ -35,7 +33,7 @@ namespace Ship_Game
                 return false;
 
             outModifier += inModifier + inModifier * traits.Spiritual;
-            popup?.AddArtifactEffect(new EventPopup.ArtifactEffect(text, inModifier, percent));
+            popup?.AddArtifactEffect(new(text, inModifier, percent));
             return true;
         }
 

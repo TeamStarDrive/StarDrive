@@ -4,7 +4,6 @@
   <UID>Customs Station</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>150</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>10063</NameIndex>
   <DescriptionIndex>10064</DescriptionIndex>
   <LeadsTo>

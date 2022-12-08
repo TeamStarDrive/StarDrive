@@ -4,7 +4,6 @@
   <UID>NanoStorage</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>800</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17573</NameIndex>
   <DescriptionIndex>17574</DescriptionIndex>
   <LeadsTo />

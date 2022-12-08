@@ -34,10 +34,9 @@ namespace Ship_Game.Ships
             ShipSO.Visibility = GlobalStats.ShipVisibility;
         }
 
-        public bool IsVisibleToPlayer => InFrustum && InSensorRange
-                                      && (Universe.Screen?.IsSystemViewOrCloser == true);
+        public bool IsVisibleToPlayer => InFrustum && InPlayerSensorRange && Universe.IsSystemViewOrCloser;
 
-        public bool IsVisibleToPlayerInMap => InFrustum && InSensorRange;
+        public bool IsVisibleToPlayerInMap => InFrustum && InPlayerSensorRange;
 
         // NOTE: This is called on the main UI Thread by UniverseScreen
         // check UniverseScreen.QueueShipSceneObject()
@@ -164,7 +163,7 @@ namespace Ship_Game.Ships
 
         void ExploreCurrentSystem(FixedSimTime timeStep)
         {
-            if (System != null && timeStep.FixedTime > 0f && Loyalty?.isFaction == false
+            if (System != null && timeStep.FixedTime > 0f && Loyalty?.IsFaction == false
                 && !System.IsFullyExploredBy(Loyalty)
                 && System.PlanetList != null) // Added easy out for fully explored systems
             {
@@ -181,19 +180,19 @@ namespace Ship_Game.Ships
 
                     if (p.EventsOnTiles())
                     {
-                        if (Loyalty == EmpireManager.Player)
+                        if (Loyalty == Universe.Player)
                         {
                             Universe.Screen.NotificationManager.AddFoundSomethingInteresting(p);
                         }
                         else if (p.Owner == null)
                         {
-                            Loyalty.GetEmpireAI().SendExplorationFleet(p);
-                            if (CurrentGame.Difficulty > GameDifficulty.Hard 
+                            Loyalty.AI.SendExplorationFleet(p);
+                            if (Universe.P.Difficulty > GameDifficulty.Hard 
                                 && PlanetRanker.IsGoodValueForUs(p, Loyalty)
-                                && p.ParentSystem.GetKnownStrengthHostileTo(Loyalty).AlmostZero())
+                                && Loyalty.KnownEnemyStrengthIn(p.ParentSystem) == 0)
                             {
                                 var task = MilitaryTask.CreateGuardTask(Loyalty, p);
-                                Loyalty.GetEmpireAI().AddPendingTask(task);
+                                Loyalty.AI.AddPendingTask(task);
                             }
                         }
                     }

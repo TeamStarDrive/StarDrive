@@ -36,14 +36,14 @@ namespace UnitTests.Ships
         [TestMethod]
         public void GetActualWeaponRange()
         {
-            Assert.That.Equal(1000, Weapon.GetActualRange(Ship.Loyalty));
+            AssertEqual(1000, Weapon.GetActualRange(Ship.Loyalty));
 
             WeaponTagModifier m = Empire.WeaponBonuses(WeaponTag.Kinetic);
             m.Range = 1; // +100% increase
-            Assert.That.Equal(2000, Weapon.GetActualRange(Ship.Loyalty));
+            AssertEqual(2000, Weapon.GetActualRange(Ship.Loyalty));
 
             m.Range = 0.5f; // revert to +50%
-            Assert.That.Equal(1500, Weapon.GetActualRange(Ship.Loyalty));
+            AssertEqual(1500, Weapon.GetActualRange(Ship.Loyalty));
         }
 
         [TestMethod]
@@ -53,17 +53,17 @@ namespace UnitTests.Ships
             Weapon.TestExplosionRadius = 10;
 
             Projectile p1 = Projectile.Create(Weapon, Ship, new Vector2(), Vectors.Up, null, false);
-            Assert.That.Equal(2, p1.RotationRadsPerSecond);
-            Assert.That.Equal(15, p1.DamageAmount);
-            Assert.That.Equal(1000, p1.Range);
-            Assert.That.Equal(1250, p1.Speed);
-            Assert.That.Equal(100, p1.Health);
-            Assert.That.Equal(10, p1.DamageRadius);
-            Assert.That.Equal(0, p1.ArmorPiercing);
-            Assert.That.Equal(0, p1.ArmorDamageBonus);
-            Assert.That.Equal(0, p1.ShieldDamageBonus);
-            Assert.AreEqual(false, p1.IgnoresShields);
-            Assert.That.Equal(0.96f, p1.Duration);
+            AssertEqual(2, p1.RotationRadsPerSecond);
+            AssertEqual(15, p1.DamageAmount);
+            AssertEqual(1000, p1.Range);
+            AssertEqual(1250, p1.Speed);
+            AssertEqual(100, p1.Health);
+            AssertEqual(10, p1.DamageRadius);
+            AssertEqual(0, p1.ArmorPiercing);
+            AssertEqual(0, p1.ArmorDamageBonus);
+            AssertEqual(0, p1.ShieldDamageBonus);
+            AssertEqual(false, p1.IgnoresShields);
+            AssertEqual(0.96f, p1.Duration);
 
             WeaponTagModifier m = Empire.WeaponBonuses(WeaponTag.Kinetic);
             m.Turn   = 1; // p.RotationRadsPerSecond
@@ -79,17 +79,17 @@ namespace UnitTests.Ships
             m.ShieldPenetration = 1; // p.IgnoresShields
 
             Projectile p2 = Projectile.Create(Weapon, Ship, new Vector2(), Vectors.Up, null, false);
-            Assert.That.Equal(4, p2.RotationRadsPerSecond);
-            Assert.That.Equal(30, p2.DamageAmount);
-            Assert.That.Equal(2000, p2.Range);
-            Assert.That.Equal(2500, p2.Speed);
-            Assert.That.Equal(200, p2.Health);
-            Assert.That.Equal(20, p2.DamageRadius);
-            Assert.That.Equal(10, p2.ArmorPiercing);
-            Assert.That.Equal(10, p2.ArmorDamageBonus);
-            Assert.That.Equal(10, p2.ShieldDamageBonus);
-            Assert.AreEqual(true, p2.IgnoresShields);
-            Assert.That.Equal(0.96f, p2.Duration);
+            AssertEqual(4, p2.RotationRadsPerSecond);
+            AssertEqual(30, p2.DamageAmount);
+            AssertEqual(2000, p2.Range);
+            AssertEqual(2500, p2.Speed);
+            AssertEqual(200, p2.Health);
+            AssertEqual(20, p2.DamageRadius);
+            AssertEqual(10, p2.ArmorPiercing);
+            AssertEqual(10, p2.ArmorDamageBonus);
+            AssertEqual(10, p2.ShieldDamageBonus);
+            AssertEqual(true, p2.IgnoresShields);
+            AssertEqual(0.96f, p2.Duration);
         }
     }
 }

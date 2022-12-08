@@ -8,6 +8,8 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
+using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -15,46 +17,45 @@ namespace Ship_Game
     public class ModuleSelection : Submenu
     {
         readonly ShipDesignScreen Screen;
+        UniverseState Universe => Screen.ParentUniverse.UState;
+        Empire Player => Screen.Player;
+
         readonly FighterScrollList ChooseFighterSL;
+        readonly SubmenuScrollList<FighterListItem> ChooseFighterSub;
         readonly ModuleSelectScrollList ModuleSelectList;
         readonly Submenu ActiveModSubMenu;
         readonly TexturedButton Obsolete;
 
-        public ModuleSelection(ShipDesignScreen screen, in Rectangle window) : base(window)
+        public ModuleSelection(ShipDesignScreen screen, LocalPos pos, Vector2 size)
+            : base(pos, size, new LocalizedText[]{ "Wpn", "Pwr", "Def", "Spc" })
         {
             Screen = screen;
             // rounded black background
-            Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210));
+            SetBackground(Colors.TransparentBlackFill);
+            base.PerformLayout(); // necessary
 
-            AddTab("Wpn");
-            AddTab("Pwr");
-            AddTab("Def");
-            AddTab("Spc");
-            ModuleSelectList = Add(new ModuleSelectScrollList(this, Screen));
+            ModuleSelectList = base.Add(new ModuleSelectScrollList(this, Screen));
 
-            var acsub = new Rectangle(Rect.X, Rect.Bottom + 15, 305, 400);
-
-            ActiveModSubMenu = Add(new Submenu(acsub));
-            ActiveModSubMenu.AddTab("Active Module");
+            RectF acsub = new(Rect.X, Rect.Bottom + 15, 305, 400);
+            ActiveModSubMenu = base.Add(new Submenu(acsub, "Active Module"));
             // rounded black background
-            ActiveModSubMenu.Background = new Selector(ActiveModSubMenu.Rect.CutTop(25), new Color(0, 0, 0, 210));
+            ActiveModSubMenu.SetBackground(Colors.TransparentBlackFill);
+
+            // obsolete button
             int obsoleteW = ResourceManager.Texture("NewUI/icon_queue_delete").Width;
             int obsoleteH = ResourceManager.Texture("NewUI/icon_queue_delete").Height;
-            Rectangle obsoletePos = new Rectangle((int)(ActiveModSubMenu.X + ActiveModSubMenu.Width - obsoleteW - 10), (int)ActiveModSubMenu.Y + 38, obsoleteW, obsoleteH);
-            Obsolete = new TexturedButton(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
+            var obsoletePos = new RectF(ActiveModSubMenu.X + ActiveModSubMenu.Width - obsoleteW - 10, ActiveModSubMenu.Y + 38, obsoleteW, obsoleteH);
+            Obsolete = new(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
             Obsolete.Tooltip = GameText.MarkThisModuleAsObsolete;
-            var chooseFighterRect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
-            if (chooseFighterRect.Bottom > Screen.ScreenHeight)
+            
+            RectF fighterR = acsub.Move(acsub.W + 20, 0);
+            ChooseFighterSub = base.Add(new SubmenuScrollList<FighterListItem>(fighterR, "Choose Fighter"));
+            ChooseFighterSub.SetBackground(Colors.TransparentBlackFill);
+            
+            ChooseFighterSL = ChooseFighterSub.Add(new FighterScrollList(ChooseFighterSub, Screen)
             {
-                int diff = chooseFighterRect.Bottom - Screen.ScreenHeight;
-                chooseFighterRect.Height -= (diff + 10);
-            }
-            chooseFighterRect.Height = acsub.Height;
-
-            var chooseFighterSub = new Submenu(chooseFighterRect);
-            chooseFighterSub.AddTab("Choose Fighter");
-            ChooseFighterSL = Add(new FighterScrollList(chooseFighterSub, Screen));
-            ChooseFighterSL.EnableItemHighlight = true;
+                EnableItemHighlight = true
+            });
         }
 
         protected override void OnTabChangedEvt(int newIndex)
@@ -72,7 +73,7 @@ namespace Ship_Game
 
         public bool HitTest(InputState input)
         {
-            return Rect.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
+            return base.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
         }
 
         public override bool HandleInput(InputState input)
@@ -90,10 +91,10 @@ namespace Ship_Game
                 ShipModule m = Screen.ActiveModule;
                 if (input.LeftMouseClick && m != null)
                 {
-                    if (!m.IsObsolete())
-                        EmpireManager.Player.ObsoletePlayerShipModules.Add(m.UID);
+                    if (!m.IsObsolete(Player))
+                        Player.ObsoletePlayerShipModules.Add(m.UID);
                     else
-                        EmpireManager.Player.ObsoletePlayerShipModules.Remove(m.UID);
+                        Player.ObsoletePlayerShipModules.Remove(m.UID);
 
                     return true;
                 }
@@ -108,6 +109,8 @@ namespace Ship_Game
                 SelectedIndex = 0; // this will trigger OnTabChangedEvt
 
             ActiveModSubMenu.Visible = Screen.ActiveModule != null || Screen.HighlightedModule != null;
+            ChooseFighterSub.Visible = ChooseFighterSL.GetFighterHangar() != null;
+
             base.Update(fixedDeltaTime);
         }
 
@@ -148,9 +151,9 @@ namespace Ship_Game
         // Gets the tech cost of the tech which unlocks the module provided, this is for modders in debug
         float DebugGetModuleTechCost(ShipModule module)
         {
-            foreach (TechEntry tech in EmpireManager.Player.TechnologyDict.Values)
+            foreach (TechEntry tech in Player.TechEntries)
             {
-                if (tech.GetUnlockableModules(EmpireManager.Player).Any(m => m.ModuleUID == module.UID))
+                if (tech.GetUnlockableModules(Player).Any(m => m.ModuleUID == module.UID))
                     return tech.Tech.ActualCost;
             }
 
@@ -164,7 +167,7 @@ namespace Ship_Game
             if (ActiveModSubMenu.SelectedIndex != 0 || mod == null)
                 return;
 
-            bool isObsolete = mod.IsObsolete();
+            bool isObsolete = mod.IsObsolete(Player);
             Color nameColor = isObsolete ? Color.Red : Color.White;
             Obsolete.BaseColor = nameColor;
             Obsolete.Draw(batch);
@@ -207,11 +210,11 @@ namespace Ship_Game
             }
 
             // Concat ship class restrictions
-            string shipRest    = "";
+            string shipRest = "";
             bool specialString = false;
-            bool modDestroyers = GlobalStats.ActiveModInfo?.useDestroyers == true;
+            bool destroyers = GlobalStats.Settings.UseDestroyers;
 
-            if (modDestroyers)
+            if (destroyers)
             {
                 if (mod.DroneModule && mod.FighterModule && mod.CorvetteModule 
                     && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule 
@@ -223,7 +226,7 @@ namespace Ship_Game
                 }
             }
 
-            if (GlobalStats.ActiveModInfo == null || !modDestroyers)
+            if (!destroyers)
             {
                 if (mod.FighterModule && mod.CorvetteModule && mod.FrigateModule 
                     && mod.CruiserModule && mod.CruiserModule && mod.CapitalModule 
@@ -233,7 +236,7 @@ namespace Ship_Game
                 }
             }
 
-            if (!specialString && !mod.DroneModule || (!mod.DestroyerModule && modDestroyers) 
+            if (!specialString && !mod.DroneModule || (!mod.DestroyerModule && destroyers) 
                      || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule 
                      || !mod.CruiserModule || !mod.BattleshipModule  || !mod.CapitalModule 
                      || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
@@ -242,7 +245,7 @@ namespace Ship_Game
                  if (mod.FighterModule)                       shipRest += "Fi ";
                  if (mod.CorvetteModule)                      shipRest += "Co ";
                  if (mod.FrigateModule)                       shipRest += "Fr ";
-                 if (mod.DestroyerModule && modDestroyers)    shipRest += "Dy ";
+                 if (mod.DestroyerModule && destroyers)       shipRest += "Dy ";
                  if (mod.CruiserModule)                       shipRest += "Cr ";
                  if (mod.BattleshipModule)                    shipRest += "Bs ";
                  if (mod.CapitalModule)                       shipRest += "Ca ";
@@ -254,6 +257,7 @@ namespace Ship_Game
             modTitlePos.Y += Fonts.Arial8Bold.LineSpacing;
             batch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
             modTitlePos.Y += (Fonts.Arial8Bold.LineSpacing + 11);
+
             int startx = (int)modTitlePos.X;
             if (moduleTemplate.IsWeapon)
             {
@@ -319,8 +323,8 @@ namespace Ship_Game
 
         void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
-            DrawStat(ref modTitlePos, GameText.Cost, mod.ActualCost, GameText.IndicatesTheProductionCostOf);
-            DrawStat(ref modTitlePos, GameText.Mass2, mod.GetActualMass(EmpireManager.Player, 1), GameText.TT_Mass);
+            DrawStat(ref modTitlePos, GameText.Cost, mod.ActualCost(Universe), GameText.IndicatesTheProductionCostOf);
+            DrawStat(ref modTitlePos, GameText.Mass2, mod.GetActualMass(Player, 1), GameText.TT_Mass);
             DrawStat(ref modTitlePos, GameText.Health, mod.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
 
             float powerDraw = mod.ActualPowerFlowMax - mod.PowerDraw;
@@ -380,10 +384,10 @@ namespace Ship_Game
             // added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
             // FB improved it to use the Power struct
             ShipModule[] modList = { mod };
-            Power modNetWarpPowerDraw = Power.Calculate(modList, EmpireManager.Player, true);
+            Power modNetWarpPowerDraw = Power.Calculate(modList, Player, true);
             DrawStat(ref modTitlePos, GameText.PowerWarp, -modNetWarpPowerDraw.NetWarpPowerDraw, GameText.TheEffectivePowerDrainOf);
 
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
+            if (GlobalStats.Settings.EnableECM)
             {
                 DrawStat(ref modTitlePos, GameText.Ecm2, mod.ECM, GameText.IndicatesTheChanceOfEcm, isPercent: true);
 
@@ -422,7 +426,7 @@ namespace Ship_Game
                 return;
 
             var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.HangarShipUID);
-            string hangarShip = mod.GetHangarShipName();
+            string hangarShip = mod.GetHangarShipName(Player);
             Ship hs = ResourceManager.GetShipTemplate(hangarShip, false);
             if (hs != null)
             {
@@ -484,14 +488,14 @@ namespace Ship_Game
 
             float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage) * GetHullDamageBonus();
             float beamDamage      = rawDamage * beamMultiplier;
-            float ballisticDamage = rawDamage + rawDamage * EmpireManager.Player.data.OrdnanceEffectivenessBonus;
+            float ballisticDamage = rawDamage + rawDamage * Player.data.OrdnanceEffectivenessBonus;
             float energyDamage    = rawDamage;
 
-            float cost  = m.ActualCost;
+            float cost = m.ActualCost(Universe);
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
             DrawStat(ref cursor, GameText.Cost, cost, GameText.IndicatesTheProductionCostOf);
-            DrawStat(ref cursor, GameText.Mass2, m.GetActualMass(EmpireManager.Player, 1), GameText.TT_Mass);
+            DrawStat(ref cursor, GameText.Mass2, m.GetActualMass(Player, 1), GameText.TT_Mass);
             DrawStat(ref cursor, GameText.Health, m.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
             DrawStat(ref cursor, GameText.Power, power, GameText.IndicatesHowMuchPowerThis);
             DrawStat(ref cursor, GameText.Range, range, GameText.IndicatesTheMaximumRangeOf);
@@ -569,20 +573,20 @@ namespace Ship_Game
             DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, GameText.IndicatesTheAmountOfOrdnance);
             DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, GameText.IndicatesTheAmountOfPower);
 
-            if (w.Tag_Guided && GlobalStats.HasMod && GlobalStats.ActiveModInfo.enableECM)
+            if (w.Tag_Guided && GlobalStats.Settings.EnableECM)
                 DrawStatPercentLine(ref cursor, GameText.EcmResist, w.ECMResist, GameText.IndicatesTheResistanceOfThis);
 
             DrawResistancePercent(ref cursor, wOrMirv, "VS Armor", WeaponStat.Armor);
             DrawResistancePercent(ref cursor, wOrMirv, "VS Shield", WeaponStat.Shield);
             if (!wOrMirv.TruePD)
             {
-                int actualArmorPen = wOrMirv.ArmorPen + (wOrMirv.Tag_Kinetic ? EmpireManager.Player.data.ArmorPiercingBonus : 0);
+                int actualArmorPen = wOrMirv.ArmorPen + (wOrMirv.Tag_Kinetic ? Player.data.ArmorPiercingBonus : 0);
                 if (actualArmorPen > wOrMirv.ArmorPen)
                     DrawStatCustomColor(ref cursor, GameText.ArmorPen, actualArmorPen, GameText.ArmorPenetrationEnablesThisWeapon, Color.Gold, isPercent: false);
                 else
                     DrawStat(ref cursor, "Armor Pen", actualArmorPen, GameText.ArmorPenetrationEnablesThisWeapon);
 
-                float actualShieldPenChance = EmpireManager.Player.data.ShieldPenBonusChance + wOrMirv.ShieldPenChance / 100;
+                float actualShieldPenChance = Player.data.ShieldPenBonusChance + wOrMirv.ShieldPenChance / 100;
                 for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
                 {
                     CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
@@ -616,7 +620,7 @@ namespace Ship_Game
 
         void CheckShieldPenModifier(WeaponTag tag, ref float actualShieldPenChance)
         {
-            WeaponTagModifier weaponTag = EmpireManager.Player.data.WeaponTags[tag];
+            WeaponTagModifier weaponTag = Player.data.WeaponTags[tag];
             actualShieldPenChance += weaponTag.ShieldPenetration;
         }
 
@@ -651,11 +655,11 @@ namespace Ship_Game
             }
         }
 
-        static float ModifiedWeaponStat(IWeaponTemplate weapon, WeaponStat stat)
+        float ModifiedWeaponStat(IWeaponTemplate weapon, WeaponStat stat)
         {
             float value = GetStatForWeapon(stat, weapon);
             foreach (WeaponTag tag in weapon.ActiveWeaponTags)
-                value += value * EmpireManager.Player.data.GetStatBonusForWeaponTag(stat, tag);
+                value += value * Player.data.GetStatBonusForWeaponTag(stat, tag);
             return value;
         }
 
@@ -668,14 +672,14 @@ namespace Ship_Game
 
         float GetHullDamageBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+            if (GlobalStats.Settings.UseHullBonuses)
                 return 1f + Screen.CurrentHull.Bonuses.DamageBonus;
             return 1f;
         }
 
         float GetHullFireRateBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
+            if (GlobalStats.Settings.UseHullBonuses)
                 return 1f - Screen.CurrentHull.Bonuses.FireRateBonus;
             return 1f;
         }

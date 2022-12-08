@@ -12,7 +12,7 @@ namespace Ship_Game.Spatial
     {
         public delegate Ship SpawnShipFunc(string name, Empire loyalty, Vector2 pos, Vector2 dir);
 
-        public static GameObject[] CreateTestSpace(ISpatial tree, int numShips,
+        public static SpatialObjectBase[] CreateTestSpace(ISpatial tree, int numShips,
             float spawnProjectilesWithOffset, Empire player, Empire enemy, SpawnShipFunc spawnShip)
         {
             var allObjects = new Array<GameObject>();
@@ -86,8 +86,8 @@ namespace Ship_Game.Spatial
         public static void RunSearchPerfTest()
         {
             var tree = new Qtree(500_000f);
-            GameObject[] ships = CreateTestSpace(tree, 10000, 0,
-                EmpireManager.Void, EmpireManager.Void, SpawnShip);
+            SpatialObjectBase[] ships = CreateTestSpace(tree, 10000, 0,
+                Empire.Void, Empire.Void, SpawnShip);
 
             const float defaultSensorRange = 30000f;
             const int iterations = 10;
@@ -102,7 +102,7 @@ namespace Ship_Game.Spatial
                     {
                         MaxResults = 256
                     };
-                    tree.FindLinear(ref opt);
+                    tree.FindLinear(in opt);
                 }
             }
             float e1 = t1.Elapsed;
@@ -118,7 +118,7 @@ namespace Ship_Game.Spatial
                     {
                         MaxResults = 256
                     };
-                    tree.FindNearby(ref opt);
+                    tree.FindNearby(in opt);
                 }
             }
             float e2 = t2.Elapsed;
@@ -131,8 +131,8 @@ namespace Ship_Game.Spatial
         public static void RunCollisionPerfTest()
         {
             var tree = new Qtree(500_000f);
-            GameObject[] ships = CreateTestSpace(tree, 10000, 0,
-                EmpireManager.Void, EmpireManager.Void, SpawnShip);
+            SpatialObjectBase[] ships = CreateTestSpace(tree, 10000, 0,
+                Empire.Void, Empire.Void, SpawnShip);
 
             const int iterations = 1000;
             var timeStep = new FixedSimTime(1f / 60f);

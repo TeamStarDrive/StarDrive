@@ -4,7 +4,6 @@
   <UID>ShipboardAssault</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>600</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>654</NameIndex>
   <DescriptionIndex>655</DescriptionIndex>
   <LeadsTo>

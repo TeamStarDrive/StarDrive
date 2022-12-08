@@ -615,8 +615,8 @@ namespace Ship_Game
             bool readOnlyDesign = overwriteProtected != null;
 
             ResourceManager.AddShipTemplate(toSave, playerDesign: playerDesign, readOnly: readOnlyDesign);
-            EmpireManager.Player.UpdateShipsWeCanBuild();
-            if (!UnlockAllFactionDesigns && !EmpireManager.Player.WeCanBuildThis(toSave.Name))
+            Player.UpdateShipsWeCanBuild();
+            if (!UnlockAllFactionDesigns && !Player.WeCanBuildThis(toSave.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");
             ChangeHull(toSave);
         }

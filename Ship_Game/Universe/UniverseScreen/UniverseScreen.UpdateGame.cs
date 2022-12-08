@@ -1,15 +1,11 @@
-using Ship_Game.AI;
-using Ship_Game.Empires;
-using Ship_Game.Fleets;
-using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.Empires.Components;
-using Vector2 = SDGraphics.Vector2;
-using Vector3 = SDGraphics.Vector3;
+using System.Diagnostics;
+using Ship_Game.Utils;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -22,18 +18,18 @@ namespace Ship_Game
         Thread SimThread;
 
         // This is our current time in simulation time axis [0 .. current .. target]
-        float CurrentSimTime;
+        public float CurrentSimTime;
 
         // This is the known end time in simulation time axis [0 ... target]
-        float TargetSimTime;
+        public float TargetSimTime;
 
         // Modifier to increase or reduce simulation fidelity
         int SimFPSModifier;
 
         readonly PerfTimer TimeSinceLastAutoFPS = new PerfTimer();
 
-        int CurrentSimFPS => GlobalStats.SimulationFramesPerSecond + SimFPSModifier;
-        int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / UState.GameSpeed);
+        public int CurrentSimFPS => GlobalStats.SimulationFramesPerSecond + SimFPSModifier;
+        public int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / UState.GameSpeed);
 
         /// <summary>
         /// NOTE: This must be called from UI Update thread to advance the simulation time forward
@@ -107,23 +103,20 @@ namespace Ship_Game
 
         void ProcessSimulationTurns()
         {
-            if (UState.Paused)
+            // process pending saves before entering the main loop 
+            CheckForPendingSaves();
+
+            if (UState.Paused || IsSaving)
             {
                 // Execute all the actions submitted from UI thread
                 // into this Simulation / Empire thread
-                ScreenManager.InvokePendingEmpireThreadActions();
+                InvokePendingSimThreadActions();
                 ++SimTurnId;
 
-                // recalculates empire stats and updates lists using current shiplists
-                EndOfTurnUpdate(FixedSimTime.Zero/*paused*/);
-
                 UState.Objects.Update(FixedSimTime.Zero/*paused*/);
-                RecomputeFleetButtons(true);
             }
             else
             {
-                CheckAutoSaveTimer();
-
                 if (IsActive)
                 {
                     // Edge case: user manually edited global sim FPS
@@ -202,30 +195,21 @@ namespace Ship_Game
         // This does a single simulation step with fixed time step
         public void SingleSimulationStep(FixedSimTime timeStep)
         {
-            ScreenManager.InvokePendingEmpireThreadActions();
-            if (ProcessTurnEmpires(timeStep))
-            {
-                UpdateInfluenceForAllEmpires(this, timeStep);
+            InvokePendingSimThreadActions();
 
+            Array<Empire> updated = ProcessTurnEmpires(timeStep);
+
+            if (!UState.Paused)
+            {
                 UState.Objects.Update(timeStep);
+                UpdateMiscComponents(timeStep);
 
-                ProcessTurnUpdateMisc(timeStep);
-                EndOfTurnUpdate(timeStep);
+                // update systems in danger
+                foreach (Empire empire in UState.Empires)
+                    empire.AssessSystemsInDanger(timeStep);
             }
-        }
 
-        void CheckAutoSaveTimer()
-        {
-            GameBase game = GameBase.Base;
-            if (LastAutosaveTime == 0f)
-                LastAutosaveTime = game.TotalElapsed;
-
-            float timeSinceLastAutoSave = (game.TotalElapsed - LastAutosaveTime);
-            if (timeSinceLastAutoSave >= GlobalStats.AutoSaveFreq)
-            {
-                LastAutosaveTime = game.TotalElapsed;
-                AutoSaveCurrentGame();
-            }
+            EndOfTurnUpdate(updated, timeStep);
         }
 
         /// <summary>
@@ -233,15 +217,10 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            foreach (Empire empire in EmpireManager.Empires)
-                RemoveDuplicateProjectorWorkAround(empire); 
-
             // We need to update objects at least once to have visibility
             UState.Objects.InitializeFromSave();
 
-            // makes sure all empire vision is updated.
-            UpdateInfluenceForAllEmpires(this, FixedSimTime.Zero);
-            EndOfTurnUpdate(FixedSimTime.Zero);
+            EndOfTurnUpdate(UState.Empires, FixedSimTime.Zero);
         }
 
         public void UpdateStarDateAndTriggerEvents(float newStarDate)
@@ -256,20 +235,25 @@ namespace Ship_Game
             }
         }
 
-        void ProcessTurnUpdateMisc(FixedSimTime timeStep)
+        // TODO: all of these updates are kind of annoying to set up,
+        //       we should consider a Component oriented design now that code is sufficiently clean
+        void UpdateMiscComponents(FixedSimTime timeStep)
         {
             EmpireMiscPerf.Start();
             UpdateClickableItems();
 
             UState.JunkList.ApplyPendingRemovals();
 
-            for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
+            if (anomalyManager != null)
             {
-                Anomaly anomaly = anomalyManager.AnomaliesList[i];
-                anomaly.Update(timeStep);
-            }
+                for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
+                {
+                    Anomaly anomaly = anomalyManager.AnomaliesList[i];
+                    anomaly.Update(timeStep);
+                }
 
-            anomalyManager.AnomaliesList.ApplyPendingRemovals();
+                anomalyManager.AnomaliesList.ApplyPendingRemovals();
+            }
 
             if (timeStep.FixedTime > 0)
             {
@@ -284,7 +268,7 @@ namespace Ship_Game
                 }
                 BombList.ApplyPendingRemovals();
 
-                ShieldManager.Update();
+                Shields?.Update(timeStep);
                 FTLManager.Update(this, timeStep);
 
                 for (int index = 0; index < UState.JunkList.Count; ++index)
@@ -293,61 +277,87 @@ namespace Ship_Game
             EmpireMiscPerf.Stop();
         }
 
-        public readonly int MaxTaskCores = Parallel.NumPhysicalCores - 1;
-
-        // FB todo: this a work around from duplicate SSP create somewhere in the game but are not seen before loading the game
-        void RemoveDuplicateProjectorWorkAround(Empire empire)
-        {
-            var ourSSPs = empire.OwnedProjectors;
-            for (int i = ourSSPs.Count - 1; i >= 0; i--)
-            {
-                Ship projector = ourSSPs[i];
-                Vector2 center = projector.Position;
-                var sspInSameSpot = ourSSPs.Filter(s => s.Position.AlmostEqual(center, 1));
-                if (sspInSameSpot.Length > 1)
-                {
-                    ((IEmpireShipLists)empire).RemoveShipAtEndOfTurn(projector);
-                    projector.QueueTotalRemoval();
-                    Log.Error($"Removed Duplicate SSP for {empire.Name} - Center {center}");
-                }
-            }
-        }
-
-        // sensor scan is heavy
-        void UpdateInfluenceForAllEmpires(UniverseScreen us, FixedSimTime timeStep)
-        {
-            EmpireInfluPerf.Start();
-
-            for (int i = 0; i < EmpireManager.Empires.Count; ++i)
-            {
-                Empire empireToUpdate = EmpireManager.Empires[i];
-                empireToUpdate.UpdateContactsAndBorders(us, timeStep);
-            }
-
-            EmpireInfluPerf.Stop();
-        }
-
-        bool ProcessTurnEmpires(FixedSimTime timeStep)
+        /// <summary>Returns list of updated Empires</summary>
+        Array<Empire> ProcessTurnEmpires(FixedSimTime timeStep)
         {
             PreEmpirePerf.Start();
-
-            if (!IsActive)
             {
-                ShowingSysTooltip = false;
-                ShowingPlanetToolTip = false;
+                if (!IsActive)
+                {
+                    ShowingSysTooltip = false;
+                    ShowingPlanetToolTip = false;
+                }
+
+                RecomputeFleetButtons(false);
+
+                if (SelectedShip != null)
+                {
+                    ProjectPieMenu(new(SelectedShip.Position, 0f));
+                }
+                else if (SelectedPlanet != null)
+                {
+                    ProjectPieMenu(SelectedPlanet.Position3D);
+                }
+            }
+            PreEmpirePerf.Stop();
+            
+            Array<Empire> updated = null;
+            if (!UState.Paused && IsActive)
+            {
+                EmpireUpdatePerf.Start();
+                updated = UpdateEmpires(timeStep);
+                EmpireUpdatePerf.Stop();
+            }
+            return updated ?? new();
+        }
+
+        /// <summary>
+        /// Should be run once at the end of a game turn, once before game start, and once after load.
+        /// Anything that the game needs at the start should be placed here.
+        /// </summary>
+        public void EndOfTurnUpdate(IReadOnlyList<Empire> wereUpdated, FixedSimTime timeStep)
+        {
+            if (wereUpdated.Count == 0)
+                return; // nothing to do
+
+            PostEmpirePerf.Start();
+            if (IsActive)
+            {
+                void PostEmpireUpdate(int start, int end)
+                {
+                    for (int i = start; i < end; i++)
+                    {
+                        Empire empire = wereUpdated[i];
+                        empire.AIManagedShips.Update();
+                        empire.UpdateMilitaryStrengths();
+                    }
+                }
+
+                if (UState.Objects.EnableParallelUpdate)
+                    Parallel.For(wereUpdated.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
+                else
+                    PostEmpireUpdate(0, wereUpdated.Count);
             }
 
-            RecomputeFleetButtons(false);
+            PostEmpirePerf.Stop();
+        }
 
-            if (SelectedShip != null)
+        /// <summary>Returns list of updated empires</summary>
+        Array<Empire> UpdateEmpires(FixedSimTime timeStep)
+        {
+            Array<Empire> updated = new();
+            for (int i = 0; i < UState.NumEmpires; i++)
             {
-                ProjectPieMenu(new Vector3(SelectedShip.Position, 0.0f));
+                Empire empire = UState.Empires[i];
+                if (!empire.IsDefeated && empire.Update(UState, timeStep))
+                    updated.Add(empire);
             }
-            else if (SelectedPlanet != null)
-            {
-                ProjectPieMenu(SelectedPlanet.Position3D);
-            }
+            return updated;
+        }
 
+        // TODO: This needs to be reimplemented
+        void HandleArmageddon()
+        {
             // todo figure what to do with this
             /*
             if (GlobalStats.RemnantArmageddon)
@@ -372,65 +382,8 @@ namespace Ship_Game
             }
             ArmageddonCountdown(timeStep);
             */
-
-            PreEmpirePerf.Stop();
-            
-            if (!UState.Paused && IsActive)
-            {
-                EmpireUpdatePerf.Start();
-                UpdateEmpires(timeStep);
-                EmpireUpdatePerf.Stop();
-            }
-            
-            return !UState.Paused;
         }
-
-        /// <summary>
-        /// Should be run once at the end of a game turn, once before game start, and once after load.
-        /// Anything that the game needs at the start should be placed here.
-        /// </summary>
-        public void EndOfTurnUpdate(FixedSimTime timeStep)
-        {
-            PostEmpirePerf.Start();
-            if (IsActive)
-            {
-                void PostEmpireUpdate(int start, int end)
-                {
-                    for (int i = start; i < end; i++)
-                    {
-                        var empire = EmpireManager.Empires[i];
-                        empire.AIManagedShips.Update();
-                        empire.UpdateMilitaryStrengths();
-                        empire.AssessSystemsInDanger(timeStep);
-                        empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
-                        foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
-                        {
-                            if (kv.Value.Ships.NotEmpty)
-                            {
-                                kv.Value.AveragePosition();
-                                kv.Value.UpdateSpeedLimit();
-                            }
-                        }
-                    }
-                }
-                Parallel.For(EmpireManager.Empires.Count, PostEmpireUpdate, MaxTaskCores);
-            }
-
-            PostEmpirePerf.Stop();
-        }
-
-        void UpdateEmpires(FixedSimTime timeStep)
-        {
-            for (int i = 0; i < EmpireManager.NumEmpires; i++)
-            {
-                Empire empire = EmpireManager.Empires[i];
-                if (!empire.data.Defeated)
-                {
-                    empire.Update(UState, timeStep);
-                }
-            }
-        }
-
+        
         /*
         void ArmageddonCountdown(FixedSimTime timeStep)
         {
@@ -456,7 +409,7 @@ namespace Ship_Game
                 UState.GameSpeed = 1f;
             else if (input.SpeedUp || input.SpeedDown)
             {
-                bool unlimited = GlobalStats.UnlimitedSpeed || Debug;
+                bool unlimited = Debug || Debugger.IsAttached;
                 float speedMin = unlimited ? 0.0625f : 0.25f;
                 float speedMax = unlimited ? 128f    : 6f;
                 UState.GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);
@@ -469,6 +422,33 @@ namespace Ship_Game
             return increase
                 ? speed <= 1 ? speed * 2 : speed + 1
                 : speed <= 1 ? speed / 2 : speed - 1;
+        }
+
+        // Thread safe input queue for running UI input on empire thread
+        readonly SafeQueue<Action> PendingSimThreadActions = new SafeQueue<Action>();
+        
+        /// <summary>
+        /// Invokes all Pending actions. This should only be called from ProcessTurns !!!
+        /// </summary>
+        public void InvokePendingSimThreadActions()
+        {
+            while (PendingSimThreadActions.TryDequeue(out Action action))
+                action();
+        }
+
+        /// <summary>
+        /// Queues action to run on the Simulation thread, aka ProcessTurns thread.
+        /// </summary>
+        public void RunOnSimThread(Action action)
+        {
+            if (action != null)
+            {
+                PendingSimThreadActions.Enqueue(action);
+            }
+            else
+            {
+                Log.WarningWithCallStack("Null Action passed to RunOnEmpireThread method");
+            }
         }
     }
 }

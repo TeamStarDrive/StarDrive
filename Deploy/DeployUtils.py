@@ -4,12 +4,10 @@ def console(msg): print(msg, flush=True)
 def fatal_error(msg): print(msg, file=sys.stderr, flush=True); sys.exit(-1)
 def exit_with_message(msg): print(msg, flush=True); sys.exit(0) # not an error
 
-# allowed CI auto-deploy branches: develop, test/*, release/*
+# allowed CI auto-deploy branches:
 def should_deploy():
     branch = appveyor_branch()
-    return branch == "develop" \
-        or branch.startswith("test/") \
-        or branch.startswith("release/")
+    return branch == "develop"
 
 def env(env_var_name, default=None, fatal=False):
     var = os.getenv(env_var_name, default=default)

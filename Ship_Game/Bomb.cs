@@ -56,28 +56,28 @@ namespace Ship_Game
         public void DoImpact()
         {
             TargetPlanet.DropBomb(this);
-            Owner.Universum.Screen.BombList.QueuePendingRemoval(this);
+            Owner.Universe.Screen.BombList.QueuePendingRemoval(this);
         }
 
         private void SurfaceImpactEffects()
         {
-            if (Owner.Universum.Screen.IsSystemViewOrCloser &&
+            if (Owner.Universe.IsSystemViewOrCloser &&
                 TargetPlanet.ParentSystem.InFrustum)
             {
                 TargetPlanet.PlayPlanetSfx("sd_bomb_impact_01", Position);
-                ExplosionManager.AddExplosionNoFlames(Owner.Universum.Screen, Position, 200f, 7.5f);
-                Owner.Universum.Screen.Particles.Flash.AddParticle(Position, Vector3.Zero);
+                ExplosionManager.AddExplosionNoFlames(Owner.Universe.Screen, Position, 200f, 7.5f);
+                Owner.Universe.Screen.Particles.Flash.AddParticle(Position, Vector3.Zero);
                 for (int i = 0; i < 50; i++)
-                    Owner.Universum.Screen.Particles.Explosion.AddParticle(Position, Vector3.Zero);
+                    Owner.Universe.Screen.Particles.Explosion.AddParticle(Position, Vector3.Zero);
             }
         }
 
         public void PlayCombatScreenEffects(Planet planet, OrbitalDrop od)
         {
-            if (Owner.Universum.Screen.IsViewingCombatScreen(planet))
+            if (Owner.Universe.Screen.IsViewingCombatScreen(planet))
             {
                 GameAudio.PlaySfxAsync("Explo1");
-                ((CombatScreen)Owner.Universum.Screen.workersPanel).AddExplosion(od.TargetTile.ClickRect, 4);
+                ((CombatScreen)Owner.Universe.Screen.workersPanel).AddExplosion(od.TargetTile.ClickRect, 4);
             }
             else
                 SurfaceImpactEffects(); // If viewing the planet from space
@@ -88,19 +88,25 @@ namespace Ship_Game
             if (SpecialAction.IsEmpty() || SpecialAction != "Free Owlwoks")
                 return;
 
-            if (planet.Owner == null || planet.Owner != EmpireManager.Cordrazine)
+            Empire cordrazine = planet.Universe.Cordrazine;
+            if (planet.Owner == null || planet.Owner != cordrazine)
                 return;
 
-            for (int i = 0; i < planet.TroopsHere.Count; i++)
+            bool owlwoksFreed = false;
+            foreach (Troop troop in planet.Troops.GetTroopsOf(cordrazine))
             {
-                Troop troop = planet.TroopsHere[i];
-                if (troop.Loyalty == EmpireManager.Cordrazine && troop.TargetType == TargetType.Soft)
+                if (troop.TargetType == TargetType.Soft)
                 {
-                    StarDriveGame.Instance?.SetSteamAchievement("Owlwoks_Freed");
+                    owlwoksFreed = true;
                     troop.SetOwner(Owner);
-                    troop.Name = EmpireManager.Cordrazine.data.TroopName.Text;
-                    troop.Description = EmpireManager.Cordrazine.data.TroopDescription.Text;
+                    troop.Name = cordrazine.data.TroopName.Text;
+                    troop.Description = cordrazine.data.TroopDescription.Text;
                 }
+            }
+
+            if (owlwoksFreed)
+            {
+                StarDriveGame.Instance?.SetSteamAchievement("Owlwoks_Freed");
             }
         }
 
@@ -134,8 +140,8 @@ namespace Ship_Game
             if (TrailEmitter == null)
             {
                 Velocity *= 0.65f;
-                TrailEmitter     = Owner.Universum.Screen.Particles.ProjectileTrail.NewEmitter(500f, Position);
-                FireTrailEmitter = Owner.Universum.Screen.Particles.FireTrail.NewEmitter(500f, Position);
+                TrailEmitter     = Owner.Universe.Screen.Particles.ProjectileTrail.NewEmitter(500f, Position);
+                FireTrailEmitter = Owner.Universe.Screen.Particles.FireTrail.NewEmitter(500f, Position);
             }
             TrailEmitter.Update(timeStep.FixedTime, Position);
             FireTrailEmitter.Update(timeStep.FixedTime, Position);

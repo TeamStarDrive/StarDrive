@@ -35,8 +35,10 @@ namespace Ship_Game.GameScreens.Espionage
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
+            Empire player = Empire.Universe.Player;
+
             // red background:
-            if (EmpireManager.Player != Empire && EmpireManager.Player.IsAtWarWith(Empire) && !Empire.data.Defeated)
+            if (player != Empire && player.IsAtWarWith(Empire) && !Empire.IsDefeated)
             {
                 batch.FillRectangle(Rect.Bevel(2), Color.Red);
             }
@@ -51,7 +53,7 @@ namespace Ship_Game.GameScreens.Espionage
                 batch.DrawString(Fonts.Arial12Bold, Empire.data.Traits.Name, nameCursor, Color.White);
             }
 
-            if (Empire.data.Defeated)
+            if (Empire.IsDefeated)
             {
                 DrawRacePortrait();
 
@@ -62,11 +64,11 @@ namespace Ship_Game.GameScreens.Espionage
                 else
                 {
                     var r = new Rectangle(Rect.X, Rect.Y, 124, 124);
-                    var e = EmpireManager.GetEmpireByName(Empire.data.AbsorbedBy);
+                    var e = Empire.Universe.GetEmpireByName(Empire.data.AbsorbedBy);
                     batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                 }
             }
-            else if (EmpireManager.Player == Empire || EmpireManager.Player.IsKnown(Empire))
+            else if (player == Empire || player.IsKnown(Empire))
             {
                 DrawRacePortrait();
 
@@ -83,7 +85,7 @@ namespace Ship_Game.GameScreens.Espionage
                 if (defenseIcon.HitTest(Screen.Input.CursorPosition))
                     ToolTip.CreateTooltip(Localizer.Token(GameText.IndicatesTheCounterespionageStrengthOf));
             }
-            else if (EmpireManager.Player != Empire)
+            else if (player != Empire)
             {
                 batch.Draw(ResourceManager.Texture("Portraits/unknown"), Rect, Color.White);
             }

@@ -103,15 +103,15 @@ namespace Ship_Game.Ships
             S.NetPower = Power.Calculate(modules, e);
             S.PowerStoreMax  = S.NetPower.PowerStoreMax;
             S.PowerFlowMax   = S.NetPower.PowerFlowMax;
-            S.ShieldPercent = (100.0 * S.ShieldPower / S.ShieldMax.LowerBound(0.1f)).LowerBound(0);
+            S.ShieldPercent = (100f * S.ShieldPower / S.ShieldMax.LowerBound(0.1f)).LowerBound(0);
             S.SensorRange   += maxSensorBonus;
 
             // Apply modifiers to stats
             if (S.IsPlatform) S.SensorRange = S.SensorRange.LowerBound(10000);
             S.SensorRange   *= e.data.SensorModifier;
             S.SensorRange   *= Hull.Bonuses.SensorModifier;
-            S.CargoSpaceMax *= Hull.Bonuses.CargoModifier;
             S.RepairRate    += (float)(S.RepairRate * S.Level * 0.05);
+            S.CargoSpaceMax = GetCargoSpace(S.CargoSpaceMax, Hull);
 
             S.SetActiveInternalSlotCount(activeInternalSlots);
 
@@ -201,6 +201,12 @@ namespace Ship_Game.Ships
             return Math.Min(radsPerSec, Ship.MaxTurnRadians);
         }
 
+        public static float GetTurnRadsPerSec(IShipDesign s)
+        {
+            float radsPerSec = s.BaseTurnThrust / s.BaseMass / 700f;
+            return Math.Min(radsPerSec, Ship.MaxTurnRadians);
+        }
+
         public float GetFTLSpeed(float mass, Empire e)
         {
             if (WarpThrust.AlmostZero())
@@ -208,11 +214,25 @@ namespace Ship_Game.Ships
             return Math.Max(WarpThrust / mass * e.data.FTLModifier, Ship.LightSpeedConstant);
         }
 
+        public static float GetFTLSpeed(IShipDesign s, Empire e)
+        {
+            if (s.BaseWarpThrust.AlmostZero())
+                return 0;
+            return Math.Max(s.BaseWarpThrust / s.BaseMass * e.data.FTLModifier, Ship.LightSpeedConstant);
+        }
+
         public float GetSTLSpeed(float mass, Empire e)
         {
             float thrustWeightRatio = Thrust / mass;
             float speed = thrustWeightRatio * e.data.SubLightModifier;
             speed *= 1 - S.TractorDamage / mass;
+            return Math.Min(speed, Ship.MaxSubLightSpeed);
+        }
+
+        public static float GetSTLSpeed(IShipDesign s, Empire e)
+        {
+            float thrustWeightRatio = s.BaseThrust / s.BaseMass;
+            float speed = thrustWeightRatio * e.data.SubLightModifier;
             return Math.Min(speed, Ship.MaxSubLightSpeed);
         }
 
@@ -228,9 +248,25 @@ namespace Ship_Game.Ships
             return spoolTime;
         }
 
+        public static float GetCargoSpace(float cargoMax, IShipDesign s)
+        {
+            return cargoMax * s.Bonuses.CargoModifier;
+        }
+        
+        /// @return TRUE if ship can effectively warp the given distance in 1 jump
+        public static bool IsWarpRangeGood(float neededRange, float powerDuration, float maxFTLSpeed)
+        {
+            float maxFTLRange = powerDuration * maxFTLSpeed;
+            return maxFTLRange >= neededRange;
+        }
+
         // This will also update shield max power of modules if there are amplifiers
         float UpdateShieldPowerMax(float shieldAmplify)
         {
+            // NOTE: this can happen with serialized dead ships which we need to keep around in serialized Goals
+            if (S.Modules.Length == 0)
+                return 0f;
+
             float shieldMax = 0;
             foreach (ShipModule shield in S.GetShields())
             {
@@ -246,6 +282,10 @@ namespace Ship_Game.Ships
         public void UpdateShieldAmplification()
         {
             TotalShieldAmplification = ShieldAmplifyPerShield = 0;
+
+            // NOTE: this can happen with serialized dead ships which we need to keep around in serialized Goals
+            if (S.Modules.Length == 0)
+                return;
 
             int numMainShields = S.GetShields().Count(s => s.ModuleType == ShipModuleType.Shield);
             if (numMainShields == 0)

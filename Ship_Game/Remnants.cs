@@ -7,6 +7,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Fleets;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
@@ -16,57 +17,42 @@ namespace Ship_Game
     using static RandomMath;
     using static HelperFunctions;
 
+    [StarDataType]
     public class Remnants
     {
         public const int MaxLevel = 20;
-        public readonly Empire Owner;
-        public UniverseState Universe => Owner.Universum ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
+        [StarData] public readonly Empire Owner;
+        public UniverseState Universe => Owner.Universe ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
 
-        public readonly BatchRemovalCollection<Goal> Goals;
-        public float StoryTriggerKillsXp { get; private set; }
-        public float PlayerStepTriggerXp { get; private set; }
-        public float NextLevelUpDate { get; private set; }
-        public bool Activated { get; private set; }
-        public static bool Armageddon;
-        public RemnantStory Story { get; private set; }
-        public float Production { get; private set; }
-        public int Level { get; private set; } = 1;
-        public Map<RemnantShipType, float> ShipCosts { get; } = new Map<RemnantShipType, float>();
-        public int StoryStep { get; private set; } = 1;
-        public bool OnlyRemnantLeft { get; private set; }
-        public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
-        public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
+        [StarData] public float StoryTriggerKillsXp { get; private set; }
+        [StarData] public float PlayerStepTriggerXp { get; private set; }
+        [StarData] public float NextLevelUpDate { get; private set; }
+        [StarData] public bool Activated { get; private set; }
+        [StarData] public RemnantStory Story { get; private set; }
+        [StarData] public float Production { get; private set; }
+        [StarData] public int Level { get; private set; } = 1;
+        [StarData] public Map<RemnantShipType, float> ShipCosts { get; private set; } = new();
+        [StarData] public int StoryStep { get; private set; } = 1;
+        [StarData] public bool OnlyRemnantLeft { get; private set; }
+        [StarData] public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
+        [StarData] public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
 
-        public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
+        // whether to display verbose state logs
+        public bool Verbose;
+
+        [StarDataConstructor]
+        Remnants() {}
+
+        public Remnants(Empire owner, EmpireAI ai)
         {
             Owner = owner;
-            Goals = goals;
-
             Owner.data.FuelCellModifier      = 1.4f;
             Owner.data.FTLPowerDrainModifier = 0.8f;
-            owner.data.FTLModifier           = 50;
-            owner.data.MassModifier          = 0.9f;
+            Owner.data.FTLModifier           = 50;
+            Owner.data.MassModifier          = 0.9f;
 
-            if (!fromSave)
-                Story = InitAndPickStory(goals);
-
+            Story = InitAndPickStory(ai);
             CalculateShipCosts();
-        }
-
-        public void RestoreFromSave(SavedGame.EmpireSaveData sData)
-        {
-            Activated           = sData.RemnantStoryActivated;
-            StoryTriggerKillsXp = sData.RemnantStoryTriggerKillsXp;
-            PlayerStepTriggerXp = sData.RemnantPlayerStepTriggerXp;
-            Story               = (RemnantStory)sData.RemnantStoryType;
-            Production          = sData.RemnantProduction;
-            StoryStep           = sData.RemnantStoryStep;
-            OnlyRemnantLeft     = sData.OnlyRemnantLeft;
-            NextLevelUpDate     = sData.RemnantNextLevelUpDate;
-            HibernationTurns    = sData.RemnantHibernationTurns;
-            ActivationXpNeeded = sData.RemnantActivationXpNeeded;
-
-            SetLevel(sData.RemnantLevel);
         }
 
         public void IncrementKills(Empire empire, int xp)
@@ -109,7 +95,7 @@ namespace Ship_Game
                 case RemnantStory.AncientBalancers:
                 case RemnantStory.AncientExterminators:
                 case RemnantStory.AncientRaidersRandom:
-                    Goals.Add(new RemnantEngagements(Owner));
+                    Owner.AI.AddGoal(new RemnantEngagements(Owner));
                     Universe.Notifications.AddRemnantsStoryActivation(Owner);
                     break;
             }
@@ -118,7 +104,7 @@ namespace Ship_Game
 
         void NotifyPlayerOnLevelUp()
         {
-            float espionageStr = EmpireManager.Player.GetSpyDefense();
+            float espionageStr = Universe.Player.GetSpyDefense();
             if (espionageStr <= Level * 3)
                 return; // not enough espionage strength to learn about Remnant activities
 
@@ -131,7 +117,7 @@ namespace Ship_Game
             if (Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
             {
                 int turnsLevelUp = TurnsLevelUp + ExtraLevelUpEffort;
-                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.ProductionPace);
+                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * Universe.ProductionPace);
                 HibernationTurns = 0;
                 NextLevelUpDate += turnsLevelUp / 10f;
 
@@ -194,12 +180,12 @@ namespace Ship_Game
         }
 
         int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-        int ExtraLevelUpEffort            => (int)((Level-1) * CurrentGame.RemnantPaceModifier + NeededHibernationTurns);
-        public int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 2);
+        int ExtraLevelUpEffort            => (int)((Level-1) * Universe.RemnantPaceModifier + NeededHibernationTurns);
+        public int NeededHibernationTurns => TurnsLevelUp / ((int)Universe.P.Difficulty + 2);
 
         void SetInitialLevelUpDate()
         {
-            int turnsLevelUp = (int)(TurnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
+            int turnsLevelUp = (int)(TurnsLevelUp * StoryTurnsLevelUpModifier() * Universe.P.Pace);
             NextLevelUpDate  = 1000 + turnsLevelUp/5f; // Initial Level in half rate (/5 instead of /10)
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation ----");
         }
@@ -239,14 +225,14 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
-                    for (int i = 0; i <= (int)CurrentGame.Difficulty; i++)
+                    for (int i = 0; i <= (int)Universe.P.Difficulty; i++)
                         CreatePortal();
                     break;
                 case RemnantStory.AncientExterminators:
                     if (!GetPortals(out Ship[] portals))
                         return;
                     Ship portal = portals.RandItem();
-                    for (int i = 0; i < ((int)CurrentGame.Difficulty + 1) * 3; i++)
+                    for (int i = 0; i < ((int)Universe.P.Difficulty + 1) * 3; i++)
                     {
                         if (!SpawnShip(RemnantShipType.Exterminator, portal.Position, out _))
                             return;
@@ -261,18 +247,18 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            if (Goals.Any(g => g.IsRaid && (g.Fleet == null || g.Fleet.TaskStep == 0)))
+            if (Owner.AI.HasGoal(g => g.IsRaid && g is FleetGoal))
                 return false;  // Limit building fleet to 1 at a time
 
-            int ongoingRaids = Goals.Count(g => g.IsRaid);
+            int ongoingRaids = Owner.AI.CountGoals(g => g.IsRaid);
             return ongoingRaids < NumPortals();
         }
 
         public bool FindValidTarget(out Empire target)
         {
             var empiresList = GlobalStats.RestrictAIPlayerInteraction 
-                                 ? EmpireManager.ActiveNonPlayerMajorEmpires
-                                 : EmpireManager.ActiveMajorEmpires;
+                                 ? Universe.ActiveNonPlayerMajorEmpires
+                                 : Universe.ActiveMajorEmpires;
 
             target = null;
             if (empiresList.Length == 0)
@@ -293,7 +279,7 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            if (checkOnlyDefeated && !currentTarget.data.Defeated)
+            if (checkOnlyDefeated && !currentTarget.IsDefeated)
                 return true;
 
             FindValidTarget(out Empire expectedTarget);
@@ -407,13 +393,13 @@ namespace Ship_Game
 
         public void InitTargetEmpireDefenseActions(Planet planet, float starDateEta, float str)
         {
-            if (planet.Owner == null || planet.Owner.isFaction)
+            if (planet.Owner == null || planet.Owner.IsFaction)
                 return;
 
             if (planet.OwnerIsPlayer) // Warn the player is able
             {
                 SolarSystem system = planet.ParentSystem;
-                if (system.PlanetList.Any(p => p.Owner == EmpireManager.Player
+                if (system.PlanetList.Any(p => p.Owner == Universe.Player
                                                && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
                 {
                     string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
@@ -423,7 +409,7 @@ namespace Ship_Game
             else  // AI scramble defense
             {
                 var task = MilitaryTask.CreateDefendVsRemnant(planet, planet.Owner, str);
-                planet.Owner.GetEmpireAI().AddPendingTask(task);
+                planet.Owner.AI.AddPendingTask(task);
             }
         }
 
@@ -535,7 +521,7 @@ namespace Ship_Game
         {
             if (CreatePortal(Universe, out Ship portal, out string systemName))
             {
-                Goals.Add(new RemnantPortal(Owner, portal, systemName));
+                Owner.AI.AddGoal(new RemnantPortal(Owner, portal, systemName));
                 return true;
             }
             return false;
@@ -607,7 +593,7 @@ namespace Ship_Game
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
             int fleetModifier  = shipsInFleet / 12;
-            int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
+            int effectiveLevel = Level + (int)Universe.P.Difficulty + fleetModifier;
             effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
             int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
             switch (roll)
@@ -704,7 +690,7 @@ namespace Ship_Game
 
         void GenerateProduction(float amount)
         {
-            int limit = 200 * ((int)CurrentGame.Difficulty).LowerBound(1);
+            int limit = 200 * ((int)Universe.P.Difficulty).LowerBound(1);
             Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 240K 
         }
 
@@ -733,7 +719,7 @@ namespace Ship_Game
         {
             float fertilityMod = 1;
             float richnessMod  = 1;
-            if (EmpireManager.Player.IsCybernetic)
+            if (Universe.Player.IsCybernetic)
             {
                 fertilityMod = 0.5f;
                 richnessMod  = planet.IsBarrenType ? 6f : 3f;
@@ -741,7 +727,7 @@ namespace Ship_Game
 
             float quality = planet.BaseFertility * fertilityMod 
                             + planet.MineralRichness * richnessMod 
-                            + planet.MaxPopulationBillionFor(EmpireManager.Remnants);
+                            + planet.MaxPopulationBillionFor(Owner);
 
             // Boost the quality score for planets that are very rich
             if (planet.MineralRichness > 1.5f)
@@ -759,12 +745,12 @@ namespace Ship_Game
                 return; // Don't create Remnants on starting systems or Pirate systems
 
             float quality   = PlanetQuality(p);
-            int dieModifier = (int)CurrentGame.Difficulty * 5 - 10; // easy -10, brutal +5
+            int dieModifier = (int)Universe.P.Difficulty * 5 - 10; // easy -10, brutal +5
             if (Story != RemnantStory.None)
                 dieModifier -= 5;
 
             int d100 = RollDie(100) + dieModifier;
-            switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
+            switch (Universe.P.ExtraRemnant) // Refactored by FB (including all remnant methods)
             {
                 case ExtraRemnantPresence.VeryRare:   VeryRarePresence(quality, d100, p);   break;
                 case ExtraRemnantPresence.Rare:       RarePresence(quality, d100, p);       break;
@@ -966,29 +952,23 @@ namespace Ship_Game
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
         {
-            int divider = 7 * ((int)CurrentGame.Difficulty).LowerBound(1); // harder game = earlier activation
+            int divider = 7 * ((int)Universe.P.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
                 Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2);
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p, clearOrders:true, MoveOrder.Aggressive);
-                    ship.SetSystem(p.ParentSystem); // needed for Threat Matrix update pins to register the threatened system 
+                    p.ParentSystem.NewGameAddRemnantShipToList(ship);
                     ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
-
-                    foreach (Empire e in EmpireManager.MajorEmpires)
-                    {
-                        if (p.IsExploredBy(e))
-                            e.GetEmpireAI().ThreatMatrix.AddOrUpdatePin(ship, false, true);
-                    }
                 }
             }
         }
 
-        RemnantStory InitAndPickStory(BatchRemovalCollection<Goal> goals)
+        RemnantStory InitAndPickStory(EmpireAI ai)
         {
-            goals.Add(new RemnantInit(Owner));
-            if (GlobalStats.DisableRemnantStory)
+            ai.AddGoal(new RemnantInit(Owner));
+            if (GlobalStats.Settings.DisableRemnantStory)
                 return RemnantStory.None;
 
             switch (RollDie(3)) // todo for now 3 stories
