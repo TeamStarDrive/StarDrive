@@ -10,7 +10,7 @@ namespace Ship_Game.Ships.Legacy
 {
     // @note
     // ShipData templates from root content and save designs is loaded using SDNative
-    // Game Save/Load uses a separate serializer which used to be XML, but now is Json
+    // Game Save/Load uses a separate serializer which used to be XML
     // @note Saving ShipData designs is still done in XML -- should change that!
     //       However, we will have to support XML for a long time to have backwards compat.
     public sealed partial class LegacyShipData

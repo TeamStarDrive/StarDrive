@@ -97,13 +97,20 @@ game/Content/spellchecker.txt
 game/MeshExport/
 game/Mods/
 Deploy/GeneratedFilesList.nsh
-<<<<<<< HEAD
 SDGraphics/bin/
 game/SDGraphics.pdb
 game/SDGraphics.dll
 game/SDUtils.dll
 game/SDUtils.pdb
-=======
-game/Content/Weapons/Secret/mirv tests/FlakMirv.xml
-game/Content/Weapons/Secret/mirv tests/RemnantNukerMirv.xml
->>>>>>> 36a5e2899 (balancing money buildings to prevent late game lag caused by too many ships)
+game/Microsoft.Win32.Registry.dll
+game/Microsoft.Win32.Registry.xml
+game/NAudio.Asio.dll
+game/NAudio.Core.dll
+game/NAudio.Midi.dll
+game/NAudio.Wasapi.dll
+game/NAudio.WinForms.dll
+game/NAudio.WinMM.dll
+game/System.Security.AccessControl.dll
+game/System.Security.AccessControl.xml
+game/System.Security.Principal.Windows.dll
+game/System.Security.Principal.Windows.xml
