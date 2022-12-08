@@ -107,10 +107,10 @@ def create_installer_commands(filename:str,
 def create_installer_files_list(major=False, patch=False):
     blackbox_dir = args.root_dir if args.root_dir else os.getcwd()
     game_dir = path_combine(blackbox_dir, 'game') + '\\'
-    major_release_file = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.txt')
-    delete_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.DeleteFiles.txt')
-    delete_dirs_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.DeleteDirs.txt')
-    new_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.NewOrChanged.txt')
+    major_release_file = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.41.txt')
+    delete_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.41.DeleteFiles.txt')
+    delete_dirs_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.41.DeleteDirs.txt')
+    new_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.41.NewOrChanged.txt')
     installer_commands = path_combine(blackbox_dir, 'Deploy\\GeneratedFilesList.nsh')
 
     known_files = []
