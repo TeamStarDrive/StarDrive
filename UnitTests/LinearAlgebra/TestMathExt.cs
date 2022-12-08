@@ -6,7 +6,7 @@ using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 namespace UnitTests.LinearAlgebra
 {
     [TestClass]
-    public class TestMathExt
+    public class TestMathExt : StarDriveTest
     {
         // double vs float math will have a tiny difference in accuracy
         // this is the max deviation we allow
@@ -27,9 +27,9 @@ namespace UnitTests.LinearAlgebra
             float sqdist1 = XnaVector2.DistanceSquared(A, B);
             float dist2   = A.Distance(B);
             float sqdist2 = A.SqDist(B);
-            Assert.AreEqual(dist1,   dist2,       MaxErr, "MathExt.Distance is inconsistent");
-            Assert.AreEqual(sqdist1, sqdist2,     MaxErr, "MathExt.SqDist is inconsistent");
-            Assert.AreEqual(sqdist2, dist2*dist2, MaxErr, "MathExt.Distance or MathExt.SqDist is inconsistent");
+            AssertEqual(MaxErr, dist1,   dist2,       "MathExt.Distance is inconsistent");
+            AssertEqual(MaxErr, sqdist1, sqdist2,     "MathExt.SqDist is inconsistent");
+            AssertEqual(MaxErr, sqdist2, dist2*dist2, "MathExt.Distance or MathExt.SqDist is inconsistent");
         }
 
         [TestMethod]
@@ -52,34 +52,34 @@ namespace UnitTests.LinearAlgebra
         [TestMethod]
         public void AngleToTarget()
         {
-            Assert.AreEqual(00f,  Center.AngleToTarget(N),  MaxErr, "Degrees to target is incorrect");
-            Assert.AreEqual(45f,  Center.AngleToTarget(NE), MaxErr, "Degrees to target is incorrect");
-            Assert.AreEqual(90f,  Center.AngleToTarget(E),  MaxErr, "Degrees to target is incorrect");
-            Assert.AreEqual(135f, Center.AngleToTarget(SE), MaxErr, "Degrees to target is incorrect");
-            Assert.AreEqual(180f, Center.AngleToTarget(S),  MaxErr, "Degrees to target is incorrect");
-            Assert.AreEqual(225f, Center.AngleToTarget(SW), MaxErr, "Degrees to target is incorrect");
-            Assert.AreEqual(270f, Center.AngleToTarget(W),  MaxErr, "Degrees to target is incorrect");
-            Assert.AreEqual(315f, Center.AngleToTarget(NW), MaxErr, "Degrees to target is incorrect");
+            AssertEqual(MaxErr, 00f,  Center.AngleToTarget(N),  "Degrees to target is incorrect");
+            AssertEqual(MaxErr, 45f,  Center.AngleToTarget(NE), "Degrees to target is incorrect");
+            AssertEqual(MaxErr, 90f,  Center.AngleToTarget(E),  "Degrees to target is incorrect");
+            AssertEqual(MaxErr, 135f, Center.AngleToTarget(SE), "Degrees to target is incorrect");
+            AssertEqual(MaxErr, 180f, Center.AngleToTarget(S),  "Degrees to target is incorrect");
+            AssertEqual(MaxErr, 225f, Center.AngleToTarget(SW), "Degrees to target is incorrect");
+            AssertEqual(MaxErr, 270f, Center.AngleToTarget(W),  "Degrees to target is incorrect");
+            AssertEqual(MaxErr, 315f, Center.AngleToTarget(NW), "Degrees to target is incorrect");
         }
 
         [TestMethod]
         public void TestRadiansToTarget()
         {
-            Assert.AreEqual(System.Math.PI*0.00, Center.RadiansToTarget(N),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(System.Math.PI*0.25, Center.RadiansToTarget(NE), MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(System.Math.PI*0.50, Center.RadiansToTarget(E),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(System.Math.PI*0.75, Center.RadiansToTarget(SE), MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(System.Math.PI*1.00, Center.RadiansToTarget(S),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(System.Math.PI*1.25, Center.RadiansToTarget(SW), MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(System.Math.PI*1.50, Center.RadiansToTarget(W),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(System.Math.PI*1.75, Center.RadiansToTarget(NW), MaxErr, "Radians to target is incorrect");
+            AssertEqual(MaxErr, System.Math.PI*0.00, Center.RadiansToTarget(N),  "Radians to target is incorrect");
+            AssertEqual(MaxErr, System.Math.PI*0.25, Center.RadiansToTarget(NE), "Radians to target is incorrect");
+            AssertEqual(MaxErr, System.Math.PI*0.50, Center.RadiansToTarget(E),  "Radians to target is incorrect");
+            AssertEqual(MaxErr, System.Math.PI*0.75, Center.RadiansToTarget(SE), "Radians to target is incorrect");
+            AssertEqual(MaxErr, System.Math.PI*1.00, Center.RadiansToTarget(S),  "Radians to target is incorrect");
+            AssertEqual(MaxErr, System.Math.PI*1.25, Center.RadiansToTarget(SW), "Radians to target is incorrect");
+            AssertEqual(MaxErr, System.Math.PI*1.50, Center.RadiansToTarget(W),  "Radians to target is incorrect");
+            AssertEqual(MaxErr, System.Math.PI*1.75, Center.RadiansToTarget(NW), "Radians to target is incorrect");
         }
 
         [TestMethod]
         public void TestDegreesAndRadians()
         {
-            Assert.AreEqual(180f, ((float)System.Math.PI).ToDegrees(), MaxErr, "Radians to Degrees failed");
-            Assert.AreEqual((float)System.Math.PI, 180f.ToRadians(), MaxErr, "Degrees to Radians failed");
+            AssertEqual(MaxErr, 180f, ((float)System.Math.PI).ToDegrees(), "Radians to Degrees failed");
+            AssertEqual(MaxErr, (float)System.Math.PI, 180f.ToRadians(), "Degrees to Radians failed");
         }
 
         
@@ -112,14 +112,14 @@ namespace UnitTests.LinearAlgebra
         [TestMethod]
         public void RoundingUtils()
         {
-            Assert.AreEqual(50,  31.RoundUpToMultipleOf(50));
-            Assert.AreEqual(100, 81.RoundUpToMultipleOf(50));
+            AssertEqual(50,  31.RoundUpToMultipleOf(50));
+            AssertEqual(100, 81.RoundUpToMultipleOf(50));
 
-            Assert.AreEqual(0,  31.RoundDownToMultipleOf(50));
-            Assert.AreEqual(50, 81.RoundDownToMultipleOf(50));
+            AssertEqual(0,  31.RoundDownToMultipleOf(50));
+            AssertEqual(50, 81.RoundDownToMultipleOf(50));
 
-            Assert.AreEqual(10, 0.5f.RoundTo10());
-            Assert.AreEqual(80, 75.5f.RoundTo10());
+            AssertEqual(10, 0.5f.RoundTo10());
+            AssertEqual(80, 75.5f.RoundTo10());
         }
     }
 }

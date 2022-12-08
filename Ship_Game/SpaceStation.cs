@@ -21,9 +21,7 @@ namespace Ship_Game
 
         void UpdateTransforms(Vector2 position)
         {
-            float scale = 0.25f;
-            if (GlobalStats.HasMod) // The Doctor: Mod defined spaceport 'station' art scaling
-                scale = GlobalStats.ActiveModInfo.SpaceportScale;
+            float scale = GlobalStats.Settings.SpaceportScale;
 
             Matrix transform = Matrix.CreateScale(scale)
                              * Matrix.CreateRotationZ(90f.ToRadians() + ZRotation)

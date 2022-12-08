@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -13,26 +8,21 @@ namespace Ship_Game
 {
     public class FighterListItem : ScrollListItem<FighterListItem>
     {
-        public Ship Ship;
+        public IShipDesign Design;
 
-        public FighterListItem(Ship template)
+        public FighterListItem(IShipDesign design)
         {
-            Ship = template;
-        }
-
-        public override bool HandleInput(InputState input)
-        {
-            return base.HandleInput(input);
+            Design = design;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             var bCursor = new Vector2(List.X + 15, Y);
 
-            batch.Draw(Ship.ShipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+            batch.Draw(Design.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
             var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-            Color color = ShipBuilder.GetHangarTextColor(Ship.Name);
-            batch.DrawString(Fonts.Arial12Bold, Ship.ShipName, tCursor, color);
+            Color color = ShipBuilder.GetHangarTextColor(Design.Name);
+            batch.DrawString(Fonts.Arial12Bold, Design.Name, tCursor, color);
         }
     }
 }

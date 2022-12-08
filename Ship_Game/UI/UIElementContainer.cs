@@ -11,11 +11,11 @@ using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
-    public class UIElementContainer : UIElementV2
+    public class UIElementContainer : UIElementV2, IClientArea
     {
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
+        protected readonly Array<UIElementV2> Elements = new();
 
         /// <summary>
         /// If enabled, UI elements will be drawn with a fixed delay
@@ -34,6 +34,11 @@ namespace Ship_Game
         /// Hack: NEW Multi-Layered draw mode disables child element drawing
         /// </summary>
         public bool NewMultiLayeredDrawMode;
+
+        /// <summary>
+        /// ClientArea: the usable working area that our child elements can use
+        /// </summary>
+        public virtual RectF ClientArea { get => RectF; set => RectF = value; }
 
         public override string ToString() => $"{TypeName} {ElementDescr} Elements={Elements.Count}";
 
@@ -262,6 +267,14 @@ namespace Ship_Game
             Elements.Sort(ZOrderSorter);
         }
 
+        // sends this child object to the backmost element
+        public void SendToBackZOrder(UIElementV2 child)
+        {
+            int minZOrder = Elements.Min(e => e.ZOrder);
+            child.ZOrder = minZOrder - 1;
+            RefreshZOrder();
+        }
+
         protected override int NextZOrder()
         {
             if (Elements.NotEmpty)
@@ -414,6 +427,13 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
+        /// <summary>
+        /// Begins a group element transition effect
+        /// </summary>
+        /// <typeparam name="T">Type of child elements to consider</typeparam>
+        /// <param name="offset">Offset from element.Pos where to start animation</param>
+        /// <param name="direction">-1 if transition in, +1 if transition out</param>
+        /// <param name="time">How fast should it animate</param>
         public void StartGroupTransition<T>(Vector2 offset, float direction, float time = 1f) where T : UIElementV2
         {
             var candidates = new Array<UIElementV2>();

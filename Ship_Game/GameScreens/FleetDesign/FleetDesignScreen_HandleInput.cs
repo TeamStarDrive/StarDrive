@@ -1,74 +1,18 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Ship_Game.AI;
 using Ship_Game.Audio;
-using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using SDGraphics;
 using SDUtils;
-using Rectangle = SDGraphics.Rectangle;
-using Ray = Microsoft.Xna.Framework.Ray;
-using Point = SDGraphics.Point;
+using static Ship_Game.Fleets.Fleet;
+using System.Collections;
+using System.Collections.Generic;
+using Ship_Game.Fleets;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen
     {
-        Vector3 GetPointInWorld(in Vector2 screenPoint, float screenZ)
-        {
-            return (Vector3)Viewport.Unproject(new Vector3(screenPoint, screenZ), Projection, View, Matrix.XnaIdentity);
-        }
-
-        Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenSpace)
-        {
-            Vector3 nearPoint = GetPointInWorld(screenSpace, 0f);
-            Vector3 farPoint = GetPointInWorld(screenSpace, 1f);
-
-            Vector3 direction = (farPoint - nearPoint).Normalized();
-            var pickRay = new Ray(nearPoint, direction);
-            float k = -pickRay.Position.Z / pickRay.Direction.Z;
-            var pickedPosition = new Vector3(
-                pickRay.Position.X + k * pickRay.Direction.X,
-                pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-            return new Vector2(pickedPosition.X, pickedPosition.Y);
-        }
-
-        void HandleEdgeDetection(InputState input)
-        {
-            EmpireUI.HandleInput(input, this);
-            if (FleetNameEntry.HandlingInput)
-                return;
-
-            Vector2 mousePos = input.CursorPosition;
-            PresentationParameters pp = ScreenManager.GraphicsDevice.PresentationParameters;
-            Vector2 upperLeftWorldSpace = GetWorldSpaceFromScreenSpace(new Vector2(0f, 0f));
-            Vector2 lowerRightWorldSpace = GetWorldSpaceFromScreenSpace(new Vector2(pp.BackBufferWidth, pp.BackBufferHeight));
-            float xDist = lowerRightWorldSpace.X - upperLeftWorldSpace.X;
-            if ((int) mousePos.X == 0 || input.KeysCurr.IsKeyDown(Keys.Left) || input.KeysCurr.IsKeyDown(Keys.A))
-            {
-                CamPos.X = CamPos.X - 0.008f * xDist;
-            }
-
-            if ((int) mousePos.X == pp.BackBufferWidth - 1 || input.KeysCurr.IsKeyDown(Keys.Right) ||
-                input.KeysCurr.IsKeyDown(Keys.D))
-            {
-                CamPos.X = CamPos.X + 0.008f * xDist;
-            }
-
-            if ((int) mousePos.Y == 0 || input.KeysCurr.IsKeyDown(Keys.Up) || input.KeysCurr.IsKeyDown(Keys.W))
-            {
-                CamPos.Y = CamPos.Y - 0.008f * xDist;
-            }
-
-            if ((int) mousePos.Y == pp.BackBufferHeight - 1 || input.KeysCurr.IsKeyDown(Keys.Down) ||
-                input.KeysCurr.IsKeyDown(Keys.S))
-            {
-                CamPos.Y = CamPos.Y + 0.008f * xDist;
-            }
-        }
-
         void InputSelectFleet(int whichFleet, bool keyPressed)
         {
             if (keyPressed)
@@ -80,12 +24,24 @@ namespace Ship_Game
         
         void OnDesignShipItemClicked(FleetDesignShipListItem item)
         {
-            if (FleetToEdit != -1 && item.Ship != null)
-            {
+            SelectedNodeList.Clear();
+            SelectedSquad = null;
+
+            // set the design as active so it can be placed
+            if (item.Ship != null)
                 ActiveShipDesign = item.Ship;
-                SelectedNodeList.Clear();
-                SelectedSquad = null;
-            }
+            else if (item.Design != null)
+                ActiveShipDesign = ResourceManager.Ships.Get(item.Design.Name);
+        }
+        
+        // if double clicked, automatically add this ship or design into a squad
+        void OnDesignShipItemDoubleClicked(FleetDesignShipListItem item)
+        {
+            SelectedNodeList.Clear();
+            SelectedSquad = null;
+            // always clear the design, because OnDesignShipItemClicked will set it
+            AddDesignToFleet(ActiveShipDesign, null);
+            ActiveShipDesign = null;
         }
 
         public override bool HandleInput(InputState input)
@@ -96,9 +52,10 @@ namespace Ship_Game
                 return true;
             }
 
-            if (SelectedNodeList.Count != 1 && FleetToEdit != -1 && FleetNameEntry.HandleInput(input))
+            if (SelectedNodeList.Count != 1 && FleetNameEntry.HandleInput(input))
                 return true;
 
+            // handle hotkeys
             InputSelectFleet(1, Input.Fleet1);
             InputSelectFleet(2, Input.Fleet2);
             InputSelectFleet(3, Input.Fleet3);
@@ -109,16 +66,6 @@ namespace Ship_Game
             InputSelectFleet(8, Input.Fleet8);
             InputSelectFleet(9, Input.Fleet9);
 
-            foreach (KeyValuePair<int, Rectangle> rect in FleetsRects)
-            {
-                if (rect.Value.HitTest(input.CursorPosition) && input.LeftMouseClick)
-                {
-                    FleetToEdit = rect.Key;
-                    InputSelectFleet(FleetToEdit, true);
-                }
-            }
-
-            ShipSL.Visible = FleetToEdit != -1;
             if (base.HandleInput(input))
                 return true;
 
@@ -140,188 +87,197 @@ namespace Ship_Game
                 SliderSize.HandleInput(input);
                 foreach (FleetDataNode node in SelectedNodeList)
                 {
-                    node.DPSWeight = SliderDps.amount;
-                    node.VultureWeight = SliderVulture.amount;
-                    node.ArmoredWeight = SliderArmor.amount;
-                    node.DefenderWeight = SliderDefend.amount;
-                    node.AssistWeight = SliderAssist.amount;
+                    node.DPSWeight = SliderDps.Amount;
+                    node.VultureWeight = SliderVulture.Amount;
+                    node.ArmoredWeight = SliderArmor.Amount;
+                    node.DefenderWeight = SliderDefend.Amount;
+                    node.AssistWeight = SliderAssist.Amount;
                     node.SizeWeight = SliderSize.amount;
                 }
 
                 if (OperationsRect.HitTest(input.CursorPosition))
-                {
-                    //DragTimer = 0f;
                     return true;
-                }
 
                 if (PrioritiesRect.HitTest(input.CursorPosition))
                 {
-                    //DragTimer = 0f;
                     OperationalRadius.HandleInput(input);
                     SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
                     return true;
                 }
             }
-            else if (FleetToEdit != -1 && SelectedNodeList.Count == 0 &&
-                     SelectedStuffRect.HitTest(input.CursorPosition))
-            {
-                if (RequisitionForces.HandleInput(input))
-                {
-                    ScreenManager.AddScreen(new RequisitionScreen(this));
-                }
-                if (SaveDesign.HandleInput(input))
-                {
-                    ScreenManager.AddScreen(new SaveFleetDesignScreen(this, SelectedFleet));
-                }
-                if (LoadDesign.HandleInput(input))
-                {
-                    ScreenManager.AddScreen(new LoadSavedFleetDesignScreen(this));
-                }
-            }
 
-            if (ActiveShipDesign != null)
-            {
-                if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
-                {
-                    Vector2 pickedPosition = GetWorldSpaceFromScreenSpace(input.CursorPosition);
+            if (ActiveShipDesign != null && HandleActiveShipDesignInput(input))
+                return true;
 
-                    FleetDataNode node = new FleetDataNode
-                    {
-                        FleetOffset = pickedPosition,
-                        ShipName = ActiveShipDesign.Name
-                    };
-                    SelectedFleet.DataNodes.Add(node);
-                    if (AvailableShips.Contains(ActiveShipDesign))
-                    {
-                        if (SelectedFleet.Ships.Count == 0)
-                        {
-                            SelectedFleet.FinalPosition = ActiveShipDesign.Position;
-                        }
-
-                        node.Ship = ActiveShipDesign;
-                        node.Ship.RelativeFleetOffset = node.FleetOffset;
-                        node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, -500000f);
-                        AvailableShips.Remove(ActiveShipDesign);
-                        SelectedFleet.AddShip(node.Ship);
-
-                        if (SubShips.SelectedIndex == 1)
-                        {
-                            ShipSL.RemoveFirstIf(item => item.Ship != null && item.Ship == ActiveShipDesign);
-                        }
-
-                        ActiveShipDesign = null;
-                    }
-
-                    if (!input.KeysCurr.IsKeyDown(Keys.LeftShift))
-                    {
-                        ActiveShipDesign = null;
-                    }
-                }
-
-                if (input.RightMouseClick)
-                {
-                    ActiveShipDesign = null;
-                }
-            }
-
-            HandleEdgeDetection(input);
             HandleSelectionBox(input);
-            if (input.ScrollIn)
-            {
-                FleetDesignScreen desiredCamHeight = this;
-                desiredCamHeight.DesiredCamHeight = desiredCamHeight.DesiredCamHeight - 1500f;
-            }
-
-            if (input.ScrollOut)
-            {
-                FleetDesignScreen fleetDesignScreen = this;
-                fleetDesignScreen.DesiredCamHeight = fleetDesignScreen.DesiredCamHeight + 1500f;
-            }
-
-            if (DesiredCamHeight < 3000f)
-            {
-                DesiredCamHeight = 3000f;
-            }
-            else if (DesiredCamHeight > 100000f)
-            {
-                DesiredCamHeight = 100000f;
-            }
-
-            if (Input.RightMouseHeld())
-                if (Input.StartRightHold.OutsideRadius(Input.CursorPosition, 10f))
-                {
-                    CamVelocity = Input.CursorPosition.DirectionToTarget(Input.StartRightHold);
-                    CamVelocity = CamVelocity.Normalized() *
-                                  Input.StartRightHold.Distance(Input.CursorPosition);
-                }
-                else
-                {
-                    CamVelocity = Vector2.Zero;
-                }
-
-            if (!Input.RightMouseHeld() && !Input.LeftMouseHeld())
-            {
-                CamVelocity = Vector2.Zero;
-            }
-
-            if (CamVelocity.Length() > 150f)
-            {
-                CamVelocity = CamVelocity.Normalized(150f);
-            }
-
-            if (float.IsNaN(CamVelocity.X) || float.IsNaN(CamVelocity.Y))
-            {
-                CamVelocity = Vector2.Zero;
-            }
+            HandleCameraMovement(input);
 
             if (Input.FleetRemoveSquad)
-            {
-                if (SelectedSquad != null)
-                {
-                    SelectedFleet.CenterFlank.Remove(SelectedSquad);
-                    SelectedFleet.LeftFlank.Remove(SelectedSquad);
-                    SelectedFleet.RearFlank.Remove(SelectedSquad);
-                    SelectedFleet.RightFlank.Remove(SelectedSquad);
-                    SelectedFleet.ScreenFlank.Remove(SelectedSquad);
-                    SelectedSquad = null;
-                    SelectedNodeList.Clear();
-                }
-
-                if (SelectedNodeList.Count > 0)
-                {
-                    foreach (Array<Fleet.Squad> flanks in SelectedFleet.AllFlanks)
-                    {
-                        foreach (Fleet.Squad squad in flanks)
-                        {
-                            foreach (FleetDataNode node in SelectedNodeList)
-                            {
-                                if (squad.DataNodes.Contains(node))
-                                {
-                                    squad.DataNodes.RemoveRef(node);
-                                    if (node.Ship != null)
-                                        squad.Ships.RemoveRef(node.Ship);
-                                }
-                            }
-                        }
-                    }
-
-                    foreach (FleetDataNode node in SelectedNodeList)
-                    {
-                        SelectedFleet.DataNodes.Remove(node);
-                        if (node.Ship == null)
-                        {
-                            continue;
-                        }
-
-                        node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, -500000f);
-                        node.Ship.Fleet?.RemoveShip(node.Ship, returnToEmpireAI: true, clearOrders: true);
-                    }
-
-                    SelectedNodeList.Clear();
-                }
-            }
+                RemoveSelectedSquad();
 
             return false;
+        }
+
+        bool HandleActiveShipDesignInput(InputState input)
+        {
+            // we're dragging an active ship design,
+            // assign it to the fleet on Left click
+            if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
+            {
+                Vector2 pickedPosition = CursorWorldPosition2D;
+                AddDesignToFleet(ActiveShipDesign, pickedPosition);
+
+                // if we're holding shift key down, allow placing multiple designs
+                if (!input.IsShiftKeyDown)
+                    ActiveShipDesign = null;
+            }
+
+            if (input.RightMouseClick)
+            {
+                ActiveShipDesign = null;
+                return true;
+            }
+            return false;
+        }
+
+        public IEnumerable<Squad> AllSquads
+        {
+            get
+            {
+                foreach (var flank in SelectedFleet.AllFlanks)
+                    foreach (var squad in flank)
+                        yield return squad;
+            }
+        }
+
+        void AddDesignToFleet(Ship shipOrTemplate, Vector2? fleetOffset)
+        {
+            FleetDataNode node = new() { ShipName = shipOrTemplate.Name };
+
+            if (fleetOffset.HasValue)
+            {
+                node.RelativeFleetOffset = fleetOffset.Value;
+            }
+            else
+            {
+                // TODO
+            }
+
+            SelectedFleet.DataNodes.Add(node);
+
+            // is this an actual alive ship?
+            bool isActualActiveShip = ActiveShips.ContainsRef(shipOrTemplate);
+            if (isActualActiveShip)
+            {
+                if (SelectedFleet.Ships.Count == 0)
+                    SelectedFleet.FinalPosition = shipOrTemplate.Position;
+
+                // if so, immediately assigned the node
+                node.Ship = shipOrTemplate;
+                node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
+                ActiveShips.RemoveRef(shipOrTemplate);
+                SelectedFleet.AddShip(node.Ship);
+                ShipSL.RemoveFirstIf(item => item.Ship == shipOrTemplate);
+
+                // always clear active design for alive ships
+                ActiveShipDesign = null;
+            }
+            // else: otherwise we will just have a data node
+        }
+
+        // delete all selected ships
+        void RemoveSelectedSquad()
+        {
+            if (SelectedSquad != null)
+            {
+                SelectedFleet.CenterFlank.Remove(SelectedSquad);
+                SelectedFleet.LeftFlank.Remove(SelectedSquad);
+                SelectedFleet.RearFlank.Remove(SelectedSquad);
+                SelectedFleet.RightFlank.Remove(SelectedSquad);
+                SelectedFleet.ScreenFlank.Remove(SelectedSquad);
+                SelectedSquad = null;
+            }
+
+            if (SelectedNodeList.NotEmpty)
+            {
+                foreach (Squad squad in AllSquads)
+                {
+                    foreach (FleetDataNode node in SelectedNodeList)
+                    {
+                        if (squad.DataNodes.Contains(node))
+                        {
+                            squad.DataNodes.Remove(node);
+                            if (node.Ship != null)
+                                squad.Ships.Remove(node.Ship);
+                        }
+                    }
+                }
+
+                foreach (FleetDataNode node in SelectedNodeList)
+                {
+                    SelectedFleet.DataNodes.Remove(node);
+                    if (node.Ship != null)
+                    {
+                        node.Ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
+                        node.Ship.RemoveSceneObject();
+                    }
+                }
+
+                SelectedNodeList.Clear();
+            }
+
+            // need to reset the list if any active ships were removed and return to global pool
+            if (SubShips.SelectedIndex == 1)
+                ResetLists();
+        }
+        
+        Vector2 StartDragPos;
+
+        void HandleCameraMovement(InputState input)
+        {
+            const float minHeight = 3000;
+            const float maxHeight = 100_000;
+            float scrollSpeed = minHeight + (CamPos.Z / maxHeight)*10_000;
+            float worldWidthOnScreen = (float)VisibleWorldRect.Width;
+
+            if      (input.ScrollIn)  DesiredCamPos.Z -= scrollSpeed;
+            else if (input.ScrollOut) DesiredCamPos.Z += scrollSpeed;
+
+            if (input.MiddleMouseClick)
+            {
+                StartDragPos = input.CursorPosition;
+            }
+
+            if (input.MiddleMouseHeld())
+            {
+                Vector2 dv = input.CursorPosition - StartDragPos;
+                StartDragPos = input.CursorPosition;
+                DesiredCamPos.X += -dv.X * worldWidthOnScreen * 0.001f;
+                DesiredCamPos.Y += -dv.Y * worldWidthOnScreen * 0.001f;
+            }
+            else
+            {
+                float outer = -50f;
+                float inner = +5.0f;
+                float minLeft = outer, maxLeft = inner;
+                float minTop  = outer, maxTop  = inner;
+                float minRight  = ScreenWidth  - inner, maxRight  = ScreenWidth  - outer;
+                float minBottom = ScreenHeight - inner, maxBottom = ScreenHeight - outer;
+                bool InRange(float pos, float min, float max) => min <= pos && pos <= max;
+
+                if (InRange(input.CursorX, minLeft, maxLeft) || input.KeysLeftHeld(arrowKeys:true))
+                    DesiredCamPos.X -= 0.008f * worldWidthOnScreen;
+                if (InRange(input.CursorX, minRight, maxRight) || input.KeysRightHeld(arrowKeys:true))
+                    DesiredCamPos.X += 0.008f * worldWidthOnScreen;
+                if (InRange(input.CursorY, minTop, maxTop) || input.KeysUpHeld(arrowKeys:true))
+                    DesiredCamPos.Y -= 0.008f * worldWidthOnScreen;
+                if (InRange(input.CursorY, minBottom, maxBottom) || input.KeysDownHeld(arrowKeys:true))
+                    DesiredCamPos.Y += 0.008f * worldWidthOnScreen;
+            }
+            
+            DesiredCamPos.X = DesiredCamPos.X.Clamped(-20_000, 20_000);
+            DesiredCamPos.Y = DesiredCamPos.Y.Clamped(-20_000, 20_000);
+            DesiredCamPos.Z = DesiredCamPos.Z.Clamped(minHeight, maxHeight);
         }
 
         bool HandleSingleNodeSelection(InputState input, Vector2 mousePos)
@@ -329,226 +285,176 @@ namespace Ship_Game
             if (SelectedNodeList.Count != 1)
                 return false;
 
+            var node = SelectedNodeList[0];
+
             bool setReturn = false;
-            setReturn |= SliderShield.HandleInput(input, ref SelectedNodeList[0].AttackShieldedWeight);
-            setReturn |= SliderDps.HandleInput(input, ref SelectedNodeList[0].DPSWeight);
-            setReturn |= SliderVulture.HandleInput(input, ref SelectedNodeList[0].VultureWeight);
-            setReturn |= SliderArmor.HandleInput(input, ref SelectedNodeList[0].ArmoredWeight);
-            setReturn |= SliderDefend.HandleInput(input, ref SelectedNodeList[0].DefenderWeight);
-            setReturn |= SliderAssist.HandleInput(input, ref SelectedNodeList[0].AssistWeight);
-            setReturn |= SliderSize.HandleInput(input, ref SelectedNodeList[0].SizeWeight);
-            setReturn |= OperationalRadius.HandleInput(input, ref SelectedNodeList[0].OrdersRadius,
-            SelectedNodeList[0].Ship?.SensorRange ?? 500000);
+            setReturn |= SliderShield.HandleInput(input, ref node.AttackShieldedWeight);
+            setReturn |= SliderDps.HandleInput(input, ref node.DPSWeight);
+            setReturn |= SliderVulture.HandleInput(input, ref node.VultureWeight);
+            setReturn |= SliderArmor.HandleInput(input, ref node.ArmoredWeight);
+            setReturn |= SliderDefend.HandleInput(input, ref node.DefenderWeight);
+            setReturn |= SliderAssist.HandleInput(input, ref node.AssistWeight);
+            setReturn |= SliderSize.HandleInput(input, ref node.SizeWeight);
+            setReturn |= OperationalRadius.HandleInput(input, ref node.OrdersRadius,
+            node.Ship?.SensorRange ?? 500000);
             if (setReturn)
                 return false;
 
-            if (OperationsRect.HitTest(mousePos))
-                return true;
-
-            if (PrioritiesRect.HitTest(mousePos))
-            {
-                //OperationalRadius.HandleInput(input);
-                //SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
-                return true;
-            }
-
-            return false;
+            return OperationsRect.HitTest(mousePos) || PrioritiesRect.HitTest(mousePos);
         }
+
+        bool IsDragging;
 
         void HandleSelectionBox(InputState input)
         {
-            if (LeftMenu.HitTest(input.CursorPosition) || RightMenu.HitTest(input.CursorPosition))
+            if (LeftMenu.HitTest(input.CursorPosition) ||
+                RightMenu.HitTest(input.CursorPosition) ||
+                ShipSL.HitTest(input.CursorPosition))
             {
-                SelectionBox = new Rectangle(0, 0, -1, -1);
+                SelectionBox = new(0, 0, -1, -1);
                 return;
             }
 
-            Vector2 mousePosition = input.CursorPosition;
+            UpdateHoveredNodesList(input);
+            UpdateClickableNodes();
+
+            if (input.LeftMouseClick)
+            {
+                SelectedSquad = SelectNodesUnderMouse(input);
+            }
+            else if (input.LeftMouseHeld(0.05f))
+            {
+                if (!IsDragging && SelectedSquad != null)
+                {
+                    HandleSelectedSquadMove(SelectedSquad);
+                }
+                else if (!IsDragging && SelectedNodeList.Count == 1)
+                {
+                    Vector2 newSpot = CursorWorldPosition2D;
+                    if (newSpot.Distance(SelectedNodeList[0].RelativeFleetOffset) <= 1000f)
+                    {
+                        HandleSelectedNodeMove(newSpot, SelectedNodeList[0], input.CursorPosition);
+                    }
+                }
+                else
+                {
+                    // start dragging state
+                    // but only if we're not placing ActiveShipDesign
+                    if (HoveredNodeList.IsEmpty && ActiveShipDesign == null)
+                        IsDragging = true;
+
+                    if (IsDragging)
+                    {
+                        SelectionBox = input.LeftHold.GetSelectionBox();
+                        SelectedNodeList.Clear();
+                        foreach (ClickableNode node in ClickableNodes)
+                            if (SelectionBox.HitTest(node.ScreenPos))
+                                SelectedNodeList.Add(node.NodeToClick);
+                    }
+                }
+            }
+            else if (input.LeftMouseReleased)
+            {
+                IsDragging = false;
+                SelectionBox = new(0, 0, -1, -1);
+            }
+        }
+
+        bool GetRoundedNodeMove(Vector2 newSpot, Vector2 oldPos, out Vector2 difference)
+        {
+            difference = newSpot - oldPos;
+            if (difference.Length() > 30f)
+            {
+                newSpot.X = (float)System.Math.Round(newSpot.X / 250) * 250;
+                newSpot.Y = (float)System.Math.Round(newSpot.Y / 250) * 250;
+                difference = (newSpot - oldPos);
+                return true;
+            }
+            return false;
+        }
+
+
+        // moving a single ship node
+        void HandleSelectedNodeMove(Vector2 newSpot, FleetDataNode node, Vector2 mousePos)
+        {
+            if (GetRoundedNodeMove(newSpot, node.RelativeFleetOffset, out Vector2 difference))
+            {
+                node.RelativeFleetOffset += difference;
+                if (node.Ship != null)
+                {
+                    node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
+                }
+            }
+
+            // this is some kind of cleanup function? TODO
+            foreach (ClickableSquad cs in ClickableSquads)
+            {
+                if (cs.Rect.HitTest(mousePos) && !cs.Squad.DataNodes.Contains(node))
+                {
+                    foreach (Squad squad in AllSquads)
+                    {
+                        squad.DataNodes.Remove(node);
+                        if (node.Ship != null)
+                            squad.Ships.Remove(node.Ship);
+                    }
+
+                    cs.Squad.DataNodes.Add(node);
+                    if (node.Ship != null)
+                        cs.Squad.Ships.Add(node.Ship);
+                }
+            }
+        }
+
+        // move an entire squad
+        void HandleSelectedSquadMove(Squad selectedSquad)
+        {
+            Vector2 newSpot = CursorWorldPosition2D;
+            if (GetRoundedNodeMove(newSpot, selectedSquad.Offset, out Vector2 difference))
+            {
+                selectedSquad.Offset += difference;
+                foreach (FleetDataNode node in selectedSquad.DataNodes)
+                {
+                    node.RelativeFleetOffset += difference;
+                    if (node.Ship != null)
+                    {
+                        Ship ship = node.Ship;
+                        ship.RelativeFleetOffset += difference;
+                    }
+                }
+            }
+        }
+
+        void UpdateHoveredNodesList(InputState input)
+        {
             HoveredNodeList.Clear();
+
             bool hovering = false;
             foreach (ClickableSquad squad in ClickableSquads)
             {
-                if (input.CursorPosition.OutsideRadius(squad.ScreenPos, 8f))
+                if (squad.Rect.HitTest(input.CursorPosition))
                 {
-                    continue;
+                    hovering = true;
+                    HoveredSquad = squad.Squad;
+                    foreach (FleetDataNode node in HoveredSquad.DataNodes)
+                        HoveredNodeList.Add(node);
+                    break;
                 }
-
-                HoveredSquad = squad.Squad;
-                hovering = true;
-                foreach (FleetDataNode node in HoveredSquad.DataNodes)
-                {
-                    HoveredNodeList.Add(node);
-                }
-
-                break;
             }
 
             if (!hovering)
             {
                 foreach (ClickableNode node in ClickableNodes)
                 {
-                    if (input.CursorPosition.Distance(node.ScreenPos) > node.Radius)
-                    {
-                        continue;
-                    }
-
-                    HoveredNodeList.Add(node.NodeToClick);
-                    hovering = true;
-                }
-            }
-
-            if (!hovering)
-            {
-                HoveredNodeList.Clear();
-            }
-
-            HandleInputShipSelect(input);
-
-            if (SelectedSquad != null)
-            {
-                if (!Input.LeftMouseHeld()) return;
-
-                Vector2 newSpot = GetWorldSpaceFromScreenSpace(mousePosition);
-                Vector2 difference = newSpot - SelectedSquad.Offset;
-                if (difference.Length() > 30f)
-                {
-                    Fleet.Squad selectedSquad = SelectedSquad;
-                    selectedSquad.Offset = selectedSquad.Offset + difference;
-                    foreach (FleetDataNode node in SelectedSquad.DataNodes)
-                    {
-                        FleetDataNode fleetOffset = node;
-                        fleetOffset.FleetOffset = fleetOffset.FleetOffset + difference;
-                        if (node.Ship == null)
-                        {
-                            continue;
-                        }
-
-                        Ship ship = node.Ship;
-                        ship.RelativeFleetOffset = ship.RelativeFleetOffset + difference;
-                    }
-                }
-            }
-            else if (SelectedNodeList.Count != 1)
-            {
-                if (Input.LeftMouseHeld())
-                {
-                    SelectionBox = new Rectangle(input.MouseX, input.MouseY, 0, 0);
-                }
-
-                if (Input.LeftMouseHeldDown)
-                {
-                    if (input.MouseX < SelectionBox.X)
-                    {
-                        SelectionBox.X = input.MouseX;
-                    }
-
-                    if (input.MouseY < SelectionBox.Y)
-                    {
-                        SelectionBox.Y = input.MouseY;
-                    }
-
-                    SelectionBox.Width = Math.Abs(SelectionBox.Width);
-                    SelectionBox.Height = Math.Abs(SelectionBox.Height);
-                    foreach (ClickableNode node in ClickableNodes)
-                    {
-                        if (!SelectionBox.Contains(new Point((int) node.ScreenPos.X, (int) node.ScreenPos.Y)))
-                        {
-                            continue;
-                        }
-
-                        SelectedNodeList.Add(node.NodeToClick);
-                    }
-
-                    SelectionBox = new Rectangle(0, 0, -1, -1);
-                    return;
-                }
-
-                if (input.LeftMouseClick)
-                {
-                    if (input.MouseX < SelectionBox.X)
-                    {
-                        SelectionBox.X = input.MouseX;
-                    }
-
-                    if (input.MouseY < SelectionBox.Y)
-                    {
-                        SelectionBox.Y = input.MouseY;
-                    }
-
-                    SelectionBox.Width = Math.Abs(SelectionBox.Width);
-                    SelectionBox.Height = Math.Abs(SelectionBox.Height);
-                    foreach (ClickableNode node in ClickableNodes)
-                    {
-                        if (!SelectionBox.Contains(new Point((int) node.ScreenPos.X, (int) node.ScreenPos.Y)))
-                        {
-                            continue;
-                        }
-
-                        SelectedNodeList.Add(node.NodeToClick);
-                    }
-
-                    SelectionBox = new Rectangle(0, 0, -1, -1);
-                }
-            }
-            else if (Input.LeftMouseHeld())
-            {
-                Vector2 newSpot = GetWorldSpaceFromScreenSpace(mousePosition);
-                if (newSpot.Distance(SelectedNodeList[0].FleetOffset) > 1000f)
-                {
-                    return;
-                }
-
-                Vector2 difference = newSpot - SelectedNodeList[0].FleetOffset;
-                if (difference.Length() > 30f)
-                {
-                    FleetDataNode item = SelectedNodeList[0];
-                    item.FleetOffset = item.FleetOffset + difference;
-                    if (SelectedNodeList[0].Ship != null)
-                    {
-                        SelectedNodeList[0].Ship.RelativeFleetOffset = SelectedNodeList[0].FleetOffset;
-                    }
-                }
-
-                foreach (ClickableSquad cs in ClickableSquads)
-                {
-                    if (cs.ScreenPos.Distance(mousePosition) >= 5f ||
-                        cs.Squad.DataNodes.Contains(SelectedNodeList[0]))
-                    {
-                        continue;
-                    }
-
-                    foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
-                    {
-                        foreach (Fleet.Squad squad in flank)
-                        {
-                            squad.DataNodes.Remove(SelectedNodeList[0]);
-                            if (SelectedNodeList[0].Ship == null)
-                            {
-                                continue;
-                            }
-
-                            squad.Ships.Remove(SelectedNodeList[0].Ship);
-                        }
-                    }
-
-                    cs.Squad.DataNodes.Add(SelectedNodeList[0]);
-                    if (SelectedNodeList[0].Ship == null)
-                    {
-                        continue;
-                    }
-
-                    cs.Squad.Ships.Add(SelectedNodeList[0].Ship);
+                    if (input.CursorPosition.InRadius(node.ScreenPos, node.Radius))
+                        HoveredNodeList.Add(node.NodeToClick);
                 }
             }
         }
 
-        void HandleInputShipSelect(InputState input)
+        Squad SelectNodesUnderMouse(InputState input)
         {
-            if (!input.LeftMouseClick)
-                return;
-
             bool hitSomething = false;
-            SelectedSquad = null;
+            Squad selected = null;
 
             foreach (ClickableNode node in ClickableNodes)
             {
@@ -559,53 +465,83 @@ namespace Ship_Game
 
                     GameAudio.FleetClicked();
                     hitSomething = true;
+
                     if (!SelectedNodeList.Contains(node.NodeToClick))
                         SelectedNodeList.Add(node.NodeToClick);
-
-                    SliderArmor.SetAmount(node.NodeToClick.ArmoredWeight);
-                    SliderAssist.SetAmount(node.NodeToClick.AssistWeight);
-                    SliderDefend.SetAmount(node.NodeToClick.DefenderWeight);
-                    SliderDps.SetAmount(node.NodeToClick.DPSWeight);
-                    SliderShield.SetAmount(node.NodeToClick.AttackShieldedWeight);
-                    SliderVulture.SetAmount(node.NodeToClick.VultureWeight);
-                    OperationalRadius.RelativeValue = node.NodeToClick.OrdersRadius;
-                    SliderSize.SetAmount(node.NodeToClick.SizeWeight);
+                    
+                    UpdateSliders(node.NodeToClick);
                     break;
                 }
             }
 
             foreach (ClickableSquad squad in ClickableSquads)
             {
-                if (input.CursorPosition.InRadius(squad.ScreenPos, 4))
+                if (squad.Rect.HitTest(input.CursorPosition))
                 {
-                    SelectedSquad = squad.Squad;
+                    hitSomething = true;
+                    selected = squad.Squad;
                     if (SelectedNodeList.Count > 0 && !input.IsShiftKeyDown)
                         SelectedNodeList.Clear();
 
-                    hitSomething = true;
                     GameAudio.FleetClicked();
-                    SelectedNodeList.Clear();
-                    SelectedNodeList.AddRange(SelectedSquad.DataNodes);
+                    SelectedNodeList.Assign(selected.DataNodes);
 
-                    SliderArmor.SetAmount(SelectedSquad.MasterDataNode.ArmoredWeight);
-                    SliderAssist.SetAmount(SelectedSquad.MasterDataNode.AssistWeight);
-                    SliderDefend.SetAmount(SelectedSquad.MasterDataNode.DefenderWeight);
-                    SliderDps.SetAmount(SelectedSquad.MasterDataNode.DPSWeight);
-                    SliderShield.SetAmount(SelectedSquad.MasterDataNode.AttackShieldedWeight);
-                    SliderVulture.SetAmount(SelectedSquad.MasterDataNode.VultureWeight);
-                    OperationalRadius.RelativeValue = SelectedSquad.MasterDataNode.OrdersRadius;
-                    SliderSize.SetAmount(SelectedSquad.MasterDataNode.SizeWeight);
+                    UpdateSliders(selected.MasterDataNode);
                     break;
                 }
             }
 
             if (!hitSomething)
             {
-                SelectedSquad = null;
                 SelectedNodeList.Clear();
             }
 
             OrdersButtons.ResetButtons(SelectedNodeList);
+
+            return selected;
+        }
+
+        void UpdateClickableNodes()
+        {
+            ClickableNodes.Clear();
+            if (SelectedFleet == null)
+                return;
+
+            foreach (FleetDataNode node in SelectedFleet.DataNodes)
+            {
+                (Vector2 screenPos, float screenRadius) = GetNodeScreenPosAndRadius(node);
+                ClickableNodes.Add(new()
+                {
+                    Radius = screenRadius,
+                    ScreenPos = screenPos,
+                    NodeToClick = node
+                });
+            }
+        }
+
+        static (Vector2 offset, float radius) GetNodeOffsetAndRadius(FleetDataNode node)
+        {
+            if (node.Ship != null)
+                return (node.Ship.RelativeFleetOffset, node.Ship.Radius);
+            return (node.RelativeFleetOffset, ResourceManager.Ships.Get(node.ShipName).Radius);
+        }
+
+        (Vector2 screenPos, float screenRadius) GetNodeScreenPosAndRadius(FleetDataNode node)
+        {
+            (Vector2 offset, float radius) = GetNodeOffsetAndRadius(node);
+            return GetPosAndRadiusOnScreen(offset, radius);
+        }
+
+        void UpdateSliders(FleetDataNode node)
+        {
+            SliderArmor.SetAmount(node.ArmoredWeight);
+            SliderAssist.SetAmount(node.AssistWeight);
+            SliderDefend.SetAmount(node.DefenderWeight);
+            SliderDps.SetAmount(node.DPSWeight);
+            SliderShield.SetAmount(node.AttackShieldedWeight);
+            SliderVulture.SetAmount(node.VultureWeight);
+            SliderSize.SetAmount(node.SizeWeight);
+            OperationalRadius.RelativeValue = node.OrdersRadius;
         }
     }
 }

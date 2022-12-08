@@ -20,12 +20,12 @@ namespace Ship_Game.GameScreens.ShipDesign
         private readonly Empire Player;
         private EmpireShipDesignStats EmpireStats;
 
-        public ShipDesignIssues(IShipDesign hull)
+        public ShipDesignIssues(UniverseScreen screen, IShipDesign hull)
         {
             Hull   = hull;
             Role   = hull.Role;
-            Player = EmpireManager.Player;
-            EmpireStats         = new EmpireShipDesignStats(Player);
+            Player = screen.Player;
+            EmpireStats = new(Player);
         }
 
         void AddDesignIssue(DesignIssueType type, WarningLevel severity, string addRemediationText = "")
@@ -60,14 +60,14 @@ namespace Ship_Game.GameScreens.ShipDesign
                 int totalWarpShipsCivilian   = 0;
                 int totalWarpShipsMilitary   = 0;
 
-                foreach (string name in empire.ShipsWeCanBuild)
+                foreach (IShipDesign design in empire.ShipsWeCanBuild)
                 {
-                    Ship ship = ResourceManager.GetShipTemplate(name);
+                    Ship ship = ResourceManager.Ships.Get(design.Name);
                     float warpSpeed = ship.Stats.GetFTLSpeed(ship.Mass, empire);
-                    if (warpSpeed < 2000 || Scout(ship.ShipData.Role))
+                    if (warpSpeed < 2000 || Scout(design.Role))
                         continue;
 
-                    if (Civilian(ship.ShipData.Role))
+                    if (Civilian(design.Role))
                     {
                         totalWarpShipsCivilian += 1;
                         totalWarpSpeedCivilian += warpSpeed;

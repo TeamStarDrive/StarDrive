@@ -206,21 +206,66 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Ship_Game\AI\EmpireAI\Compnonents\BudgetPriorities.cs" />
-    <Compile Include="Ship_Game\Data\Binary\BinaryReadWrite.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\Components\BudgetPriorities.cs" />
+    <Compile Include="Ship_Game\AI\ThreatCluster.cs" />
+    <Compile Include="Ship_Game\AI\ThreatClusterUpdate.cs" />
+    <Compile Include="Ship_Game\AI\ThreatMatrix_ClustersGenerator.cs" />
+    <Compile Include="Ship_Game\AI\ThreatMatrix_Update.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\ProjectorBridge.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\DeepSpaceBuildGoal.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\FleetGoal.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerReader.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerWriter.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerHeader.cs" />
+    <Compile Include="Ship_Game\Data\Binary\CollectionState.cs" />
+    <Compile Include="Ship_Game\Data\Binary\FastTypeMap.cs" />
+    <Compile Include="Ship_Game\Data\Binary\ObjectStateMap.cs" />
+    <Compile Include="Ship_Game\Data\Binary\ObjectState.cs" />
+    <Compile Include="Ship_Game\Data\Binary\Reader.cs" />
+    <Compile Include="Ship_Game\Data\Binary\ObjectScanner.cs" />
+    <Compile Include="Ship_Game\Data\Binary\UserTypeState.cs" />
+    <Compile Include="Ship_Game\Data\Binary\Writer.cs" />
     <Compile Include="Ship_Game\Data\Binary\FieldInfo.cs" />
     <Compile Include="Ship_Game\Data\Binary\TypeInfo.cs" />
     <Compile Include="Ship_Game\Data\Serialization\CollectionSerializer.cs" />
+    <Compile Include="Ship_Game\Data\Binary\EventContextOnDeserialized.cs" />
     <Compile Include="Ship_Game\Data\Serialization\SerializerCategory.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\StarDataDynamicField.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\ByteArraySerializer.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\HashSetSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
+    <Compile Include="Ship_Game\Debug\DebugEmpireSelectionSubmenu.cs" />
+    <Compile Include="Ship_Game\Debug\DebugInfoScreen_VisualizeShipGoals.cs" />
+    <Compile Include="Ship_Game\Debug\DebugModes.cs" />
+    <Compile Include="Ship_Game\Debug\Page\AgentsDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\SpaceRoadsDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\DefenseCoordinatorDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\EmpireInfoDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\FleetMultipliersDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\InputDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\ParticleDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\PerfDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\PiratesDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\RelationshipDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\RemnantsDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\TargetingDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\TasksDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\TechDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\ThreatMatrixDebug.cs" />
+    <Compile Include="Ship_Game\Debug\ShipDebugInfoPanel.cs" />
+    <Compile Include="Ship_Game\Debug\ShipModuleInfoPanel.cs" />
+    <Compile Include="Ship_Game\Debug\TextDrawerComponent.cs" />
+    <Compile Include="Ship_Game\Empires\Components\EmpireFirstContact.cs" />
+    <Compile Include="Ship_Game\Empires\Components\IncomingThreatDetector.cs" />
+    <Compile Include="Ship_Game\Empire_Borders.cs" />
+    <Compile Include="Ship_Game\Empire_Fleets.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExtGameObj.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NewMathExt.cs" />
+    <Compile Include="Ship_Game\GamePlayGlobals.cs" />
+    <Compile Include="Ship_Game\Gameplay\GameDifficulty.cs" />
     <Compile Include="Ship_Game\Gameplay\WeaponTag.cs" />
     <Compile Include="Ship_Game\Gameplay\IWeaponTemplate.cs" />
     <Compile Include="Ship_Game\Gameplay\PhysicsObject.cs" />
@@ -228,6 +273,7 @@
     <Compile Include="Ship_Game\Gameplay\WeaponTemplateWrapper.cs" />
     <Compile Include="Ship_Game\Gameplay\WeaponTestWrapper.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButton.cs" />
     <Compile Include="Ship_Game\GameScreens\GameCursors.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenusDescr.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\UniverseGenerator.cs" />
@@ -270,7 +316,7 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunDiplomaticPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunEconomicPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunGroundPlanner.cs" />
-    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunInfrastructurePlanner.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\SpaceRoadsManager.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunMilitaryPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunResearchPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunWarPlanner.cs" />
@@ -336,23 +382,33 @@
     <Compile Include="Ship_Game\Ships\ShipsManager.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
     <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
+    <Compile Include="Ship_Game\Spatial\DebugQtreeFind.cs" />
+    <Compile Include="Ship_Game\Spatial\FindResultBuffer.cs" />
+    <Compile Include="Ship_Game\Spatial\GenericQtree.cs" />
+    <Compile Include="Ship_Game\Spatial\GenericQtree.Debug.cs" />
+    <Compile Include="Ship_Game\Spatial\GenericQtree.Find.cs" />
+    <Compile Include="Ship_Game\Spatial\OverlapsRect.cs" />
+    <Compile Include="Ship_Game\Spatial\SpatialObjectBase.cs" />
+    <Compile Include="Ship_Game\UI\IClientArea.cs" />
     <Compile Include="Ship_Game\UI\LayoutExporter.cs" />
     <Compile Include="Ship_Game\UI\LocalPos.cs" />
+    <Compile Include="Ship_Game\UI\NineSliceSprite.cs" />
     <Compile Include="Ship_Game\UI\RelPos.cs" />
     <Compile Include="Ship_Game\UI\RelSize.cs" />
+    <Compile Include="Ship_Game\UI\SubmenuScrollList.cs" />
     <Compile Include="Ship_Game\UI\UILine.cs" />
     <Compile Include="Ship_Game\Universe\ExplorableGameObject.cs" />
     <Compile Include="Ship_Game\Universe\InfluenceTree.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetRenderer.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\AtmosphereType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetTypes.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseParams.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\BorderNodeCache.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Events.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Save.cs" />
     <Compile Include="Ship_Game\Universe\UniverseState.cs" />
-    <Compile Include="Ship_Game\Utils\BitArray.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseState_Empires.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
-    <Compile Include="Ship_Game\Data\InterningStringConverter.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
     <Compile Include="Ship_Game\Empire_War.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignShip.cs" />
@@ -370,7 +426,7 @@
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngageEmpire.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantPortal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngagements.cs" />
-    <Compile Include="Ship_Game\Debug\Page\DebugAO.cs" />
+    <Compile Include="Ship_Game\Debug\Page\AODebug.cs" />
     <Compile Include="Ship_Game\EmpirePersonalityModifiers.cs" />
     <Compile Include="Ship_Game\Empires\Components\EmpireInformation.cs" />
     <Compile Include="Ship_Game\Empires\Components\IncomingThreat.cs" />
@@ -396,7 +452,7 @@
     <Compile Include="Ship_Game\Commands\Goals\ScrapShip.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
     <Compile Include="Ship_Game\Data\LocalizedText.cs" />
-    <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
+    <Compile Include="Ship_Game\Debug\Page\WarDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\SpatialDebug.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
@@ -443,7 +499,6 @@
     <Compile Include="Ship_Game\Data\Mesh\StaticMesh.cs" />
     <Compile Include="Ship_Game\Data\Yaml\YamlParser.cs" />
     <Compile Include="Ship_Game\Data\StringView.cs" />
-    <Compile Include="Ship_Game\Debug\DebugInfoScreen_DebugText.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Debug\DebugTextBlock.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugPage.cs" />
@@ -467,7 +522,6 @@
     <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
     <Compile Include="Ship_Game\Fleets\FleetTactics\CombatPreferences.cs" />
     <Compile Include="Ship_Game\Fleets\GroupLeader.cs" />
-    <Compile Include="Ship_Game\Gameplay\CurrentGame.cs" />
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\AssignLaborComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\BuildableListItem.cs" />
@@ -635,7 +689,7 @@
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\MultiLayerDrawContainer.cs" />
     <Compile Include="Ship_Game\UI\PrettyText.cs" />
-    <Compile Include="Ship_Game\UI\ScrollList2.cs" />
+    <Compile Include="Ship_Game\UI\ScrollList.cs" />
     <Compile Include="Ship_Game\UI\ScrollListBase.cs" />
     <Compile Include="Ship_Game\UI\ScrollListItem.cs" />
     <Compile Include="Ship_Game\UI\ScrollListItemBase.cs" />
@@ -672,7 +726,6 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\SunType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\TroopManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Moon.cs" />
-    <Compile Include="Ship_Game\Data\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
     <Compile Include="Ship_Game\UI\UIColors.cs" />
     <Compile Include="Ship_Game\UI\UIElementContainer.cs" />
@@ -681,7 +734,6 @@
     <Compile Include="Ship_Game\UI\UILabel.cs" />
     <Compile Include="Ship_Game\GameScreens\DeveloperSandbox.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SolarSystemBody.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Explorable.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\ShipGroupProject.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\ShipMoveCommands.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseObjectManager.cs" />
@@ -695,6 +747,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.ShipGroupMove.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.StressTestShipLoading.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.UpdateGame.cs" />
+    <Compile Include="Ship_Game\Utils\DependencySorter.cs" />
     <Compile Include="Ship_Game\Utils\Deque.cs" />
     <Compile Include="Ship_Game\Utils\GameObjectList.cs" />
     <Compile Include="Ship_Game\Utils\EnumFlatMap.cs" />
@@ -721,10 +774,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\ExtensionMethods\UniverseRandom.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\EmpireManager.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -812,10 +861,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Graphics\BloomComponent.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\SerializableDictionary.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1124,7 +1169,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Submenu.cs">
+    <Compile Include="Ship_Game\UI\Submenu.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1208,7 +1253,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Selector.cs">
+    <Compile Include="Ship_Game\UI\Selector.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1220,7 +1265,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\FleetDesign\LoadSavedFleetDesignScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\LoadFleetDesignScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1684,6 +1729,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Microsoft.Xna.Framework.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="XNAnimation.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

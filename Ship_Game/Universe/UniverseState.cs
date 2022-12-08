@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.ExtensionMethods;
+using Ship_Game.Spatial;
+using Ship_Game.Utils;
+using static Ship_Game.UniverseScreen;
 using Vector2 = SDGraphics.Vector2;
-using Vector3 = SDGraphics.Vector3;
-using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
 
 namespace Ship_Game.Universe
 {
@@ -20,75 +19,100 @@ namespace Ship_Game.Universe
     /// and UniverseState reference be used to search for those objects.
     ///
     /// </summary>
-    public class UniverseState
+    [StarDataType]
+    public partial class UniverseState
     {
         /// <summary>
         /// This is the RADIUS of the universe
         /// Stars are generated within XY range [-Size, +Size],
         /// so {0,0} is center of the universe
         /// </summary>
-        public readonly float Size;
-        public float FTLModifier = 1f;
-        public float EnemyFTLModifier = 1f;
-        public bool FTLInNeutralSystems = true;
-        public GameDifficulty Difficulty;
-        public GalSize GalaxySize;
-        public bool GravityWells;
-        public Empire Player;
+        [StarData] public readonly float Size; // TODO: rename to UniverseRadius?
+
+        [StarData] public UniverseParams P;
+
+        public float UniverseWidth => Size*2f;
+        public float UniverseRadius => Size;
+        [StarData] public Empire Player;
+        [StarData] public Empire Cordrazine;
+        [StarData] public Empire Remnants;
+        [StarData] public Empire Unknown;
+        [StarData] public Empire Corsairs;
+
+        [StarData] public UnivScreenState ViewState;
+        public bool IsSectorViewOrCloser => ViewState <= UnivScreenState.SectorView;
+        public bool IsSystemViewOrCloser => ViewState <= UnivScreenState.SystemView;
+        public bool IsPlanetViewOrCloser => ViewState <= UnivScreenState.PlanetView;
+        public bool IsShipViewOrCloser   => ViewState <= UnivScreenState.ShipView;
+
+        // TODO: This was too hard to fix, so added this placeholder until code is fixed
+        public static float DummyPacePlaceholder = 1f;
+        public static float DummySettingsResearchModifier = 1f;
+        public static float DummyProductionPacePlaceholder = 1f;
+
+        [StarData] public float SettingsResearchModifier = 1f;
+        public float RemnantPaceModifier = 20;
+        public string ResearchRootUIDToDisplay;
 
         // Global unique ID counter for this Universe
         // Can be used to assign ID-s for any kind of object
         // Id <= 0 is always invalid, valid ID-s start at 1
-        public int UniqueObjectIds;
+        [StarData] int UniqueObjectIds;
         
+        public bool CanShowDiplomacyScreen = true;
         public bool Paused = true; // always start paused
         public bool Debug;
         public DebugModes DebugMode;
         DebugModes PrevDebugMode;
 
         public bool GameOver = false;
-        public bool NoEliminationVictory;
-        public float GamePace = 1f;
-        public float GameSpeed = 1f;
-        public float StarDate = 1000f;
+        [StarData] public bool NoEliminationVictory;
+        [StarData] public float GameSpeed = 1f;
+        [StarData] public float StarDate = 1000f;
+
+        [StarData] public Vector3d CamPos;
 
         // generated once during universe generation
         // allows us to define consistent backgrounds between savegames
-        public int BackgroundSeed;
+        [StarData] public int BackgroundSeed;
 
         /// <summary>
         /// Manages universe objects in a thread-safe manner
         /// </summary>
-        public readonly UniverseObjectManager Objects;
+        public UniverseObjectManager Objects;
 
         /// <summary>
-        /// Spatial search interface for Universe Objects, updated once per frame
+        /// Spatial search interface for Universe Ships/Projectiles/Beams, updated once per frame
         /// </summary>
-        public readonly SpatialManager Spatial;
+        public SpatialManager Spatial;
+
+        /// <summary>
+        /// Spatial search interface for all SolarSystems
+        /// </summary>
+        public GenericQtree SystemsTree;
+
+        /// <summary>
+        /// Spatial search interface for all Planets
+        /// </summary>
+        public Qtree PlanetsTree;
 
         /// <summary>
         /// Global influence tree for fast influence checks, updated every time
         /// a ship is created or dies
         /// </summary>
-        public readonly InfluenceTree Influence;
+        public InfluenceTree Influence;
 
         /// <summary>
         /// Invoked when a Ship is removed from the universe
         /// </summary>
         public event Action<Ship> EvtOnShipRemoved;
 
-        readonly Array<Empire> EmpireList = new();
+        [StarData] readonly Array<Empire> EmpireList = new();
+        [StarData] readonly Array<SolarSystem> SolarSystemList = new();
+        [StarData] readonly Array<Planet> AllPlanetsList = new();
 
-        readonly Map<int, SolarSystem> SolarSystemDict = new();
-        readonly Array<SolarSystem> SolarSystemList = new();
-        
-        readonly Map<int, Planet> PlanetsDict = new();
-        readonly Array<Planet> AllPlanetsList = new();
-        
-        // @return All Empires in the Universe
-        public IReadOnlyList<Empire> Empires => EmpireList;
-
-        public int NumEmpires => EmpireList.Count;
+        // TODO: remove PlanetsDict
+        [StarData] readonly Map<int, Planet> PlanetsDict = new();
 
         // @return All SolarSystems in the Universe
         public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
@@ -102,8 +126,11 @@ namespace Ship_Game.Universe
         /// </summary>
         public IReadOnlyList<Ship> Ships => Objects.GetShips();
 
+        [StarData] public RandomEventManager Events;
+        [StarData] public StatTracker Stats;
+
         // TODO: attempt to stop relying on visual state
-        public readonly UniverseScreen Screen;
+        public UniverseScreen Screen;
         
         // TODO: Encapsulate
         public BatchRemovalCollection<SpaceJunk> JunkList = new();
@@ -111,31 +138,173 @@ namespace Ship_Game.Universe
         public DebugInfoScreen DebugWin => Screen.DebugWin;
         public NotificationManager Notifications => Screen.NotificationManager;
 
-        public readonly float DefaultProjectorRadius;
+        public ShieldManager Shields => Screen.Shields;
 
-        public UniverseState(UniverseScreen screen, float universeRadius)
+        public float DefaultProjectorRadius;
+
+        public readonly RandomBase Random = new ThreadSafeRandom();
+
+        [StarDataConstructor] UniverseState() {}
+
+        public UniverseState(UniverseScreen screen, UniverseParams settings, float universeRadius)
         {
             Screen = screen;
             Size = universeRadius;
+            P = settings ?? throw new NullReferenceException(nameof(settings));
             if (Size < 1f)
                 throw new ArgumentException("UniverseSize not set!");
 
-            Spatial = new SpatialManager();
-            Spatial.Setup(universeRadius);
+            Initialize(universeRadius*2f);
 
-            DefaultProjectorRadius = (float)Math.Round(universeRadius * 0.04f);
-            Influence = new InfluenceTree(universeRadius, DefaultProjectorRadius);
+            Events = new();
+            Stats = new(this);
+        }
 
-            Objects = new UniverseObjectManager(screen, this, Spatial);
+        void Initialize(float universeWidth)
+        {
+            Spatial = new(universeWidth);
+            SystemsTree = new(universeWidth, cellThreshold:8, smallestCell:32_000);
+            PlanetsTree = new(universeWidth, smallestCell:16_000);
+
+            DefaultProjectorRadius = (float)Math.Round(universeWidth * 0.02f);
+            Influence = new(universeWidth, DefaultProjectorRadius);
+
+            // Screen will be null during deserialization, so it must be set later
+            Objects = new(Screen, this, Spatial);
+        }
+
+        public void OnUniverseScreenLoaded(UniverseScreen screen)
+        {
+            Screen = screen;
+            Objects.Universe = screen;
+            Objects.UpdateLists(removeInactiveObjects: false);
+        }
+
+        [StarDataType]
+        public class SaveState
+        {
+            // globally stored ship designs
+            [StarData] public ShipDesign[] Designs;
+
+            [StarData] public IReadOnlyList<Ship> Ships;
+            [StarData] public IReadOnlyList<Projectile> Projectiles;
+
+            // gather a list of all designs in the universe
+            public void SetAllDesigns(UniverseState us)
+            {
+                HashSet<ShipDesign> designs = new();
+                foreach (Ship s in Ships)
+                    designs.Add((ShipDesign)s.ShipData);
+                foreach (Empire e in us.EmpireList)
+                {
+                    foreach (IShipDesign s in e.ShipsWeCanBuild)
+                        designs.Add((ShipDesign)s);
+                    foreach (IShipDesign s in e.SpaceStationsWeCanBuild)
+                        designs.Add((ShipDesign)s);
+                }
+                Designs = designs.ToArr();
+            }
+
+            // restored all designs
+            public void UpdateAllDesignsFromSave(UniverseState us)
+            {
+                foreach (ShipDesign fromSave in Designs)
+                {
+                    if (fromSave.IsAnExistingSavedDesign)
+                    {
+                        // remap to use the existing one
+                        IShipDesign existing = ResourceManager.Ships.GetDesign(fromSave.Name);
+                        RemapShipDesigns(us, fromSave, existing);
+                    }
+                }
+            }
+
+            void RemapShipDesigns(UniverseState us, ShipDesign fromSave, IShipDesign replaceWith)
+            {
+                // NOTE: individual ships are updated inside Ship.OnDeserialized()
+
+                foreach (Empire e in us.EmpireList)
+                {
+                    if (e.CanBuildShip(fromSave))
+                    {
+                        e.RemoveBuildableShip(fromSave);
+                        e.AddBuildableShip(replaceWith);
+                    }
+                    if (e.CanBuildStation(fromSave)) // a station will appear in both lists
+                    {
+                        e.RemoveBuildableStation(fromSave);
+                        e.AddBuildableStation(replaceWith);
+                    }
+                }
+            }
+        }
+
+        [StarData] public SaveState Save;
+        [StarData] public byte[] FogMapBytes;
+
+        [StarDataSerialize]
+        StarDataDynamicField[] OnSerialize()
+        {
+            // clean up and submit objects before saving
+            Objects.UpdateLists(removeInactiveObjects: true);
+
+            var save = new SaveState
+            {
+                Ships = Objects.GetShips(),
+                Projectiles = Objects.GetProjectiles()
+            };
+            save.SetAllDesigns(this);
+
+            // FogMap is converted to a Alpha bytes so that it can be included in the savegame
+            var fogMapBytes = Screen.ContentManager.RawContent.TexExport.ToAlphaBytes(Screen.FogMap);
+
+            return new StarDataDynamicField[]
+            {
+                new (nameof(Save), save),
+                new (nameof(FogMapBytes), fogMapBytes)
+            };
+        }
+
+        // Only call OnDeserialized evt if Empire and Ship have finished their events
+        [StarDataDeserialized(typeof(Empire), typeof(Ship), typeof(Projectile),
+                              typeof(Beam), typeof(UniverseParams))]
+        void OnDeserialized()
+        {
+            Initialize(UniverseWidth);
+
+            SaveState save = Save;
+            Save = null;
+            save.UpdateAllDesignsFromSave(this);
+
+            P.UpdateGlobalStats();
+            SettingsResearchModifier = GetResearchMultiplier();
+            RemnantPaceModifier = CalcRemnantPace();
+            
+            // NOTE: This will automatically call AddShipInfluence() to update InfluenceTree
+            Objects.AddRange(save.Ships);
+            Objects.AddRange(save.Projectiles);
+
+            // updated InfluenceTree with all universe planets
+            foreach (Planet planet in AllPlanetsList)
+            {
+                if (planet.Owner != null)
+                    OnPlanetOwnerAdded(planet.Owner, planet);
+            }
+
+            // update systems tree and planets tree
+            SolarSystemList.ForEach(SystemsTree.Insert);
+            PlanetsTree.UpdateAll(AllPlanetsList.ToArr());
+
+            InitializeEmpiresFromSave();
         }
 
         public void SetDebugMode(bool debug)
         {
             Debug = debug;
-            // if not in debug, we set DebugMode to invalid value
-            DebugMode = debug ? PrevDebugMode : DebugModes.Last;
+            // if not in debug, we set DebugMode to Disabled
+            DebugMode = debug ? PrevDebugMode : DebugModes.Disabled;
             if (!debug)
-                Screen.DebugWin = null;
+                Screen.HideDebugWindow();
         }
 
         public void SetDebugMode(DebugModes mode)
@@ -156,9 +325,8 @@ namespace Ship_Game.Universe
             Objects.Clear();
             ClearSystems();
             ClearSpaceJunk();
+            ClearEmpires();
             PlanetsDict.Clear();
-            SolarSystemDict.Clear();
-            EmpireManager.Clear();
             Spatial.Destroy();
         }
 
@@ -209,76 +377,20 @@ namespace Ship_Game.Universe
                 throw new InvalidOperationException($"AddSolarSystem System was not created for this Universe: {system}");
             if (system.Id <= 0)
                 throw new InvalidOperationException($"AddSolarSystem System.Id must be valid: {system}");
-            SolarSystemDict.Add(system.Id, system);
+
             SolarSystemList.Add(system);
+            SystemsTree.Insert(system);
+
             foreach (Planet planet in system.PlanetList)
             {
                 if (planet.Id <= 0)
                     throw new InvalidOperationException($"AddSolarSystem Planet.Id must be valid: {planet}");
                 if (planet.ParentSystem != system)
                     throw new InvalidOperationException($"AddSolarSystem Planet.ParentSystem must be valid: {planet.ParentSystem} != {system}");
+                
                 PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
             }
-        }
-
-        public Empire CreateEmpire(IEmpireData readOnlyData, bool isPlayer)
-        {
-            if (EmpireManager.GetEmpireByName(readOnlyData.Name) != null)
-                throw new InvalidOperationException($"BUG: Empire already created! {readOnlyData.Name}");
-            Empire e = EmpireManager.CreateEmpireFromEmpireData(this, readOnlyData, isPlayer);
-            return AddEmpire(e);
-        }
-
-        public Empire CreateTestEmpire(string name)
-        {
-            var e = new Empire(this)
-            {
-                data = new EmpireData
-                {
-                    Traits = new RacialTrait { Name = name }
-                }
-            };
-            return AddEmpire(e);
-        }
-
-        public Empire AddEmpire(Empire e)
-        {
-            if (e.Universum == null)
-                throw new ArgumentNullException("Empire.Universum cannot be null");
-
-            EmpireList.Add(e);
-            EmpireManager.Add(e);
-
-            if (e.isPlayer)
-            {
-                if (Player != null)
-                    throw new InvalidOperationException($"Duplicate Player empire! previous={Player}  new={e}");
-                Player = e;
-            }
-            return e;
-        }
-
-        public Empire GetEmpire(int empireId)
-        {
-            for (int i = 0; i < EmpireList.Count; ++i)
-                if (EmpireList[i].Id == empireId)
-                    return EmpireList[i];
-            return null;
-        }
-
-        public Empire GetEmpire(string loyalty)
-        {
-            return EmpireList.Find(e => e.data.Traits.Name == loyalty);
-        }
-
-        public SolarSystem GetSystem(int id)
-        {
-            if (id <= 0) return null;
-            if (SolarSystemDict.TryGetValue(id, out SolarSystem system))
-                return system;
-            Log.Error($"System not found: {id}");
-            return null;
         }
 
         public Planet GetPlanet(int id)
@@ -290,19 +402,9 @@ namespace Ship_Game.Universe
             return null;
         }
 
-        public bool GetPlanet(int id, out Planet found)
-        {
-            return (found = GetPlanet(id)) != null;
-        }
-
         public SolarSystem FindClosestSystem(Vector2 pos)
         {
             return SolarSystemList.FindClosestTo(pos);
-        }
-
-        public Planet FindClosestPlanet(Vector2 pos)
-        {
-            return AllPlanetsList.FindClosestTo(pos);
         }
 
         public SolarSystem FindSolarSystemAt(Vector2 point)
@@ -315,69 +417,16 @@ namespace Ship_Game.Universe
             return null;
         }
 
-        public bool FindSystem(int id, out SolarSystem foundSystem)
-        {
-            return SolarSystemDict.TryGetValue(id, out foundSystem);
-        }
-
-        public SolarSystem FindSystem(int id)
-        {
-            return SolarSystemDict.TryGetValue(id, out SolarSystem system) ? system : null;
-        }
-
         public Array<SolarSystem> GetFiveClosestSystems(SolarSystem system)
         {
             return SolarSystemList.FindMinItemsFiltered(5, filter => filter != system,
                                                            select => select.Position.SqDist(system.Position));
         }
 
-        public Array<SolarSystem> GetSolarSystemsFromIds(Array<int> ids)
-        {
-            var systems = new Array<SolarSystem>();
-            for (int i = 0; i < ids.Count; i++)
-            {
-                if (SolarSystemDict.TryGetValue(ids[i], out SolarSystem s))
-                    systems.Add(s);
-            }
-            return systems;
-        }
-
         // Returns all solar systems within frustum
         public SolarSystem[] GetVisibleSystems()
         {
             return SolarSystemList.Filter(s => Screen.IsInFrustum(s.Position, s.Radius));
-        }
-
-        public Array<Ship> GetShipsFromIds(Array<int> ids)
-        {
-            var ships = new Array<Ship>();
-            for (int i = 0; i < ids.Count; i++)
-            {
-                Ship ship = Objects.FindShip(ids[i]);
-                if (ship != null)
-                    ships.AddUnique(ship);
-            }
-            return ships;
-        }
-
-        public Ship GetShip(int id)
-        {
-            return Objects.FindShip(id);
-        }
-
-        public bool GetShip(int id, out Ship found)
-        {
-            return Objects.FindShip(id, out found);
-        }
-
-        public GameObject GetObject(int id)
-        {
-            return Objects.FindObject(id);
-        }
-
-        public bool GetObject(int id, out GameObject found)
-        {
-            return Objects.FindObject(id, out found);
         }
 
         public void AddShip(Ship ship)
@@ -387,23 +436,32 @@ namespace Ship_Game.Universe
 
         public void OnShipAdded(Ship ship)
         {
-            Empire owner = ship.Loyalty;
-            owner.AddBorderNode(ship);
-
-            if (ship.IsSubspaceProjector)
-            {
-                Influence.Insert(owner, ship);
-            }
+            AddShipInfluence(ship, ship.Loyalty);
         }
 
         public void OnShipRemoved(Ship ship)
         {
-            if (ship.IsSubspaceProjector)
-            {
-                ship.Loyalty.RemoveBorderNode(ship);
-                Influence.Remove(ship.Loyalty, ship);
-            }
+            RemoveShipInfluence(ship, ship.Loyalty);
             EvtOnShipRemoved?.Invoke(ship);
+        }
+
+        // for loyalty changes, transfers influence from old loyalty to new loyalt
+        public void UpdateShipInfluence(Ship ship, Empire oldLoyalty, Empire newLoyalty)
+        {
+            RemoveShipInfluence(ship, oldLoyalty);
+            AddShipInfluence(ship, newLoyalty);
+        }
+
+        void AddShipInfluence(Ship ship, Empire newLoyalty)
+        {
+            if (newLoyalty.AddBorderNode(ship))
+                Influence.Insert(newLoyalty, ship);
+        }
+
+        void RemoveShipInfluence(Ship ship, Empire oldLoyalty)
+        {
+            if (oldLoyalty.RemoveBorderNode(ship))
+                Influence.Remove(oldLoyalty, ship);
         }
         
         public void OnPlanetOwnerAdded(Empire owner, Planet planet)
@@ -417,5 +475,37 @@ namespace Ship_Game.Universe
             owner.RemoveBorderNode(planet);
             Influence.Remove(owner, planet);
         }
+
+        float CalcRemnantPace()
+        {
+            float stars = P.StarsModifier * 4; // 1-8
+            float size = (int)P.GalaxySize + 1; // 1-7
+            int extra = P.ExtraPlanets; // 1-3
+            int numMajorEmpires = EmpireList.Count(e => !e.IsFaction);
+            float numEmpires = numMajorEmpires / 2f; // 1-4.5
+
+            float pace = 20 - stars - size - extra - numEmpires;
+            return pace.LowerBound(1);
+        }
+
+        float GetResearchMultiplier()
+        {
+            if (!GlobalStats.Settings.ChangeResearchCostBasedOnSize)
+                return 1f;
+
+            int idealNumPlayers   = (int)P.GalaxySize + 3;
+            float galSizeModifier = P.GalaxySize <= GalSize.Medium 
+                ? ((int)P.GalaxySize / 2f).LowerBound(0.25f) // 0.25, 0.5 or 1
+                : 1 + ((int)P.GalaxySize - (int)GalSize.Medium) * 0.25f; // 1.25, 1.5, 1.75, 2
+
+            float extraPlanetsMod = 1 + P.ExtraPlanets * 0.25f;
+            int numMajorEmpires = EmpireList.Count(e => !e.IsFaction);
+            float playerRatio     = (float)idealNumPlayers / numMajorEmpires;
+            float settingsRatio   = galSizeModifier * extraPlanetsMod * playerRatio * P.StarsModifier;
+
+            return settingsRatio;
+        }
+
+        public float ProductionPace => 1 + (P.Pace - 1) * 0.5f;
     }
 }

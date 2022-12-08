@@ -10,6 +10,8 @@ namespace Ship_Game
     public sealed class ColoniesListItem : ScrollListItem<ColoniesListItem>
     {
         readonly EmpireManagementScreen Screen;
+        readonly UniverseScreen Universe;
+
         public Planet P;
         public Rectangle SysNameRect;
         public Rectangle PlanetNameRect;
@@ -44,6 +46,7 @@ namespace Ship_Game
         public ColoniesListItem(EmpireManagementScreen screen, Planet planet)
         {
             Screen = screen;
+            Universe = screen.Universe;
             LowRes = Screen.LowRes;
             P = planet;
 
@@ -129,7 +132,7 @@ namespace Ship_Game
             {
                 if (CancelProdHover && P.IsConstructing)
                 {
-                    RunOnEmpireThread(() =>
+                    Screen.Universe.RunOnSimThread(() =>
                     {
                         QueueItem item = P.Construction.GetConstructionQueue()[0];
                         if (!item.IsComplete)
@@ -149,7 +152,7 @@ namespace Ship_Game
                 if (ApplyProdHover && P.IsConstructing)
                 {
                     float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
-                    RunOnEmpireThread(() =>
+                    Universe.RunOnSimThread(() =>
                     {
                         bool hasValidConstruction = P.Construction.NotEmpty && !P.ConstructionQueue[0].IsComplete;
                         if (input.IsShiftKeyDown)
@@ -177,7 +180,7 @@ namespace Ship_Game
                 {
                     GameAudio.AcceptClick();
                     FoodDropDown.Toggle();
-                    RunOnEmpireThread(() =>
+                    Universe.RunOnSimThread(() =>
                     {
                         P.FS = (Planet.GoodState)((int)P.FS + (int)Planet.GoodState.IMPORT);
                         if (P.FS > Planet.GoodState.EXPORT)
@@ -190,7 +193,7 @@ namespace Ship_Game
                 {
                     GameAudio.AcceptClick();
                     ProdDropDown.Toggle();
-                    RunOnEmpireThread(() =>
+                    Universe.RunOnSimThread(() =>
                     {
                         P.PS = (Planet.GoodState)((int)P.PS + (int)Planet.GoodState.IMPORT);
                         if (P.PS > Planet.GoodState.EXPORT)

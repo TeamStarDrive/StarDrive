@@ -1,6 +1,7 @@
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
@@ -18,7 +19,7 @@ namespace Ship_Game
         // If the original Capital of the race is taken by this race, the Capital will be
         // moved from its current planet to the original one (If the planet is not a capital by origin.
         // The `Planet Capital` var is used for this)
-        public bool IsHomeworld { get; private set; } 
+        [StarData] public bool IsHomeworld { get; private set; } 
 
         public void SetHomeworld(bool value)
         {
@@ -161,7 +162,7 @@ namespace Ship_Game
             ResetGarrisonSize();
 
             if (OwnerIsPlayer)
-                colonyType = ColonyType.Colony;
+                CType = ColonyType.Colony;
 
             CreateHomeWorldFertilityAndRichness();
 
@@ -181,15 +182,15 @@ namespace Ship_Game
             numHabitableTiles = 0;
 
             TilesList.Clear();
-            for (int x = 0; x < TileMaxX; ++x)
+            for (int y = 0; y < TileMaxY; ++y) // row-major
             {
-                for (int y = 0; y < TileMaxY; ++y)
+                for (int x = 0; x < TileMaxX; ++x)
                 {
-                    bool habitableTile = random.RollDice(tileChance);
-                    bool terraformable = !habitableTile && random.RollDice(25) || habitableTile;
-                    TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile, terraformable));
-                    if (habitableTile)
-                        ++numHabitableTiles;
+                        bool habitableTile = random.RollDice(tileChance);
+                        bool terraformable = !habitableTile && random.RollDice(25) || habitableTile;
+                        TilesList.Add(new PlanetGridSquare(this, x, y, null, habitableTile, terraformable));
+                        if (habitableTile)
+                            ++numHabitableTiles;
                 }
             }
         }
@@ -357,7 +358,7 @@ namespace Ship_Game
             }
 
             if (!OwnerIsPlayer) // Re-assess colony type after terraform, this might change for the AI
-                colonyType = Owner.AssessColonyNeeds(this);
+                CType = Owner.AssessColonyNeeds(this);
         }
 
         public bool ContainsEventTerraformers => BuildingList.Any(b => b.IsEventTerraformer);
@@ -368,7 +369,7 @@ namespace Ship_Game
         {
             get
             {
-                int terraLevel = ContainsEventTerraformers ? 3 : Owner.data.Traits.TerraformingLevel;
+                int terraLevel = ContainsEventTerraformers ? 3 : Owner?.data.Traits.TerraformingLevel ?? 0;
                 return terraLevel >= 1 && HasTerrainToTerraform
                     || terraLevel >= 2 && HasTilesToTerraform
                     || terraLevel == 3 && BioSpheresToTerraform
@@ -487,8 +488,8 @@ namespace Ship_Game
 
             foreach (RandomItem item in ResourceManager.RandomItemsList)
             {
-                (float chance, int maxInstance) = item.ChanceAndMaxInstance(Category);
-                SpawnRandomItem(item, chance, maxInstance);
+                (float chance, int minInstance, int maxInstance) = item.ChanceMinMaxInstance(Category);
+                SpawnRandomItem(item, chance, minInstance, maxInstance);
             }
             AddTileEvents();
         }

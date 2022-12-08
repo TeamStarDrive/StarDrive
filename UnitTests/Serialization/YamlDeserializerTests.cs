@@ -72,22 +72,22 @@ namespace UnitTests.Serialization
                 ParserDump(parser);
 
                 YamlNode zone = parser.Root["SunZone"];
-                Assert.AreEqual("SunZone", zone.Name);
-                Assert.AreEqual("Weights", zone["Weights"].Name);
-                Assert.AreEqual(4, zone["Weights"].Count);
+                AssertEqual("SunZone", zone.Name);
+                AssertEqual("Weights", zone["Weights"].Name);
+                AssertEqual(4, zone["Weights"].Count);
 
                 var sunZone = parser.DeserializeOne<SunZoneData>();
-                Assert.AreEqual(SunZone.Any, sunZone.Zone);
-                Assert.AreEqual(4, sunZone.Weights.Length);
+                AssertEqual(SunZone.Any, sunZone.Zone);
+                AssertEqual(4, sunZone.Weights.Length);
                 
-                Assert.AreEqual(PlanetCategory.Barren, sunZone.Weights[0].Type);
-                Assert.AreEqual(20,                    sunZone.Weights[0].Weight);
-                Assert.AreEqual(PlanetCategory.Desert, sunZone.Weights[1].Type);
-                Assert.AreEqual(10,                    sunZone.Weights[1].Weight);
-                Assert.AreEqual(PlanetCategory.Steppe, sunZone.Weights[2].Type);
-                Assert.AreEqual(1,                     sunZone.Weights[2].Weight);
-                Assert.AreEqual(PlanetCategory.Tundra, sunZone.Weights[3].Type);
-                Assert.AreEqual(0,                     sunZone.Weights[3].Weight);
+                AssertEqual(PlanetCategory.Barren, sunZone.Weights[0].Type);
+                AssertEqual(20,                    sunZone.Weights[0].Weight);
+                AssertEqual(PlanetCategory.Desert, sunZone.Weights[1].Type);
+                AssertEqual(10,                    sunZone.Weights[1].Weight);
+                AssertEqual(PlanetCategory.Steppe, sunZone.Weights[2].Type);
+                AssertEqual(1,                     sunZone.Weights[2].Weight);
+                AssertEqual(PlanetCategory.Tundra, sunZone.Weights[3].Type);
+                AssertEqual(0,                     sunZone.Weights[3].Weight);
             }
         }
 
@@ -138,32 +138,32 @@ namespace UnitTests.Serialization
 
                 var list = parser.DeserializeOne<LayoutElement>();
 
-                Assert.AreEqual("List", list.Type);
-                Assert.AreEqual("buttons", list.Name);
-                Assert.That.Equal(0.01f, new Vector4(-20f,0.22f,200f,600f), list.Rect);
-                Assert.AreEqual(Align.CenterRight, list.AxisAlign);
-                Assert.AreEqual(2, list.Children1.Length);
-                Assert.AreEqual(2, list.Children2.Count);
+                AssertEqual("List", list.Type);
+                AssertEqual("buttons", list.Name);
+                AssertEqual(0.01f, new Vector4(-20f,0.22f,200f,600f), list.Rect);
+                AssertEqual(Align.CenterRight, list.AxisAlign);
+                AssertEqual(2, list.Children1.Length);
+                AssertEqual(2, list.Children2.Count);
                 
-                Assert.AreEqual("Button", list.Children1[0].Type);
-                Assert.AreEqual("new_game", list.Children1[0].Name);
-                Assert.That.Equal(0.01f, new Vector4(0, 0, 1, 0), list.Children1[0].Rect);
-                Assert.AreEqual(Align.CenterRight, list.Children1[0].AxisAlign);
+                AssertEqual("Button", list.Children1[0].Type);
+                AssertEqual("new_game", list.Children1[0].Name);
+                AssertEqual(0.01f, new Vector4(0, 0, 1, 0), list.Children1[0].Rect);
+                AssertEqual(Align.CenterRight, list.Children1[0].AxisAlign);
                 
-                Assert.AreEqual("Button", list.Children1[1].Type);
-                Assert.AreEqual("load_game", list.Children1[1].Name);
-                Assert.That.Equal(0.01f, new Vector4(0, 50, 1, 0), list.Children1[1].Rect);
-                Assert.AreEqual(Align.CenterRight, list.Children1[1].AxisAlign);
+                AssertEqual("Button", list.Children1[1].Type);
+                AssertEqual("load_game", list.Children1[1].Name);
+                AssertEqual(0.01f, new Vector4(0, 50, 1, 0), list.Children1[1].Rect);
+                AssertEqual(Align.CenterRight, list.Children1[1].AxisAlign);
                 
-                Assert.AreEqual("Button", list.Children2[0].Type);
-                Assert.AreEqual("new_game", list.Children2[0].Name);
-                Assert.That.Equal(0.01f, new Vector4(0, 0, 1, 0), list.Children2[0].Rect);
-                Assert.AreEqual(Align.CenterRight, list.Children2[0].AxisAlign);
+                AssertEqual("Button", list.Children2[0].Type);
+                AssertEqual("new_game", list.Children2[0].Name);
+                AssertEqual(0.01f, new Vector4(0, 0, 1, 0), list.Children2[0].Rect);
+                AssertEqual(Align.CenterRight, list.Children2[0].AxisAlign);
                 
-                Assert.AreEqual("Button", list.Children2[1].Type);
-                Assert.AreEqual("load_game", list.Children2[1].Name);
-                Assert.That.Equal(0.01f, new Vector4(0, 50, 1, 0), list.Children2[1].Rect);
-                Assert.AreEqual(Align.CenterRight, list.Children2[1].AxisAlign);
+                AssertEqual("Button", list.Children2[1].Type);
+                AssertEqual("load_game", list.Children2[1].Name);
+                AssertEqual(0.01f, new Vector4(0, 50, 1, 0), list.Children2[1].Rect);
+                AssertEqual(Align.CenterRight, list.Children2[1].AxisAlign);
             }
         }
 
@@ -206,24 +206,24 @@ namespace UnitTests.Serialization
                 ParserDump(parser);
 
                 var sun = parser.DeserializeOne<SunType>();
-                Assert.AreEqual("star_red2", sun.Id);
-                Assert.AreEqual("Suns/star_red2_icon.png", sun.IconPath);
-                Assert.AreEqual(2, sun.IconLayer);
-                Assert.AreEqual(2.5f, sun.IconScale);
-                Assert.AreEqual(1.4f, sun.LightIntensity);
-                Assert.AreEqual(100000f, sun.Radius);
-                Assert.AreEqual(new Color(255,160,122,255), sun.LightColor);
-                Assert.AreEqual(true, sun.Habitable);
+                AssertEqual("star_red2", sun.Id);
+                AssertEqual("Suns/star_red2_icon.png", sun.IconPath);
+                AssertEqual(2, sun.IconLayer);
+                AssertEqual(2.5f, sun.IconScale);
+                AssertEqual(1.4f, sun.LightIntensity);
+                AssertEqual(100000f, sun.Radius);
+                AssertEqual(new Color(255,160,122,255), sun.LightColor);
+                AssertEqual(true, sun.Habitable);
 
-                Assert.AreEqual(2, sun.Layers.Count);
-                Assert.AreEqual("Suns/star_yellow.png", sun.Layers[0].TexturePath);
-                Assert.AreEqual(new Color(1.0f,0.8f,0.8f,0.5f), sun.Layers[0].TextureColor);
-                Assert.AreEqual(SpriteBlendMode.Additive, sun.Layers[0].BlendMode);
-                Assert.AreEqual(2.5f, sun.Layers[0].LayerScale);
-                Assert.AreEqual(-0.015f, sun.Layers[0].RotationSpeed);
-                Assert.AreEqual(5.0f, sun.Layers[0].PulsePeriod);
-                Assert.AreEqual(new Range(0.96f,1.08f), sun.Layers[0].PulseScale);
-                Assert.AreEqual(new Range(1.1f,1.1f), sun.Layers[0].PulseColor);
+                AssertEqual(2, sun.Layers.Count);
+                AssertEqual("Suns/star_yellow.png", sun.Layers[0].TexturePath);
+                AssertEqual(new Color(1.0f,0.8f,0.8f,0.5f), sun.Layers[0].TextureColor);
+                AssertEqual(SpriteBlendMode.Additive, sun.Layers[0].BlendMode);
+                AssertEqual(2.5f, sun.Layers[0].LayerScale);
+                AssertEqual(-0.015f, sun.Layers[0].RotationSpeed);
+                AssertEqual(5.0f, sun.Layers[0].PulsePeriod);
+                AssertEqual(new Range(0.96f,1.08f), sun.Layers[0].PulseScale);
+                AssertEqual(new Range(1.1f,1.1f), sun.Layers[0].PulseColor);
             }
         }
 
@@ -252,10 +252,10 @@ namespace UnitTests.Serialization
                 ParserDump(parser);
                 var map = parser.DeserializeOne<SettingsMap>();
 
-                Assert.AreEqual(3, map.Settings.Count);
-                Assert.AreEqual(1.1f, map.Settings[MapKeys.House]);
-                Assert.AreEqual(2.2f, map.Settings[MapKeys.Plane]);
-                Assert.AreEqual(3.3f, map.Settings[MapKeys.Ship]);
+                AssertEqual(3, map.Settings.Count);
+                AssertEqual(1.1f, map.Settings[MapKeys.House]);
+                AssertEqual(2.2f, map.Settings[MapKeys.Plane]);
+                AssertEqual(3.3f, map.Settings[MapKeys.Ship]);
             }
         }
     }

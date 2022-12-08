@@ -23,12 +23,12 @@ namespace UnitTests.Serialization
         public void ReadLine()
         {
             var r = new GenericStringViewParser("Reader", "Test\nSomeLines\r\nAnd carriage\rAndEmpties\n\n\n");
-            Assert.AreEqual("Test", r.ReadLine().Text);
-            Assert.AreEqual("SomeLines", r.ReadLine().Text);
-            Assert.AreEqual("And carriage", r.ReadLine().Text);
-            Assert.AreEqual("AndEmpties", r.ReadLine().Text);
-            Assert.AreEqual("", r.ReadLine().Text);
-            Assert.AreEqual("", r.ReadLine().Text);
+            AssertEqual("Test", r.ReadLine().Text);
+            AssertEqual("SomeLines", r.ReadLine().Text);
+            AssertEqual("And carriage", r.ReadLine().Text);
+            AssertEqual("AndEmpties", r.ReadLine().Text);
+            AssertEqual("", r.ReadLine().Text);
+            AssertEqual("", r.ReadLine().Text);
             Assert.IsFalse(r.ReadLine(out _));
         }
 
@@ -36,11 +36,11 @@ namespace UnitTests.Serialization
         public void NextTokenWorksDynamically()
         {
             StringView view = FromString("key1=value1;key2=value2");
-            Assert.AreEqual("key1", view.Next('=').Text);
-            Assert.AreEqual("value1", view.Next(';').Text);
-            Assert.AreEqual("key2", view.Next('=').Text);
-            Assert.AreEqual("value2", view.Next(';').Text);
-            Assert.AreEqual("", view.Text);
+            AssertEqual("key1", view.Next('=').Text);
+            AssertEqual("value1", view.Next(';').Text);
+            AssertEqual("key2", view.Next('=').Text);
+            AssertEqual("value2", view.Next(';').Text);
+            AssertEqual("", view.Text);
         }
 
         [TestMethod]
@@ -48,27 +48,27 @@ namespace UnitTests.Serialization
         {
             StringView view = FromString("  \t  \t\tHello, StringView\t \t \t");
             view.TrimStart();
-            Assert.AreEqual("Hello, StringView\t \t \t", view.Text);
+            AssertEqual("Hello, StringView\t \t \t", view.Text);
             view.TrimEnd();
-            Assert.AreEqual("Hello, StringView", view.Text);
+            AssertEqual("Hello, StringView", view.Text);
         }
 
         [TestMethod]
         public void ToDouble()
         {
-            Assert.AreEqual(-31.9510, FromString("-31.9510").ToDouble());
-            Assert.AreEqual(31.9510, FromString("31.9510").ToDouble());
-            Assert.AreEqual(31.9510, FromString("+31.9510").ToDouble());
-            Assert.AreEqual(0.0, FromString("not-a-number").ToDouble());
+            AssertEqual(-31.9510, FromString("-31.9510").ToDouble());
+            AssertEqual(31.9510, FromString("31.9510").ToDouble());
+            AssertEqual(31.9510, FromString("+31.9510").ToDouble());
+            AssertEqual(0.0, FromString("not-a-number").ToDouble());
         }
 
         [TestMethod]
         public void ToInt()
         {
-            Assert.AreEqual(-3123123, FromString("-3123123").ToInt());
-            Assert.AreEqual(3123123, FromString("3123123").ToInt());
-            Assert.AreEqual(3123123, FromString("+3123123").ToInt());
-            Assert.AreEqual(0, FromString("not-a-number").ToInt());
+            AssertEqual(-3123123, FromString("-3123123").ToInt());
+            AssertEqual(3123123, FromString("3123123").ToInt());
+            AssertEqual(3123123, FromString("+3123123").ToInt());
+            AssertEqual(0, FromString("not-a-number").ToInt());
         }
     }
 }

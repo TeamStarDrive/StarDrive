@@ -1,11 +1,8 @@
 ﻿using SDUtils;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
-using Ship_Game.Spatial;
 
 namespace Ship_Game.Spatial
 {
-    public sealed partial class Qtree
+    public partial class Qtree
     {
         unsafe class Collider
         {
@@ -85,18 +82,16 @@ namespace Ship_Game.Spatial
 
         public unsafe int CollideAll(FixedSimTime timeStep, bool showCollisions)
         {
-            var collider = new Collider(SpatialObjects.Length);
-            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
+            (SpatialObjectBase[] objects, QtreeNode root) = GetObjectsAndRootSafe();
+            var collider = new Collider(objects.Length);
+            FindResultBuffer<QtreeNode> buffer = GetThreadLocalTraversalBuffer(root);
 
             do
             {
                 QtreeNode current = buffer.Pop();
                 if (current.NW != null) // isBranch
                 {
-                    buffer.PushBack(current.SW);
-                    buffer.PushBack(current.SE);
-                    buffer.PushBack(current.NE);
-                    buffer.PushBack(current.NW);
+                    buffer.PushAllQuadrants(current);
                 }
                 else // isLeaf
                 {
@@ -115,7 +110,7 @@ namespace Ship_Game.Spatial
 
             fixed (CollisionPair* candidatesPtr = candidates)
             {
-                int numCollisions = NarrowPhase.Collide(timeStep, candidatesPtr, numCandidates, Objects);
+                int numCollisions = NarrowPhase.Collide(timeStep, candidatesPtr, numCandidates, objects);
                 return numCollisions;
             }
         }

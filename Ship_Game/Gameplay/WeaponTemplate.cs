@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Ships;
@@ -33,7 +28,7 @@ namespace Ship_Game.Gameplay
 
         public static readonly WeaponTag[] TagValues = (WeaponTag[])typeof(WeaponTag).GetEnumValues();
 
-        [XmlIgnore][JsonIgnore] public WeaponTag[] ActiveWeaponTags { get; set; }
+        [XmlIgnore] public WeaponTag[] ActiveWeaponTags { get; set; }
 
         // @note These are initialized from XML during serialization
         public bool Tag_Kinetic   { get => Tag(WeaponTag.Kinetic);   set => Tag(WeaponTag.Kinetic, value);   }
@@ -155,7 +150,7 @@ namespace Ship_Game.Gameplay
         public int SalvoSoundInterval { get; set; } = 1; // play sound effect every N salvos
 
         // STAT Generated automatically after all weapons are loaded
-        [XmlIgnore][JsonIgnore] public float DamagePerSecond { get; private set; }
+        [XmlIgnore] public float DamagePerSecond { get; private set; }
 
         // Number of salvos that will be sequentially spawned.
         // For example, Vulcan Cannon fires a salvo of 20
@@ -167,22 +162,22 @@ namespace Ship_Game.Gameplay
         public float SalvoDuration { get; set; }
 
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float NetFireDelay => IsBeam ? FireDelay+BeamDuration : FireDelay+SalvoDuration;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float AverageOrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float TotalOrdnanceUsagePerFire => OrdinanceRequiredToFire * ProjectileCount * SalvoCount;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool Explodes => ExplosionRadius > 0;
 
-        [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
+        [XmlIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsMirv => MirvWeapon.NotEmpty();
         public void InitializeTemplate()
         {
@@ -191,9 +186,7 @@ namespace Ship_Game.Gameplay
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
             FireDelay = Math.Max(0.016f, FireDelay);
             SalvoDuration = Math.Max(0, SalvoDuration);
-
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo != null)
-                ExplosionRadiusVisual *= GlobalStats.ActiveModInfo.GlobalExplosionVisualIncreaser;
+            ExplosionRadiusVisual *= GlobalStats.Settings.ExplosionVisualIncreaser;
 
             if (PlaySoundOncePerSalvo) // @note Backwards compatibility
                 SalvoSoundInterval = 9999;
@@ -374,7 +367,7 @@ namespace Ship_Game.Gameplay
                 damageAmount += damageAmount * owner.Level * 0.05f;
 
             // Hull bonus damage increase
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses && owner != null &&
+            if (GlobalStats.Settings.UseHullBonuses && owner != null &&
                 ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
             {
                 damageAmount += damageAmount * mod.DamageBonus;

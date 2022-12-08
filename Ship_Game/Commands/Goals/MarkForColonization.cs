@@ -5,18 +5,23 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.ExpansionAI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class MarkForColonization : Goal
+    [StarDataType]
+    public class MarkForColonization : FleetGoal
     {
-        public const string ID = "MarkForColonization";
-        public override string UID => ID;
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        [StarData] public sealed override Planet TargetPlanet { get; set; }
+        [StarData] public bool IsManualColonizationOrder;
 
-        public MarkForColonization(int id, UniverseState us)
-            : base(GoalType.Colonize, id, us)
+        public override bool IsColonizationGoal(Planet planet) => TargetPlanet == planet;
+
+        [StarDataConstructor]
+        public MarkForColonization(Empire owner) : base(GoalType.MarkForColonization, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -29,13 +34,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public MarkForColonization(Planet toColonize, Empire e)
-            : this(e.Universum.CreateId(), e.Universum)
+        public MarkForColonization(Planet toColonize, Empire owner, bool isManual = false) : this(owner)
         {
-            empire             = e;
-            ColonizationTarget = toColonize;
-            StarDateAdded      = empire.Universum.StarDate;
-            if (PositiveEnemyPresence(out _) && AIControlsColonization) 
+            TargetPlanet = toColonize;
+            IsManualColonizationOrder = isManual;
+            if (AIControlsColonization && PositiveEnemyPresence(out _)) 
                 return;
 
             // Fast track to colonize if planet is safe and we have a ready Colony Ship
@@ -43,7 +46,6 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
             {
                 ChangeToStep(OrderShipToColonize);
-                Evaluate();
             }
 
             if (!AIControlsColonization) // Fast track for player colonization
@@ -51,43 +53,44 @@ namespace Ship_Game.Commands.Goals
         }
 
         // Player ordered an existing colony ship to colonize
-        public MarkForColonization(Ship colonyShip, Planet toColonize, Empire e)
-            : this(e.Universum.CreateId(), e.Universum)
+        public MarkForColonization(Ship colonyShip, Planet toColonize, Empire owner)
+            : this(owner)
         {
-            empire             = e;
-            ColonizationTarget = toColonize;
-            FinishedShip       = colonyShip;
-            StarDateAdded      = empire.Universum.StarDate;
+            TargetPlanet = toColonize;
+            FinishedShip = colonyShip;
+            IsManualColonizationOrder = true;
+
+            colonyShip.AI.OrderColonization(toColonize);
             ChangeToStep(WaitForColonizationComplete);
         }
 
         GoalStep TargetPlanetStatus()
         {
-            if (!empire.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(ColonizationTarget.ParentSystem, empire))
+            if (!Owner.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.ParentSystem, Owner))
             {
                 ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;
             }
 
-            if (ColonizationTarget.ParentSystem.OwnerList.Count > 0
-                && !ColonizationTarget.ParentSystem.IsExclusivelyOwnedBy(empire))
+            if (TargetPlanet.ParentSystem.OwnerList.Count > 0
+                && !TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
             {
                 // Someone got planets in that system, need to check if we warned them
-                foreach ((Empire them, Relationship rel) in empire.AllRelations)
-                    empire.GetEmpireAI().ExpansionAI.CheckClaim(them, rel, ColonizationTarget);
+                foreach (Relationship rel in Owner.AllRelations)
+                    Owner.AI.ExpansionAI.CheckClaim(rel.Them, rel, TargetPlanet);
             }
 
-            if (ColonizationTarget.Owner != null)
+            if (TargetPlanet.Owner != null)
             {
-                if (ColonizationTarget.Owner == empire)
+                if (TargetPlanet.Owner == Owner)
                     return GoalStep.GoalComplete;
 
                 // If the owner is a faction, fail the goal so next time we also get a claim fleet to invade
-                if (ColonizationTarget.Owner.isFaction) 
+                if (TargetPlanet.Owner.IsFaction) 
                     return FinishedShip != null ? GoalStep.GoalFailed : GoalStep.GoToNextStep;
 
                 ReleaseShipFromGoal();
-                Log.Info($"Colonize: {ColonizationTarget.Owner.Name} got there first");
+                Log.Info($"Colonize: {TargetPlanet.Owner.Name} got there first");
                 return GoalStep.GoalFailed;
             }
 
@@ -96,24 +99,24 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateClaimTask()
         {
-            if (empire.isPlayer)
+            if (Owner.isPlayer)
                 return GoalStep.GoToNextStep;
 
             if (PositiveEnemyPresence(out float spaceStrength))
             {
-                EmpireAI empireAi   = empire.GetEmpireAI();
-                TargetEmpire        = empireAi.ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
-                float strMultiplier = empire.GetFleetStrEmpireMultiplier(TargetEmpire);
-                var task            = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, 
+                EmpireAI empireAi = Owner.AI;
+                TargetEmpire = empireAi.ThreatMatrix.GetStrongestHostileAt(TargetPlanet.ParentSystem);
+                float strMultiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
+                var task            = MilitaryTask.CreateClaimTask(Owner, TargetPlanet, 
                                        (spaceStrength * strMultiplier).LowerBound(20), TargetEmpire, (int)strMultiplier);
 
                 empireAi.AddPendingTask(task);
-                empireAi.Goals.Add(new StandbyColonyShip(empire));
+                empireAi.AddGoal(new StandbyColonyShip(Owner));
             }
-            else if (empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
+            else if (!Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.ParentSystem))
             {
-                var task = MilitaryTask.CreateGuardTask(empire, ColonizationTarget);
-                empire.GetEmpireAI().AddPendingTask(task);
+                var task = MilitaryTask.CreateGuardTask(Owner, TargetPlanet);
+                Owner.AI.AddPendingTask(task);
             }
 
             return GoalStep.GoToNextStep;
@@ -127,9 +130,17 @@ namespace Ship_Game.Commands.Goals
             if (TryGetClaimTask(out MilitaryTask task))
             {
                 if (!PositiveEnemyPresence(out float enemyStr) || task.Fleet != null && task.Fleet.TaskStep == 9)
-                    return GoalStep.GoToNextStep;
+                {
+                    if (TargetPlanet.Owner != null && TargetPlanet.GetGroundStrength(Owner) == 0) // ground invasion failed
+                    {
+                        task.Fleet?.FleetTask.EndTask();
+                        task.EndTask();
+                        return GoalStep.GoalFailed;
+                    }
 
-                if (enemyStr > empire.OffensiveStrength)
+                    return GoalStep.GoToNextStep;
+                }
+                if (enemyStr > Owner.OffensiveStrength)
                 {
                     task.Fleet?.FleetTask.EndTask();
                     task.EndTask();
@@ -158,17 +169,19 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
                 return GoalStep.GoToNextStep;
 
-            if (!ShipBuilder.PickColonyShip(empire, out IShipDesign colonyShip))
+            if (!ShipBuilder.PickColonyShip(Owner, out IShipDesign colonyShip))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, colonyShip, out Planet planet))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
-            planet.Construction.Enqueue(colonyShip, this,
-                                        notifyOnEmpty:empire.isPlayer,
-                                        displayName: $"{colonyShip.Name} ({ColonizationTarget.Name})");
+            PlanetBuildingAt = planet;
+            planet.Construction.Enqueue(ship: colonyShip, 
+                                        type: TryGetClaimTask(out _) ?  QueueItemType.ColonyShipClaim : QueueItemType.ColonyShip, 
+                                        goal: this, 
+                                        notifyOnEmpty:Owner.isPlayer, 
+                                        displayName: $"{colonyShip.Name} ({TargetPlanet.Name})");
 
-            planet.Construction.PrioritizeShip(colonyShip, 1);
             return GoalStep.GoToNextStep;
         }
 
@@ -192,7 +205,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.RestartGoal;
             }
 
-            if (ColonizationTarget.Owner == null)
+            if (TargetPlanet.Owner == null)
                 return GoalStep.TryAgain;
 
             return GoalStep.GoalComplete;
@@ -211,7 +224,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            FinishedShip.DoColonize(ColonizationTarget, this);
+            FinishedShip.DoColonize(TargetPlanet, this);
             return GoalStep.GoToNextStep;
         }
 
@@ -221,7 +234,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             if (AIControlsColonization
-                && empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10
+                && Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) > 10
                 && ClaimTaskInvalid(out MilitaryTask possibleTask))
             {
                 ReleaseShipFromGoal();
@@ -229,15 +242,15 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (ColonizationTarget.Owner == empire)
+            if (TargetPlanet.Owner == Owner)
             {
-                empire.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
+                Owner.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return GoalStep.GoalComplete;
             }
 
             if (FinishedShip == null 
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
-                || goal.TargetPlanet != ColonizationTarget)
+                || goal.TargetPlanet != TargetPlanet)
             {
                 if (TryGetClaimTask(out MilitaryTask claimTask))
                     claimTask.EndTask();
@@ -253,7 +266,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
             {
                 FinishedShip.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders);
-                var nearestRallyPoint = empire.FindNearestRallyPoint(FinishedShip.Position);
+                var nearestRallyPoint = Owner.FindNearestRallyPoint(FinishedShip.Position);
                 if (nearestRallyPoint != null)
                     FinishedShip.AI.OrderOrbitPlanet(nearestRallyPoint, clearOrders: true);
             }
@@ -261,9 +274,9 @@ namespace Ship_Game.Commands.Goals
 
         bool PositiveEnemyPresence(out float spaceStrength)
         {
-            spaceStrength   = empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem);
-            float groundStr = ColonizationTarget.GetGroundStrengthOther(empire);
-            if (ColonizationTarget.Owner?.isFaction  == true && groundStr < 1)
+            spaceStrength = Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem);
+            float groundStr = TargetPlanet.GetGroundStrengthOther(Owner);
+            if (TargetPlanet.Owner?.IsFaction  == true && groundStr < 1)
                 groundStr += 40; // So AI will know to send fleets to remnant colonies, even if they are empty
 
             return spaceStrength > 10 || groundStr > 0;
@@ -282,7 +295,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
                 return FinishedShip;
 
-            foreach (Ship ship in empire.OwnedShips)
+            foreach (Ship ship in Owner.OwnedShips)
             {
                 if (ship.ShipData.IsColonyShip && !ship.DoingRefit
                     && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
@@ -295,17 +308,17 @@ namespace Ship_Game.Commands.Goals
             return null;
         }
 
-        bool AIControlsColonization => !empire.isPlayer || empire.isPlayer && empire.AutoColonize;
+        bool AIControlsColonization => !Owner.isPlayer || (Owner.isPlayer && Owner.AutoColonize && !IsManualColonizationOrder);
 
         bool TryGetClaimTask(out MilitaryTask task)
         {
-            return empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out task);
+            return Owner.AI.GetDefendClaimTaskFor(TargetPlanet, out task);
         }
 
         // Checks if the ship is not taken by another colonization goal
         bool NotAssignedToColonizationGoal(Ship colonyShip)
         {
-            return !colonyShip.Loyalty.GetEmpireAI().Goals.Any(g => g.type == GoalType.Colonize && g.FinishedShip == colonyShip);
+            return !colonyShip.Loyalty.AI.HasGoal(g => g.Type == GoalType.MarkForColonization && g.FinishedShip == colonyShip);
         }
 
         bool ClaimTaskInvalid(out MilitaryTask possibleTask)

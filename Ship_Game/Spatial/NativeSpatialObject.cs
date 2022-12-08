@@ -15,7 +15,7 @@ namespace Ship_Game.Spatial
         public int ObjectId; // the object ID
         public AABoundingBox2Di AABB;
 
-        public NativeSpatialObject(GameObject go)
+        public NativeSpatialObject(SpatialObjectBase go)
         {
             Active = 1;
             GameObjectType type = go.Type;
@@ -46,10 +46,10 @@ namespace Ship_Game.Spatial
                 case GameObjectType.ShipModule: return 0;
                 case GameObjectType.Proj: return ProjMask;
                 case GameObjectType.Beam: return BeamMask;
-                case GameObjectType.Asteroid: return 0;
-                case GameObjectType.Moon: return 0;
                 case GameObjectType.SolarSystem: return 0;
+                case GameObjectType.SolarBody: return 0;
                 case GameObjectType.Planet: return 0;
+                case GameObjectType.ThreatCluster: return 0;
                 default: return 0;
             }
         }

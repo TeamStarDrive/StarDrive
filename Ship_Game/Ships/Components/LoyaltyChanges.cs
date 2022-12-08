@@ -28,7 +28,7 @@ namespace Ship_Game.Ships.Components
         // Classic chicken-egg paradox
         public void OnSpawn(Ship ship)
         {
-            if (ship.Loyalty != EmpireManager.Void)
+            if (ship.Loyalty != Empire.Void)
                 SetLoyaltyForNewShip(ship.Loyalty);
         }
 
@@ -96,6 +96,9 @@ namespace Ship_Game.Ships.Components
         static void LoyaltyChangeDueToBoarding(Ship ship, Empire newLoyalty, bool notification)
         {
             Empire oldLoyalty = ship.Loyalty;
+            if (ship.IsSubspaceProjector)
+                oldLoyalty.AI.SpaceRoadsManager.RemoveProjectorFromRoadList(ship);
+
             ship.RemoveFromPoolAndFleet(clearOrders: true);
             oldLoyalty.TheyKilledOurShip(newLoyalty, ship);
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
@@ -122,11 +125,16 @@ namespace Ship_Game.Ships.Components
 
         static void SafelyTransferShip(Ship ship, Empire oldLoyalty, Empire newLoyalty)
         {
-            // remove ship from fleet but do not add it back to empire pools.
+            // ship shouldn't stay in any pools or fleets after being captured or federated
+            // also, any orders should be cleared the ensure new owner can assign suitable jobs
+            ship.RemoveFromPoolAndFleet(clearOrders: true);
 
+            // set the new loyalty before updating anything else
             ship.Loyalty = newLoyalty;
 
-            oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
+            // empire's border scan nodes and subspace influence needs to be transferred
+            ship.Universe.UpdateShipInfluence(ship, oldLoyalty, newLoyalty);
+
             ship.ShipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, newLoyalty);
             ship.ReCalculateTroopsAfterBoard();
@@ -134,12 +142,8 @@ namespace Ship_Game.Ships.Components
             ship.PiratePostChangeLoyalty();
             ship.IsGuardian = newLoyalty.WeAreRemnants;
 
-            IEmpireShipLists oldShips = oldLoyalty;
-            IEmpireShipLists newShips = newLoyalty;
-
-            oldShips.RemoveShipAtEndOfTurn(ship);
-            ship.RemoveFromPool();
-            newShips.AddNewShipAtEndOfTurn(ship);
+            (oldLoyalty as IEmpireShipLists).RemoveShipAtEndOfTurn(ship);
+            (newLoyalty as IEmpireShipLists).AddNewShipAtEndOfTurn(ship);
         }
     }
 }

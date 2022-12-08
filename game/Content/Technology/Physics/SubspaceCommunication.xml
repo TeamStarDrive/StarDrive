@@ -4,7 +4,6 @@
   <UID>SubspaceCommunication</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>250</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>667</NameIndex>
   <DescriptionIndex>668</DescriptionIndex>
   <LeadsTo>

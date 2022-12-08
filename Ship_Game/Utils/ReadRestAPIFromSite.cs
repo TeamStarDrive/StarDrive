@@ -29,8 +29,10 @@ namespace Ship_Game.Utils
 
         public void LoadContent(string url)
         {
-            if (url.IsEmpty()) return;
-            FilesAvailable = new Dictionary<string, string>();
+            if (url.IsEmpty())
+                return;
+
+            FilesAvailable = new();
             try
             {
                 ServicePointManager.Expect100Continue = true;

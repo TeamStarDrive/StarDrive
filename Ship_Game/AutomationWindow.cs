@@ -2,28 +2,31 @@ using System;
 using System.Linq.Expressions;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
     public sealed class AutomationWindow : GameScreen
     {
         public bool IsOpen { get; private set; }
-        readonly UniverseScreen Universe;
+        readonly UniverseScreen Screen;
+        UniverseState UState => Screen.UState;
         Submenu ConstructionSubMenu;
         DropOptions<int> FreighterDropDown;
         DropOptions<int> ColonyShipDropDown;
         DropOptions<int> ScoutDropDown;
         DropOptions<int> ConstructorDropDown;
 
-        public AutomationWindow(UniverseScreen universe) : base(universe, toPause: null)
+        public AutomationWindow(UniverseScreen screen) : base(screen, toPause: null)
         {
-            Universe = universe;
+            Screen = screen;
             const int windowWidth = 210;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 420);
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 440);
         }
 
         class CheckedDropdown : UIElementV2
@@ -60,35 +63,35 @@ namespace Ship_Game
             base.LoadContent();
             RemoveAll();
 
-            Rectangle win = Rect;
-            ConstructionSubMenu = new Submenu(win);
-            ConstructionSubMenu.AddTab(Localizer.Token(GameText.Automation));
+            RectF win = new(Rect);
+            ConstructionSubMenu = new(win, GameText.Automation);
 
-            UIList rest = AddList(new Vector2(win.X + 10f, win.Y + 200f));
-            rest.Padding = new Vector2(2f, 10f);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title: GameText.AutoPickFreighter, tooltip: GameText.IfAutoTradeIsChecked);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: GameText.AutoResearch, tooltip: GameText.YourEmpireWillAutomaticallySelect);
-            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: GameText.AutoTaxes, tooltip: GameText.YourEmpireWillAutomaticallyManage3);
-            rest.AddCheckbox(() => RushConstruction,                           title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
-            rest.AddCheckbox(() => GlobalStats.SuppressOnBuildNotifications,   title: GameText.DisableBuildingAlerts, tooltip: GameText.NormallyWhenYouManuallyAdd);
-            rest.AddCheckbox(() => GlobalStats.DisableInhibitionWarning,       title: GameText.DisableInhibitionAlerts, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
-            rest.AddCheckbox(() => GlobalStats.DisableVolcanoWarning,          title: GameText.DisableVolcanoAlerts, tooltip: GameText.DisableVolcanoActivationOrDeactivation);
+            UIList rest = AddList(new(win.X + 10f, win.Y + 200f));
+            rest.Padding = new(2f, 10f);
+            rest.AddCheckbox(() => UState.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
+            rest.AddCheckbox(() => UState.Player.AutoPickBestFreighter, title: GameText.AutoPickFreighter, tooltip: GameText.IfAutoTradeIsChecked);
+            rest.AddCheckbox(() => UState.Player.AutoResearch,          title: GameText.AutoResearch, tooltip: GameText.YourEmpireWillAutomaticallySelect);
+            rest.AddCheckbox(() => UState.Player.AutoBuildTerraformers, title: GameText.AutoBuildTerraformers, tooltip: GameText.AutoBuildTerraformersTip);
+            rest.AddCheckbox(() => UState.Player.AutoTaxes,             title: GameText.AutoTaxes, tooltip: GameText.YourEmpireWillAutomaticallyManage3);
+            rest.AddCheckbox(() => RushConstruction,                    title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
+            rest.AddCheckbox(() => UState.P.SuppressOnBuildNotifications, title: GameText.DisableBuildingAlerts, tooltip: GameText.NormallyWhenYouManuallyAdd);
+            rest.AddCheckbox(() => UState.P.DisableInhibitionWarning,     title: GameText.DisableInhibitionAlerts, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
+            rest.AddCheckbox(() => UState.P.DisableVolcanoWarning,        title: GameText.DisableVolcanoAlerts, tooltip: GameText.DisableVolcanoActivationOrDeactivation);
 
             UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);
 
             ScoutDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => EmpireManager.Player.AutoExplore, title:GameText.Autoexplore, tooltip:GameText.YourEmpireWillAutomaticallyManage);
+                .Create(() => Screen.Player.AutoExplore, title:GameText.Autoexplore, tooltip:GameText.YourEmpireWillAutomaticallyManage);
 
             ColonyShipDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => EmpireManager.Player.AutoColonize, title:GameText.Autocolonize, tooltip:GameText.YourEmpireWillAutomaticallyCreate);
+                .Create(() => Screen.Player.AutoColonize, title:GameText.Autocolonize, tooltip:GameText.YourEmpireWillAutomaticallyCreate);
 
             ConstructorDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(GameText.Autobuild) + " Projectors", GameText.YourEmpireWillAutomaticallyCreate2);
+                .Create(() => Screen.Player.AutoBuildSpaceRoads, Localizer.Token(GameText.Autobuild) + " Projectors", GameText.YourEmpireWillAutomaticallyCreate2);
 
             FreighterDropDown = ticks.Add(new CheckedDropdown())
-                .Create(() => EmpireManager.Player.AutoFreighters, title: GameText.AutomaticTrade, tooltip: GameText.YourEmpireWillAutomaticallyManage2);
+                .Create(() => Screen.Player.AutoFreighters, title: GameText.AutomaticTrade, tooltip: GameText.YourEmpireWillAutomaticallyManage2);
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
@@ -115,8 +118,8 @@ namespace Ship_Game
             sel.Draw(batch, elapsed);
             ConstructionSubMenu.Draw(batch, elapsed);
 
-            FreighterDropDown.Visible  = !EmpireManager.Player.AutoPickBestFreighter;
-            ColonyShipDropDown.Visible = !EmpireManager.Player.AutoPickBestColonizer;
+            FreighterDropDown.Visible  = !Screen.Player.AutoPickBestFreighter;
+            ColonyShipDropDown.Visible = !Screen.Player.AutoPickBestColonizer;
 
             base.Draw(batch, elapsed);
         }
@@ -134,7 +137,7 @@ namespace Ship_Game
 
             if (base.HandleInput(input))
             {
-                EmpireData playerData = EmpireManager.Player.data;
+                EmpireData playerData = Screen.Player.data;
                 playerData.CurrentAutoFreighter = FreighterDropDown.ActiveName;
                 playerData.CurrentAutoColony    = ColonyShipDropDown.ActiveName;
                 playerData.CurrentConstructor   = ConstructorDropDown.ActiveName;
@@ -144,35 +147,35 @@ namespace Ship_Game
             return false;
         }
 
-        static void WarnBuildableShips()
+        void WarnBuildableShips()
         {
             var sb = new StringBuilder("Player.ShipsWeCanBuild = {\n");
 
-            foreach (string ship in EmpireManager.Player.ShipsWeCanBuild)
-                sb.Append("  '").Append(ship).Append("',\n");
+            foreach (IShipDesign ship in Screen.Player.ShipsWeCanBuild)
+                sb.Append("  '").Append(ship.Name).Append("',\n");
             sb.Append("}");
 
             Log.Warning(sb.ToString());
         }
 
-        static void InitDropOptions(DropOptions<int> options, ref string automationShip, string defaultShip, Func<Ship, bool> predicate)
+        void InitDropOptions(DropOptions<int> options, ref string automationShip, string defaultShip, Func<IShipDesign, bool> predicate)
         {
             if (options == null)
                 return;
             options.Clear();
 
 
-            foreach (string ship in EmpireManager.Player.ShipsWeCanBuild)
+            foreach (IShipDesign ship in Screen.Player.ShipsWeCanBuild)
             {
-                if (ResourceManager.GetShipTemplate(ship, out Ship template) && predicate(template))
-                    options.AddOption(template.Name, 0);
+                if (predicate(ship))
+                    options.AddOption(ship.Name, 0);
             }
 
             if (!options.SetActiveEntry(automationShip)) // try set the current automationShip active
             {
                 if (!options.SetActiveEntry(defaultShip)) // we can't build a default ship??? wtf
                 {
-                    Log.Warning($"Failed to enable default automation ship '{defaultShip}' for player {EmpireManager.Player}");
+                    Log.Warning($"Failed to enable default automation ship '{defaultShip}' for player {Screen.Player}");
                     WarnBuildableShips();
                     options.AddOption(defaultShip, 0);
                 }
@@ -184,39 +187,39 @@ namespace Ship_Game
 
         public void UpdateDropDowns()
         {
-            EmpireData playerData = Universe.Player.data;
+            EmpireData playerData = Screen.Player.data;
 
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
-                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsFreighter);
+                ship => ship.IsShipGoodToBuild(Screen.Player) && ship.IsFreighter);
 
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
-                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.ShipData.IsColonyShip);
+                ship => ship.IsShipGoodToBuild(Screen.Player) && ship.IsColonyShip);
 
             InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor,
-                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsConstructor);
+                ship => ship.IsShipGoodToBuild(Screen.Player) && ship.IsConstructor);
 
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 
                 ship =>
                 {
-                    if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.reconDropDown)
-                        return ship.ShipGoodToBuild(EmpireManager.Player) && 
-                              (ship.DesignRole == RoleName.scout || 
-                               ship.ShipData?.ShipCategory == ShipCategory.Recon);
+                    if (GlobalStats.Settings.ReconDropDown)
+                        return ship.IsShipGoodToBuild(Screen.Player) && 
+                              (ship.Role == RoleName.scout || 
+                               ship.ShipCategory == ShipCategory.Recon);
 
-                    return ship.ShipGoodToBuild(EmpireManager.Player) && 
-                          (ship.DesignRole == RoleName.scout ||
-                           ship.DesignRole == RoleName.fighter ||
-                           ship.ShipData?.ShipCategory == ShipCategory.Recon);
+                    return ship.IsShipGoodToBuild(Screen.Player) && 
+                          (ship.Role == RoleName.scout ||
+                           ship.Role == RoleName.fighter ||
+                           ship.ShipCategory == ShipCategory.Recon);
                 });
         }
 
         bool RushConstruction
         {
-            get => EmpireManager.Player.RushAllConstruction;
+            get => Screen.Player.RushAllConstruction;
             set // used in the rush construction checkbox at start
             {
-                EmpireManager.Player.RushAllConstruction = value;
-                RunOnEmpireThread(() => EmpireManager.Player.SwitchRushAllConstruction(value));
+                Screen.Player.RushAllConstruction = value;
+                Screen.RunOnSimThread(() => Screen.Player.SwitchRushAllConstruction(value));
             }
         }
     }

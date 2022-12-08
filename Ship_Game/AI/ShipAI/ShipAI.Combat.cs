@@ -3,6 +3,7 @@ using Ship_Game.Ships;
 using System;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Empires;
 using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
@@ -13,7 +14,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        public CombatState CombatState = CombatState.AttackRuns;
+        [StarData] public CombatState CombatState = CombatState.AttackRuns;
         public CombatAI CombatAI;
 
         public Ship[] PotentialTargets = Empty<Ship>.Array;
@@ -25,15 +26,15 @@ namespace Ship_Game.AI
         float EnemyScanTimer;
         float FriendScanTimer;
 
-        public Ship EscortTarget;
+        [StarData] public Ship EscortTarget;
         public Planet ExterminationTarget;
 
-        public Ship Target;
-        public Array<Ship> TargetQueue = new Array<Ship>();
+        [StarData] public Ship Target;
+        public Array<Ship> TargetQueue = new();
         float TriggerDelay;
-        Array<Ship> ScannedTargets = new Array<Ship>();
-        Array<Ship> ScannedFriendlies = new Array<Ship>();
-        Array<Projectile> ScannedProjectiles = new Array<Projectile>();
+        Array<Ship> ScannedTargets = new();
+        Array<Ship> ScannedFriendlies = new();
+        Array<Projectile> ScannedProjectiles = new();
 
         void InitializeTargeting()
         {
@@ -128,7 +129,7 @@ namespace Ship_Game.AI
                 OnlyLoyalty = sensorShip.Loyalty,
             };
 
-            GameObject[] friends = sensorShip.Universe.Spatial.FindNearby(ref findFriends);
+            SpatialObjectBase[] friends = sensorShip.Universe.Spatial.FindNearby(ref findFriends);
             
             for (int i = 0; i < friends.Length; ++i)
             {
@@ -160,7 +161,7 @@ namespace Ship_Game.AI
                 ExcludeLoyalty = us,
             };
 
-            GameObject[] enemies = sensorShip.Universe.Spatial.FindNearby(ref findEnemies);
+            SpatialObjectBase[] enemies = sensorShip.Universe.Spatial.FindNearby(ref findEnemies);
 
             for (int i = 0; i < enemies.Length; ++i)
             {
@@ -173,15 +174,15 @@ namespace Ship_Game.AI
                 // update two-way visibility,
                 // enemy is known by our Empire - this information is used by our Empire later
                 // the enemy itself does not care about it
-                enemy.KnownByEmpires.SetSeen(us);
-                // and our ship has seen nearbyShip
+                us.AI.ThreatMatrix.SetSeen(enemy, fromBackgroundThread:true);
+                // and our ship has seen other empire
                 sensorShip.HasSeenEmpires.SetSeen(other);
 
                 if (!us.IsKnown(other))
                 {
-                    us.SetReadyForFirstContact(other);
+                    us.FirstContact.SetReadyForContact(other);
                 }
-                if (us.IsEmpireScannedAsEnemy(other, enemy))
+                if (us.IsEmpireAttackable(other, enemy, scanOnly:true))
                 {
                     BadGuysNear = true;
                     ScannedTargets.Add(enemy);
@@ -220,7 +221,7 @@ namespace Ship_Game.AI
                 }
             };
 
-            GameObject[] missiles = sensorShip.Universe.Spatial.FindNearby(ref opt);
+            SpatialObjectBase[] missiles = sensorShip.Universe.Spatial.FindNearby(ref opt);
             for (int i = 0; i < missiles.Length; ++i)
                 ScannedProjectiles.Add((Projectile)missiles[i]);
 
@@ -431,7 +432,7 @@ namespace Ship_Game.AI
             if (tgt.AI.Target == Owner && distance < tgt.DesiredCombatRange) // prefer enemies targeting us (within range)
                 value *= 2.0f;
             if (tgt.Resupplying) // lower priority to enemies that are retreating
-                value *= 0.1f;
+                value *= 0.75f;
 
             float relDist = (distance / Owner.DesiredCombatRange) * 10;
             value /= relDist; // prefer targets that are closer, but in 50m increments
@@ -618,7 +619,7 @@ namespace Ship_Game.AI
             }
 
             // always override the combat state
-            State = combatState;
+            ChangeAIState(combatState);
 
             // check if DoCombat is already the first ShipGoal
             switch (OrderQueue.PeekFirst?.Plan)

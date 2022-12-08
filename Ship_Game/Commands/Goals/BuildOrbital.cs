@@ -5,62 +5,34 @@ using Ship_Game.Ships;
 using System;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.Universe;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
-    class BuildOrbital : Goal
+    [StarDataType]
+    class BuildOrbital : DeepSpaceBuildGoal
     {
-        public const string ID = "BuildOrbital";
-        public override string UID => ID;
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
 
-        public BuildOrbital(int id, UniverseState us)
-            : base(GoalType.BuildOrbital, id, us)
+        [StarDataConstructor]
+        public BuildOrbital(Empire owner) : base(GoalType.BuildOrbital, owner)
         {
             Steps = new Func<GoalStep>[]
             {
-                BuildConstructor,
                 WaitForShipBuilt,
                 OrderDeployOrbital,
                 WaitForDeployment
             };
         }
 
-        public BuildOrbital(Planet planet, string toBuildName, Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public BuildOrbital(Planet planet, string toBuildName, Empire owner) : this(owner)
         {
-            ToBuildUID       = toBuildName;
             PlanetBuildingAt = planet;
-            empire           = owner;
-            TetherPlanetId   = planet.Id;
-            Evaluate();
-        }
-
-        GoalStep BuildConstructor()
-        {
-            if (PlanetBuildingAt.Owner != empire)
-                return GoalStep.GoalFailed;
-
-            if (!ResourceManager.GetShipTemplate(ToBuildUID, out Ship orbital))
-            {
-                Log.Error($"BuildOrbital: no orbital to build with uid={ToBuildUID ?? "null"}");
-                return GoalStep.GoalFailed;
-            }
-
-            string constructorId = empire.data.ConstructorShip;
-            if (!ResourceManager.Ships.GetDesign(constructorId, out ShipToBuild))
-            {
-                if (!ResourceManager.Ships.GetDesign(empire.data.DefaultConstructor, out ShipToBuild))
-                {
-                    Log.Error($"BuildOrbital: no construction ship with uid={constructorId}");
-                    return GoalStep.GoalFailed;
-                }
-            }
-
-            PlanetBuildingAt.Construction.Enqueue(orbital, ShipToBuild, this);
-            return GoalStep.GoToNextStep;
+            Initialize(toBuildName, Vector2.Zero, planet, Vector2.Zero);
+            IShipDesign constructor = BuildableShip.GetConstructor(Owner);
+            PlanetBuildingAt.Construction.Enqueue(QueueItemType.Orbital, ToBuild, constructor, rush: false, this);
         }
 
         GoalStep OrderDeployOrbital()
@@ -68,7 +40,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (FinishedShip == null)
                 return GoalStep.GoalFailed; // Ship was removed or destroyed
 
-            BuildPosition = FindNewOrbitalLocation();
+            StaticBuildPos = FindNewOrbitalLocation();
             FinishedShip.AI.OrderDeepSpaceBuild(this);
             return GoalStep.GoToNextStep;
         }
@@ -83,29 +55,25 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         Vector2 FindNewOrbitalLocation()
         {
             const int ringLimit = ShipBuilder.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
-            //save game compatibility hack to make up for the missing tether target in save.
-            //remove this later
-            if (TetherPlanetId == 0)
-                TetherPlanetId = PlanetBuildingAt.Id;
             for (int ring = 0; ring < ringLimit; ring++)
             {
-                int degrees    = (int)RandomMath.Float(0f, 9f);
-                float distance = 2000 + (1000 * ring * GetTetherPlanet.Scale);
-                TetherOffset    = MathExt.PointOnCircle(degrees * 40, distance);
-                Vector2 pos = GetTetherPlanet.Position + TetherOffset;
+                int degrees = (int)RandomMath.Float(0f, 9f);
+                float distance = 2000 + (1000 * ring * TetherPlanet.Scale);
+                TetherOffset = MathExt.PointOnCircle(degrees * 40, distance);
+                Vector2 pos = TetherPlanet.Position + TetherOffset;
                 if (BuildPositionFree(pos))
                     return pos;
 
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
                 {
                     TetherOffset = MathExt.PointOnCircle(i * 40, distance);
-                    pos = GetTetherPlanet.Position + TetherOffset;
+                    pos = TetherPlanet.Position + TetherOffset;
                     if (BuildPositionFree(pos))
                         return pos;
                 }
             }
 
-            return GetTetherPlanet.Position; // There is a limit on orbitals number
+            return TetherPlanet.Position; // There is a limit on orbitals number
         }
 
         bool BuildPositionFree(Vector2 position)
@@ -115,9 +83,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool IsOrbitalAlreadyPresentAt(Vector2 position)
         {
-            foreach (Ship orbital in GetTetherPlanet.OrbitalStations)
+            foreach (Ship orbital in TetherPlanet.OrbitalStations)
             {
-                empire.Universum?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
+                Owner.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                     orbital.Position, 1000, Color.LightCyan, 10.0f);
                 if (position.InRadius(orbital.Position, 1000))
                     return true;
@@ -129,12 +97,13 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         // Checks if a Construction Ship is due to deploy a structure at a point
         bool IsOrbitalPlannedAt(Vector2 position)
         {
-            var ships = empire.OwnedShips;
+            var ships = Owner.OwnedShips;
             foreach (Ship ship in ships.Filter(s => s.IsConstructor))
             {
-                if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) && g.Goal.TetherPlanetId == TetherPlanetId)
+                if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) &&
+                    g.Goal is BuildOrbital bo && bo.TetherPlanet == TetherPlanet)
                 {
-                    empire.Universum?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
+                    Owner.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                         g.Goal.BuildPosition, 1000, Color.LightCyan, 10.0f);
                     if (position.InRadius(g.Goal.BuildPosition, 1000))
                         return true;

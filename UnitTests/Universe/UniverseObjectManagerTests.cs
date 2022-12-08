@@ -25,9 +25,10 @@ namespace UnitTests.Universe
         public void SpawnedShipIsAddedToEmpireAndUniverse()
         {
             var spawnedShip = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            UState.Objects.EnableParallelUpdate = false;
             RunObjectsSim(TestSimStep);
-            Assert.AreEqual(Player.OwnedShips.Count, 1, "Ship was not added to Player's Empire OwnedShips");
             Assert.IsTrue(UState.Objects.ContainsShip(spawnedShip.Id), "Ship was not added to UniverseObjectManager");
+            Assert.IsTrue(Player.OwnedShips.Contains(spawnedShip), "Ship was not added to Player's Empire OwnedShips");
         }
 
         [TestMethod]
@@ -36,8 +37,8 @@ namespace UnitTests.Universe
             IShipDesign design = ResourceManager.Ships.GetDesign("Vulcan Scout");
             var mustNotBeAddedToEmpireOrUniverse = new DesignShip(UState, design as ShipDesign);
             RunObjectsSim(TestSimStep);
-            Assert.AreEqual(0, Player.OwnedShips.Count, "DesignShip should not be added to Player's Empire OwnedShips");
-            Assert.AreEqual(0, UState.Objects.NumShips, "DesignShip should not be added to UniverseObjectManager");
+            AssertEqual(0, Player.OwnedShips.Count, "DesignShip should not be added to Player's Empire OwnedShips");
+            AssertEqual(0, UState.Objects.NumShips, "DesignShip should not be added to UniverseObjectManager");
         }
 
         [TestMethod]
@@ -50,8 +51,8 @@ namespace UnitTests.Universe
             var emptyTemplate = new DesignShip(UState, design);
             var mustNotBeAddedToEmpireOrUniverse = Ship.CreateShipAtPoint(UState, emptyTemplate, Player, Vector2.Zero);
             RunObjectsSim(TestSimStep);
-            Assert.AreEqual(0, Player.OwnedShips.Count, "Ship with empty modules should not be added to Player's Empire OwnedShips");
-            Assert.AreEqual(0, UState.Objects.NumShips, "Ship with empty modules should not be added to UniverseObjectManager");
+            AssertEqual(0, Player.OwnedShips.Count, "Ship with empty modules should not be added to Player's Empire OwnedShips");
+            AssertEqual(0, UState.Objects.NumShips, "Ship with empty modules should not be added to UniverseObjectManager");
         }
     }
 }

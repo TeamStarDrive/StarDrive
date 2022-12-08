@@ -66,9 +66,9 @@ namespace Ship_Game
 
         public override void Update(float fixedDeltaTime)
         {
-            SaveButton.Enabled = SavedGame.NotSaving;
-            SavingText.Enabled = SavedGame.IsSaving;
-            if (SavedGame.IsSaving)
+            SaveButton.Enabled = !Universe.IsSaving;
+            SavingText.Enabled = Universe.IsSaving;
+            if (Universe.IsSaving)
             {
                 SavingText.Color = CurrentFlashColor;
             }
@@ -90,14 +90,14 @@ namespace Ship_Game
 
         void Save_OnClick(UIButton button)
         {
-            if (SavedGame.NotSaving) // no save in progress
+            if (!Universe.IsSaving) // no save in progress
                 ScreenManager.AddScreen(new SaveGameScreen(Universe));
             else GameAudio.NegativeClick();
         }
 
         void Load_OnClick(UIButton button)
         {
-            if (SavedGame.NotSaving)
+            if (!Universe.IsSaving)
             {
                 ExitScreen(); // exit before opening new screen
                 ScreenManager.AddScreen(new LoadSaveScreen(Universe));
@@ -130,7 +130,7 @@ namespace Ship_Game
 
         void Exit_OnClick(UIButton button)
         {
-            if (SavedGame.NotSaving) StarDriveGame.Instance.Exit();
+            if (!Universe.IsSaving) StarDriveGame.Instance.Exit();
             else GameAudio.NegativeClick();
         }
     }

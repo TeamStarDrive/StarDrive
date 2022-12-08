@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
@@ -11,12 +10,19 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
+    /// <summary>
+    /// A tech entry which is bound to a specific Faction's tech tree.
+    /// It references a `Technology` template via `UID`
+    /// </summary>
     [StarDataType]
-    public sealed class TechEntry : IEquatable<TechEntry>
+    public sealed class TechEntry
     {
+        public static readonly TechEntry None = new("");
+
         [StarData] public string UID;
         [StarData] public float Progress;
         [StarData] public bool Discovered;
+
         // true if Tech has been unlocked at least once (multi-level tech Level > 0)
         [StarData] public bool Unlocked;
         [StarData] public int Level;
@@ -24,76 +30,41 @@ namespace Ship_Game
         [StarData] public bool shipDesignsCanuseThis = true;
         [StarData] public Array<string> WasAcquiredFrom;
 
+        public Technology Tech { get; private set; }
+        public Array<string> ConqueredSource = new();
+        readonly Map<TechnologyType, float> TechTypeCostLookAhead = new();
 
-        public bool Locked => !Unlocked;
+        public override string ToString()
+            => $"TechEntry {UID}: Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched}";
 
         /// Can this tech be researched further?
         /// For multi-level techs this will be true when Level > 0 and until Level >= MaxLevel
         public bool CanBeResearched => !Unlocked || (0 < Level && Level < MaxLevel);
-
         public bool MultiLevelComplete => Level == MaxLevel && MaxLevel > 1 || MaxLevel == 1;
 
-        /// <summary>
-        /// Checks if list  contains restricted trade type. 
-        /// </summary>
-        private bool AllowRacialTrade(Empire us, Empire them)
-        {
-            return us.GetRelations(them).AllowRacialTrade();
-        }
+        public float PercentResearched => Progress / TechCost;
+        public bool IsRoot => Tech.IsRootNode;
+        public TechnologyType TechnologyType => Tech.TechnologyTypes.First();
+        public bool IsTechnologyType(TechnologyType type) => Tech.TechnologyTypes.Contains(type);
+        public int MaxLevel => Tech.MaxLevel;
+        public float MultiLevelCostMultiplier => Tech.MultiLevelCostMultiplier;
+        public bool IsMultiLevel => Tech.MaxLevel > 1;
+        public bool Locked => !Unlocked;
 
-        [XmlIgnore][JsonIgnore]
         public float TechCost
         {
             get
             {
-                float cost      = Tech.ActualCost;
+                float cost = Tech.ActualCost;
                 float techLevel = (float)Math.Max(1, Math.Pow(MultiLevelCostMultiplier, Level.UpperBound(MaxLevel-1)));
-                int rootTech    = Tech.RootNode * 100;
+                int rootTech = Tech.IsRootNode ? 100 : 0;
                 return cost * (techLevel + rootTech);
             }
         }
 
-        [XmlIgnore][JsonIgnore]
-        public float PercentResearched => Progress / TechCost;
-
-        // add initializer for tech
-        [XmlIgnore][JsonIgnore]
-        public Technology Tech { get; private set; }
-
-        [XmlIgnore][JsonIgnore]
-        public bool IsRoot => Tech.RootNode == 1;
-
-        [XmlIgnore][JsonIgnore]
-        public Array<string> ConqueredSource = new Array<string>();
-
-        [XmlIgnore][JsonIgnore]
-        public TechnologyType TechnologyType => Tech.TechnologyTypes.First();
-
-        public bool IsTechnologyType(TechnologyType type) => Tech.TechnologyTypes.Contains(type);
-
-        [XmlIgnore][JsonIgnore]
-        public int MaxLevel => Tech.MaxLevel;
-
-        [XmlIgnore][JsonIgnore]
-        public float MultiLevelCostMultiplier => Tech.MultiLevelCostMultiplier;
-
-        [XmlIgnore][JsonIgnore]
-        public bool IsMultiLevel => Tech.MaxLevel > 1;
-
-        [XmlIgnore][JsonIgnore]
-        readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new Dictionary<TechnologyType, float>();
-
-        public static readonly TechEntry None = new TechEntry("");
-
-        public override string ToString()
-            => $"TechEntry Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched} {UID}";
-
         public TechEntry()
         {
-            WasAcquiredFrom = new Array<string>();
-            if (AcquiredFrom.NotEmpty())
-                WasAcquiredFrom.AddUnique(AcquiredFrom);
-
+            WasAcquiredFrom = new();
             foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
                 TechTypeCostLookAhead.Add(techType, 0);
         }
@@ -104,9 +75,30 @@ namespace Ship_Game
             ResolveTech();
         }
 
+        public TechEntry(TechEntry clone)
+        {
+            UID = clone.UID;
+            Progress = clone.Progress;
+            Discovered = clone.Discovered;
+            Unlocked = clone.Unlocked;
+            Level = clone.Level;
+            AcquiredFrom = clone.AcquiredFrom;
+            shipDesignsCanuseThis = clone.shipDesignsCanuseThis;
+            WasAcquiredFrom = new(clone.WasAcquiredFrom);
+            Tech = clone.Tech;
+            ConqueredSource = new(clone.ConqueredSource);
+            TechTypeCostLookAhead = new(clone.TechTypeCostLookAhead);
+        }
+
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+            ResolveTech();
+        }
+
         public void ResolveTech()
         {
-            Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;
+            Tech = UID.NotEmpty() ? ResourceManager.Tech(UID) : Technology.Dummy;
         }
 
         /// <summary>
@@ -225,6 +217,12 @@ namespace Ship_Game
 
         public bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
         public bool SpiedFromAnyBut(Empire them) => WasAcquiredFrom.Count > 1 && !WasAcquiredFrom.Contains(them.data.Traits.ShipType);
+        
+        /// <summary>Checks if list  contains restricted trade type</summary>
+        static bool AllowRacialTrade(Empire us, Empire them)
+        {
+            return us.GetRelations(them).AllowRacialTrade();
+        }
 
         public bool TheyCanUseThis(Empire us, Empire them)
         {
@@ -337,7 +335,7 @@ namespace Ship_Game
         {
             //Added by McShooterz: Race Specific modules
             foreach (Technology.UnlockedMod unlockedMod in GetUnlockableModules(them))
-                us.UnlockEmpireShipModule(unlockedMod.ModuleUID, UID);
+                us.UnlockEmpireShipModule(unlockedMod.ModuleUID);
         }
 
         public void UnlockTroops(Empire us, Empire them)
@@ -369,9 +367,9 @@ namespace Ship_Game
                     if (!CheckSource(type, empire))
                     {
                         if (triggeredEvent.CustomMessage != null)
-                            empire.Universum.Notifications.AddNotify(triggeredEvent, triggeredEvent.CustomMessage);
+                            empire.Universe.Notifications.AddNotify(triggeredEvent, triggeredEvent.CustomMessage);
                         else
-                            empire.Universum.Notifications.AddNotify(triggeredEvent);
+                            empire.Universe.Notifications.AddNotify(triggeredEvent);
                         triggered = true;
                     }
                 }
@@ -418,8 +416,7 @@ namespace Ship_Game
             if (Unlocked)
                 return false;
 
-            Progress = Tech.ActualCost;
-            Unlocked = true;
+            ForceFullyResearched();
             return true;
         }
 
@@ -443,7 +440,7 @@ namespace Ship_Game
             bool wasUnlocked = TrySetUnlocked();
             UnlockTechContentOnly(us, us, bonusUnlock: wasUnlocked);
 
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in us.Universe.MajorEmpires)
             {
                 if (e.data.AbsorbedBy == us.data.Traits.Name)
                     UnlockTechContentOnly(us, e, false);
@@ -588,7 +585,7 @@ namespace Ship_Game
             if (Locked)
                 return;
 
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in us.Universe.MajorEmpires)
             {
                 if (e.data.AbsorbedBy == us.data.Traits.Name)
                     UnlockFromSave(us, e, true);
@@ -676,7 +673,7 @@ namespace Ship_Game
                 }
             }
             
-            if (Tech.Secret && Tech.RootNode == 0)
+            if (Tech.Secret && !Tech.IsRootNode)
             {
                 foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
                 {
@@ -716,16 +713,17 @@ namespace Ship_Game
         public TechEntry DiscoverToRoot(Empire empire)
         {
             TechEntry tech = this;
-            while (tech.Tech.RootNode != 1)
+            while (!tech.Tech.IsRootNode)
             {
                 var rootTech = tech.GetPreReq(empire);
                 if (rootTech == null)
                     break;
 
                 rootTech.SetDiscovered(empire, false);
-                if ((tech = rootTech).Tech.RootNode == 1 && tech.Discovered)
+                tech = rootTech;
+                if (tech.Tech.IsRootNode && tech.Discovered)
                 {
-                    rootTech.Unlocked = true;
+                    rootTech.ForceFullyResearched();
                     return rootTech;
                 }
             }
@@ -734,16 +732,16 @@ namespace Ship_Game
 
         public TechEntry GetPreReq(Empire empire)
         {
-            foreach (var keyValuePair in empire.TechnologyDict)
+            foreach (TechEntry entry in empire.TechEntries)
             {
-                Technology technology = keyValuePair.Value.Tech;
-                foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
+                foreach (Technology.LeadsToTech leadsToTech in entry.Tech.LeadsTo)
                 {
-                    if (leadsToTech.UID != UID) continue;
-                    if (keyValuePair.Value.Tech.RootNode ==1 || !keyValuePair.Value.IsHidden(empire))
-                        return keyValuePair.Value;
-
-                    return keyValuePair.Value.GetPreReq(empire);
+                    if (leadsToTech.UID == UID)
+                    {
+                        if (entry.Tech.IsRootNode || !entry.IsHidden(empire))
+                            return entry;
+                        return entry.GetPreReq(empire);
+                    }
                 }
             }
             return null;
@@ -775,17 +773,17 @@ namespace Ship_Game
             return null;
         }
 
-        public TechEntry[] GetPlayerChildEntries()
+        public TechEntry[] GetPlayerChildEntries(Empire player)
         {
-            return Tech.Children.Select(EmpireManager.Player.GetTechEntry);
+            return Tech.Children.Select(player.GetTechEntry);
         }
 
-        public Array<TechEntry> GetFirstDiscoveredEntries()
+        public Array<TechEntry> GetFirstDiscoveredEntries(Empire player)
         {
             var entries = new Array<TechEntry>();
-            foreach (TechEntry child in GetPlayerChildEntries())
+            foreach (TechEntry child in GetPlayerChildEntries(player))
             {
-                TechEntry discovered = child.FindNextDiscoveredTech(EmpireManager.Player);
+                TechEntry discovered = child.FindNextDiscoveredTech(player);
                 if (discovered != null) entries.Add(discovered);
             }
             return entries;
@@ -979,24 +977,6 @@ namespace Ship_Game
                 case "Hull Strengthening":
                 case "Module HP Bonus": empire.ApplyModuleHealthTechBonus(unlockedBonus.Bonus); break;
             }
-        }
-
-        public bool Equals(TechEntry other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return UID == other.UID;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is TechEntry other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            // ReSharper disable once NonReadonlyMemberInGetHashCode
-            return UID.GetHashCode();
         }
     }
 }

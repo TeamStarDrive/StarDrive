@@ -4,9 +4,10 @@ using Ship_Game.AI.Budget;
 using System;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI.Compnonents;
+using Ship_Game.AI.Components;
 using Ship_Game.Gameplay;
-using static Ship_Game.AI.Compnonents.BudgetPriorities;
+using static Ship_Game.AI.Components.BudgetPriorities;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.AI
 {
@@ -18,8 +19,17 @@ namespace Ship_Game.AI
     /// some areas like civilian freighter budget is not restrictive. It is used to allow the empire to track the money spent in that area.
     /// most budget areas are not hard restricted. There will be some wiggle room or outright relying on stored money.
     /// </summary>
+    /// 
+    using static HelperFunctions;
     public sealed partial class EmpireAI
     {
+
+        [StarData] public float SSPBudget;
+        [StarData] public float SpyBudget;
+        [StarData] public float FreightBudget;
+        [StarData] public float ColonyBudget;
+        [StarData] public float DefenseBudget;
+        [StarData] public float TerraformBudget;
         /// <summary>
         /// value from 0 to 1+
         /// This represents the overall threat to the empire. It is calculated from the EmpireRiskAssessment class.
@@ -35,14 +45,13 @@ namespace Ship_Game.AI
         public bool SafeToRush => CreditRating > 0.75f;
 
         // Empire spaceDefensive Reserves high enough to support fractional build budgets
-        public bool EmpireCanSupportSpcDefense => OwnerEmpire.data.DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.90f;
+        public bool EmpireCanSupportSpcDefense => DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.90f;
 
         /// <summary>
         /// This is the budgeted amount of money that will be available to empire looking over 20 years.
         /// </summary>
         public float ProjectedMoney { get; private set; } = 0;
 
-        BudgetPriorities BudgetSettings;
         /// <summary>
         /// This a ratio of projectedMoney and the normalized money then multiplied by 2 then add 1 - taxrate
         /// then the whole thing divided by 3. This puts a large emphasis on money goal to money ratio
@@ -52,7 +61,7 @@ namespace Ship_Game.AI
         {
             get
             {
-                float normalMoney = OwnerEmpire.NormalizedMoney;
+                float normalMoney = OwnerEmpire.Money;
                 float goalRatio = normalMoney / ProjectedMoney;
 
                 return (goalRatio.UpperBound(1) * 3 + (1 - OwnerEmpire.data.TaxRate)) / 4f;
@@ -85,22 +94,14 @@ namespace Ship_Game.AI
         public void RunEconomicPlanner(bool fromSave = false)
         {
             float money = OwnerEmpire.Money;
-            if (!fromSave)
-            {
-                OwnerEmpire.UpdateNormalizedMoney(money);
-            }
-
-            float normalizedBudget = OwnerEmpire.NormalizedMoney;
-            normalizedBudget = money < 0 ? money : normalizedBudget;
-
-            float treasuryGoal = TreasuryGoal(normalizedBudget);
+            float treasuryGoal = TreasuryGoal(money);
             ProjectedMoney = treasuryGoal;
             AutoSetTaxes(ProjectedMoney, money);
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources.
             // its primarily geared at ship building.
             float riskLimit = (CreditRating * 2).Clamped(0.1f, 2);
-            float gameState = ThreatLevel = GetRisk(riskLimit);
+            ThreatLevel = GetRisk(riskLimit);
 
             // the values below are now weights to adjust the budget areas.
             float defense = BudgetSettings.GetBudgetFor(BudgetAreas.Defense);
@@ -108,66 +109,66 @@ namespace Ship_Game.AI
             float build   = BudgetSettings.GetBudgetFor(BudgetAreas.Build);
             float spy     = BudgetSettings.GetBudgetFor(BudgetAreas.Spy);
             float colony  = BudgetSettings.GetBudgetFor(BudgetAreas.Colony);
-            float savings = BudgetSettings.GetBudgetFor(BudgetAreas.Savings);
+            float terraform = BudgetSettings.GetBudgetFor(BudgetAreas.Terraform);
+            float savings   = BudgetSettings.GetBudgetFor(BudgetAreas.Savings);
 
             // for the player they don't use some budgets. so distribute them to areas they do
             // spy budget is a special case currently and is not distributed.
             if (OwnerEmpire.isPlayer)
             {
-                float budgetBalance = (build) / 3f;
+                float budgetBalance = (build + spy) / 2f;
                 defense            += budgetBalance;
                 colony             += budgetBalance;
                 SSP                += budgetBalance;
             }
 
-            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(treasuryGoal, defense, gameState);
-            OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal, SSP);
-            BuildCapacity                  = DetermineBuildCapacity(treasuryGoal, gameState, build);
-            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(treasuryGoal, spy);
-            OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal * 0.5f, colony);
+            DefenseBudget   = ExponentialMovingAverage(DefenseBudget, DetermineDefenseBudget(treasuryGoal, defense, ThreatLevel));
+            SSPBudget       = ExponentialMovingAverage(SSPBudget, DetermineSSPBudget(treasuryGoal, SSP));
+            BuildCapacity   = ExponentialMovingAverage(BuildCapacity, DetermineBuildCapacity(treasuryGoal, ThreatLevel, build));
+            SpyBudget       = ExponentialMovingAverage(SpyBudget, DetermineSpyBudget(treasuryGoal, spy));
+            ColonyBudget    = ExponentialMovingAverage(ColonyBudget, DetermineColonyBudget(treasuryGoal, colony));
+            TerraformBudget = ExponentialMovingAverage(TerraformBudget, DetermineColonyBudget(treasuryGoal, terraform));
+
             PlanetBudgetDebugInfo();
             float allianceBudget = 0;
-            foreach (var ally in EmpireManager.GetAllies(OwnerEmpire)) allianceBudget += ally.GetEmpireAI().BuildCapacity;
+            foreach (var ally in OwnerEmpire.Universe.GetAllies(OwnerEmpire)) allianceBudget += ally.AI.BuildCapacity;
             AllianceBuildCapacity = BuildCapacity + allianceBudget;
         }
 
-        float DetermineDefenseBudget(float money, float percentOfMoney, float risk)
+        float DetermineDefenseBudget(float treasuryGoal, float percentOfMoney, float risk)
         {
-            float budget                   = SetBudgetForeArea(percentOfMoney, 1, money);
+            float budget = SetBudgetForArea(percentOfMoney, treasuryGoal, risk);
             return budget;
         }
 
-        float DetermineSSPBudget(float money, float percentOfMoney)
+        float DetermineSSPBudget(float treasuryGoal, float percentOfMoney)
         {
             var strat  = OwnerEmpire.Research.Strategy;
-            float risk = 1 + (strat.IndustryRatio + strat.ExpansionRatio);
-            risk      /= 5;
-            float debt = TreasuryProtection(money, 0.1f);
-            return SetBudgetForeArea(percentOfMoney, risk, money) * debt;
+            float risk = (1 + (strat.IndustryRatio + strat.ExpansionRatio)) * 0.5f;
+            return SetBudgetForArea(percentOfMoney, treasuryGoal, risk);
         }
 
-        float DetermineBuildCapacity(float money, float risk, float percentOfMoney)
+        float DetermineBuildCapacity(float treasuryGoal, float risk, float percentOfMoney)
         {
-            float buildBudget    = SetBudgetForeArea(percentOfMoney, risk, money);
+            float buildBudget    = SetBudgetForArea(percentOfMoney, treasuryGoal, risk);
             return buildBudget;
         }
 
-        float DetermineColonyBudget(float money, float percentOfMoney)
+        float DetermineColonyBudget(float treasuryGoal, float percentOfMoney)
         {
-            var budget = SetBudgetForeArea(percentOfMoney, 1, money);
+            var budget = SetBudgetForArea(percentOfMoney, treasuryGoal);
             return budget;
         }
 
-        float DetermineSpyBudget(float money, float percentOfMoney)
+        float DetermineSpyBudget(float treasuryGoal, float percentOfMoney)
         {
             if (OwnerEmpire.isPlayer)
                 return 0;
 
-            bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Rel.Known && !r.Them.isFaction);
+            bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Known && !r.Them.IsFaction);
             if (notKnown) return 0;
 
-            float trustworthiness = OwnerEmpire.data.DiplomaticPersonality?.Trustworthiness ?? 100;
-            trustworthiness      /= 100f;
+            float trustworthiness = (OwnerEmpire.data.DiplomaticPersonality?.Trustworthiness ?? 100) * 0.01f;
             float militaryRatio   = OwnerEmpire.Research.Strategy.MilitaryRatio;
 
             // it is possible that the number of agents can exceed the agent limit. That needs a whole other pr. So this hack to make things work.
@@ -179,15 +180,15 @@ namespace Ship_Game.AI
             float numAgents       = OwnerEmpire.data.AgentList.Count;
             float spyNeeds        = 1 + EmpireSpyLimit - numAgents.UpperBound(EmpireSpyLimit);
             spyNeeds              = spyNeeds.LowerBound(1);
-            float overSpend       = OverSpendRatio(money, treasuryToSave, spyNeeds);
-            float budget          = money * percentOfMoney * overSpend;
+            float overSpend       = OverSpendRatio(treasuryGoal, treasuryToSave, spyNeeds);
+            float budget          = treasuryGoal * percentOfMoney * overSpend;
 
             return budget;
         }
 
         private void PlanetBudgetDebugInfo()
         {
-            if (!OwnerEmpire.Universum.Debug)
+            if (!OwnerEmpire.Universe.Debug)
                 return;
 
             var pBudgets = new Array<PlanetBudget>();
@@ -229,27 +230,16 @@ namespace Ship_Game.AI
         /// </summary>
         public float OverSpendRatio(float treasuryGoal, float percentageOfTreasuryToSave, float maxRatio)
         {
-            float money    = OwnerEmpire.NormalizedMoney;
+            float money    = OwnerEmpire.Money;
             float treasury = treasuryGoal.LowerBound(1);
             float minMoney = money - treasury * percentageOfTreasuryToSave;
             float ratio    = (money + minMoney) / treasury.LowerBound(1);
             return ratio.Clamped(0f, maxRatio);
         }
 
-        /// <summary>
-        /// calculate treasury to money ratio as debt. if debt is under threshold then the ratio of debt to threshold.
-        /// eg debt under threshold return debt / threshold. else return 1
-        /// </summary>
-        public float TreasuryProtection(float treasury, float threshold, float minRatio = 0.5f)
-        {
-            float debt       = OverSpendRatio(treasury, 1.5f, 1);
-            float protection = debt < threshold ? (debt + minRatio) / (threshold + minRatio): 1;
-            return protection;
-        }
-
         private void AutoSetTaxes(float treasuryGoal, float money)
         {
-            if (OwnerEmpire.isPlayer && !OwnerEmpire.data.AutoTaxes)
+            if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoTaxes)
                 return;
 
             if (money <= 0)
@@ -288,25 +278,22 @@ namespace Ship_Game.AI
 
         public Array<PlanetBudget> PlanetBudgets;
 
-        private float SetBudgetForeArea(float percentOfIncome, float risk, float money)
+        float SetBudgetForArea(float percentOfIncome, float treasuryGoal, float risk = 1)
         {
-            risk         = OwnerEmpire.isPlayer ? 1 : risk;
-            float budget = money * percentOfIncome * risk;
+            float budget = treasuryGoal * percentOfIncome * (OwnerEmpire.isPlayer ? 1 : risk);
             return budget.LowerBound(1);
         }
 
-        public float GetRisk(float riskLimit = 2f)
+        public float GetRisk(float riskLimit)
         {
             float maxRisk    = 0;
             float econRisk   = 0;
             float borderRisk = 0;
             float enemyRisk  = 0;
 
-            foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations
+                         .Filter(rel => !rel.Them.IsDefeated && rel.Known && rel.Risk.Risk > 0))
             {
-                if (other.data.Defeated || !rel.Known) continue;
-                if (rel.Risk.Risk <= 0)
-                    continue;
                 maxRisk    = Math.Max(maxRisk, rel.Risk.Risk);
                 econRisk   = Math.Max(econRisk, rel.Risk.Expansion);
                 borderRisk = Math.Max(borderRisk, rel.Risk.Border);
@@ -318,9 +305,9 @@ namespace Ship_Game.AI
             BorderThreat   = borderRisk;
             EnemyThreat    = enemyRisk;
 
-            return Math.Min(maxRisk, riskLimit);
+            return maxRisk.Clamped(0.25f, riskLimit);
         }
 
-        public PlanetBudget PlanetBudget(Planet planet) => new PlanetBudget(planet);
+        public PlanetBudget PlanetBudget(Planet planet) => new(planet);
     }
 }

@@ -4,7 +4,6 @@
   <UID>Tractor Beam</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>400</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>691</NameIndex>
   <DescriptionIndex>692</DescriptionIndex>
   <LeadsTo>

@@ -7,7 +7,7 @@
   <IsCommodity>true</IsCommodity>
   <MaxFertilityOnBuild>0.15</MaxFertilityOnBuild>
   <PlusTerraformPoints>0.0007</PlusTerraformPoints>
-  <PlusFlatPopulation>10</PlusFlatPopulation>
+  <PlusFlatPopulation>4</PlusFlatPopulation>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   

@@ -4,7 +4,6 @@
   <UID>FrigateConstruction</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>480</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>568</NameIndex>
   <DescriptionIndex>569</DescriptionIndex>
   <LeadsTo>

@@ -1,19 +1,21 @@
 ﻿using System;
 using SDGraphics;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PirateRaidCombatShip : Goal
     {
-        public const string ID = "PirateRaidCombatShip";
-        public override string UID => ID;
-        private Pirates Pirates;
+        [StarData] public sealed override Ship TargetShip { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
 
-        public PirateRaidCombatShip(int id, UniverseState us)
-            : base(GoalType.PirateRaidCombatShip, id, us)
+        Pirates Pirates => Owner.Pirates;
+
+        [StarDataConstructor]
+        public PirateRaidCombatShip(Empire owner) : base(GoalType.PirateRaidCombatShip, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,20 +24,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateRaidCombatShip(Empire owner, Empire targetEmpire)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateRaidCombatShip(Empire owner, Empire targetEmpire) : this(owner)
         {
-            empire        = owner;
-            TargetEmpire  = targetEmpire;
-            StarDateAdded = empire.Universum.StarDate;
-
-            PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Combat Ship Raid vs. {targetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates = empire.Pirates;
+            TargetEmpire = targetEmpire;
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Combat Ship Raid vs. {targetEmpire.Name} ----");
         }
 
         public override bool IsRaid => true;
@@ -49,7 +42,7 @@ namespace Ship_Game.Commands.Goals
             {
                 combatShip.HyperspaceReturn();
                 TargetShip = combatShip;
-                if (Pirates.Level > TargetShip.TroopCount * 5 / ((int)CurrentGame.Difficulty).LowerBound(1) + TargetShip.Level)
+                if (Pirates.Level > TargetShip.TroopCount * 5 / ((int)UState.P.Difficulty).LowerBound(1) + TargetShip.Level)
                 {
                     TargetShip.Loyalty.AddMutinyNotification(TargetShip, GameText.MutinySucceeded, Pirates.Owner);
                     TargetShip.LoyaltyChangeFromBoarding(Pirates.Owner, false);
@@ -66,7 +59,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Try locating viable freighters for 1 year (10 turns), else just give up
-            return empire.Universum.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            return Owner.Universe.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()

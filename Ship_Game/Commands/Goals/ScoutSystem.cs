@@ -1,17 +1,18 @@
 ﻿using System;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class ScoutSystem : Goal
     {
-        public const string ID = "Scout System";
-        public override string UID => ID;
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
 
-        public ScoutSystem(int id, UniverseState us) : base(GoalType.ScoutSystem, id, us)
+        [StarDataConstructor]
+        public ScoutSystem(Empire owner) : base(GoalType.ScoutSystem, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,18 +24,12 @@ namespace Ship_Game.Commands.Goals
                 SniffAround
             };
         }
-        public ScoutSystem(Empire empire)
-            : this(empire.Universum.CreateId(), empire.Universum)
-        {
-            this.empire   = empire;
-            StarDateAdded = empire.Universum.StarDate;
-        }
 
         GoalStep DelayedStart()
         {
-            if (empire.Universum.StarDate - StarDateAdded > 5)
+            if (Owner.Universe.StarDate - StarDateAdded > 5)
             {
-                StarDateAdded = empire.Universum.StarDate;
+                StarDateAdded = Owner.Universe.StarDate;
                 return GoalStep.GoToNextStep;
             }
 
@@ -48,18 +43,15 @@ namespace Ship_Game.Commands.Goals
                 ChangeToStep(SelectSystem);
                 return GoalStep.TryAgain; 
             }
-            if (!empire.ChooseScoutShipToBuild(out IShipDesign scout))
+            if (!Owner.ChooseScoutShipToBuild(out IShipDesign scout))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, scout, out Planet planet))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, scout, out Planet planet))
                 return GoalStep.TryAgain;
 
-            var queue    = planet.Construction.GetConstructionQueue();
-            int priority = queue.Count > 0 && !planet.HasColonyShipFirstInQueue() && queue[0].ProductionNeeded > scout.GetCost(empire) * 2 ? 0 : 1;
-
-            planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
-            planet.Construction.PrioritizeShip(scout, priority, 2);
-
+            var queue = planet.Construction.GetConstructionQueue();
+            PlanetBuildingAt = planet;
+            planet.Construction.Enqueue(scout, QueueItemType.Scout, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
        
@@ -68,7 +60,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip == null)
                 return GoalStep.GoalFailed;
 
-            if (!empire.GetEmpireAI().ExpansionAI.AssignScoutSystemTarget(FinishedShip, out SolarSystem targetSystem))
+            if (!Owner.AI.ExpansionAI.AssignScoutSystemTarget(FinishedShip, out SolarSystem targetSystem))
                 return GoalStep.GoalFailed;
 
             FinishedShip.AI.OrderScout(targetSystem, this);

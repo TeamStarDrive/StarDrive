@@ -4,7 +4,6 @@
   <UID>Fleet Supply</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>566</NameIndex>
   <DescriptionIndex>567</DescriptionIndex>
   <LeadsTo>

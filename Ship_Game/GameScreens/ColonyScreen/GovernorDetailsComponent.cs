@@ -18,6 +18,7 @@ namespace Ship_Game
         private readonly GameScreen Screen;
         private readonly SubTexture PortraitShine = ResourceManager.Texture("Portraits/portrait_shine");
         private Planet Planet;
+        Empire Player => Planet.Universe.Player;
         private DrawableSprite PortraitSprite;
         private UIPanel Portrait;
         private UILabel WorldType, WorldDescription;
@@ -81,13 +82,13 @@ namespace Ship_Game
 
         public int CurrentTabIndex => Tabs.SelectedIndex;
 
-        public GovernorDetailsComponent(GameScreen screen, Planet p, in Rectangle rect, int selectedIndex = 0) : base(rect)
+        public GovernorDetailsComponent(GameScreen screen, Planet p, in RectF rect, int selectedIndex = 0) : base(rect)
         {
             Screen = screen;
             SetPlanetDetails(p, rect, selectedIndex);
         }
 
-        public void SetPlanetDetails(Planet p, in Rectangle rect, int selectedIndex = 0)
+        public void SetPlanetDetails(Planet p, in RectF rect, int selectedIndex = 0)
         {
             Log.Assert(p != null, "GovernorDetailsComponent Planet cannot be null");
             if (Planet == p || p == null)
@@ -137,7 +138,7 @@ namespace Ship_Game
             ColonyTypeList.AddOption(option:GameText.Research, Planet.ColonyType.Research);
             ColonyTypeList.AddOption(option:GameText.Military, Planet.ColonyType.Military);
             ColonyTypeList.AddOption(option:GameText.TradeHub, Planet.ColonyType.TradeHub);
-            ColonyTypeList.ActiveValue = Planet.colonyType;
+            ColonyTypeList.ActiveValue = Planet.CType;
             ColonyTypeList.OnValueChange = OnColonyTypeChanged;
 
             ButtonUpdateTimer    = 1;
@@ -204,10 +205,10 @@ namespace Ship_Game
             NoGovernorGrdExpense = Add(new UILabel(" ", FontBig, Color.DarkOrange));
             NoGovernorSpcExpense = Add(new UILabel(" ", FontBig, Color.SteelBlue));
 
-            Tabs = Add(new Submenu(rect));
-            Tabs.AddTab(GameText.Governor); // Governor
-            Tabs.AddTab(GameText.Defense2); // Defense
-            Tabs.AddTab(GameText.Budget); // Budget
+            Tabs = Add(new Submenu(rect, new LocalizedText[]
+            {
+                GameText.Governor, GameText.Defense2, GameText.Budget
+            }));
 
             if (selectedIndex < Tabs.NumTabs)
                 Tabs.SelectedIndex = selectedIndex;
@@ -309,7 +310,7 @@ namespace Ship_Game
 
         void OnColonyTypeChanged(Planet.ColonyType type)
         {
-            Planet.colonyType = type;
+            Planet.CType = type;
             WorldType.Text = Planet.WorldType;
             WorldDescription.Text = GetParsedDescription();
         }
@@ -334,9 +335,9 @@ namespace Ship_Game
                     BuildCapital.Visible = false; // This is for old save support. It can be removed post Mars.
 
                 // Not for trade hubs, which do not build structures anyway
-                GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer;
+                GovNoScrap.Visible = GovernorTabView && Planet.CType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer;
 
-                int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(EmpireManager.Player);
+                int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(Planet.Universe.Player);
                 Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
                 CallTroops.Visible        = DefenseTabView && Planet.OwnerIsPlayer;
                 LaunchSingleTroop.Visible = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 0;
@@ -423,9 +424,9 @@ namespace Ship_Game
         void DrawGovernorTab(SpriteBatch batch)
         {
             // Governor portrait overlay stuff
-            Portrait.Color = Planet.colonyType == Planet.ColonyType.Colony ? new Color(64, 64, 64) : Color.White;
+            Portrait.Color = Planet.CType == Planet.ColonyType.Colony ? new Color(64, 64, 64) : Color.White;
             Color borderColor;
-            switch (Planet.colonyType)
+            switch (Planet.CType)
             {
                 default:                             borderColor = Color.White; break;
                 case Planet.ColonyType.TradeHub:     borderColor = Color.Yellow; break;
@@ -482,7 +483,7 @@ namespace Ship_Game
 
         void OnSendTroopsClicked(UIButton b)
         {
-            if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, Planet.Position, Planet.Name))
+            if (Planet.Universe.Player.GetTroopShipForRebase(out Ship troopShip, Planet.Position, Planet.Name))
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderRebase(Planet, true);
@@ -504,7 +505,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in Planet.TilesList)
             {
-                if (pgs.TroopsAreOnTile && pgs.LockOnPlayerTroop(out Troop troop) && troop.CanLaunch)
+                if (pgs.TroopsAreOnTile && pgs.LockOnOurTroop(us:Player, out Troop troop) && troop.CanLaunch)
                 {
                     play = true;
                     troop.Launch(pgs);
@@ -522,7 +523,7 @@ namespace Ship_Game
 
         void OnLaunchSingleTroopClicked(UIButton b)
         {
-            var potentialTroops = Planet.TroopsHere.Filter(t => t.Loyalty == EmpireManager.Player && t.CanLaunch);
+            var potentialTroops = Planet.Troops.GetLaunchableTroops(Planet.Universe.Player).ToArr();
             if (potentialTroops.Length == 0)
                 GameAudio.NegativeClick();
             else
@@ -556,7 +557,7 @@ namespace Ship_Game
                 CallTroops.Style = ButtonStyle.Default;
             }
 
-            UpdateButtonText(LaunchAllTroops, Planet.TroopsHere.Count(t => t.CanMove), Localizer.Token(GameText.LaunchAllTroops));
+            UpdateButtonText(LaunchAllTroops, Planet.Troops.NumTroopsCanMoveFor(Planet.Owner), Localizer.Token(GameText.LaunchAllTroops));
         }
 
         void UpdateGovOrbitalStats()
@@ -725,7 +726,7 @@ namespace Ship_Game
 
         void OnBuildShipyardClick(UIButton b)
         {
-            Ship shipyard = ResourceManager.GetShipTemplate(Planet.Owner.data.DefaultShipyard);
+            IShipDesign shipyard = ResourceManager.Ships.GetDesign(Planet.Owner.data.DefaultShipyard);
 
             if (Planet.Owner.CanBuildShipyards && BuildOrbital(shipyard))
                 GameAudio.AffirmativeClick();
@@ -733,7 +734,7 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
         }
 
-        bool BuildOrbital(Ship orbital)
+        bool BuildOrbital(IShipDesign orbital)
         {
             if (orbital == null || Planet.IsOutOfOrbitalsLimit(orbital))
                 return false;

@@ -26,4 +26,8 @@
 
   <BarrenChance>10</BarrenChance>
   <BarrenInstanceMax>6</BarrenInstanceMax>
+
+  <VolcanicChance>100</VolcanicChance>
+  <VolcanicInstanceMin>5</VolcanicInstanceMin>
+  <VolcanicInstanceMax>12</VolcanicInstanceMax>
 </RandomItem>

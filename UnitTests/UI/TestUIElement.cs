@@ -57,20 +57,20 @@ namespace UnitTests.UI
             screen.Add(element);
 
             Game.Tick();
-            Assert.AreEqual(1, element.InputEvents);
-            Assert.AreEqual(0, element.MouseOverEvents);
-            Assert.AreEqual(1, element.UpdateEvents);
-            Assert.AreEqual(1, element.DrawEvents);
-            Assert.AreEqual(1, element.InputEventId, "Input Events must be before Update Events");
-            Assert.AreEqual(2, element.UpdateEventId, "Update Events must be before Draw Events");
-            Assert.AreEqual(3, element.DrawEventId, "Draw Events must be after Update Events");
+            AssertEqual(1, element.InputEvents);
+            AssertEqual(0, element.MouseOverEvents);
+            AssertEqual(1, element.UpdateEvents);
+            AssertEqual(1, element.DrawEvents);
+            AssertEqual(1, element.InputEventId, "Input Events must be before Update Events");
+            AssertEqual(2, element.UpdateEventId, "Update Events must be before Draw Events");
+            AssertEqual(3, element.DrawEventId, "Draw Events must be after Update Events");
             
             MockInput.MousePos = new Vector2(50, 50);
             Game.Tick();
-            Assert.AreEqual(2, element.InputEvents);
-            Assert.AreEqual(1, element.MouseOverEvents);
-            Assert.AreEqual(2, element.UpdateEvents);
-            Assert.AreEqual(2, element.DrawEvents);
+            AssertEqual(2, element.InputEvents);
+            AssertEqual(1, element.MouseOverEvents);
+            AssertEqual(2, element.UpdateEvents);
+            AssertEqual(2, element.DrawEvents);
         }
     }
 }

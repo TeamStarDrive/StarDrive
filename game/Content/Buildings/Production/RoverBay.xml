@@ -2,11 +2,11 @@
   <Name>Rover Bay</Name>
   <Icon>roverbay</Icon>
   
-  <Cost>125</Cost>
+  <Cost>90</Cost>
   <Maintenance>.5</Maintenance>
   
   <PlusFlatProductionAmount>1</PlusFlatProductionAmount>
-  <PlusProdPerRichness>0.5</PlusProdPerRichness>
+  <PlusProdPerRichness>0.25</PlusProdPerRichness>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>455</NameTranslationIndex>

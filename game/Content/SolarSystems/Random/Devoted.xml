@@ -1,0 +1,32 @@
+﻿<SolarSystemData>
+  <Name>Devoted</Name>
+  <SunPath>star_binary</SunPath>
+  <RingList>
+    <Ring>
+      <Planet>Leather</Planet>
+      <SpecialDescription>It was discovered years ago but the significance... Remains a mystery. The secrets it reveals appear to be endless. </SpecialDescription>
+      <WhichPlanet>9</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Squeezer</Planet>
+      <SpecialDescription>Ancient stargazers write in their journals of this planet. How could they know with such primitive tools so accurately what this planet held. Its a mystery that no answers come for. </SpecialDescription>
+      <WhichPlanet>11</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Kitaro</Planet>
+      <SpecialDescription>Rivers of flame. Seas of boiling acid. Underground mountains of shimmering gems. </SpecialDescription>
+      <WhichPlanet>37</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>KcGray</Planet>
+      <SpecialDescription>It was not seen. It was not heard. Yet it is here. </SpecialDescription>
+      <WhichPlanet>6</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Rojoh</Planet>
+      <SpecialDescription>The irregular orbit of this planet causes its tectonic plates to constantly shift resulting in odd noises. It's as if the planet was constantly nagging. </SpecialDescription>
+      <WhichPlanet>35</WhichPlanet>
+    </Ring>
+
+  </RingList>
+</SolarSystemData>

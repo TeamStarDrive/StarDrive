@@ -15,7 +15,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/Repairdrone</IconTexturePath>
-  <Mass>24</Mass>
+  <Mass>30</Mass>
   <Health>4000</Health>
   <HealthMax>4000</HealthMax>
   <energyreq>0</energyreq>

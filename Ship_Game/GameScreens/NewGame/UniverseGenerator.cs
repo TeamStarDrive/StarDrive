@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
-using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
@@ -21,7 +16,7 @@ namespace Ship_Game.GameScreens.NewGame
     public class UniverseGenerator
     {
         readonly int NumSystems;
-        readonly Array<Vector2> ClaimedSpots = new Array<Vector2>();
+        readonly Array<Vector2> ClaimedSpots = new();
         readonly RaceDesignScreen.GameMode Mode;
         readonly Empire Player;
         readonly GameDifficulty Difficulty;
@@ -33,19 +28,7 @@ namespace Ship_Game.GameScreens.NewGame
 
         readonly RandomBase Random;
 
-        public class Params
-        {
-            public EmpireData PlayerData;
-            public RaceDesignScreen.GameMode Mode;
-            public GalSize UniverseSize;
-            public int NumSystems;
-            public int NumOpponents;
-            public float StarNumModifier;
-            public float Pace;
-            public GameDifficulty Difficulty;
-        }
-
-        public UniverseGenerator(Params p)
+        public UniverseGenerator(UniverseParams p)
         {
             // TODO: allow players to enter their own universe seed
             Random = new SeededRandom();
@@ -57,11 +40,10 @@ namespace Ship_Game.GameScreens.NewGame
             Mode = p.Mode;
             NumOpponents = p.NumOpponents;
             NumSystems = p.NumSystems;
-            EmpireManager.Clear();
             ResourceManager.LoadEncounters();
 
             float uSize;
-            switch (p.UniverseSize)
+            switch (p.GalaxySize)
             {
                 default:
                 case GalSize.Tiny: uSize = 2_000_000; break;
@@ -73,18 +55,13 @@ namespace Ship_Game.GameScreens.NewGame
                 case GalSize.TrulyEpic: uSize = 20_000_000; break;
             }
 
-            us = new UniverseScreen(uSize);
+
+            us = new UniverseScreen(p, uSize);
             UState = us.UState;
-            UState.FTLModifier = GlobalStats.FTLInSystemModifier;
-            UState.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
-            UState.GravityWells = GlobalStats.PlanetaryGravityWells;
-            UState.FTLInNeutralSystems = GlobalStats.WarpInSystem;
-            UState.Difficulty = p.Difficulty;
-            UState.GalaxySize = p.UniverseSize;
             UState.BackgroundSeed = new Random().Next();
 
-            GlobalStats.DisableInhibitionWarning = UState.Difficulty > GameDifficulty.Hard;
-            CurrentGame.StartNew(UState, p.Pace, p.StarNumModifier, GlobalStats.ExtraPlanets, NumOpponents + 1); // +1 is the player empire
+            UState.P.DisableInhibitionWarning = p.Difficulty > GameDifficulty.Hard;
+
             Player = new Empire(UState)
             {
                 EmpireColor = p.PlayerData.Traits.Color,
@@ -99,8 +76,6 @@ namespace Ship_Game.GameScreens.NewGame
             Player.data.CurrentAutoColony = Player.data.ColonyShip;
             Player.data.CurrentAutoFreighter = Player.data.FreighterShip;
             Player.data.CurrentConstructor = Player.data.ConstructorShip;
-
-            StatTracker.Reset();
         }
 
         public readonly ProgressCounter Progress = new ProgressCounter();
@@ -139,14 +114,14 @@ namespace Ship_Game.GameScreens.NewGame
             foreach (Empire empire in UState.Empires)
             {
                 step.Advance();
-                if (empire.isFaction)
+                if (empire.IsFaction)
                     continue;
 
                 IReadOnlyList<Planet> planets = empire.GetPlanets();
                 for (int planetId = 0; planetId < planets.Count; planetId++)
                 {
                     Planet planet = planets[planetId];
-                    planet.MineralRichness += GlobalStats.StartingPlanetRichness;
+                    planet.MineralRichness += GlobalStats.Settings.StartingPlanetRichnessBonus;
                     planet.ParentSystem.SetExploredBy(empire);
                     planet.SetExploredBy(empire);
 
@@ -166,7 +141,7 @@ namespace Ship_Game.GameScreens.NewGame
 
             foreach (Empire e in UState.Empires)
             {
-                if (e.isFaction)
+                if (e.IsFaction)
                     continue;
 
                 e.InitFleetEmpireStrMultiplier();
@@ -187,7 +162,7 @@ namespace Ship_Game.GameScreens.NewGame
                 }
             }
 
-            EmpireHullBonuses.RefreshBonuses();
+            EmpireHullBonuses.RefreshBonuses(UState);
         }
 
         class SystemPlaceHolder
@@ -233,7 +208,7 @@ namespace Ship_Game.GameScreens.NewGame
 
             foreach (IEmpireData readOnlyData in opponents)
             {
-                Empire e = UState.CreateEmpire(readOnlyData, isPlayer: false);
+                Empire e = UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);
                 RacialTrait t = e.data.Traits;
 
                 e.data.FlatMoneyBonus += e.DifficultyModifiers.FlatMoneyBonus;
@@ -249,16 +224,14 @@ namespace Ship_Game.GameScreens.NewGame
 
             foreach (IEmpireData readOnlyData in ResourceManager.MinorRaces)
             {
-                UState.CreateEmpire(readOnlyData, isPlayer: false);
+                UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);
                 step.Advance();
             }
-
-            Empire.InitializeRelationships(UState.Empires, Difficulty);
         }
 
         void CreateSystemPlaceHolders(ProgressCounter step)
         {
-            Empire[] majorEmpires = UState.Empires.Filter(e => !e.isFaction);
+            Empire[] majorEmpires = UState.Empires.Filter(e => !e.IsFaction);
             
             step.Start(NumSystems + majorEmpires.Length);
 

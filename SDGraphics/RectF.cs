@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
 
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaRect = Microsoft.Xna.Framework.Rectangle;
@@ -19,11 +18,22 @@ public struct RectF
     public readonly float Right => X + W;
     public readonly float Bottom => Y + H;
     
+    public readonly Vector2 Pos => new(X,Y); // TopLeft
     public readonly Vector2 Center => new(X + W*0.5f, Y + H*0.5f);
+    public readonly float CenterX => X + W*0.5f;
+    public readonly float CenterY => Y + H*0.5f;
     public readonly Vector2 Size => new(W, H);
 
-    public readonly Vector2 TopLeft => new(X, Y);
-    public readonly Vector2 BotRight => new(X + W, Y + H);
+    public readonly Vector2 TopLeft  => new(X,   Y);
+    public readonly Vector2 TopRight => new(X+W, Y);
+    public readonly Vector2 BotLeft  => new(X,   Y+H);
+    public readonly Vector2 BotRight => new(X+W, Y+H);
+    
+    // Gets the averaged radius of this bounding box (not accurate)
+    public readonly float Radius => (W + H) * 0.25f;
+
+    // Length of the diagonal which crosses this AABB from TopLeft to BottomRight
+    public readonly float Diagonal => (float)Math.Sqrt(W*W + H*H);
 
     public override string ToString() => $"{{X:{X} Y:{Y} W:{W} H:{H}}}";
 
@@ -45,6 +55,14 @@ public struct RectF
         H = (float)h;
     }
 
+    public RectF(int x, int y, int w, int h)
+    {
+        X = x;
+        Y = y;
+        W = w;
+        H = h;
+    }
+
     public RectF(Vector2 pos, float w, float h)
     {
         X = pos.X;
@@ -59,6 +77,14 @@ public struct RectF
         Y = pos.Y;
         W = w;
         H = h;
+    }
+
+    public RectF(float x, float y, Vector2 size)
+    {
+        X = x;
+        Y = y;
+        W = size.X;
+        H = size.Y;
     }
 
     public RectF(Vector2 pos, Vector2 size)
@@ -212,4 +238,21 @@ public struct RectF
         float extrudeY = (H*extrude);
         return new RectF(X - extrudeX, Y - extrudeY, W + extrudeX*2, H + extrudeY*2);
     }
+
+    // Example: r.RelativeX(0.5) == r.CenterX()
+    //          r.RelativeX(1.0) == r.Right
+    [Pure] public readonly float RelativeX(float percent) => X + W*percent;
+    [Pure] public readonly float RelativeY(float percent) => Y + H*percent;
+
+    // Cut a chunk off the top of the rectangle
+    [Pure] public readonly RectF CutTop(int amount) => new(X, Y + amount, W, H - amount);
+    [Pure] public readonly RectF Widen(int widen) => new(X - widen, Y, W + widen * 2, H);
+    [Pure] public readonly RectF Move(float dx, float dy) => new(X + dx, Y + dy, W, H);
+
+    [Pure] public readonly RectF Bevel(float bevel)
+        => new(X - bevel, Y - bevel, W + bevel * 2, H + bevel * 2);
+    [Pure] public readonly RectF Bevel(float bevelX, float bevelY)
+        => new(X - bevelX, Y - bevelY, W + bevelX * 2, H + bevelY * 2);
+
+
 }

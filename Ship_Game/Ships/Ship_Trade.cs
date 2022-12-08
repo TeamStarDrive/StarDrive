@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
         public float TradeTimer = 300;
-        public bool TransportingColonists  { get; set; }
-        public bool TransportingFood       { get; set; }
-        public bool TransportingProduction { get; set; }
-        public bool AllowInterEmpireTrade  { get; set; }
-        public Array<int> TradeRoutes      { get; private set; } = new Array<int>();
+        [StarData] public bool TransportingColonists  { get; set; }
+        [StarData] public bool TransportingFood       { get; set; }
+        [StarData] public bool TransportingProduction { get; set; }
+        [StarData] public bool AllowInterEmpireTrade  { get; set; }
+        [StarData] public Array<int> TradeRoutes      { get; private set; } = new();
 
         public bool IsCandidateForTradingBuild => ShipData.IsCandidateForTradingBuild;
         public bool IsFreighter => ShipData.IsFreighter;
@@ -148,28 +149,17 @@ namespace Ship_Game.Ships
             return IsValidTradeRoute(planet) && InsideAreaOfOperation(planet);
         }
 
-        public float FreighterValue(Empire empire, float fastVsBig)
-        {
-            float warpK           = MaxFTLSpeed / 1000;
-            float movementWeight  = warpK + MaxSTLSpeed / 10 + RotationRadsPerSecond.ToDegrees() - GetCost(empire) / 5;
-            float cargoWeight     = CargoSpaceMax.Clamped(0, 80) - (float)SurfaceArea / 25;
-            float lowCargoPenalty = CargoSpaceMax < SurfaceArea * 0.5f ? CargoSpaceMax / SurfaceArea : 1;
-            float score           = movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
-
-            // For faster , cheaper ships vs big and maybe slower ships
-            return score * lowCargoPenalty;
-        }
-
         public void DownloadTradeRoutes(Array<int> tradeRoutes)
         {
             TradeRoutes = tradeRoutes.Clone();
         }
 
-        public float CheckExpectedGoods(Goods goods)
+        // # of goods that are being dropped off towards some destination
+        // 0 if no drop-off goal is present
+        public float GetGoodsBeingDroppedOff(Goods goods)
         {
             if (AI.FindGoal(ShipAI.Plan.DropOffGoods, out _))
                 return GetCargo(goods);
-
             return 0;
         }
     }

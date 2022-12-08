@@ -3,13 +3,12 @@
   <Version>2</Version>
   <UID>FighterTheory</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
-  <Cost>500</Cost>
-  <RootNode>0</RootNode>
+  <Cost>550</Cost>
   <NameIndex>564</NameIndex>
   <DescriptionIndex>565</DescriptionIndex>
   <LeadsTo>
     <LeadsToTech>
-      <UID>Ace Training</UID>
+      <UID>BattleRaiders</UID>
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>

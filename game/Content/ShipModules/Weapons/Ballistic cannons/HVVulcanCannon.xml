@@ -23,7 +23,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/HVVulcan</IconTexturePath>
-  <Mass>8</Mass>
+  <Mass>5</Mass>
   <Health>1200</Health>
   <HealthMax>1200</HealthMax>
   <Description>Hyper Velocity Vulcan Cannon</Description>

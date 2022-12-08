@@ -339,7 +339,7 @@ namespace Ship_Game
         public Color CurrentFlashColor => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
         public Color CurrentFlashColorRed => ApplyCurrentAlphaToColor(new Color(255, 0, 0));
 
-        protected Color ApplyCurrentAlphaToColor(Color color)
+        public Color ApplyCurrentAlphaToColor(Color color)
         {
             float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed)) * 255f;
             return new Color(color, (byte)f);
@@ -708,6 +708,14 @@ namespace Ship_Game
             Vector3d topLeft  = UnprojectToWorldPosition3D(new Vector2(screenR.X1, screenR.Y1));
             Vector3d botRight = UnprojectToWorldPosition3D(new Vector2(screenR.X2, screenR.Y2));
             return new AABoundingBox2Dd(topLeft, botRight);
+        }
+
+        public float UnprojectToWorldSize(float sizeOnScreen)
+        {
+            Vector3d left  = UnprojectToWorldPosition3D(new Vector2(-sizeOnScreen/2, 0));
+            Vector3d right = UnprojectToWorldPosition3D(new Vector2(+sizeOnScreen/2, 0));
+
+            return (float)left.Distance(right);
         }
 
         // Unprojects cursor screen pos to world 3D position

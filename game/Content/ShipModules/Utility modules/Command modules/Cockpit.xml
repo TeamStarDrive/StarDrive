@@ -19,7 +19,7 @@
 
   <IconTexturePath>Modules/Cockpit</IconTexturePath>
   <IsCommandModule>true</IsCommandModule>
-  <Mass>8</Mass>
+  <Mass>2</Mass>
   <Health>500</Health>
   <HealthMax>500</HealthMax>
   <energyreq>0</energyreq>
@@ -29,7 +29,7 @@
   <PowerDraw>2</PowerDraw>
   <BonusRepairRate>5</BonusRepairRate>
 
-  <SensorRange>20000</SensorRange>
+  <SensorRange>24000</SensorRange>
  <TargetTracking>2</TargetTracking>
 
   <NameIndex>922</NameIndex>

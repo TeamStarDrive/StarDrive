@@ -1,26 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
 
 namespace Ship_Game.Empires.Components
 {
+    [StarDataType]
     public class LoyaltyLists
     {
         // These are the actual ships arrays, it's safe to add/remove at any time
-        SafeArray<Ship> ActualOwnedShips      = new SafeArray<Ship>();
-        SafeArray<Ship> ActualOwnedProjectors = new SafeArray<Ship>();
-        readonly Empire Owner;
+        SafeArray<Ship> ActualOwnedShips      = new();
+        SafeArray<Ship> ActualOwnedProjectors = new();
         bool ShipListChanged;
         bool ProjecterListChanged;
 
-        public Ship[] OwnedShips { get; private set; } = Empty<Ship>.Array;
-        public Ship[] OwnedProjectors { get; private set; } = Empty<Ship>.Array;
+        [StarData] readonly Empire Owner;
 
+        // when iterating OwnedShips, you should first copy it to a temporary variable
+        // var ships = Lists.OwnedShips;
+        [StarData] public Ship[] OwnedShips { get; private set; } = Empty<Ship>.Array;
+        [StarData] public Ship[] OwnedProjectors { get; private set; } = Empty<Ship>.Array;
+
+        [StarDataConstructor]
         public LoyaltyLists(Empire empire)
         {
             Owner = empire;
+        }
+
+        [StarDataDeserialized]
+        void OnDeserialize()
+        {
+            ActualOwnedShips.AddRange(OwnedShips);
+            ActualOwnedProjectors.AddRange(OwnedProjectors);
         }
 
         public void Add(Ship ship)

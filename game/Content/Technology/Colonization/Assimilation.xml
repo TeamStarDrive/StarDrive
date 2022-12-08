@@ -4,7 +4,6 @@
   <UID>Assimilation</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>5000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>517</NameIndex>
   <DescriptionIndex>518</DescriptionIndex>
   <LeadsTo />

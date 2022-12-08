@@ -25,9 +25,9 @@ namespace UnitTests.Ships
         {
             var w = new ShipDesignWriter();
             w.Write("teststring");
-            Assert.AreEqual("teststring", w.ToString());
+            AssertEqual("teststring", w.ToString());
             w.Write("1234");
-            Assert.AreEqual("teststring1234", w.ToString());
+            AssertEqual("teststring1234", w.ToString());
         }
 
         [TestMethod]
@@ -35,9 +35,9 @@ namespace UnitTests.Ships
         {
             var w = new ShipDesignWriter();
             w.Write('c');
-            Assert.AreEqual("c", w.ToString());
+            AssertEqual("c", w.ToString());
             w.Write("d");
-            Assert.AreEqual("cd", w.ToString());
+            AssertEqual("cd", w.ToString());
         }
 
         [TestMethod]
@@ -45,9 +45,9 @@ namespace UnitTests.Ships
         {
             var w = new ShipDesignWriter();
             w.Write("shipName", "cookieCutter9000");
-            Assert.AreEqual("shipName=cookieCutter9000\n", w.ToString());
+            AssertEqual("shipName=cookieCutter9000\n", w.ToString());
             w.Write("id", "90");
-            Assert.AreEqual("shipName=cookieCutter9000\nid=90\n", w.ToString());
+            AssertEqual("shipName=cookieCutter9000\nid=90\n", w.ToString());
         }
 
         [TestMethod]
@@ -55,11 +55,11 @@ namespace UnitTests.Ships
         {
             var w = new ShipDesignWriter();
             w.Write("single", new[]{"string"});
-            Assert.AreEqual("single=string\n", w.ToString());
+            AssertEqual("single=string\n", w.ToString());
             w.Write("slot", new []{"100","FighterBay","96,48"});
-            Assert.AreEqual("single=string\nslot=100;FighterBay;96,48\n", w.ToString());
+            AssertEqual("single=string\nslot=100;FighterBay;96,48\n", w.ToString());
             w.Write("id", new []{"Johnson","117"});
-            Assert.AreEqual("single=string\nslot=100;FighterBay;96,48\nid=Johnson;117\n", w.ToString());
+            AssertEqual("single=string\nslot=100;FighterBay;96,48\nid=Johnson;117\n", w.ToString());
         }
 
         [TestMethod]
@@ -67,11 +67,11 @@ namespace UnitTests.Ships
         {
             var w = new ShipDesignWriter();
             w.Write(123456); w.Write(';');
-            Assert.AreEqual("123456;", w.ToString());
+            AssertEqual("123456;", w.ToString());
             w.Write(-1231123123); w.Write(';');
-            Assert.AreEqual("123456;-1231123123;", w.ToString());
+            AssertEqual("123456;-1231123123;", w.ToString());
             w.Write(2147483647); w.Write(';');
-            Assert.AreEqual("123456;-1231123123;2147483647;", w.ToString());
+            AssertEqual("123456;-1231123123;2147483647;", w.ToString());
         }
 
         [TestMethod]
@@ -79,16 +79,16 @@ namespace UnitTests.Ships
         {
             var w = new ShipDesignWriter();
             w.Write(1234.5f); w.Write(';');
-            Assert.AreEqual("1234.5;", w.ToString());
+            AssertEqual("1234.5;", w.ToString());
             w.Write(-12312.3125f); w.Write(';');
-            Assert.AreEqual("1234.5;-12312.312;", w.ToString());
+            AssertEqual("1234.5;-12312.312;", w.ToString());
 
             // NOTE: default decimals should be 3
             w.Clear(); w.Write(-12312.312512f);
-            Assert.AreEqual("-12312.312", w.ToString());
+            AssertEqual("-12312.312", w.ToString());
 
             w.Clear(); w.Write(-12312.3125f, 2);
-            Assert.AreEqual("-12312.31", w.ToString());
+            AssertEqual("-12312.31", w.ToString());
         }
 
         [TestMethod]
@@ -96,9 +96,9 @@ namespace UnitTests.Ships
         {
             var w = new ShipDesignWriter();
             w.Write(12345.5432); w.Write(';');
-            Assert.AreEqual("12345.5432;", w.ToString());
+            AssertEqual("12345.5432;", w.ToString());
             w.Write(-1234567.54); w.Write(';');
-            Assert.AreEqual("12345.5432;-1234567.54;", w.ToString());
+            AssertEqual("12345.5432;-1234567.54;", w.ToString());
         }
 
         [TestMethod]

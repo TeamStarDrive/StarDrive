@@ -42,12 +42,17 @@ namespace Ship_Game
             Sprite = sprite;
         }
 
-        public UIPanel(in Rectangle rect, DrawableSprite sprite)  : this(rect, Color.White, sprite)
+        public UIPanel(in Rectangle rect, DrawableSprite sprite) : this(rect, Color.White, sprite)
         {
         }
 
         // Hint: use Color.TransparentBlack to create Panels with no fill
-        public UIPanel(in Rectangle rect, Color color, DrawableSprite sprite = null)  : base(rect)
+        public UIPanel(in RectF rect, Color color, DrawableSprite sprite = null) : base(rect)
+        {
+            Color = color;
+            Sprite = sprite;
+        }
+        public UIPanel(in Rectangle rect, Color color, DrawableSprite sprite = null) : base(rect)
         {
             Color = color;
             Sprite = sprite;

@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Linq;
 using SDGraphics;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class BuildOffensiveShips : BuildShipsGoalBase
     {
-        public const string ID = "BuildOffensiveShips";
-        public override string UID => ID;
-
-        public BuildOffensiveShips(int id, UniverseState us)
-            : base(GoalType.BuildOffensiveShips, id, us)
+        [StarDataConstructor]
+        public BuildOffensiveShips(Empire owner) : base(GoalType.BuildOffensiveShips, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,12 +20,9 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildOffensiveShips(string shipType, Empire e)
-            : this(e.Universum.CreateId(), e.Universum)
+        public BuildOffensiveShips(string shipType, Empire owner) : this(owner)
         {
-            ToBuildUID = shipType;
-            empire = e;
-            Evaluate();
+            Build = new(shipType);
         }
 
         GoalStep FindPlanetToBuildAt()
@@ -44,12 +38,12 @@ namespace Ship_Game.Commands.Goals
             if (PlanetBuildingAt == null || PlanetBuildingAt.NotConstructing)
                 return GoalStep.RestartGoal;
 
-            float importance = empire.GetEmpireAI().ThreatLevel;
+            float importance = Owner.AI.ThreatLevel;
 
-            if ((importance > 0.5f || empire.IsMilitarists)
+            if ((importance > 0.5f || Owner.IsMilitarists)
                 && PlanetBuildingAt.ConstructionQueue[0]?.Goal == this
                 && PlanetBuildingAt.Storage.ProdRatio > 0.75f
-                && empire.GetEmpireAI().SafeToRush) 
+                && Owner.AI.SafeToRush) 
             {
                 float rush = (10f * (importance + 0.5f)).UpperBound(PlanetBuildingAt.ProdHere);
                 PlanetBuildingAt.Construction.RushProduction(0, rush);
@@ -61,11 +55,11 @@ namespace Ship_Game.Commands.Goals
         {
             if (FinishedShip == null)
             {
-                Log.Warning($"BeingBuilt was null in {type} completion");
+                Log.Warning($"BeingBuilt was null in {Type} completion");
                 return GoalStep.GoalFailed;
             }
 
-            Planet planetToOrbit = empire.GetOrbitPlanetAfterBuild(PlanetBuildingAt);
+            Planet planetToOrbit = Owner.GetOrbitPlanetAfterBuild(PlanetBuildingAt);
             FinishedShip.OrderToOrbit(planetToOrbit, clearOrders: true);
 
             return GoalStep.GoalComplete;
@@ -80,18 +74,10 @@ namespace Ship_Game.Commands.Goals
             {
             }
 
-            public ShipInfo(Empire owner, BuildOffensiveShips goal)
+            public ShipInfo(Empire owner, BuildOffensiveShips g)
             {
-                if (goal.GetShipTemplate(goal.ToBuildUID, out IShipDesign template))
-                {
-                    Role = template.Role;
-                    Upkeep = template.GetMaintenanceCost(owner, 0);
-                }
-                else
-                {
-                    Role = RoleName.disabled;
-                    Upkeep = 0;
-                }
+                Role = g.Build.Template.Role;
+                Upkeep = g.Build.Template.GetMaintenanceCost(owner);
             }
         }
     }

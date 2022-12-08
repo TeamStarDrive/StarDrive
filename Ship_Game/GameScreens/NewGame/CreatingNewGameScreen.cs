@@ -1,16 +1,11 @@
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.NewGame;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -23,7 +18,7 @@ namespace Ship_Game
         readonly UniverseGenerator Generator;
         TaskResult<UniverseScreen> BackgroundTask;
 
-        public CreatingNewGameScreen(MainMenuScreen menu, UniverseGenerator.Params p)
+        public CreatingNewGameScreen(MainMenuScreen menu, UniverseParams p)
             : base(null, toPause: null)
         {
             CanEscapeFromScreen = false;

@@ -121,7 +121,7 @@ namespace Ship_Game
                 Radius = radius <= 0f ? 1f : radius*expType.Scale
             };
 
-            if (u.CanAddDynamicLight && u.IsSectorViewOrCloser)
+            if (u.CanAddDynamicLight && u.UState.IsSectorViewOrCloser)
                 AddLight(exp, position, intensity);
 
             using (Lock.AcquireWriteLock())
@@ -138,7 +138,7 @@ namespace Ship_Game
                 Radius = radius <= 0f ? 1f : radius,
             };
 
-            if (u.CanAddDynamicLight && u.IsSectorViewOrCloser)
+            if (u.CanAddDynamicLight && u.UState.IsSectorViewOrCloser)
                 AddLight(exp, position, intensity);
 
             using (Lock.AcquireWriteLock())

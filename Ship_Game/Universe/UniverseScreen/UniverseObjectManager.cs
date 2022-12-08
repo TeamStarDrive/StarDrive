@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
 
@@ -13,7 +14,7 @@ namespace Ship_Game
     /// </summary>
     public class UniverseObjectManager
     {
-        readonly UniverseScreen Universe;
+        public UniverseScreen Universe;
         readonly UniverseState UState;
         readonly SpatialManager Spatial;
 
@@ -21,6 +22,11 @@ namespace Ship_Game
         /// Should be TRUE by default. Can be used to detect threading issues.
         /// </summary>
         public bool EnableParallelUpdate = true;
+
+        /// <summary>
+        /// Maximum parallel tasks if EnableParallelUpdate is turned on
+        /// </summary>
+        public readonly int MaxTaskCores = Parallel.NumPhysicalCores - 1;
 
         /// <summary>
         /// All objects: ships, projectiles, beams
@@ -67,6 +73,11 @@ namespace Ship_Game
         /// </summary>
         public IReadOnlyList<Ship> GetShips() => Ships.GetItems();
 
+        /// <summary>
+        /// Currently submitted projectiles and beams
+        /// </summary>
+        public IReadOnlyList<Projectile> GetProjectiles() => Projectiles.GetItems();
+
         public UniverseObjectManager(UniverseScreen uScreen, UniverseState uState, SpatialManager spatial)
         {
             Universe = uScreen;
@@ -74,55 +85,10 @@ namespace Ship_Game
             Spatial = spatial;
         }
 
+        // For TESTING
         public Ship FindShip(int id) => Ships.Find(id);
-        public bool FindShip(int id, out Ship found) => Ships.Find(id, out found);
         public bool ContainsShip(int id) => Ships.Contains(id);
 
-        public GameObject FindObject(int id) => Objects.Find(id);
-        public bool FindObject(int id, out GameObject found) => Objects.Find(id, out found);
-        public bool ContainsObject(int id) => Objects.Contains(id);
-
-        public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
-        {
-            var projectiles = Projectiles.GetItems();
-            return projectiles.FilterSelect(
-                p => p.Active && p.Type == GameObjectType.Proj && (p.Owner != null || p.Planet != null),
-                p => new SavedGame.ProjectileSaveData
-                {
-                    Id = p.Id,
-                    OwnerId  = p.Owner?.Id ?? p.Planet.Id,
-                    Weapon   = p.Weapon.UID,
-                    Duration = p.Duration,
-                    Rotation = p.Rotation,
-                    Velocity = p.Velocity,
-                    Position = p.Position,
-                    Loyalty  = p.Loyalty.Id,
-                });
-        }
-
-        public SavedGame.BeamSaveData[] GetBeamSaveData()
-        {
-            var projectiles = Projectiles.GetItems();
-            return projectiles.FilterSelect(
-                p => p.Active && p.Type == GameObjectType.Beam && (p.Owner != null || p.Planet != null),
-                p =>
-                {
-                    var beam = (Beam)p;
-                    return new SavedGame.BeamSaveData
-                    {
-                        Id = beam.Id,
-                        OwnerId  = p.Owner?.Id ?? p.Planet.Id,
-                        Weapon   = p.Weapon.UID,
-                        Duration = p.Duration,
-                        Source   = beam.Source,
-                        Destination = beam.Destination,
-                        ActualHitDestination = beam.ActualHitDestination,
-                        TargetId  = beam.Target is Ship ship ? ship.Id : 0,
-                        Loyalty = p.Loyalty.Id,
-                    };
-                });
-        }
-        
         // NOTE: SLOW !! Should only be used for UNIT TESTS
         public Projectile[] GetAllProjectilesAndBeams()
         {
@@ -136,15 +102,6 @@ namespace Ship_Game
             var projectiles = Projectiles.GetBackItemsSlow();
             return projectiles.Filter(
                 p => p.Active && p.Type == GameObjectType.Proj && p.Owner == ship);
-        }
-
-        /// <summary>SLOW !! Only for UNIT TESTS</summary>
-        public Beam[] GetBeams(Ship ship)
-        {
-            var projectiles = Projectiles.GetBackItemsSlow();
-            return projectiles.FilterSelect(
-                p => p.Active && p.Type == GameObjectType.Beam && p.Owner == ship,
-                p => (Beam)p);
         }
 
         /// <summary>DEFERRED: Thread-safely Adds a new Object to the Universe</summary>
@@ -173,6 +130,26 @@ namespace Ship_Game
             projectile.ReinsertSpatial = true;
             Projectiles.Add(projectile);
             Objects.Add(projectile);
+        }
+
+        /// <summary>Thread-safely Adds Ships to the Universe</summary>
+        public void AddRange(IReadOnlyList<Ship> ships)
+        {
+            Ships.AddRange(ships);
+            Objects.AddRange(ships);
+            foreach (Ship ship in ships)
+            {
+                ship.ReinsertSpatial = true;
+                UState.OnShipAdded(ship);
+            }
+        }
+        /// <summary>Thread-safely Adds Projectiles to the Universe</summary>
+        public void AddRange(IReadOnlyList<Projectile> projectiles)
+        {
+            Projectiles.AddRange(projectiles);
+            Objects.AddRange(projectiles);
+            foreach (Projectile projectile in projectiles)
+                projectile.ReinsertSpatial = true;
         }
 
         public void Clear()
@@ -207,9 +184,8 @@ namespace Ship_Game
                 return;
 
             TotalTime.Start();
-            
+
             bool isRunning = timeStep.FixedTime > 0f;
-            bool isUIThread = Universe.IsUIThread;
 
             // only remove and kill objects if game is not paused
             UpdateLists(removeInactiveObjects: isRunning);
@@ -233,9 +209,14 @@ namespace Ship_Game
                 }
 
                 // trigger all Hit events
-                Spatial.CollideAll(timeStep, showCollisions: Universe.Debug);
+                Spatial.CollideAll(timeStep, showCollisions: UState.Debug);
+                
+                // update empire borders after ships were moved
+                // TODO: this should be split into two stages
+                UpdateAllEmpireContactsAndBorders(timeStep);
 
                 // update sensors AFTER spatial update, but only if we are not paused!
+                // more like ScanForTargets ?
                 UpdateAllSensors(timeStep);
 
                 // now that we have a complete view of the universe
@@ -259,6 +240,7 @@ namespace Ship_Game
                 var objects = Objects.GetItems();
                 Spatial.Update(objects);
             }
+            UpdateAllEmpireContactsAndBorders(FixedSimTime.Zero);
             UpdateAllSensors(FixedSimTime.Zero);
             UpdateVisibleObjects();
         }
@@ -302,15 +284,12 @@ namespace Ship_Game
                 for (int i = 0; i < projectiles.Length; ++i)
                 {
                     Projectile proj = projectiles[i];
-                    if (proj.Active && proj.DieNextFrame)
+                    if (proj.Active)
                     {
-                        proj.Die(proj, false);
-                    }
-                    else if (proj is Beam beam)
-                    {
-                        if (beam.Owner?.Active == false)
+                        if (proj.DieNextFrame || 
+                            (proj.Type == GameObjectType.Beam && proj.Owner?.Active == false))
                         {
-                            beam.Die(beam, false);
+                            proj.Die(proj, false);
                         }
                     }
                 }
@@ -364,9 +343,9 @@ namespace Ship_Game
                         continue; // all ships were killed, nothing to do here
 
                     //int debugId = (system.Name == "Opteris") ? 11 : 0;
-                    GameObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
-                                                                        system.Position, system.Radius,
-                                                                        maxResults:allShips.Length/*, debugId:debugId*/);
+                    SpatialObjectBase[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
+                                                                           system.Position, system.Radius,
+                                                                           maxResults:allShips.Length/*, debugId:debugId*/);
                     for (int j = 0; j < shipsInSystem.Length; ++j)
                     {
                         var ship = (Ship)shipsInSystem[j];
@@ -386,19 +365,19 @@ namespace Ship_Game
             }
 
             //UpdateSystems(0, UState.Systems.Count);
-            Parallel.For(UState.Systems.Count, UpdateSystems, Universe.MaxTaskCores);
+            Parallel.For(UState.Systems.Count, UpdateSystems, MaxTaskCores);
         }
 
         void UpdateAllShips(FixedSimTime timeStep)
         {
             ShipsPerf.Start();
 
-            bool isSystemView = Universe.IsSystemViewOrCloser;
+            bool isSystemView = UState.IsSystemViewOrCloser;
             Ship[] allShips = Ships.GetItems();
 
             void UpdateShips(int start, int end)
             {
-                bool debug = Universe.Debug;
+                bool debug = UState.Debug;
                 for (int i = start; i < end; ++i)
                 {
                     Ship ship = allShips[i];
@@ -406,13 +385,13 @@ namespace Ship_Game
                     ship.UpdateModulePositions(timeStep, isSystemView);
 
                     // make sure dying ships can be seen. and show all ships in DEBUG
-                    if ((ship.Dying && ship.KnownByEmpires.KnownByPlayer) || debug)
-                        ship.KnownByEmpires.SetSeenByPlayer();
+                    if ((ship.Dying && ship.KnownByEmpires.KnownByPlayer(UState)) || debug)
+                        ship.KnownByEmpires.SetSeen(UState.Player);
                 }
             }
 
             if (EnableParallelUpdate)
-                Parallel.For(allShips.Length, UpdateShips, Universe.MaxTaskCores);
+                Parallel.For(allShips.Length, UpdateShips, MaxTaskCores);
             else
                 UpdateShips(0, allShips.Length);
 
@@ -436,7 +415,7 @@ namespace Ship_Game
                 }
 
                 if (EnableParallelUpdate)
-                    Parallel.For(allProjectiles.Length, UpdateProjectiles, Universe.MaxTaskCores);
+                    Parallel.For(allProjectiles.Length, UpdateProjectiles, MaxTaskCores);
                 else
                     UpdateProjectiles(0, allProjectiles.Length);
             }
@@ -465,7 +444,7 @@ namespace Ship_Game
             }
 
             if (EnableParallelUpdate)
-                Parallel.For(allShips.Length, UpdateSensors, Universe.MaxTaskCores);
+                Parallel.For(allShips.Length, UpdateSensors, MaxTaskCores);
             else
                 UpdateSensors(0, allShips.Length);
 
@@ -476,6 +455,29 @@ namespace Ship_Game
                 ScansPerSec = ScansAcc;
                 ScansAcc = 0;
             }
+        }
+
+        void UpdateAllEmpireContactsAndBorders(FixedSimTime timeStep)
+        {
+            // sensor scan is heavy
+            Universe.EmpireInfluPerf.Start();
+
+            Empire[] allEmpires = UState.Empires.ToArr();
+            void UpdateContactsAndBorders(int start, int end)
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    Empire empireToUpdate = allEmpires[i];
+                    empireToUpdate.UpdateContactsAndBorders(Universe, timeStep);
+                }
+            }
+
+            if (EnableParallelUpdate)
+                Parallel.For(allEmpires.Length, UpdateContactsAndBorders, MaxTaskCores);
+            else
+                UpdateContactsAndBorders(0, allEmpires.Length);
+
+            Universe.EmpireInfluPerf.Stop();
         }
 
         void UpdateAllShipAI(FixedSimTime timeStep)
@@ -493,7 +495,7 @@ namespace Ship_Game
             }
 
             if (EnableParallelUpdate)
-                Parallel.For(allShips.Length, UpdateAI, Universe.MaxTaskCores);
+                Parallel.For(allShips.Length, UpdateAI, MaxTaskCores);
             else
                 UpdateAI(0, allShips.Length);
 
@@ -509,17 +511,17 @@ namespace Ship_Game
             Projectile[] projs = Empty<Projectile>.Array;
             Beam[] beams = Empty<Beam>.Array;
 
-            if (Universe.IsPlanetViewOrCloser)
+            if (UState.IsPlanetViewOrCloser)
             {
                 projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 2048)
-                               .FastCast<GameObject, Projectile>();
+                               .FastCast<SpatialObjectBase, Projectile>();
 
                 beams = Spatial.FindNearby(GameObjectType.Beam, visibleWorld, 2048)
-                               .FastCast<GameObject, Beam>();
+                               .FastCast<SpatialObjectBase, Beam>();
             }
 
             Ship[] ships = Spatial.FindNearby(GameObjectType.Ship, visibleWorld, 1024)
-                                  .FastCast<GameObject, Ship>();
+                                  .FastCast<SpatialObjectBase, Ship>();
 
             // Reset frustum value for ship visible in previous frame
             SetInFrustum(VisibleProjectiles, false);

@@ -4,7 +4,6 @@
   <UID>Advanced Materials</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>450</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>500</NameIndex>
   <DescriptionIndex>501</DescriptionIndex>
   <LeadsTo>

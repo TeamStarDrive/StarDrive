@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -14,7 +15,7 @@ namespace Ship_Game
 
         /// This is purely used for logging/debugging to mark where the Technology was loaded from
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
-        [XmlIgnore] public float ActualCost => ResearchMultiplier() * CurrentGame.Pace;
+        [XmlIgnore] public float ActualCost => ResearchMultiplier() * UniverseState.DummyPacePlaceholder;
 
         [XmlIgnore] public Technology[] Children;
 
@@ -22,9 +23,10 @@ namespace Ship_Game
         // ex: Tech="Ace Training", Parents=["FighterTheory","HeavyFighterHull","StarshipConstruction"]
         [XmlIgnore] public Technology[] Parents;
 
-        public static readonly Technology Dummy = new Technology();
+        public static readonly Technology Dummy = new();
 
-        // if RootNode == 1, then this is a root of a tech tree main branch
+        // if RootNode != 0, then this is a root node, @see `IsRootNode` property
+        // this field decides the root tech order
         public int RootNode;
         public float Cost;
         public bool Secret;
@@ -32,29 +34,29 @@ namespace Ship_Game
         public bool Unlockable;
         public float LowPriorityCostMultiplier = 1;
 
-        [XmlIgnore] public bool IsRootNode => RootNode == 1;
-        [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new SortedSet<TechnologyType>();
+        [XmlIgnore] public bool IsRootNode => RootNode != 0;
+        [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new();
 
         public int NameIndex;
         public int DescriptionIndex;
 
-        public LocalizedText Name => new LocalizedText(NameIndex);
-        public LocalizedText Description => new LocalizedText(DescriptionIndex);
+        public LocalizedText Name => new(NameIndex);
+        public LocalizedText Description => new(DescriptionIndex);
 
         public override string ToString()
         {
-            return $"Tech {UID} Name={Name.Text} Root={RootNode} Cost={Cost} Parents={Parents.Length}";
+            return $"Tech {UID} Name={Name.Text} Root={IsRootNode} Cost={Cost} Parents={Parents.Length}";
         }
 
-        public Array<LeadsToTech> LeadsTo                = new Array<LeadsToTech>();
-        public Array<LeadsToTech> ComesFrom              = new Array<LeadsToTech>();
-        public Array<UnlockedMod> ModulesUnlocked        = new Array<UnlockedMod>();
-        public Array<UnlockedBuilding> BuildingsUnlocked = new Array<UnlockedBuilding>();
-        public Array<UnlockedBonus> BonusUnlocked        = new Array<UnlockedBonus>();
-        public Array<UnlockedTroop> TroopsUnlocked       = new Array<UnlockedTroop>();
-        public Array<UnlockedHull> HullsUnlocked         = new Array<UnlockedHull>();
-        public Array<TriggeredEvent> EventsTriggered     = new Array<TriggeredEvent>();
-        public Array<RevealedTech> TechsRevealed         = new Array<RevealedTech>();
+        public Array<LeadsToTech> LeadsTo                = new();
+        public Array<LeadsToTech> ComesFrom              = new();
+        public Array<UnlockedMod> ModulesUnlocked        = new();
+        public Array<UnlockedBuilding> BuildingsUnlocked = new();
+        public Array<UnlockedBonus> BonusUnlocked        = new();
+        public Array<UnlockedTroop> TroopsUnlocked       = new();
+        public Array<UnlockedHull> HullsUnlocked         = new();
+        public Array<TriggeredEvent> EventsTriggered     = new();
+        public Array<RevealedTech> TechsRevealed         = new();
 
         //Added by McShooterz to allow for techs with more than one level
         public int MaxLevel = 1;
@@ -62,12 +64,12 @@ namespace Ship_Game
 
         //added by McShooterz: Racial Tech variables.
         //This hides the tech from all races except for the ones in the RaceRequirements list
-        public Array<RaceRequirements> HiddenFromAllExcept = new Array<RaceRequirements>();
+        public Array<RaceRequirements> HiddenFromAllExcept = new();
         //this hides the tech from the races in the RaceRequirements list.
-        public Array<RaceRequirements> HiddenFrom   = new Array<RaceRequirements>();
+        public Array<RaceRequirements> HiddenFrom = new();
         //This unlocks the tech at game start for the races in the RaceRequirements list.
         //This will override the other two restrictors.
-        public Array<RaceRequirements> UnlockedAtGameStart  = new Array<RaceRequirements>();
+        public Array<RaceRequirements> UnlockedAtGameStart = new();
 
         //This is used with the tech restrictors above to list races or traits that will create
         //rules for the restriction
@@ -140,11 +142,11 @@ namespace Ship_Game
 
         float ResearchMultiplier()
         {
-            if (!GlobalStats.ModChangeResearchCost)
+            if (!GlobalStats.Settings.ChangeResearchCostBasedOnSize)
                 return Cost;
 
-            float settingResearchMultiplier = CurrentGame.SettingsResearchModifier;
-            if (CurrentGame.SettingsResearchModifier < 1f)
+            float settingResearchMultiplier = UniverseState.DummySettingsResearchModifier;
+            if (UniverseState.DummySettingsResearchModifier < 1f)
                 return (Cost * settingResearchMultiplier.LowerBound(0.5f)).RoundTo10();
 
             float costRatio        = GetCostRatio();
@@ -157,7 +159,7 @@ namespace Ship_Game
                 if (settingResearchMultiplier <= 1f)
                     return 0;
 
-                int costThreshold = GlobalStats.ActiveModInfo.CostBasedOnSizeThreshold;
+                int costThreshold = GlobalStats.Settings.CostBasedOnSizeThreshold;
                 return Cost > costThreshold ? 1 : Cost / costThreshold;
             }
         }

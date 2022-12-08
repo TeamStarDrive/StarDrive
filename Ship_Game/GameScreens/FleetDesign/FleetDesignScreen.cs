@@ -1,8 +1,6 @@
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
-using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Ships;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.CombatTactics.UI;
@@ -10,63 +8,72 @@ using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.Fleets;
 using Ship_Game.GameScreens.ShipDesign;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using XnaMatrix = SDGraphics.Matrix;
-using Rectangle = SDGraphics.Rectangle;
+using System.Linq;
+using Ship_Game.Data.Yaml;
+using System.IO;
+using Ship_Game.GameScreens.FleetDesign;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen : GameScreen
     {
-        UniverseScreen Universe;
-        public Camera2D Camera;
-        //private Background bg = new Background();
-        StarField StarField;
-        public EmpireUIOverlay EmpireUI;
+        public readonly UniverseScreen Universe;
+        public readonly EmpireUIOverlay EmpireUI;
+        public readonly Empire Player;
+
         Menu2 TitleBar;
         Menu2 ShipDesigns;
         Vector2 TitlePos;
         Vector2 ShipDesignsTitlePos;
         Menu1 LeftMenu;
         Menu1 RightMenu;
+
+        // never null, if a fleet doesn't exist, an empty one is created
         public Fleet SelectedFleet;
-        ScrollList2<FleetDesignShipListItem> ShipSL;
+
+        // the currently dragged Ship Design
+        // it might be a ship that we own, or it could be a Ship template
+        Ship ActiveShipDesign;
+
+        ScrollList<FleetDesignShipListItem> ShipSL;
         BlueButton RequisitionForces;
         BlueButton SaveDesign;
         BlueButton LoadDesign;
-        Rectangle SelectedStuffRect;
-        Rectangle OperationsRect;
-        Rectangle PrioritiesRect;
+        BlueButton AutoArrange;
+        RectF SelectedStuffRect;
+        RectF OperationsRect;
+        RectF PrioritiesRect;
         WeightSlider SliderAssist;
         WeightSlider SliderVulture;
         WeightSlider SliderDefend;
         WeightSlider SliderDps;
         WeightSlider SliderArmor;
         WeightSlider SliderShield;
-        //readonly Array<ToggleButton> OrdersButtons = new Array<ToggleButton>();
+
         FloatSlider OperationalRadius;
         SizeSlider SliderSize;
-        public Submenu SubShips;
-        Array<Ship> AvailableShips = new Array<Ship>();
-        Vector3 CamPos = new Vector3(0f, 0f, 14000f);
-        readonly Map<int, Rectangle> FleetsRects = new Map<int, Rectangle>();
-        readonly Array<ClickableSquad> ClickableSquads = new Array<ClickableSquad>();
-        Vector2 CamVelocity = Vector2.Zero;
-        float DesiredCamHeight = 14000f;
-        Ship ActiveShipDesign;
-        public int FleetToEdit = -1;
+        public SubmenuScrollList<FleetDesignShipListItem> SubShips;
+        Array<Ship> ActiveShips = new();
+
+        Vector3 CamPos = new(0f, 0f, 14000f);
+        Vector3 DesiredCamPos = new(0f, 0f, 14000f);
+
+        readonly Array<ClickableSquad> ClickableSquads = new();
+
         readonly UITextEntry FleetNameEntry;
         Selector StuffSelector;
         Selector OperationsSelector;
-        Selector Priorityselector;
-        readonly Array<ClickableNode> ClickableNodes = new Array<ClickableNode>();
+        Selector PrioritySelector;
+        readonly Array<ClickableNode> ClickableNodes = new();
         Fleet.Squad SelectedSquad;
         Fleet.Squad HoveredSquad;
-        Rectangle SelectionBox;
-        readonly Array<FleetDataNode> SelectedNodeList = new Array<FleetDataNode>();
-        readonly Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
+        RectF SelectionBox;
+        readonly Array<FleetDataNode> SelectedNodeList = new();
+        readonly Array<FleetDataNode> HoveredNodeList = new();
         readonly ShipInfoOverlayComponent ShipInfoOverlay;
         FleetStanceButtons OrdersButtons;
 
@@ -74,56 +81,59 @@ namespace Ship_Game
             : base(u, toPause: u)
         {
             Universe = u;
-            GameAudio.PlaySfxAsync(audioCue);
-            SelectedFleet = new Fleet(u.UState.CreateId()) { Owner = EmpireManager.Player }; ;
             EmpireUI = empireUI;
-            TransitionOnTime = 0.75f;
-            EmpireUI.Player.UpdateShipsWeCanBuild();
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            Player = u.Player;
 
-            FleetNameEntry = new UITextEntry();
-            FleetNameEntry.OnTextChanged = (text) => EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name = text;
+            TransitionOnTime = 0.75f;
+            Player.UpdateShipsWeCanBuild();
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, u.UState));
+
+            FleetNameEntry = new();
+            FleetNameEntry.OnTextChanged = (text) => SelectedFleet.Name = text;
             FleetNameEntry.SetColors(Colors.Cream, Color.Orange);
+            
+            GameAudio.PlaySfxAsync(audioCue);
+
+            // choose the first active fleet we have, or default to first fleet key
+            Fleet anyFleet = Player.ActiveFleets.Sorted(f => f.Key).FirstOrDefault();
+            int fleetId = (anyFleet?.Key ?? Empire.FirstFleetKey).Clamped(Empire.FirstFleetKey, Empire.LastFleetKey);
+            ChangeFleet(fleetId);
+        }
+        
+        public override void ExitScreen()
+        {
+            if (!StarDriveGame.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
+                Universe.RecomputeFleetButtons(true);
+            base.ExitScreen();
         }
 
-        public void ChangeFleet(int which)
+        public void ChangeFleet(int fleetKey)
         {
             SelectedNodeList.Clear();
-            // dear scroll list branch. How are you? the object visiblility is being changed here.
-            // so make sure that the so's are removed and added at each fleet button press.
-            if (FleetToEdit != -1)
-            {
-                foreach (var kv in EmpireManager.Player.GetFleetsDict())
-                {
-                    foreach (Ship ship in kv.Value.Ships)
-                    {
-                        ship.RemoveSceneObject();
-                    }
-                }
-            }
+            RemoveSceneObjects(SelectedFleet);
 
-            FleetToEdit = which;
-            Fleet fleet = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
+            Fleet fleet = Player.GetFleetOrNull(fleetKey) ?? Player.CreateFleet(fleetKey, null);
+            SelectedFleet = fleet;
+
             var toRemove = new Array<FleetDataNode>();
             foreach (FleetDataNode node in fleet.DataNodes)
             {
-                if ((!ResourceManager.GetShipTemplate(node.ShipName, out Ship _) && node.Ship == null) ||
-                    (node.Ship == null && !EmpireManager.Player.WeCanBuildThis(node.ShipName)))
-                    toRemove.Add(node);
+                if (node.Ship == null)
+                {
+                    if (!ResourceManager.Ships.Exists(node.ShipName) || !Player.WeCanBuildThis(node.ShipName))
+                        toRemove.Add(node);
+                }
             }
 
             var squadsToRemove = new Array<Fleet.Squad>();
             foreach (FleetDataNode node in toRemove)
             {
                 fleet.DataNodes.Remove(node);
-                foreach (Array<Fleet.Squad> flanks in fleet.AllFlanks)
+                foreach (Fleet.Squad squad in AllSquads)
                 {
-                    foreach (Fleet.Squad squad in flanks)
-                    {
-                        squad.DataNodes.Remove(node);
-                        if (squad.DataNodes.Count == 0)
-                            squadsToRemove.Add(squad);
-                    }
+                    squad.DataNodes.Remove(node);
+                    if (squad.DataNodes.Count == 0)
+                        squadsToRemove.Add(squad);
                 }
             }
 
@@ -133,14 +143,14 @@ namespace Ship_Game
                     if (flanks.Contains(squad))
                         flanks.Remove(squad);
             }
-
-            SelectedFleet = EmpireManager.Player.GetFleet(which);
-            foreach (Ship ship in SelectedFleet.Ships)
+            
+            foreach (FleetDataNode node in fleet.DataNodes)
             {
-                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, 0f);
+                if (node.Ship != null)
+                    node.Ship.RelativeFleetOffset = node.RelativeFleetOffset;
             }
 
-            FleetNameEntry.Size = FleetNameEntry.Font.MeasureString(SelectedFleet.Name);
+            FleetNameEntry.Size = FleetNameEntry.Font.MeasureString(fleet.Name);
         }
 
         public void OnSubShipsTabChanged(int tabIndex)
@@ -150,267 +160,230 @@ namespace Ship_Game
 
         protected override void Destroy()
         {
-            StarField?.Dispose(ref StarField);
-            SelectedFleet = null;
             base.Destroy();
-        }
-
-        public override void ExitScreen()
-        {
-            if (!StarDriveGame.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
-            {
-                Universe.RecomputeFleetButtons(true);
-            }
-            base.ExitScreen();
         }
 
         public override void LoadContent()
         {
             Add(new CloseButton(ScreenWidth - 38, 97));
             AssignLightRig(LightRigIdentity.FleetDesign, "example/ShipyardLightrig");
-            StarField = new StarField(this, Universe.UState);
+            SetPerspectiveProjection(maxDistance: 100_000);
 
-            var titleRect = new Rectangle(2, 44, 250, 80);
-            TitleBar = new Menu2(titleRect);
-            TitlePos = new Vector2(titleRect.X + titleRect.Width / 2f - Fonts.Laserian14.MeasureString("Fleet Hotkeys").X / 2f
-                , titleRect.Y + titleRect.Height / 2f - Fonts.Laserian14.LineSpacing / 2f);
-            var leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, titleRect.Width, 500);
-            LeftMenu = new Menu1(leftRect, true);
+            Graphics.Font titleFont = Fonts.Laserian14;
+            Graphics.Font arial20 = Fonts.Arial20Bold;
+            Graphics.Font arial12 = Fonts.Arial12Bold;
 
-            int i = 0;
-            foreach (KeyValuePair<int, Fleet> fleet in EmpireManager.Player.GetFleetsDict())
+            RectF titleRect = new(2, 44, 250, 80);
+            TitleBar = new(titleRect);
+            TitlePos = new(titleRect.CenterX - titleFont.TextWidth("Fleet Hotkeys") / 2f,
+                           titleRect.CenterY - titleFont.LineSpacing / 2f);
+            RectF leftRect = new(2, titleRect.Bottom + 5, titleRect.W, 500);
+            LeftMenu = new(leftRect, true);
+            
+            Vector2 buttonSize = new(52, 48);
+            UIList buttons = Add(new UIList(leftRect, Color.TransparentBlack));
+            buttons.LayoutStyle = ListLayoutStyle.Clip;
+
+            for (int key = Empire.FirstFleetKey; key <= Empire.LastFleetKey; ++key)
             {
-                FleetsRects.Add(fleet.Key, new Rectangle(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
-                i++;
+                buttons.Add(new FleetButton(Universe, key, buttonSize)
+                {
+                    FleetDesigner = true,
+                    OnClick = (b) => InputSelectFleet(b.FleetKey, true),
+                    IsActive = (b) => SelectedFleet?.Key == b.FleetKey,
+                });
             }
 
-            var shipRect = new Rectangle(ScreenWidth - 282, 140, 280, 80);
-            ShipDesigns = new Menu2(shipRect);
-            ShipDesignsTitlePos = new Vector2(shipRect.X + shipRect.Width / 2 - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            var shipDesignsRect = new Rectangle(ScreenWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
-            RightMenu = new Menu1(shipDesignsRect);
+            // Animate the buttons in and out
+            buttons.PerformLayout();
+            var animOffset = new Vector2(-128, 0);
+            buttons.StartGroupTransition<FleetButton>(animOffset, -1, time:0.5f);
+            OnExit += () => buttons.StartGroupTransition<FleetButton>(animOffset, +1, time:0.5f);
 
-            SubShips = new Submenu(shipDesignsRect);
-            SubShips.Color = new Color(0, 0, 0, 130);
-            SubShips.AddTab("Designs");
-            SubShips.AddTab("Owned");
+            RectF shipRect = new(ScreenWidth - 282, 140, 280, 80);
+            ShipDesigns = new Menu2(shipRect);
+            ShipDesignsTitlePos = new(shipRect.CenterX - titleFont.TextWidth("Ship Designs") / 2f, shipRect.CenterY - titleFont.LineSpacing / 2);
+            RectF shipDesignsRect = new(ScreenWidth - shipRect.W - 2, shipRect.Bottom + 5, shipRect.W, 500);
+            RightMenu = new(shipDesignsRect);
+
+            LocalizedText[] subShipsTabs = { "Designs", "Owned" };
+            SubShips = Add(new SubmenuScrollList<FleetDesignShipListItem>(shipDesignsRect, subShipsTabs));
+            SubShips.Color = new(0, 0, 0, 130);
             SubShips.SelectedIndex = 0;
             SubShips.OnTabChange = OnSubShipsTabChanged;
-            ShipSL = Add(new ScrollList2<FleetDesignShipListItem>(SubShips, 40));
+
+            ShipSL = SubShips.List;
             ShipSL.OnClick = OnDesignShipItemClicked;
+            ShipSL.OnDoubleClick = OnDesignShipItemDoubleClicked;
             ShipSL.EnableItemHighlight = true;
             ShipSL.OnHovered = (item) =>
             {
-                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+                if (item == null) // deselected?
+                {
+                    ToolTip.Clear();
+                    ShipInfoOverlay.ShowToLeftOf(Vector2.Zero, null); // hide it
+                    return;
+                }
+                string tooltip = "Drag and drop this Ship into the Fleet our double click to auto-add to a squad";
+                ToolTip.CreateTooltip(tooltip, "", item.BotLeft, 2f);
+                ShipInfoOverlay.ShowToLeftOf(item.Pos, item.Ship?.ShipData ?? item.Design);
             };
 
             ResetLists();
-            SelectedStuffRect = new Rectangle(ScreenWidth / 2 - 220, -13 + ScreenHeight - 200, 440, 210);
+            SelectedStuffRect = new(ScreenWidth / 2 - 220, -13 + ScreenHeight - 210, 440, 210);
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
-            OrdersButtons = new FleetStanceButtons(this, ordersBarPos);
+            OrdersButtons = new(this, ordersBarPos);
             Add(OrdersButtons);
 
-            RequisitionForces = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20), "Requisition...");
-            SaveDesign = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 50), "Save Design...");
-            LoadDesign = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 100), "Load Design...");
-            RequisitionForces.ToggleOn = true;
-            SaveDesign.ToggleOn = true;
-            LoadDesign.ToggleOn = true;
-            OperationsRect = new Rectangle(SelectedStuffRect.X + SelectedStuffRect.Width + 2, SelectedStuffRect.Y + 30, 360, SelectedStuffRect.Height - 30);
-            var assistRect = new Rectangle(OperationsRect.X + 15, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 150, 40);
-            SliderAssist = new WeightSlider(assistRect, "Assist Nearby Weight")
+            RequisitionForces = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 - 10), "Requisition..."));
+            SaveDesign = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 30), "Save Design..."));
+            LoadDesign = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 70), "Load Design..."));
+            AutoArrange = Add(new BlueButton(new(SelectedStuffRect.X + 240, SelectedStuffRect.Y + arial20.LineSpacing + 20 + 110), "Auto Arrange..."));
+
+            RequisitionForces.OnClick = (b) => ScreenManager.AddScreen(new RequisitionScreen(this));
+            SaveDesign.OnClick = (b) => ScreenManager.AddScreen(new SaveFleetDesignScreen(this, SelectedFleet));
+            LoadDesign.OnClick = (b) => ScreenManager.AddScreen(new LoadFleetDesignScreen(this));
+            AutoArrange.OnClick = (b) => SelectedFleet.AutoArrange();   
+
+            OperationsRect = new(SelectedStuffRect.Right + 2, SelectedStuffRect.Y + 30, 360, SelectedStuffRect.H - 30);
+
+            float slidersX1 = OperationsRect.X + 15;
+            float slidersX2 = OperationsRect.X + 15 + 180;
+            float slidersY = OperationsRect.Y + arial12.LineSpacing + 20;
+            
+            WeightSlider NewSlider(float x, float y, string title, LocalizedText tooltip)
             {
-                Tooltip = GameText.AMeasureOfHowCooperative
-            };
-            var defenderRect = new Rectangle(OperationsRect.X + 15, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 150, 40);
-            SliderDefend = new WeightSlider(defenderRect, "Defend Nearby Weight")
-            {
-                Tooltip = GameText.AMeasureOfHowProtective
-            };
-            var vultureRect = new Rectangle(OperationsRect.X + 15, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 120, 150, 40);
-            SliderVulture = new WeightSlider(vultureRect, "Target Damaged Weight")
-            {
-                Tooltip = GameText.AMeasureOfHowOpportunistic
-            };
-            var armoredRect = new Rectangle(OperationsRect.X + 15 + 180, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 150, 40);
-            SliderArmor = new WeightSlider(armoredRect, "Target Armored Weight")
-            {
-                Tooltip = GameText.TheWeightGivenToTargeting
-            };
-            var shieldedRect = new Rectangle(OperationsRect.X + 15 + 180, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 150, 40);
-            SliderShield = new WeightSlider(shieldedRect, "Target Shielded Weight")
-            {
-                Tooltip = GameText.TheWeightGivenToTargeting2
-            };
-            var dpsRect = new Rectangle(OperationsRect.X + 15 + 180, OperationsRect.Y + Fonts.Arial12Bold.LineSpacing + 120, 150, 40);
-            SliderDps = new WeightSlider(dpsRect, "Target DPS Weight")
-            {
-                Tooltip = GameText.TheWeightGivenToTargeting3
-            };
-            PrioritiesRect = new Rectangle(SelectedStuffRect.X - OperationsRect.Width - 2, OperationsRect.Y, OperationsRect.Width, OperationsRect.Height);
-            var oprect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
+                return new(new(x, y, 150, 40), title, tooltip);
+            }
+
+            SliderAssist  = NewSlider(slidersX1, slidersY, "Assist Nearby Weight", GameText.AMeasureOfHowCooperative);
+            SliderDefend  = NewSlider(slidersX1, slidersY+50, "Defend Nearby Weight", GameText.AMeasureOfHowProtective);
+            SliderVulture = NewSlider(slidersX1, slidersY+100, "Target Damaged Weight", GameText.AMeasureOfHowOpportunistic);
+
+            SliderArmor  = NewSlider(slidersX2, slidersY, "Target Armored Weight", GameText.TheWeightGivenToTargeting);
+            SliderShield = NewSlider(slidersX2, slidersY+50, "Target Shielded Weight", GameText.TheWeightGivenToTargeting2);
+            SliderDps    = NewSlider(slidersX2, slidersY+100, "Target DPS Weight", GameText.TheWeightGivenToTargeting3);
+
+            PrioritiesRect = new(SelectedStuffRect.X - OperationsRect.W - 2, OperationsRect.Y, OperationsRect.Size);
+            RectF oprect = new(PrioritiesRect.X + 15, PrioritiesRect.Y + arial12.LineSpacing + 20, 300, 40);
             OperationalRadius = new FloatSlider(oprect, "Operational Radius", max: 500000, value: 10000)
             {
                 RelativeValue = 0.2f,
                 Tip = GameText.DefinesTheAreaInWhich
             };
-            var sizerect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 300, 40);
+
+            RectF sizerect = new(PrioritiesRect.X + 15, PrioritiesRect.Y + arial12.LineSpacing + 70, 300, 40);
             SliderSize = new SizeSlider(sizerect, "Target UniverseRadius Preference");
             SliderSize.SetAmount(0.5f);
             SliderSize.Tooltip = GameText.DeterminesWhetherAShipPrefers;
 
-            SetPerspectiveProjection();
-            foreach (Ship ship in SelectedFleet.Ships)
-            {
-                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, 0f);
-            }
             base.LoadContent();
         }
 
-
-        public void LoadData(FleetDesign data)
+        void RemoveSceneObjects(Fleet fleet)
         {
-            var fleet = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
+            if (fleet != null)
+                foreach (Ship ship in fleet.Ships)
+                    ship.RemoveSceneObject();
+        }
 
-            for (int i = fleet.Ships.Count - 1; i >= 0; i--)
-            {
-                Ship ship = fleet.Ships[i];
-                ship.ShowSceneObjectAt(ship.RelativeFleetOffset, -1000000f);
-                ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
-            }
+        public void LoadFleetDesign(FileInfo file)
+        {
+            FleetDesign data = YamlParser.Deserialize<FleetDesign>(file);
+            RemoveSceneObjects(SelectedFleet);
 
-            SelectedFleet.Reset();
+            SelectedFleet.Reset(returnShipsToEmpireAI: true, clearOrders: true);
             SelectedFleet.DataNodes.Clear();
             ClickableNodes.Clear();
-            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
-            {
-                flank.Clear();
-            }
+            SelectedFleet.AllFlanks.ForEach(f => f.Clear());
+
             SelectedFleet.Name = data.Name;
-            foreach (FleetDataNode node in data.Data)
-            {
-                SelectedFleet.DataNodes.Add(node);
-            }
             SelectedFleet.FleetIconIndex = data.FleetIconIndex;
+            foreach (FleetDataDesignNode node in data.Nodes)
+            {
+                SelectedFleet.DataNodes.Add(new FleetDataNode(node));
+            }
         }
 
         public void ResetLists()
         {
-            ShipSL.Reset();
+            ActiveShipDesign = null; // this must be reset if tabs change
+
             if (SubShips.SelectedIndex == 0)
             {
-                var shipList = new Array<Ship>();
-                foreach (string shipName in EmpireManager.Player.ShipsWeCanBuild)
-                {
-                    Ship ship = ResourceManager.GetShipTemplate(shipName);
-                    shipList.Add(ship);
-                }
-
-                SortShipSL(shipList);
+                IShipDesign[] designs = Player.ShipsWeCanBuild.ToArr();
+                ShipSL.SetItems(InitShipSL(designs));
             }
             else if (SubShips.SelectedIndex == 1)
             {
-                AvailableShips.Clear();
-                var ships = EmpireManager.Player.OwnedShips;
-                AvailableShips.AddRange(ships
-                                        .Filter(s => s.Fleet == null && s.Active));
-
-                SortShipSL(AvailableShips);
+                // go through ships that we own and allow player to add those existing ships
+                // to our fleet
+                ActiveShips.Assign(Player.OwnedShips.Filter(s => s.Fleet == null && s.IsAlive));
+                ShipSL.SetItems(InitShipSL(ActiveShips));
             }
         }
 
-        void SortShipSL(Array<Ship> shipList)
+        // init with ship design templates
+        Array<FleetDesignShipListItem> InitShipSL(IReadOnlyList<IShipDesign> designs)
         {
+            Array<FleetDesignShipListItem> items = new();
             var roles = new Array<string>();
-            foreach (Ship ship in shipList)
-            {
-                if (IsCandidateShip(ship))
-                    roles.AddUnique(ship.DesignRoleName);
-            }
+            foreach (IShipDesign s in designs)
+                if (IsCandidateShip(s))
+                    roles.AddUnique(s.GetRole());
 
             roles.Sort();
             foreach (string role in roles)
             {
-                FleetDesignShipListItem header = ShipSL.AddItem(new FleetDesignShipListItem(this, role));
-
-                foreach (string shipName in EmpireManager.Player.ShipsWeCanBuild)
-                {
-                    if (ResourceManager.GetShipTemplate(shipName, out Ship ship) && 
-                        IsCandidateShip(ship) && ship.DesignRoleName == header.HeaderText)
-                    {
-                        header.AddSubItem(new FleetDesignShipListItem(this, ship));
-                    }
-                }
+                FleetDesignShipListItem header = new(this, role);
+                items.Add(header);
+                foreach (IShipDesign d in Player.ShipsWeCanBuild)
+                    if (IsCandidateShip(d) && d.GetRole() == header.HeaderText)
+                        items.Add(new FleetDesignShipListItem(this, d));
             }
+            return items;
         }
 
-        bool IsCandidateShip(Ship ship)
+        // init with actually owned ships that are waiting for orders
+        Array<FleetDesignShipListItem> InitShipSL(IReadOnlyList<Ship> aliveShips)
         {
-            if (ship.ShipData.Role == RoleName.troop
-                || ship.DesignRole == RoleName.ssp
-                || ship.DesignRole == RoleName.construction)
+            Array<FleetDesignShipListItem> items = new();
+            var roles = new HashSet<string>();
+            foreach (Ship s in aliveShips)
+                if (IsCandidateShip(s.ShipData))
+                    roles.Add(s.ShipData.GetRole());
+
+            var roleItems = roles.ToArrayList();
+            roleItems.Sort();
+            foreach (string role in roleItems)
             {
-                return false;
+                FleetDesignShipListItem header = new(this, role);
+                items.Add(header);
+                foreach (Ship s in aliveShips)
+                    if (IsCandidateShip(s.ShipData) && s.ShipData.GetRole() == header.HeaderText)
+                        items.Add(new FleetDesignShipListItem(this, s));
             }
-
-            return true;
-        }
-        
-        void UpdateSelectedFleet()
-        {
-            if (SelectedFleet == null)
-                return;
-
-            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
-            {
-                foreach (Fleet.Squad squad in flank)
-                {
-                    Viewport viewport = Viewport;
-                    Vector3 pScreenSpace = new Vector3(
-                        viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, XnaMatrix.Identity)
-                    );
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    ClickableSquad cs = new ClickableSquad
-                    {
-                        ScreenPos = pPos,
-                        Squad = squad
-                    };
-                    ClickableSquads.Add(cs);
-                }
-            }
-            SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
+            return items;
         }
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        static bool IsCandidateShip(IShipDesign s)
         {
-            CamPos.X += CamVelocity.X;
-            CamPos.Y += CamVelocity.Y;
-            CamPos.Z = Microsoft.Xna.Framework.MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
-            var camPos = new Vector3(-CamPos.X, CamPos.Y, CamPos.Z);
-            var lookAt = new Vector3(-CamPos.X, CamPos.Y, 0f);
-            SetViewMatrix(XnaMatrix.CreateRotationY(180f.ToRadians())
-                        * XnaMatrix.CreateLookAt(camPos, lookAt, Vector3.Down));
-            
-            ClickableSquads.Clear();
-            UpdateSelectedFleet();
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+            return s.Role != RoleName.troop
+                && s.Role is not (RoleName.ssp or RoleName.construction);
         }
 
         public struct ClickableNode
         {
-            public Vector2 ScreenPos;
-
-            public float Radius;
-
             public FleetDataNode NodeToClick;
+            public Vector2 ScreenPos;
+            public float Radius;
         }
 
         struct ClickableSquad
         {
             public Fleet.Squad Squad;
-
-            public Vector2 ScreenPos;
+            public RectF Rect; // rect on screen
         }
     }
 }

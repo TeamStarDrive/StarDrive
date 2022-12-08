@@ -227,12 +227,9 @@ namespace Ship_Game.Gameplay
     /// This is used for ShipModule XML Templates
     /// </summary>
     [XmlType("ShipModule")]
-    public sealed class ShipModule_XMLTemplate : GameObject
+    public sealed class ShipModule_XMLTemplate
     {
-        public ShipModule_XMLTemplate() : base(0, GameObjectType.ShipModule)
-        {
-        }
-
+        public float Mass;
         public float FTLSpeed;
         public string DeployBuildingOnColonize;
         public int XSize = 1;

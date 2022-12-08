@@ -54,14 +54,14 @@ namespace Ship_Game
 
         void SwapQueueItems(int first, int second)
         {
-            string tmp = EmpireManager.Player.data.ResearchQueue[first];
-            EmpireManager.Player.data.ResearchQueue[first] = Tech.UID;
-            EmpireManager.Player.data.ResearchQueue[second] = tmp;
+            string tmp = Screen.Player.data.ResearchQueue[first];
+            Screen.Player.data.ResearchQueue[first] = Tech.UID;
+            Screen.Player.data.ResearchQueue[second] = tmp;
         }
 
         void OnBtnUpPressed(UIButton up)
         {
-            int index = EmpireManager.Player.Research.IndexInQueue(Tech.UID);
+            int index = Screen.Player.Research.IndexInQueue(Tech.UID);
             if (index == -1 || index < 1 || AboveIsPreReq(index))
             {
                 GameAudio.NegativeClick();
@@ -74,8 +74,8 @@ namespace Ship_Game
 
         void OnBtnDownPressed(UIButton down)
         {
-            int index = EmpireManager.Player.Research.IndexInQueue(Tech.UID);
-            if (index == -1 || index == EmpireManager.Player.data.ResearchQueue.Count - 1 || ThisIsPreReq(index))
+            int index = Screen.Player.Research.IndexInQueue(Tech.UID);
+            if (index == -1 || index == Screen.Player.data.ResearchQueue.Count - 1 || ThisIsPreReq(index))
             {
                 GameAudio.NegativeClick();
                 return;
@@ -90,8 +90,8 @@ namespace Ship_Game
             RemoveTech(Tech.UID);
         }
 
-        string ResearchUidAt(int index)        => EmpireManager.Player.data.ResearchQueue[index];
-        Technology PlayerResearchAt(int index) => ResourceManager.TechTree[ResearchUidAt(index)];
+        string ResearchUidAt(int index) => Screen.Player.data.ResearchQueue[index];
+        Technology PlayerResearchAt(int index) => ResourceManager.Tech(ResearchUidAt(index));
 
         bool AboveIsPreReq(int indexOfThis)
         {
@@ -115,8 +115,8 @@ namespace Ship_Game
         {
             void RemoveLeadsToRecursive(string tech)
             {
-                EmpireManager.Player.Research.RemoveFromQueue(tech);
-                foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[tech].LeadsTo)
+                Screen.Player.Research.RemoveFromQueue(tech);
+                foreach (Technology.LeadsToTech dependent in ResourceManager.Tech(tech).LeadsTo)
                     RemoveLeadsToRecursive(dependent.UID);
             }
 

@@ -182,9 +182,9 @@ Fertile:
  SPA: "Fértil"
 PromiscuousNaturesShortGestationPeriods:
  Id: 37
- ENG: "Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is 0.01 (10 Million) per turn. "
- RUS: "Склонность к беспорядочным связям, короткие сроки беременности и большое количество детенышей в приплоде очень благоприятно влияют на скорость воспроизводства этой расы естественным путем. Минимальный естественный прирост населения - .01 в ход."
- SPA: "La promiscuidad, los periodos de gestación breves y las grandes camadas incrementan considerablemente la tasa de reproducción de una raza. El crecimiento demográfico mínimo es de 0,01 por turno. "
+ ENG: "Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is 0.05 (5 Million) per turn. "
+ RUS: "Склонность к беспорядочным связям, короткие сроки беременности и большое количество детенышей в приплоде очень благоприятно влияют на скорость воспроизводства этой расы естественным путем. Минимальный естественный прирост населения - .005 в ход."
+ SPA: "La promiscuidad, los periodos de gestación breves y las grandes camadas incrementan considerablemente la tasa de reproducción de una raza. El crecimiento demográfico mínimo es de 0,005 por turno. "
 LessFertile:
  Id: 38
  ENG: "Less Fertile"
@@ -192,8 +192,8 @@ LessFertile:
  SPA: "Menos fértil"
 LongGestationPeriodsAndDifficult:
  Id: 39
- ENG: "Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is 0.02 (20 Million) per turn."
- RUS: "Долгие сроки беременности и сложность репродуктивного процесса в целом значительно ограничивают воспроизводство этой расы естественным путем. Максимальный естественный прирост населения - .02 в ход."
+ ENG: "Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is 0.15 (15 Million) per turn."
+ RUS: "Долгие сроки беременности и сложность репродуктивного процесса в целом значительно ограничивают воспроизводство этой расы естественным путем. Максимальный естественный прирост населения - .015 в ход."
  SPA: "Los periodos de gestación largos y los procesos reproductivos complejos reducen sustancialmente la tasa de reproducción natural de esta raza. El crecimiento demográfico máximo es de 0,02 por turno."
 Savage:
  Id: 40
@@ -7457,9 +7457,7 @@ YourEmpireWillAutomaticallyCreate:
  SPA: "Tu imperio creará y desplegará automáticamente naves coloniales en los planetas convenientes. Las naves coloniales no se enviarán a planetas con presencia enemiga cercana"
 YourEmpireWillAutomaticallyCreate2:
  Id: 2228
- ENG: "Your empire will automatically create and deploy subspace projectors for the creation of star lanes between your systems"
- RUS: "Ваша империя будет автоматически создавать и размещать субпространственные проекторы для создания звездных путей между вашими системами."
- SPA: "Tu imperio construirá y desplegará automáticamente proyectores subespaciales para crear vías estelares entre tus sistemas"
+ ENG: "Your empire will automatically create and deploy subspace projectors for the creation of star lanes between your systems. Note that this depends on your freighter lanes traffic. The more traffic passes between 2 systems, the better the chance a lane will be created."
 YourEmpireWillAutomaticallyManage2:
  Id: 2229
  ENG: "Your empire will automatically manage your freighter needs, creating freighters to transport food and passengers where needed. You will still need to designate which planets import and export various goods or select a Governor for them. You may select here a specific Freighter name you wish your Empire will use."
@@ -10261,6 +10259,15 @@ RingGalaxyGameTip:
 RingGalaxyGame:
  Id: 4383
  ENG: "Ring Galaxy"
+FlatIncomePerTurn:
+ Id: 4384
+ ENG: "Flat Income Per Turn" 
+AutoBuildTerraformers:
+ Id: 4385
+ ENG: "Auto Terraform"  
+AutoBuildTerraformersTip:
+ Id: 4386
+ ENG: "Your empire will manage terraforming efforts automatically, building terraformers on the best potential valued planets first, based on a budget. Note that it will scrap buildings to make room for Terraformers even if the planet has no Governor or not allowed to scrap, since these orders are coming from your empire."   
 OnSurface:
  Id: 4993
  ENG: "on surface"
@@ -12263,11 +12270,11 @@ ExoticMineral:
  RUS: "Экзотический минерал"
 HighlyExoticMineralVeinsRarely:
  Id: 18107
- ENG: "Highly exotic mineral veins, rarely found on terrestrial worlds. Easily mined but in a very limited amount."
+ ENG: "Highly exotic mineral veins, rarely found on terrestrial worlds. Easily mined but in a very limited amount. The mined ore is excelent conductor helping with data transfers."
  RUS: "Сложные экзотические минеральные жилы, редко встречающиеся на планетах земного типа."
 ProdPerAssignedColonistTotal:
  Id: 18108
- ENG: "+0.8 prod per assigned colonist, total worth of 12000 production,+0.5 planet richness."
+ ENG: "+5 production per assigned colonist, total worth of 500 production,"
  RUS: "Планеты с этими минералами более богаты. (+5 к продукции)"
 ExoticFruits:
  Id: 18222
@@ -12275,12 +12282,12 @@ ExoticFruits:
  RUS: "Экзотические фрукты"
 TastyFruitsThatAreA:
  Id: 18223
- ENG: "Tasty fruits that are a natural aphrodisiac."
+ ENG: "Tasty fruits that are a natural aphrodisiac that releases neuro enhancing enzymes."
  RUS: "Вкусные природные афродизиаки."
 ProvidesFoodPerTurnTotal4:
  Id: 18224
- ENG: "Provides 0.6 food per turn, total total worth of 2000 food, +4 Million population per turn."
- RUS: "Дает +0.6 еды за ход, всего 700 еды и +25 миллионов населения за ход."
+ ENG: "Provides 1 food per turn,  +4 flat research, +8 Million population per turn, total total worth of 250 food."
+ RUS: "Дает +1 еды за ход, всего 350 еды и +8 миллионов населения за ход."
 WorldSeed:
  Id: 18175
  ENG: "World seed"
@@ -12423,8 +12430,8 @@ LargePatchesOfTerrainHeavily:
  RUS: "Большие участки местности, покрытые огромными скалами. Из них можно добывать некоторые минералы."
 ProvidesProductionPerColonistTotal6:
  Id: 18151
- ENG: "Provides 0.2 production per colonist, total worth of 5000 production, -1 infrastructure."
- RUS: "Дает 0,2 продукции за каждого колониста, всего 5000 продукции , -1 к инфраструктуре."
+ ENG: "Provides 0.4 production per colonist, total worth of 250 production, -1 infrastructure."
+ RUS: "Дает 0,4 продукции за каждого колониста, всего 250 продукции , -1 к инфраструктуре."
 ScanInterferance:
  Id: 18152
  ENG: "Scan Interferance"
@@ -13300,6 +13307,12 @@ FrigateLaunchPadDescrShort:
 FrigateLaunchPadDescr:
  Id: 10102
  ENG: "This facility will support a squadron of 4 Frigates that will leap into the colony's defense when an enemy is spotted. It will launch the best Frigates available in your empire. You will be able to control them only in battle. They cost Money to Launch, but you get it back if they make it back home."
+AntiFighterSystems:
+ Id: 10103
+ ENG: "Anti-Fighter Systems"
+AntiFighterSystemsDescr:
+ Id: 10104
+ ENG: "Potent weapon systems thats very effective against small crafts that dont have much armour and rely mostly on shields for defence."
 
 
 
@@ -13825,7 +13838,7 @@ Tech_Terraforming_Name:
  ENG: "Terraforming I"
 Tech_Terraforming_Desc:
  Id: 18280
- ENG: "Terraforming planets is a slow process but it can produce excellent results. If researched, we would be able to construct Teraformers; Vast machines which can transform even the most deadly Volcano into a nice, harmless hill."
+ ENG: "Terraforming planets is a slow process but it can produce excellent results. If researched, we would be able to construct Terraformers; Vast machines which can transform even the most deadly Volcano into a nice, harmless hill."
 Tech_Terraforming2_Name:
  Id: 18281
  ENG: "Terraforming II"
@@ -13838,3 +13851,30 @@ Tech_Terraforming3_Name:
 Tech_Terraforming3_Desc:
  Id: 18284
  ENG: "The most advanced technology avaialble for Terraformers. They will be able to transform any habitable planet to the planet environment type our population prefers. This is a true technological marvel!"
+BB_Golddeposit:
+ Id: 18285
+ ENG: "Gold Deposit"
+BB_GolddepositDesc:
+ Id: 18286
+ ENG: "Easily extractable gold deposit that was formed when planet had a lot of active volcanoes"
+BB_GolddepositDescShort:
+ Id: 18287
+ ENG: "Provides 2 production per colonist, +3 credits, total worth of 350 production"
+BB_GoldMoutain:
+ Id: 18288
+ ENG: "Golden Mountain"
+BB_GoldMountainDesc:
+ Id: 18289
+ ENG: "Huge Mountain that is filled with gold deposits."
+BB_GoldMountainDescShort:
+ Id: 18290
+ ENG: "Provides 1.5 production per colonist, increases planet richness by 2, total worth of 3000 production"
+BB_MoltenGold:
+ Id: 18291
+ ENG: "Molten gold pit"
+BB_MoltenGoldDesc:
+ Id: 18292
+ ENG: "A pit filled with molten gold thats is created by intense volcanic activity, that heats up and pushes to the survace large amounts of gold, it can be found in this state only on very hot volcanic planets."
+BB_MoltenGoldDescShort:
+ Id: 18293
+ ENG: "Provides 0.5 production per colonist, increases planet richness by 0.35"

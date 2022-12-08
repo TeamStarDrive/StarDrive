@@ -76,8 +76,8 @@ namespace Ship_Game
             btn.SetPosToCenterOf(this).SetDistanceFromBottomOf(this, 24);
             
             float textBoxBottom = btn.Y - 2;
-            Rectangle textArea = new RectF(X + 8, imgRect.Bottom - 16, Width - 24, textBoxBottom - imgRect.Bottom);
-            TextBox = Add(new UITextBox(new Submenu(textArea)));
+            RectF textArea = new(X + 8, imgRect.Bottom - 16, Width - 24, textBoxBottom - imgRect.Bottom);
+            TextBox = Add(new UITextBox(textArea));
             //TextBox.EnableTextBoxDebug = true;
             CreateTextBoxContent(TextBox);
         }

@@ -4,7 +4,6 @@
   <UID>FrigateSquadron</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>800</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>10095</NameIndex>
   <DescriptionIndex>10096</DescriptionIndex>
   <LeadsTo />

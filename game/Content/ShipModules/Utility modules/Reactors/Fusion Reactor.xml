@@ -20,7 +20,7 @@
   <TechBranch>Power</TechBranch>
   <IconTexturePath>Modules/Fusion Reactor</IconTexturePath>
   
-  <Mass>52</Mass>
+  <Mass>46</Mass>
   <Health>1400</Health>
   <HealthMax>1400</HealthMax>
   <energyreq>0</energyreq>

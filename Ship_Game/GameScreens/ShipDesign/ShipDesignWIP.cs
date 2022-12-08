@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Windows.Forms;
 using SDUtils;
+using Ship_Game.Universe;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -86,7 +88,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             return Dir.GetFiles(Dir.StarDriveAppData + "/WIP/", "design");
         }
 
-        public static Ships.ShipDesign GetLatestWipToLoad()
+        public static Ships.ShipDesign GetLatestWipToLoad(Empire player)
         {
             DateTime latestWipTime = DateTime.MinValue;
             Ships.ShipDesign latestWip = null;
@@ -96,7 +98,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (newShipData == null)
                     continue;
 
-                if (EmpireManager.Player.WeCanShowThisWIP(newShipData) && info.LastWriteTime > latestWipTime)
+                if (player.WeCanShowThisWIP(newShipData) && info.LastWriteTime > latestWipTime)
                 {
                     latestWip = newShipData;
                     latestWipTime = info.LastWriteTime;
@@ -106,12 +108,12 @@ namespace Ship_Game.GameScreens.ShipDesign
             return latestWip;
         }
 
-        public static void RemoveRelatedWiPs(string wipName)
+        public static void RemoveRelatedWiPs(UniverseState us, string wipName)
         {
             string relatedShipName = GetWipShipNameAndNum(wipName);
             FileInfo[] relatedWips = GetWipFiles().Filter(f => f.NameNoExt().StartsWith(relatedShipName));
             for (int i = relatedWips.Length -1; i >= 0; i--)
-                ResourceManager.DeleteShip(relatedWips[i].NameNoExt());
+                ResourceManager.DeleteShip(us, relatedWips[i].NameNoExt());
         }
     }
 }

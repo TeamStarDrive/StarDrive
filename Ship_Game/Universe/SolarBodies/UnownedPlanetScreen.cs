@@ -8,16 +8,19 @@ namespace Ship_Game
 {
 	public sealed class UnownedPlanetScreen : PlanetScreen
 	{
+		UniverseScreen Universe;
+		Empire Player => Universe.Player;
 		private Planet p;
 		private Menu2 TitleBar;
 		private Vector2 TitlePos;
 		private Menu1 PlanetMenu;
 		private Vector2 NotePos;
 		private Submenu PlanetInfo;
-		private Rectangle PlanetIcon;
+		private RectF PlanetIcon;
 
-		public UnownedPlanetScreen(GameScreen parent, Planet p) : base(parent)
+		public UnownedPlanetScreen(UniverseScreen universe, Planet p) : base(universe)
 		{
+			Universe = universe;
 			this.p = p;
 			IsPopup = true; // allow right-click dismiss
 			Rectangle titleRect = new Rectangle(5, 44, 405, 80);
@@ -25,16 +28,15 @@ namespace Ship_Game
 			{
 				titleRect.Width = 365;
 			}
-			TitleBar = new Menu2(titleRect);
-			TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, 
-                ScreenHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * ScreenHeight));
-			PlanetMenu = new Menu1(leftRect);
-			Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-			NotePos = new Vector2(psubRect.X, psubRect.Y + 100);
-			PlanetInfo = new Submenu(psubRect);
-			PlanetInfo.AddTab("Planet Info");
-			PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 45, 128, 128);
+			TitleBar = new(titleRect);
+			TitlePos = new(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+			RectF leftRect = new(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, 
+                                 ScreenHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * ScreenHeight));
+			PlanetMenu = new(leftRect);
+			RectF psubRect = new(leftRect.X + 20, leftRect.Y + 20, leftRect.W - 40, leftRect.H - 40);
+			NotePos = new(psubRect.X, psubRect.Y + 100);
+			PlanetInfo = new(psubRect, "Planet Info");
+			PlanetIcon = new(psubRect.X + psubRect.W - 148, leftRect.Y + 45, 128, 128);
 		}
 
 		public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -52,7 +54,7 @@ namespace Ship_Game
 			var infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
 			batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, infoCursor, Colors.Cream);
 			pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
-			if (p.IsExploredBy(EmpireManager.Player))
+			if (p.IsExploredBy(Player))
 			{
 				infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
 				batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population) + ":", pNameCursor, Color.Orange);
@@ -65,7 +67,7 @@ namespace Ship_Game
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
 				infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
 				batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Fertility) + ":", pNameCursor, Color.Orange);
-				batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, Colors.Cream);
+				batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(Player).String(), infoCursor, Colors.Cream);
 				hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, Fonts.Arial12Bold.LineSpacing);
 				if (hoverRect.HitTest(Input.CursorPosition))
 				{
@@ -83,14 +85,14 @@ namespace Ship_Game
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
 				batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40), pNameCursor, Colors.Cream);
 			}
-			else if (!p.IsExploredBy(EmpireManager.Player))
+			else if (!p.IsExploredBy(Player))
 			{
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
 				batch.DrawString(Fonts.Arial20Bold, Localizer.Token(GameText.Unexplored), pNameCursor, Color.Gray);
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
 			}
 
-			if (EmpireManager.Player.DifficultyModifiers.HideTacticalData)
+			if (Player.DifficultyModifiers.HideTacticalData)
 			{
 				pNameCursor.Y += NotePos.Y - 40;
 				batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.NoteInOrderToSee), PlanetInfo.Width - 40), pNameCursor, Color.Gold);

@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -8,25 +7,24 @@ namespace Ship_Game
 {
     public sealed class ModEntry : UIElementContainer
     {
+        public GamePlayGlobals Settings;
+        public ModInformation Mod => Settings.Mod;
         public string ModName;
-        public ModInformation mi;
-        public string MainMenuMusic;
         public string Version;
         public bool IsSupported { get; }
         SubTexture PortraitTex;
 
-        public ModEntry(ModInformation modInfo)
+        public ModEntry(GamePlayGlobals settings)
         {
-            ModName       = modInfo.ModName;
-            mi            = modInfo;
-            MainMenuMusic = mi.CustomMenuMusic;
-            Version       = mi.Version;
-            IsSupported   = CheckSupport(modInfo.SupportedBlackBoxVersions);
+            Settings = settings;
+            ModName = Mod.Name;
+            Version = Mod.Version;
+            IsSupported = CheckSupport(Mod.SupportedBlackBoxVersions);
         }
 
         public void LoadPortrait(GameScreen screen)
         {
-            PortraitTex = screen.ContentManager.LoadModTexture(ModName, mi.PortraitPath);
+            PortraitTex = screen.ContentManager.LoadModTexture(ModName, Mod.IconPath);
         }
 
         public void LoadContent(GameScreen screen)
@@ -41,10 +39,7 @@ namespace Ship_Game
             var portrait = new Rectangle(clickRect.X + 6, clickRect.Y, 128, 128);
             var titlePos = new Vector2(portrait.X + 140, portrait.Y);
             
-            //added by gremlin Draw Mod Version
-            string title = mi.ModName;
-
-            batch.DrawString(Fonts.Arial20Bold, title, titlePos, Color.Gold);
+            batch.DrawString(Fonts.Arial20Bold, ModName, titlePos, Color.Gold);
             titlePos.Y += Fonts.Arial20Bold.LineSpacing + 2;
 
             if (!IsSupported)
@@ -53,15 +48,15 @@ namespace Ship_Game
                 titlePos.Y += Fonts.Arial12Bold.LineSpacing + 1;
             }
 
-            string author = "Author: " + mi.Author;
+            string author = "Author: " + Mod.Author;
             batch.DrawString(Fonts.Arial12Bold, author, titlePos, Color.Gold);
             titlePos.Y   += Fonts.Arial12Bold.LineSpacing + 1;
-            string url = "URL: " + mi.URL;
+            string url = "URL: " + Settings.URL;
             batch.DrawString(Fonts.Arial12Bold, url, titlePos, Color.SteelBlue);
             titlePos.Y += Fonts.Arial12Bold.LineSpacing + 1;
 
-            string description = mi.ModDescription;
-            if (!string.IsNullOrEmpty(mi.Version))
+            string description = Mod.Description;
+            if (Mod.Version.NotEmpty())
                 description = description + "\n----\nVersion - " + Version;
 
             batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(description, 450f), titlePos, Color.White);

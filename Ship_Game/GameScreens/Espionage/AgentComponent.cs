@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -14,15 +15,12 @@ namespace Ship_Game.GameScreens.Espionage
         public EspionageScreen EspionageScreen;
         public Agent SelectedAgent;
 
-        public Rectangle ComponentRect;
+        public RectF SubRect;
+        public RectF OpsSubRect;
 
-        public Rectangle SubRect;
-
-        public Rectangle OpsSubRect;
-
-        public ScrollList2<AgentListItem> AgentSL;
+        public ScrollList<AgentListItem> AgentSL;
         
-        public ScrollList2<MissionListItem> OpsSL;
+        public ScrollList<MissionListItem> OpsSL;
 
         private ScreenManager ScreenManager;
 
@@ -45,25 +43,23 @@ namespace Ship_Game.GameScreens.Espionage
         private int AvailableSpies;
         private int SpyLimit;
 
-        public AgentComponent(EspionageScreen espionageScreen, Rectangle r, Rectangle operationsRect) : base(r)
+        public AgentComponent(EspionageScreen espionageScreen, RectF r, Rectangle operationsRect) : base(r)
         {
             Universe = espionageScreen.Universe;
             EspionageScreen = espionageScreen;
 
-            ComponentRect = r;
+            RectF componentRect = r;
             ScreenManager = Universe.ScreenManager;
-            SubRect = new Rectangle(ComponentRect.X, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
-            OpsSubRect = new Rectangle(operationsRect.X + 20, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
-            AgentSL = new ScrollList2<AgentListItem>(new Submenu(ComponentRect), 40);
+            SubRect = new(componentRect.X, componentRect.Y + 25, componentRect.W, componentRect.H - 25);
+            OpsSubRect = new(operationsRect.X + 20, componentRect.Y + 25, componentRect.W, componentRect.H - 25);
+            AgentSL = Add(new SubmenuScrollList<AgentListItem>(new RectF(componentRect))).List;
             AgentSL.OnClick = OnAgentItemClicked;
-            foreach (Agent agent in EmpireManager.Player.data.AgentList)
+            foreach (Agent agent in Universe.Player.data.AgentList)
                 AgentSL.AddItem(new AgentListItem(agent, Universe));
-            Add(AgentSL);
 
-            Rectangle c = ComponentRect;
+            RectF c = componentRect;
             c.X = OpsSubRect.X;
-            OpsSL = new ScrollList2<MissionListItem>(new Submenu(c), 30);
-            Add(OpsSL);
+            OpsSL = Add(new SubmenuScrollList<MissionListItem>(new RectF(c), 30)).List;
             Training        = new MissionListItem(AgentMission.Training, this);
             Infiltrate      = new MissionListItem(AgentMission.Infiltrate, this);
             Assassinate     = new MissionListItem(AgentMission.Assassinate, this);
@@ -78,12 +74,12 @@ namespace Ship_Game.GameScreens.Espionage
             OpsSL.AddItem(StealTech);
             OpsSL.AddItem(StealShip);
             OpsSL.AddItem(InciteRebellion);
-            RecruitButton = new DanButton(new Vector2(ComponentRect.X, ComponentRect.Y + ComponentRect.Height + 5f), Localizer.Token(GameText.TrainNew))
+            RecruitButton = new DanButton(new Vector2(componentRect.X, componentRect.Y + componentRect.H + 5f), Localizer.Token(GameText.TrainNew))
             {
                 Toggled = true
             };
-            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y,      () => EmpireManager.Player.data.SpyMissionRepeat, "Repeat Missions", "");
-            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y + 15, () => EmpireManager.Player.data.SpyMute,          "Mute Spies",      "");
+            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y,      () => Universe.Player.data.SpyMissionRepeat, "Repeat Missions", "");
+            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y + 15, () => Universe.Player.data.SpyMute,          "Mute Spies",      "");
             //PerformLayout();
         }
 
@@ -117,8 +113,8 @@ namespace Ship_Game.GameScreens.Espionage
             batch.Draw(iconLock, spyLimit, Color.White);
             var spyLimitPos = new Vector2((spyLimit.X + 25), (spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
 
-            SpyLimit = EmpireManager.Player.GetEmpireAI().EmpireSpyLimit;
-            AvailableSpies = SpyLimit - EmpireManager.Player.data.AgentList.Count;
+            SpyLimit = Universe.Player.AI.EmpireSpyLimit;
+            AvailableSpies = SpyLimit - Universe.Player.data.AgentList.Count;
             if (SpyLimit < 0) SpyLimit = 0;
             batch.DrawString(Fonts.Arial12, $"For Hire : {AvailableSpies} / {SpyLimit}", spyLimitPos, Color.White);
 
@@ -155,7 +151,7 @@ namespace Ship_Game.GameScreens.Espionage
 
         string[] LoadNames()
         {
-            string playerNames = $"Content/NameGenerators/spynames_{EmpireManager.Player.data.Traits.ShipType}.txt";
+            string playerNames = $"Content/NameGenerators/spynames_{Universe.Player.data.Traits.ShipType}.txt";
             string names = File.Exists(playerNames)
                 ? File.ReadAllText(playerNames)
                 : File.ReadAllText("Content/NameGenerators/spynames_Humans.txt");
@@ -181,14 +177,14 @@ namespace Ship_Game.GameScreens.Espionage
 
             if (RecruitButton.HandleInput(input))
             {
-                if (EmpireManager.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) 
+                if (Universe.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) 
                     || AvailableSpies <= 0)
                 {
                     GameAudio.NegativeClick();
                 }
                 else
                 {
-                    EmpireManager.Player.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
+                    Universe.Player.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
                     var agent = new Agent()
                     {
                         Name = GetName(LoadNames()),
@@ -196,11 +192,11 @@ namespace Ship_Game.GameScreens.Espionage
                     };
 
                     // Added new agent information
-                    int randomPlanetIndex = RandomMath.InRange(EmpireManager.Player.GetPlanets().Count);
-                    agent.HomePlanet = EmpireManager.Player.GetPlanets()[randomPlanetIndex].Name;
-                    EmpireManager.Player.data.AgentList.Add(agent);
+                    int randomPlanetIndex = RandomMath.InRange(Universe.Player.GetPlanets().Count);
+                    agent.HomePlanet = Universe.Player.GetPlanets()[randomPlanetIndex].Name;
+                    Universe.Player.data.AgentList.Add(agent);
                     AgentSL.AddItem(new AgentListItem(agent, Universe));
-                    agent.AssignMission(AgentMission.Training, EmpireManager.Player, "");
+                    agent.AssignMission(AgentMission.Training, Universe.Player, "");
                 }
                 return true;
             }

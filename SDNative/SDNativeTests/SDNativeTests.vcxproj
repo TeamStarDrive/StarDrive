@@ -114,6 +114,7 @@
     <ClCompile Include="..\3rdparty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\ReCpp\rpp\debugging.cpp" />
     <ClCompile Include="..\ReCpp\rpp\file_io.cpp" />
+    <ClCompile Include="..\ReCpp\rpp\paths.cpp" />
     <ClCompile Include="..\ReCpp\rpp\sprint.cpp" />
     <ClCompile Include="..\ReCpp\rpp\strview.cpp" />
     <ClCompile Include="..\ReCpp\rpp\tests.cpp" />
@@ -142,6 +143,7 @@
     <ClInclude Include="..\ReCpp\rpp\config.h" />
     <ClInclude Include="..\ReCpp\rpp\debugging.h" />
     <ClInclude Include="..\ReCpp\rpp\file_io.h" />
+    <ClInclude Include="..\ReCpp\rpp\paths.h" />
     <ClInclude Include="..\ReCpp\rpp\sprint.h" />
     <ClInclude Include="..\ReCpp\rpp\strview.h" />
     <ClInclude Include="..\ReCpp\rpp\tests.h" />

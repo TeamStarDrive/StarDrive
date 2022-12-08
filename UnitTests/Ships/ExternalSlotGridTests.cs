@@ -21,7 +21,7 @@ namespace UnitTests.Ships
         public void FrigateExternals()
         {
             Ship ship = SpawnShip("TEST_Spearhead mk1-a", Player, Vector2.Zero);
-            Assert.AreEqual(new Point(6, 18), new Point(ship.Grid.Width, ship.Grid.Height));
+            AssertEqual(new Point(6, 18), new Point(ship.Grid.Width, ship.Grid.Height));
             var gs = ship.GetGridState();
 
             ship.Externals.DebugDump("TEST_Spearhead mk1-a", gs);
@@ -48,41 +48,41 @@ namespace UnitTests.Ships
 
             ShipModule At(int x, int y) => ship.GetModuleAt(x,y);
 
-            Assert.AreEqual(null,    ship.Externals.Get(gs, 0,0)); // top row
-            Assert.AreEqual(null,    ship.Externals.Get(gs, 1,0));
-            Assert.AreEqual(At(2,0), ship.Externals.Get(gs, 2,0));
-            Assert.AreEqual(At(3,0), ship.Externals.Get(gs, 3,0));
-            Assert.AreEqual(null,    ship.Externals.Get(gs, 4,0));
-            Assert.AreEqual(null,    ship.Externals.Get(gs, 5,0));
+            AssertEqual(null,    ship.Externals.Get(gs, 0,0)); // top row
+            AssertEqual(null,    ship.Externals.Get(gs, 1,0));
+            AssertEqual(At(2,0), ship.Externals.Get(gs, 2,0));
+            AssertEqual(At(3,0), ship.Externals.Get(gs, 3,0));
+            AssertEqual(null,    ship.Externals.Get(gs, 4,0));
+            AssertEqual(null,    ship.Externals.Get(gs, 5,0));
 
-            Assert.AreEqual(null,    ship.Externals.Get(gs, 0,1)); // second row
-            Assert.AreEqual(At(1,1), ship.Externals.Get(gs, 1,1), "must be external - NW,N,W empty");
+            AssertEqual(null,    ship.Externals.Get(gs, 0,1)); // second row
+            AssertEqual(At(1,1), ship.Externals.Get(gs, 1,1), "must be external - NW,N,W empty");
 
             //ship.Externals.UpdateSlotsUnderModule(gs, At(2,1));
-            Assert.AreEqual(At(2,1), ship.Externals.Get(gs, 2,1), "must be external - NW empty");
-            Assert.AreEqual(At(3,1), ship.Externals.Get(gs, 3,1), "must be external - NE empty");
-            Assert.AreEqual(At(4,1), ship.Externals.Get(gs, 4,1), "must be external - NE,N,E empty");
-            Assert.AreEqual(null,    ship.Externals.Get(gs, 5,1));
+            AssertEqual(At(2,1), ship.Externals.Get(gs, 2,1), "must be external - NW empty");
+            AssertEqual(At(3,1), ship.Externals.Get(gs, 3,1), "must be external - NE empty");
+            AssertEqual(At(4,1), ship.Externals.Get(gs, 4,1), "must be external - NE,N,E empty");
+            AssertEqual(null,    ship.Externals.Get(gs, 5,1));
 
             // edges of the front section
-            Assert.AreEqual(At(0,2), ship.Externals.Get(gs, 0,2));
-            Assert.AreEqual(At(0,3), ship.Externals.Get(gs, 0,3));
-            Assert.AreEqual(At(0,4), ship.Externals.Get(gs, 0,4));
-            Assert.AreEqual(At(5,2), ship.Externals.Get(gs, 5,2));
-            Assert.AreEqual(At(5,3), ship.Externals.Get(gs, 5,3));
-            Assert.AreEqual(At(5,4), ship.Externals.Get(gs, 5,4));
+            AssertEqual(At(0,2), ship.Externals.Get(gs, 0,2));
+            AssertEqual(At(0,3), ship.Externals.Get(gs, 0,3));
+            AssertEqual(At(0,4), ship.Externals.Get(gs, 0,4));
+            AssertEqual(At(5,2), ship.Externals.Get(gs, 5,2));
+            AssertEqual(At(5,3), ship.Externals.Get(gs, 5,3));
+            AssertEqual(At(5,4), ship.Externals.Get(gs, 5,4));
 
             // inner corners of the front section should be external
             // because 1 neighboring tile is empty
-            Assert.AreEqual(At(1,2), ship.Externals.Get(gs, 1,2));
-            Assert.AreEqual(At(1,3), ship.Externals.Get(gs, 1,3)); // this is a 1x2 module
-            Assert.AreEqual(At(1,4), ship.Externals.Get(gs, 1,4)); // this is a 1x2 module
+            AssertEqual(At(1,2), ship.Externals.Get(gs, 1,2));
+            AssertEqual(At(1,3), ship.Externals.Get(gs, 1,3)); // this is a 1x2 module
+            AssertEqual(At(1,4), ship.Externals.Get(gs, 1,4)); // this is a 1x2 module
 
-            Assert.AreEqual(At(4,2), ship.Externals.Get(gs, 4,2));
-            Assert.AreEqual(At(4,4), ship.Externals.Get(gs, 4,4)); // this is a 1x2 module
-            Assert.AreEqual(At(4,3), ship.Externals.Get(gs, 4,3)); // this is a 1x2 module
+            AssertEqual(At(4,2), ship.Externals.Get(gs, 4,2));
+            AssertEqual(At(4,4), ship.Externals.Get(gs, 4,4)); // this is a 1x2 module
+            AssertEqual(At(4,3), ship.Externals.Get(gs, 4,3)); // this is a 1x2 module
 
-            Assert.AreEqual(49, ship.Externals.NumModules);
+            AssertEqual(49, ship.Externals.NumModules);
 
             // 13 |E1x1|E1x2 1x1  1x1 |E1x2|E1x1
             // 14 |E1x1 1x1  2x2  2x2  1x1 |E1x1
@@ -93,18 +93,18 @@ namespace UnitTests.Ships
             // kill a few engine modules, which should trigger an update to external slots
             ship.GetModuleAt(2, 17).SetHealth(0, "Test"); // this is a 1x1 engine slot
             // killing that module should count -1 slot and expose +2 1x1 modules
-            Assert.AreEqual(49-1+2, ship.Externals.NumModules);
+            AssertEqual(49-1+2, ship.Externals.NumModules);
 
             // and if we resurrect the module, it should go back to previous value
             ship.GetModuleAt(2, 17).SetHealth(100, "Test");
-            Assert.AreEqual(49, ship.Externals.NumModules);
+            AssertEqual(49, ship.Externals.NumModules);
 
             // kill two 1x1 modules, exposing the 2x2 reactor
             ship.GetModuleAt(3, 17).SetHealth(0, "Test");
             ship.GetModuleAt(3, 16).SetHealth(0, "Test");
-            Assert.AreEqual(At(3,15), ship.Externals.Get(gs, 3,15));
+            AssertEqual(At(3,15), ship.Externals.Get(gs, 3,15));
             // lose one, but gain 3 externals
-            Assert.AreEqual(49-1+3, ship.Externals.NumModules);
+            AssertEqual(49-1+3, ship.Externals.NumModules);
         }
     }
 }

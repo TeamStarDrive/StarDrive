@@ -5,6 +5,7 @@ using Ship_Game.Audio;
 using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -12,7 +13,7 @@ namespace Ship_Game
     {
         readonly ResearchScreenNew Screen;
         Menu2 Window;
-        ScrollList2<SearchTechItem> TechList;
+        ScrollList<SearchTechItem> TechList;
         UITextEntry SearchTech;
 
         public SearchTechScreen(ResearchScreenNew screen) : base(screen, toPause: null)
@@ -34,8 +35,8 @@ namespace Ship_Game
             Vector2 titlePos = new Vector2(Window.Menu.CenterTextX(title, Fonts.Arial20Bold), Window.Menu.Y + 35);
             Label(titlePos, title, Fonts.Arial20Bold, Colors.Cream);
 
-            var panel = new Submenu(Window.X + 20, Window.Y + 95, Window.Width - 40, Window.Height - 125, SubmenuStyle.Blue);
-            TechList = Add(new ScrollList2<SearchTechItem>(panel, 125, ListStyle.Blue));
+            RectF techList = new(Window.X + 20, Window.Y + 95, Window.Width - 40, Window.Height - 125);
+            TechList = Add(new SubmenuScrollList<SearchTechItem>(techList, 125, ListStyle.Blue)).List;
             TechList.OnClick = (item) => ResearchToTech(item.Tech);
 
             Rectangle rect = new RectF(Window.X + 20, Window.Y + 66, Window.Width - 40, 20);
@@ -64,10 +65,10 @@ namespace Ship_Game
             TechList.Reset();
             var items = new Array<SearchTechItem>();
 
-            foreach (var entry in EmpireManager.Player.TechnologyDict)
+            foreach (TechEntry entry in Screen.Universe.Player.TechEntries)
             {
-                TreeNode node = new TreeNode(Vector2.Zero, entry.Value, Screen);
-                if (entry.Value.Discovered && !entry.Value.IsRoot &&
+                TreeNode node = new TreeNode(Vector2.Zero, entry, Screen);
+                if (entry.Discovered && !entry.IsRoot &&
                     (keyword.IsEmpty() || node.TechName.ToLower().Contains(keyword)))
                 {
                     items.Add(CreateQueueItem(node));
@@ -86,7 +87,7 @@ namespace Ship_Game
 
         void ResearchToTech(TechEntry entry)
         {
-            if (!entry.CanBeResearched || EmpireManager.Player.Research.IsQueued(entry.UID))
+            if (!entry.CanBeResearched || Screen.Player.Research.IsQueued(entry.UID))
             {
                 GameAudio.NegativeClick();
                 return;
@@ -95,8 +96,8 @@ namespace Ship_Game
             Array<TechEntry> entries = new Array<TechEntry> {entry};
             while (!entry.IsRoot)
             {
-                TechEntry parent = entry.GetPreReq(EmpireManager.Player);
-                if (parent.Unlocked || EmpireManager.Player.Research.IsQueued(entry.UID))
+                TechEntry parent = entry.GetPreReq(Screen.Player);
+                if (parent.Unlocked || Screen.Player.Research.IsQueued(entry.UID))
                     break;
 
                 if (!parent.IsRoot)

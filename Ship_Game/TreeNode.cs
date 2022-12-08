@@ -14,21 +14,21 @@ namespace Ship_Game
         public NodeState State;
         public ResearchScreenNew Screen;
         public string TechName;
-        public Rectangle TitleRect;
-        public Rectangle BaseRect = new(0, 0, 105, 98);
-        public Vector2 RightPoint => new(BaseRect.Right - 25, BaseRect.CenterY() - 10);
+        public RectF TitleRect;
+        public RectF BaseRect = new(0, 0, 105, 98);
+        public Vector2 RightPoint => new(BaseRect.Right - 25, BaseRect.CenterY - 10);
         public bool Complete;
-        Rectangle IconRect;
-        Rectangle UnlocksRect;
-        Rectangle MultiLevelRect;
+        RectF IconRect;
+        RectF UnlocksRect;
+        RectF MultiLevelRect;
         readonly Array<UnlockItem> UnlocksGridItems;
         UnlocksGrid UnlocksGrid;
-        Rectangle ProgressRect;
+        RectF ProgressRect;
         readonly float TitleWidth = 73f;
         readonly Color MultiLevelColor = new Color(210, 155, 255);
 
         readonly Technology TechTemplate;
-        Rectangle PlusRect;
+        RectF PlusRect;
 
         const int MaxUnlockItems = 4;
 
@@ -39,11 +39,11 @@ namespace Ship_Game
 
             Screen = screen;
             Entry = theEntry;
-            Technology tech = ResourceManager.TechTree[theEntry.UID];
+            Technology tech = ResourceManager.Tech(theEntry.UID);
             TechName = tech.Name.Text;
-            TechTemplate = ResourceManager.TechTree[Entry.UID];
-            Complete = EmpireManager.Player.HasUnlocked(Entry);
-            UnlocksGridItems = UnlockItem.CreateUnlocksList(TechTemplate, maxUnlocks: MaxUnlockItems);
+            TechTemplate = ResourceManager.Tech(Entry.UID);
+            Complete = screen.Player.HasUnlocked(Entry);
+            UnlocksGridItems = UnlockItem.CreateUnlocksList(TechTemplate, Screen.Player, maxUnlocks: MaxUnlockItems);
             SetPos(pos);
         }
 
@@ -51,25 +51,25 @@ namespace Ship_Game
         {
             BaseRect.X = (int)pos.X;
             BaseRect.Y = (int)pos.Y;
-            ProgressRect = new Rectangle(BaseRect.X + 15, BaseRect.Y + 21, 2, 34);
-            IconRect = new Rectangle(BaseRect.X + BaseRect.Width / 2 - 29, BaseRect.Y + BaseRect.Height / 2 - 24 - 10, 58, 49);
+            ProgressRect = new(BaseRect.X + 15, BaseRect.Y + 21, 2, 34);
+            IconRect = new(BaseRect.X + BaseRect.W / 2 - 29, BaseRect.Y + BaseRect.H / 2 - 24 - 10, 58, 49);
 
             int numColumns = UnlocksGridItems.Count / 2 + UnlocksGridItems.Count % 2;
             if (UnlocksGridItems.Count <= 1)
             {
-                UnlocksRect = new Rectangle(IconRect.X + IconRect.Width +7, IconRect.Y + IconRect.Height - 5, 35, 32);
-                UnlocksRect.Y -= UnlocksRect.Height;
+                UnlocksRect = new(IconRect.Right + 7, IconRect.Bottom - 5, 35, 32);
+                UnlocksRect.Y -= UnlocksRect.H;
                 UnlocksGrid = new UnlocksGrid(UnlocksGridItems, UnlocksRect.Move(3, 0));
             }
             else
             {
-                UnlocksRect = new Rectangle(IconRect.X + IconRect.Width, IconRect.Y + IconRect.Height - 5, 13 + numColumns * 32, (UnlocksGridItems.Count == 1 ? 32 : 64));
-                UnlocksRect.Y -= UnlocksRect.Height;
+                UnlocksRect = new(IconRect.Right, IconRect.Bottom - 5, 13 + numColumns * 32, (UnlocksGridItems.Count == 1 ? 32 : 64));
+                UnlocksRect.Y -= UnlocksRect.H;
                 UnlocksGrid = new UnlocksGrid(UnlocksGridItems, UnlocksRect.Move(13, 0));
             }
             UnlocksRect = UnlocksRect.Bevel(2);
 
-            TitleRect = new Rectangle(BaseRect.X, BaseRect.Y - 22, 90, 36);
+            TitleRect = new(BaseRect.X, BaseRect.Y - 22, 90, 36);
         }
 
         SubTexture TechIcon
@@ -90,7 +90,7 @@ namespace Ship_Game
                 DrawGlow(batch, Entry.Tech.Secret ? Color.Green : Color.White);
             }
 
-            bool queued = EmpireManager.Player.Research.IsQueued(Entry.UID);
+            bool queued = Screen.Player.Research.IsQueued(Entry.UID);
             bool active = Complete || queued;
 
             string techBaseRectSuffix = "";
@@ -141,7 +141,7 @@ namespace Ship_Game
             if (Entry.MaxLevel > 1)
             {
                 string multiLevel = RomanNumerals.ToRoman((Entry.Level + 1).UpperBound(Entry.MaxLevel)) + "/" + RomanNumerals.ToRoman(Entry.MaxLevel);
-                MultiLevelRect = new Rectangle(UnlocksRect.X+1, UnlocksRect.Y + 41, (int)TitleFont.MeasureString(multiLevel).X+8, 20);
+                MultiLevelRect = new(UnlocksRect.X+1, UnlocksRect.Y + 41, TitleFont.TextWidth(multiLevel)+8, 20);
                 batch.FillRectangle(MultiLevelRect, new Color(26, 26, 28));
                 batch.DrawRectangle(MultiLevelRect, unlocksRectBorderColor);
                 Vector2 multiPos = new(MultiLevelRect.X + 5, MultiLevelRect.Y + 2);
@@ -168,16 +168,16 @@ namespace Ship_Game
 
             for (int i = 0; i < titleLines.Length; ++i)
             {
-                var pos = new Vector2(TitleRect.CenterX() - TitleFont.TextWidth(titleLines[i]) * 0.5f,
+                var pos = new Vector2(TitleRect.CenterX - TitleFont.TextWidth(titleLines[i]) * 0.5f,
                                       textStartY + i * TitleFont.LineSpacing);
                 batch.DrawString(TitleFont, titleLines[i], pos.Rounded(), Complete && Entry.MultiLevelComplete ? completeTitleColor : Color.White);
             }
 
             batch.Draw(ResourceManager.Texture(progressIcon), ProgressRect, Color.White);
 
-            int progress = (int)(ProgressRect.Height - EmpireManager.Player.TechProgress(Entry) / EmpireManager.Player.TechCost(Entry) * (double)ProgressRect.Height);
-            Rectangle progressRect2 = ProgressRect;
-            progressRect2.Height = progress;
+            int progress = (int)(ProgressRect.H - Screen.Player.TechProgress(Entry) / Screen.Player.TechCost(Entry) * ProgressRect.H);
+            var progressRect2 = ProgressRect;
+            progressRect2.H = progress;
             batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), progressRect2, Color.White);
 
             // draw tech cost if tech can still be research (such as multi-level techs) display the cost
@@ -200,15 +200,15 @@ namespace Ship_Game
             if (costText.NotEmpty)
             {
                 Vector2 textSize = costFont.MeasureString(costText);
-                var costPos = new Vector2(BaseRect.X + BaseRect.Width/2 - textSize.X/2 - 2, BaseRect.Y + 67).Rounded();
+                var costPos = new Vector2(BaseRect.X + BaseRect.W/2 - textSize.X/2 - 2, BaseRect.Y + 67).Rounded();
                 batch.DrawString(costFont, costText, costPos, costColor);
                 //batch.DrawRectangle(new RectF(costPos, textSize), Color.Red); // for debugging
             }
 
             // draw an orange + if there are more techs unlocked
-            if (TechTemplate.NumStuffUnlocked(EmpireManager.Player) > MaxUnlockItems)
+            if (TechTemplate.NumStuffUnlocked(Screen.Player) > MaxUnlockItems)
             { 
-                PlusRect = new Rectangle(UnlocksRect.X + 60, UnlocksRect.Y + UnlocksRect.Height, 20, 20);
+                PlusRect = new(UnlocksRect.X + 60, UnlocksRect.Y + UnlocksRect.H, 20, 20);
                 batch.DrawString(Fonts.Arial20Bold, "+", new Vector2(PlusRect.X, PlusRect.Y), Color.Orange);
             }
 
@@ -224,12 +224,9 @@ namespace Ship_Game
 
         public bool HandleInput(InputState input, ScreenManager ScreenManager, Camera2D camera, UniverseScreen u)
         {
-            Vector2 RectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2(BaseRect.X, BaseRect.Y));
-            Rectangle moddedRect = new Rectangle((int)RectPos.X, (int)RectPos.Y, BaseRect.Width, BaseRect.Height);
-            Vector2 RectPos2 = camera.GetScreenSpaceFromWorldSpace(new Vector2(UnlocksRect.X, UnlocksRect.Y));
-            Rectangle moddedRect2 = new Rectangle((int)RectPos2.X, (int)RectPos2.Y, UnlocksRect.Width, UnlocksRect.Height);
-            Vector2 RectPos3 = camera.GetScreenSpaceFromWorldSpace(new Vector2(IconRect.X, IconRect.Y));
-            Rectangle moddedRect3 = new Rectangle((int)RectPos3.X, (int)RectPos3.Y, IconRect.Width, IconRect.Height);
+            RectF moddedRect = new(camera.GetScreenSpaceFromWorldSpace(BaseRect.Pos), BaseRect.Size);
+            RectF moddedRect2 = new(camera.GetScreenSpaceFromWorldSpace(UnlocksRect.Pos), UnlocksRect.Size);
+            RectF moddedRect3 = new(camera.GetScreenSpaceFromWorldSpace(IconRect.Pos), IconRect.Size);
 
             if (moddedRect.HitTest(input.CursorPosition) || moddedRect2.HitTest(input.CursorPosition))
             {
@@ -254,8 +251,7 @@ namespace Ship_Game
                 State = NodeState.Normal;
             }
 
-            Vector2 plusPos = camera.GetScreenSpaceFromWorldSpace(new Vector2(PlusRect.X, PlusRect.Y));
-            Rectangle moddedPlusRect = new Rectangle((int)plusPos.X, (int)plusPos.Y, PlusRect.Width, PlusRect.Height);
+            RectF moddedPlusRect = new(camera.GetScreenSpaceFromWorldSpace(PlusRect.Pos), PlusRect.Size);
             if (moddedPlusRect.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip("This Technology unlocks more than 4 items. Right Click on the title to Expand");
@@ -266,21 +262,20 @@ namespace Ship_Game
             {
                 foreach (UnlocksGrid.GridItem gi in UnlocksGrid.GridOfUnlocks)
                 {
-                    Vector2 rectPos4 = camera.GetScreenSpaceFromWorldSpace(gi.Pos);
-                    var moddedRect4 = new Rectangle((int)rectPos4.X, (int)rectPos4.Y, gi.rect.Width, gi.rect.Height);
+                    RectF moddedRect4 = new(camera.GetScreenSpaceFromWorldSpace(gi.Pos), gi.Rect.Size);
                     if (moddedRect4.HitTest(input.CursorPosition))
                     {
-                        ShipHull unlocked = gi.item.hull;
+                        ShipHull unlocked = gi.Item.hull;
                         ToolTip.CreateTooltip(unlocked == null
-                            ? $"{gi.item.Title}\n\n{gi.item.Description}"
-                            : $"{unlocked.VisibleName} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
+                            ? $"{gi.Item.Title}\n\n{gi.Item.Description}"
+                            : $"{unlocked.VisibleName} ({Localizer.GetRole(unlocked.Role, Screen.Player)})");
                     }
                 }
             }
             else
             {
-                string text = $"Right Click to Expand \n\n{ResourceManager.TechTree[Entry.UID].Description.Text}";
-                if (Complete && !Entry.MultiLevelComplete && !EmpireManager.Player.Research.IsQueued(Entry.UID))
+                string text = $"Right Click to Expand \n\n{Entry.Tech.Description.Text}";
+                if (Complete && !Entry.MultiLevelComplete && !Screen.Player.Research.IsQueued(Entry.UID))
                     text = $"Left Click to research level {Entry.Level+1} of this tech.\n\n{text}";
 
                 ToolTip.CreateTooltip(text);

@@ -3,7 +3,7 @@
   <Step>1</Step>
   <Name>Protection Money</Name>
   <FactionInitiated>true</FactionInitiated>
-  <PercentMoneyDemanded>10</PercentMoneyDemanded> <!-- this percentage of total treasury request will be modified and overwrite any MoneyToThem below -->
+  <PercentMoneyDemanded>5</PercentMoneyDemanded> <!-- this percentage of total treasury request will be modified and overwrite any MoneyToThem below -->
   <DescriptionText>While you are busy managing your empire's new found colonies, you receive a message from "The Corsairs" you have met before:</DescriptionText>
   <MessageList>
     <Message>

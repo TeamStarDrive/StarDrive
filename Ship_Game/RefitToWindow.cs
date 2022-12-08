@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.AI;
@@ -9,6 +8,7 @@ using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -16,11 +16,12 @@ namespace Ship_Game
     {
         readonly ShipListScreen Screen;
         readonly Ship ShipToRefit;
-        Submenu sub_ships;
-        ScrollList2<RefitShipListItem> RefitShipList;
+        Empire Player => ShipToRefit.Universe.Player;
+        SubmenuScrollList<RefitShipListItem> sub_ships;
+        ScrollList<RefitShipListItem> RefitShipList;
         UIButton RefitOne;
         UIButton RefitAll;
-        Ship RefitTo;
+        IShipDesign RefitTo;
         DanButton ConfirmRefit;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
@@ -44,52 +45,50 @@ namespace Ship_Game
         class RefitShipListItem : ScrollListItem<RefitShipListItem>
         {
             readonly RefitToWindow Screen;
-            public readonly Ship Ship;
+            public readonly IShipDesign Design;
 
-            public RefitShipListItem(RefitToWindow screen, Ship template)
+            public RefitShipListItem(RefitToWindow screen, IShipDesign design)
             {
                 Screen = screen;
-                Ship = template;
+                Design = design;
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                batch.Draw(Ship.ShipData.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
+                batch.Draw(Design.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
 
                 var tCursor = new Vector2(X + 40f, Y + 3f);
-                batch.DrawString(Fonts.Arial12Bold, Ship.Name, tCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, Design.Name, tCursor, Color.White);
 
                 if (Screen.sub_ships.SelectedIndex == 0)
                 {
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial12Bold, Ship.ShipData.GetRole(), tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial12Bold, Design.GetRole(), tCursor, Color.Orange);
                 }
 
                 var moneyRect = new Rectangle((int)X + 285, (int)Y, 21, 20);
                 var moneyText = new Vector2((moneyRect.X + 25), (moneyRect.Y - 2));
                 batch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
-                int refitCost = Screen.ShipToRefit.RefitCost(Ship);
+                int refitCost = Screen.ShipToRefit.RefitCost(Design);
                 batch.DrawString(Fonts.Arial12Bold, refitCost.ToString(), moneyText, Color.White);
             }
         }
 
         public override void LoadContent()
         {
-            var shipDesignsRect = new Rectangle(ScreenWidth / 2 - 200, 200, 400, 500);
-            sub_ships = new Submenu(shipDesignsRect);
-            sub_ships.Background = new Selector(sub_ships.Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
+            RectF shipDesignsRect = new(ScreenWidth / 2 - 200, 200, 400, 500);
+            sub_ships = Add(new SubmenuScrollList<RefitShipListItem>(shipDesignsRect, "Refit to..."));
+            sub_ships.SetBackground(Colors.TransparentBlackFill);
             
-            RefitShipList = Add(new ScrollList2<RefitShipListItem>(sub_ships, 40));
-            sub_ships.AddTab("Refit to...");
+            RefitShipList = sub_ships.List;
             RefitShipList.EnableItemHighlight = true;
             RefitShipList.OnClick = OnRefitShipItemClicked;
 
-            foreach (string shipId in ShipToRefit.Loyalty.ShipsWeCanBuild)
+            foreach (IShipDesign design in ShipToRefit.Loyalty.ShipsWeCanBuild)
             {
-                Ship weCanBuild = ResourceManager.GetShipTemplate(shipId);
-                if (weCanBuild.ShipData.Hull == ShipToRefit.ShipData.Hull && shipId != ShipToRefit.Name &&
-                    !weCanBuild.ShipData.ShipRole.Protected)
+                if (design.Hull == ShipToRefit.ShipData.Hull && design != ShipToRefit.ShipData &&
+                    !design.ShipRole.Protected)
                 {
-                    RefitShipList.AddItem(new RefitShipListItem(this, weCanBuild));
+                    RefitShipList.AddItem(new RefitShipListItem(this, design));
                 }
             }
 
@@ -100,10 +99,10 @@ namespace Ship_Game
             RefitAll = ButtonMedium(shipDesignsRect.X + 250, shipDesignsRect.Y + 505, text:GameText.RefitAll, click: OnRefitAllClicked);
             RefitAll.Tooltip = Localizer.Token(GameText.RefitAllShipsOfThis);
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, ShipToRefit.Universe));
             RefitShipList.OnHovered = (item) =>
             {
-                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Design);
             };
 
             base.LoadContent();
@@ -111,7 +110,7 @@ namespace Ship_Game
 
         void OnRefitShipItemClicked(RefitShipListItem item)
         {
-            RefitTo = item.Ship;
+            RefitTo = item.Design;
             RefitOne.Enabled = RefitTo != null;
             RefitAll.Enabled = RefitTo != null;
         }
@@ -141,24 +140,24 @@ namespace Ship_Game
 
         void OnRefitOneClicked(UIButton b)
         {
-            EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal(ShipToRefit));
+            Player.AI.AddGoalAndEvaluate(GetRefitGoal(ShipToRefit));
             GameAudio.EchoAffirmative();
             ExitScreen();
         }
 
         void OnRefitAllClicked(UIButton b)
         {
-            var ships = EmpireManager.Player.OwnedShips;
+            var ships = Player.OwnedShips;
             foreach (Ship ship in ships)
             {
                 if (ship.Name == ShipToRefit.Name)
-                    EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal(ship));
+                    Player.AI.AddGoalAndEvaluate(GetRefitGoal(ship));
             }
 
-            foreach (Planet planet in EmpireManager.Player.GetPlanets())
+            foreach (Planet planet in Player.GetPlanets())
                 planet.Construction.RefitShipsBeingBuilt(ShipToRefit, RefitTo);
 
-            foreach (Fleet fleet in EmpireManager.Player.GetFleetsDict().Values)
+            foreach (Fleet fleet in Player.ActiveFleets)
                 fleet.RefitNodeName(ShipToRefit.Name, RefitTo.Name);
 
             GameAudio.EchoAffirmative();
@@ -169,9 +168,9 @@ namespace Ship_Game
         {
             Goal refitShip;
             if (ShipToRefit.IsPlatformOrStation)
-                refitShip = new RefitOrbital(ship, RefitTo.Name, EmpireManager.Player);
+                refitShip = new RefitOrbital(ship, RefitTo, Player);
             else
-                refitShip = new RefitShip(ship, RefitTo.Name, EmpireManager.Player);
+                refitShip = new RefitShip(ship, RefitTo, Player);
 
             return refitShip;
         }

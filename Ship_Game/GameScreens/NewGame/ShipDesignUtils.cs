@@ -26,7 +26,7 @@ namespace Ship_Game.GameScreens.NewGame
         static Map<string, string> GetHullTechUnlocks()
         {
             var hullUnlocks = new Map<string, string>();
-            foreach (Technology tech in ResourceManager.TechTree.Values)
+            foreach (Technology tech in ResourceManager.TechsList)
             {
                 // set root techs to null because they are always unlocked
                 string requiredTech = tech.IsRootNode ? null : tech.UID;
@@ -40,7 +40,7 @@ namespace Ship_Game.GameScreens.NewGame
         static Map<string, string> GetModuleTechUnlocks()
         {
             var moduleUnlocks = new Map<string, string>();
-            foreach (Technology tech in ResourceManager.TechTree.Values)
+            foreach (Technology tech in ResourceManager.TechsList)
             {
                 for (int i = 0; i < tech.ModulesUnlocked.Count; ++i)
                     moduleUnlocks[tech.ModulesUnlocked[i].ModuleUID] = tech.UID;
@@ -54,7 +54,7 @@ namespace Ship_Game.GameScreens.NewGame
         static Map<string, string[]> GetFullTechTreePaths()
         {
             var techParentTechs = new Map<string, string[]>();
-            foreach (Technology tech in ResourceManager.TechTree.Values)
+            foreach (Technology tech in ResourceManager.TechsList)
             {
                 int numParents = tech.Parents.Length;
                 string[] techs = new string[numParents == 0 ? 1 : numParents];

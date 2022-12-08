@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Vector4 = SDGraphics.Vector4;
 using Rectangle = SDGraphics.Rectangle;
+using System.IO;
 
 namespace Ship_Game
 {
@@ -102,6 +101,7 @@ namespace Ship_Game
         {
             public readonly object A;
             public readonly object B;
+            public override string ToString() => $"Pair A={A} B={B}";
             public ObjectPair(object a, object b)
             {
                 A = a;
@@ -120,50 +120,51 @@ namespace Ship_Game
             public override bool Equals(object obj)
             {
                 var other = (ObjectPair)obj;
-                bool containsA = ReferenceEquals(A, other.A) || ReferenceEquals(A, other.B);
-                if (!containsA)
-                    return false;
-                bool containsB = ReferenceEquals(B, other.A) || ReferenceEquals(B, other.B);
-                return containsB;
+                if (Equals(A, other.A)) return Equals(B, other.B);
+                if (Equals(A, other.B)) return Equals(B, other.A);
+                return false;
             }
-        }
-
-        static Type[] BuiltinTypes;
-
-        public static bool IsBuiltIn(this Type type)
-        {
-            if (type.IsPrimitive)
-                return true;
-            if (BuiltinTypes == null)
-            {
-                BuiltinTypes = new []
-                {
-                    typeof(string), typeof(decimal), typeof(Guid), 
-                    typeof(Vector2), typeof(Vector3), typeof(Vector4), typeof(Rectangle), typeof(Viewport), 
-                    typeof(LocalizedText), 
-                };
-            }
-            return BuiltinTypes.Contains(type);
         }
 
         class MemberwiseComparer
         {
-            readonly Array<string> Errors = new Array<string>();
-            readonly HashSet<ObjectPair> Checked = new HashSet<ObjectPair>();
+            readonly Array<string> Errors = new();
+            readonly HashSet<ObjectPair> Checked = new();
+            readonly HashSet<Type> BuiltinTypes = new();
 
-            void Error(MemberInfo member, string err)
+            public MemberwiseComparer()
             {
+                BuiltinTypes = new()
+                {
+                    typeof(string), typeof(decimal), typeof(Guid), typeof(DateTime), typeof(TimeSpan),
+                    typeof(Vector2), typeof(Vector3), typeof(Vector4), typeof(Rectangle), typeof(Viewport), 
+                    typeof(LocalizedText),
+                };
+            }
+
+
+            void Error(object parent, MemberInfo member, string err)
+            {
+                Type parentType = parent.GetType();
                 Type type = (member is PropertyInfo p) ? p.PropertyType : ((FieldInfo)member).FieldType;
-                string text = $"{member.DeclaringType.GetTypeName()}::{member.Name} {type.GetTypeName()} {err}";
+                string text = $"{parentType.GetTypeName()} -> {member.DeclaringType.GetTypeName()}::{member.Name} {type.GetTypeName()} {err}";
                 Errors.Add(text);
                 Log.Warning(text);
             }
+
+            // if a type is a "Built-In", then object.Equals() must have been sufficient!
+            bool IsBuiltIn(Type type)
+            {
+                if (type.IsPrimitive)
+                    return true;
+                return BuiltinTypes.Contains(type);
+            }
             
-            bool CompareCollection(MemberInfo member, ICollection col1, ICollection col2)
+            bool CompareCollection(object parent, MemberInfo member, ICollection col1, ICollection col2)
             {
                 if (col1.Count != col2.Count)
                 {
-                    Error(member, $"Count {col1.Count} != {col2.Count}");
+                    Error(parent, member, $"Count {col1.Count} != {col2.Count}");
                     return false;
                 }
 
@@ -173,10 +174,10 @@ namespace Ship_Game
                 {
                     en2.MoveNext();
                     object o2 = en2.Current;
-                    bool equal = CheckEqual(member, o1, o2);
+                    bool equal = CheckEqual(parent, member, o1, o2);
                     if (!equal)
                     {
-                        Error(member, $"elements at [{i}] were not equal: {o1} != {o2}");
+                        Error(parent, member, $"elements at [{i}] were not equal: {o1} != {o2}");
                         return false;
                     }
                     ++i;
@@ -184,11 +185,11 @@ namespace Ship_Game
                 return true; // all elements were equal
             }
 
-            bool CompareDictionary(MemberInfo member, IDictionary dict1, IDictionary dict2)
+            bool CompareDictionary(object parent, MemberInfo member, IDictionary dict1, IDictionary dict2)
             {
                 if (dict1.Count != dict2.Count)
                 {
-                    Error(member, $"Count {dict1.Count} != {dict2.Count}");
+                    Error(parent, member, $"Count {dict1.Count} != {dict2.Count}");
                     return false;
                 }
 
@@ -197,21 +198,21 @@ namespace Ship_Game
                 {
                     if (!dict2.Contains(de.Key))
                     {
-                        Error(member, $"key=[{de.Key}] not found in second dictionary");
+                        Error(parent, member, $"key=[{de.Key}] not found in second dictionary");
                         return false;
                     }
                     object o1 = de.Value;
                     object o2 = dict2[de.Key];
-                    if (!CheckEqual(member, o1, o2))
+                    if (!CheckEqual(parent, member, o1, o2))
                     {
-                        Error(member, $"values with key=[{de.Key}] were not equal: {o1} != {o2}");
+                        Error(parent, member, $"values with key=[{de.Key}] were not equal: {o1} != {o2}");
                         return false;
                     }
                 }
                 return true; // all elements were equal
             }
             
-            bool CompareEnumerable(MemberInfo member, IEnumerable en1, IEnumerable en2)
+            bool CompareEnumerable(object parent, MemberInfo member, IEnumerable en1, IEnumerable en2)
             {
                 var items1 = new Array<object>();
                 var items2 = new Array<object>();
@@ -220,7 +221,7 @@ namespace Ship_Game
 
                 if (items1.Count != items2.Count)
                 {
-                    Error(member, $"Count {items1.Count} != {items2.Count}");
+                    Error(parent, member, $"Count {items1.Count} != {items2.Count}");
                     return false;
                 }
 
@@ -228,23 +229,23 @@ namespace Ship_Game
                 {
                     object o1 = items1[i];
                     object o2 = items2[i];
-                    if (!CheckEqual(member, o1, o2))
+                    if (!CheckEqual(parent, member, o1, o2))
                     {
-                        Error(member, $"elements at [{i}] were not equal: {o1} != {o2}");
+                        Error(parent, member, $"elements at [{i}] were not equal: {o1} != {o2}");
                         return false;
                     }
                 }
                 return true; // all elements were equal
             }
 
-            bool CheckEqual(MemberInfo member, object val1, object val2)
+            bool CheckEqual(object parent, MemberInfo member, object val1, object val2)
             {
                 if (val1 == null && val2 == null)
                     return true;
 
                 if (val1 == null || val2 == null)
                 {
-                    Error(member, $"One of the values was null: first={val1} second={val2}");
+                    Error(parent, member, $"One of the values was null: first={val1} second={val2}");
                     return false;
                 }
 
@@ -252,31 +253,38 @@ namespace Ship_Game
                     return true;
 
                 Type subType = val1.GetType();
+                if (subType == typeof(FileInfo))
+                {
+                    if (((FileInfo)val1).FullName == ((FileInfo)val2).FullName)
+                        return true;
+                    Error(parent, member, $"first={((FileInfo)val1).FullName} != second={((FileInfo)val2).FullName}");
+                    return false;
+                }
 
                 // for floats we need special treatment because of parser issues
                 if (subType == typeof(float))
                 {
                     if (((float)val1).AlmostEqual((float)val2, 0.0001f))
                         return true;
-                    Error(member, $"first={val1:0.#####} != second={val2:0.#####}");
+                    Error(parent, member, $"first={val1:0.#####} != second={val2:0.#####}");
                     return false;
                 }
 
                 // in this case, the Equals() check was sufficient
-                if (subType.IsEnum || subType.IsBuiltIn())
+                if (subType.IsEnum || IsBuiltIn(subType))
                 {
-                    Error(member, $"first={val1} != second={val2}");
+                    Error(parent, member, $"first={val1} != second={val2}");
                     return false;
                 }
 
                 if (val1 is IDictionary dict1)
-                    return CompareDictionary(member, dict1, (IDictionary)val2);
+                    return CompareDictionary(parent, member, dict1, (IDictionary)val2);
 
                 if (val1 is ICollection col1)
-                    return CompareCollection(member, col1, (ICollection)val2);
+                    return CompareCollection(parent, member, col1, (ICollection)val2);
 
                 if (val1 is IEnumerable en1)
-                    return CompareEnumerable(member, en1, (IEnumerable)val2);
+                    return CompareEnumerable(parent, member, en1, (IEnumerable)val2);
 
                 // this is a class with fields and properties, recurse:
                 return CompareFields(subType, val1, val2);
@@ -296,26 +304,40 @@ namespace Ship_Game
 
                 var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
                 var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-                int numErrors = 0;
+                //int numFieldsMismatched = 0;
                 foreach (FieldInfo field in fields)
                 {
-                    if (field.GetCustomAttribute<JsonIgnoreAttribute>() != null)
-                        continue;
                     object val1 = field.GetValue(firstObj);
                     object val2 = field.GetValue(secondObj);
-                    if (!CheckEqual(field, val1, val2))
-                        ++numErrors;
+                    if (!CheckEqual(firstObj, field, val1, val2))
+                    {
+                        return false; // DEBUG: give up immediately
+                        //if (++numFieldsMismatched > 2) return false; // give up at this point
+                    }
                 }
                 foreach (PropertyInfo prop in properties)
                 {
-                    if (prop.GetCustomAttribute<JsonIgnoreAttribute>() != null)
-                        continue;
-                    object val1 = prop.GetValue(firstObj);
-                    object val2 = prop.GetValue(secondObj);
-                    if (!CheckEqual(prop, val1, val2))
-                        ++numErrors;
+                    var getMethod = prop.GetMethod;
+                    if (getMethod == null) continue; // no getter, it's a set-only property
+                    
+                    var parameters = getMethod.GetParameters();
+                    if (parameters.Length > 0) continue; // indexer property with multiple args
+                    try
+                    {
+                        object val1 = prop.GetValue(firstObj);
+                        object val2 = prop.GetValue(secondObj);
+                        if (!CheckEqual(firstObj, prop, val1, val2))
+                        {
+                            return false; // DEBUG: give up immediately
+                            //if (++numFieldsMismatched > 2) return false; // give up at this point
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        throw new($"Error while getting Property {firstObj.GetType().GetTypeName()} -> {type.Name}::{prop.Name}", e);
+                    }
                 }
-                return numErrors == 0;
+                return true;// numFieldsMismatched == 0;
             }
 
             public Array<string> Compare(object first, object second)

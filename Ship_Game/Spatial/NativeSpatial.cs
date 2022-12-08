@@ -68,8 +68,8 @@ namespace Ship_Game.Spatial
 
         IntPtr Spat; // The spatial structure interface
         IntPtr Root; // Current active Root
-        GameObject[] Objects = Empty<GameObject>.Array;
-        readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        SpatialObjectBase[] Objects = Empty<SpatialObjectBase>.Array;
+        readonly ReaderWriterLockSlim Lock = new(LockRecursionPolicy.NoRecursion);
 
         public SpatialType Type { get; }
         public float WorldSize { get; }
@@ -116,18 +116,18 @@ namespace Ship_Game.Spatial
             {
                 SpatialClear(Spat);
                 Root = SpatialGetRoot(Spat);
-                Objects = Empty<GameObject>.Array;
+                Objects = Empty<SpatialObjectBase>.Array;
             }
         }
 
-        public void UpdateAll(GameObject[] allObjects)
+        public void UpdateAll(SpatialObjectBase[] allObjects)
         {
             int maxObjects = Math.Max(MaxObjects, allObjects.Length);
 
-            var objects = new GameObject[maxObjects];
+            var objects = new SpatialObjectBase[maxObjects];
             for (int i = 0; i < allObjects.Length; ++i)
             {
-                GameObject go = allObjects[i];
+                SpatialObjectBase go = allObjects[i];
                 int objectId = go.SpatialIndex;
                 if (go.Active)
                 {
@@ -172,7 +172,7 @@ namespace Ship_Game.Spatial
             }
         }
 
-        (GameObject[], IntPtr) GetObjectsAndRootSafe()
+        (SpatialObjectBase[], IntPtr) GetObjectsAndRootSafe()
         {
             using (Lock.AcquireReadLock())
                 return (Objects, Root);
@@ -187,7 +187,7 @@ namespace Ship_Game.Spatial
                 ShowCollisions = (byte)(showCollisions ? 1 : 0),
             };
             
-            GameObject[] objects = Objects;
+            SpatialObjectBase[] objects = Objects;
             IntPtr root = Root;
             //(GameplayObject[] objects, IntPtr root) = GetObjectsAndRootSafe();
 
@@ -199,10 +199,10 @@ namespace Ship_Game.Spatial
             return numCollisions;
         }
 
-        public GameObject[] FindNearby(ref SearchOptions opt)
+        public SpatialObjectBase[] FindNearby(in SearchOptions opt)
         {
             if (opt.MaxResults == 0)
-                return Empty<GameObject>.Array;
+                return Empty<SpatialObjectBase>.Array;
 
             int ignoreId = -1;
             if (opt.Exclude != null && opt.Exclude.SpatialIndex >= 0)
@@ -227,14 +227,14 @@ namespace Ship_Game.Spatial
                 DebugId = opt.DebugId,
             };
             
-            (GameObject[] objects, IntPtr root) = GetObjectsAndRootSafe();
+            (SpatialObjectBase[] objects, IntPtr root) = GetObjectsAndRootSafe();
 
             if (opt.FilterFunction != null)
             {
                 SearchFilterFunc filterFunc = opt.FilterFunction;
                 nso.FilterFunction = (int objectId) =>
                 {
-                    GameObject go = objects[objectId];
+                    SpatialObjectBase go = objects[objectId];
                     bool success = filterFunc(go);
                     return success ? 1 : 0;
                 };
@@ -245,10 +245,10 @@ namespace Ship_Game.Spatial
             return LinearSearch.Copy(objectIds, resultCount, objects);
         }
 
-        public GameObject[] FindLinear(ref SearchOptions opt)
+        public SpatialObjectBase[] FindLinear(in SearchOptions opt)
         {
-            GameObject[] objects = Objects;
-            return LinearSearch.FindNearby(ref opt, objects, objects.Length);
+            SpatialObjectBase[] objects = Objects;
+            return LinearSearch.FindNearby(in opt, objects, objects.Length);
         }
         
         [StructLayout(LayoutKind.Sequential)]

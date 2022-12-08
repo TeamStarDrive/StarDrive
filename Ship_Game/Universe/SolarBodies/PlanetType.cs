@@ -67,6 +67,12 @@ namespace Ship_Game.Universe.SolarBodies
         public void Initialize(PlanetTypes types, GameContentManager content, Model planetModel)
         {
             Types = types;
+            PlanetModel = planetModel;
+            
+            // don't load these textures in unit tests, we can easily OOM
+            // because XNA can't release textures fast enough
+            if (ResourceManager.IsUnitTest)
+                return;
 
             DiffuseTex = TryLoadTexture(content, DiffuseMap);
             SpecularTex = TryLoadTexture(content, SpecularMap);
@@ -74,7 +80,6 @@ namespace Ship_Game.Universe.SolarBodies
             EmissiveTex = TryLoadTexture(content, EmissiveMap);
 
             Material = CreateMaterial(content);
-            PlanetModel = planetModel;
 
             foreach (string atmoType in AtmosphereType)
             {

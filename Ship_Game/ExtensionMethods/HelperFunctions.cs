@@ -1,15 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
-using System.Runtime;
-using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
 using Ship_Game.Ships;
@@ -19,7 +15,7 @@ using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
-    internal static class HelperFunctions
+    public static class HelperFunctions
     {
         public static bool ClickedRect(Rectangle toClick, InputState input)
         {
@@ -38,31 +34,26 @@ namespace Ship_Game
             return null;
         }
 
-        static Fleet CreateFleetFromData(UniverseState universe, FleetDesign data, Empire owner, Vector2 position)
+        static Fleet CreateFleetFromData(UniverseState u, FleetDesign data, int fleetId, Empire owner, Vector2 position)
         {
             if (data == null)
                 return null;
 
-            var fleet = new Fleet(universe.CreateId())
-            {
-                FinalPosition = position,
-                Owner = owner
-            };
-            foreach (FleetDataNode node in data.Data)
-            {
-                FleetDataNode cloned = node.Clone();
-                cloned.CombatState = node.CombatState;
-                fleet.DataNodes.Add(cloned);
-            }
-            fleet.Name = data.Name;
+            Fleet fleet = owner.CreateFleet(fleetId, data.Name);
+            fleet.FinalPosition = position;
             fleet.FleetIconIndex = data.FleetIconIndex;
+
+            foreach (FleetDataDesignNode node in data.Nodes)
+            {
+                fleet.DataNodes.Add(new FleetDataNode(node));
+            }
 
             foreach (FleetDataNode node in fleet.DataNodes)
             {
-                Ship s = Ship.CreateShipAtPoint(universe, node.ShipName, owner, position + node.FleetOffset);
+                Ship s = Ship.CreateShipAtPoint(u, node.ShipName, owner, position + node.RelativeFleetOffset);
                 if (s == null) continue;
                 s.AI.CombatState = node.CombatState;
-                s.RelativeFleetOffset = node.FleetOffset;
+                s.RelativeFleetOffset = node.RelativeFleetOffset;
                 node.Ship = s;
                 node.OrdersRadius = node.OrdersRadius > 1 ? node.OrdersRadius : s.SensorRange * node.OrdersRadius;
                 fleet.AddShip(s);
@@ -72,9 +63,7 @@ namespace Ship_Game
 
         public static void CreateFirstFleetAt(UniverseState universe, string fleetUid, Empire owner, Vector2 position)
         {
-            Fleet fleet = CreateFleetFromData(universe, LoadFleetDesign(fleetUid), owner, position);
-            if (fleet != null)
-                owner.FirstFleet = fleet;
+            CreateFleetFromData(universe, LoadFleetDesign(fleetUid), 1, owner, position);
         }
 
         public static bool IsInUniverseBounds(float universeSize, Vector2 pos)
@@ -192,7 +181,7 @@ namespace Ship_Game
             }
         }
 
-        public static void ResetWithParseText(this ScrollList2<TextListItem> list, 
+        public static void ResetWithParseText(this ScrollList<TextListItem> list, 
             Font font, string text, float maxLineWidth)
         {
             string[] lines = font.ParseTextToLines(text, maxLineWidth);
@@ -232,6 +221,8 @@ namespace Ship_Game
             GC.Collect();
         }
 
+        // Gets a more human readable number string that also supports large numbers
+        // ex: 950.7k 
         public static string GetNumberString(this float stat)
         {
             CultureInfo invariant = CultureInfo.InvariantCulture;
@@ -246,7 +237,7 @@ namespace Ship_Game
 
         public static bool DataVisibleToPlayer(Empire empire)
         {
-            if (empire.isPlayer || empire.IsAlliedWith(EmpireManager.Player) || empire.Universum.Debug)
+            if (empire.isPlayer || empire.IsAlliedWith(empire.Universe.Player) || empire.Universe.Debug)
                 return true;
 
             return empire.DifficultyModifiers.DataVisibleToPlayer;
@@ -293,6 +284,11 @@ namespace Ship_Game
             }
 
             return designInQueue;
+        }
+
+        static public float ExponentialMovingAverage(float oldValue, float newValue, float oldWeight = 0.9f)
+        {
+            return (oldValue * oldWeight) + (newValue * (1 - oldWeight));
         }
     }
 }

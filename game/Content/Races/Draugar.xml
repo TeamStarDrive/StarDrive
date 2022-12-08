@@ -2,9 +2,9 @@
 <EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Faction>1</Faction>
   <IsPirateFaction>true</IsPirateFaction>
-  <PaymentPeriodTurns>250</PaymentPeriodTurns> <!-- Every turn is 5 seconds by default-->
-  <MinimumColoniesForStartPayment>5</MinimumColoniesForStartPayment>
-  <PortraitName>Imperium</PortraitName>
+  <PaymentPeriodTurns>350</PaymentPeriodTurns> <!-- Every turn is 5 seconds by default-->
+  <MinimumColoniesForStartPayment>7</MinimumColoniesForStartPayment>
+  <PortraitName>unknown</PortraitName>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
   
   <StartingShip>Draug-Fighter</StartingShip>

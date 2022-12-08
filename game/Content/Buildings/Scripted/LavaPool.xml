@@ -1,0 +1,16 @@
+﻿<Building>
+  <Name>LavaPool</Name>
+  <Icon>Lava3</Icon>
+  
+  <Cost>0</Cost>
+  <Maintenance>0</Maintenance>
+  
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <Strength>30</Strength>
+  <CanBeTerraformed>true</CanBeTerraformed>
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>4251</NameTranslationIndex>
+  <DescriptionIndex>4268</DescriptionIndex>
+  <ShortDescriptionIndex>4269</ShortDescriptionIndex>
+</Building>

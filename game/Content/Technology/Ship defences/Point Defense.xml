@@ -8,19 +8,10 @@
   <DescriptionIndex>2254</DescriptionIndex>
   <LeadsTo>
     <LeadsToTech>
-      <UID>RapidFirePD</UID>
-    </LeadsToTech>
-    <LeadsToTech>
-      <UID>HeavyPD</UID>
+      <UID>AntiFighterSystems</UID>
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
-    <UnlockedMod>
-      <ModuleUID>Flechette AF Turret</ModuleUID>
-    </UnlockedMod>
-    <UnlockedMod>
-      <ModuleUID>AF_Repeater</ModuleUID>
-    </UnlockedMod>
     <UnlockedMod>
       <ModuleUID>VulcanCannon</ModuleUID>
     </UnlockedMod>
