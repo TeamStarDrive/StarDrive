@@ -4,7 +4,6 @@
   <UID>AntiMatter</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>2500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>513</NameIndex>
   <DescriptionIndex>514</DescriptionIndex>
   <LeadsTo />

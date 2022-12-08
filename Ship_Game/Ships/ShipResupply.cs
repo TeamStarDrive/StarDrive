@@ -2,27 +2,29 @@
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
 {
+    [StarDataType]
     public struct ShipResupply // Created by Fat Bastard to centralize all ship supply logic
     {
-        private readonly Ship Ship;
         public const float OrdnanceThresholdCombat             = 0.1f;
         public const float OrdnanceThresholdNonCombat          = 0.35f;
         public const float OrdnanceThresholdNonCombatOrbital   = 0.85f;
         public const float KineticToEnergyRatio                = 0.6f;
-        private const int OrdnanceProductionThresholdPriority  = 400;
-        private const int OrdnanceProductionThresholdNonCombat = 150;
-        private const int OrdnanceProductionThresholdCombat    = 75;
+        public const int OrdnanceProductionThresholdPriority  = 400;
+        public const int OrdnanceProductionThresholdNonCombat = 150;
+        public const int OrdnanceProductionThresholdCombat    = 75;
         public const float ResupplyShuttleOrdnanceThreshold    = 0.4f;
 
-        public const float ShipDestroyThreshold = GlobalStats.ShipDestroyThreshold;
         public const float RepairDroneThreshold = 0.9f;
         public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
-        public float IncomingOrdnance;
-        private bool InCombat;
+
+        [StarData] readonly Ship Ship;
+        [StarData] float IncomingOrdnance;
+        [StarData] bool InCombat;
 
         public ShipResupply(Ship ship)
         {
@@ -46,7 +48,8 @@ namespace Ship_Game.Ships
                 case ShipCategory.Kamikaze:     threshold = 0.0f;  break;
             }
 
-            threshold = threshold * (1 - ShipDestroyThreshold) + ShipDestroyThreshold;
+            float baseThreshold = GlobalStats.Settings.ShipDestroyThreshold;
+            threshold = threshold * (1 - baseThreshold) + baseThreshold;
             return threshold;
         }
 
@@ -106,7 +109,7 @@ namespace Ship_Game.Ships
 
         private bool ResupplyNeededLowHealth()
         {
-            if (Ship.InternalSlotsHealthPercent < ShipDestroyThreshold) // ship is dying or in init
+            if (Ship.InternalSlotsHealthPercent < GlobalStats.Settings.ShipDestroyThreshold) // ship is dying or in init
                 return false;
 
             return Ship.InternalSlotsHealthPercent < DamageThreshold(Ship.ShipData.ShipCategory)

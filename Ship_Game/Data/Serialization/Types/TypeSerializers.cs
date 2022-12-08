@@ -1,15 +1,17 @@
 ﻿using System;
 using System.IO;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Data.Serialization.Types
 {
     public class ObjectSerializer : TypeSerializer
     {
         public ObjectSerializer() : base(typeof(object)) { }
-        public override string ToString() => "ObjectSerializer";
+        public override string ToString() => $"{TypeId}:ObjectSerializer";
         
         public override object Convert(object value)
         {
@@ -36,7 +38,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class RangeSerializer : TypeSerializer
     {
         public RangeSerializer() : base(typeof(Range)) { }
-        public override string ToString() => "RangeSerializer";
+        public override string ToString() => $"{TypeId}:RangeSerializer";
 
         public override object Convert(object value)
         {
@@ -88,7 +90,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class DateTimeSerializer : TypeSerializer
     {
         public DateTimeSerializer() : base(typeof(DateTime)) { }
-        public override string ToString() => "DateTimeSerializer";
+        public override string ToString() => $"{TypeId}:DateTimeSerializer";
 
         public override object Convert(object value)
         {
@@ -157,7 +159,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class TimeSpanSerializer : TypeSerializer
     {
         public TimeSpanSerializer() : base(typeof(TimeSpan)) { }
-        public override string ToString() => "TimeSpanSerializer";
+        public override string ToString() => $"{TypeId}:TimeSpanSerializer";
 
         public override object Convert(object value)
         {
@@ -182,6 +184,77 @@ namespace Ship_Game.Data.Serialization.Types
         public override object Deserialize(BinarySerializerReader reader)
         {
             return new TimeSpan(reader.BR.ReadVLi64());
+        }
+    }
+
+    internal class SmallBitSetSerializer : TypeSerializer
+    {
+        public SmallBitSetSerializer() : base(typeof(SmallBitSet)) { }
+        public override string ToString() => $"{TypeId}:SmallBitSetSerializer";
+
+        public override object Convert(object value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Serialize(YamlNode parent, object obj)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            var set = (SmallBitSet)obj;
+            writer.BW.WriteVLu32(set.Values);
+        }
+
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            return new SmallBitSet{ Values = reader.BR.ReadVLu32() };
+        }
+    }
+
+    internal class BitArraySerializer : TypeSerializer
+    {
+        public BitArraySerializer() : base(typeof(BitArray)) { }
+        public override string ToString() => $"{TypeId}:BitArraySerializer";
+
+        public override object Convert(object value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Serialize(YamlNode parent, object obj)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            uint[] values = ((BitArray)obj).Values;
+            if (values == null)
+            {
+                writer.BW.WriteVLu32(0);
+            }
+            else
+            {
+                writer.BW.WriteVLu32((uint)values.Length);
+                for (int i = 0; i < values.Length; ++i)
+                    writer.BW.WriteVLu32(values[i]);
+            }
+        }
+
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            int length = (int)reader.BR.ReadVLu32();
+            if (length == 0)
+                return new BitArray(0);
+
+            uint[] values = new uint[length];
+            for (int i = 0; i < length; ++i)
+                values[i] = reader.BR.ReadVLu32();
+
+            return new BitArray(values);
         }
     }
 }

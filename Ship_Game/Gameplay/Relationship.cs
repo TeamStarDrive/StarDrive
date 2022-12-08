@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
@@ -30,7 +29,7 @@ namespace Ship_Game.Gameplay
     {
         [StarData] public int TurnTimer;
         [StarData] public float FearCost;
-        [StarData] public float TurnsInExistence;
+        [StarData] public int TurnsInExistence;
         [StarData] public TrustEntryType Type;
     }
 
@@ -42,15 +41,17 @@ namespace Ship_Game.Gameplay
     }
 
     [StarDataType]
-    public sealed class Relationship : IDisposable
+    public sealed class Relationship
     {
-        [StarData] public FederationQuest FedQuest;
-        [StarData] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
-        [StarData] public string Name;
+        [StarData] public Empire Them { get; private set; }
         [StarData] public bool Known;
+        [StarData] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
+
+        [StarData] public FederationQuest FedQuest;
         [StarData] public float IntelligenceBudget;
         [StarData] public float IntelligencePenetration;
         [StarData] public int turnsSinceLastContact;
+        [StarData] public int TurnsSinceLastTechTrade;
         [StarData] public bool WarnedAboutShips;
         [StarData] public bool WarnedAboutColonizing;
         [StarData] public int PlayerContactStep; //  Encounter Step to use when the player contacts this faction
@@ -75,7 +76,7 @@ namespace Ship_Game.Gameplay
         [StarData] public float Threat;
         [StarData] public float Trust;
         [StarData] public War ActiveWar;
-        [StarData] public Array<War> WarHistory = new Array<War>();
+        [StarData] public Array<War> WarHistory = new();
         [StarData] public bool haveRejectedNAPact;
         [StarData] public bool HaveRejected_TRADE;
         [StarData] public bool haveRejectedDemandTech;
@@ -83,32 +84,30 @@ namespace Ship_Game.Gameplay
         [StarData] public bool HaveRejected_Alliance;
         [StarData] public int NumberStolenClaims;
 
-        [StarData] public Array<int> StolenSystems = new Array<int>();
+        [StarData] public Array<SolarSystem> StolenSystems = new();
+        [StarData] public Array<SolarSystem> WarnedSystemsList = new();
         [StarData] public bool HaveInsulted_Military;
         [StarData] public bool HaveComplimented_Military;
         [StarData] public bool XenoDemandedTech;
-        [StarData] public Array<int> WarnedSystemsList = new Array<int>();
         [StarData] public bool HaveWarnedTwice;
         [StarData] public bool HaveWarnedThrice;
+        // TODO: remove ID
         [StarData] public int ContestedSystemId;
+        [StarData] public SolarSystem ContestedSystem;
         [StarData] public bool AtWar;
         [StarData] public bool PreparingForWar; // Use prepareForWar or CancelPrepareForWar
         [StarData] public WarType PreparingForWarType = WarType.ImperialistWar;  // Use prepareForWar or CancelPrepareForWar
         [StarData] public int DefenseFleet = -1;
         [StarData] public bool HasDefenseFleet;
-        [StarData] public float InvasiveColonyPenalty;
-        [StarData] public float AggressionAgainstUsPenalty;
         [StarData] public float InitialStrength;
         [StarData] public int TurnsKnown;
         [StarData] public int TurnsAbove95; // Trust
         [StarData] public int TurnsAllied;
 
-        [StarData] public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
-        [StarData] public BatchRemovalCollection<FearEntry> FearEntries = new BatchRemovalCollection<FearEntry>();
+        [StarData] public Array<TrustEntry> TrustEntries = new();
+        [StarData] public Array<FearEntry> FearEntries = new();
         [StarData] public float TrustUsed;
         [StarData] public float FearUsed;
-        [StarData] public float TheyOweUs;
-        [StarData] public float WeOweThem;
         [StarData] public int TurnsAtWar;
         [StarData] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
         [StarData] public bool CanAttack ; // New: Bilateral condition if these two empires can attack each other
@@ -117,11 +116,11 @@ namespace Ship_Game.Gameplay
         [StarData] public EmpireInformation.InformationLevel IntelligenceLevel = EmpireInformation.InformationLevel.Full;
         [StarData] public bool RefusedMerge; // Refused merge or surrenders from us (mostly the player can refuse)
 
-        [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
-        [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
-        [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
-        [XmlIgnore][JsonIgnore] public EmpireInformation KnownInformation;
-        [XmlIgnore][JsonIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
+        [StarData] public EmpireRiskAssessment Risk;
+        [StarData] public EmpireInformation KnownInformation;
+
+        [XmlIgnore] public float AvailableTrust => Trust - TrustUsed;
+        [XmlIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
 
         private readonly int FirstDemand   = 50;
         public readonly int SecondDemand   = 75;
@@ -132,7 +131,7 @@ namespace Ship_Game.Gameplay
         /// currently this is disabling tech content trade via diplomacy.
         /// A check here can be added to remove this for allies.
         /// </summary>
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         readonly Array<TechUnlockType> PreventContentExchangeOf =
                                        new Array<TechUnlockType> { TechUnlockType.Diplomacy };
 
@@ -160,16 +159,15 @@ namespace Ship_Game.Gameplay
                     Trust -= 20f;
             }
         }
+        
+        [StarDataConstructor]
+        Relationship() {}
 
-        public Relationship(string name)
+        public Relationship(Empire them)
         {
-            Name = name;
+            Them = them;
             Risk = new EmpireRiskAssessment(this);
             KnownInformation = new EmpireInformation(this);
-        }
-
-        public Relationship()
-        {
         }
 
         public void AddTrustEntry(Offer.Attitude attitude, TrustEntryType type, float cost, int turnTimer = 250)
@@ -205,7 +203,7 @@ namespace Ship_Game.Gameplay
             if (Them.isPlayer && GlobalStats.RestrictAIPlayerInteraction)
                 return;
 
-            us.GetEmpireAI().AddGoal(new PrepareForWar(us, Them));
+            us.AI.AddGoal(new PrepareForWar(us, Them));
             PreparingForWar     = true;
             PreparingForWarType = type;
         }
@@ -219,7 +217,7 @@ namespace Ship_Game.Gameplay
         public float GetTurnsForFederationWithPlayer(Empire us) => TurnsAbove95Federation(us);
 
         int TurnsAbove95Federation(Empire us) => us.PersonalityModifiers.TurnsAbove95FederationNeeded 
-                                                 * (int)(CurrentGame.GalaxySize + 1);
+                                                 * (int)(us.Universe.P.GalaxySize + 1);
         
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
@@ -278,34 +276,14 @@ namespace Ship_Game.Gameplay
             return netIncome.RoundToFractionOf10();
         }
 
-        public SolarSystem[] GetPlanetsLostFromWars(UniverseState us)
-        {
-            var lostSystems = new Array<SolarSystem>();
-            for (int i = 0; i < WarHistory.Count; i++)
-            {
-                var war = WarHistory[i];
-                var owner = EmpireManager.GetEmpireByName(war.UsName);
-                if (war.ContestedSystemsIds.IsEmpty) continue;
-                var systems = us.GetSolarSystemsFromIds(war.ContestedSystemsIds);
-                for (int j = 0; j < systems.Count; j++)
-                {
-                    SolarSystem system = systems[j];
-                    if (!system.OwnerList.Contains(owner))
-                        lostSystems.AddUniqueRef(system);
-                }
-            }
-
-            return lostSystems.ToArray();
-        }
-
         public void StoleOurColonyClaim(Empire owner, Planet claimedPlanet, out bool newTheft)
         {
             NumberStolenClaims++;
             AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
             Trust -= owner.DifficultyModifiers.TrustLostStoleColony;
             Trust -= owner.data.DiplomaticPersonality.Territorialism/5 * StolenSystems.Count.LowerBound(1);
-            newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem.Id);
-            StolenSystems.AddUnique(claimedPlanet.ParentSystem.Id);
+            newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem);
+            StolenSystems.AddUnique(claimedPlanet.ParentSystem);
         }
 
         public void WarnClaimThiefPlayer(Planet claimedPlanet, Empire victim)
@@ -349,39 +327,39 @@ namespace Ship_Game.Gameplay
                         TimesSpiedOnAlly += 1;
                         if (TimesSpiedOnAlly == 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_1");
 
                             turnsSinceLastContact = 0;
                         }
                         else if (TimesSpiedOnAlly > 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
                             us.BreakAllTreatiesWith(them);
                             turnsSinceLastContact = 0;
                         }
                     }
-                    else if (SpiesDetected == 1 && !AtWar && them.isPlayer && !us.isFaction)
+                    else if (SpiesDetected == 1 && !AtWar && them.isPlayer && !us.IsFaction)
                     {
                         if (SpiesDetected == 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_1");
 
                             turnsSinceLastContact = 0;
                         }
                         else if (SpiesDetected == 2)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_2");
 
                             turnsSinceLastContact = 0;
                         }
                         else if (SpiesDetected >= 3)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_3");
 
                             us.BreakAllTreatiesWith(them);
@@ -402,19 +380,19 @@ namespace Ship_Game.Gameplay
                         TimesSpiedOnAlly += 1;
                         if (TimesSpiedOnAlly == 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_1");
                         }
                         else if (TimesSpiedOnAlly > 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
                             us.BreakAllTreatiesWith(them);
                             Posture = Posture.Hostile;
                         }
                     }
-                    else if (them.isPlayer && !us.isFaction)
+                    else if (them.isPlayer && !us.IsFaction)
                     {
                         DiplomacyScreen.ShowEndOnly(us, them, "Killed_Spy_1");
                     }
@@ -427,43 +405,21 @@ namespace Ship_Game.Gameplay
                 }
                 else if (why == "Colonized Owned System")
                 {
-                    Array<Planet> ourTargetPlanets = new Array<Planet>();
-                    Array<Planet> theirTargetPlanets = new Array<Planet>();
-                    foreach (Goal g in us.GetEmpireAI().Goals)
-                    {
-                        if (g.type != GoalType.Colonize)
-                            continue;
-
-                        ourTargetPlanets.Add(g.ColonizationTarget);
-                    }
-
-                    foreach (Planet theirPlanet in them.GetPlanets())
-                    {
-                        theirTargetPlanets.Add(theirPlanet);
-                    }
-
-                    bool matchFound = false;
-                    SolarSystem sharedSystem = null;
+                    var ourTargetPlanets = us.AI.SelectFromGoals((MarkForColonization c) => c.TargetPlanet);
                     foreach (Planet planet in ourTargetPlanets)
                     {
-                        foreach (Planet other in theirTargetPlanets)
+                        foreach (Planet other in them.GetPlanets())
                         {
-                            if (p == null || other == null || p.ParentSystem != other.ParentSystem)
+                            if (planet.ParentSystem == other.ParentSystem)
                             {
-                                continue;
+                                SolarSystem sharedSys = planet.ParentSystem;
+                                if (us.GetRelations(them).WarnedSystemsList.Contains(sharedSys))
+                                    return;
                             }
-                            sharedSystem = p.ParentSystem;
-                            matchFound = true;
-                            break;
                         }
-                        if (!matchFound || !us.GetRelations(them).WarnedSystemsList.Contains(sharedSystem.Id))
-                        {
-                            continue;
-                        }
-                        return;
                     }
 
-                    float expansion = us.Universum.Systems.Count / us.GetOwnedSystems().Count + them.GetOwnedSystems().Count;
+                    float expansion = us.Universe.Systems.Count / us.GetOwnedSystems().Count + them.GetOwnedSystems().Count;
                     AddAngerTerritorialConflict(amount + expansion);
                     Trust -= amount;
 
@@ -472,7 +428,7 @@ namespace Ship_Game.Gameplay
                         if (AtWar)
                             return;
 
-                        if (them.isPlayer && !us.isFaction)
+                        if (them.isPlayer && !us.IsFaction)
                         {
                             if (!WarnedAboutShips)
                                 DiplomacyScreen.Show(us, them, "Colonized Warning", p);
@@ -483,7 +439,11 @@ namespace Ship_Game.Gameplay
                             WarnedAboutColonizing  = true;
 
                             if (p != null)
+                            {
+                                // TODO: remove ID
                                 ContestedSystemId = p.ParentSystem.Id;
+                                ContestedSystem = p.ParentSystem;
+                            }
                         }
                     }
                 }
@@ -497,7 +457,7 @@ namespace Ship_Game.Gameplay
                     {
                         AddAngerMilitaryConflict(amount);
                         Trust -= amount;
-                        if (them.isPlayer && !us.isFaction)
+                        if (them.isPlayer && !us.IsFaction)
                         {
                             if (Anger_MilitaryConflict < 2f)
                                 DiplomacyScreen.Show(us, them, "Aggression Warning");
@@ -509,12 +469,6 @@ namespace Ship_Game.Gameplay
                     AddAngerMilitaryConflict(amount);
                 }
             }
-        }
-
-        public bool GetContestedSystem(out SolarSystem contested)
-        {
-            contested = ContestedSystemId != 0 ? Them.Universum.GetSystem(ContestedSystemId) : null;
-            return contested != null;
         }
 
         public float GetStrength()
@@ -574,7 +528,7 @@ namespace Ship_Game.Gameplay
         // but doesn't create big side-effects
         public void UpdateRelationship(Empire us, Empire them)
         {
-            if (us.data.Defeated)
+            if (us.IsDefeated)
                 return;
 
             Risk.UpdateRiskAssessment(us);
@@ -596,21 +550,23 @@ namespace Ship_Game.Gameplay
         // This should be done only once per turn in Empire.UpdateRelationships
         public void AdvanceRelationshipTurn(Empire us, Empire them)
         {
-            if (them.data.Defeated && AtWar)
+            if (them.IsDefeated && AtWar)
             {
                 CancelPrepareForWar();
                 AtWar = false;
-                ActiveWar.EndStarDate = us.Universum.StarDate;
+                ActiveWar.EndStarDate = us.Universe.StarDate;
                 WarHistory.Add(ActiveWar);
                 ActiveWar = null;
             }
 
             TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
             Treaty_Trade_TurnsExisted = Treaty_Trade ? Treaty_Trade_TurnsExisted + 1 : 0;
-            TurnsAllied               = Treaty_Alliance ? TurnsAllied + 1 : 0;
-            TurnsKnown               += 1;
-            turnsSinceLastContact    += 1;
-            
+            TurnsAllied = Treaty_Alliance ? TurnsAllied + 1 : 0;
+
+            ++TurnsKnown;
+            ++turnsSinceLastContact;
+            ++TurnsSinceLastTechTrade;
+
             if (AtWar && ActiveWar != null)
                 ActiveWar.TurnsAtWar += 1f;
 
@@ -630,9 +586,7 @@ namespace Ship_Game.Gameplay
                 UpdateAnger(us, them, dt);
                 UpdateFear();
 
-                InitialStrength       += dt.NaturalRelChange;
-                TurnsKnown            += 1;
-                turnsSinceLastContact += 1;
+                InitialStrength += dt.NaturalRelChange;
             }
         }
         
@@ -642,7 +596,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 us.EndPeaceWith(them);
-                us.Universum.Notifications?.AddPeaceTreatyExpiredNotification(them);
+                us.Universe.Notifications?.AddPeaceTreatyExpiredNotification(them);
             }
         }
         
@@ -654,7 +608,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
                 return false;
 
-            if (us.isFaction || them.isFaction || them.WeAreRemnants)
+            if (us.IsFaction || them.IsFaction || them.WeAreRemnants)
                 return true;
 
             if (!us.isPlayer)
@@ -675,7 +629,7 @@ namespace Ship_Game.Gameplay
 
             // if one of the parties is a Faction, there is hostility by default
             // unless we have Peace or NA Pacts (such as paying off Pirates)
-            return (us.isFaction || them.isFaction)
+            return (us.IsFaction || them.IsFaction)
                 && !Treaty_Peace && !Treaty_NAPact;
         }
 
@@ -697,31 +651,21 @@ namespace Ship_Game.Gameplay
 
         void UpdateFear()
         {
-            foreach (FearEntry te in FearEntries)
-            {
-                te.TurnsInExistence += 1f;
-                if (te.TurnsInExistence >= te.TurnTimer)
-                    FearEntries.QueuePendingRemoval(te);
-                else
-                    FearUsed += te.FearCost;
-            }
+            foreach (FearEntry f in FearEntries)
+                f.TurnsInExistence += 1;
 
-            FearEntries.ApplyPendingRemovals();
+            FearUsed += FearEntries.Sum(f => f.TurnsInExistence < f.TurnTimer ? f.FearCost : 0);
+            FearEntries.RemoveAll(f => f.TurnsInExistence >= f.TurnTimer);
         }
 
         void UpdateTrust(Empire us, Empire them, DTrait personality)
         {
-            TrustUsed = 0f;
             foreach (TrustEntry te in TrustEntries)
-            {
                 te.TurnsInExistence += 1;
-                if (te.TurnsInExistence >= te.TurnTimer)
-                    TrustEntries.QueuePendingRemoval(te);
-                else
-                    TrustUsed += te.TrustCost;
-            }
 
-            TrustEntries.ApplyPendingRemovals();
+            TrustUsed = TrustEntries.Sum(t => t.TurnsInExistence < t.TurnTimer ? t.TrustCost : 0);
+            TrustEntries.RemoveAll(t => t.TurnsInExistence >= t.TurnTimer);
+
             float trustToAdd = 0;
             switch (Posture)
             {
@@ -779,7 +723,7 @@ namespace Ship_Game.Gameplay
  
                 if (them.isPlayer)
                 {
-                    gain /= ((int)CurrentGame.Difficulty).LowerBound(1);
+                    gain /= ((int)us.Universe.P.Difficulty).LowerBound(1);
                 }
 
                 return gain;
@@ -812,7 +756,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Alliance || Treaty_OpenBorders) 
                 return;
 
-            float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(us, them);
+            float strShipsInBorders = us.AI.ThreatMatrix.KnownEmpireStrengthInBorders(them);
             if (strShipsInBorders > 0)
             {
                 float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength * 25
@@ -829,9 +773,9 @@ namespace Ship_Game.Gameplay
             if (FedQuest == null) 
                 return false;
 
-            Empire player = aiEmpire.Universum.Player;
-            Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
-            if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
+            Empire player = aiEmpire.Universe.Player;
+            Empire enemyEmpire = aiEmpire.Universe.GetEmpireByName(FedQuest.EnemyName);
+            if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.IsDefeated)
             {
                 DiplomacyScreen.ShowEndOnly(aiEmpire, player, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
                 player.AbsorbEmpire(aiEmpire);
@@ -841,7 +785,7 @@ namespace Ship_Game.Gameplay
 
             if (FedQuest.type == QuestType.AllyFriend)
             {
-                if (enemyEmpire.data.Defeated)
+                if (enemyEmpire.IsDefeated)
                 {
                     FedQuest = null;
                 }
@@ -885,7 +829,7 @@ namespace Ship_Game.Gameplay
         public bool AttackForTransgressions(DTrait personality)
         {
             return !Treaty_NAPact && !Treaty_Peace && TotalAnger > (personality?.Territorialism
-                ?? EmpireManager.Player.data.BorderTolerance);
+                ?? Them.Universe.Player.data.BorderTolerance);
         }
 
         void OfferTrade(Empire us)
@@ -918,7 +862,7 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, "Offer Trade", offer2, offer1);
             else
-                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
+                them.AI.AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
 
             turnsSinceLastContact = 0;
         }
@@ -950,7 +894,7 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, "Offer NAPact", offer2, offer1);
             else
-                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
+                them.AI.AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
 
             turnsSinceLastContact = 0;
         }
@@ -988,7 +932,7 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, friendlyOpen ? "Offer Open Borders Friends" : "Offer Open Borders", ourOffer, openBordersOffer);
             else
-                them.GetEmpireAI().AnalyzeOffer(ourOffer, openBordersOffer, us, Offer.Attitude.Pleading);
+                them.AI.AnalyzeOffer(ourOffer, openBordersOffer, us, Offer.Attitude.Pleading);
 
             turnsSinceLastContact = 0;
         }
@@ -1036,7 +980,7 @@ namespace Ship_Game.Gameplay
                 offer2.RejectDL      = "ALLIANCE_REJECTED";
                 offer2.ValueToModify = new Ref<bool>(() => HaveRejected_Alliance,
                     x => { HaveRejected_Alliance = x; });
-                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
+                them.AI.AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
             }
 
             turnsSinceLastContact = 0;
@@ -1060,7 +1004,7 @@ namespace Ship_Game.Gameplay
             if ((themToUs.Trust >= 150 || themToUs.Trust >= 100 && them.TotalPopBillion < us.TotalPopBillion / 3)
                 && Is3RdPartyBiggerThenUs())
             {
-                us.Universum.Notifications.AddPeacefulMergerNotification(us, them);
+                us.Universe.Notifications.AddPeacefulMergerNotification(us, them);
                 us.AbsorbEmpire(them);
             }
 
@@ -1068,7 +1012,7 @@ namespace Ship_Game.Gameplay
             bool Is3RdPartyBiggerThenUs()
             {
                 float popRatioWar = us.PersonalityModifiers.FederationPopRatioWar;
-                foreach (Empire e in EmpireManager.ActiveMajorEmpires)
+                foreach (Empire e in us.Universe.ActiveMajorEmpires)
                 {
                     if (e == us || e == them)
                         continue;
@@ -1093,8 +1037,8 @@ namespace Ship_Game.Gameplay
                     RefusedMerge = x;
                     if (!RefusedMerge)
                     {
-                        EmpireManager.Player.AbsorbEmpire(us);
-                        us.Universum.Notifications.AddMergeWithPlayer(us);
+                        us.Universe.Player.AbsorbEmpire(us);
+                        us.Universe.Notifications.AddMergeWithPlayer(us);
                     }
                 })
             };
@@ -1146,7 +1090,7 @@ namespace Ship_Game.Gameplay
             float warsGrade      = us.GetAverageWarGrade();
             float gradeThreshold = us.PersonalityModifiers.WarGradeThresholdForPeace;
 
-            if (!us.IsLosingInWarWith(EmpireManager.Player))
+            if (!us.IsLosingInWarWith(us.Universe.Player))
             {
                 if (warsGrade > gradeThreshold && !us.IsLosingInWarWith(them))
                     return;
@@ -1210,7 +1154,7 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, dialogue, ourOffer, offerPeace);
             else
-                them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
+                them.AI.AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
         }
 
         void DemandTech(Empire us)
@@ -1224,7 +1168,7 @@ namespace Ship_Game.Gameplay
             }
 
             Empire them = Them;
-            if (!them.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialDemands, true))
+            if (!them.AI.TradableTechs(us, out Array<TechEntry> potentialDemands, true))
                 return;
 
             TechEntry techToDemand = potentialDemands.RandItem();
@@ -1243,17 +1187,21 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, "Xeno Demand Tech", demandTech, theirDemand);
             else
-                them.GetEmpireAI().AnalyzeOffer(theirDemand, demandTech, us, Offer.Attitude.Threaten);
+                them.AI.AnalyzeOffer(theirDemand, demandTech, us, Offer.Attitude.Threaten);
 
             turnsSinceLastContact = 0;
         }
 
         void TradeTech(Empire us)
         {
-            Empire them = Them;
-            if (them.isPlayer || ActiveWar != null || turnsSinceLastContact < TechTradeTurns || Posture == Posture.Hostile)
+            if (TurnsSinceLastTechTrade < TechTradeTurns || turnsSinceLastContact < TechTradeTurns ||
+                Them.isPlayer || ActiveWar != null || Posture == Posture.Hostile)
                 return;
 
+            // always reset this to ensure trade check is done every TechTradeTurns interval
+            TurnsSinceLastTechTrade = 0;
+
+            Empire them = Them;
             Relationship themToUs = them.GetRelations(us);
             if (themToUs.Anger_DiplomaticConflict > 20)
                 return;
@@ -1261,7 +1209,7 @@ namespace Ship_Game.Gameplay
             // Get techs we can offer them
             if (!TechsToOffer(us, them, out Array<TechEntry> ourTechs))
                 return;
-            
+
             // Get techs they can offer us
             if (!TechsToOffer(them, us, out Array<TechEntry> theirTechs))
                 return;
@@ -1277,17 +1225,17 @@ namespace Ship_Game.Gameplay
                 theirOffer.TechnologiesOffered.Add(techName);
 
             Offer.Attitude ourAttitude = us.IsAggressive || us.IsRuthless || us.IsXenophobic ? Offer.Attitude.Respectful : Offer.Attitude.Pleading;
-            them.GetEmpireAI().AnalyzeOffer(ourOffer, theirOffer, us, ourAttitude);
+            them.AI.AnalyzeOffer(ourOffer, theirOffer, us, ourAttitude);
             turnsSinceLastContact = 0;
         }
 
         bool TechsToOffer(Empire us, Empire them, out Array<TechEntry> techs)
         {
             techs = new Array<TechEntry>();
-            if (!us.GetEmpireAI().TradableTechs(them, out Array<TechEntry> ourTechs, !us.isPlayer && !them.isPlayer))
+            if (!us.AI.TradableTechs(them, out Array<TechEntry> ourTechs, !us.isPlayer && !them.isPlayer))
                 return false;
 
-            var theirDesigns = them.GetOurFactionShips();
+            IShipDesign[] theirDesigns = them.AllFactionShipDesigns;
             foreach (TechEntry entry in ourTechs)
             {
                 if (them.WeCanUseThisTech(entry, theirDesigns))
@@ -1365,8 +1313,8 @@ namespace Ship_Game.Gameplay
                 if (them.isPlayer && turnsSinceLastContact > FirstDemand)
                     if (!WarnedAboutColonizing)
                         DiplomacyScreen.Show(us, them, "Warning Ships");
-                    else if (GetContestedSystem(out SolarSystem contested))
-                        DiplomacyScreen.Show(us, them, "Warning Colonized then Ships", contested);
+                    else if (ContestedSystem != null)
+                        DiplomacyScreen.Show(us, them, "Warning Colonized then Ships", ContestedSystem);
 
                 turnsSinceLastContact = 0;
                 WarnedAboutShips = true;
@@ -1379,12 +1327,14 @@ namespace Ship_Game.Gameplay
                 return;
 
             var allies = new Array<Empire>();
-            foreach ((Empire them, Relationship rel) in us.AllRelations)
+            foreach (Relationship rel in us.AllRelations)
             {
                 if (rel.Treaty_Alliance
-                    && them.IsKnown(enemy) && !them.IsAtWarWith(enemy) && !them.IsPeaceTreaty(enemy))
+                    && rel.Them.IsKnown(enemy)
+                    && !rel.Them.IsAtWarWith(enemy)
+                    && !rel.Them.IsPeaceTreaty(enemy))
                 {
-                    allies.Add(them);
+                    allies.Add(rel.Them);
                 }
             }
 
@@ -1394,7 +1344,7 @@ namespace Ship_Game.Gameplay
                 if (!ActiveWar.AlliesCalled.Contains(ally.data.Traits.Name)
                     && usToAlly.turnsSinceLastContact > (ally.isPlayer ? contactThreshold * 2 : contactThreshold))
                 {
-                    us.GetEmpireAI().CallAllyToWar(ally, enemy);
+                    us.AI.CallAllyToWar(ally, enemy);
                     if (ally.IsAtWarWith(enemy))
                         ActiveWar.AlliesCalled.Add(ally.data.Traits.Name);
 
@@ -1759,8 +1709,8 @@ namespace Ship_Game.Gameplay
 
         public static bool DoWeShareATradePartner(Empire them, Empire us)
         {
-            var theirTrade = EmpireManager.GetTradePartners(them);
-            var ourTrade = EmpireManager.GetTradePartners(them);
+            var theirTrade = us.Universe.GetTradePartners(them);
+            var ourTrade = us.Universe.GetTradePartners(them);
             foreach (var trade in theirTrade)
             {
                 if (ourTrade.ContainsRef(trade))
@@ -1770,32 +1720,9 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~Relationship() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            Risk = null;
-            TrustEntries?.Dispose(ref TrustEntries);
-            FearEntries?.Dispose(ref FearEntries);
-        }
-
-        public void RestoreWarsFromSave(UniverseState us)
-        {
-            ActiveWar?.RestoreFromSave(us, true);
-
-            foreach (var war in WarHistory)
-                war.RestoreFromSave(us, false);
-        }
-
         public DebugTextBlock DebugWar(Empire us)
         {
-            Color color = EmpireManager.GetEmpireByName(Name).EmpireColor;
+            Color color = Them.EmpireColor;
             var debug = new DebugTextBlock
             {
                 Header      = $"Relation To: {Them.data.PortraitName}",
@@ -1814,7 +1741,7 @@ namespace Ship_Game.Gameplay
             debug.AddLine($" Previous Wars: {WarHistory.Count}", color);
 
             ActiveWar?.WarDebugData(ref debug);
-            us.GetEmpireAI().DebugDrawTasks(ref debug, Them, warTasks: true);
+            us.AI.DebugDrawTasks(ref debug, Them, warTasks: true);
             return debug;
         }
 

@@ -54,8 +54,8 @@
         public DifficultyModifiers(Empire empire, GameDifficulty difficulty)
         {
             float remnantGeneralStr = 2; // Vanilla will be 2
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.RemnantDesignStrMultiplier > 0.01f)
-                remnantGeneralStr = GlobalStats.ActiveModInfo.RemnantDesignStrMultiplier;
+            if (GlobalStats.Settings.RemnantDesignStrMultiplier > 0.01f)
+                remnantGeneralStr = GlobalStats.Settings.RemnantDesignStrMultiplier;
 
             DataVisibleToPlayer    = false;
             FlatMoneyBonus         = 0;
@@ -242,7 +242,7 @@
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
 
-                if (GlobalStats.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
+                if (empire.Universe.P.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
                     CreditsMultiplier = 0.2f;
             }
         }

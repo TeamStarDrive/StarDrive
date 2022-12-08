@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Empires.Components
 {
+    [StarDataType]
     public class EmpireInformation
     {
         public enum InformationLevel
@@ -18,17 +20,18 @@ namespace Ship_Game.Empires.Components
             Full
         }
 
-        public float EconomicStrength { get; private set; }
-        public float OffensiveStrength{ get; private set; }
+        [StarData] public float EconomicStrength { get; private set; }
+        [StarData] public float OffensiveStrength{ get; private set; }
 
 
-        public float AllianceEconomicStrength { get; private set; }
-        public float AllianceTotalStrength { get; private set; }
+        [StarData] public float AllianceEconomicStrength { get; private set; }
+        [StarData] public float AllianceTotalStrength { get; private set; }
 
 
         Empire Them => Relation.Them;
-        Relationship Relation;
+        [StarData] Relationship Relation;
 
+        [StarDataConstructor]
         public EmpireInformation(Relationship relation)
         {
             Relation = relation;
@@ -48,17 +51,17 @@ namespace Ship_Game.Empires.Components
                     break;
                 case InformationLevel.Full:
 
-                    EconomicStrength  = Them.GetEmpireAI().BuildCapacity;
+                    EconomicStrength  = Them.AI.BuildCapacity;
                     OffensiveStrength = Them.OffensiveStrength;
 
                     AllianceEconomicStrength = EconomicStrength;
                     AllianceTotalStrength = OffensiveStrength;
-                    var array = EmpireManager.GetAllies(Them);
+                    var array = Them.Universe.GetAllies(Them);
                     for (int i = 0; i < array.Count; i++)
                     {
                         var empire = array[i];
                         AllianceTotalStrength += empire.CurrentMilitaryStrength;
-                        AllianceEconomicStrength += empire.GetEmpireAI().BuildCapacity;
+                        AllianceEconomicStrength += empire.AI.BuildCapacity;
                     }
 
 

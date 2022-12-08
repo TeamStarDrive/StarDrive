@@ -4,7 +4,7 @@
   <UID>Logistics</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
-  <RootNode>1</RootNode>
+  <RootNode>2</RootNode>
   <NameIndex>603</NameIndex>
   <IconPath>icons_techroot_sociologistics</IconPath>
   <DescriptionIndex>604</DescriptionIndex>

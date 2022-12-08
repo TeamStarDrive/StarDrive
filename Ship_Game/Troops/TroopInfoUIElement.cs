@@ -35,14 +35,13 @@ namespace Ship_Game
             RangeRect         = new Rectangle(LeftRect.X + 12, HardAttackRect.Y + 16 + 5, 16, 16);
             DefenseRect.X    -= 3;
             ItemDisplayRect   = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 128, 128);
-            Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y + 5, LeftRect.Width + 8, 240);
-            Submenu sub       = new Submenu(desRect);
-            DescriptionBox    = Add(new UITextBox(sub));
+            var desRect = new RectF(RangeRect.X, RangeRect.Y + 5, LeftRect.Width + 8, 240);
+            DescriptionBox = Add(new UITextBox(desRect));
 
-            ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisUnitsGroundCombat));
-            ToolTipItems.Add(new TippedItem(SoftAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness));
-            ToolTipItems.Add(new TippedItem(HardAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness2));
-            ToolTipItems.Add(new TippedItem(RangeRect, GameText.IndicatesTheTileRangeThis));
+            ToolTipItems.Add(new(DefenseRect, GameText.IndicatesThisUnitsGroundCombat));
+            ToolTipItems.Add(new(SoftAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness));
+            ToolTipItems.Add(new(HardAttackRect, GameText.IndicatesThisUnitsCombatEffectiveness2));
+            ToolTipItems.Add(new(RangeRect, GameText.IndicatesTheTileRangeThis));
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed) // refactored by  Fat Bastard Aug 6, 2018
@@ -66,21 +65,18 @@ namespace Ship_Game
             if (Tile.TroopsAreOnTile) // draw troop_stats
             {
                 Troop troopToDraw = null;
-                using (Tile.TroopsHere.AcquireReadLock())
+                for (int i = 0; i < Tile.TroopsHere.Count; ++i)
                 {
-                    for (int i = 0; i < Tile.TroopsHere.Count; ++i)
-                    {
-                        Troop troop = Tile.TroopsHere[i];
-                        if (Tile.TroopsHere.Count == 1)
-                            troopToDraw = troop;
-                        else if (troop.Loyalty != EmpireManager.Player && troop.Hovered)
-                            troopToDraw = troop;
-                        else if (troop.Loyalty == EmpireManager.Player)
-                            troopToDraw = troop;
-                    }
-
-                    DrawTroopStats(batch, troopToDraw, slant, Universe.Input.CursorPosition, color);
+                    Troop troop = Tile.TroopsHere[i];
+                    if (Tile.TroopsHere.Count == 1)
+                        troopToDraw = troop;
+                    else if (troop.Loyalty != Universe.Player && troop.Hovered)
+                        troopToDraw = troop;
+                    else if (troop.Loyalty == Universe.Player)
+                        troopToDraw = troop;
                 }
+
+                DrawTroopStats(batch, troopToDraw, slant, Universe.Input.CursorPosition, color);
             }
             else // draw building stats
             {
@@ -129,7 +125,7 @@ namespace Ship_Game
         void DrawLaunchButton(SpriteBatch batch, Troop troop, Header slant)
         {
             troop.Draw(Universe.UState, batch, ItemDisplayRect);
-            if (troop.Loyalty != EmpireManager.Player)
+            if (troop.Loyalty != Universe.Player)
                 LaunchTroop = null;
             else
             {
@@ -195,13 +191,10 @@ namespace Ship_Game
                 }
             }
 
-            using (Tile.TroopsHere.AcquireReadLock())
+            for (int i = 0; i < Tile.TroopsHere.Count; ++i)
             {
-                for (int i = 0; i < Tile.TroopsHere.Count; ++i)
-                {
-                    Troop troop = Tile.TroopsHere[i];
-                    troop.Hovered = troop.ClickRect.HitTest(input.CursorPosition);
-                }
+                Troop troop = Tile.TroopsHere[i];
+                troop.Hovered = troop.ClickRect.HitTest(input.CursorPosition);
             }
             return false;
         }

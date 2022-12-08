@@ -17,7 +17,7 @@
 
   <TexturePath>Textures/transparent</TexturePath>
   <IconTexturePath>Modules/NuclearReactorSmall</IconTexturePath>
-  <Mass>12</Mass>
+  <Mass>7</Mass>
   <Health>200</Health>
   <HealthMax>200</HealthMax>
   <energyreq>0</energyreq>
@@ -34,7 +34,7 @@
   <!-- for PowerPlant Items -->
   <ExplosionDamage>2500</ExplosionDamage>
   <ExplosionRadius>16</ExplosionRadius> 
-  <PowerFlowMax>45</PowerFlowMax>
+  <PowerFlowMax>47</PowerFlowMax>
   <PowerStoreMax>10</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
 

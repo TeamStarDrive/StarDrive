@@ -105,15 +105,15 @@ namespace UnitTests.Ships
             Assert.IsTrue(ship.IsSpooling, "Ship should be spooling");
 
             ship.SetWarpInhibited(source: Ship.InhibitionType.GravityWell, 4f);
-            Assert.AreEqual(Ship.InhibitionType.GravityWell, ship.InhibitionSource, "Inhibited Source should be gravitywell");
+            AssertEqual(Ship.InhibitionType.GravityWell, ship.InhibitionSource, "Inhibited Source should be gravitywell");
 
             // Test timer for accuracy
             double timeInhibited = RunSimWhile((simTimeout:15, true), () => ship.Inhibited);
 
-            Assert.AreEqual(4.0 + TestSimStepD, timeInhibited, 0.001f, "Ship was not Inhibited for expected duration");
-            Assert.AreEqual(ship.Stats.FTLSpoolTime, ship.InhibitedCheckTimer, 0.001f,
-                            "InhibitedCheckTimer must be FTLSpoolTime when in STL");
-            Assert.AreEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
+            AssertEqual(0.001, 4.0 + TestSimStepD, timeInhibited, "Ship was not Inhibited for expected duration");
+            AssertEqual(0.001f, ship.Stats.FTLSpoolTime, ship.InhibitedCheckTimer,
+                                "InhibitedCheckTimer must be FTLSpoolTime when in STL");
+            AssertEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
         }
 
         [TestMethod]
@@ -124,11 +124,11 @@ namespace UnitTests.Ships
             ship.Update(new FixedSimTime(2f));
 
             ship.SetWarpInhibited(source: Ship.InhibitionType.EnemyShip, 4f);
-            Assert.AreEqual(Ship.InhibitionType.EnemyShip, ship.InhibitionSource, "Source should be EnemyShip");
+            AssertEqual(Ship.InhibitionType.EnemyShip, ship.InhibitionSource, "Source should be EnemyShip");
 
             RunSimWhile((5, true), () => ship.Inhibited);
             Assert.AreNotEqual(Ship.InhibitionType.EnemyShip, ship.InhibitionSource, "Inhibit failed to clear InhibitedByEnemy flag");
-            Assert.AreEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
+            AssertEqual(Ship.InhibitionType.None, ship.InhibitionSource, "Source should be none");
         }
 
         [TestMethod]

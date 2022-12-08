@@ -1,0 +1,18 @@
+﻿<Building>
+  <Name>GoldDeposit</Name>
+  <Icon>GoldDeposit</Icon>
+  
+  <Cost>250</Cost>
+  
+  <ProdCache>350</ProdCache>
+  <PlusProdPerColonist>2</PlusProdPerColonist>
+  <Income>3</Income>
+  <Infrastructure>0</Infrastructure>
+  <IsCommodity>true</IsCommodity>
+  <CanBeCreatedFromLava>true</CanBeCreatedFromLava>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>18285</NameTranslationIndex>
+  <DescriptionIndex>18286</DescriptionIndex>
+  <ShortDescriptionIndex>18287</ShortDescriptionIndex>
+</Building>

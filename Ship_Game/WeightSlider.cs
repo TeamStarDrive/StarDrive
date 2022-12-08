@@ -7,60 +7,55 @@ namespace Ship_Game
 {
 	public sealed class WeightSlider
 	{
-		public Rectangle rect;
-
-		public Rectangle ContainerRect;
+		public readonly RectF Rect;
+		public RectF ContainerRect;
+		public string Text;
 
 		public bool Hover;
+		public float Amount = 0.5f;
 
-		public string Text = "";
-
-		public float amount = 0.5f;
-
-		public Rectangle cursor;
-
-		private string fmt = "0.#";
+		public RectF Cursor;
+		RectF RedRect;
+		RectF GreenRect;
 
 		public LocalizedText Tooltip;
 
-		private Rectangle redRect;
+		bool dragging;
 
-		private Rectangle greenRect;
-
-		private bool dragging;
-
-		public WeightSlider(Rectangle r, string Text)
+		public WeightSlider(RectF r, string text, LocalizedText tooltip)
 		{
-			this.Text = Text;
+			Text = text;
+			Tooltip = tooltip;
+			Rect = new(r.X + 9, r.CenterY + 3, 120, 6);
 			ContainerRect = r;
-			rect = new Rectangle(r.X + 9, r.Y + r.Height / 2 + 3, 120, 6);
+
             var tex = ResourceManager.Texture("NewUI/slider_crosshair");
-			cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - tex.Height / 2, tex.Width, tex.Height);
-			redRect = new Rectangle(rect.X, rect.Y, rect.Width / 2, 6);
-			greenRect = new Rectangle(rect.X + rect.Width / 2, rect.Y, rect.Width / 2, 6);
+			Cursor = new(Rect.X + Rect.W * Amount, Rect.Y + Rect.H / 2 - tex.CenterY, tex.SizeF);
+			RedRect = new(Rect.X, Rect.Y, Rect.W / 2, 6);
+			GreenRect = new(Rect.X + Rect.W / 2, Rect.Y, Rect.W / 2, 6);
 		}
 
 		public void Draw(SpriteBatch batch)
 		{
 			Vector2 Cursor = new Vector2(ContainerRect.X + 10, ContainerRect.Y);
 			batch.DrawString(Fonts.Arial12Bold, Text, Cursor, Colors.Cream);
-			if (amount > 0.5f)
+			if (Amount > 0.5f)
 			{
-				float greenamount = 2f * (amount - 0.5f);
+				float greenamount = 2f * (Amount - 0.5f);
 				batch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), 
-                    new Rectangle(greenRect.X, rect.Y, (int)(greenamount * greenRect.Width), 6), Color.White);
+                           new RectF(GreenRect.X, Rect.Y, (int)(greenamount * GreenRect.W), 6), Color.White);
 			}
-			else if (amount < 0.5f)
+			else if (Amount < 0.5f)
 			{
-				float blackAmount = 2f * amount;
-				batch.FillRectangle(redRect, Color.Maroon);
-				batch.FillRectangle(new Rectangle(redRect.X, rect.Y, (int)(blackAmount * redRect.Width), 6), Color.Black);
+				float blackAmount = 2f * Amount;
+				batch.FillRectangle(RedRect, Color.Maroon);
+				batch.FillRectangle(new(RedRect.X, Rect.Y, (int)(blackAmount * RedRect.W), 6), Color.Black);
 			}
-			batch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
-			Vector2 tickCursor = new Vector2();
+			batch.DrawRectangle(Rect, (Hover ? new(164, 154, 133) : new(72, 61, 38)));
+
 			for (int i = 0; i < 11; i++)
 			{
-				tickCursor = new Vector2(rect.X + rect.Width / 10 * i, rect.Y + rect.Height + 2);
+				Vector2 tickCursor = new(Rect.X + Rect.W / 10 * i, Rect.Bottom + 2);
 				if (Hover)
 				{
 					batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
@@ -70,7 +65,7 @@ namespace Ship_Game
 					batch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, Color.White);
 				}
 			}
-			Rectangle drawRect = cursor;
+            Rectangle drawRect = this.Cursor;
 			drawRect.X = drawRect.X - drawRect.Width / 2;
 			if (Hover)
 			{
@@ -84,14 +79,14 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(Tooltip);
 			}
-			Vector2 textPos = new Vector2(rect.X + rect.Width + 8, rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-			float single = 2f * (amount - 0.5f);
-			batch.DrawString(Fonts.Arial12Bold, single.ToString(fmt), textPos, Colors.Cream);
+			Vector2 textPos = new(Rect.X + Rect.W + 8, Rect.Y + Rect.H / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+			float single = 2f * (Amount - 0.5f);
+			batch.DrawString(Fonts.Arial12Bold, single.ToString("0.#"), textPos, Colors.Cream);
 		}
 
 	    public bool HandleInput(InputState input, ref float currentvalue)
 	    {
-	        if (!rect.HitTest(input.CursorPosition) || !input.LeftMouseHeld())
+	        if (!Rect.HitTest(input.CursorPosition) || !input.LeftMouseHeld())
 	        {
 	            SetAmount(currentvalue);
 	            return false;
@@ -103,7 +98,7 @@ namespace Ship_Game
 
         public float HandleInput(InputState input)
 		{
-			if (!rect.HitTest(input.CursorPosition))
+			if (!Rect.HitTest(input.CursorPosition))
 			{
 				Hover = false;
 			}
@@ -111,37 +106,38 @@ namespace Ship_Game
 			{
 				Hover = true;
 			}
-			Rectangle clickCursor = cursor;
-			clickCursor.X = clickCursor.X - cursor.Width / 2;
+
+			RectF clickCursor = Cursor;
+			clickCursor.X -= Cursor.W / 2;
 			if (clickCursor.HitTest(input.CursorPosition) && input.LeftMouseHeldDown)
 			{
 				dragging = true;
 			}
 			if (dragging)
 			{
-				cursor.X = (int)input.CursorPosition.X;
-				if (cursor.X > rect.X + rect.Width)
+				Cursor.X = (int)input.CursorPosition.X;
+				if (Cursor.X > Rect.Right)
 				{
-					cursor.X = rect.X + rect.Width;
+					Cursor.X = Rect.Right;
 				}
-				else if (cursor.X < rect.X)
+				else if (Cursor.X < Rect.X)
 				{
-					cursor.X = rect.X;
+					Cursor.X = Rect.X;
 				}
 				if (input.LeftMouseUp)
 				{
 					dragging = false;
 				}
-				amount = 1f - (rect.X + (float)rect.Width - cursor.X) / rect.Width;
+				Amount = 1f - (Rect.Right - Cursor.X) / Rect.W;
 			}
-			return amount;
+			return Amount;
 		}
 
 		public void SetAmount(float amt)
 		{
-			amount = amt;
+			Amount = amt;
             var tex = ResourceManager.Texture("NewUI/slider_crosshair");
-			cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - tex.Height / 2, tex.Width, tex.Height);
+			Cursor = new(Rect.X + (int)(Rect.W * Amount), Rect.Y + Rect.H / 2 - tex.CenterY, tex.SizeF);
 		}
 	}
 }

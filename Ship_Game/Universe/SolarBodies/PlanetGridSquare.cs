@@ -1,6 +1,8 @@
 using System;
 using SDGraphics;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe.SolarBodies;
+using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 using Point = SDGraphics.Point;
 
@@ -8,21 +10,24 @@ namespace Ship_Game
 {
     // Refactored by Fat Bastard, Feb 6, 2019
     // Converted to 2 troops per tile support by Fat Bastard, Feb 28, 2020
+    [StarDataType]
     public sealed class PlanetGridSquare
     {
-        public int X;
-        public int Y;
+        [StarData] public Planet P;
+        [StarData] public int X;
+        [StarData] public int Y;
         public bool ShowAttackHover;
         public int MaxAllowedTroops = 2; // FB allow 2 troops of different loyalties
-        public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
-        public bool Biosphere;
-        public bool Terraformable; // This tile can be habitable if terraformed
-        public Building Building; // FB - should use get private set here
-        public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
-        public QueueItem QItem;
-        public Rectangle ClickRect = new Rectangle();
-        public short EventOutcomeNum { get; private set; }
+        [StarData] public Array<Troop> TroopsHere = new();
+        [StarData] public bool Biosphere;
+        [StarData] public bool Terraformable; // This tile can be habitable if terraformed
+        [StarData] public Building Building; // FB - should use get private set here
+        [StarData] public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
+        [StarData] public QueueItem QItem;
+        public Rectangle ClickRect = new();
+        [StarData] public short EventOutcomeNum { get; private set; }
         public bool Highlighted;
+
         public bool NoTroopsOnTile       => TroopsHere.IsEmpty;
         public bool TroopsAreOnTile      => TroopsHere.NotEmpty;
         public bool NoBuildingOnTile     => Building == null;
@@ -30,32 +35,54 @@ namespace Ship_Game
         public bool CombatBuildingOnTile => BuildingOnTile && Building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
         public bool BuildingDestroyed    => BuildingOnTile && Building.Strength <= 0;
-        public bool EventOnTile          => BuildingOnTile && (Building.EventHere || CrashSite.Active);
+        public bool EventOnTile          => BuildingOnTile && (Building.EventHere || IsCrashSiteActive);
         public bool BioCanTerraform      => Biosphere && Terraformable;
         public bool CanTerraform         => Terraformable && (!Habitable || Habitable && Biosphere);
         public bool VolcanoHere          => Volcano != null;
         public bool LavaHere             => BuildingOnTile && Building.IsLava;
         public bool CraterHere           => BuildingOnTile && Building.IsCrater;
         public bool CapitalHere          => BuildingOnTile && Building.IsCapital;
-        public bool CanCrashHere         => !CrashSite.Active && !CraterHere && !VolcanoHere && (!BuildingOnTile || !CapitalHere);
+        public bool CanCrashHere         => !IsCrashSiteActive && !CraterHere && !VolcanoHere && (!BuildingOnTile || !CapitalHere);
+        public bool IsCrashSiteActive => CrashSite?.Active == true;
         public bool TerrainCanBeTerraformed => BuildingOnTile && Building.CanBeTerraformed;
 
-        public DynamicCrashSite CrashSite = new DynamicCrashSite(false);
-        public Volcano Volcano;
+        [StarData] public DynamicCrashSite CrashSite;
+        [StarData] public Volcano Volcano;
+        
+        [StarDataConstructor] PlanetGridSquare() { }
+
+        public PlanetGridSquare(Planet p, int x, int y, Building b, bool hab, bool terraformable)
+        {
+            P = p;
+            X = x;
+            Y = y;
+            Habitable     = hab;
+            Building      = b;
+            Terraformable = terraformable;
+        }
+
+        public override string ToString()
+        {
+            string stuffOnTile = "";
+            if (BuildingOnTile)
+                stuffOnTile += "building="+Building.Name;
+            if (TroopsAreOnTile)
+                stuffOnTile += ":troops="+TroopsHere.Count;
+            if (Biosphere)
+                stuffOnTile += ":biosphere";
+            return $"Tile X:{X} Y:{Y} {stuffOnTile} Planet={P}";
+        }
 
         public bool IsTileFree(Empire empire)
         {
             if (TroopsHere.Count >= MaxAllowedTroops || CombatBuildingOnTile)
                 return false;
 
-            using (TroopsHere.AcquireReadLock())
+            for (int i = 0; i < TroopsHere.Count; ++i)
             {
-                for (int i = 0; i < TroopsHere.Count; ++i)
-                {
-                    Troop t = TroopsHere[i];
-                    if (t.Loyalty == empire)
-                        return false;
-                }
+                Troop t = TroopsHere[i];
+                if (t.Loyalty == empire)
+                    return false;
             }
 
             return true;
@@ -65,19 +92,15 @@ namespace Ship_Game
         public bool LockOnEnemyTroop(Empire us, out Troop troop)
         {
             troop = null;
-            using (TroopsHere.AcquireReadLock())
+            for (int i = 0; i < TroopsHere.Count; ++i)
             {
-                for (int i = 0; i < TroopsHere.Count; ++i)
+                Troop t = TroopsHere[i];
+                if (t.Loyalty.IsAtWarWith(us))
                 {
-                    Troop t = TroopsHere[i];
-                    if (t.Loyalty.IsAtWarWith(us))
-                    {
-                        troop = t;
-                        return true;
-                    }
+                    troop = t;
+                    return true;
                 }
             }
-
             return false;
         }
 
@@ -85,46 +108,32 @@ namespace Ship_Game
         public bool LockOnOurTroop(Empire us, out Troop troop)
         {
             troop = null;
-            using (TroopsHere.AcquireReadLock())
+            for (int i = 0; i < TroopsHere.Count; ++i)
             {
-                for (int i = 0; i < TroopsHere.Count; ++i)
+                Troop t = TroopsHere[i];
+                if (t.Loyalty == us)
                 {
-                    Troop t = TroopsHere[i];
-                    if (t.Loyalty == us)
-                    {
-                        troop = t;
-                        return true;
-                    }
+                    troop = t;
+                    return true;
                 }
             }
-
             return false;
         }
 
         public Troop TryGetFirstTroop()
         {
-            using (TroopsHere.AcquireReadLock())
-                if (TroopsAreOnTile)
-                    return TroopsHere[0];
-
+            if (TroopsAreOnTile)
+                return TroopsHere[0];
             return null;
         }
 
         public void KillAllTroops(Planet p)
         {
-            using (TroopsHere.AcquireWriteLock())
+            for (int i = TroopsHere.Count - 1; i >= 0; --i)
             {
-                for (int i = TroopsHere.Count - 1; i >= 0; --i)
-                {
-                    Troop t = TroopsHere[i];
-                    t.KillTroop(p, this);
-                }
+                Troop t = TroopsHere[i];
+                t.KillTroop(p, this);
             }
-        }
-
-        public bool LockOnPlayerTroop(out Troop playerTroop)
-        {
-            return LockOnOurTroop(EmpireManager.Player, out playerTroop);
         }
 
         public bool EnemyTroopsHere(Empire us)
@@ -132,26 +141,9 @@ namespace Ship_Game
             return LockOnEnemyTroop(us, out _);
         }
 
-        public PlanetGridSquare(int x, int y, Building b, bool hab, bool terraformable)
-        {
-            X             = x;
-            Y             = y;
-            Habitable     = hab;
-            Building      = b;
-            Terraformable = terraformable;
-        }
-        
-        public static PlanetGridSquare FromSaveData(SavedGame.PGSData data)
-        {
-            return new PlanetGridSquare(data.X, data.Y, data.building, data.Habitable, data.Terraformable)
-            {
-                Biosphere = data.Biosphere
-            };
-        }
-
         public void AddTroop(Troop troop)
         {
-            TroopsHere.Add(troop);
+            TroopsHere.AddUniqueRef(troop);
         }
 
         public void CreateVolcano(Planet p)
@@ -202,7 +194,7 @@ namespace Ship_Game
             // Events will not be targeted if there is a space battle near the planet, since its
             // useless to potentially recover damaged ships right into battle.
             if (CombatBuildingOnTile && planetOwner != null && planetOwner != us
-                || EventOnTile && !spaceCombat && !us.isFaction) // factions wont explore events
+                || EventOnTile && !spaceCombat && !us.IsFaction) // factions wont explore events
             {
                 return true;
             }
@@ -213,13 +205,16 @@ namespace Ship_Game
         public int CalculateNearbyTileScore(Troop troop, Empire planetOwner)
         {
             int score = 0;
-            if (CombatBuildingOnTile)
+            if (CombatBuildingOnTile) // is attackable building on tile?
             {
                 if (troop.Loyalty != planetOwner) // hostile building
                 {
                     score += Building.CanAttack ? -1 : 1;
                     if (Building.Strength > troop.Strength)
                         score -= 1; // Stay away from stronger buildings
+
+                    if (Building.IsCapital)
+                        score = -2; // never land on capital directly
 
                     if (Building.PlanetaryShieldStrengthAdded > 0)
                         score += 2; // Land near shields to destroy them
@@ -275,20 +270,23 @@ namespace Ship_Game
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
         {
-            return Math.Abs(X - tileToCheck.X) <= range && Math.Abs(Y - tileToCheck.Y) <= range;
+            return Math.Abs(X - tileToCheck.X) <= range
+                && Math.Abs(Y - tileToCheck.Y) <= range;
         }
 
-        public void DirectionToTarget(PlanetGridSquare target, out int xDiff, out int yDiff)
+        public void CrashShip(Empire empire, string shipName, string troopName, int numTroopsSurvived,
+                              Planet p, int shipSize)
         {
-            xDiff = (target.X - X).Clamped(-1, 1);
-            yDiff = (target.Y - Y).Clamped(-1, 1);
+            if (CrashSite == null)
+                CrashSite = new(false);
+            CrashSite.CrashShip(empire, shipName, troopName, numTroopsSurvived, p, this, shipSize);
         }
 
         public void CheckAndTriggerEvent(Planet planet, Empire empire)
         {
             if (EventOnTile && LockOnOurTroop(empire, out _))
             {
-                if (CrashSite.Active)
+                if (IsCrashSiteActive)
                 {
                     if (!planet.SpaceCombatNearPlanet)
                         CrashSite.ActivateSite(planet.Universe, planet, empire, this);
@@ -305,11 +303,6 @@ namespace Ship_Game
         {
             EventOutcomeNum = ResourceManager.Event(b.EventTriggerUID).SetOutcomeNum(p);
             return EventOutcomeNum != 0;
-        }
-
-        public void SetEventOutcomeNumFromSave(short value)
-        {
-            EventOutcomeNum = value;
         }
 
         public TileDirection GetDirectionTo(PlanetGridSquare target)
@@ -348,42 +341,6 @@ namespace Ship_Game
                 default:                        p.X = X;     p.Y = Y;     break;
             }
             return p;
-        }
-
-        public void CreateVolcanoFromSave(SavedGame.PGSData data, Planet planet)
-        {
-            Volcano = new Volcano(data, this, planet);
-        }
-
-        public SavedGame.PGSData Serialize()
-        {
-            var sData  = new SavedGame.PGSData
-            {
-                X = X,
-                Y = Y,
-                Habitable     = Habitable,
-                Biosphere     = Biosphere,
-                building      = Building,
-                TroopsHere    = TroopsHere,
-                Terraformable = Terraformable,
-                EventOutcomeNum      = EventOutcomeNum,
-                CrashSiteActive      = CrashSite.Active,
-                CrashSiteShipName    = CrashSite.ShipName,
-                CrashSiteTroopName   = CrashSite.TroopName,
-                CrashSiteTroops      = CrashSite.NumTroopsSurvived,
-                CrashSiteEmpireId    = CrashSite.Loyalty?.Id ?? -1,
-                CrashSiteRecoverShip = CrashSite.RecoverShip
-            };
-
-            if (VolcanoHere)
-            {
-                sData.VolcanoHere             = true;
-                sData.VolcanoActive           = Volcano.Active;
-                sData.VolcanoErupting         = Volcano.Erupting;
-                sData.VolcanoActivationChance = Volcano.ActivationChance;
-            }
-
-            return sData;
         }
     }
 

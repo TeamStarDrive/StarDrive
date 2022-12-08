@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using SDUtils;
 using Ship_Game;
@@ -10,12 +9,9 @@ namespace UnitTests.Technologies
     [TestClass]
     public class TestTechnologyUnlock : StarDriveTest
     {
-        Empire MajorEnemy;
-
         public TestTechnologyUnlock()
         {
             CreateUniverseAndPlayerEmpire();
-            MajorEnemy = EmpireManager.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[1], isPlayer:false);
             Universe.aw = new AutomationWindow(Universe);
             LoadStarterShips("TEST_Heavy Carrier mk1");
         }
@@ -39,7 +35,7 @@ namespace UnitTests.Technologies
             //spy tech currently has a random chance to unlock.
             for (int x =0; x< 100; x++)
             {
-                Player.UnlockTech("IndustrialFoundations", TechUnlockType.Spy, MajorEnemy);
+                Player.UnlockTech("IndustrialFoundations", TechUnlockType.Spy, Enemy);
                 if (spyTech.Unlocked)
                     break;
             }
@@ -65,7 +61,7 @@ namespace UnitTests.Technologies
             }
 
             //Unlock hulls from other empire.
-            Player.UnlockTech("FrigateConstruction", TechUnlockType.Diplomacy, MajorEnemy);
+            Player.UnlockTech("FrigateConstruction", TechUnlockType.Diplomacy, Enemy);
             int foreignHulls = 0;
             foreach (string item in hullTech.GetUnLockableHulls(Player))
             {
@@ -114,13 +110,13 @@ namespace UnitTests.Technologies
             float expectedHealth = ship.Health * (1 + expectedBonus);
             TechEntry bonusTech = UnlockTech(Player, hpTechName);
 
-            Assert.AreEqual(hpTechName, bonusTech.Tech.UID, $"{hpTechName} not found.");
+            AssertEqual(hpTechName, bonusTech.Tech.UID, $"{hpTechName} not found.");
             Assert.IsTrue(bonusTech.Tech.BonusUnlocked.NotEmpty, $"No bonus unlocks found in {bonusTech.Tech.UID}");
-            Assert.AreEqual(bonusName, bonusTech.Tech.BonusUnlocked[0].Name, $"Expxcted bonus name: {bonusName}");
+            AssertEqual(bonusName, bonusTech.Tech.BonusUnlocked[0].Name, $"Expxcted bonus name: {bonusName}");
 
             float bonus = bonusTech.Tech.BonusUnlocked[0].Bonus;
-            Assert.AreEqual(expectedBonus, bonus, $"Bonus should be equal to expected bonus({expectedBonus})");
-            Assert.AreEqual(expectedHealth, ship.Health, $"Ship health after HP bonus " +
+            AssertEqual(expectedBonus, bonus, $"Bonus should be equal to expected bonus({expectedBonus})");
+            AssertEqual(expectedHealth, ship.Health, $"Ship health after HP bonus " +
                 $"unload should be {expectedBonus * 100}% more");
         }
 
@@ -148,38 +144,43 @@ namespace UnitTests.Technologies
             foreach (var item in bonus.Tech.BonusUnlocked)
             {
                 Assert.IsTrue(Player.data.BonusFighterLevels > 0, $"Bonus not unlocked {item.Name}");
-                Assert.That.Equal(0, Player.data.BonusFighterLevels - item.Bonus);
+                AssertEqual(0, Player.data.BonusFighterLevels - item.Bonus);
             }
             TechEntry bonusStack = UnlockTech(Player, "Ace Training");
             foreach (var item in bonusStack.Tech.BonusUnlocked)
             {
                 Assert.IsTrue(Player.data.BonusFighterLevels > 0, "Bonus not unlocked");
-                Assert.That.Equal(0, Player.data.BonusFighterLevels - item.Bonus);
+                AssertEqual(0, Player.data.BonusFighterLevels - item.Bonus);
             }
         }
 
         [TestMethod]
         public void UnlockByConquest()
         {
-            TechEntry[] playerTechs = Player.TechEntries.Filter(tech => tech.Unlocked);
-            UnlockTech(MajorEnemy, "Centralized Banking");
-            UnlockTech(MajorEnemy, "Disintegrator Array");
-            TechEntry[] enemyTechs = MajorEnemy.TechEntries.Filter(tech => tech.Unlocked);
-            Player.AssimilateTech(MajorEnemy);
+            TechEntry[] playerTechs = Player.UnlockedTechs;
+            UnlockTech(Enemy, "Centralized Banking");
+            UnlockTech(Enemy, "Disintegrator Array");
+            TechEntry[] enemyTechs = Enemy.UnlockedTechs;
+            Player.AssimilateTech(Enemy);
 
-            TechEntry[] playerTechs2 = Player.TechEntries.Filter(tech => tech.Unlocked).Sorted(e => e.UID);
-            TechEntry[] expected = playerTechs.Union(enemyTechs).Sorted(e => e.UID);
+            TechEntry[] playerTechs2 = Player.UnlockedTechs.Sorted(e => e.UID);
             TechEntry[] newUnlocks = playerTechs2.Except(playerTechs).Sorted(e => e.UID);
 
-            Assert.AreEqual(2, newUnlocks.Length);
-            Assert.AreEqual("Centralized Banking", newUnlocks[0].UID);
-            Assert.AreEqual("Disintegrator Array", newUnlocks[1].UID);
-            Assert.AreEqual(MajorEnemy.data.ShipType, newUnlocks[0].ConqueredSource[0]);
-            Assert.AreEqual(MajorEnemy.data.ShipType, newUnlocks[1].ConqueredSource[0]);
-            Assert.AreEqual(MajorEnemy.data.ShipType, newUnlocks[0].WasAcquiredFrom[0]);
-            Assert.AreEqual(MajorEnemy.data.ShipType, newUnlocks[1].WasAcquiredFrom[0]);
+            string[] expected = playerTechs.Select(e => e.UID)
+                                .Concat(enemyTechs.Select(e => e.UID))
+                                .Unique()
+                                .Sorted(e => e);
+            string[] actual = playerTechs2.Select(e => e.UID);
 
-            Assert.That.Equal(expected, playerTechs2, "Assimilated techs should be equal to conquered empire techs");
+            AssertEqual(2, newUnlocks.Length);
+            AssertEqual("Centralized Banking", newUnlocks[0].UID);
+            AssertEqual("Disintegrator Array", newUnlocks[1].UID);
+            AssertEqual(Enemy.data.ShipType, newUnlocks[0].ConqueredSource[0]);
+            AssertEqual(Enemy.data.ShipType, newUnlocks[1].ConqueredSource[0]);
+            AssertEqual(Enemy.data.ShipType, newUnlocks[0].WasAcquiredFrom[0]);
+            AssertEqual(Enemy.data.ShipType, newUnlocks[1].WasAcquiredFrom[0]);
+
+            AssertEqual(expected, actual, "Assimilated techs should be equal to conquered empire techs");
         }
     }
 }

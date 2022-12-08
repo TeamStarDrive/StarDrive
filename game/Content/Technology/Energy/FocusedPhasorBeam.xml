@@ -4,7 +4,6 @@
   <UID>FocusedPhasorBeam</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>2400</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17592</NameIndex>
   <DescriptionIndex>17593</DescriptionIndex>
   <LeadsTo>

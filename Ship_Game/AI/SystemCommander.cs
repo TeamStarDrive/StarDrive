@@ -2,7 +2,6 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using SDGraphics;
 using SDUtils;
 
@@ -31,12 +30,10 @@ namespace Ship_Game.AI
         public float RankImportance;
         public int TroopCount;
         public int TroopsWanted => IdealTroopCount - TroopCount;
-        public Map<int, Ship> OurShips = new Map<int, Ship>();
+        public Array<Ship> OurShips = new Array<Ship>();
 
         public Map<Planet, PlanetTracker> PlanetValues = new Map<Planet, PlanetTracker>();
         readonly int GameDifficultyModifier;
-        float PredictionTimer = 0;
-        int PredictedStrength = 0;
 
         float PlanetToSystemDevelopmentRatio(Planet p) => p.Level / SystemDevelopmentlevel;
 
@@ -103,8 +100,8 @@ namespace Ship_Game.AI
             var removed = new Array<Ship>();
             if (CurrentShipStr < IdealShipStrength)
                 return removed;
-
-            foreach (Ship ship in OurShips.AtomicValuesArray())
+            
+            foreach (Ship ship in OurShips)
             {
                 float str = ship.BaseStrength;
                 if (CurrentShipStr - str > IdealShipStrength)
@@ -116,9 +113,14 @@ namespace Ship_Game.AI
             return removed;
         }
 
+        public bool ContainsShip(Ship ship)
+        {
+            return OurShips.ContainsRef(ship);
+        }
+
         public bool RemoveShip(Ship shipToRemove)
         {
-            if (OurShips.Remove(shipToRemove.Id))
+            if (OurShips.Remove(shipToRemove))
             {
                 CurrentShipStr -= (int)shipToRemove.BaseStrength;
                 shipToRemove.AI.ClearOrders();
@@ -129,19 +131,11 @@ namespace Ship_Game.AI
 
         public bool AddShip(Ship ship)
         {
-            if (CurrentShipStr > IdealShipStrength) return false;
-            if (OurShips.TryGetValue(ship.Id, out Ship existing))
+            if (CurrentShipStr > IdealShipStrength)
+                return false;
+
+            if (OurShips.AddUniqueRef(ship))
             {
-                if (existing != ship) // @todo Why is this check here? Wtf?
-                {
-                    CurrentShipStr -= (int)existing.BaseStrength;
-                    CurrentShipStr += (int)ship.BaseStrength;
-                    OurShips[ship.Id] = ship;
-                }
-            }
-            else
-            {
-                OurShips.Add(ship.Id, ship);
                 CurrentShipStr += (int)ship.BaseStrength;
             }
 
@@ -152,7 +146,7 @@ namespace Ship_Game.AI
 
         private void Clear()
         {
-            foreach (Ship ship in OurShips.Values)
+            foreach (Ship ship in OurShips)
                 if (ship.Active && ship.AI != null) // AI is null if we exit during initialization
                     ship.AI.SystemToDefend = null;
             OurShips.Clear();
@@ -165,60 +159,54 @@ namespace Ship_Game.AI
             return best.Planet;
         }
 
+        void AssignAllShipsToSystemDefense()
+        {
+            foreach (Ship ship in OurShips)
+            {
+                if (ship.AI.State != AIState.Resupply)
+                    ship.AI.OrderSystemDefense(System);
+            }
+        }
+
         public void AssignTargets()
         {
-            Array<Ship> hostiles = Us.GetEmpireAI().ThreatMatrix.PingRadarClosestEnemyCluster(System.Position, System.Radius, 15000, Us);
-            if (hostiles.NotEmpty)
+            ThreatCluster[] hostiles = Us.AI.ThreatMatrix.FindHostileClustersByDist(System.Position, System.Radius);
+            if (hostiles.Length == 0)
             {
-                var assignedShips = new HashSet<Ship>();
-                foreach (Ship hostile in hostiles)
-                {
-                    float assignedStr = 0f;
-                    foreach (Ship ship in OurShips.Values)
-                    {
-                        if (assignedShips.Contains(ship))
-                            continue;
-
-                        if (!ship.InCombat && ship.System == System)
-                        {
-                            if (assignedStr <= 0f || assignedStr < hostile.GetStrength()
-                                && ship.AI.State != AIState.Resupply)
-                            {
-                                ship.AI.OrderAttackSpecificTarget(hostile);
-                                assignedStr += ship.GetStrength();
-                                assignedShips.Add(ship);
-                            }
-                        }
-                        else
-                        {
-                            assignedStr += ship.GetStrength();
-                        }
-                    }
-                }
-                foreach (Ship ship in assignedShips)
-                {
-                    if (ship.AI.State != AIState.Resupply && ship.System == System)
-                    {
-                        ship.AI.OrderAttackSpecificTarget(assignedShips.First().AI.Target as Ship);
-                    }
-                }
+                // nothing to do, take defensive positions inside the system
+                AssignAllShipsToSystemDefense();
+                return;
             }
-            else
+
+            // these are the ships we are sending to face this threat
+            var ourAssignedShips = new HashSet<Ship>();
+
+            foreach (ThreatCluster cluster in hostiles)
             {
-                foreach (Ship ship in OurShips.Values)
+                float assignedStr = 0f;
+                foreach (Ship ship in OurShips)
                 {
-                    if (ship.AI.State != AIState.Resupply)
-                        ship.AI.OrderSystemDefense(System);
+                    if (ourAssignedShips.Contains(ship))
+                        continue;
+
+                    if (!ship.InCombat && ship.System == System && ship.AI.State != AIState.Resupply)
+                    {
+                        assignedStr += ship.GetStrength();
+                        ourAssignedShips.Add(ship);
+
+                        // do aggressive move towards threat
+                        ship.AI.OrderAttackMoveTo(cluster.Position);
+                    }
+
+                    if (assignedStr >= cluster.Strength)
+                        break; // done assigning ships
                 }
             }
         }
 
         public float GetOurStrength()
         {
-            float str = 0f;
-            foreach (Ship ship in OurShips.Values)
-                str += ship.GetStrength();
-            return str;
+            return CurrentShipStr;
         }
 
         public Planet[] OurPlanets => System.PlanetList.Filter(p => p.Owner == Us);
@@ -256,17 +244,9 @@ namespace Ship_Game.AI
 
         public void CalculateShipNeeds()
         {
-            if (PredictionTimer <= 0)
-            {
-                PredictedStrength = (int)Us.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);
-                PredictedStrength /= (int)(10f / RankImportance);
-                PredictionTimer = 2f;
-            }
-            else PredictionTimer--;
-
             int min = (int)(10f / RankImportance) * (Us.data.DiplomaticPersonality?.Territorialism ?? 50);
             min /= 4;
-            IdealShipStrength = min; // Math.Max(PredictedStrength, min);
+            IdealShipStrength = min;
         }
 
         public void UpdatePlanetTracker()

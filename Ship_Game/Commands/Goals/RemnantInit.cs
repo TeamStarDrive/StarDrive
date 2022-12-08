@@ -1,17 +1,15 @@
 ﻿using System;
 using SDUtils;
 using Ship_Game.AI;
-using Ship_Game.Universe;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class RemnantInit : Goal
     {
-        public const string ID = "RemnantInit";
-        public override string UID => ID;
-
-        public RemnantInit(int id, UniverseState us)
-            : base(GoalType.RemnantInit, id, us)
+        [StarDataConstructor]
+        public RemnantInit(Empire owner) : base(GoalType.RemnantInit, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,31 +17,32 @@ namespace Ship_Game.Commands.Goals
                 SendExplorationFleetsAstronomers
             };
         }
-        public RemnantInit(Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
-        {
-            empire = owner;
-        }
 
         GoalStep CreateGuardians()
         {
-            foreach (SolarSystem solarSystem in empire.Universum.Systems)
+            foreach (SolarSystem solarSystem in Owner.Universe.Systems)
             {
                 foreach (Planet p in solarSystem.PlanetList)
                 {
-                    empire.Remnants.GenerateRemnantPresence(p);
+                    Owner.Remnants.GenerateRemnantPresence(p);
+                }
+
+                foreach (Empire e in Owner.Universe.MajorEmpires)
+                {
+                    if (solarSystem.IsFullyExploredBy(e) && solarSystem.ShipList.Count > 0)
+                        e.Threats.UpdateRemnantPresenceAstronomers(solarSystem);
                 }
             }
 
-            EmpireManager.Player.GetEmpireAI().ThreatMatrix.UpdateAllPins(EmpireManager.Player);
+            Owner.Universe.Player.Threats.Update(new(time:0.0f));
             return GoalStep.GoToNextStep;
         }
 
         GoalStep SendExplorationFleetsAstronomers()
         {
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in Owner.Universe.MajorEmpires)
             {
-                var planets = empire.Universum.Planets.Filter(p => p.IsExploredBy(e));
+                var planets = Owner.Universe.Planets.Filter(p => p.IsExploredBy(e));
                 for (int i = 0; i < planets.Length; ++i)
                 {
                     Planet p = planets[i];

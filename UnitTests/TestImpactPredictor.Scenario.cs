@@ -51,25 +51,25 @@ namespace UnitTests
             public void TestPredictStationary()
             {
                 // regardless of speed, the position must always be TARGET
-                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:1000));
-                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:100));
-                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:10));
-                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:5));
-                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:UsVel.Length()));
-                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:0));
-                Assert.That.Equal(1f, Tgt, PredictMovePos());
+                AssertEqual(0.1f, Tgt, Predict(interceptSpeed:1000));
+                AssertEqual(0.1f, Tgt, Predict(interceptSpeed:100));
+                AssertEqual(0.1f, Tgt, Predict(interceptSpeed:10));
+                AssertEqual(0.1f, Tgt, Predict(interceptSpeed:5));
+                AssertEqual(0.1f, Tgt, Predict(interceptSpeed:UsVel.Length()));
+                AssertEqual(0.1f, Tgt, Predict(interceptSpeed:0));
+                AssertEqual(1f, Tgt, PredictMovePos());
             }
 
             public Vector2 TestPredict(in Vector2 expected, float interceptSpeed)
             {
                 Vector2 p = Predict(interceptSpeed);
-                Assert.That.Equal(1f, expected, p);
+                AssertEqual(1f, expected, p);
                 return p;
             }
 
             public void TestMovePos(in Vector2 expected)
             {
-                Assert.That.Equal(0.1f, expected, PredictMovePos());
+                AssertEqual(0.1f, expected, PredictMovePos());
             }
 
             public SimResult SimulateImpact(Vector2 projectileVel)

@@ -36,12 +36,12 @@ namespace UnitTests.Ships
         {
             CreateWeapon(out Ship ship, out WeaponTestWrapper weapon, ordCost:1, pwrCost:0);
 
-            Assert.AreEqual(32, ship.Ordinance, "ship.Ordinance");
-            Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
+            AssertEqual(32, ship.Ordinance, "ship.Ordinance");
+            AssertEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
-            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
-            Assert.AreEqual(31, ship.Ordinance, "ship.Ordinance");
-            Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
+            AssertEqual(1, GetProjectileCount(ship), "Invalid projectile count");
+            AssertEqual(31, ship.Ordinance, "ship.Ordinance");
+            AssertEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
         }
         
         [TestMethod]
@@ -49,12 +49,12 @@ namespace UnitTests.Ships
         {
             CreateWeapon(out Ship ship, out WeaponTestWrapper weapon, ordCost:0, pwrCost:1);
 
-            Assert.AreEqual(32, ship.Ordinance, "ship.Ordinance");
-            Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
+            AssertEqual(32, ship.Ordinance, "ship.Ordinance");
+            AssertEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
-            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
-            Assert.AreEqual(32, ship.Ordinance, "ship.Ordinance");
-            Assert.AreEqual(19, ship.PowerCurrent, "ship.PowerCurrent");
+            AssertEqual(1, GetProjectileCount(ship), "Invalid projectile count");
+            AssertEqual(32, ship.Ordinance, "ship.Ordinance");
+            AssertEqual(19, ship.PowerCurrent, "ship.PowerCurrent");
         }
 
         [TestMethod]
@@ -77,11 +77,11 @@ namespace UnitTests.Ships
 
             ship.SetOrdnance(0.99f);
             Assert.IsFalse(FireAtVisiblePoint(weapon), "Weapon has no ordnance");
-            Assert.AreEqual(0.99f, ship.Ordinance);
+            AssertEqual(0.99f, ship.Ordinance);
             
             ship.SetOrdnance(1f);
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Weapon has exact ordnance");
-            Assert.AreEqual(0f, ship.Ordinance);
+            AssertEqual(0f, ship.Ordinance);
         }
         
         [TestMethod]
@@ -91,11 +91,11 @@ namespace UnitTests.Ships
 
             ship.PowerCurrent = 0.99f;
             Assert.IsFalse(FireAtVisiblePoint(weapon), "Weapon should not have enough power to fire");
-            Assert.AreEqual(0.99f, ship.PowerCurrent, "ship.PowerCurrent");
+            AssertEqual(0.99f, ship.PowerCurrent, "ship.PowerCurrent");
 
             ship.PowerCurrent = 1f;
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Weapon should have power to fire");
-            Assert.AreEqual(0f, ship.PowerCurrent, "ship.PowerCurrent");
+            AssertEqual(0f, ship.PowerCurrent, "ship.PowerCurrent");
         }
 
         [TestMethod]

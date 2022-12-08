@@ -4410,6 +4410,13 @@ namespace Ship_Game
         RingGalaxyGameTip = 4382,
         /// <summary>Ring Galaxy</summary>
         RingGalaxyGame = 4383,
+        /// <summary>Flat Income per turn</summary>
+        FlatIncomePerTurn = 4384,
+        /// <summary>Auto Terraform</summary>
+        AutoBuildTerraformers = 4385,
+        /// <summary>Your empire will manage terraforming efforts</summary>
+        AutoBuildTerraformersTip = 4386,
+
 
 
         /// <summary>on surface</summary>

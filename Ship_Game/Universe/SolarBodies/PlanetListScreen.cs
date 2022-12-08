@@ -8,6 +8,7 @@ using SDUtils;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -18,10 +19,12 @@ namespace Ship_Game
         readonly Menu2 EMenu;
 
         public UniverseScreen Universe;
+        public UniverseState UState => Universe.UState;
         public EmpireUIOverlay EmpireUI;
+        Empire Player => Universe.Player;
 
         public Planet SelectedPlanet { get; private set; }
-        readonly ScrollList2<PlanetListScreenItem> PlanetSL;
+        readonly ScrollList<PlanetListScreenItem> PlanetSL;
 
         readonly SortButton sb_Sys;
         readonly SortButton sb_Name;
@@ -36,20 +39,20 @@ namespace Ship_Game
 
         bool HideOwned
         {
-            get => GlobalStats.PlanetScreenHideOwned;
-            set => GlobalStats.PlanetScreenHideOwned = value;
+            get => UState.P.PlanetScreenHideOwned;
+            set => UState.P.PlanetScreenHideOwned = value;
         }
 
         bool HideUninhab
         {
-            get => GlobalStats.PlanetsScreenHideUnhabitable;
-            set => GlobalStats.PlanetsScreenHideUnhabitable = value;
+            get => UState.P.PlanetsScreenHideInhospitable;
+            set => UState.P.PlanetsScreenHideInhospitable = value;
         }
 
         private int NumAvailableTroops;
         readonly Array<Planet> ExploredPlanets = new Array<Planet>();
         readonly UILabel AvailableTroops;
-        Rectangle eRect;
+        RectF ERect;
         SortButton LastSorted;
 
         // FB - this will store each planet and it's distance to the closest player colony. If the planet is owned
@@ -78,11 +81,10 @@ namespace Ship_Game
             Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
             EMenu    = new Menu2(leftRect);
             Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
-            eRect = new Rectangle(leftRect.X + 20, titleRect.Bottom + 30,
-                                  ScreenWidth - 40,
-                                  leftRect.Bottom - (titleRect.Bottom + 30) - 15);
-
-            PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect));
+            ERect = new(leftRect.X + 20, titleRect.Bottom + 50, ScreenWidth - 40,
+                        leftRect.Bottom - (titleRect.Bottom + 46) - 31);
+            RectF slRect = new(ERect.X, ERect.Y-10, ERect.W, ERect.H+10);
+            PlanetSL = Add(new ScrollList<PlanetListScreenItem>(slRect));
             PlanetSL.EnableItemHighlight = true;
 
             sb_Sys      = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.System));
@@ -97,7 +99,7 @@ namespace Ship_Game
             {
                 foreach (Planet p in system.PlanetList)
                 {
-                    if (p.IsExploredBy(EmpireManager.Player))
+                    if (p.IsExploredBy(Player))
                     {
                         p.UpdateMaxPopulation();
                         ExploredPlanets.Add(p);
@@ -120,10 +122,10 @@ namespace Ship_Game
 
         void CalcPlanetsDistances()
         {
-            var playerPlanets = EmpireManager.Player.GetPlanets();
+            var playerPlanets = Player.GetPlanets();
             foreach (Planet planet in ExploredPlanets)
             {
-                if (planet.Owner != EmpireManager.Player)
+                if (planet.Owner != Player)
                 {
                     float shortestDistance = playerPlanets.Min(p => p.Position.Distance(planet.Position));
                     PlanetDistanceToClosestColony.Add(planet, shortestDistance);
@@ -143,7 +145,7 @@ namespace Ship_Game
         Vector2 GetCenteredTextOffset(Rectangle rect, GameText text)
         {
             return new Vector2(rect.X + rect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(text)).X / 2f, 
-                               eRect.Y - Fonts.Arial20Bold.LineSpacing + 16);
+                               ERect.Y - Fonts.Arial20Bold.LineSpacing);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -190,11 +192,11 @@ namespace Ship_Game
                 sb_Owned.Update(textCursor);
                 sb_Owned.Draw(ScreenManager, fontStyle);
          
-                Color lineColor   = new Color(118, 102, 67, 255);
-                int columnTop     = eRect.Y + 35;
-                int columnBot     = eRect.Y + eRect.Height - 20;
-                Vector2 topLeftSL = new Vector2(e1.PlanetNameRect.X, columnTop);
-                Vector2 botSL     = new Vector2(topLeftSL.X, columnBot);
+                Color lineColor = new Color(118, 102, 67, 255);
+                float columnTop = ERect.Y + 15;
+                float columnBot = ERect.Y + ERect.H -20;
+                Vector2 topLeftSL = new(e1.PlanetNameRect.X, columnTop);
+                Vector2 botSL = new(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((e1.DistanceRect.X), columnTop);
                 botSL     = new Vector2(topLeftSL.X, columnBot);
@@ -292,9 +294,9 @@ namespace Ship_Game
 
             HandleButton(input, sb_Sys,   p => p.ParentSystem.Name);
             HandleButton(input, sb_Name,  p => p.Name);
-            HandleButton(input, sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
+            HandleButton(input, sb_Fert,  p => p.FertilityFor(Player));
             HandleButton(input, sb_Rich,  p => p.MineralRichness);
-            HandleButton(input, sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
+            HandleButton(input, sb_Pop,   p => p.MaxPopulationFor(Player));
             HandleButton(input, sb_Owned, p => p.GetOwnerName());
             HandleButton(input, sb_Distance, PlanetDistanceToClosestColony);
 
@@ -321,7 +323,7 @@ namespace Ship_Game
         {
             PlanetSL.Reset();
             PlanetSL.OnClick = OnPlanetListItemClicked;
-            NumAvailableTroops  = EmpireManager.Player.NumFreeTroops();
+            NumAvailableTroops  = Player.NumFreeTroops();
 
             if (LastSorted == null)
             {
@@ -338,9 +340,9 @@ namespace Ship_Game
             {
                 ResetButton(sb_Sys,   p => p.ParentSystem.Name);
                 ResetButton(sb_Name,  p => p.Name);
-                ResetButton(sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
+                ResetButton(sb_Fert,  p => p.FertilityFor(Player));
                 ResetButton(sb_Rich,  p => p.MineralRichness);
-                ResetButton(sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
+                ResetButton(sb_Pop,   p => p.MaxPopulationFor(Player));
                 ResetButton(sb_Owned, p => p.GetOwnerName());
                 ResetButton(sb_Distance, PlanetDistanceToClosestColony);
             }
@@ -350,7 +352,7 @@ namespace Ship_Game
 
         public void RefreshSendTroopButtonsVisibility()
         {
-            NumAvailableTroops = EmpireManager.Player.NumFreeTroops();
+            NumAvailableTroops = Player.NumFreeTroops();
             foreach (PlanetListScreenItem item in PlanetSL.AllEntries)
             {
                 item.SetCanSendTroops(NumAvailableTroops > 0);

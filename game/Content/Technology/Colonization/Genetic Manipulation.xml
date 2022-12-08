@@ -4,7 +4,6 @@
   <UID>Genetic Manipulation</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>2500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>578</NameIndex>
   <DescriptionIndex>579</DescriptionIndex>
   <LeadsTo>

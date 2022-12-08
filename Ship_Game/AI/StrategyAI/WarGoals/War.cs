@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -12,44 +11,44 @@ using Ship_Game.Universe;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    [StarDataType]
     public class War
     {
-        public WarType WarType;
-        public float OurStartingStrength;
-        public float TheirStartingStrength;
-        public float OurStartingGroundStrength;
-        public int InitialColoniesValue;
-        public float TheirStartingGroundStrength;
-        public float StrengthKilled;
-        public float StrengthLost;
-        public int ColoniesValueWon;
-        public int ColoniesValueLost;
-        public Array<string> AlliesCalled = new Array<string>();
-        public Array<int> ContestedSystemsIds = new Array<int>();
-        public float TurnsAtWar;
-        public float EndStarDate;
-        public float StartDate;
-        private Empire Us;
-        public string UsName;
-        public string ThemName;
-        public bool Initialized;
-        readonly WarScore Score;
-        public Map<int, int> SystemAssaultFailures = new Map<int, int>();
-        public int StartingNumContestedSystems;
+        [StarData] public WarType WarType;
+        [StarData] public float OurStartingStrength;
+        [StarData] public float TheirStartingStrength;
+        [StarData] public float OurStartingGroundStrength;
+        [StarData] public int InitialColoniesValue;
+        [StarData] public float TheirStartingGroundStrength;
+        [StarData] public float StrengthKilled;
+        [StarData] public float StrengthLost;
+        [StarData] public int ColoniesValueWon;
+        [StarData] public int ColoniesValueLost;
+        [StarData] public Array<string> AlliesCalled = new();
+        [StarData] public float TurnsAtWar;
+        [StarData] public float EndStarDate;
+        [StarData] public float StartDate;
+        [StarData] Empire Us;
+        [StarData] public bool Initialized;
+        [StarData] readonly WarScore Score;
+        [StarData] public Map<int, int> SystemAssaultFailures = new();
+        [StarData] public int StartingNumContestedSystems;
 
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => Score.GetBorderConflictState(coloniesOffered);
         public WarState GetWarScoreState() => WarType == WarType.BorderConflict ? Score.GetBorderConflictState() : Score.GetWarScoreState();
 
-        [JsonIgnore][XmlIgnore] public Empire Them { get; private set; }
-        [JsonIgnore][XmlIgnore] public SolarSystem[] ContestedSystems { get; private set; }
-        [JsonIgnore][XmlIgnore] public float LostColonyPercent  => (float)ColoniesValueLost / (1 + InitialColoniesValue + ColoniesValueWon);
-        [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
-        [JsonIgnore][XmlIgnore] public const float MaxWarGrade = 10;
-        [JsonIgnore][XmlIgnore] public float SpaceWarKd
+        [StarData] public Empire Them { get; private set; } // setters required for serializer
+        [StarData] public SolarSystem[] ContestedSystems { get; private set; }
+        
+        public float LostColonyPercent  => (float)ColoniesValueLost / (1 + InitialColoniesValue + ColoniesValueWon);
+        public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
+        public const float MaxWarGrade = 10;
+
+        public float SpaceWarKd
         {
             get
             {
-                float minStr      = 10000 * ((int)CurrentGame.Difficulty + 1);
+                float minStr      = 10000 * ((int)Us.Universe.P.Difficulty + 1);
                 float ourStr      = Us.CurrentMilitaryStrength.LowerBound(minStr);
                 float theirStr    = Them.CurrentMilitaryStrength.LowerBound(minStr);
                 float killPercent = StrengthKilled / theirStr;
@@ -60,35 +59,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        [JsonIgnore][XmlIgnore] public int LowestTheaterPriority;
-
-        int ContestedSystemCount => ContestedSystems.Count(s => s.OwnerList.Contains(Them));
-
-        readonly Array<SolarSystem> HistoricLostSystems = new Array<SolarSystem>();
-        public IReadOnlyList<SolarSystem> GetHistoricLostSystems() => HistoricLostSystems;
-        Relationship OurRelationToThem;
-
-        public float GetPriority()
-        {
-            if (Them.isFaction) 
-                return 11; // This might be changed in the future, if we want more meaningful wars vs factions
-
-            var warState = Score.GetWarScoreState();
-            if (Us != Them)
-            {
-                var strength      = Them.KnownEmpireStrength(Us);
-                float strengthMod = (Us.OffensiveStrength / strength.LowerBound(1)).Clamped(0.3f,3);
-
-                if (Them.isPlayer && ColoniesValueLost - ColoniesValueWon < 0 && strengthMod > 1)
-                    return 0;
-
-                int warHistory    = OurRelationToThem.WarHistory.Count + 1;
-                int upperBound    = Them.isPlayer ? Us.DifficultyModifiers.PlayerWarPriorityLimit : 10;
-                float priority    = 10 - (((int)warState * strengthMod * warHistory).Clamped(0, upperBound));
-                return priority;
-            }
-            return 0;
-        }
+        [StarData] Relationship OurRelationToThem;
 
         public War()
         {
@@ -100,8 +71,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             StartDate = starDate;
             Us        = us;
             Them      = them;
-            UsName    = us.data.Traits.Name;
-            ThemName  = them.data.Traits.Name;
             WarType   = warType;
 
             OurStartingStrength         = us.CurrentMilitaryStrength;
@@ -109,75 +78,24 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             InitialColoniesValue        = us.GetTotalPlanetsWarValue();
             TheirStartingStrength       = them.CurrentMilitaryStrength;
             TheirStartingGroundStrength = them.CurrentTroopStrength;
-            ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
-            ContestedSystemsIds       = FindContestedSystemGUIDs();
-            StartingNumContestedSystems = ContestedSystemsIds.Count;
+            ContestedSystems = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
+            StartingNumContestedSystems = ContestedSystems.Length;
             OurRelationToThem           = us.GetRelationsOrNull(them);
             Score                       = new WarScore(this, Us);
 
-            PopulateHistoricLostSystems(us.Universum);
-            if (!Us.isPlayer && !Us.isFaction && !them.isFaction)
-                Us.GetEmpireAI().AddGoal(new WarManager(Us, Them, WarType));
-
-            //WarTheaters = new TheatersOfWar(this);
+            if (!Us.isPlayer && !Us.IsFaction && !them.IsFaction)
+                Us.AI.AddGoal(new WarManager(Us, Them, WarType));
         }
 
         public static War CreateInstance(Empire owner, Empire target, WarType warType)
         {
-            var war = new War(owner, target, owner.Universum.StarDate, warType);
+            var war = new War(owner, target, owner.Universe.StarDate, warType);
             return war;
-        }
-
-        void PopulateHistoricLostSystems(UniverseState us)
-        {
-            if (OurRelationToThem == null) return;
-            foreach (var lostSystem in OurRelationToThem.GetPlanetsLostFromWars(us))
-            {
-                if (lostSystem.OwnerList.Contains(Them))
-                    HistoricLostSystems.AddUniqueRef(lostSystem);
-            }
         }
 
         public void ChangeWarType(WarType type)
         {
             WarType = type;
-        }
-
-        public SolarSystem[] GetTheirBorderSystems() => Them.GetOurBorderSystemsTo(Us, true)
-                                .Filter(s => Us.GetEmpireAI().IsInOurAOs(s.Position));
-        public SolarSystem[] GetTheirNearSystems() => Them.GetOurBorderSystemsTo(Us, true).ToArray();
-
-        Array<int> FindContestedSystemGUIDs()
-        {
-            var contestedSystemIds = new Array<int>();
-            for (int x = 0; x < ContestedSystems.Length; x++)
-                contestedSystemIds.Add(ContestedSystems[x].Id);
-            return contestedSystemIds;
-        }
-
-        public void SetCombatants(Empire u, Empire t)
-        {
-            Us = u;
-            Them = t;
-        }
-
-        public void RestoreFromSave(UniverseState us, bool activeWar)
-        {
-            Us = EmpireManager.GetEmpireByName(UsName);
-            Them = EmpireManager.GetEmpireByName(ThemName);
-
-            ContestedSystems = new SolarSystem[ContestedSystemsIds.Count];
-            for (int i = 0; i < ContestedSystemsIds.Count; i++)
-            {
-                int systemId = ContestedSystemsIds[i];
-                SolarSystem solarSystem = Us.Universum.GetSystem(systemId);
-                ContestedSystems[i] = solarSystem;
-            }
-            // The Us == Them is used in EmpireDefense and relations should be null
-            OurRelationToThem = Us.GetRelationsOrNull(Them);
-            
-            if (activeWar)
-                PopulateHistoricLostSystems(us);
         }
 
         public void ShipWeLost(Ship target)
@@ -235,7 +153,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void WarDebugData(ref DebugTextBlock debug)
         {
-            debug.AddLine($"Duration Years: {Us.Universum.StarDate - StartDate:n1}");
+            debug.AddLine($"Duration Years: {Us.Universe.StarDate - StartDate:n1}");
             debug.AddLine($"ThreatRatio = {(int)(TotalThreatAgainst * 100):p0}");
             debug.AddLine($"StartDate {StartDate}");
             debug.AddLine($"killed: {StrengthKilled:n0} Lost: {StrengthLost:n0} Ratio: {(int)(SpaceWarKd * 100):p0}");

@@ -1,18 +1,18 @@
 ﻿using System;
 using SDGraphics;
 using Ship_Game.AI;
-using Ship_Game.Universe;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PirateDirectorPayment : Goal
     {
-        public const string ID = "PirateDirectorPayment";
-        public override string UID => ID;
-        private Pirates Pirates;
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        Pirates Pirates => Owner.Pirates;
 
-        public PirateDirectorPayment(int id, UniverseState us)
-            : base(GoalType.PirateDirectorPayment, id, us)
+        [StarDataConstructor]
+        public PirateDirectorPayment(Empire owner) : base(GoalType.PirateDirectorPayment, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -21,19 +21,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateDirectorPayment(Empire owner, Empire targetEmpire)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateDirectorPayment(Empire owner, Empire targetEmpire) : this(owner)
         {
-            empire       = owner;
             TargetEmpire = targetEmpire;
-
-            PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Payment Director for {TargetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates = empire.Pirates;
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Payment Director for {TargetEmpire.Name} ----");
         }
 
         GoalStep UpdatePaymentStatus()
@@ -45,7 +37,7 @@ namespace Ship_Game.Commands.Goals
 
             if (victimPlanets > Pirates.MinimumColoniesForPayment
                 || victimPlanets == Pirates.MinimumColoniesForPayment 
-                && RandomMath.RollDice(10)) //  TODO need to be 10, 100 is for testing
+                && RandomMath.RollDice(10))
             {
                 return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
             }
@@ -58,7 +50,7 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.PaidBy(TargetEmpire))
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
-                Pirates.TryLevelUp(TargetEmpire.Universum);
+                Pirates.TryLevelUp(TargetEmpire.Universe);
                 Pirates.ResetThreatLevelFor(TargetEmpire);
                 Pirates.Owner.SignTreatyWith(TargetEmpire, Gameplay.TreatyType.NonAggression);
             }
@@ -66,7 +58,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // They did not pay! We will raid them
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                if (!Pirates.Goals.Any(g => g.type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
+                if (!Pirates.Owner.AI.HasGoal(g => g.Type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
                      Pirates.AddGoalDirectorRaid(TargetEmpire);
             }
 
@@ -95,13 +87,13 @@ namespace Ship_Game.Commands.Goals
             }
 
             // They Paid at least once  (or it's our first demand), so we can continue milking money fom them
-            Log.Info(ConsoleColor.Green,$"Pirates: {empire.Name} Payment Director - Demanding payment from {TargetEmpire.Name}");
+            Log.Info(ConsoleColor.Green,$"Pirates: {Owner.Name} Payment Director - Demanding payment from {TargetEmpire.Name}");
 
             if (!Pirates.Owner.IsKnown(TargetEmpire))
                 Pirates.Owner.SetRelationsAsKnown(TargetEmpire);
 
             if (TargetEmpire.isPlayer)
-                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, empire.Universum.Screen);
+                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Owner.Universe.Screen);
             else
                 DemandMoneyFromAI();
 
@@ -114,7 +106,7 @@ namespace Ship_Game.Commands.Goals
 
         void DemandMoneyFromAI()
         {
-            bool error = true; ;
+            bool error = true;
             if (Encounter.GetEncounterForAI(Pirates.Owner, 0, out Encounter e))
             {
                 if (e.PercentMoneyDemanded > 0)
@@ -122,19 +114,19 @@ namespace Ship_Game.Commands.Goals
                     error             = false;
                     int moneyDemand   = Pirates.GetMoneyModifier(TargetEmpire, e.PercentMoneyDemanded);
                     float chanceToPay = 1 - moneyDemand/TargetEmpire.Money.LowerBound(1);
-                    chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)CurrentGame.Difficulty+1);
+                    chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)UState.P.Difficulty+1);
                         
                     if (TargetEmpire.data.TaxRate < 0.5f && RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
                     {
                         TargetEmpire.AddMoney(-moneyDemand);
-                        TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
-                        Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
+                        TargetEmpire.AI.EndWarFromEvent(Pirates.Owner);
+                        Log.Info(ConsoleColor.Green, $"Pirates: {Owner.Name} Payment Director " +
                                                      $"Got - {moneyDemand} credits from {TargetEmpire.Name}");
                     }
                     else
                     {
-                        TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Pirates.Owner, WarType.SkirmishWar);
-                        Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
+                        TargetEmpire.AI.DeclareWarFromEvent(Pirates.Owner, WarType.SkirmishWar);
+                        Log.Info(ConsoleColor.Green, $"Pirates: {Owner.Name} Payment Director " +
                                                      $"- {TargetEmpire.Name} refused to pay {moneyDemand} credits!");
                     }
                 }
@@ -143,7 +135,7 @@ namespace Ship_Game.Commands.Goals
             if (error)
                 Log.Warning($"Could not find PercentMoneyDemanded in {Pirates.Owner.Name} encounters for {TargetEmpire.Name}. " +
                             $"Make sure there is a step 0 encounter for {Pirates.Owner.Name} in encounter dialogs and " +
-                            $"with <BaseMoneyRequested> xml tag");
+                            "with <BaseMoneyRequested> xml tag");
         }
     }
 }

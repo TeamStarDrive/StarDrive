@@ -1,23 +1,25 @@
 ﻿using System;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PirateProtection : Goal
     {
-        public const string ID = "PirateRaidProtection";
-        public override string UID => ID;
-        private Pirates Pirates;
-        private Ship ShipToProtect;
-        private Empire EmpireToProtect;
+        [StarData] public sealed override Ship TargetShip { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
 
-        public PirateProtection(int id, UniverseState us)
-            : base(GoalType.PirateProtection, id, us)
+        Pirates Pirates => Owner.Pirates;
+        Ship ShipToProtect => TargetShip;
+        Empire EmpireToProtect => TargetEmpire;
+
+        [StarDataConstructor]
+        public PirateProtection(Empire owner) : base(GoalType.PirateProtection, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -27,23 +29,12 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateProtection(Empire owner, Empire targetEmpire, Ship targetShip)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateProtection(Empire owner, Empire targetEmpire, Ship targetShip) : this(owner)
         {
-            empire       = owner;
             TargetEmpire = targetEmpire;
-            TargetShip   = targetShip;
-
-            PostInit();
-            Evaluate();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Protection for {targetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates         = empire.Pirates;
-            ShipToProtect   = TargetShip;
-            EmpireToProtect = TargetEmpire;
+            TargetShip = targetShip;
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Protection for {targetEmpire.Name} ----");
         }
 
         GoalStep SpawnProtectionForce()
@@ -87,7 +78,7 @@ namespace Ship_Game.Commands.Goals
             TargetShip.LoyaltyChangeByGift(EmpireToProtect);
             TargetShip.AI.ClearOrders();
             if (EmpireToProtect.isPlayer)
-                empire.Universum.Notifications.AddWeProtectedYou(Pirates.Owner);
+                Owner.Universe.Notifications.AddWeProtectedYou(Pirates.Owner);
 
             return GoalStep.GoalComplete;
         }

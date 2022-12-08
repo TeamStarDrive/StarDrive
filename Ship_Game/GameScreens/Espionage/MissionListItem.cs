@@ -15,6 +15,7 @@ namespace Ship_Game.GameScreens.Espionage
         int turns;
         GameText NameIndex;
         GameText DescriptionIndex;
+        Empire Player => Component.Universe.Player;
 
         public MissionListItem(AgentMission am, AgentComponent parent)
         {
@@ -28,8 +29,7 @@ namespace Ship_Game.GameScreens.Espionage
         {
             if (Component.SelectedAgent.Mission == AgentMission.Defending || Component.SelectedAgent.Mission == AgentMission.Undercover)
             {
-                Component.SelectedAgent.AssignMission(TheMission,
-                    EmpireManager.Player, Component.EspionageScreen.SelectedEmpire.data.Traits.Name);
+                Component.SelectedAgent.AssignMission(TheMission, Player, Component.EspionageScreen.SelectedEmpire.data.Traits.Name);
             }
             UpdateMissionAvailability();
         }
@@ -77,7 +77,7 @@ namespace Ship_Game.GameScreens.Espionage
             return captured;
         }
 
-        bool IsRivalEmpire => Component.EspionageScreen.SelectedEmpire != EmpireManager.Player;
+        bool IsRivalEmpire => Component.EspionageScreen.SelectedEmpire != Player;
 
         bool SelectedAgentAvailable => Component.SelectedAgent?.Mission == AgentMission.Defending
                                             || Component.SelectedAgent?.Mission == AgentMission.Undercover;
@@ -133,8 +133,8 @@ namespace Ship_Game.GameScreens.Espionage
                     break;
             }
 
-            if (EmpireManager.Player.Money < cost 
-                || Component.EspionageScreen.SelectedEmpire.data.Defeated 
+            if (Player.Money < cost 
+                || Component.EspionageScreen.SelectedEmpire.IsDefeated 
                 || Component.SelectedAgent?.Mission != AgentMission.Defending && Component.SelectedAgent?.Mission != AgentMission.Undercover
                 || TheMission == AgentMission.Training && Component.SelectedAgent?.Level >= 3)
             {

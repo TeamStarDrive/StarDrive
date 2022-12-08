@@ -4,7 +4,6 @@
   <UID>FuelCell2</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>1000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>573</NameIndex>
   <DescriptionIndex>574</DescriptionIndex>
   <LeadsTo />

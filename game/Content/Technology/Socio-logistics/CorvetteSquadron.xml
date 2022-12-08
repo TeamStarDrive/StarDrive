@@ -4,7 +4,6 @@
   <UID>CorvetteSquadron</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>550</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>10093</NameIndex>
   <DescriptionIndex>10094</DescriptionIndex>
   <LeadsTo>

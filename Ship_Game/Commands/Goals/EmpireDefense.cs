@@ -6,16 +6,15 @@ using Ship_Game.Empires.Components;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class EmpireDefense : Goal
     {
-        public const string ID = "Empire Defense";
-        public override string UID => ID;
-
-        public EmpireDefense(int id, UniverseState us)
-            : base(GoalType.EmpireDefense, id, us)
+        [StarDataConstructor]
+        public EmpireDefense(Empire owner) : base(GoalType.EmpireDefense, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -24,39 +23,31 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public EmpireDefense(Empire empire)
-            : this(empire.Universum.CreateId(), empire.Universum)
-        {
-            this.empire   = empire;
-            StarDateAdded = empire.Universum.StarDate;
-        }
-
-
         GoalStep AddDefendSystemTasks()
         {
             var systems = new Array<IncomingThreat>();
-            foreach (IncomingThreat threatenedSystem in empire.SystemsWithThreat)
+            foreach (IncomingThreat threatenedSystem in Owner.SystemsWithThreat)
             {
                 if (!threatenedSystem.ThreatTimedOut && threatenedSystem.HighPriority)
                     systems.Add(threatenedSystem);
             }
 
-            systems.Sort(ts => ts.TargetSystem.WarValueTo(empire));
+            systems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
             for (int i = 0; i < systems.Count; i++)
             {
                 var threatenedSystem = systems[i];
-                if (!threatenedSystem.TargetSystem.HasPlanetsOwnedBy(empire)
-                    || empire.HasWarTaskTargetingSystem(threatenedSystem.TargetSystem))
+                if (!threatenedSystem.TargetSystem.HasPlanetsOwnedBy(Owner)
+                    || Owner.HasWarTaskTargetingSystem(threatenedSystem.TargetSystem))
                 {
                     continue;
                 }
 
                 float minStr = threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength : 1000;
                 if (threatenedSystem.Enemies.Length > 0)
-                    minStr *= empire.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(empire.OffensiveStrength / 5);
+                    minStr *= Owner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(Owner.OffensiveStrength / 5);
 
-                empire.AddDefenseSystemGoal(threatenedSystem.TargetSystem, 
-                    minStr, 5 - threatenedSystem.TargetSystem.DefenseTaskPriority(empire));
+                Owner.AddDefenseSystemGoal(threatenedSystem.TargetSystem, 
+                    minStr, 5 - threatenedSystem.TargetSystem.DefenseTaskPriority(Owner));
             }
 
             return GoalStep.GoToNextStep;
@@ -64,13 +55,13 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep AssessDefense()
         {
-            var defendSystemTasks = empire.GetEmpireAI().GetDefendSystemTasks();
+            var defendSystemTasks = Owner.AI.GetDefendSystemTasks();
             foreach (MilitaryTask defendSystem in defendSystemTasks)
             {
                 if (defendSystem.Fleet != null || defendSystem.Fleet == null && defendSystem.Goal?.LifeTime > 5)
                     continue; // We have a fleet for this task or too old to prioritize
 
-                foreach (MilitaryTask possibleTask in empire.GetEmpireAI().GetPotentialTasksToCompare())
+                foreach (MilitaryTask possibleTask in Owner.AI.GetPotentialTasksToCompare())
                 {
                     if (possibleTask != defendSystem)
                     {
@@ -85,8 +76,8 @@ namespace Ship_Game.Commands.Goals
         bool DefenseTaskHasHigherPriority(MilitaryTask defenseTask, MilitaryTask possibleTask)
         {
             SolarSystem system = defenseTask.TargetSystem ?? defenseTask.TargetPlanet.ParentSystem;
-            if (system.PlanetList.Any(p => p.Owner == empire && p.HasCapital)
-                && !possibleTask.TargetSystem?.PlanetList.Any(p => p.Owner == empire && p.HasCapital) == true)
+            if (system.PlanetList.Any(p => p.Owner == Owner && p.HasCapital)
+                && !possibleTask.TargetSystem?.PlanetList.Any(p => p.Owner == Owner && p.HasCapital) == true)
             {
                 return true; // Defend our home systems at all costs (unless the other task also has a home system)!
             }
@@ -101,14 +92,14 @@ namespace Ship_Game.Commands.Goals
                 return false; // The checked task has the same target system, no need to cancel it
 
             if (possibleTask.Type == MilitaryTask.TaskType.DefendPostInvasion
-                && !empire.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == targetSystem)
-                && !targetSystem?.DangerousForcesPresent(empire) == true)
+                && !Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == targetSystem)
+                && !targetSystem?.DangerousForcesPresent(Owner) == true)
             {
                 return true; // Cancel idle post invasion fleets if we need to defend
             }
 
-            float defenseValue  = system.PotentialValueFor(empire) * empire.PersonalityModifiers.DefenseTaskWeight;
-            float possibleValue = targetSystem?.PotentialValueFor(empire) ?? 0;
+            float defenseValue  = system.PotentialValueFor(Owner) * Owner.PersonalityModifiers.DefenseTaskWeight;
+            float possibleValue = targetSystem?.PotentialValueFor(Owner) ?? 0;
 
             if (possibleTask.Fleet != null) // compare fleet distances
             {
@@ -121,8 +112,8 @@ namespace Ship_Game.Commands.Goals
             {
                 Vector2 possiblePos = target?.Position ?? targetSystem?.Position ?? possibleTask.TargetShip.Position;
                 Vector2 defensePos  = system.Position;
-                defenseValue /= empire.WeightedCenter.Distance(defensePos).LowerBound(1);
-                possibleValue /= empire.WeightedCenter.Distance(possiblePos).LowerBound(1);
+                defenseValue /= Owner.WeightedCenter.Distance(defensePos).LowerBound(1);
+                possibleValue /= Owner.WeightedCenter.Distance(possiblePos).LowerBound(1);
             }
 
             return defenseValue > possibleValue;

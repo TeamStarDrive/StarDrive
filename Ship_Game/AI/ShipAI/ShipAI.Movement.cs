@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using Ship_Game.Fleets;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
@@ -16,10 +16,16 @@ namespace Ship_Game.AI
         //     For example, if you have several waypoints, this is the pos of the final waypoint
         //     And for other Ship AI Plans, this is used to store the current/default waypoint
         //     i.e. ExploreSystem sets MovePosition to next planet it likes
-        public Vector2 MovePosition;
-        public Planet OrbitTarget { get; private set; }
+        [StarData] public Vector2 MovePosition;
+        [StarData] public Planet OrbitTarget { get; private set; }
 
-        WayPoints WayPoints = new WayPoints();
+        WayPoints WayPoints = new();
+
+        [StarData] WayPoint[] WayPointsSave
+        {
+            get => WayPoints.ToArray();
+            set => WayPoints.Set(value);
+        }
 
         public bool HasWayPoints => WayPoints.Count > 0;
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
@@ -46,7 +52,7 @@ namespace Ship_Game.AI
         // Executes the active HoldPosition ShipGoal Plan while respecting MoveOrder stance
         void DoHoldPositionPlan(ShipGoal goal)
         {
-            State = AIState.HoldPosition;
+            ChangeAIState(AIState.HoldPosition);
 
             // if HoldPosition is not the last goal, then we should stop holding position
             if (OrderQueue.PeekLast != goal)
@@ -163,6 +169,7 @@ namespace Ship_Game.AI
             // FB - but, for a carrier which is waiting for fighters to board before
             // warp, we must give a speed limit. The limit is reset when all relevant
             // ships are recalled, so no issue with Warp
+            // FB - we are also setting speet limit for group formation movement
             float speedLimit = Owner.Carrier.RecallingShipsBeforeWarp ? Owner.SpeedLimit : 0;
             Vector2 movePos = goal.MovePosition; // dynamic move position
             ThrustOrWarpToPos(movePos, timeStep, speedLimit);
@@ -409,21 +416,30 @@ namespace Ship_Game.AI
             bool inFleet = Owner.Fleet != null && State == AIState.FormationMoveTo;
             if (inFleet) // FLEET MOVE
             {
+                speedLimit = GetFormationSpeed(speedLimit);
                 float distFromFleet = Owner.Fleet.AveragePosition().Distance(Owner.Position);
                 if (distFromFleet > 15000f)
                 {
                     // This ship is far away from the fleet
                     // Enter warp and continue next frame in UpdateWarpThrust()
+                    bool closerToFinalPos = Owner.Position.SqDist(Owner.Fleet.FinalPosition) 
+                        < Owner.Fleet.AveragePosition().SqDist(Owner.Fleet.FinalPosition);
+
+                    Owner.SetSpeedLimit(closerToFinalPos ? speedLimit : 0);
                     Owner.EngageStarDrive();
                 }
                 else
                 {
                     if (distance > 7500f) // Not near destination
+                    {
+                        Owner.SetSpeedLimit(speedLimit);
                         EngageFormationWarp();
+                    }
                     else
+                    {
                         DisEngageFormationWarp();
+                    }
 
-                    speedLimit = GetFormationSpeed(speedLimit);
                     Owner.SubLightAccelerate(speedLimit);
                 }
             }

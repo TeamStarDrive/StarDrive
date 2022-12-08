@@ -15,7 +15,6 @@ namespace Ship_Game.AI.CombatTactics
             AI.ReverseThrustUntilStopped(timeStep);
             Vector2 interceptPoint = Owner.PredictImpact(Target);
             AI.RotateTowardsPosition(interceptPoint, timeStep, 0.2f);
-
         }
     }
 }

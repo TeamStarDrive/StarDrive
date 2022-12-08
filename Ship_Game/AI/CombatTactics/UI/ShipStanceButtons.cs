@@ -27,7 +27,10 @@ namespace Ship_Game.AI.CombatTactics.UI
         protected override void ApplyStance(CombatState stance)
         {
             var ships = SelectedShips;
-            RunOnEmpireThread(() =>
+            if (ships.Length == 0)
+                return;
+
+            ships[0].Universe.Screen?.RunOnSimThread(() =>
             {
                 for (int i = 0; i < ships.Length; i++)
                 {

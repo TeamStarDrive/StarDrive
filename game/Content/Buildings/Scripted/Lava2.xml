@@ -8,7 +8,7 @@
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Strength>25</Strength>
-  <PlusFlatProductionAmount>0.5</PlusFlatProductionAmount>
+  <PlusFlatProductionAmount>0.2</PlusFlatProductionAmount>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4251</NameTranslationIndex>

@@ -27,7 +27,7 @@ namespace UnitTests.Ships
         static Map<Technology, Array<string>> GetShipTechs()
         {
             var shipTechs = new Map<Technology, Array<string>>();
-            foreach (Technology tech in ResourceManager.TechTree.Values)
+            foreach (Technology tech in ResourceManager.TechsList)
             {
                 if ((tech.ModulesUnlocked.Count > 0 || tech.HullsUnlocked.Count > 0) && tech.Unlockable)
                 {
@@ -40,9 +40,8 @@ namespace UnitTests.Ships
         static Array<string> FindPreviousTechs(Technology target, Array<string> alreadyFound)
         {
             //this is supposed to reverse walk through the tech tree.
-            foreach (var techTreeItem in ResourceManager.TechTree)
+            foreach (Technology tech in ResourceManager.TechsList)
             {
-                Technology tech = techTreeItem.Value;
                 foreach (Technology.LeadsToTech leadsto in tech.LeadsTo)
                 {
                     // if it finds a tech that leads to the target tech then find the tech that leads to it.

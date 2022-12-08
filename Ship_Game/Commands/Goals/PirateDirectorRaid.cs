@@ -1,44 +1,37 @@
 ﻿using System;
 using SDGraphics;
 using Ship_Game.AI;
-using Ship_Game.Universe;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PirateDirectorRaid : Goal
     {
-        public const string ID = "PirateDirectorRaid";
-        public override string UID => ID;
-        private Pirates Pirates;
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        Pirates Pirates => Owner.Pirates;
 
-        public PirateDirectorRaid(int id, UniverseState us)
-            : base(GoalType.PirateDirectorRaid, id, us)
+        [StarDataConstructor]
+        public PirateDirectorRaid(Empire owner) : base(GoalType.PirateDirectorRaid, owner)
         {
             Steps = new Func<GoalStep>[]
             {
                PrepareRaid
             };
         }
-        public PirateDirectorRaid(Empire owner, Empire targetEmpire)
-            : this(owner.Universum.CreateId(), owner.Universum)
+
+        public PirateDirectorRaid(Empire owner, Empire targetEmpire) : this(owner)
         {
-            empire       = owner;
             TargetEmpire = targetEmpire;
-
-            PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Raid Director vs. {TargetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates = empire.Pirates;
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Raid Director vs. {TargetEmpire.Name} ----");
         }
 
         GoalStep PrepareRaid()
         {
             if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
             {
-                Log.Info(ConsoleColor.Green, $"---- Pirates: {empire.Name} Raid Director vs. {TargetEmpire.Name}, They paid, terminating ----");
+                Log.Info(ConsoleColor.Green, $"---- Pirates: {Owner.Name} Raid Director vs. {TargetEmpire.Name}, They paid, terminating ----");
                 return GoalStep.GoalFailed; // We got paid or they are gone, Raid Director can go on vacation
             }
 
@@ -63,8 +56,8 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.CanDoAnotherRaid(out int numRaids))
                 return 0; // Limit maximum of concurrent raids
 
-            int startChance = Pirates.Level.LowerBound((int)CurrentGame.Difficulty + 1);
-            startChance     = (startChance / EmpireManager.PirateFactions.Length.LowerBound(1)).LowerBound(1);
+            int startChance = Pirates.Level.LowerBound((int)UState.P.Difficulty + 1);
+            startChance     = (startChance / Pirates.Universe.PirateFactions.Length.LowerBound(1)).LowerBound(1);
             startChance    /= numRaids + 1;
 
             //return 100; // For testing

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SDUtils;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Ships
 {
@@ -115,7 +116,7 @@ namespace Ship_Game.Ships
                 bonusData.Update(empire);
         }
 
-        public static void RefreshBonuses()
+        public static void RefreshBonuses(UniverseState us)
         {
             Log.Info("Refreshing all bonuses");
             for (int id = 0; id < EmpireBonuses.Count; ++id)
@@ -125,9 +126,9 @@ namespace Ship_Game.Ships
                 {
                     Empire empire = null;
                     if (id == 0)
-                        empire = EmpireManager.Void;
+                        empire = Empire.Void;
                     else if (id > 1)
-                        empire = EmpireManager.GetEmpireById(id - 1);
+                        empire = us.GetEmpireById(id - 1);
                     bonusData.Update(empire);
                 }
             }

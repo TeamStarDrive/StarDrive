@@ -11,7 +11,7 @@ namespace Ship_Game
 {
     public class DeveloperUniverse : UniverseScreen
     {
-        public DeveloperUniverse(float universeSize) : base(universeSize)
+        public DeveloperUniverse(UniverseParams settings, float universeSize) : base(settings, universeSize)
         {
             UState.NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
             UState.Paused = false; // start simulating right away for Sandbox
@@ -22,7 +22,7 @@ namespace Ship_Game
             base.LoadContent();
 
             // nice zoom in effect, we set the cam height to super high
-            CamPos.Z *= 10000.0;
+            UState.CamPos.Z *= 10000.0;
             CamDestination.Z = 100000.0; // and set a lower destination
 
             // DISABLED these since they are not that useful anymore
@@ -44,16 +44,11 @@ namespace Ship_Game
                                                int numOpponents = 1)
         {
             var s = Stopwatch.StartNew();
-            EmpireManager.Clear();
             ScreenManager.Instance.ClearScene();
 
-            var universe = new DeveloperUniverse(1_000_000f);
+            var settings = new UniverseParams();
+            var universe = new DeveloperUniverse(settings, 1_000_000f);
             UniverseState us = universe.UState;
-            us.FTLModifier      = GlobalStats.FTLInSystemModifier;
-            us.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
-            us.GravityWells        = GlobalStats.PlanetaryGravityWells;
-            us.FTLInNeutralSystems = GlobalStats.WarpInSystem;
-            CurrentGame.StartNew(us, pace:1f, 1, 0, 1);
 
             IEmpireData[] candidates = ResourceManager.MajorRaces.Filter(d => PlayerFilter(d, playerPreference));
             IEmpireData player = candidates[0];
@@ -67,7 +62,7 @@ namespace Ship_Game
             var random = new SeededRandom();
             foreach (IEmpireData data in races)
             {
-                Empire e = us.CreateEmpire(data, isPlayer: (data == player));
+                Empire e = us.CreateEmpire(data, isPlayer: (data == player), difficulty: GameDifficulty.Hard);
                 e.data.CurrentAutoScout     = e.data.ScoutShip;
                 e.data.CurrentAutoColony    = e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = e.data.FreighterShip;
@@ -83,10 +78,8 @@ namespace Ship_Game
 
             foreach (IEmpireData data in ResourceManager.MinorRaces) // init minor races
             {
-                us.CreateEmpire(data, isPlayer: false);
+                us.CreateEmpire(data, isPlayer: false, difficulty: GameDifficulty.Hard);
             }
-
-            Empire.InitializeRelationships(us.Empires, GameDifficulty.Hard);
 
             foreach (SolarSystem system in universe.UState.Systems)
             {

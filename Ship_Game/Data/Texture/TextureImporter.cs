@@ -45,9 +45,16 @@ namespace Ship_Game.Data.Texture
 
         Texture2D LoadXna(string fullPath)
         {
-            TextureCreationParameters p = XGraphics.Texture.GetCreationParameters(Device, fullPath);
-            var tex = (Texture2D)XGraphics.Texture.FromFile(Device, fullPath, p);
-            return tex;
+            try
+            {
+                TextureCreationParameters p = XGraphics.Texture.GetCreationParameters(Device, fullPath);
+                var tex = (Texture2D)XGraphics.Texture.FromFile(Device, fullPath, p);
+                return tex;
+            }
+            catch (Exception e)
+            {
+                throw new($"LoadTexture XNA failed: {fullPath}", e);
+            }
         }
 
         Texture2D ImageUtilsPNG_XnaDDS(string fullPath)
@@ -89,7 +96,7 @@ namespace Ship_Game.Data.Texture
                 // finally create the texture and set the image pixels
                 var t = new Texture2D(Device, width, width, 0, TextureUsage.Linear, SurfaceFormat.Color);
                 t.SetData(pixels);
-                t.Save(Dir.StarDriveAppData + "/Saved Games/fog.debug.png", ImageFileFormat.Png);
+                //t.Save(Dir.StarDriveAppData + "/Saved Games/fog.debug.png", ImageFileFormat.Png);
                 return t;
             }
             catch (Exception e)

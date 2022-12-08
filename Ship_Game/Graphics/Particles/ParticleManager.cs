@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
@@ -42,10 +41,10 @@ namespace Ship_Game.Graphics.Particles
         public IParticle Bubble;
 
         readonly GameContentManager Content;
-        readonly Array<IParticle> Tracked = new Array<IParticle>();
-        readonly Map<string, IParticle> ByName = new Map<string, IParticle>();
-        readonly Map<string, ParticleEffect> Effects = new Map<string, ParticleEffect>();
-        readonly Map<string, ParticleSettings> Settings = new Map<string, ParticleSettings>();
+        readonly Array<IParticle> Tracked = new();
+        readonly Map<string, IParticle> ByName = new();
+        readonly Map<string, ParticleEffect> Effects = new();
+        readonly Map<string, ParticleSettings> Settings = new();
 
         public IReadOnlyList<IParticle> ParticleSystems => Tracked;
 
@@ -57,7 +56,7 @@ namespace Ship_Game.Graphics.Particles
 
         public void Unload()
         {
-            GameBase.ScreenManager.RemoveHotLoadTarget("3DParticles/Particles.yaml");
+            GameBase.ScreenManager?.RemoveHotLoadTarget("3DParticles/Particles.yaml");
 
             var effects = Effects.Values.ToArr();
             lock (Effects)
@@ -129,6 +128,9 @@ namespace Ship_Game.Graphics.Particles
             Array<ParticleSettings> list = YamlParser.DeserializeArray<ParticleSettings>(file);
             foreach (ParticleSettings ps in list)
             {
+                if (ResourceManager.IsUnitTest)
+                    ps.MaxParticles = 0; // force-disable the PS in unit tests
+
                 if (Settings.ContainsKey(ps.Name))
                 {
                     Log.Error($"ParticleSetting duplicate definition='{ps.Name}' in Particles.yaml. Ignoring.");

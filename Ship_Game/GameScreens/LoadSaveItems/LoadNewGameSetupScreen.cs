@@ -1,16 +1,17 @@
 ﻿using System.IO;
-using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game
 {
     public sealed class LoadNewGameSetupScreen : GenericLoadSaveScreen
     {
-        private readonly RaceDesignScreen Screen;
+        readonly RaceDesignScreen Screen;
 
-        public LoadNewGameSetupScreen(RaceDesignScreen screen) : base(screen, SLMode.Load, "", "Load Saved Setup", "Saved Setups")
+        public LoadNewGameSetupScreen(RaceDesignScreen screen)
+            : base(screen, SLMode.Load, "", "Load Saved Setup", "Saved Setups")
         {
             Screen = screen;
             Path = Dir.StarDriveAppData + "/Saved Setups/";
@@ -18,28 +19,9 @@ namespace Ship_Game
 
         protected override void Load()
         {
-            if (SelectedFile != null)
+            if (SelectedFile is { Data: SetupSave setupSave })
             {
-                SetupSave ss = (SetupSave)SelectedFile.Data;
-                GlobalStats.FTLInSystemModifier      = ss.FTLModifier;
-                GlobalStats.EnemyFTLInSystemModifier = ss.EnemyFTLModifier;
-                GlobalStats.ShipMaintenanceMulti     = ss.OptionIncreaseShipMaintenance;
-                GlobalStats.MinAcceptableShipWarpRange = ss.MinAcceptableShipWarpRange;
-                GlobalStats.TurnTimer                = ss.TurnTimer;
-                GlobalStats.PreventFederations       = ss.PreventFederations;
-                GlobalStats.GravityWellRange         = ss.GravityWellRange;
-                GlobalStats.ExtraPlanets             = ss.ExtraPlanets;
-                GlobalStats.StartingPlanetRichness   = ss.StartingPlanetRichness;
-                GlobalStats.PlanetaryGravityWells    = ss.PlanetaryGravityWells;
-                GlobalStats.WarpInSystem             = ss.WarpInSystem;
-                GlobalStats.FixedPlayerCreditCharge  = ss.FixedPlayerCreditCharge;
-                GlobalStats.UsePlayerDesigns         = ss.UsePlayerDesigns;
-                GlobalStats.DisablePirates           = ss.DisablePirates;
-                GlobalStats.DisableRemnantStory      = ss.DisableRemnantStory;
-                GlobalStats.UseUpkeepByHullSize      = ss.UseUpkeepByHullSize;
-                GlobalStats.CustomMineralDecay       = ss.CustomMineralDecay;
-                GlobalStats.VolcanicActivity         = ss.VolcanicActivity;
-                Screen.SetCustomSetup(ss.GameDifficulty, ss.StarEnum, ss.GalaxySize, ss.Pacing, ss.ExtraRemnant, ss.NumOpponents, ss.Mode);
+                Screen.SetCustomSetup(setupSave.Settings);
             }
             else
             {
@@ -51,32 +33,33 @@ namespace Ship_Game
         protected override void InitSaveList() // Set list of files to show
         {
             var saves = new Array<FileData>();
-            foreach (FileInfo fileInfo in Dir.GetFiles(Path))
+            foreach (FileInfo file in Dir.GetFiles(Path, "yaml"))
             {
                 try
                 {
-                    var save = fileInfo.Deserialize<SetupSave>();
-                    if (string.IsNullOrEmpty(save.Name) || save.Version < 308)
+                    var save = YamlParser.Deserialize<SetupSave>(file);
+                    if (save.Name.IsEmpty() || save.Version < 308)
                         continue;
 
                     if (GlobalStats.HasMod)
                     {
-                        if (save.ModPath != GlobalStats.ActiveMod.ModName)
+                        if (save.ModName != GlobalStats.ActiveMod.ModName)
                             continue;
                     }
-                    else if (!string.IsNullOrEmpty(save.ModPath))
+                    else if (save.ModName.NotEmpty()) // we have no mod, but this is for some mod
                         continue;
 
                     string info = save.Date;
                     string extraInfo = save.ModName != "" ? "Mod: "+save.ModName : "Default";
-                    saves.Add(new FileData(fileInfo, save, save.Name, info, extraInfo, null, Color.White));
+                    saves.Add(new(file, save, save.Name, info, extraInfo, null, Color.White));
                 }
                 catch
                 {
                 }
             }
 
-            AddItemsToSaveSL(saves.OrderBy(data => data.FileName));
+            saves.Sort(data => data.FileName);
+            AddItemsToSaveSL(saves);
         }
     }
 }

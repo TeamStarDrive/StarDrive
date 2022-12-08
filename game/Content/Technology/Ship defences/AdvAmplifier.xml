@@ -4,7 +4,6 @@
   <UID>AdvAmplifier</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>2600</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17497</NameIndex>
   <DescriptionIndex>17498</DescriptionIndex>
   <LeadsTo />

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
@@ -18,11 +19,11 @@ namespace Ship_Game
             EXPORT
         }
 
-        public ColonyStorage Storage;
-        public ColonyResource Food;
-        public ColonyResource Prod;
-        public ColonyResource Res;
-        public ColonyMoney    Money;
+        [StarData] public ColonyStorage Storage;
+        [StarData] public ColonyResource Food;
+        [StarData] public ColonyResource Prod;
+        [StarData] public ColonyResource Res;
+        public ColonyMoney Money;
 
         public float FoodHere
         {
@@ -65,7 +66,7 @@ namespace Ship_Game
         {
             get
             {
-                float maxPopForPlayer = MaxPopulationBillionFor(EmpireManager.Player);
+                float maxPopForPlayer = MaxPopulationBillionFor(Universe.Player);
                 int numDecimalsPop    = PopulationBillion < 2 ? 2 : 1;
                 int numDecimalsPopMax = maxPopForPlayer < 2 ? 2 : 1;
                 string popString      = $"{PopulationBillion.String(numDecimalsPop)} / {maxPopForPlayer.String(numDecimalsPopMax.UpperBound(numDecimalsPop))}";
@@ -77,8 +78,8 @@ namespace Ship_Game
             }
         }
 
-        public GoodState FS = GoodState.STORE;      // I dont like these names, but changing them will affect a lot of files
-        public GoodState PS = GoodState.STORE;
+        [StarData] public GoodState FS = GoodState.STORE;      // I dont like these names, but changing them will affect a lot of files
+        [StarData] public GoodState PS = GoodState.STORE;
         public bool ImportFood => FS == GoodState.IMPORT;
         public bool ImportProd => PS == GoodState.IMPORT;
         public bool ExportFood => FS == GoodState.EXPORT;
@@ -99,7 +100,7 @@ namespace Ship_Game
 
         public bool ShortOnFood()
         {
-            if (Owner?.isFaction ?? true)
+            if (Owner?.IsFaction ?? true)
                 return false;
 
             if (Owner.NonCybernetic)
@@ -198,25 +199,22 @@ namespace Ship_Game
                 return;
             }
 
-            if (Prod.FlatBonus > 0)
+            if (IsCybernetic)  //Account for excess food for the filthy Opteris
             {
-                if (IsCybernetic)  //Account for excess food for the filthy Opteris
+                if (Prod.FlatBonus > PopulationBillion)
                 {
-                    if (Prod.FlatBonus > PopulationBillion)
-                    {
-                        float offsetAmount = (Prod.FlatBonus - PopulationBillion) * 0.05f;
-                        offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
-                        importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
-                        exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
-                    }
-                }
-                else if (importThreshold > 0 || Construction.Count > 0)
-                {
-                    float offsetAmount = Prod.FlatBonus * 0.05f;
+                    float offsetAmount = (Prod.FlatBonus - PopulationBillion) * 0.05f;
                     offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
                     importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                     exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                 }
+            }
+            else if (importThreshold > 0 || Construction.Count > 0)
+            {
+                float offsetAmount = Prod.FlatBonus * 0.05f;
+                offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
+                importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
+                exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
             }
 
             float ratio = Storage.ProdRatio;

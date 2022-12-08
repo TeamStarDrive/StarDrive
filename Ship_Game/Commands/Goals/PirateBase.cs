@@ -1,20 +1,21 @@
 ﻿using System;
 using SDGraphics;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PirateBase : Goal
     {
-        public const string ID = "PirateBase";
-        public override string UID => ID;
-        private Pirates Pirates;
-        private Ship Base;
+        [StarData] public sealed override Ship TargetShip { get; set; }
 
-        public PirateBase(int id, UniverseState us)
-            : base(GoalType.PirateBase, id, us)
+        Pirates Pirates => Owner.Pirates;
+        Ship Base => TargetShip;
+        
+        [StarDataConstructor]
+        public PirateBase(Empire owner) : base(GoalType.PirateBase, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,22 +23,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateBase(Empire owner, Ship ship, string systemName)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateBase(Empire owner, Ship ship, string systemName) : this(owner)
         {
-            empire     = owner;
             TargetShip = ship;
-            PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Base in {systemName} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates    = empire.Pirates;
-            Base       = TargetShip;
-
-            // Increase sensor range so it would also be seen a bit better on the minimap
-            Base.SensorRange *= ((int)(CurrentGame.GalaxySize + 1)).UpperBound(3);
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Base in {systemName} ----");
         }
 
         GoalStep SalvageShips()
@@ -75,7 +65,7 @@ namespace Ship_Game.Commands.Goals
 
         void CallForHelp()
         {
-            if (Pirates.Owner.GetEmpireAI().Goals.Any(g => g.type == GoalType.PirateDefendBase && g.TargetShip == Base))
+            if (Pirates.Owner.AI.HasGoal(g => g.Type == GoalType.PirateDefendBase && g.TargetShip == Base))
                 return; // Help is coming
 
             Pirates.AddGoalDefendBase(Pirates.Owner, Base);

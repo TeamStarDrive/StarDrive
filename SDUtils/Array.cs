@@ -209,7 +209,9 @@ namespace SDUtils
                 if (value > Items.Length) // manually inlined to improve performance
                 {
                     var newArray = new T[value];
-                    Array.Copy(Items, 0, newArray, 0, Items.Length);
+                    int count = Count;
+                    if (count > 0)
+                        Array.Copy(Items, 0, newArray, 0, count);
                     Items = newArray;
                 }
             }
@@ -647,6 +649,12 @@ namespace SDUtils
             collection.CopyTo(Items, i);
         }
 
+        public void AddRange(IEnumerable<T> collection)
+        {
+            foreach (T item in collection)
+                Add(item);
+        }
+
         public void AddRange(IReadOnlyList<T> list)
         {
             int n = list.Count;
@@ -688,6 +696,15 @@ namespace SDUtils
             array.CopyTo(Items);
         }
 
+        /// Assigns all items from `array` to `this`
+        /// Internal buffer is resized only if needed
+        public void Assign(T[] array)
+        {
+            int count = array.Length;
+            Resize(count);
+            array.CopyTo(Items, 0);
+        }
+
         public void Sort()
         {
             Array.Sort(Items, 0, Count, null);
@@ -703,7 +720,7 @@ namespace SDUtils
             Array.Sort(Items, index, count, comparer);
         }
 
-        internal struct Comparer : IComparer<T>
+        internal readonly struct Comparer : IComparer<T>
         {
             readonly Comparison<T> Comparison;
             public Comparer(Comparison<T> comparison)
@@ -928,6 +945,9 @@ namespace SDUtils
             return n;
         }
 
+        /// <summary>
+        /// Returns TRUE if this item did not exist before and was newly added
+        /// </summary>
         public static bool AddUniqueRef<T>(this Array<T> list, T item) where T : class
         {
             if (!list.ContainsRef(item))

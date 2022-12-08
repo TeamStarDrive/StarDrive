@@ -2,107 +2,88 @@
 using SDGraphics;
 using Ship_Game;
 
-namespace UnitTests.Planets
+namespace UnitTests.Planets;
+
+[TestClass]
+public class TestLandOnTile : StarDriveTest
 {
-    [TestClass]
-    public class TestLandOnTile : StarDriveTest
+    Planet P;
+    Troop Enemy1;
+    Troop Enemy2;
+    Troop Friendly;
+
+    public TestLandOnTile()
     {
-        private Planet P;
-        private Troop Enemy1;
-        private Troop Enemy2;
-        private Troop Friendly;
+        CreateUniverseAndPlayerEmpire();
+        Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
+        AddDummyPlanetToEmpire(new(2000), Player);
+        P = AddHomeWorldToEmpire(new(2000), Player);
+        Enemy1   = ResourceManager.CreateTroop("Wyvern", Enemy);
+        Enemy2   = ResourceManager.CreateTroop("Wyvern", Enemy);
+        Friendly = ResourceManager.CreateTroop("Wyvern", Player);
+        Assert.IsNotNull(Enemy1);
+        Assert.IsNotNull(Enemy2);
+        Assert.IsNotNull(Friendly);
+    }
 
-        public TestLandOnTile()
+    bool GetTroopTile(Troop troop, out PlanetGridSquare troopTile)
+    {
+        troopTile = P.TilesList.Find(t => t.LockOnOurTroop(troop.Loyalty, out Troop troopToCheck) 
+                                       && troop == troopToCheck);
+        return troopTile != null;
+    }
+
+    bool GetCapitalTile(out PlanetGridSquare capitalTile)
+    {
+        capitalTile = P.TilesList.Find(t => t.BuildingOnTile && t.Building.IsCapital);
+        return capitalTile != null;
+    }
+
+    PlanetGridSquare LandTroop(Troop troop, string name)
+    {
+        AssertTrue(troop.TryLandTroop(P), $"{name} Land failed");
+        AssertTrue(P.Troops.Contains(troop), $"{name} not in Planet Troops list");
+        AssertTrue(GetTroopTile(troop, out PlanetGridSquare landedAt), $"No {name} Tile");
+        troop.UpdateAttackActions(troop.MaxStoredActions);
+        return landedAt;
+    }
+
+    [TestMethod]
+    public void LandEnemiesAndFriends()
+    {
+        for (int i = 0; i < 100; ++i)
         {
-            CreateUniverseAndPlayerEmpire();
-            Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
-            AddDummyPlanetToEmpire(new Vector2(2000), Player);
-            P = AddHomeWorldToEmpire(new Vector2(2000), Player);
-            Enemy1   = ResourceManager.CreateTroop("Wyvern", Enemy);
-            Enemy2   = ResourceManager.CreateTroop("Wyvern", Enemy);
-            Friendly = ResourceManager.CreateTroop("Wyvern", Player);
-        }
+            Enemy1.Launch(forceLaunch: true);
+            Enemy2.Launch(forceLaunch: true);
+            Friendly.Launch(forceLaunch: true);
 
-        bool GetTroopTile(Troop troop, out PlanetGridSquare troopTile)
-        {
-            troopTile = null;
-            foreach (PlanetGridSquare tile in P.TilesList)
-            {
-                if (tile.LockOnOurTroop(troop.Loyalty, out Troop troopToCheck) 
-                    && troop == troopToCheck)
-                {
-                    troopTile = tile;
-                    break;
-                }
-            }
+            AssertTrue(GetCapitalTile(out PlanetGridSquare capitalTile), "No capital");
 
-            return troopTile != null;
-        }
-
-        bool GetCapitalTile(out PlanetGridSquare capitalTile)
-        {
-            capitalTile = null;
-            foreach (PlanetGridSquare tile in P.TilesList)
-            {
-                if (tile.BuildingOnTile && tile.Building.IsCapital)
-                {
-                    capitalTile = tile;
-                    break;
-                }
-            }
-
-            return capitalTile != null;
-        }
-
-        [TestMethod]
-        public void CheckTroops()
-        {
-            Assert.IsNotNull(Enemy1);
-            Assert.IsNotNull(Enemy2);
-            Assert.IsNotNull(Friendly);
-        }
-
-        [TestMethod]
-        public void LandEnemiesAndFriends()
-        {
-            Assert.IsTrue(Enemy1.TryLandTroop(P));
-            Assert.IsTrue(P.TroopsHere.Contains(Enemy1));
-            Assert.IsTrue(GetCapitalTile(out PlanetGridSquare capitalTile));
-            Assert.IsTrue(GetTroopTile(Enemy1, out PlanetGridSquare enemy1Tile));
-
-            // Enemy should land out of capital's reach so it wont get hit on landing
-            Assert.IsFalse(capitalTile.InRangeOf(enemy1Tile, 1), "Enemy1 Too Close to Capital");
-
+            // land first enemy
+            PlanetGridSquare enemy1Tile = LandTroop(Enemy1, "Enemy1");
             // land a second enemy
-            Assert.IsTrue(Enemy2.TryLandTroop(P));
-            Assert.IsTrue(P.TroopsHere.Contains(Enemy2));
-            Assert.IsTrue(GetTroopTile(Enemy2, out PlanetGridSquare enemy2Tile));
-            Assert.IsTrue(enemy1Tile != enemy2Tile, "Enemies are on the same tile!");
+            PlanetGridSquare enemy2Tile = LandTroop(Enemy2, "Enemy2");
+            // Combat land friendly troop, it should be close to the capital
+            PlanetGridSquare friendlyTile = LandTroop(Friendly, "Friendly");
 
-            // Enemy should land out of capital's reach so it wont get hit on landing
-            // and close to enemy1, as reinforcements
-            Assert.IsFalse(capitalTile.InRangeOf(enemy2Tile, 1), "Enemy2 Too Close to Capital");
-            Assert.IsTrue(enemy1Tile.InRangeOf(enemy2Tile, 1), "Enemy2 Too Far From Enemy1");
-
-            Enemy1.UpdateAttackActions(Enemy1.MaxStoredActions);
-            Enemy2.UpdateAttackActions(Enemy2.MaxStoredActions);
-            Assert.IsTrue(Enemy1.CanAttack);
-            Assert.IsTrue(Enemy2.CanAttack);
-
-            // Friendly troop should be in range 1 of the capital and not in range
-            // of enemy troops
-
-            Assert.IsTrue(Friendly.TryLandTroop(P));
-            Assert.IsTrue(GetTroopTile(Friendly, out PlanetGridSquare friendlyTile));
+            AssertTrue(Enemy1.CanAttack, "Enemy1 cannot attack");
+            AssertTrue(Enemy2.CanAttack, "Enemy2 cannot attack");
+            AssertTrue(Friendly.CanAttack, "Friendly cannot attack");
 
             string positions = $"Capital : {capitalTile.X},{capitalTile.Y}\n" +
                                $"Friendly: {friendlyTile.X},{ friendlyTile.Y}\n" +
                                $"Enemy1  : {enemy1Tile.X},{ enemy1Tile.Y}\n" +
                                $"Enemy2  : {enemy2Tile.X},{ enemy2Tile.Y}\n"; 
 
-            Assert.IsTrue(friendlyTile.InRangeOf(capitalTile, 1), $"Friendly Too Far From Capital\n{positions}");
-            Assert.IsFalse(friendlyTile.InRangeOf(enemy1Tile, 1), $"Friendly Too Close to Enemy1\n{positions}");
-            Assert.IsFalse(friendlyTile.InRangeOf(enemy2Tile, 1), $"Friendly Too Close to Enemy2\n{positions}");
+            // Enemy should land out of capital's reach so it wont get hit on landing
+            // and close to enemy1, as reinforcements
+            
+            AssertFalse(capitalTile.InRangeOf(enemy1Tile, 1), $"Enemy1 Too Close to Capital\n{positions}");
+            AssertFalse(capitalTile.InRangeOf(enemy2Tile, 1), $"Enemy2 Too Close to Capital\n{positions}");
+            AssertTrue(enemy1Tile.InRangeOf(enemy2Tile, 1), $"Enemy2 Too Far From Enemy1\n{positions}");
+            AssertTrue(enemy1Tile != enemy2Tile, $"Enemies are on the same tile!\n{positions}");
+
+            AssertTrue(friendlyTile.InRangeOf(capitalTile, 1), $"Friendly Too Far From Capital\n{positions}");
         }
     }
 }

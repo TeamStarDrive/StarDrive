@@ -11,10 +11,19 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDNative", "SDNative\SDNative.vcxproj", "{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Xna.Framework.Game", "Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj", "{DD32A813-1393-421A-BAF8-455F02167BE3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680} = {6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDSunBurn", "SynapseGaming-SunBurn-Pro\SDSunBurn.csproj", "{BB003976-4764-4F4E-9A98-DDFB8449ECCD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680} = {6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDUnitTests", "UnitTests\SDUnitTests.csproj", "{4112FFA8-1BF3-4966-818F-0935695D48F7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680} = {6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDNativeTests", "SDNative\SDNativeTests\SDNativeTests.vcxproj", "{6F2834B1-0D9B-479B-BEFA-F04EE326CC41}"
 EndProject
@@ -24,6 +33,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDGraphics", "SDGraphics\SD
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDUtils", "SDUtils\SDUtils.csproj", "{DD03444F-B149-40DB-B1DF-CB31541008ED}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680} = {6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

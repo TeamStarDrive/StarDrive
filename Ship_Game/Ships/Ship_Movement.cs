@@ -78,9 +78,9 @@ namespace Ship_Game.Ships
             if (System != null)
             {
                 if (IsInFriendlyProjectorRange)
-                    projectorBonus = Universe.FTLModifier;
-                else if (!Universe.FTLInNeutralSystems || IsInHostileProjectorRange)
-                    projectorBonus = Universe.EnemyFTLModifier;
+                    projectorBonus = Universe.P.FTLModifier;
+                else if (!Universe.P.FTLInNeutralSystems || IsInHostileProjectorRange)
+                    projectorBonus = Universe.P.EnemyFTLModifier;
             }
 
             FTLModifier = 1f;
@@ -280,71 +280,91 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool TryGetScoutFleeVector(out Vector2 escapePos) => GetEscapeVector(out escapePos, 100000, true);
-        public bool TryGetEscapeVector(out Vector2 escapePos) => GetEscapeVector(out escapePos, 20000, false);
+        public bool TryGetScoutFleeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 100000, true);
+        public bool TryGetEscapeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 20000, false);
 
-        public bool GetEscapeVector(out Vector2 escapePos, float desiredDistance, bool ignoreNonCombat)
+        /// <summary>
+        /// Calculates an escape jump position to disengage from combat
+        /// </summary>
+        /// <param name="escapePos">Default is straight forward</param>
+        /// <param name="desiredDistance"></param>
+        /// <param name="ignoreNonCombat"></param>
+        /// <returns>TRUE if an escape vector was found, FALSE if ship should go straight to resupply target</returns>
+        public bool GetEscapeJumpPosition(out Vector2 escapePos, float desiredDistance, bool ignoreNonCombat)
         {
-            escapePos = Position + Direction.Normalized() * desiredDistance; // default vector - straight through
+            Vector2 currentDir = Direction;
+            escapePos = Position + currentDir * desiredDistance; // default position - straight through
 
-            if (!InCombat && !ignoreNonCombat) // No need for escape vector if not in combat - turn around
+            if (!InCombat && !ignoreNonCombat) // No need for escape position if not in combat - turn around
                 return false;
 
-            if (IsInFriendlyProjectorRange || !Universe.GravityWells)
+            if (IsInFriendlyProjectorRange || Universe.P.GravityWellRange == 0f)
                 return true; // Wont be inhibited - straight through
 
-            switch (System)
+            if (System == null)
             {
-                case null when Inhibited: return false; // Ship Inhibitor - turn around
-                case null:                return true;  // Outer space - straight through
+                if (Inhibited) return false; // Ship is inhibited by something - turn around
+                else           return true;  // Outer space - straight through
             }
 
-            Array<Planet> potentialWells = new Array<Planet>();
+            // ship is already inside a gravity well
+            Planet gravityWell = System.IdentifyGravityWell(this);
+            if (gravityWell != null)
+            {
+                Vector2 fromWellToShip = gravityWell.Position.DirectionToTarget(Position);
+                Vector2 left = fromWellToShip.LeftVector();
+                Vector2 right = fromWellToShip.RightVector();
+                
+                // escape left or right, whichever is closer
+                float toLeft = Vectors.AngleDifference(left, currentDir);
+                float toRight = Vectors.AngleDifference(right, currentDir);
+                
+                Vector2 offsetLeftOrRight = (toLeft < toRight) ? left : right;
+                escapePos = Position + offsetLeftOrRight * desiredDistance;
+                return true;
+            }
+
+            Array<Planet> potentialWells = new();
             foreach (Planet planet in System.PlanetList)
-            {
-                if (Position.InRadius(planet.Position, 20000 + planet.GravityWellRadius))
+                if (Position.InRadius(planet.Position, desiredDistance + planet.GravityWellRadius))
                     potentialWells.Add(planet);
-            }
 
-            if (potentialWells.Count == 0)
+            if (potentialWells.IsEmpty)
                 return true; // No wells nearby
 
             int leastWells = int.MaxValue;
             int leftOrRight = RandomMath.RollDie(2) == 1 ? 1 : -1;
-            for (int i = 0; i <= 11; i++ )
+            Vector2 bestDir = default;
+
+            for (int i = 0; i < 12; ++i)
             {
-                float rotation = Rotation + i * 0.52356f*leftOrRight; // 30 degrees
-                Vector2 pathToCheck = rotation.RadiansToDirection();
-                if (!WellsInPath(potentialWells, pathToCheck, 2000, out int wellHits))
+                float rotation = Rotation + i * RadMath.Deg30AsRads*leftOrRight;
+                Vector2 dirToCheck = rotation.RadiansToDirection();
+                int wellHits = HitTestGravityWells(potentialWells, dirToCheck);
+                if (wellHits == 0)
                 {
-                    escapePos = Position + pathToCheck * desiredDistance;
+                    bestDir = dirToCheck;
                     break; // Found direction with no wells
                 }
-
-                if (wellHits < leastWells)
+                if (wellHits < leastWells) // try to get the path with least well hits
                 {
                     leastWells = wellHits;
-                    escapePos = Position +  pathToCheck * desiredDistance; // try to get the path with least well hits
+                    bestDir = dirToCheck;
                 }
             }
 
+            escapePos = Position + bestDir * desiredDistance;
             return true;
         }
 
-        bool WellsInPath(Array<Planet> wells, Vector2 path, int pathResolution, out int wellHits)
+        int HitTestGravityWells(Array<Planet> wells, Vector2 dir)
         {
-            wellHits = 0;
+            Vector2 end = Position + dir;
+            int wellHits = 0;
             foreach (Planet planet in wells)
-            {
-                for (int i = 1; i <= 10; i++)
-                {
-                    Vector2 posToCheck = Position + path * i * pathResolution;
-                    if (posToCheck.InRadius(planet.Position, planet.GravityWellRadius))
-                        wellHits += 1;
-                }
-            }
-
-            return wellHits > 0;
+                if (planet.Position.RayHitTestCircle(planet.GravityWellRadius, Position, end, rayRadius:Radius))
+                    wellHits += 1;
+            return wellHits;
         }
     }
 }

@@ -58,7 +58,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public override string ToString() => $"SunType {Id}  {IconPath}  Light:{LightColor}  Habit:{Habitable}";
 
-        static readonly Map<string, SunType> Map = new Map<string, SunType>();
+        static readonly Map<string, SunType> Map = new();
         public static SunType FindSun(string id) => Map[id];
         static SunType[] HabitableSuns;
         static SunType[] BarrenSuns;

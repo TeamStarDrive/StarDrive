@@ -1,30 +1,32 @@
-using Newtonsoft.Json;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using System.Linq;
-using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI.Tasks
 {
     public partial class MilitaryTask
     {
-        public int FleetCount = 1;
-        public float Completeness = 1f;
-        [XmlIgnore] [JsonIgnore] RequisitionStatus ReqStatus = RequisitionStatus.None;
-        public RequisitionStatus GetRequisitionStatus() => ReqStatus;
-        float GetEnemyShipStrengthInAO()
+        [StarData] public int FleetCount = 1;
+        [StarData] public float Completeness = 1f;
+        RequisitionStatus ReqStatus = RequisitionStatus.None;
+
+        float GetHostileStrengthAtAO()
         {
             // RedFox: I removed ClampMin(minimumStrength) because this was causing infinite
             //         Create-Destroy-Create loop of ClearAreaOfEnemies MilitaryTasks
             //         Lets just report what the actual strength is.
-            return Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(AO, AORadius, Owner);
+            return GetHostileStrengthAt(AO, AORadius);
+        }
+        float GetHostileStrengthAt(Vector2 pos, float radius)
+        {
+            return Owner.AI.ThreatMatrix.GetHostileStrengthAt(pos, radius);
         }
 
         private int GetTargetPlanetGroundStrength(int minimumStrength)
@@ -39,8 +41,8 @@ namespace Ship_Game.AI.Tasks
             totalStrength = 0;
             if (strengthNeeded <= 0) return potentialTroops;
 
-            var defenseDict     = Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict;
-            var troopSystems    = Owner.GetOwnedSystems().Sorted(dist => -1 * dist.Position.SqDist(rallyPoint));
+            var defenseDict     = Owner.AI.DefensiveCoordinator.DefenseDict;
+            var troopSystems    = Owner.GetOwnedSystems().Sorted(dist => dist.Position.SqDist(rallyPoint));
             
             for (int x = 0; x < troopSystems.Length; x++)
             {
@@ -68,7 +70,7 @@ namespace Ship_Game.AI.Tasks
                     {
                         potentialTroops.AddRange(planet.GetEmpireTroops(Owner, (int)maxCanTake));
 
-                        totalStrength += potentialTroops.Sum(t => t.ActualStrengthMax);
+                        totalStrength = potentialTroops.Sum(t => t.ActualStrengthMax);
 
                         if (strengthNeeded <= totalStrength)
                         {
@@ -86,40 +88,22 @@ namespace Ship_Game.AI.Tasks
             return potentialTroops;
         }
 
-        private void CreateFleet(Array<Ship> ships, string name)
+        void CreateFleet(Array<Ship> ships, string name)
         {
-            var newFleet = new Fleet(Owner.Universum.CreateId())
-            {
-                Name  = name,
-                Owner = Owner
-            };
-
-            int fleetNum = FindUnusedFleetNumber();
-            Owner.GetFleetsDict()[fleetNum] = newFleet;
-            Owner.GetEmpireAI().UsedFleets.Add(fleetNum);
-            WhichFleet = fleetNum;
-            newFleet.FleetTask = this;
+            Fleet = Owner.CreateFleet(Owner.CreateFleetKey(), name);
+            Fleet.FleetTask = this;
             foreach (Ship ship in ships)
             {
                 ship.RemoveFromPoolAndFleet(clearOrders: true);
-                newFleet.AddShip(ship);
+                Fleet.AddShip(ship);
             }
 
-            newFleet.AutoArrange();
+            Fleet.AutoArrange();
         }
 
-        public void CreateRemnantFleet(Empire owner, Ship ship, string name, out Fleet newFleet)
+        public void CreateRemnantFleet(Empire remnants, Ship ship, string name, out Fleet newFleet)
         {
-            newFleet = new Fleet(owner.Universum.CreateId())
-            {
-                Name = name,
-                Owner = owner,
-            };
-
-            int fleetNum = FindUnusedFleetNumber();
-            Owner.GetFleetsDict()[fleetNum] = newFleet;
-            Owner.GetEmpireAI().UsedFleets.Add(fleetNum);
-            WhichFleet = fleetNum;
+            Fleet = newFleet = remnants.CreateFleet(remnants.CreateFleetKey(), name);
             newFleet.FleetTask = this;
             ship.AI.ClearOrders();
             newFleet.AddShip(ship);
@@ -151,13 +135,13 @@ namespace Ship_Game.AI.Tasks
             int bombTime =  TargetPlanet.TotalDefensiveStrength / 20  ;
 
             //shields are a real pain. this may need a lot more code to deal with. 
-            bombTime    += (int)TargetPlanet.ShieldStrengthMax / 50;
+            bombTime += (int)TargetPlanet.ShieldStrengthMax / 50;
             return bombTime;
         }
 
         AO FindClosestAO(float strWanted = 100)
         {
-            var aos =  Owner.GetEmpireAI().AreasOfOperations;
+            var aos =  Owner.AI.AreasOfOperations;
             if (aos.Count == 0)
             {
                 Log.Info($"{Owner.Name} has no areas of operation");
@@ -170,41 +154,16 @@ namespace Ship_Game.AI.Tasks
 
         Fleet FindClosestCoreFleet(float strWanted = 100)
         {
-            Array<AO> aos = Owner.GetEmpireAI().AreasOfOperations;
+            Array<AO> aos = Owner.AI.AreasOfOperations;
             if (aos.Count == 0)
             {
                 Log.Error($"{Owner.Name} has no areas of operation");
                 return null;
             }
 
-            AO closestAo = aos.FindMinFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted,
+            AO closestAo = aos.FindMinFiltered(ao => ao.CoreFleet.GetStrength() > strWanted,
                                                ao => ao.Center.SqDist(AO));
-            return closestAo?.GetCoreFleet();
-        }
-
-        void RequisitionCoreFleet()
-        {
-            AO closestAO = Owner.GetEmpireAI().AreasOfOperations
-                .OrderByDescending(ao => ao.OffensiveForcePoolStrength >= MinimumTaskForceStrength)
-                .ThenBy(ao => AO.Distance(ao.Center))
-                .FirstOrDefault();
-            if (closestAO == null)
-                return;
-
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner);
-            if (EnemyStrength < 1f)
-                return;
-
-            MinimumTaskForceStrength = EnemyStrength;
-            if (closestAO.GetCoreFleet().FleetTask == null &&
-                closestAO.GetCoreFleet().GetStrength() > MinimumTaskForceStrength)
-            {
-                WhichFleet = closestAO.WhichFleet;
-                closestAO.GetCoreFleet().FleetTask = this;
-                closestAO.GetCoreFleet().TaskStep = 1;
-                IsCoreFleetTask = true;
-                NeedEvaluation = false;
-            }
+            return closestAo?.CoreFleet;
         }
 
         void RequisitionDefenseForce()
@@ -228,7 +187,7 @@ namespace Ship_Game.AI.Tasks
         void RequisitionClaimForce()
         {
             if (TargetPlanet.Owner != null
-                && TargetPlanet.Owner != EmpireManager.Unknown && !TargetPlanet.Owner.data.IsRebelFaction)
+                && TargetPlanet.Owner != Owner.Universe.Unknown && !TargetPlanet.Owner.data.IsRebelFaction)
             {
                 Owner.GetRelations(TargetPlanet.Owner, out Relationship rel);
                 if (rel != null && (!rel.AtWar && !rel.PreparingForWar))
@@ -247,9 +206,9 @@ namespace Ship_Game.AI.Tasks
             int requiredTroopStrength = 0;
             if (TargetPlanet != null)
             {
-                AO                    = TargetPlanet.Position;
+                AO = TargetPlanet.Position;
                 requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
-                EnemyStrength         = (Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) + TargetPlanet.BuildingGeodeticOffense).LowerBound(100);
+                EnemyStrength = (Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) + TargetPlanet.BuildingGeodeticOffense).LowerBound(100);
                 UpdateMinimumTaskForceStrength();
             }
 
@@ -299,8 +258,7 @@ namespace Ship_Game.AI.Tasks
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
                 return;
 
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetShip.Position,
-                   40000, Owner, true).LowerBound(100);
+            EnemyStrength = GetHostileStrengthAt(TargetShip.Position, 40000).LowerBound(100);
 
             UpdateMinimumTaskForceStrength();
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
@@ -325,7 +283,7 @@ namespace Ship_Game.AI.Tasks
 
             if (CreateTaskFleet(Completeness) == RequisitionStatus.Complete)
             {
-                Owner.GetEmpireAI().Goals.Add(new DefendVsRemnants(TargetPlanet, TargetPlanet.Owner, Fleet));
+                Owner.AI.AddGoal(new DefendVsRemnants(TargetPlanet, TargetPlanet.Owner, Fleet));
                 NeedEvaluation = false;
             }
         }
@@ -334,7 +292,7 @@ namespace Ship_Game.AI.Tasks
         {
             if (TargetPlanet.Owner != null 
                 && TargetPlanet.Owner != Owner
-                && TargetPlanet.Owner != EmpireManager.Unknown
+                && TargetPlanet.Owner != Owner.Universe.Unknown
                 && !TargetPlanet.Owner.data.IsRebelFaction || !TargetPlanet.EventsOnTiles())
             {
                 EndTask();
@@ -345,9 +303,9 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {Type}");
 
             AO = TargetPlanet.Position;
+            AORadius = TargetPlanet.ParentSystem.Radius;
             float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetPlanet.Position,
-                               TargetPlanet.ParentSystem.Radius, Owner, true).LowerBound(100);
+            EnemyStrength = GetHostileStrengthAtAO().LowerBound(100);
 
             float minTroopStr = TargetPlanet.Owner == null ? 10 : TargetPlanet.GetGroundStrengthOther(Owner).LowerBound(40);
             UpdateMinimumTaskForceStrength(buildingGeodeticOffense);
@@ -376,8 +334,8 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet.Position;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
-            float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
-            EnemyStrength         = (GetEnemyShipStrengthInAO() + geodeticOffense).LowerBound(EnemyStrength);
+            float lowerBound = GetMinimumStrLowerBound(geodeticOffense, enemy);
+            EnemyStrength = (GetHostileStrengthAtAO() + geodeticOffense).LowerBound(EnemyStrength);
 
             UpdateMinimumTaskForceStrength(lowerBound);
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 40 ,minBombMinutes: 3);
@@ -404,7 +362,7 @@ namespace Ship_Game.AI.Tasks
             AO = TargetPlanet.Position;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
             float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
-            EnemyStrength         = (GetEnemyShipStrengthInAO() + geodeticOffense).LowerBound(EnemyStrength);
+            EnemyStrength         = (GetHostileStrengthAtAO() + geodeticOffense).LowerBound(EnemyStrength);
 
             UpdateMinimumTaskForceStrength(lowerBound);
             int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 5).LowerBound(5) + (int)Math.Ceiling(TargetPlanet.PopulationBillion) * 2;
@@ -416,7 +374,7 @@ namespace Ship_Game.AI.Tasks
 
         float GetMinimumStrLowerBound(float geodeticOffense, Empire enemy)
         {
-            float initialStr     = geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10;
+            float initialStr     = geodeticOffense + Owner.KnownEmpireStrength(enemy) / 10;
             float enemyStrNearby = geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy);
             // Todo advanced tasks also get multiplier;
             float multiplier     = Type == TaskType.StrikeForce || Type == TaskType.StageFleet ? 2 : 1; 
@@ -429,7 +387,7 @@ namespace Ship_Game.AI.Tasks
                 EnemyStrength += TargetShip.BaseStrength;
 
             MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound);
-            float multiplier         = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
+            float multiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
             MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier)
                 .UpperBound(Owner.OffensiveStrength / GetBuildCapacityDivisor());
 
@@ -440,11 +398,11 @@ namespace Ship_Game.AI.Tasks
         
         float GetBuildCapacityDivisor()
         {
-            if (TargetEmpire == null || TargetEmpire.isFaction)
+            if (TargetEmpire == null || TargetEmpire.IsFaction)
                 return 2;
 
-            float ownerBuildCapacity = Owner.GetEmpireAI().BuildCapacity;
-            float enemyBuildCapacity = TargetEmpire.GetEmpireAI().BuildCapacity;
+            float ownerBuildCapacity = Owner.AI.BuildCapacity;
+            float enemyBuildCapacity = TargetEmpire.AI.BuildCapacity;
             return (ownerBuildCapacity / enemyBuildCapacity).LowerBound(2);
         }
 
@@ -497,7 +455,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             // where the fleet will gather after requisition before moving to target AO.
-            Planet rallyPoint = TargetPlanet ?? GetRallyPlanet();
+            Planet rallyPoint = TargetPlanet ?? Owner.FindNearestRallyPoint(AO); 
             if (rallyPoint == null)
             {
                 ReqStatus = RequisitionStatus.NoRallyPoint;
@@ -563,7 +521,7 @@ namespace Ship_Game.AI.Tasks
             if (p == null)
                 return false;
 
-            SetTargetPlanet(p);
+            TargetPlanet = p;
             FleetShips fleetShips = Owner.AIManagedShips.EmpireReadyFleets;
             NeededTroopStrength = (int)(GetTargetPlanetGroundStrength(40) * Owner.DifficultyModifiers.EnemyTroopStrength);
             if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out _, TargetPlanet.Position, true))
@@ -587,7 +545,7 @@ namespace Ship_Game.AI.Tasks
             return moreTroops.Count > 0;
         }
 
-        private int WantedNumberOfFleets()
+        int WantedNumberOfFleets()
         {
             int maxFleets = Owner.AIManagedShips.CurrentUseableFleets;
             int wantedNumberOfFleets = FleetCount;
@@ -601,7 +559,7 @@ namespace Ship_Game.AI.Tasks
                         int extraFleets = TargetPlanet.Level > 4 ? 1 : 0;
                         extraFleets += TargetPlanet.HasWinBuilding ? 1 : 0;
                         extraFleets += TargetPlanet.BuildingList.Any(b => b.IsCapital) ? 1 : 0;
-                        extraFleets += TargetPlanet.Owner.CurrentMilitaryStrength > Owner.CurrentMilitaryStrength || TargetPlanet.Owner.TechScore > Owner.TechScore ? 1 : 0;
+                        extraFleets += TargetPlanet.Owner.CurrentMilitaryStrength > Owner.CurrentMilitaryStrength ? 1 : 0;
 
                         return extraFleets;
                     }
@@ -610,10 +568,8 @@ namespace Ship_Game.AI.Tasks
                 });
             }
 
-            return wantedNumberOfFleets.UpperBound(maxFleets);
+            return wantedNumberOfFleets.Clamped(1, maxFleets);
         }
-
-        Planet GetRallyPlanet() => RallyAO?.GetPlanet() ?? Owner.FindNearestRallyPoint(AO);
 
         void InitFleetRequirements(float minFleetStrength, int minTroopStrength, int minBombMinutes)
         {
@@ -634,7 +590,7 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            EnemyStrength            = GetEnemyShipStrengthInAO();
+            EnemyStrength = GetHostileStrengthAtAO();
             MinimumTaskForceStrength = minFleetStrength;
         }
 

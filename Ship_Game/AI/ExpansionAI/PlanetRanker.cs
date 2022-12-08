@@ -1,17 +1,19 @@
 ﻿using System.Linq;
 using SDGraphics;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI.ExpansionAI
 {
+    [StarDataType]
     public struct PlanetRanker
     {
-        public Planet Planet;
-        public float Value;
-        public bool CanColonize;
-        public bool PoorPlanet;
-        private readonly float DistanceMod;
-        private readonly float EnemyStrMod;
+        [StarData] public Planet Planet;
+        [StarData] public float Value;
+        [StarData] public bool CanColonize;
+        [StarData] public bool PoorPlanet;
+        [StarData] readonly float DistanceMod;
+        [StarData] readonly float EnemyStrMod;
 
         public override string ToString()
         {
@@ -36,24 +38,23 @@ namespace Ship_Game.AI.ExpansionAI
             PoorPlanet            = false;
             float rawValue        = planet.ColonyPotentialValue(empire);
 
+            bool moralityBlock = IsColonizeBlockedByMorals(Planet.ParentSystem, empire);
+            CanColonize = !moralityBlock;
+            Value = rawValue;
             if (!Planet.ParentSystem.HasPlanetsOwnedBy(empire))
             {
                 DistanceMod = (planet.Position.Distance(empireCenter) / longestDistance * 10).Clamped(1, 10);
                 EnemyStrMod = (empire.KnownEnemyStrengthIn(planet.ParentSystem) / empire.OffensiveStrength * 10).Clamped(1, 10);
+                CanColonize = !moralityBlock && (rawValue > 30 || empire.IsCybernetic && planet.MineralRichness > 1.5f);
+                Value = rawValue / DistanceMod / EnemyStrMod;
             }
-
-            Value              = rawValue / DistanceMod / EnemyStrMod;
-            bool moralityBlock = IsColonizeBlockedByMorals(Planet.ParentSystem, empire);
-
-            // We can colonize if we are not morally blocked and value is good
-            CanColonize =  !moralityBlock && (rawValue > 20 || empire.IsCybernetic && planet.MineralRichness > 1.5f);
         }
 
         public static bool IsColonizeBlockedByMorals(SolarSystem s, Empire ownerEmpire)
         {
             if (s.OwnerList.Count == 0
                 || s.HasPlanetsOwnedBy(ownerEmpire)
-                || ownerEmpire.isFaction)
+                || ownerEmpire.IsFaction)
             {
                 return false;
             }

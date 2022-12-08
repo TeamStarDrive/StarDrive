@@ -1,14 +1,10 @@
-using System.Diagnostics.Contracts;
-
-using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System.Xml.Serialization;
 using System;
 using System.Runtime.CompilerServices;
 using Ship_Game.Data.Serialization;
-using Ship_Game.ExtensionMethods;
 using SDGraphics;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
@@ -21,69 +17,54 @@ namespace Ship_Game
         ShipModule = 2,
         Proj       = 4, // this is a projectile, NOT a beam
         Beam       = 8, // this is a BEAM, not a projectile
-        Asteroid   = 16,
-        Moon       = 32,
-        SolarSystem = 64,
-        Planet      = 128,
+        SolarSystem = 16,
+        SolarBody   = 32, // Asteroid, Moon,
+        Planet      = 64,
+        ThreatCluster = 128,
     }
 
     [StarDataType]
-    public abstract class GameObject
+    public abstract class GameObject : SpatialObjectBase
     {
-        /**
-         *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
-         *        will be accidentally serialized!
-         */
-        
         [StarData] public readonly int Id;
-        [XmlIgnore][JsonIgnore] public bool Active = true;
-        [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
-        
-        [StarData] public Vector2 Position;
+        [StarData] public SolarSystem System;
         [StarData] public Vector2 Velocity;
-
-        // Velocity magnitude (scalar), always absolute
-        [XmlIgnore][JsonIgnore] public float CurrentVelocity => Velocity.Length();
-
         // important for hi-precision impact predictor and accurate Position integration
         [StarData] public Vector2 Acceleration;
+
+        // Velocity magnitude (scalar), always absolute
+        public float CurrentVelocity => Velocity.Length();
 
         // rotation in RADIANS
         // MUST be normalized to [0; +2PI]
         [StarData] public float Rotation;
 
-        [StarData] public float Radius = 1f;
         [StarData] public float Mass = 1f;
         [StarData] public float Health;
 
-        [StarData] public readonly GameObjectType Type;
+        public GameObject LastDamagedBy;
 
-        [XmlIgnore][JsonIgnore] public GameObject LastDamagedBy;
-
-        [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
-        [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
-        [XmlIgnore][JsonIgnore] public bool ReinsertSpatial = false; // if true, this object should be reinserted to spatial manager
-        [XmlIgnore][JsonIgnore] public bool InFrustum; // Updated by UniverseObjectManager
+        public bool InFrustum; // Updated by UniverseObjectManager
 
         /// <summary>
         /// Current Rotation converted into a Direction unit vector
         /// </summary>
-        [XmlIgnore][JsonIgnore] public Vector2 Direction
+        public Vector2 Direction
         {
             get => Rotation.RadiansToDirection();
             set => Rotation = value.ToRadians(); // allow setting the rotation with a direction vector
         }
-        [XmlIgnore][JsonIgnore] public Vector3 Direction3D
+        public Vector3 Direction3D
         {
             get => Rotation.RadiansToDirection3D();
             set => Rotation = new Vector2(value.X, value.Y).ToRadians();
         }
 
         // Current direction of the Velocity vector, or Vector2.Zero if Velocity is Zero
-        [XmlIgnore][JsonIgnore] public Vector2 VelocityDirection => Velocity.Normalized();
+        public Vector2 VelocityDirection => Velocity.Normalized();
 
         // gets/set the Rotation in Degrees; Properly normalizes input degrees to [0; +2PI]
-        [XmlIgnore][JsonIgnore] public float RotationDegrees
+        public float RotationDegrees
         {
             get => Rotation.ToDegrees();
             set => Rotation = value.ToRadians();
@@ -112,21 +93,17 @@ namespace Ship_Game
 
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
 
-        protected GameObject(int id, GameObjectType type)
+        [StarDataConstructor]
+        protected GameObject(int id, GameObjectType type) : base(type)
         {
             Id = id;
-            Type = type;
         }
 
-        [XmlIgnore][JsonIgnore] public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
+        public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
 
         public virtual void Damage(GameObject source, float damageAmount, float beamModifier = 1f)
         {
         }
-
-        //public virtual void Initialize()
-        //{
-        //}
 
         public virtual void Die(GameObject source, bool cleanupOnly)
         {
@@ -139,34 +116,13 @@ namespace Ship_Game
 
         // in system view and inside frustum
         public bool IsInFrustum(UniverseScreen u) =>
-            u.IsSystemViewOrCloser && u.IsInFrustum(Position, 2000f);
+            u.UState.IsSystemViewOrCloser && u.IsInFrustum(Position, 2000f);
 
-        [XmlIgnore][JsonIgnore]
         public string SystemName => System?.Name ?? "Deep Space";
 
         public void SetSystem(SolarSystem system)
         {
             System = system;
-        }
-
-        [Pure] public int GetLoyaltyId()
-        {
-            if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty?.Id ?? 0;
-            if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty?.Id ?? 0;
-            if (Type == GameObjectType.Ship) return ((Ship)this).Loyalty.Id;
-            if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().Loyalty.Id;
-            if (Type == GameObjectType.Planet) return ((Planet)this).Owner?.Id ?? 0;
-            return 0;
-        }
-
-        [Pure] public Empire GetLoyalty()
-        {
-            if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty;
-            if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty;
-            if (Type == GameObjectType.Ship) return ((Ship)this).Loyalty;
-            if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().Loyalty;
-            if (Type == GameObjectType.Planet) return ((Planet)this).Owner;
-            return null;
         }
 
         public virtual bool IsAttackable(Empire attacker, Relationship attackerRelationThis)

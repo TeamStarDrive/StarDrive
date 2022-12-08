@@ -4,7 +4,6 @@
   <UID>Privatization</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>1200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>640</NameIndex>
   <DescriptionIndex>641</DescriptionIndex>
   <LeadsTo />

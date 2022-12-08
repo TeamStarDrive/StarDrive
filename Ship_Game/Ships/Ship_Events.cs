@@ -30,7 +30,7 @@ namespace Ship_Game.Ships
             }
 
             // kill the ship if all modules exploded or internal slot percent is below critical
-            if (Health <= 0f || InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
+            if (Health <= 0f || InternalSlotsHealthPercent < GlobalStats.Settings.ShipDestroyThreshold)
             {
                 if (Active) // TODO This is a partial work around to help several modules dying at once calling Die cause multiple xp grant and messages
                     Die(LastDamagedBy, false);
@@ -79,6 +79,20 @@ namespace Ship_Game.Ships
         public virtual void OnBombInstalled(ShipModule m)
         {
             BombBays.Add(m);
+        }
+
+        // EVT: when a ship dies
+        // note that pSource can be null
+        public virtual void OnShipDie(Projectile pSource)
+        {
+            if (IsSubspaceProjector)
+                Loyalty.AI.SpaceRoadsManager.RemoveProjectorFromRoadList(this);
+
+            if (Loyalty.CanBuildPlatforms)
+                Loyalty.AI.SpaceRoadsManager.SetupProjectorBridgeIfNeeded(this);
+
+            DamageRelationsOnDeath(pSource);
+            CreateEventOnDeath();
         }
     }
 }

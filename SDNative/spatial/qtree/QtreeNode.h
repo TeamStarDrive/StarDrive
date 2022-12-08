@@ -73,9 +73,14 @@ namespace spatial
                 }
 
                 SpatialObject** oldObjects = objects;
+				#if _DEBUG
+	                for (int i = 0; i < size; ++i)
+	                    if (oldObjects[i] == item)
+	                        throw std::runtime_error{ "QtreeNode::addObject failed: duplicate object" };
+				#endif
                 objects = allocator.allocArray(oldObjects, size, newCapacity);
                 allocator.reuseArray(oldObjects, size); // reuse this array next time
-                capacity = newCapacity;
+                capacity = (uint16_t)newCapacity;
             }
             objects[size++] = item;
             loyalty.addLoyaltyMask(item->loyaltyMask);

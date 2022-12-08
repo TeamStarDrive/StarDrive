@@ -1,9 +1,10 @@
 - BudgetSettings:
   PortraitName: All
   Budgets:
-    Defense:  3
-    SSP:  1
-    Build:  5
-    Spy:  25
-    Colony: 10
-    Savings:  500
+    Defense: 2
+    SSP: 1
+    Build: 6
+    Spy: 25
+    Colony: 8
+    Terraform: 2
+    Savings: 400

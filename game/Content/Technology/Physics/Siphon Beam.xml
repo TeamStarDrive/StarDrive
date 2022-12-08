@@ -4,7 +4,6 @@
   <UID>Siphon Beam</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>450</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>656</NameIndex>
   <DescriptionIndex>657</DescriptionIndex>
   <LeadsTo>

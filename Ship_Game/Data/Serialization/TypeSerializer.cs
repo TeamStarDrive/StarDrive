@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using Ship_Game.Data.Binary;
+using SDUtils;
 
 namespace Ship_Game.Data.Serialization
 {
@@ -10,49 +11,81 @@ namespace Ship_Game.Data.Serialization
         public const int MaxFundamentalTypes = 32;
 
         // TypeId which is valid in a single serialization context
-        internal ushort TypeId;
+        internal int TypeId;
         public readonly Type Type;
 
         /// <summary>
         /// If TRUE, this serializer is a primitive fundamental type
         /// </summary>
-        public bool IsFundamentalType => (TypeId < MaxFundamentalTypes);
+        public bool IsFundamentalType;
 
         /// <summary>
         /// If TRUE, this serializer is a collection serializer for Arrays or Maps
         /// </summary>
-        public bool IsCollection { get; protected set; }
+        public bool IsCollection;
 
         /// <summary>
         /// If TRUE, this serializer is made for a custom user class type
         /// marked with [StarDataType] attribute
         /// </summary>
-        public bool IsUserClass { get; protected set; }
+        public bool IsUserClass;
 
         /// <summary>
-        /// If TRUE, instances of this type should be represented by pointers,
-        /// all Classes fall in this category.
-        /// If FALSE, instances are value types such as primitives or structs,
-        /// and can't be represented by pointers.
+        /// Non-Pointer types are value types
         /// </summary>
-        public bool IsPointerType { get; protected set; }
+        public bool IsValueType;
+
+        /// <summary>
+        /// Enums get some special treatment as ValueTypes
+        /// </summary>
+        public bool IsEnumType;
+        
+        /// <summary>
+        /// If this is a Collection Map
+        /// </summary>
+        public bool IsMapType { get; protected set; }
 
         /// <summary>
         /// Serializer category for easier classification during Deserialization
         /// </summary>
-        public SerializerCategory Category { get; protected set; }
+        public SerializerCategory Category;
 
         /// <summary>
         /// Overriden TypeName of this TypeSerializer
         /// Defaults to Type.Name
+        ///
+        /// This is used during Type lookup while deserializing binary streams
         /// </summary>
-        public string TypeName { get; protected set; }
+        public string TypeName;
+
+        /// <summary>
+        /// Nice human-readable typename
+        /// </summary>
+        public string NiceTypeName => Type.GetTypeName();
+
+        public bool IsStruct => IsValueType && IsUserClass;
+
+        // For reference types, this is always null
+        // for value types, this default(T)
+        public object DefaultValue;
 
         protected TypeSerializer(Type type)
         {
             Type = type;
-            IsPointerType = !type.IsValueType;
+            IsValueType = type.IsValueType;
+            IsEnumType = type.IsEnum;
             TypeName = type.Name;
+
+            if (IsValueType)
+            {
+                DefaultValue = Activator.CreateInstance(type);
+            }
+        }
+
+        internal void SetTypeId(int id)
+        {
+            TypeId = id;
+            IsFundamentalType = (TypeId < MaxFundamentalTypes);
         }
 
         /// <summary>
@@ -97,6 +130,21 @@ namespace Ship_Game.Data.Serialization
         /// BINARY Deserialize this object
         /// </summary>
         public abstract object Deserialize(BinarySerializerReader reader);
+
+        /// <summary>
+        /// Attempts to create an instance of `Type` or returns null
+        /// </summary>
+        public virtual object CreateInstance()
+        {
+            try
+            {
+                return Activator.CreateInstance(Type, nonPublic:true);
+            }
+            catch (Exception ex)
+            {
+                throw new($"CreateInstance failed: {Type} - a default constructor is required", ex);
+            }
+        }
 
         protected static void Error(object value, string couldNotConvertToWhat)
         {

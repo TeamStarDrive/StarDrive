@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SDUtils;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using static Ship_Game.Ships.Ship;
 
 namespace Ship_Game.Ships
 {
@@ -15,10 +13,6 @@ namespace Ship_Game.Ships
     {
         // Role assigned to the Hull, such as `Cruiser`
         public RoleName HullRole => BaseHull.Role;
-
-        // Role expressed by this ShipDesign's modules, such as `Carrier`
-        // This is saved in Shipyard, or can be updated via --fix-roles
-        public RoleName Role { get; private set; } = RoleName.fighter;
 
         static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
         public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
@@ -38,8 +32,18 @@ namespace Ship_Game.Ships
         public bool IsBomber          { get; private set; }
 
         public float BaseCost       { get; private set; }
+        public float BaseStrength   { get; private set; }
+        public float BaseThrust     { get; private set; }
+        public float BaseTurnThrust { get; private set; }
         public float BaseWarpThrust { get; private set; }
         public bool  BaseCanWarp    { get; private set; }
+        public float BaseMass       { get; private set; }
+        public float BaseCargoSpace { get; private set; }
+
+        public Power NetPower;
+
+        public float StartingColonyGoods { get; private set; }
+        public int NumBuildingsDeployed { get; private set; }
 
         // Hangar Templates
         public ShipModule[] Hangars { get; private set; }
@@ -60,10 +64,20 @@ namespace Ship_Game.Ships
             var info = GridInfo;
             info.SurfaceArea = hull.SurfaceArea;
             GridInfo = info;
-            Grid = new ModuleGridFlyweight(Name, info, designSlots);
+            Grid = new(Name, info, designSlots);
 
             float baseCost = 0f;
+            float baseThrust = 0f;
+            float baseTurnThrust = 0f;
             float baseWarp = 0f;
+            float baseMass = 0f;
+            float baseStrength = 0f;
+            float baseCargoSpace = 0f;
+            int offensiveSlots = 0;
+            float startingColonyGoods = 0f;
+            int numBuildingsDeployed = 0;
+
+            var mTemplates = new Array<ShipModule>();
             var hangars = new Array<ShipModule>();
             var weapons = new Array<Weapon>();
             HashSet<string> invalidModules = null;
@@ -74,22 +88,38 @@ namespace Ship_Game.Ships
                 if (!ResourceManager.GetModuleTemplate(uid, out ShipModule m))
                 {
                     if (invalidModules == null)
-                        invalidModules = new HashSet<string>();
+                        invalidModules = new();
                     invalidModules.Add(uid);
                     continue;
                 }
 
+                mTemplates.Add(m);
                 baseCost += m.Cost;
+                baseThrust += m.Thrust;
+                baseTurnThrust += m.TurnThrust;
                 baseWarp += m.WarpThrust;
+                baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
+                baseCargoSpace += m.CargoCapacity;
+
                 if (m.Is(ShipModuleType.Hangar))
                     hangars.Add(m);
                 else if (m.Is(ShipModuleType.Colony))
                     IsColonyShip = true;
                 else if (m.InstalledWeapon != null)
+                {
+                    offensiveSlots += m.Area;
                     weapons.Add(m.InstalledWeapon);
+                }
 
                 if (m.IsSupplyBay)
                     IsSupplyCarrier = true;
+                if (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0)
+                    offensiveSlots += m.Area;
+                if (m.DeployBuildingOnColonize.NotEmpty())
+                    ++numBuildingsDeployed;
+                
+                startingColonyGoods += m.NumberOfEquipment + m.NumberOfFood;
+                baseStrength += m.CalculateModuleOffenseDefense(info.SurfaceArea);
             }
 
             if (invalidModules != null)
@@ -99,12 +129,22 @@ namespace Ship_Game.Ships
             }
 
             BaseCost = baseCost;
+            BaseStrength = ShipBuilder.GetModifiedStrength(info.SurfaceArea, offensiveSlots, 0, baseStrength);
+            BaseThrust = baseThrust;
+            BaseTurnThrust = baseTurnThrust;
             BaseWarpThrust = baseWarp;
             BaseCanWarp = baseWarp > 0;
+            BaseMass = baseMass;
+            BaseCargoSpace = baseCargoSpace;
+
+            StartingColonyGoods = startingColonyGoods;
+            NumBuildingsDeployed = numBuildingsDeployed;
 
             Hangars = hangars.ToArray();
             AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
             Weapons = weapons.ToArray();
+
+            NetPower = Power.Calculate(mTemplates, null, designModule: true);
 
             // Updating the Design Role is always done in the Shipyard
             // However, it can be overriden with --fix-roles to update all ship designs
@@ -135,9 +175,9 @@ namespace Ship_Game.Ships
         public float GetCost(Empire e)
         {
             if (FixedCost > 0)
-                return FixedCost * CurrentGame.ProductionPace;
+                return FixedCost * e.Universe.ProductionPace;
 
-            float cost = BaseCost * CurrentGame.ProductionPace;
+            float cost = BaseCost * e.Universe.ProductionPace;
             cost += Bonuses.StartingCost;
             cost += cost * e.data.Traits.ShipCostMod;
             cost *= 1f - Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
@@ -147,9 +187,9 @@ namespace Ship_Game.Ships
             return (int)cost;
         }
 
-        public float GetMaintenanceCost(Empire empire, int troopCount)
+        public float GetMaintenanceCost(Empire empire)
         {
-            return ShipMaintenance.GetBaseMaintenance(this, empire, troopCount);
+            return ShipMaintenance.GetBaseMaintenance(this, empire, 0);
         }
 
         public string GetRole()
@@ -157,10 +197,58 @@ namespace Ship_Game.Ships
             return RoleArray[(int)Role -1];
         }
 
+        public bool IsBuildableByPlayer(Empire player)
+        {
+            ShipRole role = ShipRole;
+            return !IsCarrierOnly && !Deleted
+                && !role.Protected && !role.NoBuild
+                && (player.Universe.P.ShowAllDesigns || IsPlayerDesign);
+        }
+
         public static string GetRole(RoleName role)
         {
             int roleNum = (int)role - 1;
             return RoleArray[roleNum];
         }
+
+        public bool IsShipGoodToBuild(Empire e)
+        {
+            if (IsPlatformOrStation || IsCarrierOnly)
+                return true;
+            return IsShipGoodForGoals(e);
+        }
+
+        public bool IsShipGoodForGoals(Empire e)
+        {
+            if (IsPlatformOrStation)
+                return true;
+
+            float neededRange = GlobalStats.Settings.MinAcceptableShipWarpRange;
+            if (neededRange <= 0f) 
+                return true;
+
+            float maxFTLSpeed = ShipStats.GetFTLSpeed(this, e);
+            bool good = IsWarpRangeGood(neededRange, maxFTLSpeed);
+            return good;
+        }
+
+        public bool IsWarpRangeGood(float neededRange, float maxFTLSpeed)
+        {
+            if (neededRange <= 0f) return true;
+            float powerDuration = NetPower.PowerDuration(MoveState.Warp, NetPower.PowerStoreMax);
+            return ShipStats.IsWarpRangeGood(neededRange, powerDuration, maxFTLSpeed);
+        }
+
+        public bool CanBeAddedToBuildableShips(Empire empire)
+        {
+            return Role != RoleName.prototype 
+                && Role != RoleName.disabled
+                && Role != RoleName.supply
+                && !ShipRole.Protected
+                && !Deleted
+                && (empire.isPlayer || IsShipGoodForGoals(empire))
+                && (!IsPlayerDesign || GlobalStats.Settings.AIUsesPlayerDesigns || empire.isPlayer);
+        }
+
     }
 }

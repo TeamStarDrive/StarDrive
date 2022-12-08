@@ -1,6 +1,8 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -15,7 +17,7 @@ namespace Ship_Game
         readonly UILabel TimeLeftLabel;
 
         ResearchQItem CurrentResearch;
-        readonly ScrollList2<ResearchQItem> ResearchQueueList;
+        readonly ScrollList<ResearchQItem> ResearchQueueList;
         readonly UIButton BtnShowQueue;
 
         public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(container, Color.Black)
@@ -25,31 +27,31 @@ namespace Ship_Game
             BtnShowQueue = Button(ButtonStyle.BigDip, 
                 new Vector2(container.Right - 170, screen.ScreenHeight - 55), "", OnBtnShowQueuePressed);
 
-            var current = new Rectangle(container.X, container.Y, container.Width, 150);
-            var timeLeftRect = new Rectangle(current.X + current.Width - 119, current.Y + current.Height - 24, 111, 20);
+            RectF current = new(container.X, container.Y, container.Width, 150);
+            RectF timeLeftRect = new(current.X + current.W - 119, current.Y + current.H - 24, 111, 20);
             TimeLeft = Panel(timeLeftRect, Color.White, ResourceManager.Texture("ResearchMenu/timeleft"));
             
             var labelPos = new Vector2(TimeLeft.X + 26,
                                        TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2);
             TimeLeftLabel = TimeLeft.Label(labelPos, "", Fonts.Verdana14Bold, new Color(205, 229, 255));
 
-            CurrentResearchPanel = Add(new Submenu(current, SubmenuStyle.Blue));
-            CurrentResearchPanel.AddTab(Localizer.Token(GameText.CurrentResearch));
+            CurrentResearchPanel = Add(new Submenu(current, GameText.CurrentResearch, SubmenuStyle.Blue));
             
-            var queue = new Rectangle(current.X, current.Y + 165, container.Width, container.Height - 165);
-            var queuePanel = new Submenu(queue, SubmenuStyle.Blue);
-            queuePanel.AddTab(Localizer.Token(GameText.ResearchQueue));
-            ResearchQueueList = Add(new ScrollList2<ResearchQItem>(queuePanel, 125, ListStyle.Blue));
+            RectF queue = new(current.X, current.Y + 165, container.Width, container.Height - 165);
+            var queueSub = Add(new SubmenuScrollList<ResearchQItem>(queue, GameText.ResearchQueue, 125, ListStyle.Blue));
+            ResearchQueueList = queueSub.List;
+
             // FB Disabled due to being able to drag stuff to be before other research mandatory for it.
             //ResearchQueueList.OnDragReorder = OnResearchItemReorder; 
             ReloadResearchQueue();
         }
 
+        // TODO: check if we are moving item up before allowed item
         void OnResearchItemReorder(ResearchQItem item, int oldIndex, int newIndex)
         {
             // we use +1 here, because [0] is the current research item
             // which is not in the ScrollList
-            EmpireManager.Player.Research.ReorderTech(oldIndex+1, newIndex+1);
+            Screen.Player.Research.ReorderTech(oldIndex+1, newIndex+1);
         }
 
         void OnBtnShowQueuePressed(UIButton button)
@@ -104,7 +106,7 @@ namespace Ship_Game
                 CurrentResearch.Draw(batch, elapsed);
 
                 float remaining = CurrentResearch.Tech.TechCost - CurrentResearch.Tech.Progress;
-                float numTurns = (float)Math.Ceiling(remaining / (0.01f + EmpireManager.Player.Research.NetResearch));
+                float numTurns = (float)Math.Ceiling(remaining / (0.01f + Screen.Player.Research.NetResearch));
                 TimeLeftLabel.Text = (numTurns > 999f) ? ">999 turns" : numTurns.String(0)+" turns";
             }
         }
@@ -117,7 +119,7 @@ namespace Ship_Game
 
         public void AddToResearchQueue(TreeNode node)
         {
-            if (EmpireManager.Player.Research.AddToQueue(node.Entry.UID))
+            if (Screen.Player.Research.AddToQueue(node.Entry.UID))
             {
                 if (CurrentResearch == null)
                     CurrentResearch = CreateQueueItem(node);
@@ -130,18 +132,18 @@ namespace Ship_Game
 
         public void ReloadResearchQueue()
         {
-            CurrentResearch = EmpireManager.Player.Research.HasTopic
-                            ? CreateQueueItem((TreeNode)Screen.AllTechNodes[EmpireManager.Player.Research.Topic])
+            CurrentResearch = Screen.Player.Research.HasTopic
+                            ? CreateQueueItem((TreeNode)Screen.AllTechNodes[Screen.Player.Research.Topic])
                             : null;
 
             var items = new Array<ResearchQItem>();
-            foreach (string tech in EmpireManager.Player.Research.QueuedItems)
+            foreach (string tech in Screen.Player.Research.QueuedItems)
             {
                 items.Add(CreateQueueItem( (TreeNode)Screen.AllTechNodes[tech] ));
             }
             ResearchQueueList.SetItems(items);
 
-            SetQueueVisible(EmpireManager.Player.Research.HasTopic);
+            SetQueueVisible(Screen.Player.Research.HasTopic);
         }
     }
 }

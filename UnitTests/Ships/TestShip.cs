@@ -2,6 +2,7 @@
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Ship_Game.Gameplay;
 using Vector2 = SDGraphics.Vector2;
@@ -14,13 +15,22 @@ namespace UnitTests.Ships
     ///
     /// You can inherit upon this to further mock some of the ship's behaviour
     /// </summary>
+    [StarDataType]
     public class TestShip : Ship
     {
         public bool EnableDebugLogging;
 
+        [StarDataConstructor] TestShip() : base() {}
+
         public TestShip(UniverseState u, Ship template, Empire owner, Vector2 position)
             : base(u, u.CreateId(), template, owner, position)
         {
+        }
+
+        [StarDataDeserialized(DeserializeBefore = new[]{ typeof(UniverseState) })]
+        public new void OnDeserialized(UniverseState us)
+        {
+            base.OnDeserialized(us);
         }
 
         public int NumDieCalls; // TEST: # of times Die() has been called

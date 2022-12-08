@@ -1,18 +1,18 @@
 ﻿using System;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class BuildConstructionShip : Goal
+    [StarDataType]
+    public class BuildConstructionShip : DeepSpaceBuildGoal
     {
-        public const string ID = "BuildConstructionShip";
-        public override string UID => ID;
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
 
-        public BuildConstructionShip(int id, UniverseState us)
-            : base(GoalType.DeepSpaceConstruction, id, us)
+        [StarDataConstructor]
+        public BuildConstructionShip(Empire owner) : base(GoalType.DeepSpaceConstruction, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,39 +23,32 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildConstructionShip(Vector2 buildPosition, string platformUid, Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, bool rush = false)
+            : this(owner)
         {
-            BuildPosition = buildPosition;
-            ToBuildUID = platformUid;
-            empire = owner;
-            Evaluate();
+            Initialize(platformUid, buildPos);
+            Build.Rush = rush;
+        }
+
+        public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, Planet tetherPlanet, Vector2 tetherOffset)
+            : this(owner)
+        {
+            Initialize(platformUid, buildPos, tetherPlanet, tetherOffset);
         }
 
         GoalStep FindPlanetToBuildAt()
         {
-            if (!ResourceManager.GetShipTemplate(ToBuildUID, out Ship toBuild))
-            {
-                Log.Error($"BuildConstructionShip: no ship to build with uid={ToBuildUID ?? "null"}");
-                return GoalStep.GoalFailed;
-            }
+            IShipDesign constructor = BuildableShip.GetConstructor(Owner);
 
-            // ShipToBuild will be the constructor ship -- usually a freighter
-            // once the freighter is deployed, it will mutate into ToBuildUID
-
-            ShipToBuild = ShipBuilder.PickConstructor(empire)?.ShipData;
-            if (ShipToBuild == null)
-                throw new Exception($"PickConstructor failed for {empire.Name}."+
-                                    "This is a FATAL bug in data files, where Empire is not able to do space construction!");
-
-            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, toBuild.ShipData, out Planet planet, priority: 0.25f))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, ToBuild, out Planet planet, priority: 0.25f))
                 return GoalStep.TryAgain;
 
-            // toBuild is only used for cost calculation
-            planet.Construction.Enqueue(toBuild, ShipToBuild, this);
-            if (toBuild.IsSubspaceProjector && Fleet != null) // SSP Needed for Offensive fleets, rush it
-                planet.Construction.MoveToAndContinuousRushFirstItem();
-
+            PlanetBuildingAt = planet;
+            QueueItemType itemType = ToBuild.IsSubspaceProjector ? QueueItemType.RoadNode : QueueItemType.Orbital;
+            if (Build.Rush)
+                itemType = QueueItemType.OrbitalUrgent;
+            
+            planet.Construction.Enqueue(itemType, ToBuild, constructor, Build.Rush, this);
             return GoalStep.GoToNextStep;
         }
 
@@ -74,6 +67,5 @@ namespace Ship_Game.Commands.Goals
             // If the goal is not kept, load game construction ships loses the empire goal and get stuck
             return FinishedShip == null ? GoalStep.GoalComplete : GoalStep.TryAgain;
         }
-
     }
 }

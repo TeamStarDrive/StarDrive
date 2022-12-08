@@ -1,115 +1,107 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
+using SDGraphics;
 using SDUtils;
+using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 
-namespace Ship_Game.Debug.Page
+namespace Ship_Game.Debug.Page;
+
+class StoryAndEventsDebug : DebugPage
 {
-    class StoryAndEventsDebug : DebugPage
+    class EvtItem : ScrollListItem<EvtItem>
     {
-        class EvtItem : ScrollListItem<EvtItem>
+        readonly UILabel First;
+        readonly UILabel Second;
+        public EvtItem(ExplorationEvent e, Outcome o)
         {
-            readonly UILabel First;
-            readonly UILabel Second;
-            public EvtItem(ExplorationEvent e, Outcome o)
-            {
-                First = new UILabel($"{e.FileName}.xml - {e.Story} - {e.LocalizedName}");
-                Second = new UILabel($"Outcome-{e.PotentialOutcomes.IndexOf(o)} {o.TitleText}");
-            }
-            public EvtItem(Encounter e)
-            {
-                First = new UILabel($"{e.FileName}.xml - {e.Name}");
-                Second = new UILabel(e.DescriptionText.Substring(0, 20));
-            }
-            public override void PerformLayout()
-            {
-                First.Pos = Pos;
-                Second.Pos = new Vector2(Pos.X, Pos.Y + 16f);
-                RequiresLayout = false;
-            }
-            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-            {
-                First.Draw(batch, elapsed);
-                Second.Draw(batch, elapsed);
-            }
+            First = new UILabel($"{e.FileName}.xml - {e.Story} - {e.LocalizedName}");
+            Second = new UILabel($"Outcome-{e.PotentialOutcomes.IndexOf(o)} {o.TitleText}");
         }
-
-        UniverseScreen Universe;
-        Submenu Menu;
-        readonly ScrollList2<EvtItem> ExplorationEvents;
-        readonly ScrollList2<EvtItem> EncounterDialogs;
-
-        public StoryAndEventsDebug(UniverseScreen screen, DebugInfoScreen parent)
-            : base(parent, DebugModes.StoryAndEvents)
+        public EvtItem(Encounter e)
         {
-            Universe = screen;
+            First = new UILabel($"{e.FileName}.xml - {e.Name}");
+            Second = new UILabel(e.DescriptionText.Substring(0, 20));
+        }
+        public override void PerformLayout()
+        {
+            First.Pos = Pos;
+            Second.Pos = new Vector2(Pos.X, Pos.Y + 16f);
+            RequiresLayout = false;
+        }
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            First.Draw(batch, elapsed);
+            Second.Draw(batch, elapsed);
+        }
+    }
 
-            ExplorationEvent[] events = ResourceManager.EventsDict.Values.ToArr();
+    readonly ScrollList<EvtItem> ExplorationEvents;
+    readonly ScrollList<EvtItem> EncounterDialogs;
 
-            Menu = Add(new Submenu(50, 260, 400, 600));
-            Menu.AddTab("ExpEvts");
-            Menu.AddTab("Encounters");
-            Menu.OnTabChange = OnTabChanged;
+    public StoryAndEventsDebug(DebugInfoScreen parent) : base(parent, DebugModes.StoryAndEvents)
+    {
+        ExplorationEvent[] events = ResourceManager.EventsDict.Values.ToArr();
 
-            ExplorationEvents = Menu.Add(new ScrollList2<EvtItem>(new Submenu(Menu.Rect)));
-            ExplorationEvents.EnableItemEvents = true;
-            ExplorationEvents.EnableItemHighlight = true;
+        RectF evtR = new(50, 260, 400, 600);
+        LocalizedText[] evtTabs = { "ExpEvts", "Encounters" };
+        var menu = base.Add(new SubmenuScrollList<EvtItem>(evtR, evtTabs));
+        menu.OnTabChange = OnTabChanged;
 
-            foreach (ExplorationEvent evt in events)
+        ExplorationEvents = menu.List;
+        ExplorationEvents.EnableItemEvents = true;
+        ExplorationEvents.EnableItemHighlight = true;
+
+        foreach (ExplorationEvent evt in events)
+        {
+            for (int i = 0; i < evt.PotentialOutcomes.Count; ++i)
             {
-                for (int i = 0; i < evt.PotentialOutcomes.Count; ++i)
-                {
-                    Outcome outcome = evt.PotentialOutcomes[i];
-                    var item = ExplorationEvents.AddItem(new EvtItem(evt, outcome));
-                    item.OnClick = () =>
-                    {
-                        Planet homeworld = screen.Player.GetPlanets()[0];
-                        PlanetGridSquare tile = homeworld.TilesList.Find(t => t.IsTileFree(screen.Player));
-                        evt.DebugTriggerOutcome(homeworld, screen.Player, outcome, tile);
-                    };
-                }
-            }
-
-            EncounterDialogs = Menu.Add(new ScrollList2<EvtItem>(new Submenu(Menu.Rect)));
-            EncounterDialogs.EnableItemEvents = true;
-            EncounterDialogs.EnableItemHighlight = true;
-
-            foreach (Encounter e in ResourceManager.Encounters)
-            {
-                Empire faction = EmpireManager.GetEmpireByName(e.Faction) ?? EmpireManager.Corsairs;
-                var item = EncounterDialogs.AddItem(new EvtItem(e));
+                Outcome outcome = evt.PotentialOutcomes[i];
+                var item = ExplorationEvents.AddItem(new EvtItem(evt, outcome));
                 item.OnClick = () =>
                 {
-                    EncounterPopup.Show(screen, screen.Player, faction, e);
+                    Planet homeworld = Player.GetPlanets()[0];
+                    PlanetGridSquare tile = homeworld.TilesList.Find(t => t.IsTileFree(Player));
+                    evt.DebugTriggerOutcome(homeworld, Player, outcome, tile);
                 };
             }
-
-            Menu.SelectedIndex = 0;
-
-            Label(Width - 200, 200, "Ctrl+M to spawn Meteors");
         }
 
-        void OnTabChanged(int tab)
-        {
-            ExplorationEvents.Visible = tab == 0;
-            EncounterDialogs.Visible = tab == 1;
-        }
+        EncounterDialogs = menu.Add(new SubmenuScrollList<EvtItem>(new(menu.Rect))).List;
+        EncounterDialogs.EnableItemEvents = true;
+        EncounterDialogs.EnableItemHighlight = true;
 
-        public override bool HandleInput(InputState input)
+        foreach (Encounter e in ResourceManager.Encounters)
         {
-            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.M))
+            Empire faction = Universe.GetEmpireByName(e.Faction) ?? Universe.Corsairs;
+            var item = EncounterDialogs.AddItem(new EvtItem(e));
+            item.OnClick = () =>
             {
-                SolarSystem system = Universe.UState.Systems.Find(s => s.InFrustum);
-                if (system != null && system.PlanetList.Count > 0)
-                {
-                    RandomEventManager.CreateMeteors(system.PlanetList[0]);
-                }
-            }
-            return base.HandleInput(input);
+                EncounterPopup.Show(Screen, Player, faction, e);
+            };
         }
+
+        menu.SelectedIndex = 0;
+
+        Label(Width - 200, 200, "Ctrl+M to spawn Meteors");
+    }
+
+    void OnTabChanged(int tab)
+    {
+        ExplorationEvents.Visible = tab == 0;
+        EncounterDialogs.Visible = tab == 1;
+    }
+
+    public override bool HandleInput(InputState input)
+    {
+        if (input.IsCtrlKeyDown && input.KeyPressed(Keys.M))
+        {
+            SolarSystem system = Universe.Systems.Find(s => s.InFrustum);
+            if (system != null && system.PlanetList.Count > 0)
+            {
+                Universe.Events.CreateMeteors(system.PlanetList[0]);
+            }
+        }
+        return base.HandleInput(input);
     }
 }

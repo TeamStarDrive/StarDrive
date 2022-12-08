@@ -2,21 +2,23 @@
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PirateRaidOrbital : Goal
     {
-        public const string ID = "PirateRaidOrbital";
-        public override string UID => ID;
-        private Pirates Pirates;
+        [StarData] public sealed override Ship TargetShip { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
 
-        public PirateRaidOrbital(int id, UniverseState us)
-            : base(GoalType.PirateRaidOrbital, id, us)
+        Pirates Pirates => Owner.Pirates;
+        
+        [StarDataConstructor]
+        public PirateRaidOrbital(Empire owner) : base(GoalType.PirateRaidOrbital, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -25,26 +27,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateRaidOrbital(Empire owner, Empire targetEmpire)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateRaidOrbital(Empire owner, Empire targetEmpire) : this(owner)
         {
-            empire       = owner;
             TargetEmpire = targetEmpire;
-
-            PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Orbital Raid vs. {targetEmpire.Name} ----");
-            Evaluate();
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates = empire.Pirates;
-        }
-
-        Ship BoardingShip
-        {
-            get => FinishedShip;
-            set => FinishedShip = value;
+            if (Pirates.Verbose)
+                Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Orbital Raid vs. {targetEmpire.Name} ----");
         }
 
         public override bool IsRaid => true;
@@ -54,11 +41,11 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
                 return GoalStep.GoalFailed; // They paid or dead
 
-            StarDateAdded = empire.Universum.StarDate;
+            StarDateAdded = Owner.Universe.StarDate;
             var orbitalType = GetOrbital();
             // orbitalType = Pirates.TargetType.Projector; // TODO for testing
             if (!Pirates.GetTarget(TargetEmpire, orbitalType, out Ship orbital))
-                return empire.Universum.StarDate.Greater(StarDateAdded + 1) ? GoalStep.GoalFailed : GoalStep.TryAgain;
+                return Owner.Universe.StarDate.Greater(StarDateAdded + 1) ? GoalStep.GoalFailed : GoalStep.TryAgain;
 
             TargetShip           = orbital; // This is the main target, we want this dead or possibly boarded
             float spawnDistance  = TargetShip.System?.Radius ?? 80000;
@@ -84,19 +71,19 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null || !TargetShip.Active)
             {
-                Pirates.TryLevelUp(TargetEmpire.Universum);
+                Pirates.TryLevelUp(TargetEmpire.Universe);
                 return GoalStep.GoalComplete; // Target was destroyed
             }
 
             if (TargetShip.Loyalty == Pirates.Owner)
             {
-                Pirates.TryLevelUp(TargetEmpire.Universum);
+                Pirates.TryLevelUp(TargetEmpire.Universe);
                 TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
                 return GoalStep.GoalComplete; // Target was boarded
             }
 
             // 25 turns to try finish the job
-            return empire.Universum.StarDate.Greater(StarDateAdded + 2.5f) ? GoalStep.GoalFailed : GoalStep.TryAgain;
+            return Owner.Universe.StarDate.Greater(StarDateAdded + 2.5f) ? GoalStep.GoalFailed : GoalStep.TryAgain;
         }
 
         Pirates.TargetType GetOrbital()

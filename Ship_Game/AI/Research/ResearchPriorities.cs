@@ -26,7 +26,7 @@ namespace Ship_Game.AI.Research
             Priority      = options;
             EnableRandomizer = enableRandomizer;
             ResearchDebt  = CalcResearchDebt(empire, out Array<TechEntry> availableTechs);
-            Wars          = OwnerEmpire.GetEmpireAI().ThreatLevel;
+            Wars          = OwnerEmpire.AI.ThreatLevel;
             Economics     = CalcEconomics(empire);
 
             CalcFoodAndIndustry(empire, out FoodNeeds, out Industry);
@@ -75,7 +75,7 @@ namespace Ship_Game.AI.Research
         Map<string, int> CreatePriorityMap(Empire empire)
         {
             EconomicResearchStrategy strat = empire.Research.Strategy;
-            var threat = OwnerEmpire.GetEmpireAI().ThreatLevel;
+            var threat = OwnerEmpire.AI.ThreatLevel;
             var priority = new Map<string, int>
             {
                 { "SHIPTECH",     GetPriorityValue(threat,                Priority.GetPriority(ResearchArea.ShipTech))},
@@ -124,7 +124,7 @@ namespace Ship_Game.AI.Research
         float CalcEconomics(Empire empire)
         {
             float workerEfficiency = empire.Research.NetResearch / empire.Research.MaxResearchPotential.LowerBound(1);
-            float credit = empire.GetEmpireAI().CreditRating.NaNChecked(1, "CreditRating");
+            float credit = empire.AI.CreditRating.NaNChecked(1, "CreditRating");
             return (credit + workerEfficiency) / 2f;
         }
 
@@ -211,7 +211,7 @@ namespace Ship_Game.AI.Research
                 return p + b;
         }
 
-        void DebugLog(string text) => OwnerEmpire.Universum?.DebugWin?.ResearchLog(text, OwnerEmpire);
+        void DebugLog(string text) => OwnerEmpire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
     }
 
 }

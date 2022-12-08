@@ -7,6 +7,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.Tasks;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Data.Serialization;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -15,9 +16,16 @@ namespace Ship_Game.AI
 
     public sealed partial class EmpireAI
     {
-        readonly Array<MilitaryTask> TaskList      = new Array<MilitaryTask>();
-        readonly Array<MilitaryTask> TasksToAdd    = new Array<MilitaryTask>();
-        readonly Array<MilitaryTask> TasksToRemove = new Array<MilitaryTask>();
+        [StarData] readonly Array<MilitaryTask> TaskList = new();
+        readonly Array<MilitaryTask> TasksToAdd    = new();
+        readonly Array<MilitaryTask> TasksToRemove = new();
+
+        [StarDataSerialize]
+        StarDataDynamicField[] OnSerialize()
+        {
+            ApplyPendingChanges();
+            return null;
+        }
 
         void RunMilitaryPlanner()
         {
@@ -28,17 +36,16 @@ namespace Ship_Game.AI
 
             int buildPlanets = OwnerEmpire.GetBestPortsForShipBuilding(portQuality: 1.00f)?.Count ?? 0;
 
-            NumberOfShipGoals = buildPlanets;
+            NumberOfShipGoals = buildPlanets * 2;
 
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
 
             BuildWarShips(offensiveGoals.Count);
-            Goals.ApplyPendingRemovals();
             PrioritizeTasks();
             int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
             int taskEvalCounter = 0;
 
-            var tasks = OwnerEmpire.GetEmpireAI()
+            var tasks = OwnerEmpire.AI
                 .GetTasks()
                 .Filter(t => !t.QueuedForRemoval)
                 .OrderByDescending(t => t.Priority)
@@ -126,7 +133,7 @@ namespace Ship_Game.AI
             var tasks = GetExpansionTasks(targetEmpire);
             if (tasks.Length == 0) return 0;
 
-            return tasks.Average(task =>  task.WhichFleet >0 ? task.MinimumTaskForceStrength : 0);
+            return tasks.Average(task =>  task.Fleet != null ? task.MinimumTaskForceStrength : 0);
         }
 
         public IReadOnlyList<MilitaryTask> GetTasks() => TaskList;
@@ -144,8 +151,7 @@ namespace Ship_Game.AI
 
         public Goal[] GetRemnantEngagementGoalsFor(Planet p)
         {
-            return Goals.Filter(g => g.type == GoalType.RemnantEngageEmpire
-                                        && g.TargetPlanet == p && g.Fleet?.TaskStep < 9);
+            return FindGoals(g => g.IsRemnantEngageAtPlanet(p) && g is FleetGoal { Fleet.TaskStep: < 9 });
         }
         
         public MilitaryTask[] GetAssaultPirateTasks()
@@ -223,23 +229,6 @@ namespace Ship_Game.AI
             return militaryTask != null;
         }
 
-        public void WriteToSave(SavedGame.GSAISAVE aiSave)
-        {
-            ApplyPendingChanges();
-            aiSave.MilitaryTaskList = new Array<MilitaryTask>(TaskList);
-            foreach (MilitaryTask task in aiSave.MilitaryTaskList)
-            {
-                if (task.TargetPlanet != null)
-                    task.TargetPlanetId = task.TargetPlanet.Id;
-            }
-        }
-
-        public void ReadFromSave(SavedGame.GSAISAVE aiSave)
-        {
-            TaskList.Clear();
-            TaskList.AddRange(aiSave.MilitaryTaskList);
-        }
-
         public void SendExplorationFleet(Planet p)
         {
             if (!TaskList.Any(t => t.Type == MilitaryTask.TaskType.Exploration && t.TargetPlanet == p))
@@ -260,7 +249,7 @@ namespace Ship_Game.AI
                 if (string.IsNullOrEmpty(s))
                     break;
 
-                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));
+                AddGoalAndEvaluate(new BuildOffensiveShips(s, OwnerEmpire));
                 goalsInConstruction++;
             }
         }
@@ -327,12 +316,11 @@ namespace Ship_Game.AI
 
             public void PopulateRoleCountWithBuildableShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> buildableShips)
             {
-                foreach (var shipName in empire.ShipsWeCanBuild)
+                foreach (IShipDesign design in empire.ShipsWeCanBuild)
                 {
-                    var ship = ResourceManager.GetShipTemplate(shipName);
-                    var combatRole = RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
+                    var combatRole = RoleCounts.ShipRoleToCombatRole(design.Role);
                     if (buildableShips.TryGetValue(combatRole, out RoleCounts roleCounts))
-                        roleCounts.AddToBuildableShips(ship);
+                        roleCounts.AddToBuildableShips(design);
                 }
             }
 
@@ -388,8 +376,8 @@ namespace Ship_Game.AI
                 public bool CanBuildMore => CurrentMaintenance + PerUnitMaintenanceMax < RoleBuildBudget;
                 public CombatRole Role { get; }
                 private Empire Empire { get; }
-                readonly Array<Ship> BuildableShips = new Array<Ship>();
-                readonly Array<Ship> CurrentShips   = new Array<Ship>();
+                readonly Array<IShipDesign> BuildableShips = new();
+                readonly Array<Ship> CurrentShips = new();
                 public bool WeAreScrapping = false;
 
                 public RoleCounts(CombatRole role, Empire empire)
@@ -408,7 +396,7 @@ namespace Ship_Game.AI
 
                     CurrentMaintenance += MaintenanceInConstruction;
                     if (BuildableShips.NotEmpty)
-                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost(Empire));
+                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintenanceCost(Empire));
 
                     float minimum = CombatRoleToRatioMin(ratio);
                     FleetRatioMaintenance = PerUnitMaintenanceMax * minimum;
@@ -466,7 +454,7 @@ namespace Ship_Game.AI
 
                 public void AddToCurrentShips(Ship ship) => CurrentShips.Add(ship);
 
-                public void AddToBuildableShips(Ship ship) => BuildableShips.Add(ship);
+                public void AddToBuildableShips(IShipDesign ship) => BuildableShips.Add(ship);
 
                 public void AddToBuildingCost(float cost)
                 {
@@ -581,7 +569,7 @@ namespace Ship_Game.AI
 
             foreach (var kv in pickRoles.OrderByDescending(val => val.Value))
             {
-                Ship ship = PickFromCandidates(kv.Key, OwnerEmpire);
+                IShipDesign ship = PickFromCandidates(kv.Key, OwnerEmpire);
                 if (ship == null)
                     continue;
 

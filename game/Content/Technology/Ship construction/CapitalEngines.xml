@@ -4,7 +4,6 @@
   <UID>CapitalEngines</UID>
   <TechnologyType>Engines</TechnologyType>
   <Cost>2000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17548</NameIndex>
   <DescriptionIndex>17551</DescriptionIndex>
   <LeadsTo />

@@ -11,11 +11,7 @@ namespace Ship_Game.AI.Budget
         // if not initialized then it is not safe to use. 
         public bool Initialized { get; }
         public readonly float TotalRemaining;
-        public readonly float EmpireRatio;
         public readonly float DefenseRatio;
-        private readonly Empire Owner;
-        private float EmpireColonizationBudget => Owner.data.ColonyBudget;
-        private float EmpireDefenseBudget => Owner.data.DefenseBudget;
         public readonly Planet P;
 
         public readonly float RemainingCivilian;
@@ -26,7 +22,12 @@ namespace Ship_Game.AI.Budget
         public readonly float GrdDefAlloc;
         public readonly float SpcDefAlloc;
         public readonly float TotalAlloc;
-        public readonly bool AboveAverage;
+
+        readonly float EmpireRatio;
+        readonly Empire Owner;
+
+        float EmpireColonizationBudget => Owner.AI.ColonyBudget;
+        float EmpireDefenseBudget => Owner.AI.DefenseBudget;
 
         public PlanetBudget(Planet planet)
         {
@@ -36,31 +37,17 @@ namespace Ship_Game.AI.Budget
             P     = planet;
             Owner = P.Owner;
 
-            float avgColonyValue = Owner.TotalColonyPotentialValues / Owner.GetPlanets().Count;
-            var avgPlanets       = Owner.GetPlanets().Filter(p => p.ColonyPotentialValue(Owner) > avgColonyValue);
-            float totalAvgValue  = avgPlanets.Sum(p => p.ColonyPotentialValue(Owner));
-            float potentialValue = P.ColonyPotentialValue(Owner);
-            AboveAverage         = potentialValue >= avgColonyValue;
-            if (AboveAverage)
-            {
-                EmpireRatio = potentialValue / totalAvgValue;
-            }
-            else
-            {
-                EmpireRatio  = P.ColonyPotentialValue(Owner) / Owner.TotalColonyPotentialValues;
-            }
-
+            EmpireRatio = P.ColonyPotentialValue(Owner, useBaseMaxFertility: true) / Owner.TotalColonyPotentialValues;
             DefenseRatio = P.ColonyBaseValue(Owner) / Owner.TotalColonyValues;
 
             float defenseBudget = EmpireDefenseBudget * DefenseRatio;
             float groundRatio   = MilitaryBuildingsBudgetRatio();
             float orbitalRatio  = 1 - groundRatio;
-            float aiCivBudget   = CivBudget();
-
+            float civBudget     = EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance + P.TerraformBudget;
 
             GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? defenseBudget * groundRatio : P.ManualGrdDefBudget;
             SpcDefAlloc   = P.ManualSpcDefBudget   <= 0 ? defenseBudget * orbitalRatio : P.ManualSpcDefBudget;
-            CivilianAlloc = P.ManualCivilianBudget <= 0 ? aiCivBudget : P.ManualCivilianBudget;
+            CivilianAlloc = P.ManualCivilianBudget <= 0 ? civBudget : P.ManualCivilianBudget;
 
             RemainingGroundDef = (GrdDefAlloc - P.GroundDefMaintenance).RoundToFractionOf10();
             RemainingSpaceDef  = (SpcDefAlloc - P.SpaceDefMaintenance).RoundToFractionOf10();
@@ -68,8 +55,7 @@ namespace Ship_Game.AI.Budget
 
             TotalRemaining = RemainingSpaceDef + RemainingGroundDef + RemainingCivilian; // total remaining budget for this planet
             TotalAlloc     = GrdDefAlloc + SpcDefAlloc + CivilianAlloc;
-
-            Initialized = true;
+            Initialized    = true;
         }
 
         /// <summary>
@@ -78,7 +64,7 @@ namespace Ship_Game.AI.Budget
         float MilitaryBuildingsBudgetRatio()
         {
             float preference;
-            switch (P.colonyType)
+            switch (P.CType)
             {
                 case Planet.ColonyType.Military: preference = 0.3f;  break;
                 case Planet.ColonyType.Core:     preference = 0.2f;  break;
@@ -86,14 +72,6 @@ namespace Ship_Game.AI.Budget
             }
 
             return P.HabitablePercentage * preference;
-        }
-
-        float CivBudget()
-        {
-            float aiCivBudget = EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance;
-            if (!AboveAverage)
-                aiCivBudget = (float)(Math.Round(aiCivBudget * 2) / 2);
-            return aiCivBudget;
         }
 
         public void DrawBudgetInfo(UniverseScreen screen)

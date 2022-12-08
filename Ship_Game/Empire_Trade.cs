@@ -7,38 +7,42 @@ using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    using static HelperFunctions;
     public partial class Empire
     {
-        public bool AutoFreighters;
-        public bool AutoPickBestFreighter;
-        public float FastVsBigFreighterRatio      { get; private set; } = 0.5f;
-        public float TradeMoneyAddedThisTurn      { get; private set; }
+        [StarData] public bool AutoFreighters;
+        [StarData] public bool AutoPickBestFreighter;
+        [StarData] public float FastVsBigFreighterRatio { get; private set; } = 0.5f;
+        public float TradeMoneyAddedThisTurn { get; private set; }
         public float TotalTradeMoneyAddedThisTurn { get; private set; }
-        public float AverageFreighterCargoCap     { get; private set; } = 10;
-        public int AverageFreighterFTLSpeed       { get; private set; } = 20000;
-        public int  TotalProdExportSlots          { get; private set; }
+        [StarData] public float AverageFreighterCargoCap { get; private set; } = 20;
+        [StarData] public int AverageFreighterFTLSpeed { get; private set; } = 20000;
+        [StarData] public float AveragePlanetStorage { get; private set; } = 100;
+        public int  TotalProdExportSlots { get; private set; }
 
-        public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
-        public int FreightersBeingBuilt  => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
-        public int MaxFreightersInQueue => (int)(Math.Ceiling(2 * Research.Strategy.IndustryRatio));
+        int FreighterCapUpperBound => OwnedPlanets.Count * (IsCybernetic ? 2 : 3);
+        public int FreighterCap => (int)(AveragePlanetStorage / AverageFreighterCargoCap
+            * OwnedPlanets.Count * (IsCybernetic ? 1.2f : 1.8f)).Clamped(1, FreighterCapUpperBound);
+        public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
+        public int MaxFreightersInQueue  => (int)Math.Ceiling((OwnedPlanets.Count / 5f)).Clamped(2, 5);
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
         public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
         public bool ManualTrade          => isPlayer && !AutoFreighters;
         public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
         public int NumTradeTreaties      => TradeTreaties.Count;
 
-        Array<OurRelationsToThem> TradeTreaties = new Array<OurRelationsToThem>();
-        public IReadOnlyList<OurRelationsToThem> TradeRelations => TradeTreaties;
+        Array<Relationship> TradeTreaties = new();
+        public IReadOnlyList<Relationship> TradeRelations => TradeTreaties;
 
         void UpdateTradeTreaties()
         {
-            var tradeTreaties = new Array<OurRelationsToThem>();
-            foreach (OurRelationsToThem r in ActiveRelations)
-                if (r.Rel.Treaty_Trade)
-                    tradeTreaties.Add(r);
+            var tradeTreaties = new Array<Relationship>();
+            foreach (Relationship r in ActiveRelations)
+                if (r.Treaty_Trade) tradeTreaties.Add(r);
 
             TradeTreaties = tradeTreaties;
         }
@@ -46,9 +50,9 @@ namespace Ship_Game
         public BatchRemovalCollection<Planet> TradingEmpiresPlanetList()
         {
             var list = new BatchRemovalCollection<Planet>();
-            foreach ((Empire them, Relationship rel) in TradeTreaties)
+            foreach (Relationship rel in TradeTreaties)
             {
-                list.AddRange(them.OwnedPlanets);
+                list.AddRange(rel.Them.OwnedPlanets);
             }
             return list;
         }
@@ -72,6 +76,7 @@ namespace Ship_Game
             AllTimeTradeIncome      += (int)taxedGoods;
         }
 
+        // once per turn
         void DispatchBuildAndScrapFreighters()
         {
             UpdateTradeTreaties();
@@ -117,28 +122,28 @@ namespace Ship_Game
                 Ship freighter = ownedFreighters[i];
                 if (freighter.IsIdleFreighter)
                 {
-                    freighter.TradeTimer -= GlobalStats.TurnTimer;
+                    freighter.TradeTimer -= Universe.P.TurnTimer;
                     if (freighter.TradeTimer < 0)
                     {
                         freighter.AI.OrderScrapShip();
-                        freighter.TradeTimer = GlobalStats.TurnTimer * 60;
+                        freighter.TradeTimer = Universe.P.TurnTimer * 60;
                     }
                 }
                 else
                 {
-                    freighter.TradeTimer = GlobalStats.TurnTimer * 60;
+                    freighter.TradeTimer = Universe.P.TurnTimer * 60;
                 }
             }
         }
 
-        void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList, bool interTrade)
+        void DispatchOrBuildFreighters(Goods goods, Array<Planet> importPlanetList, bool interTrade)
         {
             // Order importing planets to balance freighters distribution
-            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
-                .OrderBy(p => p.FreighterTraffic(p.IncomingFreighters, goods)).ToArr();
+            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
             if (importingPlanets.Length == 0)
                 return;
 
+            // TODO: maybe use IEnumerable generators for these?
             Planet[] exportingPlanets = OwnedPlanets.Filter(p => p.FreeGoodsExportSlots(goods) > 0);
             if (exportingPlanets.Length == 0)
                 return;
@@ -151,6 +156,8 @@ namespace Ship_Game
 
                 return;
             }
+
+            importingPlanets.Sort(p => p.GetCachedIncomingCargo(goods));
 
             for (int i = 0; i < importingPlanets.Length; i++)
             {
@@ -214,11 +221,12 @@ namespace Ship_Game
 
         void BuildFreighter()
         {
-            if (ManualTrade || FreightersBeingBuilt >= MaxFreightersInQueue)
+            if (ManualTrade)
                 return;
 
-            if (FreighterCap > TotalFreighters + FreightersBeingBuilt && MaxFreightersInQueue >= FreightersBeingBuilt)
-                EmpireAI.Goals.Add(new IncreaseFreighters(this));
+            int beingBuilt = FreightersBeingBuilt;
+            if (beingBuilt < MaxFreightersInQueue && (TotalFreighters + beingBuilt) < FreighterCap)
+                AI.AddGoal(new IncreaseFreighters(this));
         }
 
         int NumFreightersTrading(Goods goods)
@@ -263,7 +271,7 @@ namespace Ship_Game
         public float TotalTradeTreatiesIncome()
         {
             float total = 0f;
-            foreach ((Empire them, Relationship rel) in ActiveRelations)
+            foreach (Relationship rel in ActiveRelations)
                 if (rel.Treaty_Trade) total += rel.TradeIncome(this);
             return total;
         }
@@ -277,48 +285,51 @@ namespace Ship_Game
         // FB - Refit some idle freighters to better ones, if unlocked
         public void TriggerFreightersRefit()
         {
-            if (ManualTrade)
+            if (ManualTrade || TotalFreighters / (float)FreighterCap <= 0.75f)
                 return;
 
-            Ship betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
+            IShipDesign betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
             if (betterFreighter == null)
                 return;
 
-            foreach (Ship idleFreighter in GetIdleFreighters(false))
+            var ships = GetIdleFreighters(false);
+            for (int i = 0; i < ships.Length; i++)
+            {
+                Ship idleFreighter = ships[i];
                 CheckForRefitFreighter(idleFreighter, 20, betterFreighter);
+            }
         }
 
         // Percentage to check if there is better suited freighter model available
-        public void CheckForRefitFreighter(Ship freighter, int percentage, Ship betterFreighter = null)
+        public void CheckForRefitFreighter(Ship freighter, int percentage, IShipDesign betterFreighter = null)
         {
-            if (ManualTrade || !RandomMath.RollDice(percentage))
-                return;
+            if (!ManualTrade && RandomMath.RollDice(percentage) && TotalFreighters / (float)FreighterCap > 0.75f)
+            {
+                if (betterFreighter == null)
+                    betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
 
-            if (betterFreighter == null)
-                 betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
-
-            if (betterFreighter != null && betterFreighter.Name != freighter.Name)
-                GetEmpireAI().Goals.Add(new RefitShip(freighter, betterFreighter.Name, this));
+                if (betterFreighter != null && betterFreighter.Name != freighter.Name)
+                    AI.AddGoalAndEvaluate(new RefitShip(freighter, betterFreighter, this));
+            }
         }
 
         public void UpdateAverageFreightFTL(float value)
         {
-            AverageFreighterFTLSpeed = (int)(AverageFreighterFTLSpeed * 0.9f + value * 0.1f);
+            AverageFreighterFTLSpeed = (int)ExponentialMovingAverage(AverageFreighterFTLSpeed, value);
         }
 
         public void UpdateAverageFreightCargoCap(float value)
         {
-            AverageFreighterCargoCap = (AverageFreighterCargoCap * 0.9f + value * 0.1f).RoundToFractionOf10();
+            AverageFreighterCargoCap = ExponentialMovingAverage(AverageFreighterCargoCap, value).RoundToFractionOf10();
         }
 
-        public void SetAverageFreighterCargoCap(float value)
+        public void UpdateAveragePlanetStorage()
         {
-            AverageFreighterCargoCap = value.LowerBound(10);
-        }
-
-        public void SetAverageFreighterFTLSpeed(int value)
-        {
-            AverageFreighterFTLSpeed = value.LowerBound(5000);
+            if (OwnedPlanets.Count > 0)
+            {
+                float average = OwnedPlanets.Average(p => p.Storage.Max);
+                AveragePlanetStorage = ExponentialMovingAverage(AveragePlanetStorage, average);
+            }
         }
 
         public float TotalPlanetsTradeValue => OwnedPlanets.Sum(p => p.Level).LowerBound(1);

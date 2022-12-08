@@ -4,7 +4,6 @@
   <UID>HDZone</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>1000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17776</NameIndex>
   <DescriptionIndex>17777</DescriptionIndex>
   <LeadsTo>

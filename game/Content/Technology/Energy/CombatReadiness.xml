@@ -4,7 +4,6 @@
   <UID>CombatReadiness</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>534</NameIndex>
   <DescriptionIndex>535</DescriptionIndex>
   <LeadsTo>

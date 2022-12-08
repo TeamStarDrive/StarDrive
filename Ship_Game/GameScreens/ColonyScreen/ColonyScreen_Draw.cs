@@ -100,16 +100,13 @@ namespace Ship_Game
 
             if (pgs.TroopsAreOnTile)
             {
-                using (pgs.TroopsHere.AcquireReadLock())
+                for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                 {
-                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
-                    {
-                        Troop troop = pgs.TroopsHere[i];
-                        troop.SetColonyScreenRect(pgs);
-                        troop.DrawIcon(batch, troop.ClickRect);
-                        if (troop.Level > 0)
-                            DrawTroopLevel(troop);
-                    }
+                    Troop troop = pgs.TroopsHere[i];
+                    troop.SetColonyScreenRect(pgs);
+                    troop.DrawIcon(batch, troop.ClickRect);
+                    if (troop.Level > 0)
+                        DrawTroopLevel(troop);
                 }
             }
 
@@ -234,7 +231,7 @@ namespace Ship_Game
                 fertility = $"{P.FertilityFor(Player).String(2)} / {P.MaxFertilityFor(Player).LowerBound(0).String(2)}";
                 batch.DrawString(TextFont, fertility, position3, fertColor);
             }
-            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(P.Category);
+            float fertEnvMultiplier = Player.PlayerEnvModifier(P.Category);
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
@@ -242,7 +239,7 @@ namespace Ship_Game
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
 
-            UpdateData();
+            UpdatePlanetDataForDrawing();
             rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
@@ -635,7 +632,7 @@ namespace Ship_Game
 
             DrawMultiLine(ref bCursor, desc);
             desc = "";
-            if (P.colonyType == Planet.ColonyType.Colony)
+            if (P.CType == Planet.ColonyType.Colony)
             {
                 switch (P.PS)
                 {
@@ -770,6 +767,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.MaxFertilityOnBuildFor(Player, P.Category), "NewUI/icon_food", GameText.MaxFertilityChangeOnBuild);
             DrawBuildingInfo(ref bCursor, batch, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", GameText.PlanetaryShieldStrengthAdded);
             DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", GameText.CreditsAddedPerColonist);
+            DrawBuildingInfo(ref bCursor, batch, b.Income, "NewUI/icon_money", GameText.FlatIncomePerTurn);
             DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", GameText.ProductionPerRichness);
             DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * P.Level, "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
             DrawBuildingInfo(ref bCursor, batch, b.Infrastructure, "NewUI/icon_queue_rushconstruction", GameText.ProductionInfrastructure);
@@ -860,7 +858,8 @@ namespace Ship_Game
             return "";
         }
 
-        void UpdateData() // This will update statistics in an interval to reduce threading issues
+        // Fat_Bastard: This will update statistics in an interval to reduce threading issues
+        void UpdatePlanetDataForDrawing()
         {
             if (UpdateTimer <= 0)
             {
@@ -873,9 +872,9 @@ namespace Ship_Game
                 OutgoingProdFreighters = P.OutgoingProdFreighters;
                 OutgoingColoFreighters = P.OutGoingColonistsFreighters;
                 BioSpheresResearched   = Player.IsBuildingUnlocked(Building.BiospheresId);
-                IncomingFood           = TotalIncomingCargo(Goods.Food).RoundUpTo(1);
-                IncomingProd           = TotalIncomingCargo(Goods.Production).RoundUpTo(1);
-                IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
+                IncomingFood           = P.IncomingFood.RoundUpTo(1);
+                IncomingProd           = P.IncomingProd.RoundUpTo(1);
+                IncomingPop            = (P.IncomingPop / 1000f).RoundToFractionOf100();
                 Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
                 TroopConsumption       = P.TotalTroopConsumption;
                 Terraformable          = P.Terraformable;
@@ -896,12 +895,6 @@ namespace Ship_Game
             {
                 UpdateTimer -= 1;
             }
-        }
-
-        float TotalIncomingCargo(Goods goods)
-        {
-            var freighterList = P.IncomingFreighters.Filter(s => s.AI.HasTradeGoal(goods));
-            return freighterList.Sum(s => s.GetCargo(goods));
         }
     }
 }
