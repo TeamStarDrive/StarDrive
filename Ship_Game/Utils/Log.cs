@@ -112,12 +112,15 @@ namespace Ship_Game
             {
                 Sentry = SentrySdk.Init(o =>
                 {
-                    o.Dsn = "https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180";
+                    o.Dsn = "https://1c5a169d2a304e5284f326591a2faae3@o57461.ingest.sentry.io/123180";
+                    // When configuring for the first time, to see what the SDK is doing:
+                    //o.Debug = true;
                     o.Environment = environment;
-                    o.Release = GlobalStats.Version;
+                    var versionParts = GlobalStats.Version.Split(' '); // "1.30.13000 develop/f83ab4a"
+                    o.Release = versionParts[0]; // 1.30.13000
+                    o.Distribution = versionParts[1]; // develop/f83ab4a
+                    o.IsGlobalModeEnabled = true;
                     o.CacheDirectoryPath = Dir.StarDriveAppData;
-                    // prevent an annoying error during startup, the new Sentry Sdk is not that well written
-                    Directory.CreateDirectory(Dir.StarDriveAppData + "/Sentry/20B2286BFAE850FA0CDC761198EC2B61B0722A9B");
                 });
                 SentrySdk.ConfigureScope(scope =>
                 {
@@ -141,7 +144,7 @@ namespace Ship_Game
         {
             try
             {
-                SentrySdk.FlushAsync(TimeSpan.FromSeconds(5));
+                SentrySdk.Flush(TimeSpan.FromSeconds(5));
                 Sentry?.Dispose(ref Sentry);
             }
             catch
@@ -488,7 +491,7 @@ namespace Ship_Game
 
             if (level == SentryLevel.Fatal) // for fatal errors, we can't do ASYNC reports
             {
-                SentrySdk.FlushAsync(TimeSpan.FromSeconds(3));
+                SentrySdk.Flush(TimeSpan.FromSeconds(5));
             }
         }
 
