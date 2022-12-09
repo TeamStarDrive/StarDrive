@@ -369,10 +369,11 @@ namespace Ship_Game
 
             bool ShouldAddForCategory(Ship ship, int forCategory)
             {
-                if (ship.IsHangarShip || ship.IsHomeDefense
-                    || PlayerDesignsOnly && !ship.ShipData.IsPlayerDesign
-                    || InFleetsOnly && ship.Fleet == null
-                    || NotInFleets && ship.Fleet != null)
+                if (ship.IsHangarShip
+                    || ship.IsHomeDefense
+                    || (PlayerDesignsOnly && !ship.ShipData.IsPlayerDesign)
+                    || (InFleetsOnly && ship.Fleet == null)
+                    || (NotInFleets && ship.Fleet != null))
                 {
                     return false;
                 }
