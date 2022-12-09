@@ -52,6 +52,9 @@ namespace Ship_Game
                 return true;
             }
 
+            // TODO: Update EmpireUI HandleInput to return true if input was captured
+            EmpireUI.HandleInput(input);
+
             if (SelectedNodeList.Count != 1 && FleetNameEntry.HandleInput(input))
                 return true;
 
