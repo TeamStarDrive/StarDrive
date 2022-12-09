@@ -8,7 +8,6 @@ using System.Threading;
 using System.Windows.Forms;
 using SDUtils;
 using Sentry;
-using Ship_Game.UI;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -118,7 +117,7 @@ namespace Ship_Game
                     o.Environment = environment;
                     var versionParts = GlobalStats.Version.Split(' '); // "1.30.13000 develop/f83ab4a"
                     o.Release = versionParts[0]; // 1.30.13000
-                    o.Distribution = versionParts[1]; // develop/f83ab4a
+                    o.Distribution = versionParts[1].Replace('/', ':'); // develop/f83ab4a -> develop:f83ab4a
                     o.IsGlobalModeEnabled = true;
                     o.CacheDirectoryPath = Dir.StarDriveAppData;
                 });
@@ -462,12 +461,13 @@ namespace Ship_Game
             LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
 
+            SentryId? eventId = null;
             if (!HasDebugger && IsTerminating) // only log errors to sentry if debugger not attached
             {
-                CaptureEvent(text, SentryLevel.Fatal, ex);
+                eventId = CaptureEvent(text, SentryLevel.Fatal, ex);
             }
 
-            ExceptionViewer.ShowExceptionDialog(text, GlobalStats.AutoErrorReport);
+            ExceptionViewer.ShowExceptionDialog(text, autoReport: eventId != null);
             if (IsTerminating) Program.RunCleanupAndExit(exitCode);
         }
 
@@ -476,10 +476,10 @@ namespace Ship_Game
             if (trueCondition != true) Error(message);
         }
 
-        static void CaptureEvent(string text, SentryLevel level, Exception ex = null)
+        static SentryId? CaptureEvent(string text, SentryLevel level, Exception ex = null)
         {
-            if (Sentry == null)
-                return; // sentry is disabled
+            if (Sentry == null || !GlobalStats.AutoErrorReport)
+                return null; // sentry is disabled
 
             var evt = new SentryEvent(ex)
             {
@@ -487,12 +487,14 @@ namespace Ship_Game
                 Level   = level
             };
 
-            SentrySdk.CaptureEvent(evt);
+            SentryId eventId = SentrySdk.CaptureEvent(evt);
 
             if (level == SentryLevel.Fatal) // for fatal errors, we can't do ASYNC reports
             {
                 SentrySdk.Flush(TimeSpan.FromSeconds(5));
             }
+
+            return eventId;
         }
 
         struct TraceContext
