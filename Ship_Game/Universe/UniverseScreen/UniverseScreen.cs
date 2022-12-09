@@ -706,6 +706,8 @@ namespace Ship_Game
             Dispose(); // will call Destroy() and UnloadGraphics()
 
             HelperFunctions.CollectMemory();
+            // make sure we reset the latest savegame attachment
+            Log.ConfigureLatestSaveAttachment(null);
         }
 
         public struct ClickablePlanet

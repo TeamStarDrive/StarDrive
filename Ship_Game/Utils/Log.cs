@@ -52,6 +52,11 @@ namespace Ship_Game
         // sentry.io automatic crash reporting
         static IDisposable Sentry;
 
+        /// <summary>
+        /// Whether we should report error statistics and other telemetry to ensure quality
+        /// </summary>
+        public static bool IsStatsReportEnabled => Sentry != null && GlobalStats.AutoErrorReport;
+
         // prevent flooding Raven with 2000 error messages if we fall into an exception loop
         // instead, we count identical exceptions and resend them only over a certain threshold
         static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
@@ -115,16 +120,17 @@ namespace Ship_Game
                     // When configuring for the first time, to see what the SDK is doing:
                     //o.Debug = true;
                     o.Environment = environment;
-                    var versionParts = GlobalStats.Version.Split(' '); // "1.30.13000 develop/f83ab4a"
+                    var versionParts = GlobalStats.Version.Split(' '); // "1.30.13000 release/mars-1.41/f83ab4a"
                     o.Release = versionParts[0]; // 1.30.13000
-                    o.Distribution = versionParts[1].Replace('/', ':'); // develop/f83ab4a -> develop:f83ab4a
+                    o.Distribution = versionParts[1].Replace('/', '-'); // release/mars-1.41/f83ab4a -> release-mars-1.41-f83ab4a
                     o.IsGlobalModeEnabled = true;
                     o.CacheDirectoryPath = Dir.StarDriveAppData;
+
+                    // send usage statistics to Sentry
+                    if (GlobalStats.AutoErrorReport)
+                        o.AutoSessionTracking = true;
                 });
-                SentrySdk.ConfigureScope(scope =>
-                {
-                    scope.AddAttachment("blackbox.log");
-                });
+                ConfigureLatestSaveAttachment(null);
             }
 
             // only write log header in main game
@@ -319,6 +325,49 @@ namespace Ship_Game
             });
         }
 
+        public enum GameEvent
+        {
+            NewGame,
+            LoadGame,
+        }
+
+        /// <summary>
+        /// Logs event statistics to Sentry if AutoErrorReport is enabled
+        /// </summary>
+        /// <param name="evt"></param>
+        public static void LogEventStats(GameEvent evt)
+        {
+            if (!IsStatsReportEnabled)
+                return;
+
+            var e = new SentryEvent()
+            {
+                Level = SentryLevel.Info,
+                Message = evt.ToString(),
+            };
+            e.SetTag("TimesPlayed", GlobalStats.TimesPlayed.ToString());
+            SentrySdk.CaptureEvent(e);
+        }
+
+        /// <summary>
+        /// Configures sentry to use the latest Autosave as an attachment
+        /// </summary>
+        public static void ConfigureLatestSaveAttachment(string autoSavePath)
+        {
+            if (!IsStatsReportEnabled)
+                return;
+
+            SentrySdk.ConfigureScope(scope =>
+            {
+                scope.ClearAttachments();
+                scope.AddAttachment("blackbox.log");
+                if (autoSavePath.NotEmpty())
+                {
+                    scope.AddAttachment(autoSavePath);
+                }
+            });
+        }
+
         // just echo info to console, don't write to logfile
         // not used in release builds or if there's no debugger attached
         [Conditional("DEBUG")] public static void Info(string text)
@@ -478,8 +527,8 @@ namespace Ship_Game
 
         static SentryId? CaptureEvent(string text, SentryLevel level, Exception ex = null)
         {
-            if (Sentry == null || !GlobalStats.AutoErrorReport)
-                return null; // sentry is disabled
+            if (!IsStatsReportEnabled)
+                return null;
 
             var evt = new SentryEvent(ex)
             {

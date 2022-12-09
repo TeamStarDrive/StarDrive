@@ -306,6 +306,7 @@ namespace Ship_Game
             // update TimesPlayed stats
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             WriteSetting(config, "TimesPlayed", ++TimesPlayed);
+            config.Save();
 
             LoadModInfo(ModName);
             Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
