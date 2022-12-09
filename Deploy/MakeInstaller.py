@@ -8,7 +8,7 @@ parser.add_argument('--major', action='store_true', help='Is this a major releas
 parser.add_argument('--patch', action='store_true', help='Is this a cumulative patch?')
 args = parser.parse_args()
 
-BUILD_VERSION = env('APPVEYOR_BUILD_VERSION', default='1.41.14506')
+BUILD_VERSION = env('APPVEYOR_BUILD_VERSION', default='1.41.14509')
 
 os.chdir(args.root_dir)
 
