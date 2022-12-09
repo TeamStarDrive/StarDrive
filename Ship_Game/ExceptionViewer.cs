@@ -2,73 +2,74 @@
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace Ship_Game
+namespace Ship_Game;
+
+public partial class ExceptionViewer : Form
 {
-    public partial class ExceptionViewer : Form
+    public ExceptionViewer()
     {
-        public ExceptionViewer()
+        InitializeComponent();
+    }
+
+    public string Description
+    {
+        set => descrLabel.Text = value;
+    }
+
+    public string Error
+    {
+        get => tbError.Text;
+        set
         {
-            InitializeComponent();
+            tbError.Text = value.Replace("\n", "\r\n");
+            tbError.Select(0, 0);
+        }
+    }
+
+    protected override void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        Activate(); // give focus to the dialog
+    }
+
+    void btClip_Click_1(object sender, EventArgs e)
+    {
+        Clipboard.SetText(tbError.Text);
+    }
+
+    void btClose_Click(object sender, EventArgs e)
+    {
+        Close();
+    }
+
+    void githubIssues_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    {
+        Process.Start("https://github.com/TeamStarDrive/StarDrive/issues");
+    }
+
+    void discordHelpline_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    {
+        Process.Start("https://discord.gg/dfvnfH4");
+    }
+
+    public static void ShowExceptionDialog(string dialogText, bool autoReport)
+    {
+        var view = new ExceptionViewer();
+
+        if (autoReport)
+        {
+            view.Description =
+                "This error was submitted automatically to our exception tracking system. \r\n" +
+                "If this error keeps reoccurring, you can create a new issue on GitHub.";
+        }
+        else
+        {
+            view.Description =
+                "Automatic error reporting is disabled. \r\n" +
+                "If this error keep reoccurring, you can create a new issue on GitHub.";
         }
 
-        public string Description
-        {
-            set => descrLabel.Text = value;
-        }
-
-        public string Error
-        {
-            get => tbError.Text;
-            set
-            {
-                tbError.Text = value.Replace("\n", "\r\n");
-                tbError.Select(0, 0);
-            }
-        }
-
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-            Activate(); // give focus to the dialog
-        }
-
-        [STAThread]
-        void btClip_Click(object sender, EventArgs e)
-        {
-            string all = tbError.Text + "\n\nUser Comment: " + tbComment.Text;
-            Clipboard.SetText(all);
-        }
-
-        void btClose_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        void btOpenBugTracker_Click(object sender, EventArgs e)
-        {
-            const string discordTestingAndIssuesInvite = "https://discord.gg/9qCCgkR";
-            Process.Start(discordTestingAndIssuesInvite);
-        }
-
-        public static void ShowExceptionDialog(string dialogText, bool autoReport)
-        {
-            var view = new ExceptionViewer();
-
-            if (autoReport)
-            {
-                view.Description =
-                    "This error was submitted automatically to our exception tracking system. \r\n" +
-                    "If this error keeps reoccurring, you can add comments and create a new issue on BitBucket.";
-            }
-            else
-            {
-                view.Description =
-                    "Automatic error reporting is disabled. \r\n" +
-                    "If this error keep reoccurring, you can add comments and create a new issue on BitBucket.";
-            }
-
-            view.Error = dialogText;
-            view.ShowDialog();
-        }
+        view.Error = dialogText;
+        view.ShowDialog();
     }
 }
