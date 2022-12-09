@@ -1,6 +1,6 @@
 ![banner](https://repository-images.githubusercontent.com/576058391/90061a19-c54d-447e-95cd-e633f4ec8146)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/io0yiuypjam8m331?svg=true)](https://ci.appveyor.com/project/RedFox20/stardrive-blackbox)
+[![Build status](https://ci.appveyor.com/api/projects/status/6fjcqtj2w9kuga3f?svg=true)](https://ci.appveyor.com/project/RedFox20/stardrive)
 
 # Stardrive BlackBox
 This is the 15b version of StarDrive.exe decompiled from CIL and almost completely rewritten by BlackBox - Mars.
