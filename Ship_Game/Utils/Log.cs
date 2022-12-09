@@ -359,6 +359,10 @@ namespace Ship_Game
 
             SentrySdk.ConfigureScope(scope =>
             {
+                if (!scope.HasUser())
+                {
+                    scope.User.Username = Environment.UserName;
+                }
                 scope.ClearAttachments();
                 scope.AddAttachment("blackbox.log");
                 if (autoSavePath.NotEmpty())
