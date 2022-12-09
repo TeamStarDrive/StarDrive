@@ -92,9 +92,11 @@ namespace Ship_Game
                 BinarySerializer.SerializeMultiType(writer, new object[] { header, state }, Verbose);
             }
 
-            Log.Info($"Binary Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length / (1024.0 * 1024.0):0.0}MB)");
+            Log.Write($"Binary Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length / (1024.0 * 1024.0):0.0}MB)");
             if (collectMemory)
                 HelperFunctions.CollectMemory();
+
+            Log.ConfigureLatestSaveAttachment(saveFile.FullName);
         }
 
         public static UniverseState Deserialize(FileInfo saveFile, bool verbose)

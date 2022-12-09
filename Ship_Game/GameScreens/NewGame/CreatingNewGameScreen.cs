@@ -28,6 +28,8 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
+            Log.LogEventStats(Log.GameEvent.NewGame);
+
             ScreenManager.ClearScene();
             LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(TransientContent);
             AdviceText = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(), 500f);
