@@ -50,6 +50,12 @@ namespace Ship_Game
         public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}Globals.yaml" : ""; // "Mods/Combined Arms/Globals.yaml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
         
+        /// <summary>
+        /// only enabled for SDUnitTests, to disable certain features
+        /// and some resource loading which is not needed for tests
+        /// </summary>
+        public static bool IsUnitTest;
+
         // TODO: get rid of this global state variable
         public static bool TakingInput = false;
         

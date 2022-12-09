@@ -128,7 +128,7 @@ namespace Ship_Game.Graphics.Particles
             Array<ParticleSettings> list = YamlParser.DeserializeArray<ParticleSettings>(file);
             foreach (ParticleSettings ps in list)
             {
-                if (ResourceManager.IsUnitTest)
+                if (GlobalStats.IsUnitTest)
                     ps.MaxParticles = 0; // force-disable the PS in unit tests
 
                 if (Settings.ContainsKey(ps.Name))

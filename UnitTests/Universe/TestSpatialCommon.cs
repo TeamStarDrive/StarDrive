@@ -340,11 +340,11 @@ namespace UnitTests.Universe
 
                             foreach (SpatialObjectBase go in ships)
                             {
-                                Assert.IsTrue(go is Ship, $"FindNearby(Type=Ship) contains a non-ship: {go}");
+                                Assert.IsTrue(go is Ship, $"FindNearby(Type=Ship) contains a non-ship: {go?.ToString() ?? "null"}");
                             }
                             foreach (SpatialObjectBase go in projectiles)
                             {
-                                Assert.IsTrue(go is Projectile, $"FindNearby(Type=Proj) contains a non-projectile: {go}");
+                                Assert.IsTrue(go is Projectile, $"FindNearby(Type=Proj) contains a non-projectile: {go?.ToString() ?? "null"}");
                             }
                         }
                     }
