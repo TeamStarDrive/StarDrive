@@ -71,7 +71,7 @@ namespace Ship_Game.Universe.SolarBodies
             
             // don't load these textures in unit tests, we can easily OOM
             // because XNA can't release textures fast enough
-            if (ResourceManager.IsUnitTest)
+            if (GlobalStats.IsUnitTest)
                 return;
 
             DiffuseTex = TryLoadTexture(content, DiffuseMap);

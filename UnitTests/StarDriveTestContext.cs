@@ -67,7 +67,7 @@ namespace UnitTests
         // loads all testing content
         public static void LoadStarterContent()
         {
-            ResourceManager.IsUnitTest = true;
+            GlobalStats.IsUnitTest = true;
             ResourceManager.LoadContentForTesting();
             ReloadStarterShips();
         }
