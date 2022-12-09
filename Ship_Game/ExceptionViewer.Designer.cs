@@ -33,32 +33,29 @@ namespace Ship_Game
             this.panel1 = new System.Windows.Forms.Panel();
             this.btClip = new System.Windows.Forms.Button();
             this.btClose = new System.Windows.Forms.Button();
-            this.btOpenBugTracker = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.tbComment = new System.Windows.Forms.TextBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.descrLabel = new System.Windows.Forms.Label();
+            this.discordHelpline = new System.Windows.Forms.LinkLabel();
+            this.githubIssues = new System.Windows.Forms.LinkLabel();
             this.panel1.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tbError
             // 
             this.tbError.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbError.Location = new System.Drawing.Point(3, 39);
+            this.tbError.Location = new System.Drawing.Point(3, 79);
             this.tbError.Multiline = true;
             this.tbError.Name = "tbError";
             this.tbError.ReadOnly = true;
             this.tbError.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbError.Size = new System.Drawing.Size(870, 498);
+            this.tbError.Size = new System.Drawing.Size(870, 562);
             this.tbError.TabIndex = 0;
             // 
             // panel1
             // 
             this.panel1.Controls.Add(this.btClip);
             this.panel1.Controls.Add(this.btClose);
-            this.panel1.Controls.Add(this.btOpenBugTracker);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 643);
             this.panel1.Name = "panel1";
@@ -67,13 +64,12 @@ namespace Ship_Game
             // 
             // btClip
             // 
-            this.btClip.Location = new System.Drawing.Point(412, 9);
+            this.btClip.Location = new System.Drawing.Point(123, 9);
             this.btClip.Name = "btClip";
-            this.btClip.Size = new System.Drawing.Size(146, 28);
-            this.btClip.TabIndex = 1;
-            this.btClip.Text = "Copy all to Clipboard";
-            this.btClip.UseVisualStyleBackColor = true;
-            this.btClip.Click += new System.EventHandler(this.btClip_Click);
+            this.btClip.Size = new System.Drawing.Size(156, 28);
+            this.btClip.TabIndex = 0;
+            this.btClip.Text = "Copy Error to Clipboard";
+            this.btClip.Click += new System.EventHandler(this.btClip_Click_1);
             // 
             // btClose
             // 
@@ -85,48 +81,18 @@ namespace Ship_Game
             this.btClose.UseVisualStyleBackColor = true;
             this.btClose.Click += new System.EventHandler(this.btClose_Click);
             // 
-            // btOpenBugTracker
-            // 
-            this.btOpenBugTracker.Location = new System.Drawing.Point(154, 9);
-            this.btOpenBugTracker.Name = "btOpenBugTracker";
-            this.btOpenBugTracker.Size = new System.Drawing.Size(203, 28);
-            this.btOpenBugTracker.TabIndex = 2;
-            this.btOpenBugTracker.Text = "Open Bugtracker in Browser";
-            this.btOpenBugTracker.UseVisualStyleBackColor = true;
-            this.btOpenBugTracker.Click += new System.EventHandler(this.btOpenBugTracker_Click);
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.tbComment);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox1.Location = new System.Drawing.Point(0, 543);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(876, 100);
-            this.groupBox1.TabIndex = 2;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Comment the exception, if you can (what have you done?):";
-            // 
-            // tbComment
-            // 
-            this.tbComment.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbComment.Font = new System.Drawing.Font("Lucida Console", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbComment.Location = new System.Drawing.Point(3, 16);
-            this.tbComment.Multiline = true;
-            this.tbComment.Name = "tbComment";
-            this.tbComment.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbComment.Size = new System.Drawing.Size(870, 81);
-            this.tbComment.TabIndex = 0;
-            // 
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.Controls.Add(this.descrLabel);
+            this.flowLayoutPanel1.Controls.Add(this.discordHelpline);
+            this.flowLayoutPanel1.Controls.Add(this.githubIssues);
             this.flowLayoutPanel1.Controls.Add(this.tbError);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(876, 543);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(876, 643);
             this.flowLayoutPanel1.TabIndex = 4;
             this.flowLayoutPanel1.WrapContents = false;
             // 
@@ -141,13 +107,38 @@ namespace Ship_Game
             this.descrLabel.TabIndex = 5;
             this.descrLabel.Text = "Description";
             // 
+            // discordHelpline
+            // 
+            this.discordHelpline.AutoSize = true;
+            this.discordHelpline.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.discordHelpline.Location = new System.Drawing.Point(3, 36);
+            this.discordHelpline.Name = "discordHelpline";
+            this.discordHelpline.Padding = new System.Windows.Forms.Padding(6, 0, 0, 2);
+            this.discordHelpline.Size = new System.Drawing.Size(162, 20);
+            this.discordHelpline.TabIndex = 6;
+            this.discordHelpline.TabStop = true;
+            this.discordHelpline.Text = "Open Discord Helpline";
+            this.discordHelpline.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.discordHelpline_LinkClicked);
+            // 
+            // githubIssues
+            // 
+            this.githubIssues.AutoSize = true;
+            this.githubIssues.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.githubIssues.Location = new System.Drawing.Point(3, 56);
+            this.githubIssues.Name = "githubIssues";
+            this.githubIssues.Padding = new System.Windows.Forms.Padding(6, 0, 0, 2);
+            this.githubIssues.Size = new System.Drawing.Size(147, 20);
+            this.githubIssues.TabIndex = 7;
+            this.githubIssues.TabStop = true;
+            this.githubIssues.Text = "Open GitHub Issues";
+            this.githubIssues.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.githubIssues_LinkClicked);
+            // 
             // ExceptionViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(876, 692);
             this.Controls.Add(this.flowLayoutPanel1);
-            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -157,8 +148,6 @@ namespace Ship_Game
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Stardrive Blackbox - - ERROR!";
             this.panel1.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
@@ -171,10 +160,9 @@ namespace Ship_Game
         private Panel panel1;
         private Button btClip;
         private Button btClose;
-        private GroupBox groupBox1;
-        private TextBox tbComment;
-        private Button btOpenBugTracker;
         private FlowLayoutPanel flowLayoutPanel1;
         private Label descrLabel;
+        private LinkLabel discordHelpline;
+        private LinkLabel githubIssues;
     }
 }
