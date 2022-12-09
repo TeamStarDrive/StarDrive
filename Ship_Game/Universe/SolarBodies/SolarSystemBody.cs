@@ -397,7 +397,7 @@ namespace Ship_Game
                 Universe.Screen.RemoveObject(SO);
             }
 
-            if (!PType.Types.NewRenderer && !ResourceManager.IsUnitTest)
+            if (!PType.Types.NewRenderer && !GlobalStats.IsUnitTest)
             {
                 SO = PType.CreatePlanetSO();
                 UpdateSO(visible: true);
