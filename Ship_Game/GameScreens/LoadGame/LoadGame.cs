@@ -44,7 +44,7 @@ namespace Ship_Game.GameScreens.LoadGame
         public UniverseScreen Load(bool noErrorDialogs = false, bool startSimThread = true)
         {
             StartSimThread = startSimThread;
-            GlobalStats.Statreset();
+            Log.LogEventStats(Log.GameEvent.LoadGame);
             try
             {
                 Progress.Start(0.22f, 0.34f, 0.44f);

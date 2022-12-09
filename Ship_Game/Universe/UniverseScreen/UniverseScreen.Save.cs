@@ -41,7 +41,9 @@ public partial class UniverseScreen
         {
             IsSaving = false;
             if (error != null)
+            {
                 Log.Error(error, $"Universe.SaveAsync('{saveName}') failed");
+            }
         });
     }
 

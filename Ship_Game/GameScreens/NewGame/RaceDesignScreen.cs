@@ -60,7 +60,6 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
             foreach (RacialTrait t in ResourceManager.RaceTraits.TraitList)
                 AllTraits.Add(new TraitEntry { trait = t });
-            GlobalStats.Statreset();
         }
 
         RacialTrait GetRacialTraits()
