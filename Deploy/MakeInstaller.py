@@ -14,9 +14,9 @@ os.chdir(args.root_dir)
 
 installer = 'Deploy/BlackBox-Mars.nsi'
 if args.major:
-    create_installer_files_list(major=True)
+    create_installer_files_list(major=True, version=BUILD_VERSION)
 elif args.patch:
-    create_installer_files_list(patch=True)
+    create_installer_files_list(patch=True, version=BUILD_VERSION)
     installer = 'Deploy/BlackBox-Mars-Patch.nsi'
 
 # Require MakeInstaller.py to have working directory in `BlackBox/` root

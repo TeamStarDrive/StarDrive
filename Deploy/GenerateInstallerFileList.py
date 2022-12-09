@@ -3,6 +3,9 @@ import os, argparse, hashlib
 from typing import List, Dict, Iterable
 from DeployUtils import console
 
+BIN_EXTENSIONS = ['.dll', '.pdb', '.config', '.exe']
+BIN_EXCLUDE = ['SDNativeTests.exe', 'SDNativeTests.pdb', 'SDNative.pdb']
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--root_dir', type=str, help='BlackBox/ repository root directory')
 parser.add_argument('--major', action='store_true', help='Is this a major release?')
@@ -71,11 +74,12 @@ class FileInfo:
         return files
 
     @staticmethod
-    def list_files(game_dir, subdir, extensions) -> List['FileInfo']:
+    def list_files(game_dir, subdir, extensions, exclude) -> List['FileInfo']:
         files: List[FileInfo] = []
         for f in os.listdir(path_combine(game_dir, subdir)):
             if os.path.splitext(f)[1].lower() in extensions:
-                files.append(FileInfo(game_dir, f, hash=None))
+                if not f in exclude:
+                    files.append(FileInfo(game_dir, f, hash=None))
         return files
 
 def create_installer_commands(filename:str,
@@ -104,17 +108,22 @@ def create_installer_commands(filename:str,
     with open(filename, 'w') as f:
         f.writelines(lines)
 
-def create_installer_files_list(major=False, patch=False):
+def create_installer_files_list(major=False, patch=False, version='1.0.11000'):
     blackbox_dir = args.root_dir if args.root_dir else os.getcwd()
     game_dir = path_combine(blackbox_dir, 'game') + '\\'
-    major_release_file = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.41.txt')
-    delete_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.41.DeleteFiles.txt')
-    delete_dirs_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.41.DeleteDirs.txt')
-    new_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.41.NewOrChanged.txt')
+
+    vmajor,vminor,vpatch = version.split('.')
+    version = f'{vmajor}.{vminor}'
+    console(f'{"Major" if major else "Patch"} Version: {version}')
+
+    major_release_file = path_combine(blackbox_dir, f'Deploy\\Versions\\Release.{version}.txt')
+    delete_files_path = path_combine(blackbox_dir, f'Deploy\\Versions\\Release.{version}.DeleteFiles.txt')
+    delete_dirs_path = path_combine(blackbox_dir, f'Deploy\\Versions\\Release.{version}.DeleteDirs.txt')
+    new_files_path = path_combine(blackbox_dir, f'Deploy\\Versions\\Release.{version}.NewOrChanged.txt')
     installer_commands = path_combine(blackbox_dir, 'Deploy\\GeneratedFilesList.nsh')
 
     known_files = []
-    known_files += FileInfo.list_files(game_dir, '', ['.dll', '.config', '.exe'])
+    known_files += FileInfo.list_files(game_dir, '', BIN_EXTENSIONS, BIN_EXCLUDE)
     known_files += FileInfo.list_files_recursive(game_dir, 'Content')
 
     if major:
@@ -149,3 +158,4 @@ def create_installer_files_list(major=False, patch=False):
 if __name__ == "__main__":
     if args.major: create_installer_files_list(major=True)
     elif args.patch: create_installer_files_list(patch=True)
+    else: raise Exception('--major or --patch argument required')
