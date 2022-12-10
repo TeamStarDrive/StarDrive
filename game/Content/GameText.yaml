@@ -10267,7 +10267,34 @@ AutoBuildTerraformers:
  ENG: "Auto Terraform"  
 AutoBuildTerraformersTip:
  Id: 4386
- ENG: "Your empire will manage terraforming efforts automatically, building terraformers on the best potential valued planets first, based on a budget. Note that it will scrap buildings to make room for Terraformers even if the planet has no Governor or not allowed to scrap, since these orders are coming from your empire."   
+ ENG: "Your empire will manage terraforming efforts automatically, building terraformers on the best potential valued planets first, based on a budget. Note that it will scrap buildings to make room for Terraformers even if the planet has no Governor or not allowed to scrap, since these orders are coming from your empire."
+BB_Golddeposit:
+ Id: 4387
+ ENG: "Gold Deposit"
+BB_GolddepositDesc:
+ Id: 4388
+ ENG: "Easily extractable gold deposit that was formed when planet had a lot of active volcanoes"
+BB_GolddepositDescShort:
+ Id: 4389
+ ENG: "Provides 2 production per colonist, +3 credits, total worth of 350 production"
+BB_GoldMoutain:
+ Id: 4390
+ ENG: "Golden Mountain"
+BB_GoldMountainDesc:
+ Id: 4391
+ ENG: "Huge Mountain that is filled with gold deposits."
+BB_GoldMountainDescShort:
+ Id: 4392
+ ENG: "Provides 1.5 production per colonist, increases planet richness by 2, total worth of 3000 production"
+BB_MoltenGold:
+ Id: 4393
+ ENG: "Molten gold pit"
+BB_MoltenGoldDesc:
+ Id: 4394
+ ENG: "A pit filled with molten gold thats is created by intense volcanic activity, that heats up and pushes to the survace large amounts of gold, it can be found in this state only on very hot volcanic planets."
+BB_MoltenGoldDescShort:
+ Id: 4395
+ ENG: "Provides 0.5 production per colonist, increases planet richness by 0.35" 
 OnSurface:
  Id: 4993
  ENG: "on surface"
@@ -13051,6 +13078,14 @@ CloudPeakSurfaceToSpace:
  Id: 5409
  ENG: "Cloud Peak surface to space guided MIRV missiles have extreme range and are capable of providing defensive control over most of an entire star system."
  RUS: "Ракеты \"Облачный пик\" с наведением \"земля-космос\".Эти ракеты обладают большой дальностью и способны обеспечить оборонительный контроль над большей частью всей звездной системы."
+SolarArray:
+ Id: 12005
+ ENG: "Solar Array"
+ RUS: "Солнечный массив"
+SolarPanelsHarvestEnergyFrom:
+ Id: 12006
+ ENG: "Solar Panels harvest energy from stars to supplement a ships main power core."
+ RUS: "Солнечные панели собирают энергию звезд, чтобы дополнить основной источник питания корабля." 
 ExtremeRangeMissileDefense:
  Id: 17421
  ENG: "Extreme Range Missile Defense"
@@ -13792,7 +13827,6 @@ BB_BunkerDescr:
 BB_BunkerDescrShort:
  Id: 17659
  ENG: "Highly defensive building"
-
 Tech_AncientArmor_Name:
  Id: 17953
  ENG: "Ancient Armors"
@@ -13825,14 +13859,6 @@ ThisSimpleStructureIsUsed:
  Id: 18049
  ENG: "This simple structure is used as a \"filler\" for ships which do not require more module functionality"
  RUS: "Эта простая структура используется в качестве \"наполнителя\" для кораблей, которым не требуется дополнительная функциональность модуля."
-SolarArray:
- Id: 12005
- ENG: "Solar Array"
- RUS: "Солнечный массив"
-SolarPanelsHarvestEnergyFrom:
- Id: 12006
- ENG: "Solar Panels harvest energy from stars to supplement a ships main power core."
- RUS: "Солнечные панели собирают энергию звезд, чтобы дополнить основной источник питания корабля."
 Tech_Terraforming_Name:
  Id: 18279
  ENG: "Terraforming I"
@@ -13851,30 +13877,4 @@ Tech_Terraforming3_Name:
 Tech_Terraforming3_Desc:
  Id: 18284
  ENG: "The most advanced technology avaialble for Terraformers. They will be able to transform any habitable planet to the planet environment type our population prefers. This is a true technological marvel!"
-BB_Golddeposit:
- Id: 18285
- ENG: "Gold Deposit"
-BB_GolddepositDesc:
- Id: 18286
- ENG: "Easily extractable gold deposit that was formed when planet had a lot of active volcanoes"
-BB_GolddepositDescShort:
- Id: 18287
- ENG: "Provides 2 production per colonist, +3 credits, total worth of 350 production"
-BB_GoldMoutain:
- Id: 18288
- ENG: "Golden Mountain"
-BB_GoldMountainDesc:
- Id: 18289
- ENG: "Huge Mountain that is filled with gold deposits."
-BB_GoldMountainDescShort:
- Id: 18290
- ENG: "Provides 1.5 production per colonist, increases planet richness by 2, total worth of 3000 production"
-BB_MoltenGold:
- Id: 18291
- ENG: "Molten gold pit"
-BB_MoltenGoldDesc:
- Id: 18292
- ENG: "A pit filled with molten gold thats is created by intense volcanic activity, that heats up and pushes to the survace large amounts of gold, it can be found in this state only on very hot volcanic planets."
-BB_MoltenGoldDescShort:
- Id: 18293
- ENG: "Provides 0.5 production per colonist, increases planet richness by 0.35"
+# DO NOT USE 18K index for bb+  - use empty spaces between 4000-5000

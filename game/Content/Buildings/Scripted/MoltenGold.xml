@@ -13,7 +13,7 @@
   <CanBeTerraformed>true</CanBeTerraformed>
   <IsCommodity>true</IsCommodity>
   <!-- For localization in GameText.yaml -->
-  <NameTranslationIndex>18291</NameTranslationIndex>
-  <DescriptionIndex>18292</DescriptionIndex>
-  <ShortDescriptionIndex>18293</ShortDescriptionIndex>
+  <NameTranslationIndex>4393</NameTranslationIndex>
+  <DescriptionIndex>4394</DescriptionIndex>
+  <ShortDescriptionIndex>4395</ShortDescriptionIndex>
 </Building>
