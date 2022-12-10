@@ -13,7 +13,7 @@
   <CanBuildAnywhere>true</CanBuildAnywhere>
   
   <!-- For localization in GameText.yaml -->
-  <NameTranslationIndex>18288</NameTranslationIndex>
-  <DescriptionIndex>18289</DescriptionIndex>
-  <ShortDescriptionIndex>18290</ShortDescriptionIndex>
+  <NameTranslationIndex>4390</NameTranslationIndex>
+  <DescriptionIndex>4391</DescriptionIndex>
+  <ShortDescriptionIndex>4392</ShortDescriptionIndex>
 </Building>
