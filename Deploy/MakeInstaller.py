@@ -41,18 +41,18 @@ if args.type == 'nsis':
     installer = 'Deploy/BlackBox-Mars.nsi'
     if args.patch: installer = 'Deploy/BlackBox-Mars-Patch.nsi'
 
-    console(f'MakeNSIS {installer}')
+    console(f'\nMakeNSIS {installer}')
     result = os.system(f'"{makensis}" /V3 /DVERSION={BUILD_VERSION} /DSOURCE_DIR={source} {installer}')
     if result != 0: fatal_error(f'MakeNSIS returned with error: {result}')
     else: exit_with_message('MakeNSIS succeeded')
 elif args.type == 'zip':
-    zip7 = os.path.abspath('Deploy/7-Zip/7z.exe')
+    zip7 = os.path.abspath('Deploy/7-Zip/7za.exe')
     if not os.path.exists(zip7):
-        fatal_error('7z.exe was not found: MakeInstaller.py must be executed with WorkingDir=BlackBox/')
+        fatal_error('7za.exe was not found: MakeInstaller.py must be executed with WorkingDir=BlackBox/')
 
     installer = 'Deploy\\GeneratedFilesList.txt'
     archive = f'Deploy\\upload\\BlackBox_Mars_{BUILD_VERSION}.zip'
-    console(f'7zip {installer}')
+    console(f'\nMakeZIP {installer}')
     result = os.system(f'cd game && "{zip7}" a -tzip ..\\{archive} @..\\{installer}')
     if result != 0: fatal_error(f'7zip returned with error: {result}')
     else: exit_with_message('7zip succeeded')

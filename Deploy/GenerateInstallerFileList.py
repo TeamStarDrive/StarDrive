@@ -50,9 +50,11 @@ class FileInfo:
         return files
 
     @staticmethod
-    def load_file_infos_dict(game_dir:str, listfile:str) -> List['FileInfo']:
+    def load_file_infos_dict(game_dir:str, listfile:str, required:bool) -> List['FileInfo']:
         if os.path.exists(listfile):
             return FileInfo.dict(FileInfo.load_file_infos(game_dir, listfile))
+        if required:
+            raise FileNotFoundError(listfile)
         return dict()
 
     @staticmethod
@@ -143,9 +145,9 @@ def create_installer_files_list(major=False, patch=False, version='1.0.11000', t
         FileInfo.save_file_infos(major_release_file, known_files)
         create_installer_commands(installer_commands, known_files, major=True, type=type)
     elif patch:
-        major_files_dict = FileInfo.load_file_infos_dict(game_dir, major_release_file)
+        major_files_dict = FileInfo.load_file_infos_dict(game_dir, major_release_file, required=True)
         known_files_dict = FileInfo.dict(known_files)
-        deleted_files = FileInfo.load_file_infos_dict(game_dir, delete_files_path)
+        deleted_files = FileInfo.load_file_infos_dict(game_dir, delete_files_path, required=False)
         delete_dirs = read_lines(delete_dirs_path)
         new_files: Dict[str, FileInfo] = dict()
 
