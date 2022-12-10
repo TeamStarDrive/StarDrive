@@ -84,8 +84,7 @@ namespace Ship_Game
                 try
                 {
                     var file = new FileInfo(modFile);
-                    var modSettings = YamlParser.DeserializeOne<GamePlayGlobals>(file);
-
+                    GamePlayGlobals modSettings = GamePlayGlobals.Deserialize(file);
                     var e = new ModEntry(modSettings);
                     e.LoadPortrait(MainMenu);
                     ModsList.AddItem(new ModsListItem(e));
@@ -101,7 +100,7 @@ namespace Ship_Game
         void OnModItemClicked(ModsListItem item)
         {
             SelectedMod = item.Mod;
-            EnterNameArea.Text = SelectedMod.ModName;
+            EnterNameArea.Text = SelectedMod.Mod.Name;
             Visit.Text = SelectedMod.Settings.URL.IsEmpty() ? Localizer.Token(GameText.LoadModsWeb) : "Goto Mod URL";
         }
 
@@ -170,7 +169,7 @@ namespace Ship_Game
 
         void LoadModTask()
         {
-            Log.Info($"ModManager.LoadMod {SelectedMod.ModName}");
+            Log.Info($"ModManager.LoadMod {SelectedMod.Mod.Path}");
             GlobalStats.SetActiveModNoSave(SelectedMod);
             // reload the whole game
             ScreenManager.GoToScreen(new GameLoadingScreen(showSplash: false, resetResources: true), clear3DObjects: true);

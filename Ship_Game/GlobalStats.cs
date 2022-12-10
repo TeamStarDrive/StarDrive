@@ -45,11 +45,17 @@ namespace Ship_Game
         // Active Mod information
         public static ModEntry ActiveMod;
         public static bool HasMod => ActiveMod != null;
-        public static string ModName = ""; // "Combined Arms" or "" if there's no active mod
-        public static string ModPath = ""; // "Mods/Combined Arms/"
         public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}Globals.yaml" : ""; // "Mods/Combined Arms/Globals.yaml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
+        public static string ModVersion => ActiveMod?.Mod.Version ?? "";
         
+        // "Combined Arms" or "" if there's no active mod, this name can have special characters
+        public static string ModName = "";
+
+        // "Mods/Combined Arms/" or "Mods/ExampleMod/", this needs to be a sanitized path
+        public static string ModPath = "";
+
+
         /// <summary>
         /// only enabled for SDUnitTests, to disable certain features
         /// and some resource loading which is not needed for tests
@@ -320,16 +326,16 @@ namespace Ship_Game
 
         public static void ClearActiveMod() => LoadModInfo("");
 
-        public static void LoadModInfo(string modName)
+        public static void LoadModInfo(string modPath)
         {
             SetActiveModNoSave(null); // reset
 
-            if (modName.NotEmpty())
+            if (modPath.NotEmpty())
             {
-                var modInfo = new FileInfo($"Mods/{modName}/Globals.yaml");
+                var modInfo = new FileInfo($"{modPath}/Globals.yaml");
                 if (modInfo.Exists)
                 {
-                    var settings = YamlParser.DeserializeOne<GamePlayGlobals>(modInfo);
+                    GamePlayGlobals settings = GamePlayGlobals.Deserialize(modInfo);
                     var me = new ModEntry(settings);
                     SetActiveModNoSave(me);
                 }
@@ -339,7 +345,7 @@ namespace Ship_Game
                 if (DefaultSettings == null)
                 {
                     var defaultSettings = new FileInfo("Content/Globals.yaml");
-                    DefaultSettings = YamlParser.DeserializeOne<GamePlayGlobals>(defaultSettings);
+                    DefaultSettings = GamePlayGlobals.Deserialize(defaultSettings);
                 }
 
                 Settings = DefaultSettings;
@@ -351,10 +357,13 @@ namespace Ship_Game
         {
             if (me != null)
             {
-                ModName = me.ModName;
-                ModPath = "Mods/" + ModName + "/";
+                ModName = me.Mod.Name;
+                ModPath = me.Mod.Path;
                 ActiveMod = me;
                 Settings = me.Settings;
+
+                if (!Directory.Exists(ModPath))
+                    Log.Error($"SetActiveMod ModPath does not exist: {ModPath}");
             }
             else
             {

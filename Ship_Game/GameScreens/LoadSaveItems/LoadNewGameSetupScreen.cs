@@ -43,7 +43,7 @@ namespace Ship_Game
 
                     if (GlobalStats.HasMod)
                     {
-                        if (save.ModName != GlobalStats.ActiveMod.ModName)
+                        if (save.ModName != GlobalStats.ModName)
                             continue;
                     }
                     else if (save.ModName.NotEmpty()) // we have no mod, but this is for some mod

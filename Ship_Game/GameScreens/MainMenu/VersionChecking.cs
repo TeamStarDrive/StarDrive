@@ -32,7 +32,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
             var mod = GlobalStats.ActiveMod;
             var versionText = GlobalStats.Version.Split(' ')[0];
-            var modVersionText = mod?.Version;
+            var modVersionText = mod?.Mod.Version;
             
             URL = settings.URL;
             DownloadSite = settings.DownloadSite;
@@ -44,7 +44,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 if (modSettings.URL != null)
                     ModDownloadSite = modSettings.DownloadSite;
 
-                MiddleText = $"{GlobalStats.ExtendedVersion}\nMod: {mod.ModName} - {mod.Version}";
+                MiddleText = $"{GlobalStats.ExtendedVersion}\nMod: {mod.Mod.Name} - {mod.Mod.Version}";
             }
             else
             {
@@ -66,7 +66,7 @@ namespace Ship_Game.GameScreens.MainMenu
             drawLoc.Y += 32;
             drawLoc = BlackBoxVersionCheck.PopulateVersions(versionText, drawLoc);
             drawLoc.Y += 16;
-            Add(new UILabel(drawLoc, $"========== {mod?.ModName ?? "Vanilla"} =========="));
+            Add(new UILabel(drawLoc, $"========== {mod?.Mod.Name ?? "Vanilla"} =========="));
             drawLoc.Y += 16;
             
             if (ModURL.NotEmpty())

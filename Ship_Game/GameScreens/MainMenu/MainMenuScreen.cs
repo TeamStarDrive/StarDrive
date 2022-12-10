@@ -97,8 +97,8 @@ namespace Ship_Game.GameScreens.MainMenu
             string modTitle = "";
             if (GlobalStats.HasMod)
             {
-                string title = GlobalStats.Settings.Mod.Name;
-                string version = GlobalStats.Settings.Mod.Version;
+                string title = GlobalStats.ModName;
+                string version = GlobalStats.ModVersion;
                 if (version.NotEmpty() && !title.Contains(version))
                     modTitle = title+" - "+version;
             }
