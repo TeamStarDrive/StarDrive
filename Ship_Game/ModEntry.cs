@@ -9,22 +9,18 @@ namespace Ship_Game
     {
         public GamePlayGlobals Settings;
         public ModInformation Mod => Settings.Mod;
-        public string ModName;
-        public string Version;
         public bool IsSupported { get; }
         SubTexture PortraitTex;
 
         public ModEntry(GamePlayGlobals settings)
         {
             Settings = settings;
-            ModName = Mod.Name;
-            Version = Mod.Version;
             IsSupported = CheckSupport(Mod.SupportedBlackBoxVersions);
         }
 
         public void LoadPortrait(GameScreen screen)
         {
-            PortraitTex = screen.ContentManager.LoadModTexture(ModName, Mod.IconPath);
+            PortraitTex = screen.ContentManager.LoadModTexture(Mod.Path, Mod.IconPath);
         }
 
         public void LoadContent(GameScreen screen)
@@ -39,7 +35,7 @@ namespace Ship_Game
             var portrait = new Rectangle(clickRect.X + 6, clickRect.Y, 128, 128);
             var titlePos = new Vector2(portrait.X + 140, portrait.Y);
             
-            batch.DrawString(Fonts.Arial20Bold, ModName, titlePos, Color.Gold);
+            batch.DrawString(Fonts.Arial20Bold, Mod.Name, titlePos, Color.Gold);
             titlePos.Y += Fonts.Arial20Bold.LineSpacing + 2;
 
             if (!IsSupported)
@@ -57,7 +53,7 @@ namespace Ship_Game
 
             string description = Mod.Description;
             if (Mod.Version.NotEmpty())
-                description = description + "\n----\nVersion - " + Version;
+                description = description + "\n----\nVersion - " + Mod.Version;
 
             batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(description, 450f), titlePos, Color.White);
             batch.Draw(PortraitTex, portrait, Color.White);

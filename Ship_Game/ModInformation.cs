@@ -5,7 +5,12 @@ namespace Ship_Game;
 [StarDataType]
 public sealed class ModInformation
 {
+    // ex: "Mods/ExampleMod/" sanitized path
+    public string Path = "";
+
+    // the unique name id of the mod
     [StarData] public string Name = "";
+
     [StarData] public string Description = "";
     [StarData] public string IconPath = "";
     [StarData] public string Author = "";

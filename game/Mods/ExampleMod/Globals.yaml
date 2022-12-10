@@ -51,15 +51,15 @@ Globals:
   # auto-update is supported for: GitHub Releases
   DownloadSite: "https://github.com/TeamStarDrive/StarDrive/releases"
 
-  # # mod information
-  # Mod:
-  #   Name: "Example Mod"
-  #   Version: "0.1"
-  #   SupportedBlackBoxVersions: "develop,mars-1.41"
-  #   IconPath: small.png
-  #   Description: "Example Mod Setup"
-  #   Author: "The StarDrive Team"
-  #   UseVanillaShips: true
-  #   ClearVanillaTechs: false
+  # mod information
+  Mod:
+    Name: "ExampleMod" # this is the unique name id of this mod, don't change it after releasing the mod
+    Version: "0.1"
+    SupportedBlackBoxVersions: "develop,mars-1.41"
+    IconPath: mod_icon.png
+    Description: "Example Mod Setup"
+    Author: "The StarDrive Team"
+    UseVanillaShips: true
+    ClearVanillaTechs: false
 
 
