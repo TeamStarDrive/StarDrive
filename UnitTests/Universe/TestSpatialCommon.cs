@@ -282,6 +282,8 @@ namespace UnitTests.Universe
         {
             ISpatial tree = CreateQuadTree(500_000, 5_000);
             
+            const float TIME_TO_RUN = 1.0f;
+
             var timer = new PerfTimer();
             var allObjects = new Array<GameObject>();
 
@@ -291,7 +293,7 @@ namespace UnitTests.Universe
                 var rand = new Random();
                 var spawned = new HashSet<Ship>();
 
-                while (timer.Elapsed < 1.0)
+                while (timer.Elapsed < TIME_TO_RUN)
                 {
                     for (int i = 0; i < allObjects.Count; ++i)
                     {
@@ -327,7 +329,7 @@ namespace UnitTests.Universe
             TaskResult searchResult = Parallel.Run(() =>
             {
                 const float defaultSensorRange = 30000f;
-                while (timer.Elapsed < 1.0)
+                while (timer.Elapsed < (TIME_TO_RUN-0.05f))
                 {
                     for (int i = 0; i < AllObjects.Length; ++i)
                     {
