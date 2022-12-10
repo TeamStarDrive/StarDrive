@@ -12,7 +12,7 @@
   <CanBeCreatedFromLava>true</CanBeCreatedFromLava>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <!-- For localization in GameText.yaml -->
-  <NameTranslationIndex>18285</NameTranslationIndex>
-  <DescriptionIndex>18286</DescriptionIndex>
-  <ShortDescriptionIndex>18287</ShortDescriptionIndex>
+  <NameTranslationIndex>4387</NameTranslationIndex>
+  <DescriptionIndex>4388</DescriptionIndex>
+  <ShortDescriptionIndex>4389</ShortDescriptionIndex>
 </Building>
