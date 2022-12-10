@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--root_dir', type=str, help='BlackBox/ repository root directory')
 parser.add_argument('--major', action='store_true', help='Is this a major release?')
 parser.add_argument('--patch', action='store_true', help='Is this a cumulative patch?')
+parser.add_argument('--type', type=str, help='Type of installer: nsis, zip, msi', default='nsis')
 args = parser.parse_args()
 
 def path_combine(a, b):
@@ -82,33 +83,43 @@ class FileInfo:
                     files.append(FileInfo(game_dir, f, hash=None))
         return files
 
+
 def create_installer_commands(filename:str,
                               new_files:Iterable[FileInfo],
                               deleted_files:Iterable[FileInfo] = [],
                               delete_folders:List[str] = [],
-                              major_release=False):
+                              major=False,
+                              type='nsis'):
     lines = []
-    if major_release: # in major releases, destroy any old Content files to save us from incompatibility issues
-        lines.append(f'RMDir /r "$INSTDIR\\Content"\n')
-    else:
-        for delete in deleted_files:
-            lines.append(f'Delete "$INSTDIR\\{delete.filename}"\n')
-        for dir_to_delete in delete_folders:
-            lines.append(f'RMDir "$INSTDIR\\{dir_to_delete}"\n')
 
-    created_paths = set()
-    for new in new_files:
-        folder = os.path.dirname(new.filename)
-        if folder and not folder in created_paths:
-            created_paths.add(folder)
-            lines.append(f'CreateDirectory "$INSTDIR\{folder}"\n')
-        lines.append(f'File "/oname={new.filename}" "${{SOURCE_DIR}}\game\{new.filename}"\n')
+    if type == 'nsis':
+        if major: # in major releases, destroy any old Content files to save us from incompatibility issues
+            lines.append(f'RMDir /r "$INSTDIR\\Content"\n')
+        else:
+            for delete in deleted_files:
+                lines.append(f'Delete "$INSTDIR\\{delete.filename}"\n')
+            for dir_to_delete in delete_folders:
+                lines.append(f'RMDir "$INSTDIR\\{dir_to_delete}"\n')
+
+        created_paths = set()
+        for new in new_files:
+            folder = os.path.dirname(new.filename)
+            if folder and not folder in created_paths:
+                created_paths.add(folder)
+                lines.append(f'CreateDirectory "$INSTDIR\{folder}"\n')
+            lines.append(f'File "/oname={new.filename}" "${{SOURCE_DIR}}\\game\\{new.filename}"\n')
+    elif type == 'zip':
+        for new in new_files:
+            lines.append(f'{new.filename}\n')
+    else:
+        raise Exception(f'Unsupported installer type={type}')
 
     console(f'Write Installer Commands: {filename} ({len(lines)} commands)')
     with open(filename, 'w') as f:
         f.writelines(lines)
 
-def create_installer_files_list(major=False, patch=False, version='1.0.11000'):
+
+def create_installer_files_list(major=False, patch=False, version='1.0.11000', type='nsis'):
     blackbox_dir = args.root_dir if args.root_dir else os.getcwd()
     game_dir = path_combine(blackbox_dir, 'game') + '\\'
 
@@ -120,15 +131,17 @@ def create_installer_files_list(major=False, patch=False, version='1.0.11000'):
     delete_files_path = path_combine(blackbox_dir, f'Deploy\\Versions\\Release.{version}.DeleteFiles.txt')
     delete_dirs_path = path_combine(blackbox_dir, f'Deploy\\Versions\\Release.{version}.DeleteDirs.txt')
     new_files_path = path_combine(blackbox_dir, f'Deploy\\Versions\\Release.{version}.NewOrChanged.txt')
-    installer_commands = path_combine(blackbox_dir, 'Deploy\\GeneratedFilesList.nsh')
+    installer_commands_ext = 'nsh' if type == 'nsis' else 'txt'
+    installer_commands = path_combine(blackbox_dir, f'Deploy\\GeneratedFilesList.{installer_commands_ext}')
 
     known_files = []
     known_files += FileInfo.list_files(game_dir, '', BIN_EXTENSIONS, BIN_EXCLUDE)
     known_files += FileInfo.list_files_recursive(game_dir, 'Content')
+    known_files += FileInfo.list_files_recursive(game_dir, 'Mods/ExampleMod')
 
     if major:
         FileInfo.save_file_infos(major_release_file, known_files)
-        create_installer_commands(installer_commands, known_files, major_release=True)
+        create_installer_commands(installer_commands, known_files, major=True, type=type)
     elif patch:
         major_files_dict = FileInfo.load_file_infos_dict(game_dir, major_release_file)
         known_files_dict = FileInfo.dict(known_files)
@@ -153,9 +166,9 @@ def create_installer_files_list(major=False, patch=False, version='1.0.11000'):
 
         FileInfo.save_file_infos(delete_files_path, deleted_files.values())
         FileInfo.save_file_infos(new_files_path, new_files.values())
-        create_installer_commands(installer_commands, new_files.values(), deleted_files.values(), delete_dirs)
+        create_installer_commands(installer_commands, new_files.values(), deleted_files.values(), delete_dirs, type=type)
 
 if __name__ == "__main__":
-    if args.major: create_installer_files_list(major=True)
-    elif args.patch: create_installer_files_list(patch=True)
+    if args.major: create_installer_files_list(major=True, type=args.type)
+    elif args.patch: create_installer_files_list(patch=True, type=args.type)
     else: raise Exception('--major or --patch argument required')
