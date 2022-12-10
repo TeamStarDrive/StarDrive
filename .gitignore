@@ -97,6 +97,8 @@ game/Content/spellchecker.txt
 game/MeshExport/
 game/Mods/
 Deploy/GeneratedFilesList.nsh
+Deploy/*.zip
+Deploy/GeneratedFilesList.txt
 SDGraphics/bin/
 game/SDGraphics.pdb
 game/SDGraphics.dll
