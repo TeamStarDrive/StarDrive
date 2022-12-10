@@ -11,6 +11,7 @@ public sealed class SetupSave
     [StarData] public string Name = "";
     [StarData] public string Date;
     [StarData] public string ModName;
+    [StarData] public string ModPath;
     [StarData] public int Version;
     [StarData] public UniverseParams Settings;
 
@@ -21,6 +22,7 @@ public sealed class SetupSave
     public SetupSave(UniverseParams settings)
     {
         ModName = GlobalStats.ModName; // default ""
+        ModPath = GlobalStats.ModPath; // default ""
         Version = SavedGame.SaveGameVersion;
         Settings = settings;
 

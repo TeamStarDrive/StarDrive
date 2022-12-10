@@ -1,4 +1,6 @@
 ﻿using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Yaml;
+using System.IO;
 
 namespace Ship_Game;
 
@@ -95,5 +97,20 @@ public class GamePlayGlobals
             foreach (var field in typeof(GamePlayGlobals).GetFields())
                 field.SetValue(this, field.GetValue(GlobalStats.DefaultSettings));
         }
+    }
+
+    // Deserializes Globals.yaml
+    public static GamePlayGlobals Deserialize(FileInfo globalsFile)
+    {
+        var settings = YamlParser.DeserializeOne<GamePlayGlobals>(globalsFile);
+        if (settings.Mod != null)
+        {
+            string currentDir = Directory.GetCurrentDirectory();
+            // "Mods/ExampleMod/"
+            settings.Mod.Path = globalsFile.Directory!.FullName;
+            settings.Mod.Path = settings.Mod.Path.Replace(currentDir, "").Trim('\\');
+            settings.Mod.Path = settings.Mod.Path.Replace('\\', '/') + '/';
+        }
+        return settings;
     }
 }

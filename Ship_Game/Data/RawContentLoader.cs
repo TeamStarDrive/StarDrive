@@ -143,7 +143,7 @@ namespace Ship_Game.Data
             var files = new Array<FileInfo>();
             files.AddRange(Dir.GetFiles($"Content/{folder}", "*.xnb", SearchOption.AllDirectories));
             if (GlobalStats.HasMod)
-                files.AddRange(Dir.GetFiles($"{GlobalStats.ModPath}/{folder}", "*.xnb", SearchOption.AllDirectories));
+                files.AddRange(Dir.GetFiles($"{GlobalStats.ModPath}{folder}", "*.xnb", SearchOption.AllDirectories));
 
             var modelFiles = new Array<FileInfo>();
             for (int i = 0; i < files.Count; ++i)

@@ -41,10 +41,10 @@ namespace Ship_Game
 
                     if (GlobalStats.HasMod)
                     {
-                        if (data.ModPath != GlobalStats.ActiveMod.ModName)
+                        if (data.ModName != GlobalStats.ModName)
                             continue;
                     }
-                    else if (!string.IsNullOrEmpty(data.ModPath))
+                    else if (data.ModName.NotEmpty())
                         continue;
 
                     string info = "Race Name: " + data.Traits.Name;
