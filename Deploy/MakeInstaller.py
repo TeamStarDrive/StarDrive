@@ -51,7 +51,7 @@ elif args.type == 'zip':
         fatal_error('7z.exe was not found: MakeInstaller.py must be executed with WorkingDir=BlackBox/')
 
     installer = 'Deploy\\GeneratedFilesList.txt'
-    archive = f'Deploy\\BlackBox_Mars_{BUILD_VERSION}.zip'
+    archive = f'Deploy\\upload\\BlackBox_Mars_{BUILD_VERSION}.zip'
     console(f'7zip {installer}')
     result = os.system(f'cd game && "{zip7}" a -tzip ..\\{archive} @..\\{installer}')
     if result != 0: fatal_error(f'7zip returned with error: {result}')
