@@ -158,8 +158,7 @@ namespace Ship_Game.Spatial
                 }
                 else if (objectId != -1)
                 {
-                    // we need to set this to a valid value just in case we get a concurrent search match
-                    objects[objectId] = go;
+                    objects[objectId] = null;
                     SpatialRemove(Spat, objectId);
                     go.SpatialIndex = -1;
                 }
