@@ -147,20 +147,19 @@ namespace Ship_Game.Spatial
                         var so = new NativeSpatialObject(go);
                         objectId = SpatialInsert(Spat, ref so);
                         go.SpatialIndex = objectId;
-                        objects[objectId] = go;
                     }
                     else // update existing
                     {
                         var rect = new AABoundingBox2Di(go);
                         SpatialUpdate(Spat, objectId, ref rect);
-                        objects[objectId] = go;
                     }
+                    objects[objectId] = go;
                 }
                 else if (objectId != -1)
                 {
-                    objects[objectId] = null;
                     SpatialRemove(Spat, objectId);
                     go.SpatialIndex = -1;
+                    objects[objectId] = go;
                 }
             }
 
