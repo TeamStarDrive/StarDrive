@@ -304,9 +304,9 @@ public class GenericQtreeTests : StarDriveTest
         {
             SpatialObjectBase[] found = tree.Find(s.Position, s.Radius);
 
-            Assert.IsTrue(found.Contains(s));
+            AssertTrue(found.Contains(s));
             foreach (Planet p in s.PlanetList)
-                Assert.IsTrue(found.Contains(p));
+                AssertTrue(found.Contains(p));
             AssertEqual(s.PlanetList.Count + 1, found.Length);
         }
 
