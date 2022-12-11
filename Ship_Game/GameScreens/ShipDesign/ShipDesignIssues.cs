@@ -62,8 +62,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
                 foreach (IShipDesign design in empire.ShipsWeCanBuild)
                 {
-                    Ship ship = ResourceManager.Ships.Get(design.Name);
-                    float warpSpeed = ship.Stats.GetFTLSpeed(ship.Mass, empire);
+                    float warpSpeed = ShipStats.GetFTLSpeed(design, empire);
                     if (warpSpeed < 2000 || Scout(design.Role))
                         continue;
 
@@ -84,7 +83,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
 
             public float AverageEmpireWarpSpeed(RoleName role) => Civilian(role) ? AverageWarpSpeedCivilian
-                                                                                          : AverageWarpSpeedMilitary;
+                                                                                 : AverageWarpSpeedMilitary;
         }
 
         bool IsPlatform => Hull.HullRole == RoleName.platform;
