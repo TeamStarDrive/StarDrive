@@ -299,10 +299,12 @@ public class GenericQtreeTests : StarDriveTest
 
         var tree = new GenericQtree(UState.UniverseWidth, cellThreshold:16, smallestCell:16_000);
         Array.ForEach(solarBodies, tree.Insert);
-        
+
         foreach (SolarSystem s in systems)
         {
-            SpatialObjectBase[] found = tree.Find(s.Position, s.Radius);
+            // need to be careful with the radius here, because systems can overlap sometimes
+            float radius = s.PlanetList.IsEmpty ? 10000 : s.PlanetList.Last.OrbitalRadius + 5000;
+            SpatialObjectBase[] found = tree.Find(s.Position, radius);
 
             AssertTrue(found.Contains(s));
             foreach (Planet p in s.PlanetList)
