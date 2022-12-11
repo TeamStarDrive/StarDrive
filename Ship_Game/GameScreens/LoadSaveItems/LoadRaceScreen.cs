@@ -3,60 +3,54 @@ using System.Linq;
 using SDUtils;
 using Ship_Game.Audio;
 
-namespace Ship_Game
+namespace Ship_Game;
+
+public sealed class LoadRaceScreen : GenericLoadSaveScreen
 {
-    public sealed class LoadRaceScreen : GenericLoadSaveScreen
+    readonly RaceDesignScreen Screen;
+
+    public LoadRaceScreen(RaceDesignScreen screen) : base(screen, SLMode.Load, "", "Load Saved Race", "Saved Races")
     {
-        private RaceDesignScreen screen;
+        Screen = screen;
+        Path = Dir.StarDriveAppData + "/Saved Races/";
+    }
 
-        public LoadRaceScreen(RaceDesignScreen screen) : base(screen, SLMode.Load, "", "Load Saved Race", "Saved Races")
+    protected override void Load()
+    {
+        if (SelectedFile is { Enabled: true, Data: RaceSave raceSave })
         {
-            this.screen = screen;
-            Path = Dir.StarDriveAppData + "/Saved Races/";
+            Screen.SetCustomEmpireData(raceSave.Traits);
         }
-
-        protected override void Load()
+        else
         {
-            if (SelectedFile != null)
-            {
-                screen.SetCustomEmpireData((SelectedFile.Data as RaceSave)?.Traits);
-            }
-            else
-            {
-                GameAudio.NegativeClick();
-            }
-            ExitScreen();
+            GameAudio.NegativeClick();
         }
+        ExitScreen();
+    }
 
-        protected override void InitSaveList()
+    protected override void InitSaveList()
+    {
+        var saves = new Array<FileData>();
+        foreach (FileInfo fileInfo in Dir.GetFiles(Path, "yaml"))
         {
-            var saves = new Array<FileData>();
-            foreach (FileInfo fileInfo in Dir.GetFiles(Path))
+            try
             {
-                try
+                RaceSave data = SaveRaceScreen.Load(fileInfo);
+                if (data.Name.IsEmpty())
+                    continue;
+
+                string info = "Race Name: " + data.Traits.Name;
+                string extraInfo = data.ModName.NotEmpty() ? $"Mod: {data.ModName}" : "Vanilla";
+                saves.Add(new(fileInfo, data, data.Name, info, extraInfo, data.Traits.FlagIcon, data.Traits.Color)
                 {
-                    RaceSave data = fileInfo.Deserialize<RaceSave>();
-                    if (string.IsNullOrEmpty(data.Name) || data.Version < 308)
-                        continue;
-
-                    if (GlobalStats.HasMod)
-                    {
-                        if (data.ModName != GlobalStats.ModName)
-                            continue;
-                    }
-                    else if (data.ModName.NotEmpty())
-                        continue;
-
-                    string info = "Race Name: " + data.Traits.Name;
-                    string extraInfo = (data.ModName != "" ? "Mod: " + data.ModName : "Default");
-                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo, data.Traits.FlagIcon, data.Traits.Color));
-                }
-                catch
-                {
-                }
+                    Enabled = GlobalStats.IsValidForCurrentMod(data.ModName)
+                });
             }
-
-            AddItemsToSaveSL(saves.OrderBy(data => data.FileName));
+            catch
+            {
+            }
         }
+
+        AddItemsToSaveSL(saves.OrderBy(data => data.FileName));
     }
 }

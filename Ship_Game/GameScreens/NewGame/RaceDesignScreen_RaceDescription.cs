@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -166,29 +167,15 @@ namespace Ship_Game
         // Sets the empire data externally, checks for fields that are default so don't overwrite
         public void SetCustomEmpireData(RacialTrait traits)
         {
-            foreach (RaceArchetypeListItem origRace in ChooseRaceList.AllEntries)
+            RaceArchetypeListItem archetype = ChooseRaceList.AllEntries.Find(
+                                                (r) => r.EmpireData.Traits.ShipType == traits.ShipType);
+            if (archetype == null)
             {
-                RacialTrait origRaceTraits = origRace.EmpireData.Traits;
-                if (origRaceTraits.ShipType == traits.ShipType)
-                {
-                    if (traits.Name == origRaceTraits.Name)
-                        traits.Name = RaceName;
-                    if (traits.Singular == origRaceTraits.Singular)
-                        traits.Singular = Singular;
-                    if (traits.Plural == origRaceTraits.Plural)
-                        traits.Plural = Plural;
-                    if (traits.HomeSystemName == origRaceTraits.HomeSystemName)
-                        traits.HomeSystemName = HomeSysName;
-                    if (traits.FlagIndex == origRaceTraits.FlagIndex)
-                        traits.FlagIndex = FlagIndex;
-
-                    if (traits.Color == origRaceTraits.Color)
-                    {
-                        traits.Color = Picker.CurrentColor;
-                    }
-                    break;
-                }
+                Log.Error($"Failed to find Archetype: {traits.ShipType}");
+                return;
             }
+
+            ChooseRaceList.OnItemClicked(archetype); // click on the archetype faction
             SetRacialTraits(traits);
         }
 

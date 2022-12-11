@@ -17,8 +17,7 @@ public class YamlSerializerTests : StarDriveTest
     static string SerializeToString<T>(T instance)
     {
         var sw = new StringWriter();
-        var ser = new YamlSerializer(typeof(T));
-        ser.Serialize(sw, instance);
+        YamlSerializer.SerializeOne(sw, instance);
         return sw.ToString();
     }
 

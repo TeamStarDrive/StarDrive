@@ -106,16 +106,16 @@ namespace Ship_Game
 
             const float padRight = 200f;
             var splitItemWidth = NameMenu.Width - FlagRect.Width - padRight;
-            NameEntry     = AddSplitter(raceCustomizatioForm,"{EmpireName}: ", SelectedData.Name,splitItemWidth);
-            SingEntry     = AddSplitter(raceCustomizatioForm,"{RaceNameSingular}: ", SelectedData.Singular, splitItemWidth);
-            PlurEntry     = AddSplitter(raceCustomizatioForm,"{RaceNamePlural}: ", SelectedData.Plural, splitItemWidth);
-            SysEntry      = AddSplitter(raceCustomizatioForm,"{HomeSystemName}: ", SelectedData.HomeSystemName, splitItemWidth);
+            NameEntry = AddSplitter(raceCustomizatioForm, "{EmpireName}: ", SelectedData.Name,splitItemWidth);
+            SingEntry = AddSplitter(raceCustomizatioForm, "{RaceNameSingular}: ", SelectedData.Singular, splitItemWidth);
+            PlurEntry = AddSplitter(raceCustomizatioForm, "{RaceNamePlural}: ", SelectedData.Plural, splitItemWidth);
+            SysEntry = AddSplitter(raceCustomizatioForm,  "{HomeSystemName}: ", SelectedData.HomeSystemName, splitItemWidth);
             HomeWorldName = SelectedData.HomeWorldName;
 
             RectF traitsList = new(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
-                                         (int)NameMenu.Bottom + 5,
-                                         (int)(ScreenWidth * 0.5f), 
-                                         (int)(ScreenHeight - TitleBar.Bottom - 0.28f*ScreenHeight));
+                                  (int)NameMenu.Bottom + 5,
+                                  (int)(ScreenWidth * 0.5f), 
+                                  (int)(ScreenHeight - TitleBar.Bottom - 0.28f*ScreenHeight));
             if (traitsList.H > 580)
                 traitsList.H = 580;
 
@@ -136,21 +136,21 @@ namespace Ship_Game
             foreach (IEmpireData e in ResourceManager.MajorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            Graphics.Font font       = LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold;
-            float labelX          = LowRes ? NameMenu.Right + 20 : NameMenu.Right + 300;
-            float labelY          = LowRes ? NameMenu.Y - 50 : NameMenu.Y + 3;
-            NumSystemsLabel       = Add(new UILabel(labelX, labelY, $"Solar Systems: {GetSystemsNum()}"));
+            Graphics.Font font = LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold;
+            float labelX = LowRes ? NameMenu.Right + 20 : NameMenu.Right + 300;
+            float labelY = LowRes ? NameMenu.Y - 50 : NameMenu.Y + 3;
+            NumSystemsLabel = Add(new UILabel(labelX, labelY, $"Solar Systems: {GetSystemsNum()}"));
             NumSystemsLabel.Font  = font;
             NumSystemsLabel.Color = Color.SteelBlue;
 
-            ExtraPlanetsLabel       = Add(new UILabel(NumSystemsLabel.X, NumSystemsLabel.Y + font.LineSpacing + 3, ""));
+            ExtraPlanetsLabel = Add(new UILabel(NumSystemsLabel.X, NumSystemsLabel.Y + font.LineSpacing + 3, ""));
             ExtraPlanetsLabel.Font  = font;
             ExtraPlanetsLabel.Color = Color.Green;
 
-            PerformanceWarning      = Add(new UILabel(NameMenu.Right + 20, NameMenu.Y - 20 , ""));
+            PerformanceWarning = Add(new UILabel(NameMenu.Right + 20, NameMenu.Y - 20 , ""));
             PerformanceWarning.Font = font;
 
-            UIList optionButtons       = AddList(NameMenu.Right + 40 - 22, NameMenu.Y);
+            UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y);
             optionButtons.CaptureInput = true;
             optionButtons.Padding      = new Vector2(2,3);
             optionButtons.Color        = Color.Black.Alpha(0.5f);
