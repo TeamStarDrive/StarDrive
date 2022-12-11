@@ -6,6 +6,7 @@ using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Spatial;
+using Ship_Game.Utils;
 using Parallel = Ship_Game.Parallel;
 using Vector2 = SDGraphics.Vector2;
 
@@ -290,7 +291,7 @@ namespace UnitTests.Universe
             // update
             TaskResult updateResult = Parallel.Run(() =>
             {
-                var rand = new Random();
+                var rand = new SeededRandom(1337);
                 var spawned = new HashSet<Ship>();
 
                 while (timer.Elapsed < TIME_TO_RUN)
@@ -302,7 +303,7 @@ namespace UnitTests.Universe
                             ship.Position.X += 10f;
                             ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
 
-                            if (rand.Next(100) <= 10 && !spawned.Contains(ship)) // 10% chance
+                            if (rand.RollDice(percent:10) && !spawned.Contains(ship))
                             {
                                 spawned.Add(ship);
                                 Weapon weapon = ship.Weapons.First;
