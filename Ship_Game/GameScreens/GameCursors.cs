@@ -110,9 +110,23 @@ namespace Ship_Game.GameScreens
             }
             else
             {
-                // useIcm: to use color correction for this Bitmap
-                var bitmap = new Bitmap(file.FullName, useIcm: true);
-                //var cursor = new Cursor(bitmap.GetHicon());
+                Bitmap bitmap;
+                try
+                {
+                    // useIcm: to use color correction for this Bitmap
+                    bitmap = new Bitmap(file.FullName, useIcm: true);
+                }
+                catch
+                {
+                    try
+                    {
+                        bitmap = new Bitmap(file.FullName, useIcm: false);
+                    }
+                    catch
+                    {
+                        return null; // uhhh, is the file corrupted?
+                    }
+                }
                 int hotX = (int)(bitmap.Width * hotSpotX);
                 int hotY = (int)(bitmap.Height * hotSpotY);
                 var cursor = CreateCursorNoResize(bitmap, hotX, hotY);
