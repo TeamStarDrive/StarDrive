@@ -24,12 +24,7 @@ namespace Ship_Game
         // Custom effect for drawing particles. This computes the particle
         // animation entirely in the vertex shader: no per-particle CPU work required!
         Effect ParticleEffect;
-        
-        // Shortcuts for accessing frequently changed effect parameters.
-        EffectParameter EffectViewParameter;
-        EffectParameter EffectProjectionParameter;
-        EffectParameter EffectViewportScaleParameter;
-        EffectParameter EffectTimeParameter;
+        Map<string, EffectParameter> FxParams = new();
         
         // An array of particles, treated as a circular queue.
         ParticleVertex[] Particles;
@@ -157,14 +152,14 @@ namespace Ship_Game
         /// </summary>
         public bool EnableDebug { get; set; }
 
-        readonly ThreadSafeRandom Random = new ThreadSafeRandom();
+        readonly ThreadSafeRandom Random = new();
         readonly GraphicsDevice GraphicsDevice;
 
-        readonly object Sync = new object();
-        Array<ParticleVertex> PendingParticles = new Array<ParticleVertex>();
-        Array<ParticleVertex> BackBuffer = new Array<ParticleVertex>();
+        readonly object Sync = new();
+        Array<ParticleVertex> PendingParticles = new();
+        Array<ParticleVertex> BackBuffer = new();
 
-        struct ParticleVertex
+        public struct ParticleVertex
         {
             // Stores which corner of the particle quad this vertex represents.
             public Short2 Corner;
@@ -214,9 +209,8 @@ namespace Ship_Game
 
             LoadParticleEffect();
 
-            VertexDeclaration = new VertexDeclaration(GraphicsDevice, ParticleVertex.VertexElements);
-            VertexBuffer = new DynamicVertexBuffer(GraphicsDevice, ParticleVertex.SizeInBytes*MaxParticles*4,
-                                                   BufferUsage.WriteOnly);
+            VertexDeclaration = new(GraphicsDevice, ParticleVertex.VertexElements);
+            VertexBuffer = new(GraphicsDevice, ParticleVertex.SizeInBytes*MaxParticles*4, BufferUsage.WriteOnly);
 
             // Allocate the particle array, and fill in the corner fields (which never change).
             Particles = new ParticleVertex[MaxParticles * 4];
@@ -249,50 +243,53 @@ namespace Ship_Game
 
         void LoadParticleEffect()
         {
-            Effect effect = Settings.GetEffect(Content);
+            ParticleEffect = Settings.GetEffect(Content);
 
-            // If we have several particle systems, the content manager will return
-            // a single shared effect instance to them all. But we want to preconfigure
-            // the effect with parameters that are specific to this particular
-            // particle system. By cloning the effect, we prevent one particle system
-            // from stomping over the parameter settings of another.
-            ParticleEffect = effect.Clone(GraphicsDevice);
+            FxParams = new();
+            foreach (var parameter in ParticleEffect.Parameters)
+                FxParams[parameter.Name] = parameter;
+        }
 
-            EffectParameterCollection parameters = ParticleEffect.Parameters;
+        void SetParticleParameters(in Matrix view, in Matrix projection, GraphicsDevice device)
+        {
+            FxParams["View"].SetValue(view);
+            FxParams["Projection"].SetValue(projection);
+            
+            // Set an effect parameter describing the viewport size. This is
+            // needed to convert particle sizes into screen space point sizes.
+            FxParams["ViewportScale"].SetValue(new Vector2(0.5f / device.Viewport.AspectRatio, -0.5f));
 
-            // Look up shortcuts for parameters that change every frame.
-            EffectViewParameter           = parameters["View"];
-            EffectProjectionParameter     = parameters["Projection"];
-            EffectViewportScaleParameter  = parameters["ViewportScale"];
-            EffectTimeParameter           = parameters["CurrentTime"];
+            // Set an effect parameter describing the current time. All the vertex
+            // shader particle animation is keyed off this value.
+            FxParams["CurrentTime"].SetValue(CurrentTime);
 
             // Set the values of parameters that do not change.
-            parameters["Duration"].SetValue((float)Settings.Duration.TotalSeconds);
-            parameters["DurationRandomness"].SetValue(Settings.DurationRandomness);
-            parameters["AlignRotationToVelocity"].SetValue(Settings.AlignRotationToVelocity);
-            parameters["EndVelocity"].SetValue(Settings.EndVelocity);
+            FxParams["Duration"].SetValue((float)Settings.Duration.TotalSeconds);
+            FxParams["DurationRandomness"].SetValue(Settings.DurationRandomness);
+            FxParams["AlignRotationToVelocity"].SetValue(Settings.AlignRotationToVelocity);
+            FxParams["EndVelocity"].SetValue(Settings.EndVelocity);
 
             Color[] startColor = Settings.StartColorRange;
             Color[] endColor = Settings.EndColorRange ?? startColor;
-            parameters["StartMinColor"].SetValue(startColor[0].ToVector4());
-            parameters["StartMaxColor"].SetValue(startColor[startColor.Length-1].ToVector4());
-            parameters["EndMinColor"].SetValue(endColor[0].ToVector4());
-            parameters["EndMaxColor"].SetValue(endColor[endColor.Length-1].ToVector4());
+            FxParams["StartMinColor"].SetValue(startColor[0].ToVector4());
+            FxParams["StartMaxColor"].SetValue(startColor[startColor.Length-1].ToVector4());
+            FxParams["EndMinColor"].SetValue(endColor[0].ToVector4());
+            FxParams["EndMaxColor"].SetValue(endColor[endColor.Length-1].ToVector4());
 
             // To reach endColor at relativeAge=EndColorTime
             // Set EndColorTimeMul multiplier to 1/EndColorTime so it reaches EndColor at that relativeAge
             // Ex: EndColorTime=0.75, EndColorTimeMul=1/0.75=1.33, EndColor is reached at relativeAge*1.33, so faster
-            parameters["EndColorTimeMul"].SetValue(1f / Settings.EndColorTime);
+            FxParams["EndColorTimeMul"].SetValue(1f / Settings.EndColorTime);
 
-            parameters["RotateSpeed"].SetValue(new Vector2(Settings.RotateSpeed.Min, Settings.RotateSpeed.Max));
+            FxParams["RotateSpeed"].SetValue(new Vector2(Settings.RotateSpeed.Min, Settings.RotateSpeed.Max));
 
             Range startSize = Settings.StartEndSize[0];
             Range endSize = Settings.StartEndSize[Settings.StartEndSize.Length - 1];
-            parameters["StartSize"].SetValue(new Vector2(startSize.Min, startSize.Max));
-            parameters["EndSize"].SetValue(new Vector2(endSize.Min, endSize.Max));
+            FxParams["StartSize"].SetValue(new Vector2(startSize.Min, startSize.Max));
+            FxParams["EndSize"].SetValue(new Vector2(endSize.Min, endSize.Max));
             
             Texture2D texture = Settings.GetTexture(Content);
-            ParticleEffect.Parameters["Texture"].SetValue(texture);
+            FxParams["Texture"].SetValue(texture);
 
             string technique = "FullDynamicParticles";
             switch (Settings.Static)
@@ -496,23 +493,14 @@ namespace Ship_Game
                 RenderStates.EnableAlphaTest(device, CompareFunction.Greater, referenceAlpha:0);
                 RenderStates.DisableDepthWrite(device);
 
-                EffectViewParameter.SetValue(view);
-                EffectProjectionParameter.SetValue(projection);
-
                 if (EnableDebug)
                 {
                     RenderStates.DisableAlphaBlend(device);
                     RenderStates.DisableAlphaTest(device);
                 }
-
-                // Set an effect parameter describing the viewport size. This is
-                // needed to convert particle sizes into screen space point sizes.
-                EffectViewportScaleParameter.SetValue(new Vector2(0.5f / device.Viewport.AspectRatio, -0.5f));
-
-                // Set an effect parameter describing the current time. All the vertex
-                // shader particle animation is keyed off this value.
-                EffectTimeParameter.SetValue(CurrentTime);
                 
+                SetParticleParameters(in view, in projection, device);
+
                 // Set the particle vertex and index buffer.
                 device.Vertices[0].SetSource(VertexBuffer, 0, ParticleVertex.SizeInBytes);
                 device.Indices = IndexBuffer;
