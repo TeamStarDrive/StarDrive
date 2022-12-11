@@ -233,18 +233,21 @@ namespace Ship_Game.Ships
 
         [Pure] public IEnumerable<ShipModule> GetShields(ShipModule[] modules)
         {
+            if (modules.Length == 0) yield break; // not sure why this happens
             for (int i = 0; i < ShieldsIndex.Length; ++i)
                 yield return modules[ShieldsIndex[i]];
         }
 
         [Pure] public IEnumerable<ShipModule> GetAmplifiers(ShipModule[] modules)
         {
+            if (modules.Length == 0) yield break; // not sure why this happens
             for (int i = 0; i < AmplifiersIndex.Length; ++i)
                 yield return modules[AmplifiersIndex[i]];
         }
 
         [Pure] public IEnumerable<ShipModule> GetActiveShields(ShipModule[] modules)
         {
+            if (modules.Length == 0) yield break; // not sure why this happens
             for (int i = 0; i < ShieldsIndex.Length; ++i)
             {
                 ShipModule m = modules[ShieldsIndex[i]];
