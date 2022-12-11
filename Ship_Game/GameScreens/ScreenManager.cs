@@ -310,6 +310,9 @@ namespace Ship_Game
             DrawLoopTime.UpdateBeforeRendering(GameBase.Base.TotalGameTimeSeconds);
 
             SpriteBatch batch = SpriteBatch;
+            if (batch == null)
+                return; // ScreenManager was disposed
+
             for (int i = 0; i < GameScreens.Count; ++i)
             {
                 GameScreen screen = GameScreens[i];
