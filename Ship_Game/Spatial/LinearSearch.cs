@@ -69,16 +69,34 @@ namespace Ship_Game.Spatial
         {
             if (count == 0)
                 return Empty<SpatialObjectBase>.Array;
-
+            
             var found = new SpatialObjectBase[count];
+            int numFound = 0;
             for (int i = 0; i < found.Length; ++i)
             {
                 int spatialIndex = objectIds[i];
                 SpatialObjectBase go = objects[spatialIndex];
-                found[i] = go ?? throw new NullReferenceException(
-                    $"LinearSearch objectIds[{i}]={spatialIndex} objects[{spatialIndex}] was null. Results count={count}");
+
+                // bug: we don't want players to crash because of this difficult bug in the Qtree,
+                //      so we used Log.Error to report it, and now we recover from it gracefully, even though it's slow
+                // bug: no idea why some of these are null, this needs some really deep analysis because it only happens
+                //      on some systems
+                if (go == null)
+                {
+                    Log.Error($"objects[spatialIndex={spatialIndex}] was null. Results count={count}");
+                }
+                else
+                {
+                    found[numFound++] = go;
+                }
             }
-            return found;
+
+            if (numFound == count)
+                return found;
+
+            var actual = new SpatialObjectBase[numFound];
+            Array.Copy(found, 0, actual, 0, numFound);
+            return actual;
         }
 
         public static void SortByDistance<T>(in SearchOptions opt, T[] objects) where T : SpatialObjectBase
