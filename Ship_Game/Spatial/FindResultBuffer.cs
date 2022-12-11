@@ -49,8 +49,11 @@ internal sealed class FindResultBuffer<T> where T : QtreeNodeBase<T>
 
         Count = 0;
         var arr = new TResult[count];
-        Memory.HybridCopy(arr, 0, Items, count);
-        Array.Clear(Items, 0, count);
+        for (int i = 0; i < arr.Length; ++i)
+        {
+            arr[i] = (TResult)Items[i];
+            Items[i] = null; // clear the ref, because Items is a thread-local global
+        }
         return arr;
     }
 
