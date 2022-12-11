@@ -131,29 +131,38 @@ public class YamlSerializer : UserTypeSerializer
         return null;
     }
 
-        
+
+
+    /// <summary>Serializes One object, including its Key</summary>
+    public static void SerializeOne<T>(TextWriter writer, T obj)
+    {
+        var s = new YamlSerializer(typeof(T));
+        s.Serialize(writer, obj);
+    }
+
+    /// <summary>Serializes One object, including its Key</summary>
+    public static void SerializeOne<T>(FileInfo file, T obj)
+    {
+        using var writer = new StreamWriter(file.OpenWrite(), Encoding.UTF8);
+        SerializeOne(writer, obj);
+    }
+
+    /// <summary>Serializes One object, including its Key</summary>
+    public static void SerializeOne<T>(string filePath, T obj)
+    {
+        using var writer = new StreamWriter(filePath, append:false, Encoding.UTF8);
+        SerializeOne(writer, obj);
+    }
+
+
+
     /// <summary>Serializes root object without outputting its Key</summary>
-    public void SerializeRoot(TextWriter writer, object obj)
+    void SerializeRoot(TextWriter writer, object obj)
     {
         var root = new YamlNode();
         Serialize(root, obj);
         root.SerializeTo(writer, depth:-2, noSpacePrefix:true);
     }
-
-    /// <summary>Serializes root object without outputting its Key</summary>
-    public void SerializeRoot(FileInfo file, object obj)
-    {
-        using var writer = new StreamWriter(file.OpenWrite(), Encoding.UTF8);
-        SerializeRoot(writer, obj);
-    }
-
-    /// <summary>Serializes root object without outputting its Key</summary>
-    public void SerializeRoot(string filePath, object obj)
-    {
-        using var writer = new StreamWriter(filePath, append:false, Encoding.UTF8);
-        SerializeRoot(writer, obj);
-    }        
-
 
     /// <summary>Serializes root object without outputting its Key</summary>
     public static void SerializeRoot<T>(TextWriter writer, T obj)
@@ -165,14 +174,14 @@ public class YamlSerializer : UserTypeSerializer
     /// <summary>Serializes root object without outputting its Key</summary>
     public static void SerializeRoot<T>(FileInfo file, T obj)
     {
-        var s = new YamlSerializer(typeof(T));
-        s.SerializeRoot(file, obj);
+        using var writer = new StreamWriter(file.OpenWrite(), Encoding.UTF8);
+        SerializeRoot(writer, obj);
     }
         
     /// <summary>Serializes root object without outputting its Key</summary>
     public static void SerializeRoot<T>(string filePath, T obj)
     {
-        var s = new YamlSerializer(typeof(T));
-        s.SerializeRoot(filePath, obj);
+        using var writer = new StreamWriter(filePath, append:false, Encoding.UTF8);
+        SerializeRoot(writer, obj);
     }
 }

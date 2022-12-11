@@ -19,10 +19,20 @@ public sealed class SaveNewGameSetupScreen : GenericLoadSaveScreen
         SavedSetup = new(settings);
     }
 
+    public static void Save(string path, SetupSave save)
+    {
+        YamlSerializer.SerializeOne(path, save);
+    }
+
+    public static SetupSave Load(FileInfo fileInfo)
+    {
+        return YamlParser.DeserializeOne<SetupSave>(fileInfo);
+    }
+
     public override void DoSave()
     {
         SavedSetup.Name = EnterNameArea.Text;
-        YamlSerializer.SerializeRoot(Path + SavedSetup.Name + ".yaml", SavedSetup);
+        Save(Path + SavedSetup.Name + ".yaml", SavedSetup);
         ExitScreen();
     }
 
@@ -33,26 +43,19 @@ public sealed class SaveNewGameSetupScreen : GenericLoadSaveScreen
         {
             try
             {
-                SetupSave data = YamlParser.DeserializeOne<SetupSave>(file);
+                SetupSave data = Load(file);
                 if (data.Name.IsEmpty())
                 {
-                    data.Name = file.NameNoExt();
-                    data.Version = 0;
+                    Log.Warning($"Invalid NewGameSetup: {file.FullName}");
+                    continue;
                 }
 
-                string info;
-                string extraInfo;
-                if (data.Version < 308)     // Version checking
+                string info = data.Date;
+                string extraInfo = data.ModName.NotEmpty() ? $"Mod: {data.ModName}" : "Vanilla";
+                saves.Add(new(file, data, data.Name, info, extraInfo, null, Color.White)
                 {
-                    info = "Invalid Setup File";
-                    extraInfo = "";
-                }
-                else
-                {
-                    info = data.Date;
-                    extraInfo = (data.ModName != "" ? "Mod: " + data.ModName : "Default");
-                }
-                saves.Add(new FileData(file, data, data.Name, info, extraInfo, null, Color.White));
+                    Enabled = GlobalStats.IsValidForCurrentMod(data.ModName)
+                });
             }
             catch
             {

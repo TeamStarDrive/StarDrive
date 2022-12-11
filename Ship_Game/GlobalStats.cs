@@ -48,6 +48,9 @@ namespace Ship_Game
         public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}Globals.yaml" : ""; // "Mods/Combined Arms/Globals.yaml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
         public static string ModVersion => ActiveMod?.Mod.Version ?? "";
+
+        /// <returns>TRUE if `modName` is compatible with the current ModName</returns>
+        public static bool IsValidForCurrentMod(string modName) => modName.IsEmpty() || modName == ModName;
         
         // "Combined Arms" or "" if there's no active mod, this name can have special characters
         public static string ModName = "";
