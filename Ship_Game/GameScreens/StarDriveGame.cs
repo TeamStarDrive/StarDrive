@@ -136,7 +136,8 @@ namespace Ship_Game
 
         protected override void Draw(float deltaTime)
         {
-            if (GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
+            if (GraphicsDevice.IsDisposed ||
+                GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
                 return;
 
             GraphicsDevice.Clear(Color.Black);
