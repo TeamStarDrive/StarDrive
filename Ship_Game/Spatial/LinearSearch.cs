@@ -75,7 +75,7 @@ namespace Ship_Game.Spatial
             {
                 int spatialIndex = objectIds[i];
                 SpatialObjectBase go = objects[spatialIndex];
-                found[i] = go;
+                found[i] = go ?? throw new NullReferenceException($"LinearSearch object[{i}] was null. Results count={count}");
             }
             return found;
         }
