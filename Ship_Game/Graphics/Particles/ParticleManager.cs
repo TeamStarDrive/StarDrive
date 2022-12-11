@@ -4,7 +4,6 @@ using System.IO;
 using SDUtils;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
-using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Matrix = SDGraphics.Matrix;
 
@@ -56,11 +55,14 @@ namespace Ship_Game.Graphics.Particles
 
         public void Unload()
         {
+            if (!GlobalStats.IsUnitTest)
+                Log.Write(ConsoleColor.Cyan, "ParticleManager.Unload");
+
             GameBase.ScreenManager?.RemoveHotLoadTarget("3DParticles/Particles.yaml");
 
-            var effects = Effects.Values.ToArr();
             lock (Effects)
             {
+                var effects = Effects.Values.ToArr();
                 Effects.Clear();
                 foreach (var fx in effects)
                     fx.Dispose();
