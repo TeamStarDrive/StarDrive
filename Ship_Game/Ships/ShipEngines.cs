@@ -125,6 +125,9 @@ namespace Ship_Game.Ships
             //////////////////////////////////////
 
             ShipAI.ShipGoal goal = Owner.AI.OrderQueue.PeekFirst;
+            // normally it shouldn't be null, but a race condition happens here
+            if (goal == null)
+                return Status(ReadyForWarp, "");
 
             // we are still rotating towards the next move position
             if (goal.Plan == ShipAI.Plan.RotateToFaceMovePosition)
