@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework.Audio;
 using System;
 using NAudio.Wave;
 using Cue = Microsoft.Xna.Framework.Audio.Cue;
@@ -82,11 +82,22 @@ namespace Ship_Game.Audio
         public bool IsPaused  => Cue?.IsPaused == true;
         public void Pause()   => Cue?.Pause();
         public void Resume()  => Cue?.Resume();
+
         public void Stop()
         {
             if (!IsStopped)
-                Cue.Stop(AudioStopOptions.AsAuthored);
+            {
+                try
+                {
+                    Cue.Stop(AudioStopOptions.AsAuthored);
+                }
+                catch
+                {
+                    // somehow Stop() can throw an exception, ¯\_(ツ)_/¯
+                }
+            }
         }
+
         void Destroy()
         {
             Cue cue = Cue; // flimsy thread safety
