@@ -88,7 +88,7 @@ namespace Ship_Game
         public DeferredRenderer Renderer { get; }
         
         // Thread safe queue for running UI commands
-        readonly SafeQueue<Action> PendingActions = new SafeQueue<Action>();
+        readonly SafeQueue<Action> PendingActions = new();
 
         // If this is set, the universe was paused
         UniverseScreen PausedUniverse;
@@ -183,6 +183,8 @@ namespace Ship_Game
                 PausedUniverse.UState.Paused = false;
                 PausedUniverse = null;
             }
+
+            PendingActions.Clear();
 
             // if we got any tooltips, clear them now
             ToolTip.Clear();
@@ -917,18 +919,8 @@ namespace Ship_Game
         /// </summary>
         public void RunOnNextFrame(Action action)
         {
-            if (action != null)
-            {
-                PendingActions.Enqueue(action);
-            }
-            else
-            {
-                const string msg = "Null Action passed to RunOnUIThread method";
-                if (System.Diagnostics.Debugger.IsAttached)
-                    Log.Error(msg);
-                else
-                    Log.WarningWithCallStack(msg);
-            }
+            if (action == null) throw new NullReferenceException(nameof(action));
+            PendingActions.Enqueue(action);
         }
 
         /// <summary>
