@@ -1264,7 +1264,7 @@ namespace Ship_Game
                     {
                         if (p.IsExploredBy(Player) && p.RecentCombat)
                         {
-                            if (p.Owner.isPlayer || p.Troops.WeHaveTroopsHere(UState.Player))
+                            if (p.Owner?.isPlayer == true || p.Troops.WeHaveTroopsHere(UState.Player))
                             {
                                 if (planetIdx == nextPlanetCombat)
                                     planetToView = p;
