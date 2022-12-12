@@ -49,7 +49,13 @@
         /// <summary>
         /// Higher than 1 will decrease colonization pace and vice versa
         /// </summary>
-        public readonly float ExpansionMultiplier; 
+        public readonly float ExpansionMultiplier;
+
+        /// <summary>
+        /// For lower difficulties, this interval will be higher
+        /// For high difficulty, the AI keeps checking expansion more frequently
+        /// </summary>
+        public readonly int ExpansionCheckInterval;
 
         public DifficultyModifiers(Empire empire, GameDifficulty difficulty)
         {
@@ -81,7 +87,8 @@
                     EnemyTroopStrength   = 1.4f;
                     MineralDecayDivider  = 80;
                     PiratePayModifier    = 0.75f;
-                    ExpansionMultiplier  = 0.75f;
+                    ExpansionMultiplier  = 1.0f;
+                    ExpansionCheckInterval = 10; // every 10 turns
                     MinStartingColonies  = 3;
                     ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 400;
@@ -117,7 +124,8 @@
                     EnemyTroopStrength   = 1.6f;
                     MineralDecayDivider  = 60;
                     PiratePayModifier    = 1f;
-                    ExpansionMultiplier  = 0.25f;
+                    ExpansionMultiplier  = 0.7f; // 30% lower, makes the AI expand a bit more easily, but not too much
+                    ExpansionCheckInterval = 7; // every 7 turns
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 30;
                     RemnantTurnsLevelUp  = 350;
@@ -158,7 +166,8 @@
                     EnemyTroopStrength   = 1.8f;
                     MineralDecayDivider  = 40;
                     PiratePayModifier    = 1.5f;
-                    ExpansionMultiplier  = 0.1f;
+                    ExpansionMultiplier  = 0.4f; // 60% lower threshold, basically makes every Empire a super Expansionist
+                    ExpansionCheckInterval = 4; // every 4 turns
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 20;
                     RemnantTurnsLevelUp  = 300;
@@ -199,7 +208,8 @@
                     EnemyTroopStrength   = 1.8f;
                     MineralDecayDivider  = 40;
                     PiratePayModifier    = 1.5f;
-                    ExpansionMultiplier  = 0.1f;
+                    ExpansionMultiplier  = 0.1f; // 10x lower threshold, Insane AI can expand as much as it wants!
+                    ExpansionCheckInterval = 1; // every turn, there is no limit!
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 20;
                     RemnantTurnsLevelUp  = 300;
