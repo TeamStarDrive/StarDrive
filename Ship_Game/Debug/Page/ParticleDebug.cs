@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Graphics.Particles;
@@ -39,29 +40,43 @@ internal class ParticleDebug : DebugPage
             f.Text = $"Particle Loyalty: {Loyalty.Name}";
         };
 
-        var left = AddList(20, 120);
+        var gpuMem = right.AddLabel("Particles GPU MEM: 0MB");
+        gpuMem.DynamicText = _ => $"Particles GPU MEM: {Manager.GetUsedGPUMemory()/(1024f*1024f):0.0}MB";
+
+        RectF parentRect = parent.ModesTab.ClientArea;
+        parentRect.W = 400;
+        var list = Add(new ScrollList<ParticleDebugListItem>(parentRect, 16));
         foreach (IParticle ps in ParticleSystems)
         {
-            Selected[ps.Name] = false;
+            list.AddItem(new ParticleDebugListItem(ps, this));
+        }
+    }
 
-            var horizontal = left.AddList(Vector2.Zero, new Vector2(400, 20));
+    class ParticleDebugListItem : ScrollListItem<ParticleDebugListItem>
+    {
+        public ParticleDebugListItem(IParticle ps, ParticleDebug d)
+        {
+            d.Selected[ps.Name] = false;
+
+            var horizontal = AddList(Vector2.Zero, new Vector2(400, 20));
             horizontal.Direction = new Vector2(1f, 0);
+            horizontal.SetLocalPos(0, 0);
 
             horizontal.AddCheckbox(() => ps.IsEnabled, "on", "Toggle to enable/disable particle system");
             horizontal.AddCheckbox(() => ps.EnableDebug, "dbg", "Toggle to enable/disable particle DEBUG");
-            horizontal.AddCheckbox(() => Selected[ps.Name], b => Selected[ps.Name] = b, "draw", "Select this particle for drawing");
+            horizontal.AddCheckbox(() => d.Selected[ps.Name], b => d.Selected[ps.Name] = b, "draw", "Select this particle for drawing");
 
             var name = horizontal.AddLabel(new Vector2(100, 20), $"PS {ps.Name}");
             name.DynamicText = l =>
             {
-                if (ps.IsOutOfParticles) l.Color = Color.Red;
-                else if (IsSelected(ps)) l.Color = Color.Green;
-                else                     l.Color = Color.White;
+                if (ps.IsOutOfParticles)   l.Color = Color.Red;
+                else if (d.IsSelected(ps)) l.Color = Color.Green;
+                else                       l.Color = Color.White;
                 return $"PS {ps.Name}";
             };
 
             var stats = horizontal.AddLabel(new Vector2(200, 20), "");
-            stats.DynamicText = l => $"  {ps.ActiveParticles}/{ps.MaxParticles}  {(100f*ps.AllocatedParticles/ps.MaxParticles).String(1)}%";
+            stats.DynamicText = _ => $"  {ps.ActiveParticles}/{ps.MaxParticles}  {(100f*ps.ActiveParticles/ps.MaxParticles).String(1)}%";
         }
     }
 
