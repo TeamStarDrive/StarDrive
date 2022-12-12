@@ -330,6 +330,8 @@ namespace Ship_Game
         {
             NewGame,
             LoadGame,
+            YouWin,
+            YouLose
         }
 
         /// <summary>

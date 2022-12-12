@@ -642,11 +642,7 @@ namespace Ship_Game
         public void OnPlayerWon(LocalizedText title = default)
         {
             UState.GameOver = true;
-
-            if (title.IsValid)
-                ScreenManager.AddScreen(new YouWinScreen(this, title));
-            else
-                ScreenManager.AddScreen(new YouWinScreen(this));
+            ScreenManager.AddScreen(new YouWinScreen(this, title));
         }
 
         void UnloadGraphics()
