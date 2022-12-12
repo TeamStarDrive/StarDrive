@@ -276,7 +276,6 @@ namespace Ship_Game.Universe
             Save = null;
             save.UpdateAllDesignsFromSave(this);
 
-            P.UpdateGlobalStats();
             SettingsResearchModifier = GetResearchMultiplier();
             RemnantPaceModifier = CalcRemnantPace();
             

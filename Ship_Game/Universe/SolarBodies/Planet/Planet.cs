@@ -1462,7 +1462,7 @@ namespace Ship_Game
                 return;
 
             // If the planet outputs 100 production on Brutal, the chance to decay is 2.5%, normal will be 1%
-            float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / GlobalStats.Settings.CustomMineralDecay);
+            float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / Universe.P.CustomMineralDecay);
 
             // Larger planets have less chance for reduction
             decayChance /= Scale.LowerBound(0.1f);
