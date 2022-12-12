@@ -29,23 +29,22 @@ namespace Ship_Game
         readonly Rectangle SelectedItemRect;
         Rectangle HoveredItemRect;
         Rectangle AssetsRect;
-        readonly OrbitalAssetsUIElement AssetsUI;
         readonly TroopInfoUIElement TInfo;
         readonly TroopInfoUIElement HInfo;
         readonly UIButton LandAll;
         readonly UIButton LaunchAll;
         readonly UIButton Bombard;
         readonly Rectangle GridRect;
-        readonly Array<PointSet> CenterPoints = new Array<PointSet>();
-        readonly Array<PointSet> PointsList   = new Array<PointSet>();
-        readonly Array<PlanetGridSquare> MovementTiles = new Array<PlanetGridSquare>();
-        readonly Array<PlanetGridSquare> AttackTiles = new Array<PlanetGridSquare>();
+        readonly Array<PointSet> CenterPoints = new();
+        readonly Array<PointSet> PointsList   = new();
+        readonly Array<PlanetGridSquare> MovementTiles = new();
+        readonly Array<PlanetGridSquare> AttackTiles = new();
         bool ResetNextFrame;
         public PlanetGridSquare ActiveTile;
         float OrbitalAssetsTimer; // X seconds per Orbital Assets update
 
-        readonly Array<PlanetGridSquare> ReversedList              = new Array<PlanetGridSquare>();
-        readonly BatchRemovalCollection<SmallExplosion> Explosions = new BatchRemovalCollection<SmallExplosion>();
+        readonly Array<PlanetGridSquare> ReversedList = new();
+        readonly BatchRemovalCollection<SmallExplosion> Explosions = new();
 
         readonly float[] DistancesByRow = { 437f, 379f, 311f, 229f, 128f, 0f };
         readonly float[] WidthByRow     = { 110f, 120f, 132f, 144f, 162f, 183f };
@@ -54,8 +53,7 @@ namespace Ship_Game
 
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {
-            if (p == null) throw new ArgumentNullException(nameof(p));
-            P = p;
+            P = p ?? throw new ArgumentNullException(nameof(p));
             Universe = p.Universe;
 
             GridRect            = new Rectangle(ScreenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
@@ -64,7 +62,7 @@ namespace Ship_Game
             AssetsRect          = new Rectangle(10, 48, 225, 200);
             SelectedItemRect    = new Rectangle(10, 250, 225, 380);
             HoveredItemRect     = new Rectangle(10, 250, 225, 380);
-            AssetsUI = Add(new OrbitalAssetsUIElement(AssetsRect, ScreenManager, p.Universe.Screen, p));
+            Add(new OrbitalAssetsUIElement(AssetsRect, ScreenManager, p.Universe.Screen, p));
             TInfo = Add(new TroopInfoUIElement(SelectedItemRect, ScreenManager, p.Universe.Screen));
             HInfo = Add(new TroopInfoUIElement(HoveredItemRect, ScreenManager, p.Universe.Screen));
             TInfo.Visible = HInfo.Visible = false;
@@ -527,7 +525,7 @@ namespace Ship_Game
             else if (evt == DragEvent.End)
             {
                 IsDraggingTroop = false;
-                if (outside)
+                if (outside && item != null) // TODO: not sure how this can be null, but somehow it happens
                 {
                     PlanetGridSquare toLand = P.FindTileUnderMouse(Input.CursorPosition);
                     if (P.WeCanLandTroopsViaSpacePort(item.Troop.Loyalty))
@@ -714,21 +712,21 @@ namespace Ship_Game
 
         public static void StartCombat(Troop attacker, Troop defender, PlanetGridSquare defenseTile, Planet planet)
         {
-            Combat c = new Combat(attacker, defender, defenseTile, planet);
+            Combat c = new(attacker, defender, defenseTile, planet);
             attacker.DoAttack();
             planet.ActiveCombats.Add(c);
         }
 
         public static void StartCombat(Troop attacker, Building defender, PlanetGridSquare defenseTile, Planet planet)
         {
-            Combat c = new Combat(attacker, defender, defenseTile, planet);
+            Combat c = new(attacker, defender, defenseTile, planet);
             attacker.DoAttack();
             planet.ActiveCombats.Add(c);
         }
 
         public static void StartCombat(Building attacker, Troop defender, PlanetGridSquare defenseTile, Planet planet)
         {
-            Combat c = new Combat(attacker, defender, defenseTile, planet);
+            Combat c = new(attacker, defender, defenseTile, planet);
             planet.ActiveCombats.Add(c);
         }
 
