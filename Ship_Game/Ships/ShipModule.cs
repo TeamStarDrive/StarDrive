@@ -917,7 +917,7 @@ namespace Ship_Game.Ships
         // TODO: this should be part of `Bonuses`
         float GetGlobalArmourBonus()
         {
-            if (GlobalStats.Settings.UseHullBonuses &&
+            if (GlobalStats.Defaults.UseHullBonuses &&
                 ResourceManager.HullBonuses.TryGetValue(Parent.ShipData.Hull, out HullBonus mod))
                 return (1f - mod.ArmoredBonus);
 

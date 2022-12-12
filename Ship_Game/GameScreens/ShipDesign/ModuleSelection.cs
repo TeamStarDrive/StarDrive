@@ -212,7 +212,7 @@ namespace Ship_Game
             // Concat ship class restrictions
             string shipRest = "";
             bool specialString = false;
-            bool destroyers = GlobalStats.Settings.UseDestroyers;
+            bool destroyers = GlobalStats.Defaults.UseDestroyers;
 
             if (destroyers)
             {
@@ -387,7 +387,7 @@ namespace Ship_Game
             Power modNetWarpPowerDraw = Power.Calculate(modList, Player, true);
             DrawStat(ref modTitlePos, GameText.PowerWarp, -modNetWarpPowerDraw.NetWarpPowerDraw, GameText.TheEffectivePowerDrainOf);
 
-            if (GlobalStats.Settings.EnableECM)
+            if (GlobalStats.Defaults.EnableECM)
             {
                 DrawStat(ref modTitlePos, GameText.Ecm2, mod.ECM, GameText.IndicatesTheChanceOfEcm, isPercent: true);
 
@@ -573,7 +573,7 @@ namespace Ship_Game
             DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, GameText.IndicatesTheAmountOfOrdnance);
             DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, GameText.IndicatesTheAmountOfPower);
 
-            if (w.Tag_Guided && GlobalStats.Settings.EnableECM)
+            if (w.Tag_Guided && GlobalStats.Defaults.EnableECM)
                 DrawStatPercentLine(ref cursor, GameText.EcmResist, w.ECMResist, GameText.IndicatesTheResistanceOfThis);
 
             DrawResistancePercent(ref cursor, wOrMirv, "VS Armor", WeaponStat.Armor);
@@ -672,14 +672,14 @@ namespace Ship_Game
 
         float GetHullDamageBonus()
         {
-            if (GlobalStats.Settings.UseHullBonuses)
+            if (GlobalStats.Defaults.UseHullBonuses)
                 return 1f + Screen.CurrentHull.Bonuses.DamageBonus;
             return 1f;
         }
 
         float GetHullFireRateBonus()
         {
-            if (GlobalStats.Settings.UseHullBonuses)
+            if (GlobalStats.Defaults.UseHullBonuses)
                 return 1f - Screen.CurrentHull.Bonuses.FireRateBonus;
             return 1f;
         }

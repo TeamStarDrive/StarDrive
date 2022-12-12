@@ -126,9 +126,9 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
             }
-            else if (GlobalStats.Settings.CustomMenuMusic.NotEmpty())
+            else if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
             {
-                ScreenManager.Music = GameAudio.PlayMp3(GlobalStats.ModPath + GlobalStats.Settings.CustomMenuMusic);
+                ScreenManager.Music = GameAudio.PlayMp3(GlobalStats.ModPath + GlobalStats.Defaults.CustomMenuMusic);
             }
             else if (ScreenManager.Music.IsStopped)
             {

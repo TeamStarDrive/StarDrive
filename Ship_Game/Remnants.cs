@@ -968,7 +968,7 @@ namespace Ship_Game
         RemnantStory InitAndPickStory(EmpireAI ai)
         {
             ai.AddGoal(new RemnantInit(Owner));
-            if (GlobalStats.Settings.DisableRemnantStory)
+            if (GlobalStats.Defaults.DisableRemnantStory)
                 return RemnantStory.None;
 
             switch (RollDie(3)) // todo for now 3 stories

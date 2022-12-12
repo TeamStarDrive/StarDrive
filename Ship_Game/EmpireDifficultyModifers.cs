@@ -54,8 +54,8 @@
         public DifficultyModifiers(Empire empire, GameDifficulty difficulty)
         {
             float remnantGeneralStr = 2; // Vanilla will be 2
-            if (GlobalStats.Settings.RemnantDesignStrMultiplier > 0.01f)
-                remnantGeneralStr = GlobalStats.Settings.RemnantDesignStrMultiplier;
+            if (GlobalStats.Defaults.RemnantDesignStrMultiplier > 0.01f)
+                remnantGeneralStr = GlobalStats.Defaults.RemnantDesignStrMultiplier;
 
             DataVisibleToPlayer    = false;
             FlatMoneyBonus         = 0;
