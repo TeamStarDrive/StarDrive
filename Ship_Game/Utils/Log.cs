@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 using SDUtils;
 using Sentry;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -334,8 +335,7 @@ namespace Ship_Game
         /// <summary>
         /// Logs event statistics to Sentry if AutoErrorReport is enabled
         /// </summary>
-        /// <param name="evt"></param>
-        public static void LogEventStats(GameEvent evt)
+        public static void LogEventStats(GameEvent evt, UniverseParams p = null)
         {
             if (!IsStatsReportEnabled)
                 return;
@@ -346,6 +346,19 @@ namespace Ship_Game
                 Message = evt.ToString(),
             };
             e.SetTag("TimesPlayed", GlobalStats.TimesPlayed.ToString());
+            if (p != null)
+            {
+                e.SetTag("Difficulty", p.Difficulty.ToString());
+                e.SetTag("StarsCount", p.StarsCount.ToString());
+                e.SetTag("GalaxySize", p.GalaxySize.ToString());
+                e.SetTag("ExtraRemnant", p.ExtraRemnant.ToString());
+                e.SetTag("NumSystems", p.NumSystems.ToString());
+                e.SetTag("NumOpponents", p.NumOpponents.ToString());
+                e.SetTag("GameMode", p.Mode.ToString());
+                e.SetTag("Pace", p.Pace.String(2));
+                e.SetTag("GameMode", p.Mode.ToString());
+                e.SetTag("ExtraPlanets", p.ExtraPlanets.ToString());
+            }
             SentrySdk.CaptureEvent(e);
         }
 
