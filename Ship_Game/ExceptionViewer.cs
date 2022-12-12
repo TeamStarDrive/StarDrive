@@ -32,9 +32,14 @@ public partial class ExceptionViewer : Form
         Activate(); // give focus to the dialog
     }
 
+    [STAThread] // Clipboard.SetText requires STAThread
     void btClip_Click_1(object sender, EventArgs e)
     {
-        Clipboard.SetText(tbError.Text);
+        try
+        {
+            Clipboard.SetText(tbError.Text);
+        }
+        catch {}
     }
 
     void btClose_Click(object sender, EventArgs e)
