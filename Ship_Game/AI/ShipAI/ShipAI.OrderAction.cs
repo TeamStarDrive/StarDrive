@@ -771,7 +771,7 @@ namespace Ship_Game.AI
             else
             {
                 AwaitClosest = home.PlanetList.FindMinFiltered(p => p.Owner == Owner.Loyalty
-                                                            , p => p.Position.SqDist(Owner.Position));
+                                                             , p => p.Position.SqDist(Owner.Position));
             }
             return AwaitClosest != null;
         }
