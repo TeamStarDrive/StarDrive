@@ -600,6 +600,8 @@ namespace Ship_Game
                 : Universe.ActiveMajorEmpires;
 
             potentialEmpires = potentialEmpires.Filter(e => e != this && !GetRelationsOrNull(e)?.RefusedMerge == true);
+            if (potentialEmpires.Length == 0)
+                return false; // in some cases, all empires will reject the merge
 
             switch (Personality)
             {
@@ -689,14 +691,16 @@ namespace Ship_Game
         bool TryMergeOrSurrenderCunning(Empire enemy, Empire[] potentialEmpires)
         {
             var biggest = potentialEmpires.FindMax(e => e.TotalPopBillion);
-            return MergeWith(biggest, enemy);
+            if (biggest != null)
+                return MergeWith(biggest, enemy);
+            return false;
         }
 
         bool MergeWith(Empire absorber, Empire enemy)
         {
             if (absorber == this)
             {
-                Log.Warning($"Execute merge tried merge with self: {Name}");
+                Log.Error($"Empire.MergeWith tried merge with self: {Name}");
                 return false;
             }
 
