@@ -20,9 +20,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         public Volcano(PlanetGridSquare tile, Planet planet)
         {
+            Tile = tile;
+            P = planet;
             ActivationChance = InitActivationChance();
-            Tile             = tile;
-            P                = planet;
             CreateDormantVolcano();
         }
 
