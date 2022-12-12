@@ -17,6 +17,7 @@ namespace Ship_Game.AI.ExpansionAI
         [StarData] readonly Array<SolarSystem> MarkedForExploration = new();
         [StarData] public int ExpandSearchTimer { get; private set; }
         [StarData] public int MaxSystemsToCheckedDiv { get; private set; }
+        [StarData] int ExpansionIntervalTimer; // how often to check for expansion?
 
         [StarDataConstructor] ExpansionPlanner() {}
 
@@ -68,9 +69,6 @@ namespace Ship_Game.AI.ExpansionAI
             return (int)goals;
         }
 
-        float PopulationRatio    => Owner.TotalPopBillion / Owner.MaxPopBillion.LowerBound(1);
-        float ExpansionThreshold => (Owner.IsExpansionists ? 0.2f : 0.4f) * Owner.DifficultyModifiers.ExpansionMultiplier;
-    
         int GoalsModifierByRank() // increase goals if we are behind other empires
         {
             if (Owner.Universe.StarDate < 1002)
@@ -78,6 +76,34 @@ namespace Ship_Game.AI.ExpansionAI
 
             var empires = Owner.Universe.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
             return (int)(empires.IndexOf(Owner) * Owner.DifficultyModifiers.ColonyGoalMultiplier);
+        }
+
+        bool CanConsiderExpanding(float popRatio, int numPlanets)
+        {
+            // expansion check limit applies to everyone, even Player who is using AutoColonize
+            ++ExpansionIntervalTimer;
+            if (ExpansionIntervalTimer < Owner.DifficultyModifiers.ExpansionCheckInterval)
+                return false;
+
+            ExpansionIntervalTimer = 0;
+
+            // if we have more than enough starting colonies, we can check required pop ratio
+            if (numPlanets >= Owner.DifficultyModifiers.MinStartingColonies)
+            {
+                // required pop ratio balances current population against MAX possible population
+                // before we have enough population across all planets, the AI will not consider expanding
+                float requiredPopRatio = GlobalStats.Defaults.RequiredExpansionPopRatio
+                                       * Owner.DifficultyModifiers.ExpansionMultiplier;
+
+                // expansionist empires are willing to accept a -25% lower ratio before expanding
+                if (Owner.IsExpansionists)
+                    requiredPopRatio -= requiredPopRatio*0.25f;
+
+                if (popRatio < requiredPopRatio)
+                    return false; // we are still below required population ratio
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -90,14 +116,10 @@ namespace Ship_Game.AI.ExpansionAI
             if (Owner.isPlayer && !Owner.AutoColonize)
                 return;
 
+            float popRatio = Owner.TotalPopBillion / Owner.MaxPopBillion.LowerBound(1);
             int ourPlanetsNum = Owner.GetPlanets().Count;
-            if (!Owner.isPlayer)
-            {
-                if (PopulationRatio < ExpansionThreshold && ourPlanetsNum >= Owner.DifficultyModifiers.MinStartingColonies)
-                {
-                    return; // We have not reached our pop capacity threshold (for AI only) 
-                }
-            }
+            if (!CanConsiderExpanding(popRatio, ourPlanetsNum))
+                return;
 
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
             int desiredGoals = DesiredColonyGoals();
@@ -110,7 +132,7 @@ namespace Ship_Game.AI.ExpansionAI
             if (currentColonizationGoals.Length - blockedColonyGoals >= desiredGoals)
                 return;
 
-            Log.Info(ConsoleColor.Magenta, $"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
+            Log.Info(ConsoleColor.Magenta, $"Running Expansion for {Owner.Name}, PopRatio: {popRatio.String(2)}");
 
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
