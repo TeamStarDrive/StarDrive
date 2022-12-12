@@ -386,6 +386,9 @@
     <Compile Include="Ship_Game\Empires\EmpireConstants.cs" />
     <Compile Include="Ship_Game\GameScreens\DeveloperUniverse.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame.cs" />
+    <Compile Include="Ship_Game\Graphics\Particles\ParticleVertex.cs" />
+    <Compile Include="Ship_Game\Graphics\Particles\ParticleVertexBuffer.cs" />
+    <Compile Include="Ship_Game\Graphics\Particles\ParticleVertexBufferShared.cs" />
     <Compile Include="Ship_Game\Graphics\RenderStates.cs" />
     <Compile Include="Ship_Game\Graphics\RenderTargets.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
