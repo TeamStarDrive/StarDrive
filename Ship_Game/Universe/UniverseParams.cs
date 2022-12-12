@@ -75,7 +75,6 @@ public class UniverseParams
         NumOpponents = s.DefaultNumOpponents.UpperBound(ResourceManager.MajorRaces.Count - 1);
         MinAcceptableShipWarpRange = s.MinAcceptableShipWarpRange;
         TurnTimer = s.TurnTimer;
-        GravityWellRange = s.GravityWellRange;
         CustomMineralDecay = s.CustomMineralDecay;
         VolcanicActivity = s.VolcanicActivity;
         ShipMaintenanceMultiplier = s.ShipMaintenanceMultiplier;
