@@ -463,8 +463,7 @@ namespace Ship_Game
             string text = "(!) Error: " + error;
             LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
-            
-        #if DEBUG && !NOBREAK
+
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(error))
@@ -475,6 +474,7 @@ namespace Ship_Game
                 return;
             }
 
+        #if !NOBREAK
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         #endif
@@ -488,7 +488,6 @@ namespace Ship_Game
             LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
             
-        #if DEBUG && !NOBREAK
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(text))
@@ -497,6 +496,8 @@ namespace Ship_Game
                 }
                 return;
             }
+
+        #if !NOBREAK
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         #endif
