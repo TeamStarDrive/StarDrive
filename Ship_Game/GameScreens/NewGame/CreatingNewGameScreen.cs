@@ -30,7 +30,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Log.LogEventStats(Log.GameEvent.NewGame, difficulty: P.Difficulty);
+            Log.LogEventStats(Log.GameEvent.NewGame, P);
 
             ScreenManager.ClearScene();
             LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(TransientContent);
