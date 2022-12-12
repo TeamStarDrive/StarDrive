@@ -28,21 +28,17 @@ namespace Ship_Game
         float Saturation = 255f;
         bool ShowingReplay;
 
-        public YouWinScreen(UniverseScreen parent) : base(parent, toPause: parent)
+        public YouWinScreen(UniverseScreen parent, LocalizedText text) : base(parent, toPause: parent)
         {
             Universe = parent;
             IsPopup = false;
             TransitionOnTime = 30f;
             TransitionOffTime = 0.25f;
-        }
 
-        public YouWinScreen(UniverseScreen parent, LocalizedText text) : base(parent, toPause: parent)
-        {
-            txt = text.Text;
-            txt = Fonts.Arial20Bold.ParseText(txt, 500f);
-            IsPopup = false;
-            TransitionOnTime = 30f;
-            TransitionOffTime = 0.25f;
+            if (text.IsValid)
+                txt = Fonts.Arial20Bold.ParseText(text, 500f);
+
+            Log.LogEventStats(Log.GameEvent.YouWin, parent.UState.P);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
