@@ -85,15 +85,4 @@ public class UniverseParams
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;
     }
-
-    public void UpdateGlobalStats()
-    {
-        var s = GlobalStats.Settings;
-        s.GravityWellRange = GravityWellRange;
-        s.CustomMineralDecay = CustomMineralDecay;
-        s.MinAcceptableShipWarpRange = MinAcceptableShipWarpRange;
-        s.ShipMaintenanceMultiplier = ShipMaintenanceMultiplier;
-        s.AIUsesPlayerDesigns = AIUsesPlayerDesigns;
-        s.UseUpkeepByHullSize = UseUpkeepByHullSize;
-    }
 }

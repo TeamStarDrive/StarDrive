@@ -298,7 +298,7 @@ namespace Ship_Game
             if (IsDefeated)
                 return;
 
-            if (GlobalStats.Settings.DisablePirates)
+            if (Universe.P.DisablePirates)
             {
                 IsDefeated = true;
             }
@@ -306,7 +306,6 @@ namespace Ship_Game
             {
                 Pirates = new Pirates(this, ai);
             }
-
         }
 
         public void SetAsRemnants(EmpireAI ai)
