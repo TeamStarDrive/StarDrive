@@ -30,7 +30,7 @@ namespace Ship_Game.Ships
             }
 
             // kill the ship if all modules exploded or internal slot percent is below critical
-            if (Health <= 0f || InternalSlotsHealthPercent < GlobalStats.Settings.ShipDestroyThreshold)
+            if (Health <= 0f || InternalSlotsHealthPercent < GlobalStats.Defaults.ShipDestroyThreshold)
             {
                 if (Active) // TODO This is a partial work around to help several modules dying at once calling Die cause multiple xp grant and messages
                     Die(LastDamagedBy, false);

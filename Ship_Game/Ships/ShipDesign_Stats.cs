@@ -223,7 +223,7 @@ namespace Ship_Game.Ships
             if (IsPlatformOrStation)
                 return true;
 
-            float neededRange = GlobalStats.Settings.MinAcceptableShipWarpRange;
+            float neededRange = e.Universe.P.MinAcceptableShipWarpRange;
             if (neededRange <= 0f) 
                 return true;
 
@@ -247,7 +247,7 @@ namespace Ship_Game.Ships
                 && !ShipRole.Protected
                 && !Deleted
                 && (empire.isPlayer || IsShipGoodForGoals(empire))
-                && (!IsPlayerDesign || GlobalStats.Settings.AIUsesPlayerDesigns || empire.isPlayer);
+                && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer);
         }
 
     }

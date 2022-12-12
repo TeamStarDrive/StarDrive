@@ -63,14 +63,22 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             if (SelectedDesign != design)
             {
-                SelectedDesign = design;
-
-                TempShip = new(Universe, design as Ships.ShipDesign);
-                TempShip.RecalculatePower();
-                TempShip.ShipStatusChange();
+                try // we got some errors here, so try to handle it gracefully and just report error
+                {
+                    TempShip = new(Universe, design as Ships.ShipDesign);
+                    TempShip.RecalculatePower();
+                    TempShip.ShipStatusChange();
+                    SelectedDesign = design;
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"ShowShip failed: {design.Name}"); // automatic error report
+                    SelectedDesign = null;
+                    Visible = false;
+                    return;
+                }
             }
 
-            Visible = true;
             TextWidth = (shipRectSize/2).RoundTo10();
             Size = new(shipRectSize + TextWidth, shipRectSize);
             Pos = screenPos;

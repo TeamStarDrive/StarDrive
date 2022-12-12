@@ -24,11 +24,16 @@ namespace Ship_Game
     [StarDataType]
     public sealed class RandomEventManager
     {
-        [StarData]
-        public RandomEvent ActiveEvent;
+        [StarData] public RandomEvent ActiveEvent;
+
+        // for UNIT TESTING, allows us to disable random events while tests are running
+        public bool Disabled;
 
         public void TryEventSpawn(UniverseState u)
         {
+            if (Disabled)
+                return;
+
             int random = RandomMath.RollDie(2000);
             if      (random == 1) HyperSpaceFlux(u);
             else if (random <= 3) ShiftInOrbit(u);
@@ -72,7 +77,7 @@ namespace Ship_Game
             if (ActiveEvent.TurnTimer <= 0)
             {
                 ActiveEvent = null;
-                u.Notifications.AddRandomEventNotification(Localizer.Token(GameText.TheHyperspaceFluxHasAbatednships), null, null, null);
+                u.Notifications?.AddRandomEventNotification(Localizer.Token(GameText.TheHyperspaceFluxHasAbatednships), null, null, null);
             }
         }
 
@@ -98,7 +103,7 @@ namespace Ship_Game
             }
 
             string fullText = $"{planet.Name} {Localizer.Token(message)} {postText}";
-            planet.Universe.Notifications.AddRandomEventNotification(
+            planet.Universe.Notifications?.AddRandomEventNotification(
                 fullText, planet.PType.IconPath, "SnapToPlanet", planet);
         }
 
@@ -122,7 +127,7 @@ namespace Ship_Game
                 NotificationString = Localizer.Token(GameText.AMassiveHyperspaceFluxnisInhibiting),
                 InhibitWarp        = true
             };
-            u.Notifications.AddRandomEventNotification(ActiveEvent.NotificationString, null, null, null);
+            u.Notifications?.AddRandomEventNotification(ActiveEvent.NotificationString, null, null, null);
         }
 
         void ShiftInOrbit(UniverseState u) // Shifted in orbit (+ MaxFertility)
@@ -143,9 +148,9 @@ namespace Ship_Game
             CreateMeteors(planet);
 
             if (planet.OwnerIsPlayer)
-                u.Notifications.AddMeteorShowerTargetingOurPlanet(planet);
+                u.Notifications?.AddMeteorShowerTargetingOurPlanet(planet);
             else if (planet.ParentSystem.HasPlanetsOwnedBy(u.Player))
-                u.Notifications.AddMeteorShowerInSystem(planet);
+                u.Notifications?.AddMeteorShowerInSystem(planet);
         }
 
         public void CreateMeteors(Planet p)

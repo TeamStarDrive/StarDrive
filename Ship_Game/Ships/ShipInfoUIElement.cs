@@ -255,7 +255,7 @@ namespace Ship_Game.Ships
                 Color.White, numStatus);
 
             var textPos              = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
-            float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / GlobalStats.Settings.ShipDestroyThreshold) * 100;
+            float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / GlobalStats.Defaults.ShipDestroyThreshold) * 100;
             structureIntegrity = Math.Max(1, structureIntegrity);
             batch.DrawString(Fonts.Arial12, structureIntegrity.String(0) + "%", textPos, Color.White);
             numStatus++;

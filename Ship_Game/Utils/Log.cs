@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 using SDUtils;
 using Sentry;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -329,13 +330,14 @@ namespace Ship_Game
         {
             NewGame,
             LoadGame,
+            YouWin,
+            YouLose
         }
 
         /// <summary>
         /// Logs event statistics to Sentry if AutoErrorReport is enabled
         /// </summary>
-        /// <param name="evt"></param>
-        public static void LogEventStats(GameEvent evt)
+        public static void LogEventStats(GameEvent evt, UniverseParams p = null)
         {
             if (!IsStatsReportEnabled)
                 return;
@@ -346,6 +348,19 @@ namespace Ship_Game
                 Message = evt.ToString(),
             };
             e.SetTag("TimesPlayed", GlobalStats.TimesPlayed.ToString());
+            if (p != null)
+            {
+                e.SetTag("Difficulty", p.Difficulty.ToString());
+                e.SetTag("StarsCount", p.StarsCount.ToString());
+                e.SetTag("GalaxySize", p.GalaxySize.ToString());
+                e.SetTag("ExtraRemnant", p.ExtraRemnant.ToString());
+                e.SetTag("NumSystems", p.NumSystems.ToString());
+                e.SetTag("NumOpponents", p.NumOpponents.ToString());
+                e.SetTag("GameMode", p.Mode.ToString());
+                e.SetTag("Pace", p.Pace.String(2));
+                e.SetTag("GameMode", p.Mode.ToString());
+                e.SetTag("ExtraPlanets", p.ExtraPlanets.ToString());
+            }
             SentrySdk.CaptureEvent(e);
         }
 
@@ -463,8 +478,7 @@ namespace Ship_Game
             string text = "(!) Error: " + error;
             LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
-            
-        #if DEBUG && !NOBREAK
+
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(error))
@@ -475,6 +489,7 @@ namespace Ship_Game
                 return;
             }
 
+        #if !NOBREAK
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         #endif
@@ -488,7 +503,6 @@ namespace Ship_Game
             LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
             
-        #if DEBUG && !NOBREAK
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 if (!ShouldIgnoreErrorText(text))
@@ -497,6 +511,8 @@ namespace Ship_Game
                 }
                 return;
             }
+
+        #if !NOBREAK
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         #endif

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Ship_Game.Fleets;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Diagnostics.Contracts;
 
 namespace Ship_Game
 {
@@ -40,7 +41,8 @@ namespace Ship_Game
             SelectedNodeList.Clear();
             SelectedSquad = null;
             // always clear the design, because OnDesignShipItemClicked will set it
-            AddDesignToFleet(ActiveShipDesign, null);
+            if (ActiveShipDesign != null) // this can happen sometimes due to click order?
+                AddDesignToFleet(ActiveShipDesign, null);
             ActiveShipDesign = null;
         }
 
@@ -123,6 +125,8 @@ namespace Ship_Game
 
         bool HandleActiveShipDesignInput(InputState input)
         {
+            Contract.Requires(ActiveShipDesign != null, "ActiveShipDesign cannot be null here");
+
             // we're dragging an active ship design,
             // assign it to the fleet on Left click
             if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))

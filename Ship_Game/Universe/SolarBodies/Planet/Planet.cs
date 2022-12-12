@@ -1126,7 +1126,7 @@ namespace Ship_Game
             InfraStructure = InfraStructure.LowerBound(1);
             RepairPerTurn  = RepairPerTurn.LowerBound(0);
 
-            if (GlobalStats.Settings.UsePlanetaryProjection)
+            if (GlobalStats.Defaults.UsePlanetaryProjection)
                 ProjectorRange = projectorRange;
 
             TerraformToAdd /= Scale; // Larger planets take more time to terraform, visa versa for smaller ones
@@ -1162,7 +1162,7 @@ namespace Ship_Game
 
         public float GetProjectorRange()
         {
-            if (GlobalStats.Settings.UsePlanetaryProjection)
+            if (GlobalStats.Defaults.UsePlanetaryProjection)
                 return ProjectorRange;
             return GetProjectorRadius(Owner);
         }
@@ -1179,7 +1179,7 @@ namespace Ship_Game
 
             for (int i = 0; i < numShipyards; ++i)
             {
-                shipBuildingModifier *= 1 - (GlobalStats.Settings.ShipyardBonus / shipyardDiminishedReturn);
+                shipBuildingModifier *= 1 - (GlobalStats.Defaults.ShipyardBonus / shipyardDiminishedReturn);
                 shipyardDiminishedReturn += 0.2f;
             }
 
@@ -1462,7 +1462,7 @@ namespace Ship_Game
                 return;
 
             // If the planet outputs 100 production on Brutal, the chance to decay is 2.5%, normal will be 1%
-            float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / GlobalStats.Settings.CustomMineralDecay);
+            float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / Universe.P.CustomMineralDecay);
 
             // Larger planets have less chance for reduction
             decayChance /= Scale.LowerBound(0.1f);

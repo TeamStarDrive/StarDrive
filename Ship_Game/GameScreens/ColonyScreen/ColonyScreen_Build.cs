@@ -206,7 +206,7 @@ namespace Ship_Game
             if (evt != DragEvent.End)
                 return;
 
-            if (outside)
+            if (outside && item != null) // TODO: somehow `item` can be null, not sure how it happens
             {
                 Building b = item.Building;
                 if (b != null)

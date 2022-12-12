@@ -20,9 +20,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         public Volcano(PlanetGridSquare tile, Planet planet)
         {
+            Tile = tile;
+            P = planet;
             ActivationChance = InitActivationChance();
-            Tile             = tile;
-            P                = planet;
             CreateDormantVolcano();
         }
 
@@ -35,7 +35,7 @@ namespace Ship_Game.Universe.SolarBodies
         public bool Dormant => !Active;
         float DeactivationChance       => ActivationChance * 5;
         float ActiveEruptionChance     => ActivationChance * 10;
-        float InitActivationChance()   => RandomMath.Float(0.01f, MaxActivationChance) * GlobalStats.Settings.VolcanicActivity;
+        float InitActivationChance()   => RandomMath.Float(0.01f, MaxActivationChance) * P.Universe.P.VolcanicActivity;
         string ActiveVolcanoTexPath    => "Buildings/icon_Active_Volcano_64x64";
         string DormantVolcanoTexPath   => "Buildings/icon_Dormant_Volcano_64x64";
         string EruptingVolcanoTexPath  => "Buildings/icon_Erupting_Volcano_64x64";

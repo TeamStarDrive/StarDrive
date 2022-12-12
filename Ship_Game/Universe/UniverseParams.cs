@@ -70,12 +70,11 @@ public class UniverseParams
     public UniverseParams()
     {
         // initialize defaults from Settings
-        var s = GlobalStats.Settings;
+        var s = GlobalStats.Defaults;
 
         NumOpponents = s.DefaultNumOpponents.UpperBound(ResourceManager.MajorRaces.Count - 1);
         MinAcceptableShipWarpRange = s.MinAcceptableShipWarpRange;
         TurnTimer = s.TurnTimer;
-        GravityWellRange = s.GravityWellRange;
         CustomMineralDecay = s.CustomMineralDecay;
         VolcanicActivity = s.VolcanicActivity;
         ShipMaintenanceMultiplier = s.ShipMaintenanceMultiplier;
@@ -84,16 +83,5 @@ public class UniverseParams
         StartingPlanetRichnessBonus = s.StartingPlanetRichnessBonus;
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;
-    }
-
-    public void UpdateGlobalStats()
-    {
-        var s = GlobalStats.Settings;
-        s.GravityWellRange = GravityWellRange;
-        s.CustomMineralDecay = CustomMineralDecay;
-        s.MinAcceptableShipWarpRange = MinAcceptableShipWarpRange;
-        s.ShipMaintenanceMultiplier = ShipMaintenanceMultiplier;
-        s.AIUsesPlayerDesigns = AIUsesPlayerDesigns;
-        s.UseUpkeepByHullSize = UseUpkeepByHullSize;
     }
 }
