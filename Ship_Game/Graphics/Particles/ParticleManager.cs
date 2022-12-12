@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using SDUtils;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
@@ -249,17 +248,20 @@ public class ParticleManager : IDisposable
             FreeBuffers.Add(b);
 
             // if we have too many free buffers, dispose half of them
-            if (FreeBuffers.Count > (AllBuffers.Count / 2))
+            if (FreeBuffers.Count < (AllBuffers.Count / 2))
+                return;
+
+            int toDispose = FreeBuffers.Count / 2;
+            if (toDispose < 4) // but only if there's enough of them
+                return;
+
+            float mem = toDispose * ParticleVertexBuffer.Size * 4 * ParticleVertex.SizeInBytes;
+            Log.Info($"Disposing {toDispose} particle buffers, totaling {mem/(1024f*1024f):0.0}MB");
+            for (int i = 0; i < toDispose; ++i)
             {
-                int toDispose = FreeBuffers.Count / 2;
-                float mem = toDispose * ParticleVertexBuffer.Size * 4 * ParticleVertex.SizeInBytes;
-                Log.Info($"Disposing {toDispose} particle buffers, totaling {mem/(1024f*1024f):0.0}MB");
-                for (int i = 0; i < toDispose; ++i)
-                {
-                    var buffer = FreeBuffers.PopLast();
-                    buffer.Dispose();
-                    AllBuffers.Remove(buffer);
-                }
+                var buffer = FreeBuffers.PopLast();
+                buffer.Dispose();
+                AllBuffers.Remove(buffer);
             }
         }
     }
