@@ -85,12 +85,12 @@ namespace UnitTests.AITests.Empire
             Player.ClearShipsWeCanBuild();
 
             // add new enemy design
-            GlobalStats.Settings.AIUsesPlayerDesigns = true;
+            UState.P.AIUsesPlayerDesigns = true;
             UnlockAllTechsForShip(Enemy, "Fang Strafer");
             ShipDesign playerDesign1 = CreateTemplate("Fang Strafer", Enemy, playerDesign:true);
             Assert.IsTrue(Enemy.CanBuildShip(playerDesign1), "Bug: Could not add valid design to shipswecanbuild");
 
-            GlobalStats.Settings.AIUsesPlayerDesigns = false;
+            UState.P.AIUsesPlayerDesigns = false;
             ShipDesign playerDesign2 = CreateTemplate("Fang Strafer", Enemy, playerDesign:true);
             Assert.IsFalse(Enemy.CanBuildShip(playerDesign2), "Use Player design restriction added to shipswecanbuild");
         }
