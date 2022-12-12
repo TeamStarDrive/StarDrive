@@ -25,19 +25,22 @@ public sealed class ParticleVertexBuffer : IDisposable
     // all of the particles
     readonly ParticleVertex[] Particles;
 
-    public int FirstActiveParticle;
-    public int FirstFreeParticle;
-
-    int FirstPendingParticle = -1;
+    // [active..][pending..][free....]
+    int FirstActive;
+    int FirstPending;
+    int FirstFree;
 
     // number of active particles that can be drawn
-    public int ActiveParticles => FirstFreeParticle - FirstActiveParticle;
+    public int ActiveParticles => FirstFree - FirstActive;
+
+    // number of particles pending upload to the GPU
+    public int PendingParticles => FirstFree - FirstPending;
 
     // there are no more free particle slots in this buffer
-    public bool IsFull => FirstFreeParticle == Size;
+    public bool IsFull => FirstFree == Size;
 
     // all particles have died, this buffer is exhausted and can be recycled
-    public bool IsExhausted => FirstActiveParticle == Size;
+    public bool IsExhausted => FirstActive == Size;
 
     public ParticleVertexBuffer(ParticleVertexBufferShared shared)
     {
@@ -48,8 +51,8 @@ public sealed class ParticleVertexBuffer : IDisposable
 
     public void Reset()
     {
-        FirstActiveParticle = 0;
-        FirstFreeParticle = 0;
+        FirstActive = 0;
+        FirstFree = 0;
     }
 
     /// <summary>
@@ -60,10 +63,7 @@ public sealed class ParticleVertexBuffer : IDisposable
         if (IsFull)
             return false;
 
-        int newIndex = FirstFreeParticle++;
-        if (FirstPendingParticle == -1)
-            FirstPendingParticle = newIndex;
-
+        int newIndex = FirstFree++;
         ref ParticleVertex dstVertex0 = ref Particles[newIndex * 4];
         ref ParticleVertex dstVertex1 = ref Particles[newIndex * 4 + 1];
         ref ParticleVertex dstVertex2 = ref Particles[newIndex * 4 + 2];
@@ -85,15 +85,15 @@ public sealed class ParticleVertexBuffer : IDisposable
         // check whether active particles have reached end of their lifetime
         if (!isStatic)
         {
-            while (FirstActiveParticle < FirstFreeParticle)
+            while (FirstActive < FirstFree)
             {
-                ref ParticleVertex particle = ref Particles[FirstActiveParticle * 4];
+                ref ParticleVertex particle = ref Particles[FirstActive * 4];
                 float particleAge = totalSimulationTime - particle.Time;
                 if (particleAge < particleDuration)
                     break;
                 
                 // Move the particle from the active to the retired queue.
-                ++FirstActiveParticle;
+                ++FirstActive;
             }
         }
         return IsExhausted;
@@ -102,9 +102,9 @@ public sealed class ParticleVertexBuffer : IDisposable
     public void Draw(Effect effect)
     {
         // nothing to draw?
-        int firstActiveParticle = FirstActiveParticle;
-        int firstNewParticle = FirstFreeParticle;
-        int numParticles = firstNewParticle - firstActiveParticle;
+        int firstActive = FirstActive;
+        int firstFree = FirstFree;
+        int numParticles = firstFree - firstActive;
 
         var vbo = VertexBuffer;
         if (numParticles <= 0 || vbo == null)
@@ -117,16 +117,14 @@ public sealed class ParticleVertexBuffer : IDisposable
         }
         else
         {
-            int firstPending = FirstPendingParticle;
-            if (firstPending != -1)
+            // upload any pending particles data to the GPU
+            int firstPending = FirstPending;
+            int numPending = firstFree - firstPending;
+            if (numPending > 0)
             {
-                FirstPendingParticle = -1;
-
-                // upload any pending particles data to the GPU
-                const int stride = ParticleVertex.SizeInBytes;
-                int numPending = firstNewParticle - firstPending;
                 try
                 {
+                    const int stride = ParticleVertex.SizeInBytes;
                     vbo.SetData(firstPending * stride * 4, Particles,
                                 startIndex: firstPending * 4,
                                 elementCount: numPending * 4,
@@ -140,6 +138,9 @@ public sealed class ParticleVertexBuffer : IDisposable
             }
         }
 
+        // all particles are now submitted
+        FirstPending = firstFree;
+
         GraphicsDevice device = Shared.Device;
         // Set the particle vertex and index buffer.
         device.Vertices[0].SetSource(vbo, 0, ParticleVertex.SizeInBytes);
@@ -151,8 +152,8 @@ public sealed class ParticleVertexBuffer : IDisposable
         {
             pass.Begin();
             device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                    firstActiveParticle * 4, numParticles * 4, // 4 points
-                    firstActiveParticle * 6, numParticles * 2); // 2 triangles
+                                         firstActive * 4, numParticles * 4, // 4 points
+                                         firstActive * 6, numParticles * 2); // 2 triangles
             pass.End();
         }
         effect.End();
