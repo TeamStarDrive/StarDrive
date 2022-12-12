@@ -14,9 +14,9 @@ namespace UnitTests.Fleets
     [TestClass]
     public class FleetTests : StarDriveTest
     {
-        Array<Ship> PlayerShips = new Array<Ship>();
-        Array<Ship> EnemyShips  = new Array<Ship>();
-        Array<Fleet> PlayerFleets = new Array<Fleet>();
+        Array<Ship> PlayerShips = new();
+        Array<Ship> EnemyShips  = new();
+        Array<Fleet> PlayerFleets = new();
 
         public FleetTests()
         {
@@ -24,6 +24,7 @@ namespace UnitTests.Fleets
             LoadStarterShips("Heavy Carrier mk5-b", "Corsair", "Terran-Prototype");
             CreateUniverseAndPlayerEmpire();
             //Universe.UState.Objects.EnableParallelUpdate = false;
+            UState.Events.Disabled = true;
         }
 
         void CreateWantedShipsAndAddThemToList(int numberWanted, string shipName, Array<Ship> shipList)
