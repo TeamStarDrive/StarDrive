@@ -70,7 +70,7 @@ public class UniverseParams
     public UniverseParams()
     {
         // initialize defaults from Settings
-        var s = GlobalStats.Settings;
+        var s = GlobalStats.Defaults;
 
         NumOpponents = s.DefaultNumOpponents.UpperBound(ResourceManager.MajorRaces.Count - 1);
         MinAcceptableShipWarpRange = s.MinAcceptableShipWarpRange;

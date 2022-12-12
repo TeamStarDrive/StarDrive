@@ -489,7 +489,7 @@ namespace Ship_Game.Universe
 
         float GetResearchMultiplier()
         {
-            if (!GlobalStats.Settings.ChangeResearchCostBasedOnSize)
+            if (!GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
                 return 1f;
 
             int idealNumPlayers   = (int)P.GalaxySize + 3;

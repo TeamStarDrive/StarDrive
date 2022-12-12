@@ -121,7 +121,7 @@ namespace Ship_Game.GameScreens.NewGame
                 for (int planetId = 0; planetId < planets.Count; planetId++)
                 {
                     Planet planet = planets[planetId];
-                    planet.MineralRichness += GlobalStats.Settings.StartingPlanetRichnessBonus;
+                    planet.MineralRichness += GlobalStats.Defaults.StartingPlanetRichnessBonus;
                     planet.ParentSystem.SetExploredBy(empire);
                     planet.SetExploredBy(empire);
 

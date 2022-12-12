@@ -92,10 +92,10 @@ public class GamePlayGlobals
     {
         // A little bit of magic, if GlobalStats.DefaultSettings is not null,
         // then pre-initialize all fields from that
-        if (GlobalStats.DefaultSettings != null)
+        if (GlobalStats.VanillaDefaults != null)
         {
             foreach (var field in typeof(GamePlayGlobals).GetFields())
-                field.SetValue(this, field.GetValue(GlobalStats.DefaultSettings));
+                field.SetValue(this, field.GetValue(GlobalStats.VanillaDefaults));
         }
     }
 

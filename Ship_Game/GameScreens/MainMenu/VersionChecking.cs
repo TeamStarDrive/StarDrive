@@ -27,7 +27,7 @@ namespace Ship_Game.GameScreens.MainMenu
         public override void LoadContent()
         {            
             TitleText = "Version Check";
-            var settings = GlobalStats.Settings;
+            var settings = GlobalStats.Defaults;
             var modSettings = GlobalStats.ActiveMod?.Settings;
 
             var mod = GlobalStats.ActiveMod;

@@ -171,15 +171,15 @@ namespace Ship_Game
             }
 
             string galaxySizeTip = "Sets the scale of the generated galaxy";
-            if (GlobalStats.Settings.ChangeResearchCostBasedOnSize)
+            if (GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
                 galaxySizeTip += ". Scale other than Medium will increase/decrease research cost of technologies.";
             
             string solarSystemsTip = "Number of Solar Systems packed into the Universe";
-            if (GlobalStats.Settings.ChangeResearchCostBasedOnSize)
+            if (GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
                 solarSystemsTip += ". Technology research costs will scale up or down as well";
 
             string opponentsTip = "Sets the number of AI opponents you must face";
-            if (GlobalStats.Settings.ChangeResearchCostBasedOnSize)
+            if (GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
                 opponentsTip += ". On a large scale galaxy, this might also affect research cost of technologies.";
 
             AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  _ => P.GalaxySize.ToString(), tip:galaxySizeTip);
@@ -216,7 +216,7 @@ namespace Ship_Game
 
             var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width + 5, 150);
             EnvMenu = Add(new EnvPreferencesPanel(this, envRect));
-            EnvMenu.Visible = GlobalStats.Settings.DisplayEnvPreferenceInRaceDesign;
+            EnvMenu.Visible = GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign;
 
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
                 .SetLocalPos(ChooseRaceList.Width / 2 - 142, ChooseRaceList.Height + 10);
@@ -401,7 +401,7 @@ namespace Ship_Game
 
         void OnNumOpponentsClicked(UIButton b)
         {
-            int maxOpponents = P.Mode == GameMode.Corners ? 3 : GlobalStats.Settings.MaxOpponents;
+            int maxOpponents = P.Mode == GameMode.Corners ? 3 : GlobalStats.Defaults.MaxOpponents;
             P.NumOpponents += OptionIncrement;
             if (P.NumOpponents > maxOpponents) P.NumOpponents = 1;
             else if (P.NumOpponents < 1)       P.NumOpponents = maxOpponents;
@@ -502,7 +502,7 @@ namespace Ship_Game
             SelectedData = item.EmpireData;
             SetRacialTraits(SelectedData.Traits);
 
-            if (GlobalStats.Settings.DisplayEnvPreferenceInRaceDesign)
+            if (GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign)
             {
                 EnvMenu.UpdateArchetype(SelectedData);
             }

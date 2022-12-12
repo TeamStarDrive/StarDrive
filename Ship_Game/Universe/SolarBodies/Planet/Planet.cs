@@ -1126,7 +1126,7 @@ namespace Ship_Game
             InfraStructure = InfraStructure.LowerBound(1);
             RepairPerTurn  = RepairPerTurn.LowerBound(0);
 
-            if (GlobalStats.Settings.UsePlanetaryProjection)
+            if (GlobalStats.Defaults.UsePlanetaryProjection)
                 ProjectorRange = projectorRange;
 
             TerraformToAdd /= Scale; // Larger planets take more time to terraform, visa versa for smaller ones
@@ -1162,7 +1162,7 @@ namespace Ship_Game
 
         public float GetProjectorRange()
         {
-            if (GlobalStats.Settings.UsePlanetaryProjection)
+            if (GlobalStats.Defaults.UsePlanetaryProjection)
                 return ProjectorRange;
             return GetProjectorRadius(Owner);
         }
@@ -1179,7 +1179,7 @@ namespace Ship_Game
 
             for (int i = 0; i < numShipyards; ++i)
             {
-                shipBuildingModifier *= 1 - (GlobalStats.Settings.ShipyardBonus / shipyardDiminishedReturn);
+                shipBuildingModifier *= 1 - (GlobalStats.Defaults.ShipyardBonus / shipyardDiminishedReturn);
                 shipyardDiminishedReturn += 0.2f;
             }
 
