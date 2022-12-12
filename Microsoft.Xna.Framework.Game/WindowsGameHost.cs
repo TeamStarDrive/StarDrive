@@ -162,7 +162,8 @@ namespace Microsoft.Xna.Framework
           return base.ShowMissingRequirementMessage(exception);
         text = Resources.NoAudioHardware;
       }
-      int num = (int) MessageBox.Show((IWin32Window) this.gameWindow.Form, text, this.gameWindow.Title, MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Hand);
+      if (gameWindow.Form?.IsDisposed == false)
+        MessageBox.Show(gameWindow.Form, text, gameWindow.Title, MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Hand);
       return true;
     }
 
