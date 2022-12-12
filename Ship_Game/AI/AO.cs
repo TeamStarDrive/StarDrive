@@ -264,10 +264,10 @@ namespace Ship_Game.AI
             OffensiveForcePool?.Clear();
             ShipsWaitingForCoreFleet?.Clear();
             CoreFleet?.Reset();
-            CoreFleet      = null;
-            CoreWorld      = null;
-            AllPlanetsInAO    = null;
-            OurPlanets = null;
+            CoreFleet = null;
+            CoreWorld = null;
+            AllPlanetsInAO = NoPlanets;
+            OurPlanets = NoPlanets;
         }
 
         void ReassignShips(Array<Ship> ships)

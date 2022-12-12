@@ -196,21 +196,21 @@ namespace Ship_Game.AI
         // @return Closest AO (defaults to Capital AO), or null if there is no capital at all
         public AO FindClosestAOTo(Vector2 position)
         {
-            var aos = AreasOfOperations;
-            if (aos.Count == 0)
-            {
-                Planet capital = OwnerEmpire.Capital;
-                if (capital == null)
-                    return null;
+            // TODO: AreasOfOperations is modified concurrently, so we're having a race condition
+            //       when AreasOfOperations elements are removed
+            //       the best solution here is to keep AreasOfOperations as an immutable array
+            AO closestAO = AreasOfOperations.FindMin(ao => ao != null ? ao.Center.SqDist(position) : float.MaxValue);
+            if (closestAO != null)
+                return closestAO;
 
-                float aoSize = capital.Position.Distance(capital.System.Position);
-                var ao = new AO(OwnerEmpire.Universe, capital, OwnerEmpire, aoSize);
-                AreasOfOperations.Add(ao);
-                return ao;
-            }
+            Planet capital = OwnerEmpire.Capital;
+            if (capital == null)
+                return null;
 
-            AO closestAO = aos.FindMin(ao => ao.Center.SqDist(position));
-            return closestAO;
+            float aoSize = capital.Position.Distance(capital.System.Position);
+            var ao = new AO(OwnerEmpire.Universe, capital, OwnerEmpire, aoSize);
+            AreasOfOperations.Add(ao);
+            return ao;
         }
 
         public AO AoContainingPosition(Vector2 location)

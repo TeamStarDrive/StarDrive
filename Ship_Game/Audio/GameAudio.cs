@@ -155,10 +155,14 @@ namespace Ship_Game.Audio
         {
             ThisFrameSfxCount = 0;
 
-            if (AudioEngine != null)
+            var engine = AudioEngine;
+            if (engine != null)
             {
                 AudioDevices.HandleEvents();
-                AudioEngine.Update();
+
+                // double-check the AudioEngine, because HandleEvents() can be slow on some systems
+                if (!engine.IsDisposed)
+                    engine.Update();
             }
 
             DisposeStoppedInstances();

@@ -110,7 +110,7 @@ public sealed class RuleOptionsScreen : GameScreen
         GravityWellSize.Tip = GameText.DefinesTheRadiusOfPlanetary;
 
         string extraPlanetsTip = Localizer.Token(GameText.AddExtraPlanetsToEach);
-        if (GlobalStats.Settings.ChangeResearchCostBasedOnSize)
+        if (GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
             extraPlanetsTip = $"{extraPlanetsTip} {Localizer.Token(GameText.ThisWillSlightlyIncreaseResearch)}";
 
         ExtraPlanets.Tip = extraPlanetsTip;

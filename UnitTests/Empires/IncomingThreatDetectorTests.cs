@@ -42,6 +42,7 @@ public class IncomingThreatDetectorTests : StarDriveTest
         UState.CanShowDiplomacyScreen = false;
         UState.Objects.EnableParallelUpdate = false;
         Enemy.AI.Disabled = true;
+        UState.Events.Disabled = true;
 
         // required for full sim
         IEmpireData data = ResourceManager.AllRaces.First(e => e.Name == "Unknown");

@@ -33,6 +33,8 @@ namespace Ship_Game
             IsPopup = false;
             TransitionOnTime = 30f;
             TransitionOffTime = 0.25f;
+
+            Log.LogEventStats(Log.GameEvent.YouLose, parent.UState.P);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

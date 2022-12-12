@@ -26,6 +26,9 @@ public class GamePlayGlobals
     [StarData] public float RemnantDesignStrMultiplier; 
     [StarData] public int CostBasedOnSizeThreshold = 2500;  // Allow tuning the change up/down
     [StarData] public float HangarCombatShipCostMultiplier = 1;
+
+    // required empire pop ratio before expansion is considered
+    [StarData] public float RequiredExpansionPopRatio = 0.4f;
     [StarData] public float ShipyardBonus;
     [StarData] public float CustomMineralDecay = 1;
     [StarData] public float VolcanicActivity = 1;
@@ -92,10 +95,10 @@ public class GamePlayGlobals
     {
         // A little bit of magic, if GlobalStats.DefaultSettings is not null,
         // then pre-initialize all fields from that
-        if (GlobalStats.DefaultSettings != null)
+        if (GlobalStats.VanillaDefaults != null)
         {
             foreach (var field in typeof(GamePlayGlobals).GetFields())
-                field.SetValue(this, field.GetValue(GlobalStats.DefaultSettings));
+                field.SetValue(this, field.GetValue(GlobalStats.VanillaDefaults));
         }
     }
 

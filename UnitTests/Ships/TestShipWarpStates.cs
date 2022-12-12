@@ -12,6 +12,7 @@ namespace UnitTests.Ships
         public TestShipWarpStates()
         {
             CreateUniverseAndPlayerEmpire();
+            UState.Events.Disabled = true;
         }
 
         TestShip CreateWarpTestShip()

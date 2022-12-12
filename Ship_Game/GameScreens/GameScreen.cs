@@ -107,7 +107,7 @@ namespace Ship_Game
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? GameBase.Base.Content, GetType().Name);
-            ScreenManager    = parent?.ScreenManager ?? GameBase.ScreenManager;
+            ScreenManager = parent?.ScreenManager ?? GameBase.ScreenManager;
             UpdateViewport();
 
             // if we have `toPause`, check if it's active and not already paused
@@ -118,10 +118,7 @@ namespace Ship_Game
                 PausedUniverse = toPause;
             }
 
-            if (Input == null)
-            {
-                Input = ScreenManager?.input;
-            }
+            Input ??= parent?.Input ?? ScreenManager?.input;
 
             // Every time we open a screen, we should release any input handlers
             GlobalStats.TakingInput = false;

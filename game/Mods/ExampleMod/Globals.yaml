@@ -11,6 +11,7 @@ Globals:
   RemnantDesignStrMultiplier: 2
   CostBasedOnSizeThreshold: 3000
   HangarCombatShipCostMultiplier: 1
+  RequiredExpansionPopRatio: 0.4 # required empire pop ratio before expansion is considered
   ShipyardBonus: 0.25 # default 0.25
   CustomMineralDecay: 1 # default 1
   VolcanicActivity: 1 # default 1
