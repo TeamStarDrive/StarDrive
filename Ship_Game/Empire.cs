@@ -574,7 +574,7 @@ namespace Ship_Game
 
         public Planet[] GetSafeAOCoreWorlds()
         {
-            var nearAO = AI.AreasOfOperations
+            Planet[] nearAO = AI.AreasOfOperations
                 .FilterSelect(ao => ao.CoreWorld?.ParentSystem.OwnerList.Count == 1,
                               ao => ao.CoreWorld);
             return nearAO;
@@ -602,17 +602,21 @@ namespace Ship_Game
         /// </summary>
         public Planet GetBestNearbyPlanetToOrbitForAI(Ship ship)
         {
-            var coreWorld = ship.Loyalty.GetSafeAOCoreWorlds()?.FindClosestTo(ship);
-            Planet home = coreWorld ?? ship.Loyalty.GetSafeAOWorlds().FindClosestTo(ship);
+            Empire empire = ship.Loyalty;
+            var coreWorld = empire.GetSafeAOCoreWorlds().FindClosestTo(ship);
+            Planet home = coreWorld ?? empire.GetSafeAOWorlds().FindClosestTo(ship);
 
             if (home == null)
             {
-                var nearestAO = ship.Loyalty.AI.FindClosestAOTo(ship.Position);
+                var nearestAO = empire.AI.FindClosestAOTo(ship.Position);
                 if (nearestAO != null)
                     home = nearestAO.OurPlanets.FindClosestTo(ship);
             }
 
-            return home ?? Universe.Planets.FindMin(p => p.Position.Distance(ship.Position));
+            if (home == null)
+                home = Universe.Planets.FindMin(p => p.Position.Distance(ship.Position));
+
+            return home ?? empire.Capital;
         }
 
         Array<Planet> GetPlanetsNearStations()
