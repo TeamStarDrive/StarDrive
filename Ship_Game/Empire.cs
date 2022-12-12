@@ -3026,7 +3026,7 @@ namespace Ship_Game
 
         void ChargeCredits(float cost, bool rush = false)
         {
-            float creditsToCharge = rush ? cost  * GlobalStats.Settings.RushCostPercentage : ProductionCreditCost(cost);
+            float creditsToCharge = rush ? cost  * GlobalStats.Defaults.RushCostPercentage : ProductionCreditCost(cost);
             MoneySpendOnProductionThisTurn += creditsToCharge;
             AddMoney(-creditsToCharge);
             //Log.Info($"Charging Credits from {Name}: {creditsToCharge}, Rush: {rush}"); // For testing

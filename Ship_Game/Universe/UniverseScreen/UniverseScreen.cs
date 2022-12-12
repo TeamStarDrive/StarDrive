@@ -301,7 +301,7 @@ namespace Ship_Game
             RemoveAll();
             UnloadGraphics();
 
-            UState.ResearchRootUIDToDisplay = GlobalStats.Settings.ResearchRootUIDToDisplay;
+            UState.ResearchRootUIDToDisplay = GlobalStats.Defaults.ResearchRootUIDToDisplay;
 
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = Add(new AutomationWindow(this));

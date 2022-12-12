@@ -75,7 +75,7 @@ namespace UnitTests.Ships
             AssertEqual(10, ship.Modules.Count(m => m.HasInternalRestrictions));
             AssertEqual(1, ship.InternalSlotsHealthPercent);
 
-            int slotsToDestroy = (int)Math.Ceiling(GlobalStats.Settings.ShipDestroyThreshold * ship.NumInternalSlots) + 1;
+            int slotsToDestroy = (int)Math.Ceiling(GlobalStats.Defaults.ShipDestroyThreshold * ship.NumInternalSlots) + 1;
             int destroyed = 0;
             foreach (ShipModule m in ship.Modules)
             {
@@ -85,7 +85,7 @@ namespace UnitTests.Ships
                     break;
             }
 
-            AssertLessThan(ship.InternalSlotsHealthPercent, GlobalStats.Settings.ShipDestroyThreshold);
+            AssertLessThan(ship.InternalSlotsHealthPercent, GlobalStats.Defaults.ShipDestroyThreshold);
             Assert.IsFalse(ship.Active, "ship should be dead after enough internal modules killed");
         }
 
