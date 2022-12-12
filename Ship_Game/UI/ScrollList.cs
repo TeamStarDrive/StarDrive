@@ -159,12 +159,22 @@ namespace Ship_Game
         // @return The last currently visible item
         public T ItemAtBottom  => (T)FlatEntries[VisibleItemsEnd - 1];
 
+        // Adds a new item to the scroll list
         public T AddItem(T entry)
         {
             entry.List = this;
             Entries.Add(entry);
             RequiresLayout = true;
             return entry;
+        }
+
+        // convenience, and to avoid unexpected behavior, wrapper for AddItem
+        public override TElement Add<TElement>(TElement element)
+        {
+            if (element is T scrollListItem)
+                return AddItem(scrollListItem) as TElement;
+            else
+                return base.Add(element);
         }
 
         public void SetItems(IEnumerable<T> newItems)

@@ -1259,10 +1259,10 @@ namespace Ship_Game.Ships
             VisualizeRepair();
 
             var u = Parent.Universe;
-            if (u.Debug && u.IsSystemViewOrCloser && u.Screen.ShowShipNames)
+            if (u != null && u.Debug && u.IsSystemViewOrCloser && u.Screen.ShowShipNames)
             {
                 var blinkingColor = GameBase.Base.FrameId % 2 == 0 ? Color.GreenYellow : Color.LightGreen;
-                u.DebugWin.DrawCircle(u.DebugWin.Mode, Position, Radius+2, blinkingColor, 1f);
+                u.DebugWin?.DrawCircle(u.DebugWin.Mode, Position, Radius+2, blinkingColor, 1f);
             }
 
             return repairLeft;
