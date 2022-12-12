@@ -276,7 +276,6 @@ namespace Ship_Game.Universe
             Save = null;
             save.UpdateAllDesignsFromSave(this);
 
-            P.UpdateGlobalStats();
             SettingsResearchModifier = GetResearchMultiplier();
             RemnantPaceModifier = CalcRemnantPace();
             
@@ -490,7 +489,7 @@ namespace Ship_Game.Universe
 
         float GetResearchMultiplier()
         {
-            if (!GlobalStats.Settings.ChangeResearchCostBasedOnSize)
+            if (!GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
                 return 1f;
 
             int idealNumPlayers   = (int)P.GalaxySize + 3;

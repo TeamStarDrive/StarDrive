@@ -68,7 +68,7 @@ namespace Ship_Game.Ships
             OrdnancePercent = percent.Clamped(0, 1f);
         }
 
-        public float ShipOrdLaunchCost => (Mass / 5f) * GlobalStats.Settings.HangarCombatShipCostMultiplier;
+        public float ShipOrdLaunchCost => (Mass / 5f) * GlobalStats.Defaults.HangarCombatShipCostMultiplier;
         public float ShipRetrievalOrd  => ShipOrdLaunchCost * HealthPercent;
 
         [StarDataType]

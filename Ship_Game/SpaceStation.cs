@@ -23,7 +23,7 @@ public sealed class SpaceStation
 
     void UpdateTransforms(Vector2 position)
     {
-        float scale = GlobalStats.Settings.SpaceportScale;
+        float scale = GlobalStats.Defaults.SpaceportScale;
 
         Matrix transform = Matrix.CreateScale(scale)
                            * Matrix.CreateRotationZ(90f.ToRadians() + ZRotation)

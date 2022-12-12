@@ -301,7 +301,7 @@ namespace Ship_Game
             RemoveAll();
             UnloadGraphics();
 
-            UState.ResearchRootUIDToDisplay = GlobalStats.Settings.ResearchRootUIDToDisplay;
+            UState.ResearchRootUIDToDisplay = GlobalStats.Defaults.ResearchRootUIDToDisplay;
 
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = Add(new AutomationWindow(this));
@@ -642,11 +642,7 @@ namespace Ship_Game
         public void OnPlayerWon(LocalizedText title = default)
         {
             UState.GameOver = true;
-
-            if (title.IsValid)
-                ScreenManager.AddScreen(new YouWinScreen(this, title));
-            else
-                ScreenManager.AddScreen(new YouWinScreen(this));
+            ScreenManager.AddScreen(new YouWinScreen(this, title));
         }
 
         void UnloadGraphics()

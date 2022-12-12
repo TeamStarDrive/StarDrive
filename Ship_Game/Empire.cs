@@ -298,7 +298,7 @@ namespace Ship_Game
             if (IsDefeated)
                 return;
 
-            if (GlobalStats.Settings.DisablePirates)
+            if (Universe.P.DisablePirates)
             {
                 IsDefeated = true;
             }
@@ -306,7 +306,6 @@ namespace Ship_Game
             {
                 Pirates = new Pirates(this, ai);
             }
-
         }
 
         public void SetAsRemnants(EmpireAI ai)
@@ -576,18 +575,12 @@ namespace Ship_Game
         public Planet[] GetSafeAOCoreWorlds()
         {
             var nearAO = AI.AreasOfOperations
-                .FilterSelect(ao => ao.CoreWorld?.ParentSystem.OwnerList.Count ==1,
+                .FilterSelect(ao => ao.CoreWorld?.ParentSystem.OwnerList.Count == 1,
                               ao => ao.CoreWorld);
             return nearAO;
         }
 
-        public Planet[] GetAOCoreWorlds() => AI.AreasOfOperations.Select(ao => ao.CoreWorld);
-
-        public AO GetAOFromCoreWorld(Planet coreWorld)
-        {
-            return AI.AreasOfOperations.Find(a => a.CoreWorld == coreWorld);
-        }
-        public Planet[] GetSafeAOWorlds()
+        public Array<Planet> GetSafeAOWorlds()
         {
             var safeWorlds = new Array<Planet>();
             for (int i = 0; i < AI.AreasOfOperations.Count; i++)
@@ -597,7 +590,7 @@ namespace Ship_Game
                 safeWorlds.AddRange(planets);
             }
 
-            return safeWorlds.ToArray();
+            return safeWorlds;
         }
 
         /// <summary>
@@ -610,16 +603,7 @@ namespace Ship_Game
         public Planet GetBestNearbyPlanetToOrbitForAI(Ship ship)
         {
             var coreWorld = ship.Loyalty.GetSafeAOCoreWorlds()?.FindClosestTo(ship);
-            Planet home = null;
-
-            if (coreWorld != null)
-            {
-                home = coreWorld;
-            }
-            else
-            {
-                home = ship.Loyalty.GetSafeAOWorlds().FindClosestTo(ship);
-            }
+            Planet home = coreWorld ?? ship.Loyalty.GetSafeAOWorlds().FindClosestTo(ship);
 
             if (home == null)
             {
@@ -628,12 +612,7 @@ namespace Ship_Game
                     home = nearestAO.OurPlanets.FindClosestTo(ship);
             }
 
-            if (home == null)
-            {
-                home = Universe.Planets.FindMin(p => p.Position.Distance(ship.Position));
-            }
-
-            return home;
+            return home ?? Universe.Planets.FindMin(p => p.Position.Distance(ship.Position));
         }
 
         Array<Planet> GetPlanetsNearStations()
@@ -3047,7 +3026,7 @@ namespace Ship_Game
 
         void ChargeCredits(float cost, bool rush = false)
         {
-            float creditsToCharge = rush ? cost  * GlobalStats.Settings.RushCostPercentage : ProductionCreditCost(cost);
+            float creditsToCharge = rush ? cost  * GlobalStats.Defaults.RushCostPercentage : ProductionCreditCost(cost);
             MoneySpendOnProductionThisTurn += creditsToCharge;
             AddMoney(-creditsToCharge);
             //Log.Info($"Charging Credits from {Name}: {creditsToCharge}, Rush: {rush}"); // For testing

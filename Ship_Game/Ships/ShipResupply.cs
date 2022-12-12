@@ -48,7 +48,7 @@ namespace Ship_Game.Ships
                 case ShipCategory.Kamikaze:     threshold = 0.0f;  break;
             }
 
-            float baseThreshold = GlobalStats.Settings.ShipDestroyThreshold;
+            float baseThreshold = GlobalStats.Defaults.ShipDestroyThreshold;
             threshold = threshold * (1 - baseThreshold) + baseThreshold;
             return threshold;
         }
@@ -109,7 +109,7 @@ namespace Ship_Game.Ships
 
         private bool ResupplyNeededLowHealth()
         {
-            if (Ship.InternalSlotsHealthPercent < GlobalStats.Settings.ShipDestroyThreshold) // ship is dying or in init
+            if (Ship.InternalSlotsHealthPercent < GlobalStats.Defaults.ShipDestroyThreshold) // ship is dying or in init
                 return false;
 
             return Ship.InternalSlotsHealthPercent < DamageThreshold(Ship.ShipData.ShipCategory)

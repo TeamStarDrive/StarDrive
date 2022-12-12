@@ -201,7 +201,7 @@ namespace Ship_Game
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 
                 ship =>
                 {
-                    if (GlobalStats.Settings.ReconDropDown)
+                    if (GlobalStats.Defaults.ReconDropDown)
                         return ship.IsShipGoodToBuild(Screen.Player) && 
                               (ship.Role == RoleName.scout || 
                                ship.ShipCategory == ShipCategory.Recon);

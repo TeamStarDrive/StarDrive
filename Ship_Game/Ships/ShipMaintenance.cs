@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
             if (IsFreeUpkeepShip(empire, ship))
                 return 0;
 
-            bool hullUpkeep = GlobalStats.Settings.UseUpkeepByHullSize;
+            bool hullUpkeep = empire.Universe.P.UseUpkeepByHullSize;
             float maint;
             if (ship.FixedUpkeep > 0)
             {
@@ -74,7 +74,7 @@ namespace Ship_Game.Ships
             }
 
             maint += maint * empire.data.Traits.MaintMod + numTroops * TroopMaint;
-            maint *= GlobalStats.Settings.ShipMaintenanceMultiplier;
+            maint *= empire.Universe.P.ShipMaintenanceMultiplier;
 
             // Projectors do not get any more modifiers
             if (ship.IsSubspaceProjector)

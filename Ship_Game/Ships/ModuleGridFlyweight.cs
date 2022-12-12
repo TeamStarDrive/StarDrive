@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Gameplay;
@@ -235,7 +233,10 @@ namespace Ship_Game.Ships
         {
             if (modules.Length == 0) yield break; // not sure why this happens
             for (int i = 0; i < ShieldsIndex.Length; ++i)
-                yield return modules[ShieldsIndex[i]];
+            {
+                int moduleIndex = ShieldsIndex[i];
+                yield return modules[moduleIndex];
+            }
         }
 
         [Pure] public IEnumerable<ShipModule> GetAmplifiers(ShipModule[] modules)

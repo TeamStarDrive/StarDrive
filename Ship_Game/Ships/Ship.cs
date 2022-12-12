@@ -1312,7 +1312,7 @@ namespace Ship_Game.Ships
                 Universe.Shields?.RemoveShieldLights(GetActiveShields());
         }
 
-        public bool CanRepair => !InCombat || GlobalStats.Settings.UseCombatRepair;
+        public bool CanRepair => !InCombat || GlobalStats.Defaults.UseCombatRepair;
 
         void PerformRegeneration()
         {
@@ -1505,7 +1505,7 @@ namespace Ship_Game.Ships
         {
             var position = new Vector3(Position.X, Position.Y, -100f);
 
-            float boost = GlobalStats.Settings.ShipExplosionVisualIncreaser;
+            float boost = GlobalStats.Defaults.ShipExplosionVisualIncreaser;
             float diameter = 2f * Radius * (ShipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
             float explosionSize = PlanetCrash != null ? diameter * 0.05f : diameter * boost;
 
@@ -1963,7 +1963,8 @@ namespace Ship_Game.Ships
         {
             if (!Active)
                 return false;
-            bool warpTimeGood = IsWarpRangeGood(GlobalStats.Settings.MinAcceptableShipWarpRange);
+            float minRange = Universe?.P.MinAcceptableShipWarpRange ?? GlobalStats.Defaults.MinAcceptableShipWarpRange;
+            bool warpTimeGood = IsWarpRangeGood(minRange);
             return warpTimeGood;
         }
 

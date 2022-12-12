@@ -550,7 +550,7 @@ namespace Ship_Game.Ships
                 {
                     // If Player has deleted a Fighter Ship Design, this design would not have a
                     // valid fighter so we check if we can build it, otherwise we set DynamicLaunch
-                    Log.Error($"InitHangar: Ship={Parent} CanBuildShip('{HangarShipUID}') == False, reverting to DynamicLaunch");
+                    Log.Warning($"InitHangar: Ship={Parent} CanBuildShip('{HangarShipUID}') == False, reverting to DynamicLaunch");
                     DynamicHangar = DynamicHangarOptions.DynamicLaunch;
                     HangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
                 }
@@ -917,7 +917,7 @@ namespace Ship_Game.Ships
         // TODO: this should be part of `Bonuses`
         float GetGlobalArmourBonus()
         {
-            if (GlobalStats.Settings.UseHullBonuses &&
+            if (GlobalStats.Defaults.UseHullBonuses &&
                 ResourceManager.HullBonuses.TryGetValue(Parent.ShipData.Hull, out HullBonus mod))
                 return (1f - mod.ArmoredBonus);
 

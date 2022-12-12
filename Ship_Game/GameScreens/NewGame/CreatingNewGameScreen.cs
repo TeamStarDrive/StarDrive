@@ -15,6 +15,7 @@ namespace Ship_Game
         Texture2D LoadingScreenTexture;
         string AdviceText;
 
+        readonly UniverseParams P;
         readonly UniverseGenerator Generator;
         TaskResult<UniverseScreen> BackgroundTask;
 
@@ -23,12 +24,13 @@ namespace Ship_Game
         {
             CanEscapeFromScreen = false;
             MainMenu = menu;
+            P = p;
             Generator = new UniverseGenerator(p);
         }
 
         public override void LoadContent()
         {
-            Log.LogEventStats(Log.GameEvent.NewGame);
+            Log.LogEventStats(Log.GameEvent.NewGame, P);
 
             ScreenManager.ClearScene();
             LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(TransientContent);

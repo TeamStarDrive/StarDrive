@@ -39,8 +39,8 @@ namespace Ship_Game
         public static string ExtendedVersionNoHash = ""; // "Mars : 1.20.12000"
         
         // Global GamePlay options for BB+ and for Mods which are loaded from Globals.yaml
-        public static GamePlayGlobals Settings;
-        public static GamePlayGlobals DefaultSettings;
+        public static GamePlayGlobals Defaults;
+        public static GamePlayGlobals VanillaDefaults;
 
         // Active Mod information
         public static ModEntry ActiveMod;
@@ -345,13 +345,13 @@ namespace Ship_Game
             }
             else // load vanilla
             {
-                if (DefaultSettings == null)
+                if (VanillaDefaults == null)
                 {
                     var defaultSettings = new FileInfo("Content/Globals.yaml");
-                    DefaultSettings = GamePlayGlobals.Deserialize(defaultSettings);
+                    VanillaDefaults = GamePlayGlobals.Deserialize(defaultSettings);
                 }
 
-                Settings = DefaultSettings;
+                Defaults = VanillaDefaults;
             }
             SaveActiveMod();
         }
@@ -363,7 +363,7 @@ namespace Ship_Game
                 ModName = me.Mod.Name;
                 ModPath = me.Mod.Path;
                 ActiveMod = me;
-                Settings = me.Settings;
+                Defaults = me.Settings;
 
                 if (!Directory.Exists(ModPath))
                     Log.Error($"SetActiveMod ModPath does not exist: {ModPath}");
@@ -373,7 +373,7 @@ namespace Ship_Game
                 ModName = "";
                 ModPath = "";
                 ActiveMod = null;
-                Settings = DefaultSettings;
+                Defaults = VanillaDefaults;
             }
 
         }
