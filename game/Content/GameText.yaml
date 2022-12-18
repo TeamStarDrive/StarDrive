@@ -7695,7 +7695,7 @@ IndicatesThatThisShipCannot3:
  SPA: "Indica que la nave no puede superar la velocidad de la luz debido a un flujo hiperespacial"
 UsingThisSliderYouCan:
  Id: 2286
- ENG: "Using this slider, you can lower the FTL speeds of ships that are within the gravity wells of Solar Systems. A value of 100% provides no penalty, whereas a value of 0% will completely inhibit warp inside of a Solar System."
+ ENG: "Using this slider, you can lower the FTL speeds of ships that are within the gravity wells of Solar Systems. A value of 100% provides no penalty, whereas a value of 10% will make all ships 10x slower inside solar systems. The default value is 100%, meaning no penalty. Set this to 50% if you want to lower the game pace."
  RUS: "При помощи этого ползунка вы можете снизить сверхсветовые скорости кораблей, находящихся в гравитационных колодцах солнечных систем. Значение 100% означает отсутствие штрафа; значение 0% полностью предотвращает вход в варп в пределах солнечной системы."
  SPA: "Con este control deslizante puedes reducir las velocidades supraluminales de las naves que estén bajo el pozo gravitatorio de un sistema solar. Un valor del 100% no supone ninguna penalización, mientras que un valor de 0% impedirá por completo viajar a una velocidad superior a la de la luz dentro de un sistema solar."
 IndicatesThatThisShipCannot4:
@@ -11642,11 +11642,6 @@ EmpProtection:
  ENG: "EMP Protection"
  RUS: "Защита от ЭМИ"
  SPA: "Proteccion EMP"
-TreatNeutralSystemsAsUnfriendly:
- Id: 6178
- ENG: "Treat Neutral Systems as Unfriendly"
- RUS: "Отношение к нейтральным системам."
- SPA: "Considerar sistemas neutrales como hostiles"
 FtlSpeedReducedInThis:
  Id: 6179
  ENG: "FTL Speed reduced in this system by "
@@ -11912,7 +11907,7 @@ YourEmpireWillAutomaticallyManage3:
  SPA: "Tu Imperio va a manejar los impuestos y el tesoro de forma automática."
 UsingThisSliderYouCan2:
  Id: 7041
- ENG: "Using this slider, you can lower the FTL speeds of enemy ships that are within the gravity wells of Solar Systems. A value of 100% provides no penalty, whereas a value of 0% will completely inhibit warp of enemy ships in system."
+ ENG: "Using this slider, you can lower the FTL speeds of ships that are within hostile projector influence. A value of 100% provides no penalty, whereas a value of 10% will make ships 10 times slower in hostile projector influence. The default setting is 50% speed reduction."
  RUS: "Используя этот ползунок, вы можете снизить сверхсветовую скорость вражеских кораблей, находящихся в гравитационных колодцах Солнечной системы. Значение 100% не дает штрафа, тогда как значение 0% полностью запрещает варп вражеских кораблей в системе."
  SPA: "Usando esta barra tu puedes reducir la velocidad supraluminales de las naves que estan entre los pozos gravitatorios en los sistemas solares. Un valor del 100% significara que no habra ninguna penalización, y un valor del 0% inhabilitara a las naves realizar desformaciones en el sistema."
 TheDurationABeamWill:

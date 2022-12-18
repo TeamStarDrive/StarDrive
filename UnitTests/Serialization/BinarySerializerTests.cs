@@ -1073,11 +1073,7 @@ namespace UnitTests.Serialization
         class DefaultValuesAllDefaults
         {
             [StarData] public bool Falsy = false;
-            [StarData(DefaultValue=true)] public bool Truthy
-            {
-                get;
-                set;
-            } = true;
+            [StarData(DefaultValue=true)] public bool Truthy = true;
 
             [StarData] public float DefaultFloat = default;
         }
