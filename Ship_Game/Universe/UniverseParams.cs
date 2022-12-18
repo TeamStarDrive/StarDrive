@@ -11,7 +11,7 @@ public class UniverseParams
     public EmpireData PlayerData;
 
     // Universe Generator parameters:
-    [StarData(DefaultValue=ExtraRemnantPresence.Normal)]
+    [StarData(DefaultValue=GameDifficulty.Normal)]
     public GameDifficulty Difficulty = GameDifficulty.Normal;
     
     [StarData(DefaultValue=StarsAbundance.Normal)]
@@ -41,15 +41,24 @@ public class UniverseParams
     [StarData] public bool UseUpkeepByHullSize;
     [StarData] public float StartingPlanetRichnessBonus;
 
-    [StarData(DefaultValue=1f)] public float FTLModifier = 1f; // in-system FTL modifier
-    [StarData(DefaultValue=1f)] public float EnemyFTLModifier = 1f; // in-system FTL modifier for enemies
+    // in-system FTL modifier is the BASE FTL modifier when ships are inside solar systems
+    const float DefaultInSystemFTLModifier = 1f;
+
+    [StarData(DefaultValue=DefaultInSystemFTLModifier)]
+    public float FTLModifier = DefaultInSystemFTLModifier;
+    
+    // if within enemy projector range, then this BASE FTL modifier is used
+    const float DefaultEnemyFTLModifier = 0.5f;
+
+    [StarData(DefaultValue=DefaultEnemyFTLModifier)]
+    public float EnemyFTLModifier = DefaultEnemyFTLModifier;
+
 
     // configured gravity wells for this game, if 0, then gravity wells are disabled
     [StarData] public float GravityWellRange;
     [StarData] public int ExtraPlanets;
 
     // persistent toggle flags for different checkboxes
-    [StarData(DefaultValue=true)] public bool FTLInNeutralSystems = true;
     [StarData(DefaultValue=true)] public bool PlanetsScreenHideInhospitable = true;
     [StarData(DefaultValue=true)] public bool DisableInhibitionWarning = true;
     [StarData] public bool SuppressOnBuildNotifications;
@@ -83,5 +92,14 @@ public class UniverseParams
         StartingPlanetRichnessBonus = s.StartingPlanetRichnessBonus;
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;
+    }
+
+    [StarDataDeserialized]
+    public void OnDeserialized()
+    {
+        // BUGFIX: if FTL modifiers become 0, then reset the defaults,
+        //         because if they are 0, the game would break
+        if (FTLModifier == 0f) FTLModifier = DefaultInSystemFTLModifier;
+        if (EnemyFTLModifier == 0f) EnemyFTLModifier = DefaultEnemyFTLModifier;
     }
 }
