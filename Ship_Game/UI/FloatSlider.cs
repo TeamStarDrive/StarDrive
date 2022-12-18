@@ -97,12 +97,14 @@ namespace Ship_Game
             : this(r, text, min, max, value)
         {
             Style = style;
+            SetStyle(style);
         }
 
         public FloatSlider(SliderStyle style, Vector2 size, LocalizedText text, float min, float max, float value)
             : this(new Rectangle(0, 0,(int)size.X, (int)size.Y), text, min, max, value)
         {
             Style = style;
+            SetStyle(style);
         }
 
         public FloatSlider(SliderStyle style, float w, float h, LocalizedText text, float min, float max, float value)
@@ -122,8 +124,14 @@ namespace Ship_Game
             Min   = min;
             Max   = max;
             Value = (value.Clamped(Min, Max) - Min) / Range;
-            Style = style;
+            SetStyle(style);
             UpdateSliderRect();
+        }
+
+        void SetStyle(SliderStyle style)
+        {
+            Style = style;
+            Step = style == SliderStyle.Percent ? 0.01f : 0f;
         }
 
         void UpdateSliderRect()
@@ -152,7 +160,8 @@ namespace Ship_Game
                 {
                     case SliderStyle.Decimal:  value = ((int)Math.Round(AbsoluteValue)).ToString(); break;
                     case SliderStyle.Decimal1: value = (AbsoluteValue).String(1);                   break;
-                    default:                   value = (RelativeValue * 100f).ToString("00") + "%"; break;
+                    case SliderStyle.Percent:  value = (AbsoluteValue * 100f).ToString("00") + "%"; break;
+                    default:                   value = RelativeValue.String(2); break;
                 }
 
                 if (ZeroString.IsValid && AbsoluteValue < 1)
@@ -238,7 +247,7 @@ namespace Ship_Game
                     int steps = (int)Math.Round(diff / Step);
                     if (steps != 0)
                     {
-                        AbsoluteValue = (float)Math.Round(oldAbsVal + steps*Step);
+                        AbsoluteValue = (float)Math.Round((oldAbsVal + steps*Step)*100) / 100;
                         OnChange?.Invoke(this);
                     }
                 }

@@ -469,14 +469,19 @@ public class BinarySerializerReader
         // if Type has been deleted, we skip and read the next field
         if (instance == null) return;
 
-        object fieldValue = pointer != 0 ? ObjectsList[pointer] : fi.Ser?.DefaultValue;
-
         // if field has been deleted, then Field==null and Set() is ignored
-        if (fi.Field == null) return;
+        DataField field = fi.Field;
+        if (field == null) return;
+
+        object fieldValue;
+        if (pointer != 0)
+            fieldValue = ObjectsList[pointer];
+        else
+            fieldValue = field.A.DefaultValue ?? fi.Ser?.DefaultValue;
 
         // if this is a Struct referencing a RawArray, we need to defer the write
         if (isStruct && pointer != 0 && fieldValue == null && 
-            fi.Field.Serializer is RawArraySerializer)
+            fi.Ser is RawArraySerializer)
         {
             DeferredSets.Add(new(instance, fi, pointer));
             return;
@@ -490,7 +495,7 @@ public class BinarySerializerReader
         {
             if (TryConvertValue(fi, fieldValue, out object convertedValue))
             {
-                fi.Field.Set(instance, convertedValue);
+                field.Set(instance, convertedValue);
             }
             else
             {
