@@ -1020,6 +1020,121 @@ namespace UnitTests.Serialization
             AssertEqual(instance.Abstr.NonVirtual, result.Abstr.NonVirtual);
         }
 
+        [StarDataType]
+        class DefaultValues
+        {
+            [StarData] public bool Falsy = false;
+            [StarData(DefaultValue=true)] public bool Truthy = true;
+
+            [StarData] public float DefaultFloat = default;
+            [StarData(DefaultValue=1f)] public float OneFloat = 1f;
+
+            [StarData] public string DefaultString;
+            [StarData(DefaultValue = "AssignedString")] public string AssignedString = "AssignedString";
+        }
+
+        // specific to DefaultValue optimization
+        [TestMethod]
+        public void DefaultValuesAreWrittenCorrectly()
+        {
+            var instance = new DefaultValues();
+            var result = SerDes(instance);
+            AssertEqual(instance.Falsy, result.Falsy);
+            AssertEqual(instance.Truthy, result.Truthy);
+            AssertEqual(instance.DefaultFloat, result.DefaultFloat);
+            AssertEqual(instance.OneFloat, result.OneFloat);
+            AssertEqual(instance.DefaultString, result.DefaultString);
+            AssertEqual(instance.AssignedString, result.AssignedString);
+        }
+
+        [TestMethod]
+        public void DefaultValuesAllAreNoneDefault()
+        {
+            var instance = new DefaultValues()
+            {
+                Falsy = true,
+                Truthy = false,
+                DefaultFloat = 13f,
+                OneFloat = 12f,
+                DefaultString = "abcd",
+                AssignedString = "xyzw",
+            };
+            var result = SerDes(instance);
+            AssertEqual(instance.Falsy, result.Falsy);
+            AssertEqual(instance.Truthy, result.Truthy);
+            AssertEqual(instance.DefaultFloat, result.DefaultFloat);
+            AssertEqual(instance.OneFloat, result.OneFloat);
+            AssertEqual(instance.DefaultString, result.DefaultString);
+            AssertEqual(instance.AssignedString, result.AssignedString);
+        }
+        
+        // case when all fields are default values
+        [StarDataType]
+        class DefaultValuesAllDefaults
+        {
+            [StarData] public bool Falsy = false;
+            [StarData(DefaultValue=true)] public bool Truthy
+            {
+                get;
+                set;
+            } = true;
+
+            [StarData] public float DefaultFloat = default;
+        }
+
+        [TestMethod]
+        public void DefaultValuesAllDefaultsAreWrittenCorrectly()
+        {
+            var instance = new DefaultValuesAllDefaults();
+            var result = SerDes(instance);
+            AssertEqual(instance.Falsy, result.Falsy);
+            AssertEqual(instance.Truthy, result.Truthy);
+            AssertEqual(instance.DefaultFloat, result.DefaultFloat);
+        }
+        
+        [TestMethod]
+        public void CanSerializeUniverseParams()
+        {
+            var instance = new UniverseParams();
+            var result = SerDes(instance);
+            AssertEqual(instance.Difficulty, result.Difficulty);
+            AssertEqual(instance.StarsCount, result.StarsCount);
+            AssertEqual(instance.GalaxySize, result.GalaxySize);
+            AssertEqual(instance.ExtraRemnant, result.ExtraRemnant);
+            AssertEqual(instance.NumSystems, result.NumSystems);
+            AssertEqual(instance.NumOpponents, result.NumOpponents);
+            AssertEqual(instance.Mode, result.Mode);
+            AssertEqual(instance.Pace, result.Pace);
+            AssertEqual(instance.StarsModifier, result.StarsModifier);
+            AssertEqual(instance.MinAcceptableShipWarpRange, result.MinAcceptableShipWarpRange);
+            AssertEqual(instance.TurnTimer, result.TurnTimer);
+            AssertEqual(instance.PreventFederations, result.PreventFederations);
+            AssertEqual(instance.EliminationMode, result.EliminationMode);
+            AssertEqual(instance.CustomMineralDecay, result.CustomMineralDecay);
+            AssertEqual(instance.VolcanicActivity, result.VolcanicActivity);
+            AssertEqual(instance.ShipMaintenanceMultiplier, result.ShipMaintenanceMultiplier);
+            AssertEqual(instance.AIUsesPlayerDesigns, result.AIUsesPlayerDesigns);
+            AssertEqual(instance.StartingPlanetRichnessBonus, result.StartingPlanetRichnessBonus);
+            AssertEqual(instance.FTLModifier, result.FTLModifier);
+            AssertEqual(instance.EnemyFTLModifier, result.EnemyFTLModifier);
+            AssertEqual(instance.GravityWellRange, result.GravityWellRange);
+            AssertEqual(instance.ExtraPlanets, result.ExtraPlanets);
+            AssertEqual(instance.PlanetsScreenHideInhospitable, result.PlanetsScreenHideInhospitable);
+            AssertEqual(instance.DisableInhibitionWarning, result.DisableInhibitionWarning);
+            AssertEqual(instance.SuppressOnBuildNotifications, result.SuppressOnBuildNotifications);
+            AssertEqual(instance.PlanetScreenHideOwned, result.PlanetScreenHideOwned);
+            AssertEqual(instance.ShipListFilterPlayerShipsOnly, result.ShipListFilterPlayerShipsOnly);
+            AssertEqual(instance.ShipListFilterInFleetsOnly, result.ShipListFilterInFleetsOnly);
+            AssertEqual(instance.ShipListFilterNotInFleets, result.ShipListFilterNotInFleets);
+            AssertEqual(instance.CordrazinePlanetCaptured, result.CordrazinePlanetCaptured);
+            AssertEqual(instance.DisableVolcanoWarning, result.DisableVolcanoWarning);
+            AssertEqual(instance.ShowAllDesigns, result.ShowAllDesigns);
+            AssertEqual(instance.FilterOldModules, result.FilterOldModules);
+            AssertEqual(instance.DisableRemnantStory, result.DisableRemnantStory);
+            AssertEqual(instance.DisablePirates, result.DisablePirates);
+            AssertEqual(instance.FixedPlayerCreditCharge, result.FixedPlayerCreditCharge);
+        }
+
         [TestMethod]
         public void CanSerializeShipDesign()
         {
