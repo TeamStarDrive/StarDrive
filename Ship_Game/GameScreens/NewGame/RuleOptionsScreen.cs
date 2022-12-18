@@ -52,28 +52,29 @@ public sealed class RuleOptionsScreen : GameScreen
         CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
 
         var ftlRect = new Rectangle(x, leftRect.Y + 100, 270, 50);
-        FTLPenaltySlider = SliderPercent(ftlRect, Localizer.Token(GameText.InsystemFtlSpeedModifier), 0f, 1f, P.FTLModifier);
+        FTLPenaltySlider = Add(new FloatSlider(SliderStyle.Percent, ftlRect,
+                                               GameText.InsystemFtlSpeedModifier, 0.1f, 1f, P.FTLModifier));
         FTLPenaltySlider.OnChange = (s) => P.FTLModifier = s.AbsoluteValue;
 
         var eftlRect = new Rectangle(x, leftRect.Y + 150, 270, 50);
-        EnemyFTLPenaltySlider = SliderPercent(eftlRect, Localizer.Token(GameText.InsystemEnemyFtlSpeedModifier), 0f, 1f, P.EnemyFTLModifier);
+        EnemyFTLPenaltySlider = Add(new FloatSlider(SliderStyle.Percent, eftlRect, 
+                                                    GameText.InsystemEnemyFtlSpeedModifier, 0.1f, 1f, P.EnemyFTLModifier));
         EnemyFTLPenaltySlider.OnChange = (s) => P.EnemyFTLModifier = s.AbsoluteValue;
             
-        int indent = (int)(width / 4.5f); 
-        Checkbox(ftlRect.X + indent, ftlRect.Y, () => P.PreventFederations, title: GameText.PreventAiFederations, tooltip: GameText.PreventsAiEmpiresFromMerging);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25,() => P.FTLInNeutralSystems, title: GameText.TreatNeutralSystemsAsUnfriendly, tooltip: GameText.TreatNeutralSystemsAsUnfriendly);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 50, () => P.FixedPlayerCreditCharge, title: GameText.FixedShipAndBuildingsCost, tooltip: GameText.KeepFixedCreditCostOf);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 75, () => P.AIUsesPlayerDesigns, title: GameText.UsePlayerDesignsTitle, tooltip: GameText.UsePlayerDesignsTip);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => P.DisablePirates, title: GameText.DisablePirates, tooltip: GameText.DisablesAllPirateFactionsFor);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => P.DisableRemnantStory, title: GameText.DisableRemnantStory, tooltip: GameText.IfCheckedRemnantForcesIn);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 150, () => P.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
+        int indent = (int)(width / 4.5f);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*0, () => P.PreventFederations, title: GameText.PreventAiFederations, tooltip: GameText.PreventsAiEmpiresFromMerging);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*1, () => P.FixedPlayerCreditCharge, title: GameText.FixedShipAndBuildingsCost, tooltip: GameText.KeepFixedCreditCostOf);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*2, () => P.AIUsesPlayerDesigns, title: GameText.UsePlayerDesignsTitle, tooltip: GameText.UsePlayerDesignsTip);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*3, () => P.DisablePirates, title: GameText.DisablePirates, tooltip: GameText.DisablesAllPirateFactionsFor);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*4, () => P.DisableRemnantStory, title: GameText.DisableRemnantStory, tooltip: GameText.IfCheckedRemnantForcesIn);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*5, () => P.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
 
         var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 230, 270, 50);
-        CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(GameText.MineralDecayRate), 0.5f, 3, P.CustomMineralDecay);
+        CustomMineralDecay = SliderDecimal1(mdRect, GameText.MineralDecayRate, 0.5f, 3, P.CustomMineralDecay);
         CustomMineralDecay.OnChange = (s) => P.CustomMineralDecay = (s.AbsoluteValue).RoundToFractionOf10();
 
         var vaRect = new Rectangle(ftlRect.X + indent + 2, ftlRect.Y + 290, 270, 50);
-        VolcanicActivity = SliderDecimal1(vaRect, Localizer.Token(GameText.VolcanicActivity), 0.5f, 3, P.VolcanicActivity);
+        VolcanicActivity = SliderDecimal1(vaRect, GameText.VolcanicActivity, 0.5f, 3, P.VolcanicActivity);
         VolcanicActivity.OnChange = (s) => P.VolcanicActivity = (s.AbsoluteValue).RoundToFractionOf10();
 
         var gwRect = new Rectangle(x, leftRect.Y + 210, 270, 50);
@@ -121,7 +122,7 @@ public sealed class RuleOptionsScreen : GameScreen
 
 
         Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, GameText.AdvancedRuleOptions, Fonts.Arial20Bold);
-        string text = Fonts.Arial12.ParseText(Localizer.Token(GameText.InThisPanelYouMay), MainMenu.Menu.Width - 80);
+        string text = Fonts.Arial12.ParseText(GameText.InThisPanelYouMay, MainMenu.Menu.Width - 80);
         Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40 + Fonts.Arial20Bold.LineSpacing + 2, text, Fonts.Arial12);
     }
 }

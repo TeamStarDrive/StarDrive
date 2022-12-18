@@ -2,6 +2,7 @@
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships
@@ -72,23 +73,23 @@ namespace Ship_Game.Ships
 
         float SetMaxFTLSpeed()
         {
-            float projectorBonus = 1f;
+            // the default modifier is 1, but in systems we use the In-System FTL Modifier
+            float ftlModifier = System != null ? Universe.P.FTLModifier : 1f;
 
-            // Change FTL modifier for ship based on solar system
-            if (System != null)
+            switch (CurrentInfluenceStatus)
             {
-                if (IsInFriendlyProjectorRange)
-                    projectorBonus = Universe.P.FTLModifier;
-                else if (!Universe.P.FTLInNeutralSystems || IsInHostileProjectorRange)
-                    projectorBonus = Universe.P.EnemyFTLModifier;
+                // the default value for in-border speed bonus is 0.5, eg 50% speed increase
+                case InfluenceStatus.Friendly:
+                    ftlModifier += Loyalty.data.Traits.InBordersSpeedBonus;
+                    break;
+                // apply additional penalty modifier if within enemy influence, default is 0.5x, eg 50% penalty
+                case InfluenceStatus.Enemy:
+                    ftlModifier *= Universe.P.EnemyFTLModifier;
+                    break;
             }
 
-            FTLModifier = 1f;
-            if (IsInFriendlyProjectorRange && Loyalty.data.Traits.InBordersSpeedBonus > 0)
-                FTLModifier += Loyalty.data.Traits.InBordersSpeedBonus;
-            FTLModifier *= projectorBonus;
-
-            float maxFTLSpeed = Stats.MaxFTLSpeed * FTLModifier * WarpPercent;
+            FTLModifier = ftlModifier;
+            float maxFTLSpeed = Stats.MaxFTLSpeed * ftlModifier * WarpPercent;
             MaxFTLSpeed = maxFTLSpeed;
             return maxFTLSpeed;
         }
