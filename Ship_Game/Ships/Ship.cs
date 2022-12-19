@@ -1908,32 +1908,7 @@ namespace Ship_Game.Ships
             // Above skill 5 there is no more benefit.
             // The default value is 50%, and lowest threshold is 5%
             float criticalModulePercent = (0.5f - (repairLevel * 0.1f)).Clamped(0.05f, 0.5f);
-
-            ShipModule moduleToRepair = ModuleSlotList.FindMax(module =>
-            {
-                float maxHealth = module.ActualMaxHealth;
-                float healthPercent = module.Health / maxHealth;
-                if (healthPercent.AlmostEqual(1.0f))
-                    return 0;
-
-                // < critical modules get priority 1.0, non-critical modules are repaired linearly
-                float damagePriority = healthPercent < criticalModulePercent ? 1f : 1f - healthPercent;
-
-                // best modules get priority 1.0
-                float moduleImportance = 1.0f - ((float)module.ModulePriority / ShipModule.MaxPriority);
-
-                // conduits don't need to be fully repaired
-                // prefer regular engines instead of maneuver thrusters
-                if (module.ModuleType == ShipModuleType.PowerConduit ||
-                    (module.ModuleType == ShipModuleType.Engine && module.Thrust == 0f && module.WarpThrust == 0f))
-                {
-                    moduleImportance *= 0.75f;
-                }
-
-                return damagePriority * moduleImportance;
-            });
-
-            return moduleToRepair;
+            return ModuleSlotList.FindMax(module => module.GetRepairPriority(criticalModulePercent));
         }
 
         public void ApplyModuleHealthTechBonus(float bonus)
