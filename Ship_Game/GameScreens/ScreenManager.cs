@@ -313,9 +313,10 @@ namespace Ship_Game
             if (batch == null)
                 return; // ScreenManager was disposed
 
-            for (int i = 0; i < GameScreens.Count; ++i)
+            GameScreen[] screens = GameScreens.ToArray();
+            for (int i = 0; i < screens.Length; ++i)
             {
-                GameScreen screen = GameScreens[i];
+                GameScreen screen = screens[i];
                 if (screen.Visible && !screen.IsDisposed)
                 {
                     try
