@@ -1290,8 +1290,6 @@ namespace Ship_Game.Ships
                 ReturnHome();
 
             // Repair
-            if (VanityName == "LALA")
-                Log.Info("dd");
             if (HealthPercent < 0.999f)
             {
                 if (CanRepair)
