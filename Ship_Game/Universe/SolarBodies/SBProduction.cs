@@ -160,12 +160,12 @@ namespace Ship_Game.Universe.SolarBodies
             // we can't place it... there's some sort of bug
             if (q.Building.Unique && P.BuildingBuilt(q.Building.BID))
             {
-                Log.Error($"Unique building {q.Building} already exists on planet {P}");
+                Log.Warning($"Unique building {q.Building} already exists on planet {P}");
                 return false;
             }
             if (q.pgs.CanBuildHere(q.Building))
             {
-                Log.Error($"We can no longer build {q.Building} at tile {q.pgs}");
+                Log.Warning($"We can no longer build {q.Building} at tile {q.pgs}");
                 return false;
             }
 
