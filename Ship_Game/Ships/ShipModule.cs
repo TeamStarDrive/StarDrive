@@ -1268,6 +1268,32 @@ namespace Ship_Game.Ships
             return repairLeft;
         }
 
+        public float GetRepairPriority(float criticalModulePercent)
+        {
+            float maxHealth = ActualMaxHealth;
+            float healthPercent = Health / maxHealth;
+            if (healthPercent.AlmostEqual(1.0f))
+                return 0;
+
+            // < critical modules get priority 1.0, non-critical modules are repaired linearly
+            float damagePriority = healthPercent < criticalModulePercent ? 1f : 1f - healthPercent;
+
+            // best modules get priority 1.0
+            float moduleImportance = 1.0f - ((float)ModulePriority / MaxPriority);
+
+            // conduits don't need to be fully repaired
+            // prefer regular engines instead of maneuver thrusters
+            if (ModuleType == ShipModuleType.PowerConduit ||
+                (ModuleType == ShipModuleType.Engine && Thrust == 0f && WarpThrust == 0f))
+            {
+                moduleImportance *= 0.75f;
+            }
+
+            // adding 1 so modules which are fully healthy (0 priority) will never be the same as
+            // very low priority modules
+            return 1 + damagePriority * moduleImportance;
+        }
+
         public void RegenerateSelf()
         {
             if (Regenerate > 0 && HealthPercent < 0.99f)
