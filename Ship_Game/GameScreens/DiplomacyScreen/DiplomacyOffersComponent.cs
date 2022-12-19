@@ -17,6 +17,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         Offer OurOffer;
         Offer TheirOffer;
 
+        // EVT: offer has changed (probably)
+        public Action OnOfferChanged;
+
         public DiplomacyOffersComponent(Empire empire, Empire other,
                                         Rectangle rect, SubTexture background) : base(rect)
         {
@@ -67,29 +70,31 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 case "NAPact":
                     OurOffer.NAPact = TheirOffer.NAPact = selected;
                     SelectTheirItem(ourItem.Response, selected);
-                    return;
+                    break;
                 case "We Declare War":
                     OurOffer.NAPact = TheirOffer.NAPact = selected;
                     SelectTheirItem("NAPact", selected);
-                    return;
+                    break;
                 case "Peace Treaty":
                     OurOffer.PeaceTreaty = TheirOffer.PeaceTreaty = selected;
                     SelectTheirItem(ourItem.Response, selected);
-                    return;
+                    break;
                 case "OfferAlliance":
                     OurOffer.Alliance = TheirOffer.Alliance = selected;
                     SelectTheirItem(ourItem.Response, selected);
-                    return;
-                case "OpenBorders": OurOffer.OpenBorders = selected; return;
-                case "Declare War": ourItem.ChangeSpecialInquiry(OurOffer.EmpiresToWarOn);      return;
-                case "Tech":        ourItem.ChangeSpecialInquiry(OurOffer.TechnologiesOffered); return;
-                case "Artifacts":   ourItem.ChangeSpecialInquiry(OurOffer.ArtifactsOffered);    return;
-                case "Colony":      ourItem.ChangeSpecialInquiry(OurOffer.ColoniesOffered);     return;
+                    break;
+                case "OpenBorders": OurOffer.OpenBorders = selected; break;
+                case "Declare War": ourItem.ChangeSpecialInquiry(OurOffer.EmpiresToWarOn);      break;
+                case "Tech":        ourItem.ChangeSpecialInquiry(OurOffer.TechnologiesOffered); break;
+                case "Artifacts":   ourItem.ChangeSpecialInquiry(OurOffer.ArtifactsOffered);    break;
+                case "Colony":      ourItem.ChangeSpecialInquiry(OurOffer.ColoniesOffered);     break;
                 case "TradeTreaty":
                     OurOffer.TradeTreaty = TheirOffer.TradeTreaty = selected;
                     SelectTheirItem("TradeTreaty", selected);
-                    return;
+                    break;
             }
+
+            OnOfferChanged?.Invoke();
         }
 
         void Reset()
