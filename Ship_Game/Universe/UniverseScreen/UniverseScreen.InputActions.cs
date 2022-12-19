@@ -8,7 +8,7 @@ namespace Ship_Game
     {
         public void OrderScrap()
         {
-            SelectedShip.AI.OrderScrapShip();
+            SelectedShip?.AI.OrderScrapShip();
         }
 
         public void OrderScuttle()
