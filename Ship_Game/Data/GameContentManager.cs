@@ -57,7 +57,24 @@ namespace Ship_Game.Data
             RawContent = new RawContentLoader(this);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            LoadedAssets     = null;
+            DisposableAssets = null;
+            RawContent       = null;
+            LoadedEffects    = null;
+        }
+
         object GetField(string field) => typeof(ContentManager).GetField(field, BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
+        
+        static T GetField<T>(object obj, string name)
+        {
+            return (T)obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(obj);
+        }
+
+        public GraphicsDeviceManager Manager => (GraphicsDeviceManager)ServiceProvider.GetService(typeof(IGraphicsDeviceManager));
+        public GraphicsDevice Device => Manager.GraphicsDevice;
 
         bool TryGetAsset(string assetNameNoExt, out object asset)
         {
@@ -120,23 +137,6 @@ namespace Ship_Game.Data
                 LoadedEffects.Add(assetName, effect);
             RecordDisposableObject(effect);
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            LoadedAssets     = null;
-            DisposableAssets = null;
-            RawContent       = null;
-            LoadedEffects    = null;
-        }
-
-        static T GetField<T>(object obj, string name)
-        {
-            return (T)obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(obj);
-        }
-
-        public GraphicsDeviceManager Manager => (GraphicsDeviceManager)ServiceProvider.GetService(typeof(IGraphicsDeviceManager));
-        public GraphicsDevice Device => Manager.GraphicsDevice;
 
         public static int TextureSize(Texture2D tex)
         {
