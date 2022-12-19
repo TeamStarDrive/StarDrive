@@ -322,6 +322,12 @@ namespace Ship_Game
                     {
                         screen.Draw(batch, DrawLoopTime);
                     }
+                    catch (ObjectDisposedException)
+                    {
+                        // When user device goes to sleep, graphics resources are lost
+                        // So all screens need to be reloaded
+                        ReloadAllScreens();
+                    }
                     catch (Exception e)
                     {
                         Log.Error(e, $"Draw Screen failed: {screen.GetType().GetTypeName()}");
@@ -432,6 +438,18 @@ namespace Ship_Game
 
             GameScreens.Remove(screen);
             screen.OnScreenRemoved();
+        }
+
+        public void ReloadAllScreens()
+        {
+            for (int i = 0; i < GameScreens.Count; ++i)
+            {
+                GameScreen screen = GameScreens[i];
+                if (!screen.IsDisposed)
+                {
+                    screen.ReloadContent();
+                }
+            }
         }
 
         float HotloadTimer;
