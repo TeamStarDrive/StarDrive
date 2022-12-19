@@ -99,11 +99,13 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        public void LoadModel(out SceneObject shipSO, GameContentManager content)
+        public bool LoadModel(out SceneObject shipSO, GameContentManager content)
         {
             lock (this)
             {
                 shipSO = StaticMesh.GetSceneMesh(content, ModelPath, Animated);
+                if (shipSO == null)
+                    return false;
 
                 if (Volume.X.AlmostEqual(0f))
                 {
@@ -111,12 +113,14 @@ namespace Ship_Game.Ships
                     {
                         Volume = new Vector3(shipSO.GetMeshBoundingBox().Max);
                         ModelZ = Volume.Z;
+                        return true;
                     }
                     catch (Exception e)
                     {
                         Log.Error(e, $"GetMeshBoundingBox failed: {ModelPath}");
                     }
                 }
+                return false;
             }
         }
 

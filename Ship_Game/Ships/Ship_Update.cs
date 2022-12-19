@@ -46,7 +46,9 @@ namespace Ship_Game.Ships
                 return; // allow creating invisible ships in Unit Tests
 
             //Log.Info($"CreateSO {Id} {Name}");
-            ShipData.LoadModel(out ShipSO, Universe.Screen.ContentManager);
+            if (!ShipData.LoadModel(out ShipSO, Universe.Screen.ContentManager))
+                return; // loading Ship SO failed
+
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position + ShipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
