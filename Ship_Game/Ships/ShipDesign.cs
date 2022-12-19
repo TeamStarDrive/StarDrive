@@ -254,9 +254,9 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        public void LoadModel(out SceneObject shipSO, GameContentManager content)
+        public bool LoadModel(out SceneObject shipSO, GameContentManager content)
         {
-            BaseHull.LoadModel(out shipSO, content);
+            return BaseHull.LoadModel(out shipSO, content);
         }
 
         public static RoleType ShipRoleToRoleType(RoleName role)
