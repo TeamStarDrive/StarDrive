@@ -585,12 +585,14 @@ namespace Ship_Game
             bool coveredByOtherScreen = false;
             bool inputCaptured = false;
 
-            // @note GameScreen could be removed during screen.Update, so [i] must always be bounds checked
-            for (int i = GameScreens.Count - 1; i >= 0 && i < GameScreens.Count; --i)
+            // since GameScreens are allowed to be removed randomly during their HandleInput,
+            // we always create a copy of current screens, and double check if the screen still exists
+            GameScreen[] activeScreens = GameScreens.ToArr();
+            for (int i = activeScreens.Length - 1; i >= 0; --i)
             {
-                GameScreen screen = GameScreens[i];
-                if (screen == null) // FIX: threading or other removal issue,
-                    continue;       // GameScreens was modified from another thread
+                GameScreen screen = activeScreens[i];
+                if (!GameScreens.ContainsRef(screen))
+                    continue; // this screen was removed while we were processing HandleInput events
 
                 // 1. Handle Input
                 if (!otherScreenHasFocus && !screen.IsExiting && !inputCaptured)
