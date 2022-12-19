@@ -16,7 +16,7 @@ namespace Ship_Game
         ScrollList<WikiHelpCategoryListItem> HelpCategories;
         RectF TextRect;
         Vector2 TitlePosition;
-        ScrollList<TextListItem> HelpEntries;
+        UITextBox HelpEntries;
 
         ScreenMediaPlayer Player;
         RectF SmallViewer;
@@ -56,7 +56,7 @@ namespace Ship_Game
             HelpCategories = Add(new ScrollList<WikiHelpCategoryListItem>(CategoriesRect));
 
             RectF textSlRect = new(CategoriesRect.X + CategoriesRect.W + 5, CategoriesRect.Y + 10, 375, 420);
-            HelpEntries = Add(new ScrollList<TextListItem>(textSlRect, Fonts.Arial12Bold.LineSpacing + 2));
+            HelpEntries = Add(new UITextBox(textSlRect, useBorder:false));
             TextRect = new(HelpCategories.X + HelpCategories.Width + 5, HelpCategories.Y + 10, 375, 420);
             
             ResetActiveTopic();
@@ -85,7 +85,7 @@ namespace Ship_Game
         
         void ResetActiveTopic()
         {
-            HelpEntries.ResetWithParseText(Fonts.Arial12Bold, ActiveTopic.Text, TextRect.W - 40);
+            HelpEntries.SetLines(ActiveTopic.Text, Fonts.Arial12Bold, Color.White);
             float titleW = Fonts.Arial20Bold.TextWidth(ActiveTopic.Title);
             TitlePosition = new(TextRect.CenterX - titleW / 2f - 15f, TextRect.Y + 10);
         }
@@ -99,7 +99,7 @@ namespace Ship_Game
                 return;
             }
 
-            HelpEntries.Reset();
+            HelpEntries.Clear();
             ActiveTopic = item.Topic;
 
             if (ActiveTopic.Text != null)
@@ -126,7 +126,7 @@ namespace Ship_Game
             }
             else
             {
-                HelpEntries.Reset();
+                HelpEntries.Clear();
                 Player.PlayVideo(ActiveTopic.VideoPath, looping: false, startPaused: true);
                 Player.Visible = true;
             }

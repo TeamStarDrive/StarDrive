@@ -32,7 +32,7 @@ namespace Ship_Game
         UIButton ModeBtn;
         Rectangle FlagRect;
         ScrollList<RaceArchetypeListItem> ChooseRaceList;
-        ScrollList<TextListItem> DescriptionTextList;
+        UITextBox DescriptionTextList;
 
         UILabel NumSystemsLabel;
         UILabel ExtraPlanetsLabel;
@@ -193,9 +193,10 @@ namespace Ship_Game
                 tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare.");
 
             RectF description = new(traitsList.Right + 5, traitsList.Y, chooseRace.W, traitsList.H);
-            DescriptionTextList = Add(new ScrollList<TextListItem>(description, DescriptionTextFont.LineSpacing));
-            DescriptionTextList.SetBackground(new Menu1(description));
-            DescriptionTextList.EnableItemEvents = false;
+            DescriptionTextList = Add(new UITextBox(description, useBorder:false, DescriptionTextFont));
+            DescriptionTextList.ItemsList.SetBackground(new Menu1(description));
+            DescriptionTextList.ItemsList.ItemPadding = new Vector2(10, 0);
+
             Add(new SelectedTraitsSummary(this));
 
             Picker = Add(new UIColorPicker(new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
@@ -203,8 +204,6 @@ namespace Ship_Game
 
             ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:GameText.Engage, click: OnEngageClicked);
             ButtonMedium(10, ScreenHeight - 40, text:GameText.Abort, click: OnAbortClicked);
-
-            DescriptionTextList.ItemPadding = new Vector2(10, 0);
 
             const int containerMarginBottom = 10;
             const int containerPaddingLeft = 10;
@@ -605,8 +604,8 @@ namespace Ship_Game
 
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                float start = Screen.DescriptionTextList.NumEntries > 0
-                            ? Screen.DescriptionTextList.ItemAtBottom.Bottom
+                float start = Screen.DescriptionTextList.ItemsList.NumEntries > 0
+                            ? Screen.DescriptionTextList.ItemsList.ItemAtBottom.Bottom
                             : Screen.DescriptionTextList.Y;
 
                 var r = new Vector2(Screen.DescriptionTextList.X + 20, start + 20);
