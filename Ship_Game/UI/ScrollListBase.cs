@@ -417,6 +417,7 @@ namespace Ship_Game
             if (ScrollBarPosChanged)
             {
                 ScrollBarPosChanged = false;
+
                 // when scrollbar was moved being dragged by input, use it to update the visible index
                 float relScrollPos = GetRelativeScrollPosFromScrollBar();
                 float scrolledIndexF = Math.Max(0, FlatEntries.Count - maxVisibleItemsF) * relScrollPos;
@@ -464,8 +465,9 @@ namespace Ship_Game
 
         void UpdateScrollBarToCurrentIndex(float maxVisibleItemsF)
         {
-            int startOffset = (int)(ScrollHousing.H * (VisibleItemsBegin / (float)FlatEntries.Count));
-            int barHeight   = (int)(ScrollHousing.H * (maxVisibleItemsF / (float)FlatEntries.Count));
+            int count = FlatEntries.Count;
+            int startOffset = count == 0 ? 0 : (int)(ScrollHousing.H * (VisibleItemsBegin / (float)count));
+            int barHeight = count == 0 ? (int)ScrollHousing.H : (int)(ScrollHousing.H * (maxVisibleItemsF / count));
 
             ScrollBar = new(ScrollHousing.X, ScrollHousing.Y + startOffset,
                             GetStyle().ScrollBarMid.Normal.Width, barHeight);

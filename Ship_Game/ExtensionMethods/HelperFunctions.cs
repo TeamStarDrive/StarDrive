@@ -181,14 +181,6 @@ namespace Ship_Game
             }
         }
 
-        public static void ResetWithParseText(this ScrollList<TextListItem> list, 
-            Font font, string text, float maxLineWidth)
-        {
-            string[] lines = font.ParseTextToLines(text, maxLineWidth);
-            TextListItem[] textItems = lines.Select(line => new TextListItem(line, font));
-            list.SetItems(textItems);
-        }
-
         public static int RoundTo(float amount1, int roundTo)
         {
             int rounded = (int)((amount1 + 0.5 * roundTo) / roundTo) * roundTo;

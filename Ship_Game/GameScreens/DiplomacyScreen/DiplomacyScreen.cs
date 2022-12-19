@@ -16,7 +16,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         Rectangle Portrait;
         DialogState DState;
 
-        readonly Array<GenericButton> GenericButtons = new Array<GenericButton>();
+        readonly Array<GenericButton> GenericButtons = new();
 
         GenericButton SendOffer;
         GenericButton DeclareWar; // OPTIONAL
@@ -27,7 +27,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         RectF DialogRect;
         float DialogAreaWidth => DialogRect.W - 30;
 
-        ScrollList<DialogOptionListItem> StatementsSL;
+        // NOTE: these two overlap each other, so they are disabled/enabled according which one is active
+        ScrollList<DialogOptionListItem> DiscussionSL;
+        UITextBox DialogTextBox;
+
         DiplomacyOffersComponent OurOffersList; // NAPact, Peace Treaty, Open Borders...
         DiplomacyOffersComponent TheirOffersList;
 
@@ -38,13 +41,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         GenericButton Trust;
         GenericButton Anger;
         GenericButton Fear;
-        Array<GenericButton> TAFButtons = new Array<GenericButton>();
 
         GenericButton OurAttitudeBtn_Pleading;
         GenericButton OurAttitudeBtn_Respectful;
         GenericButton OurAttitudeBtn_Threaten;
         Vector2 EmpireNamePos;
-        ScrollList<TextListItem> OfferTextSL;
 
         Rectangle R;
         Rectangle BridgeRect;
@@ -332,11 +333,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             SendOffer.OnClick = OnSendOfferClicked;
 
             RectF offerTextMenu = new(R.X, R.Y, R.Width, R.Height - 30);
-            OfferTextSL = Add(new ScrollList<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
-            OfferTextSL.ResetWithParseText(Fonts.Consolas18, TheirText, DialogAreaWidth);
+            DialogTextBox = Add(new UITextBox(offerTextMenu, useBorder:false));
+            DialogTextBox.SetLines(TheirText, Fonts.Consolas18, Color.White);
 
-            StatementsSL = Add(new ScrollList<DialogOptionListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
-            StatementsSL.OnClick = (item) => Respond(item.Option);
+            DiscussionSL = Add(new ScrollList<DialogOptionListItem>(offerTextMenu, 18));
+            DiscussionSL.OnClick = (item) => Respond(item.Option);
 
             SubTexture ourBkg   = TransientContent.LoadTextureOrDefault("Textures/GameScreens/Negotiate_Right");
             SubTexture theirBkg = TransientContent.LoadTextureOrDefault("Textures/GameScreens/Negotiate_Left");
@@ -372,7 +373,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 ToggleOnColor = Color.DarkOrange,
                 ButtonStyle = GenericButton.Style.Shadow,
             });
-            TAFButtons.Add(button);
             cursor.Y += 25f;
             return button;
         }
@@ -498,21 +498,32 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         void SetDialogText(string text, DialogState? state = null)
         {
             DState = state ?? DState;
-            StatementsSL?.Reset(); // clear option statements, null during constructor init
+            if (DiscussionSL != null) // null during constructor init
+            {
+                DiscussionSL.Reset(); // clear option statements
+                DiscussionSL.Enabled = false; // because OfferTextSL overlaps StatementsSL
+            }
 
             if (TheirText != text) // only reset the items if necessary
             {
                 TheirText = text;
-                OfferTextSL?.ResetWithParseText(Fonts.Consolas18, text, DialogAreaWidth); // null during constructor init
+                if (DialogTextBox != null) // null during constructor init
+                {
+                    DialogTextBox.SetLines(TheirText, Fonts.Consolas18, Color.White);
+                    DialogTextBox.Enabled = true; // because OfferTextSL overlaps StatementsSL
+                }
             }
         }
 
         void SetDialogText(Array<DialogOption> options, DialogState? state = null)
         {
             DState = state ?? DState;
-            OfferTextSL.Reset();
+            DialogTextBox.Clear();
+            DialogTextBox.Enabled = false; // because OfferTextSL overlaps StatementsSL
+
             TheirText = "";
-            StatementsSL.SetItems(options.Select(o => new DialogOptionListItem(o, DialogAreaWidth)));
+            DiscussionSL.SetItems(options.Select(o => new DialogOptionListItem(o, DialogAreaWidth)));
+            DiscussionSL.Enabled = true; // because OfferTextSL overlaps StatementsSL
         }
 
         void DrawAlliesAndWars(SpriteBatch batch)
@@ -574,7 +585,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnOfferChanged()
         {
-            SetDialogText(OurOffer.FormulateOfferText(Attitude, TheirOffer));
+            string dialogText = OurOffer.FormulateOfferText(Attitude, TheirOffer);
+            SetDialogText(dialogText);
         }
 
         string GetDialogueFromAttitude()
@@ -755,9 +767,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             if (TrustRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ThisIndicatesHowMuchA);
             if (AngerRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ThisIndicatesHowAngryA);
             if (FearRect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(GameText.ThisIndicatesHowMuchA2);
-
-            if (DState == DialogState.End)
-                return false;
 
             return base.HandleInput(input);
         }
@@ -1069,7 +1078,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             
             SetDialogText(options);
 
-            if (StatementsSL.NumEntries == 0)
+            if (DiscussionSL.NumEntries == 0)
             {
                 SetDialogText(GetDialogueByName("Dunno_Anybody"), DialogState.Them);
             }
