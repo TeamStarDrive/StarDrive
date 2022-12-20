@@ -419,12 +419,12 @@ namespace Ship_Game
             Source = AI.Drone.Position;
             SetActualHitDestination(AI.DroneTarget?.Position ?? Source);
             // Apply drone repair effect, 5 times more if not in combat
-            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
+            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f))
             {
-                ShipModule moduleToRepair = TargetModule;
+                 ShipModule moduleToRepair = TargetModule;
                 if (moduleToRepair != null)
                 {
-                    float repairMultiplier = targetShip.OnLowAlert ? 5 : 1;
+                    float repairMultiplier = moduleToRepair.GetParent().OnLowAlert ? 5 : 1;
                     float repairAmount = -DamageAmount * repairMultiplier * timeStep.FixedTime;
 
                     moduleToRepair.Repair(repairAmount);
@@ -434,7 +434,7 @@ namespace Ship_Game
                 else
                 {
                     int repairLevel = Owner?.Level ?? 0;
-                    TargetModule = targetShip.GetModuleToRepair(repairLevel);
+                    TargetModule = TargetShip.GetModuleToRepair(repairLevel);
                 }
             }
 
