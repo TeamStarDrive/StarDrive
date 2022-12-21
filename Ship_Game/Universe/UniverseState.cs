@@ -276,8 +276,7 @@ namespace Ship_Game.Universe
             Save = null;
             save.UpdateAllDesignsFromSave(this);
 
-            SettingsResearchModifier = GetResearchMultiplier();
-            RemnantPaceModifier = CalcRemnantPace();
+            CalcInitialSettings();
             
             // NOTE: This will automatically call AddShipInfluence() to update InfluenceTree
             Objects.AddRange(save.Ships);
@@ -473,6 +472,12 @@ namespace Ship_Game.Universe
         {
             owner.RemoveBorderNode(planet);
             Influence.Remove(owner, planet);
+        }
+
+        public void CalcInitialSettings()
+        {
+            SettingsResearchModifier = GetResearchMultiplier();
+            RemnantPaceModifier = CalcRemnantPace();
         }
 
         float CalcRemnantPace()
