@@ -169,7 +169,7 @@ namespace Ship_Game
             }
         }
 
-        // Need in order for threat matrix to update starting remanants for Astronomers trait
+        // Need in order for threat matrix to update starting remnants for Astronomers trait
         public void NewGameAddRemnantShipToList(Ship s)
         {
             ShipList.Add(s);
