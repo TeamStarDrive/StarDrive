@@ -15,7 +15,6 @@ namespace Ship_Game
 
         /// This is purely used for logging/debugging to mark where the Technology was loaded from
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
-        [XmlIgnore] public float ActualCost => ResearchMultiplier() * UniverseState.DummyPacePlaceholder;
 
         [XmlIgnore] public Technology[] Children;
 
@@ -88,6 +87,8 @@ namespace Ship_Game
             }
         }
 
+        public float ActualCost(UniverseState us) => ResearchMultiplier(us) * us.ProductionPace;
+
         public bool AnyChildrenDiscovered(Empire empire)
             => Children.Any(tech => empire.GetTechEntry(tech.UID).Discovered);
 
@@ -140,13 +141,13 @@ namespace Ship_Game
             public string Type;
         }
 
-        float ResearchMultiplier()
+        float ResearchMultiplier(UniverseState uState)
         {
             if (!GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
                 return Cost;
 
-            float settingResearchMultiplier = UniverseState.DummySettingsResearchModifier;
-            if (UniverseState.DummySettingsResearchModifier < 1f)
+            float settingResearchMultiplier = uState.SettingsResearchModifier;
+            if (settingResearchMultiplier < 1f)
                 return (Cost * settingResearchMultiplier.LowerBound(0.5f)).RoundTo10();
 
             float costRatio        = GetCostRatio();

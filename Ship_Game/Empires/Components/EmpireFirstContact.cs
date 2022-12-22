@@ -54,10 +54,16 @@ namespace Ship_Game.Empires.Components
                 DoFirstContact(them, them:owner);
 
             if (owner.Universe.Debug)
+            {
+                Log.Write(ConsoleColor.Blue, "DEBUG: Skipping first contact in DEBUG");
                 return;
+            }
 
             if (GlobalStats.RestrictAIPlayerInteraction && owner.isPlayer)
+            {
+                Log.Write(ConsoleColor.Blue, "DEBUG: Skipping first contact RestrictAIPlayerInteraction");
                 return;
+            }
 
             if (owner.isPlayer)
             {
