@@ -46,8 +46,6 @@ namespace Ship_Game.Universe
         public bool IsShipViewOrCloser   => ViewState <= UnivScreenState.ShipView;
 
         // TODO: This was too hard to fix, so added this placeholder until code is fixed
-        public static float DummyPacePlaceholder = 1f;
-        public static float DummySettingsResearchModifier = 1f;
         public static float DummyProductionPacePlaceholder = 1f;
 
         [StarData] public float SettingsResearchModifier = 1f;

@@ -111,7 +111,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 if (!Them.isPlayer && !Them.WeCanUseThisTech(entry, theirDesigns))
                     continue;
                 
-                var text = LocalizedText.Parse($"{{{tech.NameIndex}}}: {(int)tech.ActualCost}");
+                var text = LocalizedText.Parse($"{{{tech.NameIndex}}}: {(int)tech.ActualCost(Them.Universe)}");
                 techs.AddSubItem(new ItemToOffer(text, "Tech") { SpecialInquiry = entry.UID });
             }
 

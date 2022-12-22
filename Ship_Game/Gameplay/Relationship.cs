@@ -1268,11 +1268,11 @@ namespace Ship_Game.Gameplay
 
             foreach (TechEntry tech in theirTechs.Sorted(t => t.Tech.Cost))
             {
-                if (tech.Tech.ActualCost + totalCost > theirMaxCost)
+                if (tech.Tech.ActualCost(Them.Universe) + totalCost > theirMaxCost)
                     break;
 
                 theirFinalTech.Add(tech.UID);
-                totalCost += tech.Tech.ActualCost;
+                totalCost += tech.Tech.ActualCost(Them.Universe);
             }
 
             return theirFinalTech.Count > 0;

@@ -335,7 +335,7 @@ namespace Ship_Game
 
             if (modPath.NotEmpty())
             {
-                var modInfo = new FileInfo($"{modPath}/Globals.yaml");
+                var modInfo = new FileInfo($"Mods/{modPath}/Globals.yaml");
                 if (modInfo.Exists)
                 {
                     GamePlayGlobals settings = GamePlayGlobals.Deserialize(modInfo);
