@@ -65,7 +65,7 @@ namespace Ship_Game.AI.Research
         {
             int turnsThreshold  = (int)OwnerEmpire.TotalPopBillion.Clamped(1, 200);
             float netResearch   = OwnerEmpire.Research.MaxResearchPotential.LowerBound(1);
-            float researchTurns = tech.Tech.ActualCost / netResearch;
+            float researchTurns = tech.Tech.ActualCost(OwnerEmpire.Universe) / netResearch;
             return researchTurns <= turnsThreshold;
         }
 
@@ -86,7 +86,7 @@ namespace Ship_Game.AI.Research
                                    * OwnerEmpire.DifficultyModifiers.HullTechMultiplier;
                     }
 
-                    totalCost += tech.Tech.ActualCost * multiplier;
+                    totalCost += tech.Tech.ActualCost(OwnerEmpire.Universe) * multiplier;
                 }
             }
 
