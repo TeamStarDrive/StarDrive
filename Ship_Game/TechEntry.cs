@@ -92,6 +92,7 @@ namespace Ship_Game
             Tech = clone.Tech;
             ConqueredSource = new(clone.ConqueredSource);
             TechTypeCostLookAhead = new(clone.TechTypeCostLookAhead);
+            Universe = clone.Universe;
         }
 
         [StarDataDeserialized]
