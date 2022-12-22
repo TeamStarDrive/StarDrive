@@ -1008,7 +1008,7 @@ namespace Ship_Game
 
             foreach (Technology tech in ResourceManager.TechsList)
             {
-                var entry = new TechEntry(tech.UID);
+                var entry = new TechEntry(tech.UID, Universe);
                 if (entry.IsHidden(this))
                 {
                     entry.SetDiscovered(false);
@@ -2095,7 +2095,7 @@ namespace Ship_Game
                 if (maxPopBillion >= 0.5)
                 {
                     if (ResourceManager.TryGetTech(Research.Topic, out Technology tech))
-                        researchPotential = (tech.ActualCost - Research.NetResearch) / tech.ActualCost
+                        researchPotential = (tech.ActualCost(Universe) - Research.NetResearch) / tech.ActualCost(Universe)
                                             * (fertility * 2 + p.MineralRichness + (maxPopBillion / 0.5f));
                 }
             }

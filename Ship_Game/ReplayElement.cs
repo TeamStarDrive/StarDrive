@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SDGraphics;
 using SDUtils;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
@@ -59,12 +57,21 @@ namespace Ship_Game
 
             ElementRect = r;
             TextRect = new Rectangle(r.X, r.Y + r.Height, r.Width, 128);
-            ShipCount = new GenericButton(new Vector2(ElementRect.X - 10, ElementRect.Y + 40), "Ship Count", Fonts.Pirulen16, Fonts.Pirulen12);
-            Buttons.Add(ShipCount);
-            MilStrength = new GenericButton(new Vector2(ElementRect.X - 10, ShipCount.R.Y + Fonts.Pirulen16.LineSpacing + 4), "Military Strength", Fonts.Pirulen16, Fonts.Pirulen12);
-            Buttons.Add(MilStrength);
-            Population = new GenericButton(new Vector2(ElementRect.X - 10, MilStrength.R.Y + Fonts.Pirulen16.LineSpacing + 4), "Population", Fonts.Pirulen16, Fonts.Pirulen12);
-            Buttons.Add(Population);
+
+            GenericButton AddButton(float x, float y, string title)
+            {
+                GenericButton button = new(new(x, y), title, Fonts.Pirulen16, Fonts.Pirulen12)
+                {
+                    ToggleOnColor = Color.DarkOrange,
+                    ButtonStyle = GenericButton.Style.Shadow
+                };
+                Buttons.Add(button);
+                return button;
+            }
+            
+            ShipCount = AddButton(ElementRect.X - 10, ElementRect.Y + 40, "Ship Count");
+            MilStrength = AddButton(ElementRect.X - 10, ShipCount.Y + Fonts.Pirulen16.LineSpacing + 4, "Military Strength");
+            Population = AddButton(ElementRect.X - 10, MilStrength.Y + Fonts.Pirulen16.LineSpacing + 4, "Population");
 
             TurnsRepresented = UState.Stats.NumRecordedTurns;
             foreach (Map<int, Snapshot> snapshots in UState.Stats.Snapshots)
@@ -87,10 +94,8 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(ScreenManager ScreenManager)
+        public void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            SpriteBatch batch = ScreenManager.SpriteBatch;
-
             MapRect = new Rectangle(ElementRect.X + 30, ElementRect.Y + 30, ElementRect.Width - 60, ElementRect.Height - 60);
             batch.Draw(ResourceManager.Texture("EndGameScreen/ReplayHousing"), ElementRect, Color.White);
             float scale = (ElementRect.Width - 60) / (Universe.UState.Size * 2);        //Correction for negative map values -Gretman
@@ -191,7 +196,7 @@ namespace Ship_Game
             batch.DrawString(Fonts.Tahoma11, "Left/Right Arrows", PlusMinus, Color.White);
             foreach (GenericButton button in Buttons)
             {
-                button.DrawWithShadowCaps(batch);
+                button.Draw(batch, elapsed);
             }
         }
 

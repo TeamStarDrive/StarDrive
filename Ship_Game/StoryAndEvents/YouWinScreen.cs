@@ -72,7 +72,7 @@ namespace Ship_Game
                 batch.Draw(Reason, ReasonRect, Color.White);
                 if (!IsExiting && ShowingReplay)
                 {
-                    replay.Draw(ScreenManager);
+                    replay.Draw(batch, elapsed);
                 }
             }
             batch.End();

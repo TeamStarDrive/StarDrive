@@ -236,7 +236,7 @@ namespace Ship_Game.Ships
             }
             catch (Exception e)
             {
-                Log.Error(e, $"Failed to parse ShipData '{info.FullName}'", 0);
+                Log.Warning($"Failed to parse ShipData '{info.FullName}': {e.Message}");
             }
             return null;
         }
@@ -254,9 +254,9 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        public void LoadModel(out SceneObject shipSO, GameContentManager content)
+        public bool LoadModel(out SceneObject shipSO, GameContentManager content)
         {
-            BaseHull.LoadModel(out shipSO, content);
+            return BaseHull.LoadModel(out shipSO, content);
         }
 
         public static RoleType ShipRoleToRoleType(RoleName role)

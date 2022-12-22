@@ -136,7 +136,7 @@ namespace Ship_Game.Ships
         // Which is not always able to clean up everything due to dangling references
         void Dispose();
 
-        void LoadModel(out SceneObject shipSO, GameContentManager content);
+        bool LoadModel(out SceneObject shipSO, GameContentManager content);
 
         float GetCost(Empire e);
 

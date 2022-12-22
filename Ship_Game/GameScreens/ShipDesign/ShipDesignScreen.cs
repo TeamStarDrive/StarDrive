@@ -554,7 +554,11 @@ namespace Ship_Game
                 () => CurrentDesign?.IsCarrierOnly == true,
                 (b) => { if (CurrentDesign != null) CurrentDesign.IsCarrierOnly = b; }, "Carrier Only", GameText.WhenMarkedThisShipCan);
 
-            ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
+            ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16)
+            {
+                ToggleOnColor = Color.DarkOrange,
+                ButtonStyle = GenericButton.Style.Shadow,
+            };
 
             var infoRect = RectF.FromPoints((HullSelectList.X + 20), (ScreenWidth - 20),
                                             HullSelectList.Bottom + 10, BlackBar.Y);
