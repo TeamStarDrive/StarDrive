@@ -7,6 +7,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -17,7 +18,7 @@ namespace Ship_Game
     [StarDataType]
     public sealed class TechEntry
     {
-        public static readonly TechEntry None = new("");
+        public static readonly TechEntry None = new("", null);
 
         [StarData] public string UID;
         [StarData] public float Progress;
@@ -29,10 +30,12 @@ namespace Ship_Game
         [StarData] public string AcquiredFrom { private get; set; }
         [StarData] public bool shipDesignsCanuseThis = true;
         [StarData] public Array<string> WasAcquiredFrom;
+        [StarData] public UniverseState Universe;
 
         public Technology Tech { get; private set; }
         public Array<string> ConqueredSource = new();
         readonly Map<TechnologyType, float> TechTypeCostLookAhead = new();
+
 
         public override string ToString()
             => $"TechEntry {UID}: Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched}";
@@ -55,7 +58,7 @@ namespace Ship_Game
         {
             get
             {
-                float cost = Tech.ActualCost;
+                float cost = Tech.ActualCost(Universe);
                 float techLevel = (float)Math.Max(1, Math.Pow(MultiLevelCostMultiplier, Level.UpperBound(MaxLevel-1)));
                 int rootTech = Tech.IsRootNode ? 100 : 0;
                 return cost * (techLevel + rootTech);
@@ -69,9 +72,10 @@ namespace Ship_Game
                 TechTypeCostLookAhead.Add(techType, 0);
         }
 
-        public TechEntry(string uid) : this()
+        public TechEntry(string uid, UniverseState us) : this()
         {
             UID = uid;
+            Universe= us;
             ResolveTech();
         }
 
@@ -91,8 +95,9 @@ namespace Ship_Game
         }
 
         [StarDataDeserialized]
-        void OnDeserialized()
+        void OnDeserialized(UniverseState us)
         {
+            Universe = us;
             ResolveTech();
         }
 
@@ -113,7 +118,7 @@ namespace Ship_Game
 
         public float AddToProgress(float researchToApply, float modifier, out bool unLocked)
         {
-            float techCost = Tech.ActualCost * modifier;
+            float techCost = Tech.ActualCost(Universe) * modifier;
             Progress += researchToApply;
             float excessResearch = Math.Max(0, Progress - techCost);
             Progress -= excessResearch;
@@ -379,7 +384,7 @@ namespace Ship_Game
 
         public void ForceFullyResearched()
         {
-            Progress = Tech.ActualCost;
+            Progress = Tech.ActualCost(Universe);
             Unlocked = true;
         }
 
