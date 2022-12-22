@@ -679,8 +679,8 @@ namespace Ship_Game
                     evt["Mod"] = "Vanilla";
                 }
 
-                // find root UniverseScreen from ScreenManager
-                var universe = ScreenManager.Instance.FindScreen<UniverseScreen>();
+                // find root UniverseScreen from ScreenManager, unless the crash is before ScreenManager is created
+                var universe = ScreenManager.Instance?.FindScreen<UniverseScreen>();
                 evt["StarDate"]  = universe?.StarDateString ?? "NULL";
                 evt["Ships"]     = universe?.UState.Ships.Count.ToString() ?? "NULL";
                 evt["Planets"]   = universe?.UState.Planets?.Count.ToString() ?? "NULL";

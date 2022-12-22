@@ -227,6 +227,8 @@ namespace Ship_Game.GameScreens.NewGame
                 UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);
                 step.Advance();
             }
+
+            UState.CalcInitialSettings();
         }
 
         void CreateSystemPlaceHolders(ProgressCounter step)

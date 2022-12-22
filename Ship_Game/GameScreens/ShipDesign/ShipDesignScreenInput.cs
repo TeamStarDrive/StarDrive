@@ -168,7 +168,7 @@ namespace Ship_Game
 
             HandleInputZoom(input);
 
-            if (ArcsButton.R.HitTest(input.CursorPosition))
+            if (ArcsButton.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.TogglesTheWeaponFireArc, "Tab");
 
             if (ArcsButton.HandleInput(input))

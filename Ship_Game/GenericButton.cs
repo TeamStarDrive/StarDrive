@@ -1,135 +1,120 @@
 using Microsoft.Xna.Framework.Graphics;
-using SDGraphics;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = SDGraphics.Rectangle;
+using System;
+using SDGraphics;
+using Font = Ship_Game.Graphics.Font;
 
-namespace Ship_Game
+namespace Ship_Game;
+
+/// <summary>
+/// Generic text-only button, initially used in DiplomacyScreen, but has been adopted in other places
+/// </summary>
+public class GenericButton : UIElementV2
 {
-	public sealed class GenericButton
-	{
-		public Rectangle R;
+    readonly LocalizedText Text;
+    readonly Font Capital;
+    readonly Font Regular;
 
-		private string Text;
+    public LocalizedText Tooltip;
 
-		private Graphics.Font Font;
+    // this is managed somewhat manually right now, legacy code reasons
+    public bool ToggleOn;
 
-		private Vector2 TextPos;
+    public Color ToggleOnColor = Color.White;
+    public Color HoveredColor = Color.White;
+    public Color UnHoveredColor = Color.DarkGray;
 
-		public bool ToggleOn;
-		public Color HoveredColor   = Color.White;
-		public Color UnHoveredColor = Color.DarkGray;
-		private Vector2 CapitalPos;
+    bool Hover;
 
-		private Graphics.Font Cap;
+    public Action<GenericButton> OnClick;
 
-		private Graphics.Font Small;
+    public enum Style
+    {
+        Normal,
+        Shadow,
+    }
 
-		private string capT;
+    public Style ButtonStyle;
 
-		private string smallT;
+    public GenericButton(RectF r, in LocalizedText text, Font font)
+        : base(r)
+    {
+        Regular = font;
+        Text = text;
+    }
 
-		private bool Hover;
+    public GenericButton(Vector2 v, in LocalizedText text, Font capitalFont, Font smallFont)
+    {
+        Regular = smallFont;
+        Capital = capitalFont;
+        Text = text;
 
-		public GenericButton(Rectangle r, string text, Graphics.Font font)
-		{
-			this.R = r;
-			this.Text = text;
-			this.Font = font;
-			TextPos = new Vector2(r.X + r.Width / 2 - font.MeasureString(text).X / 2f, r.Y + r.Height / 2 - font.LineSpacing / 2);
-		}
+        string txt = text.Text;
+        string capitalCase = txt[0].ToString();
+        string lowerCase = txt.Substring(1);
+        
+        float capitalW = Capital.TextWidth(capitalCase);
+        float textW = Regular.TextWidth(lowerCase);
+        Pos = new(v.X - capitalW - textW, v.Y);
+        Size = new(capitalW + textW, Capital.LineSpacing);
+    }
 
-		public GenericButton(Vector2 v, string text, Graphics.Font capitalFont, Graphics.Font smallFont)
-		{
-			Cap = capitalFont;
-			Small = smallFont;
-			capT = text[0].ToString();
-			smallT = text.Remove(0, 1);
+    public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+    {
+        string text = Text.Text;
 
-			Vector2 capTsize = capitalFont.MeasureString(capT);
-			Vector2 textSize = smallFont.MeasureString(text);
-			R = new Rectangle((int)v.X - (int)capTsize.X - (int)textSize.X, (int)v.Y, (int)capTsize.X + (int)textSize.X, capitalFont.LineSpacing);
-			CapitalPos = new Vector2(R.X, R.Y);
-			TextPos = new Vector2(CapitalPos.X + capTsize.X + 1f, CapitalPos.Y + capitalFont.LineSpacing - smallFont.LineSpacing - 3f);
-		}
+        Color color;
+        if (ToggleOn) color = ToggleOnColor;
+        else if (Hover) color = HoveredColor;
+        else color = UnHoveredColor;
 
-		public void Draw(ScreenManager ScreenManager)
-		{
-			Color white;
-			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-			Graphics.Font font = Font;
-			string text = Text;
-			Vector2 textPos = TextPos;
-			if (ToggleOn)
-			{
-				white = Color.White;
-			}
-			else
-			{
-				white = (Hover ? HoveredColor : UnHoveredColor);
-			}
-			spriteBatch.DrawString(font, text, textPos, white);
-		}
+        if (Capital != null)
+        {
+            string capitalText = text[0].ToString();
+            string lowercaseText = text.Substring(1);
+            float capitalW = Capital.TextWidth(capitalText);
 
-		public void DrawWithShadow(SpriteBatch batch)
-		{
-			Color white;
-			string text = Text;
-			Vector2 textPos = TextPos;
-			Graphics.Font font = Font;
-			if (ToggleOn)
-			{
-				white = Color.White;
-			}
-			else
-			{
-				white = (Hover ? HoveredColor : UnHoveredColor);
-			}
-			batch.DrawDropShadowText(text, textPos, font, white);
-		}
+            Vector2 capitalPos = Pos;
+            Vector2 lowercasePos = new(X + capitalW + 1f, Y + Capital.LineSpacing - Regular.LineSpacing - 3f);
+            DrawText(batch, Capital, capitalText, capitalPos, color);
+            DrawText(batch, Regular, lowercaseText, lowercasePos, color);
+        }
+        else
+        {
+            Vector2 pos = new(CenterX - Regular.TextWidth(text) / 2f, CenterY - Regular.LineSpacing / 2f);
+            DrawText(batch, Regular, text, pos, color);
+        }
+    }
 
-		public void DrawWithShadowCaps(SpriteBatch batch)
-		{
-			Color color;
-            if (ToggleOn)
-            {
-                color = Color.DarkOrange;
-            }
-            else
-            {
-                color = (Hover ? HoveredColor : UnHoveredColor);
-            }
-			batch.DrawDropShadowText(capT, CapitalPos, Cap, color);
-			batch.DrawDropShadowText(smallT, TextPos, Small, color);
-		}
+    void DrawText(SpriteBatch batch, Font font, string text, Vector2 pos, Color color)
+    {
+        if (ButtonStyle == Style.Normal)
+        {
+            batch.DrawString(font, text, pos, color);
+        }
+        else
+        {
+            batch.DrawDropShadowText(text, pos, font, color);
+        }
+    }
 
-		public bool HandleInput(InputState input)
-		{
-			if (!R.HitTest(input.CursorPosition))
-			{
-				Hover = false;
-			}
-			else
-			{
-				Hover = true;
-				if (input.LeftMouseClick)
-				{
-					GameAudio.EchoAffirmative();
-					return true;
-				}
-			}
-			return false;
-		}
+    public override bool HandleInput(InputState input)
+    {
+        if (!Enabled || !Visible)
+            return false;
 
-		public void Transition(Rectangle R)
-		{
-			TextPos = new Vector2(R.X + R.Width / 2 - Font.MeasureString(Text).X / 2f, R.Y + R.Height / 2 - Font.LineSpacing / 2);
-		}
+        Hover = HitTest(input.CursorPosition);
+        if (Hover && input.LeftMouseClick)
+        {
+            GameAudio.EchoAffirmative();
+            OnClick?.Invoke(this);
+            return true;
+        }
 
-		public void TransitionCaps(Rectangle R)
-		{
-			CapitalPos = new Vector2(R.X, R.Y);
-			TextPos = new Vector2(CapitalPos.X + Cap.MeasureString(capT).X + 1f, CapitalPos.Y + Cap.LineSpacing - Small.LineSpacing - 3f);
-		}
-	}
+        if (Hover && Tooltip.IsValid)
+            ToolTip.CreateTooltip(Tooltip);
+
+        return false;
+    }
 }

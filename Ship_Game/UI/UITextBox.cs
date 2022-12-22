@@ -8,11 +8,18 @@ namespace Ship_Game
 {
     public class UITextBox : UIPanel
     {
-        readonly ScrollList<TextBoxItem> ItemsList;
+        readonly Graphics.Font DefaultFont;
+        public readonly ScrollList<TextBoxItem> ItemsList;
         
-        public UITextBox(in RectF rect) : base(rect, Color.TransparentBlack)
+        public UITextBox(in RectF rect, bool useBorder = true, Graphics.Font defaultFont = null) : base(rect, Color.TransparentBlack)
         {
-            ItemsList = base.Add(new SubmenuScrollList<TextBoxItem>(rect)).List;
+            DefaultFont = defaultFont ?? Fonts.Arial12Bold;
+
+            if (useBorder)
+                ItemsList = base.Add(new SubmenuScrollList<TextBoxItem>(rect)).List;
+            else
+                ItemsList = base.Add(new ScrollList<TextBoxItem>(rect));
+            
             ItemsList.EnableItemEvents = false;
         }
 
@@ -35,17 +42,18 @@ namespace Ship_Game
 
         public void AddLine(string line)
         {
-            AddLine(line, Fonts.Arial12Bold, Color.White);
+            AddLine(line, DefaultFont, Color.White);
         }
 
         public void AddLine(string line, Graphics.Font font, Color color)
         {
-            ItemsList.AddItem(new TextBoxItem(line, font, color));
+            ItemsList.AddItem(new(line, font ?? DefaultFont, color));
         }
 
         // Parses and WRAPS textblock into separate lines
         public void AddLines(string textBlock, Graphics.Font font, Color color)
         {
+            font ??= DefaultFont;
             string[] lines = font.ParseTextToLines(textBlock, ItemsList.ItemsHousing.W);
             foreach (string line in lines)
                 AddLine(line, font, color);
@@ -57,7 +65,21 @@ namespace Ship_Game
                 ItemsList.AddItem(new TextBoxItem(element));
         }
 
-        class TextBoxItem : ScrollListItem<TextBoxItem>
+        // Clears the textbox and sets new textblock lines, using DefaultFont and Color.White
+        public void SetLines(string textBlock)
+        {
+            Clear();
+            AddLines(textBlock, DefaultFont, Color.White);
+        }
+
+        // Clears the textbox and sets new textblock lines
+        public void SetLines(string textBlock, Graphics.Font font, Color color)
+        {
+            Clear();
+            AddLines(textBlock, font, color);
+        }
+
+        public sealed class TextBoxItem : ScrollListItem<TextBoxItem>
         {
             readonly UIElementV2 Elem;
             public override int ItemHeight => (int)Math.Round(Elem.Height);

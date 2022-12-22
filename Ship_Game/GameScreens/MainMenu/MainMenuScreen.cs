@@ -124,7 +124,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             else if (Type == MainMenuType.Defeat)
             {
-                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
+                ScreenManager.Music = GameAudio.PlayMusic("Female_02_loop");
             }
             else if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
             {

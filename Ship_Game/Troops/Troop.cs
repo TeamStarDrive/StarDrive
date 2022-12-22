@@ -340,7 +340,7 @@ namespace Ship_Game
                 }
             }
 
-            Log.Write(ConsoleColor.Blue, $"Frame={WhichFrame} first={first_frame} idle={num_idle_frames} attack={num_attack_frames}");
+            //Log.Write(ConsoleColor.Blue, $"Frame={WhichFrame} first={first_frame} idle={num_idle_frames} attack={num_attack_frames}");
         }
 
         // Added by McShooterz, FB: changed it to level up every kill with decreasing chances

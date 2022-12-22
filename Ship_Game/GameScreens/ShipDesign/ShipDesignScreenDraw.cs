@@ -54,7 +54,7 @@ namespace Ship_Game
             }
 
             DrawUi(batch, elapsed);
-            ArcsButton.DrawWithShadowCaps(batch);
+            ArcsButton.Draw(batch, elapsed);
 
             base.Draw(batch, elapsed);
             batch.End();
