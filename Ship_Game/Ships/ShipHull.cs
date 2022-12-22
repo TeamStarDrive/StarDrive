@@ -111,16 +111,19 @@ namespace Ship_Game.Ships
                 {
                     try
                     {
+                        // @note GetMeshBoundingBox is a slow operation, and can fail
                         Volume = new Vector3(shipSO.GetMeshBoundingBox().Max);
                         ModelZ = Volume.Z;
-                        return true;
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        Log.Error(e, $"GetMeshBoundingBox failed: {ModelPath}");
+                        Volume = new Vector3(shipSO.ObjectBoundingSphere.Radius);
+                        ModelZ = Volume.Z;
                     }
                 }
-                return false;
+                
+                // always succeed, even if we failed to get the Volume and ModelZ
+                return true;
             }
         }
 
