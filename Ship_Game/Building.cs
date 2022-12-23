@@ -68,7 +68,7 @@ namespace Ship_Game
         [StarData] public float SensorRange;
         [StarData] public bool IsProjector;
         [StarData] public float ProjectorRange;
-        [StarData] public float ShipRepair;
+        [StarData] public float ShipRepair; // ship repair multiplier, intended to be 1.0 or 2.0 etc
         [StarData] public BuildingCategory Category;
         [StarData] public bool IsPlayerAdded;
         [StarData] public int InvadeInjurePoints;
@@ -134,7 +134,14 @@ namespace Ship_Game
         public void OnDeserialized()
         {
             Building template = ResourceManager.GetBuildingTemplate(Name);
+            if (template == null)
+                return;
+
             BID = template.BID;
+
+            // Patching: because of some game data changes, these values need to be patched
+            //           from latest building templates
+            ShipRepair = template.ShipRepair;
         }
 
         public Building Clone()
@@ -533,9 +540,10 @@ namespace Ship_Game
 
             if (ShipRepair.NotZero())
             {
+                float baseRepair = ShipRepair * GlobalStats.Defaults.BaseShipyardRepair;
                 text += p?.Owner == null
-                    ? $"{BuildShortDescString(ShipRepair, GameText.ShipRepair, ref comma)}"
-                    : $"{BuildShortDescString(ShipRepair * p.Level, GameText.ShipRepair, ref comma)}";
+                    ? $"{BuildShortDescString(baseRepair, GameText.ShipRepair, ref comma)}"
+                    : $"{BuildShortDescString(baseRepair * p.Level, GameText.ShipRepair, ref comma)}";
             }
 
             if (StorageAdded != 0)

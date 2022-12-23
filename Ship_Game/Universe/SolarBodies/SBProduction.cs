@@ -499,7 +499,7 @@ namespace Ship_Game.Universe.SolarBodies
                     q.ShipData = newShip;
                     q.Cost = percentCompleted.AlmostZero() 
                            ? newShip.GetCost(Owner) 
-                           : q.Cost + refitCost * percentCompleted * P.ShipBuildingModifier;
+                           : q.Cost + refitCost * percentCompleted * P.ShipCostModifier;
                 }
             }
         }
