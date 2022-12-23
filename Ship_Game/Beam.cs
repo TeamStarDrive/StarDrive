@@ -37,8 +37,13 @@ namespace Ship_Game
         {
             get
             {
-                if (TargetShip == null || TargetModIdx == 0) return null;
-                return TargetShip.Modules[TargetModIdx - 1];
+                if (TargetShip == null || TargetModIdx == 0)
+                    return null;
+                
+                var modules = TargetShip.Modules;
+                if (modules.Length == 0) // when a ship dies, its modules are set to Empty Array
+                    return null;
+                return modules[TargetModIdx - 1];
             }
             set
             {
