@@ -50,7 +50,7 @@ namespace Ship_Game.AI.Research
             foreach (var techName in techs)
             {
                 var tech       = empire.GetTechEntry(techName);
-                float techCost = tech.Tech.ActualCost(empire.Universe);
+                float techCost = tech.TechCost;
                 if (tech.Locked && !tech.IsRoot)
                     minTechCost = Math.Min(techCost, minTechCost);
             }
@@ -72,7 +72,7 @@ namespace Ship_Game.AI.Research
                 var tech = empire.GetTechEntry(techName);
                 if (tech.Locked && !tech.IsRoot)
                 {
-                    var cost = tech.Tech.ActualCost(empire.Universe);
+                    float cost = tech.TechCost;
 
                     if (tech.IsTechnologyType(TechnologyType.GroundCombat)) cost *= Options.CostMultiplier(GroundCombat);
                     if (tech.IsTechnologyType(TechnologyType.ShipHull)) cost *= Options.CostMultiplier(AllHulls);
