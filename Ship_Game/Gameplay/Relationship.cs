@@ -1172,10 +1172,9 @@ namespace Ship_Game.Gameplay
                 return;
 
             TechEntry techToDemand = potentialDemands.RandItem();
-            Offer demandTech       = new Offer();
-
+            Offer demandTech = new Offer();
             demandTech.TechnologiesOffered.AddUnique(techToDemand.UID);
-            XenoDemandedTech  = true;
+
             Offer theirDemand = new Offer
             {
                 AcceptDL      = "Xeno Demand Tech Accepted",
@@ -1188,7 +1187,8 @@ namespace Ship_Game.Gameplay
                 DiplomacyScreen.Show(us, "Xeno Demand Tech", demandTech, theirDemand);
             else
                 them.AI.AnalyzeOffer(theirDemand, demandTech, us, Offer.Attitude.Threaten);
-
+            
+            XenoDemandedTech = true;
             turnsSinceLastContact = 0;
         }
 
