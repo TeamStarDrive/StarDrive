@@ -829,7 +829,7 @@ namespace Ship_Game
         }
 
         // this is done once per turn
-        public void UpdateOwnedPlanet(RandomBase random)
+        public void UpdateOwnedPlanet(FixedSimTime elapsedTurnTime, RandomBase random)
         {
             TurnsSinceTurnover += 1;
             CrippledTurns = (CrippledTurns - 1).LowerBound(0);

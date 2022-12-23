@@ -220,7 +220,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             return repairPool;
         }
 
-        private void RepairShip(Ship ship, float repairPool, int repairLevel)
+        void RepairShip(Ship ship, float repairPool, int repairLevel)
         {
             ship.AI.TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: true);
             if (HasSpacePort)

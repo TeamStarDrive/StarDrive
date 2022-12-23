@@ -1248,6 +1248,7 @@ namespace Ship_Game
             if (UpdateTimer <= 0f && !IsDefeated)
             {
                 UpdateTimer = us.P.TurnTimer + (Id - 1) * timeStep.FixedTime;
+                FixedSimTime elapsedTurnTime = new(UpdateTimer);
 
                 if (isPlayer)
                 {
@@ -1258,7 +1259,7 @@ namespace Ship_Game
                 }
 
                 UpdateInhibitors(EmpireShips.OwnedShips);
-                UpdateEmpirePlanets();
+                UpdateEmpirePlanets(elapsedTurnTime);
                 UpdatePopulation();
                 UpdateTroopsInSpaceConsumption();
                 AI.Update(); // Must be done before DoMoney
@@ -1368,7 +1369,7 @@ namespace Ship_Game
             EmpireShips.UpdatePublicLists();
             Research.UpdateNetResearch();
 
-            UpdateEmpirePlanets();
+            UpdateEmpirePlanets(FixedSimTime.Zero);
 
             UpdateNetPlanetIncomes();
             UpdateMilitaryStrengths();
@@ -1587,7 +1588,7 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateEmpirePlanets()
+        public void UpdateEmpirePlanets(FixedSimTime elapsedTurnTime)
         {
             var random = new SeededRandom();
 
@@ -1599,7 +1600,7 @@ namespace Ship_Game
             for (int i = 0; i < planetsToUpdate.Length; i++)
             {
                 Planet planet = OwnedPlanets[i];
-                planet.UpdateOwnedPlanet(random);
+                planet.UpdateOwnedPlanet(elapsedTurnTime, random);
             }
         }
 
