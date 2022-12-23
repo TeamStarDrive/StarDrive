@@ -69,7 +69,7 @@ namespace Ship_Game
             }
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
-            batch.Begin();
+            batch.SafeBegin();
             var artRect = new Rectangle(ScreenWidth / 2 - 960, ScreenHeight / 2 - 540, 1920, 1080);
             batch.Draw(LoadingImage, artRect, Color.White);
             var meterBar = new Rectangle(ScreenWidth / 2 - 150, ScreenHeight - 25, 300, 25);
