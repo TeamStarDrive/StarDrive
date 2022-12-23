@@ -31,7 +31,8 @@
   <energyreq>0</energyreq>
   
   <PowerDraw>20</PowerDraw>
-  <BonusRepairRate>20</BonusRepairRate>
+  <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
+  <BonusRepairRate>2.0</BonusRepairRate>
   <NameIndex>1930</NameIndex>
   <DescriptionIndex>1931</DescriptionIndex>
 </ShipModule>

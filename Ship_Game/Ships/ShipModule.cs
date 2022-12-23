@@ -237,7 +237,7 @@ namespace Ship_Game.Ships
         public SubTexture ModuleTexture => ResourceManager.Texture(IconTexturePath);
 
         public float ActualPowerStoreMax   => Is(ShipModuleType.FuelCell) ? PowerStoreMax * Bonuses.FuelCellMod : PowerStoreMax;
-        public float ActualPowerFlowMax    => PowerFlowMax  * Bonuses.PowerFlowMod;
+        public float ActualPowerFlowMax    => PowerFlowMax * Bonuses.PowerFlowMod;
         public float ActualBonusRepairRate => BonusRepairRate * Bonuses.RepairRateMod;
         public float ActualShieldPowerMax { get; private set; }
         public float ActualMaxHealth       => TemplateMaxHealth * Bonuses.HealthMod;
@@ -1436,7 +1436,7 @@ namespace Ship_Game.Ships
             def += ActualPowerFlowMax / 50;
             def += PowerStoreMax / 500;
             def += TroopCapacity * 50;
-            def += BonusRepairRate / 2f;
+            def += ActualBonusRepairRate / 2f;
             def += AmplifyShields / 20f;
             def += Regenerate / (10 * RepairDifficulty).LowerBound(0.1f);
 
