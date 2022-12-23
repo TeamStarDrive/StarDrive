@@ -163,9 +163,10 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         {
             ChanceToLaunchTroopsVsBombers = 0; // Reset
             AssignPlanetarySupply();
-            float repairPool = CalcRepairPool();
+            float repairPool = GetPlanetRepairPoolPerTurn();
             int repairLevel = Level + NumShipYards;
             bool spaceCombat = P.SpaceCombatNearPlanet;
+
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship = ParentSystem.ShipList[i];
@@ -210,11 +211,13 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             ship.HealTroops(Level.LowerBound(1));
         }
 
-        public float CalcRepairPool()
+        // Maximum amount of ship repair that this planet can do per 1 game turn
+        public float GetPlanetRepairPoolPerTurn()
         {
-            float outOfCombatBonus = P.SpaceCombatNearPlanet ? 0.1f : P.Level;
-            float repairPool       = RepairPerTurn * outOfCombatBonus / P.ShipBuildingModifier;
-
+            // TODO: these should be settings in Globals.yaml
+            float outOfCombatBonus = P.SpaceCombatNearPlanet ? P.Level/3f : P.Level;
+            float buildRate = 1f / P.ShipBuildingModifier; // actually a ship cost modifier, hence 1/modifier
+            float repairPool = RepairPerTurn * outOfCombatBonus * buildRate;
             return repairPool;
         }
 
