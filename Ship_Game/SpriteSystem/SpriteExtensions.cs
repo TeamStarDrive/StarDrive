@@ -278,5 +278,33 @@ namespace Ship_Game
 
         public static float GetWidthFromHeightAspect(this Texture2D tex, float wantedHeight)
             => SubTexture.GetWidthFromHeightAspect(tex.Width, tex.Height, wantedHeight);
+
+        public static void SafeBegin(this SpriteBatch batch)
+        {
+            try
+            {
+                batch.Begin();
+            }
+            catch
+            {
+                if (batch.SafeEnd())
+                {
+                    batch.Begin();
+                }
+            }
+        }
+
+        public static bool SafeEnd(this SpriteBatch batch)
+        {
+            try
+            {
+                batch.End();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
