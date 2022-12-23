@@ -176,7 +176,7 @@ namespace Ship_Game
 
         int GetShipProdCost(IShipDesign ship)
         {
-            return (int)(ship.GetCost(Screen.P.Owner) * Screen.P.ShipBuildingModifier);
+            return (int)(ship.GetCost(Screen.P.Owner) * Screen.P.ShipCostModifier);
         }
 
         int GetCreditCharge(float cost)

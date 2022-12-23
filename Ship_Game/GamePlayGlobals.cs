@@ -41,6 +41,12 @@ public class GamePlayGlobals
     [StarData] public float RushCostPercentage = 1;
     // minimum ship warp range which is accepted as good
     [StarData] public float MinAcceptableShipWarpRange = 600000;
+    // base amount of ship repair per turn from planetary buildings
+    [StarData] public float BaseShipyardRepair = 100;
+    // repair rate multiplier when a ship or planet is in combat
+    [StarData] public float InCombatRepairModifier = 0.5f;
+    // +bonus based on colony level, 0.2 would be +20% increase per level
+    [StarData] public float BonusRepairPerColonyLevel = 0.2f;
 
 
     // feature flags

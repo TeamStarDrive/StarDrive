@@ -7,7 +7,8 @@
   
   <PlusTaxPercentage>.2</PlusTaxPercentage>
   <Infrastructure>2</Infrastructure>
-  <ShipRepair>150</ShipRepair>
+  <!-- See Globals.yaml for BaseShipyardRepair, this is merely a multiplier -->
+  <ShipRepair>3.0</ShipRepair>
   <AllowShipBuilding>true</AllowShipBuilding>
   
   <!-- For localization in GameText.yaml -->
