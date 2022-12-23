@@ -268,8 +268,9 @@ namespace Ship_Game
             IsFaction = true;
             EmpireColor = new Color(128, 128, 128, 255);
 
+            // clone the entire tech tree
             foreach (var tech in parentEmpire.TechnologyDict)
-                TechnologyDict[tech.Key] = new TechEntry(tech.Value);
+                TechnologyDict[tech.Key] = new TechEntry(clone: tech.Value, newOwner:this);
 
             Initialize();
             UpdatePopulation();
@@ -939,7 +940,7 @@ namespace Ship_Game
             InitPersonalityModifiers();
             CreateThrusterColors();
 
-            if (string.IsNullOrEmpty(data.DefaultTroopShip))
+            if (data.DefaultTroopShip.IsEmpty())
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
             Research.Initialize();
@@ -1008,7 +1009,7 @@ namespace Ship_Game
 
             foreach (Technology tech in ResourceManager.TechsList)
             {
-                var entry = new TechEntry(tech.UID, Universe);
+                var entry = new TechEntry(tech.UID, Universe, this);
                 if (entry.IsHidden(this))
                 {
                     entry.SetDiscovered(false);
@@ -1051,7 +1052,13 @@ namespace Ship_Game
             }
 
             foreach (TechEntry entry in TechEntries) // unlock racial techs
-                if (entry.Discovered) data.Traits.UnlockAtGameStart(entry, this);
+            {
+                // save compatibility: first 1.41 savegames didn't have TechEntry.Owner
+                entry.Owner ??= this;
+
+                if (entry.Discovered)
+                    data.Traits.UnlockAtGameStart(entry, this);
+            }
 
             // Added by gremlin Figure out techs with modules that we have ships for.
             ResetTechsAndUnlocks();
@@ -1271,6 +1278,7 @@ namespace Ship_Game
             return didUpdate;
         }
 
+        // called every time Player empire update is triggered
         void UpdateStats()
         {
             Universe.Screen.UpdateStarDateAndTriggerEvents(Universe.StarDate + 0.1f);
@@ -2089,14 +2097,14 @@ namespace Ship_Game
                     }
                 }
             }
-            else
+            else // maxPop <= 1bn
             {
                 militaryPotential += fertility + p.MineralRichness + maxPopBillion;
-                if (maxPopBillion >= 0.5)
+                if (maxPopBillion >= 0.5f && Research.HasTopic) // pop within [0.5, 1.0] bn
                 {
-                    if (ResourceManager.TryGetTech(Research.Topic, out Technology tech))
-                        researchPotential = (tech.ActualCost(Universe) - Research.NetResearch) / tech.ActualCost(Universe)
-                                            * (fertility * 2 + p.MineralRichness + (maxPopBillion / 0.5f));
+                    float techCost = Research.Current.TechCost;
+                    float resourcePotential = (fertility * 2 + p.MineralRichness + (maxPopBillion / 0.5f));
+                    researchPotential = (techCost - Research.NetResearch) / techCost * resourcePotential;
                 }
             }
 
