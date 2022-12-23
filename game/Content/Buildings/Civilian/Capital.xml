@@ -4,6 +4,7 @@
   
   <Maintenance>0</Maintenance>
   <AllowShipBuilding>true</AllowShipBuilding>
+  <ShipRepair>50</ShipRepair>
   <PlusFlatResearchAmount>2</PlusFlatResearchAmount>
   <PlusResearchPerColonist>.15</PlusResearchPerColonist>
   <CreditsPerColonist>1</CreditsPerColonist>

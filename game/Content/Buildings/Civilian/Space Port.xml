@@ -7,7 +7,7 @@
   
   <PlusTaxPercentage>.2</PlusTaxPercentage>
   <Infrastructure>2</Infrastructure>
-  <ShipRepair>50</ShipRepair>
+  <ShipRepair>150</ShipRepair>
   <AllowShipBuilding>true</AllowShipBuilding>
   
   <!-- For localization in GameText.yaml -->
