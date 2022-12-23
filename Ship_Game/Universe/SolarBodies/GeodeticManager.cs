@@ -1,10 +1,8 @@
 ﻿using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
-using Ship_Game.ExtensionMethods;
 
 namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2019
 {
@@ -19,7 +17,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
         private int NumShipYards  => P.OrbitalStations.Count(s => s.ShipData.IsShipyard);
-        private float RepairPerTurn          => P.RepairPerTurn;
+        private float RepairMultiplier       => P.RepairMultiplier;
         private SolarSystem ParentSystem     => P.ParentSystem;
         private int TurnsSinceTurnover       => P.TurnsSinceTurnover;
         private float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
@@ -214,10 +212,11 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         // Maximum amount of ship repair that this planet can do per 1 game turn
         public float GetPlanetRepairPoolPerTurn()
         {
-            // TODO: these should be settings in Globals.yaml
-            float outOfCombatBonus = P.SpaceCombatNearPlanet ? P.Level/3f : P.Level;
-            float buildRate = 1f / P.ShipBuildingModifier; // actually a ship cost modifier, hence 1/modifier
-            float repairPool = RepairPerTurn * outOfCombatBonus * buildRate;
+            float baseRepairRate = RepairMultiplier * GlobalStats.Defaults.BaseShipyardRepair;
+            float levelBasedBonus = 1f + P.Level * GlobalStats.Defaults.BonusRepairPerColonyLevel;
+            float inCombatMod = P.SpaceCombatNearPlanet ? GlobalStats.Defaults.InCombatRepairModifier : 1f;
+            float buildRate = 1f / P.ShipCostModifier; // build rate is inverse to the cost modifier
+            float repairPool = baseRepairRate * levelBasedBonus * inCombatMod * buildRate;
             return repairPool;
         }
 

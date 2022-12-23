@@ -231,7 +231,7 @@ namespace Ship_Game
             // We cannot build the best in the empire, lets try building something cheaper for now
             // and check if this can be built in a timely manner.
             float maxCost = EstimatedAverageProduction * TimeVsCostThreshold + Storage.Prod;
-            maxCost /= ShipBuildingModifier;
+            maxCost /= ShipCostModifier;
             orbital = GetBestOrbital(role, budget, maxCost);
 
             return orbital;
@@ -274,7 +274,7 @@ namespace Ship_Game
 
         private bool LogicalBuiltTimeVsCost(float cost, int threshold)
         {
-            float netCost = (cost - Storage.Prod).LowerBound(0) * ShipBuildingModifier;
+            float netCost = (cost - Storage.Prod).LowerBound(0) * ShipCostModifier;
             float ratio   = netCost / EstimatedAverageProduction;
             return ratio < threshold;
         }

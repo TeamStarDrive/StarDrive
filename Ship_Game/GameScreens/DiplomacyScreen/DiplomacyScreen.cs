@@ -787,10 +787,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             return string.Join(" ", words);
         }
 
-        string UsSingular          => Us?.data.Traits.Singular ?? "HUMAN";
-        string UsPlural            => Us?.data.Traits.Plural   ?? "HUMANS";
+        string UsSingular => Us?.data.Traits.Singular ?? "HUMAN";
+        string UsPlural   => Us?.data.Traits.Plural   ?? "HUMANS";
         string EmpireToDiscussName => EmpireToDiscuss?.data.Traits.Name ?? "EMPIRE";
         string SysToDiscussName    => SysToDiscuss?.Name ?? "SYSTEM";
+
         string TechDemanded
         {
             get

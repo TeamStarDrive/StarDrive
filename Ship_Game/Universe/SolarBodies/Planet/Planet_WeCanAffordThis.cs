@@ -89,7 +89,7 @@ namespace Ship_Game
                     return true;
                 if (b.PlusProdPerColonist > 0 
                     && b.PlusProdPerColonist * PopulationBillion > b.Maintenance * (2 - Prod.Percent)
-                    && Money.GrossRevenue > ShipBuildingModifier * 2)
+                    && Money.GrossRevenue > ShipCostModifier * 2)
                     return true;
                 if (b.PlusProdPerRichness * MineralRichness > b.Maintenance)
                     return true;
