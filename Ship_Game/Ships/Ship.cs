@@ -1294,8 +1294,10 @@ namespace Ship_Game.Ships
             {
                 if (CanRepair)
                 {
-                    // Added by McShooterz: Priority repair
-                    float repair = InCombat ? RepairRate * 0.1f : RepairRate;
+                    float repair = RepairRate;
+                    if (InCombat) // reduces repair rate while in combat
+                        repair *= GlobalStats.Defaults.InCombatSelfRepairModifier;
+
                     ApplyAllRepair(repair, Level);
                     if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(ShipData.ShipCategory))
                         AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
