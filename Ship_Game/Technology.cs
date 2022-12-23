@@ -87,8 +87,6 @@ namespace Ship_Game
             }
         }
 
-        public float ActualCost(UniverseState us) => ResearchMultiplier(us) * us.ProductionPace;
-
         public bool AnyChildrenDiscovered(Empire empire)
             => Children.Any(tech => empire.GetTechEntry(tech.UID).Discovered);
 
@@ -140,29 +138,31 @@ namespace Ship_Game
             public string RevUID;
             public string Type;
         }
-
-        float ResearchMultiplier(UniverseState uState)
+        
+        public float ActualCost(UniverseState universeState)
         {
+            UniverseState us = universeState ?? throw new NullReferenceException(nameof(universeState));
+
             if (!GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
-                return Cost;
+                return us.ProductionPace * Cost;
 
-            float settingResearchMultiplier = uState.SettingsResearchModifier;
+            float settingResearchMultiplier = us.SettingsResearchModifier;
             if (settingResearchMultiplier < 1f)
-                return (Cost * settingResearchMultiplier.LowerBound(0.5f)).RoundTo10();
+                return us.ProductionPace * (Cost * settingResearchMultiplier.LowerBound(0.5f)).RoundTo10();
 
-            float costRatio        = GetCostRatio();
-            float multiplierToUse  = 1 + settingResearchMultiplier * costRatio;
+            float costRatio = GetCostRatio(settingResearchMultiplier);
+            float multiplierToUse = 1 + settingResearchMultiplier * costRatio;
 
-            return (Cost * multiplierToUse.Clamped(1, 25)).RoundDownTo10();
+            return us.ProductionPace * (Cost * multiplierToUse.Clamped(1, 25)).RoundDownTo10();
+        }
+        
+        float GetCostRatio(float settingResearchMultiplier)
+        {
+            if (settingResearchMultiplier <= 1f)
+                return 0;
 
-            float GetCostRatio()
-            {
-                if (settingResearchMultiplier <= 1f)
-                    return 0;
-
-                int costThreshold = GlobalStats.Defaults.CostBasedOnSizeThreshold;
-                return Cost > costThreshold ? 1 : Cost / costThreshold;
-            }
+            int costThreshold = GlobalStats.Defaults.CostBasedOnSizeThreshold;
+            return Cost > costThreshold ? 1 : Cost / costThreshold;
         }
 
         public Building[] GetBuildings()

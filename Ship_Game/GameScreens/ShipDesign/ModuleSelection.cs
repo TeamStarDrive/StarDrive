@@ -154,7 +154,7 @@ namespace Ship_Game
             foreach (TechEntry tech in Player.TechEntries)
             {
                 if (tech.GetUnlockableModules(Player).Any(m => m.ModuleUID == module.UID))
-                    return tech.Tech.ActualCost(Player.Universe);
+                    return tech.TechCost;
             }
 
             return 0;
