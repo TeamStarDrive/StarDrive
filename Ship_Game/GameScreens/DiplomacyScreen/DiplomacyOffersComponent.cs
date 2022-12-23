@@ -102,8 +102,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             List.Reset();
             AddRelationItems(Us.GetRelations(Them));
             var theirDesigns = Them.AllFactionShipDesigns;
-            ItemToOffer techs = AddHeader(GameText.Technology);
+            
             Us.AI.TradableTechs(Them, out Array<TechEntry> tradeAbleTechs);
+            LocalizedText techsHeader = LocalizedText.Parse($"{{Technology}} ({tradeAbleTechs.Count})");
+
+            ItemToOffer techs = AddHeader(techsHeader);
             foreach (TechEntry entry in tradeAbleTechs)
             {
                 Technology tech = entry.Tech;
@@ -115,13 +118,15 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 techs.AddSubItem(new ItemToOffer(text, "Tech") { SpecialInquiry = entry.UID });
             }
 
-            ItemToOffer artifacts = AddHeader(GameText.Artifacts);
+            LocalizedText artifactsHeader = LocalizedText.Parse($"{{Artifacts}} ({Us.data.OwnedArtifacts.Count})");
+            ItemToOffer artifacts = AddHeader(artifactsHeader);
             foreach (Artifact artifact in Us.data.OwnedArtifacts)
             {
                 artifacts.AddSubItem(new ItemToOffer(artifact.NameText, "Artifacts") { SpecialInquiry = artifact.Name });
             }
 
-            ItemToOffer colonies = AddHeader(GameText.Colonies);
+            LocalizedText coloniesHeader = LocalizedText.Parse($"{{Colonies}} ({Us.GetPlanets().Count})");
+            ItemToOffer colonies = AddHeader(coloniesHeader);
             foreach (Planet p in Us.GetPlanets())
             {
                 colonies.AddSubItem(new ItemToOffer(p.Name, "Colony") { SpecialInquiry = p.Name });
