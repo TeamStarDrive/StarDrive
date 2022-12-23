@@ -57,7 +57,7 @@ namespace UnitTests.AITests.Empire
             var eAI = Enemy.AI;
 
             var colonyShip = SpawnShip("Colony Ship", Enemy, Vector2.Zero);
-            Enemy.UpdateEmpirePlanets();
+            Enemy.UpdateEmpirePlanets(FixedSimTime.One);
             Enemy.UpdateNetPlanetIncomes();
             Enemy.AI.RunEconomicPlanner();
 
@@ -68,7 +68,7 @@ namespace UnitTests.AITests.Empire
                     float maxPotential = Enemy.MaximumStableIncome;
                     float previousBudget = eAI.ProjectedMoney;
                     planet.Colonize(colonyShip);
-                    Enemy.UpdateEmpirePlanets();
+                    Enemy.UpdateEmpirePlanets(FixedSimTime.One);
                     Enemy.UpdateNetPlanetIncomes();
                     float planetRevenue = planet.Money.PotentialRevenue;
                     Assert.IsTrue(Enemy.MaximumStableIncome.AlmostEqual(maxPotential + planetRevenue, 1f), "MaxStableIncome value was unexpected");
@@ -86,7 +86,7 @@ namespace UnitTests.AITests.Empire
             CreatePlanets(extraPlanets: 0);
 
             Enemy.data.TaxRate = 1;
-            Enemy.UpdateEmpirePlanets();
+            Enemy.UpdateEmpirePlanets(FixedSimTime.One);
             Enemy.UpdateNetPlanetIncomes();
             Enemy.AI.RunEconomicPlanner();
             Assert.IsTrue(Enemy.data.TaxRate < 1, $"Tax Rate should be less than 100% was {Enemy.data.TaxRate * 100}%");
