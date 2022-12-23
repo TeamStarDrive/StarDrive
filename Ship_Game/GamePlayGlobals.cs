@@ -47,7 +47,13 @@ public class GamePlayGlobals
     [StarData] public float InCombatRepairModifier = 0.5f;
     // +bonus based on colony level, 0.2 would be +20% increase per level
     [StarData] public float BonusRepairPerColonyLevel = 0.2f;
-
+    // base repair rate from ship command/engineering modules
+    [StarData] public float BaseSelfRepair = 10.0f;
+    // +bonus rate based on crew level, 0.2 would be +20% increase per each crew level
+    [StarData] public float BonusRepairPerCrewLevel = 0.2f;
+    // repair rate modifier for command/engineering self repair when in combat
+    [StarData] public float InCombatSelfRepairModifier = 0.2f;
+  
 
     // feature flags
     [StarData] public bool UseHullBonuses;
