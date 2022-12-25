@@ -416,30 +416,32 @@ namespace Ship_Game.AI
             bool inFleet = Owner.Fleet != null && State == AIState.FormationMoveTo;
             if (inFleet) // FLEET MOVE
             {
-                speedLimit = GetFormationSpeed(speedLimit);
-                float distFromFleet = Owner.Fleet.AveragePosition().Distance(Owner.Position);
-                if (distFromFleet > 15000f)
+                Vector2 fleetAvgPos = Owner.Fleet.AveragePosition();
+                float distFromFleet = fleetAvgPos.Distance(Owner.Position);
+                if (distFromFleet > 15_000f)
                 {
                     // This ship is far away from the fleet
                     // Enter warp and continue next frame in UpdateWarpThrust()
-                    bool closerToFinalPos = Owner.Position.SqDist(Owner.Fleet.FinalPosition) 
-                        < Owner.Fleet.AveragePosition().SqDist(Owner.Fleet.FinalPosition);
 
-                    Owner.SetSpeedLimit(closerToFinalPos ? speedLimit : 0);
+                    // If the ship is already at FinalPosition, follow the formation speed limit
+                    Vector2 finalPos = Owner.Fleet.FinalPosition;
+                    if (Owner.Position.SqDist(finalPos) < fleetAvgPos.SqDist(finalPos))
+                        Owner.SetSpeedLimit(GetFormationSpeed(speedLimit));
+
                     Owner.EngageStarDrive();
                 }
                 else
                 {
                     if (distance > 7500f) // Not near destination
                     {
-                        Owner.SetSpeedLimit(speedLimit);
                         EngageFormationWarp();
                     }
                     else
                     {
                         DisEngageFormationWarp();
                     }
-
+                    
+                    speedLimit = GetFormationSpeed(speedLimit);
                     Owner.SubLightAccelerate(speedLimit);
                 }
             }
