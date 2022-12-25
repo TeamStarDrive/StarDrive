@@ -2,7 +2,6 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -18,8 +17,6 @@ namespace Ship_Game
     [StarDataType]
     public sealed class TechEntry
     {
-        public static readonly TechEntry None = new("", null);
-
         [StarData] public string UID;
         [StarData] public float Progress;
         [StarData] public bool Discovered;
@@ -28,14 +25,21 @@ namespace Ship_Game
         [StarData] public bool Unlocked;
         [StarData] public int Level;
         [StarData] public string AcquiredFrom { private get; set; }
+        // TODO: fix variable name, but keep savegame compatibility
         [StarData] public bool shipDesignsCanuseThis = true;
-        [StarData] public Array<string> WasAcquiredFrom;
+        [StarData] public Array<string> WasAcquiredFrom = new();
         [StarData] public UniverseState Universe;
+        [StarData] public Empire Owner; // empire that owns this TechEntry
 
         public Technology Tech { get; private set; }
         public Array<string> ConqueredSource = new();
-        readonly Map<TechnologyType, float> TechTypeCostLookAhead = new();
 
+        readonly Map<TechnologyType, float> TechTypeCostLookAhead = new(DefaultLookAhead);
+
+        static readonly Map<TechnologyType, float> DefaultLookAhead = new(GetTechnologyTypes().Select(t => (t,0f)));
+        static TechnologyType[] GetTechnologyTypes() => (TechnologyType[])Enum.GetValues(typeof(TechnologyType));
+        
+        public static readonly TechEntry None = new("", null, null);
 
         public override string ToString()
             => $"TechEntry {UID}: Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched}";
@@ -54,32 +58,43 @@ namespace Ship_Game
         public bool IsMultiLevel => Tech.MaxLevel > 1;
         public bool Locked => !Unlocked;
 
+        // cached tech cost, because this is called a lot
+        float StoredTechCost;
+        int StoredTechCostLevel = -1;
+
+        // the Actual Tech Cost
         public float TechCost
         {
             get
             {
-                float cost = Tech.ActualCost(Universe);
-                float techLevel = (float)Math.Max(1, Math.Pow(MultiLevelCostMultiplier, Level.UpperBound(MaxLevel-1)));
-                int rootTech = Tech.IsRootNode ? 100 : 0;
-                return cost * (techLevel + rootTech);
+                if (StoredTechCostLevel != Level)
+                {
+                    StoredTechCostLevel = Level;
+                    
+                    float cost = Tech.ActualCost(Universe);
+                    float techLevel = (float)Math.Max(1, Math.Pow(MultiLevelCostMultiplier, Level.UpperBound(MaxLevel-1)));
+                    int rootTech = Tech.IsRootNode ? 100 : 0;
+                    StoredTechCost = cost * (techLevel + rootTech);
+                }
+                return StoredTechCost;
             }
         }
 
-        public TechEntry()
+        [StarDataConstructor]
+        public TechEntry(UniverseState us, Empire owner)
         {
-            WasAcquiredFrom = new();
-            foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
-                TechTypeCostLookAhead.Add(techType, 0);
+            Universe = us;
+            Owner = owner;
         }
 
-        public TechEntry(string uid, UniverseState us) : this()
+        public TechEntry(string uid, UniverseState us, Empire owner) : this(us, owner)
         {
             UID = uid;
-            Universe= us;
+            Universe = us;
             ResolveTech();
         }
 
-        public TechEntry(TechEntry clone)
+        public TechEntry(TechEntry clone, Empire newOwner)
         {
             UID = clone.UID;
             Progress = clone.Progress;
@@ -93,11 +108,13 @@ namespace Ship_Game
             ConqueredSource = new(clone.ConqueredSource);
             TechTypeCostLookAhead = new(clone.TechTypeCostLookAhead);
             Universe = clone.Universe;
+            Owner = newOwner;
         }
 
         [StarDataDeserialized]
-        void OnDeserialized(UniverseState us)
+        public void OnDeserialized(UniverseState us)
         {
+            // Owner will be checked during Empire.OnDeserialized -> InitEmpireUnlocks()
             Universe = us;
             ResolveTech();
         }
@@ -119,7 +136,7 @@ namespace Ship_Game
 
         public float AddToProgress(float researchToApply, float modifier, out bool unLocked)
         {
-            float techCost = Tech.ActualCost(Universe) * modifier;
+            float techCost = TechCost * modifier;
             Progress += researchToApply;
             float excessResearch = Math.Max(0, Progress - techCost);
             Progress -= excessResearch;
@@ -215,14 +232,13 @@ namespace Ship_Game
 
         public void SetLookAhead(Empire empire)
         {
-            foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
+            foreach (TechnologyType techType in DefaultLookAhead.Keys)
             {
                 TechTypeCostLookAhead[techType] = LookAheadCost(techType, empire);
             }
         }
 
         public bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
-        public bool SpiedFromAnyBut(Empire them) => WasAcquiredFrom.Count > 1 && !WasAcquiredFrom.Contains(them.data.Traits.ShipType);
         
         /// <summary>Checks if list  contains restricted trade type</summary>
         static bool AllowRacialTrade(Empire us, Empire them)
@@ -385,7 +401,7 @@ namespace Ship_Game
 
         public void ForceFullyResearched()
         {
-            Progress = Tech.ActualCost(Universe);
+            Progress = TechCost;
             Unlocked = true;
         }
 

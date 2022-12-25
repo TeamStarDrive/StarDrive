@@ -31,7 +31,7 @@ public class UniverseParams
 
     // Universe customization parameters:
     [StarData] public float MinAcceptableShipWarpRange;
-    [StarData] public int TurnTimer;
+    [StarData] public int TurnTimer; // seconds between Empire turns, every turn advances stardate by 0.1
     [StarData] public bool PreventFederations;
     [StarData] public bool EliminationMode;
     [StarData] public float CustomMineralDecay;

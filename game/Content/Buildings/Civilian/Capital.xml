@@ -4,6 +4,8 @@
   
   <Maintenance>0</Maintenance>
   <AllowShipBuilding>true</AllowShipBuilding>
+  <!-- See Globals.yaml for BaseShipyardRepair, this is merely a multiplier -->
+  <ShipRepair>1.0</ShipRepair>
   <PlusFlatResearchAmount>2</PlusFlatResearchAmount>
   <PlusResearchPerColonist>.15</PlusResearchPerColonist>
   <CreditsPerColonist>1</CreditsPerColonist>

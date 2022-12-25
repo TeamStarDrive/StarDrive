@@ -12,7 +12,7 @@ Globals:
   CostBasedOnSizeThreshold: 3000
   HangarCombatShipCostMultiplier: 1
   RequiredExpansionPopRatio: 0.4 # required empire pop ratio before expansion is considered
-  ShipyardBonus: 0.25 # default 0.25
+  ShipyardBonus: 0.25 # default 0.25, this also improves repair rate
   CustomMineralDecay: 1 # default 1
   VolcanicActivity: 1 # default 1
   GravityWellRange: 8000 # sets the default gravity well range, 0 means disabled
@@ -20,6 +20,12 @@ Globals:
   ShipMaintenanceMultiplier: 1 # default 1
   RushCostPercentage: 1 # default 1, How much rushing costs in percentage of production cost
   MinAcceptableShipWarpRange: 600000 # minimum ship warp range which is accepted as good
+  BaseShipyardRepair: 100.0 # base amount of ship repair per turn from planetary buildings
+  BonusRepairPerColonyLevel: 0.2 # +bonus based on colony level, 0.2 would be +20% increase per level
+  InCombatRepairModifier: 0.5 # repair rate modifier when a ship or planet is in combat
+  BaseSelfRepair: 10.0 # base repair rate from ship command/engineering modules
+  BonusRepairPerCrewLevel: 0.2 # +bonus rate based on crew level, 0.2 would be +20% increase per each crew level
+  InCombatSelfRepairModifier: 0.2 # repair rate modifier for command/engineering self repair when in combat
 
   # feature flags
   DisableShipPicker: true

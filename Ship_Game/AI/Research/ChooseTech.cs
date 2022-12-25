@@ -419,7 +419,7 @@ namespace Ship_Game.AI.Research
                                 foreach (var shipTech in LineFocus.BestCombatShip.TechsNeeded)
                                 {
                                     bool foundTech = tech.Tech.UID == shipTech;
-                                    if (foundTech && tech.Tech.ActualCost(tech.Universe) > 0)
+                                    if (foundTech && tech.TechCost > 0)
                                     {
                                         return true;
                                     }

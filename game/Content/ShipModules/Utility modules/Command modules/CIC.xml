@@ -29,7 +29,8 @@
   
   <Description>The combat information center consolidates all command and control functions into a single module. From here the crew can coordinate sensor data, manage damage control teams, organize shipboard defensive actions, and more. </Description>
   <PowerDraw>32</PowerDraw>
-  <BonusRepairRate>200</BonusRepairRate>
+  <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
+  <BonusRepairRate>20.0</BonusRepairRate>
 
   <SensorRange>70000</SensorRange>
   <TargetTracking>10</TargetTracking>
