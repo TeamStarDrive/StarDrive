@@ -237,7 +237,7 @@ namespace Ship_Game.Ships
         public SubTexture ModuleTexture => ResourceManager.Texture(IconTexturePath);
 
         public float ActualPowerStoreMax   => Is(ShipModuleType.FuelCell) ? PowerStoreMax * Bonuses.FuelCellMod : PowerStoreMax;
-        public float ActualPowerFlowMax    => PowerFlowMax  * Bonuses.PowerFlowMod;
+        public float ActualPowerFlowMax    => PowerFlowMax * Bonuses.PowerFlowMod;
         public float ActualBonusRepairRate => BonusRepairRate * Bonuses.RepairRateMod;
         public float ActualShieldPowerMax { get; private set; }
         public float ActualMaxHealth       => TemplateMaxHealth * Bonuses.HealthMod;
@@ -1250,11 +1250,11 @@ namespace Ship_Game.Ships
             if (Health >= ActualMaxHealth || repairAmount <= 0)
                 return repairAmount;
 
-            float neededRepair    = ActualMaxHealth - Health;
-            float maxRepairAmount = ActualMaxHealth.Clamped(0, ActualMaxHealth * (1 / (1 + RepairDifficulty)));
-            float actualRepair    = maxRepairAmount.Clamped(0, repairAmount);
-            actualRepair          = actualRepair.Clamped(0, neededRepair);
-            float repairLeft      = (repairAmount - actualRepair).Clamped(0, repairAmount);
+            float neededRepair = ActualMaxHealth - Health;
+            float maxRepairAmount = ActualMaxHealth.UpperBound(ActualMaxHealth * (1 / (1 + RepairDifficulty)));
+            float actualRepair = maxRepairAmount.UpperBound(repairAmount).UpperBound(neededRepair);
+
+            float repairLeft = (repairAmount - actualRepair).Clamped(0, repairAmount);
             SetHealth(Health + actualRepair, "Repair");
             VisualizeRepair();
 
@@ -1436,7 +1436,7 @@ namespace Ship_Game.Ships
             def += ActualPowerFlowMax / 50;
             def += PowerStoreMax / 500;
             def += TroopCapacity * 50;
-            def += BonusRepairRate / 2f;
+            def += ActualBonusRepairRate / 2f;
             def += AmplifyShields / 20f;
             def += Regenerate / (10 * RepairDifficulty).LowerBound(0.1f);
 

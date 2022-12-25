@@ -147,7 +147,7 @@ namespace Ship_Game
                     isShip  = !forTroop,
                     ShipData = sData,
                     isTroop = forTroop,
-                    Cost    = forTroop ? cost : cost * ShipBuildingModifier,
+                    Cost    = forTroop ? cost : cost * ShipCostModifier,
                 };
 
                 return qi;
@@ -183,7 +183,7 @@ namespace Ship_Game
                             var qi = new QueueItem(this)
                             {
                                 isShip = true,
-                                Cost   = goal.OldShip.RefitCost(goal.ToBuild) * ShipBuildingModifier,
+                                Cost   = goal.OldShip.RefitCost(goal.ToBuild) * ShipCostModifier,
                                 ShipData = goal.ToBuild
                             };
                             refitQueue.Add(qi);

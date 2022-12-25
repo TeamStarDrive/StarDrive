@@ -77,7 +77,7 @@ namespace Ship_Game.Ships
                     activeInternalSlots += module.XSize * module.YSize;
 
                 // FB - so destroyed modules with repair wont have full repair rate
-                S.RepairRate += active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10;
+                S.RepairRate += module.ActualBonusRepairRate * (active ? 1f : 0.1f);
 
                 if (active && (module.Powered || module.PowerDraw <= 0f))
                 {
@@ -108,9 +108,11 @@ namespace Ship_Game.Ships
 
             // Apply modifiers to stats
             if (S.IsPlatform) S.SensorRange = S.SensorRange.LowerBound(10000);
-            S.SensorRange   *= e.data.SensorModifier;
-            S.SensorRange   *= Hull.Bonuses.SensorModifier;
-            S.RepairRate    += (float)(S.RepairRate * S.Level * 0.05);
+            S.SensorRange *= e.data.SensorModifier;
+            S.SensorRange *= Hull.Bonuses.SensorModifier;
+
+            // +percent based on level
+            S.RepairRate += S.RepairRate * S.Level * GlobalStats.Defaults.BonusRepairPerCrewLevel;
             S.CargoSpaceMax = GetCargoSpace(S.CargoSpaceMax, Hull);
 
             S.SetActiveInternalSlotCount(activeInternalSlots);

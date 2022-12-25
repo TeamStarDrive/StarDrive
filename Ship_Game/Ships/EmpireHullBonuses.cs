@@ -27,6 +27,7 @@ namespace Ship_Game.Ships
             FuelCellMod   = EmpireDataMod(empire.data.FuelCellModifier);
             PowerFlowMod  = EmpireDataMod(empire.data.PowerFlowMod);
             RepairRateMod = EmpireDataMod(empire.data.Traits.RepairMod) * hullBonus.RepairModifier;
+            RepairRateMod *= GlobalStats.Defaults.BaseSelfRepair;
             ShieldMod     = EmpireDataMod(empire.data.ShieldPowerMod)   * hullBonus.ShieldModifier;
             HealthMod     = EmpireDataMod(empire.data.Traits.ModHpModifier);
         }

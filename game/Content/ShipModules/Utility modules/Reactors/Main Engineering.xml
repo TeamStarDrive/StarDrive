@@ -29,7 +29,8 @@
   <CrewRequired>10</CrewRequired>
   
   <PowerDraw>0</PowerDraw>
-  <BonusRepairRate>600</BonusRepairRate>
+  <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
+  <BonusRepairRate>60.0</BonusRepairRate>
   <EMPProtection>1600</EMPProtection>
   <!-- for shield items -->
   <ShieldPowerMax>8000</ShieldPowerMax>
