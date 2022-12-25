@@ -1172,10 +1172,9 @@ namespace Ship_Game.Gameplay
                 return;
 
             TechEntry techToDemand = potentialDemands.RandItem();
-            Offer demandTech       = new Offer();
-
+            Offer demandTech = new Offer();
             demandTech.TechnologiesOffered.AddUnique(techToDemand.UID);
-            XenoDemandedTech  = true;
+
             Offer theirDemand = new Offer
             {
                 AcceptDL      = "Xeno Demand Tech Accepted",
@@ -1188,7 +1187,8 @@ namespace Ship_Game.Gameplay
                 DiplomacyScreen.Show(us, "Xeno Demand Tech", demandTech, theirDemand);
             else
                 them.AI.AnalyzeOffer(theirDemand, demandTech, us, Offer.Attitude.Threaten);
-
+            
+            XenoDemandedTech = true;
             turnsSinceLastContact = 0;
         }
 
@@ -1268,11 +1268,11 @@ namespace Ship_Game.Gameplay
 
             foreach (TechEntry tech in theirTechs.Sorted(t => t.Tech.Cost))
             {
-                if (tech.Tech.ActualCost(Them.Universe) + totalCost > theirMaxCost)
+                if (tech.TechCost + totalCost > theirMaxCost)
                     break;
 
                 theirFinalTech.Add(tech.UID);
-                totalCost += tech.Tech.ActualCost(Them.Universe);
+                totalCost += tech.TechCost;
             }
 
             return theirFinalTech.Count > 0;

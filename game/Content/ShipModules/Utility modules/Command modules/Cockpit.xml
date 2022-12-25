@@ -27,7 +27,8 @@
   <Description>This cockpit has enough room for a small flight crew and their workstations.   From here, the crew can receive basic sensor data, coordinate ship repairs, and pilot the ship.</Description>
 
   <PowerDraw>2</PowerDraw>
-  <BonusRepairRate>5</BonusRepairRate>
+  <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
+  <BonusRepairRate>1.0</BonusRepairRate>
 
   <SensorRange>24000</SensorRange>
  <TargetTracking>2</TargetTracking>

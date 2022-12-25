@@ -55,11 +55,14 @@ namespace Ship_Game
         public float TotalTroopConsumption { get; private set; }
 
         public bool HasWinBuilding;
-        float ShipBuildingModifierValue;
-        public float ShipBuildingModifier
+
+        float ShipCostModifierValue;
+
+        // modifier which reduces ship costs
+        public float ShipCostModifier
         {
-            get => ShipBuildingModifierValue;
-            private set => ShipBuildingModifierValue = value.Clamped(0.001f, 1);
+            get => ShipCostModifierValue;
+            private set => ShipCostModifierValue = value.Clamped(0.001f, 1);
         }
 
         // Timers
@@ -70,7 +73,10 @@ namespace Ship_Game
         private float Unfed;
         public bool IsStarving => Unfed < 0f;
         public bool QueueEmptySent = true;
-        public float RepairPerTurn;
+
+        // ship repair multiplier, intended to be 1.0 or 2.0 etc
+        public float RepairMultiplier;
+
         [StarData] public float SensorRange { get; private set; }
         public float ProjectorRange { get; private set; }
         public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
@@ -823,7 +829,7 @@ namespace Ship_Game
         }
 
         // this is done once per turn
-        public void UpdateOwnedPlanet(RandomBase random)
+        public void UpdateOwnedPlanet(FixedSimTime elapsedTurnTime, RandomBase random)
         {
             TurnsSinceTurnover += 1;
             CrippledTurns = (CrippledTurns - 1).LowerBound(0);
@@ -1091,25 +1097,27 @@ namespace Ship_Game
             float totalStorage = 0;
             float sensorRange  = 0;
             float projectorRange = 0;
-            InfraStructure            = 1;
-            RepairPerTurn             = 0;
-            TerraformToAdd            = 0;
-            ShieldStrengthMax         = 0;
-            ShipBuildingModifier      = 0;
-            TotalDefensiveStrength    = 0;
+            SensorRange = 0;
+            InfraStructure = 1;
+            RepairMultiplier = 0;
+            TerraformToAdd = 0;
+            ShieldStrengthMax = 0;
+            TotalDefensiveStrength = 0;
             PlusFlatPopulationPerTurn = 0;
-            SensorRange               = 0;
 
-            ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
+            // NumShipyards is either calculated before or loaded from a save
+            ShipCostModifier = GetShipCostModifier(NumShipyards);
+
             for (int i = 0; i < BuildingList.Count; ++i)
             {
-                Building b                 = BuildingList[i];
+                Building b = BuildingList[i];
+
+                totalStorage += b.StorageAdded;
+                RepairMultiplier += b.ShipRepair;
                 PlusFlatPopulationPerTurn += b.PlusFlatPopulation;
-                ShieldStrengthMax         += b.PlanetaryShieldStrengthAdded;
-                TerraformToAdd            += b.PlusTerraformPoints;
-                totalStorage              += b.StorageAdded;
-                RepairPerTurn             += b.ShipRepair;
-                InfraStructure            += b.Infrastructure;
+                ShieldStrengthMax += b.PlanetaryShieldStrengthAdded;
+                TerraformToAdd += b.PlusTerraformPoints;
+                InfraStructure += b.Infrastructure;
 
                 if (b.SensorRange > sensorRange)
                     sensorRange = b.SensorRange;
@@ -1124,7 +1132,7 @@ namespace Ship_Game
 
             AllowInfantry = allowInfantry;
             InfraStructure = InfraStructure.LowerBound(1);
-            RepairPerTurn  = RepairPerTurn.LowerBound(0);
+            RepairMultiplier = RepairMultiplier.LowerBound(0);
 
             if (GlobalStats.Defaults.UsePlanetaryProjection)
                 ProjectorRange = projectorRange;
@@ -1167,12 +1175,7 @@ namespace Ship_Game
             return GetProjectorRadius(Owner);
         }
 
-        public bool ShipWithinSensorRange(Ship ship)
-        {
-            return ship.Position.Distance(Position) < SensorRange;
-        }
-
-        private static float CalcShipBuildingModifier(int numShipyards)
+        static float GetShipCostModifier(int numShipyards)
         {
             float shipyardDiminishedReturn = 1;
             float shipBuildingModifier = 1;
