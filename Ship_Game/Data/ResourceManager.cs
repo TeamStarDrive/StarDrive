@@ -66,7 +66,6 @@ namespace Ship_Game
 
         public static ShipNames ShipNames = new();
         public static AgentMissionData AgentMissionData = new();
-        public static MainMenuShipList MainMenuShipList = new();
         public static Map<RoleName, ShipRole> ShipRoles = new();
         public static Map<string, HullBonus> HullBonuses = new();
 
@@ -368,7 +367,6 @@ namespace Ship_Game
             WeaponsDict.Clear();
 
             ShipNames.Clear();
-            MainMenuShipList.ModelPaths.Clear();
 
             EconStrategies.Clear();
             ZoneDistribution.Clear();
@@ -1912,8 +1910,7 @@ namespace Ship_Game
         // Added by RedFox
         static void LoadBlackboxSpecific()
         {
-            TryDeserialize("ShipNames/ShipNames.xml",            ref ShipNames);
-            TryDeserialize("MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
+            TryDeserialize("ShipNames/ShipNames.xml", ref ShipNames);
             TryDeserialize("AgentMissions/AgentMissionData.xml", ref AgentMissionData);
         }
 
