@@ -101,28 +101,24 @@ namespace Ship_Game.Ships
 
         public bool LoadModel(out SceneObject shipSO, GameContentManager content)
         {
+            shipSO = null;
             lock (this)
             {
-                shipSO = StaticMesh.GetSceneMesh(content, ModelPath, Animated);
+                // The mesh is cached by content manager
+                StaticMesh mesh = StaticMesh.LoadMesh(content, ModelPath, Animated);
+                if (mesh == null)
+                    return false;
+
+                shipSO = mesh.CreateSceneObject();
                 if (shipSO == null)
                     return false;
 
+                // update volume if needed
                 if (Volume.X.AlmostEqual(0f))
                 {
-                    try
-                    {
-                        // @note GetMeshBoundingBox is a slow operation, and can fail
-                        Volume = new Vector3(shipSO.GetMeshBoundingBox().Max);
-                        ModelZ = Volume.Z;
-                    }
-                    catch (Exception)
-                    {
-                        Volume = new Vector3(shipSO.ObjectBoundingSphere.Radius);
-                        ModelZ = Volume.Z;
-                    }
+                    Volume = new Vector3(mesh.Bounds.Max - mesh.Bounds.Min);
+                    ModelZ = Volume.Z;
                 }
-                
-                // always succeed, even if we failed to get the Volume and ModelZ
                 return true;
             }
         }
