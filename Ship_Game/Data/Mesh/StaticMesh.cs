@@ -5,38 +5,123 @@ using SDUtils;
 using SgMotion;
 using SgMotion.Controllers;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
 
-namespace Ship_Game.Data.Mesh
+namespace Ship_Game.Data.Mesh;
+
+using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
+
+// TODO: Rename into something else. This now supports animations, trying to unify the clusterfk of XNA models
+public class StaticMesh : IDisposable
 {
-    public class StaticMesh
+    public string Name { get; set; }
+
+    // this is the RawMesh data from MeshImporter
+    public Array<MeshData> RawMeshes { get; set; } = new();
+
+    // data from Model and SkinnedModel
+    public ModelMeshCollection ModelMeshes;
+    public BoundingBox Bounds;
+
+    // used if animation is enabled
+    public SkinnedModelBoneCollection Skeleton;
+    public AnimationClipDictionary AnimationClips;
+
+    public StaticMesh() { }
+    ~StaticMesh() { Destroy(); }
+
+    public void Dispose()
     {
-        public string Name { get; set; }
-        public Array<MeshData> Meshes { get; set; } = new Array<MeshData>();
-        public int Count => Meshes.Count;
+        Destroy();
+        GC.SuppressFinalize(this);
+    }
 
-        public SkinnedModelBoneCollection Skeleton;
-        public AnimationClipDictionary AnimationClips;
-
-        static int SubMeshCount(int maxSubMeshes, int meshSubMeshCount)
+    void Destroy()
+    {
+        RawMeshes.ClearAndDispose();
+        if (ModelMeshes != null)
         {
-            return maxSubMeshes == 0 ? meshSubMeshCount : Math.Min(maxSubMeshes, meshSubMeshCount);
+            foreach (ModelMesh mesh in ModelMeshes)
+            {
+                mesh.IndexBuffer.Dispose();
+                mesh.VertexBuffer.Dispose();
+            }
+            ModelMeshes = null;
         }
 
-        static SceneObject FromFbx(GameContentManager content, string modelName, int maxSubMeshes = 0)
+        Skeleton = null;
+        AnimationClips = null;
+    }
+
+    static StaticMesh FromNewMesh(GameContentManager content, string modelName)
+    {
+        StaticMesh mesh = content.LoadStaticMesh(modelName);
+        return mesh;
+    }
+
+    public static StaticMesh FromSkinnedModel(string meshName, SkinnedModel skinned)
+    {
+        StaticMesh mesh = new()
         {
-            var so = new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
-            try
+            Name = meshName,
+            Skeleton = skinned.SkeletonBones,
+            AnimationClips = skinned.AnimationClips,
+            ModelMeshes = skinned.Model.Meshes,
+            Bounds = GetBoundingBox(skinned.Model),
+        };
+        return mesh;
+    }
+
+    public static StaticMesh FromStaticModel(string modelName, Model model)
+    {
+        StaticMesh mesh = new()
+        {
+            ModelMeshes = model.Meshes,
+            Bounds = GetBoundingBox(model),
+        };
+        return mesh;
+    }
+
+    static BoundingBox GetBoundingBox(Model model)
+    {
+        BoundingBox bounds = default;
+        foreach (ModelMesh m in model.Meshes)
+        {
+            bounds = bounds.Join(BoundingBox.CreateFromSphere(m.BoundingSphere));
+        }
+        return bounds;
+    }
+
+    void CreateAnimation(SceneObject so)
+    {
+        if (AnimationClips != null)
+        {
+            so.Animation = new AnimationController(Skeleton)
             {
-                StaticMesh staticMesh = content.LoadStaticMesh(modelName);
-                int count = SubMeshCount(maxSubMeshes, staticMesh.Count);
+                TranslationInterpolation = InterpolationMode.Linear,
+                OrientationInterpolation = InterpolationMode.Linear,
+                ScaleInterpolation = InterpolationMode.Linear,
+                Speed = 0.5f
+            };
+            so.Animation.StartClip(AnimationClips.Values[0]);
+        }
+    }
 
-                for (int i = 0; i < count; ++i)
+    public SceneObject CreateSceneObject()
+    {
+        try
+        {
+            var so = new SceneObject(Name) { ObjectType = ObjectType.Dynamic };
+            if (ModelMeshes != null)
+            {
+                foreach (ModelMesh mesh in ModelMeshes)
+                    so.Add(mesh);
+            }
+            else
+            {
+                foreach (MeshData mesh in RawMeshes)
                 {
-                    MeshData mesh = staticMesh.Meshes[i];
-
-                    var renderable = new RenderableMesh(so,
+                    so.Add(new RenderableMesh(so,
                         mesh.Effect,
                         mesh.MeshToObject,
                         mesh.ObjectSpaceBoundingSphere,
@@ -46,132 +131,92 @@ namespace Ship_Game.Data.Mesh
                         PrimitiveType.TriangleList,
                         mesh.PrimitiveCount,
                         0, mesh.VertexCount,
-                        0, mesh.VertexStride);
-                    so.Add(renderable);
+                        0, mesh.VertexStride));
                 }
             }
-            catch (Exception e)
-            {
-                Log.Error(e, $"FromFbx failed: {modelName}");
-            }
+            CreateAnimation(so);
             return so;
         }
-
-        delegate void DrawDelegate(ModelMeshPart mesh);
-        static DrawDelegate ModelMeshDraw;
-
-        // Draw a model with a custom material effect override
-        // TODO: Instead of using ModelMesh, implement Draw() for StaticMesh by looking at ModelMesh impl.
-        public static void Draw(Model model, Effect effect)
+        catch (Exception e)
         {
-            if (ModelMeshDraw == null)
-            {
-                var draw = typeof(ModelMeshPart).GetMethod("Draw", BindingFlags.NonPublic|BindingFlags.Instance);
-                ModelMeshDraw = (DrawDelegate)draw.CreateDelegate(typeof(DrawDelegate));
-            }
+            Log.Error(e, $"CreateSceneObject failed: {Name}");
+            return null;
+        }
+    }
 
-            var passes = effect.CurrentTechnique.Passes;
-            int numPasses = passes.Count;
-            effect.Begin(SaveStateMode.None);
-            try
+    delegate void DrawDelegate(ModelMeshPart mesh);
+    static DrawDelegate ModelMeshDraw;
+
+    // Draw a model with a custom material effect override
+    // TODO: Instead of using ModelMesh, implement Draw() for StaticMesh by looking at ModelMesh impl.
+    public static void Draw(Model model, Effect effect)
+    {
+        if (ModelMeshDraw == null)
+        {
+            var draw = typeof(ModelMeshPart).GetMethod("Draw", BindingFlags.NonPublic|BindingFlags.Instance);
+            ModelMeshDraw = (DrawDelegate)draw.CreateDelegate(typeof(DrawDelegate));
+        }
+
+        var passes = effect.CurrentTechnique.Passes;
+        int numPasses = passes.Count;
+        effect.Begin(SaveStateMode.None);
+        try
+        {
+            for (int passIdx = 0; passIdx < numPasses; ++passIdx)
             {
-                for (int passIdx = 0; passIdx < numPasses; ++passIdx)
-                {
-                    EffectPass pass = passes[passIdx];
-                    pass.Begin();
+                EffectPass pass = passes[passIdx];
+                pass.Begin();
                     
-                    int numMeshes = model.Meshes.Count;
-                    for (int i = 0; i < numMeshes; ++i)
-                    {
-                        ModelMesh mesh = model.Meshes[i];
-                        int numParts = mesh.MeshParts.Count;
-                        for (int meshPartIdx = 0; meshPartIdx < numParts; ++meshPartIdx)
-                        {
-                            ModelMeshPart meshPart = mesh.MeshParts[meshPartIdx];
-                            ModelMeshDraw(meshPart);
-                        }
-                    }
-
-                    pass.End();
-                }
-            }
-            finally
-            {
-                effect.End();
-            }
-        }
-
-        public static void Draw(Model model, BasicEffect effect, Texture2D texture)
-        {
-            effect.Texture = texture;
-            Draw(model, effect);
-        }
-
-        public static SceneObject SceneObjectFromModel(Model model, Effect effect)
-        {
-            var so = new SceneObject(model.Root.Name) { ObjectType = ObjectType.Dynamic };
-            ModelMeshCollection meshes = model.Meshes;
-            for (int i = 0; i < meshes.Count; ++i)
-                so.Add(meshes[i], effect);
-            return so;
-        }
-
-        public static SceneObject SceneObjectFromModel(
-            GameContentManager content,
-            string modelName,
-            int maxSubMeshes = 0,
-            Effect effect = null)
-        {
-            var so = new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
-            try
-            {
-                Model model = content.LoadModel(modelName);
-                ModelMeshCollection meshes = model.Meshes;
-                int count = SubMeshCount(maxSubMeshes, meshes.Count);
-                for (int i = 0; i < count; ++i)
-                    so.Add(meshes[i], effect);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"SceneObjectFromModel failed: {modelName}");
-            }
-            return so;
-        }
-
-        static SceneObject SceneObjectFromSkinnedModel(GameContentManager content, string modelName)
-        {
-            var so = new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
-            try
-            {
-                SkinnedModel skinned = content.LoadSkinnedModel(modelName);
-                ModelMeshCollection meshes = skinned.Model.Meshes;
-                for (int i = 0; i < meshes.Count; ++i)
-                    so.Add(meshes[i]);
-
-                so.Animation = new AnimationController(skinned.SkeletonBones)
+                int numMeshes = model.Meshes.Count;
+                for (int i = 0; i < numMeshes; ++i)
                 {
-                    TranslationInterpolation = InterpolationMode.Linear,
-                    OrientationInterpolation = InterpolationMode.Linear,
-                    ScaleInterpolation = InterpolationMode.Linear,
-                    Speed = 0.5f
-                };
-                so.Animation.StartClip(skinned.AnimationClips.Values[0]);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"SceneObjectFromSkinnedModel failed: {modelName}");
-            }
-            return so;
-        }
+                    ModelMesh mesh = model.Meshes[i];
+                    int numParts = mesh.MeshParts.Count;
+                    for (int meshPartIdx = 0; meshPartIdx < numParts; ++meshPartIdx)
+                    {
+                        ModelMeshPart meshPart = mesh.MeshParts[meshPartIdx];
+                        ModelMeshDraw(meshPart);
+                    }
+                }
 
-        public static SceneObject GetSceneMesh(GameContentManager content, string modelName, bool animated = false)
+                pass.End();
+            }
+        }
+        finally
         {
-            content = content ?? ResourceManager.RootContent;
-            if (RawContentLoader.IsSupportedMesh(modelName))
-                return FromFbx(content, modelName);
-            if (animated)
-                return SceneObjectFromSkinnedModel(content, modelName);
-            return SceneObjectFromModel(content, modelName);
+            effect.End();
+        }
+    }
+
+    public static void Draw(Model model, BasicEffect effect, Texture2D texture)
+    {
+        effect.Texture = texture;
+        Draw(model, effect);
+    }
+
+    public static SceneObject SceneObjectFromModel(Model model, Effect effect)
+    {
+        var so = new SceneObject(model.Root.Name) { ObjectType = ObjectType.Dynamic };
+        foreach (ModelMesh mesh in model.Meshes)
+            so.Add(mesh, effect);
+        return so;
+    }
+
+    /// <summary>
+    /// Loads a cached StaticMesh from GameContentManager. If StaticMesh is already loaded, no extra loading is done.
+    /// </summary>
+    /// <returns>`null` on failure, otherwise a valid StaticMesh</returns>
+    public static StaticMesh LoadMesh(GameContentManager content, string modelName, bool animated = false)
+    {
+        try
+        {
+            var c = content ?? ResourceManager.RootContent;
+            return c.LoadStaticMesh(modelName, animated);
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, $"LoadMesh failed: {modelName}");
+            return null;
         }
     }
 }

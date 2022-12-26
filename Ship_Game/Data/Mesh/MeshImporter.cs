@@ -123,7 +123,7 @@ namespace Ship_Game.Data.Mesh
                     VertexStride      = data.VertexStride,
                     ObjectSpaceBoundingSphere = g->Bounds,
                 };
-                staticMesh.Meshes.Add(meshData);
+                staticMesh.RawMeshes.Add(meshData);
             }
             return staticMesh;
         }
