@@ -11,6 +11,7 @@ namespace Ship_Game.Data.Mesh;
 
 using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
 
+// TODO: Rename into something else. This now supports animations, trying to unify the clusterfk of XNA models
 public class StaticMesh : IDisposable
 {
     public string Name { get; set; }
@@ -108,31 +109,39 @@ public class StaticMesh : IDisposable
 
     public SceneObject CreateSceneObject()
     {
-        var so = new SceneObject(Name) { ObjectType = ObjectType.Dynamic };
-        if (ModelMeshes != null)
+        try
         {
-            foreach (ModelMesh mesh in ModelMeshes)
-                so.Add(mesh);
-        }
-        else
-        {
-            foreach (MeshData mesh in RawMeshes)
+            var so = new SceneObject(Name) { ObjectType = ObjectType.Dynamic };
+            if (ModelMeshes != null)
             {
-                so.Add(new RenderableMesh(so,
-                    mesh.Effect,
-                    mesh.MeshToObject,
-                    mesh.ObjectSpaceBoundingSphere,
-                    mesh.IndexBuffer,
-                    mesh.VertexBuffer,
-                    mesh.VertexDeclaration, 0,
-                    PrimitiveType.TriangleList,
-                    mesh.PrimitiveCount,
-                    0, mesh.VertexCount,
-                    0, mesh.VertexStride));
+                foreach (ModelMesh mesh in ModelMeshes)
+                    so.Add(mesh);
             }
+            else
+            {
+                foreach (MeshData mesh in RawMeshes)
+                {
+                    so.Add(new RenderableMesh(so,
+                        mesh.Effect,
+                        mesh.MeshToObject,
+                        mesh.ObjectSpaceBoundingSphere,
+                        mesh.IndexBuffer,
+                        mesh.VertexBuffer,
+                        mesh.VertexDeclaration, 0,
+                        PrimitiveType.TriangleList,
+                        mesh.PrimitiveCount,
+                        0, mesh.VertexCount,
+                        0, mesh.VertexStride));
+                }
+            }
+            CreateAnimation(so);
+            return so;
         }
-        CreateAnimation(so);
-        return so;
+        catch (Exception e)
+        {
+            Log.Error(e, $"CreateSceneObject failed: {Name}");
+            return null;
+        }
     }
 
     delegate void DrawDelegate(ModelMeshPart mesh);
@@ -196,36 +205,17 @@ public class StaticMesh : IDisposable
     /// <summary>
     /// Loads a cached StaticMesh from GameContentManager. If StaticMesh is already loaded, no extra loading is done.
     /// </summary>
+    /// <returns>`null` on failure, otherwise a valid StaticMesh</returns>
     public static StaticMesh LoadMesh(GameContentManager content, string modelName, bool animated = false)
     {
-        content ??= ResourceManager.RootContent;
-        return content.LoadStaticMesh(modelName, animated);;
-    }
-
-    /// <summary>
-    /// Gets mesh with `modelName` and attempts to create a SceneObject.
-    /// Returns `null` on failure.
-    /// </summary>
-    public static SceneObject GetSceneMesh(GameContentManager content, string modelName, bool animated = false)
-    {
-        StaticMesh mesh;
         try
         {
-            mesh = LoadMesh(content, modelName, animated);
+            var c = content ?? ResourceManager.RootContent;
+            return c.LoadStaticMesh(modelName, animated);
         }
         catch (Exception e)
         {
             Log.Error(e, $"LoadMesh failed: {modelName}");
-            return null;
-        }
-
-        try
-        {
-            return mesh.CreateSceneObject();
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, $"CreateSceneObject failed: {modelName}");
             return null;
         }
     }

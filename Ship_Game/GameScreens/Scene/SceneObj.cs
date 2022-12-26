@@ -140,7 +140,8 @@ namespace Ship_Game.GameScreens.Scene
             Hull = null;
             if (DebugMeshInspect)
             {
-                SO = StaticMesh.GetSceneMesh(screen.ContentManager, "Model/TestShips/Soyo/Soyo.obj");
+                StaticMesh mesh = StaticMesh.LoadMesh(screen.ContentManager, "Model/TestShips/Soyo/Soyo.obj");
+                SO = mesh!.CreateSceneObject();
                 //ShipObj = StaticMesh.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
             }
             else
