@@ -7,27 +7,26 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
+        public Vector3d GetNewCameraPos(Vector3d currentCamPos3d, Vector2 targetScreenPos, double desiredZ)
+        {
+            double currentZ = currentCamPos3d.Z;
+            if (currentZ.AlmostEqual(desiredZ))
+                return currentCamPos3d; // already there
+
+            Vector3d targetWorldPos = UnprojectToWorldPosition3D(targetScreenPos);
+            targetWorldPos.Z = desiredZ;
+            return targetWorldPos;
+        }
+
         Vector3d GetCameraPosFromCursorTarget(InputState input, double desiredCamZ)
         {
-            Vector2 mousePos = input.CursorPosition;
+            Vector2 targetScreenPos = input.CursorPosition;
+            Vector3d newPos = GetNewCameraPos(CamPos, targetScreenPos, desiredCamZ);
 
-            double currentZ = CamPos.Z;
-            if (currentZ.AlmostEqual(desiredCamZ)) // currentZ cannot equal desiredCamZ, or we'll get NaN-s
-                currentZ += 1.0;
-
-            // nearPoint is the point inside the camera lens
-            Vector3d nearPoint = Viewport.Unproject(new(mousePos, currentZ), Projection, View);
-            // farPoint points away into the world
-            Vector3d farPoint = Viewport.Unproject(new(mousePos, desiredCamZ), Projection, View);
-
-            // get the direction towards the world plane
-            Vector3d dir = (farPoint - nearPoint).Normalized();
-
-            double num = -nearPoint.Z / dir.Z;
-            Vector3d pos2 = (nearPoint + dir * num);
-            if (double.IsNaN(pos2.X) || double.IsNaN(pos2.Y))
+            // TODO: this happens quite rarely, but if it does, it's game-breaking
+            if (double.IsNaN(newPos.X) || double.IsNaN(newPos.Y) || double.IsNaN(newPos.Z))
             {
-                Log.Error("CameraPos NaN!!!");
+                Log.Error($"New CameraPos NaN! CamPos:{CamPos} targetScreenPos:{targetScreenPos} desiredCamZ:{desiredCamZ}");
 
                 // TODO: this is here to avoid a fatal View matrix corruption
                 CamPos = new(0, 0, desiredCamZ);
@@ -36,8 +35,10 @@ namespace Ship_Game
                 return CamPos;
             }
 
-            double newX = (pos2.X + CamPos.X) / 2.0;
-            double newY = (pos2.Y + CamPos.Y) / 2.0;
+            // this decides how fast we zoom-average towards new camera position
+            const double NewPosRate = 0.5;
+            double newX = (newPos.X*NewPosRate + CamPos.X*(1.0 - NewPosRate));
+            double newY = (newPos.Y*NewPosRate + CamPos.Y*(1.0 - NewPosRate));
             return new(newX, newY, desiredCamZ);
         }
 

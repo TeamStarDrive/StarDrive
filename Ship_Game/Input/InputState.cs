@@ -10,6 +10,7 @@ namespace Ship_Game
         MouseState GetMouse();
         KeyboardState GetKeyboard();
         GamePadState GetGamePad();
+        void SetMouse(int x, int y);
     }
 
     public class DefaultInputProvider : IInputProvider
@@ -17,6 +18,7 @@ namespace Ship_Game
         public MouseState GetMouse() => Mouse.GetState();
         public KeyboardState GetKeyboard() => Keyboard.GetState();
         public GamePadState GetGamePad() => GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One);
+        public void SetMouse(int x, int y) => Mouse.SetPosition(x, y);
     }
 
     public sealed partial class InputState
