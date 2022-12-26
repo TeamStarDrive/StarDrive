@@ -451,9 +451,28 @@ namespace Ship_Game.Data
             return fx;
         }
 
-        public StaticMesh LoadStaticMesh(string modelName)
+        public StaticMesh LoadStaticMesh(string meshName, bool animated = false)
         {
-            return Load<StaticMesh>(modelName);
+            if (TryGetAsset(meshName, out StaticMesh mesh))
+                return mesh;
+
+            if (RawContentLoader.IsSupportedMesh(meshName))
+            {
+                mesh = RawContent.LoadStaticMesh(meshName);
+            }
+            else if (animated)
+            {
+                SkinnedModel skinned = LoadSkinnedModel(meshName);
+                mesh = StaticMesh.FromSkinnedModel(meshName, skinned);
+            }
+            else
+            {
+                Model model = LoadModel(meshName);
+                mesh = StaticMesh.FromStaticModel(meshName, model);
+            }
+
+            RecordCacheObject(meshName, mesh);
+            return mesh;
         }
 
         public Model LoadModel(string modelName)

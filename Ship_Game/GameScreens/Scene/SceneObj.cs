@@ -138,15 +138,10 @@ namespace Ship_Game.GameScreens.Scene
             Destroy(); // Allow multiple init
 
             Hull = null;
-            if (GlobalStats.HasMod && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
+            if (DebugMeshInspect)
             {
-                int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
-                string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
-                SO = StaticMesh.GetSceneMesh(screen.ContentManager, modelPath);
-            }
-            else if (DebugMeshInspect)
-            {
-                SO = StaticMesh.GetSceneMesh(screen.ContentManager, "Model/TestShips/Soyo/Soyo.obj");
+                StaticMesh mesh = StaticMesh.LoadMesh(screen.ContentManager, "Model/TestShips/Soyo/Soyo.obj");
+                SO = mesh!.CreateSceneObject();
                 //ShipObj = StaticMesh.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
             }
             else

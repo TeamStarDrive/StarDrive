@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using System.Threading;
 using Ship_Game.Audio;
@@ -45,7 +46,7 @@ namespace Ship_Game
             if (BackgroundTask?.IsComplete != true || !input.InGameSelect)
                 return false;
 
-            UniverseScreen us = BackgroundTask.Result;
+            UniverseScreen us = BackgroundTask.Result ?? throw new NullReferenceException("CreatingNewGameScreen background task returned null");
             GameAudio.StopGenericMusic(immediate: false);
             ScreenManager.AddScreenAndLoadContent(us);
 

@@ -45,7 +45,7 @@ namespace Ship_Game.Data.Mesh
             return new BoundingBox();
         }
 
-        public static BoundingBox GetMeshBoundingBox(this RenderableMesh mesh)
+        static BoundingBox GetMeshBoundingBox(this RenderableMesh mesh)
         {
             if (mesh.VertexCount == 0)
                 return new BoundingBox();
@@ -78,7 +78,7 @@ namespace Ship_Game.Data.Mesh
             return bb;
         }
 
-        public static BoundingBox GetMeshBoundingBox(this ModelMesh modelMesh)
+        static BoundingBox GetMeshBoundingBox(this ModelMesh modelMesh)
         {
             ModelMeshPart mesh = modelMesh.MeshParts[0];
             if (mesh.NumVertices == 0)

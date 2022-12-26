@@ -139,6 +139,7 @@
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
+    <Compile Include="Universe\CameraProjectionTests.cs" />
     <Compile Include="Universe\CommonVisualization.cs" />
     <Compile Include="Universe\GenericQtreeTests.cs" />
     <Compile Include="Universe\GenericQtreeVisualization.cs" />

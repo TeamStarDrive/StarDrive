@@ -75,6 +75,8 @@ public partial class ExceptionViewer : Form
         }
 
         view.Error = dialogText;
+        // bugfix: ensure default cursor is always enabled, since we override it with software cursor
+        view.Cursor = Cursors.Default;
         view.ShowDialog();
     }
 }
