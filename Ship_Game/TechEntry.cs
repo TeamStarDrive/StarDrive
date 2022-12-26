@@ -414,6 +414,9 @@ namespace Ship_Game
         /// <returns>True if tech was unlocked by this method</returns>
         bool TrySetUnlocked()
         {
+            if (this == None)
+                return false; // cannot unlock None technology
+
             // NOTE: Multi-Level techs; this feature is not very well implemented
             //       There is some basic refactoring here, but we have no idea who
             //       wrote this feature in the first place
@@ -673,6 +676,8 @@ namespace Ship_Game
 
         public bool IsHidden(Empire empire)
         {
+            if (this == None) // this is a None technology, and should never unlock
+                return true;
             if (IsUnlockedAtGameStart(empire))
                 return false;
             if (Tech.HiddenFrom.Count > 0 && InRaceRequirementsArray(empire, Tech.HiddenFrom))
@@ -732,7 +737,7 @@ namespace Ship_Game
             return true;
         }
 
-        public TechEntry DiscoverToRoot(Empire empire)
+        void DiscoverToRoot(Empire empire)
         {
             TechEntry tech = this;
             while (!tech.Tech.IsRootNode)
@@ -746,10 +751,9 @@ namespace Ship_Game
                 if (tech.Tech.IsRootNode && tech.Discovered)
                 {
                     rootTech.ForceFullyResearched();
-                    return rootTech;
+                    return;
                 }
             }
-            return tech;
         }
 
         public TechEntry GetPreReq(Empire empire)

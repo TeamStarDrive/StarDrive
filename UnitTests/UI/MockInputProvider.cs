@@ -29,5 +29,10 @@ namespace UnitTests.UI
         {
             return new GamePadState();
         }
+
+        public void SetMouse(int x, int y)
+        {
+            MousePos = new(x, y);
+        }
     }
 }
