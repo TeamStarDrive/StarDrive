@@ -94,14 +94,20 @@ namespace Ship_Game
         // @warning THIS SHOULD NOT BE USED IN MOST CASES
         public void AddScreenAndLoadContent(GameScreen screen)
         {
+            if (screen == null)
+            {
+                Log.Error("GameScreen parameter cannot be null");
+                return;
+            }
+
             if (GameBase.MainThreadId != Thread.CurrentThread.ManagedThreadId)
             {
                 Log.Error("GameScreens can only be added on the main thread! Use AddScreen!");
                 AddScreen(screen);
                 return;
             }
-
-            // @todo What is this hack doing here?
+            
+            // @todo What is this hack doing here? It appears to prohibit new popups while DiplomacyScreen is visible
             foreach (GameScreen gs in GameScreens)
                 if (gs is DiplomacyScreen)
                     return;
