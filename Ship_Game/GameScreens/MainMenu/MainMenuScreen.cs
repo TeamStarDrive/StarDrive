@@ -51,6 +51,8 @@ namespace Ship_Game.GameScreens.MainMenu
             UI.LayoutParser.LoadLayout(this, menu.UILayoutFile, clearElements: true);
             CreateVersionArea();
 
+            Add(new AutoUpdater(this));
+
             if (GlobalStats.HasMod)
             {
                 ScreenManager.AddHotLoadTarget(this, new FileInfo(GlobalStats.ModFile), OnModChanged);
