@@ -1,13 +1,9 @@
 using System;
 using System.IO;
-using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens.Scene;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Lights;
-using SynapseGaming.LightingSystem.Shadows;
 using Vector2 = SDGraphics.Vector2;
 using SDGraphics;
 using Rectangle = SDGraphics.Rectangle;
@@ -71,7 +67,6 @@ namespace Ship_Game.GameScreens.MainMenu
             if (list.Find("mods",      out UIButton mods))      mods.OnClick    = Mods_Clicked;
             if (list.Find("sandbox",   out UIButton sandbox))   sandbox.OnClick = DevSandbox_Clicked;
             if (list.Find("info",      out UIButton info))      info.OnClick    = Info_Clicked;
-            if (list.Find("version",   out UIButton version))   version.OnClick = VerCheck_Clicked;
             if (list.Find("exit",      out UIButton exit))      exit.OnClick    = Exit_Clicked;
             list.PerformLayout();
 
@@ -142,7 +137,6 @@ namespace Ship_Game.GameScreens.MainMenu
         void Options_Clicked(UIButton button)   => ScreenManager.AddScreen(new OptionsScreen(this));
         void Mods_Clicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
         void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
-        void VerCheck_Clicked(UIButton button)  => ScreenManager.AddScreen(new VersionChecking(this));
         void DevSandbox_Clicked(UIButton button)=> ScreenManager.GoToScreen(new DeveloperSandbox(), clear3DObjects: true);
         void Exit_Clicked(UIButton button)      => ExitScreen();
 
