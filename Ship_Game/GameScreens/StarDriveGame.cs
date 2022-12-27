@@ -58,6 +58,7 @@ namespace Ship_Game
 
         public void SetSteamAchievement(string name)
         {
+        #if STEAM
             if (SteamManager.SteamInitialize())
             {
                 if (SteamManager.SetAchievement(name))
@@ -65,6 +66,7 @@ namespace Ship_Game
             }
             else
             { Log.Warning("Steam not initialized"); }
+        #endif
         }
 
         void GameExiting(object sender, EventArgs e)
