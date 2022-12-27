@@ -207,6 +207,7 @@ namespace Ship_Game
             Elements.Add(element);
             element.Parent = this;
             element.ZOrder = NextZOrder();
+            element.OnAdded(this);
             return element;
         }
 
@@ -225,13 +226,21 @@ namespace Ship_Game
 
         public virtual void Remove(UIElementV2 element)
         {
-            if (element == null)
-                return;
-            Elements.RemoveRef(element);
+            if (element != null)
+            {
+                Elements.RemoveRef(element);
+                element.OnRemoved();
+                element.Parent = null;
+            }
         }
 
         public virtual void RemoveAll()
         {
+            foreach (UIElementV2 element in Elements)
+            {
+                element.OnRemoved();
+                element.Parent = null;
+            }
             Elements.Clear();
         }
 
