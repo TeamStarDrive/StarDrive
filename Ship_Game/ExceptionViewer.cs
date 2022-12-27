@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ship_Game.GameScreens;
+using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
@@ -75,8 +76,8 @@ public partial class ExceptionViewer : Form
         }
 
         view.Error = dialogText;
-        // bugfix: ensure default cursor is always enabled, since we override it with software cursor
-        view.Cursor = Cursors.Default;
+        // reset the mainform cursor, otherwise the dialog will not have a visible cursor
+        GameCursors.SetCurrentCursor(GameCursors.DefaultOSCursor);
         view.ShowDialog();
     }
 }
