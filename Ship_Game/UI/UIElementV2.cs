@@ -457,6 +457,20 @@ namespace Ship_Game
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
+        /// Events
+        
+        /// EVT: Added to a parent container
+        public virtual void OnAdded(UIElementContainer parent)
+        {
+        }
+
+        /// EVT: Removed from a parent.
+        ///      However be aware that this UIElement may be Added again to another parent!
+        public virtual void OnRemoved()
+        {
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
 
         public IReadOnlyList<UIEffect> GetEffects() => Effects;
 
