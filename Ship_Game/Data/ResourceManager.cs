@@ -506,11 +506,21 @@ namespace Ship_Game
             return files.Length != 0 ? files : Dir.GetFiles("Content/" + dir, ext);
         }
 
+        static void DebugResourceLoading(string name, FileInfo[] files)
+        {
+            if (GlobalStats.DebugResourceLoading)
+            {
+                foreach (FileInfo file in files)
+                    Log.Write($"{name}: {file.FullName}");
+            }
+        }
+
         // Loads a list of entities in a folder
         public static Array<T> LoadEntitiesModOrVanilla<T>(string dir, string where) where T : class
         {
             var result = new Array<T>();
             var files = GatherFilesModOrVanilla(dir, "xml");
+            DebugResourceLoading(where, files);
             if (files.Length != 0)
             {
                 var s = new XmlSerializer(typeof(T));
@@ -542,6 +552,7 @@ namespace Ship_Game
 
         static Array<T> LoadEntities<T>(FileInfo[] files, string id) where T : class
         {
+            DebugResourceLoading(id, files);
             var list = new Array<T>();
             list.Resize(files.Length);
             var s = new XmlSerializer(typeof(T));
@@ -574,6 +585,7 @@ namespace Ship_Game
         static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
         {
             var files = modOnly ? Dir.GetFiles(ModContentDirectory + dir, "xml") : GatherFilesUnified(dir, "xml");
+            DebugResourceLoading(id, files);
             var list = new Array<InfoPair<T>>();
             list.Resize(files.Length);
             var s = new XmlSerializer(typeof(T));
@@ -1152,7 +1164,9 @@ namespace Ship_Game
         static void LoadNumberedModels(Array<(Model, float)> models, string modelFolder, string modelPrefix)
         {
             models.Clear();
-            foreach (FileInfo info in GatherFilesModOrVanilla(modelFolder, "xnb"))
+            var files = GatherFilesModOrVanilla(modelFolder, "xnb");
+            DebugResourceLoading(modelPrefix, files);
+            foreach (FileInfo info in files)
             {
                 string nameNoExt = info.NameNoExt();
                 try
@@ -1309,7 +1323,9 @@ namespace Ship_Game
 
         static void LoadCustomProjectileMeshes(string modelFolder)
         {
-            foreach (FileInfo info in GatherFilesModOrVanilla(modelFolder, "xnb"))
+            var files = GatherFilesModOrVanilla(modelFolder, "xnb");
+            DebugResourceLoading(modelFolder, files);
+            foreach (FileInfo info in files)
             {
                 if (info.Name.Contains("_")) continue;
                 string nameNoExt = info.NameNoExt();
