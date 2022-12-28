@@ -1496,16 +1496,16 @@ namespace Ship_Game
             }
 
             FileInfo[] hullFiles = GatherFilesUnified("Hulls", "hull");
+
+            Log.Write($"Loading {hullFiles.Length} Hulls");
             ShipHull[] newHulls = Parallel.Select(hullFiles, LoadShipHull);
             foreach (ShipHull hull in newHulls)
                 AddHull(hull);
         }
 
-        public static readonly ShipsManager Ships = new ShipsManager();
-
-        public static IReadOnlyList<Ship>         ShipTemplates   => Ships.Ships;
-        public static IReadOnlyList<IShipDesign>  ShipDesigns     => Ships.Designs;
-        public static IReadOnlyCollection<string> ShipTemplateIds => Ships.ShipNames;
+        public static readonly ShipsManager Ships = new();
+        public static IReadOnlyList<Ship> ShipTemplates => Ships.Ships;
+        public static IReadOnlyList<IShipDesign> ShipDesigns => Ships.Designs;
 
         public static void AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
@@ -1548,7 +1548,8 @@ namespace Ship_Game
 
         static void LoadShipDesigns(ShipDesignInfo[] descriptors)
         {
-            Log.Info($"Loading {descriptors.Length} Ship Templates");
+            Log.Write($"Loading {descriptors.Length} Ship Templates");
+
             void LoadShips(int start, int end)
             {
                 for (int i = start; i < end; ++i)
