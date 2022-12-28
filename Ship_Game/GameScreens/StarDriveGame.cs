@@ -115,7 +115,7 @@ namespace Ship_Game
         // This is called when the graphics device has been Disposed
         protected override void UnloadContent()
         {
-            Log.Warning("StarDriveGame UnloadContent");
+            Log.Write("StarDriveGame UnloadContent");
             // This also unloads all screens
             if (ScreenManager != null)
                 ResourceManager.UnloadGraphicsResources(ScreenManager);
