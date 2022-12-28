@@ -477,8 +477,7 @@ namespace Ship_Game
         public T AddEffect<T>(T effect) where T : UIEffect
         {
             Log.Assert(effect != null, "UIEffect cannot be null");
-            if (Effects == null)
-                Effects = new Array<UIEffect>();
+            Effects ??= new Array<UIEffect>();
             Effects.Add(effect);
             return effect;
         }

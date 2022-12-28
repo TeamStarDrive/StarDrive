@@ -85,10 +85,14 @@ public class AutoUpdater : UIElementContainer
             var notification = Add(new VersionPopup(ContentManager, info));
             Vector2 endPos = new(10f, Screen.Height * 0.75f);
             Vector2 startPos = new(endPos.X - (notification.Width + 20), endPos.Y);
-            notification.Anim()
-                .FadeIn(delay:1.5f, duration:0.5f)
+
+            notification.Anim() // slide in animation
+                .FadeIn(delay:1.5f, duration:0.2f)
                 .Pos(startPos, endPos)
-                .Sfx("sd_ui_tactical_pause", "sd_ui_notification_research_01");
+                .Sfx(null, "sd_ui_notification_research_01")
+            .ThenAnim() // followed by a small bounce
+                .Time(0, 0.4f, 0.1f, 0.2f)
+                .Pos(endPos, endPos-new Vector2(16,0));
         });
     }
 
