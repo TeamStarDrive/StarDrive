@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Web.Script.Serialization;
 using SDGraphics;
-using SDUtils;
 using Ship_Game.UI;
 using Ship_Game.Audio;
 
@@ -13,18 +12,18 @@ namespace Ship_Game.GameScreens.MainMenu;
 /// <summary>
 /// All the necessary information needed for updating to a new release
 /// </summary>
-public record struct ReleaseInfo(string Name, string Version, string ZipUrl, string InstallerUrl);
+public record struct ReleaseInfo(string Name, string Version, string Changelog, string ZipUrl, string InstallerUrl);
 
 /// <summary>
 /// Automatic update checker that will show a popup panel
 /// if a new version is available.
 /// </summary>
-public class AutoUpdater : UIElementContainer
+public class AutoUpdateChecker : UIElementContainer
 {
     readonly GameScreen Screen;
     TaskResult AsyncTask;
 
-    public AutoUpdater(GameScreen screen) : base(screen.RectF)
+    public AutoUpdateChecker(GameScreen screen) : base(screen.RectF)
     {
         Screen = screen;
     }
@@ -42,10 +41,10 @@ public class AutoUpdater : UIElementContainer
     class NewVersionPopup : UIPanel
     {
         GameScreen Screen => Updater.Screen;
-        readonly AutoUpdater Updater;
+        readonly AutoUpdateChecker Updater;
         readonly ReleaseInfo Info;
 
-        public NewVersionPopup(AutoUpdater updater, in ReleaseInfo info)
+        public NewVersionPopup(AutoUpdateChecker updater, in ReleaseInfo info)
             : base(updater.ContentManager.LoadTextureOrDefault("Textures/MMenu/popup_banner_small.png"))
         {
             Updater = updater;
@@ -67,18 +66,20 @@ public class AutoUpdater : UIElementContainer
             Anim().Time(0, 4, 1, 1).Alpha(new Range(0.5f, 1.0f)).Loop();
         }
 
-        void OnAutoUpdateClicked()
+        void Remove()
         {
             Updater.RemoveFromParent(); // remove AutoUpdater
             RemoveFromParent(); // remove self
+        }
 
-            GameAudio.AffirmativeClick();
-
+        void OnAutoUpdateClicked()
+        {
+            Remove();
             Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen,
                 "This will automatically update to the latest version. Continue?", 10f)
             {
                 Accepted = () => Screen.ScreenManager.AddScreen(new AutoPatcher(Screen, Info)),
-                Cancelled = () => Screen.Add(new AutoUpdater(Screen)), // should we show AutoUpdater again?
+                Cancelled = () => Screen.Add(new AutoUpdateChecker(Screen)), // should we show AutoUpdater again?
             });
             //System.Diagnostics.Process.Start(Info.InstallerUrl);
         }
@@ -88,10 +89,22 @@ public class AutoUpdater : UIElementContainer
             bool hovering = HitTest(input.CursorPosition);
             GameCursors.SetCurrentCursor(hovering ? GameCursors.AggressiveNav : GameCursors.Regular);
 
-            if (hovering && input.LeftMouseClick)
+            if (hovering)
             {
-                OnAutoUpdateClicked();
-                return true;
+                if (input.LeftMouseClick)
+                {
+                    GameAudio.AffirmativeClick();
+                    OnAutoUpdateClicked();
+                    return true;
+                }
+                if (input.RightMouseClick)
+                {
+                    GameAudio.ButtonMouseOver();
+                    Remove();
+                    return true;
+                }
+
+                ToolTip.CreateTooltip(Info.Changelog);
             }
             return base.HandleInput(input);
         }
@@ -154,6 +167,7 @@ public class AutoUpdater : UIElementContainer
         dynamic latestRelease = new JavaScriptSerializer().DeserializeObject(jsonText);
         string name = latestRelease["name"];
         string tagName = latestRelease["tag_name"];
+        string changelog = latestRelease["body"];
         string latestVersion = tagName.Split('-').Last();
         string currentVersion = GlobalStats.Version.Split(' ').First();
         Log.Info($"AutoUpdater: latest  {latestVersion}");
@@ -163,7 +177,7 @@ public class AutoUpdater : UIElementContainer
         if (!latestIsNewer)
             return null;
 
-        ReleaseInfo info = new(name, latestVersion, null, null);
+        ReleaseInfo info = new(name, latestVersion, changelog, null, null);
 
         foreach (dynamic asset in latestRelease["assets"])
         {
