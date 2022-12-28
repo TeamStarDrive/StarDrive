@@ -1,14 +1,19 @@
-﻿using Ship_Game.SpriteSystem;
-using System;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web.Script.Serialization;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.UI;
-using Ship_Game.Data;
 using Ship_Game.Audio;
 
 namespace Ship_Game.GameScreens.MainMenu;
+
+/// <summary>
+/// All the necessary information needed for updating to a new release
+/// </summary>
+public record struct ReleaseInfo(string Name, string Version, string ZipUrl, string InstallerUrl);
 
 /// <summary>
 /// Automatic update checker that will show a popup panel
@@ -34,15 +39,16 @@ public class AutoUpdater : UIElementContainer
         AsyncTask.Cancel();
     }
 
-    public record struct ReleaseInfo(string Name, string ZipUrl, string InstallerUrl);
-
-    class VersionPopup : UIPanel
+    class NewVersionPopup : UIPanel
     {
-        ReleaseInfo Info;
+        GameScreen Screen => Updater.Screen;
+        readonly AutoUpdater Updater;
+        readonly ReleaseInfo Info;
 
-        public VersionPopup(GameContentManager content, in ReleaseInfo info)
-            : base(content.LoadTextureOrDefault("Textures/MMenu/popup_banner_small.png"))
+        public NewVersionPopup(AutoUpdater updater, in ReleaseInfo info)
+            : base(updater.ContentManager.LoadTextureOrDefault("Textures/MMenu/popup_banner_small.png"))
         {
+            Updater = updater;
             Info = info;
 
             string text = "New Version\n" + info.Name;
@@ -52,13 +58,29 @@ public class AutoUpdater : UIElementContainer
             textLabel.SetLocalPos(132, 0);
 
             string portraitPath = GlobalStats.ActiveMod?.Mod.IconPath ?? "Textures/Portraits/Human.dds";
-            SubTexture portraitTex = content.LoadTextureOrDefault(portraitPath);
+            SubTexture portraitTex = updater.ContentManager.LoadTextureOrDefault(portraitPath);
             UIPanel portrait = base.Add(new UIPanel(LocalPos.Zero, new Vector2(62, 74), portraitTex));
             portrait.AxisAlign = Align.CenterLeft;
             portrait.SetLocalPos(48, 0);
 
             // pulsate alpha
             Anim().Time(0, 4, 1, 1).Alpha(new Range(0.5f, 1.0f)).Loop();
+        }
+
+        void OnAutoUpdateClicked()
+        {
+            Updater.RemoveFromParent(); // remove AutoUpdater
+            RemoveFromParent(); // remove self
+
+            GameAudio.AffirmativeClick();
+
+            Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen,
+                "This will automatically update to the latest version. Continue?", 10f)
+            {
+                Accepted = () => Screen.ScreenManager.AddScreen(new AutoPatcher(Screen, Info)),
+                Cancelled = () => Screen.Add(new AutoUpdater(Screen)), // should we show AutoUpdater again?
+            });
+            //System.Diagnostics.Process.Start(Info.InstallerUrl);
         }
 
         public override bool HandleInput(InputState input)
@@ -68,8 +90,7 @@ public class AutoUpdater : UIElementContainer
 
             if (hovering && input.LeftMouseClick)
             {
-                GameAudio.AffirmativeClick();
-                System.Diagnostics.Process.Start(Info.InstallerUrl);
+                OnAutoUpdateClicked();
                 return true;
             }
             return base.HandleInput(input);
@@ -82,7 +103,7 @@ public class AutoUpdater : UIElementContainer
 
         Screen.RunOnNextFrame(() =>
         {
-            var notification = Add(new VersionPopup(ContentManager, info));
+            var notification = Add(new NewVersionPopup(this, info));
             Vector2 endPos = new(10f, Screen.Height * 0.75f);
             Vector2 startPos = new(endPos.X - (notification.Width + 20), endPos.Y);
 
@@ -142,7 +163,7 @@ public class AutoUpdater : UIElementContainer
         if (!latestIsNewer)
             return null;
 
-        ReleaseInfo info = new(name, null, null);
+        ReleaseInfo info = new(name, latestVersion, null, null);
 
         foreach (dynamic asset in latestRelease["assets"])
         {
@@ -161,22 +182,8 @@ public class AutoUpdater : UIElementContainer
     }
 
     // Download utility which can be cancel itself via another `cancellableTask`
-    static string DownloadWithCancel(string url, TaskResult cancellableTask)
+    public static string DownloadWithCancel(string url, TaskResult cancellableTask, int timeoutMillis = 30 * 1000)
     {
-        //HttpWebRequest request = WebRequest.CreateHttp(url);
-        //request.ContentType = "application/json";
-        //request.Method = "GET";
-        //request.Timeout = 30 * 1000;
-        //request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
-        //request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-        //request.AuthenticationLevel = System.Net.Security.AuthenticationLevel.None;
-
-        //using WebResponse response = request.GetResponse();
-        //using StreamReader reader = new(response.GetResponseStream()!);
-
-        //string text = reader.ReadToEnd();
-        //return text;
-
         using WebClient wc = new();
         wc.UseDefaultCredentials = false;
         wc.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
@@ -191,10 +198,62 @@ public class AutoUpdater : UIElementContainer
         try
         {
             var download = wc.DownloadStringTaskAsync(url);
-            for (int timeout = 30 * 1000; timeout > 0; timeout -= 100)
+            if (timeoutMillis <= 0) timeoutMillis = int.MaxValue;
+            for (; timeoutMillis > 0; timeoutMillis -= 100)
             {
                 if (download.Wait(100))
                     return download.Result;
+                if (cancellableTask.IsCancelRequested)
+                    break;
+            }
+        }
+        catch (AggregateException e)
+        {
+            throw e.InnerException ?? e;
+        }
+
+        if (cancellableTask.IsCancelRequested)
+            throw new OperationCanceledException("Download Request cancelled");
+        throw new TimeoutException("Download Request timed out");
+    }
+
+    /// <summary>
+    /// Downloads Zip from `url` into `localFolder`. The task can be cancelled by the user.
+    /// Returns the path to the local file. Otherwise throws an exception on failure or cancellation.
+    /// </summary>
+    public static string DownloadZip(string url, string localFolder, TaskResult cancellableTask, 
+                                     Action<int> onProgressPercent, int timeoutMillis = 30 * 1000)
+    {
+        int lastPercent = -1;
+        using WebClient wc = new();
+        wc.UseDefaultCredentials = false;
+        wc.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
+        wc.DownloadProgressChanged += OnProgressChanged;
+
+        void OnProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            if (cancellableTask.IsCancelRequested)
+                ((WebClient)sender).CancelAsync();
+            else if (onProgressPercent != null)
+            {
+                int newPercent = e.ProgressPercentage;
+                if (lastPercent != newPercent)
+                {
+                    lastPercent = newPercent;
+                    onProgressPercent(newPercent);
+                }
+            }
+        }
+
+        try
+        {
+            string localFile = Path.Combine(localFolder, Path.GetFileName(url));
+            var download = wc.DownloadFileTaskAsync(url, localFile);
+            if (timeoutMillis <= 0) timeoutMillis = int.MaxValue;
+            for (; timeoutMillis > 0; timeoutMillis -= 100)
+            {
+                if (download.Wait(100))
+                    return localFile;
                 if (cancellableTask.IsCancelRequested)
                     break;
             }

@@ -2,9 +2,11 @@ using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using SDGraphics;
 
 namespace Ship_Game
 {
+    // TODO: update to UIElementV2
     public sealed class ProgressBar
     {
         public Rectangle pBar;
@@ -26,7 +28,18 @@ namespace Ship_Game
         {
         }
         
-        public ProgressBar(Rectangle r)
+        public ProgressBar(in Rectangle r)
+        {
+            SetRect(r);
+        }
+
+        public ProgressBar(in Rectangle r, float max, float progress) : this(r)
+        {
+            Max = max;
+            Progress = progress;
+        }
+
+        public void SetRect(in Rectangle r)
         {
             pBar = r;
             Left = new Rectangle(r.X, r.Y, 7, 18);
@@ -37,13 +50,7 @@ namespace Ship_Game
             gMiddle = new Rectangle(Middle.X, Middle.Y + 3, Middle.Width, 12);
         }
 
-        public ProgressBar(Rectangle r, float max, float progress) : this(r)
-        {
-            Max = max;
-            Progress = progress;
-        }
-
-        private float Percent => Progress / Max;
+        public float Percent => Progress / Max;
 
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -117,5 +124,55 @@ namespace Ship_Game
 
         string Values10 => DrawPercentage ? $"{Progress.String(1)}%" : $"{Progress.String(1)}/{Max.String(1)}";
         string Values    => DrawPercentage ? $"{(int)Progress}%" : $"{(int)Progress}/{(int)Max}";
+    }
+
+    // HACK: wrapper for ProgressBar
+    public class ProgressBarElement : UIElementContainer
+    {
+        public ProgressBar ProgressBar;
+
+        public float Percent => ProgressBar.Percent;
+        public float Progress
+        {
+            get => ProgressBar.Progress;
+            set => ProgressBar.Progress = value;
+        }
+        public float Max
+        {
+            get => ProgressBar.Max;
+            set => ProgressBar.Max = value;
+        }
+
+        public ProgressBarElement(in RectF rect) : base(rect)
+        {
+            ProgressBar = new ProgressBar(rect);
+        }
+
+        public ProgressBarElement(in RectF rect, float max, float progress) : base(rect)
+        {
+            ProgressBar = new ProgressBar(rect, max, progress);
+        }
+
+        public override void PerformLayout()
+        {
+            base.PerformLayout();
+            ProgressBar.SetRect(Rect);
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            return base.HandleInput(input);
+        }
+
+        public override void Update(float fixedDeltaTime)
+        {
+            base.Update(fixedDeltaTime);
+        }
+
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            base.Draw(batch, elapsed);
+            ProgressBar.Draw(batch);
+        }
     }
 }
