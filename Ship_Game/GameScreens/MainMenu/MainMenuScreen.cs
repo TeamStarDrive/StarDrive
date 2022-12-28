@@ -51,7 +51,7 @@ namespace Ship_Game.GameScreens.MainMenu
             UI.LayoutParser.LoadLayout(this, menu.UILayoutFile, clearElements: true);
             CreateVersionArea();
 
-            Add(new AutoUpdater(this));
+            Add(new AutoUpdateChecker(this));
 
             if (GlobalStats.HasMod)
             {
