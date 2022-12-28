@@ -20,6 +20,8 @@ namespace Ship_Game
         // Wait until the task is complete, Exceptions are not rethrown, @see Error
         bool WaitNoThrow(int millisecondTimeout);
         void CancelAndWait(int millisecondTimeout);
+        // Cancels, but does not wait for task to complete
+        void Cancel();
     }
 
     public class TaskResult : ITaskResult
@@ -63,6 +65,12 @@ namespace Ship_Game
         {
             IsCancelRequested = true;
             Wait(millisecondTimeout);
+        }
+
+        // Requests for Cancel, but doesn't wait
+        public void Cancel()
+        {
+            IsCancelRequested = true;
         }
     }
 
@@ -108,6 +116,12 @@ namespace Ship_Game
         {
             IsCancelRequested = true;
             Wait(millisecondTimeout);
+        }
+
+        // Requests for Cancel, but doesn't wait
+        public void Cancel()
+        {
+            IsCancelRequested = true;
         }
     }
 

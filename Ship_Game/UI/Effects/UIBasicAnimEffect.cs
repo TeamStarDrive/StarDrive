@@ -14,6 +14,11 @@ namespace Ship_Game
         Cosine, // Cosine wave pattern
     }
 
+    /// <summary>
+    /// Contains a series of composable animation effects that can
+    /// give patterned behaviors to UI Elements, such as pulsating color
+    /// or transitioning in from outside of the screen
+    /// </summary>
     public class UIBasicAnimEffect : UIEffect
     {
         public float CurrentTime { get; private set; }
@@ -55,6 +60,8 @@ namespace Ship_Game
         public string StartSfx;
         public string EndSfx;
 
+        public UIBasicAnimEffect FollowedByAnim; // Added when this animation finishes
+
         public UIBasicAnimEffect(UIElementV2 element) : base(element)
         {
         }
@@ -90,19 +97,25 @@ namespace Ship_Game
             return this;
         }
 
-        // Only fades in the animation, no fade out or stay
+        /// <summary>
+        /// Only fades in the animation, no fade out or stay
+        /// </summary>
         public UIBasicAnimEffect FadeIn(float delay, float duration = 1f)
         {
             return Time(delay, duration, duration, 0);
         }
 
-        // Only fades out the animation, no fade in or stay
+        /// <summary>
+        /// Only fades out the animation, no fade in or stay
+        /// </summary>
         public UIBasicAnimEffect FadeOut(float delay, float duration = 1f)
         {
             return Time(delay, duration, 0, duration);
         }
 
-        // Always loop with loopTime
+        /// <summary>
+        /// Always loop with loopTime
+        /// </summary>
         public UIBasicAnimEffect Loop(float loopTime = 0f)
         {
             EndTime = loopTime > 0f ? loopTime : Delay + Duration;
@@ -110,7 +123,9 @@ namespace Ship_Game
             return this;
         }
 
-        // a simplified loop animation, always starts with 0 delay
+        /// <summary>
+        /// a simplified loop animation, always starts with 0 delay
+        /// </summary>
         public UIBasicAnimEffect Loop(float duration, float fadeIn, float fadeOut)
         {
             Delay       = 0f;
@@ -121,7 +136,9 @@ namespace Ship_Game
             return this;
         }
 
-        // enable animating alpha
+        /// <summary>
+        /// enable animating alpha
+        /// </summary>
         public UIBasicAnimEffect Alpha(Range alphaRange)
         {
             AnimateAlpha = true;
@@ -129,7 +146,9 @@ namespace Ship_Game
             return this;
         }
 
-        // just enable color fade-in / fade-out
+        /// <summary>
+        /// just enable color fade-in / fade-out
+        /// </summary>
         public UIBasicAnimEffect Color(Color minColor, Color maxColor)
         {
             AnimateColor = true;
@@ -138,15 +157,19 @@ namespace Ship_Game
             return this;
         }
 
-        // Generates a sine wave pattern on the animation percent
+        /// <summary>
+        /// Generates a sine wave pattern on the animation percent
+        /// </summary>
         public UIBasicAnimEffect Sine()
         {
             AnimPattern = AnimPattern.Sine;
             return this;
         }
 
-        // Enable position transition animation
-        // @note This will PERMANENTLY reposition the UIElement to @endPos
+        /// <summary>
+        /// Enable position transition animation
+        /// @note This will PERMANENTLY reposition the UIElement to @endPos
+        /// </summary>
         public UIBasicAnimEffect Pos(Vector2 startPos, Vector2 endPos)
         {
             AnimatePosition = true;
@@ -156,8 +179,10 @@ namespace Ship_Game
             return this;
         }
 
-        // Enable size change animation
-        // @note The UIElement will default back to startSize after end of animation
+        /// <summary>
+        /// Enable size change animation
+        /// @note The UIElement will default back to startSize after end of animation
+        /// </summary>
         public UIBasicAnimEffect Size(Vector2 startSize, Vector2 endSize)
         {
             AnimateSize = true;
@@ -167,9 +192,11 @@ namespace Ship_Game
             return this;
         }
 
-        // Enable scale change animation
-        // The UIElement will default back to min scale after end of animation
-        // WARNING: Size must be initialized for this UI element
+        /// <summary>
+        /// Enable scale change animation
+        /// The UIElement will default back to min scale after end of animation
+        /// WARNING: Size must be initialized for this UI element
+        /// </summary>
         public UIBasicAnimEffect CenterScale(Range scaleRange)
         {
             AnimateScale = true;
@@ -181,12 +208,26 @@ namespace Ship_Game
             return this;
         }
 
-        public UIBasicAnimEffect Sfx(string startSfx, string endSfx)
+        /// <summary>
+        /// Plays a sound effect at start or end of animation
+        /// </summary>
+        public UIBasicAnimEffect Sfx(string startSfx = null, string endSfx = null)
         {
-            SoundEffects = true;
-            StartSfx     = startSfx;
-            EndSfx       = endSfx;
+            SoundEffects = startSfx != null || endSfx != null;
+            StartSfx = startSfx;
+            EndSfx = endSfx;
             return this;
+        }
+
+        /// <summary>
+        /// After this animation ends, Add this new animation to the Parent UIElementV2.
+        /// This can be used to implement a bounce, after an UI Element has finished sliding in.
+        /// Doesn't have any effect on looping effects, since they never finish.
+        /// </summary>
+        public UIBasicAnimEffect ThenAnim()
+        {
+            FollowedByAnim = new(Element);
+            return FollowedByAnim;
         }
 
         void OnAnimationDelayed()
@@ -215,6 +256,11 @@ namespace Ship_Game
             if (SoundEffects && EndSfx.NotEmpty())
             {
                 GameAudio.PlaySfxAsync(EndSfx);
+            }
+
+            if (FollowedByAnim != null)
+            {
+                Element.AddEffect(FollowedByAnim);
             }
         }
 

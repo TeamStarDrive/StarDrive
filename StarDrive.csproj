@@ -176,6 +176,7 @@
       <HintPath>packages\System.Collections.Immutable.7.0.0\lib\net462\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -303,6 +304,8 @@
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButton.cs" />
     <Compile Include="Ship_Game\GameScreens\GameCursors.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainMenu\AutoPatcher.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainMenu\AutoUpdateChecker.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenusDescr.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\UniverseGenerator.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\ObjectSpawnInfo.cs" />
@@ -591,7 +594,6 @@
     <Compile Include="Ship_Game\GameScreens\NewGame\TraitsListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ScreenMediaPlayer.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneGroup.cs" />
-    <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionLabel.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ShipDesignUtils.cs" />
@@ -783,7 +785,6 @@
     <Compile Include="Ship_Game\Utils\EnumFlatMap.cs" />
     <Compile Include="Ship_Game\Utils\ObjectPool.cs" />
     <Compile Include="Ship_Game\Utils\RandomBase.cs" />
-    <Compile Include="Ship_Game\Utils\ReadRestAPIFromSite.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs" />
     <Compile Include="Ship_Game\Threading\Parallel.cs" />

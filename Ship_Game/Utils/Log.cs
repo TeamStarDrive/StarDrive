@@ -58,13 +58,23 @@ namespace Ship_Game
         /// </summary>
         public static bool IsStatsReportEnabled => Sentry != null && GlobalStats.AutoErrorReport;
 
-        // prevent flooding Raven with 2000 error messages if we fall into an exception loop
+        /// <summary>
+        /// Whether to include SaveGame files in Sentry reports.
+        /// This can take a huge amount of data usage budget.
+        /// </summary>
+        public static bool IncludeSaveGameInReports = false;
+
+        // prevent flooding Sentry with 2000 error messages if we fall into an exception loop
         // instead, we count identical exceptions and resend them only over a certain threshold
-        static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
+        static readonly Map<ulong, int> ReportedErrors = new();
         const int ErrorThreshold = 100;
+
+        /// <summary>
+        /// Whether the Application is currently handling a fatal error, and will terminate soon
+        /// </summary>
         public static bool IsTerminating { get; private set; }
 
-        static readonly Array<Thread> MonitoredThreads = new Array<Thread>();
+        static readonly Array<Thread> MonitoredThreads = new();
 
         public static void Initialize(bool enableSentry, bool showHeader)
         {
@@ -380,7 +390,7 @@ namespace Ship_Game
                 }
                 scope.ClearAttachments();
                 scope.AddAttachment("blackbox.log");
-                if (autoSavePath.NotEmpty())
+                if (IncludeSaveGameInReports && autoSavePath.NotEmpty())
                 {
                     scope.AddAttachment(autoSavePath);
                 }

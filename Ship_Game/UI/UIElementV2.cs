@@ -457,14 +457,27 @@ namespace Ship_Game
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
+        /// Events
+        
+        /// EVT: Added to a parent container
+        public virtual void OnAdded(UIElementContainer parent)
+        {
+        }
+
+        /// EVT: Removed from a parent.
+        ///      However be aware that this UIElement may be Added again to another parent!
+        public virtual void OnRemoved()
+        {
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
 
         public IReadOnlyList<UIEffect> GetEffects() => Effects;
 
         public T AddEffect<T>(T effect) where T : UIEffect
         {
             Log.Assert(effect != null, "UIEffect cannot be null");
-            if (Effects == null)
-                Effects = new Array<UIEffect>();
+            Effects ??= new Array<UIEffect>();
             Effects.Add(effect);
             return effect;
         }
