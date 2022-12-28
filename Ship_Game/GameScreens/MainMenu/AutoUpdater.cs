@@ -147,7 +147,7 @@ public class AutoUpdater : UIElementContainer
     ReleaseInfo? GetLatestVersionInfoGitHub(string url)
     {
         using WebClient wc = new();
-        string jsonText = DownloadWithCancel(url, AsyncTask);
+        string jsonText = DownloadWithCancel(url, AsyncTask, timeout:TimeSpan.FromSeconds(30));
         if (AsyncTask.IsCancelRequested)
             return null;
 
@@ -182,7 +182,7 @@ public class AutoUpdater : UIElementContainer
     }
 
     // Download utility which can be cancel itself via another `cancellableTask`
-    public static string DownloadWithCancel(string url, TaskResult cancellableTask, int timeoutMillis = 30 * 1000)
+    public static string DownloadWithCancel(string url, TaskResult cancellableTask, TimeSpan timeout)
     {
         using WebClient wc = new();
         wc.UseDefaultCredentials = false;
@@ -198,7 +198,7 @@ public class AutoUpdater : UIElementContainer
         try
         {
             var download = wc.DownloadStringTaskAsync(url);
-            if (timeoutMillis <= 0) timeoutMillis = int.MaxValue;
+            int timeoutMillis = (int)timeout.TotalMilliseconds;
             for (; timeoutMillis > 0; timeoutMillis -= 100)
             {
                 if (download.Wait(100))
@@ -222,7 +222,7 @@ public class AutoUpdater : UIElementContainer
     /// Returns the path to the local file. Otherwise throws an exception on failure or cancellation.
     /// </summary>
     public static string DownloadZip(string url, string localFolder, TaskResult cancellableTask, 
-                                     Action<int> onProgressPercent, int timeoutMillis = 30 * 1000)
+                                     Action<int> onProgressPercent, TimeSpan timeout)
     {
         int lastPercent = -1;
         using WebClient wc = new();
@@ -249,7 +249,8 @@ public class AutoUpdater : UIElementContainer
         {
             string localFile = Path.Combine(localFolder, Path.GetFileName(url));
             var download = wc.DownloadFileTaskAsync(url, localFile);
-            if (timeoutMillis <= 0) timeoutMillis = int.MaxValue;
+
+            int timeoutMillis = (int)timeout.TotalMilliseconds;
             for (; timeoutMillis > 0; timeoutMillis -= 100)
             {
                 if (download.Wait(100))
