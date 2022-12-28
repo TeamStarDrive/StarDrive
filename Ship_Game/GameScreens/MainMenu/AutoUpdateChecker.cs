@@ -6,6 +6,7 @@ using System.Web.Script.Serialization;
 using SDGraphics;
 using Ship_Game.UI;
 using Ship_Game.Audio;
+using System.Text.RegularExpressions;
 
 namespace Ship_Game.GameScreens.MainMenu;
 
@@ -130,25 +131,39 @@ public class AutoUpdateChecker : UIElementContainer
         });
     }
 
+    static string RegexExtractTeamAndRepo(string url, string pattern)
+    {
+        Match m = Regex.Match(url, pattern);
+        return m.Groups[1].Value.Trim('/');
+    }
+
     void GetVersionAsync()
     {
         string downloadUrl = GlobalStats.Defaults.DownloadSite;
         try
         {
+            ReleaseInfo? info = null;
             if (downloadUrl.Contains("github.com"))
             {
                 // "https://github.com/TeamStarDrive/StarDrive/releases" --> "TeamStarDrive/StarDrive"
-                string teamAndRepo = downloadUrl.Replace("https://", "").Replace("github.com/", "").Replace("/releases", "");
+                string teamAndRepo = RegexExtractTeamAndRepo(downloadUrl, "\\/(\\w+\\/\\w+)\\/releases.*");
                 downloadUrl = $"https://api.github.com/repos/{teamAndRepo}/releases/latest";
-
-                ReleaseInfo? info = GetLatestVersionInfoGitHub(downloadUrl);
-                if (info != null)
-                    NotifyLatestVersion(info.Value);
+                info = GetLatestVersionInfoGitHub(downloadUrl);
+            }
+            else if (downloadUrl.Contains("bitbucket.org"))
+            {
+                // "https://bitbucket.org/codegremlins/combined-arms/downloads/" --> "codegremlins/combined-arms"
+                string teamAndRepo = RegexExtractTeamAndRepo(downloadUrl, "\\/(\\w+\\/\\w+)\\/downloads.*");
+                downloadUrl = $"https://api.bitbucket.org/2.0/repositories/{teamAndRepo}/downloads";
+                info = GetLatestVersionInfoBitBucket(downloadUrl);
             }
             else
             {
                 Log.Warning($"AutoUpdater: unsupported download url {downloadUrl}");
             }
+
+            if (info != null)
+                NotifyLatestVersion(info.Value);
         }
         catch (Exception e)
         {
@@ -159,7 +174,6 @@ public class AutoUpdateChecker : UIElementContainer
 
     ReleaseInfo? GetLatestVersionInfoGitHub(string url)
     {
-        using WebClient wc = new();
         string jsonText = DownloadWithCancel(url, AsyncTask, timeout:TimeSpan.FromSeconds(30));
         if (AsyncTask.IsCancelRequested)
             return null;
@@ -193,6 +207,11 @@ public class AutoUpdateChecker : UIElementContainer
         }
 
         return info.ZipUrl.NotEmpty() ? info : null;
+    }
+
+    ReleaseInfo? GetLatestVersionInfoBitBucket(string url)
+    {
+        return null;
     }
 
     // Download utility which can be cancel itself via another `cancellableTask`

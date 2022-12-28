@@ -96,7 +96,6 @@ public class GamePlayGlobals
     // Urls for accessing auto-updater, should be changed for mods, if unused, set to ""
     [StarData] public string URL;
     [StarData] public string DownloadSite;
-    [StarData] public string BitbucketAPIString;
 
 
     // Mod information, should be null for vanilla

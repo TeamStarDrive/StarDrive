@@ -64,7 +64,7 @@ namespace Ship_Game.Ships
         public Vector3 Volume { get; private set; }
         public float ModelZ { get; private set; }
         public HullBonus Bonuses { get; private set; }
-        public bool IsValidForCurrentMod => ModName.IsEmpty() || ModName == GlobalStats.ModName;
+        public bool IsValidForCurrentMod => GlobalStats.IsValidForCurrentMod(ModName);
 
         public struct ThrusterZone
         {

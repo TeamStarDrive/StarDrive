@@ -53,6 +53,7 @@ namespace Ship_Game
         public static bool IsValidForCurrentMod(string modName) => modName.IsEmpty() || modName == ModName;
         
         // "Combined Arms" or "" if there's no active mod, this name can have special characters
+        // WARNING: this is no longer guaranteed to be same as ModPath !! Use this sparingly
         public static string ModName = "";
 
         // "Mods/Combined Arms/" or "Mods/ExampleMod/", this needs to be a sanitized path
@@ -301,7 +302,7 @@ namespace Ship_Game
             GetSetting("ShadowDetail"          , ref ShadowDetail);
             GetSetting("EffectDetail"          , ref EffectDetail);
             GetSetting("AutoErrorReport"       , ref AutoErrorReport);
-            GetSetting("ActiveMod"             , ref ModName);
+            GetSetting("ActiveMod"             , ref ModPath);
             GetSetting("CameraPanSpeed"        , ref CameraPanSpeed);
             GetSetting("VerboseLogging"        , ref VerboseLogging);
 
@@ -327,7 +328,7 @@ namespace Ship_Game
             WriteSetting(config, "TimesPlayed", ++TimesPlayed);
             config.Save();
 
-            LoadModInfo(ModName);
+            LoadModInfo(ModPath);
             Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
         }
 
@@ -339,12 +340,16 @@ namespace Ship_Game
 
             if (modPath.NotEmpty())
             {
-                var modInfo = new FileInfo($"Mods/{modPath}/Globals.yaml");
+                var modInfo = new FileInfo(Path.Combine(modPath, "Globals.yaml"));
                 if (modInfo.Exists)
                 {
                     GamePlayGlobals settings = GamePlayGlobals.Deserialize(modInfo);
                     var me = new ModEntry(settings);
                     SetActiveModNoSave(me);
+                }
+                else
+                {
+                    Log.Warning($"LoadModInfo failed because mod file not found: {modInfo.FullName}");
                 }
             }
             else // load vanilla
@@ -415,7 +420,7 @@ namespace Ship_Game
             WriteSetting(config, "ShadowDetail",     ShadowDetail);
             WriteSetting(config, "EffectDetail",     EffectDetail);
             WriteSetting(config, "AutoErrorReport",  AutoErrorReport);
-            WriteSetting(config, "ActiveMod",        ModName);
+            WriteSetting(config, "ActiveMod",        ModPath);
 
             WriteSetting(config, "NotifyEmptyPlanetQueue", NotifyEmptyPlanetQueue);
             WriteSetting(config, "PauseOnNotification", PauseOnNotification);
@@ -445,7 +450,7 @@ namespace Ship_Game
         public static void SaveActiveMod()
         {
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            WriteSetting(config, "ActiveMod", ModName);
+            WriteSetting(config, "ActiveMod", ModPath);
             config.Save();
         }
 
