@@ -96,6 +96,7 @@ game/SDNativeTests.pdb
 game/Content/spellchecker.txt
 game/MeshExport/
 game/Mods/
+game/PatchTemp/
 Deploy/GeneratedFilesList.nsh
 Deploy/GeneratedFilesList.txt
 SDGraphics/bin/

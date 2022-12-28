@@ -251,12 +251,14 @@ namespace Ship_Game
         public void UpdateTechnologyTypesFromUnlocks()
         {
             ISet<TechnologyType> types = TechnologyTypes;
-            if (ModulesUnlocked.Count > 0)   GetModuleTechTypes(types);
-            if (HullsUnlocked.Count > 0)     GetHullTechTypes(types);
-            if (BonusUnlocked.Count > 0)     GetBonusTechTypes(types);
-            if (BuildingsUnlocked.Count > 0) GetBuildingTechnologyType(types);
-            if (TroopsUnlocked.Count > 0)    types.Add(TechnologyType.GroundCombat);
-            if (types.Count == 0)            types.Add(TechnologyType.General);
+            if (ModulesUnlocked.NotEmpty)   GetModuleTechTypes(types);
+            if (HullsUnlocked.NotEmpty)     GetHullTechTypes(types);
+            if (BonusUnlocked.NotEmpty)     GetBonusTechTypes(types);
+            if (BuildingsUnlocked.NotEmpty) GetBuildingTechnologyType(types);
+            if (TroopsUnlocked.NotEmpty)    types.Add(TechnologyType.GroundCombat);
+
+            if (types.Count == 0) 
+                types.Add(TechnologyType.General);
         }
 
         void GetBuildingTechnologyType(ISet<TechnologyType> types)
@@ -265,7 +267,7 @@ namespace Ship_Game
             {
                 if (!ResourceManager.GetBuilding(buildingU.Name, out Building building))
                 {
-                    Log.Warning($"Tech {UID} unlock unavailable : {buildingU.Name}");
+                    Log.Warning($"Tech={UID} BuildingsUnlocked Building={buildingU.Name} does not exist");
                     continue;
                 }
 
@@ -300,6 +302,7 @@ namespace Ship_Game
             }
         }
 
+        // TODO: validate these somehow
         void GetBonusTechTypes(ISet<TechnologyType> types)
         {
             foreach (UnlockedBonus unlockedBonus in BonusUnlocked)
@@ -411,21 +414,24 @@ namespace Ship_Game
         {
             foreach (UnlockedHull unlockedHull in HullsUnlocked)
             {
-                if (ResourceManager.Hull(unlockedHull.Name, out ShipHull hull))
+                if (!ResourceManager.Hull(unlockedHull.Name, out ShipHull hull))
                 {
-                    if (hull.IsShipyard)
-                        types.Add(TechnologyType.Industry);
-
-                    if (hull.Role == RoleName.construction ||
-                        hull.Role == RoleName.freighter)
-                        types.Add(TechnologyType.Industry);
-
-                    if (hull.Role == RoleName.station ||
-                        hull.Role == RoleName.platform ||
-                        hull.Role == RoleName.freighter ||
-                        hull.Role >= RoleName.fighter)
-                        types.Add(TechnologyType.ShipHull);
+                    Log.Warning($"Tech={UID} HullsUnlocked HullName={unlockedHull.Name} does not exist");
+                    continue;
                 }
+
+                if (hull.IsShipyard)
+                    types.Add(TechnologyType.Industry);
+
+                if (hull.Role == RoleName.construction ||
+                    hull.Role == RoleName.freighter)
+                    types.Add(TechnologyType.Industry);
+
+                if (hull.Role == RoleName.station ||
+                    hull.Role == RoleName.platform ||
+                    hull.Role == RoleName.freighter ||
+                    hull.Role >= RoleName.fighter)
+                    types.Add(TechnologyType.ShipHull);
             }
         }
 
@@ -433,30 +439,31 @@ namespace Ship_Game
         {
             foreach (UnlockedMod moduleU in ModulesUnlocked)
             {
-                if (ResourceManager.GetModuleTemplate(moduleU.ModuleUID, out ShipModule module))
+                if (!ResourceManager.GetModuleTemplate(moduleU.ModuleUID, out ShipModule module))
                 {
-                    bool genericShipTech = true;
-                    if (module.InstalledWeapon != null
-                        || module.MaximumHangarShipSize > 0
-                        || module.Is(ShipModuleType.Hangar))
-                    {
-                        types.Add(TechnologyType.ShipWeapons);
-                        genericShipTech = false;
-                    }
-                    if (module.ShieldPowerMax >= 1f
-                        || module.Is(ShipModuleType.Armor)
-                        || module.Is(ShipModuleType.Countermeasure)
-                        || module.Is(ShipModuleType.Shield))
-                    {
-                        types.Add(TechnologyType.ShipDefense);
-                        genericShipTech = false;
-                    }
-
-                    if (genericShipTech)
-                        types.Add(TechnologyType.ShipGeneral);
+                    Log.Warning($"Tech={UID} ModulesUnlocked Module UID={moduleU.ModuleUID} does not exist");
+                    continue;
                 }
-                else
-                    Log.Warning($"Tech {UID} unlock unavailable : {moduleU.ModuleUID}");
+
+                bool genericShipTech = true;
+                if (module.InstalledWeapon != null
+                    || module.MaximumHangarShipSize > 0
+                    || module.Is(ShipModuleType.Hangar))
+                {
+                    types.Add(TechnologyType.ShipWeapons);
+                    genericShipTech = false;
+                }
+                if (module.ShieldPowerMax >= 1f
+                    || module.Is(ShipModuleType.Armor)
+                    || module.Is(ShipModuleType.Countermeasure)
+                    || module.Is(ShipModuleType.Shield))
+                {
+                    types.Add(TechnologyType.ShipDefense);
+                    genericShipTech = false;
+                }
+
+                if (genericShipTech)
+                    types.Add(TechnologyType.ShipGeneral);
             }
         }
 

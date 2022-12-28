@@ -42,6 +42,10 @@ namespace Ship_Game
             Sprite = sprite;
         }
 
+        public UIPanel(SubTexture texture) : this(Vector2.Zero, texture)
+        {
+        }
+
         public UIPanel(in Rectangle rect, DrawableSprite sprite) : this(rect, Color.White, sprite)
         {
         }

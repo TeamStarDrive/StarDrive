@@ -227,8 +227,6 @@ namespace Ship_Game
             ScreenManager?.Dispose(ref ScreenManager);
 
             base.Dispose(disposing);
-            
-            Log.Write("Exiting: Game Instance Disposed");
         }
     }
 }

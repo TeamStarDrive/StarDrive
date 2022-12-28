@@ -94,6 +94,10 @@ namespace Ship_Game
                 {
                     GlobalStats.RunLocalizer = value.IsEmpty() ? 1 : int.Parse(value);
                 }
+                else if (key == "--resource-debug")
+                {
+                    GlobalStats.DebugResourceLoading = true;
+                }
                 else if (key == "--continue")
                 {
                     GlobalStats.ContinueToGame = true;
@@ -118,7 +122,8 @@ namespace Ship_Game
             Log.Write("  --fix-roles         Fixes Role and Category for all .design ships");
             Log.Write("  --run-localizer=[0-2] Run localization tool to merge missing translations and generate id-s");
             Log.Write("                        0: disabled  1: generate with YAML NameIds  2: generate with C# NameIds");
-            Log.Write("  --continue         After running CLI tasks, continue to game as normal");
+            Log.Write("  --resource-debug    Debug logs all resource loading, mainly for Mods to ensure their assets are loaded");
+            Log.Write("  --continue          After running CLI tasks, continue to game as normal");
         }
 
         static void PressAnyKey()

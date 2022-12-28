@@ -287,11 +287,6 @@ Elements:
           AbsSize: [200, 0] # aspect fill width
           ClickSfx: sd_ui_tactical_pause
       - Button:
-          Name: version
-          Title: "Version Check"
-          AbsSize: [200, 0] # aspect fill width
-          ClickSfx: sd_ui_tactical_pause
-      - Button:
           Name: exit
           Title: "{5}" # "Exit"
           AbsSize: [200, 0] # aspect fill width
