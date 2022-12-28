@@ -647,6 +647,8 @@ namespace Ship_Game
 
         void UnloadGraphics()
         {
+            if (SR == null)
+                return;
             if (!GlobalStats.IsUnitTest)
                 Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
             Memory.Dispose(ref bloomComponent);
