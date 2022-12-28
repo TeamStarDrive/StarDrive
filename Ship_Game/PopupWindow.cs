@@ -99,7 +99,7 @@ namespace Ship_Game
             RemoveAll();
 
             Rect = CenterScreen(Rect.Width, Rect.Height);
-            TL    = new Rectangle(Rect.X, Rect.Y, 28, 30);
+            TL = new Rectangle(Rect.X, Rect.Y, 28, 30);
             TLc        = TL;
             TLc.X      = TLc.X - 2;
             TLc.Y      = TLc.Y + 3;

@@ -187,6 +187,10 @@ namespace Ship_Game
         public static int RunLocalizer;
 
         // DEV CLI OPTION
+        // debug log all resource loading paths
+        public static bool DebugResourceLoading;
+
+        // DEV CLI OPTION
         // Continue into the game after running Localizer or other Tools
         public static bool ContinueToGame;
 

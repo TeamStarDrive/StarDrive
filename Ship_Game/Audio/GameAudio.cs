@@ -232,6 +232,9 @@ namespace Ship_Game.Audio
         public static void TroopLand()     => PlaySfxAsync("sd_troop_land");
         public static void SmallServo()    => PlaySfxAsync("smallservo"); // module placement sound
 
+        // General danger notification sound
+        public static void NotifyAlert() => PlaySfxAsync("sd_notify_alert");
+
         // this is used for the DiplomacyScreen
         public static void SwitchToRacialMusic()
         {

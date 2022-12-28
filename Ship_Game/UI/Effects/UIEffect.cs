@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Represents a simple UI Behaviour Effect
-    /// such as transitioning
+    /// such as transitioning from one position to another
     /// </summary>
     public abstract class UIEffect
     {

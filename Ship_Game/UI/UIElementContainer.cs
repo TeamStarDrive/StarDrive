@@ -132,7 +132,8 @@ namespace Ship_Game
                 else
                     Log.Warning(ConsoleColor.DarkRed, "UIElement.HandleInput called twice per frame. This is a bug: "+this);
 
-                // iterate input in reverse, so we handle topmost objects before
+                // iterate input in reverse, so we handle topmost objects before;
+                // also Elements can be removed during the HandleInput, so this ensures no elements are skipped
                 for (int i = Elements.Count - 1; i >= 0; --i)
                 {
                     UIElementV2 child = Elements[i];
@@ -166,10 +167,16 @@ namespace Ship_Game
                 UIElementV2 element = Elements[i];
                 if (element.Visible)
                 {
-                    element.Update(fixedDeltaTime);
-                    if (element.DeferredRemove) { Remove(element); }
-                    // Update directly modified Elements array?
-                    else if (Elements[i] != element) { --i; }
+                    element.Update(fixedDeltaTime); // NOTE: this is allowed to modify Elements array!
+                    if (element.DeferredRemove)
+                    {
+                        Remove(element);
+                    }
+                    // Update has directly modified Elements array? Ensure we don't skip over elements.
+                    else if (i >= Elements.Count || Elements[i] != element)
+                    {
+                        --i;
+                    }
                 }
             }
 
@@ -207,6 +214,7 @@ namespace Ship_Game
             Elements.Add(element);
             element.Parent = this;
             element.ZOrder = NextZOrder();
+            element.OnAdded(this);
             return element;
         }
 
@@ -225,13 +233,21 @@ namespace Ship_Game
 
         public virtual void Remove(UIElementV2 element)
         {
-            if (element == null)
-                return;
-            Elements.RemoveRef(element);
+            if (element != null)
+            {
+                Elements.RemoveRef(element);
+                element.OnRemoved();
+                element.Parent = null;
+            }
         }
 
         public virtual void RemoveAll()
         {
+            foreach (UIElementV2 element in Elements)
+            {
+                element.OnRemoved();
+                element.Parent = null;
+            }
             Elements.Clear();
         }
 

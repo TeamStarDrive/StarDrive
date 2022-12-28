@@ -61,7 +61,7 @@ namespace Ship_Game
                 if (popup != null)
                 {
                     screen.ScreenManager.AddScreen(popup);
-                    GameAudio.PlaySfxAsync("sd_notify_alert");
+                    GameAudio.NotifyAlert();
                 }
             }
         }
@@ -92,7 +92,7 @@ namespace Ship_Game
             var popup = new EventPopup(p.Universe.Screen, triggeredBy, this, outcome, false, p);
             outcome.CheckOutComes(p, eventLocation, triggeredBy, popup);
             p.Universe.Screen.ScreenManager.AddScreen(popup);
-            GameAudio.PlaySfxAsync("sd_notify_alert");
+            GameAudio.NotifyAlert();
         }
 
         private Outcome GetRandomOutcome()
