@@ -114,7 +114,7 @@ namespace Ship_Game
         {
             Log.Write("StarDrive BlackBox Command Line Interface (CLI)");
             Log.Write("  --help              Shows this help message");
-            Log.Write("  --mod=\"<mod>\"     Load the game with the specified <mod>, eg: --mod=\"Combined Arms\" ");
+            Log.Write("  --mod=\"<mod>\"     Load the game with the specified <mod> path, eg: --mod=\"Combined Arms\" ");
             Log.Write("  --export-textures   Exports all texture files as PNG and DDS to game/ExportedTextures");
             Log.Write("  --export-meshes=obj Exports all mesh files and textures, options: fbx obj fbx+obj");
             Log.Write("  --generate-hulls    Generates new .hull files from old XML hulls");
@@ -162,7 +162,7 @@ namespace Ship_Game
                     bool runGame = true;
                     if (GlobalStats.RunLocalizer > 0)
                     {
-                        Tools.Localization.LocalizationTool.Run(GlobalStats.ModName, GlobalStats.RunLocalizer);
+                        Tools.Localization.LocalizationTool.Run(GlobalStats.ModPath, GlobalStats.RunLocalizer);
                         runGame = GlobalStats.ContinueToGame;
                     }
 
