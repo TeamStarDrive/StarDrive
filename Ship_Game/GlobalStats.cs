@@ -338,6 +338,13 @@ namespace Ship_Game
         {
             SetActiveModNoSave(null); // reset
 
+            // always initialize vanilla defaults, it's used as a backup
+            if (VanillaDefaults == null)
+            {
+                var defaultSettings = new FileInfo("Content/Globals.yaml");
+                VanillaDefaults = GamePlayGlobals.Deserialize(defaultSettings);
+            }
+
             if (modPath.NotEmpty())
             {
                 var modInfo = new FileInfo(Path.Combine(modPath, "Globals.yaml"));
@@ -354,12 +361,6 @@ namespace Ship_Game
             }
             else // load vanilla
             {
-                if (VanillaDefaults == null)
-                {
-                    var defaultSettings = new FileInfo("Content/Globals.yaml");
-                    VanillaDefaults = GamePlayGlobals.Deserialize(defaultSettings);
-                }
-
                 Defaults = VanillaDefaults;
             }
             SaveActiveMod();
