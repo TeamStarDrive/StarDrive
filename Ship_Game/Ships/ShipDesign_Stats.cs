@@ -207,7 +207,7 @@ namespace Ship_Game.Ships
 
         public static string GetRole(RoleName role)
         {
-            int roleNum = (int)role - 1;
+            int roleNum = (int)role;
             return RoleArray[roleNum];
         }
 
