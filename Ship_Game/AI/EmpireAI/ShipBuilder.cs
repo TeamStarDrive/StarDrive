@@ -112,7 +112,10 @@ namespace Ship_Game.AI
                 else
                     return null;
             }
-            IShipDesign pickedShip = RandomMath.RandItem(bestShips);
+
+            // We choose the first item for the player to overcome edge case where several ships have the same str
+            // because for the player - min str and max str is set to be the same to get the best ship)
+            IShipDesign pickedShip = empire.isPlayer ? bestShips[0] : RandomMath.RandItem(bestShips);
 
             if (false && empire.Universe?.Debug == true)
             {
