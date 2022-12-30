@@ -65,7 +65,9 @@ public class AutoUpdateChecker : UIElementContainer
             textLabel.AxisAlign = Align.CenterLeft;
             textLabel.SetLocalPos(132, 0);
 
-            string portraitPath = isMod ? GlobalStats.ActiveMod?.Mod.IconPath : "Textures/Portraits/Human.dds";
+            string portraitPath = isMod
+                ? GlobalStats.ModPath + GlobalStats.ActiveMod?.Mod.IconPath
+                : "Textures/Portraits/Human.dds";
             SubTexture portraitTex = updater.ContentManager.LoadTextureOrDefault(portraitPath);
             UIPanel portrait = base.Add(new UIPanel(LocalPos.Zero, new Vector2(62, 74), portraitTex));
             portrait.AxisAlign = Align.CenterLeft;
@@ -141,6 +143,8 @@ public class AutoUpdateChecker : UIElementContainer
 
     void GetVersionAsync(string modName, string downloadUrl, bool isMod)
     {
+        if (downloadUrl.IsEmpty())
+            return;
         try
         {
             ReleaseInfo? info = null;
