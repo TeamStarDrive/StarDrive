@@ -190,9 +190,20 @@ namespace Ship_Game
             }
         }
 
+        RenderTarget2D GetCachedFogMapRenderTarget(GraphicsDevice device, ref RenderTarget2D fogMapTarget)
+        {
+            if (fogMapTarget == null || (fogMapTarget.IsDisposed || fogMapTarget.IsContentLost))
+            {
+                fogMapTarget = RenderTargets.Create(device, 512, 512);
+            }
+            return fogMapTarget;
+        }
+
         void UpdateFogMap(SpriteBatch batch, GraphicsDevice device)
         {
-            device.SetRenderTarget(0, FogMapTarget);
+            var fogMapTarget = GetCachedFogMapRenderTarget(device, ref FogMapTarget);
+            device.SetRenderTarget(0, fogMapTarget);
+
             device.Clear(Color.TransparentWhite);
             batch.Begin(SpriteBlendMode.Additive);
             batch.Draw(FogMap, new Rectangle(0, 0, 512, 512), Color.White);
@@ -215,7 +226,7 @@ namespace Ship_Game
             }
             batch.End();
             device.SetRenderTarget(0, null);
-            FogMap = FogMapTarget.GetTexture();
+            FogMap = fogMapTarget.GetTexture();
         }
 
         void UpdateFogOfWarInfluences(SpriteBatch batch, GraphicsDevice device)

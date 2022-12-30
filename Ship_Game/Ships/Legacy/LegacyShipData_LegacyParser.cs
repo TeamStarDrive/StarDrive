@@ -27,7 +27,7 @@ namespace Ship_Game.Ships.Legacy
 
                 // if this design belongs to a specific Mod, then make sure current ModName matches
                 string modName = s->ModName.AsString;
-                if (modName.NotEmpty() && modName != GlobalStats.ModName)
+                if (!GlobalStats.IsValidForCurrentMod(modName))
                     return null; // ignore this design
 
                 var ship = new LegacyShipData

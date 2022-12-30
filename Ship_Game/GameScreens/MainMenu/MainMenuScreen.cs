@@ -35,7 +35,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             if (!GlobalStats.HasMod)
                 return;
-            GlobalStats.LoadModInfo(GlobalStats.ModName);
+            GlobalStats.LoadModInfo(GlobalStats.ModPath);
             if (ScreenManager.CurrentScreen is MainMenuScreen mainMenu)
                 mainMenu.ReloadContent();
         }

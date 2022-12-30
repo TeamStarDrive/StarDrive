@@ -6,6 +6,8 @@ using System.Web.Script.Serialization;
 using SDGraphics;
 using Ship_Game.UI;
 using Ship_Game.Audio;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace Ship_Game.GameScreens.MainMenu;
 
@@ -30,7 +32,12 @@ public class AutoUpdateChecker : UIElementContainer
 
     public override void OnAdded(UIElementContainer parent)
     {
-        AsyncTask = Parallel.Run(GetVersionAsync);
+        AsyncTask = Parallel.Run(() =>
+        {
+            GetVersionAsync("BlackBox", GlobalStats.VanillaDefaults.DownloadSite, isMod: false);
+            if (GlobalStats.HasMod)
+                GetVersionAsync(GlobalStats.ModName, GlobalStats.ActiveMod.Settings.DownloadSite, isMod: true);
+        });
     }
 
     public override void OnRemoved()
@@ -43,12 +50,14 @@ public class AutoUpdateChecker : UIElementContainer
         GameScreen Screen => Updater.Screen;
         readonly AutoUpdateChecker Updater;
         readonly ReleaseInfo Info;
+        readonly bool IsMod;
 
-        public NewVersionPopup(AutoUpdateChecker updater, in ReleaseInfo info)
+        public NewVersionPopup(AutoUpdateChecker updater, in ReleaseInfo info, bool isMod)
             : base(updater.ContentManager.LoadTextureOrDefault("Textures/MMenu/popup_banner_small.png"))
         {
             Updater = updater;
             Info = info;
+            IsMod = isMod;
 
             string text = "New Version\n" + info.Name;
             UILabel textLabel = base.Add(new UILabel(text, Fonts.Pirulen16));
@@ -56,7 +65,9 @@ public class AutoUpdateChecker : UIElementContainer
             textLabel.AxisAlign = Align.CenterLeft;
             textLabel.SetLocalPos(132, 0);
 
-            string portraitPath = GlobalStats.ActiveMod?.Mod.IconPath ?? "Textures/Portraits/Human.dds";
+            string portraitPath = isMod
+                ? GlobalStats.ModPath + GlobalStats.ActiveMod?.Mod.IconPath
+                : "Textures/Portraits/Human.dds";
             SubTexture portraitTex = updater.ContentManager.LoadTextureOrDefault(portraitPath);
             UIPanel portrait = base.Add(new UIPanel(LocalPos.Zero, new Vector2(62, 74), portraitTex));
             portrait.AxisAlign = Align.CenterLeft;
@@ -75,13 +86,9 @@ public class AutoUpdateChecker : UIElementContainer
         void OnAutoUpdateClicked()
         {
             Remove();
-            Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen,
-                "This will automatically update to the latest version. Continue?", 10f)
-            {
-                Accepted = () => Screen.ScreenManager.AddScreen(new AutoPatcher(Screen, Info)),
-                Cancelled = () => Screen.Add(new AutoUpdateChecker(Screen)), // should we show AutoUpdater again?
-            });
-            //System.Diagnostics.Process.Start(Info.InstallerUrl);
+            var mb = new MessageBoxScreen(Screen, "This will automatically update to the latest version. Continue?", 10f);
+            mb.Accepted = () => Screen.ScreenManager.AddScreen(new AutoPatcher(Screen, Info, IsMod));
+            Screen.ScreenManager.AddScreen(mb);
         }
 
         public override bool HandleInput(InputState input)
@@ -110,15 +117,17 @@ public class AutoUpdateChecker : UIElementContainer
         }
     }
 
-    void NotifyLatestVersion(ReleaseInfo info)
+    void NotifyLatestVersion(ReleaseInfo info, bool isMod)
     {
         Log.Info($"Latest Version: {info.Name} at {info.ZipUrl}");
 
         Screen.RunOnNextFrame(() =>
         {
-            var notification = Add(new NewVersionPopup(this, info));
-            Vector2 endPos = new(10f, Screen.Height * 0.75f);
-            Vector2 startPos = new(endPos.X - (notification.Width + 20), endPos.Y);
+            var notification = Add(new NewVersionPopup(this, info, isMod));
+            float offset = isMod ? -notification.Height*0.9f : 0;
+            float y = Screen.Height * 0.75f + offset;
+            Vector2 endPos = new(10f, y);
+            Vector2 startPos = new(endPos.X - (notification.Width + 20), y);
 
             notification.Anim() // slide in animation
                 .FadeIn(delay:1.5f, duration:0.2f)
@@ -129,25 +138,38 @@ public class AutoUpdateChecker : UIElementContainer
                 .Pos(endPos, endPos-new Vector2(16,0));
         });
     }
+    
+    string RegexExtractTeamAndRepo(string url, string pattern) => Regex.Match(url, pattern).Groups[1].Value.Trim('/');
 
-    void GetVersionAsync()
+    void GetVersionAsync(string modName, string downloadUrl, bool isMod)
     {
-        string downloadUrl = GlobalStats.Defaults.DownloadSite;
+        if (downloadUrl.IsEmpty())
+            return;
         try
         {
+            ReleaseInfo? info = null;
             if (downloadUrl.Contains("github.com"))
             {
                 // "https://github.com/TeamStarDrive/StarDrive/releases" --> "TeamStarDrive/StarDrive"
-                string teamAndRepo = downloadUrl.Replace("https://", "").Replace("github.com/", "").Replace("/releases", "");
+                string teamAndRepo = RegexExtractTeamAndRepo(downloadUrl, "\\/([\\w-]+\\/[\\w-]+)\\/releases");
                 downloadUrl = $"https://api.github.com/repos/{teamAndRepo}/releases/latest";
-
-                ReleaseInfo? info = GetLatestVersionInfoGitHub(downloadUrl);
-                if (info != null)
-                    NotifyLatestVersion(info.Value);
+                info = GetLatestVersionInfoGitHub(modName, downloadUrl, isMod);
+            }
+            else if (downloadUrl.Contains("bitbucket.org"))
+            {
+                // "https://bitbucket.org/codegremlins/combined-arms/downloads/" --> "codegremlins/combined-arms"
+                string teamAndRepo = RegexExtractTeamAndRepo(downloadUrl, "\\/([\\w-]+\\/[\\w-]+)\\/downloads");
+                downloadUrl = $"https://api.bitbucket.org/2.0/repositories/{teamAndRepo}/downloads";
+                info = GetLatestVersionInfoBitBucket(modName, downloadUrl, isMod);
             }
             else
             {
                 Log.Warning($"AutoUpdater: unsupported download url {downloadUrl}");
+            }
+
+            if (info != null)
+            {
+                NotifyLatestVersion(info.Value, isMod);
             }
         }
         catch (Exception e)
@@ -157,10 +179,18 @@ public class AutoUpdateChecker : UIElementContainer
         }
     }
 
-    ReleaseInfo? GetLatestVersionInfoGitHub(string url)
+    static bool IsLatestVerNewer(string latestVersion, bool isMod)
     {
-        using WebClient wc = new();
-        string jsonText = DownloadWithCancel(url, AsyncTask, timeout:TimeSpan.FromSeconds(30));
+        string currentVersion = !isMod ? GlobalStats.Version.Split(' ').First()
+                                       : GlobalStats.ActiveMod.Mod.Version;
+        Log.Info($"AutoUpdater: latest  {latestVersion}");
+        Log.Info($"AutoUpdater: current {currentVersion}");
+        return string.CompareOrdinal(latestVersion, currentVersion) > 0;;
+    }
+
+    ReleaseInfo? GetLatestVersionInfoGitHub(string modName, string url, bool isMod)
+    {
+        string jsonText = DownloadWithCancel(url, AsyncTask, timeout: TimeSpan.FromSeconds(30));
         if (AsyncTask.IsCancelRequested)
             return null;
 
@@ -169,30 +199,61 @@ public class AutoUpdateChecker : UIElementContainer
         string tagName = latestRelease["tag_name"];
         string changelog = latestRelease["body"];
         string latestVersion = tagName.Split('-').Last();
-        string currentVersion = GlobalStats.Version.Split(' ').First();
-        Log.Info($"AutoUpdater: latest  {latestVersion}");
-        Log.Info($"AutoUpdater: current {currentVersion}");
 
-        bool latestIsNewer = string.CompareOrdinal(latestVersion, currentVersion) > 0;
-        if (!latestIsNewer)
-            return null;
-
-        ReleaseInfo info = new(name, latestVersion, changelog, null, null);
-
-        foreach (dynamic asset in latestRelease["assets"])
+        if (IsLatestVerNewer(latestVersion, isMod))
         {
-            string assetName = asset["name"];
-            if (assetName.Contains(".zip"))
+            ReleaseInfo info = new(name, latestVersion, changelog, null, null);
+            foreach (dynamic asset in latestRelease["assets"])
             {
-                info.ZipUrl = asset["browser_download_url"];
-            }
-            else if (assetName.Contains(".exe"))
-            {
-                info.InstallerUrl = asset["browser_download_url"];
+                string assetName = asset["name"];
+                if (assetName.EndsWith(".zip"))
+                {
+                    info.ZipUrl = asset["browser_download_url"];
+                    return info;
+                }
             }
         }
+        return null;
+    }
 
-        return info.ZipUrl.NotEmpty() ? info : null;
+    ReleaseInfo? GetLatestVersionInfoBitBucket(string modName, string url, bool isMod)
+    {
+        string jsonText = DownloadWithCancel(url, AsyncTask, timeout: TimeSpan.FromSeconds(30));
+        if (AsyncTask.IsCancelRequested)
+            return null;
+
+        dynamic downloads = new JavaScriptSerializer().DeserializeObject(jsonText);
+        IEnumerable<dynamic> values = downloads["values"];
+        dynamic value = values.First();
+        string zipName = value["name"];
+        string latestVersion = ParseVersionFromDownloadName(zipName);
+
+        if (IsLatestVerNewer(latestVersion, isMod))
+        {
+            string downloadLink = value["links"]["self"]["href"];
+            string prettyName = $"{modName} {latestVersion}";
+            return new(prettyName, latestVersion, zipName, downloadLink, null);
+        }
+        return null;
+    }
+
+    static string ParseVersionFromDownloadName(string name)
+    {
+        if (name.Contains("_v") || name.Contains("-v"))
+        {
+            foreach (string part in name.Split('_','-'))
+                if (part.Length >= 2 && part[0] == 'v' && char.IsDigit(part[1]))
+                    return part.Substring(1);
+        }
+
+        if (name.Contains("CombinedArms"))
+            return name.Replace("CombinedArms", "").Split('_')[0];
+
+        // fallback, first substring which contains only digits and '.'
+        foreach (string part in name.Split('_','-'))
+            if (part.All(c => char.IsDigit(c) || c == '.'))
+                return part;
+        return null;
     }
 
     // Download utility which can be cancel itself via another `cancellableTask`

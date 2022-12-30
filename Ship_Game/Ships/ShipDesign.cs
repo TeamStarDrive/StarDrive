@@ -75,7 +75,7 @@ namespace Ship_Game.Ships
         public bool IsFromSave { get; set; }
         public bool IsAnExistingSavedDesign { get; set; }
 
-        public bool IsValidForCurrentMod => ModName.IsEmpty() || ModName == GlobalStats.ModName;
+        public bool IsValidForCurrentMod => GlobalStats.IsValidForCurrentMod(ModName);
 
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
         // when a ShipData is copied. @todo Fix ShipData copying

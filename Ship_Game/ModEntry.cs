@@ -35,7 +35,9 @@ namespace Ship_Game
             var portrait = new Rectangle(clickRect.X + 6, clickRect.Y, 128, 128);
             var titlePos = new Vector2(portrait.X + 140, portrait.Y);
             
+            float titleWidth = Fonts.Arial20Bold.TextWidth(Mod.Name);
             batch.DrawString(Fonts.Arial20Bold, Mod.Name, titlePos, Color.Gold);
+            batch.DrawString(Fonts.Arial12Bold, Mod.Path, new(titlePos.X + titleWidth + 8, titlePos.Y+4), Color.Gray);
             titlePos.Y += Fonts.Arial20Bold.LineSpacing + 2;
 
             if (!IsSupported)
