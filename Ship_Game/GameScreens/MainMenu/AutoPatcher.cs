@@ -16,15 +16,17 @@ internal class AutoPatcher : PopupWindow
 {
     readonly GameScreen Screen;
     readonly ReleaseInfo Info;
+    readonly bool IsMod;
     TaskResult CurrentTask;
 
     UIList ProgressSteps;
 
-    public AutoPatcher(GameScreen screen, in ReleaseInfo info) : base(screen, 520, 220)
+    public AutoPatcher(GameScreen screen, in ReleaseInfo info, bool isMod) : base(screen, 520, 220)
     {
         Screen = screen;
         Info = info;
-        TitleText = "StarDrive BlackBox AutoPatcher";
+        IsMod = isMod;
+        TitleText = "AutoPatcher " + info.Name;
         CanEscapeFromScreen = false;
     }
 
@@ -159,8 +161,15 @@ internal class AutoPatcher : PopupWindow
         try
         {
             ScreenManager.ResetHotLoadTargets(); // disable hotloading while patcher is running
-            string workingDir = Directory.GetCurrentDirectory();
+
             string tempDir = GetPatchTempFolder();
+            string workingDir = Directory.GetCurrentDirectory();
+            if (IsMod) workingDir = Path.Combine(workingDir, GlobalStats.ModPath.Replace('/', '\\'));
+
+            // in case the archive extracted files to Folder/ModName instead of Folder/
+            var entries = Directory.GetFileSystemEntries(patchFilesFolder, "*", SearchOption.TopDirectoryOnly);
+            if (entries.Length == 1)
+                patchFilesFolder = entries[0];
 
             FileInfo[] files = Dir.GetFiles(patchFilesFolder);
             int lastPercent = -1;

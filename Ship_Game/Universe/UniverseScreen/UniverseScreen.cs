@@ -547,7 +547,6 @@ namespace Ship_Game
                 FogMap = ResourceManager.Texture2D("UniverseFeather.dds");
             }
 
-            FogMapTarget = RenderTargets.Create(device, 512, 512);
             UpdateFogMap(ScreenManager.SpriteBatch, device); // this will change FogMap surface format
             basicFogOfWarEffect = content.Load<Effect>("Effects/BasicFogOfWar");
         }

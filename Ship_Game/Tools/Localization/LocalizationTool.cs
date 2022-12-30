@@ -184,16 +184,17 @@ namespace Ship_Game.Tools.Localization
             }
         }
 
-        public static void Run(string mod, int mode)
+        // modPath: "Mods/My Mod/"
+        public static void Run(string modPath, int mode)
         {
             string starDrive = Directory.GetCurrentDirectory();
             string gameContent = $"{starDrive}/Content";
-            string modContent = mod.NotEmpty() ? $"{starDrive}/Mods/{mod}" : "";
+            string modContent = modPath.NotEmpty() ? $"{starDrive}/{modPath}" : "";
             
             if (!Directory.Exists(gameContent))
                 throw new Exception($"Could not find StarDrive/Content at: {gameContent}");
             
-            if (mod.NotEmpty() && !Directory.Exists(modContent))
+            if (modPath.NotEmpty() && !Directory.Exists(modContent))
                 throw new Exception($"Could not find Mod at: {modContent}");
 
             string solutionDir = Path.GetFullPath($"{starDrive}/..");
@@ -206,7 +207,7 @@ namespace Ship_Game.Tools.Localization
             if (Directory.Exists(bbContent))
                 UpgradeGameXmls(bbContent, db, mod:false);
 
-            if (mod.NotEmpty())
+            if (modPath.NotEmpty())
                 UpgradeGameXmls(modContent, db, mod:true);
 
             if (Directory.Exists(codeDir))

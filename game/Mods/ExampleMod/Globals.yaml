@@ -50,7 +50,8 @@ Globals:
   # Urls for accessing auto-updater, should be changed for mods, if unused, set to ""
   URL: "https://github.com/TeamStarDrive/StarDrive#readme"
   # auto-update is supported for: GitHub Releases
-  DownloadSite: "https://github.com/TeamStarDrive/StarDrive/releases"
+  #DownloadSite: "https://github.com/TeamStarDrive/StarDrive/releases"
+  DownloadSite: ""
 
   # mod information
   Mod:
