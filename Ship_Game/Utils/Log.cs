@@ -123,29 +123,7 @@ namespace Ship_Game
             #endif
             }
 
-            if (enableSentry)
-            {
-                Sentry = SentrySdk.Init(o =>
-                {
-                    o.Dsn = "https://1c5a169d2a304e5284f326591a2faae3@o57461.ingest.sentry.io/123180";
-                    // When configuring for the first time, to see what the SDK is doing:
-                    //o.Debug = true;
-                    o.Environment = environment;
-                    var versionParts = GlobalStats.Version.Split(' '); // "1.30.13000 release/mars-1.41/f83ab4a"
-                    o.Release = versionParts[0]; // 1.30.13000
-                    o.Distribution = versionParts[1].Replace('/', '-'); // release/mars-1.41/f83ab4a -> release-mars-1.41-f83ab4a
-                    o.IsGlobalModeEnabled = true;
-                    o.CacheDirectoryPath = Dir.StarDriveAppData;
-
-                    // send usage statistics to Sentry
-                    if (GlobalStats.AutoErrorReport)
-                        o.AutoSessionTracking = true;
-                });
-                ConfigureLatestSaveAttachment(null);
-            }
-
-            // only write log header in main game
-            if (showHeader)
+            if (showHeader) // only write log header in main game
             {
                 string init = "\r\n";
                 init +=  " ======================================================\r\n";
@@ -153,6 +131,34 @@ namespace Ship_Game
                 init += $" ==== UTC: {DateTime.UtcNow,-39} ====\r\n";
                 init +=  " ======================================================\r\n";
                 LogWriteAsync(init, ConsoleColor.Green);
+            }
+
+            if (enableSentry)
+            {
+                try // init can fail due to some .NET issues, in this case just give up, because it's rare
+                {
+                    Sentry = SentrySdk.Init(o =>
+                    {
+                        o.Dsn = "https://1c5a169d2a304e5284f326591a2faae3@o57461.ingest.sentry.io/123180";
+                        // When configuring for the first time, to see what the SDK is doing:
+                        //o.Debug = true;
+                        o.Environment = environment;
+                        var versionParts = GlobalStats.Version.Split(' '); // "1.30.13000 release/mars-1.41/f83ab4a"
+                        o.Release = versionParts[0]; // 1.30.13000
+                        o.Distribution = versionParts[1].Replace('/', '-'); // release/mars-1.41/f83ab4a -> release-mars-1.41-f83ab4a
+                        o.IsGlobalModeEnabled = true;
+                        o.CacheDirectoryPath = Dir.StarDriveAppData;
+
+                        // send usage statistics to Sentry
+                        if (GlobalStats.AutoErrorReport)
+                            o.AutoSessionTracking = true;
+                    });
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Sentry init failed: {e.Message}");
+                }
+                ConfigureLatestSaveAttachment(null);
             }
         }
 
