@@ -107,6 +107,10 @@ namespace Ship_Game
         {
             ContentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Content/").Replace('\\', '/');
             ModContentDirectory = GlobalStats.ModPath;
+            if (GlobalStats.HasMod && Directory.Exists(ModContentDirectory + "Content"))
+            {
+                throw new InvalidDataException($"Invalid Mod file tree: {ModContentDirectory+"Content"} must not exist, because the {ModContentDirectory} already is the Content directory!");
+            }
         }
 
         public static Technology Tech(string techUid) => TechTree[techUid];
