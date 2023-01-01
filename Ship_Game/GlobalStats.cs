@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Specialized;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using SDGraphics;
-using Ship_Game.Data.Yaml;
+using SDUtils;
 using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
@@ -33,6 +32,11 @@ namespace Ship_Game
     /// </summary>
     public static class GlobalStats
     {
+        // Configuration file version
+        // If this is different from the baseline exe configuration
+        // Then a refresh of the config file will be required
+        public static int ConfigVersion;
+
         // 1.Major.Patch commit
         public static string Version = ""; // "1.30.13000 develop/f83ab4a"
         public static string ExtendedVersion = ""; // "Mars : 1.20.12000 develop/f83ab4a"
@@ -273,40 +277,42 @@ namespace Ship_Game
 
         public static void LoadConfig()
         {
-            try
-            {
-                NameValueCollection mgr = ConfigurationManager.AppSettings;
-            }
-            catch (ConfigurationErrorsException)
-            {
-                return; // configuration file is missing
-            }
-
             Version = (Assembly.GetEntryAssembly()?
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion ?? "";
 
             ExtendedVersion       = $"Mars : {Version}";
             ExtendedVersionNoHash = $"Mars : {Version.Split(' ')[0]}";
+            
+            var config = OpenUserConfiguration();
+            GetSetting(config, "ConfigVersion"         , ref ConfigVersion);
+            GetSetting(config, "TimesPlayed"           , ref TimesPlayed);
+            GetSetting(config, "perf"                  , ref RestrictAIPlayerInteraction);
+            GetSetting(config, "AutoSaveFreq"          , ref AutoSaveFreq);
+            GetSetting(config, "WindowMode"            , ref WindowMode);
+            GetSetting(config, "AntiAliasSamples"      , ref AntiAlias);
+            GetSetting(config, "PostProcessBloom"      , ref RenderBloom);
+            GetSetting(config, "VSync"                 , ref VSync);
+            GetSetting(config, "TextureQuality"        , ref TextureQuality);
+            GetSetting(config, "TextureSampling"       , ref TextureSampling);
+            GetSetting(config, "MaxAnisotropy"         , ref MaxAnisotropy);
+            GetSetting(config, "ShadowDetail"          , ref ShadowDetail);
+            GetSetting(config, "EffectDetail"          , ref EffectDetail);
+            GetSetting(config, "AutoErrorReport"       , ref AutoErrorReport);
+            GetSetting(config, "ActiveMod"             , ref ModPath);
+            GetSetting(config, "CameraPanSpeed"        , ref CameraPanSpeed);
+            GetSetting(config, "VerboseLogging"        , ref VerboseLogging);
 
-            GetSetting("TimesPlayed"           , ref TimesPlayed);
-            GetSetting("perf"                  , ref RestrictAIPlayerInteraction);
-            GetSetting("AutoSaveFreq"          , ref AutoSaveFreq);
-            GetSetting("WindowMode"            , ref WindowMode);
-            GetSetting("AntiAliasSamples"      , ref AntiAlias);
-            GetSetting("PostProcessBloom"      , ref RenderBloom);
-            GetSetting("VSync"                 , ref VSync);
-            GetSetting("TextureQuality"        , ref TextureQuality);
-            GetSetting("TextureSampling"       , ref TextureSampling);
-            GetSetting("MaxAnisotropy"         , ref MaxAnisotropy);
-            GetSetting("ShadowDetail"          , ref ShadowDetail);
-            GetSetting("EffectDetail"          , ref EffectDetail);
-            GetSetting("AutoErrorReport"       , ref AutoErrorReport);
-            GetSetting("ActiveMod"             , ref ModPath);
-            GetSetting("CameraPanSpeed"        , ref CameraPanSpeed);
-            GetSetting("VerboseLogging"        , ref VerboseLogging);
-
-            Statreset();
+            GetSetting(config, "NotifyEmptyPlanetQueue", ref NotifyEmptyPlanetQueue);
+            GetSetting(config, "PauseOnNotification",  ref PauseOnNotification);
+            GetSetting(config, "IconSize",             ref IconSize);
+            GetSetting(config, "ZoomTracking",         ref ZoomTracking);
+            GetSetting(config, "AltArcControl",        ref AltArcControl);
+            GetSetting(config, "DisableAsteroids",     ref DisableAsteroids);
+            GetSetting(config, "EnableEngineTrails",   ref EnableEngineTrails);
+            GetSetting(config, "MaxDynamicLightSources", ref MaxDynamicLightSources);
+            GetSetting(config, "SimulationFramesPerSecond", ref SimulationFramesPerSecond);
+            GetSetting(config, "NotifyEnemyInSystemAfterLoad", ref NotifyEnemyInSystemAfterLoad);
 
         #if DEBUG
             VerboseLogging = true;
@@ -315,21 +321,21 @@ namespace Ship_Game
             RestrictAIPlayerInteraction = true;
         #endif
 
-            if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
-            if (int.TryParse(GetSetting("EffectsVolume"), out int fxVol))  EffectsVolume = fxVol / 100f;
-            GetSetting("SoundDevice", ref SoundDevice);
-            GetSetting("Language", ref Language);
-            GetSetting("MaxParallelism", ref MaxParallelism);
-            GetSetting("XRES", ref XRES);
-            GetSetting("YRES", ref YRES);
+            if (TryGetSetting(config, "MusicVolume", out int musicVol)) MusicVolume = musicVol / 100f;
+            if (TryGetSetting(config, "EffectsVolume", out int fxVol))  EffectsVolume = fxVol / 100f;
+            GetSetting(config, "SoundDevice", ref SoundDevice);
+            GetSetting(config, "Language", ref Language);
+            GetSetting(config, "MaxParallelism", ref MaxParallelism);
+            GetSetting(config, "XRES", ref XRES);
+            GetSetting(config, "YRES", ref YRES);
+
+            Log.Write(ConsoleColor.DarkYellow, "Loaded App Settings");
 
             // update TimesPlayed stats
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             WriteSetting(config, "TimesPlayed", ++TimesPlayed);
             config.Save();
 
             LoadModInfo(ModPath);
-            Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
         }
 
         public static void ClearActiveMod() => LoadModInfo("");
@@ -385,21 +391,38 @@ namespace Ship_Game
                 ActiveMod = null;
                 Defaults = VanillaDefaults;
             }
-
         }
 
-        public static void Statreset()
+        static Configuration OpenUserConfiguration()
         {
-            GetSetting("NotifyEmptyPlanetQueue", ref NotifyEmptyPlanetQueue);
-            GetSetting("PauseOnNotification",  ref PauseOnNotification);
-            GetSetting("IconSize",             ref IconSize);
-            GetSetting("ZoomTracking",         ref ZoomTracking);
-            GetSetting("AltArcControl",        ref AltArcControl);
-            GetSetting("DisableAsteroids",     ref DisableAsteroids);
-            GetSetting("EnableEngineTrails",   ref EnableEngineTrails);
-            GetSetting("MaxDynamicLightSources", ref MaxDynamicLightSources);
-            GetSetting("SimulationFramesPerSecond", ref SimulationFramesPerSecond);
-            GetSetting("NotifyEnemyInSystemAfterLoad", ref NotifyEnemyInSystemAfterLoad);
+            string configFile = Dir.StarDriveAppData + "/StarDrive.user.config";
+            Configuration exeCfg = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+            // if the AppData config file doesn't exist, create one based on current defaults
+            if (!File.Exists(configFile))
+            {
+                exeCfg.SaveAs(configFile, ConfigurationSaveMode.Full);
+            }
+
+            Configuration OpenRoamingCfg() => ConfigurationManager.OpenMappedExeConfiguration(new()
+            {
+                ExeConfigFilename = configFile,
+            }, ConfigurationUserLevel.None);
+
+            Configuration roamingCfg = OpenRoamingCfg();
+
+            // check if base version has changed, which will require us to overwrite the settings
+            int baseVersion = 1;
+            GetSetting(exeCfg, "ConfigVersion", ref baseVersion);
+            GetSetting(roamingCfg, "ConfigVersion", ref ConfigVersion);
+            if (baseVersion != ConfigVersion)
+            {
+                // do an upgrade
+                exeCfg.SaveAs(configFile, ConfigurationSaveMode.Full);
+                roamingCfg = OpenRoamingCfg();
+                GetSetting(roamingCfg, "ConfigVersion", ref ConfigVersion);
+            }
+            return roamingCfg;
         }
 
         public static void SaveSettings()
@@ -407,7 +430,7 @@ namespace Ship_Game
             XRES = StarDriveGame.Instance.Graphics.PreferredBackBufferWidth;
             YRES = StarDriveGame.Instance.Graphics.PreferredBackBufferHeight;
 
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            Configuration config = OpenUserConfiguration();
             
             WriteSetting(config, "perf", RestrictAIPlayerInteraction);
             WriteSetting(config, "AutoSaveFreq",     AutoSaveFreq);
@@ -445,51 +468,51 @@ namespace Ship_Game
             WriteSetting(config, "VerboseLogging", VerboseLogging);
 
             config.Save();
-            ConfigurationManager.RefreshSection("appSettings");
         }
 
         public static void SaveActiveMod()
         {
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var config = OpenUserConfiguration();
             WriteSetting(config, "ActiveMod", ModPath);
             config.Save();
         }
 
 
-        // Only assigns the ref parameter is parsing succeeds. This avoid overwriting default values
-        static bool GetSetting(string name, ref float f)
-        {
-            if (!float.TryParse(ConfigurationManager.AppSettings[name], out float v)) return false;
-            f = v;
-            return true;
-        }
-        static bool GetSetting(string name, ref int i)
-        {
-            if (!int.TryParse(ConfigurationManager.AppSettings[name], out int v)) return false;
-            i = v;
-            return true;
-        }
-        static bool GetSetting(string name, ref bool b)
-        {
-            if (!bool.TryParse(ConfigurationManager.AppSettings[name], out bool v)) return false;
-            b = v;
-            return true;
-        }
-        static bool GetSetting(string name, ref string s)
-        {
-            string v = ConfigurationManager.AppSettings[name];
-            if (string.IsNullOrEmpty(v)) return false;
-            s = v;
-            return true;
-        }
-        static bool GetSetting<T>(string name, ref T e) where T : struct
-        {
-            if (!Enum.TryParse(ConfigurationManager.AppSettings[name], out T v)) return false;
-            e = v;
-            return true;
-        }
-        static string GetSetting(string name) => ConfigurationManager.AppSettings[name];
+        delegate bool ParseMethod<T>(string s, out T value);
 
+        // Only assigns the ref parameter is parsing succeeds. This avoid overwriting default values
+        static void GetSetting<T>(Configuration config, string name, ref T maybeOut, ParseMethod<T> parser)
+        {
+            string setting = GetSetting(config, name);
+            if (parser(setting, out T parsed))
+            {
+                maybeOut = parsed;
+            }
+        }
+
+        static void GetSetting(Configuration config, string name, ref float maybeOut) => GetSetting(config, name, ref maybeOut, float.TryParse);
+        static void GetSetting(Configuration config, string name, ref int maybeOut) => GetSetting(config, name, ref maybeOut, int.TryParse);
+        static void GetSetting(Configuration config, string name, ref bool maybeOut) => GetSetting(config, name, ref maybeOut, bool.TryParse);
+        static void GetSetting(Configuration config, string name, ref string maybeOut)
+        {
+            GetSetting(config, name, ref maybeOut, 
+                (string s, out string parsed) => (parsed = !string.IsNullOrEmpty(s) ? s : null) != null);
+        }
+        static void GetSetting<T>(Configuration config, string name, ref T maybeOut) where T : struct
+        {
+            GetSetting(config, name, ref maybeOut, Enum.TryParse<T>);
+        }
+
+        static bool TryGetSetting(Configuration config, string name, out int value)
+        {
+            return int.TryParse(GetSetting(config, name), out value);
+        }
+
+        static string GetSetting(Configuration config, string name)
+        {
+            var element = config.AppSettings.Settings[name];
+            return element?.Value;
+        }
 
 
         static void WriteSetting(Configuration config, string name, float v)
