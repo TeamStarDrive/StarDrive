@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!-- WARNING: VERSION MUST BE BUMPED, OTHERWISE NEW FILES WILL NOT BE COPIED OVER -->
   <Product Id="*" Name="StarDrive BlackBox Mars 1.41"
-             Language="1033"
-             Version="1.41.0.0"
-             Manufacturer="TeamStarDrive"
-             UpgradeCode="25C8175D-6A2F-4934-A81B-04568A3CCA05">
+           Language="1033"
+           Version="1.41.650"
+           Manufacturer="TeamStarDrive"
+           UpgradeCode="25C8175D-6A2F-4934-A81B-04568A3CCA05">
 
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <MediaTemplate EmbedCab="yes" />
