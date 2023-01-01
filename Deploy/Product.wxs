@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="StarDrive BlackBox Mars 1.41"
+             Language="1033"
+             Version="1.41.0.0"
+             Manufacturer="TeamStarDrive"
+             UpgradeCode="25C8175D-6A2F-4934-A81B-04568A3CCA05">
+
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="icon.ico" SourceFile="$(var.ProjectDir)icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/TeamStarDrive/StarDrive#readme" />
+
+    <WixVariable Id="WixUIBannerBmp" Value="Images\installer_top-banner.jpg" />
+    <WixVariable Id="WixUIDialogBmp" Value="Images\installer_background.jpg" />
+    <WixVariable Id="WixUILicenseRtf" Value="..\License.rtf" />
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UIRef Id="WixUI_InstallDir" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <Feature Id="ProductFeature" Title="StarDrive BlackBox" Level="1">
+      <ComponentGroupRef Id="GameContent" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationShortcutDesktop" />
+    </Feature>
+  </Product>
+  
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="StarDrive" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="StarDrive" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <?include $(sys.CURRENTDIR)\GeneratedFilesList.wxi?>
+    <!-- <?include $(sys.CURRENTDIR)\FilesExample.wxi?> -->
+  </Fragment>
+
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="B6103B9A-F747-4037-91BE-8D6348CE8B59">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="StarDrive BlackBox" Description="StarDrive BlackBox Mars"
+                  Target="[INSTALLFOLDER]StarDrive.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\StarDrivePlus" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="ApplicationShortcutDesktop" Guid="81C7F3C1-B7D0-400C-980B-247789BD1624">
+        <Shortcut Id="ApplicationDesktopShortcut"
+                  Name="StarDrive BlackBox" Description="StarDrive BlackBox Mars"
+                  Target="[INSTALLFOLDER]StarDrive.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="RemoveDesktopFolder" Directory="DesktopFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\StarDrivePlus" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+</Wix>
