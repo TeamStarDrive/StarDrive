@@ -65,10 +65,10 @@ public class AutoUpdateChecker : UIElementContainer
             textLabel.AxisAlign = Align.CenterLeft;
             textLabel.SetLocalPos(132, 0);
 
-            string portraitPath = isMod
-                ? GlobalStats.ModPath + GlobalStats.ActiveMod?.Mod.IconPath
-                : "Textures/Portraits/Human.dds";
-            SubTexture portraitTex = updater.ContentManager.LoadTextureOrDefault(portraitPath);
+            SubTexture portraitTex = isMod 
+                ? updater.ContentManager.LoadModTexture(GlobalStats.ModPath, GlobalStats.ActiveMod?.Mod.IconPath)
+                : updater.ContentManager.LoadTextureOrDefault("Textures/Portraits/Human.dds");
+
             UIPanel portrait = base.Add(new UIPanel(LocalPos.Zero, new Vector2(62, 74), portraitTex));
             portrait.AxisAlign = Align.CenterLeft;
             portrait.SetLocalPos(48, 0);
