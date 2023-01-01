@@ -65,10 +65,10 @@ public class AutoUpdateChecker : UIElementContainer
             textLabel.AxisAlign = Align.CenterLeft;
             textLabel.SetLocalPos(132, 0);
 
-            string portraitPath = isMod
-                ? GlobalStats.ModPath + GlobalStats.ActiveMod?.Mod.IconPath
-                : "Textures/Portraits/Human.dds";
-            SubTexture portraitTex = updater.ContentManager.LoadTextureOrDefault(portraitPath);
+            SubTexture portraitTex = isMod 
+                ? updater.ContentManager.LoadModTexture(GlobalStats.ModPath, GlobalStats.ActiveMod?.Mod.IconPath)
+                : updater.ContentManager.LoadTextureOrDefault("Textures/Portraits/Human.dds");
+
             UIPanel portrait = base.Add(new UIPanel(LocalPos.Zero, new Vector2(62, 74), portraitTex));
             portrait.AxisAlign = Align.CenterLeft;
             portrait.SetLocalPos(48, 0);
@@ -85,6 +85,8 @@ public class AutoUpdateChecker : UIElementContainer
 
         void OnAutoUpdateClicked()
         {
+            Log.LogEventStats(Log.GameEvent.AutoUpdateClicked);
+
             Remove();
             var mb = new MessageBoxScreen(Screen, "This will automatically update to the latest version. Continue?", 10f);
             mb.Accepted = () => Screen.ScreenManager.AddScreen(new AutoPatcher(Screen, Info, IsMod));
@@ -119,7 +121,7 @@ public class AutoUpdateChecker : UIElementContainer
 
     void NotifyLatestVersion(ReleaseInfo info, bool isMod)
     {
-        Log.Info($"Latest Version: {info.Name} at {info.ZipUrl}");
+        Log.Write($"Latest Version: {info.Name} at {info.ZipUrl}");
 
         Screen.RunOnNextFrame(() =>
         {
@@ -175,7 +177,7 @@ public class AutoUpdateChecker : UIElementContainer
         catch (Exception e)
         {
             // can easily fail due to network issues etc, shouldn't be a big deal
-            Log.Warning($"GetVersionAsync {downloadUrl} failed: {e.Message}");
+            Log.Warning($"GetVersionAsync {modName} {downloadUrl} failed: {e.Message}");
         }
     }
 
@@ -183,8 +185,8 @@ public class AutoUpdateChecker : UIElementContainer
     {
         string currentVersion = !isMod ? GlobalStats.Version.Split(' ').First()
                                        : GlobalStats.ActiveMod.Mod.Version;
-        Log.Info($"AutoUpdater: latest  {latestVersion}");
-        Log.Info($"AutoUpdater: current {currentVersion}");
+        Log.Write($"AutoUpdater: latest  {latestVersion}");
+        Log.Write($"AutoUpdater: current {currentVersion}");
         return string.CompareOrdinal(latestVersion, currentVersion) > 0;;
     }
 

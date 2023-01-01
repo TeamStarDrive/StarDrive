@@ -34,6 +34,8 @@ internal class AutoPatcher : PopupWindow
     {
         base.LoadContent();
 
+        Log.LogEventStats(Log.GameEvent.AutoUpdateStarted);
+
         ProgressSteps = Add(new UIList(new(460, 200), ListLayoutStyle.ResizeList));
         ProgressSteps.AxisAlign = Align.TopCenter;
         ProgressSteps.SetLocalPos(0, 70);
@@ -91,7 +93,9 @@ internal class AutoPatcher : PopupWindow
         }
         catch (Exception e)
         {
-            Log.Warning($"DownloadAndUnzip {Info.ZipUrl} failed: {e.Message}");
+            // this can fail for a lot of reasons, so it's not a critical error
+            Log.Warning($"Download {Info.ZipUrl} failed: {e.Message}");
+            AddErrorMessageAndAllowExit("Download failed!", e.Message);
         }
     }
 
@@ -114,7 +118,8 @@ internal class AutoPatcher : PopupWindow
         }
         catch (Exception e)
         {
-            Log.Warning($"Unzip {zipArchive} failed: {e.Message}");
+            Log.Error($"Unzip {zipArchive} failed: {e.Message}");
+            AddErrorMessageAndAllowExit("Unzip failed!", e.Message);
         }
     }
 
@@ -192,6 +197,7 @@ internal class AutoPatcher : PopupWindow
 
             RunOnNextFrame(() =>
             {
+                Log.LogEventStats(Log.GameEvent.AutoUpdateFinished);
                 ProgressSteps.AddLabel("Restarting StarDrive ...")
                     .Anim().Alpha(new(0.5f,1.0f)).Loop();
                 CurrentTask = Parallel.Run(RestartAsync);
@@ -200,18 +206,23 @@ internal class AutoPatcher : PopupWindow
         catch (Exception e)
         {
             Log.Error(e, "ApplyPatch failed");
-            RunOnNextFrame(() =>
-            {
-                CanEscapeFromScreen = true;
-
-                var label = ProgressSteps.AddLabel("Apply Patch failed!");
-                label.Color = Color.Red;
-                label.Anim().Alpha(new(0.5f,1.0f)).Loop();
-
-                var details = ProgressSteps.AddLabel(e.Message);
-                details.Color = Color.Red;
-            });
+            AddErrorMessageAndAllowExit("Apply Patch failed!", e.Message);
         }
+    }
+
+    void AddErrorMessageAndAllowExit(string title, string details)
+    {
+        RunOnNextFrame(() =>
+        {
+            CanEscapeFromScreen = true;
+
+            var label = ProgressSteps.AddLabel(title);
+            label.Color = Color.Red;
+            label.Anim().Alpha(new(0.5f, 1.0f)).Loop();
+
+            var detailsLabel = ProgressSteps.AddLabel(details);
+            detailsLabel.Color = Color.Red;
+        });
     }
 
     /// <summary>
