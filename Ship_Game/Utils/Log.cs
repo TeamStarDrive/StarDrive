@@ -347,7 +347,10 @@ namespace Ship_Game
             NewGame,
             LoadGame,
             YouWin,
-            YouLose
+            YouLose,
+            AutoUpdateClicked, // user has clicked on the Auto-Update banner
+            AutoUpdateStarted, // user actually OK'd the Auto-Update process
+            AutoUpdateFinished, // auto-update actually finished
         }
 
         /// <summary>

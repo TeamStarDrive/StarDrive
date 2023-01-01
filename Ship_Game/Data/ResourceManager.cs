@@ -231,7 +231,13 @@ namespace Ship_Game
         {
             InitContentDir();
             CreateCoreGfxResources();
-            if (Verbose) Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
+            if (Verbose)
+            {
+                if (GlobalStats.HasMod)
+                    Log.Write($"Load ModPath:{ModContentDirectory}  Mod:{GlobalStats.ModName}  ModVersion:{GlobalStats.ActiveMod.Mod.Version}  GameVersion:{GlobalStats.ExtendedVersion}");
+                else
+                    Log.Write($"Load Vanilla GameVersion:{GlobalStats.ExtendedVersion}");
+            }
 
             BeginPerfProfile();
             Profiled("LoadLanguage", () => LoadLanguage(GlobalStats.Language)); // must be before LoadFonts
