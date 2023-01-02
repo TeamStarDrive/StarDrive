@@ -53,7 +53,7 @@ namespace Ship_Game.Ships
         public Point GridCenter;
 
         public bool Unlockable = true;
-        public HashSet<string> TechsNeeded = new HashSet<string>();
+        public HashSet<string> TechsNeeded = new();
 
         // original source of this ShipHull
         public FileInfo Source;
@@ -65,6 +65,8 @@ namespace Ship_Game.Ships
         public float ModelZ { get; private set; }
         public HullBonus Bonuses { get; private set; }
         public bool IsValidForCurrentMod => GlobalStats.IsValidForCurrentMod(ModName);
+
+        public override string ToString() => $"ShipHull={HullName} Source={Source?.FullName} Model={ModelPath}";
 
         public struct ThrusterZone
         {

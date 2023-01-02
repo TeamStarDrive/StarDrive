@@ -10,7 +10,7 @@ namespace Ship_Game
         public GamePlayGlobals Settings;
         public ModInformation Mod => Settings.Mod;
         public bool IsSupported { get; }
-        SubTexture PortraitTex;
+        public SubTexture PortraitTex;
 
         public ModEntry(GamePlayGlobals settings)
         {
@@ -18,9 +18,11 @@ namespace Ship_Game
             IsSupported = CheckSupport(Mod.SupportedBlackBoxVersions);
         }
 
-        public void LoadPortrait(GameScreen screen)
+        public SubTexture LoadPortrait(GameScreen screen)
         {
-            PortraitTex = screen.ContentManager.LoadModTexture(Mod.Path, Mod.IconPath);
+            if (PortraitTex == null || PortraitTex.Texture.IsDisposed)
+                PortraitTex = screen.ContentManager.LoadModTexture(Mod.Path, Mod.IconPath);
+            return PortraitTex;
         }
 
         public void LoadContent(GameScreen screen)
