@@ -19,7 +19,7 @@
   <Description>This basic engine provides ample thrust for a moderate energy cost.  The maximum speed and maneuverability of a ship is directly related to a ship's thrust to mass ratio.   </Description>
 
   <PowerDraw>5</PowerDraw>
-	<PowerDrawAtWarp>-5</PowerDrawAtWarp>
+    <PowerDrawAtWarp>-5</PowerDrawAtWarp>
 
   <NameIndex>5015</NameIndex>
   <DescriptionIndex>5016</DescriptionIndex>

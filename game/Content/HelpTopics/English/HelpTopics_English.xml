@@ -4,72 +4,72 @@
       <Category>BlackBox</Category>
       <Title>Updates</Title>
       <ShortDescription>How to Check For Updates</ShortDescription>
-      <Text>Black Version can be seen in the bottom left corner of the main screen or from the top of this wiki. Then click the downloads link to check for updates</Text>	  
+      <Text>Black Version can be seen in the bottom left corner of the main screen or from the top of this wiki. Then click the downloads link to check for updates</Text>      
     </HelpTopic>
-	<HelpTopic>
+    <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Test DownLoad Link</Title>
       <ShortDescription>Link to BitBucket Downloads</ShortDescription>
       <Text>Check the downloads for a version newer than yours</Text>
-	  <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/downloads/</Link>
+      <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/downloads/</Link>
     </HelpTopic>
-	<HelpTopic>
+    <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Release DownLoad Link</Title>
       <ShortDescription>Link to BitBucket Downloads</ShortDescription>
       <Text>Check the file name for the release version</Text>
-	  <Link>http://www.moddb.com/mods/deveks-mod/downloads/blackbox-radicalelements-release</Link>
+      <Link>http://www.moddb.com/mods/deveks-mod/downloads/blackbox-radicalelements-release</Link>
     </HelpTopic>
-	<HelpTopic>
+    <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Discord Link</Title>
       <ShortDescription>Link To BlackBox Chat</ShortDescription>
       <Text>Drop in and tell us how things are going or ask a question. This is by far the fastest way to contact us.</Text>
-	  <Link>https://discord.gg/nrMKaWr</Link>
+      <Link>https://discord.gg/nrMKaWr</Link>
     </HelpTopic>
-	<HelpTopic>
+    <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Steam Discussion</Title>
       <ShortDescription>Link To Steam Forums</ShortDescription>
       <Text>Post a steam message to ask a question</Text>
-	  <Link>http://steamcommunity.com/app/220660/discussions/0/41973821037067053/</Link>
+      <Link>http://steamcommunity.com/app/220660/discussions/0/41973821037067053/</Link>
     </HelpTopic>
-	<HelpTopic>
+    <HelpTopic>
       <Category>BlackBox</Category>
       <Title>FaceBook</Title>
       <ShortDescription>Link To FaceBook</ShortDescription>
       <Text>FaceBook can help keep up to date</Text>
-	  <Link>https://www.facebook.com/SDBlackBox/</Link>
+      <Link>https://www.facebook.com/SDBlackBox/</Link>
     </HelpTopic>
-	<HelpTopic>
+    <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Twitter</Title>
       <ShortDescription>Link To Twitter</ShortDescription>
       <Text>If possible we will tweet new releases here</Text>
-	  <Link>https://twitter.com/StardriveBBMod</Link>
+      <Link>https://twitter.com/StardriveBBMod</Link>
     </HelpTopic>
-	<HelpTopic>
+    <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Report An Issue</Title>
       <ShortDescription>BitBucket Issue</ShortDescription>
       <Text>https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new</Text>
-	  <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new</Link>
+      <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new</Link>
     </HelpTopic>
-	<HelpTopic>
+    <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Known Issues</Title>
       <ShortDescription>Issues And Work Arounds</ShortDescription>
       <Text>Short List of issues and known workarounds if available</Text>
-	  <Link>http://www.moddb.com/mods/deveks-mod/forum/board/issue-fixes</Link>
+      <Link>http://www.moddb.com/mods/deveks-mod/forum/board/issue-fixes</Link>
     </HelpTopic>
-	<HelpTopic>
+    <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Want To Help?</Title>
       <ShortDescription>BitBucket Issue</ShortDescription>
       <Text>https://bitbucket.org/CrunchyGremlin/sd-blackbox/overview</Text>
-	  <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/overview</Link>
+      <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/overview</Link>
     </HelpTopic>
-	
+    
     <HelpTopic>
       <Category>Tutorials</Category>
       <Title>Overview</Title>

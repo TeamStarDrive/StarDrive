@@ -18,35 +18,35 @@
   <HullsUnlocked>
     <UnlockedHull>
       <ShipType>Cordrazine</ShipType>
-      <Name>Cordrazine/Cordrazine_Station</Name>	
+      <Name>Cordrazine/Cordrazine_Station</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Draylok</ShipType>
-      <Name>Draylok/Draylok_Station</Name>	
+      <Name>Draylok/Draylok_Station</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Kulrathi</ShipType>
-      <Name>Kulrathi/Kulrathi_Station</Name>	
+      <Name>Kulrathi/Kulrathi_Station</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Opteris</ShipType>
-      <Name>Opteris/Opteris_Station</Name>	
+      <Name>Opteris/Opteris_Station</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Pollops</ShipType>
-      <Name>Pollops/Pollops_Station</Name>	
+      <Name>Pollops/Pollops_Station</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Ralyeh</ShipType>
-      <Name>Ralyeh/Ralyeh_Station</Name>	
-    </UnlockedHull>		
-    <UnlockedHull>	
+      <Name>Ralyeh/Ralyeh_Station</Name>    
+    </UnlockedHull>        
+    <UnlockedHull>    
       <ShipType>Terran</ShipType>
-      <Name>Terran/Terran_Station</Name>	
+      <Name>Terran/Terran_Station</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Vulfen</ShipType>
-      <Name>Vulfen/Vulfen_Station</Name>	
+      <Name>Vulfen/Vulfen_Station</Name>    
     </UnlockedHull>
   </HullsUnlocked>
 </Technology>

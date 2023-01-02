@@ -1,19 +1,19 @@
 <Building>
-	<Name>Planet Fortification</Name>
-	<Icon>PF</Icon>
-	
-	<Cost>500</Cost>
+    <Name>Planet Fortification</Name>
+    <Icon>PF</Icon>
+    
+    <Cost>500</Cost>
     <Maintenance>2</Maintenance>
-	
+    
     <InvadeInjurePoints>2</InvadeInjurePoints>
-	<PlanetaryShieldStrengthAdded>1000</PlanetaryShieldStrengthAdded>
-	<Strength>50</Strength>
-	<CombatStrength>50</CombatStrength>
-	<SoftAttack>50</SoftAttack>
-	<HardAttack>50</HardAttack>
-	
-	<!-- For localization in GameText.yaml -->
-	<NameTranslationIndex>8177</NameTranslationIndex>
-	<DescriptionIndex>17415</DescriptionIndex>
-	<ShortDescriptionIndex>17416</ShortDescriptionIndex>
+    <PlanetaryShieldStrengthAdded>1000</PlanetaryShieldStrengthAdded>
+    <Strength>50</Strength>
+    <CombatStrength>50</CombatStrength>
+    <SoftAttack>50</SoftAttack>
+    <HardAttack>50</HardAttack>
+    
+    <!-- For localization in GameText.yaml -->
+    <NameTranslationIndex>8177</NameTranslationIndex>
+    <DescriptionIndex>17415</DescriptionIndex>
+    <ShortDescriptionIndex>17416</ShortDescriptionIndex>
 </Building>

@@ -623,24 +623,24 @@
       <DL_Pac>PLURAL should initiate relations with friends.</DL_Pac>
       <DL_Hon>PLURAL not honorable. Execute 'War'</DL_Hon>
     </DialogLine>
-	
-	<!-- Merge and Surrender -->
-	
+    
+    <!-- Merge and Surrender -->
+    
     <DialogLine>
       <DialogType>SURRENDER</DialogType>
       <Default>We are terminated. We Surrender.</Default>
-    </DialogLine>	
+    </DialogLine>    
     <DialogLine>
       <DialogType>OFFER_MERGE</DialogType>
       <Default>PLURAL, we are not strong anymore. Merge request opened.</Default>
-    </DialogLine>		
+    </DialogLine>        
     <DialogLine>
       <DialogType>OFFER_MERGE_ACCEPTED</DialogType>
       <Default>Exit code 0</Default>
-    </DialogLine>			
+    </DialogLine>            
     <DialogLine>
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>Merge requset declined. Will request a different reviewer.</Default>
-    </DialogLine>						
+    </DialogLine>                        
   </Dialogs>
 </DiplomacyDialog>

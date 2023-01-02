@@ -15,7 +15,7 @@
       <BonusType>Weapon_HP</BonusType><!--pct of health-->
       <Tags>
         <string>Missile</string>
-      </Tags>	  
+      </Tags>      
       <Bonus>0.25</Bonus>
       <BonusIndex>617</BonusIndex>
     </UnlockedBonus>

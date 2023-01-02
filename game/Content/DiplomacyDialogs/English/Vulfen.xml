@@ -635,25 +635,25 @@
       <DL_Pac>You are innocent pups. Next time try being friends with our friends.</DL_Pac>
       <DL_Hon>Grrr! War!</DL_Hon>
     </DialogLine>
-	
-	<!-- Merge and Surrender -->
-	
+    
+    <!-- Merge and Surrender -->
+    
     <DialogLine>
       <DialogType>SURRENDER</DialogType>
       <Default>You are the hunder, we are the pray! Please accept our surrender and don't eat us.</Default>
-    </DialogLine>	
+    </DialogLine>    
     <DialogLine>
       <DialogType>OFFER_MERGE</DialogType>
       <Default>Grrr! We are being hunted like animals. We prefer to join with you.</Default>
-    </DialogLine>		
+    </DialogLine>        
     <DialogLine>
       <DialogType>OFFER_MERGE_ACCEPTED</DialogType>
       <Default>Grrr! We are now your servants.</Default>
-    </DialogLine>			
+    </DialogLine>            
     <DialogLine>
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>Grrr? Grrrrr!</Default>
-    </DialogLine>							
-	
+    </DialogLine>                            
+    
   </Dialogs>
 </DiplomacyDialog>

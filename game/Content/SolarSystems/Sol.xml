@@ -6,13 +6,13 @@
       <Planet>Mercury</Planet>
       <SpecialDescription>Mercury is the innermost and smallest planet in the Sol system.  The mean surface temperature of Mercury is 442.5 Kelvin.  Nevertheless, water ice exists in the polar basins that are shielded from direct sunlight.  This planet is not at all suitable for colonization.  </SpecialDescription>
       <WhichPlanet>7</WhichPlanet>
-	  <planetScale>0.6</planetScale>
+      <planetScale>0.6</planetScale>
     </Ring>
     <Ring>
       <Planet>Venus</Planet>
       <SpecialDescription>Venus is named for the Roman goddess of love and beauty.  After the moon, it is the brightest natural object in Earth's night sky.  Venus is covered with an opaque layer of clouds composed of sulfuric acid.  Its surface geology is also highly volcanic, and its mean temperature is in fact higher than that of Mercury.  Consequently, this planet is very ill-suited to colonization and has thus far been quite ignored by colonization efforts.  </SpecialDescription>
       <WhichPlanet>5</WhichPlanet>
-	  <planetScale>0.8</planetScale>
+      <planetScale>0.8</planetScale>
     </Ring>
     <Ring>
       <Planet>Earth</Planet>
@@ -20,19 +20,19 @@
       <WhichPlanet>25</WhichPlanet>
       <HomePlanet>true</HomePlanet>
       <Station>Yes</Station>  
-	  <planetScale>1.2</planetScale>
-	  <Moons>
-		<Moon>
-			<WhichMoon>20</WhichMoon>
-			<MoonScale>1</MoonScale>
-		</Moon>
-	  </Moons>
+      <planetScale>1.2</planetScale>
+      <Moons>
+        <Moon>
+            <WhichMoon>20</WhichMoon>
+            <MoonScale>1</MoonScale>
+        </Moon>
+      </Moons>
     </Ring>
     <Ring>
       <Planet>Mars</Planet>
       <SpecialDescription>The inhabitants of Earth have looked to the Red Planet for centuries as the first logical step for extraplanetary colonization. The martian soil is comprised of a reddish-brown dust that is completely inorganic. Its methane atomsphere makes Mars fairly inhospitable. Colonization here would require extensive biodome structures or terraforming machinery. </SpecialDescription>
       <WhichPlanet>14</WhichPlanet>
-	  <planetScale>0.85</planetScale>
+      <planetScale>0.85</planetScale>
     </Ring>
     <Ring>
       <Asteroids>Yes</Asteroids>
@@ -41,38 +41,38 @@
       <Planet>Jupiter</Planet>
       <SpecialDescription>Jupiter is the largest planet in the Sol system.  This gas giant is two and a half times the mass of all the other planets in the Sol System combined. Jupiter is primarily composed of hydrogen with a quarter of its mass being helium. It is not suitable for colonization. </SpecialDescription>
       <WhichPlanet>28</WhichPlanet>
-	  <planetScale>4.2</planetScale>
+      <planetScale>4.2</planetScale>
     </Ring>
     <Ring>
       <Planet>Planet Nine</Planet>
       <SpecialDescription>Long searched planet that had extreme elliptical orbit around Sol for milions od years, after recent passage of different star changed its orbit.</SpecialDescription>
       <WhichPlanet>39</WhichPlanet>
-	  <planetScale>1.2</planetScale>
+      <planetScale>1.2</planetScale>
     </Ring>
     <Ring>
       <Planet>Saturn</Planet>
       <SpecialDescription>Saturn's planetary rings are the most conspicuous in the Sol system.  The rings are mostly composed of water ice and dust particles.  As a gas giant, it is not suitable for human colonization.  </SpecialDescription>
       <WhichPlanet>2</WhichPlanet>
       <HasRings>Yes</HasRings>
-	  <planetScale>4</planetScale>
+      <planetScale>4</planetScale>
     </Ring>
     <Ring>
       <Planet>Uranus</Planet>
       <SpecialDescription>Uranus is sometimes classified as an "Ice Giant" due to the cold cloud of methane, water, and ammonia ices mixed into its hydrogen-helium atmosphere.  A unique feature of Uranus is that is axis of rotation is rotated sideways compared to the other planets in this solar system: its poles are located where the other planets' equators are located.  As a gas giant, this planet is not habitable.  </SpecialDescription>
       <WhichPlanet>15</WhichPlanet>
-	  <planetScale>2.6</planetScale>
+      <planetScale>2.6</planetScale>
     </Ring>
     <Ring>
       <Planet>Neptune</Planet>
       <SpecialDescription>Named for the Roman god of the sea, its astronomical symbol is a stylised version of the god Neptune's trident.  </SpecialDescription>
       <WhichPlanet>26</WhichPlanet>
-	  <planetScale>2.3</planetScale>
+      <planetScale>2.3</planetScale>
     </Ring>
     <Ring>
       <Planet>Pluto</Planet>
       <SpecialDescription>Composed primarily of rock and ice Pluto is relatively small, considered a dwarf planet.  Pluto was named after the god of the underworld appropriately, for it is a dark and cold world barely of any use to colonists.  </SpecialDescription>
       <WhichPlanet>32</WhichPlanet>
-	  <planetScale>0.8</planetScale>
+      <planetScale>0.8</planetScale>
     </Ring>
     <Ring>
       <Asteroids>Yes</Asteroids>

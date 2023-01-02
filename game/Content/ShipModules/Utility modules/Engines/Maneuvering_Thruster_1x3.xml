@@ -17,7 +17,7 @@
 
 
   <PowerDraw>30</PowerDraw>
-	<PowerDrawAtWarp>-30</PowerDrawAtWarp>
+    <PowerDrawAtWarp>-30</PowerDrawAtWarp>
 
   <NameIndex>5042</NameIndex>
   <DescriptionIndex>5043</DescriptionIndex>
