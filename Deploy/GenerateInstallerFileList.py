@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, argparse, hashlib
+import os, argparse, hashlib, uuid
 from typing import List, Dict, Iterable
 from DeployUtils import console, env
 
@@ -27,12 +27,13 @@ def read_lines(listfile) -> List[str]:
     return lines
 
 class FileInfo:
-    def __init__(self, game_dir, relpath, hash=None):
+    def __init__(self, game_dir, relpath, guid, hash=None):
         self.filename = relpath
+        self.guid = guid
         self.hash = FileInfo.get_hash(game_dir, relpath) if not hash else hash
 
-    def __str__(self): return self.hash + ';' + self.filename
-    def __repr__(self): return self.hash + ';' + self.filename
+    def __str__(self): return self.hash + ';' + self.guid + ';' + self.filename
+    def __repr__(self): return self.hash + ';' + self.guid + ';' + self.filename
 
     @staticmethod
     def get_hash(game_dir, filename) -> str:
@@ -46,7 +47,7 @@ class FileInfo:
         files = []
         for line in read_lines(listfile):
             parts = line.split(';')
-            files.append(FileInfo(game_dir, relpath=parts[1], hash=parts[0]))
+            files.append(FileInfo(game_dir, relpath=parts[2], guid=parts[1], hash=parts[0]))
         return files
 
     @staticmethod
@@ -73,7 +74,8 @@ class FileInfo:
         for (dirpath, _, filenames) in os.walk(path_combine(game_dir, subdir)):
             dirname = dirpath.replace(game_dir, '')
             for f in filenames:
-                files.append(FileInfo(game_dir, path_combine(dirname, f), hash=None))
+                guid = str(uuid.uuid4()).upper()
+                files.append(FileInfo(game_dir, path_combine(dirname, f), guid=guid, hash=None))
         return files
 
     @staticmethod
@@ -82,7 +84,8 @@ class FileInfo:
         for f in os.listdir(path_combine(game_dir, subdir)):
             if os.path.splitext(f)[1].lower() in extensions:
                 if not f in exclude:
-                    files.append(FileInfo(game_dir, f, hash=None))
+                    guid = str(uuid.uuid4()).upper()
+                    files.append(FileInfo(game_dir, f, guid=guid, hash=None))
         return files
 
 
@@ -129,6 +132,7 @@ class MsiFileInfo(FileInfo):
     def __init__(self, info:FileInfo):
         self.filename = info.filename
         self.hash = info.hash
+        self.guid = info.guid
         self.id = generate_stupid_msi_id(info.filename)
 
 
@@ -177,7 +181,7 @@ def append_stupid_msi_directory_structure(lines:list, dir:DirectoryInfo, indent)
 def append_stupid_msi_files(lines:list, dir:DirectoryInfo):
     lines.append(f'  <DirectoryRef Id="{dir.id}">\n')
     for file in dir.files:
-        lines.append(f'    <Component Id="C_{file.id}"> <File Id="{file.id}" Source="$(var.SourceDir){file.filename}" KeyPath="yes" /> </Component>\n')
+        lines.append(f'    <Component Id="C_{file.id}" Guid="{file.guid}"> <File Id="{file.id}" Source="$(var.SourceDir){file.filename}" KeyPath="yes" /> </Component>\n')
     lines.append(f'  </DirectoryRef>\n')
     for subdir in dir.subdirs:
         append_stupid_msi_files(lines, subdir)
