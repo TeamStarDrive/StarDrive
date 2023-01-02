@@ -1,40 +1,40 @@
 <?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<Cost>4</Cost>
-	<!-- Tech Level -->
-	<TechLevel>2</TechLevel>
-	<TechBranch>Shield</TechBranch>
-	<!-- common traits shared by all ship modules -->
-	<XSize>1</XSize>
-	<YSize>1</YSize>
-	<ModuleType>Shield</ModuleType>
-	<Name>Amplifier</Name>
-	<Restrictions>I</Restrictions>
-	<UID>Amplifier</UID> 
+    <Cost>4</Cost>
+    <!-- Tech Level -->
+    <TechLevel>2</TechLevel>
+    <TechBranch>Shield</TechBranch>
+    <!-- common traits shared by all ship modules -->
+    <XSize>1</XSize>
+    <YSize>1</YSize>
+    <ModuleType>Shield</ModuleType>
+    <Name>Amplifier</Name>
+    <Restrictions>I</Restrictions>
+    <UID>Amplifier</UID> 
   <Version>2</Version>
 
-	<IconTexturePath>Modules/Amplifier</IconTexturePath>
-	<NameIndex>17495</NameIndex>
-	<DescriptionIndex>17496</DescriptionIndex>
-	<!-- Mass and Health -->
-	<Mass>2</Mass>
-	<Health>600</Health>
-	<HealthMax>600</HealthMax>
-	<RepairDifficulty>3</RepairDifficulty>		      			
-	<!-- Power Drawn -->
-	<PowerDraw>30</PowerDraw>
-	<PowerDrawAtWarp>-25</PowerDrawAtWarp>
-	<!-- Armor resistance -->
-	<!-- for PowerPlant Items -->
+    <IconTexturePath>Modules/Amplifier</IconTexturePath>
+    <NameIndex>17495</NameIndex>
+    <DescriptionIndex>17496</DescriptionIndex>
+    <!-- Mass and Health -->
+    <Mass>2</Mass>
+    <Health>600</Health>
+    <HealthMax>600</HealthMax>
+    <RepairDifficulty>3</RepairDifficulty>                          
+    <!-- Power Drawn -->
+    <PowerDraw>30</PowerDraw>
+    <PowerDrawAtWarp>-25</PowerDrawAtWarp>
+    <!-- Armor resistance -->
+    <!-- for PowerPlant Items -->
     
-	<AmplifyShields>950</AmplifyShields>
+    <AmplifyShields>950</AmplifyShields>
 
-	<!-- Crew Reqs -->
-	
-	
-	<!-- for Weapons -->
-	<!-- Description -->
-	<Description>Advanced Armored Solar collector, procides power within a small radius.</Description>
+    <!-- Crew Reqs -->
+    
+    
+    <!-- for Weapons -->
+    <!-- Description -->
+    <Description>Advanced Armored Solar collector, procides power within a small radius.</Description>
 
   <PowerFlowMax>0</PowerFlowMax>
   <PowerStoreMax>0</PowerStoreMax>

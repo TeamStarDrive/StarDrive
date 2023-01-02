@@ -22,35 +22,35 @@
   <HullsUnlocked>
     <UnlockedHull>
       <ShipType>Cordrazine</ShipType>
-      <Name>Cordrazine/Cordrazine_Station_Small</Name>	
+      <Name>Cordrazine/Cordrazine_Station_Small</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Draylok</ShipType>
-      <Name>Draylok/Draylok_Station_Small</Name>	
+      <Name>Draylok/Draylok_Station_Small</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Kulrathi</ShipType>
-      <Name>Kulrathi/Kulrathi_Station_Small</Name>	
+      <Name>Kulrathi/Kulrathi_Station_Small</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Opteris</ShipType>
-      <Name>Opteris/Opteris_Station_Small</Name>	
+      <Name>Opteris/Opteris_Station_Small</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Pollops</ShipType>
-      <Name>Pollops/Pollops_Station_Small</Name>	
+      <Name>Pollops/Pollops_Station_Small</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Ralyeh</ShipType>
-      <Name>Ralyeh/Ralyeh_Station_Small</Name>	
-    </UnlockedHull>		
-	<UnlockedHull>
+      <Name>Ralyeh/Ralyeh_Station_Small</Name>    
+    </UnlockedHull>        
+    <UnlockedHull>
       <ShipType>Terran</ShipType>
-      <Name>Terran/Terran_Station_Small</Name>	
+      <Name>Terran/Terran_Station_Small</Name>    
     </UnlockedHull>
     <UnlockedHull>
       <ShipType>Vulfen</ShipType>
-      <Name>Vulfen/Vulfen_Station_Small</Name>	
+      <Name>Vulfen/Vulfen_Station_Small</Name>    
     </UnlockedHull>
   </HullsUnlocked>
 </Technology>

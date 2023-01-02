@@ -1393,6 +1393,7 @@ namespace Ship_Game
             HasLimitedResourceBuilding = value;
         }
 
+        // deplete limited resource caches
         void UpdateLimitedResourceCaches()
         {
             if (!HasLimitedResourceBuilding)
@@ -1402,29 +1403,31 @@ namespace Ship_Game
             for (int i = BuildingList.Count - 1; i >= 0; i--)
             {
                 Building b = BuildingList[i];
-                if (b.FoodCache.Greater(0))
+                if (b.FoodCache > 0f)
                 {
                     foundCache = true;
                     b.FoodCache -= b.PlusFlatFoodAmount;
-                    if (b.FoodCache.LessOrEqual(0))
+                    if (b.FoodCache <= 0f)
                     {
                         if (Owner == Universe.Player)
-                            Universe.Notifications.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
+                            Universe.Notifications.AddBuildingDestroyed(this, b, GameText.WasRemovedSinceItsResource);
 
                         RemoveBuildingFromPlanet(b, destroy: true);
+                        continue; // removed, continue to next building
                     }
                 }
 
-                if (b.ProdCache.Greater(0))
+                if (b.ProdCache > 0f)
                 {
                     foundCache = true;
                     b.ProdCache -= Prod.Percent * PopulationBillion * b.PlusProdPerColonist;
-                    if (b.ProdCache.LessOrEqual(0))
+                    if (b.ProdCache <= 0f)
                     {
                         if (Owner == Universe.Player)
-                            Universe.Notifications.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
+                            Universe.Notifications.AddBuildingDestroyed(this, b, GameText.WasRemovedSinceItsResource);
 
                         RemoveBuildingFromPlanet(b, destroy: true);
+                        continue; // removed, continue to next building
                     }
                 }
             }

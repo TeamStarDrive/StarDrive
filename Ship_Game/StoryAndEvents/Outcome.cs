@@ -128,7 +128,7 @@ namespace Ship_Game
 
                 PlanetGridSquare tile = potentialTiles.RandItem();
                 if (p.Owner == p.Universe.Player && tile.BuildingOnTile && !tile.VolcanoHere)
-                    p.Universe.Notifications.AddBuildingDestroyed(p, tile.Building, Localizer.Token(GameText.WasDestroyedInAnExploration));
+                    p.Universe.Notifications.AddBuildingDestroyed(p, tile.Building, GameText.WasDestroyedInAnExploration);
 
                 p.DestroyTile(tile);
             }

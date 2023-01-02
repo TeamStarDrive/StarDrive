@@ -1527,12 +1527,15 @@ namespace Ship_Game
             ShipHull[] newHulls = Parallel.Select(hullFiles, LoadShipHull);
             foreach (ShipHull hull in newHulls)
             {
-                string path = hull.ModelPath.ToLower().StartsWith("model/") ? ContentDirectory + "/" : ModContentDirectory;
-                FileInfo fileInfo = new(path + hull.ModelPath + ".xnb");
-                if (fileInfo.Exists)
-                    AddHull(hull);
-                else
-                    throw new FileNotFoundException($"Could not find model '{hull.ModelPath}.xnb' in {path + hull.ModelPath} for {hull.HullName}");
+                // error check that all models exist, otherwise the game could crash when this hull is spawned
+                if (GetModOrVanillaFile(hull.ModelPath) == null &&
+                    GetModOrVanillaFile(hull.ModelPath + ".xnb"/*legacy XNB models*/) == null)
+                {
+                    throw new FileNotFoundException(
+                        $"Could not find ModelPath={hull.ModelPath} for hull {hull.Source.Name} in {ContentDirectory}"
+                        + (GlobalStats.HasMod ? $" or {ModContentDirectory}" : ""));
+                }
+                AddHull(hull);
             }
         }
 

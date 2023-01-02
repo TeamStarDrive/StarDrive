@@ -1,21 +1,21 @@
 <Building>
-	<Name>CorvetteLaunchPad</Name>
-	<Icon>CorvetteLaunchPad</Icon>
-	
-	<Cost>350</Cost>
-	<Maintenance>0.6</Maintenance>
-	
-	<Strength>5</Strength>
-	<CombatStrength>5</CombatStrength>
-	<Defense>30</Defense>	
-	<SoftAttack>10</SoftAttack>
-	<HardAttack>10</HardAttack>
-	<StorageAdded>10</StorageAdded>
+    <Name>CorvetteLaunchPad</Name>
+    <Icon>CorvetteLaunchPad</Icon>
+    
+    <Cost>350</Cost>
+    <Maintenance>0.6</Maintenance>
+    
+    <Strength>5</Strength>
+    <CombatStrength>5</CombatStrength>
+    <Defense>30</Defense>    
+    <SoftAttack>10</SoftAttack>
+    <HardAttack>10</HardAttack>
+    <StorageAdded>10</StorageAdded>
     <DefenseShipsCapacity>6</DefenseShipsCapacity>
-	<DefenseShipsRole>corvette</DefenseShipsRole>
-	
-	<!-- For localization in GameText.yaml -->
-	<NameTranslationIndex>10097</NameTranslationIndex>
-	<ShortDescriptionIndex>10098</ShortDescriptionIndex>	
-	<DescriptionIndex>10099</DescriptionIndex>
+    <DefenseShipsRole>corvette</DefenseShipsRole>
+    
+    <!-- For localization in GameText.yaml -->
+    <NameTranslationIndex>10097</NameTranslationIndex>
+    <ShortDescriptionIndex>10098</ShortDescriptionIndex>    
+    <DescriptionIndex>10099</DescriptionIndex>
 </Building>

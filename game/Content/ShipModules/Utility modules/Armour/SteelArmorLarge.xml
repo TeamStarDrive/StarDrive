@@ -29,11 +29,11 @@
   <HealthMax>25000</HealthMax>
 
   <!-- Armor resistance -->
-	<KineticResist>0.02</KineticResist>
-	<BeamResist>0</BeamResist>
-	<EnergyResist>0</EnergyResist>    
-	<PlasmaResist>0</PlasmaResist>
-	<ExplosiveResist>0.04</ExplosiveResist>
+    <KineticResist>0.02</KineticResist>
+    <BeamResist>0</BeamResist>
+    <EnergyResist>0</EnergyResist>    
+    <PlasmaResist>0</PlasmaResist>
+    <ExplosiveResist>0.04</ExplosiveResist>
 
   <!-- Description -->
   <Description>This large slab of steel armor is forged as a single seamless unit, which provides greater protection than a series of smaller armor slabs.  Steel armor is cheap and durable, with its primary drawback being its weight.</Description>

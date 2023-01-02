@@ -644,9 +644,9 @@
       <DL_Pac>It is preferable you thrive to improve relations with our allies, though.</DL_Pac>
       <DL_Hon>'Semper Fi' is a strange term for you. We are deeply disappointed.</DL_Hon>
     </DialogLine>
-	
-	<!-- Merge and Surrender -->
-	
+    
+    <!-- Merge and Surrender -->
+    
     <DialogLine>
       <DialogType>SURRENDER</DialogType>
       <Default>This war proved to be lethal for us. We surrender.</Default>
