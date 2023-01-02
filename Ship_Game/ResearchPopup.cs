@@ -1,70 +1,70 @@
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Graphics;
-using System.Linq;
 
-namespace Ship_Game
+namespace Ship_Game;
+
+public sealed class ResearchPopup : PopupWindow
 {
-    public sealed class ResearchPopup : PopupWindow
-    {
-        UniverseScreen Universe;
-        public bool fade;
-        public bool FromGame;
-        public string TechUID;
-        ScrollList<UnlockListItem> UnlockSL;
-        readonly Technology Technology;
+    UniverseScreen Universe;
+    public bool fade;
+    public bool FromGame;
+    public string TechUID;
+    ScrollList<UnlockListItem> UnlockSL;
+    readonly Technology Technology;
         
-        public ResearchPopup(UniverseScreen us, string uid) : base(us, 600, 600)
+    public ResearchPopup(UniverseScreen us, string uid) : base(us, 600, 600)
+    {
+        Universe = us;
+        TechUID = uid;
+        fade = true;
+        IsPopup = true;
+        FromGame = true;
+        TransitionOnTime = 0.25f;
+        TransitionOffTime = 0f;
+        TechEntry techEntry = us.Player.GetTechEntry(uid);
+        if (techEntry != null)
         {
-            Universe = us;
-            TechUID = uid;
-            fade = true;
-            IsPopup = true;
-            FromGame = true;
-            TransitionOnTime = 0.25f;
-            TransitionOffTime = 0f;
-            TechEntry techEntry = us.Player.GetTechEntry(uid);
-            if (techEntry != null)
+            Technology = techEntry.Tech;
+            TitleText = Technology.Name.Text;
+            if (Technology.MaxLevel > 1)
             {
-                Technology = techEntry.Tech;
-                TitleText = Technology.Name.Text;
-                if (Technology.MaxLevel > 1)
-                {
-                    string level = RomanNumerals.ToRoman(techEntry.Level);
-                    string maxlvl = RomanNumerals.ToRoman(techEntry.MaxLevel);
-                    TitleText += $" {level}/{maxlvl}";
-                }
-                MiddleText = techEntry.Tech.Description.Text;
+                string level = RomanNumerals.ToRoman(techEntry.Level);
+                string maxlvl = RomanNumerals.ToRoman(techEntry.MaxLevel);
+                TitleText += $" {level}/{maxlvl}";
             }
+            MiddleText = techEntry.Tech.Description.Text;
+        }
+    }
+
+    public override void LoadContent()
+    {
+        base.LoadContent();
+
+        RectF rect = new(MidContainer.X + 20, 
+            MidContainer.Y + MidContainer.Height - 20, 
+            Rect.Width - 40, 
+            Rect.Height - MidContainer.Height - TitleRect.Height - 20);
+        UnlockSL = Add(new ScrollList<UnlockListItem>(rect, 100));
+
+        Array<UnlockItem> unlocks = UnlockItem.CreateUnlocksList(Technology, Universe.Player);
+        UnlockSL.SetItems(unlocks.Select(u => new UnlockListItem(u)));
+    }
+
+    class UnlockListItem : ScrollListItem<UnlockListItem>
+    {
+        readonly UnlockItem Unlock;
+        public UnlockListItem(UnlockItem unlock)
+        {
+            Unlock = unlock;
         }
 
-        public override void LoadContent()
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.LoadContent();
-
-            RectF rect = new(MidContainer.X + 20, 
-                             MidContainer.Y + MidContainer.Height - 20, 
-                             Rect.Width - 40, 
-                             Rect.Height - MidContainer.Height - TitleRect.Height - 20);
-            UnlockSL = Add(new ScrollList<UnlockListItem>(rect, 100));
-
-            Array<UnlockItem> unlocks = UnlockItem.CreateUnlocksList(Technology, Universe.Player);
-            UnlockSL.SetItems(unlocks.Select(u => new UnlockListItem(u)));
-        }
-
-        class UnlockListItem : ScrollListItem<UnlockListItem>
-        {
-            readonly UnlockItem Unlock;
-            public UnlockListItem(UnlockItem unlock)
-            {
-                Unlock = unlock;
-            }
-
-            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+            try
             {
                 RectF iconRect = default;
                 string comment = "";
@@ -103,7 +103,7 @@ namespace Ship_Game
                 string wrappedDescr = textFont.ParseText(Unlock.Description, Width - 100);
                 Vector2 descrSize = textFont.MeasureString(wrappedDescr);
                 float textHeight = titleFont.LineSpacing + 5 + descrSize.Y;
-                
+                    
                 // title text for the item
                 Vector2 titlePos = new(X + 100, CenterY - (int)(textHeight / 2f));
                 batch.DrawDropShadowText(Unlock.Title, titlePos, titleFont, Color.Orange);
@@ -127,13 +127,18 @@ namespace Ship_Game
                     batch.DrawString(textFont, wrappedSummary, summaryPos, Color.SteelBlue);
                 }
             }
+            catch (Exception ex)
+            {
+                Visible = false; // hide it, so we don't crash the game
+                Log.Error(ex, $"UnlockListItem draw failed: Type={Unlock.Type} Title={Unlock.Title} Description={Unlock.Description}");
+            }
         }
+    }
 
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-        {
-            if (fade) ScreenManager.FadeBackBufferToBlack((TransitionAlpha * 2) / 3);
+    public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+    {
+        if (fade) ScreenManager.FadeBackBufferToBlack((TransitionAlpha * 2) / 3);
 
-            base.Draw(batch, elapsed);
-        }
+        base.Draw(batch, elapsed);
     }
 }

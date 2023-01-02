@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, argparse, hashlib, uuid
+import os, argparse, hashlib, uuid, shutil
 from typing import List, Dict, Iterable
 from DeployUtils import console, env
 
@@ -25,6 +25,9 @@ def read_lines(listfile) -> List[str]:
                 if len(line) != 0 and not line.startswith('#'):
                     lines.append(line)
     return lines
+
+def new_guid():
+    return str(uuid.uuid4()).upper()
 
 class FileInfo:
     def __init__(self, game_dir, relpath, guid, hash=None):
@@ -74,8 +77,7 @@ class FileInfo:
         for (dirpath, _, filenames) in os.walk(path_combine(game_dir, subdir)):
             dirname = dirpath.replace(game_dir, '')
             for f in filenames:
-                guid = str(uuid.uuid4()).upper()
-                files.append(FileInfo(game_dir, path_combine(dirname, f), guid=guid, hash=None))
+                files.append(FileInfo(game_dir, path_combine(dirname, f), guid=new_guid(), hash=None))
         return files
 
     @staticmethod
@@ -84,8 +86,7 @@ class FileInfo:
         for f in os.listdir(path_combine(game_dir, subdir)):
             if os.path.splitext(f)[1].lower() in extensions:
                 if not f in exclude:
-                    guid = str(uuid.uuid4()).upper()
-                    files.append(FileInfo(game_dir, f, guid=guid, hash=None))
+                    files.append(FileInfo(game_dir, f, guid=new_guid(), hash=None))
         return files
 
 
@@ -252,7 +253,7 @@ def create_installer_files_list(major=False, patch=False, type='nsis'):
     new_files_path = path_combine(blackbox_dir, f'Deploy\\Release\\Release.NewOrChanged.txt')
 
     installer_commands_ext = 'txt'
-    if type == 'nsis': installer_commands_ext = 'nsis'
+    if type == 'nsis': installer_commands_ext = 'nsh'
     elif type == 'msi': installer_commands_ext = 'wxi'
     installer_commands = path_combine(blackbox_dir, f'Deploy\\GeneratedFilesList.{installer_commands_ext}')
 
@@ -285,7 +286,13 @@ def create_installer_files_list(major=False, patch=False, type='nsis'):
             if old_file.hash != file.hash:
                 new_files[file.filename] = file
 
+        # copy the Release.DeleteFiles.txt into the output path
         FileInfo.save_file_infos(delete_files_path, deleted_files.values())
+        deleted_files_filename = os.path.basename(delete_files_path)
+        shutil.copyfile(delete_files_path, os.path.join(game_dir, deleted_files_filename))
+        new_files[deleted_files_filename] = FileInfo(game_dir, deleted_files_filename, guid=new_guid())
+
+        # save new_files and generate installer commands
         FileInfo.save_file_infos(new_files_path, new_files.values())
         create_installer_commands(installer_commands, new_files.values(), deleted_files.values(), type=type)
 

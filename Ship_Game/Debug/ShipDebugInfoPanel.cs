@@ -44,7 +44,7 @@ public class ShipDebugInfoPanel : Submenu
         if (Screen.SelectedFleet is { } fleet)
         {
             Text.String($"Fleet: {fleet.Name}  IsCoreFleet:{fleet.IsCoreFleet}");
-            Text.String($"Ships:{fleet.Ships.Count} STR:{fleet.GetStrength()} Vmax:{fleet.SpeedLimit}");
+            Text.String($"Ships:{fleet.Ships.Count} STR:{fleet.GetStrength()} STLCap:{fleet.STLSpeedLimit:0} FTLCap:{fleet.FTLSpeedLimit:0}");
             Text.String($"Distance: {fleet.AveragePosition().Distance(fleet.FinalPosition)}");
             Text.String($"FormationMove:{fleet.InFormationMove}  ReadyForWarp:{fleet.ReadyForWarp}");
 
@@ -77,10 +77,12 @@ public class ShipDebugInfoPanel : Submenu
             Text.String($"Ship {s.ShipName}  x {s.Position.X:0} y {s.Position.Y:0}");
             Text.String($"ID: {s.Id}");
             Text.String($"VEL: {s.Velocity.Length():0}  "
-                       +$"LIMIT: {s.SpeedLimit:0}  "
+                       +$"STLCap: {s.STLSpeedLimit:0}  "
+                       +$"FTLCap: {s.FTLSpeedLimit:0}  "
                        +$"Vmax: {s.VelocityMax:0}  ");
 
             Text.String($"FTLMax: {s.MaxFTLSpeed:0}  "
+                       +$"Warp%: {(int)(s.WarpPercent*100)}%  "
                        +$"{s.WarpState}  {s.ThrustThisFrame}  {s.DebugThrustStatus}");
 
             Text.String($"E:{s.ShipEngines.EngineStatus} {s.ShipEngines.ReadyForWarp} FLEET:{s.ShipEngines.ReadyForFormationWarp}");
@@ -91,7 +93,7 @@ public class ShipDebugInfoPanel : Submenu
             Text.String($"On Defense: {s.Loyalty.AI.DefensiveCoordinator.Contains(s)}");
             if (s.Fleet != null)
             {
-                Text.String($"Fleet: {s.Fleet.Name}  {(int)s.Fleet.FinalPosition.X}x{(int)s.Fleet.FinalPosition.Y}  Vmax:{s.Fleet.SpeedLimit}");
+                Text.String($"Fleet: {s.Fleet.Name}  {(int)s.Fleet.FinalPosition.X}x{(int)s.Fleet.FinalPosition.Y}  STLCap:{s.Fleet.STLSpeedLimit:0} FTLCap:{s.Fleet.FTLSpeedLimit:0}");
             }
 
             Text.String(s.Pool != null ? "In Force Pool" : "NOT In Force Pool");

@@ -1,37 +1,37 @@
 <?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<Cost>35</Cost>
-	<FighterModule>false</FighterModule>
-	<!-- Tech Level -->
-	<TechLevel>5</TechLevel>
-	<TechBranch>Armor</TechBranch>
-	<!-- common traits shared by all ship modules -->
-	<XSize>3</XSize>
-	<YSize>3</YSize>
-	<ModuleType>Armor</ModuleType>
-	<Name>Crystal Armor Large</Name>
-	<Restrictions>O</Restrictions>
-	<UID>Crystal Armor Large</UID> 
+    <Cost>35</Cost>
+    <FighterModule>false</FighterModule>
+    <!-- Tech Level -->
+    <TechLevel>5</TechLevel>
+    <TechBranch>Armor</TechBranch>
+    <!-- common traits shared by all ship modules -->
+    <XSize>3</XSize>
+    <YSize>3</YSize>
+    <ModuleType>Armor</ModuleType>
+    <Name>Crystal Armor Large</Name>
+    <Restrictions>O</Restrictions>
+    <UID>Crystal Armor Large</UID> 
   <Version>2</Version>
 
-	<TexturePath>Textures/transparent</TexturePath>
-	<IconTexturePath>Modules/Crystal Armor Large</IconTexturePath>
-	<NameIndex>6578</NameIndex>
-	<DescriptionIndex>6583</DescriptionIndex>
-	<!-- Mass and Health -->
-	<Mass>72</Mass>
-	<Health>85530</Health>
-	<HealthMax>85530</HealthMax>
-	<RepairDifficulty>1.5</RepairDifficulty>
-    <Deflection>0</Deflection>			  	
+    <TexturePath>Textures/transparent</TexturePath>
+    <IconTexturePath>Modules/Crystal Armor Large</IconTexturePath>
+    <NameIndex>6578</NameIndex>
+    <DescriptionIndex>6583</DescriptionIndex>
+    <!-- Mass and Health -->
+    <Mass>72</Mass>
+    <Health>85530</Health>
+    <HealthMax>85530</HealthMax>
+    <RepairDifficulty>1.5</RepairDifficulty>
+    <Deflection>0</Deflection>                  
     <!-- Armor resistance -->
-	<KineticResist>0.10</KineticResist>
-	<EnergyResist>0</EnergyResist>  
-	<BeamResist>0</BeamResist>
-	<ExplosiveResist>0.20</ExplosiveResist>	  
-	<PlasmaResist>0</PlasmaResist>
+    <KineticResist>0.10</KineticResist>
+    <EnergyResist>0</EnergyResist>  
+    <BeamResist>0</BeamResist>
+    <ExplosiveResist>0.20</ExplosiveResist>      
+    <PlasmaResist>0</PlasmaResist>
 
-	<!-- Description -->
-	<Description>Through using Crystal materials, the mass of armor has been greatly decreased. </Description>
-	<APResist>2</APResist>
+    <!-- Description -->
+    <Description>Through using Crystal materials, the mass of armor has been greatly decreased. </Description>
+    <APResist>2</APResist>
 </ShipModule>

@@ -586,7 +586,8 @@ namespace Ship_Game.AI
                 return false;
             if (BadGuysNear)
                 return false;
-            if (!Owner.CanTakeFleetMoveOrders()) return false;
+            if (!Owner.CanTakeFleetMoveOrders())
+                return false;
             if (State == AIState.Orbit ||
                 State == AIState.AwaitingOrders)
                 return true;

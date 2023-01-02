@@ -1959,29 +1959,12 @@ namespace Ship_Game.Fleets
 
                 switch (type)
                 {
+                    case InvasionTactics.Rear when !ai.HasPriorityOrder:
                     case InvasionTactics.Screen:
-                        {
-                            TacticalMove(ship, moveTo, fleetSizeRatio, order, SpeedLimit);
-                            break;
-                        }
-
-                    case InvasionTactics.Rear:
-                        if (!ai.HasPriorityOrder)
-                        {
-                            TacticalMove(ship, moveTo, fleetSizeRatio, order, SpeedLimit * 0.5f);
-                        }
-                        break;
-
                     case InvasionTactics.MainBattleGroup:
-                        {
-                            TacticalMove(ship, moveTo, fleetSizeRatio, order, SpeedLimit * 0.75f);
-                            break;
-                        }
                     case InvasionTactics.FlankGuard:
-                        {
-                            TacticalMove(ship, moveTo, fleetSizeRatio, order, SpeedLimit * 0.05f);
-                            break;
-                        }
+                        TacticalMove(ship, moveTo, fleetSizeRatio, order);
+                        break;
                     case InvasionTactics.Wait:
                         ai.OrderHoldPosition();
                         break;
@@ -1989,13 +1972,13 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void TacticalMove(Ship ship, Vector2 moveTo, float fleetSizeRatio, MoveOrder order, float speedLimit)
+        void TacticalMove(Ship ship, Vector2 moveTo, float fleetSizeRatio, MoveOrder order)
         {
             Vector2 offset = ship.FleetOffset / fleetSizeRatio;
             Vector2 fleetMoveTo = moveTo + offset;
             FinalDirection = fleetMoveTo.DirectionToTarget(FleetTask.AO);
 
-            ship.AI.OrderMoveTo(fleetMoveTo, FinalDirection, ship.AI.State, order, speedLimit);
+            ship.AI.OrderMoveTo(fleetMoveTo, FinalDirection, ship.AI.State, order);
         }
 
         private enum InvasionTactics
@@ -2291,7 +2274,7 @@ namespace Ship_Game.Fleets
         /// This ensures ships slow down or speed up depending on
         /// distance to their formation position
         /// </summary>
-        public float GetFormationSpeedFor(Ship ship)
+        public (float STLSpeed, float FTLSpeed) GetFormationSpeedFor(Ship ship)
         {
             // this is the desired position inside the fleet formation
             Vector2 desiredFormationPos = GetFormationPos(ship);
@@ -2304,44 +2287,53 @@ namespace Ship_Game.Fleets
             float distToWP = ship.Position.Distance(nextWayPoint);
             float distToSquadPos = ship.Position.Distance(desiredFormationPos);
             float distSquadPosToWP = desiredFormationPos.Distance(nextWayPoint);
-            float shipSpeed = SpeedLimit;
+            float speedSTL = STLSpeedLimit; // if these are 0, there is no cap
+            float speedFTL = FTLSpeedLimit;
+            float relevantSpeedLimit = ship.IsInWarp ? FTLSpeedLimit : STLSpeedLimit;
 
             // Outside of fleet formation
             if (distToWP > distSquadPosToWP + ship.CurrentVelocity + 75f)
             {
-                shipSpeed = ship.VelocityMax;
+                (speedSTL, speedFTL) = (ship.MaxSTLSpeed, ship.MaxFTLSpeed);
             }
             // FINAL APPROACH
             else if (distToWP < ship.FleetOffset.Length()
                 // NON FINAL: we are much further from the formation
                 || distToSquadPos > distToWP)
             {
-                shipSpeed = SpeedLimit * 2;
+                (speedSTL, speedFTL) = (STLSpeedLimit*2, FTLSpeedLimit*2);
             }
             // formation is behind us? We are going way too fast
             else if (distToWP < distSquadPosToWP)
             {
-                // SLOW DOWN MAN! but never slower than 50% of fleet speed
-                shipSpeed = Math.Max(SpeedLimit - distToSquadPos, SpeedLimit * 0.5f);
+                // SLOW DOWN MAN! but never slower than 25% of fleet speed
+                speedSTL = Math.Max(STLSpeedLimit - distToSquadPos*2, STLSpeedLimit * 0.25f);
+                speedFTL = Math.Max(FTLSpeedLimit - distToSquadPos*2, FTLSpeedLimit * 0.25f);
             }
             // CLOSER TO FORMATION: we are too far from desired position
-            else if (distToSquadPos > SpeedLimit)
+            else if (distToSquadPos > relevantSpeedLimit)
             {
                 // hurry up! set a really high speed
                 // but at least fleet speed, not less in case we get really close
-                shipSpeed = Math.Max(distToSquadPos - SpeedLimit, SpeedLimit);
+                speedSTL = Math.Max(distToSquadPos - STLSpeedLimit, STLSpeedLimit);
+                speedFTL = Math.Max(distToSquadPos - FTLSpeedLimit, FTLSpeedLimit);
             }
             // getting close to our formation pos
-            else if (distToSquadPos < SpeedLimit * 0.5f)
+            else if (distToSquadPos < relevantSpeedLimit * 0.5f)
             {
                 // we are in formation, CRUISING SPEED
                 if (distToSquadPos < 25f)
-                    shipSpeed = SpeedLimit;
+                {
+                    (speedSTL, speedFTL) = (STLSpeedLimit, FTLSpeedLimit);
+                }
                 // try to slowly reach final pos
                 else
-                    shipSpeed = SpeedLimit + distToSquadPos;
+                {
+                    speedSTL = STLSpeedLimit + distToSquadPos;
+                    speedFTL = FTLSpeedLimit + distToSquadPos;
+                }
             }
-            return shipSpeed;
+            return (speedSTL, speedFTL);
         }
 
         public bool FindShipNode(Ship ship, out FleetDataNode node)
