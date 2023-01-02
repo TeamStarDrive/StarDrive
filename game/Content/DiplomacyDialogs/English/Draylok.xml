@@ -650,10 +650,10 @@
       <DL_Pac>It is quite nice you seek better relations with other empires. It is preferable you do this with our other allies, though.</DL_Pac>
       <DL_Hon>Sneaking behind our backs is not honorable. Did you really think the Council will not hear of your machinations?</DL_Hon>
     </DialogLine>
-	
-	
-	<!-- Merge and Surrender -->
-	
+    
+    
+    <!-- Merge and Surrender -->
+    
     <DialogLine>
       <DialogType>SURRENDER</DialogType>
       <Default>The Council has reached the conclusion your are too strong for us. We Surrender.</Default>

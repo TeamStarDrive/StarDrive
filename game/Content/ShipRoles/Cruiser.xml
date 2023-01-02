@@ -9,12 +9,12 @@
   <DamageRelations>3.0</DamageRelations>
   <RaceList>
     <Race>
-	  <ShipType>Terran</ShipType>
-	    <Localization>144</Localization>
+      <ShipType>Terran</ShipType>
+        <Localization>144</Localization>
         <Upkeep>2.5</Upkeep>
         <KillExp>16.0</KillExp>
         <KillExpPerLevel>4.0</KillExpPerLevel>
         <ExpPerLevel>8.0</ExpPerLevel>
-	</Race>
+    </Race>
   </RaceList>
 </ShipRole>

@@ -28,7 +28,7 @@
   <ThrustColor0B>0</ThrustColor0B>
   <ThrustColor1R>245</ThrustColor1R>
   <ThrustColor1G>245</ThrustColor1G>
-  <ThrustColor1B>245</ThrustColor1B>	 
+  <ThrustColor1B>245</ThrustColor1B>     
 
   <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
   <EnvTerran>1</EnvTerran>

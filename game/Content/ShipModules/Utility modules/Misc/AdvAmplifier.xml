@@ -1,39 +1,39 @@
 <?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<Cost>22</Cost>
-	<FighterModule>false</FighterModule>
-	<!-- Tech Level -->
-	<TechLevel>2</TechLevel>
-	<TechBranch>Shield</TechBranch>
-	<!-- common traits shared by all ship modules -->
-	<XSize>2</XSize>
-	<YSize>2</YSize>
-	<ModuleType>Shield</ModuleType>
-	<Name>Amplifier</Name>
-	<Restrictions>I</Restrictions>
-	<UID>AdvAmplifier</UID> 
+    <Cost>22</Cost>
+    <FighterModule>false</FighterModule>
+    <!-- Tech Level -->
+    <TechLevel>2</TechLevel>
+    <TechBranch>Shield</TechBranch>
+    <!-- common traits shared by all ship modules -->
+    <XSize>2</XSize>
+    <YSize>2</YSize>
+    <ModuleType>Shield</ModuleType>
+    <Name>Amplifier</Name>
+    <Restrictions>I</Restrictions>
+    <UID>AdvAmplifier</UID> 
   <Version>2</Version>
 
-	<IconTexturePath>Modules/AdvAmplifier</IconTexturePath>
-	<NameIndex>17497</NameIndex>
-	<DescriptionIndex>17499</DescriptionIndex>
-	<!-- Mass and Health -->
-	<Mass>8</Mass>
-	<Health>2760</Health>
-	<HealthMax>2760</HealthMax>
-	<RepairDifficulty>6</RepairDifficulty>		      			
-	<!-- Power Drawn -->
-	<PowerDraw>100</PowerDraw>
-	<PowerDrawAtWarp>-80</PowerDrawAtWarp>
-	<!-- Armor resistance -->
-	<!-- for PowerPlant Items -->
+    <IconTexturePath>Modules/AdvAmplifier</IconTexturePath>
+    <NameIndex>17497</NameIndex>
+    <DescriptionIndex>17499</DescriptionIndex>
+    <!-- Mass and Health -->
+    <Mass>8</Mass>
+    <Health>2760</Health>
+    <HealthMax>2760</HealthMax>
+    <RepairDifficulty>6</RepairDifficulty>                          
+    <!-- Power Drawn -->
+    <PowerDraw>100</PowerDraw>
+    <PowerDrawAtWarp>-80</PowerDrawAtWarp>
+    <!-- Armor resistance -->
+    <!-- for PowerPlant Items -->
     
-	<AmplifyShields>6500</AmplifyShields>
+    <AmplifyShields>6500</AmplifyShields>
 
-	<!-- Crew Reqs -->
-	
-	
-	<!-- for Weapons -->
-	<!-- Description -->
-	<Description>Advanced Armored Solar collector, procides power within a small radius.</Description>
+    <!-- Crew Reqs -->
+    
+    
+    <!-- for Weapons -->
+    <!-- Description -->
+    <Description>Advanced Armored Solar collector, procides power within a small radius.</Description>
 </ShipModule>

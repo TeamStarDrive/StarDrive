@@ -3,38 +3,38 @@
 
 
 
-	<Cost>50</Cost>
-	<TechLevel>5</TechLevel>
-	<!-- common traits shared by all ship modules -->
-	<XSize>2</XSize>
-	<YSize>2</YSize>
-	<ModuleType>MissileLauncher</ModuleType>
-	<Name>RemnantNuker</Name>
-	<Restrictions>O</Restrictions>
-	<UID>RemnantNuker</UID> 
+    <Cost>50</Cost>
+    <TechLevel>5</TechLevel>
+    <!-- common traits shared by all ship modules -->
+    <XSize>2</XSize>
+    <YSize>2</YSize>
+    <ModuleType>MissileLauncher</ModuleType>
+    <Name>RemnantNuker</Name>
+    <Restrictions>O</Restrictions>
+    <UID>RemnantNuker</UID> 
   <Version>2</Version>
 
-	<IconTexturePath>Modules/RemnantNuker</IconTexturePath>
-	<Mass>16</Mass>
-	<Health>2400</Health>
-	<HealthMax>2400</HealthMax>
-	<RepairDifficulty>2</RepairDifficulty>
-	<energyreq>0</energyreq>
-	<Description>RemnantNuker</Description>
-	
-	
-	<PowerDraw>10</PowerDraw>
+    <IconTexturePath>Modules/RemnantNuker</IconTexturePath>
+    <Mass>16</Mass>
+    <Health>2400</Health>
+    <HealthMax>2400</HealthMax>
+    <RepairDifficulty>2</RepairDifficulty>
+    <energyreq>0</energyreq>
+    <Description>RemnantNuker</Description>
+    
+    
+    <PowerDraw>10</PowerDraw>
 
-	<NameIndex>17924</NameIndex>
-	<DescriptionIndex>17926</DescriptionIndex>
-	<!-- for PowerPlant Items -->
-	
-	<PowerFlowMax>0</PowerFlowMax>
-	<PowerStoreMax>0</PowerStoreMax>
-	<!-- for Weapons -->
-	<WeaponType>RemnantNuker</WeaponType>
-	<OrdinanceCapacity>8</OrdinanceCapacity>
-	<FieldOfFire>45</FieldOfFire>
+    <NameIndex>17924</NameIndex>
+    <DescriptionIndex>17926</DescriptionIndex>
+    <!-- for PowerPlant Items -->
+    
+    <PowerFlowMax>0</PowerFlowMax>
+    <PowerStoreMax>0</PowerStoreMax>
+    <!-- for Weapons -->
+    <WeaponType>RemnantNuker</WeaponType>
+    <OrdinanceCapacity>8</OrdinanceCapacity>
+    <FieldOfFire>45</FieldOfFire>
 
 
 </ShipModule>
