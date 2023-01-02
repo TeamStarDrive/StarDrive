@@ -16,6 +16,10 @@
     <IntermediateOutputPath>obj\</IntermediateOutputPath>
     <DefineConstants>
     </DefineConstants>
+    <VerboseOutput>True</VerboseOutput>
+    <SuppressAllWarnings>False</SuppressAllWarnings>
+    <Pedantic>True</Pedantic>
+    <SuppressIces>ICE61</SuppressIces>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>upload\</OutputPath>
@@ -23,6 +27,7 @@
     <SuppressAllWarnings>False</SuppressAllWarnings>
     <Pedantic>True</Pedantic>
     <VerboseOutput>True</VerboseOutput>
+    <SuppressIces>ICE61</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="FilesExample.wxi" />
