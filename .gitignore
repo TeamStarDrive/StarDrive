@@ -117,3 +117,6 @@ game/System.Security.AccessControl.xml
 game/System.Security.Principal.Windows.dll
 game/System.Security.Principal.Windows.xml
 Deploy/GeneratedFilesList.wxi
+game/Release.DeleteFiles.txt
+Deploy/Release/Release.DeleteFiles.txt
+Deploy/Release/Release.NewOrChanged.txt
