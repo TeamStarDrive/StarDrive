@@ -197,6 +197,7 @@ namespace Ship_Game.Ships
                     if (IsVisibleToPlayer)
                         FTLManager.EnterFTL(Position.ToVec3(), Direction3D, Radius);
                     engineState = MoveState.Warp;
+                    WarpPercent = 1f;
                 }
                 IsSpooling = false;
                 ResetJumpTimer();

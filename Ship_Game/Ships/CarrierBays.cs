@@ -517,7 +517,7 @@ namespace Ship_Game.Ships
                 {
                     // not faster than MaxSTLSpeed or max fighter speed
                     float maxCarrierSpeed = Math.Min(Owner.MaxSTLSpeed, slowestFighterSpeed * 0.25f);
-                    Owner.SetSpeedLimit(maxCarrierSpeed);
+                    Owner.SetSTLSpeedLimit(maxCarrierSpeed);
                     return true;
                 }
             }

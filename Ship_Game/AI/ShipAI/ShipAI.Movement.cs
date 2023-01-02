@@ -117,7 +117,7 @@ namespace Ship_Game.AI
 
             if (RotateToDirection(direction, timeStep, 0.15f))
             {
-                if (speedLimit <= 0) speedLimit = Owner.SpeedLimit;
+                if (speedLimit <= 0) speedLimit = Owner.STLSpeedLimit;
                 speedLimit *= 0.75f; // uh-oh we're going too fast
             }
             Owner.SubLightAccelerate(speedLimit);
@@ -132,7 +132,7 @@ namespace Ship_Game.AI
                 Log.Error($"SubLightMoveTowardsPosition: invalid position {position}");
 
             if (speedLimit <= 0f)
-                speedLimit = Owner.SpeedLimit;
+                speedLimit = Owner.STLSpeedLimit;
 
             if (autoSlowDown)
             {
@@ -169,8 +169,8 @@ namespace Ship_Game.AI
             // FB - but, for a carrier which is waiting for fighters to board before
             // warp, we must give a speed limit. The limit is reset when all relevant
             // ships are recalled, so no issue with Warp
-            // FB - we are also setting speet limit for group formation movement
-            float speedLimit = Owner.Carrier.RecallingShipsBeforeWarp ? Owner.SpeedLimit : 0;
+            // FB - we are also setting speed limit for group formation movement
+            float speedLimit = Owner.Carrier.RecallingShipsBeforeWarp ? Owner.STLSpeedLimit : 0;
             Vector2 movePos = goal.MovePosition; // dynamic move position
             ThrustOrWarpToPos(movePos, timeStep, speedLimit);
 
@@ -267,14 +267,14 @@ namespace Ship_Game.AI
                 const float minimumSpeed = 25f;
                 if (vel < Math.Max(distance, stoppingDistance).LowerBound(minimumSpeed))
                 { 
-                    float speedLimit = distance;
+                    float stlSpeedLimit = distance;
                     if (goal.SpeedLimit > 0f)
-                        speedLimit = Math.Max(speedLimit, goal.GetSpeedLimitFor(Owner));
-                    speedLimit = Math.Max(speedLimit, minimumSpeed);
+                        stlSpeedLimit = Math.Max(stlSpeedLimit, goal.GetSTLSpeedLimitFor(Owner));
+                    stlSpeedLimit = Math.Max(stlSpeedLimit, minimumSpeed);
 
-                    Owner.SubLightAccelerate(speedLimit);
+                    Owner.SubLightAccelerate(stlSpeedLimit);
                     if (debug)
-                        Owner.Universe.DebugWin.DrawText(DebugDrawPosition, $"ACC {distance:0}  {speedLimit:0} ", Color.Red);
+                        Owner.Universe.DebugWin.DrawText(DebugDrawPosition, $"ACC {distance:0}  {stlSpeedLimit:0} ", Color.Red);
                 }
             }
         }
@@ -381,7 +381,7 @@ namespace Ship_Game.AI
             float predictionDiff = Vectors.AngleDifference(wantedForward, currentForward);
 
             // this just checks if warp thrust is good
-            if (UpdateWarpThrust(timeStep, predictionDiff, distance, wantedForward))
+            if (Owner.engineState == Ship.MoveState.Warp && UpdateWarpThrust(timeStep, predictionDiff, distance, wantedForward))
             {
                 return; // WayPoint short-cut
             }
@@ -422,12 +422,6 @@ namespace Ship_Game.AI
                 {
                     // This ship is far away from the fleet
                     // Enter warp and continue next frame in UpdateWarpThrust()
-
-                    // If the ship is already at FinalPosition, follow the formation speed limit
-                    Vector2 finalPos = Owner.Fleet.FinalPosition;
-                    if (Owner.Position.SqDist(finalPos) < fleetAvgPos.SqDist(finalPos))
-                        Owner.SetSpeedLimit(GetFormationSpeed(speedLimit));
-
                     Owner.EngageStarDrive();
                 }
                 else
@@ -440,10 +434,14 @@ namespace Ship_Game.AI
                     {
                         DisEngageFormationWarp();
                     }
-                    
-                    speedLimit = GetFormationSpeed(speedLimit);
-                    Owner.SubLightAccelerate(speedLimit);
                 }
+
+                // If the ship is already at FinalPosition, follow the formation speed limit
+                // completely ignore previously assigned `speedLimit` because
+                // formation status knows best whether ship should slow down or speed up
+                (float maxSTL, float maxFTL) = Owner.Fleet.GetFormationSpeedFor(Owner);
+                Owner.SubLightAccelerate(maxSTL);
+                Owner.SetFTLSpeedLimit(maxFTL);
             }
             else // SINGLE SHIP MOVE
             {
@@ -474,13 +472,6 @@ namespace Ship_Game.AI
 
         bool UpdateWarpThrust(FixedSimTime timeStep, float angleDiff, float distance, Vector2 wantedForward)
         {
-            if (Owner.engineState != Ship.MoveState.Warp)
-            {
-                if (Owner.WarpPercent < 1f)
-                    Owner.SetWarpPercent(timeStep, 1f); // back to normal
-                return false;
-            }
-
             (Vector2 velDir, float speed) = Owner.Velocity.GetDirectionAndLength();
 
             // ensure ship is already at light speed,
@@ -498,8 +489,8 @@ namespace Ship_Game.AI
             }
 
             // if we are off even by little, aggressively reduce speed
-            if (angleDiff > RadMath.Deg1AsRads*0.5f)
-                Owner.SetWarpPercent(timeStep, 0.05f); // SLOW DOWN to % warp speed
+            if (angleDiff > RadMath.Deg1AsRads)
+                Owner.SetWarpPercent(timeStep, 0.25f); // SLOW DOWN to % warp speed
             else if (Owner.WarpPercent < 1f)
                 Owner.SetWarpPercent(timeStep, 1f); // back to normal
 
@@ -567,15 +558,6 @@ namespace Ship_Game.AI
 
                 Owner.HyperspaceReturn();
             }
-        }
-
-        public float GetFormationSpeed(float currentSpeedLimit)
-        {
-            if (Owner.Fleet == null)
-                return currentSpeedLimit;
-            // always follow formation speed, completely ignore currentSpeedLimit because
-            // formation status knows best whether ship should slow down or speed up
-            return Owner.Fleet.GetFormationSpeedFor(Owner);
         }
 
         public bool IsOrbiting(Planet p) => OrbitTarget == p && Orbit.InOrbit;

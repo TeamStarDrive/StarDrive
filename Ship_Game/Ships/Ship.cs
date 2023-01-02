@@ -282,7 +282,8 @@ namespace Ship_Game.Ships
         {
             return Active
                 && ShipEngines.EngineStatus == EngineStatus.Active
-                && CanTakeFleetOrders;
+                && CanTakeFleetOrders
+                && MaxFTLSpeed >= 10_000f; // can it even warp properly?
         }
 
         public bool CanTakeFleetOrders
@@ -826,7 +827,7 @@ namespace Ship_Game.Ships
             float attackRunRange = 50f;
             if (!w.IsBeam && DesiredCombatRange < 2000)
             {
-                attackRunRange = SpeedLimit;
+                attackRunRange = STLSpeedLimit;
                 if (attackRunRange < 50f)
                     attackRunRange = 50f;
             }
