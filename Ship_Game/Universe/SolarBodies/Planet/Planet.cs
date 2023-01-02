@@ -549,12 +549,12 @@ namespace Ship_Game
 
             if (HasSpacePort && InFrustum)
             {
-                if (Station == null) Station = new SpaceStation();
+                Station ??= new SpaceStation();
                 Station.UpdateVisibleStation(this, timeStep);
             }
             else
             {
-                Station?.DestroySceneObject();
+                Station?.RemoveSceneObject();
             }
 
             if (!HasSpacePort)

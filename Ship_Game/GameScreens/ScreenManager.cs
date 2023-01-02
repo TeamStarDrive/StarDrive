@@ -309,7 +309,7 @@ namespace Ship_Game
         /// The Draw loop works on visible real time between frames,
         /// since the delta time varies greatly between threads
         /// </summary>
-        readonly DrawTimes DrawLoopTime = new DrawTimes();
+        readonly DrawTimes DrawLoopTime = new();
 
         public void Draw()
         {
@@ -333,7 +333,8 @@ namespace Ship_Game
                     {
                         // When user device goes to sleep, graphics resources are lost
                         // So all screens need to be reloaded
-                        ReloadAllScreens();
+                        GameScreens[0].RunOnNextFrame(ReloadAllScreens);
+                        return; // we can't continue this loop anyways
                     }
                     catch (Exception e)
                     {
@@ -469,7 +470,7 @@ namespace Ship_Game
             public Action<FileInfo> OnModified;
             public GameScreen Screen;
         }
-        readonly Map<string, Hotloadable> HotLoadTargets = new Map<string, Hotloadable>();
+        readonly Map<string, Hotloadable> HotLoadTargets = new();
 
         public void ResetHotLoadTargets()
         {
