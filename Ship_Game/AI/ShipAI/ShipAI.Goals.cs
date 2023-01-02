@@ -333,7 +333,7 @@ namespace Ship_Game.AI
             /// If this a Move Order, is it just a plain old Regular move? (default)
             public bool HasRegularMoveOrder => (MoveOrder & MoveOrder.Regular) != 0;
 
-            public float GetSpeedLimitFor(Ship ship) => ship.Fleet?.GetSpeedLimitFor(ship) ?? SpeedLimit;
+            public float GetSTLSpeedLimitFor(Ship ship) => ship.Fleet?.GetSTLSpeedLimitFor(ship) ?? SpeedLimit;
 
             public override string ToString() => $"{Plan} {MoveOrder} pos:{MovePosition} dir:{Direction}";
 
