@@ -71,7 +71,7 @@ public sealed class SpaceStation
         UpdateTransforms(planet.Position);
     }
 
-    public void DestroySceneObject()
+    public void RemoveSceneObject()
     {
         if (InnerSO != null)
         {
