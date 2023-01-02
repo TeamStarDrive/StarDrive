@@ -28,15 +28,36 @@ namespace Ship_Game.Ships
 
     public partial class Ship
     {
-        public float MaxFTLSpeed;
+        /// <summary>
+        /// maximum possible STL speed
+        /// </summary>
         public float MaxSTLSpeed;
         
-        // reset at the end of each update
-        public float SpeedLimit { get; private set; }
+        /// <summary>
+        /// maximum possible FTL speed
+        /// </summary>
+        public float MaxFTLSpeed;
 
-        // maximum velocity magnitude, this is not updated very often
-        // if ship is at warp, max velocity is FTL speed
+        /// <summary>
+        /// reset at the end of each update, Slower-Than-Light Speed Limit cap,
+        /// if 0 then the limit is MaxSTLSpeed,
+        /// this is additionally capped by MaxSTLSpeed
+        /// </summary>
+        public float STLSpeedLimit { get; private set; }
+
+        /// <summary>
+        /// reset at the end of each updater, Faster-Than-Light Speed Limit cap,
+        /// if 0 then the limit is MaxFTLSpeed,
+        /// this is additionally capped by MaxFTLSpeed
+        /// </summary>
+        public float FTLSpeedLimit { get; private set; }
+
+        /// <summary>
+        /// maximum velocity magnitude, this is not updated very often,
+        /// if ship is at warp, max velocity is FTL speed
+        /// </summary>
         public float VelocityMax;
+
         public float RotationRadsPerSecond;
         public ShipEngines ShipEngines;
 
@@ -66,9 +87,14 @@ namespace Ship_Game.Ships
             VelocityMax = maxVel;
         }
 
-        public void SetSpeedLimit(float value)
+        public void SetSTLSpeedLimit(float value)
         {
-            SpeedLimit = value;
+            STLSpeedLimit = Math.Min(value, MaxSTLSpeed);
+        }
+
+        public void SetFTLSpeedLimit(float value)
+        {
+            FTLSpeedLimit = Math.Min(value, MaxFTLSpeed);
         }
 
         float SetMaxFTLSpeed()
@@ -160,11 +186,11 @@ namespace Ship_Game.Ships
             return distance;
         }
 
-        public void SubLightAccelerate(float speedLimit = 0f, Thrust direction = Thrust.Forward)
+        public void SubLightAccelerate(float stlSpeedLimit = 0f, Thrust direction = Thrust.Forward)
         {
             if (engineState == MoveState.Warp)
                 return; // Warp speed is updated in UpdateEnginesAndVelocity
-            SetSpeedLimit(speedLimit);
+            SetSTLSpeedLimit(stlSpeedLimit);
             ThrustThisFrame = direction;
         }
 
@@ -182,10 +208,12 @@ namespace Ship_Game.Ships
 
         Vector2 GetNewAccelerationForThisFrame()
         {
+            bool atWarp = engineState == MoveState.Warp;
+
             if ((TetheredTo == null && Stats.Thrust <= 0f) || (Mass <= 0f))
             {
                 EnginesKnockedOut = true;
-                if (engineState == MoveState.Warp)
+                if (atWarp)
                     HyperspaceReturn();
                 // no magic stop or anything, we just stop acceleration
                 return default;
@@ -194,16 +222,34 @@ namespace Ship_Game.Ships
             EnginesKnockedOut = false;
             ThrustAcceleration = GetMaxThrustAcceleration();
 
-            if (engineState == MoveState.Warp)
+            if (atWarp)
                 ThrustThisFrame = Thrust.Forward; // in Warp, we can only thrust forward
+            
+            if (atWarp && Velocity.Length() < STLSpeedLimit)
+            {
+                // enable full thrust, but don't touch the SpeedLimit
+                // so that FormationWarp can work correctly
+                ThrustThisFrame = Thrust.Forward;
+            }
 
             float maxVelocity = VelocityMax;
-            if (SpeedLimit > 0f) // limit maxVel to speed limit
+
+            // limit maxVel to speed limits
+            if (atWarp)
             {
-                maxVelocity = Math.Min(SpeedLimit, maxVelocity);
-                SpeedLimit = 0f; // always clear speed limit, to avoid ships getting stuck when leaving fleets
+                if (FTLSpeedLimit > 0f)
+                    maxVelocity = Math.Min(FTLSpeedLimit, maxVelocity);
             }
-            
+            else
+            {
+                if (STLSpeedLimit > 0f)
+                    maxVelocity = Math.Min(STLSpeedLimit, maxVelocity);
+            }
+
+            // always clear both speed limits, to avoid ships getting stuck when leaving fleets
+            STLSpeedLimit = 0f;
+            FTLSpeedLimit = 0f;
+
             // combine all different acceleration sources
             var a = new AccelerationState(Velocity, maxVelocity, Rotation, ThrustAcceleration, DecelThrustPower);
             Vector2 appliedForce = GetAppliedForceAcceleration();
@@ -265,14 +311,6 @@ namespace Ship_Game.Ships
             }
 
             UpdateShipRotation(timeStep);
-
-            if (atWarp && Velocity.Length() < SpeedLimit)
-            {
-                // enable full thrust, but don't touch the SpeedLimit
-                // so that FormationWarp can work correctly
-                ThrustThisFrame = Thrust.Forward;
-            }
-
             UpdateVelocityAndPosition(timeStep);
 
             if (isWarpCapable && IsSpooling)

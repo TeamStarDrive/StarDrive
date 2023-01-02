@@ -16,7 +16,7 @@
   <HealthMax>2320</HealthMax>
 
   <PowerDraw>40</PowerDraw>
-	<PowerDrawAtWarp>-40</PowerDrawAtWarp>
+    <PowerDrawAtWarp>-40</PowerDrawAtWarp>
 
   <NameIndex>5053</NameIndex>
   <DescriptionIndex>5054</DescriptionIndex>

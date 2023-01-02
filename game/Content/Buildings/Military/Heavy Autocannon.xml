@@ -1,20 +1,20 @@
 <Building>
-	<Name>Heavy Autocannon</Name>
-	<Icon>hvyautocannon</Icon>
-	
-	<Cost>200</Cost>
-	<Maintenance>0.25</Maintenance>
-	
-	<Strength>17</Strength>
-	<CombatStrength>17</CombatStrength>
-	<Defense>20</Defense>
-	<SoftAttack>60</SoftAttack>
-	<HardAttack>30</HardAttack>
-	<Weapon>PlanetAC</Weapon>
-	<isWeapon>true</isWeapon>
-	
-	<!-- For localization in GameText.yaml -->
-	<NameTranslationIndex>5405</NameTranslationIndex>
-	<DescriptionIndex>5406</DescriptionIndex>
-	<ShortDescriptionIndex>17422</ShortDescriptionIndex>
+    <Name>Heavy Autocannon</Name>
+    <Icon>hvyautocannon</Icon>
+    
+    <Cost>200</Cost>
+    <Maintenance>0.25</Maintenance>
+    
+    <Strength>17</Strength>
+    <CombatStrength>17</CombatStrength>
+    <Defense>20</Defense>
+    <SoftAttack>60</SoftAttack>
+    <HardAttack>30</HardAttack>
+    <Weapon>PlanetAC</Weapon>
+    <isWeapon>true</isWeapon>
+    
+    <!-- For localization in GameText.yaml -->
+    <NameTranslationIndex>5405</NameTranslationIndex>
+    <DescriptionIndex>5406</DescriptionIndex>
+    <ShortDescriptionIndex>17422</ShortDescriptionIndex>
 </Building>

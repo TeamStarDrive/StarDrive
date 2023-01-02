@@ -638,24 +638,24 @@
       <DL_Pac>You are warm to our enemies, please shine upon our friends as well.</DL_Pac>
       <DL_Hon>Let the storms begin, PLURAL.</DL_Hon>
     </DialogLine>
-	
-	<!-- Merge and Surrender -->
-	
+    
+    <!-- Merge and Surrender -->
+    
     <DialogLine>
       <DialogType>SURRENDER</DialogType>
       <Default>Your fleets have darkened our skies and souls. We Surrender.</Default>
-    </DialogLine>	
+    </DialogLine>    
     <DialogLine>
       <DialogType>OFFER_MERGE</DialogType>
       <Default>PLURAL, there are no suns anymore with the wars we are involved, will you accept us into your garden?</Default>
-    </DialogLine>		
+    </DialogLine>        
     <DialogLine>
       <DialogType>OFFER_MERGE_ACCEPTED</DialogType>
       <Default>Very Sunny! I need a vacation.</Default>
-    </DialogLine>			
+    </DialogLine>            
     <DialogLine>
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>This is sad. There is no joy in darkness.</Default>
-    </DialogLine>						
+    </DialogLine>                        
   </Dialogs>
 </DiplomacyDialog>

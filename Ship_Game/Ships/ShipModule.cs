@@ -1124,7 +1124,7 @@ namespace Ship_Game.Ships
                 }
 
                 HangarShip.DoEscort(Parent);
-                HangarShip.Velocity = carrier.Velocity + UniverseRandom.RandomDirection() * HangarShip.SpeedLimit;
+                HangarShip.Velocity = carrier.Velocity + UniverseRandom.RandomDirection() * HangarShip.STLSpeedLimit;
                 HangarShip.Mothership = carrier;
                 HangarTimer = HangarTimerConstant;
                 CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);

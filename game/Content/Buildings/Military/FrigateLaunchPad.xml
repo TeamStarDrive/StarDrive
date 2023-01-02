@@ -1,21 +1,21 @@
 <Building>
-	<Name>FrigateLaunchPad</Name>
-	<Icon>FrigateLaunchPad</Icon>
-	
-	<Cost>550</Cost>
-	<Maintenance>1</Maintenance>
-	
-	<Strength>10</Strength>
-	<CombatStrength>10</CombatStrength>
-	<Defense>25</Defense>	
-	<SoftAttack>15</SoftAttack>
-	<HardAttack>15</HardAttack>
-	<StorageAdded>15</StorageAdded>
+    <Name>FrigateLaunchPad</Name>
+    <Icon>FrigateLaunchPad</Icon>
+    
+    <Cost>550</Cost>
+    <Maintenance>1</Maintenance>
+    
+    <Strength>10</Strength>
+    <CombatStrength>10</CombatStrength>
+    <Defense>25</Defense>    
+    <SoftAttack>15</SoftAttack>
+    <HardAttack>15</HardAttack>
+    <StorageAdded>15</StorageAdded>
     <DefenseShipsCapacity>4</DefenseShipsCapacity>
-	<DefenseShipsRole>frigate</DefenseShipsRole>
-	
-	<!-- For localization in GameText.yaml -->
-	<NameTranslationIndex>10100</NameTranslationIndex>
-	<ShortDescriptionIndex>10101</ShortDescriptionIndex>	
-	<DescriptionIndex>10102</DescriptionIndex>
+    <DefenseShipsRole>frigate</DefenseShipsRole>
+    
+    <!-- For localization in GameText.yaml -->
+    <NameTranslationIndex>10100</NameTranslationIndex>
+    <ShortDescriptionIndex>10101</ShortDescriptionIndex>    
+    <DescriptionIndex>10102</DescriptionIndex>
 </Building>

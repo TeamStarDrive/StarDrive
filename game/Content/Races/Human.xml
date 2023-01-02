@@ -56,43 +56,43 @@
     <G>140</G>
     <B>203</B>
     <RaceDescription>The United Federation is an expasionist republic with a strong emphasis on scientific and military power.  Humans are somewhat xenophobic, and they can be slow to trust other empires while also being quick to make war.    </RaceDescription>
-    <PhysicalTraitAlluring>false</PhysicalTraitAlluring> 								<!--( 3)-->	
-	<PhysicalTraitRepulsive>false</PhysicalTraitRepulsive> 								<!--(-3)-->
-	<PhysicalTraitEagleEyed>false</PhysicalTraitEagleEyed> 								<!--( 2)-->
-	<PhysicalTraitBlind>false</PhysicalTraitBlind> 										<!--(-2)-->
-	<PhysicalTraitEfficientMetabolism>false</PhysicalTraitEfficientMetabolism> 			<!--( 3)-->
-	<PhysicalTraitGluttonous>false</PhysicalTraitGluttonous> 							<!--(-3)-->
-	<PhysicalTraitFertile>false</PhysicalTraitFertile> 									<!--( 3)-->
-	<PhysicalTraitLessFertile>false</PhysicalTraitLessFertile> 							<!--(-3)-->
-	<PhysicalTraitSmart>false</PhysicalTraitSmart> 										<!--( 3)-->
-	<PhysicalTraitDumb>false</PhysicalTraitDumb> 										<!--(-3)-->
-	<PhysicalTraitReflexes>false</PhysicalTraitReflexes> 								<!--( 3)-->
-	<PhysicalTraitPonderous>false</PhysicalTraitPonderous> 								<!--(-3)-->
-	<PhysicalTraitSavage>false</PhysicalTraitSavage> 									<!--( 2)-->
-	<PhysicalTraitTimid>false</PhysicalTraitTimid> 										<!--(-2)-->
-	<SociologicalTraitEfficient>false</SociologicalTraitEfficient> 						<!--( 4)-->
-	<SociologicalTraitWasteful>false</SociologicalTraitWasteful> 						<!--(-4)-->
-	<SociologicalTraitIndustrious>true</SociologicalTraitIndustrious> 					<!--( 3)-->
-	<SociologicalTraitLazy>false</SociologicalTraitLazy> 								<!--(-3)-->
-	<SociologicalTraitMercantile>false</SociologicalTraitMercantile> 					<!--( 3)-->
-	<SociologicalTraitMeticulous>false</SociologicalTraitMeticulous> 					<!--( 1)-->
-	<SociologicalTraitCorrupt>true</SociologicalTraitCorrupt> 							<!--(-1)-->
-	<SociologicalTraitSkilledEngineers>false</SociologicalTraitSkilledEngineers> 		<!--( 2)-->
-	<SociologicalTraitHaphazardEngineers>false</SociologicalTraitHaphazardEngineers> 	<!--(-2)-->
-	<HistoryTraitAstronomers>true</HistoryTraitAstronomers> 							<!--( 2)-->
-	<HistoryTraitCybernetic>false</HistoryTraitCybernetic> 								<!--( 7)-->
-	<HistoryTraitManifestDestiny>false</HistoryTraitManifestDestiny> 					<!--( 3)-->
-	<HistoryTraitMilitaristic>true</HistoryTraitMilitaristic> 							<!--( 4)-->
-	<HistoryTraitNavalTraditions>false</HistoryTraitNavalTraditions> 					<!--( 4)-->
-	<HistoryTraitPackMentality>false</HistoryTraitPackMentality> 						<!--( 2)-->
-	<HistoryTraitPrototypeFlagship>true</HistoryTraitPrototypeFlagship> 				<!--( 1)-->
-	<HistoryTraitSpiritual>false</HistoryTraitSpiritual> 								<!--( 2)-->
-	<HistoryTraitPollutedHomeWorld>true</HistoryTraitPollutedHomeWorld> 				<!--(-2)-->
-	<HistoryTraitIndustrializedHomeWorld>false</HistoryTraitIndustrializedHomeWorld> 	<!--( 1)-->
-	<HistoryTraitDuplicitous>false</HistoryTraitDuplicitous> 							<!--( 2)-->
-	<HistoryTraitHonest>false</HistoryTraitHonest> 										<!--(-2)-->
-	<HistoryTraitHugeHomeWorld>true</HistoryTraitHugeHomeWorld>			 			<!--( 3)-->
-	<HistoryTraitSmallHomeWorld>false</HistoryTraitSmallHomeWorld>						<!--(-3)-->
+    <PhysicalTraitAlluring>false</PhysicalTraitAlluring>                                 <!--( 3)-->    
+    <PhysicalTraitRepulsive>false</PhysicalTraitRepulsive>                                 <!--(-3)-->
+    <PhysicalTraitEagleEyed>false</PhysicalTraitEagleEyed>                                 <!--( 2)-->
+    <PhysicalTraitBlind>false</PhysicalTraitBlind>                                         <!--(-2)-->
+    <PhysicalTraitEfficientMetabolism>false</PhysicalTraitEfficientMetabolism>             <!--( 3)-->
+    <PhysicalTraitGluttonous>false</PhysicalTraitGluttonous>                             <!--(-3)-->
+    <PhysicalTraitFertile>false</PhysicalTraitFertile>                                     <!--( 3)-->
+    <PhysicalTraitLessFertile>false</PhysicalTraitLessFertile>                             <!--(-3)-->
+    <PhysicalTraitSmart>false</PhysicalTraitSmart>                                         <!--( 3)-->
+    <PhysicalTraitDumb>false</PhysicalTraitDumb>                                         <!--(-3)-->
+    <PhysicalTraitReflexes>false</PhysicalTraitReflexes>                                 <!--( 3)-->
+    <PhysicalTraitPonderous>false</PhysicalTraitPonderous>                                 <!--(-3)-->
+    <PhysicalTraitSavage>false</PhysicalTraitSavage>                                     <!--( 2)-->
+    <PhysicalTraitTimid>false</PhysicalTraitTimid>                                         <!--(-2)-->
+    <SociologicalTraitEfficient>false</SociologicalTraitEfficient>                         <!--( 4)-->
+    <SociologicalTraitWasteful>false</SociologicalTraitWasteful>                         <!--(-4)-->
+    <SociologicalTraitIndustrious>true</SociologicalTraitIndustrious>                     <!--( 3)-->
+    <SociologicalTraitLazy>false</SociologicalTraitLazy>                                 <!--(-3)-->
+    <SociologicalTraitMercantile>false</SociologicalTraitMercantile>                     <!--( 3)-->
+    <SociologicalTraitMeticulous>false</SociologicalTraitMeticulous>                     <!--( 1)-->
+    <SociologicalTraitCorrupt>true</SociologicalTraitCorrupt>                             <!--(-1)-->
+    <SociologicalTraitSkilledEngineers>false</SociologicalTraitSkilledEngineers>         <!--( 2)-->
+    <SociologicalTraitHaphazardEngineers>false</SociologicalTraitHaphazardEngineers>     <!--(-2)-->
+    <HistoryTraitAstronomers>true</HistoryTraitAstronomers>                             <!--( 2)-->
+    <HistoryTraitCybernetic>false</HistoryTraitCybernetic>                                 <!--( 7)-->
+    <HistoryTraitManifestDestiny>false</HistoryTraitManifestDestiny>                     <!--( 3)-->
+    <HistoryTraitMilitaristic>true</HistoryTraitMilitaristic>                             <!--( 4)-->
+    <HistoryTraitNavalTraditions>false</HistoryTraitNavalTraditions>                     <!--( 4)-->
+    <HistoryTraitPackMentality>false</HistoryTraitPackMentality>                         <!--( 2)-->
+    <HistoryTraitPrototypeFlagship>true</HistoryTraitPrototypeFlagship>                 <!--( 1)-->
+    <HistoryTraitSpiritual>false</HistoryTraitSpiritual>                                 <!--( 2)-->
+    <HistoryTraitPollutedHomeWorld>true</HistoryTraitPollutedHomeWorld>                 <!--(-2)-->
+    <HistoryTraitIndustrializedHomeWorld>false</HistoryTraitIndustrializedHomeWorld>     <!--( 1)-->
+    <HistoryTraitDuplicitous>false</HistoryTraitDuplicitous>                             <!--( 2)-->
+    <HistoryTraitHonest>false</HistoryTraitHonest>                                         <!--(-2)-->
+    <HistoryTraitHugeHomeWorld>true</HistoryTraitHugeHomeWorld>                         <!--( 3)-->
+    <HistoryTraitSmallHomeWorld>false</HistoryTraitSmallHomeWorld>                        <!--(-3)-->
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

@@ -33,7 +33,7 @@ namespace Ship_Game
 
         static StreamWriter LogFile;
         static Thread LogThread;
-        static readonly SafeQueue<LogEntry> LogQueue = new SafeQueue<LogEntry>(64);
+        static readonly SafeQueue<LogEntry> LogQueue = new(64);
         public static bool HasDebugger;
 
         // Either there is an active Console Window
@@ -42,7 +42,7 @@ namespace Ship_Game
 
         const ConsoleColor DefaultColor = ConsoleColor.Gray;
         static ConsoleColor CurrentColor = DefaultColor;
-        static readonly object Sync = new object();
+        static readonly object Sync = new();
 
         /// <summary>
         /// If TRUE, then [INFO] messages will be written to LogFile
@@ -698,21 +698,22 @@ namespace Ship_Game
                 evt["Version"] = GlobalStats.Version;
                 if (GlobalStats.HasMod)
                 {
-                    evt["Mod"]        = GlobalStats.ModName;
+                    evt["Mod"] = GlobalStats.ModName;
                     evt["ModVersion"] = GlobalStats.ActiveMod.Mod.Version;
                 }
                 else
                 {
                     evt["Mod"] = "Vanilla";
                 }
+                evt["Language"] = GlobalStats.Language.ToString();
 
                 // find root UniverseScreen from ScreenManager, unless the crash is before ScreenManager is created
                 var universe = ScreenManager.Instance?.FindScreen<UniverseScreen>();
-                evt["StarDate"]  = universe?.StarDateString ?? "NULL";
-                evt["Ships"]     = universe?.UState.Ships.Count.ToString() ?? "NULL";
-                evt["Planets"]   = universe?.UState.Planets?.Count.ToString() ?? "NULL";
+                evt["StarDate"] = universe?.StarDateString ?? "NULL";
+                evt["Ships"] = universe?.UState.Ships.Count.ToString() ?? "NULL";
+                evt["Planets"] = universe?.UState.Planets?.Count.ToString() ?? "NULL";
 
-                evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
+                evt["Memory"] = (GC.GetTotalMemory(false) / 1024).ToString();
                 evt["XnaMemory"] = StarDriveGame.Instance != null ? (StarDriveGame.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
             }
 

@@ -66,7 +66,7 @@ public class AutoUpdateChecker : UIElementContainer
             textLabel.SetLocalPos(132, 0);
 
             SubTexture portraitTex = isMod 
-                ? updater.ContentManager.LoadModTexture(GlobalStats.ModPath, GlobalStats.ActiveMod?.Mod.IconPath)
+                ? GlobalStats.ActiveMod?.LoadPortrait(Screen)
                 : updater.ContentManager.LoadTextureOrDefault("Textures/Portraits/Human.dds");
 
             UIPanel portrait = base.Add(new UIPanel(LocalPos.Zero, new Vector2(62, 74), portraitTex));
@@ -187,7 +187,7 @@ public class AutoUpdateChecker : UIElementContainer
                                        : GlobalStats.ActiveMod.Mod.Version;
         Log.Write($"AutoUpdater: latest  {latestVersion}");
         Log.Write($"AutoUpdater: current {currentVersion}");
-        return string.CompareOrdinal(latestVersion, currentVersion) > 0;;
+        return string.CompareOrdinal(latestVersion, currentVersion) > 0;
     }
 
     ReleaseInfo? GetLatestVersionInfoGitHub(string modName, string url, bool isMod)
@@ -200,7 +200,7 @@ public class AutoUpdateChecker : UIElementContainer
         string name = latestRelease["name"];
         string tagName = latestRelease["tag_name"];
         string changelog = latestRelease["body"];
-        string latestVersion = tagName.Split('-').Last();
+        string latestVersion = tagName.Split('-').FindMax(s => s.Count(c => c == '.')); // part-v1.2.4-withmostdots
 
         if (IsLatestVerNewer(latestVersion, isMod))
         {

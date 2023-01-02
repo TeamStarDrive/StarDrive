@@ -221,7 +221,7 @@ namespace UnitTests.Fleets
 
             void Print(string wat, Ship s)
             {
-                Log.Write($"{wat} dist:{Dist(s):0} V:{s.Velocity.Length():0} Smax:{s.SpeedLimit:0} Vmax:{s.VelocityMax:0}");
+                Log.Write($"{wat} dist:{Dist(s):0} V:{s.Velocity.Length():0} STLCap:{s.STLSpeedLimit:0} FTLCap:{s.FTLSpeedLimit:0} Vmax:{s.VelocityMax:0}");
                 Log.Write($"\t\t\tstate:{s.engineState} Goal:{s.AI.OrderQueue.PeekFirst?.Plan} {s.ShipEngines}");
                 Log.Write($"\t\t\t{s}");
             }
