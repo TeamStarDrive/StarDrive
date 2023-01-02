@@ -76,6 +76,9 @@ namespace Ship_Game
 
         static readonly Array<Thread> MonitoredThreads = new();
 
+        public static string LogFilePath { get; private set; }
+        public static string OldLogFilePath { get; private set; }
+
         public static void Initialize(bool enableSentry, bool showHeader)
         {
             if (LogThread != null)
@@ -85,9 +88,14 @@ namespace Ship_Game
 
             if (LogFile == null)
             {
-                if (File.Exists("blackbox.log"))
-                    File.Copy("blackbox.log", "blackbox.old.log", true);
-                LogFile = OpenLog("blackbox.log");
+                bool isReadOnly = Directory.GetCurrentDirectory().Contains("Program Files");
+                string logDir = isReadOnly ? Dir.StarDriveAppData + "/" : "";
+
+                LogFilePath = $"{logDir}blackbox.log";
+                OldLogFilePath = $"{logDir}blackbox.old.log";
+                if (File.Exists(LogFilePath))
+                    File.Copy(LogFilePath, OldLogFilePath, true);
+                LogFile = OpenLog(LogFilePath);
             }
 
             LogThread = new Thread(LogAsyncWriter) { Name = "AsyncLogWriter" };
@@ -398,7 +406,7 @@ namespace Ship_Game
                     scope.User.Username = Environment.UserName;
                 }
                 scope.ClearAttachments();
-                scope.AddAttachment("blackbox.log");
+                scope.AddAttachment(LogFilePath);
                 if (IncludeSaveGameInReports && autoSavePath.NotEmpty())
                 {
                     scope.AddAttachment(autoSavePath);

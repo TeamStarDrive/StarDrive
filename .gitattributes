@@ -1,6 +1,16 @@
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
 * text=auto
+
+# setup these content files to only use NewLines on checkout
+*.xml text=lf
+*.hull text=lf
+*.design text=lf
+*.yaml text=lf
+*.txt text=lf
+# and these should use CRLF
+*.fx text=crlf
+*.config text=crlf
 # Set default behavior for command prompt diff.
 #
 # This is need for earlier builds of msysgit that does not have it on by
