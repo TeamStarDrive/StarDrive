@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("Zero Sum Games")]
-[assembly: AssemblyCopyright("Copyright © Zero Sum Games 2022")]
+[assembly: AssemblyCopyright("Copyright ï¿½ Zero Sum Games 2022")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyProduct("StarDrive BlackBox")]
 
@@ -26,4 +26,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("b38aad3b-18b8-41a8-b758-0e5614dafc49")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows=true)]
 
-[assembly: AssemblyInformationalVersion("1.41.14545 develop/mars-1.41")]
+[assembly: AssemblyInformationalVersion("1.41.14664 develop/mars-1.41")]

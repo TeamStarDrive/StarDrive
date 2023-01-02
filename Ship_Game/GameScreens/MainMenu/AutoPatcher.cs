@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
 using System.Windows.Forms;
 using SDUtils;
@@ -58,9 +60,16 @@ internal class AutoPatcher : PopupWindow
     }
 
     string GetPatchOutputFolder() => Path.GetFullPath(Path.Combine(Dir.StarDriveAppData, "Patches", Info.Version));
-    string GetPatchTempFolder() => Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "PatchTemp"));
+    static string GetPatchTempFolder() => Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "PatchTemp"));
 
-    void TryDeleteFolder(string folder)
+    // delete any stale files from StarDrivePlus/PatchTemp folder
+    public static void TryDeletePatchTemp()
+    {
+        string tempDir = GetPatchTempFolder();
+        TryDeleteFolder(tempDir);
+    }
+
+    static void TryDeleteFolder(string folder)
     {
         try
         {
@@ -74,7 +83,7 @@ internal class AutoPatcher : PopupWindow
     {
         try
         {
-            TryDeleteFolder(folder: GetPatchTempFolder());
+            TryDeletePatchTemp();
 
             string outputFolder = GetPatchOutputFolder();
             TryDeleteFolder(outputFolder); // delete all stale data, just in case
@@ -167,33 +176,17 @@ internal class AutoPatcher : PopupWindow
         {
             ScreenManager.ResetHotLoadTargets(); // disable hotloading while patcher is running
 
-            string tempDir = GetPatchTempFolder();
             string workingDir = Directory.GetCurrentDirectory();
             if (IsMod) workingDir = Path.Combine(workingDir, GlobalStats.ModPath.Replace('/', '\\'));
 
-            // in case the archive extracted files to Folder/ModName instead of Folder/
-            var entries = Directory.GetFileSystemEntries(patchFilesFolder, "*", SearchOption.TopDirectoryOnly);
-            if (entries.Length == 1)
-                patchFilesFolder = entries[0];
-
-            FileInfo[] files = Dir.GetFiles(patchFilesFolder);
-            int lastPercent = -1;
-            for (int i = 0; i < files.Length; ++i)
+            bool requiresElevation = workingDir.Contains("Program Files");
+            if (requiresElevation)
             {
-                string srcFile = files[i].FullName;
-                string relPath = srcFile.Replace(patchFilesFolder, "");
-                string dstFile = workingDir + relPath;
-                
-                Log.Write($"ApplyPatch: {relPath}");
-                SafeMove(srcFile, dstFile, relPath, tempDir);
-
-                int percent = ProgressBarElement.GetPercent(i+1, files.Length);
-                if (lastPercent != percent)
-                {
-                    lastPercent = percent;
-                    ap.SetProgress(percent);
-                }
+                if (!IsInRole(WindowsBuiltInRole.Administrator))
+                    throw new InvalidOperationException("UAC Elevation failed: cannot overwrite StarDrive Program Files");
             }
+
+            ApplyPatchFiles(patchFilesFolder, ap, workingDir);
 
             RunOnNextFrame(() =>
             {
@@ -207,6 +200,35 @@ internal class AutoPatcher : PopupWindow
         {
             Log.Error(e, "ApplyPatch failed");
             AddErrorMessageAndAllowExit("Apply Patch failed!", e.Message);
+        }
+    }
+
+    void ApplyPatchFiles(string patchFilesFolder, ProgressBarElement ap, string workingDir)
+    {
+        string tempDir = GetPatchTempFolder();
+
+        // in case the archive extracted files to Folder/ModName instead of Folder/
+        var entries = Directory.GetFileSystemEntries(patchFilesFolder, "*", SearchOption.TopDirectoryOnly);
+        if (entries.Length == 1)
+            patchFilesFolder = entries[0];
+
+        FileInfo[] files = Dir.GetFiles(patchFilesFolder);
+        int lastPercent = -1;
+        for (int i = 0; i < files.Length; ++i)
+        {
+            string srcFile = files[i].FullName;
+            string relPath = srcFile.Replace(patchFilesFolder, "");
+            string dstFile = workingDir + relPath;
+            
+            Log.Write($"ApplyPatch: {relPath}");
+            SafeMove(srcFile, dstFile, relPath, tempDir);
+
+            int percent = ProgressBarElement.GetPercent(i+1, files.Length);
+            if (lastPercent != percent)
+            {
+                lastPercent = percent;
+                ap.SetProgress(percent);
+            }
         }
     }
 
@@ -290,5 +312,16 @@ internal class AutoPatcher : PopupWindow
         string args = string.Join(" ", Environment.GetCommandLineArgs().AsSpan(1).ToArray());
         Application.Exit();
         System.Diagnostics.Process.Start(Application.ExecutablePath, args);
+    }
+
+    static bool IsInRole(WindowsBuiltInRole role)
+    {
+        // Set the security policy context to windows security
+        AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+
+        // Create a WindowsPrincipal object representing the current user
+        WindowsPrincipal principal = new(WindowsIdentity.GetCurrent());
+
+        return principal.IsInRole(role);
     }
 }

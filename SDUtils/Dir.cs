@@ -71,7 +71,7 @@ public static class Dir
     static string AppData => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
         .NormalizedFilePath();
 
-    // {AppData}/StarDrive/
+    // {AppData}/StarDrive
     // This is where all the saved games and cache files are stored
     public static readonly string StarDriveAppData = AppData + "/StarDrive";
 }
