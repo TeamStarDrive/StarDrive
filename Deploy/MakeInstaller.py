@@ -24,8 +24,8 @@ os.chdir(args.root_dir)
 if is_appveyor_build() and not should_deploy():
     exit_with_message(f'Not creating installer for this branch: {appveyor_branch()}')
 
-if   args.major: create_installer_files_list(major=True, version=BUILD_VERSION, type=args.type)
-elif args.patch: create_installer_files_list(patch=True, version=BUILD_VERSION, type=args.type)
+if   args.major: create_installer_files_list(major=True, type=args.type)
+elif args.patch: create_installer_files_list(patch=True, type=args.type)
 
 # create the upload dir if it doesn't already exist
 source = os.getcwd()
