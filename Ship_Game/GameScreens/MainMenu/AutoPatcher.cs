@@ -60,9 +60,16 @@ internal class AutoPatcher : PopupWindow
     }
 
     string GetPatchOutputFolder() => Path.GetFullPath(Path.Combine(Dir.StarDriveAppData, "Patches", Info.Version));
-    string GetPatchTempFolder() => Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "PatchTemp"));
+    static string GetPatchTempFolder() => Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "PatchTemp"));
 
-    void TryDeleteFolder(string folder)
+    // delete any stale files from StarDrivePlus/PatchTemp folder
+    public static void TryDeletePatchTemp()
+    {
+        string tempDir = GetPatchTempFolder();
+        TryDeleteFolder(tempDir);
+    }
+
+    static void TryDeleteFolder(string folder)
     {
         try
         {
@@ -76,7 +83,7 @@ internal class AutoPatcher : PopupWindow
     {
         try
         {
-            TryDeleteFolder(folder: GetPatchTempFolder());
+            TryDeletePatchTemp();
 
             string outputFolder = GetPatchOutputFolder();
             TryDeleteFolder(outputFolder); // delete all stale data, just in case

@@ -8,6 +8,7 @@ using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game
 {
@@ -52,6 +53,7 @@ namespace Ship_Game
             Directory.CreateDirectory(appData + "/Fleet Designs");
             Directory.CreateDirectory(appData + "/Saved Designs");
             Directory.CreateDirectory(appData + "/WIP"); // This is for unfinished Shipyard designs
+            AutoPatcher.TryDeletePatchTemp();
 
             IsFixedTimeStep = true;
         }
