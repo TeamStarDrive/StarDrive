@@ -1526,7 +1526,14 @@ namespace Ship_Game
             Log.Write($"Loading {hullFiles.Length} Hulls");
             ShipHull[] newHulls = Parallel.Select(hullFiles, LoadShipHull);
             foreach (ShipHull hull in newHulls)
-                AddHull(hull);
+            {
+                string path = hull.ModelPath.ToLower().StartsWith("model/") ? ContentDirectory + "/" : ModContentDirectory;
+                FileInfo fileInfo = new(path + hull.ModelPath + ".xnb");
+                if (fileInfo.Exists)
+                    AddHull(hull);
+                else
+                    throw new FileNotFoundException($"Could not find model '{hull.ModelPath}.xnb' in {path + hull.ModelPath} for {hull.HullName}");
+            }
         }
 
         public static readonly ShipsManager Ships = new();

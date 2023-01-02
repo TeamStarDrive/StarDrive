@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <?define SourceDir = "$(var.StarDrive.TargetDir)" ?>
+  
+  <!-- Folder Structure -->
+  <DirectoryRef Id="INSTALLFOLDER">
+    <Directory Id="Content" Name="Content" />
+  </DirectoryRef>
+
+  <!-- Files -->
+  <DirectoryRef Id="INSTALLFOLDER">
+    <Component Id="file_StarDrive_exe">
+      <File Id="file_StarDrive_exe" KeyPath="yes" Source="$(var.SourceDir)StarDrive.exe" />
+    </Component>
+    <Component Id="file_StarDrive_exe_config">
+      <File Id="file_StarDrive_exe_config" KeyPath="yes" Source="$(var.SourceDir)StarDrive.exe.config" />
+    </Component>
+  </DirectoryRef>
+  
+  <DirectoryRef Id="Content">
+    <Component Id="file_Content_Globals_yaml">
+      <File Id="file_Content_Globals_yaml" KeyPath="yes" Source="$(var.SourceDir)Content\Globals.yaml" />
+    </Component>
+    <Component Id="file_Content_Budgets_yaml">
+      <File Id="file_Content_Budgets_yaml" KeyPath="yes" Source="$(var.SourceDir)Content\Budgets.yaml" />
+    </Component>
+  </DirectoryRef>
+  
+  <!-- File Components -->
+  <ComponentGroup Id="GameContent" Directory="INSTALLFOLDER">
+    <ComponentRef Id="file_StarDrive_exe" />
+    <ComponentRef Id="file_StarDrive_exe_config" />
+    <ComponentRef Id="file_Content_Globals_yaml" />
+    <ComponentRef Id="file_Content_Budgets_yaml" />
+  </ComponentGroup>
+
+</Include>

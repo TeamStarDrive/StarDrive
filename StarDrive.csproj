@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\WiX.3.11.2\build\wix.props" Condition="Exists('packages\WiX.3.11.2\build\wix.props')" />
   <Import Project="packages\Sentry.3.25.0\build\Sentry.props" Condition="Exists('packages\Sentry.3.25.0\build\Sentry.props')" />
   <PropertyGroup>
     <ProjectGuid>{8071E07A-300E-485D-B139-066E15E82178}</ProjectGuid>
@@ -71,7 +72,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <ApplicationIcon>blackbox.ico</ApplicationIcon>
+    <ApplicationIcon>Icons\Mars.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x86'">
@@ -1751,11 +1752,10 @@
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="blackbox.ico" />
     <Content Include="Icons\blackbox drop.ico" />
     <Content Include="Icons\blackbox.ico" />
+    <Content Include="Icons\Mars.ico" />
     <Content Include="Icons\PipeSmoke.ico" />
-    <Content Include="Icons\StarTrek-SA.ico" />
     <Content Include="XnaNative.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1809,6 +1809,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\LargeAddressAware.1.0.6\build\LargeAddressAware.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\LargeAddressAware.1.0.6\build\LargeAddressAware.targets'))" />
     <Error Condition="!Exists('packages\Sentry.3.25.0\build\Sentry.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Sentry.3.25.0\build\Sentry.props'))" />
+    <Error Condition="!Exists('packages\WiX.3.11.2\build\wix.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\WiX.3.11.2\build\wix.props'))" />
   </Target>
   <!-- <Target Name="AfterBuild"> -->
   <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->

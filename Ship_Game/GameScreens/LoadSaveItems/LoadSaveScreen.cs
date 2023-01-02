@@ -69,10 +69,10 @@ namespace Ship_Game
             save.FileLink.CopyTo($"{tmpDir}/{save.FileName}{save.FileLink.Extension}", overwrite:true);
 
             // also add both logfiles
-            if (File.Exists("blackbox.log"))
-                File.Copy("blackbox.log", $"{tmpDir}/blackbox.log", overwrite:true);
-            if (File.Exists("blackbox.old.log"))
-                File.Copy("blackbox.old.log", $"{tmpDir}/blackbox.old.log", overwrite:true);
+            if (File.Exists(Log.LogFilePath))
+                File.Copy(Log.LogFilePath, $"{tmpDir}/blackbox.log", overwrite:true);
+            if (File.Exists(Log.OldLogFilePath))
+                File.Copy(Log.OldLogFilePath, $"{tmpDir}/blackbox.old.log", overwrite:true);
 
             string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             string outZip = $"{GetDebugVers()}_{fileName}.zip";
