@@ -3,7 +3,7 @@
   <!-- WARNING: VERSION MUST BE BUMPED, OTHERWISE NEW FILES WILL NOT BE COPIED OVER -->
   <Product Id="*" Name="StarDrive BlackBox Mars 1.41"
            Language="1033"
-           Version="1.41.650"
+           Version="1.41.652"
            Manufacturer="TeamStarDrive"
            UpgradeCode="25C8175D-6A2F-4934-A81B-04568A3CCA05">
 
@@ -32,14 +32,18 @@
   
   <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLFOLDER" Name="StarDrive" />
+      <Directory Id="WINDOWSVOLUME">
+        <Directory Id="Games" Name="Games">
+          <Directory Id="INSTALLFOLDER" Name="StarDrivePlus" ComponentGuidGenerationSeed="EA04E852-BCDB-4AD8-9B45-156693FECBC1" />
+        </Directory>
       </Directory>
       <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="StarDrive" />
       </Directory>
       <Directory Id="DesktopFolder" Name="Desktop" />
     </Directory>
+
+    <SetDirectory Id="WINDOWSVOLUME" Value="[WindowsVolume]"/>
   </Fragment>
 
   <Fragment>
