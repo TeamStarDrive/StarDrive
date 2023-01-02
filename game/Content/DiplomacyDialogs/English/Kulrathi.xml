@@ -639,24 +639,24 @@ Heed well our warrior-poets, SING, and anger not the mighty Kulrathi</Neutral>
       <DL_Pac>It is preferable you try improving relations with our allies, though.</DL_Pac>
       <DL_Hon>Your dishonor shames you, as it shames us, for being your friends.</DL_Hon>
     </DialogLine>
-	
-	<!-- Merge and Surrender -->
-	
+    
+    <!-- Merge and Surrender -->
+    
     <DialogLine>
       <DialogType>SURRENDER</DialogType>
       <Default>Your blades are too sharp for us, PLURAL. We Surrender.</Default>
-    </DialogLine>	
+    </DialogLine>    
     <DialogLine>
       <DialogType>OFFER_MERGE</DialogType>
       <Default>PLURAL, we are almost defeated in wars, Will you accept us to your empire?</Default>
-    </DialogLine>		
+    </DialogLine>        
     <DialogLine>
       <DialogType>OFFER_MERGE_ACCEPTED</DialogType>
       <Default>Our blades are yours now.</Default>
-    </DialogLine>			
+    </DialogLine>            
     <DialogLine>
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>Then we shall part our ways.</Default>
-    </DialogLine>					
+    </DialogLine>                    
   </Dialogs>
 </DiplomacyDialog>

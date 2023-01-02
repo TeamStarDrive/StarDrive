@@ -1,35 +1,35 @@
 <?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<Cost>9</Cost>
-	<!-- Tech Level -->
-	<TechLevel>3</TechLevel>
-	<TechBranch>Armor</TechBranch>
-	<!-- common traits shared by all ship modules -->
-	<XSize>2</XSize>
-	<YSize>2</YSize>
-	<ModuleType>Armor</ModuleType>
-	<Name>Ceramic Armor Med</Name>
-	<Restrictions>O</Restrictions>
-	<UID>Ceramic Armor Med</UID> 
+    <Cost>9</Cost>
+    <!-- Tech Level -->
+    <TechLevel>3</TechLevel>
+    <TechBranch>Armor</TechBranch>
+    <!-- common traits shared by all ship modules -->
+    <XSize>2</XSize>
+    <YSize>2</YSize>
+    <ModuleType>Armor</ModuleType>
+    <Name>Ceramic Armor Med</Name>
+    <Restrictions>O</Restrictions>
+    <UID>Ceramic Armor Med</UID> 
   <Version>2</Version>
 
-	<TexturePath>Textures/transparent</TexturePath>
-	<IconTexturePath>Modules/Ceramic Armor Med</IconTexturePath>
-	<NameIndex>6581</NameIndex>
-	<DescriptionIndex>6584</DescriptionIndex>
-	<!-- Mass and Health -->
-	<Mass>24</Mass>
-	<Health>15600</Health>
-	<HealthMax>15600</HealthMax>
-	<RepairDifficulty>1</RepairDifficulty>
+    <TexturePath>Textures/transparent</TexturePath>
+    <IconTexturePath>Modules/Ceramic Armor Med</IconTexturePath>
+    <NameIndex>6581</NameIndex>
+    <DescriptionIndex>6584</DescriptionIndex>
+    <!-- Mass and Health -->
+    <Mass>24</Mass>
+    <Health>15600</Health>
+    <HealthMax>15600</HealthMax>
+    <RepairDifficulty>1</RepairDifficulty>
     <Deflection>0</Deflection>
-	<!-- Armor resistance -->
+    <!-- Armor resistance -->
     <KineticResist>0.06</KineticResist>
     <BeamResist>0</BeamResist>  
-	<PlasmaResist>0</PlasmaResist>
-	<ExplosiveResist>0.12</ExplosiveResist>
+    <PlasmaResist>0</PlasmaResist>
+    <ExplosiveResist>0.12</ExplosiveResist>
 
-	<!-- Description -->
-	<Description>New generation of Ceramic Armor.</Description>
-	<APResist>1</APResist>
+    <!-- Description -->
+    <Description>New generation of Ceramic Armor.</Description>
+    <APResist>1</APResist>
 </ShipModule>

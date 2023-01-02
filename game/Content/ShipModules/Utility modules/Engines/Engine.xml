@@ -22,7 +22,7 @@
   
   
   <PowerDraw>10</PowerDraw>
-	<PowerDrawAtWarp>-10</PowerDrawAtWarp>
+    <PowerDrawAtWarp>-10</PowerDrawAtWarp>
 
   <NameIndex>946</NameIndex>
   <DescriptionIndex>947</DescriptionIndex>

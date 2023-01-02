@@ -6,11 +6,11 @@
       <Planet>RedFox Rock</Planet>
       <SpecialDescription>Point of origin of a bizare transmission, very ancient and simple in todays standards yet elegant in nature, using only ones and zeroes. Planets orbit is so close to parent start that is glows bright red.</SpecialDescription>
       <WhichPlanet>14</WhichPlanet>
-	    <planetScale>1</planetScale>
+        <planetScale>1</planetScale>
     <Moon>
-			<WhichMoon>20</WhichMoon>
-			<MoonScale>1</MoonScale>
-		</Moon>
+            <WhichMoon>20</WhichMoon>
+            <MoonScale>1</MoonScale>
+        </Moon>
     </Ring>
     <Ring>
       <Asteroids>Yes</Asteroids>
@@ -19,62 +19,62 @@
       <Planet>Gremlins Vice</Planet>
       <SpecialDescription>This planet is riddled with caves and hidden areas under the massive amount of gasses. One could explore it for decades. It may be impossible to fully utilize the glory this place has to offer. </SpecialDescription>
       <WhichPlanet>28</WhichPlanet>
-	    <planetScale>6</planetScale>
+        <planetScale>6</planetScale>
     <Moons>
-		<Moon>
-			<WhichMoon>20</WhichMoon>
-			<MoonScale>2</MoonScale>
-		</Moon>
+        <Moon>
+            <WhichMoon>20</WhichMoon>
+            <MoonScale>2</MoonScale>
+        </Moon>
     </Moons>
     </Ring>
     <Ring>
       <Planet>Shooterz Plane</Planet>
       <SpecialDescription>This is a basin of creativity. All the primal forces of nature are at work creating things that imagination is insuffcient to comprehend. </SpecialDescription>
       <WhichPlanet>2</WhichPlanet>
-	    <planetScale>3</planetScale>
+        <planetScale>3</planetScale>
     </Ring>
     <Ring>
       <Planet>Moonster Den</Planet>
       <SpecialDescription>Planet full of ancient caves created by a giant worms called Moontalisks. Caves are filled with beautiful crystals inspiring all who enter them.</SpecialDescription>
       <WhichPlanet>11</WhichPlanet>
-	    <planetScale>2</planetScale>
+        <planetScale>2</planetScale>
     <Moons>
-		<Moon>
-			<WhichMoon>20</WhichMoon>
-			<MoonScale>2.8</MoonScale>
-		</Moon>
+        <Moon>
+            <WhichMoon>20</WhichMoon>
+            <MoonScale>2.8</MoonScale>
+        </Moon>
     <Moon>
-			<WhichMoon>9</WhichMoon>
-			<MoonScale>3</MoonScale>
-		</Moon>
+            <WhichMoon>9</WhichMoon>
+            <MoonScale>3</MoonScale>
+        </Moon>
     <Moon>
-			<WhichMoon>24</WhichMoon>
-			<MoonScale>1.5</MoonScale>
-		</Moon>
+            <WhichMoon>24</WhichMoon>
+            <MoonScale>1.5</MoonScale>
+        </Moon>
     <Moon>
-			<WhichMoon>23</WhichMoon>
-			<MoonScale>2</MoonScale>
-		</Moon>
-	  </Moons>
+            <WhichMoon>23</WhichMoon>
+            <MoonScale>2</MoonScale>
+        </Moon>
+      </Moons>
     </Ring>
     <Ring>
       <Planet>Doc's World</Planet>
       <SpecialDescription>Stories spun. Tales Told. The books written of this world have entertained the minds of billions for centuries. Why did the legendary writer choose this world? So far from home. Its unknown but getting to the place and setting foot on its soil is the dream that few will ever know. </SpecialDescription>
       <WhichPlanet>12</WhichPlanet>
-	    <planetScale>4</planetScale>
+        <planetScale>4</planetScale>
     </Ring>
     <Ring>
       <Planet>Deveks Horizon</Planet>
       <SpecialDescription>Who was TheDevek? Few can remember but all who see this world experience his dream whether they know it or not. </SpecialDescription>
         <WhichPlanet>26</WhichPlanet>
-	      <planetScale>3</planetScale>
+          <planetScale>3</planetScale>
     </Ring>
     <Ring>
       <Planet>Fat-Bastard Icicle</Planet>
       <SpecialDescription>Rumors say that that whoever enters orbit around this planet can find their inner peace and work overtime on their hobbby projects.</SpecialDescription>
       <WhichPlanet>17</WhichPlanet>
-	    <planetScale>3</planetScale>
+        <planetScale>3</planetScale>
       <HasRings>Yes</HasRings>
-    </Ring>	
+    </Ring>    
   </RingList>
 </SolarSystemData>

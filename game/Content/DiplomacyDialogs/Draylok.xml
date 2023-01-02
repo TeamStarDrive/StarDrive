@@ -420,7 +420,7 @@
     <DialogLine>
       <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
       <Default>The Council will not accept peace offering while you are allied with our enemies, SING.</Default>
-    </DialogLine>	
+    </DialogLine>    
 
     <DialogLine>
       <DialogType>ACCEPT_OFFER_PEACE</DialogType>
