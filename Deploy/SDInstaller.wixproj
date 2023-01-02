@@ -9,6 +9,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>StarDrive_BlackBox_Mars_1.41</OutputName>
     <OutputType>Package</OutputType>
+    <SuppressPdbOutput>true</SuppressPdbOutput>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>upload\</OutputPath>
