@@ -129,7 +129,7 @@ namespace Ship_Game.AI.ShipMovement
             {
                 InOrbit = true;
                 AI.RotateTowardsPosition(OrbitPos, timeStep, 0.01f);
-                Owner.SubLightAccelerate(speedLimit: precisionSpeed);
+                Owner.SubLightAccelerate(stlSpeedLimit: precisionSpeed);
                 if (AI.State != AIState.Bombard)
                     AI.SetPriorityOrder(false);
             }
