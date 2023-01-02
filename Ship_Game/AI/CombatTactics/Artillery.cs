@@ -74,7 +74,7 @@ namespace Ship_Game.AI.CombatTactics
             {
                 // we are too close, back away.
                 float distanceToBackPedal = (maxDistance - 150f) - DistanceToTarget;
-                Owner.SubLightAccelerate(speedLimit: distanceToBackPedal, Thrust.Reverse);
+                Owner.SubLightAccelerate(stlSpeedLimit: distanceToBackPedal, Thrust.Reverse);
                 return CombatMoveState.Retrograde;
             }
             return CombatMoveState.Error;
