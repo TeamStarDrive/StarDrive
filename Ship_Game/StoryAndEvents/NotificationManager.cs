@@ -241,14 +241,14 @@ namespace Ship_Game
         }
 
 
-        public void AddBuildingDestroyedByLava(Planet p, Building b)   => AddBuildingDestroyed(p, b, Localizer.Token(GameText.WasDestroyedByALava));
-        public void AddBuildingDestroyedByMeteor(Planet p, Building b) => AddBuildingDestroyed(p, b, Localizer.Token(GameText.WasDestroyedByAMeteor));
+        public void AddBuildingDestroyedByLava(Planet p, Building b)   => AddBuildingDestroyed(p, b, GameText.WasDestroyedByALava);
+        public void AddBuildingDestroyedByMeteor(Planet p, Building b) => AddBuildingDestroyed(p, b, GameText.WasDestroyedByAMeteor);
 
-        public void AddBuildingDestroyed(Planet p, Building b, string text)
+        public void AddBuildingDestroyed(Planet p, Building b, in LocalizedText text)
         {
             AddNotification(new Notification
             {
-                Message         = $"{p.Name}: {b.TranslatedName.Text} {text}",
+                Message         = $"{p.Name}: {b.TranslatedName.Text} {text.Text}",
                 ReferencedItem1 = p,
                 IconPath        = $"Buildings/icon_{b.Icon}_64x64",
                 Action          = "SnapToPlanet"
