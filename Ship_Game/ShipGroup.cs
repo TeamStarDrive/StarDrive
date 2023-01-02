@@ -6,6 +6,7 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Vector2 = SDGraphics.Vector2;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -25,8 +26,15 @@ namespace Ship_Game
 
         public void SetCommandShip(Ship ship) => CommandShip = ship;
 
-        // Speed LIMIT of the entire ship group, so the ships can stay together
-        [StarData] public float SpeedLimit { get; private set; }
+        /// <summary>
+        /// STL Speed LIMIT of the entire ship group, so the ships can stay together
+        /// </summary>
+        [StarData] public float STLSpeedLimit { get; private set; }
+
+        /// <summary>
+        /// FTL Speed LIMIT of the entire ship group, so the ships can stay together in warp
+        /// </summary>
+        [StarData] public float FTLSpeedLimit { get; private set; }
 
         // FINAL DESTINATION center position of the ship group
         // This can also be considered as the ASSEMBLY POSITION
@@ -401,7 +409,7 @@ namespace Ship_Game
             bool forceAssembly = order.IsSet(MoveOrder.AddWayPoint) || order.IsSet(MoveOrder.ForceReassembly);
             AssembleFleet(finalPos, finalDir, forceAssembly: forceAssembly);
 
-            UpdateSpeedLimit(ftl: AveragePos.Distance(finalPos) > 20_000);
+            UpdateSpeedLimit();
 
             foreach (Ship ship in Ships)
             {
@@ -586,42 +594,56 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Gets the imposed speed limit set by the formation, or 0.0 which means there is no speed limit
+        /// Gets the imposed speed limit set by the formation, or 0 which means there is no speed limit
         /// </summary>
-        public float GetSpeedLimitFor(Ship ship)
+        public float GetSTLSpeedLimitFor(Ship ship)
         {
             // if ship is within its formation position, use formation speed limit
             if (IsShipInFormation(ship, 1000f))
-                return SpeedLimit;
-
+                return STLSpeedLimit;
             return 0; // otherwise, there is no limit
         }
 
-        public void UpdateSpeedLimit(bool ftl = false)
+        public void UpdateSpeedLimit()
         {
             if (Ships.Count == 0)
                 return;
 
-            bool allResponsiveShipsWithinFormation = true;
-            float slowestSpeed = float.MaxValue;
+            // some ships are staying behind, but they can still catch up
+            bool gotCapableStragglers = false;
+            float speedCapSTL = 0f; // important that the default values are 0 (uncapped)
+            float speedCapFTL = 0f;
 
-            for (int i = 0; i < Ships.Count; i++)
+            for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-
                 if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
-                    slowestSpeed = (ftl ? ship.MaxFTLSpeed : ship.VelocityMax).UpperBound(slowestSpeed);
+                    // the MaxFTLSpeed is often limited by WarpPercent, because the ship direction drifts too much
+                    // from its final target position, see UpdateWarpThrust() for more details on SetWarpPercent
+                    speedCapSTL = speedCapSTL != 0f ? Math.Min(speedCapSTL, ship.MaxSTLSpeed) : ship.MaxSTLSpeed;
+                    speedCapFTL = speedCapFTL != 0f ? Math.Min(speedCapFTL, ship.MaxFTLSpeed) : ship.MaxFTLSpeed;
+
+                    // this ship can take orders, but it's straggling really far
                     if (!IsShipInFormation(ship, 30000f))
-                        allResponsiveShipsWithinFormation = false;
+                        gotCapableStragglers = true;
                 }
             }
 
             // in order to allow ships to speed up / slow down
             // slightly to hold formation, set the fleet speed a bit lower (if some ships are not in formation)
-            SpeedLimit = allResponsiveShipsWithinFormation 
-                ? slowestSpeed 
-                : Math.Max(50, (float)Math.Round(slowestSpeed * 0.8f));
+            if (!gotCapableStragglers)
+            {
+                // full speed ahead
+                STLSpeedLimit = speedCapSTL;
+                FTLSpeedLimit = speedCapFTL;
+            }
+            else
+            {
+                // set the fleet speed a bit lower if some ships are not in formation
+                STLSpeedLimit = speedCapSTL != 0f ? Math.Max(50, (float)Math.Round(speedCapSTL * 0.8f)) : 0f;
+                FTLSpeedLimit = speedCapFTL != 0f ? Math.Max(50, (float)Math.Round(speedCapFTL * 0.8f)) : 0f;
+            }
         }
     }
 }

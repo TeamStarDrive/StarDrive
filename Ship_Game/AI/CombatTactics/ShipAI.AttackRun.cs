@@ -122,7 +122,7 @@ namespace Ship_Game.AI.CombatTactics
                 
                 // they are coming towards us or just flew past us
                 debugStatus = "Strafe";
-                return Owner.SpeedLimit * 0.75f;
+                return Owner.STLSpeedLimit * 0.75f;
             }
 
             // enemy is really slow, so we're not in a hurry
