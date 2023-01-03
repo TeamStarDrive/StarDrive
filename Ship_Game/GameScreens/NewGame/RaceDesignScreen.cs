@@ -227,15 +227,15 @@ namespace Ship_Game
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
             Button(pos.X, pos.Y, text: GameText.RuleOptions, click: OnRuleOptionsClicked);
 
-            ChooseRaceList.StartTransitionFrom(ChooseRaceList.Pos - new Vector2(ChooseRaceList.Width, 0), TransitionOnTime);
-            DescriptionTextList.StartTransitionFrom(DescriptionTextList.Pos + new Vector2(DescriptionTextList.Width, 0), TransitionOnTime);
-            EnvMenu.StartTransitionFrom(EnvMenu.Pos - new Vector2(EnvMenu.Width, 0), TransitionOnTime);
+            ChooseRaceList.SlideInFromOffset(offset:new(-ChooseRaceList.Width, 0), TransitionOnTime);
+            DescriptionTextList.SlideInFromOffset(offset:new(DescriptionTextList.Width, 0), TransitionOnTime);
+            EnvMenu.SlideInFromOffset(offset:new(-EnvMenu.Width, 0), TransitionOnTime);
 
             OnExit += () =>
             {
-                ChooseRaceList.StartTransitionTo(ChooseRaceList.Pos - new Vector2(ChooseRaceList.Width, 0), TransitionOffTime);
-                DescriptionTextList.StartTransitionTo(DescriptionTextList.Pos + new Vector2(DescriptionTextList.Width, 0), TransitionOffTime);
-                EnvMenu.StartTransitionTo(EnvMenu.Pos - new Vector2(EnvMenu.Width, 0), TransitionOffTime);
+                ChooseRaceList.SlideOutToOffset(offset:new(-ChooseRaceList.Width, 0), TransitionOffTime);
+                DescriptionTextList.SlideOutToOffset(offset:new(DescriptionTextList.Width, 0), TransitionOffTime);
+                EnvMenu.SlideOutToOffset(offset:new(-EnvMenu.Width, 0), TransitionOffTime);
             };
 
             base.LoadContent();
