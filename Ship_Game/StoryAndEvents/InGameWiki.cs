@@ -142,7 +142,7 @@ namespace Ship_Game
             if (Player.HandleInput(input))
                 return true;
 
-            if (input.ExitWiki)
+            if (!GlobalStats.TakingInput && input.ExitWiki)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
@@ -157,7 +157,7 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             base.Draw(batch, elapsed);
 
-            batch.Begin();
+            batch.SafeBegin();
 
             Player.Draw(batch);
             if (Player.IsPaused)
@@ -166,7 +166,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial20Bold, ActiveTopic.Title, TitlePosition, Color.Orange);
             }
 
-            batch.End();
+            batch.SafeEnd();
         }
 
         public override void ExitScreen()

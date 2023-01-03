@@ -545,6 +545,16 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Recurse up until we get the GameScreen's Input. Inefficient, but preserves encapsulation.
+        /// </summary>
+        public InputState GetInput()
+        {
+            if (this is GameScreen screen)
+                return screen.Input;
+            return Parent?.GetInput();
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
     }
 

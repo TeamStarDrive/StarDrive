@@ -92,7 +92,7 @@ namespace Ship_Game
                 cursor.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(begin).X / 2f;
                 batch.DrawString(Fonts.Pirulen16, begin, cursor, CurrentFlashColor);
             }
-            batch.End();
+            batch.SafeEnd();
         }
     }
 }

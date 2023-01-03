@@ -1736,7 +1736,7 @@ namespace Ship_Game
         public void FactionShipsWeCanBuild()
         {
             if (!IsFaction) return;
-            foreach (Ship ship in ResourceManager.ShipTemplates)
+            foreach (Ship ship in ResourceManager.Ships.Ships)
             {
                 if ((data.Traits.ShipType == ship.ShipData.ShipStyle
                     || ship.ShipData.ShipStyle == "Misc"

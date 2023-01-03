@@ -25,7 +25,7 @@ namespace Ship_Game
         // how fast a tip fades in/out
         const float TipFadeInOutTime = 0.35f;
 
-        static readonly Array<TipItem> ActiveTips = new Array<TipItem>();
+        static readonly Array<TipItem> ActiveTips = new();
 
         public static void ShipYardArcTip()
             => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
@@ -37,10 +37,16 @@ namespace Ship_Game
         public static void CreateFloatingText(in LocalizedText tip, string hotKey, Vector2? position, float lifeTime) 
             => CreateTooltip(tip, hotKey, position, lifeTime);
 
-        /**
-         * Sets the currently active ToolTip
-         */
-        public static void CreateTooltip(in LocalizedText tip, string hotKey, Vector2? position, float forceNoneHoverTime = 0)
+        /// <summary>
+        /// Sets the currently active Tooltip
+        /// </summary>
+        /// <param name="tip">Tooltip text</param>
+        /// <param name="hotKey">Hotkey text</param>
+        /// <param name="position">Position hint, otherwise cursor will be used</param>
+        /// <param name="minShowTime">Minimum time to show this Tooltip, regardless of being hovered</param>
+        /// <param name="maxWidth">Maximum width for the tooltip</param>
+        public static void CreateTooltip(in LocalizedText tip, string hotKey, Vector2? position,
+                                         float minShowTime = 0, float maxWidth = 200)
         {
             string rawText = tip.Text;
             if (rawText.IsEmpty())
@@ -56,11 +62,11 @@ namespace Ship_Game
                 return;
             }
 
-            tipItem = new TipItem(forceNoneHoverTime);
+            tipItem = new(minShowTime);
             ActiveTips.Add(tipItem);
 
             tipItem.RawText = rawText;
-            tipItem.Text = Fonts.Arial12Bold.ParseText(rawText, 200f);
+            tipItem.Text = Fonts.Arial12Bold.ParseText(rawText, maxWidth);
             tipItem.HotKey = hotKey;
 
             Vector2 size = Fonts.Arial12Bold.MeasureString(tipItem.Text);
@@ -96,29 +102,27 @@ namespace Ship_Game
             public string HotKey;
             public Rectangle Rect;
             public bool HoveredThisFrame = true;
-            float ForceNonHoverTime; // Let the tip show regardless of being hovered on
+            float MinShowTime; // Let the tip show regardless of being hovered on
 
             float LifeTime;
             bool Visible;
 
-            public TipItem(float forceNonHoverTime)
+            public TipItem(float minShowTime)
             {
-                ForceNonHoverTime = forceNonHoverTime;
+                MinShowTime = minShowTime;
             }
 
             // @return FALSE: tip died, TRUE: tip is OK
             public bool Update(float deltaTime)
             {
                 bool hovered = HoveredThisFrame;
-                if (ForceNonHoverTime < 0)
-                    HoveredThisFrame = false;
+                if (MinShowTime <= 0f) HoveredThisFrame = false;
+                MinShowTime -= deltaTime;
 
                 // if tip is hovered, we increase its lifetime
                 // when not hovered, we decrease the lifetime
                 LifeTime += (hovered ? deltaTime : -deltaTime);
                 LifeTime = Math.Min(LifeTime, TipTime);
-
-                ForceNonHoverTime -= deltaTime;
 
                 const float TipReappearTimePoint = TipShowTimePoint - TipReappearTimeDelay;
                 const float TipResetTimePoint = TipReappearTimePoint - TipResetTimeDelay;
@@ -182,7 +186,7 @@ namespace Ship_Game
             if (tips.Length == 0)
                 return;
             
-            batch.Begin();
+            batch.SafeBegin();
             foreach (TipItem tipItem in tips)
             {
                 if (tipItem.Update(elapsed.RealTime.Seconds))
@@ -194,7 +198,7 @@ namespace Ship_Game
                     ActiveTips.Remove(tipItem);
                 }
             }
-            batch.End();
+            batch.SafeEnd();
         }
     }
 }

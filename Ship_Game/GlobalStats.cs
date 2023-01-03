@@ -192,8 +192,12 @@ public static class GlobalStats
     public static int RunLocalizer;
 
     // DEV CLI OPTION
-    // debug log all resource loading paths
+    // debug log all resource loading paths `--resource-debug`
     public static bool DebugResourceLoading;
+
+    // DEV CLI OPTION
+    // debug log all Asset load events `--asset-debug`
+    public static bool DebugAssetLoading;
 
     // DEV CLI OPTION
     // Continue into the game after running Localizer or other Tools

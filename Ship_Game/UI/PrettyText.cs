@@ -28,11 +28,11 @@ namespace Ship_Game
             public Color? Color;
         }
 
-        Array<TextBlock> Blocks = new Array<TextBlock>();
+        Array<TextBlock> Blocks = new();
         public bool NotEmpty => Blocks.NotEmpty;
         public Vector2 Size { get; private set; }
         Graphics.Font TheFont = Fonts.Arial12Bold;
-        UIElementV2 ElemToUpdate;
+        readonly UIElementV2 ElemToUpdate;
 
         public Graphics.Font DefaultFont
         {
@@ -63,7 +63,7 @@ namespace Ship_Game
 
         public void Clear()
         {
-            Blocks.Clear();
+            Blocks = new();
         }
         
         // Sets the text to a single block
@@ -85,7 +85,8 @@ namespace Ship_Game
         void UpdateSize()
         {
             Vector2 newSize = Vector2.Zero;
-            foreach (TextBlock block in Blocks)
+            var blocks = Blocks; // semi thread-safety
+            foreach (TextBlock block in blocks)
             {
                 block.Offset.X = newSize.X;
 
@@ -109,7 +110,8 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch batch, Vector2 pos, Color defaultColor, bool shadows)
         {
-            foreach (TextBlock block in Blocks)
+            var blocks = Blocks; // semi thread-safety
+            foreach (TextBlock block in blocks)
             {
                 string text = block.Text.Text;
                 Vector2 blockPos = pos + block.Offset;
@@ -118,7 +120,7 @@ namespace Ship_Game
                 if (shadows)
                     batch.DrawDropShadowText(text, blockPos, font, color);
                 else
-                    batch.DrawString(font, Text, blockPos, color);
+                    batch.DrawString(font, text, blockPos, color);
             }
         }
 
@@ -126,14 +128,15 @@ namespace Ship_Game
         {
             get
             {
-                if (Blocks.Count == 0)
+                var blocks = Blocks; // semi thread-safety
+                if (blocks.IsEmpty)
                     return "";
 
-                if (Blocks.Count == 1)
-                    return Blocks[0].Text;
+                if (blocks.Count == 1)
+                    return blocks[0].Text;
 
                 var sb = new StringBuilder();
-                foreach (TextBlock block in Blocks)
+                foreach (TextBlock block in blocks)
                     sb.Append(block.Text.Text);
                 return sb.ToString();
             }
@@ -141,9 +144,7 @@ namespace Ship_Game
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
-            
-            return base.ToString();
+            return $"PrettyText={Text.Text}";
         }
     }
 }

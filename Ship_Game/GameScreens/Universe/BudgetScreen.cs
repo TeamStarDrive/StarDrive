@@ -1,10 +1,9 @@
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using SDGraphics.Input;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.UI;
 using System;
-using System.Linq;
 using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
@@ -208,9 +207,9 @@ namespace Ship_Game.GameScreens
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
+            batch.SafeBegin();
             base.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
         }
 
         public override bool HandleInput(InputState input)

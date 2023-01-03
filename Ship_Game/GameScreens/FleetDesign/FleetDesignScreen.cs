@@ -225,7 +225,7 @@ namespace Ship_Game
                     return;
                 }
                 string tooltip = "Drag and drop this Ship into the Fleet our double click to auto-add to a squad";
-                ToolTip.CreateTooltip(tooltip, "", item.BotLeft, 2f);
+                ToolTip.CreateTooltip(tooltip, "", item.BotLeft, minShowTime:2f);
                 ShipInfoOverlay.ShowToLeftOf(item.Pos, item.Ship?.ShipData ?? item.Design);
             };
 

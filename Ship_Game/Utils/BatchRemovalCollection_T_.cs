@@ -41,12 +41,14 @@ namespace Ship_Game
 
         public void ApplyPendingRemovals()
         {
-            if (PendingRemovals.IsEmpty) return;
+            var pending = PendingRemovals;
+            if (pending == null || pending.IsEmpty)
+                return;
             using (AcquireWriteLock())
             {
-                while (!PendingRemovals.IsEmpty)
+                while (!pending.IsEmpty)
                 {
-                    PendingRemovals.TryPop(out var result);
+                    pending.TryPop(out var result);
                     base.Remove(result);
                 }
             }

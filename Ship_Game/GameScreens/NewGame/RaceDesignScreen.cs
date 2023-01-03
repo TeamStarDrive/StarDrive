@@ -550,7 +550,7 @@ namespace Ship_Game
             ShowPerformanceWarning(numSystems);
             ShowExtraPlanetsNum(P.ExtraPlanets);
 
-            batch.Begin();
+            batch.SafeBegin();
             base.Draw(batch, elapsed);
             batch.Draw(ResourceManager.Flag(FlagIndex), FlagRect, Picker.CurrentColor);
             FlagLeft  = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
@@ -558,7 +558,7 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
             batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
 
-            batch.End();
+            batch.SafeEnd();
         }
 
         void ShowExtraPlanetsNum(int extraPlanets)

@@ -75,10 +75,10 @@ namespace Ship_Game.GameScreens
             if (software && CurrentCursor.SoftwareCursor?.IsDisposed == false)
             {
                 game.IsMouseVisible = false;
-                batch.Begin();
+                batch.SafeBegin();
                 batch.Draw(CurrentCursor.SoftwareCursor, cursorScreenPos, null, Color.White, 0f, 
                            CurrentCursor.HotSpot, 1f, SpriteEffects.None, 1f);
-                batch.End();
+                batch.SafeEnd();
             }
             else
             {
