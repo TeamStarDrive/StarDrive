@@ -130,12 +130,12 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 
-            batch.Begin();
+            batch.SafeBegin();
             batch.FillRectangle(new Rectangle(0, 0, ScreenWidth, ScreenHeight), Color.Black);
             MainMenu.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
 
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, camera.Transform);
+            batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:false, camera.Transform);
             {
                 DrawConnectingLines(batch);
 
@@ -149,11 +149,11 @@ namespace Ship_Game
                     treeNode.Draw(batch);
                 }
             }
-            batch.End();
+            batch.SafeEnd();
 
-            batch.Begin();
+            batch.SafeBegin();
             base.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
         }
 
         static Vector2 CenterBetweenPoints(Vector2 left, Vector2 right)

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.Xna.Framework.Input;
+using SDGraphics.Input;
+using XnaInput = Microsoft.Xna.Framework.Input;
 using SDUtils;
 
 namespace Ship_Game
@@ -18,6 +19,8 @@ namespace Ship_Game
     /// <summary>
     /// Allows for generalizing input binding for a more intricate system
     /// with actual input customization.
+    ///
+    /// TODO: Finish this incomplete system
     /// </summary>
     public class InputBindings
     {
@@ -69,36 +72,39 @@ namespace Ship_Game
                 return sb;
             }
 
-            public bool CheckModifiers(ref KeyboardState kb)
+            static bool IsKeyUp(ref XnaInput.KeyboardState kb, Keys key)   => kb.IsKeyUp((XnaInput.Keys)key);
+            static bool IsKeyDown(ref XnaInput.KeyboardState kb, Keys key) => kb.IsKeyDown((XnaInput.Keys)key);
+
+            public bool CheckModifiers(ref XnaInput.KeyboardState kb)
             {
-                return (Ctrl  == 0 || kb.IsKeyDown(Keys.LeftControl) || kb.IsKeyDown(Keys.RightControl))
-                    && (Alt   == 0 || kb.IsKeyDown(Keys.LeftAlt)     || kb.IsKeyDown(Keys.RightAlt))
-                    && (Shift == 0 || kb.IsKeyDown(Keys.LeftShift)   || kb.IsKeyDown(Keys.RightShift));
+                return (Ctrl  == 0 || IsKeyDown(ref kb, Keys.LeftControl) || IsKeyDown(ref kb, Keys.RightControl))
+                    && (Alt   == 0 || IsKeyDown(ref kb, Keys.LeftAlt)     || IsKeyDown(ref kb, Keys.RightAlt))
+                    && (Shift == 0 || IsKeyDown(ref kb, Keys.LeftShift)   || IsKeyDown(ref kb, Keys.RightShift));
             }
 
-            public bool Triggered(ref KeyboardState before, ref KeyboardState now, Keys key)
-            {
-                switch (When)
-                {
-                    default:
-                    case TriggerState.OnDown:  return before.IsKeyUp(key)   && now.IsKeyDown(key);
-                    case TriggerState.OnHeld:  return before.IsKeyDown(key) && now.IsKeyDown(key);
-                    case TriggerState.OnPress: return before.IsKeyDown(key) && now.IsKeyUp(key);
-                }
-            }
-
-            private bool Triggered(ButtonState before, ButtonState now)
+            public bool Triggered(ref XnaInput.KeyboardState before, ref XnaInput.KeyboardState now, Keys key)
             {
                 switch (When)
                 {
                     default:
-                    case TriggerState.OnDown:  return before == ButtonState.Released && now == ButtonState.Pressed;
-                    case TriggerState.OnHeld:  return before == ButtonState.Pressed  && now == ButtonState.Pressed;
-                    case TriggerState.OnPress: return before == ButtonState.Pressed  && now == ButtonState.Released;
+                    case TriggerState.OnDown:  return IsKeyUp(ref before, key)   && IsKeyDown(ref now, key);
+                    case TriggerState.OnHeld:  return IsKeyDown(ref before, key) && IsKeyDown(ref now, key);
+                    case TriggerState.OnPress: return IsKeyDown(ref before, key) && IsKeyUp(ref now, key);
                 }
             }
 
-            public bool Triggered(ref MouseState before, ref MouseState now, MouseButton button)
+            private bool Triggered(XnaInput.ButtonState before, XnaInput.ButtonState now)
+            {
+                switch (When)
+                {
+                    default:
+                    case TriggerState.OnDown:  return before == XnaInput.ButtonState.Released && now == XnaInput.ButtonState.Pressed;
+                    case TriggerState.OnHeld:  return before == XnaInput.ButtonState.Pressed  && now == XnaInput.ButtonState.Pressed;
+                    case TriggerState.OnPress: return before == XnaInput.ButtonState.Pressed  && now == XnaInput.ButtonState.Released;
+                }
+            }
+
+            public bool Triggered(ref XnaInput.MouseState before, ref XnaInput.MouseState now, MouseButton button)
             {
                 switch (button)
                 {
@@ -111,7 +117,7 @@ namespace Ship_Game
                 }
             }
 
-            public bool Triggered(ref GamePadState before, ref GamePadState now, Buttons button)
+            public bool Triggered(ref XnaInput.GamePadState before, ref XnaInput.GamePadState now, XnaInput.Buttons button)
             {
                 switch (When)
                 {
@@ -257,8 +263,8 @@ namespace Ship_Game
             public bool IsTriggered(InputState input)
             {
                 return Condition.CheckModifiers(ref input.KeysCurr)
-                       && (Condition.Triggered(ref input.GamepadPrev, ref input.GamepadCurr, First))
-                       && (Second == 0 || Condition.Triggered(ref input.GamepadPrev, ref input.GamepadCurr, Second));
+                       && (Condition.Triggered(ref input.GamepadPrev, ref input.GamepadCurr, (XnaInput.Buttons)First))
+                       && (Second == 0 || Condition.Triggered(ref input.GamepadPrev, ref input.GamepadCurr, (XnaInput.Buttons)Second));
             }
         }
 

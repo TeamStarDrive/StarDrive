@@ -2,9 +2,9 @@
 using System.IO;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game;
 using Vector2 = SDGraphics.Vector2;
+using SDGraphics.Input;
 
 namespace UnitTests
 {
@@ -61,12 +61,12 @@ namespace UnitTests
 
             try
             {
-                Batch.Begin();
+                Batch.SafeBegin();
                 base.Draw(deltaTime);
             }
             finally
             {
-                Batch.End();
+                Batch.SafeEnd();
             }
         }
 

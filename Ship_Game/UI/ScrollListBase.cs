@@ -232,12 +232,18 @@ namespace Ship_Game
             else // already dragging
             {
                 if (input.LeftMouseUp)
-                {
-                    bool outside = !Rect.HitTest(input.CursorPosition);
-                    OnItemDragged(DraggedEntry, DragEvent.End, outside);
-                    DraggedEntry = null;
-                    RequiresLayout = true; // refresh the items
-                }
+                    CancelDragging();
+            }
+        }
+
+        public void CancelDragging()
+        {
+            if (IsDragging)
+            {
+                bool outside = !Rect.HitTest(GetInput().CursorPosition);
+                OnItemDragged(DraggedEntry, DragEvent.End, outside);
+                DraggedEntry = null;
+                RequiresLayout = true; // refresh the items
             }
         }
 
@@ -542,8 +548,8 @@ namespace Ship_Game
                 DrawScrollBar(batch);
             
             // use a scissor to clip smooth scroll items
-            batch.End();
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred, SaveStateMode.None);
+            batch.SafeEnd();
+            batch.SafeBegin(SpriteBlendMode.AlphaBlend);
 
             for (int i = VisibleItemsBegin; i < VisibleItemsEnd; ++i)
             {
@@ -570,8 +576,8 @@ namespace Ship_Game
             // widen the scissor for Item highlights to be visible
             RectF scissor = ItemsHousing.Bevel(1).Widen(8);
             RenderStates.EnableScissorTest(batch.GraphicsDevice, scissor);
-            batch.End();
-            batch.Begin();
+            batch.SafeEnd();
+            batch.SafeBegin();
             RenderStates.DisableScissorTest(batch.GraphicsDevice);
             
             if (DebugDrawScrollList) // non-scissored debug

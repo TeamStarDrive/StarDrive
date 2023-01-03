@@ -78,12 +78,12 @@ namespace Ship_Game
             Ok.SetAbsPos(     r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
             Cancel?.SetAbsPos(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
 
-            batch.Begin();
+            batch.SafeBegin();
             batch.FillRectangle(r, Color.Black);
             batch.DrawRectangle(r, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, Message, textPosition, Color.White);
             base.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
         }
 
         void OnOkClicked(UIButton b)

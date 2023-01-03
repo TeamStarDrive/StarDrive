@@ -18,9 +18,9 @@ namespace Ship_Game
 
     // EVENT: Called when EnableDragReorderItems and an item changes its index
     // @param T item that was dragged
-    // @param int oldIndex The old index that the dragged item had
-    // @param int newIndex The new index of the dragged item
-    public delegate void ScrollListDragReorderEvt<in T>(T item, int oldIndex, int newIndex) where T : ScrollListItem<T>;
+    // @param int relativeChange Relative position change to perform, if -1, then element should be moved back by 1 position
+    //            Any bounds checking must be done by event handler itself.
+    public delegate void ScrollListDragReorderEvt<in T>(T item, int relativeChange) where T : ScrollListItem<T>;
 
 
     [DebuggerTypeProxy(typeof(ScrollListDebugView<>))]
@@ -142,8 +142,14 @@ namespace Ship_Game
                 return;
             }
 
+            // HandleElementDragging() already checked this, but double check just in case,
+            // to prevent EvtDragReorder from firing with relativeChange: 0
+            int relativeChange = newIndex - oldIndex;
+            if (relativeChange == 0)
+                return;
+
             Entries.Reorder(oldIndex, newIndex);
-            EvtDragReorder?.Invoke((T)dragged, oldIndex, newIndex);
+            EvtDragReorder?.Invoke((T)dragged, relativeChange);
         }
 
         // Number of non-flattened entries

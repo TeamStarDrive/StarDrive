@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Input;
 using SDGraphics;
+using SDGraphics.Input;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -98,9 +94,9 @@ namespace Ship_Game
 
         void UpdateHolding(UpdateTimes elapsed)
         {
-            LeftHold.Update(elapsed, MouseCurr.LeftButton, CursorPosition);
-            RightHold.Update(elapsed, MouseCurr.RightButton, CursorPosition);
-            MiddleHold.Update(elapsed, MouseCurr.MiddleButton, CursorPosition);
+            LeftHold.Update(elapsed, (ButtonState)MouseCurr.LeftButton, CursorPosition);
+            RightHold.Update(elapsed, (ButtonState)MouseCurr.RightButton, CursorPosition);
+            MiddleHold.Update(elapsed, (ButtonState)MouseCurr.MiddleButton, CursorPosition);
         }
     }
 }

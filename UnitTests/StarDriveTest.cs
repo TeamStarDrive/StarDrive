@@ -241,7 +241,7 @@ public partial class StarDriveTest : IDisposable
 
     public void UnlockAllShipsFor(Empire empire)
     {
-        foreach (IShipDesign design in ResourceManager.ShipDesigns)
+        foreach (IShipDesign design in ResourceManager.Ships.Designs)
             empire.AddBuildableShip(design);
     }
 

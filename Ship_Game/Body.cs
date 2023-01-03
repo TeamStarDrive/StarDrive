@@ -20,11 +20,11 @@ namespace Ship_Game
 
 		public void Draw(SpriteBatch batch, DrawTimes elapsed)
 		{
-			batch.End();
-			batch.Begin(SpriteBlendMode.Additive);
+			batch.SafeEnd();
+			batch.SafeBegin(SpriteBlendMode.Additive);
 			batch.Draw(ResourceManager.Texture("OliveUI/body_grade"), BodyRect, Color.White);
-			batch.End();
-			batch.Begin();
+			batch.SafeEnd();
+			batch.SafeBegin();
 			batch.Draw(ResourceManager.Texture("OliveUI/under_header"), underheader, Color.White);
 		}
 

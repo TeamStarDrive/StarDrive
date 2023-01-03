@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SDGraphics;
+using SDGraphics.Input;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
