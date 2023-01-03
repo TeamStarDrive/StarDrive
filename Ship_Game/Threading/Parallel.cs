@@ -215,7 +215,7 @@ namespace Ship_Game
                         {
                             Thread = null; // Die!
                             EvtEndTask.Set();
-                            Log.Info(ConsoleColor.DarkGray, $"Auto-Kill {Name}");
+                            //Log.Info(ConsoleColor.DarkGray, $"Auto-Kill {Name}");
                             return;
                         }
                     }
