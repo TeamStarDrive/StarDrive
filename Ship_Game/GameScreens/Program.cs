@@ -106,6 +106,10 @@ internal static class Program
             {
                 GlobalStats.DebugResourceLoading = true;
             }
+            else if (key == "--asset-debug")
+            {
+                GlobalStats.DebugAssetLoading = true;
+            }
             else if (key == "--console")
             {
                 Log.ShowConsoleWindow();
@@ -135,6 +139,7 @@ internal static class Program
         Log.Write("  --run-localizer=[0-2] Run localization tool to merge missing translations and generate id-s");
         Log.Write("                        0: disabled  1: generate with YAML NameIds  2: generate with C# NameIds");
         Log.Write("  --resource-debug    Debug logs all resource loading, mainly for Mods to ensure their assets are loaded");
+        Log.Write("  --asset-debug       Debug logs all asset load events, useful for analyzing the order of assets being loaded");
         Log.Write("  --console           Enable the Debug Console which mirrors blackbox.log");
         Log.Write("  --continue          After running CLI tasks, continue to game as normal");
     }
