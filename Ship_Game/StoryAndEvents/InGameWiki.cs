@@ -142,7 +142,7 @@ namespace Ship_Game
             if (Player.HandleInput(input))
                 return true;
 
-            if (input.ExitWiki)
+            if (!GlobalStats.TakingInput && input.ExitWiki)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
