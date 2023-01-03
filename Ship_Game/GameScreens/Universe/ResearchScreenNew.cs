@@ -6,7 +6,6 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
-using System.Linq;
 
 namespace Ship_Game
 {
@@ -101,11 +100,15 @@ namespace Ship_Game
             // Create queue once all techs are populated
             var queue = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
             Queue = Add(new ResearchQueueUIComponent(this, queue));
-            Vector2 searchPos = new Vector2(main.X + main.Width - 360, main.Height - 55);
+            Vector2 searchPos = new(main.X + main.Width - 360, main.Height - 55);
             Search = Add(new UIButton(ButtonStyle.BigDip, searchPos, "Search"));
             Search.OnClick = OnSearchButtonClicked;
 
-            DebugUnlocks = Add(new ResearchDebugUnlocks(Universe, ReloadContent));
+            DebugUnlocks = Add(new ResearchDebugUnlocks(Universe, () =>
+            {
+                Universe.UState.ResearchRootUIDToDisplay = GetCurrentlySelectedRootNode().Entry.UID;
+                ReloadContent();
+            }));
             DebugUnlocks.AxisAlign = Align.BottomRight;
             DebugUnlocks.SetLocalPos(-Queue.Width - 50, -25);
 
@@ -173,7 +176,7 @@ namespace Ship_Game
             // Level 0 VERTICAL line coming straight from root nodes
             {
                 Vector2 rootNodeRight = rootNode.RightPoint;
-                var nextNodeLeft = new Vector2(MainMenuOffset.X + GridWidth, rootNodeRight.Y);
+                Vector2 nextNodeLeft = new(MainMenuOffset.X + GridWidth, rootNodeRight.Y);
                 Vector2 midPoint = CenterBetweenPoints(rootNode.RightPoint, nextNodeLeft);
 
                 bool anyTechsComplete = false;
@@ -183,65 +186,68 @@ namespace Ship_Game
                     if (child.Unlocked)
                         anyTechsComplete = true;
 
-                    TreeNode node = SubNodes[child.UID];
-                    var midPointOther = new Vector2(midPoint.X, node.BaseRect.CenterY - 10);
-                    batch.DrawResearchLineVertical(midPoint, midPointOther, child.Unlocked);
+                    if (SubNodes.TryGetValue(child.UID, out TreeNode node))
+                    {
+                        var midPointOther = new Vector2(midPoint.X, node.BaseRect.CenterY - 10);
+                        batch.DrawResearchLineVertical(midPoint, midPointOther, child.Unlocked);
 
-                    Vector2 destinationPos = midPointOther + new Vector2(rootNodeRight.Distance(nextNodeLeft) + 13f, 0.0f);
-                    batch.DrawResearchLineHorizontalGradient(midPointOther, destinationPos, child.Unlocked);
+                        Vector2 destinationPos = midPointOther + new Vector2(rootNodeRight.Distance(nextNodeLeft) + 13f, 0.0f);
+                        batch.DrawResearchLineHorizontalGradient(midPointOther, destinationPos, child.Unlocked);
+                    }
                 }
 
                 batch.DrawResearchLineHorizontal(rootNodeRight, midPoint, anyTechsComplete);
             }
 
-            foreach (TreeNode treeNode in SubNodes.Values)
+            foreach (TreeNode from in SubNodes.Values)
             {
-                var vector21 = new Vector2(treeNode.BaseRect.X + treeNode.BaseRect.W - 25,
-                                           treeNode.BaseRect.Y + treeNode.BaseRect.H / 2 - 10);
-                Vector2 vector22 = vector21 + new Vector2(GridWidth / 2f, 0.0f);
-                vector22.Y = vector21.Y;
+                Vector2 centerRight = new(from.BaseRect.Right - 25, from.BaseRect.CenterY - 10);
+                Vector2 startPos = new(centerRight.X + GridWidth / 2f, centerRight.Y);
 
-                foreach (Technology.LeadsToTech leadsTo in treeNode.Entry.Tech.LeadsTo)
+                foreach (Technology.LeadsToTech leadsTo in from.Entry.Tech.LeadsTo)
                 {
-                    TechEntry techEntry1 = Player.GetTechEntry(leadsTo.UID);
-                    techEntry1 = techEntry1.FindNextDiscoveredTech(Player);
-                    if (techEntry1 != null)
+                    TechEntry toTech = Player.GetTechEntry(leadsTo.UID);
+                    toTech = toTech.FindNextDiscoveredTech(Player);
+                    if (toTech != null)
                     {
-                        var treeNode1 = SubNodes[techEntry1.UID];
-                        var vector23 = new Vector2(vector22.X, treeNode1.BaseRect.CenterY - 10);
-                        batch.DrawResearchLineVertical(vector22, vector23, techEntry1.Unlocked);
+                        if (SubNodes.TryGetValue(toTech.UID, out TreeNode endNode))
+                        {
+                            Vector2 endPos = new(startPos.X, endNode.BaseRect.CenterY - 10);
+                            batch.DrawResearchLineVertical(startPos, endPos, toTech.Unlocked);
+                        }
                     }
                 }
             }
 
             foreach (TreeNode node in SubNodes.Values)
             {
-                Technology technology2 = node.Entry.Tech;
-                if (technology2.AnyChildrenDiscovered(Player))
+                Technology fromTech = node.Entry.Tech;
+                if (fromTech.AnyChildrenDiscovered(Player))
                 {
-                    var leftPoint = node.RightPoint;
-                    Vector2 rightPoint = leftPoint + new Vector2(GridWidth / 2f, 0.0f);
+                    Vector2 leftPoint = node.RightPoint;
+                    Vector2 rightPoint = new(leftPoint.X + GridWidth / 2f, leftPoint.Y);
                     bool complete1 = false;
-                    foreach (Technology.LeadsToTech leadsToTech2 in technology2.LeadsTo)
+                    foreach (Technology.LeadsToTech leadsToTech2 in fromTech.LeadsTo)
                     {
-                        TechEntry techEntry2 = Player.GetTechEntry(leadsToTech2.UID);
-                        techEntry2 = techEntry2.FindNextDiscoveredTech(Player);
-                        if (techEntry2 != null)
+                        TechEntry toTech = Player.GetTechEntry(leadsToTech2.UID);
+                        toTech = toTech.FindNextDiscoveredTech(Player);
+                        if (toTech != null)
                         {
-                            if (techEntry2.Unlocked)
+                            if (toTech.Unlocked)
                                 complete1 = true;
 
-                            TreeNode treeNode3 = (SubNodes[techEntry2.UID]);
-                            var leftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY - 10);
-                            Vector2 rightPoint2 = leftPoint2 + new Vector2(leftPoint.Distance(rightPoint) + 13f, 0.0f);
-                            batch.DrawResearchLineHorizontalGradient(leftPoint2, rightPoint2, techEntry2.Unlocked);
+                            if (SubNodes.TryGetValue(toTech.UID, out TreeNode endNode))
+                            {
+                                Vector2 centerLeft = new(rightPoint.X, endNode.BaseRect.CenterY - 10);
+                                Vector2 endPos = new(centerLeft.X + leftPoint.Distance(rightPoint) + 13f, centerLeft.Y);
+                                batch.DrawResearchLineHorizontalGradient(centerLeft, endPos, toTech.Unlocked);
+                            }
                         }
                     }
 
                     batch.DrawResearchLineHorizontal(leftPoint, rightPoint, complete1);
                 }
             }
-
         }
 
         public override void ExitScreen()
@@ -284,8 +290,9 @@ namespace Ship_Game
             {
                 if (root.HandleInput(input,camera))
                 {
-                    PopulateNodesFromRoot(root);
                     GameAudio.ResearchSelect();
+                    PopulateNodesFromRoot(root);
+                    return true;
                 }
             }
 

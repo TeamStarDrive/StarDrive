@@ -1448,6 +1448,8 @@ namespace Ship_Game
                 }
                 HullsDict[hull.HullName] = hull;
                 HullsList.Add(hull);
+                if (GlobalStats.DebugResourceLoading)
+                    Log.Write($"Added Hull='{hull.HullName}' From='{hull.Source?.FullName}'");
             }
             return hull;
         }
@@ -1522,8 +1524,8 @@ namespace Ship_Game
             }
 
             FileInfo[] hullFiles = GatherFilesUnified("Hulls", "hull");
-
             Log.Write($"Loading {hullFiles.Length} Hulls");
+
             ShipHull[] newHulls = Parallel.Select(hullFiles, LoadShipHull);
             foreach (ShipHull hull in newHulls)
             {

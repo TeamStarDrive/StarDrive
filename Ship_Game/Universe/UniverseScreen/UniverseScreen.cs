@@ -22,6 +22,7 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Rectangle = SDGraphics.Rectangle;
 using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -303,10 +304,10 @@ namespace Ship_Game
 
             UState.ResearchRootUIDToDisplay = GlobalStats.Defaults.ResearchRootUIDToDisplay;
 
-            NotificationManager = new NotificationManager(ScreenManager, this);
+            NotificationManager = new(ScreenManager, this);
             aw = Add(new AutomationWindow(this));
 
-            Shields = new ShieldManager(this, ContentManager);
+            Shields = new(this);
 
             InitializeCamera(); // ResetLighting requires MaxCamHeight
             ResetLighting(forceReset: true);
@@ -553,9 +554,14 @@ namespace Ship_Game
 
         public override void UnloadContent()
         {
+            UState.Paused = true;
+
             if (StarDriveGame.Instance != null) // don't show in tests
                 Log.Write(ConsoleColor.Cyan, "UniverseScreen.UnloadContent");
+
             ScreenManager.UnloadSceneObjects();
+            // destroy SceneObjects for everything
+            UState.RemoveSceneObjects();
             base.UnloadContent();
         }
 

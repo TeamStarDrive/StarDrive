@@ -655,6 +655,15 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public void RemoveSceneObject()
+        {
+            if (ProjSO != null)
+            {
+                Universe.Screen.RemoveObject(ProjSO);
+                ProjSO = null;
+            }
+        }
+
         void UpdateTrailEffect(FixedSimTime timeStep)
         {
             var forward = Direction;

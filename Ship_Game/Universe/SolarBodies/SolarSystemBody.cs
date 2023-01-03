@@ -359,7 +359,11 @@ namespace Ship_Game
                 Zrotate += ZrotateAmount * timeStep.FixedTime;
             }
 
-            if (SO != null)
+            if (visible && ShouldCreateSO)
+            {
+                CreatePlanetSceneObject();
+            }
+            else if (SO != null)
             {
                 UpdateSO(visible);
             }
@@ -383,6 +387,8 @@ namespace Ship_Game
             }
         }
 
+        bool ShouldCreateSO => !PType.Types.NewRenderer && !GlobalStats.IsUnitTest;
+
         protected void CreatePlanetSceneObject()
         {
             if (Universe == null)
@@ -391,17 +397,22 @@ namespace Ship_Game
                 return;
             }
 
-            if (SO != null)
-            {
-                Log.Info($"RemoveSolarSystemBody: {Name}");
-                Universe.Screen.RemoveObject(SO);
-            }
+            RemoveSceneObject();
 
-            if (!PType.Types.NewRenderer && !GlobalStats.IsUnitTest)
+            if (ShouldCreateSO)
             {
                 SO = PType.CreatePlanetSO();
                 UpdateSO(visible: true);
                 Universe.Screen.AddObject(SO);
+            }
+        }
+
+        public void RemoveSceneObject()
+        {
+            if (SO != null)
+            {
+                Universe.Screen.RemoveObject(SO);
+                SO = null;
             }
         }
 
@@ -579,7 +590,7 @@ namespace Ship_Game
             TurnsSinceTurnover        = 0;
             thisPlanet.Quarantine     = false;
             thisPlanet.ManualOrbitals = false;
-            thisPlanet.Station?.DestroySceneObject(); // remove current SO, so it can get reloaded properly
+            thisPlanet.Station?.RemoveSceneObject(); // remove current SO, so it can get reloaded properly
 
             if (newOwner.isPlayer && !newOwner.AutoColonize)
                 CType = Planet.ColonyType.Colony;
