@@ -1715,10 +1715,11 @@ namespace Ship_Game.Ships
 
             Carrier?.Dispose();
 
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-                ModuleSlotList[i].Dispose();
-
+            var slots = ModuleSlotList;
             ModuleSlotList = Empty<ShipModule>.Array;
+            for (int i = 0; i < slots.Length; ++i)
+                slots[i]?.Dispose();
+
             DestroyThrusters();
 
             BombBays.Clear();
