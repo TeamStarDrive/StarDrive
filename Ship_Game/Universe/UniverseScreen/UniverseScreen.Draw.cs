@@ -194,6 +194,7 @@ namespace Ship_Game
         {
             if (fogMapTarget == null || (fogMapTarget.IsDisposed || fogMapTarget.IsContentLost))
             {
+                fogMapTarget?.Dispose();
                 fogMapTarget = RenderTargets.Create(device, 512, 512);
             }
             return fogMapTarget;

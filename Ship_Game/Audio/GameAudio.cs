@@ -59,6 +59,8 @@ namespace Ship_Game.Audio
 
         static string SettingsFile, WaveBankFile, SoundBankFile;
 
+        public static AudioDevices Devices;
+
         public static void DisableAudio(bool disabled)
         {
             AudioDisabled = disabled;
@@ -78,9 +80,12 @@ namespace Ship_Game.Audio
             try
             {
                 Destroy(); // just in case
+
+                Devices = new();
                 AudioEngineGood = true;
+
                 // try selecting an audio device if no argument given
-                if (device == null && !AudioDevices.PickAudioDevice(out device))
+                if (device == null && !Devices.PickAudioDevice(out device))
                 {
                     Log.Warning("GameAudio is disabled since audio device selection failed.");
                     AudioDisabled = true;
@@ -89,7 +94,7 @@ namespace Ship_Game.Audio
                 }
 
                 Log.Info($"GameAudio.Device: {device.FriendlyName}");
-                AudioDevices.CurrentDevice = device; // make sure it's always properly in sync
+                Devices.CurrentDevice = device; // make sure it's always properly in sync
 
                 SettingsFile  = settingsFile;
                 WaveBankFile  = waveBankFile;
@@ -115,11 +120,11 @@ namespace Ship_Game.Audio
                 SfxThread = new Thread(SfxEnqueueThread) { Name = "GameAudioSfx" };
                 SfxThread.Start();
 
-                Listener = new AudioListener();
+                Listener = new();
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "AudioEngine init failed. Please make sure that Speakers/Headphones are attached");
+                Log.Error(ex, "AudioEngine init failed. Make sure that Speakers/Headphones are attached");
                 Destroy();
                 AudioEngineGood = false;
             }
@@ -147,6 +152,7 @@ namespace Ship_Game.Audio
             SoundBank?.Dispose(ref SoundBank);
             WaveBank?.Dispose(ref WaveBank);
             AudioEngine?.Dispose(ref AudioEngine);
+            Devices?.Dispose(ref Devices);
         }
 
 
@@ -158,7 +164,7 @@ namespace Ship_Game.Audio
             var engine = AudioEngine;
             if (engine != null)
             {
-                AudioDevices.HandleEvents();
+                Devices.HandleEvents();
 
                 // double-check the AudioEngine, because HandleEvents() can be slow on some systems
                 if (!engine.IsDisposed)

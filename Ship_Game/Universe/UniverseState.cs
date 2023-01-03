@@ -318,41 +318,46 @@ namespace Ship_Game.Universe
 
         public void Clear()
         {
+            RemoveSceneObjects();
+
             Objects.Clear();
             ClearSystems();
-            ClearSpaceJunk();
             ClearEmpires();
             PlanetsDict.Clear();
             Spatial.Destroy();
         }
 
+        // This is for UnloadContent / ReloadContent
+        public void RemoveSceneObjects()
+        {
+            foreach (Ship s in Objects.GetShips())
+                s.RemoveSceneObject();
+            foreach (Projectile p in Objects.GetProjectiles())
+                p.RemoveSceneObject();
+
+            foreach (SolarSystem s in SolarSystemList)
+            {
+                foreach (Planet p in s.PlanetList)
+                    p.RemoveSceneObject();
+                foreach (Asteroid a in s.AsteroidsList)
+                    a.RemoveSceneObject();
+                foreach (Moon m in s.MoonList)
+                    m.RemoveSceneObject();
+            }
+
+            ClearSpaceJunk();
+        }
+
         void ClearSystems()
         {
-            foreach (SolarSystem solarSystem in SolarSystemList)
+            foreach (SolarSystem s in SolarSystemList)
             {
-                // TODO: Move this into SolarSystem.cs
-                solarSystem.FiveClosestSystems.Clear();
-                foreach (Planet planet in solarSystem.PlanetList)
-                {
-                    planet.TilesList = new Array<PlanetGridSquare>();
-                    if (planet.SO != null)
-                    {
-                        Screen.RemoveObject(planet.SO);
-                        planet.SO = null;
-                    }
-                }
-
-                foreach (Asteroid asteroid in solarSystem.AsteroidsList)
-                {
-                    asteroid.DestroySceneObject();
-                }
-                solarSystem.AsteroidsList.Clear();
-
-                foreach (Moon moon in solarSystem.MoonList)
-                {
-                    moon.DestroySceneObject();
-                }
-                solarSystem.MoonList.Clear();
+                foreach (Planet planet in s.PlanetList)
+                    planet.TilesList = new();
+                
+                s.FiveClosestSystems.Clear();
+                s.AsteroidsList.Clear();
+                s.MoonList.Clear();
             }
             SolarSystemList.Clear();
         }
@@ -361,7 +366,7 @@ namespace Ship_Game.Universe
         {
             JunkList.ApplyPendingRemovals();
             foreach (SpaceJunk spaceJunk in JunkList)
-                spaceJunk.DestroySceneObject();
+                spaceJunk.RemoveSceneObject();
             JunkList.Clear();
         }
 

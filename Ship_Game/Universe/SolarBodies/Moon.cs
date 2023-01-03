@@ -66,7 +66,7 @@ namespace Ship_Game.Gameplay
             ScreenManager.Instance.AddObject(So);
         }
 
-        public void DestroySceneObject()
+        public void RemoveSceneObject()
         {
             if (So != null)
             {

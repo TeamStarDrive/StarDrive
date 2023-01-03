@@ -125,6 +125,8 @@ C:\Projects\BlackBox\game>StarDrive.exe --help
 13:50:43.769ms:   --fix-roles        Fixes Role and Category for all .design ships
 13:50:43.769ms:   --run-localizer=[0-2] Run localization tool to merge missing translations and generate id-s
 13:50:43.769ms:                         0: disabled  1: generate with YAML NameIds  2: generate with C# NameIds
+13:50:43.769ms:   --resource-debug   Debug logs all resource loading, mainly for Mods to ensure their assets are loaded
+13:50:43.769ms:   --console          Enable the Debug Console which mirrors blackbox.log
 13:50:43.769ms:   --continue         After running CLI tasks, continue to game as normal
 13:50:43.769ms: The game exited normally.
 13:50:43.769ms: RunCleanupAndExit(0)

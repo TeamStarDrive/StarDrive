@@ -205,7 +205,7 @@ namespace Ship_Game.Ships
                 if (!parsingSlots)
                 {
                     string[] parts = line.Split('=');
-                    string val = parts.Length > 1 ? parts[1] : "";
+                    string val = parts.Length > 1 ? parts[1].Trim() : "";
                     switch (parts[0])
                     {
                         case "Version":
