@@ -136,12 +136,12 @@ namespace Ship_Game
                 WasVisibleLastFrame = false;
                 for (int i = 0; i < AsteroidsList.Count; i++)
                 {
-                    AsteroidsList[i].DestroySceneObject();
+                    AsteroidsList[i].RemoveSceneObject();
                 }
 
                 for (int i = 0; i < MoonList.Count; i++)
                 {
-                    MoonList[i].DestroySceneObject();
+                    MoonList[i].RemoveSceneObject();
                 }
             }
 

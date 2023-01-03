@@ -315,21 +315,28 @@ namespace Ship_Game
 
         void CreateSoundDevicesDropOptions()
         {
-            MMDevice defaultDevice = AudioDevices.DefaultDevice;
-            Array<MMDevice> devices = AudioDevices.Devices;
+            MMDevice defaultDevice = GameAudio.Devices?.DefaultDevice;
+            Array<MMDevice> devices = GameAudio.Devices?.Devices;
 
             SoundDevices.Clear();
-            SoundDevices.AddOption("Default", null/*because it might change*/);
 
-            foreach (MMDevice device in devices)
+            if (devices != null)
             {
-                string isDefault = (device.ID == defaultDevice.ID) ? "* " : "";
-                SoundDevices.AddOption($"{isDefault}{device.FriendlyName}", device);
-                if (!AudioDevices.UserPrefersDefaultDevice && device.ID == AudioDevices.CurrentDevice.ID)
-                    SoundDevices.ActiveIndex = devices.IndexOf(device) + 1;
+                SoundDevices.AddOption("Default", null/*because it might change*/);
+                foreach (MMDevice device in devices)
+                {
+                    string isDefault = (device.ID == defaultDevice.ID) ? "* " : "";
+                    SoundDevices.AddOption($"{isDefault}{device.FriendlyName}", device);
+                    if (!GameAudio.Devices.UserPrefersDefaultDevice && device.ID == GameAudio.Devices.CurrentDevice.ID)
+                        SoundDevices.ActiveIndex = devices.IndexOf(device) + 1;
+                }
+                SoundDevices.OnValueChange = OnAudioDeviceDropDownChange;
             }
-
-            SoundDevices.OnValueChange = OnAudioDeviceDropDownChange;
+            else
+            {
+                SoundDevices.AddOption("Not Available", null);
+                SoundDevices.OnValueChange = null;
+            }
         }
 
         void CreateLanguageDropOptions()
@@ -344,10 +351,9 @@ namespace Ship_Game
 
         void OnAudioDeviceDropDownChange(MMDevice newDevice)
         {
-            if (newDevice == null)
-                newDevice = AudioDevices.DefaultDevice;
+            newDevice ??= GameAudio.Devices.DefaultDevice;
 
-            AudioDevices.SetUserPreference(newDevice);
+            GameAudio.Devices.SetUserPreference(newDevice);
             GameAudio.ReloadAfterDeviceChange(newDevice);
 
             GameAudio.SmallServo();
