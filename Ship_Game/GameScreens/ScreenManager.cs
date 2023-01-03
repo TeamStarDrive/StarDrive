@@ -9,7 +9,6 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
@@ -22,7 +21,7 @@ namespace Ship_Game
 {
     public sealed class ScreenManager : IDisposable
     {
-        readonly Array<GameScreen> GameScreens = new Array<GameScreen>();
+        readonly Array<GameScreen> GameScreens = new();
         readonly IGraphicsDeviceService GraphicsDeviceService;
         readonly SceneState GameSceneState;
         readonly SceneInterface SceneInter;
@@ -33,14 +32,14 @@ namespace Ship_Game
         public LightingSystemManager LightSysManager;
         public SceneEnvironment Environment;
         public InputState input;
-        public AudioHandle Music = new AudioHandle();
+        public AudioHandle Music = new();
 
         public GraphicsDeviceManager Graphics;
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
 
         // Thread safe screen queue
-        readonly SafeQueue<GameScreen> PendingScreens = new SafeQueue<GameScreen>();
+        readonly SafeQueue<GameScreen> PendingScreens = new();
 
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => GameScreens.Count + PendingScreens.Count;
@@ -58,15 +57,13 @@ namespace Ship_Game
             GameInstance = game;
             Graphics = graphics;
             GraphicsDevice = graphics.GraphicsDevice;
-            GraphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
-            if (GraphicsDeviceService == null)
-            {
-                throw new InvalidOperationException("No graphics device service.");
-            }
-            input = new InputState();
-            LightSysManager = new LightingSystemManager(game.Services);
-            GameSceneState = new SceneState();
-            SceneInter = new SceneInterface(graphics);
+            GraphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService))
+                                  ?? throw new InvalidOperationException("No graphics device service.");
+
+            input = new();
+            LightSysManager = new(game.Services);
+            GameSceneState = new();
+            SceneInter = new(graphics);
             SceneInter.CreateDefaultManagers(false, false, true);
             SceneInter.AddManager(new GameLightManager(graphics));
         }
@@ -406,6 +403,8 @@ namespace Ship_Game
         {
             Log.Info("ScreenManager.LoadContent");
             UpdateGraphicsDevice();
+
+            Environment = ResourceManager.RootContent.Load<SceneEnvironment>("example/scene_environment");
 
             foreach (GameScreen screen in GameScreens)
             {
