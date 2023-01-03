@@ -1542,8 +1542,6 @@ namespace Ship_Game
         }
 
         public static readonly ShipsManager Ships = new();
-        public static IReadOnlyList<Ship> ShipTemplates => Ships.Ships;
-        public static IReadOnlyList<IShipDesign> ShipDesigns => Ships.Designs;
 
         public static void AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {

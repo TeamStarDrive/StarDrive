@@ -9,15 +9,15 @@ namespace Ship_Game.Ships
     /// </summary>
     public class ShipsManager
     {
-        readonly HashSet<string> Names = new HashSet<string>();
+        readonly HashSet<string> Names = new();
 
         // Ship designs, mapped by ship.Name
-        readonly Map<string, IShipDesign> DesignsMap = new Map<string, IShipDesign>();
-        readonly Map<string, Ship> ShipsMap = new Map<string, Ship>();
-        readonly Array<IShipDesign> AllDesigns = new Array<IShipDesign>();
-        readonly Array<Ship> AllShips = new Array<Ship>();
+        readonly Map<string, IShipDesign> DesignsMap = new();
+        readonly Map<string, Ship> ShipsMap = new();
+        readonly Array<IShipDesign> AllDesigns = new();
+        readonly Array<Ship> AllShips = new();
 
-        readonly object Sync = new object();
+        readonly object Sync = new();
 
         public IReadOnlyCollection<string> ShipNames => Names;
         public IReadOnlyList<IShipDesign> Designs => AllDesigns;
@@ -29,19 +29,22 @@ namespace Ship_Game.Ships
 
         public void Clear()
         {
-            foreach (Ship s in AllShips)
-                s.Dispose();
+            lock (Sync)
+            {
+                foreach (Ship s in AllShips)
+                    s?.Dispose();
 
-            foreach (IShipDesign s in AllDesigns)
-                s.Dispose();
+                foreach (IShipDesign s in AllDesigns)
+                    s?.Dispose();
 
-            Names.Clear();
+                Names.Clear();
 
-            ShipsMap.Clear();
-            DesignsMap.Clear();
+                ShipsMap.Clear();
+                DesignsMap.Clear();
 
-            AllShips.Clear();
-            AllDesigns.Clear();
+                AllShips.Clear();
+                AllDesigns.Clear();
+            }
         }
 
         // Add a new Design or replace an existing one
@@ -64,7 +67,7 @@ namespace Ship_Game.Ships
                     if (shipDesign == design)
                         return; // it's already added, deleting would corrupt it
                     else
-                        Delete(name);
+                        DeleteUnlocked(name);
                 }
 
                 Names.Add(name);
@@ -76,6 +79,14 @@ namespace Ship_Game.Ships
         }
 
         public void Delete(string shipName)
+        {
+            lock (Sync)
+            {
+                DeleteUnlocked(shipName);
+            }
+        }
+
+        void DeleteUnlocked(string shipName)
         {
             if (DesignsMap.TryGetValue(shipName, out IShipDesign design))
             {

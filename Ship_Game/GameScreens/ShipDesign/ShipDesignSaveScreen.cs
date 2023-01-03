@@ -224,7 +224,7 @@ namespace Ship_Game
             }
             else
             {
-                IShipDesign ship = ResourceManager.ShipDesigns.FirstOrDefault(s => s.Name == shipOrHullName);
+                IShipDesign ship = ResourceManager.Ships.Designs.FirstOrDefault(s => s.Name == shipOrHullName);
                 exists = ship != null;
                 source = ship?.Source;
                 reserved = ship?.IsReadonlyDesign == true;

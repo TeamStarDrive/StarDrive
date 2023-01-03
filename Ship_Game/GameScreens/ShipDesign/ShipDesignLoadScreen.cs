@@ -266,7 +266,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             SelectedShip = null;
             SelectedWIP = null;
 
-            Ship[] ships = ResourceManager.ShipTemplates
+            Ship[] ships = ResourceManager.Ships.Ships
                 .Filter(s => CanShowDesign(s, filter))
                 .OrderBy(s => !s.ShipData.IsPlayerDesign)
                 .ThenBy(s => s.BaseHull.Style != Screen.Player.data.Traits.ShipType)

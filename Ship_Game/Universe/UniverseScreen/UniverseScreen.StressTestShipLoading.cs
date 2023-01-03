@@ -14,7 +14,7 @@ namespace Ship_Game
             var spawnedMeshes = new HashSet<string>();
             void SpawnUniqueMeshes(RoleName role)
             {
-                foreach (Ship ship in ResourceManager.ShipTemplates)
+                foreach (Ship ship in ResourceManager.Ships.Ships)
                 {
                     if (ship.DesignRole == role && !spawnedMeshes.Contains(ship.BaseHull.ModelPath))
                     {
