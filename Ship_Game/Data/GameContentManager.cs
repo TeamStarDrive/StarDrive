@@ -612,7 +612,7 @@ namespace Ship_Game.Data
                     var info = new FileInfo(assetPath);
                     if (info.Exists)
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {assetPath}");
+                        //if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {assetPath}");
                         return info.OpenRead();
                     }
                     throw new FileNotFoundException(assetPath);
@@ -628,14 +628,14 @@ namespace Ship_Game.Data
                     var info = new FileInfo(modAssetPath);
                     if (info.Exists)
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {modAssetPath}");
+                        //if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {modAssetPath}");
                         return info.OpenRead();
                     }
                 }
 
                 // Vanilla content load
                 string vanillaAssetPath = "Content/" + assetPath;
-                if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {vanillaAssetPath}");
+                //if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {vanillaAssetPath}");
                 return File.OpenRead(vanillaAssetPath);
             }
             catch (Exception ex)

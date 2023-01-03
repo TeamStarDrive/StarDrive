@@ -47,20 +47,21 @@ namespace Ship_Game.GameScreens.LoadGame
             Log.LogEventStats(Log.GameEvent.LoadGame);
             try
             {
+                Log.Write(ConsoleColor.Blue, $"LoadGame {SaveFile.Name}");
                 Progress.Start(0.22f, 0.34f, 0.44f);
 
                 UniverseState state = DecompressSaveGame(SaveFile, Progress.NextStep()); // 641ms
-                Log.Info(ConsoleColor.Blue, $"  DecompressSaveGame     elapsed: {Progress[0].ElapsedMillis}ms");
+                Log.Write(ConsoleColor.Blue, $"  DecompressSaveGame     elapsed: {Progress[0].ElapsedMillis}ms");
 
                 UniverseScreen us = LoadEverything(state, Progress.NextStep()); // 992ms
-                Log.Info(ConsoleColor.Blue, $"  LoadEverything         elapsed: {Progress[1].ElapsedMillis}ms");
+                Log.Write(ConsoleColor.Blue, $"  LoadEverything         elapsed: {Progress[1].ElapsedMillis}ms");
 
                 SetupUniverseScreen(us.UState, Progress.NextStep()); // 1244ms
-                Log.Info(ConsoleColor.Blue, $"  CreateUniverseScreen   elapsed: {Progress[2].ElapsedMillis}ms");
+                Log.Write(ConsoleColor.Blue, $"  CreateUniverseScreen   elapsed: {Progress[2].ElapsedMillis}ms");
 
                 Progress.Finish();
 
-                Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
+                Log.Write(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
                 return us;
             }
             catch (Exception e)
