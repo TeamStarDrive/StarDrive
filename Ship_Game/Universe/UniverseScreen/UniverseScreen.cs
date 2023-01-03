@@ -304,10 +304,10 @@ namespace Ship_Game
 
             UState.ResearchRootUIDToDisplay = GlobalStats.Defaults.ResearchRootUIDToDisplay;
 
-            NotificationManager = new NotificationManager(ScreenManager, this);
+            NotificationManager = new(ScreenManager, this);
             aw = Add(new AutomationWindow(this));
 
-            Shields = new ShieldManager(this, ContentManager);
+            Shields = new(this);
 
             InitializeCamera(); // ResetLighting requires MaxCamHeight
             ResetLighting(forceReset: true);
