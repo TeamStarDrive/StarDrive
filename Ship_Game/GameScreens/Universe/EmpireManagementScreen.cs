@@ -89,7 +89,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
+            batch.SafeBegin();
 
             base.Draw(batch, elapsed);
             
@@ -254,7 +254,7 @@ namespace Ship_Game
 
             var pos = new Vector2(ScreenWidth - Fonts.Pirulen16.TextWidth("Paused") - 13f, 44f);
             batch.DrawString(Fonts.Pirulen16, "Paused", pos, White);
-            batch.End();
+            batch.SafeEnd();
         }
 
         Rectangle DrawStatTexture(int x, int y, SubTexture icon)

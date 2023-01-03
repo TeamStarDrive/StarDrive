@@ -264,12 +264,12 @@ namespace Ship_Game
                 if (effects.Length == 0)
                     return;
 
-                batch.Begin(SpriteBlendMode.Additive, SpriteSortMode.Immediate, SaveStateMode.None);
+                batch.SafeBegin(SpriteBlendMode.Additive, sortImmediate:true);
                 for (int i = 0; i < effects.Length; ++i)
                 {
                     effects[i].Draw(batch, screen);
                 }
-                batch.End();
+                batch.SafeEnd();
             }
         }
         

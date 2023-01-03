@@ -81,7 +81,7 @@ namespace Ship_Game
 
             if (CloudEffect != null)
             {
-                batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+                batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true);
                 CloudEffect.Begin();
                 CloudPos -= ((movement * 0.3f) * 1f);
                 CloudEffectPos.SetValue(CloudPos);
@@ -91,7 +91,7 @@ namespace Ship_Game
                 batch.Draw(CloudTex, screenRect, new Color(255, 0, 0, 255));
                 CloudEffect.CurrentTechnique.Passes[0].End();
                 CloudEffect.End();
-                batch.End();
+                batch.SafeEnd();
             }
 
             //batch.Begin();

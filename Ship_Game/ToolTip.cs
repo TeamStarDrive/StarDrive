@@ -186,7 +186,7 @@ namespace Ship_Game
             if (tips.Length == 0)
                 return;
             
-            batch.Begin();
+            batch.SafeBegin();
             foreach (TipItem tipItem in tips)
             {
                 if (tipItem.Update(elapsed.RealTime.Seconds))
@@ -198,7 +198,7 @@ namespace Ship_Game
                     ActiveTips.Remove(tipItem);
                 }
             }
-            batch.End();
+            batch.SafeEnd();
         }
     }
 }

@@ -90,14 +90,14 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
+            batch.SafeBegin();
             SaveMenu.Draw(batch, elapsed);
             NameSave.Draw(batch, elapsed);
             AllSaves.Draw(batch, elapsed);
 
             base.Draw(batch, elapsed);
 
-            batch.End();
+            batch.SafeEnd();
         }
 
         protected virtual void Load()

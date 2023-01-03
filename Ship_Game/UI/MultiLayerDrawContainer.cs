@@ -80,7 +80,7 @@ namespace Ship_Game.UI
 
         static void BatchDrawSimple(SpriteBatch batch, DrawTimes elapsed, Array<UIElementV2> elements)
         {
-            batch.Begin();
+            batch.SafeBegin();
 
             int count = elements.Count;
             UIElementV2[] items = elements.GetInternalArrayItems();
@@ -89,7 +89,7 @@ namespace Ship_Game.UI
                 items[i].Draw(batch, elapsed);
             }
 
-            batch.End();
+            batch.SafeEnd();
         }
 
         static void BeginAdditive(SpriteBatch batch, bool saveState = false)
@@ -97,8 +97,7 @@ namespace Ship_Game.UI
             // NOTE: SaveState restores graphics device settings
             //       just in case we mix 3D rendering with 2D rendering
 
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
-                saveState ? SaveStateMode.SaveState : SaveStateMode.None);
+            batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:saveState);
 
             // TODO: this is a weird alpha setting
             RenderStates.EnableAlphaBlend(batch.GraphicsDevice, Blend.InverseDestinationColor, Blend.One);
@@ -115,7 +114,7 @@ namespace Ship_Game.UI
                 items[i].Draw(batch, elapsed);
             }
 
-            batch.End();
+            batch.SafeEnd();
         }
     }
 }

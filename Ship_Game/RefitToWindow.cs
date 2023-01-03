@@ -118,7 +118,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
+            batch.SafeBegin();
             base.Draw(batch, elapsed);
             if (RefitTo != null)
             {
@@ -126,7 +126,7 @@ namespace Ship_Game
                 string text = Fonts.Arial12Bold.ParseText($"Refit {ShipToRefit.Name} to {RefitTo.Name}", 270f);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
             }
-            batch.End();
+            batch.SafeEnd();
 
             RefitOne.Visible = RefitTo != null;
             RefitAll.Visible = RefitTo != null;
