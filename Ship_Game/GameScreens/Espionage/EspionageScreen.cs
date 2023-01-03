@@ -63,11 +63,11 @@ namespace Ship_Game.GameScreens.Espionage
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
+            batch.SafeBegin();
 
             base.Draw(batch, elapsed);
 
-            batch.End();
+            batch.SafeEnd();
         }
 
         public override bool HandleInput(InputState input)

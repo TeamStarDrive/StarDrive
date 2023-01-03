@@ -542,8 +542,8 @@ namespace Ship_Game
                 DrawScrollBar(batch);
             
             // use a scissor to clip smooth scroll items
-            batch.End();
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred, SaveStateMode.None);
+            batch.SafeEnd();
+            batch.SafeBegin(SpriteBlendMode.AlphaBlend);
 
             for (int i = VisibleItemsBegin; i < VisibleItemsEnd; ++i)
             {
@@ -570,8 +570,8 @@ namespace Ship_Game
             // widen the scissor for Item highlights to be visible
             RectF scissor = ItemsHousing.Bevel(1).Widen(8);
             RenderStates.EnableScissorTest(batch.GraphicsDevice, scissor);
-            batch.End();
-            batch.Begin();
+            batch.SafeEnd();
+            batch.SafeBegin();
             RenderStates.DisableScissorTest(batch.GraphicsDevice);
             
             if (DebugDrawScrollList) // non-scissored debug

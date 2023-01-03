@@ -169,12 +169,12 @@ namespace Ship_Game.GameScreens.Scene
 
         public void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            batch.Begin();
+            batch.SafeBegin();
             foreach (var fleet in Groups)
             {
                 fleet.Draw(batch, Screen);
             }
-            batch.End();
+            batch.SafeEnd();
 
             Particles.Draw(Screen.View, Screen.Projection, nearView: true);
             Particles.Update(elapsed.CurrentGameTime);

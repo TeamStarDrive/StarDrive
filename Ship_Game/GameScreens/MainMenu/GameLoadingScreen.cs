@@ -57,7 +57,7 @@ namespace Ship_Game
 
                 try
                 {
-                    batch.Begin();
+                    batch.SafeBegin();
                     try
                     {
                         LoadingPlayer.Draw(batch);
@@ -76,7 +76,7 @@ namespace Ship_Game
                 }
                 finally
                 {
-                    batch.End();
+                    batch.SafeEnd();
                 }
             }
         }

@@ -30,7 +30,7 @@ namespace Ship_Game
 
             if (ToggleOverlay)
             {
-                batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+                batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true);
 
                 DrawEmptySlots(batch);
                 DrawModules(batch);
@@ -44,10 +44,10 @@ namespace Ship_Game
                     DrawDebugDetails(batch);
                 }
 
-                batch.End();
+                batch.SafeEnd();
             }
 
-            batch.Begin();
+            batch.SafeBegin();
             if (ActiveModule != null && !ModuleSelectComponent.HitTest(Input))
             {
                 DrawActiveModule(batch);
@@ -57,7 +57,7 @@ namespace Ship_Game
             ArcsButton.Draw(batch, elapsed);
 
             base.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
             ScreenManager.EndFrameRendering();
         }
 

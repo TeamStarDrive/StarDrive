@@ -42,7 +42,7 @@ namespace Ship_Game
             DrawStarField(batch);
             DrawNebulae(Device);
 
-            batch.Begin();
+            batch.SafeBegin();
 
             // if we're zoomed in enough, display solar system overlays with orbits
             if (viewState < UnivScreenState.GalaxyView)
@@ -50,7 +50,7 @@ namespace Ship_Game
                 DrawSolarSystemsWithOrbits();
             }
 
-            batch.End();
+            batch.SafeEnd();
 
             BackdropPerf.Stop();
         }
@@ -105,32 +105,12 @@ namespace Ship_Game
             }
         }
 
-        // @todo This is unused??? Maybe some legacy code?
-        // I think this draws a big galaxy texture
-        void RenderGalaxyBackdrop()
-        {
-            ScreenManager.SpriteBatch.Begin();
-            for (int index = 0; index < 41; ++index)
-            {
-                Vector2d a = ProjectToScreenPosition(new Vector3((float)(index * (double)UState.Size / 40.0), 0f, 0f));
-                Vector2d b = ProjectToScreenPosition(new Vector3((float)(index * (double)UState.Size / 40.0), UState.Size, 0f));
-                ScreenManager.SpriteBatch.DrawLine(a, b, new Color(211, 211, 211, 70));
-            }
-            for (int index = 0; index < 41; ++index)
-            {
-                Vector2d a = ProjectToScreenPosition(new Vector3(0f, (float)(index * (double)UState.Size / 40.0), 40f));
-                Vector2d b = ProjectToScreenPosition(new Vector3(UState.Size, (float)(index * (double)UState.Size / 40.0), 0f));
-                ScreenManager.SpriteBatch.DrawLine(a, b, new Color(211, 211, 211, 70));
-            }
-            ScreenManager.SpriteBatch.End();
-        }
-
         void DrawColoredBordersRT(SpriteBatch batch)
         {
             DrawOverFog.Start();
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
             {
-                batch.Begin(SpriteBlendMode.AlphaBlend);
+                batch.SafeBegin(SpriteBlendMode.AlphaBlend);
                 // set the alpha value depending on camera height
                 int maxAlpha = 70;
                 double relHeight = CamPos.Z / 1800000.0;
@@ -140,7 +120,7 @@ namespace Ship_Game
 
                 var color = new Color(255, 255, 255, (byte)alpha);
                 batch.Draw(BorderRT.GetTexture(), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
-                batch.End();
+                batch.SafeEnd();
             }
             DrawOverFog.Stop();
         }
@@ -454,10 +434,10 @@ namespace Ship_Game
             RenderStates.BasicBlendMode(Device, additive:false, depthWrite:true);
             RenderStates.EnableMultiSampleAA(Device);
 
-            batch.Begin();
+            batch.SafeBegin();
             DrawShipAOAndTradeRoutes();
             SelectShipLinesToDraw();
-            batch.End();
+            batch.SafeEnd();
 
             DrawBombs();
 

@@ -119,7 +119,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
+            batch.SafeBegin();
             if (ScreenHeight > 766)
             {
                 TitleBar.Draw(batch, elapsed);
@@ -619,7 +619,7 @@ namespace Ship_Game
                     DrawStat(Localizer.Token(GameText.MissileDodgeChance), SelectedEmpire.data.MissileDodgeChance, ref textCursor, false); 
             }
             base.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
         }
 
         private void DrawBadStat(string text, string text2, ref Vector2 Position)

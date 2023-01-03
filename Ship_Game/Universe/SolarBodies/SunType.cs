@@ -183,12 +183,12 @@ namespace Ship_Game.Universe.SolarBodies
             float sizeScaleOnScreen = 1.25f * relSizeOnScreen; // this yields the base star size
 
             SpriteBatch batch = GameBase.ScreenManager.SpriteBatch;
-            batch.End();
+            batch.SafeEnd();
             {
                 foreach (SunLayerState layer in sys.SunLayers)
                     layer.Draw(batch, pos, sizeScaleOnScreen);
             }
-            batch.Begin();
+            batch.SafeBegin();
         }
     }
 
@@ -236,7 +236,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Draw(SpriteBatch batch, Vector2 screenPos, float sizeScaleOnScreen)
         {
-            batch.Begin(Info.BlendMode, SpriteSortMode.Deferred, SaveStateMode.None);
+            batch.SafeBegin(Info.BlendMode);
 
             float scale = ScaleIntensity * sizeScaleOnScreen * Info.LayerScale;
             Color color = Info.TextureColor;
@@ -248,7 +248,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Sprite.Draw(batch, screenPos, scale, c);
             }
 
-            batch.End();
+            batch.SafeEnd();
         }
 
         public void DrawLoRes(SpriteBatch batch, SubTexture icon, Vector2 screenPos, float sizeScaleOnScreen)
