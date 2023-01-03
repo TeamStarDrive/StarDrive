@@ -113,7 +113,7 @@ public class AutoUpdateChecker : UIElementContainer
                     return true;
                 }
 
-                ToolTip.CreateTooltip(Info.Changelog);
+                ToolTip.CreateTooltip(Info.Changelog, "", null, maxWidth:720);
             }
             return base.HandleInput(input);
         }
