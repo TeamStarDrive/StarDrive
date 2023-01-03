@@ -78,6 +78,9 @@ namespace Ship_Game
             ModsList = AllSaves.List;
             ModsList.EnableItemHighlight = true;
             ModsList.OnClick = OnModItemClicked;
+
+            Array<ModsListItem> mods = new();
+
             foreach (DirectoryInfo info in Dir.GetDirs("Mods", SearchOption.TopDirectoryOnly))
             {
                 string modFile = $"Mods/{info.Name}/Globals.yaml";
@@ -87,7 +90,7 @@ namespace Ship_Game
                     GamePlayGlobals modSettings = GamePlayGlobals.Deserialize(file);
                     var e = new ModEntry(modSettings);
                     e.LoadPortrait(MainMenu);
-                    ModsList.AddItem(new ModsListItem(e));
+                    mods.Add(new(e));
                 }
                 catch (Exception ex)
                 {
@@ -95,6 +98,10 @@ namespace Ship_Game
                     ex.Data.Add("Load Error in file", modFile);
                 }
             }
+
+            // sort mods so that same mods with higher version are always at top
+            mods.Sort((a, b) => -string.Compare(a.Mod.Name+a.Mod.Mod.Version, b.Mod.Name+b.Mod.Mod.Version, StringComparison.OrdinalIgnoreCase));
+            ModsList.SetItems(mods);
         }
 
         void OnModItemClicked(ModsListItem item)
