@@ -29,7 +29,7 @@ namespace Ship_Game.Data
         public string Name { get; }
 
         // Enables verbose logging for all asset loads and disposes
-        public bool EnableLoadInfoLog { get; set; } = false && Debugger.IsAttached;
+        public bool EnableLoadInfoLog => GlobalStats.DebugAssetLoading;
 
         public RawContentLoader RawContent { get; private set; }
 
@@ -290,8 +290,8 @@ namespace Ship_Game.Data
             if (LoadedAssets == null)
                 throw new ObjectDisposedException(ToString());
 
-            //if (EnableLoadInfoLog)
-            //    Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetName}");
+            if (EnableLoadInfoLog)
+                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetName}");
 
             Type assetType = typeof(T);
             if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(assetName);
@@ -333,10 +333,10 @@ namespace Ship_Game.Data
                 // If same object already exists, we skip Add. We also test for concurrency bugs and type mismatches.
                 if (LoadedAssets.TryGetValue(name, out object existing))
                 {
-                    if ((obj as object) != existing)
-                        throw new ContentLoadException($"Duplicate asset '{name}' of type '{typeof(T)}' already loaded! This is a concurrency bug!");
                     if (existing is not T)
-                        throw new ContentLoadException($"Asset '{name}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
+                        Log.Error($"Asset '{name}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
+                    if (!ReferenceEquals(obj, existing))
+                        Log.Error($"Duplicate asset '{name}' of type '{typeof(T)}' already loaded!");
                 }
                 else
                 {

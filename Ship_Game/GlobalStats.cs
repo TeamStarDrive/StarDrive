@@ -196,6 +196,10 @@ public static class GlobalStats
     public static bool DebugResourceLoading;
 
     // DEV CLI OPTION
+    // debug log all Asset load events
+    public static bool DebugAssetLoading;
+
+    // DEV CLI OPTION
     // Continue into the game after running Localizer or other Tools
     public static bool ContinueToGame;
 
