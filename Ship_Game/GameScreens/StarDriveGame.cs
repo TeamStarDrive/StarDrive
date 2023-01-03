@@ -34,6 +34,7 @@ namespace Ship_Game
             Log.Write(ConsoleColor.Yellow, $"User={Environment.UserName} NET={Environment.Version}");
             Log.Write(ConsoleColor.Yellow, $"GC Server={GCSettings.IsServerGC} LatencyMode={GCSettings.LatencyMode}");
             Log.Write(ConsoleColor.Yellow, $"PhysicalCores={Parallel.NumPhysicalCores} MaxParallelism={Parallel.MaxParallelism}");
+            Log.Write(ConsoleColor.Yellow, $"GameDir={Directory.GetCurrentDirectory()}");
 
         #if STEAM
             if (SteamManager.SteamInitialize())
