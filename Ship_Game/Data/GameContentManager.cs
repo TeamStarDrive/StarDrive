@@ -260,35 +260,35 @@ namespace Ship_Game.Data
                 case GraphicsResource g:
                     if (!g.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Info(ConsoleColor.Magenta, "Disposing texture  "+assetName);
+                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing texture  "+assetName);
                         g.Dispose();
                     }
                     break;
                 case TextureAtlas atlas:
                     if (!atlas.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Info(ConsoleColor.Magenta, "Disposing atlas    "+assetName);
+                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing atlas    "+assetName);
                         atlas.Dispose();
                     }
                     break;
                 case StaticMesh mesh:
                     if (!mesh.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Info(ConsoleColor.Magenta, "Disposing mesh     "+assetName);
+                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing mesh     "+assetName);
                         mesh.Dispose();
                     }
                     break;
                 case Model model:
                     if (!StaticMesh.IsModelDisposed(model))
                     {
-                        if (EnableLoadInfoLog) Log.Info(ConsoleColor.Magenta, "Disposing model    "+assetName);
+                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing model    "+assetName);
                         StaticMesh.DisposeModel(model);
                     }
                     break;
                 case SkinnedModel skinnedModel:
                     if (!StaticMesh.IsModelDisposed(skinnedModel))
                     {
-                        if (EnableLoadInfoLog) Log.Info(ConsoleColor.Magenta, "Disposing aniModel "+assetName);
+                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing aniModel "+assetName);
                         StaticMesh.DisposeModel(skinnedModel);
                     }
                     break;
@@ -296,21 +296,21 @@ namespace Ship_Game.Data
                     var texture = GetField<Texture2D>(font, "textureValue");
                     if (!texture.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Info(ConsoleColor.Magenta, "Disposing font     "+assetName);
+                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing font     "+assetName);
                         texture.Dispose();
                     }
                     break;
                 case Effect fx:
                     if (!fx.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Info(ConsoleColor.Magenta, "Disposing effect   "+assetName);
+                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing effect   "+assetName);
                         fx.Dispose();
                     }
                     break;
                 case Video _: // video is just a reference object, nothing to dispose
                     break;
                 case IDisposable disposable:
-                    Log.Info(ConsoleColor.Magenta, "Disposing asset    "+assetName);
+                    Log.Write(ConsoleColor.Magenta, "Disposing asset    "+assetName);
                     disposable.Dispose();
                     break;
                 default:
@@ -379,9 +379,6 @@ namespace Ship_Game.Data
             if (LoadedAssets == null)
                 throw new ObjectDisposedException(ToString());
 
-            if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetName}");
-
             Type assetType = typeof(T);
             if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(assetName);
             if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(assetName, useCache);
@@ -390,6 +387,8 @@ namespace Ship_Game.Data
             if (useCache && TryGetAsset(asset.RelPathWithExt, out T existing))
                 return existing;
             
+            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetName}");
+
             T loaded;
             if (asset.NonXnaAsset)
                 loaded = (T)RawContent.LoadAsset(typeof(T), asset.RelPathWithExt, asset.Extension);
@@ -445,9 +444,11 @@ namespace Ship_Game.Data
 
         public Texture2D LoadUncachedTexture(FileInfo file, string ext)
         {
+            // the file path may be from AppData folder, in which case RelPath() doesn't work
+            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadUncachedTexture {file.FullName}");
             if (ext != "xnb")
                 return RawContent.LoadTexture(file);
-            return ReadXnaAsset<Texture2D>(file.RelPath());
+            return ReadXnaAsset<Texture2D>(file.FullName);
         }
 
         // Loads a texture and caches it inside GameContentManager if useCache=true
@@ -456,6 +457,8 @@ namespace Ship_Game.Data
             string assetName = file.RelPath();
             if (TryGetAsset(assetName, out Texture2D tex))
                 return tex;
+            
+            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadTexture {assetName}");
 
             string ext = file.Extension.Substring(1);
             if (ext != "xnb")
@@ -472,6 +475,8 @@ namespace Ship_Game.Data
         {
             if (useAssetCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
                 return existing;
+            
+            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadTextureAtlas {folderWithTextures}");
 
             TextureAtlas atlas = TextureAtlas.FromFolder(folderWithTextures);
             if (atlas != null && useAssetCache)
@@ -525,14 +530,19 @@ namespace Ship_Game.Data
         {
             if (TryGetAsset(effectFile, out Effect existing))
                 return existing;
-
+            
             FileInfo file = ResourceManager.GetModOrVanillaFile(effectFile);
+            if (file == null)
+                throw new FileNotFoundException($"LoadEffect {effectFile} failed");
+
+            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadEffect {file.RelPath()}");
+
             string sourceCode = File.ReadAllText(file.FullName);
-            CompiledEffect compiled = Effect.CompileEffectFromSource(sourceCode, new CompilerMacro[0], null, 
+            CompiledEffect compiled = Effect.CompileEffectFromSource(sourceCode, Empty<CompilerMacro>.Array, null, 
                                                                      CompilerOptions.None, TargetPlatform.Windows);
             if (!compiled.Success)
             {
-                throw new Exception($"LoadEffect {effectFile} failed: {compiled.ErrorsAndWarnings}");
+                throw new($"LoadEffect {effectFile} failed: {compiled.ErrorsAndWarnings}");
             }
             
             var fx = new Effect(Device, compiled.GetEffectCode(), CompilerOptions.None, null);
@@ -544,6 +554,8 @@ namespace Ship_Game.Data
         {
             if (TryGetAsset(meshName, out StaticMesh mesh))
                 return mesh;
+            
+            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadStaticMesh {meshName}");
 
             if (RawContentLoader.IsSupportedMesh(meshName))
             {
@@ -600,8 +612,7 @@ namespace Ship_Game.Data
                     var info = new FileInfo(assetPath);
                     if (info.Exists)
                     {
-                        if (EnableLoadInfoLog)
-                            Log.Info(ConsoleColor.Cyan, $"OpenStream {assetPath}");
+                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {assetPath}");
                         return info.OpenRead();
                     }
                     throw new FileNotFoundException(assetPath);
@@ -617,16 +628,14 @@ namespace Ship_Game.Data
                     var info = new FileInfo(modAssetPath);
                     if (info.Exists)
                     {
-                        if (EnableLoadInfoLog)
-                            Log.Info(ConsoleColor.Cyan, $"OpenStream {modAssetPath}");
+                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {modAssetPath}");
                         return info.OpenRead();
                     }
                 }
 
                 // Vanilla content load
                 string vanillaAssetPath = "Content/" + assetPath;
-                if (EnableLoadInfoLog)
-                    Log.Info(ConsoleColor.Cyan, $"OpenStream {vanillaAssetPath}");
+                if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {vanillaAssetPath}");
                 return File.OpenRead(vanillaAssetPath);
             }
             catch (Exception ex)

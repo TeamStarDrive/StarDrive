@@ -293,8 +293,8 @@ namespace Ship_Game.Data
             {
                 GameLoadingScreen.SetStatus("Export", outFile);
                 string ext = file.Extension.Remove(0, 1).ToLower(); // '.Xnb' -> 'xnb'
-                using (Texture2D tex = Content.LoadUncachedTexture(file, ext))
-                    saved = TexExport.SaveAutoFormat(tex, outFile);
+                using Texture2D tex = Content.LoadUncachedTexture(file, ext);
+                saved = TexExport.SaveAutoFormat(tex, outFile);
             }
             catch // not a texture
             {
