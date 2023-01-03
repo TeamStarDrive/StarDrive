@@ -424,7 +424,6 @@ namespace Ship_Game.Universe.SolarBodies
         void Finish(QueueItem q)
         {
             ConstructionQueue.Remove(q);
-            q.OnComplete?.Invoke(success: true);
         }
 
         public bool Cancel(Building b)
@@ -468,8 +467,6 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Remove(q);
             if (q.isBuilding)
                 P.RefreshBuildingsWeCanBuildHere();
-
-            q.OnComplete?.Invoke(success: false);
         }
 
         public void PrioritizeProjector(Vector2 buildPos)
@@ -519,19 +516,26 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void Reorder(int oldIndex, int newIndex)
+        public void Reorder(QueueItem item, int relativeChange)
         {
-            ConstructionQueue.Reorder(oldIndex, newIndex);
+            // When dragging an item, some items could be removed or moved
+            // while the dragging is in process and before the scroll list is updated.
+            // So we always need to double-check the itemIndex and newIndex
+            int oldIndex = ConstructionQueue.IndexOf(item);
+            int newIndex = oldIndex + relativeChange;
+            if (oldIndex != -1 && (uint)newIndex < ConstructionQueue.Count)
+            {
+                ConstructionQueue.Reorder(oldIndex, newIndex);
+            }
         }
 
         public void Swap(int swapTo, int currentIndex)
         {
-            swapTo = swapTo.Clamped(0, ConstructionQueue.Count - 1);
-            currentIndex = currentIndex.Clamped(0, ConstructionQueue.Count - 1);
+            var cq = ConstructionQueue;
+            swapTo = swapTo.Clamped(0, cq.Count - 1);
+            currentIndex = currentIndex.Clamped(0, cq.Count - 1);
 
-            QueueItem item = ConstructionQueue[swapTo];
-            ConstructionQueue[swapTo] = ConstructionQueue[currentIndex];
-            ConstructionQueue[currentIndex] = item;
+            (cq[swapTo], cq[currentIndex]) = (cq[currentIndex], cq[swapTo]);
         }
 
         public void MoveTo(int moveTo, int currentIndex)

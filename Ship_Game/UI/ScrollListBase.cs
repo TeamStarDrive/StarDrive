@@ -232,12 +232,18 @@ namespace Ship_Game
             else // already dragging
             {
                 if (input.LeftMouseUp)
-                {
-                    bool outside = !Rect.HitTest(input.CursorPosition);
-                    OnItemDragged(DraggedEntry, DragEvent.End, outside);
-                    DraggedEntry = null;
-                    RequiresLayout = true; // refresh the items
-                }
+                    CancelDragging();
+            }
+        }
+
+        public void CancelDragging()
+        {
+            if (IsDragging)
+            {
+                bool outside = !Rect.HitTest(GetInput().CursorPosition);
+                OnItemDragged(DraggedEntry, DragEvent.End, outside);
+                DraggedEntry = null;
+                RequiresLayout = true; // refresh the items
             }
         }
 
