@@ -38,7 +38,7 @@ namespace Ship_Game.GameScreens.Scene
         public GameScreen Screen;
         public ParticleManager Particles;
 
-        Map<string, EmpireData> Empires = new Map<string, EmpireData>();
+        Map<string, EmpireData> Empires = new();
 
         public static SceneInstance FromFile(GameScreen screen, string relativePath)
         {
@@ -53,7 +53,6 @@ namespace Ship_Game.GameScreens.Scene
             Screen = screen;
             screen.ScreenManager.RemoveAllLights();
             screen.ScreenManager.LightRigIdentity = LightRigIdentity.MainMenu;
-            screen.ScreenManager.Environment = screen.TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
             // TODO: some issue with directional lights
             //AddDirectionalLight("Scene Sun", SunColor, SunIntensity, SunPos, SunTarget);

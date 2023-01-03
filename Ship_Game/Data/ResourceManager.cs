@@ -160,7 +160,7 @@ namespace Ship_Game
             catch (Exception ex)
             {
                 if (mod == null)
-                    throw;
+                    throw; // vanilla load failed, fatally
                 Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", 0);
                 WaitForExit();
                 GlobalStats.ClearActiveMod();
@@ -353,7 +353,7 @@ namespace Ship_Game
             
             TroopsDict.Clear();
             TroopsList.Clear();
-            TroopsDictKeys = new string[0];
+            TroopsDictKeys = Empty<string>.Array;
 
             BuildingsDict.Clear();
             BuildingsById.Clear();

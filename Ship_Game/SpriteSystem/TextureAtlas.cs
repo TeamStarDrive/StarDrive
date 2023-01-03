@@ -58,6 +58,10 @@ namespace Ship_Game.SpriteSystem
         ~TextureAtlas() { Destroy(); }
         public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
 
+        // the `Atlas` texture itself can be lazy-loaded so to consider TextureAtlas
+        // completely disposed, the `Sorted` TextureBindings array must be empty
+        public bool IsDisposed => Sorted.Length == 0;
+
         void Destroy()
         {
             Atlas?.Dispose(ref Atlas);
@@ -130,8 +134,8 @@ namespace Ship_Game.SpriteSystem
         static string Mod => $"[{GlobalStats.ModOrVanillaName}]";
 
         // To enable multi-threaded background pre-loading
-        static readonly Map<string, TextureAtlas> Loading = new Map<string, TextureAtlas>();
-        readonly Mutex LoadSync = new Mutex();
+        static readonly Map<string, TextureAtlas> Loading = new();
+        readonly Mutex LoadSync = new();
 
         // atomically gets or inserts atlas
         // @return TRUE if an existing atlas was retrieved, FALSE if a new atlas was inserted

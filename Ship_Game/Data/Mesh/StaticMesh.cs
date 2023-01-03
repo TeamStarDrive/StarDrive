@@ -30,6 +30,8 @@ public class StaticMesh : IDisposable
     public StaticMesh() { }
     ~StaticMesh() { Destroy(); }
 
+    public bool IsDisposed => ModelMeshes == null && RawMeshes.IsEmpty;
+
     public void Dispose()
     {
         Destroy();
@@ -41,17 +43,31 @@ public class StaticMesh : IDisposable
         RawMeshes.ClearAndDispose();
         if (ModelMeshes != null)
         {
-            foreach (ModelMesh mesh in ModelMeshes)
-            {
-                mesh.IndexBuffer.Dispose();
-                mesh.VertexBuffer.Dispose();
-            }
+            DisposeModelMeshes(ModelMeshes);
             ModelMeshes = null;
         }
 
         Skeleton = null;
         AnimationClips = null;
     }
+
+    public static void DisposeModelMeshes(ModelMeshCollection meshes)
+    {
+        foreach (ModelMesh mesh in meshes)
+        {
+            if (!mesh.IndexBuffer.IsDisposed) mesh.IndexBuffer.Dispose();
+            if (!mesh.VertexBuffer.IsDisposed) mesh.VertexBuffer.Dispose();
+            foreach (var part in mesh.MeshParts)
+                if (!part.VertexDeclaration.IsDisposed)
+                    part.VertexDeclaration.Dispose();
+        }
+    }
+    
+    public static bool IsModelDisposed(Model m) => m.Meshes.Count == 0 || m.Meshes[0].IndexBuffer.IsDisposed;
+    public static void DisposeModel(Model m) => DisposeModelMeshes(m.Meshes);
+
+    public static bool IsModelDisposed(SkinnedModel sm) => IsModelDisposed(sm.Model);
+    public static void DisposeModel(SkinnedModel sm) => DisposeModelMeshes(sm.Model.Meshes);
 
     static StaticMesh FromNewMesh(GameContentManager content, string modelName)
     {

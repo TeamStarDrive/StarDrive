@@ -62,17 +62,25 @@ namespace Ship_Game.GameScreens
             };
         }
 
-        // Stops audio and music, then disposes any graphics resources
-        public void Dispose()
+        ~ScreenMediaPlayer() { Destroy(); }
+
+        void Destroy()
         {
-            Active = Video != null && Player?.IsDisposed == false;
             if (Video != null) // avoid double dispose issue
             {
                 Stop();
                 Video = null;
             }
-            if (Player?.IsDisposed == false)
+            if (!Player.IsDisposed)
                 Player.Dispose();
+        }
+
+        // Stops audio and music, then disposes any graphics resources
+        public void Dispose()
+        {
+            Active = Video != null && !Player.IsDisposed;
+            Destroy();
+            GC.SuppressFinalize(this);
         }
 
         public void PlayVideo(string videoPath, bool looping = true, bool startPaused = false)
