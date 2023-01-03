@@ -247,17 +247,17 @@ namespace Ship_Game
             DrawTroopDragDestinations();
             
             base.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
 
-            batch.Begin(SpriteBlendMode.Additive);
+            batch.SafeBegin(SpriteBlendMode.Additive);
             using (Explosions.AcquireReadLock())
             {
                 foreach (SmallExplosion exp in Explosions)
                     exp.Draw(batch);
             }
-            batch.End();
+            batch.SafeEnd();
 
-            batch.Begin();
+            batch.SafeBegin();
         }
 
         void DrawCombatInfo(PlanetGridSquare pgs)

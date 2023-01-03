@@ -72,7 +72,7 @@ namespace Ship_Game
                     return;
             }
 
-            batch.Begin();
+            batch.SafeBegin();
             int width = ScreenWidth;
             int height = ScreenHeight;
             if (LoadingScreenTexture != null)
@@ -93,7 +93,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen16, token, position, CurrentFlashColor);
             }
 
-            batch.End();
+            batch.SafeEnd();
         }
 
         protected override void Destroy()

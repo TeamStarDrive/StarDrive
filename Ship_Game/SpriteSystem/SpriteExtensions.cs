@@ -7,6 +7,7 @@ using Ship_Game.Graphics;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaVector4 = Microsoft.Xna.Framework.Vector4;
 using XnaRect = Microsoft.Xna.Framework.Rectangle;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {
@@ -288,9 +289,54 @@ namespace Ship_Game
             catch
             {
                 if (batch.SafeEnd())
-                {
                     batch.Begin();
-                }
+            }
+        }
+
+        public static void SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode)
+        {
+            try
+            {
+                batch.Begin(blendMode);
+            }
+            catch
+            {
+                if (batch.SafeEnd())
+                    batch.Begin(blendMode);
+            }
+        }
+
+        /// <param name="batch"></param>
+        /// <param name="blendMode">Sprite blending mode</param>
+        /// <param name="sortImmediate">Sorts the sprites immediately. The default is false ("Deferred")</param>
+        /// <param name="saveState">Save the previous graphics device state?</param>
+        public static void SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, bool sortImmediate, bool saveState = false)
+        {
+            SpriteSortMode sortMode = sortImmediate ? SpriteSortMode.Immediate : SpriteSortMode.Deferred;
+            SaveStateMode stateMode = saveState ? SaveStateMode.SaveState : SaveStateMode.None;
+            try
+            {
+                batch.Begin(blendMode, sortMode, stateMode);
+            }
+            catch
+            {
+                if (batch.SafeEnd())
+                    batch.Begin(blendMode, sortMode, stateMode);
+            }
+        }
+
+        public static void SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, bool sortImmediate, bool saveState, in XnaMatrix transform)
+        {
+            SpriteSortMode sortMode = sortImmediate ? SpriteSortMode.Immediate : SpriteSortMode.Deferred;
+            SaveStateMode stateMode = saveState ? SaveStateMode.SaveState : SaveStateMode.None;
+            try
+            {
+                batch.Begin(blendMode, sortMode, stateMode, transform);
+            }
+            catch
+            {
+                if (batch.SafeEnd())
+                    batch.Begin(blendMode, sortMode, stateMode, transform);
             }
         }
 

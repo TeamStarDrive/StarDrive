@@ -33,7 +33,7 @@ namespace Ship_Game
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             Universe.DrawStarField(batch);
 
-            batch.Begin();
+            batch.SafeBegin();
             {
                 DrawGrid(batch);
                 DrawSelectedNodeSensorRange(batch);
@@ -44,7 +44,7 @@ namespace Ship_Game
                 if (SelectionBox.W > 0)
                     batch.DrawRectangle(SelectionBox, Color.Green);
             }
-            batch.End();
+            batch.SafeEnd();
 
             // render 3D
             if (SelectedFleet != null)
@@ -60,12 +60,12 @@ namespace Ship_Game
             }
             ScreenManager.RenderSceneObjects();
 
-            batch.Begin();
+            batch.SafeBegin();
             {
                 DrawUI(batch, elapsed);
                 base.Draw(batch, elapsed); // draw automatic elements on top of everything else
             }
-            batch.End();
+            batch.SafeEnd();
 
             ScreenManager.EndFrameRendering();
         }

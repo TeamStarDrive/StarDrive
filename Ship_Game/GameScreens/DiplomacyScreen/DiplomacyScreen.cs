@@ -437,7 +437,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 return;
 
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 4 / 5);
-            batch.Begin();
+            batch.SafeBegin();
 
             DrawBackground(batch);
 
@@ -479,7 +479,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             base.Draw(batch, elapsed);
             
-            batch.End();
+            batch.SafeEnd();
         }
 
         void DrawDialogText(SpriteBatch batch)

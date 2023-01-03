@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using SDGraphics.Input;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
@@ -151,7 +151,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
+            batch.SafeBegin();
             TitleBar.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(GameText.PlanetArray), TitlePos, Colors.Cream);
             EMenu.Draw(batch, elapsed);
@@ -219,7 +219,7 @@ namespace Ship_Game
 
                 batch.DrawRectangle(PlanetSL.ItemsHousing, lineColor); // items housing border
             }
-            batch.End();
+            batch.SafeEnd();
         }
 
         void InitSortedItems(SortButton button)

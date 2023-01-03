@@ -249,10 +249,10 @@ namespace Ship_Game.GameScreens.ShipDesign
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();            
+            batch.SafeBegin();            
             base.Draw(batch, elapsed);
             PlayerDesignsToggle.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
         }
 
         void LoadShipTemplates(string filter)
@@ -266,7 +266,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             SelectedShip = null;
             SelectedWIP = null;
 
-            Ship[] ships = ResourceManager.ShipTemplates
+            Ship[] ships = ResourceManager.Ships.Ships
                 .Filter(s => CanShowDesign(s, filter))
                 .OrderBy(s => !s.ShipData.IsPlayerDesign)
                 .ThenBy(s => s.BaseHull.Style != Screen.Player.data.Traits.ShipType)

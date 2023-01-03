@@ -53,9 +53,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            batch.Begin();
+            batch.SafeBegin();
             base.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            batch.Begin();
+            batch.SafeBegin();
 
             // 4 corners
             batch.Draw(ResourceManager.Texture("Popup/popup_corner_TL"), TL, Color.White);
@@ -91,7 +91,7 @@ namespace Ship_Game
 
             base.Draw(batch, elapsed);
 
-            batch.End();
+            batch.SafeEnd();
         }
 
         public override void LoadContent()
