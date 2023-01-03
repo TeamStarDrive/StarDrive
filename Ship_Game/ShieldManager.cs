@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
-using Ship_Game.Data;
 using Ship_Game.Ships;
 using Matrix = SDGraphics.Matrix;
 
@@ -17,18 +16,14 @@ public sealed class ShieldManager : IDisposable
     Texture2D ShieldTexture;
     Texture2D GradientTexture;
     Effect ShieldEffect;
+    EffectParameter World, Scale, Displacement;
 
     public bool IsDisposed { get; private set; }
 
-    public ShieldManager(UniverseScreen u, GameContentManager content)
+    public ShieldManager(UniverseScreen u)
     {
         Universe = u;
-
-        GameLoadingScreen.SetStatus("LoadShields");
-        ShieldModel = content.Load<Model>("Model/Projectiles/shield");
-        ShieldTexture = content.Load<Texture2D>("Model/Projectiles/shield_d.dds");
-        GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");
-        ShieldEffect = content.Load<Effect>("Effects/scale");
+        LoadContent();
     }
 
     ~ShieldManager() { Destroy(); }
@@ -37,10 +32,7 @@ public sealed class ShieldManager : IDisposable
     {
         VisibleShields = null;
         VisiblePlanetShields = null;
-        ShieldModel = null;
-        ShieldTexture?.Dispose(ref ShieldTexture);
-        GradientTexture?.Dispose(ref GradientTexture);
-        ShieldEffect?.Dispose(ref ShieldEffect);
+        UnloadContent();
     }
 
     public void Dispose()
@@ -51,6 +43,32 @@ public sealed class ShieldManager : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    void LoadContent()
+    {
+        GameLoadingScreen.SetStatus("LoadShields");
+        ShieldModel = Universe.TransientContent.Load<Model>("Model/Projectiles/shield");
+        ShieldTexture = Universe.TransientContent.Load<Texture2D>("Model/Projectiles/shield_d.dds");
+        GradientTexture = Universe.TransientContent.Load<Texture2D>("Model/Projectiles/shieldgradient");
+
+        ShieldEffect = Universe.TransientContent.Load<Effect>("Effects/scale");
+        ShieldEffect.Parameters["tex"].SetValue(ShieldTexture);
+        ShieldEffect.Parameters["AlphaMap"].SetValue(GradientTexture);
+        ShieldEffect.CurrentTechnique = ShieldEffect.Techniques["Technique1"];
+
+        World = ShieldEffect.Parameters["World"];
+        Scale = ShieldEffect.Parameters["scale"];
+        Displacement = ShieldEffect.Parameters["displacement"];
+    }
+    
+    void UnloadContent()
+    {
+        ShieldModel = null;
+        ShieldTexture?.Dispose(ref ShieldTexture);
+        GradientTexture?.Dispose(ref GradientTexture);
+        ShieldEffect?.Dispose(ref ShieldEffect);
+        World = Scale = Displacement = null;
+    }
+    
     public void SetVisibleShields(Shield[] visibleShields)
     {
         VisibleShields = visibleShields;
@@ -102,6 +120,15 @@ public sealed class ShieldManager : IDisposable
         if (IsDisposed)
             return;
 
+        if (ShieldEffect.IsDisposed)
+        {
+            UnloadContent();
+            LoadContent();
+        }
+
+        ShieldEffect.Parameters["View"].SetValue(view);
+        ShieldEffect.Parameters["Projection"].SetValue(projection);
+
         UniverseScreen u = Universe;
         Shield[] shields = VisibleShields;
         Shield[] planetShields = VisiblePlanetShields;
@@ -110,27 +137,23 @@ public sealed class ShieldManager : IDisposable
         {
             Shield shield = shields[i];
             if (shield.LightEnabled && shield.InFrustum(u))
-                DrawShield(shield, view, projection);
+                DrawShield(shield);
         }
         for (int i = 0; i < planetShields.Length; i++)
         {
             Shield shield = planetShields[i];
             if (shield.LightEnabled && shield.InFrustum(u))
-                DrawShield(shield, view, projection);
+                DrawShield(shield);
         }
     }
 
-    void DrawShield(Shield shield, in Matrix view, in Matrix projection)
+    void DrawShield(Shield shield)
     {
         shield.UpdateWorldTransform();
-        ShieldEffect.Parameters["World"].SetValue(shield.World);
-        ShieldEffect.Parameters["View"].SetValue(view);
-        ShieldEffect.Parameters["Projection"].SetValue(projection);
-        ShieldEffect.Parameters["tex"].SetValue(ShieldTexture);
-        ShieldEffect.Parameters["AlphaMap"].SetValue(GradientTexture);
-        ShieldEffect.Parameters["scale"].SetValue(shield.TexScale);
-        ShieldEffect.Parameters["displacement"].SetValue(shield.Displacement);
-        ShieldEffect.CurrentTechnique = ShieldEffect.Techniques["Technique1"];
+
+        World.SetValue(shield.World);
+        Scale.SetValue(shield.TexScale);
+        Displacement.SetValue(shield.Displacement);
 
         foreach (ModelMesh mesh in ShieldModel.Meshes)
         {
