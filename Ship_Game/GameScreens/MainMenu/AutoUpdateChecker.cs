@@ -8,6 +8,7 @@ using Ship_Game.UI;
 using Ship_Game.Audio;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ship_Game.GameScreens.MainMenu;
 
@@ -34,9 +35,12 @@ public class AutoUpdateChecker : UIElementContainer
     {
         AsyncTask = Parallel.Run(() =>
         {
-            GetVersionAsync("BlackBox", GlobalStats.VanillaDefaults.DownloadSite, isMod: false);
-            if (GlobalStats.HasMod)
-                GetVersionAsync(GlobalStats.ModName, GlobalStats.ActiveMod.Settings.DownloadSite, isMod: true);
+            string vanillaUrl = GlobalStats.VanillaDefaults.DownloadSite;
+            GetVersionAsync("BlackBox", vanillaUrl, isMod: false);
+
+            string modUrl = GlobalStats.ActiveMod?.Settings.DownloadSite;
+            if (modUrl != null && vanillaUrl != modUrl)
+                GetVersionAsync(GlobalStats.ModName, modUrl, isMod: true);
         });
     }
 
@@ -261,37 +265,15 @@ public class AutoUpdateChecker : UIElementContainer
     // Download utility which can be cancel itself via another `cancellableTask`
     public static string DownloadWithCancel(string url, TaskResult cancellableTask, TimeSpan timeout)
     {
-        using WebClient wc = new();
-        wc.UseDefaultCredentials = false;
-        wc.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
-        wc.DownloadProgressChanged += OnProgressChanged;
-
-        void OnProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        using WebClient wc = CreateWebClient((sender, e) =>
         {
             if (cancellableTask.IsCancelRequested)
-                ((WebClient)sender).CancelAsync();
-        }
+                ((WebClient)sender)?.CancelAsync();
+        });
 
-        try
-        {
-            var download = wc.DownloadStringTaskAsync(url);
-            int timeoutMillis = (int)timeout.TotalMilliseconds;
-            for (; timeoutMillis > 0; timeoutMillis -= 100)
-            {
-                if (download.Wait(100))
-                    return download.Result;
-                if (cancellableTask.IsCancelRequested)
-                    break;
-            }
-        }
-        catch (AggregateException e)
-        {
-            throw e.InnerException ?? e;
-        }
-
-        if (cancellableTask.IsCancelRequested)
-            throw new OperationCanceledException("Download Request cancelled");
-        throw new TimeoutException("Download Request timed out");
+        var download = wc.DownloadStringTaskAsync(url);
+        WaitForTask(download, cancellableTask, timeout);
+        return download.Result;
     }
 
     /// <summary>
@@ -302,16 +284,11 @@ public class AutoUpdateChecker : UIElementContainer
                                      Action<int> onProgressPercent, TimeSpan timeout)
     {
         int lastPercent = -1;
-        using WebClient wc = new();
-        wc.UseDefaultCredentials = false;
-        wc.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
-        wc.DownloadProgressChanged += OnProgressChanged;
-
-        void OnProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        using WebClient wc = CreateWebClient((sender, e) =>
         {
             if (cancellableTask.IsCancelRequested)
-                ((WebClient)sender).CancelAsync();
-            else if (onProgressPercent != null)
+                ((WebClient)sender)?.CancelAsync();
+            else if (onProgressPercent != null && e != null)
             {
                 int newPercent = e.ProgressPercentage;
                 if (lastPercent != newPercent)
@@ -320,20 +297,31 @@ public class AutoUpdateChecker : UIElementContainer
                     onProgressPercent(newPercent);
                 }
             }
-        }
+        });
 
+        string localFile = Path.Combine(localFolder, Path.GetFileName(url));
+        var download = wc.DownloadFileTaskAsync(url, localFile);
+        WaitForTask(download, cancellableTask, timeout);
+        return localFile;
+    }
+
+    static WebClient CreateWebClient(DownloadProgressChangedEventHandler e)
+    {
+        WebClient wc = new();
+        wc.UseDefaultCredentials = false;
+        wc.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
+        wc.DownloadProgressChanged += e;
+        return wc;
+    }
+
+    static void WaitForTask(Task task, TaskResult cancellableTask, TimeSpan timeout)
+    {
         try
         {
-            string localFile = Path.Combine(localFolder, Path.GetFileName(url));
-            var download = wc.DownloadFileTaskAsync(url, localFile);
-
-            int timeoutMillis = (int)timeout.TotalMilliseconds;
-            for (; timeoutMillis > 0; timeoutMillis -= 100)
+            for (int timeoutMs = (int)timeout.TotalMilliseconds; timeoutMs > 0; timeoutMs -= 100)
             {
-                if (download.Wait(100))
-                    return localFile;
-                if (cancellableTask.IsCancelRequested)
-                    break;
+                if (task.Wait(100)) return;
+                if (cancellableTask.IsCancelRequested) break;
             }
         }
         catch (AggregateException e)
