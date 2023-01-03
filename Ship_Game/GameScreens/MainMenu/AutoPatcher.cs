@@ -308,6 +308,7 @@ internal class AutoPatcher : PopupWindow
     void RestartAsync()
     {
         Thread.Sleep(3000);
+        Program.RunCleanup();
 
         string args = string.Join(" ", Environment.GetCommandLineArgs().AsSpan(1).ToArray());
         Application.Exit();
