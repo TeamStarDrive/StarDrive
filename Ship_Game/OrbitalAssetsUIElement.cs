@@ -1,8 +1,5 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Ship_Game.AI;
-using Ship_Game.Ships;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game

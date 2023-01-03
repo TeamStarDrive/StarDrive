@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using SDGraphics.Input;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;

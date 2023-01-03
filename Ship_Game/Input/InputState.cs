@@ -1,40 +1,44 @@
-using Microsoft.Xna.Framework.Input;
 using System;
 using Vector2 = SDGraphics.Vector2;
+using XnaInput = Microsoft.Xna.Framework.Input;
+using SDGraphics.Input;
 
 namespace Ship_Game
 {
     // @note This abstraction is used for unit tests
     public interface IInputProvider
     {
-        MouseState GetMouse();
-        KeyboardState GetKeyboard();
-        GamePadState GetGamePad();
+        XnaInput.MouseState GetMouse();
+        XnaInput.KeyboardState GetKeyboard();
+        XnaInput.GamePadState GetGamePad();
         void SetMouse(int x, int y);
     }
 
     public class DefaultInputProvider : IInputProvider
     {
-        public MouseState GetMouse() => Mouse.GetState();
-        public KeyboardState GetKeyboard() => Keyboard.GetState();
-        public GamePadState GetGamePad() => GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One);
-        public void SetMouse(int x, int y) => Mouse.SetPosition(x, y);
+        public XnaInput.MouseState GetMouse() => XnaInput.Mouse.GetState();
+        public XnaInput.KeyboardState GetKeyboard() => XnaInput.Keyboard.GetState();
+        public XnaInput.GamePadState GetGamePad() => XnaInput.GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One);
+        public void SetMouse(int x, int y) => XnaInput.Mouse.SetPosition(x, y);
     }
 
     public sealed partial class InputState
     {
         public IInputProvider Provider;
-        public KeyboardState KeysCurr;
-        public KeyboardState KeysPrev;
-        public GamePadState GamepadCurr;
-        public GamePadState GamepadPrev;
-        public MouseState MouseCurr; // Use CursorPosition for mouse position
-        public MouseState MousePrev; // Use PrevCursorPos for previous frame's mouse pos
+        public XnaInput.KeyboardState KeysCurr;
+        public XnaInput.KeyboardState KeysPrev;
+        public XnaInput.GamePadState GamepadCurr;
+        public XnaInput.GamePadState GamepadPrev;
+        public XnaInput.MouseState MouseCurr; // Use CursorPosition for mouse position
+        public XnaInput.MouseState MousePrev; // Use PrevCursorPos for previous frame's mouse pos
 
         public int ScrollWheelPrev;
         public float ExitScreenTimer;
 
-        public Keys[] GetKeysDown() => KeysCurr.GetPressedKeys();
+        public Keys[] GetKeysDown()
+        {
+            return KeysCurr.GetPressedKeys().Select(xnaKey => (Keys)xnaKey);
+        }
 
         // Mouse position
         public Vector2 CursorPosition { get; private set; }
@@ -57,26 +61,26 @@ namespace Ship_Game
         public bool MiddleMouseClick   => MouseButtonClicked(MouseCurr.MiddleButton, MousePrev.MiddleButton);
         public bool LeftMouseReleased  => MouseButtonReleased(MouseCurr.LeftButton, MousePrev.LeftButton);
         public bool RightMouseReleased => MouseButtonReleased(MouseCurr.RightButton, MousePrev.RightButton);
-        public bool LeftMouseDown      => MouseCurr.LeftButton  == ButtonState.Pressed;
-        public bool RightMouseDown     => MouseCurr.RightButton == ButtonState.Pressed;
-        public bool LeftMouseUp        => MouseCurr.LeftButton  != ButtonState.Pressed;
-        public bool RightMouseUp       => MouseCurr.RightButton != ButtonState.Pressed;
+        public bool LeftMouseDown      => MouseCurr.LeftButton  == XnaInput.ButtonState.Pressed;
+        public bool RightMouseDown     => MouseCurr.RightButton == XnaInput.ButtonState.Pressed;
+        public bool LeftMouseUp        => MouseCurr.LeftButton  != XnaInput.ButtonState.Pressed;
+        public bool RightMouseUp       => MouseCurr.RightButton != XnaInput.ButtonState.Pressed;
 
-        static bool MouseButtonClicked(ButtonState current, ButtonState prev)
-            => current == ButtonState.Pressed && prev == ButtonState.Released;
+        static bool MouseButtonClicked(XnaInput.ButtonState current, XnaInput.ButtonState prev)
+            => current == XnaInput.ButtonState.Pressed && prev == XnaInput.ButtonState.Released;
 
-        static bool MouseButtonReleased(ButtonState current, ButtonState prev)
-            => current == ButtonState.Released && prev == ButtonState.Pressed;
+        static bool MouseButtonReleased(XnaInput.ButtonState current, XnaInput.ButtonState prev)
+            => current == XnaInput.ButtonState.Released && prev == XnaInput.ButtonState.Pressed;
 
-        public bool IsKeyDown(Keys key) => KeysCurr.IsKeyDown(key);
+        public bool IsKeyDown(Keys key) => KeysCurr.IsKeyDown((XnaInput.Keys)key);
 
         // key was pressed down (previous state was up)
-        public bool KeyPressed(Keys key) => KeysCurr.IsKeyDown(key) && KeysPrev.IsKeyUp(key);
+        public bool KeyPressed(Keys key) => KeysCurr.IsKeyDown((XnaInput.Keys)key) && KeysPrev.IsKeyUp((XnaInput.Keys)key);
 
         public bool GamepadClicked(Buttons button)
-            => GamepadCurr.IsButtonDown(button) && GamepadPrev.IsButtonUp(button);
+            => GamepadCurr.IsButtonDown((XnaInput.Buttons)button) && GamepadPrev.IsButtonUp((XnaInput.Buttons)button);
 
-        public bool GamepadHeld(Buttons button) => GamepadCurr.IsButtonDown(button);
+        public bool GamepadHeld(Buttons button) => GamepadCurr.IsButtonDown((XnaInput.Buttons)button);
 
         public bool LeftStickFlickDown => GamepadCurr.ThumbSticks.Left.Y < 0f && GamepadPrev.ThumbSticks.Left.Y >= 0f;
         public bool LeftStickFlickUp   => GamepadCurr.ThumbSticks.Left.Y > 0f && GamepadPrev.ThumbSticks.Left.Y <= 0f;
@@ -116,7 +120,7 @@ namespace Ship_Game
         public bool ShipPieMenu          => KeyPressed(Keys.Q);
         
         // IngameWiki
-        public bool ExitWiki => KeyPressed(Keys.P) && !GlobalStats.TakingInput;
+        public bool ExitWiki => KeyPressed(Keys.P);
 
         // FleetDesignScreen
         public bool FleetRemoveSquad => KeyPressed(Keys.Back) || KeyPressed(Keys.Delete);
