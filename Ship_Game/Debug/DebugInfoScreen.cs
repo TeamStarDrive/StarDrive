@@ -1,10 +1,10 @@
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.Debug.Page;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using SDGraphics;
+using SDGraphics.Input;
 using SDUtils;
 using Ship_Game.Universe;
 using System.Linq;

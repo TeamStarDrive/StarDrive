@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SDUtils;
+using SDGraphics.Input;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
@@ -307,7 +307,7 @@ namespace Ship_Game
                     ShowPopulation = true;
                 }
             }
-            if (input.KeysCurr.IsKeyDown(Keys.Right))
+            if (input.IsKeyDown(Keys.Right))
             {
                 state = State.Paused;
                 if (UState.Stats.ContainsDate((StarDate + 0.1f)))
@@ -315,7 +315,7 @@ namespace Ship_Game
                     StarDate = StarDate + 0.1f;
                 }
             }
-            if (input.KeysCurr.IsKeyDown(Keys.Left))
+            if (input.IsKeyDown(Keys.Left))
             {
                 state = State.Paused;
                 ReplayElement replayElement = this;
@@ -325,7 +325,7 @@ namespace Ship_Game
                     StarDate = 1000.1f;
                 }
             }
-            if (input.KeysCurr.IsKeyDown(Keys.Space) && input.KeysPrev.IsKeyUp(Keys.Space))
+            if (input.KeyPressed(Keys.Space))
             {
                 if (state == State.Playing)
                 {

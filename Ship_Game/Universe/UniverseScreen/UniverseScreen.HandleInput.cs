@@ -9,7 +9,7 @@ using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.GameScreens;
-using Keys = Microsoft.Xna.Framework.Input.Keys;
+using Keys = SDGraphics.Input.Keys;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
