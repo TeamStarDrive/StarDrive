@@ -321,6 +321,7 @@ namespace Ship_Game
             DidLoadContent = false;
         }
 
+        // TODO: This is deprecated by UIBasicAnimEffect system
         bool UpdateTransition(UpdateTimes elapsed, float transitionTime, int direction)
         {
             float transitionDelta = (transitionTime.NotZero()

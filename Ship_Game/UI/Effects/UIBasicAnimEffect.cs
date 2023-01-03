@@ -61,6 +61,7 @@ namespace Ship_Game
         public string EndSfx;
 
         public UIBasicAnimEffect FollowedByAnim; // Added when this animation finishes
+        public Action FollowedByAction; // Run when this animation finishes
 
         public UIBasicAnimEffect(UIElementV2 element) : base(element)
         {
@@ -209,6 +210,28 @@ namespace Ship_Game
         }
 
         /// <summary>
+        /// Takes the position at the start of this anim sequence
+        /// and generates a small bounce based on the magnitude given with parameter `bounce`
+        /// </summary>
+        /// <param name="bounce">The bounce magnitude and direction as a Vector</param>
+        /// <param name="delay">Delay before the bounce</param>
+        /// <param name="duration">Duration of the whole bounce, if this is bigger than fadeIn+fadeOut,
+        /// then bounced object will "stay" at zenith for the additional duration</param>
+        /// <param name="fadeIn">Duration of first bounce movement</param>
+        /// <param name="fadeOut">Duration to return back to final position</param>
+        /// <returns>Reference to the Bounce animation</returns>
+        public UIBasicAnimEffect Bounce(Vector2 bounce,
+                                        float delay = 0f, float duration = 0.4f, 
+                                        float fadeIn = 0.1f, float fadeOut = 0.2f)
+        {
+            // in order to actually do the bounce, we need to chain a Then() action
+            // because the Position at the start of this sequence is not guaranteed to be final yet
+            // (there might be other animations in the works)
+            return ThenAnim(anim => anim.Time(delay, duration, fadeIn, fadeOut)
+                                        .Pos(Element.Pos, Element.Pos+bounce));
+        }
+
+        /// <summary>
         /// Plays a sound effect at start or end of animation
         /// </summary>
         public UIBasicAnimEffect Sfx(string startSfx = null, string endSfx = null)
@@ -228,6 +251,34 @@ namespace Ship_Game
         {
             FollowedByAnim = new(Element);
             return FollowedByAnim;
+        }
+
+        /// <summary>
+        /// Defers the anim definition to the time when this current animation finishes.
+        /// Upon which, this `deferredAnimDefine` callback is called to generate the new animation.
+        /// This cannot be used at the same time as `Then()`
+        /// </summary>
+        /// <returns>Reference to the Deferred animation</returns>
+        public UIBasicAnimEffect ThenAnim(Action<UIBasicAnimEffect> deferredAnimDefine)
+        {
+            if (FollowedByAction != null) throw new InvalidOperationException("Then() function has already been called");
+            
+            UIBasicAnimEffect effect = new(Element);
+            FollowedByAction = () =>
+            {
+                deferredAnimDefine(effect);
+                Element.AddEffect(effect);
+            };
+            return effect;
+        }
+
+        /// <summary>
+        /// After this animation ends, run this callback to perform additional tasks
+        /// </summary>
+        public void Then(Action action)
+        {
+            if (FollowedByAction != null) throw new InvalidOperationException("Then() function has already been called");
+            FollowedByAction = action;
         }
 
         void OnAnimationDelayed()
@@ -262,6 +313,8 @@ namespace Ship_Game
             {
                 Element.AddEffect(FollowedByAnim);
             }
+
+            FollowedByAction?.Invoke();
         }
 
         void UpdateAnimatedProperties(float ratio)
