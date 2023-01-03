@@ -220,9 +220,9 @@ namespace Ship_Game
             GameAudio.NegativeClick();
         }
 
-        void OnConstructionItemReorder(ConstructionQueueScrollListItem item, int oldIndex, int newIndex)
+        void OnConstructionItemReorder(ConstructionQueueScrollListItem item, int relativeChange)
         {
-            P.Construction.Reorder(oldIndex, newIndex);
+            P.Construction.Reorder(item.Item, relativeChange);
         }
 
         void OnConstructionItemHovered(ConstructionQueueScrollListItem item)
