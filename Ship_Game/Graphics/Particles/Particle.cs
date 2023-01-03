@@ -15,11 +15,12 @@ namespace Ship_Game;
 public sealed class Particle : IParticle
 {
     // Settings class controls the appearance and animation of this particle system.
-    ParticleSettings Settings;
+    readonly ParticleSettings Settings;
 
     // Custom effect for drawing particles. This computes the particle
     // animation entirely in the vertex shader: no per-particle CPU work required!
     Effect ParticleEffect;
+    Texture2D ParticleTexture;
     Map<string, EffectParameter> FxParams = new();
 
     // all currently active particle buffers
@@ -81,6 +82,7 @@ public sealed class Particle : IParticle
     void LoadParticleEffect()
     {
         ParticleEffect = Settings.GetEffect(Content);
+        ParticleTexture = Settings.GetTexture(Content);
 
         FxParams = new();
         foreach (var parameter in ParticleEffect.Parameters)
@@ -124,9 +126,8 @@ public sealed class Particle : IParticle
         Range endSize = Settings.StartEndSize[Settings.StartEndSize.Length - 1];
         FxParams["StartSize"].SetValue(new Vector2(startSize.Min, startSize.Max));
         FxParams["EndSize"].SetValue(new Vector2(endSize.Min, endSize.Max));
-            
-        Texture2D texture = Settings.GetTexture(Content);
-        FxParams["Texture"].SetValue(texture);
+
+        FxParams["Texture"].SetValue(ParticleTexture);
 
         string technique = "FullDynamicParticles";
         switch (Settings.Static)
