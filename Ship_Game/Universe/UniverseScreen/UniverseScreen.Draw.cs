@@ -67,7 +67,7 @@ namespace Ship_Game
 
             graphics.SetRenderTarget(0, BorderRT);
             graphics.Clear(Color.TransparentBlack);
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+            batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true);
 
             RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:false);
             RenderStates.EnableSeparateAlphaBlend(graphics, Blend.One, Blend.One);
@@ -148,7 +148,7 @@ namespace Ship_Game
             }
 
             RenderStates.DisableSeparateAlphaChannelBlend(graphics);
-            batch.End();
+            batch.SafeEnd();
             graphics.SetRenderTarget(0, null);
 
             DrawBorders.Stop();
@@ -157,9 +157,9 @@ namespace Ship_Game
         void DrawExplosions(SpriteBatch batch)
         {
             DrawExplosionsPerf.Start();
-            batch.Begin(SpriteBlendMode.Additive);
+            batch.SafeBegin(SpriteBlendMode.Additive);
             ExplosionManager.DrawExplosions(batch, View, Projection);
-            batch.End();
+            batch.SafeEnd();
             DrawExplosionsPerf.Stop();
         }
 
@@ -169,7 +169,7 @@ namespace Ship_Game
             {
                 var uiNode = ResourceManager.Texture("UI/node");
 
-                sb.Begin(SpriteBlendMode.Additive);
+                sb.SafeBegin(SpriteBlendMode.Additive);
                 for (int i = 0; i < ClickableShips.Length; i++)
                 {
                     Ship ship = ClickableShips[i].Ship;
@@ -186,7 +186,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                sb.End();
+                sb.SafeEnd();
             }
         }
 
@@ -206,7 +206,7 @@ namespace Ship_Game
             device.SetRenderTarget(0, fogMapTarget);
 
             device.Clear(Color.TransparentWhite);
-            batch.Begin(SpriteBlendMode.Additive);
+            batch.SafeBegin(SpriteBlendMode.Additive);
             batch.Draw(FogMap, new Rectangle(0, 0, 512, 512), Color.White);
             double universeWidth = UState.Size * 2.0;
             double worldSizeToMaskSize = (512.0 / universeWidth);
@@ -225,7 +225,7 @@ namespace Ship_Game
                     batch.Draw(uiNode, rect, shipSensorMask, 0f, uiNode.CenterF, SpriteEffects.None, 1f);
                 }
             }
-            batch.End();
+            batch.SafeEnd();
             device.SetRenderTarget(0, null);
             FogMap = fogMapTarget.GetTexture();
         }
@@ -238,7 +238,7 @@ namespace Ship_Game
 
             device.SetRenderTarget(0, LightsTarget);
             device.Clear(Color.White); // clear the lights RT to White
-            batch.Begin(SpriteBlendMode.AlphaBlend);
+            batch.SafeBegin(SpriteBlendMode.AlphaBlend);
 
             if (!Debug) // draw fog of war if we're not in debug
             {
@@ -251,7 +251,7 @@ namespace Ship_Game
             // draw all sensor nodes as clear white
             DrawSensorNodesHighlights(batch);
 
-            batch.End();
+            batch.SafeEnd();
             device.SetRenderTarget(0, null);
 
             DrawFogInfluence.Stop();
@@ -284,7 +284,7 @@ namespace Ship_Game
 
                 SetViewMatrix(cameraMatrix);
                 if (GlobalStats.RenderBloom)
-                    bloomComponent?.Draw();
+                    bloomComponent?.Draw(batch);
 
                 DrawColoredBordersRT(batch);
             }
@@ -292,7 +292,7 @@ namespace Ship_Game
 
             // these are all background elements, such as ship overlays, fleet icons, etc..
             IconsGroupTotalPerf.Start();
-            batch.Begin();
+            batch.SafeBegin();
             {
                 DrawShipsAndProjectiles(batch);
                 DrawShipAndPlanetIcons(batch);
@@ -300,7 +300,7 @@ namespace Ship_Game
                 DrawSystemThreatIndicators(batch);
                 DrawGeneralUI(batch, elapsed);
             }
-            batch.End();
+            batch.SafeEnd();
             IconsGroupTotalPerf.Stop();
 
             // Advance the simulation time just before we Notify
@@ -372,13 +372,13 @@ namespace Ship_Game
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
 
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.SaveState);
+            batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:true);
             basicFogOfWarEffect.Begin();
             basicFogOfWarEffect.CurrentTechnique.Passes[0].Begin();
             batch.Draw(texture1, new Rectangle(0, 0, ScreenWidth, ScreenHeight), Color.White);
             basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
             basicFogOfWarEffect.End();
-            batch.End();
+            batch.SafeEnd();
 
             DrawFogOfWar.Stop();
         }

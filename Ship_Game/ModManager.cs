@@ -119,9 +119,9 @@ namespace Ship_Game
             if (IsExiting)
                 return;
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            batch.Begin();
+            batch.SafeBegin();
             base.Draw(batch, elapsed);
-            batch.End();
+            batch.SafeEnd();
         }
 
         void OnLoadClicked(UIButton b)

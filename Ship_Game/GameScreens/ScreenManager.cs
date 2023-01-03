@@ -388,9 +388,9 @@ namespace Ship_Game
 
         public void FadeBackBufferToBlack(int alpha)
         {
-            SpriteBatch.Begin();
+            SpriteBatch.SafeBegin();
             SpriteBatch.Draw(ResourceManager.Blank, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), new Color(0, 0, 0, (byte)alpha));
-            SpriteBatch.End();
+            SpriteBatch.SafeEnd();
         }
 
         public void UpdateGraphicsDevice()

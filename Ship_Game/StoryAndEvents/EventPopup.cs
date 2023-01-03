@@ -129,10 +129,6 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 
             base.Draw(batch, elapsed);
-
-            batch.Begin();
-
-            batch.End();
         }
 
         class TechItem : UIElementV2

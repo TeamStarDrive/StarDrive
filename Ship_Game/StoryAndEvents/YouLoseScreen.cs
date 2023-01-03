@@ -40,20 +40,20 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
-            batch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
+            batch.SafeBegin(SpriteBlendMode.None, sortImmediate:true);
             desaturateEffect.Begin();
             desaturateEffect.CurrentTechnique.Passes[0].Begin();
             batch.Draw(LoseTexture, ScreenCenter, null, new Color(255, 255, 255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
-            batch.End();
+            batch.SafeEnd();
             desaturateEffect.CurrentTechnique.Passes[0].End();
             desaturateEffect.End();
-            batch.Begin();
+            batch.SafeBegin();
             batch.Draw(Reason, ReasonRect, Color.White);
             if (!IsExiting && ShowingReplay)
             {
                 replay.Draw(batch, elapsed);
             }
-            batch.End();
+            batch.SafeEnd();
         }
 
         public override void ExitScreen()

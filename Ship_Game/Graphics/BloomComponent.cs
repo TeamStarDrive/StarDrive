@@ -46,15 +46,15 @@ namespace Ship_Game
             return new DepthStencilBuffer(target.GraphicsDevice, target.Width, target.Height, depth, target.MultiSampleType, target.MultiSampleQuality);
         }
 
-        public void Draw()
+        public void Draw(SpriteBatch batch)
         {
             Device.ResolveBackBuffer(resolveTarget);
             bloomExtractEffect.Parameters["BloomThreshold"].SetValue(Settings.BloomThreshold);
-            DrawFullscreenQuad(resolveTarget, renderTarget1, bloomExtractEffect, IntermediateBuffer.PreBloom);
+            DrawFullscreenQuad(batch, resolveTarget, renderTarget1, bloomExtractEffect, IntermediateBuffer.PreBloom);
             SetBlurEffectParameters(1f / renderTarget1.Width, 0f);
-            DrawFullscreenQuad(renderTarget1.GetTexture(), renderTarget2, gaussianBlurEffect, IntermediateBuffer.BlurredHorizontally);
+            DrawFullscreenQuad(batch, renderTarget1.GetTexture(), renderTarget2, gaussianBlurEffect, IntermediateBuffer.BlurredHorizontally);
             SetBlurEffectParameters(0f, 1f / renderTarget1.Height);
-            DrawFullscreenQuad(renderTarget2.GetTexture(), renderTarget1, gaussianBlurEffect, IntermediateBuffer.BlurredBothWays);
+            DrawFullscreenQuad(batch, renderTarget2.GetTexture(), renderTarget1, gaussianBlurEffect, IntermediateBuffer.BlurredBothWays);
             Device.SetRenderTarget(0, null);
             EffectParameterCollection parameters = bloomCombineEffect.Parameters;
             parameters["BloomIntensity"].SetValue(Settings.BloomIntensity);
@@ -63,29 +63,29 @@ namespace Ship_Game
             parameters["BaseSaturation"].SetValue(Settings.BaseSaturation);
             Device.Textures[1] = resolveTarget;
             Viewport viewport = GameBase.Viewport;
-            DrawFullscreenQuad(renderTarget1.GetTexture(), viewport.Width, viewport.Height, bloomCombineEffect, IntermediateBuffer.FinalResult);
+            DrawFullscreenQuad(batch, renderTarget1.GetTexture(), viewport.Width, viewport.Height, bloomCombineEffect, IntermediateBuffer.FinalResult);
         }
 
-        void DrawFullscreenQuad(Texture2D texture, RenderTarget2D renderTarget, Effect effect, IntermediateBuffer currentBuffer)
+        void DrawFullscreenQuad(SpriteBatch batch, Texture2D texture, RenderTarget2D renderTarget, Effect effect, IntermediateBuffer currentBuffer)
         {
             Device.SetRenderTarget(0, renderTarget);
             DepthStencilBuffer old = Device.DepthStencilBuffer;
             Device.DepthStencilBuffer = buffer;
-            DrawFullscreenQuad(texture, renderTarget.Width, renderTarget.Height, effect, currentBuffer);
+            DrawFullscreenQuad(batch, texture, renderTarget.Width, renderTarget.Height, effect, currentBuffer);
             Device.SetRenderTarget(0, null);
             Device.DepthStencilBuffer = old;
         }
 
-        void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect, IntermediateBuffer currentBuffer)
+        void DrawFullscreenQuad(SpriteBatch batch, Texture2D texture, int width, int height, Effect effect, IntermediateBuffer currentBuffer)
         {
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
+            batch.SafeBegin(SpriteBlendMode.None, sortImmediate:true);
             if (ShowBuffer >= currentBuffer)
             {
                 effect.Begin();
                 effect.CurrentTechnique.Passes[0].Begin();
             }
-            ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
-            ScreenManager.SpriteBatch.End();
+            batch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
+            batch.SafeEnd();
             if (ShowBuffer >= currentBuffer)
             {
                 effect.CurrentTechnique.Passes[0].End();

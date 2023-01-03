@@ -45,7 +45,7 @@ namespace Ship_Game
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
 
-            batch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
+            batch.SafeBegin(SpriteBlendMode.None, sortImmediate:true);
             if (desaturateEffect != null)
             {
                 desaturateEffect.Begin();
@@ -58,9 +58,9 @@ namespace Ship_Game
                 desaturateEffect.CurrentTechnique.Passes[0].End();
                 desaturateEffect.End();
             }
-            batch.End();
+            batch.SafeEnd();
 
-            batch.Begin();
+            batch.SafeBegin();
             {
                 if (txt != null)
                 {
@@ -75,7 +75,7 @@ namespace Ship_Game
                     replay.Draw(batch, elapsed);
                 }
             }
-            batch.End();
+            batch.SafeEnd();
         }
 
         public override void ExitScreen()

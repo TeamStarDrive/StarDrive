@@ -61,12 +61,12 @@ namespace UnitTests
 
             try
             {
-                Batch.Begin();
+                Batch.SafeBegin();
                 base.Draw(deltaTime);
             }
             finally
             {
-                Batch.End();
+                Batch.SafeEnd();
             }
         }
 
