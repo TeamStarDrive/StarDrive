@@ -47,9 +47,6 @@ namespace Ship_Game
         public Rectangle rect;
         public Rectangle removeRect;
 
-        // Event action for when this QueueItem is finished
-        public QueueItemCompleted OnComplete;
-
         // production still needed until this item is finished
         public float ProductionNeeded => ActualCost - ProductionSpent;
 
