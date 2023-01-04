@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Data;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
@@ -13,7 +14,7 @@ namespace Ship_Game
 {
     public sealed class Thruster
     {
-        public Model model;
+        public StaticMesh ThrustMesh;
         public Texture3D Noise;
         public float Scale;
         public Ship Parent;
@@ -75,14 +76,15 @@ namespace Ship_Game
             thrust_color.SetValue(v4colors);
             effect_tick.SetValue(tick);
             effect_noise.SetValue(Noise);
-            model.Meshes[0].Draw();
+
+            ThrustMesh.Draw(Effect);
         }
 
         static int ContentId;
-        static Model DefaultModel;
+        static StaticMesh DefaultModel;
         static Texture3D DefaultNoise;
         static Effect DefaultEffect;
-        static readonly object ThrusterLocker = new object();
+        static readonly object ThrusterLocker = new();
 
         static void InitializeDefaultEffects(GameContentManager content)
         {
@@ -91,11 +93,9 @@ namespace Ship_Game
                 if (DefaultModel != null && ContentId == ResourceManager.ContentId)
                     return;
                 ContentId = ResourceManager.ContentId;
-                DefaultModel  = content.LoadModel("Effects/ThrustCylinderB");
-                DefaultNoise  = content.Load<Texture3D>("Effects/NoiseVolume");
+                DefaultModel = content.LoadStaticMesh("Effects/ThrustCylinderB");
+                DefaultNoise = content.Load<Texture3D>("Effects/NoiseVolume");
                 DefaultEffect = content.Load<Effect>("Effects/Thrust");
-
-                DefaultModel.Meshes[0].MeshParts[0].Effect = DefaultEffect;
             }
         }
 
@@ -105,17 +105,17 @@ namespace Ship_Game
             LoadAndAssignEffects(DefaultModel, DefaultNoise, DefaultEffect);
         }
 
-        void LoadAndAssignEffects(Model thrustCylinder, Texture3D noiseTexture, Effect effect)
+        void LoadAndAssignEffects(StaticMesh thrustCylinder, Texture3D noiseTexture, Effect effect)
         {
-            model           = thrustCylinder;
-            Noise           = noiseTexture;
-            Effect          = effect;
-            technique       = effect?.Techniques["thrust_technique"];
+            ThrustMesh = thrustCylinder;
+            Noise = noiseTexture;
+            Effect = effect;
+            technique = effect?.Techniques["thrust_technique"];
             shader_matrices = effect?.Parameters["world_matrices"];
-            thrust_color    = effect?.Parameters["thrust_color"];
-            effect_tick     = effect?.Parameters["ticks"];
-            effect_noise    = effect?.Parameters["noise_texture"];
-            world_matrix    = Matrix.Identity;
+            thrust_color = effect?.Parameters["thrust_color"];
+            effect_tick = effect?.Parameters["ticks"];
+            effect_noise = effect?.Parameters["noise_texture"];
+            world_matrix = Matrix.Identity;
         }
 
         public void UpdatePosition(Vector2 center, float yRotation, in Vector3 dir)
