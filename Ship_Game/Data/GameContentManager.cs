@@ -24,7 +24,6 @@ namespace Ship_Game.Data
         // to avoid double loading resources into memory
         readonly GameContentManager Parent;
         Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
-        List<IDisposable> DisposableAssets;
         public string Name { get; }
 
         // Enables verbose logging for all asset loads and disposes
@@ -46,7 +45,6 @@ namespace Ship_Game.Data
         public GameContentManager(IServiceProvider services, string name, string rootDirectory = "Content") : base(services, rootDirectory)
         {
             Name = name;
-            DisposableAssets = (List<IDisposable>)GetField("disposableAssets");
             LoadedAssets = (Dictionary<string, object>)GetField("loadedAssets");
             RawContent = new(this);
         }
@@ -60,7 +58,6 @@ namespace Ship_Game.Data
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            DisposableAssets = null;
             LoadedAssets = null;
             RawContent = null;
         }
@@ -89,8 +86,6 @@ namespace Ship_Game.Data
                         {
                             Log.Error($"Cached Asset '{assetNameWithExt}' is Disposed, discarding cached asset");
                             mgr.LoadedAssets.Remove(assetNameWithExt);
-                            if (asset is IDisposable disposable)
-                                mgr.DisposableAssets.Remove(disposable);
                         }
                         else
                         {
@@ -139,7 +134,6 @@ namespace Ship_Game.Data
         {
             lock (LoadSync)
                 LoadedAssets.Add(assetName, effect);
-            RecordDisposableObject(effect);
         }
 
         public static int TextureSize(Texture2D tex)
@@ -219,27 +213,16 @@ namespace Ship_Game.Data
                 {
                     Dispose(obj.Key, obj.Value); // this will modify DisposableAssets
                 }
-
-                // double-dispose whatever is left
-                foreach (var disposable in DisposableAssets)
-                    disposable.Dispose();
             }
             finally
             {
                 LoadedAssets.Clear();
-                DisposableAssets.Clear();
             }
 
             if (count > 0)
             {
                 Log.Info($"Unloaded '{Name}' ({count} assets, {totalMemSaved:0.0}MB)");
             }
-        }
-
-        void RecordDisposableObject(IDisposable disposable)
-        {
-            lock (LoadSync)
-                DisposableAssets.Add(disposable);
         }
 
         static void DoNothingWithDisposable(IDisposable _)
@@ -315,9 +298,6 @@ namespace Ship_Game.Data
                     Log.Write(ConsoleColor.Red, "Cannot Dispose asset "+assetName);
                     break;
             }
-
-            if (asset is IDisposable disposable1)
-                DisposableAssets.Remove(disposable1);
         }
 
         public bool IsDisposed(object asset)
@@ -464,10 +444,8 @@ namespace Ship_Game.Data
             {
                 if (IsDisposed(existing))
                 {
-                    LoadedAssets.Remove(name);
-                    if (existing is IDisposable disposed)
-                        DisposableAssets.Remove(disposed);
-                    RecordCacheObjectUnsafe(name, obj);
+                    LoadedAssets[name] = obj;
+                    if (DebugAssetLoading) LoadStackTraces[name] = Environment.StackTrace;
                     Log.Error($"Asset '{name}' was disposed and got replaced by the new instance");
                     return;
                 }
@@ -484,19 +462,11 @@ namespace Ship_Game.Data
             }
             else
             {
-                RecordCacheObjectUnsafe(name, obj);
+                LoadedAssets.Add(name, obj);
+                if (DebugAssetLoading) LoadStackTraces[name] = Environment.StackTrace;
             }
         }
 
-        void RecordCacheObjectUnsafe<T>(string name, T obj)
-        {
-            LoadedAssets.Add(name, obj);
-            if (DebugAssetLoading)
-                LoadStackTraces.Add(name, Environment.StackTrace);
-            if (obj is IDisposable disposable)
-                DisposableAssets.Add(disposable);
-        }
-        
         /// <summary>
         /// Loads a textures and DOES NOT cache it inside GameContentManager.
         /// WARNING: This method can easily cause memory leaks since there is no cache checks. Ensure it is always synchronized.
