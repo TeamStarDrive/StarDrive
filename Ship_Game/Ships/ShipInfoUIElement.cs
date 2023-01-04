@@ -246,7 +246,7 @@ namespace Ship_Game.Ships
 
         void DrawStructuralIntegrity(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
         {
-            if (Ship.InternalSlotsHealthPercent.AlmostEqual(1))
+            if (Ship.HealthPercent.AlmostEqual(1))
                 return;
 
             SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
@@ -254,10 +254,11 @@ namespace Ship_Game.Ships
                 Color.White, numStatus);
 
             var textPos = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
-            float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / GlobalStats.Defaults.ShipDestroyThreshold) * 100;
-            structureIntegrity = Math.Max(1, structureIntegrity);
-            
-            string integrityText = $"{(int)structureIntegrity}% (+{Ship.GetCurrentRepairPerSecond()}HP/s)";
+            int health = (int)(Ship.HealthPercent * 100);
+
+            float repairPerSec = Ship.GetCurrentRepairPerSecond();
+            float timeUntilRepaired = (Ship.HealthMax - Ship.Health) / repairPerSec;
+            string integrityText = $"{health}% (+{(int)repairPerSec}HP/s ETA:{timeUntilRepaired.TimeString()})";
             batch.DrawString(Fonts.Arial12, integrityText, textPos, Color.White);
             numStatus++;
         }
@@ -354,13 +355,15 @@ namespace Ship_Game.Ships
                         {
                             text = $"Repairing Ship by Resupply ({(int)(ship.HealthPercent * 100)}%)";
                         }
-                        else if (ship.CanRepair && ship.HealthPercent.Less(1))
+                        else if (ship.CanRepair && ship.HealthPercent < 1f)
                         {
                             text = $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
                             color = Color.Yellow;
                         }
                         else
+                        {
                             return;
+                        }
                         break;
                     case ResupplyReason.LowOrdnanceNonCombat:
                     case ResupplyReason.LowOrdnanceCombat:      text = "Ammo Reserves Critical";           break;
@@ -376,7 +379,6 @@ namespace Ship_Game.Ships
                 }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
             batch.DrawString(Fonts.Arial12, text, supplyTextPos, color);
-
         }
 
         void DrawRadiationDamageWarning(Ship ship)

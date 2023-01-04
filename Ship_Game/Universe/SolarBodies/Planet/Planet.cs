@@ -836,7 +836,7 @@ namespace Ship_Game
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
 
-            GeodeticManager.AffectNearbyShips();
+            GeodeticManager.AffectNearbyShips(elapsedTurnTime);
             ApplyTerraforming(random);
 
             UpdateColonyValue();
