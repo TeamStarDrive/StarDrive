@@ -315,7 +315,7 @@ namespace Ship_Game
 
         public void Draw()
         {
-            DrawLoopTime.UpdateBeforeRendering(GameBase.Base.TotalGameTimeSeconds);
+            DrawLoopTime.UpdateBeforeRendering(GameBase.Base.TotalElapsed);
 
             SpriteBatch batch = SpriteBatch;
             if (batch == null)
