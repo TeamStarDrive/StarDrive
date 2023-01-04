@@ -374,8 +374,11 @@ namespace Ship_Game
                 Level = SentryLevel.Info,
                 Message = evt.ToString(),
             };
+
+            e.SetTag("Mod", GlobalStats.ModOrVanillaName);
+            e.SetTag("ModVersion", GlobalStats.ModVersion);
             e.SetTag("TimesPlayed", GlobalStats.TimesPlayed.ToString());
-            e.SetTag("Mod", GlobalStats.ModName);
+
             if (p != null)
             {
                 e.SetTag("Difficulty", p.Difficulty.ToString());
