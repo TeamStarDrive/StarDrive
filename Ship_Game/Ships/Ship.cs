@@ -1290,16 +1290,31 @@ namespace Ship_Game.Ships
             if (!InCombat && IsHomeDefense && !HomePlanet.SpaceCombatNearPlanet && AI.State != AIState.ReturnHome)
                 ReturnHome();
 
-            // Repair
+            // Ship Repair
             if (HealthPercent < 0.999f)
             {
                 if (CanRepair)
                 {
+                    int repairLevel = Level;
                     float repair = RepairRate;
                     if (InCombat) // reduces repair rate while in combat
                         repair *= GlobalStats.Defaults.InCombatSelfRepairModifier;
 
-                    ApplyAllRepair(repair, Level);
+                    float planetRepair = 0f;
+                    Planet p = GetTether()
+                            ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
+                    if (p != null)
+                    {
+                        planetRepair = p.GeodeticManager.RepairRatePerSecond;
+                        repairLevel = Math.Max(repairLevel, p.Level + p.NumShipyards);
+
+                        float empRemovalRate = -planetRepair*GlobalStats.Defaults.BonusColonyEMPRecovery;
+                        CauseEmpDamage(empRemovalRate); // Reduce EMP damage status from planet repair
+                    }
+
+                    float totalRepair = repair + planetRepair;
+                    ApplyAllRepair(totalRepair, repairInterval:timeSinceLastUpdate.FixedTime, repairLevel);
+                    
                     if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(ShipData.ShipCategory))
                         AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
                 }
@@ -1877,50 +1892,21 @@ namespace Ship_Game.Ships
                 ShieldPower = ShieldMax;
         }
 
-        // transient statistic, how fast this ship is being repaired, only enabled for selected ship
-        Array<(float GameTime, float HpAdded)> CurrentRepairStats;
-
-        // Only valid for the currently selected ship. Only use this for UI stats!
-        public int GetCurrentRepairPerSecond()
-        {
-            var stats = CurrentRepairStats;
-            if (stats == null)
-                return 0;
-            if (stats.Count == 1)
-                return (int)Math.Round(stats[0].HpAdded);
-
-            // gather repair stats up to 10 seconds
-            float endTime = stats.Last.GameTime;
-            float hpAdded = stats.Last.HpAdded;
-            float elapsed = 0f;
-
-            for (int i = stats.Count - 2; i >= 0; --i)
-            {
-                elapsed = (endTime - stats[i].GameTime);
-                hpAdded += stats[i].HpAdded;
-                if (elapsed >= 10f)
-                    break;
-            }
-
-            float repairPerSecond = elapsed == 0f ? hpAdded : hpAdded / elapsed;
-            return (int)Math.Round(repairPerSecond);
-        }
+        // UI statistics, show average repair per second
+        public float CurrentRepairPerSecond { get; private set; }
 
         /// <param name="repairAmount">How many HP-s to repair</param>
+        /// <param name="repairInterval">This repair event interval in seconds, important for correct UI estimation</param>
         /// <param name="repairLevel">Level which improves repair decisions</param>
-        public void ApplyAllRepair(float repairAmount, int repairLevel)
+        public void ApplyAllRepair(float repairAmount, float repairInterval, int repairLevel)
         {
-            if (HealthPercent > 0.999f || repairAmount.AlmostEqual(0)) 
-                return;
-
-            // UI statistics, show average repair per second for the selected ship
-            if (Universe.Screen?.SelectedShip == this)
+            if (HealthPercent > 0.999f || repairAmount.AlmostEqual(0))
             {
-                CurrentRepairStats ??= new();
-                CurrentRepairStats.Add((GameBase.Base.Elapsed.CurrentGameTime, repairAmount));
+                CurrentRepairPerSecond = 0;
+                return;
             }
-            else
-                CurrentRepairStats = null;
+
+            CurrentRepairPerSecond = repairAmount / repairInterval;
 
             int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
             for (int i = 0; repairAmount > 0 && i < damagedModules; ++i)

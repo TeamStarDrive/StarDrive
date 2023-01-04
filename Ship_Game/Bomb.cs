@@ -77,7 +77,8 @@ namespace Ship_Game
             if (Owner.Universe.Screen.IsViewingCombatScreen(planet))
             {
                 GameAudio.PlaySfxAsync("Explo1");
-                ((CombatScreen)Owner.Universe.Screen.workersPanel).AddExplosion(od.TargetTile.ClickRect, 4);
+                if (Owner.Universe.Screen.workersPanel is CombatScreen cs)
+                    cs.AddExplosion(od.TargetTile.ClickRect, 4);
             }
             else
                 SurfaceImpactEffects(); // If viewing the planet from space

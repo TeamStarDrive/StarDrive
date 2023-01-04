@@ -217,6 +217,7 @@ namespace Ship_Game
             UseLocalPos = false;
             UseRelPos = false;
             Pos = absPos;
+            RequiresLayout = true;
         }
 
         public void SetLocalPos(float x, float y)    => SetLocalPos(new LocalPos(x, y));
@@ -519,14 +520,26 @@ namespace Ship_Game
 
         public UIBasicAnimEffect StartFadeIn(float fadeInTime, float delay = 0f) => Anim().FadeIn(delay, fadeInTime);
 
-        // Starts transition from [start] to [end]
-        public UIBasicAnimEffect StartTransition(Vector2 start, Vector2 end, float time = 1f) => Anim().FadeIn(0f, time).Pos(start, end);
+        /// <summary>
+        /// Starts sliding transition from [start] to [end].
+        /// WARNING: This will PERMANENTLY modify Element.Pos !!!
+        /// </summary>
+        public UIBasicAnimEffect SlideIn(Vector2 start, Vector2 end, float time = 1f, float delay = 0f)
+            => Anim().FadeIn(delay, time).Pos(start, end);
 
-        // Starts transition from Pos to [end]
-        public UIBasicAnimEffect StartTransitionTo(Vector2 end, float time = 1f) => Anim().FadeIn(0f, time).Pos(Pos, end);
+        /// <summary>
+        /// Starts transition from Element.Pos to [Element.Pos+offset]
+        /// If offset X is negative, then the Element will slide OUT towards the left
+        /// </summary>
+        public UIBasicAnimEffect SlideOutToOffset(Vector2 offset, float time = 1f, float delay = 0f)
+            => Anim().FadeIn(delay, time).Pos(Pos, Pos+offset);
 
-        // Starts transition from [from] to Pos
-        public UIBasicAnimEffect StartTransitionFrom(Vector2 from, float time = 1f) => Anim().FadeIn(0f, time).Pos(from, Pos);
+        /// <summary>
+        /// Starts transition from [ElementPos+offset] to Element.Pos.
+        /// If offset X is negative, then the Element will slide in from the left towards its final Element.Pos
+        /// </summary>
+        public UIBasicAnimEffect SlideInFromOffset(Vector2 offset, float time = 1f, float delay = 0f)
+            => Anim().FadeIn(delay, time).Pos(Pos+offset, Pos);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         

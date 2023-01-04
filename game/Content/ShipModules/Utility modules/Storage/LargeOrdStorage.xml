@@ -12,7 +12,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/LargeOrdStorage</IconTexturePath>
-  <Mass>48</Mass>
+  <Mass>46</Mass>
   <Health>9500</Health>
   <HealthMax>9500</HealthMax>
   <energyreq>0</energyreq>

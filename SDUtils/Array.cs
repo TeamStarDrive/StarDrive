@@ -872,6 +872,17 @@ namespace SDUtils
                 action(Items[i]);
         }
 
+        /// <summary>
+        /// Span is a new high performance type in C#
+        /// which enjoys numerous performance benefits in .NET 5.0
+        /// https://learn.microsoft.com/en-us/archive/msdn-magazine/2018/january/csharp-all-about-span-exploring-a-new-net-mainstay
+        /// https://nishanc.medium.com/an-introduction-to-writing-high-performance-c-using-span-t-struct-b859862a84e4
+        /// </summary>
+        public Span<T> AsSpan()
+        {
+            return new(Items, 0, Count);
+        }
+
         public T[] ToArray()
         {
             int count = Count;

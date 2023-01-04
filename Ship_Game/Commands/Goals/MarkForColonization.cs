@@ -133,7 +133,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     if (TargetPlanet.Owner != null && TargetPlanet.GetGroundStrength(Owner) == 0) // ground invasion failed
                     {
-                        task.Fleet?.FleetTask.EndTask();
+                        task.Fleet?.FleetTask?.EndTask();
                         task.EndTask();
                         return GoalStep.GoalFailed;
                     }
@@ -142,7 +142,7 @@ namespace Ship_Game.Commands.Goals
                 }
                 if (enemyStr > Owner.OffensiveStrength)
                 {
-                    task.Fleet?.FleetTask.EndTask();
+                    task.Fleet?.FleetTask?.EndTask();
                     task.EndTask();
                     return GoalStep.GoalFailed;
                 }

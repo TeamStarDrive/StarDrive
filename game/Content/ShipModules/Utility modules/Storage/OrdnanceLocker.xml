@@ -1,18 +1,18 @@
 ﻿<?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-  <Cost>4</Cost>
+  <Cost>3</Cost>
   <!-- common traits shared by all ship modules -->
   <XSize>2</XSize>
   <YSize>2</YSize>
   <ModuleType>Storage</ModuleType>
   <Name>Ordnance Storage</Name>
   <Restrictions>IO</Restrictions>
-  <UID>OrdnanceLocker</UID> 
+  <UID>OrdnanceLocker</UID>
   <Version>2</Version>
 
   <IconTexturePath>Modules/Ordnance</IconTexturePath>
-  <Mass>12</Mass>
+  <Mass>10</Mass>
   <Health>2100</Health>
   <HealthMax>2100</HealthMax>
   <energyreq>0</energyreq>

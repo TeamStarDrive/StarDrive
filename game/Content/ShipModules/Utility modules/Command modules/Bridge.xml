@@ -27,6 +27,7 @@
   <Description>The bridge is the nerve center of a starship, providing basic sensor functionality, damage control, and life support for a moderate sized crew.</Description>
   <PowerDraw>8</PowerDraw>
   <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
+  <!-- Balanced value would be much bigger than Cockpit, to prevent cockpit exploiting -->
   <BonusRepairRate>5.0</BonusRepairRate>
 
   
