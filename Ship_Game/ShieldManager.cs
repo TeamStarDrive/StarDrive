@@ -50,7 +50,7 @@ public sealed class ShieldManager : IDisposable
         // always use the root content manager for the shield manager
         // because this reduces issues with content reloading
         var content = ResourceManager.RootContent;
-        ShieldModel = content.Load<Model>("Model/Projectiles/shield");
+        ShieldModel = content.LoadModel("Model/Projectiles/shield");
         ShieldTexture = content.Load<Texture2D>("Model/Projectiles/shield_d.dds");
         GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");
 

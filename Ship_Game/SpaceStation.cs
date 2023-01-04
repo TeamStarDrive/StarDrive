@@ -42,12 +42,12 @@ public sealed class SpaceStation
         Model outerModel;
         if (owner == null || owner.data.SpacePortModel.IsEmpty())
         {
-            innerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_inner");
-            outerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_outer");
+            innerModel = ResourceManager.RootContent.LoadModel("Model/Stations/spacestation01_inner");
+            outerModel = ResourceManager.RootContent.LoadModel("Model/Stations/spacestation01_outer");
         }
         else
         {
-            outerModel = ResourceManager.RootContent.Load<Model>(owner.data.SpacePortModel);
+            outerModel = ResourceManager.RootContent.LoadModel(owner.data.SpacePortModel);
         }
 
         if (innerModel != null)

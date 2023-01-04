@@ -11,6 +11,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector3 = SDGraphics.Vector3;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Utils;
 
 namespace Ship_Game.GameScreens.Scene
 {
@@ -146,7 +147,7 @@ namespace Ship_Game.GameScreens.Scene
             }
             else
             {
-                SO = ChooseObject(Spawn.Type);
+                SO = ChooseObject(Spawn.Type, Scene.Random);
                 if (SO == null)
                 {
                     Hull = ChooseShip(Spawn.Empire, Spawn.Type);
@@ -158,7 +159,7 @@ namespace Ship_Game.GameScreens.Scene
                 }
             }
 
-            var bounds = SO.GetMeshBoundingBox();
+            var bounds = SO.WorldBoundingBox;
             Radius = bounds.Radius();
             HalfLength = (bounds.Max.Y - bounds.Min.Y) * 0.5f;
             HullSize = Hull?.HullSlots.Length ?? (int)(Radius * 4);
@@ -176,19 +177,19 @@ namespace Ship_Game.GameScreens.Scene
             UpdateTransform();
         }
 
-        static SceneObject ChooseObject(string type)
+        static SceneObject ChooseObject(string type, SeededRandom random)
         {
             if (type == "asteroid")
             {
-                int id = RandomMath2.InRange(ResourceManager.NumAsteroidModels);
+                int id = random.InRange(ResourceManager.NumAsteroidModels);
                 var model = ResourceManager.GetAsteroidModel(id);
-                return new SceneObject(model.Meshes[0]) { Name = model.Meshes[0].Name, ObjectType = ObjectType.Dynamic };
+                return model.CreateSceneObject();
             }
             if (type == "spacejunk")
             {
-                int id = RandomMath2.InRange(ResourceManager.NumJunkModels);
+                int id = random.InRange(ResourceManager.NumJunkModels);
                 var model = ResourceManager.GetJunkModel(id);
-                return new SceneObject(model.Meshes[0]) { Name = model.Meshes[0].Name, ObjectType = ObjectType.Dynamic };
+                return model.CreateSceneObject();
             }
             return null;
         }

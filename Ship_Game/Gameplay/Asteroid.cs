@@ -65,13 +65,11 @@ namespace Ship_Game.Gameplay
                 return;
 
             var model = ResourceManager.GetAsteroidModel(AsteroidId);
-            So = new SceneObject(model.Meshes[0])
-            {
-                Name = model.Meshes[0].Name,
-                ObjectType = ObjectType.Static,
-                Visibility = GlobalStats.AsteroidVisibility
-            };
-            Radius = So.ObjectBoundingSphere.Radius * Scale * 0.65f;
+
+            So = model.CreateSceneObject(ObjectType.Static);
+            So.Visibility = GlobalStats.AsteroidVisibility; // shadows or no shadows?
+
+            Radius = model.Radius * Scale * 0.65f;
             UpdatePosition(systemPos);
             So.AffineTransform(new(Position, -500f), CurrentSpin, Scale);
             ScreenManager.Instance.AddObject(So);
