@@ -38,7 +38,7 @@
   <PowerStoreMax>0</PowerStoreMax>
 
   <!-- for Weapons -->
-  <OrdinanceCapacity>15</OrdinanceCapacity>
+  <OrdinanceCapacity>30</OrdinanceCapacity>
 
   <!-- for Engines -->
   <Thrust>0</Thrust>
