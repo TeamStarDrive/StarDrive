@@ -8,7 +8,7 @@ namespace Ship_Game
 {
     public sealed class TutorialScreen : GameScreen
     {
-        Map<string, Texture2D> TexDict = new Map<string, Texture2D>();
+        Array<Texture2D> TutorialSlides = new();
         Rectangle BridgeRect;
         int Index;
 
@@ -19,11 +19,29 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
+        public override void LoadContent()
+        {
+            // TODO: Implement a completely new Tutorial screen with Localized Text instead of graphics
+            foreach (FileInfo info in Dir.GetFiles("Content/Tutorials/English/", "xnb"))
+            {
+                Texture2D tex = TransientContent.LoadTexture(info);
+                TutorialSlides.Add(tex);
+            }
+
+            TutorialSlides.Sort(tex => tex.Name);
+            for (int i = 0; i < TutorialSlides.Count; ++i)
+                Log.Write($"Tutorial Slide {i}: {TutorialSlides[i].Name}");
+
+            BridgeRect = new((int)ScreenCenter.X - 640, (int)ScreenCenter.Y - 360, 1280, 720);
+            Add(new CloseButton(BridgeRect.Right - 38, BridgeRect.Y + 15));
+            base.LoadContent();
+        }
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.SafeBegin();
-            batch.Draw(TexDict["Slide_"+Index.ToString("00")], BridgeRect, Color.White);
+            batch.Draw(TutorialSlides[Index], BridgeRect, Color.White);
             base.Draw(batch, elapsed);
             batch.SafeEnd();
         }
@@ -32,45 +50,15 @@ namespace Ship_Game
         {
             if (input.Right || input.InGameSelect)
             {
-                TutorialScreen index = this;
-                index.Index = index.Index + 1;
-                if (Index > TexDict.Count - 1)
-                {
+                if (++Index > TutorialSlides.Count - 1)
                     Index = 0;
-                }
             }
             if (input.Left || input.RightMouseClick)
             {
-                TutorialScreen tutorialScreen = this;
-                tutorialScreen.Index = tutorialScreen.Index - 1;
-                if (Index < 0)
-                {
-                    Index = TexDict.Count - 1;
-                }
+                if (--Index < 0)
+                    Index = TutorialSlides.Count - 1;
             }
             return base.HandleInput(input);
-        }
-
-        public override void LoadContent()
-        {
-            FileInfo[] textList;
-            try
-            {
-                 textList = Dir.GetFiles("Content/Tutorials/" + GlobalStats.Language + "/", "xnb");
-            }
-            catch
-            {
-                 textList = Dir.GetFiles("Content/Tutorials/English/", "xnb");
-            }
-            foreach (FileInfo info in textList)
-            {
-                string name = Path.GetFileNameWithoutExtension(info.Name);
-                Texture2D tex = StarDriveGame.Instance.Content.Load<Texture2D>("Tutorials/"+ GlobalStats.Language+"/"+name);
-                TexDict[name] = tex;
-            }
-            BridgeRect = new Rectangle((int)ScreenCenter.X - 640, (int)ScreenCenter.Y - 360, 1280, 720);
-            Add(new CloseButton(BridgeRect.Right - 38, BridgeRect.Y + 15));
-            base.LoadContent();
         }
     }
 }
