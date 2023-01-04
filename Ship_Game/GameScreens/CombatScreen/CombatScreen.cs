@@ -897,6 +897,7 @@ namespace Ship_Game
 
         public void AddExplosion(Rectangle grid, int size)
         {
+            if (IsDisposed) return;
             var exp = new SmallExplosion(TransientContent, grid, size);
             using (Explosions.AcquireWriteLock())
                 Explosions.Add(exp);
