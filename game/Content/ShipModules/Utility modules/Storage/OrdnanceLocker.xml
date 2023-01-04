@@ -12,7 +12,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/Ordnance</IconTexturePath>
-  <Mass>12</Mass>
+  <Mass>9</Mass>
   <Health>2100</Health>
   <HealthMax>2100</HealthMax>
   <energyreq>0</energyreq>
