@@ -1341,9 +1341,12 @@ namespace Ship_Game
             tile.KillAllTroops(this);
             if (tile.BuildingOnTile)
             {
-                DestroyBuildingOn(tile); // todo notify
-                if (Owner == Universe.Player)
-                    Universe.Notifications.AddBuildingDestroyedByMeteor(this, tile.Building);
+                if (tile.BuildingOnTile)
+                {
+                    if (Owner == Universe.Player) // notify before removing the building
+                        Universe.Notifications.AddBuildingDestroyedByMeteor(this, tile.Building);
+                    DestroyBuildingOn(tile);
+                }
             }
 
             int bid;
