@@ -42,8 +42,6 @@ namespace Ship_Game
         [StarData] public float Mass = 1f;
         [StarData] public float Health;
 
-        public GameObject LastDamagedBy;
-
         public bool InFrustum; // Updated by UniverseObjectManager
 
         /// <summary>

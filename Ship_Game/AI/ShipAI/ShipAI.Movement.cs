@@ -80,8 +80,14 @@ namespace Ship_Game.AI
 
         bool RotateToDirection(Vector2 wantedForward, FixedSimTime timeStep, float minDiff)
         {
+            if (!wantedForward.IsUnitVector())
+                Log.Error($"RotateToDirection wantedForward {wantedForward} not a unit vector! This is a bug!");
+
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();
-            float angleDiff = AngleDifferenceToDirection(wantedForward, currentForward);
+            if (!currentForward.IsUnitVector())
+                Log.Error($"RotateToDirection currentForward {currentForward} not a unit vector! This is a bug!");
+
+            float angleDiff = Vectors.AngleDifference(wantedForward, currentForward);
             if (angleDiff > minDiff)
             {
                 Owner.RotateToFacing(angleDiff, wantedForward, currentForward);
@@ -91,14 +97,6 @@ namespace Ship_Game.AI
             return false;
         }
 
-        static float AngleDifferenceToDirection(Vector2 wantedForward, Vector2 currentForward)
-        {
-            if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
-                Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
-
-            return Vectors.AngleDifference(wantedForward, currentForward);
-        }
-        
         internal bool RotateTowardsPosition(Vector2 lookAt, FixedSimTime timeStep, float minDiff)
         {
             if (lookAt.AlmostZero())
