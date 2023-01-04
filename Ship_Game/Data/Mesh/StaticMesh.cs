@@ -74,7 +74,10 @@ public class StaticMesh : IDisposable
         StaticMesh mesh = content.LoadStaticMesh(modelName);
         return mesh;
     }
-
+    
+    /// <summary>
+    /// NOTE: StaticMesh will take ownership of `SkinnedModel`
+    /// </summary>
     public static StaticMesh FromSkinnedModel(string meshName, SkinnedModel skinned)
     {
         StaticMesh mesh = new()
@@ -88,10 +91,14 @@ public class StaticMesh : IDisposable
         return mesh;
     }
 
+    /// <summary>
+    /// NOTE: StaticMesh will take ownership of `Model`
+    /// </summary>
     public static StaticMesh FromStaticModel(string modelName, Model model)
     {
         StaticMesh mesh = new()
         {
+            Name = modelName,
             ModelMeshes = model.Meshes,
             Bounds = GetBoundingBox(model),
         };

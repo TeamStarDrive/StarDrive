@@ -1360,13 +1360,16 @@ namespace Ship_Game
             ProjTextDict.ClearAndDispose();
             var files = GatherFilesUnified("Model/Projectiles/textures", "*", recursive: false);
 
-            var nameTexPairs = Parallel.Select(files, file =>
+            static (string shortName, Texture2D tex) LoadProjectileTexture(FileInfo file)
             {
                 GameLoadingScreen.SetStatus("LoadProjectileTex", file.Name);
                 string shortName = file.NameNoExt();
                 Texture2D tex = RootContent.LoadTexture(file);
                 return (shortName, tex);
-            });
+            }
+
+            //var nameTexPairs = files.Select(LoadProjectileTexture);
+            var nameTexPairs = Parallel.Select(files, LoadProjectileTexture);
 
             foreach ((string shortName, Texture2D tex) in nameTexPairs)
             {
