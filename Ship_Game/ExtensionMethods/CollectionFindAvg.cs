@@ -4,69 +4,91 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ship_Game
+namespace Ship_Game;
+
+/// <summary>
+/// This contains multiple simple yet useful extension algorithms for different data structures
+/// The goal is to increase performance by specializing for concrete container types,
+/// which helps to eliminate virtual dispatch, greatly speeding up iteration times
+/// 
+/// As much as possible, we try to avoid any kind of IEnumerable or foreach loops, because
+/// they have appalling performance and .NET JIT fails to optimize most of our use cases.
+/// 
+/// We don't benefit from lazy evaluation either, because most of the algorithms are very data-heavy,
+/// with no way to exclude elements.
+/// 
+/// If you find these extensions repetitive, then yes, this is your worst nightmare --- however,
+/// all of this repetitive looping provides the best possible performance on .NET JIT. It's just not good enough.
+/// </summary>
+public static class CollectionFindAvg
 {
-    /// <summary>
-    /// This contains multiple simple yet useful extension algorithms for different data structures
-    /// The goal is to increase performance by specializing for concrete container types,
-    /// which helps to eliminate virtual dispatch, greatly speeding up iteration times
-    /// 
-    /// As much as possible, we try to avoid any kind of IEnumerable or foreach loops, because
-    /// they have appalling performance and .NET JIT fails to optimize most of our use cases.
-    /// 
-    /// We don't benefit from lazy evaluation either, because most of the algorithms are very data-heavy,
-    /// with no way to exclude elements.
-    /// 
-    /// If you find these extensions repetitive, then yes, this is your worst nightmare --- however,
-    /// all of this repetitive looping provides the best possible performance on .NET JIT. It's just not good enough.
-    /// </summary>
-    public static class CollectionFindAvg
+    // @note Hand-crafted Sum() extension for float arrays
+    public static float Sum(this float[] floats)
     {
-        // @note Hand-crafted Sum() extension for float arrays
-        public static float Sum(this float[] floats)
-        {
-            float sum = 0f;
-            for (int i = 0; i < floats.Length; ++i)
-                sum += floats[i];
-            return sum;
-        }
+        float sum = 0f;
+        for (int i = 0; i < floats.Length; ++i)
+            sum += floats[i];
+        return sum;
+    }
         
-        // @note Hand-crafted Sum(filter) extension for float arrays
-        public static float Sum(this float[] floats, Predicate<float> filter)
+    // @note Hand-crafted Sum(filter) extension for float arrays
+    public static float Sum(this float[] floats, Predicate<float> filter)
+    {
+        float sum = 0f;
+        for (int i = 0; i < floats.Length; ++i)
         {
-            float sum = 0f;
-            for (int i = 0; i < floats.Length; ++i)
-            {
-                float value = floats[i];
-                if (filter(value))
-                    sum += value;
-            }
-            return sum;
+            float value = floats[i];
+            if (filter(value))
+                sum += value;
         }
+        return sum;
+    }
+    
+    /// <summary>
+    /// NOTE: Can be removed once we upgrade to .NET 5.0,
+    /// where Span gets a Sum() function
+    /// </summary>
+    public static float Sum(this Span<float> floats)
+    {
+        float sum = 0f;
+        for (int i = 0; i < floats.Length; ++i)
+            sum += floats[i];
+        return sum;
+    }
 
-        // @note Hand-crafted Avg() extension for float arrays
-        public static float Avg(this float[] floats)
-        {
-            if (floats.Length == 0)
-                return 0f;
-            return Sum(floats) / floats.Length;
-        }
+    // @note Hand-crafted Avg() extension for float arrays
+    public static float Avg(this float[] floats)
+    {
+        if (floats.Length == 0)
+            return 0f;
+        return Sum(floats) / floats.Length;
+    }
 
-        // @note Hand-crafted Avg(filter) extension for float arrays
-        public static float Avg(this float[] floats, Predicate<float> filter)
+    // @note Hand-crafted Avg(filter) extension for float arrays
+    public static float Avg(this float[] floats, Predicate<float> filter)
+    {
+        int count = 0;
+        float sum = 0f;
+        for (int i = 0; i < floats.Length; ++i)
         {
-            int count = 0;
-            float sum = 0f;
-            for (int i = 0; i < floats.Length; ++i)
+            float value = floats[i];
+            if (filter(value))
             {
-                float value = floats[i];
-                if (filter(value))
-                {
-                    ++count;
-                    sum += value;
-                }
+                ++count;
+                sum += value;
             }
-            return count == 0 ? 0f : sum / count;
         }
+        return count == 0 ? 0f : sum / count;
+    }
+
+    /// <summary>
+    /// NOTE: Can be removed once we upgrade to .NET 5.0,
+    /// where Span gets an Average() function
+    /// </summary>
+    public static float Avg(this Span<float> floats)
+    {
+        if (floats.Length == 0)
+            return 0f;
+        return Sum(floats) / floats.Length;
     }
 }
