@@ -81,7 +81,9 @@ public class StaticMesh : IDisposable
     public static void DisposeModel(SkinnedModel sm) => DisposeModelMeshes(sm.Model.Meshes);
     
     /// <summary>
-    /// Loads a cached StaticMesh from GameContentManager. If StaticMesh is already loaded, no extra loading is done.
+    /// Loads a cached StaticMesh from GameContentManager.
+    /// If StaticMesh is already loaded, no extra loading is done.
+    /// This method is mainly for those cases where modelName could potentially be null
     /// </summary>
     /// <returns>`null` on failure, otherwise a valid StaticMesh</returns>
     public static StaticMesh LoadMesh(GameContentManager content, string modelName, bool animated = false)
