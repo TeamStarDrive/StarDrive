@@ -17,10 +17,10 @@ namespace Ship_Game.Universe.SolarBodies
         PlanetTypes Types;
         GraphicsDevice Device;
 
-        public Model MeshSphere;
-        Model MeshRings;
-        Model MeshGlowRing;
-        Model MeshGlowFresnel;
+        public StaticMesh MeshSphere;
+        StaticMesh MeshRings;
+        StaticMesh MeshGlowRing;
+        StaticMesh MeshGlowFresnel;
 
         BasicEffect FxPlanet;
         BasicEffect FxRings;
@@ -40,14 +40,14 @@ namespace Ship_Game.Universe.SolarBodies
         public PlanetRenderer(GameContentManager content, PlanetTypes types)
         {
             Types = types;
-            MeshSphere = content.RawContent.LoadModel(types.PlanetMesh);
-            MeshRings = content.RawContent.LoadModel(types.RingsMesh[0]);
+            MeshSphere = content.RawContent.LoadStaticMesh(types.PlanetMesh);
+            MeshRings = content.RawContent.LoadStaticMesh(types.RingsMesh[0]);
             TexRings = content.RawContent.LoadTexture(types.RingsMesh[1]);
 
-            MeshGlowRing = content.LoadModel(types.GlowEffect[0]);
+            MeshGlowRing = content.LoadStaticMesh(types.GlowEffect[0]);
             TexGlow = content.RawContent.LoadAlphaTexture(types.GlowEffect[1], toPreMultipliedAlpha: false);
 
-            MeshGlowFresnel = content.LoadModel(types.FresnelEffect[0]);
+            MeshGlowFresnel = content.LoadStaticMesh(types.FresnelEffect[0]);
             TexFresnel = content.RawContent.LoadAlphaTexture(types.FresnelEffect[1], toPreMultipliedAlpha: false);
 
             // this old AtmosphereColor.dds has a weird checkered transparent blue texture
@@ -177,7 +177,7 @@ namespace Ship_Game.Universe.SolarBodies
                 SetLight(FxPlanet.DirectionalLight0, sunToPlanet, lights[0]);
                 //SetLight(FxPlanet.DirectionalLight1, sunToPlanet, lights[1]);
                 //SetLight(FxPlanet.DirectionalLight2, sunToPlanet, lights[2]);
-                StaticMesh.Draw(MeshSphere, FxPlanet);
+                MeshSphere.Draw(FxPlanet);
             }
 
             if (type.Clouds)
@@ -190,7 +190,7 @@ namespace Ship_Game.Universe.SolarBodies
                 FxClouds.World = Types.CloudsScaleMatrix * cloudMatrix;
                 FxClouds.DirectionalLight0.Direction = sunToPlanet;
                 FxClouds.DirectionalLight0.Enabled = true;
-                StaticMesh.Draw(MeshSphere, FxClouds, type.CloudsMap);
+                MeshSphere.Draw(FxClouds, type.CloudsMap);
 
                 // for blue atmosphere and planet halo, use CW, which means the sphere is inverted
                 RenderStates.SetCullMode(Device, CullMode.CullClockwiseFace);
@@ -202,7 +202,7 @@ namespace Ship_Game.Universe.SolarBodies
                     FxAtmoColor.World = Types.AtmosphereScaleMatrix * cloudMatrix;
                     FxAtmoColor.DirectionalLight0.Direction = sunToPlanet;
                     FxAtmoColor.DirectionalLight0.Enabled = true;
-                    StaticMesh.Draw(MeshSphere, FxAtmoColor, TexAtmosphere);
+                    MeshSphere.Draw(FxAtmoColor, TexAtmosphere);
                 }
             }
 
@@ -224,14 +224,14 @@ namespace Ship_Game.Universe.SolarBodies
                 PlanetHaloFx.Parameters["World"].SetValue(Types.HaloScaleMatrix * cloudMatrix);
                 PlanetHaloFx.Parameters["CameraPosition"].SetValue(camPosition);
                 PlanetHaloFx.Parameters["DiffuseLightDirection"].SetValue(diffuseLightDirection);
-                StaticMesh.Draw(MeshSphere, PlanetHaloFx);
+                MeshSphere.Draw(PlanetHaloFx);
             }
 
             if (p.HasRings)
             {
                 RenderStates.SetCullMode(Device, CullMode.None);
                 FxRings.World = Types.RingsScaleMatrix * baseScale * Matrix.CreateRotationX(p.RingTilt) * pos3d;
-                StaticMesh.Draw(MeshRings, FxRings, TexRings);
+                MeshRings.Draw(FxRings, TexRings);
             }
         }
 
@@ -260,7 +260,7 @@ namespace Ship_Game.Universe.SolarBodies
                 FxFresnel.World = world;
                 FxFresnel.DiffuseColor = glow;
                 FxFresnel.Alpha = type.GlowColor.W * type.Fresnel;
-                StaticMesh.Draw(MeshGlowFresnel, FxFresnel, TexFresnel);
+                MeshGlowFresnel.Draw(FxFresnel, TexFresnel);
             }
 
             {
@@ -268,7 +268,7 @@ namespace Ship_Game.Universe.SolarBodies
                 FxGlow.DiffuseColor = glow;
                 FxGlow.Alpha = type.GlowColor.W;
                 //FxGlow.EmissiveColor = glow;
-                StaticMesh.Draw(MeshGlowRing, FxGlow, TexGlow);
+                MeshGlowRing.Draw(FxGlow, TexGlow);
             }
         }
 

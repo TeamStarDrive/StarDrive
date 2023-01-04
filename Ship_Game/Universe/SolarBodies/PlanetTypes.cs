@@ -67,7 +67,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             Renderer = new(content, this);
 
-            BasePlanetRadius = Renderer.MeshSphere.Meshes[0].BoundingSphere.Radius;
+            BasePlanetRadius = Renderer.MeshSphere.Radius;
 
             foreach (PlanetType type in Types)
                 type.Initialize(this, content, Renderer.MeshSphere);

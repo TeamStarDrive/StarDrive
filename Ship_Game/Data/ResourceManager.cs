@@ -1171,7 +1171,7 @@ namespace Ship_Game
         }
 
         // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
-        static void LoadNumberedModels(Array<(Model, float)> models, string modelFolder, string modelPrefix)
+        static void LoadNumberedModels(Array<StaticMesh> models, string modelFolder, string modelPrefix)
         {
             models.Clear();
             var files = GatherFilesModOrVanilla(modelFolder, "xnb");
@@ -1185,13 +1185,11 @@ namespace Ship_Game
                     if (nameNoExt.StartsWith(modelPrefix) &&
                         int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
                     {
-                        var model = RootContent.Load<Model>(info.RelPath());
-
-                        var fieldName = typeof(ModelMesh).GetField("name", BindingFlags.Instance| BindingFlags.NonPublic);
-                        fieldName.SetValue(model.Meshes[0], $"{modelFolder}{nameNoExt}.xnb");
-
-                        float radius = model.GetBoundingBox().Radius();
-                        models.Add((model, radius));
+                        var model = StaticMesh.LoadMesh(RootContent, info.RelPath());
+                        if (model != null)
+                        {
+                            models.Add(model);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -1201,33 +1199,21 @@ namespace Ship_Game
             }
         }
 
-        static readonly Array<(Model, float)> JunkModels = new Array<(Model, float)>();
-
+        static readonly Array<StaticMesh> JunkModels = new();
         public static int NumJunkModels => JunkModels.Count;
-        public static Model GetJunkModel(int idx)
-        {
-            return JunkModels[idx].Item1;
-        }
-        public static float GetJunkModelRadius(int idx)
-        {
-            return JunkModels[idx].Item2;
-        }
+        public static StaticMesh GetJunkModel(int idx) => JunkModels[idx];
+        public static float GetJunkModelRadius(int idx) => JunkModels[idx].Radius;
+
         static void LoadJunk() // Refactored by RedFox
         {
             LoadNumberedModels(JunkModels, "Model/SpaceJunk/", "spacejunk");
         }
 
-        static readonly Array<(Model, float)> AsteroidModels = new Array<(Model, float)>();
-
+        static readonly Array<StaticMesh> AsteroidModels = new();
         public static int NumAsteroidModels => AsteroidModels.Count;
-        public static Model GetAsteroidModel(int asteroidId)
-        {
-            return AsteroidModels[asteroidId].Item1;
-        }
-        public static float GetAsteroidModelRadius(int asteroidId)
-        {
-            return AsteroidModels[asteroidId].Item2;
-        }
+        public static StaticMesh GetAsteroidModel(int asteroidId) => AsteroidModels[asteroidId];
+        public static float GetAsteroidModelRadius(int asteroidId) => AsteroidModels[asteroidId].Radius;
+
         static void LoadAsteroids()
         {
             LoadNumberedModels(AsteroidModels, "Model/Asteroids/", "asteroid");
@@ -1304,7 +1290,7 @@ namespace Ship_Game
             string path = projectileDir + nameNoExt;
             try
             {
-                var projModel = RootContent.Load<Model>(path);
+                var projModel = RootContent.LoadModel(path);
                 ProjectileMeshDict[nameNoExt]  = projModel.Meshes[0];
                 ProjectileModelDict[nameNoExt] = projModel;
             }
@@ -1341,7 +1327,7 @@ namespace Ship_Game
                 string nameNoExt = info.NameNoExt();
                 try
                 {
-                    var projModel = RootContent.Load<Model>(info.RelPath());
+                    var projModel = RootContent.LoadModel(info.RelPath());
 
                     ProjectileMeshDict[nameNoExt] = projModel.Meshes[0];
                     ProjectileModelDict[nameNoExt] = projModel;
