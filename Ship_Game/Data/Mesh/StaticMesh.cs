@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
@@ -76,6 +79,24 @@ public class StaticMesh : IDisposable
 
     public static bool IsModelDisposed(SkinnedModel sm) => IsModelDisposed(sm.Model);
     public static void DisposeModel(SkinnedModel sm) => DisposeModelMeshes(sm.Model.Meshes);
+    
+    /// <summary>
+    /// Loads a cached StaticMesh from GameContentManager. If StaticMesh is already loaded, no extra loading is done.
+    /// </summary>
+    /// <returns>`null` on failure, otherwise a valid StaticMesh</returns>
+    public static StaticMesh LoadMesh(GameContentManager content, string modelName, bool animated = false)
+    {
+        try
+        {
+            var c = content ?? ResourceManager.RootContent;
+            return c.LoadStaticMesh(modelName, animated);
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, $"LoadMesh failed: {modelName}");
+            return null;
+        }
+    }
 
     static StaticMesh FromNewMesh(GameContentManager content, string modelName)
     {
@@ -281,27 +302,6 @@ public class StaticMesh : IDisposable
         gd.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, mesh.VertexCount, 0, mesh.PrimitiveCount);
     }
 
-    static bool IsUsingASingleEffect(Span<MeshData> rawMeshes, Effect @override, out Effect singleEffect)
-    {
-        if (@override != null) // this overrides everything, always a single effect
-        {
-            singleEffect = @override;
-            return true;
-        }
-
-        Effect firstEffect = rawMeshes[0].Effect;
-        for (int i = 1; i < rawMeshes.Length; ++i)
-        {
-            if (firstEffect != rawMeshes[i].Effect)
-            {
-                singleEffect = null;
-                return false; // No, we have multiple effects
-            }
-        }
-        singleEffect = firstEffect;
-        return true;
-    }
-    
     // Legacy XNA ModelMesh Draw
     static void Draw(ModelMeshCollection meshes, Effect effect)
     {
@@ -352,22 +352,65 @@ public class StaticMesh : IDisposable
                                          part.NumVertices, part.StartIndex, part.PrimitiveCount);
         }
     }
+    
+    /// <summary>
+    /// Gets the first effect in this mesh, or null if there are no associated effects
+    /// </summary>
+    public Effect GetFirstEffect()
+    {
+        return GetEffects().FirstOrDefault();
+    }
 
     /// <summary>
-    /// Loads a cached StaticMesh from GameContentManager. If StaticMesh is already loaded, no extra loading is done.
+    /// Gets the first Effect which matches the Type parameter `T`, or null if no such effects
     /// </summary>
-    /// <returns>`null` on failure, otherwise a valid StaticMesh</returns>
-    public static StaticMesh LoadMesh(GameContentManager content, string modelName, bool animated = false)
+    public T GetFirstEffect<T>() where T : Effect
     {
-        try
+        return GetEffects<T>().FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Enumerates all effects on this mesh, regardless of effect type
+    /// </summary>
+    public IEnumerable<Effect> GetEffects()
+    {
+        if (ModelMeshes != null)
+            foreach (var mesh in ModelMeshes)
+                foreach (var effect in mesh.Effects)
+                    yield return effect;
+        else
+            foreach (var mesh in RawMeshes)
+                yield return mesh.Effect;
+    }
+
+    /// <summary>
+    /// Gets all effects which match the Type parameter `T`
+    /// </summary>
+    public IEnumerable<T> GetEffects<T>() where T : Effect
+    {
+        foreach (Effect effect in GetEffects())
+            if (effect is T fx)
+                yield return fx;
+    }
+
+    static bool IsUsingASingleEffect(Span<MeshData> rawMeshes, Effect @override, out Effect singleEffect)
+    {
+        if (@override != null) // this overrides everything, always a single effect
         {
-            var c = content ?? ResourceManager.RootContent;
-            return c.LoadStaticMesh(modelName, animated);
+            singleEffect = @override;
+            return true;
         }
-        catch (Exception e)
+
+        Effect firstEffect = rawMeshes[0].Effect;
+        for (int i = 1; i < rawMeshes.Length; ++i)
         {
-            Log.Error(e, $"LoadMesh failed: {modelName}");
-            return null;
+            if (firstEffect != rawMeshes[i].Effect)
+            {
+                singleEffect = null;
+                return false; // No, we have multiple effects
+            }
         }
+        singleEffect = firstEffect;
+        return true;
     }
 }

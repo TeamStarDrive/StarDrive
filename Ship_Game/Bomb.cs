@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using SDGraphics;
+using Ship_Game.Data.Mesh;
 
 namespace Ship_Game
 {
@@ -13,8 +14,6 @@ namespace Ship_Game
         public Matrix World { get; private set; }
 
         public IWeaponTemplate Weapon;
-        private const string TextureName = "projBall_02_orange";
-        private const string ModelName   = "projBall";
 
         private ParticleEmitter TrailEmitter;
         private ParticleEmitter FireTrailEmitter;
@@ -27,17 +26,22 @@ namespace Ship_Game
         public readonly string SpecialAction;
         public Empire Owner;
         private float PlanetRadius;
-        public int ShipLevel { get; }
-        public float ShipHealthPercent { get; }
+        public readonly int ShipLevel;
+        public readonly float ShipHealthPercent;
 
-        public SubTexture Texture { get; }
-        public Model      Model   { get; }
+        public readonly SubTexture Texture;
+        public readonly StaticMesh Model;
 
         public Bomb(Vector3 position, Empire empire, string weaponName, int shipLevel, float shipHealthPercent)
         {
-            Owner       = empire;
-            Texture     = ResourceManager.ProjTexture(TextureName);
-            Model       = ResourceManager.ProjectileModelDict[ModelName];
+            Owner = empire;
+
+            const string TextureName = "projBall_02_orange";
+            const string ModelName   = "projBall";
+            Texture = ResourceManager.ProjTexture(TextureName);
+            Model = ResourceManager.ProjectileMesh(ModelName, out var model) ? model : null;
+            if (Model == null) Log.Error($"Failed to find Bomb ModelName: {ModelName}");
+
             Position    = position;
             ShipLevel   = shipLevel;
             Weapon = ResourceManager.GetWeaponTemplate(weaponName)
