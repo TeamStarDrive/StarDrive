@@ -474,37 +474,6 @@ namespace Ship_Game
             MakeMessageBox(screen, accepted, cancelled, message, "Save", "Exit");
         }
 
-        public void DrawModelMesh(
-            Model model, in Matrix world, in Matrix view, 
-            Vector3 diffuseColor, in Matrix projection, 
-            SubTexture projTex, 
-            float alpha = 0f, 
-            bool lightingEnabled = false)
-        {
-            foreach (ModelMesh modelMesh in model.Meshes)
-            {
-                foreach (Effect effect in modelMesh.Effects)
-                {
-                    var be = effect as BasicEffect;
-                    if (be == null) continue;
-                    be.World           = Matrix.CreateScale(50f) * world;
-                    be.View            = view;
-                    be.DiffuseColor    = diffuseColor;
-                    be.Texture         = projTex.Texture;
-                    be.Alpha           = alpha > 0 ? alpha : be.Alpha;
-                    be.TextureEnabled  = true;
-                    be.Projection      = projection;
-                    be.LightingEnabled = lightingEnabled;
-                }
-                modelMesh.Draw();
-            }
-        }
-
-        public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)
-        {
-            DrawModelMesh(model, Matrix.CreateScale(scale) * world, View, Vector3.One, Projection, projTex);
-        }
-
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
         // Sets the View matrix and updates necessary variables to enable World <-> Screen coordinate conversion
