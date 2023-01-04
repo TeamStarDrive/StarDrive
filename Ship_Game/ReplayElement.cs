@@ -54,7 +54,7 @@ namespace Ship_Game
         {
             Universe = u;
             UState = u.UState;
-
+            
             ElementRect = r;
             TextRect = new Rectangle(r.X, r.Y + r.Height, r.Width, 128);
 
@@ -72,6 +72,12 @@ namespace Ship_Game
             ShipCount = AddButton(ElementRect.X - 10, ElementRect.Y + 40, "Ship Count");
             MilStrength = AddButton(ElementRect.X - 10, ShipCount.Y + Fonts.Pirulen16.LineSpacing + 4, "Military Strength");
             Population = AddButton(ElementRect.X - 10, MilStrength.Y + Fonts.Pirulen16.LineSpacing + 4, "Population");
+            
+            if (UState.Stats == null)
+            {
+                Log.Error("Universe Stats was null");
+                return;
+            }
 
             TurnsRepresented = UState.Stats.NumRecordedTurns;
             foreach (Map<int, Snapshot> snapshots in UState.Stats.Snapshots)
