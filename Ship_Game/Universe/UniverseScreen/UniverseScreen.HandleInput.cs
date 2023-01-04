@@ -1409,6 +1409,8 @@ namespace Ship_Game
             ++FBTimer;
             if (FBTimer <= 60 && !forceUpdate)
                 return;
+            if (IsExiting)
+                return;
 
             var buttons = new Array<FleetButton>();
 

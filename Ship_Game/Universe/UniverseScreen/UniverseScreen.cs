@@ -683,6 +683,7 @@ namespace Ship_Game
         public override void ExitScreen()
         {
             IsExiting = true;
+            UState.Paused = true;
 
             Thread processTurnsThread = SimThread;
             SimThread = null;

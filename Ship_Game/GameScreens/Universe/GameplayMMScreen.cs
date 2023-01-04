@@ -2,20 +2,23 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDGraphics.Input;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
-    public sealed class GameplayMMScreen : GameScreen
+    /// <summary>
+    /// In-Game Main Menu
+    /// </summary>
+    public sealed class GamePlayMenuScreen : GameScreen
     {
         UniverseScreen Universe;
-        GameScreen Caller;
         UILabel SavingText;
         UIButton SaveButton;
 
-        public GameplayMMScreen(UniverseScreen screen) : base(screen, toPause: screen)
+        public GamePlayMenuScreen(UniverseScreen screen) : base(screen, toPause: screen)
         {
             Universe = screen;
             IsPopup = true;
@@ -23,11 +26,6 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
-        public GameplayMMScreen(UniverseScreen screen, GameScreen caller) : this(screen)
-        {
-            Caller = caller;
-        }
-        
         public override void LoadContent()
         {
             RemoveAll();
@@ -121,11 +119,24 @@ namespace Ship_Game
 
         void ExitToMain_OnClick(UIButton button)
         {
-            ExitScreen();
-            if (Caller != null)
-                ScreenManager.RemoveScreen(Caller);
+            Universe.UState.Paused = true; // force Universe to remain paused
+
+            // exit all screens on top of UniverseScreen
+            foreach (GameScreen screen in ScreenManager.Screens.ToArr())
+            {
+                if (screen != Universe)
+                {
+                    screen.ExitScreen(); // run exit handlers
+                    Universe.UState.Paused = true; // force Universe to remain paused
+                    ScreenManager.RemoveScreen(screen); // force remove the screen
+                }
+            }
+
+            // now exit the universe, dispose, etc etc
             Universe.ExitScreen();
-            ScreenManager.AddScreen(new MainMenuScreen());
+
+            // safely go to MainMenu, clear all 3D stuff if there's anything left
+            ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
         }
 
         void Exit_OnClick(UIButton button)
