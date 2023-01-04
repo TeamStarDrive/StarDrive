@@ -749,43 +749,37 @@ namespace Ship_Game
 
         public void ScrapBuilding(Building b, PlanetGridSquare tile = null)
         {
-            if (tile != null)
-                RemoveBuildingFromPlanet(tile);
-            else
-                RemoveBuildingFromPlanet(b);
-
+            RemoveBuildingFromPlanet(b, tile, refund:true);
             ProdHere += b.ActualCost / 2f;
         }
 
         public void DestroyBuildingOn(PlanetGridSquare tile)
         {
-            RemoveBuildingFromPlanet(tile, true);
+            RemoveBuildingFromPlanet(null, tile, refund:false);
         }
 
-        private void RemoveBuildingFromPlanet(Building b, bool destroy = false)
+        public void DestroyBuilding(Building b)
         {
-            BuildingList.Remove(b);
-            PlanetGridSquare tile = TilesList.Find(t => t.Building == b);
+            RemoveBuildingFromPlanet(b, null, refund:false);
+        }
+
+        void RemoveBuildingFromPlanet(Building b, PlanetGridSquare tile, bool refund)
+        {
+            b ??= tile?.Building;
+            if (b == null)
+                return;
+            
+            tile ??= TilesList.Find(t => t.Building == b);
             if (tile != null)
                 tile.Building = null;
             else
                 Log.Error($"{this} failed to find tile with building {b}");
 
-            PostBuildingRemoval(b, tile, destroy);
-        }
-
-        private void RemoveBuildingFromPlanet(PlanetGridSquare tile, bool destroy = false)
-        {
-            if (tile?.Building == null)
-                return;
-
-            Building b = tile.Building;
             BuildingList.Remove(b);
-            tile.Building = null;
-            PostBuildingRemoval(b, tile, destroy);
+            PostBuildingRemoval(b, tile, refund);
         }
 
-        private void PostBuildingRemoval(Building b, PlanetGridSquare tile, bool destroy = false)
+        void PostBuildingRemoval(Building b, PlanetGridSquare tile, bool refund)
         {
             if (tile != null)
                 tile.CrashSite = null;
@@ -798,7 +792,7 @@ namespace Ship_Game
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
 
-            if (!destroy)
+            if (refund)
                 Owner?.RefundCreditsPostRemoval(b);
 
             if (b.SensorRange > 0)
@@ -1415,7 +1409,7 @@ namespace Ship_Game
                         if (Owner == Universe.Player)
                             Universe.Notifications.AddBuildingDestroyed(this, b, GameText.WasRemovedSinceItsResource);
 
-                        RemoveBuildingFromPlanet(b, destroy: true);
+                        DestroyBuilding(b);
                         continue; // removed, continue to next building
                     }
                 }
@@ -1428,8 +1422,8 @@ namespace Ship_Game
                     {
                         if (Owner == Universe.Player)
                             Universe.Notifications.AddBuildingDestroyed(this, b, GameText.WasRemovedSinceItsResource);
-
-                        RemoveBuildingFromPlanet(b, destroy: true);
+                        
+                        DestroyBuilding(b);
                         continue; // removed, continue to next building
                     }
                 }
