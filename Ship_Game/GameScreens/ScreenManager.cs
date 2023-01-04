@@ -204,7 +204,12 @@ namespace Ship_Game
             }
         }
 
-        public void AddObject(ISceneObject so) => PendingObjects.Add(so);
+        public void AddObject(ISceneObject so)
+        {
+            if (so != null)
+                PendingObjects.Add(so);
+        }
+        
         public void RemoveObject(ISceneObject so)
         {
             if (so != null)
