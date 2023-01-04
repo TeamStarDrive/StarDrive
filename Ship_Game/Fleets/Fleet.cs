@@ -565,11 +565,11 @@ namespace Ship_Game.Fleets
 
         void EvaluateTask()
         {
-            if (Ships.Count == 0)
-                FleetTask.EndTask();
-
             if (FleetTask == null)
                 return;
+
+            if (Ships.Count == 0)
+                FleetTask?.EndTask();
 
             if (Owner.Universe.Screen.SelectedFleet == this)
                 Owner.Universe.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, FleetTask.AORadius, Color.AntiqueWhite);
@@ -1593,7 +1593,7 @@ namespace Ship_Game.Fleets
             if (!condition) 
                 return false;
 
-            FleetTask.EndTask();
+            FleetTask?.EndTask();
             FleetTask = null;
             TaskStep  = 0;
             return true;

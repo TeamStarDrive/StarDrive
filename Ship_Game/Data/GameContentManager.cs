@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,12 +24,11 @@ namespace Ship_Game.Data
         // to avoid double loading resources into memory
         readonly GameContentManager Parent;
         Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
-        Map<string, Effect> LoadedEffects = new();
-        List<IDisposable> DisposableAssets;
         public string Name { get; }
 
         // Enables verbose logging for all asset loads and disposes
-        public bool EnableLoadInfoLog => GlobalStats.DebugAssetLoading;
+        public bool DebugAssetLoading => GlobalStats.DebugAssetLoading;
+        readonly Map<string, string> LoadStackTraces = new(); // for debugging asset loads
 
         public RawContentLoader RawContent { get; private set; }
 
@@ -46,7 +46,6 @@ namespace Ship_Game.Data
         {
             Name = name;
             LoadedAssets = (Dictionary<string, object>)GetField("loadedAssets");
-            DisposableAssets = (List<IDisposable>)GetField("disposableAssets");
             RawContent = new(this);
         }
 
@@ -59,10 +58,8 @@ namespace Ship_Game.Data
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            LoadedAssets     = null;
-            DisposableAssets = null;
-            RawContent       = null;
-            LoadedEffects    = null;
+            LoadedAssets = null;
+            RawContent = null;
         }
 
         object GetField(string field)
@@ -89,8 +86,6 @@ namespace Ship_Game.Data
                         {
                             Log.Error($"Cached Asset '{assetNameWithExt}' is Disposed, discarding cached asset");
                             mgr.LoadedAssets.Remove(assetNameWithExt);
-                            if (asset is IDisposable disposable)
-                                mgr.DisposableAssets.Remove(disposable);
                         }
                         else
                         {
@@ -125,20 +120,12 @@ namespace Ship_Game.Data
         // SUNBURN COMPATIBILITY
         public bool TryGetEffect<T>(string assetName, out T asset) where T : Effect
         {
-            GameContentManager mgr = this;
-            do
+            if (TryGetAsset(assetName, out object assetObj) && assetObj is T fx)
             {
-                lock (LoadSync)
-                {
-                    if (mgr.LoadedEffects.TryGetValue(assetName, out Effect effect) && effect is T assetObj)
-                    {
-                        asset = assetObj;
-                        return true;
-                    }
-                }
+                asset = fx;
+                return true;
             }
-            while ((mgr = mgr.Parent) != null);
-            asset = null;
+            asset = default;
             return false;
         }
 
@@ -146,8 +133,7 @@ namespace Ship_Game.Data
         public void AddEffect(string assetName, Effect effect) 
         {
             lock (LoadSync)
-                LoadedEffects.Add(assetName, effect);
-            RecordDisposableObject(effect);
+                LoadedAssets.Add(assetName, effect);
         }
 
         public static int TextureSize(Texture2D tex)
@@ -225,14 +211,12 @@ namespace Ship_Game.Data
             {
                 foreach (KeyValuePair<string,object> obj in LoadedAssets)
                 {
-                    Dispose(obj.Key, obj.Value);
+                    Dispose(obj.Key, obj.Value); // this will modify DisposableAssets
                 }
             }
             finally
             {
                 LoadedAssets.Clear();
-                DisposableAssets.Clear();
-                LoadedEffects.Clear();
             }
 
             if (count > 0)
@@ -241,18 +225,15 @@ namespace Ship_Game.Data
             }
         }
 
-        void RecordDisposableObject(IDisposable disposable)
-        {
-            lock (LoadSync)
-                DisposableAssets.Add(disposable);
-        }
-
         static void DoNothingWithDisposable(IDisposable _)
         {
         }
 
-        // manually check and log all asset disposing to ensure we don't have accidental leaks
-        // some of the fonts and models can leak GPU resources
+        /// <summary>
+        /// Manually check and log all asset disposing to ensure we don't have accidental leaks
+        /// some of the fonts and models can leak GPU resources.
+        /// The asset is removed from DisposableAssets after being disposed.
+        /// </summary>
         void Dispose(string assetName, object asset)
         {
             switch (asset)
@@ -260,35 +241,35 @@ namespace Ship_Game.Data
                 case GraphicsResource g:
                     if (!g.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing texture  "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing texture  "+assetName);
                         g.Dispose();
                     }
                     break;
                 case TextureAtlas atlas:
                     if (!atlas.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing atlas    "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing atlas    "+assetName);
                         atlas.Dispose();
                     }
                     break;
                 case StaticMesh mesh:
                     if (!mesh.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing mesh     "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing mesh     "+assetName);
                         mesh.Dispose();
                     }
                     break;
                 case Model model:
                     if (!StaticMesh.IsModelDisposed(model))
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing model    "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing model    "+assetName);
                         StaticMesh.DisposeModel(model);
                     }
                     break;
                 case SkinnedModel skinnedModel:
                     if (!StaticMesh.IsModelDisposed(skinnedModel))
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing aniModel "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing aniModel "+assetName);
                         StaticMesh.DisposeModel(skinnedModel);
                     }
                     break;
@@ -296,14 +277,14 @@ namespace Ship_Game.Data
                     var texture = GetField<Texture2D>(font, "textureValue");
                     if (!texture.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing font     "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing font     "+assetName);
                         texture.Dispose();
                     }
                     break;
                 case Effect fx:
                     if (!fx.IsDisposed)
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Magenta, "Disposing effect   "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing effect   "+assetName);
                         fx.Dispose();
                     }
                     break;
@@ -341,18 +322,20 @@ namespace Ship_Game.Data
             public readonly string RelPathWithExt; // "Textures/hqspace.xnb"
             public readonly string Extension; // ".obj" or ".png" for raw resource loader
             public readonly bool NonXnaAsset;
+            public override string ToString() => RelPathWithExt;
 
             public AssetName(string assetName)
             {
-                if (assetName[assetName.Length - 4] == '.')
+                int extensionIndex = assetName.LastIndexOf('.', assetName.Length-1, 6);
+                if (extensionIndex != -1)
                 {
-                    RelPathWithExt = assetName;
-                    Extension = assetName.Substring(assetName.Length - 3).ToLower();
+                    RelPathWithExt = Sanitized(assetName);
+                    Extension = assetName.Substring(extensionIndex + 1).ToLower();
                     NonXnaAsset = Extension != "xnb" && Extension != "wmv";
                 }
                 else
                 {
-                    RelPathWithExt = assetName + ".xnb";
+                    RelPathWithExt = Sanitized(assetName) + ".xnb";
                     Extension = "xnb"; // assume xnb
                     NonXnaAsset = false;
                 }
@@ -362,6 +345,19 @@ namespace Ship_Game.Data
                 if (assetName.Contains(":/"))
                     throw new ArgumentException($"Asset name cannot contain absolute paths: '{assetName}'");
             #endif
+            }
+            public AssetName(FileInfo file)
+            {
+                string assetName = file.RelPath();
+                RelPathWithExt = Sanitized(assetName);
+                Extension = file.Extension.TrimStart('.').ToLower();
+                NonXnaAsset = Extension != "xnb" && Extension != "wmv";
+            }
+            static string Sanitized(string assetName)
+            {
+                if (assetName.StartsWith("Content"))
+                    assetName = assetName.Substring("Content/".Length);
+                return assetName.Replace('\\', '/');
             }
         }
 
@@ -380,14 +376,22 @@ namespace Ship_Game.Data
                 throw new ObjectDisposedException(ToString());
 
             Type assetType = typeof(T);
-            if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(assetName);
-            if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(assetName, useCache);
-
+            if (assetType == typeof(TextureAtlas))
+                return (T)(object)LoadTextureAtlas(assetName, useCache);
+            
             var asset = new AssetName(assetName);
+            if (assetType == typeof(SubTexture))
+                return (T)(object)LoadSubTexture(asset.RelPathWithExt);
+
             if (useCache && TryGetAsset(asset.RelPathWithExt, out T existing))
                 return existing;
-            
-            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetName}");
+
+            if (DebugAssetLoading)
+            {
+                Log.Write(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {asset.RelPathWithExt}");
+                // detect possible resource leaks -- this is very slow, so only enable on demand
+                SlowCheckForResourceLeaks(asset.RelPathWithExt);
+            }
 
             T loaded;
             if (asset.NonXnaAsset)
@@ -396,14 +400,30 @@ namespace Ship_Game.Data
                 loaded = ReadXnaAsset<T>(asset.RelPathWithExt);
 
             if (useCache)
-                RecordCacheObject(asset.RelPathWithExt, loaded);
-
-            // detect possible resource leaks -- this is very slow, so only enable on demand
-            #if false
-                SlowCheckForResourceLeaks(asset.RelPathWithExt);
-            #endif
+            {
+                lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref loaded);
+            }
 
             return loaded;
+        }
+
+        void SlowCheckForResourceLeaks(string assetNoExt)
+        {
+            lock (LoadSync)
+            {
+                foreach (KeyValuePair<string, object> asset in LoadedAssets)
+                {
+                    if (asset.Key.EndsWith(assetNoExt, StringComparison.OrdinalIgnoreCase) ||
+                        assetNoExt.EndsWith(asset.Key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Log.WarningWithCallStack($"Possible ResLeak: existing {asset.Value.GetType().Name} '{asset.Key}' may be duplicated by new '{assetNoExt}'");
+                        if (LoadStackTraces.TryGetValue(asset.Key, out string stacktrace))
+                            Log.Warning($"  existing asset Load trace:\n{stacktrace}");
+                        else
+                            Log.Warning("  existing asset did NOT have an asset Load trace (was it loaded by Sunburn instead?)");
+                    }
+                }
+            }
         }
 
         T ReadXnaAsset<T>(string assetName)
@@ -414,38 +434,57 @@ namespace Ship_Game.Data
             return loaded;
         }
 
-        void RecordCacheObject<T>(string name, T obj)
+        /// <summary>
+        /// Tries to record a cache object. If it already exists, then the existing one will be used and give `obj` is disposed.
+        /// </summary>
+        void RecordCacheObject<T>(string name, ref T obj)
         {
-            lock (LoadSync)
+            // If same object already exists, we skip Add. We also test for concurrency bugs and type mismatches.
+            if (LoadedAssets.TryGetValue(name, out object existing))
             {
-                // If same object already exists, we skip Add. We also test for concurrency bugs and type mismatches.
-                if (LoadedAssets.TryGetValue(name, out object existing))
+                if (IsDisposed(existing))
                 {
-                    if (existing is not T)
-                        Log.Error($"Asset '{name}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
-                    if (!ReferenceEquals(obj, existing))
-                        Log.Error($"Duplicate asset '{name}' of type '{typeof(T)}' already loaded!");
+                    LoadedAssets[name] = obj;
+                    if (DebugAssetLoading) LoadStackTraces[name] = Environment.StackTrace;
+                    Log.Error($"Asset '{name}' was disposed and got replaced by the new instance");
+                    return;
                 }
-                else
+                if (existing is not T)
                 {
-                    LoadedAssets.Add(name, obj);
-                    if (obj is IDisposable disposable)
-                        DisposableAssets.Add(disposable);
+                    Log.Error($"Asset '{name}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
                 }
+                else if (!ReferenceEquals(obj, existing))
+                {
+                    Log.Error($"Duplicate asset '{name}' of type '{typeof(T)}' already loaded!");
+                    Dispose(name, obj);
+                    obj = (T)existing; // use the existing one instead
+                }
+            }
+            else
+            {
+                LoadedAssets.Add(name, obj);
+                if (DebugAssetLoading) LoadStackTraces[name] = Environment.StackTrace;
             }
         }
 
-        /// Loads a texture and DOES NOT store it inside GameContentManager
+        /// <summary>
+        /// Loads a textures and DOES NOT cache it inside GameContentManager.
+        /// WARNING: This method can easily cause memory leaks since there is no cache checks. Ensure it is always synchronized.
+        /// </summary>
         public Texture2D LoadUncachedTexture(FileInfo file)
         {
             string ext = file.Extension.Substring(1);
             return LoadUncachedTexture(file, ext);
         }
 
+        /// <summary>
+        /// Loads a textures and DOES NOT cache it inside GameContentManager.
+        /// WARNING: This method can easily cause memory leaks since there is no cache checks. Ensure it is always synchronized.
+        /// </summary>
         public Texture2D LoadUncachedTexture(FileInfo file, string ext)
         {
             // the file path may be from AppData folder, in which case RelPath() doesn't work
-            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadUncachedTexture {file.FullName}");
+            if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadUncachedTexture {file.FullName}  Thread={Thread.CurrentThread.Name}");
             if (ext != "xnb")
                 return RawContent.LoadTexture(file);
             return ReadXnaAsset<Texture2D>(file.FullName);
@@ -454,34 +493,49 @@ namespace Ship_Game.Data
         // Loads a texture and caches it inside GameContentManager if useCache=true
         public Texture2D LoadTexture(FileInfo file)
         {
-            string assetName = file.RelPath();
-            if (TryGetAsset(assetName, out Texture2D tex))
+            AssetName asset = new(file);
+            if (TryGetAsset(asset.RelPathWithExt, out Texture2D tex))
                 return tex;
             
-            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadTexture {assetName}");
+            if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadTexture {asset.RelPathWithExt}");
 
             string ext = file.Extension.Substring(1);
             if (ext != "xnb")
                 tex = RawContent.LoadTexture(file);
             else
-                tex = ReadXnaAsset<Texture2D>(assetName);
+                tex = ReadXnaAsset<Texture2D>(asset.RelPathWithExt);
 
-            RecordCacheObject(assetName, tex);
+            lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref tex);
             return tex;
         }
 
-        // @note Guaranteed to load an atlas with at least 1 texture
+        /// <summary>
+        /// Guaranteed to load an atlas with at least 1 texture.
+        /// This might be called by multiple threads, so additional synchronization is required
+        /// </summary>
         public TextureAtlas LoadTextureAtlas(string folderWithTextures, bool useAssetCache = true)
         {
-            if (useAssetCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
-                return existing;
-            
-            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadTextureAtlas {folderWithTextures}");
+            if (useAssetCache)
+            {
+                lock (LoadSync) // this is a re-enterable lock
+                {
+                    if (TryGetAsset(folderWithTextures, out TextureAtlas existing))
+                        return existing;
 
-            TextureAtlas atlas = TextureAtlas.FromFolder(folderWithTextures);
-            if (atlas != null && useAssetCache)
-                RecordCacheObject(folderWithTextures, atlas);
-            return atlas;
+                    if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadTextureAtlas {folderWithTextures}  Thread={Thread.CurrentThread.Name}");
+
+                    TextureAtlas atlas = TextureAtlas.FromFolder(folderWithTextures);
+                    if (atlas != null)
+                        RecordCacheObject(folderWithTextures, ref atlas);
+                    return atlas;
+                }
+            }
+            else
+            {
+                if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadUncachedTextureAtlas {folderWithTextures}  Thread={Thread.CurrentThread.Name}");
+                TextureAtlas atlas = TextureAtlas.FromFolder(folderWithTextures);
+                return atlas;
+            }
         }
 
         // @return null if texture not found
@@ -528,51 +582,54 @@ namespace Ship_Game.Data
         // Load and compile an .fx file
         public Effect LoadEffect(string effectFile)
         {
-            if (TryGetAsset(effectFile, out Effect existing))
+            AssetName asset = new(effectFile);
+            if (TryGetAsset(asset.RelPathWithExt, out Effect existing))
                 return existing;
             
-            FileInfo file = ResourceManager.GetModOrVanillaFile(effectFile);
+            FileInfo file = ResourceManager.GetModOrVanillaFile(asset.RelPathWithExt);
             if (file == null)
-                throw new FileNotFoundException($"LoadEffect {effectFile} failed");
+                throw new FileNotFoundException($"LoadEffect {asset.RelPathWithExt} failed");
 
-            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadEffect {file.RelPath()}");
+            if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadEffect {file.RelPath()}");
 
             string sourceCode = File.ReadAllText(file.FullName);
             CompiledEffect compiled = Effect.CompileEffectFromSource(sourceCode, Empty<CompilerMacro>.Array, null, 
                                                                      CompilerOptions.None, TargetPlatform.Windows);
             if (!compiled.Success)
             {
-                throw new($"LoadEffect {effectFile} failed: {compiled.ErrorsAndWarnings}");
+                throw new($"LoadEffect {asset.RelPathWithExt} failed: {compiled.ErrorsAndWarnings}");
             }
             
             var fx = new Effect(Device, compiled.GetEffectCode(), CompilerOptions.None, null);
-            RecordCacheObject(effectFile, fx);
+            lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref fx);
             return fx;
         }
 
         public StaticMesh LoadStaticMesh(string meshName, bool animated = false)
         {
-            if (TryGetAsset(meshName, out StaticMesh mesh))
+            AssetName asset = new(meshName);
+            if (TryGetAsset(asset.RelPathWithExt, out StaticMesh mesh))
                 return mesh;
             
-            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadStaticMesh {meshName}");
+            if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadStaticMesh {asset.RelPathWithExt}");
 
-            if (RawContentLoader.IsSupportedMesh(meshName))
+            if (RawContentLoader.IsSupportedMesh(asset.RelPathWithExt))
             {
-                mesh = RawContent.LoadStaticMesh(meshName);
+                mesh = RawContent.LoadStaticMesh(asset.RelPathWithExt);
             }
             else if (animated)
             {
-                SkinnedModel skinned = LoadSkinnedModel(meshName);
-                mesh = StaticMesh.FromSkinnedModel(meshName, skinned);
+                // cannot cache these, otherwise we'll get a duplicate Model load
+                SkinnedModel skinned = LoadAsset<SkinnedModel>(asset.RelPathWithExt, useCache:false);
+                mesh = StaticMesh.FromSkinnedModel(asset.RelPathWithExt, skinned);
             }
             else
             {
-                Model model = LoadModel(meshName);
-                mesh = StaticMesh.FromStaticModel(meshName, model);
+                Model model = LoadAsset<Model>(asset.RelPathWithExt, useCache:false);
+                mesh = StaticMesh.FromStaticModel(asset.RelPathWithExt, model);
             }
 
-            RecordCacheObject(meshName, mesh);
+            lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref mesh);
             return mesh;
         }
 
@@ -584,20 +641,6 @@ namespace Ship_Game.Data
         public SkinnedModel LoadSkinnedModel(string modelName)
         {
             return Load<SkinnedModel>(modelName);
-        }
-
-        void SlowCheckForResourceLeaks(string assetNoExt)
-        {
-            string[] keys;
-            lock (LoadSync) keys = LoadedAssets.Keys.ToArr();
-            foreach (string key in keys)
-            {
-                if (key.EndsWith(assetNoExt, StringComparison.OrdinalIgnoreCase) ||
-                    assetNoExt.EndsWith(key, StringComparison.OrdinalIgnoreCase))
-                {
-                    Log.Warning($"Possible ResLeak: '{key}' may be duplicated by '{assetNoExt}'");
-                }
-            }
         }
 
         protected override Stream OpenStream(string assetNameWithExt)
@@ -612,7 +655,7 @@ namespace Ship_Game.Data
                     var info = new FileInfo(assetPath);
                     if (info.Exists)
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {assetPath}");
+                        //if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {assetPath}");
                         return info.OpenRead();
                     }
                     throw new FileNotFoundException(assetPath);
@@ -628,14 +671,14 @@ namespace Ship_Game.Data
                     var info = new FileInfo(modAssetPath);
                     if (info.Exists)
                     {
-                        if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {modAssetPath}");
+                        //if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {modAssetPath}");
                         return info.OpenRead();
                     }
                 }
 
                 // Vanilla content load
                 string vanillaAssetPath = "Content/" + assetPath;
-                if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {vanillaAssetPath}");
+                //if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"OpenStream {vanillaAssetPath}");
                 return File.OpenRead(vanillaAssetPath);
             }
             catch (Exception ex)

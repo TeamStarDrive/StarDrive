@@ -137,7 +137,6 @@ internal class AutoPatcher : PopupWindow
         using ZipArchive source = ZipFile.Open(zipArchive, ZipArchiveMode.Read);
         int currentEntry = 0;
         int totalEntries = source.Entries.Count;
-        int lastPercent = -1;
         foreach (ZipArchiveEntry entry in source.Entries)
         {
             if (cancellableTask.IsCancelRequested)
@@ -159,13 +158,7 @@ internal class AutoPatcher : PopupWindow
                 entry.ExtractToFile(fullPath, overwrite:true);
             }
 
-            ++currentEntry;
-            int percent = ProgressBarElement.GetPercent(currentEntry, totalEntries);
-            if (lastPercent != percent)
-            {
-                lastPercent = percent;
-                p.SetProgress(percent);
-            }
+            p.SetProgress(ProgressBarElement.GetPercent(++currentEntry, totalEntries));
         }
     }
 
@@ -175,17 +168,17 @@ internal class AutoPatcher : PopupWindow
         {
             ScreenManager.ResetHotLoadTargets(); // disable hotloading while patcher is running
 
-            string workingDir = Directory.GetCurrentDirectory();
-            if (IsMod) workingDir = Path.Combine(workingDir, GlobalStats.ModPath.Replace('/', '\\'));
+            string gameDir = Directory.GetCurrentDirectory();
+            if (IsMod) gameDir = Path.Combine(gameDir, GlobalStats.ModPath.Replace('/', '\\'));
 
-            bool requiresElevation = workingDir.Contains("Program Files");
+            bool requiresElevation = gameDir.Contains("Program Files");
             if (requiresElevation)
             {
                 if (!IsInRole(WindowsBuiltInRole.Administrator))
                     throw new InvalidOperationException("UAC Elevation failed: cannot overwrite StarDrive Program Files");
             }
 
-            ApplyPatchFiles(patchFilesFolder, ap, workingDir);
+            ApplyPatchFiles(patchFilesFolder, ap, gameDir);
 
             RunOnNextFrame(() =>
             {
@@ -202,7 +195,7 @@ internal class AutoPatcher : PopupWindow
         }
     }
 
-    void ApplyPatchFiles(string patchFilesFolder, ProgressBarElement ap, string workingDir)
+    void ApplyPatchFiles(string patchFilesFolder, ProgressBarElement ap, string gameDir)
     {
         string tempDir = GetPatchTempFolder();
 
@@ -211,24 +204,49 @@ internal class AutoPatcher : PopupWindow
         if (entries.Length == 1)
             patchFilesFolder = entries[0];
 
-        FileInfo[] files = Dir.GetFiles(patchFilesFolder);
-        int lastPercent = -1;
-        for (int i = 0; i < files.Length; ++i)
+        Array<string> filesToDelete = GetFilesToRemove(Path.Combine(patchFilesFolder, "Release.DeleteFiles.txt"));
+        FileInfo[] filesToAdd = Dir.GetFiles(patchFilesFolder);
+
+        int currentAction = 0;
+        int totalActions = filesToDelete.Count + filesToAdd.Length;
+
+        foreach (string toRemoveRelPath in filesToDelete)
         {
-            string srcFile = files[i].FullName;
-            string relPath = srcFile.Replace(patchFilesFolder, "");
-            string dstFile = workingDir + relPath;
+            string fullPath = Path.Combine(gameDir, toRemoveRelPath);
+            Log.Write($"RemoveFile: {toRemoveRelPath}");
+            SafeDelete(fullPath, toRemoveRelPath, tempDir);
+            ap.SetProgress(ProgressBarElement.GetPercent(++currentAction, totalActions));
+        }
+
+        foreach (FileInfo toAdd in filesToAdd)
+        {
+            string srcFile = toAdd.FullName;
+            string relPath = srcFile.Replace(patchFilesFolder, "").TrimStart('\\', '/');
+            string dstFile = Path.Combine(gameDir, relPath);
             
             Log.Write($"ApplyPatch: {relPath}");
             SafeMove(srcFile, dstFile, relPath, tempDir);
-
-            int percent = ProgressBarElement.GetPercent(i+1, files.Length);
-            if (lastPercent != percent)
-            {
-                lastPercent = percent;
-                ap.SetProgress(percent);
-            }
+            ap.SetProgress(ProgressBarElement.GetPercent(++currentAction, totalActions));
         }
+    }
+
+    static Array<string> GetFilesToRemove(string filesToDeleteTxt)
+    {
+        Array<string> toRemove = new();
+        if (!File.Exists(filesToDeleteTxt))
+            return toRemove;
+
+        foreach (string line in File.ReadAllLines(filesToDeleteTxt))
+        {
+            // the RelPath of the file is always the last element
+            // 1a91bdf1146eb32bf634cc11440ac23c196ae3ac;60B4088F-64EC-4983-A095-7E16577FCCD8;StarDrive.exe.Config
+            string[] parts = line.Split(';');
+            if (parts.Length > 0)
+                toRemove.Add(parts[parts.Length - 1].Trim().TrimStart('\\', '/'));
+        }
+        
+        File.Delete(filesToDeleteTxt); // remove this file to avoid copying it to game dir
+        return toRemove;
     }
 
     void AddErrorMessageAndAllowExit(string title, string details)
@@ -274,12 +292,40 @@ internal class AutoPatcher : PopupWindow
     }
 
     /// <summary>
+    /// If the file is in use, it must be moved or renamed,
+    /// so we always move it to game/PatchTemp folder first
+    /// </summary>
+    static void SafeDelete(string fileToDelete, string relPath, string tempDir)
+    {
+        try
+        {
+            if (!File.Exists(fileToDelete))
+                return; // nothing to do!
+
+            string tmpFile = MoveToTempPath(tempDir, relPath, fileToDelete);
+            try
+            {
+                // now try to delete the temp file, but no worries if it cannot be deleted right now
+                // it will be deleted during next PatchTemp folder cleanup
+                File.Delete(tmpFile);
+            }
+            catch
+            {
+            }
+        }
+        catch (Exception e)
+        {
+            throw new IOException(relPath, e);
+        }
+    }
+
+    /// <summary>
     /// Moves `theFile` into `tempPath`, returning full path to the temp file,
     /// so that it can be restored if necessary
     /// </summary>
     static string MoveToTempPath(string tempPath, string relPath, string theFile)
     {
-        string tmpFile = tempPath + relPath;
+        string tmpFile = Path.Combine(tempPath, relPath);
         if (File.Exists(tmpFile))
         {
             try

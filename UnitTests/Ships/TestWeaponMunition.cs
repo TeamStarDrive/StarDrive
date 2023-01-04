@@ -36,25 +36,25 @@ namespace UnitTests.Ships
         {
             CreateWeapon(out Ship ship, out WeaponTestWrapper weapon, ordCost:1, pwrCost:0);
 
-            AssertEqual(32, ship.Ordinance, "ship.Ordinance");
-            AssertEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
+            float ordBefore = ship.Ordinance;
+            float powerBefore = ship.PowerCurrent;
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
             AssertEqual(1, GetProjectileCount(ship), "Invalid projectile count");
-            AssertEqual(31, ship.Ordinance, "ship.Ordinance");
-            AssertEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
+            AssertEqual(ordBefore-1, ship.Ordinance, "ship.Ordinance should have reduced by 1");
+            AssertEqual(powerBefore, ship.PowerCurrent, "ship.PowerCurrent should not change");
         }
         
         [TestMethod]
         public void FirePowerProjectile()
         {
             CreateWeapon(out Ship ship, out WeaponTestWrapper weapon, ordCost:0, pwrCost:1);
-
-            AssertEqual(32, ship.Ordinance, "ship.Ordinance");
-            AssertEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
+            
+            float ordBefore = ship.Ordinance;
+            float powerBefore = ship.PowerCurrent;
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
             AssertEqual(1, GetProjectileCount(ship), "Invalid projectile count");
-            AssertEqual(32, ship.Ordinance, "ship.Ordinance");
-            AssertEqual(19, ship.PowerCurrent, "ship.PowerCurrent");
+            AssertEqual(ordBefore, ship.Ordinance, "ship.Ordinance should not change");
+            AssertEqual(powerBefore-1, ship.PowerCurrent, "ship.PowerCurrent should have reduced by 1");
         }
 
         [TestMethod]

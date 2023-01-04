@@ -466,6 +466,15 @@ namespace Ship_Game
 
             return defenseShipScore * DefenseShipsCapacity;
         }
+        
+        // Calculate the actual ShipRepair of this building after applying bonuses
+        public float ActualShipRepair(Planet p)
+        {
+            int level = (p?.Owner != null ? p.Level : 0);
+            float baseRepairRate = ShipRepair * GlobalStats.Defaults.BaseShipyardRepair;
+            float levelBonus = 1f + level * GlobalStats.Defaults.BonusRepairPerColonyLevel;
+            return baseRepairRate * levelBonus;
+        }
 
         public bool MoneyBuildingAndProfitable(float maintenance, float populationBillion)
         {
@@ -540,10 +549,7 @@ namespace Ship_Game
 
             if (ShipRepair.NotZero())
             {
-                float baseRepair = ShipRepair * GlobalStats.Defaults.BaseShipyardRepair;
-                text += p?.Owner == null
-                    ? $"{BuildShortDescString(baseRepair, GameText.ShipRepair, ref comma)}"
-                    : $"{BuildShortDescString(baseRepair * p.Level, GameText.ShipRepair, ref comma)}";
+                text += $"{BuildShortDescString(ActualShipRepair(p), GameText.ShipRepair, ref comma)}";
             }
 
             if (StorageAdded != 0)

@@ -6,7 +6,7 @@
   <ModuleType>Storage</ModuleType>
   <Name>Small Ordnance</Name>
   <Restrictions>IO</Restrictions>
-  <UID>OrdnanceLockerSmall</UID> 
+  <UID>OrdnanceLockerSmall</UID>
   <Version>2</Version>
 
   <IconTexturePath>Modules/OrdnanceSmall</IconTexturePath>
@@ -38,7 +38,7 @@
   <PowerStoreMax>0</PowerStoreMax>
 
   <!-- for Weapons -->
-  <OrdinanceCapacity>15</OrdinanceCapacity>
+  <OrdinanceCapacity>22</OrdinanceCapacity>
 
   <!-- for Engines -->
   <Thrust>0</Thrust>

@@ -8,22 +8,23 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 {
     public class GeodeticManager
     {
-        private float SystemCombatTimer;
-        private readonly Planet P;
-        private float Population  => P.Population;
-        private Empire Owner      => P.Owner;
-        private Shield Shield     => P.Shield;
-        private Vector2 Position    => P.Position;
-        private bool HasSpacePort => P.HasSpacePort;
-        private int Level         => P.Level;
-        private int NumShipYards  => P.OrbitalStations.Count(s => s.ShipData.IsShipyard);
-        private float RepairMultiplier       => P.RepairMultiplier;
-        private SolarSystem ParentSystem     => P.ParentSystem;
-        private int TurnsSinceTurnover       => P.TurnsSinceTurnover;
-        private float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
-        private float ShieldStrengthPercent  => P.ShieldStrengthMax > 0.01f ? P.ShieldStrengthCurrent / P.ShieldStrengthMax : 0;
-        private Array<PlanetGridSquare> TilesList => P.TilesList;
-        float ChanceToLaunchTroopsVsBombers = 0;
+        readonly Planet P;
+        float SystemCombatTimer;
+        float ChanceToLaunchTroopsVsBombers;
+        public float RepairRatePerSecond { get; private set; }
+
+        float Population  => P.Population;
+        Empire Owner      => P.Owner;
+        Shield Shield     => P.Shield;
+        Vector2 Position  => P.Position;
+        bool HasSpacePort => P.HasSpacePort;
+        int Level         => P.Level;
+        int NumShipYards  => P.OrbitalStations.Count(s => s.ShipData.IsShipyard);
+        SolarSystem ParentSystem     => P.ParentSystem;
+        int TurnsSinceTurnover       => P.TurnsSinceTurnover;
+        float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
+        float ShieldStrengthPercent  => P.ShieldStrengthMax > 0.01f ? P.ShieldStrengthCurrent / P.ShieldStrengthMax : 0;
+        Array<PlanetGridSquare> TilesList => P.TilesList;
 
         public GeodeticManager(Planet planet)
         {
@@ -157,12 +158,12 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                Owner.AI.AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
         }
 
-        public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
+        public void AffectNearbyShips(FixedSimTime elapsedTurnTime) // Refactored by Fat Bastard - 23, July 2018
         {
+            RepairRatePerSecond = GetPlanetRepairRatePerSecond();
+
             ChanceToLaunchTroopsVsBombers = 0; // Reset
             AssignPlanetarySupply();
-            float repairPool = GetPlanetRepairPoolPerTurn();
-            int repairLevel = Level + NumShipYards;
             bool spaceCombat = P.SpaceCombatNearPlanet;
 
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
@@ -175,11 +176,12 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 if (ship.Loyalty.IsFaction)
                     AddTroopsForFactions(ship);
 
-                if (loyaltyMatch
-                    && (ship.Position.InRadius(Position, 5000f) || ship.IsOrbiting(P) || ship.GetTether() == P))
+                if (loyaltyMatch && (ship.Position.InRadius(Position, 7000f) ||
+                                     ship.IsOrbiting(P) || ship.GetTether() == P))
                 {
                     SupplyShip(ship, spaceCombat);
-                    RepairShip(ship, repairPool, repairLevel);
+                    ship.AI.TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: true);
+
                     if (!spaceCombat && ship.Loyalty == Owner) // dont do this for allies
                     {
                         LoadTroops(ship, P.NumTroopsCanLaunch);
@@ -209,25 +211,17 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             ship.HealTroops(Level.LowerBound(1));
         }
 
-        // Maximum amount of ship repair that this planet can do per 1 game turn
-        public float GetPlanetRepairPoolPerTurn()
+        /// <summary>
+        /// Maximum amount of Repair that this planet can give each ship which is in Orbit
+        /// </summary>
+        public float GetPlanetRepairRatePerSecond()
         {
-            float baseRepairRate = RepairMultiplier * GlobalStats.Defaults.BaseShipyardRepair;
+            float baseRepairRate = P.RepairMultiplier * GlobalStats.Defaults.BaseShipyardRepair;
             float levelBasedBonus = 1f + P.Level * GlobalStats.Defaults.BonusRepairPerColonyLevel;
             float inCombatMod = P.SpaceCombatNearPlanet ? GlobalStats.Defaults.InCombatRepairModifier : 1f;
             float buildRate = 1f / P.ShipCostModifier; // build rate is inverse to the cost modifier
             float repairPool = baseRepairRate * levelBasedBonus * inCombatMod * buildRate;
             return repairPool;
-        }
-
-        void RepairShip(Ship ship, float repairPool, int repairLevel)
-        {
-            ship.AI.TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: true);
-            if (HasSpacePort)
-            {
-                ship.ApplyAllRepair(repairPool, repairLevel);
-                ship.CauseEmpDamage(-repairPool * 10); // Remove EMP
-            }
         }
 
         private void LoadTroops(Ship ship, int garrisonSize)

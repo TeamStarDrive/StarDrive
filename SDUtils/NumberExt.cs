@@ -126,5 +126,30 @@ namespace SDUtils
         {
             return starDate.ToString("####.0", CultureInfo.InvariantCulture);
         }
+
+        /// <summary>
+        /// Displays this `seconds` as: 60s or 1m 32s or 1h 45m 32s or 2d 8h 32m 5s
+        /// </summary>
+        /// <param name="seconds"></param>
+        /// <returns></returns>
+        public static string TimeString(this float seconds)
+        {
+            if (float.IsInfinity(seconds))
+                return "?";
+            const float MINUTE = 60;
+            const float HOUR = 60*MINUTE;
+            const float DAY = 24*HOUR;
+
+            if (seconds < MINUTE)
+                return $"{(int)seconds}s";
+
+            if (seconds < HOUR)
+                return $"{(int)(seconds / MINUTE)}m {(int)(seconds % MINUTE)}s";
+
+            if (seconds < DAY)
+                return $"{(int)(seconds / HOUR)}h {(int)((seconds % HOUR) / MINUTE)}m {(int)(seconds % MINUTE)}s";
+
+            return $"{(int)(seconds / DAY)}d {(int)((seconds % DAY) / HOUR)}h {(int)((seconds % HOUR) / MINUTE)}m {(int)(seconds % MINUTE)}s";
+        }
     }
 }

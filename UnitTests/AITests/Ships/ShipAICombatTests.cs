@@ -236,7 +236,7 @@ namespace UnitTests.AITests.Ships
             Log.Write($"OurShip: {Us}");
             Log.Write($"OurShip.Target = {Us.AI.Target}  CombatState = {Us.AI.CombatState} InCombat = {Us.InCombat}");
             Log.Write($"ColonyShip.CombatState = {colonyShip.AI.CombatState}  InCombat = {colonyShip.InCombat}");
-            Log.Write($"ColonyShip.Health = {colonyShip.Health}  percent = {colonyShip.HealthPercent}");
+            Log.Write($"ColonyShip.Health = {colonyShip.Health}  percent = {colonyShip.HealthPercent} repair = {colonyShip.CurrentRepairPerSecond}");
             foreach (var m in colonyShip.Modules)
                 Log.Write($"  ColonyShip.Module {m}");
         }
@@ -251,7 +251,7 @@ namespace UnitTests.AITests.Ships
             else if (target.Active)
             {
                 Log.Write($"ourV={Us.CurrentVelocity.String()} tgtV={target.CurrentVelocity.String()} "+
-                          $"Dist={Us.Distance(target).String()} tgtHealth={target.HealthPercent:0.1}% "+
+                          $"Dist={Us.Distance(target).String()} tgtHealth={target.HealthPercent:0.1}% tgtRepair={target.CurrentRepairPerSecond} "+
                           $"tgtModules={target.Modules.Count(m => m.Active)}/{target.Modules.Length}");
             }
             else
@@ -318,7 +318,7 @@ namespace UnitTests.AITests.Ships
             // Let the ship reacquire the target since giving an order caused an exit
             // combat (as it should, otherwise the ship will not enter combat again). 
             RunObjectsSim(EnemyScanInterval); 
-
+            
             // our ship must remain in combat the whole time until enemy ship is destroyed
             RunSimWhile((simTimeout:60, fatal:false), () => colonyShip.Active, () =>
             {

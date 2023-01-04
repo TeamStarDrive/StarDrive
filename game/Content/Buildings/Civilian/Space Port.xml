@@ -8,7 +8,8 @@
   <PlusTaxPercentage>.2</PlusTaxPercentage>
   <Infrastructure>2</Infrastructure>
   <!-- See Globals.yaml for BaseShipyardRepair, this is merely a multiplier -->
-  <ShipRepair>3.0</ShipRepair>
+  <!-- Having a SpacePort should make the repair a lot better -->
+  <ShipRepair>4.0</ShipRepair>
   <AllowShipBuilding>true</AllowShipBuilding>
   
   <!-- For localization in GameText.yaml -->

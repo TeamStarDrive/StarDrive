@@ -30,7 +30,9 @@
   <Description>The combat information center consolidates all command and control functions into a single module. From here the crew can coordinate sensor data, manage damage control teams, organize shipboard defensive actions, and more. </Description>
   <PowerDraw>32</PowerDraw>
   <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
-  <BonusRepairRate>20.0</BonusRepairRate>
+  <!-- This is 4x bigger than Bridge again, but having too insane of a modifier would break the game
+       So we need to keep this reasonable at 3x-->
+  <BonusRepairRate>12.0</BonusRepairRate>
 
   <SensorRange>70000</SensorRange>
   <TargetTracking>10</TargetTracking>

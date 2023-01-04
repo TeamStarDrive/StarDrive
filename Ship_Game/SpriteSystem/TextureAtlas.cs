@@ -104,22 +104,32 @@ namespace Ship_Game.SpriteSystem
         // to avoid loading big textures which are not even used
         public Texture2D GetAtlasTexture()
         {
-            if (Atlas == null)
+            if (Atlas != null)
+                return Atlas;
+
+            // this is an important race-condition point, multiple threads
+            // could be looking to lazy-load this atlas texture
+            lock (this)
             {
-                string path = Path.PrePackedTex ?? Path.CacheAtlasTex;
-                var atlasTex = new FileInfo(path);
+                if (Atlas != null) // another thread already loaded the Atlas
+                    return Atlas;
+
+                var atlasTex = new FileInfo(Path.PrePackedTex ?? Path.CacheAtlasTex);
                 if (atlasTex.Exists)
                 {
-                    Atlas = ResourceManager.RootContent.LoadUncachedTexture(atlasTex, "dds");
-                    Width = Atlas.Width;
-                    Height = Atlas.Height;
-                }
-                else
-                {
-                    Log.Error($"Atlas texture does not exist: {path}");
+                    var atlas = ResourceManager.RootContent.LoadUncachedTexture(atlasTex, "dds");
+                    Width = atlas.Width;
+                    Height = atlas.Height;
+
+                    // signal a memory barrier to synchronize write to Atlas field across multiple threads
+                    Thread.MemoryBarrier();
+                    Atlas = atlas;
+                    return atlas;
                 }
             }
-            return Atlas;
+
+            Log.Error($"Atlas texture does not exist: {Path.PrePackedTex ?? Path.CacheAtlasTex}");
+            return null;
         }
 
         // used memory in bytes
