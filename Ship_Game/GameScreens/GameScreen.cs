@@ -195,12 +195,11 @@ namespace Ship_Game
 
             // Every time we close a screen, make sure to Release input capture
             GlobalStats.TakingInput = false;
-
+            
+            IsExiting = true;
             if (TransitionOffTime.NotZero())
-            {
-                IsExiting = true;
                 return;
-            }
+
             ScreenManager.RemoveScreen(this);
         }
 

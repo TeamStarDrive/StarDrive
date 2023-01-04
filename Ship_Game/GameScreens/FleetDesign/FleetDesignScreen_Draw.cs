@@ -4,7 +4,6 @@ using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using SDGraphics;
-using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
@@ -59,19 +58,25 @@ namespace Ship_Game
                 }
             }
             ScreenManager.RenderSceneObjects();
-
-            batch.SafeBegin();
+            
+            if (!Universe.IsExiting)
             {
-                DrawUI(batch, elapsed);
-                base.Draw(batch, elapsed); // draw automatic elements on top of everything else
+                batch.SafeBegin();
+                {
+                    DrawUI(batch, elapsed);
+                    base.Draw(batch, elapsed); // draw automatic elements on top of everything else
+                }
+                batch.SafeEnd();
             }
-            batch.SafeEnd();
 
             ScreenManager.EndFrameRendering();
         }
 
         void DrawUI(SpriteBatch batch, DrawTimes elapsed)
         {
+            if (Universe.IsExiting)
+                return;
+
             TitleBar.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, Colors.Cream);
 
