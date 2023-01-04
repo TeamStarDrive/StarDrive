@@ -17,7 +17,8 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
             var service = (IGraphicsDeviceService)input.ContentManager.ServiceProvider.GetService(typeof(IGraphicsDeviceService));
 
             var cache = input.ContentManager as IEffectCache;
-            if (cache != null && cache.TryGetEffect(input.AssetName, out LightingEffect fx))
+            string cachedEffect = input.AssetName+".sunburnfx";
+            if (cache != null && cache.TryGetEffect(cachedEffect, out LightingEffect fx))
             {
                 //Console.WriteLine($"Using CACHED LightingEffect {input.AssetName}");
                 return fx;
@@ -68,7 +69,7 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
             if (input.ReadInt32() != 1234)
                 throw new Exception("Error loading asset.");
 
-            cache?.AddEffect(input.AssetName, fx);
+            cache?.AddEffect(cachedEffect, fx);
 
             return fx;
         }
