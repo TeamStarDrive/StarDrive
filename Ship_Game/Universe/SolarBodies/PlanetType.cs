@@ -55,7 +55,7 @@ namespace Ship_Game.Universe.SolarBodies
         public bool NoHalo;
         public bool NoAtmosphere;
 
-        public Model PlanetModel;
+        public StaticMesh PlanetModel;
         public Texture2D DiffuseTex;
         public Texture2D SpecularTex;
         public Texture2D NormalsTex;
@@ -64,7 +64,7 @@ namespace Ship_Game.Universe.SolarBodies
         public LightingEffect Material;
 
         // pre-load everything necessary
-        public void Initialize(PlanetTypes types, GameContentManager content, Model planetModel)
+        public void Initialize(PlanetTypes types, GameContentManager content, StaticMesh planetModel)
         {
             Types = types;
             PlanetModel = planetModel;
@@ -145,8 +145,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public SceneObject CreatePlanetSO()
         {
-            var so = StaticMesh.SceneObjectFromModel(PlanetModel, Material);
-            return so;
+            return PlanetModel.CreateSceneObject(effect: Material);
         }
     }
 }

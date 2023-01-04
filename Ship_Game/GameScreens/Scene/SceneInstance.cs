@@ -17,6 +17,7 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Matrix = SDGraphics.Matrix;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Utils;
 
 namespace Ship_Game.GameScreens.Scene
 {
@@ -39,6 +40,8 @@ namespace Ship_Game.GameScreens.Scene
         public ParticleManager Particles;
 
         Map<string, EmpireData> Empires = new();
+
+        public SeededRandom Random = new();
 
         public static SceneInstance FromFile(GameScreen screen, string relativePath)
         {

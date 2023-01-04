@@ -91,7 +91,7 @@ namespace Ship_Game
                 if (DefaultModel != null && ContentId == ResourceManager.ContentId)
                     return;
                 ContentId = ResourceManager.ContentId;
-                DefaultModel  = content.Load<Model>("Effects/ThrustCylinderB");
+                DefaultModel  = content.LoadModel("Effects/ThrustCylinderB");
                 DefaultNoise  = content.Load<Texture3D>("Effects/NoiseVolume");
                 DefaultEffect = content.Load<Effect>("Effects/Thrust");
 
