@@ -256,7 +256,7 @@ namespace Ship_Game.Ships
             var textPos = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
             int health = (int)(Ship.HealthPercent * 100);
 
-            float repairPerSec = Ship.GetCurrentRepairPerSecond();
+            float repairPerSec = Ship.CurrentRepairPerSecond;
             float timeUntilRepaired = (Ship.HealthMax - Ship.Health) / repairPerSec;
             string integrityText = $"{health}% (+{(int)repairPerSec}HP/s ETA:{timeUntilRepaired.TimeString()})";
             batch.DrawString(Fonts.Arial12, integrityText, textPos, Color.White);

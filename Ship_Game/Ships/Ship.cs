@@ -15,7 +15,6 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Rectangle = SDGraphics.Rectangle;
-using System.Linq;
 
 namespace Ship_Game.Ships
 {
@@ -1893,45 +1892,21 @@ namespace Ship_Game.Ships
                 ShieldPower = ShieldMax;
         }
 
-        // transient statistic, how fast this ship is being repaired, only enabled for selected ship
-        Array<(float HpRepaired, float RepairInterval)> CurrentRepairStats;
-
-        // Only valid for the currently selected ship. Only use this for UI stats!
-        public int GetCurrentRepairPerSecond()
-        {
-            var stats = CurrentRepairStats;
-            if (stats == null)
-                return 0;
-            if (stats.Count == 1)
-                return (int)Math.Round(stats.First.HpRepaired / stats.First.RepairInterval);
-
-            // this should be reasonably fast for most UI needs,
-            // since only a single ship is expected to be selected at any time
-            var span = CurrentRepairStats.AsSpan();
-            if (span.Length > 5) span = span.Slice(span.Length - 5);
-
-            float avgRepairPerSec = span[0].HpRepaired / span[0].RepairInterval;
-            for (int i = 1; i < span.Length; ++i)
-                avgRepairPerSec = (avgRepairPerSec + (span[i].HpRepaired / span[i].RepairInterval)) * 0.5f;
-            return (int)Math.Round(avgRepairPerSec);
-        }
+        // UI statistics, show average repair per second
+        public float CurrentRepairPerSecond { get; private set; }
 
         /// <param name="repairAmount">How many HP-s to repair</param>
         /// <param name="repairInterval">This repair event interval in seconds, important for correct UI estimation</param>
         /// <param name="repairLevel">Level which improves repair decisions</param>
         public void ApplyAllRepair(float repairAmount, float repairInterval, int repairLevel)
         {
-            if (HealthPercent > 0.999f || repairAmount.AlmostEqual(0)) 
-                return;
-
-            // UI statistics, show average repair per second for the selected ship
-            if (Universe.Screen?.SelectedShip == this)
+            if (HealthPercent > 0.999f || repairAmount.AlmostEqual(0))
             {
-                CurrentRepairStats ??= new();
-                CurrentRepairStats.Add((repairAmount, repairInterval));
+                CurrentRepairPerSecond = 0;
+                return;
             }
-            else
-                CurrentRepairStats = null;
+
+            CurrentRepairPerSecond = repairAmount / repairInterval;
 
             int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
             for (int i = 0; repairAmount > 0 && i < damagedModules; ++i)
