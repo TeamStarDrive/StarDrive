@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -434,18 +435,25 @@ namespace Ship_Game.Data
                 }
             }
         }
-
-        /// Loads a texture and DOES NOT store it inside GameContentManager
+        
+        /// <summary>
+        /// Loads a textures and DOES NOT cache it inside GameContentManager.
+        /// WARNING: This method can easily cause memory leaks since there is no cache checks. Ensure it is always synchronized.
+        /// </summary>
         public Texture2D LoadUncachedTexture(FileInfo file)
         {
             string ext = file.Extension.Substring(1);
             return LoadUncachedTexture(file, ext);
         }
 
+        /// <summary>
+        /// Loads a textures and DOES NOT cache it inside GameContentManager.
+        /// WARNING: This method can easily cause memory leaks since there is no cache checks. Ensure it is always synchronized.
+        /// </summary>
         public Texture2D LoadUncachedTexture(FileInfo file, string ext)
         {
             // the file path may be from AppData folder, in which case RelPath() doesn't work
-            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadUncachedTexture {file.FullName}");
+            if (EnableLoadInfoLog) Log.Write(ConsoleColor.Cyan, $"LoadUncachedTexture {file.FullName}  Thread={Thread.CurrentThread.Name}");
             if (ext != "xnb")
                 return RawContent.LoadTexture(file);
             return ReadXnaAsset<Texture2D>(file.FullName);
