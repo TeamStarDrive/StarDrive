@@ -685,33 +685,42 @@ namespace Ship_Game.AI
                 //Do repair check if friendly ships around
                 if (FriendliesNearby.Length == 0)
                     return;
-                //Added by McShooterz: logic for repair beams
-                if (Owner.HasRepairBeam)
-                    for (int x = 0; x < Owner.RepairBeams.Count; x++)
-                    {
-                        ShipModule module = Owner.RepairBeams[x];
-                        if (module.InstalledWeapon.CooldownTimer <= 0f &&
-                            module.InstalledWeapon.Module.Powered &&
-                            Owner.Ordinance >= module.InstalledWeapon.OrdinanceRequiredToFire &&
-                            Owner.PowerCurrent >= module.InstalledWeapon.PowerRequiredToFire)
-                            DoRepairBeamLogic(module.InstalledWeapon);
-                    }
 
-                if (!Owner.HasRepairModule) return;
-                for (int x = 0; x < Owner.Weapons.Count; x++)
+                //Added by McShooterz: logic for repair beams
+                var repairBeams = Owner.RepairBeams;
+                if (repairBeams != null)
                 {
-                    Weapon weapon = Owner.Weapons[x];
-                    if (weapon.CooldownTimer > 0f || !weapon.Module.Powered ||
-                        Owner.Ordinance < weapon.OrdinanceRequiredToFire ||
-                        Owner.PowerCurrent < weapon.PowerRequiredToFire || !weapon.IsRepairDrone)
+                    for (int i = 0; i < repairBeams.Count; i++)
+                    {
+                        ShipModule m = repairBeams[i];
+                        if (m.InstalledWeapon.CooldownTimer <= 0f &&
+                            m.InstalledWeapon.Module.Powered &&
+                            Owner.Ordinance >= m.InstalledWeapon.OrdinanceRequiredToFire &&
+                            Owner.PowerCurrent >= m.InstalledWeapon.PowerRequiredToFire)
+                        {
+                            DoRepairBeamLogic(m.InstalledWeapon);
+                        }
+                    }
+                }
+
+                if (!Owner.HasRepairModule)
+                    return;
+
+                var weapons = Owner.Weapons;
+                for (int i = 0; i < weapons.Count; i++)
+                {
+                    Weapon w = weapons[i];
+                    if (w.CooldownTimer > 0f || !w.Module.Powered ||
+                        Owner.Ordinance < w.OrdinanceRequiredToFire ||
+                        Owner.PowerCurrent < w.PowerRequiredToFire || !w.IsRepairDrone)
                     {
                         //Gretman -- Added this so repair drones would cooldown outside combat (+15s)
-                        if (weapon.CooldownTimer > 0f)
-                            weapon.CooldownTimer = Math.Max(weapon.CooldownTimer - 1, 0f);
+                        if (w.CooldownTimer > 0f)
+                            w.CooldownTimer = Math.Max(w.CooldownTimer - 1, 0f);
                         continue;
                     }
 
-                    DoRepairDroneLogic(weapon);
+                    DoRepairDroneLogic(w);
                 }
             }
         }
