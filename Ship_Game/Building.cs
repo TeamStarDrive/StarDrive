@@ -69,8 +69,6 @@ namespace Ship_Game
         [StarData] public bool IsProjector;
         [StarData] public float ProjectorRange;
         [StarData] public float ShipRepair; // ship repair multiplier, intended to be 1.0 or 2.0 etc
-        // Calculate the actual ShipRepair of this building after applying bonuses
-        public float ActualShipRepair => ShipRepair * GlobalStats.Defaults.BaseShipyardRepair;
         [StarData] public BuildingCategory Category;
         [StarData] public bool IsPlayerAdded;
         [StarData] public int InvadeInjurePoints;
@@ -468,6 +466,15 @@ namespace Ship_Game
 
             return defenseShipScore * DefenseShipsCapacity;
         }
+        
+        // Calculate the actual ShipRepair of this building after applying bonuses
+        public float ActualShipRepair(Planet p)
+        {
+            int level = (p?.Owner != null ? p.Level : 0);
+            float baseRepairRate = ShipRepair * GlobalStats.Defaults.BaseShipyardRepair;
+            float levelBonus = 1f + level * GlobalStats.Defaults.BonusRepairPerColonyLevel;
+            return baseRepairRate * levelBonus;
+        }
 
         public bool MoneyBuildingAndProfitable(float maintenance, float populationBillion)
         {
@@ -542,9 +549,7 @@ namespace Ship_Game
 
             if (ShipRepair.NotZero())
             {
-                text += p?.Owner == null
-                    ? $"{BuildShortDescString(ActualShipRepair, GameText.ShipRepair, ref comma)}"
-                    : $"{BuildShortDescString(ActualShipRepair * p.Level, GameText.ShipRepair, ref comma)}";
+                text += $"{BuildShortDescString(ActualShipRepair(p), GameText.ShipRepair, ref comma)}";
             }
 
             if (StorageAdded != 0)

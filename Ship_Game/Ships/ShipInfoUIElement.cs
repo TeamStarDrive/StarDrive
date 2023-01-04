@@ -246,7 +246,7 @@ namespace Ship_Game.Ships
 
         void DrawStructuralIntegrity(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
         {
-            if (Ship.HealthPercent.AlmostEqual(1))
+            if (Ship.HealthPercent > 0.999f)
                 return;
 
             SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
