@@ -72,6 +72,7 @@ namespace Ship_Game
             }
 
             ResearchQueueList.Visible = visible;
+            ResearchQueueList.Parent.Visible = visible;
             CurrentResearchPanel.Visible = visible;
             BtnShowQueue.Text = ResearchQueueList.Visible ? GameText.HideQueue : GameText.ShowQueue;
         }
@@ -133,13 +134,13 @@ namespace Ship_Game
         public void ReloadResearchQueue()
         {
             CurrentResearch = Screen.Player.Research.HasTopic
-                            ? CreateQueueItem((TreeNode)Screen.AllTechNodes[Screen.Player.Research.Topic])
+                            ? CreateQueueItem(Screen.SubNodes[Screen.Player.Research.Topic])
                             : null;
 
             var items = new Array<ResearchQItem>();
             foreach (string tech in Screen.Player.Research.QueuedItems)
             {
-                items.Add(CreateQueueItem( (TreeNode)Screen.AllTechNodes[tech] ));
+                items.Add(CreateQueueItem( Screen.SubNodes[tech] ));
             }
             ResearchQueueList.SetItems(items);
 
