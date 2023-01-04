@@ -32,7 +32,7 @@
   <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
   <!-- Can't give too much repair rate here, because Main Engineering
        already has a bunch of other buffs -->
-  <BonusRepairRate>24.0</BonusRepairRate>
+  <BonusRepairRate>12.0</BonusRepairRate>
   <EMPProtection>1600</EMPProtection>
   <!-- for shield items -->
   <ShieldPowerMax>8000</ShieldPowerMax>
