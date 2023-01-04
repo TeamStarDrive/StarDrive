@@ -45,7 +45,7 @@ public class FleetButton : UIPanel
             batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r, isActive ? new(0, 0, 255, 80) : Color.Black);
             sel.Draw(batch, elapsed);
 
-            Fleet f = Screen.Player.GetFleetOrNull(FleetKey);
+            Fleet f = Screen.Player?.GetFleetOrNull(FleetKey);
             if (f?.DataNodes.Count > 0)
             {
                 RectF firect = new(r.X + 6, r.Y + 6, r.W - 12, r.W - 12);
