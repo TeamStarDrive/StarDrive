@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Ships;
 using Matrix = SDGraphics.Matrix;
 
@@ -12,7 +13,7 @@ public sealed class ShieldManager : IDisposable
     readonly UniverseScreen Universe;
     Shield[] VisibleShields = Empty<Shield>.Array;
     Shield[] VisiblePlanetShields = Empty<Shield>.Array;
-    Model ShieldModel;
+    StaticMesh ShieldModel;
     Texture2D ShieldTexture;
     Texture2D GradientTexture;
     Effect ShieldEffect;
@@ -50,7 +51,7 @@ public sealed class ShieldManager : IDisposable
         // always use the root content manager for the shield manager
         // because this reduces issues with content reloading
         var content = ResourceManager.RootContent;
-        ShieldModel = content.Load<Model>("Model/Projectiles/shield");
+        ShieldModel = content.LoadStaticMesh("Model/Projectiles/shield");
         ShieldTexture = content.Load<Texture2D>("Model/Projectiles/shield_d.dds");
         GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");
 
@@ -159,11 +160,6 @@ public sealed class ShieldManager : IDisposable
         Scale.SetValue(shield.TexScale);
         Displacement.SetValue(shield.Displacement);
 
-        foreach (ModelMesh mesh in ShieldModel.Meshes)
-        {
-            foreach (ModelMeshPart part in mesh.MeshParts)
-                part.Effect = ShieldEffect;
-            mesh.Draw();
-        }
+        ShieldModel.Draw(ShieldEffect);
     }
 }

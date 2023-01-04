@@ -61,8 +61,8 @@ namespace Ship_Game
             ScreenManager.ExitAllExcept(this);
             Music.Stop();
             Ambient.Stop();
-            ScreenManager.AddScreen(new MainMenuScreen(MainMenuType.Defeat));
             base.ExitScreen();
+            ScreenManager.GoToScreen(new MainMenuScreen(MainMenuType.Defeat), clear3DObjects:true);
         }
 
         public override bool HandleInput(InputState input)

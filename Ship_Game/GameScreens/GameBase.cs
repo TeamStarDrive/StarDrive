@@ -34,6 +34,10 @@ namespace Ship_Game
 
         public int FrameId { get; protected set; }
         public UpdateTimes Elapsed { get; protected set; }
+
+        /// <summary>
+        /// Total elapsed Game time while the Game window has been active
+        /// </summary>
         public float TotalElapsed { get; protected set; }
 
         public Form Form => (Form)Control.FromHandle(Window.Handle);

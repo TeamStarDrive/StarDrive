@@ -112,12 +112,7 @@ namespace Ship_Game
             if (flameParticles > 0f)
                 FlameTrail = particles.Flame.NewEmitter(flameParticles * Scale, Position, scale: Scale * 0.5f);
 
-            So = new SceneObject(model.Meshes[0])
-            {
-                Name = model.Meshes[0].Name,
-                ObjectType = ObjectType.Dynamic,
-                Visibility = ObjectVisibility.Rendered,
-            };
+            So = model.CreateSceneObject();
             So.AffineTransform(Position, RotationRadians, Scale);
         }
 
