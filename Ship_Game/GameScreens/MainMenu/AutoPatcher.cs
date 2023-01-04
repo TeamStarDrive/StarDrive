@@ -182,7 +182,6 @@ internal class AutoPatcher : PopupWindow
 
             RunOnNextFrame(() =>
             {
-                Log.LogEventStats(Log.GameEvent.AutoUpdateFinished);
                 ProgressSteps.AddLabel("Restarting StarDrive ...")
                     .Anim().Alpha(new(0.5f,1.0f)).Loop();
                 CurrentTask = Parallel.Run(RestartAsync);
@@ -352,7 +351,11 @@ internal class AutoPatcher : PopupWindow
 
     void RestartAsync()
     {
-        Thread.Sleep(3000);
+        Log.Write("AutoUpdate finished. Restarting in 3 seconds...");
+        Log.FlushAllLogs();
+        Log.LogEventStats(Log.GameEvent.AutoUpdateFinished);
+
+        Thread.Sleep(2900);
         Program.RunCleanup();
 
         string args = string.Join(" ", Environment.GetCommandLineArgs().AsSpan(1).ToArray());

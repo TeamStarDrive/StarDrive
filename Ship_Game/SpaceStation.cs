@@ -12,6 +12,7 @@ public sealed class SpaceStation
     SceneObject InnerSO;
     SceneObject OuterSO;
     bool IsLoadingSO;
+    bool DisableLoading;
 
     float ZRotation;
     const float RadiansPerSecond = RadMath.Deg1AsRads * 2;
@@ -22,6 +23,9 @@ public sealed class SpaceStation
 
     void UpdateTransforms(Vector2 position)
     {
+        if (InnerSO == null && OuterSO == null)
+            return;
+
         float scale = GlobalStats.Defaults.SpaceportScale;
 
         Matrix transform = Matrix.CreateScale(scale)
@@ -32,7 +36,8 @@ public sealed class SpaceStation
                            * Matrix.CreateTranslation(position.X, position.Y, 600f);
         if (InnerSO != null)
             InnerSO.World = transform;
-        OuterSO.World = transform;
+        if (OuterSO != null)
+            OuterSO.World = transform;
     }
 
     void CreateSceneObject(Planet planet, Empire owner)
@@ -98,7 +103,7 @@ public sealed class SpaceStation
             ZRotation += RadiansPerSecond * timeStep.FixedTime;
             UpdateTransforms(planet.Position);
         }
-        else if (!IsLoadingSO)
+        else if (!IsLoadingSO && !DisableLoading)
         {
             // initialize the SceneObjects in the UI thread
             IsLoadingSO = true;
@@ -110,6 +115,7 @@ public sealed class SpaceStation
                 }
                 catch (Exception e)
                 {
+                    DisableLoading = true;
                     Log.Error(e, "SpaceStation.CreateSceneObject failed");
                 }
                 finally
