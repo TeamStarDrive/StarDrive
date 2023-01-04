@@ -13,7 +13,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private float Population  => P.Population;
         private Empire Owner      => P.Owner;
         private Shield Shield     => P.Shield;
-        private Vector2 Position    => P.Position;
+        private Vector2 Position  => P.Position;
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
         private int NumShipYards  => P.OrbitalStations.Count(s => s.ShipData.IsShipyard);
@@ -157,7 +157,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                Owner.AI.AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
         }
 
-        public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
+        public void AffectNearbyShips(FixedSimTime elapsedTurnTime) // Refactored by Fat Bastard - 23, July 2018
         {
             ChanceToLaunchTroopsVsBombers = 0; // Reset
             AssignPlanetarySupply();
@@ -175,11 +175,17 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 if (ship.Loyalty.IsFaction)
                     AddTroopsForFactions(ship);
 
-                if (loyaltyMatch
-                    && (ship.Position.InRadius(Position, 5000f) || ship.IsOrbiting(P) || ship.GetTether() == P))
+                if (loyaltyMatch && (ship.Position.InRadius(Position, 7000f) ||
+                                     ship.IsOrbiting(P) || ship.GetTether() == P))
                 {
                     SupplyShip(ship, spaceCombat);
-                    RepairShip(ship, repairPool, repairLevel);
+                    if (repairPool > 0f)
+                    {
+                        RepairShip(ship, repairPool, elapsedTurnTime.FixedTime, repairLevel);
+                    }
+
+                    ship.AI.TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: true);
+
                     if (!spaceCombat && ship.Loyalty == Owner) // dont do this for allies
                     {
                         LoadTroops(ship, P.NumTroopsCanLaunch);
@@ -220,14 +226,14 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             return repairPool;
         }
 
-        void RepairShip(Ship ship, float repairPool, int repairLevel)
+        void RepairShip(Ship ship, float repairPool, float repairInterval, int repairLevel)
         {
-            ship.AI.TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: true);
-            if (HasSpacePort)
-            {
-                ship.ApplyAllRepair(repairPool, repairLevel);
-                ship.CauseEmpDamage(-repairPool * 10); // Remove EMP
-            }
+            ship.ApplyAllRepair(repairPool, repairInterval, repairLevel);
+
+            // TODO: should these be in Globals.yaml ?
+            float empRemovalRate = -repairPool*10;
+            if (P.SpaceCombatNearPlanet) empRemovalRate *= 0.25f;
+            ship.CauseEmpDamage(empRemovalRate); // Remove EMP
         }
 
         private void LoadTroops(Ship ship, int garrisonSize)
