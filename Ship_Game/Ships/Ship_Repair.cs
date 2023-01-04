@@ -25,7 +25,7 @@ public partial class Ship
     /// Total seconds elapsed since we were last damaged by another GameObject
     /// such as a Projectile
     /// </summary>
-    public float TimeSinceLastDamage => StarDriveGame.Instance.TotalElapsed - LastDamagedTime;
+    public float TimeSinceLastDamage => GameBase.Base.TotalElapsed - LastDamagedTime;
     
     /// <summary>
     /// If CombatRepair is turned off, then ships in conflict cannot repair themselves
@@ -96,7 +96,7 @@ public partial class Ship
     public void SetLastDamagedBy(GameObject damagedBy)
     {
         LastDamagedBy = damagedBy;
-        LastDamagedTime = StarDriveGame.Instance.TotalElapsed;
+        LastDamagedTime = GameBase.Base.TotalElapsed;
     }
 
     void ApplyRepairToShields(float repairPool)

@@ -81,8 +81,8 @@ namespace Ship_Game
         public bool RightMouseWasHeldDown => RightHold.IsHolding || RightHold.WasHolding;
 
         public float LeftMouseHoldDuration       => LeftHold.TimeEnd - LeftHold.TimeStart;
-        public float LeftMouseHoldTimeSinceStart => StarDriveGame.Instance.TotalElapsed - LeftHold.TimeStart;
-        public float LeftMouseHoldTimeSinceEnd   => StarDriveGame.Instance.TotalElapsed - LeftHold.TimeEnd;
+        public float LeftMouseHoldTimeSinceStart => GameBase.Base.TotalElapsed - LeftHold.TimeStart;
+        public float LeftMouseHoldTimeSinceEnd   => GameBase.Base.TotalElapsed - LeftHold.TimeEnd;
 
         public bool MouseDrag => LeftMouseHeldDown || RightMouseHeldDown;
 

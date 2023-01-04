@@ -73,7 +73,8 @@ namespace Ship_Game.Empires.ShipPools
                 return true;
             }
 
-            if (s.DesignRoleType == RoleType.Warship && s.BaseCanWarp)
+            // TODO: This is because there is no Default AO anymore, need to revisit the AO code
+            if (s.IsAWarShip && s.BaseCanWarp)
             {
                 Log.Warning($"Could Not add ship to force pools. AO Pools {OwnerAI.AreasOfOperations.Count} {s.DesignRole} {s}");
             }
