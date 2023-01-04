@@ -24,7 +24,6 @@ namespace Ship_Game.Ships
         [StarData] public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
 
         public float SensorRange = 20000f;
-        public float RepairRate = 1f;
         public float MaxBank = 0.5236f;
 
         public Vector2 ProjectedPosition;
@@ -50,7 +49,6 @@ namespace Ship_Game.Ships
         [StarData] public CarrierBays Carrier;
         [StarData] public ShipResupply Supply;
         public bool ShipStatusChanged;
-        public bool HasRegeneratingModules;
         public bool IsMeteor { get; private set; }
 
         [StarData] Planet TetheredTo;
@@ -105,7 +103,6 @@ namespace Ship_Game.Ships
         public float PowerStoreMax;
         public float PowerDraw;
         public Power NetPower;
-        public bool HasRepairModule;
         readonly AudioHandle JumpSfx = new();
 
         [StarData] public int Level;
@@ -135,7 +132,6 @@ namespace Ship_Game.Ships
         public float ExplorePlanetDistance => (SensorRange * 0.1f).LowerBound(500);
         public float ExploreSystemDistance => SensorRange;
 
-        public float HealPerTurn;
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
         Vector3 DieRotation;
         private float DieTimer;
@@ -153,8 +149,6 @@ namespace Ship_Game.Ships
         private bool HasExploded;
         public float TotalDps { get; private set; }
 
-        public Array<ShipModule> RepairBeams = new Array<ShipModule>();
-        public bool HasRepairBeam;
         public bool HasCommand;
         public int SecondsAlive { get; private set; } // FB - for scrap loop warnings
 
@@ -1304,75 +1298,6 @@ namespace Ship_Game.Ships
                 Universe.Shields?.RemoveShieldLights(GetActiveShields());
         }
 
-        public GameObject LastDamagedBy { get; private set; }
-        float LastDamagedTime;
-
-        /// <summary>
-        /// Total seconds elapsed since we were last damaged by another GameObject
-        /// such as a Projectile
-        /// </summary>
-        public float TimeSinceLastDamage => StarDriveGame.Instance.TotalElapsed - LastDamagedTime;
-
-        public void SetLastDamagedBy(GameObject damagedBy)
-        {
-            LastDamagedBy = damagedBy;
-            LastDamagedTime = StarDriveGame.Instance.TotalElapsed;
-        }
-
-        public bool CanRepair => !InCombat || GlobalStats.Defaults.UseCombatRepair;
-
-        void Repair(FixedSimTime timeSinceLastUpdate)
-        {
-            if (CanRepair)
-            {
-                int repairLevel = Level;
-                float repair = RepairRate;
-
-                // sometimes ships Priority escape from combat, turning InCombat=false
-                // even if other ships are attacking us, so we check if we were recently damaged
-                // and in that case, the repair penalty still applies
-                const float RecentlyDamagedSeconds = 5f;
-                bool combatRepairPenalty = InCombat || TimeSinceLastDamage < RecentlyDamagedSeconds;
-                if (combatRepairPenalty) // reduces repair rate while in combat
-                {
-                    repair *= GlobalStats.Defaults.InCombatSelfRepairModifier;
-                }
-
-                float planetRepair = 0f;
-                Planet p = GetTether()
-                        ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
-                if (p != null)
-                {
-                    planetRepair = p.GeodeticManager.RepairRatePerSecond;
-                    repairLevel = Math.Max(repairLevel, p.Level + p.NumShipyards);
-
-                    float empRemovalRate = -planetRepair*GlobalStats.Defaults.BonusColonyEMPRecovery;
-                    CauseEmpDamage(empRemovalRate); // Reduce EMP damage status from planet repair
-                }
-
-                float totalRepair = repair + planetRepair;
-                ApplyAllRepair(totalRepair, repairInterval:timeSinceLastUpdate.FixedTime, repairLevel);
-                
-                if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(ShipData.ShipCategory))
-                    AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
-            }
-
-            if (!EMPDisabled)
-                PerformRegeneration();
-        }
-
-        void PerformRegeneration()
-        {
-            if (!HasRegeneratingModules)
-                return;
-
-            for (int i = 0; i < ModuleSlotList.Length; i++)
-            {
-                ShipModule module = ModuleSlotList[i];
-                module.RegenerateSelf();
-            }
-        }
-
         public void UpdateResupply()
         {
             if (Health < 1f)
@@ -1446,22 +1371,6 @@ namespace Ship_Game.Ships
             float newShipCost = newShip.GetCost(Loyalty);
             int cost          = Math.Max((int)(newShipCost - oldShipCost), 0);
             return cost + (int)(10 * Universe.ProductionPace); // extra refit cost: accord for GamePace;
-        }
-
-        public Status HealthStatus
-        {
-            get
-            {
-                if (engineState == MoveState.Warp
-                    || AI.State == AIState.Refit
-                    || AI.State == AIState.Resupply)
-                {
-                    return Status.NotApplicable;
-                }
-
-                Health = Health.Clamped(0, HealthMax);
-                return ToShipStatus(Health, HealthMax);
-            }
         }
 
         public bool IsTethered => TetheredTo != null;
@@ -1769,7 +1678,7 @@ namespace Ship_Game.Ships
             BombBays.Clear();
             OurTroops.Clear();
             HostileTroops.Clear();
-            RepairBeams.Clear();
+            RepairBeams = null;
             PlanetCrash = null;
 
             ((IEmpireShipLists)Loyalty).RemoveShipAtEndOfTurn(this);
@@ -1813,7 +1722,6 @@ namespace Ship_Game.Ships
             KnownByEmpires = null;
             HasSeenEmpires = null;
             PlanetCrash = null;
-            RepairBeams = null;
             HomePlanet = null;
             RemoveSceneObject();
 
@@ -1913,63 +1821,7 @@ namespace Ship_Game.Ships
             return ShipBuilder.GetModifiedStrength(SurfaceArea, weaponArea + hangarArea, offense, defense);
         }
 
-        private void ApplyRepairToShields(float repairPool)
-        {
-            float shieldRepair = 0.2f * repairPool;
-            if (ShieldMax - ShieldPower > shieldRepair)
-                ShieldPower += shieldRepair;
-            else
-                ShieldPower = ShieldMax;
-        }
-
         // UI statistics, show average repair per second
-        public float CurrentRepairPerSecond { get; private set; }
-
-        /// <param name="repairAmount">How many HP-s to repair</param>
-        /// <param name="repairInterval">This repair event interval in seconds, important for correct UI estimation</param>
-        /// <param name="repairLevel">Level which improves repair decisions</param>
-        public void ApplyAllRepair(float repairAmount, float repairInterval, int repairLevel)
-        {
-            if (HealthPercent > 0.999f || repairAmount.AlmostEqual(0))
-            {
-                CurrentRepairPerSecond = 0;
-                return;
-            }
-
-            CurrentRepairPerSecond = repairAmount / repairInterval;
-
-            int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
-            for (int i = 0; repairAmount > 0 && i < damagedModules; ++i)
-            {
-                repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
-            }
-
-            ApplyRepairToShields(repairAmount);
-            if (HealthPercent > 0.999f)
-                RefreshMechanicalBoardingDefense();
-        }
-
-        /**
-         * @param repairLevel Level of the crew or repair level of orbital shipyard
-         */
-        public float ApplyRepairOnce(float repairAmount, int repairLevel)
-        {
-            if (!Active)
-                return repairAmount;
-
-            ShipModule moduleToRepair = GetModuleToRepair(repairLevel);
-            return moduleToRepair.Repair(repairAmount);
-        }
-
-        public ShipModule GetModuleToRepair(int repairLevel)
-        {
-            // Critical module percent allows skilled crews to get modules barely functional
-            // before moving on to repairing next critical modules.
-            // Above skill 5 there is no more benefit.
-            // The default value is 50%, and lowest threshold is 5%
-            float criticalModulePercent = (0.5f - (repairLevel * 0.1f)).Clamped(0.05f, 0.5f);
-            return ModuleSlotList.FindMax(module => module.GetRepairPriority(criticalModulePercent));
-        }
 
         public void ApplyModuleHealthTechBonus(float bonus)
         {

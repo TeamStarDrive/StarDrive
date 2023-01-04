@@ -476,7 +476,7 @@ namespace Ship_Game.Ships
             ArmorMax = 0f;
             Health = 0f;
             TroopCapacity = 0;
-            RepairBeams.Clear();
+            RepairBeams?.Clear();
             MaxBank = GetMaxBank();
             if (!fromSave)
                 KillAllTroops();
@@ -506,8 +506,8 @@ namespace Ship_Game.Ships
                 {
                     if (module.InstalledWeapon.IsRepairBeam)
                     {
+                        RepairBeams ??= new();
                         RepairBeams.Add(module);
-                        HasRepairBeam = true;
                     }
 
                     if (!module.InstalledWeapon.TruePD && !module.InstalledWeapon.Tag_PD)
@@ -516,6 +516,7 @@ namespace Ship_Game.Ships
 
                 HasRepairModule |= module.IsRepairModule;
                 Health += module.Health;
+
                 if (module.Is(ShipModuleType.Armor))
                     ArmorMax += module.ActualMaxHealth;
 
