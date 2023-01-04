@@ -40,10 +40,10 @@ namespace Ship_Game.Commands.Goals
 
         public static IShipDesign GetFreighter(Empire owner)
         {
-            IShipDesign constructor = ShipBuilder.PickFreighter(owner, owner.FastVsBigFreighterRatio);
-            if (constructor == null)
-                throw new(ErrMsg(owner, "PickConstructor"));
-            return constructor;
+            IShipDesign freighter = ShipBuilder.PickFreighter(owner, owner.FastVsBigFreighterRatio);
+            if (freighter == null)
+                throw new(ErrMsg(owner, "PickFrieghter"));
+            return freighter;
         }
     }
 }
