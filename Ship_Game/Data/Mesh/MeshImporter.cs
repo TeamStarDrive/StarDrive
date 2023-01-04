@@ -9,6 +9,7 @@ using SDGraphics;
 using SDUtils;
 using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
+using XnaBoundingBox = Microsoft.Xna.Framework.BoundingBox;
 
 namespace Ship_Game.Data.Mesh
 {
@@ -98,8 +99,10 @@ namespace Ship_Game.Data.Mesh
 
         unsafe StaticMesh LoadMeshGroups(SdMesh* mesh, string modelName)
         {
-            var staticMesh = new StaticMesh { Name = mesh->Name.AsString };
             Map<long, LightingEffect> materials = GetSunburnMaterials(mesh, modelName);
+
+            Array<MeshData> rawMeshes = new();
+            XnaBoundingBox bounds = default;
 
             for (int i = 0; i < mesh->NumGroups; ++i)
             {
@@ -111,7 +114,7 @@ namespace Ship_Game.Data.Mesh
                 //Log.Info(ConsoleColor.Green,
                 //    $"  group {g->GroupId}: {g->Name}  verts:{data.VertexCount}  ids:{data.IndexCount}");
                 
-                var meshData = new MeshData
+                rawMeshes.Add(new()
                 {
                     Name              = g->Name.AsString,
                     Effect            = materials[(long)g->Mat],
@@ -122,10 +125,22 @@ namespace Ship_Game.Data.Mesh
                     VertexCount       = data.VertexCount,
                     VertexStride      = data.VertexStride,
                     ObjectSpaceBoundingSphere = g->Bounds,
-                };
-                staticMesh.RawMeshes.Add(meshData);
+                });
+
+                // transform and merge bounds
+                var bb = XnaBoundingBox.CreateFromSphere(g->Bounds);
+                if (g->Transform != Matrix.Identity)
+                {
+                    bb.Min = new Vector3(bb.Min).Transform(g->Transform);
+                    bb.Max = new Vector3(bb.Max).Transform(g->Transform);
+                }
+                bounds = bounds == default ? bb : bounds.Join(bb);
             }
-            return staticMesh;
+
+            return new(mesh->Name.AsString, bounds)
+            {
+                RawMeshes = rawMeshes
+            };
         }
 
         ///////////////////////////////////////////////////////////////////////////

@@ -1006,7 +1006,10 @@ namespace Ship_Game
                 for (int i = 0; i < BombList.Count; i++)
                 {
                     Bomb bomb = BombList[i];
-                    DrawTransparentModel(bomb.Model, bomb.World, bomb.Texture, 0.5f);
+                    if (bomb.Model != null)
+                    {
+                        Projectile.DrawMesh(this, bomb.Model, bomb.World, bomb.Texture.Texture, scale:25f);
+                    }
                 }
             }
         }

@@ -186,6 +186,9 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch batch)
         {
+            if (Universe.IsExiting || Universe.IsDisposed)
+                return;
+
             Vector2 textCursor = new Vector2();
             foreach (Button b in Buttons)
             {
@@ -229,7 +232,7 @@ namespace Ship_Game
             }
 
             int money = (int)Player.Money;
-            float damoney = Universe.Player.EstimateNetIncomeAtTaxRate(Universe.Player.data.TaxRate);
+            float damoney = Player.EstimateNetIncomeAtTaxRate(Player.data.TaxRate);
             if (damoney <= 0f)
             {
                 textCursor.X = res4.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(money.ToString(), " (", damoney.ToString("#.0"), ")")).X;
@@ -306,7 +309,7 @@ namespace Ship_Game
                 if (input.KeyPressed(Keys.O))
                 {
                     GameAudio.EchoAffirmative();
-                    Universe.ScreenManager.AddScreen(new GameplayMMScreen(Universe));
+                    Universe.ScreenManager.AddScreen(new GamePlayMenuScreen(Universe));
                 }
                 if (input.KeyPressed(Keys.E))
                 {
@@ -436,7 +439,7 @@ namespace Ship_Game
                     if (str5 == "Main Menu")
                     {
                         GameAudio.EchoAffirmative();
-                        Universe.ScreenManager.AddScreen(new GameplayMMScreen(Universe));
+                        Universe.ScreenManager.AddScreen(new GamePlayMenuScreen(Universe));
                     }
                     else if (str5 == "Shipyard")
                     {
@@ -477,6 +480,7 @@ namespace Ship_Game
             }
         }
 
+        // TODO: This is utterly retarded, needs a complete rewrite
         public void HandleInput(InputState input, GameScreen caller)
         {
             foreach (Button b in Buttons)
@@ -496,20 +500,19 @@ namespace Ship_Game
 
                     if (input.LeftMouseClick)
                     {
-                        if (!(caller is ShipDesignScreen) && !(caller is FleetDesignScreen))
+                        if (caller is not ShipDesignScreen && caller is not FleetDesignScreen)
                         {
                             caller.ExitScreen();
                         }
                         else if (b.launches != "Shipyard" && b.launches != "Fleets")
                         {
-                            if (caller is ShipDesignScreen)
+                            if (caller is ShipDesignScreen shipDesigner)
                             {
-                                (caller as ShipDesignScreen)//.ExitScreen();
-                                    .ExitToMenu(b.launches);
+                                shipDesigner.ExitToMenu(b.launches);
                             }
-                            else if (caller is FleetDesignScreen)
+                            else if (caller is FleetDesignScreen fleetDesigner)
                             {
-                                (caller as FleetDesignScreen).ExitScreen();
+                                fleetDesigner.ExitScreen();
                             }
                             return;
                         }
@@ -547,7 +550,7 @@ namespace Ship_Game
                         if (str3 == "Main Menu")
                         {
                             GameAudio.EchoAffirmative();
-                            Universe.ScreenManager.AddScreen(new GameplayMMScreen(Universe, caller));
+                            Universe.ScreenManager.AddScreen(new GamePlayMenuScreen(Universe));
                         }
                         else if (str3 == "Shipyard")
                         {

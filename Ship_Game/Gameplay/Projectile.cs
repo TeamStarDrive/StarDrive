@@ -19,6 +19,7 @@ using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
+using Ship_Game.Data.Mesh;
 
 namespace Ship_Game.Gameplay
 {
@@ -438,10 +439,9 @@ namespace Ship_Game.Gameplay
 
                     Animation.Draw(batch, pos, new Vector2d(size), Rotation, 1f);
                 }
-                else
+                else if (ResourceManager.ProjectileMesh(ModelPath, out StaticMesh projMesh))
                 {
-                    var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
-                    screen.DrawTransparentModel(projMesh, WorldMatrix, ProjectileTexture, Weapon.Scale);
+                    DrawMesh(screen, projMesh, WorldMatrix, ProjectileTexture.Texture, Weapon.Scale*50f);
                 }
             }
 
@@ -454,6 +454,19 @@ namespace Ship_Game.Gameplay
             {
                 screen.DrawCircleProjectedZ(Position, Radius, Color.LightCyan, ZPos);
             }
+        }
+
+        public static void DrawMesh(GameScreen screen, StaticMesh mesh, in Matrix world, Texture2D texture, float scale)
+        {
+            BasicEffect effect = mesh.GetFirstEffect<BasicEffect>();
+            effect.World = Matrix.CreateScale(scale) * world;
+            effect.View = screen.View;
+            effect.Projection = screen.Projection;
+            effect.DiffuseColor = Vector3.One;
+            effect.Texture = texture;
+            effect.TextureEnabled = true;
+            effect.LightingEnabled = false;
+            mesh.Draw(effect);
         }
 
         public void DamageMissile(GameObject source, float damageAmount)
@@ -634,15 +647,14 @@ namespace Ship_Game.Gameplay
         {
             if (ProjSO == null)
             {
-                if (ResourceManager.ProjectileMeshDict.TryGetValue(ModelPath, out ModelMesh mesh))
+                if (ResourceManager.ProjectileMesh(ModelPath, out StaticMesh mesh))
                 {
-                    ProjSO = new SceneObject(mesh)
+                    ProjSO = mesh.CreateSceneObject();
+                    if (ProjSO != null)
                     {
-                        Visibility = ObjectVisibility.Rendered,
-                        ObjectType = ObjectType.Dynamic,
-                        World = WorldMatrix
-                    };
-                    Universe.Screen.AddObject(ProjSO);
+                        ProjSO.World = WorldMatrix;
+                        Universe.Screen.AddObject(ProjSO);
+                    }
                 }
                 else
                 {

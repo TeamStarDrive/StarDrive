@@ -284,7 +284,7 @@ namespace Ship_Game
             right.AddCheckbox(() => GlobalStats.EnableEngineTrails,           title: GameText.EngineTrails, tooltip: GameText.TT_EngineTrails);
 
             var apply = Add(new UIButton(ButtonStyle.Default, new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), GameText.ApplySettings));
-            apply.OnClick = button => ApplyOptions();
+            apply.OnClick = button => RunOnNextFrame(ApplyOptions);
 
             RefreshZOrder();
             PerformLayout();
@@ -393,14 +393,14 @@ namespace Ship_Game
                 {
                     ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(GameText.KeepChangesRevertingIn), 10f)
                     {
-                        Accepted = AcceptChanges,
-                        Cancelled = CancelChanges
+                        Accepted = () => RunOnNextFrame(AcceptChanges),
+                        Cancelled = () => RunOnNextFrame(CancelChanges)
                     });
                 }
             }
             catch
             {
-                CancelChanges();
+                RunOnNextFrame(CancelChanges);
             }
         }
 

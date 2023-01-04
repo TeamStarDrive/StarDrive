@@ -539,6 +539,8 @@ namespace Ship_Game.AI
                 {
                     TargetSelectTimer += EmpireConstants.TargetSelectionInterval;
 
+                    // TODO: this should be split into two parts 1) update target 2) choose new target
+                    //       because choosing a new target is expensive, and it's not even used sometimes
                     Ship selectedTarget = SelectCombatTarget(sensorRadius);
                     if (Owner.Fleet == null && selectedTarget == null && Owner.IsHangarShip)
                     {

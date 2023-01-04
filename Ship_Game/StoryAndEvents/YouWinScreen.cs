@@ -83,7 +83,7 @@ namespace Ship_Game
             ScreenManager.ExitAllExcept(this);
             ScreenManager.Music.Stop();
             MusicCheckTimer = 10;
-            ScreenManager.AddScreen(new MainMenuScreen(MainMenuType.Victory));
+            ScreenManager.GoToScreen(new MainMenuScreen(MainMenuType.Victory), clear3DObjects:true);
             base.ExitScreen();
         }
 

@@ -328,12 +328,10 @@ namespace Ship_Game
             Arcs.Clear();
             ProjTextDict.ClearAndDispose();
             
-            // meshes are loaded through GameContent, so they should be auto-disposed
-            // TODO: validate this
+            // StaticMeshes are loaded through GameContent, so they WILL be auto-disposed
             JunkModels.Clear();
             AsteroidModels.Clear();
-            ProjectileModelDict.Clear();
-            ProjectileMeshDict.Clear();
+            ProjectileMeshes.Clear();
 
             SunType.Unload();
             Beam.BeamEffect = null;
@@ -1171,7 +1169,7 @@ namespace Ship_Game
         }
 
         // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
-        static void LoadNumberedModels(Array<(Model, float)> models, string modelFolder, string modelPrefix)
+        static void LoadNumberedModels(Array<StaticMesh> models, string modelFolder, string modelPrefix)
         {
             models.Clear();
             var files = GatherFilesModOrVanilla(modelFolder, "xnb");
@@ -1185,13 +1183,8 @@ namespace Ship_Game
                     if (nameNoExt.StartsWith(modelPrefix) &&
                         int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
                     {
-                        var model = RootContent.Load<Model>(info.RelPath());
-
-                        var fieldName = typeof(ModelMesh).GetField("name", BindingFlags.Instance| BindingFlags.NonPublic);
-                        fieldName.SetValue(model.Meshes[0], $"{modelFolder}{nameNoExt}.xnb");
-
-                        float radius = model.GetBoundingBox().Radius();
-                        models.Add((model, radius));
+                        var model = RootContent.LoadStaticMesh(info.RelPath());
+                        models.Add(model);
                     }
                 }
                 catch (Exception e)
@@ -1201,33 +1194,21 @@ namespace Ship_Game
             }
         }
 
-        static readonly Array<(Model, float)> JunkModels = new Array<(Model, float)>();
-
+        static readonly Array<StaticMesh> JunkModels = new();
         public static int NumJunkModels => JunkModels.Count;
-        public static Model GetJunkModel(int idx)
-        {
-            return JunkModels[idx].Item1;
-        }
-        public static float GetJunkModelRadius(int idx)
-        {
-            return JunkModels[idx].Item2;
-        }
+        public static StaticMesh GetJunkModel(int idx) => JunkModels[idx];
+        public static float GetJunkModelRadius(int idx) => JunkModels[idx].Radius;
+
         static void LoadJunk() // Refactored by RedFox
         {
             LoadNumberedModels(JunkModels, "Model/SpaceJunk/", "spacejunk");
         }
 
-        static readonly Array<(Model, float)> AsteroidModels = new Array<(Model, float)>();
-
+        static readonly Array<StaticMesh> AsteroidModels = new();
         public static int NumAsteroidModels => AsteroidModels.Count;
-        public static Model GetAsteroidModel(int asteroidId)
-        {
-            return AsteroidModels[asteroidId].Item1;
-        }
-        public static float GetAsteroidModelRadius(int asteroidId)
-        {
-            return AsteroidModels[asteroidId].Item2;
-        }
+        public static StaticMesh GetAsteroidModel(int asteroidId) => AsteroidModels[asteroidId];
+        public static float GetAsteroidModelRadius(int asteroidId) => AsteroidModels[asteroidId].Radius;
+
         static void LoadAsteroids()
         {
             LoadNumberedModels(AsteroidModels, "Model/Asteroids/", "asteroid");
@@ -1294,19 +1275,32 @@ namespace Ship_Game
             return BigNebulae[index].GetOrLoadTexture();
         }
 
-
         // Refactored by RedFox
-        public static Map<string, ModelMesh> ProjectileMeshDict = new Map<string, ModelMesh>();
-        public static Map<string, Model> ProjectileModelDict    = new Map<string, Model>();
+        static readonly Map<string, StaticMesh> ProjectileMeshes = new();
+
+        public static bool ProjectileMesh(string name, out StaticMesh mesh)
+            => ProjectileMeshes.TryGetValue(name, out mesh);
+        
+        public static void LoadProjectileMeshes()
+        {
+            GameLoadingScreen.SetStatus("LoadProjectileMeshes");
+            ProjectileMeshes.Clear();
+            LoadProjectileMesh("Model/Projectiles/", "projLong");
+            LoadProjectileMesh("Model/Projectiles/", "projTear");
+            LoadProjectileMesh("Model/Projectiles/", "projBall");
+            LoadProjectileMesh("Model/Projectiles/", "torpedo");
+            LoadProjectileMesh("Model/Projectiles/", "missile");
+            LoadProjectileMesh("Model/Projectiles/", "spacemine");
+            LoadCustomProjectileMeshes("Model/Projectiles/custom");
+        }
 
         static void LoadProjectileMesh(string projectileDir, string nameNoExt)
         {
             string path = projectileDir + nameNoExt;
             try
             {
-                var projModel = RootContent.Load<Model>(path);
-                ProjectileMeshDict[nameNoExt]  = projModel.Meshes[0];
-                ProjectileModelDict[nameNoExt] = projModel;
+                var projectileMesh = RootContent.LoadStaticMesh(path);
+                ProjectileMeshes[nameNoExt] = projectileMesh;
             }
             catch (Exception e)
             {
@@ -1316,45 +1310,28 @@ namespace Ship_Game
             }
         }
 
-        public static void LoadProjectileMeshes()
-        {
-            GameLoadingScreen.SetStatus("LoadProjectileMeshes");
-            ProjectileMeshDict.Clear();
-            ProjectileModelDict.Clear();
-            const string projectileDir = "Model/Projectiles/";
-            LoadProjectileMesh(projectileDir, "projLong");
-            LoadProjectileMesh(projectileDir, "projTear");
-            LoadProjectileMesh(projectileDir, "projBall");
-            LoadProjectileMesh(projectileDir, "torpedo");
-            LoadProjectileMesh(projectileDir, "missile");
-            LoadProjectileMesh(projectileDir, "spacemine");
-            LoadCustomProjectileMeshes($"{projectileDir}custom");
-        }
-
         static void LoadCustomProjectileMeshes(string modelFolder)
         {
             var files = GatherFilesModOrVanilla(modelFolder, "xnb");
             DebugResourceLoading(modelFolder, files);
+
             foreach (FileInfo info in files)
             {
                 if (info.Name.Contains("_")) continue;
                 string nameNoExt = info.NameNoExt();
                 try
                 {
-                    var projModel = RootContent.Load<Model>(info.RelPath());
-
-                    ProjectileMeshDict[nameNoExt] = projModel.Meshes[0];
-                    ProjectileModelDict[nameNoExt] = projModel;
-
+                    var projectileMesh = RootContent.LoadStaticMesh(info.RelPath());
+                    ProjectileMeshes[nameNoExt] = projectileMesh;
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"LoadNumberedModels {modelFolder} {nameNoExt} failed");
+                    Log.Error(e, $"LoadCustomProjectileMeshes {modelFolder} {nameNoExt} failed");
                 }
             }
         }
 
-
+        // TODO: would be nice to only load these on-demand, this would greatly reduce memory usage
         static void LoadProjectileTextures()
         {
             ProjTextDict.ClearAndDispose();

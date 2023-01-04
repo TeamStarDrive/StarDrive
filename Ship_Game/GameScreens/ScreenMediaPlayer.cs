@@ -52,6 +52,8 @@ namespace Ship_Game.GameScreens
         // Player.Play() is too slow, so we start it in a background thread
         TaskResult BeginPlayTask;
 
+        public bool IsDisposed { get; private set; }
+
         public ScreenMediaPlayer(GameContentManager content, bool looping = true)
         {
             Content = content;
@@ -66,26 +68,43 @@ namespace Ship_Game.GameScreens
 
         void Destroy()
         {
+            IsDisposed = true;
+            Active = false;
+            Visible = false;
+            OnPlayStatusChange = null;
+            Frame = null;
+
+            if (Music != null && Music.IsPlaying)
+            {
+                Music.Stop();
+                Music = null;
+            }
+
             if (Video != null) // avoid double dispose issue
             {
-                Stop();
                 Video = null;
+                if (!Player.IsDisposed)
+                {
+                    if (Player.State != MediaState.Stopped)
+                        Player.Stop();
+                    Player.Dispose();
+                }
             }
-            if (!Player.IsDisposed)
-                Player.Dispose();
         }
 
         // Stops audio and music, then disposes any graphics resources
         public void Dispose()
         {
-            Active = Video != null && !Player.IsDisposed;
+            if (IsDisposed)
+                return;
+            if (GlobalStats.DebugAssetLoading) Log.Write(ConsoleColor.Magenta, $"Disposing ScreenMediaPlayer {Name}");
             Destroy();
             GC.SuppressFinalize(this);
         }
 
         public void PlayVideo(string videoPath, bool looping = true, bool startPaused = false)
         {
-            if (IsPlaying)
+            if (IsPlaying || IsDisposed)
                 return; // video has already started
 
             try
@@ -130,7 +149,7 @@ namespace Ship_Game.GameScreens
 
         public void PlayVideoAndMusic(Empire empire, bool warMusic)
         {
-            if (IsPlaying)
+            if (IsPlaying || IsDisposed)
                 return; // video has already started
 
             PlayVideo(empire.data.Traits.VideoPath);
@@ -150,6 +169,9 @@ namespace Ship_Game.GameScreens
 
         public void Stop()
         {
+            if (IsDisposed)
+                return;
+
             Frame = null;
 
             if (!IsStopped)
@@ -167,6 +189,9 @@ namespace Ship_Game.GameScreens
 
         public void Resume()
         {
+            if (IsDisposed)
+                return;
+
             if (IsPaused)
             {
                 Player.Resume();
@@ -182,6 +207,9 @@ namespace Ship_Game.GameScreens
 
         public void Pause()
         {
+            if (IsDisposed)
+                return;
+
             if (IsPlaying)
             {
                 Player.Pause();
@@ -204,7 +232,7 @@ namespace Ship_Game.GameScreens
         public bool HandleInput(InputState input)
         {
             IsHovered = false;
-            if (!Visible)
+            if (!Visible || IsDisposed)
                 return false;
 
             if (EnableInteraction)
@@ -232,7 +260,7 @@ namespace Ship_Game.GameScreens
 
         public void Update(GameScreen screen)
         {
-            if (!PlaybackSuccess)
+            if (!PlaybackSuccess || IsDisposed)
                 return;
 
             if (Video != null && Player.State != MediaState.Stopped)
@@ -258,7 +286,6 @@ namespace Ship_Game.GameScreens
         {
             Draw(batch, Color.White);
         }
-
         
         public void Draw(SpriteBatch batch, Color color)
         {
@@ -267,7 +294,7 @@ namespace Ship_Game.GameScreens
 
         public void Draw(SpriteBatch batch, in Rectangle rect, Color color, float rotation, SpriteEffects effects)
         {
-            if (!PlaybackSuccess || Player.IsDisposed || !Active)
+            if (!PlaybackSuccess || Player.IsDisposed || !Active || IsDisposed)
                 return;
             
             if (!Visible)

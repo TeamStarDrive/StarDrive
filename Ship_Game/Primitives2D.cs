@@ -155,14 +155,14 @@ namespace Ship_Game
             // intersection tests will eliminate up to 95% of all lines, leading to much faster rendering performance
             if (!IsIntersectingScreen(point1, point2))
                 return;
+            if (ResourceManager.WhitePixel == null)
+                return; // most likely it will reload next frame, ignore it for now
 
             float distance = point1.Distance(point2);
             float angle = (float)Atan2(point2.Y - point1.Y, point2.X - point1.X);
 
             // some hack here - the 1px texture is rotated and scaled to proper width/height
             var scale = new Vector2(distance, thickness);
-            if (ResourceManager.WhitePixel == null)
-                throw new InvalidOperationException("DrawLine: WhitePixel graphics resource not loaded");
             batch.Draw(ResourceManager.WhitePixel, point1, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
@@ -171,14 +171,14 @@ namespace Ship_Game
             // intersection tests will eliminate up to 95% of all lines, leading to much faster rendering performance
             if (!IsIntersectingScreen(point1, point2))
                 return;
+            if (ResourceManager.WhitePixel == null)
+                return; // most likely it will reload next frame, ignore it for now
 
             float distance = (float)point1.Distance(point2);
             float angle = (float)Atan2(point2.Y - point1.Y, point2.X - point1.X);
 
             // some hack here - the 1px texture is rotated and scaled to proper width/height
             var scale = new Vector2(distance, thickness);
-            if (ResourceManager.WhitePixel == null)
-                throw new InvalidOperationException("DrawLine: WhitePixel graphics resource not loaded");
             batch.Draw(ResourceManager.WhitePixel, new Vector2((float)point1.X, (float)point1.Y), null, 
                       color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }

@@ -6,6 +6,7 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -16,9 +17,7 @@ namespace Ship_Game
         public Camera2D camera = new();
 
         readonly Map<string, RootNode> RootNodes = new(StringComparer.OrdinalIgnoreCase);
-        public Map<string, Node> AllTechNodes = new(StringComparer.OrdinalIgnoreCase);
         public Map<string, TreeNode> SubNodes = new(StringComparer.OrdinalIgnoreCase);
-        public Array<TreeNode> AllTreeNodes = new();
 
         CloseButton Close;
         UIButton Search;
@@ -63,7 +62,6 @@ namespace Ship_Game
             Close = Add(new CloseButton(main.Right - 40, main.Y + 20));
 
             RootNodes.Clear();
-            AllTechNodes.Clear();
             SubNodes.Clear();
 
             int numDiscoveredRoots = Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
@@ -85,16 +83,14 @@ namespace Ship_Game
             {
                 nodePos.X = 0f;
                 nodePos.Y = FindDeepestY() + 1;
-                SetNode(tech, ref nodePos);
+                SetRootNode(tech, ref nodePos);
             }
 
             GridHeight = (main.Height - 40) / 6;
-            foreach (RootNode node in RootNodes.Values)
-            {
-                PopulateAllTechsFromRoot(node);
-            }
 
-            RootNode root = RootNodes[Universe.UState.ResearchRootUIDToDisplay];
+            if (!RootNodes.TryGetValue(Universe.UState.ResearchRootUIDToDisplay, out RootNode root))
+                root = RootNodes.Values.FirstOrDefault() ?? throw new("ResearchScreen has no RootNodes");
+
             PopulateNodesFromRoot(root);
 
             // Create queue once all techs are populated
@@ -171,17 +167,17 @@ namespace Ship_Game
 
         void DrawConnectingLines(SpriteBatch batch)
         {
-            RootNode rootNode = GetCurrentlySelectedRootNode();
+            RootNode root = GetCurrentlySelectedRootNode();
 
             // Level 0 VERTICAL line coming straight from root nodes
             {
-                Vector2 rootNodeRight = rootNode.RightPoint;
+                Vector2 rootNodeRight = root.RightPoint;
                 Vector2 nextNodeLeft = new(MainMenuOffset.X + GridWidth, rootNodeRight.Y);
-                Vector2 midPoint = CenterBetweenPoints(rootNode.RightPoint, nextNodeLeft);
+                Vector2 midPoint = CenterBetweenPoints(root.RightPoint, nextNodeLeft);
 
                 bool anyTechsComplete = false;
 
-                foreach (TechEntry child in rootNode.Entry.GetFirstDiscoveredEntries(Universe.Player))
+                foreach (TechEntry child in root.Entry.Children)
                 {
                     if (child.Unlocked)
                         anyTechsComplete = true;
@@ -199,54 +195,39 @@ namespace Ship_Game
                 batch.DrawResearchLineHorizontal(rootNodeRight, midPoint, anyTechsComplete);
             }
 
+            // from each node to their leadsTo nodes
             foreach (TreeNode from in SubNodes.Values)
             {
                 Vector2 centerRight = new(from.BaseRect.Right - 25, from.BaseRect.CenterY - 10);
                 Vector2 startPos = new(centerRight.X + GridWidth / 2f, centerRight.Y);
+                Vector2 leftPoint = from.RightPoint;
+                Vector2 rightPoint = new(leftPoint.X + GridWidth / 2f, leftPoint.Y);
 
-                foreach (Technology.LeadsToTech leadsTo in from.Entry.Tech.LeadsTo)
+                bool anyTechsComplete = false;
+                bool discoveredAny = false;
+                foreach (TechEntry maybeUndiscovered in from.Entry.Children)
                 {
-                    TechEntry toTech = Player.GetTechEntry(leadsTo.UID);
-                    toTech = toTech.FindNextDiscoveredTech(Player);
+                    // scan from `maybeUndiscovered` (inclusive) until we find a discovered tech
+                    TechEntry toTech = maybeUndiscovered.FindNextDiscoveredTech(Player);
                     if (toTech != null)
                     {
+                        discoveredAny = true;
+                        if (toTech.Unlocked)
+                            anyTechsComplete = true;
+
                         if (SubNodes.TryGetValue(toTech.UID, out TreeNode endNode))
                         {
-                            Vector2 endPos = new(startPos.X, endNode.BaseRect.CenterY - 10);
-                            batch.DrawResearchLineVertical(startPos, endPos, toTech.Unlocked);
+                            Vector2 endPos1 = new(startPos.X, endNode.BaseRect.CenterY - 10);
+                            batch.DrawResearchLineVertical(startPos, endPos1, toTech.Unlocked);
+
+                            Vector2 centerLeft = new(rightPoint.X, endNode.BaseRect.CenterY - 10);
+                            Vector2 endPos = new(centerLeft.X + leftPoint.Distance(rightPoint) + 13f, centerLeft.Y);
+                            batch.DrawResearchLineHorizontalGradient(centerLeft, endPos, toTech.Unlocked);
                         }
                     }
                 }
-            }
-
-            foreach (TreeNode node in SubNodes.Values)
-            {
-                Technology fromTech = node.Entry.Tech;
-                if (fromTech.AnyChildrenDiscovered(Player))
-                {
-                    Vector2 leftPoint = node.RightPoint;
-                    Vector2 rightPoint = new(leftPoint.X + GridWidth / 2f, leftPoint.Y);
-                    bool complete1 = false;
-                    foreach (Technology.LeadsToTech leadsToTech2 in fromTech.LeadsTo)
-                    {
-                        TechEntry toTech = Player.GetTechEntry(leadsToTech2.UID);
-                        toTech = toTech.FindNextDiscoveredTech(Player);
-                        if (toTech != null)
-                        {
-                            if (toTech.Unlocked)
-                                complete1 = true;
-
-                            if (SubNodes.TryGetValue(toTech.UID, out TreeNode endNode))
-                            {
-                                Vector2 centerLeft = new(rightPoint.X, endNode.BaseRect.CenterY - 10);
-                                Vector2 endPos = new(centerLeft.X + leftPoint.Distance(rightPoint) + 13f, centerLeft.Y);
-                                batch.DrawResearchLineHorizontalGradient(centerLeft, endPos, toTech.Unlocked);
-                            }
-                        }
-                    }
-
-                    batch.DrawResearchLineHorizontal(leftPoint, rightPoint, complete1);
-                }
+                if (discoveredAny)
+                    batch.DrawResearchLineHorizontal(leftPoint, rightPoint, anyTechsComplete);
             }
         }
 
@@ -359,7 +340,7 @@ namespace Ship_Game
             return techs;
         }
 
-        Vector2 GridSize => new Vector2(GridWidth, GridHeight);
+        Vector2 GridSize => new(GridWidth, GridHeight);
 
         Vector2 GetCurrentCursorOffset(in Vector2 cursorPos, float yOffset = 0)
         {
@@ -367,49 +348,10 @@ namespace Ship_Game
             return (MainMenuOffset + cursor*GridSize).Rounded();
         }
 
-        public void PopulateAllTechs(Node node, ref Vector2 nodePos)
-        {
-            bool first = true;
-            foreach (TechEntry child in node.Entry.GetPlayerChildEntries(Universe.Player))
-            {
-                nodePos.X = node.NodePosition.X + 1f;
-                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
-                if (first) first = false;
-
-                var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), child, this) { NodePosition = nodePos };
-
-                if (child.Discovered)
-                    AllTechNodes.Add(newNode.Entry.UID, newNode);
-                PopulateAllTechs(newNode, ref nodePos);
-            }
-        }
-
-        void ResetRootNodeStates(RootNode selectedRoot)
+        void PopulateNodesFromRoot(RootNode root)
         {
             foreach (RootNode node in RootNodes.Values)
-                node.nodeState = NodeState.Normal;
-            selectedRoot.nodeState = NodeState.Press;
-        }
-
-        public void PopulateAllTechsFromRoot(RootNode root)
-        {
-            ResetRootNodeStates(root);
-
-            var nodePos = new Vector2(1f, 1f);
-            foreach (TechEntry child in root.Entry.GetPlayerChildEntries(Universe.Player))
-            {
-                var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), child, this) { NodePosition = nodePos };
-
-                if (child.Discovered)
-                    AllTechNodes.Add(newNode.Entry.UID, newNode);
-
-                PopulateAllTechs(newNode, ref nodePos);
-            }
-        }
-
-        public void PopulateNodesFromRoot(RootNode root)
-        {
-            ResetRootNodeStates(root);
+                node.nodeState = (node == root) ? NodeState.Press : NodeState.Normal;
 
             SubNodes.Clear();
             ClaimedSpots.Clear();
@@ -422,30 +364,59 @@ namespace Ship_Game
             if (cols > 0 && cols < 9) GridWidth = (MainMenu.Menu.Width - 350) / cols;
             else                      GridWidth = 165;
 
-
             var nodePos = new Vector2(1f, 1f);
             bool first = true;
 
-            foreach (TechEntry discovered in root.Entry.GetFirstDiscoveredEntries(Universe.Player))
+            foreach (TechEntry child in root.Entry.Children)
             {
+                if (!child.Discovered)
+                    continue;
+
                 nodePos.X = root.NodePosition.X + 1f;
                 nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
                 if (first) first = false;
 
-                var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), discovered, this) { NodePosition = nodePos };
-
-                SubNodes.Add(newNode.Entry.UID, newNode);
-                PopulateNodesFromSubNode(newNode, ref nodePos);
+                if (!SubNodes.ContainsKey(child.UID)) // only ever add unique entries
+                {
+                    var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), child, this) { NodePosition = nodePos };
+                    SubNodes[newNode.Entry.UID] = newNode;
+                    PopulateNodesFromSubNode(newNode, ref nodePos);
+                }
             }
         }
 
-        bool PositionIsClaimed(Vector2 position)
+        void PopulateNodesFromSubNode(Node node, ref Vector2 nodePos)
         {
-            foreach (Vector2 v in ClaimedSpots)
-                if (v.AlmostEqual(position)) return true;
-            return false;
+            UpdateCursorAndClaimedSpots(ref nodePos, node.Entry.Discovered);
+
+            bool first = true;
+            foreach (TechEntry child in node.Entry.Children)
+            {
+                nodePos.X = node.NodePosition.X + 1f;
+                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                if (first) first = false;
+
+                if (child.Discovered && !SubNodes.ContainsKey(child.UID))
+                {
+                    var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), child, this) { NodePosition = nodePos };
+                    SubNodes[newNode.Entry.UID] = newNode;
+                    PopulateNodesFromSubNode(newNode, ref nodePos);
+                }
+            }
         }
 
+        void SetRootNode(TechEntry tech, ref Vector2 nodePos)
+        {
+            UpdateCursorAndClaimedSpots(ref nodePos, true);
+
+            var newNode = new RootNode(GetCurrentCursorOffset(nodePos, -1), tech) { NodePosition = nodePos };
+            if (Player.HasUnlocked(tech))
+            {
+                newNode.isResearched = true;
+            }
+            RootNodes[tech.UID] = newNode;
+        }
+        
         void UpdateCursorAndClaimedSpots(ref Vector2 nodePos, bool addToClaimed)
         {
             if (PositionIsClaimed(nodePos))
@@ -453,42 +424,8 @@ namespace Ship_Game
             else if (addToClaimed)
                 ClaimedSpots.Add(nodePos);
         }
-
-        public void PopulateNodesFromSubNode(Node node, ref Vector2 nodePos)
-        {
-            UpdateCursorAndClaimedSpots(ref nodePos, node.Entry.Discovered);
-
-            bool first = true;
-            foreach (TechEntry child in node.Entry.GetPlayerChildEntries(Universe.Player))
-            {
-                nodePos.X = node.NodePosition.X + 1f;
-                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
-                if (first) first = false;
-
-                var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), child, this) { NodePosition = nodePos };
-
-                if (child.Discovered)
-                {
-                    SubNodes.Add(newNode.Entry.UID, newNode);
-                    AllTreeNodes.Add(newNode);
-                }
-
-                PopulateNodesFromSubNode(newNode, ref nodePos);
-            }
-        }
-
-        void SetNode(TechEntry tech, ref Vector2 nodePos)
-        {
-            UpdateCursorAndClaimedSpots(ref nodePos, true);
-
-            var newNode = new RootNode(GetCurrentCursorOffset(nodePos, -1), tech) { NodePosition = nodePos };
-
-            if (Player.HasUnlocked(tech))
-            {
-                newNode.isResearched = true;
-            }
-            RootNodes.Add(tech.UID, newNode);
-        }
+        
+        bool PositionIsClaimed(Vector2 position) => ClaimedSpots.Any(p => p.AlmostEqual(position));
 
         //Added by McShooterz: find size of tech tree before it is built
         int CalculateTreeDimensionsFromRoot(string uid, ref int rows, int cols, int colmax)

@@ -452,7 +452,7 @@ namespace Ship_Game
                         break;
                     case "Main Menu":
                         GameAudio.EchoAffirmative();
-                        ScreenManager.AddScreen(new GameplayMMScreen(ParentUniverse));
+                        ScreenManager.AddScreen(new GamePlayMenuScreen(ParentUniverse));
                         break;
                     case "Shipyard":
                         GameAudio.EchoAffirmative();

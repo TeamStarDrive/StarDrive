@@ -87,9 +87,6 @@ namespace Ship_Game
             }
         }
 
-        public bool AnyChildrenDiscovered(Empire empire)
-            => Children.Any(tech => empire.GetTechEntry(tech.UID).Discovered);
-
         public class UnlockedBonus
         {
             public string Name;
