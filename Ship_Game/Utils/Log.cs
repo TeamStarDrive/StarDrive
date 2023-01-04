@@ -375,6 +375,7 @@ namespace Ship_Game
                 Message = evt.ToString(),
             };
             e.SetTag("TimesPlayed", GlobalStats.TimesPlayed.ToString());
+            e.SetTag("Mod", GlobalStats.ModName);
             if (p != null)
             {
                 e.SetTag("Difficulty", p.Difficulty.ToString());
