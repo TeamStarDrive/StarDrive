@@ -1292,45 +1292,74 @@ namespace Ship_Game.Ships
 
             // Ship Repair
             if (HealthPercent < 0.999f)
-            {
-                if (CanRepair)
-                {
-                    int repairLevel = Level;
-                    float repair = RepairRate;
-                    if (InCombat) // reduces repair rate while in combat
-                        repair *= GlobalStats.Defaults.InCombatSelfRepairModifier;
-
-                    float planetRepair = 0f;
-                    Planet p = GetTether()
-                            ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
-                    if (p != null)
-                    {
-                        planetRepair = p.GeodeticManager.RepairRatePerSecond;
-                        repairLevel = Math.Max(repairLevel, p.Level + p.NumShipyards);
-
-                        float empRemovalRate = -planetRepair*GlobalStats.Defaults.BonusColonyEMPRecovery;
-                        CauseEmpDamage(empRemovalRate); // Reduce EMP damage status from planet repair
-                    }
-
-                    float totalRepair = repair + planetRepair;
-                    ApplyAllRepair(totalRepair, repairInterval:timeSinceLastUpdate.FixedTime, repairLevel);
-                    
-                    if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(ShipData.ShipCategory))
-                        AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
-                }
-
-                if (!EMPDisabled)
-                    PerformRegeneration();
-            }
+                Repair(timeSinceLastUpdate);
 
             UpdateResupply();
             UpdateTroops(timeSinceLastUpdate);
+
+            if (TimeSinceLastDamage > 10f)
+                LastDamagedBy = null; // we need to clear this to avoid memory leaks
 
             if (!AI.BadGuysNear)
                 Universe.Shields?.RemoveShieldLights(GetActiveShields());
         }
 
+        public GameObject LastDamagedBy { get; private set; }
+        float LastDamagedTime;
+
+        /// <summary>
+        /// Total seconds elapsed since we were last damaged by another GameObject
+        /// such as a Projectile
+        /// </summary>
+        public float TimeSinceLastDamage => StarDriveGame.Instance.TotalElapsed - LastDamagedTime;
+
+        public void SetLastDamagedBy(GameObject damagedBy)
+        {
+            LastDamagedBy = damagedBy;
+            LastDamagedTime = StarDriveGame.Instance.TotalElapsed;
+        }
+
         public bool CanRepair => !InCombat || GlobalStats.Defaults.UseCombatRepair;
+
+        void Repair(FixedSimTime timeSinceLastUpdate)
+        {
+            if (CanRepair)
+            {
+                int repairLevel = Level;
+                float repair = RepairRate;
+
+                // sometimes ships Priority escape from combat, turning InCombat=false
+                // even if other ships are attacking us, so we check if we were recently damaged
+                // and in that case, the repair penalty still applies
+                const float RecentlyDamagedSeconds = 5f;
+                bool combatRepairPenalty = InCombat || TimeSinceLastDamage < RecentlyDamagedSeconds;
+                if (combatRepairPenalty) // reduces repair rate while in combat
+                {
+                    repair *= GlobalStats.Defaults.InCombatSelfRepairModifier;
+                }
+
+                float planetRepair = 0f;
+                Planet p = GetTether()
+                        ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
+                if (p != null)
+                {
+                    planetRepair = p.GeodeticManager.RepairRatePerSecond;
+                    repairLevel = Math.Max(repairLevel, p.Level + p.NumShipyards);
+
+                    float empRemovalRate = -planetRepair*GlobalStats.Defaults.BonusColonyEMPRecovery;
+                    CauseEmpDamage(empRemovalRate); // Reduce EMP damage status from planet repair
+                }
+
+                float totalRepair = repair + planetRepair;
+                ApplyAllRepair(totalRepair, repairInterval:timeSinceLastUpdate.FixedTime, repairLevel);
+                
+                if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(ShipData.ShipCategory))
+                    AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
+            }
+
+            if (!EMPDisabled)
+                PerformRegeneration();
+        }
 
         void PerformRegeneration()
         {
@@ -1797,6 +1826,7 @@ namespace Ship_Game.Ships
             OurTroops = null;
             HostileTroops = null;
             LoyaltyTracker = default;
+            LastDamagedBy = null;
         }
 
         public void UpdateShields()
