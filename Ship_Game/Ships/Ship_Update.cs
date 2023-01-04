@@ -30,8 +30,12 @@ namespace Ship_Game.Ships
                 CreateSceneObject();
             }
 
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(pos + ShipData.BaseHull.MeshOffset, z));
-            ShipSO.Visibility = GlobalStats.ShipVisibility;
+            // the creation can fail due to missing Model, so double check again
+            if (ShipSO != null)
+            {
+                ShipSO.World = Matrix.CreateTranslation(new(pos + ShipData.BaseHull.MeshOffset, z));
+                ShipSO.Visibility = GlobalStats.ShipVisibility;
+            }
         }
 
         public bool IsVisibleToPlayer => InFrustum && InPlayerSensorRange && Universe.IsSystemViewOrCloser;
@@ -49,7 +53,7 @@ namespace Ship_Game.Ships
             if (!ShipData.LoadModel(out ShipSO, Universe.Screen.ContentManager))
                 return; // loading Ship SO failed
 
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position + ShipData.BaseHull.MeshOffset, 0f));
+            ShipSO.World = Matrix.CreateTranslation(new(Position + ShipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
             UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
