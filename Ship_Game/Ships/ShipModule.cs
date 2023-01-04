@@ -291,7 +291,7 @@ namespace Ship_Game.Ships
             if (!fromSave) // do not trigger Die() or Resurrect() during savegame loading
             {
                 if (Active && Health < 1f)
-                    Die(LastDamagedBy, false);
+                    Die(Parent.LastDamagedBy, false);
                 else if (!Active && Health > 1f)
                     ResurrectModule();
             }
@@ -856,7 +856,7 @@ namespace Ship_Game.Ships
         {
             remainder = modifiedDamage;
             if (source != null)
-                Parent.LastDamagedBy = LastDamagedBy = source;
+                Parent.SetLastDamagedBy(source);
 
             Parent.ShieldRechargeTimer = 0f;
 
@@ -1155,7 +1155,7 @@ namespace Ship_Game.Ships
         {
             if (Active && Health < 1f)
             {
-                Die(LastDamagedBy, false);
+                Die(Parent.LastDamagedBy, false);
             }
             else if (!Active && Health > 1f)
             {
@@ -1596,7 +1596,6 @@ namespace Ship_Game.Ships
             Shield = null;
             HangarShip = null;
             InstalledWeapon?.Dispose(ref InstalledWeapon);
-            LastDamagedBy = null;
             System = null;
         }
     }
