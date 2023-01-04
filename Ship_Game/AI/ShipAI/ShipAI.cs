@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using SDUtils;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Fleets;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
@@ -524,7 +525,8 @@ namespace Ship_Game.AI
         {
             SetPriorityOrder(false);
 
-            if (Owner.Fleet == null)
+            Fleet fleet = Owner.Fleet;
+            if (fleet == null)
             {
                 ClearWayPoints();
                 Plan correspondingPlan = GetMatchingShipGoalPlan(State);
@@ -532,7 +534,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                IdleFleetAI(timeStep);
+                IdleFleetAI(timeStep, fleet);
             }
         }
 
@@ -561,22 +563,20 @@ namespace Ship_Game.AI
             }
         }
 
-        bool DoNearFleetOffset(FixedSimTime timeStep)
+        bool DoNearFleetOffset(FixedSimTime timeStep, Fleet fleet)
         {
-            if (NearFleetPosition())
+            if (Owner.Position.InRadius(fleet.GetFinalPos(Owner), 75f))
             {
                 ReverseThrustUntilStopped(timeStep);
-                RotateToDirection(Owner.Fleet.FinalDirection, timeStep, 0.02f);
+                RotateToDirection(fleet.FinalDirection, timeStep, 0.02f);
                 return true;
             }
             return false;
         }
 
-        bool NearFleetPosition() => Owner.Position.InRadius(Owner.Fleet.GetFinalPos(Owner), 75f);
-
-        bool ShouldReturnToFleet()
+        bool ShouldReturnToFleet(Fleet fleet)
         {
-            if (Owner.Position.InRadius(Owner.Fleet.GetFormationPos(Owner), 400))
+            if (Owner.Position.InRadius(fleet.GetFormationPos(Owner), 400))
                 return false;
             // separated for clarity as this section can be very confusing.
             // we might need a toggle for the player action here.
@@ -595,18 +595,18 @@ namespace Ship_Game.AI
             return false;
         }
 
-        void IdleFleetAI(FixedSimTime timeStep)
+        void IdleFleetAI(FixedSimTime timeStep, Fleet fleet)
         {
-            if (DoNearFleetOffset(timeStep))
+            if (DoNearFleetOffset(timeStep, fleet))
             {
                 if (State != AIState.HoldPosition && Owner.CanTakeFleetMoveOrders())
                     ChangeAIState(AIState.AwaitingOrders);
                 return;
             }
 
-            if (ShouldReturnToFleet())
+            if (ShouldReturnToFleet(fleet))
             {
-                OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, AIState.MoveTo);
+                OrderMoveTo(fleet.GetFinalPos(Owner), fleet.FinalDirection, AIState.MoveTo);
             }
             else
             {
