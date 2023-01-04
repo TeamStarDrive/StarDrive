@@ -1291,16 +1291,31 @@ namespace Ship_Game.Ships
             if (!InCombat && IsHomeDefense && !HomePlanet.SpaceCombatNearPlanet && AI.State != AIState.ReturnHome)
                 ReturnHome();
 
-            // Repair
+            // Ship Repair
             if (HealthPercent < 0.999f)
             {
                 if (CanRepair)
                 {
+                    int repairLevel = Level;
                     float repair = RepairRate;
                     if (InCombat) // reduces repair rate while in combat
                         repair *= GlobalStats.Defaults.InCombatSelfRepairModifier;
 
-                    ApplyAllRepair(repair, repairInterval:timeSinceLastUpdate.FixedTime, Level);
+                    float planetRepair = 0f;
+                    Planet p = GetTether()
+                            ?? (AI.IsInOrbit ? AI.OrbitTarget : null);
+                    if (p != null)
+                    {
+                        planetRepair = p.GeodeticManager.RepairRatePerSecond;
+                        repairLevel = Math.Max(repairLevel, p.Level + p.NumShipyards);
+
+                        float empRemovalRate = -planetRepair*GlobalStats.Defaults.BonusColonyEMPRecovery;
+                        CauseEmpDamage(empRemovalRate); // Reduce EMP damage status from planet repair
+                    }
+
+                    float totalRepair = repair + planetRepair;
+                    ApplyAllRepair(totalRepair, repairInterval:timeSinceLastUpdate.FixedTime, repairLevel);
+                    
                     if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(ShipData.ShipCategory))
                         AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
                 }
@@ -1879,7 +1894,7 @@ namespace Ship_Game.Ships
         }
 
         // transient statistic, how fast this ship is being repaired, only enabled for selected ship
-        Array<(float GameTime, float RepairPerSec)> CurrentRepairStats;
+        Array<(float HpRepaired, float RepairInterval)> CurrentRepairStats;
 
         // Only valid for the currently selected ship. Only use this for UI stats!
         public int GetCurrentRepairPerSecond()
@@ -1888,19 +1903,16 @@ namespace Ship_Game.Ships
             if (stats == null)
                 return 0;
             if (stats.Count == 1)
-                return (int)Math.Round(stats.First.RepairPerSec);
+                return (int)Math.Round(stats.First.HpRepaired / stats.First.RepairInterval);
 
             // this should be reasonably fast for most UI needs,
             // since only a single ship is expected to be selected at any time
             var span = CurrentRepairStats.AsSpan();
-            if (span.Length > 20) span = span.Slice(span.Length - 20);
+            if (span.Length > 5) span = span.Slice(span.Length - 5);
 
-            float totalRepairPerSec = 0f;
-            for (int i = 0; i < span.Length; ++i)
-                totalRepairPerSec += span[i].RepairPerSec;
-
-            float elapsed = (span[span.Length - 1].GameTime - span[0].GameTime);
-            float avgRepairPerSec = totalRepairPerSec / elapsed;
+            float avgRepairPerSec = span[0].HpRepaired / span[0].RepairInterval;
+            for (int i = 1; i < span.Length; ++i)
+                avgRepairPerSec = (avgRepairPerSec + (span[i].HpRepaired / span[i].RepairInterval)) * 0.5f;
             return (int)Math.Round(avgRepairPerSec);
         }
 
@@ -1916,7 +1928,7 @@ namespace Ship_Game.Ships
             if (Universe.Screen?.SelectedShip == this)
             {
                 CurrentRepairStats ??= new();
-                CurrentRepairStats.Add((GameBase.Base.Elapsed.CurrentGameTime, repairAmount / repairInterval));
+                CurrentRepairStats.Add((repairAmount, repairInterval));
             }
             else
                 CurrentRepairStats = null;
