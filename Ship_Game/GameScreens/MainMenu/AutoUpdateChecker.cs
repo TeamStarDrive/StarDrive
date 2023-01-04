@@ -9,6 +9,7 @@ using Ship_Game.Audio;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SDUtils;
 
 namespace Ship_Game.GameScreens.MainMenu;
 
@@ -24,11 +25,13 @@ public record struct ReleaseInfo(string Name, string Version, string Changelog, 
 public class AutoUpdateChecker : UIElementContainer
 {
     readonly GameScreen Screen;
+    readonly UIList Popups;
     TaskResult AsyncTask;
 
     public AutoUpdateChecker(GameScreen screen) : base(screen.RectF)
     {
         Screen = screen;
+        Popups = AddList(new(10, Screen.Height * 0.6f));
     }
 
     public override void OnAdded(UIElementContainer parent)
@@ -73,9 +76,8 @@ public class AutoUpdateChecker : UIElementContainer
                 ? GlobalStats.ActiveMod?.LoadPortrait(Screen)
                 : updater.ContentManager.LoadTextureOrDefault("Textures/Portraits/Human.dds");
 
-            UIPanel portrait = base.Add(new UIPanel(LocalPos.Zero, new Vector2(62, 74), portraitTex));
+            UIPanel portrait = base.Add(new UIPanel(new LocalPos(48,0), new(62, 74), portraitTex));
             portrait.AxisAlign = Align.CenterLeft;
-            portrait.SetLocalPos(48, 0);
 
             // pulsate alpha
             Anim().Time(0, 4, 1, 1).Alpha(new Range(0.5f, 1.0f)).Loop();
@@ -83,8 +85,24 @@ public class AutoUpdateChecker : UIElementContainer
 
         void Remove()
         {
-            Updater.RemoveFromParent(); // remove AutoUpdater
+            var elements = Updater.Popups.GetElements();
+            int index = elements.IndexOf(this);
             RemoveFromParent(); // remove self
+
+            // remove AutoUpdater if all popups dismissed
+            if (elements.Count(e => e is NewVersionPopup) == 0)
+            {
+                Updater.RemoveFromParent();
+            }
+            else // animate all other popups to shift up
+            {
+                for (int i = index; i < elements.Count; ++i)
+                {
+                    UIElementV2 e = elements[i];
+                    Vector2 endPos = new(e.X, e.Y - Height - Updater.Popups.Padding.Y);
+                    e.SlideIn(e.Pos, endPos, 0.15f).Bounce(new(0,8));
+                }
+            }
         }
 
         void OnAutoUpdateClicked()
@@ -129,19 +147,16 @@ public class AutoUpdateChecker : UIElementContainer
 
         Screen.RunOnNextFrame(() =>
         {
-            var notification = Add(new NewVersionPopup(this, info, isMod));
-            float offset = isMod ? -notification.Height*0.9f : 0;
-            float y = Screen.Height * 0.75f + offset;
-            Vector2 endPos = new(10f, y);
-            Vector2 startPos = new(endPos.X - (notification.Width + 20), y);
+            var notification = Popups.Add(new NewVersionPopup(this, info, isMod));
+            Popups.PerformLayout();
 
-            notification.Anim() // slide in animation
-                .FadeIn(delay:1.5f, duration:0.2f)
-                .Pos(startPos, endPos)
+            Vector2 endPos = notification.Pos;
+            Vector2 startPos = new(endPos.X - (notification.Width + 20), endPos.Y);
+
+            float delay = isMod ? 2f : 1.5f;
+            notification.SlideIn(startPos, endPos, 0.2f, delay:delay)
                 .Sfx(null, "sd_ui_notification_research_01")
-            .ThenAnim() // followed by a small bounce
-                .Time(0, 0.4f, 0.1f, 0.2f)
-                .Pos(endPos, endPos-new Vector2(16,0));
+                .Bounce(new(-16,0));
         });
     }
     

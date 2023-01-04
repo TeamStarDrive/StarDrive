@@ -77,8 +77,8 @@ namespace Ship_Game.Ships
             {
                 Ship = ship;
                 Grid = grid;
-                PwrGrid = new BitArray(Grid.Width * Grid.Height);
-                Checked = new BitArray(Grid.Width * Grid.Height);
+                PwrGrid = new(Grid.Width * Grid.Height);
+                Checked = new(Grid.Width * Grid.Height);
             }
 
             // whether a module has already been power-checked
@@ -279,13 +279,37 @@ namespace Ship_Game.Ships
                 SetInPowerRadius(x0-radius, x0-1, y0, y1); // Check West
                 SetInPowerRadius(x1+1, x1+radius, y0, y1); // Check East
 
-                SetInPowerRadius(x0-radius, x0-1, y0-radius, y0-1, x0, y0, radius); // Check NorthWest
-                SetInPowerRadius(x1+1, x1+radius, y0-radius, y0-1, x1, y0, radius); // Check NorthEast
-                SetInPowerRadius(x1+1, x1+radius, y1+1, y1+radius, x1, y1, radius); // Check SouthEast
-                SetInPowerRadius(x0-radius, x0-1, y1+1, y1+radius, x0, y1, radius); // Check SouthWest
+                // special case, Radius == 1, so we just need to mark the corners and that's it
+                if (radius == 1)
+                {
+                    SetInPowerRadius(x0-1, y0-1); // Set NorthWest
+                    SetInPowerRadius(x1+1, y0-1); // Set NorthEast
+                    SetInPowerRadius(x0-1, y1+1); // Set SouthEast
+                    SetInPowerRadius(x1+1, y1+1); // Set SouthWest
+                }
+                else
+                {
+                    // since the distance check is done with a squared distance check,
+                    // some slots will only partially fall in range, this sets the additional threshold
+                    // allowing for a smoother/rounder looking power radius
+                    float smoothRadius = radius + 0.25f;
+                    int sqRadius = (int)(smoothRadius*smoothRadius);
+                    SetInPowerRadius(x0-radius, x0-1, y0-radius, y0-1, x0, y0, sqRadius); // Check NorthWest
+                    SetInPowerRadius(x1+1, x1+radius, y0-radius, y0-1, x1, y0, sqRadius); // Check NorthEast
+                    SetInPowerRadius(x1+1, x1+radius, y1+1, y1+radius, x1, y1, sqRadius); // Check SouthEast
+                    SetInPowerRadius(x0-radius, x0-1, y1+1, y1+radius, x0, y1, sqRadius); // Check SouthWest
+                }
             }
 
-            void SetInPowerRadius(int x0, int x1, int y0, int y1) // fill entire area
+            // set single cell powered
+            void SetInPowerRadius(int x, int y)
+            {
+                if (0 <= x && x < Grid.Width && 0 <= y && y < Grid.Height)
+                    SetPowered(x, y);
+            }
+
+            // fill an entire area
+            void SetInPowerRadius(int x0, int x1, int y0, int y1)
             {
                 ClampGridCoords(ref x0, ref x1, ref y0, ref y1);
                 for (int y = y0; y <= y1; ++y)
@@ -293,7 +317,8 @@ namespace Ship_Game.Ships
                     SetPowered(x, y);
             }
 
-            void SetInPowerRadius(int x0, int x1, int y0, int y1, int powerX, int powerY, int radius) // additional radius check
+            // additional radius check for corners
+            void SetInPowerRadius(int x0, int x1, int y0, int y1, int powerX, int powerY, int sqRadius)
             {
                 ClampGridCoords(ref x0, ref x1, ref y0, ref y1);
                 for (int y = y0; y <= y1; ++y)
@@ -301,7 +326,8 @@ namespace Ship_Game.Ships
                 {
                     int dx = Math.Abs(x - powerX);
                     int dy = Math.Abs(y - powerY);
-                    if ((dx + dy) <= radius) // Manhattan distance
+                    int sqDist = dx*dx + dy*dy;
+                    if (sqDist <= sqRadius)
                         SetPowered(x, y);
                 }
             }

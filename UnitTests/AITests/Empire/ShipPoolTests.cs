@@ -125,7 +125,7 @@ namespace UnitTests.AITests.Empire
             ship.AI.OrderResupply(Homeworld, clearOrders:true);
             RunSimWhile((simTimeout:90, fatal:true), () => ship.AI.State == AIState.Resupply, () =>
             {
-                Homeworld.GeodeticManager.AffectNearbyShips();
+                Homeworld.GeodeticManager.AffectNearbyShips(new FixedSimTime(5));
                 AssertEqual(originalPool, ship.Pool, "Ship must remain in the same pool during Resupply");
             });
         }

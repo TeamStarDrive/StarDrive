@@ -182,8 +182,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(GameText.LaunchThisTroopIntoOrbit);
                 if (LaunchTroop.HandleInput(input))
                 {
-                    var combatScreen = (CombatScreen)Universe.workersPanel;
-                    if (combatScreen.TryLaunchTroopFromActiveTile())
+                    if (Universe.workersPanel is CombatScreen cs && cs.TryLaunchTroopFromActiveTile())
                         GameAudio.TroopTakeOff();
                     else
                         GameAudio.NegativeClick();
