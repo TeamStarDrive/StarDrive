@@ -1,10 +1,9 @@
 using System;
-using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using SynapseGaming.LightingSystem.Core;
+using Ship_Game.Data.Mesh;
 using SynapseGaming.LightingSystem.Rendering;
 using Matrix = SDGraphics.Matrix;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game;
 
@@ -38,36 +37,43 @@ public sealed class SpaceStation
 
     void CreateSceneObject(Planet planet, Empire owner)
     {
-        Model innerModel = null;
-        Model outerModel;
+        StaticMesh outerModel, innerModel = null;
+
+        // use the root content manager, because there is not much point to clear this resource
+        var content = ResourceManager.RootContent;
+
         if (owner == null || owner.data.SpacePortModel.IsEmpty())
         {
-            innerModel = ResourceManager.RootContent.LoadModel("Model/Stations/spacestation01_inner");
-            outerModel = ResourceManager.RootContent.LoadModel("Model/Stations/spacestation01_outer");
+            innerModel = StaticMesh.LoadMesh(content, "Model/Stations/spacestation01_inner");
+            outerModel = StaticMesh.LoadMesh(content, "Model/Stations/spacestation01_outer");
         }
         else
         {
-            outerModel = ResourceManager.RootContent.LoadModel(owner.data.SpacePortModel);
+            outerModel = StaticMesh.LoadMesh(content, owner.data.SpacePortModel);
         }
 
         if (innerModel != null)
         {
-            InnerSO = new SceneObject(innerModel.Meshes[0])
+            InnerSO = innerModel.CreateSceneObject();
+            if (InnerSO != null)
             {
-                ObjectType = ObjectType.Dynamic,
-                Visibility = GlobalStats.ShipVisibility,
-            };
-            InnerSO.Name = "spacestation01_inner";
-            ScreenManager.Instance.AddObject(InnerSO);
+                InnerSO.Name = "spacestation01_inner";
+                InnerSO.Visibility = GlobalStats.ShipVisibility; // shadows or no?
+                ScreenManager.Instance.AddObject(InnerSO);
+            }
         }
 
-        OuterSO = new SceneObject(outerModel.Meshes[0])
+        if (outerModel != null)
         {
-            ObjectType = ObjectType.Dynamic,
-            Visibility = GlobalStats.ShipVisibility,
-        };
-        OuterSO.Name = "spacestation01_outer";
-        ScreenManager.Instance.AddObject(OuterSO);
+            OuterSO = outerModel.CreateSceneObject();
+            if (OuterSO != null)
+            {
+                OuterSO.Name = "spacestation01_outer";
+                OuterSO.Visibility = GlobalStats.ShipVisibility; // shadows or no?
+                ScreenManager.Instance.AddObject(OuterSO);
+            }
+        }
+
         UpdateTransforms(planet.Position);
     }
 
