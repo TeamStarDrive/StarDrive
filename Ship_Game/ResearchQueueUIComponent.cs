@@ -11,6 +11,7 @@ namespace Ship_Game
     public sealed class ResearchQueueUIComponent : UIPanel
     {
         readonly ResearchScreenNew Screen;
+        Empire Player => Screen.Player;
 
         readonly Submenu CurrentResearchPanel;
         readonly UIPanel TimeLeft;
@@ -47,11 +48,11 @@ namespace Ship_Game
         }
 
         // TODO: check if we are moving item up before allowed item
-        void OnResearchItemReorder(ResearchQItem item, int oldIndex, int newIndex)
+        void OnResearchItemReorder(ResearchQItem item, int relativeChange)
         {
             // we use +1 here, because [0] is the current research item
             // which is not in the ScrollList
-            Screen.Player.Research.ReorderTech(oldIndex+1, newIndex+1);
+            //Screen.Player.Research.ReorderTech(oldIndex+1, newIndex+1);
         }
 
         void OnBtnShowQueuePressed(UIButton button)
@@ -112,20 +113,20 @@ namespace Ship_Game
             }
         }
 
-        ResearchQItem CreateQueueItem(TreeNode node)
+        ResearchQItem CreateQueueItem(TechEntry tech)
         {
             var defaultPos = new Vector2(CurrentResearchPanel.X + 5, CurrentResearchPanel.Y + 30);
-            return new ResearchQItem(Screen, node, defaultPos) { List = ResearchQueueList };
+            return new(Screen, tech, defaultPos) { List = ResearchQueueList };
         }
 
-        public void AddToResearchQueue(TreeNode node)
+        public void AddToResearchQueue(TechEntry tech)
         {
-            if (Screen.Player.Research.AddToQueue(node.Entry.UID))
+            if (Player.Research.AddToQueue(tech.UID))
             {
                 if (CurrentResearch == null)
-                    CurrentResearch = CreateQueueItem(node);
+                    CurrentResearch = CreateQueueItem(tech);
                 else
-                    ResearchQueueList.AddItem(CreateQueueItem(node));
+                    ResearchQueueList.AddItem(CreateQueueItem(tech));
 
                 SetQueueVisible(true);
             }
@@ -133,18 +134,19 @@ namespace Ship_Game
 
         public void ReloadResearchQueue()
         {
-            CurrentResearch = Screen.Player.Research.HasTopic
-                            ? CreateQueueItem(Screen.SubNodes[Screen.Player.Research.Topic])
+            CurrentResearch = Player.Research.HasTopic
+                            ? CreateQueueItem(Player.Research.Current)
                             : null;
 
             var items = new Array<ResearchQItem>();
-            foreach (string tech in Screen.Player.Research.QueuedItems)
+            foreach (string tech in Player.Research.QueuedItems)
             {
-                items.Add(CreateQueueItem( Screen.SubNodes[tech] ));
+                TechEntry queuedTech = Player.GetTechEntry(tech);
+                items.Add(CreateQueueItem(queuedTech));
             }
             ResearchQueueList.SetItems(items);
 
-            SetQueueVisible(Screen.Player.Research.HasTopic);
+            SetQueueVisible(Player.Research.HasTopic);
         }
     }
 }
