@@ -149,7 +149,7 @@ namespace Ship_Game
             PendingRemovals?.Clear();
             PendingRemovals = null;
             base.Clear();
-            ThisLock?.Dispose(ref ThisLock);            
+            Mem.Dispose(ref ThisLock);            
         }
     }
 }

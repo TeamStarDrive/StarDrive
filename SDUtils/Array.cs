@@ -335,13 +335,13 @@ namespace SDUtils
         public void CopyTo(T[] array, int arrayIndex = 0)
         {
             int count = Count;
-            if (count != 0) Memory.HybridCopy(array, arrayIndex, Items, count);
+            if (count != 0) Mem.HybridCopy(array, arrayIndex, Items, count);
         }
 
         void ICollection.CopyTo(Array array, int arrayIndex)
         {
             int count = Count;
-            if (count != 0) Memory.HybridCopy((T[])array, arrayIndex, Items, count);
+            if (count != 0) Mem.HybridCopy((T[])array, arrayIndex, Items, count);
         }
 
         // Removes a single occurence of an item
@@ -778,7 +778,7 @@ namespace SDUtils
                 items[0] = Items[0];
                 return items;
             }
-            Memory.HybridCopy(items, 0, Items, count);
+            Mem.HybridCopy(items, 0, Items, count);
 
             var keys = new TKey[items.Length];
             for (int i = 0; i < items.Length; ++i) // items.Length allows CLR to optimize the loop
@@ -890,7 +890,7 @@ namespace SDUtils
                 return Empty<T>.Array;
 
             var arr = new T[count];
-            Memory.HybridCopy(arr, 0, Items, count);
+            Mem.HybridCopy(arr, 0, Items, count);
             return arr;
         }
 

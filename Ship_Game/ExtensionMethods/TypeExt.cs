@@ -16,16 +16,6 @@ namespace Ship_Game
 {
     public static class TypeExt
     {
-        // Helps to make manual disposing of objects safe and brief
-        // Always call as: myDisposable?.Dispose(ref myDisposable);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // ReSharper disable once RedundantAssignment
-        public static void Dispose<T>(this IDisposable obj, ref T self) where T : class, IDisposable
-        {
-            obj.Dispose();
-            self = null;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool NotEmpty(this string str)
         {

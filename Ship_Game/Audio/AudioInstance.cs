@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Audio;
 using System;
 using NAudio.Wave;
+using SDUtils;
 using Cue = Microsoft.Xna.Framework.Audio.Cue;
 
 namespace Ship_Game.Audio
@@ -134,8 +135,8 @@ namespace Ship_Game.Audio
         }
         void OnPlaybackStopped(object sender, EventArgs e)
         {
-            Player?.Dispose(ref Player);
-            Reader?.Dispose(ref Reader);
+            Mem.Dispose(ref Player);
+            Mem.Dispose(ref Reader);
         }
         public bool IsPlaying => Player?.PlaybackState == PlaybackState.Playing;
         public bool IsPaused  => Player?.PlaybackState == PlaybackState.Paused;

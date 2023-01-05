@@ -1595,7 +1595,7 @@ namespace Ship_Game.Ships
             DamageVisualizer = null;
             Shield = null;
             HangarShip = null;
-            InstalledWeapon?.Dispose(ref InstalledWeapon);
+            Mem.Dispose(ref InstalledWeapon);
             System = null;
         }
     }

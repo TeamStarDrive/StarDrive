@@ -391,7 +391,7 @@ namespace SDUtils
                     int newLength = array.Length - 1;
                     array[i] = array[newLength];
                     result = new T[newLength];
-                    Memory.HybridCopyRefs(result, 0, array, newLength);
+                    Mem.HybridCopyRefs(result, 0, array, newLength);
                     return;
                 }
             }
@@ -403,7 +403,7 @@ namespace SDUtils
         public static void Add<T>(this T[] array, T item, out T[] result) where T : class
         {
             int newLength = array.Length + 1;
-            Memory.HybridCopyRefs(result = new T[newLength], 0, array, array.Length);
+            Mem.HybridCopyRefs(result = new T[newLength], 0, array, array.Length);
             result[newLength-1] = item;
         }
 
@@ -414,7 +414,7 @@ namespace SDUtils
                 return items;
 
             var copy = new T[count];
-            Memory.HybridCopy(copy, 0, items, count);
+            Mem.HybridCopy(copy, 0, items, count);
             return copy;
         }
 
