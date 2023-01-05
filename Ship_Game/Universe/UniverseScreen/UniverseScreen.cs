@@ -666,16 +666,17 @@ namespace Ship_Game
             Memory.Dispose(ref Particles);
             Memory.Dispose(ref bg);
             Memory.Dispose(ref SR);
+            Memory.Dispose(ref Shields);
         }
 
         protected override void Destroy()
         {
             UnloadGraphics();
 
-            anomalyManager?.Dispose(ref anomalyManager);
-            BombList?.Dispose(ref BombList);
-            NotificationManager?.Dispose(ref NotificationManager);
-            SelectedShipList = new Array<Ship>();
+            Memory.Dispose(ref anomalyManager);
+            Memory.Dispose(ref BombList);
+            Memory.Dispose(ref NotificationManager);
+            SelectedShipList = new();
 
             base.Destroy();
         }
