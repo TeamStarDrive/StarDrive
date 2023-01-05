@@ -183,26 +183,26 @@ namespace Ship_Game.GameScreens.MainMenu
         // 24x distance is currently the maximum, seems like 25,000 distance is the cutoff for sound
         const float SoundDistanceMultiplier = 24;
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float fixedDeltaTime)
         {
-            if (IsExiting || Scene == null)
-                return;
-
-            // We set the listener pos further away, this is the only way to reduce SFX volume currently
-            var listenerPos = new Vector3(Scene.CameraPos.X, Scene.CameraPos.Y, Scene.CameraPos.Z * SoundDistanceMultiplier);
-            GameAudio.Update3DSound(listenerPos);
-
-            var simTime = new FixedSimTime(GlobalStats.SimulationFramesPerSecond);
-
-            SimTimeSink += elapsed.RealTime.Seconds;
-            while (SimTimeSink >= simTime.FixedTime)
+            if (Scene != null)
             {
-                SimTimeSink -= simTime.FixedTime;
-                Scene.Update(simTime);
-                FTLManager.Update(this, simTime);
+                // We set the listener pos further away, this is the only way to reduce SFX volume currently
+                var listenerPos = new Vector3(Scene.CameraPos.X, Scene.CameraPos.Y, Scene.CameraPos.Z * SoundDistanceMultiplier);
+                GameAudio.Update3DSound(listenerPos);
+
+                var simTime = new FixedSimTime(GlobalStats.SimulationFramesPerSecond);
+
+                SimTimeSink += fixedDeltaTime;
+                while (SimTimeSink >= simTime.FixedTime)
+                {
+                    SimTimeSink -= simTime.FixedTime;
+                    Scene.Update(simTime);
+                    FTLManager.Update(this, simTime);
+                }
             }
 
-            ScreenManager.UpdateSceneObjects(elapsed.RealTime.Seconds);
+            ScreenManager.UpdateSceneObjects(fixedDeltaTime);
             
             if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {
@@ -220,7 +220,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 ScreenManager.Music.Stop();
             }
 
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(fixedDeltaTime);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
