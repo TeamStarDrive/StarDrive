@@ -60,12 +60,37 @@ namespace Ship_Game
             GraphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService))
                                   ?? throw new InvalidOperationException("No graphics device service.");
 
+            GraphicsDevice.DeviceReset += GraphicsDeviceService_DeviceReset;
+            GraphicsDevice.DeviceResetting += GraphicsDevice_DeviceResetting;
+            GraphicsDevice.DeviceLost += GraphicsDevice_DeviceLost;
+            GraphicsDevice.Disposing += GraphicsDevice_Disposing;
+
             input = new();
             LightSysManager = new(game.Services);
             GameSceneState = new();
             SceneInter = new(graphics);
             SceneInter.CreateDefaultManagers(false, false, true);
             SceneInter.AddManager(new GameLightManager(graphics));
+        }
+
+        void GraphicsDeviceService_DeviceReset(object sender, EventArgs e)
+        {
+            Log.Write(ConsoleColor.Green, "GraphicsDevice Reset");
+        }
+        
+        void GraphicsDevice_DeviceResetting(object sender, EventArgs e)
+        {
+            Log.Write(ConsoleColor.Green, "GraphicsDevice Resetting");
+        }
+        
+        void GraphicsDevice_DeviceLost(object sender, EventArgs e)
+        {
+            Log.Write(ConsoleColor.Green, "GraphicsDevice Lost");
+        }
+        
+        void GraphicsDevice_Disposing(object sender, EventArgs e)
+        {
+            Log.Write(ConsoleColor.Green, "GraphicsDevice Disposing");
         }
 
         class GameLightManager : LightManager
@@ -331,11 +356,11 @@ namespace Ship_Game
                     {
                         screen.Draw(batch, DrawLoopTime);
                     }
-                    catch (ObjectDisposedException)
+                    catch (ObjectDisposedException e)
                     {
                         // When user device goes to sleep, graphics resources are lost
                         // So all screens need to be reloaded
-                        GameScreens[0].RunOnNextFrame(ReloadAllScreens);
+                        Log.Error(e, "Draw Screen failed: Object Disposed, attempting to reload all screens");
                         return; // we can't continue this loop anyways
                     }
                     catch (Exception e)
@@ -361,12 +386,18 @@ namespace Ship_Game
 
         public void ExitAll(bool clear3DObjects)
         {
-            foreach (GameScreen screen in GameScreens.ToArray()/*grab an atomic copy*/)
+            var screens = GameScreens.ToArray(); /*grab an atomic copy*/
+
+            // exit screens in reverse
+            for (int i = screens.Length - 1; i >= 0; --i)
             {
-                screen.ExitScreen();
+                GameScreen screen = screens[i];
+                if (!screen.IsExiting) // exit only if we're not already exiting
+                    screen.ExitScreen();
             }
 
-            // forcefully remove, since some screens have transition effects
+            // forcefully remove any screens that didn't get removed during ExitScreen,
+            // since some screens have transition effects
             foreach (GameScreen screen in GameScreens.ToArray())
                 RemoveScreen(screen);
 
@@ -374,17 +405,6 @@ namespace Ship_Game
             {
                 RemoveAllObjects();
                 RemoveAllLights();
-            }
-        }
-
-        public void ExitAllExcept(GameScreen except)
-        {
-            foreach (GameScreen screen in GameScreens.ToArray()/*grab an atomic copy*/)
-            {
-                if (screen != except)
-                {
-                    screen.ExitScreen();
-                }
             }
         }
 
@@ -404,16 +424,26 @@ namespace Ship_Game
             }
         }
 
-        public void LoadContent()
+        public void LoadContent(bool deviceWasReset)
         {
-            Log.Info("ScreenManager.LoadContent");
+            Log.Write("ScreenManager.LoadContent");
             UpdateGraphicsDevice();
 
             Environment = ResourceManager.RootContent.Load<SceneEnvironment>("example/scene_environment");
 
-            foreach (GameScreen screen in GameScreens)
+            if (deviceWasReset) // recover
             {
-                screen.InvokeLoadContent();
+                foreach (GameScreen screen in GameScreens)
+                {
+                    screen.ReloadContent();
+                }
+            }
+            else // first time init
+            {
+                foreach (GameScreen screen in GameScreens)
+                {
+                    screen.InvokeLoadContent();
+                }
             }
 
             Viewport viewport = GameBase.Viewport;
@@ -450,18 +480,6 @@ namespace Ship_Game
 
             GameScreens.Remove(screen);
             screen.OnScreenRemoved();
-        }
-
-        public void ReloadAllScreens()
-        {
-            for (int i = 0; i < GameScreens.Count; ++i)
-            {
-                GameScreen screen = GameScreens[i];
-                if (!screen.IsDisposed)
-                {
-                    screen.ReloadContent();
-                }
-            }
         }
 
         float HotloadTimer;
@@ -639,7 +657,7 @@ namespace Ship_Game
 
         void Destroy()
         {
-            SpriteBatch?.Dispose(ref SpriteBatch);
+            Mem.Dispose(ref SpriteBatch);
         }
     }
 }

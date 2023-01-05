@@ -14,7 +14,6 @@ namespace Ship_Game.Ships
         // Role assigned to the Hull, such as `Cruiser`
         public RoleName HullRole => BaseHull.Role;
 
-        static readonly string[] RoleArray = typeof(RoleName).GetEnumNames();
         public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
 
         public bool IsPlatformOrStation { get; private set; }
@@ -194,7 +193,7 @@ namespace Ship_Game.Ships
 
         public string GetRole()
         {
-            return RoleArray[(int)Role -1];
+            return Role.ToString();
         }
 
         public bool IsBuildableByPlayer(Empire player)
@@ -203,12 +202,6 @@ namespace Ship_Game.Ships
             return !IsCarrierOnly && !Deleted
                 && !role.Protected && !role.NoBuild
                 && (player.Universe.P.ShowAllDesigns || IsPlayerDesign);
-        }
-
-        public static string GetRole(RoleName role)
-        {
-            int roleNum = (int)role;
-            return RoleArray[roleNum];
         }
 
         public bool IsShipGoodToBuild(Empire e)

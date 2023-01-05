@@ -78,7 +78,7 @@ namespace Ship_Game.Universe.SolarBodies
             Types = Empty<PlanetType>.Array;
             PlanetTypeMap.Clear();
             PlanetTypesByCategory.Clear();
-            Renderer.Dispose(ref Renderer);
+            Mem.Dispose(ref Renderer);
         }
 
         static void OnPlanetTypesModified(GameContentManager content, FileInfo file)

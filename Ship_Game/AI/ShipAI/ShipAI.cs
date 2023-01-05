@@ -152,16 +152,16 @@ namespace Ship_Game.AI
             SystemToDefend = null;
             ExplorationTarget = null;
 
-            OrderQueue?.Dispose(ref OrderQueue);
+            Mem.Dispose(ref OrderQueue);
             NearByShips?.Clear();
             NearByShips = null;
             FriendliesNearby = Empty<Ship>.Array;
             PotentialTargets = Empty<Ship>.Array;
             TrackProjectiles = Empty<Projectile>.Array;
 
-            DropOffGoods?.Dispose(ref DropOffGoods);
-            PickupGoods?.Dispose(ref PickupGoods);
-            Orbit?.Dispose(ref Orbit);
+            Mem.Dispose(ref DropOffGoods);
+            Mem.Dispose(ref PickupGoods);
+            Mem.Dispose(ref Orbit);
 
             CombatAI = null;
             EscortTarget = null;

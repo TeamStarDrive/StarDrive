@@ -380,7 +380,7 @@ namespace Ship_Game
 
         protected override void Dispose(bool disposing)
         {
-            QuadVertexDecl?.Dispose(ref QuadVertexDecl);
+            Mem.Dispose(ref QuadVertexDecl);
             base.Dispose(disposing);
         }
 

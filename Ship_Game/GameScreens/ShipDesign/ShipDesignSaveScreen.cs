@@ -64,7 +64,7 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 string reserved = CanModifyDesign ? "" : ("(Reserved Name)");
-                string role = Design?.GetRole() ?? ShipDesign.GetRole(Hull.Role);
+                string role = Design?.GetRole() ?? Hull.Role.ToString();
                 SubTexture icon = Design?.Icon ?? Hull?.Icon;
 
                 batch.Draw(icon, new Rectangle((int)X, (int)Y, 48, 48));

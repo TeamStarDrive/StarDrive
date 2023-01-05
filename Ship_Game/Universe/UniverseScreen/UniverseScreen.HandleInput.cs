@@ -982,7 +982,7 @@ namespace Ship_Game
             EmpireAI playerAI = Player.AI;
 
             // ToArray() used for thread safety
-            foreach (Goal goal in playerAI.Goals.ToArray())
+            foreach (Goal goal in playerAI.Goals.ToArr())
             {
                 if (goal.IsDeploymentGoal)
                 {

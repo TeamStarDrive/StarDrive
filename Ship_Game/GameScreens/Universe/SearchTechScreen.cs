@@ -32,7 +32,7 @@ namespace Ship_Game
 
             CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
             LocalizedText title = GameText.SearchTechnology;
-            Vector2 titlePos = new Vector2(Window.Menu.CenterTextX(title, Fonts.Arial20Bold), Window.Menu.Y + 35);
+            Vector2 titlePos = new(Window.Menu.CenterTextX(title, Fonts.Arial20Bold), Window.Menu.Y + 35);
             Label(titlePos, title, Fonts.Arial20Bold, Colors.Cream);
 
             RectF techList = new(Window.X + 20, Window.Y + 95, Window.Width - 40, Window.Height - 125);
@@ -67,7 +67,7 @@ namespace Ship_Game
 
             foreach (TechEntry entry in Screen.Universe.Player.TechEntries)
             {
-                TreeNode node = new TreeNode(Vector2.Zero, entry, Screen);
+                TreeNode node = new(Vector2.Zero, entry, Screen);
                 if (entry.Discovered && !entry.IsRoot &&
                     (keyword.IsEmpty() || node.TechName.ToLower().Contains(keyword)))
                 {
@@ -82,7 +82,7 @@ namespace Ship_Game
         SearchTechItem CreateQueueItem(TreeNode node)
         {
             var defaultPos = new Vector2(Window.X + 5, Window.Y);
-            return new SearchTechItem(Screen, node, defaultPos) { List = TechList };
+            return new(Screen, node, defaultPos) { List = TechList };
         }
 
         void ResearchToTech(TechEntry entry)
@@ -93,7 +93,7 @@ namespace Ship_Game
                 return;
             }
 
-            Array<TechEntry> entries = new Array<TechEntry> {entry};
+            var entries = new Array<TechEntry> {entry};
             while (!entry.IsRoot)
             {
                 TechEntry parent = entry.GetPreReq(Screen.Player);
@@ -109,7 +109,7 @@ namespace Ship_Game
             for (int i = entries.Count-1; i >= 0; i--)
             {
                 TechEntry te = entries[i];
-                Screen.Queue.AddToResearchQueue(new TreeNode(Vector2.Zero, te, Screen));
+                Screen.Queue.AddToResearchQueue(te);
             }
         }
     }

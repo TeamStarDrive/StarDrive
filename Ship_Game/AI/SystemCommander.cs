@@ -101,10 +101,10 @@ namespace Ship_Game.AI
             if (CurrentShipStr < IdealShipStrength)
                 return removed;
             
-            foreach (Ship ship in OurShips)
+            for (int i = OurShips.Count - 1; i >= 0; --i)
             {
-                float str = ship.BaseStrength;
-                if (CurrentShipStr - str > IdealShipStrength)
+                Ship ship = OurShips[i];
+                if ((CurrentShipStr - ship.BaseStrength) > IdealShipStrength)
                 {
                     RemoveShip(ship);
                     removed.Add(ship);

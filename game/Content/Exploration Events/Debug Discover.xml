@@ -11,7 +11,7 @@
 
       <SecretTechDiscovered>Ascension</SecretTechDiscovered>
       <ReplaceWith>Nano Mine</ReplaceWith>
-      <UnlockTech>Ascension Schematics</UnlockTech>
+      <UnlockTech>Ascension</UnlockTech>
 
       <FriendlyShipsToSpawn>
         <string>Ancient Torpedo Cruiser</string>

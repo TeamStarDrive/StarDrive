@@ -241,35 +241,35 @@ namespace Ship_Game.Data
                 case GraphicsResource g:
                     if (!g.IsDisposed)
                     {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing texture  "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing texture  "+(assetName??g.Name));
                         g.Dispose();
                     }
                     break;
                 case TextureAtlas atlas:
                     if (!atlas.IsDisposed)
                     {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing atlas    "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing atlas    "+(assetName??atlas.Name));
                         atlas.Dispose();
                     }
                     break;
                 case StaticMesh mesh:
                     if (!mesh.IsDisposed)
                     {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing mesh     "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing mesh     "+(assetName??mesh.Name));
                         mesh.Dispose();
                     }
                     break;
                 case Model model:
                     if (!StaticMesh.IsModelDisposed(model))
                     {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing model    "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing model    "+(assetName??model.Meshes[0].Name));
                         StaticMesh.DisposeModel(model);
                     }
                     break;
                 case SkinnedModel skinnedModel:
                     if (!StaticMesh.IsModelDisposed(skinnedModel))
                     {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing aniModel "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing aniModel "+(assetName??skinnedModel.Model.Meshes[0].Name));
                         StaticMesh.DisposeModel(skinnedModel);
                     }
                     break;
@@ -277,25 +277,25 @@ namespace Ship_Game.Data
                     var texture = GetField<Texture2D>(font, "textureValue");
                     if (!texture.IsDisposed)
                     {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing font     "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing font     "+(assetName??texture.Name));
                         texture.Dispose();
                     }
                     break;
                 case Effect fx:
                     if (!fx.IsDisposed)
                     {
-                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing effect   "+assetName);
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing effect   "+(assetName??"unknown"));
                         fx.Dispose();
                     }
                     break;
                 case Video _: // video is just a reference object, nothing to dispose
                     break;
                 case IDisposable disposable:
-                    Log.Write(ConsoleColor.Magenta, "Disposing asset    "+assetName);
+                    Log.Write(ConsoleColor.Magenta, "Disposing asset    "+(assetName ?? disposable.GetType().GetTypeName()));
                     disposable.Dispose();
                     break;
                 default:
-                    Log.Write(ConsoleColor.Red, "Cannot Dispose asset "+assetName);
+                    Log.Write(ConsoleColor.Red, "Cannot Dispose asset "+(assetName ?? asset.GetType().GetTypeName()));
                     break;
             }
         }
@@ -315,6 +315,33 @@ namespace Ship_Game.Data
             }
             // anything that falls here is of non-disposable type, such as `Video`
             return false;
+        }
+
+        /// <summary>
+        /// Disposes an asset and removes it from the content manager
+        /// </summary>
+        public void Dispose<T>(ref T asset) where T : class
+        {
+            if (asset == null)
+                return;
+            lock (LoadSync)
+            {
+                // find the key of this asset (slow)
+                // TODO: maybe add Asset-To-Key Mapping?
+                foreach (KeyValuePair<string, object> kv in LoadedAssets)
+                {
+                    if (ReferenceEquals(asset, kv.Value))
+                    {
+                        Dispose(kv.Key, kv.Value);
+                        asset = null;
+                        LoadedAssets.Remove(kv.Key);
+                        return;
+                    }
+                }
+            }
+            // we didn't find it in LoadedAssets, but lets dispose it anyways
+            Dispose(null, asset);
+            asset = null;
         }
 
         readonly struct AssetName
