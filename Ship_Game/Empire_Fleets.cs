@@ -142,7 +142,7 @@ public sealed partial class Empire
         {
             fleet.Update(timeStep);
             if (FleetUpdateTimer <= 0f && !AI.Disabled)
-                fleet.UpdateAI(timeStep, fleet.Key);
+                fleet.UpdateAI(timeStep);
         }
         if (FleetUpdateTimer < 0f)
             FleetUpdateTimer = 5f;
