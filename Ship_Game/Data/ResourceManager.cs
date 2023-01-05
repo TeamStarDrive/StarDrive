@@ -314,16 +314,16 @@ namespace Ship_Game
             WaitForExit();
             manager.ResetHotLoadTargets();
 
-            Nebulae?.Dispose(ref Nebulae);
+            Mem.Dispose(ref Nebulae);
             // TextureBindings were disposed by Nebulae.Dispose()
             SmallNebulae.Clear();
             MedNebulae.Clear();
             BigNebulae.Clear();
 
-            SmallStars?.Dispose(ref SmallStars);
-            MediumStars?.Dispose(ref MediumStars);
-            LargeStars?.Dispose(ref LargeStars);
-            FlagTextures?.Dispose(ref FlagTextures);
+            Mem.Dispose(ref SmallStars);
+            Mem.Dispose(ref MediumStars);
+            Mem.Dispose(ref LargeStars);
+            Mem.Dispose(ref FlagTextures);
 
             Arcs.Clear();
             ProjTextDict.ClearAndDispose();
@@ -335,7 +335,7 @@ namespace Ship_Game
 
             SunType.Unload();
             Beam.BeamEffect = null;
-            WhitePixel?.Dispose(ref WhitePixel);
+            Mem.Dispose(ref WhitePixel);
 
             // Texture caches MUST be cleared before triggering content reload!
             Textures.Clear();
@@ -380,7 +380,7 @@ namespace Ship_Game
             ZoneDistribution.Clear();
             BuildRatios.Clear();
 
-            Planets?.Dispose(ref Planets);
+            Mem.Dispose(ref Planets);
 
             DiplomacyDialogs.Clear();
             Empires.Clear();

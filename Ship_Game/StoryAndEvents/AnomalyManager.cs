@@ -1,4 +1,5 @@
 using System;
+using SDUtils;
 
 namespace Ship_Game
 {
@@ -16,7 +17,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            AnomaliesList?.Dispose(ref AnomaliesList);
+            Mem.Dispose(ref AnomaliesList);
         }
     }
 }

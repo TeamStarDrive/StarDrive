@@ -6,6 +6,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Data;
 using SynapseGaming.LightingSystem.Core;
@@ -234,7 +235,7 @@ namespace Ship_Game
             GameAudio.Destroy();
             if (ScreenManager != null)
                 ResourceManager.UnloadAllData(ScreenManager);
-            ScreenManager?.Dispose(ref ScreenManager);
+            Mem.Dispose(ref ScreenManager);
 
             base.Dispose(disposing);
         }

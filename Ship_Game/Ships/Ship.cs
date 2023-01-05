@@ -1707,7 +1707,7 @@ namespace Ship_Game.Ships
             
             // It's extremely important we manually clear these
             // The .NET GC is not able to handler all the cyclic references
-            SupplyLock?.Dispose(ref SupplyLock);
+            Mem.Dispose(ref SupplyLock);
             AI?.Dispose();
             AI = null;
 
