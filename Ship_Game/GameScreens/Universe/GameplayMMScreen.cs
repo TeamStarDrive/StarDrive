@@ -119,21 +119,8 @@ namespace Ship_Game
 
         void ExitToMain_OnClick(UIButton button)
         {
-            Universe.UState.Paused = true; // force Universe to remain paused
-
-            // exit all screens on top of UniverseScreen
-            foreach (GameScreen screen in ScreenManager.Screens.ToArr())
-            {
-                if (screen != Universe)
-                {
-                    screen.ExitScreen(); // run exit handlers
-                    Universe.UState.Paused = true; // force Universe to remain paused
-                    ScreenManager.RemoveScreen(screen); // force remove the screen
-                }
-            }
-
-            // now exit the universe, dispose, etc etc
-            Universe.ExitScreen();
+            if (IsExiting)
+                return;
 
             // safely go to MainMenu, clear all 3D stuff if there's anything left
             ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
