@@ -588,6 +588,10 @@ namespace Ship_Game
             public readonly FileInfo Info;
             public readonly T Entity;
             public InfoPair(FileInfo info, T entity) { Info = info; Entity = entity; }
+            public void Deconstruct(out FileInfo file, out T entity)
+            {
+                file = Info; entity = Entity;
+            }
         }
 
         static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
@@ -1077,32 +1081,59 @@ namespace Ship_Game
         public static void LoadEncounters()
         {
             Encounters.Clear();
-            foreach (var pair in LoadEntitiesWithInfo<Encounter>("Encounter Dialogs", "LoadEncounters"))
+            foreach ((FileInfo file, Encounter e) in LoadEntitiesWithInfo<Encounter>("Encounter Dialogs", "LoadEncounters"))
             {
-                Encounter e = pair.Entity;
-                e.FileName = pair.Info.NameNoExt();
+                e.FileName = file.NameNoExt();
                 Encounters.Add(e);
 
                 foreach (Message message in e.MessageList)
-                    foreach (Response response in message.ResponseOptions)
-                        if (TryGetTech(response.UnlockTech ?? "", out Technology tech))
-                            tech.Unlockable = true;
+                    foreach (Response r in message.ResponseOptions)
+                    {
+                        if (r.UnlockTech.NotEmpty())
+                        {
+                            if (TryGetTech(r.UnlockTech, out Technology tech))
+                            {
+                                tech.Unlockable = true;
+                            }
+                            else
+                            {
+                                Log.Error($"Encounter={e.Name} missing UnlockTech='{r.UnlockTech}' Response={r.Text}");
+                                r.UnlockTech = null;
+                            }
+                        }
+                    }
             }
         }
 
         static void LoadExpEvents() // Refactored by RedFox
         {
             EventsDict.Clear();
-            foreach (var pair in LoadEntitiesWithInfo<ExplorationEvent>("Exploration Events", "LoadExpEvents"))
+            foreach ((FileInfo file, ExplorationEvent e) in LoadEntitiesWithInfo<ExplorationEvent>("Exploration Events", "LoadExpEvents"))
             {
-                pair.Entity.FileName = pair.Info.NameNoExt();
-                EventsDict[pair.Entity.FileName] = pair.Entity;
-                foreach (var outcome in pair.Entity.PotentialOutcomes)
+                e.FileName = file.NameNoExt();
+                EventsDict[e.FileName] = e;
+                foreach (Outcome o in e.PotentialOutcomes)
                 {
-                    if (TryGetTech(outcome.UnlockTech ?? "", out Technology tech))
-                        tech.Unlockable = true;
-                    if (TryGetTech(outcome.SecretTechDiscovered ?? "", out tech))
-                        tech.Unlockable = true;
+                    if (o.UnlockTech.NotEmpty())
+                    {
+                        if (TryGetTech(o.UnlockTech, out Technology tech))
+                            tech.Unlockable = true;
+                        else
+                        {
+                            Log.Error($"ExplorationEvent={e.Name} missing UnlockTech='{o.UnlockTech}' Outcome={o.TitleText}");
+                            o.UnlockTech = null;
+                        }
+                    }
+                    if (o.SecretTechDiscovered.NotEmpty())
+                    {
+                        if (TryGetTech(o.SecretTechDiscovered, out Technology tech))
+                            tech.Unlockable = true;
+                        else
+                        {
+                            Log.Error($"ExplorationEvent missing SecretTechDiscovered='{o.SecretTechDiscovered}' Evt={e.Name} Outcome={o.TitleText}");
+                            o.SecretTechDiscovered = null;
+                        }
+                    }
                 }
             }
         }
