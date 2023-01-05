@@ -753,15 +753,8 @@ namespace Ship_Game
             ProdHere += b.ActualCost / 2f;
         }
 
-        public void DestroyBuildingOn(PlanetGridSquare tile)
-        {
-            RemoveBuildingFromPlanet(null, tile, refund:false);
-        }
-
-        public void DestroyBuilding(Building b)
-        {
-            RemoveBuildingFromPlanet(b, null, refund:false);
-        }
+        public void DestroyBuildingOn(PlanetGridSquare tile) => RemoveBuildingFromPlanet(null, tile, refund:false);
+        public void DestroyBuilding(Building b) => RemoveBuildingFromPlanet(b, null, refund:false);
 
         void RemoveBuildingFromPlanet(Building b, PlanetGridSquare tile, bool refund)
         {
@@ -773,7 +766,7 @@ namespace Ship_Game
             if (tile != null)
                 tile.Building = null;
             else
-                Log.Error($"{this} failed to find tile with building {b}");
+                Log.Error("Failed to find tile with building");
 
             BuildingList.Remove(b);
             PostBuildingRemoval(b, tile, refund);
