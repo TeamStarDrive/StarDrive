@@ -1668,7 +1668,6 @@ namespace Ship_Game.Ships
             }
             
             Carrier?.Dispose();
-            Carrier = null;
 
             var slots = ModuleSlotList;
             ModuleSlotList = Empty<ShipModule>.Array;

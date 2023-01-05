@@ -1163,7 +1163,7 @@ namespace Ship_Game
             if (viewState < UnivScreenState.SystemView)
             {
                 RenderStates.BasicBlendMode(Device, additive:true, depthWrite:false);
-                Shields.Draw(View, Projection);
+                Shields?.Draw(View, Projection);
             }
             DrawShieldsPerf.Stop();
         }
