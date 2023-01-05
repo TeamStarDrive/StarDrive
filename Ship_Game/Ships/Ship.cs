@@ -1106,7 +1106,7 @@ namespace Ship_Game.Ships
             UpdateStatusOncePerSecond(timeStep);
             UpdatePower(timeStep);
             ShieldPercent = ShieldMax > 0f ? (100f * ShieldPower) / ShieldMax : 0;
-            ShipEngines.Update();
+            ShipEngines.Update(this);
         }
 
         void UpdatePower(FixedSimTime timeStep)
@@ -1728,7 +1728,6 @@ namespace Ship_Game.Ships
             Stats?.Dispose();
             Cargo = null;
             ModuleSlotList = Empty<ShipModule>.Array;
-            ShipEngines?.Dispose();
             ShipEngines = null;
             TradeRoutes = null;
             OurTroops = null;
