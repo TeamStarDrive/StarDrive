@@ -19,7 +19,7 @@ namespace Ship_Game.Ships
 
         // TRUE if we have any troops present on this ship
         // @warning Some of these MAY be enemy troops!
-        public bool HasOurTroops => OurTroops.Count > 0;
+        public bool HasOurTroops => OurTroops.NotEmpty;
         
         // TRUE if we have own troops or if we launched these troops on to operations
         public bool HasTroopsPresentOrLaunched => HasOurTroops || Carrier.LaunchedAssaultShuttles > 0;
@@ -54,7 +54,7 @@ namespace Ship_Game.Ships
 
         public void KillOneOfOurTroops()
         {
-            if (OurTroops.Count == 0)
+            if (OurTroops.IsEmpty)
                 return;
 
             Troop troop = OurTroops.RandItem();
@@ -79,11 +79,9 @@ namespace Ship_Game.Ships
         {
             get
             {
-                {
-                    var ships = Loyalty.OwnedShips;
-                    return ships.Filter(s => s.AI.State == AIState.RebaseToShip
-                                                    && s.AI.EscortTarget == this).Length;
-                }
+                var ships = Loyalty.OwnedShips;
+                return ships.Count(s => s.AI.State == AIState.RebaseToShip
+                                     && s.AI.EscortTarget == this);
             }
         }
 
@@ -93,17 +91,14 @@ namespace Ship_Game.Ships
                 first.LandOnShip(targetShip);
         }
 
-        public bool TryLandSingleTroopOnPlanet(Planet targetPlanet)
-        {
-            return GetOurFirstTroop(out Troop first) && first.TryLandTroop(targetPlanet);
-        }
-
         public bool GetOurFirstTroop(out Troop troop)
         {
-            if (OurTroops.Count > 0)
+            // TODO: replace `OurTroops` with Troop[] to get better immutability
+            var ourTroops = OurTroops.AsSpan();
+            if (ourTroops.Length > 0)
             {
-                troop = OurTroops[0];
-                return true;
+                troop = ourTroops[0];
+                return troop != null; // this can still be null if something modified the internal array
             }
             troop = null;
             return false;
@@ -143,14 +138,6 @@ namespace Ship_Game.Ships
                 if (troop.Loyalty == oldLoyalty)
                     troop.ChangeLoyalty(newLoyalty);
             }
-        }
-        
-        public Array<Troop> GetFriendlyAndHostileTroops()
-        {
-            var all = new Array<Troop>(OurTroops.Count + HostileTroops.Count);
-            all.AddRange(OurTroops);
-            all.AddRange(HostileTroops);
-            return all;
         }
 
         public int LandTroopsOnShip(Ship targetShip, int maxTroopsToLand = 0)
