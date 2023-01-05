@@ -66,7 +66,7 @@ namespace Ship_Game
 
             int numDiscoveredRoots = Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
 
-            GridHeight = (main.Height - 40) / numDiscoveredRoots;
+            GridHeight = (main.Height - 40) / Math.Max(1, numDiscoveredRoots);
             MainMenuOffset.Y = main.Y + 12 + GridHeight / 3;
             if (ScreenHeight <= 720)
             {

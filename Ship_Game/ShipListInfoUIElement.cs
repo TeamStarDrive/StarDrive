@@ -165,7 +165,7 @@ namespace Ship_Game
                 batch.DrawString(TitleFont, (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name), tpos, tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
                 //this.batch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
-                string longName = string.Concat(HoveredShip.Name, " - ", ShipDesign.GetRole(HoveredShip.DesignRole));
+                string longName = HoveredShip.Name+" - "+HoveredShip.DesignRole;
                 if (HoveredShip.ShipData.ShipCategory != ShipCategory.Unclassified)
                     longName += " - "+HoveredShip.ShipData.ShipCategory;
                 batch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
