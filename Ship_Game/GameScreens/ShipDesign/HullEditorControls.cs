@@ -98,6 +98,8 @@ namespace Ship_Game.GameScreens.ShipDesign
                 int tIndex = i;
                 AddLabel(ThrusterList, () =>
                 {
+                    if (tIndex >= S.CurrentHull.Thrusters.Length)
+                        return "Thruster Deleted"; // this thruster was deleted, Initialize() will be called again
                     var t = S.CurrentHull.Thrusters[tIndex];
                     return $"Thruster X:{t.Position.X} Y:{t.Position.Y} Z:{t.Position.Z} Scale:{t.Scale}";
                 });
