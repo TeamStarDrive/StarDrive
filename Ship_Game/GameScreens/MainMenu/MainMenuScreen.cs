@@ -185,6 +185,9 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            if (IsExiting || Scene == null)
+                return;
+
             // We set the listener pos further away, this is the only way to reduce SFX volume currently
             var listenerPos = new Vector3(Scene.CameraPos.X, Scene.CameraPos.Y, Scene.CameraPos.Z * SoundDistanceMultiplier);
             GameAudio.Update3DSound(listenerPos);
