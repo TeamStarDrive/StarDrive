@@ -16,11 +16,11 @@ namespace Ship_Game
 
         public override string ToString() => $"ResearchQItem \"{Tech.UID}\" {ElementDescr}";
 
-        public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos)
+        public ResearchQItem(ResearchScreenNew screen, TechEntry tech, Vector2 pos)
         {
-            Screen    = screen;
-            Tech      = node.Entry;
-            Pos       = pos;
+            Screen = screen;
+            Tech = tech;
+            Pos = pos;
             BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
             BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
             BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
