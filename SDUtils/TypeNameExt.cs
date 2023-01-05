@@ -32,10 +32,16 @@ public static class TypeNameExt
         if (GenericTypeNames.TryGetValue(type, out string typeName))
             return typeName;
 
-        var sb = new StringBuilder();
-        GetGenericTypeName(type, sb);
-        typeName = sb.ToString();
-        GenericTypeNames.Add(type, typeName);
-        return typeName;
+        lock (GenericTypeNames)
+        {
+            if (GenericTypeNames.TryGetValue(type, out typeName))
+                return typeName;
+
+            var sb = new StringBuilder();
+            GetGenericTypeName(type, sb);
+            typeName = sb.ToString();
+            GenericTypeNames[type] = typeName;
+            return typeName;
+        }
     }
 }
