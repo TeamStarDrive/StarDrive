@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
@@ -11,12 +8,9 @@ using Ship_Game.Graphics.Particles;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
-using SDGraphics;
 using SDUtils;
-using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Matrix = SDGraphics.Matrix;
-using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Utils;
 
 namespace Ship_Game.GameScreens.Scene

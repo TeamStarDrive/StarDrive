@@ -147,16 +147,16 @@ namespace UnitTests.Data
             {
                 foreach (string text in tokens)
                 {
-                    try { font.MeasureString(text); }
-                    catch (Exception e)
-                    {
-                        errors.Add($"MeasureString failed Font={font.Name} Error={e.Message} Text=\"{text}\"");
-                        break;
-                    }
                     try { font.ParseText(text, 120); }
                     catch (Exception e)
                     {
                         errors.Add($"ParseText failed Font={font.Name} Error={e.Message} Text=\"{text}\"");
+                        break;
+                    }
+                    try { font.MeasureString(text); }
+                    catch (Exception e)
+                    {
+                        errors.Add($"MeasureString failed Font={font.Name} Error={e.Message} Text=\"{text}\"");
                         break;
                     }
                 }
@@ -190,6 +190,22 @@ namespace UnitTests.Data
             ResourceManager.LoadLanguage(Language.Spanish);
             Fonts.LoadFonts(ResourceManager.RootContent, Language.Spanish);
             var err = GetTextErrors(Localizer.EnumerateTokens().ToArr());
+            if (err.NotEmpty)
+                Assert.Fail(string.Join("\n", err));
+        }
+
+        
+        [TestMethod]
+        public void ParseTextDoesNotCrashOnInvalidCharacters()
+        {
+            ResourceManager.LoadLanguage(Language.English);
+            Fonts.LoadFonts(ResourceManager.RootContent, Language.English);
+
+            string[] invalidSymbols =
+            {
+                "$", "€", "`", "@"
+            };
+            var err = GetTextErrors(invalidSymbols);
             if (err.NotEmpty)
                 Assert.Fail(string.Join("\n", err));
         }
