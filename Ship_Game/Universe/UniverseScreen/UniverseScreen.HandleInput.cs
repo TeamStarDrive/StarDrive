@@ -3,7 +3,6 @@ using Ship_Game.Debug;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
@@ -982,7 +981,7 @@ namespace Ship_Game
             EmpireAI playerAI = Player.AI;
 
             // ToArray() used for thread safety
-            foreach (Goal goal in playerAI.Goals.ToArray())
+            foreach (Goal goal in playerAI.Goals.ToArr())
             {
                 if (goal.IsDeploymentGoal)
                 {

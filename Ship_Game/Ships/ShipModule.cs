@@ -311,7 +311,7 @@ namespace Ship_Game.Ships
         [Pure] public bool TryGetHangarShip(out Ship ship)
         {
             ship = HangarShip;
-            return HangarShip != null;
+            return ship != null;
         }
 
         public bool IsHangarShipActive => TryGetHangarShip(out Ship ship) && ship.Active;
