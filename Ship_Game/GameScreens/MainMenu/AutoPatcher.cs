@@ -345,8 +345,15 @@ internal class AutoPatcher : PopupWindow
 
     static void MoveAndCreateDirs(string sourceFile, string destinationFile)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(destinationFile)!);
-        File.Move(sourceFile, destinationFile);
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(destinationFile)!);
+            File.Move(sourceFile, destinationFile);
+        }
+        catch (Exception e)
+        {
+            throw new IOException($"Move failed: {sourceFile} --> {destinationFile}", e);
+        }
     }
 
     void RestartAsync()
