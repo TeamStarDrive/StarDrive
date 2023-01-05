@@ -45,6 +45,7 @@ namespace Ship_Game
                     Universe = CreateTask.Result;
                     CreateTask = null;
                     ScreenManager.GoToScreen(Universe, clear3DObjects:false);
+                    return;
                 }
             }
             ScreenState = ScreenState.Active;

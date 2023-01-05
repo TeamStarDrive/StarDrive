@@ -361,12 +361,18 @@ namespace Ship_Game
 
         public void ExitAll(bool clear3DObjects)
         {
-            foreach (GameScreen screen in GameScreens.ToArray()/*grab an atomic copy*/)
+            var screens = GameScreens.ToArray(); /*grab an atomic copy*/
+
+            // exit screens in reverse
+            for (int i = screens.Length - 1; i >= 0; --i)
             {
-                screen.ExitScreen();
+                GameScreen screen = screens[i];
+                if (!screen.IsExiting) // exit only if we're not already exiting
+                    screen.ExitScreen();
             }
 
-            // forcefully remove, since some screens have transition effects
+            // forcefully remove any screens that didn't get removed during ExitScreen,
+            // since some screens have transition effects
             foreach (GameScreen screen in GameScreens.ToArray())
                 RemoveScreen(screen);
 
@@ -374,17 +380,6 @@ namespace Ship_Game
             {
                 RemoveAllObjects();
                 RemoveAllLights();
-            }
-        }
-
-        public void ExitAllExcept(GameScreen except)
-        {
-            foreach (GameScreen screen in GameScreens.ToArray()/*grab an atomic copy*/)
-            {
-                if (screen != except)
-                {
-                    screen.ExitScreen();
-                }
             }
         }
 

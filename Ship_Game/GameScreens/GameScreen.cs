@@ -18,6 +18,7 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
+using SDUtils;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -175,6 +176,8 @@ namespace Ship_Game
 
         public virtual void ExitScreen()
         {
+            IsExiting = true;
+
             if (PausedUniverse != null)
             {
                 PausedUniverse.UState.Paused = false;
@@ -195,12 +198,19 @@ namespace Ship_Game
 
             // Every time we close a screen, make sure to Release input capture
             GlobalStats.TakingInput = false;
-            
-            IsExiting = true;
+
             if (TransitionOffTime.NotZero())
                 return;
 
             ScreenManager.RemoveScreen(this);
+        }
+
+        // Calls ExitScreen and then always forcefully removes the screen
+        public void ForceExit()
+        {
+            ExitScreen();
+            if (ScreenManager.Screens.Contains(this))
+                ScreenManager.RemoveScreen(this);
         }
 
         public virtual void OnScreenRemoved()

@@ -33,7 +33,7 @@ namespace Ship_Game
             Universe = parent;
             IsPopup = false;
             TransitionOnTime = 30f;
-            TransitionOffTime = 0.25f;
+            TransitionOffTime = 0; // exit immediately
 
             if (text.IsValid)
                 txt = Fonts.Arial20Bold.ParseText(text, 500f);
@@ -80,11 +80,11 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            ScreenManager.ExitAllExcept(this);
-            ScreenManager.Music.Stop();
-            MusicCheckTimer = 10;
+            if (IsExiting)
+                return;
+
+            base.ExitScreen(); // set IsExiting=true to avoid calling this again
             ScreenManager.GoToScreen(new MainMenuScreen(MainMenuType.Victory), clear3DObjects:true);
-            base.ExitScreen();
         }
 
         public override bool HandleInput(InputState input)
@@ -93,14 +93,9 @@ namespace Ship_Game
             {
                 if (replay == null)
                 {
-                    if (!LowRes)
-                    {
-                        replay = new ReplayElement(Universe, new Rectangle(ScreenWidth / 2 - 376, ScreenHeight / 2 - 376, 752, 752));
-                    }
-                    else
-                    {
-                        replay = new ReplayElement(Universe, new Rectangle(ScreenWidth / 2 - 290, ScreenHeight / 2 - 354, 580, 580));
-                    }
+                    RectF rect = LowRes ? new(CenterX - 290, CenterY - 354, 580, 580)
+                                        : new(CenterX - 376, CenterY - 376, 752, 752);
+                    replay = new(Universe, rect);
                 }
                 ShowingReplay = true;
             }
