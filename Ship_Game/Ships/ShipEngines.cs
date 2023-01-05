@@ -30,12 +30,6 @@ namespace Ship_Game.Ships
 
     public class ShipEngines
     {
-        Ship Owner;
-        ShipAI AI => Owner.AI;
-
-        public ShipModule[] Engines { get; private set; }
-        public ShipModule[] ActiveEngines => Engines.Filter(e => e.Active && (e.Powered || e.PowerDraw <= 0f));
-
         public EngineStatus EngineStatus { get; private set; }
         public WarpStatus ReadyForWarp { get; private set; }
         public WarpStatus ReadyForFormationWarp { get; private set; }
@@ -44,49 +38,42 @@ namespace Ship_Game.Ships
 
         public override string ToString() => $"Status:{EngineStatus} Warp:{ReadyForWarp} FWarp:{ReadyForFormationWarp}";
 
-        public ShipEngines(Ship owner, ShipModule[] slots)
+        public ShipEngines()
         {
-            Owner   = owner;
-            Engines = slots.Filter(module => module.Is(ShipModuleType.Engine));
         }
 
-        public void Dispose()
-        {
-            Owner = null;
-            Engines = null;
-        }
-
-        public void Update()
+        // passing `owner` as a parameter to reduce memory footprint and cache misses
+        public void Update(Ship owner)
         {
             // These need to be done in order
-            EngineStatus = GetEngineStatus();
-            ReadyForWarp = GetWarpReadyStatus();
-            ReadyForFormationWarp = GetFormationWarpReadyStatus();
+            EngineStatus = GetEngineStatus(owner);
+            ReadyForWarp = GetWarpReadyStatus(owner);
+            ReadyForFormationWarp = GetFormationWarpReadyStatus(owner);
         }
 
-        EngineStatus GetEngineStatus()
+        EngineStatus GetEngineStatus(Ship owner)
         {
             // this should cover most cases,
             // be careful when adding new conditions, because it might be redundant
-            if (Owner.EnginesKnockedOut || Owner.EMPDisabled || Owner.Dying || !Owner.HasCommand)
+            if (owner.EnginesKnockedOut || owner.EMPDisabled || owner.Dying || !owner.HasCommand)
                 return EngineStatus.Disabled;
 
             return EngineStatus.Active;
         }
 
-        WarpStatus GetWarpReadyStatus()
+        WarpStatus GetWarpReadyStatus(Ship owner)
         {
-            if (EngineStatus == EngineStatus.Disabled || !Owner.Active ||
-                Owner.Inhibited || Owner.MaxFTLSpeed < 1)
+            if (EngineStatus == EngineStatus.Disabled || !owner.Active ||
+                owner.Inhibited || owner.MaxFTLSpeed < 1)
                 return WarpStatus.UnableToWarp;
 
-            if (Owner.engineState == Ship.MoveState.Warp)
+            if (owner.engineState == Ship.MoveState.Warp)
                 return WarpStatus.ReadyToWarp;
 
-            if (Owner.Carrier.RecallingFighters())
+            if (owner.Carrier.RecallingFighters())
                 return WarpStatus.WaitingOrRecalling;
 
-            if (!Owner.IsWarpRangeGood(10000f))
+            if (!owner.IsWarpRangeGood(10000f))
                 return WarpStatus.UnableToWarp;
 
             return WarpStatus.ReadyToWarp;
@@ -101,20 +88,20 @@ namespace Ship_Game.Ships
             return s;
         }
 
-        WarpStatus GetFormationWarpReadyStatus()
+        WarpStatus GetFormationWarpReadyStatus(Ship owner)
         {
-            if (Owner.Fleet == null || Owner.AI.State != AIState.FormationMoveTo)
+            if (owner.Fleet == null || owner.AI.State != AIState.FormationMoveTo)
                 return Status(ReadyForWarp, "");
 
-            if (!Owner.CanTakeFleetMoveOrders())
+            if (!owner.CanTakeFleetMoveOrders())
                 return Status(ReadyForWarp, "");
 
-            if (Owner.engineState == Ship.MoveState.Warp)
+            if (owner.engineState == Ship.MoveState.Warp)
                 return Status(ReadyForWarp, "");
 
             // we are already at the final position, allow everyone else to FormationWarp
-            Vector2 finalPos = Owner.Fleet.GetFinalPos(Owner);
-            if (Owner.Position.InRadius(finalPos, AtFinalFleetPos))
+            Vector2 finalPos = owner.Fleet.GetFinalPos(owner);
+            if (owner.Position.InRadius(finalPos, AtFinalFleetPos))
                 return Status(WarpStatus.ReadyToWarp, "");
 
             // WARNING: THIS PART GETS COMPLICATED AND VERY EASY TO BREAK FORMATION WARP
@@ -124,7 +111,7 @@ namespace Ship_Game.Ships
             //////  FORMATION  WARP  LOGIC  //////
             //////////////////////////////////////
 
-            ShipAI.ShipGoal goal = Owner.AI.OrderQueue.PeekFirst;
+            ShipAI.ShipGoal goal = owner.AI.OrderQueue.PeekFirst;
             // normally it shouldn't be null, but a race condition happens here
             if (goal == null)
                 return Status(ReadyForWarp, "");
@@ -146,13 +133,13 @@ namespace Ship_Game.Ships
             {
 
                 // IMPORTANT: ONLY CHECK AGAINST AI.ThrustTarget, OTHERWISE THE SHIP WILL BE FOREVER STUCK, UNABLE TO WARP!
-                Vector2 targetPos = AI.ThrustTarget;
+                Vector2 targetPos = owner.AI.ThrustTarget;
                 if (targetPos == Vector2.Zero)
-                    targetPos = AI.GoalTarget;
+                    targetPos = owner.AI.GoalTarget;
                 if (targetPos == Vector2.Zero)
-                    targetPos = Owner.Fleet.GetFinalPos(Owner);
+                    targetPos = owner.Fleet.GetFinalPos(owner);
 
-                float facingFleetDirection = Owner.AngleDifferenceToPosition(targetPos);
+                float facingFleetDirection = owner.AngleDifferenceToPosition(targetPos);
                 // WARNING: BE EXTREMELY CAREFUL WITH THIS ANGLE HERE,
                 //          IF YOU MAKE IT TOO SMALL, FORMATION WARP WILL NOT WORK!
                 if (facingFleetDirection > RadMath.Deg10AsRads)
