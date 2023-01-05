@@ -369,10 +369,13 @@ namespace Ship_Game
             if (!IsStatsReportEnabled)
                 return;
 
+            string evtMessage = evt.ToString();
+            Write($"GameEvent: {evtMessage}");
+
             var e = new SentryEvent()
             {
                 Level = SentryLevel.Info,
-                Message = evt.ToString(),
+                Message = evtMessage,
             };
 
             e.SetTag("Mod", GlobalStats.ModOrVanillaName);
