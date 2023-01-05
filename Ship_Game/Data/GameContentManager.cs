@@ -291,11 +291,11 @@ namespace Ship_Game.Data
                 case Video _: // video is just a reference object, nothing to dispose
                     break;
                 case IDisposable disposable:
-                    Log.Write(ConsoleColor.Magenta, "Disposing asset    "+(assetName??"unknown"));
+                    Log.Write(ConsoleColor.Magenta, "Disposing asset    "+(assetName ?? disposable.GetType().GetTypeName()));
                     disposable.Dispose();
                     break;
                 default:
-                    Log.Write(ConsoleColor.Red, "Cannot Dispose asset "+(assetName??"unknown"));
+                    Log.Write(ConsoleColor.Red, "Cannot Dispose asset "+(assetName ?? asset.GetType().GetTypeName()));
                     break;
             }
         }

@@ -146,7 +146,7 @@ namespace Ship_Game
         protected virtual void Destroy()
         {
             IsDisposed = true;
-            TransientContent?.Dispose(ref TransientContent);
+            Memory.Dispose(ref TransientContent);
         }
 
         // select size based on current res: Low, Normal, Hi
@@ -236,6 +236,7 @@ namespace Ship_Game
         {
             TransientContent?.Unload();
             Elements.Clear();
+            DidLoadContent = false;
         }
         
         public virtual void ReloadContent()
@@ -295,7 +296,6 @@ namespace Ship_Game
                 if (!UpdateTransition(elapsed, TransitionOffTime, 1))
                 {
                     ScreenManager.RemoveScreen(this);
-                    IsExiting = false;
                 }
             }
             else
@@ -326,8 +326,6 @@ namespace Ship_Game
             FastFlashTimer   = FastFlashTimer < elapsed.RealTime.Seconds ? 1 : FastFlashTimer;
             NormalFlashTimer = NormalFlashTimer < elapsed.RealTime.Seconds ? 1 : NormalFlashTimer;
             SlowFlashTimer   = SlowFlashTimer < elapsed.RealTime.Seconds ? 1 : SlowFlashTimer;
-
-            DidLoadContent = false;
         }
 
         // TODO: This is deprecated by UIBasicAnimEffect system
