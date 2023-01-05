@@ -56,9 +56,9 @@ public sealed class ShieldManager : IDisposable
         GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");
 
         ShieldEffect = content.Load<Effect>("Effects/scale");
+        ShieldEffect.CurrentTechnique = ShieldEffect.Techniques["Technique1"];
         ShieldEffect.Parameters["tex"].SetValue(ShieldTexture);
         ShieldEffect.Parameters["AlphaMap"].SetValue(GradientTexture);
-        ShieldEffect.CurrentTechnique = ShieldEffect.Techniques["Technique1"];
 
         World = ShieldEffect.Parameters["World"];
         Scale = ShieldEffect.Parameters["scale"];
@@ -67,10 +67,11 @@ public sealed class ShieldManager : IDisposable
     
     void UnloadContent()
     {
-        ShieldModel = null;
-        ShieldTexture?.Dispose(ref ShieldTexture);
-        GradientTexture?.Dispose(ref GradientTexture);
-        ShieldEffect?.Dispose(ref ShieldEffect);
+        var content = ResourceManager.RootContent;
+        content.Dispose(ref ShieldTexture);
+        content.Dispose(ref GradientTexture);
+        content.Dispose(ref ShieldEffect);
+        content.Dispose(ref ShieldModel);
         World = Scale = Displacement = null;
     }
     
@@ -125,7 +126,7 @@ public sealed class ShieldManager : IDisposable
         if (IsDisposed)
             return;
 
-        if (ShieldEffect.IsDisposed)
+        if (ShieldEffect.IsDisposed || ShieldTexture.IsDisposed)
         {
             UnloadContent();
             LoadContent();
