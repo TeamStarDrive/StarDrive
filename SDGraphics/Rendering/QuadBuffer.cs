@@ -154,9 +154,9 @@ public class QuadBuffer : IDisposable
 
     void Destroy()
     {
-        Memory.Dispose(ref VBO);
-        Memory.Dispose(ref IBO);
-        Memory.Dispose(ref VD);
+        Mem.Dispose(ref VBO);
+        Mem.Dispose(ref IBO);
+        Mem.Dispose(ref VD);
     }
 
     public void Dispose()

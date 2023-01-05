@@ -21,13 +21,13 @@ namespace SDGraphics.Shaders
 
         ~Shader()
         {
-            Memory.Dispose(ref Fx);
+            Mem.Dispose(ref Fx);
         }
 
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            Memory.Dispose(ref Fx);
+            Mem.Dispose(ref Fx);
         }
 
         public EffectParameter this[string name] => Fx.Parameters[name];

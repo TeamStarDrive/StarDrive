@@ -59,9 +59,9 @@ namespace Ship_Game
 
         void Destroy()
         {
-            Memory.Dispose(ref StarField);
-            Memory.Dispose(ref BackgroundNebula);
-            Memory.Dispose(ref BackgroundStars);
+            Mem.Dispose(ref StarField);
+            Mem.Dispose(ref BackgroundNebula);
+            Mem.Dispose(ref BackgroundStars);
         }
 
         public void Draw(SpriteRenderer sr, SpriteBatch batch)

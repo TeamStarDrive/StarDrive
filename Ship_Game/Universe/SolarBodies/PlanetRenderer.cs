@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Graphics;
@@ -96,17 +97,17 @@ namespace Ship_Game.Universe.SolarBodies
             MeshGlowRing = null;
             MeshGlowFresnel = null;
 
-            FxPlanet?.Dispose(ref FxPlanet);
-            FxRings?.Dispose(ref FxRings);
-            FxClouds?.Dispose(ref FxClouds);
-            FxAtmoColor?.Dispose(ref FxAtmoColor);
-            FxGlow?.Dispose(ref FxGlow);
-            FxFresnel?.Dispose(ref FxFresnel);
+            Mem.Dispose(ref FxPlanet);
+            Mem.Dispose(ref FxRings);
+            Mem.Dispose(ref FxClouds);
+            Mem.Dispose(ref FxAtmoColor);
+            Mem.Dispose(ref FxGlow);
+            Mem.Dispose(ref FxFresnel);
 
-            TexRings?.Dispose(ref TexRings);
-            TexAtmosphere?.Dispose(ref TexAtmosphere);
-            TexGlow?.Dispose(ref TexGlow);
-            TexFresnel?.Dispose(ref TexFresnel);
+            Mem.Dispose(ref TexRings);
+            Mem.Dispose(ref TexAtmosphere);
+            Mem.Dispose(ref TexGlow);
+            Mem.Dispose(ref TexFresnel);
 
             Device = null;
         }

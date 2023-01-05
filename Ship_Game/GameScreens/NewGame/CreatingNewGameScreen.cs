@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using System.Threading;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.NewGame;
@@ -98,7 +99,7 @@ namespace Ship_Game
 
         protected override void Destroy()
         {
-            LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);
+            Mem.Dispose(ref LoadingScreenTexture);
             base.Destroy();
         }
     }

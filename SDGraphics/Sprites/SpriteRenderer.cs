@@ -34,8 +34,8 @@ public class SpriteRenderer : IDisposable
 
     public void Dispose()
     {
-        Memory.Dispose(ref VD);
-        Memory.Dispose(ref Simple);
+        Mem.Dispose(ref VD);
+        Mem.Dispose(ref Simple);
     }
 
     unsafe void SetViewProjection(in Matrix viewProjection)

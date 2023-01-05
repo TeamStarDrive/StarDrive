@@ -175,7 +175,7 @@ namespace Ship_Game
             try
             {
                 SentrySdk.Flush(TimeSpan.FromSeconds(5));
-                Sentry?.Dispose(ref Sentry);
+                Mem.Dispose(ref Sentry);
             }
             catch
             {

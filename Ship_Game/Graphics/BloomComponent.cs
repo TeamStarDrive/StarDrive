@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -195,9 +196,9 @@ namespace Ship_Game
 
         void Destroy()
         {
-            resolveTarget?.Dispose(ref resolveTarget);
-            renderTarget1?.Dispose(ref renderTarget1);
-            renderTarget2?.Dispose(ref renderTarget2);
+            Mem.Dispose(ref resolveTarget);
+            Mem.Dispose(ref renderTarget1);
+            Mem.Dispose(ref renderTarget2);
         }
     }
 }

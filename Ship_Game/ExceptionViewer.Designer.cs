@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
+using SDUtils;
 
 namespace Ship_Game
 {
@@ -16,7 +17,7 @@ namespace Ship_Game
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            components?.Dispose(ref components);
+            Mem.Dispose(ref components);
             base.Dispose(disposing);
         }
 

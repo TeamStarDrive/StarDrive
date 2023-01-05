@@ -1689,8 +1689,8 @@ namespace Ship_Game
 
         private void Destroy()
         {
-            ActiveCombats?.Dispose(ref ActiveCombats);
-            OrbitalDropList?.Dispose(ref OrbitalDropList);
+            Mem.Dispose(ref ActiveCombats);
+            Mem.Dispose(ref OrbitalDropList);
             Construction = null;
             Storage = null;
             Troops = null;

@@ -657,7 +657,7 @@ namespace Ship_Game
 
         void Destroy()
         {
-            SpriteBatch?.Dispose(ref SpriteBatch);
+            Mem.Dispose(ref SpriteBatch);
         }
     }
 }

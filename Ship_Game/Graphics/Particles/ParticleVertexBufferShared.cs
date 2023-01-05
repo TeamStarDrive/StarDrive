@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 
 namespace Ship_Game.Graphics.Particles;
 
@@ -38,14 +39,14 @@ public class ParticleVertexBufferShared : IDisposable
 
     ~ParticleVertexBufferShared()
     {
-        IndexBuffer?.Dispose(ref IndexBuffer);
-        VertexDeclaration?.Dispose(ref VertexDeclaration);
+        Mem.Dispose(ref IndexBuffer);
+        Mem.Dispose(ref VertexDeclaration);
     }
 
     public void Dispose()
     {
-        IndexBuffer?.Dispose(ref IndexBuffer);
-        VertexDeclaration?.Dispose(ref VertexDeclaration);
+        Mem.Dispose(ref IndexBuffer);
+        Mem.Dispose(ref VertexDeclaration);
         GC.SuppressFinalize(this);
     }
 }

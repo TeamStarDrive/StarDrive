@@ -67,7 +67,7 @@
     <Compile Include="Dir.cs" />
     <Compile Include="FileSystemExtensions.cs" />
     <Compile Include="Map.cs" />
-    <Compile Include="Memory.cs" />
+    <Compile Include="Mem.cs" />
     <Compile Include="NumberExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StableCollection.cs" />

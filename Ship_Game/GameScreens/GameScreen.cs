@@ -146,7 +146,7 @@ namespace Ship_Game
         protected virtual void Destroy()
         {
             IsDisposed = true;
-            Memory.Dispose(ref TransientContent);
+            Mem.Dispose(ref TransientContent);
         }
 
         // select size based on current res: Low, Normal, Hi

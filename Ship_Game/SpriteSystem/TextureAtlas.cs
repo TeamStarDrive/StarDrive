@@ -64,11 +64,11 @@ namespace Ship_Game.SpriteSystem
 
         void Destroy()
         {
-            Atlas?.Dispose(ref Atlas);
+            Mem.Dispose(ref Atlas);
             for (int i = 0; i < Sorted.Length; ++i)
             {
                 TextureBinding l = Sorted[i];
-                l.Texture?.Dispose(ref l.Texture);
+                Mem.Dispose(ref l.Texture);
             }
             Sorted = Empty<TextureBinding>.Array;
             Lookup.Clear();
