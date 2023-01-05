@@ -1,9 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Drawing;
 using System.IO;
 using System.Runtime;
-using System.Windows.Forms;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
@@ -99,14 +97,15 @@ namespace Ship_Game
             GameCursors.Initialize(this, GlobalStats.UseSoftwareCursor);
 
             // Quite rare, but brutal case for all graphic resource reload
-            if (GraphicsDeviceWasReset)
+            bool wasReset = GraphicsDeviceWasReset;
+            if (wasReset)
             {
                 Log.Warning("StarDriveGame GfxDevice Reset");
                 GraphicsDeviceWasReset = false;
                 ResourceManager.LoadGraphicsResources(ScreenManager);
             }
 
-            ScreenManager.LoadContent();
+            ScreenManager.LoadContent(deviceWasReset:wasReset);
             IsLoaded = true;
 
             if (ScreenManager.NumScreens == 0)
@@ -129,25 +128,22 @@ namespace Ship_Game
         protected override void Update(float deltaTime)
         {
             GameAudio.Update();
-
             UpdateGame(deltaTime);
 
             if (IsLoaded && ScreenManager.NumScreens == 0)
             {
-                Log.Info("ScreenManager GameScreens+PendingScreens == 0, Exiting Game");
                 Instance.Exit();
             }
         }
 
         protected override void Draw(float deltaTime)
         {
-            if (GraphicsDevice.IsDisposed ||
-                GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
-                return;
-
-            GraphicsDevice.Clear(Color.Black);
-            ScreenManager.Draw();
-            base.Draw(deltaTime);
+            if (IsDeviceGood)
+            {
+                GraphicsDevice.Clear(Color.Black);
+                ScreenManager.Draw();
+                base.Draw(deltaTime);
+            }
         }
 
         protected override void Dispose(bool disposing)

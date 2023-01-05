@@ -149,10 +149,10 @@ namespace Ship_Game.Audio
                     TrackedInstances[i].DestroyInstance();
                 TrackedInstances.Clear();
             }
-            SoundBank?.Dispose(ref SoundBank);
-            WaveBank?.Dispose(ref WaveBank);
-            AudioEngine?.Dispose(ref AudioEngine);
-            Devices?.Dispose(ref Devices);
+            Mem.Dispose(ref SoundBank);
+            Mem.Dispose(ref WaveBank);
+            Mem.Dispose(ref AudioEngine);
+            Mem.Dispose(ref Devices);
         }
 
 

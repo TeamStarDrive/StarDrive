@@ -66,7 +66,7 @@ namespace Ship_Game
 
             int numDiscoveredRoots = Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
 
-            GridHeight = (main.Height - 40) / numDiscoveredRoots;
+            GridHeight = (main.Height - 40) / Math.Max(1, numDiscoveredRoots);
             MainMenuOffset.Y = main.Y + 12 + GridHeight / 3;
             if (ScreenHeight <= 720)
             {
@@ -283,7 +283,7 @@ namespace Ship_Game
                 {
                     if (input.LeftMouseClick && !input.RightMouseClick)
                     {
-                        OnNodeClicked(node);
+                        OnTechNodeClicked(node.Entry);
                     }
                     return true; // input captured
                 }
@@ -291,18 +291,17 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        void OnNodeClicked(TreeNode node)
+        void OnTechNodeClicked(TechEntry tech)
         {
-            TechEntry techEntry = node.Entry;
-            if (!techEntry.CanBeResearched)
+            if (!tech.CanBeResearched)
             {
                 // this tech cannot be researched
                 GameAudio.NegativeClick();
             }
-            else if (techEntry.HasPreReq(Player))
+            else if (tech.HasPreReq(Player))
             {
                 // we already have all pre-requisites, so add it directly to queue
-                Queue.AddToResearchQueue(node);
+                Queue.AddToResearchQueue(tech);
                 GameAudio.ResearchSelect();
             }
             else
@@ -311,11 +310,11 @@ namespace Ship_Game
                 GameAudio.ResearchSelect();
 
                 // figure out the list of techs to add
-                var techsToAdd = GetRequiredTechEntriesToResearch(node.Entry);
+                var techsToAdd = GetRequiredTechEntriesToResearch(tech);
                 foreach (TechEntry toAdd in techsToAdd)
                 {
                     if (toAdd.Discovered)
-                        Queue.AddToResearchQueue(SubNodes[toAdd.UID]);
+                        Queue.AddToResearchQueue(toAdd);
                 }
             }
         }

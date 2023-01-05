@@ -21,6 +21,7 @@ namespace Ship_Game.Graphics
         {
             Name = name;
             XnaFont = content.Load<SpriteFont>("Fonts/" + fontPath);
+            XnaFont.DefaultCharacter = '?';
 
             LineSpacing = XnaFont.LineSpacing;
             SpaceWidth = XnaFont.MeasureString(" ").X;
@@ -30,6 +31,7 @@ namespace Ship_Game.Graphics
         {
             Name = name;
             XnaFont = content.Load<SpriteFont>("Fonts/" + fontPath);
+            XnaFont.DefaultCharacter = '?';
             XnaFont.Spacing = monoSpaceSpacing;
 
             LineSpacing = XnaFont.LineSpacing;
@@ -38,20 +40,41 @@ namespace Ship_Game.Graphics
 
         public Vector2 MeasureString(string text)
         {
-            return new Vector2(XnaFont.MeasureString(text));
+            try
+            {
+                return new Vector2(XnaFont.MeasureString(text));
+            }
+            catch
+            {
+                Log.Error($"Font {Name} MeasureString='{text}' failed");
+                return new Vector2(SpaceWidth*text.Length, LineSpacing);
+            }
         }
 
         public Vector2 MeasureString(StringBuilder text)
         {
-            return new Vector2(XnaFont.MeasureString(text));
+            try
+            {
+                return new Vector2(XnaFont.MeasureString(text));
+            }
+            catch
+            {
+                Log.Error($"Font {Name} MeasureString='{text}' failed");
+                return new Vector2(SpaceWidth*text.Length, LineSpacing);
+            }
         }
         
+        public Vector2 MeasureString(in LocalizedText text)
+        {
+            return MeasureString(text.Text);
+        }
+
         public Vector2 MeasureLines(Array<string> lines)
         {
             var size = new Vector2();
             foreach (string line in lines)
             {
-                size.X = Math.Max(size.X, XnaFont.MeasureString(line).X);
+                size.X = Math.Max(size.X, MeasureString(line).X);
                 size.Y += XnaFont.LineSpacing + 2;
             }
             return size;
@@ -59,27 +82,22 @@ namespace Ship_Game.Graphics
 
         public int TextWidth(string text)
         {
-            return (int)XnaFont.MeasureString(text).X;
+            return (int)MeasureString(text).X;
         }
 
         public int TextWidth(in LocalizedText text)
         {
-            return (int)XnaFont.MeasureString(text.Text).X;
+            return (int)MeasureString(text.Text).X;
         }
         
         public int TextHeight(string text)
         {
-            return (int)XnaFont.MeasureString(text).Y;
+            return (int)MeasureString(text).Y;
         }
         
         public int TextHeight(in LocalizedText text)
         {
-            return (int)XnaFont.MeasureString(text.Text).Y;
-        }
-
-        public Vector2 MeasureString(in LocalizedText text)
-        {
-            return new Vector2(XnaFont.MeasureString(text.Text));
+            return (int)MeasureString(text.Text).Y;
         }
 
         public string ParseText(in LocalizedText text, float maxLineWidth)
@@ -87,8 +105,8 @@ namespace Ship_Game.Graphics
             return ParseText(text.Text, maxLineWidth);
         }
 
-        static char[] NewLineString = new char[]{ '\n' };
-        static char[] TabString = new char[]{ ' ', ' ', ' ', ' ' }; // 4 spaces
+        static readonly char[] NewLineString = { '\n' };
+        static readonly char[] TabString = { ' ', ' ', ' ', ' ' }; // 4 spaces
 
         static StringView NextTextToken(ref StringView view)
         {
@@ -113,14 +131,14 @@ namespace Ship_Game.Graphics
                         if (start == current)
                         {
                             view.Skip(1);
-                            return new StringView(NewLineString);
+                            return new(NewLineString);
                         }
                         goto get_word;
                     case '\t':
                         if (start == current)
                         {
                             view.Skip(1);
-                            return new StringView(TabString);
+                            return new(TabString);
                         }
                         goto get_word;
                     case '\\':
@@ -129,7 +147,7 @@ namespace Ship_Game.Graphics
                         if ((current+1) < eos && 'n' == chars[current+1])
                         {
                             view.Skip(2);
-                            return new StringView(NewLineString);
+                            return new(NewLineString);
                         }
                         break;
                 }
@@ -139,7 +157,7 @@ namespace Ship_Game.Graphics
             get_word:
             int length = current - start;
             view.Skip(length);
-            return new StringView(chars, start, length);
+            return new(chars, start, length);
         }
 
         static Array<StringView> TokenizeText(string text, out int approxLen)
@@ -179,7 +197,8 @@ namespace Ship_Game.Graphics
 
                 tmp.Clear();
                 tmp.Append(word.Chars, word.Start, word.Length);
-                float wordLength = XnaFont.MeasureString(tmp).X;
+
+                float wordLength = MeasureString(tmp).X;
                 float newLength = lineLength + wordLength;
 
                 // not the first char in line? Word is not WS and prev word is not WS?

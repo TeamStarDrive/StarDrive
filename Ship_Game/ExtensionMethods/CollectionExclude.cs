@@ -20,7 +20,7 @@ namespace Ship_Game
                 return Empty<T>.Array;
 
             var unique = new T[count];
-            Memory.HybridCopyRefs(unique, 0, arr, count); // good average copy performance
+            Mem.HybridCopyRefs(unique, 0, arr, count); // good average copy performance
 
             for (int i = 0; i < itemsToExclude.Length; ++i) {
                 T item = itemsToExclude[i];
@@ -94,7 +94,7 @@ namespace Ship_Game
                 return tooMany; // already ok
 
             var trimmed = new T[trimmedSize];
-            Memory.HybridCopyRefs(trimmed, 0, tooMany, trimmedSize);
+            Mem.HybridCopyRefs(trimmed, 0, tooMany, trimmedSize);
             return trimmed;
         }
     }

@@ -119,11 +119,11 @@ namespace Ship_Game.Ships
                     hangarShip.Mothership = null; // Todo - Setting this to null might be risky
             }
 
-            AllHangars        = Array.Empty<ShipModule>();
-            AllTroopBays      = Array.Empty<ShipModule>();
-            AllSupplyBays     = Array.Empty<ShipModule>();
-            AllFighterHangars = Array.Empty<ShipModule>();
-            AllTransporters   = Array.Empty<ShipModule>();
+            AllHangars = Empty<ShipModule>.Array;
+            AllTroopBays = Empty<ShipModule>.Array;
+            AllSupplyBays = Empty<ShipModule>.Array;
+            AllFighterHangars = Empty<ShipModule>.Array;
+            AllTransporters = Empty<ShipModule>.Array;
             SupplyShuttles?.Dispose();
             SupplyShuttles = null;
             TroopTactics   = null;

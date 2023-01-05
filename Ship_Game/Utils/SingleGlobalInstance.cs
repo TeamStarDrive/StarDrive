@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using SDUtils;
 
 namespace Ship_Game
 {
@@ -25,13 +26,13 @@ namespace Ship_Game
 
         public void Dispose()
         {
-            Mutex?.Dispose(ref Mutex);
+            Mem.Dispose(ref Mutex);
             GC.SuppressFinalize(this);
         }
 
         ~SingleGlobalInstance()
         {
-            Mutex?.Dispose(ref Mutex);
+            Mem.Dispose(ref Mutex);
         }
     }
 }

@@ -301,6 +301,7 @@ namespace SynapseGaming.LightingSystem.Core
             if (consoleFont != null)
                 return consoleFont;
             consoleFont = EmbeddedContent.Load<SpriteFont>("ConsoleFont");
+            consoleFont.DefaultCharacter = '?';
             return consoleFont;
         }
 

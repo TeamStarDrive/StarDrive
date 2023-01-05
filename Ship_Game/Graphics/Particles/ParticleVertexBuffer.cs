@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
+using SDUtils;
 
 namespace Ship_Game.Graphics.Particles;
 
@@ -161,12 +162,12 @@ public sealed class ParticleVertexBuffer : IDisposable
 
     ~ParticleVertexBuffer()
     {
-        VertexBuffer?.Dispose(ref VertexBuffer);
+        Mem.Dispose(ref VertexBuffer);
     }
 
     public void Dispose()
     {
-        VertexBuffer?.Dispose(ref VertexBuffer);
+        Mem.Dispose(ref VertexBuffer);
         GC.SuppressFinalize(this);
     }
 }

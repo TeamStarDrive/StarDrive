@@ -18,6 +18,7 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
+using SDUtils;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -145,7 +146,7 @@ namespace Ship_Game
         protected virtual void Destroy()
         {
             IsDisposed = true;
-            TransientContent?.Dispose(ref TransientContent);
+            Mem.Dispose(ref TransientContent);
         }
 
         // select size based on current res: Low, Normal, Hi
@@ -175,6 +176,8 @@ namespace Ship_Game
 
         public virtual void ExitScreen()
         {
+            IsExiting = true;
+
             if (PausedUniverse != null)
             {
                 PausedUniverse.UState.Paused = false;
@@ -195,12 +198,19 @@ namespace Ship_Game
 
             // Every time we close a screen, make sure to Release input capture
             GlobalStats.TakingInput = false;
-            
-            IsExiting = true;
+
             if (TransitionOffTime.NotZero())
                 return;
 
             ScreenManager.RemoveScreen(this);
+        }
+
+        // Calls ExitScreen and then always forcefully removes the screen
+        public void ForceExit()
+        {
+            ExitScreen();
+            if (ScreenManager.Screens.Contains(this))
+                ScreenManager.RemoveScreen(this);
         }
 
         public virtual void OnScreenRemoved()
@@ -226,6 +236,7 @@ namespace Ship_Game
         {
             TransientContent?.Unload();
             Elements.Clear();
+            DidLoadContent = false;
         }
         
         public virtual void ReloadContent()
@@ -285,7 +296,6 @@ namespace Ship_Game
                 if (!UpdateTransition(elapsed, TransitionOffTime, 1))
                 {
                     ScreenManager.RemoveScreen(this);
-                    IsExiting = false;
                 }
             }
             else
@@ -316,8 +326,6 @@ namespace Ship_Game
             FastFlashTimer   = FastFlashTimer < elapsed.RealTime.Seconds ? 1 : FastFlashTimer;
             NormalFlashTimer = NormalFlashTimer < elapsed.RealTime.Seconds ? 1 : NormalFlashTimer;
             SlowFlashTimer   = SlowFlashTimer < elapsed.RealTime.Seconds ? 1 : SlowFlashTimer;
-
-            DidLoadContent = false;
         }
 
         // TODO: This is deprecated by UIBasicAnimEffect system
