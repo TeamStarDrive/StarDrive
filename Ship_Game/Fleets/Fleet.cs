@@ -563,47 +563,40 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void EvaluateTask()
+        void EvaluateTask(MilitaryTask task)
         {
-            if (FleetTask == null)
-                return;
-
-            if (Ships.Count == 0)
-                FleetTask?.EndTask();
-
             if (Owner.Universe.Screen.SelectedFleet == this)
-                Owner.Universe.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, FleetTask.AORadius, Color.AntiqueWhite);
+                Owner.Universe.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, task.AORadius, Color.AntiqueWhite);
 
-            if (FleetTask.RallyPlanet == null)
-                FleetTask.GetRallyPlanet(AveragePosition(force: true));
+            if (task.RallyPlanet == null)
+                task.GetRallyPlanet(AveragePosition(force: true));
 
-            TaskCombatStatus = FleetInAreaInCombat(FleetTask.AO, FleetTask.AORadius);
+            TaskCombatStatus = FleetInAreaInCombat(task.AO, task.AORadius);
 
-            switch (FleetTask.Type)
+            switch (task.Type)
             {
                 case MilitaryTask.TaskType.StrikeForce:
                 case MilitaryTask.TaskType.ReclaimPlanet:
-                case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);              break;
-                case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask);         break;
-                case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
-                case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(FleetTask);              break;
-                case MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(FleetTask);               break;
-                case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask);        break;
-                case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask);                break;
-                case MilitaryTask.TaskType.AssaultPirateBase:          DoAssaultPirateBase(FleetTask);          break;
-                case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(FleetTask);          break;
-                case MilitaryTask.TaskType.DefendVsRemnants:           DoDefendVsRemnant(FleetTask);            break;
-                case MilitaryTask.TaskType.GuardBeforeColonize:        DoPreColonizationGuard(FleetTask);       break;
-                case MilitaryTask.TaskType.StageFleet:                 DoStagingFleet(FleetTask);               break;
+                case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(task);              break;
+                case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(task);         break;
+                case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(task); break;
+                case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(task);              break;
+                case MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(task);               break;
+                case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(task);        break;
+                case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(task);                break;
+                case MilitaryTask.TaskType.AssaultPirateBase:          DoAssaultPirateBase(task);          break;
+                case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(task);          break;
+                case MilitaryTask.TaskType.DefendVsRemnants:           DoDefendVsRemnant(task);            break;
+                case MilitaryTask.TaskType.GuardBeforeColonize:        DoPreColonizationGuard(task);       break;
+                case MilitaryTask.TaskType.StageFleet:                 DoStagingFleet(task);               break;
             }
         }
 
         void DoExplorePlanet(MilitaryTask task)
         {
-            Planet targetPlanet     = task.TargetPlanet;
+            Planet targetPlanet = task.TargetPlanet;
             bool eventBuildingFound = targetPlanet.EventsOnTiles();
-            if (task.TargetEmpire == null)
-                task.TargetEmpire = Owner.AI.ThreatMatrix.GetStrongestHostileAt(targetPlanet.ParentSystem);
+            task.TargetEmpire ??= Owner.AI.ThreatMatrix.GetStrongestHostileAt(targetPlanet.ParentSystem);
 
             if (EndInvalidTask(!eventBuildingFound
                                || targetPlanet.Owner != null && !Owner.IsAtWarWith(targetPlanet.Owner)
@@ -2136,11 +2129,19 @@ namespace Ship_Game.Fleets
             }
         }
 
-        public void UpdateAI(FixedSimTime timeStep, int which)
+        public void UpdateAI(FixedSimTime timeStep)
         {
-            if (FleetTask != null)
+            MilitaryTask task = FleetTask;
+            if (task != null)
             {
-                EvaluateTask();
+                if (Ships.IsEmpty)
+                {
+                    task.EndTask(); // this will set `FleetTask` to null
+                }
+                else
+                {
+                    EvaluateTask(task);
+                }
             }
             else // no fleet task
             {
