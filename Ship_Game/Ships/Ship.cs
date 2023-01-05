@@ -1658,6 +1658,7 @@ namespace Ship_Game.Ships
         public override void RemoveFromUniverseUnsafe()
         {
             AI?.Reset();
+
             var carrier = Mothership?.Carrier;
             if (IsHangarShip && carrier?.AllActiveHangars != null)
             {
@@ -1665,14 +1666,15 @@ namespace Ship_Game.Ships
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
-
+            
             Carrier?.Dispose();
+            Carrier = null;
 
             var slots = ModuleSlotList;
             ModuleSlotList = Empty<ShipModule>.Array;
             for (int i = 0; i < slots.Length; ++i)
                 slots[i]?.Dispose();
-
+            
             DestroyThrusters();
 
             BombBays.Clear();
@@ -1712,8 +1714,6 @@ namespace Ship_Game.Ships
             Weapons = null;
             SoundEmitter = null;
             BombBays = null;
-            Carrier?.Dispose();
-            Carrier = null;
             TetheredTo = null;
             Fleet = null;
             ShipData = null;
