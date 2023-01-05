@@ -1,5 +1,6 @@
 using System.Xml.Serialization;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
@@ -399,11 +400,16 @@ namespace Ship_Game
         }
 
         // Event when a building is built at planet p
-        public void OnBuildingBuiltAt(Planet p)
+        public void OnBuildingBuiltAt(Planet p, PlanetGridSquare tile)
         {
+            if (!p.BuildingList.AddUniqueRef(this))
+            {
+                Log.Error("Building already exists");
+                return;
+            }
+
             p.AddBuildingsFertility(MaxFertilityOnBuild);
             p.MineralRichness += IncreaseRichness.LowerBound(0); // This must be positive. since richness cannot go below 0.
-            p.BuildingList.Add(this);
 
             p.HasSpacePort |= IsSpacePort || AllowShipBuilding;
 
