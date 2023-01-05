@@ -1106,7 +1106,7 @@ namespace Ship_Game.Ships
             UpdateStatusOncePerSecond(timeStep);
             UpdatePower(timeStep);
             ShieldPercent = ShieldMax > 0f ? (100f * ShieldPower) / ShieldMax : 0;
-            ShipEngines.Update();
+            ShipEngines.Update(this);
         }
 
         void UpdatePower(FixedSimTime timeStep)
@@ -1658,6 +1658,7 @@ namespace Ship_Game.Ships
         public override void RemoveFromUniverseUnsafe()
         {
             AI?.Reset();
+
             var carrier = Mothership?.Carrier;
             if (IsHangarShip && carrier?.AllActiveHangars != null)
             {
@@ -1665,14 +1666,15 @@ namespace Ship_Game.Ships
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
-
+            
             Carrier?.Dispose();
+            Carrier = null;
 
             var slots = ModuleSlotList;
             ModuleSlotList = Empty<ShipModule>.Array;
             for (int i = 0; i < slots.Length; ++i)
                 slots[i]?.Dispose();
-
+            
             DestroyThrusters();
 
             BombBays.Clear();
@@ -1705,15 +1707,13 @@ namespace Ship_Game.Ships
             
             // It's extremely important we manually clear these
             // The .NET GC is not able to handler all the cyclic references
-            SupplyLock?.Dispose(ref SupplyLock);
+            Mem.Dispose(ref SupplyLock);
             AI?.Dispose();
             AI = null;
 
             Weapons = null;
             SoundEmitter = null;
             BombBays = null;
-            Carrier?.Dispose();
-            Carrier = null;
             TetheredTo = null;
             Fleet = null;
             ShipData = null;
@@ -1728,7 +1728,6 @@ namespace Ship_Game.Ships
             Stats?.Dispose();
             Cargo = null;
             ModuleSlotList = Empty<ShipModule>.Array;
-            ShipEngines?.Dispose();
             ShipEngines = null;
             TradeRoutes = null;
             OurTroops = null;

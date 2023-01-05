@@ -77,7 +77,7 @@ namespace Ship_Game
 
             // reload all screens, this is specific to StarDriveGame
             // NOTE: The game content should already be unloaded because of Device.Dispose()
-            ScreenManager.Instance.LoadContent();
+            ScreenManager.Instance.LoadContent(deviceWasReset:true);
         }
 
         public bool Equals(GraphicsSettings other)

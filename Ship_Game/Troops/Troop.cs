@@ -101,7 +101,8 @@ namespace Ship_Game
 
         SubTexture GetAnimation(string name)
         {
-            return TroopAnim.TryGetTexture(Path.GetFileName(name), out SubTexture t) ? t : null;
+            return TroopAnim != null && name != null
+                && TroopAnim.TryGetTexture(Path.GetFileName(name), out SubTexture t) ? t : null;
         }
 
         SubTexture GetDefaultTex() => GetAnimation(TexturePath) ?? ResourceManager.RootContent.DefaultTexture();

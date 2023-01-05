@@ -17,8 +17,7 @@ namespace Ship_Game
         Texture2D Reason;
         Rectangle ReasonRect;
         ReplayElement replay;
-        AudioHandle Music = new AudioHandle();
-        AudioHandle Ambient = new AudioHandle();
+        AudioHandle Ambient = new();
         Vector2 Origin = new Vector2(960f, 540f);
         int width = 192;
         int height = 108;
@@ -32,7 +31,7 @@ namespace Ship_Game
             Universe = parent;
             IsPopup = false;
             TransitionOnTime = 30f;
-            TransitionOffTime = 0.25f;
+            TransitionOffTime = 0; // exit immediately
 
             Log.LogEventStats(Log.GameEvent.YouLose, parent.UState.P);
         }
@@ -58,10 +57,11 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            ScreenManager.ExitAllExcept(this);
-            Music.Stop();
+            if (IsExiting)
+                return;
+
+            base.ExitScreen(); // set IsExiting=true to avoid calling this again
             Ambient.Stop();
-            base.ExitScreen();
             ScreenManager.GoToScreen(new MainMenuScreen(MainMenuType.Defeat), clear3DObjects:true);
         }
 
@@ -111,7 +111,7 @@ namespace Ship_Game
             GameAudio.SwitchToRacialMusic();
 
             Log.Write("Play Lose Theme");
-            Music = GameAudio.PlayMusic("Female_02_loop");
+            ScreenManager.Music = GameAudio.PlayMusic("Female_02_loop");
             Ambient = GameAudio.PlayMusic("sd_battle_ambient");
             base.LoadContent();
         }

@@ -177,10 +177,16 @@ namespace Ship_Game
                 Biosphere = true;
             }
             else
+            {
+                if (Building != null)
+                {
+                    Log.Error($"Building being placed over an existing building. Building={b}. Existing={Building}");
+                }
                 Building = b;
+            }
 
             QItem = null;
-            b.OnBuildingBuiltAt(p);
+            b.OnBuildingBuiltAt(p, this);
         }
 
         public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool spaceCombat)

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Data;
 using SynapseGaming.LightingSystem.Core;
@@ -41,6 +42,9 @@ namespace Ship_Game
         public float TotalElapsed { get; protected set; }
 
         public Form Form => (Form)Control.FromHandle(Window.Handle);
+        
+        public bool IsDeviceGood => !GraphicsDevice.IsDisposed 
+                                 && GraphicsDevice.GraphicsDeviceStatus == GraphicsDeviceStatus.Normal;
 
         public GameBase()
         {
@@ -212,8 +216,11 @@ namespace Ship_Game
                 TotalElapsed = base.TotalGameTimeSeconds;
                 Elapsed = new UpdateTimes(deltaTime, TotalElapsed);
 
-                // 1. Handle Input and 2. Update for each game screen
-                ScreenManager.Update(Elapsed);
+                if (IsDeviceGood) // only Update if device is OK
+                {
+                    // 1. Handle Input and 2. Update for each game screen
+                    ScreenManager.Update(Elapsed);
+                }
 
                 base.Update(deltaTime); // Update XNA components
             }
@@ -228,7 +235,7 @@ namespace Ship_Game
             GameAudio.Destroy();
             if (ScreenManager != null)
                 ResourceManager.UnloadAllData(ScreenManager);
-            ScreenManager?.Dispose(ref ScreenManager);
+            Mem.Dispose(ref ScreenManager);
 
             base.Dispose(disposing);
         }

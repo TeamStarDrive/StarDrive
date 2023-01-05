@@ -656,26 +656,27 @@ namespace Ship_Game
                 return;
             if (!GlobalStats.IsUnitTest)
                 Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
-            Memory.Dispose(ref bloomComponent);
-            Memory.Dispose(ref bg);
-            Memory.Dispose(ref FogMap);
-            Memory.Dispose(ref FogMapTarget);
-            Memory.Dispose(ref BorderRT);
-            Memory.Dispose(ref MainTarget);
-            Memory.Dispose(ref LightsTarget);
-            Memory.Dispose(ref Particles);
-            Memory.Dispose(ref bg);
-            Memory.Dispose(ref SR);
+            Mem.Dispose(ref bloomComponent);
+            Mem.Dispose(ref bg);
+            Mem.Dispose(ref FogMap);
+            Mem.Dispose(ref FogMapTarget);
+            Mem.Dispose(ref BorderRT);
+            Mem.Dispose(ref MainTarget);
+            Mem.Dispose(ref LightsTarget);
+            Mem.Dispose(ref Particles);
+            Mem.Dispose(ref bg);
+            Mem.Dispose(ref SR);
+            Mem.Dispose(ref Shields);
         }
 
         protected override void Destroy()
         {
             UnloadGraphics();
 
-            anomalyManager?.Dispose(ref anomalyManager);
-            BombList?.Dispose(ref BombList);
-            NotificationManager?.Dispose(ref NotificationManager);
-            SelectedShipList = new Array<Ship>();
+            Mem.Dispose(ref anomalyManager);
+            Mem.Dispose(ref BombList);
+            Mem.Dispose(ref NotificationManager);
+            SelectedShipList = new();
 
             base.Destroy();
         }
