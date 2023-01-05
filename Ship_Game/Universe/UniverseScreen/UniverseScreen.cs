@@ -677,7 +677,6 @@ namespace Ship_Game
             Mem.Dispose(ref BombList);
             Mem.Dispose(ref NotificationManager);
             SelectedShipList = new();
-
             base.Destroy();
         }
 

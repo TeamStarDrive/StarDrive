@@ -6,14 +6,11 @@ using SDGraphics;
 using SDGraphics.Sprites;
 using SDUtils;
 using Ship_Game.Empires.Components;
-using Ship_Game.Gameplay;
 using Ship_Game.Graphics;
 using Ship_Game.Ships;
-using Ship_Game.ExtensionMethods;
 using Vector3 = SDGraphics.Vector3;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
-using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
 
 namespace Ship_Game
 {
@@ -419,6 +416,9 @@ namespace Ship_Game
 
         void Render(SpriteBatch batch, DrawTimes elapsed)
         {
+            if (IsDisposed || SR == null)
+                return;
+
             RenderGroupTotalPerf.Start();
 
             Frustum.Matrix = ViewProjection;
