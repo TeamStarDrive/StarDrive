@@ -48,7 +48,7 @@ namespace Ship_Game
         void BuildAndScrapCivilianBuildings(float budget)
         {
             UpdateGovernorPriorities();
-            if (budget < 0f)
+            if (budget < -0.0499f)
             {
                 TryScrapBuilding(); // We must scrap something to bring us above of our debt tolerance
             }
