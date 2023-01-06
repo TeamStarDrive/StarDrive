@@ -62,6 +62,9 @@ namespace Ship_Game
 
         void BuildOrReplaceBuilding(float budget)
         {
+            if (TryCancelOverBudgetCivilianBuilding(budget))
+                return;
+
             if (FreeHabitableTiles > 0)
                 SimpleBuild(budget); // Let's try to build something within our budget
             else
@@ -347,6 +350,26 @@ namespace Ship_Game
             }
         }
 
+        public bool TryCancelOverBudgetCivilianBuilding(float budget)
+        {
+            if (GovernorShouldNotScrapBuilding)
+                return false;
+
+            for (int i = 0; i < ConstructionQueue.Count; i++)
+            {
+                QueueItem qi = ConstructionQueue[i];
+                if (qi.IsCivilianBuilding && qi.Building.ActualMaintenance(this) > budget)
+                {
+                    Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} CANCELED {qi.Building.Name}" +
+                        $" on planet {Name} since maint. ({qi.Building.ActualMaintenance(this)}) was higher than budget ({budget})");
+                    Construction.Cancel(qi);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         float ChooseBestBuilding(Array<Building> buildings, float budget, bool replacing, out Building best)
         {
             best = null;
@@ -363,14 +386,14 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (!SuitableForBuild(b, budget))
-                    continue;
-
-                float buildingScore = EvaluateBuilding(b, totalProd, !replacing);
-                if (buildingScore > highestScore)
+                if (SuitableForBuild(b, budget))
                 {
-                    best         = b;
-                    highestScore = buildingScore;
+                    float buildingScore = EvaluateBuilding(b, totalProd, !replacing);
+                    if (buildingScore > highestScore)
+                    {
+                        best = b;
+                        highestScore = buildingScore;
+                    }
                 }
             }
 
@@ -429,10 +452,7 @@ namespace Ship_Game
             }
 
             float maintenance = b.ActualMaintenance(this);
-            if ((budget > 0 && maintenance <= budget) || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
-                return true;
-
-            return false; // Too expensive for us and its not getting profitable juice from the population
+            return budget > 0 && b.ActualMaintenance(this) <= budget;
         }
 
         bool SuitableForScrap(Building b, bool replacing)
@@ -721,7 +741,7 @@ namespace Ship_Game
                 if (numBio > 5)
                     shouldScrapBioSpheres = true;
 
-                if (numBio >= 1)
+                if (numBio >= 5)
                     return false;
             }
 
