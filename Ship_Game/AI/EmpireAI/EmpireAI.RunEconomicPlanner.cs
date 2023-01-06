@@ -194,8 +194,8 @@ namespace Ship_Game.AI
             var pBudgets = new Array<PlanetBudget>();
             foreach (var planet in OwnerEmpire.GetPlanets())
             {
-                var planetBudget = new PlanetBudget(planet);
-                pBudgets.Add(planetBudget);
+                if (planet.Budget != null)
+                    pBudgets.Add(planet.Budget);
             }
 
             PlanetBudgets = pBudgets;
@@ -307,7 +307,5 @@ namespace Ship_Game.AI
 
             return maxRisk.Clamped(0.25f, riskLimit);
         }
-
-        public PlanetBudget PlanetBudget(Planet planet) => new(planet);
     }
 }

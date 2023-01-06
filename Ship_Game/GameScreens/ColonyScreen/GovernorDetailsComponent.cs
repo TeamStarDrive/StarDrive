@@ -278,20 +278,17 @@ namespace Ship_Game
 
             OverrideCiv.OnChange = cb =>
             {
-                var budget = new PlanetBudget(Planet);
-                Planet.SetManualCivBudget(cb.Checked ? budget.CivilianAlloc : 0);
+                Planet.SetManualCivBudget(cb.Checked ? Planet.Budget.CivilianAlloc : 0);
             };
 
             OverrideGrd.OnChange = cb =>
             {
-                var budget = new PlanetBudget(Planet);
-                Planet.SetManualGroundDefBudget(cb.Checked ? budget.GrdDefAlloc : 0);
+                Planet.SetManualGroundDefBudget(cb.Checked ? Planet.Budget.GrdDefAlloc : 0);
             };
 
             OverrideSpc.OnChange = cb =>
             {
-                var budget = new PlanetBudget(Planet);
-                Planet.SetManualSpaceDefBudget(cb.Checked ? budget.SpcDefAlloc : 0);
+                Planet.SetManualSpaceDefBudget(cb.Checked ? Planet.Budget.SpcDefAlloc : 0);
             };
 
             UpdateButtons();
@@ -655,7 +652,7 @@ namespace Ship_Game
 
         void UpdateBudgets()
         {
-            var budget = new PlanetBudget(Planet);
+            var budget = Planet.Budget;
 
             UpdateCivBudget(budget);
             UpdateGrdBudget(budget);
