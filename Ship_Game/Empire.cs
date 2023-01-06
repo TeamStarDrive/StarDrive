@@ -1835,13 +1835,20 @@ namespace Ship_Game
 
                 foreach (string shipTech in design.TechsNeeded)
                 {
-                    if (ShipTechs.Contains(shipTech))
-                        continue;
-                    TechEntry onlyShipTech = GetTechEntry(shipTech);
-                    if (onlyShipTech.Locked)
+                    if (!ShipTechs.Contains(shipTech))
                     {
-                        if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedTech={shipTech} Design:{design.Name}");
-                        return false;
+                        // some ShipDesigns are loaded from savegame only, and the tech might no longer exist
+                        // in this case the ship is no longer buildable
+                        if (!TryGetTechEntry(shipTech, out TechEntry onlyShipTech))
+                        {
+                            if (debug) Log.Write($"WeCanBuildThis:false Reason:MissingTech={shipTech} Design:{design.Name}");
+                            return false;
+                        }
+                        else if (onlyShipTech.Locked)
+                        {
+                            if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedTech={shipTech} Design:{design.Name}");
+                            return false;
+                        }
                     }
                 }
             }
