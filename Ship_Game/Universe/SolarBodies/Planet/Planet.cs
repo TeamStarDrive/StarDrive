@@ -14,6 +14,7 @@ using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.AI.Budget;
 
 namespace Ship_Game
 {
@@ -38,6 +39,7 @@ namespace Ship_Game
         public SpaceStation Station;
         
         [StarData] public TroopManager Troops;
+        [StarData] public PlanetBudget Budget;
         
         // TODO: this is only for save compatibility, remove later
         [StarData] Array<Troop> TroopsHere
@@ -369,6 +371,11 @@ namespace Ship_Game
                 OrbitalRadius += Radius;
 
             UpdatePositionOnly();
+        }
+
+        public void CreatePlanetBudget(Empire owner)
+        {
+            Budget = new(this, owner);
         }
 
         // This will launch troops without having issues with modifying it's own TroopsHere

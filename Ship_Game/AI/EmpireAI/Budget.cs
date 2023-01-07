@@ -1,61 +1,61 @@
-﻿using System;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI.Budget
 {
+    using static HelperFunctions;
+
+    [StarDataType]
     public class PlanetBudget
     {
-        // if not initialized then it is not safe to use. 
-        public bool Initialized { get; }
-        public readonly float TotalRemaining;
-        public readonly float DefenseRatio;
-        public readonly Planet P;
+        [StarData] public readonly Planet P;
+        [StarData] public readonly Empire Owner;
+        [StarData] float TotalRemaining;
+        [StarData] public float RemainingCivilian { get; private set; }
+        [StarData] public float RemainingSpaceDef { get; private set; }
+        [StarData] public float RemainingGroundDef { get; private set; }
 
-        public readonly float RemainingCivilian;
-        public readonly float RemainingSpaceDef;
-        public readonly float RemainingGroundDef;
+        [StarData] public float CivilianAlloc { get; private set; }
+        [StarData] public float GrdDefAlloc { get; private set; }
+        [StarData] public float SpcDefAlloc { get; private set; }
+        [StarData] public float TotalAlloc { get; private set; }
 
-        public readonly float CivilianAlloc;
-        public readonly float GrdDefAlloc;
-        public readonly float SpcDefAlloc;
-        public readonly float TotalAlloc;
-
-        readonly float EmpireRatio;
-        readonly Empire Owner;
+        float EmpireRatio;
 
         float EmpireColonizationBudget => Owner.AI.ColonyBudget;
         float EmpireDefenseBudget => Owner.AI.DefenseBudget;
 
-        public PlanetBudget(Planet planet)
+        [StarDataConstructor] PlanetBudget() { }
+
+        public PlanetBudget(Planet planet, Empire owner)
         {
-            if (planet?.Owner == null)
-                return;
+            P = planet;
+            Owner = owner;
+        }
 
-            P     = planet;
-            Owner = P.Owner;
 
+        public void Update()
+        {
             EmpireRatio = P.ColonyPotentialValue(Owner, useBaseMaxFertility: true) / Owner.TotalColonyPotentialValues;
-            DefenseRatio = P.ColonyBaseValue(Owner) / Owner.TotalColonyValues;
+            float defenseRatio = P.ColonyBaseValue(Owner) / Owner.TotalColonyValues;
 
-            float defenseBudget = EmpireDefenseBudget * DefenseRatio;
+            float defenseBudget = EmpireDefenseBudget * defenseRatio;
             float groundRatio   = MilitaryBuildingsBudgetRatio();
             float orbitalRatio  = 1 - groundRatio;
             float civBudget     = EmpireColonizationBudget * EmpireRatio + P.ColonyDebtTolerance + P.TerraformBudget;
 
-            GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? defenseBudget * groundRatio : P.ManualGrdDefBudget;
-            SpcDefAlloc   = P.ManualSpcDefBudget   <= 0 ? defenseBudget * orbitalRatio : P.ManualSpcDefBudget;
-            CivilianAlloc = P.ManualCivilianBudget <= 0 ? civBudget : P.ManualCivilianBudget;
+            GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? ExponentialMovingAverage(GrdDefAlloc, defenseBudget * groundRatio) : P.ManualGrdDefBudget;
+            SpcDefAlloc   = P.ManualSpcDefBudget   <= 0 ? ExponentialMovingAverage(SpcDefAlloc, defenseBudget * orbitalRatio) : P.ManualSpcDefBudget;
+            CivilianAlloc = P.ManualCivilianBudget <= 0 ? ExponentialMovingAverage(CivilianAlloc, civBudget) : P.ManualCivilianBudget;
 
             RemainingGroundDef = (GrdDefAlloc - P.GroundDefMaintenance).RoundToFractionOf10();
             RemainingSpaceDef  = (SpcDefAlloc - P.SpaceDefMaintenance).RoundToFractionOf10();
             RemainingCivilian  = (CivilianAlloc - P.CivilianBuildingsMaintenance).RoundToFractionOf10();
-
             TotalRemaining = RemainingSpaceDef + RemainingGroundDef + RemainingCivilian; // total remaining budget for this planet
             TotalAlloc     = GrdDefAlloc + SpcDefAlloc + CivilianAlloc;
-            Initialized    = true;
         }
 
         /// <summary>
