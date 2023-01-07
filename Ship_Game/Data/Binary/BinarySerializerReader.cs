@@ -166,8 +166,8 @@ public class BinarySerializerReader
 
     void AddCollectionTypeInfo(uint streamType, uint cTypeId, uint valType, uint keyType)
     {
-        TypeInfo keyTypeInfo = keyType != 0 ? StreamTypes[keyType] : null;
-        TypeInfo valTypeInfo = StreamTypes[valType];
+        TypeInfo valTypeInfo = StreamTypes[valType]; // MANDATORY
+        TypeInfo keyTypeInfo = keyType != 0 ? StreamTypes[keyType] : null; // OPTIONAL
 
         if (valTypeInfo == null) // element type does not exist anywhere
         {
@@ -207,11 +207,12 @@ public class BinarySerializerReader
 
         // if it reaches this point, then the type is deleted
         string name;
-        if      (cTypeId == 1) name = "DeletedType[]";
-        else if (cTypeId == 2) name = "Array<DeletedType>";
-        else if (cTypeId == 3) name = $"Map<{keyTypeInfo!.Ser?.NiceTypeName ?? "DeletedType"}, DeletedType>";
-        else if (cTypeId == 4) name = "HashSet<DeletedType>";
-        else                   name = "UnknownCollection<DeletedType>";
+        string valName = valTypeInfo.Ser?.NiceTypeName ?? valTypeInfo.Name ?? "DeletedType";
+        if      (cTypeId == 1) name = $"{valName}[]";
+        else if (cTypeId == 2) name = $"Array<{valName}>";
+        else if (cTypeId == 3) name = $"Map<{keyTypeInfo!.Ser?.NiceTypeName ?? keyTypeInfo.Name ?? "DeletedType"}, {valName}>";
+        else if (cTypeId == 4) name = $"HashSet<{valName}>";
+        else                   name = $"UnknownCollection<{valName}>";
 
         throw new InvalidDataException($"Unable to continue decoding because of a deleted collection type: {name}");
 
