@@ -1425,7 +1425,7 @@ namespace Ship_Game
             {
                 Planet planet = OwnedPlanets[i];
                 TotalColonyValues          += planet.ColonyValue;
-                TotalColonyPotentialValues += planet.ColonyPotentialValue(this);
+                TotalColonyPotentialValues += planet.ColonyPotentialValue(this, useBaseMaxFertility: false);
                 if (planet.ColonyValue > MaxColonyValue)
                     MaxColonyValue = planet.ColonyValue;
             }
@@ -1650,12 +1650,7 @@ namespace Ship_Game
                     TotalMaintenanceInScrap += maintenance;
                     continue;
                 }
-                if (AI.DefenseBudget > 0 && ((ship.ShipData.HullRole == RoleName.platform && ship.IsTethered)
-                                            || (ship.ShipData.HullRole == RoleName.station &&
-                                               (ship.ShipData.IsOrbitalDefense || !ship.ShipData.IsShipyard))))
-                {
-                    AI.DefenseBudget -= maintenance;
-                }
+
                 switch (ship.DesignRoleType)
                 {
                     case RoleType.WarSupport:
