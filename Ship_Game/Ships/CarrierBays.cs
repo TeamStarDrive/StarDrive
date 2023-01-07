@@ -626,9 +626,9 @@ namespace Ship_Game.Ships
                 roles += role;
             }
 
-            Log.Warning($"No startingShip defined and no roles=[{roles}] designs available for {Owner}");
+            Log.Warning($"No startingShip defined and no roles=[{roles}] designs available for {Owner} ({Owner.Loyalty.Name})");
             return false; ;
-        }
+        } 
 
         private static HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
         {
