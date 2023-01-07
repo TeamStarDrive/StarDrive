@@ -1425,7 +1425,7 @@ namespace Ship_Game
             {
                 Planet planet = OwnedPlanets[i];
                 TotalColonyValues          += planet.ColonyValue;
-                TotalColonyPotentialValues += planet.ColonyPotentialValue(this);
+                TotalColonyPotentialValues += planet.ColonyPotentialValue(this, useBaseMaxFertility: false);
                 if (planet.ColonyValue > MaxColonyValue)
                     MaxColonyValue = planet.ColonyValue;
             }
@@ -1650,12 +1650,7 @@ namespace Ship_Game
                     TotalMaintenanceInScrap += maintenance;
                     continue;
                 }
-                if (AI.DefenseBudget > 0 && ((ship.ShipData.HullRole == RoleName.platform && ship.IsTethered)
-                                            || (ship.ShipData.HullRole == RoleName.station &&
-                                               (ship.ShipData.IsOrbitalDefense || !ship.ShipData.IsShipyard))))
-                {
-                    AI.DefenseBudget -= maintenance;
-                }
+
                 switch (ship.DesignRoleType)
                 {
                     case RoleType.WarSupport:
@@ -1835,13 +1830,20 @@ namespace Ship_Game
 
                 foreach (string shipTech in design.TechsNeeded)
                 {
-                    if (ShipTechs.Contains(shipTech))
-                        continue;
-                    TechEntry onlyShipTech = GetTechEntry(shipTech);
-                    if (onlyShipTech.Locked)
+                    if (!ShipTechs.Contains(shipTech))
                     {
-                        if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedTech={shipTech} Design:{design.Name}");
-                        return false;
+                        // some ShipDesigns are loaded from savegame only, and the tech might no longer exist
+                        // in this case the ship is no longer buildable
+                        if (!TryGetTechEntry(shipTech, out TechEntry onlyShipTech))
+                        {
+                            if (debug) Log.Write($"WeCanBuildThis:false Reason:MissingTech={shipTech} Design:{design.Name}");
+                            return false;
+                        }
+                        else if (onlyShipTech.Locked)
+                        {
+                            if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedTech={shipTech} Design:{design.Name}");
+                            return false;
+                        }
                     }
                 }
             }

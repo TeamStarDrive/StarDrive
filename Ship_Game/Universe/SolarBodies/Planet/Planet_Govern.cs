@@ -10,10 +10,9 @@ namespace Ship_Game
         public bool GovernorOn  => CType != ColonyType.Colony;
         public bool GovernorOff => CType == ColonyType.Colony;
 
-        public float CurrentProductionToQueue   => Prod.NetIncome + InfraStructure;
-        public float MaxProductionToQueue       => Prod.NetMaxPotential + InfraStructure;
+        public float CurrentProductionToQueue => Prod.NetIncome + InfraStructure;
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / (IsCybernetic ? 2 : 3)).LowerBound(0.1f);
-        float EstimatedAverageFood              => (Food.NetMaxPotential / 3).LowerBound(0.1f);
+        float EstimatedAverageFood => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
         public void DoGoverning()
         {
@@ -43,7 +42,10 @@ namespace Ship_Game
             Prod.Percent = 0;
             Res.Percent  = 0;
 
-            PlanetBudget budget = AllocateColonyBudget();
+            if (Budget == null || Owner != Budget.Owner)
+                CreatePlanetBudget(Owner);
+
+            Budget.Update();
             switch (CType) // New resource management by Gretman
             {
                 case ColonyType.TradeHub:
@@ -53,14 +55,14 @@ namespace Ship_Game
                     break;
                 case ColonyType.Core:
                     AssignCoreWorldWorkers();
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings(Budget);
                     DetermineFoodState(0.2f, 0.5f); // Start Importing if stores drop below 20%, and stop importing once stores are above 50%.
                     DetermineProdState(0.2f, 0.5f); // Start Exporting if stores are above 50%, but dont stop exporting unless stores drop below 25%.
                     break;
                 case ColonyType.Industrial:
                     // Farm to 30% storage, then devote the rest to Work, then to research when that starts to fill up
                     AssignOtherWorldsWorkers(0.33f, 1, 0, 2);
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings(Budget);
                     DetermineFoodState(0.75f, 0.99f);    // Start Importing if food drops below 75%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     if (NonCybernetic)
                         DetermineProdState(0f, 0.5f); // Never import (unless constructing something) Start exporting at 50%, and dont stop unless below 25%.
@@ -71,30 +73,32 @@ namespace Ship_Game
                 case ColonyType.Research:
                     //This governor will rely on imports, focusing on research as long as no one is starving
                     AssignOtherWorldsWorkers(0.15f, 0.15f, 0, 0);
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings(Budget);
                     DetermineFoodState(0.75f, 0.99f); // Import if either drops below 50%, and stop importing once stores reach 100%.
                     DetermineProdState(0.25f, 0.99f); // This planet will export when stores reach 100%
                     break;
                 case ColonyType.Agricultural:
                     AssignOtherWorldsWorkers(1, 0.333f, 0, 1);
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings(Budget);
                     DetermineFoodState(0.15f, 0.5f); // Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 50%, and dont stop unless below 33%.
                     DetermineProdState(0.25f, 0.99f);    // Start Importing if prod drops below 25%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
                     break;
                 case ColonyType.Military:
                     AssignOtherWorldsWorkers(0.3f, 0.7f, 0, 1.5f);
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings(Budget);
                     DetermineFoodState(0.75f, 1f); // Import if either drops below 75%, and stop importing once stores reach 95%.
                     DetermineProdState(0.75f, 0.99f); // This planet will only export Food or Prod due to excess FlatFood or FlatProd
                     break;
             }
 
-            BuildPlatformsAndStations(budget);
+            BuildPlatformsAndStations(Budget);
         }
 
-        public PlanetBudget AllocateColonyBudget() => Owner.AI.PlanetBudget(this);
         public float CivilianBuildingsMaintenance  => Money.Maintenance - GroundDefMaintenance;
 
+        // ColonyDebt Tolerance is 2 (* env modifier) if the current pop is below 2b.
+        // Above 2b, the rolerance decreases based on the pop number above to ratio.
+        // TODO - make that number (2) dynamic - based on the personality or credit rate maybe?
         public float ColonyDebtTolerance
         {
             get
@@ -102,13 +106,12 @@ namespace Ship_Game
                 if (Owner == null || Owner.Money < 1000)
                     return 0;
 
-                // Note - dept tolerance is a positive number added to the budget for founded colonies.
-                // The bigger the colony, the less debt tolerance it has, it should be earning money
-                // No debt tolerance if the colony has 50% pop or more.
-                // For low pop planets (2 or less), there will be an over spend regardless
-                float minOverSpend = (2 - MaxPopulationBillion).LowerBound(0);
-                float baseOverSpend = (2 - PopulationRatio * 4).LowerBound(minOverSpend);
-                float envOverSpend  = Empire.PreferredEnvModifier(Owner).LowerBound(0.5f);
+                if ((PopulationBillion) < 2)
+                    return 2;
+
+                float correctedRatio = (PopulationBillion - 2) / ((MaxPopulationBillion - 2).LowerBound(0.1f));
+                float baseOverSpend = (2 - (correctedRatio * 2)).LowerBound(0);
+                float envOverSpend  = Empire.RacialEnvModifer(Category, Owner).LowerBound(1);
                 return (baseOverSpend * envOverSpend).LowerBound(0);
             }
         }
