@@ -1827,7 +1827,7 @@ namespace Ship_Game
 
                 // tech XML-s have their own UID-s but unfortunately there are many mismatches in data files
                 // so we only use the XML UID to detect potential duplications
-                string xmlUid = tech.UID;
+                string xmlUid = string.Intern(tech.UID);
 
                 if (duplicateTech.TryGetValue(xmlUid, out Technology previous))
                     Log.Warning($"Possibly duplicate tech '{xmlUid}' !\n  first: {previous.DebugSourceFile}\n  second: {tech.DebugSourceFile}");
@@ -1836,8 +1836,11 @@ namespace Ship_Game
 
                 // CA relies on tech XML filenames for the tech UID
                 string fileUid = string.Intern(pair.Info.NameNoExt());
+                if (fileUid != xmlUid)
+                    Log.Warning($"Technology UID='{xmlUid}' mismatches FileName='{pair.Info.Name}' at {pair.Info.RelPath()}");
+
                 tech.UID = fileUid;
-                TechTree[fileUid] = tech;
+                TechTree[tech.UID] = tech;
 
                 // categorize extra techs
                 tech.UpdateTechnologyTypesFromUnlocks();
