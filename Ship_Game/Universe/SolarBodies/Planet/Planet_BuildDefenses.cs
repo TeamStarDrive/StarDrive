@@ -419,7 +419,7 @@ namespace Ship_Game
             if (MilitaryBuildingInTheWorks)
                 return;
 
-            if (budget < 0)
+            if (budget < -0.0499f)
                 TryScrapMilitaryBuilding();
             else
                 TryBuildMilitaryBuilding(budget);

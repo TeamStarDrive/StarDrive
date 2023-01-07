@@ -168,7 +168,7 @@ namespace Ship_Game
                 return ManualFoodImportSlots;
 
             float averageFreighterCargoCap = Owner.AverageFreighterCargoCap;
-            int maxSlots = (int)(Storage.Max / averageFreighterCargoCap);
+            int maxSlots = ((int)(Storage.Max / averageFreighterCargoCap)).LowerBound(1);
             float foodMissing = Storage.Max - FoodHere - IncomingFood;
 
             foodMissing += (-Food.NetIncome * AverageFoodImportTurns).LowerBound(0);
@@ -186,7 +186,7 @@ namespace Ship_Game
                 return ManualProdImportSlots;
 
             float averageFreighterCargoCap = Owner.AverageFreighterCargoCap;
-            int maxSlots = (int)(Storage.Max / averageFreighterCargoCap);
+            int maxSlots = ((int)(Storage.Max / averageFreighterCargoCap)).LowerBound(1);
             if (NonCybernetic)
             {
                 switch (ConstructionQueue.Count)
