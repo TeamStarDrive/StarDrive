@@ -282,8 +282,8 @@ public class AutoUpdateChecker : UIElementContainer
     {
         using WebClient wc = CreateWebClient((sender, e) =>
         {
-            if (cancellableTask.IsCancelRequested)
-                ((WebClient)sender)?.CancelAsync();
+            if (cancellableTask.IsCancelRequested && sender is WebClient webClient)
+                webClient.CancelAsync();
         });
 
         var download = wc.DownloadStringTaskAsync(url);
@@ -301,8 +301,8 @@ public class AutoUpdateChecker : UIElementContainer
         int lastPercent = -1;
         using WebClient wc = CreateWebClient((sender, e) =>
         {
-            if (cancellableTask.IsCancelRequested)
-                ((WebClient)sender)?.CancelAsync();
+            if (cancellableTask.IsCancelRequested && sender is WebClient webClient)
+                webClient.CancelAsync();
             else if (onProgressPercent != null && e != null)
             {
                 int newPercent = e.ProgressPercentage;
