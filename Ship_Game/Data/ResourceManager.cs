@@ -220,6 +220,7 @@ namespace Ship_Game
             else
                 GlobalStats.ClearActiveMod();
 
+            Log.ConfigureStatsReporter();
             LoadContent();
             Profiled(RunExportTasks);
 

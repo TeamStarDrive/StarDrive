@@ -712,7 +712,7 @@ namespace Ship_Game
 
             HelperFunctions.CollectMemory();
             // make sure we reset the latest savegame attachment
-            Log.ConfigureLatestSaveAttachment(null);
+            Log.ConfigureStatsReporter(null);
         }
 
         public struct ClickablePlanet
