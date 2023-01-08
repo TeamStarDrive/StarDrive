@@ -156,11 +156,11 @@ namespace Ship_Game
             if (QItem != null)
                 return false;
 
+            // Don't allow biospheres on habitable tiles (including tiles with biospheres or specific buildings)
             if (b.IsBiospheres)
-                return !Habitable && !VolcanoHere && !LavaHere; // Don't allow biospheres on habitable tiles (including tiles with biospheres or specific buildings)
+                return !Habitable && !VolcanoHere && !LavaHere;
 
-            return !Habitable && b.CanBuildAnywhere && !BuildingOnTile
-                 || Habitable && NoBuildingOnTile;
+            return NoBuildingOnTile && (Habitable || b.CanBuildAnywhere);
         }
 
         public void PlaceBuilding(Building b, Planet p)
@@ -186,7 +186,7 @@ namespace Ship_Game
             }
 
             QItem = null;
-            b.OnBuildingBuiltAt(p, this);
+            p.PlaceBuildingAt(this, b);
         }
 
         public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool spaceCombat)

@@ -878,10 +878,8 @@ namespace SDUtils
         /// https://learn.microsoft.com/en-us/archive/msdn-magazine/2018/january/csharp-all-about-span-exploring-a-new-net-mainstay
         /// https://nishanc.medium.com/an-introduction-to-writing-high-performance-c-using-span-t-struct-b859862a84e4
         /// </summary>
-        public Span<T> AsSpan()
-        {
-            return new(Items, 0, Count);
-        }
+        public Span<T> AsSpan() => new(Items, 0, Count);
+        public ReadOnlySpan<T> AsReadOnlySpan() => new(Items, 0, Count);
 
         public T[] ToArray()
         {

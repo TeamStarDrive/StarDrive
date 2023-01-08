@@ -148,9 +148,8 @@ namespace Ship_Game.Universe.SolarBodies
         protected override void RecalculateModifiers()
         {
             float plusPerColonist = 0f;
-            for (int i = 0; i < Planet.BuildingList.Count; i++)
+            foreach (Building b in Planet.Buildings)
             {
-                Building b = Planet.BuildingList[i];
                 plusPerColonist += b.PlusFoodPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusFlatFoodAmount;
             }
@@ -187,9 +186,8 @@ namespace Ship_Game.Universe.SolarBodies
         {
             float richness = Planet.MineralRichness;
             float plusPerColonist = 0f;
-            for (int i = 0; i < Planet.BuildingList.Count; i++)
+            foreach (Building b in Planet.Buildings)
             {
-                Building b = Planet.BuildingList[i];
                 plusPerColonist += b.PlusProdPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusProdPerRichness * richness;
                 FlatBonus       += b.PlusFlatProductionAmount;
@@ -223,9 +221,8 @@ namespace Ship_Game.Universe.SolarBodies
         protected override void RecalculateModifiers()
         {
             float plusPerColonist = 0f;
-            for (int i = 0; i < Planet.BuildingList.Count; i++)
+            foreach (Building b in Planet.Buildings)
             {
-                Building b = Planet.BuildingList[i];
                 plusPerColonist += b.PlusResearchPerColonist.LowerBound(0);
                 FlatBonus       += b.PlusFlatResearchAmount;
             }
@@ -292,9 +289,9 @@ namespace Ship_Game.Universe.SolarBodies
             IncomePerColonist   = 1f;
             IncomeFromBuildings = 0f;
             float taxRateMultiplier = 1f + Planet.Owner.data.Traits.TaxMod;
-            for (int i = 0; i < Planet.BuildingList.Count; i++)
+
+            foreach (Building b in Planet.Buildings)
             {
-                Building b           = Planet.BuildingList[i];
                 IncomePerColonist   += b.CreditsPerColonist;
                 taxRateMultiplier   += b.PlusTaxPercentage;
                 Maintenance         += b.Maintenance.LowerBound(0);
