@@ -495,7 +495,7 @@ namespace Ship_Game
 
         public float TerraformTargetFertility()
         {
-            float fertilityOnBuild = P.BuildingList.Sum(b => b.MaxFertilityOnBuild);
+            float fertilityOnBuild = P.SumBuildings(b => b.MaxFertilityOnBuild);
             return (1 + fertilityOnBuild*Player.PlayerPreferredEnvModifier).LowerBound(0);
         }
 

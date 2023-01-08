@@ -44,10 +44,10 @@ namespace UnitTests.Planets
             NewPlanet.Colonize(colonyShip);
             Assert.IsTrue(NewPlanet.Owner == Enemy, "New Planet after colonization is not owned by the enemy");
 
-            Assert.IsTrue(NewPlanet.BuildingList.Any(b => b.IsOutpost), "New Planet does not contain an Outpost");
+            Assert.IsTrue(NewPlanet.HasOutpost, "New Planet does not contain an Outpost");
             Assert.IsFalse(NewPlanet.HasCapital, "New Planet has a capital but should not");
 
-            var capital = EnemyHome.BuildingList.Find(b => b.IsCapital);
+            var capital = EnemyHome.FindBuilding(b => b.IsCapital);
             EnemyHome.ScrapBuilding(capital);
             Assert.IsFalse(EnemyHome.HasCapital, "Enemy Homeworld capital should have been scrapped");
 
@@ -67,7 +67,7 @@ namespace UnitTests.Planets
 
             Enemy.AddMoney(1000);
             EnemyHome.Construction.RushProduction(0, 1000, rushButton: true);
-            Assert.IsTrue(EnemyHome.BuildingList.Any(b => b.IsOutpost), "Enemy home should have an outpost built");
+            Assert.IsTrue(EnemyHome.HasOutpost, "Enemy home should have an outpost built");
 
             // Enemy retakes the planet
             EnemyHome.ChangeOwnerByInvasion(Enemy, NewPlanet.Level);
@@ -80,7 +80,7 @@ namespace UnitTests.Planets
             Enemy.AddMoney(1000);
             EnemyHome.Construction.RushProduction(0, 1000, rushButton: true);
             Assert.IsTrue(EnemyHome.HasCapital, "Enemy original home planet should now be building a capital");
-            Assert.IsFalse(EnemyHome.BuildingList.Any(b => b.IsOutpost), "built capital should remove the outpost as part of the Capital placement process");
+            Assert.IsFalse(EnemyHome.HasOutpost, "built capital should remove the outpost as part of the Capital placement process");
         }
     }
 }

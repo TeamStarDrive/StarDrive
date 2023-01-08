@@ -558,7 +558,7 @@ namespace Ship_Game.AI.Tasks
                     {
                         int extraFleets = TargetPlanet.Level > 4 ? 1 : 0;
                         extraFleets += TargetPlanet.HasWinBuilding ? 1 : 0;
-                        extraFleets += TargetPlanet.BuildingList.Any(b => b.IsCapital) ? 1 : 0;
+                        extraFleets += TargetPlanet.HasCapital ? 1 : 0;
                         extraFleets += TargetPlanet.Owner.CurrentMilitaryStrength > Owner.CurrentMilitaryStrength ? 1 : 0;
 
                         return extraFleets;

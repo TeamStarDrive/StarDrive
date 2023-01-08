@@ -34,7 +34,7 @@ namespace Ship_Game
                 HighPri = extraMaint / netPlanetMoney < 0.80f;
                 MakingMoney = (p.Money.NetRevenue - b.Maintenance) > 0;
 
-                int defensiveBuildings = p.BuildingList.Count(def => def.SoftAttack > 0 || def.PlanetaryShieldStrengthAdded > 0 || def.TheWeapon != null);
+                int defensiveBuildings = p.CountBuildings(def => def.SoftAttack > 0 || def.PlanetaryShieldStrengthAdded > 0 || def.TheWeapon != null);
                 int offensiveBuildings = p.BuildingsCanBuild.Count(off => off.PlanetaryShieldStrengthAdded > 0 || off.SoftAttack > 0 || off.TheWeapon != null);
                 bool isDefensive = b.SoftAttack > 0 || b.PlanetaryShieldStrengthAdded > 0 || b.isWeapon;
                 float defenseRatio = 0;
@@ -57,7 +57,7 @@ namespace Ship_Game
                 return true;
 
             // don't scrap buildings if we can use treasury to pay for it.
-            if (b.AllowInfantry && !BuildingList.Contains(b) && (AllowInfantry || governor == ColonyType.Military))
+            if (b.AllowInfantry && !BuildingList.ContainsRef(b) && (AllowInfantry || governor == ColonyType.Military))
                 return false;
 
             if (b.ExcludesPlanetType.NotEmpty() && b.ExcludesPlanetType == CategoryName)

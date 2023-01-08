@@ -249,10 +249,10 @@ namespace Ship_Game
 
         void AddEventIcon(Vector2 statusIcons, ref int offset)
         {
-            if (Planet.BuildingList.Count == 0)
+            if (Planet.NumBuildings == 0)
                 return;
 
-            foreach (Building b in Planet.BuildingList)
+            foreach (Building b in Planet.Buildings)
             {
                 if (b.EventHere && (Planet.Owner == null || !Planet.Owner.IsBuildingUnlocked(b.Name)))
                 {
@@ -263,10 +263,10 @@ namespace Ship_Game
 
         void AddCommoditiesIcon(Vector2 statusIcons, ref int offset)
         {
-            if (Planet.BuildingList.Count == 0)
+            if (Planet.NumBuildings == 0)
                 return;
 
-            foreach (Building b in Planet.BuildingList)
+            foreach (Building b in Planet.Buildings)
             {
                 if (b.IsCommodity || b.IsVolcano || b.IsCrater)
                 {

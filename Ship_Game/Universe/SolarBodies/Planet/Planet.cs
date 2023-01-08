@@ -108,19 +108,10 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => Troops.NumTroopsHere(us);
         public int GetDefendingTroopCount()     => Troops.NumDefendingTroopCount;
 
-
         public bool Safe => !MightBeAWarZone(Owner) && !Quarantine;
 
         public int NumTroopsCanLaunchFor(Empire empire) => Troops.NumTroopsCanLaunchFor(empire);
 
-        public float GetDefendingTroopStrength()  => Troops.OwnerTroopStrength;
-
-        public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
-        {
-            float strength = Troops.GroundStrength(Owner); //.ClampMin(100);
-            return strength > 0 ? (int)Math.Ceiling(strength / bestTroopStrength.LowerBound(1)) : 0;
-
-        }
         public bool AnyOfOurTroops(Empire us)           => Troops.WeHaveTroopsHere(us);
         public int GetFreeTiles(Empire us)              => Troops.NumFreeTiles(us);
         public int GetEnemyAssets(Empire us)            => Troops.GetEnemyAssets(us);
@@ -131,7 +122,8 @@ namespace Ship_Game
         public bool MightBeAWarZone(Empire empire)      => Troops.MightBeAWarZone(empire);
         public bool ForeignTroopHere(Empire empire)     => Troops.ForeignTroopHere(empire);
         public bool NoGovernorAndNotTradeHub            => !Governor && CType != ColonyType.TradeHub;
-        public int SpecialCommodities                   => BuildingList.Count(b => b.IsCommodity);
+        public int SpecialCommodities                   => CountBuildings(b => b.IsCommodity);
+        public bool HasCommodities => HasBuilding(b => b.IsCommodity || b.IsVolcano || b.IsCrater);
         public bool Governor                            => CType != ColonyType.Colony;
         public bool IsCrippled                          => CrippledTurns > 0 || RecentCombat;
 
@@ -464,8 +456,8 @@ namespace Ship_Game
         {
             float value = 0;
             value += ColonyRawValue(empire);
-            value += BuildingList.Any(b => b.IsCapital) ? 100 : 0;
-            value += BuildingList.Sum(b => b.ActualCost) * 0.01f;
+            value += HasCapital ? 100 : 0;
+            value += SumBuildings(b => b.ActualCost) * 0.01f;
             value += PopulationBillion * 5;
 
             return value;
@@ -628,14 +620,10 @@ namespace Ship_Game
                 bool targetNear = false;
                 NoSpaceCombatTargetsFoundDelay -= timeStep.FixedTime;
 
-                for (int i = 0; i < BuildingList.Count; ++i)
+                foreach (Building b in Buildings)
                 {
-                    Building building = BuildingList[i];
-                    if (building != null)
-                    {
-                        bool targetFound = building.UpdateSpaceCombatActions(timeStep, this);
-                        targetNear |= targetFound;
-                    }
+                    bool targetFound = b.UpdateSpaceCombatActions(timeStep, this);
+                    targetNear |= targetFound;
                 }
 
                 SpaceCombatNearPlanet |= targetNear;
@@ -721,10 +709,9 @@ namespace Ship_Game
 
         public void LandDefenseShip(Ship ship)
         {
-            for (int i = 0; i < BuildingList.Count; ++i)
+            foreach (Building b in Buildings)
             {
-                Building building = BuildingList[i];
-                if (building.TryLandOnBuilding(ship))
+                if (b.TryLandOnBuilding(ship))
                     break; // Ship has landed
             }
 
@@ -786,7 +773,7 @@ namespace Ship_Game
 
             // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
             // environment buildings can be scrapped and the planet will slowly recover
-            AddBuildingsFertility(-b.MaxFertilityOnBuild);
+            BuildingsFertility -= b.MaxFertilityOnBuild;
             MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
 
             if (b.IsTerraformer && !TerraformingHere)
@@ -808,13 +795,14 @@ namespace Ship_Game
                 Owner.ForceUpdateSensorRadiuses = true;
         }
 
+        // TODO: actually remove Biospheres properly
         public void ClearBioSpheresFromList(PlanetGridSquare tile)
         {
             tile.Biosphere = false;
 
-            var biospheresList = BuildingList.Filter(b => b.IsBiospheres);
-            if (biospheresList.Length > 0)
-                BuildingList.Remove(biospheresList.First());
+            var biosphere = FindBuilding(b => b.IsBiospheres);
+            if (biosphere != null)
+                BuildingList.Remove(biosphere);
         }
 
         public bool InSafeDistanceFromRadiation()
@@ -918,9 +906,9 @@ namespace Ship_Game
                 return;
 
             int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-            PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease);
+            PopulationBonus       = SumBuildings(b => !b.IsBiospheres ? b.MaxPopIncrease : 0);
             MaxPopValFromTiles    = (BasePopPerTile * numHabitableTiles) 
-                                    + BuildingList.Count(b => b.IsBiospheres) * BasePopPerBioSphere;
+                                    + CountBuildings(b => b.IsBiospheres) * BasePopPerBioSphere;
 
             MaxPopValFromTiles = MaxPopValFromTiles.LowerBound(BasePopPerTile / 2);
             MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
@@ -968,9 +956,8 @@ namespace Ship_Game
             if (newLevel != Level) // need to update building offense
             {
                 Level = newLevel;
-                for (int i =0; i < BuildingList.Count; i++)
+                foreach (Building b in Buildings)
                 {
-                    Building b = BuildingList[i];
                     if (b.isWeapon)
                         b.UpdateOffense(this);
                 }
@@ -999,9 +986,8 @@ namespace Ship_Game
         void UpdateMilitaryBuildingMaintenance()
         {
             GroundDefMaintenance = 0;
-            for (int i = 0; i < BuildingList.Count; i++)
+            foreach (Building b in Buildings)
             {
-                Building b = BuildingList[i];
                 if (b.IsMilitary)
                     GroundDefMaintenance += b.ActualMaintenance(this);
             }
@@ -1068,11 +1054,6 @@ namespace Ship_Game
             BaseMaxFertility = (BaseMaxFertility + amount).LowerBound(0);
         }
 
-        public void AddBuildingsFertility(float amount)
-        {
-            BuildingsFertility += amount;
-        }
-
         // FB: to enable bombs to temp change fertility immediately by specified amount
         public void AddBaseFertility(float amount)
         {
@@ -1102,10 +1083,8 @@ namespace Ship_Game
             // NumShipyards is either calculated before or loaded from a save
             ShipCostModifier = GetShipCostModifier(NumShipyards);
 
-            for (int i = 0; i < BuildingList.Count; ++i)
+            foreach (Building b in Buildings)
             {
-                Building b = BuildingList[i];
-
                 totalStorage += b.StorageAdded;
                 RepairMultiplier += b.ShipRepair;
                 PlusFlatPopulationPerTurn += b.PlusFlatPopulation;
@@ -1226,9 +1205,8 @@ namespace Ship_Game
             if (Owner == null)
                 return;
 
-            for (int i = 0; i < BuildingList.Count; i++)
+            foreach (Building b in Buildings)
             {
-                Building b = BuildingList[i];
                 b.UpdateDefenseShipBuildingOffense(Owner, this);
             }
         }
@@ -1385,11 +1363,6 @@ namespace Ship_Game
                 WipeOutColony(Universe.Unknown);
         }
 
-        public void SetHasLimitedResourceBuilding(bool value)
-        {
-            HasLimitedResourceBuilding = value;
-        }
-
         // deplete limited resource caches
         void UpdateLimitedResourceCaches()
         {
@@ -1397,9 +1370,11 @@ namespace Ship_Game
                 return;
 
             bool foundCache = false;
-            for (int i = BuildingList.Count - 1; i >= 0; i--)
+
+            // grab a copy of buildings, because we're about to modify the list
+            Building[] buildings = Buildings.ToArray();
+            foreach (Building b in buildings)
             {
-                Building b = BuildingList[i];
                 if (b.FoodCache > 0f)
                 {
                     foundCache = true;
@@ -1429,7 +1404,7 @@ namespace Ship_Game
                 }
             }
 
-            SetHasLimitedResourceBuilding(foundCache);
+            HasLimitedResourceBuilding = foundCache;
         }
 
         private void ApplyResources()
@@ -1613,12 +1588,12 @@ namespace Ship_Game
             return lastEnemyTroop.Launch(forceLaunch: true) != null;
         }
 
-        public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);
-        public float BuildingGeodeticOffense => BuildingList.Sum(b => b.Offense);
-        public int BuildingGeodeticCount     => BuildingList.Count(b => b.Offense > 0);
+        public int TotalInvadeInjure         => SumBuildings(b => b.InvadeInjurePoints);
+        public float BuildingGeodeticOffense => SumBuildings(b => b.Offense);
+        public int BuildingGeodeticCount     => CountBuildings(b => b.Offense > 0);
         public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Sum(o => o.BaseStrength);
-        public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
-        public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
+        public int MaxDefenseShips           => SumBuildings(b => b.DefenseShipsCapacity);
+        public int CurrentDefenseShips       => SumBuildings(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
         public float HabitableBuiltCoverage  => 1 - (float)FreeHabitableTiles/TotalHabitableTiles;
 
@@ -1628,10 +1603,11 @@ namespace Ship_Game
         public int TotalMoneyBuildings   => TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);
 
         public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
-        public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer || b.IsEventTerraformer);
-        public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer || b.IsEventTerraformer);
-        public bool HasCapital       => BuildingList.Any(b => b.IsCapital);
-
+        public bool TerraformingHere => HasBuilding(b => b.IsTerraformer || b.IsEventTerraformer);
+        public int  TerraformersHere => CountBuildings(b => b.IsTerraformer || b.IsEventTerraformer);
+        public bool HasCapital => HasBuilding(b => b.IsCapital);
+        public bool HasOutpost => HasBuilding(b => b.IsOutpost);
+        public bool HasAnomaly => HasBuilding(b => b.EventHere);
 
         public void SetHasDynamicBuildings(bool value)
         {
@@ -1640,7 +1616,7 @@ namespace Ship_Game
 
         public void ResetHasDynamicBuildings()
         {
-            HasDynamicBuildings = BuildingList.Any(b => b.IsDynamicUpdate);
+            HasDynamicBuildings = HasBuilding(b => b.IsDynamicUpdate);
         }
 
         private void RepairBuildings(int repairAmount)
@@ -1648,11 +1624,10 @@ namespace Ship_Game
             if (RecentCombat)
                 return;
 
-            for (int i = 0; i < BuildingList.Count; ++i)
+            foreach (Building b in Buildings)
             {
                 if (CanRepairOrHeal())
                 {
-                    Building b = BuildingList[i];
                     Building t = ResourceManager.GetBuildingTemplate(b.BID);
                     b.CombatStrength = (b.CombatStrength + repairAmount).Clamped(0, t.CombatStrength);
                     b.Strength = (b.Strength + repairAmount).Clamped(0, t.Strength);

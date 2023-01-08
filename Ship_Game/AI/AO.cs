@@ -29,9 +29,9 @@ namespace Ship_Game.AI
         public void Update(float stardate)
         {
             if (stardate.LessOrEqual(stardate)) return;
-            if (BuildingCount != OwnerPlanet.BuildingList.Count)
+            if (BuildingCount != OwnerPlanet.NumBuildings)
             {
-                BuildingCount = OwnerPlanet.BuildingList.Count;
+                BuildingCount = OwnerPlanet.NumBuildings;
                 WarValue = OwnerPlanet.ColonyWarValueTo(DataOwner);
             }
         }
