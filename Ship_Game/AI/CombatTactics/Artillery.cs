@@ -19,13 +19,17 @@ namespace Ship_Game.AI.CombatTactics
 
         protected override void OverrideCombatValues(FixedSimTime timeStep)
         {
-            DistanceToTarget = Owner.Position.Distance(OwnerTarget.Position) + 0.5f * OwnerTarget.Radius;
+            Ship target = OwnerTarget;
+            if (target != null)
+                DistanceToTarget = Owner.Position.Distance(target.Position) + 0.5f * target.Radius;
         }
 
         // @note We don't cache min/max distance, because combat state and target can change most of the dynamics
         protected override CombatMoveState ExecuteAttack(FixedSimTime timeStep)
         {
-            Ship target = AI.Target;
+            Ship target = OwnerTarget;
+            if (target == null)
+                return CombatMoveState.Error;
             
             float maxDistance = Owner.DesiredCombatRange - ((int)Owner.Radius).RoundUpToMultipleOf(10);
             float minDistance = Math.Max(Owner.DesiredCombatRange - 500f, Owner.DesiredCombatRange * 0.9f);
