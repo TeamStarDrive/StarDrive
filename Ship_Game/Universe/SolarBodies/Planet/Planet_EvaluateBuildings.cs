@@ -201,7 +201,7 @@ namespace Ship_Game
 
         void CalcInfrastructurePriority()
         {
-            float infra = PopulationBillion / 2 - BuildingList.Sum(b => b.Infrastructure);
+            float infra = PopulationBillion / 2 - SumBuildings(b => b.Infrastructure);
             infra       = ApplyGovernorBonus(infra, 2f, 2.5f, 0.25f, 0.25f, 1.5f);
             Priorities[ColonyPriority.InfraStructure] = infra;
         }
@@ -314,7 +314,7 @@ namespace Ship_Game
             if (GovernorShouldNotScrapBuilding && !terraformerOverride)
                 return false;  // Player decided not to allow governors to scrap buildings and not terraform related
 
-            ChooseWorstBuilding(BuildingList, scrapZeroMaintenance, false, out Building toScrap);
+            ChooseWorstBuilding(scrapZeroMaintenance, false, out Building toScrap);
 
             if (toScrap == null)
                 return false;
@@ -330,7 +330,7 @@ namespace Ship_Game
                 return;
 
             // Replace works even if the governor is not scrapping buildings, unless they are player built
-            float worstBuildingScore = ChooseWorstBuilding(BuildingList, scrapZeroMaintenance: true, true, out Building worstBuilding);
+            float worstBuildingScore = ChooseWorstBuilding(scrapZeroMaintenance: true, true, out Building worstBuilding);
             if (worstBuilding == null)
                 return;
 
@@ -404,10 +404,10 @@ namespace Ship_Game
             return highestScore;
         }
 
-        float ChooseWorstBuilding(Array<Building> buildings, bool scrapZeroMaintenance, bool replacing, out Building worst)
+        float ChooseWorstBuilding(bool scrapZeroMaintenance, bool replacing, out Building worst)
         {
             worst = null;
-            if (buildings.Count == 0)
+            if (NumBuildings == 0)
                 return 0;
 
             if (IsPlanetExtraDebugTarget())
@@ -415,9 +415,9 @@ namespace Ship_Game
 
             float lowestScore  = float.MaxValue;
             float storageInUse = Storage.MostGoodsInStorage;
-            for (int i = 0; i < buildings.Count; i++)
+
+            foreach (Building b in Buildings)
             {
-                Building b = buildings[i];
                 if (!SuitableForScrap(b, storageInUse, scrapZeroMaintenance, replacing))
                     continue;
 
@@ -702,7 +702,7 @@ namespace Ship_Game
 
         void TryScrapBiospheres()
         {
-            if (OwnerIsPlayer && GovernorShouldNotScrapBuilding || !BuildingList.Any(b => b.IsBiospheres && !b.IsPlayerAdded))
+            if (OwnerIsPlayer && GovernorShouldNotScrapBuilding || !HasBuilding(b => b.IsBiospheres && !b.IsPlayerAdded))
                 return;
 
             var potentialBio = TilesList.Filter(t => t.Biosphere 
@@ -737,7 +737,7 @@ namespace Ship_Game
 
             if  (!BioSphereProfitable(bio))
             {
-                int numBio = BuildingList.Filter(b => b.IsBiospheres).Length;
+                int numBio = CountBuildings(b => b.IsBiospheres);
                 if (numBio > 5)
                     shouldScrapBioSpheres = true;
 
@@ -768,7 +768,7 @@ namespace Ship_Game
         bool OutpostOrCapitalBuiltOrInQueue(bool checkExisting = true)
         {
             // First check the existing buildings
-            if (checkExisting && BuildingList.Any(b => b.IsCapitalOrOutpost))
+            if (checkExisting && HasBuilding(b => b.IsCapitalOrOutpost))
                 return true;
 
             // Then check the queue
@@ -781,7 +781,7 @@ namespace Ship_Game
             if (Construction.Cancel(ResourceManager.CreateBuilding(this, Building.CapitalId)))
                 return true;
 
-            Building capital = BuildingList.Find(b => b.IsCapital);
+            Building capital = FindBuilding(b => b.IsCapital);
             if (capital != null)
             {
                 ScrapBuilding(capital);
@@ -793,11 +793,13 @@ namespace Ship_Game
 
         public void RemoveOutpost()
         {
-            Construction.Cancel(ResourceManager.CreateBuilding(this, Building.OutpostId));
-            Building outpost = BuildingList.Find(b => b.IsOutpost);
+            QueueItem underConstruction = ConstructionQueue.Find(q => q.isBuilding && q.Building.IsOutpost);
+            if (underConstruction != null)
+                Construction.Cancel(underConstruction);
+
+            Building outpost = FindBuilding(b => b.IsOutpost);
             if (outpost != null)
                 ScrapBuilding(outpost);
-
         }
 
         /// <summary>
@@ -874,10 +876,10 @@ namespace Ship_Game
                 case ColonyType.Industrial   when b.ProducesProduction:
                 case ColonyType.Research     when b.ProducesResearch:
                 case ColonyType.Military     when b.IsMilitary:  return 0;
-                case ColonyType.Core         when !b.IsMilitary: return BuildingList.Count * 0.01f;
+                case ColonyType.Core         when !b.IsMilitary: return NumBuildings * 0.01f;
             }
 
-            return BuildingList.Count * 0.1f;
+            return NumBuildings * 0.1f;
         }
 
         void PrioritizeCriticalProductionBuildings()

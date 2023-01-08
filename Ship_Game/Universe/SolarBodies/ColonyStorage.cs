@@ -121,7 +121,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void DistributeSpecialBuildingResources()
         {
-            foreach (Building b in Ground.BuildingList)
+            foreach (Building b in Ground.Buildings)
             {
                 if (b.ResourceCreated == null) continue;
                 if (b.ResourceConsumed != null)
@@ -139,7 +139,7 @@ namespace Ship_Game.Universe.SolarBodies
                 {
                     if (Ground.Storage.ContainsGood(b.CommodityRequired))
                     {
-                        foreach (Building other in Ground.BuildingList)
+                        foreach (Building other in Ground.Buildings)
                         {
                             if (other.IsCommodity && other.Name == b.CommodityRequired)
                             {

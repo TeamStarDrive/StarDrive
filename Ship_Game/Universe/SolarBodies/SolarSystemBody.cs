@@ -128,7 +128,6 @@ namespace Ship_Game
             if (!TargetTile.BuildingOnTile || TargetTile.Building.CannotBeBombed)
                 return;
 
-
             Building building = TargetTile.Building;
             int hitChance = 50 + shipLevel * 5;
             hitChance = (hitChance - building.Defense).Clamped(10, 95);
@@ -141,8 +140,7 @@ namespace Ship_Game
 
                 if (TargetTile.BuildingDestroyed)
                 {
-                    Surface.BuildingList.Remove(building);
-                    TargetTile.Building = null;
+                    Surface.DestroyBuilding(building);
                 }
             }
         }
@@ -219,7 +217,10 @@ namespace Ship_Game
         [StarData] public float BuildingsFertility { get; protected set; }  // Fertility change by all relevant buildings. Can be negative
         [StarData] public float MineralRichness;
 
-        [StarData] public Array<Building> BuildingList = new();
+        [StarData] protected Array<Building> BuildingList = new();
+        public int NumBuildings => BuildingList.Count;
+        public ReadOnlySpan<Building> Buildings => BuildingList.AsReadOnlySpan();
+
         [StarData] public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;        
         float PosUpdateTimer = 1f;
@@ -233,8 +234,7 @@ namespace Ship_Game
 
         public void PlayPlanetSfx(string sfx, Vector3 position)
         {
-            if (Emitter == null)
-                Emitter = new AudioEmitter();
+            Emitter ??= new AudioEmitter();
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
@@ -641,6 +641,31 @@ namespace Ship_Game
         public void TestSetOrbitalRadius(float value)
         {
             OrbitalRadius = value;
+        }
+
+        public Building FindBuilding(Predicate<Building> predicate)
+        {
+            return BuildingList.Find(predicate);
+        }
+
+        public bool HasBuilding(Predicate<Building> predicate)
+        {
+            return BuildingList.Any(predicate);
+        }
+
+        public int CountBuildings(Predicate<Building> predicate)
+        {
+            return BuildingList.Count(predicate);
+        }
+
+        public float SumBuildings(Func<Building, float> selector)
+        {
+            return BuildingList.Sum(selector);
+        }
+
+        public int SumBuildings(Func<Building, int> selector)
+        {
+            return BuildingList.Sum(selector);
         }
     }
 }

@@ -400,7 +400,7 @@ namespace Ship_Game
             {
                 SolarSystem system = planet.ParentSystem;
                 if (system.PlanetList.Any(p => p.Owner == Universe.Player
-                                               && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
+                                               && p.HasBuilding(b => b.DetectsRemnantFleet)))
                 {
                     string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
                     Universe.Notifications.AddIncomingRemnants(planet, message);

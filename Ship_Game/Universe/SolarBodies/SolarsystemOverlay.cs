@@ -107,24 +107,8 @@ namespace Ship_Game
 
                     if (p.IsExploredBy(player))
                     {
-                        int j = 0;
-
-                        while (j < p.BuildingList.Count)
-                        {
-                            Building building = p.BuildingList[j];
-                            
-                            if (building.EventHere)
-                            {
-                                hasAnamoly = true;
-                            }
-                            if (building.IsCommodity || building.IsVolcano || building.IsCrater)
-                            {
-                                hasCommodities = true;
-                            }
-                            if (hasCommodities && hasAnamoly)
-                                break;
-                            j++;
-                        }
+                        hasAnamoly = p.HasAnomaly;
+                        hasCommodities = p.HasCommodities;
 
                         if (p.OwnerIsPlayer)
                         {

@@ -562,7 +562,7 @@ namespace Ship_Game
 
             foreach (Planet planet in PlanetList)
             {
-                Building tile = planet.BuildingList.Find(t => t.IsCommodity);
+                Building tile = planet.FindBuilding(t => t.IsCommodity);
                 if (tile != null)
                     message.Append('\n').Append(tile.Name).Append(" on ").Append(planet.Name);
             }
@@ -601,16 +601,9 @@ namespace Ship_Game
             for (int i = 0; i < PlanetList.Count; i++)
             {
                 Planet planet = PlanetList[i];
-                if (planet.IsExploredBy(player))
-                {
-                    for (int j = 0; j < planet.BuildingList.Count; ++j)
-                    {
-                        if (planet.BuildingList[j].EventHere)
-                            return true;
-                    }
-                }
+                if (planet.IsExploredBy(player) && planet.HasAnomaly)
+                    return true;
             }
-
             return false;
         }
 
