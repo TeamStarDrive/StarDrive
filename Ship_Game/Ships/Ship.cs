@@ -1841,7 +1841,7 @@ namespace Ship_Game.Ships
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
         public override string ToString() =>
-            $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} {(Active?"Active":"DEAD")} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
+            $"Ship:{Id} {ShipData?.Role.ToString() ?? "disposed"} '{ShipName}' {Loyalty.data.ArchetypeName} {(Active?"Active":"DEAD")} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
 
         // TODO: this is duplicated
         public bool ShipIsGoodForGoals()

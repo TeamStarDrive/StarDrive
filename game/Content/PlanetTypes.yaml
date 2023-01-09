@@ -217,7 +217,7 @@ Types:
     MoonTypes: [Barren,Desert,Volcanic,Ice]
 
   - PlanetType: 
-    Id: 42 # Hestess
+    Id: 44 # Hestess
     Name: Volcanic_Hestess
     Category: Volcanic
     Composition: 1718

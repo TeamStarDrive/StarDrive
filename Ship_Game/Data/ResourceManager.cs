@@ -20,6 +20,7 @@ using Ship_Game.AI;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.Legacy;
 using Ship_Game.Universe;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -59,7 +60,7 @@ namespace Ship_Game
         public static Map<string, Good> GoodsDict = new();
         public static Map<string, Texture2D> ProjTextDict = new();
 
-        public static Array<RandomItem> RandomItemsList = new();
+        public static RandomItem[] RandomItemsList = Empty<RandomItem>.Array;
 
         public static Map<string, Artifact> ArtifactsDict = new();
         public static Map<string, ExplorationEvent> EventsDict = new();
@@ -170,8 +171,8 @@ namespace Ship_Game
             if (Verbose) Log.Write($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
         }
 
-        static readonly Array<KeyValuePair<string, double>> PerfProfile = new Array<KeyValuePair<string, double>>();
-        static readonly Stopwatch PerfStopwatch = new Stopwatch();
+        static readonly Array<KeyValuePair<string, double>> PerfProfile = new();
+        static readonly Stopwatch PerfStopwatch = new();
 
         static void BeginPerfProfile()
         {
@@ -185,7 +186,7 @@ namespace Ship_Game
                 var sw = Stopwatch.StartNew();
                 body();
                 double elapsed = sw.Elapsed.TotalSeconds;
-                PerfProfile.Add(new KeyValuePair<string, double>(uniqueName, elapsed));
+                PerfProfile.Add(new(uniqueName, elapsed));
             }
             else
             {
@@ -372,7 +373,7 @@ namespace Ship_Game
             GoodsDict.Clear();
             Encounters.Clear();
             EventsDict.Clear();
-            RandomItemsList.Clear();
+            RandomItemsList = Empty<RandomItem>.Array;
             WeaponsDict.Clear();
 
             ShipNames.Clear();
@@ -390,7 +391,7 @@ namespace Ship_Game
 
             RacialTraits = null;
             DiplomacyTraits = null;
-            AgentMissionData = new AgentMissionData();
+            AgentMissionData = new();
             EmpireHullBonuses.Clear();
 
             UnloadGraphicsResources(manager);
@@ -444,8 +445,8 @@ namespace Ship_Game
                 if (!info.Exists)
                     return null;
             }
-            using (Stream stream = info.OpenRead())
-                return (T)new XmlSerializer(typeof(T)).Deserialize(stream);
+            using Stream stream = info.OpenRead();
+            return (T)new XmlSerializer(typeof(T)).Deserialize(stream);
         }
 
         // The entity value is assigned only IF file exists and Deserialize succeeds
@@ -455,55 +456,79 @@ namespace Ship_Game
             if (result != null) entity = result;
         }
 
-        // This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
-        // @param recursive Find files recursively
-        // @param alwaysUnify Force file unification by filename, ignore extension restrictions
+        class UniqueFileSet
+        {
+            readonly string RootPath;
+            public readonly Map<string, FileInfo> Files = new(StringComparer.OrdinalIgnoreCase); // must be case insensitive!
+            public UniqueFileSet(string rootDirName, string subDir, string pattern, SearchOption search, bool byFileName)
+            {
+                RootPath = Path.GetFullPath(rootDirName);
+                FileInfo[] files = Dir.GetFiles(Path.Combine(RootPath, subDir), pattern, search);
+                foreach (FileInfo file in files) TryAddOrReplaceFile(file, byFileName);
+            }
+            // if `byFileName` is true, then always prefer the newer file: this ensures we discard any stale files
+            void TryAddOrReplaceFile(FileInfo file, bool byFileName)
+            {
+                string name = byFileName ? file.Name : file.FullName.Substring(RootPath.Length);
+                if (!byFileName || // if fullPath, then always set the value
+                    !Files.TryGetValue(name, out FileInfo existing)) // or if it doesn't exist already
+                {
+                    Files[name] = file;
+                }
+                else if (file.LastWriteTimeUtc > existing.LastWriteTimeUtc) // or if it exists, then file must be newer)
+                {
+                    Log.Warning($"Using newer source '{file.RelPath()}' instead of '{existing.RelPath()}'");
+                    Files[name] = file;
+                }
+                // else: file is older
+            }
+        }
+
+        /// <summary>
+        /// This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
+        /// It also performs basic duplicate elimination by file.Name, if `alwaysUnify` is set or if ext==xml|hull|design
+        /// </summary>
+        /// <param name="dir">Directory of the search</param>
+        /// <param name="ext">Extension of files to gather</param>
+        /// <param name="recursive">Find files recursively</param>
+        /// <param name="alwaysUnify">Force file unification by filename, ignore extension restrictions xml|hull|design</param>
+        /// <param name="modOnly"></param>
+        /// <returns></returns>
         public static FileInfo[] GatherFilesUnified(string dir, string ext,
-                                                    bool recursive = true, bool alwaysUnify = false)
+                                                    bool recursive = true,
+                                                    bool alwaysUnify = false,
+                                                    bool modOnly = false)
         {
             string pattern = "*." + ext;
             SearchOption search = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            if (!GlobalStats.HasMod)
-                return Dir.GetFiles("Content/" + dir, pattern, search);
 
-            var infos = new Map<string, FileInfo>();
-
-            // For XML files we allow subfolders such as Buildings/Colonization/Aeroponics.xml
-            // Which means the unification has to be done via `file.Name`
+            // For XML/hull/design files we allow subfolders such as Buildings/Colonization/Aeroponics.xml
+            // Which means the unification has to be done via `file.Name` such as: "Aeroponics.xml"
             // For other files such as XNB textures, we use the full path normalized to relative content path
             // such as: "Mods/MyMod/Textures/TechIcons/Aeroponics.xnb" --> "Textures/TechIcons/Aeroponics.xnb"
-            bool fileNames = alwaysUnify || ext == "xml" || ext == "hull" || ext == "design";
+            bool byFileName = alwaysUnify || ext is "xml" or "hull" or "design";
 
-            FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, pattern, search);
-            string vanillaPath = Path.GetFullPath("Content/");
-            foreach (FileInfo file in vanilla)
+            if (!GlobalStats.HasMod) // only gather vanilla files
             {
-                string name = fileNames ? file.Name : file.FullName.Substring(vanillaPath.Length);
-                infos[name] = file;
+                UniqueFileSet vanilla = new("Content/", dir, pattern, search, byFileName);
+                return vanilla.Files.Values.ToArr();
             }
-
-            // now pull everything from the mod folder and replace all matches
-            FileInfo[] mod = Dir.GetFiles(ModContentDirectory + dir, pattern, search);
-            string fullModPath = Path.GetFullPath(ModContentDirectory);
-            foreach (FileInfo file in mod)
+            else if (modOnly) // only mod files
             {
-                string name = fileNames ? file.Name : file.FullName.Substring(fullModPath.Length);
-                #if false
-                if (infos.TryGetValue(name, out FileInfo existing))
-                {
-                    string newName = ModContentDirectory + file.FullName.Substring(fullModPath.Length);
-                    string existingName = existing.FullName;
-                    if (existingName.StartsWith(fullModPath))
-                        existingName = ModContentDirectory + existingName.Substring(fullModPath.Length);
-                    else
-                        existingName = existingName.Substring(vanillaPath.Length);
-                    Log.Info($"ModReplace {existingName,64} -> {newName}");
-                }
-                #endif
-                infos[name] = file;
+                UniqueFileSet mod = new(ModContentDirectory, dir, pattern, search, byFileName);
+                return mod.Files.Values.ToArr();
             }
+            else // gather unified, where mod files overwrite vanilla files
+            {
+                UniqueFileSet vanilla = new("Content/", dir, pattern, search, byFileName);
+                UniqueFileSet mod = new(ModContentDirectory, dir, pattern, search, byFileName);
 
-            return infos.Values.ToArr();
+                // base files are always vanilla, and mod files overwrite any conflicting values
+                Map<string, FileInfo> uniqueFiles = vanilla.Files;
+                foreach (KeyValuePair<string, FileInfo> kv in mod.Files)
+                    uniqueFiles[kv.Key] = kv.Value;
+                return uniqueFiles.Values.ToArr();
+            }
         }
 
         // This tries to gather only mod files, or only vanilla files
@@ -523,65 +548,26 @@ namespace Ship_Game
                     Log.Write($"{name}: {file.FullName}");
             }
         }
+        
+        // Added by RedFox - Generic entity loading, less typing == more fun
+        static T LoadEntity<T>(XmlSerializer s, FileInfo info, string id) where T : class
+        {
+            GameLoadingScreen.SetStatus(id, info.RelPath());
+            using FileStream stream = info.OpenRead();
+            return (T)s.Deserialize(stream);
+        }
 
         // Loads a list of entities in a folder
-        public static Array<T> LoadEntitiesModOrVanilla<T>(string dir, string where) where T : class
-        {
-            var result = new Array<T>();
-            var files = GatherFilesModOrVanilla(dir, "xml");
-            DebugResourceLoading(where, files);
-            if (files.Length != 0)
-            {
-                var s = new XmlSerializer(typeof(T));
-                foreach (FileInfo info in files)
-                    if (LoadEntity(s, info, where, out T entity))
-                        result.Add(entity);
-            }
-            else Log.Error($"{where}: No files in '{dir}'");
-            return result;
-        }
-
-        // Added by RedFox - Generic entity loading, less typing == more fun
-        static bool LoadEntity<T>(XmlSerializer s, FileInfo info, string id, out T entity) where T : class
-        {
-            try
-            {
-                GameLoadingScreen.SetStatus(id, info.RelPath());
-                using (FileStream stream = info.OpenRead())
-                    entity = (T)s.Deserialize(stream);
-                return true;
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"Deserialize {id} failed");
-                entity = null;
-                return false;
-            }
-        }
-
-        static Array<T> LoadEntities<T>(FileInfo[] files, string id) where T : class
+        static T[] LoadEntities<T>(FileInfo[] files, string id) where T : class
         {
             DebugResourceLoading(id, files);
-            var list = new Array<T>();
-            list.Resize(files.Length);
             var s = new XmlSerializer(typeof(T));
-            Parallel.For(files.Length, (start, end) =>
-            {
-                for (int i = start; i < end; ++i)
-                    if (LoadEntity(s, files[i], id, out T entity))
-                        list[i] = entity; // no need to lock; `list` internal array is not modified
-            });
-            return list;
+            return Parallel.Select(files, file => LoadEntity<T>(s, file, id));
         }
 
-        static Array<T> LoadEntities<T>(string dir, string id) where T : class
+        static T[] LoadEntities<T>(string dir, string id, bool modOnly = false) where T : class
         {
-            return LoadEntities<T>(GatherFilesUnified(dir, "xml"), id);
-        }
-
-        static Array<T> LoadModEntities<T>(string dir, string id) where T : class
-        {
-            return LoadEntities<T>(Dir.GetFiles(ModContentDirectory + dir, "xml"), id);
+            return LoadEntities<T>(GatherFilesUnified(dir, "xml", modOnly: modOnly), id);
         }
 
         class InfoPair<T> where T : class
@@ -595,28 +581,80 @@ namespace Ship_Game
             }
         }
 
-        static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
+        // special `modOnly` flag to only retrieve mod files
+        static InfoPair<T>[] LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
         {
             var files = modOnly ? Dir.GetFiles(ModContentDirectory + dir, "xml") : GatherFilesUnified(dir, "xml");
             DebugResourceLoading(id, files);
-            var list = new Array<InfoPair<T>>();
-            list.Resize(files.Length);
             var s = new XmlSerializer(typeof(T));
-            Parallel.For(files.Length, (start, end) =>
+            return Parallel.Select(files, file => new InfoPair<T>(file, LoadEntity<T>(s, file, id)));
+        }
+        
+        class UIDEntityInfo<T> : InfoPair<T> where T : class
+        {
+            public readonly string UID;
+            public UIDEntityInfo(FileInfo info, T entity, string uid) : base(info, entity)
             {
-                for (int i = start; i < end; ++i)
-                {
-                    FileInfo info = files[i];
-                    if (LoadEntity(s, info, id, out T entity))
-                        list[i] = new InfoPair<T>(info, entity); // no need to lock; `list` internal array is not modified
-                }
-            });
-            return list;
+                UID = uid;
+            }
+            public void Deconstruct(out FileInfo file, out T entity, out string uid)
+            {
+                file = Info; entity = Entity; uid = UID;
+            }
         }
 
-        static readonly Map<string, Troop> TroopsDict = new Map<string, Troop>();
-        static readonly Array<Troop> TroopsList = new Array<Troop>();
-        static string[] TroopsDictKeys = new string[0];
+        /// <summary>
+        /// Removes any older duplicate entities by using the FileName as an Unique Identifier
+        /// </summary>
+        /// <param name="dir">Game directory where to search for items</param>
+        /// <param name="id">Debug ID of the LoadEntities</param>
+        /// <param name="getUid">Lambda expression for getting the default deserialized UID</param>
+        /// <param name="modOnly">If true, only files from ModPath will be loaded</param>
+        /// <param name="overwriteUid">if true, then UID will be overwritten by file UID</param>
+        static UIDEntityInfo<T>[] LoadUniqueEntitiesByFileUID<T>(
+            string dir, string id,
+            Func<T, string> getUid,
+            bool modOnly = false,
+            bool overwriteUid = true) where T : class
+        {
+            InfoPair<T>[] entities = LoadEntitiesWithInfo<T>(dir, id, modOnly:modOnly);
+            Map<string, UIDEntityInfo<T>> unique = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach ((FileInfo file, T entity) in entities)
+            {
+                string uid = string.Intern(getUid(entity));
+
+                // check if UID matches filename
+                string fileUid = string.Intern(file.NameNoExt());
+                if (uid != fileUid)
+                {
+                    string overwriting = overwriteUid ? $", overwriting with UID='{fileUid}'" : "";
+                    Log.Warning($"{id} UID='{uid}' mismatches FileName='{file.Name}' at {file.RelPath()}{overwriting}");
+
+                    if (overwriteUid) // forcefully fix the UID if allowed, this is a requirement for a lot of templates and prevents duplicate UID-s
+                        uid = fileUid;
+                }
+                
+                if (unique.TryGetValue(uid, out UIDEntityInfo<T> previous))
+                {
+                    Log.Warning($"{id} duplicate UID='{uid}'\n  first: '{previous.Info.RelPath()}'\n  second: '{file.RelPath()}'");
+                    // new file is older than previous file? then we discard it completely
+                    if (file.LastWriteTimeUtc < previous.Info.LastWriteTimeUtc)
+                    {
+                        Log.Warning($"{id} discarded old UID='{uid}' '{file}'");
+                        continue;
+                    }
+                }
+                
+                unique[uid] = new(file, entity, uid); // add new or replace existing older one
+            }
+
+            return unique.Values.ToArr();
+        }
+
+        static readonly Map<string, Troop> TroopsDict = new();
+        static readonly Array<Troop> TroopsList = new();
+        static string[] TroopsDictKeys = Empty<string>.Array;
 
         public static IReadOnlyList<string> TroopTypes => TroopsDictKeys;
 
@@ -805,7 +843,7 @@ namespace Ship_Game
             var allFiles = new Array<FileInfo>();
             foreach (string ext in extensions)
             {
-                allFiles.AddRange(GatherFilesUnified(dir, ext, recursive));
+                allFiles.AddRange(GatherFilesUnified(dir, ext, recursive: recursive));
             }
             return allFiles.ToArray();
         }
@@ -903,8 +941,10 @@ namespace Ship_Game
         public static SolarSystemData LoadSolarSystemData(string homeSystemName)
             => TryDeserialize<SolarSystemData>("SolarSystems/" + homeSystemName + ".xml");
 
-        public static Array<SolarSystemData> LoadRandomSolarSystems()
-            => LoadEntitiesModOrVanilla<SolarSystemData>("SolarSystems/Random", "LoadSolarSystems");
+        public static SolarSystemData[] LoadRandomSolarSystems()
+        {
+            return LoadEntities<SolarSystemData>(GatherFilesModOrVanilla("SolarSystems/Random", "xml"), "LoadSolarSystems");
+        }
 
         public static Texture2D LoadRandomLoadingScreen(GameContentManager content)
         {
@@ -950,16 +990,21 @@ namespace Ship_Game
 
         static void LoadBuildings() // Refactored by RedFox
         {
-            Array<Building> buildings = LoadEntities<Building>("Buildings", "LoadBuildings");
-            BuildingsById.Resize(buildings.Count + 1);
+            bool modOnly = GlobalStats.HasMod && !GlobalStats.Defaults.Mod.UseVanillaBuildings;
+
+            UIDEntityInfo<Building>[] buildings = LoadUniqueEntitiesByFileUID<Building>(
+                "Buildings", "LoadBuildings", b => b.Name, modOnly:modOnly, overwriteUid:false
+            );
+
+            BuildingsById.Resize(buildings.Length + 1);
 
             int buildingId = 0;
-            foreach (Building b in buildings)
+            foreach ((FileInfo _, Building b, string uid) in buildings)
             {
                 b.AssignBuildingId(++buildingId);
                 BuildingsById[b.BID] = b;
-                BuildingsDict[string.Intern(b.Name)] = b;
-                switch (b.Name)
+                BuildingsDict[uid] = b;
+                switch (uid)
                 {
                     case "Capital City":      Building.CapitalId          = b.BID; break;
                     case "Outpost":           Building.OutpostId          = b.BID; break;
@@ -1044,11 +1089,11 @@ namespace Ship_Game
             Empires.Clear();
             MajorEmpires.Clear();
             MinorEmpires.Clear();
+            
+            bool modOnly = GlobalStats.HasMod
+                && (GlobalStats.Defaults.Mod.DisableDefaultRaces || !GlobalStats.Defaults.Mod.UseVanillaRaces);
 
-            if (GlobalStats.HasMod && GlobalStats.Defaults.Mod.DisableDefaultRaces)
-                Empires.AddRange(LoadModEntities<EmpireData>("Races", "LoadEmpires"));
-            else
-                Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires"));
+            Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires", modOnly: modOnly));
 
             // Humans should always be first,
             // The rest should be sorted by the first initial
@@ -1395,30 +1440,34 @@ namespace Ship_Game
 
         static void LoadShipModules()
         {
-            // 95% spent loading these XML files:
-            var entities = LoadEntitiesWithInfo<ShipModule_XMLTemplate>("ShipModules", "LoadShipModules");
+            bool modOnly = GlobalStats.HasMod && !GlobalStats.Defaults.Mod.UseVanillaModules;
 
-            foreach (var pair in entities)
+            UIDEntityInfo<ShipModule_XMLTemplate>[] modules = LoadUniqueEntitiesByFileUID<ShipModule_XMLTemplate>(
+                "ShipModules", "LoadShipModules", m => m.UID, modOnly: modOnly
+            );
+
+            foreach ((FileInfo file, ShipModule_XMLTemplate data, string uid) in modules)
             {
                 // Added by gremlin support tech level disabled folder.
-                if (pair.Info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
+                if (file.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
                     continue;
 
-                ShipModule_XMLTemplate data = pair.Entity;
-                data.UID = string.Intern(pair.Info.NameNoExt());
+                data.UID = uid;
                 data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
-                    data.WeaponType = string.Intern(data.WeaponType);
-
-                if (GlobalStats.VerboseLogging)
                 {
-                    if (ModuleTemplates.ContainsKey(data.UID))
-                        Log.Info($"ShipModule UID already found. Conflicting name:  {data.UID}");
-                    if (!Localizer.Contains(data.NameIndex))
-                        Log.Warning($"{data.UID} missing NameIndex: {data.NameIndex}");
+                    data.WeaponType = string.Intern(data.WeaponType);
+                    if (!WeaponsDict.ContainsKey(data.WeaponType))
+                        Log.Warning($"ShipModule UID='{uid}' missing WeaponType='{data.WeaponType}'");
                 }
-                if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSize * data.YSize * 1.25f );
-                if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
+
+                if (!Localizer.Contains(data.NameIndex))
+                    Log.Warning($"ShipModule UID='{uid}' missing NameIndex: {data.NameIndex}");
+                if (!Localizer.Contains(data.DescriptionIndex))
+                    Log.Warning($"ShipModule UID='{uid}' missing DescriptionIndex: {data.DescriptionIndex}");
+
+                if (data.IsCommandModule && data.TargetTracking == 0) data.TargetTracking = (sbyte) (int)(data.XSize * data.YSize * 1.25f );
+                if (data.IsCommandModule && data.TargetAccuracy == 0) data.TargetAccuracy = data.TargetTracking;
 
                 // disable Rotation change for 2x2, 3x3, 4x4, ... modules
                 // but not for 1x1 weapons
@@ -1427,7 +1476,7 @@ namespace Ship_Game
                     data.DisableRotation = true;
 
                 ShipModule template = ShipModule.CreateTemplate(data);
-                ModuleTemplates[template.UID] = template;
+                ModuleTemplates[uid] = template;
             }
         }
 
@@ -1816,32 +1865,17 @@ namespace Ship_Game
         {
             TechTree.Clear();
 
-            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.Defaults.Mod.ClearVanillaTechs;
-            Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
+            bool modOnly = GlobalStats.HasMod
+                && (GlobalStats.Defaults.Mod.ClearVanillaTechs || !GlobalStats.Defaults.Mod.UseVanillaTechs);
 
-            var duplicateTech = new Map<string, Technology>();
+            UIDEntityInfo<Technology>[] techs = LoadUniqueEntitiesByFileUID<Technology>(
+                "Technology", "LoadTechTree", tech => tech.UID, modOnly: modOnly
+            );
 
-            foreach (InfoPair<Technology> pair in techs)
+            foreach ((FileInfo file, Technology tech, string uid) in techs)
             {
-                Technology tech = pair.Entity;
-                tech.DebugSourceFile = pair.Info.RelPath();
-
-                // tech XML-s have their own UID-s but unfortunately there are many mismatches in data files
-                // so we only use the XML UID to detect potential duplications
-                string xmlUid = string.Intern(tech.UID);
-
-                if (duplicateTech.TryGetValue(xmlUid, out Technology previous))
-                    Log.Warning($"Possibly duplicate tech '{xmlUid}' !\n  first: {previous.DebugSourceFile}\n  second: {tech.DebugSourceFile}");
-                else
-                    duplicateTech.Add(xmlUid, tech);
-
-                // CA relies on tech XML filenames for the tech UID
-                string fileUid = string.Intern(pair.Info.NameNoExt());
-                if (fileUid != xmlUid)
-                    Log.Warning($"Technology UID='{xmlUid}' mismatches FileName='{pair.Info.Name}' at {pair.Info.RelPath()}");
-
-                tech.UID = fileUid;
-                TechTree[tech.UID] = tech;
+                tech.DebugSourceFile = file.RelPath();
+                TechTree[uid] = tech;
 
                 // categorize extra techs
                 tech.UpdateTechnologyTypesFromUnlocks();
@@ -1850,7 +1884,7 @@ namespace Ship_Game
             TechValidator();
         }
 
-        static readonly Map<string, IWeaponTemplate> WeaponsDict = new Map<string, IWeaponTemplate>();
+        static readonly Map<string, IWeaponTemplate> WeaponsDict = new();
 
         // Creates a weapon used by Planets or Special space objects
         // There is no Ship Owner or ShipModule
@@ -1886,14 +1920,22 @@ namespace Ship_Game
         static void LoadWeapons() // Refactored by RedFox
         {
             WeaponsDict.Clear();
-            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.Defaults.Mod.ClearVanillaWeapons;
-            foreach (var pair in LoadEntitiesWithInfo<WeaponTemplate>("Weapons", "LoadWeapons", modTechsOnly))
+
+            bool modOnly = GlobalStats.HasMod
+                && (GlobalStats.Defaults.Mod.ClearVanillaWeapons || !GlobalStats.Defaults.Mod.UseVanillaWeapons);
+
+            UIDEntityInfo<WeaponTemplate>[] weapons = LoadUniqueEntitiesByFileUID<WeaponTemplate>(
+                "Weapons", "LoadWeapons", w => w.UID, modOnly: modOnly
+            );
+
+            foreach ((FileInfo file, WeaponTemplate w, string uid) in weapons)
             {
-                WeaponTemplate w = pair.Entity;
-                w.UID = string.Intern(pair.Info.NameNoExt());
-                WeaponsDict[w.UID] = w;
+                w.DebugSourceFile = file.RelPath();
+                w.UID = uid;
+                WeaponsDict[uid] = w;
             }
 
+            // some weapons have sub-weapons, which requires two-step initialization
             foreach (WeaponTemplate w in WeaponsDict.Values)
             {
                 w.InitializeTemplate();

@@ -70,6 +70,7 @@ namespace Ship_Game.AI
                 Drone.GuidedMoveTowards(timeStep, DroneTarget?.Position ?? orbitalPos, 0f);
         }
 
+        // TODO: concurrency issue here, 
         public void Think(FixedSimTime timeStep)
         {
             DroneWeapon.CooldownTimer -= timeStep.FixedTime;
@@ -86,8 +87,10 @@ namespace Ship_Game.AI
             {
                 // We want to immediately kill the beam, since there is a possibility it is infinite.
                 // very strange implementation for drone repair logic
-                if (Beam?.Active == true)
-                    Beam.Die(null, false); 
+                if (Beam is { Active: true } beam)
+                {
+                    beam.Die(null, false); 
+                }
             }
             else
             {

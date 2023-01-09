@@ -18,7 +18,7 @@
   
   <ExcludesFighters>true</ExcludesFighters>  
 
-  <UID>DualPhotonCannon4x4</UID>
+  <UID>MassivePhotonCannon</UID>
   <FireDelay>4</FireDelay>
   <Range>7200</Range>
   <PowerRequiredToFire>2390</PowerRequiredToFire>
