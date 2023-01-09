@@ -935,6 +935,7 @@ namespace Ship_Game
 
         void CommonInitialize()
         {
+            CreateEmpireTechTree(); // update or init the tech tree
             KnownEmpires.Set(Id); // we know ourselves
             InitDifficultyModifiers();
             InitPersonalityModifiers();
@@ -950,7 +951,6 @@ namespace Ship_Game
         // initializes an empire
         public void Initialize()
         {
-            CreateEmpireTechTree(); // first-time init of the entire tech tree
             CommonInitialize();
 
             data.TechDelayTime = 0;
@@ -1004,29 +1004,32 @@ namespace Ship_Game
 
         void CreateEmpireTechTree()
         {
-            if (TechnologyDict.Count > 0) // only if it's not already initialized
-                return;
-
             foreach (Technology tech in ResourceManager.TechsList)
             {
-                var entry = new TechEntry(tech.UID, Universe, this);
-                if (entry.IsHidden(this))
+                // double check ALL technologies, if one is missing because it's a
+                // new tech probably added in a patch, it needs to be inserted and rediscovered
+                // TODO: should we remove technologies which no longer exist?
+                if (!TechnologyDict.ContainsKey(tech.UID))
                 {
-                    entry.SetDiscovered(false);
-                }
-                else
-                {
-                    bool secret = tech.Secret || (tech.ComesFrom.Count == 0 && !tech.IsRootNode);
-                    if (tech.IsRootNode && !secret)
-                        entry.ForceFullyResearched();
+                    var entry = new TechEntry(tech.UID, Universe, this);
+                    if (entry.IsHidden(this))
+                    {
+                        entry.SetDiscovered(false);
+                    }
                     else
-                        entry.ForceNeedsFullResearch();
-                    entry.SetDiscovered(!secret);
-                }
+                    {
+                        bool secret = tech.Secret || (tech.ComesFrom.Count == 0 && !tech.IsRootNode);
+                        if (tech.IsRootNode && !secret)
+                            entry.ForceFullyResearched();
+                        else
+                            entry.ForceNeedsFullResearch();
+                        entry.SetDiscovered(!secret);
+                    }
 
-                if (IsFaction || data.Traits.Prewarp == 1)
-                    entry.ForceNeedsFullResearch();
-                TechnologyDict.Add(tech.UID, entry);
+                    if (IsFaction || data.Traits.Prewarp == 1)
+                        entry.ForceNeedsFullResearch();
+                    TechnologyDict.Add(tech.UID, entry);
+                }
             }
         }
 
