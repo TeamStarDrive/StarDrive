@@ -50,7 +50,14 @@ namespace Ship_Game.Universe.SolarBodies
             PlanetTypeMap = new(Types.Length);
             foreach (PlanetType type in Types)
             {
-                PlanetTypeMap[type.Id] = type;
+                if (!PlanetTypeMap.TryGetValue(type.Id, out PlanetType existing))
+                {
+                    PlanetTypeMap[type.Id] = type;
+                }
+                else
+                {
+                    Log.Error($"Duplicate PlanetType.Id={type.Id}. Ignoring New.\n  Old={existing}\n  New={type}");
+                }
             }
 
             PlanetTypesByCategory = new();
