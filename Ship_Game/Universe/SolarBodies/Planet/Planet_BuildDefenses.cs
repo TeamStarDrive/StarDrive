@@ -439,10 +439,8 @@ namespace Ship_Game
         
         void TryScrapMilitaryBuilding()
         {
-            Building weakest = BuildingList.FindMinFiltered(b => b.IsMilitary 
-                                                                 && b.Scrappable 
-                                                                 && !b.IsPlayerAdded, b => b.CostEffectiveness);
-
+            Building weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !b.IsPlayerAdded,
+                                                            b => b.CostEffectiveness);
             if (weakest != null)
                 ScrapBuilding(weakest);
         }

@@ -157,7 +157,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         bool OnBuildingComplete(QueueItem q)
         {
-            // we can't place it... there's some sort of bug
+            // we can't place it...
             if (q.Building.Unique && P.BuildingBuilt(q.Building.BID))
             {
                 Log.Warning($"Unique building {q.Building} already exists on planet {P}");
