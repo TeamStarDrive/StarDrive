@@ -3,7 +3,7 @@
 
   <Tag_Beam>true</Tag_Beam>
   
-  <UID>Beam2x1</UID>
+  <UID>Beam1x2</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>4</FireDelay>
   <Range>2100</Range>
