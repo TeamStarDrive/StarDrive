@@ -467,7 +467,7 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(GameText.OpenTheGroundAssaultView);
             }
-            if (P.Habitable)
+            if (P.Habitable || P.Universe.Debug)
             {
                 if (Inspect.HandleInput(input))
                 {

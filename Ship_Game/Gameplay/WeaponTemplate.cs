@@ -15,6 +15,8 @@ namespace Ship_Game.Gameplay
         // This is the WeaponTemplate UID string
         public string UID { get; set; }
 
+        public string DebugSourceFile;
+
         public override string ToString() => $"WeaponTemplate Type={WeaponType} UID={UID} Name={Name}";
 
         // Active Tag Bits for this WeaponTemplate
@@ -179,6 +181,7 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore]
         public bool IsMirv => MirvWeapon.NotEmpty();
+
         public void InitializeTemplate()
         {
             ActiveWeaponTags = TagValues.Filter(tag => (TagBits & tag) != 0);

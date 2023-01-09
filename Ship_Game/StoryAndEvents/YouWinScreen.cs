@@ -116,7 +116,7 @@ namespace Ship_Game
 
         void PlayWinTheme()
         {
-            if (ScreenManager.Music.IsStopped)
+            if (ScreenManager.Music.IsStopped && !GameAudio.IsMusicDisabled)
             {
                 Log.Write("Play Win Theme");
                 ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");

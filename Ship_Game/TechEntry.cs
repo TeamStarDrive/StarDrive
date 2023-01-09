@@ -121,7 +121,16 @@ namespace Ship_Game
 
         public void ResolveTech()
         {
-            Tech = UID.NotEmpty() ? ResourceManager.Tech(UID) : Technology.Dummy;
+            if (UID.NotEmpty())
+            {
+                if (ResourceManager.TryGetTech(UID, out Technology tech))
+                    Tech = tech;
+                else
+                    Log.Warning($"Failed to resolve Technology UID={UID}");
+            }
+
+            // always fall back to a Dummy Technology
+            Tech ??= Technology.Dummy;
         }
 
         /// <summary>
