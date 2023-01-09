@@ -266,9 +266,9 @@ namespace Ship_Game
 
             switch (Story)
             {
-                case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePop(empiresList); break;
-                case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);         break;
-                case RemnantStory.AncientRaidersRandom: target = empiresList.RandItem();                 break;
+                case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList); break;
+                case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);               break;
+                case RemnantStory.AncientRaidersRandom: target = empiresList.RandItem();                       break;
             }
 
             return target != null;
@@ -286,15 +286,28 @@ namespace Ship_Game
             return expectedTarget == currentTarget;
         }
 
-        Empire FindStrongestByAveragePop(Empire[] empiresList)
+        Empire FindStrongestByAveragePopAndStr(Empire[] empiresList)
         {
             if (empiresList.Length == 1)
                 return empiresList.First();
 
             var averagePop    = empiresList.Average(e => e.TotalPopBillion);
-            Empire bestEmpire = empiresList.FindMax(e => e.TotalPopBillion);
+            var averageStr    = empiresList.Average(e => e.CurrentMilitaryStrength);
+            Empire bestEmpire = null;
+            float ratioOverAverage = 0;
+            foreach (Empire empire in empiresList)
+            {
+                float ratio = (empire.TotalPopBillion / averagePop +
+                               empire.CurrentMilitaryStrength / averageStr) * 0.5f;
+                if (ratio > ratioOverAverage)
+                {
+                    ratioOverAverage = ratio;
+                    bestEmpire = empire;
+                }
+            }
 
-            return bestEmpire.TotalPopBillion > averagePop * 1.25f ? bestEmpire : null;
+
+            return bestEmpire != null && ratioOverAverage > 1.25f ? bestEmpire : null;
         }
 
         Empire FindWeakestEmpire(Empire[] empiresList)
@@ -400,7 +413,7 @@ namespace Ship_Game
             {
                 SolarSystem system = planet.ParentSystem;
                 if (system.PlanetList.Any(p => p.Owner == Universe.Player
-                                               && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
+                                               && p.HasBuilding(b => b.DetectsRemnantFleet)))
                 {
                     string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
                     Universe.Notifications.AddIncomingRemnants(planet, message);

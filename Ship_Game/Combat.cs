@@ -104,11 +104,10 @@ namespace Ship_Game
             {
                 DefendingBuilding.Strength -= damage;
                 DefendingBuilding.CombatStrength -= damage;
-                if (DefendingBuilding.Strength > 0)
-                    return; // Building still stands
-
-                Planet.BuildingList.Remove(DefendingBuilding);
-                DefenseTile.Building = null; // make pgs building private in the future
+                if (DefendingBuilding.Strength <= 0) // building destroyed?
+                {
+                    Planet.DestroyBuilding(DefendingBuilding);
+                }
             }
         }
 

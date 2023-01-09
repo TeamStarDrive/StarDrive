@@ -96,7 +96,7 @@ namespace Ship_Game
             if (collectMemory)
                 HelperFunctions.CollectMemory();
 
-            Log.ConfigureLatestSaveAttachment(saveFile.FullName);
+            Log.ConfigureStatsReporter(saveFile.FullName);
         }
 
         public static UniverseState Deserialize(FileInfo saveFile, bool verbose)

@@ -1248,12 +1248,8 @@ namespace Ship_Game.Fleets
 
         void DoDefendVsRemnant(MilitaryTask task)
         {
-            bool fleetIsBeingAssembled = Owner.AI.HasGoal(g => g is FleetGoal fg && fg.Fleet == this);
-
-            // should we abort the fight against remnants taskforce?
-            bool shouldAbortTheFight = !CanTakeThisFight(task.EnemyStrength, task) || fleetIsBeingAssembled;
-
-            if (EndInvalidTask(shouldAbortTheFight))
+            // Should we abort the fight against remnants taskforce?
+            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task)))
             {
                 ClearOrders();
                 return;
@@ -1269,7 +1265,7 @@ namespace Ship_Game.Fleets
                     if (!ArrivedAtCombatRally(task.AO, radiusMultiplier: 0.5f))
                         break;
 
-                    TaskStep = 2; // Defend till death (or until the DefenseVsRemnant goal redirects us)!
+                    TaskStep = 2; // Defend till death (or until the DefenseVsRemnant goal redirects or cancels us)!
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
             }

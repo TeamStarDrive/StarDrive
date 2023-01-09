@@ -348,7 +348,7 @@ namespace Ship_Game
         public bool GetCurrentCapital(out Planet capital)
         {
             capital      = null;
-            var capitals = OwnedPlanets.Filter(p => p.BuildingList.Any(b => b.IsCapital));
+            var capitals = OwnedPlanets.Filter(p => p.HasCapital);
             if (capitals.Length > 0)
                 capital = capitals.First();
 
@@ -2370,10 +2370,9 @@ namespace Ship_Game
                                 }
                             }
 
-                            if (planet.BuildingList.NotEmpty && RandomMath.Roll3DiceAvg(chance * 50))
+                            if (planet.NumBuildings > 0 && RandomMath.Roll3DiceAvg(chance * 50))
                             {
-                                var building = RandomMath.RandItem(planet.BuildingList
-                                                                   .Filter(b=> !b.IsBiospheres));
+                                var building = planet.FindBuilding(b => !b.IsBiospheres);
                                 if (building != null)
                                     planet.ScrapBuilding(building);
                             }
@@ -2555,7 +2554,7 @@ namespace Ship_Game
             {
                 Planet p = OwnedPlanets[i];
                 ExpansionScore  += p.Fertility*10 + p.MineralRichness*10 + p.PopulationBillion;
-                IndustrialScore += p.BuildingList.Sum(b => b.ActualCost);
+                IndustrialScore += p.SumBuildings(b => b.ActualCost);
             }
             IndustrialScore /= 20;
 

@@ -76,11 +76,18 @@ namespace Ship_Game
         public void AddSubItem(ScrollListItemBase entry)
         {
             if (!IsHeader)
+            {
                 Log.Error($"SubItems can only be added if {TypeName}.IsHeader = true");
+                return;
+            }
+            if (List == null)
+            {
+                Log.Error("AddSubItem cannot be called when List == null");
+                return;
+            }
 
             entry.List = List;
-            if (SubEntries == null)
-                SubEntries = new Array<ScrollListItemBase>();
+            SubEntries ??= new();
             SubEntries.Add(entry);
             if (Expanded)
                 List.RequiresLayout = true;

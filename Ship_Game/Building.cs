@@ -399,42 +399,6 @@ namespace Ship_Game
             return where != null;
         }
 
-        // Event when a building is built at planet p
-        public void OnBuildingBuiltAt(Planet p, PlanetGridSquare tile)
-        {
-            if (!p.BuildingList.AddUniqueRef(this))
-            {
-                Log.Error("Building already exists");
-                return;
-            }
-
-            p.AddBuildingsFertility(MaxFertilityOnBuild);
-            p.MineralRichness += IncreaseRichness.LowerBound(0); // This must be positive. since richness cannot go below 0.
-
-            p.HasSpacePort |= IsSpacePort || AllowShipBuilding;
-
-            if (ProdCache.Greater(0) && PlusProdPerColonist.Greater(0))
-                p.SetHasLimitedResourceBuilding(true);
-
-            if (FoodCache.Greater(0) && PlusFlatFoodAmount.Greater(0))
-                p.SetHasLimitedResourceBuilding(true);
-
-            if (EventOnBuild != null && p.OwnerIsPlayer)
-            {
-                UniverseScreen u = p.Universe.Screen;
-                ExplorationEvent e = ResourceManager.Event(EventOnBuild);
-                u.ScreenManager.AddScreen(new EventPopup(u, u.Player, e, e.PotentialOutcomes[0], true, p));
-            }
-
-            if (IsCapital)
-                p.RemoveOutpost();
-
-            if (SensorRange > 0)
-                p.OnSensorBuildingChange();
-            
-            UpdateOffense(p);
-        }
-
         public void CalcMilitaryStrength(Planet p)
         {
             float score = 0;

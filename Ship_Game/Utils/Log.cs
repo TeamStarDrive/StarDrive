@@ -166,7 +166,7 @@ namespace Ship_Game
                 {
                     Log.Error($"Sentry init failed: {e.Message}");
                 }
-                ConfigureLatestSaveAttachment(null);
+                ConfigureStatsReporter(null);
             }
         }
 
@@ -399,9 +399,10 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Configures sentry to use the latest Autosave as an attachment
+        /// Configures sentry stats reporter
         /// </summary>
-        public static void ConfigureLatestSaveAttachment(string autoSavePath)
+        /// <param name="autoSavePath">If `IncludeSaveGameInReports` == true, then this autosave will be attached to the report</param>
+        public static void ConfigureStatsReporter(string autoSavePath = null)
         {
             if (!IsStatsReportEnabled)
                 return;
@@ -414,7 +415,13 @@ namespace Ship_Game
                 }
                 scope.ClearAttachments();
                 scope.AddAttachment(LogFilePath);
-                if (IncludeSaveGameInReports && autoSavePath.NotEmpty())
+                
+                if (GlobalStats.HasMod)
+                {
+                    scope.SetTag("Mod", GlobalStats.ModName);
+                    scope.SetTag("ModVersion", GlobalStats.ModVersion);
+                }
+                if (IncludeSaveGameInReports && !string.IsNullOrEmpty(autoSavePath))
                 {
                     scope.AddAttachment(autoSavePath);
                 }

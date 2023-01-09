@@ -1219,17 +1219,15 @@ namespace Ship_Game
                             }
                         }
                     }
-                    for (int i = 0; i < planet.BuildingList.Count; i++)
+
+                    Building evtBuilding = planet.FindBuilding(b => b.EventHere);
+                    if (evtBuilding != null)
                     {
-                        Building building = planet.BuildingList[i];
-                        if (building.EventHere)
-                        {
-                            posOffSet.X += (18 * drawLocationOffset);
-                            DrawTextureWithToolTip(icon_anomaly_small, Color.White, building.DescriptionText, mousePos,
-                                                   (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
-                            break;
-                        }
+                        posOffSet.X += (18 * drawLocationOffset);
+                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, evtBuilding.DescriptionText, mousePos,
+                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                     }
+
                     int troopCount = planet.CountEmpireTroops(Player);
                     if (troopCount > 0)
                     {
