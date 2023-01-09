@@ -990,7 +990,8 @@ namespace Ship_Game
 
         static void LoadBuildings() // Refactored by RedFox
         {
-            bool modOnly = false;
+            bool modOnly = GlobalStats.HasMod && !GlobalStats.Defaults.Mod.UseVanillaBuildings;
+
             UIDEntityInfo<Building>[] buildings = LoadUniqueEntitiesByFileUID<Building>(
                 "Buildings", "LoadBuildings", b => b.Name, modOnly:modOnly, overwriteUid:false
             );
@@ -1089,7 +1090,9 @@ namespace Ship_Game
             MajorEmpires.Clear();
             MinorEmpires.Clear();
             
-            bool modOnly = GlobalStats.HasMod && GlobalStats.Defaults.Mod.DisableDefaultRaces;
+            bool modOnly = GlobalStats.HasMod
+                && (GlobalStats.Defaults.Mod.DisableDefaultRaces || !GlobalStats.Defaults.Mod.UseVanillaRaces);
+
             Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires", modOnly: modOnly));
 
             // Humans should always be first,
@@ -1437,7 +1440,8 @@ namespace Ship_Game
 
         static void LoadShipModules()
         {
-            bool modOnly = false;
+            bool modOnly = GlobalStats.HasMod && !GlobalStats.Defaults.Mod.UseVanillaModules;
+
             UIDEntityInfo<ShipModule_XMLTemplate>[] modules = LoadUniqueEntitiesByFileUID<ShipModule_XMLTemplate>(
                 "ShipModules", "LoadShipModules", m => m.UID, modOnly: modOnly
             );
@@ -1861,7 +1865,8 @@ namespace Ship_Game
         {
             TechTree.Clear();
 
-            bool modOnly = GlobalStats.HasMod && GlobalStats.Defaults.Mod.ClearVanillaTechs;
+            bool modOnly = GlobalStats.HasMod
+                && (GlobalStats.Defaults.Mod.ClearVanillaTechs || !GlobalStats.Defaults.Mod.UseVanillaTechs);
 
             UIDEntityInfo<Technology>[] techs = LoadUniqueEntitiesByFileUID<Technology>(
                 "Technology", "LoadTechTree", tech => tech.UID, modOnly: modOnly
@@ -1915,7 +1920,9 @@ namespace Ship_Game
         static void LoadWeapons() // Refactored by RedFox
         {
             WeaponsDict.Clear();
-            bool modOnly = GlobalStats.HasMod && GlobalStats.Defaults.Mod.ClearVanillaWeapons;
+
+            bool modOnly = GlobalStats.HasMod
+                && (GlobalStats.Defaults.Mod.ClearVanillaWeapons || !GlobalStats.Defaults.Mod.UseVanillaWeapons);
 
             UIDEntityInfo<WeaponTemplate>[] weapons = LoadUniqueEntitiesByFileUID<WeaponTemplate>(
                 "Weapons", "LoadWeapons", w => w.UID, modOnly: modOnly
