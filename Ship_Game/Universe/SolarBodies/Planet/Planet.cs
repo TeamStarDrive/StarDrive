@@ -729,7 +729,7 @@ namespace Ship_Game
                 DestroyBuildingOn(tile);
 
             tile.Habitable = false;
-            if (tile.QItem != null && tile.QItem.isBuilding && !tile.QItem.Building.CanBuildAnywhere)
+            if (tile.QItem is { isBuilding: true } && !tile.QItem.Building.CanBuildAnywhere)
                 Construction.Cancel(tile.QItem);
 
             if (tile.Biosphere)
@@ -758,7 +758,7 @@ namespace Ship_Game
             
             tile ??= TilesList.Find(t => t.Building == b);
             if (tile != null)
-                tile.Building = null;
+                tile.ClearBuilding();
             else
                 Log.Error("Failed to find tile with building");
 

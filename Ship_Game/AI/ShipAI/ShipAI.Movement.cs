@@ -306,6 +306,12 @@ namespace Ship_Game.AI
         void RotateToFaceMovePosition(FixedSimTime timeStep, ShipGoal goal)
         {
             Vector2 dir = Owner.Position.DirectionToTarget(goal.MovePosition);
+            if (!dir.IsUnitVector()) // TODO: REMOVEME, INVESTIGATING A BUG IN 1.41
+            {
+                Log.Error($"RotateToFaceMovePosition dir {dir} not a unit vector! Owner.Position={Owner.Position} goal.MovePosition={goal.MovePosition}");
+                dir = Vectors.Up;
+            }
+
             // we need high precision here, otherwise our jumps are inaccurate
             if (RotateToDirection(dir, timeStep, 0.05f))
             {

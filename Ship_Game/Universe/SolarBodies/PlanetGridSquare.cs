@@ -21,7 +21,7 @@ namespace Ship_Game
         [StarData] public Array<Troop> TroopsHere = new();
         [StarData] public bool Biosphere;
         [StarData] public bool Terraformable; // This tile can be habitable if terraformed
-        [StarData] public Building Building; // FB - should use get private set here
+        [StarData] public Building Building { get; private set; }
         [StarData] public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         [StarData] public QueueItem QItem;
         public Rectangle ClickRect = new();
@@ -46,6 +46,8 @@ namespace Ship_Game
         public bool IsCrashSiteActive => CrashSite?.Active == true;
         public bool TerrainCanBeTerraformed => BuildingOnTile && Building.CanBeTerraformed;
 
+        public bool NoQueuedBuildings => QItem == null;
+
         [StarData] public DynamicCrashSite CrashSite;
         [StarData] public Volcano Volcano;
         
@@ -56,8 +58,8 @@ namespace Ship_Game
             P = p;
             X = x;
             Y = y;
-            Habitable     = hab;
-            Building      = b;
+            Habitable = hab;
+            Building = b;
             Terraformable = terraformable;
         }
 
@@ -151,11 +153,14 @@ namespace Ship_Game
             Volcano = new Volcano(this, p);
         }
 
-        public bool CanBuildHere(Building b)
-        {
-            if (QItem != null)
-                return false;
 
+        public bool CanEnqueueBuildingHere(Building b)
+        {
+            return NoQueuedBuildings && CanPlaceBuildingHere(b);
+        }
+
+        public bool CanPlaceBuildingHere(Building b)
+        {
             // Don't allow biospheres on habitable tiles (including tiles with biospheres or specific buildings)
             if (b.IsBiospheres)
                 return !Habitable && !VolcanoHere && !LavaHere;
@@ -180,13 +185,20 @@ namespace Ship_Game
             {
                 if (Building != null)
                 {
-                    Log.Error($"Building being placed over an existing building. Building={b}. Existing={Building}");
+                    Log.Write($"Planet {p.Name} destroy Building={Building.Name} ReplacedBy={b.Name}");
+                    p.DestroyBuildingOn(this);
                 }
                 Building = b;
             }
 
             QItem = null;
             p.PlaceBuildingAt(this, b);
+        }
+
+        // don't call this directly, always use Planet.DestroyBuilding()/ScrapBuilding() instead
+        public void ClearBuilding()
+        {
+            Building = null;
         }
 
         public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool spaceCombat)
