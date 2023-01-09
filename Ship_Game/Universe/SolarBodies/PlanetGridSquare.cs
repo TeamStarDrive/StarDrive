@@ -46,6 +46,8 @@ namespace Ship_Game
         public bool IsCrashSiteActive => CrashSite?.Active == true;
         public bool TerrainCanBeTerraformed => BuildingOnTile && Building.CanBeTerraformed;
 
+        public bool NoQueuedBuildings => QItem == null;
+
         [StarData] public DynamicCrashSite CrashSite;
         [StarData] public Volcano Volcano;
         
@@ -151,11 +153,14 @@ namespace Ship_Game
             Volcano = new Volcano(this, p);
         }
 
-        public bool CanBuildHere(Building b)
-        {
-            if (QItem != null)
-                return false;
 
+        public bool CanEnqueueBuildingHere(Building b)
+        {
+            return NoQueuedBuildings && CanPlaceBuildingHere(b);
+        }
+
+        public bool CanPlaceBuildingHere(Building b)
+        {
             // Don't allow biospheres on habitable tiles (including tiles with biospheres or specific buildings)
             if (b.IsBiospheres)
                 return !Habitable && !VolcanoHere && !LavaHere;
