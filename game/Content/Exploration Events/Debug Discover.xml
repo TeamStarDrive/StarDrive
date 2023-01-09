@@ -8,11 +8,7 @@
       <ConfirmText>Kill them before they lay eggs!</ConfirmText>
       <Image>Encounters/1.png</Image>
       <RemoveTrigger>true</RemoveTrigger>
-
-      <SecretTechDiscovered>Ascension</SecretTechDiscovered>
       <ReplaceWith>Nano Mine</ReplaceWith>
-      <UnlockTech>Ascension</UnlockTech>
-
       <FriendlyShipsToSpawn>
         <string>Ancient Torpedo Cruiser</string>
       </FriendlyShipsToSpawn>

@@ -227,7 +227,7 @@ namespace Ship_Game
         {
             ResourceManager.CreateBuilding(this, Building.CapitalId).AssignBuildingToTilePlanetCreation(this, out _);
             ResourceManager.CreateBuilding(this, Building.SpacePortId).AssignBuildingToTilePlanetCreation(this, out _);
-            Storage.Max = BuildingList.Sum(b => b.StorageAdded);
+            Storage.Max = SumBuildings(b => b.StorageAdded);
             FoodHere    = Storage.Max * 0.2f;
             ProdHere    = Storage.Max * 0.35f;
             AllowInfantry = true; // for initialization only, before we reach planet Update
@@ -260,7 +260,7 @@ namespace Ship_Game
         public bool BioSpheresToTerraform   => TilesList.Any(t => t.BioCanTerraform);
         public int TerraformerLimit         => TilesList.Count(t => t.CanTerraform)/2 + 2;
 
-        public bool HasTerrainToTerraform => BuildingList.Any(b => b.CanBeTerraformed);
+        public bool HasTerrainToTerraform => HasBuilding(b => b.CanBeTerraformed);
 
         bool TerraformTerrain(RandomBase random)
         {
@@ -361,7 +361,7 @@ namespace Ship_Game
                 CType = Owner.AssessColonyNeeds(this);
         }
 
-        public bool ContainsEventTerraformers => BuildingList.Any(b => b.IsEventTerraformer);
+        public bool ContainsEventTerraformers => HasBuilding(b => b.IsEventTerraformer);
 
         // Checks if the owner can terraform the planet or parts of it
         // Commodity terraformers will set the Terraform level to 3.

@@ -312,43 +312,43 @@ namespace Ship_Game
 
             if (SubShips.SelectedIndex == 0)
             {
-                IShipDesign[] designs = Player.ShipsWeCanBuild.ToArr();
-                ShipSL.SetItems(InitShipSL(designs));
+                IShipDesign[] designs = Player.ShipsWeCanBuild.Filter(s => s.GetCompletionPercent() == 100);
+                ShipSL.Reset();
+                InitShipSL(designs);
             }
             else if (SubShips.SelectedIndex == 1)
             {
                 // go through ships that we own and allow player to add those existing ships
                 // to our fleet
                 ActiveShips.Assign(Player.OwnedShips.Filter(s => s.Fleet == null && s.IsAlive));
-                ShipSL.SetItems(InitShipSL(ActiveShips));
+                ShipSL.Reset();
+                InitShipSL(ActiveShips);
             }
         }
 
         // init with ship design templates
-        Array<FleetDesignShipListItem> InitShipSL(IReadOnlyList<IShipDesign> designs)
+        void InitShipSL(IReadOnlyList<IShipDesign> designs)
         {
-            Array<FleetDesignShipListItem> items = new();
-            var roles = new Array<string>();
+            var roles = new HashSet<string>();
             foreach (IShipDesign s in designs)
                 if (IsCandidateShip(s))
-                    roles.AddUnique(s.GetRole());
-
-            roles.Sort();
-            foreach (string role in roles)
+                    roles.Add(s.GetRole());
+            
+            var roleItems = roles.ToArrayList();
+            roleItems.Sort();
+            foreach (string role in roleItems)
             {
                 FleetDesignShipListItem header = new(this, role);
-                items.Add(header);
+                ShipSL.AddItem(header);
                 foreach (IShipDesign d in Player.ShipsWeCanBuild)
                     if (IsCandidateShip(d) && d.GetRole() == header.HeaderText)
-                        items.Add(new FleetDesignShipListItem(this, d));
+                        header.AddSubItem(new FleetDesignShipListItem(this, d));
             }
-            return items;
         }
 
         // init with actually owned ships that are waiting for orders
-        Array<FleetDesignShipListItem> InitShipSL(IReadOnlyList<Ship> aliveShips)
+        void InitShipSL(IReadOnlyList<Ship> aliveShips)
         {
-            Array<FleetDesignShipListItem> items = new();
             var roles = new HashSet<string>();
             foreach (Ship s in aliveShips)
                 if (IsCandidateShip(s.ShipData))
@@ -359,12 +359,11 @@ namespace Ship_Game
             foreach (string role in roleItems)
             {
                 FleetDesignShipListItem header = new(this, role);
-                items.Add(header);
+                ShipSL.AddItem(header);
                 foreach (Ship s in aliveShips)
                     if (IsCandidateShip(s.ShipData) && s.ShipData.GetRole() == header.HeaderText)
-                        items.Add(new FleetDesignShipListItem(this, s));
+                        header.AddSubItem(new FleetDesignShipListItem(this, s));
             }
-            return items;
         }
 
         static bool IsCandidateShip(IShipDesign s)

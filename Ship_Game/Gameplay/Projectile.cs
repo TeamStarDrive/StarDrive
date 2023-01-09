@@ -205,7 +205,7 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                Building building = planet.BuildingList.Find(b => b.Weapon == weaponUID);
+                Building building = planet.FindBuilding(b => b.Weapon == weaponUID);
                 weapon = building?.TheWeapon;
             }
 

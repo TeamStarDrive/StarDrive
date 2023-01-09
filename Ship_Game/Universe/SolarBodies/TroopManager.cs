@@ -27,7 +27,6 @@ namespace Ship_Game
         private bool TroopsAreOnPlanet => TroopsHere.NotEmpty;
 
         private Array<PlanetGridSquare> TilesList => Ground.TilesList;
-        private Array<Building> BuildingList      => Ground.BuildingList;
         private SolarSystem ParentSystem          => Ground.ParentSystem;
 
         // TODO: refactor these getters
@@ -321,25 +320,24 @@ namespace Ship_Game
 
         private void DoBuildingTimers(FixedSimTime timeStep, ref bool startCombatTimer)
         {
-            if (BuildingList.Count == 0)
+            if (Ground.NumBuildings == 0)
                 return;
 
             bool combatBuildingHere = false;
-            for (int i = 0; i < BuildingList.Count; i++)
+            foreach (Building b in Ground.Buildings)
             {
-                Building building = BuildingList[i];
-                if (building == null || !building.IsAttackable)
+                if (!b.IsAttackable)
                     continue;
 
                 combatBuildingHere = true;
-                building.UpdateAttackTimer(-timeStep.FixedTime);
-                if (building.AttackTimer < 0)
+                b.UpdateAttackTimer(-timeStep.FixedTime);
+                if (b.AttackTimer < 0)
                 {
-                    building.UpdateAttackActions(1);
-                    building.ResetAttackTimer();
+                    b.UpdateAttackActions(1);
+                    b.ResetAttackTimer();
                 }
 
-                if (!building.CanAttack)
+                if (!b.CanAttack)
                     startCombatTimer = true;
             }
 
@@ -503,7 +501,7 @@ namespace Ship_Game
         {
             float strength = 0;
             if (Owner == empire)
-                strength += BuildingList.Sum(BuildingCombatStrength);
+                strength += Ground.SumBuildings(BuildingCombatStrength);
 
             strength += TroopsHere.Sum(t => t.Loyalty == empire ? t.ActualStrengthMax : 0);
             return strength;
@@ -527,17 +525,8 @@ namespace Ship_Game
             if (Owner == allButThisEmpire)
                 return enemyTroopStrength; // The planet is ours, so no need to check from buildings
 
-            for (int i = 0; i < BuildingList.Count; i++)
+            foreach (Building b in Ground.Buildings)
             {
-                Building b;
-                try
-                {
-                    b = BuildingList[i];
-                }
-                catch
-                {
-                    continue;
-                }
                 enemyTroopStrength += BuildingCombatStrength(b);
             }
             return enemyTroopStrength;            
@@ -585,7 +574,7 @@ namespace Ship_Game
         public int GetEnemyAssets(Empire empire)
         {
             int numTroops = TroopsHere.Count(t => t.Loyalty != empire);
-            int numCombatBuildings = Owner != empire ? Ground.BuildingList.Count(b => b.IsAttackable) : 0;
+            int numCombatBuildings = Owner != empire ? Ground.CountBuildings(b => b.IsAttackable) : 0;
 
             return numTroops + numCombatBuildings;
         }
@@ -666,8 +655,8 @@ namespace Ship_Game
                 }
 
                 // PERF TODO: Maybe cache these? It is quite intensive
-                for (int i = 0; i < ground.BuildingList.Count; ++i)
-                    if (ground.BuildingList[i].IsAttackable)
+                foreach (Building b in ground.Buildings)
+                    if (b.IsAttackable)
                         ++DefendingForces;
             }
         }
