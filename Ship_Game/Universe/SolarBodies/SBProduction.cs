@@ -163,7 +163,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Log.Warning($"Unique building {q.Building} already exists on planet {P}");
                 return false;
             }
-            if (q.pgs.CanBuildHere(q.Building))
+            if (!q.pgs.CanPlaceBuildingHere(q.Building))
             {
                 Log.Warning($"We can no longer build {q.Building} at tile {q.pgs}");
                 return false;
