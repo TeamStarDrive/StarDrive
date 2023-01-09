@@ -21,7 +21,7 @@ namespace Ship_Game
         [StarData] public Array<Troop> TroopsHere = new();
         [StarData] public bool Biosphere;
         [StarData] public bool Terraformable; // This tile can be habitable if terraformed
-        [StarData] public Building Building; // FB - should use get private set here
+        [StarData] public Building Building { get; private set; }
         [StarData] public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         [StarData] public QueueItem QItem;
         public Rectangle ClickRect = new();
@@ -56,8 +56,8 @@ namespace Ship_Game
             P = p;
             X = x;
             Y = y;
-            Habitable     = hab;
-            Building      = b;
+            Habitable = hab;
+            Building = b;
             Terraformable = terraformable;
         }
 
@@ -180,13 +180,20 @@ namespace Ship_Game
             {
                 if (Building != null)
                 {
-                    Log.Error($"Building being placed over an existing building. Building={b}. Existing={Building}");
+                    Log.Write($"Planet {p.Name} destroy Building={Building.Name} ReplacedBy={b.Name}");
+                    p.DestroyBuildingOn(this);
                 }
                 Building = b;
             }
 
             QItem = null;
             p.PlaceBuildingAt(this, b);
+        }
+
+        // don't call this directly, always use Planet.DestroyBuilding()/ScrapBuilding() instead
+        public void ClearBuilding()
+        {
+            Building = null;
         }
 
         public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool spaceCombat)
