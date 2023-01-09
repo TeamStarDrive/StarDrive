@@ -61,21 +61,32 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep WaitForFleet()
         {
-            if (Fleet == null || Fleet.Ships.Count == 0)
+            if (Fleet == null || Fleet.Ships.Count == 0) // Fleet is destroyed
             {
                 float str =  Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem, TargetEmpire);
                 var task  = MilitaryTask.CreateDefendVsRemnant(TargetPlanet, Owner, str);
-                Owner.AI.AddPendingTask(task); // Try creating a new fleet to defend
+                Owner.AI.AddPendingTask(task); // Try creating a new fleet to defend (it will create a new defend goal)
                 return GoalStep.GoalFailed;
             }
 
+            // We failed to defend and there is no need to defend another planet
             if (TargetPlanet.Owner != Owner && !TryChangeTargetPlanet())
             {
-                Owner.DecreaseFleetStrEmpireMultiplier(Owner.Universe.Remnants);
+                Fleet.FleetTask.EndTask();
                 return GoalStep.GoalComplete;
             }
 
-            return RemnantGoalExists() ? GoalStep.TryAgain : GoalStep.GoalComplete;
+            // We won this fight
+            if (!RemnantGoalExists())
+            {
+                Fleet.FleetTask.EndTask();
+                Owner.DecreaseFleetStrEmpireMultiplier(Owner.Universe.Remnants);
+                return GoalStep.GoalComplete;
+            }
+            else
+            {
+                return GoalStep.TryAgain;
+            }
         }
     }
 }
