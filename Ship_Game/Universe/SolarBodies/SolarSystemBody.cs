@@ -60,8 +60,8 @@ namespace Ship_Game
 
             if (!TargetTile.Habitable)
             {
-                popKilled /= 5;
-                envDamage /= 10;
+                popKilled *= 0.25f;
+                envDamage *= 0.1f;
             }
 
             DamageTile(hardDamage);
@@ -74,7 +74,7 @@ namespace Ship_Game
 
         void TryCreateVolcano(int hardDamage)
         {
-            if (RandomMath.RollDice((hardDamage / 15f).UpperBound(0.25f)))
+            if (RandomMath.RollDice((hardDamage / 10f).UpperBound(0.4f * Surface.Universe.P.VolcanicActivity)))
                 TargetTile.CreateVolcano(Surface);
         }
 
