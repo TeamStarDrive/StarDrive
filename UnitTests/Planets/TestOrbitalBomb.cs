@@ -64,7 +64,7 @@ namespace UnitTests.Planets
         public void TestPopKilledUnhabitable()
         {
             CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindUnhabitableTargetTile(P));
-            float expectedPop = P.Population - B.PopKilled * 100; // 0.1 of pop killed potential. the usual is * 1000
+            float expectedPop = P.Population - B.PopKilled * 250; // 0.25 of pop killed potential. the usual is * 1000
             orbitalDrop.DamageColonySurface(B);
             Assert.IsTrue(P.Population < expectedPop + 10 && P.Population > expectedPop - 10);
         }
