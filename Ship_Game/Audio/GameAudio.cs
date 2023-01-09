@@ -205,12 +205,12 @@ namespace Ship_Game.Audio
                 Music.Stop(immediate ? AudioStopOptions.Immediate : AudioStopOptions.AsAuthored);
         }
 
-        public static void PauseGenericMusic()  { if (!CantPlayMusic()) Music.Pause(); }
-        public static void ResumeGenericMusic() { if (!CantPlayMusic()) Music.Resume(); }
-        public static void MuteGenericMusic()   { if (!CantPlayMusic()) Music.SetVolume(0f); }
-        public static void UnMuteGenericMusic() { if (CantPlayMusic()) Music.SetVolume(GlobalStats.MusicVolume); }
-        public static void MuteRacialMusic()    { if(!CantPlayMusic()) RacialMusic.SetVolume(0f);}
-        public static void UnMuteRacialMusic()  { if (!CantPlayMusic()) RacialMusic.SetVolume(GlobalStats.MusicVolume); }
+        public static void PauseGenericMusic()  { if (!IsMusicDisabled) Music.Pause(); }
+        public static void ResumeGenericMusic() { if (!IsMusicDisabled) Music.Resume(); }
+        public static void MuteGenericMusic()   { if (!IsMusicDisabled) Music.SetVolume(0f); }
+        public static void UnMuteGenericMusic() { if (!IsMusicDisabled) Music.SetVolume(GlobalStats.MusicVolume); }
+        public static void MuteRacialMusic()    { if(!IsMusicDisabled) RacialMusic.SetVolume(0f);}
+        public static void UnMuteRacialMusic()  { if (!IsMusicDisabled) RacialMusic.SetVolume(GlobalStats.MusicVolume); }
 
         public static void NegativeClick()    => PlaySfxAsync("UI_Misc20"); // "eek-eek"
         public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1"); // soft "bubble" affirm
@@ -244,14 +244,14 @@ namespace Ship_Game.Audio
         // this is used for the DiplomacyScreen
         public static void SwitchToRacialMusic()
         {
-            if (CantPlayMusic()) return;
+            if (IsMusicDisabled) return;
             Music.Pause();
             RacialMusic.SetVolume(GlobalStats.MusicVolume);
         }
 
         public static void SwitchBackToGenericMusic()
         {
-            if (CantPlayMusic()) return;            
+            if (IsMusicDisabled) return;            
             Music.Resume();
             RacialMusic.Stop(AudioStopOptions.Immediate);
         }
@@ -339,13 +339,13 @@ namespace Ship_Game.Audio
                 });
             }
         }
+        
+        public static bool IsMusicDisabled => !AudioEngineGood || AudioDisabled || MusicDisabled;
 
         static bool CantPlayMusic(string music)
         {
-            return !AudioEngineGood || AudioDisabled || MusicDisabled || music.IsEmpty();
+            return IsMusicDisabled || music.IsEmpty();
         }
-
-        static bool CantPlayMusic() => !AudioEngineGood || AudioDisabled || MusicDisabled;
 
         public static AudioHandle PlayMusic(string cueName)
         {
