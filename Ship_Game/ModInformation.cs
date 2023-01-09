@@ -21,6 +21,13 @@ public sealed class ModInformation
     // TRUE by default, but if set false, no vanilla designs will be loaded
     // from StarDrive/Content/ShipDesigns and the mod is responsible to provide all required designs
     [StarData] public bool UseVanillaShips = true;
+    [StarData] public bool UseVanillaTechs = true;
+    [StarData] public bool UseVanillaWeapons = true;
+    [StarData] public bool UseVanillaModules = true;
+    [StarData] public bool UseVanillaBuildings = true;
+    [StarData] public bool UseVanillaRaces = true;
+
+    // TODO: DEPRECATED FLAGS, KEEPING THEM FOR A FEW VERSIONS FOR COMPATIBILITY WITH MODS
     [StarData] public bool ClearVanillaTechs;
     [StarData] public bool ClearVanillaWeapons;
     [StarData] public bool DisableDefaultRaces;

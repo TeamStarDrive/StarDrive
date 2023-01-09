@@ -68,7 +68,12 @@ Globals:
   #   IconPath: small.png
   #   Description: "Example Mod Setup"
   #   Author: "The StarDrive Team"
+  #   # when set to false, Ships/Techs/Weapons/Modules/Buildings/Races will only be loaded from ModPath
   #   UseVanillaShips: true
-  #   ClearVanillaTechs: false
+  #   UseVanillaTechs: true
+  #   UseVanillaWeapons: true
+  #   UseVanillaModules: true
+  #   UseVanillaBuildings: true
+  #   UseVanillaRaces: true
 
 
