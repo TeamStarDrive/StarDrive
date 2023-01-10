@@ -403,17 +403,17 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float fixedDeltaTime)
         {
             CameraPos.Z = CameraPos.Z.SmoothStep(DesiredCamHeight, 0.2f);
             UpdateViewMatrix(CameraPos);
 
-            var simTime = new FixedSimTime(elapsed.RealTime.Seconds);
+            var simTime = new FixedSimTime(fixedDeltaTime);
             DesignedShip.SubLightAccelerate(100);
             DesignedShip.Velocity = new Vector2(0, 100);
             DesignedShip.UpdateThrusters(simTime);
 
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(fixedDeltaTime);
         }
 
         public override void LoadContent()

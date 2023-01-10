@@ -277,7 +277,8 @@ namespace Ship_Game
             }
         }
 
-        public void HandleInput(InputState input)
+        // @return true if input was captured
+        public bool HandleInput(InputState input)
         {
             if (!GlobalStats.TakingInput)
             {
@@ -285,41 +286,49 @@ namespace Ship_Game
                 {
                     GameAudio.EchoAffirmative();
                     Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, Universe, this));
+                    return true;
                 }
                 if (input.KeyPressed(Keys.T))
                 {
                     GameAudio.EchoAffirmative();
                     Universe.ScreenManager.AddScreen(new BudgetScreen(Universe));
+                    return true;
                 }
                 if (input.KeyPressed(Keys.Y))
                 {
                     GameAudio.EchoAffirmative();
                     Universe.ScreenManager.AddScreen(new ShipDesignScreen(Universe, this));
+                    return true;
                 }
                 if (input.KeyPressed(Keys.U))
                 {
                     GameAudio.EchoAffirmative();
                     Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Universe, this));
+                    return true;
                 }
                 if (input.KeyPressed(Keys.I))
                 {
                     GameAudio.EchoAffirmative();
                     Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Universe));
+                    return true;
                 }
                 if (input.KeyPressed(Keys.O))
                 {
                     GameAudio.EchoAffirmative();
                     Universe.ScreenManager.AddScreen(new GamePlayMenuScreen(Universe));
+                    return true;
                 }
                 if (input.KeyPressed(Keys.E))
                 {
                     GameAudio.EchoAffirmative();
                     Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
+                    return true;
                 }
                 if (input.KeyPressed(Keys.P))
                 {
                     GameAudio.TacticalPause();
                     Universe.ScreenManager.AddScreen(new InGameWiki(Universe));
+                    return true;
                 }
                 if (input.KeyPressed(Keys.Home))
                 {
@@ -333,6 +342,7 @@ namespace Ship_Game
                     {
                         GameAudio.NegativeClick();
                     }
+                    return true;
                 }
             }
 
@@ -344,62 +354,60 @@ namespace Ship_Game
                 }
                 else
                 {
-                    string str = b.launches;
-                    string str1 = str;
-                    if (str != null)
+                    if (b.launches != null)
                     {
-                        switch (str1)
+                        switch (b.launches)
                         {
                             case "Research":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.ResearchScreen)+"\n\n"+Localizer.Token(GameText.CurrentResearch)+": "+Player.Research.TopicLocText.Text, "R");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.ResearchScreen) + "\n\n" + Localizer.Token(GameText.CurrentResearch) + ": " + Player.Research.TopicLocText.Text, "R");
+                                    break;
+                                }
                             case "Budget":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.EconomicOverview2), "T");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.EconomicOverview2), "T");
+                                    break;
+                                }
                             case "Main Menu":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheMainMenu), "O");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheMainMenu), "O");
+                                    break;
+                                }
                             case "Shipyard":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheShipyard), "Y");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheShipyard), "Y");
+                                    break;
+                                }
                             case "Empire":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheEmpireOverviewScreen), "U");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheEmpireOverviewScreen), "U");
+                                    break;
+                                }
                             case "Diplomacy":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheDiplomacyOverviewScreen), "I");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheDiplomacyOverviewScreen), "I");
+                                    break;
+                                }
                             case "Espionage":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheEspionageManagementScreen), "E");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheEspionageManagementScreen), "E");
+                                    break;
+                                }
                             case "ShipList":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheShipRoster), "K");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheShipRoster), "K");
+                                    break;
+                                }
                             case "Fleets":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheFleetManager), "J");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheFleetManager), "J");
+                                    break;
+                                }
                             case "?":
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheHelpMenu), "P");
-                                break;
-                            }
+                                {
+                                    ToolTip.CreateTooltip(Localizer.Token(GameText.OpensTheHelpMenu), "P");
+                                    break;
+                                }
                         }
                     }
                     if (b.State != PressState.Hover && b.State != PressState.Pressed)
@@ -411,77 +419,72 @@ namespace Ship_Game
                     {
                         b.State = PressState.Pressed;
                     }
-                    if (!input.InGameSelect)
+                    if (input.InGameSelect)
                     {
-                        continue;
-                    }
-                    string str2 = b.launches;
-                    string str3 = str2;
-                    if (str2 != null)
-                    {
-                        if (str3 == "Research")
+                        if (b.launches == null)
+                        {
+                            continue;
+                        }
+                        if (b.launches == "Research")
                         {
                             GameAudio.EchoAffirmative();
                             Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, Universe, this));
                         }
-                        else if (str3 == "Budget")
+                        else if (b.launches == "Budget")
                         {
                             GameAudio.EchoAffirmative();
                             Universe.ScreenManager.AddScreen(new BudgetScreen(Universe));
                         }
-                    }
-                    string str4 = b.launches;
-                    string str5 = str4;
-                    if (str4 == null)
-                    {
-                        continue;
-                    }
-                    if (str5 == "Main Menu")
-                    {
-                        GameAudio.EchoAffirmative();
-                        Universe.ScreenManager.AddScreen(new GamePlayMenuScreen(Universe));
-                    }
-                    else if (str5 == "Shipyard")
-                    {
-                        GameAudio.EchoAffirmative();
-                        Universe.ScreenManager.AddScreen(new ShipDesignScreen(Universe, this));
-                    }
-                    else if (str5 == "Fleets")
-                    {
-                        GameAudio.EchoAffirmative();
-                        Universe.ScreenManager.AddScreen(new FleetDesignScreen(Universe, this));
-                    }
-                    else if (str5 == "ShipList")
-                    {
-                        GameAudio.EchoAffirmative();
-                        Universe.ScreenManager.AddScreen(new ShipListScreen(Universe, this));
-                    }
-                    else if (str5 == "Empire")
-                    {
-                        Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Universe, this));
-                        GameAudio.EchoAffirmative();
-                    }
-                    else if (str5 == "Diplomacy")
-                    {
-                        Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Universe));
-                        GameAudio.EchoAffirmative();
-                    }
-                    else if (str5 == "Espionage")
-                    {
-                        Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
-                        GameAudio.EchoAffirmative();
-                    }
-                    else if (str5 == "?")
-                    {
-                        GameAudio.TacticalPause();
-                        Universe.ScreenManager.AddScreen(new InGameWiki(Universe));
+
+                        if (b.launches == "Main Menu")
+                        {
+                            GameAudio.EchoAffirmative();
+                            Universe.ScreenManager.AddScreen(new GamePlayMenuScreen(Universe));
+                        }
+                        else if (b.launches == "Shipyard")
+                        {
+                            GameAudio.EchoAffirmative();
+                            Universe.ScreenManager.AddScreen(new ShipDesignScreen(Universe, this));
+                        }
+                        else if (b.launches == "Fleets")
+                        {
+                            GameAudio.EchoAffirmative();
+                            Universe.ScreenManager.AddScreen(new FleetDesignScreen(Universe, this));
+                        }
+                        else if (b.launches == "ShipList")
+                        {
+                            GameAudio.EchoAffirmative();
+                            Universe.ScreenManager.AddScreen(new ShipListScreen(Universe, this));
+                        }
+                        else if (b.launches == "Empire")
+                        {
+                            Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Universe, this));
+                            GameAudio.EchoAffirmative();
+                        }
+                        else if (b.launches == "Diplomacy")
+                        {
+                            Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Universe));
+                            GameAudio.EchoAffirmative();
+                        }
+                        else if (b.launches == "Espionage")
+                        {
+                            Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
+                            GameAudio.EchoAffirmative();
+                        }
+                        else if (b.launches == "?")
+                        {
+                            GameAudio.TacticalPause();
+                            Universe.ScreenManager.AddScreen(new InGameWiki(Universe));
+                        }
+                        return true;
                     }
                 }
             }
+            return false;
         }
 
         // TODO: This is utterly retarded, needs a complete rewrite
-        public void HandleInput(InputState input, GameScreen caller)
+        public bool HandleInput(InputState input, GameScreen caller)
         {
             foreach (Button b in Buttons)
             {
@@ -491,7 +494,6 @@ namespace Ship_Game
                 }
                 else
                 {
-
                     if (b.State != PressState.Hover && b.State != PressState.Pressed)
                     {
                         GameAudio.MouseOver();
@@ -514,45 +516,40 @@ namespace Ship_Game
                             {
                                 fleetDesigner.ExitScreen();
                             }
-                            return;
+                            return true;
                         }
-                        else if (caller is FleetDesignScreen && b.launches != "Fleets")
+                        else if (caller is FleetDesignScreen fleetDesigner && b.launches != "Fleets")
                         {
-                            (caller as FleetDesignScreen).ExitScreen();
+                            fleetDesigner.ExitScreen();
                         }
-                        string str = b.launches;
-                        string str1 = str;
-                        if (str != null)
-                        {
-                            if (str1 == "Research")
-                            {
-                                GameAudio.EchoAffirmative();
-                                if (!(caller is ResearchScreenNew))
-                                {
-                                    Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, Universe, this));
-                                }
-                            }
-                            else if (str1 == "Budget")
-                            {
-                                GameAudio.EchoAffirmative();
-                                if (!(caller is BudgetScreen))
-                                {
-                                    Universe.ScreenManager.AddScreen(new BudgetScreen(Universe));
-                                }
-                            }
-                        }
-                        string str2 = b.launches;
-                        string str3 = str2;
-                        if (str2 == null)
+
+                        if (b.launches == null)
                         {
                             continue;
                         }
-                        if (str3 == "Main Menu")
+
+                        if (b.launches == "Research")
+                        {
+                            GameAudio.EchoAffirmative();
+                            if (!(caller is ResearchScreenNew))
+                            {
+                                Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, Universe, this));
+                            }
+                        }
+                        else if (b.launches == "Budget")
+                        {
+                            GameAudio.EchoAffirmative();
+                            if (!(caller is BudgetScreen))
+                            {
+                                Universe.ScreenManager.AddScreen(new BudgetScreen(Universe));
+                            }
+                        }
+                        else if (b.launches == "Main Menu")
                         {
                             GameAudio.EchoAffirmative();
                             Universe.ScreenManager.AddScreen(new GamePlayMenuScreen(Universe));
                         }
-                        else if (str3 == "Shipyard")
+                        else if (b.launches == "Shipyard")
                         {
                             if (caller is ShipDesignScreen)
                             {
@@ -561,7 +558,7 @@ namespace Ship_Game
                             GameAudio.EchoAffirmative();
                             Universe.ScreenManager.AddScreen(new ShipDesignScreen(Universe, this));
                         }
-                        else if (str3 == "Fleets")
+                        else if (b.launches == "Fleets")
                         {
                             if (caller is FleetDesignScreen)
                             {
@@ -570,24 +567,26 @@ namespace Ship_Game
                             GameAudio.EchoAffirmative();
                             Universe.ScreenManager.AddScreen(new FleetDesignScreen(Universe, this));
                         }
-                        else if (str3 == "Empire")
+                        else if (b.launches == "Empire")
                         {
                             Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Universe, this));
                             GameAudio.EchoAffirmative();
                         }
-                        else if (str3 == "Diplomacy")
+                        else if (b.launches == "Diplomacy")
                         {
                             Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Universe));
                             GameAudio.EchoAffirmative();
                         }
-                        else if (str3 == "?")
+                        else if (b.launches == "?")
                         {
                             GameAudio.TacticalPause();
                             Universe.ScreenManager.AddScreen(new InGameWiki(Universe));
                         }
+                        return true; // input captured
                     }
                 }
             }
+            return false;
         }
 
         public void Update(float elapsedTime)

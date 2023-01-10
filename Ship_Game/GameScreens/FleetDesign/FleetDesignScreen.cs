@@ -158,15 +158,21 @@ namespace Ship_Game
             ResetLists();
         }
 
-        protected override void Destroy()
+        // FleetDesign screen became visible
+        public override void BecameActive()
         {
-            base.Destroy();
+            AssignLightRig(LightRigIdentity.FleetDesign, "example/ShipyardLightrig");
+        }
+
+        // We opened another screen like Shipyard, or just exited this screen
+        public override void BecameInActive()
+        {
+            RemoveSceneObjects(SelectedFleet);
         }
 
         public override void LoadContent()
         {
             Add(new CloseButton(ScreenWidth - 38, 97));
-            AssignLightRig(LightRigIdentity.FleetDesign, "example/ShipyardLightrig");
             SetPerspectiveProjection(maxDistance: 100_000);
 
             Graphics.Font titleFont = Fonts.Laserian14;

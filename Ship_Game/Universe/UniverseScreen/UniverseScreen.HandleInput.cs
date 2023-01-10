@@ -358,8 +358,9 @@ namespace Ship_Game
             if (LookingAtPlanet && workersPanel.HandleInput(input))
                 return true;
 
-            if (IsActive)
-                EmpireUI.HandleInput(input);
+            if (IsActive && EmpireUI.HandleInput(input))
+                return true;
+
             if (ShowingPlanetToolTip && input.CursorPosition.OutsideRadius(TippedPlanet.ScreenPos, TippedPlanet.Radius))
                 ResetToolTipTimer(ref ShowingPlanetToolTip);
 
