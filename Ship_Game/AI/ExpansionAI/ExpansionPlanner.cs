@@ -82,7 +82,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             // expansion check limit applies to AI only
             ++ExpansionIntervalTimer;
-            if (!Owner.isPlayer && ExpansionIntervalTimer < Owner.DifficultyModifiers.ExpansionCheckInterval)
+            if (ExpansionIntervalTimer < Owner.DifficultyModifiers.ExpansionCheckInterval)
                 return false;
 
             ExpansionIntervalTimer = 0;
