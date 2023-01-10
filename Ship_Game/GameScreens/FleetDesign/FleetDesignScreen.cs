@@ -310,13 +310,15 @@ namespace Ship_Game
         {
             ActiveShipDesign = null; // this must be reset if tabs change
 
-            if (SubShips.SelectedIndex == 0)
+            if (SubShips.SelectedIndex == 0) // ShipsWeCanBuild
             {
-                IShipDesign[] designs = Player.ShipsWeCanBuild.Filter(s => s.GetCompletionPercent() == 100);
+                bool CanShowDesign(IShipDesign s) => s.GetCompletionPercent() == 100;
+                //bool CanShowDesign(IShipDesign s) => s.InvalidModules == null && s.GetCompletionPercent() == 100;
+                IShipDesign[] designs = Player.ShipsWeCanBuild.Filter(CanShowDesign);
                 ShipSL.Reset();
                 InitShipSL(designs);
             }
-            else if (SubShips.SelectedIndex == 1)
+            else if (SubShips.SelectedIndex == 1) // Owned Ships
             {
                 // go through ships that we own and allow player to add those existing ships
                 // to our fleet
