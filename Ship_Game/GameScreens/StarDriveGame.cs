@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.IO;
 using System.Runtime;
@@ -17,6 +16,8 @@ namespace Ship_Game
         public bool IsLoaded  { get; private set; }
         public bool IsExiting { get; private set; }
         bool GraphicsDeviceWasReset;
+
+        public Func<bool> OnInitialize;
 
         public StarDriveGame()
         {
@@ -82,10 +83,17 @@ namespace Ship_Game
         {
             Instance = this;
             Window.Title = "StarDrive BlackBox";
-            ScreenManager = new ScreenManager(this, Graphics);
+            ResourceManager.InitContentDir();
+            ScreenManager = new(this, Graphics);
             InitializeAudio();
             ApplyGraphics(GraphicsSettings.FromGlobalStats());
 
+            // run initialization handler which is able to cancel and exit the game
+            if (OnInitialize != null && OnInitialize() == false)
+            {
+                Instance.Exit();
+                return;
+            }
             base.Initialize();
         }
 
@@ -94,7 +102,6 @@ namespace Ship_Game
             if (IsLoaded)
                 return;
 
-            ResourceManager.InitContentDir();
             GameCursors.Initialize(this, GlobalStats.UseSoftwareCursor);
 
             // Quite rare, but brutal case for all graphic resource reload

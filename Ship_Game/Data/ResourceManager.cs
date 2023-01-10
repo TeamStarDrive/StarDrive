@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
@@ -223,7 +222,6 @@ namespace Ship_Game
 
             Log.ConfigureStatsReporter();
             LoadContent();
-            Profiled(RunExportTasks);
 
             LoadGraphicsResources(manager);
             HelperFunctions.CollectMemory();
@@ -395,22 +393,6 @@ namespace Ship_Game
             EmpireHullBonuses.Clear();
 
             UnloadGraphicsResources(manager);
-        }
-
-        static void RunExportTasks()
-        {
-            if (GlobalStats.ExportTextures)
-                RootContent.RawContent.ExportAllTextures();
-
-            if (GlobalStats.ExportMeshes != null)
-            {
-                // "fbx+obj"
-                string[] formats = GlobalStats.ExportMeshes.Split('+');
-                foreach (string ext in formats)
-                {
-                    RootContent.RawContent.ExportAllXnbMeshes(ext);
-                }
-            }
         }
 
         static FileInfo ModInfo(string file) => new FileInfo( ModContentDirectory + file );

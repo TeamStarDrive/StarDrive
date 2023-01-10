@@ -152,6 +152,41 @@ internal static class Program
         Console.ReadKey(false);
     }
 
+    // CLI tasks
+    static bool RunInitializationTasks()
+    {
+        bool runGame = true; // Ok, continue to game
+
+        if (GlobalStats.RunLocalizer > 0)
+        {
+            Tools.Localization.LocalizationTool.Run(GlobalStats.ModPath, GlobalStats.RunLocalizer);
+            runGame = GlobalStats.ContinueToGame;
+        }
+
+        if (GlobalStats.ExportTextures)
+        {
+            ResourceManager.RootContent.RawContent.ExportAllTextures();
+            runGame = GlobalStats.ContinueToGame;
+        }
+
+        if (GlobalStats.ExportMeshes != null)
+        {
+            Log.Write($"ExportMeshes {GlobalStats.ExportMeshes}");
+            string[] formats = GlobalStats.ExportMeshes.Split('+'); // "fbx+obj"
+            foreach (string ext in formats)
+            {
+                ResourceManager.RootContent.RawContent.ExportAllXnbMeshes(ext);
+            }
+            runGame = GlobalStats.ContinueToGame;
+        }
+
+        if (!runGame && Log.HasDebugger)
+        {
+            PressAnyKey();
+        }
+        return runGame;
+    }
+
     [STAThread]
     static void Main(string[] args)
     {
@@ -177,22 +212,9 @@ internal static class Program
             }
             else
             {
-                bool runGame = true;
-                if (GlobalStats.RunLocalizer > 0)
-                {
-                    Tools.Localization.LocalizationTool.Run(GlobalStats.ModPath, GlobalStats.RunLocalizer);
-                    runGame = GlobalStats.ContinueToGame;
-                }
-
-                if (runGame)
-                {
-                    using StarDriveGame game = new();
-                    game.Run();
-                }
-                else if (Log.HasDebugger)
-                {
-                    PressAnyKey();
-                }
+                using StarDriveGame game = new();
+                game.OnInitialize = RunInitializationTasks;
+                game.Run();
             }
 
             Log.Write("The game exited normally.");
