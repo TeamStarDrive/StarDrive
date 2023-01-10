@@ -4,7 +4,7 @@ from typing import List, Dict
 from DeployUtils import console, new_guid, path_combine, read_lines
 
 class FileInfo:
-    def __init__(self, game_dir, relpath, guid, hash=None):
+    def __init__(self, game_dir: str, relpath: str, guid: str, hash=None):
         self.filename = relpath
         self.guid = guid
         self.hash = FileInfo.get_hash(game_dir, relpath) if not hash else hash
