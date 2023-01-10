@@ -1,5 +1,5 @@
-#!/usr/bin/python3
-import os, argparse, shutil
+﻿#!/usr/bin/python3
+import os, argparse, shutil, string
 from typing import List, Dict, Iterable
 from DeployUtils import console, new_guid, path_combine, read_lines
 from FileInfo import FileInfo
@@ -37,12 +37,19 @@ def create_nsis_commands(new_files:Iterable[FileInfo], deleted_files:Iterable[Fi
 ## This remaps and ID-s that go over that limit
 MSI_IDS = dict()
 
+def replace_non_ascii(s: str, replaceWith='?') -> str:
+    result = ''
+    for ch in s: result += ch if ord(ch) < 128 else replaceWith
+    return result
+
 def generate_stupid_msi_id(path: str):
     id = path.replace('/', '_') \
                .replace('\\', '_') \
                .replace(' ', '_') \
                .replace('-', '_') \
                .replace('.', '_')
+    if not id.isascii():
+        raise Exception(f'MSI does not support non-ascii paths: {path}')
 
     if len(id) <= 70: return id 
     if id in MSI_IDS: return MSI_IDS[id]
@@ -69,6 +76,7 @@ class DirectoryInfo:
         self.id = generate_stupid_msi_id(fullpath) if fullpath else 'INSTALLFOLDER'
         self.subdirs : List["DirectoryInfo"] = []
         self.files : List[MsiFileInfo] = []
+        self.delete : List[MsiFileInfo] = []
     def findOrCreate(self, fullpath, name) -> "DirectoryInfo":
         for subdir in self.subdirs:
             if subdir.name == name: return subdir
@@ -85,12 +93,22 @@ class DirectoryInfo:
         return dirInfo
 
 
-def create_stupid_msi_directory_tree(new_files:Iterable[FileInfo]) -> DirectoryInfo:
+def create_stupid_msi_directory_tree(new_files:Iterable[FileInfo], deleted_files:Iterable[FileInfo]) -> DirectoryInfo:
     root = DirectoryInfo('', '')
     for new in new_files:
+        if not new.filename.isascii():
+            console(f'Skipping File because it contains non-ascii characters: {new.filename}')
+            continue
         dirpath = os.path.dirname(new.filename).replace('\\', '/').rstrip('/')
         dirInfo = root.findOrCreateRecursive(dirpath)
         dirInfo.files.append(MsiFileInfo(new))
+    for delete in deleted_files:
+        if not delete.filename.isascii():
+            console(f'Skipping DeleteFile because it contains non-ascii characters: {delete.filename}')
+            continue
+        dirpath = os.path.dirname(delete.filename).replace('\\', '/').rstrip('/')
+        dirInfo = root.findOrCreateRecursive(dirpath)
+        dirInfo.delete.append(MsiFileInfo(delete))
     return root
 
 
@@ -106,18 +124,16 @@ def append_stupid_msi_directory_structure(lines:list, dir:DirectoryInfo, indent)
 
 def append_stupid_msi_files(lines:list, dir:DirectoryInfo):
     lines.append(f'  <DirectoryRef Id="{dir.id}">\n')
-    for file in dir.files:
-        lines.append(f'    <Component Id="C_{file.id}" Guid="{file.guid}"> <File Id="{file.id}" Source="$(var.SourceDir){file.filename}" KeyPath="yes" /> </Component>\n')
+    for f in dir.delete: lines.append(f'    <Component Id="D_{f.id}" Guid="{f.guid}" KeyPath="yes"> <RemoveFile Id="{f.id}" Name="{os.path.basename(f.filename)}" On="install" /> </Component>\n')
+    for f in dir.files:  lines.append(f'    <Component Id="C_{f.id}" Guid="{f.guid}"> <File Id="{f.id}" Source="$(var.SourceDir){f.filename}" KeyPath="yes" /> </Component>\n')
     lines.append(f'  </DirectoryRef>\n')
-    for subdir in dir.subdirs:
-        append_stupid_msi_files(lines, subdir)
+    for subdir in dir.subdirs: append_stupid_msi_files(lines, subdir)
 
 
 def append_stupid_msi_file_components(lines:list, dir:DirectoryInfo):
-    for file in dir.files:
-        lines.append(f'    <ComponentRef Id="C_{file.id}" />\n')
-    for subdir in dir.subdirs:
-        append_stupid_msi_file_components(lines, subdir)
+    for file in dir.delete: lines.append(f'    <ComponentRef Id="D_{file.id}" />\n')
+    for file in dir.files:  lines.append(f'    <ComponentRef Id="C_{file.id}" />\n')
+    for subdir in dir.subdirs: append_stupid_msi_file_components(lines, subdir)
 
 
 def create_msi_commands(new_files:Iterable[FileInfo], deleted_files:Iterable[FileInfo], major:bool):
@@ -128,21 +144,11 @@ def create_msi_commands(new_files:Iterable[FileInfo], deleted_files:Iterable[Fil
 
     lines.append('  <!-- Folder Structure -->\n')
     lines.append('  <DirectoryRef Id="INSTALLFOLDER">\n')
-    rootDir = create_stupid_msi_directory_tree(new_files)
+    rootDir = create_stupid_msi_directory_tree(new_files, deleted_files)
     for subdir in rootDir.subdirs: append_stupid_msi_directory_structure(lines, subdir, 4)
     lines.append('  </DirectoryRef>\n')
 
-    if deleted_files:
-        lines.append('  <!-- Delete Files -->\n')
-        for delete in deleted_files:
-            folderPath = os.path.dirname(delete.filename)
-            filename = os.path.basename(delete.filename)
-
-            dir = rootDir.findOrCreateRecursive()
-            dir = DirectoryInfo(folderPath, os.path.basename(folderPath))
-            lines.append(f'  <DirectoryRef Id={dir.id}><RemoveFile Name={filename} On="install" /></DirectoryRef>\n')
-
-    lines.append('  <!-- Files -->\n')
+    lines.append('  <!-- Remove Files and Add Files -->\n')
     append_stupid_msi_files(lines, rootDir)
 
     lines.append('  <!-- File Components -->\n')
