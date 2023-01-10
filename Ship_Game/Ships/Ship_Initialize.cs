@@ -127,7 +127,7 @@ namespace Ship_Game.Ships
             
             if (isTemplate && !shipyardDesign && ModuleSlotList.Length == 0)
             {
-                Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
+                Log.Warning($"Create ShipTemplate failed '{Name}' due to all empty Modules");
                 return false;
             }
 

@@ -51,6 +51,8 @@ public sealed partial class ShipDesign : IShipDesign
     [StarData] public ShipGridInfo GridInfo { get; set; }
     public int SurfaceArea => GridInfo.SurfaceArea;
 
+    public int NumDesignSlots { get; private set; }
+
     // All the slots of the ShipDesign
     // NOTE: This is loaded on-demand when a new ship is being initialized
     [StarData] DesignSlot[] DesignSlots;
@@ -176,6 +178,7 @@ public sealed partial class ShipDesign : IShipDesign
         for (int i = 0; i < slots.Length; ++i)
             moduleUIDs.Add(slots[i].ModuleUID);
 
+        NumDesignSlots = slots.Length;
         DesignSlots = slots;
         SetModuleUIDs(moduleUIDs.ToArr());
 
