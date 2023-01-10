@@ -86,8 +86,7 @@ public partial class ShipDesign
             string uid = designSlots[i].ModuleUID;
             if (!ResourceManager.GetModuleTemplate(uid, out ShipModule m))
             {
-                if (invalidModules == null)
-                    invalidModules = new();
+                invalidModules ??= new();
                 invalidModules.Add(uid);
                 continue;
             }

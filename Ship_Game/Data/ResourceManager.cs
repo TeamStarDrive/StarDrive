@@ -1643,6 +1643,24 @@ namespace Ship_Game
                         if (shipDesign == null)
                             continue;
 
+                        if (shipDesign.InvalidModules != null)
+                        {
+                            bool incompatibleMod = GlobalStats.HasMod && shipDesign.ModName.IsEmpty();
+                            if (incompatibleMod) // this is most likely an incompatibility between current mod and Vanilla design
+                            {
+                                Log.Warning($"Ignoring Vanilla ShipDesign={shipDesign.Name} due to invalid modules: {shipDesign.InvalidModules}");
+                                continue;
+                            }
+
+                            // special conditions for debugging completely broken designs
+                            bool allowDebuggingBrokenDesigns = Log.HasDebugger;
+                            if (!allowDebuggingBrokenDesigns)
+                            {
+                                Log.Warning($"Ignoring ShipDesign={shipDesign.Name} due to invalid modules: {shipDesign.InvalidModules}");
+                                continue;
+                            }
+                        }
+
                         string nameNoExt = info.NameNoExt();
                         if (nameNoExt != shipDesign.Name)
                         {
