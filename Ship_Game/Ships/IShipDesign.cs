@@ -30,6 +30,7 @@ public interface IShipDesign
     bool IsShipyard { get; }
     bool IsOrbitalDefense { get; }
     bool IsCarrierOnly { get; } // this ship is restricted to Carriers only
+    bool IsValidDesign { get; } // does this design contain errors or is not a buildable design?
     bool IsBuildableByPlayer(Empire player);
 
     ShipCategory ShipCategory  { get; }
@@ -39,6 +40,12 @@ public interface IShipDesign
     ModuleGridFlyweight Grid { get; }
     ShipGridInfo GridInfo { get; }
     int SurfaceArea { get; }
+
+    /// <summary>
+    /// Total # of Design Slots that exist in this design.
+    /// Some of these could be invalid, so check for property IsValidDesign as well.
+    /// </summary>
+    int NumDesignSlots { get; }
 
     // Complete list of all the unique module UID-s found in this design
     string[] UniqueModuleUIDs { get; }
@@ -119,9 +126,6 @@ public interface IShipDesign
     // All invalid modules in this design
     // If this is not null, this ship cannot be spawned, but can still be listed and loaded in Shipyard
     string InvalidModules { get; }
-
-    // Converts this ShipDesign from class data into pure ascii byte stream for saving/transfer
-    byte[] GetDesignBytes(ShipDesignWriter sw);
 
     // Access the design slots
     // These might not be loaded into memory yet

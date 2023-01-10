@@ -1757,16 +1757,31 @@ namespace Ship_Game
                 UnlockedHullsDict[hull] = true;
         }
 
+        void RemoveInvalidShipsWeCanBuild()
+        {
+            if (ShipsWeCanBuild.Any(sd => !sd.IsValidDesign))
+            {
+                foreach (IShipDesign sd in ShipsWeCanBuild.ToArr())
+                    if (!sd.IsValidDesign)
+                    {
+                        Log.Warning($"Removing invalid Buildable Ship: {sd.Name}");
+                        RemoveBuildableShip(sd);
+                        RemoveBuildableStation(sd);
+                    }
+            }
+        }
+
         public void UpdateShipsWeCanBuild(Array<string> hulls = null, bool debug = false)
         {
+            // validate all existing ship designs, in case some of them have become invalid
+            RemoveInvalidShipsWeCanBuild();
+
             if (IsFaction)
             {
                 FactionShipsWeCanBuild();
                 return;
             }
 
-            // TODO: This should operate on IShipDesign instead of Ship template
-            //       which requires a lot of utilities in Ship.cs to be moved
             foreach (IShipDesign sd in ResourceManager.Ships.Designs)
             {
                 if (hulls != null && !hulls.Contains(sd.Hull))

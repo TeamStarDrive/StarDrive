@@ -3,28 +3,21 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
+    // Loaded from `Content/ShipRoles/`
     public sealed class ShipRole
     {
         public string Name = "";
-
         public int Localization;
 
-        public float Upkeep = 1;
-
         public float KillExp = 1;
-
         public float KillExpPerLevel = 1;
-
         public float ExpPerLevel = 1;
-
         public float DamageRelations = 1;
 
         public bool Protected;
 
-        public bool NoBuild = false;
-
         //I believe this is for race specific hulls
-        public Array<Race> RaceList = new Array<Race>();
+        public Array<Race> RaceList = new();
 
         public class Race
         {

@@ -194,17 +194,22 @@ public partial class ShipDesign
     {
         return Role.ToString();
     }
+    
+    // if this is a valid design which hasn't been broken by bugs kraken
+    public bool IsValidDesign => !Deleted && NumDesignSlots != 0 && InvalidModules == null;
 
+    // this is used exclusively by colony screen build ships list
     public bool IsBuildableByPlayer(Empire player)
     {
-        ShipRole role = ShipRole;
-        return !IsCarrierOnly && !Deleted
-                              && !role.Protected && !role.NoBuild
-                              && (player.Universe.P.ShowAllDesigns || IsPlayerDesign);
+        return IsValidDesign && !IsCarrierOnly && !ShipRole.Protected
+            && (player.Universe.P.ShowAllDesigns || IsPlayerDesign);
     }
 
+    // used by AutomationWindow and TechLine focusing
     public bool IsShipGoodToBuild(Empire e)
     {
+        if (!IsValidDesign)
+            return false;
         if (IsPlatformOrStation || IsCarrierOnly)
             return true;
         return IsShipGoodForGoals(e);
@@ -233,13 +238,13 @@ public partial class ShipDesign
 
     public bool CanBeAddedToBuildableShips(Empire empire)
     {
-        return Role != RoleName.prototype 
-               && Role != RoleName.disabled
-               && Role != RoleName.supply
-               && !ShipRole.Protected
-               && !Deleted
-               && (empire.isPlayer || IsShipGoodForGoals(empire))
-               && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer);
+        return IsValidDesign
+            && Role != RoleName.prototype 
+            && Role != RoleName.disabled
+            && Role != RoleName.supply
+            && !ShipRole.Protected
+            && (empire.isPlayer || IsShipGoodForGoals(empire))
+            && (!IsPlayerDesign || empire.Universe.P.AIUsesPlayerDesigns || empire.isPlayer);
     }
 
     public int GetCompletionPercent()

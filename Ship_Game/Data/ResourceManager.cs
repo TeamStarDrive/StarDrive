@@ -1586,9 +1586,9 @@ namespace Ship_Game
 
         public static readonly ShipsManager Ships = new();
 
-        public static void AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
+        public static bool AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
-            Ships.Add(shipDesign, playerDesign, readOnly);
+            return Ships.Add(shipDesign, playerDesign, readOnly);
         }
 
         public static bool ShipTemplateExists(string shipName) => Ships.Exists(shipName);
