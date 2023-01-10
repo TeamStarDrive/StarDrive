@@ -52,6 +52,7 @@ namespace Ship_Game
             Directory.CreateDirectory(appData + "/Fleet Designs");
             Directory.CreateDirectory(appData + "/Saved Designs");
             Directory.CreateDirectory(appData + "/WIP"); // This is for unfinished Shipyard designs
+            AutoPatcher.CleanupLegacyIncompatibleFiles();
             AutoPatcher.TryDeletePatchTemp();
 
             IsFixedTimeStep = true;
