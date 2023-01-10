@@ -146,6 +146,16 @@ namespace Ship_Game.Ships
             return new ShipDesign(p);
         }
 
+        bool ValidateModCompatibility(ShipHull hull)
+        {
+            if (!IsValidForCurrentMod || hull == null || !hull.IsValidForCurrentMod)
+            {
+                Role = RoleName.disabled;
+                return false; // this design doesn't need to be parsed
+            }
+            return true; // it's compatible
+        }
+
         ShipDesign(GenericStringViewParser p, FileInfo source = null)
         {
             Source = source;
@@ -173,11 +183,8 @@ namespace Ship_Game.Ships
                     else if (key == "ModName")
                     {
                         ModName = value.Text;
-                        if (!IsValidForCurrentMod || !hull.IsValidForCurrentMod)
-                        {
-                            Role = RoleName.disabled;
-                            return; // this design doesn't need to be parsed
-                        }
+                        if (!ValidateModCompatibility(hull))
+                            return;
                     }
                     else if (key == "Role")
                     {
@@ -207,6 +214,9 @@ namespace Ship_Game.Ships
                     }
                     else if (key == "Modules")
                     {
+                        // and now double check if it's compatible, because ShipDesign might have not declared a ModName
+                        if (!ValidateModCompatibility(hull))
+                            return;
                         modules = new DesignSlot[value.ToInt()];
                     }
                 }
