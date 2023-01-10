@@ -80,9 +80,9 @@ namespace Ship_Game.AI.ExpansionAI
 
         bool CanConsiderExpanding(float popRatio, int numPlanets)
         {
-            // expansion check limit applies to everyone, even Player who is using AutoColonize
+            // expansion check limit applies to AI only
             ++ExpansionIntervalTimer;
-            if (ExpansionIntervalTimer < Owner.DifficultyModifiers.ExpansionCheckInterval)
+            if (!Owner.isPlayer && ExpansionIntervalTimer < Owner.DifficultyModifiers.ExpansionCheckInterval)
                 return false;
 
             ExpansionIntervalTimer = 0;
