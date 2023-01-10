@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.LoadGame;
@@ -14,14 +13,14 @@ namespace Ship_Game
         GameScreen Screen;
 
         public LoadSaveScreen(UniverseScreen screen)
-            : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", true)
+            : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", showSaveExport:true)
         {
             Screen = screen;
             Path = SavedGame.DefaultSaveGameFolder;
         }
 
         public LoadSaveScreen(MainMenuScreen screen)
-            : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", true)
+            : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", showSaveExport:true)
         {
             Screen = screen;
             Path = SavedGame.DefaultSaveGameFolder;
@@ -40,67 +39,6 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
             }
             ExitScreen();
-        }
-
-        protected override void ExportSave()
-        {
-            if (SelectedFile == null)
-            {
-                GameAudio.NegativeClick();
-                return;
-            }
-
-            string savedFileName = ExportSave(SelectedFile);
-
-            string message = $"The selected save was exported to your desktop as {savedFileName}";
-            int messageWidth = ((int)Fonts.Arial12Bold.MeasureString(savedFileName).X + 20).UpperBound(400);
-            ScreenManager.AddScreen(new MessageBoxScreen(this, message, MessageBoxButtons.Ok, messageWidth));
-        }
-
-        string ExportSave(FileData save)
-        {
-            Log.FlushAllLogs();
-
-            string fileName = save.FileName;
-            var dirInfo = new DirectoryInfo(Path + "/" + fileName);
-            dirInfo.Create();
-            string tmpDir = dirInfo.FullName;
-
-            save.FileLink.CopyTo($"{tmpDir}/{save.FileName}{save.FileLink.Extension}", overwrite:true);
-
-            // also add both logfiles
-            if (File.Exists(Log.LogFilePath))
-                File.Copy(Log.LogFilePath, $"{tmpDir}/blackbox.log", overwrite:true);
-            if (File.Exists(Log.OldLogFilePath))
-                File.Copy(Log.OldLogFilePath, $"{tmpDir}/blackbox.old.log", overwrite:true);
-
-            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string outZip = $"{GetDebugVers()}_{fileName}.zip";
-            HelperFunctions.CompressDir(dirInfo, $"{desktop}/{outZip}");
-            dirInfo.Delete(true);
-
-            return outZip;
-        }
-
-        static string GetDebugVers()
-        {
-            string blackBox = GlobalStats.ExtendedVersionNoHash
-                                         .Replace(":", "")
-                                         .Replace(" ", "_")
-                                         .Replace("/", "_");
-
-            string modTitle = "";
-            if (GlobalStats.HasMod)
-            {
-                string title = GlobalStats.ModName;
-                string version = GlobalStats.Defaults.Mod.Version;
-                if (version.NotEmpty() && !title.Contains(version))
-                    modTitle = title + "-" + version;
-
-                modTitle = modTitle.Replace(":", "").Replace(" ", "_");
-                return $"{blackBox}_{modTitle}";
-            }
-            return blackBox;
         }
 
         // Set list of files to show
