@@ -34,25 +34,25 @@ namespace Ship_Game
 
         protected FileData SelectedFile;
         protected int EntryHeight = 55; // element height
-        protected bool SaveExport;
+        protected bool ShowSaveExport;
 
         protected GenericLoadSaveScreen(
-            GameScreen parent, SLMode mode, string initText, string title, string tabText, bool saveExport = false)
+            GameScreen parent, SLMode mode, string initText, string title, string tabText, bool showSaveExport = false)
             : base(parent, toPause: parent as UniverseScreen)
         {
             Mode = mode;
             InitText = initText;
             Title = title;
             TabText = tabText;
+            ShowSaveExport = showSaveExport;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
-            SaveExport = saveExport;
         }
 
         protected GenericLoadSaveScreen(
-            GameScreen parent, SLMode mode, string initText, string title, string tabText, string overwriteText) 
-            : this(parent, mode, initText, title, tabText)
+            GameScreen parent, SLMode mode, string initText, string title, string tabText, string overwriteText, bool showSaveExport = false) 
+            : this(parent, mode, initText, title, tabText, showSaveExport:showSaveExport)
         {
             OverwriteText = overwriteText;
         }
@@ -104,10 +104,6 @@ namespace Ship_Game
         {
         }
 
-        protected virtual void ExportSave()
-        {
-        }
-
         protected abstract void InitSaveList(); // To be implemented in subclasses
 
         public override void LoadContent()
@@ -141,10 +137,11 @@ namespace Ship_Game
                     Load();
             });
 
-            ExportBtn = ButtonBigDip(sub.X + sub.W - 200, EnterNameArea.Y - 48, "Export Save", b => ExportSave());
-
-            ExportBtn.Visible = SaveExport;
-            ExportBtn.Tooltip = GameText.ThisWillLetYouEasily;
+            if (ShowSaveExport)
+            {
+                var exportBtn = ButtonBigDip(sub.X + sub.W - 200, EnterNameArea.Y - 48, "Export Save", b => ExportSave());
+                exportBtn.Tooltip = GameText.ThisWillLetYouEasily;
+            }
             base.LoadContent();
         }
 
@@ -152,7 +149,7 @@ namespace Ship_Game
         {
             SwitchFile(item.Data);
         }
-
+        
         protected virtual void OnSaveLoadItemDoubleClicked(SaveLoadListItem item)
         {
             SwitchFile(item.Data);
@@ -165,9 +162,7 @@ namespace Ship_Game
 
         protected void SwitchFile(FileData file)
         {
-            if (SLMode.Load == Mode)
-                SelectedFile = file;
-
+            SelectedFile = file;
             GameAudio.AcceptClick();
             EnterNameArea.Text = file.FileName;
         }
@@ -209,6 +204,63 @@ namespace Ship_Game
         {
             foreach (FileData data in files)
                 SavesSL.AddItem(new SaveLoadListItem(this, data));
+        }
+
+        protected void ExportSave()
+        {
+            if (SelectedFile == null)
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
+            string savedFileName = ExportSave(SelectedFile);
+
+            string message = $"The selected save was exported to your desktop as {savedFileName}";
+            int messageWidth = ((int)Fonts.Arial12Bold.MeasureString(savedFileName).X + 20).UpperBound(400);
+            ScreenManager.AddScreen(new MessageBoxScreen(this, message, MessageBoxButtons.Ok, messageWidth));
+        }
+        
+        string ExportSave(FileData save)
+        {
+            Log.FlushAllLogs();
+
+            string fileName = save.FileName;
+            var dirInfo = new DirectoryInfo(Path + "/" + fileName);
+            dirInfo.Create();
+            string tmpDir = dirInfo.FullName;
+
+            save.FileLink.CopyTo($"{tmpDir}/{save.FileName}{save.FileLink.Extension}", overwrite:true);
+
+            // also add both logfiles
+            if (File.Exists(Log.LogFilePath))
+                File.Copy(Log.LogFilePath, $"{tmpDir}/blackbox.log", overwrite:true);
+            if (File.Exists(Log.OldLogFilePath))
+                File.Copy(Log.OldLogFilePath, $"{tmpDir}/blackbox.old.log", overwrite:true);
+
+            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string outZip = $"{GetDebugVersionString()}_{fileName}.zip";
+            HelperFunctions.CompressDir(dirInfo, $"{desktop}/{outZip}");
+            dirInfo.Delete(true);
+
+            return outZip;
+        }
+
+        static string GetDebugVersionString()
+        {
+            string blackBox = GlobalStats.ExtendedVersionNoHash.Replace(":", "").Replace(" ", "_").Replace("/", "_");
+            string modTitle = "";
+            if (GlobalStats.HasMod)
+            {
+                string title = GlobalStats.ModName;
+                string version = GlobalStats.Defaults.Mod.Version;
+                if (version.NotEmpty() && !title.Contains(version))
+                    modTitle = title + "-" + version;
+
+                modTitle = modTitle.Replace(":", "").Replace(" ", "_");
+                return $"{blackBox}_{modTitle}";
+            }
+            return blackBox;
         }
 
         protected class SaveLoadListItem : ScrollListItem<SaveLoadListItem>

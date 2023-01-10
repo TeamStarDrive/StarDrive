@@ -235,7 +235,7 @@ namespace Ship_Game
         public virtual void UnloadContent()
         {
             TransientContent?.Unload();
-            Elements.Clear();
+            RemoveAll(); // using RemoveAll() here to ensure all necessary events are triggered, instead of Elements.Clear()
             DidLoadContent = false;
         }
         
