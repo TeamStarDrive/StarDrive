@@ -68,6 +68,19 @@ internal class AutoPatcher : PopupWindow
         TryDeleteFolder(tempDir);
     }
 
+    // delete any legacy files which could accidentally be left in the game Content dir
+    public static void CleanupLegacyIncompatibleFiles()
+    {
+        string[] files = {
+            "Content\\Textures\\Buildings\\icon_refınery_48x48.xnb",
+            "Content\\Textures\\Buildings\\icon_refınery_64x64.xnb",
+        };
+
+        string tempDir = GetPatchTempFolder();
+        foreach (string relPath in files)
+            SafeDelete(relPath, tempDir);
+    }
+
     static void TryDeleteFolder(string folder)
     {
         try
@@ -316,6 +329,11 @@ internal class AutoPatcher : PopupWindow
         {
             throw new IOException(relPath, e);
         }
+    }
+
+    static void SafeDelete(string fileToDelete, string tempDir)
+    {
+        SafeDelete(fileToDelete, fileToDelete, tempDir);
     }
 
     /// <summary>
