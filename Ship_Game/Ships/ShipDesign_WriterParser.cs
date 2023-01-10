@@ -232,6 +232,7 @@ namespace Ship_Game.Ships
 
             GridInfo = gridInfo;
             BaseHull = hull;
+            NumDesignSlots = numModules;
             Bonuses = hull.Bonuses;
             IsShipyard |= hull.IsShipyard;
             IsOrbitalDefense |= hull.IsOrbitalDefense;
@@ -247,30 +248,28 @@ namespace Ship_Game.Ships
         // Implemented for Lazy-Loading, only load the design slots and nothing else
         public static DesignSlot[] LoadDesignSlots(FileInfo file, string[] moduleUIDs)
         {
-            using (var p = new GenericStringViewParser(file))
+            using GenericStringViewParser p = new(file);
+            DesignSlot[] modules = null;
+            int numModules = 0;
+
+            while (p.ReadLine(out StringView line))
             {
-                DesignSlot[] modules = null;
-                int numModules = 0;
-
-                while (p.ReadLine(out StringView line))
+                if (modules == null)
                 {
-                    if (modules == null)
-                    {
-                        StringView key = line.Next('=');
-                        if (key == "Modules")
-                            modules = new DesignSlot[line.ToInt()];
-                    }
-                    else
-                    {
-                        if (numModules == modules.Length)
-                            throw new InvalidDataException($"Ship design module count is incorrect: {p.Name}");
-
-                        DesignSlot slot = ParseDesignSlot(line, moduleUIDs);
-                        modules[numModules++] = slot;
-                    }
+                    StringView key = line.Next('=');
+                    if (key == "Modules")
+                        modules = new DesignSlot[line.ToInt()];
                 }
-                return modules;
+                else
+                {
+                    if (numModules == modules.Length)
+                        throw new InvalidDataException($"Ship design module count is incorrect: {p.Name}");
+
+                    DesignSlot slot = ParseDesignSlot(line, moduleUIDs);
+                    modules[numModules++] = slot;
+                }
             }
+            return modules;
         }
 
         public static DesignSlot ParseDesignSlot(StringView line, string[] moduleUIDs)

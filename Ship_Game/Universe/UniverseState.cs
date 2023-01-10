@@ -192,13 +192,19 @@ namespace Ship_Game.Universe
             {
                 HashSet<ShipDesign> designs = new();
                 foreach (Ship s in Ships)
-                    designs.Add((ShipDesign)s.ShipData);
+                {
+                    // double check that these designs are valid, there could be weird anomalies which should not exist in the save
+                    if (s.ShipData.IsValidDesign)
+                        designs.Add((ShipDesign)s.ShipData);
+                }
                 foreach (Empire e in us.EmpireList)
                 {
                     foreach (IShipDesign s in e.ShipsWeCanBuild)
-                        designs.Add((ShipDesign)s);
+                        if (s.IsValidDesign)
+                            designs.Add((ShipDesign)s);
                     foreach (IShipDesign s in e.SpaceStationsWeCanBuild)
-                        designs.Add((ShipDesign)s);
+                        if (s.IsValidDesign)
+                            designs.Add((ShipDesign)s);
                 }
                 Designs = designs.ToArr();
             }
