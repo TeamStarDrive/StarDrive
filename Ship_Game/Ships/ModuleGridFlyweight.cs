@@ -57,19 +57,33 @@ namespace Ship_Game.Ships
             SurfaceArea = info.SurfaceArea;
             Width  = info.Size.X;
             Height = info.Size.Y;
-            GridLocalCenter = new Vector2(info.Center.X*16f, info.Center.Y*16f);
+            GridLocalCenter = new(info.Center.X*16f, info.Center.Y*16f);
         
             // Ship's true radius is half of Module Grid's Diagonal Length
             var span = new Vector2(Width, Height) * 16f;
             Radius = span.Length() * 0.5f;
 
+            // set the default values to -1 (no mapping)
             ModuleIndexGrid = new short[Width * Height];
             for (int i = 0; i < ModuleIndexGrid.Length; ++i)
                 ModuleIndexGrid[i] = -1;
-
-            for (int i = 0; i < slots.Length; ++i)
+            
+            var shields = new Array<(DesignSlot, ShipModule, int)>();
+            var shieldIndices = new Array<short>();
+            var amplifierIndices = new Array<short>();
+            
+            int moduleIndex = 0; // the actual module index, needed for handling invalid modules
+            foreach (DesignSlot s in slots)
             {
-                DesignSlot s = slots[i];
+                // don't crash on invalid modules
+                // leave invalid module slots with index -1 to avoid lookup errors
+                // invalid modules are recorded and handled separately by ShipDesign.InvalidModules
+                if (!ResourceManager.GetModuleTemplate(s.ModuleUID, out ShipModule m))
+                {
+                    //Log.Warning($"ModuleGrid {name} missing {s.ModuleUID} at {s.Pos} size {s.Size.X}x{s.Size.Y}");
+                    continue;
+                }
+
                 Point p = s.Pos;
                 int endX = p.X + s.Size.X, endY = p.Y + s.Size.Y;
                 for (int y = p.Y; y < endY; ++y)
@@ -80,29 +94,22 @@ namespace Ship_Game.Ships
                     {
                         Log.Error($"Overlapping DesignSlot in design={name} slot={s}");
                     }
-                    ModuleIndexGrid[index] = (short)i;
+                    ModuleIndexGrid[index] = (short)moduleIndex;
                 }
-            }
 
-            var shields = new Array<(DesignSlot, ShipModule, int)>();
-            var shieldIndices = new Array<short>();
-            var amplifierIndices = new Array<short>();
-
-            for (int i = 0; i < slots.Length; ++i)
-            {
-                DesignSlot s = slots[i];
-                ShipModule module = ResourceManager.GetModuleTemplate(s.ModuleUID);
-                if (module.ShieldPowerMax > 0f)
+                if (m.ShieldPowerMax > 0f)
                 {
-                    shields.Add((s, module, i));
-                    shieldIndices.Add((short)i);
+                    shields.Add((s, m, moduleIndex));
+                    shieldIndices.Add((short)moduleIndex);
                 }
 
-                if (module.AmplifyShields > 0f)
-                    amplifierIndices.Add((short)i);
+                if (m.AmplifyShields > 0f)
+                    amplifierIndices.Add((short)moduleIndex);
 
-                if (module.HasInternalRestrictions)
+                if (m.HasInternalRestrictions)
                     NumInternalSlots += s.Size.X * s.Size.Y;
+
+                ++moduleIndex;
             }
 
             ShieldsIndex = shieldIndices.ToArray();
@@ -130,7 +137,7 @@ namespace Ship_Game.Ships
                         if (slotRect.Overlaps(shieldPos.X, shieldPos.Y, shieldRad))
                         {
                             int index = x + y * Width;
-                            shieldsGrid[index] ??= new Array<short>();
+                            shieldsGrid[index] ??= new();
                             shieldsGrid[index].Add((short)shieldSlotIndex);
                         }
                     }

@@ -55,7 +55,17 @@ public static class GlobalStats
 
     /// <returns>TRUE if `modName` is compatible with the current ModName</returns>
     public static bool IsValidForCurrentMod(string modName) => modName.IsEmpty() || modName == ModName;
-        
+
+    /// <returns>TRUE if `modName` is compatible with the current Mod setting for UseVanillaShips</returns>
+    public static bool IsShipValidForCurrentMod(string modName)
+    {
+        if (HasMod && !Defaults.Mod.UseVanillaShips) // this mod declares that it's incompatible with vanilla ships
+            return modName == ModName; // strict equality is then required
+
+        // this mod declares that it's COMPATIBLE with vanilla ships, so it will be able to load both of them
+        return IsValidForCurrentMod(modName);
+    }
+
     // "Combined Arms" or "" if there's no active mod, this name can have special characters
     // WARNING: this is no longer guaranteed to be same as ModPath !! Use this sparingly
     public static string ModName = "";

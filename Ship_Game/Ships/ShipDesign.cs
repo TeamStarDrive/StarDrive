@@ -75,7 +75,7 @@ public sealed partial class ShipDesign : IShipDesign
     public bool IsFromSave { get; set; }
     public bool IsAnExistingSavedDesign { get; set; }
 
-    public bool IsValidForCurrentMod => GlobalStats.IsValidForCurrentMod(ModName);
+    public bool IsValidForCurrentMod => GlobalStats.IsShipValidForCurrentMod(ModName);
 
     // You should always use this `Icon` property, because of bugs with `IconPath` initialization
     // when a ShipData is copied. @todo Fix ShipData copying
