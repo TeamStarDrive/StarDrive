@@ -58,6 +58,15 @@ internal class AutoPatcher : PopupWindow
         return p;
     }
 
+    void AddProgressAndRunTaskOnNextFrame(string progressLabel, Action<ProgressBarElement> action)
+    {
+        RunOnNextFrame(() =>
+        {
+            ProgressBarElement nextProgress = AddProgressBar(progressLabel);
+            CurrentTask = Parallel.Run(() => action(nextProgress));
+        });
+    }
+
     string GetPatchOutputFolder() => Path.GetFullPath(Path.Combine(Dir.StarDriveAppData, "Patches", Info.Version));
     static string GetPatchTempFolder() => Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "PatchTemp"));
 
@@ -91,7 +100,7 @@ internal class AutoPatcher : PopupWindow
         catch {}
     }
 
-    void Download(ProgressBarElement dp)
+    void Download(ProgressBarElement p)
     {
         try
         {
@@ -103,14 +112,10 @@ internal class AutoPatcher : PopupWindow
 
             Log.Write($"Downloading {Info.ZipUrl} to {outputFolder}");
             TimeSpan timeout = TimeSpan.FromMinutes(60);
-            string zipArchive = AutoUpdateChecker.DownloadZip(Info.ZipUrl, outputFolder, CurrentTask, dp.SetProgress, timeout);
+            string zipArchive = AutoUpdateChecker.DownloadZip(Info.ZipUrl, outputFolder, CurrentTask, p.SetProgress, timeout);
             Log.Write($"Download finished: {outputFolder}");
             
-            RunOnNextFrame(() =>
-            {
-                ProgressBarElement up = AddProgressBar($"Unzipping {Info.Version}");
-                CurrentTask = Parallel.Run(() => Unzip(zipArchive, outputFolder, up));
-            });
+            AddProgressAndRunTaskOnNextFrame($"Unzipping {Info.Version}", nextP => Unzip(zipArchive, outputFolder, nextP));
         }
         catch (Exception e)
         {
@@ -120,22 +125,19 @@ internal class AutoPatcher : PopupWindow
         }
     }
 
-    void Unzip(string zipArchive, string outputFolder, ProgressBarElement up)
+    void Unzip(string zipArchive, string outputFolder, ProgressBarElement p)
     {
         try
         {
             Log.Write($"Unzipping {zipArchive} to {outputFolder}");
-            UnzipWithProgress(zipArchive, outputFolder, CurrentTask, up);
+            UnzipWithProgress(zipArchive, outputFolder, CurrentTask, p);
             Log.Write($"Unzip finished: {outputFolder}");
 
             Log.Write($"Deleting archive {zipArchive}");
             File.Delete(zipArchive);
 
-            RunOnNextFrame(() =>
-            {
-                ProgressBarElement ap = AddProgressBar("Applying Patch");
-                CurrentTask = Parallel.Run(() => ApplyPatchFiles(outputFolder, ap));
-            });
+            string patchFilesFolder = GetPatchFilesFolder(outputFolder);
+            AddProgressAndRunTaskOnNextFrame("Deleting Stale Files", nextP => DeleteStaleFiles(patchFilesFolder, nextP));
         }
         catch (Exception e)
         {
@@ -175,73 +177,55 @@ internal class AutoPatcher : PopupWindow
         }
     }
 
-    void ApplyPatchFiles(string patchFilesFolder, ProgressBarElement ap)
+    string GetGameDirectory()
+    {
+        string gameDir = Directory.GetCurrentDirectory();
+        if (IsMod) gameDir = Path.Combine(gameDir, GlobalStats.ModPath.Replace('/', '\\'));
+
+        bool requiresElevation = gameDir.Contains("Program Files");
+        if (requiresElevation)
+        {
+            if (!IsInRole(WindowsBuiltInRole.Administrator))
+                throw new InvalidOperationException("UAC Elevation failed: cannot overwrite StarDrive Program Files");
+        }
+        return gameDir;
+    }
+
+    static string GetPatchFilesFolder(string outputFolder)
+    {
+        // in case the archive extracted files to Folder/ModName instead of Folder/
+        var entries = Directory.GetFileSystemEntries(outputFolder, "*", SearchOption.TopDirectoryOnly);
+        if (entries.Length == 1)
+            return entries[0];
+        return outputFolder;
+    }
+
+    void DeleteStaleFiles(string patchFilesFolder, ProgressBarElement p)
     {
         try
         {
-            ScreenManager.ResetHotLoadTargets(); // disable hotloading while patcher is running
-
-            string gameDir = Directory.GetCurrentDirectory();
-            if (IsMod) gameDir = Path.Combine(gameDir, GlobalStats.ModPath.Replace('/', '\\'));
-
-            bool requiresElevation = gameDir.Contains("Program Files");
-            if (requiresElevation)
+            string gameDir = GetGameDirectory();
+            string tempDir = GetPatchTempFolder();
+            
+            Array<string> filesToDelete = GetFilesToRemove(Path.Combine(patchFilesFolder, "Release.DeleteFiles.txt"));
+            int currentAction = 0;
+            foreach (string toRemoveRelPath in filesToDelete)
             {
-                if (!IsInRole(WindowsBuiltInRole.Administrator))
-                    throw new InvalidOperationException("UAC Elevation failed: cannot overwrite StarDrive Program Files");
+                string fullPath = Path.Combine(gameDir, toRemoveRelPath);
+                Log.Write($"RemoveFile: {toRemoveRelPath}");
+                SafeDelete(fullPath, toRemoveRelPath, tempDir);
+                p.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToDelete.Count));
             }
 
-            ApplyPatchFiles(patchFilesFolder, ap, gameDir);
-
-            RunOnNextFrame(() =>
-            {
-                ProgressSteps.AddLabel("Restarting StarDrive ...")
-                    .Anim().Alpha(new(0.5f,1.0f)).Loop();
-                CurrentTask = Parallel.Run(RestartAsync);
-            });
+            AddProgressAndRunTaskOnNextFrame("Copying New Files", nextP => CopyNewFiles(patchFilesFolder, nextP));
         }
         catch (Exception e)
         {
-            Log.Error(e, "ApplyPatch failed");
-            AddErrorMessageAndAllowExit("Apply Patch failed!", e.Message);
+            Log.Error(e, "DeleteStaleFiles failed");
+            AddErrorMessageAndAllowExit("Delete Stale Files failed!", e.Message);
         }
     }
-
-    void ApplyPatchFiles(string patchFilesFolder, ProgressBarElement ap, string gameDir)
-    {
-        string tempDir = GetPatchTempFolder();
-
-        // in case the archive extracted files to Folder/ModName instead of Folder/
-        var entries = Directory.GetFileSystemEntries(patchFilesFolder, "*", SearchOption.TopDirectoryOnly);
-        if (entries.Length == 1)
-            patchFilesFolder = entries[0];
-
-        Array<string> filesToDelete = GetFilesToRemove(Path.Combine(patchFilesFolder, "Release.DeleteFiles.txt"));
-        FileInfo[] filesToAdd = Dir.GetFiles(patchFilesFolder);
-
-        int currentAction = 0;
-        int totalActions = filesToDelete.Count + filesToAdd.Length;
-
-        foreach (string toRemoveRelPath in filesToDelete)
-        {
-            string fullPath = Path.Combine(gameDir, toRemoveRelPath);
-            Log.Write($"RemoveFile: {toRemoveRelPath}");
-            SafeDelete(fullPath, toRemoveRelPath, tempDir);
-            ap.SetProgress(ProgressBarElement.GetPercent(++currentAction, totalActions));
-        }
-
-        foreach (FileInfo toAdd in filesToAdd)
-        {
-            string srcFile = toAdd.FullName;
-            string relPath = srcFile.Replace(patchFilesFolder, "").TrimStart('\\', '/');
-            string dstFile = Path.Combine(gameDir, relPath);
-            
-            Log.Write($"ApplyPatch: {relPath}");
-            SafeMove(srcFile, dstFile, relPath, tempDir);
-            ap.SetProgress(ProgressBarElement.GetPercent(++currentAction, totalActions));
-        }
-    }
-
+    
     static Array<string> GetFilesToRemove(string filesToDeleteTxt)
     {
         Array<string> toRemove = new();
@@ -259,6 +243,40 @@ internal class AutoPatcher : PopupWindow
         
         File.Delete(filesToDeleteTxt); // remove this file to avoid copying it to game dir
         return toRemove;
+    }
+
+    void CopyNewFiles(string patchFilesFolder, ProgressBarElement ap)
+    {
+        try
+        {
+            string gameDir = GetGameDirectory();
+            string tempDir = GetPatchTempFolder();
+            
+            FileInfo[] filesToAdd = Dir.GetFiles(patchFilesFolder);
+            int currentAction = 0;
+            foreach (FileInfo toAdd in filesToAdd)
+            {
+                string srcFile = toAdd.FullName;
+                string relPath = srcFile.Replace(patchFilesFolder, "").TrimStart('\\', '/');
+                string dstFile = Path.Combine(gameDir, relPath);
+                
+                Log.Write($"CopyFile: {relPath}");
+                SafeMove(srcFile, dstFile, relPath, tempDir);
+                ap.SetProgress(ProgressBarElement.GetPercent(++currentAction, filesToAdd.Length));
+            }
+
+            RunOnNextFrame(() =>
+            {
+                ProgressSteps.AddLabel("Restarting StarDrive ...")
+                    .Anim().Alpha(new(0.5f,1.0f)).Loop();
+                CurrentTask = Parallel.Run(RestartAsync);
+            });
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "CopyNewFiles failed");
+            AddErrorMessageAndAllowExit("Copy New Files failed!", e.Message);
+        }
     }
 
     void AddErrorMessageAndAllowExit(string title, string details)
