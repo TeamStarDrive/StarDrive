@@ -27,9 +27,19 @@ namespace Ship_Game
     {
         public InputState Input;
         bool OtherScreenHasFocus;
+
         public float SlowFlashTimer { get; private set; } = 1;
         public float NormalFlashTimer { get; private set; } =1;
         public float FastFlashTimer { get; private set; } = 1;
+        
+        /// <summary>
+        /// New Screen active event flag.
+        /// This is a different simpler to understand flag than the legacy IsActive flag.
+        ///
+        /// Once a screen becomes visible, the BecameActive() event is triggered and IsScreenActive is set to true.
+        /// Once an active screen becomes invisible, the BecameInActive() event triggers and IsScreenActive is set to false.
+        /// </summary>
+        public bool IsScreenActive { get; private set; }
 
         public bool IsActive => Enabled && !IsExiting && (!OtherScreenHasFocus || (GlobalStats.RestrictAIPlayerInteraction || System.Diagnostics.Debugger.IsAttached )) && 
             (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
@@ -213,10 +223,42 @@ namespace Ship_Game
                 ScreenManager.RemoveScreen(this);
         }
 
-        public virtual void OnScreenRemoved()
+        public void OnScreenRemoved()
         {
             Enabled = Visible = false;
             ScreenState = ScreenState.Hidden;
+        }
+
+        /// <summary>
+        /// Called when this Screen has become visible.
+        /// 1) first time this screen is shown
+        /// 2) when another game screen which covered this one is removed
+        /// </summary>
+        public virtual void BecameActive()
+        {
+        }
+
+        public void OnBecomeActive()
+        {
+            IsScreenActive = true;
+            Log.Write($"BecameActive: {GetType().GetTypeName()}");
+            BecameActive();
+        }
+
+        /// <summary>
+        /// Called when this Screen is being covered by another screen,
+        /// or when this screen is finally removed.
+        /// This is not the same as OnExit which is for delayed exits
+        /// </summary>
+        public virtual void BecameInActive()
+        {
+        }
+
+        public void OnBecomeInActive()
+        {
+            IsScreenActive = false;
+            Log.Write($"BecameInActive: {GetType().GetTypeName()}");
+            BecameInActive();
         }
         
         // NOTE: Optionally implemented by GameScreens to create their screen content
@@ -234,6 +276,9 @@ namespace Ship_Game
 
         public virtual void UnloadContent()
         {
+            if (IsScreenActive)
+                OnBecomeInActive(); // forcefully become InActive during UnloadContent()
+
             TransientContent?.Unload();
             RemoveAll(); // using RemoveAll() here to ensure all necessary events are triggered, instead of Elements.Clear()
             DidLoadContent = false;
@@ -273,25 +318,16 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
         }
 
-        public virtual void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public bool PreUpdate(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             if (IsDisposed)
-            {
-                Log.Error($"Screen {Name} Updated after being disposed!");
-                return;
-            }
-
-            //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
+                return false; // don't update
 
             // Process Pending Actions
             InvokePendingActions();
 
-            Visible = ScreenState != ScreenState.Hidden;
-
-            // Update new UIElementV2
-            Update(elapsed.RealTime.Seconds);
-
             OtherScreenHasFocus = otherScreenHasFocus;
+
             if (IsExiting)
             {
                 ScreenState = ScreenState.TransitionOff;
@@ -302,13 +338,11 @@ namespace Ship_Game
             }
             else
             {
-                if (coveredByOtherScreen)
+                if (coveredByOtherScreen) // if covered by another screen, there is no transition!
                 {
-                    ScreenState = UpdateTransition(elapsed, TransitionOffTime, 1)
-                        ? ScreenState.TransitionOff
-                        : ScreenState.Hidden;
+                    ScreenState = ScreenState.Hidden;
                 }
-                else
+                else // not fully covered?
                 {
                     ScreenState = UpdateTransition(elapsed, TransitionOnTime, -1)
                         ? ScreenState.TransitionOn
@@ -316,10 +350,7 @@ namespace Ship_Game
                 }
             }
 
-            if (!otherScreenHasFocus && !coveredByOtherScreen)
-            {
-                GameCursors.SetCurrentCursor(GetCurrentCursor());
-            }
+            Visible = ScreenState != ScreenState.Hidden;
 
             SlowFlashTimer   -= elapsed.RealTime.Seconds / 4;
             NormalFlashTimer -= elapsed.RealTime.Seconds;
@@ -328,6 +359,17 @@ namespace Ship_Game
             FastFlashTimer   = FastFlashTimer < elapsed.RealTime.Seconds ? 1 : FastFlashTimer;
             NormalFlashTimer = NormalFlashTimer < elapsed.RealTime.Seconds ? 1 : NormalFlashTimer;
             SlowFlashTimer   = SlowFlashTimer < elapsed.RealTime.Seconds ? 1 : SlowFlashTimer;
+            return true; // all good
+        }
+
+        public void Update(UpdateTimes elapsed, bool isTopMost)
+        {
+            if (isTopMost) // show the cursor of the topmost visible screen
+            {
+                GameCursors.SetCurrentCursor(GetCurrentCursor());
+            }
+
+            Update(elapsed.RealTime.Seconds); // Update UIElementV2
         }
 
         // TODO: This is deprecated by UIBasicAnimEffect system

@@ -614,6 +614,9 @@ namespace Ship_Game
             bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
             bool coveredByOtherScreen = false;
             bool inputCaptured = false;
+            
+            Array<GameScreen> frontToBack = new(); // valid screens ordered from topmost to back
+            Array<GameScreen> backToFront = new();
 
             // since GameScreens are allowed to be removed randomly during their HandleInput,
             // we always create a copy of current screens, and double check if the screen still exists
@@ -632,18 +635,43 @@ namespace Ship_Game
                         continue; // HandleInput is allowed to Dispose this screen
                 }
 
-                // 2. Update the screen
-                screen.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+                // 2. Add the screen to Update list
+                if (screen.PreUpdate(elapsed, otherScreenHasFocus, coveredByOtherScreen))
+                {
+                    frontToBack.Add(screen);
+                    backToFront.Insert(0, screen);
+                }
 
                 // update visibility flags
-                if (screen.ScreenState == ScreenState.TransitionOn ||
-                    screen.ScreenState == ScreenState.Active)
+                if (screen.ScreenState is ScreenState.TransitionOn or ScreenState.Active)
                 {
                     otherScreenHasFocus = true;
 
                     if (!screen.IsPopup)
                         coveredByOtherScreen = true;
                 }
+            }
+
+            // 4. trigger inactive in front-to-back order
+            foreach (GameScreen screen in frontToBack)
+            {
+                if (!screen.Visible && screen.IsScreenActive)
+                    screen.OnBecomeInActive();
+            }
+            
+            // 5. trigger active in back-to-front order
+            foreach (GameScreen screen in backToFront)
+            {
+                if (screen.Visible && !screen.IsScreenActive)
+                    screen.OnBecomeActive();
+            }
+            
+            // 6. update the screens in back-to-front order
+            GameScreen topMost = frontToBack.Find(s => s.Visible);
+            foreach (GameScreen screen in backToFront)
+            {
+                if (screen.Visible)
+                    screen.Update(elapsed, isTopMost: screen == topMost);
             }
         }
 

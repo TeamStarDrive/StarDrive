@@ -111,10 +111,10 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float fixedDeltaTime)
         {
             DebugUnlocks.Visible = Universe.Debug || Universe is DeveloperUniverse;
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(fixedDeltaTime);
         }
 
         public void OnSearchButtonClicked(UIButton button)
