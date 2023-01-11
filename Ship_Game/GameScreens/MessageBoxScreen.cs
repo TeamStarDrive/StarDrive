@@ -116,9 +116,9 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float fixedDeltaTime)
         {
-            Timer -= elapsed.RealTime.Seconds;
+            Timer -= fixedDeltaTime;
             if (Timed && !IsExiting)
             {
                 ToAppend = string.Concat(" ", Timer.String(0), " ", Localizer.Token(GameText.Seconds));
@@ -128,7 +128,7 @@ namespace Ship_Game
                     ExitScreen();
                 }
             }
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(fixedDeltaTime);
         }
     }
 }

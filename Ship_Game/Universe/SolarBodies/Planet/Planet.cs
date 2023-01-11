@@ -886,6 +886,8 @@ namespace Ship_Game
 
         public float PopPerTileFor(Empire empire) => BasePopPerTile * Empire.RacialEnvModifer(Category, empire);
 
+        float MaxPopBillionNoBuildingBonus => MaxPopBillionVal; // Without pop bonus from bulidings but with Biospheres
+
         // these are intentionally duplicated so we don't easily modify them...
         [StarData] float BasePopPerTileVal;
         float MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
@@ -905,9 +907,9 @@ namespace Ship_Game
             if (!PType.Habitable)
                 return;
 
-            int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-            PopulationBonus       = SumBuildings(b => !b.IsBiospheres ? b.MaxPopIncrease : 0);
-            MaxPopValFromTiles    = (BasePopPerTile * numHabitableTiles) 
+            int numBaseHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
+            PopulationBonus    = SumBuildings(b => !b.IsBiospheres ? b.MaxPopIncrease : 0);
+            MaxPopValFromTiles = (BasePopPerTile * numBaseHabitableTiles) 
                                     + CountBuildings(b => b.IsBiospheres) * BasePopPerBioSphere;
 
             MaxPopValFromTiles = MaxPopValFromTiles.LowerBound(BasePopPerTile / 2);

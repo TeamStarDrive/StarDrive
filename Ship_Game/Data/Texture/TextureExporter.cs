@@ -71,18 +71,12 @@ namespace Ship_Game.Data.Texture
         // RGBA color: PNG
         public bool SaveAutoFormat(Texture2D texture, string outPath)
         {
-            return SaveAutoFormat(texture, outPath, out string _);
-        }
-
-        public bool SaveAutoFormat(Texture2D texture, string outPath, out string savedPath)
-        {
             try
             {
                 SurfaceFormat f = texture.Format;
                 if (f == SurfaceFormat.NormalizedByte2)
                 {
                     Log.Warning($"Unsupported pixel format {f} for {texture.Name} -> {outPath}");
-                    savedPath = null;
                     return false;
                 }
 
@@ -91,17 +85,17 @@ namespace Ship_Game.Data.Texture
                 if (d.Exists)
                 {
                     var texInfo = new TextureInfo(texture);
-                    if (f == SurfaceFormat.Dxt1 || f == SurfaceFormat.Dxt5)
-                        savedPath = texInfo.SaveAsDds(outPath);
+                    if (f is SurfaceFormat.Dxt1 or SurfaceFormat.Dxt5)
+                        texInfo.SaveAsDds(outPath);
                     else
-                        savedPath = texInfo.SaveAsPng(outPath);
+                        texInfo.SaveAsPng(outPath);
                     return true;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                Log.Warning($"Save {outPath} failed: {e.Message}");
             }
-            savedPath = null;
             return false;
         }
 

@@ -116,7 +116,7 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float fixedDeltaTime)
         {
             scale = 1f + 2f * TransitionPosition;
             Saturation = 100f * (1f - TransitionPosition);
@@ -124,7 +124,8 @@ namespace Ship_Game
             height = height.LerpTo((int)(540f + 540f * (1f - TransitionPosition)), 0.3f);
             GameAudio.MuteGenericMusic();
             SourceRect = new Rectangle(SourceRect.X.LerpTo(960 - width / 2, 0.3f), SourceRect.Y.LerpTo(540 - height / 2, 0.3f), width, height);
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+
+            base.Update(fixedDeltaTime);
         }
     }
 }

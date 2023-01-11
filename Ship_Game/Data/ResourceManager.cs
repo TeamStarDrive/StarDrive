@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
@@ -223,7 +222,6 @@ namespace Ship_Game
 
             Log.ConfigureStatsReporter();
             LoadContent();
-            Profiled(RunExportTasks);
 
             LoadGraphicsResources(manager);
             HelperFunctions.CollectMemory();
@@ -395,22 +393,6 @@ namespace Ship_Game
             EmpireHullBonuses.Clear();
 
             UnloadGraphicsResources(manager);
-        }
-
-        static void RunExportTasks()
-        {
-            if (GlobalStats.ExportTextures)
-                RootContent.RawContent.ExportAllTextures();
-
-            if (GlobalStats.ExportMeshes != null)
-            {
-                // "fbx+obj"
-                string[] formats = GlobalStats.ExportMeshes.Split('+');
-                foreach (string ext in formats)
-                {
-                    RootContent.RawContent.ExportAllXnbMeshes(ext);
-                }
-            }
         }
 
         static FileInfo ModInfo(string file) => new FileInfo( ModContentDirectory + file );
@@ -1604,9 +1586,9 @@ namespace Ship_Game
 
         public static readonly ShipsManager Ships = new();
 
-        public static void AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
+        public static bool AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
-            Ships.Add(shipDesign, playerDesign, readOnly);
+            return Ships.Add(shipDesign, playerDesign, readOnly);
         }
 
         public static bool ShipTemplateExists(string shipName) => Ships.Exists(shipName);
@@ -1660,6 +1642,24 @@ namespace Ship_Game
                         ShipDesign shipDesign = ShipDesign.Parse(info);
                         if (shipDesign == null)
                             continue;
+
+                        if (shipDesign.InvalidModules != null)
+                        {
+                            bool incompatibleMod = GlobalStats.HasMod && shipDesign.ModName.IsEmpty();
+                            if (incompatibleMod) // this is most likely an incompatibility between current mod and Vanilla design
+                            {
+                                Log.Warning($"Ignoring Vanilla ShipDesign={shipDesign.Name} due to invalid modules: {shipDesign.InvalidModules}");
+                                continue;
+                            }
+
+                            // special conditions for debugging completely broken designs
+                            bool allowDebuggingBrokenDesigns = Log.HasDebugger;
+                            if (!allowDebuggingBrokenDesigns)
+                            {
+                                Log.Warning($"Ignoring ShipDesign={shipDesign.Name} due to invalid modules: {shipDesign.InvalidModules}");
+                                continue;
+                            }
+                        }
 
                         string nameNoExt = info.NameNoExt();
                         if (nameNoExt != shipDesign.Name)

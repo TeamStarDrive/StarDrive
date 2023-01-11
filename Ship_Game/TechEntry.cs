@@ -801,9 +801,16 @@ namespace Ship_Game
                 return this;
             foreach (Technology child in Tech.Children)
             {
-                TechEntry discovered = empire.GetTechEntry(child).FindNextDiscoveredTech(empire);
-                if (discovered != null)
-                    return discovered;
+                if (empire.TryGetTechEntry(child.UID, out TechEntry discovered))
+                {
+                    discovered = discovered.FindNextDiscoveredTech(empire);
+                    if (discovered != null)
+                        return discovered;
+                }
+                else
+                {
+                    Log.Error($"Empire {empire.Name} missing TechEntry for Tech={child.UID}");
+                }
             }
             return null;
         }
