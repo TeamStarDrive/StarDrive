@@ -9,7 +9,7 @@ namespace Ship_Game
     {
         public bool GovernorOn  => CType != ColonyType.Colony;
         public bool GovernorOff => CType == ColonyType.Colony;
-
+        int NumHabitableTiles => TilesList.Count(t => t.Habitable); // Bioshperes are counted here
         public float CurrentProductionToQueue => Prod.NetIncome + InfraStructure;
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / (IsCybernetic ? 2 : 3)).LowerBound(0.1f);
         float EstimatedAverageFood => (Food.NetMaxPotential / 3).LowerBound(0.1f);
@@ -96,24 +96,25 @@ namespace Ship_Game
 
         public float CivilianBuildingsMaintenance  => Money.Maintenance - GroundDefMaintenance;
 
-        // ColonyDebt Tolerance is 2 (* env modifier) if the current pop is below 2b.
-        // Above 2b, the rolerance decreases based on the pop number above to ratio.
-        // TODO - make that number (2) dynamic - based on the personality or credit rate maybe?
-        public float ColonyDebtTolerance
+        public float GetColonyDebtTolerance()
         {
-            get
+            if (Owner == null || GovernorOff || MaxPopBillionNoBuildingBonus >= 5f || PopulationBillion > 5f)
+                return 0;
+
+            float ratio = 0.1f * (5 - PopulationBillion); // bigger pop = less tolerance - between 0 and 0.5
+            float fertilityBonus = IsCybernetic ? 0 : MaxFertility;
+            float richnessBonus = IsCybernetic ? MineralRichness : MineralRichness * 0.5f;
+            switch (CType)
             {
-                if (Owner == null || Owner.Money < 1000)
-                    return 0;
-
-                if ((PopulationBillion) < 2)
-                    return 2;
-
-                float correctedRatio = (PopulationBillion - 2) / ((MaxPopulationBillion - 2).LowerBound(0.1f));
-                float baseOverSpend = (2 - (correctedRatio * 2)).LowerBound(0);
-                float envOverSpend  = Empire.RacialEnvModifer(Category, Owner).LowerBound(1);
-                return (baseOverSpend * envOverSpend).LowerBound(0);
+                case ColonyType.Agricultural: fertilityBonus *= 1.5f; break;
+                case ColonyType.Industrial:   richnessBonus  *= 1.5f; break;
+                case ColonyType.Core:         richnessBonus  *= 1.25f; fertilityBonus *= 1.25f; break;
             }
+
+            float totalTolerancePerTile = (richnessBonus + fertilityBonus) * ratio;
+            float lowMoneyRatio = (Owner.Money * 0.0005f).Clamped(0, 1); // money / 2000
+            float total = totalTolerancePerTile * NumHabitableTiles * lowMoneyRatio; // Biospheres will increase tolerance
+            return total.LowerBound(0);
         }
 
         //New Build Logic by Gretman, modified by Fat Bastard
