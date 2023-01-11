@@ -316,43 +316,6 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("ResearchMenu/tech_underglow_verti_R"), vr, Color.White);
         }
 
-        public static void DrawResearchLineHorizontal(this SpriteBatch batch, Vector2 leftPoint, Vector2 rightPoint, bool complete)
-        {
-            var r = new Rectangle((int)leftPoint.X + 5, (int)leftPoint.Y - 2, (int)leftPoint.Distance(rightPoint) - 5, 5);
-            var small = new Rectangle((int)leftPoint.X, (int)leftPoint.Y, 5, 1);
-            FillRectangle(batch, small, (complete ? new Color(110, 171, 227) : new Color(194, 194, 194)));
-
-            SubTexture texture = ResourceManager.Texture(complete
-                               ? "ResearchMenu/grid_horiz_complete"
-                               : "ResearchMenu/grid_horiz");
-            batch.Draw(texture, r, Color.White);
-        }
-
-        public static void DrawResearchLineHorizontalGradient(this SpriteBatch batch, Vector2 left, Vector2 right, bool complete)
-        {
-            var r = new Rectangle((int)left.X + 5, (int)left.Y - 2, (int)left.Distance(right) - 5, 5);
-            var small = new Rectangle((int)left.X, (int)left.Y, 5, 1);
-            FillRectangle(batch, small, (complete ? new Color(110, 171, 227) : new Color(194, 194, 194)));
-
-            SubTexture texture = ResourceManager.Texture(complete
-                               ? "ResearchMenu/grid_horiz_gradient_complete"
-                               : "ResearchMenu/grid_horiz_gradient");
-            batch.Draw(texture, r, Color.White);
-        }
-
-        public static void DrawResearchLineVertical(this SpriteBatch batch, Vector2 top, Vector2 bottom, bool complete)
-        {
-            if (top.Y > bottom.Y) // top must have lower Y
-                Vectors.Swap(ref top, ref bottom);
-
-            SubTexture texture = ResourceManager.Texture(complete
-                               ? "ResearchMenu/grid_vert_complete"
-                               : "ResearchMenu/grid_vert");
-
-            var r = new Rectangle((int)top.X - 2, (int)top.Y, 5, (int)top.Distance(bottom));
-            batch.Draw(texture, r, Color.White);
-        }
-
         public static void FillRectangle(this SpriteBatch batch, in Rectangle rect, Color color)
         {
             // TODO: This is the legacy draw with no sub-pixel capabilities
