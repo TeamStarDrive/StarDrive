@@ -1124,12 +1124,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             SetDialogText(text, DialogState.Them);
         }
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float fixedDeltaTime)
         {
-            if (!Visible)
-                return;
-
-            RacialVideo ??= new ScreenMediaPlayer(TransientContent);
+            RacialVideo ??= new(TransientContent);
 
             if (!RacialVideo.PlaybackFailed)
                 RacialVideo.PlayVideoAndMusic(Them, WarDeclared);
@@ -1142,7 +1139,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             Negotiate.ToggleOn = DState == DialogState.Negotiate;
 
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(fixedDeltaTime);
         }
 
         protected override void Destroy()

@@ -147,10 +147,10 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float fixedDeltaTime)
         {
             // there's a nasty issue with the music, so using a timer check here
-            MusicCheckTimer -= elapsed.RealTime.Seconds;
+            MusicCheckTimer -= fixedDeltaTime;
             if (MusicCheckTimer <= 0f)
             {
                 PlayWinTheme();
@@ -161,7 +161,8 @@ namespace Ship_Game
             width = width.LerpTo((int)(960f + 960f * (1f - TransitionPosition)), 0.3f);
             height = height.LerpTo((int)(540f + 540f * (1f - TransitionPosition)), 0.3f);
             SourceRect = new Rectangle(SourceRect.X.LerpTo(960 - width / 2, 0.3f), SourceRect.Y.LerpTo(540 - height / 2, 0.3f), width, height);
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+
+            base.Update(fixedDeltaTime);
         }
     }
 }

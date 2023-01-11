@@ -58,7 +58,7 @@ namespace Ship_Game.AI
             DisposeOrders();
             EscortTarget = null;
             PatrolTarget = null;
-            Orbit.ExitOrbit();
+            Orbit?.ExitOrbit();
             SystemToDefend = null;
             IgnoreCombat = false;
             ExitCombatState();

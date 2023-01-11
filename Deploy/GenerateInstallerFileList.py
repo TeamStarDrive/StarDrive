@@ -1,7 +1,8 @@
-#!/usr/bin/python3
-import os, argparse, hashlib, uuid, shutil
+﻿#!/usr/bin/python3
+import os, argparse, shutil, string
 from typing import List, Dict, Iterable
-from DeployUtils import console, env
+from DeployUtils import console, new_guid, path_combine, read_lines
+from FileInfo import FileInfo
 
 BIN_EXTENSIONS = ['.dll', '.pdb', '.config', '.exe']
 BIN_EXCLUDE = ['SDNativeTests.exe', 'SDNativeTests.pdb', 'SDNative.pdb']
@@ -12,82 +13,6 @@ parser.add_argument('--major', action='store_true', help='Is this a major releas
 parser.add_argument('--patch', action='store_true', help='Is this a cumulative patch?')
 parser.add_argument('--type', type=str, help='Type of installer: nsis, zip, msi', default='nsis')
 args = parser.parse_args()
-
-def path_combine(a, b):
-    return os.path.normpath(os.path.join(a, b))
-
-def read_lines(listfile) -> List[str]:
-    lines: List[str] = []
-    if os.path.exists(listfile):
-        with open(listfile, 'r') as f:
-            for line in f.readlines():
-                line = line.strip()
-                if len(line) != 0 and not line.startswith('#'):
-                    lines.append(line)
-    return lines
-
-def new_guid():
-    return str(uuid.uuid4()).upper()
-
-class FileInfo:
-    def __init__(self, game_dir, relpath, guid, hash=None):
-        self.filename = relpath
-        self.guid = guid
-        self.hash = FileInfo.get_hash(game_dir, relpath) if not hash else hash
-
-    def __str__(self): return self.hash + ';' + self.guid + ';' + self.filename
-    def __repr__(self): return self.hash + ';' + self.guid + ';' + self.filename
-
-    @staticmethod
-    def get_hash(game_dir, filename) -> str:
-        hasher = hashlib.sha1()
-        with open(path_combine(game_dir, filename), 'rb') as f:
-            hasher.update(f.read())
-        return hasher.hexdigest()
-
-    @staticmethod
-    def load_file_infos(game_dir:str, listfile:str) -> List['FileInfo']:
-        files = []
-        for line in read_lines(listfile):
-            parts = line.split(';')
-            files.append(FileInfo(game_dir, relpath=parts[2], guid=parts[1], hash=parts[0]))
-        return files
-
-    @staticmethod
-    def load_file_infos_dict(game_dir:str, listfile:str, required:bool) -> List['FileInfo']:
-        if os.path.exists(listfile):
-            return FileInfo.dict(FileInfo.load_file_infos(game_dir, listfile))
-        if required:
-            raise FileNotFoundError(listfile)
-        return dict()
-
-    @staticmethod
-    def dict(files: List['FileInfo']) -> Dict[str, 'FileInfo']:
-        return dict([(f.filename, f) for f in files])
-
-    @staticmethod
-    def save_file_infos(filename:str, file_infos: List['FileInfo']):
-        console(f'Write FileInfos: {filename} ({len(file_infos)} files)')
-        text = '\n'.join([str(f) for f in file_infos])
-        with open(filename, 'w') as f: f.write(text)
-
-    @staticmethod
-    def list_files_recursive(game_dir:str, subdir:str) -> List['FileInfo']:
-        files: List[FileInfo] = []
-        for (dirpath, _, filenames) in os.walk(path_combine(game_dir, subdir)):
-            dirname = dirpath.replace(game_dir, '')
-            for f in filenames:
-                files.append(FileInfo(game_dir, path_combine(dirname, f), guid=new_guid(), hash=None))
-        return files
-
-    @staticmethod
-    def list_files(game_dir, subdir, extensions, exclude) -> List['FileInfo']:
-        files: List[FileInfo] = []
-        for f in os.listdir(path_combine(game_dir, subdir)):
-            if os.path.splitext(f)[1].lower() in extensions:
-                if not f in exclude:
-                    files.append(FileInfo(game_dir, f, guid=new_guid(), hash=None))
-        return files
 
 
 def create_nsis_commands(new_files:Iterable[FileInfo], deleted_files:Iterable[FileInfo], major:bool):
@@ -112,12 +37,19 @@ def create_nsis_commands(new_files:Iterable[FileInfo], deleted_files:Iterable[Fi
 ## This remaps and ID-s that go over that limit
 MSI_IDS = dict()
 
+def replace_non_ascii(s: str, replaceWith='?') -> str:
+    result = ''
+    for ch in s: result += ch if ord(ch) < 128 else replaceWith
+    return result
+
 def generate_stupid_msi_id(path: str):
     id = path.replace('/', '_') \
                .replace('\\', '_') \
                .replace(' ', '_') \
                .replace('-', '_') \
                .replace('.', '_')
+    if not id.isascii():
+        raise Exception(f'MSI does not support non-ascii paths: {path}')
 
     if len(id) <= 70: return id 
     if id in MSI_IDS: return MSI_IDS[id]
@@ -144,6 +76,7 @@ class DirectoryInfo:
         self.id = generate_stupid_msi_id(fullpath) if fullpath else 'INSTALLFOLDER'
         self.subdirs : List["DirectoryInfo"] = []
         self.files : List[MsiFileInfo] = []
+        self.delete : List[MsiFileInfo] = []
     def findOrCreate(self, fullpath, name) -> "DirectoryInfo":
         for subdir in self.subdirs:
             if subdir.name == name: return subdir
@@ -160,12 +93,22 @@ class DirectoryInfo:
         return dirInfo
 
 
-def create_stupid_msi_directory_tree(new_files:Iterable[FileInfo]) -> DirectoryInfo:
+def create_stupid_msi_directory_tree(new_files:Iterable[FileInfo], deleted_files:Iterable[FileInfo]) -> DirectoryInfo:
     root = DirectoryInfo('', '')
     for new in new_files:
+        if not new.filename.isascii():
+            console(f'Skipping File because it contains non-ascii characters: {new.filename}')
+            continue
         dirpath = os.path.dirname(new.filename).replace('\\', '/').rstrip('/')
         dirInfo = root.findOrCreateRecursive(dirpath)
         dirInfo.files.append(MsiFileInfo(new))
+    for delete in deleted_files:
+        if not delete.filename.isascii():
+            console(f'Skipping DeleteFile because it contains non-ascii characters: {delete.filename}')
+            continue
+        dirpath = os.path.dirname(delete.filename).replace('\\', '/').rstrip('/')
+        dirInfo = root.findOrCreateRecursive(dirpath)
+        dirInfo.delete.append(MsiFileInfo(delete))
     return root
 
 
@@ -181,18 +124,16 @@ def append_stupid_msi_directory_structure(lines:list, dir:DirectoryInfo, indent)
 
 def append_stupid_msi_files(lines:list, dir:DirectoryInfo):
     lines.append(f'  <DirectoryRef Id="{dir.id}">\n')
-    for file in dir.files:
-        lines.append(f'    <Component Id="C_{file.id}" Guid="{file.guid}"> <File Id="{file.id}" Source="$(var.SourceDir){file.filename}" KeyPath="yes" /> </Component>\n')
+    for f in dir.delete: lines.append(f'    <Component Id="D_{f.id}" Guid="{f.guid}" KeyPath="yes"> <RemoveFile Id="{f.id}" Name="{os.path.basename(f.filename)}" On="install" /> </Component>\n')
+    for f in dir.files:  lines.append(f'    <Component Id="C_{f.id}" Guid="{f.guid}"> <File Id="{f.id}" Source="$(var.SourceDir){f.filename}" KeyPath="yes" /> </Component>\n')
     lines.append(f'  </DirectoryRef>\n')
-    for subdir in dir.subdirs:
-        append_stupid_msi_files(lines, subdir)
+    for subdir in dir.subdirs: append_stupid_msi_files(lines, subdir)
 
 
 def append_stupid_msi_file_components(lines:list, dir:DirectoryInfo):
-    for file in dir.files:
-        lines.append(f'    <ComponentRef Id="C_{file.id}" />\n')
-    for subdir in dir.subdirs:
-        append_stupid_msi_file_components(lines, subdir)
+    for file in dir.delete: lines.append(f'    <ComponentRef Id="D_{file.id}" />\n')
+    for file in dir.files:  lines.append(f'    <ComponentRef Id="C_{file.id}" />\n')
+    for subdir in dir.subdirs: append_stupid_msi_file_components(lines, subdir)
 
 
 def create_msi_commands(new_files:Iterable[FileInfo], deleted_files:Iterable[FileInfo], major:bool):
@@ -203,21 +144,11 @@ def create_msi_commands(new_files:Iterable[FileInfo], deleted_files:Iterable[Fil
 
     lines.append('  <!-- Folder Structure -->\n')
     lines.append('  <DirectoryRef Id="INSTALLFOLDER">\n')
-    rootDir = create_stupid_msi_directory_tree(new_files)
+    rootDir = create_stupid_msi_directory_tree(new_files, deleted_files)
     for subdir in rootDir.subdirs: append_stupid_msi_directory_structure(lines, subdir, 4)
     lines.append('  </DirectoryRef>\n')
 
-    if deleted_files:
-        lines.append('  <!-- Delete Files -->\n')
-        for delete in deleted_files:
-            folderPath = os.path.dirname(delete.filename)
-            filename = os.path.basename(delete.filename)
-
-            dir = rootDir.findOrCreateRecursive()
-            dir = DirectoryInfo(folderPath, os.path.basename(folderPath))
-            lines.append(f'  <DirectoryRef Id={dir.id}><RemoveFile Name={filename} On="install" /></DirectoryRef>\n')
-
-    lines.append('  <!-- Files -->\n')
+    lines.append('  <!-- Remove Files and Add Files -->\n')
     append_stupid_msi_files(lines, rootDir)
 
     lines.append('  <!-- File Components -->\n')
@@ -249,6 +180,7 @@ def create_installer_files_list(major=False, patch=False, type='nsis'):
     console(f'Generate Installer Files List Dist={"Major" if major else "Patch"} Type={type}')
     os.makedirs('Deploy\\Release', exist_ok=True)
     major_release_file = path_combine(blackbox_dir, f'Deploy\\Release\\Release.txt')
+    delete_vanilla_path = path_combine(blackbox_dir, f'Deploy\\Release\\Vanilla.DeleteFiles.txt')
     delete_files_path = path_combine(blackbox_dir, f'Deploy\\Release\\Release.DeleteFiles.txt')
     new_files_path = path_combine(blackbox_dir, f'Deploy\\Release\\Release.NewOrChanged.txt')
 
@@ -263,12 +195,16 @@ def create_installer_files_list(major=False, patch=False, type='nsis'):
     known_files += FileInfo.list_files_recursive(game_dir, 'Mods/ExampleMod')
 
     if major:
+        deleted_files = FileInfo.load_file_infos_dict(game_dir, delete_vanilla_path, required=True)
+        FileInfo.save_file_infos(delete_files_path, deleted_files.values())
         FileInfo.save_file_infos(major_release_file, known_files)
-        create_installer_commands(installer_commands, known_files, major=True, type=type)
+        create_installer_commands(installer_commands, known_files, deleted_files.values(), major=True, type=type)
     elif patch:
         major_files_dict = FileInfo.load_file_infos_dict(game_dir, major_release_file, required=True)
         known_files_dict = FileInfo.dict(known_files)
-        deleted_files = FileInfo.load_file_infos_dict(game_dir, delete_files_path, required=False)
+
+        deleted_files = FileInfo.load_file_infos_dict(game_dir, delete_vanilla_path, required=True)
+        deleted_files.update(FileInfo.load_file_infos_dict(game_dir, delete_files_path, required=False))
         new_files: Dict[str, FileInfo] = dict()
 
         for file in major_files_dict.values():

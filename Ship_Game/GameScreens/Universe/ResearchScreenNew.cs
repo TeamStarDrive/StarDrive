@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using System;
 using Ship_Game.GameScreens.Universe.Debug;
@@ -111,10 +111,10 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float fixedDeltaTime)
         {
             DebugUnlocks.Visible = Universe.Debug || Universe is DeveloperUniverse;
-            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(fixedDeltaTime);
         }
 
         public void OnSearchButtonClicked(UIButton button)
@@ -131,7 +131,7 @@ namespace Ship_Game
             MainMenu.Draw(batch, elapsed);
             batch.SafeEnd();
 
-            batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true, saveState:false, camera.Transform);
+            batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:false, saveState:false, camera.Transform);
             {
                 DrawConnectingLines(batch);
 
@@ -165,71 +165,125 @@ namespace Ship_Game
             return null;
         }
 
+        // the center-right connector point of the parent node
+        Vector2 GetParentConnectorPoint(Node parent)
+        {
+            return (parent is RootNode root) ? root.RightPoint : ((TreeNode)parent).RightPoint;
+        }
+
+        Vector2 GetBranchMidPoint(Node parent)
+        {
+            Vector2 parentNode = GetParentConnectorPoint(parent);
+
+            // for the ROOT nodes, the midpoint is a bit closer
+            if (parent is RootNode)
+                return new(parentNode.X + (int)(GridWidth / 3), parentNode.Y);
+            return new(parentNode.X + (int)(GridWidth / 2), parentNode.Y);
+        }
+
+        void DrawLinesFromParentToChild(SpriteBatch batch, Node parent, TechEntry child)
+        {
+            if (SubNodes.TryGetValue(child.UID, out TreeNode node))
+            {
+                Vector2 branchMidPoint = GetBranchMidPoint(parent);
+                Vector2 verticalEnd = new(branchMidPoint.X, node.BaseRect.CenterY - 10);
+                Vector2 endPos = new(node.BaseRect.X + 13f, verticalEnd.Y);
+
+                // draw the vertical line which connects us from branch middle junction towards the child tech
+                DrawResearchLineVertical(batch, branchMidPoint, verticalEnd, child.Unlocked);
+
+                // draw the final horizontal connection from middle junction to endPos
+                DrawResearchLineHorizontal(batch, verticalEnd, endPos, child.Unlocked, gradient: true);
+            }
+        }
+
+        void DrawLineFromParentToBranchMiddle(SpriteBatch batch, Node parent, bool anyTechsComplete)
+        {
+            // from parent node to the middle of the branch junction
+            Vector2 parentNode = GetParentConnectorPoint(parent);
+            Vector2 branchMidPoint = GetBranchMidPoint(parent);
+            DrawResearchLineHorizontal(batch, parentNode, branchMidPoint, anyTechsComplete, gradient:false);
+        }
+
+        void DrawConnectingLinesFromParentToChildren(SpriteBatch batch, Node parent)
+        {
+            bool anyTechsComplete = false;
+            bool discoveredAny = false;
+            foreach (TechEntry maybeUndiscovered in parent.Entry.Children)
+            {
+                // scan from `maybeUndiscovered` (inclusive) until we find a discovered tech
+                // this would skip over any secret techs in the middle 
+                TechEntry toTech = maybeUndiscovered.FindNextDiscoveredTech(Player);
+                if (toTech != null)
+                {
+                    discoveredAny = true;
+                    anyTechsComplete |= toTech.Unlocked;
+                    DrawLinesFromParentToChild(batch, parent, toTech);
+                }
+            }
+
+            // from parent tech to the middle of the branch junction
+            if (discoveredAny)
+            {
+                DrawLineFromParentToBranchMiddle(batch, parent, anyTechsComplete);
+            }
+        }
+
         void DrawConnectingLines(SpriteBatch batch)
         {
             RootNode root = GetCurrentlySelectedRootNode();
 
-            // Level 0 VERTICAL line coming straight from root nodes
-            {
-                Vector2 rootNodeRight = root.RightPoint;
-                Vector2 nextNodeLeft = new(MainMenuOffset.X + GridWidth, rootNodeRight.Y);
-                Vector2 midPoint = CenterBetweenPoints(root.RightPoint, nextNodeLeft);
-
-                bool anyTechsComplete = false;
-
-                foreach (TechEntry child in root.Entry.Children)
-                {
-                    if (child.Unlocked)
-                        anyTechsComplete = true;
-
-                    if (SubNodes.TryGetValue(child.UID, out TreeNode node))
-                    {
-                        var midPointOther = new Vector2(midPoint.X, node.BaseRect.CenterY - 10);
-                        batch.DrawResearchLineVertical(midPoint, midPointOther, child.Unlocked);
-
-                        Vector2 destinationPos = midPointOther + new Vector2(rootNodeRight.Distance(nextNodeLeft) + 13f, 0.0f);
-                        batch.DrawResearchLineHorizontalGradient(midPointOther, destinationPos, child.Unlocked);
-                    }
-                }
-
-                batch.DrawResearchLineHorizontal(rootNodeRight, midPoint, anyTechsComplete);
-            }
-
-            // from each node to their leadsTo nodes
+            DrawConnectingLinesFromParentToChildren(batch, root);
             foreach (TreeNode from in SubNodes.Values)
             {
-                Vector2 centerRight = new(from.BaseRect.Right - 25, from.BaseRect.CenterY - 10);
-                Vector2 startPos = new(centerRight.X + GridWidth / 2f, centerRight.Y);
-                Vector2 leftPoint = from.RightPoint;
-                Vector2 rightPoint = new(leftPoint.X + GridWidth / 2f, leftPoint.Y);
-
-                bool anyTechsComplete = false;
-                bool discoveredAny = false;
-                foreach (TechEntry maybeUndiscovered in from.Entry.Children)
-                {
-                    // scan from `maybeUndiscovered` (inclusive) until we find a discovered tech
-                    TechEntry toTech = maybeUndiscovered.FindNextDiscoveredTech(Player);
-                    if (toTech != null)
-                    {
-                        discoveredAny = true;
-                        if (toTech.Unlocked)
-                            anyTechsComplete = true;
-
-                        if (SubNodes.TryGetValue(toTech.UID, out TreeNode endNode))
-                        {
-                            Vector2 endPos1 = new(startPos.X, endNode.BaseRect.CenterY - 10);
-                            batch.DrawResearchLineVertical(startPos, endPos1, toTech.Unlocked);
-
-                            Vector2 centerLeft = new(rightPoint.X, endNode.BaseRect.CenterY - 10);
-                            Vector2 endPos = new(centerLeft.X + leftPoint.Distance(rightPoint) + 13f, centerLeft.Y);
-                            batch.DrawResearchLineHorizontalGradient(centerLeft, endPos, toTech.Unlocked);
-                        }
-                    }
-                }
-                if (discoveredAny)
-                    batch.DrawResearchLineHorizontal(leftPoint, rightPoint, anyTechsComplete);
+                DrawConnectingLinesFromParentToChildren(batch, from);
             }
         }
+
+        static void DrawResearchLineHorizontal(SpriteBatch batch, Vector2 left, Vector2 right, bool complete, bool gradient)
+        {
+            if (left.X > right.X) // top must have lower X
+                Vectors.Swap(ref left, ref right);
+
+            SubTexture texture;
+            if (gradient)
+            {
+                texture = ResourceManager.Texture(complete
+                        ? "ResearchMenu/grid_horiz_gradient_complete"
+                        : "ResearchMenu/grid_horiz_gradient");
+            }
+            else
+            {
+                texture = ResourceManager.Texture(complete
+                        ? "ResearchMenu/grid_horiz_complete"
+                        : "ResearchMenu/grid_horiz");
+            }
+
+            RectF r = new(left.X + 5, left.Y - 2, (right.X - left.X) - 5, 5);
+            //batch.Draw(texture, r, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
+            batch.Draw(texture, r, Color.White);
+
+            // fill a small rectangle at the beginning of the research line
+            // to cover up some stupid artifacts caused by XNA transparent sprite renderer
+            batch.FillRectangle(new(left.X, left.Y, 5, 1), (complete ? new(110, 171, 227) : new(194, 194, 194)));
+        }
+
+        static void DrawResearchLineVertical(SpriteBatch batch, Vector2 top, Vector2 bottom, bool complete)
+        {
+            if (top.Y > bottom.Y) // top must have lower Y
+                Vectors.Swap(ref top, ref bottom);
+
+            SubTexture texture = ResourceManager.Texture(complete
+                               ? "ResearchMenu/grid_vert_complete"
+                               : "ResearchMenu/grid_vert");
+
+            // shift the line down a bit to avoid overlapping transparency artifacts
+            int offsetY = 1;
+            RectF r = new(top.X - texture.CenterX, top.Y + offsetY, texture.Width, (bottom.Y - top.Y) - offsetY);
+            //batch.Draw(texture, r, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
+            batch.Draw(texture, r, Color.White);
+        }
+
 
         public override void ExitScreen()
         {
@@ -356,7 +410,7 @@ namespace Ship_Game
             ClaimedSpots.Clear();
 
             int rows = 1;
-            int cols = CalculateTreeDimensionsFromRoot(root.Entry.UID, ref rows, 0, 0);
+            int cols = CalculateTreeDimensionsFromRoot(root.Entry, ref rows, 0, 0);
             if (rows < 9) GridHeight = (MainMenu.Menu.Height - 40) / rows;
             else          GridHeight = (MainMenu.Menu.Height - 40) / 9;
 
@@ -427,37 +481,42 @@ namespace Ship_Game
         bool PositionIsClaimed(Vector2 position) => ClaimedSpots.Any(p => p.AlmostEqual(position));
 
         //Added by McShooterz: find size of tech tree before it is built
-        int CalculateTreeDimensionsFromRoot(string uid, ref int rows, int cols, int colmax)
+        int CalculateTreeDimensionsFromRoot(TechEntry techEntry, ref int rows, int cols, int colmax)
         {
-            int rowCount = 0;
             cols++;
             if (cols > colmax)
                 colmax = cols;
-            Technology technology = ResourceManager.Tech(uid);
-            //look for branches and make space for them
-            if (technology.LeadsTo.Count >0)
+
+            TechEntry[] children = techEntry.Children;
+
+            // look for branches and make space for them
+            if (children.Length > 0)
             {
-                //dont count the main branch. use the branch that stars here.
-                for (int i = 1; i < technology.LeadsTo.Count; i++)
+                int rowCount = 0;
+                // don't count the main branch. use the branch that starts here.
+                for (int i = 1; i < children.Length; i++)
                 {
-                    var techChild = Player.GetNextDiscoveredTech(technology.LeadsTo[i].UID);
-                    if (techChild != null)
+                    var discovered = children[i].FindNextDiscoveredTech(Player);
+                    if (discovered != null)
                         rowCount++;
                 }
                 rows += rowCount;
             }
-            foreach (Technology.LeadsToTech tech in technology.LeadsTo)
+
+            foreach (TechEntry maybeUndiscovered in children)
             {
-                var techChild = Player.GetNextDiscoveredTech(tech.UID);
-                if (techChild != null)
+                // TODO: not sure why this pattern is used here?
+                // scan from `maybeUndiscovered` (inclusive) until we find a discovered tech
+                var discovered = maybeUndiscovered.FindNextDiscoveredTech(Player);
+                if (discovered != null)
                 {
-                    int max = CalculateTreeDimensionsFromRoot(techChild.Tech.UID, ref rows, cols, colmax);
+                    int max = CalculateTreeDimensionsFromRoot(discovered, ref rows, cols, colmax);
                     if (max > colmax)
                         colmax = max;
                 }
                 else
                 {
-                    CalculateTreeDimensionsFromRoot(tech.UID, ref rows, cols, colmax);
+                    CalculateTreeDimensionsFromRoot(maybeUndiscovered, ref rows, cols, colmax);
                 }
             }
             return colmax;

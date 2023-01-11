@@ -1,4 +1,5 @@
-import os, sys
+import os, sys, uuid
+from typing import List
 
 def console(msg): print(msg, flush=True)
 def fatal_error(msg): print(msg, file=sys.stderr, flush=True); sys.exit(-1)
@@ -19,3 +20,19 @@ def is_appveyor_build():
 
 def appveyor_branch():
     return env('APPVEYOR_REPO_BRANCH', fatal=True)
+
+def new_guid():
+    return str(uuid.uuid4()).upper()
+
+def path_combine(a, b):
+    return os.path.normpath(os.path.join(a, b))
+
+def read_lines(listfile: str) -> List[str]:
+    lines: List[str] = []
+    if os.path.exists(listfile):
+        with open(listfile, 'r') as f:
+            for line in f.readlines():
+                line = line.strip()
+                if len(line) != 0 and not line.startswith('#'):
+                    lines.append(line)
+    return lines

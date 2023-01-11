@@ -514,7 +514,10 @@ namespace Ship_Game.Data
             if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadUncachedTexture {file.FullName}  Thread={Thread.CurrentThread.Name}");
             if (ext != "xnb")
                 return RawContent.LoadTexture(file);
-            return ReadXnaAsset<Texture2D>(file.FullName);
+
+            // needed for TextureExporter tool
+            string assetPath = file.RelPath(); // XNB can only load from Content dir
+            return ReadXnaAsset<Texture2D>(assetPath); 
         }
 
         // Loads a texture and caches it inside GameContentManager if useCache=true

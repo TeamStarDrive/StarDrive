@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <!-- WARNING: VERSION MUST BE BUMPED, OTHERWISE NEW FILES WILL NOT BE COPIED OVER -->
   <Product Id="*" Name="StarDrive BlackBox Mars 1.41"

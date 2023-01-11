@@ -1655,7 +1655,7 @@ namespace Ship_Game.Ships
             Pool?.Remove(this);
         }
 
-        public override void RemoveFromUniverseUnsafe()
+        public void RemoveFromUniverseUnsafe()
         {
             AI?.Reset();
 
@@ -1686,7 +1686,6 @@ namespace Ship_Game.Ships
             RemoveFromPoolAndFleet(clearOrders: false/*already cleared*/);
             RemoveTether();
             RemoveSceneObject();
-            base.RemoveFromUniverseUnsafe();
         }
 
         public void Dispose()
