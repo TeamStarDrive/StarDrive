@@ -473,7 +473,8 @@ namespace Ship_Game.Universe
         
         public void OnPlanetOwnerAdded(Empire owner, Planet planet)
         {
-            planet.CreatePlanetBudget(owner);
+            if (planet.Budget?.Owner!= owner)
+                planet.CreatePlanetBudget(owner);
             owner.AddBorderNode(planet);
             Influence.Insert(owner, planet);
         }
