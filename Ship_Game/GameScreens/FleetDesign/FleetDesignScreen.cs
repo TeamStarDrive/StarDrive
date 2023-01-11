@@ -158,15 +158,21 @@ namespace Ship_Game
             ResetLists();
         }
 
-        protected override void Destroy()
+        // FleetDesign screen became visible
+        public override void BecameActive()
         {
-            base.Destroy();
+            AssignLightRig(LightRigIdentity.FleetDesign, "example/ShipyardLightrig");
+        }
+
+        // We opened another screen like Shipyard, or just exited this screen
+        public override void BecameInActive()
+        {
+            RemoveSceneObjects(SelectedFleet);
         }
 
         public override void LoadContent()
         {
             Add(new CloseButton(ScreenWidth - 38, 97));
-            AssignLightRig(LightRigIdentity.FleetDesign, "example/ShipyardLightrig");
             SetPerspectiveProjection(maxDistance: 100_000);
 
             Graphics.Font titleFont = Fonts.Laserian14;
@@ -310,17 +316,22 @@ namespace Ship_Game
         {
             ActiveShipDesign = null; // this must be reset if tabs change
 
-            if (SubShips.SelectedIndex == 0)
+            // only valid and complete designs allowed, ignore platforms/stations/freighters
+            static bool CanShowDesign(IShipDesign s) => s.IsValidDesign && s.GetCompletionPercent() == 100
+                                                     && !s.IsPlatformOrStation && !s.IsFreighter;
+
+            // allow player to add ships which already exist in the universe and don't have a fleet
+            static bool CanShowShip(Ship s) => s.Fleet == null && s.IsAlive && CanShowDesign(s.ShipData);
+
+            if (SubShips.SelectedIndex == 0) // ShipsWeCanBuild
             {
-                IShipDesign[] designs = Player.ShipsWeCanBuild.Filter(s => s.GetCompletionPercent() == 100);
+                IShipDesign[] designs = Player.ShipsWeCanBuild.Filter(CanShowDesign);
                 ShipSL.Reset();
                 InitShipSL(designs);
             }
-            else if (SubShips.SelectedIndex == 1)
+            else if (SubShips.SelectedIndex == 1) // Owned Ships
             {
-                // go through ships that we own and allow player to add those existing ships
-                // to our fleet
-                ActiveShips.Assign(Player.OwnedShips.Filter(s => s.Fleet == null && s.IsAlive));
+                ActiveShips.Assign(Player.OwnedShips.Filter(CanShowShip));
                 ShipSL.Reset();
                 InitShipSL(ActiveShips);
             }

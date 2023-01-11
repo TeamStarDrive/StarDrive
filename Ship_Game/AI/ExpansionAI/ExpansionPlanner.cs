@@ -17,7 +17,7 @@ namespace Ship_Game.AI.ExpansionAI
         [StarData] readonly Array<SolarSystem> MarkedForExploration = new();
         [StarData] public int ExpandSearchTimer { get; private set; }
         [StarData] public int MaxSystemsToCheckedDiv { get; private set; }
-        [StarData] int ExpansionIntervalTimer; // how often to check for expansion?
+        [StarData] int ExpansionIntervalTimer = 100_000; // how often to check for expansion?
 
         [StarDataConstructor] ExpansionPlanner() {}
 
@@ -80,7 +80,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         bool CanConsiderExpanding(float popRatio, int numPlanets)
         {
-            // expansion check limit applies to everyone, even Player who is using AutoColonize
+            // expansion check limit applies to AI only
             ++ExpansionIntervalTimer;
             if (ExpansionIntervalTimer < Owner.DifficultyModifiers.ExpansionCheckInterval)
                 return false;

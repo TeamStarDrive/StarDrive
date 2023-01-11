@@ -108,10 +108,6 @@ namespace Ship_Game
             Active = false;
         }
 
-        public virtual void RemoveFromUniverseUnsafe()
-        {
-        }
-
         // in system view and inside frustum
         public bool IsInFrustum(UniverseScreen u) =>
             u.UState.IsSystemViewOrCloser && u.IsInFrustum(Position, 2000f);

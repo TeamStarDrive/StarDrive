@@ -119,11 +119,6 @@ namespace Ship_Game.Data
             return tex;
         }
 
-        public void SaveTexture(Texture2D texture, string fullPath)
-        {
-            TexExport.SaveAutoFormat(texture, fullPath);
-        }
-
         ///////////////////////////////////////////////////
 
         public StaticMesh LoadStaticMesh(string meshName)
@@ -165,7 +160,7 @@ namespace Ship_Game.Data
         public void ExportXnbMesh(FileInfo file, string meshExtension, bool alwaysOverwrite = true)
         {
             string relativePath = file.RelPath();
-            Log.Info(relativePath);
+            Log.Write(relativePath);
 
             if (relativePath.StartsWith("Content\\"))
                 relativePath = relativePath.Substring(8);
@@ -273,11 +268,11 @@ namespace Ship_Game.Data
 
             var files = new Array<FileInfo>();
             files.AddRange(Dir.GetFiles("Content/", "xnb"));
-            files.AddRange(Dir.GetFiles("Content/", "png"));
+            //files.AddRange(Dir.GetFiles("Content/", "png"));
             if (GlobalStats.HasMod)
             {
                 files.AddRange(Dir.GetFiles(GlobalStats.ModPath, "xnb"));
-                files.AddRange(Dir.GetFiles(GlobalStats.ModPath, "png"));
+                //files.AddRange(Dir.GetFiles(GlobalStats.ModPath, "png"));
             }
 
             //foreach (var f in files) ExportTexture(f, outDir);
@@ -288,22 +283,23 @@ namespace Ship_Game.Data
         {
             string relPath = file.RelPath();
             string outFile = Path.Combine(outDir, relPath);
-            bool saved = false;
             try
             {
-                GameLoadingScreen.SetStatus("Export", outFile);
+                GameLoadingScreen.SetStatus("ExportTexture", outFile);
                 string ext = file.Extension.Remove(0, 1).ToLower(); // '.Xnb' -> 'xnb'
                 using Texture2D tex = Content.LoadUncachedTexture(file, ext);
-                saved = TexExport.SaveAutoFormat(tex, outFile);
+                if (TexExport.SaveAutoFormat(tex, outFile))
+                    Log.Write(ConsoleColor.Green, $"Saved {outFile}");
+                else
+                    Log.Write(ConsoleColor.DarkYellow, $"Ignored {relPath}");
             }
-            catch // not a texture
+            catch (Exception e) // not a texture
             {
+                if (e.Message.Contains("File contains Microsoft.Xna.Framework.Graphics."))
+                    Log.Write(ConsoleColor.DarkYellow, $"Ignored NotATexture2D {relPath}");
+                else
+                    Log.Write(ConsoleColor.Red, $"ExportFail {relPath} : {e.Message}");
             }
-
-            if (saved)
-                Log.Info($"Saved {outFile}");
-            else
-                Log.Warning($"Ignored {relPath}");
         }
     }
 }

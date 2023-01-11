@@ -48,14 +48,14 @@ namespace Ship_Game.Ships
         }
 
         // Add a new Design or replace an existing one
-        public void Add(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
+        public bool Add(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
         {
             shipDesign.IsPlayerDesign   = playerDesign;
             shipDesign.IsReadonlyDesign = readOnly;
 
             Ship shipTemplate = Ship.CreateNewShipTemplate(Empire.Void, shipDesign);
             if (shipTemplate == null) // happens if module creation failed
-                return;
+                return false;
 
             string name = shipDesign.Name;
 
@@ -65,9 +65,8 @@ namespace Ship_Game.Ships
                 if (DesignsMap.TryGetValue(name, out IShipDesign design))
                 {
                     if (shipDesign == design)
-                        return; // it's already added, deleting would corrupt it
-                    else
-                        DeleteUnlocked(name);
+                        return true; // concurrency: it's already added
+                    DeleteUnlocked(name);
                 }
 
                 Names.Add(name);
@@ -76,6 +75,7 @@ namespace Ship_Game.Ships
                 AllShips.Add(shipTemplate);
                 AllDesigns.Add(shipDesign);
             }
+            return true;
         }
 
         public void Delete(string shipName)
