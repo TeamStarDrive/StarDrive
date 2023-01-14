@@ -9,6 +9,7 @@ using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,21 +29,54 @@ public sealed partial class Empire
 
     float FleetUpdateTimer = 5f;
 
-    /// <summary>Returns only active fleets which have ships</summary>
-    public IEnumerable<Fleet> ActiveFleets
+    // Using an Enumerator to increase performance. IEnumerable didn't cut it.
+    public struct FleetEnumerator : IEnumerator<Fleet>
     {
-        get
+        int Index;
+        readonly int Count;
+        readonly Fleet[] Items;
+        public Fleet Current { get; private set; }
+        object IEnumerator.Current => Current;
+        public FleetEnumerator(Fleet[] items, int count)
         {
-            for (int i = 0; i < Fleets.Count; ++i)
+            Index = 0;
+            Count = count;
+            Items = items;
+            Current = null;
+        }
+        public void Dispose()
+        {
+        }
+        public bool MoveNext()
+        {
+            while (Index < Count)
             {
-                Fleet f = Fleets[i];
-                // we need this check, because current code allows
+                Fleet f = Items[Index++];
+                // we need Ships.NotEmpty check, because current code allows
                 // clearing f.Ships without calling Owner.RemoveFleet()
-                if (f.Ships.NotEmpty)
-                    yield return f;
+                if (f != null && f.Ships.NotEmpty)
+                {
+                    Current = f;
+                    return true;
+                }
             }
+            return false;
+        }
+        public void Reset()
+        {
+            Index = 0;
+        }
+        public FleetEnumerator GetEnumerator() => this;
+        public Array<Fleet> ToArrayList()
+        {
+            Array<Fleet> items = new();
+            foreach (Fleet f in this) items.Add(f);
+            return items;
         }
     }
+
+    /// <summary>Returns only active fleets which have ships</summary>
+    public FleetEnumerator ActiveFleets => new FleetEnumerator(Fleets.GetInternalArrayItems(), Fleets.Count);
 
     /// <summary>Check if any of the active fleets matches the predicate test</summary>
     public IEnumerable<Fleet> GetActiveFleetsTargetingEmpire(Empire empire)
