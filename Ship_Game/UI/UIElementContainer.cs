@@ -27,11 +27,15 @@ namespace Ship_Game
         float DebugDrawTimer;
         const float DebugDrawInterval = 0.5f;
 
-        // This is for debugging
-        int LastInputFrameId = -1;
-        int LastUpdateFrameId = -1;
-        StackTrace LastInputTrace; // automatically enabled when an error happens
-        StackTrace LastUpdateTrace;
+        // This is for debugging onlly
+        struct DoubleUpdateDebug
+        {
+            public int FrameId;
+            public int ErrorCounter; // automatically enabled when an error happens
+            public StackTrace Trace;
+        }
+        DoubleUpdateDebug LastInput = new() { FrameId = -1 };
+        DoubleUpdateDebug LastUpdate = new() { FrameId = -1 };
 
         /// <summary>
         /// Hack: NEW Multi-Layered draw mode disables child element drawing
@@ -126,31 +130,36 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial12Bold, ToString(), Pos, debugColor);
         }
 
-        static void SetDebugFrameId(out int lastFrameId, ref StackTrace trace)
+        static void SetDebugFrameId(ref DoubleUpdateDebug debug)
         {
-            lastFrameId = GameBase.Base.FrameId;
-            if (trace != null) // only set the trace, if it was already set
-                trace = new StackTrace(1, true);
+            debug.FrameId = GameBase.Base.FrameId;
+            if (debug.ErrorCounter > 0)
+            {
+                --debug.ErrorCounter;
+                debug.Trace = new StackTrace(1, true);
+            }
+            else
+                debug.Trace = null;
         }
 
-        void DebugDoubleUpdate(string which, ref StackTrace lastTrace)
+        void DebugDoubleUpdate(string which, ref DoubleUpdateDebug debug)
         {
+            debug.ErrorCounter = 5; // enable debug traces for 5 frames
             StackTrace newTrace = new(1, true);
             string text = $"{which} called twice per frame. This is a bug: {this}\n";
-            text += $"Previous update: {(lastTrace?.ToString() ?? "trace was disabled this frame")}\n";
+            text += $"Previous update: {(debug.Trace?.ToString() ?? "trace was disabled this frame")}\n";
             text += $"Current update: {newTrace}";
             Log.Warning(ConsoleColor.DarkRed, text);
-            lastTrace = newTrace; // this enables debug traces on next frame
         }
 
         public override bool HandleInput(InputState input)
         {
             if (Visible && Enabled)
             {
-                if (LastInputFrameId != GameBase.Base.FrameId)
-                    SetDebugFrameId(out LastInputFrameId, ref LastInputTrace);
+                if (LastInput.FrameId != GameBase.Base.FrameId)
+                    SetDebugFrameId(ref LastInput);
                 else
-                    DebugDoubleUpdate("UIElement.HandleInput", ref LastInputTrace);
+                    DebugDoubleUpdate("UIElement.HandleInput", ref LastInput);
 
                 // iterate input in reverse, so we handle topmost objects before;
                 // also Elements can be removed during the HandleInput, so this ensures no elements are skipped
@@ -175,10 +184,10 @@ namespace Ship_Game
             if (!Visible)
                 return;
 
-            if (LastUpdateFrameId != GameBase.Base.FrameId)
-                SetDebugFrameId(out LastUpdateFrameId, ref LastUpdateTrace);
+            if (LastUpdate.FrameId != GameBase.Base.FrameId)
+                SetDebugFrameId(ref LastUpdate);
             else
-                DebugDoubleUpdate("UIElement.Update", ref LastUpdateTrace);
+                DebugDoubleUpdate("UIElement.Update", ref LastUpdate);
 
             base.Update(fixedDeltaTime);
 
