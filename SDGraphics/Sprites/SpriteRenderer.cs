@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics.Shaders;
 using SDUtils;
@@ -20,6 +21,18 @@ public class SpriteRenderer : IDisposable
     EffectParameter ViewProjectionParam;
     EffectParameter TextureParam;
     EffectParameter UseTextureParam;
+    
+    unsafe delegate void DrawUserIndexedPrimitivesD(
+        GraphicsDevice device,
+        PrimitiveType primitiveType,
+        int numVertices,
+        int primitiveCount,
+        void* pIndexData,
+        int indexFormat,
+        void* pVertexData,
+        int vertexStride
+    );
+    readonly DrawUserIndexedPrimitivesD DrawUserIndexedPrimitives;
 
     public SpriteRenderer(GraphicsDevice device)
     {
@@ -30,6 +43,12 @@ public class SpriteRenderer : IDisposable
         ViewProjectionParam = Simple["ViewProjection"];
         TextureParam = Simple["Texture"];
         UseTextureParam = Simple["UseTexture"];
+
+        const BindingFlags anyMethod = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+        MethodInfo method = typeof(GraphicsDevice).GetMethod("RawDrawUserIndexedPrimitives", anyMethod);
+        if (method == null)
+            throw new InvalidOperationException("Missing RawDrawUserIndexedPrimitives from XNA.GraphicsDevice");
+        DrawUserIndexedPrimitives = (DrawUserIndexedPrimitivesD)Delegate.CreateDelegate(typeof(DrawUserIndexedPrimitivesD), null, method);
     }
 
     public void Dispose()
@@ -58,8 +77,8 @@ public class SpriteRenderer : IDisposable
         SetViewProjection(viewProjection);
     }
 
-    void FillVertexData(VertexCoordColor[] vertices, short[] indices, int index,
-                        in Quad3D quad, in Quad2D coords, Color color)
+    static unsafe void FillVertexData(VertexCoordColor* vertices, short* indices, int index,
+                                      in Quad3D quad, in Quad2D coords, Color color)
     {
         int vertexOffset = index * 4;
         int indexOffset = index * 6;
@@ -84,8 +103,15 @@ public class SpriteRenderer : IDisposable
             throw new ObjectDisposedException($"Texture2D '{texture.Name}'");
     }
 
-    void DrawTriangles(Texture2D texture, VertexCoordColor[] vertices, short[] indices)
+    static readonly Quad2D DefaultCoords = new(new RectF(0, 0, 1, 1));
+
+    public unsafe void Draw(Texture2D texture, in Quad3D quad, in Quad2D coords, Color color)
     {
+        // stack allocating these is extremely important to reduce memory pressure
+        VertexCoordColor* vertices = stackalloc VertexCoordColor[4];
+        short* indices = stackalloc short[6];
+        FillVertexData(vertices, indices, 0, quad, coords, color);
+
         bool useTexture = texture != null;
         if (useTexture)
         {
@@ -100,21 +126,17 @@ public class SpriteRenderer : IDisposable
         foreach (EffectPass pass in Simple.CurrentTechnique.Passes)
         {
             pass.Begin();
-            Device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
-                vertices, 0, vertices.Length, indices, 0, indices.Length / 3);
+            DrawUserIndexedPrimitives(Device, PrimitiveType.TriangleList,
+                numVertices: 4,
+                primitiveCount: 2,
+                pIndexData: indices,
+                indexFormat: 101, // 101: ushort indices, 102: uint indices
+                pVertexData: vertices,
+                vertexStride: sizeof(VertexCoordColor)
+            );
             pass.End();
         }
         Simple.End();
-    }
-
-    static readonly Quad2D DefaultCoords = new(new RectF(0, 0, 1, 1));
-
-    public void Draw(Texture2D texture, in Quad3D quad, in Quad2D coords, Color color)
-    {
-        var vertices = new VertexCoordColor[4];
-        var indices = new short[6];
-        FillVertexData(vertices, indices, 0, quad, coords, color);
-        DrawTriangles(texture, vertices, indices);
     }
 
     public void Draw(Texture2D texture, in Vector3 center, in Vector2 size, Color color)
