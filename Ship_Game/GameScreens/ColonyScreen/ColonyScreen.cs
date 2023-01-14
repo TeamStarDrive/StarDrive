@@ -502,18 +502,21 @@ namespace Ship_Game
         void ScrapAccepted()
         {
             if (ToScrap != null)
+            {
                 P.ScrapBuilding(ToScrap);
-
-            Update(0f);
+                P.RefreshBuildingsWeCanBuildHere();
+                ToScrap = null;
+            }
         }
 
         void ScrapBioAccepted()
         {
             if (BioToScrap != null)
+            {
                 P.DestroyBioSpheres(BioToScrap, !BioToScrap.Building?.CanBuildAnywhere == true);
-
-            Update(0f);
-            BioToScrap = null;
+                P.RefreshBuildingsWeCanBuildHere();
+                BioToScrap = null;
+            }
         }
     }
 }

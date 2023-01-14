@@ -7,6 +7,7 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
+        // this is called every UI frame, ~60fps
         public override void Update(float elapsedTime)
         {
             P.UpdateIncomes();
