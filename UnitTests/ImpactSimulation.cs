@@ -67,7 +67,7 @@ namespace UnitTests
         Starting, Running, Exiting
     }
 
-    internal class ImpactSimulation : IGameComponent, IDrawable, IUpdateable
+    internal class ImpactSimulation : IGameComponent, IDrawable, IUpdateable, IDisposable
     {
         readonly Array<SimObject> Objects = new Array<SimObject>();
         readonly SimObject Projectile;
@@ -251,6 +251,12 @@ namespace UnitTests
                 if (p.Y > max.Y) max.Y = p.Y;
             }
             return (min, max);
+        }
+
+        public void Dispose()
+        {
+            Exit?.Dispose();
+            Owner?.Dispose();
         }
     }
 }
