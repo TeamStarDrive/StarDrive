@@ -320,12 +320,12 @@ namespace Ship_Game
 
             SoundDevices.Clear();
 
-            if (devices != null)
+            if (devices is {Count: > 0})
             {
                 SoundDevices.AddOption("Default", null/*because it might change*/);
                 foreach (MMDevice device in devices)
                 {
-                    string isDefault = (device.ID == defaultDevice.ID) ? "* " : "";
+                    string isDefault = (device.ID == defaultDevice?.ID) ? "* " : "";
                     SoundDevices.AddOption($"{isDefault}{device.FriendlyName}", device);
                     if (!GameAudio.Devices.UserPrefersDefaultDevice && device.ID == GameAudio.Devices.CurrentDevice.ID)
                         SoundDevices.ActiveIndex = devices.IndexOf(device) + 1;
