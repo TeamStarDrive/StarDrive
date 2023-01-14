@@ -34,7 +34,7 @@ namespace Ship_Game
         public bool BuildingOnTile       => Building != null;
         public bool CombatBuildingOnTile => BuildingOnTile && Building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
-        public bool BuildingDestroyed    => BuildingOnTile && Building.Strength <= 0;
+        public bool BuildingDestroyed    => BuildingOnTile && Building.IsDestroyed;
         public bool EventOnTile          => BuildingOnTile && (Building.EventHere || IsCrashSiteActive);
         public bool BioCanTerraform      => Biosphere && Terraformable;
         public bool CanTerraform         => Terraformable && (!Habitable || Habitable && Biosphere);
