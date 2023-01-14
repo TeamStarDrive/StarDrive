@@ -2,6 +2,7 @@
 using SDGraphics;
 using Ship_Game;
 using Vector3 = SDGraphics.Vector3;
+#pragma warning disable CA2213
 
 namespace UnitTests.Planets
 {

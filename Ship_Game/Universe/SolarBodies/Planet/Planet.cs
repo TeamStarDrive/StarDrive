@@ -1491,22 +1491,6 @@ namespace Ship_Game
             }
         }
 
-        /// <param name="clearAndPresentDanger">indicates threats can destroy friendly ships</param>
-        public bool EnemyInRange(bool clearAndPresentDanger = false)
-        {
-            if (clearAndPresentDanger ? !ParentSystem.DangerousForcesPresent(Owner) 
-                                      : !ParentSystem.HostileForcesPresent(Owner))
-                return false;
-
-            float distance = GravityWellRadius.LowerBound(7500);
-            foreach (Ship ship in ParentSystem.ShipList)
-            {
-                if (Owner?.IsEmpireAttackable(ship.Loyalty, ship) == true && ship.InRadius(Position, distance))
-                    return true;
-            }
-            return false;
-        }
-
         public bool OurShipsCanScanSurface(Empire us)
         {
             // this is one of the reasons i want to change the way sensors are done to have a class containing sensor information.
@@ -1669,10 +1653,10 @@ namespace Ship_Game
             return TilesList.Find(pgs => pgs.X == x && pgs.Y == y);
         }
 
-        ~Planet() { Destroy(); }
-        public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
+        ~Planet() { Dispose(false); }
+        public void Dispose() { Dispose(true); GC.SuppressFinalize(this); }
 
-        private void Destroy()
+        void Dispose(bool disposing)
         {
             Mem.Dispose(ref ActiveCombats);
             Mem.Dispose(ref OrbitalDropList);
@@ -1680,6 +1664,7 @@ namespace Ship_Game
             Storage = null;
             Troops = null;
             GeodeticManager = null;
+            TilesList = new();
         }
 
         public DebugTextBlock DebugPlanetInfo()
