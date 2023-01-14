@@ -675,7 +675,7 @@ namespace Ship_Game
 
             Mem.Dispose(ref anomalyManager);
             Mem.Dispose(ref BombList);
-            Mem.Dispose(ref NotificationManager);
+            NotificationManager.Clear();
             SelectedShipList = new();
             base.Destroy();
         }
@@ -693,7 +693,7 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.Music.Stop();
 
-            UState.Clear();
+            UState.Dispose();
 
             ShipToView = null;
             SelectedShip   = null;

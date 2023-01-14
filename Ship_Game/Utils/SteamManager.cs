@@ -1,8 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-
-#pragma warning disable CA1401
+#pragma warning disable CA1060, CA1401
 
 namespace Ship_Game.Utils;
 
