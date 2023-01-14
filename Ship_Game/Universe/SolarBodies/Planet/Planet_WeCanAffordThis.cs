@@ -241,9 +241,9 @@ namespace Ship_Game
                     || b.PlanetaryShieldStrengthAdded > 0
                     || (b.AllowShipBuilding && HasProduction)
                     || (b.ShipRepair > 0 && HasProduction)
-                    || b.Strength > 0
+                    || b.IsAlive
                     || (b.AllowInfantry && HasProduction)
-                    || a.NeedDefense && (b.TheWeapon != null || b.Strength > 0)
+                    || a.NeedDefense && (b.TheWeapon != null || b.IsAlive)
                     || (IsCybernetic &&
                         (b.PlusProdPerRichness > 0 || b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0))
                 )
