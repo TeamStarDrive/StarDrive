@@ -32,7 +32,6 @@ namespace Ship_Game.Data
 
         public RawContentLoader RawContent { get; private set; }
 
-        public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
         readonly object LoadSync = new();
 
         public override string ToString() => $"Content:{Name} Assets:{LoadedAssets.Count} Root:{RootDirectory}";
@@ -57,8 +56,11 @@ namespace Ship_Game.Data
 
         protected override void Dispose(bool disposing)
         {
+            // note: this will call Unload() and will set base.loadedAssets to null
             base.Dispose(disposing);
-            LoadedAssets = null;
+
+            lock (LoadSync) // set our reference of LoadedAssets to null
+                LoadedAssets = null;
             RawContent = null;
         }
 
@@ -80,12 +82,13 @@ namespace Ship_Game.Data
             {
                 lock (LoadSync)
                 {
-                    if (mgr.LoadedAssets.TryGetValue(assetNameWithExt, out asset))
+                    var assets = mgr.LoadedAssets;
+                    if (assets != null && assets.TryGetValue(assetNameWithExt, out asset))
                     {
                         if (IsDisposed(asset))
                         {
                             Log.Error($"Cached Asset '{assetNameWithExt}' is Disposed, discarding cached asset");
-                            mgr.LoadedAssets.Remove(assetNameWithExt);
+                            assets.Remove(assetNameWithExt);
                         }
                         else
                         {
@@ -95,6 +98,8 @@ namespace Ship_Game.Data
                 }
             }
             while ((mgr = mgr.Parent) != null);
+
+            asset = null;
             return false;
         }
 
@@ -202,21 +207,23 @@ namespace Ship_Game.Data
         // Call ScreenManager.UnloadContent() to unload EVERYTHING
         public override void Unload()
         {
-            if (LoadedAssets == null)
+            Dictionary<string, object> assets;
+            lock (LoadSync) assets = LoadedAssets;
+            if (assets == null)
                 throw new ObjectDisposedException(ToString());
 
             float totalMemSaved = GetLoadedAssetMegabytes();
-            int count = LoadedAssets.Count;
+            int count = assets.Count;
             try
             {
-                foreach (KeyValuePair<string,object> obj in LoadedAssets)
+                foreach (KeyValuePair<string,object> obj in assets)
                 {
                     Dispose(obj.Key, obj.Value); // this will modify DisposableAssets
                 }
             }
             finally
             {
-                LoadedAssets.Clear();
+                assets.Clear();
             }
 
             if (count > 0)
