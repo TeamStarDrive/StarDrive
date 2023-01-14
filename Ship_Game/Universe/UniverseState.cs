@@ -20,7 +20,7 @@ namespace Ship_Game.Universe
     ///
     /// </summary>
     [StarDataType]
-    public partial class UniverseState
+    public sealed partial class UniverseState : IDisposable
     {
         /// <summary>
         /// This is the RADIUS of the universe
@@ -117,7 +117,7 @@ namespace Ship_Game.Universe
 
         // @return All Planets in the Universe
         public IReadOnlyList<Planet> Planets => AllPlanetsList;
-        
+
         /// <summary>
         /// Thread unsafe view of all ships.
         /// It's only safe to use from simulation thread or when sim is paused
@@ -129,7 +129,7 @@ namespace Ship_Game.Universe
 
         // TODO: attempt to stop relying on visual state
         public UniverseScreen Screen;
-        
+
         // TODO: Encapsulate
         public BatchRemovalCollection<SpaceJunk> JunkList = new();
 
@@ -247,7 +247,7 @@ namespace Ship_Game.Universe
         [StarData] public byte[] FogMapBytes;
 
         [StarDataSerialize]
-        StarDataDynamicField[] OnSerialize()
+        public StarDataDynamicField[] OnSerialize()
         {
             // clean up and submit objects before saving
             Objects.UpdateLists(removeInactiveObjects: true);
@@ -272,7 +272,7 @@ namespace Ship_Game.Universe
         // Only call OnDeserialized evt if Empire and Ship have finished their events
         [StarDataDeserialized(typeof(Empire), typeof(Ship), typeof(Projectile),
                               typeof(Beam), typeof(UniverseParams))]
-        void OnDeserialized()
+        public void OnDeserialized()
         {
             Initialize(UniverseWidth);
 
@@ -281,7 +281,7 @@ namespace Ship_Game.Universe
             save.UpdateAllDesignsFromSave(this);
 
             CalcInitialSettings();
-            
+
             // NOTE: This will automatically call AddShipInfluence() to update InfluenceTree
             Objects.AddRange(save.Ships);
             Objects.AddRange(save.Projectiles);
@@ -290,7 +290,7 @@ namespace Ship_Game.Universe
             foreach (Planet planet in AllPlanetsList)
             {
                 if (planet.Owner != null)
-                    OnPlanetOwnerAdded(planet.Owner, planet);
+                    OnPlanetOwnerAdded(planet.Owner!, planet);
             }
 
             // update systems tree and planets tree
@@ -322,7 +322,15 @@ namespace Ship_Game.Universe
             return Interlocked.Increment(ref UniqueObjectIds);
         }
 
-        public void Clear()
+        ~UniverseState() { Dispose(false); }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public void Dispose(bool disposing)
         {
             RemoveSceneObjects();
 
@@ -359,8 +367,10 @@ namespace Ship_Game.Universe
             foreach (SolarSystem s in SolarSystemList)
             {
                 foreach (Planet planet in s.PlanetList)
-                    planet.TilesList = new();
-                
+                {
+                    planet.Dispose();
+                }
+
                 s.FiveClosestSystems.Clear();
                 s.AsteroidsList.Clear();
                 s.MoonList.Clear();
@@ -394,7 +404,7 @@ namespace Ship_Game.Universe
                     throw new InvalidOperationException($"AddSolarSystem Planet.Id must be valid: {planet}");
                 if (planet.ParentSystem != system)
                     throw new InvalidOperationException($"AddSolarSystem Planet.ParentSystem must be valid: {planet.ParentSystem} != {system}");
-                
+
                 PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
             }
@@ -470,12 +480,12 @@ namespace Ship_Game.Universe
             if (oldLoyalty.RemoveBorderNode(ship))
                 Influence.Remove(oldLoyalty, ship);
         }
-        
+
         public void OnPlanetOwnerAdded(Empire owner, Planet planet)
         {
-            if (planet.Budget?.Owner!= owner)
+            if (planet.Budget?.Owner != owner)
                 planet.CreatePlanetBudget(owner);
-            owner.AddBorderNode(planet);
+            owner!.AddBorderNode(planet);
             Influence.Insert(owner, planet);
         }
 
