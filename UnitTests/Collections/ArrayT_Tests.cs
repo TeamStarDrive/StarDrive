@@ -342,11 +342,11 @@ namespace UnitTests.Collections
         {
             var arr = new Array<string> { "a", "b", "c", "b", "d", "e" };
 
-            AssertEqual(new[]{ "a", "b" }, arr.SubRange(0, 2));
-            AssertEqual(new[]{ "c", "b", "d" }, arr.SubRange(2, 5));
-            AssertEqual(new[]{ "d", "e" }, arr.SubRange(4, 6));
-            AssertEqual(new[]{ "a" }, arr.SubRange(0, 1));
-            AssertEqual(new[]{ "e" }, arr.SubRange(5, 6));
+            AssertEqual(new[]{ "a", "b" }, arr.SubRange(0, 2).ToArray());
+            AssertEqual(new[]{ "c", "b", "d" }, arr.SubRange(2, 5).ToArray());
+            AssertEqual(new[]{ "d", "e" }, arr.SubRange(4, 6).ToArray());
+            AssertEqual(new[]{ "a" }, arr.SubRange(0, 1).ToArray());
+            AssertEqual(new[]{ "e" }, arr.SubRange(5, 6).ToArray());
         }
     }
 }

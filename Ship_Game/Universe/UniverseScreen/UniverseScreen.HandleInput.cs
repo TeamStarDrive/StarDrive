@@ -1419,8 +1419,8 @@ namespace Ship_Game
             bool showingDebugTabs = Debug && DebugWin?.ModesTab.Visible == true;
             int startY = showingDebugTabs ? 120 : 60;
             int index = 0;
-
-            var fleets = Player.ActiveFleets.Sorted(f => f.Key);
+            
+            var fleets = Player.ActiveFleets.ToArrayList().Sorted(f => f.Key);
             foreach (Fleet fleet in fleets)
             {
                 buttons.Add(new FleetButton
