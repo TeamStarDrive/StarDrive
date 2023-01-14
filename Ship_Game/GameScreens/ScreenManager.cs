@@ -591,16 +591,23 @@ namespace Ship_Game
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;
-            foreach (Hotloadable hot in HotLoadTargets.Values)
+
+            // OnModified/ReloadContent is allowed to modify HotLoadTargets
+            // so to avoid collection modification issues, we iterate by KEY
+            string[] keys = HotLoadTargets.Keys.ToArr();
+            foreach (string targetKey in keys)
             {
-                var info = new FileInfo(hot.File);
-                if (info.LastWriteTimeUtc != hot.LastModified)
+                if (HotLoadTargets.TryGetValue(targetKey, out Hotloadable hot))
                 {
-                    Log.Write(ConsoleColor.Magenta, $"HotLoading content: {info.Name}...");
-                    hot.LastModified = info.LastWriteTimeUtc; // update
-                    hot.OnModified?.Invoke(info);
-                    hot.Screen?.ReloadContent();
-                    return;
+                    var info = new FileInfo(hot.File);
+                    if (info.LastWriteTimeUtc != hot.LastModified)
+                    {
+                        Log.Write(ConsoleColor.Magenta, $"HotLoading content: {info.Name}...");
+                        hot.LastModified = info.LastWriteTimeUtc; // update
+                        hot.OnModified?.Invoke(info);
+                        hot.Screen?.ReloadContent();
+                        return;
+                    }
                 }
             }
         }
