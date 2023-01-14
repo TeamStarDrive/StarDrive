@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\Sentry.3.26.0\build\Sentry.props" Condition="Exists('packages\Sentry.3.26.0\build\Sentry.props')" />
   <Import Project="packages\WiX.3.11.2\build\wix.props" Condition="Exists('packages\WiX.3.11.2\build\wix.props')" />
-  <Import Project="packages\Sentry.3.25.0\build\Sentry.props" Condition="Exists('packages\Sentry.3.25.0\build\Sentry.props')" />
   <PropertyGroup>
     <ProjectGuid>{8071E07A-300E-485D-B139-066E15E82178}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
@@ -167,8 +167,8 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Sentry, Version=3.25.0.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0, processorArchitecture=MSIL">
-      <HintPath>packages\Sentry.3.25.0\lib\net461\Sentry.dll</HintPath>
+    <Reference Include="Sentry, Version=3.26.0.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0, processorArchitecture=MSIL">
+      <HintPath>packages\Sentry.3.26.0\lib\net461\Sentry.dll</HintPath>
     </Reference>
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
@@ -1809,8 +1809,8 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('packages\LargeAddressAware.1.0.6\build\LargeAddressAware.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\LargeAddressAware.1.0.6\build\LargeAddressAware.targets'))" />
-    <Error Condition="!Exists('packages\Sentry.3.25.0\build\Sentry.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Sentry.3.25.0\build\Sentry.props'))" />
     <Error Condition="!Exists('packages\WiX.3.11.2\build\wix.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\WiX.3.11.2\build\wix.props'))" />
+    <Error Condition="!Exists('packages\Sentry.3.26.0\build\Sentry.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Sentry.3.26.0\build\Sentry.props'))" />
   </Target>
   <!-- <Target Name="AfterBuild"> -->
   <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->
