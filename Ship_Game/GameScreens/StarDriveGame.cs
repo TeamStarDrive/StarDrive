@@ -6,6 +6,7 @@ using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 using Ship_Game.GameScreens.MainMenu;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
