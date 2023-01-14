@@ -462,12 +462,11 @@ namespace Ship_Game
         {
             UpdateCursorAndClaimedSpots(ref nodePos, true);
 
-            var newNode = new RootNode(GetCurrentCursorOffset(nodePos, -1), tech) { NodePosition = nodePos };
-            if (Player.HasUnlocked(tech))
+            RootNodes[tech.UID] = new RootNode(GetCurrentCursorOffset(nodePos, -1), tech)
             {
-                newNode.isResearched = true;
-            }
-            RootNodes[tech.UID] = newNode;
+                NodePosition = nodePos,
+                isResearched = tech.Unlocked
+            };
         }
         
         void UpdateCursorAndClaimedSpots(ref Vector2 nodePos, bool addToClaimed)

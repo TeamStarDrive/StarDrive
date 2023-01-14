@@ -42,7 +42,7 @@ namespace Ship_Game
             Technology tech = ResourceManager.Tech(theEntry.UID);
             TechName = tech.Name.Text;
             TechTemplate = ResourceManager.Tech(Entry.UID);
-            Complete = screen.Player.HasUnlocked(Entry);
+            Complete = Entry.Unlocked;
             UnlocksGridItems = UnlockItem.CreateUnlocksList(TechTemplate, Screen.Player, maxUnlocks: MaxUnlockItems);
             SetPos(pos);
         }
@@ -175,7 +175,7 @@ namespace Ship_Game
 
             batch.Draw(ResourceManager.Texture(progressIcon), ProgressRect, Color.White);
 
-            int progress = (int)(ProgressRect.H - Screen.Player.TechProgress(Entry) / Screen.Player.TechCost(Entry) * ProgressRect.H);
+            int progress = (int)(ProgressRect.H - Entry.PercentResearched * ProgressRect.H);
             var progressRect2 = ProgressRect;
             progressRect2.H = progress;
             batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), progressRect2, Color.White);

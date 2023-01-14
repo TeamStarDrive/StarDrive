@@ -257,7 +257,7 @@ namespace Ship_Game
 
         public bool TheyCanUseThis(Empire us, Empire them)
         {
-            var theirTech        = them.GetTechEntry(this);
+            var theirTech        = them.GetTechEntry(UID);
             bool theyCanUnlockIt = !theirTech.Unlocked && (them.HavePreReq(UID) ||
                                                            AllowRacialTrade(us, them) && theirTech.IsRoot);
             bool notHasContent   = AllowRacialTrade(us, them) && ContentRestrictedTo(us) 
@@ -815,7 +815,28 @@ namespace Ship_Game
             return null;
         }
 
-        public TechEntry[] Children => Tech.Children.Select(Owner.GetTechEntry);
+        public TechEntry[] Children
+        {
+            get
+            {
+                var children = new TechEntry[Tech.Children.Length];
+                bool gotNulls = false;
+                for (int i = 0; i < Tech.Children.Length; ++i)
+                {
+                    Technology t = Tech.Children[i];
+                    if (Owner.TryGetTechEntry(t.UID, out TechEntry entry))
+                    {
+                        children[i] = entry;
+                    }
+                    else
+                    {
+                        Log.Error($"TechEntry.Children: Failed to find Tech: ({t.UID})");
+                        gotNulls = true;
+                    }
+                }
+                return gotNulls ? children.Filter(e => e != null) : children;
+            }
+        }
 
         public bool CanWeUnlockBonus(string unlockType, Empire empire)
         {
