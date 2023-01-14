@@ -790,10 +790,6 @@ namespace Ship_Game
         public Map<string, TechEntry>.ValueCollection TechEntries => TechnologyDict.Values;
         public TechEntry[] UnlockedTechs => TechEntries.Filter(e => e.Unlocked);
 
-        // @note this is used for comparing rival empire tech entries
-        public TechEntry GetTechEntry(TechEntry theirTech) => GetTechEntry(theirTech.UID);
-        public TechEntry GetTechEntry(Technology theirTech) => GetTechEntry(theirTech.UID);
-
         public TechEntry GetTechEntry(string uid)
         {
             if (TechnologyDict.TryGetValue(uid, out TechEntry techEntry))
@@ -839,23 +835,8 @@ namespace Ship_Game
         }
 
         public bool HasUnlocked(string uid)       => GetTechEntry(uid).Unlocked;
-        public bool HasUnlocked(TechEntry tech)   => GetTechEntry(tech).Unlocked;
         public bool HasDiscovered(string techId)  => GetTechEntry(techId).Discovered;
-        public float TechProgress(TechEntry tech) => GetTechEntry(tech).Progress;
-        public float TechCost(TechEntry tech)     => GetTechEntry(tech).TechCost;
         public float TechCost(string techId)      => GetTechEntry(techId).TechCost;
-        public Array<string> AcquiredFrom(TechEntry tech) => GetTechEntry(tech).WasAcquiredFrom;
-        public Array<string> AcquiredFrom(string techId)  => GetTechEntry(techId).WasAcquiredFrom;
-
-        int TechCost(IEnumerable<string> techIds)
-        {
-            float costAccumulator = 0;
-            foreach (string tech in techIds)
-            {
-                costAccumulator += TechCost(tech);
-            }
-            return (int)costAccumulator;
-        }
 
         /// <summary>
         /// this appears to be broken.
@@ -1026,6 +1007,7 @@ namespace Ship_Game
 
                     if (IsFaction || data.Traits.Prewarp == 1)
                         entry.ForceNeedsFullResearch();
+
                     TechnologyDict.Add(tech.UID, entry);
                 }
             }
@@ -1222,7 +1204,7 @@ namespace Ship_Game
         {
             foreach (TechEntry conquered in conqueredEmpire.TechEntries)
             {
-                TechEntry ourTech = GetTechEntry(conquered);
+                TechEntry ourTech = GetTechEntry(conquered.UID);
                 ourTech.UnlockByConquest(this, conqueredEmpire, conquered);
             }
         }
