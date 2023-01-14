@@ -15,7 +15,6 @@ public class IncomingThreat
     [StarData] public readonly SolarSystem TargetSystem;
 
     [StarData] public float ThreatTimer { get; private set; }
-    [StarData] public float PulseTime { get; private set; }
 
     [StarData] Fleet[] Fleets;
     [StarData] public Fleet NearestFleet { get; private set; }
@@ -23,7 +22,7 @@ public class IncomingThreat
     [StarData] public float Strength { get; private set; }
     [StarData] public bool HighPriority { get; private set; }
 
-    const float ThreatResetTime = 1;
+    const float ThreatResetTime = 10;
     public bool ThreatTimedOut => ThreatTimer <= 0;
     public Empire[] Enemies => Fleets?.FilterSelect(f => f != null, f=>f.Owner);
 
@@ -33,7 +32,6 @@ public class IncomingThreat
     {
         Owner = owner;
         TargetSystem = system;
-        PulseTime = 5;
         UpdateThreats(fleets);
         ProcessFleetThreat();
     }
@@ -49,15 +47,11 @@ public class IncomingThreat
 
         NearestFleet = Fleets.FindMin(f => f.AveragePosition().SqDist(TargetSystem.Position));
         ThreatDistance = NearestFleet?.AveragePosition().Distance(TargetSystem.Position) ?? float.MaxValue;
-        PulseTime -= simTime.FixedTime;
         ProcessFleetThreat();
-
-        if (PulseTime <= 0) 
-            PulseTime = 1;
-
         return true;
     }
     
+    // the update now happens in ~5sec intervals
     public void UpdateThreats(Fleet[] fleets)
     {
         ThreatTimer = ThreatResetTime;

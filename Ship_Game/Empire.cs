@@ -1233,6 +1233,8 @@ namespace Ship_Game
                 UpdateTimer = us.P.TurnTimer + (Id - 1) * timeStep.FixedTime;
                 FixedSimTime elapsedTurnTime = new(UpdateTimer);
 
+                AssessSystemsInDanger(elapsedTurnTime);
+
                 if (isPlayer)
                 {
                     UpdateStats();
