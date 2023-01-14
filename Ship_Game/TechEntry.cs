@@ -797,6 +797,9 @@ namespace Ship_Game
 
         public TechEntry FindNextDiscoveredTech(Empire empire)
         {
+            if (Tech == null || Tech == Technology.Dummy)
+                return null;
+
             if (Discovered)
                 return this;
             foreach (Technology child in Tech.Children)
