@@ -122,7 +122,7 @@ namespace Ship_Game
                 return type == null
                     || type == "ALL"
                     || type == player.data.Traits.ShipType
-                    || player.AcquiredFrom(tech.UID).Contains(type);
+                    || player.GetTechEntry(tech.UID).WasAcquiredFrom.Contains(type);
             }
 
             var unlocks = new Array<UnlockItem>();
