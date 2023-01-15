@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 using SDGraphics;
+#pragma warning disable CA1060
 
 namespace Ship_Game.GameScreens
 {

@@ -9,9 +9,11 @@ using Ship_Game.Utils;
 
 namespace Ship_Game.SpriteSystem
 {
+    /// <summary>
     /// Generic TextureAtlas which is used as a container
     /// for related textures and animation sequences
-    public partial class TextureAtlas : IDisposable
+    /// </summary>
+    public sealed partial class TextureAtlas : IDisposable
     {
         const int Version = 24; // changing this will force all caches to regenerate
 
@@ -31,13 +33,13 @@ namespace Ship_Game.SpriteSystem
         int NonPacked; // non packed textures
         AtlasPath Path; // atlas path info
         Texture2D Atlas;
-        
+
         // Usually name of the folder where this atlas is generated from
         // example: MMenu/
         public string Name { get; private set; }
         public int Width  { get; private set; }
         public int Height { get; private set; }
-        
+
         TextureBinding[] Sorted = Empty<TextureBinding>.Array;
         readonly Map<string, TextureBinding> Lookup = new(StringComparer.OrdinalIgnoreCase);
 
@@ -87,7 +89,7 @@ namespace Ship_Game.SpriteSystem
             texture = null;
             return false;
         }
-        
+
         // @warning This MAY incur a sudden texture load
         public bool TryGetTexture(int index, out SubTexture texture)
         {

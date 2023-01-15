@@ -13,10 +13,14 @@ public sealed class ShieldManager : IDisposable
     readonly UniverseScreen Universe;
     Shield[] VisibleShields = Empty<Shield>.Array;
     Shield[] VisiblePlanetShields = Empty<Shield>.Array;
+
+    // these resources are managed by GameContentManager
+    #pragma warning disable CA2213
     StaticMesh ShieldModel;
     Texture2D ShieldTexture;
     Texture2D GradientTexture;
     Effect ShieldEffect;
+    #pragma warning restore CA2213
     EffectParameter World, Scale, Displacement;
 
     public bool IsDisposed { get; private set; }
@@ -64,7 +68,7 @@ public sealed class ShieldManager : IDisposable
         Scale = ShieldEffect.Parameters["scale"];
         Displacement = ShieldEffect.Parameters["displacement"];
     }
-    
+
     void UnloadContent()
     {
         var content = ResourceManager.RootContent;
@@ -74,7 +78,7 @@ public sealed class ShieldManager : IDisposable
         content.Dispose(ref ShieldModel);
         World = Scale = Displacement = null;
     }
-    
+
     public void SetVisibleShields(Shield[] visibleShields)
     {
         VisibleShields = visibleShields;

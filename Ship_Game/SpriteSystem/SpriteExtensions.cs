@@ -8,6 +8,7 @@ using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaVector4 = Microsoft.Xna.Framework.Vector4;
 using XnaRect = Microsoft.Xna.Framework.Rectangle;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
+#pragma warning disable CA1065
 
 namespace Ship_Game
 {
