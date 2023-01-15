@@ -37,11 +37,10 @@ namespace Ship_Game
             Log.Write(ConsoleColor.Yellow, $"GameDir={Directory.GetCurrentDirectory()}");
 
         #if STEAM
-            if (SteamManager.SteamInitialize())
+            if (SteamManager.Initialize())
             {
-                SteamManager.RequestCurrentStats();
-                if (SteamManager.SetAchievement("Thanks"))
-                    SteamManager.SaveAllStatAndAchievementChanges();
+                SteamManager.RequestStats();
+                SteamManager.AchievementUnlocked("Thanks");
             }
         #endif
 
@@ -63,10 +62,9 @@ namespace Ship_Game
         public void SetSteamAchievement(string name)
         {
         #if STEAM
-            if (SteamManager.SteamInitialize())
+            if (SteamManager.IsInitialized)
             {
-                if (SteamManager.SetAchievement(name))
-                    SteamManager.SaveAllStatAndAchievementChanges();
+                SteamManager.AchievementUnlocked(name);
             }
             else
             { Log.Warning("Steam not initialized"); }
@@ -162,6 +160,9 @@ namespace Ship_Game
         {
             base.Dispose(disposing);
             Instance = null;
+            #if STEAM
+                SteamManager.Shutdown();
+            #endif
         }
     }
 }
