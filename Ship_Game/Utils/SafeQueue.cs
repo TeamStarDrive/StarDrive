@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using SDUtils;
+#pragma warning disable CA1065
 
 namespace Ship_Game.Utils
 {
@@ -16,7 +17,6 @@ namespace Ship_Game.Utils
     /// </summary>
     [DebuggerTypeProxy(typeof(SafeQueueDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
-    [Serializable]
     public sealed class SafeQueue<T> : IDisposable, IReadOnlyCollection<T>
     {
         T[] Items;

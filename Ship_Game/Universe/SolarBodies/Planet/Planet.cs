@@ -19,7 +19,7 @@ using Ship_Game.AI.Budget;
 namespace Ship_Game
 {
     [StarDataType]
-    public partial class Planet : SolarSystemBody, IDisposable
+    public sealed partial class Planet : SolarSystemBody, IDisposable
     {
         public enum ColonyType
         {

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
+#pragma warning disable CA1060
 
 #pragma warning disable 0649 // uninitialized struct
 
@@ -78,6 +79,9 @@ namespace Ship_Game.Spatial
         public int MaxObjects => SpatialMaxObjects(Spat);
         public string Name { get; }
 
+        /// <summary>
+        /// Allows to access C++ spatial containers implemented in SDNative.dll
+        /// </summary>
         /// <param name="type">What type of spatial structure to create</param>
         /// <param name="worldSize">Width and Height of the game world</param>
         /// <param name="cellSize">
