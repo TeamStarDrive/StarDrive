@@ -87,7 +87,12 @@ namespace SynapseGaming.LightingSystem.Shadows
         }
 
         /// <summary>Releases resources allocated by this object.</summary>
-        public virtual void Dispose()
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             Device = null;
             ShadowGroup = null;

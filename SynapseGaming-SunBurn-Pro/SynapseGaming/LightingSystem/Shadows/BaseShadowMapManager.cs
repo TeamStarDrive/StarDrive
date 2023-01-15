@@ -19,7 +19,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// Base class that provides shadow map management.  Used by the forward rendering
     /// ShadowMapManager and deferred rendering DeferredShadowMapManager classes.
     /// </summary>
-    public abstract class BaseShadowMapManager : BaseShadowManager, IUnloadable, IManager, IRenderableManager, IManagerService, IShadowMapVisibility, IShadowMapManager
+    public abstract class BaseShadowMapManager : BaseShadowManager, IUnloadable, IManager, IRenderableManager, IManagerService, IShadowMapVisibility, IShadowMapManager, IDisposable
     {
         private static readonly List<ShadowGroup> ShadowGroups = new List<ShadowGroup>(128);
         private static readonly List<Rectangle> list_1 = new List<Rectangle>();
@@ -322,15 +322,25 @@ namespace SynapseGaming.LightingSystem.Shadows
         {
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            ShadowCache.Unload();
+            ShadowRtgPool.Clear();
+            Disposable.Dispose(ref DefaultRenderTarget);
+        }
+
         /// <summary>
         /// Disposes any graphics resource used internally by this object, and removes
         /// scene resources managed by this object. Commonly used during Game.UnloadContent.
         /// </summary>
         public override void Unload()
         {
-            ShadowCache.Unload();
-            ShadowRtgPool.Clear();
-            Disposable.Free(ref DefaultRenderTarget);
+            Dispose(true);
         }
 
         private enum Enum9

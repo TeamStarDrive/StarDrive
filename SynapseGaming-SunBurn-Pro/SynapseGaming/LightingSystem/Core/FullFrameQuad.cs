@@ -14,7 +14,7 @@ namespace SynapseGaming.LightingSystem.Core
   /// Helper class that renders a full viewport quad using the user
   /// effect provided to the Render method.
   /// </summary>
-  public class FullFrameQuad : IDisposable
+  public sealed class FullFrameQuad : IDisposable
   {
     private VertexPositionTexture[] vertexPositionTexture_0 = new VertexPositionTexture[4];
     private int int_0;

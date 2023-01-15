@@ -20,7 +20,7 @@ using SynapseGaming.LightingSystem.Shadows.Deferred;
 namespace SynapseGaming.LightingSystem.Rendering.Forward
 {
     /// <summary>Provides a complete forward renderer.</summary>
-    public class RenderManager : BaseRenderManager
+    public sealed class RenderManager : BaseRenderManager
     {
         private static Class61 class61_0 = new Class61();
         private static Class64 class64_0 = new Class64();
@@ -88,8 +88,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             graphicsDevice.RenderState.FillMode = FillMode.Solid;
             DepthStencilBuffer depthStencilBuffer = graphicsDevice.DepthStencilBuffer;
             HasDepthStencil = depthStencilBuffer != null && depthStencilBuffer.Format == DepthFormat.Depth24Stencil8;
-            if (fogEffect_0 == null)
-                fogEffect_0 = new FogEffect(graphicsDevice);
+            fogEffect_0 ??= new FogEffect(graphicsDevice);
             list_2.Clear();
             renderableMeshes.Clear();
             IObjectManager manager1 = (IObjectManager)ServiceProvider.GetManager(SceneInterface.ObjectManagerType, false);
@@ -182,7 +181,6 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         protected override void BuildShadowMaps(List<ShadowRenderTargetGroup> shadowrendertargetgroups)
         {
             IObjectManager manager1 = (IObjectManager)ServiceProvider.GetManager(SceneInterface.ObjectManagerType, false);
-            IAvatarManager manager2 = (IAvatarManager)ServiceProvider.GetManager(SceneInterface.AvatarManagerType, false);
             foreach (ShadowRenderTargetGroup renderTargetGroup in FrameShadowRenderTargetGroups)
             {
                 if (renderTargetGroup.HasShadows() && !renderTargetGroup.ContentsAreValid)
@@ -200,9 +198,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                             manager1.Find(list_9, shadowGroup.BoundingBox, objectfilter);
                             list_9.Sort(class61_0);
                             class64_0.method_1(list_10, list_9, false, UnusedDebugFlag);
-                            if (manager2 != null)
-                                manager2.BeginShadowGroupRendering(shadowGroup);
-                            Vector3 shadowPosition = shadowGroup.ShadowSource.ShadowPosition;
+
                             for (int surface1 = 0; surface1 < shadow.Surfaces.Length; ++surface1)
                             {
                                 ShadowMapSurface surface2 = shadow.Surfaces[surface1];
@@ -244,18 +240,10 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                                                 RenderObjectBatch(class63.Objects.NonSkinned, shadow.ShadowEffect, true, TransparencyMode.const_0, class63.Transparent, true);
                                         }
                                     }
-                                    if (manager2 != null)
-                                    {
-                                        manager2.RenderToShadowMapSurface(shadowGroup, surface2, shadow.ShadowEffect);
-                                        ShaderMesh.Clear();
-                                        class65_0.method_0();
-                                    }
                                     shadow.EndSurfaceRendering();
                                     ++class57_0.lightingSystemStatistic_13.AccumulationValue;
                                 }
                             }
-                            if (manager2 != null)
-                                manager2.EndShadowGroupRendering(shadowGroup);
                             shadow.ContentsAreValid = true;
                         }
                     }
@@ -333,18 +321,23 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             class64_0.ResetPool();
         }
 
-        /// <summary>
-        /// Unloads all scene and device specific data.  Must be called
-        /// when the device is reset (during Game.UnloadGraphicsContent()).
-        /// </summary>
-        public override void Unload()
+        protected override void Dispose(bool disposing)
         {
             if (fogEffect_0 != null)
             {
                 fogEffect_0.Dispose();
                 fogEffect_0 = null;
             }
-            base.Unload();
+            base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// Unloads all scene and device specific data.  Must be called
+        /// when the device is reset (during Game.UnloadGraphicsContent()).
+        /// </summary>
+        public override void Unload()
+        {
+            Dispose(true);
         }
 
         private void RenderShadows(ShadowRenderTargetGroup targetGroup, ShadowGroup shadowGroup)

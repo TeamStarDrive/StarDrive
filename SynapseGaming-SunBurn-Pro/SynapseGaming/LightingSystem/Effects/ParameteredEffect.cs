@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
+#pragma warning disable CA2213
 
 namespace SynapseGaming.LightingSystem.Effects
 {
@@ -21,7 +22,7 @@ namespace SynapseGaming.LightingSystem.Effects
     private float float_0 = 1f;
       internal Class47 class47_0 = new Class47();
       private TransparencyMode transparencyMode_0;
-    private Texture texture_0;
+    private Texture transparencyMap;
 
     /// <summary>
     /// Determines if the effect's vertex transform differs from the built-in
@@ -76,7 +77,7 @@ namespace SynapseGaming.LightingSystem.Effects
     {
       get
       {
-        return this.texture_0;
+        return this.transparencyMap;
       }
       set
       {
@@ -131,7 +132,7 @@ namespace SynapseGaming.LightingSystem.Effects
     {
       this.transparencyMode_0 = mode;
       this.float_0 = transparency;
-      this.texture_0 = map;
+      this.transparencyMap = map;
       this.SyncTransparency();
     }
 
@@ -198,9 +199,9 @@ namespace SynapseGaming.LightingSystem.Effects
             if (parameter != null)
             {
               if (parameter.ParameterType == EffectParameterType.Texture2D)
-                this.texture_0 = parameter.GetValueTexture2D();
+                this.transparencyMap = parameter.GetValueTexture2D();
               else if (parameter.ParameterType == EffectParameterType.Texture3D)
-                this.texture_0 = parameter.GetValueTexture3D();
+                this.transparencyMap = parameter.GetValueTexture3D();
             }
           }
           else
