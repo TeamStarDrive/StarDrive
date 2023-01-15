@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework.Graphics;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable CommentTypo
 // ReSharper disable ArrangeTypeMemberModifiers
+#pragma warning disable CA2237
+#pragma warning disable RCS1194
 
 namespace Ship_Game.Data.Texture
 {

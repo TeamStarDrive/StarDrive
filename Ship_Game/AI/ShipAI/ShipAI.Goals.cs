@@ -290,7 +290,7 @@ namespace Ship_Game.AI
         }
 
         [StarDataType]
-        public class ShipGoal : IDisposable
+        public sealed class ShipGoal : IDisposable
         {
             bool IsDisposed;
             // ship goal variables are read-only by design, do not allow writes!
@@ -327,10 +327,10 @@ namespace Ship_Game.AI
             [StarData] public TradePlan Trade;
             [StarData] public readonly MoveOrder MoveOrder = MoveOrder.Regular;
 
-            /// If this is a Move Order, is it an Aggressive move?
+            // If this is a Move Order, is it an Aggressive move?
             public bool HasAggressiveMoveOrder => (MoveOrder & MoveOrder.Aggressive) != 0;
 
-            /// If this a Move Order, is it just a plain old Regular move? (default)
+            // If this a Move Order, is it just a plain old Regular move? (default)
             public bool HasRegularMoveOrder => (MoveOrder & MoveOrder.Regular) != 0;
 
             public float GetSTLSpeedLimitFor(Ship ship) => ship.Fleet?.GetSTLSpeedLimitFor(ship) ?? SpeedLimit;

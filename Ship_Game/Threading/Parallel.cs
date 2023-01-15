@@ -5,6 +5,8 @@ using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading;
 using SDUtils;
+#pragma warning disable CA1060
+#pragma warning disable RCS1194, CA2237, CA1001
 
 namespace Ship_Game
 {
@@ -24,13 +26,13 @@ namespace Ship_Game
         void Cancel();
     }
 
-    public class TaskResult : ITaskResult
+    public sealed class TaskResult : ITaskResult
     {
         public Exception Error { get; private set; }
         public bool IsComplete { get; private set; }
         // @note Task has to check this value itself and cancel manually
         public bool IsCancelRequested { get; private set; }
-        readonly ManualResetEvent Finished = new ManualResetEvent(false);
+        readonly ManualResetEvent Finished = new(false);
 
         void ITaskResult.SetResult(object value, Exception e)
         {
@@ -46,17 +48,23 @@ namespace Ship_Game
         public bool Wait(int millisecondTimeout = -1)
         {
             if (!IsComplete)
+            {
                 Finished.WaitOne(millisecondTimeout);
+                Finished.Dispose();
+            }
             if (Error != null)
                 throw new ParallelTaskException("Parallel Task throw an exception", Error);
             return IsComplete;
         }
-        
+
         // Wait until the task is complete, Exceptions are not rethrown, @see Error
         public bool WaitNoThrow(int millisecondTimeout = -1)
         {
             if (!IsComplete)
+            {
                 Finished.WaitOne(millisecondTimeout);
+                Finished.Dispose();
+            }
             return IsComplete;
         }
 
@@ -74,14 +82,14 @@ namespace Ship_Game
         }
     }
 
-    public class TaskResult<T> : ITaskResult
+    public sealed class TaskResult<T> : ITaskResult
     {
         public Exception Error { get; private set; }
         public T Result { get; private set; }
         public bool IsComplete { get; private set; }
         // @note Task has to check this value itself and cancel manually
         public bool IsCancelRequested { get; private set; }
-        readonly ManualResetEvent Finished = new ManualResetEvent(false);
+        readonly ManualResetEvent Finished = new(false);
 
         void ITaskResult.SetResult(object value, Exception e)
         {
@@ -97,20 +105,26 @@ namespace Ship_Game
         public bool Wait(int millisecondTimeout = -1)
         {
             if (!IsComplete)
+            {
                 Finished.WaitOne(millisecondTimeout);
+                Finished.Dispose();
+            }
             if (Error != null)
                 throw new ParallelTaskException("Parallel Task throw an exception", Error);
             return IsComplete;
         }
-        
+
         // Wait until the task is complete, Exceptions are not rethrown, @see Error
         public bool WaitNoThrow(int millisecondTimeout = -1)
         {
             if (!IsComplete)
+            {
                 Finished.WaitOne(millisecondTimeout);
+                Finished.Dispose();
+            }
             return IsComplete;
         }
-        
+
         // Request for Cancel and call Wait()
         public void CancelAndWait(int millisecondTimeout = -1)
         {
@@ -132,11 +146,11 @@ namespace Ship_Game
         }
     }
 
-    public class ParallelTask : IDisposable
+    public sealed class ParallelTask : IDisposable
     {
-        AutoResetEvent EvtNewTask = new AutoResetEvent(false);
-        AutoResetEvent EvtEndTask = new AutoResetEvent(false);
-        readonly object KillSync = new object();
+        AutoResetEvent EvtNewTask = new(false);
+        AutoResetEvent EvtEndTask = new(false);
+        readonly object KillSync = new();
         Thread Thread;
         Action VoidTask;
         Func<object> ResultTask;
@@ -262,10 +276,10 @@ namespace Ship_Game
         }
         public void Dispose()
         {
-            Destructor();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
-        void Destructor() // Manually controlling result lifetimes
+        void Dispose(bool disposing) // Manually controlling result lifetimes
         {
             if (EvtNewTask == null)
                 return;
@@ -283,7 +297,10 @@ namespace Ship_Game
             EvtEndTask = null;
             Thread     = null;
         }
-        ~ParallelTask() { Destructor(); }
+        ~ParallelTask()
+        {
+            Dispose(false);
+        }
     }
 
     public static class Parallel

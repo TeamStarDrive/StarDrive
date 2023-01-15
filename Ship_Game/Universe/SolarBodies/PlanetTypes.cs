@@ -9,7 +9,7 @@ using Matrix = SDGraphics.Matrix;
 namespace Ship_Game.Universe.SolarBodies
 {
     [StarDataType]
-    public class PlanetTypes : IDisposable
+    public sealed class PlanetTypes : IDisposable
     {
         [StarData] public float PlanetScale; // base scale of the planet
         [StarData] public float RingsScale; // slightly bigger than the planet
