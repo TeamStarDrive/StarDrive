@@ -813,7 +813,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Utils\SafeArrayBase.cs" />
-    <Compile Include="Ship_Game\Utils\SafeArrayLock.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingListSafe.cs" />
     <Compile Include="Ship_Game\Utils\SafeQueue.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveNewGameSetupScreen.cs" />

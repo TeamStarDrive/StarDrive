@@ -13,7 +13,7 @@ using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Universe.SolarBodies
 {
-    public class PlanetRenderer : IDisposable
+    public sealed class PlanetRenderer : IDisposable
     {
         PlanetTypes Types;
         GraphicsDevice Device;

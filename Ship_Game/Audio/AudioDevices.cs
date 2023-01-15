@@ -7,7 +7,7 @@ using Ship_Game.Utils;
 
 namespace Ship_Game.Audio;
 
-public class AudioDevices : IDisposable
+public sealed class AudioDevices : IDisposable
 {
     /// <summary>
     /// We ALWAYS enumerate ALL audio devices, just in case User changes
