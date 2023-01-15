@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+#pragma warning disable CA1060
 
 namespace Ship_Game.Ships
 {

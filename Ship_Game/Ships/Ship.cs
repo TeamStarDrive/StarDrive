@@ -1690,19 +1690,19 @@ namespace Ship_Game.Ships
 
         public void Dispose()
         {
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        ~Ship() { Destroy(); }
+        ~Ship() { Dispose(false); }
 
-        void Destroy()
+        protected virtual void Dispose(bool disposing)
         {
             if (ModuleSlotList != null && ModuleSlotList.Length != 0)
             {
                 RemoveFromUniverseUnsafe();
             }
-            
+
             // It's extremely important we manually clear these
             // The .NET GC is not able to handler all the cyclic references
             Mem.Dispose(ref SupplyLock);

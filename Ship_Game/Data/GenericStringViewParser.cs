@@ -10,7 +10,7 @@ namespace Ship_Game.Data
     /// <summary>
     /// This is a General purpose high-performance parser which uses StringViews
     /// </summary>
-    public class GenericStringViewParser : IDisposable
+    public sealed class GenericStringViewParser : IDisposable
     {
         /// <summary>
         /// Name of the Parser for debugging
@@ -55,7 +55,6 @@ namespace Ship_Game.Data
         {
             Buffer = null;
             Data = null;
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
