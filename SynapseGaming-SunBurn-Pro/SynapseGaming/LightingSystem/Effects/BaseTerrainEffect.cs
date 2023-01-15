@@ -11,6 +11,7 @@ using ns4;
 using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
+#pragma warning disable CA2213
 
 namespace SynapseGaming.LightingSystem.Effects
 {

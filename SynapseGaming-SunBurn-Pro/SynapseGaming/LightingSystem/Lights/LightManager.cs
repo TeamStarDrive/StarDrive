@@ -53,7 +53,7 @@ namespace SynapseGaming.LightingSystem.Lights
     /// </summary>
     public IGraphicsDeviceService GraphicsDeviceManager { get; }
 
-      /// <summary>
+    /// <summary>
     /// Number of geometry layers (slices) used to construct volume lights. Increasing
     /// the number of slices improves volume lighting quality, decreasing the number of
     /// slices improves performance.
@@ -64,7 +64,7 @@ namespace SynapseGaming.LightingSystem.Lights
           set
       {
         this.int_3 = value;
-        this.method_1();
+        ClearAndDispose();
       }
     }
 
@@ -95,12 +95,6 @@ namespace SynapseGaming.LightingSystem.Lights
     public override void ApplyPreferences(ILightingSystemPreferences preferences)
     {
       base.ApplyPreferences(preferences);
-    }
-
-    private void method_1()
-    {
-      Disposable.Free(ref this.class45_0);
-      Disposable.Free(ref this.class54_0);
     }
 
     /// <summary>Renders volume lighting for the contained lights.</summary>
@@ -346,14 +340,26 @@ namespace SynapseGaming.LightingSystem.Lights
       base.Clear();
     }
 
+    void ClearAndDispose()
+    {
+      Disposable.Dispose(ref this.class45_0);
+      Disposable.Dispose(ref this.class54_0);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      Disposable.Dispose(ref this.class45_0);
+      Disposable.Dispose(ref this.class54_0);
+      base.Dispose(disposing);
+    }
+
     /// <summary>
     /// Disposes any graphics resource used internally by this object, and removes
     /// scene resources managed by this object. Commonly used during Game.UnloadContent.
     /// </summary>
     public override void Unload()
     {
-      this.method_1();
-      base.Unload();
+      Dispose(true);
     }
   }
 }

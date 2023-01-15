@@ -11,13 +11,14 @@ using Microsoft.Xna.Framework.Graphics;
 using ns10;
 using ns11;
 using SynapseGaming.LightingSystem.Core;
+#pragma warning disable CA2213
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
     /// <summary>
     /// Class that manages render target sections used for shadow mapping.
     /// </summary>
-    public class ShadowMapCache
+    public sealed class ShadowMapCache : IDisposable
     {
         private Class74[] class74_0 = new Class74[4] { new Class74(SurfaceFormat.Single, 4), new Class74(SurfaceFormat.HalfSingle, 2), new Class74(SurfaceFormat.HalfVector2, 4), new Class74(SurfaceFormat.Single, 4) };
         private DepthFormat[] depthFormat_0 = new DepthFormat[2] { DepthFormat.Depth24Stencil8, DepthFormat.Depth24Stencil4 };
@@ -205,16 +206,22 @@ namespace SynapseGaming.LightingSystem.Shadows
                 class72.method_0();
         }
 
+        public void Dispose()
+        {
+            depthStencilBuffer_0?.Dispose();
+            depthStencilBuffer_0 = null;
+            foreach (Class72 class72 in list_0)
+                class72.Dispose();
+            list_0.Clear();
+        }
+
         /// <summary>
         /// Disposes any graphics resources used internally by this object, and clears
         /// all reserved shadow map sections. Commonly used during Game.UnloadContent.
         /// </summary>
         public void Unload()
         {
-            Disposable.Free(ref depthStencilBuffer_0);
-            foreach (Class72 class72 in list_0)
-                class72.Dispose();
-            list_0.Clear();
+            Dispose();
         }
 
         private class Class74

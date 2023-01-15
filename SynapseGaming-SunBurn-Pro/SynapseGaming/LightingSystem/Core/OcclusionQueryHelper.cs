@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using ns3;
+#pragma warning disable CA2213
 
 namespace SynapseGaming.LightingSystem.Core
 {
@@ -21,7 +22,7 @@ namespace SynapseGaming.LightingSystem.Core
   /// related work between these two calls to avoid wasting cpu cycles.
   /// </summary>
   /// <typeparam name="TKey">Object type used to store and lookup query results.</typeparam>
-  public class OcclusionQueryHelper<TKey> : IDisposable
+  public sealed class OcclusionQueryHelper<TKey> : IDisposable
   {
     private List<Class20> list_0 = new List<Class20>(32);
     private Dictionary<TKey, Class20> dictionary_0 = new Dictionary<TKey, Class20>(32);
@@ -145,12 +146,13 @@ namespace SynapseGaming.LightingSystem.Core
     {
       this.Clear();
       foreach (Class20 class20 in this.list_0)
-        class20.occlusionQuery_0.Dispose();
+        class20.Dispose();
       this.list_0.Clear();
-      Disposable.Free(ref this.class10_0);
+      class10_0?.Dispose();
+      class10_0 = null;
     }
 
-    private class Class20
+    sealed class Class20 : IDisposable
     {
       public OcclusionQuery occlusionQuery_0;
       public bool bool_0;
@@ -161,6 +163,11 @@ namespace SynapseGaming.LightingSystem.Core
         this.occlusionQuery_0 = new OcclusionQuery(device);
         this.bool_0 = false;
         this.boundingBox_0 = bounds;
+      }
+
+      public void Dispose()
+      {
+          occlusionQuery_0.Dispose();
       }
     }
   }

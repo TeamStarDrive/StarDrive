@@ -19,7 +19,7 @@ namespace SynapseGaming.LightingSystem.Core
   /// Provides scene environmental information to the lighting system.
   /// </summary>
   [Serializable]
-  public class SceneEnvironment : IDisposable, INamedObject, IEditorObject, IProjectFile, ISerializable, ISceneEnvironment
+  public sealed class SceneEnvironment : IDisposable, INamedObject, IEditorObject, IProjectFile, ISerializable, ISceneEnvironment
   {
     private float float_0 = 300f;
     private bool bool_0 = true;
@@ -212,8 +212,7 @@ namespace SynapseGaming.LightingSystem.Core
       LightingSystemEditor.OnCreateResource(this);
     }
 
-    /// <summary />
-    protected SceneEnvironment(SerializationInfo serializationInfo_0, StreamingContext streamingContext_0)
+    SceneEnvironment(SerializationInfo serializationInfo_0, StreamingContext streamingContext_0)
     {
       foreach (SerializationEntry serializationEntry in serializationInfo_0)
       {

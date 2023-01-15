@@ -22,7 +22,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// At least one instance must be created before interacting
     /// with the lighting system.
     /// </summary>
-    public class LightingSystemManager
+    public sealed class LightingSystemManager : IDisposable
     {
         static LightingSystemManager instance;
 
@@ -32,9 +32,6 @@ namespace SynapseGaming.LightingSystem.Core
 
         TextureCube textureCube_0;
         TextureCube textureCube_1;
-
-        SpriteFont consoleFont;
-        SpriteBatch spriteBatch_0;
 
         VertexDeclaration vertexDeclaration_0;
         GraphicsDeviceSupport GfxDeviceSupport;
@@ -79,10 +76,9 @@ namespace SynapseGaming.LightingSystem.Core
 
         ~LightingSystemManager()
         {
-            this.Unload();
-            if (instance != this)
-                return;
-            instance = null;
+            Dispose(false);
+            if (instance == this)
+                instance = null;
         }
 
         /// <summary>
@@ -95,7 +91,7 @@ namespace SynapseGaming.LightingSystem.Core
         }
 
         // Embedded resources are linked from SynapseGaming/LightingSystem/Effects/Resources.resx
-        ResourceContentManager EmbeddedContent => Content ?? (Content = new ResourceContentManager(Service, ResourceManager));
+        ResourceContentManager EmbeddedContent => Content ??= new ResourceContentManager(Service, ResourceManager);
 
         internal Effect EmbeddedEffect(string effectName)
         {
@@ -124,8 +120,8 @@ namespace SynapseGaming.LightingSystem.Core
         {
             if (SplashTex == null)
             {
-                using (var memoryStream = new MemoryStream(EmbeddedResourceBuilder.SplashScreen))
-                    SplashTex = Texture2D.FromFile(device, memoryStream);
+                using MemoryStream memoryStream = new(EmbeddedResourceBuilder.SplashScreen);
+                SplashTex = Texture2D.FromFile(device, memoryStream);
             }
             return SplashTex;
         }
@@ -296,23 +292,6 @@ namespace SynapseGaming.LightingSystem.Core
             return this.texture2D_0;
         }
 
-        internal SpriteFont ConsoleFont()
-        {
-            if (consoleFont != null)
-                return consoleFont;
-            consoleFont = EmbeddedContent.Load<SpriteFont>("ConsoleFont");
-            consoleFont.DefaultCharacter = '?';
-            return consoleFont;
-        }
-
-        internal SpriteBatch method_9(GraphicsDevice graphicsDevice_0)
-        {
-            if (this.spriteBatch_0 != null)
-                return this.spriteBatch_0;
-            this.spriteBatch_0 = new SpriteBatch(graphicsDevice_0);
-            return this.spriteBatch_0;
-        }
-
         internal VertexDeclaration method_10(GraphicsDevice graphicsDevice_0)
         {
             if (this.vertexDeclaration_0 == null)
@@ -332,23 +311,32 @@ namespace SynapseGaming.LightingSystem.Core
             return GfxDeviceSupport;
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing)
+        {
+            Content?.Dispose();
+            Content = null;
+            GfxDeviceSupport = null;
+            Disposable.Dispose(ref texture3D_0);
+            Disposable.Dispose(ref texture2D_0);
+            Disposable.Dispose(ref SplashTex);
+            Disposable.Dispose(ref textureCube_0);
+            Disposable.Dispose(ref textureCube_1);
+            Disposable.Dispose(ref vertexDeclaration_0);
+        }
+
         /// <summary>
         /// Unloads all lighting system and device specific data.  Must be called
         /// when the device is reset (during Game.UnloadGraphicsContent()).
         /// </summary>
         public void Unload()
         {
-            Content?.Dispose();
-            Content = null;
-            consoleFont = null;
-            GfxDeviceSupport = null;
-            Disposable.Free(ref spriteBatch_0);
-            Disposable.Free(ref texture3D_0);
-            Disposable.Free(ref texture2D_0);
-            Disposable.Free(ref SplashTex);
-            Disposable.Free(ref textureCube_0);
-            Disposable.Free(ref textureCube_1);
-            Disposable.Free(ref vertexDeclaration_0);
+            Dispose(true);
         }
     }
 }

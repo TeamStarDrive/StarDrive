@@ -7,6 +7,7 @@ using SDGraphics;
 using Ship_Game;
 using Ship_Game.Utils;
 using System.Linq;
+#pragma warning disable CA2213
 
 namespace UnitTests.Empires;
 

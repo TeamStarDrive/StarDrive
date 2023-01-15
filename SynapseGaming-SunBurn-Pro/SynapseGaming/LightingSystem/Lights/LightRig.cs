@@ -27,7 +27,7 @@ namespace SynapseGaming.LightingSystem.Lights
         internal string LightRigFile = "";
         internal string ProjectFile = "";
         private BaseLightManager baseLightManager_0 = new BaseLightManager();
-        private bool bool_0;
+        private bool IsDisposed;
         private static SerializeTypeDictionary serializeTypeDictionary_0;
 
         /// <summary>Light groups contained by the light rig.</summary>
@@ -79,9 +79,6 @@ namespace SynapseGaming.LightingSystem.Lights
             LightingSystemEditor.OnCreateResource(this);
         }
 
-        /// <summary />
-        /// <param name="info"></param>
-        /// <param name="context"></param>
         protected LightRig(SerializationInfo serializationInfo_0, StreamingContext streamingContext_0)
         {
             foreach (SerializationEntry serializationEntry in serializationInfo_0)
@@ -232,11 +229,17 @@ namespace SynapseGaming.LightingSystem.Lights
         /// <summary>Releases resources allocated by this object.</summary>
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             this.Clear();
-            this.baseLightManager_0.Unload();
-            if (this.bool_0)
+            this.baseLightManager_0.Dispose();
+            if (this.IsDisposed)
                 return;
-            this.bool_0 = true;
+            this.IsDisposed = true;
             LightingSystemEditor.OnDisposeResource(this);
         }
 
@@ -307,7 +310,9 @@ namespace SynapseGaming.LightingSystem.Lights
             }
         }
 
-        /// <summary />
+        /// <summary>
+        /// Gets some object data I guess?
+        /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]

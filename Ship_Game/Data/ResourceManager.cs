@@ -348,7 +348,7 @@ namespace Ship_Game
         public static void UnloadAllData(ScreenManager manager)
         {
             WaitForExit();
-            
+
             TroopsDict.Clear();
             TroopsList.Clear();
             TroopsDictKeys = Empty<string>.Array;

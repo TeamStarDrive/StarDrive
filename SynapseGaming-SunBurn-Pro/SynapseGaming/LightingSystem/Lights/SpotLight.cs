@@ -100,7 +100,7 @@ namespace SynapseGaming.LightingSystem.Lights
             get
             {
                 if (this.ishadowSource_0 == null)
-                    throw new ArgumentException("ShadowSource is null. This can result in poor rendering performance.");
+                    throw new InvalidOperationException("ShadowSource is null. This can result in poor rendering performance.");
                 return this.ishadowSource_0;
             }
             set
@@ -278,7 +278,7 @@ namespace SynapseGaming.LightingSystem.Lights
         }
 
         /// <summary>
-        /// 
+        /// Create a new spotlight
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
@@ -372,7 +372,7 @@ namespace SynapseGaming.LightingSystem.Lights
         }
 
         /// <summary>
-        /// 
+        /// Get object data for serialization
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
