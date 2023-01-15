@@ -110,14 +110,7 @@ namespace Ship_Game
 
             if (ActiveTopic.Link.NotEmpty())
             {
-                try
-                {
-                    SteamManager.ActivateOverlayWebPage(ActiveTopic.Link);
-                }
-                catch
-                {
-                    Process.Start(ActiveTopic.Link);
-                }
+                Log.OpenURL(ActiveTopic.Link);
             }
 
             if (ActiveTopic.VideoPath == null)

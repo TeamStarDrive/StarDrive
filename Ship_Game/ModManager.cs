@@ -148,14 +148,7 @@ namespace Ship_Game
         {
             if (!string.IsNullOrEmpty(SelectedMod?.Settings.URL))
             {
-                try
-                {
-                    SteamManager.ActivateOverlayWebPage(SelectedMod.Settings.URL);
-                }
-                catch
-                {
-                    Process.Start(SelectedMod.Settings.URL);
-                }
+                Log.OpenURL(SelectedMod.Settings.URL);
             }
         }
 

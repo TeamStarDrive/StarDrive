@@ -322,12 +322,7 @@ namespace Ship_Game
             if (input.ShowExceptionTracker)
             {
                 UState.Paused = true;
-                Log.OpenURL("https://bitbucket.org/codegremlins/stardrive-blackbox/issues/new");
-            }
-            if (input.SendKudos)
-            {
-                UState.Paused = true;
-                Log.OpenURL("http://steamcommunity.com/id/v-danbe/recommended/220660");
+                Log.OpenURL(GlobalStats.VanillaDefaults.URL);
             }
 
             HandleGameSpeedChange(input);
