@@ -127,9 +127,12 @@ namespace Ship_Game
         protected override void UnloadContent()
         {
             Log.Write("StarDriveGame UnloadContent");
-            // This also unloads all screens
             if (ScreenManager != null)
+            {
+                // This also unloads all screens
+                // And also Unloads Sunburn lighting manager
                 ResourceManager.UnloadGraphicsResources(ScreenManager);
+            }
             IsLoaded = false;
             GraphicsDeviceWasReset = true;
         }

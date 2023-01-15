@@ -69,7 +69,7 @@ namespace Ship_Game
             LightSysManager = new(game.Services);
             GameSceneState = new();
             SceneInter = new(graphics);
-            SceneInter.CreateDefaultManagers(false, false, true);
+            SceneInter.CreateDefaultManagers(useDeferredRendering:false, usePostProcessing:true);
             SceneInter.AddManager(new GameLightManager(graphics));
         }
 
@@ -284,10 +284,11 @@ namespace Ship_Game
             RemoveAllLights();
         }
 
+        // This must be called when Graphics Device is reset!
         public void UnloadSceneObjects()
         {
             SceneInter.Unload();
-            LightSysManager.Unload();
+            LightSysManager.Unload(); // must be called on Graphics Device reset!
             ActiveDynamicLights = 0;
         }
 

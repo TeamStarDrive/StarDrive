@@ -128,7 +128,6 @@
     <Compile Include="SynapseGaming\LightingSystem\Core\BasePrimitiveRenderHelper.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\LineRenderHelper.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\TriangleRenderHelper.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Core\RenderTargetHelper.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\IResourceManager.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\ResourceManager.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\ISceneState.cs" />
@@ -224,16 +223,10 @@
     <Compile Include="SynapseGaming\LightingSystem\Processors\Forward\SasMaterialReader_Pro.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Processors\Forward\XSIMaterialReader_Pro.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\IShadowRenderer.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Rendering\IAvatarManager.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Rendering\IAvatar.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Rendering\Avatar.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Rendering\AvatarManager.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\IRenderManager.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\BaseRenderManager.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Rendering\DebugRenderManager.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\IPostProcessor.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\BaseRenderTargetPostProcessor.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Rendering\HighDynamicRangePostProcessor.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\IPostProcessManager.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\BaseOverlayPostProcessor.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\PostProcessManager.cs" />
@@ -244,19 +237,13 @@
     <Compile Include="SynapseGaming\LightingSystem\Rendering\RenderableMeshCollection.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\ISceneObject.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\SceneObject.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Rendering\SplashScreen.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Rendering\SplashScreenGameComponent.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\SpriteContainer.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\SpriteManager.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\Deferred\DeferredBufferType.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\Deferred\DeferredBufferSizing.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\Deferred\DeferredBuffers.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\Deferred\DeferredRenderManager.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Rendering\Forward\LightingSystemGameComponent.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Rendering\Forward\RenderManager.cs" />
-    <Compile Include="ns1\Class5.cs" />
-    <Compile Include="ns1\Class6.cs" />
-    <Compile Include="ns2\Class7.cs" />
     <Compile Include="ns2\Class8.cs" />
     <Compile Include="ns3\RTreeNode.cs" />
     <Compile Include="ns3\Class10.cs" />
@@ -346,6 +333,9 @@
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.NetAnalyzers.7.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.NetAnalyzers.7.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.NetAnalyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ns1\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -9,13 +9,14 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using SynapseGaming.LightingSystem.Core;
+#pragma warning disable CA2213
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
   /// <summary>
   /// Class that manages shadow groups sharing the same render target.
   /// </summary>
-  public class ShadowRenderTargetGroup : SafeSingletonBeginableObject, IDisposable
+  public sealed class ShadowRenderTargetGroup : SafeSingletonBeginableObject, IDisposable
   {
       private GraphicsDevice graphicsDevice_0;
     private DepthStencilBuffer depthStencilBuffer_0;
@@ -139,7 +140,7 @@ namespace SynapseGaming.LightingSystem.Shadows
       this.renderTarget_3 = null;
       this.renderTarget_4 = null;
       this.depthStencilBuffer_1 = null;
-      Disposable.Free(ref this.texture2D_1);
+      Disposable.Dispose(ref this.texture2D_1);
     }
 
     /// <summary>

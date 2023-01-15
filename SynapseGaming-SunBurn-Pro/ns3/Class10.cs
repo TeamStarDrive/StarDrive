@@ -23,7 +23,7 @@ namespace ns3
 
     public BasicEffect DefaultEffect => this.basicEffect_0;
 
-      public Class10(GraphicsDevice device)
+    public Class10(GraphicsDevice device)
     {
       this.graphicsDevice_0 = device;
       this.basicEffect_0 = new BasicEffect(this.graphicsDevice_0, null);
@@ -109,10 +109,10 @@ namespace ns3
 
     public void Dispose()
     {
-      Disposable.Free(ref this.basicEffect_0);
-      Disposable.Free(ref this.vertexBuffer_0);
-      Disposable.Free(ref this.indexBuffer_0);
-      Disposable.Free(ref this.vertexDeclaration_0);
+      Disposable.Dispose(ref this.basicEffect_0);
+      Disposable.Dispose(ref this.vertexBuffer_0);
+      Disposable.Dispose(ref this.indexBuffer_0);
+      Disposable.Dispose(ref this.vertexDeclaration_0);
     }
   }
 }
