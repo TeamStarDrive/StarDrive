@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SDGraphics;
+#pragma warning disable CA1060
 
 namespace Ship_Game
 {
@@ -11,7 +13,9 @@ namespace Ship_Game
     public class PerfTimer
     {
         [DllImport("Kernel32.dll", EntryPoint = "QueryPerformanceCounter")]
-        public static extern bool GetCurrentTicks(out long count);
+        static extern bool GetCurrentTicks(out long count);
+
+        public static bool GetTicks(out long count) => GetCurrentTicks(out count);
 
         [DllImport("Kernel32.dll")]
         static extern bool QueryPerformanceFrequency(out long freq);
@@ -150,7 +154,7 @@ namespace Ship_Game
         // start new sampling
         public void Start()
         {
-            PerfTimer.GetCurrentTicks(out StartTime);
+            PerfTimer.GetTicks(out StartTime);
 
             // if we run multi-frame sampling, this ensures our
             // refresh time doesn't drift
@@ -162,7 +166,7 @@ namespace Ship_Game
         {
             get
             {
-                PerfTimer.GetCurrentTicks(out long now);
+                PerfTimer.GetTicks(out long now);
                 float remaining = (float)((NextRefreshTime - now) * PerfTimer.InvFrequency);
                 return remaining;
             }
@@ -172,7 +176,7 @@ namespace Ship_Game
         // @return True if stats were refreshed
         public bool Stop()
         {
-            PerfTimer.GetCurrentTicks(out long now);
+            PerfTimer.GetTicks(out long now);
             float elapsed = (float)((now - StartTime) * PerfTimer.InvFrequency);
             CurrentMax = Math.Max(CurrentMax, elapsed);
             CurrentTotal += elapsed;
