@@ -180,6 +180,7 @@ public class StaticMesh : IDisposable
             {
                 foreach (MeshData mesh in RawMeshes)
                 {
+                    // TODO: this is inefficient
                     so.Add(new RenderableMesh(so,
                         effect ?? mesh.Effect,
                         mesh.MeshToObject,
