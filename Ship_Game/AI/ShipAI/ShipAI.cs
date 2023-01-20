@@ -9,6 +9,7 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Vector2 = SDGraphics.Vector2;
+#pragma warning disable CA2213
 
 namespace Ship_Game.AI
 {

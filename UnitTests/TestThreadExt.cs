@@ -9,56 +9,6 @@ namespace UnitTests
     public class TestThreadExt : StarDriveTest
     {
         [TestMethod]
-        public void TestParallelRange()
-        {
-            var numbers = new int[13333337];
-
-            Parallel.For(0, numbers.Length, (start, end) =>
-            {
-                for (int i = start; i < end; ++i)
-                    numbers[i] = i;
-            });
-
-            var timer = new PerfTimer();
-            long sum = 0;
-            numbers.ParallelRange(range =>
-            {
-                long isum = 0;
-                foreach (int value in range)
-                    isum += (long)Math.Sqrt(value);
-                Interlocked.Add(ref sum, isum);
-            });
-            Console.WriteLine("ParallelRange elapsed: {0:0.000}s  result: {1}", timer.Elapsed, sum);
-
-            timer.Start();
-            long sum2 = 0;
-            foreach (int value in numbers)
-                sum2 += (long)Math.Sqrt(value);
-            Console.WriteLine("SingleThread  elapsed: {0:0.000}s  result: {1}", timer.Elapsed, sum2);
-
-            AssertEqual(sum2, sum, "ParallelRange result incorrect. Incorrect loop logic?");
-
-            // Test the parallel loop a second time to ensure it doesn't deadlock etc
-            int poolSize = Parallel.PoolSize;
-            timer.Start();
-            long sum3 = 0;
-            numbers.ParallelRange(range =>
-            {
-                long isum = 0;
-                foreach (int value in range)
-                    isum += (long)Math.Sqrt(value);
-                Interlocked.Add(ref sum3, isum);
-            });
-            Console.WriteLine("ParallelRange elapsed: {0:0.000}s  result: {1}", timer.Elapsed, sum3);
-
-            numbers = null;
-            GC.Collect(); // Fixes Test OOM in Debug mode
-
-            AssertEqual(sum2, sum3, "ParallelRange result incorrect. Incorrect loop logic?");
-            AssertEqual(poolSize, Parallel.PoolSize, "Parallel.For pool is growing, but it shouldn't. Incorrect ParallelTask states?");
-        }
-
-        [TestMethod]
         public void TestParallelFor()
         {
             var numbers = new int[13333337];

@@ -2,6 +2,8 @@
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
 using Rectangle = SDGraphics.Rectangle;
+#pragma warning disable CA1060
+#pragma warning disable CA2101
 
 namespace Ship_Game.Data.Texture
 {

@@ -93,7 +93,7 @@ namespace Ship_Game.Audio
                     return;
                 }
 
-                Log.Info($"GameAudio.Device: {device.FriendlyName}");
+                Log.Info($"GameAudio Initialize Device: {device.FriendlyName}");
                 Devices.CurrentDevice = device; // make sure it's always properly in sync
 
                 SettingsFile  = settingsFile;
@@ -130,7 +130,7 @@ namespace Ship_Game.Audio
             }
         }
 
-        // called from Game1 Dispose()
+        // called from GameBase.Dispose()
         public static void Destroy()
         {
             SfxThread = null;
@@ -151,7 +151,14 @@ namespace Ship_Game.Audio
             }
             Mem.Dispose(ref SoundBank);
             Mem.Dispose(ref WaveBank);
-            Mem.Dispose(ref AudioEngine);
+            if (AudioEngine != null)
+            {
+                // need to check for disposed, otherwise there's a possibility for deadlocks
+                if (!AudioEngine.IsDisposed)
+                    Mem.Dispose(ref AudioEngine);
+                else
+                    AudioEngine = null;
+            }
             Mem.Dispose(ref Devices);
         }
 
@@ -166,7 +173,13 @@ namespace Ship_Game.Audio
             {
                 Devices.HandleEvents();
 
-                // double-check the AudioEngine, because HandleEvents() can be slow on some systems
+                if (Devices.ShouldReloadAudioDevice)
+                {
+                    ReloadAfterDeviceChange(null);
+                    return;
+                }
+
+                // double-check the AudioEngine, because HandleEvents() is allowed to Dispose it
                 if (!engine.IsDisposed)
                     engine.Update();
             }

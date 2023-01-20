@@ -100,19 +100,14 @@ namespace Ship_Game
                 Planet.ActiveCombats.QueuePendingRemoval(this);
                 AttackingTroop?.LevelUp();
             }
-            else if (DefendingBuilding != null)
+            else
             {
-                DefendingBuilding.Strength -= damage;
-                DefendingBuilding.CombatStrength -= damage;
-                if (DefendingBuilding.Strength <= 0) // building destroyed?
-                {
-                    Planet.DestroyBuilding(DefendingBuilding);
-                }
+                DefendingBuilding?.ApplyDamageAndRemoveIfDestroyed(Planet, damage);
             }
         }
 
-        public bool Done => DefendingTroop?.Strength <= 0 || DefendingBuilding?.Strength <= 0 
-                                                          || AttackingBuilding?.Strength <= 0 
+        public bool Done => DefendingTroop?.Strength <= 0 || DefendingBuilding?.IsDestroyed == true 
+                                                          || AttackingBuilding?.IsDestroyed == true 
                                                           || AttackingTroop?.Strength <= 0;
 
         private struct AttackerStats

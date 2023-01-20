@@ -134,14 +134,7 @@ namespace Ship_Game
 
             if (RandomMath.RollDice(hitChance))
             {
-                building.Strength -= damage;
-                if (building.IsAttackable)
-                    building.CombatStrength = building.Strength;
-
-                if (TargetTile.BuildingDestroyed)
-                {
-                    Surface.DestroyBuilding(building);
-                }
+                building.ApplyDamageAndRemoveIfDestroyed(Surface, damage);
             }
         }
     }

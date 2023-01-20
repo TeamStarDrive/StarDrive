@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Ship_Game.Utils
 {
-    public class ThreadSafeRandom : RandomBase
+    public class ThreadSafeRandom : RandomBase, IDisposable
     {
         // NOTE: This is really fast
         readonly ThreadLocal<Random> Randoms;
@@ -16,6 +16,11 @@ namespace Ship_Game.Utils
         public ThreadSafeRandom(int seed) : base(seed)
         {
             Randoms = new ThreadLocal<Random>(() => new Random(Seed));
+        }
+
+        public void Dispose()
+        {
+            Randoms?.Dispose();
         }
     }
 }

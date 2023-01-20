@@ -5,6 +5,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 // ReSharper disable once CheckNamespace
@@ -109,14 +110,7 @@ namespace Ship_Game
 
             if (ActiveTopic.Link.NotEmpty())
             {
-                try
-                {
-                    SteamManager.ActivateOverlayWebPage(ActiveTopic.Link);
-                }
-                catch
-                {
-                    Process.Start(ActiveTopic.Link);
-                }
+                Log.OpenURL(ActiveTopic.Link);
             }
 
             if (ActiveTopic.VideoPath == null)

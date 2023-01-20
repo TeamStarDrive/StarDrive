@@ -322,12 +322,7 @@ namespace Ship_Game
             if (input.ShowExceptionTracker)
             {
                 UState.Paused = true;
-                Log.OpenURL("https://bitbucket.org/codegremlins/stardrive-blackbox/issues/new");
-            }
-            if (input.SendKudos)
-            {
-                UState.Paused = true;
-                Log.OpenURL("http://steamcommunity.com/id/v-danbe/recommended/220660");
+                Log.OpenURL(GlobalStats.VanillaDefaults.URL);
             }
 
             HandleGameSpeedChange(input);
@@ -1419,8 +1414,8 @@ namespace Ship_Game
             bool showingDebugTabs = Debug && DebugWin?.ModesTab.Visible == true;
             int startY = showingDebugTabs ? 120 : 60;
             int index = 0;
-
-            var fleets = Player.ActiveFleets.Sorted(f => f.Key);
+            
+            var fleets = Player.ActiveFleets.ToArrayList().Sorted(f => f.Key);
             foreach (Fleet fleet in fleets)
             {
                 buttons.Add(new FleetButton

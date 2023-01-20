@@ -42,9 +42,11 @@ namespace Ship_Game
         public float TotalElapsed { get; protected set; }
 
         public Form Form => (Form)Control.FromHandle(Window.Handle);
-        
-        public bool IsDeviceGood => !GraphicsDevice.IsDisposed 
-                                 && GraphicsDevice.GraphicsDeviceStatus == GraphicsDeviceStatus.Normal;
+
+        /// <summary>
+        /// TRUE if GraphicsDevice is not null or disposed
+        /// </summary>
+        public bool IsDeviceGood => GraphicsDevice is { IsDisposed: false, GraphicsDeviceStatus: GraphicsDeviceStatus.Normal };
 
         public GameBase()
         {

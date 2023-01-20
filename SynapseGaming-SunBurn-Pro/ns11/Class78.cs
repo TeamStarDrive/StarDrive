@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+#pragma warning disable CA2002
 
 namespace ns11
 {

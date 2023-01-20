@@ -20,7 +20,7 @@ namespace Ship_Game.Universe
     ///
     /// </summary>
     [StarDataType]
-    public partial class UniverseState
+    public sealed partial class UniverseState : IDisposable
     {
         /// <summary>
         /// This is the RADIUS of the universe
@@ -117,7 +117,7 @@ namespace Ship_Game.Universe
 
         // @return All Planets in the Universe
         public IReadOnlyList<Planet> Planets => AllPlanetsList;
-        
+
         /// <summary>
         /// Thread unsafe view of all ships.
         /// It's only safe to use from simulation thread or when sim is paused
@@ -129,7 +129,7 @@ namespace Ship_Game.Universe
 
         // TODO: attempt to stop relying on visual state
         public UniverseScreen Screen;
-        
+
         // TODO: Encapsulate
         public BatchRemovalCollection<SpaceJunk> JunkList = new();
 
@@ -221,23 +221,40 @@ namespace Ship_Game.Universe
                         RemapShipDesigns(us, fromSave, existing);
                     }
                 }
+
+                // FIXUP remove duplicates in all Empire build lists
+                //       this will fix broken savegames that accidentally suffer from duplicate ship designs
+                foreach (Empire e in us.EmpireList)
+                {
+                    e.RemoveInvalidShipDesigns();
+                    e.RemoveDuplicateShipDesigns();
+                }
             }
 
-            void RemapShipDesigns(UniverseState us, ShipDesign fromSave, IShipDesign replaceWith)
+            // replace a design from the savegame with an existing template in all the empire Build lists
+            static void RemapShipDesigns(UniverseState us, IShipDesign fromSave, IShipDesign replaceWith)
             {
                 // NOTE: individual ships are updated inside Ship.OnDeserialized()
 
                 foreach (Empire e in us.EmpireList)
                 {
+                    // the buildable ships list contains Ships and Stations/Platforms
                     if (e.CanBuildShip(fromSave))
                     {
                         e.RemoveBuildableShip(fromSave);
-                        e.AddBuildableShip(replaceWith);
-                    }
-                    if (e.CanBuildStation(fromSave)) // a station will appear in both lists
-                    {
-                        e.RemoveBuildableStation(fromSave);
-                        e.AddBuildableStation(replaceWith);
+                        e.AddBuildableShip(replaceWith); // will also add it as a Station
+
+                        // check all planet construction queues as well
+                        foreach (Planet p in e.GetPlanets())
+                        {
+                            foreach (QueueItem qi in p.ConstructionQueue)
+                            {
+                                if (qi.isShip && qi.ShipData == fromSave)
+                                {
+                                    qi.ShipData = replaceWith;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -247,7 +264,7 @@ namespace Ship_Game.Universe
         [StarData] public byte[] FogMapBytes;
 
         [StarDataSerialize]
-        StarDataDynamicField[] OnSerialize()
+        public StarDataDynamicField[] OnSerialize()
         {
             // clean up and submit objects before saving
             Objects.UpdateLists(removeInactiveObjects: true);
@@ -272,7 +289,7 @@ namespace Ship_Game.Universe
         // Only call OnDeserialized evt if Empire and Ship have finished their events
         [StarDataDeserialized(typeof(Empire), typeof(Ship), typeof(Projectile),
                               typeof(Beam), typeof(UniverseParams))]
-        void OnDeserialized()
+        public void OnDeserialized()
         {
             Initialize(UniverseWidth);
 
@@ -281,7 +298,7 @@ namespace Ship_Game.Universe
             save.UpdateAllDesignsFromSave(this);
 
             CalcInitialSettings();
-            
+
             // NOTE: This will automatically call AddShipInfluence() to update InfluenceTree
             Objects.AddRange(save.Ships);
             Objects.AddRange(save.Projectiles);
@@ -290,7 +307,7 @@ namespace Ship_Game.Universe
             foreach (Planet planet in AllPlanetsList)
             {
                 if (planet.Owner != null)
-                    OnPlanetOwnerAdded(planet.Owner, planet);
+                    OnPlanetOwnerAdded(planet.Owner!, planet);
             }
 
             // update systems tree and planets tree
@@ -322,7 +339,15 @@ namespace Ship_Game.Universe
             return Interlocked.Increment(ref UniqueObjectIds);
         }
 
-        public void Clear()
+        ~UniverseState() { Dispose(false); }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public void Dispose(bool disposing)
         {
             RemoveSceneObjects();
 
@@ -359,8 +384,10 @@ namespace Ship_Game.Universe
             foreach (SolarSystem s in SolarSystemList)
             {
                 foreach (Planet planet in s.PlanetList)
-                    planet.TilesList = new();
-                
+                {
+                    planet.Dispose();
+                }
+
                 s.FiveClosestSystems.Clear();
                 s.AsteroidsList.Clear();
                 s.MoonList.Clear();
@@ -394,7 +421,7 @@ namespace Ship_Game.Universe
                     throw new InvalidOperationException($"AddSolarSystem Planet.Id must be valid: {planet}");
                 if (planet.ParentSystem != system)
                     throw new InvalidOperationException($"AddSolarSystem Planet.ParentSystem must be valid: {planet.ParentSystem} != {system}");
-                
+
                 PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
             }
@@ -470,12 +497,12 @@ namespace Ship_Game.Universe
             if (oldLoyalty.RemoveBorderNode(ship))
                 Influence.Remove(oldLoyalty, ship);
         }
-        
+
         public void OnPlanetOwnerAdded(Empire owner, Planet planet)
         {
-            if (planet.Budget?.Owner!= owner)
+            if (planet.Budget?.Owner != owner)
                 planet.CreatePlanetBudget(owner);
-            owner.AddBorderNode(planet);
+            owner!.AddBorderNode(planet);
             Influence.Insert(owner, planet);
         }
 

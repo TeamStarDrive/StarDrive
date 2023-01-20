@@ -48,10 +48,10 @@ namespace SynapseGaming.LightingSystem.Shadows
         }
 
         /// <summary>Releases resources allocated by this object.</summary>
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Disposable.Free(ref shadowFx);
-            base.Dispose();
+            Disposable.Dispose(ref shadowFx);
+            base.Dispose(disposing);
         }
 
         /// <summary>

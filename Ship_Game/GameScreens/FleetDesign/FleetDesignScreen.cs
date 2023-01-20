@@ -95,7 +95,7 @@ namespace Ship_Game
             GameAudio.PlaySfxAsync(audioCue);
 
             // choose the first active fleet we have, or default to first fleet key
-            Fleet anyFleet = Player.ActiveFleets.Sorted(f => f.Key).FirstOrDefault();
+            Fleet anyFleet = Player.ActiveFleets.ToArrayList().Sorted(f => f.Key).FirstOrDefault();
             int fleetId = (anyFleet?.Key ?? Empire.FirstFleetKey).Clamped(Empire.FirstFleetKey, Empire.LastFleetKey);
             ChangeFleet(fleetId);
         }

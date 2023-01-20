@@ -10,6 +10,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+#pragma warning disable CA2213
 
 namespace UnitTests.AITests.Empire
 {

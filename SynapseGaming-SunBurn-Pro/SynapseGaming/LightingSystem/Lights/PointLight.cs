@@ -97,17 +97,11 @@ namespace SynapseGaming.LightingSystem.Lights
         {
             get
             {
-                if (this.ishadowSource_0 == null)
-                    throw new ArgumentException("ShadowSource is null. This can result in poor rendering performance.");
-                return this.ishadowSource_0;
+                if (ishadowSource_0 == null)
+                    throw new InvalidOperationException("ShadowSource is null. This can result in poor rendering performance.");
+                return ishadowSource_0;
             }
-            set
-            {
-                if (value == null)
-                    this.ishadowSource_0 = this;
-                else
-                    this.ishadowSource_0 = value;
-            }
+            set => ishadowSource_0 = value ?? this;
         }
 
         /// <summary>
@@ -243,7 +237,7 @@ namespace SynapseGaming.LightingSystem.Lights
         }
 
         /// <summary>
-        /// 
+        /// New Point Light
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
@@ -328,7 +322,7 @@ namespace SynapseGaming.LightingSystem.Lights
         }
 
         /// <summary>
-        /// 
+        /// GetObjectData and stuff
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>

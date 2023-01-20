@@ -18,7 +18,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
   /// Manages deferred buffers (render targets) at a specific resolution (width and height)
   /// for optimal sharing across multiple deferred materials.
   /// </summary>
-  public class DeferredBuffers : IUnloadable
+  public sealed class DeferredBuffers : IUnloadable, IDisposable
   {
     private SurfaceFormat surfaceFormat_0 = SurfaceFormat.Unknown;
     private List<int> list_0 = new List<int>(4);
@@ -206,18 +206,23 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     {
     }
 
+    public void Dispose()
+    {
+      Disposable.Dispose(ref this.depthStencilBuffer_0);
+      Disposable.Dispose(ref this.fullFrameQuad_0);
+      Disposable.Dispose(ref this.renderTarget2D_0);
+      Disposable.Dispose(ref this.renderTarget2D_1);
+      Disposable.Dispose(ref this.renderTarget2D_2);
+      Disposable.Dispose(ref this.renderTarget2D_3);
+    }
+
     /// <summary>
     /// Disposes any graphics resource used internally by this object, and removes
     /// scene resources managed by this object. Commonly used during Game.UnloadContent.
     /// </summary>
     public void Unload()
     {
-      Disposable.Free(ref this.depthStencilBuffer_0);
-      Disposable.Free(ref this.fullFrameQuad_0);
-      Disposable.Free(ref this.renderTarget2D_0);
-      Disposable.Free(ref this.renderTarget2D_1);
-      Disposable.Free(ref this.renderTarget2D_2);
-      Disposable.Free(ref this.renderTarget2D_3);
+      Dispose();
     }
   }
 }

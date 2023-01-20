@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Ship_Game.Data.Binary;
 
-public class Writer : IDisposable
+public sealed class Writer : IDisposable
 {
     Stream OutStream;
     readonly Encoding Encoding;
@@ -23,15 +23,15 @@ public class Writer : IDisposable
         StringBuffer = new char[256 * 1024];
     }
 
-    ~Writer() { Destroy(); }
+    ~Writer() { Dispose(false); }
 
     public void Dispose()
     {
-        Destroy();
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    void Destroy()
+    void Dispose(bool disposing)
     {
         Flush();
         OutStream.Close();
@@ -129,7 +129,7 @@ public class Writer : IDisposable
         Buffer[offset+1] = (byte) ((uint) value >> 8);
     }
 
-    public virtual void Write(int value)
+    public void Write(int value)
     {
         int offset = EnsureCapacity(4);
         Buffer[offset]   = (byte) value;
@@ -138,7 +138,7 @@ public class Writer : IDisposable
         Buffer[offset+3] = (byte) (value >> 24);
     }
 
-    public virtual void Write(uint value)
+    public void Write(uint value)
     {
         int offset = EnsureCapacity(4);
         Buffer[offset]   = (byte) value;

@@ -481,17 +481,6 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color, rotation, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
         }
 
-        public void CheckToolTip(LocalizedText toolTip, Rectangle rectangle, Vector2 mousePos)
-        {
-            if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(toolTip);
-        }
-        public void CheckToolTip(LocalizedText toolTip, Vector2 cursor, LocalizedText words, string numbers, Font font, Vector2 mousePos)
-        {
-            var rect = new Rectangle((int)cursor.X, (int)cursor.Y, 
-                font.TextWidth(words) + font.TextWidth(numbers), font.LineSpacing);
-            CheckToolTip(toolTip, rect, mousePos);
-        }
         public Vector2 FontSpace(Vector2 cursor, float spacing, LocalizedText drawnString, Font font)
         {
             cursor.X += (spacing - font.TextWidth(drawnString));

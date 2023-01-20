@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -32,7 +33,7 @@ namespace Ship_Game
             public float Spacing;
             public int LineSpacing;
 
-            public StatValue(in LocalizedText title, float value, in LocalizedText tooltip, 
+            public StatValue(in LocalizedText title, float value, in LocalizedText tooltip,
                              Color titleColor, ValueTint tint = ValueTint.None, float spacing = 165, int lineSpacing = 1)
             {
                 Title = title;
@@ -84,13 +85,19 @@ namespace Ship_Game
             WriteLine(ref cursor);
             cursor.Y += stat.LineSpacing;
 
-            Vector2 statCursor = new Vector2(cursor.X + stat.Spacing, cursor.Y);
+            Vector2 statCursor = new(cursor.X + stat.Spacing, cursor.Y);
             string title = stat.Title.Text;
             DrawString(FontSpace(statCursor, -20, title, font), stat.TitleColor, title, font); // @todo Replace with DrawTitle?
 
             string valueText = stat.ValueText;
             DrawString(statCursor, stat.ValueColor, valueText, font);
-            CheckToolTip(stat.Tooltip, cursor, title, valueText, font, MousePos);
+
+            if (stat.Tooltip.IsValid)
+            {
+                RectF tipRect = new(cursor.X, cursor.Y, font.TextWidth(title) + font.TextWidth(valueText), font.LineSpacing);
+                if (tipRect.HitTest(MousePos))
+                    ToolTip.CreateTooltip(stat.Tooltip);
+            }
         }
 
         public void DrawStat(ref Vector2 cursor, LocalizedText words, float stat, Color color, LocalizedText tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
