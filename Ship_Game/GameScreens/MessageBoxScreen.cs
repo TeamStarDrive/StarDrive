@@ -74,7 +74,7 @@ namespace Ship_Game
                                   BoxWidth, (int)(msgSize.Y + 40f) + 15);
 
             var textPosition = new Vector2(r.X + r.Width / 2 - Fonts.Arial12Bold.MeasureString(Message).X / 2f, r.Y + 10);
-            
+
             Ok.SetAbsPos(     r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
             Cancel?.SetAbsPos(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
 
