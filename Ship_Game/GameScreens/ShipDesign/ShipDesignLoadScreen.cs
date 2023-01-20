@@ -336,7 +336,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 && Screen.Player.WeCanBuildThis(ship.Name)
                 && (role.IsEmpty() || role == Localizer.GetRole(ship.DesignRole, Screen.Player))
                 && (Universe.Debug || !ship.IsSubspaceProjector)
-                && !ResourceManager.ShipRoles[ship.ShipData.Role].Protected;
+                && ResourceManager.ShipRoles.TryGetValue(ship.ShipData.Role, out ShipRole sr) && !sr.Protected;
         }
 
         void LoadShipToScreen()
