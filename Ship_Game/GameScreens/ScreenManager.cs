@@ -347,6 +347,10 @@ namespace Ship_Game
             if (batch == null)
                 return; // ScreenManager was disposed
 
+            // the engine is still reloading graphics resources; wait a bit...
+            if (ResourceManager.WhitePixel == null || ResourceManager.WhitePixel.IsDisposed)
+                return;
+
             GameScreen[] screens = GameScreens.ToArray();
             for (int i = 0; i < screens.Length; ++i)
             {
