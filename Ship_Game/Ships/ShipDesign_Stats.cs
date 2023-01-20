@@ -25,6 +25,7 @@ public partial class ShipDesign
     public bool IsSupplyShuttle     { get; private set; }
     public bool IsFreighter         { get; private set; }
     public bool IsCandidateForTradingBuild { get; private set; }
+    public bool IsUnitTestShip      { get; private set; }
 
     public bool IsSingleTroopShip { get; private set; }
     public bool IsTroopShip       { get; private set; }
@@ -154,16 +155,17 @@ public partial class ShipDesign
             ShipCategory = roleData.Category;
         }
 
-        IsPlatformOrStation = Role == RoleName.platform || Role == RoleName.station;
+        IsPlatformOrStation = Role is RoleName.platform or RoleName.station;
         IsStation           = Role == RoleName.station && !IsShipyard;
         IsConstructor       = Role == RoleName.construction;
         IsSubspaceProjector = Role == RoleName.ssp;
         IsSupplyShuttle     = Role == RoleName.supply;
         IsSingleTroopShip = Role == RoleName.troop;
-        IsTroopShip       = Role == RoleName.troop || Role == RoleName.troopShip;
+        IsTroopShip       = Role is RoleName.troop or RoleName.troopShip;
         IsBomber          = Role == RoleName.bomber;
         IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
+        IsUnitTestShip = Name.StartsWith("TEST_");
 
         // make sure SingleTroopShips are set to Conservative internal damage tolerance
         if (IsSingleTroopShip)
@@ -194,7 +196,7 @@ public partial class ShipDesign
     {
         return Role.ToString();
     }
-    
+
     // if this is a valid design which hasn't been broken by bugs kraken
     public bool IsValidDesign => !Deleted && NumDesignSlots != 0 && InvalidModules == null;
 
@@ -208,20 +210,21 @@ public partial class ShipDesign
     // used by AutomationWindow and TechLine focusing
     public bool IsShipGoodToBuild(Empire e)
     {
-        if (!IsValidDesign)
+        if (!IsValidDesign || IsUnitTestShip)
             return false;
         if (IsPlatformOrStation || IsCarrierOnly)
             return true;
         return IsShipGoodForGoals(e);
     }
 
-    public bool IsShipGoodForGoals(Empire e)
+    // Is this ship good for goals?
+    bool IsShipGoodForGoals(Empire e)
     {
         if (IsPlatformOrStation)
             return true;
 
         float neededRange = e.Universe.P.MinAcceptableShipWarpRange;
-        if (neededRange <= 0f) 
+        if (neededRange <= 0f)
             return true;
 
         float maxFTLSpeed = ShipStats.GetFTLSpeed(this, e);
@@ -238,8 +241,8 @@ public partial class ShipDesign
 
     public bool CanBeAddedToBuildableShips(Empire empire)
     {
-        return IsValidDesign
-            && Role != RoleName.prototype 
+        return IsValidDesign && !IsUnitTestShip
+            && Role != RoleName.prototype
             && Role != RoleName.disabled
             && Role != RoleName.supply
             && !ShipRole.Protected

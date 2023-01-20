@@ -97,6 +97,7 @@ public interface IShipDesign
     bool IsSupplyShuttle     { get; }
     bool IsFreighter         { get; }
     bool IsCandidateForTradingBuild { get; }
+    bool IsUnitTestShip      { get; }
 
     bool IsSingleTroopShip { get; }
     bool IsTroopShip       { get; }
@@ -154,9 +155,6 @@ public interface IShipDesign
 
     // Is this ship good to build for Empire e?
     bool IsShipGoodToBuild(Empire e);
-
-    // Is this ship good for goals?
-    bool IsShipGoodForGoals(Empire e);
 
     bool IsWarpRangeGood(float neededRange, float maxFTLSpeed);
 
