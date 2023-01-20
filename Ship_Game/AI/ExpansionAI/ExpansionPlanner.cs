@@ -248,6 +248,7 @@ namespace Ship_Game.AI.ExpansionAI
             SolarSystem system = claimedPlanet.ParentSystem;
             if (!Owner.isPlayer
                 && !Owner.IsFaction
+                && thievingEmpire != Owner
                 && thiefRelationship.Known
                 && !thiefRelationship.AtWar
                 && system.HasPlanetsOwnedBy(thievingEmpire))
