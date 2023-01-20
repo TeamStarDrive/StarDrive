@@ -543,12 +543,7 @@ namespace Ship_Game
                 UState.FogMapBytes = null; // free the mem of course, even if load failed
             }
 
-            if (FogMap == null)
-            {
-                FogMap = ResourceManager.Texture2D("UniverseFeather.dds");
-            }
-
-            UpdateFogMap(ScreenManager.SpriteBatch, device); // this will change FogMap surface format
+            FogMap ??= ResourceManager.Texture2D("UniverseFeather.dds");
             basicFogOfWarEffect = content.Load<Effect>("Effects/BasicFogOfWar");
         }
 
