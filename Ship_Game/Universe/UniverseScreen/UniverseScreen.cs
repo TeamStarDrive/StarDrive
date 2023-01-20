@@ -670,7 +670,7 @@ namespace Ship_Game
 
             Mem.Dispose(ref anomalyManager);
             Mem.Dispose(ref BombList);
-            NotificationManager.Clear();
+            NotificationManager?.Clear();
             SelectedShipList = new();
             base.Destroy();
         }

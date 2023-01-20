@@ -165,7 +165,9 @@ public partial class ShipDesign
         IsBomber          = Role == RoleName.bomber;
         IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
-        IsUnitTestShip = Name.StartsWith("TEST_");
+
+        // only enable this flag for non-testing environment
+        IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");
 
         // make sure SingleTroopShips are set to Conservative internal damage tolerance
         if (IsSingleTroopShip)
