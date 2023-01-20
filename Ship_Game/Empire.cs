@@ -1795,7 +1795,7 @@ namespace Ship_Game
             }
         }
 
-        public bool WeCanShowThisWIP(ShipDesign shipData)
+        public bool WeCanShowThisWIP(IShipDesign shipData)
         {
             return WeCanBuildThis(shipData, debug:true);
         }
@@ -1811,7 +1811,7 @@ namespace Ship_Game
             return WeCanBuildThis(shipData, debug);
         }
 
-        bool WeCanBuildThis(IShipDesign design, bool debug = false)
+        public bool WeCanBuildThis(IShipDesign design, bool debug = false)
         {
             // If this hull is not unlocked, then we can't build it
             if (!IsHullUnlocked(design.Hull))
