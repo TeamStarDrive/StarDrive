@@ -291,6 +291,7 @@
     <Compile Include="Ship_Game\Empires\Components\IncomingThreatDetector.cs" />
     <Compile Include="Ship_Game\Empire_Borders.cs" />
     <Compile Include="Ship_Game\Empire_Fleets.cs" />
+    <Compile Include="Ship_Game\Empire_ShipsWeCanBuild.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExtGameObj.cs" />

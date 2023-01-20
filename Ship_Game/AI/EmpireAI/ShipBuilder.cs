@@ -210,15 +210,15 @@ namespace Ship_Game.AI
             var freighters = new Array<IShipDesign>();
             foreach (IShipDesign design in empire.ShipsWeCanBuild)
             {
-                    if (!design.IsCandidateForTradingBuild)
-                        continue;
+                if (!design.IsCandidateForTradingBuild)
+                    continue;
 
-                    freighters.Add(design);
-                    if (empire.Universe?.Debug == true)
-                    {
-                        Log.Info(ConsoleColor.Cyan, $"pick freighter: {design.Name}: " +
-                                                    $"Value: {FreighterValue(design, empire, fastVsBig)}");
-                    }
+                freighters.Add(design);
+                if (empire.Universe?.Debug == true)
+                {
+                    Log.Info(ConsoleColor.Cyan,
+                        $"pick freighter: {design.Name}: Value: {FreighterValue(design, empire, fastVsBig)}");
+                }
             }
 
             freighter = freighters.FindMax(ship => FreighterValue(ship, empire, fastVsBig));
