@@ -9,10 +9,10 @@ using Vector2 = SDGraphics.Vector2;
 namespace Ship_Game.Ships.AI
 {
     [StarDataType]
-    public struct WayPoint
+    public readonly struct WayPoint
     {
-        [StarData] public Vector2 Position;
-        [StarData] public Vector2 Direction; // direction we should be facing at the way point
+        [StarData] public readonly Vector2 Position;
+        [StarData] public readonly Vector2 Direction; // direction we should be facing at the way point
         public WayPoint(Vector2 pos, Vector2 dir)
         {
             Position = pos;
@@ -36,6 +36,14 @@ namespace Ship_Game.Ships.AI
         public void Enqueue(WayPoint point)
         {
             ActiveWayPoints.Enqueue(point);
+        }
+        public WayPoint[] EnqueueAndToArray(WayPoint point)
+        {
+            using (ActiveWayPoints.AcquireWriteLock())
+            {
+                ActiveWayPoints.Enqueue(point);
+                return ActiveWayPoints.ToArray();
+            }
         }
         public WayPoint ElementAt(int element)
         {
