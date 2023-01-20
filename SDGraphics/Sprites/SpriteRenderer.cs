@@ -123,8 +123,11 @@ public class SpriteRenderer : IDisposable
 
         Device.VertexDeclaration = VD;
         Simple.Begin();
-        foreach (EffectPass pass in Simple.CurrentTechnique.Passes)
+        EffectPassCollection passes = Simple.CurrentTechnique.Passes;
+        int numPasses = passes.Count;
+        for (int i = 0; i < numPasses; ++i)
         {
+            EffectPass pass = passes[i];
             pass.Begin();
             DrawUserIndexedPrimitives(Device, PrimitiveType.TriangleList,
                 numVertices: 4,
