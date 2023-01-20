@@ -7,6 +7,7 @@ using SDGraphics;
 using Ship_Game;
 using Ship_Game.Utils;
 using System.Linq;
+#pragma warning disable CA2213
 
 namespace UnitTests.Empires;
 
@@ -98,7 +99,8 @@ public class IncomingThreatDetectorTests : StarDriveTest
         try
         {
             RunFullSimWhile((simTimeout:80, fatal:true),
-                () => !HasFleetArrivedAt(PlayerFleet, PlayerFleet.FinalPosition));
+                () => !HasFleetArrivedAt(PlayerFleet, PlayerFleet.FinalPosition)
+                   || Enemy.SystemsWithThreat.Length == 0);
         }
         finally
         {

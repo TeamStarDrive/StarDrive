@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns10;
+using ns11;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
@@ -19,7 +20,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// Base class that provides basic render management.  Used by the forward rendering
     /// RenderManager and deferred rendering DeferredRenderManager classes.
     /// </summary>
-    public abstract class BaseRenderManager : IUnloadable, IManager, IRenderableManager, IManagerService, IRenderManager
+    public abstract class BaseRenderManager : IUnloadable, IManager, IRenderableManager, IManagerService, IRenderManager, IDisposable
     {
         private ShadowRenderTargetGroup shadowRenderTargetGroup_0 = new ShadowRenderTargetGroup();
         internal Class57 class57_0 = new Class57();
@@ -299,8 +300,19 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         public virtual void Unload()
         {
+            Dispose(true);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             Clear();
             class71_0.Unload();
+            Disposable.Dispose(ref shadowRenderTargetGroup_0);
         }
 
         internal class Class57

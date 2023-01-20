@@ -41,14 +41,11 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     private List<RenderableMesh> list_8 = new List<RenderableMesh>();
     private List<EffectMeshGroup> list_9 = new List<EffectMeshGroup>();
     private Dictionary<ISceneObject, bool> dictionary_0 = new Dictionary<ISceneObject, bool>();
-    private const float float_1 = 1.2f;
       private const bool bool_5 = false;
-    private BasicEffect basicEffect_0;
     private DeferredBuffers deferredBuffers_0;
     private Class38 class38_0;
     private DeferredObjectEffect deferredObjectEffect_0;
     private Class37 class37_0;
-    private Texture2D texture2D_0;
     private Class10 class10_0;
     private OcclusionQueryHelper<ShadowGroup> occlusionQueryHelper_0;
     private Model model_0;
@@ -140,8 +137,6 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       {
         this.class38_0 = new Class38(graphicsDevice);
         this.class37_0 = new Class37(graphicsDevice);
-        this.basicEffect_0 = new BasicEffect(graphicsDevice, null);
-        this.texture2D_0 = LightingSystemManager.Instance.EmbeddedTexture("White");
         this.deferredObjectEffect_0 = new DeferredObjectEffect(graphicsDevice);
         this.class10_0 = new Class10(graphicsDevice);
         this.occlusionQueryHelper_0 = new OcclusionQueryHelper<ShadowGroup>(graphicsDevice);
@@ -318,7 +313,6 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     protected override void BuildShadowMaps(List<ShadowRenderTargetGroup> shadowrendertargetgroups)
     {
       IObjectManager manager1 = (IObjectManager) this.ServiceProvider.GetManager(SceneInterface.ObjectManagerType, false);
-      IAvatarManager manager2 = (IAvatarManager) this.ServiceProvider.GetManager(SceneInterface.AvatarManagerType, false);
       foreach (ShadowRenderTargetGroup renderTargetGroup in this.FrameShadowRenderTargetGroups)
       {
         if (renderTargetGroup.HasShadows() && !renderTargetGroup.ContentsAreValid)
@@ -330,7 +324,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
             if (shadowGroup.Shadow is IShadowMap && (!this.OcclusionQueryEnabled || this.occlusionQueryHelper_0.IsObjectVisible(shadowGroup)))
             {
               IShadowMap shadow = shadowGroup.Shadow as IShadowMap;
-              this.method_4(shadowGroup, shadow, manager1, manager2);
+              BuildShadowMapForGroup(shadowGroup, shadow, manager1);
               shadow.ContentsAreValid = true;
             }
           }
@@ -415,6 +409,16 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       base.Clear();
     }
 
+    protected override void Dispose(bool disposing)
+    {
+      Disposable.Dispose(ref this.class38_0);
+      Disposable.Dispose(ref this.deferredObjectEffect_0);
+      Disposable.Dispose(ref this.class37_0);
+      Disposable.Dispose(ref this.class10_0);
+      Disposable.Dispose(ref this.occlusionQueryHelper_0);
+      base.Dispose(disposing);
+    }
+
     /// <summary>
     /// Unloads all scene and device specific data.  Must be called
     /// when the device is reset (during Game.UnloadGraphicsContent()).
@@ -422,12 +426,6 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     public override void Unload()
     {
       base.Unload();
-      this.texture2D_0 = null;
-      Disposable.Free(ref this.class38_0);
-      Disposable.Free(ref this.deferredObjectEffect_0);
-      Disposable.Free(ref this.class37_0);
-      Disposable.Free(ref this.class10_0);
-      Disposable.Free(ref this.occlusionQueryHelper_0);
     }
 
     private void method_1(Texture2D texture2D_1, Texture2D texture2D_2)
@@ -608,27 +606,25 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       }
     }
 
-    private void method_4(ShadowGroup shadowGroup_0, IShadowMap ishadowMap_0, IObjectManager iobjectManager_0, IAvatarManager iavatarManager_0)
+    private void BuildShadowMapForGroup(ShadowGroup shadowGroup, IShadowMap shadowMap, IObjectManager objects)
     {
       ++this.class57_0.lightingSystemStatistic_11.AccumulationValue;
       this.list_8.Clear();
-      ObjectFilter objectfilter = shadowGroup_0.ShadowSource.ShadowType != ShadowType.AllObjects ? ObjectFilter.Static : ObjectFilter.DynamicAndStatic;
-      iobjectManager_0.Find(this.list_8, shadowGroup_0.BoundingBox, objectfilter);
+      ObjectFilter objectfilter = shadowGroup.ShadowSource.ShadowType != ShadowType.AllObjects ? ObjectFilter.Static : ObjectFilter.DynamicAndStatic;
+      objects.Find(this.list_8, shadowGroup.BoundingBox, objectfilter);
       this.list_8.Sort(class61_0);
       class64_0.method_1(this.list_9, this.list_8, false, bool_5);
-      if (iavatarManager_0 != null)
-        iavatarManager_0.BeginShadowGroupRendering(shadowGroup_0);
-      Vector3 shadowPosition = shadowGroup_0.ShadowSource.ShadowPosition;
+
       this.class65_0.method_0();
       this.deferredObjectEffect_0.EffectDetail = this.EffectDetail;
-      this.deferredObjectEffect_0.ShadowArea = shadowGroup_0.BoundingSphereCentered;
-      for (int surface1 = 0; surface1 < ishadowMap_0.Surfaces.Length; ++surface1)
+      this.deferredObjectEffect_0.ShadowArea = shadowGroup.BoundingSphereCentered;
+      for (int surface1 = 0; surface1 < shadowMap.Surfaces.Length; ++surface1)
       {
-        ShadowMapSurface surface2 = ishadowMap_0.Surfaces[surface1];
+        ShadowMapSurface surface2 = shadowMap.Surfaces[surface1];
         ++this.class57_0.lightingSystemStatistic_12.AccumulationValue;
-        if (ishadowMap_0.IsSurfaceVisible(surface1, this.SceneState.ViewFrustum))
+        if (shadowMap.IsSurfaceVisible(surface1, this.SceneState.ViewFrustum))
         {
-          ishadowMap_0.BeginSurfaceRendering(surface1, this.deferredObjectEffect_0);
+          shadowMap.BeginSurfaceRendering(surface1, this.deferredObjectEffect_0);
           this.dictionary_0.Clear();
           foreach (RenderableMesh renderableMesh in this.list_8)
           {
@@ -664,9 +660,9 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
                 effect1.Projection = surface2.Projection;
                 effect1.EffectDetail = this.EffectDetail;
                 IShadowGenerateEffect effect2 = class63.Effect as IShadowGenerateEffect;
-                effect2.ShadowPrimaryBias = shadowGroup_0.ShadowSource.ShadowPrimaryBias;
-                effect2.ShadowSecondaryBias = shadowGroup_0.ShadowSource.ShadowSecondaryBias;
-                effect2.ShadowArea = shadowGroup_0.BoundingSphereCentered;
+                effect2.ShadowPrimaryBias = shadowGroup.ShadowSource.ShadowPrimaryBias;
+                effect2.ShadowSecondaryBias = shadowGroup.ShadowSource.ShadowSecondaryBias;
+                effect2.ShadowArea = shadowGroup.BoundingSphereCentered;
                 effect2.SetCameraView(this.SceneState.View, this.SceneState.ViewToWorld);
                 if (class63.Effect is BaseSasEffect sasBind)
                     sasBind.UpdateTime(SceneState.ElapsedTime);
@@ -691,19 +687,11 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
                 this.method_7(class63.Objects.NonSkinned, class63.Effect, true, DeferredEffectOutput.ShadowDepth, class63.Transparent, true, false, 0);
             }
           }
-          if (iavatarManager_0 != null)
-          {
-            iavatarManager_0.RenderToShadowMapSurface(shadowGroup_0, surface2, this.deferredObjectEffect_0);
-            this.class67_0.Clear();
-            this.class65_0.method_0();
-          }
-          ishadowMap_0.EndSurfaceRendering();
+
+          shadowMap.EndSurfaceRendering();
           ++this.class57_0.lightingSystemStatistic_13.AccumulationValue;
         }
       }
-      if (iavatarManager_0 == null)
-        return;
-      iavatarManager_0.EndShadowGroupRendering(shadowGroup_0);
     }
 
     private void method_5(List<EffectMeshGroup> list_10, ShadowGroup shadowGroup_0, bool bool_7, DeferredEffectOutput deferredEffectOutput_0, bool bool_8, bool bool_9, int int_4)

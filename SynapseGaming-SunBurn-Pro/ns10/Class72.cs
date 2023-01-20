@@ -11,10 +11,11 @@ using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
+#pragma warning disable CA2213
 
 namespace ns10
 {
-  internal class Class72 : IDisposable
+  internal sealed class Class72 : IDisposable
   {
     private static List<Struct2> list_2 = new List<Struct2>();
     private Class18<int, Rectangle> class18_0 = new Class18<int, Rectangle>(128U);
@@ -51,7 +52,8 @@ namespace ns10
     public void Dispose()
     {
       this.method_0();
-      Disposable.Free(ref this.renderTarget2D_0);
+      renderTarget2D_0?.Dispose();
+      renderTarget2D_0 = null;
     }
 
     public bool method_1()

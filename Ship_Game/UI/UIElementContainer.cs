@@ -8,6 +8,7 @@ using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -26,9 +27,15 @@ namespace Ship_Game
         float DebugDrawTimer;
         const float DebugDrawInterval = 0.5f;
 
-        // This is for debugging
-        int LastInputFrameId = -1;
-        int LastUpdateFrameId = -1;
+        // This is for debugging onlly
+        struct DoubleUpdateDebug
+        {
+            public int FrameId;
+            public int ErrorCounter; // automatically enabled when an error happens
+            public StackTrace Trace;
+        }
+        DoubleUpdateDebug LastInput = new() { FrameId = -1 };
+        DoubleUpdateDebug LastUpdate = new() { FrameId = -1 };
 
         /// <summary>
         /// Hack: NEW Multi-Layered draw mode disables child element drawing
@@ -123,14 +130,36 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial12Bold, ToString(), Pos, debugColor);
         }
 
+        static void SetDebugFrameId(ref DoubleUpdateDebug debug)
+        {
+            debug.FrameId = GameBase.Base.FrameId;
+            if (debug.ErrorCounter > 0)
+            {
+                --debug.ErrorCounter;
+                debug.Trace = new StackTrace(1, true);
+            }
+            else
+                debug.Trace = null;
+        }
+
+        void DebugDoubleUpdate(string which, ref DoubleUpdateDebug debug)
+        {
+            debug.ErrorCounter = 5; // enable debug traces for 5 frames
+            StackTrace newTrace = new(1, true);
+            string text = $"{which} called twice per frame. This is a bug: {this}\n";
+            text += $"Previous update: {(debug.Trace?.ToString() ?? "trace was disabled this frame")}\n";
+            text += $"Current update: {newTrace}";
+            Log.Warning(ConsoleColor.DarkRed, text);
+        }
+
         public override bool HandleInput(InputState input)
         {
             if (Visible && Enabled)
             {
-                if (LastInputFrameId != GameBase.Base.FrameId)
-                    LastInputFrameId = GameBase.Base.FrameId;
+                if (LastInput.FrameId != GameBase.Base.FrameId)
+                    SetDebugFrameId(ref LastInput);
                 else
-                    Log.Warning(ConsoleColor.DarkRed, "UIElement.HandleInput called twice per frame. This is a bug: "+this);
+                    DebugDoubleUpdate("UIElement.HandleInput", ref LastInput);
 
                 // iterate input in reverse, so we handle topmost objects before;
                 // also Elements can be removed during the HandleInput, so this ensures no elements are skipped
@@ -155,10 +184,10 @@ namespace Ship_Game
             if (!Visible)
                 return;
 
-            if (LastUpdateFrameId != GameBase.Base.FrameId)
-                LastUpdateFrameId = GameBase.Base.FrameId;
+            if (LastUpdate.FrameId != GameBase.Base.FrameId)
+                SetDebugFrameId(ref LastUpdate);
             else
-                Log.Warning(ConsoleColor.DarkRed, "UIElement.Update called twice per frame. This is a bug: "+this);
+                DebugDoubleUpdate("UIElement.Update", ref LastUpdate);
 
             base.Update(fixedDeltaTime);
 

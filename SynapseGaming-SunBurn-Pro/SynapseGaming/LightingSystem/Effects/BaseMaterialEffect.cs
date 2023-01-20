@@ -14,6 +14,7 @@ using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Lights;
+#pragma warning disable CA2213
 
 namespace SynapseGaming.LightingSystem.Effects
 {
@@ -24,29 +25,21 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute0(true)]
     public abstract class BaseMaterialEffect : BaseSkinnedEffect, IEditorObject, IProjectFile, ISamplerEffect, IAddressableEffect, ITextureAccessEffect, ITransparentEffect, Interface1
     {
-        /// <summary />
-        protected List<ILight> _LightSources = new List<ILight>();
+        protected List<ILight> _LightSources = new();
 
         float float_1 = 0.5f;
         bool bool_3;
         TransparencyMode transparencyMode_0;
         Texture3D texture3D_0;
-        /// <summary />
         protected Texture2D _NormalMapTexture;
-        /// <summary />
         protected Texture2D _DiffuseMapTexture;
 
         Texture2D texture2D_0;
         Texture2D texture2D_1;
-        /// <summary />
         protected Texture2D _EmissiveMapTexture;
-        /// <summary />
         protected Texture2D _SpecularColorMapTexture;
-        /// <summary />
         protected Texture2D _ParallaxMapTexture;
-        /// <summary />
         protected Texture2D _DefaultDiffuseMapTexture;
-        /// <summary />
         protected Texture2D _DefaultNormalMapTexture;
 
         Texture2D texture2D_2;
@@ -56,17 +49,11 @@ namespace SynapseGaming.LightingSystem.Effects
         EffectParameter effectParameter_15;
         EffectParameter effectParameter_16;
         EffectParameter effectParameter_17;
-        /// <summary />
         protected EffectParameter _DiffuseColorIndirectParam;
-        /// <summary />
         protected EffectParameter _DiffuseMapTextureIndirectParam;
-        /// <summary />
         protected EffectParameter _NormalMapTextureIndirectParam;
-        /// <summary />
         protected Vector4 _DiffuseColorOriginal;
-        /// <summary />
         protected Vector4 _DiffuseColorCached;
-        /// <summary />
         protected Vector4 _EmissiveColor;
 
         EffectParameter effectParameter_18;

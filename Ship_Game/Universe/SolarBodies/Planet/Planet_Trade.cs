@@ -14,17 +14,17 @@ namespace Ship_Game
         [StarData] readonly Array<Ship> IncomingFreighters = new();
         [StarData] readonly Array<Ship> OutgoingFreighters = new();
 
-        [StarData] public float AverageFoodImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver food
-        [StarData] public float AverageProdImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver prod
-        [StarData] public float AverageFoodExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up food
-        [StarData] public float AverageProdExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up prod
+        [StarData] public float AverageFoodImportTurns { get; private set; } = 10; // EMA (90/10) time it took the traded to deliver food
+        [StarData] public float AverageProdImportTurns { get; private set; } = 10; // EMA (90/10) time it took the traded to deliver prod
+        [StarData] public float AverageFoodExportTurns { get; private set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up food
+        [StarData] public float AverageProdExportTurns { get; private set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up prod
 
         // these are updated once per empire turn
         // TODO: this needs to be refactored into a TradeStatus class where each commodity has its own status
         //       since right now we have 3 sets of variables [Food, Prod, Pop], all doing the same thing
-        [StarData] public float IncomingFood { get; protected set; }
-        [StarData] public float IncomingProd { get; protected set; }
-        [StarData] public float IncomingPop  { get; protected set; }
+        [StarData] public float IncomingFood { get; private set; }
+        [StarData] public float IncomingProd { get; private set; }
+        [StarData] public float IncomingPop  { get; private set; }
 
         public int NumIncomingFreighters => IncomingFreighters.Count;
         public int NumOutgoingFreighters => OutgoingFreighters.Count;

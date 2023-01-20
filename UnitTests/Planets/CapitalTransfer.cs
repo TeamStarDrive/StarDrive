@@ -1,10 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
-using Ship_Game.Data.Yaml;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
+#pragma warning disable CA2213
 
 namespace UnitTests.Planets
 {

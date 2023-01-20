@@ -58,7 +58,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
 
     /// <summary>Sets the max light count supported by the effect.</summary>
     /// <param name="maxlights"></param>
-    protected virtual void SetMaxLightCount(int maxlights)
+    protected void SetMaxLightCount(int maxlights)
     {
       this.MaxLightSources = maxlights;
     }
@@ -66,7 +66,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// <summary>
     /// Finds the max light count supported by the effect's shader.
     /// </summary>
-    protected virtual void FindMaxLightCount()
+    protected void FindMaxLightCount()
     {
       this.MaxLightSources = 0;
       int val1 = 0;

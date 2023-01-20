@@ -5,6 +5,7 @@ using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+#pragma warning disable CA2213
 
 namespace UnitTests.Ships
 {

@@ -38,7 +38,6 @@ namespace SDUtils
     [DebuggerTypeProxy(typeof(CollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}  Capacity = {Capacity}")]
     [Serializable]
-    [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
     public class Array<T> : IArray<T>, IList<T>, IReadOnlyList<T>, 
         ICollection<T>, IEnumerable<T>, IList, ICollection, IEnumerable
     {
@@ -570,19 +569,13 @@ namespace SDUtils
         // A quite memory efficient filtering function to replace Where clauses
         public T[] Filter(Predicate<T> predicate) => Items.Filter(Count, predicate);
 
-        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
-        public IEnumerator<T> GetEnumerator()   => new Enumerator(this);
+        /// <summary>
+        /// Gets the element enumerator of this Array of T
+        /// </summary>
+        public Array<T>.Enumerator GetEnumerator() => new Enumerator(Items, Count);
 
-        /// <summary>Get a sub-slice enumerator from this ArrayT</summary>
-        /// <param name="start">Start of range (inclusive)</param>
-        /// <param name="end">End of range (exclusive)</param>
-        public ArrayView<T> SubRange(int start, int end)
-        {
-            int count = Count;
-            if ((uint)start >= (uint)count) ThrowIndexOutOfBounds(start, count);
-            if ((uint)end   >  (uint)count) ThrowIndexOutOfBounds(end, count);
-            return new ArrayView<T>(start, end, Items);
-        }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => (IEnumerator<T>)new Enumerator(Items, Count); // boxing operation
+        IEnumerator IEnumerable.GetEnumerator() => (IEnumerator)new Enumerator(Items, Count); // boxing operation
 
         public override string ToString()
         {
@@ -597,11 +590,11 @@ namespace SDUtils
             public T Current { get; private set; }
             object IEnumerator.Current => Current;
 
-            public Enumerator(Array<T> arr)
+            public Enumerator(T[] items, int count)
             {
                 Index = 0;
-                Count = arr.Count;
-                Items = arr.Items;
+                Count = count;
+                Items = items;
                 Current = default;
             }
             public void Dispose()
@@ -880,6 +873,17 @@ namespace SDUtils
         /// </summary>
         public Span<T> AsSpan() => new(Items, 0, Count);
         public ReadOnlySpan<T> AsReadOnlySpan() => new(Items, 0, Count);
+        
+        /// <summary>Get a sub-slice enumerator from this ArrayT</summary>
+        /// <param name="start">Start of range (inclusive)</param>
+        /// <param name="end">End of range (exclusive)</param>
+        public Span<T> SubRange(int start, int end)
+        {
+            int count = Count;
+            if ((uint)start >= (uint)count) ThrowIndexOutOfBounds(start, count);
+            if ((uint)end   >  (uint)count) ThrowIndexOutOfBounds(end, count);
+            return new Span<T>(Items, start, end-start);
+        }
 
         public T[] ToArray()
         {
@@ -1033,76 +1037,6 @@ namespace SDUtils
                 var items = new T[Collection.Count];
                 Collection.CopyTo(items, 0);
                 return items;
-            }
-        }
-    }
-
-    public struct ArrayView<T> : IReadOnlyList<T>, ICollection
-    {
-        readonly int Start;
-        public int Count { get; }
-        readonly T[] Items;
-
-        // start (inclusive), end (exclusive)
-        public ArrayView(int start, int end, T[] items)
-        {
-            Start = start;
-            Count = end - start;
-            Items = items;
-        }
-
-        public IEnumerator<T> GetEnumerator()   => new Enumerator(Start, Start + Count, Items);
-        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(Start, Start + Count, Items);
-        
-        public object SyncRoot => this;
-        public bool IsSynchronized => false;
-        public void CopyTo(Array array, int index)
-            => Array.Copy(Items, Start, array, index, Count);
-
-        public T this[int index]
-        {
-            get
-            {
-                int idx = Start + index;
-                if ((uint)index >= (uint)Count)
-                    ThrowIndexOutOfRange(idx);
-                return Items[idx];
-            }
-        }
-
-        void ThrowIndexOutOfRange(int index)
-        {
-            throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
-        }
-
-        public struct Enumerator : IEnumerator<T>
-        {
-            int Index;
-            readonly int End;
-            readonly T[] Items;
-            public T Current { get; private set; }
-            object IEnumerator.Current => Current;
-
-            public Enumerator(int start, int end, T[] arr)
-            {
-                Index = start;
-                End   = end;
-                Items = arr;
-                Current = default;
-            }
-            public void Dispose()
-            {
-            }
-            public bool MoveNext()
-            {
-                if (Index >= End) // end index is considered invalid, since it's exclusive
-                    return false;
-                Current = Items[Index++];
-                return true;
-            }
-            public void Reset()
-            {
-                throw new InvalidOperationException();
             }
         }
     }

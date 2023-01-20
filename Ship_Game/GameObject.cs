@@ -141,9 +141,9 @@ namespace Ship_Game
         }
 
 
-        /// /////////////////////////////////////// ///
-        ///    Velocity and Thrust manipulation     ///
-        /// /////////////////////////////////////// ///
+        // /////////////////////////////////////// //
+        //    Velocity and Thrust manipulation     //
+        // /////////////////////////////////////// //
 
         public void SetInitialVelocity(Vector2 velocity, bool rotateToVelocity = true)
         {
@@ -153,9 +153,9 @@ namespace Ship_Game
             Acceleration = Vector2.Zero;
         }
 
-        /// /////////////////////////////////////// ///
-        ///  Velocity and Acceleration integration  ///
-        /// /////////////////////////////////////// ///
+        // /////////////////////////////////////// //
+        //  Velocity and Acceleration integration  //
+        // /////////////////////////////////////// //
         
         // Automatically handles Velocity and Position integration for accurate results
         // Uses either Velocity Verlet integrator or Implicit Euler integrator if acceleration is Zero

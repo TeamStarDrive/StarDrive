@@ -9,7 +9,7 @@ using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game.Graphics.Particles;
 
-public class ParticleManager : IDisposable
+public sealed class ParticleManager : IDisposable
 {
     public IParticle BeamFlash;
     public IParticle Explosion;
@@ -60,16 +60,16 @@ public class ParticleManager : IDisposable
     ~ParticleManager()
     {
         if (SharedBufferData.VertexDeclaration != null)
-            Unload();
+            Dispose(false);
     }
-        
+
     public void Dispose()
     {
-        Unload();
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    public void Unload()
+    void Dispose(bool disposing)
     {
         if (!GlobalStats.IsUnitTest)
             Log.Write(ConsoleColor.Cyan, "ParticleManager.Unload");
@@ -105,7 +105,7 @@ public class ParticleManager : IDisposable
     public void Reload()
     {
         GameLoadingScreen.SetStatus("LoadParticles");
-        Unload();
+        Dispose(true);
 
         SharedBufferData = new(Content.Device);
 

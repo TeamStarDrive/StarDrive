@@ -40,6 +40,8 @@ namespace Ship_Game
         [StarData] public float MaxFertilityOnBuild;
         [StarData] public string Icon;
         [StarData(DefaultValue=5)] public int Strength = 5;
+        public bool IsAlive => Strength > 0;
+        public bool IsDestroyed => Strength <= 0;
         [StarData(DefaultValue=true)] public bool Scrappable = true;
         [StarData(DefaultValue=true)] public bool Unique = true;
         [StarData] public bool isWeapon;
@@ -542,6 +544,28 @@ namespace Ship_Game
             shortDesc = $"{shortDesc}{value.RoundToFractionOf100()}{percentage} {new LocalizedText(text).Text}";
             comma = true;
             return shortDesc;
+        }
+
+        public void ApplyDamageAndRemoveIfDestroyed(Planet p, int damage)
+        {
+            if (IsDestroyed) // only allow destroying once
+                return;
+
+            Strength -= damage;
+            if (IsAttackable)
+                CombatStrength -= damage;
+
+            if (Strength <= 0)
+            {
+                p.DestroyBuilding(this);
+            }
+        }
+
+        public void ApplyRepair(int repairAmount)
+        {
+            Building t = ResourceManager.GetBuildingTemplate(BID);
+            Strength = (Strength + repairAmount).Clamped(0, t.Strength);
+            CombatStrength = (CombatStrength + repairAmount).Clamped(0, t.CombatStrength);
         }
     }
 }

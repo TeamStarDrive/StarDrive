@@ -18,6 +18,13 @@ namespace UnitTests.Serialization
             BR = new Reader(Buffer);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            BW.Dispose();
+            BR.Dispose();
+            base.Dispose(disposing);
+        }
+
         void SeekTo(int pos) => Buffer.Seek(pos, SeekOrigin.Begin);
         void FlushAndSeekTo(int pos) { BW.Flush(); SeekTo(pos); }
 

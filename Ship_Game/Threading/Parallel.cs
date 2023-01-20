@@ -5,11 +5,11 @@ using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading;
 using SDUtils;
+#pragma warning disable CA1060
+#pragma warning disable RCS1194, CA2237, CA1001
 
 namespace Ship_Game
 {
-    public delegate void RangeAction(int start, int end);
-
     public interface ITaskResult
     {
         bool IsComplete { get; }
@@ -24,13 +24,18 @@ namespace Ship_Game
         void Cancel();
     }
 
-    public class TaskResult : ITaskResult
+    public sealed class TaskResult : ITaskResult, IDisposable
     {
         public Exception Error { get; private set; }
         public bool IsComplete { get; private set; }
         // @note Task has to check this value itself and cancel manually
         public bool IsCancelRequested { get; private set; }
-        readonly ManualResetEvent Finished = new ManualResetEvent(false);
+        readonly ManualResetEvent Finished = new(false);
+
+        public void Dispose()
+        {
+            Finished.Dispose();
+        }
 
         void ITaskResult.SetResult(object value, Exception e)
         {
@@ -46,17 +51,21 @@ namespace Ship_Game
         public bool Wait(int millisecondTimeout = -1)
         {
             if (!IsComplete)
+            {
                 Finished.WaitOne(millisecondTimeout);
+            }
             if (Error != null)
                 throw new ParallelTaskException("Parallel Task throw an exception", Error);
             return IsComplete;
         }
-        
+
         // Wait until the task is complete, Exceptions are not rethrown, @see Error
         public bool WaitNoThrow(int millisecondTimeout = -1)
         {
             if (!IsComplete)
+            {
                 Finished.WaitOne(millisecondTimeout);
+            }
             return IsComplete;
         }
 
@@ -74,14 +83,19 @@ namespace Ship_Game
         }
     }
 
-    public class TaskResult<T> : ITaskResult
+    public sealed class TaskResult<T> : ITaskResult, IDisposable
     {
         public Exception Error { get; private set; }
         public T Result { get; private set; }
         public bool IsComplete { get; private set; }
         // @note Task has to check this value itself and cancel manually
         public bool IsCancelRequested { get; private set; }
-        readonly ManualResetEvent Finished = new ManualResetEvent(false);
+        readonly ManualResetEvent Finished = new(false);
+
+        public void Dispose()
+        {
+            Finished.Dispose();
+        }
 
         void ITaskResult.SetResult(object value, Exception e)
         {
@@ -97,20 +111,24 @@ namespace Ship_Game
         public bool Wait(int millisecondTimeout = -1)
         {
             if (!IsComplete)
+            {
                 Finished.WaitOne(millisecondTimeout);
+            }
             if (Error != null)
                 throw new ParallelTaskException("Parallel Task throw an exception", Error);
             return IsComplete;
         }
-        
+
         // Wait until the task is complete, Exceptions are not rethrown, @see Error
         public bool WaitNoThrow(int millisecondTimeout = -1)
         {
             if (!IsComplete)
+            {
                 Finished.WaitOne(millisecondTimeout);
+            }
             return IsComplete;
         }
-        
+
         // Request for Cancel and call Wait()
         public void CancelAndWait(int millisecondTimeout = -1)
         {
@@ -132,16 +150,16 @@ namespace Ship_Game
         }
     }
 
-    public class ParallelTask : IDisposable
+    public sealed class ParallelTask : IDisposable
     {
-        AutoResetEvent EvtNewTask = new AutoResetEvent(false);
-        AutoResetEvent EvtEndTask = new AutoResetEvent(false);
-        readonly object KillSync = new object();
+        AutoResetEvent EvtNewTask = new(false);
+        AutoResetEvent EvtEndTask = new(false);
+        readonly object KillSync = new();
         Thread Thread;
         Action VoidTask;
         Func<object> ResultTask;
         ITaskResult Result;
-        RangeAction RangeTask;
+        Action<int,int> RangeTask;
         int LoopStart, LoopEnd;
         Stopwatch IdleTimer;
         volatile bool Disposed;
@@ -167,7 +185,7 @@ namespace Ship_Game
                     Thread.Start();
             }
         }
-        public void Start(int start, int end, RangeAction taskBody, ITaskResult result)
+        public void Start(int start, int end, Action<int,int> taskBody, ITaskResult result)
         {
             if (HasTasksToExecute())
                 throw new InvalidOperationException("ParallelTask is still running");
@@ -262,10 +280,10 @@ namespace Ship_Game
         }
         public void Dispose()
         {
-            Destructor();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
-        void Destructor() // Manually controlling result lifetimes
+        void Dispose(bool disposing) // Manually controlling result lifetimes
         {
             if (EvtNewTask == null)
                 return;
@@ -283,7 +301,10 @@ namespace Ship_Game
             EvtEndTask = null;
             Thread     = null;
         }
-        ~ParallelTask() { Destructor(); }
+        ~ParallelTask()
+        {
+            Dispose(false);
+        }
     }
 
     public static class Parallel
@@ -326,7 +347,7 @@ namespace Ship_Game
             return newTask;
         }
 
-        static TaskResult StartRangeTask(ref int poolIndex, int start, int end,  RangeAction body)
+        static TaskResult StartRangeTask(ref int poolIndex, int start, int end,  Action<int, int> body)
         {
             var result = new TaskResult();
             lock (Pool)
@@ -376,7 +397,7 @@ namespace Ship_Game
         ///     }
         /// });
         /// </example>
-        public static void For(int rangeStart, int rangeEnd, RangeAction body, int maxParallelism = -1)
+        public static void For(int rangeStart, int rangeEnd, Action<int, int> body, int maxParallelism = -1)
         {
             if (rangeStart >= rangeEnd)
                 return; // no work done on empty ranges
@@ -422,7 +443,7 @@ namespace Ship_Game
                 throw new ParallelTaskException("Parallel.For task threw an exception", ex);
         }
 
-        public static void For(int rangeLength, RangeAction body, int maxParallelism = -1)
+        public static void For(int rangeLength, Action<int, int> body, int maxParallelism = -1)
         {
             For(0, rangeLength, body, maxParallelism);
         }

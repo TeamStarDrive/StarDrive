@@ -57,7 +57,7 @@ public partial class StarDriveTest : IDisposable
 
     public void Dispose()
     {
-        DestroyUniverse();
+        Dispose(true);
     }
 
     static void RequireGameInstance(string functionName)
@@ -232,7 +232,7 @@ public partial class StarDriveTest : IDisposable
         }
     }
 
-    public void DestroyUniverse()
+    protected virtual void Dispose(bool disposing)
     {
         Universe?.ExitScreen();
         Universe?.Dispose();

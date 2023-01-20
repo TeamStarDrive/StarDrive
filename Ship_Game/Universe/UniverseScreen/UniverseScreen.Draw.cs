@@ -777,18 +777,18 @@ namespace Ship_Game
 
             if (fleetButton.Fleet.Ships.Count <= 30)
                 DrawFleetShipIcons30(batch, fleetButton, x, y);
-            else 
+            else
                 DrawFleetShipIconsSums(batch, fleetButton, x, y);
         }
 
         void DrawFleetShipIcons30(SpriteBatch batch, FleetButton fleetButton, int x, int y)
         {
             // Draw ship icons to right of button
-            Vector2 shipSpacingH = new Vector2(x, y);
+            Vector2 shipSpacingH = new(x, y);
             for (int i = 0; i < fleetButton.Fleet.Ships.Count; ++i)
             {
-                Ship ship       = fleetButton.Fleet.Ships[i];
-                var iconHousing = new Rectangle((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
+                Ship ship = fleetButton.Fleet.Ships[i];
+                RectF iconHousing = new(shipSpacingH.X, shipSpacingH.Y, 15, 15);
                 shipSpacingH.X += 18f;
                 if (shipSpacingH.X > 237) // 10 Ships per row
                 {
@@ -796,92 +796,80 @@ namespace Ship_Game
                     shipSpacingH.Y += 18f;
                 }
 
-                (SubTexture icon, SubTexture secondary, Color statColor) = ship.TacticalIconWithStatusColor();
+                Color statColor = ship.GetStatusColor();
                 if (statColor != Color.Black)
                     batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_status"), iconHousing, ApplyCurrentAlphaToColor(statColor));
 
                 Color iconColor = ship.Resupplying ? Color.Gray : fleetButton.Fleet.Owner.EmpireColor;
-                batch.Draw(icon, iconHousing, iconColor);
-                if (secondary != null)
-                    batch.Draw(secondary, iconHousing, iconColor);
+
+                TacticalIcon icon = ship.TacticalIcon();
+                icon.Draw(batch, iconHousing, iconColor);
             }
         }
 
         void DrawFleetShipIconsSums(SpriteBatch batch, FleetButton fleetButton, int x, int y)
         {
             Color color  = fleetButton.Fleet.Owner.EmpireColor;
-            var sums = new SDUtils.Map<string, int>();
+            Map<TacticalIcon, int> sums = new();
             for (int i = 0; i < fleetButton.Fleet.Ships.Count; ++i)
             {
-                Ship ship   = fleetButton.Fleet.Ships[i];
-                string icon = GetFullTacticalIconPaths(ship);
+                Ship ship = fleetButton.Fleet.Ships[i];
+
+                TacticalIcon icon = ship.TacticalIcon();
                 if (sums.TryGetValue(icon, out int value))
                     sums[icon] = value + 1;
                 else
                     sums.Add(icon, 1);
             }
 
-            Vector2 shipSpacingH = new Vector2(x, y);
+            Vector2 shipSpacingH = new(x, y);
             int roleCounter = 1;
             Color sumColor = Color.Goldenrod;
             if (sums.Count > 12) // Switch to default sum views if too many icon sums
             {
-                sums = RecalculateExcessIcons(sums);
+                sums = ConvertToPrimaryIconSums(sums);
                 sumColor = Color.Gold;
             }
 
-            foreach (string iconPaths in sums.Keys.ToArr())
+            foreach (TacticalIcon iconPair in sums.Keys.ToArr())
             {
-                var iconHousing = new Rectangle((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
-                string space = sums[iconPaths] < 9 ? "  " : "";
-                string sum = $"{space}{sums[iconPaths]}x";
+                Rectangle iconHousing = new((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
+                string space = sums[iconPair] < 9 ? "  " : "";
+                string sum = $"{space}{sums[iconPair]}x";
                 batch.DrawString(Fonts.Arial10, sum, iconHousing.X, iconHousing.Y, sumColor);
                 float ident = Fonts.Arial10.MeasureString(sum).X;
                 shipSpacingH.X += ident;
-                iconHousing.X  += (int)ident;
-                DrawIconSums(iconPaths, iconHousing);
+                iconHousing.X += (int)ident;
+
+                batch.Draw(iconPair.Primary, iconHousing, color);
+                if (iconPair.Secondary != null)
+                    batch.Draw(iconPair.Secondary, iconHousing, color);
+
                 shipSpacingH.X += 25f;
                 if (roleCounter % 4 == 0) // 4 roles per line
                 {
-                    shipSpacingH.X  = x;
+                    shipSpacingH.X = x;
                     shipSpacingH.Y += 15f;
                 }
 
-                roleCounter += 1;
+                ++roleCounter;
             }
 
             // Ignore secondary icons and returns only the hull role icons
-            SDUtils.Map<string, int> RecalculateExcessIcons(SDUtils.Map<string, int> excessSums)
+            Map<TacticalIcon, int> ConvertToPrimaryIconSums(Map<TacticalIcon, int> excessSums)
             {
-                SDUtils.Map<string, int> recalculated = new SDUtils.Map<string, int>();
-                foreach (string iconPaths in excessSums.Keys.ToArr())
+                Map<TacticalIcon, int> recalculated = new();
+                foreach (TacticalIcon iconPair in excessSums.Keys.ToArr())
                 {
-                    var hullPath = iconPaths.Split('|')[0];
-                    if (recalculated.TryGetValue(hullPath, out _))
-                        recalculated[hullPath] += excessSums[iconPaths];
+                    int numShips = excessSums[iconPair];
+
+                    TacticalIcon primaryIcon = new(iconPair.Primary, null);
+                    if (recalculated.TryGetValue(primaryIcon, out int count))
+                        recalculated[primaryIcon] = count + numShips;
                     else
-                        recalculated.Add(hullPath, excessSums[iconPaths]);
+                        recalculated.Add(primaryIcon, numShips);
                 }
-
                 return recalculated;
-            }
-
-            string GetFullTacticalIconPaths(Ship s)
-            {
-                (SubTexture icon, SubTexture secondary) = s.TacticalIcon();
-                string iconStr = $"TacticalIcons/{icon.Name}";
-                if (secondary != null)
-                    iconStr = $"{iconStr}|TacticalIcons/{secondary.Name}";
-
-                return iconStr;
-            }
-
-            void DrawIconSums(string iconPaths, Rectangle r)
-            {
-                var paths = iconPaths.Split('|');
-                batch.Draw(ResourceManager.Texture(paths[0]), r, color);
-                if (paths.Length > 1)
-                    batch.Draw(ResourceManager.Texture(paths[1]), r, color);
             }
         }
 
@@ -962,16 +950,17 @@ namespace Ship_Game
 
         void DrawShipProjectionIcon(Ship ship, Vector2 position, Vector2 direction, Color color)
         {
-            (SubTexture symbol, SubTexture secondary) = ship.TacticalIcon();
-            double num = ship.SurfaceArea / (30.0 + symbol.Width);
+            TacticalIcon icon = ship.TacticalIcon();
+            double num = ship.SurfaceArea / (30.0 + icon.Primary.Width);
             double scale = (num * 4000.0 / CamPos.Z).UpperBound(1);
 
             if (scale <= 0.1)
                 scale = ship.ShipData.Role != RoleName.platform || viewState < UnivScreenState.SectorView ? 0.15 : 0.08;
 
-            DrawTextureProjected(symbol, position, (float)scale, direction.ToRadians(), color);
-            if (secondary != null)
-                DrawTextureProjected(secondary, position, (float)scale, direction.ToRadians(), color);
+            float rotation = direction.ToRadians();
+            DrawTextureProjected(icon.Primary, position, (float)scale, rotation, color);
+            if (icon.Secondary != null)
+                DrawTextureProjected(icon.Secondary, position, (float)scale, rotation, color);
         }
 
         void DrawOverlay(Ship ship)

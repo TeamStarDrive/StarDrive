@@ -88,13 +88,6 @@ namespace SynapseGaming.LightingSystem.Core
         public IPostProcessManager PostProcessManager { get; private set; }
 
         /// <summary>
-        /// Provides convenient access to the AvatarManager manager service contained in the provider.
-        /// 
-        /// Note: this property will be null if no manager service of this type is contained in the provider.
-        /// </summary>
-        public IAvatarManager AvatarManager { get; private set; }
-
-        /// <summary>
         /// Manager type used to retrieve the IResourceManager manager service.  Use this
         /// type when creating a custom manager that replaces the built-in manager.
         /// </summary>
@@ -135,12 +128,6 @@ namespace SynapseGaming.LightingSystem.Core
         /// </summary>
         public static Type EditorType => typeof(LightingSystemEditor);
 
-        /// <summary>
-        /// Manager type used to retrieve the IAvatarManager manager service.  Use this
-        /// type when creating a custom manager that replaces the built-in manager.
-        /// </summary>
-        public static Type AvatarManagerType => typeof(IAvatarManager);
-
         /// <summary>Creates a new SceneInterface instance.</summary>
         /// <param name="device"></param>
         public SceneInterface(IGraphicsDeviceService device)
@@ -174,10 +161,9 @@ namespace SynapseGaming.LightingSystem.Core
         /// Post processing
         ///     -PostProcessManager
         /// </summary>
-        /// <param name="useDeferredRendering"></param>
-        /// <param name="useAvatars"></param>
+        /// <param name="useDeferredRendering">Default is false</param>
         /// <param name="usePostProcessing"></param>
-        public void CreateDefaultManagers(bool useDeferredRendering, bool useAvatars, bool usePostProcessing)
+        public void CreateDefaultManagers(bool useDeferredRendering, bool usePostProcessing)
         {
             Unload();
             AddManager(new ResourceManager());
@@ -193,8 +179,6 @@ namespace SynapseGaming.LightingSystem.Core
                 AddManager(new RenderManager(GraphicsDeviceManager, this));
                 AddManager(new ShadowMapManager(GraphicsDeviceManager));
             }
-            if (useAvatars)
-                AddManager(new AvatarManager(GraphicsDeviceManager, this));
             if (usePostProcessing)
                 AddManager(new PostProcessManager(GraphicsDeviceManager));
         }
@@ -230,7 +214,6 @@ namespace SynapseGaming.LightingSystem.Core
             LightManager = (ILightManager)GetManager(LightManagerType, false);
             ShadowMapManager = (IShadowMapManager)GetManager(ShadowMapManagerType, false);
             PostProcessManager = (IPostProcessManager)GetManager(PostProcessManagerType, false);
-            AvatarManager = (IAvatarManager)GetManager(AvatarManagerType, false);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
+#pragma warning disable CA2213
 
 namespace UnitTests.Planets;
 

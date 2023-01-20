@@ -11,6 +11,7 @@ using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Data.Yaml;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -147,14 +148,7 @@ namespace Ship_Game
         {
             if (!string.IsNullOrEmpty(SelectedMod?.Settings.URL))
             {
-                try
-                {
-                    SteamManager.ActivateOverlayWebPage(SelectedMod.Settings.URL);
-                }
-                catch
-                {
-                    Process.Start(SelectedMod.Settings.URL);
-                }
+                Log.OpenURL(SelectedMod.Settings.URL);
             }
         }
 

@@ -16,7 +16,7 @@ namespace SynapseGaming.LightingSystem.Lights
   /// a view or bounding box for lights that affect the area
   /// (acts as a light scenegraph).
   /// </summary>
-  public class BaseLightManager : ObjectGraph<ILight>, IQuery<ILight>, IUnloadable, IManager, ILightQuery
+  public class BaseLightManager : ObjectGraph<ILight>, IQuery<ILight>, IUnloadable, IManager, ILightQuery, IDisposable
   {
     private static int int_1 = 10000;
     private static float float_0 = 0.004f;
@@ -249,13 +249,23 @@ namespace SynapseGaming.LightingSystem.Lights
     {
     }
 
+    public void Dispose()
+    {
+        Dispose(true);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        Clear();
+    }
+
     /// <summary>
     /// Disposes any graphics resource used internally by this object, and removes
     /// scene resources managed by this object. Commonly used during Game.UnloadContent.
     /// </summary>
     public virtual void Unload()
     {
-      this.Clear();
+      Dispose();
     }
 
     private class Class52

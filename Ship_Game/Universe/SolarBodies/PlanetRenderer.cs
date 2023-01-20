@@ -13,11 +13,13 @@ using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Universe.SolarBodies
 {
-    public class PlanetRenderer : IDisposable
+    public sealed class PlanetRenderer : IDisposable
     {
         PlanetTypes Types;
         GraphicsDevice Device;
 
+        // NOTE: All of these resources are managed by GameContentManager
+        #pragma warning disable CA2213
         public StaticMesh MeshSphere;
         StaticMesh MeshRings;
         StaticMesh MeshGlowRing;
@@ -30,6 +32,7 @@ namespace Ship_Game.Universe.SolarBodies
         BasicEffect FxGlow;
         BasicEffect FxFresnel;
         Effect PlanetHaloFx;
+        #pragma warning restore CA2213
 
         Texture2D TexRings;
         Texture2D TexAtmosphere;

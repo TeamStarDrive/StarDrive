@@ -57,6 +57,30 @@ namespace SDUtils
         }
 
         // Copy paste from above. Purely because I don't want to ruin T[] access optimizations
+        public static unsafe T[] Filter<T>(this Span<T> items, Predicate<T> predicate)
+        {
+            if (items.Length == 0) return Empty<T>.Array;
+            byte* map = stackalloc byte[items.Length];
+
+            int resultCount = 0;
+            for (int i = 0; i < items.Length; ++i)
+            {
+                bool keep = predicate(items[i]);
+                if (keep) ++resultCount;
+                map[i] = keep ? (byte)1 : (byte)0;
+            }
+
+            if (resultCount == 0) return Empty<T>.Array;
+
+            var results = new T[resultCount];
+            resultCount = 0;
+            for (int i = 0; i < items.Length; ++i)
+                if (map[i] > 0) results[resultCount++] = items[i];
+
+            return results;
+        }
+
+        // Copy paste from above. Purely because I don't want to ruin T[] access optimizations
         // Provides a thread-safety aware wrapper for SafeArray<T>
         public static unsafe T[] Filter<T>(this IReadOnlyList<T> items, Predicate<T> predicate)
         {

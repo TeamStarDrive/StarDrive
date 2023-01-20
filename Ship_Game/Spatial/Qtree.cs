@@ -14,7 +14,7 @@ namespace Ship_Game.Spatial;
 ///
 /// This is a 1:1 copy of C++ Qtree.h/.cpp, as a performance comparison between C# and C++ versions.
 /// </summary>
-public unsafe partial class Qtree : ISpatial
+public sealed unsafe partial class Qtree : ISpatial
 {
     int Levels { get; }
     public float FullSize { get; }
