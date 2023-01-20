@@ -205,7 +205,7 @@ public sealed partial class Empire
         if (!isPlayer || fleet == null || !fleet.AutoRequisition)
             return;
 
-        if (!ShipsWeCanBuild.Contains(ship.ShipData) || !fleet.FindShipNode(ship, out FleetDataNode node))
+        if (!CanBuildShip(ship.ShipData) || !fleet.FindShipNode(ship, out FleetDataNode node))
             return;
 
         var ships = EmpireShips.OwnedShips; // grab temp ref because OwnedShips can be reassigned
