@@ -262,6 +262,33 @@ public sealed partial class ShipDesign : IShipDesign
         return BaseHull.LoadModel(out shipSO, content);
     }
 
+    TacticalIcon TacticalIcon;
+
+    public TacticalIcon GetTacticalIcon()
+    {
+        if (TacticalIcon.Primary == null || TacticalIcon.Primary.Texture.IsDisposed)
+        {
+            TacticalIcon = GetTacticalIconUncached();
+        }
+        return TacticalIcon;
+    }
+
+    TacticalIcon GetTacticalIconUncached()
+    {
+        if (IsConstructor)
+            return new(ResourceManager.Texture("TacticalIcons/symbol_construction"), null);
+
+        if (IsSupplyShuttle)
+            return new(ResourceManager.Texture("TacticalIcons/symbol_supply"), null);
+
+        string roleName = Role is RoleName.scout or RoleName.troop ? Role.ToString() : HullRole.ToString();
+        SubTexture primary = ResourceManager.TextureOrNull($"TacticalIcons/symbol_{roleName}")
+                          ?? ResourceManager.TextureOrNull($"TacticalIcons/symbol_{HullRole}")
+                          ?? ResourceManager.Texture("TacticalIcons/symbol_construction");
+        SubTexture secondary = ResourceManager.TextureOrNull($"TacticalIcons/symbol_design_{Role}");
+        return new(primary, secondary);
+    }
+
     public static RoleType ShipRoleToRoleType(RoleName role)
     {
         switch (role)

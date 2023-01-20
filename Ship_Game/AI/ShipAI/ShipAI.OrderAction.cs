@@ -277,7 +277,6 @@ namespace Ship_Game.AI
             bool offensiveMove = order.IsSet(MoveOrder.Aggressive);
             ClearOrders(wantedState, priority: !offensiveMove);
 
-            WayPoints.Enqueue(new WayPoint(position, finalDir));
             MovePosition = position;
 
             // WARNING: please don't 'FIX' anything here without caution and testing.
@@ -286,7 +285,7 @@ namespace Ship_Game.AI
             //              ship group move & queued move,
             //              priority movement for all of the above while in combat
             //              Verify ships can complete move to planet goals like colonization.
-            WayPoint[] wayPoints = WayPoints.ToArray();
+            WayPoint[] wayPoints = WayPoints.EnqueueAndToArray(new WayPoint(position, finalDir));
 
                /////////////////////////////////////////////////////////////////
               ////// --               FINAL WARNING                   -- //////

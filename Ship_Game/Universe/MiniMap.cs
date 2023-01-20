@@ -101,7 +101,7 @@ namespace Ship_Game
             }
             catch (Exception e)
             {
-                Log.Error($"MiniMap Draw crashed {e.InnerException}");
+                Log.Error(e, $"MiniMap Draw crashed {e.InnerException}");
             }
 
             Vector2 upperLeftView = Universe.UnprojectToWorldPosition(new Vector2(0f, 0f));

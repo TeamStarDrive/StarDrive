@@ -39,9 +39,11 @@ namespace Ship_Game
             {
                 if (TargetShip == null || TargetModIdx == 0)
                     return null;
-                
+
                 var modules = TargetShip.Modules;
                 if (modules.Length == 0) // when a ship dies, its modules are set to Empty Array
+                    return null;
+                if (TargetModIdx > modules.Length) // wtf? but somehow this can happen
                     return null;
                 return modules[TargetModIdx - 1];
             }
@@ -423,17 +425,18 @@ namespace Ship_Game
             Duration -= timeStep.FixedTime;
             Source = AI.Drone.Position;
             SetActualHitDestination(AI.DroneTarget?.Position ?? Source);
-            // Apply drone repair effect, 5 times more if not in combat
+
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f))
             {
-                 ShipModule moduleToRepair = TargetModule;
+                ShipModule moduleToRepair = TargetModule;
                 if (moduleToRepair != null)
                 {
-                    float repairMultiplier = moduleToRepair.GetParent().OnLowAlert ? 5 : 1;
-                    float repairAmount = -DamageAmount * repairMultiplier * timeStep.FixedTime;
+                    bool inCombat = moduleToRepair.GetParent().IsInRecentCombat;
+                    float repairModifier = inCombat ? GlobalStats.Defaults.InCombatSelfRepairModifier : 1f;
+                    float repairAmount = -DamageAmount * repairModifier * timeStep.FixedTime;
 
                     moduleToRepair.Repair(repairAmount);
-                    if (moduleToRepair.HealthPercent > 0.99f)
+                    if (moduleToRepair.HealthPercent > 0.999f)
                         TargetModule = null;
                 }
                 else

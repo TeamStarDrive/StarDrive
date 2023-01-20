@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
 using UnitTests.Serialization;
+#pragma warning disable CA2213
 
 namespace UnitTests.Universe;
 

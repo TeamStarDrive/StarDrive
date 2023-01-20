@@ -543,12 +543,7 @@ namespace Ship_Game
                 UState.FogMapBytes = null; // free the mem of course, even if load failed
             }
 
-            if (FogMap == null)
-            {
-                FogMap = ResourceManager.Texture2D("UniverseFeather.dds");
-            }
-
-            UpdateFogMap(ScreenManager.SpriteBatch, device); // this will change FogMap surface format
+            FogMap ??= ResourceManager.Texture2D("UniverseFeather.dds");
             basicFogOfWarEffect = content.Load<Effect>("Effects/BasicFogOfWar");
         }
 
@@ -675,7 +670,7 @@ namespace Ship_Game
 
             Mem.Dispose(ref anomalyManager);
             Mem.Dispose(ref BombList);
-            Mem.Dispose(ref NotificationManager);
+            NotificationManager?.Clear();
             SelectedShipList = new();
             base.Destroy();
         }
@@ -693,7 +688,7 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.Music.Stop();
 
-            UState.Clear();
+            UState.Dispose();
 
             ShipToView = null;
             SelectedShip   = null;

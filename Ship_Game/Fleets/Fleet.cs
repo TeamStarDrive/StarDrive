@@ -2388,6 +2388,11 @@ namespace Ship_Game.Fleets
             for (int i = Ships.Count - 1; i >= 0; --i)
             {
                 Ship ship = Ships[i];
+
+                // TODO: this is a concurrency issue, something has removed multiple items from the Ships array
+                if (ship == null)
+                    continue;
+
                 if (!ship.Active)
                 {
                     RemoveShip(ship, returnToEmpireAI: false, clearOrders: false);

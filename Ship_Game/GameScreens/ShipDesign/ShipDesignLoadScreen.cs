@@ -319,29 +319,31 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         bool CanShowDesign(Ship ship, string filter)
         {
-            if (filter.NotEmpty()
-                && !ship.Name.ToLower().Contains(filter)
-                && !ship.BaseHull.HullName.ToLower().Contains(filter))
+            if (filter.NotEmpty() &&
+                !ship.Name.ToLower().Contains(filter) &&
+                !ship.BaseHull.HullName.ToLower().Contains(filter))
+            {
+                return false;
+            }
+
+            IShipDesign design = ship.ShipData;
+            if (ShowOnlyPlayerDesigns && !design.IsPlayerDesign)
                 return false;
 
-            if (ShowOnlyPlayerDesigns && !ship.ShipData.IsPlayerDesign)
-                return false;
+            if (UnlockAllDesigns) // if universe is DeveloperUniverse, all designs are visible
+                return !design.Deleted;
 
-            if (UnlockAllDesigns)
-                return !ship.ShipData.Deleted;
-
-            string role = Localizer.GetRole(ship.DesignRole, Screen.Player);
-            return !ship.ShipData.Deleted
-                && !ship.ShipData.IsShipyard
-                && Screen.Player.WeCanBuildThis(ship.Name)
-                && (role.IsEmpty() || role == Localizer.GetRole(ship.DesignRole, Screen.Player))
-                && (Universe.Debug || !ship.IsSubspaceProjector)
-                && !ResourceManager.ShipRoles[ship.ShipData.Role].Protected;
+            return !design.Deleted
+                && !design.IsShipyard
+                && Screen.Player.WeCanBuildThis(design)
+                && (!design.IsSubspaceProjector || Screen.EnableDebugFeatures) // ignore subspace projectors (unless debug features are enabled)
+                && (!design.IsUnitTestShip || Screen.EnableDebugFeatures) // ignore unit testing ships (unless debug features are enabled)
+                && ResourceManager.ShipRoles.TryGetValue(design.Role, out ShipRole sr) && !sr.Protected;
         }
 
         void LoadShipToScreen()
         {
-            Screen.ChangeHull(SelectedShip ?? SelectedWIP);                
+            Screen.ChangeHull(SelectedShip ?? SelectedWIP);
             ExitScreen();
         }
 

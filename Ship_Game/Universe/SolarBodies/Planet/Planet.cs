@@ -19,7 +19,7 @@ using Ship_Game.AI.Budget;
 namespace Ship_Game
 {
     [StarDataType]
-    public partial class Planet : SolarSystemBody, IDisposable
+    public sealed partial class Planet : SolarSystemBody, IDisposable
     {
         public enum ColonyType
         {
@@ -755,40 +755,43 @@ namespace Ship_Game
             b ??= tile?.Building;
             if (b == null)
                 return;
-            
-            tile ??= TilesList.Find(t => t.Building == b);
-            if (tile != null)
-                tile.ClearBuilding();
-            else
-                Log.Error("Failed to find tile with building");
 
-            BuildingList.Remove(b);
-            PostBuildingRemoval(b, tile, refund);
+            // only trigger removal effects once -- we shouldn't touch
+            // TilesList unless the building was actually in the BuildingList
+            if (BuildingList.Remove(b))
+            {
+                tile ??= TilesList.Find(t => t.Building == b);
+                if (tile != null)
+                {
+                    tile.ClearBuilding();
+                    // TODO: we need a better cleanup of planetary tiles,
+                    //       current system with CrashSites and Volcanoes is too fragile
+                    tile.CrashSite = null;
+                }
+                else
+                {
+                    Log.Error("Failed to find tile with building");
+                }
+
+                // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
+                // environment buildings can be scrapped and the planet will slowly recover
+                BuildingsFertility -= b.MaxFertilityOnBuild;
+                MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
+
+                if (b.IsTerraformer && !TerraformingHere)
+                    UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
+
+                if (refund)
+                    Owner?.RefundCreditsPostRemoval(b);
+
+                if (b.SensorRange > 0)
+                    OnSensorBuildingChange();
+
+                ResetHasDynamicBuildings();
+            }
         }
 
-        void PostBuildingRemoval(Building b, PlanetGridSquare tile, bool refund)
-        {
-            if (tile != null)
-                tile.CrashSite = null;
-
-            // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
-            // environment buildings can be scrapped and the planet will slowly recover
-            BuildingsFertility -= b.MaxFertilityOnBuild;
-            MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
-
-            if (b.IsTerraformer && !TerraformingHere)
-                UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
-
-            if (refund)
-                Owner?.RefundCreditsPostRemoval(b);
-
-            if (b.SensorRange > 0)
-                OnSensorBuildingChange();
-
-            ResetHasDynamicBuildings();
-        }
-
-        public void OnSensorBuildingChange()
+        void OnSensorBuildingChange()
         {
             UpdateIncomes();
             if (Owner != null)
@@ -1488,22 +1491,6 @@ namespace Ship_Game
             }
         }
 
-        /// <param name="clearAndPresentDanger">indicates threats can destroy friendly ships</param>
-        public bool EnemyInRange(bool clearAndPresentDanger = false)
-        {
-            if (clearAndPresentDanger ? !ParentSystem.DangerousForcesPresent(Owner) 
-                                      : !ParentSystem.HostileForcesPresent(Owner))
-                return false;
-
-            float distance = GravityWellRadius.LowerBound(7500);
-            foreach (Ship ship in ParentSystem.ShipList)
-            {
-                if (Owner?.IsEmpireAttackable(ship.Loyalty, ship) == true && ship.InRadius(Position, distance))
-                    return true;
-            }
-            return false;
-        }
-
         public bool OurShipsCanScanSurface(Empire us)
         {
             // this is one of the reasons i want to change the way sensors are done to have a class containing sensor information.
@@ -1630,9 +1617,7 @@ namespace Ship_Game
             {
                 if (CanRepairOrHeal())
                 {
-                    Building t = ResourceManager.GetBuildingTemplate(b.BID);
-                    b.CombatStrength = (b.CombatStrength + repairAmount).Clamped(0, t.CombatStrength);
-                    b.Strength = (b.Strength + repairAmount).Clamped(0, t.Strength);
+                    b.ApplyRepair(repairAmount);
                     UpdateHomeDefenseHangars(b);
                 }
             }
@@ -1668,10 +1653,10 @@ namespace Ship_Game
             return TilesList.Find(pgs => pgs.X == x && pgs.Y == y);
         }
 
-        ~Planet() { Destroy(); }
-        public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
+        ~Planet() { Dispose(false); }
+        public void Dispose() { Dispose(true); GC.SuppressFinalize(this); }
 
-        private void Destroy()
+        void Dispose(bool disposing)
         {
             Mem.Dispose(ref ActiveCombats);
             Mem.Dispose(ref OrbitalDropList);
@@ -1679,6 +1664,7 @@ namespace Ship_Game
             Storage = null;
             Troops = null;
             GeodeticManager = null;
+            TilesList = new();
         }
 
         public DebugTextBlock DebugPlanetInfo()

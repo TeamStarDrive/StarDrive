@@ -154,24 +154,20 @@ namespace Ship_Game
         {
             float radius = (float)ProjectToScreenSize(ActiveShipDesign.Radius);
             RectF screenR = RectF.FromPointRadius(Input.CursorPosition, radius);
-            
-            (SubTexture icon, SubTexture secondary) = ActiveShipDesign.TacticalIcon();
-            batch.Draw(icon, screenR, Player.EmpireColor);
-            if (secondary != null)
-                batch.Draw(secondary, screenR, Player.EmpireColor);
+
+            TacticalIcon icon = ActiveShipDesign.TacticalIcon();
+            icon.Draw(batch, screenR, Player.EmpireColor);
 
             float boundingR = Math.Max(radius*1.5f, 16);
             DrawCircle(Input.CursorPosition, boundingR, Player.EmpireColor);
         }
-        
+
         void DrawIcon(SpriteBatch batch, FleetDataNode node, Ship ship, in RectF r, Color color)
         {
             if (CamPos.Z > 5000f || node.Ship == null || node.Ship?.Resupplying == true)
             {
-                (SubTexture icon, SubTexture secondary) = ship.TacticalIcon();
-                batch.Draw(icon, r, color);
-                if (secondary != null)
-                    batch.Draw(secondary, r, color);
+                TacticalIcon icon = ship.TacticalIcon();
+                icon.Draw(batch, r, color);
             }
         }
 

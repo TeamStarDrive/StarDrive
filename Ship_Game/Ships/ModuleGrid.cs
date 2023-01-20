@@ -2,6 +2,7 @@
 using System.Reflection;
 using SDUtils;
 using Point = SDGraphics.Point;
+#pragma warning disable CA1065
 
 namespace Ship_Game.Ships
 {
@@ -64,17 +65,17 @@ namespace Ship_Game.Ships
             Grid = new T[Width * Height];
             Initialize(modules);
         }
-        
+
         // Unsafe direct access to Grid using index locations
-        public T this[int x, int y] => Grid[x + y * Width];
-        public T this[Point point]  => Grid[point.X + point.Y * Width];
+        public T this[int x, int y] => Grid[x + (y * Width)];
+        public T this[Point point]  => Grid[point.X + (point.Y * Width)];
 
         // Safe access to Grid, returns false if point is outside the grid
         public bool Get(Point point, out T module)
         {
             if ((uint)point.X < Width && (uint)point.Y < Height)
             {
-                module = Grid[point.X + point.Y * Width];
+                module = Grid[point.X + (point.Y * Width)];
                 return module != null; // the module may be null if nothing occupies the grid slot
             }
             module = default;

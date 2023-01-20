@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# RCS1242: Do not pass non-read-only struct by read-only reference.
+dotnet_diagnostic.RCS1242.severity = silent

@@ -21,11 +21,11 @@ namespace SynapseGaming.LightingSystem.Core
     public class ObjectGraph<T> : IQuery<T>, ISubmit<T> where T : IMovableObject
     {
         private int WorldTreeMaxDepth = 20;
-        private Dictionary<T, int> DynamicObjects = new Dictionary<T, int>(32);
-        private RTreeNode<T> Root = new RTreeNode<T>();
+        private Dictionary<T, int> DynamicObjects = new(32);
+        private RTreeNode<T> Root = new();
         private Vector3[] WorldBoundsCorners = new Vector3[8];
-        private List<T> TempList = new List<T>(32);
-        private Statistics Stats = new Statistics();
+        private List<T> TempList = new(32);
+        private Statistics Stats = new();
 
         /// <summary>The current containment volume for this object.</summary>
         public BoundingBox WorldBoundingBox { get; private set; }
@@ -58,7 +58,7 @@ namespace SynapseGaming.LightingSystem.Core
         /// <param name="worldtreemaxdepth">Maximum depth for entries in the scene tree. Small
         /// scenes with few objects see better performance with shallow trees. Large complex
         /// scenes often need deeper trees.</param>
-        public virtual void Resize(BoundingBox worldboundingbox, int worldtreemaxdepth)
+        public void Resize(BoundingBox worldboundingbox, int worldtreemaxdepth)
         {
             WorldBoundingBox = worldboundingbox;
             WorldTreeMaxDepth = worldtreemaxdepth;

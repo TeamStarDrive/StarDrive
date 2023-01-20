@@ -203,10 +203,6 @@ namespace Ship_Game
             {
                 UState.Objects.Update(timeStep);
                 UpdateMiscComponents(timeStep);
-
-                // update systems in danger
-                foreach (Empire empire in UState.Empires)
-                    empire.AssessSystemsInDanger(timeStep);
             }
 
             EndOfTurnUpdate(updated, timeStep);

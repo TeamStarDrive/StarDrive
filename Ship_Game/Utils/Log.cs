@@ -799,9 +799,9 @@ namespace Ship_Game
 
         public static void OpenURL(string url)
         {
-            if (SteamManager.isInitialized)
+            if (SteamManager.IsInitialized)
             {
-                SteamManager.ActivateOverlayWebPage(url);
+                SteamManager.ActivateWebOverlay(url);
             }
             else
             {

@@ -11,7 +11,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// 
     /// Generally loaded through the xna content manager.
     /// </summary>
-    public class MeshData : IDisposable
+    public sealed class MeshData : IDisposable
     {
         VertexDeclaration VertexDeclr;
         VertexBuffer VertexBuf;
@@ -78,10 +78,10 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>Releases resources allocated by this object.</summary>
         public void Dispose()
         {
-            Disposable.Free(ref VertexDeclr);
-            Disposable.Free(ref VertexBuf);
-            Disposable.Free(ref IndexBuf);
-            Disposable.Free(ref ShaderEffect);
+            VertexDeclr?.Dispose(); VertexDeclr = null;
+            VertexBuf?.Dispose(); VertexBuf = null;
+            IndexBuf?.Dispose(); IndexBuf = null;
+            ShaderEffect?.Dispose(); ShaderEffect = null;
         }
     }
 }

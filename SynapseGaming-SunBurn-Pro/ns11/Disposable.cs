@@ -8,13 +8,13 @@ using System;
 
 namespace ns11
 {
-    internal class Disposable
+    internal static class Disposable
     {
-        public static void Free<T>(ref T item) where T : IDisposable
+        public static void Dispose<T>(ref T item) where T : IDisposable
         {
-            if (item != null)
+            if (item is IDisposable disposable)
             {
-                item.Dispose();
+                disposable.Dispose();
                 item = default(T);
             }
         }

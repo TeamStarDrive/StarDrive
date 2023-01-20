@@ -390,7 +390,6 @@ namespace Ship_Game
             if (GlobalStats.Defaults.EnableECM)
             {
                 DrawStat(ref modTitlePos, GameText.Ecm2, mod.ECM, GameText.IndicatesTheChanceOfEcm, isPercent: true);
-
             }
             if (mod.ModuleType == ShipModuleType.Hangar)
             {

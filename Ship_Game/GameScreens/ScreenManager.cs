@@ -69,7 +69,7 @@ namespace Ship_Game
             LightSysManager = new(game.Services);
             GameSceneState = new();
             SceneInter = new(graphics);
-            SceneInter.CreateDefaultManagers(false, false, true);
+            SceneInter.CreateDefaultManagers(useDeferredRendering:false, usePostProcessing:true);
             SceneInter.AddManager(new GameLightManager(graphics));
         }
 
@@ -284,10 +284,11 @@ namespace Ship_Game
             RemoveAllLights();
         }
 
+        // This must be called when Graphics Device is reset!
         public void UnloadSceneObjects()
         {
             SceneInter.Unload();
-            LightSysManager.Unload();
+            LightSysManager.Unload(); // must be called on Graphics Device reset!
             ActiveDynamicLights = 0;
         }
 
@@ -345,6 +346,10 @@ namespace Ship_Game
             SpriteBatch batch = SpriteBatch;
             if (batch == null)
                 return; // ScreenManager was disposed
+
+            // the engine is still reloading graphics resources; wait a bit...
+            if (ResourceManager.WhitePixel == null || ResourceManager.WhitePixel.IsDisposed)
+                return;
 
             GameScreen[] screens = GameScreens.ToArray();
             for (int i = 0; i < screens.Length; ++i)
@@ -591,16 +596,23 @@ namespace Ship_Game
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;
-            foreach (Hotloadable hot in HotLoadTargets.Values)
+
+            // OnModified/ReloadContent is allowed to modify HotLoadTargets
+            // so to avoid collection modification issues, we iterate by KEY
+            string[] keys = HotLoadTargets.Keys.ToArr();
+            foreach (string targetKey in keys)
             {
-                var info = new FileInfo(hot.File);
-                if (info.LastWriteTimeUtc != hot.LastModified)
+                if (HotLoadTargets.TryGetValue(targetKey, out Hotloadable hot))
                 {
-                    Log.Write(ConsoleColor.Magenta, $"HotLoading content: {info.Name}...");
-                    hot.LastModified = info.LastWriteTimeUtc; // update
-                    hot.OnModified?.Invoke(info);
-                    hot.Screen?.ReloadContent();
-                    return;
+                    var info = new FileInfo(hot.File);
+                    if (info.LastWriteTimeUtc != hot.LastModified)
+                    {
+                        Log.Write(ConsoleColor.Magenta, $"HotLoading content: {info.Name}...");
+                        hot.LastModified = info.LastWriteTimeUtc; // update
+                        hot.OnModified?.Invoke(info);
+                        hot.Screen?.ReloadContent();
+                        return;
+                    }
                 }
             }
         }
