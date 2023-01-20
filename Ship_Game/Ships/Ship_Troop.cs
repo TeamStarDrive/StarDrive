@@ -20,7 +20,7 @@ namespace Ship_Game.Ships
         // TRUE if we have any troops present on this ship
         // @warning Some of these MAY be enemy troops!
         public bool HasOurTroops => OurTroops.NotEmpty;
-        
+
         // TRUE if we have own troops or if we launched these troops on to operations
         public bool HasTroopsPresentOrLaunched => HasOurTroops || Carrier.LaunchedAssaultShuttles > 0;
 
@@ -28,9 +28,10 @@ namespace Ship_Game.Ships
         public int NumPlayerTroopsOnShip  => Loyalty.isPlayer ? OurTroops.Count : HostileTroops.Count;
         public int NumAiTroopsOnShip      => Loyalty.isPlayer ? HostileTroops.Count : OurTroops.Count;
 
+        // TRUE if this ship is an Idle troop shuttle with at least 1 space marine (or spider tank etc)
         public bool IsIdleSingleTroopship => Name == Loyalty.data.DefaultTroopShip
                                              && HasOurTroops
-                                             && (AI.State == AIState.AwaitingOrders || AI.State == AIState.Orbit || AI.State == AIState.HoldPosition)
+                                             && AI.State is AIState.AwaitingOrders or AIState.Orbit or AIState.HoldPosition
                                              && Fleet == null && !InCombat;
 
         // NOTE: could be an enemy troop or a friendly one

@@ -1903,17 +1903,13 @@ namespace Ship_Game
             return NearestFreeTroopShip(out troopShip, ship.Position) || LaunchNearestTroopForRebase(out troopShip, ship.Position);
         }
 
-        private bool NearestFreeTroopShip(out Ship troopShip, Vector2 objectCenter)
+        // TODO: this is a really bad idea to iterate through all ships
+        //       would be better to use Spatial.FindNearby perhaps to find closest ships?
+        bool NearestFreeTroopShip(out Ship troopShip, Vector2 objectCenter)
         {
-            troopShip = null;
-            Array<Ship> troopShips;
-            troopShips = new Array<Ship>(OwnedShips
-                .Filter(troopship => troopship.IsIdleSingleTroopship)
-                .OrderBy(distance => distance.Position.Distance(objectCenter)));
-
-            if (troopShips.Count > 0)
-                troopShip = troopShips.First();
-
+            troopShip = EmpireShips.OwnedShips.FindMinFiltered(
+                s => s.IsIdleSingleTroopship,
+                s => s.Position.SqDist(objectCenter));
             return troopShip != null;
         }
 
