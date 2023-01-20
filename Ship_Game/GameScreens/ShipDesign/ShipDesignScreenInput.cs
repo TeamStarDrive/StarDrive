@@ -614,7 +614,15 @@ namespace Ship_Game
             bool playerDesign = overwriteProtected == null;
             bool readOnlyDesign = overwriteProtected != null;
 
+            // if we can build an old IShipDesign with the same name, remove it from buildable list,
+            // because the new one replaces it. This must be done before the TEMPLATE is overwritten
+            if (ResourceManager.Ships.GetDesign(name, out IShipDesign existing) && Player.CanBuildShip(existing))
+                Player.RemoveBuildableShip(existing);
+
+            // this will automatically overwrite the template design
             ResourceManager.AddShipTemplate(toSave, playerDesign: playerDesign, readOnly: readOnlyDesign);
+
+            // now re-add it to ShipsWeCanBuild and double-check that it was actually added
             Player.UpdateShipsWeCanBuild();
             if (!UnlockAllFactionDesigns && !Player.WeCanBuildThis(toSave.Name))
                 Log.Error("WeCanBuildThis check failed after SaveShipDesign");

@@ -221,23 +221,40 @@ namespace Ship_Game.Universe
                         RemapShipDesigns(us, fromSave, existing);
                     }
                 }
+
+                // FIXUP remove duplicates in all Empire build lists
+                //       this will fix broken savegames that accidentally suffer from duplicate ship designs
+                foreach (Empire e in us.EmpireList)
+                {
+                    e.RemoveInvalidShipDesigns();
+                    e.RemoveDuplicateShipDesigns();
+                }
             }
 
-            void RemapShipDesigns(UniverseState us, ShipDesign fromSave, IShipDesign replaceWith)
+            // replace a design from the savegame with an existing template in all the empire Build lists
+            static void RemapShipDesigns(UniverseState us, IShipDesign fromSave, IShipDesign replaceWith)
             {
                 // NOTE: individual ships are updated inside Ship.OnDeserialized()
 
                 foreach (Empire e in us.EmpireList)
                 {
+                    // the buildable ships list contains Ships and Stations/Platforms
                     if (e.CanBuildShip(fromSave))
                     {
                         e.RemoveBuildableShip(fromSave);
-                        e.AddBuildableShip(replaceWith);
-                    }
-                    if (e.CanBuildStation(fromSave)) // a station will appear in both lists
-                    {
-                        e.RemoveBuildableStation(fromSave);
-                        e.AddBuildableStation(replaceWith);
+                        e.AddBuildableShip(replaceWith); // will also add it as a Station
+
+                        // check all planet construction queues as well
+                        foreach (Planet p in e.GetPlanets())
+                        {
+                            foreach (QueueItem qi in p.ConstructionQueue)
+                            {
+                                if (qi.isShip && qi.ShipData == fromSave)
+                                {
+                                    qi.ShipData = replaceWith;
+                                }
+                            }
+                        }
                     }
                 }
             }

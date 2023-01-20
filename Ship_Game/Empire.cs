@@ -61,13 +61,6 @@ namespace Ship_Game
         [StarData] public IncomingThreatDetector ThreatDetector;
         public IncomingThreat[] SystemsWithThreat => ThreatDetector.SystemsWithThreat;
 
-        [StarData] public HashSet<IShipDesign> ShipsWeCanBuild;
-        // shipyards, platforms, SSP-s
-        [StarData] public HashSet<IShipDesign> SpaceStationsWeCanBuild;
-
-        // For TESTING
-        public string[] ShipsWeCanBuildIds => ShipsWeCanBuild.Select(s => s.Name);
-
         int TurnCount = 1;
 
         [StarData] public EmpireData data;
@@ -1027,7 +1020,7 @@ namespace Ship_Game
         {
             foreach (string building in data.unlockBuilding)
                 UnlockedBuildingsDict[building] = true;
-            
+
             foreach (string ship in data.unlockShips)
             {
                 IShipDesign design = ResourceManager.Ships.GetDesign(ship);
@@ -1667,229 +1660,15 @@ namespace Ship_Game
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;
 
-        /// @return TRUE if this Empire can build this ship
-        public bool CanBuildShip(string shipUID)
-        {
-            if (ResourceManager.Ships.GetDesign(shipUID, out IShipDesign design))
-                return ShipsWeCanBuild.Contains(design);
-            return false;
-        }
-
-        public bool CanBuildShip(IShipDesign ship)
-        {
-            return ship != null && ShipsWeCanBuild.Contains(ship);
-        }
-
-        public bool CanBuildStation(IShipDesign station)
-        {
-            return station != null && SpaceStationsWeCanBuild.Contains(station);
-        }
-
         // @return TRUE if ship did not already exist and was actually added
-        public bool AddBuildableShip(IShipDesign ship)
-        {
-            return ShipsWeCanBuild.Add(ship);
-        }
-
-        public void AddBuildableStation(IShipDesign ship)
-        {
-            SpaceStationsWeCanBuild.Add(ship);
-        }
 
         // @return TRUE if the ship was actually found and removed
-        public bool RemoveBuildableShip(IShipDesign ship)
-        {
-            return ShipsWeCanBuild.Remove(ship);
-        }
 
-        // @return TRUE if the ship was actually found and removed
-        public bool RemoveBuildableStation(IShipDesign ship)
-        {
-            return ShipsWeCanBuild.Remove(ship);
-        }
+        // this is a fixup method for salvaging corrupted savegames due to a ShipDesignScreen flaw
 
-        public void ClearShipsWeCanBuild()
-        {
-            ShipsWeCanBuild.Clear();
-        }
-
-        public void FactionShipsWeCanBuild()
-        {
-            if (!IsFaction) return;
-            foreach (Ship ship in ResourceManager.Ships.Ships)
-            {
-                if ((data.Traits.ShipType == ship.ShipData.ShipStyle
-                    || ship.ShipData.ShipStyle == "Misc"
-                    || ship.ShipData.ShipStyle.IsEmpty())
-                    && ship.ShipData.CanBeAddedToBuildableShips(this))
-                {
-                    AddBuildableShip(ship.ShipData);
-                    foreach (ShipModule hangar in ship.Carrier.AllHangars)
-                    {
-                        if (hangar.HangarShipUID.NotEmpty())
-                        {
-                            var hangarShip = ResourceManager.Ships.GetDesign(hangar.HangarShipUID, throwIfError: false);
-                            if (hangarShip?.CanBeAddedToBuildableShips(this) == true)
-                                AddBuildableShip(hangarShip);
-                        }
-                    }
-                }
-            }
-            foreach (var hull in UnlockedHullsDict.Keys.ToArr())
-                UnlockedHullsDict[hull] = true;
-        }
-
-        void RemoveInvalidShipsWeCanBuild()
-        {
-            if (ShipsWeCanBuild.Any(sd => !sd.IsValidDesign))
-            {
-                foreach (IShipDesign sd in ShipsWeCanBuild.ToArr())
-                    if (!sd.IsValidDesign)
-                    {
-                        Log.Warning($"Removing invalid Buildable Ship: {sd.Name}");
-                        RemoveBuildableShip(sd);
-                        RemoveBuildableStation(sd);
-                    }
-            }
-        }
-
-        public void UpdateShipsWeCanBuild(Array<string> hulls = null, bool debug = false)
-        {
-            // validate all existing ship designs, in case some of them have become invalid
-            RemoveInvalidShipsWeCanBuild();
-
-            if (IsFaction)
-            {
-                FactionShipsWeCanBuild();
-                return;
-            }
-
-            foreach (IShipDesign sd in ResourceManager.Ships.Designs)
-            {
-                if (hulls != null && !hulls.Contains(sd.Hull))
-                    continue;
-
-                // we can already build this
-                if (CanBuildShip(sd))
-                    continue;
-                if (!sd.CanBeAddedToBuildableShips(this))
-                    continue;
-
-                if (WeCanBuildThis(sd, debug))
-                {
-                    if (sd.Role <= RoleName.station)
-                        AddBuildableStation(sd);
-
-                    bool shipAdded = AddBuildableShip(sd);
-
-                    if (isPlayer)
-                        Universe.Screen?.OnPlayerBuildableShipsUpdated();
-
-                    if (shipAdded)
-                    {
-                        UpdateBestOrbitals();
-                        UpdateDefenseShipBuildingOffense();
-                        MarkShipRolesUsableForEmpire(sd);
-                    }
-                }
-            }
-        }
-
-        public bool WeCanShowThisWIP(IShipDesign shipData)
-        {
-            return WeCanBuildThis(shipData, debug:true);
-        }
-
-        public bool WeCanBuildThis(string shipName, bool debug = false)
-        {
-            if (!ResourceManager.Ships.GetDesign(shipName, out IShipDesign shipData))
-            {
-                Log.Warning($"Ship does not exist: {shipName}");
-                return false;
-            }
-
-            return WeCanBuildThis(shipData, debug);
-        }
-
-        public bool WeCanBuildThis(IShipDesign design, bool debug = false)
-        {
-            // If this hull is not unlocked, then we can't build it
-            if (!IsHullUnlocked(design.Hull))
-            {
-                if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedHull Design:{design.Name}");
-                return false;
-            }
-
-            if (design.TechsNeeded.Count > 0)
-            {
-                if (!design.Unlockable)
-                {
-                    if (debug) Log.Write($"WeCanBuildThis:false Reason:NotUnlockable Design:{design.Name}");
-                    return false;
-                }
-
-                foreach (string shipTech in design.TechsNeeded)
-                {
-                    if (!ShipTechs.Contains(shipTech))
-                    {
-                        // some ShipDesigns are loaded from savegame only, and the tech might no longer exist
-                        // in this case the ship is no longer buildable
-                        if (!TryGetTechEntry(shipTech, out TechEntry onlyShipTech))
-                        {
-                            if (debug) Log.Write($"WeCanBuildThis:false Reason:MissingTech={shipTech} Design:{design.Name}");
-                            return false;
-                        }
-                        else if (onlyShipTech.Locked)
-                        {
-                            if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedTech={shipTech} Design:{design.Name}");
-                            return false;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // check if all modules in the ship are unlocked
-                foreach (string moduleUID in design.UniqueModuleUIDs)
-                {
-                    if (!IsModuleUnlocked(moduleUID))
-                    {
-                        if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedModule={moduleUID} Design:{design.Name}");
-                        return false; // can't build this ship because it contains a locked Module
-                    }
-                }
-            }
-
-            if (debug) Log.Write($"WeCanBuildThis:true Design:{design.Name}");
-            return true;
-        }
-
-        public bool WeCanUseThisTech(TechEntry checkedTech, IShipDesign[] ourFactionShips)
-        {
-            if (checkedTech.IsHidden(this))
-                return false;
-
-            if (!checkedTech.IsOnlyShipTech() || isPlayer)
-                return true;
-
-            return WeCanUseThisInDesigns(checkedTech, ourFactionShips);
-        }
+        // remove duplicates, assume all designs are valid
 
         // TODO: this should be cached as well, because it is super intensive
-        public bool WeCanUseThisInDesigns(TechEntry checkedTech, IShipDesign[] ourFactionShips)
-        {
-            // Dont offer tech to AI if it does not have designs for it.
-            Technology tech = checkedTech.Tech;
-            foreach (IShipDesign design in ourFactionShips)
-            {
-                foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
-                {
-                    if (design.UniqueModuleUIDs.Contains(entry.ModuleUID))
-                        return true;
-                }
-            }
-            return false;
-        }
 
         public bool GetTroopShipForRebase(out Ship troopShip, Vector2 pos, string planetName = "")
         {
@@ -2761,34 +2540,6 @@ namespace Ship_Game
                 AI.AddGoal(new ScoutSystem(this));
         }
 
-        public IShipDesign ChooseScoutShipToBuild()
-        {
-            if (!ChooseScoutShipToBuild(out IShipDesign scout))
-                throw new($"{Name} is not able to find any Scout ships! ShipsWeCanBuild={string.Join(",", ShipsWeCanBuildIds)}");
-            return scout;
-        }
-
-        public bool ChooseScoutShipToBuild(out IShipDesign scout)
-        {
-            if (isPlayer && ResourceManager.Ships.GetDesign(Universe.Player.data.CurrentAutoScout, out scout))
-                return true;
-
-            var scoutShipsWeCanBuild = new Array<IShipDesign>();
-            foreach (IShipDesign design in ShipsWeCanBuild)
-                if (design.Role == RoleName.scout)
-                    scoutShipsWeCanBuild.Add(design);
-
-            if (scoutShipsWeCanBuild.IsEmpty)
-            {
-                scout = null;
-                return false;
-            }
-
-            // pick the scout with fastest FTL speed
-            scout = scoutShipsWeCanBuild.FindMax(s => s.BaseWarpThrust);
-            return scout != null;
-        }
-
         void AssignExplorationTasks()
         {
             if (isPlayer && !AutoExplore)
@@ -3105,7 +2856,6 @@ namespace Ship_Game
 
             Inhibitors.Clear();
             ClearShipsWeCanBuild();
-            SpaceStationsWeCanBuild.Clear();
             Research.Reset();
 
             // TODO: These should not be in EmpireData !!!
