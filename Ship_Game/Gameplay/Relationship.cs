@@ -195,7 +195,10 @@ namespace Ship_Game.Gameplay
         public void PrepareForWar(WarType type, Empire us)
         {
             if (us == Them)
-                Log.Error($"Called prepare for war vs. ourselves! {us.Name}");
+            {
+                Log.Error($"Called prepare for war vs. ourselves! Us={us} Them={Them}");
+                return;
+            }
 
             if (PreparingForWar)
                 return;
