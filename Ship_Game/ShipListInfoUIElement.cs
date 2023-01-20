@@ -389,9 +389,9 @@ namespace Ship_Game
             for (int i = 0; i < shipList.Count; i++)
             {
                 Ship ship  = shipList[i];
-                (SubTexture icon, SubTexture secondary) = ship.TacticalIcon();
+                TacticalIcon icon = ship.TacticalIcon();
                 var button = new SkinnableButton(new Rectangle(0, 0, 20, 20), 
-                    icon, secondary, ResourceManager.Texture("TacticalIcons/symbol_status"))
+                    icon.Primary, icon.Secondary, ResourceManager.Texture("TacticalIcons/symbol_status"))
                 {
                     IsToggle = false,
                     ReferenceObject = ship,

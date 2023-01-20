@@ -143,6 +143,8 @@ public interface IShipDesign
 
     bool LoadModel(out SceneObject shipSO, GameContentManager content);
 
+    TacticalIcon GetTacticalIcon();
+
     float GetCost(Empire e);
 
     float GetMaintenanceCost(Empire empire);
