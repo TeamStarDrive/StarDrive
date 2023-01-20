@@ -99,7 +99,8 @@ public class IncomingThreatDetectorTests : StarDriveTest
         try
         {
             RunFullSimWhile((simTimeout:80, fatal:true),
-                () => !HasFleetArrivedAt(PlayerFleet, PlayerFleet.FinalPosition));
+                () => !HasFleetArrivedAt(PlayerFleet, PlayerFleet.FinalPosition)
+                   || Enemy.SystemsWithThreat.Length == 0);
         }
         finally
         {
