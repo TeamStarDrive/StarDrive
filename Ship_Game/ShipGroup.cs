@@ -320,6 +320,11 @@ namespace Ship_Game
             for (int i = 1; i < count; ++i)
             {
                 Ship ship = items[i];
+
+                // TODO: this is a concurrency issue, the `ships` array is being modified while we calculate the avg pos
+                if (ship == null)
+                    continue;
+
                 if (biggestSize < ship.SurfaceArea && ship.CanTakeFleetMoveOrders())
                 {
                     biggestShip = ship;
