@@ -420,6 +420,7 @@
     <Compile Include="Ship_Game\Ships\Ship_Events.cs" />
     <Compile Include="Ship_Game\Ships\Ship_PowerCalc.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Repair.cs" />
+    <Compile Include="Ship_Game\Ships\TacticalIcon.cs" />
     <Compile Include="Ship_Game\Spatial\DebugQtreeFind.cs" />
     <Compile Include="Ship_Game\Spatial\FindResultBuffer.cs" />
     <Compile Include="Ship_Game\Spatial\GenericQtree.cs" />

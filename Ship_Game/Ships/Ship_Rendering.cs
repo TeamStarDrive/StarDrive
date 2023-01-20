@@ -248,10 +248,10 @@ namespace Ship_Game.Ships
         {
             // try to scale the icon so its size remains consistent when zooming in/out
             float size = ScaleIconSize(screenRadius, minSize, maxSize);
-            (SubTexture icon, SubTexture secondary) = TacticalIcon();
-            us.DrawTextureSized(icon, screenPos, Rotation, size, size, Loyalty.EmpireColor);
-            if (secondary != null)
-                us.DrawTextureSized(secondary, screenPos, Rotation, size, size, Loyalty.EmpireColor);
+            TacticalIcon icon = TacticalIcon();
+            us.DrawTextureSized(icon.Primary, screenPos, Rotation, size, size, Loyalty.EmpireColor);
+            if (icon.Secondary != null)
+                us.DrawTextureSized(icon.Secondary, screenPos, Rotation, size, size, Loyalty.EmpireColor);
         }
 
         void DrawFlagIcons(UniverseScreen us, Vector2 screenPos, float screenRadius)
