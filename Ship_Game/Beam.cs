@@ -43,6 +43,8 @@ namespace Ship_Game
                 var modules = TargetShip.Modules;
                 if (modules.Length == 0) // when a ship dies, its modules are set to Empty Array
                     return null;
+                if (TargetModIdx > modules.Length) // wtf? but somehow this can happen
+                    return null;
                 return modules[TargetModIdx - 1];
             }
             set
