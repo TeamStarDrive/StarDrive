@@ -16,16 +16,14 @@ namespace Ship_Game
             Militaristic,
             NonCybernetic
         }
-        
+
+        // Race trait info, set in Races/MyRace.xml
         [StarData] public string Name;
-        [StarData] public int TraitName;
-        [XmlIgnore] public LocalizedText LocalizedName => new(TraitName);
         [StarData] public string VideoPath = "";
         [StarData] public string ShipType = "";
         [StarData] public string Singular;
         [StarData] public string Plural;
         [StarData] public bool Pack;
-        [StarData] public float SpyMultiplier;
         [StarData] public string Adj1;
         [StarData] public string Adj2;
         [StarData] public string HomeSystemName;
@@ -34,10 +32,57 @@ namespace Ship_Game
         [StarData] public float R;
         [StarData] public float G;
         [StarData] public float B;
-        [StarData] public int Excludes;
-        [StarData] public int Description;
+        
+        // Default Trait flags, set in Races/MyRace.xml
+        [StarData] public bool PhysicalTraitAlluring;
+        [StarData] public bool PhysicalTraitRepulsive;
+        [StarData] public bool PhysicalTraitEagleEyed;
+        [StarData] public bool PhysicalTraitBlind;
+        [StarData] public bool PhysicalTraitEfficientMetabolism;
+        [StarData] public bool PhysicalTraitGluttonous;
+        [StarData] public bool PhysicalTraitFertile;
+        [StarData] public bool PhysicalTraitLessFertile;
+        [StarData] public bool PhysicalTraitSmart;
+        [StarData] public bool PhysicalTraitDumb;
+        [StarData] public bool PhysicalTraitReflexes;
+        [StarData] public bool PhysicalTraitPonderous;
+        [StarData] public bool PhysicalTraitSavage;
+        [StarData] public bool PhysicalTraitTimid;
+        [StarData] public bool SociologicalTraitEfficient;
+        [StarData] public bool SociologicalTraitWasteful;
+        [StarData] public bool SociologicalTraitIndustrious;
+        [StarData] public bool SociologicalTraitLazy;
+        [StarData] public bool SociologicalTraitMercantile;
+        [StarData] public bool SociologicalTraitMeticulous;
+        [StarData] public bool SociologicalTraitCorrupt;
+        [StarData] public bool SociologicalTraitSkilledEngineers;
+        [StarData] public bool SociologicalTraitHaphazardEngineers;
+        [StarData] public bool HistoryTraitAstronomers;
+        [StarData] public bool HistoryTraitCybernetic;
+        [StarData] public bool HistoryTraitManifestDestiny;
+        [StarData] public bool HistoryTraitMilitaristic;
+        [StarData] public bool HistoryTraitNavalTraditions;
+        [StarData] public bool HistoryTraitPackMentality;
+        [StarData] public bool HistoryTraitPrototypeFlagship;
+        [StarData] public bool HistoryTraitSpiritual;
+        [StarData] public bool HistoryTraitPollutedHomeWorld;
+        [StarData] public bool HistoryTraitIndustrializedHomeWorld;
+        [StarData] public bool HistoryTraitDuplicitous;
+        [StarData] public bool HistoryTraitHonest;
+        [StarData] public bool HistoryTraitHugeHomeWorld;
+        [StarData] public bool HistoryTraitSmallHomeWorld;
+
+
+        // RacialTraits.xml
+        [StarData] public int TraitName;
+        [XmlIgnore] public LocalizedText LocalizedName => new(TraitName);
         [StarData] public string Category;
         [StarData] public int Cost;
+        [StarData] public int Description;
+        [StarData] public int Excludes;
+
+        // individual trait effects defined in RacialTraits.xml
+        [StarData] public float SpyMultiplier;
         [StarData] public float ConsumptionModifier;
         [StarData] public float ReproductionMod;
         [StarData] public float PopGrowthMax;
@@ -64,64 +109,24 @@ namespace Ship_Game
         [StarData] public float ShipCostMod;
         [StarData] public float ModHpModifier;
         [StarData] public int SmallSize;
-        [StarData] public int HugeSize;
         [StarData] public float PassengerModifier = 1f;
         [StarData] public float PassengerBonus;
         [StarData] public bool Assimilators;
         [StarData] public float GroundCombatModifier;
         [StarData] public float RepairMod;
         [StarData] public int Cybernetic;
-
-        //Trait Booleans
-        [StarData] public bool PhysicalTraitAlluring;
-        [StarData] public bool PhysicalTraitRepulsive;
-        [StarData] public bool PhysicalTraitEagleEyed;
-        [StarData] public bool PhysicalTraitBlind;
-        [StarData] public bool PhysicalTraitEfficientMetabolism;
-        [StarData] public bool PhysicalTraitGluttonous;
-        [StarData] public bool PhysicalTraitFertile;
-        [StarData] public bool PhysicalTraitLessFertile;
-        [StarData] public bool PhysicalTraitSmart;
-        [StarData] public bool PhysicalTraitDumb;
-        [StarData] public bool PhysicalTraitReflexes;
-        [StarData] public bool PhysicalTraitPonderous;
-        [StarData] public bool PhysicalTraitSavage;
-        [StarData] public bool PhysicalTraitTimid;
-        [StarData] public bool SociologicalTraitEfficient;
-        [StarData] public bool SociologicalTraitWasteful;
-        [StarData] public bool SociologicalTraitIndustrious;
-        [StarData] public bool SociologicalTraitLazy;
-        [StarData] public bool SociologicalTraitMercantile;
-        [StarData] public bool SociologicalTraitMeticulous;
-        [StarData] public bool SociologicalTraitCorrupt;
-        [StarData] public bool SociologicalTraitSkilledEngineers;
-        [StarData] public bool SociologicalTraitHaphazardEngineers;
-
-        [StarData] public bool HistoryTraitAstronomers;
-        [StarData] public bool HistoryTraitCybernetic;
-        [StarData] public bool HistoryTraitManifestDestiny;
-        [StarData] public bool HistoryTraitMilitaristic;
-        [StarData] public bool HistoryTraitNavalTraditions;
-        [StarData] public bool HistoryTraitPackMentality;
-        [StarData] public bool HistoryTraitPrototypeFlagship;
-        [StarData] public bool HistoryTraitSpiritual;
-        [StarData] public bool HistoryTraitPollutedHomeWorld;
-        [StarData] public bool HistoryTraitIndustrializedHomeWorld;
-        [StarData] public bool HistoryTraitDuplicitous;
-        [StarData] public bool HistoryTraitHonest;
-        [StarData] public bool HistoryTraitHugeHomeWorld;
-        [StarData] public bool HistoryTraitSmallHomeWorld;
-
-        // Pointless variables
-        [StarData] public int Aquatic;
-        [StarData] public int Burrowers;
         [StarData] public float SpyModifier;
 
-        [StarData] public float ResearchTaxMultiplier = 1;
-        [StarData] public bool TaxGoods;
-        [StarData] public bool SmartMissiles;
-        [StarData] public int TerraformingLevel;  // FB from 0 to 3
-        [StarData] public float EnemyPlanetInhibitionPercentCounter;  // FB - from 0 to 0.75
+        // for flavor text: is this species aquatic?
+        [StarData] public int Aquatic;
+
+        [StarData] public float ResearchTaxMultiplier = 1; // set by difficulty
+        [StarData] public bool TaxGoods; // unlocked by tech
+        [StarData] public bool SmartMissiles; // unlocked by tech
+        [StarData] public int TerraformingLevel;  // unlocked by tech, FB from 0 to 3
+        [StarData] public float EnemyPlanetInhibitionPercentCounter;  // unlocked by tech, FB - from 0 to 0.75
+
+        // MISC wrappers
 
         public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
         public float MaintMultiplier => 1f + MaintMod; // Ex: 1.25
@@ -246,7 +251,7 @@ namespace Ship_Game
                 {
                     PassengerBonus = trait.PassengerBonus;
                 }
-                if (HistoryTraitManifestDestiny &&  trait.PassengerModifier > 1)
+                if (HistoryTraitManifestDestiny && trait.PassengerModifier > 1)
                 {
                     PassengerModifier = trait.PassengerModifier;
                 }
