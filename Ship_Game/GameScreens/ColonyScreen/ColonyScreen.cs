@@ -14,7 +14,7 @@ namespace Ship_Game
     public partial class ColonyScreen : PlanetScreen
     {
         public Planet P;
-        public UniverseState Universe => P.Universe;
+        public UniverseState Universe;
         readonly ToggleButton PlayerDesignsToggle;
         readonly Menu2 TitleBar;
         readonly Vector2 TitlePos;
@@ -116,6 +116,7 @@ namespace Ship_Game
             int governorTabSelected = 0, int facilitiesTabSelected = 0) : base(parent)
         {
             P = p;
+            Universe = p.Universe;
             Eui = empUI;
             Player = empUI.Player;
             Player.UpdateShipsWeCanBuild();

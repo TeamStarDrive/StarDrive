@@ -205,7 +205,7 @@ public partial class ShipDesign
     // this is used exclusively by colony screen build ships list
     public bool IsBuildableByPlayer(Empire player)
     {
-        return IsValidDesign && !IsCarrierOnly && !ShipRole.Protected
+        return IsValidDesign && !IsUnitTestShip && !IsCarrierOnly && !ShipRole.Protected
             && (player.Universe.P.ShowAllDesigns || IsPlayerDesign);
     }
 
