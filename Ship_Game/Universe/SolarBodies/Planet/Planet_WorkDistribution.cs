@@ -133,7 +133,7 @@ namespace Ship_Game
                 return;
 
             Res.Percent = 0;
-            if (Owner.IsCybernetic)
+            if (IsCybernetic)
                 AssignOtherWorldsWorkers(0, 1, 0, 1);
             else
                 AssignOtherWorldsWorkers(0.5f, 0.5f, 1 ,1);
