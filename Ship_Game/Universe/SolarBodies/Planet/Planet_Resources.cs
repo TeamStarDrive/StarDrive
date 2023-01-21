@@ -100,10 +100,10 @@ namespace Ship_Game
 
         public bool ShortOnFood()
         {
-            if (Owner?.IsFaction ?? true)
+            if (Owner == null || Owner.IsFaction)
                 return false;
 
-            if (Owner.NonCybernetic)
+            if (Owner is { NonCybernetic: true })
             {
                 if (TurnsToEmptyStorage(Food.NetIncome, FoodHere + IncomingFood) < AverageFoodImportTurns)
                     return true;
