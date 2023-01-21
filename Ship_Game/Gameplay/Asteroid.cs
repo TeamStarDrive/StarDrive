@@ -97,7 +97,9 @@ namespace Ship_Game.Gameplay
 
                 CurrentSpin += SpinSpeed * timeStep.FixedTime;
                 UpdatePosition(systemPos);
-                So.AffineTransform(new(Position, -500f), CurrentSpin, Scale);
+
+                // check for null here, because another thread might be Removing the scene object
+                So?.AffineTransform(new(Position, -500f), CurrentSpin, Scale);
             }
             else
             {
