@@ -115,14 +115,13 @@ namespace Ship_Game
 
         void TryPopulateBuildableShips()
         {
-            IShipDesign[] buildableShips;
+            IShipDesign[] buildableShips = Empty<IShipDesign>.Array;
 
             // enable all ships in the sandbox
-            if (P.Universe.Debug && P.Universe.Screen is DeveloperUniverse)
+            if (Universe.Debug && Universe.Screen is DeveloperUniverse)
                 buildableShips = ResourceManager.Ships.Designs.ToArr();
-            else
-                buildableShips = P.Owner.ShipsWeCanBuild
-                    .Filter(ship => ship.IsBuildableByPlayer(P.Universe.Player) && !ship.Name.StartsWith("TEST_"));
+            else if (P.Owner != null)
+                buildableShips = P.Owner.ShipsWeCanBuild.Filter(ship => ship.IsBuildableByPlayer(Universe.Player));
             
             string filter = FilterBuildableItems.Text.ToLower();
             if (filter.IsEmpty() && FilterItemsText.NotEmpty())
