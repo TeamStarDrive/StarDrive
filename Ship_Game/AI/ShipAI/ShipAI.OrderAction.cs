@@ -228,11 +228,6 @@ namespace Ship_Game.AI
             AddWayPoint(position, finalDir, AIState.MoveTo, order, 0f, null);
         }
 
-        public void OrderMoveTo(Vector2 position, Vector2 finalDir, AIState wantedState, MoveOrder order, float speedLimit)
-        {
-            AddWayPoint(position, finalDir, wantedState, order, speedLimit, null);
-        }
-
         // DO NOT ADD MORE ARGUMENTS. USE `MoveOrder` FLAGS INSTEAD.
         public void OrderMoveTo(Vector2 position, Vector2 finalDir, AIState wantedState,
                                 MoveOrder order = MoveOrder.Regular, Goal goal = null)
