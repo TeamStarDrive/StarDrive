@@ -212,7 +212,7 @@ public class AutoUpdateChecker : UIElementContainer
     ReleaseInfo? GetLatestVersionInfoGitHub(string modName, string url, bool isMod)
     {
         string jsonText = DownloadWithCancel(url, AsyncTask, timeout: TimeSpan.FromSeconds(30));
-        if (AsyncTask.IsCancelRequested)
+        if (AsyncTask is { IsCancelRequested: true })
             return null;
 
         dynamic latestRelease = new JavaScriptSerializer().DeserializeObject(jsonText);
@@ -240,7 +240,7 @@ public class AutoUpdateChecker : UIElementContainer
     ReleaseInfo? GetLatestVersionInfoBitBucket(string modName, string url, bool isMod)
     {
         string jsonText = DownloadWithCancel(url, AsyncTask, timeout: TimeSpan.FromSeconds(30));
-        if (AsyncTask.IsCancelRequested)
+        if (AsyncTask is { IsCancelRequested: true })
             return null;
 
         dynamic downloads = new JavaScriptSerializer().DeserializeObject(jsonText);
@@ -282,7 +282,7 @@ public class AutoUpdateChecker : UIElementContainer
     {
         using WebClient wc = CreateWebClient((sender, e) =>
         {
-            if (cancellableTask.IsCancelRequested && sender is WebClient webClient)
+            if (cancellableTask is { IsCancelRequested: true } && sender is WebClient webClient)
                 webClient.CancelAsync();
         });
 
@@ -301,7 +301,7 @@ public class AutoUpdateChecker : UIElementContainer
         int lastPercent = -1;
         using WebClient wc = CreateWebClient((sender, e) =>
         {
-            if (cancellableTask.IsCancelRequested && sender is WebClient webClient)
+            if (cancellableTask is { IsCancelRequested: true } && sender is WebClient webClient)
                 webClient.CancelAsync();
             else if (onProgressPercent != null && e != null)
             {
@@ -336,7 +336,7 @@ public class AutoUpdateChecker : UIElementContainer
             for (int timeoutMs = (int)timeout.TotalMilliseconds; timeoutMs > 0; timeoutMs -= 100)
             {
                 if (task.Wait(100)) return;
-                if (cancellableTask.IsCancelRequested) break;
+                if (cancellableTask is { IsCancelRequested: true }) break;
             }
         }
         catch (AggregateException e)
@@ -344,7 +344,7 @@ public class AutoUpdateChecker : UIElementContainer
             throw e.InnerException ?? e;
         }
 
-        if (cancellableTask.IsCancelRequested)
+        if (cancellableTask is { IsCancelRequested: true })
             throw new OperationCanceledException("Download Request cancelled");
         throw new TimeoutException("Download Request timed out");
     }
