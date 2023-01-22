@@ -52,7 +52,7 @@ public sealed partial class Empire
             foreach (SolarSystem sys in systemsWithFriends)
             {
                 // find planet with the most friendly ships orbiting it
-                Planet p = sys.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
+                Planet p = sys.PlanetList.FindMax(p => CountNearbyFriendlyShips(sys, p));
                 rallies.Add(p);
             }
 
@@ -143,6 +143,19 @@ public sealed partial class Empire
                 }
             }
         }
+    }
+
+    static int CountNearbyFriendlyShips(SolarSystem sys, Planet p)
+    {
+        int nearbyFriends = 0;
+        float inRadius = p.GravityWellRadius;
+        for (int i = 0; i < sys.ShipList.Count; ++i)
+        {
+            Ship s = sys.ShipList[i];
+            if (s.Loyalty == p.Owner && s.Position.InRadius(p.Position, inRadius))
+                ++nearbyFriends;
+        }
+        return nearbyFriends;
     }
 
     /// <summary>
