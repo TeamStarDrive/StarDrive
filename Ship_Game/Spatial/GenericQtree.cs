@@ -54,7 +54,8 @@ public partial class GenericQtree
     public string Name => "GenericQtree";
 
     /// <summary>
-    /// 
+    /// Creates a generic reusable Qtree where spatial object metadata is
+    /// stored in the GenericQtree and not in the spatial object itself
     /// </summary>
     /// <param name="universeWidth">Width of the searchable universe</param>
     /// <param name="cellThreshold">How many objects per Cell before subdividing it into 4 quads</param>

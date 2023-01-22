@@ -757,7 +757,6 @@ namespace Ship_Game
                 }
                 Explosions.ApplyPendingRemovals();
             }
-            P.ActiveCombats.ApplyPendingRemovals();
 
             base.Update(elapsedTime);
         }

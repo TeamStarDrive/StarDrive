@@ -16,6 +16,7 @@ using Rectangle = SDGraphics.Rectangle;
 using Matrix = SDGraphics.Matrix;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using GraphicsDeviceManager = Microsoft.Xna.Framework.GraphicsDeviceManager;
+#pragma warning disable CA2213
 
 namespace Ship_Game
 {
@@ -292,7 +293,7 @@ namespace Ship_Game
             lock (SceneInter)
             {
                 SceneInter.Unload();
-                LightSysManager.Unload(); // must be called on Graphics Device reset!
+                LightSysManager.Dispose(); // must be called on Graphics Device reset!
                 ActiveDynamicLights = 0;
             }
         }
@@ -332,8 +333,7 @@ namespace Ship_Game
                 SubmitPendingObjects(SceneInter.ObjectManager, PendingObjects);
                 SubmitPendingLights(SceneInter.LightManager, PendingLights);
 
-                GameSceneState.BeginFrameRendering(ref xnaView, ref xnaProj,
-                                                   elapsed.RealTime.Seconds, Environment, true);
+                GameSceneState.BeginFrameRendering(ref xnaView, ref xnaProj, elapsed.RealTime.Seconds, Environment, true);
                 SceneInter.BeginFrameRendering(GameSceneState);
             }
         }
@@ -707,15 +707,17 @@ namespace Ship_Game
 
         public void Dispose()
         {
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        ~ScreenManager() { Destroy(); }
+        ~ScreenManager() { Dispose(false); }
 
-        void Destroy()
+        void Dispose(bool disposing)
         {
             Mem.Dispose(ref SpriteBatch);
+            Mem.Dispose(ref LightSysManager);
+            PendingScreens.Dispose();
         }
     }
 }

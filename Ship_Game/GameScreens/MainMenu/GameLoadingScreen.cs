@@ -169,11 +169,11 @@ namespace Ship_Game
             }
         }
 
-        protected override void Destroy()
+        protected override void Dispose(bool disposing)
         {
             LoadingPlayer.Dispose();
             SplashPlayer.Dispose();
-            base.Destroy();
+            base.Dispose(disposing);
         }
     }
 }

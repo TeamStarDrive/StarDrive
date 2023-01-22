@@ -171,8 +171,7 @@ namespace Ship_Game
         public UniverseState Universe => ParentSystem.Universe;
 
         [StarData] public SBProduction Construction;
-        public BatchRemovalCollection<Combat> ActiveCombats = new();
-        public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new();
+        public Array<Combat> ActiveCombats = new();
         protected Array<Building> BuildingsCanBuild = new();
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;

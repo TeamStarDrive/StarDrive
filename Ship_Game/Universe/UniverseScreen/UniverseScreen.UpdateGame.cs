@@ -421,7 +421,7 @@ namespace Ship_Game
         }
 
         // Thread safe input queue for running UI input on empire thread
-        readonly SafeQueue<Action> PendingSimThreadActions = new SafeQueue<Action>();
+        readonly SafeQueue<Action> PendingSimThreadActions = new();
         
         /// <summary>
         /// Invokes all Pending actions. This should only be called from ProcessTurns !!!

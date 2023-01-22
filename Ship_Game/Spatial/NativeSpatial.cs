@@ -49,7 +49,7 @@ namespace Ship_Game.Spatial
 
         [DllImport(Lib)] static extern IntPtr SpatialCreate(SpatialType type, int worldSize, int cellSize, int cellSize2);
         [DllImport(Lib)] static extern void SpatialDestroy(IntPtr spatial);
-        
+
         [DllImport(Lib)] static extern IntPtr SpatialGetRoot(IntPtr spatial);
         [DllImport(Lib)] static extern SpatialType SpatialGetType(IntPtr spatial);
         [DllImport(Lib)] static extern int SpatialWorldSize(IntPtr spatial);
@@ -112,6 +112,7 @@ namespace Ship_Game.Spatial
             Spat = IntPtr.Zero;
             Root = IntPtr.Zero;
             SpatialDestroy(tree);
+            Lock.Dispose();
         }
 
         public void Clear()

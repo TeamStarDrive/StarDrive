@@ -20,7 +20,7 @@ namespace Ship_Game.Ships.AI
         }
     }
 
-    public class WayPoints
+    public class WayPoints : IDisposable
     {
         readonly SafeQueue<WayPoint> ActiveWayPoints = new();
         public int Count => ActiveWayPoints.Count;
@@ -57,6 +57,11 @@ namespace Ship_Game.Ships.AI
         public WayPoint[] ToArray()
         {
             return ActiveWayPoints.ToArray();
+        }
+
+        public void Dispose()
+        {
+            ActiveWayPoints.Dispose();
         }
     }
 

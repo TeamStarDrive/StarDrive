@@ -664,15 +664,16 @@ namespace Ship_Game
             Mem.Dispose(ref Shields);
         }
 
-        protected override void Destroy()
+        protected override void Dispose(bool disposing)
         {
             UnloadGraphics();
 
             Mem.Dispose(ref anomalyManager);
             Mem.Dispose(ref BombList);
+            PendingSimThreadActions.Dispose();
             NotificationManager?.Clear();
             SelectedShipList = new();
-            base.Destroy();
+            base.Dispose(disposing);
         }
 
         public override void ExitScreen()

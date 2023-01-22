@@ -9,12 +9,16 @@ namespace Ship_Game
 {
     public sealed class YouLoseScreen : GameScreen
     {
-        UniverseScreen Universe;
-        Effect desaturateEffect;
+        readonly UniverseScreen Universe;
         Rectangle Portrait;
         Rectangle SourceRect;
+
+        #pragma warning disable CA2213 // managed by content manager
+        Effect desaturateEffect;
         Texture2D LoseTexture;
         Texture2D Reason;
+        #pragma warning restore CA2213
+
         Rectangle ReasonRect;
         ReplayElement replay;
         AudioHandle Ambient = new();

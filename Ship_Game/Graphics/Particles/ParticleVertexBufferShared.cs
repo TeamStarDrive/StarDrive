@@ -7,7 +7,7 @@ namespace Ship_Game.Graphics.Particles;
 /// <summary>
 /// Shared data between ParticleVertexBuffer instances
 /// </summary>
-public class ParticleVertexBufferShared : IDisposable
+public sealed class ParticleVertexBufferShared : IDisposable
 {
     // Index buffer turns sets of four vertices into particle quads (pairs of triangles).
     public IndexBuffer IndexBuffer;
