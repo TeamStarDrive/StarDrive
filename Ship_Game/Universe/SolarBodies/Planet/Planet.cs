@@ -132,9 +132,6 @@ namespace Ship_Game
         public IEnumerable<Troop> GetEmpireTroops(Empire empire, int maxToTake = int.MaxValue) 
             => Troops.GetLaunchableTroops(empire, maxToTake);
 
-        public SpatialObjectBase[] FindNearbyFriendlyShips()
-            => Universe.Spatial.FindNearby(GameObjectType.Ship, Position, GravityWellRadius, maxResults:128, onlyLoyalty:Owner);
-
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * Empire.RacialEnvModifer(Category, empire);
