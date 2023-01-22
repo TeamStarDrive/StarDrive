@@ -77,17 +77,17 @@ namespace Ship_Game
         {
             Log.Write(ConsoleColor.Green, "GraphicsDevice Reset");
         }
-        
+
         void GraphicsDevice_DeviceResetting(object sender, EventArgs e)
         {
             Log.Write(ConsoleColor.Green, "GraphicsDevice Resetting");
         }
-        
+
         void GraphicsDevice_DeviceLost(object sender, EventArgs e)
         {
             Log.Write(ConsoleColor.Green, "GraphicsDevice Lost");
         }
-        
+
         void GraphicsDevice_Disposing(object sender, EventArgs e)
         {
             Log.Write(ConsoleColor.Green, "GraphicsDevice Disposing");
@@ -102,7 +102,8 @@ namespace Ship_Game
 
         public void UpdatePreferences(LightingSystemPreferences preferences)
         {
-            SceneInter.ApplyPreferences(preferences);
+            lock (SceneInter)
+                SceneInter.ApplyPreferences(preferences);
         }
 
         public void UpdateViewports()
@@ -254,42 +255,46 @@ namespace Ship_Game
             }
         }
 
-        public void RemoveAllObjects()
+        public void RemoveAllLights(LightRigIdentity identity = LightRigIdentity.Unknown)
         {
-            PendingObjects.Clear();
-            SceneInter.ObjectManager.Clear();
-        }
-
-        public void RemoveAllLights()
-        {
-            AssignLightRig(LightRigIdentity.Unknown, null);
+            AssignLightRig(identity, null);
         }
 
         public void AssignLightRig(LightRigIdentity identity, LightRig rig)
         {
-            LightRigIdentity = identity;
-            SceneInter.LightManager.Clear();
-            PendingLights.Clear();
-            ActiveDynamicLights = 0;
+            lock (SceneInter)
+            {
+                LightRigIdentity = identity;
+                SceneInter.LightManager.Clear();
+                PendingLights.Clear();
+                ActiveDynamicLights = 0;
 
-            if (rig != null)
-                SceneInter.LightManager.Submit(rig);
+                if (rig != null)
+                    SceneInter.LightManager.Submit(rig);
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////
 
         public void ClearScene()
         {
-            RemoveAllObjects();
-            RemoveAllLights();
+            lock (SceneInter)
+            {
+                PendingObjects.Clear();
+                SceneInter.ObjectManager.Clear();
+                RemoveAllLights();
+            }
         }
 
         // This must be called when Graphics Device is reset!
         public void UnloadSceneObjects()
         {
-            SceneInter.Unload();
-            LightSysManager.Unload(); // must be called on Graphics Device reset!
-            ActiveDynamicLights = 0;
+            lock (SceneInter)
+            {
+                SceneInter.Unload();
+                LightSysManager.Unload(); // must be called on Graphics Device reset!
+                ActiveDynamicLights = 0;
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////
@@ -298,14 +303,20 @@ namespace Ship_Game
         {
             if (!IsMainThread)
                 ErrorMustBeOnMainThread(nameof(UpdateSceneObjects));
-            SceneInter.Update(deltaTime);
+            lock (SceneInter)
+            {
+                SceneInter.Update(deltaTime);
+            }
         }
 
         public void RenderSceneObjects()
         {
             if (!IsMainThread)
                 ErrorMustBeOnMainThread(nameof(RenderSceneObjects));
-            SceneInter.RenderManager.Render();
+            lock (SceneInter)
+            {
+                SceneInter.RenderManager.Render();
+            }
         }
 
         public void BeginFrameRendering(DrawTimes elapsed, ref Matrix view, ref Matrix projection)
@@ -313,22 +324,30 @@ namespace Ship_Game
             if (!IsMainThread)
                 ErrorMustBeOnMainThread(nameof(BeginFrameRendering));
 
-            SubmitPendingObjects(SceneInter.ObjectManager, PendingObjects);
-            SubmitPendingLights(SceneInter.LightManager, PendingLights);
-
             XnaMatrix xnaView = view;
             XnaMatrix xnaProj = projection;
-            GameSceneState.BeginFrameRendering(ref xnaView, ref xnaProj,
-                                               elapsed.RealTime.Seconds, Environment, true);
-            SceneInter.BeginFrameRendering(GameSceneState);
+
+            lock (SceneInter)
+            {
+                SubmitPendingObjects(SceneInter.ObjectManager, PendingObjects);
+                SubmitPendingLights(SceneInter.LightManager, PendingLights);
+
+                GameSceneState.BeginFrameRendering(ref xnaView, ref xnaProj,
+                                                   elapsed.RealTime.Seconds, Environment, true);
+                SceneInter.BeginFrameRendering(GameSceneState);
+            }
         }
 
         public void EndFrameRendering()
         {
             if (!IsMainThread)
                 ErrorMustBeOnMainThread(nameof(EndFrameRendering));
-            SceneInter.EndFrameRendering();
-            GameSceneState.EndFrameRendering();
+
+            lock (SceneInter)
+            {
+                SceneInter.EndFrameRendering();
+                GameSceneState.EndFrameRendering();
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////
@@ -408,8 +427,7 @@ namespace Ship_Game
 
             if (clear3DObjects)
             {
-                RemoveAllObjects();
-                RemoveAllLights();
+                ClearScene();
             }
         }
 
