@@ -82,9 +82,12 @@ public struct Vector3 : IEquatable<Vector3>
     }
 
     [Pure] public readonly float Length() => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
-    
+
     // Narrows this Vector3 to a Vector2, the Z component is truncated
     [Pure] public readonly Vector2 ToVec2() => new(X, Y);
+
+    // Returns true if any of the components IsNaN
+    [Pure] public readonly bool IsNaN() => float.IsNaN(X) || float.IsNaN(Y) || float.IsNaN(Z);
 
     [Pure]
     public readonly Vector3 Normalized(float newMagnitude)

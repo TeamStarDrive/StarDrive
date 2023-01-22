@@ -25,6 +25,8 @@ namespace Ship_Game.Commands.Goals
         {
             Build = new(shipUid);
             StaticBuildPos = buildPos;
+            if (buildPos.IsNaN())
+                Log.Error($"NaN StaticBuildPos={buildPos}");
         }
 
         protected void Initialize(string shipUid, Vector2 buildPos, Planet planet, Vector2 offset)
@@ -32,6 +34,8 @@ namespace Ship_Game.Commands.Goals
             Initialize(shipUid, buildPos);
             TetherPlanet = planet;
             TetherOffset = offset;
+            if (offset.IsNaN())
+                Log.Error($"NaN TetherOffset={offset}");
         }
 
         public override Vector2 BuildPosition
