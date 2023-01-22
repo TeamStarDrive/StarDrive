@@ -75,7 +75,7 @@ namespace Ship_Game.Ships
 
             public Vector2 WorldPos2D =>
                 Thruster.GetPosition(Vector2.Zero, 0, Vector3.Down, Position).ToVec2();
-            
+
             public float WorldRadius => Scale / 8f;
 
             public void SetWorldPos2D(Vector2 worldPos)
@@ -104,7 +104,7 @@ namespace Ship_Game.Ships
         public bool LoadModel(out SceneObject shipSO, GameContentManager content)
         {
             shipSO = null;
-            lock (this)
+            lock (HullSlots)
             {
                 // The mesh is cached by content manager
                 StaticMesh mesh = StaticMesh.LoadMesh(content, ModelPath, Animated);

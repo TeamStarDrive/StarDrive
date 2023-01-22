@@ -18,7 +18,7 @@ public class TextureBinding
     public readonly string Name;
     readonly int X, Y;
     public readonly int Width, Height;
-    readonly TextureAtlas Atlas;
+    readonly TextureAtlas Atlas; // always non-null
     readonly string SourcePath;
 
     public TextureBinding(TextureAtlas atlas, TextureInfo t)
@@ -41,12 +41,19 @@ public class TextureBinding
 
         if (UnpackedPath == null) // texture is packed into atlas
         {
-            SubTex = new(Name, X, Y, Width, Height, Atlas.GetAtlasTexture(), SourcePath);
+            lock (Atlas)
+            {
+                if (UnpackedPath == null) // double-check locking
+                {
+                    Thread.MemoryBarrier();
+                    SubTex = new(Name, X, Y, Width, Height, Atlas.GetAtlasTexture(), SourcePath);
+                }
+            }
         }
         // load the unpacked texture if we already didn't
         else if (Texture == null)
         {
-            lock (this)
+            lock (Atlas)
             {
                 if (Texture == null) // double-check locking
                 {

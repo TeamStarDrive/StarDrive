@@ -16,7 +16,7 @@ using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
 // TODO: Rename into something else. This now supports animations, trying to unify the clusterfk of XNA models
-public class StaticMesh : IDisposable
+public sealed class StaticMesh : IDisposable
 {
     public string Name { get; set; }
 
@@ -39,17 +39,17 @@ public class StaticMesh : IDisposable
         Radius = bounds.Radius();
     }
 
-    ~StaticMesh() { Destroy(); }
+    ~StaticMesh() { Dispose(false); }
 
     public bool IsDisposed => ModelMeshes == null && RawMeshes.IsEmpty;
 
     public void Dispose()
     {
-        Destroy();
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    void Destroy()
+    void Dispose(bool disposing)
     {
         RawMeshes.ClearAndDispose();
         if (ModelMeshes != null)

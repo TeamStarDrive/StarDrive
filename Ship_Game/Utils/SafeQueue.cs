@@ -486,13 +486,13 @@ namespace Ship_Game.Utils
 
         public void Dispose()
         {
-            Destroy(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        ~SafeQueue() { Destroy(false); }
+        ~SafeQueue() { Dispose(false); }
 
-        void Destroy(bool force)
+        void Dispose(bool force)
         {
             Count = 0;
             if (force)
@@ -500,13 +500,15 @@ namespace Ship_Game.Utils
                 var itemAdded = ItemAdded;
                 if (itemAdded != null)
                 {
-                    if (itemAdded.SafeWaitHandle.IsClosed == false)
+                    if (!itemAdded.SafeWaitHandle.IsClosed)
                     {
                         ItemAdded = null;
                         itemAdded.Set();
+                        itemAdded.Dispose();
                     }
                 }
             }
+            ThisLock.Dispose();
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);

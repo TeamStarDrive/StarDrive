@@ -1655,8 +1655,6 @@ namespace Ship_Game
 
         void Dispose(bool disposing)
         {
-            Mem.Dispose(ref ActiveCombats);
-            Mem.Dispose(ref OrbitalDropList);
             Construction = null;
             Storage = null;
             Troops = null;

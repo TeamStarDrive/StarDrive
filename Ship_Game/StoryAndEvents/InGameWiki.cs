@@ -59,7 +59,7 @@ namespace Ship_Game
             RectF textSlRect = new(CategoriesRect.X + CategoriesRect.W + 5, CategoriesRect.Y + 10, 375, 420);
             HelpEntries = Add(new UITextBox(textSlRect, useBorder:false));
             TextRect = new(HelpCategories.X + HelpCategories.Width + 5, HelpCategories.Y + 10, 375, 420);
-            
+
             ResetActiveTopic();
 
             SmallViewer = new(TextRect.X + 20, TextRect.Y + 40, 336, 189);
@@ -125,7 +125,7 @@ namespace Ship_Game
                 Player.Visible = true;
             }
         }
-        
+
         void OnPlayerStatusChanged()
         {
             Player.Rect = Player.IsPlaying ? BigViewer : SmallViewer;
@@ -167,6 +167,14 @@ namespace Ship_Game
         {
             Player.Stop();
             base.ExitScreen();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+            Player.Dispose();
+            base.Dispose(disposing); // sets IsDisposed = true
         }
     }
 }

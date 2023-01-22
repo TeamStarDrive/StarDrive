@@ -1,26 +1,25 @@
 ﻿using System;
 using System.Threading;
 
-namespace Ship_Game.Utils
+namespace Ship_Game.Utils;
+
+public sealed class ThreadSafeRandom : RandomBase, IDisposable
 {
-    public class ThreadSafeRandom : RandomBase, IDisposable
+    // NOTE: This is really fast
+    readonly ThreadLocal<Random> Randoms;
+    protected override Random Rand => Randoms.Value;
+
+    public ThreadSafeRandom() : this(0)
     {
-        // NOTE: This is really fast
-        readonly ThreadLocal<Random> Randoms;
-        protected override Random Rand => Randoms.Value;
+    }
 
-        public ThreadSafeRandom() : this(0)
-        {
-        }
+    public ThreadSafeRandom(int seed) : base(seed)
+    {
+        Randoms = new ThreadLocal<Random>(() => new Random(Seed));
+    }
 
-        public ThreadSafeRandom(int seed) : base(seed)
-        {
-            Randoms = new ThreadLocal<Random>(() => new Random(Seed));
-        }
-
-        public void Dispose()
-        {
-            Randoms?.Dispose();
-        }
+    public void Dispose()
+    {
+        Randoms?.Dispose();
     }
 }

@@ -12,11 +12,15 @@ namespace Ship_Game
     {
         UniverseScreen Universe;
         string txt;
-        Effect desaturateEffect;
         Rectangle Portrait;
         Rectangle SourceRect;
+
+        #pragma warning disable CA2213 // managed by content manager
+        Effect desaturateEffect;
         Texture2D LoseTexture;
         Texture2D Reason;
+        #pragma warning restore CA2213
+
         Rectangle ReasonRect;
         ReplayElement replay;
         float MusicCheckTimer;

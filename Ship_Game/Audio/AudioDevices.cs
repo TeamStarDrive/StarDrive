@@ -148,7 +148,6 @@ public sealed class AudioDevices : IDisposable
     readonly AudioNotificationClient Notifications;
     readonly SafeQueue<DeviceEvent> Events = new();
 
-
     public AudioDevices()
     {
         Notifications = new(this);
@@ -159,7 +158,9 @@ public sealed class AudioDevices : IDisposable
     public void Dispose()
     {
         Enumerator?.UnregisterEndpointNotificationCallback(Notifications);
+        Enumerator?.Dispose();
         Enumerator = null;
+        Events.Dispose();
     }
 
     enum EventType

@@ -40,8 +40,6 @@ namespace Ship_Game
         public int NumTroopsCanLaunchFor(Empire empire) => TroopsHere.Count(t => t.Loyalty == empire && t.CanLaunch);
         public int NumTroopsCanMoveFor(Empire empire) => GetTroopsOf(empire).Count(t => t.CanMove);
 
-        private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
-
         private float DecisionTimer;
         private float InCombatTimer;
         private int NumInvadersLast;
@@ -386,22 +384,22 @@ namespace Ship_Game
 
         private void ResolveTacticalCombats(FixedSimTime timeStep, bool isViewing = false)
         {
-            using (ActiveCombats.AcquireReadLock())
-                for (int i = ActiveCombats.Count - 1; i >= 0; i--)
+            var combats = Ground.ActiveCombats;
+            for (int i = combats.Count - 1; i >= 0; i--)
+            {
+                Combat combat = combats[i];
+                if (combat.Done)
                 {
-                    Combat combat = ActiveCombats[i];
-                    if (combat.Done)
-                    {
-                        ActiveCombats.QueuePendingRemoval(combat);
-                        break;
-                    }
-
-                    combat.Timer -= timeStep.FixedTime;
-                    if (combat.Timer < 3.0 && combat.Phase == 1)
-                        combat.ResolveDamage(isViewing);
-                    else if (combat.Phase == 2)
-                        ActiveCombats.QueuePendingRemoval(combat);
+                    combats.Remove(combat);
+                    break;
                 }
+
+                combat.Timer -= timeStep.FixedTime;
+                if (combat.Timer < 3.0 && combat.Phase == 1)
+                    combat.ResolveDamage(isViewing);
+                else if (combat.Phase == 2)
+                    combats.Remove(combat);
+            }
         }
 
         private void ResolveDiplomacy(int invadingForces, Array<Empire> invadingEmpires)
@@ -443,13 +441,12 @@ namespace Ship_Game
             }
 
             bool combatBeingResolved = false;
-            if (ActiveCombats.Count > 0)
+            if (Ground.ActiveCombats.Count > 0)
             {
                 startCombatTimer    = true;
                 combatBeingResolved = true;
             }
 
-            ActiveCombats.ApplyPendingRemovals();
             var forces = new Forces(Owner, Ground);
             ResolveDiplomacy(forces.InvadingForces, forces.InvadingEmpires);
             NumInvadersLast = forces.InvadingForces;

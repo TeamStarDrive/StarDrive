@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+#pragma warning disable CA2231
 
 namespace Ship_Game.Ships;
 

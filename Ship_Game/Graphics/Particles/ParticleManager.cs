@@ -11,6 +11,8 @@ namespace Ship_Game.Graphics.Particles;
 
 public sealed class ParticleManager : IDisposable
 {
+    // these are disposed via `Tracked` array
+    #pragma warning disable CA2213
     public IParticle BeamFlash;
     public IParticle Explosion;
     public IParticle PhotonExplosion;
@@ -38,6 +40,7 @@ public sealed class ParticleManager : IDisposable
     public IParticle IonRing;
     public IParticle IonRingReversed;
     public IParticle Bubble;
+    #pragma warning restore CA2213
 
     readonly GameContentManager Content;
     readonly Array<IParticle> Tracked = new();

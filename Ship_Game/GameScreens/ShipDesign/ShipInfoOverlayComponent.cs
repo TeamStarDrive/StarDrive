@@ -5,10 +5,11 @@ using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
+#pragma warning disable CA1001
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
-    public class ShipInfoOverlayComponent : UIElementV2
+    public sealed class ShipInfoOverlayComponent : UIElementV2
     {
         readonly GameScreen Screen;
         readonly UniverseState Universe;
