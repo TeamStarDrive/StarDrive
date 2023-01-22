@@ -36,6 +36,9 @@ namespace Ship_Game
             }
 
             CreateForegroundStars(universeSize);
+
+            // sort by texture to avoid unnecessary texture switching
+            BGItems.Sort(item => item.SubTex.Name);
         }
 
         static BackgroundItem CreateBGItem(in RectF r, float zDepth, SubTexture nebTexture)
