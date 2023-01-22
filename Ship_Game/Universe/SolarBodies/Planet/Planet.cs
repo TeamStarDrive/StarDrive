@@ -108,7 +108,7 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => Troops.NumTroopsHere(us);
         public int GetDefendingTroopCount()     => Troops.NumDefendingTroopCount;
 
-        public bool Safe => !MightBeAWarZone(Owner) && !Quarantine;
+        public bool Safe => !Quarantine && !MightBeAWarZone(Owner);
 
         public int NumTroopsCanLaunchFor(Empire empire) => Troops.NumTroopsCanLaunchFor(empire);
 
