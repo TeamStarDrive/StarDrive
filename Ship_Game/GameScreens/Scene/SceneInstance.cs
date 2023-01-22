@@ -61,8 +61,7 @@ namespace Ship_Game.GameScreens.Scene
                 Intensity = AmbientIntensity,
             }, dynamic:false);
 
-            screen.SetViewMatrix(Matrix.CreateLookAt(CameraPos, LookAt, Vector3.Down));
-            screen.SetPerspectiveProjection(maxDistance: 35000);
+            screen.SetViewPerspective(Matrix.CreateLookAt(CameraPos, LookAt, Vector3.Down), maxDistance: 35000);
 
             // always reload because we might have switched mods (which unloaded the content)
             FTLManager.LoadContent(screen, reload:true);

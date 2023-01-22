@@ -73,6 +73,9 @@ public struct Vector3d
     [Pure] public readonly Vector2d ToVec2d() => new(X, Y);
     [Pure] public readonly double Length() => Math.Sqrt(X*X + Y*Y + Z*Z);
 
+    // Returns true if any of the components IsNaN
+    [Pure] public readonly bool IsNaN() => double.IsNaN(X) || double.IsNaN(Y) || double.IsNaN(Z);
+
     [Pure] public readonly Vector3d Normalized(double newMagnitude)
     {
         double len = Math.Sqrt(X*X + Y*Y + Z*Z) / newMagnitude;
