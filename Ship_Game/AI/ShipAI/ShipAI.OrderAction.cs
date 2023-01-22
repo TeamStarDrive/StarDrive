@@ -228,11 +228,6 @@ namespace Ship_Game.AI
             AddWayPoint(position, finalDir, AIState.MoveTo, order, 0f, null);
         }
 
-        public void OrderMoveTo(Vector2 position, Vector2 finalDir, AIState wantedState, MoveOrder order, float speedLimit)
-        {
-            AddWayPoint(position, finalDir, wantedState, order, speedLimit, null);
-        }
-
         // DO NOT ADD MORE ARGUMENTS. USE `MoveOrder` FLAGS INSTEAD.
         public void OrderMoveTo(Vector2 position, Vector2 finalDir, AIState wantedState,
                                 MoveOrder order = MoveOrder.Regular, Goal goal = null)
@@ -354,7 +349,7 @@ namespace Ship_Game.AI
             if (clearOrders)
                 ClearOrders(State, HasPriorityOrder);
 
-            Planet closest = Owner.Loyalty.RallyShipYardNearestTo(Owner.Position);
+            Planet closest = Owner.Loyalty.FindNearestSpacePort(Owner.Position);
             if (closest != null)
             {
                 ResupplyTarget = closest;
@@ -662,7 +657,7 @@ namespace Ship_Game.AI
                 return; // Drones never go to resupply, using hull role in case someone makes a drone module which changes the DesignRole
             }
 
-            Planet nearestRallyPoint = Owner.Loyalty.RallyShipYardNearestTo(Owner.Position);
+            Planet nearestRallyPoint = Owner.Loyalty.FindNearestSpacePort(Owner.Position);
             DecideWhereToResupply(nearestRallyPoint, cancelOrders: cancelOrders);
         }
 
@@ -700,79 +695,36 @@ namespace Ship_Game.AI
             AddOrbitPlanetGoal(toOrbit);
         }
 
-        bool SetAwaitClosestForSystemToDefend()
+        Planet GetAwaitClosest()
         {
-            if (SystemToDefend == null || SystemToDefend.PlanetList.IsEmpty)
-                return false;
-            AwaitClosest = SystemToDefend.PlanetList[0];
-            return true;
-        }
-
-        bool SetAwaitClosestForFaction()
-        {
-            if (!Owner.Loyalty.IsFaction)
-                return false;
-
-            AwaitClosest = Owner.System?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
-
-            if (AwaitClosest == null)
+            Planet closest = null;
+            if (SystemToDefend != null && SystemToDefend.PlanetList.NotEmpty)
             {
-                var ships = Owner.Loyalty.OwnedShips;
-                var solarSystem = ships.FindMinFiltered(ships.Count, ship => ship.System != null,
-                                     ship => Owner.Position.SqDist(ship.Position))?.System;               
-
-                AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
-                if (AwaitClosest == null)
-                {
-                    var system = Owner.Universe.Systems.FindMin(ss =>
-                                 Owner.Position.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
-                    AwaitClosest = system?.PlanetList.FindClosestTo(Owner);
-                }
-                if (AwaitClosest == null)
-                {
-                    AwaitClosest = Owner.Universe.Planets.FindMin(p =>
-                        p.Position.SqDist(Owner.Position));
-                }
+                closest = SystemToDefend.PlanetList[0];
+                if (closest != null)
+                    return closest;
             }
-            return AwaitClosest != null;
 
-        }
-
-        bool SetAwaitClosestForPlayer()
-        {
-            if (!Owner.Loyalty.isPlayer)
-                return false;
-
-            AwaitClosest = Owner.Loyalty.GetPlanets().FindMin(p => Owner.Position.SqDist(p.Position));
-            return AwaitClosest != null;
-        }
-
-        bool SetAwaitClosestForAIEmpire()
-        {
-            if (Owner.Loyalty.IsFaction || Owner.Loyalty.isPlayer)
-                return false;
-
-            SolarSystem home = Owner.System?.OwnerList.Contains(Owner.Loyalty) != true? null : Owner.System;
-            if (home == null)
+            Empire e = Owner.Loyalty;
+            
+            if (!e.IsFaction && !e.isPlayer)
             {
-                AwaitClosest = Owner.Loyalty.GetBestNearbyPlanetToOrbitForAI(Owner);
+                SolarSystem currentFriendlySys = Owner.System?.OwnerList.Contains(e) != true ? null : Owner.System;
+                if (currentFriendlySys != null)
+                    closest = e.FindNearestRallyPlanetInSystem(Owner.Position, currentFriendlySys);
 
-                if (AwaitClosest == null) //Find any system with no owners and planets.
-                {
-                    var system = Owner.Universe.Systems.FindMin(ss =>
-                               Owner.Position.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
-                    if (system == null)
-                        return false;
+                if (closest != null)
+                    return closest;
+            }
 
-                    AwaitClosest = system.PlanetList.FindClosestTo(Owner);
-                }
-            }
-            else
-            {
-                AwaitClosest = home.PlanetList.FindMinFiltered(p => p.Owner == Owner.Loyalty
-                                                             , p => p.Position.SqDist(Owner.Position));
-            }
-            return AwaitClosest != null;
+            // Empire.UpdateRallyPoints() handles the logic for setting up rally points
+            closest = e.FindNearestRallyPoint(Owner.Position);
+
+            // this should never be null! if this happens, then UpdateRallyPoints() has a regression
+            if (closest == null)
+                Log.Error($"GetAwaitClosest returned null, Empire={e.Name}");
+
+            return closest;
         }
 
         void DoAwaitOrders(FixedSimTime timeStep, ShipGoal goal)
@@ -785,7 +737,7 @@ namespace Ship_Game.AI
 
         void AwaitOrdersAIControlled(FixedSimTime timeStep)
         {
-            if (Owner.IsPlatformOrStation) 
+            if (Owner.IsPlatformOrStation || Owner.IsSubspaceProjector) 
                 return;
 
             if (Owner.ShipData.IsCarrierOnly)
@@ -814,11 +766,8 @@ namespace Ship_Game.AI
                     AwaitClosest = null;
             }
 
-            if (AwaitClosest != null
-                || SetAwaitClosestForSystemToDefend() 
-                || SetAwaitClosestForFaction()
-                || SetAwaitClosestForPlayer()
-                || SetAwaitClosestForAIEmpire()) 
+            AwaitClosest ??= GetAwaitClosest();
+            if (AwaitClosest != null) 
             {
                 Orbit.Orbit(AwaitClosest, timeStep);
             }

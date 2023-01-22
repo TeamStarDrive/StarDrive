@@ -179,8 +179,7 @@ namespace Ship_Game
             lock (KillSync) // we need to sync here, because background thread can auto-terminate
             {
                 EvtNewTask.Set();
-                if (Thread == null)
-                    Thread = new Thread(Run) { Name = Name };
+                Thread ??= new Thread(Run) { Name = Name };
                 if (!Thread.IsAlive)
                     Thread.Start();
             }
@@ -191,8 +190,8 @@ namespace Ship_Game
                 throw new InvalidOperationException("ParallelTask is still running");
             RangeTask = taskBody;
             LoopStart = start;
-            LoopEnd   = end;
-            Result    = result;
+            LoopEnd = end;
+            Result = result;
             TriggerTaskStart();
         }
         public void Start(Action taskBody, ITaskResult result)
@@ -200,7 +199,7 @@ namespace Ship_Game
             if (HasTasksToExecute())
                 throw new InvalidOperationException("ParallelTask is still running");
             VoidTask = taskBody;
-            Result   = result;
+            Result = result;
             TriggerTaskStart();
         }
         public void Start(Func<object> taskBody, ITaskResult result)
@@ -208,7 +207,7 @@ namespace Ship_Game
             if (HasTasksToExecute())
                 throw new InvalidOperationException("ParallelTask is still running");
             ResultTask = taskBody;
-            Result     = result;
+            Result = result;
             TriggerTaskStart();
         }
         void SetResult(object value, Exception e)
@@ -244,7 +243,7 @@ namespace Ship_Game
                 {
                     if (RangeTask != null)
                     {
-                        RangeTask(LoopStart, LoopEnd);
+                        RangeTask.Invoke(LoopStart, LoopEnd);
                         SetResult(null, null);
                     }
                     else if (VoidTask != null)
@@ -347,7 +346,7 @@ namespace Ship_Game
             return newTask;
         }
 
-        static TaskResult StartRangeTask(ref int poolIndex, int start, int end,  Action<int, int> body)
+        static TaskResult StartRangeTask(ref int poolIndex, int start, int end, Action<int, int> body)
         {
             var result = new TaskResult();
             lock (Pool)

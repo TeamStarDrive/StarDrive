@@ -44,7 +44,12 @@ namespace Ship_Game
                 {
                     Universe = CreateTask.Result;
                     CreateTask = null;
-                    ScreenManager.GoToScreen(Universe, clear3DObjects:false);
+
+                    // if Universe creation fails, go back to main menu
+                    if (Universe == null)
+                        ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
+                    else
+                        ScreenManager.GoToScreen(Universe, clear3DObjects:false);
                     return;
                 }
             }

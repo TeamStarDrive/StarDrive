@@ -55,6 +55,9 @@ namespace Ship_Game.Ships
 
         public ResupplyReason Resupply()
         {
+            if (!Ship.HasCommand)
+                return ResupplyReason.NoCommand;
+
             if (Ship.DesignRole == RoleName.construction 
                 || Ship.IsSingleTroopShip
                 || Ship.IsSupplyShuttle
@@ -64,8 +67,6 @@ namespace Ship_Game.Ships
             }
 
             InCombat = Ship.AI.BadGuysNear || Ship.AI.State == AIState.Bombard;
-            if (!Ship.HasCommand)
-                return ResupplyReason.NoCommand;
 
             if (HangarShipReactorsDamaged())
                 return ResupplyReason.FighterReactorsDamaged;

@@ -81,7 +81,8 @@ namespace Ship_Game
 
             if (CloudEffect != null)
             {
-                batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true);
+                if (!batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true))
+                    return; // something really bad happened
                 CloudEffect.Begin();
                 CloudPos -= ((movement * 0.3f) * 1f);
                 CloudEffectPos.SetValue(CloudPos);
