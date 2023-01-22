@@ -48,8 +48,7 @@ namespace Ship_Game.GameScreens.Scene
         public void Initialize(GameScreen screen)
         {
             Screen = screen;
-            screen.ScreenManager.RemoveAllLights();
-            screen.ScreenManager.LightRigIdentity = LightRigIdentity.MainMenu;
+            screen.ScreenManager.RemoveAllLights(LightRigIdentity.MainMenu);
 
             // TODO: some issue with directional lights
             //AddDirectionalLight("Scene Sun", SunColor, SunIntensity, SunPos, SunTarget);
