@@ -628,6 +628,7 @@ namespace Ship_Game
 
             Research.Initialize();
             InitEmpireUnlocks();
+            UpdateRallyPoints();
         }
 
         // initializes an empire
