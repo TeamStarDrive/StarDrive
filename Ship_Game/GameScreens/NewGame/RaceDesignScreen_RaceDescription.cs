@@ -183,63 +183,69 @@ namespace Ship_Game
         {
             RaceSummary.ShipType = traits.ShipType;
             Picker.CurrentColor  = traits.Color;
-            FlagIndex            = traits.FlagIndex;
-            RaceName             = traits.Name;
-            Singular             = traits.Singular;
-            Plural               = traits.Plural;
-            HomeSysName          = traits.HomeSystemName;
-            HomeWorldName        = traits.HomeworldName;
-            TotalPointsUsed      = 8;
+            FlagIndex = traits.FlagIndex;
+            RaceName = traits.Name;
+            Singular = traits.Singular;
+            Plural = traits.Plural;
+            HomeSysName = traits.HomeSystemName;
+            HomeWorldName = traits.HomeworldName;
+            TotalPointsUsed = 8;
 
-            foreach (TraitEntry t in AllTraits)
+            // because RacialTrait is used in both `Races/MyRace.xml` and in `RacialTraits/RacialTraits.xml`
+            // this monstrocity is needed to figure out which TraitEntry are selected by MyRace `traits`
+            foreach (TraitEntry traitEntry in AllTraits)
             {
-                t.Selected = false;
+                traitEntry.Selected = false;
+                RacialTrait tEnt = traitEntry.trait;
+
                 //Added by McShooterz: Searches for new trait tags
-                if ((traits.ConsumptionModifier > 0f || traits.PhysicalTraitGluttonous) && t.trait.ConsumptionModifier > 0f 
-                    || t.trait.ConsumptionModifier < 0f && (traits.ConsumptionModifier < 0f || traits.PhysicalTraitEfficientMetabolism)
-                    || (traits.DiplomacyMod > 0f || traits.PhysicalTraitAlluring) && t.trait.DiplomacyMod > 0f 
-                    || t.trait.DiplomacyMod < 0f && (traits.DiplomacyMod < 0f || traits.PhysicalTraitRepulsive)
-                    || (traits.EnergyDamageMod > 0f || traits.PhysicalTraitEagleEyed) && t.trait.EnergyDamageMod > 0f
-                    || t.trait.EnergyDamageMod < 0f && (traits.EnergyDamageMod < 0f || traits.PhysicalTraitBlind)
-                    || (traits.MaintMod > 0f || traits.SociologicalTraitWasteful) && t.trait.MaintMod > 0f 
-                    || t.trait.MaintMod < 0f && (traits.MaintMod < 0f || traits.SociologicalTraitEfficient)
-                    || (traits.PopGrowthMax > 0f || traits.PhysicalTraitLessFertile) && t.trait.PopGrowthMax > 0f 
-                    || (traits.PopGrowthMin > 0f || traits.PhysicalTraitFertile) && t.trait.PopGrowthMin > 0f 
-                    || (traits.ResearchMod > 0f || traits.PhysicalTraitSmart) && t.trait.ResearchMod > 0f 
-                    || t.trait.ResearchMod < 0f && (traits.ResearchMod < 0f || traits.PhysicalTraitDumb)
-                    || t.trait.ShipCostMod < 0f && (traits.ShipCostMod < 0f || traits.HistoryTraitNavalTraditions) 
-                    || (traits.TaxMod > 0f || traits.SociologicalTraitMeticulous) && t.trait.TaxMod > 0f 
-                    || t.trait.TaxMod < 0f && (traits.TaxMod < 0f || traits.SociologicalTraitCorrupt)
-                    || (traits.ProductionMod > 0f || traits.SociologicalTraitIndustrious) && t.trait.ProductionMod > 0f 
-                    || t.trait.ProductionMod < 0f && (traits.ProductionMod < 0f || traits.SociologicalTraitLazy)
-                    || (traits.ModHpModifier > 0f || traits.SociologicalTraitSkilledEngineers) && t.trait.ModHpModifier > 0f 
-                    || t.trait.ModHpModifier < 0f && (traits.ModHpModifier < 0f || traits.SociologicalTraitHaphazardEngineers)
-                    || (traits.Mercantile > 0f || traits.SociologicalTraitMercantile) && t.trait.Mercantile > 0f  
-                    || (traits.GroundCombatModifier > 0f || traits.PhysicalTraitSavage) && t.trait.GroundCombatModifier > 0f 
-                    || t.trait.GroundCombatModifier < 0f && (traits.GroundCombatModifier < 0f || traits.PhysicalTraitTimid)
-                    || (traits.Cybernetic > 0 || traits.HistoryTraitCybernetic) && t.trait.Cybernetic > 0 
-                    || (traits.DodgeMod > 0f || traits.PhysicalTraitReflexes) && t.trait.DodgeMod > 0f 
-                    || t.trait.DodgeMod < 0f && (traits.DodgeMod < 0f || traits.PhysicalTraitPonderous) 
-                    || (traits.HomeworldSizeMod > 0f || traits.HistoryTraitHugeHomeWorld) && t.trait.HomeworldSizeMod > 0f 
-                    || t.trait.HomeworldSizeMod < 0f && (traits.HomeworldSizeMod < 0f || traits.HistoryTraitSmallHomeWorld)
-                    || t.trait.HomeworldFertMod < 0f && (traits.HomeworldFertMod < 0f || traits.HistoryTraitPollutedHomeWorld) && t.trait.HomeworldRichMod == 0f
-                    || t.trait.HomeworldFertMod < 0f && (traits.HomeworldRichMod > 0f || traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
-                    || (traits.Militaristic > 0 || traits.HistoryTraitMilitaristic) && t.trait.Militaristic > 0 
-                    || (traits.PassengerModifier > 1 || traits.HistoryTraitManifestDestiny) && t.trait.PassengerModifier > 1
-                    || (traits.PassengerBonus > 0 || traits.HistoryTraitManifestDestiny) && t.trait.PassengerBonus > 0
-                    || (traits.BonusExplored > 0 || traits.HistoryTraitAstronomers) && t.trait.BonusExplored > 0 
-                    || (traits.Spiritual > 0f || traits.HistoryTraitSpiritual) && t.trait.Spiritual > 0f 
-                    || (traits.Prototype > 0 || traits.HistoryTraitPrototypeFlagship) && t.trait.Prototype > 0 
-                    || (traits.Pack || traits.HistoryTraitPackMentality) && t.trait.Pack 
-                    || (traits.SpyMultiplier > 0f || traits.HistoryTraitDuplicitous) && t.trait.SpyMultiplier > 0f 
-                    || (traits.SpyMultiplier < 0f || traits.HistoryTraitHonest) && t.trait.SpyMultiplier < 0f)
+                // checks for Physical/Sociological/Historical trait flag, but also checks for
+                // the modifier itself for handling saved race designs which don't set these flags
+                if ((traits.ConsumptionModifier > 0f || traits.PhysicalTraitGluttonous) && tEnt.ConsumptionModifier > 0f 
+                    || tEnt.ConsumptionModifier < 0f && (traits.ConsumptionModifier < 0f || traits.PhysicalTraitEfficientMetabolism)
+                    || (traits.DiplomacyMod > 0f || traits.PhysicalTraitAlluring) && tEnt.DiplomacyMod > 0f 
+                    || tEnt.DiplomacyMod < 0f && (traits.DiplomacyMod < 0f || traits.PhysicalTraitRepulsive)
+                    || (traits.EnergyDamageMod > 0f || traits.PhysicalTraitEagleEyed) && tEnt.EnergyDamageMod > 0f
+                    || tEnt.EnergyDamageMod < 0f && (traits.EnergyDamageMod < 0f || traits.PhysicalTraitBlind)
+                    || (traits.MaintMod > 0f || traits.SociologicalTraitWasteful) && tEnt.MaintMod > 0f 
+                    || tEnt.MaintMod < 0f && (traits.MaintMod < 0f || traits.SociologicalTraitEfficient)
+                    || (traits.PopGrowthMax > 0f || traits.PhysicalTraitLessFertile) && tEnt.PopGrowthMax > 0f 
+                    || (traits.PopGrowthMin > 0f || traits.PhysicalTraitFertile) && tEnt.PopGrowthMin > 0f 
+                    || (traits.ResearchMod > 0f || traits.PhysicalTraitSmart) && tEnt.ResearchMod > 0f 
+                    || tEnt.ResearchMod < 0f && (traits.ResearchMod < 0f || traits.PhysicalTraitDumb)
+                    || tEnt.ShipCostMod < 0f && (traits.ShipCostMod < 0f || traits.HistoryTraitNavalTraditions) 
+                    || (traits.TaxMod > 0f || traits.SociologicalTraitMeticulous) && tEnt.TaxMod > 0f 
+                    || tEnt.TaxMod < 0f && (traits.TaxMod < 0f || traits.SociologicalTraitCorrupt)
+                    || (traits.ProductionMod > 0f || traits.SociologicalTraitIndustrious) && tEnt.ProductionMod > 0f 
+                    || tEnt.ProductionMod < 0f && (traits.ProductionMod < 0f || traits.SociologicalTraitLazy)
+                    || (traits.ModHpModifier > 0f || traits.SociologicalTraitSkilledEngineers) && tEnt.ModHpModifier > 0f 
+                    || tEnt.ModHpModifier < 0f && (traits.ModHpModifier < 0f || traits.SociologicalTraitHaphazardEngineers)
+                    || (traits.Mercantile > 0f || traits.SociologicalTraitMercantile) && tEnt.Mercantile > 0f  
+                    || (traits.GroundCombatModifier > 0f || traits.PhysicalTraitSavage) && tEnt.GroundCombatModifier > 0f 
+                    || tEnt.GroundCombatModifier < 0f && (traits.GroundCombatModifier < 0f || traits.PhysicalTraitTimid)
+                    || (traits.Cybernetic > 0 || traits.HistoryTraitCybernetic) && tEnt.Cybernetic > 0 
+                    || (traits.DodgeMod > 0f || traits.PhysicalTraitReflexes) && tEnt.DodgeMod > 0f 
+                    || tEnt.DodgeMod < 0f && (traits.DodgeMod < 0f || traits.PhysicalTraitPonderous) 
+                    || (traits.HomeworldSizeMod > 0f || traits.HistoryTraitHugeHomeWorld) && tEnt.HomeworldSizeMod > 0f 
+                    || tEnt.HomeworldSizeMod < 0f && (traits.HomeworldSizeMod < 0f || traits.HistoryTraitSmallHomeWorld)
+                    || tEnt.HomeworldFertMod < 0f && (traits.HomeworldFertMod < 0f || traits.HistoryTraitPollutedHomeWorld) && tEnt.HomeworldRichMod == 0f
+                    || tEnt.HomeworldFertMod < 0f && (traits.HomeworldRichMod > 0f || traits.HistoryTraitIndustrializedHomeWorld) && tEnt.HomeworldRichMod != 0f
+                    || (traits.Militaristic > 0 || traits.HistoryTraitMilitaristic) && tEnt.Militaristic > 0 
+                    || (traits.PassengerModifier > 1 || traits.HistoryTraitManifestDestiny) && tEnt.PassengerModifier > 1
+                    || (traits.PassengerBonus > 0 || traits.HistoryTraitManifestDestiny) && tEnt.PassengerBonus > 0
+                    || (traits.BonusExplored > 0 || traits.HistoryTraitAstronomers) && tEnt.BonusExplored > 0 
+                    || (traits.Spiritual > 0f || traits.HistoryTraitSpiritual) && tEnt.Spiritual > 0f 
+                    || (traits.Prototype > 0 || traits.HistoryTraitPrototypeFlagship) && tEnt.Prototype > 0 
+                    || (traits.Pack || traits.HistoryTraitPackMentality) && tEnt.Pack 
+                    || (traits.SpyMultiplier > 0f || traits.HistoryTraitDuplicitous) && tEnt.SpyMultiplier > 0f 
+                    || (traits.SpyMultiplier < 0f || traits.HistoryTraitHonest) && tEnt.SpyMultiplier < 0f)
                 {
-                    t.Selected = true;
-                    TotalPointsUsed -= t.trait.Cost;
+                    traitEntry.Selected = true;
+                    TotalPointsUsed -= tEnt.Cost;
                 }
 
-                if (t.Selected)
-                    SetExclusions(t);
+                if (traitEntry.Selected)
+                    SetExclusions(traitEntry);
             }
             DoRaceDescription();
         }

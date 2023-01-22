@@ -169,7 +169,6 @@ namespace Ship_Game
         [StarData] public Array<string> ObsoletePlayerShipModules;
 
         public int AtWarCount;
-        public Planet[] RallyPoints = Empty<Planet>.Array;
 
         public const string DefaultBoardingShuttleName = "Assault Shuttle";
         public const string DefaultSupplyShuttleName   = "Supply Shuttle";
@@ -193,11 +192,6 @@ namespace Ship_Game
         public bool IsGeneralists                => data.EconomicPersonality?.Name == "Generalists";
         public bool IsMilitarists                => data.EconomicPersonality?.Name == "Militarists";
         public bool IsTechnologists              => data.EconomicPersonality?.Name == "Technologists";
-
-        public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
-        public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
-        Planet[] SafePlanets => OwnedPlanets.Filter(p => p.Safe);
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -318,26 +312,6 @@ namespace Ship_Game
                 ship.ShipStatusChanged = true;
         }
 
-        public Planet FindNearestRallyPoint(Vector2 location)
-        {
-            return  RallyPoints.FindMinFiltered(p=> p.Owner == this, p => p.Position.SqDist(location))
-                ?? OwnedPlanets.FindMin(p => p.Position.SqDist(location));
-        }
-
-        public Planet FindNearestSafeRallyPoint(Vector2 location)
-        {
-            return SafePlanets.FindMin(p => p.Position.SqDist(location))
-                ?? OwnedPlanets.FindMin(p => p.Position.SqDist(location));
-        }
-
-        public Planet RallyShipYardNearestTo(Vector2 position)
-        {
-            return RallyPoints.FindMinFiltered(p => p.HasSpacePort,
-                                               p => position.SqDist(p.Position))
-                ?? SpacePorts.FindMin(p => position.SqDist(p.Position))
-                ?? FindNearestRallyPoint(position);
-        }
-
         public bool GetCurrentCapital(out Planet capital)
         {
             capital      = null;
@@ -370,143 +344,6 @@ namespace Ship_Game
             return DefaultSupplyShuttleName;
         }
 
-        public bool FindClosestSpacePort(Vector2 position, out Planet closest)
-        {
-            closest = SpacePorts.FindMin(p => p.Position.SqDist(position));
-            return closest != null;
-        }
-
-        /// <summary>
-        /// checks planets for shortest time to build.
-        /// port quality says how average a port can be.
-        /// 1 is above average. 0.2 is below average.
-        /// the default is below average. not recommended to set above 1 but you can.
-        /// </summary>
-        public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, IShipDesign ship, out Planet chosen, float priority = 1f)
-        {
-            if (ports.Count != 0)
-            {
-                float cost = ship.GetCost(this);
-                chosen = FindPlanetToBuildAt(ports, cost, ship, priority);
-                return chosen != null;
-            }
-
-            if (NumPlanets != 0)
-                Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
-            chosen = null;
-            return false;
-        }
-
-        public bool FindPlanetToBuildTroopAt(IReadOnlyList<Planet> ports, Troop troop, float priority, out Planet chosen)
-        {
-            if (ports.Count != 0)
-            {
-                float cost = troop.ActualCost;
-                chosen = FindPlanetToBuildAt(ports, cost, sData: null, priority);
-                return chosen != null;
-            }
-
-            if (NumPlanets != 0)
-                Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {troop} at! Candidates:{ports.Count}");
-            chosen = null;
-            return false;
-        }
-
-        Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, IShipDesign sData, float priority = 1f)
-        {
-            // focus on the best producing planets (number depends on the empire size)
-            if (GetBestPorts(ports, out Planet[] bestPorts))
-                return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, priority, sData));
-
-            return null;
-        }
-
-        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, Ship ship, IShipDesign newShip, bool travelBack, out Planet planet)
-        {
-            planet = null;
-            int travelMultiplier = travelBack ? 2 : 1;
-
-            if (ports.Count == 0)
-                return false;
-
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip)
-                                        + ship.GetAstrogateTimeTo(p) * travelMultiplier);
-
-            return planet != null;
-        }
-
-        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, IShipDesign newShip, out Planet planet)
-        {
-            planet = null;
-            if (ports.Count == 0)
-                return false;
-
-            ports  = ports.Filter(p => !p.IsCrippled);
-            if (ports.Count == 0)
-                return false;
-
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip));
-            return planet != null;
-        }
-
-        public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(float portQuality) => GetBestPortsForShipBuilding(OwnedPlanets, portQuality);
-        public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(IReadOnlyList<Planet> ports, float portQuality)
-        {
-            if (ports == null) return Empty<Planet>.Array;
-            GetBestPorts(ports, out Planet[] bestPorts, portQuality);
-            return bestPorts?.Filter(p => p.HasSpacePort) ?? Empty<Planet>.Array;
-        }
-
-        bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts, float portQuality = 0.2f)
-        {
-            bestPorts = null;
-            // If all the ports are research colonies, do not filter them
-            bool filterResearchPorts = ports.Any(p => p.CType != Planet.ColonyType.Research);
-            if (ports.Count > 0)
-            {
-                float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
-                bestPorts            = ports.Filter(p => !p.IsCrippled
-                                                         && (p.CType != Planet.ColonyType.Research || !filterResearchPorts)
-                                                         && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
-            }
-
-            return bestPorts?.Length > 0;
-        }
-
-        public Planet GetOrbitPlanetAfterBuild(Planet builtAt)
-        {
-            if (GetBestPorts(SafeSpacePorts, out Planet[] bestPorts) && !bestPorts.Contains(builtAt))
-            {
-                return bestPorts.Sorted(p => p.Position.Distance(builtAt.Position)).First();
-            }
-
-            return builtAt;
-        }
-
-        public bool FindPlanetToScrapIn(Ship ship, out Planet planet)
-        {
-            planet = null;
-            if (OwnedPlanets.Count == 0)
-                return false;
-
-            if (!ship.BaseCanWarp)
-            {
-                planet = FindNearestRallyPoint(ship.Position);
-                if (planet == null || planet.Position.Distance(ship.Position) > 50000)
-                    ship.ScuttleTimer = 5;
-
-                return planet != null;
-            }
-
-            var scrapGoals = AI.FindGoals(g => g.Type == GoalType.ScrapShip);
-            var potentialPlanets = OwnedPlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).TakeItems(5);
-            if (potentialPlanets.Length == 0)
-                return false;
-
-            planet = potentialPlanets.FindMin(p => p.Position.Distance(ship.Position));
-            return planet != null;
-        }
-
         public float KnownEnemyStrengthIn(SolarSystem s, Empire e) => AI.ThreatMatrix.GetHostileStrengthAt(e, s.Position, s.Radius);
         public float KnownEnemyStrengthIn(SolarSystem s) => AI.ThreatMatrix.GetHostileStrengthAt(s.Position, s.Radius);
         public float KnownEmpireStrength(Empire e) => AI.ThreatMatrix.KnownEmpireStrength(e);
@@ -519,122 +356,6 @@ namespace Ship_Game
             float str = unlockedTroops.Max(troop => troop.StrengthMax);
             str      *= 1 + data.Traits.GroundCombatModifier;
             return (int)str.LowerBound(1);
-        }
-
-        public void SetRallyPoints()
-        {
-            Array<Planet> rallyPlanets;
-            // defeated empires and factions can use rally points now.
-            if (OwnedPlanets.Count == 0)
-            {
-                rallyPlanets = GetPlanetsNearStations();
-                if (rallyPlanets.Count == 0)
-                {
-                    Planet p = GetNearestUnOwnedPlanet();
-                    if (p != null)
-                        rallyPlanets.Add(p);
-                }
-
-                //super failSafe. just take any planet.
-                if (rallyPlanets.Count == 0)
-                    rallyPlanets.Add(Universe.Planets[0]);
-
-                RallyPoints = rallyPlanets.ToArray();
-                RallyPoints.Sort(rp => rp.ParentSystem.OwnerList.Count > 1);
-                return;
-            }
-
-            rallyPlanets = new Array<Planet>();
-            for (int i =0; i < OwnedPlanets.Count; i++)
-            {
-                Planet planet = OwnedPlanets[i];
-                if (planet.HasSpacePort && planet.Safe)
-                    rallyPlanets.Add(planet);
-            }
-
-            if (rallyPlanets.Count > 0)
-            {
-                RallyPoints = rallyPlanets.ToArray();
-                return;
-            }
-
-            // Could not find any planet with space port and with no enemies in sensor range
-            // So get the most producing planet and hope for the best
-            rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.Prod.GrossIncome));
-            RallyPoints = rallyPlanets.ToArray();
-            if (RallyPoints.Length == 0)
-                Log.Error("SetRallyPoint: No Planets found");
-        }
-
-        public Planet[] GetSafeAOCoreWorlds()
-        {
-            Planet[] nearAO = AI.AreasOfOperations
-                .FilterSelect(ao => ao.CoreWorld?.ParentSystem.OwnerList.Count == 1,
-                              ao => ao.CoreWorld);
-            return nearAO;
-        }
-
-        public Array<Planet> GetSafeAOWorlds()
-        {
-            var safeWorlds = new Array<Planet>();
-            for (int i = 0; i < AI.AreasOfOperations.Count; i++)
-            {
-                var ao = AI.AreasOfOperations[i];
-                var planets = ao.OurPlanets.Filter(p => p.ParentSystem.OwnerList.Count == 1);
-                safeWorlds.AddRange(planets);
-            }
-
-            return safeWorlds;
-        }
-
-        /// <summary>
-        /// Find nearest safe world to orbit.
-        /// first check AI coreworlds
-        /// then check ai area of operation worlds.
-        /// then check any planet in closest ao.
-        /// then just find a planet.
-        /// </summary>
-        public Planet GetBestNearbyPlanetToOrbitForAI(Ship ship)
-        {
-            Empire empire = ship.Loyalty;
-            var coreWorld = empire.GetSafeAOCoreWorlds().FindClosestTo(ship);
-            Planet home = coreWorld ?? empire.GetSafeAOWorlds().FindClosestTo(ship);
-
-            if (home == null)
-            {
-                var nearestAO = empire.AI.FindClosestAOTo(ship.Position);
-                if (nearestAO != null)
-                    home = nearestAO.OurPlanets.FindClosestTo(ship);
-            }
-
-            if (home == null)
-                home = Universe.Planets.FindMin(p => p.Position.Distance(ship.Position));
-
-            return home ?? empire.Capital;
-        }
-
-        Array<Planet> GetPlanetsNearStations()
-        {
-            var planets = new Array<Planet>();
-            foreach(var station in OwnedShips)
-            {
-                if (station.BaseHull.Role != RoleName.station
-                    && station.BaseHull.Role != RoleName.platform) continue;
-                if (station.IsTethered)
-                {
-                    planets.Add(station.GetTether());
-                    continue;
-                }
-
-                if (station.System == null) continue;
-                foreach(var planet in station.System.PlanetList)
-                {
-                    if (planet.Owner == null)
-                        planets.Add(planet);
-                }
-
-            }
-            return planets;
         }
 
         /// <summary>
@@ -678,17 +399,6 @@ namespace Ship_Game
             }
 
             return modifer;
-        }
-
-        public Planet GetNearestUnOwnedPlanet()
-        {
-            foreach(var s in Universe.Systems)
-            {
-                if (s.OwnerList.Count > 0) continue;
-                if (s.PlanetList.Count == 0) continue;
-                return s.PlanetList[0];
-            }
-            return null;
         }
 
         public void SetAsDefeated()
@@ -1245,7 +955,7 @@ namespace Ship_Game
                 DoMoney();
                 AssignNewHomeWorldIfNeeded();
                 TakeTurn(us);
-                SetRallyPoints();
+                UpdateRallyPoints();
 
                 didUpdate = true;
             }
@@ -2677,78 +2387,6 @@ namespace Ship_Game
                 if (p.Name == planetName)
                     return p;
             return null;
-        }
-
-        public AO EmpireAO()
-        {
-            Vector2 center = GetCenter();
-            float radius = 0;
-            if (OwnedPlanets.Count > 0)
-            {
-                var furthestSystem = OwnedSolarSystems.FindMax(s => s.Position.SqDist(center));
-                radius = furthestSystem.Position.Distance(center);
-            }
-            else
-            {
-                var furthest = OwnedShips.FindMax(s => s.Position.SqDist(center));
-                radius = furthest.Position.Distance(center);
-            }
-            return new AO(this, center, radius);
-        }
-
-        public SolarSystem FindFurthestOwnedSystemFrom(Vector2 position)
-        {
-            return OwnedSolarSystems.FindFurthestFrom(position);
-        }
-
-        public SolarSystem FindNearestOwnedSystemTo(Vector2 position)
-        {
-            return OwnedSolarSystems.FindClosestTo(position);
-        }
-
-        /// <summary>
-        /// Finds the nearest owned system to systems in list. Returns TRUE if found.
-        /// </summary>
-        public bool FindNearestOwnedSystemTo(IEnumerable<SolarSystem> systems, out SolarSystem nearestSystem)
-        {
-            nearestSystem  = null;
-            if (OwnedSolarSystems.Count == 0)
-                return false; // We do not have any system owned, maybe we are defeated
-
-            float distance = float.MaxValue;
-            foreach(SolarSystem system in systems)
-            {
-                var nearest = OwnedSolarSystems.FindClosestTo(system);
-                if (nearest == null) continue;
-                float approxDistance = WeightedCenter.SqDist(nearest.Position);
-                if (WeightedCenter.SqDist(nearest.Position) < distance)
-                {
-                    distance      = approxDistance;
-                    nearestSystem = nearest;
-                }
-            }
-            return nearestSystem != null;
-        }
-
-        public float MinDistanceToNearestOwnedSystemIn(IEnumerable<SolarSystem> systems, out SolarSystem nearestSystem)
-        {
-            nearestSystem = null;
-            if (OwnedSolarSystems.Count == 0)
-                return -1; // We do not have any system owned, maybe we are defeated
-
-            float distance = float.MaxValue;
-            foreach (SolarSystem system in systems)
-            {
-                var nearest = OwnedSolarSystems.FindClosestTo(system);
-                if (nearest == null) continue;
-                float testDistance = system.Position.Distance(nearest.Position);
-                if (testDistance < distance)
-                {
-                    distance = testDistance;
-                    nearestSystem = nearest;
-                }
-            }
-            return distance;
         }
 
         public void IncrementCordrazineCapture()

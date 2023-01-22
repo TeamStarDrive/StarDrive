@@ -324,7 +324,7 @@ namespace Ship_Game
 
         void DrawStorage(SpriteBatch batch)
         {
-            if (P.Owner.data.Traits.Cybernetic != 0)
+            if (P.IsCybernetic)
             {
                 FoodStorage.DrawGrayed(batch);
                 FoodDropDown.DrawGrayed(batch);
@@ -338,13 +338,13 @@ namespace Ship_Game
             ProdStorage.Draw(batch);
             ProdDropDown.Draw(batch);
             batch.Draw(ResourceManager.Texture("NewUI/icon_food"), FoodStorageIcon,
-                (P.Owner.NonCybernetic ? Color.White : new Color(110, 110, 110, 255)));
+                (P.NonCybernetic ? Color.White : new Color(110, 110, 110, 255)));
             batch.Draw(ResourceManager.Texture("NewUI/icon_production"), ProdStorageIcon, Color.White);
 
             if (FoodStorageIcon.HitTest(Screen.Input.CursorPosition))
             {
-                ToolTip.CreateTooltip(P.Owner.IsCybernetic ? GameText.YourPeopleAreCyberneticAnd
-                                                           : GameText.IndicatesTheAmountOfFood);
+                ToolTip.CreateTooltip(P.IsCybernetic ? GameText.YourPeopleAreCyberneticAnd
+                                                       : GameText.IndicatesTheAmountOfFood);
             }
 
             if (ProdStorageIcon.HitTest(Screen.Input.CursorPosition))

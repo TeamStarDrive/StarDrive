@@ -367,7 +367,7 @@ namespace Ship_Game.GameScreens.NewGame
         int StartingPositionCorners(ProgressCounter step)
         {
             float universeSize = UState.Size;
-            int whichCorner = Random.Int(0, 4); //So the player doesnt always end up in the same corner;
+            int whichCorner = Random.Int(0, 3); //So the player doesnt always end up in the same corner;
             foreach (SystemPlaceHolder sys in Systems)
             {
                 if (sys.IsStartingSystem || sys.DontStartNearPlayer)

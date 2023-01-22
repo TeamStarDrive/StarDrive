@@ -108,7 +108,7 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => Troops.NumTroopsHere(us);
         public int GetDefendingTroopCount()     => Troops.NumDefendingTroopCount;
 
-        public bool Safe => !MightBeAWarZone(Owner) && !Quarantine;
+        public bool Safe => !Quarantine && !MightBeAWarZone(Owner);
 
         public int NumTroopsCanLaunchFor(Empire empire) => Troops.NumTroopsCanLaunchFor(empire);
 
@@ -141,8 +141,8 @@ namespace Ship_Game
         public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * Empire.RacialEnvModifer(Category, empire);
         public float MaxBaseFertilityFor(Empire empire) => BaseMaxFertility * Empire.RacialEnvModifer(Category, empire);
 
-        public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
-        public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
+        public bool IsCybernetic  => Owner is { IsCybernetic: true };
+        public bool NonCybernetic => Owner is { NonCybernetic: true };
         public int TileArea       => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
 
         public float MaxPopulationBillion                   => MaxPopulation / 1000;

@@ -789,7 +789,7 @@ namespace Ship_Game
 
         string GetTroopsConsumptionText()
         {
-            string text = P.Owner.IsCybernetic
+            string text = P.IsCybernetic
                 ? Localizer.Token(GameText.ProductionConsumptionPerTurnFor) // Prod consumption for cybernetic troops
                 : Localizer.Token(GameText.FoodConsumptionPerTurnFor); // Food consumption for cybernetic troops
 
