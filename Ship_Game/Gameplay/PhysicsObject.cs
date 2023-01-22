@@ -64,7 +64,11 @@ namespace Ship_Game.Gameplay
                 Velocity = (float)Math.Sqrt(vx*vx + vy*vy);
                 VelocityDir = Velocity > 0.0001f ? new Vector2(vx/Velocity, vy/Velocity) : default;
 
-                Forward = rotation.RadiansToDirection();
+                // inline RadiansToDirection (speed optimization)
+                float s = (float)Math.Sin(rotation);
+                float c = (float)Math.Cos(rotation);
+                Forward = new(s, -c);
+                //Forward = rotation.RadiansToDirection();
                 Travel = VelocityDir.Dot(Forward);
 
                 MaxVelocity = maxVelocity;
@@ -107,7 +111,12 @@ namespace Ship_Game.Gameplay
         // if ThrustVector=0, this is equal to ship Forward Direction
         protected Vector2 GetThrustVector()
         {
-            Vector2 thrustDir = (Rotation + ThrustVector).RadiansToDirection();
+            // inline RadiansToDirection (speed optimization)
+            float rotation = Rotation + ThrustVector;
+            float s = (float)Math.Sin(rotation);
+            float c = (float)Math.Cos(rotation);
+            Vector2 thrustDir = new(s, -c);
+            //Vector2 thrustDir = (Rotation + ThrustVector).RadiansToDirection();
             return thrustDir;
         }
 
