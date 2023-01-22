@@ -97,10 +97,13 @@ namespace Ship_Game
             batch.SafeEnd();
         }
 
-        protected override void Destroy()
+        protected override void Dispose(bool disposing)
         {
+            if (IsDisposed)
+                return;
             Mem.Dispose(ref LoadingScreenTexture);
-            base.Destroy();
+            Mem.Dispose(ref BackgroundTask);
+            base.Dispose(disposing);
         }
     }
 }

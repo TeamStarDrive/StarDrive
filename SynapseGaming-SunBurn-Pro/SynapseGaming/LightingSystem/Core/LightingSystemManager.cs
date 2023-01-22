@@ -319,8 +319,7 @@ namespace SynapseGaming.LightingSystem.Core
 
         void Dispose(bool disposing)
         {
-            Content?.Dispose();
-            Content = null;
+            Disposable.Dispose(ref Content);
             GfxDeviceSupport = null;
             Disposable.Dispose(ref texture3D_0);
             Disposable.Dispose(ref texture2D_0);

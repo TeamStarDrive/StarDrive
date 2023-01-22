@@ -10,6 +10,7 @@ using SDUtils;
 using Sentry;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
+#pragma warning disable CA1060
 
 namespace Ship_Game
 {

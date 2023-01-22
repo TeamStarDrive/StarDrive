@@ -97,20 +97,22 @@ namespace Ship_Game
         // deferred renderer allows some basic commands to be queued up to be drawn. 
         // this is useful when wanted to draw from handle input routines and other areas. 
         public DeferredRenderer Renderer { get; }
-        
+
         // Thread safe queue for running UI commands
         readonly SafeQueue<Action> PendingActions = new();
 
         // If this is set, the universe was paused
         UniverseScreen PausedUniverse;
 
+        /// <summary>Game screen that is the same size as the current screen/window</summary>
         /// <param name="parent">Parent to this screen, or null</param>
         /// <param name="toPause">If not null, pauses the universe simulation until this screen finishes</param>
-        protected GameScreen(GameScreen parent, UniverseScreen toPause) 
+        protected GameScreen(GameScreen parent, UniverseScreen toPause)
             : this(parent, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), toPause)
         {
         }
 
+        /// <summary>Game screen with a specific size</summary>
         /// <param name="parent">Parent to this screen, or null</param>
         /// <param name="rect">Initial container rect for this screen</param>
         /// <param name="toPause">If not null, pauses the universe simulation until this screen finishes</param>
@@ -145,18 +147,21 @@ namespace Ship_Game
             Renderer = new DeferredRenderer(this, simTurnSource);
         }
 
-        ~GameScreen() { Destroy(); }
+        ~GameScreen() { Dispose(false); }
 
         public void Dispose()
         {
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Destroy()
+        protected virtual void Dispose(bool disposing)
         {
+            if (IsDisposed)
+                return;
             IsDisposed = true;
             Mem.Dispose(ref TransientContent);
+            PendingActions.Dispose();
         }
 
         // select size based on current res: Low, Normal, Hi

@@ -1142,10 +1142,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             base.Update(fixedDeltaTime);
         }
 
-        protected override void Destroy()
+        protected override void Dispose(bool disposing)
         {
             RacialVideo?.Dispose();
-            base.Destroy();
+            base.Dispose(disposing);
         }
 
         enum DialogState
