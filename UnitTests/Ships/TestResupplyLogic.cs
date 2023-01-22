@@ -42,6 +42,8 @@ namespace UnitTests.Ships
         public void ResupplyConditionOrdnanceNonCombat()
         {
             SpawnOurShip();
+            Player.UpdateRallyPoints(); // required for resupply tests
+
             ResupplyReason resupplyReason = OurShip.Supply.Resupply();
             Assert.IsTrue(resupplyReason == ResupplyReason.NotNeeded, "Ship should not need resupply, it is brand new");
 
@@ -68,6 +70,7 @@ namespace UnitTests.Ships
             SpawnOurShip();
             SpawnEnemyShip();
             Update(EnemyScanInterval);
+
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
             Assert.IsTrue(EnemyShip.InCombat, "ship should be in combat");
             float maxOrdnance = OurShip.OrdinanceMax;
@@ -92,11 +95,16 @@ namespace UnitTests.Ships
         public void ResupplyConditionNoCommand()
         {
             SpawnOurShip();
+            Player.UpdateRallyPoints(); // required for resupply tests
+
             ResupplyReason resupplyReason = OurShip.Supply.Resupply();
             Assert.IsTrue(resupplyReason == ResupplyReason.NotNeeded, "Ship should not need resupply, it is brand new");
 
-            ShipModule command = OurShip.Modules.Find(m => m.IsCommandModule); // Should have only 1 command module
-            command.Damage(OurShip, command.ActualMaxHealth);
+            // damage all command modules
+            ShipModule[] command = OurShip.Modules.Filter(m => m.IsCommandModule);
+            foreach (ShipModule cmd in command)
+                cmd.Damage(OurShip, cmd.ActualMaxHealth);
+
             Update(EnemyScanInterval);
             resupplyReason = OurShip.Supply.Resupply();
             Assert.IsTrue(resupplyReason == ResupplyReason.NoCommand, "Ship should need resupply since it has no command module");
