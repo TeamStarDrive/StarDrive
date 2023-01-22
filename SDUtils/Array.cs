@@ -637,6 +637,9 @@ namespace SDUtils
         public void AddRange(Array<T> collection)
         {
             int n = collection.Count;
+            if (n == 0)
+                return;
+
             int i = Count;
             Resize(i + n);
             collection.CopyTo(Items, i);
@@ -651,6 +654,9 @@ namespace SDUtils
         public void AddRange(IReadOnlyList<T> list)
         {
             int n = list.Count;
+            if (n == 0)
+                return;
+
             int i = Count;
             Resize(i + n);
 
@@ -668,6 +674,9 @@ namespace SDUtils
         public void AddRange<U>(Array<U> collection) where U : T
         {
             int n = collection.Count;
+            if (n == 0)
+                return;
+
             int i = Count;
             Resize(i + n);
             for (int x = 0; x < n; ++x)

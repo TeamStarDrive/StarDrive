@@ -84,7 +84,10 @@ public sealed partial class Empire
         // super failSafe, just take any planet.
         if (safeRallies.Count == 0)
         {
-            safeRallies.Add(OwnedPlanets.NotEmpty ? OwnedPlanets[0] : Universe.Planets[0]);
+            if (OwnedPlanets.NotEmpty)
+                safeRallies.Add(OwnedPlanets[0]);
+            else if (Universe.Planets.Count != 0)
+                safeRallies.Add(Universe.Planets[0]);
         }
 
         SafeRallyPoints = safeRallies.ToArray();
