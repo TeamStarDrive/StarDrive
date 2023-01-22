@@ -176,7 +176,7 @@ namespace Ship_Game
 
         void SetupCyberneticsWorkerAllocations() 
         {
-            if (Owner.IsCybernetic)
+            if (IsCybernetic)
             {
                 Food.Percent = 0;
                 Prod.Percent = 0.5f;

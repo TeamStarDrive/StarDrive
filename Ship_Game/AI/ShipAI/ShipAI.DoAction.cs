@@ -583,7 +583,7 @@ namespace Ship_Game.AI
             if (Owner.HomePlanet?.Owner != Owner.Loyalty)
             {
                 // find another friendly planet to land at
-                Owner.UpdateHomePlanet(Owner.Loyalty.RallyShipYardNearestTo(Owner.Position));
+                Owner.UpdateHomePlanet(Owner.Loyalty.FindNearestSpacePort(Owner.Position));
                 if (!Owner.IsHomeDefense // new home planet not found
                     || Owner.HomePlanet.ParentSystem != Owner.System && !Owner.BaseCanWarp) // Cannot warp and its in another system
                 {

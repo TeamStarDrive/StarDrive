@@ -68,8 +68,13 @@ namespace Ship_Game
                 return;
             }
 
-            ScreenManager.GraphicsDevice.Clear(Color.Black);
-            batch.SafeBegin();
+            if (!GameBase.Base.IsDeviceGood)
+                return; // device is unavailable
+
+            Device.Clear(Color.Black);
+            if (!batch.SafeBegin())
+                return; // something failed bad
+
             var artRect = new Rectangle(ScreenWidth / 2 - 960, ScreenHeight / 2 - 540, 1920, 1080);
             batch.Draw(LoadingImage, artRect, Color.White);
             var meterBar = new Rectangle(ScreenWidth / 2 - 150, ScreenHeight - 25, 300, 25);
@@ -80,7 +85,7 @@ namespace Ship_Game
                 Max = 100f,
                 Progress = percentLoaded * 100f
             };
-            pb.Draw(ScreenManager.SpriteBatch);
+            pb.Draw(batch);
 
             var cursor = new Vector2(ScreenCenter.X - 250f, meterBar.Y - Fonts.Arial12Bold.MeasureString(AdviceText).Y - 5f);
             batch.DrawString(Fonts.Arial12Bold, AdviceText, cursor, Color.White);

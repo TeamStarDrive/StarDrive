@@ -281,29 +281,39 @@ namespace Ship_Game
         public static float GetWidthFromHeightAspect(this Texture2D tex, float wantedHeight)
             => SubTexture.GetWidthFromHeightAspect(tex.Width, tex.Height, wantedHeight);
 
-        public static void SafeBegin(this SpriteBatch batch)
+        public static bool SafeBegin(this SpriteBatch batch)
         {
             try
             {
                 batch.Begin();
+                return true;
             }
             catch
             {
                 if (batch.SafeEnd())
+                {
                     batch.Begin();
+                    return true;
+                }
+                return false;
             }
         }
 
-        public static void SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode)
+        public static bool SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode)
         {
             try
             {
                 batch.Begin(blendMode);
+                return true;
             }
             catch
             {
                 if (batch.SafeEnd())
+                {
                     batch.Begin(blendMode);
+                    return true;
+                }
+                return false;
             }
         }
 
@@ -311,33 +321,43 @@ namespace Ship_Game
         /// <param name="blendMode">Sprite blending mode</param>
         /// <param name="sortImmediate">Sorts the sprites immediately. The default is false ("Deferred")</param>
         /// <param name="saveState">Save the previous graphics device state?</param>
-        public static void SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, bool sortImmediate, bool saveState = false)
+        public static bool SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, bool sortImmediate, bool saveState = false)
         {
             SpriteSortMode sortMode = sortImmediate ? SpriteSortMode.Immediate : SpriteSortMode.Deferred;
             SaveStateMode stateMode = saveState ? SaveStateMode.SaveState : SaveStateMode.None;
             try
             {
                 batch.Begin(blendMode, sortMode, stateMode);
+                return true;
             }
             catch
             {
                 if (batch.SafeEnd())
+                {
                     batch.Begin(blendMode, sortMode, stateMode);
+                    return true;
+                }
+                return false;
             }
         }
 
-        public static void SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, bool sortImmediate, bool saveState, in XnaMatrix transform)
+        public static bool SafeBegin(this SpriteBatch batch, SpriteBlendMode blendMode, bool sortImmediate, bool saveState, in XnaMatrix transform)
         {
             SpriteSortMode sortMode = sortImmediate ? SpriteSortMode.Immediate : SpriteSortMode.Deferred;
             SaveStateMode stateMode = saveState ? SaveStateMode.SaveState : SaveStateMode.None;
             try
             {
                 batch.Begin(blendMode, sortMode, stateMode, transform);
+                return true;
             }
             catch
             {
                 if (batch.SafeEnd())
+                {
                     batch.Begin(blendMode, sortMode, stateMode, transform);
+                    return true;
+                }
+                return false;
             }
         }
 

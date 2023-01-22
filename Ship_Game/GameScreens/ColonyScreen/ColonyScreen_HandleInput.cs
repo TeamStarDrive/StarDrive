@@ -197,7 +197,7 @@ namespace Ship_Game
             Planet nextOrPrevPlanet = planets[newIndex];
             if (nextOrPrevPlanet != P)
             {
-                P.Universe.Screen.workersPanel = new ColonyScreen(P.Universe.Screen, nextOrPrevPlanet, Eui,
+                Universe.Screen.workersPanel = new ColonyScreen(Universe.Screen, nextOrPrevPlanet, Eui,
                     GovernorDetails.CurrentTabIndex, PFacilitiesPlayerTabSelected);
             }
         }

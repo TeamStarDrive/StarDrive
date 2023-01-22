@@ -481,7 +481,7 @@ namespace Ship_Game
             BaseFertilityTerraformRatio = ratio;
         }
 
-        protected void AddEventsAndCommodities()
+        void AddEventsAndCommodities()
         {
             if (!Habitable)
                 return;

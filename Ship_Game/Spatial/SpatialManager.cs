@@ -76,7 +76,7 @@ namespace Ship_Game.Gameplay
                 for (int i = 0; i < allObjects.Length; ++i)
                     allObjects[i].SpatialIndex = -1;
 
-                Spatial.Clear();
+                Spatial?.Clear();
                 Spatial = ResetToNewSpatial;
                 ResetToNewSpatial = null;
 
@@ -85,14 +85,14 @@ namespace Ship_Game.Gameplay
             }
 
             UpdateTime.Start();
-            Spatial.UpdateAll(allObjects);
+            Spatial?.UpdateAll(allObjects);
             UpdateTime.Stop();
         }
 
         public void CollideAll(FixedSimTime timeStep, bool showCollisions)
         {
             CollisionTime.Start();
-            Collisions = Spatial.CollideAll(timeStep, showCollisions);
+            Collisions = Spatial?.CollideAll(timeStep, showCollisions) ?? 0;
             CollisionTime.Stop();
         }
 
