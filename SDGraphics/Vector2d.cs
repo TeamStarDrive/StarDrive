@@ -52,6 +52,9 @@ public struct Vector2d
     [Pure] public readonly Vector2 ToVec2fRounded() => new((float)Math.Round(X), (float)Math.Round(Y));
     [Pure] public readonly double Length() => Math.Sqrt(X*X + Y*Y);
 
+    // Returns true if any of the components IsNaN
+    [Pure] public readonly bool IsNaN() => double.IsNaN(X) || double.IsNaN(Y);
+
     [Pure] public readonly Vector2d Normalized()
     {
         double len = Math.Sqrt(X*X + Y*Y);

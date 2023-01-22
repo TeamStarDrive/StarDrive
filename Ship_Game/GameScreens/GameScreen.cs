@@ -90,7 +90,7 @@ namespace Ship_Game
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
 
-        public Matrix View; // @see SetViewMatrix
+        public Matrix View = Matrix.Identity; // @see SetViewMatrix
         public Matrix Projection; // @see SetPerspectiveProjection
         public Matrix ViewProjection; // View * Projection
 
@@ -515,7 +515,7 @@ namespace Ship_Game
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
         // Sets the View matrix and updates necessary variables to enable World <-> Screen coordinate conversion
         public void SetViewMatrix(in Matrix view)
         {
@@ -538,6 +538,13 @@ namespace Ship_Game
             UpdateWorldScreenProjection();
         }
 
+        // Sets the view matrix and perspective projection in one operation
+        public void SetViewPerspective(in Matrix view, double fovYdegrees = 45, double maxDistance = 5000.0)
+        {
+            View = view;
+            SetPerspectiveProjection(fovYdegrees: fovYdegrees, maxDistance: maxDistance);
+        }
+
         // visible rectangle in world coordinates
         public AABoundingBox2Dd VisibleWorldRect { get; private set; }
 
@@ -546,7 +553,7 @@ namespace Ship_Game
             View.Multiply(Projection, out ViewProjection);
             VisibleWorldRect = UnprojectToWorldRect(new AABoundingBox2D(0,0, Viewport.Width, Viewport.Height));
         }
-        
+
         public Vector2d ProjectToScreenPosition(Vector3d worldPos)
         {
             // NOTE: This is a more 
@@ -700,12 +707,18 @@ namespace Ship_Game
             Vector3d farPoint = Viewport.Unproject(new Vector3d(screenSpace, 1.0), Projection, View);
 
             // get the direction towards the world plane
-            Vector3d offset = (farPoint - nearPoint);
-            Vector3d dir = offset.Normalized();
+            Vector3d dir = (farPoint - nearPoint).Normalized();
 
-            double num = -nearPoint.Z / dir.Z;
-            Vector3d pos2 = (nearPoint + dir * num);
-            return pos2;
+            // FIX: potential failure point here, dir.Z might be 0
+            if (dir.Z.AlmostEqual(0.0, 0.000000001))
+            {
+                Log.Error($"UnprojectToWorldPosition3D dir.Z zero! dir={dir} screenPos={screenSpace}");
+                return new Vector3d(nearPoint.X, nearPoint.Y, 0.0);
+            }
+
+            // calculate distance of intersection point from nearPoint
+            double distance = -nearPoint.Z / dir.Z;
+            return nearPoint + (dir * distance);
         }
 
         public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)

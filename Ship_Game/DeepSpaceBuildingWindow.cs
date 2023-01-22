@@ -194,20 +194,33 @@ namespace Ship_Game
                     scale = 0.15f;
 
                 Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
+                Vector2 cursorPos = Screen.Input.CursorPosition;
                 TargetPlanet = null;
                 TetherOffset = Vector2.Zero;
                 foreach (UniverseScreen.ClickablePlanet p in Screen.ClickablePlanets)
                 {
-                    if (p.Planet.Position.Distance(cursorWorldPos) <= (2500f * p.Planet.Scale))
+                    Vector2 planetPos = p.Planet.Position;
+                    if (planetPos.Distance(cursorWorldPos) <= (2500f * p.Planet.Scale))
                     {
-                        TetherOffset = cursorWorldPos - p.Planet.Position;
-                        TargetPlanet = p.Planet;
-                        batch.DrawLine(p.ScreenPos, Screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
-                        batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + p.Planet.Name,
-                            new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);
+                        TetherOffset = cursorWorldPos - planetPos;
+
+                        // FIX: there's a potential issue here reported in Sentry
+                        if (TetherOffset.IsNaN())
+                        {
+                            Log.Error($"NaN TetherOffset: {TetherOffset}  cursorWorldPos={cursorWorldPos} planetPos={planetPos}");
+                            TetherOffset = Vector2.Zero;
+                        }
+                        else
+                        {
+                            TargetPlanet = p.Planet;
+                            batch.DrawLine(p.ScreenPos, cursorPos, new Color(255, 165, 0, 150), 3f);
+                            batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + p.Planet.Name, cursorPos + new Vector2(0, 34f), Color.White);
+                            break;
+                        }
                     }
                 }
-                batch.Draw(platform, Screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, (float)scale, SpriteEffects.None, 1f);
+
+                batch.Draw(platform, cursorPos, new Color(0, 255, 0, 100), 0f, IconOrigin, (float)scale, SpriteEffects.None, 1f);
             }
         }
 
