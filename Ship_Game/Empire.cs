@@ -567,6 +567,7 @@ namespace Ship_Game
                 OwnedSolarSystems.Remove(planet.ParentSystem);
 
             CalcWeightedCenter(calcNow: true);
+            UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
         }
 
         public void ClearAllPlanets()
@@ -595,6 +596,7 @@ namespace Ship_Game
 
             OwnedSolarSystems.AddUniqueRef(planet.ParentSystem);
             CalcWeightedCenter(calcNow: true);
+            UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
         }
 
         void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
