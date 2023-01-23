@@ -36,7 +36,7 @@ public sealed class WayPoints : IDisposable
     }
     public WayPoint[] EnqueueAndToArray(WayPoint point)
     {
-        using (ActiveWayPoints.AcquireWriteLock())
+        lock (ActiveWayPoints.Locker)
         {
             ActiveWayPoints.Enqueue(point);
             return ActiveWayPoints.ToArray();
