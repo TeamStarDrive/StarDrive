@@ -83,7 +83,6 @@ namespace Ship_Game
 
             // draw some extra colorful stars, scattered across the background
             StarField.Draw(sr, batch, cameraPos, Universe);
-            sr.End();
         }
 
         void DrawBackgroundNebulaWithStars(SpriteRenderer sr)

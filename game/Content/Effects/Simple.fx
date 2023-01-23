@@ -6,6 +6,9 @@
 // Camera parameters.
 float4x4 ViewProjection;
 
+// Multiplicative Color modifier, allowing to adjust the tone of the entire output
+float4 Color;
+
 // Texture and sampler
 texture Texture;
 bool UseTexture;
@@ -37,7 +40,7 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 {
     VertexShaderOutput output;
     output.Position = mul(float4(input.Position, 1), ViewProjection);
-    output.Color = input.Color;
+    output.Color = input.Color * Color;
     output.TextureCoordinate = input.Coords;
     return output;
 }
