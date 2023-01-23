@@ -146,13 +146,13 @@ namespace Ship_Game
             }
         }
 
-        protected override void Draw(float deltaTime)
+        protected override void Draw()
         {
             if (IsDeviceGood)
             {
                 GraphicsDevice.Clear(Color.Black);
                 ScreenManager.Draw();
-                base.Draw(deltaTime);
+                base.Draw();
             }
         }
 

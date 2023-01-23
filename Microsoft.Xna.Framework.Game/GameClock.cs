@@ -1,107 +1,69 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Microsoft.Xna.Framework.GameClock
-// Assembly: Microsoft.Xna.Framework.Game, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d
-// MVID: E4BD910E-73ED-465E-A91E-14AAAB0CE109
-// Assembly location: C:\WINDOWS\assembly\GAC_32\Microsoft.Xna.Framework.Game\3.1.0.0__6d5c3888ef60e27d\Microsoft.Xna.Framework.Game.dll
+﻿namespace Microsoft.Xna.Framework;
 
-using System;
-using System.Diagnostics;
-
-namespace Microsoft.Xna.Framework
+// game clock that accounts for suspended time
+internal class GameClock
 {
-    internal class GameClock
+    long lastRealTime;
+    long suspendStartTime;
+    long timeLostToSuspension;
+    int suspendCount;
+    bool lastRealTimeValid;
+
+    readonly double InvFrequency;
+
+    public GameClock()
     {
-        private long baseRealTime;
-        private long lastRealTime;
-        private bool lastRealTimeValid;
-        private int suspendCount;
-        private long suspendStartTime;
-        private long timeLostToSuspension;
-        private TimeSpan currentTimeOffset;
-        private TimeSpan currentTimeBase;
-        private TimeSpan elapsedTime;
-        private TimeSpan elapsedAdjustedTime;
+        NativeMethods.QueryPerformanceFrequency(out long frequency);
+        InvFrequency = 1.0 / frequency;
+        Reset();
+    }
 
-        internal TimeSpan CurrentTime => currentTimeBase + currentTimeOffset;
-        internal TimeSpan ElapsedTime => elapsedTime;
-        internal TimeSpan ElapsedAdjustedTime => elapsedAdjustedTime;
+    internal void Reset()
+    {
+        lastRealTimeValid = false;
+    }
 
-        internal static long Counter => Stopwatch.GetTimestamp();
-        internal static readonly long Frequency = Stopwatch.Frequency; // frequency is fixed at boot, so it only has to be queried once
-
-        public GameClock()
+    /// <summary>
+    /// Take a new clock step, account for suspended time, and return real time since last step
+    /// </summary>
+    internal double Step()
+    {
+        NativeMethods.QueryPerformanceCounter(out long now);
+        if (!lastRealTimeValid)
         {
-            Reset();
+            lastRealTime = now;
+            lastRealTimeValid = true;
         }
 
-        internal void Reset()
-        {
-            currentTimeBase = TimeSpan.Zero;
-            currentTimeOffset = TimeSpan.Zero;
-            baseRealTime = Stopwatch.GetTimestamp();
-            lastRealTimeValid = false;
-        }
+        long elapsedTicks = now - (lastRealTime + timeLostToSuspension);
+        double elapsedAdjusted = elapsedTicks * InvFrequency;
+        if (elapsedAdjusted < 0.0)
+            elapsedAdjusted = 0.0;
 
-        internal void Step()
-        {
-            long counter = Stopwatch.GetTimestamp();
-            if (!lastRealTimeValid)
-            {
-                lastRealTime = counter;
-                lastRealTimeValid = true;
-            }
+        timeLostToSuspension = 0L;
+        lastRealTime = now;
 
-            if (!TryConvertToTimeSpan(counter - baseRealTime, ref currentTimeOffset))
-            {
-                currentTimeBase += currentTimeOffset;
-                baseRealTime = lastRealTime;
+        return elapsedAdjusted;
+    }
 
-                if (!TryConvertToTimeSpan(counter - baseRealTime, ref currentTimeOffset))
-                {
-                    baseRealTime = counter;
-                    currentTimeOffset = TimeSpan.Zero;
-                }
-            }
+    internal void Suspend()
+    {
+        ++suspendCount;
+        if (suspendCount != 1)
+            return;
 
-            if (!TryConvertToTimeSpan(counter - lastRealTime, ref elapsedTime))
-                elapsedTime = TimeSpan.Zero;
+        NativeMethods.QueryPerformanceCounter(out suspendStartTime);
+    }
 
+    internal void Resume()
+    {
+        --suspendCount;
+        if (suspendCount > 0)
+            return;
 
-            if (!TryConvertToTimeSpan(counter - lastRealTime - timeLostToSuspension, ref elapsedAdjustedTime))
-            {
-                elapsedAdjustedTime = TimeSpan.Zero;
-            }
-            else timeLostToSuspension = 0L;
+        NativeMethods.QueryPerformanceCounter(out long timeStamp);
 
-            lastRealTime = counter;
-        }
-
-        internal void Suspend()
-        {
-            ++suspendCount;
-            if (suspendCount != 1)
-                return;
-            suspendStartTime = Stopwatch.GetTimestamp();
-        }
-
-        internal void Resume()
-        {
-            --suspendCount;
-            if (suspendCount > 0)
-                return;
-            timeLostToSuspension += Stopwatch.GetTimestamp() - suspendStartTime;
-            suspendStartTime = 0L;
-        }
-
-        private static bool TryConvertToTimeSpan(long delta, ref TimeSpan outValue)
-        {
-            const long num = 10000000;
-            if (delta > 922337203685) // will it overflow?
-            {
-                return false; // failed
-            }
-            outValue = new TimeSpan(unchecked((delta * num) / Stopwatch.Frequency));
-            return true;
-        }
+        timeLostToSuspension += timeStamp - suspendStartTime;
+        suspendStartTime = 0L;
     }
 }
