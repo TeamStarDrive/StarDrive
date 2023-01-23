@@ -39,7 +39,6 @@ namespace Ship_Game
 
         public ClickablePlanet[] ClickablePlanets = Empty<ClickablePlanet>.Array;
         ClickableSystem[] ClickableSystems = Empty<ClickableSystem>.Array;
-        ClickableShip[] ClickableShips = Empty<ClickableShip>.Array;
         public ClickableSpaceBuildGoal[] ClickableBuildGoals = Empty<ClickableSpaceBuildGoal>.Array;
 
         readonly Array<ClickableFleet> ClickableFleetsList = new();
@@ -51,7 +50,7 @@ namespace Ship_Game
         ClickablePlanet TippedPlanet;
         ClickableSystem tippedSystem;
 
-        Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
+        RectF SelectionBox = new(-1, -1, 0, 0);
 
         public Background bg;
 
@@ -156,7 +155,6 @@ namespace Ship_Game
         bool SelectingWithBox;
 
         public PlanetScreen workersPanel;
-        CursorState cState;
         int SelectorFrame;
         public Ship previousSelection;
 
@@ -708,7 +706,6 @@ namespace Ship_Game
 
             EmpireHullBonuses.Clear();
             ClickableFleetsList.Clear();
-            ClickableShips = Empty<ClickableShip>.Array;
             ClickablePlanets = Empty<ClickablePlanet>.Array;
             ClickableSystems = Empty<ClickableSystem>.Array;
 
@@ -725,14 +722,6 @@ namespace Ship_Game
             public Vector2 ScreenPos;
             public float Radius;
             public Planet Planet;
-            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
-        }
-
-        public struct ClickableShip
-        {
-            public Vector2 ScreenPos;
-            public float Radius;
-            public Ship Ship;
             public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
         }
 
@@ -791,23 +780,6 @@ namespace Ship_Game
             public Rectangle ClickRect;
             public Fleet Fleet;
             public int Key;
-        }
-
-        public class FogOfWarNode
-        {
-            public float Radius = 50000f;
-            public Vector2 Position;
-            public bool Discovered;
-        }
-
-
-        enum CursorState
-        {
-            Normal,
-            Move,
-            Follow,
-            Attack,
-            Orbit
         }
     }
 }
