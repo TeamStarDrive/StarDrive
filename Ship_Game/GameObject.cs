@@ -159,19 +159,15 @@ namespace Ship_Game
         
         // Automatically handles Velocity and Position integration for accurate results
         // Uses either Velocity Verlet integrator or Implicit Euler integrator if acceleration is Zero
-        public void UpdateVelocityAndPosition(float dt, Vector2 newAcc)
+        public void UpdateVelocityAndPosition(float dt, Vector2 newAcc, bool isZeroAcc)
         {
-            bool zeroAcc = newAcc.AlmostZero();
-            if (zeroAcc) newAcc = default;
-
             // if there's any kind of newAcc or oldAcc, use Verlet:
-            if (!zeroAcc || Acceleration != Vector2.Zero) 
+            if (!isZeroAcc || Acceleration.X != 0f || Acceleration.Y != 0f) 
             {
                 IntegratePosVelocityVerlet(dt, newAcc);
             }
             else
             {
-
                 // no acceleration, we can use implicit euler
                 IntegrateExplicitEulerConstantVelocity(dt);
             }

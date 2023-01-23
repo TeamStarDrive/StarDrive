@@ -403,7 +403,7 @@ namespace UnitTests.Universe
                 {
                     if (go is Ship s)
                     {
-                        s.UpdateVelocityAndPosition(TestSimStep.FixedTime, Vector2.Zero);
+                        s.UpdateVelocityAndPosition(TestSimStep.FixedTime, Vector2.Zero, isZeroAcc:true);
                         s.UpdateModulePositions(TestSimStep, true);
                     }
                     else if (go is Projectile p)
