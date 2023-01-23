@@ -469,7 +469,7 @@ namespace Ship_Game
 
         private void DrawAnomalies(GraphicsDevice device)
         {
-            if (anomalyManager == null)
+            if (anomalyManager == null || anomalyManager.AnomaliesList.Count == 0)
                 return;
 
             RenderStates.BasicBlendMode(device, additive:true, depthWrite:true);
@@ -480,6 +480,8 @@ namespace Ship_Game
                 Anomaly anomaly = anomalyManager.AnomaliesList[i];
                 anomaly.Draw(SR);
             }
+
+            SR.End();
         }
 
         private void DrawAndUpdateParticles(DrawTimes elapsed, GraphicsDevice device)
