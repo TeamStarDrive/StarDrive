@@ -56,6 +56,7 @@ namespace Ship_Game
             AutoPatcher.CleanupLegacyIncompatibleFiles();
             AutoPatcher.TryDeletePatchTemp();
 
+            // TODO: enable this as an option in OptionsScreen
             IsFixedTimeStep = true;
         }
 
