@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDGraphics.Rendering;
 using SDGraphics.Sprites;
 
 namespace Ship_Game;
@@ -19,13 +20,6 @@ public sealed class BackgroundItem
 
     public void Draw(SpriteRenderer renderer, Color color)
     {
-        Texture2D tex = SubTex.Texture;
-        float tx = SubTex.X / (float)tex.Width;
-        float ty = SubTex.Y / (float)tex.Height;
-        float tw = (SubTex.Width - 1) / (float)tex.Width;
-        float th = (SubTex.Height - 1) / (float)tex.Height;
-        RectF coords = new(tx, ty, tw, th);
-
-        renderer.Draw(tex, Rect, Z, coords, color);
+        renderer.Draw(SubTex.Texture, new Quad3D(Rect, Z), SubTex.UVCoords, color);
     }
 }

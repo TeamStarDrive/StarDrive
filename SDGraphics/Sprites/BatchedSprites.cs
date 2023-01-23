@@ -17,25 +17,20 @@ namespace SDGraphics.Sprites;
 /// </summary>
 public sealed class BatchedSprites : IDisposable
 {
-    VertexDeclaration VD;
     VertexBuffer VertexBuf;
-    IndexBuffer IndexBuf;
     BatchCompiler Compiler = new();
     Array<SpriteBatchSpan> Batches;
 
     public bool IsCompiled => Compiler == null;
-    public bool IsDisposed => VD == null;
+    public bool IsDisposed => Compiler == null && VertexBuf == null;
 
-    public BatchedSprites(SpriteRenderer sr)
+    public BatchedSprites()
     {
-        VD = sr.VertexDeclaration;
     }
 
     public void Dispose()
     {
-        VD = null; // managed by SpriteRenderer
         Mem.Dispose(ref VertexBuf);
-        Mem.Dispose(ref IndexBuf);
     }
 
     public void Add(Texture2D texture, in Quad3D quad, in Quad2D coords, Color color)
@@ -47,31 +42,29 @@ public sealed class BatchedSprites : IDisposable
         sprites.Add(new() { Quad = quad, Coords = coords, Color = color });
     }
 
-    public void Add(SubTexture subTex, in Quad3D quad, Color color)
+    public void Add(SubTexture subTex, in Quad3D quad)
     {
-        Texture2D tex = subTex.Texture;
-        float tx = subTex.X / (float)tex.Width;
-        float ty = subTex.Y / (float)tex.Height;
-        float tw = (subTex.Width - 1) / (float)tex.Width;
-        float th = (subTex.Height - 1) / (float)tex.Height;
-        Quad2D coords = new(tx, ty, tw, th);
-
-        Add(tex, quad, coords, color);
+        Add(subTex.Texture, quad, subTex.UVCoords, Color.White);
     }
 
-    public void Draw(SpriteRenderer sr)
+    public void Add(SubTexture subTex, in Quad3D quad, Color color)
+    {
+        Add(subTex.Texture, quad, subTex.UVCoords, color);
+    }
+
+    public void Draw(SpriteRenderer sr, Color color)
     {
         if (!IsCompiled)
             return; // nothing to do
 
         GraphicsDevice device = sr.Device;
         device.Vertices[0].SetSource(VertexBuf, 0, VertexCoordColor.SizeInBytes);
-        device.Indices = IndexBuf;
-        device.VertexDeclaration = VD;
+        device.Indices = sr.IndexBuf;
+        device.VertexDeclaration = sr.VertexDeclaration;
 
         foreach (ref SpriteBatchSpan batch in Batches.AsSpan())
         {
-            sr.ShaderBegin(batch.Texture);
+            sr.ShaderBegin(batch.Texture, color);
             device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
                                          batch.StartIndex * 4, batch.Count * 4, // 4 points
                                          batch.StartIndex * 6, batch.Count * 2); // 2 triangles
@@ -79,9 +72,9 @@ public sealed class BatchedSprites : IDisposable
         }
     }
 
-    public void Compile()
+    public void Compile(GraphicsDevice g)
     {
-        Batches = Compiler.Compile(VD, out VertexBuf, out IndexBuf);
+        Batches = Compiler.Compile(g, out VertexBuf);
         Compiler = null;
     }
 
@@ -93,39 +86,34 @@ public sealed class BatchedSprites : IDisposable
         Array<SpriteData> Untextured = new();
         Map<Texture2D, Array<SpriteData>> Textured = new();
 
-        public unsafe Array<SpriteBatchSpan> Compile(VertexDeclaration vd, out VertexBuffer vertexBuf, out IndexBuffer indexBuf)
+        public unsafe Array<SpriteBatchSpan> Compile(GraphicsDevice g, out VertexBuffer vertexBuf)
         {
             Array<SpriteBatchSpan> batches = new();
             int numSprites = GetNumSprites();
             var vertices = new VertexCoordColor[numSprites * 4];
-            ushort[] indices = new ushort[numSprites * 6];
-
             int currentIndex = 0;
 
             fixed (VertexCoordColor* pVertices = vertices)
             {
-                fixed (ushort* pIndices = indices)
+                if (Untextured.NotEmpty)
                 {
-                    if (Untextured.NotEmpty)
-                    {
-                        batches.Add(new(null, currentIndex, Untextured.Count));
+                    batches.Add(new(null, currentIndex, Untextured.Count));
 
-                        foreach (ref SpriteData sd in Untextured.AsSpan())
-                        {
-                            SpriteRenderer.FillVertexData(pVertices, pIndices, currentIndex, sd.Quad, sd.Coords, sd.Color);
-                            ++currentIndex;
-                        }
+                    foreach (ref SpriteData sd in Untextured.AsSpan())
+                    {
+                        SpriteRenderer.FillVertexData(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
+                        ++currentIndex;
                     }
+                }
 
-                    foreach (KeyValuePair<Texture2D, Array<SpriteData>> kv in Textured)
+                foreach (KeyValuePair<Texture2D, Array<SpriteData>> kv in Textured)
+                {
+                    batches.Add(new(kv.Key, currentIndex, kv.Value.Count));
+
+                    foreach (ref SpriteData sd in kv.Value.AsSpan())
                     {
-                        batches.Add(new(kv.Key, currentIndex, kv.Value.Count));
-
-                        foreach (ref SpriteData sd in kv.Value.AsSpan())
-                        {
-                            SpriteRenderer.FillVertexData(pVertices, pIndices, currentIndex, sd.Quad, sd.Coords, sd.Color);
-                            ++currentIndex;
-                        }
+                        SpriteRenderer.FillVertexData(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
+                        ++currentIndex;
                     }
                 }
             }
@@ -133,11 +121,8 @@ public sealed class BatchedSprites : IDisposable
             if (currentIndex != numSprites)
                 throw new("Batched Sprite compilation failed");
 
-            vertexBuf = new(vd.GraphicsDevice, VertexCoordColor.SizeInBytes*vertices.Length, BufferUsage.WriteOnly);
+            vertexBuf = new(g, VertexCoordColor.SizeInBytes*vertices.Length, BufferUsage.WriteOnly);
             vertexBuf.SetData(vertices);
-
-            indexBuf = new(vd.GraphicsDevice, typeof(ushort), indices.Length, BufferUsage.WriteOnly);
-            indexBuf.SetData(indices);
 
             Untextured.Clear();
             Textured.Clear();

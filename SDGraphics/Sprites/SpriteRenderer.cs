@@ -17,12 +17,16 @@ public sealed class SpriteRenderer : IDisposable
 {
     public readonly GraphicsDevice Device;
     public VertexDeclaration VertexDeclaration;
+    
+    // Since we are always drawing Quads, the index buffer can be pre-calculated and shared
+    internal IndexBuffer IndexBuf;
 
     internal Shader Simple;
     internal readonly EffectPass SimplePass;
     readonly EffectParameter ViewProjectionParam;
     readonly EffectParameter TextureParam;
     readonly EffectParameter UseTextureParam;
+    readonly EffectParameter ColorParam;
 
     unsafe delegate void DrawUserIndexedPrimitivesD(
         GraphicsDevice device,
@@ -41,30 +45,88 @@ public sealed class SpriteRenderer : IDisposable
         Device = device ?? throw new NullReferenceException(nameof(device));
         VertexDeclaration = new VertexDeclaration(device, VertexCoordColor.VertexElements);
 
+        // load the shader with parameters
         Simple = Shader.FromFile(device, "Content/Effects/Simple.fx");
         ViewProjectionParam = Simple["ViewProjection"];
         TextureParam = Simple["Texture"];
         UseTextureParam = Simple["UseTexture"];
+        ColorParam = Simple["Color"];
         SimplePass = Simple.CurrentTechnique.Passes[0];
+
+        // set the defaults
+        SetColor(Color.White);
 
         const BindingFlags anyMethod = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
         MethodInfo method = typeof(GraphicsDevice).GetMethod("RawDrawUserIndexedPrimitives", anyMethod);
         if (method == null)
             throw new InvalidOperationException("Missing RawDrawUserIndexedPrimitives from XNA.GraphicsDevice");
         DrawUserIndexedPrimitives = (DrawUserIndexedPrimitivesD)Delegate.CreateDelegate(typeof(DrawUserIndexedPrimitivesD), null, method);
+
+        // lastly, create buffers
+        IndexBuf = CreateIndexBuffer(device);
     }
 
     public void Dispose()
     {
         Mem.Dispose(ref VertexDeclaration);
+        Mem.Dispose(ref IndexBuf);
         Mem.Dispose(ref Simple);
+        TextureParamValue = null;
     }
+    
+    [Conditional("DEBUG")]
+    static void CheckTextureDisposed(Texture2D texture)
+    {
+        if (texture is { IsDisposed: true })
+            throw new ObjectDisposedException($"Texture2D '{texture.Name}'");
+    }
+
+    bool UseTextureParamValue;
+
+    void SetUseTexture(bool useTexture)
+    {
+        if (UseTextureParamValue != useTexture)
+        {
+            UseTextureParamValue = useTexture;
+            UseTextureParam.SetValue(useTexture);
+        }
+    }
+
+    Color ColorParamValue;
+
+    void SetColor(Color color)
+    {
+        if (ColorParamValue != color)
+        {
+            ColorParamValue = color;
+            ColorParam.SetValue(color.ToVector4());
+        }
+    }
+
+    Texture2D TextureParamValue;
+
+    void SetTexture(Texture2D texture)
+    {
+        if (TextureParamValue != texture)
+        {
+            CheckTextureDisposed(texture);
+            TextureParamValue = texture;
+            TextureParam.SetValue(texture);
+        }
+    }
+
+    Matrix ViewProjectionParamValue;
 
     unsafe void SetViewProjection(in Matrix viewProjection)
     {
-        fixed (Matrix* pViewProjection = &viewProjection)
+        if (ViewProjectionParamValue != viewProjection)
         {
-            ViewProjectionParam.SetValue(*(XnaMatrix*)pViewProjection);
+            ViewProjectionParamValue = viewProjection;
+
+            fixed (Matrix* pViewProjection = &ViewProjectionParamValue)
+            {
+                ViewProjectionParam.SetValue(*(XnaMatrix*)pViewProjection);
+            }
         }
     }
 
@@ -97,6 +159,39 @@ public sealed class SpriteRenderer : IDisposable
         }
     }
 
+    static IndexBuffer CreateIndexBuffer(GraphicsDevice device)
+    {
+        const int numIndices = ushort.MaxValue;
+        int numQuads = numIndices / 6;
+
+        ushort[] indices = new ushort[numIndices];
+        for (int index = 0; index < numQuads; ++index)
+        {
+            int vertexOffset = index * 4;
+            int indexOffset = index * 6;
+            indices[indexOffset + 0] = (ushort)(vertexOffset + 0);
+            indices[indexOffset + 1] = (ushort)(vertexOffset + 1);
+            indices[indexOffset + 2] = (ushort)(vertexOffset + 2);
+            indices[indexOffset + 3] = (ushort)(vertexOffset + 0);
+            indices[indexOffset + 4] = (ushort)(vertexOffset + 2);
+            indices[indexOffset + 5] = (ushort)(vertexOffset + 3);
+        }
+
+        IndexBuffer indexBuf = new(device, typeof(ushort), numIndices, BufferUsage.WriteOnly);
+        indexBuf.SetData(indices);
+        return indexBuf;
+    }
+
+    public static unsafe void FillVertexData(VertexCoordColor* vertices, int index,
+                                             in Quad3D quad, in Quad2D coords, Color color)
+    {
+        int vertexOffset = index * 4;
+        vertices[vertexOffset + 0] = new VertexCoordColor(quad.A, color, coords.A); // TopLeft
+        vertices[vertexOffset + 1] = new VertexCoordColor(quad.B, color, coords.B); // TopRight
+        vertices[vertexOffset + 2] = new VertexCoordColor(quad.C, color, coords.C); // BotRight
+        vertices[vertexOffset + 3] = new VertexCoordColor(quad.D, color, coords.D); // BotLeft
+    }
+
     public static unsafe void FillVertexData(VertexCoordColor* vertices, ushort* indices, int index,
                                              in Quad3D quad, in Quad2D coords, Color color)
     {
@@ -116,23 +211,11 @@ public sealed class SpriteRenderer : IDisposable
         indices[indexOffset + 5] = (ushort)(vertexOffset + 3);
     }
 
-    [Conditional("DEBUG")]
-    static void CheckTextureDisposed(Texture2D texture)
+    internal void ShaderBegin(Texture2D texture, Color color)
     {
-        if (texture.IsDisposed)
-            throw new ObjectDisposedException($"Texture2D '{texture.Name}'");
-    }
-
-    internal void ShaderBegin(Texture2D texture)
-    {
-        bool useTexture = texture != null;
-        if (useTexture)
-        {
-            // only set Texture sampler if texture is used
-            CheckTextureDisposed(texture);
-            TextureParam.SetValue(texture);
-        }
-        UseTextureParam.SetValue(useTexture);
+        SetTexture(texture); // also set null
+        SetUseTexture(useTexture: texture != null);
+        SetColor(color);
 
         Simple.Begin();
         SimplePass.Begin();
@@ -157,7 +240,9 @@ public sealed class SpriteRenderer : IDisposable
 
         Device.VertexDeclaration = VertexDeclaration;
 
-        ShaderBegin(texture);
+        ShaderBegin(texture, Color.White);
+
+        // TODO: inefficient -- a new vertex and index buffer is created for every call
         DrawUserIndexedPrimitives(Device, PrimitiveType.TriangleList,
             numVertices: 4,
             primitiveCount: 2,
@@ -166,12 +251,18 @@ public sealed class SpriteRenderer : IDisposable
             pVertexData: vertices,
             vertexStride: sizeof(VertexCoordColor)
         );
+
         ShaderEnd();
     }
 
     public void Draw(BatchedSprites sprites)
     {
-        sprites.Draw(this);
+        sprites.Draw(this, Color.White);
+    }
+
+    public void Draw(BatchedSprites sprites, Color color)
+    {
+        sprites.Draw(this, color);
     }
 
     static readonly Quad2D DefaultCoords = new(new RectF(0, 0, 1, 1));

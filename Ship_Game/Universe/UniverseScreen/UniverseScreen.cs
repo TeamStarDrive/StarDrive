@@ -460,7 +460,7 @@ namespace Ship_Game
 
             if (GlobalStats.DrawNebulas)
             {
-                bg3d = new Background3D(this, SR);
+                bg3d = new Background3D(this, device);
             }
 
             Frustum = new BoundingFrustum(ViewProjection);
