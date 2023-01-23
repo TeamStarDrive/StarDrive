@@ -202,12 +202,6 @@ namespace Ship_Game.Ships
         // NOTE: do not call outside of unit tests or Ship.Update !
         public void UpdateVelocityAndPosition(FixedSimTime timeStep)
         {
-            Vector2 newAcc = GetNewAccelerationForThisFrame();
-            UpdateVelocityAndPosition(timeStep.FixedTime, newAcc);
-        }
-
-        Vector2 GetNewAccelerationForThisFrame()
-        {
             bool atWarp = engineState == MoveState.Warp;
 
             if ((TetheredTo == null && Stats.Thrust <= 0f) || (Mass <= 0f))
@@ -216,7 +210,8 @@ namespace Ship_Game.Ships
                 if (atWarp)
                     HyperspaceReturn();
                 // no magic stop or anything, we just stop acceleration
-                return default;
+                UpdateVelocityAndPosition(timeStep.FixedTime, default, isZeroAcc: true);
+                return;
             }
 
             EnginesKnockedOut = false;
@@ -251,11 +246,25 @@ namespace Ship_Game.Ships
             FTLSpeedLimit = 0f;
 
             // combine all different acceleration sources
-            var a = new AccelerationState(Velocity, maxVelocity, Rotation, ThrustAcceleration, DecelThrustPower);
-            Vector2 appliedForce = GetAppliedForceAcceleration();
-            Vector2 sasAcc = GetSASThrusterAcceleration(a, SASThrusterPower);
-            Vector2 thrustAcc = GetThrustAcceleration(a);
-            return appliedForce + sasAcc + thrustAcc;
+            AccelerationState a = new(Velocity, maxVelocity, Rotation, ThrustAcceleration, DecelThrustPower);
+            Vector2 finalAcc = default;
+            bool isZeroAcc = true;
+
+            // turns any applied external force into acceleration
+            if (AppliedExternalForce.X is not (0f and 0f))
+            {
+                finalAcc.X = AppliedExternalForce.X / Mass; // a = Force/mass
+                finalAcc.Y = AppliedExternalForce.Y / Mass;
+                isZeroAcc = false;
+            }
+
+            if (GetSASThrusterAcceleration(ref finalAcc, a, SASThrusterPower))
+                isZeroAcc = false;
+                
+            if (GetThrustAcceleration(ref finalAcc, a))
+                isZeroAcc = false;
+            
+            UpdateVelocityAndPosition(timeStep.FixedTime, finalAcc, isZeroAcc: isZeroAcc);
         }
 
         float GetMaxThrustAcceleration()
