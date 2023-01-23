@@ -10,7 +10,6 @@ namespace Microsoft.Xna.Framework
 {
     public class Game : IDisposable
     {
-        const double MaximumElapsedTimeSeconds = 0.5;
         readonly List<IUpdateable> UpdateableComponents = new();
         readonly List<IUpdateable> CurrentlyUpdatingComponents = new();
         readonly List<IDrawable> DrawableComponents = new();
@@ -40,6 +39,14 @@ namespace Microsoft.Xna.Framework
         /// Used when IsFixedTimeStep = true
         /// </summary>
         public double TargetTickInterval = 1.0 / 60.0; // the default is 60 fps
+
+        /// <summary>
+        /// Maximum allowed value for ElapsedFrameTime.
+        /// Any value higher than this will be truncated.
+        /// This ensures the game doesn't get stuck trying to catch up with 1000 Update() calls
+        /// when IsFixedTimeStep = true
+        /// </summary>
+        const double MaximumElapsedTimeSeconds = 1.0 / 10.0; // the default is ~10 fps
 
         /// <summary>
         /// If true, then `TargetTickInterval` is used to trigger updates
@@ -235,9 +242,8 @@ namespace Microsoft.Xna.Framework
 
                 if (numElapsedSteps > 0)
                 {
-                    while (numElapsedSteps > 0 && !ShouldExit)
+                    for (int step = 0; step < numElapsedSteps && !ShouldExit; ++step)
                     {
-                        --numElapsedSteps;
                         try
                         {
                             ElapsedFrameTime = TargetTickInterval;
@@ -250,6 +256,14 @@ namespace Microsoft.Xna.Framework
                     }
 
                     DrawFrame();
+                }
+                else
+                {
+                    // yield the thread if there is still a lot of time until next update
+                    if (AccumulatedElapsedGameTime < (TargetTickInterval * 0.5))
+                    {
+                        Thread.Yield();
+                    }
                 }
             }
             else if (!ShouldExit)

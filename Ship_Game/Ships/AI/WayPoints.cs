@@ -58,7 +58,6 @@ public sealed class WayPoints : IDisposable
 
     public void Dispose()
     {
-        ActiveWayPoints.Clear();
         ActiveWayPoints.Dispose();
     }
 }
