@@ -8,7 +8,9 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
+using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
+using Ship_Game.Spatial;
 using Keys = SDGraphics.Input.Keys;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
@@ -271,7 +273,7 @@ namespace Ship_Game
 
             HandleEdgeDetection(input);
 
-            UpdateClickableShipsAndShields();
+            UpdateVisibleShields();
             UpdateClickableSystemsPlanetsAndVisibleShields();
 
             if (HandleDragAORect(input))
@@ -334,11 +336,11 @@ namespace Ship_Game
             }
             else
             {
-                SelectedFleet  = null;
+                SelectedFleet = null;
                 InputCheckPreviousShip();
-                SelectedShip   = null;
+                SelectedShip = null;
                 SelectedShipList.Clear();
-                SelectedItem   = null;
+                SelectedItem = null;
                 SelectedSystem = null;
             }
 
@@ -347,7 +349,7 @@ namespace Ship_Game
 
             pickedSomethingThisFrame = false;
 
-            ShipsInCombat.Visible   = !LookingAtPlanet;
+            ShipsInCombat.Visible = !LookingAtPlanet;
             PlanetsInCombat.Visible = !LookingAtPlanet;
 
             if (LookingAtPlanet && workersPanel.HandleInput(input))
@@ -374,26 +376,6 @@ namespace Ship_Game
             if (input.InGameSelect && !pickedSomethingThisFrame && (!input.IsShiftKeyDown && !pieMenu.Visible))
                 HandleFleetButtonClick(input);
 
-            cState = SelectedShip != null || SelectedShipList.Count > 0 ? CursorState.Move : CursorState.Normal;
-            if (SelectedShip == null && SelectedShipList.Count <= 0)
-                return false;
-
-            for (int i = 0; i < ClickableShips.Length; i++)
-            {
-                ref ClickableShip clickableShip = ref ClickableShips[i];
-                if (input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
-                    cState = CursorState.Follow;
-            }
-
-            if (cState == CursorState.Follow)
-                return false;
-
-            for (int i = 0; i < ClickablePlanets.Length; i++)
-            {
-                ref ClickablePlanet planet = ref ClickablePlanets[i];
-                if (input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius) && planet.Planet.Habitable)
-                    cState = CursorState.Orbit;
-            }
             return false;
         }
 
@@ -565,35 +547,22 @@ namespace Ship_Game
             }
         }
 
-        void UpdateClickableShipsAndShields()
+        void UpdateVisibleShields()
         {
+            Array<Shield> shields = new();
+
             Ship[] ships = UState.Objects.VisibleShips;
-            var clickable = new Array<ClickableShip>();
-            var visibleShields = new Array<Shield>();
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if (!ship.IsVisibleToPlayerInMap
-                    // feature: if we're zoomed out a lot, ignore subspace projector clicks
-                    || ship.IsSubspaceProjector && CamPos.Z > 1_200_000.0
-                    || !ship.Active)
+                if (ship.Active && ship.ShieldMax > 0f && ship.IsVisibleToPlayerInMap)
                 {
-                    continue;
+                    shields.AddRange(ship.GetActiveShields().Select(s => s.Shield));
                 }
-
-                visibleShields.AddRange(ship.GetActiveShields().Select(s => s.Shield));
-                ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
-                clickable.Add(new ClickableShip
-                {
-                    Radius = screenRadius < 7.0 ? 7f : (float)screenRadius,
-                    ScreenPos = shipScreenPos.ToVec2f(),
-                    Ship = ship
-                });
             }
-            
+
             // TODO: this needs to be rewritten
-            Shields.SetVisibleShields(visibleShields.ToArr());
-            ClickableShips = clickable.ToArray();
+            Shields.SetVisibleShields(shields.ToArr());
         }
 
         void UpdateClickableSystemsPlanetsAndVisibleShields()
@@ -648,15 +617,36 @@ namespace Ship_Game
             }
         }
 
-
-        Ship CheckShipClick(InputState input)
+        bool CanClickOnShip(SpatialObjectBase go)
         {
-            foreach (ClickableShip clickableShip in ClickableShips)
+            return go is Ship { InPlayerSensorRange: true } ship
+                // feature: if we're zoomed OUT a lot, ignore subspace projector clicks
+                && (!ship.IsSubspaceProjector || CamPos.Z <= 1_200_000.0);
+        }
+
+        public Ship[] GetVisibleShipsInScreenRect(in RectF screenRect, int maxResults = 1024)
+        {
+            AABoundingBox2D worldRect = UnprojectToWorldRect(new(screenRect));
+            SearchOptions opt = new(worldRect, GameObjectType.Ship)
             {
-                if (input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
-                    return clickableShip.Ship;
-            }
-            return null;
+                MaxResults = maxResults,
+                SortByDistance = true, // only care about closest results
+                FilterFunction = CanClickOnShip
+            };
+            return UState.Spatial.FindNearby(ref opt).FastCast<SpatialObjectBase, Ship>();
+        }
+
+        Ship FindClickedShip(InputState input)
+        {
+            const float ClickRadius = 5f;
+            AABoundingBox2D clickRect = UnprojectToWorldRect(new(input.CursorPosition, ClickRadius));
+            SearchOptions opt = new(clickRect, GameObjectType.Ship)
+            {
+                MaxResults = 32,
+                SortByDistance = true, // only care about closest results
+                FilterFunction = CanClickOnShip
+            };
+            return UState.Spatial.FindNearby(ref opt).FirstOrDefault() as Ship;
         }
 
         Planet CheckPlanetClick()
@@ -747,32 +737,28 @@ namespace Ship_Game
             return true;
         }
 
-        // @note targetPlanet/targetShip are the attack/orbit etc targets
-
         bool SelectShipClicks(InputState input)
         {
-            foreach (ClickableShip clickableShip in ClickableShips)
+            Ship ship = FindClickedShip(input);
+            if (ship != null && !pickedSomethingThisFrame)
             {
-                if (!clickableShip.HitTest(input.CursorPosition))
-                    continue;
-                if (clickableShip.Ship?.InPlayerSensorRange != true || pickedSomethingThisFrame)
-                    continue;
-
                 pickedSomethingThisFrame = true;
                 GameAudio.ShipClicked();
                 SelectedSomethingTimer = 3f;
 
                 if (SelectedShipList.Count > 0 && input.IsShiftKeyDown)
                 {
-                    if (SelectedShipList.RemoveRef(clickableShip.Ship))
+                    // remove existing ship?
+                    if (SelectedShipList.RemoveRef(ship))
                         return true;
-                    SelectedShipList.AddUniqueRef(clickableShip.Ship);
-                    return false;
+
+                    // ok, no, add a new ship instead?
+                    return SelectedShipList.AddUniqueRef(ship);
                 }
 
                 SelectedShipList.Clear();
-                SelectedShipList.AddUniqueRef(clickableShip.Ship);
-                SelectedShip = clickableShip.Ship;
+                SelectedShipList.AddUniqueRef(ship);
+                SelectedShip = ship;
                 return true;
             }
             return false;
@@ -842,7 +828,7 @@ namespace Ship_Game
                 if (input.LeftMouseDoubleClick)
                 {
                     SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
-                    SelectionBox = new Rectangle();
+                    SelectionBox = new();
                 }
                 else
                     GameAudio.PlanetClicked();
@@ -900,32 +886,30 @@ namespace Ship_Game
                 LoadShipMenuNodes(SelectedShipList[0]?.Loyalty == Player ? 1 : 0);
             }
 
-            SelectionBox = new Rectangle(0, 0, -1, -1);
+            SelectionBox = new(0, 0, -1, -1);
         }
 
-        bool IsCombatShip(Ship ship)
+        static bool IsCombatShip(Ship ship)
         {
             return NonCombatShip(ship) == false;
         }
 
-        bool NonCombatShip(Ship ship)
+        static bool NonCombatShip(Ship ship)
         {
-            return ship != null && (ship.ShipData.Role <= RoleName.freighter 
-                                    || ship.ShipData.ShipCategory == ShipCategory.Civilian 
-                                    || ship.DesignRole == RoleName.troop
-                                    || ship.Weapons.Count == 0 && !ship.Carrier.HasFighterBays
-                                    || ship.AI.State == AIState.Colonize);
+            return ship != null
+                && (ship.ShipData.Role <= RoleName.freighter 
+                    || ship.ShipData.ShipCategory == ShipCategory.Civilian 
+                    || ship.DesignRole == RoleName.troop
+                    || ship.Weapons.Count == 0 && !ship.Carrier.HasFighterBays
+                    || ship.AI.State == AIState.Colonize);
         }
 
-        Array<Ship> GetAllShipsInArea(Rectangle screenArea, InputState input, out Fleet fleet)
+        Array<Ship> GetAllShipsInArea(in RectF screenArea, InputState input, out Fleet fleet)
         {
             fleet = null;
-            Ship[] potentialShips = ClickableShips.FilterSelect(
-                cs => screenArea.HitTest(cs.ScreenPos) && cs.Ship?.InPlayerSensorRange == true,
-                cs => cs.Ship);
-
+            Ship[] potentialShips = GetVisibleShipsInScreenRect(screenArea);
             if (potentialShips.Length == 0)
-                return new Array<Ship>();
+                return new();
 
             bool hasCombatShips = potentialShips.Any(IsCombatShip);
 
@@ -1174,14 +1158,6 @@ namespace Ship_Game
             }
         }
 
-        Ship FindClickedShip(InputState input)
-        {
-            foreach (ClickableShip clickableShip in ClickableShips)
-                if (clickableShip.HitTest(input.CursorPosition))
-                    return clickableShip.Ship;
-            return null;
-        }
-
         void SelectMultipleShipsByClickingOnShip(InputState input)
         {
             Ship clicked = FindClickedShip(input);
@@ -1189,10 +1165,10 @@ namespace Ship_Game
             {
                 pickedSomethingThisFrame = true;
                 SelectedShipList.AddUnique(clicked);
-
-                foreach (ClickableShip clickTest in ClickableShips)
+                
+                Ship[] ships = UState.Objects.VisibleShips;
+                foreach (Ship ship in ships)
                 {
-                    var ship = clickTest.Ship;
                     if (clicked == ship || ship.Loyalty != clicked.Loyalty)
                         continue;
 

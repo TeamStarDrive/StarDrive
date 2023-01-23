@@ -165,25 +165,23 @@ namespace Ship_Game
 
         void DrawOverlayShieldBubbles(SpriteBatch sb)
         {
-            if (ShowShipNames && !LookingAtPlanet)
+            if (ShowShipNames && !LookingAtPlanet &&
+                viewState <= UnivScreenState.SystemView && 
+                Shields != null && Shields.VisibleShields.Length != 0)
             {
                 var uiNode = ResourceManager.Texture("UI/node");
 
                 sb.SafeBegin(SpriteBlendMode.Additive);
-                for (int i = 0; i < ClickableShips.Length; i++)
+                for (int i = 0; i < Shields.VisibleShields.Length; i++)
                 {
-                    Ship ship = ClickableShips[i].Ship;
-                    if (ship.Active && ship.IsVisibleToPlayer)
+                    if (Shields.VisibleShields[i].Owner is ShipModule m)
                     {
-                        foreach (ShipModule m in ship.GetActiveShields())
-                        {
-                            ProjectToScreenCoords(m.Position, m.ShieldRadius * 2.75f, 
-                                out Vector2d posOnScreen, out double radiusOnScreen);
+                        ProjectToScreenCoords(m.Position, m.ShieldRadius * 2.75f, 
+                            out Vector2d posOnScreen, out double radiusOnScreen);
 
-                            float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;
-                            DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
-                                Shield.GetBubbleColor(shieldRate, m.ShieldBubbleColor));
-                        }
+                        float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;
+                        DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
+                            Shield.GetBubbleColor(shieldRate, m.ShieldBubbleColor));
                     }
                 }
                 sb.SafeEnd();
@@ -458,10 +456,9 @@ namespace Ship_Game
             if (ShowingRangeOverlay && !LookingAtPlanet)
             {
                 var shipRangeTex = ResourceManager.Texture("UI/node_shiprange");
-                foreach (ClickableShip clickable in ClickableShips)
+                foreach (Ship ship in UState.Objects.VisibleShips)
                 {
-                    Ship ship = clickable.Ship;
-                    if (ship != null &&  ship.IsVisibleToPlayer && ship.WeaponsMaxRange > 0f)
+                    if (ship is { WeaponsMaxRange: > 0f, IsVisibleToPlayer: true })
                     {
                         Color color = ship.Loyalty == Player
                                         ? new Color(0, 200, 0, 30)
@@ -506,12 +503,12 @@ namespace Ship_Game
                                         inhibit, new Color(200, 0, 0, 50));
                 }
 
-                foreach (ClickableShip ship in ClickableShips)
+                foreach (Ship ship in UState.Objects.VisibleShips)
                 {
-                    if (ship.Ship != null && ship.Ship.InhibitionRadius > 0f && ship.Ship.IsVisibleToPlayer)
+                    if (ship is { InhibitionRadius: > 0f, IsVisibleToPlayer: true })
                     {
-                        float radius = ship.Ship.InhibitionRadius;
-                        DrawCircleProjected(ship.Ship.Position, radius, new Color(255, 50, 0, 150), 1f,
+                        float radius = ship.InhibitionRadius;
+                        DrawCircleProjected(ship.Position, radius, new Color(255, 50, 0, 150), 1f,
                                             inhibit, new Color(200, 0, 0, 40));
                     }
                 }

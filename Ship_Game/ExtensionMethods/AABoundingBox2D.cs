@@ -76,6 +76,14 @@ namespace Ship_Game
             Y2 = botRight.Y;
         }
 
+        public AABoundingBox2D(in RectF rect)
+        {
+            X1 = rect.X;
+            Y1 = rect.Y;
+            X2 = rect.X + rect.W;
+            Y2 = rect.Y + rect.H;
+        }
+
         public AABoundingBox2D(SpatialObjectBase go)
         {
             float x = go.Position.X;
