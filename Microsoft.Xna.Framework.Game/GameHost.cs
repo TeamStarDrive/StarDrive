@@ -6,10 +6,10 @@
 
 using System;
 
-namespace Microsoft.Xna.Framework
+namespace Microsoft.Xna.Framework;
+
+internal abstract class GameHost
 {
-  internal abstract class GameHost
-  {
     internal abstract GameWindow Window { get; }
 
     internal event EventHandler Suspend;
@@ -31,49 +31,36 @@ namespace Microsoft.Xna.Framework
 
     protected void OnSuspend()
     {
-      if (this.Suspend == null)
-        return;
-      this.Suspend((object) this, EventArgs.Empty);
+        Suspend?.Invoke(this, EventArgs.Empty);
     }
 
     protected void OnResume()
     {
-      if (this.Resume == null)
-        return;
-      this.Resume((object) this, EventArgs.Empty);
+        Resume?.Invoke(this, EventArgs.Empty);
     }
 
     protected void OnActivated()
     {
-      if (this.Activated == null)
-        return;
-      this.Activated((object) this, EventArgs.Empty);
+        Activated?.Invoke(this, EventArgs.Empty);
     }
 
     protected void OnDeactivated()
     {
-      if (this.Deactivated == null)
-        return;
-      this.Deactivated((object) this, EventArgs.Empty);
+        Deactivated?.Invoke(this, EventArgs.Empty);
     }
 
     protected void OnIdle()
     {
-      if (this.Idle == null)
-        return;
-      this.Idle((object) this, EventArgs.Empty);
+        Idle?.Invoke(this, EventArgs.Empty);
     }
 
     protected void OnExiting()
     {
-      if (this.Exiting == null)
-        return;
-      this.Exiting((object) this, EventArgs.Empty);
+        Exiting?.Invoke(this, EventArgs.Empty);
     }
 
     internal virtual bool ShowMissingRequirementMessage(Exception exception)
     {
-      return false;
+        return false;
     }
-  }
 }
