@@ -32,8 +32,8 @@ namespace UnitTests.Collections
             AssertEqual("Jim", queue.PeekFirst);
             AssertEqual("Jake", queue.PeekLast);
 
-            Assert.IsTrue(queue.Count == 5, "Queue should have 5 elements");
-            Assert.IsFalse(queue.IsEmpty, "Queue should have 5 elements, so IsEmpty should be false");
+            AssertTrue(queue.Count == 5, "Queue should have 5 elements");
+            AssertFalse(queue.IsEmpty, "Queue should have 5 elements, so IsEmpty should be false");
 
             AssertEqual("Jim", queue.Dequeue());
             AssertEqual("Tim", queue.Dequeue());
@@ -41,8 +41,8 @@ namespace UnitTests.Collections
             AssertEqual("Mike", queue.Dequeue());
             AssertEqual("Jake", queue.Dequeue());
 
-            Assert.IsTrue(queue.Count == 0, "Queue must be empty after dequeuing all");
-            Assert.IsTrue(queue.IsEmpty, "Queue must be empty after dequeueing all");
+            AssertTrue(queue.Count == 0, "Queue must be empty after dequeuing all");
+            AssertTrue(queue.IsEmpty, "Queue must be empty after dequeueing all");
             AssertEqual(null, queue.Dequeue(), "Empty queue Dequeue must result in default(T)");
         }
 
@@ -63,7 +63,7 @@ namespace UnitTests.Collections
             AssertEqual("Jake", queue.PeekFirst);
             AssertEqual("Bob", queue.PeekLast);
 
-            Assert.IsTrue(queue.Count == 5, "Queue should have 5 elements");
+            AssertTrue(queue.Count == 5, "Queue should have 5 elements");
         }
 
         [TestMethod]
@@ -115,17 +115,17 @@ namespace UnitTests.Collections
             queue.Enqueue("Mike");
             queue.Enqueue("Jake");
 
-            Assert.IsTrue(queue.Contains("Jim"));
-            Assert.IsTrue(queue.Contains("Tim"));
-            Assert.IsTrue(queue.Contains("Bob"));
-            Assert.IsTrue(queue.Contains("Mike"));
-            Assert.IsTrue(queue.Contains("Jake"));
+            AssertTrue(queue.Contains("Jim"));
+            AssertTrue(queue.Contains("Tim"));
+            AssertTrue(queue.Contains("Bob"));
+            AssertTrue(queue.Contains("Mike"));
+            AssertTrue(queue.Contains("Jake"));
 
-            Assert.IsFalse(queue.Contains("jack"));
-            Assert.IsFalse(queue.Contains(null));
+            AssertFalse(queue.Contains("jack"));
+            AssertFalse(queue.Contains(null));
 
             queue.Enqueue(null);
-            Assert.IsTrue(queue.Contains(null));
+            AssertTrue(queue.Contains(null));
         }
 
         [TestMethod]
@@ -162,8 +162,8 @@ namespace UnitTests.Collections
             AssertEqual("C", queue.ElementAt(2));
             AssertEqual("D", queue.Last());
 
-            Assert.IsTrue(queue.Any(s => s == "D"));
-            Assert.IsFalse(queue.Any(s => s == "X"));
+            AssertTrue(queue.Any(s => s == "D"));
+            AssertFalse(queue.Any(s => s == "X"));
 
             AssertEqual("A", queue.Dequeue());
             AssertEqual("B", queue.Dequeue());
@@ -198,13 +198,18 @@ namespace UnitTests.Collections
         {
             var queue = new SafeQueue<string>();
             var t = new PerfTimer();
-            var r = new SeededRandom();
+            var r = new SeededRandom(12345);
+            int numWriteOperations = 0;
+            int numReadOperations = 0;
+
+            const double TestTime = 2.0;
 
             var writer = Parallel.Run(() =>
             {
                 var items = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
 
-                while (t.Elapsed < 1.0)
+                int writeOperations = 0;
+                while (t.Elapsed < TestTime)
                 {
                     int toAdd = r.Int(1, 3);
                     int toRemove = r.Int(1, 3);
@@ -212,18 +217,21 @@ namespace UnitTests.Collections
                         queue.Enqueue(items.RandItem());
                     for (int i = 0; i < toRemove; ++i)
                     {
-                        Assert.IsTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
+                        AssertTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
                         queue.Dequeue();
-                        Assert.IsTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
+                        AssertTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
                     }
+                    writeOperations += toAdd + toRemove;
                 }
+                numWriteOperations = writeOperations;
             });
 
             var reader = Parallel.Run(() =>
             {
-                while (t.Elapsed < 1.0)
+                int readOperations = 0;
+                while (t.Elapsed < TestTime)
                 {
-                    Assert.IsTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
+                    AssertTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
                     queue.TryPeekFirst(out string first);
                     queue.TryPeekLast(out string last);
 
@@ -232,14 +240,22 @@ namespace UnitTests.Collections
                     }
 
                     queue.TryDequeue(out string first1);
-                    Assert.IsTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
+                    AssertTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");
+                    readOperations += 5;
                 }
+                numReadOperations = readOperations;
             });
 
             writer.Wait();
             reader.Wait();
 
             // If it didn't crash here, the test succeeded
+            double numWritesPerSecond = numWriteOperations/TestTime;
+            double numReadPerSecond = numReadOperations/TestTime;
+            Log.Write($"Concurrent Write Operations: {numWritesPerSecond/1000:0.0}/ms");
+            Log.Write($"Concurrent Read Operations: {numReadPerSecond/1000:0.0}/ms");
+            Log.Write($"Concurrent AvgWriteOpTime: {(1.0/numWritesPerSecond)*1000_000:0.000}us");
+            Log.Write($"Concurrent AvgReadOpTime: {(1.0/numReadPerSecond)*1000_000:0.000}us");
         }
     }
 }
