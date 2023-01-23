@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using System.Threading;
+using SDUtils;
 using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.GameScreens.MainMenu;
 using Vector2 = SDGraphics.Vector2;
@@ -10,7 +11,7 @@ namespace Ship_Game
 {
     public class LoadUniverseScreen : GameScreen
     {
-        LoadGame Loader;
+        readonly LoadGame Loader;
         string AdviceText;
         Texture2D LoadingImage;
         TaskResult<UniverseScreen> AsyncUniverse;
@@ -28,6 +29,15 @@ namespace Ship_Game
             LoadingImage = ResourceManager.LoadRandomLoadingScreen(TransientContent);
             AdviceText = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(), 500f);
             base.LoadContent();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+            Mem.Dispose(ref LoadingImage);
+            Mem.Dispose(ref AsyncUniverse);
+            base.Dispose(disposing);
         }
 
         public override bool HandleInput(InputState input)

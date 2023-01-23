@@ -175,7 +175,7 @@ namespace Ship_Game
 
         public void RemoveFromScene()
         {
-            Universe.JunkList.QueuePendingRemoval(this);
+            Universe.JunkList.Remove(this);
             RemoveSceneObject();
         }
 

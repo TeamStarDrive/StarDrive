@@ -8,6 +8,7 @@ using Ship_Game.Graphics;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using SDUtils;
+#pragma warning disable CA2213
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {

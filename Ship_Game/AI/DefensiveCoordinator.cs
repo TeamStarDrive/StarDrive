@@ -34,16 +34,16 @@ namespace Ship_Game.AI
 
         public void Dispose()
         {
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         ~DefensiveCoordinator()
         {
-            Destroy();
+            Dispose(false);
         }
 
-        void Destroy()
+        void Dispose(bool disposing)
         {
             DefensiveForcePool = null;
             if (DefenseDict != null)

@@ -19,7 +19,7 @@ using Ship_Game.AI;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.Legacy;
 using Ship_Game.Universe;
-using System.Linq;
+#pragma warning disable CA2237, RCS1194 // Mark ISerializable types with serializable
 
 namespace Ship_Game
 {
@@ -928,12 +928,12 @@ namespace Ship_Game
             return LoadEntities<SolarSystemData>(GatherFilesModOrVanilla("SolarSystems/Random", "xml"), "LoadSolarSystems");
         }
 
-        public static Texture2D LoadRandomLoadingScreen(GameContentManager content)
+        public static Texture2D LoadRandomLoadingScreen(GameContentManager transientContent)
         {
             FileInfo[] files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
 
             FileInfo file = files[RandomMath.InRange(0, files.Length)];
-            return content.LoadTexture(file);
+            return transientContent.LoadTexture(file);
         }
 
         // advice is temporary and only sticks around while loading

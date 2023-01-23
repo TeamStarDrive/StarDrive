@@ -20,7 +20,9 @@ namespace Ship_Game.GameScreens
         Video Video;
         readonly VideoPlayer Player;
         readonly GameContentManager Content;
+        #pragma warning disable CA2213 // managed by VideoPlayer
         Texture2D Frame; // last good frame, used for looping video transition delay
+        #pragma warning restore CA2213
         public bool Active = true;
         public bool Visible = true;
 
