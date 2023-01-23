@@ -39,21 +39,21 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        protected struct AccelerationState
+        protected readonly struct AccelerationState
         {
-            public float ThrustAcc; // maximum thrust acceleration a = m/s^2
-            public float Velocity;
-            public float MaxVelocity;
-            public Vector2 VelocityDir;
-            public Vector2 Forward; // object forward dir
+            public readonly float ThrustAcc; // maximum thrust acceleration a = m/s^2
+            public readonly float Velocity;
+            public readonly float MaxVelocity;
+            public readonly Vector2 VelocityDir;
+            public readonly Vector2 Forward; // object forward dir
 
             // compares velocity vector against where it is pointing
             // if +1 then obj is going forward as it points forward
             // if  0 then obj is drifting sideways
             // if -1 then obj is drifting reverse
             // velocityDir.Dot(objectForwardDir)
-            public float Travel;
-            public float DecelerationPower; // multiplier [0.0; 1.0]
+            public readonly float Travel;
+            public readonly float DecelerationPower; // multiplier [0.0; 1.0]
 
             public AccelerationState(in Vector2 velocity, float maxVelocity, float rotation, float maxThrustAcc, float decelerationPower)
             {
@@ -106,20 +106,6 @@ namespace Ship_Game.Gameplay
             ThrustVector = thrustDirectionRadians.Clamped(-quarterPi, quarterPi);
         }
 
-        // combining object Rotation(rads) and engine ThrustVector(rads)
-        // return the engine nozzle's thrusting direction
-        // if ThrustVector=0, this is equal to ship Forward Direction
-        protected Vector2 GetThrustVector()
-        {
-            // inline RadiansToDirection (speed optimization)
-            float rotation = Rotation + ThrustVector;
-            float s = (float)Math.Sin(rotation);
-            float c = (float)Math.Cos(rotation);
-            Vector2 thrustDir = new(s, -c);
-            //Vector2 thrustDir = (Rotation + ThrustVector).RadiansToDirection();
-            return thrustDir;
-        }
-
         // This applies (accumulates) a Force vector for the duration of this frame.
         // If you wish to transfer force over a larger time period, you must call this over several frames.
         // This is because our velocity/position integration recalculates acceleration every frame
@@ -128,27 +114,23 @@ namespace Ship_Game.Gameplay
             AppliedExternalForce += force;
         }
 
-        // turns any applied external force into acceleration
-        // a = Force/mass
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected Vector2 GetAppliedForceAcceleration()
+        protected bool GetThrustAcceleration(ref Vector2 acc, in AccelerationState a)
         {
-            if (AppliedExternalForce == Vector2.Zero)
-                return Vector2.Zero;
-            return new Vector2(AppliedExternalForce.X / Mass, AppliedExternalForce.Y / Mass);
-        }
+            // combining object Rotation(rads) and engine ThrustVector(rads)
+            // return the engine nozzle's thrusting direction
+            // if ThrustVector=0, this is equal to ship Forward Direction
+            float rotation = Rotation + ThrustVector;
+            Vector2 thrustDir;
+            thrustDir.X = (float)Math.Sin(rotation); // inline RadiansToDirection (speed optimization)
+            thrustDir.Y = -(float)Math.Cos(rotation);
 
-        protected Vector2 GetThrustAcceleration(in AccelerationState a)
-        {
-            // get the current thrust dir and reset the vector for now
-            Vector2 thrustDir = GetThrustVector();
-            Vector2 acc = default;
             // If ship is traveling backwards or sideways, limit max velocity
             float maxVelocity = a.Travel < -0.15f ? a.MaxVelocity * 0.75f : a.MaxVelocity;
 
             if (ThrustThisFrame == Thrust.AllStop)
             {
                 PrecisionStop(ref acc, thrustDir, a.Velocity, a);
+                return true;
             }
             else if (a.Velocity >= maxVelocity) // we are at the speed limit already
             {
@@ -170,16 +152,19 @@ namespace Ship_Game.Gameplay
                     PrecisionStop(ref acc, thrustDir, a.Velocity, a);
                     DebugThrustStatus = ThrustStatus.MaxSpeedRev;
                 }
+                return true;
             }
             else if (ThrustThisFrame == Thrust.Forward)
             {
                 Accelerate(ref acc, thrustDir, a.ThrustAcc);
                 DebugThrustStatus = ThrustStatus.ThrustFwd;
+                return true;
             }
             else if (ThrustThisFrame == Thrust.Reverse)
             {
                 Decelerate(ref acc, thrustDir, a.ThrustAcc * a.DecelerationPower);
                 DebugThrustStatus = ThrustStatus.ThrustRev;
+                return true;
             }
             else
             {
@@ -187,19 +172,16 @@ namespace Ship_Game.Gameplay
                 if (ThrustThisFrame == Thrust.Coast && a.Velocity < 0.25f)
                 {
                     Velocity = Vector2.Zero; // magic stop
-                    return Vector2.Zero;
                 }
             }
-            return acc;
+            return false;
         }
-
 
         // Get Stability Assist System thruster's acceleration
         // SAS Thrusters can be used to remove sideways drift from your Ships to stabilize them
         // Simulates navigational thrusting to remove sideways or reverse travel
-        protected Vector2 GetSASThrusterAcceleration(in AccelerationState a, float sasThrustPower)
+        protected bool GetSASThrusterAcceleration(ref Vector2 acc, in AccelerationState a, float sasThrustPower)
         {
-            Vector2 acc = default;
             if (a.Velocity > 0.0001f && a.Travel <= 0.99f)
             {
                 // remove sideways drift
@@ -208,10 +190,12 @@ namespace Ship_Game.Gameplay
                 if (drift > 0f) // leftwards drift, decelerate LEFT (accelerate RIGHT)
                 {
                     PrecisionDecelerate(ref acc, left, a.Velocity, a.ThrustAcc * sasThrustPower);
+                    return true;
                 }
                 else if (drift < 0f) // rightward drift, accelerate LEFT
                 {
                     PrecisionAccelerate(ref acc, left, a.Velocity, a.ThrustAcc * sasThrustPower);
+                    return true;
                 }
                 // no thrust this frame and we're drifting backwards? accelerate forward!
                 else if (ThrustThisFrame == Thrust.Coast && a.Travel < -0.5f)
@@ -219,7 +203,7 @@ namespace Ship_Game.Gameplay
                     ThrustThisFrame = Thrust.Forward;
                 }
             }
-            return acc;
+            return false;
         }
 
         // performs a precise stop, depending on the direction of drift (travel)
