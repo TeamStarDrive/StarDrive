@@ -18,7 +18,7 @@ using Ship_Game.Fleets;
 namespace Ship_Game.AI
 {
     [StarDataType]
-    public sealed partial class EmpireAI
+    public sealed partial class EmpireAI : IDisposable
     {
         [StarData] int NumberOfShipGoals = 6;
         [StarData] public float BuildCapacity { get; private set; }
@@ -73,6 +73,19 @@ namespace Ship_Game.AI
             TechChooser = new(e);
             OffensiveForcePoolManager = new(e);
             BudgetSettings = new(e);
+        }
+
+        ~EmpireAI() { Dispose(false); }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing)
+        {
+            DefensiveCoordinator.Dispose();
         }
 
         [StarDataDeserialized]

@@ -131,7 +131,7 @@ namespace Ship_Game.Universe
         public UniverseScreen Screen;
 
         // TODO: Encapsulate
-        public BatchRemovalCollection<SpaceJunk> JunkList = new();
+        public Array<SpaceJunk> JunkList = new();
 
         public DebugInfoScreen DebugWin => Screen.DebugWin;
         public NotificationManager Notifications => Screen.NotificationManager;
@@ -356,6 +356,8 @@ namespace Ship_Game.Universe
             ClearEmpires();
             PlanetsDict.Clear();
             Spatial.Destroy();
+            SystemsTree.Dispose();
+            PlanetsTree.Dispose();
         }
 
         // This is for UnloadContent / ReloadContent
@@ -397,9 +399,8 @@ namespace Ship_Game.Universe
 
         void ClearSpaceJunk()
         {
-            JunkList.ApplyPendingRemovals();
-            foreach (SpaceJunk spaceJunk in JunkList)
-                spaceJunk.RemoveSceneObject();
+            for (int i = 0; i < JunkList.Count; ++i)
+                JunkList[i]?.RemoveSceneObject();
             JunkList.Clear();
         }
 

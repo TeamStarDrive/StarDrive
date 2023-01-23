@@ -16,7 +16,7 @@ using Ship_Game.Utils;
 namespace Ship_Game.GameScreens.Scene
 {
     [StarDataType]
-    public class SceneInstance
+    public sealed class SceneInstance : IDisposable
     {
         #pragma warning disable 649
         [StarData] public Vector3 SunPos = new Vector3(26000, -26000, 32000);
@@ -72,6 +72,11 @@ namespace Ship_Game.GameScreens.Scene
             {
                 fleet.CreateShips(this, screen);
             }
+        }
+
+        public void Dispose()
+        {
+            Mem.Dispose(ref Particles);
         }
 
         void AddDirectionalLight(string name, Color color, float intensity, Vector3 source, Vector3 target)

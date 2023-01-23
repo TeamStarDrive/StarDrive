@@ -7,22 +7,24 @@ using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
+#pragma warning disable CA1001
 
 namespace Ship_Game.GameScreens.NewGame
 {
     /// <summary>
     /// Helper class for creating a New universe with Empires
     /// </summary>
-    public class UniverseGenerator
+    public sealed class UniverseGenerator
     {
         readonly int NumSystems;
         readonly Array<Vector2> ClaimedSpots = new();
         readonly RaceDesignScreen.GameMode Mode;
-        readonly Empire Player;
         readonly GameDifficulty Difficulty;
         readonly int NumOpponents;
-        UniverseScreen us;
-        UniverseState UState;
+
+        readonly Empire Player;
+        readonly UniverseScreen us;
+        readonly UniverseState UState;
 
         readonly Array<SystemPlaceHolder> Systems = new();
 

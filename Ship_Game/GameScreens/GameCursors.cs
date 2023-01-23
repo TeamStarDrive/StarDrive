@@ -148,10 +148,10 @@ namespace Ship_Game.GameScreens
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetIconInfo(IntPtr hIcon, ref IconInfo pIconInfo);
+        static extern bool GetIconInfo(IntPtr hIcon, ref IconInfo pIconInfo);
 
         [DllImport("user32.dll")]
-        public static extern IntPtr CreateIconIndirect(ref IconInfo icon);
+        static extern IntPtr CreateIconIndirect(ref IconInfo icon);
 
         /// <summary>
         /// Create a cursor from a bitmap without resizing and with the specified hot spot
