@@ -217,7 +217,7 @@ namespace Ship_Game
             try
             {
                 ++FrameId;
-                TotalElapsed = base.TotalGameTimeSeconds;
+                TotalElapsed = (float)base.TotalGameTime;
                 Elapsed = new UpdateTimes(deltaTime, TotalElapsed);
 
                 if (IsDeviceGood) // only Update if device is OK
