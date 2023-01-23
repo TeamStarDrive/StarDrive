@@ -33,6 +33,7 @@ namespace Ship_Game.GameScreens.LoadGame
             SaveFile = saveFile;
         }
 
+        /// <summary>Load UniverseScreen from file</summary>
         /// <param name="file">SaveGame file</param>
         /// <param name="noErrorDialogs">Do not show error dialogs</param>
         /// <param name="startSimThread">Start Universe sim thread (set false for testing)</param>

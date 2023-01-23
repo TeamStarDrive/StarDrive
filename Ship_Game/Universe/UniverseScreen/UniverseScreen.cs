@@ -675,7 +675,7 @@ namespace Ship_Game
         {
             UnloadGraphics();
 
-            Mem.Dispose(ref anomalyManager);
+            anomalyManager = null;
             BombList.Clear();
             PendingSimThreadActions.Dispose();
             NotificationManager?.Clear();

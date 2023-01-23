@@ -15,12 +15,12 @@ namespace Microsoft.Xna.Framework
         [SuppressUnmanagedCodeSecurity]
         [DllImport("kernel32")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool QueryPerformanceFrequency(ref long PerformanceFrequency);
+        internal static extern bool QueryPerformanceFrequency(out long PerformanceFrequency);
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport("kernel32")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool QueryPerformanceCounter(ref long PerformanceCount);
+        internal static extern bool QueryPerformanceCounter(out long PerformanceCount);
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
