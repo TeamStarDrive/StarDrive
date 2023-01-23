@@ -250,23 +250,26 @@ namespace Microsoft.Xna.Framework
             if (elapsedAdjusted > MaximumElapsedTime)
                 elapsedAdjusted = MaximumElapsedTime;
 
+            // fixed time step ticks logic, 
             if (IsFixedTimeStep)
             {
-                if (Math.Abs(elapsedAdjusted.Ticks - TargetElapsedGameTime.Ticks) < TargetElapsedGameTime.Ticks >> 6)
-                    elapsedAdjusted = TargetElapsedGameTime;
+                TimeSpan targetElapsed = TargetElapsedGameTime;
+                if (Math.Abs(elapsedAdjusted.Ticks - targetElapsed.Ticks) < targetElapsed.Ticks >> 6)
+                    elapsedAdjusted = targetElapsed;
 
                 AccumulatedElapsedGameTime += elapsedAdjusted;
-                long num = AccumulatedElapsedGameTime.Ticks / TargetElapsedGameTime.Ticks;
-                AccumulatedElapsedGameTime = new TimeSpan(AccumulatedElapsedGameTime.Ticks % TargetElapsedGameTime.Ticks);
+                long numElapsedSteps = AccumulatedElapsedGameTime.Ticks / targetElapsed.Ticks;
+                AccumulatedElapsedGameTime = new TimeSpan(AccumulatedElapsedGameTime.Ticks % targetElapsed.Ticks);
                 LastFrameElapsedGameTime = TimeSpan.Zero;
-                if (num == 0L)
-                    return;
 
-                TimeSpan targetElapsed = TargetElapsedGameTime;
-
-                while (num > 0L && !ShouldExit)
+                if (numElapsedSteps == 0L)
                 {
-                    --num;
+                    return; // NO steps to do, go back to IDLE and handle messages
+                }
+
+                while (numElapsedSteps > 0L && !ShouldExit)
+                {
+                    --numElapsedSteps;
                     try
                     {
                         Time.ElapsedGameTime = targetElapsed;
@@ -301,9 +304,11 @@ namespace Microsoft.Xna.Framework
                     }
                 }
             }
-            if (skipDraw)
-                return;
-            DrawFrame();
+
+            if (!skipDraw)
+            {
+                DrawFrame();
+            }
         }
 
         public void SuppressDraw()
