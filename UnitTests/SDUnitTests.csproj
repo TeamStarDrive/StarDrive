@@ -158,6 +158,7 @@
     <Compile Include="Universe\UniverseObjectManagerTests.cs" />
     <Compile Include="Utils\BitArrayTests.cs" />
     <Compile Include="Utils\PerfTimerTests.cs" />
+    <Compile Include="Utils\SmallBitSetTests.cs" />
     <Compile Include="Utils\TypesTests.cs" />
   </ItemGroup>
   <ItemGroup>
