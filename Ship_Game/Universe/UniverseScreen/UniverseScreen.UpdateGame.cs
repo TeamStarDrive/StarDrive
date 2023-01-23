@@ -238,8 +238,6 @@ namespace Ship_Game
             EmpireMiscPerf.Start();
             UpdateClickableItems();
 
-            UState.JunkList.ApplyPendingRemovals();
-
             if (anomalyManager != null)
             {
                 for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
@@ -255,20 +253,17 @@ namespace Ship_Game
             {
                 ExplosionManager.Update(this, timeStep.FixedTime);
 
-                using (BombList.AcquireReadLock())
+                for (int i = 0; i < BombList.Count; ++i)
                 {
-                    for (int i = 0; i < BombList.Count; ++i)
-                    {
-                        BombList[i]?.Update(timeStep);
-                    }
+                    BombList[i]?.Update(timeStep);
                 }
-                BombList.ApplyPendingRemovals();
 
                 Shields?.Update(timeStep);
                 FTLManager.Update(this, timeStep);
 
-                for (int index = 0; index < UState.JunkList.Count; ++index)
-                    UState.JunkList[index].Update(timeStep);
+                // update in reverse, to allow Update() to remove the junk
+                for (int i = UState.JunkList.Count - 1; i >= 0; --i)
+                    UState.JunkList[i]?.Update(timeStep);
             }
             EmpireMiscPerf.Stop();
         }

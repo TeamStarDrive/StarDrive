@@ -1,29 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.Ships;
 
-namespace Ship_Game.AI
+namespace Ship_Game.AI;
+
+internal abstract class ShipAIPlan : IDisposable
 {
-    internal abstract class ShipAIPlan : IDisposable
+    public ShipAI AI;
+    public Ship Owner;
+
+    protected ShipAIPlan(ShipAI ai)
     {
-        public ShipAI AI;
-        public Ship Owner;
+        AI = ai;
+        Owner = ai.Owner;
+    }
 
-        protected ShipAIPlan(ShipAI ai)
-        {
-            AI = ai;
-            Owner = ai.Owner;
-        }
+    ~ShipAIPlan() { Dispose(false); }
 
-        public abstract void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g);
+    public abstract void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g);
 
-        public void Dispose()
-        {
-            AI = null;
-            Owner = null;
-        }
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        AI = null;
+        Owner = null;
     }
 }

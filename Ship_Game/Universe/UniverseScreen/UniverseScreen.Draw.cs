@@ -990,15 +990,12 @@ namespace Ship_Game
 
         void DrawBombs()
         {
-            using (BombList.AcquireReadLock())
+            for (int i = BombList.Count - 1; i >= 0; --i)
             {
-                for (int i = 0; i < BombList.Count; i++)
+                Bomb bomb = BombList[i];
+                if (bomb?.Model != null)
                 {
-                    Bomb bomb = BombList[i];
-                    if (bomb.Model != null)
-                    {
-                        Projectile.DrawMesh(this, bomb.Model, bomb.World, bomb.Texture.Texture, scale:25f);
-                    }
+                    Projectile.DrawMesh(this, bomb.Model, bomb.World, bomb.Texture.Texture, scale:25f);
                 }
             }
         }

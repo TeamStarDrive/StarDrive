@@ -13,7 +13,7 @@ namespace Ship_Game.Spatial;
 /// Such as: SolarSystem locations, Planet locations, ThreatMatrix clusters,
 /// everything which inherits from SpatialObjectBase
 /// </summary>
-public partial class GenericQtree
+public sealed partial class GenericQtree : IDisposable
 {
     /// <summary>
     /// How many objects to store per cell before subdividing
@@ -72,6 +72,19 @@ public partial class GenericQtree
             FullSize *= 2;
         }
         Clear();
+    }
+
+    ~GenericQtree() { Dispose(false); }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    void Dispose(bool disposing)
+    {
+        FindBuffer.Dispose();
     }
 
     public void Clear()

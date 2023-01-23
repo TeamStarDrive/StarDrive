@@ -26,10 +26,12 @@ namespace Ship_Game.AI
         float EnemyScanTimer;
         float FriendScanTimer;
 
+        #pragma warning disable CA2213
         [StarData] public Ship EscortTarget;
         public Planet ExterminationTarget;
-
         [StarData] public Ship Target;
+        #pragma warning restore CA2213
+
         public Array<Ship> TargetQueue = new();
         float TriggerDelay;
         Array<Ship> ScannedTargets = new();

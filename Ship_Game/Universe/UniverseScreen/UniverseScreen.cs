@@ -22,7 +22,6 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Rectangle = SDGraphics.Rectangle;
 using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
-using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -36,25 +35,27 @@ namespace Ship_Game
         public string StarDateString => UState.StarDate.StarDateString();
         public float LastAutosaveTime = 0;
 
-        public Array<Ship> SelectedShipList = new Array<Ship>();
+        public Array<Ship> SelectedShipList = new();
 
         public ClickablePlanet[] ClickablePlanets = Empty<ClickablePlanet>.Array;
         ClickableSystem[] ClickableSystems = Empty<ClickableSystem>.Array;
         ClickableShip[] ClickableShips = Empty<ClickableShip>.Array;
         public ClickableSpaceBuildGoal[] ClickableBuildGoals = Empty<ClickableSpaceBuildGoal>.Array;
 
-        readonly Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
+        readonly Array<ClickableFleet> ClickableFleetsList = new();
+        #pragma warning disable CA2213
         public Planet SelectedPlanet;
         public Ship SelectedShip;
+        #pragma warning restore CA2213
         public ClickableSpaceBuildGoal SelectedItem;
         ClickablePlanet TippedPlanet;
         ClickableSystem tippedSystem;
 
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
-        
+
         public Background bg;
 
-        public BatchRemovalCollection<Bomb> BombList  = new();
+        public Array<Bomb> BombList  = new();
         readonly AutoResetEvent DrawCompletedEvt = new(false);
 
         public const double MinCamHeight = 450.0;
@@ -96,7 +97,11 @@ namespace Ship_Game
         public RenderTarget2D MainTarget;
         public RenderTarget2D BorderRT;
         RenderTarget2D LightsTarget;
+
+        #pragma warning disable CA2213 // managed by Content Manager
         public Effect basicFogOfWarEffect;
+        #pragma warning restore CA2213
+
         public Rectangle SelectedStuffRect;
         public NotificationManager NotificationManager;
         public ShieldManager Shields;
@@ -171,7 +176,7 @@ namespace Ship_Game
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.P == p;
         public bool IsViewingColonyScreen(Planet p) => LookingAtPlanet && workersPanel is ColonyScreen cs && cs.P == p;
-        
+
         /// <summary>
         /// RADIUS of the universe, Stars are generated within XY range [-universeRadius, +universeRadius]
         /// </summary>
@@ -659,9 +664,11 @@ namespace Ship_Game
             Mem.Dispose(ref MainTarget);
             Mem.Dispose(ref LightsTarget);
             Mem.Dispose(ref Particles);
-            Mem.Dispose(ref bg);
             Mem.Dispose(ref SR);
             Mem.Dispose(ref Shields);
+            Mem.Dispose(ref aw);
+            Mem.Dispose(ref DebugWin);
+            Mem.Dispose(ref workersPanel);
         }
 
         protected override void Dispose(bool disposing)
@@ -669,10 +676,14 @@ namespace Ship_Game
             UnloadGraphics();
 
             Mem.Dispose(ref anomalyManager);
-            Mem.Dispose(ref BombList);
+            BombList.Clear();
             PendingSimThreadActions.Dispose();
             NotificationManager?.Clear();
             SelectedShipList = new();
+
+            DrawCompletedEvt.Dispose();
+            UState.Dispose();
+
             base.Dispose(disposing);
         }
 
@@ -689,8 +700,6 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.Music.Stop();
 
-            UState.Dispose();
-
             ShipToView = null;
             SelectedShip   = null;
             SelectedFleet  = null;
@@ -704,7 +713,7 @@ namespace Ship_Game
             ClickableSystems = Empty<ClickableSystem>.Array;
 
             base.ExitScreen();
-            Dispose(); // will call Destroy() and UnloadGraphics()
+            Dispose(); // will call virtual Dispose(bool disposing) and UnloadGraphics()
 
             HelperFunctions.CollectMemory();
             // make sure we reset the latest savegame attachment

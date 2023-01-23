@@ -1,75 +1,82 @@
 using System;
+using SDUtils;
 using Ship_Game.AI.ShipMovement;
-using Ship_Game.Ships;
-using Ship_Game.Gameplay;
 
-namespace Ship_Game.AI
+namespace Ship_Game.AI;
+
+public sealed class CombatAI : IDisposable
 {
-    public sealed class CombatAI
+    readonly ShipAI AI;
+    ShipAIPlan CombatTactic;
+    CombatState CurrentCombatStance;
+
+    public CombatAI(ShipAI ai)
     {
-        ShipAI AI;
-        ShipAIPlan CombatTactic;
-        CombatState CurrentCombatStance;
+        AI = ai;
+        CurrentCombatStance = ai.CombatState;
+        SetCombatTactics(CurrentCombatStance);
+    }
 
-        public CombatAI(ShipAI ai)
+    public void Dispose()
+    {
+        Mem.Dispose(ref CombatTactic);
+    }
+
+    public void SetCombatTactics(CombatState combatState)
+    {
+        if (CurrentCombatStance != combatState)
         {
-            AI = ai;
-            CurrentCombatStance = ai.CombatState;
-            SetCombatTactics(CurrentCombatStance);
+            CurrentCombatStance = combatState;
+            Mem.Dispose(ref CombatTactic);
+            AI.Owner.ShipStatusChanged = true; // FIX: force DesiredCombatRange update
         }
 
-        public void SetCombatTactics(CombatState combatState)
+        if (CombatTactic == null)
         {
-            if (CurrentCombatStance != combatState)
+            switch (combatState)
             {
-                CurrentCombatStance = combatState;
-                CombatTactic = null;
-                AI.Owner.ShipStatusChanged = true; // FIX: force DesiredCombatRange update
-            }
-
-            if (CombatTactic == null)
-            {
-                switch (combatState)
-                {
-                    case CombatState.Artillery:
-                        CombatTactic = new CombatTactics.Artillery(AI);
-                        break;
-                    case CombatState.BroadsideLeft:
-                        CombatTactic = new CombatTactics.BroadSides(AI, OrbitPlan.OrbitDirection.Left);
-                        break;
-                    case CombatState.BroadsideRight:
-                        CombatTactic = new CombatTactics.BroadSides(AI, OrbitPlan.OrbitDirection.Right);
-                        break;
-                    case CombatState.OrbitLeft:
-                        CombatTactic = new CombatTactics.OrbitTarget(AI, OrbitPlan.OrbitDirection.Left);
-                        break;
-                    case CombatState.OrbitRight:
-                        CombatTactic = new CombatTactics.OrbitTarget(AI, OrbitPlan.OrbitDirection.Right);
-                        break;
-                    case CombatState.AttackRuns:
-                        CombatTactic = new CombatTactics.AttackRun(AI);
-                        break;
-                    case CombatState.HoldPosition:
-                        CombatTactic = new CombatTactics.HoldPosition(AI);
-                        break;
-                    case CombatState.Evade:
-                        CombatTactic = new CombatTactics.Evade(AI);
-                        break;
-                    case CombatState.OrbitalDefense:
-                        break;
-                    case CombatState.GuardMode: // in guard mode use Artillery, to preserve fleet formation
-                    case CombatState.AssaultShip:
-                    case CombatState.ShortRange:
-                        CombatTactic = new CombatTactics.Artillery(AI);
-                        break;
-                }
-
+                case CombatState.Artillery:
+                    SetCombatTactic(new CombatTactics.Artillery(AI));
+                    break;
+                case CombatState.BroadsideLeft:
+                    SetCombatTactic(new CombatTactics.BroadSides(AI, OrbitPlan.OrbitDirection.Left));
+                    break;
+                case CombatState.BroadsideRight:
+                    SetCombatTactic(new CombatTactics.BroadSides(AI, OrbitPlan.OrbitDirection.Right));
+                    break;
+                case CombatState.OrbitLeft:
+                    SetCombatTactic(new CombatTactics.OrbitTarget(AI, OrbitPlan.OrbitDirection.Left));
+                    break;
+                case CombatState.OrbitRight:
+                    SetCombatTactic(new CombatTactics.OrbitTarget(AI, OrbitPlan.OrbitDirection.Right));
+                    break;
+                case CombatState.AttackRuns:
+                    SetCombatTactic(new CombatTactics.AttackRun(AI));
+                    break;
+                case CombatState.HoldPosition:
+                    SetCombatTactic(new CombatTactics.HoldPosition(AI));
+                    break;
+                case CombatState.Evade:
+                    SetCombatTactic(new CombatTactics.Evade(AI));
+                    break;
+                case CombatState.OrbitalDefense:
+                    break;
+                case CombatState.GuardMode: // in guard mode use Artillery, to preserve fleet formation
+                case CombatState.AssaultShip:
+                case CombatState.ShortRange:
+                    SetCombatTactic(new CombatTactics.Artillery(AI));
+                    break;
             }
         }
+    }
 
-        public void ExecuteCombatTactic(FixedSimTime timeStep)
-        {
-            CombatTactic?.Execute(timeStep, null);
-        }
+    void SetCombatTactic(ShipAIPlan tactic)
+    {
+        CombatTactic = tactic;
+    }
+
+    public void ExecuteCombatTactic(FixedSimTime timeStep)
+    {
+        CombatTactic?.Execute(timeStep, null);
     }
 }

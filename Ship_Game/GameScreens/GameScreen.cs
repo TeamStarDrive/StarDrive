@@ -160,6 +160,7 @@ namespace Ship_Game
             if (IsDisposed)
                 return;
             IsDisposed = true;
+            RemoveAll();
             Mem.Dispose(ref TransientContent);
             PendingActions.Dispose();
         }
@@ -189,6 +190,7 @@ namespace Ship_Game
             ScreenManager.AssignLightRig(identity, lightRig);
         }
 
+        // ExitScreen will also call this.Dispose(true)
         public virtual void ExitScreen()
         {
             IsExiting = true;
@@ -265,7 +267,7 @@ namespace Ship_Game
             Log.Write($"BecameInActive: {GetType().GetTypeName()}");
             BecameInActive();
         }
-        
+
         // NOTE: Optionally implemented by GameScreens to create their screen content
         //       This is also called when the screen is being reloaded
         public virtual void LoadContent() { }
@@ -288,7 +290,7 @@ namespace Ship_Game
             RemoveAll(); // using RemoveAll() here to ensure all necessary events are triggered, instead of Elements.Clear()
             DidLoadContent = false;
         }
-        
+
         public virtual void ReloadContent()
         {
             UnloadContent();

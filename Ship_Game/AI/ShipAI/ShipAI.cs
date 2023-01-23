@@ -164,7 +164,7 @@ namespace Ship_Game.AI
             Mem.Dispose(ref PickupGoods);
             Mem.Dispose(ref Orbit);
 
-            CombatAI = null;
+            Mem.Dispose(ref CombatAI);
             EscortTarget = null;
             ExterminationTarget = null;
             Target = null;
@@ -179,7 +179,7 @@ namespace Ship_Game.AI
             ScannedProjectiles = null;
 
             OrbitTarget = null;
-            WayPoints?.Clear();
+            WayPoints?.Dispose();
             WayPoints = null;
         }
 
