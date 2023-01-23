@@ -27,9 +27,9 @@ namespace Ship_Game
         // shield attached to a ShipModule
         public Shield(GameObject owner, float rotation, Vector2 center)
         {
-            Owner         = owner;
-            TexScale      = 2.8f;
-            Rotation      = rotation;
+            Owner = owner;
+            TexScale = 2.8f;
+            Rotation = rotation;
             UpdateWorldTransform();
         }
 

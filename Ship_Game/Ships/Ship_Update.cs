@@ -38,7 +38,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsVisibleToPlayer => InFrustum && InPlayerSensorRange && Universe.IsSystemViewOrCloser;
+        public bool IsVisibleToPlayer => InFrustum && Universe.IsSystemViewOrCloser && InPlayerSensorRange;
 
         public bool IsVisibleToPlayerInMap => InFrustum && InPlayerSensorRange;
 
