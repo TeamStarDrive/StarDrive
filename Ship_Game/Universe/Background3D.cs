@@ -14,11 +14,15 @@ namespace Ship_Game
     {
         readonly UniverseScreen Screen;
         readonly Array<BackgroundItem> BGItems = new();
+
+        //readonly BatchedSprites BGSprites;
         readonly SeededRandom Random;
 
-        public Background3D(UniverseScreen screen)
+        public Background3D(UniverseScreen screen, SpriteRenderer sr)
         {
             Random = new SeededRandom(screen.UState.BackgroundSeed);
+            //BGSprites = new(sr);
+
             Screen = screen;
             float universeSize = screen.UState.Size;
 
@@ -39,6 +43,7 @@ namespace Ship_Game
 
             // sort by texture to avoid unnecessary texture switching
             BGItems.Sort(item => item.SubTex.Name);
+            //BGSprites.Compile();
         }
 
         static BackgroundItem CreateBGItem(in RectF r, float zDepth, SubTexture nebTexture)
