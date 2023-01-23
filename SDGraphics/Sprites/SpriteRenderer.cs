@@ -18,10 +18,11 @@ public class SpriteRenderer : IDisposable
     public readonly GraphicsDevice Device;
     VertexDeclaration VD;
     Shader Simple;
-    EffectParameter ViewProjectionParam;
-    EffectParameter TextureParam;
-    EffectParameter UseTextureParam;
-    
+    readonly EffectPass SimplePass;
+    readonly EffectParameter ViewProjectionParam;
+    readonly EffectParameter TextureParam;
+    readonly EffectParameter UseTextureParam;
+
     unsafe delegate void DrawUserIndexedPrimitivesD(
         GraphicsDevice device,
         PrimitiveType primitiveType,
@@ -43,6 +44,7 @@ public class SpriteRenderer : IDisposable
         ViewProjectionParam = Simple["ViewProjection"];
         TextureParam = Simple["Texture"];
         UseTextureParam = Simple["UseTexture"];
+        SimplePass = Simple.CurrentTechnique.Passes[0];
 
         const BindingFlags anyMethod = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
         MethodInfo method = typeof(GraphicsDevice).GetMethod("RawDrawUserIndexedPrimitives", anyMethod);
@@ -65,16 +67,33 @@ public class SpriteRenderer : IDisposable
         }
     }
 
+    public bool IsBegin { get; private set; }
+
     public void Begin(in Matrix viewProjection)
     {
+        if (IsBegin)
+        {
+            End();
+        }
+
         SetViewProjection(viewProjection);
+
+        IsBegin = true;
     }
 
     public void Begin(in Matrix view, in Matrix projection)
     {
         view.Multiply(projection, out Matrix viewProjection);
         //Matrix.Invert(viewProjection, out Matrix invViewProj);
-        SetViewProjection(viewProjection);
+        Begin(viewProjection);
+    }
+
+    public void End()
+    {
+        if (IsBegin)
+        {
+            IsBegin = false;
+        }
     }
 
     static unsafe void FillVertexData(VertexCoordColor* vertices, short* indices, int index,
@@ -122,23 +141,18 @@ public class SpriteRenderer : IDisposable
         UseTextureParam.SetValue(useTexture);
 
         Device.VertexDeclaration = VD;
+
         Simple.Begin();
-        EffectPassCollection passes = Simple.CurrentTechnique.Passes;
-        int numPasses = passes.Count;
-        for (int i = 0; i < numPasses; ++i)
-        {
-            EffectPass pass = passes[i];
-            pass.Begin();
-            DrawUserIndexedPrimitives(Device, PrimitiveType.TriangleList,
-                numVertices: 4,
-                primitiveCount: 2,
-                pIndexData: indices,
-                indexFormat: 101, // 101: ushort indices, 102: uint indices
-                pVertexData: vertices,
-                vertexStride: sizeof(VertexCoordColor)
-            );
-            pass.End();
-        }
+        SimplePass.Begin();
+        DrawUserIndexedPrimitives(Device, PrimitiveType.TriangleList,
+            numVertices: 4,
+            primitiveCount: 2,
+            pIndexData: indices,
+            indexFormat: 101, // 101: ushort indices, 102: uint indices
+            pVertexData: vertices,
+            vertexStride: sizeof(VertexCoordColor)
+        );
+        SimplePass.End();
         Simple.End();
     }
 
