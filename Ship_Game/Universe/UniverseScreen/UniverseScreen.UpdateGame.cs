@@ -240,13 +240,11 @@ namespace Ship_Game
 
             if (anomalyManager != null)
             {
-                for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
+                for (int i = anomalyManager.AnomaliesList.Count - 1; i >= 0; --i)
                 {
                     Anomaly anomaly = anomalyManager.AnomaliesList[i];
-                    anomaly.Update(timeStep);
+                    anomaly?.Update(timeStep);
                 }
-
-                anomalyManager.AnomaliesList.ApplyPendingRemovals();
             }
 
             if (timeStep.FixedTime > 0)
