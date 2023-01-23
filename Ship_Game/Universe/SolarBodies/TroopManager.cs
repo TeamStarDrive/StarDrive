@@ -7,6 +7,7 @@ using Ship_Game.GameScreens.DiplomacyScreen;
 using Point = SDGraphics.Point;
 using Ship_Game.Data.Serialization;
 using System.Collections.Generic;
+using Ship_Game.Utils;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -15,35 +16,33 @@ namespace Ship_Game
     public class TroopManager // Refactored by Fat Bastard. Feb 6, 2019
     {
         [StarData] readonly Planet Ground;
+        [StarData] readonly Array<Troop> TroopsHere = new();
 
-        // TODO: make private after Planet.TroopsHere is removed
-        [StarData] public Array<Troop> TroopsHere = new();
+        // optimized bit-set for which faction troops are present here
+        [StarData] SmallBitSet FactionTroopsPresentHere;
 
         Empire Owner => Ground.Owner;
         public int Count => TroopsHere.Count;
 
-        public bool RecentCombat       => InCombatTimer > 0 && ForeignTroopHere(Owner);
-        private bool NoTroopsOnPlanet  => TroopsHere.IsEmpty;
-        private bool TroopsAreOnPlanet => TroopsHere.NotEmpty;
+        public bool RecentCombat => InCombatTimer > 0f && ForeignTroopHere(Owner);
+        bool NoTroopsOnPlanet  => TroopsHere.IsEmpty;
 
-        private Array<PlanetGridSquare> TilesList => Ground.TilesList;
-        private SolarSystem ParentSystem          => Ground.ParentSystem;
+        Array<PlanetGridSquare> TilesList => Ground.TilesList;
+        SolarSystem ParentSystem => Ground.ParentSystem;
 
         // TODO: refactor these getters
-        public bool WeAreInvadingHere(Empire us)  => WeHaveTroopsHere(us) && Ground.Owner != us;
-        public bool ForeignTroopHere(Empire us)   => TroopsHere.Any(t => t.Loyalty != null && t.Loyalty != us);
-        public bool MightBeAWarZone(Empire us)    => RecentCombat || Ground.SpaceCombatNearPlanet || ForeignTroopHere(us);
-        public bool MightBeAWarZone()             => MightBeAWarZone(Ground.Owner);
-        public float OwnerTroopStrength           => TroopsHere.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
+        public bool WeAreInvadingHere(Empire us) => Ground.Owner != us && WeHaveTroopsHere(us);
+        public bool MightBeAWarZone(Empire us) => RecentCombat || Ground.SpaceCombatNearPlanet || ForeignTroopHere(us);
+        public float OwnerTroopStrength => TroopsHere.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
 
         public int NumDefendingTroopCount => NumTroopsHere(Owner);
         public int NumTroopsCanLaunchFor(Empire empire) => TroopsHere.Count(t => t.Loyalty == empire && t.CanLaunch);
         public int NumTroopsCanMoveFor(Empire empire) => GetTroopsOf(empire).Count(t => t.CanMove);
 
-        private float DecisionTimer;
-        private float InCombatTimer;
-        private int NumInvadersLast;
-        private bool Init = true; // Force initial timers update in case of combat when the class is created
+        float DecisionTimer;
+        float InCombatTimer;
+        int NumInvadersLast;
+        bool Init = true; // Force initial timers update in case of combat when the class is created
 
         public void SetInCombat(float timer = 1)
         {
@@ -70,6 +69,7 @@ namespace Ship_Game
             {
                 if (TroopsHere.AddUniqueRef(troop))
                 {
+                    FactionTroopsPresentHere.Set(troop.Loyalty.Id);
                     tile.AddTroop(troop);
                 }
             }
@@ -84,6 +84,9 @@ namespace Ship_Game
                 {
                     if (tile == null || !tile.TroopsHere.Remove(troop))
                         Ground.SearchAndRemoveTroopFromAllTiles(troop);
+
+                    bool anyLeftHere = WeHaveTroopsHereUncached(troop.Loyalty);
+                    FactionTroopsPresentHere.SetValue(troop.Loyalty.Id, anyLeftHere);
                     return true;
                 }
                 return false;
@@ -548,11 +551,25 @@ namespace Ship_Game
             return count;
         }
 
-        public bool WeHaveTroopsHere(Empire empire)
+        public bool WeHaveTroopsHereUncached(Empire empire)
         {
             for (int i = 0; i < TroopsHere.Count; ++i) // using loop for perf
                 if (TroopsHere[i].Loyalty == empire) return true;
             return false;
+        }
+
+        public bool WeHaveTroopsHere(Empire empire)
+        {
+            if (empire == null)
+                return false;
+            return FactionTroopsPresentHere.IsSet(empire.Id);
+        }
+
+        public bool ForeignTroopHere(Empire us)
+        {
+            if (us == null)
+                return FactionTroopsPresentHere.IsAnyBitsSet;
+            return FactionTroopsPresentHere.IsAnyBitsSetExcept(us.Id);
         }
 
         public bool TroopsHereAreEnemies(Empire empire)

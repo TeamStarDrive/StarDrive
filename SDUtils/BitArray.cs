@@ -44,7 +44,7 @@ public struct BitArray
 
     /// <param name="index">Index of the bit</param>
     /// <returns>True if the bit is set, false otherwise.</returns>
-    [Pure] public bool IsSet(int index)
+    [Pure] public readonly bool IsSet(int index)
     {
         int wordIndex = index / 32;
         uint mask = (uint)(1 << (index % 32));
@@ -82,7 +82,7 @@ public struct BitArray
     }
 
     /// <returns>Index of the first bit which is set, or -1 if none</returns>
-    public int GetFirstSetBitIndex()
+    [Pure] public readonly int GetFirstSetBitIndex()
     {
         for (int i = 0; i < Values.Length; ++i)
         {
@@ -101,7 +101,7 @@ public struct BitArray
     }
 
     /// <returns>TRUE if any of the bits are set</returns>
-    public bool IsAnyBitsSet
+    [Pure] public readonly bool IsAnyBitsSet
     {
         get
         {
@@ -112,7 +112,7 @@ public struct BitArray
     }
 
     /// <returns>Number of bits that are set in this SmallBitSet</returns>
-    public int NumBitsSet()
+    [Pure] public readonly int NumBitsSet()
     {
         int numSet = 0;
         for (int i = 0; i < Values.Length; ++i)
@@ -148,7 +148,7 @@ public struct BitArray
         return sb.ToString();
     }
 
-    public bool[] ToArray()
+    [Pure] public readonly bool[] ToArray()
     {
         bool[] bits = new bool[Values.Length * 32];
         for (int i = 0; i < bits.Length; ++i)
