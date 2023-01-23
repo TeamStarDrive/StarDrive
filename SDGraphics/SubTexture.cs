@@ -1,23 +1,31 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using SDGraphics.Rendering;
 
 namespace SDGraphics;
 
 public class SubTexture
 {
     // name="sprite1" x="461" y="1317" width="28" height="41"
-    public readonly string Name;        // name of the sprite for name-based lookup
+    public readonly string Name; // name of the sprite for name-based lookup
     public readonly int X;
     public readonly int Y;
     public readonly int Width;
     public readonly int Height;
     public readonly Texture2D Texture;
 
-    // path to the source of the texture
-    // this could be a stand-alone file before being packed to an atlas
-    // or it might be a pre-packed atlas file
+    /// <summary>
+    /// path to the source of the texture
+    /// this could be a stand-alone file before being packed to an atlas
+    /// or it might be a pre-packed atlas file
+    /// </summary>
     public readonly string TexturePath;
 
-    public Rectangle Rect => new Rectangle(X, Y, Width, Height);
+    /// <summary>
+    /// Pre-calculated UV-Coordinates that can be used for sprite rendering
+    /// </summary>
+    public readonly Quad2D UVCoords;
+
+    public Rectangle Rect => new(X, Y, Width, Height);
     public int Right  => X + Width;
     public int Bottom => Y + Height;
 
@@ -30,6 +38,12 @@ public class SubTexture
         Height = h;
         Texture = texture;
         TexturePath = texturePath;
+
+        float tx = x / (float)texture.Width;
+        float ty = y / (float)texture.Height;
+        float tw = (w - 1) / (float)texture.Width;
+        float th = (h - 1) / (float)texture.Height;
+        UVCoords = new(tx, ty, tw, th);
     }
 
     // special case: SubTexture is a container for a full texture
@@ -40,13 +54,8 @@ public class SubTexture
         Height = fullTexture.Height;
         Texture = fullTexture;
         TexturePath = texturePath;
+        UVCoords = new(0.0f, 0.0f, 1.0f, 1.0f);
     }
-
-    // UV-coordinates
-    public float CoordLeft   => X / (float)Texture.Width;
-    public float CoordTop    => Y / (float)Texture.Height;
-    public float CoordRight  => (X + (Width  - 1)) / (float)Texture.Width;
-    public float CoordBottom => (Y + (Height - 1)) / (float)Texture.Height;
 
     public Vector2 CenterF => new(Width/2f, Height/2f);
     public Vector2 SizeF => new(Width, Height);
@@ -56,6 +65,7 @@ public class SubTexture
 
     public float AspectRatio => Width / (float)Height;
 
+    // TODO: document the aspect-fill stuff
     public float GetHeightFromWidthAspect(float wantedWidth) => GetHeightFromWidthAspect(Width, Height, wantedWidth);
     public float GetWidthFromHeightAspect(float wantedHeight) => GetWidthFromHeightAspect(Width, Height, wantedHeight);
     public Vector2 GetAspectFill(float minSize) => GetAspectFill(Width, Height, minSize);
