@@ -363,6 +363,8 @@ namespace Ship_Game.Utils
 
         public void Clear()
         {
+            if (Count == 0) // double-check locking
+                return;
             try
             {
                 ThisLock.EnterWriteLock();
@@ -431,6 +433,8 @@ namespace Ship_Game.Utils
 
         public T[] ToArray()
         {
+            if (Count == 0) // double-check locking
+                return Empty<T>.Array;
             try
             {
                 ThisLock.EnterReadLock();
@@ -451,6 +455,8 @@ namespace Ship_Game.Utils
 
         public T[] TakeAll()
         {
+            if (Count == 0) // double-check locking
+                return Empty<T>.Array;
             try
             {
                 ThisLock.EnterWriteLock();
@@ -484,6 +490,9 @@ namespace Ship_Game.Utils
             return GetType().GetTypeName();
         }
 
+        /// <summary>
+        /// Clears the queue and disposes all locks/events
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -494,7 +503,9 @@ namespace Ship_Game.Utils
 
         void Dispose(bool force)
         {
-            Count = 0;
+            if (Count > 0)
+                Clear();
+
             if (force)
             {
                 var itemAdded = ItemAdded;
