@@ -13,12 +13,13 @@ using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 /// <summary>
 /// An interface for drawing 2D or 3D sprites
 /// </summary>
-public class SpriteRenderer : IDisposable
+public sealed class SpriteRenderer : IDisposable
 {
     public readonly GraphicsDevice Device;
-    VertexDeclaration VD;
-    Shader Simple;
-    readonly EffectPass SimplePass;
+    public VertexDeclaration VertexDeclaration;
+
+    internal Shader Simple;
+    internal readonly EffectPass SimplePass;
     readonly EffectParameter ViewProjectionParam;
     readonly EffectParameter TextureParam;
     readonly EffectParameter UseTextureParam;
@@ -38,7 +39,7 @@ public class SpriteRenderer : IDisposable
     public SpriteRenderer(GraphicsDevice device)
     {
         Device = device ?? throw new NullReferenceException(nameof(device));
-        VD = new VertexDeclaration(device, VertexCoordColor.VertexElements);
+        VertexDeclaration = new VertexDeclaration(device, VertexCoordColor.VertexElements);
 
         Simple = Shader.FromFile(device, "Content/Effects/Simple.fx");
         ViewProjectionParam = Simple["ViewProjection"];
@@ -55,7 +56,7 @@ public class SpriteRenderer : IDisposable
 
     public void Dispose()
     {
-        Mem.Dispose(ref VD);
+        Mem.Dispose(ref VertexDeclaration);
         Mem.Dispose(ref Simple);
     }
 
@@ -96,8 +97,8 @@ public class SpriteRenderer : IDisposable
         }
     }
 
-    static unsafe void FillVertexData(VertexCoordColor* vertices, short* indices, int index,
-                                      in Quad3D quad, in Quad2D coords, Color color)
+    public static unsafe void FillVertexData(VertexCoordColor* vertices, ushort* indices, int index,
+                                             in Quad3D quad, in Quad2D coords, Color color)
     {
         int vertexOffset = index * 4;
         int indexOffset = index * 6;
@@ -107,12 +108,12 @@ public class SpriteRenderer : IDisposable
         vertices[vertexOffset + 2] = new VertexCoordColor(quad.C, color, coords.C); // BotRight
         vertices[vertexOffset + 3] = new VertexCoordColor(quad.D, color, coords.D); // BotLeft
 
-        indices[indexOffset + 0] = (short)(vertexOffset + 0);
-        indices[indexOffset + 1] = (short)(vertexOffset + 1);
-        indices[indexOffset + 2] = (short)(vertexOffset + 2);
-        indices[indexOffset + 3] = (short)(vertexOffset + 0);
-        indices[indexOffset + 4] = (short)(vertexOffset + 2);
-        indices[indexOffset + 5] = (short)(vertexOffset + 3);
+        indices[indexOffset + 0] = (ushort)(vertexOffset + 0);
+        indices[indexOffset + 1] = (ushort)(vertexOffset + 1);
+        indices[indexOffset + 2] = (ushort)(vertexOffset + 2);
+        indices[indexOffset + 3] = (ushort)(vertexOffset + 0);
+        indices[indexOffset + 4] = (ushort)(vertexOffset + 2);
+        indices[indexOffset + 5] = (ushort)(vertexOffset + 3);
     }
 
     [Conditional("DEBUG")]
@@ -122,15 +123,8 @@ public class SpriteRenderer : IDisposable
             throw new ObjectDisposedException($"Texture2D '{texture.Name}'");
     }
 
-    static readonly Quad2D DefaultCoords = new(new RectF(0, 0, 1, 1));
-
-    public unsafe void Draw(Texture2D texture, in Quad3D quad, in Quad2D coords, Color color)
+    internal void ShaderBegin(Texture2D texture)
     {
-        // stack allocating these is extremely important to reduce memory pressure
-        VertexCoordColor* vertices = stackalloc VertexCoordColor[4];
-        short* indices = stackalloc short[6];
-        FillVertexData(vertices, indices, 0, quad, coords, color);
-
         bool useTexture = texture != null;
         if (useTexture)
         {
@@ -140,10 +134,30 @@ public class SpriteRenderer : IDisposable
         }
         UseTextureParam.SetValue(useTexture);
 
-        Device.VertexDeclaration = VD;
-
         Simple.Begin();
         SimplePass.Begin();
+    }
+
+    internal void ShaderEnd()
+    {
+        SimplePass.End();
+        Simple.End();
+    }
+
+    /// <summary>
+    /// Enables direct draw to the GPU. This is quite inefficient, so consider
+    /// using BatchedSprites where possible.
+    /// </summary>
+    public unsafe void Draw(Texture2D texture, in Quad3D quad, in Quad2D coords, Color color)
+    {
+        // stack allocating these is extremely important to reduce memory pressure
+        VertexCoordColor* vertices = stackalloc VertexCoordColor[4];
+        ushort* indices = stackalloc ushort[6];
+        FillVertexData(vertices, indices, 0, quad, coords, color);
+
+        Device.VertexDeclaration = VertexDeclaration;
+
+        ShaderBegin(texture);
         DrawUserIndexedPrimitives(Device, PrimitiveType.TriangleList,
             numVertices: 4,
             primitiveCount: 2,
@@ -152,9 +166,15 @@ public class SpriteRenderer : IDisposable
             pVertexData: vertices,
             vertexStride: sizeof(VertexCoordColor)
         );
-        SimplePass.End();
-        Simple.End();
+        ShaderEnd();
     }
+
+    public void Draw(BatchedSprites sprites)
+    {
+        sprites.Draw(this);
+    }
+
+    static readonly Quad2D DefaultCoords = new(new RectF(0, 0, 1, 1));
 
     public void Draw(Texture2D texture, in Vector3 center, in Vector2 size, Color color)
     {
