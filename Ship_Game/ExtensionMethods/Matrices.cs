@@ -79,14 +79,21 @@ namespace Ship_Game
         {
             view.Multiply(projection, out Matrix viewProjection);
             Matrix.Invert(viewProjection, out Matrix invViewProj);
+            return Unproject(viewport, in source, in invViewProj);
+        }
 
+        public static Vector3d Unproject(this Viewport viewport, in Vector3d source,
+                                         in Matrix inverseViewProjection)
+        {
             Vector3d src;
             src.X =  ((source.X - viewport.X) / viewport.Width  * 2.0 - 1.0);
             src.Y = -((source.Y - viewport.Y) / viewport.Height * 2.0 - 1.0);
             src.Z =  ((source.Z - viewport.MinDepth) / (viewport.MaxDepth - viewport.MinDepth));
 
-            Vector3d worldPos = src.Transform(invViewProj);
-            double a = (src.X*invViewProj.M14 + src.Y*invViewProj.M24 + src.Z*invViewProj.M34) + invViewProj.M44;
+            Vector3d worldPos = src.Transform(in inverseViewProjection);
+            double a = (src.X*inverseViewProjection.M14 +
+                        src.Y*inverseViewProjection.M24 +
+                        src.Z*inverseViewProjection.M34) + inverseViewProjection.M44;
             if (!a.AlmostEqual(1.0)) // normalize
                 worldPos /= a;
             return worldPos;

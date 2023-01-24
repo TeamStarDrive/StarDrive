@@ -39,6 +39,12 @@ internal class SolarDebug : DebugPage
             }
         }
 
+        Spatial.VisualizerOptions sysOpt = new() { ObjectText = true };
+        Universe.SystemsTree.DebugVisualize(Screen, sysOpt);
+
+        Spatial.VisualizerOptions planetsOpt = new() { ObjectText = true, ZPlane = 2500 };
+        Universe.PlanetsTree.DebugVisualize(Screen, planetsOpt);
+
         base.Draw(spriteBatch, elapsed);
     }
 }

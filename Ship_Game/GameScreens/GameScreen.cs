@@ -93,6 +93,7 @@ namespace Ship_Game
         public Matrix View = Matrix.Identity; // @see SetViewMatrix
         public Matrix Projection; // @see SetPerspectiveProjection
         public Matrix ViewProjection; // View * Projection
+        public Matrix InverseViewProjection; // Inverse(View * Projection)
 
         // deferred renderer allows some basic commands to be queued up to be drawn. 
         // this is useful when wanted to draw from handle input routines and other areas. 
@@ -558,6 +559,7 @@ namespace Ship_Game
         protected void UpdateWorldScreenProjection()
         {
             View.Multiply(Projection, out ViewProjection);
+            Matrix.Invert(in ViewProjection, out InverseViewProjection);
             VisibleWorldRect = UnprojectToWorldRect(new AABoundingBox2D(0,0, Viewport.Width, Viewport.Height));
         }
 
@@ -697,21 +699,18 @@ namespace Ship_Game
             return sizeOnScreen;
         }
 
-        public Vector2d ProjectToScreenSize(in Vector2d sizeInWorld)
-        {
-            double sizeX = ProjectToScreenSize(sizeInWorld.X);
-            if (sizeInWorld.X == sizeInWorld.Y)
-                return new Vector2d(sizeX);
-            double sizeY = ProjectToScreenSize(sizeInWorld.Y);
-            return new Vector2d(sizeX, sizeY);
-        }
-
-        public Vector3d UnprojectToWorldPosition3D(Vector2 screenSpace)
+        /// <summary>
+        /// Unprojects a screenSpace 2D point into a 3D world position
+        /// </summary>
+        /// <param name="screenSpace"></param>
+        /// <param name="ZPlane"></param>
+        /// <returns></returns>
+        public Vector3d UnprojectToWorldPosition3D(Vector2 screenSpace, double ZPlane)
         {
             // nearPoint is the point inside the camera lens
-            Vector3d nearPoint = Viewport.Unproject(new Vector3d(screenSpace, 0.0), Projection, View);
+            Vector3d nearPoint = Viewport.Unproject(new(screenSpace, 0.0), in InverseViewProjection);
             // farPoint points away into the world
-            Vector3d farPoint = Viewport.Unproject(new Vector3d(screenSpace, 1.0), Projection, View);
+            Vector3d farPoint = Viewport.Unproject(new(screenSpace, 1.0), in InverseViewProjection);
 
             // get the direction towards the world plane
             Vector3d dir = (farPoint - nearPoint).Normalized();
@@ -720,18 +719,29 @@ namespace Ship_Game
             if (dir.Z.AlmostEqual(0.0, 0.000000001))
             {
                 Log.Error($"UnprojectToWorldPosition3D dir.Z zero! dir={dir} screenPos={screenSpace}");
-                return new Vector3d(nearPoint.X, nearPoint.Y, 0.0);
+                return new(nearPoint.X, nearPoint.Y, 0.0);
             }
 
             // calculate distance of intersection point from nearPoint
-            double distance = -nearPoint.Z / dir.Z;
+            double distance = ((-nearPoint.Z + ZPlane) / dir.Z);
             return nearPoint + (dir * distance);
+        }
+
+        public Vector3d UnprojectToWorldPosition3D(Vector2 screenSpace)
+        {
+            return UnprojectToWorldPosition3D(screenSpace, ZPlane: 0.0);
+        }
+
+        public Vector2 UnprojectToWorldPosition(Vector2 screenSpace, double ZPlane)
+        {
+            return UnprojectToWorldPosition3D(screenSpace, ZPlane).ToVec2f();
         }
 
         public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)
         {
-            return UnprojectToWorldPosition3D(screenSpace).ToVec2f();
+            return UnprojectToWorldPosition3D(screenSpace, ZPlane: 0.0).ToVec2f();
         }
+
         public AABoundingBox2Dd UnprojectToWorldRect(in AABoundingBox2D screenR)
         {
             Vector3d topLeft  = UnprojectToWorldPosition3D(new Vector2(screenR.X1, screenR.Y1));
@@ -817,7 +827,7 @@ namespace Ship_Game
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, SubTexture overlay, Color overlayColor, float z = 0)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2d screenPos, out double screenRadius);
-            double scale = screenRadius / (overlay.Width * .5f);
+            double scale = screenRadius / (overlay.Width * 0.5f);
             Vector2 pos = screenPos.ToVec2f();
 
             ScreenManager.SpriteBatch.Draw(overlay, pos, overlayColor, 0f, overlay.CenterF, (float)scale, SpriteEffects.None, 1f);
@@ -844,18 +854,18 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawRectangle(posOnScreen, sizeOnScreen, rotation, color, thickness);
         }
 
-        public void DrawRectProjected(in AABoundingBox2D worldRect, Color color, float thickness = 1f)
+        public void DrawRectProjected(in AABoundingBox2D worldRect, Color color, float thickness = 1f, float zAxis = 0f)
         {
-            Vector2d tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
-            Vector2d br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
+            Vector2d tl = ProjectToScreenPosition(new Vector3d(worldRect.X1, worldRect.Y1, zAxis));
+            Vector2d br = ProjectToScreenPosition(new Vector3d(worldRect.X2, worldRect.Y2, zAxis));
             var screenRect = new AABoundingBox2Dd(tl, br);
             ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
         }
 
         public void DrawRectProjected(in AABoundingBox2Di worldRect, Color color, float thickness = 1f)
         {
-            Vector2d tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
-            Vector2d br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
+            Vector2d tl = ProjectToScreenPosition(new Vector3d(worldRect.X1, worldRect.Y1, 0f));
+            Vector2d br = ProjectToScreenPosition(new Vector3d(worldRect.X2, worldRect.Y2, 0f));
             var screenRect = new AABoundingBox2Dd(tl, br);
             ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
         }

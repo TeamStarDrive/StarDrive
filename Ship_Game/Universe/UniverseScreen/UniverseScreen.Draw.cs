@@ -35,7 +35,7 @@ namespace Ship_Game
             }
             if (SelectedPlanet != null && !LookingAtPlanet &&  viewState < UnivScreenState.GalaxyView)
             {
-                ProjectToScreenCoords(SelectedPlanet.Position, SelectedPlanet.Radius,
+                ProjectToScreenCoords(SelectedPlanet.Position3D, SelectedPlanet.Radius,
                                       out Vector2d planetPos, out double planetRadius);
                 if (planetRadius < 8.0)
                     planetRadius = 8.0;
@@ -491,25 +491,26 @@ namespace Ship_Game
             }
         }
 
+        // this is called quite rarely, only when ShowingFTLOverlay is enabled
         void DrawFTLInhibitionNodes()
         {
             if (ShowingFTLOverlay && UState.P.GravityWellRange > 0f && !LookingAtPlanet)
             {
                 var inhibit = ResourceManager.Texture("UI/node_inhibit");
-                foreach (ClickablePlanet cplanet in ClickablePlanets)
+
+                Planet[] visiblePlanets = UState.GetVisiblePlanets();
+                foreach (Planet planet in visiblePlanets)
                 {
-                    float radius = cplanet.Planet.GravityWellRadius;
-                    DrawCircleProjected(cplanet.Planet.Position, radius, new Color(255, 50, 0, 150), 1f,
-                                        inhibit, new Color(200, 0, 0, 50));
+                    DrawCircleProjected(planet.Position, planet.GravityWellRadius,
+                                        new Color(255, 50, 0, 150), 1f, inhibit, new Color(200, 0, 0, 50));
                 }
 
                 foreach (Ship ship in UState.Objects.VisibleShips)
                 {
                     if (ship is { InhibitionRadius: > 0f, IsVisibleToPlayer: true })
                     {
-                        float radius = ship.InhibitionRadius;
-                        DrawCircleProjected(ship.Position, radius, new Color(255, 50, 0, 150), 1f,
-                                            inhibit, new Color(200, 0, 0, 40));
+                        DrawCircleProjected(ship.Position, ship.InhibitionRadius, 
+                                            new Color(255, 50, 0, 150), 1f, inhibit, new Color(200, 0, 0, 40));
                     }
                 }
 
