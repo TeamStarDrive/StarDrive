@@ -13,7 +13,7 @@ namespace Ship_Game.Spatial
     /// </summary>
     public unsafe class LinearSearch
     {
-        public static SpatialObjectBase[] FindNearby(in SearchOptions opt, SpatialObjectBase[] objects, int count)
+        public static SpatialObjectBase[] FindNearby(ref SearchOptions opt, SpatialObjectBase[] objects, int count)
         {
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
             int* objectIds = stackalloc int[maxResults];

@@ -358,12 +358,6 @@ namespace Ship_Game
             if (IsActive && EmpireUI.HandleInput(input))
                 return true;
 
-            if (ShowingPlanetToolTip && input.CursorPosition.OutsideRadius(TippedPlanet.ScreenPos, TippedPlanet.Radius))
-                ResetToolTipTimer(ref ShowingPlanetToolTip);
-
-            if (ShowingSysTooltip && input.CursorPosition.OutsideRadius(TippedPlanet.ScreenPos, tippedSystem.Radius))
-                ResetToolTipTimer(ref ShowingSysTooltip);
-
             if (!LookingAtPlanet)
             {
                 HandleInputNotLookingAtPlanet(input);
@@ -567,53 +561,16 @@ namespace Ship_Game
 
         void UpdateClickableSystemsPlanetsAndVisibleShields()
         {
-            ClickableSystems = UState.GetVisibleSystems().Select(s =>
-            {
-                ProjectToScreenCoords(s.Position, 4500f, out Vector2d sysPosOnScreen, out double sysSizeOnScreen);
-                return new ClickableSystem
-                {
-                    Radius = sysSizeOnScreen < 8 ? 8f : (float)sysSizeOnScreen,
-                    ScreenPos = sysPosOnScreen.ToVec2f(),
-                    System = s
-                };
-            });
-
             if (viewState <= UnivScreenState.SectorView)
             {
-                var planets = new Array<ClickablePlanet>();
-                var visibleShields = new Array<Shield>();
-                for (int index = 0; index < ClickableSystems.Length; index++)
-                {
-                    SolarSystem sys = ClickableSystems[index].System;
+                Array<Shield> visibleShields = new();
 
-                    if (sys.IsExploredBy(Player))
-                    {
-                        for (int i = 0; i < sys.PlanetList.Count; i++)
-                        {
-                            Planet planet = sys.PlanetList[i];
-                            if (IsInFrustum(planet.Position, planet.Radius*2f))
-                            {
-                                ProjectToScreenCoords(planet.Position3D, planet.Radius,
-                                                      out Vector2d planetScreenPos, out double planetScreenRadius);
-                                planets.Add(new ClickablePlanet
-                                {
-                                    ScreenPos = planetScreenPos.ToVec2f(),
-                                    Radius = planetScreenRadius < 8.0 ? 8f : (float)planetScreenRadius,
-                                    Planet = planet
-                                });
+                Planet[] planets = UState.GetVisiblePlanets();
+                foreach (Planet planet in planets)
+                    if (planet.Shield != null && planet.IsExploredBy(Player))
+                        visibleShields.Add(planet.Shield);
 
-                                if (planet.Shield != null)
-                                    visibleShields.Add(planet.Shield);
-                            }
-                        }
-                    }
-                }
-                ClickablePlanets = planets.ToArr();
                 Shields.SetVisiblePlanetShields(visibleShields.ToArr());
-            }
-            else
-            {
-                ClickablePlanets = Empty<ClickablePlanet>.Array;
             }
         }
 
@@ -649,26 +606,17 @@ namespace Ship_Game
             return UState.Spatial.FindNearby(ref opt).FirstOrDefault() as Ship;
         }
 
-        Planet CheckPlanetClick()
+        Planet FindPlanetUnderCursor(float searchRadius = 500)
         {
-            for (int i = 0; i < ClickablePlanets.Length; ++i)
-            {
-                ref ClickablePlanet clickablePlanets = ref ClickablePlanets[i];
-                if (Input.CursorPosition.InRadius(clickablePlanets.ScreenPos, clickablePlanets.Radius + 10.0f))
-                    return clickablePlanets.Planet;
-            }
-            return null;
+            Vector3d worldPos = UnprojectToWorldPosition3D(Input.CursorPosition, ZPlane: 2500);
+            Planet p = UState.FindPlanetAt(worldPos.ToVec2f(), searchRadius: searchRadius);
+            return p != null && p.ParentSystem.IsExploredBy(Player) ? p : null;
         }
 
-        SolarSystem CheckSolarSystemClick()
+        SolarSystem FindSolarSystemUnderCursor()
         {
-            for (int i = 0; i < ClickableSystems.Length; ++i)
-            {
-                ref ClickableSystem clickableSystem = ref ClickableSystems[i];
-                if (clickableSystem.Touched(Input.CursorPosition))
-                    return clickableSystem.System;
-            }
-            return null;
+            float hitRadius = 6000;
+            return UState.FindSolarSystemAt(CursorWorldPosition2D, hitRadius: hitRadius);
         }
 
         Fleet CheckFleetClicked()
@@ -788,8 +736,9 @@ namespace Ship_Game
 
             if (viewState >= UnivScreenState.SectorView)
             {
-                if ((SelectedSystem = CheckSolarSystemClick()) != null)
+                if ((SelectedSystem = FindSolarSystemUnderCursor()) != null)
                 {
+                    GameAudio.MouseOver();
                     SystemInfoOverlay.SetSystem(SelectedSystem);
                     return;
                 }
@@ -820,7 +769,8 @@ namespace Ship_Game
                 return;
             }
 
-            SelectedPlanet = CheckPlanetClick();
+            float planetSelectRadius = (viewState <= UnivScreenState.SystemView) ? 500 : 3000;
+            SelectedPlanet = FindPlanetUnderCursor(planetSelectRadius);
             if (SelectedPlanet != null)
             {
                 SelectedSomethingTimer = 3f;
@@ -953,9 +903,6 @@ namespace Ship_Game
             return ships;
         }
 
-        bool IsMouseHoveringOverPlanet;
-        bool IsMouseHoveringOverSystem;
-
         public void UpdateClickableItems()
         {
             var buildGoals = new Array<ClickableSpaceBuildGoal>();
@@ -978,48 +925,6 @@ namespace Ship_Game
                 }
             }
             ClickableBuildGoals = buildGoals.ToArray();
-
-            IsMouseHoveringOverPlanet = false;
-            for (int i = 0; i < ClickablePlanets.Length; ++i)
-            {
-                ref ClickablePlanet planet = ref ClickablePlanets[i];
-                if (Input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius))
-                {
-                    IsMouseHoveringOverPlanet = true;
-                    TooltipTimer -= 0.01666667f;
-                    TippedPlanet = planet;
-                }
-            }
-
-            IsMouseHoveringOverSystem = false;
-            if (viewState > UnivScreenState.SectorView)
-            {
-                for (int i = 0; i < ClickableSystems.Length; ++i)
-                {
-                    ref ClickableSystem system = ref ClickableSystems[i];
-                    if (Input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
-                    {
-                        sTooltipTimer -= 0.01666667f;
-                        tippedSystem = system;
-                        IsMouseHoveringOverSystem = true;
-                    }
-                }
-                if (sTooltipTimer <= 0f)
-                    sTooltipTimer = 0.5f;
-            }
-
-            ShowingSysTooltip = IsMouseHoveringOverSystem;
-
-            if (TooltipTimer <= 0f && !LookingAtPlanet)
-            {
-                TooltipTimer = 0.5f;
-            }
-
-            if (!IsMouseHoveringOverPlanet)
-            {
-                ShowingPlanetToolTip = false;
-                TooltipTimer = 0.5f;
-            }
         }
 
         bool HandleTradeRoutesDefinition(InputState input)
@@ -1048,22 +953,20 @@ namespace Ship_Game
             if (viewState > UnivScreenState.SystemView)
                 return;
 
-            foreach (ClickablePlanet planets in ClickablePlanets)
+            Planet planet = FindPlanetUnderCursor();
+            if (planet != null)
             {
-                if (input.CursorPosition.InRadius(planets.ScreenPos, planets.Radius))
+                if (input.LeftMouseClick)
                 {
-                    if (input.LeftMouseClick)
-                    {
-                        if (SelectedShip.AddTradeRoute(planets.Planet))
-                            GameAudio.AcceptClick();
-                        else
-                            GameAudio.NegativeClick();
-                    }
+                    if (SelectedShip.AddTradeRoute(planet))
+                        GameAudio.AcceptClick();
                     else
-                    {
-                        SelectedShip.RemoveTradeRoute(planets.Planet);
-                        GameAudio.AffirmativeClick();
-                    }
+                        GameAudio.NegativeClick();
+                }
+                else
+                {
+                    SelectedShip.RemoveTradeRoute(planet);
+                    GameAudio.AffirmativeClick();
                 }
             }
         }
@@ -1126,14 +1029,11 @@ namespace Ship_Game
 
             if (viewState <= UnivScreenState.SystemView)
             {
-                foreach (ClickablePlanet clickablePlanets in ClickablePlanets)
+                SelectedPlanet = FindPlanetUnderCursor();
+                if (SelectedPlanet != null)
                 {
-                    if (clickablePlanets.HitTest(input.CursorPosition))
-                    {
-                        GameAudio.SubBassWhoosh();
-                        SelectedPlanet = clickablePlanets.Planet;
-                        SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
-                    }
+                    GameAudio.SubBassWhoosh();
+                    SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
                 }
             }
 
@@ -1141,18 +1041,17 @@ namespace Ship_Game
 
             if (viewState > UnivScreenState.SystemView)
             {
-                for (int i = 0; i < ClickableSystems.Length; ++i)
+                SolarSystem system = FindSolarSystemUnderCursor();
+                if (system != null)
                 {
-                    ref ClickableSystem system = ref ClickableSystems[i];
-                    if (input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
+                    if (system.IsExploredBy(Player))
                     {
-                        if (system.System.IsExploredBy(Player))
-                        {
-                            GameAudio.SubBassWhoosh();
-                            ViewSystem(system.System);
-                        }
-                        else
-                            GameAudio.NegativeClick();
+                        GameAudio.SubBassWhoosh();
+                        ViewSystem(system);
+                    }
+                    else
+                    {
+                        GameAudio.NegativeClick();
                     }
                 }
             }
@@ -1273,12 +1172,6 @@ namespace Ship_Game
                 SelectedItem = null;
             }
   
-        }
-
-        void ResetToolTipTimer(ref bool toolTipToReset, float timer = 0.5f)
-        {
-            toolTipToReset = false;
-            TooltipTimer = 0.5f;
         }
 
         void InputCheckPreviousShip(Ship ship = null)

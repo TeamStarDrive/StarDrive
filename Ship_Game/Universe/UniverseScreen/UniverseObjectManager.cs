@@ -316,11 +316,16 @@ namespace Ship_Game
             SysShipsPerf.Stop();
 
             SysPerf.Start();
-            for (int i = 0; i < UState.Systems.Count; ++i)
             {
-                // TODO: SolarSystem.Update is not thread safe because of resource loading
-                SolarSystem system = UState.Systems[i];
-                system.Update(timeStep, Universe);
+                for (int i = 0; i < UState.Systems.Count; ++i)
+                {
+                    // TODO: SolarSystem.Update is not thread safe because of resource loading
+                    SolarSystem system = UState.Systems[i];
+                    // also updates all planet positions
+                    system.Update(timeStep, Universe);
+                }
+
+                UState.PlanetsTree.UpdateAll(UState.Planets.ToArr());
             }
             SysPerf.Stop();
         }

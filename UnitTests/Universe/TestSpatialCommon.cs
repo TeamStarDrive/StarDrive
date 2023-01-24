@@ -55,9 +55,11 @@ namespace UnitTests.Universe
 
         protected SpatialObjectBase[] FindNearby(ISpatial tree, GameObjectType type, Vector2 pos, float r)
         {
-            var opt = new SearchOptions(pos, r, type);
-            opt.MaxResults = 128;
-            return tree.FindNearby(in opt);
+            SearchOptions opt = new(pos, r, type)
+            {
+                MaxResults = 128
+            };
+            return tree.FindNearby(ref opt);
         }
         
         [TestMethod]
@@ -165,13 +167,13 @@ namespace UnitTests.Universe
             {
                 if (!(obj is Ship s))
                     continue;
-                var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
+                SearchOptions opt = new(s.Position, 10000, GameObjectType.Ship)
                 {
                     MaxResults = 32,
                     Exclude = s,
                     OnlyLoyalty = s.Loyalty,
                 };
-                SpatialObjectBase[] found = tree.FindNearby(in opt);
+                SpatialObjectBase[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
                 CheckShipsLoyalty(found, expected:s.Loyalty, notShip:s);
             }
@@ -186,13 +188,13 @@ namespace UnitTests.Universe
             {
                 if (!(obj is Ship s))
                     continue;
-                var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
+                SearchOptions opt = new(s.Position, 10000, GameObjectType.Ship)
                 {
                     MaxResults = 32,
                     Exclude = s,
                     ExcludeLoyalty = s.Loyalty,
                 };
-                SpatialObjectBase[] found = tree.FindNearby(in opt);
+                SpatialObjectBase[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
                 CheckShipsLoyalty(found, notExpected:s.Loyalty, notShip:s);
             }
@@ -210,13 +212,13 @@ namespace UnitTests.Universe
 
             // second ship, this created the specific bitmask 0010+0001 for search fail
             var s = (Ship)AllObjects[2];
-            var opt = new SearchOptions(s.Position, 30000, GameObjectType.Ship)
+            SearchOptions opt = new(s.Position, 30000, GameObjectType.Ship)
             {
                 MaxResults = 32,
                 Exclude = s,
                 OnlyLoyalty = s.Loyalty, // loyalty must be '1', not '0'
             };
-            SpatialObjectBase[] found = tree.FindNearby(in opt);
+            SpatialObjectBase[] found = tree.FindNearby(ref opt);
             AssertEqual(3, found.Length, "FindNearby must include all friends and not self");
             CheckFindNearby(found, GameObjectType.Ship, s.Position, 30000);
             CheckShipsLoyalty(found, expected:s.Loyalty, notShip:s);
@@ -254,8 +256,8 @@ namespace UnitTests.Universe
             for (int i = 0; i < AllObjects.Length; ++i)
             {
                 var s = (Ship)AllObjects[i];
-                var opt = new SearchOptions(s.Position, defaultSensorRange);
-                tree.FindLinear(in opt);
+                SearchOptions opt = new(s.Position, defaultSensorRange);
+                tree.FindLinear(ref opt);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
@@ -265,7 +267,7 @@ namespace UnitTests.Universe
             {
                 var s = (Ship)AllObjects[i];
                 var opt = new SearchOptions(s.Position, defaultSensorRange);
-                tree.FindNearby(in opt);
+                tree.FindNearby(ref opt);
             }
             float e2 = t2.Elapsed;
             Console.WriteLine($"-- TreeSearch 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
@@ -336,10 +338,10 @@ namespace UnitTests.Universe
                     {
                         if (AllObjects[i] is Ship s)
                         {
-                            var shipOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Ship);
-                            var projOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Proj);
-                            SpatialObjectBase[] ships = tree.FindNearby(in shipOpt);
-                            SpatialObjectBase[] projectiles = tree.FindNearby(in projOpt);
+                            SearchOptions shipOpt = new(s.Position, defaultSensorRange, GameObjectType.Ship);
+                            SearchOptions projOpt = new(s.Position, defaultSensorRange, GameObjectType.Proj);
+                            SpatialObjectBase[] ships = tree.FindNearby(ref shipOpt);
+                            SpatialObjectBase[] projectiles = tree.FindNearby(ref projOpt);
 
                             foreach (SpatialObjectBase go in ships)
                             {

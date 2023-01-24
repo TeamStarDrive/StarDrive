@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
@@ -203,19 +204,19 @@ namespace Ship_Game.Spatial
             return numCollisions;
         }
 
-        public SpatialObjectBase[] FindNearby(in SearchOptions opt)
+        public SpatialObjectBase[] FindNearby(ref SearchOptions opt)
         {
             if (opt.MaxResults == 0)
                 return Empty<SpatialObjectBase>.Array;
 
             int ignoreId = -1;
-            if (opt.Exclude != null && opt.Exclude.SpatialIndex >= 0)
+            if (opt.Exclude is { SpatialIndex: >= 0 })
                 ignoreId = opt.Exclude.SpatialIndex;
 
-            var nso = new NativeSearchOptions
+            NativeSearchOptions nso = new()
             {
-                SearchRect = new AABoundingBox2Di(opt.SearchRect),
-                RadialFilter = new Circle
+                SearchRect = new(opt.SearchRect),
+                RadialFilter = new()
                 {
                     X=(int)opt.FilterOrigin.X,
                     Y=(int)opt.FilterOrigin.Y,
@@ -249,10 +250,17 @@ namespace Ship_Game.Spatial
             return LinearSearch.Copy(objectIds, resultCount, objects);
         }
 
-        public SpatialObjectBase[] FindLinear(in SearchOptions opt)
+        public SpatialObjectBase[] FindLinear(ref SearchOptions opt)
         {
             SpatialObjectBase[] objects = Objects;
-            return LinearSearch.FindNearby(in opt, objects, objects.Length);
+            return LinearSearch.FindNearby(ref opt, objects, objects.Length);
+        }
+
+        public SpatialObjectBase FindOne(ref SearchOptions opt)
+        {
+            if (!opt.SortByDistance)
+                opt.MaxResults = 1;
+            return FindNearby(ref opt).FirstOrDefault();
         }
         
         [StructLayout(LayoutKind.Sequential)]

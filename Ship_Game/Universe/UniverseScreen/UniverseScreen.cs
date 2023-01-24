@@ -37,8 +37,6 @@ namespace Ship_Game
 
         public Array<Ship> SelectedShipList = new();
 
-        public ClickablePlanet[] ClickablePlanets = Empty<ClickablePlanet>.Array;
-        ClickableSystem[] ClickableSystems = Empty<ClickableSystem>.Array;
         public ClickableSpaceBuildGoal[] ClickableBuildGoals = Empty<ClickableSpaceBuildGoal>.Array;
 
         readonly Array<ClickableFleet> ClickableFleetsList = new();
@@ -47,8 +45,6 @@ namespace Ship_Game
         public Ship SelectedShip;
         #pragma warning restore CA2213
         public ClickableSpaceBuildGoal SelectedItem;
-        ClickablePlanet TippedPlanet;
-        ClickableSystem tippedSystem;
 
         RectF SelectionBox = new(-1, -1, 0, 0);
 
@@ -63,8 +59,6 @@ namespace Ship_Game
         public Vector3d CamPos { get => UState.CamPos; set => UState.CamPos = value; }
         public Vector3d transitionStartPosition;
 
-        float TooltipTimer = 0.5f;
-        float sTooltipTimer = 0.5f;
         public bool ViewingShip = false;
         public float transDuration = 3f;
         public float SelectedSomethingTimer = 3f;
@@ -120,8 +114,6 @@ namespace Ship_Game
         // @note Initialize with a default frustum for UnitTests
         public BoundingFrustum Frustum = new(Matrix.CreateTranslation(1000000, 1000000, 0));
 
-        bool ShowingSysTooltip;
-        bool ShowingPlanetToolTip;
         float MusicCheckTimer;
         public Ship ShipToView;
         public float AdjustCamTimer;
@@ -706,8 +698,6 @@ namespace Ship_Game
 
             EmpireHullBonuses.Clear();
             ClickableFleetsList.Clear();
-            ClickablePlanets = Empty<ClickablePlanet>.Array;
-            ClickableSystems = Empty<ClickableSystem>.Array;
 
             base.ExitScreen();
             Dispose(); // will call virtual Dispose(bool disposing) and UnloadGraphics()
@@ -715,28 +705,6 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
             // make sure we reset the latest savegame attachment
             Log.ConfigureStatsReporter(null);
-        }
-
-        public struct ClickablePlanet
-        {
-            public Vector2 ScreenPos;
-            public float Radius;
-            public Planet Planet;
-            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
-        }
-
-        struct ClickableSystem
-        {
-            public Vector2 ScreenPos;
-            public float Radius;
-            public SolarSystem System;
-            public bool Touched(Vector2 touchPoint)
-            {
-                if (!touchPoint.InRadius(ScreenPos, Radius)) return false;
-
-                GameAudio.MouseOver();
-                return true;
-            }
         }
 
         // When user or automation AI orders a deep space build goal

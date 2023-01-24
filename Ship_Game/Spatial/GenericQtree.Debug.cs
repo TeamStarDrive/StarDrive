@@ -32,29 +32,31 @@ public partial class GenericQtree
         VisualizerOptions o = opt.Enabled ? opt : VisualizerOptions.None;
 
         AABoundingBox2D visibleWorld = screen.VisibleWorldRect;
-        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(Root);
-        screen.DrawRectProjected(Root.AABB, Yellow);
+        ObjectsState state = State;
+        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(state.Root);
+        screen.DrawRectProjected(state.Root.AABB, Yellow, zAxis: opt.ZPlane);
         do
         {
             Node current = buffer.Pop();
             Vector2 center = current.AABB.Center;
+            float size = current.AABB.Width.UpperBound(10_000);
             if (o.NodeBounds)
             {
                 Color color = current.LoyaltyCount > 1 ? Brown : BrownDim;
-                screen.DrawRectProjected(current.AABB, color);
+                screen.DrawRectProjected(current.AABB, color, zAxis: opt.ZPlane);
             }
 
             if (current.NW != null) // isBranch
             {
                 if (o.NodeText)
-                    screen.DrawStringProjected(center, current.AABB.Width / 2, Yellow, "BR");
+                    screen.DrawStringProjected(center, size / 2, Yellow, "BR");
 
                 buffer.PushOverlappingQuadrants(current, visibleWorld);
             }
             else // isLeaf
             {
                 if (o.NodeText)
-                    screen.DrawStringProjected(center, current.AABB.Width / 2, Yellow, $"LF n={current.Count}");
+                    screen.DrawStringProjected(center, size / 2, Yellow, $"LF n={current.Count}");
 
                 for (int i = 0; i < current.Count; ++i)
                 {
@@ -63,18 +65,18 @@ public partial class GenericQtree
                     if (o.ObjectBounds)
                     {
                         Color color = (so.Loyalty % 2 == 0) ? VioletBright : Purple;
-                        screen.DrawRectProjected(so.AABB, color);
+                        screen.DrawRectProjected(so.AABB, color, zAxis: opt.ZPlane);
                     }
 
                     if (o.ObjectToLeaf)
                     {
                         Color color = (so.Loyalty % 2 == 0) ? VioletDim : Purple;
-                        screen.DrawLineProjected(center, so.AABB.Center, color);
+                        screen.DrawLineProjected(center, so.AABB.Center, color, zAxis: opt.ZPlane);
                     }
 
                     if (o.ObjectText)
                     {
-                        screen.DrawStringProjected(so.AABB.Center, so.AABB.Width, Blue, $"o={so.Source}");
+                        screen.DrawStringProjected(so.AABB.Center, size, Blue, $"o={so.Source}");
                     }
                 }
             }

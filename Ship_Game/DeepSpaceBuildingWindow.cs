@@ -172,10 +172,13 @@ namespace Ship_Game
                 return;
 
             var nodeTex = ResourceManager.Texture("UI/node1");
-            foreach (UniverseScreen.ClickablePlanet cplanet in Screen.ClickablePlanets)
+
+            Planet[] planets = Screen.UState.GetVisiblePlanets();
+
+            foreach (Planet planet in planets)
             {
-                float radius = 2500f * cplanet.Planet.Scale;
-                Screen.DrawCircleProjected(cplanet.Planet.Position, radius, new Color(255, 165, 0, 100), 2f,
+                float radius = 2500f * planet.Scale;
+                Screen.DrawCircleProjected(planet.Position, radius, new Color(255, 165, 0, 100), 2f,
                                            nodeTex, new Color(0, 0, 255, 100));
             }
 
@@ -197,10 +200,11 @@ namespace Ship_Game
                 Vector2 cursorPos = Screen.Input.CursorPosition;
                 TargetPlanet = null;
                 TetherOffset = Vector2.Zero;
-                foreach (UniverseScreen.ClickablePlanet p in Screen.ClickablePlanets)
+
+                foreach (Planet planet in planets)
                 {
-                    Vector2 planetPos = p.Planet.Position;
-                    if (planetPos.Distance(cursorWorldPos) <= (2500f * p.Planet.Scale))
+                    Vector2 planetPos = planet.Position;
+                    if (planetPos.Distance(cursorWorldPos) <= (2500f * planet.Scale))
                     {
                         TetherOffset = cursorWorldPos - planetPos;
 
@@ -212,9 +216,11 @@ namespace Ship_Game
                         }
                         else
                         {
-                            TargetPlanet = p.Planet;
-                            batch.DrawLine(p.ScreenPos, cursorPos, new Color(255, 165, 0, 150), 3f);
-                            batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + p.Planet.Name, cursorPos + new Vector2(0, 34f), Color.White);
+                            TargetPlanet = planet;
+
+                            Vector2 planetScreenPos = Screen.ProjectToScreenPosition(planet.Position).ToVec2f();
+                            batch.DrawLine(planetScreenPos, cursorPos, new Color(255, 165, 0, 150), 3f);
+                            batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + planet.Name, cursorPos + new Vector2(0, 34f), Color.White);
                             break;
                         }
                     }
