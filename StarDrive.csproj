@@ -195,6 +195,7 @@
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_VisualizeShipGoals.cs" />
     <Compile Include="Ship_Game\Debug\DebugModes.cs" />
     <Compile Include="Ship_Game\Debug\Page\AgentsDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\InfluenceDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\SpaceRoadsDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\DefenseCoordinatorDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\EmpireInfoDebug.cs" />
