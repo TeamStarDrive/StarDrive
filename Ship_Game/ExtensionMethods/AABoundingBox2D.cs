@@ -302,5 +302,13 @@ namespace Ship_Game
         {
             return new AABoundingBox2D((float)bb.X1, (float)bb.Y1, (float)bb.X2, (float)bb.Y2);
         }
+
+        [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly bool Overlaps(Vector2 pos, float radius)
+        {
+            // NOTE: >= vs > determines whether there's a match if rectangles touch
+            return X1 <= (pos.X + radius) && X2 >= (pos.X - radius)
+                && Y1 <= (pos.Y + radius) && Y2 >= (pos.Y - radius);
+        }
     }
 }
