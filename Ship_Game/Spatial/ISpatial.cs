@@ -55,16 +55,31 @@ namespace Ship_Game
         int CollideAll(FixedSimTime timeStep, bool showCollisions);
         
         /// <summary>
-        /// Finds nearby GameplayObjects using multiple filters
-        /// WARNING: DO NOT USE `in` Attribute in Interfaces, it adds a +70% perf hit for no damn reason
+        /// Finds nearby GameplayObjects using multiple filters.
+        /// 
+        /// WARNING: DO NOT USE `in` Attribute in Interfaces, it adds a +70% perf hit for no damn reason.
+        /// READ `defensive copies`: https://devblogs.microsoft.com/premier-developer/the-in-modifier-and-the-readonly-structs-in-c/
         /// </summary>
-        SpatialObjectBase[] FindNearby(in SearchOptions opt);
+        SpatialObjectBase[] FindNearby(ref SearchOptions opt);
 
         /// <summary>
-        /// Performs a linear search instead of using the Quadtree
-        /// WARNING: DO NOT USE `in` Attribute in Interfaces, it adds a +70% perf hit for no damn reason
+        /// Performs a linear search instead of using the Quadtree.
+        /// 
+        /// WARNING: DO NOT USE `in` Attribute in Interfaces, it adds a +70% perf hit for no damn reason.
+        /// READ `defensive copies`: https://devblogs.microsoft.com/premier-developer/the-in-modifier-and-the-readonly-structs-in-c/
         /// </summary>
-        SpatialObjectBase[] FindLinear(in SearchOptions opt);
+        SpatialObjectBase[] FindLinear(ref SearchOptions opt);
+
+        /// <summary>
+        /// Finds the first object that matches the search criteria.
+        /// 
+        /// If SortByDistance is enabled, the closest item is returned,
+        /// the accuracy of closest result depends on opt.MaxResults.
+        ///
+        /// WARNING: DO NOT USE `in` Attribute in Interfaces, it adds a +70% perf hit for no damn reason.
+        /// READ `defensive copies`: https://devblogs.microsoft.com/premier-developer/the-in-modifier-and-the-readonly-structs-in-c/
+        /// </summary>
+        SpatialObjectBase FindOne(ref SearchOptions opt);
 
         /// <summary>
         /// Visualize this Spatial collection for debugging purposes

@@ -98,11 +98,11 @@ namespace Ship_Game.Spatial
                 for (int i = 0; i < ships.Length; ++i)
                 {
                     var s = (Ship)ships[i];
-                    var opt = new SearchOptions(s.Position, defaultSensorRange)
+                    SearchOptions opt = new(s.Position, defaultSensorRange)
                     {
                         MaxResults = 256
                     };
-                    tree.FindLinear(in opt);
+                    tree.FindLinear(ref opt);
                 }
             }
             float e1 = t1.Elapsed;
@@ -114,11 +114,11 @@ namespace Ship_Game.Spatial
                 for (int i = 0; i < ships.Length; ++i)
                 {
                     var s = (Ship)ships[i];
-                    var opt = new SearchOptions(s.Position, defaultSensorRange)
+                    SearchOptions opt = new(s.Position, defaultSensorRange)
                     {
                         MaxResults = 256
                     };
-                    tree.FindNearby(in opt);
+                    tree.FindNearby(ref opt);
                 }
             }
             float e2 = t2.Elapsed;

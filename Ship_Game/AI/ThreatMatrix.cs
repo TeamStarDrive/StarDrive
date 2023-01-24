@@ -61,9 +61,9 @@ public sealed partial class ThreatMatrix
             ClustersMap.Insert(c);
     }
 
-    ThreatCluster[] FindClusters(in SearchOptions opt)
+    ThreatCluster[] FindClusters(ref SearchOptions opt)
     {
-        return ClustersMap.Find<ThreatCluster>(in opt);
+        return ClustersMap.Find<ThreatCluster>(ref opt);
     }
 
     /// <summary>
@@ -71,10 +71,11 @@ public sealed partial class ThreatMatrix
     /// </summary>
     public ThreatCluster[] FindClusters(Empire empire, Vector2 pos, float radius)
     {
-        return FindClusters(new(pos, radius, GameObjectType.ThreatCluster)
+        SearchOptions opt = new(pos, radius, GameObjectType.ThreatCluster)
         {
             OnlyLoyalty = empire
-        });
+        };
+        return FindClusters(ref opt);
     }
 
     /// <summary>
@@ -82,24 +83,26 @@ public sealed partial class ThreatMatrix
     /// </summary>
     public ThreatCluster[] FindHostileClusters(Vector2 pos, float radius)
     {
-        return FindClusters(new(pos, radius)
+        SearchOptions opt = new(pos, radius)
         {
             ExcludeLoyalty = Owner,
             Type = GameObjectType.ThreatCluster,
             FilterFunction = (o) => ((ThreatCluster)o).IsHostileTo(Owner)
-        });
+        };
+        return FindClusters(ref opt);
     }
 
     // Find all enemy clusters within radius
     public ThreatCluster[] FindHostileClustersByDist(Vector2 pos, float radius)
     {
-        return FindClusters(new(pos, radius)
+        SearchOptions opt = new(pos, radius)
         {
             ExcludeLoyalty = Owner,
             Type = GameObjectType.ThreatCluster,
             SortByDistance = true,
             FilterFunction = (o) => ((ThreatCluster)o).IsHostileTo(Owner)
-        });
+        };
+        return FindClusters(ref opt);
     }
 
     static float GetStrength(ThreatCluster[] clusters)

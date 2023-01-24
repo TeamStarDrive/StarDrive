@@ -271,12 +271,6 @@ namespace Ship_Game
         {
             PreEmpirePerf.Start();
             {
-                if (!IsActive)
-                {
-                    ShowingSysTooltip = false;
-                    ShowingPlanetToolTip = false;
-                }
-
                 RecomputeFleetButtons(false);
 
                 if (SelectedShip != null)

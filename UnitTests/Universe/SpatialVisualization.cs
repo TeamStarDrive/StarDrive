@@ -50,12 +50,12 @@ class SpatialVisualization : CommonVisualization
 
     protected override void Search(in AABoundingBox2D searchArea)
     {
-        var opt = new SearchOptions(SearchArea) { MaxResults = 1000, DebugId = 1, };
+        SearchOptions opt = new(SearchArea) { MaxResults = 1000, DebugId = 1, };
         var t1 = new PerfTimer();
-        Spat.FindLinear(in opt);
+        Spat.FindLinear(ref opt);
         LinearTime = t1.Elapsed;
         var t2 = new PerfTimer();
-        Found = Spat.FindNearby(in opt);
+        Found = Spat.FindNearby(ref opt);
         SearchTime = t2.Elapsed;
     }
 
@@ -70,8 +70,8 @@ class SpatialVisualization : CommonVisualization
 
     protected override void RemoveAt(Vector2 pos, float radius)
     {
-        var opt = new SearchOptions(pos, radius) { MaxResults = 1000 };
-        Found = Spat.FindNearby(opt);
+        SearchOptions opt = new(pos, radius) { MaxResults = 1000 };
+        Found = Spat.FindNearby(ref opt);
         if (Found.Length != 0)
         {
             foreach (SpatialObjectBase o in Found)
