@@ -565,25 +565,19 @@ namespace Ship_Game
 
         public Vector2d ProjectToScreenPosition(Vector3d worldPos)
         {
-            // NOTE: This is a more 
-            return Viewport.ProjectTo2D(worldPos, Projection, View);
-
-            //var visibleRect = VisibleWorldRect;
-            //double relX = MathExt.LerpInverse(worldPos.X, visibleRect.X1, visibleRect.X2);
-            //double relY = MathExt.LerpInverse(worldPos.Y, visibleRect.Y1, visibleRect.Y2);
-            //return new Vector2d(relX * Viewport.Width, relY * Viewport.Height);
+            return Viewport.ProjectTo2D(worldPos, in ViewProjection);
         }
 
         // Projects World Pos into Screen Pos
         public Vector2d ProjectToScreenPosition(Vector3 worldPos)
         {
-            return ProjectToScreenPosition(new Vector3d(worldPos));
+            return Viewport.ProjectTo2D(new Vector3d(worldPos), in ViewProjection);
         }
 
         // Projects World Pos into Screen Pos
         public Vector2d ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
-            return ProjectToScreenPosition(new Vector3d(posInWorld, zAxis));
+            return Viewport.ProjectTo2D(new Vector3d(posInWorld, zAxis), in ViewProjection);
         }
 
         public void ProjectToScreenCoords(Vector3 posInWorld, float sizeInWorld,
@@ -593,22 +587,6 @@ namespace Ship_Game
             posOnScreen = ProjectToScreenPosition(posInWorld);
             var pos2 = ProjectToScreenPosition(new Vector3(posInWorld.X + sizeInWorld, posInWorld.Y, posInWorld.Z));
             sizeOnScreen = pos2.Distance(posOnScreen);
-        }
-
-        public (Vector2d PosOnScreen, Vector2d SizeOnScreen) ProjectToScreenCoords(in Vector3 posInWorld, in Vector2 sizeInWorld)
-        {
-            Vector2d posOnScreen = ProjectToScreenPosition(posInWorld);
-            double sizeX = ProjectToScreenPosition(posInWorld + new Vector3(sizeInWorld.X,0,0)).Distance(posOnScreen);
-            double sizeY = ProjectToScreenPosition(posInWorld + new Vector3(0, sizeInWorld.Y, 0)).Distance(posOnScreen);
-            return (posOnScreen, new Vector2d(sizeX,sizeY));
-        }
-
-        public (Vector2d PosOnScreen, Vector2d SizeOnScreen) ProjectToScreenCoords(in Vector3d posInWorld, in Vector2d sizeInWorld)
-        {
-            Vector2d posOnScreen = ProjectToScreenPosition(posInWorld);
-            double sizeX = ProjectToScreenPosition(posInWorld + new Vector3d(sizeInWorld.X, 0, 0)).Distance(posOnScreen);
-            double sizeY = ProjectToScreenPosition(posInWorld + new Vector3d(0, sizeInWorld.Y, 0)).Distance(posOnScreen);
-            return (posOnScreen, new Vector2d(sizeX, sizeY));
         }
 
         public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld,
@@ -652,14 +630,6 @@ namespace Ship_Game
         }
 
         public RectF ProjectToScreenRectF(in Vector3 center, in Vector2 size)
-        {
-            Vector3d worldTL = new Vector3d(center.X - size.X*0.5, center.Y - size.Y*0.5, center.Z);
-            Vector2d topLeft = ProjectToScreenPosition(worldTL);
-            Vector2d botRight = ProjectToScreenPosition(new Vector3d(worldTL.X + size.X, worldTL.Y + size.Y, center.Z));
-            return new RectF(topLeft.X, topLeft.Y, (botRight.X - topLeft.X), (botRight.Y - topLeft.Y));
-        }
-
-        public RectF ProjectToScreenRectF(in Vector3d center, in Vector2d size)
         {
             Vector3d worldTL = new Vector3d(center.X - size.X*0.5, center.Y - size.Y*0.5, center.Z);
             Vector2d topLeft = ProjectToScreenPosition(worldTL);
