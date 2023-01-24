@@ -39,7 +39,7 @@ public partial class GenericQtree
         {
             Node current = buffer.Pop();
             Vector2 center = current.AABB.Center;
-            float size = current.AABB.Width.UpperBound(10_000);
+            float size = current.AABB.Width.UpperBound(4_000);
             if (o.NodeBounds)
             {
                 Color color = current.LoyaltyCount > 1 ? Brown : BrownDim;

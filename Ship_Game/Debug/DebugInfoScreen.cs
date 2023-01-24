@@ -135,6 +135,7 @@ public sealed partial class DebugInfoScreen : GameScreen
             DebugModes.FleetMulti => new FleetMultipliersDebug(this),
             DebugModes.Trade => new TradeDebug(this),
             DebugModes.Planets => new PlanetDebug(this),
+            DebugModes.Influence => new InfluenceDebug(this),
             DebugModes.Solar => new SolarDebug(this),
             DebugModes.War => new WarDebug(this),
             DebugModes.AO => new AODebug(this),
