@@ -613,9 +613,12 @@ namespace Ship_Game
             return p != null && p.ParentSystem.IsExploredBy(Player) ? p : null;
         }
 
+        // should be called for >= SectorView
         SolarSystem FindSolarSystemUnderCursor()
         {
-            float hitRadius = 6000;
+            float hitRadius = 10_000;
+            if (CamPos.Z >= 1_500_000)
+                hitRadius = 25_000;
             return UState.FindSolarSystemAt(CursorWorldPosition2D, hitRadius: hitRadius);
         }
 
@@ -769,7 +772,7 @@ namespace Ship_Game
                 return;
             }
 
-            float planetSelectRadius = (viewState <= UnivScreenState.SystemView) ? 500 : 3000;
+            float planetSelectRadius = (viewState <= UnivScreenState.SystemView) ? 500 : 4000;
             SelectedPlanet = FindPlanetUnderCursor(planetSelectRadius);
             if (SelectedPlanet != null)
             {
@@ -1039,7 +1042,7 @@ namespace Ship_Game
 
             SelectMultipleShipsByClickingOnShip(input);
 
-            if (viewState > UnivScreenState.SystemView)
+            if (viewState >= UnivScreenState.SectorView)
             {
                 SolarSystem system = FindSolarSystemUnderCursor();
                 if (system != null)

@@ -63,6 +63,13 @@ namespace Ship_Game
                                            in Matrix projection, in Matrix view)
         {
             view.Multiply(projection, out Matrix viewProjection);
+            return ProjectTo2D(viewport, source, viewProjection);
+        }
+
+        // this is a copy of XNA Viewport.Project, with only a single ViewProjection matrix parameter
+        public static Vector2d ProjectTo2D(this Viewport viewport, in Vector3d source,
+                                           in Matrix viewProjection)
+        {
             Vector3d clipSpacePoint = source.Transform(viewProjection);
             double len = source.X * viewProjection.M14
                        + source.Y * viewProjection.M24
