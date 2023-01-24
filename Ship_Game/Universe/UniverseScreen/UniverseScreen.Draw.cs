@@ -94,7 +94,7 @@ namespace Ship_Game
                 for (int x = 0; x < nodes.Length; x++)
                 {
                     ref Empire.InfluenceNode inf = ref nodes[x];
-                    if (!inf.KnownToPlayer || !IsInFrustum(inf.Position, inf.Radius))
+                    if (!inf.KnownToPlayer || !VisibleWorldRect.Overlaps(inf.Position, inf.Radius))
                         continue;
 
                     RectF screenRect = ProjectToScreenRectF(RectF.FromPointRadius(inf.Position, inf.Radius));
@@ -115,7 +115,7 @@ namespace Ship_Game
                     Empire.InfluenceNode a = c.Node1;
                     Empire.InfluenceNode b = c.Node2;
                     // if both nodes are out of screen, skip draw
-                    if (!IsInFrustum(a.Position, a.Radius) && !IsInFrustum(b.Position, b.Radius))
+                    if (!VisibleWorldRect.Overlaps(a.Position, a.Radius) && !VisibleWorldRect.Overlaps(b.Position, b.Radius))
                         continue;
 
                     // The Connection is made of two rectangles, with O marking the influence centers
