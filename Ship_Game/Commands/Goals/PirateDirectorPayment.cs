@@ -116,7 +116,7 @@ namespace Ship_Game.Commands.Goals
                     float chanceToPay = 1 - moneyDemand/TargetEmpire.Money.LowerBound(1);
                     chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)UState.P.Difficulty+1);
                         
-                    if (TargetEmpire.data.TaxRate < 0.5f && RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
+                    if (TargetEmpire.data.TaxRate < 0.4f && RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
                     {
                         TargetEmpire.AddMoney(-moneyDemand);
                         TargetEmpire.AI.EndWarFromEvent(Pirates.Owner);
