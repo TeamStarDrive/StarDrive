@@ -105,6 +105,42 @@ namespace Ship_Game
                 worldPos /= a;
             return worldPos;
         }
+        
+        /// <summary>
+        /// Unprojects a screenSpace 2D point into a 3D world position
+        /// </summary>
+        public static Vector3d Unproject(this Viewport viewport, Vector2 screenSpace, double ZPlane,
+                                         in Matrix projection, in Matrix view)
+        {
+            view.Multiply(projection, out Matrix viewProjection);
+            Matrix.Invert(viewProjection, out Matrix invViewProj);
+            return Unproject(viewport, screenSpace, ZPlane, invViewProj);
+        }
+        /// <summary>
+        /// Unprojects a screenSpace 2D point into a 3D world position
+        /// </summary>
+        public static Vector3d Unproject(this Viewport viewport, Vector2 screenSpace, double ZPlane,
+                                         in Matrix inverseViewProjection)
+        {
+            // nearPoint is the point inside the camera lens
+            Vector3d nearPoint = viewport.Unproject(new(screenSpace, 0.0), in inverseViewProjection);
+            // farPoint points away into the world
+            Vector3d farPoint = viewport.Unproject(new(screenSpace, 1.0), in inverseViewProjection);
+
+            // get the direction towards the world plane
+            Vector3d dir = (farPoint - nearPoint).Normalized();
+
+            // FIX: potential failure point here, dir.Z might be 0
+            if (dir.Z.AlmostEqual(0.0, 0.000000001))
+            {
+                Log.Error($"UnprojectToWorldPosition3D dir.Z zero! dir={dir} screenPos={screenSpace}");
+                return new(nearPoint.X, nearPoint.Y, 0.0);
+            }
+
+            // calculate distance of intersection point from nearPoint
+            double distance = ((-nearPoint.Z + ZPlane) / dir.Z);
+            return nearPoint + (dir * distance);
+        }
 
         public static Matrix CreateLookAtDown(double camX, double camY, double camZ)
         {
