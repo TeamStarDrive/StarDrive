@@ -15,6 +15,8 @@ using Vector2d = SDGraphics.Vector2d;
 using Ship_Game.Universe;
 using Rectangle = SDGraphics.Rectangle;
 using System.Diagnostics;
+using SDGraphics.Sprites;
+using SDGraphics.Rendering;
 
 namespace Ship_Game
 {
@@ -59,25 +61,33 @@ namespace Ship_Game
             }
         }
 
+        // Test changing these in Debug Solar by holding comma/period and using UP/DOWN keys
+        Blend BorderBlendSrc = Blend.SourceAlphaSaturation; // Blend.InverseDestinationColor;
+        Blend BorderBlendDest = Blend.One;
 
         // Draws SSP - Subspace Projector influence
-        void DrawColoredEmpireBorders(SpriteBatch batch, GraphicsDevice graphics)
+        void DrawColoredEmpireBorders(SpriteRenderer draw3d, SpriteBatch batch, GraphicsDevice graphics)
         {
             DrawBorders.Start();
 
             graphics.SetRenderTarget(0, BorderRT);
             graphics.Clear(Color.TransparentBlack);
-            batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true);
-
-            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:false);
-            RenderStates.EnableSeparateAlphaBlend(graphics, Blend.One, Blend.One);
 
             // the node texture has a smooth fade, so we need to scale it by a lot to match the actual SSP radius
-            float scale = 1.5f;
+            float nodeScale = 1.8f;
+            float connectorScale = 1.5f;
+            float currentZ = 0;
             var nodeTex = ResourceManager.Texture("UI/node");
             var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
-            bool debug = false && DebugMode == DebugModes.Solar;
+            draw3d.Begin(ViewProjection);
+            // depth is needed for blending to work
+            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:true);
+            // enable additive only for the alpha channel, this will smoothly blend multiple
+            // overlapping gradient edges into nice blobs
+            RenderStates.EnableSeparateAlphaBlend(graphics, BorderBlendSrc, BorderBlendDest);
+            //RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
+            RenderStates.DisableAlphaTest(graphics);
 
             Empire[] empires = UState.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
@@ -94,17 +104,11 @@ namespace Ship_Game
                 for (int x = 0; x < nodes.Length; x++)
                 {
                     ref Empire.InfluenceNode inf = ref nodes[x];
-                    if (!inf.KnownToPlayer || !VisibleWorldRect.Overlaps(inf.Position, inf.Radius))
-                        continue;
-
-                    RectF screenRect = ProjectToScreenRectF(RectF.FromPointRadius(inf.Position, inf.Radius));
-                    screenRect = screenRect.ScaledBy(scale);
-                    batch.Draw(nodeTex, screenRect, empireColor, 0f, Vector2.Zero, SpriteEffects.None, 1f);
-
-                    if (debug)
+                    if (inf.KnownToPlayer && VisibleWorldRect.Overlaps(inf.Position, inf.Radius))
                     {
-                        //batch.DrawRectangle(screenRect, Color.Red); // DEBUG
-                        DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
+                        Quad3D nodeQuad = new(inf.Position, inf.Radius * nodeScale, zValue: currentZ);
+                        currentZ += 10f;
+                        draw3d.Draw(nodeTex, nodeQuad, empireColor);
                     }
                 }
 
@@ -114,41 +118,61 @@ namespace Ship_Game
                 {
                     Empire.InfluenceNode a = c.Node1;
                     Empire.InfluenceNode b = c.Node2;
-                    // if both nodes are out of screen, skip draw
-                    if (!VisibleWorldRect.Overlaps(a.Position, a.Radius) && !VisibleWorldRect.Overlaps(b.Position, b.Radius))
-                        continue;
-
-                    // The Connection is made of two rectangles, with O marking the influence centers
-                    // +-width-+O-width-+
-                    // |       ||       |
-                    // |       ||       |length
-                    // |       ||       |
-                    // +-------O+-------+
-                    float width = a.Radius * scale;
-                    float length = a.Position.Distance(b.Position);
-
-                    // from Bigger towards Smaller (only one side)
-                    RectF connect1 = ProjectToScreenRectF(new RectF(b.Position, width, length));
-                    float angle1 = a.Position.RadiansToTarget(b.Position);
-                    batch.Draw(connectTex, connect1, empireColor, angle1, Vector2.Zero, SpriteEffects.None, 10f);
-
-                    // from Smaller towards Bigger (the other side now)
-                    RectF connect2 = ProjectToScreenRectF(new RectF(a.Position, width, length));
-                    float angle2 = b.Position.RadiansToTarget(a.Position);
-                    batch.Draw(connectTex, connect2, empireColor, angle2, Vector2.Zero, SpriteEffects.None, 10f);
-
-                    if (debug)
+                    if (VisibleWorldRect.Overlaps(a.Position, a.Radius) ||
+                        VisibleWorldRect.Overlaps(b.Position, b.Radius))
                     {
-                        DebugWin?.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
-                        batch.DrawRectangle(connect1, angle1, Color.Green, 2); // DEBUG
-                        batch.DrawRectangle(connect2, angle2, Color.Yellow, 2); // DEBUG
-                        DrawLineProjected(b.Position, a.Position, Color.Red); // DEBUG
+                        // make a quad by reusing the Quad3D line constructor
+                        float width = 2.0f * a.Radius * connectorScale;
+                        Quad3D connectLine = new(a.Position, b.Position, width, zValue: currentZ);
+                        currentZ += 10f;
+                        draw3d.Draw(connectTex, connectLine, empireColor);
                     }
                 }
             }
 
             RenderStates.DisableSeparateAlphaChannelBlend(graphics);
-            batch.SafeEnd();
+            draw3d.End();
+
+            if (Debug && DebugWin != null && DebugMode == DebugModes.Solar)
+            {
+                batch.SafeBegin(SpriteBlendMode.AlphaBlend);
+                
+                if (Input.IsKeyDown(SDGraphics.Input.Keys.OemComma))
+                {
+                    if (Input.KeyPressed(SDGraphics.Input.Keys.Up)) BorderBlendSrc = BorderBlendSrc.IncrementWithWrap(-1);
+                    else if (Input.KeyPressed(SDGraphics.Input.Keys.Down)) BorderBlendSrc = BorderBlendSrc.IncrementWithWrap(+1);
+                }
+                if (Input.IsKeyDown(SDGraphics.Input.Keys.OemPeriod))
+                {
+                    if (Input.KeyPressed(SDGraphics.Input.Keys.Up)) BorderBlendDest = BorderBlendDest.IncrementWithWrap(-1);
+                    else if (Input.KeyPressed(SDGraphics.Input.Keys.Down)) BorderBlendDest = BorderBlendDest.IncrementWithWrap(+1);
+                }
+
+                DrawString(new(300, 200), Color.Red, $"SrcBlend: {BorderBlendSrc}  Change with COMMA+UP/DOWN keys", Fonts.Arial20Bold);
+                DrawString(new(300, 240), Color.Red, $"DstBlend: {BorderBlendDest}  Change with PERIOD+UP/DOWN keys", Fonts.Arial20Bold);
+
+                foreach (Empire empire in empires)
+                {
+                    Empire.InfluenceNode[] nodes = empire.BorderNodeCache.BorderNodes;
+                    for (int x = 0; x < nodes.Length; x++)
+                    {
+                        ref Empire.InfluenceNode inf = ref nodes[x];
+                        if (inf.KnownToPlayer && VisibleWorldRect.Overlaps(inf.Position, inf.Radius))
+                            DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
+                    }
+                    foreach (InfluenceConnection c in empire.BorderNodeCache.Connections)
+                    {
+                        Empire.InfluenceNode a = c.Node1;
+                        Empire.InfluenceNode b = c.Node2;
+                        if (VisibleWorldRect.Overlaps(a.Position, a.Radius) ||
+                            VisibleWorldRect.Overlaps(b.Position, b.Radius))
+                            DebugWin?.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
+                    }
+                }
+
+                batch.SafeEnd();
+            }
+
             graphics.SetRenderTarget(0, null);
 
             DrawBorders.Stop();
@@ -275,7 +299,7 @@ namespace Ship_Game
             {
                 UpdateFogOfWarInfluences(batch, graphics);
                 if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
-                    DrawColoredEmpireBorders(batch, graphics);
+                    DrawColoredEmpireBorders(SR, batch, graphics);
 
                 // this draws the MainTarget RT which has the entire background and 3D ships
                 DrawMainRTWithFogOfWarEffect(batch, graphics);
