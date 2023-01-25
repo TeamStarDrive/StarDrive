@@ -101,7 +101,7 @@ public sealed class BatchedSprites : IDisposable
 
                     foreach (ref SpriteData sd in Untextured.AsSpan())
                     {
-                        SpriteRenderer.FillVertexData(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
+                        SpriteRenderer.FillQuad(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
                         ++currentIndex;
                     }
                 }
@@ -112,7 +112,7 @@ public sealed class BatchedSprites : IDisposable
 
                     foreach (ref SpriteData sd in kv.Value.AsSpan())
                     {
-                        SpriteRenderer.FillVertexData(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
+                        SpriteRenderer.FillQuad(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
                         ++currentIndex;
                     }
                 }

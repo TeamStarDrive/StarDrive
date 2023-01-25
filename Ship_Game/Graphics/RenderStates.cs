@@ -47,6 +47,11 @@ namespace Ship_Game.Graphics
             EnableAlphaBlend(device, Blend.SourceAlpha, Blend.One);
         }
 
+        /// <summary>
+        /// Enables Alpha Testing of pixels.
+        /// For example `CompareFunction.Greater` with `referenceAlpha=0` will
+        /// keep pixels with alpha greater than referenceAlpha
+        /// </summary>
         public static void EnableAlphaTest(GraphicsDevice device, CompareFunction compare, int referenceAlpha = 0)
         {
             var rs = device.RenderState;
@@ -119,7 +124,10 @@ namespace Ship_Game.Graphics
                 DisableDepthWrite(device);
         }
 
-        // This enables separate blend mode controls for only the alpha channel
+        /// <summary>
+        /// This allows blend mode controls for only the alpha channel,
+        /// leaving regular RGB channel alpha unaffected.
+        /// </summary>
         public static void EnableSeparateAlphaBlend(GraphicsDevice device, Blend srcBlend, Blend dstBlend)
         {
             var rs = device.RenderState;
@@ -128,7 +136,9 @@ namespace Ship_Game.Graphics
             rs.AlphaDestinationBlend = dstBlend; // default:One
         }
 
-        // returns to regular state where regular blend mode applies to all channels
+        /// <summary>
+        /// Returns to regular state where regular blend mode applies to all channels
+        /// </summary>
         public static void DisableSeparateAlphaChannelBlend(GraphicsDevice device)
         {
             device.RenderState.SeparateAlphaBlendEnabled = false;

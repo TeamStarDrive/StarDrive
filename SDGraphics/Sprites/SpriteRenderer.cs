@@ -130,8 +130,23 @@ public sealed class SpriteRenderer : IDisposable
         }
     }
 
+    /// <summary>
+    /// TRUE if Begin() has been called
+    /// </summary>
     public bool IsBegin { get; private set; }
 
+    /// <summary>
+    /// Statistics: average size of a Begin() / End() pair
+    /// </summary>
+    public int AverageBatchSize { get; private set; }
+
+    // number of quads submitted during this Begin() / End() pair
+    int NumQuadsSubmitted;
+
+    /// <summary>
+    /// Initializes the view projection matrix for rendering,
+    /// and if `IsBegin` was true, End()'s the previous state.
+    /// </summary>
     public void Begin(in Matrix viewProjection)
     {
         if (IsBegin)
@@ -142,29 +157,37 @@ public sealed class SpriteRenderer : IDisposable
         SetViewProjection(viewProjection);
 
         IsBegin = true;
+        NumQuadsSubmitted = 0;
     }
-
     public void Begin(in Matrix view, in Matrix projection)
     {
         view.Multiply(projection, out Matrix viewProjection);
-        //Matrix.Invert(viewProjection, out Matrix invViewProj);
         Begin(viewProjection);
+
+        AverageBatchSize = (AverageBatchSize + NumQuadsSubmitted) / 2;
+        NumQuadsSubmitted = 0;
     }
 
+    /// <summary>
+    /// Ends the current rendering task and flushes any buffers if needed
+    /// </summary>
     public void End()
     {
         if (IsBegin)
         {
             IsBegin = false;
         }
+        
+        // TODO: implement buffering and flush the buffer here
     }
 
+    // creates a completely reusable index buffer
     static IndexBuffer CreateIndexBuffer(GraphicsDevice device)
     {
-        const int numIndices = ushort.MaxValue;
-        int numQuads = numIndices / 6;
+        const int MaxVertexBufferSize = ushort.MaxValue;
+        const int numQuads = MaxVertexBufferSize / 6;
 
-        ushort[] indices = new ushort[numIndices];
+        ushort[] indices = new ushort[MaxVertexBufferSize];
         for (int index = 0; index < numQuads; ++index)
         {
             int vertexOffset = index * 4;
@@ -177,32 +200,33 @@ public sealed class SpriteRenderer : IDisposable
             indices[indexOffset + 5] = (ushort)(vertexOffset + 3);
         }
 
-        IndexBuffer indexBuf = new(device, typeof(ushort), numIndices, BufferUsage.WriteOnly);
+        IndexBuffer indexBuf = new(device, typeof(ushort), MaxVertexBufferSize, BufferUsage.WriteOnly);
         indexBuf.SetData(indices);
         return indexBuf;
     }
 
-    public static unsafe void FillVertexData(VertexCoordColor* vertices, int index,
-                                             in Quad3D quad, in Quad2D coords, Color color)
+    // fills vertices of a quad at vertices[index*4] to vertices[index*4 + 3]
+    public static unsafe void FillQuad(VertexCoordColor* vertices, int index,
+                                       in Quad3D quad, in Quad2D coords, Color color)
     {
         int vertexOffset = index * 4;
-        vertices[vertexOffset + 0] = new VertexCoordColor(quad.A, color, coords.A); // TopLeft
-        vertices[vertexOffset + 1] = new VertexCoordColor(quad.B, color, coords.B); // TopRight
-        vertices[vertexOffset + 2] = new VertexCoordColor(quad.C, color, coords.C); // BotRight
-        vertices[vertexOffset + 3] = new VertexCoordColor(quad.D, color, coords.D); // BotLeft
+        vertices[vertexOffset + 0] = new(quad.A, color, coords.A); // TopLeft
+        vertices[vertexOffset + 1] = new(quad.B, color, coords.B); // TopRight
+        vertices[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
+        vertices[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
     }
-
-    public static unsafe void FillVertexData(VertexCoordColor* vertices, ushort* indices, int index,
-                                             in Quad3D quad, in Quad2D coords, Color color)
+    
+    // fills vertices of a quad at vertices[index*4] to vertices[index*4 + 3]
+    // along with indices at indices[index*6] to indices[index*6 + 5]
+    public static unsafe void FillQuad(VertexCoordColor* vertices, ushort* indices, int index,
+                                       in Quad3D quad, in Quad2D coords, Color color)
     {
         int vertexOffset = index * 4;
         int indexOffset = index * 6;
-
-        vertices[vertexOffset + 0] = new VertexCoordColor(quad.A, color, coords.A); // TopLeft
-        vertices[vertexOffset + 1] = new VertexCoordColor(quad.B, color, coords.B); // TopRight
-        vertices[vertexOffset + 2] = new VertexCoordColor(quad.C, color, coords.C); // BotRight
-        vertices[vertexOffset + 3] = new VertexCoordColor(quad.D, color, coords.D); // BotLeft
-
+        vertices[vertexOffset + 0] = new(quad.A, color, coords.A); // TopLeft
+        vertices[vertexOffset + 1] = new(quad.B, color, coords.B); // TopRight
+        vertices[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
+        vertices[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
         indices[indexOffset + 0] = (ushort)(vertexOffset + 0);
         indices[indexOffset + 1] = (ushort)(vertexOffset + 1);
         indices[indexOffset + 2] = (ushort)(vertexOffset + 2);
@@ -226,6 +250,22 @@ public sealed class SpriteRenderer : IDisposable
         SimplePass.End();
         Simple.End();
     }
+    
+    /// <summary>
+    /// Draw a precompiled batch of sprites
+    /// </summary>
+    public void Draw(BatchedSprites sprites)
+    {
+        sprites.Draw(this, Color.White);
+    }
+    
+    /// <summary>
+    /// Draw a precompiled batch of sprites with a color multiplier
+    /// </summary>
+    public void Draw(BatchedSprites sprites, Color color)
+    {
+        sprites.Draw(this, color);
+    }
 
     /// <summary>
     /// Enables direct draw to the GPU. This is quite inefficient, so consider
@@ -236,7 +276,7 @@ public sealed class SpriteRenderer : IDisposable
         // stack allocating these is extremely important to reduce memory pressure
         VertexCoordColor* vertices = stackalloc VertexCoordColor[4];
         ushort* indices = stackalloc ushort[6];
-        FillVertexData(vertices, indices, 0, quad, coords, color);
+        FillQuad(vertices, indices, 0, quad, coords, color);
 
         Device.VertexDeclaration = VertexDeclaration;
 
@@ -254,51 +294,239 @@ public sealed class SpriteRenderer : IDisposable
 
         ShaderEnd();
     }
-
-    public void Draw(BatchedSprites sprites)
+    public void Draw(SubTexture texture, in Quad3D quad, Color color)
     {
-        sprites.Draw(this, Color.White);
+        Draw(texture.Texture, quad, texture.UVCoords, color);
     }
 
-    public void Draw(BatchedSprites sprites, Color color)
-    {
-        sprites.Draw(this, color);
-    }
-
-    static readonly Quad2D DefaultCoords = new(new RectF(0, 0, 1, 1));
+    /// <summary>
+    /// Default UV Coordinates to draw the full texture
+    /// </summary>
+    public static readonly Quad2D DefaultCoords = new(new RectF(0, 0, 1, 1));
 
     public void Draw(Texture2D texture, in Vector3 center, in Vector2 size, Color color)
     {
         Draw(texture, new Quad3D(center, size), DefaultCoords, color);
     }
-
+    public void Draw(SubTexture texture, in Vector3 center, in Vector2 size, Color color)
+    {
+        Draw(texture.Texture, new Quad3D(center, size), texture.UVCoords, color);
+    }
+    
+    /// <summary>
+    /// Draw a texture quad at 2D position `rect`, facing upwards
+    /// </summary>
     public void Draw(Texture2D texture, in RectF rect, Color color)
     {
         Draw(texture, new Quad3D(rect, 0f), DefaultCoords, color);
     }
-
-    public void Draw(Texture2D texture, in RectF rect, float z, in RectF sourceCoords, Color color)
+    public void Draw(SubTexture texture, in RectF rect, Color color)
     {
-        Draw(texture, new Quad3D(rect, z), new Quad2D(sourceCoords), color);
+        Draw(texture.Texture, new Quad3D(rect, 0f), texture.UVCoords, color);
     }
 
+    /// <summary>
+    /// Double precision overload for drawing a texture quad at 3D position `center`
+    /// </summary>
     public void Draw(Texture2D texture, in Vector3d center, in Vector2d size, Color color)
     {
-        Draw(texture, center.ToVec3f(), size.ToVec2f(), color);
+        Draw(texture, new Quad3D(center.ToVec3f(), size.ToVec2f()), DefaultCoords, color);
+    }
+    public void Draw(SubTexture texture, in Vector3d center, in Vector2d size, Color color)
+    {
+        Draw(texture.Texture, new Quad3D(center.ToVec3f(), size.ToVec2f()), texture.UVCoords, color);
     }
 
+    /// <summary>
+    /// Fills a rectangle at 3D position `center`, facing upwards
+    /// </summary>
     public void FillRect(in Vector3 center, in Vector2 size, Color color)
     {
-        Draw(null, center, size, color);
+        Draw(null, new Quad3D(center, size), DefaultCoords, color);
     }
-
     public void FillRect(in Vector3d center, in Vector2d size, Color color)
     {
-        Draw(null, center.ToVec3f(), size.ToVec2f(), color);
+        Draw(null, new Quad3D(center.ToVec3f(), size.ToVec2f()), DefaultCoords, color);
     }
-
     public void FillRect(in RectF rect, Color color)
     {
         Draw(null, new Quad3D(rect, 0f), DefaultCoords, color);
     }
+
+    /// <summary>
+    /// This draws a 2D line at Z=0
+    /// </summary>
+    /// <param name="p1">Start point</param>
+    /// <param name="p2">End point</param>
+    /// <param name="color">Color of the line</param>
+    /// <param name="thickness">Width of the line</param>
+    public void DrawLine(in Vector2 p1, in Vector2 p2, Color color, float thickness = 1f)
+    {
+        Quad3D line = new(p1, p2, thickness, zValue: 0f);
+        Draw(null, line, DefaultCoords, color);
+    }
+    public void DrawLine(in Vector2d p1, in Vector2d p2, Color color, float thickness = 1f)
+    {
+        Quad3D line = new(p1.ToVec2f(), p2.ToVec2f(), thickness, zValue: 0f);
+        Draw(null, line, DefaultCoords, color);
+    }
+
+    /// <summary>
+    /// Draws a circle with an adaptive line count
+    /// </summary>
+    public void DrawCircle(Vector2 center, float radius, Color color, float thickness = 1f)
+    {
+        // TODO: there are loads of issues with this, the radius only works for 2D rendering
+        // TODO: figure out a better way to draw circles without having to draw 256 lines every time
+        int sides = 12 + ((int)radius / 6); // adaptive line count
+        DrawCircle(center, radius, sides, color, thickness);
+    }
+    public void DrawCircle(Vector2d center, double radius, Color color, float thickness = 1f)
+    {
+        int sides = 12 + ((int)radius / 6); // adaptive line count
+        DrawCircle(center, radius, sides, color, thickness);
+    }
+
+    /// <summary>
+    /// Draws a circle with predefined number of sides
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="radius"></param>
+    /// <param name="sides">This will always be clamped within [3, 256]</param>
+    /// <param name="color"></param>
+    /// <param name="thickness"></param>
+    public void DrawCircle(Vector2 center, float radius, int sides, Color color, float thickness = 1f)
+    {
+        sides = sides.Clamped(3, 256);
+        float step = 6.28318530717959f / sides;
+
+        Vector2 start = new(center.X + radius, center.Y); // 0 angle is horizontal right
+        Vector2 previous = start;
+
+        for (float theta = step; theta < 6.28318530717959f; theta += step)
+        {
+            Vector2 current = new(center.X + radius * RadMath.Cos(theta), 
+                                  center.Y + radius * RadMath.Sin(theta));
+            DrawLine(previous, current, color, thickness);
+            previous = current;
+        }
+        DrawLine(previous, start, color, thickness); // connect back to start
+    }
+    public void DrawCircle(Vector2d center, double radius, int sides, Color color, float thickness = 1f)
+    {
+        sides = sides.Clamped(3, 256);
+        double step = 6.28318530717959 / sides;
+
+        Vector2d start = new(center.X + radius, center.Y); // 0 angle is horizontal right
+        Vector2d previous = start;
+
+        for (double theta = step; theta < 6.28318530717959; theta += step)
+        {
+            Vector2d current = new(center.X + radius * RadMath.Cos(theta), 
+                                   center.Y + radius * RadMath.Sin(theta));
+            DrawLine(previous, current, color, thickness);
+            previous = current;
+        }
+        DrawLine(previous, start, color, thickness); // connect back to start
+    }
+
+    // RedFox - These are salvaged from my 3D utility library, https://github.com/RedFox20/AlphaGL
+
+    //// core radius determines the width of the line core
+    //// for very small widths, the core should be very small ~10%
+    //// for large width, the core should be very large ~90%
+    //static void lineCoreRadii(const float width, float& cr, float& w2)
+    //{
+    //    switch ((int)width) {
+    //        case 0:
+    //        case 1:  w2 = (width + 0.5f) * 0.5f; cr = 0.25f; return;
+    //        case 2:  w2 = width * 0.5f; cr = 0.75f; return;
+    //        case 3:  w2 = width * 0.5f; cr = 1.5f;  return;
+    //        // always leave 1 pixel for the edge radius
+    //        default: w2 = width * 0.5f; cr = w2 - 1.0f; return;
+    //    }
+    //}
+    
+    // this require per-vertex-alpha which is indeed supported by VertexCoordColor
+    //void GLDraw2D::LineAA(const Vector2& p1, const Vector2& p2, const float width)
+    //{
+    //    // 12 vertices
+    //    //      x1                A up     
+    //    // 0\``2\``4\``6    left  |  right 
+    //    // | \ | \ | \ |    <-----o----->  
+    //    // 1__\3__\5__\7          |         
+    //    //      x2                V down
+        
+    //    float cr, w2;
+    //    lineCoreRadii(width, cr, w2);
+
+    //    float x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y;
+    //    Vector2 right(y2 - y1, x1 - x2);
+    //    right.normalize();
+
+    //    // extend start and end by a tiny amount (core radius to be exact)
+    //    Vector2 dir(x2 - x1, y2 - y1);
+    //    dir.normalize(cr);
+    //    x1 -= dir.x;
+    //    y1 -= dir.y;
+    //    x2 += dir.x;
+    //    y2 += dir.y;
+
+    //    float ex = right.x * w2, ey = right.y * w2; // edge xy offsets
+    //    float cx = right.x * cr, cy = right.y * cr; // center xy offsets
+    //    index_t n = (index_t)vertices.size();
+    //    vertices.resize(n + 8);
+    //    Vertex2Alpha* v = &vertices[n];
+    //    v[0].x = x1 - ex, v[0].y = y1 - ey, v[0].a = 0.0f;	// left-top
+    //    v[1].x = x2 - ex, v[1].y = y2 - ey, v[1].a = 0.0f;	// left-bottom
+    //    v[2].x = x1 - cx, v[2].y = y1 - cy, v[2].a = 1.0f;	// left-middle-top
+    //    v[3].x = x2 - cx, v[3].y = y2 - cy, v[3].a = 1.0f;	// left-middle-bottom
+    //    v[4].x = x1 + cx, v[4].y = y1 + cy, v[4].a = 1.0f;	// right-middle-top
+    //    v[5].x = x2 + cx, v[5].y = y2 + cy, v[5].a = 1.0f;	// right-middle-bottom
+    //    v[6].x = x1 + ex, v[6].y = y1 + ey, v[6].a = 0.0f;	// right-top
+    //    v[7].x = x2 + ex, v[7].y = y2 + ey, v[7].a = 0.0f;	// right-bottom
+
+    //    size_t numIndices = indices.size();
+    //    indices.resize(numIndices + 18);
+    //    index_t* i = &indices[numIndices];
+    //    i[0]  = n + 0, i[1]  = n + 1, i[2]  = n + 3; // triangle 1
+    //    i[3]  = n + 0, i[4]  = n + 3, i[5]  = n + 2; // triangle 2
+    //    i[6]  = n + 2, i[7]  = n + 3, i[8]  = n + 5; // triangle 3
+    //    i[9]  = n + 2, i[10] = n + 5, i[11] = n + 4; // triangle 4
+    //    i[12] = n + 4, i[13] = n + 5, i[14] = n + 7; // triangle 5
+    //    i[15] = n + 4, i[16] = n + 7, i[17] = n + 6; // triangle 6
+    //}
+
+    //void GLDraw2D::RectAA(const Vector2& origin, const Vector2& size, float lineWidth)
+    //{
+    //    //  0---3
+    //    //  | + |
+    //    //  1---2
+    //    Vector2 p0(origin.x, origin.y);
+    //    Vector2 p1(origin.x, origin.y + size.y);
+    //    Vector2 p2(origin.x + size.x, origin.y + size.y);
+    //    Vector2 p3(origin.x + size.x, origin.y);
+    //    LineAA(p0, p1, lineWidth);
+    //    LineAA(p1, p2, lineWidth);
+    //    LineAA(p2, p3, lineWidth);
+    //    LineAA(p3, p0, lineWidth);
+    //}
+
+    //void GLDraw2D::CircleAA(const Vector2& center, float radius, float lineWidth)
+    //{
+    //    // adaptive line count
+    //    const int   segments   = 12 + (int(radius) / 6);
+    //    const float segmentArc = (2.0f * rpp::PIf) / segments;
+    //    const float x = center.x, y = center.y;
+
+    //    float alpha = segmentArc;
+    //    Vector2 A(x, y + radius);
+    //    for (int i = 0; i < segments; ++i)
+    //    {
+    //        Vector2 B(x + sinf(alpha)*radius, y + cosf(alpha)*radius);
+    //        LineAA(A, B, lineWidth);
+    //        A = B;
+    //        alpha += segmentArc;
+    //    }
+    //}
 }
