@@ -53,7 +53,7 @@ namespace Ship_Game.Gameplay
 
         const float ProjectorDensity = 1.7f;
         const float SpacingOffset = 0.5f;
-        const float OverlapRadius = 0.85f;
+        const float OverlapRadius = 0.9f;
 
         public bool IsHot => Heat >= NumProjectors*2;
         public bool IsCold => Heat <= -(NumProjectors+2);
@@ -95,7 +95,7 @@ namespace Ship_Game.Gameplay
                 Vector2 desiredNodePos = System1.Position + roadDirection * nodeOffset;
                 var node = new RoadNode(desiredNodePos);
                 RoadNodesList.Add(node);
-                node.SetOverlappingAs(NodePosOverlappingAnotherNode(node, allEmpireActiveNodes));
+                node.SetOverlappingAs(NodePosOverlappingAnotherNode(node, allEmpireActiveNodes, out _));
             }
 
             UpdateMaintenance();
@@ -173,7 +173,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < RoadNodesList.Count; i++)
             {
                 RoadNode node = RoadNodesList[i];
-                if (NodePosOverlappingAnotherNode(node, nodesList))
+                if (NodePosOverlappingAnotherNode(node, nodesList, out _))
                 {
                     node.SetOverlappingAs(true);
                     ScuttleAndRemoveProjectorRefFrom(node);
@@ -191,20 +191,24 @@ namespace Ship_Game.Gameplay
             RecalculateStatus();
         }
 
-        public void FillNodeGaps(IReadOnlyCollection<RoadNode> removedNodes)
+        public void FillNodeGaps(RoadNode[] allNodes, ref RoadNode[] checkedNodes)
         {
             bool nodeGapFilled = false;
             for (int i = 0; i < RoadNodesList.Count; i++)
             {
                 RoadNode node = RoadNodesList[i];
-                if (node.Overlapping && NodePosOverlappingAnotherNode(node, removedNodes))
+                if (node.Overlapping 
+                    && NodePosOverlappingAnotherNode(node, checkedNodes, out RoadNode overlappingNode) 
+                    && !NodePosOverlappingAnotherNode(node, allNodes, out _))
                 {
                     nodeGapFilled = true;
                     node.SetOverlappingAs(false);
-                    Log.Info($"FillNodeGaps - {Owner.Name} - filling node gap at {node.Position}");
+                    Log.Info($"FillNodeGaps - {Owner.Name} - Road: {System1.Name}-{System2.Name} - filling node {i} gap at {node.Position}");
+                    // no need to check that node again for other roads. The current road will fill it
+                    checkedNodes.Remove(overlappingNode, out checkedNodes);
                 }
             }
-
+                                                                                                                                                                                                                                      
             if (nodeGapFilled)
                 UpdateMaintenance();
 
@@ -265,12 +269,20 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        bool NodePosOverlappingAnotherNode(RoadNode node, IReadOnlyCollection<RoadNode> nodesList)
+        bool NodePosOverlappingAnotherNode(RoadNode node, IReadOnlyCollection<RoadNode> nodesList, out RoadNode overlappingNode)
         {
+            overlappingNode = null;
             float projectorRadius = Owner.GetProjectorRadius();
-            return nodesList.Any(n => node != n 
-                                      && !n.Overlapping 
-                                      && node.Position.InRadius(n.Position, projectorRadius * OverlapRadius));
+            foreach (RoadNode n in nodesList)
+            {
+                if (node != n && !n.Overlapping && node.Position.InRadius(n.Position, projectorRadius * OverlapRadius))
+                {
+                    overlappingNode = n;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         void RecalculateStatus()
