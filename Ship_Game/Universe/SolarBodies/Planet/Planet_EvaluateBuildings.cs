@@ -884,8 +884,9 @@ namespace Ship_Game
 
         void PrioritizeCriticalProductionBuildings()
         {
-            if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level
-                || PlayerAddedFirstConstructionItem)
+            if (Owner.data.TaxRate > 0.4 
+                || PlayerAddedFirstConstructionItem 
+                || Prod.NetIncome > 1 && ConstructionQueue.Count <= Level)
             {
                 return;
             }
