@@ -672,34 +672,14 @@ namespace Ship_Game
         /// <summary>
         /// Unprojects a screenSpace 2D point into a 3D world position
         /// </summary>
-        /// <param name="screenSpace"></param>
-        /// <param name="ZPlane"></param>
-        /// <returns></returns>
         public Vector3d UnprojectToWorldPosition3D(Vector2 screenSpace, double ZPlane)
         {
-            // nearPoint is the point inside the camera lens
-            Vector3d nearPoint = Viewport.Unproject(new(screenSpace, 0.0), in InverseViewProjection);
-            // farPoint points away into the world
-            Vector3d farPoint = Viewport.Unproject(new(screenSpace, 1.0), in InverseViewProjection);
-
-            // get the direction towards the world plane
-            Vector3d dir = (farPoint - nearPoint).Normalized();
-
-            // FIX: potential failure point here, dir.Z might be 0
-            if (dir.Z.AlmostEqual(0.0, 0.000000001))
-            {
-                Log.Error($"UnprojectToWorldPosition3D dir.Z zero! dir={dir} screenPos={screenSpace}");
-                return new(nearPoint.X, nearPoint.Y, 0.0);
-            }
-
-            // calculate distance of intersection point from nearPoint
-            double distance = ((-nearPoint.Z + ZPlane) / dir.Z);
-            return nearPoint + (dir * distance);
+            return Viewport.Unproject(screenSpace, ZPlane, in InverseViewProjection);
         }
 
         public Vector3d UnprojectToWorldPosition3D(Vector2 screenSpace)
         {
-            return UnprojectToWorldPosition3D(screenSpace, ZPlane: 0.0);
+            return Viewport.Unproject(screenSpace, 0.0, in InverseViewProjection);
         }
 
         public Vector2 UnprojectToWorldPosition(Vector2 screenSpace, double ZPlane)

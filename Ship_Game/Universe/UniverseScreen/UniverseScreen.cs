@@ -679,6 +679,9 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
+            if (IsDisposed)
+                return; // already exited and disposed
+
             IsExiting = true;
             UState.Paused = true;
 
