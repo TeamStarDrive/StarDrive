@@ -25,15 +25,13 @@ namespace Ship_Game.Data.Texture
         public Texture2D Load(string texturePath)
         {
             Texture2D tex = LoadTexture(texturePath);
-            tex.Name = texturePath;
+            tex.Name = FileSystemExtensions.GetAppRootRelPath(texturePath);
             return tex;
         }
         
         public Texture2D Load(FileInfo textureFile)
         {
-            Texture2D tex = LoadTexture(textureFile.FullName);
-            tex.Name = textureFile.RelPath();
-            return tex;
+            return Load(textureFile.FullName);
         }
 
         Texture2D LoadTexture(string fullPath)

@@ -5,6 +5,7 @@ using System.IO;
 using System.Xml.Serialization;
 using SDUtils;
 using Vector3 = SDGraphics.Vector3;
+#pragma warning disable CA1060
 
 namespace Ship_Game.Ships.Legacy
 {

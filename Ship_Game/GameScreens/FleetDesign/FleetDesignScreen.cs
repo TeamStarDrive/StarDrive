@@ -37,7 +37,9 @@ namespace Ship_Game
 
         // the currently dragged Ship Design
         // it might be a ship that we own, or it could be a Ship template
+        #pragma warning disable CA2213 // managed by Content Manager
         Ship ActiveShipDesign;
+        #pragma warning restore CA2213
 
         ScrollList<FleetDesignShipListItem> ShipSL;
         BlueButton RequisitionForces;

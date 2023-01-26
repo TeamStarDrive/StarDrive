@@ -34,16 +34,16 @@ namespace Ship_Game.AI
 
         public void Dispose()
         {
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         ~DefensiveCoordinator()
         {
-            Destroy();
+            Dispose(false);
         }
 
-        void Destroy()
+        void Dispose(bool disposing)
         {
             DefensiveForcePool = null;
             if (DefenseDict != null)
@@ -427,7 +427,7 @@ namespace Ship_Game.AI
                 troopShips.RemoveAtSwapLast(i);
 
                 Planet target = defenseSystem.OurPlanets
-                    .FindMinFiltered(p => !p.MightBeAWarZone(Us) && p.GetFreeTiles(Us) > 0,
+                    .FindMinFiltered(p => !p.MightBeAWarZone(p.Owner) && p.GetFreeTiles(p.Owner) > 0,
                         planet => planet.CountEmpireTroops(planet.Owner) / defenseSystem.PlanetTroopMin(planet));
 
                 if (target != null)

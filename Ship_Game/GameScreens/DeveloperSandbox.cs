@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game
@@ -13,6 +14,14 @@ namespace Ship_Game
         public DeveloperSandbox() : base(null, toPause: null)
         {
             IsPopup = true;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+            Mem.Dispose(ref CreateTask);
+            base.Dispose(disposing);
         }
 
         public override void LoadContent()

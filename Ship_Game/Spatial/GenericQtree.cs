@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SDUtils;
 
 namespace Ship_Game.Spatial;
@@ -13,7 +14,7 @@ namespace Ship_Game.Spatial;
 /// Such as: SolarSystem locations, Planet locations, ThreatMatrix clusters,
 /// everything which inherits from SpatialObjectBase
 /// </summary>
-public partial class GenericQtree
+public sealed partial class GenericQtree : IDisposable
 {
     /// <summary>
     /// How many objects to store per cell before subdividing
@@ -35,26 +36,18 @@ public partial class GenericQtree
     /// </summary>
     public float WorldSize { get; }
 
-    Node Root;
+    ObjectsState State;
 
-    // We need to keep a list of all ObjectRef's to enable accurate Remove and Update
-    readonly Map<SpatialObjectBase, ObjectRef> ObjectRefsMap = new();
-
-    // List of unique ID-s that can be reassigned
-    readonly Array<int> FreeIds = new();
-
-    // Currently maximum applied object Id
-    int MaxObjectId;
-
-    public int Count => ObjectRefsMap.Count;
+    public int Count => State.ObjectRefsMap.Count;
 
     // Should be used for TESTING or DEBUGGING only, because it's expensive
-    public SpatialObjectBase[] Objects => ObjectRefsMap.Keys.ToArr();
+    public SpatialObjectBase[] Objects => State.ObjectRefsMap.Keys.ToArr();
 
     public string Name => "GenericQtree";
 
     /// <summary>
-    /// 
+    /// Creates a generic reusable Qtree where spatial object metadata is
+    /// stored in the GenericQtree and not in the spatial object itself
     /// </summary>
     /// <param name="universeWidth">Width of the searchable universe</param>
     /// <param name="cellThreshold">How many objects per Cell before subdividing it into 4 quads</param>
@@ -73,50 +66,96 @@ public partial class GenericQtree
         Clear();
     }
 
-    public void Clear()
+    ~GenericQtree() { Dispose(false); }
+
+    public void Dispose()
     {
-        ClearObjectRefs();
-        // universe is centered at [0,0], so Root node goes from [-half, +half)
-        float half = FullSize / 2;
-        Root = new(-half, -half, +half, +half);
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
-    ObjectRef FindObjectRef(SpatialObjectBase obj)
+    void Dispose(bool disposing)
     {
-        return ObjectRefsMap.TryGetValue(obj, out ObjectRef objRef) ? objRef : null;
+        FindBuffer.Dispose();
+    }
+
+    public void Clear()
+    {
+        // just create a new state, while this will use more memory,
+        // it will provide cheap thread safety
+        State = new(FullSize);
+    }
+    
+    class ObjectsState
+    {
+        public readonly Node Root;
+
+        // We need to keep a list of all ObjectRef's to enable accurate Remove and Update
+        public readonly Map<SpatialObjectBase, ObjectRef> ObjectRefsMap = new();
+
+        // List of unique ID-s that can be reassigned
+        public readonly Array<int> FreeIds = new();
+
+        // Currently maximum applied object Id
+        public int MaxObjectId;
+        
+        public ObjectsState(float fullSize)
+        {
+            // universe is centered at [0,0], so Root node goes from [-half, +half)
+            float half = fullSize / 2;
+            Root = new(-half, -half, +half, +half);
+        }
+
+        public ObjectRef FindObjectRef(SpatialObjectBase obj)
+        {
+            return ObjectRefsMap.TryGetValue(obj, out ObjectRef objRef) ? objRef : null;
+        }
+        
+        public bool Contains(SpatialObjectBase obj)
+        {
+            return ObjectRefsMap.ContainsKey(obj);
+        }
+
+        public ObjectRef InsertNewObjectRef(SpatialObjectBase obj)
+        {
+            ObjectRef objRef = new(obj);
+            ObjectRefsMap.Add(obj, objRef); // throws on duplicate insert
+
+            int objectId;
+            if (FreeIds.IsEmpty)
+                objectId = ++MaxObjectId;
+            else
+                objectId = FreeIds.PopLast();
+
+            objRef.ObjectId = objectId;
+            return objRef;
+        }
+
+        public void RemoveObjectRef(SpatialObjectBase obj, ObjectRef toRemove)
+        {
+            FreeIds.Add(toRemove.ObjectId);
+            ObjectRefsMap.Remove(obj);
+        }
     }
 
     public bool Contains(SpatialObjectBase obj)
     {
-        return ObjectRefsMap.ContainsKey(obj);
+        return State.Contains(obj);
     }
 
-    ObjectRef InsertNewObjectRef(SpatialObjectBase obj)
+    static ObjectRef InsertNewObjectRef(SpatialObjectBase obj, ObjectsState state)
     {
-        var objRef = new ObjectRef(obj);
-        ObjectRefsMap.Add(obj, objRef); // throws on duplicate insert
+        ObjectRef objRef = new(obj);
+        state.ObjectRefsMap.Add(obj, objRef); // throws on duplicate insert
 
         int objectId;
-        if (FreeIds.IsEmpty)
-            objectId = ++MaxObjectId;
+        if (state.FreeIds.IsEmpty)
+            objectId = ++state.MaxObjectId;
         else
-            objectId = FreeIds.PopLast();
+            objectId = state.FreeIds.PopLast();
 
         objRef.ObjectId = objectId;
         return objRef;
-    }
-
-    void RemoveObjectRef(SpatialObjectBase obj, ObjectRef toRemove)
-    {
-        FreeIds.Add(toRemove.ObjectId);
-        ObjectRefsMap.Remove(obj);
-    }
-
-    void ClearObjectRefs()
-    {
-        ObjectRefsMap.Clear();
-        FreeIds.Clear();
-        MaxObjectId = 0;
     }
 
     /// <summary>
@@ -125,12 +164,12 @@ public partial class GenericQtree
     public void Insert(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
-        if (Contains(obj))
+        ObjectsState state = State;
+        if (state.Contains(obj))
             return; // this object already exists in this Qtree, do nothing
         
-        Node root = Root;
-        ObjectRef objRef = InsertNewObjectRef(obj);
-        InsertAt(root, Levels, objRef);
+        ObjectRef objRef = state.InsertNewObjectRef(obj);
+        InsertAt(state.Root, Levels, objRef);
     }
 
     /// <summary>
@@ -140,16 +179,17 @@ public partial class GenericQtree
     public bool Remove(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
-        ObjectRef toRemove = FindObjectRef(obj);
+        ObjectsState state = State;
+        ObjectRef toRemove = state.FindObjectRef(obj);
         if (toRemove == null)
             return false; // this object does not exist in this Qtree, do nothing
         
-        Node root = Root;
+        Node root = state.Root;
         bool removed = RemoveAt(root, root, Levels, toRemove, in toRemove.AABB);
         if (removed && root.HasEmptyLeafNodes)
             root.ClearCells();
 
-        RemoveObjectRef(obj, toRemove);
+        state.RemoveObjectRef(obj, toRemove);
         return removed;
     }
 
@@ -160,11 +200,12 @@ public partial class GenericQtree
     public bool Update(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
-        ObjectRef toUpdate = FindObjectRef(obj);
+        ObjectsState state = State;
+        ObjectRef toUpdate = state.FindObjectRef(obj);
         if (toUpdate == null)
             return false; // this object does not exist in this Qtree, do nothing
         
-        Node root = Root;
+        Node root = state.Root;
         RemoveAt(root, root, Levels, toUpdate, in toUpdate.AABB);
         toUpdate.UpdateBounds();
         InsertAt(root, Levels, toUpdate);
@@ -177,11 +218,12 @@ public partial class GenericQtree
     public bool InsertOrUpdate(SpatialObjectBase obj)
     {
         // TODO: Thread safety?
-        Node root = Root;
-        ObjectRef toUpdate = FindObjectRef(obj);
+        ObjectsState state = State;
+        Node root = state.Root;
+        ObjectRef toUpdate = state.FindObjectRef(obj);
         if (toUpdate == null)
         {
-            ObjectRef objRef = InsertNewObjectRef(obj);
+            ObjectRef objRef = state.InsertNewObjectRef(obj);
             InsertAt(root, Levels, objRef);
             return true;
         }
@@ -195,20 +237,22 @@ public partial class GenericQtree
     /// <summary>
     /// Resets this entire Qtree by updating all objects
     /// </summary>
-    public void UpdateAll<T>(T[] newObjects) where T : SpatialObjectBase
+    public void UpdateAll<T>(IReadOnlyList<T> newObjects) where T : SpatialObjectBase
     {
-        // TODO: Thread safety?
-        ClearObjectRefs();
-        float half = FullSize / 2;
-        Node newRoot = new(-half, -half, +half, +half);
+        // Thread safety is achieved here by always creating a brand new ObjectsState,
+        // then constructing the entire tree into the new state,
+        // and finally a single atomic swap of the State
+        ObjectsState state = new(FullSize);
 
-        for (int i = 0; i < newObjects.Length; ++i)
+        int count = newObjects.Count;
+        for (int i = 0; i < count; ++i)
         {
-            ObjectRef objRef = InsertNewObjectRef(newObjects[i]);
-            InsertAt(newRoot, Levels, objRef);
+            T obj = newObjects[i];
+            ObjectRef objRef = state.InsertNewObjectRef(obj);
+            InsertAt(state.Root, Levels, objRef);
         }
 
-        Root = newRoot;
+        State = state; // set the new state
     }
 
     void InsertAt(Node node, int level, ObjectRef obj)
@@ -324,7 +368,7 @@ public partial class GenericQtree
     // For TESTING purposes only
     public int CountNumberOfNodes()
     {
-        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(Root);
+        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(State.Root);
         int numNodes = 0;
         do
         {

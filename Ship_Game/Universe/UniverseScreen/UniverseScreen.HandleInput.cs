@@ -8,7 +8,9 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
+using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
+using Ship_Game.Spatial;
 using Keys = SDGraphics.Input.Keys;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
@@ -271,7 +273,7 @@ namespace Ship_Game
 
             HandleEdgeDetection(input);
 
-            UpdateClickableShipsAndShields();
+            UpdateVisibleShields();
             UpdateClickableSystemsPlanetsAndVisibleShields();
 
             if (HandleDragAORect(input))
@@ -334,11 +336,11 @@ namespace Ship_Game
             }
             else
             {
-                SelectedFleet  = null;
+                SelectedFleet = null;
                 InputCheckPreviousShip();
-                SelectedShip   = null;
+                SelectedShip = null;
                 SelectedShipList.Clear();
-                SelectedItem   = null;
+                SelectedItem = null;
                 SelectedSystem = null;
             }
 
@@ -347,7 +349,7 @@ namespace Ship_Game
 
             pickedSomethingThisFrame = false;
 
-            ShipsInCombat.Visible   = !LookingAtPlanet;
+            ShipsInCombat.Visible = !LookingAtPlanet;
             PlanetsInCombat.Visible = !LookingAtPlanet;
 
             if (LookingAtPlanet && workersPanel.HandleInput(input))
@@ -355,12 +357,6 @@ namespace Ship_Game
 
             if (IsActive && EmpireUI.HandleInput(input))
                 return true;
-
-            if (ShowingPlanetToolTip && input.CursorPosition.OutsideRadius(TippedPlanet.ScreenPos, TippedPlanet.Radius))
-                ResetToolTipTimer(ref ShowingPlanetToolTip);
-
-            if (ShowingSysTooltip && input.CursorPosition.OutsideRadius(TippedPlanet.ScreenPos, tippedSystem.Radius))
-                ResetToolTipTimer(ref ShowingSysTooltip);
 
             if (!LookingAtPlanet)
             {
@@ -374,26 +370,6 @@ namespace Ship_Game
             if (input.InGameSelect && !pickedSomethingThisFrame && (!input.IsShiftKeyDown && !pieMenu.Visible))
                 HandleFleetButtonClick(input);
 
-            cState = SelectedShip != null || SelectedShipList.Count > 0 ? CursorState.Move : CursorState.Normal;
-            if (SelectedShip == null && SelectedShipList.Count <= 0)
-                return false;
-
-            for (int i = 0; i < ClickableShips.Length; i++)
-            {
-                ref ClickableShip clickableShip = ref ClickableShips[i];
-                if (input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
-                    cState = CursorState.Follow;
-            }
-
-            if (cState == CursorState.Follow)
-                return false;
-
-            for (int i = 0; i < ClickablePlanets.Length; i++)
-            {
-                ref ClickablePlanet planet = ref ClickablePlanets[i];
-                if (input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius) && planet.Planet.Habitable)
-                    cState = CursorState.Orbit;
-            }
             return false;
         }
 
@@ -565,120 +541,85 @@ namespace Ship_Game
             }
         }
 
-        void UpdateClickableShipsAndShields()
+        void UpdateVisibleShields()
         {
+            Array<Shield> shields = new();
+
             Ship[] ships = UState.Objects.VisibleShips;
-            var clickable = new Array<ClickableShip>();
-            var visibleShields = new Array<Shield>();
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if (!ship.IsVisibleToPlayerInMap
-                    // feature: if we're zoomed out a lot, ignore subspace projector clicks
-                    || ship.IsSubspaceProjector && CamPos.Z > 1_200_000.0
-                    || !ship.Active)
+                if (ship.Active && ship.ShieldMax > 0f && ship.IsVisibleToPlayerInMap)
                 {
-                    continue;
+                    shields.AddRange(ship.GetActiveShields().Select(s => s.Shield));
                 }
-
-                visibleShields.AddRange(ship.GetActiveShields().Select(s => s.Shield));
-                ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
-                clickable.Add(new ClickableShip
-                {
-                    Radius = screenRadius < 7.0 ? 7f : (float)screenRadius,
-                    ScreenPos = shipScreenPos.ToVec2f(),
-                    Ship = ship
-                });
             }
-            
+
             // TODO: this needs to be rewritten
-            Shields.SetVisibleShields(visibleShields.ToArr());
-            ClickableShips = clickable.ToArray();
+            Shields.SetVisibleShields(shields.ToArr());
         }
 
         void UpdateClickableSystemsPlanetsAndVisibleShields()
         {
-            ClickableSystems = UState.GetVisibleSystems().Select(s =>
-            {
-                ProjectToScreenCoords(s.Position, 4500f, out Vector2d sysPosOnScreen, out double sysSizeOnScreen);
-                return new ClickableSystem
-                {
-                    Radius = sysSizeOnScreen < 8 ? 8f : (float)sysSizeOnScreen,
-                    ScreenPos = sysPosOnScreen.ToVec2f(),
-                    System = s
-                };
-            });
-
             if (viewState <= UnivScreenState.SectorView)
             {
-                var planets = new Array<ClickablePlanet>();
-                var visibleShields = new Array<Shield>();
-                for (int index = 0; index < ClickableSystems.Length; index++)
-                {
-                    SolarSystem sys = ClickableSystems[index].System;
+                Array<Shield> visibleShields = new();
 
-                    if (sys.IsExploredBy(Player))
-                    {
-                        for (int i = 0; i < sys.PlanetList.Count; i++)
-                        {
-                            Planet planet = sys.PlanetList[i];
-                            if (IsInFrustum(planet.Position, planet.Radius*2f))
-                            {
-                                ProjectToScreenCoords(planet.Position3D, planet.Radius,
-                                                      out Vector2d planetScreenPos, out double planetScreenRadius);
-                                planets.Add(new ClickablePlanet
-                                {
-                                    ScreenPos = planetScreenPos.ToVec2f(),
-                                    Radius = planetScreenRadius < 8.0 ? 8f : (float)planetScreenRadius,
-                                    Planet = planet
-                                });
+                Planet[] planets = UState.GetVisiblePlanets();
+                foreach (Planet planet in planets)
+                    if (planet.Shield != null && planet.IsExploredBy(Player))
+                        visibleShields.Add(planet.Shield);
 
-                                if (planet.Shield != null)
-                                    visibleShields.Add(planet.Shield);
-                            }
-                        }
-                    }
-                }
-                ClickablePlanets = planets.ToArr();
                 Shields.SetVisiblePlanetShields(visibleShields.ToArr());
             }
-            else
-            {
-                ClickablePlanets = Empty<ClickablePlanet>.Array;
-            }
         }
 
-
-        Ship CheckShipClick(InputState input)
+        bool CanClickOnShip(SpatialObjectBase go)
         {
-            foreach (ClickableShip clickableShip in ClickableShips)
-            {
-                if (input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
-                    return clickableShip.Ship;
-            }
-            return null;
+            return go is Ship { InPlayerSensorRange: true } ship
+                // feature: if we're zoomed OUT a lot, ignore subspace projector clicks
+                && (!ship.IsSubspaceProjector || CamPos.Z <= 1_200_000.0);
         }
 
-        Planet CheckPlanetClick()
+        public Ship[] GetVisibleShipsInScreenRect(in RectF screenRect, int maxResults = 1024)
         {
-            for (int i = 0; i < ClickablePlanets.Length; ++i)
+            AABoundingBox2D worldRect = UnprojectToWorldRect(new(screenRect));
+            SearchOptions opt = new(worldRect, GameObjectType.Ship)
             {
-                ref ClickablePlanet clickablePlanets = ref ClickablePlanets[i];
-                if (Input.CursorPosition.InRadius(clickablePlanets.ScreenPos, clickablePlanets.Radius + 10.0f))
-                    return clickablePlanets.Planet;
-            }
-            return null;
+                MaxResults = maxResults,
+                SortByDistance = true, // only care about closest results
+                FilterFunction = CanClickOnShip
+            };
+            return UState.Spatial.FindNearby(ref opt).FastCast<SpatialObjectBase, Ship>();
         }
 
-        SolarSystem CheckSolarSystemClick()
+        Ship FindClickedShip(InputState input)
         {
-            for (int i = 0; i < ClickableSystems.Length; ++i)
+            const float ClickRadius = 5f;
+            AABoundingBox2D clickRect = UnprojectToWorldRect(new(input.CursorPosition, ClickRadius));
+            SearchOptions opt = new(clickRect, GameObjectType.Ship)
             {
-                ref ClickableSystem clickableSystem = ref ClickableSystems[i];
-                if (clickableSystem.Touched(Input.CursorPosition))
-                    return clickableSystem.System;
-            }
-            return null;
+                MaxResults = 32,
+                SortByDistance = true, // only care about closest results
+                FilterFunction = CanClickOnShip
+            };
+            return UState.Spatial.FindNearby(ref opt).FirstOrDefault() as Ship;
+        }
+
+        Planet FindPlanetUnderCursor(float searchRadius = 500)
+        {
+            Vector3d worldPos = UnprojectToWorldPosition3D(Input.CursorPosition, ZPlane: 2500);
+            Planet p = UState.FindPlanetAt(worldPos.ToVec2f(), searchRadius: searchRadius);
+            return p != null && p.ParentSystem.IsExploredBy(Player) ? p : null;
+        }
+
+        // should be called for >= SectorView
+        SolarSystem FindSolarSystemUnderCursor()
+        {
+            float hitRadius = 10_000;
+            if (CamPos.Z >= 1_500_000)
+                hitRadius = 25_000;
+            return UState.FindSolarSystemAt(CursorWorldPosition2D, hitRadius: hitRadius);
         }
 
         Fleet CheckFleetClicked()
@@ -747,32 +688,28 @@ namespace Ship_Game
             return true;
         }
 
-        // @note targetPlanet/targetShip are the attack/orbit etc targets
-
         bool SelectShipClicks(InputState input)
         {
-            foreach (ClickableShip clickableShip in ClickableShips)
+            Ship ship = FindClickedShip(input);
+            if (ship != null && !pickedSomethingThisFrame)
             {
-                if (!clickableShip.HitTest(input.CursorPosition))
-                    continue;
-                if (clickableShip.Ship?.InPlayerSensorRange != true || pickedSomethingThisFrame)
-                    continue;
-
                 pickedSomethingThisFrame = true;
                 GameAudio.ShipClicked();
                 SelectedSomethingTimer = 3f;
 
                 if (SelectedShipList.Count > 0 && input.IsShiftKeyDown)
                 {
-                    if (SelectedShipList.RemoveRef(clickableShip.Ship))
+                    // remove existing ship?
+                    if (SelectedShipList.RemoveRef(ship))
                         return true;
-                    SelectedShipList.AddUniqueRef(clickableShip.Ship);
-                    return false;
+
+                    // ok, no, add a new ship instead?
+                    return SelectedShipList.AddUniqueRef(ship);
                 }
 
                 SelectedShipList.Clear();
-                SelectedShipList.AddUniqueRef(clickableShip.Ship);
-                SelectedShip = clickableShip.Ship;
+                SelectedShipList.AddUniqueRef(ship);
+                SelectedShip = ship;
                 return true;
             }
             return false;
@@ -802,8 +739,9 @@ namespace Ship_Game
 
             if (viewState >= UnivScreenState.SectorView)
             {
-                if ((SelectedSystem = CheckSolarSystemClick()) != null)
+                if ((SelectedSystem = FindSolarSystemUnderCursor()) != null)
                 {
+                    GameAudio.MouseOver();
                     SystemInfoOverlay.SetSystem(SelectedSystem);
                     return;
                 }
@@ -834,7 +772,8 @@ namespace Ship_Game
                 return;
             }
 
-            SelectedPlanet = CheckPlanetClick();
+            float planetSelectRadius = (viewState <= UnivScreenState.SystemView) ? 500 : 4000;
+            SelectedPlanet = FindPlanetUnderCursor(planetSelectRadius);
             if (SelectedPlanet != null)
             {
                 SelectedSomethingTimer = 3f;
@@ -842,7 +781,7 @@ namespace Ship_Game
                 if (input.LeftMouseDoubleClick)
                 {
                     SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
-                    SelectionBox = new Rectangle();
+                    SelectionBox = new();
                 }
                 else
                     GameAudio.PlanetClicked();
@@ -900,32 +839,30 @@ namespace Ship_Game
                 LoadShipMenuNodes(SelectedShipList[0]?.Loyalty == Player ? 1 : 0);
             }
 
-            SelectionBox = new Rectangle(0, 0, -1, -1);
+            SelectionBox = new(0, 0, -1, -1);
         }
 
-        bool IsCombatShip(Ship ship)
+        static bool IsCombatShip(Ship ship)
         {
             return NonCombatShip(ship) == false;
         }
 
-        bool NonCombatShip(Ship ship)
+        static bool NonCombatShip(Ship ship)
         {
-            return ship != null && (ship.ShipData.Role <= RoleName.freighter 
-                                    || ship.ShipData.ShipCategory == ShipCategory.Civilian 
-                                    || ship.DesignRole == RoleName.troop
-                                    || ship.Weapons.Count == 0 && !ship.Carrier.HasFighterBays
-                                    || ship.AI.State == AIState.Colonize);
+            return ship != null
+                && (ship.ShipData.Role <= RoleName.freighter 
+                    || ship.ShipData.ShipCategory == ShipCategory.Civilian 
+                    || ship.DesignRole == RoleName.troop
+                    || ship.Weapons.Count == 0 && !ship.Carrier.HasFighterBays
+                    || ship.AI.State == AIState.Colonize);
         }
 
-        Array<Ship> GetAllShipsInArea(Rectangle screenArea, InputState input, out Fleet fleet)
+        Array<Ship> GetAllShipsInArea(in RectF screenArea, InputState input, out Fleet fleet)
         {
             fleet = null;
-            Ship[] potentialShips = ClickableShips.FilterSelect(
-                cs => screenArea.HitTest(cs.ScreenPos) && cs.Ship?.InPlayerSensorRange == true,
-                cs => cs.Ship);
-
+            Ship[] potentialShips = GetVisibleShipsInScreenRect(screenArea);
             if (potentialShips.Length == 0)
-                return new Array<Ship>();
+                return new();
 
             bool hasCombatShips = potentialShips.Any(IsCombatShip);
 
@@ -969,9 +906,6 @@ namespace Ship_Game
             return ships;
         }
 
-        bool IsMouseHoveringOverPlanet;
-        bool IsMouseHoveringOverSystem;
-
         public void UpdateClickableItems()
         {
             var buildGoals = new Array<ClickableSpaceBuildGoal>();
@@ -994,48 +928,6 @@ namespace Ship_Game
                 }
             }
             ClickableBuildGoals = buildGoals.ToArray();
-
-            IsMouseHoveringOverPlanet = false;
-            for (int i = 0; i < ClickablePlanets.Length; ++i)
-            {
-                ref ClickablePlanet planet = ref ClickablePlanets[i];
-                if (Input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius))
-                {
-                    IsMouseHoveringOverPlanet = true;
-                    TooltipTimer -= 0.01666667f;
-                    TippedPlanet = planet;
-                }
-            }
-
-            IsMouseHoveringOverSystem = false;
-            if (viewState > UnivScreenState.SectorView)
-            {
-                for (int i = 0; i < ClickableSystems.Length; ++i)
-                {
-                    ref ClickableSystem system = ref ClickableSystems[i];
-                    if (Input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
-                    {
-                        sTooltipTimer -= 0.01666667f;
-                        tippedSystem = system;
-                        IsMouseHoveringOverSystem = true;
-                    }
-                }
-                if (sTooltipTimer <= 0f)
-                    sTooltipTimer = 0.5f;
-            }
-
-            ShowingSysTooltip = IsMouseHoveringOverSystem;
-
-            if (TooltipTimer <= 0f && !LookingAtPlanet)
-            {
-                TooltipTimer = 0.5f;
-            }
-
-            if (!IsMouseHoveringOverPlanet)
-            {
-                ShowingPlanetToolTip = false;
-                TooltipTimer = 0.5f;
-            }
         }
 
         bool HandleTradeRoutesDefinition(InputState input)
@@ -1064,22 +956,20 @@ namespace Ship_Game
             if (viewState > UnivScreenState.SystemView)
                 return;
 
-            foreach (ClickablePlanet planets in ClickablePlanets)
+            Planet planet = FindPlanetUnderCursor();
+            if (planet != null)
             {
-                if (input.CursorPosition.InRadius(planets.ScreenPos, planets.Radius))
+                if (input.LeftMouseClick)
                 {
-                    if (input.LeftMouseClick)
-                    {
-                        if (SelectedShip.AddTradeRoute(planets.Planet))
-                            GameAudio.AcceptClick();
-                        else
-                            GameAudio.NegativeClick();
-                    }
+                    if (SelectedShip.AddTradeRoute(planet))
+                        GameAudio.AcceptClick();
                     else
-                    {
-                        SelectedShip.RemoveTradeRoute(planets.Planet);
-                        GameAudio.AffirmativeClick();
-                    }
+                        GameAudio.NegativeClick();
+                }
+                else
+                {
+                    SelectedShip.RemoveTradeRoute(planet);
+                    GameAudio.AffirmativeClick();
                 }
             }
         }
@@ -1142,44 +1032,32 @@ namespace Ship_Game
 
             if (viewState <= UnivScreenState.SystemView)
             {
-                foreach (ClickablePlanet clickablePlanets in ClickablePlanets)
+                SelectedPlanet = FindPlanetUnderCursor();
+                if (SelectedPlanet != null)
                 {
-                    if (clickablePlanets.HitTest(input.CursorPosition))
-                    {
-                        GameAudio.SubBassWhoosh();
-                        SelectedPlanet = clickablePlanets.Planet;
-                        SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
-                    }
+                    GameAudio.SubBassWhoosh();
+                    SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
                 }
             }
 
             SelectMultipleShipsByClickingOnShip(input);
 
-            if (viewState > UnivScreenState.SystemView)
+            if (viewState >= UnivScreenState.SectorView)
             {
-                for (int i = 0; i < ClickableSystems.Length; ++i)
+                SolarSystem system = FindSolarSystemUnderCursor();
+                if (system != null)
                 {
-                    ref ClickableSystem system = ref ClickableSystems[i];
-                    if (input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
+                    if (system.IsExploredBy(Player))
                     {
-                        if (system.System.IsExploredBy(Player))
-                        {
-                            GameAudio.SubBassWhoosh();
-                            ViewSystem(system.System);
-                        }
-                        else
-                            GameAudio.NegativeClick();
+                        GameAudio.SubBassWhoosh();
+                        ViewSystem(system);
+                    }
+                    else
+                    {
+                        GameAudio.NegativeClick();
                     }
                 }
             }
-        }
-
-        Ship FindClickedShip(InputState input)
-        {
-            foreach (ClickableShip clickableShip in ClickableShips)
-                if (clickableShip.HitTest(input.CursorPosition))
-                    return clickableShip.Ship;
-            return null;
         }
 
         void SelectMultipleShipsByClickingOnShip(InputState input)
@@ -1189,10 +1067,10 @@ namespace Ship_Game
             {
                 pickedSomethingThisFrame = true;
                 SelectedShipList.AddUnique(clicked);
-
-                foreach (ClickableShip clickTest in ClickableShips)
+                
+                Ship[] ships = UState.Objects.VisibleShips;
+                foreach (Ship ship in ships)
                 {
-                    var ship = clickTest.Ship;
                     if (clicked == ship || ship.Loyalty != clicked.Loyalty)
                         continue;
 
@@ -1297,12 +1175,6 @@ namespace Ship_Game
                 SelectedItem = null;
             }
   
-        }
-
-        void ResetToolTipTimer(ref bool toolTipToReset, float timer = 0.5f)
-        {
-            toolTipToReset = false;
-            TooltipTimer = 0.5f;
         }
 
         void InputCheckPreviousShip(Ship ship = null)

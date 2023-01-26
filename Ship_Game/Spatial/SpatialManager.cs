@@ -1,5 +1,6 @@
 using System;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Ships;
 using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
@@ -65,7 +66,7 @@ namespace Ship_Game.Gameplay
 
         public void DebugVisualize(UniverseScreen screen)
         {
-            Spatial.DebugVisualize(screen, VisOpt);
+            Spatial?.DebugVisualize(screen, VisOpt);
         }
 
         public void Update(SpatialObjectBase[] allObjects)
@@ -98,31 +99,37 @@ namespace Ship_Game.Gameplay
 
         public SpatialObjectBase[] FindNearby(ref SearchOptions opt)
         {
-            return Spatial.FindNearby(in opt);
+            return Spatial?.FindNearby(ref opt) ?? Empty<SpatialObjectBase>.Array;
         }
 
+        /// <summary>
+        /// Finds nearby objects by GameObjectType and additional excludeLoyalty or onlyLoyalty filters
+        /// </summary>
         /// <param name="type"></param>
-        /// <param name="obj"></param>
-        /// <param name="radius"></param>
+        /// <param name="source">The SOURCE GameObject to search from, and this object will also be excluded</param>
+        /// <param name="radius">The search radius</param>
         /// <param name="maxResults">Maximum results to get.
         /// PROTIP: if numResults > maxResults, then results are sorted by distance and far objects are discarded</param>
+        /// <param name="excludeLoyalty">If not null, exclude objects that have this loyalty</param>
+        /// <param name="onlyLoyalty">If not null, only return objects that have this loyalty</param>
+        /// <param name="debugId">If set to nonzero, this will display unique debugging info during debug visualize</param>
         public SpatialObjectBase[] FindNearby(GameObjectType type,
-                                              GameObject obj, float radius,
+                                              GameObject source, float radius,
                                               int maxResults,
                                               Empire excludeLoyalty = null,
                                               Empire onlyLoyalty = null,
                                               int debugId = 0)
         {
-            var opt = new SearchOptions(obj.Position, radius, type)
+            SearchOptions opt = new(source.Position, radius, type)
             {
                 MaxResults = maxResults,
-                Exclude = obj,
+                Exclude = source,
                 ExcludeLoyalty = excludeLoyalty,
                 OnlyLoyalty = onlyLoyalty,
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(in opt);
+            return Spatial?.FindNearby(ref opt) ?? Empty<SpatialObjectBase>.Array;
         }
 
         public SpatialObjectBase[] FindNearby(GameObjectType type,
@@ -132,7 +139,7 @@ namespace Ship_Game.Gameplay
                                               Empire onlyLoyalty = null,
                                               int debugId = 0)
         {
-            var opt = new SearchOptions(worldPos, radius, type)
+            SearchOptions opt = new(worldPos, radius, type)
             {
                 MaxResults = maxResults,
                 ExcludeLoyalty = excludeLoyalty,
@@ -140,17 +147,17 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(in opt);
+            return Spatial?.FindNearby(ref opt) ?? Empty<SpatialObjectBase>.Array;
         }
 
-        public SpatialObjectBase[] FindNearby(GameObjectType type, 
+        public SpatialObjectBase[] FindNearby(GameObjectType type,
                                               in AABoundingBox2D searchArea,
                                               int maxResults,
                                               Empire excludeLoyalty = null,
                                               Empire onlyLoyalty = null,
                                               int debugId = 0)
         {
-            var opt = new SearchOptions(searchArea, type)
+            SearchOptions opt = new(searchArea, type)
             {
                 MaxResults = maxResults,
                 ExcludeLoyalty = excludeLoyalty,
@@ -158,7 +165,7 @@ namespace Ship_Game.Gameplay
                 DebugId = debugId
             };
 
-            return Spatial.FindNearby(in opt);
+            return Spatial?.FindNearby(ref opt) ?? Empty<SpatialObjectBase>.Array;
         }
 
         public void ProjectileExplode(Projectile source, ShipModule victim)

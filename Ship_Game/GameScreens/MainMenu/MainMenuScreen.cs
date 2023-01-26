@@ -30,7 +30,15 @@ namespace Ship_Game.GameScreens.MainMenu
             TransitionOffTime = 0.5f;
             Type = type;
         }
-        
+
+        protected override void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+            Scene?.Dispose();
+            base.Dispose(disposing);
+        }
+
         static void OnModChanged(FileInfo info)
         {
             if (!GlobalStats.HasMod)

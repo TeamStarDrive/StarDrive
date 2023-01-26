@@ -48,7 +48,13 @@ internal class AutoPatcher : PopupWindow
     public override void ExitScreen()
     {
         CurrentTask.Cancel();
-        base.ExitScreen();
+        base.ExitScreen(); // will call this.Dispose(true)
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        CurrentTask.Dispose();
+        base.Dispose(disposing);
     }
 
     ProgressBarElement AddProgressBar(string progressLabel)

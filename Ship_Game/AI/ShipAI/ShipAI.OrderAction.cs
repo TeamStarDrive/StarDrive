@@ -234,7 +234,7 @@ namespace Ship_Game.AI
         {
             AddWayPoint(position, finalDir, wantedState, order, 0f, goal);
         }
-        
+
         // DO NOT ADD MORE ARGUMENTS. USE `MoveOrder` FLAGS INSTEAD.
         public void OrderMoveToNoStop(Vector2 position, Vector2 finalDir, AIState wantedState,
                                       MoveOrder order = MoveOrder.Regular, Goal goal = null)

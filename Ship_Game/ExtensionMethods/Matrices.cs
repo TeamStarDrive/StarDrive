@@ -63,6 +63,13 @@ namespace Ship_Game
                                            in Matrix projection, in Matrix view)
         {
             view.Multiply(projection, out Matrix viewProjection);
+            return ProjectTo2D(viewport, source, viewProjection);
+        }
+
+        // this is a copy of XNA Viewport.Project, with only a single ViewProjection matrix parameter
+        public static Vector2d ProjectTo2D(this Viewport viewport, in Vector3d source,
+                                           in Matrix viewProjection)
+        {
             Vector3d clipSpacePoint = source.Transform(viewProjection);
             double len = source.X * viewProjection.M14
                        + source.Y * viewProjection.M24
@@ -79,17 +86,60 @@ namespace Ship_Game
         {
             view.Multiply(projection, out Matrix viewProjection);
             Matrix.Invert(viewProjection, out Matrix invViewProj);
+            return Unproject(viewport, in source, in invViewProj);
+        }
 
+        public static Vector3d Unproject(this Viewport viewport, in Vector3d source,
+                                         in Matrix inverseViewProjection)
+        {
             Vector3d src;
             src.X =  ((source.X - viewport.X) / viewport.Width  * 2.0 - 1.0);
             src.Y = -((source.Y - viewport.Y) / viewport.Height * 2.0 - 1.0);
             src.Z =  ((source.Z - viewport.MinDepth) / (viewport.MaxDepth - viewport.MinDepth));
 
-            Vector3d worldPos = src.Transform(invViewProj);
-            double a = (src.X*invViewProj.M14 + src.Y*invViewProj.M24 + src.Z*invViewProj.M34) + invViewProj.M44;
+            Vector3d worldPos = src.Transform(in inverseViewProjection);
+            double a = (src.X*inverseViewProjection.M14 +
+                        src.Y*inverseViewProjection.M24 +
+                        src.Z*inverseViewProjection.M34) + inverseViewProjection.M44;
             if (!a.AlmostEqual(1.0)) // normalize
                 worldPos /= a;
             return worldPos;
+        }
+        
+        /// <summary>
+        /// Unprojects a screenSpace 2D point into a 3D world position
+        /// </summary>
+        public static Vector3d Unproject(this Viewport viewport, Vector2 screenSpace, double ZPlane,
+                                         in Matrix projection, in Matrix view)
+        {
+            view.Multiply(projection, out Matrix viewProjection);
+            Matrix.Invert(viewProjection, out Matrix invViewProj);
+            return Unproject(viewport, screenSpace, ZPlane, invViewProj);
+        }
+        /// <summary>
+        /// Unprojects a screenSpace 2D point into a 3D world position
+        /// </summary>
+        public static Vector3d Unproject(this Viewport viewport, Vector2 screenSpace, double ZPlane,
+                                         in Matrix inverseViewProjection)
+        {
+            // nearPoint is the point inside the camera lens
+            Vector3d nearPoint = viewport.Unproject(new(screenSpace, 0.0), in inverseViewProjection);
+            // farPoint points away into the world
+            Vector3d farPoint = viewport.Unproject(new(screenSpace, 1.0), in inverseViewProjection);
+
+            // get the direction towards the world plane
+            Vector3d dir = (farPoint - nearPoint).Normalized();
+
+            // FIX: potential failure point here, dir.Z might be 0
+            if (dir.Z.AlmostEqual(0.0, 0.000000001))
+            {
+                Log.Error($"UnprojectToWorldPosition3D dir.Z zero! dir={dir} screenPos={screenSpace}");
+                return new(nearPoint.X, nearPoint.Y, 0.0);
+            }
+
+            // calculate distance of intersection point from nearPoint
+            double distance = ((-nearPoint.Z + ZPlane) / dir.Z);
+            return nearPoint + (dir * distance);
         }
 
         public static Matrix CreateLookAtDown(double camX, double camY, double camZ)

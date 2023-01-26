@@ -20,7 +20,7 @@ namespace UnitTests
         public virtual void Update(float deltaTime)
         {
         }
-        public virtual void Draw(float deltaTime)
+        public virtual void Draw()
         {
             Draw(Game.Batch);
         }

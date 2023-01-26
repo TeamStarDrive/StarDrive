@@ -10,43 +10,60 @@ namespace Microsoft.Xna.Framework
 {
     public class Game : IDisposable
     {
-        readonly TimeSpan MaximumElapsedTime = TimeSpan.FromMilliseconds(500.0);
-        readonly GameTime Time = new GameTime();
-        readonly List<IUpdateable> UpdateableComponents = new List<IUpdateable>();
-        readonly List<IUpdateable> CurrentlyUpdatingComponents = new List<IUpdateable>();
-        readonly List<IDrawable> DrawableComponents = new List<IDrawable>();
-        readonly List<IDrawable> CurrentlyDrawingComponents = new List<IDrawable>();
-        readonly List<IGameComponent> NotYetInitialized = new List<IGameComponent>();
+        readonly List<IUpdateable> UpdateableComponents = new();
+        readonly List<IUpdateable> CurrentlyUpdatingComponents = new();
+        readonly List<IDrawable> DrawableComponents = new();
+        readonly List<IDrawable> CurrentlyDrawingComponents = new();
+        readonly List<IGameComponent> NotYetInitialized = new();
         IGraphicsDeviceManager GraphicsDeviceManager;
         IGraphicsDeviceService GraphicsDeviceService;
         GameHost Host;
-        TimeSpan InactiveSleep;
+        const int InactiveSleepMillis = 20;
         bool MouseVisible;
         bool InRun;
         readonly GameClock Clock;
-        TimeSpan LastFrameElapsedRealTime;
-        TimeSpan TotalGameTime;
-        TimeSpan TargetElapsedGameTime;
-        TimeSpan AccumulatedElapsedGameTime;
-        TimeSpan LastFrameElapsedGameTime;
+
+        /// <summary>
+        /// Total game time in seconds while the window has been active
+        /// </summary>
+        public double TotalGameTime { get; private set; }
+
+        /// <summary>
+        /// Elapsed game time since last update.
+        /// If IsFixedTimeStep = true then this is locked to TargetTickInterval
+        /// </summary>
+        public double ElapsedFrameTime { get; private set; }
+
+        /// <summary>
+        /// This is the desired target interval between update ticks.
+        /// Used when IsFixedTimeStep = true
+        /// </summary>
+        public double TargetTickInterval = 1.0 / 60.0; // the default is 60 fps
+
+        /// <summary>
+        /// Maximum allowed value for ElapsedFrameTime.
+        /// Any value higher than this will be truncated.
+        /// This ensures the game doesn't get stuck trying to catch up with 1000 Update() calls
+        /// when IsFixedTimeStep = true
+        /// </summary>
+        const double MaximumElapsedTimeSeconds = 1.0 / 10.0; // the default is ~10 fps
+
+        /// <summary>
+        /// If true, then `TargetTickInterval` is used to trigger updates
+        /// in a fixed interval.
+        /// Otherwise the game update loop will trigger as fast as possible.
+        /// </summary>
+        public bool IsFixedTimeStep { get; set; } = true;
+
+        // accumulator for fixed time step logic
+        double AccumulatedElapsedGameTime;
+
         bool DoneFirstUpdate;
         bool DoneFirstDraw;
         bool ForceElapsedTimeToZero;
-        bool DrawSuppressed;
 
         public GameComponentCollection Components { get; }
-        public GameServiceContainer Services { get; } = new GameServiceContainer();
-
-        public TimeSpan InactiveSleepTime
-        {
-            get => InactiveSleep;
-            set
-            {
-                if (value < TimeSpan.Zero)
-                    throw new ArgumentOutOfRangeException(nameof(value), Resources.InactiveSleepTimeCannotBeZero);
-                InactiveSleep = value;
-            }
-        }
+        public GameServiceContainer Services { get; } = new();
 
         public bool IsMouseVisible
         {
@@ -59,24 +76,6 @@ namespace Microsoft.Xna.Framework
                 Window.IsMouseVisible = value;
             }
         }
-
-        public TimeSpan TargetElapsedTime
-        {
-            get => TargetElapsedGameTime;
-            set
-            {
-                if (value <= TimeSpan.Zero)
-                    throw new ArgumentOutOfRangeException(nameof(value), Resources.TargetElaspedCannotBeZero);
-                TargetElapsedGameTime = value;
-            }
-        }
-
-        /// <summary>
-        /// Total elapsed Game time while the Game window has been active
-        /// </summary>
-        public float TotalGameTimeSeconds => (float)Time.TotalGameTime.TotalSeconds;
-
-        public bool IsFixedTimeStep { get; set; } = true;
 
         public GameWindow Window => Host?.Window;
 
@@ -120,16 +119,11 @@ namespace Microsoft.Xna.Framework
         public Game()
         {
             EnsureHost();
-            Components             = new GameComponentCollection();
+            Components = new();
             Components.ComponentAdded += GameComponentAdded;
             Components.ComponentRemoved += GameComponentRemoved;
-            Content                    = new ContentManager(Services);
-            Clock                      = new GameClock();
-            TotalGameTime              = TimeSpan.Zero;
-            AccumulatedElapsedGameTime = TimeSpan.Zero;
-            LastFrameElapsedGameTime   = TimeSpan.Zero;
-            TargetElapsedGameTime  = TimeSpan.FromTicks(166667L);
-            InactiveSleep          = TimeSpan.FromMilliseconds(20.0);
+            Content = new(Services);
+            Clock = new();
         }
 
         ~Game()
@@ -146,10 +140,7 @@ namespace Microsoft.Xna.Framework
 
         public void DoFirstUpdate()
         {
-            Time.ElapsedGameTime = TimeSpan.Zero;
-            Time.ElapsedRealTime = TimeSpan.Zero;
-            Time.TotalGameTime = TotalGameTime;
-            Time.TotalRealTime = Clock.CurrentTime;
+            ElapsedFrameTime = 0.0;
             Update(0f);
             DoneFirstUpdate = true;
         }
@@ -227,88 +218,68 @@ namespace Microsoft.Xna.Framework
 
             if (!IsActiveIgnoringGuide)
             {
-                Thread.Sleep((int)InactiveSleep.TotalMilliseconds);
+                Thread.Sleep(InactiveSleepMillis);
             }
 
-            Clock.Step();
-            bool skipDraw = true;
-            Time.TotalRealTime   = Clock.CurrentTime;
-            Time.ElapsedRealTime = Clock.ElapsedTime;
-            LastFrameElapsedRealTime += Clock.ElapsedTime;
-
-            TimeSpan elapsedAdjusted = Clock.ElapsedAdjustedTime;
-            if (elapsedAdjusted < TimeSpan.Zero)
-                elapsedAdjusted = TimeSpan.Zero;
+            double elapsed = Clock.Step();
 
             if (ForceElapsedTimeToZero)
             {
-                elapsedAdjusted = TimeSpan.Zero;
-                LastFrameElapsedRealTime = TimeSpan.Zero;
-                Time.ElapsedRealTime = TimeSpan.Zero;
+                elapsed = 0.0;
                 ForceElapsedTimeToZero = false;
             }
-            if (elapsedAdjusted > MaximumElapsedTime)
-                elapsedAdjusted = MaximumElapsedTime;
 
+            // discard huge time deltas
+            if (elapsed > MaximumElapsedTimeSeconds)
+                elapsed = MaximumElapsedTimeSeconds;
+
+            // fixed timestep ticks logic
             if (IsFixedTimeStep)
             {
-                if (Math.Abs(elapsedAdjusted.Ticks - TargetElapsedGameTime.Ticks) < TargetElapsedGameTime.Ticks >> 6)
-                    elapsedAdjusted = TargetElapsedGameTime;
+                AccumulatedElapsedGameTime += elapsed;
+                int numElapsedSteps = (int)(AccumulatedElapsedGameTime / TargetTickInterval);
+                AccumulatedElapsedGameTime -= numElapsedSteps * TargetTickInterval;
 
-                AccumulatedElapsedGameTime += elapsedAdjusted;
-                long num = AccumulatedElapsedGameTime.Ticks / TargetElapsedGameTime.Ticks;
-                AccumulatedElapsedGameTime = new TimeSpan(AccumulatedElapsedGameTime.Ticks % TargetElapsedGameTime.Ticks);
-                LastFrameElapsedGameTime = TimeSpan.Zero;
-                if (num == 0L)
-                    return;
-
-                TimeSpan targetElapsed = TargetElapsedGameTime;
-
-                while (num > 0L && !ShouldExit)
+                if (numElapsedSteps > 0)
                 {
-                    --num;
-                    try
+                    for (int step = 0; step < numElapsedSteps && !ShouldExit; ++step)
                     {
-                        Time.ElapsedGameTime = targetElapsed;
-                        Time.TotalGameTime   = TotalGameTime;
-                        Update((float)Time.ElapsedGameTime.TotalSeconds);
-
-                        skipDraw &= DrawSuppressed;
-                        DrawSuppressed = false;
+                        try
+                        {
+                            ElapsedFrameTime = TargetTickInterval;
+                            Update((float)TargetTickInterval);
+                        }
+                        finally
+                        {
+                            TotalGameTime += TargetTickInterval;
+                        }
                     }
-                    finally
+
+                    DrawFrame();
+                }
+                else
+                {
+                    // yield the thread if there is still a lot of time until next update
+                    if (AccumulatedElapsedGameTime < (TargetTickInterval * 0.5))
                     {
-                        LastFrameElapsedGameTime += targetElapsed;
-                        TotalGameTime            += targetElapsed;
+                        Thread.Yield();
                     }
                 }
             }
-            else
+            else if (!ShouldExit)
             {
-                if (!ShouldExit)
+                try
                 {
-                    try
-                    {
-                        Time.ElapsedGameTime = LastFrameElapsedGameTime = elapsedAdjusted;
-                        Time.TotalGameTime   = TotalGameTime;
-                        Update((float)Time.ElapsedGameTime.TotalSeconds);
-                        skipDraw &= DrawSuppressed;
-                        DrawSuppressed = false;
-                    }
-                    finally
-                    {
-                        TotalGameTime += elapsedAdjusted;
-                    }
+                    ElapsedFrameTime = elapsed;
+                    Update((float)elapsed);
                 }
-            }
-            if (skipDraw)
-                return;
-            DrawFrame();
-        }
+                finally
+                {
+                    TotalGameTime += elapsed;
+                }
 
-        public void SuppressDraw()
-        {
-            DrawSuppressed = true;
+                DrawFrame();
+            }
         }
 
         public void Exit()
@@ -347,7 +318,7 @@ namespace Microsoft.Xna.Framework
             return GraphicsDeviceManager == null || GraphicsDeviceManager.BeginDraw();
         }
 
-        protected virtual void Draw(float deltaTime)
+        protected virtual void Draw()
         {
             for (int i = 0; i < DrawableComponents.Count; ++i)
             {
@@ -357,7 +328,7 @@ namespace Microsoft.Xna.Framework
             {
                 IDrawable drawingComponent = CurrentlyDrawingComponents[i];
                 if (drawingComponent.Visible)
-                    drawingComponent.Draw(deltaTime);
+                    drawingComponent.Draw();
             }
             CurrentlyDrawingComponents.Clear();
         }
@@ -391,6 +362,7 @@ namespace Microsoft.Xna.Framework
         {
             ForceElapsedTimeToZero = true;
         }
+
         public void EndingGame(bool start)
         {
             ShouldExit = start;
@@ -403,19 +375,12 @@ namespace Microsoft.Xna.Framework
                 if (ShouldExit || !DoneFirstUpdate || (Window.IsMinimized || !BeginDraw()))
                     return;
 
-                Time.TotalRealTime = Clock.CurrentTime;
-                Time.ElapsedRealTime = LastFrameElapsedRealTime;
-                Time.TotalGameTime = TotalGameTime;
-                Time.ElapsedGameTime = LastFrameElapsedGameTime;
-                float deltaTime = (float)Time.ElapsedGameTime.TotalSeconds;
-                Draw(deltaTime);
+                Draw();
                 EndDraw();
                 DoneFirstDraw = true;
             }
-            finally
+            catch
             {
-                LastFrameElapsedRealTime = TimeSpan.Zero;
-                LastFrameElapsedGameTime = TimeSpan.Zero;
             }
         }
 

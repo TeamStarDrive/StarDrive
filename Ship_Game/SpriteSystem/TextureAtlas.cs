@@ -57,14 +57,19 @@ namespace Ship_Game.SpriteSystem
         public SubTexture RandomTexture(RandomBase random) => random.RandItem(Sorted).GetOrLoadTexture();
 
         public TextureAtlas() {}
-        ~TextureAtlas() { Destroy(); }
-        public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
+        ~TextureAtlas() { Dispose(false); }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         // the `Atlas` texture itself can be lazy-loaded so to consider TextureAtlas
         // completely disposed, the `Sorted` TextureBindings array must be empty
         public bool IsDisposed => Sorted.Length == 0;
 
-        void Destroy()
+        void Dispose(bool disposing)
         {
             Mem.Dispose(ref Atlas);
             for (int i = 0; i < Sorted.Length; ++i)
@@ -75,6 +80,7 @@ namespace Ship_Game.SpriteSystem
             Sorted = Empty<TextureBinding>.Array;
             Lookup.Clear();
             Path = null;
+            LoadSync.Dispose();
         }
 
         // Try to get a texture out of this Atlas
@@ -109,25 +115,17 @@ namespace Ship_Game.SpriteSystem
             if (Atlas != null)
                 return Atlas;
 
-            // this is an important race-condition point, multiple threads
-            // could be looking to lazy-load this atlas texture
-            lock (this)
+            var atlasTex = new FileInfo(Path.PrePackedTex ?? Path.CacheAtlasTex);
+            if (atlasTex.Exists)
             {
-                if (Atlas != null) // another thread already loaded the Atlas
-                    return Atlas;
+                var atlas = ResourceManager.RootContent.LoadUncachedTexture(atlasTex, "dds");
+                Width = atlas.Width;
+                Height = atlas.Height;
 
-                var atlasTex = new FileInfo(Path.PrePackedTex ?? Path.CacheAtlasTex);
-                if (atlasTex.Exists)
-                {
-                    var atlas = ResourceManager.RootContent.LoadUncachedTexture(atlasTex, "dds");
-                    Width = atlas.Width;
-                    Height = atlas.Height;
-
-                    // signal a memory barrier to synchronize write to Atlas field across multiple threads
-                    Thread.MemoryBarrier();
-                    Atlas = atlas;
-                    return atlas;
-                }
+                // signal a memory barrier to synchronize write to Atlas field across multiple threads
+                Thread.MemoryBarrier();
+                Atlas = atlas;
+                return atlas;
             }
 
             Log.Error($"Atlas texture does not exist: {Path.PrePackedTex ?? Path.CacheAtlasTex}");

@@ -211,7 +211,7 @@ namespace Ship_Game.AI
             }
 
             Vector2 targetPos = goal.MovePosition;
-            if (goal.Fleet != null && targetPos == Vector2.Zero) 
+            if (goal.Fleet != null && targetPos == Vector2.Zero)
                 targetPos = goal.Fleet.GetFinalPos(Owner);
 
             if (Owner.EnginesKnockedOut)

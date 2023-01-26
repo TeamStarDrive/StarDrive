@@ -340,11 +340,13 @@ namespace Ship_Game.Ships
                 DrawSingleStatusIcon(us, screenRadius, screenPos, ref offset, "UI/icon_ftloverlay", color);
 
                 // if FTL Overlay is enabled, or in debug, draw the formation WarpStatus
+                #if DEBUG
                 if (status is WarpStatus.UnableToWarp or WarpStatus.WaitingOrRecalling && 
                     (us.Debug || us.ShowingFTLOverlay) && ShipEngines.FormationStatus.NotEmpty())
                 {
                     us.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, ShipEngines.FormationStatus, screenPos+offset, color);
                 }
+                #endif
             }
         }
 

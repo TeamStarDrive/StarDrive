@@ -1,9 +1,8 @@
-﻿namespace Microsoft.Xna.Framework
+﻿namespace Microsoft.Xna.Framework;
+
+public interface IDrawable
 {
-    public interface IDrawable
-    {
-        bool Visible { get; }
-        int DrawOrder { get; }
-        void Draw(float deltaTime);
-    }
+    bool Visible { get; }
+    int DrawOrder { get; }
+    void Draw();
 }

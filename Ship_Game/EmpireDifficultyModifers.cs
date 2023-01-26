@@ -88,7 +88,7 @@
                     MineralDecayDivider  = 80;
                     PiratePayModifier    = 0.75f;
                     ExpansionMultiplier  = 1.0f;
-                    ExpansionCheckInterval = 10; // every 10 turns
+                    ExpansionCheckInterval = 7; // every 7 turns
                     MinStartingColonies  = 3;
                     ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 400;
@@ -125,7 +125,7 @@
                     MineralDecayDivider  = 60;
                     PiratePayModifier    = 1f;
                     ExpansionMultiplier  = 0.7f; // 30% lower, makes the AI expand a bit more easily, but not too much
-                    ExpansionCheckInterval = 7; // every 7 turns
+                    ExpansionCheckInterval = 5; // every 5 turns
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 30;
                     RemnantTurnsLevelUp  = 350;
@@ -167,7 +167,7 @@
                     MineralDecayDivider  = 40;
                     PiratePayModifier    = 1.5f;
                     ExpansionMultiplier  = 0.4f; // 60% lower threshold, basically makes every Empire a super Expansionist
-                    ExpansionCheckInterval = 4; // every 4 turns
+                    ExpansionCheckInterval = 3; // every 3 turns
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 20;
                     RemnantTurnsLevelUp  = 300;

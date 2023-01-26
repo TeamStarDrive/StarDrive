@@ -42,6 +42,15 @@ namespace Ship_Game
             base.LoadContent();
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+            Mem.Dispose(ref LoadingScreenTexture);
+            Mem.Dispose(ref BackgroundTask);
+            base.Dispose(disposing);
+        }
+
         public override bool HandleInput(InputState input)
         {
             if (BackgroundTask?.IsComplete != true || !input.InGameSelect)
@@ -95,12 +104,6 @@ namespace Ship_Game
             }
 
             batch.SafeEnd();
-        }
-
-        protected override void Destroy()
-        {
-            Mem.Dispose(ref LoadingScreenTexture);
-            base.Destroy();
         }
     }
 }

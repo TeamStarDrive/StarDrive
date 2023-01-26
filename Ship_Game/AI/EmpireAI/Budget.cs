@@ -49,7 +49,7 @@ namespace Ship_Game.AI.Budget
 
             GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? ExponentialMovingAverage(GrdDefAlloc, defenseBudget * groundRatio) : P.ManualGrdDefBudget;
             SpcDefAlloc   = P.ManualSpcDefBudget   <= 0 ? ExponentialMovingAverage(SpcDefAlloc, defenseBudget * orbitalRatio) : P.ManualSpcDefBudget;
-            CivilianAlloc = P.ManualCivilianBudget <= 0 ? ExponentialMovingAverage(CivilianAlloc, civBudget) : P.ManualCivilianBudget;
+            CivilianAlloc = P.ManualCivilianBudget <= 0 ? ExponentialMovingAverage(CivilianAlloc, civBudget) : P.ManualCivilianBudget + P.TerraformBudget;
 
             RemainingGroundDef = (GrdDefAlloc - P.GroundDefMaintenance).RoundToFractionOf10();
             RemainingSpaceDef  = (SpcDefAlloc - P.SpaceDefMaintenance).RoundToFractionOf10();

@@ -8,14 +8,14 @@ using SDUtils;
 namespace Ship_Game.Data.Yaml
 {
     // Simplified text parser for StarDrive data files
-    public class YamlParser : IDisposable
+    public sealed class YamlParser : IDisposable
     {
         TextReader Reader;
         public YamlNode Root { get; }
         int Line;
         StringBuilder StrBuilder;
 
-        readonly Array<Error> LoggedErrors = new Array<Error>();
+        readonly Array<Error> LoggedErrors = new();
         public IReadOnlyList<Error> Errors => LoggedErrors;
 
         public YamlParser(string modOrVanillaFile)
@@ -59,7 +59,8 @@ namespace Ship_Game.Data.Yaml
 
         public void Dispose()
         {
-            Reader?.Close(); Reader = null;
+            Reader?.Close();
+            Reader = null;
         }
 
         struct DepthSave

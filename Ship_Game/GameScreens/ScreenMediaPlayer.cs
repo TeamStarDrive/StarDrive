@@ -4,6 +4,7 @@ using Ship_Game.Audio;
 using Ship_Game.Data;
 using System;
 using SDGraphics;
+using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -14,12 +15,14 @@ namespace Ship_Game.GameScreens
     /// pauses/resumes video if game screen goes out of focus
     /// and resumes normal game music after media stopped
     /// </summary>
-    public class ScreenMediaPlayer : IDisposable
+    public sealed class ScreenMediaPlayer : IDisposable
     {
         Video Video;
         readonly VideoPlayer Player;
         readonly GameContentManager Content;
+        #pragma warning disable CA2213 // managed by VideoPlayer
         Texture2D Frame; // last good frame, used for looping video transition delay
+        #pragma warning restore CA2213
         public bool Active = true;
         public bool Visible = true;
 
@@ -64,9 +67,9 @@ namespace Ship_Game.GameScreens
             };
         }
 
-        ~ScreenMediaPlayer() { Destroy(); }
+        ~ScreenMediaPlayer() { Dispose(false); }
 
-        void Destroy()
+        void Dispose(bool disposing)
         {
             IsDisposed = true;
             Active = false;
@@ -74,7 +77,7 @@ namespace Ship_Game.GameScreens
             OnPlayStatusChange = null;
             Frame = null;
 
-            if (Music != null && Music.IsPlaying)
+            if (Music is { IsPlaying: true })
             {
                 Music.Stop();
                 Music = null;
@@ -90,6 +93,8 @@ namespace Ship_Game.GameScreens
                     Player.Dispose();
                 }
             }
+
+            Mem.Dispose(ref BeginPlayTask);
         }
 
         // Stops audio and music, then disposes any graphics resources
@@ -98,7 +103,7 @@ namespace Ship_Game.GameScreens
             if (IsDisposed)
                 return;
             if (GlobalStats.DebugAssetLoading) Log.Write(ConsoleColor.Magenta, $"Disposing ScreenMediaPlayer {Name}");
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

@@ -19,8 +19,10 @@ public sealed class Particle : IParticle
 
     // Custom effect for drawing particles. This computes the particle
     // animation entirely in the vertex shader: no per-particle CPU work required!
+    #pragma warning disable CA2213 // resources managed by Content
     Effect ParticleEffect;
     Texture2D ParticleTexture;
+    #pragma warning restore CA2213
     Map<string, EffectParameter> FxParams = new();
 
     // all currently active particle buffers
@@ -394,23 +396,24 @@ public sealed class Particle : IParticle
             AddParticle(position, velocity, scale, color);
     }
 
-    void Destroy()
+    void Dispose(bool disposing)
     {
         if (Buffers != null)
         {
             Buffers.ClearAndDispose();
             Buffers = null;
         }
+        Random.Dispose();
     }
 
     public void Dispose()
     {
-        Destroy();
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
     ~Particle()
     {
-        Destroy();
+        Dispose(false);
     }
 }

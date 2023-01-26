@@ -43,21 +43,22 @@ internal class ThreatMatrixVisualization : CommonVisualization
     
     protected override void Search(in AABoundingBox2D searchArea)
     {
-        var opt = new SearchOptions(SearchArea) { MaxResults = 1000, DebugId = 1, };
+        SearchOptions opt = new(SearchArea) { MaxResults = 1000, DebugId = 1, };
+        SearchOptions opt2 = opt;
 
         var t1 = new PerfTimer();
         for (int i = 0; i < Iterations; ++i)
-            FoundOne = Tree.FindOne(opt);
+            FoundOne = Tree.FindOne(ref opt2);
         FindOneTime = t1.Elapsed;
 
         var t2 = new PerfTimer();
         for (int i = 0; i < Iterations; ++i)
-            Found = Tree.Find(opt);
+            Found = Tree.Find(ref opt);
         FindMultiTime = t2.Elapsed;
 
         var t3 = new PerfTimer();
         for (int i = 0; i < Iterations; ++i)
-            FoundLinear = Tree.FindLinear(opt, AllObjects);
+            FoundLinear = Tree.FindLinear(ref opt, AllObjects);
         FindLinearTime = t3.Elapsed;
     }
 
@@ -79,8 +80,8 @@ internal class ThreatMatrixVisualization : CommonVisualization
 
     protected override void RemoveAt(Vector2 pos, float radius)
     {
-        var opt = new SearchOptions(pos, radius) { MaxResults = 1000 };
-        Found = Tree.Find(opt);
+        SearchOptions opt = new(pos, radius) { MaxResults = 1000 };
+        Found = Tree.Find(ref opt);
         if (Found.Length != 0)
         {
             if (OnRemove != null)

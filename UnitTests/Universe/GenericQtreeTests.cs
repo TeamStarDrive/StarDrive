@@ -245,7 +245,7 @@ public class GenericQtreeTests : StarDriveTest
         var searchArea = new AABoundingBox2D(Vector2.Zero, UState.Size * 0.2f);
         SearchOptions opt = new(searchArea);
         for (int i = 0; i < 1_000_000; ++i)
-            tree.Find(opt);
+            tree.Find(ref opt);
         float elapsed = t1.ElapsedMillis;
         Console.WriteLine($"Elapsed: {elapsed:0.00}ms");
     }

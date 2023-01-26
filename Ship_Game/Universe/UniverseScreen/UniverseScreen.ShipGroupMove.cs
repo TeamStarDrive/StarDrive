@@ -118,8 +118,8 @@ namespace Ship_Game
         void MoveSelectedShipsToMouse()
         {
             Log.Info($"MoveSelectedShipsToMouse {Input.CursorPosition}");
-            Ship shipClicked = CheckShipClick(Input);
-            Planet planetClicked = CheckPlanetClick();
+            Ship shipClicked = FindClickedShip(Input);
+            Planet planetClicked = FindPlanetUnderCursor();
             
             Project.Started = false;
 

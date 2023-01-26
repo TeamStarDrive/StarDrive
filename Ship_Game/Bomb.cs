@@ -60,7 +60,7 @@ namespace Ship_Game
         public void DoImpact()
         {
             TargetPlanet.DropBomb(this);
-            Owner.Universe.Screen.BombList.QueuePendingRemoval(this);
+            Owner.Universe.Screen.BombList.Remove(this);
         }
 
         private void SurfaceImpactEffects()

@@ -33,6 +33,17 @@ public struct Quad2D
         D = new Vector2(left, bot);
     }
 
+    public Quad2D(float x, float y, float w, float h)
+    {
+        float right = x + w;
+        float bot = y + h;
+
+        A = new Vector2(x, y);
+        B = new Vector2(right, y);
+        C = new Vector2(right, bot);
+        D = new Vector2(x, bot);
+    }
+
     public Quad2D(in Vector2 center, in Vector2 size)
     {
         // calculate these with double precision to improve accuracy
