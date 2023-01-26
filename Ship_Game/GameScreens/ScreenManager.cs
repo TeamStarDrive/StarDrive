@@ -16,6 +16,7 @@ using Rectangle = SDGraphics.Rectangle;
 using Matrix = SDGraphics.Matrix;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using GraphicsDeviceManager = Microsoft.Xna.Framework.GraphicsDeviceManager;
+using SDGraphics.Sprites;
 #pragma warning disable CA2213
 
 namespace Ship_Game
@@ -38,6 +39,7 @@ namespace Ship_Game
         public GraphicsDeviceManager Graphics;
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
+        public SpriteRenderer SpriteRenderer;
 
         // Thread safe screen queue
         readonly SafeQueue<GameScreen> PendingScreens = new();
@@ -406,6 +408,8 @@ namespace Ship_Game
             // don't use software cursor in loading screens
             bool software = GlobalStats.UseSoftwareCursor && !IsShowing<GameLoadingScreen>();
             GameCursors.Draw(GameInstance, batch, input.CursorPosition, software);
+
+            SpriteRenderer.RecycleBuffers();
         }
 
         public void ExitAll(bool clear3DObjects)
@@ -443,7 +447,13 @@ namespace Ship_Game
             GraphicsDevice = Graphics.GraphicsDevice;
             if (SpriteBatch == null || SpriteBatch.GraphicsDevice != GraphicsDevice)
             {
-                SpriteBatch = new SpriteBatch(GraphicsDevice);
+                SpriteBatch?.Dispose();
+                SpriteBatch = new(GraphicsDevice);
+            }
+            if (SpriteRenderer == null || SpriteRenderer.Device != GraphicsDevice)
+            {
+                SpriteRenderer?.Dispose();
+                SpriteRenderer = new(GraphicsDevice);
             }
         }
 
@@ -716,6 +726,7 @@ namespace Ship_Game
         void Dispose(bool disposing)
         {
             Mem.Dispose(ref SpriteBatch);
+            Mem.Dispose(ref SpriteRenderer);
             Mem.Dispose(ref LightSysManager);
             PendingScreens.Dispose();
         }

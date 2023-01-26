@@ -77,9 +77,17 @@ public sealed class BatchedSprites : IDisposable
         Batches = Compiler.Compile(g, out VertexBuf);
         Compiler = null;
     }
-
-    readonly record struct SpriteData(Quad3D Quad, Quad2D Coords, Color Color);
-    readonly record struct SpriteBatchSpan(Texture2D Texture, int StartIndex, int Count);
+    
+    // fills vertices of a quad at vertices[index*4] to vertices[index*4 + 3]
+    static unsafe void FillQuad(VertexCoordColor* vertices, int index,
+                                in Quad3D quad, in Quad2D coords, Color color)
+    {
+        int vertexOffset = index * 4;
+        vertices[vertexOffset + 0] = new(quad.A, color, coords.A); // TopLeft
+        vertices[vertexOffset + 1] = new(quad.B, color, coords.B); // TopRight
+        vertices[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
+        vertices[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
+    }
 
     class BatchCompiler
     {
@@ -101,7 +109,7 @@ public sealed class BatchedSprites : IDisposable
 
                     foreach (ref SpriteData sd in Untextured.AsSpan())
                     {
-                        SpriteRenderer.FillQuad(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
+                        FillQuad(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
                         ++currentIndex;
                     }
                 }
@@ -112,7 +120,7 @@ public sealed class BatchedSprites : IDisposable
 
                     foreach (ref SpriteData sd in kv.Value.AsSpan())
                     {
-                        SpriteRenderer.FillQuad(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
+                        FillQuad(pVertices, currentIndex, sd.Quad, sd.Coords, sd.Color);
                         ++currentIndex;
                     }
                 }

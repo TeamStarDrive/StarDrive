@@ -5,10 +5,21 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics.Shaders;
 using SDUtils;
 using SDGraphics.Rendering;
+using System.Collections.Generic;
 
 namespace SDGraphics.Sprites;
 
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
+
+/// <summary>
+/// A single 3D Sprite billboard
+/// </summary>
+internal readonly record struct SpriteData(Quad3D Quad, Quad2D Coords, Color Color);
+
+/// <summary>
+/// Describes a range of sprites to draw, from startIndex, to startIndex+count
+/// </summary>
+internal readonly record struct SpriteBatchSpan(Texture2D Texture, int StartIndex, int Count);
 
 /// <summary>
 /// An interface for drawing 2D or 3D sprites
@@ -28,17 +39,10 @@ public sealed class SpriteRenderer : IDisposable
     readonly EffectParameter UseTextureParam;
     readonly EffectParameter ColorParam;
 
-    unsafe delegate void DrawUserIndexedPrimitivesD(
-        GraphicsDevice device,
-        PrimitiveType primitiveType,
-        int numVertices,
-        int primitiveCount,
-        void* pIndexData,
-        int indexFormat,
-        void* pVertexData,
-        int vertexStride
-    );
-    readonly DrawUserIndexedPrimitivesD DrawUserIndexedPrimitives;
+    readonly CachedBatches Batches = new();
+    int CurrentIndex;
+    Array<SpriteDataBuffer> AllBuffers = new();
+    Array<SpriteDataBuffer> FreeBuffers = new();
 
     public SpriteRenderer(GraphicsDevice device)
     {
@@ -56,12 +60,6 @@ public sealed class SpriteRenderer : IDisposable
         // set the defaults
         SetColor(Color.White);
 
-        const BindingFlags anyMethod = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-        MethodInfo method = typeof(GraphicsDevice).GetMethod("RawDrawUserIndexedPrimitives", anyMethod);
-        if (method == null)
-            throw new InvalidOperationException("Missing RawDrawUserIndexedPrimitives from XNA.GraphicsDevice");
-        DrawUserIndexedPrimitives = (DrawUserIndexedPrimitivesD)Delegate.CreateDelegate(typeof(DrawUserIndexedPrimitivesD), null, method);
-
         // lastly, create buffers
         IndexBuf = CreateIndexBuffer(device);
     }
@@ -71,6 +69,10 @@ public sealed class SpriteRenderer : IDisposable
         Mem.Dispose(ref VertexDeclaration);
         Mem.Dispose(ref IndexBuf);
         Mem.Dispose(ref Simple);
+        foreach (var buffer in AllBuffers)
+            buffer.Dispose();
+        AllBuffers.Clear();
+        FreeBuffers.Clear();
         TextureParamValue = null;
     }
     
@@ -122,7 +124,6 @@ public sealed class SpriteRenderer : IDisposable
         if (ViewProjectionParamValue != viewProjection)
         {
             ViewProjectionParamValue = viewProjection;
-
             fixed (Matrix* pViewProjection = &ViewProjectionParamValue)
             {
                 ViewProjectionParam.SetValue(*(XnaMatrix*)pViewProjection);
@@ -178,7 +179,27 @@ public sealed class SpriteRenderer : IDisposable
             IsBegin = false;
         }
         
-        // TODO: implement buffering and flush the buffer here
+        // flush and draw all the quads
+        Batches.Flush(this);
+        Batches.Draw(this, AllBuffers);
+        Batches.Clear();
+    }
+
+    public void RecycleBuffers()
+    {
+        FreeBuffers.Assign(AllBuffers);
+        foreach (SpriteDataBuffer buffer in AllBuffers)
+            buffer.Reset();
+        CurrentIndex = 0;
+    }
+
+    SpriteDataBuffer GetBuffer()
+    {
+        if (FreeBuffers.NotEmpty)
+            return FreeBuffers.PopLast();
+        SpriteDataBuffer b = new(Device);
+        AllBuffers.Add(b);
+        return b;
     }
 
     // creates a completely reusable index buffer
@@ -203,36 +224,6 @@ public sealed class SpriteRenderer : IDisposable
         IndexBuffer indexBuf = new(device, typeof(ushort), MaxVertexBufferSize, BufferUsage.WriteOnly);
         indexBuf.SetData(indices);
         return indexBuf;
-    }
-
-    // fills vertices of a quad at vertices[index*4] to vertices[index*4 + 3]
-    public static unsafe void FillQuad(VertexCoordColor* vertices, int index,
-                                       in Quad3D quad, in Quad2D coords, Color color)
-    {
-        int vertexOffset = index * 4;
-        vertices[vertexOffset + 0] = new(quad.A, color, coords.A); // TopLeft
-        vertices[vertexOffset + 1] = new(quad.B, color, coords.B); // TopRight
-        vertices[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
-        vertices[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
-    }
-    
-    // fills vertices of a quad at vertices[index*4] to vertices[index*4 + 3]
-    // along with indices at indices[index*6] to indices[index*6 + 5]
-    public static unsafe void FillQuad(VertexCoordColor* vertices, ushort* indices, int index,
-                                       in Quad3D quad, in Quad2D coords, Color color)
-    {
-        int vertexOffset = index * 4;
-        int indexOffset = index * 6;
-        vertices[vertexOffset + 0] = new(quad.A, color, coords.A); // TopLeft
-        vertices[vertexOffset + 1] = new(quad.B, color, coords.B); // TopRight
-        vertices[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
-        vertices[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
-        indices[indexOffset + 0] = (ushort)(vertexOffset + 0);
-        indices[indexOffset + 1] = (ushort)(vertexOffset + 1);
-        indices[indexOffset + 2] = (ushort)(vertexOffset + 2);
-        indices[indexOffset + 3] = (ushort)(vertexOffset + 0);
-        indices[indexOffset + 4] = (ushort)(vertexOffset + 2);
-        indices[indexOffset + 5] = (ushort)(vertexOffset + 3);
     }
 
     internal void ShaderBegin(Texture2D texture, Color color)
@@ -271,28 +262,10 @@ public sealed class SpriteRenderer : IDisposable
     /// Enables direct draw to the GPU. This is quite inefficient, so consider
     /// using BatchedSprites where possible.
     /// </summary>
-    public unsafe void Draw(Texture2D texture, in Quad3D quad, in Quad2D coords, Color color)
+    public void Draw(Texture2D texture, in Quad3D quad, in Quad2D coords, Color color)
     {
-        // stack allocating these is extremely important to reduce memory pressure
-        VertexCoordColor* vertices = stackalloc VertexCoordColor[4];
-        ushort* indices = stackalloc ushort[6];
-        FillQuad(vertices, indices, 0, quad, coords, color);
-
-        Device.VertexDeclaration = VertexDeclaration;
-
-        ShaderBegin(texture, Color.White);
-
-        // TODO: inefficient -- a new vertex and index buffer is created for every call
-        DrawUserIndexedPrimitives(Device, PrimitiveType.TriangleList,
-            numVertices: 4,
-            primitiveCount: 2,
-            pIndexData: indices,
-            indexFormat: 101, // 101: ushort indices, 102: uint indices
-            pVertexData: vertices,
-            vertexStride: sizeof(VertexCoordColor)
-        );
-
-        ShaderEnd();
+        Array<SpriteData> sprites = Batches.GetBatch(texture);
+        sprites.Add(new(quad, coords, color));
     }
     public void Draw(SubTexture texture, in Quad3D quad, Color color)
     {
@@ -529,4 +502,100 @@ public sealed class SpriteRenderer : IDisposable
     //        alpha += segmentArc;
     //    }
     //}
+
+    class CachedBatches
+    {
+        readonly Array<SpriteData> Untextured = new();
+        readonly Map<Texture2D, Array<SpriteData>> Textured = new();
+        readonly Array<SpriteBatchSpan> Spans = new();
+
+        public void Clear()
+        {
+            Untextured.Clear();
+            Textured.Clear();
+            Spans.Clear();
+        }
+
+        public Array<SpriteData> GetBatch(Texture2D texture)
+        {
+            if (texture == null)
+                return Untextured;
+
+            if (Textured.TryGetValue(texture, out Array<SpriteData> sprites))
+                return sprites;
+
+            sprites = new();
+            Textured.Add(texture, sprites);
+            return sprites;
+        }
+
+        SpriteDataBuffer GetLast(SpriteRenderer sr)
+        {
+            if (sr.AllBuffers.IsEmpty || sr.AllBuffers.Last.IsFull)
+            {
+                SpriteDataBuffer last = sr.GetBuffer();
+                sr.AllBuffers.Add(last);
+                return last;
+            }
+            return sr.AllBuffers.Last;
+        }
+
+        public void Flush(SpriteRenderer sr)
+        {
+            if (Untextured.NotEmpty)
+            {
+                SpriteDataBuffer last = GetLast(sr);
+
+                Spans.Add(new(null, sr.CurrentIndex, Untextured.Count));
+                foreach (ref SpriteData sprite in Untextured.AsSpan())
+                {
+                    if (!last.Add(in sprite))
+                    {
+                        last = sr.GetBuffer();
+                        last.Add(in sprite);
+                        sr.AllBuffers.Add(last);
+                    }
+                    ++sr.CurrentIndex;
+                }
+            }
+
+            foreach (KeyValuePair<Texture2D, Array<SpriteData>> kv in Textured)
+            {
+                SpriteDataBuffer last = GetLast(sr);
+                Spans.Add(new(kv.Key, sr.CurrentIndex, kv.Value.Count));
+                foreach (ref SpriteData sprite in kv.Value.AsSpan())
+                {
+                    if (!last.Add(in sprite))
+                    {
+                        last = sr.GetBuffer();
+                        last.Add(in sprite);
+                        sr.AllBuffers.Add(last);
+                    }
+                    ++sr.CurrentIndex;
+                }
+            }
+        }
+
+        public void Draw(SpriteRenderer sr, Array<SpriteDataBuffer> buffers)
+        {
+            foreach (ref SpriteBatchSpan sprites in Spans.AsSpan())
+            {
+                int currentIndex = sprites.StartIndex;
+                int count = sprites.Count;
+
+                while (count > 0)
+                {
+                    int which = currentIndex / SpriteDataBuffer.Size;
+                    int index = currentIndex % SpriteDataBuffer.Size;
+                    int toDraw = Math.Min(SpriteDataBuffer.Size - index, count);
+
+                    SpriteDataBuffer buffer = buffers[which];
+                    buffer.Draw(sr, sprites.Texture, Color.White, index, toDraw);
+
+                    count -= toDraw;
+                    currentIndex += toDraw;
+                }
+            }
+        }
+    }
 }
