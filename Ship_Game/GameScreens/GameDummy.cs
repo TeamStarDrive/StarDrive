@@ -37,7 +37,7 @@ namespace Ship_Game
             UpdateGame(deltaTime);
         }
 
-        protected override void Draw(float deltaTime)
+        protected override void Draw()
         {
             ScreenManager.Draw();
         }

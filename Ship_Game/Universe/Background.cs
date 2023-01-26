@@ -70,6 +70,7 @@ namespace Ship_Game
             sr.Begin(Matrix.Identity);
             // with Matrix.Identity, screen spans from [-1.0; +1.0] in both X and Y
             sr.FillRect(new RectF(-1.01f, -1.01f, 2.02f, 2.02f), Color.Black); // fill the screen
+            sr.End();
 
             DrawBackgroundNebulaWithStars(sr);
 
@@ -121,6 +122,7 @@ namespace Ship_Game
             Vector3d starsTopLeft = backgroundPos - new Vector3d(starsSize.X * 0.2, 0, 0);
             sr.Draw(stars, starsTopLeft, starsSize, Color.White);
             sr.Draw(stars, starsTopLeft + new Vector3d(starsSize.X, 0, 0), starsSize, Color.White);
+            sr.End();
         }
     }
 }

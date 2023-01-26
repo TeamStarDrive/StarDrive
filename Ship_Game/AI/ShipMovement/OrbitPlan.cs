@@ -161,7 +161,7 @@ namespace Ship_Game.AI.ShipMovement
         public void ExitOrbit()
         {
             InOrbit = false;
-            Owner.AI.SetOrbitTarget(null);
+            Owner?.AI.SetOrbitTarget(null);
         }
 
     }

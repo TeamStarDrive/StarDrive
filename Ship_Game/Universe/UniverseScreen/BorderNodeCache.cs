@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.Ships;
+#pragma warning disable CA2231
 
 namespace Ship_Game.Universe
 {

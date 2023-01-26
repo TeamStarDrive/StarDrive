@@ -2472,18 +2472,20 @@ namespace Ship_Game
 
         public void Dispose()
         {
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        ~Empire() { Destroy(); }
+        ~Empire() { Dispose(false); }
 
-        void Destroy()
+        public bool IsDisposed => AI == null;
+
+        void Dispose(bool disposing)
         {
-            if (AI == null)
+            if (IsDisposed)
                 return; // Already disposed
 
-            AI = null;
+            Mem.Dispose(ref AI);
             OwnedPlanets.Clear();
             OwnedSolarSystems.Clear();
             ActiveRelations = Empty<Relationship>.Array;
@@ -2506,8 +2508,8 @@ namespace Ship_Game
 
             if (data != null)
             {
-                data.AgentList = new BatchRemovalCollection<Agent>();
-                data.MoleList = new BatchRemovalCollection<Mole>();
+                data.AgentList = new();
+                data.MoleList = new();
             }
 
             AIManagedShips = null;

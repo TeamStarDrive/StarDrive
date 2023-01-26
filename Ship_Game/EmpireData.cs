@@ -170,8 +170,6 @@ namespace Ship_Game
         [StarData] public string DefaultConstructor;
         [StarData] public string DefaultShipyard = "Shipyard";
         [StarData] public bool RebellionLaunched;
-        [StarData] public float MilitaryScoreTotal;
-        [StarData] public int ScoreAverage;
         [StarData] public string MusicCue;
         [StarData] public Array<string> ResearchQueue = new();
         [StarData] public Array<Mole> MoleList = new();
@@ -386,10 +384,10 @@ namespace Ship_Game
             }
 
             // Reset stuff to defaults:
-            data.OwnedArtifacts = new Array<Artifact>();
-            data.ResearchQueue  = new Array<string>();
-            data.AgentList      = new BatchRemovalCollection<Agent>();
-            data.MoleList       = new BatchRemovalCollection<Mole>();
+            data.OwnedArtifacts = new();
+            data.ResearchQueue = new();
+            data.AgentList = new();
+            data.MoleList = new();
 
             data.CounterIntelligenceBudget = 0.0f;
             data.FlatMoneyBonus = 0.0f;

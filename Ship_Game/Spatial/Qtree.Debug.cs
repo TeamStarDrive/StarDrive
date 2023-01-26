@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Spatial
@@ -14,8 +15,8 @@ namespace Ship_Game.Spatial
         static readonly Color Purple = new(96, 63, 139, 150);
         public static readonly Color Yellow = new(Color.Yellow, 100);
         public static readonly Color YellowBright = new(255, 255, 0, 255);
-        public static readonly Color Blue   = new(95, 158, 160, 200);
-        static readonly Color Red    = new(255, 80, 80, 200);
+        public static readonly Color Blue = new(95, 158, 160, 200);
+        static readonly Color Red = new(255, 80, 80, 200);
 
         QtreeDebug Debug;
 
@@ -33,28 +34,30 @@ namespace Ship_Game.Spatial
 
             AABoundingBox2D visibleWorld = screen.VisibleWorldRect;
             FindResultBuffer<QtreeNode> buffer = GetThreadLocalTraversalBuffer(Root);
-            screen.DrawRectProjected(Root.AABB, Yellow);
+            screen.DrawRectProjected(Root.AABB, Yellow, zAxis: opt.ZPlane);
             do
             {
                 QtreeNode current = buffer.Pop();
                 Vector2 center = current.AABB.Center;
+                float size = current.AABB.Width.UpperBound(10_000);
+
                 if (o.NodeBounds)
                 {
                     Color color = current.LoyaltyCount > 1 ? Brown : BrownDim;
-                    screen.DrawRectProjected(current.AABB, color);
+                    screen.DrawRectProjected(current.AABB, color, zAxis: opt.ZPlane);
                 }
 
                 if (current.NW != null) // isBranch
                 {
                     if (o.NodeText)
-                        screen.DrawStringProjected(center, current.AABB.Width/2, Yellow, "BR");
+                        screen.DrawStringProjected(center, size/2, Yellow, "BR");
                     
                     buffer.PushOverlappingQuadrants(current, visibleWorld);
                 }
                 else // isLeaf
                 {
                     if (o.NodeText)
-                        screen.DrawStringProjected(center, current.AABB.Width/2, Yellow, $"LF n={current.Count}");
+                        screen.DrawStringProjected(center, size/2, Yellow, $"LF n={current.Count}");
 
                     for (int i = 0; i < current.Count; ++i)
                     {
@@ -63,16 +66,17 @@ namespace Ship_Game.Spatial
                         if (o.ObjectBounds)
                         {
                             Color color = (so->Loyalty % 2 == 0) ? VioletBright : Purple;
-                            screen.DrawRectProjected(so->AABB, color);
+                            screen.DrawRectProjected(so->AABB, color, zAxis: opt.ZPlane);
                         }
                         if (o.ObjectToLeaf)
                         {
                             Color color = (so->Loyalty % 2 == 0) ? VioletDim : Purple;
-                            screen.DrawLineProjected(center, so->AABB.Center, color);
+                            screen.DrawLineProjected(center, so->AABB.Center, color, zAxis: opt.ZPlane);
                         }
                         if (o.ObjectText)
                         {
-                            screen.DrawStringProjected(so->AABB.Center, so->AABB.Width, Blue, $"o={so->ObjectId}");
+                            float soSize = so->AABB.Width.UpperBound(10_000);
+                            screen.DrawStringProjected(so->AABB.Center, soSize, Blue, $"o={so->ObjectId}");
                         }
                     }
                 }

@@ -52,7 +52,7 @@ namespace UnitTests
                 Visible = false;
         }
 
-        protected override void Draw(float deltaTime)
+        protected override void Draw()
         {
             // Always Draw, even if game is not visible
             // Because we want our unit tests to go through the entire system
@@ -62,7 +62,7 @@ namespace UnitTests
             try
             {
                 Batch.SafeBegin();
-                base.Draw(deltaTime);
+                base.Draw();
             }
             finally
             {

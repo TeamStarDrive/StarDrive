@@ -151,6 +151,7 @@ namespace Ship_Game
 
         public PlanetType PType;
 
+        // this is used only for serializing the PlanetType PType
         [StarData]
         public int WhichPlanet
         {
@@ -161,9 +162,7 @@ namespace Ship_Game
         public SubTexture PlanetTexture => ResourceManager.Texture(PType.IconPath);
         public PlanetCategory Category => PType.Category;
         public bool IsBarrenType => PType.Category == PlanetCategory.Barren;
-        public bool IsBarrenGasOrVolcanic => PType.Category == PlanetCategory.Barren
-                                             || PType.Category == PlanetCategory.Volcanic
-                                             || PType.Category == PlanetCategory.GasGiant;
+        public bool IsBarrenGasOrVolcanic => PType.Category is PlanetCategory.Barren or PlanetCategory.Volcanic or PlanetCategory.GasGiant;
 
         public string IconPath => PType.IconPath;
         public bool Habitable => PType.Habitable;
@@ -171,8 +170,7 @@ namespace Ship_Game
         public UniverseState Universe => ParentSystem.Universe;
 
         [StarData] public SBProduction Construction;
-        public BatchRemovalCollection<Combat> ActiveCombats = new();
-        public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new();
+        public Array<Combat> ActiveCombats = new();
         protected Array<Building> BuildingsCanBuild = new();
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;

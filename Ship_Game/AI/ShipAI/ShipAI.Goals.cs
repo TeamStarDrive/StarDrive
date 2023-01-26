@@ -312,7 +312,18 @@ namespace Ship_Game.AI
 
                     return StaticMovePosition;
                 }
-                set => StaticMovePosition = value;
+                set
+                {
+                    // This is here to catch math bugs
+                    if (value.IsNaN())
+                    {
+                        Log.Error($"NaN ShipGoal.MovePosition={value}. Discarding value.");
+                    }
+                    else
+                    {
+                        StaticMovePosition = value;
+                    }
+                }
             }
 
             [StarData] public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings

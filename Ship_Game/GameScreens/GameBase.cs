@@ -16,7 +16,9 @@ namespace Ship_Game
 {
     public class GameBase : Game
     {
+        #pragma warning disable CA2213 // managed by Game
         public GraphicsDeviceManager Graphics;
+        #pragma warning restore CA2213
         LightingSystemPreferences Preferences;
         public static ScreenManager ScreenManager;
         public ScreenManager Manager => ScreenManager;
@@ -215,7 +217,7 @@ namespace Ship_Game
             try
             {
                 ++FrameId;
-                TotalElapsed = base.TotalGameTimeSeconds;
+                TotalElapsed = (float)base.TotalGameTime;
                 Elapsed = new UpdateTimes(deltaTime, TotalElapsed);
 
                 if (IsDeviceGood) // only Update if device is OK
@@ -239,7 +241,7 @@ namespace Ship_Game
                 ResourceManager.UnloadAllData(ScreenManager);
             Mem.Dispose(ref ScreenManager);
 
-            base.Dispose(disposing);
+            base.Dispose(disposing); // disposes Graphics
         }
     }
 }

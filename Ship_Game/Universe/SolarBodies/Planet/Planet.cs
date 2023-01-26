@@ -40,13 +40,6 @@ namespace Ship_Game
         
         [StarData] public TroopManager Troops;
         [StarData] public PlanetBudget Budget;
-        
-        // TODO: this is only for save compatibility, remove later
-        [StarData] Array<Troop> TroopsHere
-        {
-            get => Troops?.TroopsHere;
-            set => (Troops ??= new(this)).TroopsHere = value;
-        }
 
         [StarData] public bool DontScrapBuildings = false;
         [StarData] public bool Quarantine         = false;
@@ -116,7 +109,6 @@ namespace Ship_Game
         public int GetFreeTiles(Empire us)              => Troops.NumFreeTiles(us);
         public int GetEnemyAssets(Empire us)            => Troops.GetEnemyAssets(us);
         public float GetGroundStrength(Empire empire)   => Troops.GroundStrength(empire);
-        public int GetPotentialGroundTroops()           => Troops.GetPotentialGroundTroops();
         public bool TroopsHereAreEnemies(Empire empire) => Troops.TroopsHereAreEnemies(empire);
         public bool WeAreInvadingHere(Empire empire)    => Troops.WeAreInvadingHere(empire);
         public bool MightBeAWarZone(Empire empire)      => Troops.MightBeAWarZone(empire);
@@ -1655,8 +1647,6 @@ namespace Ship_Game
 
         void Dispose(bool disposing)
         {
-            Mem.Dispose(ref ActiveCombats);
-            Mem.Dispose(ref OrbitalDropList);
             Construction = null;
             Storage = null;
             Troops = null;

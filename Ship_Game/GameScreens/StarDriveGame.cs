@@ -56,6 +56,7 @@ namespace Ship_Game
             AutoPatcher.CleanupLegacyIncompatibleFiles();
             AutoPatcher.TryDeletePatchTemp();
 
+            // TODO: enable this as an option in OptionsScreen
             IsFixedTimeStep = true;
         }
 
@@ -146,13 +147,13 @@ namespace Ship_Game
             }
         }
 
-        protected override void Draw(float deltaTime)
+        protected override void Draw()
         {
             if (IsDeviceGood)
             {
                 GraphicsDevice.Clear(Color.Black);
                 ScreenManager.Draw();
-                base.Draw(deltaTime);
+                base.Draw();
             }
         }
 

@@ -8,6 +8,7 @@ using Ship_Game.Graphics;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using SDUtils;
+#pragma warning disable CA2213
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {
@@ -1142,10 +1143,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             base.Update(fixedDeltaTime);
         }
 
-        protected override void Destroy()
+        protected override void Dispose(bool disposing)
         {
             RacialVideo?.Dispose();
-            base.Destroy();
+            base.Dispose(disposing);
         }
 
         enum DialogState

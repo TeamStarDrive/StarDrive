@@ -9,58 +9,58 @@ public partial class GenericQtree
     public SpatialObjectBase FindOne(Vector2 pos, float radius)
     {
         SearchOptions opt = new(pos, radius);
-        return FindOne(opt);
+        return FindOne(ref opt);
     }
     
     public SpatialObjectBase FindOne(in AABoundingBox2D searchArea)
     {
         SearchOptions opt = new(searchArea);
-        return FindOne(opt);
+        return FindOne(ref opt);
     }
 
     public SpatialObjectBase[] Find(Vector2 pos, float radius)
     {
         SearchOptions opt = new(pos, radius);
-        return Find(opt);
+        return Find(ref opt);
     }
 
     public SpatialObjectBase[] Find(in AABoundingBox2D searchArea)
     {
         SearchOptions opt = new(searchArea);
-        return Find(opt);
+        return Find(ref opt);
     }
     /// <summary>
     /// Finds all objects that match the search criteria
     /// </summary>
-    public SpatialObjectBase[] Find(in SearchOptions opt)
+    public SpatialObjectBase[] Find(ref SearchOptions opt)
     {
-        return Find<SpatialObjectBase>(opt);
+        return Find<SpatialObjectBase>(ref opt);
     }
     
     public T[] Find<T>(in AABoundingBox2D searchArea) where T : SpatialObjectBase
     {
         SearchOptions opt = new(searchArea);
-        return Find<T>(opt);
+        return Find<T>(ref opt);
     }
     
     public T[] Find<T>(Vector2 pos, float radius) where T : SpatialObjectBase
     {
         SearchOptions opt = new(pos, radius);
-        return Find<T>(opt);
+        return Find<T>(ref opt);
     }
     
     /// <summary>
-    /// Finds the first object that matches the search criteria
+    /// Finds the first object that matches the search criteria.
     /// If SortByDistance is enabled, the closest item is returned,
-    /// the accuracy of closest result depends on opt.MaxResults
+    /// the accuracy of closest result depends on opt.MaxResults.
     /// </summary>
-    public SpatialObjectBase FindOne(SearchOptions opt)
+    public SpatialObjectBase FindOne(ref SearchOptions opt)
     {
         // if not sorting by distance, then always fetch 1 result
         if (!opt.SortByDistance)
             opt.MaxResults = 1;
 
-        FindResultBuffer<Node> buffer = FindNearby(opt);
+        FindResultBuffer<Node> buffer = FindNearby(ref opt);
         SpatialObjectBase[] results = buffer.GetArrayAndClearBuffer<SpatialObjectBase>();
         return results.Length > 0 ? results[0] : null;
     }
@@ -69,15 +69,16 @@ public partial class GenericQtree
     /// Finds all objects that match the search criteria,
     /// while casting the results array into T
     /// </summary>
-    public T[] Find<T>(in SearchOptions opt) where T : SpatialObjectBase
+    public T[] Find<T>(ref SearchOptions opt) where T : SpatialObjectBase
     {
-        FindResultBuffer<Node> buffer = FindNearby(opt);
+        FindResultBuffer<Node> buffer = FindNearby(ref opt);
         return buffer.GetArrayAndClearBuffer<T>();
     }
 
-    FindResultBuffer<Node> FindNearby(in SearchOptions opt)
+    FindResultBuffer<Node> FindNearby(ref SearchOptions opt)
     {
-        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(Root, opt.MaxResults);
+        ObjectsState state = State;
+        FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(state.Root, opt.MaxResults);
         
         AABoundingBox2D searchRect = opt.SearchRect;
         uint loyaltyMask = NativeSpatialObject.GetLoyaltyMask(opt);
@@ -99,7 +100,7 @@ public partial class GenericQtree
 
         if (buffer.NumCellsFound > 0)
         {
-            FilterResults(buffer, opt);
+            FilterResults(state, buffer, ref opt);
             if (opt.SortByDistance) // sort the final results
                 buffer.Items.SortByDistance(buffer.Count, searchRect.Center);
         }
@@ -115,7 +116,7 @@ public partial class GenericQtree
 
     // TODO: find a way to share this between Qtree implementations
     // NOTE: this is translated 1-to-1 from SDNative Search.cpp
-    unsafe void FilterResults(FindResultBuffer<Node> buffer, in SearchOptions opt)
+    static unsafe void FilterResults(ObjectsState state, FindResultBuffer<Node> buffer, ref SearchOptions opt)
     {
         // don't crash if someone asks for 0 results
         int maxResults = opt.MaxResults;
@@ -125,7 +126,7 @@ public partial class GenericQtree
         // we use a bit array to ignore duplicate objects
         // duplication is present by design to handle grid border overlap
         // this filtering is faster than other more complicated structural methods
-        int idBitArraySize = ((MaxObjectId / 32) + 1) * sizeof(uint);
+        int idBitArraySize = ((state.MaxObjectId / 32) + 1) * sizeof(uint);
         // WARNING: any overrun at this point is going to lead to stack smash and an errorless exit
         uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
         for (int i = 0; i < idBitArraySize; ++i) idBitArray[i] = 0; // so we need to zero the idBitArray
@@ -199,9 +200,9 @@ public partial class GenericQtree
     }
 
     // NOTE: For debugging only
-    public SpatialObjectBase[] FindLinear(in SearchOptions opt, SpatialObjectBase[] objects)
+    public SpatialObjectBase[] FindLinear(ref SearchOptions opt, SpatialObjectBase[] objects)
     {
-        return LinearSearch.FindNearby(in opt, objects, objects.Length);
+        return LinearSearch.FindNearby(ref opt, objects, objects.Length);
     }
 
     // NOTE: This is really fast

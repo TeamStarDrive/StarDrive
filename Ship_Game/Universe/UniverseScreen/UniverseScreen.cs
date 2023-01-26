@@ -22,7 +22,6 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Rectangle = SDGraphics.Rectangle;
 using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
-using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -36,25 +35,22 @@ namespace Ship_Game
         public string StarDateString => UState.StarDate.StarDateString();
         public float LastAutosaveTime = 0;
 
-        public Array<Ship> SelectedShipList = new Array<Ship>();
+        public Array<Ship> SelectedShipList = new();
 
-        public ClickablePlanet[] ClickablePlanets = Empty<ClickablePlanet>.Array;
-        ClickableSystem[] ClickableSystems = Empty<ClickableSystem>.Array;
-        ClickableShip[] ClickableShips = Empty<ClickableShip>.Array;
         public ClickableSpaceBuildGoal[] ClickableBuildGoals = Empty<ClickableSpaceBuildGoal>.Array;
 
-        readonly Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
+        readonly Array<ClickableFleet> ClickableFleetsList = new();
+        #pragma warning disable CA2213
         public Planet SelectedPlanet;
         public Ship SelectedShip;
+        #pragma warning restore CA2213
         public ClickableSpaceBuildGoal SelectedItem;
-        ClickablePlanet TippedPlanet;
-        ClickableSystem tippedSystem;
 
-        Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
-        
+        RectF SelectionBox = new(-1, -1, 0, 0);
+
         public Background bg;
 
-        public BatchRemovalCollection<Bomb> BombList  = new();
+        public Array<Bomb> BombList  = new();
         readonly AutoResetEvent DrawCompletedEvt = new(false);
 
         public const double MinCamHeight = 450.0;
@@ -63,8 +59,6 @@ namespace Ship_Game
         public Vector3d CamPos { get => UState.CamPos; set => UState.CamPos = value; }
         public Vector3d transitionStartPosition;
 
-        float TooltipTimer = 0.5f;
-        float sTooltipTimer = 0.5f;
         public bool ViewingShip = false;
         public float transDuration = 3f;
         public float SelectedSomethingTimer = 3f;
@@ -96,7 +90,11 @@ namespace Ship_Game
         public RenderTarget2D MainTarget;
         public RenderTarget2D BorderRT;
         RenderTarget2D LightsTarget;
+
+        #pragma warning disable CA2213 // managed by Content Manager
         public Effect basicFogOfWarEffect;
+        #pragma warning restore CA2213
+
         public Rectangle SelectedStuffRect;
         public NotificationManager NotificationManager;
         public ShieldManager Shields;
@@ -116,8 +114,6 @@ namespace Ship_Game
         // @note Initialize with a default frustum for UnitTests
         public BoundingFrustum Frustum = new(Matrix.CreateTranslation(1000000, 1000000, 0));
 
-        bool ShowingSysTooltip;
-        bool ShowingPlanetToolTip;
         float MusicCheckTimer;
         public Ship ShipToView;
         public float AdjustCamTimer;
@@ -151,7 +147,6 @@ namespace Ship_Game
         bool SelectingWithBox;
 
         public PlanetScreen workersPanel;
-        CursorState cState;
         int SelectorFrame;
         public Ship previousSelection;
 
@@ -171,7 +166,7 @@ namespace Ship_Game
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.P == p;
         public bool IsViewingColonyScreen(Planet p) => LookingAtPlanet && workersPanel is ColonyScreen cs && cs.P == p;
-        
+
         /// <summary>
         /// RADIUS of the universe, Stars are generated within XY range [-universeRadius, +universeRadius]
         /// </summary>
@@ -455,7 +450,7 @@ namespace Ship_Game
 
             if (GlobalStats.DrawNebulas)
             {
-                bg3d = new Background3D(this);
+                bg3d = new Background3D(this, device);
             }
 
             Frustum = new BoundingFrustum(ViewProjection);
@@ -659,24 +654,34 @@ namespace Ship_Game
             Mem.Dispose(ref MainTarget);
             Mem.Dispose(ref LightsTarget);
             Mem.Dispose(ref Particles);
-            Mem.Dispose(ref bg);
             Mem.Dispose(ref SR);
             Mem.Dispose(ref Shields);
+            Mem.Dispose(ref aw);
+            Mem.Dispose(ref DebugWin);
+            Mem.Dispose(ref workersPanel);
         }
 
-        protected override void Destroy()
+        protected override void Dispose(bool disposing)
         {
             UnloadGraphics();
 
-            Mem.Dispose(ref anomalyManager);
-            Mem.Dispose(ref BombList);
+            anomalyManager = null;
+            BombList.Clear();
+            PendingSimThreadActions.Dispose();
             NotificationManager?.Clear();
             SelectedShipList = new();
-            base.Destroy();
+
+            DrawCompletedEvt.Dispose();
+            UState.Dispose();
+
+            base.Dispose(disposing);
         }
 
         public override void ExitScreen()
         {
+            if (IsDisposed)
+                return; // already exited and disposed
+
             IsExiting = true;
             UState.Paused = true;
 
@@ -688,8 +693,6 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.Music.Stop();
 
-            UState.Dispose();
-
             ShipToView = null;
             SelectedShip   = null;
             SelectedFleet  = null;
@@ -698,46 +701,13 @@ namespace Ship_Game
 
             EmpireHullBonuses.Clear();
             ClickableFleetsList.Clear();
-            ClickableShips = Empty<ClickableShip>.Array;
-            ClickablePlanets = Empty<ClickablePlanet>.Array;
-            ClickableSystems = Empty<ClickableSystem>.Array;
 
             base.ExitScreen();
-            Dispose(); // will call Destroy() and UnloadGraphics()
+            Dispose(); // will call virtual Dispose(bool disposing) and UnloadGraphics()
 
             HelperFunctions.CollectMemory();
             // make sure we reset the latest savegame attachment
             Log.ConfigureStatsReporter(null);
-        }
-
-        public struct ClickablePlanet
-        {
-            public Vector2 ScreenPos;
-            public float Radius;
-            public Planet Planet;
-            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
-        }
-
-        public struct ClickableShip
-        {
-            public Vector2 ScreenPos;
-            public float Radius;
-            public Ship Ship;
-            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
-        }
-
-        struct ClickableSystem
-        {
-            public Vector2 ScreenPos;
-            public float Radius;
-            public SolarSystem System;
-            public bool Touched(Vector2 touchPoint)
-            {
-                if (!touchPoint.InRadius(ScreenPos, Radius)) return false;
-
-                GameAudio.MouseOver();
-                return true;
-            }
         }
 
         // When user or automation AI orders a deep space build goal
@@ -781,23 +751,6 @@ namespace Ship_Game
             public Rectangle ClickRect;
             public Fleet Fleet;
             public int Key;
-        }
-
-        public class FogOfWarNode
-        {
-            public float Radius = 50000f;
-            public Vector2 Position;
-            public bool Discovered;
-        }
-
-
-        enum CursorState
-        {
-            Normal,
-            Move,
-            Follow,
-            Attack,
-            Orbit
         }
     }
 }

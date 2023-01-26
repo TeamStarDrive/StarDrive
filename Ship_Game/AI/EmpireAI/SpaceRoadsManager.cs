@@ -93,16 +93,33 @@ namespace Ship_Game.AI
         {
             if (fillGapsInOtherRoads)
             {
+                var checkedNodes = roadToRemove.RoadNodesList.ToArray();
+                var allOtherNodes = GetAllRoadNodes(excludedRoad: roadToRemove);
                 foreach (SpaceRoad road in SpaceRoads.SortedDescending(r => r.Heat)
-                             .Filter(r => r.Status is SpaceRoad.SpaceRoadStatus.Online
-                                                   or SpaceRoad.SpaceRoadStatus.InProgress))
+                             .Filter(r => r != roadToRemove && r.Status is SpaceRoad.SpaceRoadStatus.Online
+                                                                        or SpaceRoad.SpaceRoadStatus.InProgress))
                 {
-                    road.FillNodeGaps(roadToRemove.RoadNodesList);
+                    road.FillNodeGaps(allOtherNodes, ref checkedNodes);
                 }
             }
 
             roadToRemove.Scrap();
             SpaceRoads.Remove(roadToRemove);
+        }
+
+        RoadNode[] GetAllRoadNodes(SpaceRoad excludedRoad)
+        {
+            Array<RoadNode> allRoadNodes = new();
+            SpaceRoad[] array = SpaceRoads.SortedDescending(r => r.Heat)
+                         .Filter(r => r != excludedRoad && (r.Status == SpaceRoad.SpaceRoadStatus.Online
+                                                            || r.Status == SpaceRoad.SpaceRoadStatus.InProgress));
+            for (int i = 0; i < array.Length; i++)
+            {
+                SpaceRoad road = array[i];
+                allRoadNodes.AddRange(road.RoadNodesList);
+            }
+
+            return allRoadNodes.ToArray();
         }
 
         // Scrap one road per turn, if applicable

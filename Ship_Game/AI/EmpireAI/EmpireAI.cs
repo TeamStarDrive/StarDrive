@@ -18,7 +18,7 @@ using Ship_Game.Fleets;
 namespace Ship_Game.AI
 {
     [StarDataType]
-    public sealed partial class EmpireAI
+    public sealed partial class EmpireAI : IDisposable
     {
         [StarData] int NumberOfShipGoals = 6;
         [StarData] public float BuildCapacity { get; private set; }
@@ -73,6 +73,19 @@ namespace Ship_Game.AI
             TechChooser = new(e);
             OffensiveForcePoolManager = new(e);
             BudgetSettings = new(e);
+        }
+
+        ~EmpireAI() { Dispose(false); }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing)
+        {
+            DefensiveCoordinator.Dispose();
         }
 
         [StarDataDeserialized]
@@ -192,25 +205,6 @@ namespace Ship_Game.AI
             }
             return knownPlanets;
         }
-
-        // @return Closest AO, or null if there are no AO-s
-        public AO FindClosestAOTo(Vector2 position)
-        {
-            if (AreasOfOperations.IsEmpty)
-                return null;
-            
-            // TODO: AreasOfOperations is modified concurrently, so we're having a race condition
-            //       when AreasOfOperations elements are removed
-            //       the best solution here is to keep AreasOfOperations as an immutable array
-            return AreasOfOperations.FindMin(ao => ao != null ? ao.Center.SqDist(position) : float.MaxValue);
-        }
-
-        public AO AoContainingPosition(Vector2 location)
-        {
-            return AreasOfOperations.Find(ao => location.InRadius(ao.Center, ao.Radius));
-        }
-
-        public bool IsInOurAOs(Vector2 location) => AoContainingPosition(location) != null;
 
         public void CheckColonizationClaims(Empire them, Relationship usToThem)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using SDGraphics;
 using SDUtils;
@@ -92,7 +93,7 @@ namespace Ship_Game.Universe
         /// <summary>
         /// Spatial search interface for all Planets
         /// </summary>
-        public Qtree PlanetsTree;
+        public GenericQtree PlanetsTree;
 
         /// <summary>
         /// Global influence tree for fast influence checks, updated every time
@@ -131,7 +132,7 @@ namespace Ship_Game.Universe
         public UniverseScreen Screen;
 
         // TODO: Encapsulate
-        public BatchRemovalCollection<SpaceJunk> JunkList = new();
+        public Array<SpaceJunk> JunkList = new();
 
         public DebugInfoScreen DebugWin => Screen.DebugWin;
         public NotificationManager Notifications => Screen.NotificationManager;
@@ -356,6 +357,8 @@ namespace Ship_Game.Universe
             ClearEmpires();
             PlanetsDict.Clear();
             Spatial.Destroy();
+            SystemsTree.Dispose();
+            PlanetsTree.Dispose();
         }
 
         // This is for UnloadContent / ReloadContent
@@ -397,9 +400,8 @@ namespace Ship_Game.Universe
 
         void ClearSpaceJunk()
         {
-            JunkList.ApplyPendingRemovals();
-            foreach (SpaceJunk spaceJunk in JunkList)
-                spaceJunk.RemoveSceneObject();
+            for (int i = 0; i < JunkList.Count; ++i)
+                JunkList[i]?.RemoveSceneObject();
             JunkList.Clear();
         }
 
@@ -424,6 +426,7 @@ namespace Ship_Game.Universe
 
                 PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
+                PlanetsTree.Insert(planet);
             }
         }
 
@@ -436,19 +439,37 @@ namespace Ship_Game.Universe
             return null;
         }
 
-        public SolarSystem FindClosestSystem(Vector2 pos)
+        /// <summary>
+        /// Finds a Planet at worldPos, using an additional searchRadius to increase
+        /// hit-test area size
+        /// </summary>
+        /// <param name="worldPos">Center point of the search in World coordinates</param>
+        /// <param name="searchRadius">Additional search radius modifier to increase hit distance</param>
+        /// <returns></returns>
+        public Planet FindPlanetAt(Vector2 worldPos, float searchRadius = 100f)
         {
-            return SolarSystemList.FindClosestTo(pos);
+            SearchOptions opt = new(worldPos, searchRadius);
+            return PlanetsTree.FindOne(ref opt) as Planet;
         }
 
-        public SolarSystem FindSolarSystemAt(Vector2 point)
+        /// <summary>
+        /// Finds a solar system at worldPos, using a hitRadius parameter
+        /// </summary>
+        /// <param name="worldPos">Center point of the search in World coordinates</param>
+        /// <param name="hitRadius">Size of the solar system hit-test circle</param>
+        public SolarSystem FindSolarSystemAt(Vector2 worldPos, float hitRadius)
         {
-            foreach (SolarSystem s in SolarSystemList)
+            SearchOptions opt = new(worldPos, 1)
             {
-                if (point.InRadius(s.Position, s.Radius*2))
-                    return s;
-            }
-            return null;
+                FilterFunction = (go) => go.Position.InRadius(worldPos, hitRadius),
+                DebugId = 2
+            };
+            return SystemsTree.FindOne(ref opt) as SolarSystem;
+        }
+        
+        public SolarSystem FindClosestSystem(Vector2 worldPos)
+        {
+            return SolarSystemList.FindClosestTo(worldPos);
         }
 
         public Array<SolarSystem> GetFiveClosestSystems(SolarSystem system)
@@ -460,7 +481,18 @@ namespace Ship_Game.Universe
         // Returns all solar systems within frustum
         public SolarSystem[] GetVisibleSystems()
         {
-            return SolarSystemList.Filter(s => Screen.IsInFrustum(s.Position, s.Radius));
+            SolarSystem[] systems = SystemsTree.Find<SolarSystem>(Screen.VisibleWorldRect);
+            return systems;
+        }
+
+        public Planet[] GetVisiblePlanets()
+        {
+            SearchOptions opt = new(Screen.VisibleWorldRect)
+            {
+                MaxResults = Planets.Count
+            };
+            Planet[] planets = PlanetsTree.Find<Planet>(ref opt);
+            return planets;
         }
 
         public void AddShip(Ship ship)

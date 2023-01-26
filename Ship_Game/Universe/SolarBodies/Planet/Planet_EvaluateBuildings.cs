@@ -358,7 +358,15 @@ namespace Ship_Game
             for (int i = 0; i < ConstructionQueue.Count; i++)
             {
                 QueueItem qi = ConstructionQueue[i];
-                if (qi.IsCivilianBuilding && qi.Building.ActualMaintenance(this) > budget)
+                if (qi.IsCivilianBuilding && qi.Building.IsTerraformer && TerraformBudget == 0)
+                {
+                    Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} CANCELED Terrformer" +
+                        $" on planet {Name} since Terraformer Budget was 0.");
+                    Construction.Cancel(qi);
+                    return true;
+                }
+
+                if (qi.IsCivilianBuilding && !qi.Building.IsTerraformer && qi.Building.ActualMaintenance(this) > budget)
                 {
                     Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} CANCELED {qi.Building.Name}" +
                         $" on planet {Name} since maint. ({qi.Building.ActualMaintenance(this)}) was higher than budget ({budget})");
@@ -884,8 +892,9 @@ namespace Ship_Game
 
         void PrioritizeCriticalProductionBuildings()
         {
-            if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level
-                || PlayerAddedFirstConstructionItem)
+            if (Owner.data.TaxRate > 0.4 
+                || PlayerAddedFirstConstructionItem 
+                || Prod.NetIncome > 1 && ConstructionQueue.Count <= Level)
             {
                 return;
             }

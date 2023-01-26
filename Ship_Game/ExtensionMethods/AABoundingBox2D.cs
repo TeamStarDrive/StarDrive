@@ -76,6 +76,14 @@ namespace Ship_Game
             Y2 = botRight.Y;
         }
 
+        public AABoundingBox2D(in RectF rect)
+        {
+            X1 = rect.X;
+            Y1 = rect.Y;
+            X2 = rect.X + rect.W;
+            Y2 = rect.Y + rect.H;
+        }
+
         public AABoundingBox2D(SpatialObjectBase go)
         {
             float x = go.Position.X;
@@ -293,6 +301,14 @@ namespace Ship_Game
         public static implicit operator AABoundingBox2D(in AABoundingBox2Dd bb)
         {
             return new AABoundingBox2D((float)bb.X1, (float)bb.Y1, (float)bb.X2, (float)bb.Y2);
+        }
+
+        [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly bool Overlaps(Vector2 pos, float radius)
+        {
+            // NOTE: >= vs > determines whether there's a match if rectangles touch
+            return X1 <= (pos.X + radius) && X2 >= (pos.X - radius)
+                && Y1 <= (pos.Y + radius) && Y2 >= (pos.Y - radius);
         }
     }
 }

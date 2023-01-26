@@ -16,7 +16,7 @@ using Ship_Game.Utils;
 namespace Ship_Game.GameScreens.Scene
 {
     [StarDataType]
-    public class SceneInstance
+    public sealed class SceneInstance : IDisposable
     {
         #pragma warning disable 649
         [StarData] public Vector3 SunPos = new Vector3(26000, -26000, 32000);
@@ -48,8 +48,7 @@ namespace Ship_Game.GameScreens.Scene
         public void Initialize(GameScreen screen)
         {
             Screen = screen;
-            screen.ScreenManager.RemoveAllLights();
-            screen.ScreenManager.LightRigIdentity = LightRigIdentity.MainMenu;
+            screen.ScreenManager.RemoveAllLights(LightRigIdentity.MainMenu);
 
             // TODO: some issue with directional lights
             //AddDirectionalLight("Scene Sun", SunColor, SunIntensity, SunPos, SunTarget);
@@ -62,8 +61,7 @@ namespace Ship_Game.GameScreens.Scene
                 Intensity = AmbientIntensity,
             }, dynamic:false);
 
-            screen.SetViewMatrix(Matrix.CreateLookAt(CameraPos, LookAt, Vector3.Down));
-            screen.SetPerspectiveProjection(maxDistance: 35000);
+            screen.SetViewPerspective(Matrix.CreateLookAt(CameraPos, LookAt, Vector3.Down), maxDistance: 35000);
 
             // always reload because we might have switched mods (which unloaded the content)
             FTLManager.LoadContent(screen, reload:true);
@@ -74,6 +72,11 @@ namespace Ship_Game.GameScreens.Scene
             {
                 fleet.CreateShips(this, screen);
             }
+        }
+
+        public void Dispose()
+        {
+            Mem.Dispose(ref Particles);
         }
 
         void AddDirectionalLight(string name, Color color, float intensity, Vector3 source, Vector3 target)

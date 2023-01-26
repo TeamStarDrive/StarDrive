@@ -90,27 +90,30 @@ namespace Ship_Game
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
 
-        public Matrix View; // @see SetViewMatrix
+        public Matrix View = Matrix.Identity; // @see SetViewMatrix
         public Matrix Projection; // @see SetPerspectiveProjection
         public Matrix ViewProjection; // View * Projection
+        public Matrix InverseViewProjection; // Inverse(View * Projection)
 
         // deferred renderer allows some basic commands to be queued up to be drawn. 
         // this is useful when wanted to draw from handle input routines and other areas. 
         public DeferredRenderer Renderer { get; }
-        
+
         // Thread safe queue for running UI commands
         readonly SafeQueue<Action> PendingActions = new();
 
         // If this is set, the universe was paused
         UniverseScreen PausedUniverse;
 
+        /// <summary>Game screen that is the same size as the current screen/window</summary>
         /// <param name="parent">Parent to this screen, or null</param>
         /// <param name="toPause">If not null, pauses the universe simulation until this screen finishes</param>
-        protected GameScreen(GameScreen parent, UniverseScreen toPause) 
+        protected GameScreen(GameScreen parent, UniverseScreen toPause)
             : this(parent, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), toPause)
         {
         }
 
+        /// <summary>Game screen with a specific size</summary>
         /// <param name="parent">Parent to this screen, or null</param>
         /// <param name="rect">Initial container rect for this screen</param>
         /// <param name="toPause">If not null, pauses the universe simulation until this screen finishes</param>
@@ -145,18 +148,22 @@ namespace Ship_Game
             Renderer = new DeferredRenderer(this, simTurnSource);
         }
 
-        ~GameScreen() { Destroy(); }
+        ~GameScreen() { Dispose(false); }
 
         public void Dispose()
         {
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Destroy()
+        protected virtual void Dispose(bool disposing)
         {
+            if (IsDisposed)
+                return;
             IsDisposed = true;
+            RemoveAll();
             Mem.Dispose(ref TransientContent);
+            PendingActions.Dispose();
         }
 
         // select size based on current res: Low, Normal, Hi
@@ -184,6 +191,7 @@ namespace Ship_Game
             ScreenManager.AssignLightRig(identity, lightRig);
         }
 
+        // ExitScreen will also call this.Dispose(true)
         public virtual void ExitScreen()
         {
             IsExiting = true;
@@ -260,7 +268,7 @@ namespace Ship_Game
             Log.Write($"BecameInActive: {GetType().GetTypeName()}");
             BecameInActive();
         }
-        
+
         // NOTE: Optionally implemented by GameScreens to create their screen content
         //       This is also called when the screen is being reloaded
         public virtual void LoadContent() { }
@@ -283,7 +291,7 @@ namespace Ship_Game
             RemoveAll(); // using RemoveAll() here to ensure all necessary events are triggered, instead of Elements.Clear()
             DidLoadContent = false;
         }
-        
+
         public virtual void ReloadContent()
         {
             UnloadContent();
@@ -515,7 +523,7 @@ namespace Ship_Game
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
         // Sets the View matrix and updates necessary variables to enable World <-> Screen coordinate conversion
         public void SetViewMatrix(in Matrix view)
         {
@@ -538,36 +546,38 @@ namespace Ship_Game
             UpdateWorldScreenProjection();
         }
 
+        // Sets the view matrix and perspective projection in one operation
+        public void SetViewPerspective(in Matrix view, double fovYdegrees = 45, double maxDistance = 5000.0)
+        {
+            View = view;
+            SetPerspectiveProjection(fovYdegrees: fovYdegrees, maxDistance: maxDistance);
+        }
+
         // visible rectangle in world coordinates
         public AABoundingBox2Dd VisibleWorldRect { get; private set; }
 
         protected void UpdateWorldScreenProjection()
         {
             View.Multiply(Projection, out ViewProjection);
+            Matrix.Invert(in ViewProjection, out InverseViewProjection);
             VisibleWorldRect = UnprojectToWorldRect(new AABoundingBox2D(0,0, Viewport.Width, Viewport.Height));
         }
-        
+
         public Vector2d ProjectToScreenPosition(Vector3d worldPos)
         {
-            // NOTE: This is a more 
-            return Viewport.ProjectTo2D(worldPos, Projection, View);
-
-            //var visibleRect = VisibleWorldRect;
-            //double relX = MathExt.LerpInverse(worldPos.X, visibleRect.X1, visibleRect.X2);
-            //double relY = MathExt.LerpInverse(worldPos.Y, visibleRect.Y1, visibleRect.Y2);
-            //return new Vector2d(relX * Viewport.Width, relY * Viewport.Height);
+            return Viewport.ProjectTo2D(worldPos, in ViewProjection);
         }
 
         // Projects World Pos into Screen Pos
         public Vector2d ProjectToScreenPosition(Vector3 worldPos)
         {
-            return ProjectToScreenPosition(new Vector3d(worldPos));
+            return Viewport.ProjectTo2D(new Vector3d(worldPos), in ViewProjection);
         }
 
         // Projects World Pos into Screen Pos
         public Vector2d ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
-            return ProjectToScreenPosition(new Vector3d(posInWorld, zAxis));
+            return Viewport.ProjectTo2D(new Vector3d(posInWorld, zAxis), in ViewProjection);
         }
 
         public void ProjectToScreenCoords(Vector3 posInWorld, float sizeInWorld,
@@ -577,22 +587,6 @@ namespace Ship_Game
             posOnScreen = ProjectToScreenPosition(posInWorld);
             var pos2 = ProjectToScreenPosition(new Vector3(posInWorld.X + sizeInWorld, posInWorld.Y, posInWorld.Z));
             sizeOnScreen = pos2.Distance(posOnScreen);
-        }
-
-        public (Vector2d PosOnScreen, Vector2d SizeOnScreen) ProjectToScreenCoords(in Vector3 posInWorld, in Vector2 sizeInWorld)
-        {
-            Vector2d posOnScreen = ProjectToScreenPosition(posInWorld);
-            double sizeX = ProjectToScreenPosition(posInWorld + new Vector3(sizeInWorld.X,0,0)).Distance(posOnScreen);
-            double sizeY = ProjectToScreenPosition(posInWorld + new Vector3(0, sizeInWorld.Y, 0)).Distance(posOnScreen);
-            return (posOnScreen, new Vector2d(sizeX,sizeY));
-        }
-
-        public (Vector2d PosOnScreen, Vector2d SizeOnScreen) ProjectToScreenCoords(in Vector3d posInWorld, in Vector2d sizeInWorld)
-        {
-            Vector2d posOnScreen = ProjectToScreenPosition(posInWorld);
-            double sizeX = ProjectToScreenPosition(posInWorld + new Vector3d(sizeInWorld.X, 0, 0)).Distance(posOnScreen);
-            double sizeY = ProjectToScreenPosition(posInWorld + new Vector3d(0, sizeInWorld.Y, 0)).Distance(posOnScreen);
-            return (posOnScreen, new Vector2d(sizeX, sizeY));
         }
 
         public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld,
@@ -643,14 +637,6 @@ namespace Ship_Game
             return new RectF(topLeft.X, topLeft.Y, (botRight.X - topLeft.X), (botRight.Y - topLeft.Y));
         }
 
-        public RectF ProjectToScreenRectF(in Vector3d center, in Vector2d size)
-        {
-            Vector3d worldTL = new Vector3d(center.X - size.X*0.5, center.Y - size.Y*0.5, center.Z);
-            Vector2d topLeft = ProjectToScreenPosition(worldTL);
-            Vector2d botRight = ProjectToScreenPosition(new Vector3d(worldTL.X + size.X, worldTL.Y + size.Y, center.Z));
-            return new RectF(topLeft.X, topLeft.Y, (botRight.X - topLeft.X), (botRight.Y - topLeft.Y));
-        }
-
         public Rectangle ProjectToScreenRect(in RectF worldRect)
         {
             Vector2d topLeft = ProjectToScreenPosition(new Vector2(worldRect.X, worldRect.Y));
@@ -683,35 +669,29 @@ namespace Ship_Game
             return sizeOnScreen;
         }
 
-        public Vector2d ProjectToScreenSize(in Vector2d sizeInWorld)
+        /// <summary>
+        /// Unprojects a screenSpace 2D point into a 3D world position
+        /// </summary>
+        public Vector3d UnprojectToWorldPosition3D(Vector2 screenSpace, double ZPlane)
         {
-            double sizeX = ProjectToScreenSize(sizeInWorld.X);
-            if (sizeInWorld.X == sizeInWorld.Y)
-                return new Vector2d(sizeX);
-            double sizeY = ProjectToScreenSize(sizeInWorld.Y);
-            return new Vector2d(sizeX, sizeY);
+            return Viewport.Unproject(screenSpace, ZPlane, in InverseViewProjection);
         }
 
         public Vector3d UnprojectToWorldPosition3D(Vector2 screenSpace)
         {
-            // nearPoint is the point inside the camera lens
-            Vector3d nearPoint = Viewport.Unproject(new Vector3d(screenSpace, 0.0), Projection, View);
-            // farPoint points away into the world
-            Vector3d farPoint = Viewport.Unproject(new Vector3d(screenSpace, 1.0), Projection, View);
+            return Viewport.Unproject(screenSpace, 0.0, in InverseViewProjection);
+        }
 
-            // get the direction towards the world plane
-            Vector3d offset = (farPoint - nearPoint);
-            Vector3d dir = offset.Normalized();
-
-            double num = -nearPoint.Z / dir.Z;
-            Vector3d pos2 = (nearPoint + dir * num);
-            return pos2;
+        public Vector2 UnprojectToWorldPosition(Vector2 screenSpace, double ZPlane)
+        {
+            return UnprojectToWorldPosition3D(screenSpace, ZPlane).ToVec2f();
         }
 
         public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)
         {
-            return UnprojectToWorldPosition3D(screenSpace).ToVec2f();
+            return UnprojectToWorldPosition3D(screenSpace, ZPlane: 0.0).ToVec2f();
         }
+
         public AABoundingBox2Dd UnprojectToWorldRect(in AABoundingBox2D screenR)
         {
             Vector3d topLeft  = UnprojectToWorldPosition3D(new Vector2(screenR.X1, screenR.Y1));
@@ -797,7 +777,7 @@ namespace Ship_Game
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, SubTexture overlay, Color overlayColor, float z = 0)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2d screenPos, out double screenRadius);
-            double scale = screenRadius / (overlay.Width * .5f);
+            double scale = screenRadius / (overlay.Width * 0.5f);
             Vector2 pos = screenPos.ToVec2f();
 
             ScreenManager.SpriteBatch.Draw(overlay, pos, overlayColor, 0f, overlay.CenterF, (float)scale, SpriteEffects.None, 1f);
@@ -824,18 +804,18 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawRectangle(posOnScreen, sizeOnScreen, rotation, color, thickness);
         }
 
-        public void DrawRectProjected(in AABoundingBox2D worldRect, Color color, float thickness = 1f)
+        public void DrawRectProjected(in AABoundingBox2D worldRect, Color color, float thickness = 1f, float zAxis = 0f)
         {
-            Vector2d tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
-            Vector2d br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
+            Vector2d tl = ProjectToScreenPosition(new Vector3d(worldRect.X1, worldRect.Y1, zAxis));
+            Vector2d br = ProjectToScreenPosition(new Vector3d(worldRect.X2, worldRect.Y2, zAxis));
             var screenRect = new AABoundingBox2Dd(tl, br);
             ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
         }
 
         public void DrawRectProjected(in AABoundingBox2Di worldRect, Color color, float thickness = 1f)
         {
-            Vector2d tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
-            Vector2d br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
+            Vector2d tl = ProjectToScreenPosition(new Vector3d(worldRect.X1, worldRect.Y1, 0f));
+            Vector2d br = ProjectToScreenPosition(new Vector3d(worldRect.X2, worldRect.Y2, 0f));
             var screenRect = new AABoundingBox2Dd(tl, br);
             ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
         }
