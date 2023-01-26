@@ -290,16 +290,18 @@ namespace Ship_Game
             Matrix cameraMatrix = Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
             SetViewMatrix(cameraMatrix);
 
+            SpriteRenderer sr = ScreenManager.SpriteRenderer;
+
             GraphicsDevice graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(0, MainTarget);
-            Render(batch, elapsed);
+            Render(sr, batch, elapsed);
             graphics.SetRenderTarget(0, null);
             
             OverlaysGroupTotalPerf.Start();
             {
                 UpdateFogOfWarInfluences(batch, graphics);
                 if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
-                    DrawColoredEmpireBorders(SR, batch, graphics);
+                    DrawColoredEmpireBorders(sr, batch, graphics);
 
                 // this draws the MainTarget RT which has the entire background and 3D ships
                 DrawMainRTWithFogOfWarEffect(batch, graphics);
