@@ -125,11 +125,12 @@ public sealed partial class ThreatMatrix
 
         void ObserveRivalsFrom(HashSet<ThreatCluster> observed, Vector2 pos, float scanRadius)
         {
-            ThreatCluster[] clusters = Threats.FindClusters(new(pos, scanRadius, GameObjectType.ThreatCluster)
+            SearchOptions opt = new(pos, scanRadius, GameObjectType.ThreatCluster)
             {
                 ExcludeLoyalty = Threats.Owner,
                 Type = GameObjectType.ThreatCluster,
-            });
+            };
+            ThreatCluster[] clusters = Threats.FindClusters(ref opt);
 
             for (int i = 0; i < clusters.Length; ++i)
             {
@@ -187,7 +188,7 @@ public sealed partial class ThreatMatrix
         {
             SearchOptions opt = new(ship.Position, clusterJoinRadius) { OnlyLoyalty = loyalty };
 
-            ThreatCluster[] clusters = Threats.FindClusters(opt);
+            ThreatCluster[] clusters = Threats.FindClusters(ref opt);
             if (clusters.Length == 0) // no existing cluster, add one
             {
                 return AddNewCluster(loyalty, ship);
@@ -218,7 +219,7 @@ public sealed partial class ThreatMatrix
                 if (c.Update.ObservedShips.NotEmpty)
                 {
                     SearchOptions opt = new(c.Position, c.Radius) { OnlyLoyalty = c.Loyalty };
-                    ThreatCluster[] clusters = Threats.FindClusters(opt);
+                    ThreatCluster[] clusters = Threats.FindClusters(ref opt);
                     if (clusters.Length > 1)
                     {
                         ThreatCluster root = ChooseBiggestCluster(clusters);

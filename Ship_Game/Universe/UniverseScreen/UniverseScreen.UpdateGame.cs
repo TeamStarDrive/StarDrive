@@ -238,37 +238,30 @@ namespace Ship_Game
             EmpireMiscPerf.Start();
             UpdateClickableItems();
 
-            UState.JunkList.ApplyPendingRemovals();
-
             if (anomalyManager != null)
             {
-                for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
+                for (int i = anomalyManager.AnomaliesList.Count - 1; i >= 0; --i)
                 {
                     Anomaly anomaly = anomalyManager.AnomaliesList[i];
-                    anomaly.Update(timeStep);
+                    anomaly?.Update(timeStep);
                 }
-
-                anomalyManager.AnomaliesList.ApplyPendingRemovals();
             }
 
             if (timeStep.FixedTime > 0)
             {
                 ExplosionManager.Update(this, timeStep.FixedTime);
 
-                using (BombList.AcquireReadLock())
+                for (int i = 0; i < BombList.Count; ++i)
                 {
-                    for (int i = 0; i < BombList.Count; ++i)
-                    {
-                        BombList[i]?.Update(timeStep);
-                    }
+                    BombList[i]?.Update(timeStep);
                 }
-                BombList.ApplyPendingRemovals();
 
                 Shields?.Update(timeStep);
                 FTLManager.Update(this, timeStep);
 
-                for (int index = 0; index < UState.JunkList.Count; ++index)
-                    UState.JunkList[index].Update(timeStep);
+                // update in reverse, to allow Update() to remove the junk
+                for (int i = UState.JunkList.Count - 1; i >= 0; --i)
+                    UState.JunkList[i]?.Update(timeStep);
             }
             EmpireMiscPerf.Stop();
         }
@@ -278,12 +271,6 @@ namespace Ship_Game
         {
             PreEmpirePerf.Start();
             {
-                if (!IsActive)
-                {
-                    ShowingSysTooltip = false;
-                    ShowingPlanetToolTip = false;
-                }
-
                 RecomputeFleetButtons(false);
 
                 if (SelectedShip != null)
@@ -421,7 +408,7 @@ namespace Ship_Game
         }
 
         // Thread safe input queue for running UI input on empire thread
-        readonly SafeQueue<Action> PendingSimThreadActions = new SafeQueue<Action>();
+        readonly SafeQueue<Action> PendingSimThreadActions = new();
         
         /// <summary>
         /// Invokes all Pending actions. This should only be called from ProcessTurns !!!

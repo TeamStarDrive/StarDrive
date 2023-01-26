@@ -195,7 +195,7 @@ namespace UnitTests
             UpdateSimScaleAndBounds();
         }
 
-        public void Draw(float deltaTime)
+        public void Draw()
         {
             SpriteBatch batch = Owner.Batch;
 

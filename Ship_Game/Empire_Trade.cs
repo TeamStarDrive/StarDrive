@@ -47,9 +47,9 @@ namespace Ship_Game
             TradeTreaties = tradeTreaties;
         }
 
-        public BatchRemovalCollection<Planet> TradingEmpiresPlanetList()
+        public Array<Planet> TradingEmpiresPlanetList()
         {
-            var list = new BatchRemovalCollection<Planet>();
+            var list = new Array<Planet>();
             foreach (Relationship rel in TradeTreaties)
             {
                 list.AddRange(rel.Them.OwnedPlanets);

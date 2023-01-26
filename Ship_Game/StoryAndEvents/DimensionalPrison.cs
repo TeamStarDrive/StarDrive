@@ -93,7 +93,7 @@ namespace Ship_Game
                 }
                 if (NumSpawnedRemnants == NumRemnantsToSpawn)
                 {
-                    Universe.Screen.anomalyManager.AnomaliesList.QueuePendingRemoval(this);
+                    Universe.Screen.anomalyManager.AnomaliesList.Remove(this);
                 }
             }
         }

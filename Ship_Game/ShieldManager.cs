@@ -11,7 +11,7 @@ namespace Ship_Game;
 public sealed class ShieldManager : IDisposable
 {
     readonly UniverseScreen Universe;
-    Shield[] VisibleShields = Empty<Shield>.Array;
+    public Shield[] VisibleShields = Empty<Shield>.Array;
     Shield[] VisiblePlanetShields = Empty<Shield>.Array;
 
     // these resources are managed by GameContentManager

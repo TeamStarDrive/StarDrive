@@ -44,7 +44,7 @@ namespace Ship_Game
         float OrbitalAssetsTimer; // X seconds per Orbital Assets update
 
         readonly Array<PlanetGridSquare> ReversedList = new();
-        readonly BatchRemovalCollection<SmallExplosion> Explosions = new();
+        readonly Array<SmallExplosion> Explosions = new();
 
         readonly float[] DistancesByRow = { 437f, 379f, 311f, 229f, 128f, 0f };
         readonly float[] WidthByRow     = { 110f, 120f, 132f, 144f, 162f, 183f };
@@ -245,15 +245,16 @@ namespace Ship_Game
             }
 
             DrawTroopDragDestinations();
-            
+
             base.Draw(batch, elapsed);
             batch.SafeEnd();
 
             batch.SafeBegin(SpriteBlendMode.Additive);
-            using (Explosions.AcquireReadLock())
+
+            for (int i = 0; i < Explosions.Count; ++i)
             {
-                foreach (SmallExplosion exp in Explosions)
-                    exp.Draw(batch);
+                SmallExplosion exp = Explosions[i];
+                exp.Draw(batch);
             }
             batch.SafeEnd();
 
@@ -748,16 +749,12 @@ namespace Ship_Game
                         pgs.TroopsHere[i].Update(elapsedTime);
             }
 
-            using (Explosions.AcquireWriteLock())
+            for (int i = Explosions.Count - 1; i >= 0; --i)
             {
-                foreach (SmallExplosion exp in Explosions)
-                {
-                    if (exp.Update(elapsedTime))
-                        Explosions.QueuePendingRemoval(exp);
-                }
-                Explosions.ApplyPendingRemovals();
+                SmallExplosion exp = Explosions[i];
+                if (exp.Update(elapsedTime))
+                    Explosions.Remove(exp);
             }
-            P.ActiveCombats.ApplyPendingRemovals();
 
             base.Update(elapsedTime);
         }
@@ -890,7 +887,7 @@ namespace Ship_Game
             Ship launched = tile.TroopsHere[0].Launch(tile);
             if (launched == null)
                 return false;
-            
+
             ActiveTile = null; // TODO: Handle ActiveTile in a better way?
             return true;
         }
@@ -899,8 +896,7 @@ namespace Ship_Game
         {
             if (IsDisposed) return;
             var exp = new SmallExplosion(TransientContent, grid, size);
-            using (Explosions.AcquireWriteLock())
-                Explosions.Add(exp);
+            Explosions.Add(exp);
         }
 
         struct PointSet

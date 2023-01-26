@@ -469,17 +469,19 @@ namespace Ship_Game
 
         private void DrawAnomalies(GraphicsDevice device)
         {
-            if (anomalyManager == null)
+            if (anomalyManager == null || anomalyManager.AnomaliesList.Count == 0)
                 return;
 
             RenderStates.BasicBlendMode(device, additive:true, depthWrite:true);
             SR.Begin(ViewProjection);
 
-            for (int x = 0; x < anomalyManager.AnomaliesList.Count; x++)
+            for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
             {
-                Anomaly anomaly = anomalyManager.AnomaliesList[x];
+                Anomaly anomaly = anomalyManager.AnomaliesList[i];
                 anomaly.Draw(SR);
             }
+
+            SR.End();
         }
 
         private void DrawAndUpdateParticles(DrawTimes elapsed, GraphicsDevice device)

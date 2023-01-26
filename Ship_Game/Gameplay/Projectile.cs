@@ -523,7 +523,8 @@ namespace Ship_Game.Gameplay
             else
             {
                 // update Position Velocity and Acceleration using Velocity Verlet
-                Vector2 acc = GetThrustAcceleration(a);
+                Vector2 acc = default;
+                GetThrustAcceleration(ref acc, a);
                 IntegratePosVelocityVerlet(dt, acc);
             }
 

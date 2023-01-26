@@ -74,8 +74,11 @@ public struct Vector2 : IEquatable<Vector2>
 
     [Pure] public readonly Vector2 ToRounded() => new((float)Math.Round(X), (float)Math.Round(Y));
     [Pure] public readonly Vector2 ToFloored() => new((float)Math.Floor(X), (float)Math.Floor(Y));
-    [Pure] public readonly float Length() => (float)Math.Sqrt(X*X + Y*Y);
-    [Pure] public readonly float SqLen() => X*X + Y*Y;
+    [Pure] public readonly float Length() => (float)Math.Sqrt((X*X) + (Y*Y));
+    [Pure] public readonly float SqLen() => (X*X) + (Y*Y);
+
+    // Returns true if any of the components IsNaN
+    [Pure] public readonly bool IsNaN() => float.IsNaN(X) || float.IsNaN(Y);
 
     // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f
     [Pure] public readonly Vector3 ToVec3() => new(X, Y, 0f);
@@ -89,7 +92,7 @@ public struct Vector2 : IEquatable<Vector2>
         double len = Math.Sqrt(X*X + Y*Y);
         return len > 0.000001 ? new Vector2((float)(X / len), (float)(Y / len)) : default;
     }
-    
+
     [Pure] public readonly Vector2 Normalized(float newMagnitude)
     {
         double len = Math.Sqrt(X*X + Y*Y) / newMagnitude;
@@ -123,7 +126,7 @@ public struct Vector2 : IEquatable<Vector2>
         float dy = Y - b.Y;
         return (float)Math.Sqrt(dx*dx + dy*dy);
     }
-    
+
     // Gets the Squared distance from source point a to destination b
     // This is faster than Vector2.Distance()
     [Pure] public readonly float SqDist(in Vector2 b)
@@ -132,7 +135,7 @@ public struct Vector2 : IEquatable<Vector2>
         float dy = Y - b.Y;
         return (dx*dx + dy*dy);
     }
-    
+
     // True if this given position is within the radius of Circle [center,radius]
     [Pure] public readonly bool InRadius(Vector2 center, float radius)
     {
@@ -140,7 +143,7 @@ public struct Vector2 : IEquatable<Vector2>
         float dy = Y - center.Y;
         return (dx*dx + dy*dy) <= (radius*radius);
     }
-    
+
     /// <summary>
     /// Geometric explanation of the Dot product
     /// When using two unit (direction) vectors a and b,

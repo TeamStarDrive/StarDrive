@@ -43,7 +43,9 @@ namespace Ship_Game
         readonly SubTexture[] StarTex;
 
         SubTexture CloudTex;
+        #pragma warning disable CA2213 // managed by screen.TransientContent
         Effect CloudEffect;
+        #pragma warning restore CA2213
         EffectParameter CloudEffectPos;
         Vector2 CloudPos;
 

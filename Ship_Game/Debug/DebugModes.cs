@@ -14,7 +14,8 @@ public enum DebugModes
     SpatialManager,
     Input,
     Tech,
-    Solar, // Sun timers, black hole data, pulsar radiation radius, InfluenceTree
+    Influence, // InfluenceTree
+    Solar, // Sun timers, black hole data, pulsar radiation radius
     War,
     Pirates,
     Remnants,

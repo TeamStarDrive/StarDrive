@@ -97,7 +97,7 @@ namespace Ship_Game
                 if (!dead) // Troops are still alive
                     return;
 
-                Planet.ActiveCombats.QueuePendingRemoval(this);
+                Planet.ActiveCombats.Remove(this);
                 AttackingTroop?.LevelUp();
             }
             else

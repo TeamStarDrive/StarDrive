@@ -19,7 +19,9 @@ using Ship_Game.AI;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.Legacy;
 using Ship_Game.Universe;
-using System.Linq;
+using Ship_Game.Utils;
+
+#pragma warning disable CA2237, RCS1194 // Mark ISerializable types with serializable
 
 namespace Ship_Game
 {
@@ -928,12 +930,12 @@ namespace Ship_Game
             return LoadEntities<SolarSystemData>(GatherFilesModOrVanilla("SolarSystems/Random", "xml"), "LoadSolarSystems");
         }
 
-        public static Texture2D LoadRandomLoadingScreen(GameContentManager content)
+        public static Texture2D LoadRandomLoadingScreen(GameContentManager transientContent)
         {
             FileInfo[] files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
 
             FileInfo file = files[RandomMath.InRange(0, files.Length)];
-            return content.LoadTexture(file);
+            return transientContent.LoadTexture(file);
         }
 
         // advice is temporary and only sticks around while loading
@@ -1317,17 +1319,17 @@ namespace Ship_Game
             }
         }
 
-        public static SubTexture SmallNebulaRandom()
+        public static SubTexture SmallNebulaRandom(RandomBase random)
         {
-            return SmallNebulae.RandItem().GetOrLoadTexture();
+            return random.RandItem(SmallNebulae).GetOrLoadTexture();
         }
-        public static SubTexture NebulaMedRandom()
+        public static SubTexture NebulaMedRandom(RandomBase random)
         {
-            return MedNebulae.RandItem().GetOrLoadTexture(); 
+            return random.RandItem(MedNebulae).GetOrLoadTexture(); 
         }
-        public static SubTexture NebulaBigRandom()
+        public static SubTexture NebulaBigRandom(RandomBase random)
         {
-            return BigNebulae.RandItem().GetOrLoadTexture();
+            return random.RandItem(BigNebulae).GetOrLoadTexture();
         }
         public static SubTexture BigNebula(int index)
         {

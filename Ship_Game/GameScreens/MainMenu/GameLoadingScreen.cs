@@ -13,7 +13,9 @@ namespace Ship_Game
         readonly ScreenMediaPlayer LoadingPlayer;
         readonly ScreenMediaPlayer SplashPlayer;
         Rectangle BridgeRect;
+        #pragma warning disable CA2213 // managed by Content Manager
         Texture2D BridgeTexture;
+        #pragma warning restore CA2213
         TaskResult LoadResult;
         readonly bool ShowSplash;
         readonly bool ResetResources;
@@ -27,7 +29,7 @@ namespace Ship_Game
             LoadingPlayer = new ScreenMediaPlayer(TransientContent);
             SplashPlayer  = new ScreenMediaPlayer(TransientContent);
         }
-        
+
         static string StatusText;
 
         public static void SetStatus(string category) => SetStatus(category, "");
@@ -169,11 +171,12 @@ namespace Ship_Game
             }
         }
 
-        protected override void Destroy()
+        protected override void Dispose(bool disposing)
         {
             LoadingPlayer.Dispose();
             SplashPlayer.Dispose();
-            base.Destroy();
+            LoadResult?.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

@@ -15,6 +15,8 @@ using Vector2d = SDGraphics.Vector2d;
 using Ship_Game.Universe;
 using Rectangle = SDGraphics.Rectangle;
 using System.Diagnostics;
+using SDGraphics.Sprites;
+using SDGraphics.Rendering;
 
 namespace Ship_Game
 {
@@ -35,7 +37,7 @@ namespace Ship_Game
             }
             if (SelectedPlanet != null && !LookingAtPlanet &&  viewState < UnivScreenState.GalaxyView)
             {
-                ProjectToScreenCoords(SelectedPlanet.Position, SelectedPlanet.Radius,
+                ProjectToScreenCoords(SelectedPlanet.Position3D, SelectedPlanet.Radius,
                                       out Vector2d planetPos, out double planetRadius);
                 if (planetRadius < 8.0)
                     planetRadius = 8.0;
@@ -59,25 +61,33 @@ namespace Ship_Game
             }
         }
 
+        // Test changing these in Debug Solar by holding comma/period and using UP/DOWN keys
+        Blend BorderBlendSrc = Blend.SourceAlphaSaturation; // Blend.InverseDestinationColor;
+        Blend BorderBlendDest = Blend.One;
 
         // Draws SSP - Subspace Projector influence
-        void DrawColoredEmpireBorders(SpriteBatch batch, GraphicsDevice graphics)
+        void DrawColoredEmpireBorders(SpriteRenderer draw3d, SpriteBatch batch, GraphicsDevice graphics)
         {
             DrawBorders.Start();
 
             graphics.SetRenderTarget(0, BorderRT);
             graphics.Clear(Color.TransparentBlack);
-            batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true);
-
-            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:false);
-            RenderStates.EnableSeparateAlphaBlend(graphics, Blend.One, Blend.One);
 
             // the node texture has a smooth fade, so we need to scale it by a lot to match the actual SSP radius
-            float scale = 1.5f;
+            float nodeScale = 1.8f;
+            float connectorScale = 1.5f;
+            float currentZ = 0;
             var nodeTex = ResourceManager.Texture("UI/node");
             var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
-            bool debug = false && DebugMode == DebugModes.Solar;
+            draw3d.Begin(ViewProjection);
+            // depth is needed for blending to work
+            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:true);
+            // enable additive only for the alpha channel, this will smoothly blend multiple
+            // overlapping gradient edges into nice blobs
+            RenderStates.EnableSeparateAlphaBlend(graphics, BorderBlendSrc, BorderBlendDest);
+            //RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
+            RenderStates.DisableAlphaTest(graphics);
 
             Empire[] empires = UState.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
@@ -94,17 +104,11 @@ namespace Ship_Game
                 for (int x = 0; x < nodes.Length; x++)
                 {
                     ref Empire.InfluenceNode inf = ref nodes[x];
-                    if (!inf.KnownToPlayer || !IsInFrustum(inf.Position, inf.Radius))
-                        continue;
-
-                    RectF screenRect = ProjectToScreenRectF(RectF.FromPointRadius(inf.Position, inf.Radius));
-                    screenRect = screenRect.ScaledBy(scale);
-                    batch.Draw(nodeTex, screenRect, empireColor, 0f, Vector2.Zero, SpriteEffects.None, 1f);
-
-                    if (debug)
+                    if (inf.KnownToPlayer && VisibleWorldRect.Overlaps(inf.Position, inf.Radius))
                     {
-                        //batch.DrawRectangle(screenRect, Color.Red); // DEBUG
-                        DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
+                        Quad3D nodeQuad = new(inf.Position, inf.Radius * nodeScale, zValue: currentZ);
+                        currentZ += 10f;
+                        draw3d.Draw(nodeTex, nodeQuad, empireColor);
                     }
                 }
 
@@ -114,41 +118,61 @@ namespace Ship_Game
                 {
                     Empire.InfluenceNode a = c.Node1;
                     Empire.InfluenceNode b = c.Node2;
-                    // if both nodes are out of screen, skip draw
-                    if (!IsInFrustum(a.Position, a.Radius) && !IsInFrustum(b.Position, b.Radius))
-                        continue;
-
-                    // The Connection is made of two rectangles, with O marking the influence centers
-                    // +-width-+O-width-+
-                    // |       ||       |
-                    // |       ||       |length
-                    // |       ||       |
-                    // +-------O+-------+
-                    float width = a.Radius * scale;
-                    float length = a.Position.Distance(b.Position);
-
-                    // from Bigger towards Smaller (only one side)
-                    RectF connect1 = ProjectToScreenRectF(new RectF(b.Position, width, length));
-                    float angle1 = a.Position.RadiansToTarget(b.Position);
-                    batch.Draw(connectTex, connect1, empireColor, angle1, Vector2.Zero, SpriteEffects.None, 10f);
-
-                    // from Smaller towards Bigger (the other side now)
-                    RectF connect2 = ProjectToScreenRectF(new RectF(a.Position, width, length));
-                    float angle2 = b.Position.RadiansToTarget(a.Position);
-                    batch.Draw(connectTex, connect2, empireColor, angle2, Vector2.Zero, SpriteEffects.None, 10f);
-
-                    if (debug)
+                    if (VisibleWorldRect.Overlaps(a.Position, a.Radius) ||
+                        VisibleWorldRect.Overlaps(b.Position, b.Radius))
                     {
-                        DebugWin?.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
-                        batch.DrawRectangle(connect1, angle1, Color.Green, 2); // DEBUG
-                        batch.DrawRectangle(connect2, angle2, Color.Yellow, 2); // DEBUG
-                        DrawLineProjected(b.Position, a.Position, Color.Red); // DEBUG
+                        // make a quad by reusing the Quad3D line constructor
+                        float width = 2.0f * a.Radius * connectorScale;
+                        Quad3D connectLine = new(a.Position, b.Position, width, zValue: currentZ);
+                        currentZ += 10f;
+                        draw3d.Draw(connectTex, connectLine, empireColor);
                     }
                 }
             }
 
             RenderStates.DisableSeparateAlphaChannelBlend(graphics);
-            batch.SafeEnd();
+            draw3d.End();
+
+            if (Debug && DebugWin != null && DebugMode == DebugModes.Solar)
+            {
+                batch.SafeBegin(SpriteBlendMode.AlphaBlend);
+                
+                if (Input.IsKeyDown(SDGraphics.Input.Keys.OemComma))
+                {
+                    if (Input.KeyPressed(SDGraphics.Input.Keys.Up)) BorderBlendSrc = BorderBlendSrc.IncrementWithWrap(-1);
+                    else if (Input.KeyPressed(SDGraphics.Input.Keys.Down)) BorderBlendSrc = BorderBlendSrc.IncrementWithWrap(+1);
+                }
+                if (Input.IsKeyDown(SDGraphics.Input.Keys.OemPeriod))
+                {
+                    if (Input.KeyPressed(SDGraphics.Input.Keys.Up)) BorderBlendDest = BorderBlendDest.IncrementWithWrap(-1);
+                    else if (Input.KeyPressed(SDGraphics.Input.Keys.Down)) BorderBlendDest = BorderBlendDest.IncrementWithWrap(+1);
+                }
+
+                DrawString(new(300, 200), Color.Red, $"SrcBlend: {BorderBlendSrc}  Change with COMMA+UP/DOWN keys", Fonts.Arial20Bold);
+                DrawString(new(300, 240), Color.Red, $"DstBlend: {BorderBlendDest}  Change with PERIOD+UP/DOWN keys", Fonts.Arial20Bold);
+
+                foreach (Empire empire in empires)
+                {
+                    Empire.InfluenceNode[] nodes = empire.BorderNodeCache.BorderNodes;
+                    for (int x = 0; x < nodes.Length; x++)
+                    {
+                        ref Empire.InfluenceNode inf = ref nodes[x];
+                        if (inf.KnownToPlayer && VisibleWorldRect.Overlaps(inf.Position, inf.Radius))
+                            DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
+                    }
+                    foreach (InfluenceConnection c in empire.BorderNodeCache.Connections)
+                    {
+                        Empire.InfluenceNode a = c.Node1;
+                        Empire.InfluenceNode b = c.Node2;
+                        if (VisibleWorldRect.Overlaps(a.Position, a.Radius) ||
+                            VisibleWorldRect.Overlaps(b.Position, b.Radius))
+                            DebugWin?.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
+                    }
+                }
+
+                batch.SafeEnd();
+            }
+
             graphics.SetRenderTarget(0, null);
 
             DrawBorders.Stop();
@@ -165,25 +189,23 @@ namespace Ship_Game
 
         void DrawOverlayShieldBubbles(SpriteBatch sb)
         {
-            if (ShowShipNames && !LookingAtPlanet)
+            if (ShowShipNames && !LookingAtPlanet &&
+                viewState <= UnivScreenState.SystemView && 
+                Shields != null && Shields.VisibleShields.Length != 0)
             {
                 var uiNode = ResourceManager.Texture("UI/node");
 
                 sb.SafeBegin(SpriteBlendMode.Additive);
-                for (int i = 0; i < ClickableShips.Length; i++)
+                for (int i = 0; i < Shields.VisibleShields.Length; i++)
                 {
-                    Ship ship = ClickableShips[i].Ship;
-                    if (ship.Active && ship.IsVisibleToPlayer)
+                    if (Shields.VisibleShields[i].Owner is ShipModule m)
                     {
-                        foreach (ShipModule m in ship.GetActiveShields())
-                        {
-                            ProjectToScreenCoords(m.Position, m.ShieldRadius * 2.75f, 
-                                out Vector2d posOnScreen, out double radiusOnScreen);
+                        ProjectToScreenCoords(m.Position, m.ShieldRadius * 2.75f, 
+                            out Vector2d posOnScreen, out double radiusOnScreen);
 
-                            float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;
-                            DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
-                                Shield.GetBubbleColor(shieldRate, m.ShieldBubbleColor));
-                        }
+                        float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;
+                        DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
+                            Shield.GetBubbleColor(shieldRate, m.ShieldBubbleColor));
                     }
                 }
                 sb.SafeEnd();
@@ -277,7 +299,7 @@ namespace Ship_Game
             {
                 UpdateFogOfWarInfluences(batch, graphics);
                 if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
-                    DrawColoredEmpireBorders(batch, graphics);
+                    DrawColoredEmpireBorders(SR, batch, graphics);
 
                 // this draws the MainTarget RT which has the entire background and 3D ships
                 DrawMainRTWithFogOfWarEffect(batch, graphics);
@@ -458,10 +480,9 @@ namespace Ship_Game
             if (ShowingRangeOverlay && !LookingAtPlanet)
             {
                 var shipRangeTex = ResourceManager.Texture("UI/node_shiprange");
-                foreach (ClickableShip clickable in ClickableShips)
+                foreach (Ship ship in UState.Objects.VisibleShips)
                 {
-                    Ship ship = clickable.Ship;
-                    if (ship != null &&  ship.IsVisibleToPlayer && ship.WeaponsMaxRange > 0f)
+                    if (ship is { WeaponsMaxRange: > 0f, IsVisibleToPlayer: true })
                     {
                         Color color = ship.Loyalty == Player
                                         ? new Color(0, 200, 0, 30)
@@ -494,25 +515,26 @@ namespace Ship_Game
             }
         }
 
+        // this is called quite rarely, only when ShowingFTLOverlay is enabled
         void DrawFTLInhibitionNodes()
         {
             if (ShowingFTLOverlay && UState.P.GravityWellRange > 0f && !LookingAtPlanet)
             {
                 var inhibit = ResourceManager.Texture("UI/node_inhibit");
-                foreach (ClickablePlanet cplanet in ClickablePlanets)
+
+                Planet[] visiblePlanets = UState.GetVisiblePlanets();
+                foreach (Planet planet in visiblePlanets)
                 {
-                    float radius = cplanet.Planet.GravityWellRadius;
-                    DrawCircleProjected(cplanet.Planet.Position, radius, new Color(255, 50, 0, 150), 1f,
-                                        inhibit, new Color(200, 0, 0, 50));
+                    DrawCircleProjected(planet.Position, planet.GravityWellRadius,
+                                        new Color(255, 50, 0, 150), 1f, inhibit, new Color(200, 0, 0, 50));
                 }
 
-                foreach (ClickableShip ship in ClickableShips)
+                foreach (Ship ship in UState.Objects.VisibleShips)
                 {
-                    if (ship.Ship != null && ship.Ship.InhibitionRadius > 0f && ship.Ship.IsVisibleToPlayer)
+                    if (ship is { InhibitionRadius: > 0f, IsVisibleToPlayer: true })
                     {
-                        float radius = ship.Ship.InhibitionRadius;
-                        DrawCircleProjected(ship.Ship.Position, radius, new Color(255, 50, 0, 150), 1f,
-                                            inhibit, new Color(200, 0, 0, 40));
+                        DrawCircleProjected(ship.Position, ship.InhibitionRadius, 
+                                            new Color(255, 50, 0, 150), 1f, inhibit, new Color(200, 0, 0, 40));
                     }
                 }
 
@@ -990,15 +1012,12 @@ namespace Ship_Game
 
         void DrawBombs()
         {
-            using (BombList.AcquireReadLock())
+            for (int i = BombList.Count - 1; i >= 0; --i)
             {
-                for (int i = 0; i < BombList.Count; i++)
+                Bomb bomb = BombList[i];
+                if (bomb?.Model != null)
                 {
-                    Bomb bomb = BombList[i];
-                    if (bomb.Model != null)
-                    {
-                        Projectile.DrawMesh(this, bomb.Model, bomb.World, bomb.Texture.Texture, scale:25f);
-                    }
+                    Projectile.DrawMesh(this, bomb.Model, bomb.World, bomb.Texture.Texture, scale:25f);
                 }
             }
         }

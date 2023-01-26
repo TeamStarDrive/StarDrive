@@ -172,10 +172,13 @@ namespace Ship_Game
                 return;
 
             var nodeTex = ResourceManager.Texture("UI/node1");
-            foreach (UniverseScreen.ClickablePlanet cplanet in Screen.ClickablePlanets)
+
+            Planet[] planets = Screen.UState.GetVisiblePlanets();
+
+            foreach (Planet planet in planets)
             {
-                float radius = 2500f * cplanet.Planet.Scale;
-                Screen.DrawCircleProjected(cplanet.Planet.Position, radius, new Color(255, 165, 0, 100), 2f,
+                float radius = 2500f * planet.Scale;
+                Screen.DrawCircleProjected(planet.Position, radius, new Color(255, 165, 0, 100), 2f,
                                            nodeTex, new Color(0, 0, 255, 100));
             }
 
@@ -194,20 +197,36 @@ namespace Ship_Game
                     scale = 0.15f;
 
                 Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
+                Vector2 cursorPos = Screen.Input.CursorPosition;
                 TargetPlanet = null;
                 TetherOffset = Vector2.Zero;
-                foreach (UniverseScreen.ClickablePlanet p in Screen.ClickablePlanets)
+
+                foreach (Planet planet in planets)
                 {
-                    if (p.Planet.Position.Distance(cursorWorldPos) <= (2500f * p.Planet.Scale))
+                    Vector2 planetPos = planet.Position;
+                    if (planetPos.Distance(cursorWorldPos) <= (2500f * planet.Scale))
                     {
-                        TetherOffset = cursorWorldPos - p.Planet.Position;
-                        TargetPlanet = p.Planet;
-                        batch.DrawLine(p.ScreenPos, Screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
-                        batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + p.Planet.Name,
-                            new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);
+                        TetherOffset = cursorWorldPos - planetPos;
+
+                        // FIX: there's a potential issue here reported in Sentry
+                        if (TetherOffset.IsNaN())
+                        {
+                            Log.Error($"NaN TetherOffset: {TetherOffset}  cursorWorldPos={cursorWorldPos} planetPos={planetPos}");
+                            TetherOffset = Vector2.Zero;
+                        }
+                        else
+                        {
+                            TargetPlanet = planet;
+
+                            Vector2 planetScreenPos = Screen.ProjectToScreenPosition(planet.Position).ToVec2f();
+                            batch.DrawLine(planetScreenPos, cursorPos, new Color(255, 165, 0, 150), 3f);
+                            batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + planet.Name, cursorPos + new Vector2(0, 34f), Color.White);
+                            break;
+                        }
                     }
                 }
-                batch.Draw(platform, Screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, (float)scale, SpriteEffects.None, 1f);
+
+                batch.Draw(platform, cursorPos, new Color(0, 255, 0, 100), 0f, IconOrigin, (float)scale, SpriteEffects.None, 1f);
             }
         }
 

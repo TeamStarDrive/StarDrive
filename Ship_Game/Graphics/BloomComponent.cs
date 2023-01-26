@@ -8,11 +8,12 @@ namespace Ship_Game
 {
     public sealed class BloomComponent : IDisposable
     {
-        readonly ScreenManager ScreenManager;
         readonly GraphicsDevice Device;
+        #pragma warning disable CA2213
         Effect bloomExtractEffect;
         Effect bloomCombineEffect;
         Effect gaussianBlurEffect;
+        #pragma warning restore CA2213
         ResolveTexture2D resolveTarget;
         RenderTarget2D renderTarget1;
         RenderTarget2D renderTarget2;
@@ -23,7 +24,6 @@ namespace Ship_Game
 
         public BloomComponent(ScreenManager screenManager)
         {
-            ScreenManager = screenManager;
             Device = screenManager.GraphicsDevice;
         }
 
@@ -96,16 +96,17 @@ namespace Ship_Game
 
         public void LoadContent()
         {
-            bloomExtractEffect = GameBase.Base.Content.Load<Effect>("Effects/BloomExtract");
-            bloomCombineEffect = GameBase.Base.Content.Load<Effect>("Effects/BloomCombine");
-            gaussianBlurEffect = GameBase.Base.Content.Load<Effect>("Effects/GaussianBlur");
+            // the effects are managed by the Root content manager
+            bloomExtractEffect = ResourceManager.RootContent.Load<Effect>("Effects/BloomExtract");
+            bloomCombineEffect = ResourceManager.RootContent.Load<Effect>("Effects/BloomCombine");
+            gaussianBlurEffect = ResourceManager.RootContent.Load<Effect>("Effects/GaussianBlur");
             PresentationParameters pp = Device.PresentationParameters;
             int width = pp.BackBufferWidth;
             int height = pp.BackBufferHeight;
             SurfaceFormat format = pp.BackBufferFormat;
             resolveTarget = new ResolveTexture2D(Device, width, height, 1, format);
-            width = width / 2;
-            height = height / 2;
+            width /= 2;
+            height /= 2;
             renderTarget1 = new RenderTarget2D(Device, width, height, 1, format);
             renderTarget2 = new RenderTarget2D(Device, width, height, 1, format);
             buffer = CreateDepthStencil(renderTarget1);
@@ -188,17 +189,18 @@ namespace Ship_Game
 
         public void Dispose()
         {
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        ~BloomComponent() { Destroy(); }
+        ~BloomComponent() { Dispose(false); }
 
-        void Destroy()
+        void Dispose(bool disposing)
         {
             Mem.Dispose(ref resolveTarget);
             Mem.Dispose(ref renderTarget1);
             Mem.Dispose(ref renderTarget2);
+            Mem.Dispose(ref buffer);
         }
     }
 }

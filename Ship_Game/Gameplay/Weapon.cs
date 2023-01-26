@@ -16,7 +16,7 @@ namespace Ship_Game.Gameplay
     public class Weapon : WeaponTemplateWrapper, IDisposable, IDamageModifier
     {
         [XmlIgnore]  public Ship Owner { get; set; }
-        [XmlIgnore]  AudioHandle ToggleCue = new AudioHandle();
+        [XmlIgnore]  AudioHandle ToggleCue = new();
         // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
         public Vector2 PlanetOrigin;
         [XmlIgnore]  public ShipModule Module;
@@ -677,13 +677,13 @@ namespace Ship_Game.Gameplay
 
         public void Dispose()
         {
-            Destroy();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        ~Weapon() { Destroy(); }
+        ~Weapon() { Dispose(false); }
 
-        void Destroy()
+        protected virtual void Dispose(bool disposing)
         {
             ToggleCue?.Destroy();
             ToggleCue = null;
