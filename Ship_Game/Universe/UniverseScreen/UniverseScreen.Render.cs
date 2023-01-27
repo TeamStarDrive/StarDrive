@@ -16,28 +16,28 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        public void DrawStarField(SpriteBatch batch)
+        public void DrawStarField(SpriteRenderer sr, SpriteBatch batch)
         {
             if (GlobalStats.DrawStarfield)
             {
-                bg?.Draw(SR, batch);
+                bg?.Draw(sr, batch);
             }
         }
 
-        public void DrawNebulae(GraphicsDevice device)
+        public void DrawNebulae(SpriteRenderer sr)
         {
             if (GlobalStats.DrawNebulas)
             {
-                bg3d?.Draw(SR);
+                bg3d?.Draw(sr);
             }
         }
 
-        void RenderBackdrop(SpriteBatch batch)
+        void RenderBackdrop(SpriteRenderer sr, SpriteBatch batch)
         {
             BackdropPerf.Start();
 
-            DrawStarField(batch);
-            DrawNebulae(Device);
+            DrawStarField(sr, batch);
+            DrawNebulae(sr);
 
             batch.SafeBegin();
 
@@ -414,9 +414,9 @@ namespace Ship_Game
                 != ContainmentType.Disjoint; // Disjoint: no intersection at all
         }
 
-        void Render(SpriteBatch batch, DrawTimes elapsed)
+        void Render(SpriteRenderer sr, SpriteBatch batch, DrawTimes elapsed)
         {
-            if (IsDisposed || SR == null)
+            if (IsDisposed)
                 return;
 
             RenderGroupTotalPerf.Start();
@@ -429,7 +429,7 @@ namespace Ship_Game
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
             BeginSunburnPerf.Stop();
 
-            RenderBackdrop(batch);
+            RenderBackdrop(sr, batch);
 
             RenderStates.BasicBlendMode(Device, additive:false, depthWrite:true);
             RenderStates.EnableMultiSampleAA(Device);
@@ -447,7 +447,7 @@ namespace Ship_Game
             }
             SunburnDrawPerf.Stop();
 
-            DrawAnomalies(Device);
+            DrawAnomalies(sr);
             DrawPlanets();
 
             EndSunburnPerf.Start();
@@ -467,21 +467,21 @@ namespace Ship_Game
             RenderStates.EnableDepthWrite(Device);
         }
 
-        private void DrawAnomalies(GraphicsDevice device)
+        private void DrawAnomalies(SpriteRenderer sr)
         {
             if (anomalyManager == null || anomalyManager.AnomaliesList.Count == 0)
                 return;
 
-            RenderStates.BasicBlendMode(device, additive:true, depthWrite:true);
-            SR.Begin(ViewProjection);
+            RenderStates.BasicBlendMode(sr.Device, additive:true, depthWrite:true);
+            sr.Begin(ViewProjection);
 
             for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
             {
                 Anomaly anomaly = anomalyManager.AnomaliesList[i];
-                anomaly.Draw(SR);
+                anomaly.Draw(sr);
             }
 
-            SR.End();
+            sr.End();
         }
 
         private void DrawAndUpdateParticles(DrawTimes elapsed, GraphicsDevice device)

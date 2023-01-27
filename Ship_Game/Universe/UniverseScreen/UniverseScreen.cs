@@ -30,8 +30,6 @@ namespace Ship_Game
         // The non-visible state of the Universe
         public readonly UniverseState UState;
 
-        SpriteRenderer SR;
-
         public string StarDateString => UState.StarDate.StarDateString();
         public float LastAutosaveTime = 0;
 
@@ -441,7 +439,6 @@ namespace Ship_Game
             int height  = GameBase.ScreenHeight;
 
             Particles = new ParticleManager(TransientContent);
-            SR = new SpriteRenderer(device);
 
             if (GlobalStats.DrawStarfield)
             {
@@ -642,7 +639,7 @@ namespace Ship_Game
 
         void UnloadGraphics()
         {
-            if (SR == null)
+            if (MainTarget == null)
                 return;
             if (!GlobalStats.IsUnitTest)
                 Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
@@ -650,11 +647,10 @@ namespace Ship_Game
             Mem.Dispose(ref bg);
             Mem.Dispose(ref FogMap);
             Mem.Dispose(ref FogMapTarget);
-            Mem.Dispose(ref BorderRT);
             Mem.Dispose(ref MainTarget);
+            Mem.Dispose(ref BorderRT);
             Mem.Dispose(ref LightsTarget);
             Mem.Dispose(ref Particles);
-            Mem.Dispose(ref SR);
             Mem.Dispose(ref Shields);
             Mem.Dispose(ref aw);
             Mem.Dispose(ref DebugWin);
