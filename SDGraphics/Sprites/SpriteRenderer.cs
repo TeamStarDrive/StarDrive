@@ -21,7 +21,6 @@ public sealed class SpriteRenderer : IDisposable
 
     // Since we are always drawing Quads, the index buffer can be pre-calculated and shared
     internal IndexBuffer IndexBuf;
-    internal ushort[] Indices;
 
     internal Shader Simple;
     internal readonly EffectPass SimplePass;
@@ -51,7 +50,7 @@ public sealed class SpriteRenderer : IDisposable
         SetColor(Color.White);
 
         // lastly, create buffers
-        (IndexBuf, Indices) = CreateIndexBuffer(device);
+        IndexBuf = CreateIndexBuffer(device);
     }
 
     public void Dispose()
@@ -177,7 +176,7 @@ public sealed class SpriteRenderer : IDisposable
     }
 
     // creates a completely reusable index buffer
-    static (IndexBuffer, ushort[]) CreateIndexBuffer(GraphicsDevice device)
+    static IndexBuffer CreateIndexBuffer(GraphicsDevice device)
     {
         const int numQuads = MaxBatchSize / 6;
 
@@ -196,7 +195,7 @@ public sealed class SpriteRenderer : IDisposable
 
         IndexBuffer indexBuf = new(device, typeof(ushort), indices.Length, BufferUsage.WriteOnly);
         indexBuf.SetData(indices);
-        return (indexBuf, indices);
+        return indexBuf;
     }
 
     internal void ShaderBegin(Texture2D texture, Color color)
