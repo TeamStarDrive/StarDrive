@@ -19,7 +19,7 @@ internal sealed class SpriteVertexBuffer : IDisposable
     DynamicVertexBuffer VertexBuffer;
 
     // all of the quads
-    readonly VertexCoordColor[] Quads;
+    public readonly VertexCoordColor[] Quads;
 
     // no more free quads in this buffer
     public bool IsFull => Count == Size;
@@ -52,52 +52,51 @@ internal sealed class SpriteVertexBuffer : IDisposable
         FirstPending = 0;
     }
 
-    public void Add(in Quad3D quad, in Quad2D coords, Color color)
+    public unsafe void Add(in Quad3D quad, in Quad2D coords, Color color)
     {
         int vertexOffset = Count * 4;
         ++Count;
-        Quads[vertexOffset + 0] = new(quad.A, color, coords.A); // TopLeft
-        Quads[vertexOffset + 1] = new(quad.B, color, coords.B); // TopRight
-        Quads[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
-        Quads[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
-    }
 
-    void UploadPending()
-    {
-        DynamicVertexBuffer vbo = VertexBuffer;
-
-        // Restore the vertex buffer contents if the graphics device was lost.
-        // Or just send all data if numPending == Size
-        int numPending = Count - FirstPending;
-        if (vbo.IsContentLost || numPending == Size)
+        fixed (VertexCoordColor* quads = Quads)
         {
-            vbo.SetData(Quads);
+            VertexCoordColor* q0 = (quads + vertexOffset);
+            VertexCoordColor* q1 = (quads + vertexOffset + 1);
+            VertexCoordColor* q2 = (quads + vertexOffset + 2);
+            VertexCoordColor* q3 = (quads + vertexOffset + 3);
+            q0->Position = quad.A; q0->Color = color; q0->Coords = coords.A; // TopLeft
+            q1->Position = quad.B; q1->Color = color; q1->Coords = coords.B; // TopRight
+            q2->Position = quad.C; q2->Color = color; q2->Coords = coords.C; // BotRight
+            q3->Position = quad.D; q3->Color = color; q3->Coords = coords.D; // BotLeft
         }
-        else // upload quads to the GPU
-        {
-            try
-            {
-                const int stride = VertexCoordColor.SizeInBytes;
-                vbo.SetData(0, Quads, FirstPending, numPending * 4, stride, SetDataOptions.NoOverwrite);
-            }
-            catch // if this fails for some reason, just send all data
-            {
-                vbo.SetData(Quads);
-            }
-        }
-
-        FirstPending = Count; // upload complete
     }
 
     public void Draw(SpriteRenderer sr, Texture2D texture, int startIndex, int drawCount)
     {
         DynamicVertexBuffer vbo = VertexBuffer;
-        int count = Count;
-        if (count <= 0 || vbo == null || drawCount <= 0)
-            return;
 
-        if (FirstPending != count)
-            UploadPending();
+        if (FirstPending != Count)
+        {
+            // Restore the vertex buffer contents if the graphics device was lost.
+            // Or just send all data if numPending == Size
+            int numPending = Count - FirstPending;
+            if (vbo.IsContentLost || numPending == Size)
+            {
+                vbo.SetData(Quads);
+            }
+            else // upload quads to the GPU
+            {
+                try
+                {
+                    const int stride = VertexCoordColor.SizeInBytes;
+                    vbo.SetData(0, Quads, FirstPending, numPending * 4, stride, SetDataOptions.NoOverwrite);
+                }
+                catch // if this fails for some reason, just send all data
+                {
+                    vbo.SetData(Quads);
+                }
+            }
+            FirstPending = Count; // upload complete
+        }
 
         GraphicsDevice device = sr.Device;
         // set the vertex buffer
