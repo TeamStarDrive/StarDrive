@@ -25,7 +25,9 @@ namespace Ship_Game
             UpdatePositionOnly();
             InitPlanetType(PType, Scale, fromSave: true);
 
-            ResetHasDynamicBuildings();
+            foreach (Building b in BuildingList)
+                UpdatePlanetStatsFromPlacedBuilding(b);
+
             UpdateMaxPopulation();
             UpdateIncomes();
         }

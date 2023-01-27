@@ -170,7 +170,6 @@ namespace Ship_Game
             float preDefinedPop = data?.MaxPopDefined ?? 0f;
             CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);
             InitializeWorkerDistribution(Owner);
-            HasSpacePort = true;
             if (!ParentSystem.OwnerList.Contains(Owner))
                 ParentSystem.OwnerList.Add(Owner);
 
