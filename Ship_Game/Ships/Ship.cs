@@ -1505,9 +1505,6 @@ namespace Ship_Game.Ships
             Mothership?.OnLaunchedShipDie(this);
             QueueTotalRemoval(); // sets Active=false
             
-            pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
-            pSource?.Module?.GetParent().AddKill(this);
-
             bool visible = IsVisibleToPlayer;
             Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);
             Carrier.ScuttleHangarShips();
