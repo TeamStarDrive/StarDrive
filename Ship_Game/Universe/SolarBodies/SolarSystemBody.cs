@@ -517,7 +517,7 @@ namespace Ship_Game
             var thisPlanet = (Planet)this;
 
             thisPlanet.Construction.ClearQueue();
-            thisPlanet.UpdateTerraformPoints(0);
+            thisPlanet.TerraformPoints = 0;
             thisPlanet.SetHomeworld(false);
             foreach (PlanetGridSquare planetGridSquare in TilesList)
                 planetGridSquare.QItem = null;
@@ -657,6 +657,15 @@ namespace Ship_Game
         public int SumBuildings(Func<Building, int> selector)
         {
             return BuildingList.Sum(selector);
+        }
+
+        /// <summary>
+        /// Finds the building with the Maximum selected value, example:
+        /// Building mostExpensive = planet.FindMaxBuilding(b => b.Cost);
+        /// </summary>
+        public Building FindMaxBuilding(Func<Building, float> selector)
+        {
+            return BuildingList.FindMax(selector);
         }
     }
 }

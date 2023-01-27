@@ -707,95 +707,6 @@ namespace Ship_Game
             Owner?.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
-        /// <summary>
-        ///  This will not Destroy Volcanoes. Use static Volcano.RemoveVolcano if you want to remove a Volcano
-        /// </summary>
-        public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
-
-        public void DestroyBioSpheres(PlanetGridSquare tile, bool destroyBuilding = true)
-        {
-            if (!tile.VolcanoHere && destroyBuilding)
-                DestroyBuildingOn(tile);
-
-            tile.Habitable = false;
-            if (tile.QItem is { isBuilding: true } && !tile.QItem.Building.CanBuildAnywhere)
-                Construction.Cancel(tile.QItem);
-
-            if (tile.Biosphere)
-                ClearBioSpheresFromList(tile);
-            else
-                tile.Terraformable = RandomMath.RollDice(50);
-
-            UpdateMaxPopulation();
-        }
-
-        public void ScrapBuilding(Building b, PlanetGridSquare tile = null)
-        {
-            RemoveBuildingFromPlanet(b, tile, refund:true);
-            ProdHere += b.ActualCost / 2f;
-        }
-
-        public void DestroyBuildingOn(PlanetGridSquare tile) => RemoveBuildingFromPlanet(null, tile, refund:false);
-        public void DestroyBuilding(Building b) => RemoveBuildingFromPlanet(b, null, refund:false);
-
-        void RemoveBuildingFromPlanet(Building b, PlanetGridSquare tile, bool refund)
-        {
-            b ??= tile?.Building;
-            if (b == null)
-                return;
-
-            // only trigger removal effects once -- we shouldn't touch
-            // TilesList unless the building was actually in the BuildingList
-            if (BuildingList.Remove(b))
-            {
-                tile ??= TilesList.Find(t => t.Building == b);
-                if (tile != null)
-                {
-                    tile.ClearBuilding();
-                    // TODO: we need a better cleanup of planetary tiles,
-                    //       current system with CrashSites and Volcanoes is too fragile
-                    tile.CrashSite = null;
-                }
-                else
-                {
-                    Log.Error("Failed to find tile with building");
-                }
-
-                // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
-                // environment buildings can be scrapped and the planet will slowly recover
-                BuildingsFertility -= b.MaxFertilityOnBuild;
-                MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
-
-                if (b.IsTerraformer && !TerraformingHere)
-                    UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
-
-                if (refund)
-                    Owner?.RefundCreditsPostRemoval(b);
-
-                if (b.SensorRange > 0)
-                    OnSensorBuildingChange();
-
-                UpdatePlanetStatsFromRemovedBuilding(b);
-            }
-        }
-
-        void OnSensorBuildingChange()
-        {
-            UpdateIncomes();
-            if (Owner != null)
-                Owner.ForceUpdateSensorRadiuses = true;
-        }
-
-        // TODO: actually remove Biospheres properly
-        public void ClearBioSpheresFromList(PlanetGridSquare tile)
-        {
-            tile.Biosphere = false;
-
-            var biosphere = FindBuilding(b => b.IsBiospheres);
-            if (biosphere != null)
-                BuildingList.Remove(biosphere);
-        }
-
         public bool InSafeDistanceFromRadiation()
         {
             return ParentSystem.InSafeDistanceFromRadiation(Position);
@@ -901,7 +812,7 @@ namespace Ship_Game
             int numBaseHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
             PopulationBonus    = SumBuildings(b => !b.IsBiospheres ? b.MaxPopIncrease : 0);
             MaxPopValFromTiles = (BasePopPerTile * numBaseHabitableTiles) 
-                                    + CountBuildings(b => b.IsBiospheres) * BasePopPerBioSphere;
+                               + CountBuildings(b => b.IsBiospheres) * BasePopPerBioSphere;
 
             MaxPopValFromTiles = MaxPopValFromTiles.LowerBound(BasePopPerTile / 2);
             MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
@@ -1060,56 +971,11 @@ namespace Ship_Game
             if (Owner == null)
                 return;
 
-            bool spacePort = false;
-            bool allowInfantry = false;
-            float totalStorage = 0;
-            float sensorRange  = 0;
-            float projectorRange = 0;
-            SensorRange = 0;
-            InfraStructure = 1;
-            RepairMultiplier = 0;
-            TerraformToAdd = 0;
-            ShieldStrengthMax = 0;
-            TotalDefensiveStrength = 0;
-            PlusFlatPopulationPerTurn = 0;
+            UpdateMaxPopulation();
 
             // NumShipyards is either calculated before or loaded from a save
             ShipCostModifier = GetShipCostModifier(NumShipyards);
-
-            foreach (Building b in Buildings)
-            {
-                totalStorage += b.StorageAdded;
-                RepairMultiplier += b.ShipRepair;
-                PlusFlatPopulationPerTurn += b.PlusFlatPopulation;
-                ShieldStrengthMax += b.PlanetaryShieldStrengthAdded;
-                TerraformToAdd += b.PlusTerraformPoints;
-                InfraStructure += b.Infrastructure;
-
-                if (b.SensorRange > sensorRange)
-                    sensorRange = b.SensorRange;
-
-                projectorRange = Math.Max(projectorRange, b.ProjectorRange + Radius);
-                allowInfantry |= b.AllowInfantry;
-                if (b.WinsGame)
-                    HasWinBuilding = true;
-            }
-
-            AllowInfantry = allowInfantry;
-            InfraStructure = InfraStructure.LowerBound(1);
-            RepairMultiplier = RepairMultiplier.LowerBound(0);
-
-            if (GlobalStats.Defaults.UsePlanetaryProjection)
-                ProjectorRange = projectorRange;
-
-            TerraformToAdd /= Scale; // Larger planets take more time to terraform, visa versa for smaller ones
-
-            SetSensorRange(sensorRange);
-            UpdateMaxPopulation();
             TotalDefensiveStrength = (int)Troops.GroundStrength(Owner);
-
-            ShieldStrengthMax *= 1 + Owner.data.ShieldPowerMod;
-            // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
-            ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
 
             // greedy bastards
             Consumption = (ConsumptionPerColonist * PopulationBillion) + TotalTroopConsumption;
@@ -1117,13 +983,6 @@ namespace Ship_Game
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
             Money.Update();
-
-            Storage.Max = totalStorage.Clamped(10f, 10000000f);
-        }
-
-        public void SetSensorRange(float value)
-        {
-            SensorRange = value.LowerBound(Radius + 2000) * (Owner?.data.SensorModifier ?? 1);
         }
 
         public float GetProjectorRadius(Empire owner)
@@ -1529,7 +1388,7 @@ namespace Ship_Game
             if (Owner == null)
                 return;
 
-            UpdateTerraformPoints(0);
+            TerraformPoints = 0;
             Construction.ClearQueue();
 
             if (IsExploredBy(Universe.Player) && (OwnerIsPlayer || attacker.isPlayer))

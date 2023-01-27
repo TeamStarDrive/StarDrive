@@ -226,6 +226,47 @@ public partial class Planet
     }
 
     /// <summary>
+    ///  This will not Destroy Volcanoes. Use static Volcano.RemoveVolcano if you want to remove a Volcano
+    /// </summary>
+    public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
+
+    public void DestroyBioSpheres(PlanetGridSquare tile, bool destroyBuilding = true)
+    {
+        if (!tile.VolcanoHere && destroyBuilding)
+            DestroyBuildingOn(tile);
+
+        tile.Habitable = false;
+        if (tile.QItem is { isBuilding: true } && !tile.QItem.Building.CanBuildAnywhere)
+            Construction.Cancel(tile.QItem);
+
+        if (tile.Biosphere)
+            ClearBioSpheresFromList(tile);
+        else
+            tile.Terraformable = RandomMath.RollDice(50);
+
+        UpdateMaxPopulation();
+    }
+
+    public void ScrapBuilding(Building b, PlanetGridSquare tile = null)
+    {
+        RemoveBuildingFromPlanet(b, tile, refund:true);
+        ProdHere += b.ActualCost / 2f;
+    }
+
+    public void DestroyBuildingOn(PlanetGridSquare tile) => RemoveBuildingFromPlanet(null, tile, refund:false);
+    public void DestroyBuilding(Building b) => RemoveBuildingFromPlanet(b, null, refund:false);
+
+    // TODO: actually remove Biospheres properly
+    void ClearBioSpheresFromList(PlanetGridSquare tile)
+    {
+        tile.Biosphere = false;
+
+        var biosphere = FindBuilding(b => b.IsBiospheres);
+        if (biosphere != null)
+            BuildingList.Remove(biosphere);
+    }
+
+    /// <summary>
     /// Places a building at `tile`. This should be the only way to add a building to the planet!
     /// </summary>
     public void PlaceBuildingAt(PlanetGridSquare tile, Building b)
@@ -239,6 +280,9 @@ public partial class Planet
         BuildingsFertility += b.MaxFertilityOnBuild;
         MineralRichness += b.IncreaseRichness.LowerBound(0); // This must be positive. since richness cannot go below 0.
 
+        if (b.IsCapital)
+            RemoveOutpost();
+
         UpdatePlanetStatsFromPlacedBuilding(b);
 
         // TODO: call some kind of event manager instead of dealing with screenmanager here
@@ -248,14 +292,36 @@ public partial class Planet
             ExplorationEvent e = ResourceManager.Event(b.EventOnBuild);
             u.ScreenManager.AddScreen(new EventPopup(u, u.Player, e, e.PotentialOutcomes[0], true, this));
         }
+    }
+    
+    void RemoveBuildingFromPlanet(Building b, PlanetGridSquare tile, bool refund)
+    {
+        b ??= tile?.Building;
+        if (b == null)
+            return;
 
-        if (b.IsCapital)
-            RemoveOutpost();
+        // only trigger removal effects once -- we shouldn't touch
+        // TilesList unless the building was actually in the BuildingList
+        if (BuildingList.Remove(b))
+        {
+            tile ??= TilesList.Find(t => t.Building == b);
+            if (tile != null)
+            {
+                tile.ClearBuilding();
+                // TODO: we need a better cleanup of planetary tiles,
+                //       current system with CrashSites and Volcanoes is too fragile
+                tile.CrashSite = null;
+            }
+            else
+            {
+                Log.Error("Failed to find tile with building");
+            }
 
-        if (b.SensorRange > 0)
-            OnSensorBuildingChange();
+            if (refund)
+                Owner?.RefundCreditsPostRemoval(b);
 
-        b.UpdateOffense(this);
+            UpdatePlanetStatsFromRemovedBuilding(b);
+        }
     }
 
     // this should update planet stats based on buildings
@@ -276,6 +342,12 @@ public partial class Planet
         HasOutpost |= b.IsOutpost;
         HasAnomaly |= b.EventHere;
         HasDynamicBuildings |= b.IsDynamicUpdate;
+        AllowInfantry |= b.AllowInfantry;
+        HasWinBuilding |= b.WinsGame;
+
+        if (b.SensorRange > 0 && Owner != null)
+            Owner.ForceUpdateSensorRadiuses = true;
+        b.UpdateOffense(this);
     }
 
     void UpdatePlanetStatsFromRemovedBuilding(Building b)
@@ -287,17 +359,31 @@ public partial class Planet
 
         if (b.IsTerraformer || b.IsEventTerraformer)
             TerraformingHere = HasBuilding(bb => bb.IsTerraformer || bb.IsEventTerraformer);
+        
+        // FB - no terraformers present, terraform effort halted
+        if (b.IsTerraformer && !TerraformingHere)
+            TerraformPoints = 0;
 
         if (b.IsCapital) HasCapital = false;
         if (b.IsOutpost) HasOutpost = false;
         if (b.EventHere) HasAnomaly = HasBuilding(bb => bb.EventHere);
         if (b.IsDynamicUpdate) HasDynamicBuildings = HasBuilding(bb => bb.IsDynamicUpdate);
+        if (b.AllowInfantry) AllowInfantry = HasBuilding(bb => bb.AllowInfantry);
+
+        if (b.SensorRange > 0 && Owner != null)
+            Owner.ForceUpdateSensorRadiuses = true;
+
+        // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
+        // environment buildings can be scrapped and the planet will slowly recover
+        BuildingsFertility -= b.MaxFertilityOnBuild;
+        MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
     }
 
     // path where full recalculation is done
     void UpdatePlanetStatsByRecalculation()
     {
         TotalBuildings = TilesList.Count(tile => tile.BuildingOnTile);
+        Storage.Max = SumBuildings(bb => bb.StorageAdded).Clamped(10, 10000000);
         TerraformersHere = CountBuildings(bb => bb.IsTerraformer || bb.IsEventTerraformer);
 
         TotalInvadeInjure = SumBuildings(b => b.InvadeInjurePoints);
@@ -310,5 +396,24 @@ public partial class Planet
         TotalHabitableTiles = TilesList.Count(tile => tile.Habitable);
         TotalMoneyBuildings = TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);
         MoneyBuildingRatio = (float)TotalMoneyBuildings / TotalBuildings;
+
+        float sensorRange = FindMaxBuilding(bb => bb.SensorRange)?.SensorRange ?? 0;
+        SensorRange = sensorRange.LowerBound(Radius + 10_000) * (Owner?.data.SensorModifier ?? 1);
+
+        float projectorRange = FindMaxBuilding(bb => bb.ProjectorRange)?.ProjectorRange ?? 0;
+        ProjectorRange = projectorRange + Radius;
+
+        InfraStructure = SumBuildings(bb => bb.Infrastructure).LowerBound(1);
+
+        // Larger planets take more time to terraform, visa versa for smaller ones
+        TerraformToAdd = SumBuildings(bb => bb.PlusTerraformPoints) / Scale;
+
+        PlusFlatPopulationPerTurn = SumBuildings(bb => bb.PlusFlatPopulation);
+
+        ShieldStrengthMax = SumBuildings(bb => bb.PlanetaryShieldStrengthAdded);
+        ShieldStrengthMax *= 1 + (Owner?.data.ShieldPowerMod ?? 0);
+        ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0, ShieldStrengthMax);
+
+        RepairMultiplier = SumBuildings(bb => bb.ShipRepair).LowerBound(0);
     }
 }

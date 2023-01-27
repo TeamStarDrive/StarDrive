@@ -1,6 +1,5 @@
 using System.Xml.Serialization;
 using SDGraphics;
-using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
