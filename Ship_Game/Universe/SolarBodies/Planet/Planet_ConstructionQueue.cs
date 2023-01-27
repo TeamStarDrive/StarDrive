@@ -1,6 +1,5 @@
 ﻿using Ship_Game.AI;
 using Ship_Game.Ships;
-using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
@@ -208,26 +207,9 @@ public partial class Planet
         return Storage.Max - effectiveProd; // Negative means we have excess prod
     }
 
-    public Array<Ship> GetAllShipsInQueue() => ShipRolesInQueue(null);
-
-    public bool IsColonyShipInQueue()       => FirstShipRoleInQueue(RoleName.colony) != null;
+    public bool IsColonyShipInQueue() => FirstShipRoleInQueue(RoleName.colony) != null;
     public bool IsColonyShipInQueue(Goal g) => ConstructionQueue.Any(q => q.isShip && q.Goal == g);
 
-    public Array<Ship> ShipRolesInQueue(RoleName[] roles)
-    {
-        var ships = new Array<Ship>();
-        foreach (var s in ConstructionQueue)
-        {
-            if (s.isShip)
-            {
-                var ship = ResourceManager.GetShipTemplate(s.ShipData.Name);
-                if (roles == null || roles.Contains(ship.DesignRole))
-                    ships.Add(ship);
-            }
-
-        }
-        return ships;
-    }
     public Ship FirstShipRoleInQueue(RoleName role)
     {
         foreach (var s in ConstructionQueue)
@@ -241,39 +223,6 @@ public partial class Planet
 
         }
         return null;
-    }
-
-    public float MaintenanceCostOfShipsInQueue() => MaintenanceCostOfShipRolesInQueue(null);
-    public float MaintenanceCostOfDefensiveOrbitalsInQueue()
-    {
-        var roles = new[]
-        {
-            RoleName.station,
-            RoleName.platform
-        };
-        return MaintenanceCostOfShipRolesInQueue(roles);
-    }
-
-    public float MaintenanceCostOfShipRolesInQueue(RoleName[] roles)
-    {
-        float cost =0 ;
-        var ships = GetAllShipsInQueue();
-        foreach(Ship ship in ships)
-        {
-            if (roles == null || roles.Contains(ship.DesignRole))
-                cost += ship.GetMaintCost(Owner);
-        }
-        return cost;
-    }
-
-    public bool HasColonyShipFirstInQueue()
-    {
-        return ConstructionQueue.Count > 0 && ConstructionQueue[0].Goal?.Type == GoalType.MarkForColonization;
-    }
-
-    public int NumColonyShipInQueue()
-    {
-        return ConstructionQueue.Count(q => q.isShip && q.ShipData.IsColonyShip);
     }
 
     /// <summary>
@@ -290,11 +239,9 @@ public partial class Planet
         BuildingsFertility += b.MaxFertilityOnBuild;
         MineralRichness += b.IncreaseRichness.LowerBound(0); // This must be positive. since richness cannot go below 0.
 
-        HasSpacePort |= b.IsSpacePort || b.AllowShipBuilding;
+        UpdatePlanetStatsFromPlacedBuilding(b);
 
-        HasLimitedResourceBuilding |= (b.ProdCache > 0 && b.PlusProdPerColonist > 0)
-                                   || (b.FoodCache > 0 && b.PlusFlatFoodAmount > 0);
-
+        // TODO: call some kind of event manager instead of dealing with screenmanager here
         if (b.EventOnBuild != null && OwnerIsPlayer)
         {
             UniverseScreen u = Universe.Screen;
@@ -309,5 +256,59 @@ public partial class Planet
             OnSensorBuildingChange();
 
         b.UpdateOffense(this);
+    }
+
+    // this should update planet stats based on buildings
+    // try to avoid Adding to integer stats here, and instead recalculate the value
+    void UpdatePlanetStatsFromPlacedBuilding(Building b)
+    {
+        HasSpacePort |= b.IsSpacePort || b.AllowShipBuilding;
+
+        // this is automatically unset
+        HasLimitedResourceBuilding |= (b.ProdCache > 0 && b.PlusProdPerColonist > 0)
+                                   || (b.FoodCache > 0 && b.PlusFlatFoodAmount > 0);
+
+        UpdatePlanetStatsByRecalculation();
+
+        TerraformingHere |= b.IsTerraformer || b.IsEventTerraformer;
+
+        HasCapital |= b.IsCapital;
+        HasOutpost |= b.IsOutpost;
+        HasAnomaly |= b.EventHere;
+        HasDynamicBuildings |= b.IsDynamicUpdate;
+    }
+
+    void UpdatePlanetStatsFromRemovedBuilding(Building b)
+    {
+        if (b.IsSpacePort || b.AllowShipBuilding)
+            HasSpacePort = HasBuilding(bb => bb.IsSpacePort || bb.AllowShipBuilding);
+
+        UpdatePlanetStatsByRecalculation();
+
+        if (b.IsTerraformer || b.IsEventTerraformer)
+            TerraformingHere = HasBuilding(bb => bb.IsTerraformer || bb.IsEventTerraformer);
+
+        if (b.IsCapital) HasCapital = false;
+        if (b.IsOutpost) HasOutpost = false;
+        if (b.EventHere) HasAnomaly = HasBuilding(bb => bb.EventHere);
+        if (b.IsDynamicUpdate) HasDynamicBuildings = HasBuilding(bb => bb.IsDynamicUpdate);
+    }
+
+    // path where full recalculation is done
+    void UpdatePlanetStatsByRecalculation()
+    {
+        TotalBuildings = TilesList.Count(tile => tile.BuildingOnTile);
+        TerraformersHere = CountBuildings(bb => bb.IsTerraformer || bb.IsEventTerraformer);
+
+        TotalInvadeInjure = SumBuildings(b => b.InvadeInjurePoints);
+        BuildingGeodeticOffense = SumBuildings(b => b.Offense);
+
+        HabitablePercentage = (float)TilesList.Count(tile => tile.Habitable) / TileArea;
+        HabitableBuiltCoverage = 1 - (float)FreeHabitableTiles/TotalHabitableTiles;
+
+        FreeHabitableTiles = TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
+        TotalHabitableTiles = TilesList.Count(tile => tile.Habitable);
+        TotalMoneyBuildings = TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);
+        MoneyBuildingRatio = (float)TotalMoneyBuildings / TotalBuildings;
     }
 }

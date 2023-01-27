@@ -153,7 +153,6 @@ namespace Ship_Game
             Volcano = new Volcano(this, p);
         }
 
-
         public bool CanEnqueueBuildingHere(Building b)
         {
             return NoQueuedBuildings && CanPlaceBuildingHere(b);
