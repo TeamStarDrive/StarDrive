@@ -130,7 +130,9 @@ internal class DynamicSpriteBatcher : IDisposable
         int batchSize = 0;
         SpriteVertexBuffer last = GetBuffer();
 
-        foreach (DynamicSpriteData sprite in Sprites.AsSpan(0, Count))
+        var sprites = Sprites.AsSpan(0, Count);
+
+        foreach (DynamicSpriteData sprite in sprites)
         {
             if (!ReferenceEquals(texture, sprite.Texture))
             {
@@ -155,6 +157,7 @@ internal class DynamicSpriteBatcher : IDisposable
             }
 
             last.Add(sprite.Quad, sprite.Coords, sprite.Color);
+            sprite.Texture = null;
             ++batchSize;
         }
 
