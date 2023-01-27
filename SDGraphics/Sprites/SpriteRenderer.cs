@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics.Shaders;
 using SDUtils;
@@ -15,9 +14,11 @@ using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 /// </summary>
 public sealed class SpriteRenderer : IDisposable
 {
+    internal const int MaxBatchSize = ushort.MaxValue;
+
     public readonly GraphicsDevice Device;
     public VertexDeclaration VertexDeclaration;
-    
+
     // Since we are always drawing Quads, the index buffer can be pre-calculated and shared
     internal IndexBuffer IndexBuf;
 
@@ -28,22 +29,14 @@ public sealed class SpriteRenderer : IDisposable
     readonly EffectParameter UseTextureParam;
     readonly EffectParameter ColorParam;
 
-    unsafe delegate void DrawUserIndexedPrimitivesD(
-        GraphicsDevice device,
-        PrimitiveType primitiveType,
-        int numVertices,
-        int primitiveCount,
-        void* pIndexData,
-        int indexFormat,
-        void* pVertexData,
-        int vertexStride
-    );
-    readonly DrawUserIndexedPrimitivesD DrawUserIndexedPrimitives;
+    // Helper utility for batching draw calls together 
+    readonly DynamicSpriteBatcher Batcher;
 
     public SpriteRenderer(GraphicsDevice device)
     {
         Device = device ?? throw new NullReferenceException(nameof(device));
-        VertexDeclaration = new VertexDeclaration(device, VertexCoordColor.VertexElements);
+        VertexDeclaration = new(device, VertexCoordColor.VertexElements);
+        Batcher = new(device);
 
         // load the shader with parameters
         Simple = Shader.FromFile(device, "Content/Effects/Simple.fx");
@@ -56,12 +49,6 @@ public sealed class SpriteRenderer : IDisposable
         // set the defaults
         SetColor(Color.White);
 
-        const BindingFlags anyMethod = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-        MethodInfo method = typeof(GraphicsDevice).GetMethod("RawDrawUserIndexedPrimitives", anyMethod);
-        if (method == null)
-            throw new InvalidOperationException("Missing RawDrawUserIndexedPrimitives from XNA.GraphicsDevice");
-        DrawUserIndexedPrimitives = (DrawUserIndexedPrimitivesD)Delegate.CreateDelegate(typeof(DrawUserIndexedPrimitivesD), null, method);
-
         // lastly, create buffers
         IndexBuf = CreateIndexBuffer(device);
     }
@@ -71,9 +58,10 @@ public sealed class SpriteRenderer : IDisposable
         Mem.Dispose(ref VertexDeclaration);
         Mem.Dispose(ref IndexBuf);
         Mem.Dispose(ref Simple);
+        Batcher.Dispose();
         TextureParamValue = null;
     }
-    
+
     [Conditional("DEBUG")]
     static void CheckTextureDisposed(Texture2D texture)
     {
@@ -122,7 +110,6 @@ public sealed class SpriteRenderer : IDisposable
         if (ViewProjectionParamValue != viewProjection)
         {
             ViewProjectionParamValue = viewProjection;
-
             fixed (Matrix* pViewProjection = &ViewProjectionParamValue)
             {
                 ViewProjectionParam.SetValue(*(XnaMatrix*)pViewProjection);
@@ -177,17 +164,23 @@ public sealed class SpriteRenderer : IDisposable
         {
             IsBegin = false;
         }
-        
-        // TODO: implement buffering and flush the buffer here
+
+        // flush and draw all the quads
+        Batcher.DrawBatches(this);
+        Batcher.Reset();
+    }
+
+    public void RecycleBuffers()
+    {
+        Batcher.RecycleBuffers();
     }
 
     // creates a completely reusable index buffer
     static IndexBuffer CreateIndexBuffer(GraphicsDevice device)
     {
-        const int MaxVertexBufferSize = ushort.MaxValue;
-        const int numQuads = MaxVertexBufferSize / 6;
+        const int numQuads = MaxBatchSize / 6;
 
-        ushort[] indices = new ushort[MaxVertexBufferSize];
+        ushort[] indices = new ushort[MaxBatchSize];
         for (int index = 0; index < numQuads; ++index)
         {
             int vertexOffset = index * 4;
@@ -200,39 +193,9 @@ public sealed class SpriteRenderer : IDisposable
             indices[indexOffset + 5] = (ushort)(vertexOffset + 3);
         }
 
-        IndexBuffer indexBuf = new(device, typeof(ushort), MaxVertexBufferSize, BufferUsage.WriteOnly);
+        IndexBuffer indexBuf = new(device, typeof(ushort), indices.Length, BufferUsage.WriteOnly);
         indexBuf.SetData(indices);
         return indexBuf;
-    }
-
-    // fills vertices of a quad at vertices[index*4] to vertices[index*4 + 3]
-    public static unsafe void FillQuad(VertexCoordColor* vertices, int index,
-                                       in Quad3D quad, in Quad2D coords, Color color)
-    {
-        int vertexOffset = index * 4;
-        vertices[vertexOffset + 0] = new(quad.A, color, coords.A); // TopLeft
-        vertices[vertexOffset + 1] = new(quad.B, color, coords.B); // TopRight
-        vertices[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
-        vertices[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
-    }
-    
-    // fills vertices of a quad at vertices[index*4] to vertices[index*4 + 3]
-    // along with indices at indices[index*6] to indices[index*6 + 5]
-    public static unsafe void FillQuad(VertexCoordColor* vertices, ushort* indices, int index,
-                                       in Quad3D quad, in Quad2D coords, Color color)
-    {
-        int vertexOffset = index * 4;
-        int indexOffset = index * 6;
-        vertices[vertexOffset + 0] = new(quad.A, color, coords.A); // TopLeft
-        vertices[vertexOffset + 1] = new(quad.B, color, coords.B); // TopRight
-        vertices[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
-        vertices[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
-        indices[indexOffset + 0] = (ushort)(vertexOffset + 0);
-        indices[indexOffset + 1] = (ushort)(vertexOffset + 1);
-        indices[indexOffset + 2] = (ushort)(vertexOffset + 2);
-        indices[indexOffset + 3] = (ushort)(vertexOffset + 0);
-        indices[indexOffset + 4] = (ushort)(vertexOffset + 2);
-        indices[indexOffset + 5] = (ushort)(vertexOffset + 3);
     }
 
     internal void ShaderBegin(Texture2D texture, Color color)
@@ -250,7 +213,7 @@ public sealed class SpriteRenderer : IDisposable
         SimplePass.End();
         Simple.End();
     }
-    
+
     /// <summary>
     /// Draw a precompiled batch of sprites
     /// </summary>
@@ -258,7 +221,7 @@ public sealed class SpriteRenderer : IDisposable
     {
         sprites.Draw(this, Color.White);
     }
-    
+
     /// <summary>
     /// Draw a precompiled batch of sprites with a color multiplier
     /// </summary>
@@ -271,32 +234,13 @@ public sealed class SpriteRenderer : IDisposable
     /// Enables direct draw to the GPU. This is quite inefficient, so consider
     /// using BatchedSprites where possible.
     /// </summary>
-    public unsafe void Draw(Texture2D texture, in Quad3D quad, in Quad2D coords, Color color)
+    public void Draw(Texture2D texture, in Quad3D quad, in Quad2D coords, Color color)
     {
-        // stack allocating these is extremely important to reduce memory pressure
-        VertexCoordColor* vertices = stackalloc VertexCoordColor[4];
-        ushort* indices = stackalloc ushort[6];
-        FillQuad(vertices, indices, 0, quad, coords, color);
-
-        Device.VertexDeclaration = VertexDeclaration;
-
-        ShaderBegin(texture, Color.White);
-
-        // TODO: inefficient -- a new vertex and index buffer is created for every call
-        DrawUserIndexedPrimitives(Device, PrimitiveType.TriangleList,
-            numVertices: 4,
-            primitiveCount: 2,
-            pIndexData: indices,
-            indexFormat: 101, // 101: ushort indices, 102: uint indices
-            pVertexData: vertices,
-            vertexStride: sizeof(VertexCoordColor)
-        );
-
-        ShaderEnd();
+        Batcher.Add(texture, in quad, in coords, color);
     }
     public void Draw(SubTexture texture, in Quad3D quad, Color color)
     {
-        Draw(texture.Texture, quad, texture.UVCoords, color);
+        Batcher.Add(texture.Texture, in quad, in texture.UVCoords, color);
     }
 
     /// <summary>
@@ -306,23 +250,23 @@ public sealed class SpriteRenderer : IDisposable
 
     public void Draw(Texture2D texture, in Vector3 center, in Vector2 size, Color color)
     {
-        Draw(texture, new Quad3D(center, size), DefaultCoords, color);
+        Batcher.Add(texture, new Quad3D(center, size), in DefaultCoords, color);
     }
     public void Draw(SubTexture texture, in Vector3 center, in Vector2 size, Color color)
     {
-        Draw(texture.Texture, new Quad3D(center, size), texture.UVCoords, color);
+        Batcher.Add(texture.Texture, new Quad3D(center, size), in texture.UVCoords, color);
     }
-    
+
     /// <summary>
     /// Draw a texture quad at 2D position `rect`, facing upwards
     /// </summary>
     public void Draw(Texture2D texture, in RectF rect, Color color)
     {
-        Draw(texture, new Quad3D(rect, 0f), DefaultCoords, color);
+        Batcher.Add(texture, new Quad3D(rect, 0f), DefaultCoords, color);
     }
     public void Draw(SubTexture texture, in RectF rect, Color color)
     {
-        Draw(texture.Texture, new Quad3D(rect, 0f), texture.UVCoords, color);
+        Batcher.Add(texture.Texture, new Quad3D(rect, 0f), texture.UVCoords, color);
     }
 
     /// <summary>
@@ -330,11 +274,11 @@ public sealed class SpriteRenderer : IDisposable
     /// </summary>
     public void Draw(Texture2D texture, in Vector3d center, in Vector2d size, Color color)
     {
-        Draw(texture, new Quad3D(center.ToVec3f(), size.ToVec2f()), DefaultCoords, color);
+        Batcher.Add(texture, new Quad3D(center.ToVec3f(), size.ToVec2f()), DefaultCoords, color);
     }
     public void Draw(SubTexture texture, in Vector3d center, in Vector2d size, Color color)
     {
-        Draw(texture.Texture, new Quad3D(center.ToVec3f(), size.ToVec2f()), texture.UVCoords, color);
+        Batcher.Add(texture.Texture, new Quad3D(center.ToVec3f(), size.ToVec2f()), texture.UVCoords, color);
     }
 
     /// <summary>
@@ -342,15 +286,15 @@ public sealed class SpriteRenderer : IDisposable
     /// </summary>
     public void FillRect(in Vector3 center, in Vector2 size, Color color)
     {
-        Draw(null, new Quad3D(center, size), DefaultCoords, color);
+        Batcher.Add(null, new Quad3D(center, size), DefaultCoords, color);
     }
     public void FillRect(in Vector3d center, in Vector2d size, Color color)
     {
-        Draw(null, new Quad3D(center.ToVec3f(), size.ToVec2f()), DefaultCoords, color);
+        Batcher.Add(null, new Quad3D(center.ToVec3f(), size.ToVec2f()), DefaultCoords, color);
     }
     public void FillRect(in RectF rect, Color color)
     {
-        Draw(null, new Quad3D(rect, 0f), DefaultCoords, color);
+        Batcher.Add(null, new Quad3D(rect, 0f), DefaultCoords, color);
     }
 
     /// <summary>
@@ -363,12 +307,12 @@ public sealed class SpriteRenderer : IDisposable
     public void DrawLine(in Vector2 p1, in Vector2 p2, Color color, float thickness = 1f)
     {
         Quad3D line = new(p1, p2, thickness, zValue: 0f);
-        Draw(null, line, DefaultCoords, color);
+        Batcher.Add(null, line, DefaultCoords, color);
     }
     public void DrawLine(in Vector2d p1, in Vector2d p2, Color color, float thickness = 1f)
     {
         Quad3D line = new(p1.ToVec2f(), p2.ToVec2f(), thickness, zValue: 0f);
-        Draw(null, line, DefaultCoords, color);
+        Batcher.Add(null, line, DefaultCoords, color);
     }
 
     /// <summary>
@@ -446,7 +390,7 @@ public sealed class SpriteRenderer : IDisposable
     //        default: w2 = width * 0.5f; cr = w2 - 1.0f; return;
     //    }
     //}
-    
+
     // this require per-vertex-alpha which is indeed supported by VertexCoordColor
     //void GLDraw2D::LineAA(const Vector2& p1, const Vector2& p2, const float width)
     //{
@@ -456,7 +400,7 @@ public sealed class SpriteRenderer : IDisposable
     //    // | \ | \ | \ |    <-----o----->  
     //    // 1__\3__\5__\7          |         
     //    //      x2                V down
-        
+
     //    float cr, w2;
     //    lineCoreRadii(width, cr, w2);
 

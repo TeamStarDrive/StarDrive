@@ -11,7 +11,7 @@ internal class InfluenceDebug : DebugPage
     public InfluenceDebug(DebugInfoScreen parent) : base(parent, DebugModes.Influence)
     {
     }
-        
+    
     public override void Update(float fixedDeltaTime)
     {
         System = Screen.UState.FindClosestSystem(Screen.CursorWorldPosition2D);
