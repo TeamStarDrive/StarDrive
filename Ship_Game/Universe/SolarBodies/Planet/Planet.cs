@@ -116,8 +116,8 @@ namespace Ship_Game
         public bool NoGovernorAndNotTradeHub            => !Governor && CType != ColonyType.TradeHub;
         public int SpecialCommodities                   => CountBuildings(b => b.IsCommodity);
         public bool HasCommodities => HasBuilding(b => b.IsCommodity || b.IsVolcano || b.IsCrater);
-        public bool Governor                            => CType != ColonyType.Colony;
-        public bool IsCrippled                          => CrippledTurns > 0 || RecentCombat;
+        public bool Governor => CType != ColonyType.Colony;
+        public bool IsCrippled => CrippledTurns > 0 || RecentCombat;
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
             => Troops.GroundStrengthOther(allButThisEmpire);
@@ -727,7 +727,6 @@ namespace Ship_Game
                 tile.Terraformable = RandomMath.RollDice(50);
 
             UpdateMaxPopulation();
-            ResetHasDynamicBuildings();
         }
 
         public void ScrapBuilding(Building b, PlanetGridSquare tile = null)
@@ -776,7 +775,7 @@ namespace Ship_Game
                 if (b.SensorRange > 0)
                     OnSensorBuildingChange();
 
-                ResetHasDynamicBuildings();
+                UpdatePlanetStatsFromRemovedBuilding(b);
             }
         }
 
@@ -1093,8 +1092,6 @@ namespace Ship_Game
                 allowInfantry |= b.AllowInfantry;
                 if (b.WinsGame)
                     HasWinBuilding = true;
-
-                spacePort |= b.AllowShipBuilding || b.IsSpacePort;
             }
 
             AllowInfantry = allowInfantry;
@@ -1113,7 +1110,6 @@ namespace Ship_Game
             ShieldStrengthMax *= 1 + Owner.data.ShieldPowerMod;
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
-            HasSpacePort = spacePort;
 
             // greedy bastards
             Consumption = (ConsumptionPerColonist * PopulationBillion) + TotalTroopConsumption;
@@ -1348,7 +1344,6 @@ namespace Ship_Game
 
             Building b = ResourceManager.CreateBuilding(this, bid);
             tile.PlaceBuilding(b, this);
-            SetHasDynamicBuildings(true);
             if (OwnerIsPlayer)
                 Universe.Notifications.AddMeteorRelated(this, message);
 
@@ -1566,38 +1561,31 @@ namespace Ship_Game
             return lastEnemyTroop.Launch(forceLaunch: true) != null;
         }
 
-        public int TotalInvadeInjure         => SumBuildings(b => b.InvadeInjurePoints);
-        public float BuildingGeodeticOffense => SumBuildings(b => b.Offense);
-        public int BuildingGeodeticCount     => CountBuildings(b => b.Offense > 0);
-        public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Sum(o => o.BaseStrength);
-        public int MaxDefenseShips           => SumBuildings(b => b.DefenseShipsCapacity);
-        public int CurrentDefenseShips       => SumBuildings(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
-        public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
-        public float HabitableBuiltCoverage  => 1 - (float)FreeHabitableTiles/TotalHabitableTiles;
 
-        public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
-        public int TotalHabitableTiles   => TilesList.Count(tile => tile.Habitable);
-        public float MoneyBuildingRatio  => (float)TotalMoneyBuildings / TotalBuildings;
-        public int TotalMoneyBuildings   => TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);
+        public float TotalGeodeticOffense => BuildingGeodeticOffense + OrbitalStations.Sum(o => o.BaseStrength);
+        public int MaxDefenseShips => SumBuildings(b => b.DefenseShipsCapacity);
+        public int CurrentDefenseShips => SumBuildings(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
+        
+        // these are updated in UpdatePlanetStatsByRecalculation()
+        public int TotalBuildings { get; private set; }
+        public int  TerraformersHere { get; private set; }
+        public float HabitablePercentage { get; private set; }
+        public float HabitableBuiltCoverage { get; private set; }
+        public int TotalInvadeInjure { get; private set; }
+        public float BuildingGeodeticOffense { get; private set; }
 
-        public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
-        public bool TerraformingHere => HasBuilding(b => b.IsTerraformer || b.IsEventTerraformer);
-        public int  TerraformersHere => CountBuildings(b => b.IsTerraformer || b.IsEventTerraformer);
-        public bool HasCapital => HasBuilding(b => b.IsCapital);
-        public bool HasOutpost => HasBuilding(b => b.IsOutpost);
-        public bool HasAnomaly => HasBuilding(b => b.EventHere);
+        public int FreeHabitableTiles { get; private set; }
+        public int TotalHabitableTiles { get; private set; }
+        public int TotalMoneyBuildings { get; private set; }
+        public float MoneyBuildingRatio { get; private set; }
 
-        public void SetHasDynamicBuildings(bool value)
-        {
-            HasDynamicBuildings = value;
-        }
+        // these are updated in UpdatePlanetStatsFromPlacedBuilding() and UpdatePlanetStatsFromRemovedBuilding()
+        public bool TerraformingHere { get; private set; }
+        public bool HasCapital { get; private set; }
+        public bool HasOutpost { get; private set; }
+        public bool HasAnomaly { get; private set; }
 
-        public void ResetHasDynamicBuildings()
-        {
-            HasDynamicBuildings = HasBuilding(b => b.IsDynamicUpdate);
-        }
-
-        private void RepairBuildings(int repairAmount)
+        void RepairBuildings(int repairAmount)
         {
             if (RecentCombat)
                 return;
