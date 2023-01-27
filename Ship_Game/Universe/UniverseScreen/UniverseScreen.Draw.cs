@@ -82,12 +82,12 @@ namespace Ship_Game
 
             draw3d.Begin(ViewProjection);
             // depth is needed for blending to work
-            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:false);
+            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:true);
             // enable additive only for the alpha channel, this will smoothly blend multiple
             // overlapping gradient edges into nice blobs
             RenderStates.EnableSeparateAlphaBlend(graphics, BorderBlendSrc, BorderBlendDest);
-            //RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
-            RenderStates.DisableAlphaTest(graphics);
+            RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
+            //RenderStates.DisableAlphaTest(graphics);
 
             var frustum = VisibleWorldRect;
 
@@ -131,8 +131,8 @@ namespace Ship_Game
                 }
             }
 
-            RenderStates.DisableSeparateAlphaChannelBlend(graphics);
             draw3d.End();
+            RenderStates.DisableSeparateAlphaChannelBlend(graphics);
 
             if (Debug && DebugWin != null && DebugMode == DebugModes.Solar)
             {

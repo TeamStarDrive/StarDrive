@@ -76,7 +76,7 @@ namespace Ship_Game
 
             RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: true);
 
-            var cameraPos = new Vector2(
+            Vector2 cameraPos = new(
                 (float)(Universe.CamPos.X / 500000.0) * (Universe.ScreenWidth / 10.0f),
                 (float)(Universe.CamPos.Y / 500000.0) * (Universe.ScreenHeight / 10.0f)
             );
@@ -98,22 +98,24 @@ namespace Ship_Game
             // this will make the background nebula move slightly with the camera
             double movementSensitivity = 0.05;
 
-            var backgroundPos = new Vector3d(
+            Vector3d backgroundPos = new(
                 Universe.CamPos.X * (1.0 - movementSensitivity),
                 Universe.CamPos.Y * (1.0 - movementSensitivity),
                 backgroundDepth
             );
 
-            sr.Begin(Universe.ViewProjection);
-            RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: false);
-
             Texture2D nebula = BackgroundNebula;
             if (nebula != null)
             {
+                sr.Begin(Universe.ViewProjection);
+                RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: false);
+
                 Vector2d nebulaSize = SubTexture.GetAspectFill(nebula.Width, nebula.Height, 20_000_000.0);
                 sr.Draw(nebula, backgroundPos, nebulaSize, Color.White);
+                sr.End();
             }
 
+            sr.Begin(Universe.ViewProjection);
             RenderStates.BasicBlendMode(Universe.Device, additive: true, depthWrite: false);
             Texture2D stars = BackgroundStars;
             Vector2d starsSize = SubTexture.GetAspectFill(stars.Width, stars.Height, 12_000_000.0);
