@@ -82,12 +82,14 @@ namespace Ship_Game
 
             draw3d.Begin(ViewProjection);
             // depth is needed for blending to work
-            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:true);
+            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:false);
             // enable additive only for the alpha channel, this will smoothly blend multiple
             // overlapping gradient edges into nice blobs
             RenderStates.EnableSeparateAlphaBlend(graphics, BorderBlendSrc, BorderBlendDest);
             //RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
             RenderStates.DisableAlphaTest(graphics);
+
+            var frustum = VisibleWorldRect;
 
             Empire[] empires = UState.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
@@ -104,7 +106,7 @@ namespace Ship_Game
                 for (int x = 0; x < nodes.Length; x++)
                 {
                     ref Empire.InfluenceNode inf = ref nodes[x];
-                    if (inf.KnownToPlayer && VisibleWorldRect.Overlaps(inf.Position, inf.Radius))
+                    if (inf.KnownToPlayer && frustum.Overlaps(inf.Position, inf.Radius))
                     {
                         Quad3D nodeQuad = new(inf.Position, inf.Radius * nodeScale, zValue: currentZ);
                         currentZ += 10f;
@@ -118,8 +120,7 @@ namespace Ship_Game
                 {
                     Empire.InfluenceNode a = c.Node1;
                     Empire.InfluenceNode b = c.Node2;
-                    if (VisibleWorldRect.Overlaps(a.Position, a.Radius) ||
-                        VisibleWorldRect.Overlaps(b.Position, b.Radius))
+                    if (frustum.Overlaps(a.Position, a.Radius) || frustum.Overlaps(b.Position, b.Radius))
                     {
                         // make a quad by reusing the Quad3D line constructor
                         float width = 2.0f * a.Radius * connectorScale;
@@ -136,7 +137,7 @@ namespace Ship_Game
             if (Debug && DebugWin != null && DebugMode == DebugModes.Solar)
             {
                 batch.SafeBegin(SpriteBlendMode.AlphaBlend);
-                
+
                 if (Input.IsKeyDown(SDGraphics.Input.Keys.OemComma))
                 {
                     if (Input.KeyPressed(SDGraphics.Input.Keys.Up)) BorderBlendSrc = BorderBlendSrc.IncrementWithWrap(-1);

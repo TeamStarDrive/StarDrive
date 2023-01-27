@@ -8,9 +8,9 @@ namespace SDGraphics.Sprites;
 /// <summary>
 /// A fixed-size reusable CPU+GPU buffer
 /// </summary>
-internal sealed class SpriteDataBuffer : IDisposable
+internal sealed class SpriteVertexBuffer : IDisposable
 {
-    // the maximum # of particles per buffer,
+    // the maximum # of vertices per buffer,
     // this must be smaller than 10922 (which is ushort.MaxValue / 6)
     public const int Size = 4096;
 
@@ -20,19 +20,21 @@ internal sealed class SpriteDataBuffer : IDisposable
 
     // all of the quads
     readonly VertexCoordColor[] Quads;
- 
+
     // no more free quads in this buffer
     public bool IsFull => Count == Size;
     public int Count;
-    bool Modified;
 
-    public SpriteDataBuffer(GraphicsDevice device)
+    // index of first vertex pending upload
+    int FirstPending;
+
+    public SpriteVertexBuffer(GraphicsDevice device)
     {
         Quads = new VertexCoordColor[Size * 4];
         VertexBuffer = new(device, VertexCoordColor.SizeInBytes*Size*4, BufferUsage.WriteOnly);
     }
 
-    ~SpriteDataBuffer()
+    ~SpriteVertexBuffer()
     {
         Mem.Dispose(ref VertexBuffer);
     }
@@ -47,34 +49,27 @@ internal sealed class SpriteDataBuffer : IDisposable
     public void Reset()
     {
         Count = 0;
-        Modified = true;
+        FirstPending = 0;
     }
 
-    public bool Add(in SpriteData data)
+    public void Add(in Quad3D quad, in Quad2D coords, Color color)
     {
-        if (IsFull)
-            return false;
-
         int vertexOffset = Count * 4;
         ++Count;
-        Quads[vertexOffset + 0] = new(data.Quad.A, data.Color, data.Coords.A); // TopLeft
-        Quads[vertexOffset + 1] = new(data.Quad.B, data.Color, data.Coords.B); // TopRight
-        Quads[vertexOffset + 2] = new(data.Quad.C, data.Color, data.Coords.C); // BotRight
-        Quads[vertexOffset + 3] = new(data.Quad.D, data.Color, data.Coords.D); // BotLeft
-        Modified = true;
-        return true;
+        Quads[vertexOffset + 0] = new(quad.A, color, coords.A); // TopLeft
+        Quads[vertexOffset + 1] = new(quad.B, color, coords.B); // TopRight
+        Quads[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
+        Quads[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
     }
 
-    void UploadIfNeeded()
+    void UploadPending()
     {
-        if (!Modified)
-            return;
-
         DynamicVertexBuffer vbo = VertexBuffer;
 
         // Restore the vertex buffer contents if the graphics device was lost.
-        // Or just send all data if count == Size
-        if (vbo.IsContentLost || Count == Size)
+        // Or just send all data if numPending == Size
+        int numPending = Count - FirstPending;
+        if (vbo.IsContentLost || numPending == Size)
         {
             vbo.SetData(Quads);
         }
@@ -83,7 +78,7 @@ internal sealed class SpriteDataBuffer : IDisposable
             try
             {
                 const int stride = VertexCoordColor.SizeInBytes;
-                vbo.SetData(0, Quads, 0, Count * 4, stride, SetDataOptions.NoOverwrite);
+                vbo.SetData(0, Quads, FirstPending, numPending * 4, stride, SetDataOptions.NoOverwrite);
             }
             catch // if this fails for some reason, just send all data
             {
@@ -91,25 +86,24 @@ internal sealed class SpriteDataBuffer : IDisposable
             }
         }
 
-        Modified = false; // upload complete
+        FirstPending = Count; // upload complete
     }
 
-    public void Draw(SpriteRenderer sr, Texture2D texture, Color color, int startIndex, int drawCount)
+    public void Draw(SpriteRenderer sr, Texture2D texture, int startIndex, int drawCount)
     {
         DynamicVertexBuffer vbo = VertexBuffer;
         int count = Count;
         if (count <= 0 || vbo == null || drawCount <= 0)
             return;
 
-        UploadIfNeeded();
+        if (FirstPending != count)
+            UploadPending();
 
         GraphicsDevice device = sr.Device;
-        // Set the particle vertex and index buffer.
+        // set the vertex buffer
         device.Vertices[0].SetSource(vbo, 0, VertexCoordColor.SizeInBytes);
-        device.Indices = sr.IndexBuf;
-        device.VertexDeclaration = sr.VertexDeclaration;
 
-        sr.ShaderBegin(texture, color);
+        sr.ShaderBegin(texture, Color.White);
         device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
                                      startIndex * 4, drawCount * 4, // 4 points
                                      startIndex * 6, drawCount * 2); // 2 triangles

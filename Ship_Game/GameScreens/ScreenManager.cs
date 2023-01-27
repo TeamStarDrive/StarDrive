@@ -372,6 +372,8 @@ namespace Ship_Game
             if (ResourceManager.WhitePixel == null || ResourceManager.WhitePixel.IsDisposed)
                 return;
 
+            SpriteRenderer.RecycleBuffers();
+
             GameScreen[] screens = GameScreens.ToArray();
             for (int i = 0; i < screens.Length; ++i)
             {
@@ -408,8 +410,6 @@ namespace Ship_Game
             // don't use software cursor in loading screens
             bool software = GlobalStats.UseSoftwareCursor && !IsShowing<GameLoadingScreen>();
             GameCursors.Draw(GameInstance, batch, input.CursorPosition, software);
-
-            SpriteRenderer.RecycleBuffers();
         }
 
         public void ExitAll(bool clear3DObjects)
