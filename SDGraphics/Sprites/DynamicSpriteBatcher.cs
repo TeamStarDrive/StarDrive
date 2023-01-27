@@ -29,8 +29,24 @@ internal unsafe class DynamicSpriteBatcher : IDisposable
     /// <summary>
     /// Describes a batch of sprites to draw, from startIndex, to startIndex+count
     /// </summary>
-    readonly record struct Batch(SpriteVertexBuffer Buffer, Texture2D Texture, int StartIndex, int Count);
+    readonly struct Batch
+    {
+        public readonly SpriteVertexBuffer Buffer;
+        public readonly Texture2D Texture;
+        public readonly int StartIndex;
+        public readonly int Count;
+        public Batch(SpriteVertexBuffer buffer, Texture2D texture, int startIndex, int count)
+        {
+            Buffer = buffer;
+            Texture = texture;
+            StartIndex = startIndex;
+            Count = count;
+        }
+    }
 
+    /// <summary>
+    /// Records an unique texture instance and the number of sprites that used it during this batch
+    /// </summary>
     struct BatchTexture
     {
         public Texture2D Texture;
@@ -142,7 +158,7 @@ internal unsafe class DynamicSpriteBatcher : IDisposable
         // prepare to sort sprites by their TextureIndex
         Span<BatchTexture> textures = Textures.AsSpan();
         bool sortSprites = textures.Length > 1;
-        if (sortSprites) // sort into SortedSprites
+        if (sortSprites) // prepare the destination indices
         {
             int startIndex = 0;
             for (int i = 0; i < textures.Length; ++i)
