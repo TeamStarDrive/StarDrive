@@ -114,7 +114,7 @@ public sealed class Background3D : IDisposable
         float xSize = Random.Float(800_000f, universeSize * 0.75f);
         float ySize = (float)neb.Height / neb.Width * xSize;
         zPos += Random.Float(500_000f, 5_000_000f);
-        
+
         BGSprites.Add(neb, new Quad3D(new RectF(nebTopLeft, xSize, ySize), zPos));
     }
 

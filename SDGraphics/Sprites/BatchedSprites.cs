@@ -83,7 +83,7 @@ public sealed class BatchedSprites : IDisposable
         Batches = Compiler.Compile(g, out VertexBuf);
         Compiler = null;
     }
-    
+
     // fills vertices of a quad at vertices[index*4] to vertices[index*4 + 3]
     static unsafe void FillQuad(VertexCoordColor* vertices, int index,
                                 in Quad3D quad, in Quad2D coords, Color color)
