@@ -19,6 +19,12 @@ public sealed class BatchedSprites : IDisposable
 {
     VertexBuffer VertexBuf;
     BatchCompiler Compiler = new();
+
+    /// <summary>
+    /// A single 3D Sprite billboard
+    /// </summary>
+    readonly record struct SpriteData(Quad3D Quad, Quad2D Coords, Color Color);
+
     Array<SpriteBatchSpan> Batches;
 
     public bool IsCompiled => Compiler == null;
@@ -88,6 +94,11 @@ public sealed class BatchedSprites : IDisposable
         vertices[vertexOffset + 2] = new(quad.C, color, coords.C); // BotRight
         vertices[vertexOffset + 3] = new(quad.D, color, coords.D); // BotLeft
     }
+
+    /// <summary>
+    /// Describes a range of sprites to draw, from startIndex, to startIndex+count
+    /// </summary>
+    readonly record struct SpriteBatchSpan(Texture2D Texture, int StartIndex, int Count);
 
     class BatchCompiler
     {
