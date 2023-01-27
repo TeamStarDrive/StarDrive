@@ -16,7 +16,7 @@ namespace Ship_Game
             Money = new ColonyMoney(this);
         }
 
-        [StarDataDeserialized]
+        [StarDataDeserialized(typeof(Building))]
         void OnDeserialized()
         {
             // TODO: just for save compatibility, remove later
