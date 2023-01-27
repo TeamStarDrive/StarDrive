@@ -78,9 +78,14 @@ public struct Quad3D
         //  1---2   1--\2
         float x1 = p1.X, x2 = p2.X;
         float y1 = p1.Y, y2 = p2.Y;
-        Vector2 left = (p2 - p1).LeftVector().Normalized(width * 0.5f);
 
-        float cx = left.X, cy = left.Y; // center xy offsets
+        // construct a left vector (Y, -X)
+        float dx = p2.Y - p1.Y;
+        float dy = p1.X - p2.X;
+        double invLen = (width * 0.5) / Math.Sqrt(dx*dx + dy*dy);
+        float cx = (float)(dx * invLen); // center xy offsets
+        float cy = (float)(dy * invLen);
+
         A.X = x1 - cx; A.Y = y1 - cy; A.Z = zValue; // left-top
         B.X = x2 - cx; B.Y = y2 - cy; B.Z = zValue; // left-bottom
         C.X = x2 + cx; C.Y = y2 + cy; C.Z = zValue; // right-bottom
