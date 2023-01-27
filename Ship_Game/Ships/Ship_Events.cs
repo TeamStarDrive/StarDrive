@@ -85,6 +85,21 @@ namespace Ship_Game.Ships
         // note that pSource can be null
         public virtual void OnShipDie(Projectile pSource)
         {
+            if (pSource?.Module != null) 
+            {
+                Ship killerShip = pSource.Module.GetParent();
+                killerShip.UpdateEmpiresOnKill(this);
+                killerShip.AddKill(this);
+                // Defend vs lone ships, like remnants or cunning players
+                if (!Loyalty.isPlayer
+                    && killerShip.Fleet == null
+                    && System?.HasPlanetsOwnedBy(Loyalty) == true
+                    && !Loyalty.HasWarTaskTargetingSystem(System))
+                {
+                    Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System), 1);
+                }
+            }
+
             if (IsSubspaceProjector)
                 Loyalty.AI.SpaceRoadsManager.RemoveProjectorFromRoadList(this);
 

@@ -169,7 +169,7 @@ namespace Ship_Game.AI.Tasks
         void RequisitionDefenseForce()
         {
             if (!Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == TargetSystem)
-                && TargetSystem.DangerousForcesPresent(Owner))
+                && !TargetSystem.DangerousForcesPresent(Owner))
             {
                 EndTask();
             }
@@ -399,7 +399,7 @@ namespace Ship_Game.AI.Tasks
         float GetBuildCapacityDivisor()
         {
             if (TargetEmpire == null || TargetEmpire.IsFaction)
-                return 2;
+                return 1f;
 
             float ownerBuildCapacity = Owner.AI.BuildCapacity;
             float enemyBuildCapacity = TargetEmpire.AI.BuildCapacity;
