@@ -62,8 +62,8 @@ namespace Ship_Game
         }
 
         // Test changing these in Debug Solar by holding comma/period and using UP/DOWN keys
-        Blend BorderBlendSrc = Blend.SourceAlphaSaturation; // Blend.InverseDestinationColor;
-        Blend BorderBlendDest = Blend.One;
+        internal Blend BorderBlendSrc = Blend.SourceAlphaSaturation; // Blend.InverseDestinationColor;
+        internal Blend BorderBlendDest = Blend.One;
 
         // Draws SSP - Subspace Projector influence
         void DrawColoredEmpireBorders(SpriteRenderer draw3d, SpriteBatch batch, GraphicsDevice graphics)
@@ -80,14 +80,7 @@ namespace Ship_Game
             var nodeTex = ResourceManager.Texture("UI/node");
             var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
-            draw3d.Begin(ViewProjection);
-            // depth is needed for blending to work
-            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:true);
-            // enable additive only for the alpha channel, this will smoothly blend multiple
-            // overlapping gradient edges into nice blobs
-            RenderStates.EnableSeparateAlphaBlend(graphics, BorderBlendSrc, BorderBlendDest);
-            //RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
-            RenderStates.DisableAlphaTest(graphics);
+            var frustum = VisibleWorldRect;
 
             Empire[] empires = UState.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
@@ -98,13 +91,27 @@ namespace Ship_Game
 
                 empire.BorderNodeCache.Update(empire);
 
-                Color empireColor = empire.EmpireColor;
-
                 Empire.InfluenceNode[] nodes = empire.BorderNodeCache.BorderNodes;
+                if (nodes.Length == 0)
+                    continue;
+
+                draw3d.Begin(ViewProjection);
+                
+                // since we draw every empire's influence in its own layer, depth is not needed
+                // drawing every empire in its own layer will solve almost all artifact issues
+                RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:false);
+
+                // enable additive only for the alpha channel, this will smoothly blend multiple
+                // overlapping gradient edges into nice blobs
+                RenderStates.EnableSeparateAlphaBlend(graphics, BorderBlendSrc, BorderBlendDest);
+                RenderStates.EnableAlphaTest(graphics, CompareFunction.Greater);
+                //RenderStates.DisableAlphaTest(graphics);
+                
+                Color empireColor = empire.EmpireColor;
                 for (int x = 0; x < nodes.Length; x++)
                 {
                     ref Empire.InfluenceNode inf = ref nodes[x];
-                    if (inf.KnownToPlayer && VisibleWorldRect.Overlaps(inf.Position, inf.Radius))
+                    if (inf.KnownToPlayer && frustum.Overlaps(inf.Position, inf.Radius))
                     {
                         Quad3D nodeQuad = new(inf.Position, inf.Radius * nodeScale, zValue: currentZ);
                         currentZ += 10f;
@@ -118,8 +125,7 @@ namespace Ship_Game
                 {
                     Empire.InfluenceNode a = c.Node1;
                     Empire.InfluenceNode b = c.Node2;
-                    if (VisibleWorldRect.Overlaps(a.Position, a.Radius) ||
-                        VisibleWorldRect.Overlaps(b.Position, b.Radius))
+                    if (frustum.Overlaps(a.Position, a.Radius) || frustum.Overlaps(b.Position, b.Radius))
                     {
                         // make a quad by reusing the Quad3D line constructor
                         float width = 2.0f * a.Radius * connectorScale;
@@ -128,49 +134,9 @@ namespace Ship_Game
                         draw3d.Draw(connectTex, connectLine, empireColor);
                     }
                 }
-            }
-
-            RenderStates.DisableSeparateAlphaChannelBlend(graphics);
-            draw3d.End();
-
-            if (Debug && DebugWin != null && DebugMode == DebugModes.Solar)
-            {
-                batch.SafeBegin(SpriteBlendMode.AlphaBlend);
                 
-                if (Input.IsKeyDown(SDGraphics.Input.Keys.OemComma))
-                {
-                    if (Input.KeyPressed(SDGraphics.Input.Keys.Up)) BorderBlendSrc = BorderBlendSrc.IncrementWithWrap(-1);
-                    else if (Input.KeyPressed(SDGraphics.Input.Keys.Down)) BorderBlendSrc = BorderBlendSrc.IncrementWithWrap(+1);
-                }
-                if (Input.IsKeyDown(SDGraphics.Input.Keys.OemPeriod))
-                {
-                    if (Input.KeyPressed(SDGraphics.Input.Keys.Up)) BorderBlendDest = BorderBlendDest.IncrementWithWrap(-1);
-                    else if (Input.KeyPressed(SDGraphics.Input.Keys.Down)) BorderBlendDest = BorderBlendDest.IncrementWithWrap(+1);
-                }
-
-                DrawString(new(300, 200), Color.Red, $"SrcBlend: {BorderBlendSrc}  Change with COMMA+UP/DOWN keys", Fonts.Arial20Bold);
-                DrawString(new(300, 240), Color.Red, $"DstBlend: {BorderBlendDest}  Change with PERIOD+UP/DOWN keys", Fonts.Arial20Bold);
-
-                foreach (Empire empire in empires)
-                {
-                    Empire.InfluenceNode[] nodes = empire.BorderNodeCache.BorderNodes;
-                    for (int x = 0; x < nodes.Length; x++)
-                    {
-                        ref Empire.InfluenceNode inf = ref nodes[x];
-                        if (inf.KnownToPlayer && VisibleWorldRect.Overlaps(inf.Position, inf.Radius))
-                            DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
-                    }
-                    foreach (InfluenceConnection c in empire.BorderNodeCache.Connections)
-                    {
-                        Empire.InfluenceNode a = c.Node1;
-                        Empire.InfluenceNode b = c.Node2;
-                        if (VisibleWorldRect.Overlaps(a.Position, a.Radius) ||
-                            VisibleWorldRect.Overlaps(b.Position, b.Radius))
-                            DebugWin?.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
-                    }
-                }
-
-                batch.SafeEnd();
+                draw3d.End();
+                RenderStates.DisableSeparateAlphaChannelBlend(graphics);
             }
 
             graphics.SetRenderTarget(0, null);
@@ -290,16 +256,18 @@ namespace Ship_Game
             Matrix cameraMatrix = Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
             SetViewMatrix(cameraMatrix);
 
+            SpriteRenderer sr = ScreenManager.SpriteRenderer;
+
             GraphicsDevice graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(0, MainTarget);
-            Render(batch, elapsed);
+            Render(sr, batch, elapsed);
             graphics.SetRenderTarget(0, null);
             
             OverlaysGroupTotalPerf.Start();
             {
                 UpdateFogOfWarInfluences(batch, graphics);
                 if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
-                    DrawColoredEmpireBorders(SR, batch, graphics);
+                    DrawColoredEmpireBorders(sr, batch, graphics);
 
                 // this draws the MainTarget RT which has the entire background and 3D ships
                 DrawMainRTWithFogOfWarEffect(batch, graphics);
