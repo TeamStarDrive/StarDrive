@@ -69,6 +69,7 @@
     <Compile Include="Shaders\Shader.cs" />
     <Compile Include="Sprites\BatchedSprites.cs" />
     <Compile Include="Sprites\DynamicSpriteBatcher.cs" />
+    <Compile Include="Sprites\SpriteShader.cs" />
     <Compile Include="Sprites\SpriteVertexBuffer.cs" />
     <Compile Include="Sprites\SpriteRenderer.cs" />
     <Compile Include="SubTexture.cs" />
