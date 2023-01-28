@@ -6,6 +6,7 @@ using Ship_Game.Graphics;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
+using System;
 
 namespace Ship_Game;
 
@@ -13,11 +14,11 @@ public sealed class StarField
 {
     struct Star
     {
-        public Vector3 Pos;
-        public Vector2 Size;
+        public Quad3D Quad;
         public SubTexture Tex;
     }
 
+    const float StarScale = 600;
     const int NumStars = 150;
 
     readonly Star[] Stars;
@@ -36,13 +37,9 @@ public sealed class StarField
         sr.Begin(screen.ViewProjection);
         RenderStates.BasicBlendMode(screen.Device, additive: true, depthWrite: false);
 
-        float scale = 600f;
-        for (int i = 0; i < Stars.Length; i++)
+        foreach (ref Star star in Stars.AsSpan())
         {
-            ref Star star = ref Stars[i];
-
-            Quad3D quad = new(star.Pos, star.Size * scale);
-            sr.Draw(star.Tex, quad, Color.White);
+            sr.Draw(star.Tex, star.Quad, Color.White);
         }
 
         sr.End();
@@ -59,17 +56,15 @@ public sealed class StarField
         int desiredFancyStars = random.Int(20, 40); // 64x64 stars
         int desiredLargeStars = random.Int(10, 20); // detailed 48x48 px stars
         int desiredMedStars = random.Int(30, 50); // detailed 32x32 px stars
-
         // if we run out of budgets, tiny 16x16 px stars will be used
+
         float baseScale = 1f;
 
-        for (int i = 0; i < Stars.Length; i++)
+        foreach (ref Star star in Stars.AsSpan())
         {
-            ref Star star = ref Stars[i];
-
             Vector2 pos2d = random.Vector2D(uRadius * 1.5f);
             float zPos = random.Float(1_000_000.0f, 8_000_000.0f);
-            star.Pos = new Vector3(pos2d, zPos);
+            Vector3 pos3d = new(pos2d, zPos);
 
             if (numFancyStars < desiredFancyStars)
             {
@@ -102,7 +97,7 @@ public sealed class StarField
             if (pixelSize.Y > 64) // force bigger textures to a smaller target size
                 pixelSize /= (pixelSize.Y / 64);
 
-            star.Size = pixelSize * baseScale;
+            star.Quad = new Quad3D(pos3d, pixelSize * baseScale * StarScale);
         }
     }
 }
