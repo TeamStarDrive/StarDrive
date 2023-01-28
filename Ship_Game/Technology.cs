@@ -268,7 +268,7 @@ namespace Ship_Game
                     continue;
                 }
 
-                if (building.AllowInfantry || building.isWeapon || building.IsSensor ||
+                if (building.AllowInfantry || building.IsWeapon || building.IsSensor ||
                     building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0 || building.CanAttack)
                 {
                     types.Add(TechnologyType.GroundCombat);

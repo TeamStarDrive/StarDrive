@@ -862,7 +862,7 @@ namespace Ship_Game
                 Level = newLevel;
                 foreach (Building b in Buildings)
                 {
-                    if (b.isWeapon)
+                    if (b.IsWeapon)
                         b.UpdateOffense(this);
                 }
             }

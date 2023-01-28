@@ -11,7 +11,6 @@
     <SoftAttack>60</SoftAttack>
     <HardAttack>30</HardAttack>
     <Weapon>PlanetAC</Weapon>
-    <isWeapon>true</isWeapon>
     
     <!-- For localization in GameText.yaml -->
     <NameTranslationIndex>5405</NameTranslationIndex>
