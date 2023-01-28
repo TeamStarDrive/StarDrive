@@ -20,7 +20,6 @@
   <Defense>40</Defense>
   <HardAttack>50</HardAttack>
   <Scrappable>false</Scrappable>
-  <IsSensor>true</IsSensor>
   <SensorRange>30000</SensorRange>
   <IsProjector>true</IsProjector>
   <ProjectorRange>50000</ProjectorRange>
