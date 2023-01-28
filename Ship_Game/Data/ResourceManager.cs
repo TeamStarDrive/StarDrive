@@ -1015,18 +1015,6 @@ namespace Ship_Game
         public static Building CreateBuilding(Planet p, Building template)
         {
             Building newB = template.Clone();
-
-            // comp fix to ensure functionality of vanilla buildings
-            if (newB.IsCapitalOrOutpost)
-            {
-                // @todo What is going on here? Is this correct?
-                if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
-                {
-                    newB.ProjectorRange = p.GetProjectorRadius(p.Owner);
-                    newB.IsProjector    = true;
-                }
-            }
-
             newB.CreateWeapon(p);
             newB.CalcMilitaryStrength(p);
             return newB;

@@ -21,7 +21,6 @@
   <HardAttack>50</HardAttack>
   <Scrappable>false</Scrappable>
   <SensorRange>30000</SensorRange>
-  <IsProjector>true</IsProjector>
   <ProjectorRange>50000</ProjectorRange>
   <DefenseShipsCapacity>8</DefenseShipsCapacity>
   <DefenseShipsRole>fighter</DefenseShipsRole>
