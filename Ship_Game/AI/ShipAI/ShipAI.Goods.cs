@@ -164,9 +164,9 @@ namespace Ship_Game.AI
                 plan = Plan.DropOffGoods;  // fast track since needed cargo was already on board
                 Owner.Loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrogateTimeTo(importPlanet));
             }
-            else
+            else if (Owner.Loyalty == importPlanet.Owner || Owner.Loyalty.IsAlliedWith(importPlanet.Owner))
             {
-                Owner.Loyalty.AI.SpaceRoadsManager.AddSpaceRoadHeat(exportPlanet.ParentSystem, 
+                Owner.Loyalty.AI.SpaceRoadsManager.AddSpaceRoadHeat(exportPlanet.ParentSystem,
                     importPlanet.ParentSystem, Owner.CargoSpaceMax * 0.02f);
             }
 

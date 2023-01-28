@@ -24,7 +24,7 @@ internal unsafe class DynamicSpriteBatcher : IDisposable
     readonly GraphicsDevice Device;
     DynamicSpriteData[] Sprites = new DynamicSpriteData[512];
     DynamicSpriteData*[] SortedSprites = new DynamicSpriteData*[512];
-    int Count; // number of sprites this frame
+    public int Count; // number of sprites this frame
 
     /// <summary>
     /// Describes a batch of sprites to draw, from startIndex, to startIndex+count

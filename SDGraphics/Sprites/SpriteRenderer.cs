@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics.Shaders;
 using SDUtils;
 using SDGraphics.Rendering;
 
 namespace SDGraphics.Sprites;
-
-using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 /// <summary>
 /// An interface for drawing 2D or 3D sprites
@@ -22,12 +19,8 @@ public sealed class SpriteRenderer : IDisposable
     // Since we are always drawing Quads, the index buffer can be pre-calculated and shared
     internal IndexBuffer IndexBuf;
 
-    internal Shader Simple;
-    internal readonly EffectPass SimplePass;
-    readonly EffectParameter ViewProjectionParam;
-    readonly EffectParameter TextureParam;
-    readonly EffectParameter UseTextureParam;
-    readonly EffectParameter ColorParam;
+    SpriteShader DefaultEffect;
+    SpriteShader CurrentEffect;
 
     // Helper utility for batching draw calls together 
     readonly DynamicSpriteBatcher Batcher;
@@ -39,15 +32,9 @@ public sealed class SpriteRenderer : IDisposable
         Batcher = new(device);
 
         // load the shader with parameters
-        Simple = Shader.FromFile(device, "Content/Effects/Simple.fx");
-        ViewProjectionParam = Simple["ViewProjection"];
-        TextureParam = Simple["Texture"];
-        UseTextureParam = Simple["UseTexture"];
-        ColorParam = Simple["Color"];
-        SimplePass = Simple.CurrentTechnique.Passes[0];
-
-        // set the defaults
-        SetColor(Color.White);
+        Shader simple = Shader.FromFile(device, "Content/Effects/Simple.fx");
+        DefaultEffect = new(simple);
+        CurrentEffect = DefaultEffect;
 
         // lastly, create buffers
         IndexBuf = CreateIndexBuffer(device);
@@ -57,64 +44,9 @@ public sealed class SpriteRenderer : IDisposable
     {
         Mem.Dispose(ref VertexDeclaration);
         Mem.Dispose(ref IndexBuf);
-        Mem.Dispose(ref Simple);
+        Mem.Dispose(ref DefaultEffect);
+        CurrentEffect = null;
         Batcher.Dispose();
-        TextureParamValue = null;
-    }
-
-    [Conditional("DEBUG")]
-    static void CheckTextureDisposed(Texture2D texture)
-    {
-        if (texture is { IsDisposed: true })
-            throw new ObjectDisposedException($"Texture2D '{texture.Name}'");
-    }
-
-    bool UseTextureParamValue;
-
-    void SetUseTexture(bool useTexture)
-    {
-        if (UseTextureParamValue != useTexture)
-        {
-            UseTextureParamValue = useTexture;
-            UseTextureParam.SetValue(useTexture);
-        }
-    }
-
-    Color ColorParamValue;
-
-    void SetColor(Color color)
-    {
-        if (ColorParamValue != color)
-        {
-            ColorParamValue = color;
-            ColorParam.SetValue(color.ToVector4());
-        }
-    }
-
-    Texture2D TextureParamValue;
-
-    void SetTexture(Texture2D texture)
-    {
-        if (TextureParamValue != texture)
-        {
-            CheckTextureDisposed(texture);
-            TextureParamValue = texture;
-            TextureParam.SetValue(texture);
-        }
-    }
-
-    Matrix ViewProjectionParamValue;
-
-    unsafe void SetViewProjection(in Matrix viewProjection)
-    {
-        if (ViewProjectionParamValue != viewProjection)
-        {
-            ViewProjectionParamValue = viewProjection;
-            fixed (Matrix* pViewProjection = &ViewProjectionParamValue)
-            {
-                ViewProjectionParam.SetValue(*(XnaMatrix*)pViewProjection);
-            }
-        }
     }
 
     /// <summary>
@@ -127,32 +59,26 @@ public sealed class SpriteRenderer : IDisposable
     /// </summary>
     public int AverageBatchSize { get; private set; }
 
-    // number of quads submitted during this Begin() / End() pair
-    int NumQuadsSubmitted;
-
     /// <summary>
     /// Initializes the view projection matrix for rendering,
     /// and if `IsBegin` was true, End()'s the previous state.
     /// </summary>
-    public void Begin(in Matrix viewProjection)
+    public void Begin(in Matrix viewProjection, SpriteShader effect = null)
     {
         if (IsBegin)
         {
             End();
         }
 
-        SetViewProjection(viewProjection);
+        CurrentEffect = effect ?? DefaultEffect;
+        CurrentEffect.SetViewProjection(viewProjection);
 
         IsBegin = true;
-        NumQuadsSubmitted = 0;
     }
     public void Begin(in Matrix view, in Matrix projection)
     {
         view.Multiply(projection, out Matrix viewProjection);
         Begin(viewProjection);
-
-        AverageBatchSize = (AverageBatchSize + NumQuadsSubmitted) / 2;
-        NumQuadsSubmitted = 0;
     }
 
     /// <summary>
@@ -164,6 +90,9 @@ public sealed class SpriteRenderer : IDisposable
         {
             IsBegin = false;
         }
+
+        // some debug stuff
+        AverageBatchSize = (AverageBatchSize + Batcher.Count) / 2;
 
         // flush and draw all the quads
         Batcher.DrawBatches(this);
@@ -200,18 +129,18 @@ public sealed class SpriteRenderer : IDisposable
 
     internal void ShaderBegin(Texture2D texture, Color color)
     {
-        SetTexture(texture); // also set null
-        SetUseTexture(useTexture: texture != null);
-        SetColor(color);
+        CurrentEffect.SetTexture(texture); // also set null
+        CurrentEffect.SetUseTexture(useTexture: texture != null);
+        CurrentEffect.SetColor(color);
 
-        Simple.Begin();
-        SimplePass.Begin();
+        CurrentEffect.Shader.Begin();
+        CurrentEffect.ShaderPass.Begin();
     }
 
     internal void ShaderEnd()
     {
-        SimplePass.End();
-        Simple.End();
+        CurrentEffect.ShaderPass.End();
+        CurrentEffect.Shader.End();
     }
 
     /// <summary>

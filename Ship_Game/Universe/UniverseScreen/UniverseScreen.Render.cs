@@ -16,11 +16,11 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        public void DrawStarField(SpriteRenderer sr, SpriteBatch batch)
+        public void DrawStarField(SpriteRenderer sr)
         {
             if (GlobalStats.DrawStarfield)
             {
-                bg?.Draw(sr, batch);
+                bg?.Draw(sr);
             }
         }
 
@@ -36,7 +36,7 @@ namespace Ship_Game
         {
             BackdropPerf.Start();
 
-            DrawStarField(sr, batch);
+            DrawStarField(sr);
             DrawNebulae(sr);
 
             batch.SafeBegin();

@@ -1,168 +1,103 @@
-using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDGraphics.Rendering;
 using SDGraphics.Sprites;
+using Ship_Game.Graphics;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
-using Vector2 = SDGraphics.Vector2;
-using Rectangle = SDGraphics.Rectangle;
+using System;
 
-namespace Ship_Game
+namespace Ship_Game;
+
+public sealed class StarField
 {
-    public sealed class StarField : IDisposable
+    struct Star
     {
-        static readonly Color[] LayerColors =
-        {
-            new Color(255, 255, 255, 160), 
-            new Color(255, 255, 255, 160), 
-            new Color(255, 255, 255, 255), 
-            new Color(255, 255, 255, 255), 
-            new Color(255, 255, 255, 255), 
-            new Color(255, 255, 255, 110), 
-            new Color(255, 255, 255, 220), 
-            new Color(255, 255, 255, 90)
-        };
+        public Quad3D Quad;
+        public SubTexture Tex;
+    }
 
-        static readonly float[] MoveFactors =
-        {
-            0.1f, 0.07f, 0.00007f, 0.0006f, 0.001f, 0.014f, 0.002f, 0.0001f
-        };
+    const float StarScale = 600;
+    const int NumStars = 150;
 
-        struct Star
+    readonly Star[] Stars;
+    readonly SubTexture[] StarTex;
+
+    public StarField(UniverseState uState)
+    {
+        StarTex = SunType.GetLoResTextures();
+        Stars = new Star[NumStars];
+
+        Create(uState.UniverseRadius, uState.BackgroundSeed);
+    }
+
+    public void Draw(SpriteRenderer sr, GameScreen screen)
+    {
+        sr.Begin(screen.ViewProjection);
+        RenderStates.BasicBlendMode(screen.Device, additive: true, depthWrite: false);
+
+        foreach (ref Star star in Stars.AsSpan())
         {
-            public Vector3 Position;
-            public SubTexture Tex;
-            public int WhichLayer;
+            sr.Draw(star.Tex, star.Quad, Color.White);
         }
 
-        Vector2 LastCamPos;
-        Vector2 CameraPos;
+        sr.End();
+    }
 
-        readonly Star[] Stars;
-        readonly SubTexture[] StarTex;
+    public void Create(float uRadius, int seed)
+    {
+        SeededRandom random = new(seed);
 
-        SubTexture CloudTex;
-        #pragma warning disable CA2213 // managed by screen.TransientContent
-        Effect CloudEffect;
-        #pragma warning restore CA2213
-        EffectParameter CloudEffectPos;
-        Vector2 CloudPos;
+        int numFancyStars = 0;
+        int numLargeStars = 0;
+        int numMedStars = 0;
 
-        public StarField(GameScreen screen, UniverseState uState)
+        int desiredFancyStars = random.Int(20, 40); // 64x64 stars
+        int desiredLargeStars = random.Int(10, 20); // detailed 48x48 px stars
+        int desiredMedStars = random.Int(30, 50); // detailed 32x32 px stars
+        // if we run out of budgets, tiny 16x16 px stars will be used
+
+        float baseScale = 1f;
+
+        foreach (ref Star star in Stars.AsSpan())
         {
-            CloudTex = ResourceManager.Texture("clouds");
-            CloudEffect = screen.TransientContent.Load<Effect>("Effects/Clouds");
-            CloudEffectPos = CloudEffect.Parameters["Position"];
-            StarTex = SunType.GetLoResTextures();
-            Stars = new Star[100];
+            Vector2 pos2d = random.Vector2D(uRadius * 1.5f);
+            float zPos = random.Float(1_000_000.0f, 8_000_000.0f);
+            Vector3 pos3d = new(pos2d, zPos);
 
-            Create(uState.Size/2, uState.BackgroundSeed);
-        }
-
-        ~StarField() { Destroy(); }
-
-        public void Dispose()
-        {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-
-        void Destroy()
-        {
-            CloudTex = null;
-            CloudEffect = null;
-            CloudEffectPos = null;
-        }
-
-        public void Draw(SpriteRenderer sr, SpriteBatch batch, Vector2 cameraPos, UniverseScreen screen)
-        {
-            LastCamPos = CameraPos;
-            CameraPos = cameraPos;
-            Vector2 movement = -1f * (cameraPos - LastCamPos);
-
-            if (CloudEffect != null)
+            if (numFancyStars < desiredFancyStars)
             {
-                if (!batch.SafeBegin(SpriteBlendMode.AlphaBlend, sortImmediate:true))
-                    return; // something really bad happened
-                CloudEffect.Begin();
-                CloudPos -= ((movement * 0.3f) * 1f);
-                CloudEffectPos.SetValue(CloudPos);
-                CloudEffect.CurrentTechnique.Passes[0].Begin();
-
-                var screenRect = new Rectangle(0, 0, 1, 1);
-                batch.Draw(CloudTex, screenRect, new Color(255, 0, 0, 255));
-                CloudEffect.CurrentTechnique.Passes[0].End();
-                CloudEffect.End();
-                batch.SafeEnd();
+                ++numFancyStars;
+                star.Tex = random.RandItem(StarTex);
+                baseScale = 0.75f;
             }
-
-            //batch.Begin();
-            //for (int i = 0; i < Stars.Length; i++)
-            //{
-            //    ref Star star = ref Stars[i];
-
-            //    Color c = LayerColors[star.WhichLayer];
-            //    switch (star.WhichLayer)
-            //    {
-            //        case 2: sr.Draw(star.Tex, star.Position, c); break;
-            //        case 3: sr.Draw(star.Tex, star.Position, new Color(c.R, c.G, c.B, 255)); break;
-            //        case 4: sr.Draw(star.Tex, star.Position, new Color(c.R, c.G, c.B, 255)); break;
-            //        default: sr.Draw(star.Tex, new RectF((star.Position.X, star.Position.Y, 1, 1), c); break;
-            //    }
-            //}
-            //batch.End();
-        }
-
-        public void Create(float uRadius, int seed)
-        {
-            var random = new SeededRandom(seed);
-
-            int numSmallStars = 0;
-            int numMedStars = 0;
-            int numLargeStars = 0;
-            int desiredSmallStars = random.Int(10, 30);
-            int desiredMedStars = random.Int(2, 10);
-            int desiredLargeStars = random.Int(1, 4);
-
-            for (int i = 0; i < Stars.Length; i++)
+            else if (numLargeStars < desiredLargeStars)
             {
-                ref Star star = ref Stars[i];
-                star.Position = random.Vector3D(uRadius);
-                int depth = i % MoveFactors.Length;
-
-                if (2 <= depth && depth <= 4)
-                {
-                    if (depth == 2 && numSmallStars < desiredSmallStars)
-                    {
-                        ++numSmallStars;
-                        star.Tex = ResourceManager.SmallStars.RandomTexture(random);
-                        star.WhichLayer = 2;
-                    }
-                    else if (depth == 3 && numMedStars < desiredMedStars)
-                    {
-                        ++numMedStars;
-                        star.Tex = ResourceManager.MediumStars.RandomTexture(random);
-                        star.WhichLayer = 3;
-                    }
-                    else if (depth == 4 && numLargeStars < desiredLargeStars)
-                    {
-                        ++numLargeStars;
-                        star.Tex = ResourceManager.LargeStars.RandomTexture(random);
-                        star.WhichLayer = 4;
-                    }
-                    else // layers 2,3,4 are full, spill over to layer 7
-                    {
-                        star.Tex = random.RandItem(StarTex);
-                        star.WhichLayer = 7;
-                    }
-                }
-                else // fill layers 0,1,5,6
-                {
-                    star.Tex = random.RandItem(StarTex);
-                    star.WhichLayer = depth;
-                }
+                // detailed 48x48 px stars
+                ++numLargeStars;
+                star.Tex = ResourceManager.LargeStars.RandomTexture(random);
             }
+            else if (numMedStars < desiredMedStars)
+            {
+                // somewhat detailed 32x32 px stars
+                ++numMedStars;
+                star.Tex = ResourceManager.LargeStars.RandomTexture(random);
+                baseScale = 1.5f;
+            }
+            else
+            {
+                // tiny 16x16 px stars
+                star.Tex = ResourceManager.SmallStars.RandomTexture(random);
+                baseScale = 2f;
+            }
+            
+            // use the star's actual pixel size as the base
+            Vector2 pixelSize = star.Tex.SizeF;
+            if (pixelSize.Y > 64) // force bigger textures to a smaller target size
+                pixelSize /= (pixelSize.Y / 64);
+
+            star.Quad = new Quad3D(pos3d, pixelSize * baseScale * StarScale);
         }
     }
 }

@@ -1,6 +1,5 @@
 using System.Xml.Serialization;
 using SDGraphics;
-using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
@@ -295,13 +294,13 @@ namespace Ship_Game
         public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
         
         [XmlIgnore]
-        public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID) || Name == "Dynamic Crash Site";
+        public bool EventHere => !string.IsNullOrEmpty(EventTriggerUID) || Name == "Dynamic Crash Site";
         [XmlIgnore]
-        public bool IsAttackable       => CombatStrength > 0;
+        public bool IsAttackable => CombatStrength > 0;
         [XmlIgnore]
-        public bool CanAttack          => CombatStrength > 0 && AvailableAttackActions > 0;
+        public bool CanAttack => CombatStrength > 0 && AvailableAttackActions > 0;
         [XmlIgnore]
-        public bool IsMoneyBuilding    => CreditsPerColonist > 0 || PlusTaxPercentage > 0 || Income > 0;
+        public bool IsMoneyBuilding => CreditsPerColonist > 0 || PlusTaxPercentage > 0 || Income > 0;
         [XmlIgnore]
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         [XmlIgnore]
@@ -311,11 +310,11 @@ namespace Ship_Game
         [XmlIgnore]
         public bool ProducesPopulation => PlusFlatPopulation > 0;
         [XmlIgnore]
-        public bool IsHarmfulToEnv     => MaxFertilityOnBuild < 0;
+        public bool IsHarmfulToEnv => MaxFertilityOnBuild < 0;
         [XmlIgnore]
-        public bool IsMilitary         => CombatStrength > 0 
-                                        && !IsCapitalOrOutpost
-                                        && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
+        public bool IsMilitary => CombatStrength > 0 
+                               && !IsCapitalOrOutpost
+                               && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
 
         [XmlIgnore] 
         public bool IsEventTerraformer => IsCommodity && PlusTerraformPoints > 0;
