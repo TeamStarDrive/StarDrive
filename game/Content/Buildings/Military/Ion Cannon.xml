@@ -9,7 +9,6 @@
   <SoftAttack>30</SoftAttack>
   <HardAttack>20</HardAttack>
   <Weapon>IonDefenseCannon</Weapon>
-  <isWeapon>true</isWeapon>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>433</NameTranslationIndex>

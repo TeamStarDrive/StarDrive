@@ -110,8 +110,8 @@ namespace Ship_Game
             if (input.SpawnShip)
                 Ship.CreateShipAtPoint(UState, "Bondage-Class Mk IIIa Cruiser", player, mouseWorldPos);
 
-            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 2", player, mouseWorldPos);
-            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 1", player, mouseWorldPos);
+            if (input.SpawnFleet2) HelperFunctions.DebugCreateFleetAt(UState, "Fleet 2", player, mouseWorldPos);
+            if (input.SpawnFleet1) HelperFunctions.DebugCreateFleetAt(UState, "Fleet 1", player, mouseWorldPos);
 
             if (SelectedShip != null)
             {
