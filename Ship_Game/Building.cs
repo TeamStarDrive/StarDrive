@@ -14,7 +14,6 @@ namespace Ship_Game
     public sealed class Building
     {
         [StarData] public string Name;
-        [StarData] public bool IsSensor;
         [StarData] public bool NoRandomSpawn;
         [StarData] public bool AllowShipBuilding;
         [StarData] public int NameTranslationIndex;
@@ -107,6 +106,8 @@ namespace Ship_Game
         public static int CapitalId, OutpostId, BiospheresId, SpacePortId, TerraformerId;
         public static int VolcanoId, ActiveVolcanoId, EruptingVolcanoId, Lava1Id, Lava2Id, Lava3Id;
         public static int Crater1Id, Crater2Id, Crater3Id, Crater4Id;
+
+        [XmlIgnore] public bool IsSensor => SensorRange > 0;
         [XmlIgnore] public bool IsWeapon => Weapon.NotEmpty();
         [XmlIgnore] public bool IsCapital          => BID == CapitalId;
         [XmlIgnore] public bool IsOutpost          => BID == OutpostId;
@@ -124,7 +125,7 @@ namespace Ship_Game
         [XmlIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
         [XmlIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
         [XmlIgnore] private float DefenseShipStrength;
-        [XmlIgnore] public float SpaceRange = 10000f;
+        [XmlIgnore] public float SpaceRange = 20000f;
 
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
@@ -258,7 +259,8 @@ namespace Ship_Game
             if (canFireWeapon || canLaunchShips)
             {
                 // this scan is pretty expensive
-                Ship target = p.ScanForSpaceCombatTargets(TheWeapon, SpaceRange);
+                float range = canFireWeapon && canLaunchShips ? SpaceRange.LowerBound(20000) : SpaceRange;
+                Ship target = p.ScanForSpaceCombatTargets(TheWeapon, range, canLaunchShips);
                 if (target != null)
                 {
                     if (canFireWeapon)

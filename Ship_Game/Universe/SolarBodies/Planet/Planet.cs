@@ -644,15 +644,16 @@ namespace Ship_Game
             return false;
         }
 
-        public Ship ScanForSpaceCombatTargets(Weapon w,  float weaponRange) // @todo FB - need to work on this
+        // FB: Beter to scan once and let each building use the result - i think
+        public Ship ScanForSpaceCombatTargets(Weapon w,  float weaponRange, bool canLaunchShips)
         {
             // don't do this expensive scan if there are no hostiles
             if (!ParentSystem.HostileForcesPresent(Owner))
                 return null;
 
             weaponRange = weaponRange.UpperBound(SensorRange);
-            float closestTroop = weaponRange*weaponRange;
-            float closestShip = weaponRange*weaponRange;
+            float closestTroop = weaponRange* weaponRange;
+            float closestShip = weaponRange* weaponRange;
             Ship troop = null;
             Ship closest = null;
 
@@ -663,13 +664,13 @@ namespace Ship_Game
             };
             SpatialObjectBase[] enemyShips = Universe.Spatial.FindNearby(ref opt);
 
-            for (int j = 0; j < enemyShips.Length; ++j)
+            for (int i = 0; i < enemyShips.Length; ++i)
             {
-                var ship = (Ship)enemyShips[j];
+                var ship = (Ship)enemyShips[i];
                 if (ship.Dying
                     || ship.IsInWarp
                     || ship.EMPDisabled && w?.EMPDamage > 0 && enemyShips.Length > 1
-                    || w != null && !w.TargetValid(ship)
+                    || w != null && !w.TargetValid(ship) && !canLaunchShips
                     || !Owner.IsEmpireAttackable(ship.Loyalty))
                 {
                     continue;
