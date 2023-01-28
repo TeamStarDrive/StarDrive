@@ -12,6 +12,7 @@ using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game
 {
@@ -24,11 +25,11 @@ namespace Ship_Game
 
         private static FleetDesign LoadFleetDesign(string fleetUid)
         {
-            string designPath = fleetUid + ".xml";
+            string designPath = fleetUid + ".yaml";
             FileInfo info = ResourceManager.GetModOrVanillaFile(designPath) ??
                             new FileInfo(Dir.StarDriveAppData + "/Fleet Designs/" + designPath);
             if (info.Exists)
-                return info.Deserialize<FleetDesign>();
+                return YamlParser.Deserialize<FleetDesign>(info);
 
             Log.Warning($"Failed to load fleet design '{designPath}'");
             return null;
