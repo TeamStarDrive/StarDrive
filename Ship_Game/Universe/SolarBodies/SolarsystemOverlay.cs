@@ -98,25 +98,22 @@ namespace Ship_Game
 
                     var planetTypeCursor = new Vector2(PlanetRect.X + PlanetRect.Width / 2 - SysFont.MeasureString(p.Name).X / 2f, PlanetRect.Y + PlanetRect.Height + 4);
                     planetTypeCursor = planetTypeCursor.Rounded();
-                    bool hasAnamoly = false;
-                    bool hasCommodities = false;
-                    bool hastroops =false;
-                    //bool hasEnemyTroop = false;          //Not referenced in code, removing to save memory
                     int playerTroops = 0;
                     int sideSpacing = 0;
 
                     if (p.IsExploredBy(player))
                     {
-                        hasAnamoly = p.HasAnomaly;
-                        hasCommodities = p.HasCommodities;
+                        bool hasAnomaly = p.HasAnomaly;
+                        bool hasCommodities = p.HasCommodities;
+                        bool hasTroops = false;
 
                         if (p.OwnerIsPlayer)
                         {
                             playerTroops += p.Troops.NumTroopsHere(p.Owner);
-                            hastroops |= playerTroops > 0;
+                            hasTroops |= playerTroops > 0;
                         }
 
-                        if (hasAnamoly)
+                        if (hasAnomaly)
                         {
                             sideSpacing += 4;
                             var flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
@@ -138,7 +135,7 @@ namespace Ship_Game
                             }
                             sideSpacing += flashRect.Width;
                         }
-                        if (hastroops)
+                        if (hasTroops)
                         {
                             sideSpacing += 4;
                             var flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);

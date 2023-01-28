@@ -1,62 +1,8 @@
 //-----------------------------------------------------------------------------
-// Simple.fx
+// Simple.fx - for SpriteRenderer
 // Takes [Position, Color, TexCoords] and draws a textured sprite
 //-----------------------------------------------------------------------------
-
-// Camera parameters.
-float4x4 ViewProjection;
-
-// Multiplicative Color modifier, allowing to adjust the tone of the entire output
-float4 Color;
-
-// Texture and sampler
-texture Texture;
-bool UseTexture;
-
-sampler Sampler = sampler_state
-{
-    Texture = (Texture);
-    MinFilter = Linear;
-    MagFilter = Linear;
-    MipFilter = Point;
-};
-
-struct VertexShaderInput
-{
-    float3 Position : POSITION0;
-    float4 Color : COLOR0;
-    float2 Coords : TEXCOORD0;
-};
-
-struct VertexShaderOutput
-{
-    float4 Position : POSITION0;
-    float4 Color : COLOR0;
-    float2 TextureCoordinate : COLOR1;
-};
-
-// Vertex shader
-VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
-{
-    VertexShaderOutput output;
-    output.Position = mul(float4(input.Position, 1), ViewProjection);
-    output.Color = input.Color * Color;
-    output.TextureCoordinate = input.Coords;
-    return output;
-}
-
-// Pixel shader
-float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
-{
-    if (UseTexture)
-    {
-        return tex2D(Sampler, input.TextureCoordinate) * input.Color;
-    }
-    else
-    {
-        return input.Color;
-    }
-}
+#include "Simple.fxh"
 
 technique Simple
 {

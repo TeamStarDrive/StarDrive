@@ -94,6 +94,7 @@ namespace Ship_Game
         public Matrix Projection; // @see SetPerspectiveProjection
         public Matrix ViewProjection; // View * Projection
         public Matrix InverseViewProjection; // Inverse(View * Projection)
+        public Matrix OrthographicProjection; // for drawing the UI
 
         // deferred renderer allows some basic commands to be queued up to be drawn. 
         // this is useful when wanted to draw from handle input routines and other areas. 
@@ -560,7 +561,11 @@ namespace Ship_Game
         {
             View.Multiply(Projection, out ViewProjection);
             Matrix.Invert(in ViewProjection, out InverseViewProjection);
-            VisibleWorldRect = UnprojectToWorldRect(new AABoundingBox2D(0,0, Viewport.Width, Viewport.Height));
+
+            OrthographicProjection = Matrix.CreateOrthographicOffCenter(0, Viewport.Width, Viewport.Height, 0, zNearPlane:1, zFarPlane:0);
+            //OrthographicProjection = Matrix.CreateOrthographic(Viewport.Width, Viewport.Height, 0.0f, 5000.0f);
+
+            VisibleWorldRect = UnprojectToWorldRect(new(0, 0, Viewport.Width, Viewport.Height));
         }
 
         public Vector2d ProjectToScreenPosition(Vector3d worldPos)

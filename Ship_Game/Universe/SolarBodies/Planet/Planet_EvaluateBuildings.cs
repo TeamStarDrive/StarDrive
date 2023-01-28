@@ -201,7 +201,7 @@ namespace Ship_Game
 
         void CalcInfrastructurePriority()
         {
-            float infra = PopulationBillion / 2 - SumBuildings(b => b.Infrastructure);
+            float infra = PopulationBillion / 2 - InfraStructure;
             infra       = ApplyGovernorBonus(infra, 2f, 2.5f, 0.25f, 0.25f, 1.5f);
             Priorities[ColonyPriority.InfraStructure] = infra;
         }

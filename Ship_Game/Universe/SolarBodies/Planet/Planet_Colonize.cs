@@ -171,7 +171,6 @@ namespace Ship_Game
         {
             Building building = ResourceManager.CreateBuilding(this, template);
             building.AssignBuildingToTileOnColonize(this);
-            Storage.Max = Math.Max(Storage.Max, building.StorageAdded); // so starting resources could be added
         }
 
         void SetupCyberneticsWorkerAllocations() 

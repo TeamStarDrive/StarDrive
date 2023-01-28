@@ -16,7 +16,7 @@ namespace Ship_Game
             Money = new ColonyMoney(this);
         }
 
-        [StarDataDeserialized]
+        [StarDataDeserialized(typeof(Building))]
         void OnDeserialized()
         {
             // TODO: just for save compatibility, remove later
@@ -25,7 +25,9 @@ namespace Ship_Game
             UpdatePositionOnly();
             InitPlanetType(PType, Scale, fromSave: true);
 
-            ResetHasDynamicBuildings();
+            foreach (Building b in BuildingList)
+                UpdatePlanetStatsFromPlacedBuilding(b);
+
             UpdateMaxPopulation();
             UpdateIncomes();
         }
