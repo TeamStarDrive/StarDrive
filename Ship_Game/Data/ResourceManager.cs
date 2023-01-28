@@ -1025,12 +1025,6 @@ namespace Ship_Game
                     newB.ProjectorRange = p.GetProjectorRadius(p.Owner);
                     newB.IsProjector    = true;
                 }
-
-                if (!newB.IsSensor && !(newB.SensorRange > 0.0f))
-                {
-                    newB.SensorRange = 20000.0f;
-                    newB.IsSensor    = true;
-                }
             }
 
             newB.CreateWeapon(p);
