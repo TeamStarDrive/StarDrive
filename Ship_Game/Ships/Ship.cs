@@ -1495,20 +1495,16 @@ namespace Ship_Game.Ships
                 return; // already dead
 
             var pSource = source as Projectile;
-            OnShipDie(pSource);
-            Mothership?.OnLaunchedShipDie(this);
-
             // Mostly for supply ships to remove incoming supply
             AI.ChangeAIState(AIState.AwaitingOrders);
             ReallyDie = cleanupOnly || WillShipDieNow(pSource);
             if (Dying && !ReallyDie)
                 return; // planet crash or tumble
 
+            OnShipDie(pSource);
+            Mothership?.OnLaunchedShipDie(this);
             QueueTotalRemoval(); // sets Active=false
             
-            pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
-            pSource?.Module?.GetParent().AddKill(this);
-
             bool visible = IsVisibleToPlayer;
             Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);
             Carrier.ScuttleHangarShips();

@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SDGraphics;
 namespace SDGraphics.Rendering;
 
 /// <summary>
@@ -61,6 +56,21 @@ public struct Quad3D
         B = new Vector3(right, top, zValue);
         C = new Vector3(right, bot, zValue);
         D = new Vector3(left, bot, zValue);
+    }
+
+    /// <summary>
+    /// Creates a Quad from a 3D point and radius
+    /// </summary>
+    public Quad3D(in Vector3 center, float radius)
+    {
+        float left = (center.X - radius);
+        float right = (center.X + radius);
+        float top = (center.Y - radius);
+        float bot = (center.Y + radius);
+        A = new Vector3(left, top, center.Z);
+        B = new Vector3(right, top, center.Z);
+        C = new Vector3(right, bot, center.Z);
+        D = new Vector3(left, bot, center.Z);
     }
 
     /// <summary>

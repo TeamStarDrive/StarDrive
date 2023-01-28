@@ -46,8 +46,11 @@ namespace Ship_Game.AI.Budget
             float groundRatio   = MilitaryBuildingsBudgetRatio();
             float orbitalRatio  = 1 - groundRatio;
             float civBudget     = EmpireColonizationBudget * EmpireRatio + P.GetColonyDebtTolerance() + P.TerraformBudget;
+            float grdBudget     = defenseBudget * groundRatio;
+            if (!Owner.isPlayer && P.ParentSystem.HostileForcesPresent(Owner))
+                grdBudget *= 3; // Try to add more temp ground defense to clear enemies
 
-            GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? ExponentialMovingAverage(GrdDefAlloc, defenseBudget * groundRatio) : P.ManualGrdDefBudget;
+            GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? ExponentialMovingAverage(GrdDefAlloc, grdBudget) : P.ManualGrdDefBudget;
             SpcDefAlloc   = P.ManualSpcDefBudget   <= 0 ? ExponentialMovingAverage(SpcDefAlloc, defenseBudget * orbitalRatio) : P.ManualSpcDefBudget;
             CivilianAlloc = P.ManualCivilianBudget <= 0 ? ExponentialMovingAverage(CivilianAlloc, civBudget) : P.ManualCivilianBudget + P.TerraformBudget;
 
@@ -66,9 +69,9 @@ namespace Ship_Game.AI.Budget
             float preference;
             switch (P.CType)
             {
-                case Planet.ColonyType.Military: preference = 0.3f;  break;
-                case Planet.ColonyType.Core:     preference = 0.2f;  break;
-                default:                         preference = 0.15f; break;
+                case Planet.ColonyType.Military: preference = 0.5f;  break;
+                case Planet.ColonyType.Core:     preference = 0.3f;  break;
+                default:                         preference = 0.25f; break;
             }
 
             return P.HabitablePercentage * preference;

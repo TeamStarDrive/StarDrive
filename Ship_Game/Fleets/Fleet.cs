@@ -1476,9 +1476,9 @@ namespace Ship_Game.Fleets
                 task.TargetEmpire = Owner.AI.ThreatMatrix.GetStrongestHostileAt(FleetTask.TargetSystem);
 
             float enemyStrength = Owner.AI.ThreatMatrix.GetHostileStrengthAt(task.AO, task.AORadius);
-
-            if (EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
-                return;
+            bool threatIncoming = Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
+            if (threatIncoming && EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
+                return; // If no threat is incoming, stay put to clear remaining lone ships
 
             switch (TaskStep)
             {
@@ -1515,7 +1515,6 @@ namespace Ship_Game.Fleets
                     else
                         DoCombatMoveToTaskArea(task, true);
 
-                    bool threatIncoming = Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
                     if (threatIncoming)
                     {
                         if (enemyStrength < 1)

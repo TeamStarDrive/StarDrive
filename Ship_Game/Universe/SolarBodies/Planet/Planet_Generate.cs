@@ -170,7 +170,6 @@ namespace Ship_Game
             float preDefinedPop = data?.MaxPopDefined ?? 0f;
             CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);
             InitializeWorkerDistribution(Owner);
-            HasSpacePort = true;
             if (!ParentSystem.OwnerList.Contains(Owner))
                 ParentSystem.OwnerList.Add(Owner);
 
@@ -227,9 +226,8 @@ namespace Ship_Game
         {
             ResourceManager.CreateBuilding(this, Building.CapitalId).AssignBuildingToTilePlanetCreation(this, out _);
             ResourceManager.CreateBuilding(this, Building.SpacePortId).AssignBuildingToTilePlanetCreation(this, out _);
-            Storage.Max = SumBuildings(b => b.StorageAdded);
-            FoodHere    = Storage.Max * 0.2f;
-            ProdHere    = Storage.Max * 0.35f;
+            FoodHere = Storage.Max * 0.2f;
+            ProdHere = Storage.Max * 0.35f;
             AllowInfantry = true; // for initialization only, before we reach planet Update
         }
 
@@ -315,7 +313,7 @@ namespace Ship_Game
                     DestroyBuildingOn(tile);
             }
 
-            UpdateTerraformPoints(0); // Start terraforming a new tile or remove terraformers if terra level is 1.
+            TerraformPoints = 0; // Start terraforming a new tile or remove terraformers if terra level is 1.
             if (!Terraformable)
                 RemoveTerraformers();
             else if (TerraformersHere > TerraformerLimit)
@@ -330,7 +328,7 @@ namespace Ship_Game
                 MakeTileHabitable(tile);
             }
 
-            UpdateTerraformPoints(0); // Start terraforming a new tile
+            TerraformPoints = 0; // Start terraforming a new tile
             if (!Terraformable)
                 RemoveTerraformers();
             else if (TerraformersHere > TerraformerLimit)
@@ -340,7 +338,7 @@ namespace Ship_Game
         void CompletePlanetTerraform()
         {
             Terraform(Owner.data.PreferredEnv);
-            UpdateTerraformPoints(0);
+            TerraformPoints = 0;
             if (TerraformedMaxFertility.Greater(BaseMaxFertility))
             {
                 // BaseMaxFertility was lower, so the planet was improved. This is just to stabilize

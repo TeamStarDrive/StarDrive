@@ -56,14 +56,12 @@ namespace Ship_Game.Universe.SolarBodies
 
             Building b = ResourceManager.CreateBuilding(P, bid);
             tile.PlaceBuilding(b, P);
-            P.SetHasDynamicBuildings(true);
         }
 
         void CreateVolcanoBuilding(int bid)
         {
             Building b = ResourceManager.CreateBuilding(P, bid);
             Tile.PlaceBuilding(b, P);
-            P.SetHasDynamicBuildings(true);
         }
 
         void CreateDormantVolcano()
@@ -291,7 +289,6 @@ namespace Ship_Game.Universe.SolarBodies
             planet.DestroyBuildingOn(tile);
             planet.DestroyTile(tile);
             tile.Volcano = null;
-            planet.ResetHasDynamicBuildings();
 
             if (wasHabitable)
                 planet.MakeTileHabitable(tile);
