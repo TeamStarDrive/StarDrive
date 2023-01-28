@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SDGraphics;
+using SDGraphics.Shaders;
 using SDUtils;
 using SgMotion;
 using Ship_Game.Data.Mesh;
@@ -87,7 +88,8 @@ namespace Ship_Game.Data
                     {
                         if (IsDisposed(asset))
                         {
-                            Log.Error($"Cached Asset '{assetNameWithExt}' is Disposed, discarding cached asset");
+                            // the asset was Disposed and should be removed
+                            // this could be intentional to force asset reload
                             assets.Remove(assetNameWithExt);
                         }
                         else
@@ -295,6 +297,13 @@ namespace Ship_Game.Data
                         fx.Dispose();
                     }
                     break;
+                case Shader shader:
+                    if (!shader.IsDisposed)
+                    {
+                        if (DebugAssetLoading) Log.Write(ConsoleColor.Magenta, "Disposing shader   "+(assetName??"unknown"));
+                        shader.Dispose();
+                    }
+                    break;
                 case Video _: // video is just a reference object, nothing to dispose
                     break;
                 case IDisposable disposable:
@@ -319,6 +328,8 @@ namespace Ship_Game.Data
                 case SkinnedModel sm: return StaticMesh.IsModelDisposed(sm);
                 case Video _: return false; // nothing to dispose
                 case SpriteFont font: return GetField<Texture2D>(font, "textureValue").IsDisposed;
+                case Effect fx: return fx.IsDisposed;
+                case Shader shader: return shader.IsDisposed;
             }
             // anything that falls here is of non-disposable type, such as `Video`
             return false;
@@ -349,6 +360,14 @@ namespace Ship_Game.Data
             // we didn't find it in LoadedAssets, but lets dispose it anyways
             Dispose(null, asset);
             asset = null;
+        }
+        
+        /// <summary>
+        /// Disposes an asset and removes it from the content manager
+        /// </summary>
+        public void Dispose<T>(T asset) where T : class
+        {
+            Dispose<T>(ref asset);
         }
 
         readonly struct AssetName
@@ -617,6 +636,7 @@ namespace Ship_Game.Data
         }
 
         // Load and compile an .fx file
+        // TODO: replace LoadEffect calls with LoadShader
         public Effect LoadEffect(string effectFile)
         {
             AssetName asset = new(effectFile);
@@ -629,8 +649,10 @@ namespace Ship_Game.Data
 
             if (DebugAssetLoading) Log.Write(ConsoleColor.Cyan, $"LoadEffect {file.RelPath()}");
 
-            string sourceCode = File.ReadAllText(file.FullName);
-            CompiledEffect compiled = Effect.CompileEffectFromSource(sourceCode, Empty<CompilerMacro>.Array, null, 
+            string pathToShader = file.FullName;
+            string sourceCode = File.ReadAllText(pathToShader);
+            var handler = Shader.CreateIncludeHandler(pathToShader);
+            CompiledEffect compiled = Effect.CompileEffectFromSource(sourceCode, Empty<CompilerMacro>.Array, handler, 
                                                                      CompilerOptions.None, TargetPlatform.Windows);
             if (!compiled.Success)
             {
@@ -640,6 +662,34 @@ namespace Ship_Game.Data
             var fx = new Effect(Device, compiled.GetEffectCode(), CompilerOptions.None, null);
             lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref fx);
             return fx;
+        }
+
+        // Load and compile an .fx file as an SDGraphics Shader
+        public Shader LoadShader(string effectFile)
+        {
+            AssetName asset = new(effectFile);
+            return LoadShader(in asset, null);
+        }
+        
+        // Load and compile an .fx file as an SDGraphics Shader via an existing FileInfo
+        public Shader LoadShader(FileInfo file)
+        {
+            AssetName asset = new(file ?? throw new NullReferenceException(nameof(file)));
+            return LoadShader(in asset, file);
+        }
+
+        Shader LoadShader(in AssetName asset, FileInfo file)
+        {
+            if (TryGetAsset(asset.RelPathWithExt, out Shader existing))
+                return existing;
+                        
+            file ??= ResourceManager.GetModOrVanillaFile(asset.RelPathWithExt);
+            if (file == null)
+                throw new FileNotFoundException($"LoadShader {asset.RelPathWithExt} does not exist!");
+
+            Shader shader = Shader.FromFile(Device, file.FullName);
+            lock (LoadSync) RecordCacheObject(asset.RelPathWithExt, ref shader);
+            return shader;
         }
 
         public StaticMesh LoadStaticMesh(string meshName, bool animated = false)
