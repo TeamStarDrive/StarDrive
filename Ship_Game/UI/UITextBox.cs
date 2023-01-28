@@ -11,7 +11,8 @@ namespace Ship_Game
         readonly Graphics.Font DefaultFont;
         public readonly ScrollList<TextBoxItem> ItemsList;
         
-        public UITextBox(in RectF rect, bool useBorder = true, Graphics.Font defaultFont = null) : base(rect, Color.TransparentBlack)
+        public UITextBox(in RectF rect, bool useBorder = true, Graphics.Font defaultFont = null)
+            : base(rect, Color.TransparentBlack)
         {
             DefaultFont = defaultFont ?? Fonts.Arial12Bold;
 
@@ -20,6 +21,8 @@ namespace Ship_Game
             else
                 ItemsList = base.Add(new ScrollList<TextBoxItem>(rect));
             
+            // set local pos, so that ScrollList moves along with UITextBox
+            ItemsList.SetLocalPos(LocalPos.Zero);
             ItemsList.EnableItemEvents = false;
         }
 
