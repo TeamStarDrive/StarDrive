@@ -173,6 +173,7 @@ namespace Ship_Game
             if (!ParentSystem.OwnerList.Contains(Owner))
                 ParentSystem.OwnerList.Add(Owner);
 
+            UpdateDevelopmentLevel();
             CreateHomeWorldBuildings();
         }
 

@@ -36,7 +36,7 @@ namespace Ship_Game
 
                 int defensiveBuildings = p.CountBuildings(def => def.SoftAttack > 0 || def.PlanetaryShieldStrengthAdded > 0 || def.TheWeapon != null);
                 int offensiveBuildings = p.BuildingsCanBuild.Count(off => off.PlanetaryShieldStrengthAdded > 0 || off.SoftAttack > 0 || off.TheWeapon != null);
-                bool isDefensive = b.SoftAttack > 0 || b.PlanetaryShieldStrengthAdded > 0 || b.isWeapon;
+                bool isDefensive = b.SoftAttack > 0 || b.PlanetaryShieldStrengthAdded > 0 || b.IsWeapon;
                 float defenseRatio = 0;
                 if (defensiveBuildings + offensiveBuildings > 0)
                     defenseRatio = (defensiveBuildings + 1) / (float)(defensiveBuildings + offensiveBuildings + 1);
@@ -233,7 +233,7 @@ namespace Ship_Game
                 return false;
             if (a.HighPri)
             {
-                if (b.isWeapon
+                if (b.IsWeapon
                     || b.IsSensor
                     || b.Defense > 0
                     || (Fertility < 1f && b.PlusFlatFoodAmount > 0)
