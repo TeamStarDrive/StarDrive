@@ -12,8 +12,7 @@
     <HardAttack>60</HardAttack>
     <Defense>20</Defense>
     <Weapon>CPMissile</Weapon>
-    <isWeapon>true</isWeapon>
-    
+   
     <!-- For localization in GameText.yaml -->
     <NameTranslationIndex>5408</NameTranslationIndex>
     <DescriptionIndex>5409</DescriptionIndex>

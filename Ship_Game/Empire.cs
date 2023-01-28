@@ -2401,7 +2401,7 @@ namespace Ship_Game
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
-        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this));
+        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this) * 0.2f);
 
         public void ChargeCreditsOnProduction(QueueItem q, float spentProduction)
         {

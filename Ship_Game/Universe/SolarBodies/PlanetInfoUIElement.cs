@@ -269,7 +269,7 @@ namespace Ship_Game
 
         void DrawSendTroops(SpriteBatch batch, Vector2 mousePos)
         {
-            if (P.Owner == Player || Player.IsNAPactWith(P.Owner))
+            if (P.Owner == Player || P.Owner != null && !Player.IsAtWarWith(P.Owner))
                 return; // Cannot send troops to this planet or different UI for player owner.
 
             Vector2 textPos        = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Font12.LineSpacing / 2 - 2);
@@ -277,7 +277,7 @@ namespace Ship_Game
             Color buttonBaseColor  = ButtonTextColor;
             Color buttonHoverColor = ButtonHoverColor;
             string texName         = "UI/dan_button_blue";
-            string text = "Invade"; ;
+            string text = "Invade";
             if (P.Owner != null)
             {
                 if (incomingTroops > 0)

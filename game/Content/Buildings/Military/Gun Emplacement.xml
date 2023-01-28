@@ -10,7 +10,6 @@
   <Defense>20</Defense>
   <SoftAttack>55</SoftAttack>
   <HardAttack>20</HardAttack>
-  <isWeapon>true</isWeapon>
   <InvadeInjurePoints>1</InvadeInjurePoints>
   <Weapon>PlanetFlak</Weapon>
   

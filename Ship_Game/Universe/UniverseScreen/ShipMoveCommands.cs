@@ -113,11 +113,13 @@ namespace Ship_Game.Universe
                 else
                     ship.OrderToOrbit(planet, clearOrders, order); // Just orbit
             }
-            else if (planet.Habitable && (planet.Owner == null ||
-                                          ship.Loyalty.IsEmpireAttackable(planet.Owner)))
+            else if (planet.Habitable)
             {
-                // Land troops on unclaimed planets or enemy planets
-                ship.AI.OrderLandAllTroops(planet, clearOrders);
+                if (planet.Owner == null || ship.Loyalty.IsAtWarWith(planet.Owner))
+                {
+                    // Land troops on unclaimed planets or enemy planets
+                    ship.AI.OrderLandAllTroops(planet, clearOrders);
+                }
             }
             else
             {
