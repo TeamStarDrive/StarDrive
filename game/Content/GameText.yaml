@@ -13649,7 +13649,7 @@ LightKineticCannon:
 LightKineticCannonDescr:
  Id: 17602
  ENG: "Light and small weapon mount that shoots kinetic projectles in rapid sucession. Requires Ordinance to be able to shoot."
-CA_Tech_SmallStations_Name:
+Tech_SmallStations_Name:
  Id: 17603
  ENG: "Small Stations"
  RUS: "Малые станции"
