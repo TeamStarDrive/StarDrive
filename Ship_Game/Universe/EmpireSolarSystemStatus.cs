@@ -47,7 +47,7 @@ namespace Ship_Game.Universe
                 {
                     HostileForcesPresent = true;
                     CombatTimer = Owner.isPlayer ? 5f : 1f;
-                    if (ship.BaseStrength > 0)
+                    if (ship.BaseStrength > 0 || ship.IsDefaultTroopShip)
                     {
                         DangerousForcesPresent = true;
                         return;

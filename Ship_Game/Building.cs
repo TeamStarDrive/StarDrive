@@ -14,7 +14,6 @@ namespace Ship_Game
     public sealed class Building
     {
         [StarData] public string Name;
-        [StarData] public bool IsSensor;
         [StarData] public bool NoRandomSpawn;
         [StarData] public bool AllowShipBuilding;
         [StarData] public int NameTranslationIndex;
@@ -43,7 +42,6 @@ namespace Ship_Game
         public bool IsDestroyed => Strength <= 0;
         [StarData(DefaultValue=true)] public bool Scrappable = true;
         [StarData(DefaultValue=true)] public bool Unique = true;
-        [StarData] public bool isWeapon;
         [StarData] public string Weapon = "";
         [StarData] public float WeaponTimer;
         [StarData] public float AttackTimer;
@@ -68,9 +66,8 @@ namespace Ship_Game
         [StarData] public float PlusProdPerColonist;
         [StarData] public float PlusFlatProductionAmount;
         [StarData] public float SensorRange;
-        [StarData] public bool IsProjector;
         [StarData] public float ProjectorRange;
-        [StarData] public float ShipRepair; // ship repair multiplier, intended to be 1.0 or 2.0 etc
+        [StarData] public float ShipRepair; // Note that thee is a multiplier in globals.yamls for this
         [StarData] public BuildingCategory Category;
         [StarData] public bool IsPlayerAdded;
         [StarData] public int InvadeInjurePoints;
@@ -108,6 +105,9 @@ namespace Ship_Game
         public static int CapitalId, OutpostId, BiospheresId, SpacePortId, TerraformerId;
         public static int VolcanoId, ActiveVolcanoId, EruptingVolcanoId, Lava1Id, Lava2Id, Lava3Id;
         public static int Crater1Id, Crater2Id, Crater3Id, Crater4Id;
+
+        [XmlIgnore] public bool IsSensor => SensorRange > 0;
+        [XmlIgnore] public bool IsWeapon => Weapon.NotEmpty();
         [XmlIgnore] public bool IsCapital          => BID == CapitalId;
         [XmlIgnore] public bool IsOutpost          => BID == OutpostId;
         [XmlIgnore] public bool IsCapitalOrOutpost => BID == CapitalId || BID == OutpostId;
@@ -124,7 +124,7 @@ namespace Ship_Game
         [XmlIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
         [XmlIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
         [XmlIgnore] private float DefenseShipStrength;
-        [XmlIgnore] public float SpaceRange = 10000f;
+        [XmlIgnore] public float SpaceRange = 20000f;
 
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
@@ -155,12 +155,12 @@ namespace Ship_Game
 
         public void CreateWeapon(Planet p)
         {
-            if (!isWeapon || TheWeapon != null)
-                return;
-
-            TheWeapon = ResourceManager.CreateWeapon(Weapon);
-            SpaceRange = TheWeapon.BaseRange;
-            UpdateOffense(p);
+            if (IsWeapon)
+            {
+                TheWeapon = ResourceManager.CreateWeapon(Weapon);
+                SpaceRange = TheWeapon.BaseRange;
+                UpdateOffense(p);
+            }
         }
 
         public void UpdateAttackActions(int amount)
@@ -212,7 +212,7 @@ namespace Ship_Game
 
         public void UpdateOffense(Planet p)
         {
-            if (isWeapon)
+            if (IsWeapon)
             {
                 if (TheWeapon == null)
                     CreateWeapon(p);
@@ -243,7 +243,7 @@ namespace Ship_Game
 
         public bool UpdateSpaceCombatActions(FixedSimTime timeStep, Planet p)
         {
-            if (!isWeapon && DefenseShipsCapacity == 0)
+            if (!IsWeapon && DefenseShipsCapacity == 0)
                 return false;
 
             bool canFireWeapon = false;
@@ -258,7 +258,8 @@ namespace Ship_Game
             if (canFireWeapon || canLaunchShips)
             {
                 // this scan is pretty expensive
-                Ship target = p.ScanForSpaceCombatTargets(TheWeapon, SpaceRange);
+                float range = canFireWeapon && canLaunchShips ? SpaceRange.LowerBound(20000) : SpaceRange;
+                Ship target = p.ScanForSpaceCombatTargets(TheWeapon, range, canLaunchShips);
                 if (target != null)
                 {
                     if (canFireWeapon)
@@ -414,7 +415,7 @@ namespace Ship_Game
                 score += CalcDefenseShipScore();
             }
 
-            if (isWeapon && Offense == 0f)
+            if (IsWeapon && Offense == 0f)
                 UpdateOffense(p);
 
             MilitaryStrength = score + Offense * 0.1f;
