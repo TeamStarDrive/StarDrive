@@ -42,7 +42,8 @@ public sealed class LoadNewGameSetupScreen : GenericLoadSaveScreen
 
                 string info = data.Date;
                 string extraInfo = data.ModName.NotEmpty() ? $"Mod: {data.ModName}" : "Vanilla";
-                saves.Add(new(file, data, data.Name, info, extraInfo, null, Color.White)
+                string tooltip = file.Name;
+                saves.Add(new(file, data, data.Name, info, extraInfo, tooltip, null, Color.White)
                 {
                     Enabled = GlobalStats.IsValidForCurrentMod(data.ModName)
                 });

@@ -45,10 +45,10 @@ public sealed class SaveFleetDesignScreen : GenericLoadSaveScreen
             ExitScreen();
         }
     }
-    
+
     FileData CreateFleetDesignSaveItem(FileInfo info, FleetDesign design)
     {
-        return new FileData(info, info, info.NameNoExt(), "", "", design.Icon, Color.White);
+        return new(info, info, info.NameNoExt(), "", "", "", design.Icon, Color.White);
     }
 
     protected override void InitSaveList()
