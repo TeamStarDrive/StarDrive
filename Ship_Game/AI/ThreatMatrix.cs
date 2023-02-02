@@ -166,7 +166,7 @@ public sealed partial class ThreatMatrix
     {
         return RivalClusters.Filter(c => c.HasStarBases && c.Loyalty.IsFaction);
     }
-        
+
     /// <summary>
     /// Gets all systems where rival hostile factions exist
     /// </summary>
@@ -178,7 +178,7 @@ public sealed partial class ThreatMatrix
                 systems.Add(c.System);
         return systems;
     }
-        
+
     /// <summary>
     /// Gets the known strength for an empire
     /// </summary>
@@ -195,7 +195,7 @@ public sealed partial class ThreatMatrix
         }
         return strength;
     }
-    
+
     /// <summary>
     /// Gets the total strength for an empire's ThreatClusters
     /// which are within our Borders
