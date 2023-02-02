@@ -28,7 +28,7 @@ namespace Ship_Game
         // Set list of files to show
         protected override void InitSaveList()
         {
-            var saveFiles = Dir.GetFiles(Path, "sav");
+            FileInfo[] saveFiles = Dir.GetFiles(Path, "sav");
             var saves = new Array<FileData>();
             foreach (FileInfo saveFile in saveFiles)
             {

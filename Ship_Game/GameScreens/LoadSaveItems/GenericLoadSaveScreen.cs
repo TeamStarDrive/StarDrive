@@ -296,6 +296,9 @@ namespace Ship_Game
 
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                 batch.DrawString(Fonts.Arial12Bold, Data.ExtraInfo, tCursor, Color.White);
+
+                if (Hovered && Data.Tooltip.NotEmpty())
+                    ToolTip.CreateTooltip(Data.Tooltip, "", null, maxWidth:400);
             }
         }
 
@@ -304,18 +307,20 @@ namespace Ship_Game
             public string FileName;
             public string Info;
             public string ExtraInfo;
+            public string Tooltip;
             public SubTexture Icon;
             public Color IconColor;
             public FileInfo FileLink;
             public object Data;
             public bool Enabled = true; // new feature: show incompatible entries as grayed out and unselectable
 
-            public FileData(FileInfo fileLink, object data, 
-                string fileName, string info, string extraInfo, SubTexture icon, Color iconColor)
+            public FileData(FileInfo fileLink, object data,
+                string fileName, string info, string extraInfo, string tooltip, SubTexture icon, Color iconColor)
             {
                 FileName = fileName;
                 Info = info;
                 ExtraInfo = extraInfo;
+                Tooltip = tooltip;
                 FileLink = fileLink;
                 Data = data;
                 Icon = icon ?? ResourceManager.Texture("ShipIcons/Wisp");
@@ -326,11 +331,12 @@ namespace Ship_Game
             {
                 string info = $"{header.PlayerName} StarDate {header.StarDate}";
                 string extraInfo = header.RealDate;
+                string tooltip = file.Name;
 
                 IEmpireData empire = ResourceManager.AllRaces.FirstOrDefault(e => e.Name == header.PlayerName)
                                   ?? ResourceManager.AllRaces[0];
-                return new FileData(file, header, header.SaveName, info, extraInfo,
-                                       empire.Traits.FlagIcon, empire.Traits.Color);
+                return new(file, header, header.SaveName, info, extraInfo, tooltip,
+                           empire.Traits.FlagIcon, empire.Traits.Color);
             }
         }
     }

@@ -44,8 +44,8 @@ namespace Ship_Game
         // Set list of files to show
         protected override void InitSaveList()
         {
+            FileInfo[] saveFiles = Dir.GetFiles(Path, "sav");
             var saves = new Array<FileData>();
-            var saveFiles = Dir.GetFiles(Path, "sav");
             foreach (FileInfo saveFile in saveFiles)
             {
                 try
@@ -53,9 +53,8 @@ namespace Ship_Game
                     HeaderData header = LoadGame.PeekHeader(saveFile);
 
                     // GlobalStats.ModName is "" if no active mods
-                    if (header != null && // null if saveFile is not a valid binary save
-                        header.Version == SavedGame.SaveGameVersion &&
-                        header.ModName == GlobalStats.ModName)
+                    if (header is { Version: SavedGame.SaveGameVersion } // null if saveFile is not a valid binary save
+                        && header.ModName == GlobalStats.ModName)
                     {
                         saves.Add(FileData.FromSaveHeader(saveFile, header));
                     }
@@ -68,6 +67,5 @@ namespace Ship_Game
 
             AddItemsToSaveSL(saves.OrderByDescending(header => (header.Data as HeaderData)?.Time));
         }
-
     }
 }
