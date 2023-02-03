@@ -75,6 +75,7 @@ namespace Ship_Game
         {
             GenerateNewFromPlanetType(random, type, scale, preDefinedPop);
             AddEventsAndCommodities();
+            UpdatePlanetStatsByRecalculation();
         }
 
         // FB - this is a more comprehensive method of choosing planet type.
