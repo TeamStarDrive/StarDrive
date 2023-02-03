@@ -4416,6 +4416,12 @@ namespace Ship_Game
         AutoBuildTerraformers = 4385,
         /// <summary>Your empire will manage terraforming efforts</summary>
         AutoBuildTerraformersTip = 4386,
+        // some building desctiprion here in gametext so no representation from 4387 to 4395
+        /// <summary>Rush Refit</summary>
+        RushRefit = 4396,
+        /// <summary>Rush Refit will prioritize this refit</summary>
+        RushRefitTip = 4397,
+
 
 
 

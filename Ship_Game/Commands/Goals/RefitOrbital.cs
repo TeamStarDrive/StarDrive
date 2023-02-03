@@ -10,6 +10,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class RefitOrbital : DeepSpaceBuildGoal
     {
+        [StarData] public bool Rush { get; set; }
         [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
         [StarData] public sealed override Ship OldShip { get; set; }
         public override bool IsRefitGoalAtPlanet(Planet planet) => PlanetBuildingAt == planet;
@@ -27,10 +28,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitOrbital(Ship oldShip, IShipDesign toBuild, Empire owner) : this(owner)
+        public RefitOrbital(Ship oldShip, IShipDesign toBuild, Empire owner, bool rush = false) : this(owner)
         {
             OldShip = oldShip;
             Planet targetPlanet = oldShip.GetTether();
+            Rush= rush;
             Initialize(toBuild.Name, Vector2.Zero, targetPlanet, Vector2.Zero);
         }
 
@@ -57,7 +59,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;
 
             IShipDesign constructor = BuildableShip.GetConstructor(Owner);
-            PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, OldShip.RefitCost(ToBuild), this);
+            PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, OldShip.RefitCost(ToBuild), this, Rush);
             return GoalStep.GoToNextStep;
         }
 
