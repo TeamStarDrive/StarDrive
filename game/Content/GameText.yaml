@@ -10301,6 +10301,15 @@ BB_RushRefit:
 BB_RushRefitTip:
  Id: 4397
  ENG: "Rush Refit will prioritize this refit and rush it. Use with caution if you are refitting a lot of ships since this spends money on rush. "   
+BB_EnableStarvationWarning:
+ Id: 4398
+ ENG: "Enable Starvation Warnings"    
+BB_EnableStarvationWarningTip:
+ Id: 4399
+ ENG: "When enabled, you will get a warning when a planet population start starving."    
+StarvationOnPlanet:
+ Id: 4400
+ ENG: "Starvation started on"     
 OnSurface:
  Id: 4993
  ENG: "on surface"

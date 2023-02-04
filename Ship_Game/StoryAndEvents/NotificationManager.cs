@@ -410,6 +410,17 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
+        public void AddStarvation(Planet planet)
+        {
+            AddNotification(new Notification
+            {
+                ReferencedItem1 = planet,
+                IconPath = planet.IconPath,
+                Action = "SnapToPlanet",
+                Message = $"{Localizer.Token(GameText.StarvationOnPlanet)} {planet.Name}!"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddNotify(ExplorationEvent expEvent)
         {
             AddNotification(new Notification
