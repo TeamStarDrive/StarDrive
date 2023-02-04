@@ -10,7 +10,6 @@
   <Scrappable>false</Scrappable>
   <CannotBeBombed>true</CannotBeBombed>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  <CanBeTerraformed>true</CanBeTerraformed>
   <IsCommodity>true</IsCommodity>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4393</NameTranslationIndex>

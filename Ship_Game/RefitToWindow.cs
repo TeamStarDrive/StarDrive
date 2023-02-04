@@ -21,9 +21,11 @@ namespace Ship_Game
         ScrollList<RefitShipListItem> RefitShipList;
         UIButton RefitOne;
         UIButton RefitAll;
+        UICheckBox RushRefit;
         IShipDesign RefitTo;
         DanButton ConfirmRefit;
         ShipInfoOverlayComponent ShipInfoOverlay;
+        bool Rush;
 
         public RefitToWindow(ShipListScreen screen, ShipListScreenItem item) : base(screen, toPause: null)
         {
@@ -98,6 +100,12 @@ namespace Ship_Game
             RefitOne.Tooltip = Localizer.Token(GameText.RefitOnlyThisShipTo);
             RefitAll = ButtonMedium(shipDesignsRect.X + 250, shipDesignsRect.Y + 505, text:GameText.RefitAll, click: OnRefitAllClicked);
             RefitAll.Tooltip = Localizer.Token(GameText.RefitAllShipsOfThis);
+            RushRefit = Add(new UICheckBox(() => Rush, Fonts.Arial12Bold,
+                title: GameText.RushRefit, tooltip: GameText.RushRefitTip));
+            RushRefit.TextColor = Color.Gray;
+            RushRefit.CheckedTextColor = Color.Red;
+            RushRefit.Pos = new Vector2(shipDesignsRect.X, shipDesignsRect.Y + 540);
+            RushRefit.Visible = false;
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, ShipToRefit.Universe));
             RefitShipList.OnHovered = (item) =>
@@ -113,6 +121,7 @@ namespace Ship_Game
             RefitTo = item.Design;
             RefitOne.Enabled = RefitTo != null;
             RefitAll.Enabled = RefitTo != null;
+            RushRefit.Enabled = RefitTo != null;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -122,14 +131,15 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
             if (RefitTo != null)
             {
-                var cursor = new Vector2(ConfirmRefit.r.X, (ConfirmRefit.r.Y + 30));
-                string text = Fonts.Arial12Bold.ParseText($"Refit {ShipToRefit.Name} to {RefitTo.Name}", 270f);
-                batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
+                var cursor = new Vector2(ConfirmRefit.r.X, (ConfirmRefit.r.Y + 60));
+                string text = Fonts.Arial14Bold.ParseText($"Refit {ShipToRefit.Name} to {RefitTo.Name}", 270f);
+                batch.DrawString(Fonts.Arial14Bold, text, cursor, Color.White);
             }
             batch.SafeEnd();
 
             RefitOne.Visible = RefitTo != null;
             RefitAll.Visible = RefitTo != null;
+            RushRefit.Visible= RefitTo != null;
         }
 
         public override void ExitScreen()
@@ -168,9 +178,9 @@ namespace Ship_Game
         {
             Goal refitShip;
             if (ShipToRefit.IsPlatformOrStation)
-                refitShip = new RefitOrbital(ship, RefitTo, Player);
+                refitShip = new RefitOrbital(ship, RefitTo, Player, Rush);
             else
-                refitShip = new RefitShip(ship, RefitTo, Player);
+                refitShip = new RefitShip(ship, RefitTo, Player, Rush);
 
             return refitShip;
         }
