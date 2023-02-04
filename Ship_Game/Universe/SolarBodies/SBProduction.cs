@@ -316,7 +316,7 @@ namespace Ship_Game.Universe.SolarBodies
             AddToQueueAndPrioritize(qi);
         }
 
-        public void Enqueue(IShipDesign orbitalRefit, IShipDesign constructor, float refitCost, Goal goal)
+        public void Enqueue(IShipDesign orbitalRefit, IShipDesign constructor, float refitCost, Goal goal, bool rush)
         {
             var qi = new QueueItem(P)
             {
@@ -327,7 +327,7 @@ namespace Ship_Game.Universe.SolarBodies
                 DisplayName   = $"{constructor.Name} ({orbitalRefit.Name})",
                 ShipData      = constructor,
                 Cost          = refitCost,
-                Rush          = P.Owner.RushAllConstruction,
+                Rush          = rush || P.Owner.RushAllConstruction,
                 QType         = QueueItemType.CombatShip
             };
 

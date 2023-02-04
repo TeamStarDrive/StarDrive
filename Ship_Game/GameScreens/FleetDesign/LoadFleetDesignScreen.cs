@@ -40,8 +40,10 @@ public sealed class LoadFleetDesignScreen : GenericLoadSaveScreen
     FileData CreateFleetDesignSaveItem(FileInfo info, FleetDesign design)
     {
         design.CanBuildFleet = PlayerCanBuildFleet(design);
-        var data = new FileData(info, info, info.NameNoExt(), "", "", design.Icon, Color.White);
-        data.Enabled = design.CanBuildFleet;
+        FileData data = new(info, info, info.NameNoExt(), "", "", "", design.Icon, Color.White)
+        {
+            Enabled = design.CanBuildFleet
+        };
         if (!design.CanBuildFleet)
             data.Info = "We cannot build this fleet";
         return data;
