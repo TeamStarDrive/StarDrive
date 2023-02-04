@@ -4,6 +4,8 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
+using System;
+using Ship_Game.Utils;
 
 namespace Ship_Game;
 
@@ -269,7 +271,7 @@ public partial class Planet
     /// <summary>
     /// Places a building at `tile`. This should be the only way to add a building to the planet!
     /// </summary>
-    public void PlaceBuildingAt(PlanetGridSquare tile, Building b)
+    public void PlaceBuildingAt(Building b)
     {
         if (!BuildingList.AddUniqueRef(b))
         {
@@ -282,6 +284,12 @@ public partial class Planet
 
         if (b.IsCapital)
             RemoveOutpost();
+
+        if (b.ProdCache > 0)
+            b.ProdCache = (int)RandomMath.Float(b.ProdCache * 0.5f, b.ProdCache * 1.5f);
+
+        if (b.FoodCache > 0)
+            b.FoodCache = (int)RandomMath.Float(b.FoodCache * 0.5f, b.FoodCache * 1.5f);
 
         UpdatePlanetStatsFromPlacedBuilding(b);
 
