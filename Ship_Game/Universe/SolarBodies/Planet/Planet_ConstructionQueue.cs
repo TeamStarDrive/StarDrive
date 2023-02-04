@@ -4,8 +4,6 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
-using System;
-using Ship_Game.Utils;
 
 namespace Ship_Game;
 
