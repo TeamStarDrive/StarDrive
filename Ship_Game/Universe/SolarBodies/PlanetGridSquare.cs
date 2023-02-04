@@ -191,7 +191,7 @@ namespace Ship_Game
             }
 
             QItem = null;
-            p.PlaceBuildingAt(this, b);
+            p.PlaceBuildingAt(b);
         }
 
         // don't call this directly, always use Planet.DestroyBuilding()/ScrapBuilding() instead

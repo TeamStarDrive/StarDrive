@@ -4416,7 +4416,17 @@ namespace Ship_Game
         AutoBuildTerraformers = 4385,
         /// <summary>Your empire will manage terraforming efforts</summary>
         AutoBuildTerraformersTip = 4386,
-
+        // some building desctiprion here in gametext so no representation from 4387 to 4395
+        /// <summary>Rush Refit</summary>
+        RushRefit = 4396,
+        /// <summary>Rush Refit will prioritize this refit</summary>
+        RushRefitTip = 4397,
+        /// <summary>Enable Starvation Warnings</summary>
+        EnableStarvationWarning = 4398,
+        /// <summary>When enabled, you will get a warning</summary>
+        EnableStarvationWarningTip = 4399,
+        /// <summary>Starvation on</summary>
+        StarvationOnPlanet = 4400,
 
 
         /// <summary>on surface</summary>

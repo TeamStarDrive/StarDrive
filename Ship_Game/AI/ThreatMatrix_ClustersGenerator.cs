@@ -70,12 +70,12 @@ public sealed partial class ThreatMatrix
             MergeOverlappingClusters();
         }
 
-        public void CreateAndUpdateRivalClusters(Empire owner, ThreatCluster[] ours, Ship[] ourProjectors)
+        public void CreateAndUpdateRivalClusters(Empire owner, ThreatCluster[] ours, Span<Ship> nonCombatShips)
         {
             InitClusters(Threats.RivalClusters, isOwnerCluster: false);
 
             // set whether these clusters were fully observed or not
-            HashSet<ThreatCluster> observed = ObserveRivalClusters(ours, ourProjectors);
+            HashSet<ThreatCluster> observed = ObserveRivalClusters(ours, nonCombatShips);
             foreach (ThreatCluster c in observed)
                 c.Update.FullyObserved = true;
 
@@ -92,11 +92,11 @@ public sealed partial class ThreatMatrix
                     // else: we have captured one of the seen ships, just ignore it
                 }
             }
-            
+
             MergeOverlappingClusters();
         }
 
-        HashSet<ThreatCluster> ObserveRivalClusters(ThreatCluster[] ours, Ship[] ourProjectors)
+        HashSet<ThreatCluster> ObserveRivalClusters(ThreatCluster[] ours, Span<Ship> nonCombatShips)
         {
             HashSet<ThreatCluster> observed = new();
 
@@ -113,10 +113,10 @@ public sealed partial class ThreatMatrix
 
             // TODO: should we also scan from planets?
 
-            // projectors are not part of any clusters, so we have to scan from each one
-            for (int i = 0; i < ourProjectors.Length; ++i)
+            // noncombat ships are not part of any clusters, so we have to scan from each one
+            foreach (Ship nonCombat in nonCombatShips)
             {
-                float scanRadius = ourProjectors[i].AI.GetSensorRadius(out Ship source);
+                float scanRadius = nonCombat.AI.GetSensorRadius(out Ship source);
                 ObserveRivalsFrom(observed, source.Position, scanRadius);
             }
 

@@ -12,7 +12,7 @@ public sealed partial class ThreatMatrix
     /// and thus expanding it. For OUR clusters.
     /// </summary>
     public const float OwnClusterJoinRadius = 12_000f;
-    
+
     /// <summary>
     /// The default distance for joining an existing cluster
     /// and thus expanding it. For RIVALS.
@@ -49,7 +49,7 @@ public sealed partial class ThreatMatrix
     /// Time to Live in seconds for unobserved In-System clusters
     /// </summary>
     public const float TimeToLiveInSystem = 10 * 60;
-    
+
     /// <summary>
     /// Time to Live in seconds for unobserved Deep Space clusters
     /// </summary>
@@ -81,9 +81,12 @@ public sealed partial class ThreatMatrix
         }
         else
         {
+            // ReSharper disable once InconsistentlySynchronizedField
             Seen.Add(other);
         }
     }
+
+    readonly Array<Ship> NonCombatShips = new();
 
     /// <summary>
     /// Atomically updates the ThreatMatrix and
@@ -94,6 +97,12 @@ public sealed partial class ThreatMatrix
         Ship[] ourShips = Owner.EmpireShips.OwnedShips;
         Ship[] ourProjectors = Owner.EmpireShips.OwnedProjectors;
 
+        // get the list of non-combat ships
+        NonCombatShips.AddRange(ourProjectors);
+        foreach (Ship s in ourShips)
+            if (s.GetStrength() == 0)
+                NonCombatShips.Add(s);
+
         // 1. our clusters are always visible, so just get them out
         ClustersGenerator ourClusters = new(this);
         ourClusters.CreateOurClusters(Owner, ourShips);
@@ -101,7 +110,7 @@ public sealed partial class ThreatMatrix
 
         // 2. get all the clusters for rivals
         ClustersGenerator rivalClusters = new(this);
-        rivalClusters.CreateAndUpdateRivalClusters(Owner, ours, ourProjectors);
+        rivalClusters.CreateAndUpdateRivalClusters(Owner, ours, NonCombatShips.AsSpan());
         ThreatCluster[] rivals = rivalClusters.UpdateAndGetResults(timeStep, Owner, isOwnerCluster:false);
 
         // 3. Update the list of clusters and UpdateAll ClustersMap
@@ -109,6 +118,7 @@ public sealed partial class ThreatMatrix
         lock (Seen) Seen.Clear();
         OurClusters = ours;
         RivalClusters = rivals;
+        NonCombatShips.Clear();
 
         // TODO: Based on playtesting, figure out if we need this anymore
         //       the new GenericQtree design should make it unnecessary

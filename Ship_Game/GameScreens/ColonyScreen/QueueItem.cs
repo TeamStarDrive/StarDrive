@@ -174,7 +174,7 @@ namespace Ship_Game
                 default:                       PriorityBonus += 0.05f; break;
             }
 
-            if (DisplayText.Contains("Subspace Projector"))
+            if (DisplayText.Contains("Subspace Projector") || Rush)
                 PriorityBonus += 1f;
 
             return (priority - PriorityBonus);

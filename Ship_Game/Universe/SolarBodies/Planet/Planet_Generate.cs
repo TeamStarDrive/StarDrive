@@ -75,6 +75,7 @@ namespace Ship_Game
         {
             GenerateNewFromPlanetType(random, type, scale, preDefinedPop);
             AddEventsAndCommodities();
+            UpdatePlanetStatsByRecalculation();
         }
 
         // FB - this is a more comprehensive method of choosing planet type.
@@ -98,12 +99,19 @@ namespace Ship_Game
 
             if (Habitable)
             {
-                float richness = random.Float(0.0f, 100f);
-                if      (richness >= 92.5f) MineralRichness = random.Float(2.00f, 2.50f);
-                else if (richness >= 85.0f) MineralRichness = random.Float(1.50f, 2.00f);
-                else if (richness >= 25.0f) MineralRichness = random.Float(0.75f, 1.50f);
-                else if (richness >= 12.5f) MineralRichness = random.Float(0.25f, 0.75f);
-                else if (richness < 12.5f)  MineralRichness = random.Float(0.10f, 0.25f);
+                float richness = random.RollDie(100);
+                if      (richness >= 99f) MineralRichness = random.Float(3.00f, 6.00f);
+                else if (richness >= 95f) MineralRichness = random.Float(2.00f, 4.00f);
+                else if (richness >= 90f) MineralRichness = random.Float(1.50f, 3.00f);
+                else if (richness >= 80f) MineralRichness = random.Float(1.25f, 2.50f);
+                else if (richness >= 70f) MineralRichness = random.Float(1.00f, 2.00f);
+                else if (richness >= 60f) MineralRichness = random.Float(1.00f, 1.75f);
+                else if (richness >= 50f) MineralRichness = random.Float(0.75f, 1.50f);
+                else if (richness >= 40f) MineralRichness = random.Float(0.75f, 1.25f);
+                else if (richness >= 30f) MineralRichness = random.Float(0.75f, 1.00f);
+                else if (richness >= 20f) MineralRichness = random.Float(0.50f, 0.75f);
+                else if (richness >= 10f) MineralRichness = random.Float(0.25f, 0.50f);
+                else                      MineralRichness = random.Float(0.10f, 0.25f);
 
                 float habitableChance = PType.HabitableTileChance.Generate();
 

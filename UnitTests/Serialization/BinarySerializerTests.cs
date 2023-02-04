@@ -1117,6 +1117,7 @@ namespace UnitTests.Serialization
             AssertEqual(instance.ExtraPlanets, result.ExtraPlanets);
             AssertEqual(instance.PlanetsScreenHideInhospitable, result.PlanetsScreenHideInhospitable);
             AssertEqual(instance.DisableInhibitionWarning, result.DisableInhibitionWarning);
+            AssertEqual(instance.EnableStarvationWarning, result.EnableStarvationWarning);
             AssertEqual(instance.SuppressOnBuildNotifications, result.SuppressOnBuildNotifications);
             AssertEqual(instance.PlanetScreenHideOwned, result.PlanetScreenHideOwned);
             AssertEqual(instance.ShipListFilterPlayerShipsOnly, result.ShipListFilterPlayerShipsOnly);

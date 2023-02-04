@@ -12,6 +12,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     {
         [StarData] string VanityName;
         [StarData] int ShipLevel;
+        [StarData] public bool Rush { get; set; }
         [StarData] public sealed override BuildableShip Build { get; set; }
         [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
         [StarData] public sealed override Ship OldShip { get; set; }
@@ -32,13 +33,14 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitShip(Ship oldShip, IShipDesign design, Empire owner) : this(owner)
+        public RefitShip(Ship oldShip, IShipDesign design, Empire owner, bool rush = false) : this(owner)
         {
             Build = new(design);
 
             OldShip = oldShip;
             ShipLevel = oldShip.Level;
             Fleet = oldShip.Fleet;
+            Rush = rush;
             if (oldShip.VanityName != oldShip.Name)
                 VanityName = oldShip.VanityName;
 
@@ -99,6 +101,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 Cost            = OldShip.RefitCost(Build.Template),
                 Goal            = this,
                 isShip          = true,
+                Rush            = Rush || OldShip.Loyalty.RushAllConstruction,
                 TradeRoutes     = OldShip.TradeRoutes,
                 AreaOfOperation = OldShip.AreaOfOperation,
                 QType           = OldShip.IsFreighter ? QueueItemType.Freighter : QueueItemType.CombatShip,

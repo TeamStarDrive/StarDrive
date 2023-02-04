@@ -40,21 +40,22 @@ public sealed class SaveRaceScreen : GenericLoadSaveScreen
     protected override void InitSaveList()        // Set list of files to show
     {
         var saves = new Array<FileData>();
-        foreach (FileInfo fileInfo in Dir.GetFiles(Path, "yaml"))
+        foreach (FileInfo file in Dir.GetFiles(Path, "yaml"))
         {
             try
             {
-                RaceSave data = Load(fileInfo);
+                RaceSave data = Load(file);
                 if (data.Name.IsEmpty())
                 {
-                    Log.Warning($"Invalid RaceSave: {fileInfo.FullName}");
+                    Log.Warning($"Invalid RaceSave: {file.FullName}");
                     continue;
                 }
 
                 // show all race saves with they mod name
                 string info = "Race Name: " + data.Traits.Name;
                 string extraInfo = data.ModName.NotEmpty() ? $"Mod: {data.ModName}" : "Vanilla";
-                saves.Add(new(fileInfo, data, data.Name, info, extraInfo, data.Traits.FlagIcon, data.Traits.Color)
+                string tooltip = file.Name;
+                saves.Add(new(file, data, data.Name, info, extraInfo, tooltip, data.Traits.FlagIcon, data.Traits.Color)
                 {
                     Enabled = GlobalStats.IsValidForCurrentMod(data.ModName)
                 });
