@@ -4421,8 +4421,12 @@ namespace Ship_Game
         RushRefit = 4396,
         /// <summary>Rush Refit will prioritize this refit</summary>
         RushRefitTip = 4397,
-
-
+        /// <summary>Enable Starvation Warnings</summary>
+        EnableStarvationWarning = 4398,
+        /// <summary>When enabled, you will get a warning</summary>
+        EnableStarvationWarningTip = 4399,
+        /// <summary>Starvation on</summary>
+        StarvationOnPlanet = 4400,
 
 
         /// <summary>on surface</summary>

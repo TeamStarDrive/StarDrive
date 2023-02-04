@@ -1261,11 +1261,16 @@ namespace Ship_Game
             float foodRemainder = Storage.AddFoodWithRemainder(Food.NetIncome);
             float prodRemainder = Storage.AddProdWithRemainder(Prod.NetIncome);
 
+            bool wasNotStarving = Unfed == 0;
             // produced food is already consumed by denizens during resource update
             // if remainder is negative even after adding to storage,
             // then we are starving
             Unfed = IsCybernetic ? prodRemainder : foodRemainder;
-            if (Unfed > 0f) Unfed = 0f; // we have surplus, nobody is unfed
+            if (Unfed > 0f) 
+                Unfed = 0f; // we have surplus, nobody is unfed
+
+            if (OwnerIsPlayer && wasNotStarving && IsStarving && Universe.P.EnableStarvationWarning)
+                Universe.Notifications.AddStarvation(this);
 
             // special buildings generate ReactorFuel,Fissionables,etc.
             Storage.DistributeSpecialBuildingResources();
