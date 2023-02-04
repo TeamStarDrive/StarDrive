@@ -493,8 +493,11 @@ namespace Ship_Game
                 Planet[] visiblePlanets = UState.GetVisiblePlanets();
                 foreach (Planet planet in visiblePlanets)
                 {
-                    DrawCircleProjected(planet.Position, planet.GravityWellRadius,
-                                        new Color(255, 50, 0, 150), 1f, inhibit, new Color(200, 0, 0, 50));
+                    if (planet.ParentSystem.IsExploredBy(Player))
+                    {
+                        DrawCircleProjected(planet.Position, planet.GravityWellRadius,
+                                            new Color(255, 50, 0, 150), 1f, inhibit, new Color(200, 0, 0, 50));
+                    }
                 }
 
                 foreach (Ship ship in UState.Objects.VisibleShips)
