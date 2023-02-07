@@ -102,6 +102,9 @@ namespace Ship_Game.Commands.Goals
             if (Portal == null || !Portal.Active)
                 return GoalStep.GoalFailed;
 
+            if (Portal.Loyalty != Owner)
+                Portal.AI.OrderScuttleShip();
+
             Remnants.OrderEscortPortal(Portal);
             UpdatePosition();
             if (Portal.System != null)
