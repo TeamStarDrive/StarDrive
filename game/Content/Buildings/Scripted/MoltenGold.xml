@@ -4,7 +4,7 @@
   
   <Cost>0</Cost>
   <Maintenance>0</Maintenance>
-
+  <ImmueToLava>true</ImmueToLava>
   <IncreaseRichness>0.25</IncreaseRichness>
   <PlusProdPerColonist>0.2</PlusProdPerColonist>
   <Scrappable>false</Scrappable>
