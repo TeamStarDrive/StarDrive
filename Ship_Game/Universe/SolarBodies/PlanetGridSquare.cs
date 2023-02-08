@@ -45,6 +45,7 @@ namespace Ship_Game
         public bool CanCrashHere         => !IsCrashSiteActive && !CraterHere && !VolcanoHere && (!BuildingOnTile || !CapitalHere);
         public bool IsCrashSiteActive => CrashSite?.Active == true;
         public bool TerrainCanBeTerraformed => BuildingOnTile && Building.CanBeTerraformed;
+        public bool ImmuneToLava => LavaHere || VolcanoHere || BuildingOnTile && Building.ImmueToLava;
 
         public bool NoQueuedBuildings => QItem == null;
 
