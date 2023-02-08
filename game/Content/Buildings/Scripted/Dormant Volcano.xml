@@ -8,6 +8,7 @@
   <Scrappable>false</Scrappable>
   <IsCommodity>false</IsCommodity>
   <CannotBeBombed>true</CannotBeBombed>
+  <ImmueToLava>true</ImmueToLava>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <CanBeTerraformed>true</CanBeTerraformed>
   

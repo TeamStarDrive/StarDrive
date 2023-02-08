@@ -4,9 +4,10 @@
   
   <Cost>0</Cost>
   <Maintenance>0</Maintenance>
-  
+  <ImmueToLava>true</ImmueToLava>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
+  <CannotBeBombed>true</CannotBeBombed>
   <Strength>30</Strength>
   <CanBeTerraformed>true</CanBeTerraformed>
   <!-- For localization in GameText.yaml -->
