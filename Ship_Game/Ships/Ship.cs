@@ -429,6 +429,7 @@ namespace Ship_Game.Ships
         }
 
         public bool IsPlatformOrStation => ShipData.IsPlatformOrStation;
+        public bool IsShipyard => ShipData.IsShipyard;
         public bool IsStation => ShipData.IsStation;
 
         public void CauseEmpDamage(float empDamage) // FB - also used for recover EMP
