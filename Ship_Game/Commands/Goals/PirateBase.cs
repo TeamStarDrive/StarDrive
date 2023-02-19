@@ -32,10 +32,10 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep SalvageShips()
         {
-            if (Base == null || !Base.Active)
+            if (Base == null || !Base.Active || Base.Loyalty != Owner)
             {
                 Pirates.LevelDown();
-                return GoalStep.GoalFailed; // Base is destroyed, behead the Director
+                return GoalStep.GoalFailed; // Base is destroyed or captured, behead the Director
             }
 
             if (Base.InCombat) // No base operations while in combat
