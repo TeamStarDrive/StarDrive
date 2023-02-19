@@ -37,6 +37,7 @@ namespace Ship_Game.Commands.Goals
             if (offset.IsNaN())
                 Log.Error($"NaN TetherOffset={offset}");
         }
+        public override bool IsDeploymentGoal => true;
 
         public override Vector2 BuildPosition
         {

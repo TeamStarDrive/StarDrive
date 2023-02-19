@@ -247,18 +247,15 @@ namespace Ship_Game
                 {
                     Screen.ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2d posOnScreen, out double size);
 
-                    float scale = ScaleIconSize((float)size, 0.01f, 0.125f);
+                    float scale = ScaleIconSize((float)size, 0.2f, 0.4f);
                     Screen.DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
                                             platform.Height * scale, new Color(0, 255, 0, 100));
 
-                    if (buildTemplate.IsSubspaceProjector)
-                    {
-                        Screen.DrawCircle(posOnScreen, Player.GetProjectorRadius(), Color.Orange, 2f);
-                    }
-                    else if (buildTemplate.SensorRange > 0f)
-                    {
-                        Screen.DrawCircle(posOnScreen, buildTemplate.SensorRange, Color.Orange, 2f);
-                    }
+                    float borderRadius = buildTemplate.IsSubspaceProjector ? Player.GetProjectorRadius() 
+                                                                           : buildTemplate.SensorRange;
+
+                    Screen.ProjectToScreenCoords(item.BuildPos, borderRadius, out _, out double screenRadius);
+                    Screen.DrawCircle(posOnScreen, screenRadius, Color.Orange, 2f);
                 }
             }
 
