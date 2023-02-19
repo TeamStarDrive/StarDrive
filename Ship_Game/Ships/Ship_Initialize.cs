@@ -303,13 +303,23 @@ namespace Ship_Game.Ships
         public static Ship CreateShipAt(UniverseState us, string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
         {
             Ship ship = CreateShipAtPoint(us, shipName, owner, p.Position + deltaPos);
-            if (doOrbit && ship != null)
-                ship.OrderToOrbit(p, clearOrders:true);
+            if (ship != null)
+            {
+                if (ship.IsPlatformOrStation || ship.IsShipyard)
+                {
+                    ship.TetherToPlanet(p);
+                    p.OrbitalStations.Add(ship);
+                }
+                else if (doOrbit)
+                {
+                    ship.OrderToOrbit(p, clearOrders: true);
+                }
+            }
             return ship;
         }
 
-        // Refactored by RedFox - Normal Shipyard ship creation
-        public static Ship CreateShipAt(UniverseState us, string shipName, Empire owner, Planet p, bool doOrbit)
+        // Refactored by RedFox
+        public static Ship CreateShipNearPlanet(UniverseState us, string shipName, Empire owner, Planet p, bool doOrbit)
         {
             return CreateShipAt(us, shipName, owner, p, RandomMath.Vector2D(300), doOrbit);
         }

@@ -146,22 +146,22 @@ namespace Ship_Game
             var universe = triggeredBy.Universe;
             foreach (string shipName in FriendlyShipsToSpawn)
             {
-                Ship.CreateShipAt(universe, shipName, triggeredBy, p, true);
+                Ship.CreateShipNearPlanet(universe, shipName, triggeredBy, p, doOrbit: true);
             }
 
             foreach (string shipName in RemnantShipsToSpawn)
             {
-                Ship ship = Ship.CreateShipAt(universe, shipName, p.Universe.Remnants, p, true);
+                Ship ship = Ship.CreateShipNearPlanet(universe, shipName, p.Universe.Remnants, p, doOrbit: true);
                 ship.AI.DefaultAIState = AIState.Exterminate;
             }
 
             if (PirateShipsToSpawn.Count == 0 || p.Universe.PirateFactions.Length == 0)
-                return;
-
-            Empire pirates = p.Universe.PirateFactions.RandItem();
-            foreach (string shipName in PirateShipsToSpawn)
             {
-                Ship.CreateShipAt(universe, shipName, pirates, p, doOrbit:true);
+                Empire pirates = p.Universe.PirateFactions.RandItem();
+                foreach (string shipName in PirateShipsToSpawn)
+                {
+                    Ship.CreateShipNearPlanet(universe, shipName, pirates, p, doOrbit: true);
+                }
             }
         }
 

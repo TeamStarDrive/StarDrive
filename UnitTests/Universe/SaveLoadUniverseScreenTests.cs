@@ -49,7 +49,7 @@ namespace UnitTests.Universe
                     Assert.IsNotNull(bestShip, $"failed to choose best ship for {e}");
                     for (int i = 0; i < shipsPerEmpire; ++i)
                     {
-                        Ship.CreateShipAt(Universe.UState, bestShip.Name, e, e.Capital, true);
+                        Ship.CreateShipNearPlanet(Universe.UState, bestShip.Name, e, e.Capital, true);
                     }
                 }
             }
