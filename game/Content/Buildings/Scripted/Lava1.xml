@@ -9,7 +9,8 @@
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Strength>20</Strength>
-  
+  <ImmueToLava>true</ImmueToLava>
+  <CannotBeBombed>true</CannotBeBombed>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4251</NameTranslationIndex>
   <DescriptionIndex>4270</DescriptionIndex>
