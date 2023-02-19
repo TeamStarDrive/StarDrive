@@ -199,7 +199,7 @@ namespace Ship_Game.Universe.SolarBodies
             for (int i = 0; i < P.TilesList.Count; i++)
             {
                 PlanetGridSquare t = P.TilesList[i];
-                if (!t.VolcanoHere && !t.LavaHere && t.InRangeOf(tile, 1))
+                if (!t.ImmuneToLava && t.InRangeOf(tile, 1))
                     tiles.Add(t);
             }
 
@@ -240,8 +240,9 @@ namespace Ship_Game.Universe.SolarBodies
             int effects = RandomMath.RollDie(100);
             if (effects > 50)
             {
+                int threshold = planet.PType.Category == PlanetCategory.Volcanic ? 75 : 90;
                 planet.MakeTileHabitable(tile);
-                if (effects > 90 && GetBuildingsCreatedFromLava(out Building[] potentials))
+                if (effects > threshold && GetBuildingsCreatedFromLava(out Building[] potentials))
                 {
                     // Lava solidifies into a special building 
                     Building b = ResourceManager.CreateBuilding(planet, potentials.RandItem());

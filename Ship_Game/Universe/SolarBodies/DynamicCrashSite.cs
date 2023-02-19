@@ -145,7 +145,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (RecoverShip)
             {
                 string otherOwners = owner.isPlayer ? ".\n" : $" by {owner.Name}.\n";
-                Ship ship = Ship.CreateShipAt(u, ShipName, activatingEmpire, p, true);
+                Ship ship = Ship.CreateShipNearPlanet(u, ShipName, activatingEmpire, p, true);
                 message = $"Ship ({ShipName}) was recovered from the\nsurface of {p.Name}{otherOwners}";
                 float damageModifier = activatingEmpire == Loyalty ? 0.8f : 1; // If it was our ship, spawn with less damage.
                 ship.DamageByRecoveredFromCrash(damageModifier);

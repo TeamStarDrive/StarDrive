@@ -10,6 +10,7 @@
   <CannotBeBombed>true</CannotBeBombed>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <CanBeTerraformed>true</CanBeTerraformed>
+  <ImmueToLava>true</ImmueToLava>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4249</NameTranslationIndex>
