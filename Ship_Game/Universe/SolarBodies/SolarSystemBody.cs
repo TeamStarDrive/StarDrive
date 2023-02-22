@@ -10,6 +10,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using Matrix = SDGraphics.Matrix;
@@ -233,6 +234,9 @@ namespace Ship_Game
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set; }
         public IReadOnlyList<Building> GetBuildingsCanBuild() => BuildingsCanBuild;
+        
+        // per-planet pseudo-random source
+        public readonly RandomBase Random = new ThreadSafeRandom();
 
         public SolarSystemBody(int id, GameObjectType type) : base(id, type)
         {
@@ -248,7 +252,7 @@ namespace Ship_Game
             if (potentialEvents.Length == 0)
                 return;
 
-            Building selectedBuilding = potentialEvents.RandItem();
+            Building selectedBuilding = Random.RandItem(potentialEvents);
             if (selectedBuilding.IsBadCacheResourceBuilding)
             {
                 Log.Warning($"{selectedBuilding.Name} is FoodCache with no PlusFlatFood or ProdCache with no PlusProdPerColonist." +

@@ -25,19 +25,8 @@ public static class CollectionExtGameObj
         Array.Sort(keys, items, 0, count);
     }
 
-    public static T RandItem<T>(this T[] items)
-    {
-        return RandomMath.RandItem(items);
-    }
-
     public static T RandItem<T>(this Array<T> items)
     {
         return RandomMath.RandItem(items);
     }
-
-    public static T RandItem<T>(this IReadOnlyList<T> items)
-    {
-        return RandomMath.RandItem(items);
-    }
-
 }

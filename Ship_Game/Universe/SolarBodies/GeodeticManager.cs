@@ -112,16 +112,17 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private PlanetGridSquare SelectTargetTile(Bomb bomb)
         {
             float baseHitChance = ((85 + bomb.ShipLevel) * bomb.ShipHealthPercent).Clamped(10, 100);
-            if (!RandomMath.RollDice(baseHitChance))
-                return TilesList.RandItem();
+            if (!P.Random.RollDice(baseHitChance))
+                return P.Random.RandItem(TilesList);
 
             // check for buildings as well, if bombing enemy planet
-            var priorityTargets = bomb.Owner == P.Owner ? TilesList.Filter(t => t.EnemyTroopsHere(bomb.Owner))
-                                                        : TilesList.Filter(t => t.CombatBuildingOnTile || t.EnemyTroopsHere(bomb.Owner)); 
+            PlanetGridSquare priorityTarget;
+            if (bomb.Owner == P.Owner) // for defensive bombing, use P.Owner random
+                priorityTarget = P.Owner.Random.RandItemFiltered(TilesList, t => t.EnemyTroopsHere(bomb.Owner));
+            else // for offensive bombing, use bomb owner random
+                priorityTarget = bomb.Owner.Random.RandItemFiltered(TilesList, t => t.CombatBuildingOnTile || t.EnemyTroopsHere(bomb.Owner));
 
-            // If there are priority targets, choose one of them.
-            return priorityTargets.Length > 0 ? priorityTargets.RandItem() 
-                                              : TilesList.RandItem();
+            return priorityTarget ?? P.Random.RandItem(TilesList);
         }
 
         private void DeclareWarOnBombingEmpire(Bomb bomb)

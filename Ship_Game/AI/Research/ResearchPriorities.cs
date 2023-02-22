@@ -193,7 +193,7 @@ namespace Ship_Game.AI.Research
             numTechs += shipTech.Count;
             while (shipTech.Count > 0)
             {
-                string techToAdd = shipTech.RandItem();
+                string techToAdd = OwnerEmpire.Random.RandItem(shipTech);
                 shipTechToAdd   += $":{techToAdd}";
                 shipTech.Remove(techToAdd);
             }

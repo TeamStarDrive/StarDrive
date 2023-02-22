@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game.AI.ShipMovement;
@@ -10,8 +6,6 @@ using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
 using Ship_Game.ExtensionMethods;
-using Ship_Game.GameScreens.Scene;
-using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 
@@ -56,7 +50,7 @@ namespace Ship_Game.GameScreens.Scene
             }
 
             Vector3 Vec3(int arg) => Vector3Serializer.ToVector(GetArgument(arg));
-            Vector3 RandVec3(int arg) => RandomMath.Vector3D(Vector3Serializer.ToVector(GetArgument(arg)));
+            Vector3 RandVec3(int arg) => Scene.Random.Vector3D(Vector3Serializer.ToVector(GetArgument(arg)));
             float Range(int arg) => RangeSerializer.ToRange(GetArgument(arg)).Generate();
             float Float(int arg) => FloatSerializer.ToFloat(GetArgument(arg));
             int Int(int arg) => (int)Math.Round(FloatSerializer.ToFloat(GetArgument(arg)));
@@ -125,13 +119,13 @@ namespace Ship_Game.GameScreens.Scene
                         Scale = group.Scale.Generate()
                     };
                     if (group.MinPos != null && group.MaxPos != null)
-                        spawn.Position = RandomMath.Vector3D(group.MinPos.Value, group.MaxPos.Value);
+                        spawn.Position = Scene.Random.Vector3D(group.MinPos.Value, group.MaxPos.Value);
                     if (group.Orbit != null)
                         spawn.Position = GenerateOrbitPos(ai, group.Orbit.Value, group.Offset);
                     if (group.Rotation != null)
                         spawn.Rotation = group.Rotation.Value;
                     if (group.RandRot != null)
-                        spawn.Rotation = RandomMath.Vector3D(group.RandRot.Value);
+                        spawn.Rotation = Scene.Random.Vector3D(group.RandRot.Value);
                     objects.Add(spawn);
                 }
             }
@@ -173,8 +167,8 @@ namespace Ship_Game.GameScreens.Scene
                 return Vector3.Zero;
 
             float radius = orbit.X;
-            float angle = RandomMath.Float(orbit.Y, orbit.Z);
-            Vector3 randDispersion = RandomMath.Vector3D(offset);
+            float angle = Scene.Random.Float(orbit.Y, orbit.Z);
+            Vector3 randDispersion = Scene.Random.Vector3D(offset);
 
             Vector3 orbitCenter = OrbitOrder.OrbitCenter;
             Vector2 pos = orbitCenter.ToVec2().PointFromAngle(angle, radius);
@@ -185,7 +179,7 @@ namespace Ship_Game.GameScreens.Scene
         {
             foreach (var ship in AllObjects)
                 ship.Update(timeStep);
-            
+
             // if all ship AI's have finished, create a new one
             AllObjects.RemoveAll(ship => ship.AI.Finished);
             if (AllObjects.IsEmpty)
