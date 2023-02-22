@@ -713,13 +713,13 @@ namespace Ship_Game
             if (OwnerIsPlayer && GovernorShouldNotScrapBuilding || !HasBuilding(b => b.IsBiospheres && !b.IsPlayerAdded))
                 return;
 
-            var potentialBio = TilesList.Filter(t => t.Biosphere 
-                                                     && (t.NoBuildingOnTile 
-                                                         || t.Building.IsMilitary && !t.Building.IsPlayerAdded));
+            var potentialBio = TilesList.Filter(
+                t => t.Biosphere && (t.NoBuildingOnTile || t.Building.IsMilitary && !t.Building.IsPlayerAdded)
+            );
             if (potentialBio.Length == 0)
                 return;
 
-            PlanetGridSquare tile = potentialBio.Sorted(t => t.Building?.ActualCost ?? 0).RandItem();
+            PlanetGridSquare tile = Random.RandItem(potentialBio.Sorted(t => t.Building?.ActualCost ?? 0));
             if (!tile.Building?.CanBuildAnywhere == true)
                 ScrapBuilding(tile.Building, tile);
 

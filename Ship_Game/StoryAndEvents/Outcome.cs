@@ -45,6 +45,10 @@ namespace Ship_Game
         public string LocalizedTitle => Localizer.Token(TitleText);
         public string LocalizedDescr => Localizer.Token(DescriptionText);
 
+        public Outcome()
+        {
+        }
+
         public Artifact GetArtifact()
         {
             return GrantedArtifact;
@@ -109,11 +113,9 @@ namespace Ship_Game
         {
             for (int i = 0; i < NumTilesToMakeHabitable; i++)
             {
-                var potentialTiles = p.TilesList.Filter(t => !t.Habitable && t != eventTile);
-                if (potentialTiles.Length == 0)
+                PlanetGridSquare tile = p.Random.RandItemFiltered(p.TilesList, t => !t.Habitable && t != eventTile);
+                if (tile == null)
                     break;
-
-                PlanetGridSquare tile = potentialTiles.RandItem();
                 p.MakeTileHabitable(tile);
             }
         }
@@ -122,11 +124,10 @@ namespace Ship_Game
         {
             for (int i = 0; i < NumTilesToMakeUnhabitable; i++)
             {
-                var potentialTiles = p.TilesList.Filter(t => t.Habitable && !t.Biosphere && t != eventTile);
-                if (potentialTiles.Length == 0)
+                PlanetGridSquare tile = p.Random.RandItemFiltered(p.TilesList, t => t.Habitable && !t.Biosphere && t != eventTile);
+                if (tile == null)
                     break;
 
-                PlanetGridSquare tile = potentialTiles.RandItem();
                 if (p.Owner == p.Universe.Player && tile.BuildingOnTile && !tile.VolcanoHere)
                     p.Universe.Notifications.AddBuildingDestroyed(p, tile.Building, GameText.WasDestroyedInAnExploration);
 
@@ -157,7 +158,7 @@ namespace Ship_Game
 
             if (PirateShipsToSpawn.Count == 0 || p.Universe.PirateFactions.Length == 0)
             {
-                Empire pirates = p.Universe.PirateFactions.RandItem();
+                Empire pirates = triggeredBy.Random.RandItem(p.Universe.PirateFactions);
                 foreach (string shipName in PirateShipsToSpawn)
                 {
                     Ship.CreateShipNearPlanet(universe, shipName, pirates, p, doOrbit: true);

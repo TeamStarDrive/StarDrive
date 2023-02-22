@@ -245,7 +245,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (effects > threshold && GetBuildingsCreatedFromLava(out Building[] potentials))
                 {
                     // Lava solidifies into a special building 
-                    Building b = ResourceManager.CreateBuilding(planet, potentials.RandItem());
+                    Building b = ResourceManager.CreateBuilding(planet, planet.Random.RandItem(potentials));
                     tile.PlaceBuilding(b, planet);
                     if (planet.ParentSystem.HasPlanetsOwnedBy(planet.Universe.Player) || planet.ParentSystem.ShipList.
                             Any(s => s.Loyalty.isPlayer && s.Position.InRadius(planet.Position, s.SensorRange)))

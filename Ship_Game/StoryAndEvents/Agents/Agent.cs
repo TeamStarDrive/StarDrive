@@ -354,7 +354,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            Planet targetPlanet = victim.GetPlanets().RandItem();
+            Planet targetPlanet = us.Random.RandItem(victim.GetPlanets());
             switch (missionStatus)
             {
                 case SpyMissionStatus.GreatSuccess:
@@ -666,14 +666,13 @@ namespace Ship_Game
                     agent.AddExperience(xpToAdd, Us);
 
                 // One of the victim's defending agent will be get XP for a very successful defense
-                if (missionStatus <= SpyMissionStatus.FailedBadly 
-                    && Victim != null 
+                if (missionStatus <= SpyMissionStatus.FailedBadly
+                    && Victim != null
                     && Victim != Us
                     && Victim.data.AgentList.Count > 0)
                 {
-                    var defendingAgents = Victim.data.AgentList.Filter(a => a.Mission == AgentMission.Defending);
-                    if (defendingAgents.Length > 0)
-                        defendingAgents.RandItem().AddExperience(1, Victim);
+                    Agent defendingAgent =  Victim.Random.RandItemFiltered(Victim.data.AgentList, a => a.Mission == AgentMission.Defending);
+                    defendingAgent?.AddExperience(1, Victim);
                 }
             }
 

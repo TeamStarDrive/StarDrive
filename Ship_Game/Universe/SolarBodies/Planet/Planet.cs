@@ -1104,16 +1104,10 @@ namespace Ship_Game
 
             bool TryGetCrashTile(out PlanetGridSquare tile)
             {
-                tile = null;
                 float destroyBuildingChance = ship.SurfaceArea / (ship.IsMeteor ? 5f : 50f);
-                var potentialTiles = RandomMath.RollDice(destroyBuildingChance)
-                                     ? TilesList.Filter(t => t.CanCrashHere) 
-                                     : TilesList.Filter(t => t.NoBuildingOnTile);
-
-                if (potentialTiles.Length == 0)
-                    return false;
-
-                tile = potentialTiles.RandItem();
+                tile = Random.RollDice(destroyBuildingChance)
+                     ? Random.RandItemFiltered(TilesList, t => t.CanCrashHere)
+                     : Random.RandItemFiltered(TilesList, t => t.NoBuildingOnTile);
                 return tile != null;
             }
 

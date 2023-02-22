@@ -520,16 +520,17 @@ namespace Ship_Game
 
         void OnLaunchSingleTroopClicked(UIButton b)
         {
-            var potentialTroops = Planet.Troops.GetLaunchableTroops(Planet.Universe.Player).ToArr();
-            if (potentialTroops.Length == 0)
-                GameAudio.NegativeClick();
-            else
+            foreach (Troop troop in Planet.Troops.GetLaunchableTroops(Planet.Universe.Player))
             {
-                Troop troop = potentialTroops.RandItem();
-                troop.Launch();
-                GameAudio.TroopTakeOff();
-                UpdateButtons();
+                if (troop.Launch() != null)
+                {
+                    GameAudio.TroopTakeOff();
+                    UpdateButtons();
+                    break;
+                }
             }
+
+            GameAudio.NegativeClick();
         }
 
         void UpdateButtons()

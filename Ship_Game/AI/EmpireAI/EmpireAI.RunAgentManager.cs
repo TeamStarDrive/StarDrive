@@ -61,7 +61,7 @@ namespace Ship_Game.AI
                 if (currentMissions >= wantedMissions)
                     return;
 
-                Empire target = potentialTargets.RandItem();
+                Empire target = OwnerEmpire.Random.RandItem(potentialTargets);
                 Array<AgentMission> potentialMissions;
                 switch (OwnerEmpire.Personality)
                 {
@@ -129,7 +129,7 @@ namespace Ship_Game.AI
 
                 if (potentialMissions.NotEmpty)
                 {
-                    AgentMission am = potentialMissions.RandItem();
+                    AgentMission am = OwnerEmpire.Random.RandItem(potentialMissions);
                     agent.AssignMission(am, OwnerEmpire, target.data.Traits.Name);
                     currentMissions++;
                 }

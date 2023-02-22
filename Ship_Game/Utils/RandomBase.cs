@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SDGraphics;
+using SDUtils;
 
 namespace Ship_Game.Utils
 {
@@ -90,6 +91,60 @@ namespace Ship_Game.Utils
         public T RandItem<T>(IReadOnlyList<T> items)
         {
             return items[InRange(items.Count)];
+        }
+
+        /// <summary>
+        /// Chooses a random element from the span
+        /// </summary>
+        public T RandItem<T>(in Span<T> items)
+        {
+            return items[InRange(items.Length)];
+        }
+
+        /// <summary>
+        /// Filters all items and then chooses a random item from the passed ones.
+        /// If there are no candidates, then null is returned
+        /// </summary>
+        public unsafe T RandItemFiltered<T>(IReadOnlyList<T> items, Predicate<T> filter)
+        {
+            // +4 to be more resilient to element add/remove and avoid buffer overrun here
+            int* passedItemIndices = stackalloc int[items.Count + 4];
+            int numPassed = 0;
+
+            // using items.Count here to be a bit more resilient to element removal
+            for (int i = 0; i < items.Count; ++i)
+            {
+                T item = items[i];
+                if (filter(item)) passedItemIndices[numPassed++] = i;
+            }
+
+            // retry up to numPassed times, because arrays might be modified
+            for (int i = 0; i < numPassed; ++i)
+            {
+                int selectedIndex = passedItemIndices[InRange(numPassed)];
+                // double-check if it's still in bounds, because array could be modified
+                if (selectedIndex < items.Count)
+                    return items[selectedIndex];
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        /// Filters all items and then chooses a random item from the passed ones.
+        /// If there are no candidates, then null is returned
+        /// </summary>
+        public T RandItemFiltered<T>(IEnumerable<T> items, Predicate<T> filter)
+        {
+            // unfortunately we need allocate a helper array here
+            // to avoid side effects from multiple-enumeration of IEnumerable
+            Array<T> passed = new();
+            foreach (T item in items)
+                if (filter(item)) passed.Add(item);
+
+            if (passed.Count > 0)
+                return passed[InRange(passed.Count)];
+            return default;
         }
 
         /// <summary>

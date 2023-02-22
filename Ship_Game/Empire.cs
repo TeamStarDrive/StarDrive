@@ -17,12 +17,11 @@ using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
-using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
-    using static Ship_Game.Planet;
     using static ShipBuilder;
+
     public enum TechUnlockType
     {
         Normal,
@@ -201,6 +200,8 @@ namespace Ship_Game
         public DifficultyModifiers DifficultyModifiers { get; private set; }
         public PersonalityModifiers PersonalityModifiers { get; private set; }
 
+        // per-faction pseudo-random source
+        public readonly RandomBase Random = new ThreadSafeRandom();
 
         /// <summary>
         /// Empire unique ID. If this is 0, then this empire is invalid!
