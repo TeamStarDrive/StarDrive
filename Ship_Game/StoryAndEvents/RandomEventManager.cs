@@ -183,7 +183,7 @@ namespace Ship_Game
                     Log.Warning($"Meteors: Could not create {meteorName} in random event");
                 }
             }
-            
+
             Log.Info($"{numMeteors} Meteors Created in {p.ParentSystem.Name} targeting {p.Name}");
         }
 
@@ -193,8 +193,8 @@ namespace Ship_Game
             var asteroidsRings = system.RingList.Filter(r => r.Asteroids);
             float originRadius;
 
-            if (asteroidsRings.Length > 0 && RandomMath.RollDice(50))
-                originRadius = asteroidsRings.RandItem().OrbitalDistance;
+            if (asteroidsRings.Length > 0 && p.Random.RollDice(50))
+                originRadius = p.Random.RandItem(asteroidsRings).OrbitalDistance;
             else
                 originRadius = system.Radius * 0.7f;
 
@@ -215,11 +215,9 @@ namespace Ship_Game
             int numVolcanoes = category == PlanetCategory.Barren ? RandomMath.RollDie(15) : RandomMath.RollDie(7);
             for (int i = 0; i < numVolcanoes; i++)
             {
-                var potentialTiles = planet.TilesList.Filter(t => !t.VolcanoHere);
-                if (potentialTiles.Length == 0)
+                PlanetGridSquare tile = planet.Random.RandItemFiltered(planet.TilesList, t => !t.VolcanoHere);
+                if (tile == null)
                     break;
-
-                PlanetGridSquare tile = potentialTiles.RandItem();
                 tile.CreateVolcano(planet);
             }
 

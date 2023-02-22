@@ -150,7 +150,7 @@ namespace Ship_Game.GameScreens.Scene
                 SO = ChooseObject(Spawn.Type, Scene.Random);
                 if (SO == null)
                 {
-                    Hull = ChooseShip(Spawn.Empire, Spawn.Type);
+                    Hull = ChooseShip(Spawn.Empire, Spawn.Type, Scene.Random);
                     Hull.LoadModel(out SO, screen.ContentManager);
                 }
                 if (SO.Animation != null)
@@ -177,7 +177,7 @@ namespace Ship_Game.GameScreens.Scene
             UpdateTransform();
         }
 
-        static SceneObject ChooseObject(string type, SeededRandom random)
+        static SceneObject ChooseObject(string type, RandomBase random)
         {
             if (type == "asteroid")
             {
@@ -194,7 +194,7 @@ namespace Ship_Game.GameScreens.Scene
             return null;
         }
 
-        static ShipHull ChooseShip(IEmpireData empire, string type)
+        static ShipHull ChooseShip(IEmpireData empire, string type, RandomBase random)
         {
             string shipType = empire.ShipType;
 
@@ -202,22 +202,22 @@ namespace Ship_Game.GameScreens.Scene
             if (empireShips.Length == 0)
             {
                 Log.Error($"Failed to select '{type}' or 'fighter' Hull for '{shipType}'. Choosing a random ship.");
-                return ResourceManager.Hulls.Filter(s => s.Role.ToString() == type).RandItem();
+                return random.RandItemFiltered(ResourceManager.Hulls, s => s.Role.ToString() == type);
             }
 
             ShipHull[] roleHulls = empireShips.Filter(s => s.Role.ToString() == type);
             if (roleHulls.Length != 0)
             {
-                return roleHulls.RandItem();
+                return random.RandItem(roleHulls);
             }
 
             ShipHull[] fighters = empireShips.Filter(s => s.Role == RoleName.fighter);
             if (fighters.Length != 0)
             {
-                return fighters.RandItem();
+                return random.RandItem(fighters);
             }
 
-            return empireShips.RandItem(); // whatever!
+            return random.RandItem(empireShips); // whatever!
         }
 
         readonly AudioEmitter SoundEmitter = new AudioEmitter();

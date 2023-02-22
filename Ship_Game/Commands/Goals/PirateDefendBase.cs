@@ -49,17 +49,17 @@ namespace Ship_Game.Commands.Goals
 
         void SendMoreForces()
         {
-            var potentialShips = Pirates.Owner.OwnedShips.Filter(s => !s.IsFreighter
-                                                                      && !Pirates.SpawnedShips.Contains(s.Id)
-                                                                      && s.BaseStrength > 0
-                                                                      && !s.InCombat
-                                                                      && !s.IsPlatformOrStation
-                                                                      && s.AI.State != AIState.Resupply
-                                                                      && s.AI.EscortTarget != BaseToDefend);
-                
-            if (potentialShips.Length > 0)
+            Ship ship = Pirates.Owner.Random.RandItemFiltered(Pirates.Owner.OwnedShips,
+                s => !s.IsFreighter
+                  && !Pirates.SpawnedShips.Contains(s.Id)
+                  && s.BaseStrength > 0
+                  && !s.InCombat
+                  && !s.IsPlatformOrStation
+                  && s.AI.State != AIState.Resupply
+                  && s.AI.EscortTarget != BaseToDefend);
+
+            if (ship != null)
             {
-                Ship ship = potentialShips.RandItem();
                 ship.AI.ClearOrders();
                 ship.AI.AddEscortGoal(BaseToDefend);
             }

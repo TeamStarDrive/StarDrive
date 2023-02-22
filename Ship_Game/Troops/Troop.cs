@@ -478,13 +478,13 @@ namespace Ship_Game
                 return true;
             }
 
-            PlanetGridSquare[] nearbyFreeTiles = planet.TilesList.Filter(
-                pgs => pgs.IsTileFree(Loyalty) && tile.InRangeOf(pgs, 1));
+            PlanetGridSquare randomNearbyFreeTile = planet.Random.RandItemFiltered(planet.TilesList,
+                pgs => pgs.IsTileFree(Loyalty) && tile.InRangeOf(pgs, 1)
+            );
 
-            if (nearbyFreeTiles.Length == 0)
+            if (randomNearbyFreeTile == null)
                 return AssignTroopToRandomFreeTile(planet); // Fallback to assign troop to any available tile if no close tile available
 
-            PlanetGridSquare randomNearbyFreeTile = nearbyFreeTiles.RandItem();
             AssignTroopToTile(planet, randomNearbyFreeTile);
             return true;
         }
@@ -525,7 +525,7 @@ namespace Ship_Game
         PlanetGridSquare PickTileToLand(Planet planet, PlanetGridSquare[] freeTiles)
         {
             if (!planet.RecentCombat && planet.GetEnemyAssets(Loyalty) == 0)
-                return freeTiles.RandItem(); // Non Combat landing
+                return planet.Random.RandItem(freeTiles); // Non Combat landing
 
             var bestTiles = new Array<PlanetGridSquare>();
             int bestScore = int.MinValue;
@@ -545,7 +545,7 @@ namespace Ship_Game
                 }
             }
 
-            return bestTiles.Count > 0 ? bestTiles.RandItem() : freeTiles.RandItem();
+            return bestTiles.Count > 0 ? planet.Random.RandItem(bestTiles) : planet.Random.RandItem(freeTiles);
         }
 
         int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)

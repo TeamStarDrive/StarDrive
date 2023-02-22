@@ -270,17 +270,12 @@ namespace Ship_Game.AI.ExpansionAI
 
         public bool AssignScoutSystemTarget(Ship ship, out SolarSystem targetSystem)
         {
-            targetSystem = null;
-            var potentials = ship.Universe.Systems.Filter(sys => sys.IsFullyExploredBy(Owner)
-                                                              && ship.System != sys
-                                                              && Owner.KnownEnemyStrengthIn(sys) > 10
-                                                              && sys.ShipList.Any(s => s.IsGuardian));
+            targetSystem = Owner.Random.RandItemFiltered(
+                ship.Universe.Systems,
+                sys => ship.System != sys && sys.IsFullyExploredBy(Owner)
+                    && Owner.KnownEnemyStrengthIn(sys) > 10 && sys.ShipList.Any(s => s.IsGuardian));
 
-            if (potentials.Length == 0)
-                return false;
-
-            targetSystem = potentials.RandItem();
-            return true;
+            return targetSystem != null;
         }
 
         public bool AssignExplorationTargetSystem(Ship ship, out SolarSystem targetSystem)

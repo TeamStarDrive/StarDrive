@@ -444,7 +444,7 @@ namespace Ship_Game
                 int spaceReduction = i * 2000;
                 foreach (Empire victim in empires.Filter(e => !e.IsDefeated))
                 {
-                    SolarSystem system = victim.GetOwnedSystems().RandItem();
+                    SolarSystem system = Owner.Random.RandItem(victim.GetOwnedSystems());
                     var pos = PickAPositionNearSystem(system, 400000 - spaceReduction);
                     foreach (Empire empire in empires)
                     {
@@ -479,23 +479,21 @@ namespace Ship_Game
             if (!GetUnownedSystems(u, out SolarSystem[] systems))
                 return false;
 
-            var systemsWithAsteroids = systems.Filter(s => s.RingList
-                                       .Any(r => r.Asteroids && s.InSafeDistanceFromRadiation(r.OrbitalDistance)));
+            SolarSystem selectedSystem = Owner.Random.RandItemFiltered(systems,
+                s => s.RingList.Any(r => r.Asteroids && s.InSafeDistanceFromRadiation(r.OrbitalDistance)));
 
-            if (systemsWithAsteroids.Length == 0)
+            if (selectedSystem == null)
                 return false;
 
-            SolarSystem selectedSystem    = systemsWithAsteroids.RandItem();
-            var asteroidRings             = selectedSystem.RingList.Filter(r => r.Asteroids);
-            SolarSystem.Ring selectedRing = asteroidRings.RandItem();
-
+            // Asteroids are guaranteed to be found because `selectedSystem` is filtered by r.Asteroids
+            SolarSystem.Ring selectedRing = Owner.Random.RandItemFiltered(selectedSystem.RingList, r => r.Asteroids);
             float ringRadius = selectedRing.OrbitalDistance + RandomMath.Int(-250, 250);
             position         = selectedSystem.Position.GenerateRandomPointOnCircle(ringRadius);
             system           = selectedSystem;
 
             return position != Vector2.Zero;
         }
-        
+
         bool GetBasePlanet(UniverseState u, NewBaseSpot spot, out Planet selectedPlanet)
         {
             selectedPlanet = null;
