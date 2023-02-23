@@ -291,7 +291,7 @@ namespace Ship_Game
                 {
                     if (template.BID == Building.VolcanoId)
                     {
-                        TilesList.RandItem().CreateVolcano(this as Planet);
+                        Random.RandItem(TilesList).CreateVolcano(this as Planet);
                         //Log.Info($"Volcano Created on '{Name}' ");
                     }
                     else

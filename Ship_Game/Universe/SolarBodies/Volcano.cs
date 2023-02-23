@@ -173,7 +173,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (potentialLavaTiles.Count == 0)
                     break;
 
-                PlanetGridSquare tile = potentialLavaTiles.RandItem();
+                PlanetGridSquare tile = P.Random.RandItem(potentialLavaTiles);
                 CreateLavaPool(tile);
                 actualLavaPools += 1;
                 potentialLavaTiles.AddUniqueRef(GetPotentialLavaTiles(tile));

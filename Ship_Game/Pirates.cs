@@ -10,6 +10,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Utils;
 #pragma warning disable CA1065
 
 namespace Ship_Game
@@ -41,6 +42,7 @@ namespace Ship_Game
         public const int MaxLevel = 20;
         [StarData] public readonly Empire Owner;
         public UniverseState Universe => Owner.Universe ?? throw new NullReferenceException("Pirates.Owner.Universe must not be null");
+        public RandomBase Random => Owner.Random;
 
         [StarData] public Map<int, int> ThreatLevels { get; private set; }    = new();  // Empire IDs are used here
         [StarData] public Map<int, int> PaymentTimers { get; private set; }   = new(); // Empire IDs are used here
@@ -317,7 +319,7 @@ namespace Ship_Game
 
             if (GetOrbitalsOrbitingPlanets(out Array<Ship> planetBases))
             {
-                Ship pirateBase = planetBases.RandItem();
+                Ship pirateBase = Random.RandItem(planetBases);
                 Planet planet   = pirateBase.GetTether();
                 if (SpawnShip(PirateShipType.FlagShip, planet.Position, out Ship flagShip))
                 {
@@ -327,7 +329,7 @@ namespace Ship_Game
             }
             else if (GetBases(out Array<Ship> bases))
             {
-                Ship pirateBase = bases.RandItem();
+                Ship pirateBase = Random.RandItem(bases);
                 Vector2 pos     = pirateBase.Position.GenerateRandomPointOnCircle(2000);
                 if (SpawnShip(PirateShipType.FlagShip, pos, out Ship flagShip))
                 {
@@ -348,7 +350,7 @@ namespace Ship_Game
 
             if (GetBases(out Array<Ship> bases))
             {
-                Ship selectedBase = bases.RandItem();
+                Ship selectedBase = Random.RandItem(bases);
                 Planet planet     = selectedBase.GetTether();
                 Vector2 pos       = planet?.Position ?? selectedBase.Position;
 
@@ -444,7 +446,7 @@ namespace Ship_Game
                 int spaceReduction = i * 2000;
                 foreach (Empire victim in empires.Filter(e => !e.IsDefeated))
                 {
-                    SolarSystem system = Owner.Random.RandItem(victim.GetOwnedSystems());
+                    SolarSystem system = Random.RandItem(victim.GetOwnedSystems());
                     var pos = PickAPositionNearSystem(system, 400000 - spaceReduction);
                     foreach (Empire empire in empires)
                     {
@@ -479,14 +481,14 @@ namespace Ship_Game
             if (!GetUnownedSystems(u, out SolarSystem[] systems))
                 return false;
 
-            SolarSystem selectedSystem = Owner.Random.RandItemFiltered(systems,
+            SolarSystem selectedSystem = Random.RandItemFiltered(systems,
                 s => s.RingList.Any(r => r.Asteroids && s.InSafeDistanceFromRadiation(r.OrbitalDistance)));
 
             if (selectedSystem == null)
                 return false;
 
             // Asteroids are guaranteed to be found because `selectedSystem` is filtered by r.Asteroids
-            SolarSystem.Ring selectedRing = Owner.Random.RandItemFiltered(selectedSystem.RingList, r => r.Asteroids);
+            SolarSystem.Ring selectedRing = Random.RandItemFiltered(selectedSystem.RingList, r => r.Asteroids);
             float ringRadius = selectedRing.OrbitalDistance + RandomMath.Int(-250, 250);
             position         = selectedSystem.Position.GenerateRandomPointOnCircle(ringRadius);
             system           = selectedSystem;
@@ -522,7 +524,7 @@ namespace Ship_Game
             if (planets.Count == 0)
                 return false;
 
-            selectedPlanet = planets.RandItem();
+            selectedPlanet = Random.RandItem(planets);
             return selectedPlanet != null;
         }
 
@@ -660,7 +662,7 @@ namespace Ship_Game
             {
                 shipName = "";
                 if (empire.Pirates.ShipsWeCanSpawn?.Count > 0)
-                    shipName = empire.Pirates.ShipsWeCanSpawn.RandItem();
+                    shipName = empire.Random.RandItem(empire.Pirates.ShipsWeCanSpawn);
 
                 return shipName.NotEmpty();
             }
@@ -670,8 +672,8 @@ namespace Ship_Game
 
         public bool GetTarget(Empire victim, TargetType type, out Ship target)
         {
-            target          = null;
-            var targets     = new Array<Ship>(); 
+            target = null;
+            Array<Ship> targets = new(); 
             var victimShips = type == TargetType.Projector ? victim.OwnedProjectors : victim.OwnedShips;
             
             for (int i = 0; i < victimShips.Count; i++)
@@ -694,7 +696,7 @@ namespace Ship_Game
             if (targets.Count == 0)
                 return false;
 
-            target = targets.RandItem();
+            target = Random.RandItem(targets);
             return target != null;
 
             bool IsFreighterNoOwnedSystem(Ship ship)

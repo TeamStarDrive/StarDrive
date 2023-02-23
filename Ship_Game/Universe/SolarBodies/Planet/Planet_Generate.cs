@@ -82,9 +82,9 @@ namespace Ship_Game
         // It gets the planet category by weights based on sun zone and then
         // randomize relevant planet types from the chose category
         // this reduces chances of terran planets and its configurable via SunZoneData.yaml
-        static PlanetType ChooseTypeByWeight(SunZone sunZone)
+        static PlanetType ChooseTypeByWeight(SunZone sunZone, RandomBase random)
         {
-            PlanetCategory chosenCategory = ResourceManager.RandomPlanetCategoryFor(sunZone);
+            PlanetCategory chosenCategory = ResourceManager.RandomPlanetCategoryFor(sunZone, random);
             return ResourceManager.Planets.RandomPlanet(chosenCategory);
         }
 
