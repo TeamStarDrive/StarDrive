@@ -1004,7 +1004,7 @@ namespace Ship_Game.Ships
                 {
                     for (int i = 0; i < 30; ++i)
                     {
-                        Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, UniverseRandom.Float(-25f, 25f));
+                        Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, Random.Float(-25f, 25f));
                         p.Explosion.AddParticle(pos);
                     }
                 }
@@ -1127,7 +1127,7 @@ namespace Ship_Game.Ships
                 }
 
                 HangarShip.DoEscort(Parent);
-                HangarShip.Velocity = carrier.Velocity + UniverseRandom.RandomDirection() * HangarShip.STLSpeedLimit;
+                HangarShip.Velocity = carrier.Velocity + Random.Direction2D() * HangarShip.STLSpeedLimit;
                 HangarShip.Mothership = carrier;
                 HangarTimer = HangarTimerConstant;
                 CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
