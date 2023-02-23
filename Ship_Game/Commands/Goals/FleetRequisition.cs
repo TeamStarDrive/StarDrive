@@ -70,7 +70,7 @@ namespace Ship_Game.Commands.Goals
                 node.Goal = null;
 
                 if (Fleet.Ships.Count == 0)
-                    Fleet.FinalPosition = ship.Position + RandomMath.Vector2D(3000f);
+                    Fleet.FinalPosition = ship.Position + Owner.Random.Vector2D(3000f);
                 if (Fleet.FinalPosition == Vector2.Zero)
                     Fleet.FinalPosition = Owner.FindNearestRallyPoint(ship.Position).Position;
 

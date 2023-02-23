@@ -83,12 +83,12 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             {
                 // Start increasing the chance to launch assault vs bombers
                 float assaultBombersChance = 100 - (ShieldStrengthPercent*100 * 4f);
-                if (RandomMath.RollDice(assaultBombersChance))
+                if (Owner.Random.RollDice(assaultBombersChance))
                     Owner.TryCreateAssaultBombersGoal(enemy, P);
             }
             else if (P.ShieldStrengthMax <= 0)
             {
-                if (RandomMath.RollDice(GetTroopLaunchChance()))
+                if (Owner.Random.RollDice(GetTroopLaunchChance()))
                     Owner.TryCreateAssaultBombersGoal(enemy, P);
             }
 

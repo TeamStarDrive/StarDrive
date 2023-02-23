@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using SDGraphics;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using Ship_Game.Utils;
 
 namespace UnitTests.LinearAlgebra
 {
@@ -12,10 +13,11 @@ namespace UnitTests.LinearAlgebra
         // this is the max deviation we allow
         const double MaxErr = 0.0005;
         const float Radius = 20f;
-        static readonly Vector2 A = RandomMath.Vector2D(Radius);
-        static readonly Vector2 B = RandomMath.Vector2D(Radius);
+        static readonly RandomBase Random = new SeededRandom();
+        static readonly Vector2 A = Random.Vector2D(Radius);
+        static readonly Vector2 B = Random.Vector2D(Radius);
 
-        static readonly Vector2 Center  = RandomMath.Vector2D(Radius); // some center position
+        static readonly Vector2 Center  = Random.Vector2D(Radius); // some center position
         static readonly Vector2 Inside  = Center / 2;
         static readonly Vector2 Outside = Center + new Vector2(Radius)*3;
 

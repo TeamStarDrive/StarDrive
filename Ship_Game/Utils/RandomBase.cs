@@ -27,6 +27,11 @@ namespace Ship_Game.Utils
             return min + (float)Rand.NextDouble() * (max - min);
         }
 
+        float Float(Random random, float min, float max)
+        {
+            return min + (float)random.NextDouble() * (max - min);
+        }
+
         /// <summary>
         /// Generate a random float within inclusive [0..1]
         /// </summary>
@@ -57,6 +62,11 @@ namespace Ship_Game.Utils
         public int Int(int min, int max)
         {
             return Rand.Next(min, max + 1);
+        }
+
+        int Int(Random random, int min, int max)
+        {
+            return random.Next(min, max + 1);
         }
 
         /// <summary>
@@ -99,6 +109,22 @@ namespace Ship_Game.Utils
         public T RandItem<T>(in Span<T> items)
         {
             return items[InRange(items.Length)];
+        }
+
+        /// <summary>
+        /// Chooses a random element from the list, capped by maxItems count
+        /// </summary>
+        public T RandItem<T>(IReadOnlyList<T> items, int maxItems)
+        {
+            return items[InRange(Math.Min(items.Count, maxItems))];
+        }
+
+        /// <summary>
+        /// Chooses a random element from the list, capped by maxItems count
+        /// </summary>
+        public T RandItem<T>(in Span<T> items, int maxItems)
+        {
+            return items[InRange(Math.Min(items.Length, maxItems))];
         }
 
         /// <summary>
@@ -181,10 +207,11 @@ namespace Ship_Game.Utils
         {
             if (iterations == 0)
                 return 0f;
-
+            
+            var rand = Rand;
             float sum = 0;
             for (int i = 0; i < iterations; i++)
-                sum += Float(0f, 100f);
+                sum += Float(rand, 0f, 100f);
             return (sum / iterations);
         }
 
@@ -193,8 +220,9 @@ namespace Ship_Game.Utils
         /// </summary>
         public Vector2 RandomPointInRing(float minRadius, float maxRadius)
         {
-            float theta = Float(0f, 2f * (float)Math.PI);
-            float w = Float(0f, 1f);
+            var rand = Rand;
+            float theta = Float(rand, 0f, 2f * (float)Math.PI);
+            float w = Float(rand, 0f, 1f);
             float r = (float)Math.Sqrt((1f - w) * minRadius * minRadius + w * maxRadius * maxRadius);
             return new Vector2(r * Math.Cos(theta), r * Math.Sin(theta));
         }
@@ -213,8 +241,9 @@ namespace Ship_Game.Utils
         /// </summary>
         public Vector2 Vector2D(float radius)
         {
-            return new Vector2(Float(-radius, +radius),
-                               Float(-radius, +radius));
+            var rand = Rand;
+            return new Vector2(Float(rand, -radius, +radius),
+                               Float(rand, -radius, +radius));
         }
 
         /// <summary>
@@ -222,8 +251,9 @@ namespace Ship_Game.Utils
         /// </summary>
         public Vector2 Vector2D(float min, float max)
         {
-            return new Vector2(Float(min, max),
-                               Float(min, max));
+            var rand = Rand;
+            return new Vector2(Float(rand, min, max),
+                               Float(rand, min, max));
         }
 
         /// <summary>
@@ -231,9 +261,10 @@ namespace Ship_Game.Utils
         /// </summary>
         public Vector3 Vector3D(float radius)
         {
-            return new Vector3(Float(-radius, +radius),
-                               Float(-radius, +radius),
-                               Float(-radius, +radius));
+            var rand = Rand;
+            return new Vector3(Float(rand, -radius, +radius),
+                               Float(rand, -radius, +radius),
+                               Float(rand, -radius, +radius));
         }
 
         /// <summary>
@@ -241,8 +272,9 @@ namespace Ship_Game.Utils
         /// </summary>
         public Vector3 Vector32D(float radius)
         {
-            return new Vector3(Float(-radius, +radius),
-                               Float(-radius, +radius),
+            var rand = Rand;
+            return new Vector3(Float(rand, -radius, +radius),
+                               Float(rand, -radius, +radius),
                                0f);
         }
 
@@ -251,9 +283,10 @@ namespace Ship_Game.Utils
         /// </summary>
         public Vector3 Vector3D(float min, float max)
         {
-            return new Vector3(Float(min, max),
-                               Float(min, max),
-                               Float(min, max));
+            var rand = Rand;
+            return new Vector3(Float(rand, min, max),
+                               Float(rand, min, max),
+                               Float(rand, min, max));
         }
 
         /// <summary>
@@ -261,9 +294,10 @@ namespace Ship_Game.Utils
         /// </summary>
         public Vector3 Vector3D(in Vector3 minValue, in Vector3 maxValue)
         {
-            return new Vector3(Float(minValue.X, maxValue.X),
-                               Float(minValue.Y, maxValue.Y),
-                               Float(minValue.Z, maxValue.Z));
+            var rand = Rand;
+            return new Vector3(Float(rand, minValue.X, maxValue.X),
+                               Float(rand, minValue.Y, maxValue.Y),
+                               Float(rand, minValue.Z, maxValue.Z));
         }
 
         /// <summary>
@@ -271,9 +305,10 @@ namespace Ship_Game.Utils
         /// </summary>
         public Vector3 Vector3D(in Vector3 minMax)
         {
-            return new Vector3(Float(-minMax.X, minMax.X),
-                               Float(-minMax.Y, minMax.Y),
-                               Float(-minMax.Z, minMax.Z));
+            var rand = Rand;
+            return new Vector3(Float(rand, -minMax.X, minMax.X),
+                               Float(rand, -minMax.Y, minMax.Y),
+                               Float(rand, -minMax.Z, minMax.Z));
         }
 
         /// <summary>
@@ -281,13 +316,14 @@ namespace Ship_Game.Utils
         /// </summary>
         public float AvgFloat(float min, float max, int iterations = 3)
         {
+            var rand = Rand;
             if (iterations <= 1)
-                return Float(min, max);
+                return Float(rand, min, max);
 
-            float rand = 0;
+            float sum = 0;
             for (int x = 0; x < iterations; ++x)
-                rand += Float(min, max);
-            return (rand / iterations);
+                sum += Float(rand, min, max);
+            return (sum / iterations);
         }
 
         /// <summary>
@@ -295,13 +331,14 @@ namespace Ship_Game.Utils
         /// </summary>
         public int AvgInt(int min, int max, int iterations = 3)
         {
+            var rand = Rand;
             if (iterations <= 1)
-                return Int(min, max);
+                return Int(rand, min, max);
 
-            int rand = 0;
+            int sum = 0;
             for (int x = 0; x < iterations; ++x)
-                rand += Int(min, max);
-            return (rand / iterations);
+                sum += Int(rand, min, max);
+            return (sum / iterations);
         }
     }
 }

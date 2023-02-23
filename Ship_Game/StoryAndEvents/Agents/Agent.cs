@@ -71,9 +71,9 @@ namespace Ship_Game
             return false;
         }
 
-        float SpyRoll(Empire us,Empire victim)
+        float SpyRoll(Empire us, Empire victim)
         {
-            float diceRoll = RandomMath.RollDie(100) + Level*RandomMath.RollDie(3);
+            float diceRoll = us.Random.RollDie(100) + Level*us.Random.RollDie(3);
 
             diceRoll += us.data.OffensiveSpyBonus;  // +10 with Duplicitous 
             if (Mission != AgentMission.Training)
@@ -295,7 +295,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            int amount = RandomMath.Int(1, victim.GetPlanets().Count * 50) * Level;
+            int amount = us.Random.Int(1, victim.GetPlanets().Count * 50) * Level;
             amount     = amount.UpperBound((int)(victim.Money * 0.5));
             switch (missionStatus)
             {

@@ -107,16 +107,16 @@ namespace Ship_Game
 
             Rotation     = planetCenter.RadiansToTarget(pos.ToVec2());
             Radius       = shieldRadius;
-            Displacement = 0.085f * RandomMath.Float(1f, 10f);
-            TexScale     = 2.8f - 0.185f * RandomMath.Float(1f, 10f);
+            Displacement = 0.085f * planet.Random.Float(1f, 10f);
+            TexScale     = 2.8f - 0.185f * planet.Random.Float(1f, 10f);
 
             if (planet.Universe.Screen.CanAddDynamicLight)
             {
                 AddLight(planet.Universe.Screen);
                 Light.World        = world;
                 Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                Light.Radius       = Radius* RandomMath.Float(1, 2);
-                Light.Intensity    = RandomMath.Float(5, 15);
+                Light.Radius       = Radius * planet.Random.Float(1, 2);
+                Light.Intensity    = planet.Random.Float(5, 15);
                 Light.Enabled      = true;
             }
 
@@ -127,7 +127,7 @@ namespace Ship_Game
             particles.Flash.AddParticle(pos);
             for (int i = 0; i < 80; ++i)
             {
-                particles.Sparks.AddParticle(pos, impactNormal * RandomMath.Vector3D(25f));
+                particles.Sparks.AddParticle(pos, impactNormal * planet.Random.Vector3D(25f));
             }
         }
 
@@ -136,13 +136,13 @@ namespace Ship_Game
             Vector3 pos = projectilePos.ToVec3(moduleCenter.Z);
             Vector2 impactNormal = moduleCenter.ToVec2().DirectionToTarget(projectilePos);
 
-            if (!beamFlash || RandomMath.Float(0f, 100f) > 30f)
+            if (!beamFlash || particles.Random.Float(0f, 100f) > 30f)
                 particles.Flash.AddParticle(pos);
 
 
             for (int i = 0; i < 20; ++i)
             {
-                var randVel = new Vector3(impactNormal * RandomMath.Float(40f, 80f), RandomMath.Float(-25f, 25f));
+                var randVel = new Vector3(impactNormal * particles.Random.Float(40f, 80f), particles.Random.Float(-25f, 25f));
                 particles.Sparks.AddParticle(pos, randVel);
             }
         }
@@ -153,21 +153,21 @@ namespace Ship_Game
 
             float intensity = 10f.Clamped(1, proj.DamageAmount / module.ShieldPower);
 
-            Rotation     = module.Position.RadiansToTarget(proj.Position);
-            Radius       = module.ShieldHitRadius;
-            TexScale     = 2.6f - 0.1f * RandomMath.Float(intensity, 6f);
-            Displacement = 0.085f * RandomMath.Float(intensity, 10f);
+            Rotation = module.Position.RadiansToTarget(proj.Position);
+            Radius = module.ShieldHitRadius;
+            var random = module.GetParent().Loyalty.Random;
+            TexScale = 2.6f - 0.1f * random.Float(intensity, 6f);
+            Displacement = 0.085f * random.Float(intensity, 10f);
 
             if (universe.CanAddDynamicLight)
             {
                 AddLight(universe);
-                Light.World        = proj.WorldMatrix;
+                Light.World = proj.WorldMatrix;
                 Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                Light.Radius       = module.ShieldHitRadius;
-                Light.Intensity    = RandomMath.Float(intensity * 0.5f, 10f);
-                Light.Enabled      = true;
+                Light.Radius = module.ShieldHitRadius;
+                Light.Intensity = random.Float(intensity * 0.5f, 10f);
+                Light.Enabled = true;
             }
-
             CreateShieldHitParticles(universe.Particles, proj.Position, module.Center3D, beamFlash: false);
         }
 

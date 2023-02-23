@@ -73,7 +73,7 @@ namespace Ship_Game
                 return 0;
 
             int numTotalOutcomeChance = filteredPotentialOutcomes.Sum(o => o.Chance);
-            return (short)RandomMath.RollDie(numTotalOutcomeChance); // 1 to total chance
+            return (short)p.Random.RollDie(numTotalOutcomeChance); // 1 to total chance
         }
 
         Outcome[] FilteredPotentialOutcomes(Planet p)
@@ -95,12 +95,12 @@ namespace Ship_Game
             GameAudio.NotifyAlert();
         }
 
-        private Outcome GetRandomOutcome()
+        private Outcome GetRandomOutcome(Empire empire)
         {
             int ranMax = PotentialOutcomes.Filter(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
                 .Sum(outcome => outcome.Chance);
 
-            int random = (int)RandomMath.Float(1, ranMax);
+            int random = (int)empire.Random.Float(1, ranMax);
             Outcome triggeredOutcome = new Outcome();
             int cursor = 0;
 
@@ -123,9 +123,8 @@ namespace Ship_Game
 
         public void TriggerExplorationEvent(UniverseScreen screen)
         {
-            Outcome triggeredOutcome = GetRandomOutcome();
-
             Empire player = screen.Player;
+            Outcome triggeredOutcome = GetRandomOutcome(player);
             screen.ScreenManager.AddScreen(new EventPopup(screen, player, this, triggeredOutcome, false));
             TriggerOutcome(player, triggeredOutcome);
         }

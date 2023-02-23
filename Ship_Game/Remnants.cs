@@ -11,11 +11,11 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Utils;
 #pragma warning disable CA1065
 
 namespace Ship_Game
 {
-    using static RandomMath;
     using static HelperFunctions;
 
     [StarDataType]
@@ -23,6 +23,7 @@ namespace Ship_Game
     {
         public const int MaxLevel = 20;
         [StarData] public readonly Empire Owner;
+        public RandomBase Random => Owner.Random;
         public UniverseState Universe => Owner.Universe ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
 
         [StarData] public float StoryTriggerKillsXp { get; private set; }
@@ -605,7 +606,7 @@ namespace Ship_Game
             int fleetModifier  = shipsInFleet / 12;
             int effectiveLevel = Level + (int)Universe.P.Difficulty + fleetModifier;
             effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
-            int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
+            int roll           = Random.RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
             switch (roll)
             {
                 case 1:
@@ -759,7 +760,7 @@ namespace Ship_Game
             if (Story != RemnantStory.None)
                 dieModifier -= 5;
 
-            int d100 = RollDie(100) + dieModifier;
+            int d100 = Random.RollDie(100) + dieModifier;
             switch (Universe.P.ExtraRemnant) // Refactored by FB (including all remnant methods)
             {
                 case ExtraRemnantPresence.VeryRare:   VeryRarePresence(quality, d100, p);   break;
@@ -817,7 +818,7 @@ namespace Ship_Game
 
         void MorePresence(float quality, int d100, Planet p)
         {
-            NormalPresence(quality, RollDie(100), p);
+            NormalPresence(quality, Random.RollDie(100), p);
             if (quality >= 15f)
             {
                 if (d100 >= 25) AddMinorFleet(p);
@@ -837,7 +838,7 @@ namespace Ship_Game
 
         void MuchMorePresence(float quality, int d100, Planet p)
         {
-            MorePresence(quality, RollDie(100), p);
+            MorePresence(quality, Random.RollDie(100), p);
             if (quality >= 15f)
             {
                 AddMajorFleet(p);
@@ -868,7 +869,7 @@ namespace Ship_Game
 
         void EverywherePresence(float quality, int d100, Planet p)
         {
-            MuchMorePresence(quality, RollDie(100), p);
+            MuchMorePresence(quality, Random.RollDie(100), p);
             if (quality >= 18f)
             {
                 AddMajorFleet(p);
@@ -910,23 +911,23 @@ namespace Ship_Game
         void AddMajorFleet(Planet p)
         {
             AddMinorFleet(p);
-            if (RollDice(50))
+            if (Random.RollDice(50))
                 AddMinorFleet(p);
 
-            if (RollDice(25))
+            if (Random.RollDice(25))
                 AddMinorFleet(p);
 
-            if (RollDice(10))
+            if (Random.RollDice(10))
                 AddFrigate(p);
 
-            if (RollDice(5))
+            if (Random.RollDice(5))
                 AddGuardians(1, RemnantShipType.Assimilator, p);
         }
 
         void AddMinorFleet(Planet p)
         {
-            int numXenoFighters = RollDie(5) + 1;
-            int numDrones = RollDie(3);
+            int numXenoFighters = Random.RollDie(5) + 1;
+            int numDrones = Random.RollDie(3);
 
             AddGuardians(numXenoFighters, RemnantShipType.Fighter, p);
             AddGuardians(numDrones, RemnantShipType.Corvette, p);
@@ -934,7 +935,7 @@ namespace Ship_Game
 
         void AddMiniFleet(Planet p)  //Added by Gretman
         {
-            int numXenoFighters = RollDie(3);
+            int numXenoFighters = Random.RollDie(3);
 
             AddGuardians(numXenoFighters, RemnantShipType.Fighter, p);
             AddGuardians(1, RemnantShipType.Corvette, p);
@@ -942,21 +943,21 @@ namespace Ship_Game
 
         void AddSupportShips(Planet p)  //Added by Gretman
         {
-            int numSupportDrones = RollDie(4);
+            int numSupportDrones = Random.RollDie(4);
             AddGuardians(numSupportDrones, RemnantShipType.SmallSupport, p);
         }
 
         void AddCarriers(Planet p)  //Added by Gretman
         {
             AddGuardians(1, RemnantShipType.Carrier, p);
-            if (RollDice(20)) // 20% chance for another carrier
+            if (Random.RollDice(20)) // 20% chance for another carrier
                 AddGuardians(1, RemnantShipType.Carrier, p);
         }
 
         void AddFrigate(Planet p)  //Added by Gretman
         {
             AddGuardians(1, RemnantShipType.Frigate, p);
-            if (RollDice(10)) // 10% chance a torpedo cruiser
+            if (Random.RollDice(10)) // 10% chance a torpedo cruiser
                 AddGuardians(1, RemnantShipType.TorpedoCruiser, p);
         }
 
@@ -981,7 +982,7 @@ namespace Ship_Game
             if (Universe.P.DisableRemnantStory)
                 return RemnantStory.None;
 
-            switch (RollDie(3)) // todo for now 3 stories
+            switch (Random.RollDie(3)) // todo for now 3 stories
             {
                 default:
                 case 1: return RemnantStory.AncientBalancers;

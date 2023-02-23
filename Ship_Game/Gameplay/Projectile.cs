@@ -245,7 +245,7 @@ namespace Ship_Game.Gameplay
 
             Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
             if (Weapon.RangeVariance)
-                Range *= RandomMath.Float(0.9f, 1.1f);
+                Range *= Owner.Loyalty.Random.Float(0.9f, 1.1f);
 
             float durationMod = 1.2f;
             if (Weapon.IsRepairDrone)    durationMod = 1.25f;
@@ -340,13 +340,13 @@ namespace Ship_Game.Gameplay
         {
             Loyalty = empire;
             Deflected = true;
-            Vector2 newDirection = RandomMath.RandomDirection();
-            float momentumLoss = 9 - RandomMath.RollDie(6);
+            Vector2 newDirection = empire.Random.Direction2D();
+            float momentumLoss = 9 - empire.Random.RollDie(6);
             Duration *= momentumLoss / 10;
             Speed    *= momentumLoss / 10;
             SetInitialVelocity(Speed * newDirection);
 
-            if (InFrustum && RandomMath.RollDie(2) == 2)
+            if (InFrustum && empire.Random.RollDie(2) == 2)
             {
                 var foregroundPos = new Vector3(deflectionPoint.X, deflectionPoint.Y, deflectionPoint.Z - 50f);
                 Universe.Screen.Particles.BeamFlash.AddParticle(foregroundPos, Vector3.Zero);
@@ -379,7 +379,7 @@ namespace Ship_Game.Gameplay
                         Vector2 separationVector = Velocity;
                         float launchDir = i % 2 == 0 ? -RadMath.Deg90AsRads : RadMath.Deg90AsRads;
                         Vector2 separationVel = (Rotation + launchDir).RadiansToDirection() 
-                                                * (100 + RandomMath.RollDie(4*warhead.FireDispersionArc));
+                                                * (100 + Loyalty.Random.RollDie(4*warhead.FireDispersionArc));
 
                         separationVector += separationVel; // Add it to the initial velocity
                         bool playSound = i == 0; // play sound once

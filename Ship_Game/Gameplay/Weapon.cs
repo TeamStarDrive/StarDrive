@@ -148,7 +148,7 @@ namespace Ship_Game.Gameplay
         {
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
-            CooldownTimer = NetFireDelay + RandomMath.Float(-10f, +10f) * 0.008f;
+            CooldownTimer = NetFireDelay + Owner.Loyalty.Random.Float(-10f, +10f) * 0.008f;
 
             Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
@@ -583,7 +583,7 @@ namespace Ship_Game.Gameplay
                 AddModifiers(ActiveWeaponTags[i], projectile, ref actualShieldPenChance);
             }
 
-            projectile.IgnoresShields = RandomMath.RollDice(actualShieldPenChance);
+            projectile.IgnoresShields = Owner.Loyalty.Random.RollDice(actualShieldPenChance);
         }
 
         void AddModifiers(WeaponTag tag, Projectile p, ref float actualShieldPenChance)

@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SDGraphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
-using Vector3 = SDGraphics.Vector3;
-using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
-using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
-using ContainmentType = Microsoft.Xna.Framework.ContainmentType;
+
 
 namespace Ship_Game.ExtensionMethods
 {

@@ -377,7 +377,7 @@ namespace Ship_Game
             if (list.Length == 0)
                 return null;
 
-            PlanetGridSquare target = RandomMath.RandItem(list);
+            PlanetGridSquare target = planet.Random.RandItem(list);
             target.PlaceBuilding(this, planet);
             return target;
         }
@@ -395,7 +395,7 @@ namespace Ship_Game
 
             PlanetGridSquare[] freeSpots = planet.TilesList.Filter(pgs => pgs.CanEnqueueBuildingHere(b));
             if (freeSpots.Length > 0)
-                where = RandomMath.RandItem(freeSpots);
+                where = planet.Random.RandItem(freeSpots);
             return where != null;
         }
 

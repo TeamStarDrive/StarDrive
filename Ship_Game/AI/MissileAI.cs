@@ -7,12 +7,14 @@ using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Universe;
 using Ship_Game.Spatial;
+using Ship_Game.Utils;
 
 namespace Ship_Game.AI
 {
     public sealed class MissileAI
     {
         readonly Projectile Missile;
+        RandomBase Random => Missile.Loyalty.Random;
         public GameObject Target { get; set; }
 
         Ship[] TargetList;
@@ -41,11 +43,11 @@ namespace Ship_Game.AI
             
             if (Missile.Weapon.DelayedIgnition > 0f)
             {
-                float launchDir = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
+                float launchDir = Random.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
                 float rotation = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
 
                 // throw the missile out sideways
-                initialVelocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(100));
+                initialVelocity += (rotation + launchDir).RadiansToDirection() * (100 + Random.RollDie(100));
             }
 
             Missile.SetInitialVelocity(initialVelocity, rotateToVelocity: false);
@@ -53,7 +55,7 @@ namespace Ship_Game.AI
             if (Missile.Weapon != null && Missile.Weapon.Tag_Torpedo)
                 MaxNozzleDirection = 0.02f; // Torpedoes wiggle less
 
-            InitialPhaseDirection = RandomMath.RollDice(50) ? -1f : +1f;
+            InitialPhaseDirection = Random.RollDice(50) ? -1f : +1f;
 
             if (Missile.Owner != null)
                 Level = Missile.Owner.Level;
@@ -166,8 +168,8 @@ namespace Ship_Game.AI
             Vector2 targetPos = Target.Position;
             if (!Missile.ErrorSet)
             {
-                float randomDeviation = RandomMath.Float(900f, 1400f);
-                float randomDeviation2 = RandomMath.Float(0f, 1f) > 0.5f ? randomDeviation : -randomDeviation;
+                float randomDeviation = Random.Float(900f, 1400f);
+                float randomDeviation2 = Random.Float(0f, 1f) > 0.5f ? randomDeviation : -randomDeviation;
                 targetPos.X += randomDeviation2;
                 targetPos.Y -= randomDeviation2;
                 Missile.FixedError = targetPos;
@@ -197,9 +199,9 @@ namespace Ship_Game.AI
 
                 if (!CalculatedJamming && distanceToTarget <= 4000f && Target is ShipModule targetModule)
                 {
-                    float targetEcm   = targetModule.GetParent().ECMValue;
-                    float ecmResist   = Missile.Weapon.ECMResist + RandomMath.Float(0f, 1f);
-                    Jammed            = (ecmResist < targetEcm);
+                    float targetEcm = targetModule.GetParent().ECMValue;
+                    float ecmResist = Missile.Weapon.ECMResist + Random.Float(0f, 1f);
+                    Jammed = (ecmResist < targetEcm);
                     CalculatedJamming = true;
                 }
 
@@ -208,7 +210,6 @@ namespace Ship_Game.AI
                     DelayedIgnitionTimer -= timeStep.FixedTime;
                     if (DelayedIgnitionTimer <= 0f)
                         Missile.IgniteEngine();
-
                     return;
                 }
 
@@ -261,7 +262,7 @@ namespace Ship_Game.AI
             if (RandomDirectionTimer <= 0f)
             {
                 RandomDirectionTimer = 0.5f;
-                RandomNozzleDirection = RandomMath.Float(-MaxNozzleDirection, +MaxNozzleDirection);
+                RandomNozzleDirection = Random.Float(-MaxNozzleDirection, +MaxNozzleDirection);
             }
 
             float nozzleDirection = RandomNozzleDirection;

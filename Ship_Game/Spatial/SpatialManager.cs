@@ -209,7 +209,7 @@ namespace Ship_Game.Gameplay
             {
                 var otherShip = (Ship)nearby[i];
                 // FB: Ships will be lucky to not get caught in the explosion, based on their level as well
-                if (RandomMath.RollDice(otherShip.ExplosionEvadeBaseChance() + otherShip.Level))
+                if (thisShip.Loyalty.Random.RollDice(otherShip.ExplosionEvadeBaseChance() + otherShip.Level))
                     continue;
 
                 // First damage all shields covering the explosion center

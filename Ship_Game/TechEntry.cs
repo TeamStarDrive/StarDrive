@@ -535,7 +535,7 @@ namespace Ship_Game
 
         public bool UnlockFromSpy(Empire us, Empire them)
         {
-            if (!Unlocked && (RandomMath.RollDice(50) || !ContentRestrictedTo(them)))
+            if (!Unlocked && (us.Random.RollDice(50) || !ContentRestrictedTo(them)))
             {
                 AddToProgress(TechCost * 0.25f, us, out bool unLocked);
                 if (unLocked) us.UnlockTech(this, TechUnlockType.Normal, null);

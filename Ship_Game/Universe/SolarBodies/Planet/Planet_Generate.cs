@@ -136,7 +136,7 @@ namespace Ship_Game
             if (data.planetScale > 0)
                 scale = data.planetScale;
             else
-                scale = type.Scale + RandomMath.Float(0.9f, 1.8f);
+                scale = type.Scale + Random.Float(0.9f, 1.8f);
 
             if (data.UniqueHabitat)
             {

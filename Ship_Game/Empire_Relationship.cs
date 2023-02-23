@@ -361,7 +361,7 @@ namespace Ship_Game
             float multiplier = treatySigned ? 1 : 0.5f;
             float spyDefense = GetSpyDefense();
             Relationship rel = GetRelations(them);
-            if (treatySigned || RandomMath.RollDice(spyDefense * 5))
+            if (treatySigned || Random.RollDice(spyDefense * 5))
             {
                 rel.turnsSinceLastContact = 0;
                 them.AddToDiplomacyContactView(this, dialog);

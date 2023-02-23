@@ -98,8 +98,8 @@ internal class ParticleDebug : DebugPage
 
     void MakeItRain(float offset, float velocity, float radius, ExplosionType type)
     {
-        ExplosionManager.AddExplosion(Screen, Screen.CursorWorldPosition + RandomMath.Vector3D(offset),
-            velocity:RandomMath.Vector2D(velocity),
+        ExplosionManager.AddExplosion(Screen, Screen.CursorWorldPosition + Loyalty.Random.Vector3D(offset),
+            velocity:Loyalty.Random.Vector2D(velocity),
             radius: radius, intensity:5.0f, type:type);
     }
 
