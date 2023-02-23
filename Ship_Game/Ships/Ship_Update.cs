@@ -336,7 +336,7 @@ namespace Ship_Game.Ships
             // Spawn some junk when tumbling and the game is not paused
             if (visibleAndNotPaused && !IsMeteor && Loyalty.Random.RollDice(10)) // X % chance
             {
-                Vector2 pos = Position.GenerateRandomPointOnCircle(scaledRadius / 20);
+                Vector2 pos = Position.GenerateRandomPointOnCircle(scaledRadius / 20, Loyalty.Random);
                 SpaceJunk.SpawnJunk(Universe, 1, pos, Velocity * scale, this,
                                     maxSize: scaledRadius * 0.1f, ignite: true);
             }

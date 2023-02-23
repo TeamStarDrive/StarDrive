@@ -167,11 +167,11 @@ namespace Ship_Game.Universe.SolarBodies
             sys.SunLayers[whichLayer].DrawLoRes(batch, sys.Sun.Icon, pos, scale);
         }
 
-        public SunLayerState[] CreateLayers(GameContentManager universeContent)
+        public SunLayerState[] CreateLayers(GameContentManager universeContent, RandomBase random)
         {
             var states = new SunLayerState[Layers.Count];
             for (int i = 0; i < Layers.Count; ++i)
-                states[i] = new SunLayerState(universeContent, Layers[i]);
+                states[i] = new SunLayerState(universeContent, Layers[i], random);
             return states;
         }
         
@@ -203,7 +203,7 @@ namespace Ship_Game.Universe.SolarBodies
         float ScaleIntensity = 1f;
         float ColorIntensity = 1f;
 
-        public SunLayerState(GameContentManager content, SunLayerInfo info)
+        public SunLayerState(GameContentManager content, SunLayerInfo info, RandomBase random)
         {
             Info = info;
 
@@ -213,7 +213,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Sprite = DrawableSprite.SubTex(content, info.TexturePath);
             
             Sprite.Effects = SpriteEffects.FlipVertically;
-            Sprite.Rotation = info.RotationStart.Generate();
+            Sprite.Rotation = info.RotationStart.Generate(random);
         }
 
         public void Update(FixedSimTime timeStep)

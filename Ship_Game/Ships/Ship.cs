@@ -1576,7 +1576,7 @@ namespace Ship_Game.Ships
                     {
                         // Added by RedFox - spawn flaming spacejunk when a ship dies
                         int howMuchJunk = (int)(Radius * 0.05f);
-                        Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 2);
+                        Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 2, Loyalty.Random);
                         SpaceJunk.SpawnJunk(Universe, howMuchJunk, pos, Velocity, this,
                                             maxSize: Radius * 0.1f, ignite: false);
                     }

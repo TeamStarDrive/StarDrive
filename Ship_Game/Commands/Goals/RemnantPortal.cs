@@ -54,7 +54,7 @@ namespace Ship_Game.Commands.Goals
             if (Portal.System == null)
                 ReturnToSpawnPos();
             else
-                MoveToPos(Portal.System.Position.GenerateRandomPointOnCircle(10000 * Portal.HealthPercent.LowerBound(0.5f)));
+                MoveToPos(Portal.System.Position.GenerateRandomPointOnCircle(10000 * Portal.HealthPercent.LowerBound(0.5f), Owner.Random));
 
             return true;
         }

@@ -48,7 +48,7 @@ namespace Ship_Game.Commands.Goals
 
             if (Pirates.GetTarget(TargetEmpire, Pirates.TargetType.FreighterAtWarp, out Ship freighter))
             {
-                Vector2 where = freighter.Position.GenerateRandomPointOnCircle(1000);
+                Vector2 where = freighter.Position.GenerateRandomPointOnCircle(1000, Owner.Random);
                 if (Pirates.SpawnBoardingShip(freighter, where, out Ship boardingShip))
                 {
                     TargetShip   = freighter;

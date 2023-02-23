@@ -551,7 +551,7 @@ namespace Ship_Game.Gameplay
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
-            PlanetOrigin = planet.Position.GenerateRandomPointInsideCircle(planet.Radius * 0.66f);
+            PlanetOrigin = planet.Position.GenerateRandomPointInsideCircle(planet.Radius * 0.66f, planet.Random);
             GameObject target = targetShip.GetRandomInternalModule(this) ?? (GameObject) targetShip;
 
             if (IsBeam)

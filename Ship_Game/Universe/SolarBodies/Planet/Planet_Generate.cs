@@ -113,15 +113,15 @@ namespace Ship_Game
                 else if (richness >= 10f) MineralRichness = random.Float(0.25f, 0.50f);
                 else                      MineralRichness = random.Float(0.10f, 0.25f);
 
-                float habitableChance = PType.HabitableTileChance.Generate();
+                float habitableChance = PType.HabitableTileChance.Generate(random);
 
                 SetTileHabitability(random, habitableChance, out int numHabitableTiles);
                 if (preDefinedPop > 0)
                     BasePopPerTile = (int)(preDefinedPop * 1000 / numHabitableTiles);
                 else
-                    BasePopPerTile = ((int)(type.PopPerTile.Generate() * scale)).RoundUpToMultipleOf(10);
+                    BasePopPerTile = ((int)(type.PopPerTile.Generate(random) * scale)).RoundUpToMultipleOf(10);
 
-                BaseFertility    = type.BaseFertility.Generate().Clamped(type.MinBaseFertility, 100.0f);
+                BaseFertility    = type.BaseFertility.Generate(random).Clamped(type.MinBaseFertility, 100.0f);
                 BaseMaxFertility = BaseFertility;
             }
             else
@@ -452,7 +452,7 @@ namespace Ship_Game
 
         private void ReCalculateHabitableChances(RandomBase random) // FB - We might need it for planet degrade
         {
-            float habitableChance = PType.HabitableTileChance.Generate();
+            float habitableChance = PType.HabitableTileChance.Generate(random);
             foreach (PlanetGridSquare pgs in TilesList)
             {
                 if (pgs.Biosphere)
