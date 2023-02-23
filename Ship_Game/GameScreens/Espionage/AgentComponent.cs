@@ -126,7 +126,7 @@ namespace Ship_Game.GameScreens.Espionage
             base.Draw(batch, elapsed);
         }
 
-        public static string GetName(string[] tokens)
+        public static string GetName(string[] tokens, Empire owner)
         {
             var firstNames = new Array<string>();
             var lastNames = new Array<string>();
@@ -143,8 +143,8 @@ namespace Ship_Game.GameScreens.Espionage
                 }
             }
 
-            string first = RandomMath.RandItem(firstNames);
-            string last  = RandomMath.RandItem(lastNames);
+            string first = owner.Random.RandItem(firstNames);
+            string last  = owner.Random.RandItem(lastNames);
             return $"{first} {last}";
         }
 
@@ -177,26 +177,27 @@ namespace Ship_Game.GameScreens.Espionage
 
             if (RecruitButton.HandleInput(input))
             {
-                if (Universe.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) 
+                Empire player = Universe.Player;
+                if (player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) 
                     || AvailableSpies <= 0)
                 {
                     GameAudio.NegativeClick();
                 }
                 else
                 {
-                    Universe.Player.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
+                    player.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
                     var agent = new Agent()
                     {
-                        Name = GetName(LoadNames()),
-                        Age = RandomMath.Float(20, 30)
+                        Name = GetName(LoadNames(), player),
+                        Age = player.Random.Float(20, 30)
                     };
 
                     // Added new agent information
-                    int randomPlanetIndex = RandomMath.InRange(Universe.Player.GetPlanets().Count);
-                    agent.HomePlanet = Universe.Player.GetPlanets()[randomPlanetIndex].Name;
-                    Universe.Player.data.AgentList.Add(agent);
+                    int randomPlanetIndex = player.Random.InRange(player.GetPlanets().Count);
+                    agent.HomePlanet = player.GetPlanets()[randomPlanetIndex].Name;
+                    player.data.AgentList.Add(agent);
                     AgentSL.AddItem(new AgentListItem(agent, Universe));
-                    agent.AssignMission(AgentMission.Training, Universe.Player, "");
+                    agent.AssignMission(AgentMission.Training, player, "");
                 }
                 return true;
             }

@@ -33,12 +33,12 @@ namespace Ship_Game.Universe.SolarBodies
 
         public Empire Player => P.Universe.Player;
         public bool Dormant => !Active;
-        float DeactivationChance       => ActivationChance * 5;
-        float ActiveEruptionChance     => ActivationChance * 10;
-        float InitActivationChance()   => RandomMath.Float(0.01f, MaxActivationChance) * P.Universe.P.VolcanicActivity;
-        string ActiveVolcanoTexPath    => "Buildings/icon_Active_Volcano_64x64";
-        string DormantVolcanoTexPath   => "Buildings/icon_Dormant_Volcano_64x64";
-        string EruptingVolcanoTexPath  => "Buildings/icon_Erupting_Volcano_64x64";
+        float DeactivationChance => ActivationChance * 5;
+        float ActiveEruptionChance => ActivationChance * 10;
+        float InitActivationChance() => P.Random.Float(0.01f, MaxActivationChance) * P.Universe.P.VolcanicActivity;
+        string ActiveVolcanoTexPath => "Buildings/icon_Active_Volcano_64x64";
+        string DormantVolcanoTexPath => "Buildings/icon_Dormant_Volcano_64x64";
+        string EruptingVolcanoTexPath => "Buildings/icon_Erupting_Volcano_64x64";
         public bool ShouldNotifyPlayer => P.Owner == Player || P.AnyOfOurTroops(Player);
 
         void CreateLavaPool(PlanetGridSquare tile) // Must get a tile with no Volcano on it
@@ -48,7 +48,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             int bid = Building.Lava1Id;
             P.DestroyTile(tile);
-            switch (RandomMath.RollDie(3))
+            switch (P.Random.RollDie(3))
             {
                 case 2: bid = Building.Lava2Id; break;
                 case 3: bid = Building.Lava3Id; break;
@@ -93,7 +93,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         void TryActivate()
         {
-            if (!RandomMath.RollDice(ActivationChance))
+            if (!P.Random.RollDice(ActivationChance))
                 return;
 
             RemoveVolcanoBeforeReplacing();
@@ -105,7 +105,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         void TryErupt()
         {
-            if (!RandomMath.RollDice(ActiveEruptionChance))
+            if (!P.Random.RollDice(ActiveEruptionChance))
                 return;
 
             RemoveVolcanoBeforeReplacing();
@@ -114,7 +114,7 @@ namespace Ship_Game.Universe.SolarBodies
             Erupt(out string eruptionSeverityText);
             message = $"{message}\n{eruptionSeverityText}";
             CreateVolcanoBuilding(Building.EruptingVolcanoId);
-            if (RandomMath.RollDice(5) && P.BasePopPerTile > 300)
+            if (P.Random.RollDice(5) && P.BasePopPerTile > 300)
             {
                 P.BasePopPerTile *= 0.9f;
                 message = $"{message}\n{Localizer.Token(GameText.TheEnvironmentSufferedBothPermanent)}";
@@ -130,15 +130,15 @@ namespace Ship_Game.Universe.SolarBodies
 
         void TryCalmDown()
         {
-            if (!RandomMath.RollDice(1))
+            if (!P.Random.RollDice(1))
                 return;
 
             CreateDormantVolcano();
             string message   = Localizer.Token(GameText.AVolcanoEruptionEndedntheEnvironment);
             ActivationChance = InitActivationChance();
-            if (RandomMath.RollDice(ActiveEruptionChance * 2))
+            if (P.Random.RollDice(ActiveEruptionChance * 2))
             {
-                float increaseBy = RandomMath.RollDice(75) ? 0.1f : 0.2f;
+                float increaseBy = P.Random.RollDice(75) ? 0.1f : 0.2f;
                 message = $"{message}\n{Localizer.Token(GameText.ANewMineralVainWas)} {increaseBy.String(1)}.";
                 P.MineralRichness += increaseBy;
             }
@@ -149,7 +149,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         bool TryDeactivate()
         {
-            if (!RandomMath.RollDice(DeactivationChance))
+            if (!P.Random.RollDice(DeactivationChance))
                 return false;
 
             Active   = false;
@@ -209,7 +209,7 @@ namespace Ship_Game.Universe.SolarBodies
         int GetNumLavaPools(int maxSeverity)
         {
             int numLavaPools;
-            switch (RandomMath.RollDie(maxSeverity))
+            switch (P.Random.RollDie(maxSeverity))
             {
                 default: numLavaPools = 0; break;
                 case 5:  numLavaPools = 1; break;
@@ -231,13 +231,13 @@ namespace Ship_Game.Universe.SolarBodies
 
         public static void UpdateLava(PlanetGridSquare tile, Planet planet)
         {
-            if (!RandomMath.RollDice(2))
+            if (!planet.Random.RollDice(2))
                 return;
 
             // Remove the Lava Pool
             string lavaPath = tile.BuildingOnTile ? tile.Building.IconPath64 : "";
             planet.DestroyTile(tile);
-            int effects = RandomMath.RollDie(100);
+            int effects = planet.Random.RollDie(100);
             if (effects > 50)
             {
                 int threshold = planet.PType.Category == PlanetCategory.Volcanic ? 75 : 90;

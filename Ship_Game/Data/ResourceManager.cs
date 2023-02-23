@@ -687,10 +687,9 @@ namespace Ship_Game
             if (troop.StrengthMax <= 0)
                 troop.StrengthMax = troop.Strength;
 
-            troop.WhichFrame = RandomMath.Int(1, troop.num_idle_frames - 1);
-
             if (forOwner != null)
             {
+                troop.WhichFrame = forOwner.Random.Int(1, troop.num_idle_frames - 1);
                 troop.SetOwner(forOwner);
                 troop.HealTroop(troop.ActualStrengthMax);
                 troop.Level = forOwner.data.MinimumTroopLevel;
@@ -930,21 +929,21 @@ namespace Ship_Game
             return LoadEntities<SolarSystemData>(GatherFilesModOrVanilla("SolarSystems/Random", "xml"), "LoadSolarSystems");
         }
 
-        public static Texture2D LoadRandomLoadingScreen(GameContentManager transientContent)
+        public static Texture2D LoadRandomLoadingScreen(RandomBase random, GameContentManager transientContent)
         {
             FileInfo[] files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
 
-            FileInfo file = files[RandomMath.InRange(0, files.Length)];
+            FileInfo file = random.RandItem(files);
             return transientContent.LoadTexture(file);
         }
 
         // advice is temporary and only sticks around while loading
-        public static string LoadRandomAdvice()
+        public static string LoadRandomAdvice(RandomBase random)
         {
             string adviceFile = "Advice/" + GlobalStats.Language + "/Advice.xml";
 
             var adviceList = TryDeserialize<Array<string>>(adviceFile);
-            return adviceList?[RandomMath.InRange(adviceList.Count)] ?? "Advice.xml missing";
+            return adviceList?[random.InRange(adviceList.Count)] ?? "Advice.xml missing";
         }
 
         static void LoadArtifacts() // Refactored by RedFox

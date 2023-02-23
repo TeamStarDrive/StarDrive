@@ -61,21 +61,21 @@ namespace Ship_Game
             {
                 Universe.Screen.Particles.Sparks.AddParticle(new Vector3(PlaformCenter, 0f) + GenerateRandomWithin(100f), GenerateRandomWithin(25f));
             }
-            if (RandomMath.Float(0f, 100f) > 97f)
+            if (Universe.Random.Float(0f, 100f) > 97f)
             {
                 Universe.Screen.Particles.Flash.AddParticle(new Vector3(PlaformCenter, 0f));
             }
             Prison.Draw(sr, Color.White);
         }
 
-        private Vector2 GenerateRandomV2(float radius)
+        Vector2 GenerateRandomV2(float radius)
         {
-            return new Vector2(RandomMath.Float(-radius, radius), RandomMath.Float(-radius, radius));
+            return Universe.Random.Vector2D(radius);
         }
 
-        private Vector3 GenerateRandomWithin(float radius)
+        Vector3 GenerateRandomWithin(float radius)
         {
-            return new Vector3(RandomMath.Float(-radius, radius), RandomMath.Float(-radius, radius), RandomMath.Float(-radius, radius));
+            return Universe.Random.Vector3D(radius);
         }
 
         public override void Update(FixedSimTime timeStep)

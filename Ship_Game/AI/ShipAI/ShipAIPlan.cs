@@ -1,5 +1,6 @@
 ﻿using System;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 
 namespace Ship_Game.AI;
 
@@ -7,6 +8,7 @@ internal abstract class ShipAIPlan : IDisposable
 {
     public ShipAI AI;
     public Ship Owner;
+    public RandomBase Random => Owner.Loyalty.Random;
 
     protected ShipAIPlan(ShipAI ai)
     {

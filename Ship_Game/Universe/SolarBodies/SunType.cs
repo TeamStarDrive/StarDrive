@@ -19,6 +19,7 @@ using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -63,15 +64,15 @@ namespace Ship_Game.Universe.SolarBodies
         static SunType[] HabitableSuns;
         static SunType[] BarrenSuns;
 
-        public static SunType RandomHabitableSun(Predicate<SunType> filter = null)
+        public static SunType RandomHabitableSun(RandomBase random, Predicate<SunType> filter = null)
         {
             if (filter != null)
-                return RandomMath.RandItem(HabitableSuns.Filter(filter));
-            return RandomMath.RandItem(HabitableSuns);
+                return random.RandItem(HabitableSuns.Filter(filter));
+            return random.RandItem(HabitableSuns);
         }
-        public static SunType RandomBarrenSun()
+        public static SunType RandomBarrenSun(RandomBase random)
         {
-            return RandomMath.RandItem(BarrenSuns.Length != 0 ? BarrenSuns : HabitableSuns);
+            return random.RandItem(BarrenSuns.Length != 0 ? BarrenSuns : HabitableSuns);
         }
         public static SubTexture[] GetLoResTextures()
         {

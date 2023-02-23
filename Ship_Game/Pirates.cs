@@ -252,7 +252,7 @@ namespace Ship_Game
                 return;
 
             int dieRoll = (int)(Level * Universe.P.Pace + Universe.ActiveMajorEmpires.Length / 2f);
-            if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
+            if (alwaysLevelUp || Random.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
                 if (NewLevelOperations(u, newLevel))
@@ -284,7 +284,7 @@ namespace Ship_Game
         bool NewLevelOperations(UniverseState u, int level)
         {
             bool success;
-            NewBaseSpot spotType = (NewBaseSpot)RandomMath.Int(0, 4);
+            NewBaseSpot spotType = (NewBaseSpot)Random.Int(0, 4);
             switch (spotType)
             {
                 case NewBaseSpot.GasGiant:
@@ -489,7 +489,7 @@ namespace Ship_Game
 
             // Asteroids are guaranteed to be found because `selectedSystem` is filtered by r.Asteroids
             SolarSystem.Ring selectedRing = Random.RandItemFiltered(selectedSystem.RingList, r => r.Asteroids);
-            float ringRadius = selectedRing.OrbitalDistance + RandomMath.Int(-250, 250);
+            float ringRadius = selectedRing.OrbitalDistance + Random.Int(-250, 250);
             position         = selectedSystem.Position.GenerateRandomPointOnCircle(ringRadius);
             system           = selectedSystem;
 
@@ -613,7 +613,7 @@ namespace Ship_Game
 
             public PirateForces(Empire pirates, int effectiveLevel) : this()
             {
-                FlagShip         = pirates.data.PirateFlagShip;
+                FlagShip = pirates.data.PirateFlagShip;
                 int levelDivider = 1; 
 
                 switch (pirates.Universe.P.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
@@ -624,22 +624,14 @@ namespace Ship_Game
 
                 switch (effectiveLevel / levelDivider)
                 {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
+                    case 0: case 1: case 2: case 3: case 4:
                         Fighter      = pirates.data.PirateFighterBasic;
                         Frigate      = pirates.data.PirateFrigateBasic;
                         BoardingShip = pirates.data.PirateSlaverBasic;
                         Base         = pirates.data.PirateBaseBasic;
                         Station      = pirates.data.PirateStationBasic;
                         break;
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
+                    case 5: case 6: case 7: case 8: case 9:
                         Fighter      = pirates.data.PirateFighterImproved;
                         Frigate      = pirates.data.PirateFrigateImproved;
                         BoardingShip = pirates.data.PirateSlaverImproved;
@@ -655,7 +647,8 @@ namespace Ship_Game
                         break;
                 }
 
-                Random = GetRandomShipFromSpawnList(pirates, out string shipName) ? shipName : GetRandomDefaultShip();
+                Random = GetRandomShipFromSpawnList(pirates, out string shipName)
+                       ? shipName : GetRandomDefaultShip(pirates);
             }
 
             bool GetRandomShipFromSpawnList(Empire empire, out string shipName)
@@ -667,7 +660,7 @@ namespace Ship_Game
                 return shipName.NotEmpty();
             }
 
-            string GetRandomDefaultShip() => RandomMath.RollDice(80) ? Fighter : Frigate;
+            string GetRandomDefaultShip(Empire empire) => empire.Random.RollDice(80) ? Fighter : Frigate;
         }
 
         public bool GetTarget(Empire victim, TargetType type, out Ship target)
@@ -898,7 +891,7 @@ namespace Ship_Game
                 if (victim.IsNAPactWith(faction))
                 {
                     int executeChance = faction.Pirates.Level * 3;
-                    if (RandomMath.RollDice(executeChance))
+                    if (Random.RollDice(executeChance))
                     {
                         AddGoalProtection(victim, shipToDefend);
                         return;
@@ -918,7 +911,7 @@ namespace Ship_Game
             if (currentAssaultGoals >= maxAssaultGoals || victim.data.TaxRate > 0.8f) 
                 return;
 
-            if (FoundPirateBaseInSystemOf(victim, out Ship pirateBase) || RandomMath.RollDice(Level * 4))
+            if (FoundPirateBaseInSystemOf(victim, out Ship pirateBase) || Random.RollDice(Level * 4))
             {
                 Goal goal = new AssaultPirateBase(victim, Owner, pirateBase);
                 victim.AI.AddGoal(goal);
@@ -934,7 +927,7 @@ namespace Ship_Game
                 return; // The killed ship is not a pirate base or not relevant
             }
 
-            float reward = (500 + RandomMath.RollDie(1000) + Level * 100).RoundUpToMultipleOf(10);
+            float reward = (500 + Random.RollDie(1000) + Level * 100).RoundUpToMultipleOf(10);
             killer.AddMoney(reward);
             if (killer.isPlayer)
                 Owner.Universe.Notifications.AddDestroyedPirateBase(killedShip, reward);

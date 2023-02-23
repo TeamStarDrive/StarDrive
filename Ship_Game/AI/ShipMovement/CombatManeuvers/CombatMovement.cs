@@ -160,7 +160,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
         {
-            float angle = RandomMath.AvgFloat(1f, 3f);
+            float angle = Owner.Loyalty.Random.AvgFloat(1f, 3f);
 
             switch(DisengageType)
             {

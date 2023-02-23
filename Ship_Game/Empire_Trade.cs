@@ -87,7 +87,7 @@ namespace Ship_Game
 
             float popRatio              = TotalPopBillion / MaxPopBillion;
             float productionFirstChance = popRatio * 100;
-            if (RandomMath.RollDice(productionFirstChance))
+            if (Random.RollDice(productionFirstChance))
             {
                 DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false);
                 DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets, false);
@@ -303,7 +303,7 @@ namespace Ship_Game
         // Percentage to check if there is better suited freighter model available
         public void CheckForRefitFreighter(Ship freighter, int percentage, IShipDesign betterFreighter = null)
         {
-            if (!ManualTrade && RandomMath.RollDice(percentage) && TotalFreighters / (float)FreighterCap > 0.75f)
+            if (!ManualTrade && Random.RollDice(percentage) && TotalFreighters / (float)FreighterCap > 0.75f)
             {
                 if (betterFreighter == null)
                     betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);

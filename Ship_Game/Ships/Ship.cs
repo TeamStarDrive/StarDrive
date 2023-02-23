@@ -453,7 +453,7 @@ namespace Ship_Game.Ships
             }
             else if (MechanicalBoardingDefense > 0f)
             {
-                if (RandomMath.RollDice(troopDamageChance))
+                if (Loyalty.Random.RollDice(troopDamageChance))
                     MechanicalBoardingDefense -= 1f;
             }
         }
@@ -1522,7 +1522,7 @@ namespace Ship_Game.Ships
             if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
                 return true;
 
-            if (RandomMath.RollDice(35))
+            if (Loyalty.Random.RollDice(35))
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie

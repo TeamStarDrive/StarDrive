@@ -12,6 +12,7 @@ using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Point = SDGraphics.Point;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Ships
 {
@@ -307,6 +308,7 @@ namespace Ship_Game.Ships
         public bool IsAmplified => ActualShieldPowerMax-0.1f > ShieldPowerMax * Bonuses.ShieldMod;
 
         [Pure] public Ship GetParent() => Parent;
+        [Pure] public RandomBase Random => Parent.Loyalty.Random;
 
         [Pure] public bool TryGetHangarShip(out Ship ship)
         {
@@ -827,9 +829,10 @@ namespace Ship_Game.Ships
                 case Restrictions.xO: percent = 1; break;
                 default:              percent = 0.95f; break; // contains I
             }
-
+            
+            Ship source = GetParent();
             if (Is(ShipModuleType.Engine))
-                percent = RandomMath.RollDice(20) ? 0.75f : 1;
+                percent = source.Loyalty.Random.RollDice(20) ? 0.75f : 1;
 
             if (Is(ShipModuleType.Command)
                 || Is(ShipModuleType.PowerPlant)
@@ -839,7 +842,6 @@ namespace Ship_Game.Ships
                 percent = 0.95f;
             }
 
-            Ship source  = GetParent();
             if (ActualShieldPowerMax > 0)
                 Damage(source, ActualShieldPowerMax); // Kill shield power first
 
@@ -906,9 +908,10 @@ namespace Ship_Game.Ships
         {
             if (proj != null && (proj.Weapon.Tag_Kinetic || proj.Weapon.Explodes))
             {
-                if (RandomMath.RollDice(20)) // X % out of 100 that we spawn debris
+                var random = Random;
+                if (random.RollDice(20)) // X % out of 100 that we spawn debris
                 {
-                    Vector2 velocity = Parent.Velocity + RandomMath.Vector2D(Parent.Velocity.Length()) * (1 + RandomMath.RollDie(200) / 100);
+                    Vector2 velocity = Parent.Velocity + random.Vector2D(Parent.Velocity.Length()) * (1 + random.RollDie(200) / 100);
                     SpawnDebris(velocity, 1, ignite: false);
                 }
             }
@@ -1037,7 +1040,7 @@ namespace Ship_Game.Ships
         {
             float size = Radius.LowerBound(16);
             if (count == 0)
-                count = RandomMath.Int(0, (int)(Area * 0.5f + 1f));
+                count = Random.Int(0, (int)(Area * 0.5f + 1f));
             else
                 size *= 0.1f;
 
@@ -1301,7 +1304,7 @@ namespace Ship_Game.Ships
                 if (!Active)
                 {
                     // Module is destroyed and might "jump start" its regeneration
-                    if (RandomMath.RollDice(TechLevel))
+                    if (Random.RollDice(TechLevel))
                         SetHealth(Health + Regenerate, "Regenerate");
                 }
                 else

@@ -28,7 +28,7 @@ namespace Ship_Game.GameScreens.NewGame
 
         readonly Array<SystemPlaceHolder> Systems = new();
 
-        readonly RandomBase Random;
+        public readonly RandomBase Random;
 
         public UniverseGenerator(UniverseParams p)
         {

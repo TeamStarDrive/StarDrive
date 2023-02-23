@@ -40,7 +40,7 @@ namespace Ship_Game.Commands.Goals
                 return;
 
             int roll = Portal.AI.Target?.System == Portal.System ? 35 : 5;
-            if (Portal.AI.Target != null && Portal.System != null && RandomMath.RollDice(roll))
+            if (Portal.AI.Target != null && Portal.System != null && Owner.Random.RollDice(roll))
                 JumpToEnemy();
             else
                 ReturnToSpawnPos();
@@ -48,7 +48,7 @@ namespace Ship_Game.Commands.Goals
 
         bool LureEnemy()
         {
-            if (RandomMath.RollDice((Portal.HealthPercent * 100).Clamped(25, 75)))
+            if (Owner.Random.RollDice((Portal.HealthPercent * 100).Clamped(25, 75)))
                 return false;
 
             if (Portal.System == null)
@@ -62,11 +62,11 @@ namespace Ship_Game.Commands.Goals
         void JumpToEnemy()
         {
             float desiredRange = Portal.DesiredCombatRange;
-            Ship nearest       = Portal.AI.Target;
+            Ship nearest = Portal.AI.Target;
 
             if (nearest != null && !nearest.Position.InRadius(Portal.Position, desiredRange))
             {
-                int frontOrRear = RandomMath.RollDice((Portal.HealthPercent * 100).Clamped(25, 80)) ? 1 : -1;
+                int frontOrRear = Owner.Random.RollDice((Portal.HealthPercent * 100).Clamped(25, 80)) ? 1 : -1;
                 Vector2 pos = nearest.Position + frontOrRear * nearest.Position.DirectionToTarget(Portal.Position).Normalized() * (desiredRange + nearest.Radius);
                 MoveToPos(pos);
             }

@@ -247,7 +247,7 @@ namespace UnitTests.AITests.Empire
             {
                 foreach(var planet in UState.Planets)
                 {
-                    if (RandomMath.RollDice(50))
+                    if (UState.Random.RollDice(50))
                     {
                         planet.SetOwner(empire);
                         empire.AI.AreasOfOperations.Add(new AO(UState, Enemy.Capital, Enemy, 10));
@@ -290,7 +290,7 @@ namespace UnitTests.AITests.Empire
                             if (s.Active)
                             {
                                 AssertEqual(s.Loyalty, empire);
-                                float random = RandomMath.AvgInt(1, 100);
+                                float random = empire.Random.AvgInt(1, 100);
                                 if (random > 80)
                                 {
                                     s.RemoveFromUniverseUnsafe();
@@ -307,7 +307,7 @@ namespace UnitTests.AITests.Empire
                         }
                     }
 
-                    addedShips = RandomMath.Int(1, 30);
+                    addedShips = UState.Random.Int(1, 30);
 
                     Parallel.For(0, UState.NumEmpires, (firstEmpire, lastEmpire) =>
                         {
