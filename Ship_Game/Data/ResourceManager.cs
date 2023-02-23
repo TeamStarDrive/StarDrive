@@ -1951,9 +1951,9 @@ namespace Ship_Game
 
         static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new();
 
-        public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)
+        public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone, RandomBase random)
         {
-            return ZoneDistribution[sunZone].RandItem();
+            return random.RandItem(ZoneDistribution[sunZone]);
         }
 
         static void LoadSunZoneData()
