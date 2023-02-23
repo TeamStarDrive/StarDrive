@@ -60,7 +60,7 @@ namespace Ship_Game
             }
 
             if (potentials.Count > 0)
-                affectedPlanet = potentials.RandItem();
+                affectedPlanet = u.Random.RandItem(potentials);
 
             return affectedPlanet != null;
         }

@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
             if (OurTroops.IsEmpty)
                 return;
 
-            Troop troop = OurTroops.RandItem();
+            Troop troop = Loyalty.Random.RandItem(OurTroops);
             RemoveAnyTroop(troop);
         }
 

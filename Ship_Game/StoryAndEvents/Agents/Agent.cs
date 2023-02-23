@@ -413,7 +413,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            string stolenTech = potentialTechs.RandItem().UID;
+            string stolenTech = us.Random.RandItem(potentialTechs).UID;
             string stolenTechName = ResourceManager.Tech(stolenTech).Name.Text;
 
             switch (missionStatus)
@@ -519,7 +519,7 @@ namespace Ship_Game
 
         void AssassinateEnemyAgent(Empire us, Empire victim, out string targetName)
         {
-            Agent targetAgent = victim.data.AgentList.RandItem(); // TODO - a target specific agent base on threat
+            Agent targetAgent = us.Random.RandItem(victim.data.AgentList); // TODO - a target specific agent base on threat
             targetName = targetAgent.Name;
             victim.data.AgentList.Remove(targetAgent);
             if (targetAgent.Mission == AgentMission.Undercover)

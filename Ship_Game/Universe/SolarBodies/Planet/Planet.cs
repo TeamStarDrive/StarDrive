@@ -304,7 +304,7 @@ namespace Ship_Game
                 else if (ringRadius < sysMaxRingRadius * 0.7f)  sunZone = SunZone.Far;
                 else                                            sunZone = SunZone.VeryFar;
 
-                PlanetType type = ChooseTypeByWeight(sunZone);
+                PlanetType type = ChooseTypeByWeight(sunZone, random);
                 float scale = type.Scale + random.Float(0.75f, 1.5f);
                 if (type.Category == PlanetCategory.GasGiant)
                     scale += 1f;
