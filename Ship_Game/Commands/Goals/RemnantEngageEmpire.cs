@@ -113,7 +113,7 @@ namespace Ship_Game.Commands.Goals
             {
                 if (Remnants.CreateShip(Portal, true, 0, out Ship ship))
                 {
-                    ship.Position = Portal.Position.GenerateRandomPointInsideCircle(3000);
+                    ship.Position = Portal.Position.GenerateRandomPointInsideCircle(3000, Owner.Random);
                     ship.EmergeFromPortal();
                     Fleet.AddShip(ship);
                 }

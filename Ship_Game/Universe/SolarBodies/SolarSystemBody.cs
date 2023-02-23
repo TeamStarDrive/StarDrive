@@ -609,7 +609,7 @@ namespace Ship_Game
                                         data.Moons[j].MoonScale,
                                         orbitRadius,
                                         Random.Float(0f, 360f),
-                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius));
+                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius, Random));
                     ParentSystem.MoonList.Add(moon);
                 }
             }
@@ -626,7 +626,7 @@ namespace Ship_Game
                                         moonType.Id,
                                         1f, orbitRadius,
                                         Random.Float(0f, 360f),
-                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius));
+                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius, Random));
                     ParentSystem.MoonList.Add(moon);
                 }
             }

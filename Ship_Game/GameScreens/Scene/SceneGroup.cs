@@ -51,7 +51,7 @@ namespace Ship_Game.GameScreens.Scene
 
             Vector3 Vec3(int arg) => Vector3Serializer.ToVector(GetArgument(arg));
             Vector3 RandVec3(int arg) => Scene.Random.Vector3D(Vector3Serializer.ToVector(GetArgument(arg)));
-            float Range(int arg) => RangeSerializer.ToRange(GetArgument(arg)).Generate();
+            float Range(int arg) => RangeSerializer.ToRange(GetArgument(arg)).Generate(Scene.Random);
             float Float(int arg) => FloatSerializer.ToFloat(GetArgument(arg));
             int Int(int arg) => (int)Math.Round(FloatSerializer.ToFloat(GetArgument(arg)));
             string Str(int arg) => GetArgument(arg) as string ?? "";
@@ -115,8 +115,8 @@ namespace Ship_Game.GameScreens.Scene
                     var spawn = new ObjectSpawnInfo
                     {
                         Type = group.Type,
-                        Speed = group.Speed.Generate(),
-                        Scale = group.Scale.Generate()
+                        Speed = group.Speed.Generate(Scene.Random),
+                        Scale = group.Scale.Generate(Scene.Random)
                     };
                     if (group.MinPos != null && group.MaxPos != null)
                         spawn.Position = Scene.Random.Vector3D(group.MinPos.Value, group.MaxPos.Value);

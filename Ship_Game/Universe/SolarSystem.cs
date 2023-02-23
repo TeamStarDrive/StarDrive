@@ -56,7 +56,7 @@ namespace Ship_Game
             set
             {
                 TheSunType = value;
-                SunLayers = value.CreateLayers(ResourceManager.RootContent);
+                SunLayers = value.CreateLayers(ResourceManager.RootContent, Universe.Random);
             }
         }
 

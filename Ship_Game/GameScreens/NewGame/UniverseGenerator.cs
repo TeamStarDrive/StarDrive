@@ -536,7 +536,7 @@ namespace Ship_Game.GameScreens.NewGame
             {
                 for (int v = 1; v <= numVerticalSectors; ++v)
                 {
-                    sectors.Add(new Sector(UState.Size, numHorizontalSectors, numVerticalSectors,
+                    sectors.Add(new Sector(Random, UState.Size, numHorizontalSectors, numVerticalSectors,
                                            h, v, deviation, offsetMultiplier));
                 }
             }
@@ -615,7 +615,7 @@ namespace Ship_Game.GameScreens.NewGame
             do
             {
                 spacing *= safetyBreak;
-                sysPos = sector.RandomPosInSector;
+                sysPos = sector.GetRandomPosInSector(Random);
                 safetyBreak *= 0.99f;
             } while (!SystemPosOK(sysPos, spacing));
 
@@ -630,7 +630,8 @@ namespace Ship_Game.GameScreens.NewGame
             public readonly int X;
             public readonly int Y;
 
-            public Sector(float universeSize, int horizontalSectors, int verticalSectors, int horizontalNum, int verticalNum,
+            public Sector(RandomBase random, float universeSize, 
+                          int horizontalSectors, int verticalSectors, int horizontalNum, int verticalNum,
                           float deviation, float offsetMultiplier) : this()
             {
                 X = horizontalNum;
@@ -644,7 +645,7 @@ namespace Ship_Game.GameScreens.NewGame
                                              -universeSize + ySection * (-1 + verticalNum * 2));
 
                 // Some deviation in the center of the cluster
-                rawCenter = rawCenter.GenerateRandomPointInsideCircle(universeSize * deviation);
+                rawCenter = rawCenter.GenerateRandomPointInsideCircle(universeSize * deviation, random);
 
                 float leftX = (rawCenter.X - xSection).LowerBound(-universeSize);
                 RightX = (rawCenter.X + xSection).UpperBound(universeSize);
@@ -679,7 +680,7 @@ namespace Ship_Game.GameScreens.NewGame
                 }
             }
 
-            public Vector2 RandomPosInSector => Center.GenerateRandomPointInsideCircle(RightX - Center.X);
+            public Vector2 GetRandomPosInSector(RandomBase random) => Center.GenerateRandomPointInsideCircle(RightX - Center.X, random);
         }
 
         Vector2 GenerateRandomCorners(int corner) //Added by Gretman for Corners Game type
