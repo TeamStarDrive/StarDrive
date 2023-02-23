@@ -205,7 +205,7 @@ namespace Ship_Game
             else
             {
                 defenseShip.Level = 3;
-                defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.MaxSTLSpeed;
+                defenseShip.Velocity = empire.Random.Direction2D() * defenseShip.MaxSTLSpeed;
                 UpdateCurrentDefenseShips(-1);
                 empire.ChargeCreditsHomeDefense(defenseShip);
             }

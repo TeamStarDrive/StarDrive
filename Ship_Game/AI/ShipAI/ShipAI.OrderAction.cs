@@ -639,7 +639,7 @@ namespace Ship_Game.AI
                     }
                     if (potentials.Count > 0)
                     {
-                        AwaitClosest = potentials[UniverseRandom.InRange(potentials.Count)];
+                        AwaitClosest = Random.RandItem(potentials);
                         OderMoveAndDefendSystem(AwaitClosest);
                     }
                     else

@@ -445,7 +445,7 @@ namespace Ship_Game.Ships
         {
             if (HasOurTroops)
             {
-                if (UniverseRandom.RollDice(troopDamageChance) && GetOurFirstTroop(out Troop first))
+                if (Loyalty.Random.RollDice(troopDamageChance) && GetOurFirstTroop(out Troop first))
                 {
                     float damage = 1;
                     first.DamageTroop(this, ref damage);
@@ -576,10 +576,10 @@ namespace Ship_Game.Ships
 
             Vector2 error = default;
             if (ECMValue > 0)
-                error += RandomMath2.Vector2D(ECMValue * 80f);
+                error += Loyalty.Random.Vector2D(ECMValue * 80f);
 
             if (Loyalty.data.Traits.DodgeMod > 0)
-                error += RandomMath2.Vector2D(Loyalty.data.Traits.DodgeMod * 80f);
+                error += Loyalty.Random.Vector2D(Loyalty.data.Traits.DodgeMod * 80f);
 
             return error;
         }
@@ -1535,14 +1535,14 @@ namespace Ship_Game.Ships
                 if (InFrustum)
                 {
                     Dying = true;
-                    DieTimer = UniverseRandom.Int(4, 8);
+                    DieTimer = Loyalty.Random.Int(4, 8);
                 }
 
                 if (Dying)
                 {
-                    DieRotation.X = UniverseRandom.Float(-1f, 1f) * 50f / SurfaceArea;
-                    DieRotation.Y = UniverseRandom.Float(-1f, 1f) * 50f / SurfaceArea;
-                    DieRotation.Z = UniverseRandom.Float(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.X = Loyalty.Random.Float(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Y = Loyalty.Random.Float(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Z = Loyalty.Random.Float(-1f, 1f) * 50f / SurfaceArea;
                     return false; // ship will really die later
                 }
             }
