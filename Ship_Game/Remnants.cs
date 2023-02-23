@@ -552,7 +552,7 @@ namespace Ship_Game
 
             system ??= Owner.Random.RandItem(systems);
 
-            Vector2 pos = system.Position.GenerateRandomPointOnCircle(20000);
+            Vector2 pos = system.Position.GenerateRandomPointOnCircle(20000, Random);
             systemName  = system.Name;
             return SpawnShip(RemnantShipType.Portal, pos, out portal);
         }
@@ -966,7 +966,7 @@ namespace Ship_Game
             int divider = 7 * ((int)Universe.P.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
-                Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2);
+                Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2, Random);
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p, clearOrders:true, MoveOrder.Aggressive);

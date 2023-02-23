@@ -330,7 +330,7 @@ namespace Ship_Game
             else if (GetBases(out Array<Ship> bases))
             {
                 Ship pirateBase = Random.RandItem(bases);
-                Vector2 pos     = pirateBase.Position.GenerateRandomPointOnCircle(2000);
+                Vector2 pos     = pirateBase.Position.GenerateRandomPointOnCircle(2000, Random);
                 if (SpawnShip(PirateShipType.FlagShip, pos, out Ship flagShip))
                 {
                     flagShip.AI.AddEscortGoal(pirateBase);
@@ -354,7 +354,7 @@ namespace Ship_Game
                 Planet planet     = selectedBase.GetTether();
                 Vector2 pos       = planet?.Position ?? selectedBase.Position;
 
-                Vector2 stationPos = pos.GenerateRandomPointOnCircle(2000);
+                Vector2 stationPos = pos.GenerateRandomPointOnCircle(2000, Random);
                 if (SpawnShip(PirateShipType.Station, stationPos, out Ship station, level) && planet != null)
                     station.TetherToPlanet(planet);
             }
@@ -402,7 +402,7 @@ namespace Ship_Game
         {
             if (GetLoneSystem(u, out SolarSystem system))
             {
-                Vector2 pos = system.Position.GenerateRandomPointOnCircle((system.Radius * 0.75f).LowerBound(10000));
+                Vector2 pos = system.Position.GenerateRandomPointOnCircle((system.Radius * 0.75f).LowerBound(10000), Random);
                 if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
                 {
                     AddGoalBase(pirateBase, system.Name);
@@ -418,7 +418,7 @@ namespace Ship_Game
         {
             if (GetBasePlanet(u, spot, out Planet planet))
             {
-                Vector2 pos = planet.Position.GenerateRandomPointOnCircle(planet.Radius + 2000);
+                Vector2 pos = planet.Position.GenerateRandomPointOnCircle(planet.Radius + 2000, Random);
                 if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
                 {
                     pirateBase.TetherToPlanet(planet);
@@ -467,7 +467,7 @@ namespace Ship_Game
             Vector2 pos;
             do
             {
-                pos = system.Position.GenerateRandomPointOnCircle(radius);
+                pos = system.Position.GenerateRandomPointOnCircle(radius, Random);
             } while (!IsInUniverseBounds(system.Universe.Size, pos));
 
             return pos;
@@ -490,7 +490,7 @@ namespace Ship_Game
             // Asteroids are guaranteed to be found because `selectedSystem` is filtered by r.Asteroids
             SolarSystem.Ring selectedRing = Random.RandItemFiltered(selectedSystem.RingList, r => r.Asteroids);
             float ringRadius = selectedRing.OrbitalDistance + Random.Int(-250, 250);
-            position         = selectedSystem.Position.GenerateRandomPointOnCircle(ringRadius);
+            position         = selectedSystem.Position.GenerateRandomPointOnCircle(ringRadius, Random);
             system           = selectedSystem;
 
             return position != Vector2.Zero;
@@ -755,7 +755,7 @@ namespace Ship_Game
             force = new Array<Ship>();
             while (currentStr.Greater(0) && force.Count <= Level * 10) 
             {
-                Vector2 finalPos = pos.GenerateRandomPointOnCircle(radius);
+                Vector2 finalPos = pos.GenerateRandomPointOnCircle(radius, Random);
                 if (SpawnShip(PirateShipType.Random, finalPos, out Ship ship))
                 {
                     force.Add(ship);

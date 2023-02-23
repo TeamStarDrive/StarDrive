@@ -169,7 +169,7 @@ namespace Ship_Game
 
             for (int i = 0; i < numMeteors; i++)
             {
-                Vector2 pos = origin.GenerateRandomPointInsideCircle(p.GravityWellRadius);
+                Vector2 pos = origin.GenerateRandomPointInsideCircle(p.GravityWellRadius, p.Random);
 
                 string meteorName = "Meteor " + METEOR_VARIANTS[p.Random.RollDie(7) - 1];
                 var meteor = Ship.CreateShipAtPoint(p.Universe, meteorName, p.Universe.Unknown, pos);
@@ -198,7 +198,7 @@ namespace Ship_Game
             else
                 originRadius = system.Radius * 0.7f;
 
-            return system.Position.GenerateRandomPointOnCircle(originRadius);
+            return system.Position.GenerateRandomPointOnCircle(originRadius, p.Random);
         }
 
         void VolcanicToHabitable(UniverseState u)

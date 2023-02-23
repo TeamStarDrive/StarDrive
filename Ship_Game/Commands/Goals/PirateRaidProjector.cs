@@ -49,7 +49,7 @@ namespace Ship_Game.Commands.Goals
 
             if (Pirates.GetTarget(TargetEmpire, Pirates.TargetType.Projector, out Ship orbital))
             {
-                Vector2 where = orbital.Position.GenerateRandomPointOnCircle(3000);
+                Vector2 where = orbital.Position.GenerateRandomPointOnCircle(3000, Owner.Random);
                 if (Pirates.SpawnBoardingShip(orbital, where, out Ship boardingShip))
                 {
                     TargetShip   = orbital; // This is the main target, we want this to be boarded

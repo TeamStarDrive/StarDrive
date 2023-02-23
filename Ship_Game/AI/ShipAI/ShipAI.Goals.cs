@@ -286,7 +286,7 @@ namespace Ship_Game.AI
 
         Vector2 GetPositionOnPlanet(Planet p)
         {
-            return NewMathExt.RandomOffsetAndDistance(p.Position, p.Radius);
+            return NewMathExt.RandomOffsetAndDistance(p.Position, p.Radius, p.Random);
         }
 
         [StarDataType]
