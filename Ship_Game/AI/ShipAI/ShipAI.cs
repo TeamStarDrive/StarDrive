@@ -3,6 +3,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
 using System;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using SDUtils;
@@ -21,6 +22,7 @@ namespace Ship_Game.AI
         float UtilityModuleCheckTimer;
         [StarData] public FleetDataNode FleetNode;
         [StarData] public Ship Owner;
+        [Pure] public RandomBase Random => Owner.Loyalty.Random;
         [StarData] public AIState State = AIState.AwaitingOrders;
         [StarData] public Planet ResupplyTarget;
         [StarData] public SolarSystem SystemToDefend;
@@ -413,8 +415,8 @@ namespace Ship_Game.AI
             ChangeAIState(AIState.ResupplyEscort);
             EscortTarget = supplyShip;
 
-            float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.Float(200, 1000);
-            AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection(), null, 
+            float strafeOffset = Owner.Radius + supplyShip.Radius + Random.Float(200, 1000);
+            AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, Random.Direction2D(), null, 
                         supplyType, strafeOffset, AIState.ResupplyEscort, pushToFront: true);
         }
 

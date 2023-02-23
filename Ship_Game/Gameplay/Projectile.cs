@@ -321,7 +321,7 @@ namespace Ship_Game.Gameplay
                 Animation = new SpriteAnimation(ResourceManager.RootContent, animFolder);
                 Animation.Looping = Weapon.LoopAnimation == 1;
                 float loopDuration = (InitialDuration / Animation.NumFrames);
-                float startAt = Animation.Looping ? UniverseRandom.Float(0f, loopDuration) : 0f;
+                float startAt = Animation.Looping ? Loyalty.Random.Float(0f, loopDuration) : 0f;
                 Animation.Start(loopDuration, startAt);
             }
             else
@@ -401,12 +401,12 @@ namespace Ship_Game.Gameplay
             Vector2 jitter = Vector2.Zero;
             if (!Weapon.Tag_Intercept) return jitter;
 
-            if (MissileAI != null &&  Loyalty?.data.MissileDodgeChance >0 )
+            if (MissileAI != null && Loyalty?.data.MissileDodgeChance > 0)
             {
-                jitter += RandomMath2.Vector2D(Loyalty.data.MissileDodgeChance * 80f);
+                jitter += Loyalty.Random.Vector2D(Loyalty.data.MissileDodgeChance * 80f);
             }
-            if ((Weapon?.Module?.WeaponECM ?? 0) > 0)
-                jitter += RandomMath2.Vector2D((Weapon?.Module.WeaponECM ?? 0) * 80f);
+            if (Weapon?.Module?.WeaponECM > 0)
+                jitter += Weapon.Module.Random.Vector2D(Weapon.Module.WeaponECM * 80f);
 
             return jitter;
         }

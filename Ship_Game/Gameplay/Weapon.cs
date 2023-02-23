@@ -76,7 +76,7 @@ namespace Ship_Game.Gameplay
         {
             if (FireImprecisionAngle <= 0)
                 return direction;
-            float spread = RandomMath2.Float(-FireImprecisionAngle, FireImprecisionAngle) * 0.5f;
+            float spread = Owner.Loyalty.Random.Float(-FireImprecisionAngle, FireImprecisionAngle) * 0.5f;
             return (direction.ToDegrees() + spread).AngleToDirection();
         }
 
@@ -259,8 +259,7 @@ namespace Ship_Game.Gameplay
         Vector2 GetLevelBasedError(int level = -1)
         {
             float adjust = BaseTargetError(level);
-
-            return RandomMath2.Vector2D(adjust);
+            return Owner.Loyalty.Random.Vector2D(adjust);
         }
 
         public float BaseTargetError(float level, float range = 0, Empire loyalty = null)
