@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.GameScreens.MainMenu
@@ -14,14 +15,16 @@ namespace Ship_Game.GameScreens.MainMenu
     {
         readonly GameScreen Screen;
         readonly SubTexture Texture;
+        readonly RandomBase Random;
         Vector2 Direction;
         float Rotation;
 
-        public Comet(GameScreen screen)
-            : base(new Vector2(RandomMath.Float(-100f, screen.ScreenWidth+100f), 0f))
+        public Comet(GameScreen screen, RandomBase random)
+            : base(new Vector2(random.Float(-100f, screen.ScreenWidth+100f), 0f))
         {
             Screen = screen;
             Texture = screen.TransientContent.Load<SubTexture>("Textures/GameScreens/comet2");
+            Random = random;
             Size = Texture.SizeF;
             Direction = new Vector2(0f, 1f);
             DrawDepth = DrawDepth.ForeAdditive;
@@ -29,7 +32,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public void SetDirection(Vector2 direction)
         {
-            Direction = (direction + RandomMath.Vector2D(0.1f)).Normalized();
+            Direction = (direction + Random.Vector2D(0.1f)).Normalized();
             Rotation = Pos.RadiansToTarget(Pos + Direction);
         }
 

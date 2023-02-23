@@ -89,7 +89,7 @@ namespace Ship_Game.Commands.Goals
         Pirates.TargetType GetOrbital()
         {
             int divider = (Pirates.MaxLevel / 5).LowerBound(1); // so the bonus will be 1 to 5
-            int roll    = RandomMath.RollDie(10 + Pirates.Level/divider);
+            int roll = Owner.Random.RollDie(10 + Pirates.Level/divider);
             switch (roll)
             {
                 default: return Pirates.TargetType.Platform;

@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
 
             if (victimPlanets > Pirates.MinimumColoniesForPayment
                 || victimPlanets == Pirates.MinimumColoniesForPayment 
-                && RandomMath.RollDice(10))
+                && Owner.Random.RollDice(10))
             {
                 return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
             }
@@ -116,7 +116,7 @@ namespace Ship_Game.Commands.Goals
                     float chanceToPay = 1 - moneyDemand/TargetEmpire.Money.LowerBound(1);
                     chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)UState.P.Difficulty+1);
                         
-                    if (TargetEmpire.data.TaxRate < 0.4f && RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
+                    if (TargetEmpire.data.TaxRate < 0.4f && Owner.Random.RollDice(chanceToPay)) // We can expand that with AI personality
                     {
                         TargetEmpire.AddMoney(-moneyDemand);
                         TargetEmpire.AI.EndWarFromEvent(Pirates.Owner);

@@ -348,7 +348,7 @@ namespace Ship_Game
         // since troops are dying like flies
         public void LevelUp()
         {
-            if (RandomMath.RollDie(10) > Level)
+            if (Loyalty.Random.RollDie(10) > Level)
                 Level = (Level + 1).Clamped(0,10);
         }
 
@@ -448,7 +448,7 @@ namespace Ship_Game
             if (Loyalty.data.DefaultTroopShip.IsEmpty())
                 Log.Error($"{Loyalty.Name} has no DefaultTroopShip !");
             
-            Vector2 createAt = planet.Position + RandomMath.Vector2D(planet.Radius * 2);
+            Vector2 createAt = planet.Position + planet.Random.Vector2D(planet.Radius * 2);
             return Ship.CreateTroopShipAtPoint(planet.Universe, Loyalty.data.DefaultTroopShip, Loyalty, createAt, this);
         }
 

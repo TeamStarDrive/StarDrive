@@ -415,18 +415,18 @@ namespace Ship_Game
 
             foreach (Empire empire in UState.MajorEmpires)
             {
-                Planet homePlanet    = empire.GetPlanets()[0];
-                string colonyShip    = empire.data.DefaultColonyShip;
+                Planet homePlanet = empire.GetPlanets()[0];
+                string colonyShip = empire.data.DefaultColonyShip;
                 string startingScout = empire.data.StartingScout;
-                string freighter     = empire.data.DefaultSmallTransport;
-                string starterShip   = empire.data.Traits.Prototype == 0
-                                       ? empire.data.StartingShip
-                                       : empire.data.PrototypeShip;
+                string freighter = empire.data.DefaultSmallTransport;
+                string starterShip = empire.data.Traits.Prototype == 0
+                                   ? empire.data.StartingShip
+                                   : empire.data.PrototypeShip;
 
-                Ship.CreateShipAt(UState, starterShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.Radius * 3), true);
-                Ship.CreateShipAt(UState, colonyShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.Radius * 2), true);
-                Ship.CreateShipAt(UState, freighter, empire, homePlanet, RandomMath.Vector2D(homePlanet.Radius * 2), true);
-                Ship.CreateShipAt(UState, startingScout, empire, homePlanet, RandomMath.Vector2D(homePlanet.Radius * 3), true);
+                Ship.CreateShipAt(UState, starterShip, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 3), true);
+                Ship.CreateShipAt(UState, colonyShip, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 2), true);
+                Ship.CreateShipAt(UState, freighter, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 2), true);
+                Ship.CreateShipAt(UState, startingScout, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 3), true);
             }
         }
 

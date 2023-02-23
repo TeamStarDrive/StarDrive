@@ -115,7 +115,7 @@ namespace Ship_Game.AI
 
             // We choose the first item for the player to overcome edge case where several ships have the same str
             // because for the player - min str and max str is set to be the same to get the best ship)
-            IShipDesign pickedShip = empire.isPlayer ? bestShips[0] : RandomMath.RandItem(bestShips);
+            IShipDesign pickedShip = empire.isPlayer ? bestShips[0] : empire.Random.RandItem(bestShips);
 
             if (false && empire.Universe?.Debug == true)
             {
@@ -172,7 +172,7 @@ namespace Ship_Game.AI
             if (ships.Count == 0)
                 return null;
 
-            IShipDesign picked = RandomMath.RandItem(ships);
+            IShipDesign picked = empire.Random.RandItem(ships);
             Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.BaseStrength}" +
                                             $" refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
             return picked;

@@ -228,14 +228,14 @@ namespace Ship_Game.Universe.SolarBodies
             if (Loyalty.WeAreRemnants)
                 chance -= template.SurfaceArea / 15f; // Remnants tend to self destruct
 
-            return RandomMath.RollDice(chance.Clamped(1, 50))
+            return Loyalty.Random.RollDice(chance.Clamped(1, 50))
                 && !template.IsConstructor
                 && !template.IsDefaultTroopTransport;
         }
 
         public static void UpdateCrater(PlanetGridSquare tile, Planet planet)
         {
-            if (!RandomMath.RollDice(2))
+            if (!planet.Random.RollDice(2))
                 return;
 
             // Remove the Crater

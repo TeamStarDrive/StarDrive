@@ -206,7 +206,7 @@ namespace Ship_Game.AI.Research
             int p = (int)(priority * 100);
             int b = (int)(bonus * 100);
             if (EnableRandomizer)
-                return RandomMath.AvgInt(b, p + b);
+                return OwnerEmpire.Random.AvgInt(b, p + b);
             else
                 return p + b;
         }

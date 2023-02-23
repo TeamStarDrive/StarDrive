@@ -269,7 +269,7 @@ namespace Ship_Game.AI
             // Local method
             bool DetectAndWarn(Goal goal, bool warnExclusive)
             {
-                if (RandomMath.RollDice(detectionChance)
+                if (OwnerEmpire.Random.RollDice(detectionChance)
                     || goal.FinishedShip != null && goal.FinishedShip.KnownByEmpires.KnownBy(OwnerEmpire))
                 {
                     // Detected their colonization efforts

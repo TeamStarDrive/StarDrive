@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Utils;
 using Vector3 = SDGraphics.Vector3;
 #pragma warning disable 649
 
@@ -311,7 +308,7 @@ namespace Ship_Game.Graphics.Particles
 
                     for (int j = 0; j < sprayCount; ++j)
                     {
-                        var randomSpray = sprayVel * RandomMath.Vector3D(sprayMin, sprayMax);
+                        var randomSpray = sprayVel * Data.Manager.Random.Vector3D(sprayMin, sprayMax);
                         for (int i = 0; i < Emitters.Length; ++i)
                         {
                             Emitters[i].Update(fixedStep, PrevPos, newPos, moveVel, randomSpray, scale);

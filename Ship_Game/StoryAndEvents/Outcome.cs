@@ -195,7 +195,7 @@ namespace Ship_Game
             }
             if (potentials.Count > 0)
             {
-                SetPlanet(potentials[RandomMath.InRange(potentials.Count)]);
+                SetPlanet(u.Random.RandItem(potentials));
                 return true;
             }
 
@@ -261,7 +261,7 @@ namespace Ship_Game
                 else
                 {
                     //choose a random available artifact and process it.
-                    Artifact chosenArtifact = potentials[RandomMath.InRange(potentials.Count)];
+                    Artifact chosenArtifact = triggeredBy.Random.RandItem(potentials);
                     triggeredBy.data.OwnedArtifacts.Add(chosenArtifact);
                     ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
                     SetArtifact(chosenArtifact);

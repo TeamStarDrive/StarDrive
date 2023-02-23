@@ -631,7 +631,7 @@ namespace Ship_Game.AI
                     // edge case, two ships are on top of each other, so assign a random direction
                     if (distance < 16f)
                     {
-                        meanDeflect += RandomMath.RandomDirection();
+                        meanDeflect += Owner.Loyalty.Random.Direction2D();
                         maxDeflectionPower = 1.0f; // fully deflect away
 
                         // we don't need to get any more friends, this single random direction is enough
