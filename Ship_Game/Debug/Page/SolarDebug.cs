@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics.Input;
+using SDGraphics.Rendering;
+using SDGraphics.Sprites;
 using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.Universe;
 
 namespace Ship_Game.Debug.Page;
+using Vector2 = SDGraphics.Vector2;
 
 internal class SolarDebug : DebugPage
 {
@@ -66,9 +68,16 @@ internal class SolarDebug : DebugPage
         var frustum = Screen.VisibleWorldRect;
         Empire[] empires = Universe.Empires.Sorted(e=> e.MilitaryScore);
 
+        SpriteRenderer sr = Screen.ScreenManager.SpriteRenderer;
+
         foreach (Empire empire in empires)
         {
             Empire.InfluenceNode[] nodes = empire.BorderNodeCache.BorderNodes;
+            if (nodes.Length == 0)
+                continue;
+
+            sr.Begin(Screen.ViewProjection);
+
             for (int x = 0; x < nodes.Length; x++)
             {
                 ref Empire.InfluenceNode inf = ref nodes[x];
@@ -80,8 +89,19 @@ internal class SolarDebug : DebugPage
                 Empire.InfluenceNode a = c.Node1;
                 Empire.InfluenceNode b = c.Node2;
                 if (frustum.Overlaps(a.Position, a.Radius) || frustum.Overlaps(b.Position, b.Radius))
-                    Parent?.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
+                {
+                    Parent.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
+
+                    float radius = Math.Min(a.Radius, b.Radius);
+                    float width = 2.0f * radius;
+                    
+                    // make a quad by reusing the Quad3D line constructor
+                    Quad3D connectLine = new(a.Position, b.Position, width, zValue: 0f);
+                    sr.DrawRectLine(connectLine, Color.Brown, thickness: 5000);
+                }
             }
+
+            sr.End();
         }
         
         Screen.DrawString(new(300, 200), Color.White, $"SrcBlend: {Screen.BorderBlendSrc}  Change with COMMA+UP/DOWN keys", Fonts.Arial20Bold);
