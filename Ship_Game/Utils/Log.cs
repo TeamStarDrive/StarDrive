@@ -360,17 +360,18 @@ namespace Ship_Game
             AutoUpdateClicked, // user has clicked on the Auto-Update banner
             AutoUpdateStarted, // user actually OK'd the Auto-Update process
             AutoUpdateFinished, // auto-update actually finished
+            AutoUpdateFailed, // auto-update failed somehow
         }
 
         /// <summary>
         /// Logs event statistics to Sentry if AutoErrorReport is enabled
         /// </summary>
-        public static void LogEventStats(GameEvent evt, UniverseParams p = null)
+        public static void LogEventStats(GameEvent evt, UniverseParams p = null, string message = "")
         {
             if (!IsStatsReportEnabled)
                 return;
 
-            string evtMessage = evt.ToString();
+            string evtMessage = message.IsEmpty() ? (evt + " " + message) : evt.ToString();
             Write($"GameEvent: {evtMessage}");
 
             var e = new SentryEvent()
