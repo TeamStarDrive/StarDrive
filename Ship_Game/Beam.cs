@@ -378,7 +378,7 @@ namespace Ship_Game
             
             if (Duration < 0f && !Infinite)
             {
-                Die(null, true);
+                Die(null, false);
             }
         }
 
@@ -449,9 +449,10 @@ namespace Ship_Game
             }
 
             UpdateBeamMesh();
+
             if (Active && Duration < 0f && !Infinite)
             {
-                Die(null, true);
+                Die(null, false);
                 AI.ClearBeam();
             }
         }
