@@ -1440,7 +1440,7 @@ namespace Ship_Game
                 if (data.XSize == data.YSize && !mustRotate)
                     data.DisableRotation = true;
 
-                ShipModule template = ShipModule.CreateTemplate(data);
+                ShipModule template = ShipModule.CreateTemplate(null, data);
                 ModuleTemplates[uid] = template;
             }
         }
@@ -1871,19 +1871,19 @@ namespace Ship_Game
 
         // Creates a weapon used by Planets or Special space objects
         // There is no Ship Owner or ShipModule
-        public static Weapon CreateWeapon(string uid)
+        public static Weapon CreateWeapon(UniverseState us, string uid)
         {
             IWeaponTemplate template = WeaponsDict[uid];
-            return new Weapon(template, null, null, null);
+            return new Weapon(us, template, null, null, null);
         }
 
         // Creates a weapon used by a Ship
         // `module` can be null if the weapon does not belong to a specific module
         // `hull` can be null if hull based bonuses don't matter
-        public static Weapon CreateWeapon(string uid, Ship owner, ShipModule module, ShipHull hull)
+        public static Weapon CreateWeapon(UniverseState us, string uid, Ship owner, ShipModule module, ShipHull hull)
         {
             IWeaponTemplate template = WeaponsDict[uid];
-            return new Weapon(template, owner, module, hull);
+            return new Weapon(us, template, owner, module, hull);
         }
 
         // Gets an immutable IWeaponTemplate
@@ -1892,7 +1892,12 @@ namespace Ship_Game
             if (GetWeaponTemplate(uid, out IWeaponTemplate t))
                 return t;
             Log.Error($"WeaponTemplate not found: '{uid}', using default VulcanCannon");
-            return null;
+            return WeaponsDict["VulcanCannon"];
+        }
+
+        public static IWeaponTemplate GetWeaponTemplateOrNull(string uid)
+        {
+            return GetWeaponTemplate(uid, out IWeaponTemplate t) ? t : null;
         }
 
         public static bool GetWeaponTemplate(string uid, out IWeaponTemplate template)

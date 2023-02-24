@@ -40,7 +40,7 @@ namespace Ship_Game
         private Ship SpawnAncientRepulsor(UniverseState us, Vector2 repulsorPos)
         {
             Ship repulsor = Ship.CreateShipAtPoint(us, PlatformName, us.Unknown, repulsorPos);
-            Weapon weapon = ResourceManager.CreateWeapon("AncientRepulsor");
+            Weapon weapon = ResourceManager.CreateWeapon(us, "AncientRepulsor");
             var beam = new Beam(us.CreateId(), weapon, repulsor, PlaformCenter, 75);
             beam.Infinite = true;
             beam.Range = 2500f;

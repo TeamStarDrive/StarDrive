@@ -44,7 +44,7 @@ namespace Ship_Game
 
             Position    = position;
             ShipLevel   = shipLevel;
-            Weapon = ResourceManager.GetWeaponTemplate(weaponName)
+            Weapon = ResourceManager.GetWeaponTemplateOrNull(weaponName)
                   ?? ResourceManager.GetWeaponTemplate("NuclearBomb");
 
             TroopDamageMin = Weapon.BombTroopDamageMin;

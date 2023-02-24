@@ -177,7 +177,7 @@ namespace Ship_Game.Gameplay
         public virtual void OnDeserialized(UniverseState us)
         {
             Universe = us;
-            if (!GetWeapon(Owner, Planet, WeaponUID, false, out Weapon))
+            if (!GetWeapon(us, Owner, Planet, WeaponUID, false, out Weapon))
             {
                 Log.Error($"Projectile.Weapon not found UID={WeaponUID} Owner={Owner} Planet={Planet}");
                 return; // this owner or weapon no longer exists
@@ -188,8 +188,8 @@ namespace Ship_Game.Gameplay
             Duration = savedDuration; // apply duration from save data
         }
 
-        public static bool GetWeapon(Ship ship, Planet planet, string weaponUID, bool isBeam,
-                                     out Weapon weapon)
+        protected static bool GetWeapon(UniverseState us, Ship ship, Planet planet, 
+                                        string weaponUID, bool isBeam, out Weapon weapon)
         {
             weapon = null;
             if (ship == null && planet == null)
@@ -216,7 +216,7 @@ namespace Ship_Game.Gameplay
                 // in which case we abandon this projectile
                 if (ResourceManager.GetWeaponTemplate(weaponUID, out IWeaponTemplate t))
                 {
-                    weapon = new(t, ship, null, null);
+                    weapon = new(us, t, ship, null, null);
                 }
             }
 
@@ -370,7 +370,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 // this is the spawned warhead weapon stats
-                Weapon warhead = ResourceManager.CreateWeapon(Weapon.MirvWeapon, Owner, Module, null);
+                Weapon warhead = ResourceManager.CreateWeapon(Universe, Weapon.MirvWeapon, Owner, Module, null);
                 if (warhead.Tag_Guided)
                 {
                     for (int i = 0; i < warhead.ProjectileCount; i++)

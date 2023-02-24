@@ -164,7 +164,7 @@ namespace Ship_Game.Ships
             {
                 ShipModule m = placedModules[i];
                 m.UninstallModule();
-                m.InstallModule(this, BaseHull, m.Pos);
+                m.InstallModule(Universe, this, BaseHull, m.Pos);
                 ModuleSlotList[i] = m;
             }
 
