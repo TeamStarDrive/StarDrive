@@ -113,7 +113,7 @@ namespace UnitTests.Ships
         {
             // for unit tests, we wrap the weapons so we can
             // easily edit the stats, without causing side-effects
-            var tw = new WeaponTestWrapper(w, BaseHull);
+            var tw = new WeaponTestWrapper(Universe, w, BaseHull);
             m.InstalledWeapon = tw;
             base.OnWeaponInstalled(m, tw);
         }
