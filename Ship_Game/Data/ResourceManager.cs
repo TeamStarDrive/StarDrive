@@ -1014,7 +1014,6 @@ namespace Ship_Game
         public static Building CreateBuilding(Planet p, Building template)
         {
             Building newB = template.Clone();
-            newB.CreateWeapon(p);
             newB.CalcMilitaryStrength(p);
             return newB;
         }
@@ -1868,14 +1867,6 @@ namespace Ship_Game
         }
 
         static readonly Map<string, IWeaponTemplate> WeaponsDict = new();
-
-        // Creates a weapon used by Planets or Special space objects
-        // There is no Ship Owner or ShipModule
-        public static Weapon CreateWeapon(UniverseState us, string uid)
-        {
-            IWeaponTemplate template = WeaponsDict[uid];
-            return new Weapon(us, template, null, null, null);
-        }
 
         // Creates a weapon used by a Ship
         // `module` can be null if the weapon does not belong to a specific module

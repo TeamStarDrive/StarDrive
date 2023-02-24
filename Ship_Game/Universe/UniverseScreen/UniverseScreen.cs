@@ -410,7 +410,7 @@ namespace Ship_Game
         void CreateStartingShips()
         {
             // not a new game or load game at stardate 1000 
-            if (UState.StarDate > 1000f || UState.Ships.Count > 0)
+            if (UState.StarDate > 1000f || UState.Ships.Length > 0)
                 return;
 
             foreach (Empire empire in UState.MajorEmpires)

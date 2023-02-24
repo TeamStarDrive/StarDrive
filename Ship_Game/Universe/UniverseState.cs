@@ -123,7 +123,7 @@ namespace Ship_Game.Universe
         /// Thread unsafe view of all ships.
         /// It's only safe to use from simulation thread or when sim is paused
         /// </summary>
-        public IReadOnlyList<Ship> Ships => Objects.GetShips();
+        public Ship[] Ships => Objects.GetShips();
 
         [StarData] public RandomEventManager Events;
         [StarData] public StatTracker Stats;
@@ -185,8 +185,8 @@ namespace Ship_Game.Universe
             // globally stored ship designs
             [StarData] public ShipDesign[] Designs;
 
-            [StarData] public IReadOnlyList<Ship> Ships;
-            [StarData] public IReadOnlyList<Projectile> Projectiles;
+            [StarData] public Ship[] Ships;
+            [StarData] public Projectile[] Projectiles;
 
             // gather a list of all designs in the universe
             public void SetAllDesigns(UniverseState us)
@@ -364,19 +364,21 @@ namespace Ship_Game.Universe
         // This is for UnloadContent / ReloadContent
         public void RemoveSceneObjects()
         {
-            foreach (Ship s in Objects.GetShips())
-                s.RemoveSceneObject();
-            foreach (Projectile p in Objects.GetProjectiles())
-                p.RemoveSceneObject();
+            var ships = Objects.GetShips();
+            var projectiles = Objects.GetProjectiles();
+            foreach (Ship s in ships)
+                s?.RemoveSceneObject();
+            foreach (Projectile p in projectiles)
+                p?.RemoveSceneObject();
 
             foreach (SolarSystem s in SolarSystemList)
             {
                 foreach (Planet p in s.PlanetList)
-                    p.RemoveSceneObject();
+                    p?.RemoveSceneObject();
                 foreach (Asteroid a in s.AsteroidsList)
-                    a.RemoveSceneObject();
+                    a?.RemoveSceneObject();
                 foreach (Moon m in s.MoonList)
-                    m.RemoveSceneObject();
+                    m?.RemoveSceneObject();
             }
 
             ClearSpaceJunk();
