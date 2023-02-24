@@ -117,7 +117,7 @@ namespace Ship_Game
             if (explosions.IsEmpty)
                 return; // explosions not loaded in Unit Tests
 
-            Explosion expType = u.UState.Random.RandItem(explosions);
+            Explosion expType = u.UState.Random.Item(explosions);
             var exp = new ExplosionState(u.UState.Random)
             {
                 Duration = 2.25f,

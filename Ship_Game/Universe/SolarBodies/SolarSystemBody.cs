@@ -252,7 +252,7 @@ namespace Ship_Game
             if (potentialEvents.Length == 0)
                 return;
 
-            Building selectedBuilding = Random.RandItem(potentialEvents);
+            Building selectedBuilding = Random.Item(potentialEvents);
             if (selectedBuilding.IsBadCacheResourceBuilding)
             {
                 Log.Warning($"{selectedBuilding.Name} is FoodCache with no PlusFlatFood or ProdCache with no PlusProdPerColonist." +
@@ -291,7 +291,7 @@ namespace Ship_Game
                 {
                     if (template.BID == Building.VolcanoId)
                     {
-                        Random.RandItem(TilesList).CreateVolcano(this as Planet);
+                        Random.Item(TilesList).CreateVolcano(this as Planet);
                         //Log.Info($"Volcano Created on '{Name}' ");
                     }
                     else

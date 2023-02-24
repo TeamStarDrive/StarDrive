@@ -319,7 +319,7 @@ namespace Ship_Game
 
             if (GetOrbitalsOrbitingPlanets(out Array<Ship> planetBases))
             {
-                Ship pirateBase = Random.RandItem(planetBases);
+                Ship pirateBase = Random.Item(planetBases);
                 Planet planet   = pirateBase.GetTether();
                 if (SpawnShip(PirateShipType.FlagShip, planet.Position, out Ship flagShip))
                 {
@@ -329,7 +329,7 @@ namespace Ship_Game
             }
             else if (GetBases(out Array<Ship> bases))
             {
-                Ship pirateBase = Random.RandItem(bases);
+                Ship pirateBase = Random.Item(bases);
                 Vector2 pos     = pirateBase.Position.GenerateRandomPointOnCircle(2000, Random);
                 if (SpawnShip(PirateShipType.FlagShip, pos, out Ship flagShip))
                 {
@@ -350,7 +350,7 @@ namespace Ship_Game
 
             if (GetBases(out Array<Ship> bases))
             {
-                Ship selectedBase = Random.RandItem(bases);
+                Ship selectedBase = Random.Item(bases);
                 Planet planet     = selectedBase.GetTether();
                 Vector2 pos       = planet?.Position ?? selectedBase.Position;
 
@@ -446,7 +446,7 @@ namespace Ship_Game
                 int spaceReduction = i * 2000;
                 foreach (Empire victim in empires.Filter(e => !e.IsDefeated))
                 {
-                    SolarSystem system = Random.RandItem(victim.GetOwnedSystems());
+                    SolarSystem system = Random.Item(victim.GetOwnedSystems());
                     var pos = PickAPositionNearSystem(system, 400000 - spaceReduction);
                     foreach (Empire empire in empires)
                     {
@@ -481,14 +481,14 @@ namespace Ship_Game
             if (!GetUnownedSystems(u, out SolarSystem[] systems))
                 return false;
 
-            SolarSystem selectedSystem = Random.RandItemFiltered(systems,
+            SolarSystem selectedSystem = Random.ItemFilter(systems,
                 s => s.RingList.Any(r => r.Asteroids && s.InSafeDistanceFromRadiation(r.OrbitalDistance)));
 
             if (selectedSystem == null)
                 return false;
 
             // Asteroids are guaranteed to be found because `selectedSystem` is filtered by r.Asteroids
-            SolarSystem.Ring selectedRing = Random.RandItemFiltered(selectedSystem.RingList, r => r.Asteroids);
+            SolarSystem.Ring selectedRing = Random.ItemFilter(selectedSystem.RingList, r => r.Asteroids);
             float ringRadius = selectedRing.OrbitalDistance + Random.Int(-250, 250);
             position         = selectedSystem.Position.GenerateRandomPointOnCircle(ringRadius, Random);
             system           = selectedSystem;
@@ -524,7 +524,7 @@ namespace Ship_Game
             if (planets.Count == 0)
                 return false;
 
-            selectedPlanet = Random.RandItem(planets);
+            selectedPlanet = Random.Item(planets);
             return selectedPlanet != null;
         }
 
@@ -655,7 +655,7 @@ namespace Ship_Game
             {
                 shipName = "";
                 if (empire.Pirates.ShipsWeCanSpawn?.Count > 0)
-                    shipName = empire.Random.RandItem(empire.Pirates.ShipsWeCanSpawn);
+                    shipName = empire.Random.Item(empire.Pirates.ShipsWeCanSpawn);
 
                 return shipName.NotEmpty();
             }
@@ -689,7 +689,7 @@ namespace Ship_Game
             if (targets.Count == 0)
                 return false;
 
-            target = Random.RandItem(targets);
+            target = Random.Item(targets);
             return target != null;
 
             bool IsFreighterNoOwnedSystem(Ship ship)

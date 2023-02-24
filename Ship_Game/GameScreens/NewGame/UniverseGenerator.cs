@@ -552,7 +552,7 @@ namespace Ship_Game.GameScreens.NewGame
                 Log.Error($"Sectors ({sectors.Count}) < starting Systems ({startingSystems.Length})");
 
             SystemPlaceHolder firstSystem = startingSystems[0];
-            Sector initialSector = Random.RandItem(sectors);
+            Sector initialSector = Random.Item(sectors);
             firstSystem.Position = GenerateSystemInCluster(initialSector, 350000f);
             step.Advance();
             claimedSectors.Add(initialSector);
@@ -573,7 +573,7 @@ namespace Ship_Game.GameScreens.NewGame
                     potentialSectors = remainingSectors.Filter(s => IsSuitableSector(s, claimedSectors, spacing));
                 }
 
-                Sector nextSector = Random.RandItem(potentialSectors);
+                Sector nextSector = Random.Item(potentialSectors);
                 system.Position = GenerateSystemInCluster(nextSector, 350000f);
                 step.Advance();
                 claimedSectors.Add(nextSector);

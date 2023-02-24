@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.FindValidTarget(out Empire target))
                 return;
 
-            Ship portal = Remnants.Owner.Random.RandItem(portals);
+            Ship portal = Remnants.Owner.Random.Item(portals);
             Owner.AI.AddGoal(new RemnantEngageEmpire(Owner, portal, target));
         }
 

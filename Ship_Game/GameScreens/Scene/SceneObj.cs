@@ -202,22 +202,22 @@ namespace Ship_Game.GameScreens.Scene
             if (empireShips.Length == 0)
             {
                 Log.Error($"Failed to select '{type}' or 'fighter' Hull for '{shipType}'. Choosing a random ship.");
-                return random.RandItemFiltered(ResourceManager.Hulls, s => s.Role.ToString() == type);
+                return random.ItemFilter(ResourceManager.Hulls, s => s.Role.ToString() == type);
             }
 
             ShipHull[] roleHulls = empireShips.Filter(s => s.Role.ToString() == type);
             if (roleHulls.Length != 0)
             {
-                return random.RandItem(roleHulls);
+                return random.Item(roleHulls);
             }
 
             ShipHull[] fighters = empireShips.Filter(s => s.Role == RoleName.fighter);
             if (fighters.Length != 0)
             {
-                return random.RandItem(fighters);
+                return random.Item(fighters);
             }
 
-            return random.RandItem(empireShips); // whatever!
+            return random.Item(empireShips); // whatever!
         }
 
         readonly AudioEmitter SoundEmitter = new AudioEmitter();

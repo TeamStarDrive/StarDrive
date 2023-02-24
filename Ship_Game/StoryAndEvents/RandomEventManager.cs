@@ -60,7 +60,7 @@ namespace Ship_Game
             }
 
             if (potentials.Count > 0)
-                affectedPlanet = u.Random.RandItem(potentials);
+                affectedPlanet = u.Random.Item(potentials);
 
             return affectedPlanet != null;
         }
@@ -194,7 +194,7 @@ namespace Ship_Game
             float originRadius;
 
             if (asteroidsRings.Length > 0 && p.Random.RollDice(50))
-                originRadius = p.Random.RandItem(asteroidsRings).OrbitalDistance;
+                originRadius = p.Random.Item(asteroidsRings).OrbitalDistance;
             else
                 originRadius = system.Radius * 0.7f;
 
@@ -217,7 +217,7 @@ namespace Ship_Game
                 : planet.Random.RollDie(7);
             for (int i = 0; i < numVolcanoes; i++)
             {
-                PlanetGridSquare tile = planet.Random.RandItemFiltered(planet.TilesList, t => !t.VolcanoHere);
+                PlanetGridSquare tile = planet.Random.ItemFilter(planet.TilesList, t => !t.VolcanoHere);
                 if (tile == null)
                     break;
                 tile.CreateVolcano(planet);

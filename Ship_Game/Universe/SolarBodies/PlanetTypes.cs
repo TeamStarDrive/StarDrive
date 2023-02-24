@@ -116,14 +116,14 @@ public sealed class PlanetTypes : IDisposable
     {
         if (Types.Length == 0)
             throw new InvalidDataException("No defined PlanetTypes!");
-        return Random.RandItem(Types);
+        return Random.Item(Types);
     }
 
     public PlanetType RandomPlanet(PlanetCategory category)
     {
         if (Types.Length == 0)
             throw new InvalidDataException("No defined PlanetTypes!");
-        return Random.RandItem(PlanetTypesByCategory[category]);
+        return Random.Item(PlanetTypesByCategory[category]);
     }
 
     public PlanetType PlanetOrRandom(int planetId)
@@ -152,7 +152,7 @@ public sealed class PlanetTypes : IDisposable
         if (forHostPlanet.MoonTypes.Length == 0)
             throw new InvalidOperationException($"No defined MoonTypes for {forHostPlanet.Name}!");
 
-        PlanetCategory c = Random.RandItem(forHostPlanet.MoonTypes);
-        return Random.RandItem(PlanetTypesByCategory[c]);
+        PlanetCategory c = Random.Item(forHostPlanet.MoonTypes);
+        return Random.Item(PlanetTypesByCategory[c]);
     }
 }

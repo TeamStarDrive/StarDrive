@@ -98,7 +98,7 @@ namespace Ship_Game.Utils
         /// <summary>
         /// Chooses a random element from the list
         /// </summary>
-        public T RandItem<T>(IReadOnlyList<T> items)
+        public T Item<T>(IReadOnlyList<T> items)
         {
             return items[InRange(items.Count)];
         }
@@ -106,7 +106,7 @@ namespace Ship_Game.Utils
         /// <summary>
         /// Chooses a random element from the span
         /// </summary>
-        public T RandItem<T>(in Span<T> items)
+        public T Item<T>(in Span<T> items)
         {
             return items[InRange(items.Length)];
         }
@@ -114,7 +114,7 @@ namespace Ship_Game.Utils
         /// <summary>
         /// Chooses a random element from the list, capped by maxItems count
         /// </summary>
-        public T RandItem<T>(IReadOnlyList<T> items, int maxItems)
+        public T Item<T>(IReadOnlyList<T> items, int maxItems)
         {
             return items[InRange(Math.Min(items.Count, maxItems))];
         }
@@ -122,7 +122,7 @@ namespace Ship_Game.Utils
         /// <summary>
         /// Chooses a random element from the list, capped by maxItems count
         /// </summary>
-        public T RandItem<T>(in Span<T> items, int maxItems)
+        public T Item<T>(in Span<T> items, int maxItems)
         {
             return items[InRange(Math.Min(items.Length, maxItems))];
         }
@@ -131,7 +131,7 @@ namespace Ship_Game.Utils
         /// Filters all items and then chooses a random item from the passed ones.
         /// If there are no candidates, then null is returned
         /// </summary>
-        public unsafe T RandItemFiltered<T>(IReadOnlyList<T> items, Predicate<T> filter)
+        public unsafe T ItemFilter<T>(IReadOnlyList<T> items, Predicate<T> filter)
         {
             // +4 to be more resilient to element add/remove and avoid buffer overrun here
             int* passedItemIndices = stackalloc int[items.Count + 4];
@@ -160,7 +160,7 @@ namespace Ship_Game.Utils
         /// Filters all items and then chooses a random item from the passed ones.
         /// If there are no candidates, then null is returned
         /// </summary>
-        public T RandItemFiltered<T>(IEnumerable<T> items, Predicate<T> filter)
+        public T ItemFilter<T>(IEnumerable<T> items, Predicate<T> filter)
         {
             // unfortunately we need allocate a helper array here
             // to avoid side effects from multiple-enumeration of IEnumerable

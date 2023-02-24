@@ -49,7 +49,7 @@ namespace Ship_Game.Commands.Goals
 
         void SendMoreForces()
         {
-            Ship ship = Pirates.Owner.Random.RandItemFiltered(Pirates.Owner.OwnedShips,
+            Ship ship = Pirates.Owner.Random.ItemFilter(Pirates.Owner.OwnedShips,
                 s => !s.IsFreighter
                   && !Pirates.SpawnedShips.Contains(s.Id)
                   && s.BaseStrength > 0
