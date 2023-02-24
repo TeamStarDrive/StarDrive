@@ -71,8 +71,8 @@ public partial class UniverseState
         {
             if (us != them)
             {
-                Relationship usToThem = us.AddRelation(them);
-                them.AddRelation(us);
+                Empire.CreateBilateralRelations(us, them);
+                Relationship usToThem = us.GetRelations(them);
 
                 // TODO see if this increased anger bit can be removed
                 if (them.isPlayer && difficulty > GameDifficulty.Hard)
@@ -281,11 +281,11 @@ public partial class UniverseState
 
         DTrait[] dipTraits = dt.DiplomaticTraitsList.Filter(
             dip => !data.ExcludedDTraits.Any(trait => trait == dip.Name));
-        data.DiplomaticPersonality = RandomMath.RandItem(dipTraits);
+        data.DiplomaticPersonality = empire.Random.Item(dipTraits);
 
         ETrait[] ecoTraits = dt.EconomicTraitsList.Filter(
             eco => !data.ExcludedETraits.Any(trait => trait == eco.Name));
-        data.EconomicPersonality = RandomMath.RandItem(ecoTraits);
+        data.EconomicPersonality = empire.Random.Item(ecoTraits);
 
         // Added by McShooterz: set values for alternate race file structure
         data.Traits.LoadTraitConstraints();
@@ -306,10 +306,10 @@ public partial class UniverseState
         if (rebelEmpire != null) return rebelEmpire;
 
         DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
-        data.DiplomaticPersonality = RandomMath.RandItem(dt.DiplomaticTraitsList);
-        data.DiplomaticPersonality = RandomMath.RandItem(dt.DiplomaticTraitsList);
-        data.EconomicPersonality   = RandomMath.RandItem(dt.EconomicTraitsList);
-        data.EconomicPersonality   = RandomMath.RandItem(dt.EconomicTraitsList);
+        data.DiplomaticPersonality = parent.Random.Item(dt.DiplomaticTraitsList);
+        data.DiplomaticPersonality = parent.Random.Item(dt.DiplomaticTraitsList);
+        data.EconomicPersonality   = parent.Random.Item(dt.EconomicTraitsList);
+        data.EconomicPersonality   = parent.Random.Item(dt.EconomicTraitsList);
         data.SpyModifier = data.Traits.SpyMultiplier;
         data.IsRebelFaction  = true;
         data.Traits.Name     = data.RebelName;
@@ -324,8 +324,7 @@ public partial class UniverseState
         {
             if (otherEmpire != empire)
             {
-                otherEmpire.AddRelation(empire);
-                empire.AddRelation(otherEmpire);
+                Empire.CreateBilateralRelations(empire, otherEmpire);
                 Empire.UpdateBilateralRelations(empire, otherEmpire);
             }
         }

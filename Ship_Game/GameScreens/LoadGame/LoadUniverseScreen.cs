@@ -6,6 +6,7 @@ using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.GameScreens.MainMenu;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -26,8 +27,9 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            LoadingImage = ResourceManager.LoadRandomLoadingScreen(TransientContent);
-            AdviceText = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(), 500f);
+            var random = new SeededRandom();
+            LoadingImage = ResourceManager.LoadRandomLoadingScreen(random, TransientContent);
+            AdviceText = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(random), 500f);
             base.LoadContent();
         }
 

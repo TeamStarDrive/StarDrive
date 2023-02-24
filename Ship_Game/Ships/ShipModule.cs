@@ -12,6 +12,7 @@ using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Point = SDGraphics.Point;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Ships
 {
@@ -307,6 +308,7 @@ namespace Ship_Game.Ships
         public bool IsAmplified => ActualShieldPowerMax-0.1f > ShieldPowerMax * Bonuses.ShieldMod;
 
         [Pure] public Ship GetParent() => Parent;
+        [Pure] public RandomBase Random => Parent.Loyalty.Random;
 
         [Pure] public bool TryGetHangarShip(out Ship ship)
         {
@@ -324,7 +326,7 @@ namespace Ship_Game.Ships
             Flyweight = ShipModuleFlyweight.Empty;
         }
 
-        ShipModule(ShipModule_XMLTemplate template) : base(0, GameObjectType.ShipModule)
+        ShipModule(UniverseState us, ShipModule_XMLTemplate template) : base(0, GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(template);
@@ -352,7 +354,7 @@ namespace Ship_Game.Ships
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
             // initialize `isWeapon` and other InstalledWeapon attributes for module template
-            InstallModule(null, null, Point.Zero);
+            InstallModule(us, null, null, Point.Zero);
 
             // @todo This might need to be updated with latest ModuleType logic?
             TargetValue += Is(ShipModuleType.Armor)             ? -1 : 0;
@@ -376,9 +378,9 @@ namespace Ship_Game.Ships
             TargetValue += IsWeapon                             ? 1 : 0;
         }
 
-        public static ShipModule CreateTemplate(ShipModule_XMLTemplate template)
+        public static ShipModule CreateTemplate(UniverseState us, ShipModule_XMLTemplate template)
         {
-            return new ShipModule(template);
+            return new ShipModule(us, template);
         }
 
         // Called by Create() and ShipDesignScreen.CreateDesignModule
@@ -427,7 +429,7 @@ namespace Ship_Game.Ships
                 m.HangarShipUID = slot.HangarShipUID;
 
             m.SetModuleSizeRotAngle(slot.Size, slot.ModuleRot, slot.TurretAngle);
-            m.InstallModule(parent, parent.BaseHull, slot.Pos);
+            m.InstallModule(us, parent, parent.BaseHull, slot.Pos);
 
             // don't initialize Shield instance for ShipTemplates
             if (!isTemplate && m.ShieldPowerMax > 0f)
@@ -462,11 +464,11 @@ namespace Ship_Game.Ships
                 m.HangarShipUID = m.IsTroopBay ? us.Player.GetAssaultShuttleName() : hangarShipUID;
 
             m.SetModuleRotation(m.XSize, m.YSize, moduleRot, turretAngle);
-            m.InstallModule(null, hull, Point.Zero);
+            m.InstallModule(us, null, hull, Point.Zero);
             return m;
         }
 
-        public void InstallModule(Ship parent, ShipHull hull, Point gridPos)
+        public void InstallModule(UniverseState us, Ship parent, ShipHull hull, Point gridPos)
         {
             Parent = parent;
             Pos = gridPos;
@@ -489,7 +491,7 @@ namespace Ship_Game.Ships
                 if (InstalledWeapon == null || InstalledWeapon.UID != type)
                 {
                     UninstallWeapon();
-                    InstalledWeapon = ResourceManager.CreateWeapon(type, Parent, this, hull);
+                    InstalledWeapon = ResourceManager.CreateWeapon(us, type, Parent, this, hull);
                 }
 
                 if (bomb)
@@ -827,9 +829,10 @@ namespace Ship_Game.Ships
                 case Restrictions.xO: percent = 1; break;
                 default:              percent = 0.95f; break; // contains I
             }
-
+            
+            Ship source = GetParent();
             if (Is(ShipModuleType.Engine))
-                percent = RandomMath.RollDice(20) ? 0.75f : 1;
+                percent = source.Loyalty.Random.RollDice(20) ? 0.75f : 1;
 
             if (Is(ShipModuleType.Command)
                 || Is(ShipModuleType.PowerPlant)
@@ -839,7 +842,6 @@ namespace Ship_Game.Ships
                 percent = 0.95f;
             }
 
-            Ship source  = GetParent();
             if (ActualShieldPowerMax > 0)
                 Damage(source, ActualShieldPowerMax); // Kill shield power first
 
@@ -906,9 +908,10 @@ namespace Ship_Game.Ships
         {
             if (proj != null && (proj.Weapon.Tag_Kinetic || proj.Weapon.Explodes))
             {
-                if (RandomMath.RollDice(20)) // X % out of 100 that we spawn debris
+                var random = Random;
+                if (random.RollDice(20)) // X % out of 100 that we spawn debris
                 {
-                    Vector2 velocity = Parent.Velocity + RandomMath.Vector2D(Parent.Velocity.Length()) * (1 + RandomMath.RollDie(200) / 100);
+                    Vector2 velocity = Parent.Velocity + random.Vector2D(Parent.Velocity.Length()) * (1 + random.RollDie(200) / 100);
                     SpawnDebris(velocity, 1, ignite: false);
                 }
             }
@@ -1001,7 +1004,7 @@ namespace Ship_Game.Ships
                 {
                     for (int i = 0; i < 30; ++i)
                     {
-                        Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, UniverseRandom.Float(-25f, 25f));
+                        Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, Random.Float(-25f, 25f));
                         p.Explosion.AddParticle(pos);
                     }
                 }
@@ -1037,7 +1040,7 @@ namespace Ship_Game.Ships
         {
             float size = Radius.LowerBound(16);
             if (count == 0)
-                count = RandomMath.Int(0, (int)(Area * 0.5f + 1f));
+                count = Random.Int(0, (int)(Area * 0.5f + 1f));
             else
                 size *= 0.1f;
 
@@ -1124,7 +1127,7 @@ namespace Ship_Game.Ships
                 }
 
                 HangarShip.DoEscort(Parent);
-                HangarShip.Velocity = carrier.Velocity + UniverseRandom.RandomDirection() * HangarShip.STLSpeedLimit;
+                HangarShip.Velocity = carrier.Velocity + Random.Direction2D() * HangarShip.STLSpeedLimit;
                 HangarShip.Mothership = carrier;
                 HangarTimer = HangarTimerConstant;
                 CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
@@ -1301,7 +1304,7 @@ namespace Ship_Game.Ships
                 if (!Active)
                 {
                     // Module is destroyed and might "jump start" its regeneration
-                    if (RandomMath.RollDice(TechLevel))
+                    if (Random.RollDice(TechLevel))
                         SetHealth(Health + Regenerate, "Regenerate");
                 }
                 else

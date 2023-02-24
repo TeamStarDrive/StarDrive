@@ -45,6 +45,10 @@ namespace Ship_Game
         public string LocalizedTitle => Localizer.Token(TitleText);
         public string LocalizedDescr => Localizer.Token(DescriptionText);
 
+        public Outcome()
+        {
+        }
+
         public Artifact GetArtifact()
         {
             return GrantedArtifact;
@@ -109,11 +113,9 @@ namespace Ship_Game
         {
             for (int i = 0; i < NumTilesToMakeHabitable; i++)
             {
-                var potentialTiles = p.TilesList.Filter(t => !t.Habitable && t != eventTile);
-                if (potentialTiles.Length == 0)
+                PlanetGridSquare tile = p.Random.ItemFilter(p.TilesList, t => !t.Habitable && t != eventTile);
+                if (tile == null)
                     break;
-
-                PlanetGridSquare tile = potentialTiles.RandItem();
                 p.MakeTileHabitable(tile);
             }
         }
@@ -122,11 +124,10 @@ namespace Ship_Game
         {
             for (int i = 0; i < NumTilesToMakeUnhabitable; i++)
             {
-                var potentialTiles = p.TilesList.Filter(t => t.Habitable && !t.Biosphere && t != eventTile);
-                if (potentialTiles.Length == 0)
+                PlanetGridSquare tile = p.Random.ItemFilter(p.TilesList, t => t.Habitable && !t.Biosphere && t != eventTile);
+                if (tile == null)
                     break;
 
-                PlanetGridSquare tile = potentialTiles.RandItem();
                 if (p.Owner == p.Universe.Player && tile.BuildingOnTile && !tile.VolcanoHere)
                     p.Universe.Notifications.AddBuildingDestroyed(p, tile.Building, GameText.WasDestroyedInAnExploration);
 
@@ -136,31 +137,31 @@ namespace Ship_Game
 
         void ShipGrants(Planet p, Empire triggeredBy)
         {
-            p = p ?? triggeredBy.Capital;
+            p ??= triggeredBy.Capital;
             if (p == null)
             {
                 Log.Error("ShipGrants failed: no planet");
                 return;
             }
 
-            var universe = triggeredBy.Universe;
+            UniverseState us = triggeredBy.Universe;
             foreach (string shipName in FriendlyShipsToSpawn)
             {
-                Ship.CreateShipNearPlanet(universe, shipName, triggeredBy, p, doOrbit: true);
+                Ship.CreateShipNearPlanet(us, shipName, triggeredBy, p, doOrbit: true);
             }
 
             foreach (string shipName in RemnantShipsToSpawn)
             {
-                Ship ship = Ship.CreateShipNearPlanet(universe, shipName, p.Universe.Remnants, p, doOrbit: true);
+                Ship ship = Ship.CreateShipNearPlanet(us, shipName, p.Universe.Remnants, p, doOrbit: true);
                 ship.AI.DefaultAIState = AIState.Exterminate;
             }
 
-            if (PirateShipsToSpawn.Count == 0 || p.Universe.PirateFactions.Length == 0)
+            if (PirateShipsToSpawn.Count != 0 && p.Universe.PirateFactions.Length != 0)
             {
-                Empire pirates = p.Universe.PirateFactions.RandItem();
+                Empire pirates = triggeredBy.Random.Item(p.Universe.PirateFactions);
                 foreach (string shipName in PirateShipsToSpawn)
                 {
-                    Ship.CreateShipNearPlanet(universe, shipName, pirates, p, doOrbit: true);
+                    Ship.CreateShipNearPlanet(us, shipName, pirates, p, doOrbit: true);
                 }
             }
         }
@@ -194,7 +195,7 @@ namespace Ship_Game
             }
             if (potentials.Count > 0)
             {
-                SetPlanet(potentials[RandomMath.InRange(potentials.Count)]);
+                SetPlanet(u.Random.Item(potentials));
                 return true;
             }
 
@@ -260,7 +261,7 @@ namespace Ship_Game
                 else
                 {
                     //choose a random available artifact and process it.
-                    Artifact chosenArtifact = potentials[RandomMath.InRange(potentials.Count)];
+                    Artifact chosenArtifact = triggeredBy.Random.Item(potentials);
                     triggeredBy.data.OwnedArtifacts.Add(chosenArtifact);
                     ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
                     SetArtifact(chosenArtifact);

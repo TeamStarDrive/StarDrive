@@ -36,7 +36,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             float startChance = RaidStartChance();
-            if (RandomMath.RollDice(startChance))
+            if (Owner.Random.RollDice(startChance))
             {
                 GoalType raid  = GetRaid();
                 switch (raid)
@@ -66,7 +66,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalType GetRaid()
         {
-            int raid = RandomMath.RollDie(Pirates.Level.UpperBound(Pirates.ThreatLevelFor(TargetEmpire)));
+            int raid = Owner.Random.RollDie(Pirates.Level.UpperBound(Pirates.ThreatLevelFor(TargetEmpire)));
 
             switch (raid)
             {

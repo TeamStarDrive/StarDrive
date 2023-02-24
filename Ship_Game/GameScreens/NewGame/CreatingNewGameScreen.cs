@@ -35,8 +35,8 @@ namespace Ship_Game
             Log.LogEventStats(Log.GameEvent.NewGame, P);
 
             ScreenManager.ClearScene();
-            LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(TransientContent);
-            AdviceText = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(), 500f);
+            LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(Generator.Random, TransientContent);
+            AdviceText = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(Generator.Random), 500f);
 
             BackgroundTask = Generator.GenerateAsync();
             base.LoadContent();
@@ -56,7 +56,7 @@ namespace Ship_Game
             if (BackgroundTask?.IsComplete != true || !input.InGameSelect)
                 return false;
 
-            UniverseScreen us = BackgroundTask.Result ?? throw new NullReferenceException("CreatingNewGameScreen background task returned null");
+            UniverseScreen us = BackgroundTask.Result ?? throw new NullReferenceException("CreatingNewGameScreen background task returned null", BackgroundTask.Error);
             GameAudio.StopGenericMusic(immediate: false);
             ScreenManager.AddScreenAndLoadContent(us);
 

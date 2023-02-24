@@ -4,6 +4,7 @@ using System.IO;
 using SDUtils;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
+using Ship_Game.Utils;
 using Vector3 = SDGraphics.Vector3;
 using Matrix = SDGraphics.Matrix;
 
@@ -53,6 +54,8 @@ public sealed class ParticleManager : IDisposable
     readonly Array<ParticleVertexBuffer> AllBuffers = new();
     readonly Array<ParticleVertexBuffer> FreeBuffers = new();
     ParticleVertexBufferShared SharedBufferData;
+
+    public readonly RandomBase Random = new ThreadSafeRandom();
 
     public ParticleManager(GameContentManager content)
     {

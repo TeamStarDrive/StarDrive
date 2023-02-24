@@ -54,14 +54,14 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             }
             else
             {
-                var orbitalDrop = new OrbitalDrop
+                PlanetGridSquare targetTile = SelectTargetTile(bomb);
+                if (targetTile != null)
                 {
-                    TargetTile = SelectTargetTile(bomb),
-                    Surface = P
-                };
+                    OrbitalDrop orbitalDrop = new() { TargetTile = targetTile, Surface = P };
+                    orbitalDrop.DamageColonySurface(bomb);
+                    bomb.PlayCombatScreenEffects(P, orbitalDrop);
+                }
 
-                orbitalDrop.DamageColonySurface(bomb);
-                bomb.PlayCombatScreenEffects(P, orbitalDrop);
                 if (Population <= 0f)
                 {
                     P.WipeOutColony(bomb.Owner);
@@ -83,12 +83,12 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             {
                 // Start increasing the chance to launch assault vs bombers
                 float assaultBombersChance = 100 - (ShieldStrengthPercent*100 * 4f);
-                if (RandomMath.RollDice(assaultBombersChance))
+                if (Owner.Random.RollDice(assaultBombersChance))
                     Owner.TryCreateAssaultBombersGoal(enemy, P);
             }
             else if (P.ShieldStrengthMax <= 0)
             {
-                if (RandomMath.RollDice(GetTroopLaunchChance()))
+                if (Owner.Random.RollDice(GetTroopLaunchChance()))
                     Owner.TryCreateAssaultBombersGoal(enemy, P);
             }
 
@@ -109,19 +109,23 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             }
         }
 
-        private PlanetGridSquare SelectTargetTile(Bomb bomb)
+        PlanetGridSquare SelectTargetTile(Bomb bomb)
         {
+            if (TilesList.IsEmpty)
+                return null;
+
             float baseHitChance = ((85 + bomb.ShipLevel) * bomb.ShipHealthPercent).Clamped(10, 100);
-            if (!RandomMath.RollDice(baseHitChance))
-                return TilesList.RandItem();
+            if (!P.Random.RollDice(baseHitChance))
+                return P.Random.Item(TilesList);
 
             // check for buildings as well, if bombing enemy planet
-            var priorityTargets = bomb.Owner == P.Owner ? TilesList.Filter(t => t.EnemyTroopsHere(bomb.Owner))
-                                                        : TilesList.Filter(t => t.CombatBuildingOnTile || t.EnemyTroopsHere(bomb.Owner)); 
+            PlanetGridSquare priorityTarget;
+            if (bomb.Owner == P.Owner) // for defensive bombing, use P.Owner random
+                priorityTarget = P.Owner.Random.ItemFilter(TilesList, t => t.EnemyTroopsHere(bomb.Owner));
+            else // for offensive bombing, use bomb owner random
+                priorityTarget = bomb.Owner.Random.ItemFilter(TilesList, t => t.CombatBuildingOnTile || t.EnemyTroopsHere(bomb.Owner));
 
-            // If there are priority targets, choose one of them.
-            return priorityTargets.Length > 0 ? priorityTargets.RandItem() 
-                                              : TilesList.RandItem();
+            return priorityTarget ?? P.Random.Item(TilesList);
         }
 
         private void DeclareWarOnBombingEmpire(Bomb bomb)

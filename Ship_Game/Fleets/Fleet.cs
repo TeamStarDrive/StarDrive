@@ -70,7 +70,7 @@ namespace Ship_Game.Fleets
         {
             Id = us.CreateId();
             Owner = owner;
-            FleetIconIndex = RandomMath.Int(1, 30);
+            FleetIconIndex = owner.Random.Int(1, 30);
             SetCommandShip(null);
         }
 

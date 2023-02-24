@@ -17,12 +17,11 @@ using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
-using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
-    using static Ship_Game.Planet;
     using static ShipBuilder;
+
     public enum TechUnlockType
     {
         Normal,
@@ -201,6 +200,8 @@ namespace Ship_Game
         public DifficultyModifiers DifficultyModifiers { get; private set; }
         public PersonalityModifiers PersonalityModifiers { get; private set; }
 
+        // per-faction pseudo-random source
+        public readonly RandomBase Random = new ThreadSafeRandom();
 
         /// <summary>
         /// Empire unique ID. If this is 0, then this empire is invalid!
@@ -953,12 +954,13 @@ namespace Ship_Game
                 UpdateEmpirePlanets(elapsedTurnTime);
                 UpdatePopulation();
                 UpdateTroopsInSpaceConsumption();
+                UpdateRallyPoints(); // rally points must exist before AI Update
+                AssignNewHomeWorldIfNeeded();
+
                 AI.Update(); // Must be done before DoMoney
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
-                AssignNewHomeWorldIfNeeded();
                 TakeTurn(us);
-                UpdateRallyPoints();
 
                 didUpdate = true;
             }
@@ -1027,7 +1029,7 @@ namespace Ship_Game
 
         void AssignNewHomeWorldIfNeeded()
         {
-            if (isPlayer | IsFaction)
+            if (isPlayer || IsFaction)
                 return;
 
             if (!Universe.P.EliminationMode 
@@ -1459,7 +1461,7 @@ namespace Ship_Game
             int playerSpyDefense = GetSpyDefense();
             int aiSpyDefense     = ai.GetSpyDefense() + ai.DifficultyModifiers.WarSneakiness + ai.PersonalityModifiers.WarSneakiness;
             int rollModifier     = playerSpyDefense - aiSpyDefense; // higher modifier will make the roll smaller, which is better
-            return RandomMath.RollDie(100 - rollModifier) <= playerSpyDefense;
+            return Random.RollDie(100 - rollModifier) <= playerSpyDefense;
         }
 
         /// <summary>
@@ -1827,7 +1829,7 @@ namespace Ship_Game
 
         void Bankruptcy()
         {
-            if (data.TurnsBelowZero >= RandomMath.RollDie(8))
+            if (data.TurnsBelowZero >= Random.RollDie(8))
             {
                 Log.Info($"Rebellion for: {data.Traits.Name}");
 
@@ -1848,17 +1850,17 @@ namespace Ship_Game
 
                             var chance = (planet.TileArea - planet.GetFreeTiles(this)) / planet.TileArea;
 
-                            if (planet.Troops.Count > 0 && RandomMath.Roll3DiceAvg(chance * 50))
+                            if (planet.Troops.Count > 0 && Random.Roll3DiceAvg(chance * 50))
                             {
                                 // convert some random troops to rebels
                                 var troops = planet.Troops.GetLaunchableTroops(this).ToArr();
                                 if (troops.Length != 0)
                                 {
-                                    RandomMath.RandItem(troops).ChangeLoyalty(rebels);
+                                    Random.Item(troops).ChangeLoyalty(rebels);
                                 }
                             }
 
-                            if (planet.NumBuildings > 0 && RandomMath.Roll3DiceAvg(chance * 50))
+                            if (planet.NumBuildings > 0 && Random.Roll3DiceAvg(chance * 50))
                             {
                                 var building = planet.FindBuilding(b => !b.IsBiospheres);
                                 if (building != null)
@@ -1970,7 +1972,7 @@ namespace Ship_Game
             }
 
             unlockChance *= 1 + data.Traits.ModHpModifier; // skilled or bad engineers
-            return RandomMath.RollDice(unlockChance);
+            return Random.RollDice(unlockChance);
         }
 
         bool TryGetTechFromHull(Ship ship, out TechEntry techEntry, out Empire empire)

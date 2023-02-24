@@ -177,7 +177,7 @@ namespace Ship_Game.Gameplay
         public virtual void OnDeserialized(UniverseState us)
         {
             Universe = us;
-            if (!GetWeapon(Owner, Planet, WeaponUID, false, out Weapon))
+            if (!GetWeapon(us, Owner, Planet, WeaponUID, false, out Weapon))
             {
                 Log.Error($"Projectile.Weapon not found UID={WeaponUID} Owner={Owner} Planet={Planet}");
                 return; // this owner or weapon no longer exists
@@ -188,8 +188,8 @@ namespace Ship_Game.Gameplay
             Duration = savedDuration; // apply duration from save data
         }
 
-        public static bool GetWeapon(Ship ship, Planet planet, string weaponUID, bool isBeam,
-                                     out Weapon weapon)
+        protected static bool GetWeapon(UniverseState us, Ship ship, Planet planet, 
+                                        string weaponUID, bool isBeam, out Weapon weapon)
         {
             weapon = null;
             if (ship == null && planet == null)
@@ -216,7 +216,7 @@ namespace Ship_Game.Gameplay
                 // in which case we abandon this projectile
                 if (ResourceManager.GetWeaponTemplate(weaponUID, out IWeaponTemplate t))
                 {
-                    weapon = new(t, ship, null, null);
+                    weapon = new(us, t, ship, null, null);
                 }
             }
 
@@ -245,7 +245,7 @@ namespace Ship_Game.Gameplay
 
             Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
             if (Weapon.RangeVariance)
-                Range *= RandomMath.Float(0.9f, 1.1f);
+                Range *= Owner.Loyalty.Random.Float(0.9f, 1.1f);
 
             float durationMod = 1.2f;
             if (Weapon.IsRepairDrone)    durationMod = 1.25f;
@@ -321,7 +321,7 @@ namespace Ship_Game.Gameplay
                 Animation = new SpriteAnimation(ResourceManager.RootContent, animFolder);
                 Animation.Looping = Weapon.LoopAnimation == 1;
                 float loopDuration = (InitialDuration / Animation.NumFrames);
-                float startAt = Animation.Looping ? UniverseRandom.Float(0f, loopDuration) : 0f;
+                float startAt = Animation.Looping ? Loyalty.Random.Float(0f, loopDuration) : 0f;
                 Animation.Start(loopDuration, startAt);
             }
             else
@@ -340,13 +340,13 @@ namespace Ship_Game.Gameplay
         {
             Loyalty = empire;
             Deflected = true;
-            Vector2 newDirection = RandomMath.RandomDirection();
-            float momentumLoss = 9 - RandomMath.RollDie(6);
+            Vector2 newDirection = empire.Random.Direction2D();
+            float momentumLoss = 9 - empire.Random.RollDie(6);
             Duration *= momentumLoss / 10;
             Speed    *= momentumLoss / 10;
             SetInitialVelocity(Speed * newDirection);
 
-            if (InFrustum && RandomMath.RollDie(2) == 2)
+            if (InFrustum && empire.Random.RollDie(2) == 2)
             {
                 var foregroundPos = new Vector3(deflectionPoint.X, deflectionPoint.Y, deflectionPoint.Z - 50f);
                 Universe.Screen.Particles.BeamFlash.AddParticle(foregroundPos, Vector3.Zero);
@@ -370,7 +370,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 // this is the spawned warhead weapon stats
-                Weapon warhead = ResourceManager.CreateWeapon(Weapon.MirvWeapon, Owner, Module, null);
+                Weapon warhead = ResourceManager.CreateWeapon(Universe, Weapon.MirvWeapon, Owner, Module, null);
                 if (warhead.Tag_Guided)
                 {
                     for (int i = 0; i < warhead.ProjectileCount; i++)
@@ -379,7 +379,7 @@ namespace Ship_Game.Gameplay
                         Vector2 separationVector = Velocity;
                         float launchDir = i % 2 == 0 ? -RadMath.Deg90AsRads : RadMath.Deg90AsRads;
                         Vector2 separationVel = (Rotation + launchDir).RadiansToDirection() 
-                                                * (100 + RandomMath.RollDie(4*warhead.FireDispersionArc));
+                                                * (100 + Loyalty.Random.RollDie(4*warhead.FireDispersionArc));
 
                         separationVector += separationVel; // Add it to the initial velocity
                         bool playSound = i == 0; // play sound once
@@ -401,12 +401,12 @@ namespace Ship_Game.Gameplay
             Vector2 jitter = Vector2.Zero;
             if (!Weapon.Tag_Intercept) return jitter;
 
-            if (MissileAI != null &&  Loyalty?.data.MissileDodgeChance >0 )
+            if (MissileAI != null && Loyalty?.data.MissileDodgeChance > 0)
             {
-                jitter += RandomMath2.Vector2D(Loyalty.data.MissileDodgeChance * 80f);
+                jitter += Loyalty.Random.Vector2D(Loyalty.data.MissileDodgeChance * 80f);
             }
-            if ((Weapon?.Module?.WeaponECM ?? 0) > 0)
-                jitter += RandomMath2.Vector2D((Weapon?.Module.WeaponECM ?? 0) * 80f);
+            if (Weapon?.Module?.WeaponECM > 0)
+                jitter += Weapon.Module.Random.Vector2D(Weapon.Module.WeaponECM * 80f);
 
             return jitter;
         }
@@ -487,6 +487,8 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
+            base.Die(source, cleanupOnly);
+
             if (Light != null)
                 Universe.Screen.RemoveLight(Light, dynamic:true);
 
@@ -500,8 +502,6 @@ namespace Ship_Game.Gameplay
             {
                 Universe.Screen.RemoveObject(ProjSO);
             }
-
-            base.Die(source, cleanupOnly);
         }
 
         public bool TerminalPhase;
@@ -748,27 +748,31 @@ namespace Ship_Game.Gameplay
         // cleanupOnly: just delete the projectile without showing visual death effects
         void ExplodeProjectile(bool cleanupOnly, ShipModule victim)
         {
-            bool visibleToPlayer = InFrustum && Module?.GetParent().InPlayerSensorRange == true;
-            bool showFx = !cleanupOnly && visibleToPlayer && Universe.IsSectorViewOrCloser;
-            bool flashFx = showFx && FlashExplode && Universe.IsSystemViewOrCloser;
-
-            if (Explodes)
+            bool explodes = Explodes;
+            if (explodes || FakeExplode)
             {
-                if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
+                bool visibleToPlayer = InFrustum && Module?.GetParent().InPlayerSensorRange == true;
+                bool showFx = !cleanupOnly && visibleToPlayer && Universe.IsSectorViewOrCloser;
+                bool flashFx = showFx && FlashExplode && Universe.IsSystemViewOrCloser;
+
+                if (explodes)
                 {
-                    DamageRadius += Owner.Loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
+                    if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
+                    {
+                        DamageRadius += Owner.Loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
+                    }
+
+                    if (showFx)
+                        ShowExplosionEffect(flashFx);
+
+                    // the most typical case: projectile has hit a victim module and will now explode
+                    if (victim != null)
+                        Universe.Spatial.ProjectileExplode(this, victim);
                 }
-
-                if (showFx)
+                else if (showFx) // FakeExplode
+                {
                     ShowExplosionEffect(flashFx);
-
-                // the most typical case: projectile has hit a victim module and will now explode
-                if (victim != null)
-                    Universe.Spatial.ProjectileExplode(this, victim);
-            }
-            else if (FakeExplode && showFx)
-            {
-                ShowExplosionEffect(flashFx);
+                }
             }
         }
 

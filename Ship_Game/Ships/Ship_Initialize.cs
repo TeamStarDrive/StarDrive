@@ -164,7 +164,7 @@ namespace Ship_Game.Ships
             {
                 ShipModule m = placedModules[i];
                 m.UninstallModule();
-                m.InstallModule(this, BaseHull, m.Pos);
+                m.InstallModule(Universe, this, BaseHull, m.Pos);
                 ModuleSlotList[i] = m;
             }
 
@@ -321,7 +321,7 @@ namespace Ship_Game.Ships
         // Refactored by RedFox
         public static Ship CreateShipNearPlanet(UniverseState us, string shipName, Empire owner, Planet p, bool doOrbit)
         {
-            return CreateShipAt(us, shipName, owner, p, RandomMath.Vector2D(300), doOrbit);
+            return CreateShipAt(us, shipName, owner, p, owner.Random.Vector2D(300), doOrbit);
         }
 
         // Hangar Ship Creation

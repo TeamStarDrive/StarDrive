@@ -32,7 +32,7 @@ public sealed class DroneAI
 
     static Weapon CreateWeapon(Projectile drone)
     {
-        return ResourceManager.CreateWeapon("RepairBeam", drone.Owner, null, null);
+        return ResourceManager.CreateWeapon(drone.Universe, "RepairBeam", drone.Owner, null, null);
     }
 
     public void ChooseTarget()

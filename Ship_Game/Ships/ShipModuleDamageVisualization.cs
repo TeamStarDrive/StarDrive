@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
 
             Dust = p.SmokePlume.NewEmitter(0.5f, center);
 
-            bool smokeOnly = RandomMath.Int(0, 1) == 1;
+            bool smokeOnly = p.Random.Int(0, 1) == 1;
             Smoke = p.ExplosionSmoke.NewEmitter(0.5f, center);
 
             // armor doesnt produce flames

@@ -10,6 +10,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using Matrix = SDGraphics.Matrix;
@@ -53,8 +54,8 @@ namespace Ship_Game
 
         public void DamageColonySurface(Bomb bomb)
         {
-            int softDamage  = (int)RandomMath.Float(bomb.TroopDamageMin, bomb.TroopDamageMax);
-            int hardDamage  = (int)RandomMath.Float(bomb.HardDamageMin, bomb.HardDamageMax);
+            int softDamage  = (int)bomb.Owner.Random.Float(bomb.TroopDamageMin, bomb.TroopDamageMax);
+            int hardDamage  = (int)bomb.Owner.Random.Float(bomb.HardDamageMin, bomb.HardDamageMax);
             float popKilled = bomb.PopKilled;
             float envDamage = bomb.FertilityDamage;
 
@@ -74,7 +75,7 @@ namespace Ship_Game
 
         void TryCreateVolcano(int hardDamage)
         {
-            if (RandomMath.RollDice((hardDamage / 10f).UpperBound(0.4f * Surface.Universe.P.VolcanicActivity)))
+            if (Surface.Random.RollDice((hardDamage / 10f).UpperBound(0.4f * Surface.Universe.P.VolcanicActivity)))
                 TargetTile.CreateVolcano(Surface);
         }
 
@@ -88,14 +89,14 @@ namespace Ship_Game
             else if (TargetTile.Habitable)
             {
                 float destroyThreshold = TargetTile.BuildingOnTile ? 0.25f : 0.5f; // Lower chance to destroy a tile if there is a building on it
-                if (RandomMath.RollDice(hardDamage * destroyThreshold))
+                if (Surface.Random.RollDice(hardDamage * destroyThreshold))
                     Surface.DestroyTile(TargetTile); // Tile becomes un-habitable and any building on it is destroyed immediately
             }
         }
 
         private void DamageBioSpheres(int damage)
         {
-            if (TargetTile.Biosphere && RandomMath.RollDice(damage * 20))
+            if (TargetTile.Biosphere && Surface.Random.RollDice(damage * 20))
             {
                 // Biospheres could not withstand damage
                 TargetTile.Highlighted = false;
@@ -118,7 +119,7 @@ namespace Ship_Game
                 if (troop.Loyalty == bombOwner)
                     troopHitChance = (int)(troopHitChance * 0.25f);
 
-                if (RandomMath.RollDice(troopHitChance))
+                if (Surface.Random.RollDice(troopHitChance))
                     troop.DamageTroop(damage, Surface, TargetTile, out _);
             }
         }
@@ -132,7 +133,7 @@ namespace Ship_Game
             int hitChance = 50 + shipLevel * 5;
             hitChance = (hitChance - building.Defense).Clamped(10, 95);
 
-            if (RandomMath.RollDice(hitChance))
+            if (Surface.Random.RollDice(hitChance))
             {
                 building.ApplyDamageAndRemoveIfDestroyed(Surface, damage);
             }
@@ -201,6 +202,8 @@ namespace Ship_Game
         public int UniqueHabPercent;
         protected AudioEmitter Emitter;
         public float GravityWellRadius { get; protected set; }
+
+        // TODO: replace TilesList with a raw array
         [StarData] public Array<PlanetGridSquare> TilesList = new(35);
         public float Density;
         [StarData] public float BaseFertility { get; protected set; } // This is clamped to a minimum of 0, cannot be negative
@@ -233,6 +236,9 @@ namespace Ship_Game
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set; }
         public IReadOnlyList<Building> GetBuildingsCanBuild() => BuildingsCanBuild;
+        
+        // per-planet pseudo-random source
+        public readonly RandomBase Random = new ThreadSafeRandom();
 
         public SolarSystemBody(int id, GameObjectType type) : base(id, type)
         {
@@ -248,7 +254,7 @@ namespace Ship_Game
             if (potentialEvents.Length == 0)
                 return;
 
-            Building selectedBuilding = potentialEvents.RandItem();
+            Building selectedBuilding = Random.Item(potentialEvents);
             if (selectedBuilding.IsBadCacheResourceBuilding)
             {
                 Log.Warning($"{selectedBuilding.Name} is FoodCache with no PlusFlatFood or ProdCache with no PlusProdPerColonist." +
@@ -256,7 +262,7 @@ namespace Ship_Game
                 return;
             }
 
-            if (RandomMath.RollDice(selectedBuilding.EventSpawnChance))
+            if (Random.RollDice(selectedBuilding.EventSpawnChance))
             {
                 if (!(this is Planet thisPlanet))
                     return;
@@ -276,18 +282,18 @@ namespace Ship_Game
             if (randItem.HardCoreOnly)
                 return; // hardcore is disabled, bail
 
-            if (RandomMath.RollDice(chance))
+            if (Random.RollDice(chance))
             {
                 Building template = ResourceManager.GetBuildingTemplate(randItem.BuildingID);
                 if (template == null)
                     return;
 
-                int itemCount = RandomMath.RollDie(instanceMax).LowerBound(instanceMin);
+                int itemCount = Random.RollDie(instanceMax).LowerBound(instanceMin);
                 for (int i = 0; i < itemCount; ++i)
                 {
                     if (template.BID == Building.VolcanoId)
                     {
-                        TilesList.RandItem().CreateVolcano(this as Planet);
+                        Random.Item(TilesList).CreateVolcano(this as Planet);
                         //Log.Info($"Volcano Created on '{Name}' ");
                     }
                     else
@@ -598,31 +604,31 @@ namespace Ship_Game
                 // Add moons to planets
                 for (int j = 0; j < data.Moons.Count; j++)
                 {
-                    float orbitRadius = newOrbital.Radius * 5 + RandomMath.Float(1000f, 1500f) * (j + 1);
+                    float orbitRadius = newOrbital.Radius * 5 + Random.Float(1000f, 1500f) * (j + 1);
                     var moon = new Moon(ParentSystem,
                                         newOrbital,
                                         data.Moons[j].WhichMoon,
                                         data.Moons[j].MoonScale,
                                         orbitRadius,
-                                        RandomMath.Float(0f, 360f),
-                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius));
+                                        Random.Float(0f, 360f),
+                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius, Random));
                     ParentSystem.MoonList.Add(moon);
                 }
             }
             else if (newOrbital.PType.MoonTypes.Length != 0)
             {
                 int moonCount = (int)Math.Ceiling(Radius * 0.004f);
-                moonCount = (int)Math.Round(RandomMath.AvgFloat(-moonCount * 0.75f, moonCount));
+                moonCount = (int)Math.Round(Random.AvgFloat(-moonCount * 0.75f, moonCount));
                 for (int j = 0; j < moonCount; j++)
                 {
                     PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.PType);
-                    float orbitRadius = newOrbital.Radius + 1500 + RandomMath.Float(1000f, 1500f) * (j + 1);
+                    float orbitRadius = newOrbital.Radius + 1500 + Random.Float(1000f, 1500f) * (j + 1);
                     var moon = new Moon(system,
                                         newOrbital,
                                         moonType.Id,
                                         1f, orbitRadius,
-                                        RandomMath.Float(0f, 360f),
-                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius));
+                                        Random.Float(0f, 360f),
+                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius, Random));
                     ParentSystem.MoonList.Add(moon);
                 }
             }

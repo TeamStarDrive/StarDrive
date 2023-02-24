@@ -31,7 +31,8 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.FindValidTarget(out Empire target))
                 return;
 
-            Owner.AI.AddGoal(new RemnantEngageEmpire(Owner, portals.RandItem(), target));
+            Ship portal = Remnants.Owner.Random.Item(portals);
+            Owner.AI.AddGoal(new RemnantEngageEmpire(Owner, portal, target));
         }
 
         GoalStep CreateFirstPortal()

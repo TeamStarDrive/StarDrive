@@ -159,10 +159,11 @@ namespace Ship_Game.AI.CombatTactics
         {
             State = RunState.Disengage1;
 
+            var random = Random;
             float dot = OwnerTarget.VelocityDirection.Dot(Owner.Direction);
             float rotation = dot > 0f // we are chasing them, so only disengage left or right
-                ? (RandomMath.RollDice(50) ? RadMath.RadiansLeft : RadMath.RadiansRight)
-                : RandomMath.Float(-1.57f, 1.57f); // from -90 to +90 degrees
+                ? (random.RollDice(50) ? RadMath.RadiansLeft : RadMath.RadiansRight)
+                : random.Float(-1.57f, 1.57f); // from -90 to +90 degrees
 
             float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Max(w => w.CooldownTimer);
 
@@ -173,7 +174,7 @@ namespace Ship_Game.AI.CombatTactics
             Vector2 direction = (Owner.Rotation + rotation).RadiansToDirection();
             DisengagePos1 = DisengageStart + direction * (disengageDistance + SpacerDistance);
 
-            Vector2 leftOrRight = RandomMath.RollDice(50) ? direction.LeftVector() : direction.RightVector();
+            Vector2 leftOrRight = random.RollDice(50) ? direction.LeftVector() : direction.RightVector();
             DisengagePos2 = DisengagePos1 + (Owner.MaxSTLSpeed * cooldownTime + SpacerDistance) * (direction + leftOrRight);
         }
 
@@ -189,7 +190,7 @@ namespace Ship_Game.AI.CombatTactics
                 if (distance > disengageLimit) // Disengage1 success
                 {
                     State = RunState.Disengage2;
-                    switch (RandomMath.InRange(2)) // and pick new attack quadrant on enemy ship:
+                    switch (Random.InRange(2)) // and pick new attack quadrant on enemy ship:
                     {
                         default:
                         case 0: TargetQuadrant = Vectors.Left; break;

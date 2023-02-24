@@ -1,0 +1,13 @@
+﻿<ExplorationEvent>
+  <Name>Remnant History</Name>
+  <StoryStep>5</StoryStep>
+  <Story>AncientPeaceKeepers</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <Image>Encounters/remnstory5.png</Image>      
+      <TitleText>Remnant History - Ancient Peace Keepers</TitleText>
+      <DescriptionText>We now know a significant part of the Remnant history. The Remnant was a warring race which lived Eons ago. Their part of the galaxy full alien empires all at war for total domination, until one empire invented a weapon which can destroy a star. That empire enslaved many other empires and the Remnants were the biggest opposing force. In the end, their entire part of the galaxy was destoyed and records show no survivers. Before the final destruction, the remnant send their own robotic sentinels to other parts of the galaxy, with instructions to attack any warring civilization in order to prevent a doomsday end. Destroying all Remnant portals will ensure their robotic minions will not longer have access to our sector. Good Luck!</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
             if (OurTroops.IsEmpty)
                 return;
 
-            Troop troop = OurTroops.RandItem();
+            Troop troop = Loyalty.Random.Item(OurTroops);
             RemoveAnyTroop(troop);
         }
 
@@ -226,7 +226,7 @@ namespace Ship_Game.Ships
             {
                 Troop troop = toRemove[i];
                 Ship assaultShip = CreateTroopShipAtPoint(Universe, Loyalty.GetAssaultShuttleName(), Loyalty, Position, troop);
-                assaultShip.Velocity = Velocity + UniverseRandom.RandomDirection() * assaultShip.MaxSTLSpeed;
+                assaultShip.Velocity = Velocity + Loyalty.Random.Direction2D() * assaultShip.MaxSTLSpeed;
 
                 Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
 
@@ -340,13 +340,13 @@ namespace Ship_Game.Ships
             float ourCombinedDefense      = 0f;
             float mechanicalDefenseChance = EMPDisabled ? 20 : 50; // 50% or 20% if EMPed
             for (int i = 0; i < MechanicalBoardingDefense; ++i)
-                if (UniverseRandom.RollDice(mechanicalDefenseChance - hostilesAvgLevel)) 
+                if (Loyalty.Random.RollDice(mechanicalDefenseChance - hostilesAvgLevel)) 
                     ourCombinedDefense += 1f;
 
             foreach (Troop troop in OurTroops)
             {
                 for (int i = 0; i < troop.Strength; ++i)
-                    if (UniverseRandom.RollDice(troop.BoardingStrength))
+                    if (Loyalty.Random.RollDice(troop.BoardingStrength))
                         ourCombinedDefense += 1f;
             }
 
@@ -367,7 +367,7 @@ namespace Ship_Game.Ships
             foreach (Troop troop in HostileTroops)
             {
                 for (int i = 0; i < troop.Strength; ++i)
-                    if (UniverseRandom.RollDice(troop.BoardingStrength))
+                    if (Loyalty.Random.RollDice(troop.BoardingStrength))
                         enemyAttackPower += 1f;
             }
 
