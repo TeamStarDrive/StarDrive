@@ -1,0 +1,13 @@
+﻿<ExplorationEvent>
+  <Name>Remnant Portal</Name>
+  <StoryStep>3</StoryStep>
+  <Story>AncientWarMongers</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Image>Encounters/remn.png</Image>    
+      <Chance>100</Chance>
+      <TitleText>Remnant Activity</TitleText>
+      <DescriptionText>Further analysis suggests that the Remnants are indeed some sort of guardians of an ancient race. It seems that our colonization efforts have triggered something in these guardians ships. We suspect that there is a new Remnant portal out there. This portal is used to transport fleet of Remnant ships which seem to be drawn to the quiet regions of the sector. We have also seen strange inactivity periods in which they Remnant seem passive. After this "Hibernation", they emerge stronger. Further guardian debris is needed to continue the investigation.</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

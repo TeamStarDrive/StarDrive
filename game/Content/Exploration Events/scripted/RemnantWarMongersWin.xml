@@ -1,0 +1,13 @@
+﻿<ExplorationEvent>
+  <Name>Remnant Fury</Name>
+  <TriggerWhenOnlyRemnantsLeft>true</TriggerWhenOnlyRemnantsLeft>
+  <Story>AncientWarMongers</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <Image>Encounters/remn.png</Image>      
+      <TitleText>Remnant Fury!</TitleText>
+      <DescriptionText>Since we came to the conclusion that the Remnants are a sadistic and blood thirsty race, we have every reason to believe they are not pleased by the fact we are the only race left in this sector. Moreover, recent analysis of Remnant radiation patterns indicates a massive increase in their activity, but we are not sure what calamity they will bring to the sector. It seems we will need to destroy all their portals to finally rule this sector.</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

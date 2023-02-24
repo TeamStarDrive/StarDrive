@@ -97,6 +97,8 @@ namespace Ship_Game
                 case RemnantStory.AncientBalancers:
                 case RemnantStory.AncientExterminators:
                 case RemnantStory.AncientRaidersRandom:
+                case RemnantStory.AncientWarMongers:
+                case RemnantStory.AncientPeaceKeepers:
                     Owner.AI.AddGoal(new RemnantEngagements(Owner));
                     Universe.Notifications.AddRemnantsStoryActivation(Owner);
                     break;
@@ -175,7 +177,6 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientExterminators: return 1.2f;
-                case RemnantStory.AncientBalancers:     return 1f;
                 case RemnantStory.AncientRaidersRandom: return 0.9f;
                 default:                                return 1;
             }
@@ -241,6 +242,26 @@ namespace Ship_Game
                         }
                     }
                     break;
+                case RemnantStory.AncientWarMongers:
+                    if (GetPortals(out Ship[] remnantPortals))
+                    {
+                        Ship portal = Owner.Random.Item(remnantPortals);
+                        int saturation = (5 - (int)Universe.P.Difficulty).LowerBound(2);
+                        var planets = Universe.Player.GetPlanets();
+                        for (int i = 0; i < planets.Count; i++)
+                        {
+                            Planet targetPlanet = planets[i];
+                            if (i % saturation == 0 
+                                && SpawnShip(RemnantShipType.Exterminator, portal.Position, out Ship exterminator))
+                            {
+                                exterminator.OrderToOrbit(targetPlanet, true);
+                            }
+                        }
+                    }
+                    break;
+                case RemnantStory.AncientPeaceKeepers:
+                    Activated = false;
+                    break;
             }
         }
 
@@ -271,6 +292,8 @@ namespace Ship_Game
                 case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList); break;
                 case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);               break;
                 case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);           break;
+                case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);        break;
+                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);      break;
             }
 
             return target != null;
@@ -286,6 +309,24 @@ namespace Ship_Game
 
             FindValidTarget(out Empire expectedTarget);
             return expectedTarget == currentTarget;
+        }
+
+        Empire FindStrongestEmpireAtPeace(Empire[] empiresList)
+        {
+            var potentialTargets = empiresList.Filter(e => !e.IsAtWarWithMajorEmpire);
+            if (potentialTargets.Length == 0)
+                return Universe.Player;
+
+            return potentialTargets.FindMax(e => e.CurrentMilitaryStrength);
+        }
+
+        Empire FindStrongestEmpireAtWar(Empire[] empiresList)
+        {
+            var potentialTargets = empiresList.Filter(e => e.IsAtWarWithMajorEmpire);
+            if (potentialTargets.Length == 0)
+                return null;
+
+            return potentialTargets.FindMax(e => e.CurrentMilitaryStrength);
         }
 
         Empire FindStrongestByAveragePopAndStr(Empire[] empiresList)
@@ -982,13 +1023,14 @@ namespace Ship_Game
             if (Universe.P.DisableRemnantStory)
                 return RemnantStory.None;
 
-            switch (Random.RollDie(3)) // todo for now 3 stories
+            switch (Random.RollDie(5))
             {
                 default:
                 case 1: return RemnantStory.AncientBalancers;
                 case 2: return RemnantStory.AncientExterminators;
                 case 3: return RemnantStory.AncientRaidersRandom;
-                case 4: return RemnantStory.AncientColonizers;
+                case 4: return RemnantStory.AncientWarMongers;
+                case 5: return RemnantStory.AncientPeaceKeepers;
             }
         }
 
@@ -998,7 +1040,8 @@ namespace Ship_Game
             AncientBalancers,
             AncientExterminators,
             AncientRaidersRandom,
-            AncientColonizers
+            AncientWarMongers,
+            AncientPeaceKeepers
         }
     }
 
