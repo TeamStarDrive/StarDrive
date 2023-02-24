@@ -954,12 +954,13 @@ namespace Ship_Game
                 UpdateEmpirePlanets(elapsedTurnTime);
                 UpdatePopulation();
                 UpdateTroopsInSpaceConsumption();
+                UpdateRallyPoints(); // rally points must exist before AI Update
+                AssignNewHomeWorldIfNeeded();
+
                 AI.Update(); // Must be done before DoMoney
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
-                AssignNewHomeWorldIfNeeded();
                 TakeTurn(us);
-                UpdateRallyPoints();
 
                 didUpdate = true;
             }
@@ -1028,7 +1029,7 @@ namespace Ship_Game
 
         void AssignNewHomeWorldIfNeeded()
         {
-            if (isPlayer | IsFaction)
+            if (isPlayer || IsFaction)
                 return;
 
             if (!Universe.P.EliminationMode 
