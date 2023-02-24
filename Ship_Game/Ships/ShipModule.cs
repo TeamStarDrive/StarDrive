@@ -326,7 +326,7 @@ namespace Ship_Game.Ships
             Flyweight = ShipModuleFlyweight.Empty;
         }
 
-        ShipModule(ShipModule_XMLTemplate template) : base(0, GameObjectType.ShipModule)
+        ShipModule(UniverseState us, ShipModule_XMLTemplate template) : base(0, GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(template);
@@ -354,7 +354,7 @@ namespace Ship_Game.Ships
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
             // initialize `isWeapon` and other InstalledWeapon attributes for module template
-            InstallModule(null, null, Point.Zero);
+            InstallModule(us, null, null, Point.Zero);
 
             // @todo This might need to be updated with latest ModuleType logic?
             TargetValue += Is(ShipModuleType.Armor)             ? -1 : 0;
@@ -378,9 +378,9 @@ namespace Ship_Game.Ships
             TargetValue += IsWeapon                             ? 1 : 0;
         }
 
-        public static ShipModule CreateTemplate(ShipModule_XMLTemplate template)
+        public static ShipModule CreateTemplate(UniverseState us, ShipModule_XMLTemplate template)
         {
-            return new ShipModule(template);
+            return new ShipModule(us, template);
         }
 
         // Called by Create() and ShipDesignScreen.CreateDesignModule
@@ -429,7 +429,7 @@ namespace Ship_Game.Ships
                 m.HangarShipUID = slot.HangarShipUID;
 
             m.SetModuleSizeRotAngle(slot.Size, slot.ModuleRot, slot.TurretAngle);
-            m.InstallModule(parent, parent.BaseHull, slot.Pos);
+            m.InstallModule(us, parent, parent.BaseHull, slot.Pos);
 
             // don't initialize Shield instance for ShipTemplates
             if (!isTemplate && m.ShieldPowerMax > 0f)
@@ -464,11 +464,11 @@ namespace Ship_Game.Ships
                 m.HangarShipUID = m.IsTroopBay ? us.Player.GetAssaultShuttleName() : hangarShipUID;
 
             m.SetModuleRotation(m.XSize, m.YSize, moduleRot, turretAngle);
-            m.InstallModule(null, hull, Point.Zero);
+            m.InstallModule(us, null, hull, Point.Zero);
             return m;
         }
 
-        public void InstallModule(Ship parent, ShipHull hull, Point gridPos)
+        public void InstallModule(UniverseState us, Ship parent, ShipHull hull, Point gridPos)
         {
             Parent = parent;
             Pos = gridPos;
@@ -491,7 +491,7 @@ namespace Ship_Game.Ships
                 if (InstalledWeapon == null || InstalledWeapon.UID != type)
                 {
                     UninstallWeapon();
-                    InstalledWeapon = ResourceManager.CreateWeapon(type, Parent, this, hull);
+                    InstalledWeapon = ResourceManager.CreateWeapon(us, type, Parent, this, hull);
                 }
 
                 if (bomb)

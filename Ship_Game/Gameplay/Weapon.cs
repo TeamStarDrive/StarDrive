@@ -8,6 +8,8 @@ using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Utils;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Gameplay
 {
@@ -15,13 +17,14 @@ namespace Ship_Game.Gameplay
     // Holds required state of a Weapon used in ShipModules or planetary Buildings
     public class Weapon : WeaponTemplateWrapper, IDisposable, IDamageModifier
     {
-        [XmlIgnore]  public Ship Owner { get; set; }
-        [XmlIgnore]  AudioHandle ToggleCue = new();
+        public Ship Owner { get; set; }
+        public UniverseState Universe { get; private set; }
+        AudioHandle ToggleCue = new();
         // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
         public Vector2 PlanetOrigin;
-        [XmlIgnore]  public ShipModule Module;
-        [XmlIgnore]  public float CooldownTimer;
-        [XmlIgnore]  public GameObject FireTarget { get; private set; }
+        public ShipModule Module;
+        public float CooldownTimer;
+        public GameObject FireTarget { get; private set; }
         float TargetChangeTimer;
 
         // these are set during install to ShipModule
@@ -29,15 +32,18 @@ namespace Ship_Game.Gameplay
         public bool IsMainGun;
 
         // Currently pending salvos to be fired
-        [XmlIgnore]  public int SalvosToFire { get; private set; }
+        public int SalvosToFire { get; private set; }
         float SalvoDirection;
         float SalvoFireTimer; // while SalvosToFire > 0, use this timer to count when to fire next shot
         GameObject SalvoTarget;
 
         public new float FireDelay { get; set; }
 
-        public Weapon(IWeaponTemplate t, Ship owner, ShipModule m, ShipHull hull) : base(t)
+        public RandomBase Random => Owner?.Loyalty.Random ?? Universe?.Random;
+
+        public Weapon(UniverseState us, IWeaponTemplate t, Ship owner, ShipModule m, ShipHull hull) : base(t)
         {
+            Universe = us;
             Owner = owner;
             Module = m;
             if (m != null)
@@ -76,7 +82,7 @@ namespace Ship_Game.Gameplay
         {
             if (FireImprecisionAngle <= 0)
                 return direction;
-            float spread = Owner.Loyalty.Random.Float(-FireImprecisionAngle, FireImprecisionAngle) * 0.5f;
+            float spread = Random.Float(-FireImprecisionAngle, FireImprecisionAngle) * 0.5f;
             return (direction.ToDegrees() + spread).AngleToDirection();
         }
 
@@ -148,7 +154,7 @@ namespace Ship_Game.Gameplay
         {
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
-            CooldownTimer = NetFireDelay + Owner.Loyalty.Random.Float(-10f, +10f) * 0.008f;
+            CooldownTimer = NetFireDelay + Random.Float(-10f, +10f) * 0.008f;
 
             Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
@@ -256,12 +262,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        Vector2 GetLevelBasedError(int level = -1)
-        {
-            float adjust = BaseTargetError(level);
-            return Owner.Loyalty.Random.Vector2D(adjust);
-        }
-
         public float BaseTargetError(float level, float range = 0, Empire loyalty = null)
         {
             if (Module == null || Tag_Bomb)
@@ -305,9 +305,11 @@ namespace Ship_Game.Gameplay
         [XmlIgnore]
         public Vector2 DebugLastImpactPredict { get; private set; }
 
-        public Vector2 GetTargetError(GameObject target, int level = -1)
+        public Vector2 GetTargetError(RandomBase random, GameObject target, int level = -1)
         {
-            Vector2 error = GetLevelBasedError(level); // base error from crew level/targeting bonuses
+            // base error from crew level/targeting bonuses
+            float adjust = BaseTargetError(level);
+            Vector2 error = random.Vector2D(adjust);
             if (target != null)
             {
                 error += target.JammingError(); // if target has ECM, they can scramble their position
@@ -376,7 +378,9 @@ namespace Ship_Game.Gameplay
             pip = Predict(origin, target, CanUseAdvancedTargeting);
             if (pip == Vector2.Zero)
                 return false;
-            pip = AdjustedImpactPoint(origin, pip, GetTargetError(target));
+
+            Vector2 error = GetTargetError(Random, target);
+            pip = AdjustedImpactPoint(origin, pip, error);
             return true;
         }
         
@@ -508,7 +512,8 @@ namespace Ship_Game.Gameplay
             if (IsRepairBeam)
                 return destination;
 
-            Vector2 beamDestination = AdjustedImpactPoint(source, destination, GetTargetError(target));
+            Vector2 error = GetTargetError(Random, target);
+            Vector2 beamDestination = AdjustedImpactPoint(source, destination, error);
             return beamDestination;
         }
 
@@ -582,7 +587,7 @@ namespace Ship_Game.Gameplay
                 AddModifiers(ActiveWeaponTags[i], projectile, ref actualShieldPenChance);
             }
 
-            projectile.IgnoresShields = Owner.Loyalty.Random.RollDice(actualShieldPenChance);
+            projectile.IgnoresShields = Random.RollDice(actualShieldPenChance);
         }
 
         void AddModifiers(WeaponTag tag, Projectile p, ref float actualShieldPenChance)

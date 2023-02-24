@@ -255,7 +255,7 @@ namespace Ship_Game.AI
 
                 if (Target != null)
                 {
-                    TargetError = Missile.Weapon.GetTargetError(Target, Level);
+                    TargetError = Missile.Weapon.GetTargetError(Random, Target, Level);
                 }
             }
 

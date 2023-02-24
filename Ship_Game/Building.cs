@@ -158,7 +158,7 @@ namespace Ship_Game
         {
             if (IsWeapon)
             {
-                TheWeapon = ResourceManager.CreateWeapon(Weapon);
+                TheWeapon = ResourceManager.CreateWeapon(p.Universe, Weapon);
                 SpaceRange = TheWeapon.BaseRange;
                 UpdateOffense(p);
             }
