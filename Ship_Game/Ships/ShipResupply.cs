@@ -55,7 +55,7 @@ namespace Ship_Game.Ships
 
         public ResupplyReason Resupply()
         {
-            if (!Ship.HasCommand)
+            if (!Ship.HasCommand || !Ship.IsAlive)
                 return ResupplyReason.NoCommand;
 
             if (Ship.DesignRole == RoleName.construction 
@@ -146,7 +146,7 @@ namespace Ship_Game.Ships
             return ((float)Ship.TroopCount / Ship.TroopCapacity).LessOrEqual(resupplyTroopThreshold) && Ship.OnLowAlert;
         }
 
-        private bool OrdnanceLow()
+        bool OrdnanceLow()
         {
             if (PlayerKamikaze)
                 return false; // Only player manual command will convince Kamikaze ship to resupply
@@ -161,7 +161,7 @@ namespace Ship_Game.Ships
             return Ship.OrdnancePercent < threshold;
         }
 
-        private bool HighKineticToEnergyRatio()
+        bool HighKineticToEnergyRatio()
         {
             if (Ship.OrdinanceMax < 1 || Ship.Weapons.IsEmpty && Ship.BombBays.IsEmpty)
                 return false;
@@ -169,10 +169,9 @@ namespace Ship_Game.Ships
             if (!InCombat)
                 return true; // ships not in combat will want to resupply if they have Ordnance storage from this method point of view
 
-            int numWeapons        = Ship.Weapons.Count(weapon => weapon.Module.Active && !weapon.TruePD);
-            int numKineticWeapons = Ship.Weapons.Count(weapon => weapon.Module.Active
-                                                                 && weapon.OrdinanceRequiredToFire > 0
-                                                                 && !weapon.TruePD);
+            int numWeapons        = Ship.Weapons.Count(weapon => !weapon.TruePD && weapon.Module is { Active: true });
+            int numKineticWeapons = Ship.Weapons.Count(weapon => !weapon.TruePD && weapon.Module is { Active: true }
+                                                              && weapon.OrdinanceRequiredToFire > 0);
 
             if (Ship.AI.HasPriorityTarget && numKineticWeapons < numWeapons)
                 return false; // if player ordered a specific attack and the ship has energy weapons, continue to fight
@@ -181,7 +180,7 @@ namespace Ship_Game.Ships
             return ratio.GreaterOrEqual(KineticToEnergyRatio); 
         }
 
-        private bool InsufficientOrdnanceProduction()
+        bool InsufficientOrdnanceProduction()
         {
             if (Ship.OrdAddedPerSecond < 1 && Ship.OrdinanceMax > 0)
                 return true;
