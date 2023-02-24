@@ -1,11 +1,12 @@
-﻿using Ship_Game.Ships;
-using Ship_Game.Spatial;
+﻿using System;
+using Ship_Game.Ships;
 using SDGraphics;
 using Ship_Game.Empires.Components;
 using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.Universe;
 using Ship_Game.AI;
+using System.Collections.Generic;
 
 namespace Ship_Game;
 
@@ -15,7 +16,7 @@ public sealed partial class Empire
     {
         public Vector2 Position;
         public float Radius;
-        public GameObject Source; // Planet OR Ship
+        public GameObject Source; // Planet OR Ship OR System
         public bool KnownToPlayer;
         public InfluenceNode(GameObject source, float radius, bool knowToPlayer)
         {
@@ -37,6 +38,7 @@ public sealed partial class Empire
         
     public EmpireFirstContact FirstContact = new();
 
+    readonly Array<InfluenceNode> OurBorderSystems = new(); // all of our systems
     readonly Array<InfluenceNode> OurBorderPlanets = new(); // all of our planets
     readonly Array<InfluenceNode> OurBorderShips = new(); // SSP-s and some Bases
 
@@ -198,33 +200,25 @@ public sealed partial class Empire
         bool useSensorRange = WeArePirates || WeAreRemnants;
         float projectorRadius = GetProjectorRadius();
 
-        int nSensorShips = OurSensorShips.Count;
-        int nSensorPlanets = OurSensorPlanets.Count;
-        int nBorderShips = OurBorderShips.Count;
-        int nBorderPlanets = OurBorderPlanets.Count;
-        InfluenceNode[] sensorShips = OurSensorShips.GetInternalArrayItems();
-        InfluenceNode[] sensorPlanets = OurSensorPlanets.GetInternalArrayItems();
-        InfluenceNode[] borderShips = OurBorderShips.GetInternalArrayItems();
-        InfluenceNode[] borderPlanets = OurBorderPlanets.GetInternalArrayItems();
+        Span<InfluenceNode> sensorShips = OurSensorShips.AsSpan();
+        Span<InfluenceNode> sensorPlanets = OurSensorPlanets.AsSpan();
+        Span<InfluenceNode> borderShips = OurBorderShips.AsSpan();
+        Span<InfluenceNode> borderPlanets = OurBorderPlanets.AsSpan();
 
-        for (int i = 0; i < nSensorShips; ++i)
+        foreach (ref InfluenceNode n in sensorShips)
         {
-            ref InfluenceNode n = ref sensorShips[i];
             n.Radius = ((Ship)n.Source).SensorRange;
         }
-        for (int i = 0; i < nSensorPlanets; ++i)
+        foreach (ref InfluenceNode n in sensorPlanets)
         {
-            ref InfluenceNode n = ref sensorPlanets[i];
             n.Radius = ((Planet)n.Source).SensorRange;
         }
-        for (int i = 0; i < nBorderShips; ++i)
+        foreach (ref InfluenceNode n in borderShips)
         {
-            ref InfluenceNode n = ref borderShips[i];
             n.Radius = useSensorRange ? ((Ship)n.Source).SensorRange : projectorRadius;
         }
-        for (int i = 0; i < nBorderPlanets; ++i)
+        foreach (ref InfluenceNode n in borderPlanets)
         {
-            ref InfluenceNode n = ref borderPlanets[i];
             n.Radius = ((Planet)n.Source).GetProjectorRange();
         }
     }
@@ -232,21 +226,16 @@ public sealed partial class Empire
     void UpdateOurSensorNodes()
     {
         bool knownToPlayer = IsThisEmpireWellKnownByPlayer();
+        Span<InfluenceNode> sensorShips = OurSensorShips.AsSpan();
+        Span<InfluenceNode> sensorPlanets = OurSensorPlanets.AsSpan();
 
-        int nSensorShips = OurSensorShips.Count;
-        int nSensorPlanets = OurSensorPlanets.Count;
-        InfluenceNode[] sensorShips = OurSensorShips.GetInternalArrayItems();
-        InfluenceNode[] sensorPlanets = OurSensorPlanets.GetInternalArrayItems();
-
-        for (int i = 0; i < nSensorShips; ++i)
+        foreach (ref InfluenceNode n in sensorShips)
         {
-            ref InfluenceNode n = ref sensorShips[i];
             n.Position = n.Source.Position;
             n.KnownToPlayer = knownToPlayer;
         }
-        for (int i = 0; i < nSensorPlanets; ++i)
+        foreach (ref InfluenceNode n in sensorPlanets)
         {
-            ref InfluenceNode n = ref sensorPlanets[i];
             n.Position = n.Source.Position;
             n.KnownToPlayer = knownToPlayer;
         }
@@ -256,40 +245,58 @@ public sealed partial class Empire
     {
         bool knownToPlayer = IsThisEmpireKnownByPlayer();
 
-        int nBorderShips = OurBorderShips.Count;
-        int nBorderPlanets = OurBorderPlanets.Count;
-        InfluenceNode[] borderShips = OurBorderShips.GetInternalArrayItems();
-        InfluenceNode[] borderPlanets = OurBorderPlanets.GetInternalArrayItems();
+        Span<InfluenceNode> borderShips = OurBorderShips.AsSpan();
+        Span<InfluenceNode> borderPlanets = OurBorderPlanets.AsSpan();
 
+        Span<SolarSystem> systems = OwnedSolarSystems.AsSpan();
+        OurBorderSystems.Clear();
+        OurBorderSystems.Resize(systems.Length);
+        Span<InfluenceNode> borderSystems = OurBorderSystems.AsSpan();
+        for (int i = 0; i < borderSystems.Length; ++i)
+        {
+            SolarSystem system = systems[i];
+            ref InfluenceNode sn = ref borderSystems[i];
+            sn.Position = system.Position;
+            sn.Radius = 5000;
+            sn.Source = system;
+            sn.KnownToPlayer = knownToPlayer;
+        }
+        
         if (knownToPlayer)
         {
-            for (int i = 0; i < nBorderShips; ++i)
+            foreach (ref InfluenceNode n in borderShips)
             {
-                ref InfluenceNode n = ref borderShips[i];
                 n.Position = n.Source.Position;
                 n.KnownToPlayer = true;
             }
-            for (int i = 0; i < nBorderPlanets; ++i)
+            foreach (ref InfluenceNode n in borderPlanets)
             {
-                ref InfluenceNode n = ref borderPlanets[i];
                 n.Position = n.Source.Position;
                 n.KnownToPlayer = true;
+
+                int whichSystem = OwnedSolarSystems.IndexOfRef(((Planet)n.Source).ParentSystem);
+                ref InfluenceNode sn = ref borderSystems[whichSystem];
+                sn.Radius = Math.Max(sn.Radius, n.Radius);
             }
         }
         else
         {
             var player = Universe.Player;
-            for (int i = 0; i < nBorderShips; ++i)
+            foreach (ref InfluenceNode n in borderShips)
             {
-                ref InfluenceNode n = ref borderShips[i];
                 n.Position = n.Source.Position;
                 n.KnownToPlayer = ((Ship)n.Source).InPlayerSensorRange;
             }
-            for (int i = 0; i < nBorderPlanets; ++i)
+            foreach (ref InfluenceNode n in borderPlanets)
             {
-                ref InfluenceNode n = ref borderPlanets[i];
                 n.Position = n.Source.Position;
                 n.KnownToPlayer = ((Planet)n.Source).IsExploredBy(player);
+
+                int whichSystem = OwnedSolarSystems.IndexOfRef(((Planet)n.Source).ParentSystem);
+                ref InfluenceNode sn = ref borderSystems[whichSystem];
+                sn.Radius = Math.Max(sn.Radius, n.Radius);
+
+                sn.KnownToPlayer |= n.KnownToPlayer;
             }
         }
     }
@@ -322,19 +329,20 @@ public sealed partial class Empire
     {
         if (ForceUpdateSensorRadiuses)
             UpdateSensorAndBorderRadiuses();
-        UpdateOurSensorNodes();
-        UpdateOurBorderNodes();
 
-        TempBorderNodes.AddRange(OurBorderPlanets);
+        UpdateOurBorderNodes();
+        // TODO: use double-buffered approach here, because # of nodes doesn't always change
+        TempBorderNodes.AddRange(OurBorderSystems);
         TempBorderNodes.AddRange(OurBorderShips);
+        BorderNodes = TempBorderNodes.ToArray();
+        TempBorderNodes.Clear();
+
+        UpdateOurSensorNodes();
         TempSensorNodes.AddRange(OurSensorPlanets);
         TempSensorNodes.AddRange(OurSensorShips);
         AddSensorsFromAllies(TempSensorNodes);
         AddSensorsFromMoles(TempSensorNodes);
-            
-        BorderNodes = TempBorderNodes.ToArray();
         SensorNodes = TempSensorNodes.ToArray();
-        TempBorderNodes.Clear();
         TempSensorNodes.Clear();
     }
 

@@ -35,7 +35,7 @@ namespace Ship_Game.GameScreens.Scene
 
         Map<string, EmpireData> Empires = new();
 
-        public SeededRandom Random = new();
+        public readonly SeededRandom Random = new();
 
         public static SceneInstance FromFile(GameScreen screen, string relativePath)
         {
@@ -128,7 +128,7 @@ namespace Ship_Game.GameScreens.Scene
                     p => p.Name.Contains(name)).FirstOrDefault();
                 if (e != null) return GetCachedEmpire(e.CreateInstance());
             }
-            return GetCachedEmpire(ResourceManager.MajorRaces.RandItem());
+            return GetCachedEmpire(Random.Item(ResourceManager.MajorRaces));
         }
 
         EmpireData GetCachedEmpire(IEmpireData e)

@@ -1,0 +1,13 @@
+﻿<ExplorationEvent>
+  <Name>Remnant History</Name>
+  <StoryStep>5</StoryStep>
+  <Story>AncientWarMongers</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <Image>Encounters/remnstory5.png</Image>      
+      <TitleText>Remnant History - Ancient Warmongers</TitleText>
+      <DescriptionText>We now know a significant part of the Remnant history. The Remnant was a ruthless race which evolved several thousands years ago. They were consisted by large numbers or warring tribes. Their sadistic persona and wars almost destroyed their homeworld, but some of the more intelligent leaders were able to end the wars and unite their race. It was possible mostly due to the fact the Remnant encountered other, weaker empires in their region and enjoyed fighting them instead. It seems that they destroyed all civilizations in their part of the Galaxy and the threat of internal war rose again. Fortunately for them, their scientest found a way to travel to other galaxy using portals. With these portal, they continue to torment other civilizations. The Remanants are not extinct. Even now they watch are enjoy as we fight other races and billions die. Destroying all Remnant portals will ensure they will not longer have access to our sector, at least for quite some time. Good Luck!</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

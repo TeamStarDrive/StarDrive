@@ -56,7 +56,7 @@ namespace Ship_Game
             set
             {
                 TheSunType = value;
-                SunLayers = value.CreateLayers(ResourceManager.RootContent);
+                SunLayers = value.CreateLayers(ResourceManager.RootContent, Universe.Random);
             }
         }
 
@@ -404,7 +404,7 @@ namespace Ship_Game
             // Changed by RedFox: 3% chance to get a tri-sun "star_binary"
             Sun = random.RollDice(percent:3)
                 ? SunType.FindSun("star_binary")
-                : SunType.RandomHabitableSun(s => s.Id != "star_binary");
+                : SunType.RandomHabitableSun(random, s => s.Id != "star_binary");
 
             Name = name;
             int starRadius = random.Int(250, 500);
@@ -476,7 +476,7 @@ namespace Ship_Game
             if (PlanetList.Count <= 2 + us.P.ExtraPlanets && PlanetList.All(p => p.IsBarrenGasOrVolcanic)
                 && random.RollDice(percent:15))
             {
-                Sun = SunType.RandomBarrenSun();
+                Sun = SunType.RandomBarrenSun(random);
             }
 
             FinalizeGeneratedSystem();
@@ -639,7 +639,7 @@ namespace Ship_Game
             for (int i = 0; i < 100; ++i) // while (true) would be unsafe, so give up after 100 turns
             {
                 orbitalRadius = ringRadius + random.Float(-spread, spread);
-                orbitalAngle = RandomMath.Float(0f, RadMath.TwoPI);
+                orbitalAngle = random.Float(0f, RadMath.TwoPI);
                 Vector2 pos = Vector2.Zero.PointFromRadians(orbitalAngle, orbitalRadius);
                 if (NoAsteroidProximity(pos))
                     break;

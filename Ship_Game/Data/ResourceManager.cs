@@ -687,10 +687,9 @@ namespace Ship_Game
             if (troop.StrengthMax <= 0)
                 troop.StrengthMax = troop.Strength;
 
-            troop.WhichFrame = RandomMath.Int(1, troop.num_idle_frames - 1);
-
             if (forOwner != null)
             {
+                troop.WhichFrame = forOwner.Random.Int(1, troop.num_idle_frames - 1);
                 troop.SetOwner(forOwner);
                 troop.HealTroop(troop.ActualStrengthMax);
                 troop.Level = forOwner.data.MinimumTroopLevel;
@@ -930,21 +929,21 @@ namespace Ship_Game
             return LoadEntities<SolarSystemData>(GatherFilesModOrVanilla("SolarSystems/Random", "xml"), "LoadSolarSystems");
         }
 
-        public static Texture2D LoadRandomLoadingScreen(GameContentManager transientContent)
+        public static Texture2D LoadRandomLoadingScreen(RandomBase random, GameContentManager transientContent)
         {
             FileInfo[] files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
 
-            FileInfo file = files[RandomMath.InRange(0, files.Length)];
+            FileInfo file = random.Item(files);
             return transientContent.LoadTexture(file);
         }
 
         // advice is temporary and only sticks around while loading
-        public static string LoadRandomAdvice()
+        public static string LoadRandomAdvice(RandomBase random)
         {
             string adviceFile = "Advice/" + GlobalStats.Language + "/Advice.xml";
 
             var adviceList = TryDeserialize<Array<string>>(adviceFile);
-            return adviceList?[RandomMath.InRange(adviceList.Count)] ?? "Advice.xml missing";
+            return adviceList?[random.InRange(adviceList.Count)] ?? "Advice.xml missing";
         }
 
         static void LoadArtifacts() // Refactored by RedFox
@@ -959,12 +958,27 @@ namespace Ship_Game
             }
         }
 
-        static readonly Array<Building> BuildingsById = new Array<Building>();
+        static readonly Array<Building> BuildingsById = new();
+
         public static bool BuildingExists(int buildingId) => 0 < buildingId && buildingId < BuildingsById.Count;
-        public static Building GetBuildingTemplate(string whichBuilding) => BuildingsDict[whichBuilding];
-        public static Building GetBuildingTemplate(int buildingId) => BuildingsById[buildingId];
+
+        public static Building GetBuildingTemplate(string whichBuilding)
+        {
+            if (BuildingsDict.TryGetValue(whichBuilding, out Building template))
+                return template;
+            throw new($"No building template with UID='{whichBuilding}'");
+        }
+
+        public static Building GetBuildingTemplate(int buildingId)
+        {
+            if (!BuildingExists(buildingId))
+                throw new($"No building template with BID={buildingId}");
+            return BuildingsById[buildingId];
+        }
+
         public static Building CreateBuilding(Planet p, string whichBuilding) => CreateBuilding(p, GetBuildingTemplate(whichBuilding));
         public static Building CreateBuilding(Planet p, int buildingId) => CreateBuilding(p, GetBuildingTemplate(buildingId));
+
         public static bool GetBuilding(string whichBuilding, out Building b) => BuildingsDict.Get(whichBuilding, out b);
         public static bool GetBuilding(int buildingId, out Building b)
         {
@@ -1014,17 +1028,20 @@ namespace Ship_Game
 
         public static Building CreateBuilding(Planet p, Building template)
         {
+            if (template == null)
+                throw new NullReferenceException(nameof(template));
             Building newB = template.Clone();
-            newB.CreateWeapon(p);
             newB.CalcMilitaryStrength(p);
             return newB;
         }
 
-        static readonly Map<string, DiplomacyDialog> DiplomacyDialogs = new Map<string, DiplomacyDialog>();
+        static readonly Map<string, DiplomacyDialog> DiplomacyDialogs = new();
+
         public static DiplomacyDialog GetDiplomacyDialog(string dialogName)
         {
             return DiplomacyDialogs[dialogName];
         }
+
         static void LoadDialogs() // Refactored by RedFox
         {
             DiplomacyDialogs.Clear();
@@ -1303,15 +1320,15 @@ namespace Ship_Game
 
         public static SubTexture SmallNebulaRandom(RandomBase random)
         {
-            return random.RandItem(SmallNebulae).GetOrLoadTexture();
+            return random.Item(SmallNebulae).GetOrLoadTexture();
         }
         public static SubTexture NebulaMedRandom(RandomBase random)
         {
-            return random.RandItem(MedNebulae).GetOrLoadTexture(); 
+            return random.Item(MedNebulae).GetOrLoadTexture(); 
         }
         public static SubTexture NebulaBigRandom(RandomBase random)
         {
-            return random.RandItem(BigNebulae).GetOrLoadTexture();
+            return random.Item(BigNebulae).GetOrLoadTexture();
         }
         public static SubTexture BigNebula(int index)
         {
@@ -1441,7 +1458,7 @@ namespace Ship_Game
                 if (data.XSize == data.YSize && !mustRotate)
                     data.DisableRotation = true;
 
-                ShipModule template = ShipModule.CreateTemplate(data);
+                ShipModule template = ShipModule.CreateTemplate(null, data);
                 ModuleTemplates[uid] = template;
             }
         }
@@ -1870,21 +1887,13 @@ namespace Ship_Game
 
         static readonly Map<string, IWeaponTemplate> WeaponsDict = new();
 
-        // Creates a weapon used by Planets or Special space objects
-        // There is no Ship Owner or ShipModule
-        public static Weapon CreateWeapon(string uid)
-        {
-            IWeaponTemplate template = WeaponsDict[uid];
-            return new Weapon(template, null, null, null);
-        }
-
         // Creates a weapon used by a Ship
         // `module` can be null if the weapon does not belong to a specific module
         // `hull` can be null if hull based bonuses don't matter
-        public static Weapon CreateWeapon(string uid, Ship owner, ShipModule module, ShipHull hull)
+        public static Weapon CreateWeapon(UniverseState us, string uid, Ship owner, ShipModule module, ShipHull hull)
         {
             IWeaponTemplate template = WeaponsDict[uid];
-            return new Weapon(template, owner, module, hull);
+            return new Weapon(us, template, owner, module, hull);
         }
 
         // Gets an immutable IWeaponTemplate
@@ -1893,7 +1902,12 @@ namespace Ship_Game
             if (GetWeaponTemplate(uid, out IWeaponTemplate t))
                 return t;
             Log.Error($"WeaponTemplate not found: '{uid}', using default VulcanCannon");
-            return null;
+            return WeaponsDict["VulcanCannon"];
+        }
+
+        public static IWeaponTemplate GetWeaponTemplateOrNull(string uid)
+        {
+            return GetWeaponTemplate(uid, out IWeaponTemplate t) ? t : null;
         }
 
         public static bool GetWeaponTemplate(string uid, out IWeaponTemplate template)
@@ -1951,9 +1965,9 @@ namespace Ship_Game
 
         static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new();
 
-        public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)
+        public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone, RandomBase random)
         {
-            return ZoneDistribution[sunZone].RandItem();
+            return random.Item(ZoneDistribution[sunZone]);
         }
 
         static void LoadSunZoneData()

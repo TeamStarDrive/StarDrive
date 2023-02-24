@@ -127,10 +127,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         DiplomacyScreen(Empire them, Empire us, string whichDialog, Offer ourOffer, Offer theirOffer, Empire targetEmpire)
             : this(them.Universe.Screen, them, us, whichDialog, toPause: them.Universe.Screen)
         {
-            SetDialogText(GetDialogueByName(whichDialog), DialogState.TheirOffer);
             OurOffer = ourOffer;
             TheirOffer = theirOffer;
             EmpireToDiscuss = targetEmpire;
+            SetDialogText(GetDialogueByName(whichDialog), DialogState.TheirOffer);
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, Planet p)

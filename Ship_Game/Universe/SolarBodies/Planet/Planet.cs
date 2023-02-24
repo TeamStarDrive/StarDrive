@@ -304,7 +304,7 @@ namespace Ship_Game
                 else if (ringRadius < sysMaxRingRadius * 0.7f)  sunZone = SunZone.Far;
                 else                                            sunZone = SunZone.VeryFar;
 
-                PlanetType type = ChooseTypeByWeight(sunZone);
+                PlanetType type = ChooseTypeByWeight(sunZone, random);
                 float scale = type.Scale + random.Float(0.75f, 1.5f);
                 if (type.Category == PlanetCategory.GasGiant)
                     scale += 1f;
@@ -523,7 +523,7 @@ namespace Ship_Game
 
             Population -= 1000f * netPopKill;
             AddBaseFertility(-fertilityDamage); // environment suffers temp damage
-            if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(fertilityDamage * 250))
+            if (BaseFertility.LessOrEqual(0) && Random.RollDice(fertilityDamage * 250))
                 AddMaxBaseFertility(-0.01f); // permanent damage to Max Fertility
 
             if (Population.AlmostZero())
@@ -753,7 +753,7 @@ namespace Ship_Game
         }
         public bool CanRepairOrHeal()
         {
-            return BombingIntensity == 0 || RandomMath.RollDice(100 - BombingIntensity);
+            return BombingIntensity == 0 || Random.RollDice(100 - BombingIntensity);
         }
 
         private void NotifyEmptyQueue()
@@ -1074,7 +1074,7 @@ namespace Ship_Game
                 return;
 
             float survivalChance = TryMeteorHitShield() ? 0 : GetSurvivalChance();
-            if (RandomMath.RollDice(survivalChance) 
+            if (Random.RollDice(survivalChance) 
                 && TryGetCrashTile(out PlanetGridSquare crashTile)
                 && (ship.IsMeteor || !crashTile.LavaHere))
             {
@@ -1104,16 +1104,10 @@ namespace Ship_Game
 
             bool TryGetCrashTile(out PlanetGridSquare tile)
             {
-                tile = null;
                 float destroyBuildingChance = ship.SurfaceArea / (ship.IsMeteor ? 5f : 50f);
-                var potentialTiles = RandomMath.RollDice(destroyBuildingChance)
-                                     ? TilesList.Filter(t => t.CanCrashHere) 
-                                     : TilesList.Filter(t => t.NoBuildingOnTile);
-
-                if (potentialTiles.Length == 0)
-                    return false;
-
-                tile = potentialTiles.RandItem();
+                tile = Random.RollDice(destroyBuildingChance)
+                     ? Random.ItemFilter(TilesList, t => t.CanCrashHere)
+                     : Random.ItemFilter(TilesList, t => t.NoBuildingOnTile);
                 return tile != null;
             }
 
@@ -1127,7 +1121,7 @@ namespace Ship_Game
                 {
                     Troop troop = ourTroops[i];
                     float troopSurvival = 50 * Empire.PreferredEnvModifier(troop.Loyalty);
-                    if (RandomMath.RollDice(troopSurvival))
+                    if (Random.RollDice(troopSurvival))
                     {
                         numTroops += 1;
                         if (name.IsEmpty())
@@ -1174,7 +1168,7 @@ namespace Ship_Game
             int bid;
             string message;
             bool richness;
-            switch (RandomMath.RollDie(20))
+            switch (Random.RollDie(20))
             {
                 case 1:  bid = Building.Crater1Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn); richness  = false; break;
                 case 2:  bid = Building.Crater2Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn2); richness = false; break;
@@ -1306,7 +1300,7 @@ namespace Ship_Game
             // Longer pace decreases decay chance
             decayChance *= 1 / Universe.ProductionPace;
 
-            if (RandomMath.RollDice(decayChance))
+            if (Random.RollDice(decayChance))
             {
                 bool notifyPlayer = MineralRichness.AlmostEqual(1);
                 MineralRichness  -= 0.01f;

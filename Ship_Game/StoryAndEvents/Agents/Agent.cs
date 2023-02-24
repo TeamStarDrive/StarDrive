@@ -71,9 +71,9 @@ namespace Ship_Game
             return false;
         }
 
-        float SpyRoll(Empire us,Empire victim)
+        float SpyRoll(Empire us, Empire victim)
         {
-            float diceRoll = RandomMath.RollDie(100) + Level*RandomMath.RollDie(3);
+            float diceRoll = us.Random.RollDie(100) + Level*us.Random.RollDie(3);
 
             diceRoll += us.data.OffensiveSpyBonus;  // +10 with Duplicitous 
             if (Mission != AgentMission.Training)
@@ -295,7 +295,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            int amount = RandomMath.Int(1, victim.GetPlanets().Count * 50) * Level;
+            int amount = us.Random.Int(1, victim.GetPlanets().Count * 50) * Level;
             amount     = amount.UpperBound((int)(victim.Money * 0.5));
             switch (missionStatus)
             {
@@ -354,7 +354,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            Planet targetPlanet = victim.GetPlanets().RandItem();
+            Planet targetPlanet = us.Random.Item(victim.GetPlanets());
             switch (missionStatus)
             {
                 case SpyMissionStatus.GreatSuccess:
@@ -413,7 +413,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            string stolenTech = potentialTechs.RandItem().UID;
+            string stolenTech = us.Random.Item(potentialTechs).UID;
             string stolenTechName = ResourceManager.Tech(stolenTech).Name.Text;
 
             switch (missionStatus)
@@ -519,7 +519,7 @@ namespace Ship_Game
 
         void AssassinateEnemyAgent(Empire us, Empire victim, out string targetName)
         {
-            Agent targetAgent = victim.data.AgentList.RandItem(); // TODO - a target specific agent base on threat
+            Agent targetAgent = us.Random.Item(victim.data.AgentList); // TODO - a target specific agent base on threat
             targetName = targetAgent.Name;
             victim.data.AgentList.Remove(targetAgent);
             if (targetAgent.Mission == AgentMission.Undercover)
@@ -666,14 +666,13 @@ namespace Ship_Game
                     agent.AddExperience(xpToAdd, Us);
 
                 // One of the victim's defending agent will be get XP for a very successful defense
-                if (missionStatus <= SpyMissionStatus.FailedBadly 
-                    && Victim != null 
+                if (missionStatus <= SpyMissionStatus.FailedBadly
+                    && Victim != null
                     && Victim != Us
                     && Victim.data.AgentList.Count > 0)
                 {
-                    var defendingAgents = Victim.data.AgentList.Filter(a => a.Mission == AgentMission.Defending);
-                    if (defendingAgents.Length > 0)
-                        defendingAgents.RandItem().AddExperience(1, Victim);
+                    Agent defendingAgent =  Victim.Random.ItemFilter(Victim.data.AgentList, a => a.Mission == AgentMission.Defending);
+                    defendingAgent?.AddExperience(1, Victim);
                 }
             }
 

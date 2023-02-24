@@ -242,7 +242,7 @@ public partial class Planet
         if (tile.Biosphere)
             ClearBioSpheresFromList(tile);
         else
-            tile.Terraformable = RandomMath.RollDice(50);
+            tile.Terraformable = Random.RollDice(50);
 
         UpdateMaxPopulation();
     }
@@ -284,10 +284,10 @@ public partial class Planet
             RemoveOutpost();
 
         if (b.ProdCache > 0)
-            b.ProdCache = (int)RandomMath.Float(b.ProdCache * 0.5f, b.ProdCache * 1.5f);
+            b.ProdCache = (int)Random.Float(b.ProdCache * 0.5f, b.ProdCache * 1.5f);
 
         if (b.FoodCache > 0)
-            b.FoodCache = (int)RandomMath.Float(b.FoodCache * 0.5f, b.FoodCache * 1.5f);
+            b.FoodCache = (int)Random.Float(b.FoodCache * 0.5f, b.FoodCache * 1.5f);
 
         UpdatePlanetStatsFromPlacedBuilding(b);
 

@@ -172,7 +172,7 @@ namespace Ship_Game.GameScreens.MainMenu
             // we didn't hit any buttons or stuff, so just spawn a comet
             if (input.InGameSelect)
             {
-                Comet c = Add(new Comet(this));
+                Comet c = Add(new Comet(this, Scene.Random));
                 c.SetDirection(c.Pos.DirectionToTarget(input.CursorPosition));
 
                 // and if we clicked on logo, then play a cool sfx
@@ -212,10 +212,10 @@ namespace Ship_Game.GameScreens.MainMenu
 
             ScreenManager.UpdateSceneObjects(fixedDeltaTime);
             
-            if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
+            if (Scene != null && Scene.Random.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {
-                Comet c = Add(new Comet(this));
-                c.SetDirection(new Vector2(RandomMath.Float(-1f, 1f), 1f));
+                Comet c = Add(new Comet(this, Scene.Random));
+                c.SetDirection(new Vector2(Scene.Random.Float(-1f, 1f), 1f));
             }
 
             if (!IsExiting && ScreenManager.Music.IsStopped)

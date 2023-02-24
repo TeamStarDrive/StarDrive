@@ -23,7 +23,7 @@ namespace Ship_Game.Ships
             P        = p;
             Owner    = owner;
             Thrust   = thrust.LowerBound(owner.IsPlatformOrStation ? 100 : 200);
-            CrashPos = P.Position.GenerateRandomPointInsideCircle(P.Radius);
+            CrashPos = P.Position.GenerateRandomPointInsideCircle(P.Radius, p.Random);
             Distance = Owner.Position.Distance(CrashPos).LowerBound(1);
 
             Owner.SetDieTimer(2);

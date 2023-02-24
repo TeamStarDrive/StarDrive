@@ -130,7 +130,7 @@ namespace Ship_Game.Ships
                 float third = Radius / 3f;
                 for (int i = 0; i < 4; ++i)
                 {
-                    Vector3 randPos = UniverseRandom.Vector32D(third);
+                    Vector3 randPos = Loyalty.Random.Vector32D(third);
                     Universe.Screen.Particles.Lightning.AddParticle(Position.ToVec3() + randPos);
                 }
             }
@@ -313,17 +313,18 @@ namespace Ship_Game.Ships
 
             if (visibleAndNotPaused && !IsMeteor)
             {
-                int num1 = UniverseRandom.Int(0, 100);
-                if (num1 >= 99) // 1% chance
+                var particles = Universe.Screen.Particles;
+                int chance = Universe.Random.Int(0, 100);
+                if (chance >= 99) // 1% chance
                 {
-                    Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();
+                    Vector3 pos = (Position + particles.Random.Vector2D(scaledRadius*0.5f)).ToVec3();
                     ExplosionManager.AddExplosion(Universe.Screen, pos, Velocity, scaledRadius*0.5f, 2.5f, ExplosionType.Projectile);
-                    Universe.Screen.Particles.Flash.AddParticle(pos);
+                    particles.Flash.AddParticle(pos);
                 }
-                if (num1 >= 50) // 50% chance
+                if (chance >= 50) // 50% chance
                 {
-                    Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();
-                    Universe.Screen.Particles.Lightning.AddParticle(pos, Velocity.ToVec3(), 0.5f*scale, Color.White);
+                    Vector3 pos = (Position + particles.Random.Vector2D(scaledRadius*0.5f)).ToVec3();
+                    particles.Lightning.AddParticle(pos, Velocity.ToVec3(), 0.5f*scale, Color.White);
                 }
             }
 
@@ -333,9 +334,9 @@ namespace Ship_Game.Ships
             Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
             // Spawn some junk when tumbling and the game is not paused
-            if (visibleAndNotPaused && !IsMeteor && RandomMath.RollDice(10)) // X % chance
+            if (visibleAndNotPaused && !IsMeteor && Loyalty.Random.RollDice(10)) // X % chance
             {
-                Vector2 pos = Position.GenerateRandomPointOnCircle(scaledRadius / 20);
+                Vector2 pos = Position.GenerateRandomPointOnCircle(scaledRadius / 20, Loyalty.Random);
                 SpaceJunk.SpawnJunk(Universe, 1, pos, Velocity * scale, this,
                                     maxSize: scaledRadius * 0.1f, ignite: true);
             }

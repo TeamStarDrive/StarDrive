@@ -428,9 +428,9 @@ namespace Ship_Game.AI
         {
             Vector2 pos;
             if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle)
-                pos = RandomMath.Vector2D(planet.Radius);
+                pos = planet.Random.Vector2D(planet.Radius);
             else
-                pos = planet.Position - planet.Position.GenerateRandomPointOnCircle(planet.Radius * 1.5f);
+                pos = planet.Position - planet.Position.GenerateRandomPointOnCircle(planet.Radius * 1.5f, planet.Random);
 
             return pos;
         }

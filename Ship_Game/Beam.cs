@@ -65,7 +65,7 @@ namespace Ship_Game
         public static Effect BeamEffect;
         public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
         public int[] Indexes = new int[6];
-        readonly float BeamZ = RandomMath2.Float(-1f, 1f);
+        float BeamZ;
         public bool Infinite;
         VertexDeclaration QuadVertexDecl;
         float Displacement = 1f;
@@ -81,7 +81,7 @@ namespace Ship_Game
             TargetShip = targetModule?.GetParent() ?? target as Ship;
             if (targetModule != null && TargetShip != null)
                 TargetModIdx = TargetShip.Modules.IndexOf(targetModule) + 1;
-
+            
             BeamInit(source, destination);
         }
 
@@ -93,6 +93,7 @@ namespace Ship_Game
             Source = ship.Position;
             Destination = destination;
             Thickness = thickness;
+            BeamZ = ship.Loyalty.Random.Float(-1f, 1f);
         }
 
         // loading from savegame
@@ -100,7 +101,7 @@ namespace Ship_Game
         public override void OnDeserialized(UniverseState us)
         {
             Universe = us;
-            if (!GetWeapon(Owner, Planet, WeaponUID, false, out Weapon))
+            if (!GetWeapon(us, Owner, Planet, WeaponUID, false, out Weapon))
             {
                 Log.Error($"Beam.Weapon not found UID={WeaponUID} Owner={Owner} Planet={Planet}");
                 return; // this owner or weapon no longer exists
@@ -123,6 +124,7 @@ namespace Ship_Game
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
             Source  = source;
+            BeamZ = Universe.Random.Float(-1f, 1f);
 
             Destination = destination;
             SetActualHitDestination(Destination);
@@ -267,7 +269,7 @@ namespace Ship_Game
                     return false;
                 if (!Loyalty.IsEmpireAttackable(projectile.Loyalty))
                     return false;
-                if (projectile.Loyalty?.data.MissileDodgeChance > UniverseRandom.Float(0f, 1f))
+                if (projectile.Loyalty.data.MissileDodgeChance > projectile.Loyalty.Random.Float(0f, 1f))
                     return false;
 
                 projectile.DamageMissile(this, DamageAmount * damageModifier);
@@ -376,7 +378,7 @@ namespace Ship_Game
             
             if (Duration < 0f && !Infinite)
             {
-                Die(null, true);
+                Die(null, false);
             }
         }
 
@@ -447,9 +449,10 @@ namespace Ship_Game
             }
 
             UpdateBeamMesh();
+
             if (Active && Duration < 0f && !Infinite)
             {
-                Die(null, true);
+                Die(null, false);
                 AI.ClearBeam();
             }
         }

@@ -34,6 +34,7 @@ namespace Ship_Game
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
+            Rush = false;
         }
 
         public RefitToWindow(UniverseScreen parent, Ship ship) : base(parent, toPause: parent)

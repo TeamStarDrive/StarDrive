@@ -381,7 +381,7 @@ namespace Ship_Game.Ships
                 return true; // No wells nearby
 
             int leastWells = int.MaxValue;
-            int leftOrRight = RandomMath.RollDie(2) == 1 ? 1 : -1;
+            int leftOrRight = Loyalty.Random.RollDie(2) == 1 ? 1 : -1;
             Vector2 bestDir = default;
 
             for (int i = 0; i < 12; ++i)

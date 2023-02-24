@@ -82,9 +82,9 @@ namespace Ship_Game
         // It gets the planet category by weights based on sun zone and then
         // randomize relevant planet types from the chose category
         // this reduces chances of terran planets and its configurable via SunZoneData.yaml
-        static PlanetType ChooseTypeByWeight(SunZone sunZone)
+        static PlanetType ChooseTypeByWeight(SunZone sunZone, RandomBase random)
         {
-            PlanetCategory chosenCategory = ResourceManager.RandomPlanetCategoryFor(sunZone);
+            PlanetCategory chosenCategory = ResourceManager.RandomPlanetCategoryFor(sunZone, random);
             return ResourceManager.Planets.RandomPlanet(chosenCategory);
         }
 
@@ -113,15 +113,15 @@ namespace Ship_Game
                 else if (richness >= 10f) MineralRichness = random.Float(0.25f, 0.50f);
                 else                      MineralRichness = random.Float(0.10f, 0.25f);
 
-                float habitableChance = PType.HabitableTileChance.Generate();
+                float habitableChance = PType.HabitableTileChance.Generate(random);
 
                 SetTileHabitability(random, habitableChance, out int numHabitableTiles);
                 if (preDefinedPop > 0)
                     BasePopPerTile = (int)(preDefinedPop * 1000 / numHabitableTiles);
                 else
-                    BasePopPerTile = ((int)(type.PopPerTile.Generate() * scale)).RoundUpToMultipleOf(10);
+                    BasePopPerTile = ((int)(type.PopPerTile.Generate(random) * scale)).RoundUpToMultipleOf(10);
 
-                BaseFertility    = type.BaseFertility.Generate().Clamped(type.MinBaseFertility, 100.0f);
+                BaseFertility    = type.BaseFertility.Generate(random).Clamped(type.MinBaseFertility, 100.0f);
                 BaseMaxFertility = BaseFertility;
             }
             else
@@ -136,7 +136,7 @@ namespace Ship_Game
             if (data.planetScale > 0)
                 scale = data.planetScale;
             else
-                scale = type.Scale + RandomMath.Float(0.9f, 1.8f);
+                scale = type.Scale + Random.Float(0.9f, 1.8f);
 
             if (data.UniqueHabitat)
             {
@@ -207,7 +207,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < 28; ++i)
             {
-                PlanetGridSquare tile = random.RandItem(TilesList.Filter(t => !t.Habitable));
+                PlanetGridSquare tile = random.Item(TilesList.Filter(t => !t.Habitable));
                 tile.Habitable = true;
             }
         }
@@ -315,7 +315,7 @@ namespace Ship_Game
         {
             if (possibleTiles.Length > 0)
             {
-                PlanetGridSquare tile = random.RandItem(possibleTiles);
+                PlanetGridSquare tile = random.Item(possibleTiles);
                 if (tile.VolcanoHere)
                     Volcano.RemoveVolcano(tile, this);
                 else
@@ -333,7 +333,7 @@ namespace Ship_Game
         {
             if (possibleTiles.Length > 0)
             {
-                PlanetGridSquare tile = random.RandItem(possibleTiles);
+                PlanetGridSquare tile = random.Item(possibleTiles);
                 MakeTileHabitable(tile);
             }
 
@@ -452,7 +452,7 @@ namespace Ship_Game
 
         private void ReCalculateHabitableChances(RandomBase random) // FB - We might need it for planet degrade
         {
-            float habitableChance = PType.HabitableTileChance.Generate();
+            float habitableChance = PType.HabitableTileChance.Generate(random);
             foreach (PlanetGridSquare pgs in TilesList)
             {
                 if (pgs.Biosphere)

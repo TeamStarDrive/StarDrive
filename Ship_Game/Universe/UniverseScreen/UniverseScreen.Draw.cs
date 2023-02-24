@@ -66,7 +66,7 @@ namespace Ship_Game
         internal Blend BorderBlendDest = Blend.One;
 
         // Draws SSP - Subspace Projector influence
-        void DrawColoredEmpireBorders(SpriteRenderer draw3d, SpriteBatch batch, GraphicsDevice graphics)
+        void DrawColoredEmpireBorders(SpriteRenderer draw3d, GraphicsDevice graphics)
         {
             DrawBorders.Start();
 
@@ -75,7 +75,7 @@ namespace Ship_Game
 
             // the node texture has a smooth fade, so we need to scale it by a lot to match the actual SSP radius
             float nodeScale = 1.8f;
-            float connectorScale = 1.5f;
+            float connectorScale = 1.2f;
             float currentZ = 0;
             var nodeTex = ResourceManager.Texture("UI/node");
             var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
@@ -127,8 +127,12 @@ namespace Ship_Game
                     Empire.InfluenceNode b = c.Node2;
                     if (frustum.Overlaps(a.Position, a.Radius) || frustum.Overlaps(b.Position, b.Radius))
                     {
+                        // always use the smaller radius to prevent artifacts when
+                        // a really big system connects to a tiny projector
+                        float radius = Math.Min(a.Radius, b.Radius);
+                        float width = 2.0f * radius * connectorScale;
+                        
                         // make a quad by reusing the Quad3D line constructor
-                        float width = 2.0f * a.Radius * connectorScale;
                         Quad3D connectLine = new(a.Position, b.Position, width, zValue: currentZ);
                         currentZ += 10f;
                         draw3d.Draw(connectTex, connectLine, empireColor);
@@ -267,7 +271,7 @@ namespace Ship_Game
             {
                 UpdateFogOfWarInfluences(batch, graphics);
                 if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
-                    DrawColoredEmpireBorders(sr, batch, graphics);
+                    DrawColoredEmpireBorders(sr, graphics);
 
                 // this draws the MainTarget RT which has the entire background and 3D ships
                 DrawMainRTWithFogOfWarEffect(batch, graphics);
@@ -509,16 +513,17 @@ namespace Ship_Game
                     }
                 }
 
+                // draw blue positive influence nodes from bordernodes
                 if (viewState >= UnivScreenState.SectorView)
                 {
                     var transparentBlue = new Color(30, 30, 150, 150);
                     var transparentGreen = new Color(0, 200, 0, 20);
-                    Empire.InfluenceNode[] borders = Player.BorderNodes;
-                    for (int i = 0; i < borders.Length; ++i)
+                    var frustum = VisibleWorldRect;
+
+                    foreach (ref Empire.InfluenceNode n in Player.BorderNodes.AsSpan())
                     {
-                        ref Empire.InfluenceNode @in = ref borders[i];
-                        DrawCircleProjected(@in.Position, @in.Radius, transparentBlue, 1f, inhibit,
-                                            transparentGreen);
+                        if (n.KnownToPlayer && frustum.Overlaps(n.Position, n.Radius))
+                            DrawCircleProjected(n.Position, n.Radius, transparentBlue, 1f, inhibit, transparentGreen);
                     }
                 }
             }

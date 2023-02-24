@@ -445,7 +445,7 @@ namespace Ship_Game.Ships
         {
             if (HasOurTroops)
             {
-                if (UniverseRandom.RollDice(troopDamageChance) && GetOurFirstTroop(out Troop first))
+                if (Loyalty.Random.RollDice(troopDamageChance) && GetOurFirstTroop(out Troop first))
                 {
                     float damage = 1;
                     first.DamageTroop(this, ref damage);
@@ -453,7 +453,7 @@ namespace Ship_Game.Ships
             }
             else if (MechanicalBoardingDefense > 0f)
             {
-                if (RandomMath.RollDice(troopDamageChance))
+                if (Loyalty.Random.RollDice(troopDamageChance))
                     MechanicalBoardingDefense -= 1f;
             }
         }
@@ -576,10 +576,10 @@ namespace Ship_Game.Ships
 
             Vector2 error = default;
             if (ECMValue > 0)
-                error += RandomMath2.Vector2D(ECMValue * 80f);
+                error += Loyalty.Random.Vector2D(ECMValue * 80f);
 
             if (Loyalty.data.Traits.DodgeMod > 0)
-                error += RandomMath2.Vector2D(Loyalty.data.Traits.DodgeMod * 80f);
+                error += Loyalty.Random.Vector2D(Loyalty.data.Traits.DodgeMod * 80f);
 
             return error;
         }
@@ -1522,7 +1522,7 @@ namespace Ship_Game.Ships
             if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
                 return true;
 
-            if (RandomMath.RollDice(35))
+            if (Loyalty.Random.RollDice(35))
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
@@ -1535,14 +1535,14 @@ namespace Ship_Game.Ships
                 if (InFrustum)
                 {
                     Dying = true;
-                    DieTimer = UniverseRandom.Int(4, 8);
+                    DieTimer = Loyalty.Random.Int(4, 8);
                 }
 
                 if (Dying)
                 {
-                    DieRotation.X = UniverseRandom.Float(-1f, 1f) * 50f / SurfaceArea;
-                    DieRotation.Y = UniverseRandom.Float(-1f, 1f) * 50f / SurfaceArea;
-                    DieRotation.Z = UniverseRandom.Float(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.X = Loyalty.Random.Float(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Y = Loyalty.Random.Float(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Z = Loyalty.Random.Float(-1f, 1f) * 50f / SurfaceArea;
                     return false; // ship will really die later
                 }
             }
@@ -1576,7 +1576,7 @@ namespace Ship_Game.Ships
                     {
                         // Added by RedFox - spawn flaming spacejunk when a ship dies
                         int howMuchJunk = (int)(Radius * 0.05f);
-                        Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 2);
+                        Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 2, Loyalty.Random);
                         SpaceJunk.SpawnJunk(Universe, howMuchJunk, pos, Velocity, this,
                                             maxSize: Radius * 0.1f, ignite: false);
                     }

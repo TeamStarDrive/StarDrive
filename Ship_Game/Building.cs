@@ -154,11 +154,11 @@ namespace Ship_Game
             return b;
         }
 
-        public void CreateWeapon(Planet p)
+        void CreateWeapon(Planet p)
         {
-            if (IsWeapon)
+            if (IsWeapon && ResourceManager.GetWeaponTemplate(Weapon, out IWeaponTemplate t))
             {
-                TheWeapon = ResourceManager.CreateWeapon(Weapon);
+                TheWeapon = new(p.Universe, t, null, null, null);
                 SpaceRange = TheWeapon.BaseRange;
                 UpdateOffense(p);
             }
@@ -196,7 +196,7 @@ namespace Ship_Game
             if (selectedShip == null) // the empire does not have any ship of this role to launch
                 return;
 
-            Vector2 launchVector = NewMathExt.RandomOffsetAndDistance(p.Position, 1000);
+            Vector2 launchVector = NewMathExt.RandomOffsetAndDistance(p.Position, 1000, p.Random);
             Ship defenseShip = Ship.CreateDefenseShip(p.Universe, selectedShip.Name, empire, launchVector, p);
             if (defenseShip == null)
             {
@@ -205,7 +205,7 @@ namespace Ship_Game
             else
             {
                 defenseShip.Level = 3;
-                defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.MaxSTLSpeed;
+                defenseShip.Velocity = empire.Random.Direction2D() * defenseShip.MaxSTLSpeed;
                 UpdateCurrentDefenseShips(-1);
                 empire.ChargeCreditsHomeDefense(defenseShip);
             }
@@ -217,7 +217,9 @@ namespace Ship_Game
             {
                 if (TheWeapon == null)
                     CreateWeapon(p);
-                Offense = TheWeapon.CalculateOffense(null) * p.Level; // fire delay is shorter when planet level is higher
+
+                if (TheWeapon != null)
+                    Offense = TheWeapon.CalculateOffense(null) * p.Level; // fire delay is shorter when planet level is higher
             }
         }
 
@@ -355,16 +357,13 @@ namespace Ship_Game
             if (tile != null)
                 return true;
 
-
             if (EventHere && !CanBuildAnywhere) // set a random tile habitable for the event
             {
-                PlanetGridSquare targetTile = p.TilesList.RandItem();
-                targetTile.Habitable        = true;
+                PlanetGridSquare targetTile = p.Random.Item(p.TilesList);
+                targetTile.Habitable = true;
                 tile = AssignBuildingToRandomTile(p);
-
                 return tile != null;
             }
-
             return false;
         }
 
@@ -380,7 +379,7 @@ namespace Ship_Game
             if (list.Length == 0)
                 return null;
 
-            PlanetGridSquare target = RandomMath.RandItem(list);
+            PlanetGridSquare target = planet.Random.Item(list);
             target.PlaceBuilding(this, planet);
             return target;
         }
@@ -398,7 +397,7 @@ namespace Ship_Game
 
             PlanetGridSquare[] freeSpots = planet.TilesList.Filter(pgs => pgs.CanEnqueueBuildingHere(b));
             if (freeSpots.Length > 0)
-                where = RandomMath.RandItem(freeSpots);
+                where = planet.Random.Item(freeSpots);
             return where != null;
         }
 

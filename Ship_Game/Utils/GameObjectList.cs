@@ -44,9 +44,8 @@ namespace Ship_Game.Utils
             {
                 lock (Back)
                 {
-                    T[] items = Back.GetInternalArrayItems();
-                    int count = Back.Count;
-                    for (int i = 0; i < count; ++i)
+                    Span<T> items = Back.AsSpan();
+                    for (int i = 0; i < items.Length; ++i)
                         if (items[i].Id == id)
                             return items[i];
                 }

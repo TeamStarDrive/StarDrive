@@ -65,7 +65,7 @@ namespace UnitTests.AITests.Ships
 
             // Move the scout into the system close to the Star so it should mark the system as
             // explored (not fully explored, though).
-            scout.Position = CloseSystem.Position.GenerateRandomPointInsideCircle(scout.ExploreSystemDistance);
+            scout.Position = CloseSystem.Position.GenerateRandomPointInsideCircle(scout.ExploreSystemDistance, UState.Random);
             UState.Objects.Update(TestSimStep);
             scout.System = CloseSystem;
 
@@ -78,7 +78,7 @@ namespace UnitTests.AITests.Ships
             Assert.AreSame(closestPlanet, planetToExplore, "Scout did not target the closest planet for exploration.");
 
             // Now try to move near the planet and explore it
-            scout.Position = planetToExplore.Position.GenerateRandomPointInsideCircle(scout.ExplorePlanetDistance);
+            scout.Position = planetToExplore.Position.GenerateRandomPointInsideCircle(scout.ExplorePlanetDistance, UState.Random);
             UState.Objects.Update(TestSimStep);
             Assert.IsTrue(planetToExplore.IsExploredBy(Player), $"{planetToExplore.Name} is not set as explored but it should be explored" +
                                                              " as the ship is within explore range of planet");

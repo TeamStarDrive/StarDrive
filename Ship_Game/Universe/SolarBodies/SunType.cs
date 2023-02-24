@@ -19,6 +19,7 @@ using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -63,15 +64,15 @@ namespace Ship_Game.Universe.SolarBodies
         static SunType[] HabitableSuns;
         static SunType[] BarrenSuns;
 
-        public static SunType RandomHabitableSun(Predicate<SunType> filter = null)
+        public static SunType RandomHabitableSun(RandomBase random, Predicate<SunType> filter = null)
         {
             if (filter != null)
-                return RandomMath.RandItem(HabitableSuns.Filter(filter));
-            return RandomMath.RandItem(HabitableSuns);
+                return random.Item(HabitableSuns.Filter(filter));
+            return random.Item(HabitableSuns);
         }
-        public static SunType RandomBarrenSun()
+        public static SunType RandomBarrenSun(RandomBase random)
         {
-            return RandomMath.RandItem(BarrenSuns.Length != 0 ? BarrenSuns : HabitableSuns);
+            return random.Item(BarrenSuns.Length != 0 ? BarrenSuns : HabitableSuns);
         }
         public static SubTexture[] GetLoResTextures()
         {
@@ -166,11 +167,11 @@ namespace Ship_Game.Universe.SolarBodies
             sys.SunLayers[whichLayer].DrawLoRes(batch, sys.Sun.Icon, pos, scale);
         }
 
-        public SunLayerState[] CreateLayers(GameContentManager universeContent)
+        public SunLayerState[] CreateLayers(GameContentManager universeContent, RandomBase random)
         {
             var states = new SunLayerState[Layers.Count];
             for (int i = 0; i < Layers.Count; ++i)
-                states[i] = new SunLayerState(universeContent, Layers[i]);
+                states[i] = new SunLayerState(universeContent, Layers[i], random);
             return states;
         }
         
@@ -202,7 +203,7 @@ namespace Ship_Game.Universe.SolarBodies
         float ScaleIntensity = 1f;
         float ColorIntensity = 1f;
 
-        public SunLayerState(GameContentManager content, SunLayerInfo info)
+        public SunLayerState(GameContentManager content, SunLayerInfo info, RandomBase random)
         {
             Info = info;
 
@@ -212,7 +213,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Sprite = DrawableSprite.SubTex(content, info.TexturePath);
             
             Sprite.Effects = SpriteEffects.FlipVertically;
-            Sprite.Rotation = info.RotationStart.Generate();
+            Sprite.Rotation = info.RotationStart.Generate(random);
         }
 
         public void Update(FixedSimTime timeStep)
