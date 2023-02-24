@@ -179,9 +179,9 @@ namespace Ship_Game.GameScreens.LoadGame
 
         void AllSystemsLoaded(UniverseState us, ProgressCounter step)
         {
-            step.Start(us.Ships.Count);
+            step.Start(us.Ships.Length);
 
-            Parallel.For(0, us.Ships.Count, (start, end) =>
+            Parallel.For(0, us.Ships.Length, (start, end) =>
             {
                 for (int i = start; i < end; ++i)
                 {

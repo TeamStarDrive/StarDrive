@@ -725,7 +725,7 @@ namespace Ship_Game
                 // find root UniverseScreen from ScreenManager, unless the crash is before ScreenManager is created
                 var universe = ScreenManager.Instance?.FindScreen<UniverseScreen>();
                 evt["StarDate"] = universe?.StarDateString ?? "NULL";
-                evt["Ships"] = universe?.UState.Ships.Count.ToString() ?? "NULL";
+                evt["Ships"] = universe?.UState.Ships.Length.ToString() ?? "NULL";
                 evt["Planets"] = universe?.UState.Planets?.Count.ToString() ?? "NULL";
 
                 evt["Memory"] = (GC.GetTotalMemory(false) / 1024).ToString();

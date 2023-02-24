@@ -71,12 +71,12 @@ namespace Ship_Game
         /// <summary>
         /// Currently submitted objects (excludes pending)
         /// </summary>
-        public IReadOnlyList<Ship> GetShips() => Ships.GetItems();
+        public Ship[] GetShips() => Ships.GetItems();
 
         /// <summary>
         /// Currently submitted projectiles and beams
         /// </summary>
-        public IReadOnlyList<Projectile> GetProjectiles() => Projectiles.GetItems();
+        public Projectile[] GetProjectiles() => Projectiles.GetItems();
 
         public UniverseObjectManager(UniverseScreen uScreen, UniverseState uState, SpatialManager spatial)
         {
