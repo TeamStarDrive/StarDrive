@@ -933,7 +933,7 @@ namespace Ship_Game
         {
             FileInfo[] files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
 
-            FileInfo file = random.RandItem(files);
+            FileInfo file = random.Item(files);
             return transientContent.LoadTexture(file);
         }
 
@@ -1302,15 +1302,15 @@ namespace Ship_Game
 
         public static SubTexture SmallNebulaRandom(RandomBase random)
         {
-            return random.RandItem(SmallNebulae).GetOrLoadTexture();
+            return random.Item(SmallNebulae).GetOrLoadTexture();
         }
         public static SubTexture NebulaMedRandom(RandomBase random)
         {
-            return random.RandItem(MedNebulae).GetOrLoadTexture(); 
+            return random.Item(MedNebulae).GetOrLoadTexture(); 
         }
         public static SubTexture NebulaBigRandom(RandomBase random)
         {
-            return random.RandItem(BigNebulae).GetOrLoadTexture();
+            return random.Item(BigNebulae).GetOrLoadTexture();
         }
         public static SubTexture BigNebula(int index)
         {
@@ -1957,7 +1957,7 @@ namespace Ship_Game
 
         public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone, RandomBase random)
         {
-            return random.RandItem(ZoneDistribution[sunZone]);
+            return random.Item(ZoneDistribution[sunZone]);
         }
 
         static void LoadSunZoneData()

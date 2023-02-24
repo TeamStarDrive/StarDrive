@@ -67,12 +67,12 @@ namespace Ship_Game.Universe.SolarBodies
         public static SunType RandomHabitableSun(RandomBase random, Predicate<SunType> filter = null)
         {
             if (filter != null)
-                return random.RandItem(HabitableSuns.Filter(filter));
-            return random.RandItem(HabitableSuns);
+                return random.Item(HabitableSuns.Filter(filter));
+            return random.Item(HabitableSuns);
         }
         public static SunType RandomBarrenSun(RandomBase random)
         {
-            return random.RandItem(BarrenSuns.Length != 0 ? BarrenSuns : HabitableSuns);
+            return random.Item(BarrenSuns.Length != 0 ? BarrenSuns : HabitableSuns);
         }
         public static SubTexture[] GetLoResTextures()
         {

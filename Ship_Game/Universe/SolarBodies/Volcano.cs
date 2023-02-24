@@ -173,7 +173,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (potentialLavaTiles.Count == 0)
                     break;
 
-                PlanetGridSquare tile = P.Random.RandItem(potentialLavaTiles);
+                PlanetGridSquare tile = P.Random.Item(potentialLavaTiles);
                 CreateLavaPool(tile);
                 actualLavaPools += 1;
                 potentialLavaTiles.AddUniqueRef(GetPotentialLavaTiles(tile));
@@ -245,7 +245,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (effects > threshold && GetBuildingsCreatedFromLava(out Building[] potentials))
                 {
                     // Lava solidifies into a special building 
-                    Building b = ResourceManager.CreateBuilding(planet, planet.Random.RandItem(potentials));
+                    Building b = ResourceManager.CreateBuilding(planet, planet.Random.Item(potentials));
                     tile.PlaceBuilding(b, planet);
                     if (planet.ParentSystem.HasPlanetsOwnedBy(planet.Universe.Player) || planet.ParentSystem.ShipList.
                             Any(s => s.Loyalty.isPlayer && s.Position.InRadius(planet.Position, s.SensorRange)))

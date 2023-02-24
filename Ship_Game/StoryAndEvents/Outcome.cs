@@ -113,7 +113,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < NumTilesToMakeHabitable; i++)
             {
-                PlanetGridSquare tile = p.Random.RandItemFiltered(p.TilesList, t => !t.Habitable && t != eventTile);
+                PlanetGridSquare tile = p.Random.ItemFilter(p.TilesList, t => !t.Habitable && t != eventTile);
                 if (tile == null)
                     break;
                 p.MakeTileHabitable(tile);
@@ -124,7 +124,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < NumTilesToMakeUnhabitable; i++)
             {
-                PlanetGridSquare tile = p.Random.RandItemFiltered(p.TilesList, t => t.Habitable && !t.Biosphere && t != eventTile);
+                PlanetGridSquare tile = p.Random.ItemFilter(p.TilesList, t => t.Habitable && !t.Biosphere && t != eventTile);
                 if (tile == null)
                     break;
 
@@ -158,7 +158,7 @@ namespace Ship_Game
 
             if (PirateShipsToSpawn.Count != 0 && p.Universe.PirateFactions.Length != 0)
             {
-                Empire pirates = triggeredBy.Random.RandItem(p.Universe.PirateFactions);
+                Empire pirates = triggeredBy.Random.Item(p.Universe.PirateFactions);
                 foreach (string shipName in PirateShipsToSpawn)
                 {
                     Ship.CreateShipNearPlanet(us, shipName, pirates, p, doOrbit: true);
@@ -195,7 +195,7 @@ namespace Ship_Game
             }
             if (potentials.Count > 0)
             {
-                SetPlanet(u.Random.RandItem(potentials));
+                SetPlanet(u.Random.Item(potentials));
                 return true;
             }
 
@@ -261,7 +261,7 @@ namespace Ship_Game
                 else
                 {
                     //choose a random available artifact and process it.
-                    Artifact chosenArtifact = triggeredBy.Random.RandItem(potentials);
+                    Artifact chosenArtifact = triggeredBy.Random.Item(potentials);
                     triggeredBy.data.OwnedArtifacts.Add(chosenArtifact);
                     ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
                     SetArtifact(chosenArtifact);

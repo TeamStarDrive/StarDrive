@@ -1106,8 +1106,8 @@ namespace Ship_Game
             {
                 float destroyBuildingChance = ship.SurfaceArea / (ship.IsMeteor ? 5f : 50f);
                 tile = Random.RollDice(destroyBuildingChance)
-                     ? Random.RandItemFiltered(TilesList, t => t.CanCrashHere)
-                     : Random.RandItemFiltered(TilesList, t => t.NoBuildingOnTile);
+                     ? Random.ItemFilter(TilesList, t => t.CanCrashHere)
+                     : Random.ItemFilter(TilesList, t => t.NoBuildingOnTile);
                 return tile != null;
             }
 
