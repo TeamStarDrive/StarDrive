@@ -90,7 +90,9 @@ namespace Ship_Game.Commands.Goals
             Log.Info(ConsoleColor.Green,$"Pirates: {Owner.Name} Payment Director - Demanding payment from {TargetEmpire.Name}");
 
             if (!Pirates.Owner.IsKnown(TargetEmpire))
-                Pirates.Owner.SetRelationsAsKnown(TargetEmpire);
+            {
+                Empire.SetRelationsAsKnown(Pirates.Owner, TargetEmpire);
+            }
 
             if (TargetEmpire.isPlayer)
                 Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Owner.Universe.Screen);

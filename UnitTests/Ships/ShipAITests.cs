@@ -24,10 +24,10 @@ namespace UnitTests.Ships
             Empire us = Player;
             Ship ourShip = SpawnShip("Heavy Carrier mk5-b", us, Vector2.Zero);
             
-            Ship theirShip    = SpawnShip("Owlwok Freighter S", Enemy, Vector2.Zero);
+            Ship theirShip = SpawnShip("Owlwok Freighter S", Enemy, Vector2.Zero);
             ourShip.AI.Target = theirShip;
-            var ourRelation   = us.GetRelations(Enemy);
-            us.SetRelationsAsKnown(ourRelation, Enemy);
+            Empire.SetRelationsAsKnown(us, Enemy);
+            var ourRelation = us.GetRelations(Enemy);
 
             us.data.DiplomaticPersonality.Territorialism  = 60;
             us.data.DiplomaticPersonality.Opportunism     = 0.2f;

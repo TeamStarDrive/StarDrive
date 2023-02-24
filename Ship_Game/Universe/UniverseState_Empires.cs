@@ -71,8 +71,8 @@ public partial class UniverseState
         {
             if (us != them)
             {
-                Relationship usToThem = us.AddRelation(them);
-                them.AddRelation(us);
+                Empire.CreateBilateralRelations(us, them);
+                Relationship usToThem = us.GetRelations(them);
 
                 // TODO see if this increased anger bit can be removed
                 if (them.isPlayer && difficulty > GameDifficulty.Hard)
@@ -324,8 +324,7 @@ public partial class UniverseState
         {
             if (otherEmpire != empire)
             {
-                otherEmpire.AddRelation(empire);
-                empire.AddRelation(otherEmpire);
+                Empire.CreateBilateralRelations(empire, otherEmpire);
                 Empire.UpdateBilateralRelations(empire, otherEmpire);
             }
         }
