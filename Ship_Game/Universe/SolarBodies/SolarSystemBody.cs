@@ -202,6 +202,8 @@ namespace Ship_Game
         public int UniqueHabPercent;
         protected AudioEmitter Emitter;
         public float GravityWellRadius { get; protected set; }
+
+        // TODO: replace TilesList with a raw array
         [StarData] public Array<PlanetGridSquare> TilesList = new(35);
         public float Density;
         [StarData] public float BaseFertility { get; protected set; } // This is clamped to a minimum of 0, cannot be negative
