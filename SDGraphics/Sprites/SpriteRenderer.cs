@@ -227,6 +227,20 @@ public sealed class SpriteRenderer : IDisposable
     }
 
     /// <summary>
+    /// Draws a line based rectangle with no fill
+    /// </summary>
+    /// <param name="rect">Rectangle quad which can be rotated</param>
+    /// <param name="color">Color of the rect</param>
+    /// <param name="thickness">Width of the line</param>
+    public void DrawRectLine(in Quad3D rect, Color color, float thickness = 1f)
+    {
+        DrawLine(rect.A, rect.B, color, thickness);
+        DrawLine(rect.B, rect.C, color, thickness);
+        DrawLine(rect.C, rect.D, color, thickness);
+        DrawLine(rect.D, rect.A, color, thickness);
+    }
+
+    /// <summary>
     /// This draws a 2D line at Z=0
     /// </summary>
     /// <param name="p1">Start point</param>
@@ -241,6 +255,12 @@ public sealed class SpriteRenderer : IDisposable
     public void DrawLine(in Vector2d p1, in Vector2d p2, Color color, float thickness = 1f)
     {
         Quad3D line = new(p1.ToVec2f(), p2.ToVec2f(), thickness, zValue: 0f);
+        Batcher.Add(null, line, DefaultCoords, color);
+    }
+
+    public void DrawLine(in Vector3 p1, in Vector3 p2, Color color, float thickness = 1f)
+    {
+        Quad3D line = new(p1, p2, thickness);
         Batcher.Add(null, line, DefaultCoords, color);
     }
 

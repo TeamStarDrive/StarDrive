@@ -25,7 +25,7 @@ namespace Ship_Game.Fleets
             if (Leader != null)
             {
                 var groupTactics = (GroupTactic[])Enum.GetValues(typeof(GroupTactic));
-                Tactic = RandomMath.RandItem<GroupTactic>(groupTactics);
+                Tactic = ship.Loyalty.Random.Item(groupTactics);
                 ApplyTactic();
             }
         }

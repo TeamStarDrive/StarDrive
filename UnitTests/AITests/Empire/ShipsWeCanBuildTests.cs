@@ -118,8 +118,8 @@ namespace UnitTests.AITests.Empire
             string newName;
             do
             {
-                string key1 = RandomMath.Int(1, 999999).ToString();
-                string key2 = RandomMath.Int(1, 999999).ToString();
+                string key1 = empire.Random.Int(1, 999999).ToString();
+                string key2 = empire.Random.Int(1, 999999).ToString();
                 newName = baseDesign + $"-test-{key1}-test-{key2}";
             }
             while (ResourceManager.ShipTemplateExists(newName));

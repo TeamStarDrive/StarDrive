@@ -69,7 +69,7 @@ public sealed class StarField
             if (numFancyStars < desiredFancyStars)
             {
                 ++numFancyStars;
-                star.Tex = random.RandItem(StarTex);
+                star.Tex = random.Item(StarTex);
                 baseScale = 0.75f;
             }
             else if (numLargeStars < desiredLargeStars)

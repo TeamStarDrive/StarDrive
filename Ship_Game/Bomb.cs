@@ -44,7 +44,7 @@ namespace Ship_Game
 
             Position    = position;
             ShipLevel   = shipLevel;
-            Weapon = ResourceManager.GetWeaponTemplate(weaponName)
+            Weapon = ResourceManager.GetWeaponTemplateOrNull(weaponName)
                   ?? ResourceManager.GetWeaponTemplate("NuclearBomb");
 
             TroopDamageMin = Weapon.BombTroopDamageMin;
@@ -119,9 +119,7 @@ namespace Ship_Game
         {
             TargetPlanet = p;
             PlanetRadius = TargetPlanet.Radius;
-            Vector3 vtt = TargetPlanet.Position3D + 
-                new Vector3(RandomMath2.Float(-500f, 500f) * p.Scale, 
-                            RandomMath2.Float(-500f, 500f) * p.Scale, 0f) - Position;
+            Vector3 vtt = TargetPlanet.Position3D + p.Random.Vector32D(500 * p.Scale) - Position;
             Velocity = vtt.Normalized(1350f);
         }
 

@@ -136,7 +136,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                     Fleet.AddExistingShip(FinishedShip, node);
                     Fleet.RemoveGoalFromNode(node);
                     if (Fleet.Ships.Count == 0)
-                        Fleet.FinalPosition = FinishedShip.Position + RandomMath.Vector2D(3000f);
+                        Fleet.FinalPosition = FinishedShip.Position + Owner.Random.Vector2D(3000f);
 
                     if (Fleet.FinalPosition == Vector2.Zero)
                         Fleet.FinalPosition = Owner.FindNearestRallyPoint(FinishedShip.Position).Position;

@@ -297,6 +297,8 @@ internal class AutoPatcher : PopupWindow
 
             var detailsLabel = ProgressSteps.AddLabel(details);
             detailsLabel.Color = Color.Red;
+
+            Log.LogEventStats(Log.GameEvent.AutoUpdateFailed, message: $"{title}: {details}");
         });
     }
 

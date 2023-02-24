@@ -78,7 +78,7 @@ public partial class StarDriveTest : IDisposable
         {
             if (them != us)
             {
-                them.SetRelationsAsKnown(us);
+                Empire.SetRelationsAsKnown(them, us);
                 Empire.UpdateBilateralRelations(them, us);
             }
         }
@@ -140,9 +140,8 @@ public partial class StarDriveTest : IDisposable
             
         Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
         Player.TestInitModifiers();
-        Player.SetRelationsAsKnown(Enemy);
+        Empire.SetRelationsAsKnown(Player, Enemy);
         Player.AI.DeclareWarOn(Enemy, WarType.BorderConflict);
-        Empire.UpdateBilateralRelations(Player, Enemy);
 
         if (!Player.IsEmpireHostile(Enemy) || !Enemy.IsEmpireHostile(Player))
             throw new("Failed to declare war from Player to Enemy. IsEmpireHostile=false");
@@ -224,10 +223,14 @@ public partial class StarDriveTest : IDisposable
 
         if (numExtraShipsPerEmpire > 0)
         {
-            foreach (Empire e in Universe.UState.MajorEmpires)
+            UniverseState u = Universe.UState;
+            foreach (Empire e in u.MajorEmpires)
             {
                 for (int i = 0; i < numExtraShipsPerEmpire; ++i)
-                    Ship.CreateShipAt(UState, e.data.PrototypeShip, e, e.Capital, RandomMath.Vector2D(e.Capital.Radius * 3), true);
+                {
+                    Ship.CreateShipAt(UState, e.data.PrototypeShip, e, 
+                        e.Capital, u.Random.Vector2D(e.Capital.Radius * 3), true);
+                }
             }
         }
     }
@@ -350,7 +353,7 @@ public partial class StarDriveTest : IDisposable
             throw new ArgumentException("SolarSystem position must not be Zero");
         return new SolarSystem(UState, sysPos)
         {
-            Sun = SunType.RandomHabitableSun()
+            Sun = SunType.RandomHabitableSun(UState.Random)
         };
     }
         

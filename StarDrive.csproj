@@ -724,19 +724,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\ExtensionMethods\RandomMath.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\UI\UICheckBox.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ExtensionMethods\RandomMath2.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\ExtensionMethods\UniverseRandom.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1736,7 +1724,7 @@
       <Version>13.0.2</Version>
     </PackageReference>
     <PackageReference Include="Sentry">
-      <Version>3.26.1</Version>
+      <Version>3.28.1</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.Metadata">
       <Version>7.0.0</Version>

@@ -117,7 +117,7 @@ namespace Ship_Game.AI.Research
             float randomBase = techScore * Options.CostMultiplier(Randomize);
 
             // introduce a random to the cost of the ship to vary what is researched.
-            float random = randomBase > 0 ? RandomMath.AvgFloat(-randomBase, randomBase) : 0;
+            float random = randomBase > 0 ? empire.Random.AvgFloat(-randomBase, randomBase) : 0;
 
             return (int)((techScore + random) * costRatio * techRatio);
         }

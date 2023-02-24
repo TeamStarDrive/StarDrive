@@ -60,7 +60,7 @@ namespace Ship_Game
             int damage = 0;
             for (int index = 0; index < attackerStats.Strength; ++index)
             {
-                if (RandomMath.Float(0.0f, 100f) < attackValue)
+                if (Planet.Random.Float(0.0f, 100f) < attackValue)
                     ++damage;
             }
 

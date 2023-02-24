@@ -1174,7 +1174,7 @@ namespace Ship_Game.Gameplay
             if (!them.AI.TradableTechs(us, out Array<TechEntry> potentialDemands, true))
                 return;
 
-            TechEntry techToDemand = potentialDemands.RandItem();
+            TechEntry techToDemand = us.Random.Item(potentialDemands);
             Offer demandTech = new Offer();
             demandTech.TechnologiesOffered.AddUnique(techToDemand.UID);
 
@@ -1253,7 +1253,7 @@ namespace Ship_Game.Gameplay
         {
             //theirFinalOffer = new Array<string>();
 
-            TechEntry ourTech = ourTechs.RandItem();
+            TechEntry ourTech = us.Random.Item(ourTechs);
             float ourTechCost = ourTech.Tech.Cost + us.data.OngoingDiplomaticModifier * ourTech.Tech.Cost;
             ourFinalOffer     = ourTech.UID;
             if (!GetTheirTechsForOurOffer(ourTechCost, them.GetRelations(us).Posture, theirTechs, out theirFinalOffer))

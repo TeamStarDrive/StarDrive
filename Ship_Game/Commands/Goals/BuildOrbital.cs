@@ -57,7 +57,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             const int ringLimit = ShipBuilder.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
             for (int ring = 0; ring < ringLimit; ring++)
             {
-                int degrees = (int)RandomMath.Float(0f, 9f);
+                int degrees = (int)Owner.Random.Float(0f, 9f);
                 float distance = 2000 + (1000 * ring * TetherPlanet.Scale);
                 TetherOffset = MathExt.PointOnCircle(degrees * 40, distance);
                 Vector2 pos = TetherPlanet.Position + TetherOffset;

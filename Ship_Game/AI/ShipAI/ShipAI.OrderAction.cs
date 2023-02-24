@@ -415,7 +415,7 @@ namespace Ship_Game.AI
                 && Owner.Loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
             {
                 Ship ship = pirateBases.FindClosestTo(Owner);
-                OrderMoveToPirateBase(ship);
+                OrderMoveToPirateBase(Owner.Loyalty.Pirates, ship);
             }
             else
             {
@@ -430,13 +430,12 @@ namespace Ship_Game.AI
             }
         }
 
-        public void OrderRemnantFlee()
+        public void OrderRemnantFlee(Remnants remnants)
         {
-            if (Owner.Loyalty.WeAreRemnants
-                && !Owner.IsPlatformOrStation
-                && Owner.Loyalty.Remnants.GetClosestPortal(Owner.Position, out Ship portal))
+            if (!Owner.IsPlatformOrStation
+                && remnants.GetClosestPortal(Owner.Position, out Ship portal))
             {
-                OrderMoveToNoStop(portal.Position.GenerateRandomPointOnCircle(5000), Owner.Direction, AIState.MoveTo);
+                OrderMoveToNoStop(portal.Position.GenerateRandomPointOnCircle(5000, remnants.Random), Owner.Direction, AIState.MoveTo);
                 AddEscortGoal(portal, clearOrders: false); // Orders are cleared in OrderMoveTo
             }
             else
@@ -445,9 +444,9 @@ namespace Ship_Game.AI
             }
         }
 
-        void OrderMoveToPirateBase(Ship pirateBase)
+        void OrderMoveToPirateBase(Pirates pirates, Ship pirateBase)
         {
-            OrderMoveToNoStop(pirateBase.Position.GenerateRandomPointOnCircle(5000), Owner.Direction, AIState.MoveTo);
+            OrderMoveToNoStop(pirateBase.Position.GenerateRandomPointOnCircle(5000, pirates.Random), Owner.Direction, AIState.MoveTo);
             AddEscortGoal(pirateBase, clearOrders: false); // Orders are cleared in OrderMoveTo
         }
 
@@ -640,7 +639,7 @@ namespace Ship_Game.AI
                     }
                     if (potentials.Count > 0)
                     {
-                        AwaitClosest = potentials[UniverseRandom.InRange(potentials.Count)];
+                        AwaitClosest = Random.Item(potentials);
                         OderMoveAndDefendSystem(AwaitClosest);
                     }
                     else

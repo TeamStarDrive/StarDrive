@@ -320,12 +320,9 @@ namespace Ship_Game
             for (int i = 1; i < count; ++i)
             {
                 Ship ship = items[i];
-
-                // TODO: this is a concurrency issue, the `ships` array is being modified while we calculate the avg pos
-                if (ship == null)
-                    continue;
-
-                if (biggestSize < ship.SurfaceArea && ship.CanTakeFleetMoveOrders())
+                // TODO: this IsAlive (with null) check is a concurrency issue,
+                // TODO: the `ships` array is being modified while we calculate the avg pos
+                if (ship is { IsAlive: true } && biggestSize < ship.SurfaceArea && ship.CanTakeFleetMoveOrders())
                 {
                     biggestShip = ship;
                     biggestSize = ship.SurfaceArea;
@@ -338,7 +335,7 @@ namespace Ship_Game
             for (int i = 1; i < count; ++i)
             {
                 Ship ship = items[i];
-                if (ship.CanTakeFleetMoveOrders())
+                if (ship is { IsAlive: true } && ship.CanTakeFleetMoveOrders())
                 {
                     float ratio = ship.SurfaceArea / biggestSize;
                     totalRatioSum += ratio;

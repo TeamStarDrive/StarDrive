@@ -31,9 +31,9 @@ namespace Ship_Game
         {
             Universe = universe;
             float spawnInRadius = maxSize + 25f;
-            Position.X = RandomMath2.Float(parentPos.X - spawnInRadius, parentPos.X + spawnInRadius);
-            Position.Y = RandomMath2.Float(parentPos.Y - spawnInRadius, parentPos.Y + spawnInRadius);
-            Position.Z = RandomMath2.Float(-spawnInRadius*0.5f, spawnInRadius*0.5f);
+            Position.X = Universe.Random.Float(parentPos.X - spawnInRadius, parentPos.X + spawnInRadius);
+            Position.Y = Universe.Random.Float(parentPos.Y - spawnInRadius, parentPos.Y + spawnInRadius);
+            Position.Z = Universe.Random.Float(-spawnInRadius*0.5f, spawnInRadius*0.5f);
             CreateSceneObject(universe.Screen.Particles, parentPos, maxSize, ignite);
 
             // inherit extra velocity from parent
@@ -44,23 +44,23 @@ namespace Ship_Game
         void RandomValues(Vector2 pos, Range vel, Range spin, float scale, float scaleRandom)
         {
             var offsetFromParent = new Vector3(Position.X - pos.X, Position.Y - pos.Y, 1f);
-            Velocity = RandomMath.Vector3D(vel.Min, vel.Max) * offsetFromParent;
-            Spin  = RandomMath.Vector3D(spin.Min, spin.Max);
-            Scale = RandomMath2.Float(scaleRandom*scale, scale);
+            Velocity = Universe.Random.Vector3D(vel.Min, vel.Max) * offsetFromParent;
+            Spin  = Universe.Random.Vector3D(spin.Min, spin.Max);
+            Scale = Universe.Random.Float(scaleRandom*scale, scale);
         }
 
         static Range Range(float min, float max) => new Range(min, max);
 
         void CreateSceneObject(ParticleManager particles, Vector2 pos, float maxSize, bool ignite)
         {
-            RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
-            MaxDuration = RandomMath2.Float(4f, 8f);
+            RotationRadians = Universe.Random.Vector3D(0.01f, 1.02f);
+            MaxDuration = Universe.Random.Float(4f, 8f);
             Duration = MaxDuration;
 
             float flameParticles = 0f;
             float trailParticles = 0f;
 
-            int junkIndex = RandomMath2.InRange(ResourceManager.NumJunkModels);
+            int junkIndex = Universe.Random.InRange(ResourceManager.NumJunkModels);
             var model = ResourceManager.GetJunkModel(junkIndex);
             float meshDiameter = 2f * ResourceManager.GetJunkModelRadius(junkIndex);
 

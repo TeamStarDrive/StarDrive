@@ -61,7 +61,7 @@ namespace Ship_Game.AI
                 if (currentMissions >= wantedMissions)
                     return;
 
-                Empire target = potentialTargets.RandItem();
+                Empire target = OwnerEmpire.Random.Item(potentialTargets);
                 Array<AgentMission> potentialMissions;
                 switch (OwnerEmpire.Personality)
                 {
@@ -129,7 +129,7 @@ namespace Ship_Game.AI
 
                 if (potentialMissions.NotEmpty)
                 {
-                    AgentMission am = potentialMissions.RandItem();
+                    AgentMission am = OwnerEmpire.Random.Item(potentialMissions);
                     agent.AssignMission(am, OwnerEmpire, target.data.Traits.Name);
                     currentMissions++;
                 }
@@ -371,7 +371,7 @@ namespace Ship_Game.AI
         void CreateAgent()
         {
             string[] spyNames = SpyNames();
-            var agent = new Agent() { Name = AgentComponent.GetName(spyNames) };
+            var agent = new Agent() { Name = AgentComponent.GetName(spyNames, OwnerEmpire) };
             OwnerEmpire.data.AgentList.Add(agent);
             OwnerEmpire.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
             DeductSpyBudget(ResourceManager.AgentMissionData.AgentCost);

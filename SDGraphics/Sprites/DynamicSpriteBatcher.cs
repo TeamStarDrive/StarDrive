@@ -65,6 +65,8 @@ internal unsafe class DynamicSpriteBatcher : IDisposable
         Device = device;
         for (int i = 0; i < Sprites.Length; ++i)
             Sprites[i] = new();
+
+        Reset();
     }
 
     public void Dispose()
@@ -84,6 +86,9 @@ internal unsafe class DynamicSpriteBatcher : IDisposable
         Count = 0;
         Batches.Clear();
         Textures.Clear();
+
+        // the first texture is always the null texture
+        Textures.Add(new() { Texture = null, NumSprites = 0, NextIndex = 0 });
     }
 
     public void RecycleBuffers()
@@ -123,23 +128,35 @@ internal unsafe class DynamicSpriteBatcher : IDisposable
 
         // find the existing BatchTexture and increase its NumSprites
         // we assume here the statistical # of textures per batch is actually super low
-        int textureIndex = -1;
+        int textureIndex;
         Span<BatchTexture> textures = Textures.AsSpan();
-        for (int i = 0; i < textures.Length; ++i)
-        {
-            ref BatchTexture batchTexture = ref textures[i];
-            if (batchTexture.Texture == texture)
-            {
-                ++batchTexture.NumSprites;
-                textureIndex = i;
-                break;
-            }
-        }
 
-        if (textureIndex == -1)
+        if (texture == null)
         {
-            textureIndex = textures.Length;
-            Textures.Add(new(){ Texture = texture, NumSprites = 1});
+            // null texture is always at [0]
+            ref BatchTexture batchTexture = ref textures[0];
+            ++batchTexture.NumSprites;
+            textureIndex = 0;
+        }
+        else
+        {
+            textureIndex = -1;
+            for (int i = 0; i < textures.Length; ++i)
+            {
+                ref BatchTexture batchTexture = ref textures[i];
+                if (batchTexture.Texture == texture)
+                {
+                    ++batchTexture.NumSprites;
+                    textureIndex = i;
+                    break;
+                }
+            }
+
+            if (textureIndex == -1)
+            {
+                textureIndex = textures.Length;
+                Textures.Add(new(){ Texture = texture, NumSprites = 1});
+            }
         }
 
         ref DynamicSpriteData sprite = ref Sprites[Count++];

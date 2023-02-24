@@ -8,6 +8,7 @@ using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.SpriteSystem;
+using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 
@@ -30,8 +31,13 @@ namespace Ship_Game
             public float Time;
             public float Duration;
             public float Radius;
-            public float Rotation = RandomMath2.Float(0f, 6.28318548f);
+            public float Rotation;
             public TextureAtlas Animation;
+
+            public ExplosionState(RandomBase random)
+            {
+                Rotation = random.Float(0f, RadMath.TwoPI);
+            }
         }
 
         [StarDataType]
@@ -111,8 +117,8 @@ namespace Ship_Game
             if (explosions.IsEmpty)
                 return; // explosions not loaded in Unit Tests
 
-            Explosion expType = RandomMath2.RandItem(explosions);
-            var exp = new ExplosionState
+            Explosion expType = u.UState.Random.Item(explosions);
+            var exp = new ExplosionState(u.UState.Random)
             {
                 Duration = 2.25f,
                 Pos = position,
@@ -131,7 +137,7 @@ namespace Ship_Game
         // Light flash only, no explosion anim texture is played
         public static void AddExplosionNoFlames(UniverseScreen u, Vector3 position, float radius, float intensity)
         {
-            var exp = new ExplosionState
+            var exp = new ExplosionState(u.UState.Random)
             {
                 Duration = 2.25f,
                 Pos = position,

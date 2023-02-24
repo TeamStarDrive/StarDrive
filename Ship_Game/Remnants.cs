@@ -11,11 +11,11 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Utils;
 #pragma warning disable CA1065
 
 namespace Ship_Game
 {
-    using static RandomMath;
     using static HelperFunctions;
 
     [StarDataType]
@@ -23,6 +23,7 @@ namespace Ship_Game
     {
         public const int MaxLevel = 20;
         [StarData] public readonly Empire Owner;
+        public RandomBase Random => Owner.Random;
         public UniverseState Universe => Owner.Universe ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
 
         [StarData] public float StoryTriggerKillsXp { get; private set; }
@@ -96,6 +97,8 @@ namespace Ship_Game
                 case RemnantStory.AncientBalancers:
                 case RemnantStory.AncientExterminators:
                 case RemnantStory.AncientRaidersRandom:
+                case RemnantStory.AncientWarMongers:
+                case RemnantStory.AncientPeaceKeepers:
                     Owner.AI.AddGoal(new RemnantEngagements(Owner));
                     Universe.Notifications.AddRemnantsStoryActivation(Owner);
                     break;
@@ -174,7 +177,6 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientExterminators: return 1.2f;
-                case RemnantStory.AncientBalancers:     return 1f;
                 case RemnantStory.AncientRaidersRandom: return 0.9f;
                 default:                                return 1;
             }
@@ -230,15 +232,35 @@ namespace Ship_Game
                         CreatePortal();
                     break;
                 case RemnantStory.AncientExterminators:
-                    if (!GetPortals(out Ship[] portals))
-                        return;
-                    Ship portal = portals.RandItem();
-                    for (int i = 0; i < ((int)Universe.P.Difficulty + 1) * 3; i++)
+                    if (GetPortals(out Ship[] portals))
                     {
-                        if (!SpawnShip(RemnantShipType.Exterminator, portal.Position, out _))
-                            return;
+                        Ship portal = Owner.Random.Item(portals);
+                        for (int i = 0; i < ((int)Universe.P.Difficulty + 1) * 3; i++)
+                        {
+                            if (!SpawnShip(RemnantShipType.Exterminator, portal.Position, out _))
+                                break;
+                        }
                     }
-
+                    break;
+                case RemnantStory.AncientWarMongers:
+                    if (GetPortals(out Ship[] remnantPortals))
+                    {
+                        Ship portal = Owner.Random.Item(remnantPortals);
+                        int saturation = (5 - (int)Universe.P.Difficulty).LowerBound(2);
+                        var planets = Universe.Player.GetPlanets();
+                        for (int i = 0; i < planets.Count; i++)
+                        {
+                            Planet targetPlanet = planets[i];
+                            if (i % saturation == 0 
+                                && SpawnShip(RemnantShipType.Exterminator, portal.Position, out Ship exterminator))
+                            {
+                                exterminator.OrderToOrbit(targetPlanet, true);
+                            }
+                        }
+                    }
+                    break;
+                case RemnantStory.AncientPeaceKeepers:
+                    Activated = false;
                     break;
             }
         }
@@ -269,7 +291,9 @@ namespace Ship_Game
             {
                 case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList); break;
                 case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);               break;
-                case RemnantStory.AncientRaidersRandom: target = empiresList.RandItem();                       break;
+                case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);           break;
+                case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);        break;
+                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);      break;
             }
 
             return target != null;
@@ -285,6 +309,24 @@ namespace Ship_Game
 
             FindValidTarget(out Empire expectedTarget);
             return expectedTarget == currentTarget;
+        }
+
+        Empire FindStrongestEmpireAtPeace(Empire[] empiresList)
+        {
+            var potentialTargets = empiresList.Filter(e => !e.IsAtWarWithMajorEmpire);
+            if (potentialTargets.Length == 0)
+                return Universe.Player;
+
+            return potentialTargets.FindMax(e => e.CurrentMilitaryStrength);
+        }
+
+        Empire FindStrongestEmpireAtWar(Empire[] empiresList)
+        {
+            var potentialTargets = empiresList.Filter(e => e.IsAtWarWithMajorEmpire);
+            if (potentialTargets.Length == 0)
+                return null;
+
+            return potentialTargets.FindMax(e => e.CurrentMilitaryStrength);
         }
 
         Empire FindStrongestByAveragePopAndStr(Empire[] empiresList)
@@ -436,7 +478,7 @@ namespace Ship_Game
             if (numBombers > 0 && currentPlanet.ParentSystem.HasPlanetsOwnedBy(targetEmpire))
             {
                 // Choose another planet owned by target empire in the same system
-                nextPlanet = currentPlanet.ParentSystem.PlanetList.Filter(p => p.Owner == targetEmpire).RandItem();
+                nextPlanet = Owner.Random.ItemFilter(currentPlanet.ParentSystem.PlanetList, p => p.Owner == targetEmpire);
                 return true;
             }
 
@@ -459,38 +501,35 @@ namespace Ship_Game
 
         Planet GetTargetPlanetByPop(Planet[] potentialPlanets, int numPlanetsToTake)
         {
-            var filteredList = potentialPlanets.SortedDescending(p => p.MaxPopulation).TakeItems(numPlanetsToTake);
-
-            return filteredList.Length > 0 ? filteredList.RandItem() : null;
+            if (potentialPlanets.Length == 0 || numPlanetsToTake == 0)
+                return null;
+            var planets = potentialPlanets.SortedDescending(p => p.MaxPopulation).AsSpan(0, numPlanetsToTake);
+            return Owner.Random.Item(planets);
         }
 
         // Will be used in Future Remnant Stories
         Planet GetTargetPlanetHomeWorlds(Planet[] potentialPlanets, int numPlanetsToTake)
         {
-            var filteredList = potentialPlanets.Filter(p => p.HasCapital);
-
-            return filteredList.Length > 0
-                ? filteredList.RandItem()
-                : GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
+            Planet target = Owner.Random.ItemFilter(potentialPlanets, p => p.HasCapital);
+            return target ?? GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
         }
 
         Planet GetTargetPlanetByDistance(Planet[] potentialPlanets, Vector2 pos, int numPlanetsToTake)
         {
-            var filteredList = potentialPlanets.Sorted(p => p.Position.Distance(pos)).TakeItems(numPlanetsToTake);
-
-            return filteredList.Length > 0 ? filteredList.RandItem() : null;
+            if (potentialPlanets.Length == 0 || numPlanetsToTake == 0)
+                return null;
+            var planets = potentialPlanets.Sorted(p => p.Position.Distance(pos)).AsSpan(0, numPlanetsToTake);
+            return Owner.Random.Item(planets);
         }
 
         public void CallGuardians(Ship portal) // One guarding from each relevant system
         {
             foreach (SolarSystem system in portal.Universe.Systems)
             {
-                var guardians = system.ShipList.Filter(s => s != null && s.IsGuardian && !s.InCombat && s.BaseStrength < 1000);
-                if (guardians.Length > 0)
-                {
-                    Ship chosenGuardian = guardians.RandItem();
-                    chosenGuardian.AI.AddEscortGoal(portal);
-                }
+                Ship chosenGuardian = Owner.Random.ItemFilter(system.ShipList,
+                    s => s is { IsGuardian: true, InCombat: false, BaseStrength: < 1000 }
+                );
+                chosenGuardian?.AI.AddEscortGoal(portal);
             }
         }
 
@@ -552,10 +591,9 @@ namespace Ship_Game
                     if (!GetUnownedSystems(u, out systems)) // Fallback to any unowned system
                         return false; // Could not find a spot
 
-            if (system == null)
-                system = systems.RandItem();
+            system ??= Owner.Random.Item(systems);
 
-            Vector2 pos = system.Position.GenerateRandomPointOnCircle(20000);
+            Vector2 pos = system.Position.GenerateRandomPointOnCircle(20000, Random);
             systemName  = system.Name;
             return SpawnShip(RemnantShipType.Portal, pos, out portal);
         }
@@ -609,7 +647,7 @@ namespace Ship_Game
             int fleetModifier  = shipsInFleet / 12;
             int effectiveLevel = Level + (int)Universe.P.Difficulty + fleetModifier;
             effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
-            int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
+            int roll           = Random.RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
             switch (roll)
             {
                 case 1:
@@ -763,7 +801,7 @@ namespace Ship_Game
             if (Story != RemnantStory.None)
                 dieModifier -= 5;
 
-            int d100 = RollDie(100) + dieModifier;
+            int d100 = Random.RollDie(100) + dieModifier;
             switch (Universe.P.ExtraRemnant) // Refactored by FB (including all remnant methods)
             {
                 case ExtraRemnantPresence.VeryRare:   VeryRarePresence(quality, d100, p);   break;
@@ -821,7 +859,7 @@ namespace Ship_Game
 
         void MorePresence(float quality, int d100, Planet p)
         {
-            NormalPresence(quality, RollDie(100), p);
+            NormalPresence(quality, Random.RollDie(100), p);
             if (quality >= 15f)
             {
                 if (d100 >= 25) AddMinorFleet(p);
@@ -841,7 +879,7 @@ namespace Ship_Game
 
         void MuchMorePresence(float quality, int d100, Planet p)
         {
-            MorePresence(quality, RollDie(100), p);
+            MorePresence(quality, Random.RollDie(100), p);
             if (quality >= 15f)
             {
                 AddMajorFleet(p);
@@ -872,7 +910,7 @@ namespace Ship_Game
 
         void EverywherePresence(float quality, int d100, Planet p)
         {
-            MuchMorePresence(quality, RollDie(100), p);
+            MuchMorePresence(quality, Random.RollDie(100), p);
             if (quality >= 18f)
             {
                 AddMajorFleet(p);
@@ -914,23 +952,23 @@ namespace Ship_Game
         void AddMajorFleet(Planet p)
         {
             AddMinorFleet(p);
-            if (RollDice(50))
+            if (Random.RollDice(50))
                 AddMinorFleet(p);
 
-            if (RollDice(25))
+            if (Random.RollDice(25))
                 AddMinorFleet(p);
 
-            if (RollDice(10))
+            if (Random.RollDice(10))
                 AddFrigate(p);
 
-            if (RollDice(5))
+            if (Random.RollDice(5))
                 AddGuardians(1, RemnantShipType.Assimilator, p);
         }
 
         void AddMinorFleet(Planet p)
         {
-            int numXenoFighters = RollDie(5) + 1;
-            int numDrones = RollDie(3);
+            int numXenoFighters = Random.RollDie(5) + 1;
+            int numDrones = Random.RollDie(3);
 
             AddGuardians(numXenoFighters, RemnantShipType.Fighter, p);
             AddGuardians(numDrones, RemnantShipType.Corvette, p);
@@ -938,7 +976,7 @@ namespace Ship_Game
 
         void AddMiniFleet(Planet p)  //Added by Gretman
         {
-            int numXenoFighters = RollDie(3);
+            int numXenoFighters = Random.RollDie(3);
 
             AddGuardians(numXenoFighters, RemnantShipType.Fighter, p);
             AddGuardians(1, RemnantShipType.Corvette, p);
@@ -946,21 +984,21 @@ namespace Ship_Game
 
         void AddSupportShips(Planet p)  //Added by Gretman
         {
-            int numSupportDrones = RollDie(4);
+            int numSupportDrones = Random.RollDie(4);
             AddGuardians(numSupportDrones, RemnantShipType.SmallSupport, p);
         }
 
         void AddCarriers(Planet p)  //Added by Gretman
         {
             AddGuardians(1, RemnantShipType.Carrier, p);
-            if (RollDice(20)) // 20% chance for another carrier
+            if (Random.RollDice(20)) // 20% chance for another carrier
                 AddGuardians(1, RemnantShipType.Carrier, p);
         }
 
         void AddFrigate(Planet p)  //Added by Gretman
         {
             AddGuardians(1, RemnantShipType.Frigate, p);
-            if (RollDice(10)) // 10% chance a torpedo cruiser
+            if (Random.RollDice(10)) // 10% chance a torpedo cruiser
                 AddGuardians(1, RemnantShipType.TorpedoCruiser, p);
         }
 
@@ -969,7 +1007,7 @@ namespace Ship_Game
             int divider = 7 * ((int)Universe.P.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
-                Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2);
+                Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2, Random);
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p, clearOrders:true, MoveOrder.Aggressive);
@@ -985,13 +1023,14 @@ namespace Ship_Game
             if (Universe.P.DisableRemnantStory)
                 return RemnantStory.None;
 
-            switch (RollDie(3)) // todo for now 3 stories
+            switch (Random.RollDie(5))
             {
                 default:
                 case 1: return RemnantStory.AncientBalancers;
                 case 2: return RemnantStory.AncientExterminators;
                 case 3: return RemnantStory.AncientRaidersRandom;
-                case 4: return RemnantStory.AncientColonizers;
+                case 4: return RemnantStory.AncientWarMongers;
+                case 5: return RemnantStory.AncientPeaceKeepers;
             }
         }
 
@@ -1001,7 +1040,8 @@ namespace Ship_Game
             AncientBalancers,
             AncientExterminators,
             AncientRaidersRandom,
-            AncientColonizers
+            AncientWarMongers,
+            AncientPeaceKeepers
         }
     }
 

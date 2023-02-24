@@ -373,7 +373,7 @@ namespace UnitTests.AITests.Ships
         {
             var ships = Universe.UState.Objects.GetShips();
             var projectiles = Universe.UState.Objects.GetAllProjectilesAndBeams();
-            Log.Write($"NumShips:{ships.Count} NumProjectiles:{projectiles.Length}");
+            Log.Write($"NumShips:{ships.Length} NumProjectiles:{projectiles.Length}");
 
             foreach (var ship in ships)
                 Log.Write($"Ship: {ship}");
