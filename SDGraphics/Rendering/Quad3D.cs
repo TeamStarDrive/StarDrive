@@ -102,6 +102,35 @@ public struct Quad3D
         D.X = x1 + cx; D.Y = y1 + cy; D.Z = zValue; // right-bottom
     }
 
+    /// <summary>
+    /// A quad from a 3D line
+    /// RedFox - This is from my 3D utility library, https://github.com/RedFox20/AlphaGL
+    /// </summary>
+    /// <param name="p1">Start point</param>
+    /// <param name="p2">End point</param>
+    /// <param name="width">Width of the line</param>
+    public Quad3D(in Vector3 p1, in Vector3 p2, float width)
+    {
+        //  0---3   0\``3
+        //  | + |   | \ |
+        //  1---2   1--\2
+        float x1 = p1.X, x2 = p2.X;
+        float y1 = p1.Y, y2 = p2.Y;
+        float z1 = p1.Z, z2 = p2.Z;
+
+        // construct a left vector (Y, -X)
+        float dx = y2 - y1;
+        float dy = x1 - x2;
+        double invLen = (width * 0.5) / Math.Sqrt(dx*dx + dy*dy);
+        float cx = (float)(dx * invLen); // center xy offsets
+        float cy = (float)(dy * invLen);
+
+        A.X = x1 - cx; A.Y = y1 - cy; A.Z = z1; // left-top
+        B.X = x2 - cx; B.Y = y2 - cy; B.Z = z2; // left-bottom
+        C.X = x2 + cx; C.Y = y2 + cy; C.Z = z2; // right-bottom
+        D.X = x1 + cx; D.Y = y1 + cy; D.Z = z1; // right-bottom
+    }
+
     static Vector3 RotateAroundPoint(in Vector3 p, in Vector2 center, float radians)
     {
         Vector2 pos = new(p.X, p.Y);
