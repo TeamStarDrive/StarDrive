@@ -54,14 +54,14 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             }
             else
             {
-                var orbitalDrop = new OrbitalDrop
+                PlanetGridSquare targetTile = SelectTargetTile(bomb);
+                if (targetTile != null)
                 {
-                    TargetTile = SelectTargetTile(bomb),
-                    Surface = P
-                };
+                    OrbitalDrop orbitalDrop = new() { TargetTile = targetTile, Surface = P };
+                    orbitalDrop.DamageColonySurface(bomb);
+                    bomb.PlayCombatScreenEffects(P, orbitalDrop);
+                }
 
-                orbitalDrop.DamageColonySurface(bomb);
-                bomb.PlayCombatScreenEffects(P, orbitalDrop);
                 if (Population <= 0f)
                 {
                     P.WipeOutColony(bomb.Owner);
@@ -109,8 +109,11 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             }
         }
 
-        private PlanetGridSquare SelectTargetTile(Bomb bomb)
+        PlanetGridSquare SelectTargetTile(Bomb bomb)
         {
+            if (TilesList.IsEmpty)
+                return null;
+
             float baseHitChance = ((85 + bomb.ShipLevel) * bomb.ShipHealthPercent).Clamped(10, 100);
             if (!P.Random.RollDice(baseHitChance))
                 return P.Random.Item(TilesList);
