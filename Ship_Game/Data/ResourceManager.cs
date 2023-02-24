@@ -958,12 +958,27 @@ namespace Ship_Game
             }
         }
 
-        static readonly Array<Building> BuildingsById = new Array<Building>();
+        static readonly Array<Building> BuildingsById = new();
+
         public static bool BuildingExists(int buildingId) => 0 < buildingId && buildingId < BuildingsById.Count;
-        public static Building GetBuildingTemplate(string whichBuilding) => BuildingsDict[whichBuilding];
-        public static Building GetBuildingTemplate(int buildingId) => BuildingsById[buildingId];
+
+        public static Building GetBuildingTemplate(string whichBuilding)
+        {
+            if (BuildingsDict.TryGetValue(whichBuilding, out Building template))
+                return template;
+            throw new($"No building template with UID='{whichBuilding}'");
+        }
+
+        public static Building GetBuildingTemplate(int buildingId)
+        {
+            if (!BuildingExists(buildingId))
+                throw new($"No building template with BID={buildingId}");
+            return BuildingsById[buildingId];
+        }
+
         public static Building CreateBuilding(Planet p, string whichBuilding) => CreateBuilding(p, GetBuildingTemplate(whichBuilding));
         public static Building CreateBuilding(Planet p, int buildingId) => CreateBuilding(p, GetBuildingTemplate(buildingId));
+
         public static bool GetBuilding(string whichBuilding, out Building b) => BuildingsDict.Get(whichBuilding, out b);
         public static bool GetBuilding(int buildingId, out Building b)
         {
@@ -1013,16 +1028,20 @@ namespace Ship_Game
 
         public static Building CreateBuilding(Planet p, Building template)
         {
+            if (template == null)
+                throw new NullReferenceException(nameof(template));
             Building newB = template.Clone();
             newB.CalcMilitaryStrength(p);
             return newB;
         }
 
-        static readonly Map<string, DiplomacyDialog> DiplomacyDialogs = new Map<string, DiplomacyDialog>();
+        static readonly Map<string, DiplomacyDialog> DiplomacyDialogs = new();
+
         public static DiplomacyDialog GetDiplomacyDialog(string dialogName)
         {
             return DiplomacyDialogs[dialogName];
         }
+
         static void LoadDialogs() // Refactored by RedFox
         {
             DiplomacyDialogs.Clear();
