@@ -185,8 +185,8 @@ namespace Ship_Game.Universe
             // globally stored ship designs
             [StarData] public ShipDesign[] Designs;
 
-            [StarData] public Ship[] Ships;
-            [StarData] public Projectile[] Projectiles;
+            [StarData] public IReadOnlyList<Ship> Ships;
+            [StarData] public IReadOnlyList<Projectile> Projectiles;
 
             // gather a list of all designs in the universe
             public void SetAllDesigns(UniverseState us)
