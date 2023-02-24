@@ -143,8 +143,8 @@ namespace Ship_Game.GameScreens.Espionage
                 }
             }
 
-            string first = owner.Random.RandItem(firstNames);
-            string last  = owner.Random.RandItem(lastNames);
+            string first = owner.Random.Item(firstNames);
+            string last  = owner.Random.Item(lastNames);
             return $"{first} {last}";
         }
 

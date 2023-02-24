@@ -357,7 +357,7 @@ namespace Ship_Game
 
             if (EventHere && !CanBuildAnywhere) // set a random tile habitable for the event
             {
-                PlanetGridSquare targetTile = p.Random.RandItem(p.TilesList);
+                PlanetGridSquare targetTile = p.Random.Item(p.TilesList);
                 targetTile.Habitable = true;
                 tile = AssignBuildingToRandomTile(p);
                 return tile != null;
@@ -377,7 +377,7 @@ namespace Ship_Game
             if (list.Length == 0)
                 return null;
 
-            PlanetGridSquare target = planet.Random.RandItem(list);
+            PlanetGridSquare target = planet.Random.Item(list);
             target.PlaceBuilding(this, planet);
             return target;
         }
@@ -395,7 +395,7 @@ namespace Ship_Game
 
             PlanetGridSquare[] freeSpots = planet.TilesList.Filter(pgs => pgs.CanEnqueueBuildingHere(b));
             if (freeSpots.Length > 0)
-                where = planet.Random.RandItem(freeSpots);
+                where = planet.Random.Item(freeSpots);
             return where != null;
         }
 

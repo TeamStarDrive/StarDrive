@@ -233,7 +233,7 @@ namespace Ship_Game
                 case RemnantStory.AncientExterminators:
                     if (GetPortals(out Ship[] portals))
                     {
-                        Ship portal = Owner.Random.RandItem(portals);
+                        Ship portal = Owner.Random.Item(portals);
                         for (int i = 0; i < ((int)Universe.P.Difficulty + 1) * 3; i++)
                         {
                             if (!SpawnShip(RemnantShipType.Exterminator, portal.Position, out _))
@@ -270,7 +270,7 @@ namespace Ship_Game
             {
                 case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList); break;
                 case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);               break;
-                case RemnantStory.AncientRaidersRandom: target = Owner.Random.RandItem(empiresList);           break;
+                case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);           break;
             }
 
             return target != null;
@@ -437,7 +437,7 @@ namespace Ship_Game
             if (numBombers > 0 && currentPlanet.ParentSystem.HasPlanetsOwnedBy(targetEmpire))
             {
                 // Choose another planet owned by target empire in the same system
-                nextPlanet = Owner.Random.RandItemFiltered(currentPlanet.ParentSystem.PlanetList, p => p.Owner == targetEmpire);
+                nextPlanet = Owner.Random.ItemFilter(currentPlanet.ParentSystem.PlanetList, p => p.Owner == targetEmpire);
                 return true;
             }
 
@@ -463,13 +463,13 @@ namespace Ship_Game
             if (potentialPlanets.Length == 0 || numPlanetsToTake == 0)
                 return null;
             var planets = potentialPlanets.SortedDescending(p => p.MaxPopulation).AsSpan(0, numPlanetsToTake);
-            return Owner.Random.RandItem(planets);
+            return Owner.Random.Item(planets);
         }
 
         // Will be used in Future Remnant Stories
         Planet GetTargetPlanetHomeWorlds(Planet[] potentialPlanets, int numPlanetsToTake)
         {
-            Planet target = Owner.Random.RandItemFiltered(potentialPlanets, p => p.HasCapital);
+            Planet target = Owner.Random.ItemFilter(potentialPlanets, p => p.HasCapital);
             return target ?? GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
         }
 
@@ -478,14 +478,14 @@ namespace Ship_Game
             if (potentialPlanets.Length == 0 || numPlanetsToTake == 0)
                 return null;
             var planets = potentialPlanets.Sorted(p => p.Position.Distance(pos)).AsSpan(0, numPlanetsToTake);
-            return Owner.Random.RandItem(planets);
+            return Owner.Random.Item(planets);
         }
 
         public void CallGuardians(Ship portal) // One guarding from each relevant system
         {
             foreach (SolarSystem system in portal.Universe.Systems)
             {
-                Ship chosenGuardian = Owner.Random.RandItemFiltered(system.ShipList,
+                Ship chosenGuardian = Owner.Random.ItemFilter(system.ShipList,
                     s => s is { IsGuardian: true, InCombat: false, BaseStrength: < 1000 }
                 );
                 chosenGuardian?.AI.AddEscortGoal(portal);
@@ -550,7 +550,7 @@ namespace Ship_Game
                     if (!GetUnownedSystems(u, out systems)) // Fallback to any unowned system
                         return false; // Could not find a spot
 
-            system ??= Owner.Random.RandItem(systems);
+            system ??= Owner.Random.Item(systems);
 
             Vector2 pos = system.Position.GenerateRandomPointOnCircle(20000, Random);
             systemName  = system.Name;

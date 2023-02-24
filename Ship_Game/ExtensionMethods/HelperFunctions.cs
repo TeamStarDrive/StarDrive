@@ -250,7 +250,7 @@ namespace Ship_Game
 
         public static bool GetLoneSystem(UniverseState u, out SolarSystem system)
         {
-            system = u.Random.RandItemFiltered(u.Systems, s => s.RingList.Count == 0 && !s.PiratePresence);
+            system = u.Random.ItemFilter(u.Systems, s => s.RingList.Count == 0 && !s.PiratePresence);
             return system != null;
         }
 

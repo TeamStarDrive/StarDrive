@@ -354,7 +354,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            Planet targetPlanet = us.Random.RandItem(victim.GetPlanets());
+            Planet targetPlanet = us.Random.Item(victim.GetPlanets());
             switch (missionStatus)
             {
                 case SpyMissionStatus.GreatSuccess:
@@ -413,7 +413,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            string stolenTech = us.Random.RandItem(potentialTechs).UID;
+            string stolenTech = us.Random.Item(potentialTechs).UID;
             string stolenTechName = ResourceManager.Tech(stolenTech).Name.Text;
 
             switch (missionStatus)
@@ -519,7 +519,7 @@ namespace Ship_Game
 
         void AssassinateEnemyAgent(Empire us, Empire victim, out string targetName)
         {
-            Agent targetAgent = us.Random.RandItem(victim.data.AgentList); // TODO - a target specific agent base on threat
+            Agent targetAgent = us.Random.Item(victim.data.AgentList); // TODO - a target specific agent base on threat
             targetName = targetAgent.Name;
             victim.data.AgentList.Remove(targetAgent);
             if (targetAgent.Mission == AgentMission.Undercover)
@@ -671,7 +671,7 @@ namespace Ship_Game
                     && Victim != Us
                     && Victim.data.AgentList.Count > 0)
                 {
-                    Agent defendingAgent =  Victim.Random.RandItemFiltered(Victim.data.AgentList, a => a.Mission == AgentMission.Defending);
+                    Agent defendingAgent =  Victim.Random.ItemFilter(Victim.data.AgentList, a => a.Mission == AgentMission.Defending);
                     defendingAgent?.AddExperience(1, Victim);
                 }
             }

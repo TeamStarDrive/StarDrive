@@ -128,7 +128,7 @@ namespace Ship_Game.GameScreens.Scene
                     p => p.Name.Contains(name)).FirstOrDefault();
                 if (e != null) return GetCachedEmpire(e.CreateInstance());
             }
-            return GetCachedEmpire(Random.RandItem(ResourceManager.MajorRaces));
+            return GetCachedEmpire(Random.Item(ResourceManager.MajorRaces));
         }
 
         EmpireData GetCachedEmpire(IEmpireData e)

@@ -1856,7 +1856,7 @@ namespace Ship_Game
                                 var troops = planet.Troops.GetLaunchableTroops(this).ToArr();
                                 if (troops.Length != 0)
                                 {
-                                    Random.RandItem(troops).ChangeLoyalty(rebels);
+                                    Random.Item(troops).ChangeLoyalty(rebels);
                                 }
                             }
 

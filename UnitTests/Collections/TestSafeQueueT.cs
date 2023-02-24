@@ -214,7 +214,7 @@ namespace UnitTests.Collections
                     int toAdd = r.Int(1, 3);
                     int toRemove = r.Int(1, 3);
                     for (int i = 0; i < toAdd; ++i)
-                        queue.Enqueue(r.RandItem(items));
+                        queue.Enqueue(r.Item(items));
                     for (int i = 0; i < toRemove; ++i)
                     {
                         AssertTrue(queue.Count >= 0, "SafeQueue<T> count must always be positive!");

@@ -281,11 +281,11 @@ public partial class UniverseState
 
         DTrait[] dipTraits = dt.DiplomaticTraitsList.Filter(
             dip => !data.ExcludedDTraits.Any(trait => trait == dip.Name));
-        data.DiplomaticPersonality = empire.Random.RandItem(dipTraits);
+        data.DiplomaticPersonality = empire.Random.Item(dipTraits);
 
         ETrait[] ecoTraits = dt.EconomicTraitsList.Filter(
             eco => !data.ExcludedETraits.Any(trait => trait == eco.Name));
-        data.EconomicPersonality = empire.Random.RandItem(ecoTraits);
+        data.EconomicPersonality = empire.Random.Item(ecoTraits);
 
         // Added by McShooterz: set values for alternate race file structure
         data.Traits.LoadTraitConstraints();
@@ -306,10 +306,10 @@ public partial class UniverseState
         if (rebelEmpire != null) return rebelEmpire;
 
         DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
-        data.DiplomaticPersonality = parent.Random.RandItem(dt.DiplomaticTraitsList);
-        data.DiplomaticPersonality = parent.Random.RandItem(dt.DiplomaticTraitsList);
-        data.EconomicPersonality   = parent.Random.RandItem(dt.EconomicTraitsList);
-        data.EconomicPersonality   = parent.Random.RandItem(dt.EconomicTraitsList);
+        data.DiplomaticPersonality = parent.Random.Item(dt.DiplomaticTraitsList);
+        data.DiplomaticPersonality = parent.Random.Item(dt.DiplomaticTraitsList);
+        data.EconomicPersonality   = parent.Random.Item(dt.EconomicTraitsList);
+        data.EconomicPersonality   = parent.Random.Item(dt.EconomicTraitsList);
         data.SpyModifier = data.Traits.SpyMultiplier;
         data.IsRebelFaction  = true;
         data.Traits.Name     = data.RebelName;

@@ -207,7 +207,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < 28; ++i)
             {
-                PlanetGridSquare tile = random.RandItem(TilesList.Filter(t => !t.Habitable));
+                PlanetGridSquare tile = random.Item(TilesList.Filter(t => !t.Habitable));
                 tile.Habitable = true;
             }
         }
@@ -315,7 +315,7 @@ namespace Ship_Game
         {
             if (possibleTiles.Length > 0)
             {
-                PlanetGridSquare tile = random.RandItem(possibleTiles);
+                PlanetGridSquare tile = random.Item(possibleTiles);
                 if (tile.VolcanoHere)
                     Volcano.RemoveVolcano(tile, this);
                 else
@@ -333,7 +333,7 @@ namespace Ship_Game
         {
             if (possibleTiles.Length > 0)
             {
-                PlanetGridSquare tile = random.RandItem(possibleTiles);
+                PlanetGridSquare tile = random.Item(possibleTiles);
                 MakeTileHabitable(tile);
             }
 
