@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-
 namespace Ship_Game.Utils;
 
 public sealed class ThreadSafeRandom : RandomBase, IDisposable
