@@ -1,0 +1,13 @@
+﻿<ExplorationEvent>
+  <Name>Remnant Retreat</Name>
+  <TriggerWhenOnlyRemnantsLeft>true</TriggerWhenOnlyRemnantsLeft>
+  <Story>AncientPeaceKeepers</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <Image>Encounters/remn.png</Image>      
+      <TitleText>Remnant Retreat</TitleText>
+      <DescriptionText>It seems that after defeating the last opposing race, the Remnant portals shutdown forever, as if excepting the fact that our empire is the dominant in this part of the galaxy. Very soon we will emerge victorious!</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>
