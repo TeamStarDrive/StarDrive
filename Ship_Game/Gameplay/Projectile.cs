@@ -487,6 +487,8 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
+            base.Die(source, cleanupOnly);
+
             if (Light != null)
                 Universe.Screen.RemoveLight(Light, dynamic:true);
 
@@ -500,8 +502,6 @@ namespace Ship_Game.Gameplay
             {
                 Universe.Screen.RemoveObject(ProjSO);
             }
-
-            base.Die(source, cleanupOnly);
         }
 
         public bool TerminalPhase;
@@ -748,27 +748,31 @@ namespace Ship_Game.Gameplay
         // cleanupOnly: just delete the projectile without showing visual death effects
         void ExplodeProjectile(bool cleanupOnly, ShipModule victim)
         {
-            bool visibleToPlayer = InFrustum && Module?.GetParent().InPlayerSensorRange == true;
-            bool showFx = !cleanupOnly && visibleToPlayer && Universe.IsSectorViewOrCloser;
-            bool flashFx = showFx && FlashExplode && Universe.IsSystemViewOrCloser;
-
-            if (Explodes)
+            bool explodes = Explodes;
+            if (explodes || FakeExplode)
             {
-                if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
+                bool visibleToPlayer = InFrustum && Module?.GetParent().InPlayerSensorRange == true;
+                bool showFx = !cleanupOnly && visibleToPlayer && Universe.IsSectorViewOrCloser;
+                bool flashFx = showFx && FlashExplode && Universe.IsSystemViewOrCloser;
+
+                if (explodes)
                 {
-                    DamageRadius += Owner.Loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
+                    if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
+                    {
+                        DamageRadius += Owner.Loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
+                    }
+
+                    if (showFx)
+                        ShowExplosionEffect(flashFx);
+
+                    // the most typical case: projectile has hit a victim module and will now explode
+                    if (victim != null)
+                        Universe.Spatial.ProjectileExplode(this, victim);
                 }
-
-                if (showFx)
+                else if (showFx) // FakeExplode
+                {
                     ShowExplosionEffect(flashFx);
-
-                // the most typical case: projectile has hit a victim module and will now explode
-                if (victim != null)
-                    Universe.Spatial.ProjectileExplode(this, victim);
-            }
-            else if (FakeExplode && showFx)
-            {
-                ShowExplosionEffect(flashFx);
+                }
             }
         }
 
