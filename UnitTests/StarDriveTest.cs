@@ -78,7 +78,7 @@ public partial class StarDriveTest : IDisposable
         {
             if (them != us)
             {
-                them.SetRelationsAsKnown(us);
+                Empire.SetRelationsAsKnown(them, us);
                 Empire.UpdateBilateralRelations(them, us);
             }
         }
@@ -140,9 +140,8 @@ public partial class StarDriveTest : IDisposable
             
         Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
         Player.TestInitModifiers();
-        Player.SetRelationsAsKnown(Enemy);
+        Empire.SetRelationsAsKnown(Player, Enemy);
         Player.AI.DeclareWarOn(Enemy, WarType.BorderConflict);
-        Empire.UpdateBilateralRelations(Player, Enemy);
 
         if (!Player.IsEmpireHostile(Enemy) || !Enemy.IsEmpireHostile(Player))
             throw new("Failed to declare war from Player to Enemy. IsEmpireHostile=false");

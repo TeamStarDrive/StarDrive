@@ -144,17 +144,13 @@ namespace Ship_Game
                     }
                 }
                 else if (!rel.Known && rel.Them == Universe.Unknown)
-                    SetRelationsAsKnown(rel.Them);
+                {
+                    Empire.SetRelationsAsKnown(this, rel.Them);
+                }
             }
             AllActiveWars = wars.ToArray();
             ActiveWarPreparations = AI.CountGoals(g => g.Type == GoalType.PrepareForWar);
             AtWarCount = atWarCount;
-        }
-
-        public static void UpdateBilateralRelations(Empire us, Empire them)
-        {
-            us.GetRelations(them).UpdateRelationship(us, them);
-            them.GetRelations(us).UpdateRelationship(them, us);
         }
 
         // The FlatMap is used for fast lookup
@@ -170,6 +166,7 @@ namespace Ship_Game
         public Relationship GetRelationsOrNull(Empire withEmpire)
         {
             if (withEmpire == null) return null;
+            if (withEmpire == this) return null; // disallow relationship with ourselves
             int index = withEmpire.Id - 1;
             return index < RelationsMap.Length ? RelationsMap[index] : null;
         }
@@ -191,6 +188,9 @@ namespace Ship_Game
 
         void AddNewRelationToThem(Empire them, Relationship rel)
         {
+            if (this == them)
+                throw new InvalidOperationException($"Empire cannot create Relationship to itself '{them}'");
+
             int index = them.Id - 1;
             if (index >= RelationsMap.Length)
             {
@@ -282,29 +282,53 @@ namespace Ship_Game
             return GetRelationsOrNull(otherEmpire)?.Treaty_OpenBorders == true;
         }
 
-        public Relationship AddRelation(Empire empire)
+        public static void UpdateBilateralRelations(Empire us, Empire them)
         {
-            if (!GetRelations(empire, out Relationship rel))
-            {
-                rel = new(empire);
-                AddNewRelationToThem(empire, rel);
-            }
-            return rel;
+            us.GetRelations(them).UpdateRelationship(us, them);
+            them.GetRelations(us).UpdateRelationship(them, us);
         }
 
-        public void SetRelationsAsKnown(Relationship rel, Empire other)
+        // initializes relationship between two empires
+        public static void CreateBilateralRelations(Empire us, Empire them)
+        {
+            if (us == them)
+            {
+                Log.Error($"CreateBilateralRelations failed (cannot have relations to self): {us}");
+                return;
+            }
+
+            if (us.GetRelationsOrNull(them) == null)
+            {
+                us.AddNewRelationToThem(them, rel: new(them));
+            }
+            if (them.GetRelationsOrNull(us) == null)
+            {
+                them.AddNewRelationToThem(us, rel: new(us));
+            }
+        }
+
+        public void SetRelationsAsKnown(Relationship rel, Empire them)
         {
             rel.Known = true;
-            KnownEmpires.Set(other.Id);
+            KnownEmpires.Set(them.Id);
         }
 
-        public void SetRelationsAsKnown(Empire other)
+        public static void SetRelationsAsKnown(Empire us, Empire them)
         {
-            AddRelation(other);
-            SetRelationsAsKnown(GetRelations(other), other);
+            if (us == them)
+            {
+                Log.Error($"SetRelationsAsKnown failed (cannot set self as known): {us}");
+                return;
+            }
 
-            if (!other.IsKnown(this))
-                other.SetRelationsAsKnown(this);
+            CreateBilateralRelations(us, them);
+
+            us.SetRelationsAsKnown(us.GetRelations(them), them);
+
+            if (!them.IsKnown(us))
+            {
+                them.SetRelationsAsKnown(them.GetRelations(us), us);
+            }
         }
 
         public void DamageRelationship(Empire e, string why, float amount, Planet p)
