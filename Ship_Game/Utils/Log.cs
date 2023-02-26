@@ -371,10 +371,10 @@ namespace Ship_Game
             if (!IsStatsReportEnabled)
                 return;
 
-            string evtMessage = message.IsEmpty() ? (evt + " " + message) : evt.ToString();
+            string evtMessage = message.NotEmpty() ? (evt + " " + message) : evt.ToString();
             Write($"GameEvent: {evtMessage}");
 
-            var e = new SentryEvent()
+            SentryEvent e = new()
             {
                 Level = SentryLevel.Info,
                 Message = evtMessage,
