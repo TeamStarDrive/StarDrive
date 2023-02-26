@@ -12,9 +12,22 @@ public abstract class RandomBase
 {
     protected int Seed;
 
+    /// <summary>
+    /// Initializes the pseudo-random with a seed value. If 0 seed is given,
+    /// then a seed is automatically generated based on CPU clock ticks
+    /// </summary>
     protected RandomBase(int seed)
     {
-        Seed = seed == 0 ? Environment.TickCount : seed;
+        // Automatically initialize from system clock ticks
+        if (seed == 0)
+        {
+            PerfTimer.GetTicks(out long ticks);
+            Seed = (int)ticks;
+        }
+        else
+        {
+            Seed = seed;
+        }
     }
 
     protected abstract Random Rand { get; }
@@ -24,12 +37,12 @@ public abstract class RandomBase
     /// </summary>
     public float Float(float min, float max)
     {
-        return min + (float)Rand.NextDouble() * (max - min);
+        return min + ((float)Rand.NextDouble() * (max - min));
     }
 
     static float Float(Random random, float min, float max)
     {
-        return min + (float)random.NextDouble() * (max - min);
+        return min + ((float)random.NextDouble() * (max - min));
     }
 
     /// <summary>
@@ -45,7 +58,7 @@ public abstract class RandomBase
     /// </summary>
     public double Double(double min, double max)
     {
-        return min + Rand.NextDouble() * (max - min);
+        return min + (Rand.NextDouble() * (max - min));
     }
 
     /// <summary>
@@ -207,7 +220,7 @@ public abstract class RandomBase
     {
         if (iterations == 0)
             return 0f;
-            
+
         Random rand = Rand;
         float sum = 0;
         for (int i = 0; i < iterations; i++)
@@ -323,7 +336,7 @@ public abstract class RandomBase
         float sum = 0;
         for (int x = 0; x < iterations; ++x)
             sum += Float(rand, min, max);
-        return (sum / iterations);
+        return sum / iterations;
     }
 
     /// <summary>
@@ -338,6 +351,6 @@ public abstract class RandomBase
         int sum = 0;
         for (int x = 0; x < iterations; ++x)
             sum += Int(rand, min, max);
-        return (sum / iterations);
+        return sum / iterations;
     }
 }

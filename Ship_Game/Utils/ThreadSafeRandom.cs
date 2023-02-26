@@ -8,6 +8,7 @@ public sealed class ThreadSafeRandom : RandomBase, IDisposable
     readonly ThreadLocal<Random> Randoms;
     protected override Random Rand => Randoms.Value;
 
+    // Automatically initializes the seed with a unique seed value
     public ThreadSafeRandom() : this(0)
     {
     }
