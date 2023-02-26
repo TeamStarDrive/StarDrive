@@ -7,7 +7,6 @@
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <NoRandomSpawn>true</NoRandomSpawn>
-  
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18201</NameTranslationIndex>
   <DescriptionIndex>18202</DescriptionIndex>

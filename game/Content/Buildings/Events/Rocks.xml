@@ -3,7 +3,7 @@
   <Icon>rocks</Icon>
   
   <Cost>250</Cost>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <ProdCache>240</ProdCache>
   <PlusProdPerColonist>0.5</PlusProdPerColonist>
   <Infrastructure>-1</Infrastructure>

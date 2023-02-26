@@ -9,7 +9,6 @@
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <ShortDescription>A crashed vessel</ShortDescription>
   <Scrappable>false</Scrappable>
-
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>17736</NameTranslationIndex>
   <DescriptionIndex>17737</DescriptionIndex>

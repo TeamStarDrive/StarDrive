@@ -9,7 +9,7 @@
   <IsCommodity>true</IsCommodity>
   <Scrappable>false</Scrappable>
   <CannotBeBombed>true</CannotBeBombed>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>  
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18188</NameTranslationIndex>
   <DescriptionIndex>18189</DescriptionIndex>

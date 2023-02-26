@@ -11,6 +11,7 @@
   <PlusFlatProductionAmount>0.2</PlusFlatProductionAmount>
   <ImmueToLava>true</ImmueToLava>
   <CannotBeBombed>true</CannotBeBombed>
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4251</NameTranslationIndex>
   <DescriptionIndex>4252</DescriptionIndex>

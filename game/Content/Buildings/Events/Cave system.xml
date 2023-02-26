@@ -10,7 +10,7 @@
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Scrappable>false</Scrappable>
   <IsCommodity>true</IsCommodity>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18111</NameTranslationIndex>
   <DescriptionIndex>18112</DescriptionIndex>
