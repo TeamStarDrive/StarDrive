@@ -1,6 +1,7 @@
 using System;
 using SDGraphics;
 using Ship_Game.Audio;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -58,148 +59,123 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
-        public void SnapViewColony() => SnapViewColony(false);
-
-        public void SnapViewColony(bool combatView)
+        public void SnapViewColony(Planet p, bool combatView)
         {
             ShowShipNames = false;
-            if (SelectedPlanet == null)
+            bool doReturnToShip = ViewingShip;
+            SetSelectedPlanet(p);
+            if (p == null)
                 return;
 
             if (combatView && Debug)
             {
-                OpenCombatMenu();
+                OpenCombatMenu(p);
                 return;
             }
 
-            if (!SelectedPlanet.ParentSystem.IsExploredBy(Player))
+            if (!p.ParentSystem.IsExploredBy(Player))
             {
                 GameAudio.NegativeClick();
             }
             else
             {
                 bool flag = false;
-                if (SelectedPlanet.Owner == Player && combatView ||
-                    SelectedPlanet.Owner != Player && Player.data.MoleList.Any(m => m.PlanetId == SelectedPlanet.Id) && combatView)
+                if (p.Owner == Player && combatView ||
+                    p.Owner != Player && Player.data.MoleList.Any(m => m.PlanetId == p.Id) && combatView)
                 {
-                    OpenCombatMenu();
+                    OpenCombatMenu(p);
                     return;
                 }
 
                 foreach (Mole mole in Player.data.MoleList)
                 {
-                    if (mole.PlanetId == SelectedPlanet.Id)
+                    if (mole.PlanetId == p.Id)
                     {
                         flag = true;
                         break;
                     }
                 }
 
-                if (SelectedPlanet.Owner == Player || flag || Debug)
+                if (p.Owner == Player || flag || Debug)
                 {
-                    if (SelectedPlanet.Owner != null)
-                        workersPanel = new ColonyScreen(this, SelectedPlanet, EmpireUI);
+                    if (p.Owner != null)
+                        workersPanel = new ColonyScreen(this, p, EmpireUI);
                     else
-                        workersPanel = new UnexploredPlanetScreen(this, SelectedPlanet);
+                        workersPanel = new UnexploredPlanetScreen(this, p);
                 }
-                else if (combatView && SelectedPlanet.Habitable
-                                    && SelectedPlanet.IsExploredBy(Player)
-                                    && (SelectedPlanet.WeAreInvadingHere(Player) || !Player.DifficultyModifiers.HideTacticalData
-                                                                                 || SelectedPlanet.ParentSystem.OwnerList.Contains(Player)
-                                                                                 || SelectedPlanet.OurShipsCanScanSurface(Player)))
+                else if (combatView && p.Habitable
+                                    && p.IsExploredBy(Player)
+                                    && (p.WeAreInvadingHere(Player) || !Player.DifficultyModifiers.HideTacticalData
+                                                                    || p.ParentSystem.OwnerList.Contains(Player)
+                                                                    || p.OurShipsCanScanSurface(Player)))
                 {
-                    OpenCombatMenu();
+                    OpenCombatMenu(p);
                 }
                 else
                 {
-                    workersPanel = new UnownedPlanetScreen(this, SelectedPlanet);
+                    workersPanel = new UnownedPlanetScreen(this, p);
                 }
 
-                LookingAtPlanet = true;
-                transitionStartPosition = CamPos;
-                CamDestination = new Vector3d(SelectedPlanet.Position.X, SelectedPlanet.Position.Y + 400f, 2500f);
-                AdjustCamTimer = 2f;
-                transitionElapsedTime = 0.0f;
-                transDuration = 5f;
-
-                bool doReturnToShip = ViewingShip;
                 ClearSelectedItems();
                 returnToShip = doReturnToShip;
+                LookingAtPlanet = true;
+
+                SnapViewTo(new(p.Position.X, p.Position.Y + 400f, 2500f), 5f, 2f);
             }
         }
 
-        public void SnapViewSystem(SolarSystem system, UnivScreenState camHeight)
+        public void SnapViewTo(Vector3d worldPos, float duration, float adjustCamTimer = 2f)
         {
-            CamDestination = new Vector3d(system.Position.X, system.Position.Y + 400f, GetZfromScreenState(camHeight));
+            CamDestination = worldPos;
+            AdjustCamTimer = adjustCamTimer;
+
             transitionStartPosition = CamPos;
-            AdjustCamTimer = 2f;
             transitionElapsedTime = 0.0f;
-            transDuration = 5f;
-            ViewingShip = false;
-            snappingToShip = false;
-            if (ViewingShip)
-                returnToShip = true;
-            ViewingShip = false;
-            snappingToShip = false;
-            SelectedFleet = null;
-            if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
-                previousSelection = SelectedShip;
-            SelectedShip = null;
-            SelectedShipList.Clear();
-            SelectedItem = null;
+            transDuration = duration;
         }
 
-        public void SnapViewShip(Ship ship)
+        public void SnapViewSystem(SolarSystem s, Planet p, UnivScreenState camHeight)
+        {
+            double z = GetZfromScreenState(camHeight);
+            SnapViewTo(new(s.Position.X, s.Position.Y + 400f, z), 5f, 2f);
+
+            bool doReturnToShip = ViewingShip;
+            SetSelectedSystem(s, p);
+            returnToShip = doReturnToShip;
+        }
+
+        public void SnapViewShip(Ship s)
         {
             ShowShipNames = false;
-            SetSelectedShip(ship);
-            if (SelectedShip == null)
+            SetSelectedShip(s);
+            if (s == null)
                 return;
 
-            CamDestination = new Vector3d(SelectedShip.Position.X, SelectedShip.Position.Y + 400f, 2500);
+            SnapViewTo(new(s.Position.X, s.Position.Y + 400, 2500), 5f, 2f);
             LookingAtPlanet = false;
-            transitionStartPosition = CamPos;
-            AdjustCamTimer  = 2f;
-            transitionElapsedTime = 0.0f;
-            transDuration  = 5f;
-
             snappingToShip = true;
             ViewingShip = true;
         }
 
-        private void ViewSystem(SolarSystem system)
+        void ViewSystem(SolarSystem s)
         {
-            CamDestination        = new Vector3d(system.Position, 147000f);
-            ViewingShip           = false;
-            AdjustCamTimer        = 1f;
-            transDuration         = 3f;
-            transitionElapsedTime = 0.0f;
+            SnapViewTo(new(s.Position, 147000f), 3f, 1f);
         }
 
-        private void ViewPlanet(UnivScreenState zoomLevel)
+        void ViewPlanet(Planet p, UnivScreenState zoomLevel)
         {
-            CamDestination        = new Vector3d(SelectedPlanet.Position, GetZfromScreenState(zoomLevel));
-            ViewingShip           = false;
-            SelectedFleet         = null;
-            SelectedItem          = null;
-            AdjustCamTimer        = 1f;
-            transDuration         = 3f;
-            transitionElapsedTime = 0.0f;
+            SetSelectedPlanet(p);
+            SnapViewTo(new(p.Position, GetZfromScreenState(zoomLevel)), 3f, 1f);
         }
 
-        private void ViewFleet(UnivScreenState zoomLevel)
+        void ViewFleet(Fleet f, UnivScreenState zoomLevel)
         {
-            CamDestination        = new Vector3d(SelectedFleet.AveragePosition(), GetZfromScreenState(zoomLevel));
-            ViewingShip           = false;
-            SelectedItem          = null;
-            AdjustCamTimer        = 1f;
-            transDuration         = 3f;
-            transitionElapsedTime = 0.0f;
+            SnapViewTo(new(f.AveragePosition(), GetZfromScreenState(zoomLevel)), 3f, 1f);
         }
 
-        private void AdjustCamera(float elapsedTime)
+        void AdjustCamera(float elapsedTime)
         {
-            if (ShipToView == null) 
+            if (ShipToView == null)
                 ViewingShip = false;
 
             #if DEBUG
@@ -209,7 +185,7 @@ namespace Ship_Game
             #endif
 
             AdjustCamTimer -= elapsedTime;
-            if (ViewingShip && !snappingToShip)
+            if (ViewingShip && !snappingToShip && ShipToView != null)
             {
                 UState.CamPos.X = ShipToView.Position.X;
                 UState.CamPos.Y = ShipToView.Position.Y;
@@ -312,12 +288,11 @@ namespace Ship_Game
             GameAudio.AcceptClick();
             if (SelectedShip != null)
             {
-                ViewingShip = false;
-                ToggleViewingShip();
+                ViewToShip(SelectedShip);
             }
             else if (SelectedPlanet != null)
             {
-                ViewPlanet(UnivScreenState.PlanetView);
+                ViewPlanet(SelectedPlanet, UnivScreenState.PlanetView);
             }
             else if (SelectedSystem != null)
             {
@@ -325,7 +300,7 @@ namespace Ship_Game
             }
             else if (SelectedFleet != null)
             {
-                ViewFleet(UnivScreenState.PlanetView);
+                ViewFleet(SelectedFleet, UnivScreenState.PlanetView);
             }
         }
 
@@ -333,7 +308,7 @@ namespace Ship_Game
         {
             GameAudio.AcceptClick();
             AdjustCamTimer = 1f;
-            transitionElapsedTime = 0.0f;
+            transitionElapsedTime = 0f;
             CamDestination.X = CamPos.X;
             CamDestination.Y = CamPos.Y;
             CamDestination.Z = 4200000f;
@@ -347,13 +322,13 @@ namespace Ship_Game
                 CamPos.Z > GetZfromScreenState(UnivScreenState.SectorView))
             {
                 AdjustCamTimer = 1f;
-                transitionElapsedTime = 0.0f;
+                transitionElapsedTime = 0f;
                 CamDestination = new(CamPos.X, CamPos.Y, 1175000.0);
             }
             else if (CamPos.Z > GetZfromScreenState(UnivScreenState.ShipView))
             {
                 AdjustCamTimer = 1f;
-                transitionElapsedTime = 0.0f;
+                transitionElapsedTime = 0f;
                 CamDestination = new(CamPos.X, CamPos.Y, 147000.0);
             }
             else if (viewState < UnivScreenState.SystemView)

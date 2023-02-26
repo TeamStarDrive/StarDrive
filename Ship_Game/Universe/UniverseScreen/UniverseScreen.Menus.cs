@@ -13,60 +13,59 @@ namespace Ship_Game
             shipMenu = new PieMenuNode();
         }
 
-        void LoadPieMenuNodesForPlanet(bool owned, bool habitable)
+        void LoadPieMenuNodesForPlanet(Planet p)
         {
             planetMenu.Children?.Clear();
             var viewPlanet = ResourceManager.Texture("UI/viewPlanetIcon");
-            planetMenu.Add(new(GameText.ViewPlanet, viewPlanet, SnapViewColony));
+            planetMenu.Add(new(GameText.ViewPlanet, viewPlanet, () => SnapViewColony(p, false)));
 
-            if (habitable)
+            if (p.Habitable)
             {
                 var colonize = ResourceManager.Texture("UI/ColonizeIcon");
-                if (!owned)
+                if (p.Owner == null)
                 {
-                    planetMenu.Add(new(GameText.MarkForColonization, colonize, MarkForColonization));
+                    planetMenu.Add(new(GameText.MarkForColonization, colonize, () => MarkForColonization(p)));
                 }
-
-                planetMenu.Add(new(GameText.TacticalView, colonize, OpenCombatMenu));
+                planetMenu.Add(new(GameText.TacticalView, colonize, () => OpenCombatMenu(p)));
             }
 
             pieMenu.Show(planetMenu);
         }
 
-        void LoadPieMenuShipNodes(bool isPlayer)
+        void LoadPieMenuShipNodes(Ship s)
         {
-            if (SelectedShip is {CanBeScrapped: false})
+            if (s is {CanBeScrapped: false})
                 return;
 
             shipMenu.Children?.Clear();
-            if (isPlayer)
+            if (s.Loyalty.isPlayer)
             {
                 var orders = new PieMenuNode(GameText.Orders2, ResourceManager.Texture("UI/OrdersIcon"), null);
-                orders.Add(new(GameText.GoExploring, ResourceManager.Texture("UI/marketIcon"), DoExplore));
-                orders.Add(new("Empire Defense", ResourceManager.Texture("UI/PatrolIcon"), DoDefense));
+                orders.Add(new(GameText.GoExploring, ResourceManager.Texture("UI/marketIcon"), () => DoExplore(s)));
+                orders.Add(new("Empire Defense", ResourceManager.Texture("UI/PatrolIcon"), () => DoDefense(s)));
                 shipMenu.Add(orders);
 
                 var followIcon = ResourceManager.Texture("UI/FollowIcon");
                 var holdPosition = ResourceManager.Texture("UI/HoldPositionIcon");
                 var other = new PieMenuNode(GameText.Other, followIcon, null);
-                if (SelectedShip is {IsPlatformOrStation: false, CanBeScrapped: true})
+                if (s is {IsPlatformOrStation: false, CanBeScrapped: true})
                 {
-                    other.Add(new(GameText.RefitTo, followIcon, RefitTo));
+                    other.Add(new(GameText.RefitTo, followIcon, () => RefitTo(s)));
                 }
-                if (SelectedShip is {IsPlatformOrStation: true})
+                if (s is {IsPlatformOrStation: true})
                 {
-                    other.Add(new("Scuttle", holdPosition, OrderScuttle));
+                    other.Add(new("Scuttle", holdPosition, () => OrderScuttle(s)));
                 }
-                else
+                else if (s.ShipData.Role < RoleName.construction)
                 {
-                    if (SelectedShip != null && SelectedShip.ShipData.Role < RoleName.construction)
-                        other.Add(new(GameText.OrderScrap, holdPosition, OrderScrap));
+                    other.Add(new(GameText.OrderScrap, holdPosition, () => OrderScrap(s)));
                 }
                 shipMenu.Add(other);
             }
             else
             {
-                shipMenu.Add(new(GameText.ContactLeader, ResourceManager.Texture("UI/viewPlanetIcon"), ContactLeader));
+                var viewPlanet = ResourceManager.Texture("UI/viewPlanetIcon");
+                shipMenu.Add(new(GameText.ContactLeader, viewPlanet, () => ContactLeader(s)));
             }
 
             pieMenu.Show(shipMenu);
@@ -81,28 +80,16 @@ namespace Ship_Game
             return ScreenManager.ScreenCenter;
         }
 
-        public void OpenCombatMenu()
+        public void OpenCombatMenu(Planet planet)
         {
-            workersPanel = new CombatScreen(this, SelectedPlanet);
+            bool doReturnToShip = ViewingShip;
+            SetSelectedPlanet(planet);
+            returnToShip = doReturnToShip;
+
+            workersPanel = new CombatScreen(this, planet);
+
+            SnapViewTo(new(planet.Position.X, planet.Position.Y + 400, 2500), 5f, 2f);
             LookingAtPlanet = true;
-            transitionStartPosition = CamPos;
-            CamDestination = new Vector3d(SelectedPlanet.Position.X, SelectedPlanet.Position.Y + 400f, 2500.0);
-
-            AdjustCamTimer = 2f;
-            transitionElapsedTime = 0.0f;
-            transDuration = 5f;
-
-            if (ViewingShip)
-                returnToShip = true;
-
-            ViewingShip = false;
-            snappingToShip = false;
-        }
-
-        public void RefitTo()
-        {
-            if (SelectedShip != null)
-                ScreenManager.AddScreen(new RefitToWindow(this, SelectedShip));
         }
 
         void ToggleUIComponent(string audioCue, ref bool toggle)

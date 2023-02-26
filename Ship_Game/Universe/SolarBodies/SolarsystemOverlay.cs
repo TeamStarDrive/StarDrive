@@ -25,7 +25,8 @@ namespace Ship_Game
         bool Hovering;
         float HoverTimer;
         new Color tColor = Colors.Cream;
-        Array<ClickMe> ClickList = new Array<ClickMe>();
+
+        Planet CurrentlyHoveredPlanet;
 
         public SolarsystemOverlay(Rectangle r, ScreenManager sm, UniverseScreen universe)
         {
@@ -47,7 +48,7 @@ namespace Ship_Game
             SelectionTimer += elapsed.RealTime.Seconds;
 
             Vector2d pPos = Universe.ProjectToScreenPosition(Sys.Position.ToVec3());
-            var radialPos = new Vector2(Sys.Position.X + 4500f, Sys.Position.Y);
+            Vector2 radialPos = new(Sys.Position.X + 4500f, Sys.Position.Y);
             Vector2d insetRadialSS = Universe.ProjectToScreenPosition(radialPos.ToVec3());
             double pRadius = insetRadialSS.Distance(pPos).LowerBound(5);
 
@@ -57,7 +58,7 @@ namespace Ship_Game
                 SelectionTimer = 0.4f;
 
             Hovering = false;
-            ClickList.Clear();
+            CurrentlyHoveredPlanet = null;
 
             float transitionPos = 1f - (SelectionTimer / 0.4f);
             float transitionOffset = transitionPos*transitionPos;
@@ -71,7 +72,7 @@ namespace Ship_Game
                     planetPos -= ((planetPos - pPos).Normalized() * (40 + 40 * i) * transitionOffset);
 
                     Color color = p.Owner == null ? new Color(50, 50, 50, 90) : new Color(p.Owner.EmpireColor, 100);
-                    ScreenManager.SpriteBatch.DrawCircle(pPos, pPos.Distance(planetPos), color, 2f);
+                    batch.DrawCircle(pPos, pPos.Distance(planetPos), color, 2f);
                 }
 
                 for (int i = 0; i < Sys.PlanetList.Count; i++)
@@ -80,26 +81,31 @@ namespace Ship_Game
                     Vector2d planetPos = pPos.PointFromAngle(p.OrbitalAngle, 40 + 40 * i);
                     planetPos -= ((planetPos - pPos).Normalized() * (40 + 40 * i) * transitionOffset);
 
-                    float fIconScale = 1.0f + ((float)Math.Log(p.Scale));
-                    Rectangle PlanetRect = new Rectangle((int)planetPos.X - (int)(16 * fIconScale / 2), (int)planetPos.Y - (int)(16 * fIconScale / 2), (int)(16 * fIconScale), (int)(16 * fIconScale));
-                    if (PlanetRect.HitTest(Universe.Input.CursorPosition))
+                    float fIconScale = 1f + (float)Math.Log(p.Scale);
+                    float iconSize = (20f * fIconScale);
+                    RectF planetR = new(planetPos.X - (iconSize*0.5f), planetPos.Y - (iconSize*0.5f), iconSize, iconSize);
+                    if (planetR.HitTest(Universe.Input.CursorPosition))
                     {
                         Hovering = true;
-                        int widthplus = (int)(4f * (HoverTimer / 0.2f));
-                        PlanetRect = new Rectangle((int)planetPos.X - ((int)(16 * fIconScale / 2) + widthplus), (int)planetPos.Y - ((int)(16 * fIconScale / 2) + widthplus), 2 * ((int)(16 * fIconScale / 2) + widthplus), 2 * ((int)(16 * fIconScale / 2) + widthplus));
-                        ClickList.Add(new ClickMe { p = p, r = PlanetRect });
+                        CurrentlyHoveredPlanet = p;
+
+                        // animate the planet texture while player is hovering over it
+                        float relHoveredTime = Math.Min(HoverTimer, 0.1f) / 0.1f;
+                        float sizeModWhileHovered = 0f.LerpTo(32, relHoveredTime);
+                        planetR = planetR.Bevel(sizeModWhileHovered);
                     }
-                    batch.Draw(p.PlanetTexture, PlanetRect, Color.White);
-            
+                    
+                    batch.Draw(p.PlanetTexture, planetR, Color.White);
+
                     if (Universe.SelectedPlanet == p)
                     {
-                        batch.BracketRectangle(PlanetRect, p.Owner?.EmpireColor ?? Color.Gray, 3);
+                        batch.BracketRectangle(planetR, p.Owner?.EmpireColor ?? Color.Gray, 3);
                     }
 
-                    var planetTypeCursor = new Vector2(PlanetRect.X + PlanetRect.Width / 2 - SysFont.MeasureString(p.Name).X / 2f, PlanetRect.Y + PlanetRect.Height + 4);
+                    Vector2 planetTypeCursor = new(planetR.X + planetR.W / 2 - SysFont.TextWidth(p.Name) / 2f, planetR.Y + planetR.H + 4);
                     planetTypeCursor = planetTypeCursor.Rounded();
                     int playerTroops = 0;
-                    int sideSpacing = 0;
+                    float sideSpacing = 0;
 
                     if (p.IsExploredBy(player))
                     {
@@ -116,35 +122,35 @@ namespace Ship_Game
                         if (hasAnomaly)
                         {
                             sideSpacing += 4;
-                            var flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
+                            RectF flashRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);
                             batch.Draw(ResourceManager.Texture("UI/icon_anomaly_small"), flashRect, Universe.CurrentFlashColor);
                             if (flashRect.HitTest(Universe.Input.CursorPosition))
                             {
                                 ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyWas);
                             }
-                            sideSpacing += flashRect.Width;
+                            sideSpacing += flashRect.W;
                         }
                         if (hasCommodities)
                         {
                             sideSpacing += 4;
-                            var flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
+                            RectF flashRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);
                             batch.Draw(ResourceManager.Texture("UI/marketIcon"), flashRect, Universe.CurrentFlashColor);
                             if (flashRect.HitTest(Universe.Input.CursorPosition))
                             {
                                 ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyWas);
                             }
-                            sideSpacing += flashRect.Width;
+                            sideSpacing += flashRect.W;
                         }
                         if (hasTroops)
                         {
                             sideSpacing += 4;
-                            var flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
+                            RectF flashRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);
                             batch.Draw(ResourceManager.Texture("UI/icon_troop"), flashRect, Universe.CurrentFlashColor);
                             if (flashRect.HitTest(Universe.Input.CursorPosition))
                             {
                                 ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyWas);
                             }
-                            sideSpacing += flashRect.Width;
+                            sideSpacing += flashRect.W;
                         }
 
                         if (p.Owner == null)
@@ -162,17 +168,17 @@ namespace Ship_Game
                             planetTypeCursor.Y += (Spacing + 4);
                             p.UpdateMaxPopulation();
                             string popString = p.PopulationStringForPlayer;
-                            planetTypeCursor.X = PlanetRect.X + PlanetRect.Width / 2 - DataFont.MeasureString(popString).X / 2f;
+                            planetTypeCursor.X = planetR.X + planetR.W / 2 - DataFont.TextWidth(popString) / 2f;
                             batch.DrawString(DataFont, popString, planetTypeCursor, tColor);
-                            Rectangle flagRect = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 10, PlanetRect.Y - 20, 20, 20);
+                            RectF flagRect = new(planetR.X + planetR.W / 2 - 10, planetR.Y - 20, 20, 20);
                             if (p.Owner != null)
                             {
                                 batch.DrawDropShadowImage(flagRect, ResourceManager.Flag(p.Owner), p.Owner.EmpireColor);
                             }
-                            Rectangle fIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)planetTypeCursor.Y + Spacing, 10, 10);
-                            Rectangle pIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(planetTypeCursor.Y + 2 * Spacing), 10, 10);
-                            var rIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(planetTypeCursor.Y + 3 * Spacing), 10, 10);
-                            var tIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(planetTypeCursor.Y + 4 * Spacing), 10, 10);
+                            RectF fIcon = new(planetR.X + planetR.W / 2 - 15, (int)planetTypeCursor.Y + Spacing, 10, 10);
+                            RectF pIcon = new(planetR.X + planetR.W / 2 - 15, (int)(planetTypeCursor.Y + 2 * Spacing), 10, 10);
+                            RectF rIcon = new(planetR.X + planetR.W / 2 - 15, (int)(planetTypeCursor.Y + 3 * Spacing), 10, 10);
+                            RectF tIcon = new(planetR.X + planetR.W / 2 - 15, (int)(planetTypeCursor.Y + 4 * Spacing), 10, 10);
                             batch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
                             batch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
 
@@ -201,7 +207,7 @@ namespace Ship_Game
                         {
                             if (g.IsColonizationGoal(p))
                             {
-                                var flag = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 6, PlanetRect.Y - 17, 13, 17);
+                                RectF flag = new(planetR.X + planetR.W / 2 - 6, planetR.Y - 17, 13, 17);
                                 batch.Draw(ResourceManager.Texture("UI/flagicon"), flag, player.EmpireColor);
                                 if (flag.HitTest(Universe.Input.CursorPosition))
                                     ToolTip.CreateTooltip(GameText.IndicatesThatYourEmpireHas);
@@ -212,39 +218,30 @@ namespace Ship_Game
             }
 
             if (Hovering)
-            {
                 HoverTimer += elapsed.RealTime.Seconds;
-                if (HoverTimer > 0.1f)
-                    HoverTimer = 0.1f;
-            }
             else
-            {
                 HoverTimer = 0f;
-            }
         }
 
         public override bool HandleInput(InputState input)
         {
             if (Sys == null)
                 return false;
-            foreach (ClickMe clickMe in ClickList)
-            {
-                if (clickMe.r.HitTest(input.CursorPosition) && input.InGameSelect)
-                {
-                    if (ClickTimer < (double)TimerDelay)
-                    {
-                        Universe.SelectedPlanet = clickMe.p;
-                        Universe.pInfoUI.SetPlanet(clickMe.p);
-                        Universe.SnapViewColony(clickMe.p.Owner != Universe.Player);
-                        return true;
-                    }
 
-                    GameAudio.MouseOver();
-                    Universe.SelectedPlanet = clickMe.p;
-                    Universe.pInfoUI.SetPlanet(clickMe.p);
-                    ClickTimer = 0.0f;
-                    return true;
+            if (input.InGameSelect && CurrentlyHoveredPlanet != null)
+            {
+                Planet p = CurrentlyHoveredPlanet;
+                if (ClickTimer < (double)TimerDelay)
+                {
+                    Universe.SnapViewColony(p, p.Owner != Universe.Player);
                 }
+                else
+                {
+                    GameAudio.MouseOver();
+                    Universe.SetSelectedSystem(Sys, p);
+                    ClickTimer = 0.0f;
+                }
+                return true;
             }
             return ElementRect.HitTest(input.CursorPosition);
         }
@@ -254,12 +251,6 @@ namespace Ship_Game
             if (Sys != s)
                 SelectionTimer = 0f;
             Sys = s;
-        }
-
-        public struct ClickMe
-        {
-            public Rectangle r;
-            public Planet p;
         }
     }
 }

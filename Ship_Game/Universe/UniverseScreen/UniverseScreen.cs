@@ -124,8 +124,6 @@ namespace Ship_Game
         public DebugInfoScreen DebugWin;
         public bool ShowShipNames;
         bool UseRealLights = true;
-        public SolarSystem SelectedSystem;
-        public Fleet SelectedFleet;
         int FBTimer = 60;
         bool SelectingWithBox;
 
@@ -259,18 +257,6 @@ namespace Ship_Game
             light.World = Matrix.CreateTranslation((Vector3)light.Position);
             AddLight(light, dynamic:false);
             return light;
-        }
-
-        public void ContactLeader()
-        {
-            if (SelectedShip == null)
-                return;
-
-            Empire leaderLoyalty = SelectedShip.Loyalty;
-            if (leaderLoyalty.IsFaction)
-                Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.Loyalty, this);
-            else
-                DiplomacyScreen.Show(SelectedShip.Loyalty, Player, "Greeting");
         }
 
         public override void LoadContent()
@@ -657,11 +643,8 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.Music.Stop();
 
+            ClearSelectedItems();
             ShipToView = null;
-            SelectedShip   = null;
-            SelectedFleet  = null;
-            SelectedPlanet = null;
-            SelectedSystem = null;
 
             EmpireHullBonuses.Clear();
             ClickableFleetsList.Clear();
