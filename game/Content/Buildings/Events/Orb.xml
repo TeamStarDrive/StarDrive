@@ -5,7 +5,6 @@
   <EventTriggerUID>Orb</EventTriggerUID>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18196</NameTranslationIndex>
   <DescriptionIndex>18197</DescriptionIndex>

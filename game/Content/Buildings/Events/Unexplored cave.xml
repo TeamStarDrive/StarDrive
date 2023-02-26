@@ -5,10 +5,9 @@
   <Cost>40</Cost>
   <Maintenance>0</Maintenance>
   
-  <!--<EventTriggerUID>Unexplored cave</EventTriggerUID>-->
+  <EventTriggerUID>Unexplored cave</EventTriggerUID>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Scrappable>false</Scrappable>
-
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18109</NameTranslationIndex>
   <DescriptionIndex>18110</DescriptionIndex>

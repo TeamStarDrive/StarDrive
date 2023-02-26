@@ -9,7 +9,7 @@
   <PlusFlatPopulation>-5</PlusFlatPopulation>
   <Scrappable>true</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18234</NameTranslationIndex>
   <DescriptionIndex>18235</DescriptionIndex>

@@ -10,6 +10,7 @@
   <CannotBeBombed>true</CannotBeBombed>
   <Strength>30</Strength>
   <CanBeTerraformed>true</CanBeTerraformed>
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4251</NameTranslationIndex>
   <DescriptionIndex>4268</DescriptionIndex>

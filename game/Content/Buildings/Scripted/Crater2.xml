@@ -8,7 +8,7 @@
   <Scrappable>false</Scrappable>
   <CreditsPerColonist>1</CreditsPerColonist>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4289</NameTranslationIndex>
   <DescriptionIndex>4292</DescriptionIndex>

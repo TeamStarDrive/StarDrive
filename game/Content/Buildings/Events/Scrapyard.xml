@@ -7,7 +7,7 @@
   <ProdCache>1500</ProdCache>
   <PlusProdPerColonist>0.8</PlusProdPerColonist>
   <IsCommodity>true</IsCommodity>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18237</NameTranslationIndex>
   <DescriptionIndex>18238</DescriptionIndex>

@@ -5,6 +5,7 @@
   <Maintenance>0</Maintenance>  
   
   <IsCommodity>true</IsCommodity>
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <FoodCache>250</FoodCache>
   <PlusFlatFoodAmount>1</PlusFlatFoodAmount>
   <PlusFlatPopulation>8</PlusFlatPopulation>
