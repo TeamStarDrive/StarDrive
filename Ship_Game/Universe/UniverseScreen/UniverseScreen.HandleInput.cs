@@ -178,8 +178,9 @@ namespace Ship_Game
                 else
                 {
                     CamDestination = transitionStartPosition;
+                    SetSelectedPlanet(workersPanel.P);
                 }
-                transitionElapsedTime = 0.0f;
+                transitionElapsedTime = 0f;
                 LookingAtPlanet = false;
             }
         }
@@ -566,7 +567,8 @@ namespace Ship_Game
         {
             // because the visible size of the planet icon changes depending on the zoom level
             // simply figure out a pixel based search radius
-            float searchRadius = UnprojectToWorldSize(sizeOnScreen: 8);
+            float searchRadius = UnprojectToWorldSize(sizeOnScreen: 16) - 500;
+            searchRadius = searchRadius.LowerBound(100);
 
             Vector3d worldPos = UnprojectToWorldPosition3D(Input.CursorPosition, ZPlane: 2500);
             Planet p = UState.FindPlanetAt(worldPos.ToVec2f(), searchRadius: searchRadius);
@@ -576,9 +578,13 @@ namespace Ship_Game
         // should be called for >= SectorView
         SolarSystem FindSolarSystemUnderCursor()
         {
-            float hitRadius = 10_000;
-            if (CamPos.Z >= 1_500_000)
-                hitRadius = 25_000;
+            // convert cam Z pos at high zoom to a relative [0.0, 1.0] linear range
+            float minZ = 1_500_000f;
+            float maxZ = 2_500_000f;
+            float relZ = MathExt.LerpInverse((float)CamPos.Z, minZ, maxZ).Clamped(0, 1);
+
+            // and then convert the relative Z to a solar hit radius
+            float hitRadius = 5_000f.LerpTo(50_000f, relZ);
             return UState.FindSolarSystemAt(CursorWorldPosition2D, hitRadius: hitRadius);
         }
 
@@ -664,6 +670,26 @@ namespace Ship_Game
             return false;
         }
 
+        bool SelectPlanetClicks(InputState input)
+        {
+            Planet planet = FindPlanetUnderCursor();
+            if (planet != null)
+            {
+                if (input.LeftMouseDoubleClick)
+                {
+                    SnapViewColony(planet, planet.Owner != Player && !Debug);
+                    SelectionBox = new();
+                }
+                else
+                {
+                    SetSelectedPlanet(planet);
+                    GameAudio.PlanetClicked();
+                }
+                return true;
+            }
+            return false;
+        }
+
         bool LeftClickOnClickableItem(InputState input)
         {
             Project.Started = false;
@@ -677,6 +703,10 @@ namespace Ship_Game
                     GameAudio.MouseOver();
                     return true;
                 }
+
+                // in SectorView, always prefer selecting planets
+                if (SelectPlanetClicks(input))
+                    return true;
             }
 
             Fleet fleet = CheckFleetClicked();
@@ -693,20 +723,11 @@ namespace Ship_Game
                 return true;
             }
 
-            Planet planet = FindPlanetUnderCursor();
-            if (planet != null)
+            // in SystemView, prefer ship clicks over planet clicks
+            if (viewState < UnivScreenState.SectorView)
             {
-                if (input.LeftMouseDoubleClick)
-                {
-                    SnapViewColony(planet, planet.Owner != Player && !Debug);
-                    SelectionBox = new();
-                }
-                else
-                {
-                    SetSelectedPlanet(planet);
-                    GameAudio.PlanetClicked();
-                }
-                return true;
+                if (SelectPlanetClicks(input))
+                    return true;
             }
 
             ClickableSpaceBuildGoal goal = GetSpaceBuildGoalUnderCursor();

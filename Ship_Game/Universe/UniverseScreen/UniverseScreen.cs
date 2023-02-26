@@ -682,7 +682,7 @@ namespace Ship_Game
             ShipView   = 15000,
             PlanetView = 35000,
             SystemView = 250000,
-            SectorView = 1775000,
+            SectorView = 1775000, // from 250_001 to 1_775_000
             GalaxyView
         }
 
