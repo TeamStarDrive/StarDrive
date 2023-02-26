@@ -274,7 +274,6 @@ namespace Ship_Game
             HandleEdgeDetection(input);
 
             UpdateVisibleShields();
-            UpdateClickableSystemsPlanetsAndVisibleShields();
 
             if (HandleDragAORect(input))
                 return true;
@@ -557,18 +556,17 @@ namespace Ship_Game
 
             // TODO: this needs to be rewritten
             Shields.SetVisibleShields(shields.ToArr());
-        }
 
-        void UpdateClickableSystemsPlanetsAndVisibleShields()
-        {
             if (viewState <= UnivScreenState.SectorView)
             {
                 Array<Shield> visibleShields = new();
 
                 Planet[] planets = UState.GetVisiblePlanets();
                 foreach (Planet planet in planets)
+                {
                     if (planet.Shield != null && planet.IsExploredBy(Player))
                         visibleShields.Add(planet.Shield);
+                }
 
                 Shields.SetVisiblePlanetShields(visibleShields.ToArr());
             }
@@ -606,8 +604,12 @@ namespace Ship_Game
             return UState.Spatial.FindNearby(ref opt).FirstOrDefault() as Ship;
         }
 
-        Planet FindPlanetUnderCursor(float searchRadius = 500)
+        Planet FindPlanetUnderCursor()
         {
+            // because the visible size of the planet icon changes depending on the zoom level
+            // simply figure out a pixel based search radius
+            float searchRadius = UnprojectToWorldSize(sizeOnScreen: 8);
+
             Vector3d worldPos = UnprojectToWorldPosition3D(Input.CursorPosition, ZPlane: 2500);
             Planet p = UState.FindPlanetAt(worldPos.ToVec2f(), searchRadius: searchRadius);
             return p != null && p.ParentSystem.IsExploredBy(Player) ? p : null;
@@ -765,15 +767,13 @@ namespace Ship_Game
             else if (SelectedShipList.Count > 1)
                 shipListInfoUI.SetShipList(SelectedShipList, false);
 
-
             if (SelectedShipList.Count == 1)
             {
                 LoadShipMenuNodes(SelectedShipList[0].Loyalty == Player ? 1 : 0);
                 return;
             }
 
-            float planetSelectRadius = (viewState <= UnivScreenState.SystemView) ? 500 : 4000;
-            SelectedPlanet = FindPlanetUnderCursor(planetSelectRadius);
+            SelectedPlanet = FindPlanetUnderCursor();
             if (SelectedPlanet != null)
             {
                 SelectedSomethingTimer = 3f;
@@ -1027,7 +1027,7 @@ namespace Ship_Game
             SelectedShipList.Clear();
             if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                 previousSelection = SelectedShip;
-            
+
             SelectedShip = null;
 
             if (viewState <= UnivScreenState.SystemView)
