@@ -23,13 +23,13 @@ namespace Ship_Game
 
 		public Action OnSelect { get; set; }
 
-        public string Text { get; set; }
+        public LocalizedText Text { get; set; }
 
         public PieMenuNode()
 		{
 		}
 
-		public PieMenuNode(string text, SubTexture icon, Action onSelect)
+		public PieMenuNode(LocalizedText text, SubTexture icon, Action onSelect)
 		{
 			Text = text;
 			Icon = icon;

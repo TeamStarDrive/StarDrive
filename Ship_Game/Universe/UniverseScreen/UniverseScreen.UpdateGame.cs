@@ -272,18 +272,9 @@ namespace Ship_Game
             PreEmpirePerf.Start();
             {
                 RecomputeFleetButtons(false);
-
-                if (SelectedShip != null)
-                {
-                    ProjectPieMenu(new(SelectedShip.Position, 0f));
-                }
-                else if (SelectedPlanet != null)
-                {
-                    ProjectPieMenu(SelectedPlanet.Position3D);
-                }
             }
             PreEmpirePerf.Stop();
-            
+
             Array<Empire> updated = null;
             if (!UState.Paused && IsActive)
             {

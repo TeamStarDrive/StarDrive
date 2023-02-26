@@ -478,7 +478,7 @@ namespace Ship_Game
             NotificationManager.ReSize();
 
             CreateFogMap(TransientContent, device);
-            LoadMenu();
+            CreatePieMenu();
 
             FTLManager.LoadContent(this);
 
@@ -609,14 +609,6 @@ namespace Ship_Game
             {
                 shipListInfoUI.Update(elapsed);
             }
-        }
-
-        void ProjectPieMenu(Vector3 position)
-        {
-            Vector3 proj = new Vector3(Viewport.Project(position, Projection, View, Matrix.Identity));
-            pieMenu.Position = proj.ToVec2();
-            pieMenu.Radius = 75f;
-            pieMenu.ScaleFactor = 1f;
         }
 
         public void OnPlayerDefeated()
