@@ -327,7 +327,7 @@ namespace Ship_Game
                 else
                 {
                     DeepSpaceBuildWindow.Draw(batch, elapsed);
-                    pieMenu.Draw(batch, Fonts.Arial12Bold);
+                    pieMenu.DrawAt(batch, GetPieMenuPosition(), Fonts.Arial12Bold);
                     DrawShipUI(batch, elapsed);
                     NotificationManager.Draw(batch);
                 }
