@@ -8,7 +8,7 @@
   <PlusFlatResearchAmount>0.5</PlusFlatResearchAmount>
   <IsCommodity>true</IsCommodity>
   <Scrappable>false</Scrappable>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4094</NameTranslationIndex>
   <DescriptionIndex>4095</DescriptionIndex>

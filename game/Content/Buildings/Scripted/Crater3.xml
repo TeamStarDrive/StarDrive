@@ -8,7 +8,7 @@
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <PlusFlatProductionAmount>2</PlusFlatProductionAmount>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4289</NameTranslationIndex>
   <DescriptionIndex>4294</DescriptionIndex>

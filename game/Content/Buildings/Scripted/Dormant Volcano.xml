@@ -11,7 +11,7 @@
   <ImmueToLava>true</ImmueToLava>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <CanBeTerraformed>true</CanBeTerraformed>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4237</NameTranslationIndex>
   <DescriptionIndex>4238</DescriptionIndex>

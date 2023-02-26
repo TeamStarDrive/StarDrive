@@ -9,6 +9,7 @@
   <Income>3</Income>
   <Infrastructure>0</Infrastructure>
   <IsCommodity>true</IsCommodity>
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <CanBeCreatedFromLava>true</CanBeCreatedFromLava>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <!-- For localization in GameText.yaml -->

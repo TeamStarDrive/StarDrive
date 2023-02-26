@@ -7,6 +7,7 @@
   <PlusFlatResearchAmount>-2</PlusFlatResearchAmount>
   <PlusTaxPercentage>0.3</PlusTaxPercentage>
   <IsCommodity>true</IsCommodity>
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <Scrappable>false</Scrappable>
   
   <!-- For localization in GameText.yaml -->
