@@ -11,7 +11,7 @@ public partial class GenericQtree
         SearchOptions opt = new(pos, radius);
         return FindOne(ref opt);
     }
-    
+
     public SpatialObjectBase FindOne(in AABoundingBox2D searchArea)
     {
         SearchOptions opt = new(searchArea);
@@ -36,19 +36,19 @@ public partial class GenericQtree
     {
         return Find<SpatialObjectBase>(ref opt);
     }
-    
+
     public T[] Find<T>(in AABoundingBox2D searchArea) where T : SpatialObjectBase
     {
         SearchOptions opt = new(searchArea);
         return Find<T>(ref opt);
     }
-    
+
     public T[] Find<T>(Vector2 pos, float radius) where T : SpatialObjectBase
     {
         SearchOptions opt = new(pos, radius);
         return Find<T>(ref opt);
     }
-    
+
     /// <summary>
     /// Finds the first object that matches the search criteria.
     /// If SortByDistance is enabled, the closest item is returned,
@@ -79,7 +79,7 @@ public partial class GenericQtree
     {
         ObjectsState state = State;
         FindResultBuffer<Node> buffer = GetThreadLocalTraversalBuffer(state.Root, opt.MaxResults);
-        
+
         AABoundingBox2D searchRect = opt.SearchRect;
         uint loyaltyMask = NativeSpatialObject.GetLoyaltyMask(opt);
         do
@@ -126,7 +126,7 @@ public partial class GenericQtree
         // we use a bit array to ignore duplicate objects
         // duplication is present by design to handle grid border overlap
         // this filtering is faster than other more complicated structural methods
-        int idBitArraySize = ((state.MaxObjectId / 32) + 1) * sizeof(uint);
+        int idBitArraySize = ((state.MaxObjectId / 32) + 2) * sizeof(uint);
         // WARNING: any overrun at this point is going to lead to stack smash and an errorless exit
         uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
         for (int i = 0; i < idBitArraySize; ++i) idBitArray[i] = 0; // so we need to zero the idBitArray
@@ -134,7 +134,7 @@ public partial class GenericQtree
         uint loyaltyMask = NativeSpatialObject.GetLoyaltyMask(opt);
         uint typeMask = opt.Type == GameObjectType.Any ? 0xff : (uint)opt.Type;
         SpatialObjectBase exclude = opt.Exclude;
-        
+
         AABoundingBox2D searchRect = opt.SearchRect;
         bool useSearchRadius = opt.FilterRadius > 0f;
 
