@@ -3,7 +3,7 @@
   <Icon>underhive</Icon>
   
   <Cost>20</Cost>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <Strength>25</Strength>
   <IsCommodity>true</IsCommodity>
   <CombatStrength>25</CombatStrength>
@@ -14,8 +14,6 @@
   <Scrappable>false</Scrappable>
   <UniqueInEmpire>true</UniqueInEmpire>
   <BuildOnlyOnce>true</BuildOnlyOnce>
-  <!-- Tells the Solar System Generator that this is not to be placed randomly-->
-  <NoRandomSpawn>true</NoRandomSpawn>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>17963</NameTranslationIndex>

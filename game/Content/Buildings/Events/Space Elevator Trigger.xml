@@ -6,7 +6,6 @@
   <EventTriggerUID>Space Elevator Trigger</EventTriggerUID>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18194</NameTranslationIndex>
   <DescriptionIndex>18195</DescriptionIndex>

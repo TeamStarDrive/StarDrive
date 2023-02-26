@@ -10,7 +10,7 @@
   <MaxFertilityOnBuild>-0.15</MaxFertilityOnBuild>
   <MaxPopIncrease>-700</MaxPopIncrease>
   <CannotBeBombed>true</CannotBeBombed>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18183</NameTranslationIndex>
   <DescriptionIndex>18184</DescriptionIndex>

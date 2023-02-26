@@ -8,7 +8,6 @@
   <EventTriggerUID>Discover Tomb</EventTriggerUID>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Scrappable>false</Scrappable>
-
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>442</NameTranslationIndex>
   <DescriptionIndex>443</DescriptionIndex>

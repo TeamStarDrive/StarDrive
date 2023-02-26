@@ -3,7 +3,7 @@
   <Icon>underhive</Icon>
   
   <Cost>20</Cost>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <IsCommodity>true</IsCommodity>
   <Strength>35</Strength>
   <CombatStrength>35</CombatStrength>

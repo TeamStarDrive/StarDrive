@@ -200,28 +200,30 @@ namespace Ship_Game
 
         void AddPlanetStatusIcons(Rectangle planetIcon)
         {
-            var statusIcons = new Vector2(PlanetNameRect.X + PlanetNameRect.Width, planetIcon.Y + 10);
-            int offset      = 0;
+            var statusIcons = new Vector2(PlanetNameRect.X + PlanetNameRect.Width, planetIcon.Y);
+            int xOffset = 0;
+            int numIcons = 0;
 
-            AddRecentCombat(statusIcons, ref offset);
-            AddMoleIcons(statusIcons, ref offset);
-            AddEventIcon(statusIcons, ref offset);
-            AddCommoditiesIcon(statusIcons, ref offset);
-            AddTroopsIcon(statusIcons, ref offset);
+            AddRecentCombat(statusIcons, ref xOffset, ref numIcons);
+            AddTroopsIcon(statusIcons, ref xOffset);
+            AddMoleIcons(statusIcons, ref xOffset, ref numIcons);
+            AddEventIcon(statusIcons, ref xOffset, ref numIcons);
+            AddCommoditiesIcon(statusIcons, ref xOffset, ref numIcons);
         }
 
-        void AddRecentCombat(Vector2 statusIcons, ref int offset)
+        void AddRecentCombat(Vector2 statusIcons, ref int offset, ref int numIcons)
         {
             if (!Planet.RecentCombat) 
                 return;
 
             offset += 18;
+            numIcons += 1;
             var statusRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
             UIPanel status = Panel(statusRect, ResourceManager.Texture("UI/icon_fighting_small"));
             status.Tooltip = GameText.IndicatesThatGroundCombatIs;
         }
 
-        void AddMoleIcons(Vector2 statusIcons, ref int offset) // Haha, moles..
+        void AddMoleIcons(Vector2 statusIcons, ref int offset, ref int numIcons) // Haha, moles..
         {
             if (Player.data.MoleList.Count <= 0) 
                 return;
@@ -230,7 +232,8 @@ namespace Ship_Game
             {
                 if (m.PlanetId == Planet.Id)
                 {
-                    offset += 20;
+                    offset += 18;
+                    numIcons += 1;
                     var spyRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
                     UIPanel spy = Panel(spyRect, ResourceManager.Texture("UI/icon_spy_small"));
                     spy.Tooltip = GameText.IndicatesThatAFriendlyAgent;
@@ -239,15 +242,19 @@ namespace Ship_Game
             }
         }
 
-        void AddBuildingIcon(Building b, Vector2 statusIcons, ref int offset)
+        void AddBuildingIcon(Building b, Vector2 statusIcons, ref int offset, ref int numIcons)
         {
-            offset += 20;
-            var buildingRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
+            if (numIcons == 13)
+                offset = 0;
+
+            offset += 18;
+            numIcons += 1;
+            var buildingRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y + (numIcons > 13 ? 18 : 0), 16, 16);
             UIPanel building = Panel(buildingRect, ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"));
-            building.Tooltip = b.DescriptionText;
+            building.Tooltip = $"{b.TranslatedName.Text}:\n{b.DescriptionText.Text}";
         }
 
-        void AddEventIcon(Vector2 statusIcons, ref int offset)
+        void AddEventIcon(Vector2 statusIcons, ref int offset, ref int numIcons)
         {
             if (Planet.NumBuildings == 0)
                 return;
@@ -256,21 +263,21 @@ namespace Ship_Game
             {
                 if (b.EventHere && (Planet.Owner == null || !Planet.Owner.IsBuildingUnlocked(b.Name)))
                 {
-                    AddBuildingIcon(b, statusIcons, ref offset);
+                    AddBuildingIcon(b, statusIcons, ref offset, ref numIcons);
                 }
             }
         }
 
-        void AddCommoditiesIcon(Vector2 statusIcons, ref int offset)
+        void AddCommoditiesIcon(Vector2 statusIcons, ref int offset, ref int numIcons)
         {
             if (Planet.NumBuildings == 0)
                 return;
 
             foreach (Building b in Planet.Buildings)
             {
-                if (b.IsCommodity || b.IsVolcano || b.IsCrater)
+                if (b.ShowOnPlanetList)
                 {
-                    AddBuildingIcon(b, statusIcons, ref offset);
+                    AddBuildingIcon(b, statusIcons, ref offset, ref numIcons);
                 }
             }
         }
@@ -280,7 +287,7 @@ namespace Ship_Game
             int troops = Planet.CountEmpireTroops(Player);
             if (troops > 0)
             {
-                offset += 20;
+                offset += 18;
                 var troopRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
                 UIPanel troop = Panel(troopRect, ResourceManager.Texture("UI/icon_troop"));
                 troop.Tooltip = LocalizedText.Parse($"{{Troops}}: {troops}");
