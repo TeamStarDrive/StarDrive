@@ -236,7 +236,7 @@ namespace Ship_Game
             ShowRoles.Draw(batch, elapsed);
             batch.SafeEnd();
         }
-        
+
         void OnShipListScreenItemClicked(ShipListScreenItem item)
         {
             ExitScreen();

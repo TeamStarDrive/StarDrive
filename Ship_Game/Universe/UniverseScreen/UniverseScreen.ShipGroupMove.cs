@@ -53,9 +53,7 @@ namespace Ship_Game
             {
                 if (SelectedShip.IsConstructor || SelectedShip.IsSupplyShuttle)
                 {
-                    if (SelectedShip != null && previousSelection != SelectedShip) // fbedard
-                        previousSelection = SelectedShip;
-                    SelectedShip = null;
+                    SetSelectedShip(null);
                     GameAudio.NegativeClick();
                 }
                 else // single-ship group
@@ -88,16 +86,12 @@ namespace Ship_Game
                 SelectedSomethingTimer = 3f;
                 MoveFleetToMouse(SelectedFleet, null, null, wasProjecting: true);
             }
-            else if (SelectedShip != null && SelectedShip?.Loyalty == Player)
+            else if (SelectedShip != null && SelectedShip.Loyalty == Player)
             {
                 Player.AI.DefensiveCoordinator.Remove(SelectedShip);
                 SelectedSomethingTimer = 3f;
                 if (UnselectableShip())
-                {
-                    if (SelectedShip != null && previousSelection != SelectedShip) // fbedard
-                        previousSelection = SelectedShip;
                     return;
-                }
 
                 MoveShipToMouse(SelectedShip, wasProjecting: true);
             }

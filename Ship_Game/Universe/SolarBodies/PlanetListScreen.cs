@@ -313,9 +313,7 @@ namespace Ship_Game
         {
             ExitScreen();
             GameAudio.AcceptClick();
-            Universe.SelectedPlanet = item.Planet;
-            Universe.ViewingShip = false;
-            Universe.returnToShip = false;
+            Universe.SetSelectedPlanet(item.Planet);
             Universe.CamDestination = new Vector3d(item.Planet.Position, 10000);
         }
 

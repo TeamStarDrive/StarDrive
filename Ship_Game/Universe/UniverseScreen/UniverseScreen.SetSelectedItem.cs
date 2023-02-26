@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using SDUtils;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
+#pragma warning disable CA2213
 
 namespace Ship_Game;
 
 public partial class UniverseScreen
 {
-    #pragma warning disable CA2213
+    // TODO: refactor all of this into a single SelectedItem class
+    public SolarSystem SelectedSystem;
     public Planet SelectedPlanet;
+    public Fleet SelectedFleet;
     public Ship SelectedShip;
-    public Ship previousSelection;
-    #pragma warning restore CA2213
+    public Ship PrevSelectedShip;
     Array<Ship> SelectedShipList = new();
     public ClickableSpaceBuildGoal SelectedItem;
 
@@ -33,10 +31,11 @@ public partial class UniverseScreen
     {
         if (updatePrevSelectedShip)
             UpdatePrevSelectedShip(newShip: null);
-        SelectedFleet  = null;
-        SelectedItem   = null;
+
         SelectedSystem = null;
         SelectedPlanet = null;
+        SelectedFleet = null;
+        SelectedItem = null;
         SelectedShip = null;
 
         if (clearShipList)
@@ -67,21 +66,21 @@ public partial class UniverseScreen
     void UpdatePrevSelectedShip(Ship newShip)
     {
         // previously selected ship is not null, and we selected a new ship, and new ship is not previous ship
-        if (SelectedShip != null && previousSelection != SelectedShip && SelectedShip != newShip)
+        if (SelectedShip != null && PrevSelectedShip != SelectedShip && SelectedShip != newShip)
         {
-            previousSelection = SelectedShip;
+            PrevSelectedShip = SelectedShip;
         }
     }
 
     bool HandlePrevSelectedShipChange(InputState input)
     {
         // CG: previous target code.
-        if (previousSelection != null && input.PreviousTarget)
+        if (PrevSelectedShip != null && input.PreviousTarget)
         {
-            if (previousSelection.Active)
-                SetSelectedShip(previousSelection);
+            if (PrevSelectedShip.Active)
+                SetSelectedShip(PrevSelectedShip);
             else
-                previousSelection = null;  //fbedard: remove inactive ship
+                PrevSelectedShip = null;  //fbedard: remove inactive ship
             return true;
         }
         return false;
@@ -143,7 +142,7 @@ public partial class UniverseScreen
         }
     }
 
-    void SetSelectedPlanet(Planet planet)
+    public void SetSelectedPlanet(Planet planet)
     {
         SelectedSomethingTimer = 3f;
         ClearSelectedItems();
@@ -151,12 +150,19 @@ public partial class UniverseScreen
         pInfoUI.SetPlanet(planet);
     }
 
-    void SetSelectedSystem(SolarSystem system)
+    public void SetSelectedSystem(SolarSystem system, Planet p = null)
     {
         SelectedSomethingTimer = 3f;
         ClearSelectedItems();
+
         SelectedSystem = system;
         SystemInfoOverlay.SetSystem(SelectedSystem);
+
+        if (p != null)
+        {
+            SelectedPlanet = p;
+            pInfoUI.SetPlanet(p);
+        }
     }
 
     void SetSelectedItem(ClickableSpaceBuildGoal item)

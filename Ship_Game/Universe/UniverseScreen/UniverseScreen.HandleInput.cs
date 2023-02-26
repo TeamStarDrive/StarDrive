@@ -90,8 +90,8 @@ namespace Ship_Game
             HandleFleetSelections(input);
             HandleShipSelectionAndOrders();
 
-            if (input.LeftMouseDoubleClick)
-                HandleDoubleClickShipsAndSolarObjects(input);
+            if (input.LeftMouseDoubleClick && HandleDoubleClickShipsAndSolarObjects(input))
+                return true;
 
             if (!LookingAtPlanet)
             {
@@ -609,9 +609,9 @@ namespace Ship_Game
                 if (!pieMenu.Visible)
                 {
                     if (SelectedPlanet != null)
-                        LoadPieMenuNodesForPlanet(owned: SelectedPlanet.Owner != null, habitable: SelectedPlanet.Habitable);
-                    else if (SelectedShip is { IsHangarShip: false, IsConstructor: false })
-                        LoadPieMenuShipNodes(SelectedShip.Loyalty.isPlayer);
+                        LoadPieMenuNodesForPlanet(SelectedPlanet);
+                    else if (SelectedShip is { IsHangarShip: false, IsConstructor: false } s)
+                        LoadPieMenuShipNodes(s);
                 }
                 else
                 {
@@ -696,14 +696,14 @@ namespace Ship_Game
             Planet planet = FindPlanetUnderCursor();
             if (planet != null)
             {
-                SetSelectedPlanet(planet);
                 if (input.LeftMouseDoubleClick)
                 {
-                    SnapViewColony(planet.Owner != Player && !Debug);
+                    SnapViewColony(planet, planet.Owner != Player && !Debug);
                     SelectionBox = new();
                 }
                 else
                 {
+                    SetSelectedPlanet(planet);
                     GameAudio.PlanetClicked();
                 }
                 return true;
@@ -931,21 +931,21 @@ namespace Ship_Game
             return true;
         }
 
-        void HandleDoubleClickShipsAndSolarObjects(InputState input)
+        bool HandleDoubleClickShipsAndSolarObjects(InputState input)
         {
-            SetSelectedShip(null);
-
             if (viewState <= UnivScreenState.SystemView)
             {
-                SelectedPlanet = FindPlanetUnderCursor();
-                if (SelectedPlanet != null)
+                Planet planet = FindPlanetUnderCursor();
+                if (planet != null)
                 {
                     GameAudio.SubBassWhoosh();
-                    SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
+                    SnapViewColony(planet, planet.Owner != Player && !Debug);
+                    return true;
                 }
             }
 
-            SelectMultipleShipsByClickingOnShip(input);
+            if (SelectMultipleShipsByClickingOnShip(input))
+                return true;
 
             if (viewState >= UnivScreenState.SectorView)
             {
@@ -961,52 +961,56 @@ namespace Ship_Game
                     {
                         GameAudio.NegativeClick();
                     }
+                    return true;
                 }
             }
+
+            return false;
         }
 
-        void SelectMultipleShipsByClickingOnShip(InputState input)
+        bool SelectMultipleShipsByClickingOnShip(InputState input)
         {
             Ship clicked = FindClickedShip(input);
-            if (clicked != null)
+            if (clicked == null)
+                return false;
+
+            Array<Ship> selected = new() { clicked };
+
+            Ship[] ships = UState.Objects.VisibleShips;
+            foreach (Ship ship in ships)
             {
-                Array<Ship> selected = new() { clicked };
+                if (clicked == ship || ship.Loyalty != clicked.Loyalty)
+                    continue;
 
-                Ship[] ships = UState.Objects.VisibleShips;
-                foreach (Ship ship in ships)
+                bool sameHull   = ship.BaseHull == clicked.BaseHull;
+                bool sameRole   = ship.DesignRole == clicked.DesignRole;
+                bool sameDesign = ship.Name == clicked.Name;
+
+                // TODO: These are not documented to the players
+                if (input.SelectSameDesign) // Ctrl+Alt+DoubleClick
                 {
-                    if (clicked == ship || ship.Loyalty != clicked.Loyalty)
-                        continue;
-
-                    bool sameHull   = ship.BaseHull == clicked.BaseHull;
-                    bool sameRole   = ship.DesignRole == clicked.DesignRole;
-                    bool sameDesign = ship.Name == clicked.Name;
-
-                    // TODO: These are not documented to the players
-                    if (input.SelectSameDesign) // Ctrl+Alt+DoubleClick
-                    {
-                        if (sameDesign)
-                            selected.AddUnique(ship);
-                    }
-                    else if (input.SelectSameRoleAndHull) // Ctrl+DoubleClick
-                    {
-                        if (sameRole && sameHull)
-                            selected.AddUnique(ship);
-                    }
-                    else if (input.SelectSameHull) // Alt+DoubleClick
-                    {
-                        if (sameHull)
-                            selected.AddUnique(ship);
-                    }
-                    else // simple DoubleClick, select Same Role
-                    {
-                        if (sameRole)
-                            selected.AddUnique(ship);
-                    }
+                    if (sameDesign)
+                        selected.AddUnique(ship);
                 }
-
-                SetSelectedShipList(selected, isFleet: false);
+                else if (input.SelectSameRoleAndHull) // Ctrl+DoubleClick
+                {
+                    if (sameRole && sameHull)
+                        selected.AddUnique(ship);
+                }
+                else if (input.SelectSameHull) // Alt+DoubleClick
+                {
+                    if (sameHull)
+                        selected.AddUnique(ship);
+                }
+                else // simple DoubleClick, select Same Role
+                {
+                    if (sameRole)
+                        selected.AddUnique(ship);
+                }
             }
+
+            SetSelectedShipList(selected, isFleet: false);
+            return true;
         }
 
         void CyclePlanetsInCombat(UIButton b)
@@ -1037,21 +1041,12 @@ namespace Ship_Game
                 if (nextPlanetCombat >= Player.empirePlanetCombat)
                     nextPlanetCombat = 0;
 
-                if (planetToView == null)
-                    return;
-
-                SetSelectedPlanet(planetToView);
-
-                CamDestination = new Vector3d(SelectedPlanet.Position.X, SelectedPlanet.Position.Y, 9000.0);
-                transitionStartPosition = CamPos;
-                transitionElapsedTime = 0.0f;
-                LookingAtPlanet = false;
-                AdjustCamTimer = 2f;
-                transDuration = 5f;
-                returnToShip = false;
-                ViewingShip = false;
-                snappingToShip = false;
-                SelectedItem = null;
+                if (planetToView != null)
+                {
+                    SetSelectedPlanet(planetToView);
+                    SnapViewTo(new(planetToView.Position, 9000.0), 5f, 2f);
+                    LookingAtPlanet = false;
+                }
             }
         }
 
@@ -1096,7 +1091,7 @@ namespace Ship_Game
                 GameAudio.BlipClick();
             }
 
-            SelectedItem = null;
+            ClearSelectedItems();
         }
 
         Fleet CreateNewFleet(int fleetId, IReadOnlyList<Ship> ships)
