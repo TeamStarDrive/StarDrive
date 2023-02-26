@@ -40,8 +40,8 @@ public partial class UniverseScreen
 
         if (clearShipList)
         {
-            SelectedShipList.Clear();
-            shipListInfoUI.ClearShipList();
+            SelectedShipList?.Clear();
+            shipListInfoUI?.ClearShipList();
         }
 
         if (clearFlags)
