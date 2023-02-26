@@ -529,22 +529,15 @@ namespace Ship_Game
             }
         }
 
-        bool ShowSystemInfoOverlay => SelectedSystem != null && !LookingAtPlanet && !IsCinematicModeEnabled
-                                   && viewState == UnivScreenState.GalaxyView;
-
-        bool ShowPlanetInfo => SelectedPlanet != null && !LookingAtPlanet && !IsCinematicModeEnabled;
-
-        bool ShowShipInfo => SelectedShip != null && !LookingAtPlanet && !IsCinematicModeEnabled;
-
-        bool ShowShipList => SelectedShipList.Count > 1 && SelectedFleet == null && !IsCinematicModeEnabled;
-
-        bool ShowFleetInfo => SelectedFleet != null && !LookingAtPlanet && !IsCinematicModeEnabled;
+        bool CanShowInfo => !LookingAtPlanet && !IsCinematicModeEnabled;
+        bool ShowSystemInfoOverlay => SelectedSystem != null && CanShowInfo && viewState == UnivScreenState.GalaxyView;
+        bool ShowPlanetInfo => SelectedPlanet != null && CanShowInfo;
+        bool ShowShipInfo => SelectedShip != null && CanShowInfo;
+        bool ShowShipList => SelectedShipList.Count > 1 && SelectedFleet == null && CanShowInfo;
+        bool ShowFleetInfo => SelectedFleet != null && CanShowInfo;
 
         private void DrawSelectedItems(SpriteBatch batch, DrawTimes elapsed)
         {
-            if (SelectedShipList.Count == 0)
-                shipListInfoUI.ClearShipList();
-
             if (ShowSystemInfoOverlay)
             {
                 SystemInfoOverlay.Draw(batch, elapsed);

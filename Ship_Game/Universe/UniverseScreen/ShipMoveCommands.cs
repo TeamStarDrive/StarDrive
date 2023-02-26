@@ -238,7 +238,7 @@ namespace Ship_Game.Universe
                     ship.AI.ResetPriorityOrder(!Input.QueueAction);
             }
 
-            Universe.Player.AI.DefensiveCoordinator.RemoveShipList(Universe.SelectedShipList);
+            Universe.Player.AI.DefensiveCoordinator.RemoveShipList(Universe.SelectedShips);
 
             if (TryFleetAttackShip(fleet, shipClicked))
                 return;

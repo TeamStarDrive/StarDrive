@@ -33,19 +33,6 @@ namespace Ship_Game
         public string StarDateString => UState.StarDate.StarDateString();
         public float LastAutosaveTime = 0;
 
-        public Array<Ship> SelectedShipList = new();
-
-        public ClickableSpaceBuildGoal[] ClickableBuildGoals = Empty<ClickableSpaceBuildGoal>.Array;
-
-        readonly Array<ClickableFleet> ClickableFleetsList = new();
-        #pragma warning disable CA2213
-        public Planet SelectedPlanet;
-        public Ship SelectedShip;
-        #pragma warning restore CA2213
-        public ClickableSpaceBuildGoal SelectedItem;
-
-        RectF SelectionBox = new(-1, -1, 0, 0);
-
         public Background bg;
 
         public Array<Bomb> BombList  = new();
@@ -60,7 +47,6 @@ namespace Ship_Game
         public bool ViewingShip = false;
         public float transDuration = 3f;
         public float SelectedSomethingTimer = 3f;
-        public Vector2 mouseWorldPos;
 
         FleetButton[] FleetButtons = Empty<FleetButton>.Array;
         public bool ShowTacticalCloseup { get; private set; }
@@ -141,12 +127,10 @@ namespace Ship_Game
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
         int FBTimer = 60;
-        bool pickedSomethingThisFrame;
         bool SelectingWithBox;
 
         public PlanetScreen workersPanel;
         int SelectorFrame;
-        public Ship previousSelection;
 
         public UIButton ShipsInCombat;
         public UIButton PlanetsInCombat;
@@ -514,11 +498,7 @@ namespace Ship_Game
                     continue;
                 if (nbrship == lastshipcombat)
                 {
-                    if (SelectedShip != null && SelectedShip != previousSelection && SelectedShip != ship)
-                        previousSelection = SelectedShip;
-                    SelectedShip = ship;
-                    ViewToShip();
-                    SelectedShipList.Add(SelectedShip);
+                    ViewToShip(ship);
                     lastshipcombat++;
                     break;
                 }
@@ -587,18 +567,14 @@ namespace Ship_Game
         {
             if (ShowSystemInfoOverlay)
             {
-                SystemInfoOverlay.SetSystem(SelectedSystem);
                 SystemInfoOverlay.Update(elapsed);
             }
-
             if (ShowPlanetInfo)
             {
-                pInfoUI.SetPlanet(SelectedPlanet);
                 pInfoUI.Update(elapsed);
             }
             else if (ShowShipInfo)
             {
-                ShipInfoUIElement.SetShip(SelectedShip);
                 ShipInfoUIElement.Update(elapsed);
             }
             else if (ShowShipList)

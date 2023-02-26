@@ -70,9 +70,9 @@ internal class SpatialDebug : DebugPage
             {
                 Screen.SelectedShip.LoyaltyChangeByGift(Loyalty);
             }
-            else if (Screen.SelectedShipList.NotEmpty)
+            else if (Screen.SelectedShips.Count > 0)
             {
-                foreach (Ship ship in Screen.SelectedShipList)
+                foreach (Ship ship in Screen.SelectedShips)
                     ship.LoyaltyChangeByGift(Loyalty);
             }
         };

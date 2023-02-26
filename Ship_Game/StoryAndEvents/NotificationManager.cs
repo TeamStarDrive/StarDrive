@@ -897,7 +897,6 @@ namespace Ship_Game
         public void SnapToShip(Ship s)
         {
             GameAudio.SubBassWhoosh();
-            Screen.SelectedShip = s;
             Screen.SnapViewShip(s);
         }
 
