@@ -13,8 +13,6 @@ namespace Ship_Game
 {
     public partial class ColonyScreen : PlanetScreen
     {
-        public Planet P;
-        public UniverseState Universe;
         readonly ToggleButton PlayerDesignsToggle;
         readonly Menu2 TitleBar;
         readonly Vector2 TitlePos;
@@ -58,12 +56,11 @@ namespace Ship_Game
         public bool ClickedTroop;
 
         Rectangle EditNameButton;
-        readonly Graphics.Font Font8  = Fonts.Arial8Bold;
-        readonly Graphics.Font Font12 = Fonts.Arial12Bold;
-        readonly Graphics.Font Font14 = Fonts.Arial14Bold;
-        readonly Graphics.Font Font20 = Fonts.Arial20Bold;
-        readonly Graphics.Font TextFont;
-        public readonly Empire Player;
+        readonly Font Font8  = Fonts.Arial8Bold;
+        readonly Font Font12 = Fonts.Arial12Bold;
+        readonly Font Font14 = Fonts.Arial14Bold;
+        readonly Font Font20 = Fonts.Arial20Bold;
+        readonly Font TextFont;
 
         UILabel TradeTitle;
         UILabel IncomingTradeTitle;
@@ -113,18 +110,16 @@ namespace Ship_Game
         UILabel EstimatedMaxPop;
 
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, 
-            int governorTabSelected = 0, int facilitiesTabSelected = 0) : base(parent)
+            int governorTabSelected = 0, int facilitiesTabSelected = 0)
+            : base(parent, p)
         {
-            P = p;
-            Universe = p.Universe;
             Eui = empUI;
-            Player = empUI.Player;
             Player.UpdateShipsWeCanBuild();
             TextFont = LowRes ? Font8 : Font12;
-            
+
             var titleBar = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleBar);
-            
+
             LeftColony = Add(new ToggleButton(titleBar.X + 25, titleBar.Y + 24, ToggleButtonStyle.ArrowLeft));
             LeftColony.Tooltip = GameText.ViewPreviousColony;
             LeftColony.OnClick = b => OnChangeColony(-1);

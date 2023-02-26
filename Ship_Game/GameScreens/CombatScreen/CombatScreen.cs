@@ -18,9 +18,6 @@ namespace Ship_Game
     // TODO: GroundCombatScreen
     public sealed class CombatScreen : PlanetScreen
     {
-        public readonly Planet P;
-        public readonly UniverseState Universe;
-        public Empire Player => Universe.Player;
         readonly Vector2 TitlePos;
         readonly Rectangle GridPos;
 
@@ -51,11 +48,8 @@ namespace Ship_Game
         readonly float[] StartXByRow    =  { 254f, 222f, 181f, 133f, 74f, 0f };
         const string BombardDefaultText = "Bombard";
 
-        public CombatScreen(GameScreen parent, Planet p) : base(parent)
+        public CombatScreen(GameScreen parent, Planet p) : base(parent, p)
         {
-            P = p ?? throw new ArgumentNullException(nameof(p));
-            Universe = p.Universe;
-
             GridRect            = new Rectangle(ScreenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
             Rectangle titleRect = new Rectangle(ScreenWidth / 2 - 250, 44, 500, 80);
             TitlePos            = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
