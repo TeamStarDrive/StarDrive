@@ -127,7 +127,7 @@ namespace Ship_Game.Data.Texture
 
             if (texture.Format != SurfaceFormat.Color)
             {
-                Log.Error("TextureExporter ToAlphaBytes only supports RGBA textures");
+                Log.Error($"TextureExporter ToAlphaBytes only supports RGBA textures but got: {texture.Format}");
                 return null;
             }
 
