@@ -9,6 +9,7 @@ public class SeededRandom : RandomBase
 {
     protected override Random Rand { get; }
 
+    // Automatically initializes the seed with a unique seed value
     public SeededRandom() : this(0)
     {
     }

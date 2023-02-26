@@ -4,7 +4,7 @@
   
   <Cost>50</Cost>
   <Maintenance>1</Maintenance>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <MaxPopIncrease>-100</MaxPopIncrease>
   <Infrastructure>2</Infrastructure>
   <IsCommodity>true</IsCommodity>

@@ -7,7 +7,7 @@
   
   <IsCommodity>true</IsCommodity>
   <Scrappable>true</Scrappable>
-
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>17648</NameTranslationIndex>
   <DescriptionIndex>17649</DescriptionIndex>

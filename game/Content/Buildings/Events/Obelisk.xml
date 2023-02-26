@@ -6,7 +6,6 @@
   <CannotBeBombed>true</CannotBeBombed>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18186</NameTranslationIndex>
   <DescriptionIndex>18187</DescriptionIndex>

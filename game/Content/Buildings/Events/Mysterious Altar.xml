@@ -8,7 +8,6 @@
   <EventTriggerUID>Mysterious Altar</EventTriggerUID>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Scrappable>false</Scrappable>
-
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18178</NameTranslationIndex>
   <DescriptionIndex>18179</DescriptionIndex>

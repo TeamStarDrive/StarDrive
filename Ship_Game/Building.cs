@@ -14,7 +14,7 @@ namespace Ship_Game
     public sealed class Building
     {
         [StarData] public string Name;
-        [StarData] public bool NoRandomSpawn;
+        [StarData] public bool NoRandomSpawn; // this is for specific events which are added in game and not at start
         [StarData] public bool AllowShipBuilding;
         [StarData] public int NameTranslationIndex;
         [StarData] public int DescriptionIndex;
@@ -25,6 +25,7 @@ namespace Ship_Game
         [StarData] public float OutputPerTurn;
         [StarData] public string CommodityRequired;
         [StarData] public bool IsCommodity;
+        [StarData] public bool ShowOnPlanetList;
         [StarData] public bool WinsGame;
         [StarData] public bool BuildOnlyOnce;
         [StarData] public string EventOnBuild;
@@ -77,10 +78,10 @@ namespace Ship_Game
         [StarData] public bool DetectsRemnantFleet;
         [StarData] public bool CannotBeBombed;
         [StarData] public float IncreaseRichness;
-        [StarData] public float FoodCache; // Works with Flat food only
-        [StarData] public float ProdCache; // Works with Prod per colonist only
+        [StarData] public float FoodCache;
+        [StarData] public float ProdCache;
         [StarData] public bool CanBeCreatedFromLava; // Can be created when lava is solidified
-        [StarData] public bool ImmueToLava; // Can be destroyed by volcanic eruption lava
+        [StarData] public bool ImmueToLava; // Cannot be destroyed by volcanic eruption lava
         [StarData] public bool CanBeTerraformed; // By level 1
 
         // XML Ignore because we load these from XML templates
@@ -90,8 +91,8 @@ namespace Ship_Game
         [XmlIgnore] public int CurrentNumDefenseShips { get; private set; }
         [XmlIgnore] public float ActualCost => Cost * UniverseState.DummyProductionPacePlaceholder;
         [XmlIgnore] public bool IsBadCacheResourceBuilding => 
-            FoodCache.Greater(0) && PlusFlatFoodAmount.AlmostZero() 
-            || ProdCache.Greater(0) && PlusProdPerColonist.AlmostZero();
+            FoodCache > 0 && PlusFlatFoodAmount == 0 && PlusFoodPerColonist == 0 
+            || ProdCache > 0 && PlusProdPerColonist == 0 && PlusFlatProductionAmount == 0 && PlusProdPerRichness == 0;
 
         public override string ToString()
             => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{GetShortDescrText()}";

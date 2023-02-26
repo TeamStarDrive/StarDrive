@@ -11,6 +11,7 @@
   <CannotBeBombed>true</CannotBeBombed>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <IsCommodity>true</IsCommodity>
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4393</NameTranslationIndex>
   <DescriptionIndex>4394</DescriptionIndex>

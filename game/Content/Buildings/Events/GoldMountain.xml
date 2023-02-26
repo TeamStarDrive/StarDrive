@@ -3,6 +3,7 @@
   <Icon>GoldMountain</Icon>
   
   <IsCommodity>true</IsCommodity>
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <Infrastructure>-1</Infrastructure>
   <MaxPopIncrease>-700</MaxPopIncrease>
   <IncreaseRichness>2</IncreaseRichness>
