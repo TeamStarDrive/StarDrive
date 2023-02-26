@@ -120,7 +120,7 @@ namespace Ship_Game
             Log.Info($"MoveSelectedShipsToMouse {Input.CursorPosition}");
             Ship shipClicked = FindClickedShip(Input);
             Planet planetClicked = FindPlanetUnderCursor();
-            
+
             Project.Started = false;
 
             if (SelectedFleet != null && SelectedFleet.Owner.isPlayer)
@@ -139,9 +139,6 @@ namespace Ship_Game
                         return;
                     GameAudio.AffirmativeClick();
                     ShipCommands.AttackSpecificShip(SelectedShip, shipClicked);
-                }
-                else if (ShipPieMenu(shipClicked))
-                {
                 }
                 else if (planetClicked != null)
                 {
@@ -186,7 +183,6 @@ namespace Ship_Game
             if (SelectedShip != null && previousSelection != SelectedShip && SelectedShip != shipClicked)
                 previousSelection = SelectedShip;
             SelectedShip = shipClicked;
-            ShipPieMenu(SelectedShip);
         }
 
         // depending on current input state, either gives straight direction from center to final pos

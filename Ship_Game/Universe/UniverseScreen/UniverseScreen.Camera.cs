@@ -62,7 +62,7 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
-        public void SnapViewColony() => SnapViewColony(true);
+        public void SnapViewColony() => SnapViewColony(false);
 
         public void SnapViewColony(bool combatView)
         {

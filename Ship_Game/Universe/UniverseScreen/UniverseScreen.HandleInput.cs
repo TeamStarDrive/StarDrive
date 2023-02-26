@@ -25,7 +25,7 @@ namespace Ship_Game
 
             if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
-                HandleScrolls(input);
+                HandleCameraZoomScrolling(input);
                 if (input.LeftMouseDown)
                 {
                     Vector2 pos = input.CursorPosition - new Vector2(MinimapDisplayRect.X, MinimapDisplayRect.Y);
@@ -65,7 +65,7 @@ namespace Ship_Game
             return captured;
         }
 
-        void HandleInputNotLookingAtPlanet(InputState input)
+        bool HandleInputNotLookingAtPlanet(InputState input)
         {
             mouseWorldPos = UnprojectToWorldPosition(input.CursorPosition);
 
@@ -81,6 +81,8 @@ namespace Ship_Game
             if (input.Escaped) DefaultZoomPoints();
             if (input.Tab && !input.LeftCtrlShift) ShowShipNames = !ShowShipNames;
 
+            HandleCameraZoomScrolling(input);
+
             HandleFleetSelections(input);
             HandleShipSelectionAndOrders();
 
@@ -89,15 +91,20 @@ namespace Ship_Game
 
             if (!LookingAtPlanet)
             {
-                LeftClickOnClickableItem(input);
-                ShipPieMenuClear();
-                HandleSelectionBox(input);
-            }
+                if (HandleSelectionBox(input))
+                    return true;
 
-            HandleScrolls(input);
+                if (HandlePieMenu(input))
+                    return true;
+
+                if (input.LeftMouseClick && LeftClickOnClickableItem(input))
+                    return true;
+            }
 
             if (Debug)
                 HandleDebugEvents(input);
+
+            return false;
         }
 
         void HandleDebugEvents(InputState input)
@@ -627,10 +634,8 @@ namespace Ship_Game
         Fleet CheckFleetClicked()
         {
             foreach(ClickableFleet clickableFleet in ClickableFleetsList)
-            {
-                if (!Input.CursorPosition.InRadius(clickableFleet.ScreenPos, clickableFleet.ClickRadius)) continue;
-                return clickableFleet.fleet;
-            }
+                if (Input.CursorPosition.InRadius(clickableFleet.ScreenPos, clickableFleet.ClickRadius))
+                    return clickableFleet.fleet;
             return null;
         }
 
@@ -646,38 +651,30 @@ namespace Ship_Game
             return null;
         }
 
-        bool ShipPieMenu(Ship ship)
+        bool HandlePieMenu(InputState input)
         {
-            if (ship == null || ship != SelectedShip || SelectedShip.IsHangarShip ||
-                SelectedShip.IsConstructor) return false;
-
-            LoadShipMenuNodes(ship.Loyalty == Player ? 1 : 0);
-            if (!pieMenu.Visible)
+            if (input.ShipPieMenu)
             {
-                pieMenu.RootNode = shipMenu;
-                pieMenu.Show(pieMenu.Position);
-            }
-            else
-                pieMenu.ChangeTo(null);
-            return true;
-        }
-
-        bool ShipPieMenuClear()
-        {
-            if (SelectedShip != null || SelectedShipList.Count != 0 || SelectedPlanet == null || !Input.ShipPieMenu)
-                return false;
-            if (!pieMenu.Visible)
-            {
-                pieMenu.RootNode = planetMenu;
-                if (SelectedPlanet.Owner == null && SelectedPlanet.Habitable)
-                    LoadMenuNodes(false, true);
+                if (!pieMenu.Visible)
+                {
+                    if (SelectedShip == null && SelectedShipList.Count == 0 && SelectedPlanet != null)
+                        LoadPieMenuNodesForPlanet(owned: SelectedPlanet.Owner != null, habitable: SelectedPlanet.Habitable);
+                    else if (SelectedShip is {IsHangarShip: false, IsConstructor: false})
+                        LoadPieMenuShipNodes(SelectedShip.Loyalty.isPlayer);
+                }
                 else
-                    LoadMenuNodes(false, false);
-                pieMenu.Show(pieMenu.Position);
+                {
+                    pieMenu.Hide();
+                }
+                return true;
             }
-            else
-                pieMenu.ChangeTo(null);
-            return true;
+
+            if (pieMenu.Visible)
+            {
+                pieMenu.HandleInput(input);
+                return true; // always capture input from pie menu
+            }
+            return false;
         }
 
         bool UnselectableShip(Ship ship = null)
@@ -717,17 +714,8 @@ namespace Ship_Game
             return false;
         }
 
-        void LeftClickOnClickableItem(InputState input)
+        bool LeftClickOnClickableItem(InputState input)
         {
-            if (input.ShipPieMenu)
-            {
-                ShipPieMenu(SelectedShip);
-            }
-
-            pieMenu.HandleInput(input);
-            if (!input.LeftMouseClick || pieMenu.Visible)
-                return;
-
             if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                 previousSelection = SelectedShip;
 
@@ -745,7 +733,7 @@ namespace Ship_Game
                 {
                     GameAudio.MouseOver();
                     SystemInfoOverlay.SetSystem(SelectedSystem);
-                    return;
+                    return true;
                 }
             }
 
@@ -757,21 +745,19 @@ namespace Ship_Game
                 GameAudio.FleetClicked();
                 SelectedShipList.AddRange(SelectedFleet.Ships);
                 shipListInfoUI.SetShipList(SelectedShipList, false);
-                return;
+                return true;
             }
 
-            SelectShipClicks(input);
+            bool selected = SelectShipClicks(input);
 
+            // TODO: refactor this into something more maintainable, perhaps a custom helper class
             if (SelectedShip != null && SelectedShipList.Count > 0)
                 ShipInfoUIElement.SetShip(SelectedShip);
             else if (SelectedShipList.Count > 1)
                 shipListInfoUI.SetShipList(SelectedShipList, false);
 
-            if (SelectedShipList.Count == 1)
-            {
-                LoadShipMenuNodes(SelectedShipList[0].Loyalty == Player ? 1 : 0);
-                return;
-            }
+            if (selected)
+                return true;
 
             SelectedPlanet = FindPlanetUnderCursor();
             if (SelectedPlanet != null)
@@ -784,15 +770,21 @@ namespace Ship_Game
                     SelectionBox = new();
                 }
                 else
+                {
                     GameAudio.PlanetClicked();
-                return;
+                }
+                return true;
             }
 
             if ((SelectedItem = GetSpaceBuildGoalUnderCursor()) != null)
+            {
                 GameAudio.BuildItemClicked();
+                return true;
+            }
+            return false;
         }
 
-        void HandleSelectionBox(InputState input)
+        bool HandleSelectionBox(InputState input)
         {
             if (SelectedShipList.Count == 1)
             {
@@ -805,41 +797,38 @@ namespace Ship_Game
             {
                 SelectionBox = input.LeftHold.GetSelectionBox();
                 SelectingWithBox = true;
-                return;
+                return true;
             }
 
             if (!SelectingWithBox) // mouse released, but we weren't selecting
-                return;
+                return false;
 
             if (SelectingWithBox) // trigger! mouse released after selecting
                 SelectingWithBox = false;
 
             SelectedShipList = GetAllShipsInArea(SelectionBox, input, out Fleet fleet);
-            if (SelectedShipList.Count == 0)
+            if (SelectedShipList.Count != 0)
             {
-                SelectionBox = new(0, 0, -1, -1);
-                return;
-            }
+                SelectedPlanet = null;
+                SelectedShip   = null;
+                shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
+                SelectedFleet = fleet;
 
-            SelectedPlanet = null;
-            SelectedShip   = null;
-            shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
-            SelectedFleet = fleet;
-
-            if (SelectedShipList.Count == 1)
-            {
-                if (SelectedShip != null && previousSelection != SelectedShip &&
-                    SelectedShip != SelectedShipList[0]) //fbedard
+                if (SelectedShipList.Count == 1)
                 {
-                    previousSelection = SelectedShip;
-                }
+                    if (SelectedShip != null && previousSelection != SelectedShip &&
+                        SelectedShip != SelectedShipList[0]) //fbedard
+                    {
+                        previousSelection = SelectedShip;
+                    }
 
-                SelectedShip = SelectedShipList[0];
-                ShipInfoUIElement.SetShip(SelectedShip);
-                LoadShipMenuNodes(SelectedShipList[0]?.Loyalty == Player ? 1 : 0);
+                    SelectedShip = SelectedShipList[0];
+                    ShipInfoUIElement.SetShip(SelectedShip);
+                }
             }
 
             SelectionBox = new(0, 0, -1, -1);
+            return true;
         }
 
         static bool IsCombatShip(Ship ship)
@@ -936,7 +925,7 @@ namespace Ship_Game
                 return false;
 
             DefiningTradeRoutes = !DefiningAO;
-            HandleScrolls(input); // allow exclusive scrolling during Trade Route define
+            HandleCameraZoomScrolling(input); // allow exclusive scrolling during Trade Route define
             if (!LookingAtPlanet && HandleGUIClicks(input))
                 return true;
 
@@ -980,7 +969,7 @@ namespace Ship_Game
                 return false;
 
             DefiningAO = !DefiningTradeRoutes;
-            HandleScrolls(input); // allow exclusive scrolling during AO define
+            HandleCameraZoomScrolling(input); // allow exclusive scrolling during AO define
             if (!LookingAtPlanet && HandleGUIClicks(input))
                 return true;
 
@@ -1374,7 +1363,7 @@ namespace Ship_Game
             CamDestination.Y = CamDestination.Y.Clamped(-UState.Size, UState.Size);
         }
 
-        void HandleScrolls(InputState input)
+        void HandleCameraZoomScrolling(InputState input)
         {
             if (AdjustCamTimer >= 0f)
                 return;
@@ -1385,7 +1374,6 @@ namespace Ship_Game
             if ((input.ScrollOut || input.BButtonHeld) && !LookingAtPlanet)
             {
                 // gradually adjust scroll-out based on CamPos.Z
-                
                 if      (camDestZ >= 5_000_000) scrollAmount = 2000_000;
                 if      (camDestZ >= 1200_000) scrollAmount = 1000_000;
                 else if (camDestZ >= 600_000)  scrollAmount = 400_000;
