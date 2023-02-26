@@ -533,7 +533,7 @@ namespace Ship_Game
         bool ShowSystemInfoOverlay => SelectedSystem != null && CanShowInfo && viewState == UnivScreenState.GalaxyView;
         bool ShowPlanetInfo => SelectedPlanet != null && CanShowInfo;
         bool ShowShipInfo => SelectedShip != null && CanShowInfo;
-        bool ShowShipList => SelectedShipList.Count > 1 && SelectedFleet == null && CanShowInfo;
+        bool ShowShipList => SelectedShips.Count > 1 && SelectedFleet == null && CanShowInfo;
         bool ShowFleetInfo => SelectedFleet != null && CanShowInfo;
 
         private void DrawSelectedItems(SpriteBatch batch, DrawTimes elapsed)
@@ -581,7 +581,9 @@ namespace Ship_Game
                     DrawItemInfoForUI();
                 }
                 else
-                    SelectedItem = null;
+                {
+                    ClearSelectedItems();
+                }
             }
             else if (ShowFleetInfo)
             {
@@ -907,7 +909,7 @@ namespace Ship_Game
 
                     DrawOverlay(ship);
 
-                    if (SelectedShip == ship || SelectedShipList.Contains(ship))
+                    if (SelectedShip == ship || SelectedShips.Contains(ship))
                     {
                         Color color = Color.LightGreen;
                         if (Player != ship.Loyalty)
