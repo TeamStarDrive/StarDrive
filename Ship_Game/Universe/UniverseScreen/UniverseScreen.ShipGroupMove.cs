@@ -53,9 +53,7 @@ namespace Ship_Game
             {
                 if (SelectedShip.IsConstructor || SelectedShip.IsSupplyShuttle)
                 {
-                    if (SelectedShip != null && previousSelection != SelectedShip) // fbedard
-                        previousSelection = SelectedShip;
-                    SelectedShip = null;
+                    SetSelectedShip(null);
                     GameAudio.NegativeClick();
                 }
                 else // single-ship group
@@ -88,16 +86,12 @@ namespace Ship_Game
                 SelectedSomethingTimer = 3f;
                 MoveFleetToMouse(SelectedFleet, null, null, wasProjecting: true);
             }
-            else if (SelectedShip != null && SelectedShip?.Loyalty == Player)
+            else if (SelectedShip != null && SelectedShip.Loyalty == Player)
             {
                 Player.AI.DefensiveCoordinator.Remove(SelectedShip);
                 SelectedSomethingTimer = 3f;
                 if (UnselectableShip())
-                {
-                    if (SelectedShip != null && previousSelection != SelectedShip) // fbedard
-                        previousSelection = SelectedShip;
                     return;
-                }
 
                 MoveShipToMouse(SelectedShip, wasProjecting: true);
             }
@@ -120,7 +114,7 @@ namespace Ship_Game
             Log.Info($"MoveSelectedShipsToMouse {Input.CursorPosition}");
             Ship shipClicked = FindClickedShip(Input);
             Planet planetClicked = FindPlanetUnderCursor();
-            
+
             Project.Started = false;
 
             if (SelectedFleet != null && SelectedFleet.Owner.isPlayer)
@@ -139,9 +133,6 @@ namespace Ship_Game
                         return;
                     GameAudio.AffirmativeClick();
                     ShipCommands.AttackSpecificShip(SelectedShip, shipClicked);
-                }
-                else if (ShipPieMenu(shipClicked))
-                {
                 }
                 else if (planetClicked != null)
                 {
@@ -178,15 +169,10 @@ namespace Ship_Game
                 }
             }
 
-            if (SelectedFleet != null || SelectedItem != null || SelectedShip != null || SelectedPlanet != null ||
-                SelectedShipList.Count != 0)
-                return;
-            if (shipClicked == null || shipClicked.IsHangarShip || shipClicked.IsConstructor)
-                return;
-            if (SelectedShip != null && previousSelection != SelectedShip && SelectedShip != shipClicked)
-                previousSelection = SelectedShip;
-            SelectedShip = shipClicked;
-            ShipPieMenu(SelectedShip);
+            if (!HasSelectedItem && shipClicked is {IsHangarShip: false, IsConstructor: false})
+            {
+                SetSelectedShip(shipClicked);
+            }
         }
 
         // depending on current input state, either gives straight direction from center to final pos

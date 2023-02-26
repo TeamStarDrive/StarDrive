@@ -140,7 +140,7 @@ namespace Ship_Game.AI
             return DefensiveForcePool.ContainsRef(ship);
         }
 
-        public void RemoveShipList(Array<Ship> ships)
+        public void RemoveShipList(IReadOnlyList<Ship> ships)
         {
             foreach (Ship ship in ships)
                 Remove(ship);

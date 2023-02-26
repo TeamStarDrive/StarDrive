@@ -28,7 +28,7 @@ public sealed partial class DebugInfoScreen
             }
         }
         // only show CurrentGroup if we selected more than one ship
-        else if (Screen.CurrentGroup is { } g && Screen.SelectedShipList.Count > 1)
+        else if (Screen.CurrentGroup is { } g && Screen.SelectedShips.Count > 1)
         {
             DrawArrowImm(g.FinalPosition, g.FinalPosition + g.FinalDirection * 200f, Color.OrangeRed);
             foreach (Ship ship in g.Ships)
@@ -41,9 +41,9 @@ public sealed partial class DebugInfoScreen
                 DrawWeaponArcs(s);
             DrawSensorInfo(s);
         }
-        else if (Screen.SelectedShipList.NotEmpty)
+        else if (Screen.SelectedShips.Count > 0)
         {
-            foreach (Ship ship in Screen.SelectedShipList)
+            foreach (Ship ship in Screen.SelectedShips)
                 VisualizeShipGoal(ship, false);
         }
     }

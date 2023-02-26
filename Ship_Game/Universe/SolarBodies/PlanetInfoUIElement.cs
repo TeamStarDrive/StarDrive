@@ -471,11 +471,11 @@ namespace Ship_Game
             {
                 if (Inspect.HandleInput(input))
                 {
-                    Screen.SnapViewColony(combatView: false);
+                    Screen.SnapViewColony(P, combatView: false);
                 }
                 if (Invade.HandleInput(input))
                 {
-                    Screen.SnapViewColony(combatView: true);
+                    Screen.SnapViewColony(P, combatView: true);
                 }
             }
             if (!ElementRect.HitTest(input.CursorPosition))

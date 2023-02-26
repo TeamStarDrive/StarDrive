@@ -327,7 +327,7 @@ namespace Ship_Game
                 else
                 {
                     DeepSpaceBuildWindow.Draw(batch, elapsed);
-                    pieMenu.Draw(batch, Fonts.Arial12Bold);
+                    pieMenu.DrawAt(batch, GetPieMenuPosition(), Fonts.Arial12Bold);
                     DrawShipUI(batch, elapsed);
                     NotificationManager.Draw(batch);
                 }
@@ -529,22 +529,15 @@ namespace Ship_Game
             }
         }
 
-        bool ShowSystemInfoOverlay => SelectedSystem != null && !LookingAtPlanet && !IsCinematicModeEnabled
-                                   && viewState == UnivScreenState.GalaxyView;
-
-        bool ShowPlanetInfo => SelectedPlanet != null && !LookingAtPlanet && !IsCinematicModeEnabled;
-
-        bool ShowShipInfo => SelectedShip != null && !LookingAtPlanet && !IsCinematicModeEnabled;
-
-        bool ShowShipList => SelectedShipList.Count > 1 && SelectedFleet == null && !IsCinematicModeEnabled;
-
-        bool ShowFleetInfo => SelectedFleet != null && !LookingAtPlanet && !IsCinematicModeEnabled;
+        bool CanShowInfo => !LookingAtPlanet && !IsCinematicModeEnabled;
+        bool ShowSystemInfoOverlay => SelectedSystem != null && CanShowInfo && viewState == UnivScreenState.GalaxyView;
+        bool ShowPlanetInfo => SelectedPlanet != null && CanShowInfo;
+        bool ShowShipInfo => SelectedShip != null && CanShowInfo;
+        bool ShowShipList => SelectedShips.Count > 1 && SelectedFleet == null && CanShowInfo;
+        bool ShowFleetInfo => SelectedFleet != null && CanShowInfo;
 
         private void DrawSelectedItems(SpriteBatch batch, DrawTimes elapsed)
         {
-            if (SelectedShipList.Count == 0)
-                shipListInfoUI.ClearShipList();
-
             if (ShowSystemInfoOverlay)
             {
                 SystemInfoOverlay.Draw(batch, elapsed);
@@ -588,7 +581,9 @@ namespace Ship_Game
                     DrawItemInfoForUI();
                 }
                 else
-                    SelectedItem = null;
+                {
+                    ClearSelectedItems();
+                }
             }
             else if (ShowFleetInfo)
             {
@@ -914,7 +909,7 @@ namespace Ship_Game
 
                     DrawOverlay(ship);
 
-                    if (SelectedShip == ship || SelectedShipList.Contains(ship))
+                    if (SelectedShip == ship || SelectedShips.Contains(ship))
                     {
                         Color color = Color.LightGreen;
                         if (Player != ship.Loyalty)

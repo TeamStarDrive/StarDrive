@@ -32,7 +32,7 @@ public class ShipDebugInfoPanel : Submenu
         return Screen.SelectedFleet is { }
             || Screen.CurrentGroup is { }
             || Screen.SelectedShip is { }
-            || Screen.SelectedShipList.NotEmpty;
+            || Screen.SelectedShips.Count > 0;
     }
 
     public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -65,12 +65,12 @@ public class ShipDebugInfoPanel : Submenu
             }
         }
         // only show CurrentGroup if we selected more than one ship
-        else if (Screen.CurrentGroup is { } sg && Screen.SelectedShipList.Count > 1)
+        else if (Screen.CurrentGroup is { } sg && Screen.SelectedShips.Count > 1)
         {
             Text.String($"ShipGroup ({sg.CountShips})  x {(int)sg.FinalPosition.X} y {(int)sg.FinalPosition.Y}");
             Text.String("");
             Text.String("-- First Ship AIState:");
-            DrawShipOrderQueueInfo(Screen.SelectedShipList.First);
+            DrawShipOrderQueueInfo(Screen.SelectedShips[0]);
         }
         else if (Screen.SelectedShip is { } s)
         {
@@ -149,9 +149,9 @@ public class ShipDebugInfoPanel : Submenu
                     Text.String(sc.System.Name);
             }
         }
-        else if (Screen.SelectedShipList.NotEmpty)
+        else if (Screen.SelectedShips.Count > 0)
         {
-            IReadOnlyList<Ship> ships = Screen.SelectedShipList;
+            IReadOnlyList<Ship> ships = Screen.SelectedShips;
             Text.String($"SelectedShips: {ships.Count} ");
             Text.String($"Total Str: {ships.Sum(ss => ss.BaseStrength).String(1)} ");
         }
