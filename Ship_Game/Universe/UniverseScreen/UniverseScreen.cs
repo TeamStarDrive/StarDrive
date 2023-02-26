@@ -501,7 +501,20 @@ namespace Ship_Game
                 UState.FogMapBytes = null; // free the mem of course, even if load failed
             }
 
-            FogMap ??= ResourceManager.Texture2D("UniverseFeather.dds");
+            if (FogMap == null)
+            {
+                var fogMapTarget = GetCachedFogMapRenderTarget(device, ref FogMapTarget);
+                device.SetRenderTarget(0, fogMapTarget);
+                device.Clear(Color.TransparentWhite);
+                Color defaultFogColor = new(0, 0, 0, 150);
+                ScreenManager.SpriteRenderer.Begin(OrthographicProjection);
+                ScreenManager.SpriteRenderer.FillRect(new(0, 0, ScreenArea), defaultFogColor);
+                ScreenManager.SpriteRenderer.End();
+                device.SetRenderTarget(0, null);
+                FogMap = fogMapTarget.GetTexture();
+            }
+
+            //FogMap ??= ResourceManager.Texture2D("UniverseFeather.dds");
             basicFogOfWarEffect = content.Load<Effect>("Effects/BasicFogOfWar");
         }
 
