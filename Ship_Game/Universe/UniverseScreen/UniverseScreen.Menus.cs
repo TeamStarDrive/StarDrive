@@ -6,88 +6,90 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        void LoadMenu()
+        void CreatePieMenu()
         {
-            var viewPlanetIcon = ResourceManager.Texture("UI/viewPlanetIcon");
             pieMenu = new PieMenu();
             planetMenu = new PieMenuNode();
             shipMenu = new PieMenuNode();
-            planetMenu.Add(new PieMenuNode("View Planet", viewPlanetIcon, SnapViewColony));
-            planetMenu.Add(new PieMenuNode("Mark for Colonization", viewPlanetIcon, MarkForColonization));
         }
 
-        void LoadMenuNodes(bool Owned, bool Habitable)
+        void LoadPieMenuNodesForPlanet(Planet p)
         {
-            planetMenu.Children.Clear();
-            planetMenu.Add(new PieMenuNode(Localizer.Token(GameText.ViewPlanet), ResourceManager.Texture("UI/viewPlanetIcon"),
-                SnapViewColony));
-            if (!Owned && Habitable)
-                planetMenu.Add(new PieMenuNode(Localizer.Token(GameText.MarkForColonization),
-                    ResourceManager.Texture("UI/ColonizeIcon"), MarkForColonization));
-            if (!Habitable)
-                return;
-            planetMenu.Add(new PieMenuNode(Localizer.Token(GameText.TacticalView), ResourceManager.Texture("UI/ColonizeIcon"),
-                OpenCombatMenu));
-        }
+            planetMenu.Children?.Clear();
+            var viewPlanet = ResourceManager.Texture("UI/viewPlanetIcon");
+            planetMenu.Add(new(GameText.ViewPlanet, viewPlanet, () => SnapViewColony(p, false)));
 
-        public void OpenCombatMenu()
-        {
-            workersPanel = new CombatScreen(this, SelectedPlanet);
-            LookingAtPlanet = true;
-            transitionStartPosition = CamPos;
-            CamDestination = new Vector3d(SelectedPlanet.Position.X, SelectedPlanet.Position.Y + 400f, 2500.0);
-
-            AdjustCamTimer = 2f;
-            transitionElapsedTime = 0.0f;
-            transDuration = 5f;
-
-            if (ViewingShip)
-                returnToShip = true;
-
-            ViewingShip = false;
-            snappingToShip = false;
-        }
-
-        public void RefitTo()
-        {
-            if (SelectedShip != null)
-                ScreenManager.AddScreen(new RefitToWindow(this, SelectedShip));
-        }
-
-        void LoadShipMenuNodes(int which)
-        {
-            shipMenu.Children?.Clear();
-            if (SelectedShip != null && !SelectedShip.CanBeScrapped)
-                return;
-
-            if (which == 1)
+            if (p.Habitable)
             {
-                var newChild1 = new PieMenuNode(Localizer.Token(GameText.Orders2), ResourceManager.Texture("UI/OrdersIcon"), null);
-                shipMenu.Add(newChild1);
-                newChild1.Add(new PieMenuNode(Localizer.Token(GameText.GoExploring), ResourceManager.Texture("UI/marketIcon"), DoExplore));
-                newChild1.Add(new PieMenuNode("Empire Defense", ResourceManager.Texture("UI/PatrolIcon"), DoDefense));
-                var newChild6 = new PieMenuNode(Localizer.Token(GameText.Other), ResourceManager.Texture("UI/FollowIcon"), null);
-                shipMenu.Add(newChild6);
-                if (SelectedShip != null && !SelectedShip.IsPlatformOrStation && SelectedShip.CanBeScrapped)
+                var colonize = ResourceManager.Texture("UI/ColonizeIcon");
+                if (p.Owner == null)
                 {
-                    newChild6.Add(new PieMenuNode(Localizer.Token(GameText.RefitTo), ResourceManager.Texture("UI/FollowIcon"), RefitTo));
+                    planetMenu.Add(new(GameText.MarkForColonization, colonize, () => MarkForColonization(p)));
                 }
-                if (SelectedShip != null && SelectedShip.IsPlatformOrStation)
+                planetMenu.Add(new(GameText.TacticalView, colonize, () => OpenCombatMenu(p)));
+            }
+
+            pieMenu.Show(planetMenu);
+        }
+
+        void LoadPieMenuShipNodes(Ship s)
+        {
+            if (s is {CanBeScrapped: false})
+                return;
+
+            shipMenu.Children?.Clear();
+            if (s.Loyalty.isPlayer)
+            {
+                var orders = new PieMenuNode(GameText.Orders2, ResourceManager.Texture("UI/OrdersIcon"), null);
+                orders.Add(new(GameText.GoExploring, ResourceManager.Texture("UI/marketIcon"), () => DoExplore(s)));
+                orders.Add(new("Empire Defense", ResourceManager.Texture("UI/PatrolIcon"), () => DoDefense(s)));
+                shipMenu.Add(orders);
+
+                var followIcon = ResourceManager.Texture("UI/FollowIcon");
+                var holdPosition = ResourceManager.Texture("UI/HoldPositionIcon");
+                var other = new PieMenuNode(GameText.Other, followIcon, null);
+                if (s is {IsPlatformOrStation: false, CanBeScrapped: true})
                 {
-                    newChild6.Add(new PieMenuNode("Scuttle", ResourceManager.Texture("UI/HoldPositionIcon"), OrderScuttle));
+                    other.Add(new(GameText.RefitTo, followIcon, () => RefitTo(s)));
                 }
-                else
+                if (s is {IsPlatformOrStation: true})
                 {
-                    if (SelectedShip == null || SelectedShip.ShipData.Role > RoleName.construction)
-                        return;
-                    newChild6.Add(new PieMenuNode(Localizer.Token(GameText.OrderScrap),
-                        ResourceManager.Texture("UI/HoldPositionIcon"), OrderScrap));
+                    other.Add(new("Scuttle", holdPosition, () => OrderScuttle(s)));
                 }
+                else if (s.ShipData.Role < RoleName.construction)
+                {
+                    other.Add(new(GameText.OrderScrap, holdPosition, () => OrderScrap(s)));
+                }
+                shipMenu.Add(other);
             }
             else
             {
-                shipMenu.Add(new PieMenuNode(Localizer.Token(GameText.ContactLeader), ResourceManager.Texture("UI/viewPlanetIcon"), ContactLeader));
+                var viewPlanet = ResourceManager.Texture("UI/viewPlanetIcon");
+                shipMenu.Add(new(GameText.ContactLeader, viewPlanet, () => ContactLeader(s)));
             }
+
+            pieMenu.Show(shipMenu);
+        }
+
+        Vector2 GetPieMenuPosition()
+        {
+            if (SelectedShip != null)
+                return ProjectToScreenPosition(SelectedShip.Position).ToVec2f();
+            if (SelectedPlanet != null)
+                return ProjectToScreenPosition(SelectedPlanet.Position3D).ToVec2f();
+            return ScreenManager.ScreenCenter;
+        }
+
+        public void OpenCombatMenu(Planet planet)
+        {
+            bool doReturnToShip = ViewingShip;
+            SetSelectedPlanet(planet);
+            returnToShip = doReturnToShip;
+
+            workersPanel = new CombatScreen(this, planet);
+
+            SnapViewTo(new(planet.Position.X, planet.Position.Y + 400, 2500), 5f, 2f);
+            LookingAtPlanet = true;
         }
 
         void ToggleUIComponent(string audioCue, ref bool toggle)
