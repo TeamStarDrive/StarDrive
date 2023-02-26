@@ -390,7 +390,7 @@ namespace Ship_Game.Ships
             string text = "Ship is taking radiation damage from a nearby star!";
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, radiationTextPos, Color.Red);
         }
-        
+
         void DrawTroopStatus() // Expanded by Fat Bastard
         {
             var troopPos     = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -441,7 +441,7 @@ namespace Ship_Game.Ships
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, textVector, color);
             textVector.X += text.Length * 7;
         }
-   
+
         public override bool HandleInput(InputState input)
         {
             if (Universe.SelectedShip == null || Universe.LookingAtPlanet)
@@ -454,7 +454,7 @@ namespace Ship_Game.Ships
             {
                 ToolTip.CreateTooltip(Ship.Loyalty.Name);
             }
-            
+
             if (SlidingElement.HandleInput(input))
             {
                 State = SlidingElement.Open ? ElementState.TransitionOn : ElementState.TransitionOff;
@@ -498,12 +498,12 @@ namespace Ship_Game.Ships
                 if (tippedItem.Rect.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(tippedItem.Tooltip);
             }
-               
+
             if (ElementRect.HitTest(input.CursorPosition))
                 return true;
 
             if (State == ElementState.Open)
-            {                    
+            {
                 foreach (OrdersButton ordersButton in Orders)
                 {
                     if (ordersButton.HandleInput(input, ScreenManager))
@@ -526,7 +526,6 @@ namespace Ship_Game.Ships
             ShipNameArea.Reset(s.ShipName);
 
             Orders.Clear();
-            Ship = s;
             OrdersButtons.ResetButtons(Ship);
             if (Ship.Loyalty != Player)
                 return;
@@ -536,9 +535,9 @@ namespace Ship_Game.Ships
 
             if (Ship.ShipData.Role > RoleName.station && !Ship.IsConstructor)
             {
-                OrdersButton resupply = new OrdersButton(Ship, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
+                OrdersButton resupply = new(Ship, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingResupply, x => Ship.DoingResupply = x)
+                    ValueToModify = new(() => Ship.DoingResupply, x => Ship.DoingResupply = x)
                 };
                 Orders.Add(resupply);
             }
@@ -547,35 +546,35 @@ namespace Ship_Game.Ships
             {
                 var ao = new OrdersButton(Ship, OrderType.DefineAO, GameText.AllowsYouToCustomizeAn)
                 {
-                    ValueToModify = new Ref<bool>(() => Universe.DefiningAO, x => {
+                    ValueToModify = new(() => Universe.DefiningAO, x => {
                         Universe.DefiningAO = x;
-                        Universe.AORect     = Rectangle.Empty;
+                        Universe.AORect = Rectangle.Empty;
                     })
                 };
                 Orders.Add(ao);
                 var tradeFood = new OrdersButton(Ship, OrderType.TradeFood, GameText.ManualTradeOrdersThisFreighter2)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.TransportingFood),
+                    ValueToModify = new(() => Ship.TransportingFood),
                 };
                 Orders.Add(tradeFood);
                 var tradeProduction = new OrdersButton(Ship, OrderType.TradeProduction, GameText.ManualTradeOrdersThisFreighter3)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.TransportingProduction)
+                    ValueToModify = new(() => Ship.TransportingProduction)
                 };
                 Orders.Add(tradeProduction);
                 var transportColonists = new OrdersButton(Ship, OrderType.TransportColonists, GameText.ManualTradeOrdersThisFreighter)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.TransportingColonists)
+                    ValueToModify = new(() => Ship.TransportingColonists)
                 };
                 Orders.Add(transportColonists);
                 var allowInterEmpireTrade = new OrdersButton(Ship, OrderType.AllowInterTrade, GameText.ManualTradeAllowSelectedFreighters)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.AllowInterEmpireTrade)
+                    ValueToModify = new(() => Ship.AllowInterEmpireTrade)
                 };
                 Orders.Add(allowInterEmpireTrade);
                 var tradeRoutes = new OrdersButton(Ship, OrderType.DefineTradeRoutes, GameText.ChooseAListOfPlanets)
                 {
-                    ValueToModify = new Ref<bool>(() => Universe.DefiningTradeRoutes, x => { Universe.DefiningTradeRoutes = x; })
+                    ValueToModify = new(() => Universe.DefiningTradeRoutes, x => { Universe.DefiningTradeRoutes = x; })
                 };
                 Orders.Add(tradeRoutes);
             }
@@ -583,24 +582,24 @@ namespace Ship_Game.Ships
             {
                 var ob = new OrdersButton(Ship, OrderType.SendTroops, GameText.SendTroopsToThisShip)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.Carrier.SendTroopsToShip)
+                    ValueToModify = new(() => Ship.Carrier.SendTroopsToShip)
                 };
                 Orders.Add(ob);
 
                 var ob2 = new OrdersButton(Ship, OrderType.TroopToggle, GameText.TogglesWhetherThisShipsAssault)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.Carrier.TroopsOut, x => {
+                    ValueToModify = new(() => Ship.Carrier.TroopsOut, x => {
                         Ship.Carrier.TroopsOut = !Ship.Carrier.TroopsOut;
                     })
                 };
                 Orders.Add(ob2);
             }
-            
+
             if (Ship.Carrier.HasFighterBays)
             {
                 var ob = new OrdersButton(Ship, OrderType.FighterToggle, GameText.WhenActiveAllAvailableFighters)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.Carrier.FightersOut, x =>
+                    ValueToModify = new(() => Ship.Carrier.FightersOut, x =>
                     {
                         Ship.Carrier.FightersOut = !Ship.Carrier.FightersOut;
                     })
@@ -612,7 +611,7 @@ namespace Ship_Game.Ships
             {
                 var ob2 = new OrdersButton(Ship, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.Carrier.RecallFightersBeforeFTL, x =>
+                    ValueToModify = new(() => Ship.Carrier.RecallFightersBeforeFTL, x =>
                         {
                             Ship.Carrier.SetRecallFightersBeforeFTL(x);
                             Ship.ManualHangarOverride = !x;
@@ -626,17 +625,9 @@ namespace Ship_Game.Ships
             {
                 var exp = new OrdersButton(Ship, OrderType.Explore, GameText.OrdersThisShipToExplore)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingExplore, x => Ship.DoingExplore = x)
+                    ValueToModify = new(() => Ship.DoingExplore, x => Ship.DoingExplore = x)
                 };
                 Orders.Add(exp);
-                /* FB: does not do anything useful from what i've seen. Disabling it for now
-                var systemDefense = new OrdersButton(Ship, Vector2.Zero, OrderType.EmpireDefense, 150)
-                {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingSystemDefense, x => Ship.DoingSystemDefense = x),
-                    Active = false
-                };
-                Orders.Add(systemDefense);
-                */
             }
             if (Ship.CanBeScrapped)
             {
@@ -644,14 +635,14 @@ namespace Ship_Game.Ships
                 {
                     var rf = new OrdersButton(Ship, OrderType.Refit, GameText.OrderShipRefit)
                     {
-                        ValueToModify = new Ref<bool>(() => Ship.DoingRefit, x => Ship.DoingRefit = x),
+                        ValueToModify = new(() => Ship.DoingRefit, x => Ship.DoingRefit = x),
                         Active = false
                     };
                     Orders.Add(rf);
                 }
                 var sc = new OrdersButton(Ship, OrderType.Scrap, GameText.OrderShipBackToThe)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingScrap, x => Ship.DoingScrap = x),
+                    ValueToModify = new(() => Ship.DoingScrap, x => Ship.DoingScrap = x),
                     Active = false
                 };
                 Orders.Add(sc);

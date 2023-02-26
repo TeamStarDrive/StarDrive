@@ -9,42 +9,40 @@ namespace Ship_Game
     public sealed class PieMenu
     {
         Transition t;
-
         int HoveredIndex = -1;
-
-        readonly Action hideDelegate;
-        readonly Action newMenuDelegate;
-
-        PieMenuNode newMenuNode;
-
-        public Vector2 Position { get; set; }
-
-        public float Radius { get; set; } = 100f;
-
-        public PieMenuNode RootNode { get; set; }
-
-        public float ScaleFactor { get; set; }
-
-        public bool Visible { get; set; }
+        
+        PieMenuNode RootNode;
+        Vector2 Position;
+        readonly float Radius = 75f;
+        readonly float ScaleFactor = 1f;
+        public bool Visible { get; private set; }
 
         public PieMenu()
         {
             t = new Transition(Direction.Ascending, TransitionCurve.Linear, 0.15f);
-            hideDelegate = OnHide;
-            newMenuDelegate = NewMenu;
         }
 
-        public void ChangeTo(PieMenuNode newNode)
+        void ChangeTo(PieMenuNode newNode)
         {
-            if (newNode == null)
+            if (newNode == null) // transition to hidden
             {
-                t.OnTransitionEnd = hideDelegate;
                 t.Reset(Direction.Descending);
-                return;
+                t.OnTransitionEnd = () =>
+                {
+                    Visible = false;
+                    t.OnTransitionEnd = null;
+                };
             }
-            t.OnTransitionEnd = newMenuDelegate;
-            newMenuNode = newNode;
-            t.Reset(Direction.Descending);
+            else
+            {
+                t.Reset(Direction.Descending);
+                t.OnTransitionEnd = () =>
+                {
+                    RootNode = newNode;
+                    t.Reset(Direction.Ascending);
+                    t.OnTransitionEnd = null;
+                };
+            }
         }
 
         float SectorDegrees => 360f / RootNode.Children.Count;
@@ -70,14 +68,17 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, Graphics.Font font)
+        public void DrawAt(SpriteBatch batch, Vector2 position, Graphics.Font font)
         {
             if (!Visible)
                 return;
 
+            Position = position;
+
             float scale = t.CurrentPosition * ScaleFactor;
             for (int i = 0; i < RootNode.Children.Count; i++)
             {
+                PieMenuNode node = RootNode.Children[i];
                 float relativeAngle = (float)i / RootNode.Children.Count;
                 float angle = relativeAngle * RadMath.TwoPI;
                 Vector2 imagePos = Position + (scale * Radius * angle.RadiansToDirection());
@@ -85,14 +86,12 @@ namespace Ship_Game
 
                 Color drawColor = (i == HoveredIndex) ? Color.Red : Color.White;
 
-                spriteBatch.Draw(RootNode.Children[i].Icon, imagePos, drawColor, 0f, 
-                        RootNode.Children[i].Icon.CenterF, scale, SpriteEffects.None, 1f);
+                batch.Draw(node.Icon, imagePos, drawColor, 0f, node.Icon.CenterF, scale, SpriteEffects.None, 1f);
 
                 if (i == HoveredIndex)
                 {
-                    spriteBatch.DrawString(font, RootNode.Children[i].Text, 
-                        imagePos + new Vector2(-font.MeasureString(RootNode.Children[i].Text).X / 2f, imageSize), 
-                        Color.White);
+                    var pos = imagePos + new Vector2(-font.TextWidth(node.Text) / 2f, imageSize);
+                    batch.DrawString(font, node.Text, pos, Color.White);
                 }
             }
         }
@@ -139,31 +138,18 @@ namespace Ship_Game
             return true;
         }
 
-        void NewMenu()
+        public void Show(PieMenuNode rootNode)
         {
-            RootNode = newMenuNode;
-            t.Reset(Direction.Ascending);
-            t.OnTransitionEnd = null;
-        }
-
-        void OnHide()
-        {
-            Visible = false;
-            t.OnTransitionEnd = null;
-        }
-
-        public void Show(Vector2 position)
-        {
+            RootNode = rootNode;
             t.Reset(Direction.Ascending);
             t.OnTransitionEnd = null;
             Visible = true;
-            Position = position;
         }
 
-        public void Show(PieMenuNode rootNode, Vector2 position)
+        public void Hide()
         {
-            RootNode = rootNode;
-            Show(position);
+            // begin transition to OnHide()
+            ChangeTo(null);
         }
 
         public void Update(float deltaTime)

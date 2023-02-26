@@ -33,19 +33,6 @@ namespace Ship_Game
         public string StarDateString => UState.StarDate.StarDateString();
         public float LastAutosaveTime = 0;
 
-        public Array<Ship> SelectedShipList = new();
-
-        public ClickableSpaceBuildGoal[] ClickableBuildGoals = Empty<ClickableSpaceBuildGoal>.Array;
-
-        readonly Array<ClickableFleet> ClickableFleetsList = new();
-        #pragma warning disable CA2213
-        public Planet SelectedPlanet;
-        public Ship SelectedShip;
-        #pragma warning restore CA2213
-        public ClickableSpaceBuildGoal SelectedItem;
-
-        RectF SelectionBox = new(-1, -1, 0, 0);
-
         public Background bg;
 
         public Array<Bomb> BombList  = new();
@@ -60,7 +47,6 @@ namespace Ship_Game
         public bool ViewingShip = false;
         public float transDuration = 3f;
         public float SelectedSomethingTimer = 3f;
-        public Vector2 mouseWorldPos;
 
         FleetButton[] FleetButtons = Empty<FleetButton>.Array;
         public bool ShowTacticalCloseup { get; private set; }
@@ -138,15 +124,11 @@ namespace Ship_Game
         public DebugInfoScreen DebugWin;
         public bool ShowShipNames;
         bool UseRealLights = true;
-        public SolarSystem SelectedSystem;
-        public Fleet SelectedFleet;
         int FBTimer = 60;
-        bool pickedSomethingThisFrame;
         bool SelectingWithBox;
 
         public PlanetScreen workersPanel;
         int SelectorFrame;
-        public Ship previousSelection;
 
         public UIButton ShipsInCombat;
         public UIButton PlanetsInCombat;
@@ -275,18 +257,6 @@ namespace Ship_Game
             light.World = Matrix.CreateTranslation((Vector3)light.Position);
             AddLight(light, dynamic:false);
             return light;
-        }
-
-        public void ContactLeader()
-        {
-            if (SelectedShip == null)
-                return;
-
-            Empire leaderLoyalty = SelectedShip.Loyalty;
-            if (leaderLoyalty.IsFaction)
-                Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.Loyalty, this);
-            else
-                DiplomacyScreen.Show(SelectedShip.Loyalty, Player, "Greeting");
         }
 
         public override void LoadContent()
@@ -478,7 +448,7 @@ namespace Ship_Game
             NotificationManager.ReSize();
 
             CreateFogMap(TransientContent, device);
-            LoadMenu();
+            CreatePieMenu();
 
             FTLManager.LoadContent(this);
 
@@ -514,11 +484,7 @@ namespace Ship_Game
                     continue;
                 if (nbrship == lastshipcombat)
                 {
-                    if (SelectedShip != null && SelectedShip != previousSelection && SelectedShip != ship)
-                        previousSelection = SelectedShip;
-                    SelectedShip = ship;
-                    ViewToShip();
-                    SelectedShipList.Add(SelectedShip);
+                    ViewToShip(ship);
                     lastshipcombat++;
                     break;
                 }
@@ -587,18 +553,14 @@ namespace Ship_Game
         {
             if (ShowSystemInfoOverlay)
             {
-                SystemInfoOverlay.SetSystem(SelectedSystem);
                 SystemInfoOverlay.Update(elapsed);
             }
-
             if (ShowPlanetInfo)
             {
-                pInfoUI.SetPlanet(SelectedPlanet);
                 pInfoUI.Update(elapsed);
             }
             else if (ShowShipInfo)
             {
-                ShipInfoUIElement.SetShip(SelectedShip);
                 ShipInfoUIElement.Update(elapsed);
             }
             else if (ShowShipList)
@@ -609,14 +571,6 @@ namespace Ship_Game
             {
                 shipListInfoUI.Update(elapsed);
             }
-        }
-
-        void ProjectPieMenu(Vector3 position)
-        {
-            Vector3 proj = new Vector3(Viewport.Project(position, Projection, View, Matrix.Identity));
-            pieMenu.Position = proj.ToVec2();
-            pieMenu.Radius = 75f;
-            pieMenu.ScaleFactor = 1f;
         }
 
         public void OnPlayerDefeated()
@@ -689,11 +643,8 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.Music.Stop();
 
+            ClearSelectedItems();
             ShipToView = null;
-            SelectedShip   = null;
-            SelectedFleet  = null;
-            SelectedPlanet = null;
-            SelectedSystem = null;
 
             EmpireHullBonuses.Clear();
             ClickableFleetsList.Clear();
@@ -731,7 +682,7 @@ namespace Ship_Game
             ShipView   = 15000,
             PlanetView = 35000,
             SystemView = 250000,
-            SectorView = 1775000,
+            SectorView = 1775000, // from 250_001 to 1_775_000
             GalaxyView
         }
 

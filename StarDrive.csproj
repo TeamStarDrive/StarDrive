@@ -372,6 +372,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\BorderNodeCache.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Events.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Save.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.SetSelectedItem.cs" />
     <Compile Include="Ship_Game\Universe\UniverseState.cs" />
     <Compile Include="Ship_Game\Universe\UniverseState_Empires.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />

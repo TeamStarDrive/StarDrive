@@ -883,36 +883,31 @@ namespace Ship_Game
         public void SnapToCombat(Planet p)
         {
             GameAudio.SubBassWhoosh();
-            Screen.SelectedPlanet = p;
-            Screen.SnapViewColony(p.Owner != Screen.Player);
+            Screen.SnapViewColony(p, p.Owner != Screen.Player);
         }
 
         public void SnapToPlanet(Planet p)
         {
             GameAudio.SubBassWhoosh();
-            Screen.SelectedPlanet = p;
-            Screen.SnapViewColony(combatView: false);
+            Screen.SnapViewColony(p, combatView: false);
         }
 
         public void SnapToShip(Ship s)
         {
             GameAudio.SubBassWhoosh();
-            Screen.SelectedShip = s;
             Screen.SnapViewShip(s);
         }
 
         public void SnapToExpandedSystem(Planet p, SolarSystem system)
         {
             GameAudio.SubBassWhoosh();
-            if (p != null) Screen.SelectedPlanet = p;
-            Screen.SelectedSystem = system;
-            Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView);
+            Screen.SnapViewSystem(system, p, UniverseScreen.UnivScreenState.GalaxyView);
         }
 
         public void SnapToSystem(SolarSystem system)
         {
             GameAudio.SubBassWhoosh();
-            Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
+            Screen.SnapViewSystem(system, null, UniverseScreen.UnivScreenState.SystemView);
         }
 
         public void Update(float elapsedRealTime)

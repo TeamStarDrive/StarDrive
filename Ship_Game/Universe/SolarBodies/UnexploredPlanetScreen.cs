@@ -11,18 +11,14 @@ namespace Ship_Game
     /// </summary>
     public sealed class UnexploredPlanetScreen : PlanetScreen
     {
-        Planet Planet;
         Menu2 TitleBar;
         Vector2 TitlePos;
         Menu1 PlanetInfoBkg;
         Submenu PlanetInfo;
         RectF PlanetIcon;
 
-        public UnexploredPlanetScreen(GameScreen screen, Planet p) : base(screen)
+        public UnexploredPlanetScreen(GameScreen screen, Planet p) : base(screen, p)
         {
-            Planet = p;
-            IsPopup = true; // allow right-click dismiss
-
             var titleRect = new Rectangle(5, 44, LowRes ? 365 : 405, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
@@ -41,41 +37,41 @@ namespace Ship_Game
         {
             // Title: /Extorm III/
             TitleBar.Draw(batch, elapsed);
-            batch.DrawString(Fonts.Laserian14, Planet.Name, TitlePos, Colors.Cream);
+            batch.DrawString(Fonts.Laserian14, P.Name, TitlePos, Colors.Cream);
 
             // Menu: Planet Info with background    
             PlanetInfoBkg.Draw(batch, elapsed);
             PlanetInfo.Draw(batch, elapsed);
 
             // Planet icon
-            batch.Draw(Planet.PlanetTexture, PlanetIcon, Color.White);
+            batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
 
             float x = PlanetInfo.X + 20;
             float y = PlanetInfo.Y + 40;
 
             // second title: Extorm III
-            batch.DrawString(Fonts.Arial20Bold, Planet.Name, new Vector2(x, y), Colors.Cream);
+            batch.DrawString(Fonts.Arial20Bold, P.Name, new Vector2(x, y), Colors.Cream);
 
             // Class: Swamp
-            DrawInfo(batch, x, y + 25, GameText.Class, Planet.LocalizedCategory, "");
+            DrawInfo(batch, x, y + 25, GameText.Class, P.LocalizedCategory, "");
 
             Graphics.Font font = Fonts.Arial12Bold;
-            if (!Planet.Habitable)
+            if (!P.Habitable)
             {
                 batch.DrawString(font, Localizer.Token(GameText.Uninhabitable), x, y + 32, Color.Orange);
             }
             else
             {
                 // Population: 0 / 1.5
-                DrawInfo(batch, x, y + 41, GameText.Population, Planet.PopulationStringForPlayer, GameText.AColonysPopulationIsA);
+                DrawInfo(batch, x, y + 41, GameText.Population, P.PopulationStringForPlayer, GameText.AColonysPopulationIsA);
                 // Fertility: 0.8
-                DrawInfo(batch, x, y + 57, GameText.Fertility, Planet.FertilityFor(Planet.Universe.Player).String(), GameText.IndicatesHowMuchFoodThis);
+                DrawInfo(batch, x, y + 57, GameText.Fertility, P.FertilityFor(P.Universe.Player).String(), GameText.IndicatesHowMuchFoodThis);
                 // Richness: 0.5
-                DrawInfo(batch, x, y + 73, GameText.Richness, Planet.MineralRichness.String(), GameText.APlanetsMineralRichnessDirectly);
+                DrawInfo(batch, x, y + 73, GameText.Richness, P.MineralRichness.String(), GameText.APlanetsMineralRichnessDirectly);
             }
 
             // planet description flavor text
-            string desc = font.ParseText(Planet.Description, PlanetInfo.Width - 40);
+            string desc = font.ParseText(P.Description, PlanetInfo.Width - 40);
             batch.DrawString(font, desc, x, PlanetIcon.Bottom + 20, Colors.Cream);
         }
 

@@ -335,7 +335,7 @@ namespace Ship_Game
                     if (Player.GetCurrentCapital(out Planet capital))
                     {
                         GameAudio.SubBassWhoosh();
-                        Universe.SelectedPlanet = capital;
+                        Universe.SetSelectedPlanet(capital);
                         Universe.CamDestination = new Vector3d(capital.Position.X, capital.Position.Y + 400f, 9000);
                     }
                     else
