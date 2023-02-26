@@ -1,6 +1,7 @@
 using System;
 using SDGraphics;
 using Ship_Game.Audio;
+using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -42,19 +43,14 @@ namespace Ship_Game
             return new(newX, newY, desiredCamZ);
         }
 
-        public void ViewToShip()
+        public void ViewToShip(Ship ship)
         {
-            if (SelectedShip == null)
+            if (ship == null)
                 return;
 
-            ShipToView = SelectedShip;
-            ShipInfoUIElement.SetShip(SelectedShip); //fbedard: was not updating correctly from shiplist
-            SelectedFleet = null;
-            SelectedShipList.Clear();
-            SelectedItem = null;
-            SelectedSystem = null;
-            SelectedPlanet = null;
-            snappingToShip = true;
+            SetSelectedShip(ship);
+
+            ShipToView = ship;
             AdjustCamTimer = 1.0f;
             transitionElapsedTime = 0.0f;
             CamDestination.Z = CamDestination.Z.UpperBound(GetZfromScreenState(UnivScreenState.PlanetView));
@@ -83,12 +79,12 @@ namespace Ship_Game
             else
             {
                 bool flag = false;
-                if (SelectedPlanet.Owner == Player && combatView 
-                    || SelectedPlanet.Owner != Player && Player.data.MoleList.Any(m => m.PlanetId == SelectedPlanet.Id) && combatView)
+                if (SelectedPlanet.Owner == Player && combatView ||
+                    SelectedPlanet.Owner != Player && Player.data.MoleList.Any(m => m.PlanetId == SelectedPlanet.Id) && combatView)
                 {
                     OpenCombatMenu();
                     return;
-                }                    
+                }
 
                 foreach (Mole mole in Player.data.MoleList)
                 {
@@ -111,7 +107,6 @@ namespace Ship_Game
                                     && (SelectedPlanet.WeAreInvadingHere(Player) || !Player.DifficultyModifiers.HideTacticalData
                                                                                  || SelectedPlanet.ParentSystem.OwnerList.Contains(Player)
                                                                                  || SelectedPlanet.OurShipsCanScanSurface(Player)))
-
                 {
                     OpenCombatMenu();
                 }
@@ -126,17 +121,10 @@ namespace Ship_Game
                 AdjustCamTimer = 2f;
                 transitionElapsedTime = 0.0f;
                 transDuration = 5f;
-                if (ViewingShip)
-                    returnToShip = true;
-                ViewingShip = false;
-                snappingToShip = false;
-                SelectedFleet = null;
-                if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
-                    previousSelection = SelectedShip;
-                SelectedShip = null;
-                SelectedItem = null;
-                SelectedShipList.Clear();
 
+                bool doReturnToShip = ViewingShip;
+                ClearSelectedItems();
+                returnToShip = doReturnToShip;
             }
         }
 
@@ -161,9 +149,10 @@ namespace Ship_Game
             SelectedItem = null;
         }
 
-        public void SnapViewShip(object sender)
+        public void SnapViewShip(Ship ship)
         {
             ShowShipNames = false;
+            SetSelectedShip(ship);
             if (SelectedShip == null)
                 return;
 
@@ -173,11 +162,9 @@ namespace Ship_Game
             AdjustCamTimer  = 2f;
             transitionElapsedTime = 0.0f;
             transDuration  = 5f;
+
             snappingToShip = true;
-            ViewingShip    = true;
-            SelectedFleet  = null;
-            SelectedItem   = null;
-            SelectedShipList.Clear();
+            ViewingShip = true;
         }
 
         private void ViewSystem(SolarSystem system)
@@ -379,7 +366,7 @@ namespace Ship_Game
         {
             if (!ViewingShip)
             {
-                ViewToShip();
+                ViewToShip(SelectedShip);
             }
             ViewingShip = !ViewingShip;
         }

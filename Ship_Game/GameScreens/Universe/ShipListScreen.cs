@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDGraphics.Input;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -240,11 +241,7 @@ namespace Ship_Game
         {
             ExitScreen();
             UniverseScreen u = Universe;
-            if (u.SelectedShip != null && u.previousSelection != u.SelectedShip && u.SelectedShip != item.Ship) // fbedard
-                u.previousSelection = u.SelectedShip;
-            u.SelectedShipList.Clear();
-            u.SelectedShip = item.Ship;
-            u.ViewToShip();
+            u.ViewToShip(item.Ship);
             u.returnToShip = true;
         }
 
@@ -335,28 +332,12 @@ namespace Ship_Game
 
         void ResetUniverseShipSelectionMessy(UniverseScreen u)
         {
-            u.SelectedShipList.Clear();
-            u.returnToShip = false;
             if (SelectedShip != null)
             {
-                u.SelectedFleet  = null;
-                u.SelectedItem   = null;
-                u.SelectedSystem = null;
-                u.SelectedPlanet = null;
-                u.returnToShip   = false;
+                Array<Ship> selected = new();
                 foreach (ShipListScreenItem sel in ShipSL.AllEntries)
-                    if (sel.Selected) u.SelectedShipList.AddUnique(sel.Ship);
-
-                if (u.SelectedShipList.Count == 1)
-                {
-                    if (u.SelectedShip != null && u.previousSelection != u.SelectedShip) //fbedard
-                        u.previousSelection = u.SelectedShip;
-                    u.SelectedShip = SelectedShip;
-                    u.ShipInfoUIElement.SetShip(SelectedShip);
-                    u.SelectedShipList.Clear();
-                }
-                else if (u.SelectedShipList.Count > 1)
-                    u.shipListInfoUI.SetShipList(u.SelectedShipList, false);
+                    if (sel.Selected) selected.AddUnique(sel.Ship);
+                u.SetSelectedShipList(selected, isFleet: false);
             }
         }
 

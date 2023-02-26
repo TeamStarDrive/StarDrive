@@ -175,14 +175,10 @@ namespace Ship_Game
                 }
             }
 
-            if (SelectedFleet != null || SelectedItem != null || SelectedShip != null || SelectedPlanet != null ||
-                SelectedShipList.Count != 0)
-                return;
-            if (shipClicked == null || shipClicked.IsHangarShip || shipClicked.IsConstructor)
-                return;
-            if (SelectedShip != null && previousSelection != SelectedShip && SelectedShip != shipClicked)
-                previousSelection = SelectedShip;
-            SelectedShip = shipClicked;
+            if (!HasSelectedItem && shipClicked is {IsHangarShip: false, IsConstructor: false})
+            {
+                SetSelectedShip(shipClicked);
+            }
         }
 
         // depending on current input state, either gives straight direction from center to final pos

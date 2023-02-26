@@ -193,15 +193,15 @@ namespace Ship_Game
             Planet planet = Universe.SelectedPlanet;
             var system    = Universe.SelectedSystem;
             var fleet     = Universe.SelectedFleet;
-            Ship[] containsShip = Universe.SelectedShipList.ToArray();
+            Ship[] selectedShips = Universe.SelectedShips.ToArr();
 
-            Array<Vector2> centers = new Array<Vector2>();
+            Array<Vector2> centers = new();
 
             if (ship != null) centers.Add(ship.Position);
             else if (planet != null) centers.Add(planet.Position);
             else if (system != null) centers.Add(system.Position);
-            else if (fleet != null) centers = new Array<Vector2>(fleet.Ships.Select(s=> s.Position));
-            else if (containsShip?.Length > 0)  centers = new Array<Vector2>(containsShip.Select(s => s.Position));
+            else if (fleet != null) centers = new(fleet.Ships.Select(s=> s.Position));
+            else if (selectedShips.Length > 0)  centers = new(selectedShips.Select(s => s.Position));
 
             float radius = 0.023f;
             foreach (var center in centers)
