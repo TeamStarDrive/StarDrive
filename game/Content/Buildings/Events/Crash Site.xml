@@ -8,7 +8,7 @@
   <EventTriggerUID>Discover Ship</EventTriggerUID>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Scrappable>false</Scrappable>
-
+  <ShowOnPlanetList>true</ShowOnPlanetList> 
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>415</NameTranslationIndex>
   <DescriptionIndex>416</DescriptionIndex>

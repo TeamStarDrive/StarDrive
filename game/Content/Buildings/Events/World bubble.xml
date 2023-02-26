@@ -10,7 +10,7 @@
   <InvadeInjurePoints>2</InvadeInjurePoints>    
   <PlanetaryShieldStrengthAdded>1800</PlanetaryShieldStrengthAdded>
   <MaxFertilityOnBuild>-0.15</MaxFertilityOnBuild>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18180</NameTranslationIndex>
   <DescriptionIndex>18181</DescriptionIndex>

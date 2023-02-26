@@ -9,7 +9,7 @@
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <NoRandomSpawn>true</NoRandomSpawn>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18100</NameTranslationIndex>
   <DescriptionIndex>18101</DescriptionIndex>

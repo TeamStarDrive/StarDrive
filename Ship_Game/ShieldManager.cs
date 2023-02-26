@@ -98,7 +98,7 @@ public sealed class ShieldManager : IDisposable
     {
         if (IsDisposed)
             return;
-        
+
         Shield[] shields = VisibleShields;
         Shield[] planetShields = VisiblePlanetShields;
 

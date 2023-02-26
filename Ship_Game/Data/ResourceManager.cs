@@ -429,8 +429,16 @@ namespace Ship_Game
                 if (!info.Exists)
                     return null;
             }
-            using Stream stream = info.OpenRead();
-            return (T)new XmlSerializer(typeof(T)).Deserialize(stream);
+
+            try
+            {
+                using Stream stream = info.OpenRead();
+                return (T)new XmlSerializer(typeof(T)).Deserialize(stream);
+            }
+            catch (Exception e)
+            {
+                throw new($"Failed to parse XML: {info.RelPath()}", e);
+            }
         }
 
         // The entity value is assigned only IF file exists and Deserialize succeeds

@@ -11,6 +11,7 @@
   <Strength>30</Strength>
   <ImmueToLava>true</ImmueToLava>
   <CannotBeBombed>true</CannotBeBombed>  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4251</NameTranslationIndex>
   <DescriptionIndex>4268</DescriptionIndex>

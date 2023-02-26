@@ -1222,6 +1222,7 @@ namespace Ship_Game
                 {
                     foundCache = true;
                     b.FoodCache -= b.PlusFlatFoodAmount;
+                    b.FoodCache -= Food.Percent * PopulationBillion * b.PlusFoodPerColonist;
                     if (b.FoodCache <= 0f)
                     {
                         if (Owner == Universe.Player)
@@ -1236,6 +1237,8 @@ namespace Ship_Game
                 {
                     foundCache = true;
                     b.ProdCache -= Prod.Percent * PopulationBillion * b.PlusProdPerColonist;
+                    b.ProdCache -= b.PlusFlatProductionAmount;
+                    b.ProdCache -= b.PlusProdPerRichness * MineralRichness;
                     if (b.ProdCache <= 0f)
                     {
                         if (Owner == Universe.Player)

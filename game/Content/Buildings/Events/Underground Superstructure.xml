@@ -9,7 +9,7 @@
   <Scrappable>false</Scrappable>
   <CannotBeBombed>true</CannotBeBombed>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>5095</NameTranslationIndex>
   <DescriptionIndex>5096</DescriptionIndex>

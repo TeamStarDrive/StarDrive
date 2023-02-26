@@ -5,6 +5,7 @@
   <Maintenance>0.2</Maintenance>
   
   <IsCommodity>true</IsCommodity>
+  <ShowOnPlanetList>true</ShowOnPlanetList>
   <MaxPopIncrease>1600</MaxPopIncrease>
   <MaxFertilityOnBuild>-0.2</MaxFertilityOnBuild>
   <Scrappable>false</Scrappable>
