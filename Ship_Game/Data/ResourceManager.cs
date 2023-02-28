@@ -1426,7 +1426,8 @@ namespace Ship_Game
 
         static void LoadRandomItems()
         {
-            RandomItemsList = LoadEntities<RandomItem>("RandomStuff", "LoadRandomItems");
+            bool modOnly = GlobalStats.HasMod && !GlobalStats.Defaults.Mod.UseVanillaBuildings;
+            RandomItemsList = LoadEntities<RandomItem>("RandomStuff", "LoadRandomItems", modOnly: modOnly);
         }
 
         static void LoadShipModules()
