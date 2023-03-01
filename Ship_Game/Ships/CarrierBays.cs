@@ -29,8 +29,9 @@ namespace Ship_Game.Ships
         [StarData] public float OrdnanceInSpace { get; private set; }
         [StarData] public bool FightersLaunched { get; private set; }
         [StarData] public bool TroopsLaunched { get; private set; }
-        [StarData] public bool SendTroopsToShip { get; private set; }
-        [StarData] public bool RecallFightersBeforeFTL { get; private set; }
+        [StarData(NoDefaults=true)] public bool AllowBoardShip;
+        [StarData(NoDefaults=true)] public bool SendTroopsToShip { get; private set; }
+        [StarData(NoDefaults=true)] public bool RecallFightersBeforeFTL { get; private set; }
         public bool RecallingShipsBeforeWarp { get; private set; }
 
         // for testing purposes, disable fighters
@@ -80,6 +81,7 @@ namespace Ship_Game.Ships
             HasTroopBays            = AllTroopBays.Length > 0;
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
+            AllowBoardShip          = true;
             SendTroopsToShip        = true;
             RecallFightersBeforeFTL = true;
             Owner                   = owner;
