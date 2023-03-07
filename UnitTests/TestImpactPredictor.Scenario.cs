@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
 using Ship_Game.Gameplay;
@@ -18,6 +17,7 @@ namespace UnitTests
             public readonly Vector2 Us;
             public readonly Vector2 TgtVel;
             public readonly Vector2 UsVel;
+
             public Scenario(Vector2 tgt, Vector2 us, Vector2 tgtVel, Vector2 usVel)
             {
                 Tgt    = tgt;
@@ -72,30 +72,35 @@ namespace UnitTests
                 AssertEqual(0.1f, expected, PredictMovePos());
             }
 
-            public SimResult SimulateImpact(Vector2 projectileVel)
+            public SimResult SimulateImpact(SimParameters sim)
             {
-                var parameters = new SimParameters
-                {
-                    Step = (1f / 60f),
-                    DelayBetweenSteps = 0.005f / SimSpeed,
-                    ProjectileVelocity = projectileVel,
-                    Duration = 10,
-                    EnablePauses = true,
-                };
+                ImpactSimulation impactSim = new(Game, this, sim);
 
-                var impactSim = new ImpactSimulation(this, parameters);
-                SimResult result = impactSim.RunAndWaitForResult();
-                Console.WriteLine(result);
-                return result;
+                EnableMockInput(false); // switch from mocked input to real input
+                Game.ShowAndRun(screen: impactSim); // run the sim
+                EnableMockInput(true); // restore the mock input
+
+                Console.WriteLine(impactSim.Result);
+                return impactSim.Result;
             }
 
-            public void TestAndSimulate(float expectedX, float expectedY, float projectileSpeed, bool forceSim = false)
+            public void TestAndSimulate(float expectedX, float expectedY, float projectileSpeed,
+                                        bool forceSim = false, SimParameters sim = null)
             {
                 if (forceSim || RunVisualSimulations)
                 {
-                    Vector2 p = Predict(projectileSpeed);
-                    Console.WriteLine($"SimulateImpact: {p}");
-                    SimulateImpact(Us.DirectionToTarget(p) * projectileSpeed);
+                    if (sim == null)
+                    {
+                        Vector2 p = Predict(projectileSpeed);
+                        Console.WriteLine($"SimulateImpact: {p}");
+                        sim = new()
+                        {
+                            SimSpeed = SimSpeed,
+                            Prediction = p,
+                            ProjVelStart = Us.DirectionToTarget(p) * projectileSpeed,
+                        };
+                    }
+                    SimulateImpact(sim);
                 }
 
                 var expected = new Vector2(expectedX, expectedY);

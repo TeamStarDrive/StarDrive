@@ -46,9 +46,7 @@ internal abstract class CommonVisualization : GameScreen
     public override void Update(float fixedDeltaTime)
     {
         CamHeight = CamHeight.Clamped(80f, FullSize*2f);
-        Camera.Z = -Math.Abs(CamHeight);
-        var down = new Vector3(Camera.X, Camera.Y, 0f);
-        SetViewPerspective(Matrix.CreateLookAt(Camera, down, Vector3.Down));
+        SetViewPerspective(Matrices.CreateLookAtDown(Camera.X, Camera.Y, -CamHeight));
 
         UpdateSim(fixedDeltaTime);
 

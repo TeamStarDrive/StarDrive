@@ -56,13 +56,14 @@ namespace UnitTests
         {
             // Always Draw, even if game is not visible
             // Because we want our unit tests to go through the entire system
-            GraphicsDevice.Clear(new Color(40,40,40));
             ScreenManager.UpdateGraphicsDevice();
+            ScreenManager.ClearScreen(new Color(40,40,40));
 
             try
             {
                 Batch.SafeBegin();
-                base.Draw();
+                ScreenManager.Draw();
+                DrawComponents();
             }
             finally
             {
@@ -102,6 +103,8 @@ namespace UnitTests
             Visible = true;
             while (Visible)
             {
+                if (component is { Visible: false } || screen is { Visible: false })
+                    break;
                 RunOne();
                 Tick();
             }
@@ -112,31 +115,6 @@ namespace UnitTests
                 ScreenManager.RemoveScreen(screen);
 
             Thread.Sleep(100); // ughh, some weird window related bug
-        }
-
-        static TestGameDummy Instance;
-
-        public static TestGameDummy GetOrStartInstance(int width, int height, bool show=true)
-        {
-            if (Instance != null)
-                return Instance;
-
-            var started = new AutoResetEvent(false);
-            new Thread(() =>
-            {
-                try
-                {
-                    Instance = new TestGameDummy(started, width, height, show);
-                    Instance.Run(); // this will only return once the window is closed
-                }
-                finally
-                {
-                    Instance = null; // clean up
-                }
-            }) { Name = "ImpactSimThread" }.Start();
-
-            started.WaitOne(); // wait until Instance.BeginRun() is finished
-            return Instance;
         }
     }
 }
