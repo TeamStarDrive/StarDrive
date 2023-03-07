@@ -1,262 +1,363 @@
 ﻿using System;
 using System.Threading;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game;
+using Ship_Game.Gameplay;
 using Keys = SDGraphics.Input.Keys;
 using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
-namespace UnitTests
+namespace UnitTests;
+
+class SimObject : GameObject
 {
-    class SimObject
+    public string Name;
+    public float VelocityMax; // terminal velocity
+    public Color Color;
+    public bool CanMove = true;
+
+    public SimObject(string name, Vector2 p, Vector2 v, Color c, float r)
+        : base(0, GameObjectType.Ship)
     {
-        public string Name;
-        public Vector2 Position;
-        public Vector2 Velocity;
-        public Color Color;
-        public float Radius;
-
-        public SimObject(string name, Vector2 p, Vector2 v, Color c, float r)
-        {
-            Name = name;
-            Position = p;
-            Velocity = v;
-            Color = c;
-            Radius = r;
-        }
-
-        public void Update(float deltaTime)
-        {
-            Position += Velocity * deltaTime;
-        }
-
-        public void Draw(SpriteBatch batch, Vector2 worldCenter, float scale)
-        {
-            Vector2 pos = worldCenter + Position*scale;
-            batch.DrawCircle(pos, Radius*scale, Color, 1f);
-            batch.DrawLine(pos, pos + Velocity*scale, Color, 1f);
-            batch.DrawString(Fonts.Arial11Bold, Name, pos + new Vector2(5,5), Color);
-        }
+        Name = name;
+        Position = p;
+        Velocity = v;
+        Color = c;
+        Radius = r;
     }
 
-    public class SimParameters
+    public void Update(float dt)
     {
-        public float Step = 1.0f / 60.0f;
-        public float DelayBetweenSteps = 0f;
-        public float Duration = 60.0f;
-        public float Scale = 1.0f;
-        public Vector2 ProjectileVelocity;
-        public bool EnablePauses = true;
-    }
-
-    public struct SimResult
-    {
-        public Vector2 Intersect;
-        public float Time;
-
-        public override string ToString()
+        if (CanMove)
         {
-            return $"SimResult:  {Intersect}  Time:{Time.String(3)}s";
-        }
-    }
+            Vector2 newAcc = Acceleration; // constant acceleration
+            bool isZeroAcc = newAcc.X == 0f && newAcc.Y == 0f;
+            UpdateVelocityAndPosition(dt, newAcc, isZeroAcc);
 
-    internal enum SimState
-    {
-        Starting, Running, Exiting
-    }
-
-    internal class ImpactSimulation : IGameComponent, IDrawable, IUpdateable, IDisposable
-    {
-        readonly Array<SimObject> Objects = new Array<SimObject>();
-        readonly SimObject Projectile;
-        readonly SimObject Target;
-
-        SimState State = SimState.Starting;
-        float StartCounter = 1f;
-        float ExitCounter  = 1f;
-        readonly AutoResetEvent Exit = new AutoResetEvent(false);
-        SimResult Result;
-
-        readonly TestGameDummy Owner;
-        readonly SimParameters Sim;
-
-        float Time;
-        Vector2 Center;
-        float PrevDistance;
-        
-        public bool Visible     { get; } = true;
-        public bool Enabled     { get; } = true;
-        public int  DrawOrder   { get; } = 0;
-        public int  UpdateOrder { get; } = 0;
-
-        public ImpactSimulation(TestImpactPredictor.Scenario s, SimParameters sim)
-        {
-            Owner = TestGameDummy.GetOrStartInstance(1024, 1024);
-            Sim   = sim;
-            var us = new SimObject("Us", s.Us, s.UsVel, Color.Green, 32);
-            Target = new SimObject("Target", s.Tgt, s.TgtVel, Color.Red, 32);
-            Projectile = new SimObject("Projectile", s.Us, Sim.ProjectileVelocity, Color.Orange, 8);
-
-            Objects.AddRange(new []{ us, Target, Projectile });
-            PrevDistance = float.MaxValue;
-            UpdateSimScaleAndBounds();
-        }
-        
-        public void Initialize()
-        {
-        }
-
-        public SimResult RunAndWaitForResult()
-        {
-            Owner.Components.Add(this);
-            Owner.Visible = true;
-
-            Exit.WaitOne();
-
-            Owner.Components.Remove(this);
-            Owner.Visible = false;
-            return Result;
-        }
-
-        public void Update(float deltaTime)
-        {
-            switch (State)
+            if (VelocityMax > 0f && Velocity.Length() > VelocityMax)
             {
-                case SimState.Starting: WaitingToStart(deltaTime); break;
-                case SimState.Running:  UpdateSimulation();   break;
-                case SimState.Exiting:  WaitingToExit(deltaTime);  break;
+                Velocity = Velocity.Normalized() * VelocityMax;
             }
         }
+    }
 
-        void WaitingToExit(float deltaTime)
+    public void Draw(SpriteBatch batch, GameScreen screen)
+    {
+        Vector2 posOnScreen = screen.ProjectToScreenPosition(Position).ToVec2f();
+
+        float radiusOnScreen = (float)screen.ProjectToScreenSize(Radius);
+        batch.DrawCircle(posOnScreen, radiusOnScreen, Color, 1f);
+        if (CanMove)
         {
-            if (!Sim.EnablePauses || Owner.Input.IsKeyDown(Keys.Space))
-                ExitCounter = 0f;
-
-            ExitCounter -= deltaTime;
-            if (ExitCounter <= 0f)
-                Exit.Set();
+            Vector2 velEndOnScreen = screen.ProjectToScreenPosition(Position + Velocity).ToVec2f();
+            batch.DrawLine(posOnScreen, velEndOnScreen, Color, 1f);
         }
+        batch.DrawString(Fonts.Arial11Bold, Name, posOnScreen + new Vector2(5,5), Color);
+    }
+}
 
-        void WaitingToStart(float deltaTime)
+public class SimParameters
+{
+    public float Step = 1.0f / 60.0f;
+    public float SimSpeed = 1f;
+    public float Duration = 10f;
+    public float MaxCameraHeight = 100_000f;
+    public bool EnablePauses = true;
+
+    public Vector2 Prediction; // prediction where it will impact
+    public Vector2 ProjVelStart; // initial projectile velocity
+
+    public Vector2 ProjAcc;
+    public float ProjVelMax;
+
+    public float UsRadius = 32;
+    public float ThemRadius = 32;
+    public float ProjectileRadius = 8f;
+
+    // alternative approach
+    public bool SimBombDrop;
+
+    public AABoundingBox2D? Bounds = null;
+}
+
+public struct SimResult
+{
+    public Vector2 Intersect;
+    public float Time;
+
+    public override string ToString()
+    {
+        return $"SimResult:  {Intersect}  Time:{Time.String(3)}s";
+    }
+}
+
+internal enum SimState
+{
+    Starting, Running, Exiting
+}
+
+internal class ImpactSimulation : GameScreen
+{
+    readonly Array<SimObject> Objects = new();
+    readonly SimObject Us;
+    readonly SimObject Tgt;
+    readonly SimObject Proj;
+
+    SimState State = SimState.Starting;
+    float StartCounter = 1f;
+    float ExitCounter  = 1f;
+
+    public SimResult Result = new();
+
+    readonly TestGameDummy Game;
+    readonly SimParameters Sim;
+
+    public Vector3 Camera = new(0, 0, 1024);
+
+    bool IsPaused;
+    float Time;
+    float PrevDistance;
+
+    float ReleaseTime = 0f;
+    float TimeToTarget = 0f;
+
+    public ImpactSimulation(TestGameDummy game, TestImpactPredictor.Scenario s, SimParameters sim)
+        : base(null, toPause: null)
+    {
+        Game = game;
+        Sim = sim;
+        Us = new SimObject("Us", s.Us, s.UsVel, Color.Green, Sim.UsRadius);
+        Tgt = new SimObject("Target", s.Tgt, s.TgtVel, Color.Red, Sim.ThemRadius);
+        Proj = new SimObject("Projectile", s.Us, Sim.ProjVelStart, Color.Orange, Sim.ProjectileRadius)
         {
-            if (!Sim.EnablePauses || Owner.Input.IsKeyDown(Keys.Space))
-                State = SimState.Running;
+            Acceleration = sim.ProjAcc,
+            VelocityMax = sim.ProjVelMax
+        };
 
-            if (State == SimState.Running)
-                return;
+        Objects.AddRange(new []{ Us, Tgt, Proj });
+        IsPaused = Sim.EnablePauses;
+        Time = 0f;
+        PrevDistance = float.MaxValue;
 
-            StartCounter -= deltaTime;
-            if (StartCounter > 0f)
-                return;
+        Proj.CanMove = !sim.SimBombDrop;
 
+        UpdateSimScaleAndBounds();
+    }
+
+    public override bool HandleInput(InputState input)
+    {
+        if (Sim.EnablePauses && Game.Input.KeyPressed(Keys.Space))
+        {
+            IsPaused = !IsPaused;
+            return true;
+        }
+        return base.HandleInput(input);
+    }
+
+    public override void Update(float fixedDeltaTime)
+    {
+        UpdateSimScaleAndBounds();
+
+        switch (State)
+        {
+            case SimState.Starting: WaitingToStart(fixedDeltaTime); break;
+            case SimState.Running:  UpdateSimulation();   break;
+            case SimState.Exiting:  WaitingToExit(fixedDeltaTime);  break;
+        }
+    }
+
+    void WaitingToExit(float deltaTime)
+    {
+        if (Sim.EnablePauses && IsPaused)
+            return;
+
+        ExitCounter -= deltaTime;
+        if (!Sim.EnablePauses || ExitCounter <= 0f)
+            ExitScreen();
+    }
+
+    void WaitingToStart(float deltaTime)
+    {
+        if (!IsPaused)
+        {
             State = SimState.Running;
         }
-
-        void UpdateSimulation()
+        else if (State != SimState.Running)
         {
-            if (Sim.DelayBetweenSteps > 0f)
+            StartCounter -= deltaTime;
+            if (StartCounter <= 0f)
             {
-                Thread.Sleep((int)(Sim.DelayBetweenSteps * 1000));
+                State = SimState.Running;
+                IsPaused = false;
             }
+        }
+    }
 
-            Time += Sim.Step;
+    void UpdateSimulation()
+    {
+        if (Sim.SimSpeed > 0f)
+        {
+            float delay = Sim.Step / Sim.SimSpeed;
+            Thread.Sleep((int)(delay * 1000));
+        }
 
-            foreach (SimObject o in Objects)
-                o.Update(Sim.Step);
+        if (IsPaused)
+            return; // it's paused
 
-            float distance = Projectile.Position.Distance(Target.Position);
-            if (distance <= (Projectile.Radius + Target.Radius))
+        Time += Sim.Step;
+
+        foreach (SimObject o in Objects)
+            o.Update(Sim.Step);
+
+        if (Sim.SimBombDrop && !Proj.CanMove)
+        {
+            Proj.Position = Us.Position; // keep it attached to Us
+
+            (Vector2 prediction, float timeToTarget) = ImpactPredictor.PredictBombingPos(
+                Proj.Position,
+                Proj.Velocity,
+                Proj.Acceleration,
+                Proj.VelocityMax,
+                groundY: 0f
+            );
+
+            Sim.Prediction = prediction;
+            if (Sim.Prediction.Distance(Tgt.Position) < Tgt.Radius)
             {
-                State = SimState.Exiting;
-
-                // final simulation correction towards Target
-                float speed = Projectile.Velocity.Length();
-                float timeAdjust = distance / speed;
-                timeAdjust *= 1.09f; // additional heuristic precision adjustment
-
-                Result.Intersect = Projectile.Position + Projectile.Velocity * timeAdjust;
-                Result.Time = Time + timeAdjust;
-                return;
+                Proj.CanMove = true; // release!
+                ReleaseTime = Time;
+                TimeToTarget = timeToTarget;
             }
+        }
 
+        float distance = Proj.Position.Distance(Tgt.Position);
+        if (distance <= (Proj.Radius + Tgt.Radius))
+        {
+            State = SimState.Exiting;
+
+            // final simulation correction towards Target
+            float speed = Proj.Velocity.Length();
+            float timeAdjust = distance / speed;
+            //timeAdjust *= 1.09f; // additional heuristic precision adjustment
+
+            Result.Intersect = Proj.Position + Proj.Velocity * timeAdjust;
+            Result.Time = Time + timeAdjust;
+        }
+        else
+        {
             if (distance > PrevDistance)
-                Projectile.Name = "Projectile MISS";
+                Proj.Name = "Projectile MISS";
+
             PrevDistance = distance;
 
             if (Time >= Sim.Duration)
             {
                 State = SimState.Exiting;
-                return;
             }
-
-            UpdateSimScaleAndBounds();
         }
+    }
 
-        public void Draw()
+    public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+    {
+        // draw a background grid to help with object reference
+        const int gridSize = 64;
+        const float cellSize = 128;
+        float fullSize = gridSize*cellSize;
+        Color color = new(Color.Green, 20);
+
+        for (int x = -gridSize/2; x < gridSize/2; ++x)
         {
-            SpriteBatch batch = Owner.Batch;
-
-            Vector2 center = -Center*Sim.Scale + GameBase.ScreenCenter;
-            foreach (SimObject o in Objects)
-                o.Draw(batch, center, Sim.Scale);
-
-            DrawText(5,  5, $"Simulation Time {Time.String(2)}s / {Sim.Duration.String(2)}s");
-            DrawText(5, 25, $"  Scale      {Sim.Scale.String(2)}");
-            for (int i = 0; i < Objects.Count; ++i)
-            {
-                SimObject o = Objects[i];
-                DrawText(5, 45 + i*20, $"  {o.Name,-16}  {o.Velocity.Length().String(),-3}m/s  {o.Position}");
-            }
-            DrawText(5,105, $"  {Result}");
-
-            if (State == SimState.Exiting && Result.Intersect.NotZero())
-            {
-                Vector2 pos = center + Result.Intersect*Sim.Scale;
-                batch.DrawCircle(pos, 10f*Sim.Scale, Color.Yellow, 2);
-            }
-            if (State == SimState.Exiting)
-            {
-                DrawText(300,5, $"Exit in {ExitCounter.String(1)}s");
-            }
-            if (State == SimState.Starting)
-            {
-                DrawText(300,5, $"Start in {StartCounter.String(1)}s");
-            }
+            DrawLineProjected(new(x*cellSize, -fullSize/2), new(x*cellSize,fullSize/2), color);
+        }
+        for (int y = -gridSize/2; y < gridSize/2; ++y)
+        {
+            DrawLineProjected(new(-fullSize/2, y*cellSize), new(fullSize/2, y*cellSize), color);
         }
 
-        void DrawText(float x, float y, string text) => Owner.DrawText(x, y, text);
+        foreach (SimObject o in Objects)
+            o.Draw(batch, this);
+
+        string status = (IsPaused ? "PAUSED" : "RUNNING");
+        DrawText(5,  5, $"Simulation {status} {Time.String(1)}s / {Sim.Duration.String(2)}s");
+        DrawText(5, 25, $"  Camera {(int)Camera.X} {(int)Camera.Y} {(int)Camera.Z}");
+        for (int i = 0; i < Objects.Count; ++i)
+        {
+            SimObject o = Objects[i];
+            DrawText(5, 45 + i*20, $"  {o.Name,-16}  {o.Velocity.Length().String(),-3}m/s  {o.Position.ToString(2)}");
+        }
+        DrawText(5, 105, $"  {Result}");
+        if (ReleaseTime > 0f)
+        {
+            DrawText(5, 125, $"  ReleaseTime {ReleaseTime.String(2)}");
+        }
+        if (TimeToTarget > 0f)
+        {
+            DrawText(5, 145, $"  TimeToTarget {TimeToTarget.String(2)}s");
+        }
+
+        DrawCircleProjected(Sim.Prediction, Tgt.Radius*0.2f, Color.GreenYellow, 1f);
+        DrawStringProjected(Sim.Prediction+Proj.Radius, 0f, Proj.Radius*2, Color.GreenYellow, "PIP");
+
+        if (State == SimState.Exiting && Result.Intersect.NotZero())
+        {
+            DrawCircleProjected(Result.Intersect, Tgt.Radius*0.4f, Color.Yellow, 2f);
+        }
+        if (State == SimState.Exiting)
+        {
+            DrawText(300,5, $"Exit in {ExitCounter.String(1)}s");
+        }
+        if (State == SimState.Starting)
+        {
+            DrawText(300,5, $"Start in {StartCounter.String(1)}s");
+        }
+    }
+
+    void DrawText(float x, float y, string text) => Game.DrawText(x, y, text);
+    
+    void UpdateCameraMatrix()
+    {
+        Camera.Z = Camera.Z.Clamped(80f, Sim.MaxCameraHeight);
+        SetViewPerspective(Matrices.CreateLookAtDown(Camera.X, Camera.Y, -Camera.Z));
+    }
+
+    void UpdateSimScaleAndBounds()
+    {
+        AABoundingBox2D bounds = Sim.Bounds ?? GetSimulationBounds();
+        Camera.X = bounds.CenterX;
+        Camera.Y = bounds.CenterY;
+        UpdateCameraMatrix();
         
-        void UpdateSimScaleAndBounds()
-        {
-            (Vector2 min, Vector2 max) = GetSimulationBounds();
-            float width = min.Distance(max);
-            Center = (min + max) / 2f;
-            Sim.Scale = (GameBase.ScreenWidth - 200f) / (width * 2.0f);
-            Sim.Scale = Sim.Scale.Clamped(0.01f, 2.0f);
-        }
+        float simBoundsSize = bounds.Height;
+        float currentSize = (float)ProjectToScreenSize(simBoundsSize);
+        float wantedSize = ScreenHeight * 0.75f;
+        float diff = wantedSize - currentSize;
 
-        (Vector2 Min, Vector2 Max) GetSimulationBounds()
+        while (Math.Abs(diff) > 20)
         {
-            Vector2 min = default, max = default;
-            foreach (SimObject o in Objects)
-            {
-                Vector2 p = o.Position;
-                if (p.X < min.X) min.X = p.X;
-                if (p.Y < min.Y) min.Y = p.Y;
+            Camera.Z += diff < 0 ? 10 : -10;
+            UpdateCameraMatrix();
+            currentSize = (float)ProjectToScreenSize(simBoundsSize);
 
-                if (p.X > max.X) max.X = p.X;
-                if (p.Y > max.Y) max.Y = p.Y;
-            }
-            return (min, max);
+            float newDiff = wantedSize - currentSize;
+            if (diff < 0 && newDiff > 0 || diff > 0 && newDiff < 0)
+                break; // overshoot, quit the loop
+            diff = newDiff;
         }
+    }
 
-        public void Dispose()
+    AABoundingBox2D GetSimulationBounds()
+    {
+        AABoundingBox2D bounds = default;
+        foreach (SimObject o in Objects)
         {
-            Exit?.Dispose();
-            Owner?.Dispose();
+            bounds = bounds.Merge(new(o.Position, o.Radius));
         }
+        
+        // now make it symmetrical so the camera is stable
+        float maxX = Math.Max(Math.Abs(bounds.X1), Math.Abs(bounds.X2));
+        float maxY = Math.Max(Math.Abs(bounds.Y1), Math.Abs(bounds.Y2));
+        return new(-maxX, -maxY, maxX, maxY);
     }
 }

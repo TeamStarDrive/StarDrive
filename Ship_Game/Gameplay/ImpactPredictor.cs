@@ -146,7 +146,7 @@ namespace Ship_Game.Gameplay
             // intercept is behind us in time, which means we should have fired the projectile X seconds ago
             else if (time < 0f) 
             {
-                predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, -time);
+                predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, -time);
                 //DebugPip("BEHIND", predicted, interceptSpeed, time, Color.Orange);
             }
             else // no solution, fall back to default time estimate
@@ -201,6 +201,56 @@ namespace Ship_Game.Gameplay
             // only place movePos on the same axis as left vector
             Vector2 movePos = TargetPos + left*(dot*speed);
             return movePos;
+        }
+
+        /// <summary>
+        /// Predict a bomb drop from air to a ground target.
+        /// +Y is down
+        /// </summary>
+        public static (Vector2 Predicted, float TimeToTarget) PredictBombingPos(
+            Vector2 startPos,
+            Vector2 startVel,
+            Vector2 constantAcc,
+            float terminalVelocity,
+            float groundY)
+        {
+            Vector2 predicted = new(startPos.X, groundY);
+            float time = 0f;
+            for (int i = 0; i < 20; ++i)
+            {
+                Vector2 simPos = startPos;
+                Vector2 simVel = startVel;
+                const float dt = 0.001f;
+                // TODO: variable ACCELERATION
+                Vector2 oldAcc = constantAcc;
+                Vector2 newAcc = constantAcc;
+                time = 0f;
+
+                while (simPos.Y < groundY) // we start at -Y and ground is at 0
+                {
+                    // integrate position using Velocity Verlet method:
+                    // x' = x + v*dt + (a*dt^2)/2
+                    const float dt2 = dt*dt*0.5f;
+                    simPos.X += (simVel.X*dt + oldAcc.X*dt2);
+                    simPos.Y += (simVel.Y*dt + oldAcc.Y*dt2);
+
+                    // integrate velocity using Velocity Verlet method:
+                    // v' = v + (a0+a1)*0.5*dt
+                    simVel.X += (oldAcc.X+newAcc.X)*0.5f*dt;
+                    simVel.Y += (oldAcc.Y+newAcc.Y)*0.5f*dt;
+
+                    time += dt;
+
+                    if (terminalVelocity > 0f && simVel.Length() > terminalVelocity)
+                    {
+                        simVel = simVel.Normalized() * terminalVelocity;
+                    }
+                }
+
+                predicted.X = simPos.X;
+                predicted.Y = groundY;
+            }
+            return (predicted, time);
         }
 
         public static Vector2 ThrustOffset(Vector2 ourPos, Vector2 ourVel, Vector2 targetPos)

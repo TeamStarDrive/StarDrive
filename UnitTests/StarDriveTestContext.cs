@@ -58,7 +58,7 @@ namespace UnitTests
 
             // @note: This is slow! It can take 500-1000ms
             //        Which is why we only do it ONCE
-            Game = new TestGameDummy(new AutoResetEvent(false), 800, 800, show:false);
+            Game = new TestGameDummy(new AutoResetEvent(false), 1024, 1024, show:false);
             Game.Create();
             Content = Game.Content;
             Game.Manager.input.Provider = MockInput = new MockInputProvider();
