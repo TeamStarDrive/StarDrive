@@ -13,6 +13,7 @@
   <DefaultAssaultShuttle>Vulfar Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Vulfar-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Vulfen/Vulfar_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   
   
   <RebelName>Vulfar Technocrats</RebelName>

@@ -170,6 +170,7 @@ namespace Ship_Game.Ships
         public bool IsTroopShip             => ShipData.IsTroopShip;
         public bool IsBomber                => ShipData.IsBomber;
         public bool IsSubspaceProjector     => ShipData.IsSubspaceProjector;
+        public bool IsResearchStation       => ShipData.IsResearchStation;
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
         public bool Resupplying             => AI.State == AIState.Resupply || AI.State == AIState.ResupplyEscort;

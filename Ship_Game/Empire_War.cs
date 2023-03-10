@@ -109,7 +109,7 @@ namespace Ship_Game
             MilitaryTask.TaskType taskType = MilitaryTask.TaskType.StrikeForce;
             if (IsAlreadyStriking())
             {
-                if (canBuildBombers
+                if (CanBuildBombers
                      && !IsAlreadyGlassingPlanet(targetPlanet)
                      && (targetPlanet.Population < 1
                          || targetPlanet.ColonyPotentialValue(enemy) / targetPlanet.ColonyPotentialValue(this) > PersonalityModifiers.DoomFleetThreshold))
