@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.SpriteSystem;
-using System.Diagnostics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.ExtensionMethods;
@@ -53,6 +48,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float RadiationDamage = 0f; // is this star dangerous and damages nearby ships??
         [StarData] public readonly float RadiationRadius = 0f;
         [StarData] public readonly Array<SunLayerInfo> Layers;
+        [StarData] public readonly float CanBeResearchedChance; // Can this star contribute to research efforts (needs a research station)
 
         public bool Disposed; // if true, this SunType was Disposed because of Hotloading
         public SubTexture Icon { get; private set; } // lo-res icon used in background star fields

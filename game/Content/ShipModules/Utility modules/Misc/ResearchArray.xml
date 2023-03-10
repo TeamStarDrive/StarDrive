@@ -22,6 +22,7 @@
   <Restrictions>xI</Restrictions>
   <UID>ResearchArray</UID> 
   <Version>2</Version>
+  <SensorRange>50000</SensorRange>
 
   <IconTexturePath>Modules/ResearchArray</IconTexturePath>
   <Mass>40</Mass>

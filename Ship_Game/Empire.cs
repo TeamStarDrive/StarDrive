@@ -957,7 +957,7 @@ namespace Ship_Game
                 UpdateRallyPoints(); // rally points must exist before AI Update
                 AssignNewHomeWorldIfNeeded();
 
-                AI.Update(); // Must be done before DoMoney
+                AI.Update(); // Must be done before DoMoney and Take turn
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
                 TakeTurn(us);

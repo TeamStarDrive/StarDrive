@@ -28,6 +28,7 @@ namespace Ship_Game
         // NET research this turn
         public float NetResearch { get; private set; }
         public float MaxResearchPotential { get; private set; }
+        public float ResearchStationResearchPerturn { get; private set; }
         float LeftoverResearch;
 
         public bool NoTopic => Queue.IsEmpty;
@@ -73,18 +74,24 @@ namespace Ship_Game
         {
             UpdateNetResearch();
             ApplyResearchPoints();
+            ResearchStationResearchPerturn = 0;
         }
         
         public void UpdateNetResearch()
         {
             Initialize();
-            NetResearch = 0;
-            MaxResearchPotential = 0;
+            NetResearch = ResearchStationResearchPerturn;
+            MaxResearchPotential = ResearchStationResearchPerturn;
             foreach (Planet planet in Empire.GetPlanets())
             {
                 NetResearch          += planet.Res.NetIncome;
                 MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
+        }
+
+        public void AddResearchStationResearchPerTurn(float value)
+        {
+            ResearchStationResearchPerturn += value;
         }
 
         void ApplyResearchPoints()

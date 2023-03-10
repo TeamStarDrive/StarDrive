@@ -317,7 +317,12 @@ namespace Ship_Game.AI
             {
                 ThrustOrWarpToPos(MovePosition, timeStep);
                 if (Owner.Position.InRadius(MovePosition, Owner.ExplorePlanetDistance))
+                {
+                    if (PatrolTarget.CanBeResearched && Owner.Loyalty.isPlayer)
+                        Owner.Universe.Screen.NotificationManager.AddReseachablePlanet(PatrolTarget);
+
                     PatrolTarget.SetExploredBy(Owner.Loyalty);
+                }
             }
 
             return false;
@@ -330,6 +335,9 @@ namespace Ship_Game.AI
             // Since we are now actively scouting the system
             if (Owner.Position.InRadius(MovePosition, Owner.ExploreSystemDistance))
             {
+                if (Owner.Loyalty.isPlayer && system.CanBeResearched && !system.IsExploredBy(Owner.Loyalty))
+                    Owner.Universe.Screen.NotificationManager.AddReseachableStar(system);
+
                 system.SetExploredBy(Owner.Loyalty);
                 return;
             }

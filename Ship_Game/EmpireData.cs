@@ -335,8 +335,8 @@ namespace Ship_Game
                                   : "Colony Ship";
                 
         [XmlIgnore]
-        public string ConstructorShip => CurrentConstructor.NotEmpty()    ? CurrentConstructor
-                                       : DefaultConstructor.NotEmpty()    ? DefaultConstructor
+        public string ConstructorShip => CurrentConstructor.NotEmpty() ? CurrentConstructor
+                                       : DefaultConstructor.NotEmpty() ? DefaultConstructor
                                        : "Terran Constructor";
 
         [XmlIgnore]

@@ -37,6 +37,7 @@ namespace Ship_Game
         [StarData] public Array<Planet> PlanetList = new();
         [StarData] public Array<Asteroid> AsteroidsList = new();
         [StarData] public Array<Moon> MoonList = new();
+        [StarData] public bool CanBeResearched { get; private set; } // A research station can be deployed near the star
 
         [StarData] SmallBitSet FullyExplored;
 
@@ -477,6 +478,13 @@ namespace Ship_Game
                 && random.RollDice(percent:15))
             {
                 Sun = SunType.RandomBarrenSun(random);
+            }
+
+            if (random.RollDice(percent: Sun.CanBeResearchedChance))
+            {
+                CanBeResearched= true;
+                Universe.AddResearchableStar(this);
+                Log.Info($"{Name} can be researched");
             }
 
             FinalizeGeneratedSystem();
