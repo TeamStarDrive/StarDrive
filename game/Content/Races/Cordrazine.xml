@@ -13,6 +13,7 @@
   <DefaultAssaultShuttle>Cordrazine Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Cordrazine-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Cordrazine/Cordrazine_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   
   <RebelName>Free Owlwok Nation</RebelName>
   <RebelSing>Free Owlwok</RebelSing>

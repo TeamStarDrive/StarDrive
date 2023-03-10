@@ -902,7 +902,7 @@ namespace Ship_Game
 
         public void ExecuteVictimRetaliation(Empire victim)
         {
-            if (victim.isPlayer || !victim.canBuildFrigates)
+            if (victim.isPlayer || !victim.CanBuildFrigates)
                 return; // Players should attack pirate bases themselves and Ai should attack them only if they have frigates
 
             EmpireAI ai             = victim.AI;

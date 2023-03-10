@@ -15,6 +15,9 @@
     <UnlockedMod>
       <ModuleUID>ArmoredMissile</ModuleUID>
     </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>ResearchLab</ModuleUID>
+    </UnlockedMod>				
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />

@@ -10310,6 +10310,18 @@ BB_EnableStarvationWarningTip:
 StarvationOnPlanet:
  Id: 4400
  ENG: "Starvation started on"     
+ResearchLabName:
+ Id: 4989
+ ENG: "Research Lab"
+ResearchLabDesc:
+ Id: 4990
+ ENG: "This large Lab is a step forward in our Stars and planet research efforts. It can be installed on our Station hull." 
+ResearchArrayName:
+ Id: 4991
+ ENG: "Research Module"
+ResearchArrayDesc:
+ Id: 4992
+ ENG: "This small Lab can greaty enhance our research efforts in Space, when studying Stars and unique planet compositions."
 OnSurface:
  Id: 4993
  ENG: "on surface"

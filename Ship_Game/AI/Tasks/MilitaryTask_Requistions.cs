@@ -346,7 +346,7 @@ namespace Ship_Game.AI.Tasks
         void RequisitionGlassForce()
         {
             Empire enemy = TargetPlanet.Owner;
-            if (!Owner.canBuildBombers 
+            if (!Owner.CanBuildBombers 
                 || enemy == null 
                 || enemy == Owner 
                 || Owner.IsPeaceTreaty(TargetPlanet.Owner) 

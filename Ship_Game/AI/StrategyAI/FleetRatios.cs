@@ -59,11 +59,11 @@ namespace Ship_Game.AI
 
             int[] counts;
 
-            if      (OwnerEmpire.canBuildCapitals)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals);
+            if      (OwnerEmpire.CanBuildCapitals)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals);
             else if (OwnerEmpire.CanBuildBattleships) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildBattleships);
-            else if (OwnerEmpire.canBuildCruisers)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers);
-            else if (OwnerEmpire.canBuildFrigates)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates);
-            else if (OwnerEmpire.canBuildCorvettes)   counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes);
+            else if (OwnerEmpire.CanBuildCruisers)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers);
+            else if (OwnerEmpire.CanBuildFrigates)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates);
+            else if (OwnerEmpire.CanBuildCorvettes)   counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes);
             else                                      counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters);
 
             SetCounts(counts);
@@ -83,16 +83,16 @@ namespace Ship_Game.AI
             MinCarriers    = counts[8];
             MinSupport     = counts[9];
 
-            if (!OwnerEmpire.canBuildTroopShips)
+            if (!OwnerEmpire.CanBuildTroopShips)
                 MinTroopShip = 0;
 
-            if (!OwnerEmpire.canBuildBombers)
+            if (!OwnerEmpire.CanBuildBombers)
                 MinBombers = 0;
 
-            if (!OwnerEmpire.canBuildCarriers)
+            if (!OwnerEmpire.CanBuildCarriers)
                 MinCarriers = 0;
 
-            if (!OwnerEmpire.canBuildSupportShips)
+            if (!OwnerEmpire.CanBuildSupportShips)
                 MinSupport = 0;
 
             MinCombatFleet = (int)(MinFighters + MinCorvettes + MinFrigates + MinCruisers

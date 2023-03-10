@@ -14,6 +14,7 @@
   <DefaultAssaultShuttle>Draylok Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Draylok-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Draylok/Draylok_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   
   <RebelName>Draylok Democrats</RebelName>
   <RebelSing>Democractic Rebel</RebelSing>
