@@ -24,6 +24,7 @@ public partial class ShipDesign
     public bool IsSupplyCarrier     { get; private set; } // this ship launches supply ships
     public bool IsSupplyShuttle     { get; private set; }
     public bool IsFreighter         { get; private set; }
+    public bool IsResearchStation   { get; private set; }
     public bool IsCandidateForTradingBuild { get; private set; }
     public bool IsUnitTestShip      { get; private set; }
 
@@ -76,6 +77,7 @@ public partial class ShipDesign
         int offensiveSlots = 0;
         float startingColonyGoods = 0f;
         int numBuildingsDeployed = 0;
+        bool providesResearch = false;
 
         var mTemplates = new Array<ShipModule>();
         var hangars = new Array<ShipModule>();
@@ -116,7 +118,9 @@ public partial class ShipDesign
                 offensiveSlots += m.Area;
             if (m.DeployBuildingOnColonize.NotEmpty())
                 ++numBuildingsDeployed;
-                
+            if (m.ResearchPerTurn > 0)
+                providesResearch = true;
+
             startingColonyGoods += m.NumberOfEquipment + m.NumberOfFood;
             baseStrength += m.CalculateModuleOffenseDefense(info.SurfaceArea);
         }
@@ -165,6 +169,7 @@ public partial class ShipDesign
         IsBomber          = Role == RoleName.bomber;
         IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
+        IsResearchStation = IsPlatformOrStation && providesResearch;
 
         // only enable this flag for non-testing environment
         IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");

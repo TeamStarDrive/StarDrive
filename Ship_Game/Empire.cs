@@ -124,20 +124,20 @@ namespace Ship_Game
         // empire retakes this planet. This value should never be changed after it was set.
         [StarData] public Planet Capital { get; private set; } 
 
-        public int empireShipCombat;    //fbedard
-        public int empirePlanetCombat;  //fbedard
-        public bool canBuildCapitals;
-        public bool CanBuildBattleships;
-        public bool canBuildCruisers;
-        public bool canBuildFrigates;
-        public bool canBuildCorvettes;
-        public bool canBuildCarriers;
-        public bool canBuildBombers;
-        public bool canBuildTroopShips;
-        public bool canBuildSupportShips;
-        public bool CanBuildPlatforms;
-        public bool CanBuildStations;
-        public bool CanBuildShipyards;
+        public int EmpireShipCombat { get; private set; }    //fbedard
+        public int EmpirePlanetCombat { get; private set; }  //fbedard
+        public bool CanBuildCapitals { get; private set; }
+        public bool CanBuildBattleships { get; private set; }
+        public bool CanBuildCruisers { get; private set; }
+        public bool CanBuildFrigates { get; private set; }
+        public bool CanBuildCorvettes { get; private set; }
+        public bool CanBuildCarriers { get; private set; }
+        public bool CanBuildBombers { get; private set; }
+        public bool CanBuildTroopShips { get; private set; }
+        public bool CanBuildSupportShips { get; private set; }
+        public bool CanBuildPlatforms { get; private set; }
+        public bool CanBuildStations { get; private set; }
+        public bool CanBuildShipyards { get; private set; }
         public float CurrentMilitaryStrength;
         public float OffensiveStrength; // No Orbitals
         public ShipPool AIManagedShips;
@@ -946,8 +946,8 @@ namespace Ship_Game
                 {
                     UpdateStats();
                     ThreatDetector.AssessHostilePresenceForPlayerWarnings(this);
-                    empirePlanetCombat = GetNumPlanetsWithTroopCombat();
-                    empireShipCombat = GetNumShipsInCombat(EmpireShips.OwnedShips);
+                    EmpirePlanetCombat = GetNumPlanetsWithTroopCombat();
+                    EmpireShipCombat = GetNumShipsInCombat(EmpireShips.OwnedShips);
                 }
 
                 UpdateInhibitors(EmpireShips.OwnedShips);
@@ -1144,15 +1144,15 @@ namespace Ship_Game
         {
             switch (s.Role)
             {
-                case RoleName.bomber:     canBuildBombers      = true; break;
-                case RoleName.carrier:    canBuildCarriers     = true; break;
-                case RoleName.support:    canBuildSupportShips = true; break;
-                case RoleName.troopShip:  canBuildTroopShips   = true; break;
-                case RoleName.corvette:   canBuildCorvettes    = true; break;
-                case RoleName.frigate:    canBuildFrigates     = true; break;
-                case RoleName.cruiser:    canBuildCruisers     = true; break;
+                case RoleName.bomber:     CanBuildBombers      = true; break;
+                case RoleName.carrier:    CanBuildCarriers     = true; break;
+                case RoleName.support:    CanBuildSupportShips = true; break;
+                case RoleName.troopShip:  CanBuildTroopShips   = true; break;
+                case RoleName.corvette:   CanBuildCorvettes    = true; break;
+                case RoleName.frigate:    CanBuildFrigates     = true; break;
+                case RoleName.cruiser:    CanBuildCruisers     = true; break;
                 case RoleName.battleship: CanBuildBattleships  = true; break;
-                case RoleName.capital:    canBuildCapitals     = true; break;
+                case RoleName.capital:    CanBuildCapitals     = true; break;
                 case RoleName.platform:   CanBuildPlatforms    = true; break;
                 case RoleName.station:    CanBuildStations     = true; break;
             }
@@ -2470,6 +2470,12 @@ namespace Ship_Game
 
             ResetUnlocks();
             InitEmpireUnlocks();
+        }
+
+        // For Testing only!
+        public void TestSetCanBuildCarriersFalse()
+        {
+            CanBuildCarriers = false;
         }
 
         public void Dispose()

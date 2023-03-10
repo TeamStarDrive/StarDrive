@@ -1,0 +1,37 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FrigateModule>false</FrigateModule>
+  <DestroyerModule>false</DestroyerModule>
+  <CruiserModule>false</CruiserModule>
+  <CarrierModule>false</CarrierModule>
+  <CapitalModule>false</CapitalModule>
+  <FreighterModule>false</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  <Cost>400</Cost>
+  <TechLevel>4</TechLevel>
+  <XSize>6</XSize>
+  <YSize>2</YSize>
+  <ModuleType>Special</ModuleType>
+  <Name>Research Lab</Name>
+  <Restrictions>xI</Restrictions>
+  <UID>ResearchLab</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/ResearchLab</IconTexturePath>
+  <Mass>200</Mass>
+  <Health>1200</Health>
+  <HealthMax>1200</HealthMax>
+  <RepairDifficulty>4</RepairDifficulty>
+  <energyreq>0</energyreq>
+  
+  <PowerDraw>450</PowerDraw>
+  <ResearchPerTurn>0.5</ResearchPerTurn>
+  <NameIndex>4989</NameIndex>
+  <DescriptionIndex>4990</DescriptionIndex>
+</ShipModule>

@@ -242,6 +242,8 @@ namespace Ship_Game
         [StarData] public string DefaultAssaultShuttle;
         [StarData] public string DefaultSupplyShuttle;
 
+        [StarData] public string DefaultResearchStation;
+
         // FB - Thruster Colors
         [StarData] public byte ThrustColor0R;
         [StarData] public byte ThrustColor0G;
@@ -335,7 +337,6 @@ namespace Ship_Game
         [XmlIgnore]
         public string ConstructorShip => CurrentConstructor.NotEmpty()    ? CurrentConstructor
                                        : DefaultConstructor.NotEmpty()    ? DefaultConstructor
-                                       : DefaultSmallTransport.NotEmpty() ? DefaultSmallTransport
                                        : "Terran Constructor";
 
         [XmlIgnore]

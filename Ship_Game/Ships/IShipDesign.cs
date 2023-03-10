@@ -102,6 +102,7 @@ public interface IShipDesign
     bool IsSingleTroopShip { get; }
     bool IsTroopShip       { get; }
     bool IsBomber          { get; }
+    bool IsResearchStation { get; }
 
     // base stats like cost and mass
     float BaseCost       { get; }

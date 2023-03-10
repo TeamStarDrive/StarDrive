@@ -1036,7 +1036,7 @@ namespace Ship_Game
 
         void CyclePlanetsInCombat(UIButton b)
         {
-            if (Player.empirePlanetCombat > 0)
+            if (Player.EmpirePlanetCombat > 0)
             {
                 Planet planetToView = null;
                 int planetIdx = 0;
@@ -1059,7 +1059,7 @@ namespace Ship_Game
                 }
 
                 ++nextPlanetCombat;
-                if (nextPlanetCombat >= Player.empirePlanetCombat)
+                if (nextPlanetCombat >= Player.EmpirePlanetCombat)
                     nextPlanetCombat = 0;
 
                 if (planetToView != null)
