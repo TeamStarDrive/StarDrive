@@ -4427,6 +4427,14 @@ namespace Ship_Game
         EnableStarvationWarningTip = 4399,
         /// <summary>Starvation on</summary>
         StarvationOnPlanet = 4400,
+        /// <summary>intense volcanic activity can</summary>
+        ResearchablePlanetVolcanic = 4401,
+        /// <summary>has rare composition of gases</summary>
+        ResearchablePlanetGasGiant = 4402,
+        /// <summary>can be studied by a Research Station</summary>
+        ResearchablePlanetDefault = 4403,
+        /// <summary>This Star's unique emmisions</summary>
+        ResearchableStar = 4404,
 
 
         /// <summary>on surface</summary>

@@ -26,6 +26,7 @@ public class GamePlayGlobals
     [StarData] public float RemnantDesignStrMultiplier; 
     [StarData] public int CostBasedOnSizeThreshold = 2500;  // Allow tuning the change up/down
     [StarData] public float HangarCombatShipCostMultiplier = 1;
+    [StarData] public float ResearchStationProductionPerResearch = 2.5f; // Production consumed per 1 Research point
 
     // required empire pop ratio before expansion is considered
     [StarData] public float RequiredExpansionPopRatio = 0.4f;

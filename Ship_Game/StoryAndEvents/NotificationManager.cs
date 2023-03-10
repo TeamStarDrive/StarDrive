@@ -8,6 +8,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Ship_Game
 {
@@ -474,6 +475,39 @@ namespace Ship_Game
                 ReferencedItem2 = p,
                 IconPath        = p.IconPath,
                 Action          = "SnapToExpandSystem"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddReseachablePlanet(Planet p)
+        {
+            GameText text;
+            switch (p.Category)
+            {
+                case PlanetCategory.Volcanic: text = GameText.ResearchablePlanetVolcanic; break;
+                case PlanetCategory.GasGiant: text = GameText.ResearchablePlanetGasGiant; break;
+                default:                      text = GameText.ResearchablePlanetDefault;  break;
+            }
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = $"{p.Name} { Localizer.Token(text)}",
+                ReferencedItem1 = p.ParentSystem,
+                ReferencedItem2 = p,
+                IconPath        = p.IconPath,
+                Action          = "SnapToPlanet"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddReseachableStar(SolarSystem s)
+        {
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = $"{s.Name}{Localizer.Token(GameText.ResearchableStar)}",
+                ReferencedItem1 = s,
+                IconPath        = s.Sun.IconPath,
+                Action          = "SnapToSystem"
             }, "sd_ui_notification_encounter");
         }
 

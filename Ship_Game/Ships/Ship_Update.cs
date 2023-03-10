@@ -174,7 +174,12 @@ namespace Ship_Game.Ships
                 && System.PlanetList != null) // Added easy out for fully explored systems
             {
                 if (!System.IsExploredBy(Loyalty) && Position.InRadius(System.Position, ExploreSystemDistance))
+                {
+                    if (Loyalty.isPlayer && System.CanBeResearched) 
+                        Universe.Screen.NotificationManager.AddReseachableStar(System);
+
                     System.SetExploredBy(Loyalty); // Arrived to a system for the first time
+                }
 
                 for (int i = 0; i < System.PlanetList.Count; i++)
                 {
@@ -203,7 +208,15 @@ namespace Ship_Game.Ships
                         }
                     }
 
+                    if (p.CanBeResearched && Loyalty.isPlayer)
+                        Universe.Screen.NotificationManager.AddReseachablePlanet(p);
+
                     p.SetExploredBy(Loyalty);
+
+                    if (!System.IsExploredBy(Loyalty) && Loyalty.isPlayer && System.CanBeResearched)
+                        Universe.Screen.NotificationManager.AddReseachableStar(System);
+
+
                     System.SetExploredBy(Loyalty); // in case no one was on sensor range from the Star itself
                     System.UpdateFullyExploredBy(Loyalty);
                 }

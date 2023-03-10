@@ -10310,6 +10310,18 @@ BB_EnableStarvationWarningTip:
 StarvationOnPlanet:
  Id: 4400
  ENG: "Starvation started on"     
+ResearchablePlanetVolcanic:
+ Id: 4401
+ ENG: "intense volcanic activity can\nstudied by a Research Station, if placed in orbit."      
+ResearchablePlanetGasGiant:
+ Id: 4402 
+ ENG: "has rare composition of gases which can aid us in various\nresearch efforts, if a Research Station is placed in orbit."     
+ResearchablePlanetDefault:
+ Id: 4403 
+ ENG: "can be studied by a Research Station placed in orbit to aid in research efforts."      
+ResearchableStar:
+ Id: 4404 
+ ENG: "'s unique emmisions can be studied by a Research Station\nplaced near it, which will boost our research efforts."       
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"

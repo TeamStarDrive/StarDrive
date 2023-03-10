@@ -22,6 +22,7 @@
   <Restrictions>xI</Restrictions>
   <UID>ResearchLab</UID> 
   <Version>2</Version>
+  <SensorRange>70000</SensorRange>
 
   <IconTexturePath>Modules/ResearchLab</IconTexturePath>
   <Mass>200</Mass>

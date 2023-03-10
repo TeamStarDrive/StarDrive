@@ -49,6 +49,7 @@ namespace Ship_Game.AI
         WarMission,
         PrepareForWar,
         ProjectorBridge,
+        ResearchStation
     }
 
     public enum GoalStep
