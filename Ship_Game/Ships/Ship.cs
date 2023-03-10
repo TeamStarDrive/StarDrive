@@ -155,6 +155,8 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim SupplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int TargetingAccuracy;
+        public float ResearchPerTurn;
+
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
         public float FTLModifier { get; private set; } = 1f;

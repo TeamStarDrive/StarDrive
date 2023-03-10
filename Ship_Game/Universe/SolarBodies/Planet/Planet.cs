@@ -73,6 +73,7 @@ namespace Ship_Game
         public float RepairMultiplier;
 
         [StarData] public float SensorRange { get; private set; }
+        [StarData] public bool CanBeResearched { get; private set; }
         public float ProjectorRange { get; private set; }
         public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
         public float ColonyValue { get; private set; }
@@ -308,6 +309,13 @@ namespace Ship_Game
                 float scale = type.Scale + random.Float(0.75f, 1.5f);
                 if (type.Category == PlanetCategory.GasGiant)
                     scale += 1f;
+
+                if (random.RollDice(percent: type.Habitable ? -1 : type.CanBeResearchedChance))
+                {
+                    CanBeResearched = true;
+                    Universe.AddResearchablePlanet(this);
+                    Log.Info($"{Name} can be researched");
+                }
 
                 InitNewMinorPlanet(random, type, scale);
             }
