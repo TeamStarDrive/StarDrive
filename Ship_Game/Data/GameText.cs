@@ -4435,6 +4435,24 @@ namespace Ship_Game
         ResearchablePlanetDefault = 4403,
         /// <summary>This Star's unique emmisions</summary>
         ResearchableStar = 4404,
+        /// <summary>Deploy Research Station</summary>
+        DeployResearchStation = 4405,
+        /// <summary>Deploy Research Station in this</summary>
+        DeployResearchStationTip = 4406,
+        /// <summary>Cancel Research Station</summary>
+        CancelDeployResearchStation = 4407,
+        /// <summary>Cancel ongoing deployment mission of research</summary>
+        CancelDeployResearchStationTip = 4408,
+        /// <summary>Auto Build Research Stations</summary>
+        AutoBuildResearchStation = 4409,
+        /// <summary>This will auto build Research stations for</summary>
+        AutoBuildResearchStationTip = 4410,
+        /// <summary>Auto Pick Research Stations</summary>
+        AutoPickResearchStation = 4411,
+        /// <summary>This will pick the best Research Station</summary>
+        AutoPicjResearchStationTip = 4412,
+
+
 
 
         /// <summary>on surface</summary>

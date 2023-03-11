@@ -345,6 +345,17 @@ namespace Ship_Game.AI
             }
         }
 
+        public void CancelResearchStation(Planet p)
+        {
+            Goal goal = FindGoal(g => g.IsResearchStationGoal(p));
+            if (goal != null)
+            {
+                goal.FinishedShip?.AI.OrderScrapShip();
+                goal.PlanetBuildingAt?.Construction.Cancel(goal);
+                RemoveGoal(goal);
+            }
+        }
+
         public IReadOnlyList<Goal> SearchForGoals(GoalType type)
         {
             var goals = new Array<Goal>();

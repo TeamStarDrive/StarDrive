@@ -78,6 +78,7 @@ namespace Ship_Game.GameScreens.NewGame
             Player.data.CurrentAutoColony = Player.data.ColonyShip;
             Player.data.CurrentAutoFreighter = Player.data.FreighterShip;
             Player.data.CurrentConstructor = Player.data.ConstructorShip;
+            Player.data.CurrentResearchStation = Player.data.ResearchStation;
         }
 
         public readonly ProgressCounter Progress = new ProgressCounter();
