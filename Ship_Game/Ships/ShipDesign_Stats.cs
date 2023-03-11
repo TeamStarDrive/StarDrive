@@ -227,6 +227,9 @@ public partial class ShipDesign
     // Is this ship good for goals?
     bool IsShipGoodForGoals(Empire e)
     {
+        if (IsResearchStation && BaseCargoSpace < GlobalStats.Defaults.ResearchStationProductionPerResearch * 10)
+            return false;
+
         if (IsPlatformOrStation)
             return true;
 

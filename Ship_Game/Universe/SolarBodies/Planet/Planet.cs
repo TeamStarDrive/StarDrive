@@ -600,6 +600,11 @@ namespace Ship_Game
             OrbitalStations.RemoveSwapLast(orbital);
         }
 
+        public bool HasResearchStationFor(Empire empire)
+        {
+            return OrbitalStations.Any(s => s.Loyalty == empire && s.IsResearchStation);
+        }
+
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
         {
             if (Owner == null)

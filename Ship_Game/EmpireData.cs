@@ -143,6 +143,7 @@ namespace Ship_Game
         [StarData] public string CurrentAutoColony    = "";
         [StarData] public string CurrentAutoScout     = "";
         [StarData] public string CurrentConstructor   = "";
+        [StarData] public string CurrentResearchStation = "";
         [StarData] public string DiplomacyDialogPath;
         [StarData] public DTrait DiplomaticPersonality;
         [StarData] public ETrait EconomicPersonality;
@@ -338,6 +339,11 @@ namespace Ship_Game
         public string ConstructorShip => CurrentConstructor.NotEmpty() ? CurrentConstructor
                                        : DefaultConstructor.NotEmpty() ? DefaultConstructor
                                        : "Terran Constructor";
+
+        [XmlIgnore]
+        public string ResearchStation => CurrentResearchStation.NotEmpty() ? CurrentResearchStation
+                                       : DefaultResearchStation.NotEmpty() ? DefaultResearchStation
+                                       : "Basic Research Station";
 
         [XmlIgnore]
         public bool IsCybernetic => Traits.Cybernetic > 0;
