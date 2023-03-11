@@ -113,6 +113,7 @@ namespace Ship_Game
         [StarData] public bool AutoExplore;
         [StarData] public bool AutoColonize;
         [StarData] public bool AutoResearch;
+        [StarData] public bool AutoBuildResearchStations;
         public int TotalScore;
         public float TechScore;
         public float ExpansionScore;
@@ -138,6 +139,7 @@ namespace Ship_Game
         public bool CanBuildPlatforms { get; private set; }
         public bool CanBuildStations { get; private set; }
         public bool CanBuildShipyards { get; private set; }
+        public bool CanBuildResearchStations { get; private set; }
         public float CurrentMilitaryStrength;
         public float OffensiveStrength; // No Orbitals
         public ShipPool AIManagedShips;
@@ -165,6 +167,7 @@ namespace Ship_Game
         [StarData] public Array<DiplomacyQueueItem> DiplomacyContactQueue { get; private set; }
         [StarData] public bool AutoPickBestColonizer;
         [StarData] public bool AutoBuildTerraformers;
+        [StarData] public bool AutoPickBestResearchStation;
         [StarData] public Array<string> ObsoletePlayerShipModules;
 
         public int AtWarCount;
@@ -1158,6 +1161,9 @@ namespace Ship_Game
             }
             if (s.IsShipyard)
                 CanBuildShipyards = true;
+
+            if (s.IsResearchStation)
+                CanBuildResearchStations= true;
         }
 
         public void ApplyModuleHealthTechBonus(float bonus)

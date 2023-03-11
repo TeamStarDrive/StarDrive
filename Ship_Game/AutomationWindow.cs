@@ -21,12 +21,13 @@ namespace Ship_Game
         DropOptions<int> ColonyShipDropDown;
         DropOptions<int> ScoutDropDown;
         DropOptions<int> ConstructorDropDown;
+        DropOptions<int> ResearchStationDropDown;
 
         public AutomationWindow(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
-            const int windowWidth = 210;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 470);
+            const int windowWidth = 220;
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 540);
         }
 
         class CheckedDropdown : UIElementV2
@@ -66,14 +67,18 @@ namespace Ship_Game
             RectF win = new(Rect);
             ConstructionSubMenu = new(win, GameText.Automation);
 
-            UIList rest = AddList(new(win.X + 10f, win.Y + 200f));
+            UIList rest = AddList(new(win.X + 10f, win.Y + 250f));
             rest.Padding = new(2f, 10f);
             rest.AddCheckbox(() => UState.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
             rest.AddCheckbox(() => UState.Player.AutoPickBestFreighter, title: GameText.AutoPickFreighter, tooltip: GameText.IfAutoTradeIsChecked);
             rest.AddCheckbox(() => UState.Player.AutoResearch,          title: GameText.AutoResearch, tooltip: GameText.YourEmpireWillAutomaticallySelect);
             rest.AddCheckbox(() => UState.Player.AutoBuildTerraformers, title: GameText.AutoBuildTerraformers, tooltip: GameText.AutoBuildTerraformersTip);
             rest.AddCheckbox(() => UState.Player.AutoTaxes,             title: GameText.AutoTaxes, tooltip: GameText.YourEmpireWillAutomaticallyManage3);
-            rest.AddCheckbox(() => RushConstruction,                    title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
+
+            if (Screen.Player.CanBuildResearchStations)
+                rest.AddCheckbox(() => UState.Player.AutoPickBestResearchStation, title: GameText.AutoPickResearchStation, tooltip: GameText.AutoPicjResearchStationTip);
+
+            rest.AddCheckbox(() => RushConstruction,                      title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
             rest.AddCheckbox(() => UState.P.SuppressOnBuildNotifications, title: GameText.DisableBuildingAlerts, tooltip: GameText.NormallyWhenYouManuallyAdd);
             rest.AddCheckbox(() => UState.P.DisableInhibitionWarning,     title: GameText.DisableInhibitionAlerts, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
             rest.AddCheckbox(() => UState.P.DisableVolcanoWarning,        title: GameText.DisableVolcanoAlerts, tooltip: GameText.DisableVolcanoActivationOrDeactivation);
@@ -93,6 +98,11 @@ namespace Ship_Game
 
             FreighterDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => Screen.Player.AutoFreighters, title: GameText.AutomaticTrade, tooltip: GameText.YourEmpireWillAutomaticallyManage2);
+            if (Screen.Player.CanBuildResearchStations)
+            {
+                ResearchStationDropDown = ticks.Add(new CheckedDropdown())
+                    .Create(() => Screen.Player.AutoBuildResearchStations, title: GameText.AutoBuildResearchStation, tooltip: GameText.AutoBuildResearchStationTip);
+            }
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
@@ -121,6 +131,8 @@ namespace Ship_Game
 
             FreighterDropDown.Visible  = !Screen.Player.AutoPickBestFreighter;
             ColonyShipDropDown.Visible = !Screen.Player.AutoPickBestColonizer;
+            ResearchStationDropDown.Visible = !Screen.Player.AutoPickBestResearchStation 
+                                              && Screen.Player.CanBuildResearchStations;
 
             base.Draw(batch, elapsed);
         }
@@ -139,10 +151,11 @@ namespace Ship_Game
             if (base.HandleInput(input))
             {
                 EmpireData playerData = Screen.Player.data;
-                playerData.CurrentAutoFreighter = FreighterDropDown.ActiveName;
-                playerData.CurrentAutoColony    = ColonyShipDropDown.ActiveName;
-                playerData.CurrentConstructor   = ConstructorDropDown.ActiveName;
-                playerData.CurrentAutoScout     = ScoutDropDown.ActiveName;
+                playerData.CurrentAutoFreighter   = FreighterDropDown.ActiveName;
+                playerData.CurrentAutoColony      = ColonyShipDropDown.ActiveName;
+                playerData.CurrentConstructor     = ConstructorDropDown.ActiveName;
+                playerData.CurrentAutoScout       = ScoutDropDown.ActiveName;
+                playerData.CurrentResearchStation = ResearchStationDropDown.ActiveName;
                 return true;
             }
             return false;
@@ -189,6 +202,9 @@ namespace Ship_Game
         public void UpdateDropDowns()
         {
             EmpireData playerData = Screen.Player.data;
+
+            InitDropOptions(ResearchStationDropDown, ref playerData.CurrentResearchStation, playerData.DefaultResearchStation,
+                ship => ship.IsShipGoodToBuild(Screen.Player) && ship.IsResearchStation);
 
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
                 ship => ship.IsShipGoodToBuild(Screen.Player) && ship.IsFreighter);

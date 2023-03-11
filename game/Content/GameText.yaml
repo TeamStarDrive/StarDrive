@@ -10322,6 +10322,30 @@ ResearchablePlanetDefault:
 ResearchableStar:
  Id: 4404 
  ENG: "'s unique emmisions can be studied by a Research Station\nplaced near it, which will boost our research efforts."       
+DeployResearchStation:
+ Id: 4405 
+ ENG: "Deploy Research Station"        
+DeployResearchStationTip:
+ Id: 4406 
+ ENG: "Deploy Research Station in this planet's orbit. Only one Research Station can be deployed per empire."        
+CancelDeployResearchStation:
+ Id: 4407 
+ ENG: "Cancel Research Station"        
+CancelDeployResearchStationTip:
+ Id: 4408 
+ ENG: "Cancel ongoing deployment mission of research station to this planet's orbit."         
+AutoBuildResearchStation:
+ Id: 4409 
+ ENG: "Auto Build Research Stations"          
+AutoBuildResearchStationTip:
+ Id: 4410 
+ ENG: "This will auto build Research stations for you around relevant planets or stars. It will use whatever Research Station you pick in the drop down list below. This will not upgrade already existing Stations."
+AutoPickResearchStation:
+ Id: 4411 
+ ENG: "Auto Pick Research Stations"          
+AutoPicjResearchStationTip:
+ Id: 4412 
+ ENG: "This will pick the best Research Station with most Research generated and will upgrade to them whenever possible, if the auto build REsearch Stations checkbox is checked." 
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"
