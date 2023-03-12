@@ -148,7 +148,7 @@ namespace Ship_Game
                 {
                     Sentry = SentrySdk.Init(o =>
                     {
-                        o.Dsn = "https://eb82b6b753074f46ac916c9adc4fe839@o57461.ingest.sentry.io/123180";
+                        o.Dsn = "https://4f9d175d7aab41d0a82cccde4161dc35@o57461.ingest.sentry.io/4504827693367296";
                         // When configuring for the first time, to see what the SDK is doing:
                         //o.Debug = true;
                         o.Environment = environment;
