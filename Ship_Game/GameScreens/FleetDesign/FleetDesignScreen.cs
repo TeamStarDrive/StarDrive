@@ -185,28 +185,15 @@ namespace Ship_Game
             TitleBar = new(titleRect);
             TitlePos = new(titleRect.CenterX - titleFont.TextWidth("Fleet Hotkeys") / 2f,
                            titleRect.CenterY - titleFont.LineSpacing / 2f);
+
             RectF leftRect = new(2, titleRect.Bottom + 5, titleRect.W, 500);
             LeftMenu = new(leftRect, true);
             
-            Vector2 buttonSize = new(52, 48);
-            UIList buttons = Add(new UIList(leftRect, Color.TransparentBlack));
-            buttons.LayoutStyle = ListLayoutStyle.Clip;
-
-            for (int key = Empire.FirstFleetKey; key <= Empire.LastFleetKey; ++key)
-            {
-                buttons.Add(new FleetButton(Universe, key, buttonSize)
-                {
-                    FleetDesigner = true,
-                    OnClick = (b) => InputSelectFleet(b.FleetKey, true),
-                    IsActive = (b) => SelectedFleet?.Key == b.FleetKey,
-                });
-            }
-
-            // Animate the buttons in and out
-            buttons.PerformLayout();
-            var animOffset = new Vector2(-128, 0);
-            buttons.StartGroupTransition<FleetButton>(animOffset, -1, time:0.5f);
-            OnExit += () => buttons.StartGroupTransition<FleetButton>(animOffset, +1, time:0.5f);
+            Add(new FleetButtonsList(
+                leftRect, this, Universe,
+                onClick: (b) => InputSelectFleet(b.FleetKey, true),
+                isSelected: (b) => SelectedFleet?.Key == b.FleetKey
+            ));
 
             RectF shipRect = new(ScreenWidth - 282, 140, 280, 80);
             ShipDesigns = new Menu2(shipRect);
