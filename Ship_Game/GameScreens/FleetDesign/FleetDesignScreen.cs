@@ -79,7 +79,7 @@ namespace Ship_Game
         readonly ShipInfoOverlayComponent ShipInfoOverlay;
         FleetStanceButtons OrdersButtons;
 
-        public FleetDesignScreen(UniverseScreen u, EmpireUIOverlay empireUI, string audioCue ="")
+        public FleetDesignScreen(UniverseScreen u, EmpireUIOverlay empireUI, string audioCue = "")
             : base(u, toPause: u)
         {
             Universe = u;
@@ -100,13 +100,6 @@ namespace Ship_Game
             Fleet anyFleet = Player.ActiveFleets.ToArrayList().Sorted(f => f.Key).FirstOrDefault();
             int fleetId = (anyFleet?.Key ?? Empire.FirstFleetKey).Clamped(Empire.FirstFleetKey, Empire.LastFleetKey);
             ChangeFleet(fleetId);
-        }
-        
-        public override void ExitScreen()
-        {
-            if (!StarDriveGame.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
-                Universe.RecomputeFleetButtons(true);
-            base.ExitScreen();
         }
 
         public void ChangeFleet(int fleetKey)
@@ -189,9 +182,8 @@ namespace Ship_Game
             RectF leftRect = new(2, titleRect.Bottom + 5, titleRect.W, 500);
             LeftMenu = new(leftRect, true);
             
-            Add(new FleetButtonsList(
-                leftRect, this, Universe,
-                onClick: (b) => InputSelectFleet(b.FleetKey, true),
+            Add(new FleetButtonsList(leftRect, this, Universe,
+                onClick: (b) => InputSelectFleet(b.FleetKey),
                 isSelected: (b) => SelectedFleet?.Key == b.FleetKey
             ));
 
