@@ -12,26 +12,29 @@ namespace Ship_Game.Commands.Goals
         [StarData] public Vector2 StaticBuildPos;
         [StarData] public Planet TetherPlanet; // not the same as TargetPlanet
         [StarData] public Vector2 TetherOffset;
+        [StarData] public SolarSystem TargetSystem;
 
         public override IShipDesign ToBuild => Build.Template;
         public override bool IsBuildingOrbitalFor(Planet planet) => TetherPlanet == planet;
+        public override bool IsBuildingOrbitalFor(SolarSystem system) => TargetSystem == system;
 
         [StarDataConstructor]
         public DeepSpaceBuildGoal(GoalType type, Empire owner) : base(type, owner)
         {
         }
 
-        protected void Initialize(string shipUid, Vector2 buildPos)
+        protected void Initialize(string shipUid, Vector2 buildPos, SolarSystem targetSystem)
         {
             Build = new(shipUid);
             StaticBuildPos = buildPos;
+            TargetSystem = targetSystem;
             if (buildPos.IsNaN())
                 Log.Error($"NaN StaticBuildPos={buildPos}");
         }
 
         protected void Initialize(string shipUid, Vector2 buildPos, Planet planet, Vector2 offset)
         {
-            Initialize(shipUid, buildPos);
+            Initialize(shipUid, buildPos, planet.ParentSystem);
             TetherPlanet = planet;
             TetherOffset = offset;
             if (offset.IsNaN())
