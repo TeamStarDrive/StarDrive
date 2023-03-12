@@ -233,6 +233,7 @@
     <Compile Include="Ship_Game\Gameplay\WeaponTestWrapper.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButton.cs" />
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButtonsList.cs" />
     <Compile Include="Ship_Game\GameScreens\GameCursors.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\AutoPatcher.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\AutoUpdateChecker.cs" />

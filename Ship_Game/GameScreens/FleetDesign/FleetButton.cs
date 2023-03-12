@@ -64,5 +64,9 @@ public class FleetButton : UIPanel
             if (f != null)
                 batch.DrawString(Fonts.Pirulen12, f.Name, cursor, isActive ? Color.White : Color.Gray);
         }
+        else
+        {
+
+        }
     }
 }
