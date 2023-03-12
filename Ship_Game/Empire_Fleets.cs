@@ -89,7 +89,7 @@ public sealed partial class Empire
     public bool AnyActiveFleetsTargetingSystem(SolarSystem system)
     {
         foreach (Fleet f in ActiveFleets)
-            if (f.FleetTask?.TargetPlanet?.ParentSystem == system)
+            if (f.FleetTask?.TargetPlanet?.System == system)
                 return true;
         return false;
     }
@@ -190,10 +190,10 @@ public sealed partial class Empire
         if (p.EventsOnTiles())
             AI.SendExplorationFleet(p);
 
-        if (Universe.P.Difficulty <= GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
+        if (Universe.P.Difficulty <= GameDifficulty.Hard || p.System.IsExclusivelyOwnedBy(this))
             return;
 
-        if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
+        if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.System).AlmostZero())
         {
             var task = MilitaryTask.CreateGuardTask(this, p);
             AI.AddPendingTask(task);

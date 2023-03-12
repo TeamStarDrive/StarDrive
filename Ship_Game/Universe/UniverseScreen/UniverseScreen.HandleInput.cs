@@ -516,7 +516,7 @@ namespace Ship_Game
 
             Vector3d worldPos = UnprojectToWorldPosition3D(Input.CursorPosition, ZPlane: 2500);
             Planet p = UState.FindPlanetAt(worldPos.ToVec2f(), searchRadius: searchRadius);
-            return p != null && p.ParentSystem.IsExploredBy(Player) ? p : null;
+            return p != null && p.System.IsExploredBy(Player) ? p : null;
         }
 
         // should be called for >= SectorView

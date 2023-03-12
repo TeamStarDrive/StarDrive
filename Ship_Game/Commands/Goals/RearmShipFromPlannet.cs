@@ -128,7 +128,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         bool TargetValid   => TargetShip != null
                               && (TargetShip.Loyalty == Owner || TargetShip.Loyalty.IsAlliedWith(Owner))
                               && TargetShip.IsSuitableForPlanetaryRearm()
-                              && (TargetShip.System == PlanetBuildingAt.ParentSystem || TargetShip.IsPlatformOrStation);
+                              && (TargetShip.System == PlanetBuildingAt.System || TargetShip.IsPlatformOrStation);
 
 
 
