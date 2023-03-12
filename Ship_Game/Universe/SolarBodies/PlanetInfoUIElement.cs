@@ -355,9 +355,10 @@ namespace Ship_Game
                 return;
 
             Vector2 textPos = new Vector2(RightRect.X -10, ResearchStationRect.Y + 13 - Font12.LineSpacing / 2 - 2);
-            batch.Draw(ResourceManager.Texture("NewUI/dan_button_blue_clear"), ResearchStationRect, Color.White);
+            batch.Draw(ResourceManager.Texture(Player.CanBuildResearchStations ? "NewUI/dan_button_blue_clear" 
+                : "NewUI/dan_button_disabled"), ResearchStationRect, Color.White);
 
-            LocalizedText tip = GameText.DeployResearchStationTip;
+            LocalizedText tip = Player.CanBuildResearchStations ? GameText.DeployResearchStationTip : GameText.CannotBuildResearchStationTip;
             LocalizedText tipText = GameText.DeployResearchStation;
             if (Player.AI.HasGoal(g => g.IsResearchStationGoal(P)))
             {
@@ -365,9 +366,9 @@ namespace Ship_Game
                 tipText = GameText.CancelDeployResearchStation;
             }
 
-            ToolTipItems.Add(new TippedItem(MarkedRect, tip));
-            batch.DrawString(Font12, tipText, textPos, ResearchStationRect.HitTest(mousePos) ? ButtonTextColor
-                                                                                             : ButtonHoverColor);
+            ToolTipItems.Add(new TippedItem(ResearchStationRect, tip));
+            batch.DrawString(Font12, tipText, textPos, Player.CanBuildResearchStations ? ResearchStationRect.HitTest(mousePos) ? ButtonTextColor : ButtonHoverColor
+                                                                                       : Color.Gray);
         }
 
         void DrawFertProdStats(SpriteBatch batch)
@@ -461,12 +462,11 @@ namespace Ship_Game
             }
             if (ResearchStationRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (Player.AI.HasGoal(g => g.IsResearchStationGoal(P)))
-                    Player.AI.CancelResearchStation(P);
-                else
-                    Player.AI.AddGoal(new ResearchStation(Player, P));
+                if      (Player.AI.HasGoal(g => g.IsResearchStationGoal(P))) Player.AI.CancelResearchStation(P);
+                else if (Player.CanBuildResearchStations)                    Player.AI.AddGoal(new ResearchStation(Player, P));
+                else                                                         GameAudio.NegativeClick();
 
-                GameAudio.EchoAffirmative();
+            GameAudio.EchoAffirmative();
             }
 
             if (P.Owner != null && P.Owner != Player 

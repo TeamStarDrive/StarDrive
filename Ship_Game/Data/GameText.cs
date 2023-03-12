@@ -4450,7 +4450,9 @@ namespace Ship_Game
         /// <summary>Auto Pick Research Stations</summary>
         AutoPickResearchStation = 4411,
         /// <summary>This will pick the best Research Station</summary>
-        AutoPicjResearchStationTip = 4412,
+        AutoPickResearchStationTip = 4412,
+        /// <summary>You do not have the required technology</summary>
+        CannotBuildResearchStationTip = 4413,
 
 
 
