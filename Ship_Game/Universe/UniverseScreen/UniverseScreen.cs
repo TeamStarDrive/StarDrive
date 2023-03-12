@@ -687,7 +687,6 @@ namespace Ship_Game
             public Fleet fleet;
             public Vector2 ScreenPos;
             public float ClickRadius;
-            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, ClickRadius);
         }
         public enum UnivScreenState
         {

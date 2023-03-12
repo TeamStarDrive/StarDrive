@@ -204,13 +204,7 @@ namespace Ship_Game
 
                 if (input.LeftMouseDoubleClick)
                 {
-                    ViewingShip = false;
-                    AdjustCamTimer = 0.5f;
-                    CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamPos.Z);
-                    if (viewState < UnivScreenState.SystemView)
-                        CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
-
-                    CamDestination.Z = GetZfromScreenState(UnivScreenState.ShipView);
+                    SnapViewFleet(fleetButton.Fleet);
                     return;
                 }
             }
@@ -475,27 +469,17 @@ namespace Ship_Game
 
         void ShowSelectedFleetInfo(Fleet selectedFleet)
         {
-            bool snapToFleet = SelectedFleet == selectedFleet; // user pressed fleet Number twice
-            ClearSelectedItems();
-
             // nothing selected
-            if (selectedFleet == null)
+            if (selectedFleet == null || selectedFleet.Ships.IsEmpty)
                 return;
 
-            if (selectedFleet.Ships.Count > 0)
-            {
-                SetSelectedFleet(selectedFleet);
-                GameAudio.FleetClicked();
-            }
+            bool snapToFleet = SelectedFleet == selectedFleet; // user pressed fleet Number twice
+            SetSelectedFleet(selectedFleet);
+            GameAudio.FleetClicked();
 
-            if (SelectedFleet != null && snapToFleet)
+            if (snapToFleet && SelectedFleet != null)
             {
-                ViewingShip = false;
-                AdjustCamTimer = 0.5f;
-                CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamDestination.Z);
-
-                if (CamPos.Z < GetZfromScreenState(UnivScreenState.SystemView))
-                    CamDestination.Z = GetZfromScreenState(UnivScreenState.PlanetView);
+                SnapViewFleet(SelectedFleet);
             }
         }
 
@@ -1030,7 +1014,7 @@ namespace Ship_Game
                 }
             }
 
-            SetSelectedShipList(selected, isFleet: false);
+            SetSelectedShipList(selected, fleet: null);
             return true;
         }
 
