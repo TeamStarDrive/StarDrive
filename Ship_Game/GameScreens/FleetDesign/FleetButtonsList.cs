@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDUtils;
 
 namespace Ship_Game.GameScreens.FleetDesign;
 
@@ -13,6 +10,12 @@ namespace Ship_Game.GameScreens.FleetDesign;
 /// </summary>
 public class FleetButtonsList : UIList
 {
+    readonly bool IsFleetDesigner;
+    bool IsUniverse => !IsFleetDesigner;
+    readonly UniverseScreen Us;
+    readonly Empire Player;
+    readonly Array<FleetButton> Buttons = new();
+
     public FleetButtonsList(RectF rect,
                             GameScreen parent,
                             UniverseScreen us,
@@ -20,23 +23,70 @@ public class FleetButtonsList : UIList
                             Func<FleetButton, bool> isSelected)
         : base(rect, Color.TransparentBlack)
     {
+        Us = us;
+        Player = us.Player;
         LayoutStyle = ListLayoutStyle.Clip;
+        IsFleetDesigner = parent is FleetDesignScreen;
 
         Vector2 buttonSize = new(52, 48);
         for (int key = Empire.FirstFleetKey; key <= Empire.LastFleetKey; ++key)
         {
-            base.Add(new FleetButton(us, key, buttonSize)
+            FleetButton b = new(us, key, buttonSize)
             {
-                FleetDesigner = parent is FleetDesignScreen,
+                FleetDesigner = IsFleetDesigner,
                 OnClick = onClick,
-                IsActive = isSelected,
-            });
+                IsActive = isSelected
+            };
+            Buttons.Add(b);
+            base.Add(b);
         }
 
         base.PerformLayout();
 
-        var animOffset = new Vector2(-128, 0);
+        Vector2 animOffset = new(-128, 0);
+        if (IsUniverse) animOffset.X = -256;
         StartGroupTransition<FleetButton>(animOffset, -1, time:0.5f);
         parent.OnExit += () => StartGroupTransition<FleetButton>(animOffset, +1, time:0.5f);
+    }
+
+    // In some conditions, the fleet buttons should automatically be disabled
+    bool ShouldHideInUniverse => Us.LookingAtPlanet;
+    bool ShouldHide => (IsUniverse && ShouldHideInUniverse)
+                    || Us.DefiningAO // FB dont show fleet list when selected AOs and Trade Routes
+                    || Us.DefiningTradeRoutes;
+
+    bool IsInputDisabled => (IsUniverse && Us.pieMenu.Visible);
+
+    public override bool HandleInput(InputState input)
+    {
+        if (ShouldHide || IsInputDisabled)
+            return false;
+        return base.HandleInput(input);
+    }
+
+    public override void Update(float fixedDeltaTime)
+    {
+        if (ShouldHide)
+            return;
+
+        foreach (FleetButton b in Buttons)
+        {
+            Fleets.Fleet f = Player.GetFleetOrNull(b.FleetKey);
+            bool visible = f is { CountShips: > 0 };
+
+            // make sure to do layout if any visibility changes
+            RequiresLayout |= (visible != b.Visible);
+            b.Visible = visible;
+        }
+
+        base.Update(fixedDeltaTime);
+    }
+
+    public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+    {
+        if (ShouldHide)
+            return;
+
+        base.Draw(batch, elapsed);
     }
 }

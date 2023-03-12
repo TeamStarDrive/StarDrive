@@ -6,7 +6,6 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         // empire perf indicators
-        public readonly AggregatePerfTimer PreEmpirePerf   = new();
         public readonly AggregatePerfTimer EmpireInfluPerf = new();
                         
         public readonly AggregatePerfTimer ResetBordersPerf  = new();
