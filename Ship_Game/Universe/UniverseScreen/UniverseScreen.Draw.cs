@@ -5,7 +5,6 @@ using Ship_Game.Ships;
 using System;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.Debug;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
@@ -826,9 +825,10 @@ namespace Ship_Game
 
         void DrawBombs()
         {
-            for (int i = BombList.Count - 1; i >= 0; --i)
+            Span<Bomb> bombs = BombList.AsSpan();
+            for (int i = bombs.Length - 1; i >= 0; --i)
             {
-                Bomb bomb = BombList[i];
+                Bomb bomb = bombs[i];
                 if (bomb?.Model != null)
                 {
                     Projectile.DrawMesh(this, bomb.Model, bomb.World, bomb.Texture.Texture, scale:25f);
