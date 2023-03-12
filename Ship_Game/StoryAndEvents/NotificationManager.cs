@@ -178,7 +178,7 @@ namespace Ship_Game
         public void AddConqueredNotification(Planet p, Empire conqueror, Empire loser)
         {
             string action = "SnapToSystem";
-            object item   = p.ParentSystem;
+            object item   = p.System;
             if (conqueror.isPlayer)
             {
                 action = "SnapToPlanet";
@@ -201,7 +201,7 @@ namespace Ship_Game
             {
                 RelevantEmpire  = p.Universe.Remnants,
                 Message         = message,
-                ReferencedItem1 = p.ParentSystem,
+                ReferencedItem1 = p.System,
                 IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
             }, "sd_troop_march_01");
@@ -470,7 +470,7 @@ namespace Ship_Game
             {
                 Pause           = false,
                 Message         = Localizer.Token(GameText.ScansOf) + p.Name + Localizer.Token(GameText.RevealedAnAnomaly),
-                ReferencedItem1 = p.ParentSystem,
+                ReferencedItem1 = p.System,
                 ReferencedItem2 = p,
                 IconPath        = p.IconPath,
                 Action          = "SnapToExpandSystem"
@@ -576,7 +576,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Message         = Localizer.Token(GameText.TheLastColonistOn) + p.Name + Localizer.Token(GameText.HasBeenKilled),
-                ReferencedItem1 = p.ParentSystem,
+                ReferencedItem1 = p.System,
                 IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
             }, "sd_ui_notification_warning");
@@ -587,7 +587,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Message         = $"{p.Name}{Localizer.Token(GameText.MeteorShowerWarningNotOurPlanet)}",
-                ReferencedItem1 = p.ParentSystem,
+                ReferencedItem1 = p.System,
                 IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
             }, "sd_ui_notification_warning");
@@ -598,7 +598,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Message         = $"{p.Name}{Localizer.Token(GameText.MeteorShowerWarning)}",
-                ReferencedItem1 = p.ParentSystem,
+                ReferencedItem1 = p.System,
                 IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
             }, "sd_notify_alert");
@@ -719,7 +719,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Message         = message,
-                ReferencedItem1 = beingInvaded.ParentSystem,
+                ReferencedItem1 = beingInvaded.System,
                 IconPath        = "UI/icon_rebellion",
                 Action          = "SnapToSystem"
             }, "sd_troop_march_01", "sd_notify_alert");

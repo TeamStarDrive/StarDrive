@@ -28,7 +28,7 @@ namespace Ship_Game
         bool NoTroopsOnPlanet  => TroopsHere.IsEmpty;
 
         Array<PlanetGridSquare> TilesList => Ground.TilesList;
-        SolarSystem ParentSystem => Ground.ParentSystem;
+        SolarSystem ParentSystem => Ground.System;
 
         // TODO: refactor these getters
         public bool WeAreInvadingHere(Empire us) => Ground.Owner != us && WeHaveTroopsHere(us);

@@ -73,7 +73,7 @@ namespace Ship_Game
                 return;
             }
 
-            if (!p.ParentSystem.IsExploredBy(Player))
+            if (!p.System.IsExploredBy(Player))
             {
                 GameAudio.NegativeClick();
             }
@@ -106,7 +106,7 @@ namespace Ship_Game
                 else if (combatView && p.Habitable
                                     && p.IsExploredBy(Player)
                                     && (p.WeAreInvadingHere(Player) || !Player.DifficultyModifiers.HideTacticalData
-                                                                    || p.ParentSystem.OwnerList.Contains(Player)
+                                                                    || p.System.OwnerList.Contains(Player)
                                                                     || p.OurShipsCanScanSurface(Player)))
                 {
                     OpenCombatMenu(p);

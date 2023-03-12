@@ -20,7 +20,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         bool HasSpacePort => P.HasSpacePort;
         int Level         => P.Level;
         int NumShipYards  => P.OrbitalStations.Count(s => s.ShipData.IsShipyard);
-        SolarSystem ParentSystem     => P.ParentSystem;
+        SolarSystem ParentSystem     => P.System;
         int TurnsSinceTurnover       => P.TurnsSinceTurnover;
         float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
         float ShieldStrengthPercent  => P.ShieldStrengthMax > 0.01f ? P.ShieldStrengthCurrent / P.ShieldStrengthMax : 0;
@@ -34,7 +34,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         public void Update(FixedSimTime timeStep)
         {
-            if (P.ParentSystem.DangerousForcesPresent(Owner))
+            if (P.System.DangerousForcesPresent(Owner))
                 SystemCombatTimer += timeStep.FixedTime;
             else
                 SystemCombatTimer = 0f;
@@ -99,7 +99,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     return ChanceToLaunchTroopsVsBombers;
 
                 // Recalculate chance since it is reset every turn
-                var enemyBombers = P.ParentSystem.ShipList.Filter(s => s.Loyalty == enemy && s.HasBombs
+                var enemyBombers = P.System.ShipList.Filter(s => s.Loyalty == enemy && s.HasBombs
                                                                     && s.Position.Distance(P.Position) < P.GravityWellRadius);
                 if (enemyBombers.Length == 0)
                     return 0;

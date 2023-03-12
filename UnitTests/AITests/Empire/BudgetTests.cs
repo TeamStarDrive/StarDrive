@@ -18,8 +18,8 @@ namespace UnitTests.AITests.Empire
             AddDummyPlanet(new Vector2(1000), 1.9f, 1.9f, 4);
             AddDummyPlanet(new Vector2(1000), 1.7f, 1.7f, 4);
             for (int x = 0; x < 5; x++)
-                AddDummyPlanet(new Vector2(1000), 0.1f, 0.1f, 1).ParentSystem.SetExploredBy(Enemy);
-            AddHomeWorldToEmpire(new Vector2(1000), Player).ParentSystem.SetExploredBy(Enemy);
+                AddDummyPlanet(new Vector2(1000), 0.1f, 0.1f, 1).System.SetExploredBy(Enemy);
+            AddHomeWorldToEmpire(new Vector2(1000), Player).System.SetExploredBy(Enemy);
             AddHomeWorldToEmpire(new Vector2(2000), Enemy, new Vector2(3000));
             UState.Objects.UpdateLists();
             AddHomeWorldToEmpire(new Vector2(1000), Enemy);
