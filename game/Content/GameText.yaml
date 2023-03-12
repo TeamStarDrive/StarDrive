@@ -10343,9 +10343,12 @@ AutoBuildResearchStationTip:
 AutoPickResearchStation:
  Id: 4411 
  ENG: "Auto Pick Research Stations"          
-AutoPicjResearchStationTip:
+AutoPickResearchStationTip:
  Id: 4412 
  ENG: "This will pick the best Research Station with most Research generated and will upgrade to them whenever possible, if the auto build REsearch Stations checkbox is checked." 
+CannotBuildResearchStationTip:
+ Id: 4413 
+ ENG: "You do not have the required technology to build a Research Station, research relevent tech to gain Research Station schematics."  
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"

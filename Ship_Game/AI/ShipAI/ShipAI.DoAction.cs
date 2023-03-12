@@ -222,7 +222,7 @@ namespace Ship_Game.AI
                     planetToTether.TryRemoveExcessOrbital(orbital);
             }
 
-            UpdateResearchStationGoal(orbital, bg.TargetPlanet, Owner.System);
+            UpdateResearchStationGoal(orbital, bg.TetherPlanet, Owner.System);
             Owner.QueueTotalRemoval();
             if (g.Goal.OldShip?.Active == true) // we are refitting something
                 g.Goal.OldShip.QueueTotalRemoval();
