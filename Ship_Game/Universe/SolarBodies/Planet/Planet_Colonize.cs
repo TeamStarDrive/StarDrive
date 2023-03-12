@@ -31,7 +31,7 @@ namespace Ship_Game
                     attacker.IncrementCordrazineCapture();
             }
 
-            ParentSystem.UpdateOwnerList();
+            System.UpdateOwnerList();
         }
 
         public void Colonize(Ship colonyShip)
@@ -39,7 +39,7 @@ namespace Ship_Game
             SetOwner(colonyShip.Loyalty);
             Quarantine     = false;
             ManualOrbitals = false;
-            ParentSystem.OwnerList.Add(Owner);
+            System.OwnerList.Add(Owner);
             SetupColonyType();
             SetExploredBy(Owner);
             CreateStartingEquipment(colonyShip);
@@ -70,10 +70,10 @@ namespace Ship_Game
 
         void NewColonyAffectRelations()
         {
-            if (ParentSystem.OwnerList.Count <= 1)
+            if (System.OwnerList.Count <= 1)
                 return;
 
-            foreach (Planet p in ParentSystem.PlanetList)
+            foreach (Planet p in System.PlanetList)
             {
                 if (p.Owner == null || p.Owner == Owner)
                     continue;

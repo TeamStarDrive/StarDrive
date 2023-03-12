@@ -247,7 +247,7 @@ namespace Ship_Game.Universe.SolarBodies
                     // Lava solidifies into a special building 
                     Building b = ResourceManager.CreateBuilding(planet, planet.Random.Item(potentials));
                     tile.PlaceBuilding(b, planet);
-                    if (planet.ParentSystem.HasPlanetsOwnedBy(planet.Universe.Player) || planet.ParentSystem.ShipList.
+                    if (planet.System.HasPlanetsOwnedBy(planet.Universe.Player) || planet.System.ShipList.
                             Any(s => s.Loyalty.isPlayer && s.Position.InRadius(planet.Position, s.SensorRange)))
                     {
                         string message = $"{Localizer.Token(GameText.ALavaPoolHasSolidified)}" +

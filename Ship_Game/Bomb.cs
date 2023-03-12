@@ -66,7 +66,7 @@ namespace Ship_Game
         private void SurfaceImpactEffects()
         {
             if (Owner.Universe.IsSystemViewOrCloser &&
-                TargetPlanet.ParentSystem.InFrustum)
+                TargetPlanet.System.InFrustum)
             {
                 TargetPlanet.PlayPlanetSfx("sd_bomb_impact_01", Position);
                 ExplosionManager.AddExplosionNoFlames(Owner.Universe.Screen, Position, 200f, 7.5f);

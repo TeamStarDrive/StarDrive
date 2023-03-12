@@ -296,11 +296,11 @@ public class ThreatMatrixTests : StarDriveTest
         CreateShipsAt(pos, 7000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
 
-        AssertEqual(Enemy, Player.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
-        AssertEqual(Player, Enemy.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
+        AssertEqual(Enemy, Player.Threats.GetStrongestHostileAt(PlayerPlanet.System));
+        AssertEqual(Player, Enemy.Threats.GetStrongestHostileAt(PlayerPlanet.System));
 
         // a neutral faction does not see Player or Enemy as a hostile
-        AssertEqual(null, ThirdMajor.Threats.GetStrongestHostileAt(PlayerPlanet.ParentSystem));
+        AssertEqual(null, ThirdMajor.Threats.GetStrongestHostileAt(PlayerPlanet.System));
     }
     
     [TestMethod]

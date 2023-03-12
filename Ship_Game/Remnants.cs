@@ -454,7 +454,7 @@ namespace Ship_Game
 
             if (planet.OwnerIsPlayer) // Warn the player is able
             {
-                SolarSystem system = planet.ParentSystem;
+                SolarSystem system = planet.System;
                 if (system.PlanetList.Any(p => p.Owner == Universe.Player
                                                && p.HasBuilding(b => b.DetectsRemnantFleet)))
                 {
@@ -475,15 +475,15 @@ namespace Ship_Game
             if (targetEmpire == null)
                 return false;
 
-            if (numBombers > 0 && currentPlanet.ParentSystem.HasPlanetsOwnedBy(targetEmpire))
+            if (numBombers > 0 && currentPlanet.System.HasPlanetsOwnedBy(targetEmpire))
             {
                 // Choose another planet owned by target empire in the same system
-                nextPlanet = Owner.Random.ItemFilter(currentPlanet.ParentSystem.PlanetList, p => p.Owner == targetEmpire);
+                nextPlanet = Owner.Random.ItemFilter(currentPlanet.System.PlanetList, p => p.Owner == targetEmpire);
                 return true;
             }
 
             // Find a planet in another system
-            var potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.ParentSystem != currentPlanet.ParentSystem);
+            var potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.System != currentPlanet.System);
             if (potentialPlanets.Length == 0)
                 return false;
 
@@ -795,7 +795,7 @@ namespace Ship_Game
 
         public void GenerateRemnantPresence(Planet p)
         {
-            if (p.ParentSystem.IsStartingSystem || p.ParentSystem.PiratePresence)
+            if (p.System.IsStartingSystem || p.System.PiratePresence)
                 return; // Don't create Remnants on starting systems or Pirate systems
 
             float quality   = PlanetQuality(p);
@@ -1013,7 +1013,7 @@ namespace Ship_Game
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p, clearOrders:true, MoveOrder.Aggressive);
-                    p.ParentSystem.NewGameAddRemnantShipToList(ship);
+                    p.System.NewGameAddRemnantShipToList(ship);
                     ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
                 }
             }

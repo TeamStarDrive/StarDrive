@@ -92,11 +92,11 @@ namespace Ship_Game.AI
                     toRemove.Add(p);
                     p.SetOwner(them);
 
-                    p.ParentSystem.OwnerList.Clear();
-                    foreach (Planet pl in p.ParentSystem.PlanetList)
+                    p.System.OwnerList.Clear();
+                    foreach (Planet pl in p.System.PlanetList)
                     {
-                        if (pl.Owner != null && !p.ParentSystem.OwnerList.Contains(pl.Owner))
-                            p.ParentSystem.OwnerList.Add(pl.Owner);
+                        if (pl.Owner != null && !p.System.OwnerList.Contains(pl.Owner))
+                            p.System.OwnerList.Add(pl.Owner);
                     }
 
                     if (!them.isPlayer)
@@ -353,7 +353,7 @@ namespace Ship_Game.AI
 
                     float worth = p.ColonyDiplomaticValueTo(us);
                     worth += p.HasCapital ? 200 : 0;
-                    float multiplier = 1.25f * p.ParentSystem.PlanetList.Count(other => other.Owner == p.Owner);
+                    float multiplier = 1.25f * p.System.PlanetList.Count(other => other.Owner == p.Owner);
                     worth *= multiplier;
                     valueToThem += worth;
                 }
@@ -367,7 +367,7 @@ namespace Ship_Game.AI
                         continue;
                     }
                     float worth = p.ColonyDiplomaticValueTo(us);
-                    int multiplier = 1 + p.ParentSystem.PlanetList.Count(other => other.Owner == p.Owner);
+                    int multiplier = 1 + p.System.PlanetList.Count(other => other.Owner == p.Owner);
                     worth *= multiplier;
                     valueToUs += worth;
                 }

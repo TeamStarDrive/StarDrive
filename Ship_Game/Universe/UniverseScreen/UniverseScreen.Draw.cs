@@ -495,7 +495,7 @@ namespace Ship_Game
                 Planet[] visiblePlanets = UState.GetVisiblePlanets();
                 foreach (Planet planet in visiblePlanets)
                 {
-                    if (planet.ParentSystem.IsExploredBy(Player))
+                    if (planet.System.IsExploredBy(Player))
                     {
                         DrawCircleProjected(planet.Position, planet.GravityWellRadius,
                                             new Color(255, 50, 0, 150), 1f, inhibit, new Color(200, 0, 0, 50));
@@ -871,7 +871,7 @@ namespace Ship_Game
                 if (ship.AI.State == AIState.Colonize && ship.AI.ColonizeTarget != null)
                 {
                     Vector2d screenPos = DrawLineProjected(start, ship.AI.ColonizeTarget.Position, color, 2500f, 0);
-                    string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.ParentSystem.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
+                    string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.System.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
                     DrawPointerWithText(screenPos.ToVec2f(), ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.Loyalty.EmpireColor, alpha));
                     return;
                 }

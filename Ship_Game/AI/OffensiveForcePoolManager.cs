@@ -40,7 +40,7 @@ namespace Ship_Game.AI
                     continue;
 
                 float aoSize = 0;
-                foreach (SolarSystem system in coreWorld.ParentSystem.FiveClosestSystems)
+                foreach (SolarSystem system in coreWorld.System.FiveClosestSystems)
                 {
                     if (!aoSystems.Contains(system))
                     {
@@ -86,7 +86,7 @@ namespace Ship_Game.AI
             {
                 foreach (Planet planet in ao.OurPlanets)
                 {
-                    systems.Add(planet.ParentSystem);
+                    systems.Add(planet.System);
                     allPlanets[i++] = planet;
                 }
             }

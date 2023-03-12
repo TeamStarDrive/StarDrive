@@ -264,7 +264,7 @@ namespace Ship_Game
             UpdatePopulation();
         }
 
-        [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData), typeof(UniverseParams))]
+        [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData), typeof(UniverseParams), typeof(Planet))]
         void OnDeserialized(UniverseState us)
         {
             AIManagedShips = new(us.CreateId(), this, "AIManagedShips");
@@ -564,8 +564,8 @@ namespace Ship_Game
             OwnedPlanets.Remove(planet);
             Universe.OnPlanetOwnerRemoved(this, planet);
 
-            if (OwnedPlanets.All(p => p.ParentSystem != planet.ParentSystem)) // system no more in owned planets?
-                OwnedSolarSystems.Remove(planet.ParentSystem);
+            if (OwnedPlanets.All(p => p.System != planet.System)) // system no more in owned planets?
+                OwnedSolarSystems.Remove(planet.System);
 
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
@@ -589,13 +589,13 @@ namespace Ship_Game
             if (planet == null)
                 throw new ArgumentNullException(nameof(planet));
 
-            if (planet.ParentSystem == null)
-                throw new ArgumentNullException(nameof(planet.ParentSystem));
+            if (planet.System == null)
+                throw new ArgumentNullException(nameof(planet.System));
 
             OwnedPlanets.Add(planet);
             Universe.OnPlanetOwnerAdded(this, planet);
 
-            OwnedSolarSystems.AddUniqueRef(planet.ParentSystem);
+            OwnedSolarSystems.AddUniqueRef(planet.System);
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
         }
@@ -1211,7 +1211,7 @@ namespace Ship_Game
                 string incoming = p.NumIncomingFreighters.ToString();
                 string outgoing = p.NumOutgoingFreighters.ToString();
                 string starving = p.Storage.Food.AlmostZero() && p.Food.NetIncome < 0 ? " (Starving!)" : "";
-                debug.AddLine($"{p.ParentSystem.Name} : {p.Name}{starving}");
+                debug.AddLine($"{p.System.Name} : {p.Name}{starving}");
                 debug.AddLine($"Incoming / Import Slots: {incoming}/{importSlots}");
                 debug.AddLine($"Outgoing / Export Slots: {outgoing}/{exportSlots}");
                 debug.AddLine("");
@@ -1229,7 +1229,7 @@ namespace Ship_Game
                 var lines = new Array<string>();
                 string food = $"{(int)p.FoodHere}(%{100*p.Storage.FoodRatio:00.0}) {p.FS}";
                 string prod = $"{(int)p.ProdHere}(%{100*p.Storage.ProdRatio:00.0}) {p.PS}";
-                debug.AddLine($"{p.ParentSystem.Name} : {p.Name} ", Color.Yellow);
+                debug.AddLine($"{p.System.Name} : {p.Name} ", Color.Yellow);
                 debug.AddLine($"FoodHere: {food} ", Color.White);
                 debug.AddLine($"ProdHere: {prod}");
                 debug.AddRange(lines);
@@ -2076,10 +2076,10 @@ namespace Ship_Game
             {
                 Planet planet = planets[i];
                 planet.SetOwner(this);
-                if (!planet.ParentSystem.OwnerList.Contains(this))
+                if (!planet.System.OwnerList.Contains(this))
                 {
-                    planet.ParentSystem.OwnerList.Add(this);
-                    planet.ParentSystem.OwnerList.Remove(target);
+                    planet.System.OwnerList.Add(this);
+                    planet.System.OwnerList.Remove(target);
                 }
             }
 

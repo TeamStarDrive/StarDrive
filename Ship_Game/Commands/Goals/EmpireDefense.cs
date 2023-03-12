@@ -75,7 +75,7 @@ namespace Ship_Game.Commands.Goals
 
         bool DefenseTaskHasHigherPriority(MilitaryTask defenseTask, MilitaryTask possibleTask)
         {
-            SolarSystem system = defenseTask.TargetSystem ?? defenseTask.TargetPlanet.ParentSystem;
+            SolarSystem system = defenseTask.TargetSystem ?? defenseTask.TargetPlanet.System;
             if (system.PlanetList.Any(p => p.Owner == Owner && p.HasCapital)
                 && !possibleTask.TargetSystem?.PlanetList.Any(p => p.Owner == Owner && p.HasCapital) == true)
             {
@@ -86,7 +86,7 @@ namespace Ship_Game.Commands.Goals
                 return false;
 
             Planet target            = possibleTask.TargetPlanet;
-            SolarSystem targetSystem = target?.ParentSystem ?? possibleTask.TargetSystem;
+            SolarSystem targetSystem = target?.System ?? possibleTask.TargetSystem;
 
             if (system == targetSystem)
                 return false; // The checked task has the same target system, no need to cancel it
