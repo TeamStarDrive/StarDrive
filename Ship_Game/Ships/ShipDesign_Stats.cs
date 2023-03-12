@@ -40,6 +40,7 @@ public partial class ShipDesign
     public bool  BaseCanWarp    { get; private set; }
     public float BaseMass       { get; private set; }
     public float BaseCargoSpace { get; private set; }
+    public float BaseResearchPerTurn { get; private set; }
 
     public Power NetPower;
 
@@ -77,7 +78,7 @@ public partial class ShipDesign
         int offensiveSlots = 0;
         float startingColonyGoods = 0f;
         int numBuildingsDeployed = 0;
-        bool providesResearch = false;
+        float baseResearchPerTurn = 0;
 
         var mTemplates = new Array<ShipModule>();
         var hangars = new Array<ShipModule>();
@@ -101,6 +102,7 @@ public partial class ShipDesign
             baseWarp += m.WarpThrust;
             baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
             baseCargoSpace += m.CargoCapacity;
+            baseResearchPerTurn += m.ResearchPerTurn;
 
             if (m.Is(ShipModuleType.Hangar))
                 hangars.Add(m);
@@ -118,8 +120,6 @@ public partial class ShipDesign
                 offensiveSlots += m.Area;
             if (m.DeployBuildingOnColonize.NotEmpty())
                 ++numBuildingsDeployed;
-            if (m.ResearchPerTurn > 0)
-                providesResearch = true;
 
             startingColonyGoods += m.NumberOfEquipment + m.NumberOfFood;
             baseStrength += m.CalculateModuleOffenseDefense(info.SurfaceArea);
@@ -139,6 +139,7 @@ public partial class ShipDesign
         BaseCanWarp = baseWarp > 0;
         BaseMass = baseMass;
         BaseCargoSpace = baseCargoSpace;
+        BaseResearchPerTurn = baseResearchPerTurn;
 
         StartingColonyGoods = startingColonyGoods;
         NumBuildingsDeployed = numBuildingsDeployed;
@@ -169,7 +170,7 @@ public partial class ShipDesign
         IsBomber          = Role == RoleName.bomber;
         IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
-        IsResearchStation = IsPlatformOrStation && providesResearch;
+        IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
 
         // only enable this flag for non-testing environment
         IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");

@@ -161,8 +161,6 @@ namespace Ship_Game.AI
             return true;
         }
 
-
-
         public static IShipDesign PickShipToRefit(Ship oldShip, Empire empire)
         {
             Array<IShipDesign> ships = ShipsWeCanBuild(empire, s => s.Hull == oldShip.ShipData.Hull
@@ -179,6 +177,22 @@ namespace Ship_Game.AI
         }
 
         
+        public static IShipDesign PickResearchStation(Empire empire)
+        {
+            var researchStations = new Array<IShipDesign>();
+            foreach (IShipDesign design in empire.ShipsWeCanBuild)
+            {
+                if (design.IsResearchStation)
+                    researchStations.Add(design);
+            }
+
+            var researchStation = researchStations.FindMax(ship => ship.BaseResearchPerTurn);
+            if (empire.Universe?.Debug == true)
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {researchStation?.Name ?? "null"}");
+
+            return researchStation ?? ResourceManager.Ships.GetDesign(empire.data.ResearchStation, throwIfError: true);
+        }
+
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)
         {
             float maxFTL = ShipStats.GetFTLSpeed(s, empire);

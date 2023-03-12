@@ -29,10 +29,23 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         public BuildOrbital(Planet planet, string toBuildName, Empire owner) : this(owner)
         {
-            PlanetBuildingAt = planet;
             Initialize(toBuildName, Vector2.Zero, planet, Vector2.Zero);
+            Setup(planet);
+        }
+
+        // The Orbital will be deployed on a different planet then the planet it is being built on
+        public BuildOrbital(Planet planetBuildingAt, Planet targetPlanet, string toBuildName, Empire owner) : this(owner)
+        {
+            Initialize(toBuildName, Vector2.Zero, targetPlanet, Vector2.Zero);
+            Setup(planetBuildingAt);
+        }
+
+        void Setup(Planet planetBuildingAt)
+        {
+            PlanetBuildingAt = planetBuildingAt;
             IShipDesign constructor = BuildableShip.GetConstructor(Owner);
             PlanetBuildingAt.Construction.Enqueue(QueueItemType.Orbital, ToBuild, constructor, rush: false, this);
+
         }
 
         GoalStep OrderDeployOrbital()

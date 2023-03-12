@@ -16,6 +16,8 @@ namespace Ship_Game.Commands.Goals
 
         Ship ResearchStationOrbital => TargetShip;
         float ProductionPerResearch => GlobalStats.Defaults.ResearchStationProductionPerResearch;
+        bool ResearchingStar => TargetPlanet == null;
+        bool ResearchingPlanet => !ResearchingStar;
 
         public override bool IsResearchStationGoal(Planet planet) => TargetPlanet == planet;
 
@@ -26,27 +28,56 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
+                BuildStationConstructor,
+                WaitForConstructor,
                 Research
             };
         }
 
-        public ResearchStation(Empire owner, SolarSystem system, Ship station)
+        public ResearchStation(Empire owner, SolarSystem system)
             : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
             TargetSystem = system;
-            TargetShip = station;
             Owner = owner;
         }
 
-        public ResearchStation(Empire owner, Planet planet, Ship station)
+        public ResearchStation(Empire owner, Planet planet)
             : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
             TargetSystem = planet.ParentSystem;
             TargetPlanet = planet;
-            TargetShip = station;
             Owner = owner;
+        }
+
+        GoalStep BuildStationConstructor()
+        {
+            IShipDesign bestResearchStation = ResourceManager.Ships.GetDesign(Owner.data.ResearchStation, throwIfError: true); 
+            if (!Owner.isPlayer || Owner.AutoPickBestResearchStation)
+                bestResearchStation = ShipBuilder.PickResearchStation(Owner);
+
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, bestResearchStation, out Planet planetToBuildAt))
+                return GoalStep.TryAgain;
+
+            Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetPlanet, bestResearchStation.Name, Owner));
+            return GoalStep.GoToNextStep;
+        }
+
+        GoalStep WaitForConstructor()
+        {
+            if (ResearchStationOrbital != null && ResearchStationOrbital.IsResearchStation)
+            {
+                // TODO - add ship plan so it could display text on current actions
+                return GoalStep.GoToNextStep; // consturction ship managed to deploy the orbital
+            }
+            else if (ResearchingPlanet && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetPlanet))
+                   || (ResearchingStar && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetSystem))))
+            {
+                return GoalStep.TryAgain; // construction goal in progress
+            }
+
+            return GoalStep.GoalFailed; // construction goal was canceled
         }
 
         GoalStep Research()

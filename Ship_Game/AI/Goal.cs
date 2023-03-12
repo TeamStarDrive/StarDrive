@@ -127,7 +127,8 @@ namespace Ship_Game.AI
         public virtual bool IsResearchStationGoal(SolarSystem system) => false;
         /** @return True if this goal is building an orbital for this planet */
         public virtual bool IsBuildingOrbitalFor(Planet planet) => false;
-
+        /** @return True if this goal is building an orbital for this planet */
+        public virtual bool IsBuildingOrbitalFor(SolarSystem system) => false;
         /** @return True if this goal is Remnants targeting this planet */
         public virtual bool IsRemnantEngageAtPlanet(Planet planet) => false;
 

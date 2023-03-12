@@ -23,10 +23,10 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, bool rush = false)
+        public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, bool rush = false, SolarSystem system = null)
             : this(owner)
         {
-            Initialize(platformUid, buildPos);
+            Initialize(platformUid, buildPos, system);
             Build.Rush = rush;
         }
 
