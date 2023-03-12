@@ -86,8 +86,6 @@ namespace Ship_Game
             if (input.Tab && !input.LeftCtrlShift) ShowShipNames = !ShowShipNames;
 
             HandleCameraZoomScrolling(input);
-
-            HandleFleetSelections(input);
             HandleShipSelectionAndOrders();
 
             if (input.LeftMouseDoubleClick && HandleDoubleClickShipsAndSolarObjects(input))
@@ -196,6 +194,25 @@ namespace Ship_Game
                 {
                     SnapViewFleet(f);
                 }
+            }
+        }
+        
+        void OnFleetHotKeyPressed(FleetButton b)
+        {
+            // this can be null if a new fleet is being created
+            Fleet selectedFleet = Player.GetFleetOrNull(b.FleetKey);
+
+            if (Input.ReplaceFleet)
+            {
+                CreateNewFleet(selectedFleet, b.FleetKey);
+            }
+            else if (Input.AddToFleet)
+            {
+                AddShipsToExistingFleet(selectedFleet, b.FleetKey);
+            }
+            else
+            {
+                ShowSelectedFleetInfo(selectedFleet);
             }
         }
 
@@ -357,42 +374,6 @@ namespace Ship_Game
                 }
             }
             return GameCursors.Regular;
-        }
-
-        static int InputFleetSelection(InputState input)
-        {
-            if (input.Fleet1) return 1;
-            if (input.Fleet2) return 2;
-            if (input.Fleet3) return 3;
-            if (input.Fleet4) return 4;
-            if (input.Fleet5) return 5;
-            if (input.Fleet6) return 6;
-            if (input.Fleet7) return 7;
-            if (input.Fleet8) return 8;
-            if (input.Fleet9) return 9;
-            return -1;
-        }
-
-        void HandleFleetSelections(InputState input)
-        {
-            int index = InputFleetSelection(input);
-            if (index == -1) 
-                return;
-
-            Fleet selectedFleet = Player.GetFleetOrNull(index);
-
-            if (input.ReplaceFleet)
-            {
-                CreateNewFleet(selectedFleet, index);
-            }
-            else if (input.AddToFleet)
-            {
-                AddShipsToExistingFleet(selectedFleet, index);
-            }
-            else
-            {
-                ShowSelectedFleetInfo(selectedFleet);
-            }
         }
 
         void CreateNewFleet(Fleet selectedFleet, int index)

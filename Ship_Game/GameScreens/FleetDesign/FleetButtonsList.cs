@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.GameScreens.FleetDesign;
 
@@ -16,10 +17,9 @@ public class FleetButtonsList : UIList
     readonly Empire Player;
     readonly Array<FleetButton> Buttons = new();
 
-    public FleetButtonsList(RectF rect,
-                            GameScreen parent,
-                            UniverseScreen us,
+    public FleetButtonsList(RectF rect, GameScreen parent, UniverseScreen us,
                             Action<FleetButton> onClick,
+                            Action<FleetButton> onHotKey,
                             Func<FleetButton, bool> isSelected)
         : base(rect, Color.TransparentBlack)
     {
@@ -35,7 +35,8 @@ public class FleetButtonsList : UIList
             {
                 FleetDesigner = IsFleetDesigner,
                 OnClick = onClick,
-                IsActive = isSelected
+                OnHotKey = onHotKey,
+                IsSelected = isSelected
             };
             Buttons.Add(b);
             base.Add(b);
@@ -43,9 +44,8 @@ public class FleetButtonsList : UIList
 
         base.PerformLayout();
 
-        Vector2 animOffset = new(-128, 0);
-        if (IsUniverse) animOffset.X = -256;
-        StartGroupTransition<FleetButton>(animOffset, -1, time:0.5f);
+        Vector2 animOffset = new(-256, 0);
+        StartGroupTransition<FleetButton>(animOffset, -1, time:0.4f);
         parent.OnExit += () => StartGroupTransition<FleetButton>(animOffset, +1, time:0.5f);
     }
 
@@ -57,10 +57,35 @@ public class FleetButtonsList : UIList
 
     bool IsInputDisabled => (IsUniverse && Us.pieMenu.Visible);
 
+    static int InputFleetSelection(InputState input)
+    {
+        if (input.Fleet1) return 1;
+        if (input.Fleet2) return 2;
+        if (input.Fleet3) return 3;
+        if (input.Fleet4) return 4;
+        if (input.Fleet5) return 5;
+        if (input.Fleet6) return 6;
+        if (input.Fleet7) return 7;
+        if (input.Fleet8) return 8;
+        if (input.Fleet9) return 9;
+        return -1;
+    }
+
     public override bool HandleInput(InputState input)
     {
         if (ShouldHide || IsInputDisabled)
             return false;
+
+        foreach (FleetButton b in Buttons)
+        {
+            // always handle hotkeys, since they can be used to create new fleets
+            if (InputFleetSelection(input) == b.FleetKey)
+            {
+                b.OnHotKey?.Invoke(b);
+                return true;
+            }
+        }
+
         return base.HandleInput(input);
     }
 
@@ -71,8 +96,10 @@ public class FleetButtonsList : UIList
 
         foreach (FleetButton b in Buttons)
         {
-            Fleets.Fleet f = Player.GetFleetOrNull(b.FleetKey);
-            bool visible = f is { CountShips: > 0 };
+            Fleet f = Player.GetFleetOrNull(b.FleetKey);
+            bool visible = f != null;
+            if (IsUniverse)
+                visible = visible && f.CountShips > 0;
 
             // make sure to do layout if any visibility changes
             RequiresLayout |= (visible != b.Visible);
