@@ -63,7 +63,8 @@ namespace Ship_Game.AI
                 s => s.Role == role && s.GetCost(empire).LessOrEqual(maxCost) 
                                           && s.GetMaintenanceCost(empire).Less(maintBudget)
                                           && !s.IsShipyard
-                                          && !s.IsSubspaceProjector);
+                                          && !s.IsSubspaceProjector
+                                          && !s.IsResearchStation);
 
             if (potentialShips.Count == 0)
             {
@@ -179,18 +180,31 @@ namespace Ship_Game.AI
         
         public static IShipDesign PickResearchStation(Empire empire)
         {
-            var researchStations = new Array<IShipDesign>();
+            var potenticalResearchStations = new Array<IShipDesign>();
+            float maxResearchPerTurn = 0;
             foreach (IShipDesign design in empire.ShipsWeCanBuild)
             {
                 if (design.IsResearchStation)
-                    researchStations.Add(design);
+                {
+                    potenticalResearchStations.Add(design);
+                    if (design.BaseResearchPerTurn > maxResearchPerTurn)
+                        maxResearchPerTurn = design.BaseResearchPerTurn;
+                }
             }
 
-            var researchStation = researchStations.FindMax(ship => ship.BaseResearchPerTurn);
-            if (empire.Universe?.Debug == true)
-                Log.Info(ConsoleColor.Cyan, $"----- Picked {researchStation?.Name ?? "null"}");
+            IShipDesign bestResearchStation = null;
+            if (potenticalResearchStations.Count > 0)
+            {
+                var researchStations = potenticalResearchStations.
+                    Filter(s  => s.BaseResearchPerTurn.InRange(maxResearchPerTurn * 0.8f, maxResearchPerTurn));
 
-            return researchStation ?? ResourceManager.Ships.GetDesign(empire.data.ResearchStation, throwIfError: true);
+                bestResearchStation = researchStations.FindMax(s => s.BaseStrength / s.SurfaceArea);
+            }
+
+            if (empire.Universe?.Debug == true)
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {bestResearchStation?.Name ?? empire.data.ResearchStation}");
+
+            return bestResearchStation ?? ResourceManager.Ships.GetDesign(empire.data.ResearchStation, throwIfError: true);
         }
 
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)
