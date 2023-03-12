@@ -151,7 +151,7 @@ namespace Ship_Game
         {
             if (IsDeviceGood)
             {
-                GraphicsDevice.Clear(Color.Black);
+                ScreenManager.ClearScreen(Color.Black);
                 ScreenManager.Draw();
                 base.Draw();
             }

@@ -110,7 +110,7 @@ public sealed partial class Empire
     void ScanForShipsFromPlanet(Planet p, Vector2 pos, float radius, ThreatMatrix threatMatrix)
     {
         // TODO: sort System.ShipList into per-empire basis
-        Array<Ship> ships = p.ParentSystem.ShipList;
+        Array<Ship> ships = p.System.ShipList;
         int count = ships.Count;
         if (count == 0) // micro-optimization to avoid scanning empty systems
             return;
@@ -274,7 +274,7 @@ public sealed partial class Empire
                 n.Position = n.Source.Position;
                 n.KnownToPlayer = true;
 
-                int whichSystem = OwnedSolarSystems.IndexOfRef(((Planet)n.Source).ParentSystem);
+                int whichSystem = OwnedSolarSystems.IndexOfRef(((Planet)n.Source).System);
                 ref InfluenceNode sn = ref borderSystems[whichSystem];
                 sn.Radius = Math.Max(sn.Radius, n.Radius);
             }
@@ -292,7 +292,7 @@ public sealed partial class Empire
                 n.Position = n.Source.Position;
                 n.KnownToPlayer = ((Planet)n.Source).IsExploredBy(player);
 
-                int whichSystem = OwnedSolarSystems.IndexOfRef(((Planet)n.Source).ParentSystem);
+                int whichSystem = OwnedSolarSystems.IndexOfRef(((Planet)n.Source).System);
                 ref InfluenceNode sn = ref borderSystems[whichSystem];
                 sn.Radius = Math.Max(sn.Radius, n.Radius);
 

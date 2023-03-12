@@ -1308,7 +1308,7 @@ LaunchThisTroopIntoOrbit:
  SPA: "Poner esta tropa en órbita"
 TogglesWhetherThisShipsAssault:
  Id: 266
- ENG: "Toggles whether this ship's assault shuttles should be launched and escort the troop ship or recovered to hangars"
+ ENG: "Left Click - Toggles whether this ship's assault shuttles should be launched and escort the troop ship or recovered to hangars\nRight Click - Toggle allowing troops to board ships from this troop ship."
  RUS: "Переключает, следует ли запускать штурмовые шаттлы этого корабля и сопровождать военный корабль или возвратиться в ангары"
 Save:
  Id: 300

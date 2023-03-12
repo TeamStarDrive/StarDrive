@@ -126,7 +126,7 @@ namespace Ship_Game
 
         void AddSystemName()
         {
-            string systemName     = Planet.ParentSystem.Name;
+            string systemName     = Planet.System.Name;
             Graphics.Font systemFont = NormalFont.MeasureString(systemName).X <= SysNameRect.Width ? NormalFont : SmallFont;
             var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - systemFont.MeasureString(systemName).X / 2f,
                                         2 + SysNameRect.Y + SysNameRect.Height / 2 - systemFont.LineSpacing / 2);
@@ -176,7 +176,7 @@ namespace Ship_Game
 
         void AddHostileWarning()
         {
-            if (Player.KnownEnemyStrengthIn(Planet.ParentSystem) > 0)
+            if (Player.KnownEnemyStrengthIn(Planet.System) > 0)
             {
                 SubTexture flash = ResourceManager.Texture("Ground_UI/EnemyHere");
                 UIPanel enemyHere = Panel(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash);

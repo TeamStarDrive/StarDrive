@@ -188,7 +188,7 @@ namespace Ship_Game.AI
                 if (!planet.Position.InRadius(this)) continue;
                 WarValueOfPlanets += planet.ColonyWarValueTo(Owner);
                 planets.AddUniqueRef(planet);
-                systems.AddUniqueRef(planet.ParentSystem);
+                systems.AddUniqueRef(planet.System);
             }
 
             AllPlanetsInAO = planets.ToArray();

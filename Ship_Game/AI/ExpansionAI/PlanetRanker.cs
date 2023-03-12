@@ -22,7 +22,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         public static bool IsGoodValueForUs(Planet p, Empire us)
         {
-            if (IsColonizeBlockedByMorals(p.ParentSystem, us))
+            if (IsColonizeBlockedByMorals(p.System, us))
                 return false;
 
             float value = p.ColonyPotentialValue(us);
@@ -38,13 +38,13 @@ namespace Ship_Game.AI.ExpansionAI
             PoorPlanet            = false;
             float rawValue        = planet.ColonyPotentialValue(empire);
 
-            bool moralityBlock = IsColonizeBlockedByMorals(Planet.ParentSystem, empire);
+            bool moralityBlock = IsColonizeBlockedByMorals(Planet.System, empire);
             CanColonize = !moralityBlock;
             Value = rawValue;
-            if (!Planet.ParentSystem.HasPlanetsOwnedBy(empire))
+            if (!Planet.System.HasPlanetsOwnedBy(empire))
             {
                 DistanceMod = (planet.Position.Distance(empireCenter) / longestDistance * 10).Clamped(1, 10);
-                EnemyStrMod = ((empire.KnownEnemyStrengthIn(planet.ParentSystem) / (empire.OffensiveStrength+10)) * 10).Clamped(1, 10);
+                EnemyStrMod = ((empire.KnownEnemyStrengthIn(planet.System) / (empire.OffensiveStrength+10)) * 10).Clamped(1, 10);
                 CanColonize = !moralityBlock && (rawValue > 30 || empire.IsCybernetic && planet.MineralRichness > 1.5f);
                 Value = rawValue / DistanceMod / EnemyStrMod;
             }

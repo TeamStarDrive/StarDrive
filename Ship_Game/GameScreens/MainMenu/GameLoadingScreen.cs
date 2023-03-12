@@ -55,7 +55,7 @@ namespace Ship_Game
 
             if (!LoadingFinished())
             {
-                Device.Clear(Color.Black);
+                ScreenManager.ClearScreen(Color.Black);
 
                 try
                 {

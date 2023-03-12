@@ -595,7 +595,10 @@ namespace Ship_Game.Ships
                 {
                     ValueToModify = new(() => s.Carrier.TroopsOut, x => {
                         s.Carrier.TroopsOut = !s.Carrier.TroopsOut;
-                    })
+                    }),
+                    RightClickValueToModify = new(() => s.Carrier.AllowBoardShip, x => {
+                        s.Carrier.AllowBoardShip = !s.Carrier.AllowBoardShip;
+                    }),
                 };
                 Orders.Add(ob2);
             }

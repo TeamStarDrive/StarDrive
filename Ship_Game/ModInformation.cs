@@ -24,7 +24,7 @@ public sealed class ModInformation
     [StarData] public bool UseVanillaTechs = true;
     [StarData] public bool UseVanillaWeapons = true;
     [StarData] public bool UseVanillaModules = true;
-    [StarData] public bool UseVanillaBuildings = true;
+    [StarData] public bool UseVanillaBuildings = true; // This also includes random stuff - as it might contain vanilla buildings
     [StarData] public bool UseVanillaRaces = true;
 
     // TODO: DEPRECATED FLAGS, KEEPING THEM FOR A FEW VERSIONS FOR COMPATIBILITY WITH MODS

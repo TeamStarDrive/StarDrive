@@ -47,7 +47,7 @@ namespace Ship_Game.AI.Budget
             float orbitalRatio  = 1 - groundRatio;
             float civBudget     = EmpireColonizationBudget * EmpireRatio + P.GetColonyDebtTolerance() + P.TerraformBudget;
             float grdBudget     = defenseBudget * groundRatio;
-            if (!Owner.isPlayer && P.ParentSystem.HostileForcesPresent(Owner))
+            if (!Owner.isPlayer && P.System.HostileForcesPresent(Owner))
                 grdBudget *= 3; // Try to add more temp ground defense to clear enemies
 
             GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? ExponentialMovingAverage(GrdDefAlloc, grdBudget) : P.ManualGrdDefBudget;
