@@ -537,7 +537,7 @@ namespace Ship_Game
         public override void Update(float fixedDeltaTime)
         {
             if (LookingAtPlanet)
-                workersPanel.Update(fixedDeltaTime);
+                workersPanel?.Update(fixedDeltaTime);
             
             DeepSpaceBuildWindow.Update(fixedDeltaTime);
             pieMenu.Update(fixedDeltaTime);
