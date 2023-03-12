@@ -625,7 +625,7 @@ namespace Ship_Game.AI
 
         public bool WaitForBlockadeRemoval(ShipGoal g, Planet planet, FixedSimTime timeStep)
         {
-            if (planet.TradeBlocked && Owner.System != planet.ParentSystem)
+            if (planet.TradeBlocked && Owner.System != planet.System)
             {
                 g.Trade.BlockadeTimer -= timeStep.FixedTime;
                 if (g.Trade.BlockadeTimer > 0f && !planet.Quarantine)

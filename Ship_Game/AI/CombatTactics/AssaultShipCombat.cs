@@ -17,8 +17,12 @@ namespace Ship_Game.AI.CombatTactics
 
         public void TryBoardShip()
         {
-            if (Owner == null || Owner.IsSpoolingOrInWarp)
+            if (Owner == null
+                || Owner.IsSpoolingOrInWarp
+                || Owner.Loyalty.isPlayer && !Owner.Carrier.AllowBoardShip)
+            {
                 return;
+            }
 
             if (!Owner.Carrier.HasActiveTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;

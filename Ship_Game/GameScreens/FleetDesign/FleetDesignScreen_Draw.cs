@@ -29,7 +29,7 @@ namespace Ship_Game
         {
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
 
-            ScreenManager.GraphicsDevice.Clear(Color.Black);
+            ScreenManager.ClearScreen(Color.Black);
             Universe.DrawStarField(ScreenManager.SpriteRenderer);
 
             batch.SafeBegin();

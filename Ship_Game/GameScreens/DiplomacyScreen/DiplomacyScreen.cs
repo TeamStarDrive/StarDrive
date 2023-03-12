@@ -136,7 +136,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         DiplomacyScreen(Empire them, Empire us, string whichDialog, Planet p)
             : this(them.Universe.Screen, them, us, whichDialog, toPause: them.Universe.Screen)
         {
-            SysToDiscuss = p.ParentSystem;
+            SysToDiscuss = p.System;
 
             switch (whichDialog)
             {
@@ -247,7 +247,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         static void StoleColonyClaim(Planet claimedPlanet, Empire victim, string dialog)
         {
-            ScreenManager.Instance.AddScreen(new DiplomacyScreen(victim, victim.Universe.Player, dialog, claimedPlanet.ParentSystem));
+            ScreenManager.Instance.AddScreen(new DiplomacyScreen(victim, victim.Universe.Player, dialog, claimedPlanet.System));
         }
 
         public static void ContactPlayerFromDiplomacyQueue(Empire responder, string dialog)

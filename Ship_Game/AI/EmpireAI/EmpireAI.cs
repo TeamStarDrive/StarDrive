@@ -230,7 +230,7 @@ namespace Ship_Game.AI
             foreach (MarkForColonization ourGoal in ourColonizationGoals)
             {
                 Planet ourColonizeP = ourGoal.TargetPlanet;
-                var system = ourColonizeP.ParentSystem;
+                var system = ourColonizeP.System;
                 if (usToThem.WarnedSystemsList.Contains(system))
                     continue; // Already warned them
 
@@ -239,13 +239,13 @@ namespace Ship_Game.AI
                 foreach (MarkForColonization theirGoal in theirColonizationGoals)
                 {
                     Planet theirColonizeP = theirGoal.TargetPlanet;
-                    if (theirColonizeP.ParentSystem != system)
+                    if (theirColonizeP.System != system)
                         continue;
 
                     if (DetectAndWarn(theirGoal, warnExclusive))
                     {
                         if (system.HasPlanetsOwnedBy(them)
-                            && theirColonizeP.ParentSystem == them.Capital?.ParentSystem
+                            && theirColonizeP.System == them.Capital?.System
                             && theirColonizeP != ourColonizeP
                             && !warnAnyway)
                         {
@@ -276,7 +276,7 @@ namespace Ship_Game.AI
                     if (warnExclusive || warnAnyway)
                         return true;
 
-                    if (themToUs.WarnedSystemsList.Contains(goal.TargetPlanet.ParentSystem))
+                    if (themToUs.WarnedSystemsList.Contains(goal.TargetPlanet.System))
                         return false; // They warned us, so no need to warn them
 
                     // If they stole planets from us, we will value our targets more.

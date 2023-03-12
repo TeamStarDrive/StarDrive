@@ -5,7 +5,6 @@ using Ship_Game.Ships;
 using System;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.Debug;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
@@ -328,7 +327,6 @@ namespace Ship_Game
                 {
                     DeepSpaceBuildWindow.Draw(batch, elapsed);
                     pieMenu.DrawAt(batch, GetPieMenuPosition(), Fonts.Arial12Bold);
-                    DrawShipUI(batch, elapsed);
                     NotificationManager.Draw(batch);
                 }
             }
@@ -497,7 +495,7 @@ namespace Ship_Game
                 Planet[] visiblePlanets = UState.GetVisiblePlanets();
                 foreach (Planet planet in visiblePlanets)
                 {
-                    if (planet.ParentSystem.IsExploredBy(Player))
+                    if (planet.System.IsExploredBy(Player))
                     {
                         DrawCircleProjected(planet.Position, planet.GravityWellRadius,
                                             new Color(255, 50, 0, 150), 1f, inhibit, new Color(200, 0, 0, 50));
@@ -710,162 +708,6 @@ namespace Ship_Game
                 DrawCircleProjected(goal.BuildPosition, 50f, goal.Owner.EmpireColor);
         }
 
-        void DrawShipUI(SpriteBatch batch, DrawTimes elapsed)
-        {
-            if (DefiningAO || DefiningTradeRoutes)
-                return; // FB dont show fleet list when selected AOs and Trade Routes
-
-            foreach (FleetButton fleetButton in FleetButtons)
-            {
-                var buttonSelector = new Selector(fleetButton.ClickRect, Color.TransparentBlack);
-                var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
-                    fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
-
-                bool inCombat = false;
-                foreach (Ship ship in fleetButton.Fleet.Ships)
-                {
-                    if (!ship.OnLowAlert)
-                    {
-                        inCombat = true;
-                        break;
-                    }
-                }
-                
-                Font fleetFont = Fonts.Pirulen12;
-                Color fleetKey  = Color.Orange;
-                bool needShadow = false;
-                var keyPos = new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4);
-                if (SelectedFleet == fleetButton.Fleet)
-                {
-                    fleetKey   = Color.White;
-                    fleetFont  = Fonts.Pirulen16;
-                    needShadow = true;
-                    keyPos     = new Vector2(keyPos.X, keyPos.Y - 2);
-                }
-
-                batch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
-                    fleetButton.ClickRect, inCombat ? ApplyCurrentAlphaToColor(new Color(255, 0, 0))
-                                                    : new Color( 0,  0,  0,  80));
-
-                if (fleetButton.Fleet.AutoRequisition)
-                {
-                    Rectangle autoReq = new Rectangle(fleetButton.ClickRect.X - 18, fleetButton.ClickRect.Y + 5, 15, 20);
-                    batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, Player.EmpireColor);
-                }
-
-                buttonSelector.Draw(batch, elapsed);
-                batch.Draw(fleetButton.Fleet.Icon, housing, Player.EmpireColor);
-                if (needShadow)
-                    batch.DrawString(fleetFont, fleetButton.Key.ToString(), new Vector2(keyPos.X + 2, keyPos.Y + 2), Color.Black);
-
-                batch.DrawString(fleetFont, fleetButton.Key.ToString(), keyPos, fleetKey);
-                DrawFleetShipIcons(batch, fleetButton);
-            }
-        }
-
-        void DrawFleetShipIcons(SpriteBatch batch, FleetButton fleetButton)
-        {
-            int x = fleetButton.ClickRect.X + 55; // Offset from the button
-            int y = fleetButton.ClickRect.Y;
-
-            if (fleetButton.Fleet.Ships.Count <= 30)
-                DrawFleetShipIcons30(batch, fleetButton, x, y);
-            else
-                DrawFleetShipIconsSums(batch, fleetButton, x, y);
-        }
-
-        void DrawFleetShipIcons30(SpriteBatch batch, FleetButton fleetButton, int x, int y)
-        {
-            // Draw ship icons to right of button
-            Vector2 shipSpacingH = new(x, y);
-            for (int i = 0; i < fleetButton.Fleet.Ships.Count; ++i)
-            {
-                Ship ship = fleetButton.Fleet.Ships[i];
-                RectF iconHousing = new(shipSpacingH.X, shipSpacingH.Y, 15, 15);
-                shipSpacingH.X += 18f;
-                if (shipSpacingH.X > 237) // 10 Ships per row
-                {
-                    shipSpacingH.X  = x;
-                    shipSpacingH.Y += 18f;
-                }
-
-                Color statColor = ship.GetStatusColor();
-                if (statColor != Color.Black)
-                    batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_status"), iconHousing, ApplyCurrentAlphaToColor(statColor));
-
-                Color iconColor = ship.Resupplying ? Color.Gray : fleetButton.Fleet.Owner.EmpireColor;
-
-                TacticalIcon icon = ship.TacticalIcon();
-                icon.Draw(batch, iconHousing, iconColor);
-            }
-        }
-
-        void DrawFleetShipIconsSums(SpriteBatch batch, FleetButton fleetButton, int x, int y)
-        {
-            Color color  = fleetButton.Fleet.Owner.EmpireColor;
-            Map<TacticalIcon, int> sums = new();
-            for (int i = 0; i < fleetButton.Fleet.Ships.Count; ++i)
-            {
-                Ship ship = fleetButton.Fleet.Ships[i];
-
-                TacticalIcon icon = ship.TacticalIcon();
-                if (sums.TryGetValue(icon, out int value))
-                    sums[icon] = value + 1;
-                else
-                    sums.Add(icon, 1);
-            }
-
-            Vector2 shipSpacingH = new(x, y);
-            int roleCounter = 1;
-            Color sumColor = Color.Goldenrod;
-            if (sums.Count > 12) // Switch to default sum views if too many icon sums
-            {
-                sums = ConvertToPrimaryIconSums(sums);
-                sumColor = Color.Gold;
-            }
-
-            foreach (TacticalIcon iconPair in sums.Keys.ToArr())
-            {
-                Rectangle iconHousing = new((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
-                string space = sums[iconPair] < 9 ? "  " : "";
-                string sum = $"{space}{sums[iconPair]}x";
-                batch.DrawString(Fonts.Arial10, sum, iconHousing.X, iconHousing.Y, sumColor);
-                float ident = Fonts.Arial10.MeasureString(sum).X;
-                shipSpacingH.X += ident;
-                iconHousing.X += (int)ident;
-
-                batch.Draw(iconPair.Primary, iconHousing, color);
-                if (iconPair.Secondary != null)
-                    batch.Draw(iconPair.Secondary, iconHousing, color);
-
-                shipSpacingH.X += 25f;
-                if (roleCounter % 4 == 0) // 4 roles per line
-                {
-                    shipSpacingH.X = x;
-                    shipSpacingH.Y += 15f;
-                }
-
-                ++roleCounter;
-            }
-
-            // Ignore secondary icons and returns only the hull role icons
-            Map<TacticalIcon, int> ConvertToPrimaryIconSums(Map<TacticalIcon, int> excessSums)
-            {
-                Map<TacticalIcon, int> recalculated = new();
-                foreach (TacticalIcon iconPair in excessSums.Keys.ToArr())
-                {
-                    int numShips = excessSums[iconPair];
-
-                    TacticalIcon primaryIcon = new(iconPair.Primary, null);
-                    if (recalculated.TryGetValue(primaryIcon, out int count))
-                        recalculated[primaryIcon] = count + numShips;
-                    else
-                        recalculated.Add(primaryIcon, numShips);
-                }
-                return recalculated;
-            }
-        }
-
         void DrawShipsAndProjectiles(SpriteBatch batch)
         {
             Ship[] ships = UState.Objects.VisibleShips;
@@ -983,9 +825,10 @@ namespace Ship_Game
 
         void DrawBombs()
         {
-            for (int i = BombList.Count - 1; i >= 0; --i)
+            Span<Bomb> bombs = BombList.AsSpan();
+            for (int i = bombs.Length - 1; i >= 0; --i)
             {
-                Bomb bomb = BombList[i];
+                Bomb bomb = bombs[i];
                 if (bomb?.Model != null)
                 {
                     Projectile.DrawMesh(this, bomb.Model, bomb.World, bomb.Texture.Texture, scale:25f);
@@ -1028,7 +871,7 @@ namespace Ship_Game
                 if (ship.AI.State == AIState.Colonize && ship.AI.ColonizeTarget != null)
                 {
                     Vector2d screenPos = DrawLineProjected(start, ship.AI.ColonizeTarget.Position, color, 2500f, 0);
-                    string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.ParentSystem.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
+                    string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.System.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
                     DrawPointerWithText(screenPos.ToVec2f(), ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.Loyalty.EmpireColor, alpha));
                     return;
                 }

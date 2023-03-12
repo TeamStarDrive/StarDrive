@@ -494,7 +494,7 @@ namespace Ship_Game
 
         bool TryGetNumBombersCanBomb(out Ship[] bombersList)
         {
-            bombersList = P.ParentSystem.ShipList.Filter(s => s.Loyalty == Player
+            bombersList = P.System.ShipList.Filter(s => s.Loyalty == Player
                                                          && s.BombBays.Count > 0
                                                          && s.Position.InRadius(P.Position, P.Radius + 15000f));
 

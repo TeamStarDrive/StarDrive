@@ -163,10 +163,10 @@ namespace Ship_Game.AI
                 }
                 else if (p.Owner == Us) //This should stay here.
                 {
-                    if (p.ParentSystem == null || DefenseDict.ContainsKey(p.ParentSystem))
+                    if (p.System == null || DefenseDict.ContainsKey(p.System))
                         continue;
 
-                    DefenseDict.Add(p.ParentSystem, new SystemCommander(this, p.ParentSystem, Us));
+                    DefenseDict.Add(p.System, new SystemCommander(this, p.System, Us));
                 }
             }
         }
@@ -393,7 +393,7 @@ namespace Ship_Game.AI
                         if ((troopAI.State == AIState.Rebase || troopAI.State == AIState.RebaseToShip)
                             && troopAI.OrderQueue.NotEmpty
                             && troopAI.OrderQueue.Any(goal =>
-                                goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.ParentSystem))
+                                goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.System))
                         {
                             currentTroops++;
                             kv.Value.TroopStrengthNeeded--;

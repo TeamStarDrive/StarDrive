@@ -318,7 +318,7 @@ namespace Microsoft.Xna.Framework
             return GraphicsDeviceManager == null || GraphicsDeviceManager.BeginDraw();
         }
 
-        protected virtual void Draw()
+        protected void DrawComponents()
         {
             for (int i = 0; i < DrawableComponents.Count; ++i)
             {
@@ -331,6 +331,11 @@ namespace Microsoft.Xna.Framework
                     drawingComponent.Draw();
             }
             CurrentlyDrawingComponents.Clear();
+        }
+
+        protected virtual void Draw()
+        {
+            DrawComponents();
         }
 
         protected virtual void EndDraw()

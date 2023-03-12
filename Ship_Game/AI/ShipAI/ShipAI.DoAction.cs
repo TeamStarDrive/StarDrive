@@ -585,7 +585,7 @@ namespace Ship_Game.AI
                 // find another friendly planet to land at
                 Owner.UpdateHomePlanet(Owner.Loyalty.FindNearestSpacePort(Owner.Position));
                 if (!Owner.IsHomeDefense // new home planet not found
-                    || Owner.HomePlanet.ParentSystem != Owner.System && !Owner.BaseCanWarp) // Cannot warp and its in another system
+                    || Owner.HomePlanet.System != Owner.System && !Owner.BaseCanWarp) // Cannot warp and its in another system
                 {
                     // Nowhere to land, bye bye.
                     ClearOrders(AIState.Scuttle);

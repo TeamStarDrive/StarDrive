@@ -423,8 +423,8 @@ namespace Ship_Game.Universe
             {
                 if (planet.Id <= 0)
                     throw new InvalidOperationException($"AddSolarSystem Planet.Id must be valid: {planet}");
-                if (planet.ParentSystem != system)
-                    throw new InvalidOperationException($"AddSolarSystem Planet.ParentSystem must be valid: {planet.ParentSystem} != {system}");
+                if (planet.System != system)
+                    throw new InvalidOperationException($"AddSolarSystem Planet.ParentSystem must be valid: {planet.System} != {system}");
 
                 PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
