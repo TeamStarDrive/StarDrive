@@ -8,8 +8,8 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
-using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.FleetDesign;
 using Ship_Game.Spatial;
 using Keys = SDGraphics.Input.Keys;
 using Vector2 = SDGraphics.Vector2;
@@ -185,19 +185,16 @@ namespace Ship_Game
             }
         }
 
-        void HandleFleetButtonClick(InputState input)
+        void OnFleetButtonClicked(FleetButton b)
         {
-            foreach (FleetButton fleetButton in FleetButtons)
+            Fleet f = Player?.GetFleetOrNull(b.FleetKey);
+            if (f != null)
             {
-                if (!fleetButton.ClickRect.HitTest(input.CursorPosition))
-                    continue;
+                SetSelectedFleet(f);
 
-                SetSelectedFleet(fleetButton.Fleet);
-
-                if (input.LeftMouseDoubleClick)
+                if (Input.LeftMouseDoubleClick)
                 {
-                    SnapViewFleet(fleetButton.Fleet);
-                    return;
+                    SnapViewFleet(f);
                 }
             }
         }
@@ -335,11 +332,6 @@ namespace Ship_Game
                 HandleInputLookingAtPlanet(input);
             }
 
-            if (input.InGameSelect && !input.IsShiftKeyDown && !pieMenu.Visible)
-            {
-                HandleFleetButtonClick(input);
-            }
-
             return false;
         }
 
@@ -409,7 +401,6 @@ namespace Ship_Game
             if (SelectedShipList.IsEmpty)
             {
                 selectedFleet?.Reset();
-                RecomputeFleetButtons(true);
                 return;
             }
 
@@ -418,8 +409,6 @@ namespace Ship_Game
 
             // create new fleet
             Fleet fleet = CreateNewFleet(index, SelectedShipList);
-
-            RecomputeFleetButtons(true);
             SetSelectedFleet(fleet);
         }
 
@@ -455,8 +444,6 @@ namespace Ship_Game
                 fleet.Name = Fleet.GetDefaultFleetName(index);
 
             fleet.Update(FixedSimTime.Zero /*paused during init*/);
-
-            RecomputeFleetButtons(true);
         }
 
         void ShowSelectedFleetInfo(Fleet selectedFleet)
@@ -1129,37 +1116,6 @@ namespace Ship_Game
                 ship.Fleet?.DataNodes.RemoveFirst(n => n.Ship == ship);
                 ship.ClearFleet(returnToManagedPools: false, clearOrders: false);
             }
-        }
-
-        // move to thread safe update
-        public void RecomputeFleetButtons(bool forceUpdate)
-        {
-            ++FBTimer;
-            if (FBTimer <= 60 && !forceUpdate)
-                return;
-            if (IsExiting)
-                return;
-
-            var buttons = new Array<FleetButton>();
-
-            // if we're showing debug window, move the fleet buttons down a bit
-            bool showingDebugTabs = Debug && DebugWin?.ModesTab.Visible == true;
-            int startY = showingDebugTabs ? 120 : 60;
-            int index = 0;
-            
-            var fleets = Player.ActiveFleets.ToArrayList().Sorted(f => f.Key);
-            foreach (Fleet fleet in fleets)
-            {
-                buttons.Add(new FleetButton
-                {
-                    ClickRect = new Rectangle(20, startY + index * 60, 52, 48),
-                    Fleet = fleet,
-                    Key = fleet.Key
-                });
-                ++index;
-            }
-            FBTimer = 0;
-            FleetButtons = buttons.ToArray();
         }
 
         Vector2 StartDragPos;

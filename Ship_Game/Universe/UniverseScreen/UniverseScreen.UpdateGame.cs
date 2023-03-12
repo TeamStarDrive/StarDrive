@@ -269,12 +269,6 @@ namespace Ship_Game
         /// <summary>Returns list of updated Empires</summary>
         Array<Empire> ProcessTurnEmpires(FixedSimTime timeStep)
         {
-            PreEmpirePerf.Start();
-            {
-                RecomputeFleetButtons(false);
-            }
-            PreEmpirePerf.Stop();
-
             Array<Empire> updated = null;
             if (!UState.Paused && IsActive)
             {
