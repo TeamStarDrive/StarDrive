@@ -5,15 +5,16 @@ using SDUtils;
 using static Ship_Game.Fleets.Fleet;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using Ship_Game.GameScreens.FleetDesign;
 
 namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen
     {
-        void InputSelectFleet(int whichFleet)
+        void InputSelectFleet(FleetButton b)
         {
             GameAudio.AffirmativeClick();
-            ChangeFleet(whichFleet);
+            ChangeFleet(b.FleetKey);
         }
         
         void OnDesignShipItemClicked(FleetDesignShipListItem item)

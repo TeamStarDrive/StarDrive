@@ -349,7 +349,7 @@ namespace Ship_Game
 
         void InitializeSolarSystems()
         {
-            anomalyManager = new AnomalyManager();
+            anomalyManager = new();
 
             foreach (SolarSystem system in UState.Systems)
             {
@@ -470,6 +470,7 @@ namespace Ship_Game
             RectF leftRect = new(20, 60, 200, 500);
             Add(new FleetButtonsList(leftRect, this, this,
                 onClick: OnFleetButtonClicked,
+                onHotKey: OnFleetHotKeyPressed,
                 isSelected: (b) => SelectedFleet?.Key == b.FleetKey
             ));
         }

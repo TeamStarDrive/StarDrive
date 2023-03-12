@@ -179,11 +179,12 @@ namespace Ship_Game
             TitlePos = new(titleRect.CenterX - titleFont.TextWidth("Fleet Hotkeys") / 2f,
                            titleRect.CenterY - titleFont.LineSpacing / 2f);
 
-            RectF leftRect = new(2, titleRect.Bottom + 5, titleRect.W, 500);
+            RectF leftRect = new(20, titleRect.Bottom + 5, titleRect.W, 500);
             LeftMenu = new(leftRect, true);
             
             Add(new FleetButtonsList(leftRect, this, Universe,
-                onClick: (b) => InputSelectFleet(b.FleetKey),
+                onClick: InputSelectFleet,
+                onHotKey: InputSelectFleet,
                 isSelected: (b) => SelectedFleet?.Key == b.FleetKey
             ));
 

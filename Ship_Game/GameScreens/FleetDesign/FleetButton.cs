@@ -17,7 +17,8 @@ public class FleetButton : UIPanel
     public bool FleetDesigner = true;
 
     public Action<FleetButton> OnClick;
-    public Func<FleetButton, bool> IsActive;
+    public Action<FleetButton> OnHotKey;
+    public Func<FleetButton, bool> IsSelected;
 
     public FleetButton(UniverseScreen us, int key, Vector2 size)
         : base(UI.LocalPos.Zero, size, Color.TransparentBlack)
@@ -26,32 +27,14 @@ public class FleetButton : UIPanel
         FleetKey = key;
     }
 
-    public static int InputFleetSelection(InputState input)
-    {
-        if (input.Fleet1) return 1;
-        if (input.Fleet2) return 2;
-        if (input.Fleet3) return 3;
-        if (input.Fleet4) return 4;
-        if (input.Fleet5) return 5;
-        if (input.Fleet6) return 6;
-        if (input.Fleet7) return 7;
-        if (input.Fleet8) return 8;
-        if (input.Fleet9) return 9;
-        return -1;
-    }
 
     public override bool HandleInput(InputState input)
     {
+        // handle mouse clicks only
         if (input.LeftMouseClick && HitTest(input.CursorPosition))
         {
             OnClick?.Invoke(this);
             return true;
-        }
-
-        // handle hotkey
-        if (InputFleetSelection(input) == FleetKey)
-        {
-            OnClick?.Invoke(this);
         }
         return base.HandleInput(input);
     }
@@ -60,93 +43,67 @@ public class FleetButton : UIPanel
     {
         base.Draw(batch, elapsed);
 
-        Fleet f = Screen.Player?.GetFleetOrNull(FleetKey);
+        Fleet f = Player?.GetFleetOrNull(FleetKey);
 
-        if (FleetDesigner)
+        // FleetDesigner: fleet can be null
+        // UniverseScreen: fleet cannot be null
+        if (FleetDesigner || f != null) 
         {
-            DrawOnFleetDesignScreen(batch, elapsed, f, RectF);
-        }
-        else if (f != null) // UniverseScreen
-        {
-            DrawOnUniverseScreen(batch, elapsed, f, RectF);
-        }
-    }
-
-    void DrawOnFleetDesignScreen(SpriteBatch batch, DrawTimes elapsed, Fleet f, RectF r)
-    {
-        bool isActive = IsActive(this);
-        var sel = new Selector(r, Color.TransparentBlack);
-        Color background = isActive ? new(0, 0, 255, 80) : Color.Black;
-        batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r, background);
-        sel.Draw(batch, elapsed);
-
-        if (f?.DataNodes.Count > 0)
-        {
-            RectF firect = new(r.X + 6, r.Y + 6, r.W - 12, r.W - 12);
-            batch.Draw(f.Icon, firect, Screen.Player.EmpireColor);
-            if (f.AutoRequisition)
-            {
-                RectF autoReq = new(firect.X + 54, firect.Y + 12, 20, 27);
-                var colorReq = Screen.ApplyCurrentAlphaToColor(Screen.Player.EmpireColor);
-                batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, colorReq);
-            }
-        }
-
-        Vector2 cursor = new(r.X + 4, r.Y + 4);
-        batch.DrawString(Fonts.Pirulen12, FleetKey.ToString(), cursor, Color.Orange);
-        cursor.X += (r.W + 5);
-        if (f != null)
-        {
-            batch.DrawString(Fonts.Pirulen12, f.Name, cursor, isActive ? Color.White : Color.Gray);
+            RectF r = RectF;
+            bool isSelected = IsSelected(this);
+            DrawBackground(batch, f, isSelected, r);
+            DrawIcon(batch, f, r);
+            DrawRequisitionIcon(batch, f, r);
+            DrawFleetKey(batch, isSelected, r);
             DrawFleetShipIcons(batch, f, r);
         }
     }
 
-    void DrawOnUniverseScreen(SpriteBatch batch, DrawTimes elapsed, Fleet fleet, RectF r)
+    void DrawBackground(SpriteBatch batch, Fleet f, bool isSelected, in RectF r)
     {
-        Selector buttonSelector = new(r, Color.TransparentBlack);
-        RectF housing = new(r.X + 6, r.Y + 6, r.W - 12, r.W - 12);
-
-        bool inCombat = fleet.IsAnyShipInCombat();
-        Font fleetFont = Fonts.Pirulen12;
-        Color fleetKey  = Color.Orange;
-        bool needShadow = false;
-        var keyPos = new Vector2(r.X + 4, r.Y + 4);
-        if (Screen.SelectedFleet == fleet)
-        {
-            fleetKey   = Color.White;
-            fleetFont  = Fonts.Pirulen16;
-            needShadow = true;
-            keyPos = new Vector2(keyPos.X, keyPos.Y - 2);
-        }
-
-        Color background = inCombat ? Screen.ApplyCurrentAlphaToColor(new(255, 0, 0)) : new( 0,  0,  0,  80);
+        bool inCombat = f?.IsAnyShipInCombat() == true;
+        Color background = isSelected ? new(50,50,100,160) : new(Color.Black, 80);
+        if (inCombat) background = Screen.ApplyCurrentAlphaToColor(Color.Red);
         batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r, background);
 
-        if (fleet.AutoRequisition)
-        {
-            RectF autoReq = new(r.X - 18, r.Y + 5, 15, 20);
-            batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, Player.EmpireColor);
-        }
-
-        buttonSelector.Draw(batch, elapsed);
-        batch.Draw(fleet.Icon, housing, Player.EmpireColor);
-        if (needShadow)
-            batch.DrawString(fleetFont, FleetKey.ToString(), new(keyPos.X + 2, keyPos.Y + 2), Color.Black);
-
-        batch.DrawString(fleetFont, FleetKey.ToString(), keyPos, fleetKey);
-        DrawFleetShipIcons(batch, fleet, r);
+        // draw the borders
+        new Selector(r, Color.TransparentBlack).Draw(batch, null);
     }
 
-    void DrawFleetShipIcons(SpriteBatch batch, Fleet fleet, RectF r)
+    void DrawIcon(SpriteBatch batch, Fleet f, in RectF r)
     {
-        float x = r.X + 55; // Offset from the button
-        float y = r.Y;
+        if (f != null)
+            batch.Draw(f.Icon, r.Bevel(-6), Player.EmpireColor);
+    }
 
-        if (fleet.Ships.Count <= 30)
-            DrawFleetShipIcons30(batch, fleet, x, y);
-        else
-            DrawFleetShipIconsSums(batch, fleet, x, y);
+    void DrawRequisitionIcon(SpriteBatch batch, Fleet f, in RectF r)
+    {
+        if (f.AutoRequisition)
+        {
+            RectF autoReq = new(r.X - 18, r.Y + 5, 15, 20);
+            Color colorReq = Screen.ApplyCurrentAlphaToColor(Player.EmpireColor);
+            batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, colorReq);
+        }
+    }
+
+    void DrawFleetKey(SpriteBatch batch, bool isSelected, in RectF r)
+    {
+        Font font = isSelected ? Fonts.Pirulen16 : Fonts.Pirulen12;
+        Color color = isSelected ? Color.White : Color.Orange;
+        Vector2 keyPos = isSelected ? new(r.X + 4, r.Y + 2) : new(r.X + 4, r.Y + 4);
+
+        string key = FleetKey.ToString();
+        if (isSelected) batch.DrawDropShadowText(key, keyPos, font, color);
+        else            batch.DrawString(font, key, keyPos, color);
+    }
+
+    void DrawFleetShipIcons(SpriteBatch batch, Fleet f, RectF r)
+    {
+        if (f != null)
+        {
+            if (f.Ships.Count <= 30) DrawFleetShipIcons30(batch, f, r.X + 55, r.Y);
+            else                     DrawFleetShipIconsSums(batch, f, r.X + 55, r.Y);
+        }
     }
 
     void DrawFleetShipIcons30(SpriteBatch batch, Fleet fleet, float x, float y)
