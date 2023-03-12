@@ -153,8 +153,15 @@ namespace Ship_Game
         // cleanupOnly: just delete the projectile without showing visual death effects
         public override void Die(GameObject source, bool cleanupOnly)
         {
-            Weapon?.ResetToggleSound();
-            base.Die(source, cleanupOnly);
+            // running into concurrency issues with this, so lock self
+            lock (this)
+            {
+                if (Active)
+                {
+                    Weapon?.ResetToggleSound();
+                    base.Die(source, cleanupOnly);
+                }
+            }
         }
 
         public static void UpdateBeamEffect(UniverseScreen u)
