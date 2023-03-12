@@ -251,9 +251,11 @@ namespace Ship_Game
             {
                 ExplosionManager.Update(this, timeStep.FixedTime);
 
-                for (int i = 0; i < BombList.Count; ++i)
+                Span<Bomb> bombs = BombList.AsSpan();
+                for (int i = bombs.Length - 1; i >= 0; --i)
                 {
-                    BombList[i]?.Update(timeStep);
+                    Bomb bomb = bombs[i];
+                    bomb?.Update(timeStep);
                 }
 
                 Shields?.Update(timeStep);

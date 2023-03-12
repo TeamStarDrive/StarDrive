@@ -57,7 +57,7 @@ namespace Ship_Game
             ShipHealthPercent = shipHealthPercent;
         }
 
-        public void DoImpact()
+        void DoImpact()
         {
             TargetPlanet.DropBomb(this);
             Owner.Universe.Screen.BombList.Remove(this);
@@ -126,11 +126,9 @@ namespace Ship_Game
         public void Update(FixedSimTime timeStep)
         {
             Position += Velocity * timeStep.FixedTime;
-            World    = Matrix.CreateTranslation(Position);
-                        //* Matrix.CreateRotationZ(Facing);
+            World = Matrix.CreateTranslation(Position);
 
             Vector3 planetPos = TargetPlanet.Position3D;
-
             float impactRadius = TargetPlanet.ShieldStrengthCurrent > 0f ? 100f : 30f;
             if (Position.InRadius(planetPos, PlanetRadius + impactRadius))
                 DoImpact();
