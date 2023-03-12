@@ -31,7 +31,7 @@ namespace Ship_Game
 
         Planet[] PotentialPlanetTargetsBorderWar(Empire enemy)
         {
-            var potentialPlanets = enemy.GetPlanets().Filter(p => p.ParentSystem.HasPlanetsOwnedBy(this)
+            var potentialPlanets = enemy.GetPlanets().Filter(p => p.System.HasPlanetsOwnedBy(this)
                                                                   && !HasWarMissionTargeting(p));
 
             return potentialPlanets;
@@ -219,7 +219,7 @@ namespace Ship_Game
 
         public bool HasWarTaskTargetingSystem(SolarSystem system)
         {
-            return AI.GetTasks().Any(t => t.IsWarTask && (t.TargetPlanet?.ParentSystem == system || t.TargetSystem == system));
+            return AI.GetTasks().Any(t => t.IsWarTask && (t.TargetPlanet?.System == system || t.TargetSystem == system));
         }
     }
 

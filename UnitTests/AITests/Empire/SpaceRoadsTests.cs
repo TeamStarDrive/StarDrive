@@ -20,7 +20,7 @@ namespace UnitTests.AITests.Empire
         void CreateSystemsAndPlanets(float distance)
         {
             CreateUniverseAndPlayerEmpire("Cordrazine");
-            AddHomeWorldToEmpire(new Vector2(1000), Player).ParentSystem.SetExploredBy(Player);
+            AddHomeWorldToEmpire(new Vector2(1000), Player).System.SetExploredBy(Player);
             UState.Objects.UpdateLists();
             AddDummyPlanetToEmpire(new Vector2(1000, distance), Player);
             System1 = Player.GetOwnedSystems()[0];

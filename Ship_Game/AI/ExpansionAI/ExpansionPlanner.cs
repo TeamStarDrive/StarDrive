@@ -40,7 +40,7 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 if (g is MarkForColonization c)
                 {
-                    float blocker = Owner.KnownEnemyStrengthIn(c.TargetPlanet.ParentSystem);
+                    float blocker = Owner.KnownEnemyStrengthIn(c.TargetPlanet.System);
                     if (blocker > Owner.CurrentMilitaryStrength / 10)
                         count++;
                 }
@@ -213,7 +213,7 @@ namespace Ship_Game.AI.ExpansionAI
             foreach (SolarSystem system in ownedSystems)
             {
                 foreach (Planet p in system.PlanetList)
-                    if (CanBeColonized(p) && Owner.KnownEnemyStrengthIn(p.ParentSystem) <= Owner.OffensiveStrength)
+                    if (CanBeColonized(p) && Owner.KnownEnemyStrengthIn(p.System) <= Owner.OffensiveStrength)
                         potentialPlanets.Add(p);
             }
             return potentialPlanets;
@@ -245,7 +245,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         public void CheckClaim(Empire thievingEmpire, Relationship thiefRelationship, Planet claimedPlanet)
         {
-            SolarSystem system = claimedPlanet.ParentSystem;
+            SolarSystem system = claimedPlanet.System;
             if (!Owner.isPlayer
                 && !Owner.IsFaction
                 && thievingEmpire != Owner
@@ -253,7 +253,7 @@ namespace Ship_Game.AI.ExpansionAI
                 && !thiefRelationship.AtWar
                 && system.HasPlanetsOwnedBy(thievingEmpire))
             {
-                bool warnedThem = thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.ParentSystem);
+                bool warnedThem = thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.System);
                 float distanceToUs   = system.Position.SqDist(Owner.WeightedCenter);
                 float distanceToThem = system.Position.SqDist(thievingEmpire.WeightedCenter) 
                                        * Owner.PersonalityModifiers.CloserToUsClaimWarn;

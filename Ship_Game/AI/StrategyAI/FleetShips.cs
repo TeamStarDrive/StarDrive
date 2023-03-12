@@ -337,7 +337,7 @@ namespace Ship_Game.AI
                     && t.Loyalty != null
                     && t.CanLaunch // save some iterations to find tiles for irrelevant troops
                     && !t.HostPlanet.RecentCombat
-                    && !t.HostPlanet.ParentSystem.DangerousForcesPresent(t.Loyalty)) 
+                    && !t.HostPlanet.System.DangerousForcesPresent(t.Loyalty)) 
                     return true;
                 return false;
             }))

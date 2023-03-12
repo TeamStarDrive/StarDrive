@@ -161,7 +161,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (!p.HasRings && !type.Clouds && !drawPlanetGlow)
                 return;
 
-            Vector3 sunToPlanet = (p.Position - p.ParentSystem.Position).ToVec3().Normalized();
+            Vector3 sunToPlanet = (p.Position - p.System.Position).ToVec3().Normalized();
 
             // tilted a bit differently than PlanetMatrix, and they constantly rotate
             Matrix cloudMatrix = default;
@@ -177,7 +177,7 @@ namespace Ship_Game.Universe.SolarBodies
                 FxPlanet.Texture = type.DiffuseTex;
                 // herp-derp, Specular and Normals not supported
 
-                var lights = p.ParentSystem.Lights;
+                var lights = p.System.Lights;
                 SetLight(FxPlanet.DirectionalLight0, sunToPlanet, lights[0]);
                 //SetLight(FxPlanet.DirectionalLight1, sunToPlanet, lights[1]);
                 //SetLight(FxPlanet.DirectionalLight2, sunToPlanet, lights[2]);

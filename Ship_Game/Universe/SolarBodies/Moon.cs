@@ -36,7 +36,7 @@ namespace Ship_Game.Gameplay
             : base(system.Universe.CreateId(), GameObjectType.SolarBody)
         {
             Active = true;
-            System = system;
+            SetSystem(system);
             OrbitPlanet = orbitPlanet;
             MoonId = moon;
             MoonScale = moonScale;

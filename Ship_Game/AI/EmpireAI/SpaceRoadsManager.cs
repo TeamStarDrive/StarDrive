@@ -242,7 +242,7 @@ namespace Ship_Game.AI
                     if (colonizationGoal?.PlanetBuildingAt != null)
                     {
                         Owner.AI.AddGoal(new ProjectorBridge(ship.System,
-                            colonizationGoal.PlanetBuildingAt.ParentSystem.Position, Owner));
+                            colonizationGoal.PlanetBuildingAt.System.Position, Owner));
 
                         return true;
                     }
@@ -262,7 +262,7 @@ namespace Ship_Game.AI
                         if (goal?.Trade != null)
                         {
                             Owner.AI.AddGoal(new ProjectorBridge(ship.System,
-                                goal.Trade.ExportFrom.ParentSystem.Position, Owner));
+                                goal.Trade.ExportFrom.System.Position, Owner));
 
                             return;
                         }

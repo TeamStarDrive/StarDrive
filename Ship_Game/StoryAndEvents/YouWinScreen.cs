@@ -47,7 +47,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            ScreenManager.GraphicsDevice.Clear(Color.Black);
+            ScreenManager.ClearScreen(Color.Black);
 
             batch.SafeBegin(SpriteBlendMode.None, sortImmediate:true);
             if (desaturateEffect != null)

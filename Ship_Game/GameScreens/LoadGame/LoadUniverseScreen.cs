@@ -83,7 +83,7 @@ namespace Ship_Game
             if (!GameBase.Base.IsDeviceGood)
                 return; // device is unavailable
 
-            Device.Clear(Color.Black);
+            ScreenManager.ClearScreen(Color.Black);
             if (!batch.SafeBegin())
                 return; // something failed bad
 

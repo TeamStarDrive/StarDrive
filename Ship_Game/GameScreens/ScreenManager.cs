@@ -457,6 +457,14 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Clears the screen before rendering new content
+        /// </summary>
+        public void ClearScreen(Color color)
+        {
+            GraphicsDevice.Clear(color);
+        }
+
         public void LoadContent(bool deviceWasReset)
         {
             Log.Write("ScreenManager.LoadContent");

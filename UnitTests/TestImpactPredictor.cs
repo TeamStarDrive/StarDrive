@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Threading;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Gameplay;
@@ -16,6 +15,10 @@ namespace UnitTests
         static readonly Vector2 Zero    = new Vector2(0,0);
         static readonly Vector2 ZeroVel = new Vector2(0,0);
         static readonly Vector2 ZeroAcc = new Vector2(0,0);
+
+        public TestImpactPredictor()
+        {
+        }
 
         [TestMethod]
         public void TimeToTarget()
@@ -291,6 +294,48 @@ namespace UnitTests
             s2.TestAndSimulate(0, 250, 200);
             s2.TestAndSimulate(-70, 321, 120);
             s2.TestAndSimulate(-1613, 1863, 60);
+        }
+
+        [TestMethod]
+        [Ignore]
+        public void UsDoingAFlyBy()
+        {
+            //terminal velocity formula, v = the square root of ((2*m*g)/(ρ*A*C)).
+            //    m = mass of the falling object.
+            //    g = the acceleration due to gravity.
+            //    ρ = the density of the fluid the object is falling through.
+            //    A = the projected area of the object.
+            //    C = the drag coefficient.
+            float mass = 0.5f;
+            float density = 1.225f; // air density = 1.225kg/m^3
+            float area = 0.05f * 0.05f;
+            float dragCoefficient = 0.35f; // a relatively smooth bullet or a golf ball Cd
+            float terminalVelocity = (float)Math.Sqrt((2 * mass * 9.8f) / (density*area*dragCoefficient));
+            
+            //   * ----->   Us flying past Them(stationary)
+            //
+            //       * Them
+            Scenario s1 = new(tgt:Pos(0, 0), us:Pos(-80, -100), 
+                              tgtVel:Zero, usVel:new(10, 0));
+
+            SimParameters sim = new()
+            {
+                SimSpeed = 1f,
+                Duration = 20f,
+                ProjVelStart = s1.UsVel,
+                ProjAcc = new(0f, 9.8f),
+                ProjVelMax = terminalVelocity,
+
+                UsRadius = 2.0f,
+                ThemRadius = 2.0f,
+                ProjectileRadius = 0.05f,
+
+                SimBombDrop = true,
+                Bounds = AABoundingBox2D.FromIrregularPoints(Pos(-100,-100),Pos(100,20))
+            };
+            
+            s1.SimulateImpact(sim);
+            //s1.SimulateImpact(0, 100, terminalVelocity, sim: sim);
         }
     }
 }

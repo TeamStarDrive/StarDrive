@@ -33,7 +33,6 @@ public class PerfDebug : DebugPage
         sim.AddSubItem(new DebugStatItem("NumTurns", () => s.ProcessSimTurnsPerf.MeasuredSamples.ToString()));
 
         var turn = Stats.AddItem(new("Turn", s.TurnTimePerf, true));
-        turn.AddSubItem(new DebugStatItem("PreEmp", s.PreEmpirePerf, s.TurnTimePerf));
         turn.AddSubItem(new DebugStatItem("Empire", s.EmpireUpdatePerf, s.TurnTimePerf));
         turn.AddSubItem(new DebugStatItem("Influence", s.EmpireInfluPerf, s.TurnTimePerf));
         turn.AddSubItem(new DebugStatItem(" ResetBorders", s.ResetBordersPerf, s.EmpireInfluPerf));

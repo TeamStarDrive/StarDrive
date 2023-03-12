@@ -195,7 +195,7 @@ namespace Ship_Game.Ships
                             Loyalty.AI.SendExplorationFleet(p);
                             if (Universe.P.Difficulty > GameDifficulty.Hard 
                                 && PlanetRanker.IsGoodValueForUs(p, Loyalty)
-                                && Loyalty.KnownEnemyStrengthIn(p.ParentSystem) == 0)
+                                && Loyalty.KnownEnemyStrengthIn(p.System) == 0)
                             {
                                 var task = MilitaryTask.CreateGuardTask(Loyalty, p);
                                 Loyalty.AI.AddPendingTask(task);
