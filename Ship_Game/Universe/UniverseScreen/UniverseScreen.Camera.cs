@@ -157,6 +157,16 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
+        public void SnapViewFleet(Fleet fleet)
+        {
+            ViewingShip = false;
+            AdjustCamTimer = 0.5f;
+            CamDestination = fleet.AveragePosition().ToVec3d(CamDestination.Z);
+
+            if (CamPos.Z <= 1_000_000)
+                CamDestination.Z = GetZfromScreenState(UnivScreenState.PlanetView);
+        }
+
         void ViewSystem(SolarSystem s)
         {
             SnapViewTo(new(s.Position, 147000f), 3f, 1f);
