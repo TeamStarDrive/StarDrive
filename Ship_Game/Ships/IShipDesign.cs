@@ -113,6 +113,7 @@ public interface IShipDesign
     bool  BaseCanWarp    { get; }
     float BaseMass       { get; }
     float BaseCargoSpace { get; }
+    float BaseResearchPerTurn { get; }
 
     // specific ship type stats
     float StartingColonyGoods { get; }

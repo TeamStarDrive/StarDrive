@@ -222,6 +222,7 @@ namespace Ship_Game.AI
                     planetToTether.TryRemoveExcessOrbital(orbital);
             }
 
+            UpdateResearchStationGoal(orbital, bg.TargetPlanet, Owner.System);
             Owner.QueueTotalRemoval();
             if (g.Goal.OldShip?.Active == true) // we are refitting something
                 g.Goal.OldShip.QueueTotalRemoval();
@@ -253,12 +254,25 @@ namespace Ship_Game.AI
                 orbital.Position = g.Goal.BuildPosition;
                 orbital.TetherToPlanet(target);
                 target.OrbitalStations.Add(orbital);
+                UpdateResearchStationGoal(orbital, target, Owner.System);
                 Owner.QueueTotalRemoval();
                 if (g.Goal.OldShip?.Active == true) // we are refitting something
                     g.Goal.OldShip.QueueTotalRemoval();
                 else 
                     target.TryRemoveExcessOrbital(orbital);
             }
+        }
+
+        void UpdateResearchStationGoal(Ship orbital, Planet planet, SolarSystem system)
+        {
+            if (!orbital.IsResearchStation)
+                return;
+
+            var goal = planet != null ? Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(planet))
+                                      : Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(system));
+
+            if (goal != null) 
+                goal.TargetShip = orbital;
         }
 
         public void DoExplore(FixedSimTime timeStep)

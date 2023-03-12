@@ -463,8 +463,9 @@ namespace Ship_Game
             {
                 if (Player.AI.HasGoal(g => g.IsResearchStationGoal(P)))
                     Player.AI.CancelResearchStation(P);
-                //else
-                 //   Player.AI.AddGoal(new ResearchStation())
+                else
+                    Player.AI.AddGoal(new ResearchStation(Player, P));
+
                 GameAudio.EchoAffirmative();
             }
 
