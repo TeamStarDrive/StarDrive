@@ -18,7 +18,7 @@ namespace Ship_Game.Ships
 
         private readonly UniverseScreen Universe;
         Empire Player => Universe.Player;
-        public Ship Ship;
+        Ship Ship;
         private readonly Selector Sel;
         public Rectangle LeftRect;
         public Rectangle RightRect;
@@ -55,7 +55,11 @@ namespace Ship_Game.Ships
             RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
             int spacing = 2;
             ShipNameArea = new UITextEntry(Housing.X + 41, Housing.Y + 65, 200, Fonts.Arial14Bold, "");
-            ShipNameArea.OnTextChanged = (text) => Ship.VanityName = text;
+            ShipNameArea.OnTextChanged = (text) =>
+            {
+                if (Ship != null)
+                    Ship.VanityName = text;
+            };
             ShipNameArea.Color = tColor;
             
             Power = new Rectangle(Housing.X + 187, Housing.Y + 110, 20, 20);
@@ -100,7 +104,8 @@ namespace Ship_Game.Ships
         }
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            if (Universe.SelectedShip == null)
+            Ship s = Ship;
+            if (Universe.SelectedShip == null || s?.ShipData == null)
                 return;  //fbedard
 
             float transitionOffset = 0f.SmoothStep(1f, TransitionPosition);
@@ -111,46 +116,45 @@ namespace Ship_Game.Ships
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             GridButton.Draw(batch, elapsed);
 
-            var namePos       = new Vector2(Housing.X + 30, Housing.Y + 63);
-            var shipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
+            Vector2 namePos       = new(Housing.X + 30, Housing.Y + 63);
+            Vector2 shipSuperName = new(Housing.X + 30, Housing.Y + 79);
             ShipNameArea.SetPos(namePos);
             ShipNameArea.Draw(batch, elapsed);
 
             //Added by McShooterz:
-            //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
-            string longName = string.Concat(Ship.Name, " - ", Localizer.GetRole(Ship.DesignRole, Ship.Loyalty));
-            if (Ship.ShipData.ShipCategory != ShipCategory.Unclassified)
-                longName += " - "+Ship.ShipData.ShipCategory;
+            string longName = s.Name + " - " + Localizer.GetRole(s.DesignRole, s.Loyalty);
+            if (s.ShipData.ShipCategory != ShipCategory.Unclassified)
+                longName += " - "+s.ShipData.ShipCategory;
 
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
 
             var shipStatus = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64).ToFloored();
-            string text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(Ship), 120);
+            string text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(s), 120);
             batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
 
-            Ship.RenderOverlay(batch, ShipInfoRect, ShowModules);
+            s.RenderOverlay(batch, ShipInfoRect, ShowModules);
             batch.Draw(ResourceManager.Texture("Modules/NuclearReactorMedium"), Power, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Shield_1KW"), Shields, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
 
-            PBar.Max      = Ship.PowerStoreMax;
-            PBar.Progress = Ship.PowerCurrent;
-            SBar.Max      = Ship.ShieldMax;
-            SBar.Progress = Ship.ShieldPower;
-            OBar.Max      = Ship.OrdinanceMax;
-            OBar.Progress = Ship.Ordinance;
+            PBar.Max      = s.PowerStoreMax;
+            PBar.Progress = s.PowerCurrent;
+            SBar.Max      = s.ShieldMax;
+            SBar.Progress = s.ShieldPower;
+            OBar.Max      = s.OrdinanceMax;
+            OBar.Progress = s.Ordinance;
             PBar.Draw(batch);
             SBar.Draw(batch);
             OBar.Draw(batch);
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
             var defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            float totalBoardingDefense = Ship.MechanicalBoardingDefense + Ship.TroopBoardingDefense;
+            float totalBoardingDefense = s.MechanicalBoardingDefense + s.TroopBoardingDefense;
             batch.DrawString(Fonts.Arial12Bold, totalBoardingDefense.String(0), defPos, Color.White);
             batch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
-            DrawTroopStatus();
+            DrawTroopStatus(s);
             OrdersButtons.Draw(batch, elapsed);
             //fbedard: Display race icon
-            batch.Draw(ResourceManager.Flag(Ship.Loyalty), FlagRect, Ship.Loyalty.EmpireColor);
+            batch.Draw(ResourceManager.Flag(s.Loyalty), FlagRect, s.Loyalty.EmpireColor);
 
             Vector2 mousePos = Universe.Input.CursorPosition;
 
@@ -158,7 +162,7 @@ namespace Ship_Game.Ships
             var star     = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
             var levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
-            batch.DrawString(Fonts.Arial12Bold, Ship.Level.ToString(), levelPos, Color.White);
+            batch.DrawString(Fonts.Arial12Bold, s.Level.ToString(), levelPos, Color.White);
             if (star.HitTest(mousePos))
                 ToolTip.CreateTooltip(GameText.IndicatesAShipsExperienceLevel2);
 
@@ -167,22 +171,22 @@ namespace Ship_Game.Ships
             levelPos   = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             StatusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             batch.Draw(ResourceManager.Texture("UI/icon_kills_shipUI"), star, Color.White);
-            batch.DrawString(Fonts.Arial12Bold, Ship.Kills.ToString(), levelPos, Color.White);
+            batch.DrawString(Fonts.Arial12Bold, s.Kills.ToString(), levelPos, Color.White);
             int numStatus = 0;
 
             // FB - limit data display to non player ships
-            if (HelperFunctions.DataVisibleToPlayer(Ship.Loyalty))
+            if (HelperFunctions.DataVisibleToPlayer(s.Loyalty))
             {
-                DrawCarrierStatus(mousePos);
-                DrawResupplyReason(batch, Ship);
-                DrawRadiationDamageWarning(Ship);
-                DrawPack(batch, mousePos, ref numStatus);
-                DrawFTL(batch, mousePos, ref numStatus);
-                DrawInhibited(batch, mousePos, ref numStatus);
-                DrawEmp(batch, mousePos, ref numStatus);
-                DrawStructuralIntegrity(batch, mousePos, ref numStatus);
+                DrawCarrierStatus(mousePos, s);
+                DrawResupplyReason(batch, s);
+                DrawRadiationDamageWarning(s);
+                DrawPack(batch, mousePos, s, ref numStatus);
+                DrawFTL(batch, mousePos, s, ref numStatus);
+                DrawInhibited(batch, mousePos, s, ref numStatus);
+                DrawEmp(batch, mousePos, s, ref numStatus);
+                DrawStructuralIntegrity(batch, mousePos, s, ref numStatus);
             }
-            DrawCargoUsed(batch, mousePos, ref numStatus);
+            DrawCargoUsed(batch, mousePos, s, ref numStatus);
         }
 
         void DrawIconWithTooltip(SpriteBatch batch, SubTexture icon, Func<string> tooltip, Vector2 mousePos, Color color, int numStatus)
@@ -192,17 +196,17 @@ namespace Ship_Game.Ships
             if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
         }
 
-        void DrawPack(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        void DrawPack(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
             SubTexture iconPack = ResourceManager.Texture("StatusIcons/icon_pack");
 
-            if (!Ship.Loyalty.data.Traits.Pack)
+            if (!ship.Loyalty.data.Traits.Pack)
                 return;
 
             var packRect = new Rectangle((int)StatusArea.X, (int)StatusArea.Y, 48, 32);
             batch.Draw(iconPack, packRect, Color.White);
             var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
-            float damageModifier = Ship.PackDamageModifier * 100f;
+            float damageModifier = ship.PackDamageModifier * 100f;
             batch.DrawString(Fonts.Arial12, damageModifier.ToString("0")+"%", textPos, Color.White);
             if (packRect.HitTest(mousePos))
                 ToolTip.CreateTooltip(Localizer.Token(GameText.IndicatesThisShipsCurrentBonus));
@@ -210,28 +214,28 @@ namespace Ship_Game.Ships
             numStatus++;
         }
 
-        void DrawFTL(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        void DrawFTL(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
             SubTexture iconBoosted = ResourceManager.Texture("StatusIcons/icon_boosted");
-            if (Ship.FTLModifier < 1f && !Ship.Inhibited)
+            if (ship.FTLModifier < 1f && !ship.Inhibited)
             {
                 DrawIconWithTooltip(batch, iconBoosted,
-                    () => $"{Localizer.Token(GameText.FtlSpeedReducedInThis)}{1f-Ship.FTLModifier:P0}\n\nEngine State: {Ship.WarpState}",
+                    () => $"{Localizer.Token(GameText.FtlSpeedReducedInThis)}{1f-ship.FTLModifier:P0}\n\nEngine State: {ship.WarpState}",
                     mousePos, Color.PaleVioletRed, numStatus);
             }
 
-            if (Ship.FTLModifier >= 1f && !Ship.Inhibited && Ship.engineState == Ship.MoveState.Warp)
+            if (ship.FTLModifier >= 1f && !ship.Inhibited && ship.engineState == Ship.MoveState.Warp)
             {
                 DrawIconWithTooltip(batch, iconBoosted,
-                    () => $"{Localizer.Token(GameText.FtlSpeedIncreasedInThis)}{Ship.FTLModifier-1f:P0}\n\nEngine State: FTL",
+                    () => $"{Localizer.Token(GameText.FtlSpeedIncreasedInThis)}{ship.FTLModifier-1f:P0}\n\nEngine State: FTL",
                     mousePos, Color.LightGreen, numStatus);
             }
             numStatus++;
         }
 
-        void DrawEmp(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        void DrawEmp(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
-            if (!Ship.EMPDisabled)
+            if (!ship.EMPDisabled)
                 return;
 
             SubTexture iconDisabled = ResourceManager.Texture("StatusIcons/icon_disabled");
@@ -239,14 +243,14 @@ namespace Ship_Game.Ships
                 Color.White, numStatus);
 
             var textPos    = new Vector2((int)StatusArea.X + 25 + numStatus * 53, (int)StatusArea.Y);
-            float empState = Ship.EMPDamage / Ship.EmpTolerance;
+            float empState = ship.EMPDamage / ship.EmpTolerance;
             batch.DrawString(Fonts.Arial12, empState.String(1), textPos, Color.White);
             numStatus++;
         }
 
-        void DrawStructuralIntegrity(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        void DrawStructuralIntegrity(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
-            if (Ship.HealthPercent > 0.999f)
+            if (ship.HealthPercent > 0.999f)
                 return;
 
             SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
@@ -254,24 +258,24 @@ namespace Ship_Game.Ships
                 Color.White, numStatus);
 
             var textPos = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
-            int health = (int)(Ship.HealthPercent * 100);
+            int health = (int)(ship.HealthPercent * 100);
 
-            float repairPerSec = Ship.CurrentRepairPerSecond;
-            float timeUntilRepaired = (Ship.HealthMax - Ship.Health) / repairPerSec;
+            float repairPerSec = ship.CurrentRepairPerSecond;
+            float timeUntilRepaired = (ship.HealthMax - ship.Health) / repairPerSec;
             string integrityText = $"{health}% (+{(int)repairPerSec}HP/s ETA:{timeUntilRepaired.TimeString()})";
             batch.DrawString(Fonts.Arial12, integrityText, textPos, Color.White);
             numStatus++;
         }
 
-        void DrawInhibited(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        void DrawInhibited(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
-            if (!Ship.Inhibited)
+            if (!ship.Inhibited)
                 return;
 
             SubTexture icon;
             GameText text;
 
-            switch (Ship.InhibitionSource)
+            switch (ship.InhibitionSource)
             {
                 case Ship.InhibitionType.GlobalEvent:
                     {
@@ -283,7 +287,7 @@ namespace Ship_Game.Ships
                     {
                         icon = ResourceManager.Texture("StatusIcons/icon_gravwell");
                         text = GameText.IndicatesThatThisShipCannot4;
-                        DrawInhibitWarning(batch, numStatus, mousePos);
+                        DrawInhibitWarning(batch, numStatus, mousePos, ship);
                         break;
                     }
                 case Ship.InhibitionType.EnemyShip:
@@ -300,7 +304,7 @@ namespace Ship_Game.Ships
             numStatus++;
         }
 
-        void DrawInhibitWarning(SpriteBatch batch, int numStatus, Vector2 mousePos)
+        void DrawInhibitWarning(SpriteBatch batch, int numStatus, Vector2 mousePos, Ship ship)
         {
             if (Universe.UState.P.DisableInhibitionWarning || Universe.ShowingFTLOverlay)
                 return;
@@ -313,17 +317,17 @@ namespace Ship_Game.Ships
             if (rect.HitTest(mousePos))
                 ToolTip.CreateTooltip(GameText.ThisShipIsInhibitedAnd);
 
-            Planet p = Ship.System?.IdentifyGravityWell(Ship);
+            Planet p = ship.System?.IdentifyGravityWell(ship);
             if (p != null)
                 Universe.DrawCircleProjected(p.Position, p.GravityWellRadius, Universe.CurrentFlashColorRed);
         }
 
-        void DrawCargoUsed(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        void DrawCargoUsed(SpriteBatch batch, Vector2 mousePos, Ship ship, ref int numStatus)
         {
-            if (Ship.CargoSpaceUsed.AlmostZero()) 
+            if (ship.CargoSpaceUsed.AlmostZero()) 
                 return;
 
-            foreach (Cargo cargo in Ship.EnumLoadedCargo())
+            foreach (Cargo cargo in ship.EnumLoadedCargo())
             {
                 SubTexture texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
                 var goodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 32, 32);
@@ -391,33 +395,33 @@ namespace Ship_Game.Ships
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, radiationTextPos, Color.Red);
         }
 
-        void DrawTroopStatus() // Expanded by Fat Bastard
+        void DrawTroopStatus(Ship s) // Expanded by Fat Bastard
         {
             var troopPos     = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            int playerTroops = Ship.NumPlayerTroopsOnShip;
-            int enemyTroops  = Ship.NumAiTroopsOnShip;
+            int playerTroops = s.NumPlayerTroopsOnShip;
+            int enemyTroops  = s.NumAiTroopsOnShip;
             int allTroops    = playerTroops + enemyTroops;
-            if (Ship.TroopsAreBoardingShip)
+            if (s.TroopsAreBoardingShip)
             {
                 DrawHorizontalValues(enemyTroops, Color.Red, ref troopPos, withSlash: false);
                 DrawHorizontalValues(playerTroops, Color.LightGreen, ref troopPos);
             }
             else
             {
-                Color statusColor = Ship.Loyalty == Player ? Color.LightGreen : Color.Red;
+                Color statusColor = s.Loyalty == Player ? Color.LightGreen : Color.Red;
                 DrawHorizontalValues(allTroops, statusColor, ref troopPos, withSlash: false);
             }
 
-            DrawHorizontalValues(Ship.TroopCapacity, Color.White, ref troopPos);
-            if (Ship.Carrier.HasActiveTroopBays)
-                DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles, Color.CadetBlue, ref troopPos);
+            DrawHorizontalValues(s.TroopCapacity, Color.White, ref troopPos);
+            if (s.Carrier.HasActiveTroopBays)
+                DrawHorizontalValues(s.Carrier.AvailableAssaultShuttles, Color.CadetBlue, ref troopPos);
         }
 
-        void DrawCarrierStatus(Vector2 mousePos)  // Added by Fat Bastard - display hangar status
+        void DrawCarrierStatus(Vector2 mousePos, Ship ship)  // Added by Fat Bastard - display hangar status
         {
-            if (Ship.Carrier.AllFighterHangars?.Length > 0)
+            if (ship.Carrier.AllFighterHangars?.Length > 0)
             {
-                CarrierBays.HangarInfo currentHangarStatus = Ship.Carrier.GrossHangarStatus;
+                CarrierBays.HangarInfo currentHangarStatus = ship.Carrier.GrossHangarStatus;
                 var hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
                 if (hangarRect.HitTest(mousePos))
                     ToolTip.CreateTooltip(Localizer.Token(GameText.ThisShowsTheHangarStatus));
@@ -450,11 +454,6 @@ namespace Ship_Game.Ships
                 return false;
             }
 
-            if (FlagRect.HitTest(input.CursorPosition))
-            {
-                ToolTip.CreateTooltip(Ship.Loyalty.Name);
-            }
-
             if (SlidingElement.HandleInput(input))
             {
                 State = SlidingElement.Open ? ElementState.TransitionOn : ElementState.TransitionOff;
@@ -477,17 +476,23 @@ namespace Ship_Game.Ships
                 }
                 return true;
             }
-
-            if (Ship == null)
+            
+            Ship s = Ship;
+            if (s == null)
                 return false;
+            
+            if (FlagRect.HitTest(input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(s.Loyalty.Name);
+            }
 
             if (input.LeftMouseDoubleClick && ShipInfoRect.HitTest(input.CursorPosition))
             {
                 // TODO: should not modify UniverseScreen state directly
                 Universe.ViewingShip = false;
                 Universe.AdjustCamTimer = 0.5f;
-                Universe.CamDestination.X = Ship.Position.X;
-                Universe.CamDestination.Y = Ship.Position.Y;
+                Universe.CamDestination.X = s.Position.X;
+                Universe.CamDestination.Y = s.Position.Y;
                 if (Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
                     Universe.CamDestination.Z = Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
             }
@@ -517,7 +522,7 @@ namespace Ship_Game.Ships
 
         public void SetShip(Ship s)
         {
-            if (Ship == s)
+            if (Ship == s || s == null)
                 return;
 
             Ship = s;
@@ -526,25 +531,25 @@ namespace Ship_Game.Ships
             ShipNameArea.Reset(s.ShipName);
 
             Orders.Clear();
-            OrdersButtons.ResetButtons(Ship);
-            if (Ship.Loyalty != Player)
+            OrdersButtons.ResetButtons(s);
+            if (s.Loyalty != Player)
                 return;
 
-            if (Ship.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
+            if (s.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
-            if (Ship.ShipData.Role > RoleName.station && !Ship.IsConstructor)
+            if (s.ShipData.Role > RoleName.station && !s.IsConstructor)
             {
-                OrdersButton resupply = new(Ship, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
+                OrdersButton resupply = new(s, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
                 {
-                    ValueToModify = new(() => Ship.DoingResupply, x => Ship.DoingResupply = x)
+                    ValueToModify = new(() => s.DoingResupply, x => s.DoingResupply = x)
                 };
                 Orders.Add(resupply);
             }
 
-            if (Ship.IsFreighter)
+            if (s.IsFreighter)
             {
-                var ao = new OrdersButton(Ship, OrderType.DefineAO, GameText.AllowsYouToCustomizeAn)
+                var ao = new OrdersButton(s, OrderType.DefineAO, GameText.AllowsYouToCustomizeAn)
                 {
                     ValueToModify = new(() => Universe.DefiningAO, x => {
                         Universe.DefiningAO = x;
@@ -552,97 +557,97 @@ namespace Ship_Game.Ships
                     })
                 };
                 Orders.Add(ao);
-                var tradeFood = new OrdersButton(Ship, OrderType.TradeFood, GameText.ManualTradeOrdersThisFreighter2)
+                var tradeFood = new OrdersButton(s, OrderType.TradeFood, GameText.ManualTradeOrdersThisFreighter2)
                 {
-                    ValueToModify = new(() => Ship.TransportingFood),
+                    ValueToModify = new(() => s.TransportingFood),
                 };
                 Orders.Add(tradeFood);
-                var tradeProduction = new OrdersButton(Ship, OrderType.TradeProduction, GameText.ManualTradeOrdersThisFreighter3)
+                var tradeProduction = new OrdersButton(s, OrderType.TradeProduction, GameText.ManualTradeOrdersThisFreighter3)
                 {
-                    ValueToModify = new(() => Ship.TransportingProduction)
+                    ValueToModify = new(() => s.TransportingProduction)
                 };
                 Orders.Add(tradeProduction);
-                var transportColonists = new OrdersButton(Ship, OrderType.TransportColonists, GameText.ManualTradeOrdersThisFreighter)
+                var transportColonists = new OrdersButton(s, OrderType.TransportColonists, GameText.ManualTradeOrdersThisFreighter)
                 {
-                    ValueToModify = new(() => Ship.TransportingColonists)
+                    ValueToModify = new(() => s.TransportingColonists)
                 };
                 Orders.Add(transportColonists);
-                var allowInterEmpireTrade = new OrdersButton(Ship, OrderType.AllowInterTrade, GameText.ManualTradeAllowSelectedFreighters)
+                var allowInterEmpireTrade = new OrdersButton(s, OrderType.AllowInterTrade, GameText.ManualTradeAllowSelectedFreighters)
                 {
-                    ValueToModify = new(() => Ship.AllowInterEmpireTrade)
+                    ValueToModify = new(() => s.AllowInterEmpireTrade)
                 };
                 Orders.Add(allowInterEmpireTrade);
-                var tradeRoutes = new OrdersButton(Ship, OrderType.DefineTradeRoutes, GameText.ChooseAListOfPlanets)
+                var tradeRoutes = new OrdersButton(s, OrderType.DefineTradeRoutes, GameText.ChooseAListOfPlanets)
                 {
                     ValueToModify = new(() => Universe.DefiningTradeRoutes, x => { Universe.DefiningTradeRoutes = x; })
                 };
                 Orders.Add(tradeRoutes);
             }
-            if (Ship.Carrier.HasTroopBays)
+            if (s.Carrier.HasTroopBays)
             {
-                var ob = new OrdersButton(Ship, OrderType.SendTroops, GameText.SendTroopsToThisShip)
+                var ob = new OrdersButton(s, OrderType.SendTroops, GameText.SendTroopsToThisShip)
                 {
-                    ValueToModify = new(() => Ship.Carrier.SendTroopsToShip)
+                    ValueToModify = new(() => s.Carrier.SendTroopsToShip)
                 };
                 Orders.Add(ob);
 
-                var ob2 = new OrdersButton(Ship, OrderType.TroopToggle, GameText.TogglesWhetherThisShipsAssault)
+                var ob2 = new OrdersButton(s, OrderType.TroopToggle, GameText.TogglesWhetherThisShipsAssault)
                 {
-                    ValueToModify = new(() => Ship.Carrier.TroopsOut, x => {
-                        Ship.Carrier.TroopsOut = !Ship.Carrier.TroopsOut;
+                    ValueToModify = new(() => s.Carrier.TroopsOut, x => {
+                        s.Carrier.TroopsOut = !s.Carrier.TroopsOut;
                     })
                 };
                 Orders.Add(ob2);
             }
 
-            if (Ship.Carrier.HasFighterBays)
+            if (s.Carrier.HasFighterBays)
             {
-                var ob = new OrdersButton(Ship, OrderType.FighterToggle, GameText.WhenActiveAllAvailableFighters)
+                var ob = new OrdersButton(s, OrderType.FighterToggle, GameText.WhenActiveAllAvailableFighters)
                 {
-                    ValueToModify = new(() => Ship.Carrier.FightersOut, x =>
+                    ValueToModify = new(() => s.Carrier.FightersOut, x =>
                     {
-                        Ship.Carrier.FightersOut = !Ship.Carrier.FightersOut;
+                        s.Carrier.FightersOut = !s.Carrier.FightersOut;
                     })
                 };
                 Orders.Add(ob);
             }
 
-            if (Ship.ShipData.Role != RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.HasFighterBays))
+            if (s.ShipData.Role != RoleName.station && (s.Carrier.HasTroopBays || s.Carrier.HasFighterBays))
             {
-                var ob2 = new OrdersButton(Ship, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
+                var ob2 = new OrdersButton(s, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
                 {
-                    ValueToModify = new(() => Ship.Carrier.RecallFightersBeforeFTL, x =>
+                    ValueToModify = new(() => s.Carrier.RecallFightersBeforeFTL, x =>
                         {
-                            Ship.Carrier.SetRecallFightersBeforeFTL(x);
-                            Ship.ManualHangarOverride = !x;
+                            s.Carrier.SetRecallFightersBeforeFTL(x);
+                            s.ManualHangarOverride = !x;
                         }
                     )
                 };
                 Orders.Add(ob2);
             }
 
-            if (Ship.ShipData.Role >= RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.ShipData.ShipCategory != ShipCategory.Civilian)
+            if (s.ShipData.Role >= RoleName.fighter && s.Mothership == null && s.AI.State != AIState.Colonize && s.ShipData.ShipCategory != ShipCategory.Civilian)
             {
-                var exp = new OrdersButton(Ship, OrderType.Explore, GameText.OrdersThisShipToExplore)
+                var exp = new OrdersButton(s, OrderType.Explore, GameText.OrdersThisShipToExplore)
                 {
-                    ValueToModify = new(() => Ship.DoingExplore, x => Ship.DoingExplore = x)
+                    ValueToModify = new(() => s.DoingExplore, x => s.DoingExplore = x)
                 };
                 Orders.Add(exp);
             }
-            if (Ship.CanBeScrapped)
+            if (s.CanBeScrapped)
             {
-                if (!Ship.IsConstructor)
+                if (!s.IsConstructor)
                 {
-                    var rf = new OrdersButton(Ship, OrderType.Refit, GameText.OrderShipRefit)
+                    var rf = new OrdersButton(s, OrderType.Refit, GameText.OrderShipRefit)
                     {
-                        ValueToModify = new(() => Ship.DoingRefit, x => Ship.DoingRefit = x),
+                        ValueToModify = new(() => s.DoingRefit, x => s.DoingRefit = x),
                         Active = false
                     };
                     Orders.Add(rf);
                 }
-                var sc = new OrdersButton(Ship, OrderType.Scrap, GameText.OrderShipBackToThe)
+                var sc = new OrdersButton(s, OrderType.Scrap, GameText.OrderShipBackToThe)
                 {
-                    ValueToModify = new(() => Ship.DoingScrap, x => Ship.DoingScrap = x),
+                    ValueToModify = new(() => s.DoingScrap, x => s.DoingScrap = x),
                     Active = false
                 };
                 Orders.Add(sc);
