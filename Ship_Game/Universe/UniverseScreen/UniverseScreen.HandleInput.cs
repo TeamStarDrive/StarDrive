@@ -192,15 +192,7 @@ namespace Ship_Game
                 if (!fleetButton.ClickRect.HitTest(input.CursorPosition))
                     continue;
 
-                Array<Ship> selected = new();
-                for (int j = 0; j < fleetButton.Fleet.Ships.Count; j++)
-                {
-                    Ship ship = fleetButton.Fleet.Ships[j];
-                    if (ship.InPlayerSensorRange)
-                        selected.AddUnique(ship);
-                }
-
-                SetSelectedFleet(fleetButton.Fleet, selected);
+                SetSelectedFleet(fleetButton.Fleet);
 
                 if (input.LeftMouseDoubleClick)
                 {
