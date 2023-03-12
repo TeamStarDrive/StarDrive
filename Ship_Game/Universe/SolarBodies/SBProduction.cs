@@ -409,10 +409,13 @@ namespace Ship_Game.Universe.SolarBodies
 
         void AddToQueueAndPrioritize(QueueItem item)
         {
-            ConstructionQueue.Add(item);
-            int totalFreighters = Owner.TotalFreighters;
-            if (P.CType != Planet.ColonyType.Colony)
-                ConstructionQueue.Sort(q => q.GetAndUpdatePriority(P,totalFreighters));
+            lock (ConstructionQueue)
+            {
+                ConstructionQueue.Add(item);
+                int totalFreighters = Owner.TotalFreighters;
+                if (P.CType != Planet.ColonyType.Colony)
+                    ConstructionQueue.Sort(q => q.GetAndUpdatePriority(P,totalFreighters));
+            }
         }
 
         void Finish(QueueItem q, bool success)
@@ -423,21 +426,28 @@ namespace Ship_Game.Universe.SolarBodies
 
         void Finish(QueueItem q)
         {
-            ConstructionQueue.Remove(q);
+            lock (ConstructionQueue)
+                ConstructionQueue.Remove(q);
         }
 
         public bool Cancel(Building b)
         {
-            QueueItem item = ConstructionQueue.Find(q => q.Building == b);
-            item?.SetCanceled();
-            return item != null;
+            lock (ConstructionQueue)
+            {
+                QueueItem item = ConstructionQueue.Find(q => q.Building == b);
+                item?.SetCanceled();
+                return item != null;
+            }
         }
 
         public bool Cancel(Goal g)
         {
-            QueueItem item = ConstructionQueue.Find(q => q.Goal == g);
-            item?.SetCanceled();
-            return item != null;
+            lock (ConstructionQueue)
+            {
+                QueueItem item = ConstructionQueue.Find(q => q.Goal == g);
+                item?.SetCanceled();
+                return item != null;
+            }
         }
 
         public void Cancel(QueueItem q, bool refund = true)
@@ -464,7 +474,8 @@ namespace Ship_Game.Universe.SolarBodies
                     q.Goal.OldShip?.AI.ClearOrders();
             }
 
-            ConstructionQueue.Remove(q);
+            lock (ConstructionQueue)
+                ConstructionQueue.Remove(q);
             if (q.isBuilding)
                 P.RefreshBuildingsWeCanBuildHere();
         }
@@ -512,37 +523,48 @@ namespace Ship_Game.Universe.SolarBodies
                 Cancel(shipyard);
                 return true;
             }
-
             return false;
         }
 
         public void Reorder(QueueItem item, int relativeChange)
         {
-            // When dragging an item, some items could be removed or moved
-            // while the dragging is in process and before the scroll list is updated.
-            // So we always need to double-check the itemIndex and newIndex
-            int oldIndex = ConstructionQueue.IndexOf(item);
-            int newIndex = oldIndex + relativeChange;
-            if (oldIndex != -1 && (uint)newIndex < ConstructionQueue.Count)
+            lock (ConstructionQueue)
             {
-                ConstructionQueue.Reorder(oldIndex, newIndex);
+                // When dragging an item, some items could be removed or moved
+                // while the dragging is in process and before the scroll list is updated.
+                // So we always need to double-check the itemIndex and newIndex
+                int oldIndex = ConstructionQueue.IndexOf(item);
+                if (oldIndex == -1)
+                    return;
+
+                int newIndex = oldIndex + relativeChange;
+                if ((uint)newIndex < ConstructionQueue.Count)
+                {
+                    ConstructionQueue.Reorder(oldIndex, newIndex);
+                }
             }
         }
 
         public void Swap(int swapTo, int currentIndex)
         {
             var cq = ConstructionQueue;
-            swapTo = swapTo.Clamped(0, cq.Count - 1);
-            currentIndex = currentIndex.Clamped(0, cq.Count - 1);
+            lock (cq)
+            {
+                swapTo = swapTo.Clamped(0, cq.Count - 1);
+                currentIndex = currentIndex.Clamped(0, cq.Count - 1);
 
-            (cq[swapTo], cq[currentIndex]) = (cq[currentIndex], cq[swapTo]);
+                (cq[swapTo], cq[currentIndex]) = (cq[currentIndex], cq[swapTo]);
+            }
         }
 
         public void MoveTo(int moveTo, int currentIndex)
         {
-            QueueItem item = ConstructionQueue[currentIndex];
-            ConstructionQueue.RemoveAt(currentIndex);
-            ConstructionQueue.Insert(moveTo, item);
+            lock (ConstructionQueue)
+            {
+                QueueItem item = ConstructionQueue[currentIndex];
+                ConstructionQueue.RemoveAt(currentIndex);
+                ConstructionQueue.Insert(moveTo, item);
+            }
         }
 
         public void MoveToAndContinuousRushFirstItem()
@@ -550,33 +572,41 @@ namespace Ship_Game.Universe.SolarBodies
             if (Empty)
                 return;
 
-            if (Count > 1)
-                MoveTo(0, Count - 1);
+            lock (ConstructionQueue)
+            {
+                if (Count > 1)
+                    MoveTo(0, Count - 1);
 
-            ConstructionQueue[0].Rush = true;
+                ConstructionQueue[0].Rush = true;
+            }
         }
 
         public void SwitchRushAllConstruction(bool rush)
         {
-            for (int i = 0; i < ConstructionQueue.Count; ++i)
-                 ConstructionQueue[i].Rush = rush;
+            lock (ConstructionQueue)
+                for (int i = 0; i < ConstructionQueue.Count; ++i)
+                     ConstructionQueue[i].Rush = rush;
         }
 
         public void ClearQueue()
         {
-            ConstructionQueue.Clear();
+            lock (ConstructionQueue)
+                ConstructionQueue.Clear();
             foreach (PlanetGridSquare tile in P.TilesList)
                 tile.QItem = null; // Clear all planned buildings from tiles
         }
 
         public bool FirstItemCanFeedUs()
         {
-            if (ConstructionQueue.Count == 0 || !ConstructionQueue[0].isBuilding)
-                return false;
+            lock (ConstructionQueue)
+            {
+                if (ConstructionQueue.Count == 0 || !ConstructionQueue[0].isBuilding)
+                    return false;
 
-            QueueItem first = ConstructionQueue[0];
-            return P.NonCybernetic && first.Building.ProducesFood
-                   || P.IsCybernetic && first.Building.ProducesProduction;
+                QueueItem first = ConstructionQueue[0];
+                return P.NonCybernetic && first.Building.ProducesFood
+                    || P.IsCybernetic && first.Building.ProducesProduction;
+            }
         }
     }
 }
