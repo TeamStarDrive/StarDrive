@@ -163,12 +163,14 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Components\BudgetPriorities.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI_Trade.cs" />
     <Compile Include="Ship_Game\AI\ThreatCluster.cs" />
     <Compile Include="Ship_Game\AI\ThreatClusterUpdate.cs" />
     <Compile Include="Ship_Game\AI\ThreatMatrix_ClustersGenerator.cs" />
     <Compile Include="Ship_Game\AI\ThreatMatrix_Update.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
-    <Compile Include="Ship_Game\Commands\Goals\ResearchStation.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\SupplyGoodsToStation.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\ProcessResearchStation.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ProjectorBridge.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DeepSpaceBuildGoal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetGoal.cs" />

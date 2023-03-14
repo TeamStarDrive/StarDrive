@@ -291,6 +291,16 @@ namespace Ship_Game
             maxFoodLoad        -= importPlanet.Food.NetIncome * eta;
             return maxFoodLoad.Clamped(0, foodLoadLimit);
         }
+        public float ExportableFood(Planet exportPlanet, Ship targetStation, float eta)
+        {
+            if (!ExportFood)
+                return 0;
+
+            float maxFoodLoad = targetStation.CargoSpaceMax; // update for future tourists stations
+            float foodLoadLimit = exportPlanet.ExportGoodsLimit(Goods.Food);
+
+            return maxFoodLoad.Clamped(0, foodLoadLimit);
+        }
 
         public float ExportableProd(Planet exportPlanet, Planet importPlanet, float eta)
         {
@@ -311,6 +321,18 @@ namespace Ship_Game
                     maxProdLoad = ProdHere.UpperBound(maxProdLoad);
             }
 
+            return maxProdLoad.Clamped(0f, prodLoadLimit);
+        }
+
+        public float ExportableProd(Planet exportPlanet, Ship targetStation, float eta)
+        {
+            if (!ExportProd)
+                return 0;
+
+            float prodConsumpsion = targetStation.ResearchPerTurn * GlobalStats.Defaults.ResearchStationProductionPerResearch;
+            float prodLeftUntilEta = (targetStation.CargoSpaceUsed - prodConsumpsion*eta).LowerBound(0);
+            float maxProdLoad = targetStation.CargoSpaceMax - prodLeftUntilEta;
+            float prodLoadLimit = exportPlanet.ExportGoodsLimit(Goods.Production);
             return maxProdLoad.Clamped(0f, prodLoadLimit);
         }
 
@@ -363,7 +385,7 @@ namespace Ship_Game
             {
                 case Goods.Food:       limit = Storage.Max / NumFreightersPickingUpFood.LowerBound(1); break;
                 case Goods.Production: limit = Storage.Max / NumFreightersPickingUpProd.LowerBound(1); break;
-                case Goods.Colonists:  limit = Population * 0.2f;                                                                  break;
+                case Goods.Colonists:  limit = Population * 0.2f;                                      break;
             }
 
             return limit;

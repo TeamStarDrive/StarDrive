@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.Tools.Localization;
 using static Ship_Game.Ships.Ship;
 
 namespace Ship_Game.Ships;
@@ -228,8 +230,13 @@ public partial class ShipDesign
     // Is this ship good for goals?
     bool IsShipGoodForGoals(Empire e)
     {
-        if (IsResearchStation && BaseCargoSpace < GlobalStats.Defaults.ResearchStationProductionPerResearch * 10)
+        if (!ShipResupply.HasGoodTotalSupplyForResearch(this))
+        { 
+            if (Name == e.data.DefaultResearchStation)
+                Log.Error($"{e.Name}: Default Research Station ({Name}) does not have enough cargo of acceptable research time!");
+
             return false;
+        }
 
         if (IsPlatformOrStation)
             return true;

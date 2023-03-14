@@ -136,6 +136,21 @@ namespace Ship_Game
             }
         }
 
+        public bool TryDispatchGoodsSupplyToStation(Goods goods, Ship targetStation, out ExportPlanetAndFreighter exportAndFreighter)
+        {
+            exportAndFreighter = default;
+            // TODO: maybe use IEnumerable generators for these?
+            Planet[] exportingPlanets = OwnedPlanets.Filter(p => p.FreeGoodsExportSlots(goods) > 0);
+            if (exportingPlanets.Length == 0)
+                return false;
+
+            Ship[] idleFreighters = GetIdleFreighters(interTrade: false);
+            if (idleFreighters.Length == 0) // Need trade for auto trade but no freighters found
+                return false;
+
+            return GetTradeParameters(goods, idleFreighters, targetStation, exportingPlanets, out exportAndFreighter);
+        }
+
         void DispatchOrBuildFreighters(Goods goods, Array<Planet> importPlanetList, bool interTrade)
         {
             // Order importing planets to balance freighters distribution
@@ -184,17 +199,19 @@ namespace Ship_Game
                               : OwnedShips.Filter(s => s.IsIdleFreighter); 
         }
 
-        bool GetTradeParameters(Goods goods, Ship[] freighterList, Planet importPlanet, 
+        bool GetTradeParameters(Goods goods, Ship[] freighterList, GameObject target, 
             Planet[] exportPlanets,  out ExportPlanetAndFreighter exportAndFreighter)
         {
             var potentialRoutes = new Map<int, ExportPlanetAndFreighter>();
             for (int i = 0; i < freighterList.Length; i++)
             {
                 Ship freighter = freighterList[i];
-                if (freighter.TryGetBestTradeRoute(goods, exportPlanets, importPlanet, out Ship.ExportPlanetAndEta exportAndEta)
+                if ((target is Planet importPlanet && freighter.TryGetBestTradeRoute(goods, exportPlanets, importPlanet, out Ship.ExportPlanetAndEta exportAndEta)
+                    || target is Ship targetShip && freighter.TryGetBestTradeRoute(goods, exportPlanets, targetShip, out exportAndEta))
                     && !potentialRoutes.ContainsKey(exportAndEta.Eta))
                 {
-                    potentialRoutes.Add(exportAndEta.Eta, new ExportPlanetAndFreighter(exportAndEta.Planet, freighter));
+                    //if (!potentialRoutes.ContainsKey(exportAndEta.Eta))
+                        potentialRoutes.Add(exportAndEta.Eta, new ExportPlanetAndFreighter(exportAndEta.Planet, freighter));
                 }
             }
 
@@ -207,7 +224,7 @@ namespace Ship_Game
             return true;
         }
 
-        struct ExportPlanetAndFreighter
+        public struct ExportPlanetAndFreighter
         {
             public readonly Planet Planet;
             public readonly Ship Freighter;

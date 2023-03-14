@@ -165,6 +165,13 @@ namespace Ship_Game.AI
             EnqueueOrPush(goal);
         }
 
+        internal void SetTradePlan(Plan plan, Planet exportPlanet, Ship targetStation, Goods goodsType, float blockadeTimer = 120f)
+        {
+            ClearOrders(AIState.SystemTrader);
+            var goal = new ShipGoal(plan, exportPlanet, targetStation, goodsType, Owner, blockadeTimer, AIState.SystemTrader);
+            EnqueueOrPush(goal);
+        }
+
         bool AddShipGoal(Plan plan, Planet target, Goal theGoal, AIState wantedState, bool pushToFront = false)
         {
             if (target == null)
@@ -378,6 +385,14 @@ namespace Ship_Game.AI
                 WantedState = wantedState;
             }
 
+            public ShipGoal(Plan plan, Planet exportPlanet, Ship targetStation, Goods goods,
+                            Ship freighter, float blockadeTimer, AIState wantedState)
+            {
+                Plan        = plan;
+                Trade       = new TradePlan(exportPlanet, targetStation, goods, freighter, blockadeTimer);
+                WantedState = wantedState;
+            }
+
             public ShipGoal(Plan plan, Vector2 waypoint, Vector2 direction, AIState state, 
                             MoveOrder order, float speedLimit, Goal goal)
             {
@@ -421,9 +436,24 @@ namespace Ship_Game.AI
             [StarData] public readonly Planet ImportTo;
             [StarData] public readonly Ship Freighter;
             [StarData] public readonly float StardateAdded;
+            [StarData] public readonly Ship TargetStation;
             [StarData] public float BlockadeTimer; // Indicates how much time to wait with freight when trade is blocked
 
+            bool SupplyingPlanet => ImportTo != null;
+
             TradePlan() { }
+
+            public TradePlan(Planet exportPlanet, Ship targetStation, Goods goodsType, Ship freighter, float blockadeTimer)
+            {
+                ExportFrom    = exportPlanet;
+                Goods         = goodsType;
+                BlockadeTimer = blockadeTimer;
+                Freighter     = freighter;
+                StardateAdded = exportPlanet.Universe.StarDate;
+                TargetStation = targetStation;
+
+                ExportFrom.AddToOutgoingFreighterList(freighter);
+            }
 
             public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer)
             {
@@ -441,7 +471,8 @@ namespace Ship_Game.AI
             public void UnRegisterTrade(Ship freighter)
             {
                 ExportFrom.RemoveFromOutgoingFreighterList(freighter);
-                ImportTo.RemoveFromIncomingFreighterList(freighter);
+                if (SupplyingPlanet)
+                    ImportTo.RemoveFromIncomingFreighterList(freighter);
             }
         }
 
@@ -484,10 +515,11 @@ namespace Ship_Game.AI
             Escort = 30,
             RearmShipFromPlanet = 31,
             Meteor = 32,
-
             AwaitOrders = 33,
             AwaitOrdersAIManaged = 34, // different from AwaitOrders, gives the ship over to AI management
             FindExterminationTarget = 35, // find a target to exterminate
+            PickupGoodsForStation = 36,
+            DropOffGoodsForStation = 37
         }
     }
 }

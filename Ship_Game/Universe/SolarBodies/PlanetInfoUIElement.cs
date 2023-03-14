@@ -463,7 +463,7 @@ namespace Ship_Game
             if (ResearchStationRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if      (Player.AI.HasGoal(g => g.IsResearchStationGoal(P))) Player.AI.CancelResearchStation(P);
-                else if (Player.CanBuildResearchStations)                    Player.AI.AddGoal(new ResearchStation(Player, P));
+                else if (Player.CanBuildResearchStations)                    Player.AI.AddGoal(new ProcessResearchStation(Player, P));
                 else                                                         GameAudio.NegativeClick();
 
             GameAudio.EchoAffirmative();

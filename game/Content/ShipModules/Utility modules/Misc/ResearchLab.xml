@@ -22,7 +22,7 @@
   <Restrictions>xI</Restrictions>
   <UID>ResearchLab</UID> 
   <Version>2</Version>
-  <SensorRange>70000</SensorRange>
+  <SensorRange>50000</SensorRange>
 
   <IconTexturePath>Modules/ResearchLab</IconTexturePath>
   <Mass>200</Mass>
@@ -32,7 +32,7 @@
   <energyreq>0</energyreq>
   
   <PowerDraw>450</PowerDraw>
-  <ResearchPerTurn>0.5</ResearchPerTurn>
+  <ResearchPerTurn>0.75</ResearchPerTurn>
   <NameIndex>4989</NameIndex>
   <DescriptionIndex>4990</DescriptionIndex>
 </ShipModule>
