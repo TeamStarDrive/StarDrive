@@ -22,7 +22,7 @@
   <Restrictions>xI</Restrictions>
   <UID>ResearchArray</UID> 
   <Version>2</Version>
-  <SensorRange>50000</SensorRange>
+  <SensorRange>30000</SensorRange>
 
   <IconTexturePath>Modules/ResearchArray</IconTexturePath>
   <Mass>40</Mass>
@@ -32,7 +32,7 @@
   <energyreq>0</energyreq>
   
   <PowerDraw>100</PowerDraw>
-  <ResearchPerTurn>0.1</ResearchPerTurn>
+  <ResearchPerTurn>0.2</ResearchPerTurn>
   <NameIndex>4991</NameIndex>
   <DescriptionIndex>4992</DescriptionIndex>
 </ShipModule>

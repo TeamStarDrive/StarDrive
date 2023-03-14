@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -57,6 +58,30 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool TryGetBestTradeRoute(Goods goods, Planet[] exportPlanets, Ship targetStation, out ExportPlanetAndEta exportAndEta)
+        {
+            exportAndEta = default;
+            if (!CanTransportGoodsType(goods) || !InTradingZones(targetStation))
+                return false;
+
+            var potentialRoutes = new Map<int, Planet>();
+            for (int i = 0; i < exportPlanets.Length; i++)
+            {
+                Planet exportPlanet = exportPlanets[i];
+                int eta = (int)(GetAstrogateTimeTo(exportPlanet) + GetAstrogateTimeBetween(exportPlanet, targetStation));
+                if (InTradingZones(exportPlanet))
+                    potentialRoutes.Add(eta, exportPlanet);
+            }
+
+            if (potentialRoutes.Keys.Count == 0)
+                return false;
+
+            int fastest = potentialRoutes.FindMinKey(d => d);
+            Planet bestExport = potentialRoutes[fastest];
+            exportAndEta = new ExportPlanetAndEta(bestExport, fastest);
+            return true;
+        }
+
         public bool TryGetBestTradeRoute(Goods goods, Planet[] exportPlanets, Planet importPlanet, out ExportPlanetAndEta exportAndEta)
         {
             exportAndEta = default;
@@ -99,7 +124,7 @@ namespace Ship_Game.Ships
             public ExportPlanetAndEta(Planet exportPlanet, int eta)
             {
                 Planet = exportPlanet;
-                Eta    = eta; ;
+                Eta    = eta;
             }
         }
 
@@ -138,15 +163,20 @@ namespace Ship_Game.Ships
             return false;
         }
 
+        public bool InTradingZones(Ship targetStation)
+        {
+            return Loyalty.isPlayer ? InsideAreaOfOperation(targetStation.Position) : false; 
+        }
+
         public bool InTradingZones(Planet planet)
         {
             if (!Loyalty.isPlayer)
                 return true; // only player ships can have trade AO or trade routes
 
             if (TradeRoutes?.Count >= 2 && AreaOfOperation.NotEmpty) // ship has both AO trade routes, so check this or that.
-                return IsValidTradeRoute(planet) || InsideAreaOfOperation(planet);
+                return IsValidTradeRoute(planet) || InsideAreaOfOperation(planet.Position);
 
-            return IsValidTradeRoute(planet) && InsideAreaOfOperation(planet);
+            return IsValidTradeRoute(planet) && InsideAreaOfOperation(planet.Position);
         }
 
         public void DownloadTradeRoutes(Array<int> tradeRoutes)
@@ -162,5 +192,7 @@ namespace Ship_Game.Ships
                 return GetCargo(goods);
             return 0;
         }
+
+        public bool InTradeBlockade => IsResearchStation && HealthPercent < 0.8f;
     }
 }

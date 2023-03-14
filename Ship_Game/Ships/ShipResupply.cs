@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Windows.Forms;
+using NAudio.Wave;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
@@ -21,6 +24,7 @@ namespace Ship_Game.Ships
         public const float RepairDroneThreshold = 0.9f;
         public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
+        public const int NumTurnsForGoodResearchSupply = 50;
 
         [StarData] readonly Ship Ship;
         [StarData] float IncomingOrdnance;
@@ -31,6 +35,17 @@ namespace Ship_Game.Ships
             Ship     = ship;
             InCombat = false;
             IncomingOrdnance = 0;
+        }
+
+        public bool InTradeBlockade => Ship.IsResearchStation && Ship.HealthPercent < DamageThreshold(ShipCategory.Civilian);
+        public static bool HasGoodTotalSupplyForResearch(IShipDesign ship)
+        {
+            if (!ship.IsResearchStation) 
+                return true;
+
+            float totalResearchPerTurn = ship.BaseResearchPerTurn * GlobalStats.Defaults.ResearchStationProductionPerResearch;
+            float lala = ship.BaseCargoSpace / totalResearchPerTurn;
+            return ship.BaseCargoSpace / totalResearchPerTurn >= NumTurnsForGoodResearchSupply;
         }
 
         public static float DamageThreshold(ShipCategory category)
