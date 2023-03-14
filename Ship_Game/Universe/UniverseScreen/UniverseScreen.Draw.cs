@@ -1095,16 +1095,16 @@ namespace Ship_Game
             if (ship.AI.State == AIState.SystemTrader && 
                 ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal g) && g.Trade != null)
             {
-                Planet importPlanet = g.Trade.ImportTo;
-                Planet exportPlanet = g.Trade.ExportFrom;
+                Vector2 importPosition = g.Trade.ImportTo?.Position ?? g.Trade.TargetStation.Position;
+                Vector2 exportPosition = g.Trade.ExportFrom.Position;
 
-                if (g.Plan == ShipAI.Plan.PickupGoods)
+                if (g.Plan is ShipAI.Plan.PickupGoods or ShipAI.Plan.PickupGoodsForStation )
                 {
-                    DrawLineToPlanet(start, exportPlanet.Position, Color.Blue);
-                    DrawLineToPlanet(exportPlanet.Position, importPlanet.Position, Color.Gold);
+                    DrawLineToPlanet(start, exportPosition, Color.Blue);
+                    DrawLineToPlanet(exportPosition, importPosition, Color.Gold);
                 }
                 else
-                    DrawLineToPlanet(start, importPlanet.Position, Color.Gold);
+                    DrawLineToPlanet(start, importPosition, Color.Gold);
             }
 
             DrawWayPointLines(ship, Colors.WayPoints(alpha));

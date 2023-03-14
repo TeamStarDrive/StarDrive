@@ -10349,6 +10349,18 @@ AutoPickResearchStationTip:
 CannotBuildResearchStationTip:
  Id: 4413 
  ENG: "You do not have the required technology to build a Research Station, research relevent tech to gain Research Station schematics."  
+ResearchPerTurnStatTip:
+ Id: 4414
+ ENG: "Amount of Research Points generated per turn."    
+ResearchStationResearchTimeStat:
+ Id: 4415 
+ ENG: "Resaerch Time (turns)"   
+ResearchStationResearchTimeStatTip:
+ Id: 4416
+ ENG: "Number of turns this Station can produce Research until Production stocks are depleted." 
+ResearchPerTurnModule:
+ Id: 4417
+ ENG: "Research p/turn"
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"

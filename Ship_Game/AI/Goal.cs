@@ -49,7 +49,8 @@ namespace Ship_Game.AI
         WarMission,
         PrepareForWar,
         ProjectorBridge,
-        ResearchStation
+        ProcessResearchStation,
+        SupplyGoodsToStation
     }
 
     public enum GoalStep
@@ -123,6 +124,8 @@ namespace Ship_Game.AI
         public virtual bool IsColonizationGoal(Planet planet) => false;
         /** @return True if this goal is targeting the given planet for research station */
         public virtual bool IsResearchStationGoal(Planet planet) => false;
+        /** @return True if this goal is supplying goods to a station */
+        public virtual bool IsSupplyingGoodsToStationStationGoal(Ship ship) => false;
         /** @return True if this goal is targeting the given system star for research station */
         public virtual bool IsResearchStationGoal(SolarSystem system) => false;
         /** @return True if this goal is building an orbital for this planet */

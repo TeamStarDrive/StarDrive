@@ -4453,7 +4453,14 @@ namespace Ship_Game
         AutoPickResearchStationTip = 4412,
         /// <summary>You do not have the required technology</summary>
         CannotBuildResearchStationTip = 4413,
-
+        /// <summary>Amount of Research Points generated per turn</summary>
+        ResearchPerTurnStatTip = 4414,
+        /// <summary>Resaerch Time (turns)</summary>
+        ResearchStationResearchTimeStat = 4415,
+        /// <summary>Number of turns this Station can produce Research</summary>
+        ResearchStationResearchTimeStatTip = 4416,
+        /// <summary>Research p/turn</summary>
+        ResearchPerTurnModule = 4417,
 
 
 

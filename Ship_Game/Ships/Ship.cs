@@ -302,13 +302,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool InsideAreaOfOperation(Planet planet)
+        public bool InsideAreaOfOperation(Vector2 pos)
         {
             if (AreaOfOperation.IsEmpty)
                 return true;
 
             foreach (Rectangle ao in AreaOfOperation)
-                if (ao.HitTest(planet.Position))
+                if (ao.HitTest(pos))
                     return true;
 
             return false;
@@ -722,6 +722,16 @@ namespace Ship_Game.Ships
                 distanceSTL += planet.GravityWellRadius;
 
             return GetAstrogateTime(distance, distanceSTL, destination.Position);
+        }
+
+        public float GetAstrogateTimeBetween(Planet origin, Ship targetStation)
+        {
+            float distance = origin.Position.Distance(targetStation.Position);
+            float distanceSTL = origin.GravityWellForEmpire(Loyalty);
+            if (targetStation.IsTethered)
+                distanceSTL += targetStation.GetTether().GravityWellForEmpire(Loyalty);
+
+            return GetAstrogateTime(distance, distanceSTL, targetStation.Position);
         }
 
         public float GetAstrogateTimeBetween(Planet origin, Planet destination)

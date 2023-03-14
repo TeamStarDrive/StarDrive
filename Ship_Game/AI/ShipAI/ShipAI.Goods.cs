@@ -1,4 +1,5 @@
 ﻿using SDGraphics;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI
 {
@@ -171,6 +172,12 @@ namespace Ship_Game.AI
             }
 
             SetTradePlan(plan, exportPlanet, importPlanet, goods);
+        }
+
+        public void SetupFreighterPlan(Planet exportPlanet, Ship targetStation, Goods goods)
+        {
+            Plan plan = Plan.PickupGoodsForStation;
+            SetTradePlan(plan, exportPlanet, targetStation, goods);
         }
     }
 
