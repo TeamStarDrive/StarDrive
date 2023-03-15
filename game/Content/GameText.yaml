@@ -10361,6 +10361,18 @@ ResearchStationResearchTimeStatTip:
 ResearchPerTurnModule:
  Id: 4417
  ENG: "Research p/turn"
+DesignIssueLowResaerchTimeTitle:
+ Id: 4418
+ ENG: "Low Research Time"
+DesignIssueLowResaerchTimeProblem:
+ Id: 4419
+ ENG: "This Research Station does not have enough production storage to produce Research for long periods. This might increase traffic of frieghters to this Station."
+DesignIssueLowResaerchTimeRemidiation:
+ Id: 4420
+ ENG: "Add Storage or lower the amount of Research modules."
+DesignIssueLowResaerchTimeNotGood:
+ Id: 4421
+ ENG: "Note that if you elected to automate Research Stations picking, this Station will not be used. It is too inefficient." 
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"
