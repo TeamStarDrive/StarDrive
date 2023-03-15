@@ -292,7 +292,7 @@ namespace Ship_Game
             if (PlanetSL.NumEntries == 0)
                 ResetList();
 
-            HandleButton(input, sb_Sys,   p => p.ParentSystem.Name);
+            HandleButton(input, sb_Sys,   p => p.System.Name);
             HandleButton(input, sb_Name,  p => p.Name);
             HandleButton(input, sb_Fert,  p => p.FertilityFor(Player));
             HandleButton(input, sb_Rich,  p => p.MineralRichness);
@@ -336,7 +336,7 @@ namespace Ship_Game
             }
             else
             {
-                ResetButton(sb_Sys,   p => p.ParentSystem.Name);
+                ResetButton(sb_Sys,   p => p.System.Name);
                 ResetButton(sb_Name,  p => p.Name);
                 ResetButton(sb_Fert,  p => p.FertilityFor(Player));
                 ResetButton(sb_Rich,  p => p.MineralRichness);

@@ -63,7 +63,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             if (Fleet == null || Fleet.Ships.Count == 0) // Fleet is destroyed
             {
-                float str =  Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem, TargetEmpire);
+                float str =  Owner.KnownEnemyStrengthIn(TargetPlanet.System, TargetEmpire);
                 var task  = MilitaryTask.CreateDefendVsRemnant(TargetPlanet, Owner, str);
                 Owner.AI.AddPendingTask(task); // Try creating a new fleet to defend (it will create a new defend goal)
                 return GoalStep.GoalFailed;

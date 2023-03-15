@@ -86,7 +86,7 @@ namespace Ship_Game
             if (planet.Owner == null)
             {
                 var ships = planet.Universe.Player.OwnedShips;
-                if (!planet.ParentSystem.HasPlanetsOwnedBy(planet.Universe.Player)
+                if (!planet.System.HasPlanetsOwnedBy(planet.Universe.Player)
                     && !ships.Any(s => planet.Position.InRadius(s.Position, s.SensorRange)))
                 {
                     return;
@@ -149,7 +149,7 @@ namespace Ship_Game
 
             if (planet.OwnerIsPlayer)
                 u.Notifications?.AddMeteorShowerTargetingOurPlanet(planet);
-            else if (planet.ParentSystem.HasPlanetsOwnedBy(u.Player))
+            else if (planet.System.HasPlanetsOwnedBy(u.Player))
                 u.Notifications?.AddMeteorShowerInSystem(planet);
         }
 
@@ -184,12 +184,12 @@ namespace Ship_Game
                 }
             }
 
-            Log.Info($"{numMeteors} Meteors Created in {p.ParentSystem.Name} targeting {p.Name}");
+            Log.Info($"{numMeteors} Meteors Created in {p.System.Name} targeting {p.Name}");
         }
 
         Vector2 GetMeteorOrigin(Planet p)
         {
-            SolarSystem system = p.ParentSystem;
+            SolarSystem system = p.System;
             var asteroidsRings = system.RingList.Filter(r => r.Asteroids);
             float originRadius;
 

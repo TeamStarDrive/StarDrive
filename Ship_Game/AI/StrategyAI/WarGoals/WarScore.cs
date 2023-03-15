@@ -59,7 +59,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (coloniesOffered != null)
                 foreach (Planet planet in coloniesOffered)
                 {
-                    var system = planet.ParentSystem;
+                    var system = planet.System;
                     if (!system.OwnerList.Contains(Them))
                         offeredCleanSystems++;
                 }

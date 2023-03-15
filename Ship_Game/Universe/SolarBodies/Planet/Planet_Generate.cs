@@ -178,8 +178,8 @@ namespace Ship_Game
             float preDefinedPop = data?.MaxPopDefined ?? 0f;
             CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);
             InitializeWorkerDistribution(Owner);
-            if (!ParentSystem.OwnerList.Contains(Owner))
-                ParentSystem.OwnerList.Add(Owner);
+            if (!System.OwnerList.Contains(Owner))
+                System.OwnerList.Add(Owner);
 
             UpdateDevelopmentLevel();
             CreateHomeWorldBuildings();

@@ -125,18 +125,18 @@ namespace Ship_Game.GameScreens.NewGame
                 {
                     Planet planet = planets[planetId];
                     planet.MineralRichness += UState.P.StartingPlanetRichnessBonus;
-                    planet.ParentSystem.SetExploredBy(empire);
+                    planet.System.SetExploredBy(empire);
                     planet.SetExploredBy(empire);
 
-                    foreach (Planet p in planet.ParentSystem.PlanetList)
+                    foreach (Planet p in planet.System.PlanetList)
                     {
                         p.SetExploredBy(empire);
                     }
 
-                    if (planet.ParentSystem.OwnerList.Count == 0)
+                    if (planet.System.OwnerList.Count == 0)
                     {
-                        planet.ParentSystem.OwnerList.Add(empire);
-                        foreach (Planet planet2 in planet.ParentSystem.PlanetList)
+                        planet.System.OwnerList.Add(empire);
+                        foreach (Planet planet2 in planet.System.PlanetList)
                             planet2.SetExploredBy(empire);
                     }
                 }

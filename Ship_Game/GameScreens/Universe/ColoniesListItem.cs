@@ -221,15 +221,15 @@ namespace Ship_Game
             }
 
             Color TextColor = Colors.Cream;
-            if (Fonts.Pirulen16.MeasureString(P.ParentSystem.Name).X <= SysNameRect.Width)
+            if (Fonts.Pirulen16.MeasureString(P.System.Name).X <= SysNameRect.Width)
             {
-                Vector2 SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Pirulen16.MeasureString(P.ParentSystem.Name).X / 2f, SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Pirulen16.LineSpacing / 2);
-                batch.DrawString(Fonts.Pirulen16, P.ParentSystem.Name, SysNameCursor, TextColor);
+                Vector2 SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Pirulen16.MeasureString(P.System.Name).X / 2f, SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Pirulen16.LineSpacing / 2);
+                batch.DrawString(Fonts.Pirulen16, P.System.Name, SysNameCursor, TextColor);
             }
             else
             {
-                Vector2 SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Pirulen12.MeasureString(P.ParentSystem.Name).X / 2f, SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Pirulen12.LineSpacing / 2);
-                batch.DrawString(Fonts.Pirulen12, P.ParentSystem.Name, SysNameCursor, TextColor);
+                Vector2 SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Pirulen12.MeasureString(P.System.Name).X / 2f, SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Pirulen12.LineSpacing / 2);
+                batch.DrawString(Fonts.Pirulen12, P.System.Name, SysNameCursor, TextColor);
             }
             Rectangle planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 25, PlanetNameRect.Height - 50, PlanetNameRect.Height - 50);
             batch.Draw(P.PlanetTexture, planetIconRect, Color.White);

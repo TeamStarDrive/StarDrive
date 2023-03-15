@@ -118,7 +118,7 @@ namespace UnitTests.AITests.Empire
             Ship ship = SpawnShip("Vulcan Scout", Enemy, new Vector2(4000, 4000));
             RunObjectsSim(TestSimStep);
 
-            Homeworld.ParentSystem.ShipList.Add(ship);
+            Homeworld.System.ShipList.Add(ship);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
             IShipPool originalPool = ship.Pool;
             

@@ -80,7 +80,7 @@ public class AODebug : DebugPage
         {
             Planet coreWorld = ao.CoreWorld;
             int ships = ao.GetNumOffensiveForcePoolShips();
-            column.AddLine($"AO: {coreWorld.ParentSystem.Name}");
+            column.AddLine($"AO: {coreWorld.System.Name}");
             column.AddLine($"   #Ships {ships}");
         }
         text.Add(column);

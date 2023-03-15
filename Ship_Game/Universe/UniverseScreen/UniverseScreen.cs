@@ -8,13 +8,12 @@ using SynapseGaming.LightingSystem.Shadows;
 using System;
 using System.Threading;
 using SDGraphics;
-using SDGraphics.Sprites;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
-using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
 using Ship_Game.Fleets;
+using Ship_Game.GameScreens.FleetDesign;
 using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
 using Matrix = SDGraphics.Matrix;
@@ -48,12 +47,11 @@ namespace Ship_Game
         public float transDuration = 3f;
         public float SelectedSomethingTimer = 3f;
 
-        FleetButton[] FleetButtons = Empty<FleetButton>.Array;
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug => UState.Debug;
         public DebugModes DebugMode => UState.DebugMode;
 
-        PieMenu pieMenu;
+        public PieMenu pieMenu;
         PieMenuNode planetMenu;
         PieMenuNode shipMenu;
 
@@ -124,7 +122,6 @@ namespace Ship_Game
         public DebugInfoScreen DebugWin;
         public bool ShowShipNames;
         bool UseRealLights = true;
-        int FBTimer = 60;
         bool SelectingWithBox;
 
         public PlanetScreen workersPanel;
@@ -331,7 +328,6 @@ namespace Ship_Game
             }
 
             WarmUpShipsForLoad();
-            RecomputeFleetButtons(true);
 
             if (UState.StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
             {
@@ -353,7 +349,7 @@ namespace Ship_Game
 
         void InitializeSolarSystems()
         {
-            anomalyManager = new AnomalyManager();
+            anomalyManager = new();
 
             foreach (SolarSystem system in UState.Systems)
             {
@@ -470,6 +466,13 @@ namespace Ship_Game
             };
             PlanetsInCombat.OnClick = CyclePlanetsInCombat;
             PlanetsInCombat.Tooltip = "Cycle through planets that are in combat";
+
+            RectF leftRect = new(20, 60, 200, 500);
+            Add(new FleetButtonsList(leftRect, this, this,
+                onClick: OnFleetButtonClicked,
+                onHotKey: OnFleetHotKeyPressed,
+                isSelected: (b) => SelectedFleet?.Key == b.FleetKey
+            ));
         }
 
         void ShipsInCombatClick(UIButton b)
@@ -534,7 +537,7 @@ namespace Ship_Game
         public override void Update(float fixedDeltaTime)
         {
             if (LookingAtPlanet)
-                workersPanel.Update(fixedDeltaTime);
+                workersPanel?.Update(fixedDeltaTime);
             
             DeepSpaceBuildWindow.Update(fixedDeltaTime);
             pieMenu.Update(fixedDeltaTime);
@@ -687,7 +690,6 @@ namespace Ship_Game
             public Fleet fleet;
             public Vector2 ScreenPos;
             public float ClickRadius;
-            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, ClickRadius);
         }
         public enum UnivScreenState
         {
@@ -704,13 +706,6 @@ namespace Ship_Game
             if (screenState == UnivScreenState.GalaxyView)
                 return MaxCamHeight;
             return (double)screenState;
-        }
-
-        struct FleetButton
-        {
-            public Rectangle ClickRect;
-            public Fleet Fleet;
-            public int Key;
         }
     }
 }
