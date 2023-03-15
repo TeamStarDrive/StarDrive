@@ -7,6 +7,8 @@ using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Commands.Goals;
+using System.Collections;
+using System.Web;
 
 namespace Ship_Game
 {
@@ -234,6 +236,20 @@ namespace Ship_Game
                         return $"{status} {goodsType} from {last2.Trade?.ExportFrom.Name} to {last2.Trade?.ImportTo?.Name ?? last2.Trade?.TargetStation.Name} {blockade}";
                     }
                     return $"{Localizer.Token(GameText.TradingGoods)} \n {Localizer.Token(GameText.SeekingRoute)}";
+                case AIState.Research:
+                    if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal researchOrder))
+                    {
+                        GameText researchStatus;
+                        switch (researchOrder.Plan) 
+                        {
+                            default:
+                            case ShipAI.Plan.ResearchStationResearching: researchStatus = GameText.ResearchPlanResearching; break;
+                            case ShipAI.Plan.ResearchStationIdle:        researchStatus = GameText.ResearchPlanIdle;        break;
+                            case ShipAI.Plan.ResearchStationNoSupply:    researchStatus = GameText.ResearchPlanNoSupply;    break;
+                        }
+                        return Localizer.Token(researchStatus);
+                    }
+                    return "";
                 case AIState.AttackRunner:
                 case AIState.PatrolSystem:
                 case AIState.Flee:                

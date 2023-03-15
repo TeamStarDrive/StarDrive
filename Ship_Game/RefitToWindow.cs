@@ -88,8 +88,10 @@ namespace Ship_Game
 
             foreach (IShipDesign design in ShipToRefit.Loyalty.ShipsWeCanBuild)
             {
-                if (design.Hull == ShipToRefit.ShipData.Hull && design != ShipToRefit.ShipData &&
-                    !design.ShipRole.Protected)
+                if (design.Hull == ShipToRefit.ShipData.Hull 
+                    && design != ShipToRefit.ShipData 
+                    && !design.ShipRole.Protected
+                    && ShipToRefit.IsResearchStation == design.IsResearchStation)
                 {
                     RefitShipList.AddItem(new RefitShipListItem(this, design));
                 }

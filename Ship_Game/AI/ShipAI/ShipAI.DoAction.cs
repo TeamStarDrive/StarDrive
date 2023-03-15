@@ -212,6 +212,10 @@ namespace Ship_Game.AI
             if (orbital.IsSubspaceProjector)
                 Owner.Loyalty.AI.SpaceRoadsManager.AddProjectorToRoadList(orbital, g.Goal.BuildPosition);
 
+            Owner.QueueTotalRemoval();
+            if (g.Goal.OldShip?.Active == true) // we are refitting something
+                g.Goal.OldShip.QueueTotalRemoval();
+
             if (bg.TetherPlanet != null)
             {
                 Planet planetToTether = bg.TetherPlanet;
@@ -226,10 +230,6 @@ namespace Ship_Game.AI
             {
                 UpdateResearchStationGoal(orbital, Owner.System);
             }
-
-            Owner.QueueTotalRemoval();
-            if (g.Goal.OldShip?.Active == true) // we are refitting something
-                g.Goal.OldShip.QueueTotalRemoval();
         }
 
         void DoDeployOrbital(ShipGoal g, FixedSimTime timeStep)
@@ -258,12 +258,13 @@ namespace Ship_Game.AI
                 orbital.Position = g.Goal.BuildPosition;
                 orbital.TetherToPlanet(target);
                 target.OrbitalStations.Add(orbital);
-                UpdateResearchStationGoal(orbital, target);
                 Owner.QueueTotalRemoval();
                 if (g.Goal.OldShip?.Active == true) // we are refitting something
                     g.Goal.OldShip.QueueTotalRemoval();
                 else 
                     target.TryRemoveExcessOrbital(orbital);
+
+                UpdateResearchStationGoal(orbital, target);
             }
         }
 
