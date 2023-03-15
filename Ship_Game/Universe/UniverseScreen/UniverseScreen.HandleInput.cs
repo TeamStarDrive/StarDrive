@@ -8,8 +8,8 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
-using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.FleetDesign;
 using Ship_Game.Spatial;
 using Keys = SDGraphics.Input.Keys;
 using Vector2 = SDGraphics.Vector2;
@@ -86,8 +86,6 @@ namespace Ship_Game
             if (input.Tab && !input.LeftCtrlShift) ShowShipNames = !ShowShipNames;
 
             HandleCameraZoomScrolling(input);
-
-            HandleFleetSelections(input);
             HandleShipSelectionAndOrders();
 
             if (input.LeftMouseDoubleClick && HandleDoubleClickShipsAndSolarObjects(input))
@@ -185,34 +183,36 @@ namespace Ship_Game
             }
         }
 
-        void HandleFleetButtonClick(InputState input)
+        void OnFleetButtonClicked(FleetButton b)
         {
-            foreach (FleetButton fleetButton in FleetButtons)
+            Fleet f = Player?.GetFleetOrNull(b.FleetKey);
+            if (f != null)
             {
-                if (!fleetButton.ClickRect.HitTest(input.CursorPosition))
-                    continue;
+                SetSelectedFleet(f);
 
-                Array<Ship> selected = new();
-                for (int j = 0; j < fleetButton.Fleet.Ships.Count; j++)
+                if (Input.LeftMouseDoubleClick)
                 {
-                    Ship ship = fleetButton.Fleet.Ships[j];
-                    if (ship.InPlayerSensorRange)
-                        selected.AddUnique(ship);
+                    SnapViewFleet(f);
                 }
+            }
+        }
+        
+        void OnFleetHotKeyPressed(FleetButton b)
+        {
+            // this can be null if a new fleet is being created
+            Fleet selectedFleet = Player.GetFleetOrNull(b.FleetKey);
 
-                SetSelectedFleet(fleetButton.Fleet, selected);
-
-                if (input.LeftMouseDoubleClick)
-                {
-                    ViewingShip = false;
-                    AdjustCamTimer = 0.5f;
-                    CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamPos.Z);
-                    if (viewState < UnivScreenState.SystemView)
-                        CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
-
-                    CamDestination.Z = GetZfromScreenState(UnivScreenState.ShipView);
-                    return;
-                }
+            if (Input.ReplaceFleet)
+            {
+                CreateNewFleet(selectedFleet, b.FleetKey);
+            }
+            else if (Input.AddToFleet)
+            {
+                AddShipsToExistingFleet(selectedFleet, b.FleetKey);
+            }
+            else
+            {
+                ShowSelectedFleetInfo(selectedFleet);
             }
         }
 
@@ -349,11 +349,6 @@ namespace Ship_Game
                 HandleInputLookingAtPlanet(input);
             }
 
-            if (input.InGameSelect && !input.IsShiftKeyDown && !pieMenu.Visible)
-            {
-                HandleFleetButtonClick(input);
-            }
-
             return false;
         }
 
@@ -381,49 +376,12 @@ namespace Ship_Game
             return GameCursors.Regular;
         }
 
-        static int InputFleetSelection(InputState input)
-        {
-            if (input.Fleet1) return 1;
-            if (input.Fleet2) return 2;
-            if (input.Fleet3) return 3;
-            if (input.Fleet4) return 4;
-            if (input.Fleet5) return 5;
-            if (input.Fleet6) return 6;
-            if (input.Fleet7) return 7;
-            if (input.Fleet8) return 8;
-            if (input.Fleet9) return 9;
-            return -1;
-        }
-
-        void HandleFleetSelections(InputState input)
-        {
-            int index = InputFleetSelection(input);
-            if (index == -1) 
-                return;
-
-            Fleet selectedFleet = Player.GetFleetOrNull(index);
-
-            if (input.ReplaceFleet)
-            {
-                CreateNewFleet(selectedFleet, index);
-            }
-            else if (input.AddToFleet)
-            {
-                AddShipsToExistingFleet(selectedFleet, index);
-            }
-            else
-            {
-                ShowSelectedFleetInfo(selectedFleet);
-            }
-        }
-
         void CreateNewFleet(Fleet selectedFleet, int index)
         {
             // clear the fleet if no ships selected and pressing Ctrl + NumKey[1-9]
             if (SelectedShipList.IsEmpty)
             {
                 selectedFleet?.Reset();
-                RecomputeFleetButtons(true);
                 return;
             }
 
@@ -432,8 +390,6 @@ namespace Ship_Game
 
             // create new fleet
             Fleet fleet = CreateNewFleet(index, SelectedShipList);
-
-            RecomputeFleetButtons(true);
             SetSelectedFleet(fleet);
         }
 
@@ -469,33 +425,21 @@ namespace Ship_Game
                 fleet.Name = Fleet.GetDefaultFleetName(index);
 
             fleet.Update(FixedSimTime.Zero /*paused during init*/);
-
-            RecomputeFleetButtons(true);
         }
 
         void ShowSelectedFleetInfo(Fleet selectedFleet)
         {
-            bool snapToFleet = SelectedFleet == selectedFleet; // user pressed fleet Number twice
-            ClearSelectedItems();
-
             // nothing selected
-            if (selectedFleet == null)
+            if (selectedFleet == null || selectedFleet.Ships.IsEmpty)
                 return;
 
-            if (selectedFleet.Ships.Count > 0)
-            {
-                SetSelectedFleet(selectedFleet);
-                GameAudio.FleetClicked();
-            }
+            bool snapToFleet = SelectedFleet == selectedFleet; // user pressed fleet Number twice
+            SetSelectedFleet(selectedFleet);
+            GameAudio.FleetClicked();
 
-            if (SelectedFleet != null && snapToFleet)
+            if (snapToFleet && SelectedFleet != null)
             {
-                ViewingShip = false;
-                AdjustCamTimer = 0.5f;
-                CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamDestination.Z);
-
-                if (CamPos.Z < GetZfromScreenState(UnivScreenState.SystemView))
-                    CamDestination.Z = GetZfromScreenState(UnivScreenState.PlanetView);
+                SnapViewFleet(SelectedFleet);
             }
         }
 
@@ -572,7 +516,7 @@ namespace Ship_Game
 
             Vector3d worldPos = UnprojectToWorldPosition3D(Input.CursorPosition, ZPlane: 2500);
             Planet p = UState.FindPlanetAt(worldPos.ToVec2f(), searchRadius: searchRadius);
-            return p != null && p.ParentSystem.IsExploredBy(Player) ? p : null;
+            return p != null && p.System.IsExploredBy(Player) ? p : null;
         }
 
         // should be called for >= SectorView
@@ -1030,7 +974,7 @@ namespace Ship_Game
                 }
             }
 
-            SetSelectedShipList(selected, isFleet: false);
+            SetSelectedShipList(selected, fleet: null);
             return true;
         }
 
@@ -1153,37 +1097,6 @@ namespace Ship_Game
                 ship.Fleet?.DataNodes.RemoveFirst(n => n.Ship == ship);
                 ship.ClearFleet(returnToManagedPools: false, clearOrders: false);
             }
-        }
-
-        // move to thread safe update
-        public void RecomputeFleetButtons(bool forceUpdate)
-        {
-            ++FBTimer;
-            if (FBTimer <= 60 && !forceUpdate)
-                return;
-            if (IsExiting)
-                return;
-
-            var buttons = new Array<FleetButton>();
-
-            // if we're showing debug window, move the fleet buttons down a bit
-            bool showingDebugTabs = Debug && DebugWin?.ModesTab.Visible == true;
-            int startY = showingDebugTabs ? 120 : 60;
-            int index = 0;
-            
-            var fleets = Player.ActiveFleets.ToArrayList().Sorted(f => f.Key);
-            foreach (Fleet fleet in fleets)
-            {
-                buttons.Add(new FleetButton
-                {
-                    ClickRect = new Rectangle(20, startY + index * 60, 52, 48),
-                    Fleet = fleet,
-                    Key = fleet.Key
-                });
-                ++index;
-            }
-            FBTimer = 0;
-            FleetButtons = buttons.ToArray();
         }
 
         Vector2 StartDragPos;

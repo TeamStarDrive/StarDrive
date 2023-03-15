@@ -535,6 +535,17 @@ namespace Ship_Game
             return CombatStatus.ClearSpace;
         }
 
+        public bool IsAnyShipInCombat()
+        {
+            for (int i = 0; i < Ships.Count; ++i)
+            {
+                Ship ship = Ships[i];
+                if (!ship.OnLowAlert)
+                    return true;
+            }
+            return false;
+        }
+
         protected CombatStatus CombatStatusOfShipInArea(Ship ship, Vector2 position, float radius)
         {
             float combatRadius = Math.Min(radius, ship.AI.FleetNode.OrdersRadius);

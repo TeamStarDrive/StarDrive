@@ -391,7 +391,7 @@ namespace Ship_Game.AI
                 ClearOrders(); // give up and resume combat
 
             // Local method
-            bool IsSafePlanet(Planet p) => !p.ParentSystem.DangerousForcesPresent(Owner.Loyalty);
+            bool IsSafePlanet(Planet p) => !p.System.DangerousForcesPresent(Owner.Loyalty);
         }
 
         public void OrderOrbitPlanet(Planet p, bool clearOrders)
@@ -761,7 +761,7 @@ namespace Ship_Game.AI
                     Orbit.Orbit(AwaitClosest, timeStep);
                     return;
                 }
-                if (AwaitClosest.ParentSystem.OwnerList.Count > 0)
+                if (AwaitClosest.System.OwnerList.Count > 0)
                     AwaitClosest = null;
             }
 

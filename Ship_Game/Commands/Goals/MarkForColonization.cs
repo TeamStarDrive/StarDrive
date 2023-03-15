@@ -66,14 +66,14 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep TargetPlanetStatus()
         {
-            if (!Owner.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.ParentSystem, Owner))
+            if (!Owner.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.System, Owner))
             {
                 ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;
             }
 
-            if (TargetPlanet.ParentSystem.OwnerList.Count > 0
-                && !TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
+            if (TargetPlanet.System.OwnerList.Count > 0
+                && !TargetPlanet.System.IsExclusivelyOwnedBy(Owner))
             {
                 // Someone got planets in that system, need to check if we warned them
                 foreach (Relationship rel in Owner.AllRelations)
@@ -105,7 +105,7 @@ namespace Ship_Game.Commands.Goals
             if (PositiveEnemyPresence(out float spaceStrength))
             {
                 EmpireAI empireAi = Owner.AI;
-                TargetEmpire = empireAi.ThreatMatrix.GetStrongestHostileAt(TargetPlanet.ParentSystem);
+                TargetEmpire = empireAi.ThreatMatrix.GetStrongestHostileAt(TargetPlanet.System);
                 float strMultiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
                 var task            = MilitaryTask.CreateClaimTask(Owner, TargetPlanet, 
                                        (spaceStrength * strMultiplier).LowerBound(20), TargetEmpire, (int)strMultiplier);
@@ -113,7 +113,7 @@ namespace Ship_Game.Commands.Goals
                 empireAi.AddPendingTask(task);
                 empireAi.AddGoal(new StandbyColonyShip(Owner));
             }
-            else if (!Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.ParentSystem))
+            else if (!Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.System))
             {
                 var task = MilitaryTask.CreateGuardTask(Owner, TargetPlanet);
                 Owner.AI.AddPendingTask(task);
@@ -234,7 +234,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             if (AIControlsColonization
-                && Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) > 10
+                && Owner.KnownEnemyStrengthIn(TargetPlanet.System) > 10
                 && ClaimTaskInvalid(out MilitaryTask possibleTask))
             {
                 ReleaseShipFromGoal();
@@ -274,7 +274,7 @@ namespace Ship_Game.Commands.Goals
 
         bool PositiveEnemyPresence(out float spaceStrength)
         {
-            spaceStrength = Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem);
+            spaceStrength = Owner.KnownEnemyStrengthIn(TargetPlanet.System);
             float groundStr = TargetPlanet.GetGroundStrengthOther(Owner);
             if (TargetPlanet.Owner?.IsFaction  == true && groundStr < 1)
                 groundStr += 40; // So AI will know to send fleets to remnant colonies, even if they are empty

@@ -219,9 +219,6 @@
     <PackageReference Include="MSTest.TestFramework">
       <Version>2.1.2</Version>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.2</Version>
-    </PackageReference>
     <PackageReference Include="System.Memory">
       <Version>4.5.5</Version>
     </PackageReference>

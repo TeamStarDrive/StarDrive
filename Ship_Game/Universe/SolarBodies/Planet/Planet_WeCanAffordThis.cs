@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -43,7 +39,7 @@ namespace Ship_Game
 
                 // determine defensive needs.
                 NeedDefense = false;
-                if (MakingMoney && isDefensive && owner.AI.DefensiveCoordinator.DefenseDict.TryGetValue(p.ParentSystem, out SystemCommander commander))
+                if (MakingMoney && isDefensive && owner.AI.DefensiveCoordinator.DefenseDict.TryGetValue(p.System, out SystemCommander commander))
                 {
                     NeedDefense = commander.RankImportance >= defenseRatio * 10;
                 }

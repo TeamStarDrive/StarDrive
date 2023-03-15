@@ -264,7 +264,7 @@ namespace Ship_Game
         public Planet(int id, SolarSystem system, Vector2 pos, 
                       float fertility, float minerals, float maxPop) : this(id)
         {
-            ParentSystem = system;
+            SetSystem(system);
             BaseFertility     = fertility;
             MineralRichness   = minerals;
             BasePopPerTileVal = maxPop;
@@ -280,7 +280,7 @@ namespace Ship_Game
         public Planet(int id, RandomBase random, SolarSystem system, float randomAngle, float ringRadius, string name,
                       float sysMaxRingRadius, Empire owner, SolarSystemData.Ring data) : this(id)
         {
-            ParentSystem = system;
+            SetSystem(system);
             OrbitalAngle = randomAngle;
             OrbitalRadius = ringRadius;
 
@@ -344,8 +344,8 @@ namespace Ship_Game
         {
             if (data != null)
                 return data.Planet;
-            int ringNum = 1 + ParentSystem.RingList.IndexOf(r => r.Planet == this);
-            return $"{ParentSystem.Name} {RomanNumerals.ToRoman(ringNum)}";
+            int ringNum = 1 + System.RingList.IndexOf(r => r.Planet == this);
+            return $"{System.Name} {RomanNumerals.ToRoman(ringNum)}";
         }
 
         void InitPlanetType(PlanetType type, float scale, bool fromSave)
@@ -613,7 +613,7 @@ namespace Ship_Game
                 return;
             }
 
-            bool enemyInRange = ParentSystem.DangerousForcesPresent(Owner);
+            bool enemyInRange = System.DangerousForcesPresent(Owner);
             if (!enemyInRange)
                 SpaceCombatNearPlanet = false;
 
@@ -642,9 +642,9 @@ namespace Ship_Game
             if (!enemyInRange)
                 return false;
 
-            for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
+            for (int i = 0; i < System.ShipList.Count; ++i)
             {
-                Ship ship = ParentSystem.ShipList[i];
+                Ship ship = System.ShipList[i];
                 if (ship?.Position.InRadius(Position, 15000) == true
                     && ship.BaseStrength > 10
                     && (!ship.IsTethered || ship.GetTether() == this) // orbitals orbiting another nearby planet
@@ -661,7 +661,7 @@ namespace Ship_Game
         public Ship ScanForSpaceCombatTargets(Weapon w,  float weaponRange, bool canLaunchShips)
         {
             // don't do this expensive scan if there are no hostiles
-            if (!ParentSystem.HostileForcesPresent(Owner))
+            if (!System.HostileForcesPresent(Owner))
                 return null;
 
             weaponRange = weaponRange.UpperBound(SensorRange);
@@ -723,7 +723,7 @@ namespace Ship_Game
 
         public bool InSafeDistanceFromRadiation()
         {
-            return ParentSystem.InSafeDistanceFromRadiation(Position);
+            return System.InSafeDistanceFromRadiation(Position);
         }
 
         // this is done once per turn
@@ -1033,10 +1033,10 @@ namespace Ship_Game
         {
             // Not using the planet Owner since it might have been changed by invasion
             shipsNeedRearm = null;
-            if (ParentSystem.DangerousForcesPresent(empire) || ParentSystem.ShipList.Count == 0)
+            if (System.DangerousForcesPresent(empire) || System.ShipList.Count == 0)
                 return false;
 
-            shipsNeedRearm = ParentSystem.ShipList.Filter(s => (s.Loyalty == empire || s.Loyalty.IsAlliedWith(empire))
+            shipsNeedRearm = System.ShipList.Filter(s => (s.Loyalty == empire || s.Loyalty.IsAlliedWith(empire))
                                                                && s.IsSuitableForPlanetaryRearm()
                                                                && s.Supply.AcceptExternalSupply(SupplyType.Rearm));
 
@@ -1054,10 +1054,10 @@ namespace Ship_Game
 
         private void UpdateHomeDefenseHangars(Building b)
         {
-            if (ParentSystem.DangerousForcesPresent(Owner) || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
+            if (System.DangerousForcesPresent(Owner) || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
                 return;
 
-            if (ParentSystem.ShipList.Any(t => t.IsHomeDefense))
+            if (System.ShipList.Any(t => t.IsHomeDefense))
                 return; // if there are still defense ships our there, don't update building's hangars
 
             b.UpdateCurrentDefenseShips(1);
@@ -1439,7 +1439,7 @@ namespace Ship_Game
 
         public float TotalGeodeticOffense => BuildingGeodeticOffense + OrbitalStations.Sum(o => o.BaseStrength);
         public int MaxDefenseShips => SumBuildings(b => b.DefenseShipsCapacity);
-        public int CurrentDefenseShips => SumBuildings(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
+        public int CurrentDefenseShips => SumBuildings(b => b.CurrentNumDefenseShips) + System.ShipList.Count(s => s?.HomePlanet == this);
         
         // these are updated in UpdatePlanetStatsByRecalculation()
         public int TotalBuildings { get; private set; }
@@ -1480,9 +1480,9 @@ namespace Ship_Game
             if (!SpaceCombatNearPlanet)
                 return;
 
-            for (int i = 0; i < ParentSystem.ShipList.Count; i++)
+            for (int i = 0; i < System.ShipList.Count; i++)
             {
-                Ship ship = ParentSystem.ShipList[i];
+                Ship ship = System.ShipList[i];
                 if (ship.Loyalty != Owner || ship.InCombat)
                     continue;
 
@@ -1534,7 +1534,7 @@ namespace Ship_Game
             string exportProd = ProdExportSlots - FreeProdExportSlots + "/" + ProdExportSlots;
             string exportColonists = ColonistsExportSlots - FreeColonistExportSlots + "/" + ColonistsExportSlots;
             int numHabitableTiles  = TilesList.Filter(t => t.Habitable).Length;
-            debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
+            debug.AddLine($"{System.Name} : {Name}", Color.Green);
             debug.AddLine($"Scale: {Scale}");
             debug.AddLine($"Population per Habitable Tile: {BasePopPerTile}");
             debug.AddLine($"Environment Modifier for {Universe.Player.Name}: {Universe.Player.PlayerEnvModifier(Category)}");

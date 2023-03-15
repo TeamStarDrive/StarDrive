@@ -1600,7 +1600,7 @@ namespace Ship_Game.Ships
             Shield = null;
             HangarShip = null;
             Mem.Dispose(ref InstalledWeapon);
-            System = null;
+            SetSystem(null);
         }
     }
 }

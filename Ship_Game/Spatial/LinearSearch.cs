@@ -65,6 +65,8 @@ namespace Ship_Game.Spatial
             return results;
         }
 
+        static bool GotRareLinearSearchCopyError;
+
         public static SpatialObjectBase[] Copy(int* objectIds, int count, SpatialObjectBase[] objects)
         {
             if (count == 0)
@@ -83,7 +85,11 @@ namespace Ship_Game.Spatial
                 //      on some systems
                 if (go == null)
                 {
-                    Log.Error($"objects[spatialIndex={spatialIndex}] was null. Results count={count}");
+                    if (!GotRareLinearSearchCopyError)
+                    {
+                        GotRareLinearSearchCopyError = true;
+                        Log.Error($"objects[spatialIndex={spatialIndex}] was null. Results count={count}");
+                    }
                 }
                 else
                 {

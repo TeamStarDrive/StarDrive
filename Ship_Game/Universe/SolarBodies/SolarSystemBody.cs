@@ -168,7 +168,7 @@ namespace Ship_Game
         public string IconPath => PType.IconPath;
         public bool Habitable => PType.Habitable;
 
-        public UniverseState Universe => ParentSystem.Universe;
+        public UniverseState Universe => System.Universe;
 
         [StarData] public SBProduction Construction;
         public Array<Combat> ActiveCombats = new();
@@ -180,8 +180,13 @@ namespace Ship_Game
 
         protected AudioEmitter Emit = new();
 
-        // TODO: replace with GameObject.System
-        [StarData] public SolarSystem ParentSystem;
+        // this is only here for SaveGame backwards compatibility
+        [StarData] public SolarSystem ParentSystem
+        {
+            get => System;
+            set => SetSystem(value);
+        }
+
         public SceneObject SO;
 
         [StarData] public string SpecialDescription;
@@ -335,13 +340,13 @@ namespace Ship_Game
 
         protected void UpdatePositionOnly()
         {
-            Position = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
+            Position = System.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
         }
 
         protected void UpdatePosition(FixedSimTime timeStep)
         {
             PosUpdateTimer -= timeStep.FixedTime;
-            if (!Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.InFrustum))
+            if (!Universe.Paused && (PosUpdateTimer <= 0.0f || System.InFrustum))
             {
                 PosUpdateTimer = 5f;
                 OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
@@ -350,7 +355,7 @@ namespace Ship_Game
                 UpdatePositionOnly();
             }
 
-            bool visible = ParentSystem.InFrustum;
+            bool visible = System.InFrustum;
             if (visible)
             {
                 Zrotate += ZrotateAmount * timeStep.FixedTime;
@@ -605,14 +610,14 @@ namespace Ship_Game
                 for (int j = 0; j < data.Moons.Count; j++)
                 {
                     float orbitRadius = newOrbital.Radius * 5 + Random.Float(1000f, 1500f) * (j + 1);
-                    var moon = new Moon(ParentSystem,
+                    var moon = new Moon(System,
                                         newOrbital,
                                         data.Moons[j].WhichMoon,
                                         data.Moons[j].MoonScale,
                                         orbitRadius,
                                         Random.Float(0f, 360f),
                                         newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius, Random));
-                    ParentSystem.MoonList.Add(moon);
+                    System.MoonList.Add(moon);
                 }
             }
             else if (newOrbital.PType.MoonTypes.Length != 0)
@@ -629,7 +634,7 @@ namespace Ship_Game
                                         1f, orbitRadius,
                                         Random.Float(0f, 360f),
                                         newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius, Random));
-                    ParentSystem.MoonList.Add(moon);
+                    System.MoonList.Add(moon);
                 }
             }
         }

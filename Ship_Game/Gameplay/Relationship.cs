@@ -285,8 +285,8 @@ namespace Ship_Game.Gameplay
             AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
             Trust -= owner.DifficultyModifiers.TrustLostStoleColony;
             Trust -= owner.data.DiplomaticPersonality.Territorialism/5 * StolenSystems.Count.LowerBound(1);
-            newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem);
-            StolenSystems.AddUnique(claimedPlanet.ParentSystem);
+            newTheft = !StolenSystems.Contains(claimedPlanet.System);
+            StolenSystems.AddUnique(claimedPlanet.System);
         }
 
         public void WarnClaimThiefPlayer(Planet claimedPlanet, Empire victim)
@@ -413,9 +413,9 @@ namespace Ship_Game.Gameplay
                     {
                         foreach (Planet other in them.GetPlanets())
                         {
-                            if (planet.ParentSystem == other.ParentSystem)
+                            if (planet.System == other.System)
                             {
-                                SolarSystem sharedSys = planet.ParentSystem;
+                                SolarSystem sharedSys = planet.System;
                                 if (us.GetRelations(them).WarnedSystemsList.Contains(sharedSys))
                                     return;
                             }
@@ -444,8 +444,8 @@ namespace Ship_Game.Gameplay
                             if (p != null)
                             {
                                 // TODO: remove ID
-                                ContestedSystemId = p.ParentSystem.Id;
-                                ContestedSystem = p.ParentSystem;
+                                ContestedSystemId = p.System.Id;
+                                ContestedSystem = p.System;
                             }
                         }
                     }

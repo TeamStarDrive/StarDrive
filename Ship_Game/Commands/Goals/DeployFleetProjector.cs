@@ -33,7 +33,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep BuildProjector()
         {
-            if (Fleet == null || TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+            if (Fleet == null || TargetPlanet.System.HasPlanetsOwnedBy(Owner))
                 return GoalStep.GoalComplete;
 
             float distanceToDeploy = Owner.GetProjectorRadius() * 0.8f;
