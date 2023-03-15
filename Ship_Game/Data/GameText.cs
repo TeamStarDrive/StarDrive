@@ -4461,6 +4461,14 @@ namespace Ship_Game
         ResearchStationResearchTimeStatTip = 4416,
         /// <summary>Research p/turn</summary>
         ResearchPerTurnModule = 4417,
+        /// <summary>Low Research Time</summary>
+        DesignIssueLowResaerchTimeTitle = 4418,
+        /// <summary>This Research Station does not</summary>
+        DesignIssueLowResaerchTimeProblem = 4419,
+        /// <summary>Add Storage or lower the amount</summary>
+        DesignIssueLowResaerchTimeRemidiation = 4420,
+        /// <summary>Note that if you elected to automate Research</summary>
+        DesignIssueLowResaerchTimeNotGood = 4421,
 
 
 
