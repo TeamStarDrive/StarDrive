@@ -12,6 +12,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public SolarSystem TargetSystem;
         [StarData] public override Planet TargetPlanet { get; set; }
         [StarData] public sealed override Ship TargetShip { get; set; }
+        [StarData] public Vector2 StaticBuildPos { get; set; }
 
         Ship ResearchStation => TargetShip;
 
@@ -30,13 +31,14 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public ProcessResearchStation(Empire owner, SolarSystem system, Ship researchStation = null)
+        public ProcessResearchStation(Empire owner, SolarSystem system, Vector2 buildPos, Ship researchStation = null)
             : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
             TargetSystem = system;
             Owner = owner;
-
+            StaticBuildPos = researchStation == null ? buildPos : researchStation.Position;
+            
             if (researchStation != null)
                 ChangeToStep(Research);
         }
@@ -65,7 +67,10 @@ namespace Ship_Game.Commands.Goals
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, bestResearchStation, out Planet planetToBuildAt))
                 return GoalStep.TryAgain;
 
-            Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetPlanet, bestResearchStation.Name, Owner));
+            if (TargetPlanet != null)
+                Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetPlanet, bestResearchStation.Name, Owner));
+            else
+                Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetSystem, bestResearchStation.Name, Owner, StaticBuildPos));
             return GoalStep.GoToNextStep;
         }
 
@@ -123,11 +128,14 @@ namespace Ship_Game.Commands.Goals
             if (ResearchingPlanet)
                 newOwner.AI.AddGoal(new ProcessResearchStation(newOwner, TargetPlanet, ResearchStation));
             else
-                newOwner.AI.AddGoal(new ProcessResearchStation(newOwner, TargetSystem, ResearchStation));
+                newOwner.AI.AddGoal(new ProcessResearchStation(newOwner, TargetSystem, ResearchStation.Position, ResearchStation));
         }
 
         void CreateSupplyGoalIfNeeded()
         {
+            if (ResearchStation.Supply.InTradeBlockade)
+                return;
+
             if (NeedsProduction && !Owner.AI.HasGoal(g => g.IsSupplyingGoodsToStationStationGoal(ResearchStation)))
                 Owner.AI.AddGoal(new SupplyGoodsToStation(Owner, ResearchStation, Goods.Production));
         }

@@ -217,12 +217,16 @@ namespace Ship_Game.AI
                 Planet planetToTether = bg.TetherPlanet;
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = bg.TetherOffset;
+                UpdateResearchStationGoal(orbital, bg.TetherPlanet);
                 planetToTether.OrbitalStations.Add(orbital);
                 if (planetToTether.IsOverOrbitalsLimit(orbital.ShipData))
                     planetToTether.TryRemoveExcessOrbital(orbital);
             }
+            else
+            {
+                UpdateResearchStationGoal(orbital, Owner.System);
+            }
 
-            UpdateResearchStationGoal(orbital, bg.TetherPlanet, Owner.System);
             Owner.QueueTotalRemoval();
             if (g.Goal.OldShip?.Active == true) // we are refitting something
                 g.Goal.OldShip.QueueTotalRemoval();
@@ -254,7 +258,7 @@ namespace Ship_Game.AI
                 orbital.Position = g.Goal.BuildPosition;
                 orbital.TetherToPlanet(target);
                 target.OrbitalStations.Add(orbital);
-                UpdateResearchStationGoal(orbital, target, Owner.System);
+                UpdateResearchStationGoal(orbital, target);
                 Owner.QueueTotalRemoval();
                 if (g.Goal.OldShip?.Active == true) // we are refitting something
                     g.Goal.OldShip.QueueTotalRemoval();
@@ -263,16 +267,22 @@ namespace Ship_Game.AI
             }
         }
 
-        void UpdateResearchStationGoal(Ship orbital, Planet planet, SolarSystem system)
+        void UpdateResearchStationGoal(Ship orbital, GameObject target)
         {
             if (!orbital.IsResearchStation)
                 return;
 
-            var goal = planet != null ? Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(planet))
-                                      : Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(system));
+            Goal goal = null;
+            if (target is Planet planet)
+                goal = Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(planet));
+            else if (target is SolarSystem system)
+                goal = Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(system));
 
-            if (goal != null) 
+            if (goal != null)
+            {
                 goal.TargetShip = orbital;
+                Owner.Universe.AddEmpireToResearchableList(Owner.Loyalty, target);
+            }
         }
 
         public void DoExplore(FixedSimTime timeStep)

@@ -10373,6 +10373,12 @@ DesignIssueLowResaerchTimeRemidiation:
 DesignIssueLowResaerchTimeNotGood:
  Id: 4421
  ENG: "Note that if you elected to automate Research Stations picking, this Station will not be used. It is too inefficient." 
+ResearchStationCanBePlaced:
+ Id: 4422
+ ENG: "Indicates that a Research Station can be deployed in orbit of this planet."  
+ResearchStationCanBePlacedSystem:
+ Id: 4423
+ ENG: "Indicates that a Research Station can be deployed in this system to research it's Star."   
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"
