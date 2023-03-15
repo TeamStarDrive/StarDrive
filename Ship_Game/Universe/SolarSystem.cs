@@ -486,7 +486,7 @@ namespace Ship_Game
             {
                 CanBeResearched= true;
                 Universe.AddResearchableStar(this);
-                Log.Info($"{Name} can be researched");
+                // Log.Info($"{Name} can be researched");
             }
 
             FinalizeGeneratedSystem();

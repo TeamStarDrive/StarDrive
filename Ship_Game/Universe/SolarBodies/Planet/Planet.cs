@@ -314,7 +314,7 @@ namespace Ship_Game
                 {
                     CanBeResearched = true;
                     Universe.AddResearchablePlanet(this);
-                    Log.Info($"{Name} can be researched");
+                    //Log.Info($"{Name} can be researched");
                 }
 
                 InitNewMinorPlanet(random, type, scale);
