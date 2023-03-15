@@ -10379,6 +10379,21 @@ ResearchStationCanBePlaced:
 ResearchStationCanBePlacedSystem:
  Id: 4423
  ENG: "Indicates that a Research Station can be deployed in this system to research it's Star."   
+RemoveExcessResearchStation:
+ Id: 4424
+ ENG: "Research Station was evacuated since there\ncan only be one station per Star or Planet."    
+RemoveResearchStationTerraform:
+ Id: 4425
+ ENG: "Research Station was evacuated since the planet\nCannot be studied anymore."     
+ResearchPlanResearching:
+ Id: 4426
+ ENG: "Researching"  
+ResearchPlanIdle:
+ Id: 4427
+ ENG: "Offline - no Research topic" 
+ResearchPlanNoSupply:
+ Id: 4428
+ ENG: "Offline - waiting for supplies" 
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"
