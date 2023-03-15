@@ -256,7 +256,7 @@ namespace Ship_Game.Commands.Goals
 
             Fleet.FleetTask.ChangeTargetPlanet(nextPlanet);
             Fleet.ClearOrders();
-            int changeToStep = TargetPlanet.ParentSystem == nextPlanet.ParentSystem ? 5 : 1;
+            int changeToStep = TargetPlanet.System == nextPlanet.System ? 5 : 1;
             TargetPlanet     = nextPlanet;
             Fleet.Name       = $"Ancient Fleet - {TargetPlanet.Name}";
             Fleet.TaskStep   = changeToStep;

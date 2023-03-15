@@ -360,7 +360,7 @@ namespace Ship_Game
         void FilterShipList(Predicate<Ship> predicate)
         {
             Ship[] ships = Screen.SelectedShips.Filter(predicate);
-            Screen.SetSelectedShipList(ships, isFleet: false);
+            Screen.SetSelectedShipList(ships, fleet: null);
         }
 
         public void SetShipList(IReadOnlyList<Ship> shipList, bool isFleet)

@@ -167,8 +167,8 @@ namespace Ship_Game.AI
             }
             else if (Owner.Loyalty == importPlanet.Owner || Owner.Loyalty.IsAlliedWith(importPlanet.Owner))
             {
-                Owner.Loyalty.AI.SpaceRoadsManager.AddSpaceRoadHeat(exportPlanet.ParentSystem,
-                    importPlanet.ParentSystem, Owner.CargoSpaceMax * 0.02f);
+                Owner.Loyalty.AI.SpaceRoadsManager.AddSpaceRoadHeat(exportPlanet.System,
+                    importPlanet.System, Owner.CargoSpaceMax * 0.02f);
             }
 
             SetTradePlan(plan, exportPlanet, importPlanet, goods);

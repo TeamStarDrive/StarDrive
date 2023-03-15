@@ -64,7 +64,7 @@ namespace Ship_Game.Universe
 
             if (source is Planet planet)
             {
-                if (planet.ParentSystem.Position == Vector2.Zero)
+                if (planet.System.Position == Vector2.Zero)
                     Log.Error("InfluenceTree: Planet.ParentSystem position is Zero!");
 
                 // for Planets, because they constantly orbit their solar system
@@ -75,7 +75,7 @@ namespace Ship_Game.Universe
 
                 float radius = planet.GetProjectorRange();
                 float maxRadius = planet.OrbitalRadius + radius;
-                return (planet.ParentSystem.Position, radius, maxRadius);
+                return (planet.System.Position, radius, maxRadius);
             }
 
             throw new InvalidOperationException($"Unsupported object: {source}");

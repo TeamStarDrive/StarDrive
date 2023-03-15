@@ -62,7 +62,7 @@ namespace Ship_Game.AI.Tasks
 
                     float planetMinStr                 = sysCom.PlanetTroopMin(planet);
                     float planetDefendingTroopStrength = planet.GetDefendingTroopCount();
-                    float maxCanTake                   = troopPriorityHigh && !planet.RecentCombat && !planet.ParentSystem.HostileForcesPresent(Owner)
+                    float maxCanTake                   = troopPriorityHigh && !planet.RecentCombat && !planet.System.HostileForcesPresent(Owner)
                         ? 5 
                         : (planetDefendingTroopStrength - (planetMinStr - 3)).LowerBound(0);
 
@@ -208,7 +208,7 @@ namespace Ship_Game.AI.Tasks
             {
                 AO = TargetPlanet.Position;
                 requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
-                EnemyStrength = (Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) + TargetPlanet.BuildingGeodeticOffense).LowerBound(100);
+                EnemyStrength = (Owner.KnownEnemyStrengthIn(TargetPlanet.System) + TargetPlanet.BuildingGeodeticOffense).LowerBound(100);
                 UpdateMinimumTaskForceStrength();
             }
 
@@ -224,7 +224,7 @@ namespace Ship_Game.AI.Tasks
         void RequisitionGuardBeforeColonize()
         {
             if (TargetPlanet.Owner != null ||
-                Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem)
+                Owner.KnownEnemyStrengthIn(TargetPlanet.System)
                 > MinimumTaskForceStrength / Owner.GetFleetStrEmpireMultiplier(TargetEmpire))
             {
                 EndTask();
@@ -303,7 +303,7 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {Type}");
 
             AO = TargetPlanet.Position;
-            AORadius = TargetPlanet.ParentSystem.Radius;
+            AORadius = TargetPlanet.System.Radius;
             float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
             EnemyStrength = GetHostileStrengthAtAO().LowerBound(100);
 
@@ -375,7 +375,7 @@ namespace Ship_Game.AI.Tasks
         float GetMinimumStrLowerBound(float geodeticOffense, Empire enemy)
         {
             float initialStr     = geodeticOffense + Owner.KnownEmpireStrength(enemy) / 10;
-            float enemyStrNearby = geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy);
+            float enemyStrNearby = geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.System, Owner, enemy);
             // Todo advanced tasks also get multiplier;
             float multiplier     = Type == TaskType.StrikeForce || Type == TaskType.StageFleet ? 2 : 1; 
             return initialStr.LowerBound(enemyStrNearby).LowerBound(Owner.OffensiveStrength/10) * multiplier;
@@ -536,8 +536,8 @@ namespace Ship_Game.AI.Tasks
                 if (troopShip == null)
                     break; // No more troops
 
-                Vector2 dir = troopShip.Position.DirectionToTarget(TargetPlanet.ParentSystem.Position);
-                troopShip.AI.OrderMoveTo(TargetPlanet.ParentSystem.Position, dir);
+                Vector2 dir = troopShip.Position.DirectionToTarget(TargetPlanet.System.Position);
+                troopShip.AI.OrderMoveTo(TargetPlanet.System.Position, dir);
                 troopStr += troopShip.GetOurTroopStrength(maxTroops: 500);
                 moreTroops.Add(troopShip);
             }
@@ -552,7 +552,7 @@ namespace Ship_Game.AI.Tasks
             if (TargetPlanet?.Owner != null)
             {
                 wantedNumberOfFleets +=(int)Math.Floor(Owner.GetFleetStrEmpireMultiplier(TargetPlanet.Owner) + 0.5f);
-                wantedNumberOfFleets += TargetPlanet.ParentSystem.PlanetList.Max(p =>
+                wantedNumberOfFleets += TargetPlanet.System.PlanetList.Max(p =>
                 {
                     if (p.Owner == TargetPlanet.Owner)
                     {

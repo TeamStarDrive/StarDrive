@@ -282,11 +282,11 @@ namespace Ship_Game.Gameplay
 
             if (Owner != null)
             {
-                System = Owner.System;
+                SetSystem(Owner.System);
             }
             else if (Planet != null)
             {
-                System = Planet.ParentSystem;
+                SetSystem(Planet.System);
             }
 
             bool inFrustum = Universe.Screen != null && IsInFrustum(Universe.Screen);

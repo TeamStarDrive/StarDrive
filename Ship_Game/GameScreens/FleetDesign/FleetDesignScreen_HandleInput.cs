@@ -3,24 +3,18 @@ using Ship_Game.Ships;
 using SDGraphics;
 using SDUtils;
 using static Ship_Game.Fleets.Fleet;
-using System.Collections;
 using System.Collections.Generic;
-using Ship_Game.Fleets;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Diagnostics.Contracts;
+using Ship_Game.GameScreens.FleetDesign;
 
 namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen
     {
-        void InputSelectFleet(int whichFleet, bool keyPressed)
+        void InputSelectFleet(FleetButton b)
         {
-            if (keyPressed)
-            {
-                GameAudio.AffirmativeClick();
-                ChangeFleet(whichFleet);
-            }
+            GameAudio.AffirmativeClick();
+            ChangeFleet(b.FleetKey);
         }
         
         void OnDesignShipItemClicked(FleetDesignShipListItem item)
@@ -54,22 +48,11 @@ namespace Ship_Game
                 return true;
             }
 
-            if (EmpireUI.HandleInput(input))
+            if (EmpireUI.HandleInput(input, caller:this))
                 return true;
 
             if (SelectedNodeList.Count != 1 && FleetNameEntry.HandleInput(input))
                 return true;
-
-            // handle hotkeys
-            InputSelectFleet(1, Input.Fleet1);
-            InputSelectFleet(2, Input.Fleet2);
-            InputSelectFleet(3, Input.Fleet3);
-            InputSelectFleet(4, Input.Fleet4);
-            InputSelectFleet(5, Input.Fleet5);
-            InputSelectFleet(6, Input.Fleet6);
-            InputSelectFleet(7, Input.Fleet7);
-            InputSelectFleet(8, Input.Fleet8);
-            InputSelectFleet(9, Input.Fleet9);
 
             if (base.HandleInput(input))
                 return true;

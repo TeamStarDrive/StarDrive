@@ -64,7 +64,7 @@ public sealed partial class Empire
             }
 
             safeRallies.AddRange(rallies);
-            safeRallies.Sort(rp => rp.ParentSystem.OwnerList.Count > 1);
+            safeRallies.Sort(rp => rp.System.OwnerList.Count > 1);
         }
         else
         {

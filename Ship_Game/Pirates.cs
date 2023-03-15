@@ -422,8 +422,8 @@ namespace Ship_Game
                 if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
                 {
                     pirateBase.TetherToPlanet(planet);
-                    AddGoalBase(pirateBase, planet.ParentSystem.Name);
-                    planet.ParentSystem.SetPiratePresence(true);
+                    AddGoalBase(pirateBase, planet.System.Name);
+                    planet.System.SetPiratePresence(true);
                     return true;
                 }
             }

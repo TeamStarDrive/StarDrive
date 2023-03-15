@@ -65,7 +65,7 @@ namespace Ship_Game.AI.Tasks
         public static MilitaryTask CreateClaimTask(Empire owner, Planet tgtPlanet, float minStrength,
                                                    Empire targetEmpire, int fleetCount)
         {
-            return new(TaskType.DefendClaim, owner, tgtPlanet.Position, tgtPlanet.ParentSystem.Radius, tgtPlanet)
+            return new(TaskType.DefendClaim, owner, tgtPlanet.Position, tgtPlanet.System.Radius, tgtPlanet)
             {
                 TargetEmpire = targetEmpire,
                 FleetCount = fleetCount,
@@ -75,8 +75,8 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateExploration(Planet tgtPlanet, Empire owner)
         {
-            SolarSystem s = tgtPlanet.ParentSystem;
-            Empire dominant = owner.AI.ThreatMatrix.GetStrongestHostileAt(tgtPlanet.ParentSystem);
+            SolarSystem s = tgtPlanet.System;
+            Empire dominant = owner.AI.ThreatMatrix.GetStrongestHostileAt(tgtPlanet.System);
             return new(TaskType.Exploration, owner, tgtPlanet.Position, aoRadius: 50000f, tgtPlanet)
             {
                 TargetEmpire = dominant
@@ -85,7 +85,7 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateGuardTask(Empire owner, Planet tgtPlanet)
         {
-            return new(TaskType.GuardBeforeColonize, owner, tgtPlanet.Position, tgtPlanet.ParentSystem.Radius, tgtPlanet)
+            return new(TaskType.GuardBeforeColonize, owner, tgtPlanet.Position, tgtPlanet.System.Radius, tgtPlanet)
             {
                 Priority = 0,
                 MinimumTaskForceStrength = (owner.CurrentMilitaryStrength / 1000).LowerBound(50),
@@ -94,7 +94,7 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateReclaimTask(Empire owner, Planet targetPlanet, Fleet fleet)
         {
-            return new(TaskType.ReclaimPlanet, owner, targetPlanet.Position, targetPlanet.ParentSystem.Radius, targetPlanet)
+            return new(TaskType.ReclaimPlanet, owner, targetPlanet.Position, targetPlanet.System.Radius, targetPlanet)
             {
                 Fleet = fleet,
                 NeedEvaluation = false // We have ships
@@ -154,7 +154,7 @@ namespace Ship_Game.AI.Tasks
         {
             TargetEmpire = target.Owner;
 
-            float strWanted = target.BuildingGeodeticOffense + GetKnownEnemyStrInClosestSystems(target.ParentSystem, owner, target.Owner);
+            float strWanted = target.BuildingGeodeticOffense + GetKnownEnemyStrInClosestSystems(target.System, owner, target.Owner);
             MinimumTaskForceStrength = strWanted.LowerBound(owner.KnownEmpireStrength(target.Owner) / 10) 
                                        * owner.GetFleetStrEmpireMultiplier(target.Owner);
         }
@@ -244,7 +244,7 @@ namespace Ship_Game.AI.Tasks
 
         void RemoveTaskTroopsFromPlanet()
         {
-            if (TargetPlanet.ParentSystem.DangerousForcesPresent(Owner))
+            if (TargetPlanet.System.DangerousForcesPresent(Owner))
                 return;
 
             foreach (Troop t in TargetPlanet.Troops.GetLaunchableTroops(Owner))
@@ -422,7 +422,7 @@ namespace Ship_Game.AI.Tasks
 
             int GetExplorationPriority()
             {
-                int initial = TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner) ? 4 : 5;
+                int initial = TargetPlanet.System.HasPlanetsOwnedBy(Owner) ? 4 : 5;
                 return initial + numWars + (MinimumTaskForceStrength > 100 ? 1 : 0);
             }
         }

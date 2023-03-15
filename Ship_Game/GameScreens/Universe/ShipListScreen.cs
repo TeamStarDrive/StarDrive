@@ -337,7 +337,7 @@ namespace Ship_Game
                 Array<Ship> selected = new();
                 foreach (ShipListScreenItem sel in ShipSL.AllEntries)
                     if (sel.Selected) selected.AddUnique(sel.Ship);
-                u.SetSelectedShipList(selected, isFleet: false);
+                u.SetSelectedShipList(selected, fleet: null);
             }
         }
 

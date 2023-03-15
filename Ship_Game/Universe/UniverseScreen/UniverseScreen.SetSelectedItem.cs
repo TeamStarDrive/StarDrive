@@ -27,14 +27,15 @@ public partial class UniverseScreen
 
     public void ClearSelectedItems(bool clearFlags = true,
                                    bool clearShipList = true,
-                                   bool updatePrevSelectedShip = true)
+                                   bool updatePrevSelectedShip = true,
+                                   Fleet fleet = null)
     {
         if (updatePrevSelectedShip)
             UpdatePrevSelectedShip(newShip: null);
 
         SelectedSystem = null;
         SelectedPlanet = null;
-        SelectedFleet = null;
+        SelectedFleet = fleet;
         SelectedItem = null;
         SelectedShip = null;
 
@@ -55,12 +56,10 @@ public partial class UniverseScreen
     public void UpdateSelectedShips()
     {
         SelectedShipList.RemoveInActiveObjects();
-        if (SelectedShipList.Count == 1)
-            SetSelectedShip(SelectedShipList[0]);
-        else if (SelectedShipList.Count > 1)
-            SetSelectedShipList(SelectedShipList, isFleet: false);
+        if (SelectedShipList.Count >= 1)
+            SetSelectedShipList(SelectedShipList, SelectedFleet);
         else if (SelectedShip != null)
-            SetSelectedShip(SelectedShip);
+            SetSelectedShip(SelectedShip, SelectedFleet);
     }
 
     void UpdatePrevSelectedShip(Ship newShip)
@@ -89,14 +88,13 @@ public partial class UniverseScreen
     /// <summary>
     /// Sets the currently selected ship and clears selected ships list
     /// </summary>
-    /// <param name="selectedShip"></param>
-    public void SetSelectedShip(Ship selectedShip)
+    public void SetSelectedShip(Ship selectedShip, Fleet fleet = null)
     {
         SelectedSomethingTimer = 3f;
 
         // manually update prev selected ship
         UpdatePrevSelectedShip(selectedShip);
-        ClearSelectedItems(updatePrevSelectedShip: false);
+        ClearSelectedItems(updatePrevSelectedShip: false, fleet: fleet);
 
         SelectedShip = selectedShip;
 
@@ -107,38 +105,38 @@ public partial class UniverseScreen
         }
     }
 
-    public void SetSelectedShipList(IReadOnlyList<Ship> ships, bool isFleet)
+    public void SetSelectedShipList(IReadOnlyList<Ship> ships, Fleet fleet)
     {
-        ClearSelectedItems(clearShipList: false);
-
         if (ships.Count == 1)
         {
-            SetSelectedShip(ships[0]);
+            SetSelectedShip(ships[0], fleet: fleet);
         }
         else
         {
+            ClearSelectedItems(clearShipList: false, fleet: fleet);
             // if SetSelectedShipList(SelectedShipList) then this is a no-op
             // but otherwise always clone the ship list
             SelectedShipList = ReferenceEquals(ships, SelectedShipList) ? SelectedShipList : new(ships);
-            shipListInfoUI.SetShipList(SelectedShipList, isFleet);
+            shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
         }
     }
 
     public void SetSelectedFleet(Fleet fleet, Array<Ship> selectedShips = null)
     {
         SelectedSomethingTimer = 3f;
-        ClearSelectedItems();
         Array<Ship> ships = selectedShips ?? fleet.Ships;
 
         if (ships.Count == 1)
         {
-            SelectedFleet = fleet;
-            SetSelectedShip(ships.First);
+            SetSelectedShip(ships.First, fleet: fleet);
         }
         else if (ships.Count > 1)
         {
-            SelectedFleet = fleet;
-            SetSelectedShipList(ships, isFleet: true);
+            SetSelectedShipList(ships, fleet: fleet);
+        }
+        else // nothing actually selected
+        {
+            ClearSelectedItems();
         }
     }
 
