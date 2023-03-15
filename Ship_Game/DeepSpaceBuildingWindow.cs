@@ -6,7 +6,6 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.UI;
 
 namespace Ship_Game
@@ -19,6 +18,7 @@ namespace Ship_Game
         public IShipDesign ShipToBuild;
         Vector2 TetherOffset;
         Planet TargetPlanet;
+        SolarSystem TargetSystem;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         public DeepSpaceBuildingWindow(UniverseScreen screen)
@@ -149,13 +149,22 @@ namespace Ship_Game
 
         void TryPlaceBuildable()
         {
-            bool okToBuild = TargetPlanet == null && !ShipToBuild.IsShipyard
-                || TargetPlanet != null && !TargetPlanet.IsOutOfOrbitalsLimit(ShipToBuild);
-
-            if (okToBuild)
+            if (OkToBuild(TargetPlanet, TargetSystem))
             {
                 Vector2 worldPos = Screen.CursorWorldPosition2D;
-                Player.AI.AddGoalAndEvaluate(new BuildConstructionShip(worldPos, ShipToBuild.Name, Player, TargetPlanet, TetherOffset));
+                if (ShipToBuild.IsResearchStation)
+                {
+                    if (TargetPlanet != null)      Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetPlanet));
+                    else if (TargetSystem != null) Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetSystem, worldPos));
+                }
+                else
+                {
+                    if (TargetPlanet != null)
+                        Player.AI.AddGoalAndEvaluate(new BuildConstructionShip(worldPos, ShipToBuild.Name, Player, TargetPlanet, TetherOffset));
+                    else
+                        Player.AI.AddGoalAndEvaluate(new BuildConstructionShip(worldPos, ShipToBuild.Name, Player));
+                }
+
                 GameAudio.EchoAffirmative();
             }
             else
@@ -166,6 +175,42 @@ namespace Ship_Game
             Screen.UpdateClickableItems();
         }
 
+        bool OkToBuild(Planet targetPlanet, SolarSystem targetSystem)
+        {
+            if (ShipToBuild == null)
+                return false;
+
+            if (targetSystem != null && !targetSystem.InSafeDistanceFromRadiation(Screen.CursorWorldPosition2D))
+                return false;
+
+            if (targetPlanet != null)
+            {
+                if (targetPlanet.IsOutOfOrbitalsLimit(ShipToBuild))
+                    return false;
+
+                if (ShipToBuild.IsResearchStation && !targetPlanet.CanBeResearchedBy(Player))
+                    return false;
+            }
+            else
+            {
+                if (ShipToBuild.IsShipyard)
+                    return false;
+
+                if (targetSystem != null && ShipToBuild.IsResearchStation)
+                {
+                    if (Screen.CursorWorldPosition2D.OutsideRadius(targetSystem.Position, targetSystem.Radius * 0.3f))
+                        return false;
+                    if (!targetSystem.CanBeResearchedBy(Player))
+                        return false;
+                }
+
+                if (targetSystem == null && ShipToBuild.IsResearchStation)
+                    return false;
+            }
+
+            return true;
+        }
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
@@ -174,12 +219,31 @@ namespace Ship_Game
             var nodeTex = ResourceManager.Texture("UI/node1");
 
             Planet[] planets = Screen.UState.GetVisiblePlanets();
+            SolarSystem[] systems = Screen.UState.GetVisibleSystems();
 
             foreach (Planet planet in planets)
             {
-                float radius = 2500f * planet.Scale;
-                Screen.DrawCircleProjected(planet.Position, radius, new Color(255, 165, 0, 100), 2f,
-                                           nodeTex, new Color(0, 0, 255, 100));
+                if (OkToBuild(planet, null))
+                {
+                    float radius = 2500f * planet.Scale;
+                    Screen.DrawCircleProjected(planet.Position, radius, new Color(255, 165, 0, 100), 2f,
+                                               nodeTex, new Color(0, 0, 255, 100));
+                }
+            }
+
+            foreach (SolarSystem system in systems)
+            {
+                if (OkToBuild(null, system))
+                {
+                    if (ShipToBuild?.IsResearchStation == true)
+                    {
+                        Screen.DrawCircleProjected(system.Position, system.Radius * 0.3f, new Color(255, 165, 0, 100), 2f,
+                            nodeTex, new Color(0, 0, 255, 100));
+                    }
+                }
+
+                Screen.DrawCircleProjected(system.Position, system.SunDangerRadius, new Color(255, 0, 0, 100), 2f,
+                    nodeTex, new Color(255, 0, 0, 50));
             }
 
             base.Draw(batch, elapsed);
@@ -193,8 +257,8 @@ namespace Ship_Game
                 scale *= 4000.0 / Screen.CamPos.Z;
                 if (scale > 1f)
                     scale = 1f;
-                if (scale < 0.15f)
-                    scale = 0.15f;
+                if (scale < 0.2f)
+                    scale = 0.2f;
 
                 Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
                 Vector2 cursorPos = Screen.Input.CursorPosition;
@@ -226,7 +290,19 @@ namespace Ship_Game
                     }
                 }
 
-                batch.Draw(platform, cursorPos, new Color(0, 255, 0, 100), 0f, IconOrigin, (float)scale, SpriteEffects.None, 1f);
+                foreach (SolarSystem system in systems)
+                {
+                    if (system.Position.Distance(cursorWorldPos) <= system.Radius * 0.8f)
+                    {
+                        TargetSystem = system;
+                        break;
+                    }
+
+                    TargetSystem = null;
+                }
+
+                Color shipColor = OkToBuild(TargetPlanet, TargetSystem) ? new Color(0, 255, 0, 100) : Color.Red.Alpha(100);
+                batch.Draw(platform, cursorPos, shipColor, 0f, IconOrigin, (float)scale, SpriteEffects.None, 1f);
             }
         }
 

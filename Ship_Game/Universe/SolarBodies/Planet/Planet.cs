@@ -1496,6 +1496,12 @@ namespace Ship_Game
                 }
             }
         }
+        public bool CanBeResearchedBy(Empire empire)
+        {
+            return CanBeResearched 
+                && !Universe.ResearchablePlanets[this].Contains(empire.Id) 
+                && !empire.AI.HasGoal(g => g.IsResearchStationGoal(this));
+        }
 
         public PlanetGridSquare GetTileByCoordinates(int x, int y)
         {

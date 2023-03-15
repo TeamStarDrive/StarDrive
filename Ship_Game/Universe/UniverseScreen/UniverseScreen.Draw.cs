@@ -1157,6 +1157,7 @@ namespace Ship_Game
             SubTexture icon_spy_small = ResourceManager.Texture("UI/icon_spy_small");
             SubTexture icon_anomaly_small = ResourceManager.Texture("UI/icon_anomaly_small");
             SubTexture icon_troop = ResourceManager.Texture("UI/icon_troop");
+            SubTexture icon_research = ResourceManager.Texture("NewUI/icon_science");
             for (int k = 0; k < UState.Systems.Count; k++)
             {
                 SolarSystem solarSystem = UState.Systems[k];
@@ -1183,6 +1184,13 @@ namespace Ship_Game
                                                (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
+                    if (planet.CanBeResearchedBy(Player))
+                    {
+                        DrawTextureWithToolTip(icon_research, Color.White, GameText.ResearchStationCanBePlaced, mousePos,
+                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                        ++drawLocationOffset;
+                    }
+
                     if (Player.data.MoleList.Count > 0)
                     {
                         for (int i = 0; i < Player.data.MoleList.Count; i++)
