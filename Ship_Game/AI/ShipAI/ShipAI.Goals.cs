@@ -291,6 +291,12 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.Escort, targetShip, AIState.Escort);
         }
 
+        public void AddResearchStationPlan(Plan plan)
+        {
+            ClearOrders();
+            AddShipGoal(plan, AIState.Research);
+        }
+
         Vector2 GetPositionOnPlanet(Planet p)
         {
             return NewMathExt.RandomOffsetAndDistance(p.Position, p.Radius, p.Random);
@@ -519,7 +525,10 @@ namespace Ship_Game.AI
             AwaitOrdersAIManaged = 34, // different from AwaitOrders, gives the ship over to AI management
             FindExterminationTarget = 35, // find a target to exterminate
             PickupGoodsForStation = 36,
-            DropOffGoodsForStation = 37
+            DropOffGoodsForStation = 37,
+            ResearchStationResearching = 38, // for shipUIinfo display only
+            ResearchStationIdle = 39, // for shipUIinfo display only
+            ResearchStationNoSupply = 40 // for shipUIinfo display only
         }
     }
 }

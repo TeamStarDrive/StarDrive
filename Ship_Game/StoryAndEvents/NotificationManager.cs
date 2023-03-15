@@ -8,7 +8,6 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Ship_Game
 {
@@ -670,6 +669,28 @@ namespace Ship_Game
 
             explorerDestroyed.Message = message;
             AddNotification(explorerDestroyed, "sd_ui_notification_encounter");
+        }
+
+        public void AddExcessResearchStationRemoved(Ship station)
+        {
+            AddNotification(new Notification
+            {
+                Message = Localizer.Token(GameText.RemoveExcessResearchStation),
+                Action = "SnapToShip",
+                ReferencedItem1 = station,
+                IconPath = station.BaseHull.IconPath ?? "ResearchMenu/icon_event_science_bad"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddResearchStationRemoved(Planet planet)
+        {
+            AddNotification(new Notification
+            {
+                Message = Localizer.Token(GameText.RemoveResearchStationTerraform),
+                Action = "SnapToPlanet",
+                ReferencedItem1 = planet,
+                IconPath = planet.IconPath
+            }, "sd_ui_notification_encounter");
         }
 
         public void AddScrapUnlockNotification(string message, string iconPath, string action)

@@ -4473,6 +4473,16 @@ namespace Ship_Game
         ResearchStationCanBePlaced = 4422,
         /// <summary>Star - Indicates that a Research Station can be</summary>
         ResearchStationCanBePlacedSystem = 4423,
+        /// <summary>Research Station was exacuated since</summary>
+        RemoveExcessResearchStation = 4424,
+        /// <summary>Research Station was evacuated since the planet</summary>
+        RemoveResearchStationTerraform = 4425,
+        /// <summary>Researching</summary>
+        ResearchPlanResearching = 4426,
+        /// <summary>Offline - no Research topic</summary>
+        ResearchPlanIdle = 4427,
+        /// <summary>Offline - waiting for supplies</summary>
+        ResearchPlanNoSupply = 4428,
 
 
 

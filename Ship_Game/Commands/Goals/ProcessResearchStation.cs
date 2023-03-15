@@ -3,6 +3,7 @@ using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
+using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -47,7 +48,6 @@ namespace Ship_Game.Commands.Goals
             : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
-            TargetSystem = planet.ParentSystem;
             TargetPlanet = planet;
             Owner = owner;
 
@@ -71,6 +71,7 @@ namespace Ship_Game.Commands.Goals
                 Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetPlanet, bestResearchStation.Name, Owner));
             else
                 Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetSystem, bestResearchStation.Name, Owner, StaticBuildPos));
+
             return GoalStep.GoToNextStep;
         }
 
@@ -99,13 +100,11 @@ namespace Ship_Game.Commands.Goals
             if (ResearchStation == null || !ResearchStation.Active)
                 return GoalStep.GoalFailed;
 
-            // TODO handle multiple stations on the same planet/system
+            if (WasOwnerChanged(out GoalStep ownerChanged))
+                return ownerChanged;
 
-            if (ResearchStation.Loyalty != Owner) // Boarded or gifted
-            {
-                CreateGoalForNewOwner(ResearchStation.Loyalty);
-                return GoalStep.GoalComplete;
-            }
+            if (PlanetNoLongerReseachable(out GoalStep noLongerResearchable))
+                return noLongerResearchable;
 
             CreateSupplyGoalIfNeeded();
             AddResearch(ResearchStation.GetProduction());
@@ -114,21 +113,32 @@ namespace Ship_Game.Commands.Goals
 
         void AddResearch(float availableProduction)
         {
-            if (availableProduction <= 0 || !Owner.Research.HasTopic) 
+            if (availableProduction <= 0)
+            {
+                AddResearchStationPlan(Plan.ResearchStationNoSupply);
                 return;
+            }
+
+            if (!Owner.Research.HasTopic)
+            {
+                AddResearchStationPlan(Plan.ResearchStationIdle);
+                return;
+            }
 
             float upperbound = availableProduction / ProductionPerResearch;
             float researchToAdd = ResearchStation.ResearchPerTurn.UpperBound(upperbound);
             ResearchStation.UnloadProduction(researchToAdd * ProductionPerResearch);
             Owner.Research.AddResearchStationResearchPerTurn(researchToAdd);
+            if (ResearchStation.AI.OrderQueue.PeekFirst?.Plan != Plan.ResearchStationResearching)
+                AddResearchStationPlan(Plan.ResearchStationResearching);
         }
 
         void CreateGoalForNewOwner(Empire newOwner)
         {
             if (ResearchingPlanet)
-                newOwner.AI.AddGoal(new ProcessResearchStation(newOwner, TargetPlanet, ResearchStation));
+                newOwner.AI.AddGoalAndEvaluate(new ProcessResearchStation(newOwner, TargetPlanet, ResearchStation));
             else
-                newOwner.AI.AddGoal(new ProcessResearchStation(newOwner, TargetSystem, ResearchStation.Position, ResearchStation));
+                newOwner.AI.AddGoalAndEvaluate(new ProcessResearchStation(newOwner, TargetSystem, ResearchStation.Position, ResearchStation));
         }
 
         void CreateSupplyGoalIfNeeded()
@@ -138,6 +148,51 @@ namespace Ship_Game.Commands.Goals
 
             if (NeedsProduction && !Owner.AI.HasGoal(g => g.IsSupplyingGoodsToStationStationGoal(ResearchStation)))
                 Owner.AI.AddGoal(new SupplyGoodsToStation(Owner, ResearchStation, Goods.Production));
+        }
+
+        bool WasOwnerChanged(out GoalStep step)
+        {
+            step = GoalStep.TryAgain;
+            if (ResearchStation.Loyalty != Owner) // Boarded or gifted
+            {
+                Empire newOwner = ResearchStation.Loyalty;
+                if (TargetPlanet?.CanBeResearchedBy(newOwner) == true || TargetSystem?.CanBeResearchedBy(newOwner) == true)
+                {
+                    CreateGoalForNewOwner(newOwner);
+                }
+                else
+                {
+                    ResearchStation.DisengageExcessTroops(ResearchStation.TroopCount);
+                    ResearchStation.QueueTotalRemoval();
+                    if (newOwner.isPlayer)
+                        newOwner.Universe.Notifications.AddExcessResearchStationRemoved(ResearchStation);
+                }
+
+                step = GoalStep.GoalComplete;
+                return true;
+            }
+
+            return false;
+        }
+
+        bool PlanetNoLongerReseachable(out GoalStep step)
+        {
+            step = GoalStep.TryAgain;
+            if (ResearchingStar || TargetPlanet.CanBeResearched)
+                return false;
+
+            ResearchStation.QueueTotalRemoval();
+            if (Owner.isPlayer)
+                Owner.Universe.Notifications.AddResearchStationRemoved(TargetPlanet);
+
+            step = GoalStep.GoalComplete;
+            return true;
+        }
+
+        void AddResearchStationPlan(Plan plan)
+        {
+            if (!ResearchStation.InCombat)
+                ResearchStation.AI.AddResearchStationPlan(plan);
         }
 
         float ProductionPerResearch => GlobalStats.Defaults.ResearchStationProductionPerResearch;
