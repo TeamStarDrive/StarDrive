@@ -210,8 +210,7 @@ namespace Ship_Game
                     || target is Ship targetShip && freighter.TryGetBestTradeRoute(goods, exportPlanets, targetShip, out exportAndEta))
                     && !potentialRoutes.ContainsKey(exportAndEta.Eta))
                 {
-                    //if (!potentialRoutes.ContainsKey(exportAndEta.Eta))
-                        potentialRoutes.Add(exportAndEta.Eta, new ExportPlanetAndFreighter(exportAndEta.Planet, freighter));
+                    potentialRoutes.Add(exportAndEta.Eta, new ExportPlanetAndFreighter(exportAndEta.Planet, freighter));
                 }
             }
 
