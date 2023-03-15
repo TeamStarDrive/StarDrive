@@ -15,7 +15,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public SolarSystem TargetSystem;
 
         public override IShipDesign ToBuild => Build.Template;
-        public override bool IsBuildingOrbitalFor(Planet planet) => TetherPlanet == planet;
+        public override bool IsBuildingOrbitalFor(Planet planet) => TetherPlanet != null && TetherPlanet == planet;
         public override bool IsBuildingOrbitalFor(SolarSystem system) => TargetSystem == system;
 
         [StarDataConstructor]

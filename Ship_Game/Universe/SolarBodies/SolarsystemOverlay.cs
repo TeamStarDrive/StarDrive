@@ -152,6 +152,17 @@ namespace Ship_Game
                             }
                             sideSpacing += flashRect.W;
                         }
+                        if (p.CanBeResearchedBy(player))
+                        {
+                            sideSpacing += 4;
+                            RectF flashRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);
+                            batch.Draw(ResourceManager.Texture("NewUI/icon_science"), flashRect, Universe.CurrentFlashColor);
+                            if (flashRect.HitTest(Universe.Input.CursorPosition))
+                            {
+                                ToolTip.CreateTooltip(GameText.ResearchStationCanBePlaced);
+                            }
+                            sideSpacing += flashRect.W;
+                        }
 
                         if (p.Owner == null)
                         {

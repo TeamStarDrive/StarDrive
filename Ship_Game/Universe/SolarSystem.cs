@@ -255,7 +255,7 @@ namespace Ship_Game
             distance = ship.Position.Distance(Position);
             return distance < Sun.RadiationRadius;
         }
-        
+
         public bool InSafeDistanceFromRadiation(Vector2 center)
         {
             return Sun.RadiationDamage.AlmostZero() || center.Distance(Position) > Sun.RadiationRadius + 10000;
@@ -265,6 +265,8 @@ namespace Ship_Game
         {
             return Sun.RadiationDamage.AlmostZero() || distance > Sun.RadiationRadius + 10000;
         }
+
+        public float SunDangerRadius => Sun.RadiationDamage.AlmostZero() ? 0 : Sun.RadiationRadius + 10000; 
 
         // overload for ship info UI or AI maybe
         public bool ShipWithinRadiationRadius(Ship ship)
@@ -613,6 +615,18 @@ namespace Ship_Game
                     return true;
             }
             return false;
+        }
+
+        public bool IsAnyKnownPlanetCanBeResearched(Empire player)
+        {
+            return PlanetList.Any(p => p.IsExploredBy(player) && p.CanBeResearchedBy(player));
+        }
+
+        public bool CanBeResearchedBy(Empire empire)
+        {
+            return CanBeResearched 
+                && !Universe.ResearchableStars[this].Contains(empire.Id) 
+                && !empire.AI.HasGoal(g => g.IsResearchStationGoal(this)); 
         }
 
         public Array<Empire> GetKnownOwners(Empire player)

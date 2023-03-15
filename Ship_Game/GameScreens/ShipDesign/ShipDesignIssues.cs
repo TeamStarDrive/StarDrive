@@ -907,9 +907,9 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Texture     = ResourceManager.Texture("NewUI/IssueOrbitalHangarHold");
                     break;
                 case DesignIssueType.LowResearchTime:
-                    Title       = GameText.DesignIssueOrbitalHangarHoldPositionTitle;
-                    Problem     = GameText.DesignIssueOrbitalHangarHoldPositionProblem;
-                    Remediation = GameText.DesignIssueOrbitalHangarHoldPositionRemidiation;
+                    Title       = GameText.DesignIssueLowResaerchTimeTitle;
+                    Problem     = GameText.DesignIssueLowResaerchTimeProblem;
+                    Remediation = GameText.DesignIssueLowResaerchTimeRemidiation;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowResearchTime");
                     break;
             }

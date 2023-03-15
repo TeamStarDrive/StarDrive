@@ -4469,6 +4469,11 @@ namespace Ship_Game
         DesignIssueLowResaerchTimeRemidiation = 4420,
         /// <summary>Note that if you elected to automate Research</summary>
         DesignIssueLowResaerchTimeNotGood = 4421,
+        /// <summary>Indicates that a Research Station can be</summary>
+        ResearchStationCanBePlaced = 4422,
+        /// <summary>Star - Indicates that a Research Station can be</summary>
+        ResearchStationCanBePlacedSystem = 4423,
+
 
 
 
