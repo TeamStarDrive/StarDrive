@@ -61,6 +61,7 @@ public class UniverseParams
     // persistent toggle flags for different checkboxes
     [StarData(DefaultValue=true)] public bool PlanetsScreenHideInhospitable = true;
     [StarData(DefaultValue=true)] public bool DisableInhibitionWarning = true;
+    [StarData(DefaultValue =true)] public bool PlanetsScreenShowOnlySpecial = true;
     [StarData(DefaultValue=false)] public bool EnableStarvationWarning = false;
     [StarData] public bool SuppressOnBuildNotifications;
     [StarData] public bool PlanetScreenHideOwned;
