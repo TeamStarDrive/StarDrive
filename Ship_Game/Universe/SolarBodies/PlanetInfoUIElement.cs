@@ -351,7 +351,7 @@ namespace Ship_Game
 
         void DrawResearchStaion(SpriteBatch batch, Vector2 mousePos)
         {
-            if (P.HasResearchStationFor(Player))
+            if (P.IsResearchStationDeployedBy(Player))
                 return;
 
             Vector2 textPos = new Vector2(RightRect.X -10, ResearchStationRect.Y + 13 - Font12.LineSpacing / 2 - 2);
@@ -463,7 +463,7 @@ namespace Ship_Game
             if (ResearchStationRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if      (Player.AI.HasGoal(g => g.IsResearchStationGoal(P))) Player.AI.CancelResearchStation(P);
-                else if (Player.CanBuildResearchStations)                    Player.AI.AddGoal(new ProcessResearchStation(Player, P));
+                else if (Player.CanBuildResearchStations)                    Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, P));
                 else                                                         GameAudio.NegativeClick();
 
             GameAudio.EchoAffirmative();

@@ -10342,7 +10342,7 @@ AutoBuildResearchStationTip:
  ENG: "This will auto build Research stations for you around relevant planets or stars. It will use whatever Research Station you pick in the drop down list below. This will not upgrade already existing Stations."
 AutoPickResearchStation:
  Id: 4411 
- ENG: "Auto Pick Research Stations"          
+ ENG: "Auto Pick Research Station"          
 AutoPickResearchStationTip:
  Id: 4412 
  ENG: "This will pick the best Research Station with most Research generated and will upgrade to them whenever possible, if the auto build REsearch Stations checkbox is checked." 
@@ -10394,6 +10394,9 @@ ResearchPlanIdle:
 ResearchPlanNoSupply:
  Id: 4428
  ENG: "Offline - waiting for supplies" 
+ResearchStationDeployed:
+ Id: 4429
+ ENG: "Research Station Deployed"  
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"

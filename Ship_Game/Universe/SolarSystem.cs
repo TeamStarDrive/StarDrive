@@ -629,6 +629,11 @@ namespace Ship_Game
                 && !empire.AI.HasGoal(g => g.IsResearchStationGoal(this)); 
         }
 
+        public bool IsResearchStationDeployedBy(Empire empire)
+        {
+            return CanBeResearched && Universe.ResearchableStars[this].Contains(empire.Id);
+        }
+
         public Array<Empire> GetKnownOwners(Empire player)
         {
             var owners = new Array<Empire>();

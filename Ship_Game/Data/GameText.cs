@@ -4483,6 +4483,8 @@ namespace Ship_Game
         ResearchPlanIdle = 4427,
         /// <summary>Offline - waiting for supplies</summary>
         ResearchPlanNoSupply = 4428,
+        /// <summary>Research Station Deployed</summary>
+        ResearchStationDeployed = 4429,
 
 
 
