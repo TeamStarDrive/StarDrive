@@ -36,6 +36,7 @@ namespace Ship_Game
 
         private UICheckBox cb_hideOwned;
         private UICheckBox cb_hideUninhabitable;
+        private UICheckBox cb_showSpecialOnly;
 
         bool HideOwned
         {
@@ -47,6 +48,17 @@ namespace Ship_Game
         {
             get => UState.P.PlanetsScreenHideInhospitable;
             set => UState.P.PlanetsScreenHideInhospitable = value;
+        }
+
+        bool ShowSpecialPlanetsOnly
+        {
+            get => UState.P.PlanetsScreenShowOnlySpecial;
+            set
+            {
+                UState.P.PlanetsScreenShowOnlySpecial = value;
+                if (UState.P.PlanetsScreenHideInhospitable)
+                    UState.P.PlanetsScreenHideInhospitable = false;
+            }
         }
 
         private int NumAvailableTroops;
@@ -108,15 +120,19 @@ namespace Ship_Game
             }
 
             CalcPlanetsDistances();
-            cb_hideOwned = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
+            cb_hideOwned = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 5,
                 () => HideOwned, 
                 x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", ""));
 
-            cb_hideUninhabitable = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
+            cb_hideUninhabitable = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 25,
                 () => HideUninhab, 
                 x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", ""));
 
-            Vector2 troopPos = new Vector2(TitleBar.Menu.X + TitleBar.Menu.Width + 17, TitleBar.Menu.Y + 55);
+            cb_showSpecialOnly = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 45,
+                () => ShowSpecialPlanetsOnly,
+                x => { ShowSpecialPlanetsOnly = x; ResetList(); }, Fonts.Arial12Bold, "Show Researchable Only", ""));
+
+            Vector2 troopPos = new Vector2(TitleBar.Menu.X + TitleBar.Menu.Width + 17, TitleBar.Menu.Y + 65);
             AvailableTroops  = Add(new UILabel(troopPos, $"Available Troops: ", Fonts.Arial20Bold, Color.LightGreen));
         }
 
@@ -236,11 +252,11 @@ namespace Ship_Game
             Planet[] planets = ExploredPlanets.Sorted(button.Ascending, sortPredicate);
             foreach (Planet p in planets)
             {
-                if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
-                    continue;
-
-                var e = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
-                PlanetSL.AddItem(e);
+                if (ShouldAddItem(p))
+                {
+                    var e = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
+                    PlanetSL.AddItem(e);
+                }
             }
         }
 
@@ -255,11 +271,11 @@ namespace Ship_Game
                 Planet p       = kv.Key;
                 float distance = kv.Value;
 
-                if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
-                    continue;
-
-                var e = new PlanetListScreenItem(this, p, distance, NumAvailableTroops > 0);
-                PlanetSL.AddItem(e);
+                if (ShouldAddItem(p))
+                {
+                    var e = new PlanetListScreenItem(this, p, distance, NumAvailableTroops > 0);
+                    PlanetSL.AddItem(e);
+                }
             }
         }
 
@@ -327,11 +343,11 @@ namespace Ship_Game
             {
                 foreach (Planet p in ExploredPlanets)
                 {
-                    if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
-                        continue;
-
-                    var entry = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
-                    PlanetSL.AddItem(entry);
+                    if (ShouldAddItem(p))
+                    {
+                        var entry = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
+                        PlanetSL.AddItem(entry);
+                    }
                 }
             }
             else
@@ -355,6 +371,14 @@ namespace Ship_Game
             {
                 item.SetCanSendTroops(NumAvailableTroops > 0);
             }
+        }
+
+        public bool ShouldAddItem(Planet p)
+        {
+            return HideOwned && p.Owner == null 
+                || HideUninhab && p.Habitable
+                || ShowSpecialPlanetsOnly && p.CanBeResearched
+                || !HideOwned && !HideUninhab && !ShowSpecialPlanetsOnly;
         }
     }
 }

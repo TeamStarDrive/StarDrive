@@ -600,11 +600,6 @@ namespace Ship_Game
             OrbitalStations.RemoveSwapLast(orbital);
         }
 
-        public bool HasResearchStationFor(Empire empire)
-        {
-            return OrbitalStations.Any(s => s.Loyalty == empire && s.IsResearchStation);
-        }
-
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
         {
             if (Owner == null)
@@ -1501,6 +1496,11 @@ namespace Ship_Game
             return CanBeResearched 
                 && !Universe.ResearchablePlanets[this].Contains(empire.Id) 
                 && !empire.AI.HasGoal(g => g.IsResearchStationGoal(this));
+        }
+
+        public bool IsResearchStationDeployedBy(Empire empire)
+        {
+            return CanBeResearched && Universe.ResearchablePlanets[this].Contains(empire.Id);
         }
 
         public PlanetGridSquare GetTileByCoordinates(int x, int y)

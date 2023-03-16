@@ -8,6 +8,7 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -34,12 +35,16 @@ namespace Ship_Game
         private Rectangle ShipIconRect;
         private readonly UITextEntry PlanetNameEntry = new UITextEntry();
         private UIButton Colonize;
+        private UIButton Research;
         private UIButton SendTroops;
         private UIButton RecallTroops;
         private readonly PlanetListScreen Screen;
         private readonly float Distance;
         private bool MarkedForColonization;
+        private bool MarkedForResearch;
         public bool CanSendTroops;
+
+        UITextEntry ResearchDeployedText;
 
         public PlanetListScreenItem(PlanetListScreen screen, Planet planet, float distance, bool canSendTroops)
         {
@@ -55,6 +60,12 @@ namespace Ship_Game
             {
                 if (g.IsColonizationGoal(planet))
                     MarkedForColonization = true;
+                if (planet.CanBeResearched
+                    && g.IsResearchStationGoal(planet)
+                    && !planet.IsResearchStationDeployedBy(Player))
+                {
+                    MarkedForResearch = true;
+                }
             }
         }
 
@@ -68,12 +79,15 @@ namespace Ship_Game
 
             ButtonStyle colonizeStyle  = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
             LocalizedText colonizeText = !MarkedForColonization ? GameText.Colonize : GameText.CancelColonize;
+            ButtonStyle researchStyle  = MarkedForResearch ? ButtonStyle.Default : ButtonStyle.BigDip;
+            LocalizedText researchText = !MarkedForResearch ? GameText.DeployResearchStation : GameText.CancelDeployResearchStation;
             Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
+            Research   = Button(researchStyle, researchText, OnResearchClicked);
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
             SendTroops.Tooltip = GameText.SendAvailableTroopsToThis;
             RecallTroops = Button(ButtonStyle.Medium, $"Recall Troops ({Planet.NumTroopsCanLaunchFor(Player)})", OnRecallTroopsClicked);
             RecallTroops.Tooltip = GameText.RecallAllTroopsBasedOn;
-
+            Research.Font = Fonts.TahomaBold9;
             int nextX = x;
             Rectangle NextRect(float width)
             {
@@ -100,10 +114,12 @@ namespace Ship_Game
             Colonize.Rect      = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
             SendTroops.Rect    = new RectF(OrdersRect.X + Colonize.Width + 10, Colonize.Y, Colonize.Width, Colonize.Height);
             RecallTroops.Rect  = new RectF(OrdersRect.X + Colonize.Width*2 + 10, Colonize.Y, Colonize.Width, Colonize.Height);
+            Research.Rect      = Colonize.Rect;
 
             Colonize.Visible     = Planet.Owner == null && Planet.Habitable;
             RecallTroops.Visible = Planet.Owner != Player && Planet.NumTroopsCanLaunchFor(Player) > 0;
-
+            
+            SetResearchVisibility();
             UpdateButtonSendTroops();
             AddSystemName();
             AddPlanetName();
@@ -111,6 +127,20 @@ namespace Ship_Game
             AddPlanetStats();
             AddHostileWarning();
             base.PerformLayout();
+        }
+
+        void SetResearchVisibility()
+        {
+            if (Planet.IsResearchStationDeployedBy(Player))
+            {
+                Research.Visible = false;
+                ResearchDeployedText = Add(new UITextEntry(new Vector2(Research.Rect.X, Research.Rect.Y+4), Fonts.Arial12Bold, GameText.ResearchStationDeployed));
+                ResearchDeployedText.Color = Color.SkyBlue;
+            }
+            else
+            {
+                Research.Visible = Planet.CanBeResearched;
+            }
         }
 
         public override bool HandleInput(InputState input)
@@ -416,6 +446,25 @@ namespace Ship_Game
             MarkedForColonization = false;
             Colonize.Text  = "Colonize";
             Colonize.Style = ButtonStyle.BigDip;
+        }
+
+        void OnResearchClicked(UIButton b)
+        {
+            GameAudio.EchoAffirmative();
+            if (!MarkedForResearch)
+            {
+                Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, Planet));
+                Research.Text = GameText.CancelDeployResearchStation;
+                Research.Style = ButtonStyle.Default;
+                MarkedForResearch = true;
+            }
+            else
+            {
+                Player.AI.CancelResearchStation(Planet);
+                MarkedForColonization = false;
+                Research.Text = GameText.DeployResearchStation;
+                Research.Style = ButtonStyle.BigDip;
+            }
         }
 
         struct DistanceDisplay
