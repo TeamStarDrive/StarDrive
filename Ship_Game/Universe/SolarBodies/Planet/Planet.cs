@@ -73,7 +73,6 @@ namespace Ship_Game
         public float RepairMultiplier;
 
         [StarData] public float SensorRange { get; private set; }
-        [StarData] public bool CanBeResearched { get; private set; }
         public float ProjectorRange { get; private set; }
         public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
         public float ColonyValue { get; private set; }
@@ -312,8 +311,8 @@ namespace Ship_Game
 
                 if (random.RollDice(percent: type.Habitable ? -1 : type.CanBeResearchedChance))
                 {
-                    CanBeResearched = true;
-                    Universe.AddResearchablePlanet(this);
+                    SetResearchable(true);
+                    Universe.AddResearchableSolarBody(this);
                     //Log.Info($"{Name} can be researched");
                 }
 
@@ -1490,17 +1489,6 @@ namespace Ship_Game
                     ship.AI.OrderMoveTo(Position, finalDir, MoveOrder.Aggressive|MoveOrder.AddWayPoint|MoveOrder.NoStop);
                 }
             }
-        }
-        public bool CanBeResearchedBy(Empire empire)
-        {
-            return CanBeResearched 
-                && !Universe.ResearchablePlanets[this].Contains(empire.Id) 
-                && !empire.AI.HasGoal(g => g.IsResearchStationGoal(this));
-        }
-
-        public bool IsResearchStationDeployedBy(Empire empire)
-        {
-            return CanBeResearched && Universe.ResearchablePlanets[this].Contains(empire.Id);
         }
 
         public PlanetGridSquare GetTileByCoordinates(int x, int y)

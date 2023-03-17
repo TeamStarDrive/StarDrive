@@ -17,9 +17,9 @@ namespace Ship_Game.Commands.Goals
 
         Ship ResearchStation => TargetShip;
 
-        public override bool IsResearchStationGoal(Planet planet) => TargetPlanet == planet;
+        public override bool IsResearchStationGoal(Planet planet) => planet != null && TargetPlanet == planet;
 
-        public override bool IsResearchStationGoal(SolarSystem system) => TargetSystem == system && TargetPlanet == null;
+        public override bool IsResearchStationGoal(SolarSystem system) => system != null && TargetSystem == system && TargetPlanet == null;
 
         [StarDataConstructor]
         public ProcessResearchStation(Empire owner) : base(GoalType.ProcessResearchStation, owner)
@@ -178,7 +178,7 @@ namespace Ship_Game.Commands.Goals
         bool PlanetNoLongerReseachable(out GoalStep step)
         {
             step = GoalStep.TryAgain;
-            if (ResearchingStar || TargetPlanet.CanBeResearched)
+            if (ResearchingStar || TargetPlanet.IsResearchable)
                 return false;
 
             ResearchStation.QueueTotalRemoval();

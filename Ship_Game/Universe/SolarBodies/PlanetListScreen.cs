@@ -36,8 +36,8 @@ namespace Ship_Game
 
         private UICheckBox cb_hideOwned;
         private UICheckBox cb_hideUninhabitable;
-        private UICheckBox cb_showSpecialOnly;
 
+        UIButton ExoticSystemsButton;
         bool HideOwned
         {
             get => UState.P.PlanetScreenHideOwned;
@@ -48,17 +48,6 @@ namespace Ship_Game
         {
             get => UState.P.PlanetsScreenHideInhospitable;
             set => UState.P.PlanetsScreenHideInhospitable = value;
-        }
-
-        bool ShowSpecialPlanetsOnly
-        {
-            get => UState.P.PlanetsScreenShowOnlySpecial;
-            set
-            {
-                UState.P.PlanetsScreenShowOnlySpecial = value;
-                if (UState.P.PlanetsScreenHideInhospitable)
-                    UState.P.PlanetsScreenHideInhospitable = false;
-            }
         }
 
         private int NumAvailableTroops;
@@ -128,9 +117,10 @@ namespace Ship_Game
                 () => HideUninhab, 
                 x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", ""));
 
-            cb_showSpecialOnly = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 45,
-                () => ShowSpecialPlanetsOnly,
-                x => { ShowSpecialPlanetsOnly = x; ResetList(); }, Fonts.Arial12Bold, "Show Researchable Only", ""));
+            Vector2 exoticPos = new Vector2(TitleBar.Menu.X + TitleBar.Menu.Width - 200, TitleBar.Menu.Y + 30);
+            ExoticSystemsButton = Add(new UIButton(ButtonStyle.Military, exoticPos, GameText.ExoticSystemsArray));
+            ExoticSystemsButton.OnClick = (b) =>  OnExoticSystemsScreenClick();
+            ExoticSystemsButton.Tooltip = Localizer.Token(GameText.ExoticSystemsArrayTip);
 
             Vector2 troopPos = new Vector2(TitleBar.Menu.X + TitleBar.Menu.Width + 17, TitleBar.Menu.Y + 65);
             AvailableTroops  = Add(new UILabel(troopPos, $"Available Troops: ", Fonts.Arial20Bold, Color.LightGreen));
@@ -375,10 +365,16 @@ namespace Ship_Game
 
         public bool ShouldAddItem(Planet p)
         {
-            return HideOwned && p.Owner == null 
+            return HideOwned && p.Owner == null
                 || HideUninhab && p.Habitable
-                || ShowSpecialPlanetsOnly && p.CanBeResearched
-                || !HideOwned && !HideUninhab && !ShowSpecialPlanetsOnly;
+                || !HideOwned && !HideUninhab;
+        }
+
+        void OnExoticSystemsScreenClick()
+        {
+            ExitScreen();
+            GameAudio.AcceptClick();
+            Universe.ScreenManager.AddScreen(new ExoticSystemsListScreen(Universe, Universe.EmpireUI));
         }
     }
 }
