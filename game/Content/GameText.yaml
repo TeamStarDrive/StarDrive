@@ -10397,6 +10397,18 @@ ResearchPlanNoSupply:
 ResearchStationDeployed:
  Id: 4429
  ENG: "Research Station Deployed"  
+ExoticSystemsArray:
+ Id: 4430
+ ENG: "Exotic Systems Array"   
+CannotBuildResearchStationTip2:
+ Id: 4431
+ ENG: "Research Station Tech not available yet."   
+ExoticSystemsArrayTip:
+ Id: 4432
+ ENG: "View all explored exotic systems."    
+StarOrPlanet:
+ Id: 4433
+ ENG: "Star or Planet"     
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"

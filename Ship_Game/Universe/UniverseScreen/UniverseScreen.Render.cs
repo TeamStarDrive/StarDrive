@@ -278,7 +278,7 @@ namespace Ship_Game
 
                 batch.Draw(research_icon, researchRect, CurrentFlashColor);
                 if (researchRect.HitTest(Input.CursorPosition))
-                    ToolTip.CreateTooltip(sys.CanBeResearched ? GameText.ResearchStationCanBePlacedSystem 
+                    ToolTip.CreateTooltip(sys.IsResearchable ? GameText.ResearchStationCanBePlacedSystem 
                                                               : GameText.ResearchStationCanBePlaced);
             }
 

@@ -224,7 +224,7 @@ namespace Ship_Game
                 string text = Localizer.Token(GameText.ThisPlanetIsNotHabitable);
                 Vector2 cursor = new Vector2(Housing.X + 20, Housing.Y + 110);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
-                if (P.CanBeResearched)
+                if (P.IsResearchable)
                     DrawResearchStaion(batch, mousePos);
 
                 return true;

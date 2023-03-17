@@ -37,8 +37,6 @@ namespace Ship_Game
         [StarData] public Array<Planet> PlanetList = new();
         [StarData] public Array<Asteroid> AsteroidsList = new();
         [StarData] public Array<Moon> MoonList = new();
-        [StarData] public bool CanBeResearched { get; private set; } // A research station can be deployed near the star
-
         [StarData] SmallBitSet FullyExplored;
 
         SunType TheSunType;
@@ -484,8 +482,8 @@ namespace Ship_Game
 
             if (random.RollDice(percent: Sun.CanBeResearchedChance))
             {
-                CanBeResearched= true;
-                Universe.AddResearchableStar(this);
+                SetResearchable(true);
+                Universe.AddResearchableSolarBody(this);
                 // Log.Info($"{Name} can be researched");
             }
 
@@ -620,18 +618,6 @@ namespace Ship_Game
         public bool IsAnyKnownPlanetCanBeResearched(Empire player)
         {
             return PlanetList.Any(p => p.IsExploredBy(player) && p.CanBeResearchedBy(player));
-        }
-
-        public bool CanBeResearchedBy(Empire empire)
-        {
-            return CanBeResearched 
-                && !Universe.ResearchableStars[this].Contains(empire.Id) 
-                && !empire.AI.HasGoal(g => g.IsResearchStationGoal(this)); 
-        }
-
-        public bool IsResearchStationDeployedBy(Empire empire)
-        {
-            return CanBeResearched && Universe.ResearchableStars[this].Contains(empire.Id);
         }
 
         public Array<Empire> GetKnownOwners(Empire player)

@@ -4485,7 +4485,14 @@ namespace Ship_Game
         ResearchPlanNoSupply = 4428,
         /// <summary>Research Station Deployed</summary>
         ResearchStationDeployed = 4429,
-
+        /// <summary>Exotic Systems Array</summary>
+        ExoticSystemsArray = 4430,
+        /// <summary>Research Station Tech not available yet</summary>
+        CannotBuildResearchStationTip2 = 4431,
+        /// <summary>View all explored exotic systems</summary>
+        ExoticSystemsArrayTip = 4432,
+        /// <summary>Star or Planet</summary>
+        StarOrPlanet = 4433,
 
 
 
