@@ -175,7 +175,7 @@ namespace Ship_Game.Ships
             {
                 if (!System.IsExploredBy(Loyalty) && Position.InRadius(System.Position, ExploreSystemDistance))
                 {
-                    if (Loyalty.isPlayer && System.CanBeResearched) 
+                    if (Loyalty.isPlayer && System.IsResearchable) 
                         Universe.Screen.NotificationManager.AddReseachableStar(System);
 
                     System.SetExploredBy(Loyalty); // Arrived to a system for the first time
@@ -208,12 +208,12 @@ namespace Ship_Game.Ships
                         }
                     }
 
-                    if (p.CanBeResearched && Loyalty.isPlayer)
+                    if (p.IsResearchable && Loyalty.isPlayer)
                         Universe.Screen.NotificationManager.AddReseachablePlanet(p);
 
                     p.SetExploredBy(Loyalty);
 
-                    if (!System.IsExploredBy(Loyalty) && Loyalty.isPlayer && System.CanBeResearched)
+                    if (!System.IsExploredBy(Loyalty) && Loyalty.isPlayer && System.IsResearchable)
                         Universe.Screen.NotificationManager.AddReseachableStar(System);
 
 

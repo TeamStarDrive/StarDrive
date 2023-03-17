@@ -1116,7 +1116,6 @@ namespace UnitTests.Serialization
             AssertEqual(instance.GravityWellRange, result.GravityWellRange);
             AssertEqual(instance.ExtraPlanets, result.ExtraPlanets);
             AssertEqual(instance.PlanetsScreenHideInhospitable, result.PlanetsScreenHideInhospitable);
-            AssertEqual(instance.PlanetsScreenShowOnlySpecial, result.PlanetsScreenShowOnlySpecial);
             AssertEqual(instance.DisableInhibitionWarning, result.DisableInhibitionWarning);
             AssertEqual(instance.EnableStarvationWarning, result.EnableStarvationWarning);
             AssertEqual(instance.SuppressOnBuildNotifications, result.SuppressOnBuildNotifications);

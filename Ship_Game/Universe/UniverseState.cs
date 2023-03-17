@@ -109,8 +109,8 @@ namespace Ship_Game.Universe
         [StarData] readonly Array<Empire> EmpireList = new();
         [StarData] readonly Array<SolarSystem> SolarSystemList = new();
         [StarData] readonly Array<Planet> AllPlanetsList = new();
-        [StarData] public readonly Map<Planet, HashSet<int>> ResearchablePlanets = new();
-        [StarData] public readonly Map<SolarSystem, HashSet<int>> ResearchableStars = new();
+        [StarData] public readonly Map<ExplorableGameObject, HashSet<int>> ResearchableSolarBodies = new();
+        //[StarData] public readonly Map<SolarSystem, HashSet<int>> ResearchableStars = new();
 
         // TODO: remove PlanetsDict
         [StarData] readonly Map<int, Planet> PlanetsDict = new();
@@ -355,8 +355,7 @@ namespace Ship_Game.Universe
             RemoveSceneObjects();
 
             Objects.Clear();
-            ResearchablePlanets.Clear();
-            ResearchableStars.Clear();
+            ResearchableSolarBodies.Clear();
             ClearSystems();
             ClearEmpires();
             PlanetsDict.Clear();
@@ -436,30 +435,19 @@ namespace Ship_Game.Universe
             }
         }
 
-        public void AddResearchableStar(SolarSystem s) 
+        public void AddResearchableSolarBody(ExplorableGameObject solarBody)
         {
-            ResearchableStars[s] = new HashSet<int>();
+            ResearchableSolarBodies[solarBody] = new HashSet<int>();
         }
 
-        public void AddResearchablePlanet(Planet p)
+        public void AddEmpireToResearchableList(Empire empire, ExplorableGameObject target)
         {
-            ResearchablePlanets[p] = new HashSet<int>();
+            ResearchableSolarBodies[target].Add(empire.Id);
         }
 
-        public void AddEmpireToResearchableList(Empire empire, GameObject target)
+        public void RemoveEmpireFromResearchableList(Empire empire, ExplorableGameObject target)
         {
-            if (target is SolarSystem system)
-                ResearchableStars[system].Add(empire.Id);
-            else if (target is Planet planet)
-                ResearchablePlanets[planet].Add(empire.Id);
-        }
-
-        public void RemoveEmpireFromResearchableList(Empire empire, object target)
-        {
-            if (target is SolarSystem system)
-                ResearchableStars[system].Remove(empire.Id);
-            else if (target is Planet planet)
-                ResearchablePlanets[planet].Remove(empire.Id);
+            ResearchableSolarBodies[target].Remove(empire.Id);
         }
 
         public Planet GetPlanet(int id)
