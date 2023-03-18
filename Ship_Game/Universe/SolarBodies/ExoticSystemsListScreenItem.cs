@@ -62,13 +62,11 @@ namespace Ship_Game
             Distance = distance / 1000; // Distance from nearest player colony
             foreach (Goal g in Player.AI.Goals)
             {
-                if (solarBody.IsResearchable && !solarBody.IsResearchStationDeployedBy(Player))
+                if (solarBody.IsResearchable 
+                    && !solarBody.IsResearchStationDeployedBy(Player)
+                    && g.IsResearchStationGoal(solarBody))
                 {
-                    if (IsStar && g.IsResearchStationGoal(System)
-                        || IsPlanet && g.IsResearchStationGoal(Planet))
-                    {
-                        MarkedForResearch = true;
-                    }
+                    MarkedForResearch = true;
                 }
             }
         }

@@ -28,13 +28,10 @@ namespace Ship_Game.Universe
 
         public bool CanBeResearchedBy(Empire empire)
         {
-            if (!IsResearchable || empire.Universe.ResearchableSolarBodies[this].Contains(empire.Id)) 
+            if (!IsResearchable || IsResearchStationDeployedBy(empire))
                 return false;
 
-            if (this is Planet planet && !empire.AI.HasGoal(g => g.IsResearchStationGoal(planet)))
-                return true;
-
-            if (this is SolarSystem system && !empire.AI.HasGoal(g => g.IsResearchStationGoal(system)))
+            if (!empire.AI.HasGoal(g => g.IsResearchStationGoal(this)))
                 return true;
 
             return false;
