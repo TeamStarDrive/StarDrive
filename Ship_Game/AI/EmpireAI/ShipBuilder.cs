@@ -180,22 +180,22 @@ namespace Ship_Game.AI
         
         public static IShipDesign PickResearchStation(Empire empire)
         {
-            var potenticalResearchStations = new Array<IShipDesign>();
+            var potentialResearchStations = new Array<IShipDesign>();
             float maxResearchPerTurn = 0;
             foreach (IShipDesign design in empire.ShipsWeCanBuild)
             {
                 if (design.IsResearchStation)
                 {
-                    potenticalResearchStations.Add(design);
+                    potentialResearchStations.Add(design);
                     if (design.BaseResearchPerTurn > maxResearchPerTurn)
                         maxResearchPerTurn = design.BaseResearchPerTurn;
                 }
             }
 
             IShipDesign bestResearchStation = null;
-            if (potenticalResearchStations.Count > 0)
+            if (potentialResearchStations.Count > 0)
             {
-                var researchStations = potenticalResearchStations.
+                var researchStations = potentialResearchStations.
                     Filter(s  => s.BaseResearchPerTurn.InRange(maxResearchPerTurn * 0.8f, maxResearchPerTurn));
 
                 bestResearchStation = researchStations.FindMax(s => s.BaseStrength / s.SurfaceArea);
