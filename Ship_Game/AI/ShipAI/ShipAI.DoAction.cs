@@ -274,12 +274,7 @@ namespace Ship_Game.AI
             if (!orbital.IsResearchStation)
                 return;
 
-            Goal goal = null;
-            if (target is Planet planet)
-                goal = Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(planet));
-            else if (target is SolarSystem system)
-                goal = Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(system));
-
+            Goal goal = Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(target));
             if (goal != null)
             {
                 goal.TargetShip = orbital;

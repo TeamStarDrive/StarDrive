@@ -122,12 +122,10 @@ namespace Ship_Game.AI
         public virtual bool IsRefitGoalAtPlanet(Planet planet) => false; // Implement at relevant classes
         /** @return True if this goal is targeting the given planet for colonization */
         public virtual bool IsColonizationGoal(Planet planet) => false;
-        /** @return True if this goal is targeting the given planet for research station */
-        public virtual bool IsResearchStationGoal(Planet planet) => false;
+        /** @return True if this goal is targeting the given solar body for research station */
+        public virtual bool IsResearchStationGoal(ExplorableGameObject body) => false;
         /** @return True if this goal is supplying goods to a station */
         public virtual bool IsSupplyingGoodsToStationStationGoal(Ship ship) => false;
-        /** @return True if this goal is targeting the given system star for research station */
-        public virtual bool IsResearchStationGoal(SolarSystem system) => false;
         /** @return True if this goal is building an orbital for this planet */
         public virtual bool IsBuildingOrbitalFor(Planet planet) => false;
         /** @return True if this goal is building an orbital for this planet */

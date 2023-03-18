@@ -3,6 +3,7 @@ using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Commands.Goals
@@ -17,9 +18,8 @@ namespace Ship_Game.Commands.Goals
 
         Ship ResearchStation => TargetShip;
 
-        public override bool IsResearchStationGoal(Planet planet) => planet != null && TargetPlanet == planet;
-
-        public override bool IsResearchStationGoal(SolarSystem system) => system != null && TargetSystem == system && TargetPlanet == null;
+        public override bool IsResearchStationGoal(ExplorableGameObject body) 
+            => body != null && (TargetPlanet == body || TargetSystem == body);
 
         [StarDataConstructor]
         public ProcessResearchStation(Empire owner) : base(GoalType.ProcessResearchStation, owner)
