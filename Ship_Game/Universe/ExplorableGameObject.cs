@@ -16,7 +16,15 @@ namespace Ship_Game.Universe
 
         public void SetExploredBy(Empire empire) => ExploredBy.Set(empire.Id);
         public bool IsExploredBy(Empire empire)  => ExploredBy.IsSet(empire.Id);
-        public void SetResearchable(bool value)  => IsResearchable = value;
+
+        public void SetResearchable(bool value, UniverseState universe)
+        {
+            IsResearchable = value;
+            if (value)
+                universe.AddResearchableSolarBody(this);
+            else
+                universe.RemoveResearchableSolarBody(this);
+        }
 
         public bool CanBeResearchedBy(Empire empire)
         {

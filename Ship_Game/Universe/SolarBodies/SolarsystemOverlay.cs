@@ -152,7 +152,7 @@ namespace Ship_Game
                             }
                             sideSpacing += flashRect.W;
                         }
-                        if (p.CanBeResearchedBy(player))
+                        if (p.IsResearchable && !p.IsResearchStationDeployedBy(player))
                         {
                             sideSpacing += 4;
                             RectF flashRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);

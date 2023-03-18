@@ -440,6 +440,11 @@ namespace Ship_Game.Universe
             ResearchableSolarBodies[solarBody] = new HashSet<int>();
         }
 
+        public void RemoveResearchableSolarBody(ExplorableGameObject solarBody)
+        {
+            ResearchableSolarBodies.Remove(solarBody);
+        }
+
         public void AddEmpireToResearchableList(Empire empire, ExplorableGameObject target)
         {
             ResearchableSolarBodies[target].Add(empire.Id);
