@@ -240,7 +240,7 @@ namespace Ship_Game
         {
             ExitScreen();
             GameAudio.AcceptClick();
-            if (item.IsLoneStar)
+            if (item.IsStar)
             {
                 Universe.SetSelectedSystem(item.System);
                 Universe.CamDestination = new Vector3d(item.System.Position, item.System.Radius);

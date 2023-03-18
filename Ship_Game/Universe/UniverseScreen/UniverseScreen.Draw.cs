@@ -835,7 +835,7 @@ namespace Ship_Game
                 }
             }
         }
-
+        // FB - This cf needs refactor
         void DrawShipGoalsAndWayPoints(Ship ship, byte alpha)
         {
             if (ship == null)
@@ -950,6 +950,13 @@ namespace Ship_Game
                     DrawLineToPlanet(start, importPosition, Color.Gold);
             }
 
+            if (ship.IsConstructor && ship.AI.State == AIState.MoveTo 
+                && ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal cg)) 
+            {
+                if (cg.Plan is ShipAI.Plan.DeployOrbital or ShipAI.Plan.DeployStructure)
+                    DrawLineToPlanet(start, cg.MovePosition, Color.Yellow);
+            }
+
             DrawWayPointLines(ship, Colors.WayPoints(alpha));
         }
 
@@ -1027,7 +1034,7 @@ namespace Ship_Game
                                                (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
-                    if (planet.CanBeResearchedBy(Player))
+                    if (planet.IsResearchable && !planet.IsResearchStationDeployedBy(Player))
                     {
                         DrawTextureWithToolTip(icon_research, Color.White, GameText.ResearchStationCanBePlaced, mousePos,
                                                (int)posOffSet.X, (int)posOffSet.Y, 14, 14);

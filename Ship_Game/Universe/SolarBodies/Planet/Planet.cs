@@ -309,10 +309,9 @@ namespace Ship_Game
                 if (type.Category == PlanetCategory.GasGiant)
                     scale += 1f;
 
-                if (random.RollDice(percent: type.Habitable ? -1 : type.CanBeResearchedChance))
+                if (random.RollDice(percent: type.Habitable ? -1 : type.ResearchableChance))
                 {
-                    SetResearchable(true);
-                    Universe.AddResearchableSolarBody(this);
+                    SetResearchable(true, Universe);
                     //Log.Info($"{Name} can be researched");
                 }
 

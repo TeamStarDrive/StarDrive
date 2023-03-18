@@ -11,6 +11,7 @@ using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Graphics;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Universe;
+using System;
 
 namespace Ship_Game
 {
@@ -39,7 +40,7 @@ namespace Ship_Game
 
         UITextEntry ResearchTextInfo;
         bool IsPlanet => Planet != null;
-        public bool IsLoneStar => Planet == null;
+        public bool IsStar => Planet == null;
         ExplorableGameObject SolarBody;
 
         public ExoticSystemsListScreenItem(ExplorableGameObject solarBody, float distance)
@@ -61,8 +62,14 @@ namespace Ship_Game
             Distance = distance / 1000; // Distance from nearest player colony
             foreach (Goal g in Player.AI.Goals)
             {
-                if (solarBody.IsResearchable && g.IsResearchStationGoal(Planet) && !solarBody.IsResearchStationDeployedBy(Player))
-                    MarkedForResearch = true;
+                if (solarBody.IsResearchable && !solarBody.IsResearchStationDeployedBy(Player))
+                {
+                    if (IsStar && g.IsResearchStationGoal(System)
+                        || IsPlanet && g.IsResearchStationGoal(Planet))
+                    {
+                        MarkedForResearch = true;
+                    }
+                }
             }
         }
 
@@ -93,7 +100,7 @@ namespace Ship_Game
             OrdersRect = NextRect(100);
 
             PlanetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
-            PlanetNameEntry.Text = IsLoneStar ? "" : Planet.Name;
+            PlanetNameEntry.Text = IsStar ? "" : Planet.Name;
 
             PlanetNameEntry.SetPos(PlanetIconRect.Right + 10, y);
 
@@ -141,7 +148,7 @@ namespace Ship_Game
 
         void AddSystemName()
         {
-            string systemName = IsLoneStar ? System.Name : System.Name;
+            string systemName = IsStar ? System.Name : System.Name;
             Graphics.Font systemFont = NormalFont.MeasureString(systemName).X <= SysNameRect.Width ? NormalFont : SmallFont;
             var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - systemFont.MeasureString(systemName).X / 2f,
                                         2 + SysNameRect.Y + SysNameRect.Height / 2 - systemFont.LineSpacing / 2);
@@ -151,7 +158,7 @@ namespace Ship_Game
 
         void AddPlanetName()
         {
-            if (IsLoneStar)
+            if (IsStar)
                 return;
 
             var namePos = new Vector2(PlanetNameEntry.X, PlanetNameEntry.Y + 3);
@@ -181,7 +188,7 @@ namespace Ship_Game
         void AddTextureAndStatus()
         {
             var icon = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
-            Add(new UIPanel(icon, ResourceManager.Texture(IsLoneStar ? System.Sun.IconPath : Planet.IconPath))
+            Add(new UIPanel(icon, ResourceManager.Texture(IsStar ? System.Sun.IconPath : Planet.IconPath))
             {
                 Tooltip = GameText.PlanetTypeAndRichnessThe
             });
@@ -200,7 +207,11 @@ namespace Ship_Game
             GameAudio.EchoAffirmative();
             if (!MarkedForResearch)
             {
-                Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, Planet));
+                if (IsStar)
+                    Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, System, System.SelectStarResearchStationPos()));
+                else
+                    Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, Planet));
+
                 Research.Text = GameText.CancelDeployResearchStation;
                 Research.Style = ButtonStyle.Default;
                 MarkedForResearch = true;
