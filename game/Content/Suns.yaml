@@ -355,7 +355,7 @@
   Habitable: false # this star is dangerous and leaves all planets barren
   RadiationDamage: 10 # per second, falls off depending on RadiationRadius
   RadiationRadius: 15000
-  CanBeResearchedChance: 25
+  ResearchableChance: 60
   Layers: # huge radiation layer
     - Layer:
       TexturePath: Suns/radiation_purple.dds
@@ -414,7 +414,7 @@
   Habitable: false # this star is dangerous and leaves all planets barren
   RadiationDamage: 10 # per second, falls off depending on RadiationRadius
   RadiationRadius: 20000
-  CanBeResearchedChance: 25
+  ResearchableChance: 50
   Layers: # huge radiation layer
     - Layer:
       TexturePath: Suns/radiation_purple.dds
@@ -498,7 +498,7 @@
   Habitable: false # this star is dangerous and leaves all planets barren
   RadiationDamage: 20 # per second, falls off depending on RadiationRadius
   RadiationRadius: 25000
-  CanBeResearchedChance: 30
+  ResearchableChance: 50
   Layers: # big outer disk
     - Layer:
       TexturePath: Suns/x3.dds

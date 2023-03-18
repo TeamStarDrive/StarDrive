@@ -48,7 +48,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float RadiationDamage = 0f; // is this star dangerous and damages nearby ships??
         [StarData] public readonly float RadiationRadius = 0f;
         [StarData] public readonly Array<SunLayerInfo> Layers;
-        [StarData] public readonly float CanBeResearchedChance; // Can this star contribute to research efforts (needs a research station)
+        [StarData] public readonly float ResearchableChance; // Can this star contribute to research efforts (needs a research station)
 
         public bool Disposed; // if true, this SunType was Disposed because of Hotloading
         public SubTexture Icon { get; private set; } // lo-res icon used in background star fields

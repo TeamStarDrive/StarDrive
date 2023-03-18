@@ -270,7 +270,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyHas);
             }
 
-            if (sys.CanBeResearchedBy(Player) || sys.IsAnyKnownPlanetCanBeResearched(Player))
+            if (sys.IsResearchable && !sys.IsResearchStationDeployedBy(Player) || sys.IsAnyKnownPlanetCanBeResearched(Player))
             {
                 var research_icon = ResourceManager.Texture("NewUI/icon_science");
                 var researchRect = new RectF(sysPos.X, sysPos.Y, research_icon.Width, research_icon.Height);
