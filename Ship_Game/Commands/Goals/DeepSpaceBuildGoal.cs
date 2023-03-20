@@ -34,7 +34,7 @@ namespace Ship_Game.Commands.Goals
 
         protected void Initialize(string shipUid, Vector2 buildPos, Planet planet, Vector2 offset)
         {
-            Initialize(shipUid, buildPos, planet.ParentSystem);
+            Initialize(shipUid, buildPos, planet.System);
             TetherPlanet = planet;
             TetherOffset = offset;
             if (offset.IsNaN())

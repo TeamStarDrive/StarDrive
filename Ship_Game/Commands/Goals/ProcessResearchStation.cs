@@ -50,7 +50,6 @@ namespace Ship_Game.Commands.Goals
             StarDateAdded = owner.Universe.StarDate;
             TargetPlanet = planet;
             Owner = owner;
-
             if (researchStation != null)
                 ChangeToStep(Research);
         }
@@ -79,13 +78,20 @@ namespace Ship_Game.Commands.Goals
         {
             if (ResearchStation != null) // Research Station was deployed by a consturctor
             {
-                // TODO - add ship plan so it could display text on current actions
                 if (ResearchStation.IsResearchStation)
+                {
+                    if (Owner.isPlayer)
+                    {
+                        Owner.Universe.Notifications
+                            .AddResearchStationBuiltNotification(ResearchStation, TargetSystem != null ? TargetSystem 
+                                                                                                       : TargetPlanet);
+                    }
+
                     return GoalStep.GoToNextStep; // consturction ship managed to deploy the orbital
+                }
 
                 Log.Warning($"Research Station Goal: {ResearchStation.Name} is not a research station");
                 return GoalStep.GoalFailed;
-
             }
             else if (ConstructionGoalInProgress)
             {

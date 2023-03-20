@@ -10339,7 +10339,7 @@ AutoBuildResearchStation:
  ENG: "Auto Build Research Stations"          
 AutoBuildResearchStationTip:
  Id: 4410 
- ENG: "This will auto build Research stations for you around relevant planets or stars. It will use whatever Research Station you pick in the drop down list below. This will not upgrade already existing Stations."
+ ENG: "This will auto build Research stations for you around relevant planets or stars. It will use whatever Research Station you pick in the dropdown list below (visible if your empire has access to research station technology). This will also upgrade already existing Stations to the new station you select."
 AutoPickResearchStation:
  Id: 4411 
  ENG: "Auto Pick Research Station"          
@@ -10409,6 +10409,12 @@ ExoticSystemsArrayTip:
 StarOrPlanet:
  Id: 4433
  ENG: "Star or Planet"     
+ResearchStationBuiltPlanetNotify: 
+ Id: 4434
+ ENG: "(Research Station) was\ndeployed in orbit of "     
+ResearchStationBuiltSystemNotify: 
+ Id: 4435
+ ENG: "(Research Station) was\ndeployed in system"      
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"
