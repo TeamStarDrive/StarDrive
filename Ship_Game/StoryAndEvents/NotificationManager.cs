@@ -8,6 +8,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -491,7 +492,7 @@ namespace Ship_Game
             {
                 Pause           = false,
                 Message         = $"{p.Name} { Localizer.Token(text)}",
-                ReferencedItem1 = p.ParentSystem,
+                ReferencedItem1 = p.System,
                 ReferencedItem2 = p,
                 IconPath        = p.IconPath,
                 Action          = "SnapToPlanet"
@@ -713,6 +714,29 @@ namespace Ship_Game
                 ReferencedItem1 = s,
                 IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
             }, "sd_ui_notification_encounter");
+        }
+
+        public void AddResearchStationBuiltNotification(Ship s, ExplorableGameObject solarBody)
+        {
+            string message;
+            if (solarBody is Planet planet)
+            {
+                message = $"{planet.System.Name}: {s.Name}" +
+                    $" {Localizer.Token(GameText.ResearchStationBuiltPlanetNotify)} {planet.Name}";
+            }
+            else
+            {
+                message = $"{(solarBody as SolarSystem).Name}:" +
+                    $" {s.Name} {Localizer.Token(GameText.ResearchStationBuiltSystemNotify)}";
+            }
+
+            AddNotification(new Notification
+            {
+                Message         = message,
+                Action          = "SnapToShip",
+                ReferencedItem1 = s,
+                IconPath        = s.ShipData.IconPath
+            }, "smallservo");
         }
 
         public void AddAbortLandNotification(Planet planet, Ship s)

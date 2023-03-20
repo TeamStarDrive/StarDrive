@@ -4493,6 +4493,13 @@ namespace Ship_Game
         ExoticSystemsArrayTip = 4432,
         /// <summary>Star or Planet</summary>
         StarOrPlanet = 4433,
+        /// <summary>Research Station was deployed in orbit</summary>
+        ResearchStationBuiltPlanetNotify = 4434,
+        /// <summary>Research Station was deployed in system</summary>
+        ResearchStationBuiltSystemNotify = 4435,
+
+
+
 
 
 
