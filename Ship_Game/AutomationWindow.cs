@@ -98,11 +98,10 @@ namespace Ship_Game
 
             FreighterDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => Screen.Player.AutoFreighters, title: GameText.AutomaticTrade, tooltip: GameText.YourEmpireWillAutomaticallyManage2);
-            if (Screen.Player.CanBuildResearchStations)
-            {
-                ResearchStationDropDown = ticks.Add(new CheckedDropdown())
-                    .Create(() => Screen.Player.AutoBuildResearchStations, title: GameText.AutoBuildResearchStation, tooltip: GameText.AutoBuildResearchStationTip);
-            }
+
+            ResearchStationDropDown = ticks.Add(new CheckedDropdown())
+                .Create(() => Screen.Player.AutoBuildResearchStations, title: GameText.AutoBuildResearchStation, tooltip: GameText.AutoBuildResearchStationTip);
+            
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
@@ -131,8 +130,9 @@ namespace Ship_Game
 
             FreighterDropDown.Visible  = !Screen.Player.AutoPickBestFreighter;
             ColonyShipDropDown.Visible = !Screen.Player.AutoPickBestColonizer;
-            ResearchStationDropDown.Visible = !Screen.Player.AutoPickBestResearchStation 
-                                              && Screen.Player.CanBuildResearchStations;
+            ResearchStationDropDown.Visible = !Screen.Player.AutoPickBestResearchStation
+                && Screen.Player.CanBuildResearchStations;
+
 
             base.Draw(batch, elapsed);
         }

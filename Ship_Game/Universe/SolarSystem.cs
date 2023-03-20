@@ -597,11 +597,27 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
-        public Vector2 SelectStarResearchStationPos()
+        public Vector2 SelectStarResearchStationPos(float minimumDistanceFromObjects = 20000)
         {
             float minRadius = SunDangerRadius.LowerBound(20000);
             float maxRadius = (Radius * 0.3f).LowerBound(minRadius + 10000);
-            return Position + Universe.Random.RandomPointInRing(minRadius, maxRadius);
+            Vector2 position = Position + Universe.Random.RandomPointInRing(minRadius, maxRadius);
+
+            // Try to keep distance from other objects. It should nail it on the 1st try since systems are vast
+            for (int i = 1; i <=20; i++)
+            {
+                if (PlanetList.Any(p => position.InRadius(p.Position, minimumDistanceFromObjects))
+                    || ShipList.Any(s => s.IsPlatformOrStation && position.InRadius(s.Position, minimumDistanceFromObjects)))
+                {
+                    position = Position + Universe.Random.RandomPointInRing(minRadius, maxRadius);
+                    minimumDistanceFromObjects *= 0.95f;
+                    continue;
+                }
+                
+                break;
+            }
+
+            return position;
         }
 
         /// <summary>

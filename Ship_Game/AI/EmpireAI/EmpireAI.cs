@@ -38,6 +38,7 @@ namespace Ship_Game.AI
         [StarData] public ThreatMatrix ThreatMatrix;
         [StarData] public float DefStr;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
+        [StarData] public ExpansionAI.ResearchStationPlanner ResearchStationsAI;
         [StarData] public SpaceRoadsManager SpaceRoadsManager;
         BudgetPriorities BudgetSettings;
 
@@ -52,6 +53,7 @@ namespace Ship_Game.AI
             OwnerEmpire = e;
             ThreatMatrix = new(e);
             ExpansionAI = new(OwnerEmpire);
+            ResearchStationsAI = new(OwnerEmpire);
             GoalsList = new();
             AreasOfOperations = new();
 
@@ -139,6 +141,7 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
                 ExpansionAI.RunExpansionPlanner();
+                ResearchStationsAI.RunResearchStationPlanner();
                 SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
