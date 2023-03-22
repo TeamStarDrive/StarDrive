@@ -42,7 +42,7 @@ namespace Ship_Game.AI
         /// <summary>
         /// This is a quick set check to see if we are financially able to rush production
         /// </summary>
-        public bool SafeToRush => CreditRating > 0.75f;
+        public bool SafeToRush => CreditRating > 0.8f;
 
         // Empire spaceDefensive Reserves high enough to support fractional build budgets
         public bool EmpireCanSupportSpcDefense => DefenseBudget > OwnerEmpire.TotalOrbitalMaintenance && CreditRating > 0.90f;

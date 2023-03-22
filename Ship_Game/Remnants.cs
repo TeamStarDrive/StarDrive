@@ -289,11 +289,11 @@ namespace Ship_Game
 
             switch (Story)
             {
-                case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList); break;
-                case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);               break;
-                case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);               break;
-                case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);        break;
-                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);      break;
+                case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList, 1.25f); break;
+                case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);                      break;
+                case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);                      break;
+                case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);               break;
+                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);             break;
             }
 
             return target != null;
@@ -317,7 +317,7 @@ namespace Ship_Game
             if (potentialTargets.Length == 0)
                 return Universe.Player;
 
-            return potentialTargets.FindMax(e => e.CurrentMilitaryStrength);
+            return FindStrongestByAveragePopAndStr(potentialTargets);
         }
 
         Empire FindStrongestEmpireAtWar(Empire[] empiresList)
@@ -326,10 +326,10 @@ namespace Ship_Game
             if (potentialTargets.Length == 0)
                 return null;
 
-            return potentialTargets.FindMax(e => e.CurrentMilitaryStrength);
+            return FindStrongestByAveragePopAndStr(potentialTargets);
         }
 
-        Empire FindStrongestByAveragePopAndStr(Empire[] empiresList)
+        Empire FindStrongestByAveragePopAndStr(Empire[] empiresList, float ratioOverAverageThreshold = 1f)
         {
             if (empiresList.Length == 1)
                 return empiresList.First();
@@ -350,7 +350,7 @@ namespace Ship_Game
             }
 
 
-            return bestEmpire != null && ratioOverAverage > 1.25f ? bestEmpire : null;
+            return bestEmpire != null && ratioOverAverage > ratioOverAverageThreshold ? bestEmpire : null;
         }
 
         Empire FindWeakestEmpire(Empire[] empiresList)
