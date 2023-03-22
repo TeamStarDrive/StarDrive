@@ -624,13 +624,11 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely() || Ships.Any(s => s?.System == task.RallyPlanet.System && s?.InCombat == true))
                         break;
 
-                    if (!task.TargetPlanet.System.HasPlanetsOwnedBy(Owner))
-                        AddFleetProjectorGoal();
-
+                    AddFleetProjectorGoal();
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (FleetProjectorGoalInProgress(task.TargetPlanet.System))
+                    if (FleetProjectorGoalIsStillBuildingConstructor(task.TargetPlanet.System))
                         break;
 
                     GatherAtAO(task, distanceFromAO: targetPlanet.GravityWellRadius);
@@ -791,9 +789,7 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely())
                         break;
 
-                    if (!task.TargetPlanet.System.HasPlanetsOwnedBy(Owner))
-                        AddFleetProjectorGoal();
-
+                    AddFleetProjectorGoal();
                     TaskStep = 3; // Wait for PrepareForWar.cs goal to handle this fleet
                     break;
             }
@@ -831,13 +827,11 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely())
                         break;
 
-                    if (!task.TargetPlanet.System.HasPlanetsOwnedBy(Owner))
-                        AddFleetProjectorGoal();
-
+                    AddFleetProjectorGoal();
                     TaskStep = 2; 
                     break;
                 case 2: 
-                    if (FleetProjectorGoalInProgress(task.TargetPlanet.System))
+                    if (FleetProjectorGoalIsStillBuildingConstructor(task.TargetPlanet.System))
                         break;
 
                     SetOrdersRadius(Ships, 5000);
@@ -927,9 +921,7 @@ namespace Ship_Game.Fleets
                         }
                         else
                         {
-                            if (!task.TargetPlanet.System.HasPlanetsOwnedBy(Owner))
-                                AddFleetProjectorGoal();
-
+                            AddFleetProjectorGoal();
                             TaskStep = 2;
                         }
 
@@ -1063,13 +1055,11 @@ namespace Ship_Game.Fleets
                         break;
                     }
 
-                    if (!task.TargetPlanet.System.HasPlanetsOwnedBy(Owner))
-                        AddFleetProjectorGoal();
-
+                    AddFleetProjectorGoal();
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (FleetProjectorGoalInProgress(task.TargetPlanet.System))
+                    if (FleetProjectorGoalIsStillBuildingConstructor(task.TargetPlanet.System))
                         break;
 
                     GatherAtAO(task, FleetTask.TargetPlanet.System.Radius);
@@ -1397,15 +1387,13 @@ namespace Ship_Game.Fleets
                     MoveStatus moveStatus = FleetMoveStatus(task.RallyPlanet.System.Radius);
                     if (moveStatus.IsSet(MoveStatus.MajorityAssembled) && !task.RallyPlanet.System.HostileForcesPresent(Owner))
                     {
-                        if (!task.TargetPlanet.System.HasPlanetsOwnedBy(Owner))
-                            AddFleetProjectorGoal();
-                         
+                        AddFleetProjectorGoal();
                         TaskStep = 2;
                     }
 
                     break;
                 case 2:
-                    if (FleetProjectorGoalInProgress(task.TargetPlanet.System))
+                    if (FleetProjectorGoalIsStillBuildingConstructor(task.TargetPlanet.System))
                         break;
 
                     GatherAtAO(task, 400000);
@@ -1441,9 +1429,7 @@ namespace Ship_Game.Fleets
                         }
                         else
                         {
-                            if (!task.TargetPlanet.System.HasPlanetsOwnedBy(Owner))
-                                AddFleetProjectorGoal();
-
+                            AddFleetProjectorGoal();
                             TaskStep = 2;
                         }
 
@@ -1547,9 +1533,7 @@ namespace Ship_Game.Fleets
                             AddShips(troopShips);
                             AutoArrange();
                             CreateReclaimFromCurrentTask(this, task, Owner);
-                            if (!task.TargetPlanet.System.HasPlanetsOwnedBy(Owner))
-                                AddFleetProjectorGoal();
-
+                            AddFleetProjectorGoal();
                             GatherAtAO(task, distanceFromAO: 20000);
                             TaskStep = 4; // This sets the step for the reclaim fleet (assault planet).
                         }
@@ -1599,16 +1583,19 @@ namespace Ship_Game.Fleets
 
         void AddFleetProjectorGoal()
         {
-            if (FleetTask?.TargetPlanet != null)
+            Planet targetPlanet = FleetTask?.TargetPlanet;
+            if (targetPlanet != null && !targetPlanet.System.HasPlanetsOwnedBy(Owner))
                 Owner.AI.AddGoalAndEvaluate(new DeployFleetProjector(this, FleetTask.TargetPlanet, Owner));
         }
 
-        bool FleetProjectorGoalInProgress(SolarSystem targetSystem)
+        bool FleetProjectorGoalIsStillBuildingConstructor(SolarSystem targetSystem)
         {
             if (targetSystem.IsExclusivelyOwnedBy(Owner))
                 return false; // no need for projector goal
 
-            var deployGoal = Owner.AI.FindGoal(g => g.Type == GoalType.DeployFleetProjector && g is FleetGoal fg && fg.Fleet == this);
+            var deployGoal = Owner.AI.FindGoal(g => g.Type == GoalType.DeployFleetProjector
+                                                    && g is FleetGoal fg && fg.Fleet == this);
+
             return deployGoal != null && deployGoal.FinishedShip == null;
         }
 

@@ -561,7 +561,7 @@ namespace Ship_Game
                 PlanetUpdatePerTurnTimer = Universe.P.TurnTimer;
                 UpdateBaseFertility();
                 UpdateDynamicBuildings();
-                Mend(((int)InfraStructure + Level).LowerBound(1));
+                Mend(((int)InfraStructure + Level).Clamped(1, 10));
             }
 
             Troops.Update(timeStep);
@@ -1475,7 +1475,7 @@ namespace Ship_Game
 
                 if (!ship.IsFreighter 
                     && ship.BaseStrength > 0 
-                    && (ship.AI.State == AI.AIState.AwaitingOrders || ship.AI.State == AI.AIState.Orbit))
+                    && (ship.AI.State is AIState.AwaitingOrders or AIState.Orbit or AIState.HoldPosition))
                 {
                     // Move Offensively to planet
                     Vector2 finalDir = ship.Position.DirectionToTarget(Position);
