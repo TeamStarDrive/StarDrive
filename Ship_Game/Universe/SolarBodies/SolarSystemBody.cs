@@ -70,7 +70,7 @@ namespace Ship_Game
             DamageBuildings(hardDamage, bomb.ShipLevel);
             TryCreateVolcano(hardDamage);
             Surface.ApplyBombEnvEffects(popKilled, envDamage, bomb.Owner); // Fertility and pop loss
-            Surface.AddBombingIntensity(1);
+            Surface.AddBombingIntensity(hardDamage);
         }
 
         void TryCreateVolcano(int hardDamage)

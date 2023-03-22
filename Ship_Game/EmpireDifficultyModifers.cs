@@ -107,7 +107,7 @@
                     HullTechMultiplier   = 1f;
                     if (!empire.isPlayer)
                     {
-                        FlatMoneyBonus         = 5;
+                        FlatMoneyBonus         = 3;
                         PlayerWarPriorityLimit = 7;
                     }
 
