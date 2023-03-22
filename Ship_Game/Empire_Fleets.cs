@@ -235,11 +235,14 @@ public sealed partial class Empire
     public Array<Ship> AllFleetReadyShips()
     {
         //Get all available ships from AO's
-        var ships = isPlayer ? new(EmpireShips.OwnedShips)
-                             : AIManagedShips.GetShipsFromOffensePools();
+        // FB - there is a major bug here which limited the AI a alot. 
+        // give the AI abiity to use all of its ready ships greatly increased is lethality
+        /*var ships = isPlayer ? new(EmpireShips.OwnedShips)
+                             : AIManagedShips.GetShipsFromOffensePools();*/
 
+        var ships = EmpireShips.OwnedShips;
         var readyShips = new Array<Ship>();
-        for (int i = 0; i < ships.Count; i++)
+        for (int i = 0; i < ships.Length; i++)
         {
             Ship ship = ships[i];
             if (ship == null || ship.Fleet != null)

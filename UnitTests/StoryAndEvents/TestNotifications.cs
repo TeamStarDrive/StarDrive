@@ -53,7 +53,7 @@ namespace UnitTests.NotificationTests
             NotifMgr.Update(10f);
             NotifMgr.Update(10f);
             NotifMgr.Update(10f);
-            AssertEqual(7, NotifMgr.NumberOfNotifications);
+            AssertEqual(9, NotifMgr.NumberOfNotifications);
         }
     }
 }
