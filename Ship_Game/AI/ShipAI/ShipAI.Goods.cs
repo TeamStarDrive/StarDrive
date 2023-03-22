@@ -144,7 +144,7 @@ namespace Ship_Game.AI
                                                   : FreighterPriority.ExcessCargoLeft;
                                                     
             Owner.Loyalty.IncreaseFastVsBigFreighterRatio(freighterPriority);
-            importPlanet.Mend(-1); // Helping with planet repair/heal troops/buildings
+            importPlanet.Mend(-5); // Helping with planet repair/heal troops/buildings
 
             Planet toOrbit = importPlanet;
             if (toOrbit.TradeBlocked || Owner.Loyalty != toOrbit.Owner)
