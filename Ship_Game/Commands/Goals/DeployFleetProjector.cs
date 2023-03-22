@@ -10,7 +10,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class DeployFleetProjector : FleetGoal
     {
-        [StarData] BuildConstructionShip BuildGoal;
+        [StarData] BuildConstructionShip BuildGoal; // the build goal will direct its constructor to deploy ssp in wanted position
         [StarData] public sealed override Planet TargetPlanet { get; set; }
         [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
 
@@ -21,6 +21,7 @@ namespace Ship_Game.Commands.Goals
             {
                 BuildProjector,
                 WaitAndPrioritizeProjector,
+                WaitForProjectorDeployed,
                 RemoveProjectorWhenCompleted
             };
         }
@@ -46,38 +47,66 @@ namespace Ship_Game.Commands.Goals
         GoalStep WaitAndPrioritizeProjector()
         {
             // make sure we are still doing it
-            Goal constructionGoal = Owner.AI.FindGoal(g => g == BuildGoal);
-            if (constructionGoal == null)
-                return GoalStep.RestartGoal; // ughhh wtf
+            if (BuildGoal == null)
+                return GoalStep.RestartGoal; // BuildGoal was canceled
 
-            if (constructionGoal.FinishedShip == null)
+            if (BuildGoal.FinishedShip == null)
             {
-                if (Fleet == null)
+                if (Fleet != null)
                 {
-                    constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
-                    return GoalStep.GoalFailed;
+                    BuildGoal.PlanetBuildingAt?.Construction.PrioritizeProjector(BuildGoal.BuildPosition);
+                    return GoalStep.TryAgain;
                 }
 
-                constructionGoal.PlanetBuildingAt?.Construction.PrioritizeProjector(BuildGoal.BuildPosition);
-                return GoalStep.TryAgain;
+                // Fleet was canceled
+                BuildGoal.PlanetBuildingAt?.Construction.Cancel(BuildGoal);
+                return GoalStep.GoalFailed;
+
             }
 
-            FinishedShip = constructionGoal.FinishedShip; // We have a construction ship on the way
+            // We have a construction ship on the way
+            FinishedShip = BuildGoal.FinishedShip;
             return GoalStep.GoToNextStep;
         }
 
-        GoalStep RemoveProjectorWhenCompleted()
+        GoalStep WaitForProjectorDeployed()
         {
             if (Fleet?.FleetTask == null)
             {
                 FinishedShip?.AI.OrderScrapShip();
+                return GoalStep.GoalFailed;
+            }
+
+            if (FinishedShip == null || !FinishedShip.Active)
+            {
                 var projectors = Owner.OwnedProjectors;
                 for (int i = 0; i < projectors.Count; i++)
                 {
-                    Ship ship = projectors[i];
-                    if (ship.Position.InRadius(BuildGoal.BuildPosition, 1000))
-                        ship.ScuttleTimer = 120;
+                    Ship projector = projectors[i];
+                    if (projector.Position.InRadius(BuildGoal.BuildPosition, 200))
+                    {
+                        FinishedShip = projector; // Projector is deployed and now assigned to this goal
+                        return GoalStep.GoToNextStep;
+                    }
                 }
+            }
+            else
+            {
+                return GoalStep.TryAgain; // Consturctor still enroute
+            }
+
+            return GoalStep.GoalFailed; // construcor died without deploying the projector
+        }
+
+        GoalStep RemoveProjectorWhenCompleted()
+        {
+            if (FinishedShip == null || !FinishedShip.Active)
+                return GoalStep.GoalFailed; 
+
+            if (Fleet?.FleetTask == null)
+            {
+                if (FinishedShip != null)
+                    FinishedShip.ScuttleTimer = 30;
 
                 return GoalStep.GoalComplete;
             }

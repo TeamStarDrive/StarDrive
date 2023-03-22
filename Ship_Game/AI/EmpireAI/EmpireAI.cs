@@ -302,8 +302,8 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
 
-            var offPool = OwnerEmpire.AIManagedShips.GetShipsFromOffensePools(onlyAO: true);
-            for (int i = offPool.Count - 1; i >= 0; i--)
+            var offPool = OwnerEmpire.EmpireShips.OwnedShips;
+            for (int i = offPool.Length - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];
                 if (ship.AI.BadGuysNear
