@@ -190,7 +190,7 @@ namespace Ship_Game.AI.Tasks
                 && TargetPlanet.Owner != Owner.Universe.Unknown && !TargetPlanet.Owner.data.IsRebelFaction)
             {
                 Owner.GetRelations(TargetPlanet.Owner, out Relationship rel);
-                if (rel != null && (!rel.AtWar && !rel.PreparingForWar))
+                if (rel != null && !rel.AtWar)
                 {
                     EndTask();
                     return;
