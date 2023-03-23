@@ -15,6 +15,7 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.Ships
 {
@@ -1796,6 +1797,7 @@ namespace Ship_Game.Ships
                     if (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0)
                         hangarArea += m.Area;
 
+                    offense += m.CalculateModuleOffense();
                     defense += m.CalculateModuleOffenseDefense(SurfaceArea);
                 }
             }
