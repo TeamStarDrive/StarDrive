@@ -13,7 +13,7 @@
   <PlatformModule>true</PlatformModule>
   <StationModule>true</StationModule>
   
-  <Cost>100</Cost>
+  <Cost>50</Cost>
   <TechLevel>2</TechLevel>
   <XSize>2</XSize>
   <YSize>2</YSize>

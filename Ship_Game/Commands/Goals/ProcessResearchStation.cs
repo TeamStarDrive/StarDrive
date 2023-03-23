@@ -197,7 +197,7 @@ namespace Ship_Game.Commands.Goals
 
         void AddResearchStationPlan(Plan plan)
         {
-            if (!ResearchStation.InCombat)
+            if (!ResearchStation.InCombat && !ResearchStation.DoingRefit)
                 ResearchStation.AI.AddResearchStationPlan(plan);
         }
 

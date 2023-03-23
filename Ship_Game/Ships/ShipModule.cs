@@ -1388,7 +1388,7 @@ namespace Ship_Game.Ships
             return Strength;
         }
 
-        float CalculateModuleDefense(int slotCount)
+        public float CalculateModuleDefense(int slotCount)
         {
             if (slotCount <= 0)
                 return 0f;
@@ -1447,7 +1447,7 @@ namespace Ship_Game.Ships
             return def;
         }
 
-        float CalculateModuleOffense()
+        public float CalculateModuleOffense()
         {
             float off = InstalledWeapon?.CalculateOffense(this) ?? 0f;
 
