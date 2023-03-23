@@ -215,7 +215,10 @@ namespace Ship_Game.AI
 
             Owner.QueueTotalRemoval();
             if (g.Goal.OldShip?.Active == true) // we are refitting something
+            {
+                g.Goal.OldShip.TransferCargoUponRefit(orbital);
                 g.Goal.OldShip.QueueTotalRemoval();
+            }
 
             if (bg.TetherPlanet != null)
             {
@@ -261,9 +264,14 @@ namespace Ship_Game.AI
                 target.OrbitalStations.Add(orbital);
                 Owner.QueueTotalRemoval();
                 if (g.Goal.OldShip?.Active == true) // we are refitting something
+                {
+                    g.Goal.OldShip.TransferCargoUponRefit(orbital);
                     g.Goal.OldShip.QueueTotalRemoval();
-                else 
+                }
+                else
+                {
                     target.TryRemoveExcessOrbital(orbital);
+                }
 
                 UpdateResearchStationGoal(orbital, target);
             }
