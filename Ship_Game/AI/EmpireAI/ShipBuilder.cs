@@ -180,6 +180,15 @@ namespace Ship_Game.AI
         
         public static IShipDesign PickResearchStation(Empire empire)
         {
+            if (empire.isPlayer && !empire.AutoPickBestResearchStation)
+            {
+                if (!empire.CanBuildResearchStations)
+                    return null;
+
+                ResourceManager.Ships.GetDesign(empire.data.CurrentResearchStation, out IShipDesign reseaechStation);
+                return reseaechStation;
+            }
+
             var potentialResearchStations = new Array<IShipDesign>();
             float maxResearchPerTurn = 0;
             foreach (IShipDesign design in empire.ShipsWeCanBuild)

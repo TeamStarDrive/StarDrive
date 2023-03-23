@@ -9,7 +9,7 @@
   <Infrastructure>2</Infrastructure>
   <!-- See Globals.yaml for BaseShipyardRepair, this is merely a multiplier -->
   <!-- Having a SpacePort should make the repair a lot better -->
-  <ShipRepair>4.0</ShipRepair>
+  <ShipRepair>40</ShipRepair>
   <AllowShipBuilding>true</AllowShipBuilding>
   
   <!-- For localization in GameText.yaml -->

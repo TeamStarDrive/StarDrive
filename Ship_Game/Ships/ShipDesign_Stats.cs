@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
-using Ship_Game.Tools.Localization;
 using static Ship_Game.Ships.Ship;
 
 namespace Ship_Game.Ships;
@@ -75,7 +73,8 @@ public partial class ShipDesign
         float baseTurnThrust = 0f;
         float baseWarp = 0f;
         float baseMass = 0f;
-        float baseStrength = 0f;
+        float baseOffense = 0f;
+        float baseDefense = 0f;
         float baseCargoSpace = 0f;
         int offensiveSlots = 0;
         float startingColonyGoods = 0f;
@@ -124,7 +123,8 @@ public partial class ShipDesign
                 ++numBuildingsDeployed;
 
             startingColonyGoods += m.NumberOfEquipment + m.NumberOfFood;
-            baseStrength += m.CalculateModuleOffenseDefense(info.SurfaceArea);
+            baseDefense += m.CalculateModuleDefense(info.SurfaceArea);
+            baseOffense += m.CalculateModuleOffense();
         }
 
         if (invalidModules != null)
@@ -134,7 +134,7 @@ public partial class ShipDesign
         }
 
         BaseCost = baseCost;
-        BaseStrength = ShipBuilder.GetModifiedStrength(info.SurfaceArea, offensiveSlots, 0, baseStrength);
+        BaseStrength = ShipBuilder.GetModifiedStrength(info.SurfaceArea, offensiveSlots, baseOffense, baseDefense);
         BaseThrust = baseThrust;
         BaseTurnThrust = baseTurnThrust;
         BaseWarpThrust = baseWarp;

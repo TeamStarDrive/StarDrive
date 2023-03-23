@@ -33,7 +33,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             OldShip = oldShip;
             Planet targetPlanet = oldShip.GetTether();
             Rush= rush;
-            Initialize(toBuild.Name, Vector2.Zero, targetPlanet, Vector2.Zero);
+            if (targetPlanet != null)
+                Initialize(toBuild.Name, Vector2.Zero, targetPlanet, Vector2.Zero);
+            else
+                Initialize(toBuild.Name, OldShip.Position, OldShip.System);
         }
 
         GoalStep FindOrbitalAndPlanetToRefit()

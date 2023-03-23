@@ -6,7 +6,7 @@
   <AllowShipBuilding>true</AllowShipBuilding>
   <!-- See Globals.yaml for BaseShipyardRepair, this is merely a multiplier -->
   <!-- The repair rate here should be much better than Outposts -->
-  <ShipRepair>4.0</ShipRepair>
+  <ShipRepair>40</ShipRepair>
   <PlusFlatResearchAmount>2</PlusFlatResearchAmount>
   <PlusResearchPerColonist>.15</PlusResearchPerColonist>
   <CreditsPerColonist>1</CreditsPerColonist>

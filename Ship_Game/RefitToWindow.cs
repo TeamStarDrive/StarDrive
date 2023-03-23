@@ -88,7 +88,7 @@ namespace Ship_Game
 
             foreach (IShipDesign design in ShipToRefit.Loyalty.ShipsWeCanBuild)
             {
-                if (design.Hull == ShipToRefit.ShipData.Hull 
+                if ((design.Hull == ShipToRefit.ShipData.Hull || ShipToRefit.IsResearchStation) 
                     && design != ShipToRefit.ShipData 
                     && !design.ShipRole.Protected
                     && ShipToRefit.IsResearchStation == design.IsResearchStation)
