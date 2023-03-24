@@ -96,7 +96,7 @@ namespace Ship_Game.Ships
                     && System?.HasPlanetsOwnedBy(Loyalty) == true
                     && !Loyalty.HasWarTaskTargetingSystem(System))
                 {
-                    Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System), 1);
+                    Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System));
                 }
             }
 

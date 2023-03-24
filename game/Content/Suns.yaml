@@ -302,7 +302,7 @@
 
 - Sun:
   Id: star_binary
-  CanBeResearchedChance: 10
+  ResearchableChance: 10
   IconPath: Suns/star_binary_icon.png
   IconScale: 2.5
   LightIntensity: 1.7

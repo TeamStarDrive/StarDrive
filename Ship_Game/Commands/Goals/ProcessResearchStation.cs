@@ -214,7 +214,7 @@ namespace Ship_Game.Commands.Goals
             if (Owner.isPlayer && !Owner.AutoBuildResearchStations)
                 return false;
 
-            string bestRefit = Owner.isPlayer && !Owner.AutoPickBestResearchStation || !Owner.isPlayer
+            string bestRefit = Owner.isPlayer && !Owner.AutoPickBestResearchStation
                 ? Owner.data.CurrentResearchStation
                 : Owner.BestResearchStationWeCanBuild.Name;
 
