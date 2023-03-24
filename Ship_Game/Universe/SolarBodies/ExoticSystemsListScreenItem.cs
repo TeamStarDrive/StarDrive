@@ -130,7 +130,7 @@ namespace Ship_Game
             {
                 Research.Visible = false;
                 ResearchTextInfo.Text = Localizer.Token(GameText.ResearchStationDeployed);
-                ResearchTextInfo.Color = Color.SkyBlue;
+                ResearchTextInfo.Color = Player.EmpireColor;
             }
             else
             {
