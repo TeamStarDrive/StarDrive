@@ -69,7 +69,7 @@ namespace Ship_Game.Ships
             {
                 Planet exportPlanet = exportPlanets[i];
                 int eta = (int)(GetAstrogateTimeTo(exportPlanet) + GetAstrogateTimeBetween(exportPlanet, targetStation));
-                if (InTradingZones(exportPlanet))
+                if (InTradingZones(exportPlanet) && !potentialRoutes.ContainsKey(eta))
                     potentialRoutes.Add(eta, exportPlanet);
             }
 
@@ -165,7 +165,7 @@ namespace Ship_Game.Ships
 
         public bool InTradingZones(Ship targetStation)
         {
-            return Loyalty.isPlayer ? InsideAreaOfOperation(targetStation.Position) : false; 
+            return Loyalty.isPlayer ? InsideAreaOfOperation(targetStation.Position) : true; 
         }
 
         public bool InTradingZones(Planet planet)
