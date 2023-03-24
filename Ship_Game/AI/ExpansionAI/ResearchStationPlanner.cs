@@ -37,6 +37,9 @@ namespace Ship_Game.AI.ExpansionAI
             ExplorableGameObject[] potentialExplorables = GetPotentialResearchableSolarBodies();
             foreach (ExplorableGameObject researchable in potentialExplorables) 
             {
+                if (Owner.Universe.Influence.GetInfluenceStatus(Owner, researchable.Position) == InfluenceStatus.Enemy)
+                        return; // Leave killing research stations to war logic
+
                 if (researchable is Planet planet)
                     ProcessReserchable(planet);
                 else
@@ -46,18 +49,34 @@ namespace Ship_Game.AI.ExpansionAI
 
         void ProcessReserchable(SolarSystem system)
         {
-            if (system.HostileForcesPresent(Owner))
-                return; // TODO set a wargoal if at war depending on distance and borders
-
-            Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, system, system.SelectStarResearchStationPos()));
+            if (system.HostileForcesPresent(Owner)
+                && Owner.Universe.Influence.GetInfluenceStatus(Owner, system.Position) == InfluenceStatus.Friendly)
+            {
+                ProcessHostileForces(system);
+            }
+            else
+            {
+                Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, system, system.SelectStarResearchStationPos()));
+            }
         }
 
         void ProcessReserchable(Planet planet)
         {
-            if (planet.System.HostileForcesPresent(Owner))
-                return; // TODO set a wargoal if at war depending on distance and borders
+            if (planet.System.HostileForcesPresent(Owner)
+                && Owner.Universe.Influence.GetInfluenceStatus(Owner, planet.Position) == InfluenceStatus.Friendly)
+            {
+                ProcessHostileForces(planet.System);
+            }
+            else
+            {
+                Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, planet));
+            }
+        }
 
-            Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, planet));
+        void ProcessHostileForces(SolarSystem system)
+        {
+            if (!Owner.HasWarTaskTargetingSystem(system)) 
+                Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system));
         }
 
         bool ShouldRunResearchMananger()
@@ -77,7 +96,8 @@ namespace Ship_Game.AI.ExpansionAI
             Array<ExplorableGameObject> solarBodies = new();
             foreach (ExplorableGameObject solarBody in  Universe.ResearchableSolarBodies.Keys)
             {
-                if (!solarBody.IsResearchStationDeployedBy(Owner) // this bit is for performance - faster than HasGoal
+                if (solarBody.IsExploredBy(Owner)
+                    && !solarBody.IsResearchStationDeployedBy(Owner) // this bit is for performance - faster than HasGoal
                     && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody)))
                 {
                     solarBodies.Add(solarBody);
