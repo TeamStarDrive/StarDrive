@@ -113,6 +113,7 @@ namespace Ship_Game.Commands.Goals
                 return noLongerResearchable;
 
             CreateSupplyGoalIfNeeded();
+            RefitifNeeded();
             AddResearch(ResearchStation.GetProduction());
             return GoalStep.TryAgain;
         }
@@ -154,6 +155,12 @@ namespace Ship_Game.Commands.Goals
 
             if (NeedsProduction && !Owner.AI.HasGoal(g => g.IsSupplyingGoodsToStationStationGoal(ResearchStation)))
                 Owner.AI.AddGoal(new SupplyGoodsToStation(Owner, ResearchStation, Goods.Production));
+        }
+
+        void RefitifNeeded()
+        {
+            if (NeedsRefit(out IShipDesign stationToRefit))
+                Owner.AI.AddGoalAndEvaluate(new RefitOrbital(ResearchStation, stationToRefit, Owner));
         }
 
         bool WasOwnerChanged(out GoalStep step)
@@ -199,6 +206,22 @@ namespace Ship_Game.Commands.Goals
         {
             if (!ResearchStation.InCombat && !ResearchStation.DoingRefit)
                 ResearchStation.AI.AddResearchStationPlan(plan);
+        }
+
+        bool NeedsRefit(out IShipDesign betterStation)
+        {
+            betterStation = null;
+            if (Owner.isPlayer && !Owner.AutoBuildResearchStations)
+                return false;
+
+            string bestRefit = Owner.isPlayer && !Owner.AutoPickBestResearchStation || !Owner.isPlayer
+                ? Owner.data.CurrentResearchStation
+                : Owner.BestResearchStationWeCanBuild.Name;
+
+            if (ResearchStation.Name != bestRefit && !Owner.AI.HasGoal(g => g is RefitOrbital && g.OldShip == ResearchStation))
+                betterStation = ResourceManager.Ships.GetDesign(bestRefit);
+
+            return betterStation != null;
         }
 
         float ProductionPerResearch => GlobalStats.Defaults.ResearchStationProductionPerResearch;
