@@ -176,7 +176,7 @@ namespace Ship_Game.Ships
                 if (!System.IsExploredBy(Loyalty) && Position.InRadius(System.Position, ExploreSystemDistance))
                 {
                     if (Loyalty.isPlayer && System.IsResearchable) 
-                        Universe.Screen.NotificationManager.AddReseachableStar(System);
+                        Universe.Screen.NotificationManager?.AddReseachableStar(System);
 
                     System.SetExploredBy(Loyalty); // Arrived to a system for the first time
                 }
@@ -193,7 +193,7 @@ namespace Ship_Game.Ships
                     {
                         if (Loyalty == Universe.Player)
                         {
-                            Universe.Screen.NotificationManager.AddFoundSomethingInteresting(p);
+                            Universe.Screen.NotificationManager?.AddFoundSomethingInteresting(p);
                         }
                         else if (p.Owner == null)
                         {
@@ -209,7 +209,7 @@ namespace Ship_Game.Ships
                     }
 
                     if (p.IsResearchable && Loyalty.isPlayer)
-                        Universe.Screen.NotificationManager.AddReseachablePlanet(p);
+                        Universe.Screen.NotificationManager?.AddReseachablePlanet(p);
 
                     p.SetExploredBy(Loyalty);
 

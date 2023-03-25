@@ -348,7 +348,7 @@ namespace Ship_Game.AI
                 if (Owner.Position.InRadius(MovePosition, Owner.ExplorePlanetDistance))
                 {
                     if (PatrolTarget.IsResearchable && Owner.Loyalty.isPlayer)
-                        Owner.Universe.Screen.NotificationManager.AddReseachablePlanet(PatrolTarget);
+                        Owner.Universe.Screen.NotificationManager?.AddReseachablePlanet(PatrolTarget);
 
                     PatrolTarget.SetExploredBy(Owner.Loyalty);
                 }
@@ -365,7 +365,7 @@ namespace Ship_Game.AI
             if (Owner.Position.InRadius(MovePosition, Owner.ExploreSystemDistance))
             {
                 if (Owner.Loyalty.isPlayer && system.IsResearchable && !system.IsExploredBy(Owner.Loyalty))
-                    Owner.Universe.Screen.NotificationManager.AddReseachableStar(system);
+                    Owner.Universe.Screen.NotificationManager?.AddReseachableStar(system);
 
                 system.SetExploredBy(Owner.Loyalty);
                 return;
