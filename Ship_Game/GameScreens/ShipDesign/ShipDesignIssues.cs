@@ -546,10 +546,10 @@ namespace Ship_Game.GameScreens.ShipDesign
             float minimum = ShipResupply.NumTurnsForGoodResearchSupply;
             WarningLevel severity = WarningLevel.Informative;
 
-            if (researchTime > minimum * 2)          return;
+            if      (researchTime > minimum * 1.5)   return;
             else if (researchTime < minimum)         severity = WarningLevel.Critical;
-            else if (researchTime < minimum * 1.4f)  severity = WarningLevel.Major;
-            else if (researchTime < minimum * 1.6f)  severity = WarningLevel.Minor;
+            else if (researchTime < minimum * 1.15f) severity = WarningLevel.Major;
+            else if (researchTime < minimum * 1.3f)  severity = WarningLevel.Minor;
 
             AddDesignIssue(DesignIssueType.LowResearchTime, severity, 
                 severity == WarningLevel.Critical ? $" {Localizer.Token(GameText.DesignIssueLowResaerchTimeNotGood)}" : "");
