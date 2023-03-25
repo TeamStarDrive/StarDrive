@@ -1,13 +1,8 @@
-﻿using SDUtils;
+﻿using SDGraphics;
+using SDUtils;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.AI.ExpansionAI
 {
@@ -27,8 +22,11 @@ namespace Ship_Game.AI.ExpansionAI
         }
         /// <summary>
         /// This will check relevant researchable planets/stars and set goals to deploy
-        /// research stations, based on diplomacy situation
+        /// research stations, based on diplomacy situation and personality
         /// </summary>
+        /// 
+
+        InfluenceStatus Influense(Vector2 pos) => Owner.Universe.Influence.GetInfluenceStatus(Owner, pos);
         public void RunResearchStationPlanner()
         {
             if (!ShouldRunResearchMananger())
@@ -37,45 +35,37 @@ namespace Ship_Game.AI.ExpansionAI
             ExplorableGameObject[] potentialExplorables = GetPotentialResearchableSolarBodies();
             foreach (ExplorableGameObject researchable in potentialExplorables) 
             {
-                if (Owner.Universe.Influence.GetInfluenceStatus(Owner, researchable.Position) == InfluenceStatus.Enemy)
-                        return; // Leave killing research stations to war logic
-
-                if (researchable is Planet planet)
-                    ProcessReserchable(planet);
-                else
-                    ProcessReserchable(researchable as SolarSystem);
+                ProcessReserchable(researchable, Influense(researchable.Position));
             }
         }
 
-        void ProcessReserchable(SolarSystem system)
+        void ProcessReserchable(ExplorableGameObject solarBody, InfluenceStatus influense)
         {
-            if (system.HostileForcesPresent(Owner)
-                && Owner.Universe.Influence.GetInfluenceStatus(Owner, system.Position) == InfluenceStatus.Friendly)
+            if (influense == InfluenceStatus.Enemy)
+                return; // Leave killing research stations to war logic
+
+            SolarSystem system = solarBody.System;
+            if (system == null)
             {
-                ProcessHostileForces(system);
+                Planet planet = solarBody as Planet;
+                system = planet.System;
             }
+
+            if (system.HostileForcesPresent(Owner))
+                TryClearArea(system, influense);
             else
-            {
                 Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, system, system.SelectStarResearchStationPos()));
-            }
         }
 
-        void ProcessReserchable(Planet planet)
+        void TryClearArea(SolarSystem system, InfluenceStatus influense)
         {
-            if (planet.System.HostileForcesPresent(Owner)
-                && Owner.Universe.Influence.GetInfluenceStatus(Owner, planet.Position) == InfluenceStatus.Friendly)
-            {
-                ProcessHostileForces(planet.System);
-            }
-            else
-            {
-                Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, planet));
-            }
-        }
+            if (Owner.isPlayer)
+                return; 
 
-        void ProcessHostileForces(SolarSystem system)
-        {
-            if (!Owner.HasWarTaskTargetingSystem(system)) 
+            bool shouldClearArea = !Owner.PersonalityModifiers.ClearNeutralExoticSystems && influense == InfluenceStatus.Friendly
+                || Owner.PersonalityModifiers.ClearNeutralExoticSystems && influense <= InfluenceStatus.Friendly;
+
+            if (shouldClearArea && !Owner.HasWarTaskTargetingSystem(system))
                 Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system));
         }
 
