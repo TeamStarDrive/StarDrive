@@ -95,6 +95,7 @@ namespace Ship_Game.Commands.Goals
             }
             else if (ConstructionGoalInProgress)
             {
+                CallForHelpIfNeeded();
                 return GoalStep.TryAgain;
             }
 
@@ -114,6 +115,7 @@ namespace Ship_Game.Commands.Goals
 
             CreateSupplyGoalIfNeeded();
             RefitifNeeded();
+            CallForHelpIfNeeded();
             AddResearch(ResearchStation.GetProduction());
             return GoalStep.TryAgain;
         }
@@ -222,6 +224,17 @@ namespace Ship_Game.Commands.Goals
                 betterStation = ResourceManager.Ships.GetDesign(bestRefit);
 
             return betterStation != null;
+        }
+
+
+        void CallForHelpIfNeeded()
+        {
+            if (ResearchStation.AI.BadGuysNear)
+            {
+                SolarSystem system = TargetPlanet?.System ?? TargetSystem;
+                if (!Owner.HasWarTaskTargetingSystem(system))
+                    Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system));
+            }
         }
 
         float ProductionPerResearch => GlobalStats.Defaults.ResearchStationProductionPerResearch;
