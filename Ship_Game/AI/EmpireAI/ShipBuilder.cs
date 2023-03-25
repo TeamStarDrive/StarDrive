@@ -63,7 +63,8 @@ namespace Ship_Game.AI
                 s => s.Role == role && s.GetCost(empire).LessOrEqual(maxCost) 
                                           && s.GetMaintenanceCost(empire).Less(maintBudget)
                                           && !s.IsShipyard
-                                          && !s.IsSubspaceProjector);
+                                          && !s.IsSubspaceProjector
+                                          && !s.IsResearchStation);
 
             if (potentialShips.Count == 0)
             {
@@ -161,8 +162,6 @@ namespace Ship_Game.AI
             return true;
         }
 
-
-
         public static IShipDesign PickShipToRefit(Ship oldShip, Empire empire)
         {
             Array<IShipDesign> ships = ShipsWeCanBuild(empire, s => s.Hull == oldShip.ShipData.Hull
@@ -179,6 +178,44 @@ namespace Ship_Game.AI
         }
 
         
+        public static IShipDesign PickResearchStation(Empire empire)
+        {
+            if (empire.isPlayer && !empire.AutoPickBestResearchStation)
+            {
+                if (!empire.CanBuildResearchStations)
+                    return null;
+
+                ResourceManager.Ships.GetDesign(empire.data.CurrentResearchStation, out IShipDesign reseaechStation);
+                return reseaechStation;
+            }
+
+            var potentialResearchStations = new Array<IShipDesign>();
+            float maxResearchPerTurn = 0;
+            foreach (IShipDesign design in empire.ShipsWeCanBuild)
+            {
+                if (design.IsResearchStation)
+                {
+                    potentialResearchStations.Add(design);
+                    if (design.BaseResearchPerTurn > maxResearchPerTurn)
+                        maxResearchPerTurn = design.BaseResearchPerTurn;
+                }
+            }
+
+            IShipDesign bestResearchStation = null;
+            if (potentialResearchStations.Count > 0)
+            {
+                var researchStations = potentialResearchStations.
+                    Filter(s  => s.BaseResearchPerTurn.InRange(maxResearchPerTurn * 0.8f, maxResearchPerTurn));
+
+                bestResearchStation = researchStations.FindMax(s => s.BaseStrength / s.SurfaceArea);
+            }
+
+            if (empire.Universe?.Debug == true)
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {bestResearchStation?.Name ?? empire.data.ResearchStation}");
+
+            return bestResearchStation ?? ResourceManager.Ships.GetDesign(empire.data.ResearchStation, throwIfError: true);
+        }
+
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)
         {
             float maxFTL = ShipStats.GetFTLSpeed(s, empire);

@@ -13,6 +13,7 @@
   <DefaultAssaultShuttle>Pollops Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Pollops-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Pollops/Pollops_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
 
 
   <RebelName>Pollop Vegetarians</RebelName>

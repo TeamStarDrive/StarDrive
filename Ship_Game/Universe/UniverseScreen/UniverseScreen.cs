@@ -451,8 +451,8 @@ namespace Ship_Game
             ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "Ships: 0");
             ShipsInCombat.DynamicText = () =>
             {
-                ShipsInCombat.Style = Player.empireShipCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
-                return $"Ships: {Player.empireShipCombat}";
+                ShipsInCombat.Style = Player.EmpireShipCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
+                return $"Ships: {Player.EmpireShipCombat}";
             };
             ShipsInCombat.Tooltip = "Cycle through ships not in fleet that are in combat";
             ShipsInCombat.OnClick = ShipsInCombatClick;
@@ -461,8 +461,8 @@ namespace Ship_Game
             PlanetsInCombat = ButtonMediumMenu(width - 135, height - 280, "Planets: 0");
             PlanetsInCombat.DynamicText = () =>
             {
-                PlanetsInCombat.Style = Player.empirePlanetCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
-                return $"Planets: {Player.empirePlanetCombat}";
+                PlanetsInCombat.Style = Player.EmpirePlanetCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
+                return $"Planets: {Player.EmpirePlanetCombat}";
             };
             PlanetsInCombat.OnClick = CyclePlanetsInCombat;
             PlanetsInCombat.Tooltip = "Cycle through planets that are in combat";
@@ -478,7 +478,7 @@ namespace Ship_Game
         void ShipsInCombatClick(UIButton b)
         {
             int nbrship = 0;
-            if (lastshipcombat >= Player.empireShipCombat)
+            if (lastshipcombat >= Player.EmpireShipCombat)
                 lastshipcombat = 0;
             var ships = Player.OwnedShips;
             foreach (Ship ship in ships)

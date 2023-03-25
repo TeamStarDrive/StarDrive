@@ -25,6 +25,7 @@ namespace Ship_Game
         readonly Rectangle SendTroops;
         readonly Rectangle MarkedRect;
         readonly Rectangle CancelInvasionRect;
+        readonly Rectangle ResearchStationRect;
         Rectangle PopRect;
         string PlanetTypeRichness;
         Vector2 PlanetTypeCursor;
@@ -54,7 +55,7 @@ namespace Ship_Game
                                                                                   
         public PlanetInfoUIElement(in Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
-            this.Screen = screen;
+            Screen = screen;
             ScreenManager = sm;
             ElementRect = r;
             Sel = new Selector(r, Color.Black);
@@ -91,7 +92,7 @@ namespace Ship_Game
             SendTroops = new Rectangle(RightRect.X - 17, Housing.Y + 130, 182, 25);
             MarkedRect = new Rectangle(RightRect.X - 17, Housing.Y + 160, 182, 25);
             CancelInvasionRect = MarkedRect; // Replaces the colonization rect when invading
-
+            ResearchStationRect = SendTroops;
         }
 
         public override void Update(UpdateTimes elapsed)
@@ -221,8 +222,11 @@ namespace Ship_Game
             {
                 batch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
                 string text = Localizer.Token(GameText.ThisPlanetIsNotHabitable);
-                Vector2 cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
+                Vector2 cursor = new Vector2(Housing.X + 20, Housing.Y + 110);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
+                if (P.IsResearchable)
+                    DrawResearchStaion(batch, mousePos);
+
                 return true;
             }
 
@@ -302,7 +306,7 @@ namespace Ship_Game
             Vector2 textPos = new Vector2(RightRect.X - 12, CancelInvasionRect.Y + 12 - Font12.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), CancelInvasionRect, Color.White);
             batch.DrawString(Font12, "Cancel Invasion", textPos, CancelInvasionRect.HitTest(mousePos) ? ButtonTextColor
-                                                                                                           : ButtonHoverColor);
+                                                                                                      : ButtonHoverColor);
         }
 
         void DrawColonyType(SpriteBatch batch)
@@ -343,6 +347,28 @@ namespace Ship_Game
             ToolTipItems.Add(new TippedItem(MarkedRect, tip));
             batch.DrawString(Font12, tipText, textPos, MarkedRect.HitTest(mousePos) ? ButtonTextColor 
                                                                                     : ButtonHoverColor);
+        }
+
+        void DrawResearchStaion(SpriteBatch batch, Vector2 mousePos)
+        {
+            if (P.IsResearchStationDeployedBy(Player))
+                return;
+
+            Vector2 textPos = new Vector2(RightRect.X -10, ResearchStationRect.Y + 13 - Font12.LineSpacing / 2 - 2);
+            batch.Draw(ResourceManager.Texture(Player.CanBuildResearchStations ? "NewUI/dan_button_blue_clear" 
+                : "NewUI/dan_button_disabled"), ResearchStationRect, Color.White);
+
+            LocalizedText tip = Player.CanBuildResearchStations ? GameText.DeployResearchStationTip : GameText.CannotBuildResearchStationTip;
+            LocalizedText tipText = GameText.DeployResearchStation;
+            if (Player.AI.HasGoal(g => g.IsResearchStationGoal(P)))
+            {
+                tip = GameText.CancelDeployResearchStationTip;
+                tipText = GameText.CancelDeployResearchStation;
+            }
+
+            ToolTipItems.Add(new TippedItem(ResearchStationRect, tip));
+            batch.DrawString(Font12, tipText, textPos, Player.CanBuildResearchStations ? ResearchStationRect.HitTest(mousePos) ? ButtonTextColor : ButtonHoverColor
+                                                                                       : Color.Gray);
         }
 
         void DrawFertProdStats(SpriteBatch batch)
@@ -433,6 +459,14 @@ namespace Ship_Game
                 }
                 else
                     GameAudio.BlipClick();
+            }
+            if (ResearchStationRect.HitTest(input.CursorPosition) && input.InGameSelect)
+            {
+                if      (Player.AI.HasGoal(g => g.IsResearchStationGoal(P))) Player.AI.CancelResearchStation(P);
+                else if (Player.CanBuildResearchStations)                    Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, P));
+                else                                                         GameAudio.NegativeClick();
+
+            GameAudio.EchoAffirmative();
             }
 
             if (P.Owner != null && P.Owner != Player 

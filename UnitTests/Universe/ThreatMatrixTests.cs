@@ -227,7 +227,7 @@ public class ThreatMatrixTests : StarDriveTest
             DebugVisualizeThreats(Player);
 
         ThreatCluster[] clusters = Player.Threats.FindHostileClustersByDist(pos, 55000);
-        AssertEqual(str1+str2+str3, Str(clusters));
+        AssertEqual((int)(str1+str2+str3), (int)Str(clusters));
         AssertEqual(3, clusters.Length);
     }
 
@@ -446,7 +446,7 @@ public class ThreatMatrixTests : StarDriveTest
 
         Ship[] allShips = Player.EmpireShips.OwnedShips;
         float allStrength = allShips.Sum(s => s.GetStrength());
-        AssertEqual(str, allStrength, "Total ships strength must equal expected spawned strength");
+        AssertEqual((int)str, (int)allStrength, "Total ships strength must equal expected spawned strength");
 
         float strAt1 = Player.Threats.GetStrengthAt(Player, pos1, 5000);
         AssertEqual(str1, strAt1, $"GetStrengthAt={strAt1} must equal str1={str1}");

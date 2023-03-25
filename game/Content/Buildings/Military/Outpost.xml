@@ -8,7 +8,7 @@
        And the game will send ships for Resupply to these Outposts anyways, so if this is 0,
        ships may get stuck repairing forever at Outposts -->
   <!-- See Globals.yaml for BaseShipyardRepair, this is merely a multiplier -->
-  <ShipRepair>2.0</ShipRepair>
+  <ShipRepair>20</ShipRepair>
   <SensorRange>20000</SensorRange>
   <PlusResearchPerColonist>.1</PlusResearchPerColonist>
   <StorageAdded>60</StorageAdded>
