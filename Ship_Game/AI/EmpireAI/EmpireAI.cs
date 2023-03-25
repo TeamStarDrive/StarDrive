@@ -141,7 +141,7 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
                 ExpansionAI.RunExpansionPlanner();
-                ResearchStationsAI.RunResearchStationPlanner();
+                ResearchStationsAI?.RunResearchStationPlanner(); // the null check here is for save competability
                 SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();

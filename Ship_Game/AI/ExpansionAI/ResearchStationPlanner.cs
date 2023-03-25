@@ -20,13 +20,13 @@ namespace Ship_Game.AI.ExpansionAI
         {
             Owner = empire;
         }
+        InfluenceStatus Influense(Vector2 pos) => Owner.Universe.Influence.GetInfluenceStatus(Owner, pos);
+
         /// <summary>
         /// This will check relevant researchable planets/stars and set goals to deploy
         /// research stations, based on diplomacy situation and personality
         /// </summary>
         /// 
-
-        InfluenceStatus Influense(Vector2 pos) => Owner.Universe.Influence.GetInfluenceStatus(Owner, pos);
         public void RunResearchStationPlanner()
         {
             if (!ShouldRunResearchMananger())
@@ -44,17 +44,18 @@ namespace Ship_Game.AI.ExpansionAI
             if (influense == InfluenceStatus.Enemy)
                 return; // Leave killing research stations to war logic
 
-            SolarSystem system = solarBody.System;
-            if (system == null)
-            {
-                Planet planet = solarBody as Planet;
-                system = planet.System;
-            }
-
+            SolarSystem system = solarBody.System ?? solarBody as SolarSystem;
             if (system.HostileForcesPresent(Owner))
+            {
                 TryClearArea(system, influense);
+            }
             else
-                Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, system, system.SelectStarResearchStationPos()));
+            {
+                if (solarBody is Planet)
+                    Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, solarBody as Planet));
+                else
+                    Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, system, system.SelectStarResearchStationPos()));
+            }
         }
 
         void TryClearArea(SolarSystem system, InfluenceStatus influense)
