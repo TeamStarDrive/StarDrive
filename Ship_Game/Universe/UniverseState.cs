@@ -109,6 +109,8 @@ namespace Ship_Game.Universe
         [StarData] readonly Array<Empire> EmpireList = new();
         [StarData] readonly Array<SolarSystem> SolarSystemList = new();
         [StarData] readonly Array<Planet> AllPlanetsList = new();
+        [StarData] public readonly Map<ExplorableGameObject, HashSet<int>> ResearchableSolarBodies = new();
+        //[StarData] public readonly Map<SolarSystem, HashSet<int>> ResearchableStars = new();
 
         // TODO: remove PlanetsDict
         [StarData] readonly Map<int, Planet> PlanetsDict = new();
@@ -353,6 +355,7 @@ namespace Ship_Game.Universe
             RemoveSceneObjects();
 
             Objects.Clear();
+            ResearchableSolarBodies.Clear();
             ClearSystems();
             ClearEmpires();
             PlanetsDict.Clear();
@@ -430,6 +433,26 @@ namespace Ship_Game.Universe
                 AllPlanetsList.Add(planet);
                 PlanetsTree.Insert(planet);
             }
+        }
+
+        public void AddResearchableSolarBody(ExplorableGameObject solarBody)
+        {
+            ResearchableSolarBodies[solarBody] = new HashSet<int>();
+        }
+
+        public void RemoveResearchableSolarBody(ExplorableGameObject solarBody)
+        {
+            ResearchableSolarBodies.Remove(solarBody);
+        }
+
+        public void AddEmpireToResearchableList(Empire empire, ExplorableGameObject target)
+        {
+            ResearchableSolarBodies[target].Add(empire.Id);
+        }
+
+        public void RemoveEmpireFromResearchableList(Empire empire, ExplorableGameObject target)
+        {
+            ResearchableSolarBodies[target].Remove(empire.Id);
         }
 
         public Planet GetPlanet(int id)

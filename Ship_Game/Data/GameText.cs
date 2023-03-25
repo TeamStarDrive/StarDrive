@@ -4427,6 +4427,80 @@ namespace Ship_Game
         EnableStarvationWarningTip = 4399,
         /// <summary>Starvation on</summary>
         StarvationOnPlanet = 4400,
+        /// <summary>intense volcanic activity can</summary>
+        ResearchablePlanetVolcanic = 4401,
+        /// <summary>has rare composition of gases</summary>
+        ResearchablePlanetGasGiant = 4402,
+        /// <summary>can be studied by a Research Station</summary>
+        ResearchablePlanetDefault = 4403,
+        /// <summary>This Star's unique emmisions</summary>
+        ResearchableStar = 4404,
+        /// <summary>Deploy Research Station</summary>
+        DeployResearchStation = 4405,
+        /// <summary>Deploy Research Station in this</summary>
+        DeployResearchStationTip = 4406,
+        /// <summary>Cancel Research Station</summary>
+        CancelDeployResearchStation = 4407,
+        /// <summary>Cancel ongoing deployment mission of research</summary>
+        CancelDeployResearchStationTip = 4408,
+        /// <summary>Auto Build Research Stations</summary>
+        AutoBuildResearchStation = 4409,
+        /// <summary>This will auto build Research stations for</summary>
+        AutoBuildResearchStationTip = 4410,
+        /// <summary>Auto Pick Research Stations</summary>
+        AutoPickResearchStation = 4411,
+        /// <summary>This will pick the best Research Station</summary>
+        AutoPickResearchStationTip = 4412,
+        /// <summary>You do not have the required technology</summary>
+        CannotBuildResearchStationTip = 4413,
+        /// <summary>Amount of Research Points generated per turn</summary>
+        ResearchPerTurnStatTip = 4414,
+        /// <summary>Resaerch Time (turns)</summary>
+        ResearchStationResearchTimeStat = 4415,
+        /// <summary>Number of turns this Station can produce Research</summary>
+        ResearchStationResearchTimeStatTip = 4416,
+        /// <summary>Research p/turn</summary>
+        ResearchPerTurnModule = 4417,
+        /// <summary>Low Research Time</summary>
+        DesignIssueLowResaerchTimeTitle = 4418,
+        /// <summary>This Research Station does not</summary>
+        DesignIssueLowResaerchTimeProblem = 4419,
+        /// <summary>Add Storage or lower the amount</summary>
+        DesignIssueLowResaerchTimeRemidiation = 4420,
+        /// <summary>Note that if you elected to automate Research</summary>
+        DesignIssueLowResaerchTimeNotGood = 4421,
+        /// <summary>Indicates that a Research Station can be</summary>
+        ResearchStationCanBePlaced = 4422,
+        /// <summary>Star - Indicates that a Research Station can be</summary>
+        ResearchStationCanBePlacedSystem = 4423,
+        /// <summary>Research Station was exacuated since</summary>
+        RemoveExcessResearchStation = 4424,
+        /// <summary>Research Station was evacuated since the planet</summary>
+        RemoveResearchStationTerraform = 4425,
+        /// <summary>Researching</summary>
+        ResearchPlanResearching = 4426,
+        /// <summary>Offline - no Research topic</summary>
+        ResearchPlanIdle = 4427,
+        /// <summary>Offline - waiting for supplies</summary>
+        ResearchPlanNoSupply = 4428,
+        /// <summary>Research Station Deployed</summary>
+        ResearchStationDeployed = 4429,
+        /// <summary>Exotic Systems Array</summary>
+        ExoticSystemsArray = 4430,
+        /// <summary>Research Station Tech not available yet</summary>
+        CannotBuildResearchStationTip2 = 4431,
+        /// <summary>View all explored exotic systems</summary>
+        ExoticSystemsArrayTip = 4432,
+        /// <summary>Star or Planet</summary>
+        StarOrPlanet = 4433,
+        /// <summary>Research Station was deployed in orbit</summary>
+        ResearchStationBuiltPlanetNotify = 4434,
+        /// <summary>Research Station was deployed in system</summary>
+        ResearchStationBuiltSystemNotify = 4435,
+
+
+
+
 
 
         /// <summary>on surface</summary>

@@ -32,7 +32,7 @@
   <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
   <!-- This is 4x bigger than Bridge again, but having too insane of a modifier would break the game
        So we need to keep this reasonable at 3x-->
-  <BonusRepairRate>12.0</BonusRepairRate>
+  <BonusRepairRate>50</BonusRepairRate>
 
   <SensorRange>70000</SensorRange>
   <TargetTracking>10</TargetTracking>

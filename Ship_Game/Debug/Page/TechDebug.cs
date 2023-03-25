@@ -40,14 +40,14 @@ public class TechDebug : DebugPage
             Text.String(e.data.EconomicPersonality.Name);
         }
 
-        Text.String($"Corvettes: {e.canBuildCorvettes}");
-        Text.String($"Frigates: {e.canBuildFrigates}");
-        Text.String($"Cruisers: {e.canBuildCruisers}");
+        Text.String($"Corvettes: {e.CanBuildCorvettes}");
+        Text.String($"Frigates: {e.CanBuildFrigates}");
+        Text.String($"Cruisers: {e.CanBuildCruisers}");
         Text.String($"Battleships: {e.CanBuildBattleships}");
-        Text.String($"Capitals: {e.canBuildCapitals}");
-        Text.String($"Bombers: {e.canBuildBombers}");
-        Text.String($"Carriers: {e.canBuildCarriers}");
-        Text.String($"Troopships: {e.canBuildTroopShips}");
+        Text.String($"Capitals: {e.CanBuildCapitals}");
+        Text.String($"Bombers: {e.CanBuildBombers}");
+        Text.String($"Carriers: {e.CanBuildCarriers}");
+        Text.String($"Troopships: {e.CanBuildTroopShips}");
         Text.NewLine();
 
         if (e.Research.HasTopic)

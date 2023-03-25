@@ -13,6 +13,7 @@
   <DefaultAssaultShuttle>Ralyeh Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Ralyeh-Supply</DefaultSupplyShuttle>  
   <SpacePortModel>Model/Ships/Ralyeh/Ralyeh_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   
   <RebelName>Ralyeh Apostates</RebelName>
   <RebelSing>Apostate</RebelSing>

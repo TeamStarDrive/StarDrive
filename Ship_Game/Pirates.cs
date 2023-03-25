@@ -680,6 +680,7 @@ namespace Ship_Game
                     case TargetType.Shipyard         when ship.ShipData.IsShipyard:
                     case TargetType.FreighterAtWarp  when IsFreighterNoOwnedSystem(ship):
                     case TargetType.CombatShipAtWarp when IsCombatShipAtWarp(ship):
+                    case TargetType.Research         when ship.IsResearchStation: 
                     case TargetType.Station          when ship.IsStation:
                     case TargetType.Platform         when ship.IsPlatform:
                     case TargetType.Projector:       targets.Add(ship); break; // Add all of above cases into targets
@@ -902,7 +903,7 @@ namespace Ship_Game
 
         public void ExecuteVictimRetaliation(Empire victim)
         {
-            if (victim.isPlayer || !victim.canBuildFrigates)
+            if (victim.isPlayer || !victim.CanBuildFrigates)
                 return; // Players should attack pirate bases themselves and Ai should attack them only if they have frigates
 
             EmpireAI ai             = victim.AI;
@@ -979,7 +980,8 @@ namespace Ship_Game
             Projector,
             Shipyard,
             Station,
-            Platform
+            Platform,
+            Research
         }
     }
 

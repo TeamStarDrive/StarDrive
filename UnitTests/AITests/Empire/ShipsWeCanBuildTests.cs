@@ -49,15 +49,15 @@ namespace UnitTests.AITests.Empire
 
             UnlockAllTechsForShip(Player, ship.Name); // this must automatically unlock the ships
             Assert.IsTrue(Player.CanBuildShip(ship.ShipData), $"{ship.Name} Not found in ShipWeCanBuild");
-            Assert.IsTrue(Player.canBuildCarriers, $"{ship.Name} did not set canBuildCarriers");
+            Assert.IsTrue(Player.CanBuildCarriers, $"{ship.Name} did not set canBuildCarriers");
 
             UnlockAllTechsForShip(Player, prototype.Name);
             Assert.IsFalse(Player.CanBuildShip(prototype.ShipData), "Prototype ship added to shipswecanbuild");
 
             // Check that adding again does not does not trigger updates.
-            Player.canBuildCarriers = false;
+            Player.TestSetCanBuildCarriersFalse();
             Player.UpdateShipsWeCanBuild(new Array<string> { ship.BaseHull.HullName });
-            Assert.IsFalse(Player.canBuildCarriers, "UpdateShipsWeCanBuild triggered unneeded updates");
+            Assert.IsFalse(Player.CanBuildCarriers, "UpdateShipsWeCanBuild triggered unneeded updates");
         }
 
         [TestMethod]

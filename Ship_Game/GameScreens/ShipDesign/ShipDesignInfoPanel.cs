@@ -116,6 +116,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             ValNZ(() => S.TargetingAccuracy, GT.FireControl, GT.TT_FireControl);
             ValNZ(() => S.TrackingPower, GT.FcsPower, GT.TT_FcsPower);
             ValNZ(() => S.SensorRange, GT.SensorRange3, GT.TT_SensorRange3);
+            ValNZ(() => S.ResearchPerTurn, GT.ResearchPerTurn, GT.ResearchPerTurnStatTip);
+            Val(Ds.ResearchTime, GT.ResearchStationResearchTimeStat, GT.ResearchStationResearchTimeStatTip, 
+                Tint.No, Color.White, vis: Ds.ProducesResearch, col: ColGreater(ShipResupply.NumTurnsForGoodResearchSupply));
 
             ValNZ(() => Ds.Strength, GT.ShipOffense, GT.TT_ShipOffense);
             ValNZ(() => Ds.RelativeStrength, GT.RelativeStrength, GT.TT_RelativeStrength);

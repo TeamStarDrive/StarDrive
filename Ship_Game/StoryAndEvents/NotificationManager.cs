@@ -8,6 +8,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -477,6 +478,39 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
+        public void AddReseachablePlanet(Planet p)
+        {
+            GameText text;
+            switch (p.Category)
+            {
+                case PlanetCategory.Volcanic: text = GameText.ResearchablePlanetVolcanic; break;
+                case PlanetCategory.GasGiant: text = GameText.ResearchablePlanetGasGiant; break;
+                default:                      text = GameText.ResearchablePlanetDefault;  break;
+            }
+
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = $"{p.Name} { Localizer.Token(text)}",
+                ReferencedItem1 = p.System,
+                ReferencedItem2 = p,
+                IconPath        = p.IconPath,
+                Action          = "SnapToPlanet"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddReseachableStar(SolarSystem s)
+        {
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = $"{s.Name}{Localizer.Token(GameText.ResearchableStar)}",
+                ReferencedItem1 = s,
+                IconPath        = s.Sun.IconPath,
+                Action          = "SnapToSystem"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddShipCrashed(Planet p, string message)
         {
             AddNotification(new Notification
@@ -638,6 +672,28 @@ namespace Ship_Game
             AddNotification(explorerDestroyed, "sd_ui_notification_encounter");
         }
 
+        public void AddExcessResearchStationRemoved(Ship station)
+        {
+            AddNotification(new Notification
+            {
+                Message = Localizer.Token(GameText.RemoveExcessResearchStation),
+                Action = "SnapToShip",
+                ReferencedItem1 = station,
+                IconPath = station.BaseHull.IconPath ?? "ResearchMenu/icon_event_science_bad"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddResearchStationRemoved(Planet planet)
+        {
+            AddNotification(new Notification
+            {
+                Message = Localizer.Token(GameText.RemoveResearchStationTerraform),
+                Action = "SnapToPlanet",
+                ReferencedItem1 = planet,
+                IconPath = planet.IconPath
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddScrapUnlockNotification(string message, string iconPath, string action)
         {
             AddNotification(new Notification
@@ -658,6 +714,29 @@ namespace Ship_Game
                 ReferencedItem1 = s,
                 IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
             }, "sd_ui_notification_encounter");
+        }
+
+        public void AddResearchStationBuiltNotification(Ship s, ExplorableGameObject solarBody)
+        {
+            string message;
+            if (solarBody is Planet planet)
+            {
+                message = $"{planet.System.Name}: {s.Name}" +
+                    $" {Localizer.Token(GameText.ResearchStationBuiltPlanetNotify)} {planet.Name}";
+            }
+            else
+            {
+                message = $"{(solarBody as SolarSystem).Name}:" +
+                    $" {s.Name} {Localizer.Token(GameText.ResearchStationBuiltSystemNotify)}";
+            }
+
+            AddNotification(new Notification
+            {
+                Message         = message,
+                Action          = "SnapToShip",
+                ReferencedItem1 = s,
+                IconPath        = s.ShipData.IconPath
+            }, "smallservo");
         }
 
         public void AddAbortLandNotification(Planet planet, Ship s)
