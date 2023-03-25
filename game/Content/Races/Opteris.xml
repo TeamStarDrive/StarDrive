@@ -13,6 +13,7 @@
   <DefaultAssaultShuttle>Opteris Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Opteris-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Opteris/OpterisStation</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   
   <RebelName>Liberated Opteris AI</RebelName>
   <RebelSing>Liberated AI</RebelSing>

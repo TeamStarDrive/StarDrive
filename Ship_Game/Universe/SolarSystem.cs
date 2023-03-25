@@ -37,7 +37,6 @@ namespace Ship_Game
         [StarData] public Array<Planet> PlanetList = new();
         [StarData] public Array<Asteroid> AsteroidsList = new();
         [StarData] public Array<Moon> MoonList = new();
-
         [StarData] SmallBitSet FullyExplored;
 
         SunType TheSunType;
@@ -254,7 +253,7 @@ namespace Ship_Game
             distance = ship.Position.Distance(Position);
             return distance < Sun.RadiationRadius;
         }
-        
+
         public bool InSafeDistanceFromRadiation(Vector2 center)
         {
             return Sun.RadiationDamage.AlmostZero() || center.Distance(Position) > Sun.RadiationRadius + 10000;
@@ -264,6 +263,8 @@ namespace Ship_Game
         {
             return Sun.RadiationDamage.AlmostZero() || distance > Sun.RadiationRadius + 10000;
         }
+
+        public float SunDangerRadius => Sun.RadiationDamage.AlmostZero() ? 0 : Sun.RadiationRadius + 10000; 
 
         // overload for ship info UI or AI maybe
         public bool ShipWithinRadiationRadius(Ship ship)
@@ -452,7 +453,7 @@ namespace Ship_Game
             for (; ringNumber < NumberOfRings + 1; ringNumber++)
             {
                 firstRingRadius += 5000;
-                if (!GlobalStats.DisableAsteroids && random.RollDice(10))
+                if (!GlobalStats.DisableAsteroids && random.RollDice(5))
                 {
                     float ringRadius = NextRingRadius(ringNumber);
                     float spread = ringRadius - firstRingRadius;
@@ -471,12 +472,25 @@ namespace Ship_Game
                 GeneratePlanet(ringNumber + 1);
             }
 
+            float researchableChance = Sun.ResearchableChance;
             // now, if number of planets is <= 2 and they are barren,
             // then 33% chance to have neutron star:
             if (PlanetList.Count <= 2 + us.P.ExtraPlanets && PlanetList.All(p => p.IsBarrenGasOrVolcanic)
                 && random.RollDice(percent:15))
             {
                 Sun = SunType.RandomBarrenSun(random);
+                researchableChance = Sun.ResearchableChance;
+            }
+            else if (PlanetList.Count == 0 + us.P.ExtraPlanets)
+            {
+                // Allow some Lone Stars to be Researchable
+                researchableChance += 50;
+            }
+
+            if (random.RollDice(percent: researchableChance))
+            {
+                SetResearchable(true, Universe);
+                // Log.Info($"{Name} can be researched");
             }
 
             FinalizeGeneratedSystem();
@@ -583,6 +597,29 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
+        public Vector2 SelectStarResearchStationPos(float minimumDistanceFromObjects = 20000)
+        {
+            float minRadius = SunDangerRadius.LowerBound(20000);
+            float maxRadius = (Radius * 0.3f).LowerBound(minRadius + 10000);
+            Vector2 position = Position + Universe.Random.RandomPointInRing(minRadius, maxRadius);
+
+            // Try to keep distance from other objects. It should nail it on the 1st try since systems are vast
+            for (int i = 1; i <=20; i++)
+            {
+                if (PlanetList.Any(p => position.InRadius(p.Position, minimumDistanceFromObjects))
+                    || ShipList.Any(s => s.IsPlatformOrStation && position.InRadius(s.Position, minimumDistanceFromObjects)))
+                {
+                    position = Position + Universe.Random.RandomPointInRing(minRadius, maxRadius);
+                    minimumDistanceFromObjects *= 0.95f;
+                    continue;
+                }
+                
+                break;
+            }
+
+            return position;
+        }
+
         /// <summary>
         /// Gets all ships in this SolarSystem whose owner is `empire`
         /// </summary>
@@ -605,6 +642,11 @@ namespace Ship_Game
                     return true;
             }
             return false;
+        }
+
+        public bool IsAnyKnownPlanetCanBeResearched(Empire player)
+        {
+            return PlanetList.Any(p => p.IsExploredBy(player) && p.IsResearchable && !p.IsResearchStationDeployedBy(player));
         }
 
         public Array<Empire> GetKnownOwners(Empire player)

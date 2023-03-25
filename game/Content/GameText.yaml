@@ -10310,6 +10310,123 @@ BB_EnableStarvationWarningTip:
 StarvationOnPlanet:
  Id: 4400
  ENG: "Starvation started on"     
+ResearchablePlanetVolcanic:
+ Id: 4401
+ ENG: "intense volcanic activity can\nstudied by a Research Station, if placed in orbit."      
+ResearchablePlanetGasGiant:
+ Id: 4402 
+ ENG: "has rare composition of gases which can aid us in various\nresearch efforts, if a Research Station is placed in orbit."     
+ResearchablePlanetDefault:
+ Id: 4403 
+ ENG: "can be studied by a Research Station placed in orbit to aid in research efforts."      
+ResearchableStar:
+ Id: 4404 
+ ENG: "'s unique emmisions can be studied by a Research Station\nplaced near it, which will boost our research efforts."       
+DeployResearchStation:
+ Id: 4405 
+ ENG: "Deploy Research Station"        
+DeployResearchStationTip:
+ Id: 4406 
+ ENG: "Deploy Research Station in this planet's orbit. Only one Research Station can be deployed per empire."        
+CancelDeployResearchStation:
+ Id: 4407 
+ ENG: "Cancel Research Station"        
+CancelDeployResearchStationTip:
+ Id: 4408 
+ ENG: "Cancel ongoing deployment mission of research station to this planet's orbit."         
+AutoBuildResearchStation:
+ Id: 4409 
+ ENG: "Auto Build Research Stations"          
+AutoBuildResearchStationTip:
+ Id: 4410 
+ ENG: "This will auto build Research stations for you around relevant planets or stars. It will use whatever Research Station you pick in the dropdown list below (visible if your empire has access to research station technology). This will also upgrade already existing Stations to the new station you select."
+AutoPickResearchStation:
+ Id: 4411 
+ ENG: "Auto Pick Research Station"          
+AutoPickResearchStationTip:
+ Id: 4412 
+ ENG: "This will pick the best Research Station with most Research generated and will upgrade to them whenever possible, if the auto build REsearch Stations checkbox is checked." 
+CannotBuildResearchStationTip:
+ Id: 4413 
+ ENG: "You do not have the required technology to build a Research Station, research relevent tech to gain Research Station schematics."  
+ResearchPerTurnStatTip:
+ Id: 4414
+ ENG: "Amount of Research Points generated per turn."    
+ResearchStationResearchTimeStat:
+ Id: 4415 
+ ENG: "Resaerch Time (turns)"   
+ResearchStationResearchTimeStatTip:
+ Id: 4416
+ ENG: "Number of turns this Station can produce Research until Production stocks are depleted." 
+ResearchPerTurnModule:
+ Id: 4417
+ ENG: "Research p/turn"
+DesignIssueLowResaerchTimeTitle:
+ Id: 4418
+ ENG: "Low Research Time"
+DesignIssueLowResaerchTimeProblem:
+ Id: 4419
+ ENG: "This Research Station does not have enough production storage to produce Research for long periods. This might increase traffic of frieghters to this Station."
+DesignIssueLowResaerchTimeRemidiation:
+ Id: 4420
+ ENG: "Add Storage or lower the amount of Research modules."
+DesignIssueLowResaerchTimeNotGood:
+ Id: 4421
+ ENG: "Note that if you elected to automate Research Stations picking, this Station will not be used. It is too inefficient." 
+ResearchStationCanBePlaced:
+ Id: 4422
+ ENG: "Indicates that a Research Station can be deployed in orbit of this planet."  
+ResearchStationCanBePlacedSystem:
+ Id: 4423
+ ENG: "Indicates that a Research Station can be deployed in this system to research it's Star."   
+RemoveExcessResearchStation:
+ Id: 4424
+ ENG: "Research Station was evacuated since there\ncan only be one station per Star or Planet."    
+RemoveResearchStationTerraform:
+ Id: 4425
+ ENG: "Research Station was evacuated since the planet\nCannot be studied anymore."     
+ResearchPlanResearching:
+ Id: 4426
+ ENG: "Researching"  
+ResearchPlanIdle:
+ Id: 4427
+ ENG: "Offline - no Research topic" 
+ResearchPlanNoSupply:
+ Id: 4428
+ ENG: "Offline - waiting for supplies" 
+ResearchStationDeployed:
+ Id: 4429
+ ENG: "Research Station Deployed"  
+ExoticSystemsArray:
+ Id: 4430
+ ENG: "Exotic Systems Array"   
+CannotBuildResearchStationTip2:
+ Id: 4431
+ ENG: "Research Station Tech not available yet."   
+ExoticSystemsArrayTip:
+ Id: 4432
+ ENG: "View all explored exotic systems."    
+StarOrPlanet:
+ Id: 4433
+ ENG: "Star or Planet"     
+ResearchStationBuiltPlanetNotify: 
+ Id: 4434
+ ENG: "(Research Station) was\ndeployed in orbit of "     
+ResearchStationBuiltSystemNotify: 
+ Id: 4435
+ ENG: "(Research Station) was\ndeployed in system"      
+ResearchLabName:
+ Id: 4989
+ ENG: "Research Lab"
+ResearchLabDesc:
+ Id: 4990
+ ENG: "This large Lab is a step forward in our Stars and planet research efforts. It can be installed on our Station hull." 
+ResearchArrayName:
+ Id: 4991
+ ENG: "Research Module"
+ResearchArrayDesc:
+ Id: 4992
+ ENG: "This small Lab can greaty enhance our research efforts in Space, when studying Stars and unique planet compositions."
 OnSurface:
  Id: 4993
  ENG: "on surface"

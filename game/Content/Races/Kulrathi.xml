@@ -14,6 +14,7 @@
   <DefaultAssaultShuttle>Kulrathi Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Kulrathi-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Kulrathi/Kulrathi_Station</SpacePortModel>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
 
   <TechTree>Kulrathi</TechTree>
   <RebelName>Kulrathi Warlords</RebelName>

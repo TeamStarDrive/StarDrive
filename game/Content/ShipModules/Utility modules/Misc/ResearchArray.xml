@@ -1,0 +1,38 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FrigateModule>false</FrigateModule>
+  <DestroyerModule>false</DestroyerModule>
+  <CruiserModule>false</CruiserModule>
+  <CarrierModule>false</CarrierModule>
+  <CapitalModule>false</CapitalModule>
+  <FreighterModule>false</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  <Cost>50</Cost>
+  <TechLevel>2</TechLevel>
+  <XSize>2</XSize>
+  <YSize>2</YSize>
+  <ModuleType>Special</ModuleType>
+  <Name>Research Array</Name>
+  <Restrictions>xI</Restrictions>
+  <UID>ResearchArray</UID> 
+  <Version>2</Version>
+  <SensorRange>30000</SensorRange>
+
+  <IconTexturePath>Modules/ResearchArray</IconTexturePath>
+  <Mass>40</Mass>
+  <Health>300</Health>
+  <HealthMax>300</HealthMax>
+  <RepairDifficulty>2</RepairDifficulty>
+  <energyreq>0</energyreq>
+  
+  <PowerDraw>100</PowerDraw>
+  <ResearchPerTurn>0.2</ResearchPerTurn>
+  <NameIndex>4991</NameIndex>
+  <DescriptionIndex>4992</DescriptionIndex>
+</ShipModule>

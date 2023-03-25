@@ -68,6 +68,7 @@ namespace Ship_Game.Ships
             S.HasCommand              = S.IsPlatform || S.IsSubspaceProjector;
             S.TrackingPower           = 0;
             S.TargetingAccuracy       = 0;
+            S.ResearchPerTurn         = 0;
 
             for (int i = 0; i < modules.Length; i++)
             {
@@ -93,6 +94,7 @@ namespace Ship_Game.Ships
                     S.TargetingAccuracy = Math.Max(module.TargetingAccuracy, S.TargetingAccuracy);
                     S.TrackingPower += module.TargetTracking;
                     S.ECMValue = Math.Max(S.ECMValue, module.ECM).Clamped(0f, 1f);
+                    S.ResearchPerTurn += module.ResearchPerTurn;
                 }
             }
             

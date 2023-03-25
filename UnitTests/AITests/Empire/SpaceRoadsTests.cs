@@ -4,6 +4,7 @@ using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -205,7 +206,9 @@ namespace UnitTests.AITests.Empire
         {
             CreateSystemsAndRoad();
             Player.AutoBuildSpaceRoads = true;
-            Player.CanBuildPlatforms = true;
+            ResearchDebugUnlocks.UnlockAllResearch(Player, unlockBonuses: false);
+            AssertEqual(true, Player.CanBuildPlatforms);
+
             Manager.SpaceRoads.Add(Road);
             Player.AI.SSPBudget = 10;
 
@@ -262,7 +265,7 @@ namespace UnitTests.AITests.Empire
         {
             CreateSystemsAndRoad();
             Player.AutoBuildSpaceRoads = true;
-            Player.CanBuildPlatforms= true;
+            ResearchDebugUnlocks.UnlockAllResearch(Player, unlockBonuses: false);
             Manager.SpaceRoads.Add(Road);
             Player.AI.SSPBudget = 10;
             Manager.Update();

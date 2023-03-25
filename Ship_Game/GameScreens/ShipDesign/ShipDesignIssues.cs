@@ -538,6 +538,23 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.SecondaryCarrier, WarningLevel.Informative, rangeText);
         }
 
+        public void CheckLowRsearchTime(float researchTime)
+        {
+            if (!Hull.IsResearchStation)
+                return;
+
+            float minimum = ShipResupply.NumTurnsForGoodResearchSupply;
+            WarningLevel severity = WarningLevel.Informative;
+
+            if      (researchTime > minimum * 1.5)   return;
+            else if (researchTime < minimum)         severity = WarningLevel.Critical;
+            else if (researchTime < minimum * 1.15f) severity = WarningLevel.Major;
+            else if (researchTime < minimum * 1.3f)  severity = WarningLevel.Minor;
+
+            AddDesignIssue(DesignIssueType.LowResearchTime, severity, 
+                severity == WarningLevel.Critical ? $" {Localizer.Token(GameText.DesignIssueLowResaerchTimeNotGood)}" : "");
+        }
+
         string GetRangeLaunchText(int maxWeaponRange, out int minLaunchRangeWeapons, out bool usingMinimumCarrierRange)
         {
             usingMinimumCarrierRange = false;
@@ -670,7 +687,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         ExcessPowerCells,
         DedicatedCarrier,
         SecondaryCarrier,
-        OrbitalCarrierHoldPosition
+        OrbitalCarrierHoldPosition,
+        LowResearchTime
     }
 
     public enum WarningLevel
@@ -887,6 +905,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem     = GameText.DesignIssueOrbitalHangarHoldPositionProblem;
                     Remediation = GameText.DesignIssueOrbitalHangarHoldPositionRemidiation;
                     Texture     = ResourceManager.Texture("NewUI/IssueOrbitalHangarHold");
+                    break;
+                case DesignIssueType.LowResearchTime:
+                    Title       = GameText.DesignIssueLowResaerchTimeTitle;
+                    Problem     = GameText.DesignIssueLowResaerchTimeProblem;
+                    Remediation = GameText.DesignIssueLowResaerchTimeRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowResearchTime");
                     break;
             }
         }

@@ -102,6 +102,7 @@ public interface IShipDesign
     bool IsSingleTroopShip { get; }
     bool IsTroopShip       { get; }
     bool IsBomber          { get; }
+    bool IsResearchStation { get; }
 
     // base stats like cost and mass
     float BaseCost       { get; }
@@ -112,6 +113,7 @@ public interface IShipDesign
     bool  BaseCanWarp    { get; }
     float BaseMass       { get; }
     float BaseCargoSpace { get; }
+    float BaseResearchPerTurn { get; }
 
     // specific ship type stats
     float StartingColonyGoods { get; }
