@@ -300,7 +300,7 @@ namespace Ship_Game
 
             // only valid and complete designs allowed, ignore platforms/stations/freighters
             static bool CanShowDesign(IShipDesign s) => s.IsValidDesign && s.GetCompletionPercent() == 100
-                                                     && !s.IsPlatformOrStation && !s.IsFreighter;
+                                                     && !s.IsPlatformOrStation;
 
             // allow player to add ships which already exist in the universe and don't have a fleet
             static bool CanShowShip(Ship s) => s.Fleet == null && s.IsAlive && CanShowDesign(s.ShipData);
