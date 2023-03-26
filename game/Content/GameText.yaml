@@ -10339,22 +10339,22 @@ AutoBuildResearchStation:
  ENG: "Auto Build Research Stations"          
 AutoBuildResearchStationTip:
  Id: 4410 
- ENG: "This will auto build Research stations for you around relevant planets or stars. It will use whatever Research Station you pick in the dropdown list below (visible if your empire has access to research station technology). This will also upgrade already existing Stations to the new station you select."
+ ENG: "This will auto build Research stations for you around relevant planets or stars. It will use whatever Research Station you pick in the dropdown list below (visible if your empire has access to research station technology). This will also upgrade already existing Stations to the new station you have selected"
 AutoPickResearchStation:
  Id: 4411 
  ENG: "Auto Pick Research Station"          
 AutoPickResearchStationTip:
  Id: 4412 
- ENG: "This will pick the best Research Station with most Research generated and will upgrade to them whenever possible, if the auto build REsearch Stations checkbox is checked." 
+ ENG: "This will pick the best Research Station with most Research generated and will upgrade to them whenever possible, if the auto build Research Stations checkbox is checked." 
 CannotBuildResearchStationTip:
  Id: 4413 
- ENG: "You do not have the required technology to build a Research Station, research relevent tech to gain Research Station schematics."  
+ ENG: "You do not have the required technology to build a Research Station, research relevant tech to gain Research Station schematics."  
 ResearchPerTurnStatTip:
  Id: 4414
  ENG: "Amount of Research Points generated per turn."    
 ResearchStationResearchTimeStat:
  Id: 4415 
- ENG: "Resaerch Time (turns)"   
+ ENG: "Research Time (turns)"   
 ResearchStationResearchTimeStatTip:
  Id: 4416
  ENG: "Number of turns this Station can produce Research until Production stocks are depleted." 
@@ -10366,13 +10366,13 @@ DesignIssueLowResaerchTimeTitle:
  ENG: "Low Research Time"
 DesignIssueLowResaerchTimeProblem:
  Id: 4419
- ENG: "This Research Station does not have enough production storage to produce Research for long periods. This might increase traffic of frieghters to this Station."
+ ENG: "This Research Station does not have enough production storage to produce Research for long periods. This might increase traffic of freighters to this Station."
 DesignIssueLowResaerchTimeRemidiation:
  Id: 4420
  ENG: "Add Storage or lower the amount of Research modules."
 DesignIssueLowResaerchTimeNotGood:
  Id: 4421
- ENG: "Note that if you elected to automate Research Stations picking, this Station will not be used. It is too inefficient." 
+ ENG: "Note that if you elected to automate Research Stations picking, this Station would not be used. It is too inefficient." 
 ResearchStationCanBePlaced:
  Id: 4422
  ENG: "Indicates that a Research Station can be deployed in orbit of this planet."  
@@ -10411,7 +10411,7 @@ StarOrPlanet:
  ENG: "Star or Planet"     
 ResearchStationBuiltPlanetNotify: 
  Id: 4434
- ENG: "(Research Station) was\ndeployed in orbit of "     
+ ENG: "(Research Station) was\ndeployed in orbit of"     
 ResearchStationBuiltSystemNotify: 
  Id: 4435
  ENG: "(Research Station) was\ndeployed in system"      
@@ -10420,13 +10420,13 @@ ResearchLabName:
  ENG: "Research Lab"
 ResearchLabDesc:
  Id: 4990
- ENG: "This large Lab is a step forward in our Stars and planet research efforts. It can be installed on our Station hull." 
+ ENG: "This large Lab is a step forward in our Stars and Planets research efforts. It can be installed on our Station hulls." 
 ResearchArrayName:
  Id: 4991
  ENG: "Research Module"
 ResearchArrayDesc:
  Id: 4992
- ENG: "This small Lab can greaty enhance our research efforts in Space, when studying Stars and unique planet compositions."
+ ENG: "This small Lab can greatly enhance our research efforts in Space, when studying Stars and unique planet compositions."
 OnSurface:
  Id: 4993
  ENG: "on surface"
