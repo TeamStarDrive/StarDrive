@@ -95,7 +95,6 @@ namespace Ship_Game.Commands.Goals
             }
             else if (ConstructionGoalInProgress)
             {
-                CallForHelpIfNeeded();
                 return GoalStep.TryAgain;
             }
 
