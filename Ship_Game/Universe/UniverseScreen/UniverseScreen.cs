@@ -391,8 +391,15 @@ namespace Ship_Game
 
                 Ship.CreateShipAt(UState, starterShip, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 3), true);
                 Ship.CreateShipAt(UState, colonyShip, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 2), true);
-                Ship.CreateShipAt(UState, freighter, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 2), true);
                 Ship.CreateShipAt(UState, startingScout, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 3), true);
+                Ship startingFrieghter = Ship.CreateShipAt(UState, freighter, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 2), true);
+                if (startingFrieghter != null) // FB - wa for new frieghter since this is done onShipComplete in sbproduction
+                {
+                    startingFrieghter.TransportingProduction = true;
+                    startingFrieghter.TransportingFood       = true;
+                    startingFrieghter.TransportingColonists  = true;
+                    startingFrieghter.AllowInterEmpireTrade  = true;
+                }
             }
         }
 
