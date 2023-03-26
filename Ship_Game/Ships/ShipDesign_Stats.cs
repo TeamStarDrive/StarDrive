@@ -24,6 +24,7 @@ public partial class ShipDesign
     public bool IsSupplyCarrier     { get; private set; } // this ship launches supply ships
     public bool IsSupplyShuttle     { get; private set; }
     public bool IsFreighter         { get; private set; }
+    public bool IsResearchStation   { get; private set; }
     public bool IsCandidateForTradingBuild { get; private set; }
     public bool IsUnitTestShip      { get; private set; }
 
@@ -39,6 +40,7 @@ public partial class ShipDesign
     public bool  BaseCanWarp    { get; private set; }
     public float BaseMass       { get; private set; }
     public float BaseCargoSpace { get; private set; }
+    public float BaseResearchPerTurn { get; private set; }
 
     public Power NetPower;
 
@@ -71,11 +73,13 @@ public partial class ShipDesign
         float baseTurnThrust = 0f;
         float baseWarp = 0f;
         float baseMass = 0f;
-        float baseStrength = 0f;
+        float baseOffense = 0f;
+        float baseDefense = 0f;
         float baseCargoSpace = 0f;
         int offensiveSlots = 0;
         float startingColonyGoods = 0f;
         int numBuildingsDeployed = 0;
+        float baseResearchPerTurn = 0;
 
         var mTemplates = new Array<ShipModule>();
         var hangars = new Array<ShipModule>();
@@ -99,6 +103,7 @@ public partial class ShipDesign
             baseWarp += m.WarpThrust;
             baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
             baseCargoSpace += m.CargoCapacity;
+            baseResearchPerTurn += m.ResearchPerTurn;
 
             if (m.Is(ShipModuleType.Hangar))
                 hangars.Add(m);
@@ -116,9 +121,10 @@ public partial class ShipDesign
                 offensiveSlots += m.Area;
             if (m.DeployBuildingOnColonize.NotEmpty())
                 ++numBuildingsDeployed;
-                
+
             startingColonyGoods += m.NumberOfEquipment + m.NumberOfFood;
-            baseStrength += m.CalculateModuleOffenseDefense(info.SurfaceArea);
+            baseDefense += m.CalculateModuleDefense(info.SurfaceArea);
+            baseOffense += m.CalculateModuleOffense();
         }
 
         if (invalidModules != null)
@@ -128,13 +134,14 @@ public partial class ShipDesign
         }
 
         BaseCost = baseCost;
-        BaseStrength = ShipBuilder.GetModifiedStrength(info.SurfaceArea, offensiveSlots, 0, baseStrength);
+        BaseStrength = ShipBuilder.GetModifiedStrength(info.SurfaceArea, offensiveSlots, baseOffense, baseDefense);
         BaseThrust = baseThrust;
         BaseTurnThrust = baseTurnThrust;
         BaseWarpThrust = baseWarp;
         BaseCanWarp = baseWarp > 0;
         BaseMass = baseMass;
         BaseCargoSpace = baseCargoSpace;
+        BaseResearchPerTurn = baseResearchPerTurn;
 
         StartingColonyGoods = startingColonyGoods;
         NumBuildingsDeployed = numBuildingsDeployed;
@@ -165,6 +172,7 @@ public partial class ShipDesign
         IsBomber          = Role == RoleName.bomber;
         IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
+        IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
 
         // only enable this flag for non-testing environment
         IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");
@@ -222,6 +230,14 @@ public partial class ShipDesign
     // Is this ship good for goals?
     bool IsShipGoodForGoals(Empire e)
     {
+        if (!ShipResupply.HasGoodTotalSupplyForResearch(this))
+        { 
+            if (Name == e.data.DefaultResearchStation)
+                Log.Error($"{e.Name}: Default Research Station ({Name}) does not have enough cargo of acceptable research time!");
+
+            return false;
+        }
+
         if (IsPlatformOrStation)
             return true;
 

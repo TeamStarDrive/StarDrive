@@ -38,6 +38,7 @@ namespace Ship_Game.AI
         [StarData] public ThreatMatrix ThreatMatrix;
         [StarData] public float DefStr;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
+        [StarData] public ExpansionAI.ResearchStationPlanner ResearchStationsAI;
         [StarData] public SpaceRoadsManager SpaceRoadsManager;
         BudgetPriorities BudgetSettings;
 
@@ -52,6 +53,7 @@ namespace Ship_Game.AI
             OwnerEmpire = e;
             ThreatMatrix = new(e);
             ExpansionAI = new(OwnerEmpire);
+            ResearchStationsAI = new(OwnerEmpire);
             GoalsList = new();
             AreasOfOperations = new();
 
@@ -139,6 +141,7 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
                 ExpansionAI.RunExpansionPlanner();
+                ResearchStationsAI?.RunResearchStationPlanner(); // the null check here is for save competability
                 SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
@@ -342,6 +345,34 @@ namespace Ship_Game.AI
                 goal.FinishedShip?.AI.OrderOrbitNearest(true);
                 goal.PlanetBuildingAt?.Construction.Cancel(goal);
                 RemoveGoal(goal);
+            }
+        }
+
+        public void AddDeployResearchStationGoal(Planet p)
+        {
+            string researchStationName = OwnerEmpire.data.CurrentResearchStation;
+            if (!OwnerEmpire.isPlayer || OwnerEmpire.AutoPickBestResearchStation)
+            {
+                IShipDesign bestResearchStation = ShipBuilder.PickResearchStation(OwnerEmpire);
+                if (bestResearchStation != null)
+                    researchStationName = bestResearchStation.Name;
+            }
+
+            AddGoal(new BuildOrbital(p, researchStationName, OwnerEmpire));
+        }
+
+        public void CancelResearchStation(Planet p)
+        {
+            Goal stationGoal = FindGoal(g => g.IsResearchStationGoal(p));
+            if (stationGoal != null)
+                RemoveGoal(stationGoal);
+
+            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(p));
+            if (constructionGoal != null)
+            {
+                constructionGoal.FinishedShip?.AI.OrderScrapShip();
+                constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
+                RemoveGoal(constructionGoal);
             }
         }
 

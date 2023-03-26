@@ -96,7 +96,7 @@ namespace Ship_Game.Ships
                     && System?.HasPlanetsOwnedBy(Loyalty) == true
                     && !Loyalty.HasWarTaskTargetingSystem(System))
                 {
-                    Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System), 1);
+                    Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System));
                 }
             }
 
@@ -105,6 +105,14 @@ namespace Ship_Game.Ships
 
             if (Loyalty.CanBuildPlatforms)
                 Loyalty.AI.SpaceRoadsManager.SetupProjectorBridgeIfNeeded(this);
+
+            if (IsResearchStation)
+            {
+                if (TetheredTo != null)
+                    Universe.RemoveEmpireFromResearchableList(Loyalty, TetheredTo);
+                else if (System != null)
+                    Universe.RemoveEmpireFromResearchableList(Loyalty, System);
+            }
 
             DamageRelationsOnDeath(pSource);
             CreateEventOnDeath();

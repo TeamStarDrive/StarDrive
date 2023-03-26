@@ -121,8 +121,12 @@ namespace Ship_Game.AI
         void CreateShipAIPlans()
         {
             // TODO: THESE SHOULD BE REMOVED BECAUSE THEY EAT UP A LOT OF MEMORY
-            DropOffGoods = new DropOffGoods(this);
-            PickupGoods = new PickupGoods(this);
+            if (Owner.IsFreighter)
+            {
+                DropOffGoods = new DropOffGoods(this);
+                PickupGoods = new PickupGoods(this);
+            }
+
             Orbit = new OrbitPlan(this);
             CombatAI = new CombatAI(this);
         }
@@ -165,7 +169,6 @@ namespace Ship_Game.AI
             Mem.Dispose(ref DropOffGoods);
             Mem.Dispose(ref PickupGoods);
             Mem.Dispose(ref Orbit);
-
             Mem.Dispose(ref CombatAI);
             EscortTarget = null;
             ExterminationTarget = null;
@@ -508,6 +511,8 @@ namespace Ship_Game.AI
                 case Plan.DeployOrbital:            DoDeployOrbital(goal, timeStep);          break;
                 case Plan.PickupGoods:              PickupGoods.Execute(timeStep, goal);      break;
                 case Plan.DropOffGoods:             DropOffGoods.Execute(timeStep, goal);     break;
+                case Plan.PickupGoodsForStation:    DoPickupGoodsForStation(timeStep, goal);  break;
+                case Plan.DropOffGoodsForStation:   DoDropOffGoodsForStation(timeStep, goal); break;
                 case Plan.ReturnToHangar:           DoReturnToHangar(timeStep);               break;
                 case Plan.TroopToShip:              DoTroopToShip(timeStep, goal);            break;
                 case Plan.BoardShip:                DoBoardShip(timeStep);                    break;

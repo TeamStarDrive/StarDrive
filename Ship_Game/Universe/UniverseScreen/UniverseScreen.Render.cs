@@ -270,6 +270,18 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyHas);
             }
 
+            if (sys.IsResearchable && !sys.IsResearchStationDeployedBy(Player) || sys.IsAnyKnownPlanetCanBeResearched(Player))
+            {
+                var research_icon = ResourceManager.Texture("NewUI/icon_science");
+                var researchRect = new RectF(sysPos.X, sysPos.Y, research_icon.Width, research_icon.Height);
+                sysPos.X += 20f;
+
+                batch.Draw(research_icon, researchRect, CurrentFlashColor);
+                if (researchRect.HitTest(Input.CursorPosition))
+                    ToolTip.CreateTooltip(sys.IsResearchable ? GameText.ResearchStationCanBePlacedSystem 
+                                                              : GameText.ResearchStationCanBePlaced);
+            }
+
             if (Player.KnownEnemyStrengthIn(sys) > 0f)
             {
                 var enemyHere = ResourceManager.Texture("Ground_UI/EnemyHere");

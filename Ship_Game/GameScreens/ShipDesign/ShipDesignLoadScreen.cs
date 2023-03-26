@@ -145,7 +145,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                         p.X += Fonts.Arial8Bold.TextWidth(roleName) + 8;
                     }
 
-                    batch.DrawString(Fonts.Arial8Bold, $"Base Strength: {Design.BaseStrength}", p, Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, $"Base Strength: {Design.BaseStrength.String(0)}", p, Color.Orange);
                 }
             }
         }
