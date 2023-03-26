@@ -28,7 +28,7 @@
   <PowerDraw>8</PowerDraw>
   <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
   <!-- Balanced value would be much bigger than Cockpit, to prevent cockpit exploiting -->
-  <BonusRepairRate>10</BonusRepairRate>
+  <BonusRepairRate>500</BonusRepairRate>
 
   
   <TargetTracking>6</TargetTracking>
