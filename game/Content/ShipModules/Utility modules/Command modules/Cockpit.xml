@@ -29,7 +29,7 @@
   <PowerDraw>2</PowerDraw>
   <!-- Since cockpit is 4x smaller than Bridge, a balanced value would be 4x smaller than Bridge -->
   <!-- Repair rate multiplier, see BaseSelfRepair in Globals.yaml -->
-  <BonusRepairRate>2.0</BonusRepairRate>
+  <BonusRepairRate>200</BonusRepairRate>
 
   <SensorRange>24000</SensorRange>
  <TargetTracking>2</TargetTracking>

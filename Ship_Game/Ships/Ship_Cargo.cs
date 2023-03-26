@@ -254,6 +254,5 @@ namespace Ship_Game.Ships
             if (IsResearchStation)
                 newship.LoadProduction(GetProduction());
         }
-
     }
 }
