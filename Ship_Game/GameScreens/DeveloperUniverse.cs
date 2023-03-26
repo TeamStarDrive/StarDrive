@@ -66,6 +66,7 @@ public class DeveloperUniverse : UniverseScreen
             e.data.CurrentAutoColony    = e.data.ColonyShip;
             e.data.CurrentAutoFreighter = e.data.FreighterShip;
             e.data.CurrentConstructor   = e.data.ConstructorShip;
+            e.data.CurrentResearchStation = e.data.ResearchStation;
 
             // Now, generate system for our empire:
             var system = new SolarSystem(us, GenerateRandomSysPos(us, random));

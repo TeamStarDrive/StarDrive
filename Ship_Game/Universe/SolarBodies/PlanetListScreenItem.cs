@@ -8,6 +8,8 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Graphics;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -73,7 +75,6 @@ namespace Ship_Game
             SendTroops.Tooltip = GameText.SendAvailableTroopsToThis;
             RecallTroops = Button(ButtonStyle.Medium, $"Recall Troops ({Planet.NumTroopsCanLaunchFor(Player)})", OnRecallTroopsClicked);
             RecallTroops.Tooltip = GameText.RecallAllTroopsBasedOn;
-
             int nextX = x;
             Rectangle NextRect(float width)
             {
@@ -103,7 +104,7 @@ namespace Ship_Game
 
             Colonize.Visible     = Planet.Owner == null && Planet.Habitable;
             RecallTroops.Visible = Planet.Owner != Player && Planet.NumTroopsCanLaunchFor(Player) > 0;
-
+            
             UpdateButtonSendTroops();
             AddSystemName();
             AddPlanetName();
@@ -416,44 +417,6 @@ namespace Ship_Game
             MarkedForColonization = false;
             Colonize.Text  = "Colonize";
             Colonize.Style = ButtonStyle.BigDip;
-        }
-
-        struct DistanceDisplay
-        {
-            public readonly string Text;
-            public readonly Color Color;
-            private Distances PlanetDistance;
-
-            public DistanceDisplay(float distance) : this()
-            {
-                DeterminePlanetDistanceCategory(distance);
-                switch (PlanetDistance)
-                {
-                    case Distances.Local:   Text  = "Local";   Color = Color.Green; break;
-                    case Distances.Near:    Text  = "Near";    Color = Color.YellowGreen; break;
-                    case Distances.Midway:  Text  = "Midway";  Color = Color.DarkGoldenrod; break;
-                    case Distances.Distant: Text  = "Distant"; Color = Color.DarkRed; break;
-                    default:                Text  = "Beyond";  Color = Color.DarkGray; break;
-                }
-            }
-
-            void DeterminePlanetDistanceCategory(float distance)
-            {
-                if (distance.LessOrEqual(140)) PlanetDistance = Distances.Local;
-                else if (distance.LessOrEqual(1200)) PlanetDistance = Distances.Near;
-                else if (distance.LessOrEqual(3000)) PlanetDistance = Distances.Midway;
-                else if (distance.LessOrEqual(6000)) PlanetDistance = Distances.Distant;
-                else PlanetDistance = Distances.Beyond;
-            }
-
-            enum Distances
-            {
-                Local,
-                Near,
-                Midway,
-                Distant,
-                Beyond
-            }
         }
     }
 }

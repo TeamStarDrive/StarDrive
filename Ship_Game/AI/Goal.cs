@@ -49,6 +49,8 @@ namespace Ship_Game.AI
         WarMission,
         PrepareForWar,
         ProjectorBridge,
+        ProcessResearchStation,
+        SupplyGoodsToStation
     }
 
     public enum GoalStep
@@ -120,10 +122,14 @@ namespace Ship_Game.AI
         public virtual bool IsRefitGoalAtPlanet(Planet planet) => false; // Implement at relevant classes
         /** @return True if this goal is targeting the given planet for colonization */
         public virtual bool IsColonizationGoal(Planet planet) => false;
-
+        /** @return True if this goal is targeting the given solar body for research station */
+        public virtual bool IsResearchStationGoal(ExplorableGameObject body) => false;
+        /** @return True if this goal is supplying goods to a station */
+        public virtual bool IsSupplyingGoodsToStationStationGoal(Ship ship) => false;
         /** @return True if this goal is building an orbital for this planet */
         public virtual bool IsBuildingOrbitalFor(Planet planet) => false;
-
+        /** @return True if this goal is building an orbital for this planet */
+        public virtual bool IsBuildingOrbitalFor(SolarSystem system) => false;
         /** @return True if this goal is Remnants targeting this planet */
         public virtual bool IsRemnantEngageAtPlanet(Planet planet) => false;
 

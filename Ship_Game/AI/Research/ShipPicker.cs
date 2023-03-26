@@ -101,10 +101,10 @@ namespace Ship_Game.AI.Research
                 case RoleName.station: techScore *= Options.CostMultiplier(Orbitals); break;
                 case RoleName.colony: techScore *= Options.CostMultiplier(ColonyShip); break;
                 case RoleName.freighter: techScore *= Options.CostMultiplier(Freighter); break;
-                case RoleName.troopShip when !empire.canBuildTroopShips: techScore *= Options.CostMultiplier(TroopShip); break;
-                case RoleName.support when !empire.canBuildSupportShips: techScore *= Options.CostMultiplier(Support); break;
-                case RoleName.bomber when !empire.canBuildBombers: techScore *= Options.CostMultiplier(Bomber); break;
-                case RoleName.carrier when !empire.canBuildCarriers: techScore *= Options.CostMultiplier(Carrier); break;
+                case RoleName.troopShip when !empire.CanBuildTroopShips: techScore *= Options.CostMultiplier(TroopShip); break;
+                case RoleName.support when !empire.CanBuildSupportShips: techScore *= Options.CostMultiplier(Support); break;
+                case RoleName.bomber when !empire.CanBuildBombers: techScore *= Options.CostMultiplier(Bomber); break;
+                case RoleName.carrier when !empire.CanBuildCarriers: techScore *= Options.CostMultiplier(Carrier); break;
             }
 
             // adjust cost by how much it varies from already known tech.

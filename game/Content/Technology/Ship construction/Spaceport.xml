@@ -19,4 +19,9 @@
       <Name>Space Port</Name>
     </UnlockedBuilding>
   </BuildingsUnlocked>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>ResearchArray</ModuleUID>
+    </UnlockedMod>	  
+  </ModulesUnlocked>  
 </Technology>

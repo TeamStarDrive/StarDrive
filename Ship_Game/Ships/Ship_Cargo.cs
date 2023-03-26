@@ -248,5 +248,12 @@ namespace Ship_Game.Ships
 
             return new ColonyEquipment(addFood, addProd, addColonists, specialBuildingIDs);
         }
+
+        public void TransferCargoUponRefit(Ship newship)
+        {
+            if (IsResearchStation)
+                newship.LoadProduction(GetProduction());
+        }
+
     }
 }

@@ -121,7 +121,7 @@ namespace Ship_Game
             if (Universe.Debug && Universe.Screen is DeveloperUniverse)
                 buildableShips = ResourceManager.Ships.Designs.ToArr();
             else if (P.Owner != null)
-                buildableShips = P.Owner.ShipsWeCanBuild.Filter(ship => ship.IsBuildableByPlayer(Universe.Player));
+                buildableShips = P.Owner.ShipsWeCanBuild.Filter(ship => ship.IsBuildableByPlayer(Universe.Player) && !ship.IsResearchStation);
             
             string filter = FilterBuildableItems.Text.ToLower();
             if (filter.IsEmpty() && FilterItemsText.NotEmpty())

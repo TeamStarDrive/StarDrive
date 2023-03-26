@@ -9,6 +9,7 @@ using Ship_Game.ExtensionMethods;
 using static Ship_Game.AI.CombatStanceType;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Universe;
 
 namespace Ship_Game.AI
 {
@@ -212,19 +213,27 @@ namespace Ship_Game.AI
             if (orbital.IsSubspaceProjector)
                 Owner.Loyalty.AI.SpaceRoadsManager.AddProjectorToRoadList(orbital, g.Goal.BuildPosition);
 
+            Owner.QueueTotalRemoval();
+            if (g.Goal.OldShip?.Active == true) // we are refitting something
+            {
+                g.Goal.OldShip.TransferCargoUponRefit(orbital);
+                g.Goal.OldShip.QueueTotalRemoval();
+            }
+
             if (bg.TetherPlanet != null)
             {
                 Planet planetToTether = bg.TetherPlanet;
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = bg.TetherOffset;
+                UpdateResearchStationGoal(orbital, bg.TetherPlanet);
                 planetToTether.OrbitalStations.Add(orbital);
                 if (planetToTether.IsOverOrbitalsLimit(orbital.ShipData))
                     planetToTether.TryRemoveExcessOrbital(orbital);
             }
-
-            Owner.QueueTotalRemoval();
-            if (g.Goal.OldShip?.Active == true) // we are refitting something
-                g.Goal.OldShip.QueueTotalRemoval();
+            else
+            {
+                UpdateResearchStationGoal(orbital, Owner.System);
+            }
         }
 
         void DoDeployOrbital(ShipGoal g, FixedSimTime timeStep)
@@ -255,9 +264,29 @@ namespace Ship_Game.AI
                 target.OrbitalStations.Add(orbital);
                 Owner.QueueTotalRemoval();
                 if (g.Goal.OldShip?.Active == true) // we are refitting something
+                {
+                    g.Goal.OldShip.TransferCargoUponRefit(orbital);
                     g.Goal.OldShip.QueueTotalRemoval();
-                else 
+                }
+                else
+                {
                     target.TryRemoveExcessOrbital(orbital);
+                }
+
+                UpdateResearchStationGoal(orbital, target);
+            }
+        }
+
+        void UpdateResearchStationGoal(Ship orbital, ExplorableGameObject target)
+        {
+            if (!orbital.IsResearchStation)
+                return;
+
+            Goal goal = Owner.Loyalty.AI.FindGoal(g => g.IsResearchStationGoal(target));
+            if (goal != null)
+            {
+                goal.TargetShip = orbital;
+                Owner.Universe.AddEmpireToResearchableList(Owner.Loyalty, target);
             }
         }
 
@@ -317,7 +346,12 @@ namespace Ship_Game.AI
             {
                 ThrustOrWarpToPos(MovePosition, timeStep);
                 if (Owner.Position.InRadius(MovePosition, Owner.ExplorePlanetDistance))
+                {
+                    if (PatrolTarget.IsResearchable && Owner.Loyalty.isPlayer)
+                        Owner.Universe.Screen.NotificationManager?.AddReseachablePlanet(PatrolTarget);
+
                     PatrolTarget.SetExploredBy(Owner.Loyalty);
+                }
             }
 
             return false;
@@ -330,6 +364,9 @@ namespace Ship_Game.AI
             // Since we are now actively scouting the system
             if (Owner.Position.InRadius(MovePosition, Owner.ExploreSystemDistance))
             {
+                if (Owner.Loyalty.isPlayer && system.IsResearchable && !system.IsExploredBy(Owner.Loyalty))
+                    Owner.Universe.Screen.NotificationManager?.AddReseachableStar(system);
+
                 system.SetExploredBy(Owner.Loyalty);
                 return;
             }
