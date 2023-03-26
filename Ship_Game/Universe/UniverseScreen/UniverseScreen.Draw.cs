@@ -835,7 +835,7 @@ namespace Ship_Game
                 }
             }
         }
-
+        // FB - This cf needs refactor
         void DrawShipGoalsAndWayPoints(Ship ship, byte alpha)
         {
             if (ship == null)
@@ -938,16 +938,23 @@ namespace Ship_Game
             if (ship.AI.State == AIState.SystemTrader && 
                 ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal g) && g.Trade != null)
             {
-                Planet importPlanet = g.Trade.ImportTo;
-                Planet exportPlanet = g.Trade.ExportFrom;
+                Vector2 importPosition = g.Trade.ImportTo?.Position ?? g.Trade.TargetStation.Position;
+                Vector2 exportPosition = g.Trade.ExportFrom.Position;
 
-                if (g.Plan == ShipAI.Plan.PickupGoods)
+                if (g.Plan is ShipAI.Plan.PickupGoods or ShipAI.Plan.PickupGoodsForStation )
                 {
-                    DrawLineToPlanet(start, exportPlanet.Position, Color.Blue);
-                    DrawLineToPlanet(exportPlanet.Position, importPlanet.Position, Color.Gold);
+                    DrawLineToPlanet(start, exportPosition, Color.Blue);
+                    DrawLineToPlanet(exportPosition, importPosition, Color.Gold);
                 }
                 else
-                    DrawLineToPlanet(start, importPlanet.Position, Color.Gold);
+                    DrawLineToPlanet(start, importPosition, Color.Gold);
+            }
+
+            if (ship.IsConstructor && ship.AI.State == AIState.MoveTo 
+                && ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal cg)) 
+            {
+                if (cg.Plan is ShipAI.Plan.DeployOrbital or ShipAI.Plan.DeployStructure)
+                    DrawLineToPlanet(start, cg.MovePosition, Color.Yellow);
             }
 
             DrawWayPointLines(ship, Colors.WayPoints(alpha));
@@ -1000,6 +1007,7 @@ namespace Ship_Game
             SubTexture icon_spy_small = ResourceManager.Texture("UI/icon_spy_small");
             SubTexture icon_anomaly_small = ResourceManager.Texture("UI/icon_anomaly_small");
             SubTexture icon_troop = ResourceManager.Texture("UI/icon_troop");
+            SubTexture icon_research = ResourceManager.Texture("NewUI/icon_science");
             for (int k = 0; k < UState.Systems.Count; k++)
             {
                 SolarSystem solarSystem = UState.Systems[k];
@@ -1026,6 +1034,13 @@ namespace Ship_Game
                                                (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
+                    if (planet.IsResearchable && !planet.IsResearchStationDeployedBy(Player))
+                    {
+                        DrawTextureWithToolTip(icon_research, Color.White, GameText.ResearchStationCanBePlaced, mousePos,
+                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                        ++drawLocationOffset;
+                    }
+
                     if (Player.data.MoleList.Count > 0)
                     {
                         for (int i = 0; i < Player.data.MoleList.Count; i++)

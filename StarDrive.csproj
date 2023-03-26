@@ -163,11 +163,15 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Components\BudgetPriorities.cs" />
+    <Compile Include="Ship_Game\AI\ExpansionAI\ResearchStationPlanner.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI_Trade.cs" />
     <Compile Include="Ship_Game\AI\ThreatCluster.cs" />
     <Compile Include="Ship_Game\AI\ThreatClusterUpdate.cs" />
     <Compile Include="Ship_Game\AI\ThreatMatrix_ClustersGenerator.cs" />
     <Compile Include="Ship_Game\AI\ThreatMatrix_Update.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\SupplyGoodsToStation.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\ProcessResearchStation.cs" />
     <Compile Include="Ship_Game\Commands\Goals\ProjectorBridge.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DeepSpaceBuildGoal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetGoal.cs" />
@@ -366,6 +370,9 @@
     <Compile Include="Ship_Game\UI\UILine.cs" />
     <Compile Include="Ship_Game\Universe\ExplorableGameObject.cs" />
     <Compile Include="Ship_Game\Universe\InfluenceTree.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\DistanceDisplay.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\ExoticSystemsListScreenItem.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\ExoticSystemsListScreen.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetRenderer.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\AtmosphereType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetTypes.cs" />

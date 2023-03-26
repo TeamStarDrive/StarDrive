@@ -187,6 +187,7 @@ namespace Ship_Game.Ships
         public float Regenerate                  => Flyweight.Regenerate; // Self regenerating modules
         public bool DisableRotation              => Flyweight.DisableRotation;
         public float AmplifyShields              => Flyweight.AmplifyShields;
+        public float ResearchPerTurn             => Flyweight.ResearchPerTurn;
 
         /// <summary>
         /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
@@ -1387,7 +1388,7 @@ namespace Ship_Game.Ships
             return Strength;
         }
 
-        float CalculateModuleDefense(int slotCount)
+        public float CalculateModuleDefense(int slotCount)
         {
             if (slotCount <= 0)
                 return 0f;
@@ -1446,7 +1447,7 @@ namespace Ship_Game.Ships
             return def;
         }
 
-        float CalculateModuleOffense()
+        public float CalculateModuleOffense()
         {
             float off = InstalledWeapon?.CalculateOffense(this) ?? 0f;
 

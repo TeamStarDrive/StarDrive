@@ -109,7 +109,7 @@ namespace Ship_Game
             MilitaryTask.TaskType taskType = MilitaryTask.TaskType.StrikeForce;
             if (IsAlreadyStriking())
             {
-                if (canBuildBombers
+                if (CanBuildBombers
                      && !IsAlreadyGlassingPlanet(targetPlanet)
                      && (targetPlanet.Population < 1
                          || targetPlanet.ColonyPotentialValue(enemy) / targetPlanet.ColonyPotentialValue(this) > PersonalityModifiers.DoomFleetThreshold))
@@ -212,7 +212,7 @@ namespace Ship_Game
             return !AI.HasGoal(g => g.Type == GoalType.EmpireDefense);
         }
 
-        public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, int fleetCount)
+        public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, int fleetCount = 1)
         {
             AI.AddGoal(new DefendSystem(this, system, strengthWanted, fleetCount));
         }

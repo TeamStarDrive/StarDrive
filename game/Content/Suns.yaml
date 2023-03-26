@@ -302,6 +302,7 @@
 
 - Sun:
   Id: star_binary
+  ResearchableChance: 10
   IconPath: Suns/star_binary_icon.png
   IconScale: 2.5
   LightIntensity: 1.7
@@ -354,6 +355,7 @@
   Habitable: false # this star is dangerous and leaves all planets barren
   RadiationDamage: 10 # per second, falls off depending on RadiationRadius
   RadiationRadius: 15000
+  ResearchableChance: 60
   Layers: # huge radiation layer
     - Layer:
       TexturePath: Suns/radiation_purple.dds
@@ -412,6 +414,7 @@
   Habitable: false # this star is dangerous and leaves all planets barren
   RadiationDamage: 10 # per second, falls off depending on RadiationRadius
   RadiationRadius: 20000
+  ResearchableChance: 50
   Layers: # huge radiation layer
     - Layer:
       TexturePath: Suns/radiation_purple.dds
@@ -495,6 +498,7 @@
   Habitable: false # this star is dangerous and leaves all planets barren
   RadiationDamage: 20 # per second, falls off depending on RadiationRadius
   RadiationRadius: 25000
+  ResearchableChance: 50
   Layers: # big outer disk
     - Layer:
       TexturePath: Suns/x3.dds

@@ -28,6 +28,7 @@ namespace Ship_Game
         public readonly float HullTechMultiplier; // used in ship progression to modify hull tech cost if needed
         public readonly float PopRatioBeforeMerge; // If enemy has pop bigger then this ratio, consider merge with other empires or surrender
         public readonly float CloserToUsClaimWarn; // Multiplier for distance of new system colonized from empire center, for warning
+        public readonly bool ClearNeutralExoticSystems; // Will try to clear neutral exotic systems and deploy research stations and the likes
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -40,7 +41,8 @@ namespace Ship_Game
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.1f;
                     PlanetStoleTrustMultiplier   = 0.75f;
-                    WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
+                    WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
+                    ClearNeutralExoticSystems    = false; 
                     AddAngerAlliedWithEnemy      = 0;
                     CloserToUsClaimWarn   = 0.3f;
                     DefenseTaskWeight     = 1;
@@ -65,7 +67,8 @@ namespace Ship_Game
                     TurnsAbove95FederationNeeded = 350;
                     AllianceValueAlliedWithEnemy = 0.4f;
                     WantedAgentMissionMultiplier = 0.115f;
-                    WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
+                    WarGradeThresholdForPeace    = 0.3f * War.MaxWarGrade;
+                    ClearNeutralExoticSystems    = true;
                     PlanetStoleTrustMultiplier   = 0.5f;
                     AddAngerAlliedWithEnemy      = 50;
                     CloserToUsClaimWarn   = 0.5f;
@@ -91,7 +94,8 @@ namespace Ship_Game
                     TurnsAbove95FederationNeeded = 420;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.115f;
-                    WarGradeThresholdForPeace    = 0.4f * War.MaxWarGrade;
+                    WarGradeThresholdForPeace    = 0.3f * War.MaxWarGrade;
+                    ClearNeutralExoticSystems    = true;
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
                     CloserToUsClaimWarn   = 0.4f;
@@ -118,7 +122,8 @@ namespace Ship_Game
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.13f;
                     PlanetStoleTrustMultiplier   = 0.1f;
-                    WarGradeThresholdForPeace    = 0.3f * War.MaxWarGrade;
+                    WarGradeThresholdForPeace    = 0.25f * War.MaxWarGrade;
+                    ClearNeutralExoticSystems    = true;
                     AddAngerAlliedWithEnemy      = 100;
                     CloserToUsClaimWarn   = 0.6f;
                     DefenseTaskWeight     = 1.2f;
@@ -144,7 +149,8 @@ namespace Ship_Game
                     AllianceValueAlliedWithEnemy = 0.6f;
                     WantedAgentMissionMultiplier = 0.13f;
                     PlanetStoleTrustMultiplier   = 0.7f;
-                    WarGradeThresholdForPeace    = 0.7f * War.MaxWarGrade;
+                    WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
+                    ClearNeutralExoticSystems    = false;
                     AddAngerAlliedWithEnemy      = 0;
                     CloserToUsClaimWarn   = 0.3f;
                     DefenseTaskWeight     = 1.3f;
@@ -170,7 +176,8 @@ namespace Ship_Game
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.1f;
                     PlanetStoleTrustMultiplier   = 0.4f;
-                    WarGradeThresholdForPeace    = 0.5f * War.MaxWarGrade;
+                    WarGradeThresholdForPeace    = 0.55f * War.MaxWarGrade;
+                    ClearNeutralExoticSystems    = false;
                     AddAngerAlliedWithEnemy      = 75;
                     CloserToUsClaimWarn   = 0.4f;
                     DefenseTaskWeight     = 1.5f;
@@ -195,7 +202,8 @@ namespace Ship_Game
                     TurnsAbove95FederationNeeded = 300;
                     AllianceValueAlliedWithEnemy = 0.8f;
                     WantedAgentMissionMultiplier = 0.1f;
-                    WarGradeThresholdForPeace    = 0.85f * War.MaxWarGrade;
+                    WarGradeThresholdForPeace    = 0.75f * War.MaxWarGrade;
+                    ClearNeutralExoticSystems    = false;
                     PlanetStoleTrustMultiplier   = 0.8f;
                     AddAngerAlliedWithEnemy      = 0;
                     CloserToUsClaimWarn   = 0.2f;

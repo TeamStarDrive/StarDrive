@@ -12,6 +12,7 @@
   <DefaultConstructor>Terran Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Terran Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Terran-Supply</DefaultSupplyShuttle>
+  <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   <ThrustColor0R>95</ThrustColor0R>
   <ThrustColor0G>158</ThrustColor0G>
   <ThrustColor0B>160</ThrustColor0B>

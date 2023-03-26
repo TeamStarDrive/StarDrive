@@ -15,6 +15,7 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.Ships
 {
@@ -155,6 +156,8 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim SupplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int TargetingAccuracy;
+        public float ResearchPerTurn;
+
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
         public float FTLModifier { get; private set; } = 1f;
@@ -170,6 +173,7 @@ namespace Ship_Game.Ships
         public bool IsTroopShip             => ShipData.IsTroopShip;
         public bool IsBomber                => ShipData.IsBomber;
         public bool IsSubspaceProjector     => ShipData.IsSubspaceProjector;
+        public bool IsResearchStation       => ShipData.IsResearchStation;
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
         public bool Resupplying             => AI.State == AIState.Resupply || AI.State == AIState.ResupplyEscort;
@@ -299,13 +303,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool InsideAreaOfOperation(Planet planet)
+        public bool InsideAreaOfOperation(Vector2 pos)
         {
             if (AreaOfOperation.IsEmpty)
                 return true;
 
             foreach (Rectangle ao in AreaOfOperation)
-                if (ao.HitTest(planet.Position))
+                if (ao.HitTest(pos))
                     return true;
 
             return false;
@@ -719,6 +723,16 @@ namespace Ship_Game.Ships
                 distanceSTL += planet.GravityWellRadius;
 
             return GetAstrogateTime(distance, distanceSTL, destination.Position);
+        }
+
+        public float GetAstrogateTimeBetween(Planet origin, Ship targetStation)
+        {
+            float distance = origin.Position.Distance(targetStation.Position);
+            float distanceSTL = origin.GravityWellForEmpire(Loyalty);
+            if (targetStation.IsTethered)
+                distanceSTL += targetStation.GetTether().GravityWellForEmpire(Loyalty);
+
+            return GetAstrogateTime(distance, distanceSTL, targetStation.Position);
         }
 
         public float GetAstrogateTimeBetween(Planet origin, Planet destination)
@@ -1783,6 +1797,7 @@ namespace Ship_Game.Ships
                     if (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0)
                         hangarArea += m.Area;
 
+                    offense += m.CalculateModuleOffense();
                     defense += m.CalculateModuleOffenseDefense(SurfaceArea);
                 }
             }

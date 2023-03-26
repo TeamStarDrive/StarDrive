@@ -88,20 +88,22 @@ namespace Ship_Game.Commands.Goals
 
         Pirates.TargetType GetOrbital()
         {
-            int divider = (Pirates.MaxLevel / 5).LowerBound(1); // so the bonus will be 1 to 5
-            int roll = Owner.Random.RollDie(10 + Pirates.Level/divider);
+            int divider = (Pirates.MaxLevel / 2).LowerBound(1); // so the bonus will be 1 to 10
+            int roll = Owner.Random.RollDie(5 + Pirates.Level/divider);
             switch (roll)
             {
                 default: return Pirates.TargetType.Platform;
-                case 7:  return Pirates.TargetType.Shipyard;
-                case 8:  return Pirates.TargetType.Station;
+                case 5:  return Pirates.TargetType.Research;
+                case 6:  return Pirates.TargetType.Shipyard;
+                case 7:  return Pirates.TargetType.Station;
+                case 8:  return Pirates.TargetType.Research;
                 case 9:  return Pirates.TargetType.Shipyard;
                 case 10: return Pirates.TargetType.Platform;
                 case 11: return Pirates.TargetType.Station;
                 case 12: return Pirates.TargetType.Shipyard;
                 case 13: return Pirates.TargetType.Platform;
                 case 14: return Pirates.TargetType.Station;
-                case 15: return Pirates.TargetType.Shipyard;
+                case 15: return Pirates.TargetType.Research;
             }
         }
     }
