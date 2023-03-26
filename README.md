@@ -16,7 +16,7 @@ Currently downloadable Releases contain Major and Patch versions. Major versions
 [Go To Downloads](https://github.com/TeamStarDrive/StarDrive/releases)
 
 # Mods
-The only mod which currently supports Blackbox is Combined Arms, which is a hugh content mod.
+The only mod which currently supports Blackbox is Combined Arms, which is a huge content mod.
 [Combined Arms](https://www.moddb.com/mods/combined-arms)
 
 # Community
