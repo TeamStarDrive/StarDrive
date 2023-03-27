@@ -128,6 +128,7 @@ namespace Ship_Game.Ships
 
             DamageRelationsOnDeath(pSource);
             CreateEventOnDeath();
+
         }
     }
 }
