@@ -225,14 +225,14 @@ namespace Ship_Game.Commands.Goals
             return betterStation != null;
         }
 
-
         void CallForHelpIfNeeded()
         {
-            if (ResearchStation.AI.BadGuysNear)
+            SolarSystem system = TargetPlanet?.System ?? TargetSystem;
+            float enemyStr = Owner.KnownEnemyStrengthIn(system);
+            if (enemyStr > 0) 
             {
-                SolarSystem system = TargetPlanet?.System ?? TargetSystem;
                 if (!Owner.HasWarTaskTargetingSystem(system))
-                    Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system));
+                     Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system));
             }
         }
 
