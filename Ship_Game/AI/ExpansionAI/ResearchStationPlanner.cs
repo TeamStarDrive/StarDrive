@@ -45,7 +45,7 @@ namespace Ship_Game.AI.ExpansionAI
                 return; // Leave killing research stations to war logic
 
             SolarSystem system = solarBody.System ?? solarBody as SolarSystem;
-            if (system.HostileForcesPresent(Owner))
+            if (Owner.KnownEnemyStrengthIn(system) > 0)
             {
                 TryClearArea(system, influense);
             }
