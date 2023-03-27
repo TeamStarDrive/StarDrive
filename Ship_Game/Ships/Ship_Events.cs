@@ -1,4 +1,6 @@
-﻿using Ship_Game.Gameplay;
+﻿using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
 {
@@ -108,10 +110,20 @@ namespace Ship_Game.Ships
 
             if (IsResearchStation)
             {
-                if (TetheredTo != null)
-                    Universe.RemoveEmpireFromResearchableList(Loyalty, TetheredTo);
-                else if (System != null)
-                    Universe.RemoveEmpireFromResearchableList(Loyalty, System);
+                Goal researchGoal = Loyalty.AI.FindGoal(g => g is ProcessResearchStation && g.TargetShip == this);
+                if (researchGoal != null)
+                {
+                    if (researchGoal.TargetPlanet != null)
+                        Universe.RemoveEmpireFromResearchableList(Loyalty, researchGoal.TargetPlanet);
+                    else if (System != null)
+                        Universe.RemoveEmpireFromResearchableList(Loyalty, System);
+                    else
+                        Log.Error($"On Ship die - research station {Name} System was null!");
+                }
+                else
+                {
+                    Log.Error($"On Ship die - research station {Name} no goal found!");
+                }
             }
 
             DamageRelationsOnDeath(pSource);
