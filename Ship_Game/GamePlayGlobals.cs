@@ -57,7 +57,9 @@ public class GamePlayGlobals
     [StarData] public float BonusRepairPerCrewLevel = 0.2f;
     // repair rate modifier for command/engineering self repair when in combat
     [StarData] public float InCombatSelfRepairModifier = 0.2f;
-  
+    // Shield power multiply
+    [StarData] public float ShieldPowerMultiplier = 1f;
+
 
     // feature flags
     [StarData] public bool UseHullBonuses;
