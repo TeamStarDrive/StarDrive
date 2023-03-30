@@ -20,6 +20,7 @@ namespace Ship_Game
         Planet TargetPlanet;
         SolarSystem TargetSystem;
         ShipInfoOverlayComponent ShipInfoOverlay;
+        const float MinimumBuildDistanceFromSun = 20000;
 
         public DeepSpaceBuildingWindow(UniverseScreen screen)
         {
@@ -154,8 +155,8 @@ namespace Ship_Game
                 Vector2 worldPos = Screen.CursorWorldPosition2D;
                 if (ShipToBuild.IsResearchStation)
                 {
-                    if (TargetPlanet != null)      Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetPlanet));
-                    else if (TargetSystem != null) Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetSystem, worldPos));
+                    if (TargetPlanet != null)      Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetPlanet, ShipToBuild));
+                    else if (TargetSystem != null) Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetSystem, worldPos, ShipToBuild));
                 }
                 else
                 {
@@ -180,7 +181,9 @@ namespace Ship_Game
             if (ShipToBuild == null)
                 return false;
 
-            if (targetSystem != null && !targetSystem.InSafeDistanceFromRadiation(Screen.CursorWorldPosition2D))
+            if (targetSystem != null 
+                && (Screen.CursorWorldPosition2D.InRadius(targetSystem.Position, MinimumBuildDistanceFromSun) 
+                   ||!targetSystem.InSafeDistanceFromRadiation(Screen.CursorWorldPosition2D)))
                 return false;
 
             if (targetPlanet != null)
@@ -242,8 +245,8 @@ namespace Ship_Game
                     }
                 }
 
-                Screen.DrawCircleProjected(system.Position, system.SunDangerRadius, new Color(255, 0, 0, 100), 2f,
-                    nodeTex, new Color(255, 0, 0, 50));
+                Screen.DrawCircleProjected(system.Position, system.SunDangerRadius.LowerBound(MinimumBuildDistanceFromSun),
+                    new Color(255, 0, 0, 100), 2f, nodeTex, new Color(255, 0, 0, 50));
             }
 
             base.Draw(batch, elapsed);
