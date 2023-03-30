@@ -386,7 +386,7 @@ public partial class Planet
     }
 
     // path where full recalculation is done
-    void UpdatePlanetStatsByRecalculation()
+    public void UpdatePlanetStatsByRecalculation()
     {
         TotalBuildings = TilesList.Count(tile => tile.BuildingOnTile);
         Storage.Max = SumBuildings(bb => bb.StorageAdded).Clamped(10, 10000000);
