@@ -110,6 +110,8 @@ namespace Ship_Game.Ships
 
             if (IsResearchStation)
             {
+                // must use the goal planet/system, since tether was removed when the ship died and no way to know
+                // if it was researching  a planet or a star
                 Goal researchGoal = Loyalty.AI.FindGoal(g => g is ProcessResearchStation && g.TargetShip == this);
                 if (researchGoal != null)
                 {
