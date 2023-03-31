@@ -52,7 +52,7 @@ public class GamePlayGlobals
     // multiplier of EMP damage removed from shipyard repair when orbiting a colony
     [StarData] public float BonusColonyEMPRecovery = 5.0f;
     // base repair rate from ship command/engineering modules per SECOND
-    [StarData] public float BaseSelfRepair = 10.0f;
+    [StarData] public float SelfRepairMultiplier = 1f;
     // +bonus rate based on crew level, 0.2 would be +20% increase per each crew level
     [StarData] public float BonusRepairPerCrewLevel = 0.2f;
     // repair rate modifier for command/engineering self repair when in combat
