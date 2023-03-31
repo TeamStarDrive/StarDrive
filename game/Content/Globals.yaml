@@ -26,7 +26,7 @@ Globals:
   BonusRepairPerColonyLevel: 0.1 # +bonus based on colony level, 0.1 would be +10% increase per level
   InCombatRepairModifier: 0.5 # repair rate modifier when a ship or planet is in combat
   BonusColonyEMPRecovery: 5.0 # multiplier of EMP damage removed from shipyard repair when orbiting a colony
-  BaseSelfRepair: 1.0 # base repair rate from ship command/engineering modules per SECOND
+  SelfRepairMultiplier: 1.0 # base repair rate from ship command/engineering modules per SECOND
   BonusRepairPerCrewLevel: 0.2 # +bonus rate based on crew level, 0.2 would be +20% increase per each crew level
   InCombatSelfRepairModifier: 0.2 # repair rate modifier for command/engineering self repair when in combat
   ShieldPowerMultiplier: 1
