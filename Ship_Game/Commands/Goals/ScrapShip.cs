@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
@@ -101,6 +102,17 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             if (OldShip?.Active == true)
             {
+                if (OldShip.IsResearchStation)
+                {
+                    Planet planet = OldShip.GetTether();
+                    if (planet != null)
+                        Owner.Universe.RemoveEmpireFromResearchableList(Owner, planet);
+                    else if (OldShip.System != null)
+                        Owner.Universe.RemoveEmpireFromResearchableList(Owner, OldShip.System);
+                    else
+                        Log.Error($"Scrap Ship - research station {OldShip.Name} System was null!");
+                }
+
                 OldShip.ScuttleTimer = 1;
                 OldShip.AI.ClearOrders(AIState.Scuttle, priority: true);
                 OldShip.QueueTotalRemoval(); // fbedard

@@ -15,6 +15,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public override Planet TargetPlanet { get; set; }
         [StarData] public sealed override Ship TargetShip { get; set; }
         [StarData] public Vector2 StaticBuildPos { get; set; }
+        [StarData] IShipDesign StationToBuild; // specific station to build by player from deep space build menu
 
         Ship ResearchStation => TargetShip;
 
@@ -32,26 +33,39 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public ProcessResearchStation(Empire owner, SolarSystem system, Vector2 buildPos, Ship researchStation = null)
+        public ProcessResearchStation(Empire owner, SolarSystem system, Vector2 buildPos, IShipDesign stationToBuild = null)
             : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
             TargetSystem = system;
             Owner = owner;
-            StaticBuildPos = researchStation == null ? buildPos : researchStation.Position;
-            
-            if (researchStation != null)
-                ChangeToStep(Research);
+            StaticBuildPos = buildPos;
+            StationToBuild = stationToBuild;
         }
 
-        public ProcessResearchStation(Empire owner, Planet planet, Ship researchStation = null)
+        public ProcessResearchStation(Empire owner, Planet planet, IShipDesign stationToBuild = null)
             : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
             TargetPlanet = planet;
             Owner = owner;
-            if (researchStation != null)
-                ChangeToStep(Research);
+            StationToBuild = stationToBuild;
+        }
+
+        // This is for when a research station is captured
+        public ProcessResearchStation(Empire owner, Ship researchStation)
+            : this(owner)
+        {
+            StarDateAdded = owner.Universe.StarDate;
+            Planet planet = researchStation.GetTether();
+            if (planet != null)
+                TargetPlanet = planet;
+            else
+                TargetSystem = researchStation.System;
+
+            StaticBuildPos = researchStation.Position;
+            Owner = owner;
+            ChangeToStep(Research);
         }
 
         GoalStep BuildStationConstructor()
@@ -59,17 +73,20 @@ namespace Ship_Game.Commands.Goals
             if (ResearchStation != null) // We got
                 return GoalStep.GoToNextStep;
 
-            IShipDesign bestResearchStation = ResourceManager.Ships.GetDesign(Owner.data.ResearchStation, throwIfError: true); 
-            if (!Owner.isPlayer || Owner.AutoPickBestResearchStation)
-                bestResearchStation = ShipBuilder.PickResearchStation(Owner);
+            if (StationToBuild == null)
+            {
+                StationToBuild = !Owner.isPlayer || Owner.AutoPickBestResearchStation 
+                    ? ShipBuilder.PickResearchStation(Owner) 
+                    : ResourceManager.Ships.GetDesign(Owner.data.ResearchStation, throwIfError: true);
+            }
 
-            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, bestResearchStation, out Planet planetToBuildAt))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, StationToBuild, out Planet planetToBuildAt))
                 return GoalStep.TryAgain;
 
             if (TargetPlanet != null)
-                Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetPlanet, bestResearchStation.Name, Owner));
+                Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetPlanet, StationToBuild.Name, Owner));
             else
-                Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetSystem, bestResearchStation.Name, Owner, StaticBuildPos));
+                Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetSystem, StationToBuild.Name, Owner, StaticBuildPos));
 
             return GoalStep.GoToNextStep;
         }
@@ -141,14 +158,6 @@ namespace Ship_Game.Commands.Goals
                 AddResearchStationPlan(Plan.ResearchStationResearching);
         }
 
-        void CreateGoalForNewOwner(Empire newOwner)
-        {
-            if (ResearchingPlanet)
-                newOwner.AI.AddGoalAndEvaluate(new ProcessResearchStation(newOwner, TargetPlanet, ResearchStation));
-            else
-                newOwner.AI.AddGoalAndEvaluate(new ProcessResearchStation(newOwner, TargetSystem, ResearchStation.Position, ResearchStation));
-        }
-
         void CreateSupplyGoalIfNeeded()
         {
             if (ResearchStation.Supply.InTradeBlockade)
@@ -172,7 +181,7 @@ namespace Ship_Game.Commands.Goals
                 Empire newOwner = ResearchStation.Loyalty;
                 if (TargetPlanet?.CanBeResearchedBy(newOwner) == true || TargetSystem?.CanBeResearchedBy(newOwner) == true)
                 {
-                    CreateGoalForNewOwner(newOwner);
+                    newOwner.AI.AddGoalAndEvaluate(new ProcessResearchStation(newOwner, ResearchStation));
                 }
                 else
                 {
