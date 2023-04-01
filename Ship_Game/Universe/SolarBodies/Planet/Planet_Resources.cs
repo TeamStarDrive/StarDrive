@@ -56,7 +56,7 @@ namespace Ship_Game
                 Food.AutoBalanceWorkers();
         }
 
-        public float PopulationBillion { get; private set; }
+        [StarData] public float PopulationBillion { get; private set; }
         public float PlusFlatPopulationPerTurn { get; private set; }
 
         public bool HasProduction    => Prod.GrossIncome > 1.0f;
