@@ -369,6 +369,7 @@ namespace Ship_Game
                 foreach (Planet planet in system.PlanetList)
                 {
                     planet.InitializePlanetMesh();
+                    planet.UpdatePlanetStatsByRecalculation();
                 }
             }
         }
