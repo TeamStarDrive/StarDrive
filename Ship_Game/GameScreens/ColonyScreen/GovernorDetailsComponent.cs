@@ -401,7 +401,7 @@ namespace Ship_Game
             if (ButtonUpdateTimer > 0f)
                 return;
 
-            ButtonUpdateTimer = 1;
+            ButtonUpdateTimer = 0.5f;
             UpdateButtons();
             UpdateGovOrbitalStats();
             UpdateBudgets();
@@ -658,6 +658,7 @@ namespace Ship_Game
             UpdateCivBudget(budget);
             UpdateGrdBudget(budget);
             UpdateSpcBudget(budget);
+            budget.UpdateManualUI();
 
             CivBudgetBar.Max      = budget.CivilianAlloc;
             CivBudgetBar.Progress = Planet.CivilianBuildingsMaintenance;
