@@ -220,8 +220,8 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         /// </summary>
         public float GetPlanetRepairRatePerSecond()
         {
-            float baseRepairRate = P.RepairMultiplier * GlobalStats.Defaults.BaseShipyardRepair;
-            float levelBasedBonus = 1f + P.Level * GlobalStats.Defaults.BonusRepairPerColonyLevel;
+            float baseRepairRate = P.TotalRepair * GlobalStats.Defaults.BaseShipyardRepair;
+            float levelBasedBonus = P.Level * GlobalStats.Defaults.BonusRepairPerColonyLevel; // P.level is minimum 1
             float inCombatMod = P.SpaceCombatNearPlanet ? GlobalStats.Defaults.InCombatRepairModifier : 1f;
             float buildRate = 1f / P.ShipCostModifier; // build rate is inverse to the cost modifier
             float repairPool = baseRepairRate * levelBasedBonus * inCombatMod * buildRate;

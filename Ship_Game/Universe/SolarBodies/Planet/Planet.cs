@@ -69,8 +69,7 @@ namespace Ship_Game
         public bool IsStarving => Unfed < 0f;
         public bool QueueEmptySent = true;
 
-        // ship repair multiplier, intended to be 1.0 or 2.0 etc
-        public float RepairMultiplier;
+        public float TotalRepair; // Total Repair points a planet gives
 
         [StarData] public float SensorRange { get; private set; }
         public float ProjectorRange { get; private set; }
