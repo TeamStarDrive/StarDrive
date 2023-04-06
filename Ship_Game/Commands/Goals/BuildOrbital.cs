@@ -38,7 +38,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public BuildOrbital(Planet planetBuildingAt, Planet targetPlanet, string toBuildName, 
             Empire owner, Vector2 dynamicBuildPos) : this(owner)
         {
-            Initialize(toBuildName, Vector2.Zero, targetPlanet, dynamicBuildPos - targetPlanet.Position);
+            Initialize(toBuildName, Vector2.Zero, targetPlanet, 
+                dynamicBuildPos == Vector2.Zero ? dynamicBuildPos : dynamicBuildPos - targetPlanet.Position);
             Setup(planetBuildingAt);
         }
 
