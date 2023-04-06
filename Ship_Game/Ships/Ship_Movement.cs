@@ -1,7 +1,6 @@
 ﻿using System;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
@@ -340,9 +339,7 @@ namespace Ship_Game.Ships
         /// <returns>TRUE if an escape vector was found, FALSE if ship should go straight to resupply target</returns>
         public bool GetEscapeJumpPosition(out Vector2 escapePos, float desiredDistance, bool ignoreNonCombat)
         {
-            Vector2 currentDir = Direction;
-            escapePos = Position + currentDir * desiredDistance; // default position - straight through
-
+            escapePos = Position + Direction * desiredDistance; // default position - straight through
             if (!InCombat && !ignoreNonCombat) // No need for escape position if not in combat - turn around
                 return false;
 
@@ -359,16 +356,7 @@ namespace Ship_Game.Ships
             Planet gravityWell = System.IdentifyGravityWell(this);
             if (gravityWell != null)
             {
-                Vector2 fromWellToShip = gravityWell.Position.DirectionToTarget(Position);
-                Vector2 left = fromWellToShip.LeftVector();
-                Vector2 right = fromWellToShip.RightVector();
-                
-                // escape left or right, whichever is closer
-                float toLeft = Vectors.AngleDifference(left, currentDir);
-                float toRight = Vectors.AngleDifference(right, currentDir);
-                
-                Vector2 offsetLeftOrRight = (toLeft < toRight) ? left : right;
-                escapePos = Position + offsetLeftOrRight * desiredDistance;
+                escapePos = GetEscapePosInGravityWell(gravityWell, desiredDistance);
                 return true;
             }
 
@@ -388,7 +376,7 @@ namespace Ship_Game.Ships
             {
                 float rotation = Rotation + i * RadMath.Deg30AsRads*leftOrRight;
                 Vector2 dirToCheck = rotation.RadiansToDirection();
-                int wellHits = HitTestGravityWells(potentialWells, dirToCheck);
+                int wellHits = HitTestGravityWells(potentialWells, dirToCheck, desiredDistance);
                 if (wellHits == 0)
                 {
                     bestDir = dirToCheck;
@@ -405,14 +393,50 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        int HitTestGravityWells(Array<Planet> wells, Vector2 dir)
+        int HitTestGravityWells(Array<Planet> wells, Vector2 dir, float distance)
         {
-            Vector2 end = Position + dir;
+            Vector2 end = dir.Normalized() * distance;
             int wellHits = 0;
             foreach (Planet planet in wells)
                 if (planet.Position.RayHitTestCircle(planet.GravityWellRadius, Position, end, rayRadius:Radius))
                     wellHits += 1;
             return wellHits;
+        }
+
+        Vector2 GetEscapePosInGravityWell(Planet gravityWell, float desiredDistance)
+        {
+            Vector2 currentDir = Direction;
+            Vector2 fromWellToShip = gravityWell.Position.DirectionToTarget(Position);
+            Vector2 left = fromWellToShip.LeftVector();
+            Vector2 right = fromWellToShip.RightVector();
+
+            // escape left or right, whichever is closer
+            float toLeft = Vectors.AngleDifference(left, currentDir);
+            float toRight = Vectors.AngleDifference(right, currentDir);
+            if (AI.PotentialTargets.Length > 0)
+            {
+                Ship closestEnemy = AI.PotentialTargets.FindMin(t => t.Position.SqDist(Position));
+                Vector2 DirToEnemy = -Position.DirectionToTarget(closestEnemy.Position);
+                float leftToEnemy = Vectors.AngleDifference(left, DirToEnemy);
+                float rightToEnemy = Vectors.AngleDifference(right, DirToEnemy);
+
+                if (leftToEnemy < 1.8f)
+                {
+                    if (rightToEnemy < 1.8f)
+                    {
+                        float awayFromEnemyAngle = Vectors.AngleDifference(DirToEnemy, currentDir);
+                        return -DirToEnemy * desiredDistance;
+                    }
+                    else
+                    {
+                        return Position + toRight * desiredDistance;
+                    }
+                }
+            }
+
+            // fallback incase there are suddenly no enemies
+            Vector2 offsetLeftOrRight = (toLeft < toRight) ? left : right;
+            return Position + offsetLeftOrRight * desiredDistance;
         }
     }
 }
