@@ -420,6 +420,6 @@ public partial class Planet
         ShieldStrengthMax *= 1 + (Owner?.data.ShieldPowerMod ?? 0);
         ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0, ShieldStrengthMax);
 
-        RepairMultiplier = SumBuildings(bb => bb.ShipRepair).LowerBound(0);
+        TotalRepair = SumBuildings(bb => bb.ShipRepair).LowerBound(0);
     }
 }
