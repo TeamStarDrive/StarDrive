@@ -155,7 +155,7 @@ namespace Ship_Game
                 Vector2 worldPos = Screen.CursorWorldPosition2D;
                 if (ShipToBuild.IsResearchStation)
                 {
-                    if (TargetPlanet != null)      Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetPlanet, ShipToBuild));
+                    if (TargetPlanet != null)      Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetPlanet, ShipToBuild, worldPos));
                     else if (TargetSystem != null) Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetSystem, worldPos, ShipToBuild));
                 }
                 else
