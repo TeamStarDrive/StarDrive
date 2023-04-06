@@ -35,9 +35,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         }
 
         // The Orbital will be deployed on a different planet then the planet it is being built on
-        public BuildOrbital(Planet planetBuildingAt, Planet targetPlanet, string toBuildName, Empire owner) : this(owner)
+        public BuildOrbital(Planet planetBuildingAt, Planet targetPlanet, string toBuildName, 
+            Empire owner, Vector2 dynamicBuildPos) : this(owner)
         {
-            Initialize(toBuildName, Vector2.Zero, targetPlanet, Vector2.Zero);
+            Initialize(toBuildName, Vector2.Zero, targetPlanet, 
+                dynamicBuildPos == Vector2.Zero ? dynamicBuildPos : dynamicBuildPos - targetPlanet.Position);
             Setup(planetBuildingAt);
         }
 
@@ -62,7 +64,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (FinishedShip == null)
                 return GoalStep.GoalFailed; // Ship was removed or destroyed
 
-            if (StaticBuildPos == Vector2.Zero)
+            if (StaticBuildPos == Vector2.Zero && TetherOffset == Vector2.Zero)
                 StaticBuildPos = FindNewOrbitalLocation();
             FinishedShip.AI.OrderDeepSpaceBuild(this);
             return GoalStep.GoToNextStep;

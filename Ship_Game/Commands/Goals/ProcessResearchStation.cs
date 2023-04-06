@@ -16,6 +16,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public sealed override Ship TargetShip { get; set; }
         [StarData] public Vector2 StaticBuildPos { get; set; }
         [StarData] IShipDesign StationToBuild; // specific station to build by player from deep space build menu
+        [StarData] readonly Vector2 DynamicBuildPos;
 
         Ship ResearchStation => TargetShip;
 
@@ -43,15 +44,24 @@ namespace Ship_Game.Commands.Goals
             StationToBuild = stationToBuild;
         }
 
-        public ProcessResearchStation(Empire owner, Planet planet, IShipDesign stationToBuild = null)
+        public ProcessResearchStation(Empire owner, Planet planet)
+            : this(owner)
+        {
+            StarDateAdded = owner.Universe.StarDate;
+            TargetPlanet = planet;
+            Owner = owner;
+        }
+
+        // Deep space build orbiting a planet
+        public ProcessResearchStation(Empire owner, Planet planet, IShipDesign stationToBuild, Vector2 tetherOffset)
             : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
             TargetPlanet = planet;
             Owner = owner;
             StationToBuild = stationToBuild;
+            DynamicBuildPos= tetherOffset;
         }
-
         // This is for when a research station is captured
         public ProcessResearchStation(Empire owner, Ship researchStation)
             : this(owner)
@@ -84,7 +94,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             if (TargetPlanet != null)
-                Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetPlanet, StationToBuild.Name, Owner));
+                Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetPlanet, StationToBuild.Name, Owner, DynamicBuildPos));
             else
                 Owner.AI.AddGoal(new BuildOrbital(planetToBuildAt, TargetSystem, StationToBuild.Name, Owner, StaticBuildPos));
 

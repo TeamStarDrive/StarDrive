@@ -50,8 +50,8 @@ namespace Ship_Game.AI.Budget
             if (!Owner.isPlayer && P.System.HostileForcesPresent(Owner))
                 grdBudget *= 3; // Try to add more temp ground defense to clear enemies
 
-            GrdDefAlloc   = P.ManualGrdDefBudget   <= 0 ? ExponentialMovingAverage(GrdDefAlloc, grdBudget) : P.ManualGrdDefBudget;
-            SpcDefAlloc   = P.ManualSpcDefBudget   <= 0 ? ExponentialMovingAverage(SpcDefAlloc, defenseBudget * orbitalRatio) : P.ManualSpcDefBudget;
+            GrdDefAlloc = P.ManualGrdDefBudget <= 0 ? ExponentialMovingAverage(GrdDefAlloc, grdBudget) : P.ManualGrdDefBudget;
+            SpcDefAlloc = P.ManualSpcDefBudget <= 0 ? ExponentialMovingAverage(SpcDefAlloc, defenseBudget * orbitalRatio) : P.ManualSpcDefBudget;
             CivilianAlloc = P.ManualCivilianBudget <= 0 ? ExponentialMovingAverage(CivilianAlloc, civBudget) : P.ManualCivilianBudget + P.TerraformBudget;
 
             RemainingGroundDef = (GrdDefAlloc - P.GroundDefMaintenance).RoundToFractionOf10();
@@ -59,6 +59,13 @@ namespace Ship_Game.AI.Budget
             RemainingCivilian  = (CivilianAlloc - P.CivilianBuildingsMaintenance).RoundToFractionOf10();
             TotalRemaining = RemainingSpaceDef + RemainingGroundDef + RemainingCivilian; // total remaining budget for this planet
             TotalAlloc     = GrdDefAlloc + SpcDefAlloc + CivilianAlloc;
+        }
+
+        public void UpdateManualUI()
+        {
+            GrdDefAlloc = P.ManualGrdDefBudget > 0 ? P.ManualGrdDefBudget : GrdDefAlloc;
+            SpcDefAlloc = P.ManualSpcDefBudget > 0 ? P.ManualSpcDefBudget : SpcDefAlloc;
+            CivilianAlloc = P.ManualCivilianBudget > 0 ? P.ManualCivilianBudget + P.TerraformBudget : CivilianAlloc;
         }
 
         /// <summary>
