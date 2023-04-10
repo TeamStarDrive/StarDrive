@@ -688,11 +688,6 @@ namespace Ship_Game
 
         bool HandleSelectionBox(InputState input)
         {
-            if (SelectedShipList.Count == 1)
-            {
-                SetSelectedShip(SelectedShipList[0]);
-            }
-
             if (input.LeftMouseHeld(0.1f)) // we started dragging selection box
             {
                 SelectionBox = input.LeftHold.GetSelectionBox();
