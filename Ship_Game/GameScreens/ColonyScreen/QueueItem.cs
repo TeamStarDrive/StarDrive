@@ -131,7 +131,7 @@ namespace Ship_Game
         }
 
         // This also increases the priority bonus of the item. So it will be bumped up in the list a little next time
-        public float GetAndUpdatePriority(Planet planet,int totalFreighters)
+        public float GetAndUpdatePriorityForAI(Planet planet,int totalFreighters)
         {
             float priority = 5000;
             Empire owner = planet.Owner;
@@ -155,7 +155,7 @@ namespace Ship_Game
                     break;
             }
 
-            if (!owner.isPlayer && owner.IsAtWarWithMajorEmpire)
+            if (owner.IsAtWarWithMajorEmpire)
             {
                 switch (QType)
                 {
