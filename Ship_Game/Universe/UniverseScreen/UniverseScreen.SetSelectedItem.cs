@@ -111,8 +111,12 @@ public partial class UniverseScreen
         // if SetSelectedShipList(SelectedShipList) then this is a no-op
         // but otherwise always clone the ship list
         SelectedShipList = ReferenceEquals(ships, SelectedShipList) ? SelectedShipList : new(ships);
-        shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
+        if (SelectedShipList.Count == 1 && (SelectedShipList[0].Fleet == null || SelectedShipList[0].Fleet.Ships.Count > 1))
+            SetSelectedShip(SelectedShipList[0]);
+        else
+            shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
     }
+    
 
     public void SetSelectedFleet(Fleet fleet, Array<Ship> selectedShips = null)
     {
