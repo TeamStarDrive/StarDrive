@@ -456,17 +456,19 @@ namespace Ship_Game
                 {
                     GameAudio.EchoAffirmative();
                     troopShip.AI.OrderLandAllTroops(P, clearOrders:true);
+                    if (Player.Universe.Paused) 
+                        Player.Universe.Objects.UpdateLists();
                 }
                 else
                     GameAudio.BlipClick();
             }
-            if (ResearchStationRect.HitTest(input.CursorPosition) && input.InGameSelect)
+            if (P.IsResearchable && ResearchStationRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if      (Player.AI.HasGoal(g => g.IsResearchStationGoal(P))) Player.AI.CancelResearchStation(P);
                 else if (Player.CanBuildResearchStations)                    Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, P));
                 else                                                         GameAudio.NegativeClick();
 
-            GameAudio.EchoAffirmative();
+                GameAudio.EchoAffirmative();
             }
 
             if (P.Owner != null && P.Owner != Player 
