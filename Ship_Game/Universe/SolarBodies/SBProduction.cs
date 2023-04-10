@@ -412,9 +412,11 @@ namespace Ship_Game.Universe.SolarBodies
             lock (ConstructionQueue)
             {
                 ConstructionQueue.Add(item);
-                int totalFreighters = Owner.TotalFreighters;
-                if (P.CType != Planet.ColonyType.Colony)
-                    ConstructionQueue.Sort(q => q.GetAndUpdatePriority(P,totalFreighters));
+                if (!P.OwnerIsPlayer)
+                {
+                    int totalFreighters = Owner.TotalFreighters;
+                    ConstructionQueue.Sort(q => q.GetAndUpdatePriorityForAI(P, totalFreighters));
+                }
             }
         }
 
