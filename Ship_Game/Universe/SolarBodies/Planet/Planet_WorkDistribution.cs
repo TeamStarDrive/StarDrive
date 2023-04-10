@@ -44,7 +44,7 @@ namespace Ship_Game
             float farmers = Food.EstPercentForNetIncome(wantedIncome);
 
             // modify nominal farmers by overage or underage
-            farmers += CalculateMod(percent, Storage.FoodRatio).UpperBound(0.5f);
+            farmers += CalculateMod(percent, Storage.FoodRatioWithIncoming).UpperBound(0.5f);
             return farmers.Clamped(0f, 0.9f);
         }
 
@@ -55,7 +55,7 @@ namespace Ship_Game
 
             float workers = Prod.EstPercentForNetIncome(wantedIncome);
 
-            workers += CalculateMod(percent, Storage.ProdRatio).Clamped(-0.35f, 0.5f);
+            workers += CalculateMod(percent, Storage.ProdRatioWithIncoming).Clamped(-0.35f, 0.5f);
             return workers.Clamped(0f, 1f);
         }
 

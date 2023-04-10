@@ -11571,9 +11571,7 @@ AutoResearch:
  SPA: "Investigación automática"
 ShipRepair:
  Id: 6137
- ENG: "Ship Repair"
- RUS: "ремонт кораблей"
- SPA: "Reparación de naves"
+ ENG: "Ship Repair Per Second"
 AutoTaxes:
  Id: 6138
  ENG: "Auto Taxes"

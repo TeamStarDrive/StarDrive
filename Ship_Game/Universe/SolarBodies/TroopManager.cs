@@ -85,12 +85,17 @@ namespace Ship_Game
                     if (tile == null || !tile.TroopsHere.Remove(troop))
                         Ground.SearchAndRemoveTroopFromAllTiles(troop);
 
-                    bool anyLeftHere = WeHaveTroopsHereUncached(troop.Loyalty);
-                    FactionTroopsPresentHere.SetValue(troop.Loyalty.Id, anyLeftHere);
+                    UpdateFactionTroopsPresentHere(troop.Loyalty);
                     return true;
                 }
                 return false;
             }
+        }
+
+        public void UpdateFactionTroopsPresentHere(Empire empire)
+        {
+            bool anyLeftHere = WeHaveTroopsHereUncached(empire);
+            FactionTroopsPresentHere.SetValue(empire.Id, anyLeftHere);
         }
 
         #endregion
