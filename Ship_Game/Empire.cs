@@ -2095,6 +2095,8 @@ namespace Ship_Game
             {
                 foreach (Troop troop in planet.Troops.GetTroopsOf(target))
                     troop.ChangeLoyalty(this);
+
+                planet.Troops.UpdateFactionTroopsPresentHere(this);
             }
 
             target.ClearAllPlanets();
