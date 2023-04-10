@@ -56,7 +56,7 @@ public partial class UniverseScreen
     public void UpdateSelectedShips()
     {
         SelectedShipList.RemoveInActiveObjects();
-        if (SelectedShipList.Count >= 1)
+        if (SelectedShipList.Count > 0)
             SetSelectedShipList(SelectedShipList, SelectedFleet);
         else if (SelectedShip != null)
             SetSelectedShip(SelectedShip, SelectedFleet);
@@ -107,18 +107,11 @@ public partial class UniverseScreen
 
     public void SetSelectedShipList(IReadOnlyList<Ship> ships, Fleet fleet)
     {
-        if (ships.Count == 1)
-        {
-            SetSelectedShip(ships[0], fleet: fleet);
-        }
-        else
-        {
-            ClearSelectedItems(clearShipList: false, fleet: fleet);
-            // if SetSelectedShipList(SelectedShipList) then this is a no-op
-            // but otherwise always clone the ship list
-            SelectedShipList = ReferenceEquals(ships, SelectedShipList) ? SelectedShipList : new(ships);
-            shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
-        }
+        ClearSelectedItems(clearShipList: false, fleet: fleet);
+        // if SetSelectedShipList(SelectedShipList) then this is a no-op
+        // but otherwise always clone the ship list
+        SelectedShipList = ReferenceEquals(ships, SelectedShipList) ? SelectedShipList : new(ships);
+        shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
     }
 
     public void SetSelectedFleet(Fleet fleet, Array<Ship> selectedShips = null)
@@ -126,11 +119,7 @@ public partial class UniverseScreen
         SelectedSomethingTimer = 3f;
         Array<Ship> ships = selectedShips ?? fleet.Ships;
 
-        if (ships.Count == 1)
-        {
-            SetSelectedShip(ships.First, fleet: fleet);
-        }
-        else if (ships.Count > 1)
+        if (ships.Count > 0)
         {
             SetSelectedShipList(ships, fleet: fleet);
         }
