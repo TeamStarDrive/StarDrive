@@ -319,7 +319,7 @@ namespace Ship_Game
         bool TryGetIncomingTroops(out int incomingTroops, out Array<Ship> incomingTroopShips)
         {
             incomingTroopShips = new Array<Ship>();
-            incomingTroops      = 0;
+            incomingTroops     = 0;
             var ships = Player.OwnedShips;
             for (int i = 0; i < ships.Count; i++)
             {
@@ -361,13 +361,14 @@ namespace Ship_Game
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderLandAllTroops(Planet, clearOrders:true);
                 Screen.RefreshSendTroopButtonsVisibility();
+                Player.Universe.Objects.UpdateLists();
                 UpdateButtonSendTroops();
             }
             else
                 GameAudio.NegativeClick();
         }
 
-        void OnSendTroopsRightClick()
+        void OnSendTroopsRightClick() // cancel one incoming troop
         {
             if (!TryGetIncomingTroops(out _, out Array<Ship> incomingTroopShips))
                 return;
