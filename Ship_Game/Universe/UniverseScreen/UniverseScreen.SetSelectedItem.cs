@@ -56,10 +56,10 @@ public partial class UniverseScreen
     public void UpdateSelectedShips()
     {
         SelectedShipList.RemoveInActiveObjects();
-        if (SelectedShipList.Count > 0)
-            SetSelectedShipList(SelectedShipList, SelectedFleet);
-        else if (SelectedShip != null)
+        if (SelectedShip != null)
             SetSelectedShip(SelectedShip, SelectedFleet);
+        else if (SelectedShipList.Count > 0)
+            SetSelectedShipList(SelectedShipList, SelectedFleet);
     }
 
     void UpdatePrevSelectedShip(Ship newShip)
