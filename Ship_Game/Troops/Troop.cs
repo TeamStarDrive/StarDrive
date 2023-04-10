@@ -128,6 +128,8 @@ namespace Ship_Game
         public void ChangeLoyalty(Empire newOwner)
         {
             Loyalty = newOwner;
+            if (HostPlanet != null)
+                HostPlanet.Troops.UpdateFactionTroopsPresentHere(Loyalty);
         }
 
         public void DoAttack()

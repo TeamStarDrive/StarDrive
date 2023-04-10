@@ -445,7 +445,7 @@ namespace Ship_Game
         {
             int level = (p?.Owner != null ? p.Level : 0);
             float baseRepairRate = ShipRepair * GlobalStats.Defaults.BaseShipyardRepair;
-            float levelBonus = 1f + level * GlobalStats.Defaults.BonusRepairPerColonyLevel;
+            float levelBonus = level * GlobalStats.Defaults.BonusRepairPerColonyLevel;
             return baseRepairRate * levelBonus;
         }
 
