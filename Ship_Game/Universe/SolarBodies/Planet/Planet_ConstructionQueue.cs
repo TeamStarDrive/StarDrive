@@ -84,11 +84,10 @@ public partial class Planet
         if (newItems == null && ConstructionQueue.Count == 0)
             return 0;
 
-        priority = priority.Clamped(0, 1);
         // Turns to use all stored production with just infra, if exporting, expect only 50% will remain
         float turnsWithInfra = (ExportProd ? ProdHere/2 : ProdHere) / InfraStructure.LowerBound(0.01f);
         // Modify the number of turns that can use all production.
-        turnsWithInfra *= priority;
+        turnsWithInfra *= priority.Clamped(0, 1);
         // Percentage of the pop allocated to production
         float workPercentage = IsCybernetic ? 1 : 1 - Food.Percent;
 

@@ -90,7 +90,7 @@ namespace Ship_Game.Commands.Goals
                     : ResourceManager.Ships.GetDesign(Owner.data.ResearchStation, throwIfError: true);
             }
 
-            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, StationToBuild, out Planet planetToBuildAt))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, StationToBuild, out Planet planetToBuildAt, portQuality: 1f))
                 return GoalStep.TryAgain;
 
             if (TargetPlanet != null)

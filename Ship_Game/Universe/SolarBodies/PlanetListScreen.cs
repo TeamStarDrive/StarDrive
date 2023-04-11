@@ -365,9 +365,11 @@ namespace Ship_Game
 
         public bool ShouldAddItem(Planet p)
         {
-            return HideOwned && p.Owner == null
-                || HideUninhab && p.Habitable
-                || !HideOwned && !HideUninhab;
+            if (!HideOwned && !HideUninhab)                                 return true;
+            if (HideOwned && HideUninhab && p.Habitable && p.Owner == null) return true;
+            if (HideOwned && !HideUninhab && p.Owner == null)               return true;
+            if (!HideOwned && HideUninhab && p.Habitable)                   return true;
+            return false;
         }
 
         void OnExoticSystemsScreenClick()

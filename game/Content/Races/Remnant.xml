@@ -33,6 +33,7 @@
   <EnvDesert>1.2</EnvDesert>
   <EnvIce>1.2</EnvIce>
   <EnvBarren>0</EnvBarren>
+  <EnvVolcanic>0.2</EnvVolcanic>
   <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
 
   <Traits>
