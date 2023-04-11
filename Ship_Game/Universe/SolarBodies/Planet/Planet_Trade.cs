@@ -172,7 +172,7 @@ namespace Ship_Game
             float foodMissing = Storage.Max - FoodHere - IncomingFood;
 
             foodMissing += (-Food.NetIncome * AverageFoodImportTurns).LowerBound(0);
-            int foodSlots = foodMissing < 5 ? 0 : (foodMissing / Owner.AverageFreighterCargoCap).RoundUpTo(1);
+            int foodSlots = foodMissing < 5 ? 0 : (foodMissing / Owner.AverageFreighterCargoCap).RoundUpTo(1) + 1;
 
             return foodSlots.Clamped(0, maxSlots);
         }
