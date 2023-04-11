@@ -172,7 +172,7 @@ namespace Ship_Game.Commands.Goals
             if (!ShipBuilder.PickColonyShip(Owner, out IShipDesign colonyShip))
                 return GoalStep.GoalFailed;
 
-            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet, portQuality: 1f))
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = planet;
