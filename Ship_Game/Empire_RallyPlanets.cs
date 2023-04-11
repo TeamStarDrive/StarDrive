@@ -160,16 +160,14 @@ public sealed partial class Empire
 
     /// <summary>
     /// checks planets for shortest time to build.
-    /// port quality says how average a port can be.
-    /// 1 is above average. 0.2 is below average.
-    /// the default is below average. not recommended to set above 1 but you can.
     /// </summary>
-    public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, IShipDesign ship, out Planet chosen, float priority = 1f)
+    public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, IShipDesign ship, out Planet chosen, 
+        float priority = 1f, float portQuality = 0.5f)
     {
         if (ports.Count != 0)
         {
             float cost = ship.GetCost(this);
-            chosen = FindPlanetToBuildAt(ports, cost, ship, priority);
+            chosen = FindPlanetToBuildAt(ports, cost, ship, portQuality, priority);
             return chosen != null;
         }
 
@@ -184,7 +182,7 @@ public sealed partial class Empire
         if (ports.Count != 0)
         {
             float cost = troop.ActualCost;
-            chosen = FindPlanetToBuildAt(ports, cost, sData: null, priority);
+            chosen = FindPlanetToBuildAt(ports, cost, sData: null, 0.2f, priority);
             return chosen != null;
         }
 
@@ -194,10 +192,10 @@ public sealed partial class Empire
         return false;
     }
 
-    Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, IShipDesign sData, float priority = 1f)
+    Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, IShipDesign sData, float portQuality, float priority)
     {
         // focus on the best producing planets (number depends on the empire size)
-        if (GetBestPorts(ports, out Planet[] bestPorts))
+        if (GetBestPorts(ports, out Planet[] bestPorts, portQuality))
             return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, priority, sData));
 
         return null;
@@ -240,7 +238,9 @@ public sealed partial class Empire
         return bestPorts?.Filter(p => p.HasSpacePort) ?? Empty<Planet>.Array;
     }
 
-    bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts, float portQuality = 0.2f)
+    // Port quality is the number to multiply the average max production potential limit.
+    // only planets above this multiplier will be nominated.
+    bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts, float portQuality)
     {
         bestPorts = null;
         // If all the ports are research colonies, do not filter them
@@ -248,9 +248,9 @@ public sealed partial class Empire
         if (ports.Count > 0)
         {
             float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
-            bestPorts            = ports.Filter(p => !p.IsCrippled
-                                                     && (p.CType != Planet.ColonyType.Research || !filterResearchPorts)
-                                                     && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
+            bestPorts = ports.Filter(p => !p.IsCrippled
+                                     && (p.CType != Planet.ColonyType.Research || !filterResearchPorts)
+                                     && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
         }
 
         return bestPorts?.Length > 0;
@@ -258,7 +258,7 @@ public sealed partial class Empire
 
     public Planet GetOrbitPlanetAfterBuild(Planet builtAt)
     {
-        if (GetBestPorts(SafeSpacePorts, out Planet[] bestPorts) && !bestPorts.Contains(builtAt))
+        if (GetBestPorts(SafeSpacePorts, out Planet[] bestPorts, portQuality: 1) && !bestPorts.Contains(builtAt))
         {
             return bestPorts.Sorted(p => p.Position.Distance(builtAt.Position)).First();
         }
