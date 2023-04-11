@@ -393,14 +393,15 @@ namespace Ship_Game
 
             switch (category)
             {
-                case PlanetCategory.Terran:  modifer = empire.data.EnvTerran;  break;
-                case PlanetCategory.Oceanic: modifer = empire.data.EnvOceanic; break;
-                case PlanetCategory.Steppe:  modifer = empire.data.EnvSteppe;  break;
-                case PlanetCategory.Tundra:  modifer = empire.data.EnvTundra;  break;
-                case PlanetCategory.Swamp:   modifer = empire.data.EnvSwamp;   break;
-                case PlanetCategory.Desert:  modifer = empire.data.EnvDesert;  break;
-                case PlanetCategory.Ice:     modifer = empire.data.EnvIce;     break;
-                case PlanetCategory.Barren:  modifer = empire.data.EnvBarren;  break;
+                case PlanetCategory.Terran:   modifer = empire.data.EnvTerran;   break;
+                case PlanetCategory.Oceanic:  modifer = empire.data.EnvOceanic;  break;
+                case PlanetCategory.Steppe:   modifer = empire.data.EnvSteppe;   break;
+                case PlanetCategory.Tundra:   modifer = empire.data.EnvTundra;   break;
+                case PlanetCategory.Swamp:    modifer = empire.data.EnvSwamp;    break;
+                case PlanetCategory.Desert:   modifer = empire.data.EnvDesert;   break;
+                case PlanetCategory.Ice:      modifer = empire.data.EnvIce;      break;
+                case PlanetCategory.Barren:   modifer = empire.data.EnvBarren;   break;
+                case PlanetCategory.Volcanic: modifer = empire.data.EnvVolcanic; break;
             }
 
             return modifer;
