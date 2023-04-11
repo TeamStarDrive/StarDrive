@@ -262,6 +262,7 @@ namespace Ship_Game
         [StarData] public float EnvDesert;
         [StarData] public float EnvIce;
         [StarData] public float EnvBarren;
+        [StarData] public float EnvVolcanic;
         [StarData] public PlanetCategory PreferredEnv;
 
         // FB - Minimum Troop Level
