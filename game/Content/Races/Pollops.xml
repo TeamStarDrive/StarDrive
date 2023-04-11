@@ -40,6 +40,7 @@
   <EnvDesert>1</EnvDesert>
   <EnvIce>1</EnvIce>
   <EnvBarren>1</EnvBarren>
+  <EnvVolcanic>1</EnvVolcanic>
   <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
 
   <ExcludedDTraits>
