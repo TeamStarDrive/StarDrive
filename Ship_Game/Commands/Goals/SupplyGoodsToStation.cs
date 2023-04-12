@@ -48,7 +48,7 @@ namespace Ship_Game.Commands.Goals
             {
                 Planet exportPlanet = exportAndFreighter.Planet;
                 FinishedShip = exportAndFreighter.Freighter;
-                FinishedShip.AI.SetupFreighterPlan(exportPlanet, TargetStation, Goods);
+                exportAndFreighter.Freighter.AI.SetupFreighterPlan(exportPlanet, TargetStation, Goods);
                 return GoalStep.GoToNextStep;
             }
 

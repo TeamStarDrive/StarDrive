@@ -89,7 +89,8 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 if (solarBody.IsExploredBy(Owner)
                     && !solarBody.IsResearchStationDeployedBy(Owner) // this bit is for performance - faster than HasGoal
-                    && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody)))
+                    && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody))
+                    && !Owner.Universe.Remnants.AI.HasGoal(g => g is RemnantPortal && g.TargetShip.System == solarBody))
                 {
                     solarBodies.Add(solarBody);
                 }
