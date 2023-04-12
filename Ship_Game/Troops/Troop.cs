@@ -127,9 +127,13 @@ namespace Ship_Game
 
         public void ChangeLoyalty(Empire newOwner)
         {
+            Empire oldLoyalty = Loyalty;
             Loyalty = newOwner;
             if (HostPlanet != null)
+            {
+                HostPlanet.Troops.UpdateFactionTroopsPresentHere(oldLoyalty);
                 HostPlanet.Troops.UpdateFactionTroopsPresentHere(Loyalty);
+            }
         }
 
         public void DoAttack()
