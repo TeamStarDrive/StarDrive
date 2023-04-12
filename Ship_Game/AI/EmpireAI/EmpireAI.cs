@@ -309,7 +309,8 @@ namespace Ship_Game.AI
                 if (ship.AI.BadGuysNear
                     || ship.AI.HasPriorityOrder
                     || ship.AI.HasPriorityTarget
-                    || !ship.CanBeRefitted)
+                    || !ship.CanBeRefitted
+                    || ship.IsResearchStation)
                 {
                     continue;
                 }
