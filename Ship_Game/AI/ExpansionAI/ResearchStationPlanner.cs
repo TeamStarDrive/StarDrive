@@ -45,14 +45,18 @@ namespace Ship_Game.AI.ExpansionAI
                 return; // Leave killing research stations to war logic
 
             SolarSystem system = solarBody.System ?? solarBody as SolarSystem;
+            Planet planet = solarBody as Planet;
+            if (planet != null && !planet.System.InSafeDistanceFromRadiation(planet.Position))
+                return;
+
             if (Owner.KnownEnemyStrengthIn(system) > 0)
             {
                 TryClearArea(system, influense);
             }
             else
             {
-                if (solarBody is Planet)
-                    Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, solarBody as Planet));
+                if (planet != null)
+                    Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, planet));
                 else
                     Owner.AI.AddGoalAndEvaluate(new ProcessResearchStation(Owner, system, system.SelectStarResearchStationPos()));
             }
@@ -89,7 +93,9 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 if (solarBody.IsExploredBy(Owner)
                     && !solarBody.IsResearchStationDeployedBy(Owner) // this bit is for performance - faster than HasGoal
-                    && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody)))
+                    && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody))
+                    && (Owner.Universe.Remnants == null 
+                        || !Owner.Universe.Remnants.AI.HasGoal(g => g is RemnantPortal && g.TargetShip.System == solarBody)))
                 {
                     solarBodies.Add(solarBody);
                 }
