@@ -4,6 +4,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Collections.Generic;
+using static Ship_Game.AI.ShipAI;
 using Vector2 = SDGraphics.Vector2;
 
 // ReSharper disable once CheckNamespace
@@ -221,7 +222,7 @@ namespace Ship_Game.AI
             return nodePositions;
         }
 
-        public void SetupProjectorBridgeIfNeeded(Ship ship)
+        public void SetupProjectorBridgeIfNeeded(Ship ship, ProjectorBridgeEndCondition endCondition)
         {
             if (ship.System == null
                 || Owner.IsFaction
@@ -231,7 +232,7 @@ namespace Ship_Game.AI
             }
 
             if (!CheckBridgeNeededColonyShip())
-                CheckBridgeNeededTrade();
+                CheckBridgeNeededTradeOrConstruction();
 
             bool CheckBridgeNeededColonyShip()
             {
@@ -243,7 +244,7 @@ namespace Ship_Game.AI
                     if (colonizationGoal?.PlanetBuildingAt != null)
                     {
                         Owner.AI.AddGoal(new ProjectorBridge(ship.System,
-                            colonizationGoal.PlanetBuildingAt.System.Position, Owner));
+                            colonizationGoal.PlanetBuildingAt.System.Position, Owner, endCondition));
 
                         return true;
                     }
@@ -252,24 +253,25 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            void CheckBridgeNeededTrade()
+            void CheckBridgeNeededTradeOrConstruction()
             {
-                if (ship.IsFreighter && !Owner.AI.SpaceRoadsManager.InfluenceNodeExistsAt(ship.Position))
+                if ((ship.IsFreighter || ship.IsConstructor) 
+                    && !Owner.AI.SpaceRoadsManager.InfluenceNodeExistsAt(ship.Position))
                 {
                     // find where the ship was coming from and setup a projector bridge
                     if (ship.AI.State == AIState.SystemTrader)
                     {
-                        ship.AI.FindGoal(ShipAI.Plan.Trade, out ShipAI.ShipGoal goal);
+                        ship.AI.OrderQueue.TryPeekFirst(out ShipGoal goal);
                         if (goal?.Trade != null)
                         {
-                            Owner.AI.AddGoal(new ProjectorBridge(ship.System,
-                                goal.Trade.ExportFrom.System.Position, Owner));
+                            Owner.AI.AddGoalAndEvaluate(new ProjectorBridge(ship.System,
+                                goal.Trade.ExportFrom.System.Position, Owner, endCondition));
 
                             return;
                         }
                     }
-                    // fallback to ship position for bridge direction
-                    Owner.AI.AddGoal(new ProjectorBridge(ship.System, Owner.WeightedCenter, Owner));
+                    // fallback to ship position for bridge direction or if ship is a constructor
+                    Owner.AI.AddGoalAndEvaluate(new ProjectorBridge(ship.System, Owner.WeightedCenter, Owner, endCondition));
                 }
             }
         }

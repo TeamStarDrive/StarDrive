@@ -106,7 +106,10 @@ namespace Ship_Game.Ships
                 Loyalty.AI.SpaceRoadsManager.RemoveProjectorFromRoadList(this);
 
             if (Loyalty.CanBuildPlatforms)
-                Loyalty.AI.SpaceRoadsManager.SetupProjectorBridgeIfNeeded(this);
+            {
+                Loyalty.AI.SpaceRoadsManager.SetupProjectorBridgeIfNeeded(this,
+                    pSource != null ? ProjectorBridgeEndCondition.NoHostiles : ProjectorBridgeEndCondition.Timer);
+            }
 
             if (IsResearchStation)
             {
@@ -130,7 +133,6 @@ namespace Ship_Game.Ships
 
             DamageRelationsOnDeath(pSource);
             CreateEventOnDeath();
-
         }
     }
 }
