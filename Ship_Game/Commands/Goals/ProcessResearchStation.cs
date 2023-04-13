@@ -67,6 +67,7 @@ namespace Ship_Game.Commands.Goals
             : this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
+            TargetShip = researchStation;
             Planet planet = researchStation.GetTether();
             if (planet != null)
                 TargetPlanet = planet;
@@ -128,8 +129,12 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoalFailed; // construction goal was canceled
         }
 
+        // Factions do not research and pirate owners will set scuttle (see PiratePostChangeLoyalty)
         GoalStep Research()
         {
+            if (Owner.IsFaction) 
+                return GoalStep.TryAgain;
+
             if (ResearchStation == null || !ResearchStation.Active)
                 return GoalStep.GoalFailed;
 
