@@ -196,7 +196,7 @@ namespace Ship_Game.Universe.SolarBodies
             YieldPerColonist = ProdYieldFormula(richness, plusPerColonist);
 
             // Cybernetics consume production and will starve at 100% tax, so ease up on them
-            Tax = Planet.NonCybernetic ? Planet.Owner.data.TaxRate : Planet.Owner.data.TaxRate  * 0.5f;
+            Tax = Planet.NonCybernetic || Planet.OwnerIsPlayer ? Planet.Owner.data.TaxRate : Planet.Owner.data.TaxRate  * 0.5f;
         }
 
         protected override float AvgResourceConsumption()
