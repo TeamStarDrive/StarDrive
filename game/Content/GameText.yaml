@@ -1298,7 +1298,7 @@ ShipWillAttemptToHold:
  SPA: "La nave intentará mantener la posición y no se moverá para enfrentarse a los enemigos"
 TaxesAreCollectedFromYour:
  Id: 264
- ENG: "Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets. Production output reduction for Cybernetics is 50% of the tax rate."
+ ENG: "Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets."
  RUS: "Налоги с планет собираются в виде доли ее промышленного и исследовательского потенциала. Например, налог в 25% означает, что промышленное производство и исследования на всех планетах сократятся на 25%. За счет налогов ваша империя будет получать эти потерянные ресурсы в виде кредитов."
  SPA: "Los impuestos se recaudan en los planetas como una parte de su rendimiento de producción e investigación. Por ejemplo, un tipo impositivo del 25% reducirá la capacidad industrial e investigadora en ese mismo 25% en todos los planetas. Tu imperio transformará en créditos la producción e investigación perdidas."
 LaunchThisTroopIntoOrbit:

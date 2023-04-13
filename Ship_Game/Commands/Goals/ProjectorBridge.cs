@@ -21,6 +21,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
         [StarData] public SolarSystem TargetSystem;
         [StarData] public Vector2 StaticBuildPosition;
+        [StarData] readonly ProjectorBridgeEndCondition EndCondition;
 
         [StarDataConstructor]
         public ProjectorBridge(Empire owner) : base(GoalType.ProjectorBridge, owner)
@@ -34,14 +35,15 @@ namespace Ship_Game.Commands.Goals
         }
 
         // This will create projector coverage for ships, if they pass in a dangerous system
-        public ProjectorBridge(SolarSystem targetSystem, Vector2 originPos, Empire e) : this(e)
+        public ProjectorBridge(SolarSystem targetSystem, Vector2 originPos, Empire e,
+            ProjectorBridgeEndCondition endCondition) : this(e)
         {
             TargetSystem = targetSystem;
-
             float distanceToDeploy = Owner.GetProjectorRadius() * 0.5f;
             Vector2 dir = targetSystem.Position.DirectionToTarget(originPos);
             StaticBuildPosition = TargetSystem.Position + dir * distanceToDeploy;
             BuildGoal = new BuildConstructionShip(StaticBuildPosition, "Subspace Projector", Owner, rush: true);
+            EndCondition = endCondition;
         }
 
         GoalStep BuildProjector()
@@ -58,7 +60,7 @@ namespace Ship_Game.Commands.Goals
 
             if (constructionGoal.FinishedShip == null)
             {
-                if (Owner.KnownEnemyStrengthIn(TargetSystem) == 0)
+                if (EndConditionConfirmed())
                 {
                     constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
                     return GoalStep.GoalFailed;
@@ -73,7 +75,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep RemoveProjectorWhenSafe()
         {
-            if (Owner.KnownEnemyStrengthIn(TargetSystem) == 0)
+            if (EndConditionConfirmed())
             {
                 FinishedShip?.AI.OrderScrapShip();
                 var projectors = Owner.OwnedProjectors;
@@ -89,6 +91,21 @@ namespace Ship_Game.Commands.Goals
 
             return GoalStep.TryAgain;
         }
+
+        bool EndConditionConfirmed()
+        {
+            switch (EndCondition)
+            {
+                default:
+                case ProjectorBridgeEndCondition.NoHostiles: return Owner.KnownEnemyStrengthIn(TargetSystem) == 0;
+                case ProjectorBridgeEndCondition.Timer:      return LifeTime > 20;
+            }
+        }
+    }
+    public enum ProjectorBridgeEndCondition
+    {
+        NoHostiles,
+        Timer // 200 turns 
     }
 }
 
