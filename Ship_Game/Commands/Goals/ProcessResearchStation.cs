@@ -63,8 +63,7 @@ namespace Ship_Game.Commands.Goals
             DynamicBuildPos= tetherOffset;
         }
         // This is for when a research station is captured
-        public ProcessResearchStation(Empire owner, Ship researchStation)
-            : this(owner)
+        public ProcessResearchStation(Empire owner, Ship researchStation): this(owner)
         {
             StarDateAdded = owner.Universe.StarDate;
             TargetShip = researchStation;
@@ -74,6 +73,7 @@ namespace Ship_Game.Commands.Goals
             else
                 TargetSystem = researchStation.System;
 
+            owner.Universe.AddEmpireToResearchableList(owner, TargetSolarBody);
             StaticBuildPos = researchStation.Position;
             Owner = owner;
             ChangeToStep(Research);
@@ -129,12 +129,8 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoalFailed; // construction goal was canceled
         }
 
-        // Factions do not research and pirate owners will set scuttle (see PiratePostChangeLoyalty)
         GoalStep Research()
         {
-            if (Owner.IsFaction) 
-                return GoalStep.TryAgain;
-
             if (ResearchStation == null || !ResearchStation.Active)
                 return GoalStep.GoalFailed;
 
@@ -144,10 +140,15 @@ namespace Ship_Game.Commands.Goals
             if (PlanetNoLongerReseachable(out GoalStep noLongerResearchable))
                 return noLongerResearchable;
 
-            CreateSupplyGoalIfNeeded();
-            RefitifNeeded();
-            CallForHelpIfNeeded();
-            AddResearch(ResearchStation.GetProduction());
+            // Factions do not research and pirate owners will set scuttle (see PiratePostChangeLoyalty)
+            if (!Owner.IsFaction)
+            {
+                CreateSupplyGoalIfNeeded();
+                RefitifNeeded();
+                CallForHelpIfNeeded();
+                AddResearch(ResearchStation.GetProduction());
+            }
+
             return GoalStep.TryAgain;
         }
 
@@ -193,6 +194,7 @@ namespace Ship_Game.Commands.Goals
             step = GoalStep.TryAgain;
             if (ResearchStation.Loyalty != Owner) // Boarded or gifted
             {
+                Owner.Universe.RemoveEmpireFromResearchableList(Owner, TargetSolarBody);
                 Empire newOwner = ResearchStation.Loyalty;
                 if (TargetPlanet?.CanBeResearchedBy(newOwner) == true || TargetSystem?.CanBeResearchedBy(newOwner) == true)
                 {
@@ -269,5 +271,7 @@ namespace Ship_Game.Commands.Goals
         bool ConstructionGoalInProgress =>
             (ResearchingPlanet && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetPlanet))
             || (ResearchingStar && Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetSystem))));
+
+        ExplorableGameObject TargetSolarBody => TargetPlanet != null ? TargetPlanet : TargetSystem;
     }
 }
