@@ -20,6 +20,7 @@ namespace Ship_Game.Commands.Goals
 
         Ship ResearchStation => TargetShip;
 
+
         public override bool IsResearchStationGoal(ExplorableGameObject body) 
             => body != null && (TargetPlanet == body || TargetSystem == body);
 
