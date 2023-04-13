@@ -335,8 +335,8 @@ namespace Ship_Game.Ships
         {
             if (Loyalty.WeArePirates)
             {
-                if (IsSubspaceProjector)
-                    ScuttleTimer = 10;
+                if (IsSubspaceProjector || IsResearchStation)
+                    ScuttleTimer = 20;
                 else
                     AI.OrderPirateFleeHome();
             }
