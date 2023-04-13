@@ -48,7 +48,7 @@ public sealed partial class ThreatMatrix
     /// <summary>
     /// Time to Live in seconds for unobserved In-System clusters
     /// </summary>
-    public const float TimeToLiveInSystem = 10 * 60;
+    public const float TimeToLiveInSystem = 20 * 60;
 
     /// <summary>
     /// Time to Live in seconds for unobserved Deep Space clusters
