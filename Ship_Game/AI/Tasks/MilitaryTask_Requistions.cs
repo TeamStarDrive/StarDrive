@@ -466,7 +466,7 @@ namespace Ship_Game.AI.Tasks
         {
             return TaskForce.Sum(s => s.GetStrength());
         }
-
+            
         public bool GetMoreTroops(Planet p, out Array<Ship> moreTroops)
         {
             moreTroops = new Array<Ship>();

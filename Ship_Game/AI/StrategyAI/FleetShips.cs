@@ -60,7 +60,7 @@ namespace Ship_Game.AI
 
         public void RemoveUsableFleets(int howMany)
         {
-            CurrentUseableFleets -= howMany;
+            CurrentUseableFleets = (CurrentUseableFleets - howMany).LowerBound(0);
         }
 
         public bool AddShip(Ship ship)
@@ -296,7 +296,7 @@ namespace Ship_Game.AI
         public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int wantedFleetCount,
             MilitaryTask task, out int fleetCount)
         {
-            fleetCount= 0;
+            fleetCount = 0;
             if (BombSecsAvailable < task.TaskBombTimeNeeded)
                 return new Array<Ship>();
 
