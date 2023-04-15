@@ -299,7 +299,6 @@
     <Compile Include="Ship_Game\AI\ShipMovement\OrbitPlan.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\WarScore.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
-    <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.DoAction.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goals.cs" />
@@ -334,7 +333,6 @@
     <Compile Include="Ship_Game\Ships\ExternalSlotGrid.cs" />
     <Compile Include="Ship_Game\Ships\HangarOptions.cs" />
     <Compile Include="Ship_Game\Ships\IShipDesign.cs" />
-    <Compile Include="Ship_Game\Ships\IShipPool.cs" />
     <Compile Include="Ship_Game\Ships\Legacy\LegacyModuleSlotData.cs" />
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData.cs" />
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData_LegacyParser.cs" />
@@ -401,7 +399,6 @@
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngageEmpire.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantPortal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngagements.cs" />
-    <Compile Include="Ship_Game\Debug\Page\AODebug.cs" />
     <Compile Include="Ship_Game\EmpirePersonalityModifiers.cs" />
     <Compile Include="Ship_Game\Empires\Components\EmpireInformation.cs" />
     <Compile Include="Ship_Game\Empires\Components\IncomingThreat.cs" />
@@ -431,7 +428,6 @@
     <Compile Include="Ship_Game\Debug\Page\SpatialDebug.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
-    <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />
     <Compile Include="Ship_Game\Empire_Relationship.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\AABoundingBox2D.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignStat.cs" />
@@ -870,10 +866,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\GlobalStats.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\AO.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
