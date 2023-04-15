@@ -241,17 +241,23 @@ public sealed partial class Empire
         for (int i = 0; i < ships.Length; i++)
         {
             Ship ship = ships[i];
-            if (ship == null || ship.Fleet != null)
-                continue;
-
-            if (ship.AI.State == AIState.Resupply
-                || ship.AI.State == AIState.ResupplyEscort
-                || ship.AI.State == AIState.Refit
-                || ship.AI.State == AIState.Scrap
-                || ship.AI.State == AIState.Scuttle
-                || ship.IsPlatformOrStation)
+            if (ship == null
+                || ship.Fleet != null
+                || ship.IsFreighter
+                || ship.IsPlatformOrStation
+                || ship.IsHomeDefense
+                || ship.IsHangarShip)
             {
                 continue;
+            }
+
+            switch (ship.AI.State)
+            {
+                case AIState.Resupply:
+                case AIState.ResupplyEscort:
+                case AIState.Refit:
+                case AIState.Scrap:
+                case AIState.Scuttle: continue;
             }
 
             readyShips.Add(ship);
