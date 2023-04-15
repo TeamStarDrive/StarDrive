@@ -211,6 +211,10 @@
     <Natvis Include="SDNative.natvis" />
     <Natvis Include="spatial\qtree\Spatial.natvis" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Ship_Game\AI\Tasks\MilitaryTask.cs" />
+    <None Include="..\Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
