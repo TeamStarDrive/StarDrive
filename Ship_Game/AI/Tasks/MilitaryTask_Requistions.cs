@@ -445,7 +445,7 @@ namespace Ship_Game.AI.Tasks
 
             int wantedNumberOfFleets = WantedNumberOfFleets();
             // All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, this);
+            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, this, out int fleetSetsGot);
             if (TaskForce.IsEmpty)
             {
                 ReqStatus = RequisitionStatus.FailedToCreateAFleet;
@@ -453,13 +453,10 @@ namespace Ship_Game.AI.Tasks
             }
 
             Log.Info($"{Owner.Name} Formed TaskForce {GetFleetName()} NumShips={TaskForce.Count} Strength={GetTaskForceStrength()} MinStrength={MinimumTaskForceStrength}");
-
             CreateFleet(TaskForce, GetFleetName());
-            Owner.AIManagedShips.CurrentUseableFleets -= fleetShips.ShipSetsExtracted.LowerBound(1);
-            {
-                ReqStatus = RequisitionStatus.Complete;
-                return ReqStatus;
-            }
+            Owner.ShipsReadyForFleet.RemoveUsableFleets(fleetSetsGot);
+            ReqStatus = RequisitionStatus.Complete;
+            return ReqStatus;
         }
 
         float GetTaskForceStrength()
@@ -498,7 +495,7 @@ namespace Ship_Game.AI.Tasks
 
         int WantedNumberOfFleets()
         {
-            int maxFleets = Owner.AIManagedShips.CurrentUseableFleets;
+            int maxFleets = Owner.ShipsReadyForFleet.CurrentUseableFleets;
             int wantedNumberOfFleets = FleetCount;
             if (TargetPlanet?.Owner != null)
             {
