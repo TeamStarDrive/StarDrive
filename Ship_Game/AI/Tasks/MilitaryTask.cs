@@ -278,8 +278,8 @@ namespace Ship_Game.AI.Tasks
                 divisor = 5;
             else if (Owner.IsAtWarWithMajorEmpire)
                 divisor = 10;
-            float availableFleets = Owner.AIManagedShips.CurrentUseableFleets.LowerBound(1);
-            float fleets = Owner.AIManagedShips.InitialReadyFleets.LowerBound(1);
+            float availableFleets = Owner.ShipsReadyForFleet.CurrentUseableFleets.LowerBound(1);
+            float fleets = Owner.ShipsReadyForFleet.InitialUsableFleets.LowerBound(1);
             float usedFleets = fleets - availableFleets;
             return  fleets / divisor > usedFleets;
         }
