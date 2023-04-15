@@ -173,6 +173,9 @@ namespace Ship_Game.AI.Tasks
             if (AO.AlmostZero())
                 throw new Exception("AO cannot be empty");
 
+            if (Owner.ShipsReadyForFleet.CurrentUseableFleets < 0)
+                return;
+
             int requiredTroopStrength = 0;
             if (TargetPlanet != null)
             {
