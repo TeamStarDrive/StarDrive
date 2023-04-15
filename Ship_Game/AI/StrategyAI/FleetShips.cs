@@ -74,19 +74,7 @@ namespace Ship_Game.AI
                 ship.ClearFleet(returnToManagedPools: false, clearOrders: false);
             }
 
-            if (ship.IsPlatformOrStation
-                || ship.Fleet != null
-                || ship.IsHangarShip
-                || ship.AI.State == AIState.Scrap
-                || ship.AI.State == AIState.Resupply
-                || ship.AI.State == AIState.Refit
-                || ship.IsHomeDefense)
-            {
-                return false;
-            }
-
             Ships.Add(ship);
-
             int roleIndex = (int)EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
             RoleCount[roleIndex] += 1;
             RoleStrength[roleIndex] += ship.GetStrength();
@@ -349,8 +337,11 @@ namespace Ship_Game.AI
                     && t.Loyalty != null
                     && t.CanLaunch // save some iterations to find tiles for irrelevant troops
                     && !t.HostPlanet.RecentCombat
-                    && !t.HostPlanet.System.DangerousForcesPresent(t.Loyalty)) 
+                    && !t.HostPlanet.System.DangerousForcesPresent(t.Loyalty))
+                {
                     return true;
+                }
+
                 return false;
             }))
             {
