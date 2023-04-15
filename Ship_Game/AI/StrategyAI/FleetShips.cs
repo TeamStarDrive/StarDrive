@@ -47,13 +47,11 @@ namespace Ship_Game.AI
 
         public FleetShips(Empire ownerEmpire, Array<Ship> ships) : this(ownerEmpire)
         {
-            AddShips(ships);
-        }
-
-        void AddShips(Array<Ship> ships)
-        {
-            foreach (Ship ship in ships)
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
                 AddShip(ship);
+            }
         }
 
         public bool AddShip(Ship ship)
@@ -119,8 +117,12 @@ namespace Ship_Game.AI
         public Array<Ship> ExtractShips(HashSet<Ship> shipsToExtract)
         {
             var results = new Array<Ship>((ICollection<Ship>)shipsToExtract);
-            foreach (Ship ship in results)
+            for (int i = 0; i < results.Count; i++)
+            {
+                Ship ship = results[i];
                 RemoveShip(ship);
+            }
+
             return results;
         }
 

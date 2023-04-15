@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SDUtils;
 using Ship_Game.AI;
-
+/*
 namespace Ship_Game.Ships
 {
     public interface IShipPool
@@ -31,4 +31,4 @@ namespace Ship_Game.Ships
         /// <returns>TRUE if Ship.Pool == this</returns>
         bool Contains(Ship ship);
     }
-}
+}*/

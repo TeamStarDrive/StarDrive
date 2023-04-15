@@ -5,6 +5,7 @@ using SDUtils;
 
 namespace Ship_Game.AI
 {
+    /*
     public class OffensiveForcePoolManager
     {
         readonly Empire Owner;
@@ -92,5 +93,5 @@ namespace Ship_Game.AI
             }
             return allPlanets;
         }
-    }
+    }*/
 }

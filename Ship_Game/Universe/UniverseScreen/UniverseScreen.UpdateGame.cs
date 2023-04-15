@@ -298,7 +298,6 @@ namespace Ship_Game
                     for (int i = start; i < end; i++)
                     {
                         Empire empire = wereUpdated[i];
-                        empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                     }
                 }

@@ -217,15 +217,6 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            if (FindClosestAO() == null)
-            {
-                if (Fleet.IsCoreFleet || Owner.isPlayer)
-                    return;
-
-                DisbandTaskForce(Fleet);
-                return;
-            }
-
             if (IsCoreFleetTask)
             {
                 ClearCoreFleetTask();
@@ -274,13 +265,6 @@ namespace Ship_Game.AI.Tasks
         /// <param name="fleet"></param>
         public void DisbandTaskForce(Fleet fleet)
         {
-            for (int i = 0; i < TaskForce.Count; i++)
-            {
-                var ship = TaskForce[i];
-                if (ship.Fleet == null)
-                    Owner.AddShipToManagedPools(ship);
-            }
-
             Fleet?.Reset();
             TaskForce.Clear();
         }
