@@ -90,13 +90,10 @@ public class ShipDebugInfoPanel : Submenu
             DrawShipOrderQueueInfo(s);
             DrawWayPointsInfo(s);
 
-            Text.String($"On Defense: {s.Loyalty.AI.DefensiveCoordinator.Contains(s)}");
             if (s.Fleet != null)
             {
                 Text.String($"Fleet: {s.Fleet.Name}  {(int)s.Fleet.FinalPosition.X}x{(int)s.Fleet.FinalPosition.Y}  STLCap:{s.Fleet.STLSpeedLimit:0} FTLCap:{s.Fleet.FTLSpeedLimit:0}");
             }
-
-            Text.String(s.Pool != null ? "In Force Pool" : "NOT In Force Pool");
 
             if (s.AI.State == AIState.SystemDefender)
             {

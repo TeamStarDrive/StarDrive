@@ -10,6 +10,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {
+    /*
     // ReSharper disable once InconsistentNaming
     public sealed class AOPlanetData
     {
@@ -288,5 +289,5 @@ namespace Ship_Game.AI
                 ship?.Loyalty.AddShipToManagedPools(ship);
             }
         }
-    }
+    }*/
 }
