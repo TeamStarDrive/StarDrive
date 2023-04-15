@@ -75,6 +75,8 @@ public sealed partial class Empire
         }
     }
 
+    public FleetShips ShipsReadyForFleet;
+
     /// <summary>Returns only active fleets which have ships</summary>
     public FleetEnumerator ActiveFleets => new FleetEnumerator(Fleets.GetInternalArrayItems(), Fleets.Count);
 
@@ -234,12 +236,6 @@ public sealed partial class Empire
 
     public Array<Ship> AllFleetReadyShips()
     {
-        //Get all available ships from AO's
-        // FB - there is a major bug here which limited the AI a alot. 
-        // give the AI abiity to use all of its ready ships greatly increased is lethality
-        /*var ships = isPlayer ? new(EmpireShips.OwnedShips)
-                             : AIManagedShips.GetShipsFromOffensePools();*/
-
         var ships = EmpireShips.OwnedShips;
         var readyShips = new Array<Ship>();
         for (int i = 0; i < ships.Length; i++)

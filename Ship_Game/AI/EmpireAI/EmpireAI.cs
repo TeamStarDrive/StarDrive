@@ -28,15 +28,12 @@ namespace Ship_Game.AI
         UniverseState UState => OwnerEmpire.Universe;
 
         [StarData] readonly Empire OwnerEmpire;
-        public OffensiveForcePoolManager OffensiveForcePoolManager;
 
         public DefensiveCoordinator DefensiveCoordinator;
         public IReadOnlyList<Goal> Goals => GoalsList;
 
         [StarData] readonly Array<Goal> GoalsList;
-        [StarData] public Array<AO> AreasOfOperations;
         [StarData] public ThreatMatrix ThreatMatrix;
-        [StarData] public float DefStr;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
         [StarData] public ExpansionAI.ResearchStationPlanner ResearchStationsAI;
         [StarData] public SpaceRoadsManager SpaceRoadsManager;
@@ -55,7 +52,6 @@ namespace Ship_Game.AI
             ExpansionAI = new(OwnerEmpire);
             ResearchStationsAI = new(OwnerEmpire);
             GoalsList = new();
-            AreasOfOperations = new();
 
             InitializeManagers(e);
             SpaceRoadsManager = new(e);
@@ -73,7 +69,6 @@ namespace Ship_Game.AI
         {
             DefensiveCoordinator = new(e.Universe.CreateId(), e, "DefensiveCoordinator");
             TechChooser = new(e);
-            OffensiveForcePoolManager = new(e);
             BudgetSettings = new(e);
         }
 
@@ -101,7 +96,6 @@ namespace Ship_Game.AI
             if (Disabled) // AI has been disabled for debugging purposes
                 return;
 
-            DefStr = DefensiveCoordinator.GetForcePoolStrength();
             if (!OwnerEmpire.IsFaction)
                 RunManagers();
             else
@@ -130,12 +124,6 @@ namespace Ship_Game.AI
             if (OwnerEmpire.data.IsRebelFaction || OwnerEmpire.IsDefeated)
                 return;
 
-            if (!OwnerEmpire.isPlayer)
-            {
-                OffensiveForcePoolManager.ManageAOs();
-                foreach (AO ao in AreasOfOperations)
-                    ao.Update();
-            }
             if (!OwnerEmpire.IsFaction)
             {
                 DefensiveCoordinator.ManageForcePool();

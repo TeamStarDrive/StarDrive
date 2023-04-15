@@ -7,6 +7,7 @@ using Ship_Game.Ships.Components;
 
 namespace Ship_Game.Empires.ShipPools
 {
+    /*
     public class ShipPool : IShipPool
     {
         readonly Empire Owner;
@@ -86,7 +87,7 @@ namespace Ship_Game.Empires.ShipPools
             if (ship.Pool != this)
                 return false;
 
-            ship.ClearFleet(returnToManagedPools: false, clearOrders: false/*we don't have the authority to clear orders here*/);
+            ship.ClearFleet(returnToManagedPools: false, clearOrders: false/*we don't have the authority to clear orders here*;
             ForcePool.RemoveItemImmediate(ship);
             ship.Pool = null;
             return true;
@@ -127,5 +128,5 @@ namespace Ship_Game.Empires.ShipPools
             EmpireReadyFleets?.Clear();
             ForcePool.Clear();
         }
-    }
+    }*/
 }

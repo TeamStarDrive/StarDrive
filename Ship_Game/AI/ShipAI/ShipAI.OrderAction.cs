@@ -785,17 +785,6 @@ namespace Ship_Game.AI
 
             if (!HadPO)
             {
-                if (SystemToDefend != null)
-                {
-                    Planet p = Owner.Loyalty.AI.DefensiveCoordinator.AssignIdleShips(Owner);
-                    if (p != null)
-                    {
-                        Orbit.Orbit(p, timeStep);
-                        AwaitClosest = p;
-                    }
-                    return;
-                }
-
                 if (AwaitClosest != null)
                 {
                     Orbit.Orbit(AwaitClosest, timeStep);

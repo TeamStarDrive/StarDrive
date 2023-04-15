@@ -117,7 +117,6 @@ namespace Ship_Game.Fleets
                 return true;
             }
 
-            Owner.AIManagedShips.Remove(newShip);
             UpdateOurFleetShip(newShip);
 
             SortIntoFlanks(newShip, TotalFleetAttributes.GetAveragedValues());
@@ -2203,10 +2202,6 @@ namespace Ship_Game.Fleets
                     {
                         ship.AI.ClearOrders();
                         ship.HyperspaceReturn(); // only exit hyperspace if we are clearing orders
-                    }
-                    if (returnToEmpireAI)
-                    {
-                        ship.Loyalty.AddShipToManagedPools(ship);
                     }
                 }
             }

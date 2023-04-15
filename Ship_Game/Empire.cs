@@ -142,7 +142,6 @@ namespace Ship_Game
         public bool CanBuildResearchStations { get; private set; }
         public float CurrentMilitaryStrength;
         public float OffensiveStrength; // No Orbitals
-        public ShipPool AIManagedShips;
         [StarData] public LoyaltyLists EmpireShips;
         public float CurrentTroopStrength { get; private set; }
         public Color ThrustColor0;
@@ -230,7 +229,6 @@ namespace Ship_Game
             Universe = us;
             Research = new(this);
 
-            AIManagedShips = new(us?.CreateId() ?? -1, this, "AIManagedShips");
             EmpireShips = new(this);
 
             TechnologyDict = new();
@@ -271,14 +269,8 @@ namespace Ship_Game
         [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData), typeof(UniverseParams), typeof(Planet))]
         void OnDeserialized(UniverseState us)
         {
-            AIManagedShips = new(us.CreateId(), this, "AIManagedShips");
             dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
             CommonInitialize();
-        }
-
-        public void AddShipToManagedPools(Ship s)
-        {
-            AIManagedShips.Add(s);
         }
 
         public float GetProjectorRadius()
@@ -442,7 +434,6 @@ namespace Ship_Game
             {
                 s.LoyaltyChangeFromBoarding(rebels, false);
             }
-            AIManagedShips.Clear();
             EmpireShips.Clear();
             data.AgentList.Clear();
         }
@@ -468,7 +459,6 @@ namespace Ship_Game
             AI.ClearGoals();
             AI.EndAllTasks();
             ResetFleets();
-            AIManagedShips.Clear();
             EmpireShips.Clear();
             data.AgentList.Clear();
         }
@@ -962,6 +952,7 @@ namespace Ship_Game
                 UpdateRallyPoints(); // rally points must exist before AI Update
                 AssignNewHomeWorldIfNeeded();
 
+                ShipsReadyForFleet = new FleetShips(this, AllFleetReadyShips());
                 AI.Update(); // Must be done before DoMoney and Take turn
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
@@ -1077,8 +1068,6 @@ namespace Ship_Game
             UpdateMaxColonyValues();
             CalcWeightedCenter(calcNow: true);
             AI.RunEconomicPlanner(fromSave: true);
-            if (!isPlayer)
-                AI.OffensiveForcePoolManager.ManageAOs();
         }
 
         public void UpdateMilitaryStrengths()
@@ -2106,7 +2095,6 @@ namespace Ship_Game
                 ship.LoyaltyChangeByGift(this, addNotification: false);
             }
 
-            target.AIManagedShips.Clear();
             AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
             {
@@ -2148,7 +2136,6 @@ namespace Ship_Game
             if (this != Universe.Player)
             {
                 AI.EndAllTasks();
-                AI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 AI.DefensiveCoordinator.DefenseDict.Clear();
             }
 
@@ -2529,7 +2516,6 @@ namespace Ship_Game
                 data.MoleList = new();
             }
 
-            AIManagedShips = null;
             EmpireShips = null;
         }
 

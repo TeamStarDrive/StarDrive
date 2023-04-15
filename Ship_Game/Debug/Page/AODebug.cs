@@ -5,9 +5,10 @@ using Ship_Game.Fleets;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Debug.Page;
-
+/*
 public class AODebug : DebugPage
 {
+    
     int EmpireID = 1;
     Empire EmpireAtWar;
 
@@ -269,3 +270,4 @@ public class AODebug : DebugPage
         return columns;
     }
 }
+*/
