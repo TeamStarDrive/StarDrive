@@ -81,9 +81,9 @@ public class ThreatMatrixTests : StarDriveTest
     public void FindClusters_OfASingleEmpire()
     {
         Vector2 pos = PlayerPlanet.Position;
-        float str1 = CreateShipsAt(pos, 5000, Player, 40);
-        float str2 = CreateShipsAt(pos, 5000, Enemy, 20);
-        float str3 = CreateShipsAt(pos, 5000, ThirdMajor, 10);
+        float str1 = CreateShipsAt(pos, 4000, Player, 40);
+        float str2 = CreateShipsAt(pos, 4000, Enemy, 20);
+        float str3 = CreateShipsAt(pos, 4000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player);
 
         AssertEqual(str1, Str(Player.Threats.FindClusters(Player, pos, 6000)));
@@ -95,7 +95,7 @@ public class ThreatMatrixTests : StarDriveTest
         AssertEqual(1, Player.Threats.FindClusters(ThirdMajor, pos, 6000).Length);
 
         // make sure we can find multiple clusters
-        float str4 = CreateShipsAt(pos + new Vector2(20000), 5000, Enemy, 15);
+        float str4 = CreateShipsAt(pos + new Vector2(20000), 4000, Enemy, 15);
         ScanAndUpdateThreats(Player);
 
         //DebugVisualizeThreats(Player);
