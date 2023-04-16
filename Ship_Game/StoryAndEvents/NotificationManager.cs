@@ -17,7 +17,7 @@ namespace Ship_Game
         public readonly ScreenManager ScreenManager;
         public readonly UniverseScreen Screen;
         Rectangle NotificationArea;
-        int MaxEntriesToDisplay;
+        public int MaxEntriesToDisplay;
 
         readonly Array<Notification> NotificationList = new();
         public int NumberOfNotifications => NotificationList.Count;
