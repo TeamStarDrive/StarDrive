@@ -44,6 +44,7 @@ namespace UnitTests.NotificationTests
         [TestMethod]
         public void TestRemoveTooManyNotifications()
         {
+            NotifMgr.MaxEntriesToDisplay = 7;
             AddNotifications(Player);
             AssertEqual(12, NotifMgr.NumberOfNotifications);
             NotifMgr.Update(10f);
