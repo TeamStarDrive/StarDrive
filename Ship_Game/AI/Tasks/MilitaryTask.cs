@@ -213,16 +213,7 @@ namespace Ship_Game.AI.Tasks
 
             if (Fleet == null)
             {
-                DisbandTaskForce(Fleet);
-                return;
-            }
-
-            if (FindClosestAO() == null)
-            {
-                if (Fleet.IsCoreFleet || Owner.isPlayer)
-                    return;
-
-                DisbandTaskForce(Fleet);
+                DisbandTaskForce();
                 return;
             }
 
@@ -236,7 +227,7 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             if (!FleetNeededForNextTask)
-                DisbandTaskForce(Fleet);
+                DisbandTaskForce();
 
             if (Type == TaskType.Exploration && TargetPlanet != null)
                 RemoveTaskTroopsFromPlanet();
@@ -271,31 +262,22 @@ namespace Ship_Game.AI.Tasks
         /// Fleets will add back to the force pool when they are reset.
         /// Non fleet ships need to be manually sent back
         /// </summary>
-        /// <param name="fleet"></param>
-        public void DisbandTaskForce(Fleet fleet)
+        public void DisbandTaskForce()
         {
-            for (int i = 0; i < TaskForce.Count; i++)
-            {
-                var ship = TaskForce[i];
-                if (ship.Fleet == null)
-                    Owner.AddShipToManagedPools(ship);
-            }
-
             Fleet?.Reset();
             TaskForce.Clear();
         }
 
         bool RoomForMoreFleets()
         {
-            float divisor = 0;
-            if (Type == TaskType.ClearAreaOfEnemies)
-                divisor = 1;
-            else if (GetTaskCategory() == TaskCategory.War)
-                divisor = 5;
-            else if (Owner.IsAtWarWithMajorEmpire)
-                divisor = 10;
-            float availableFleets = Owner.AIManagedShips.CurrentUseableFleets.LowerBound(1);
-            float fleets = Owner.AIManagedShips.InitialReadyFleets.LowerBound(1);
+            float divisor;
+            if (Type is TaskType.ClearAreaOfEnemies or TaskType.GuardBeforeColonize) divisor = 1;
+            else if (GetTaskCategory() == TaskCategory.War)                          divisor = 5;
+            else if (Owner.IsAtWarWithMajorEmpire)                                   divisor = 10;
+            else                                                                     return true;
+
+            float availableFleets = Owner.ShipsReadyForFleet.CurrentUseableFleets.LowerBound(1);
+            float fleets = Owner.ShipsReadyForFleet.InitialUsableFleets.LowerBound(1);
             float usedFleets = fleets - availableFleets;
             return  fleets / divisor > usedFleets;
         }

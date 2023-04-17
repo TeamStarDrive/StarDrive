@@ -416,11 +416,12 @@ namespace Ship_Game
 
         public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep)
         {
-            if (fleet == null)
-                return goalStep;
+            if (fleet != null)
+            {
+                fleet.FleetTask?.DisbandTaskForce();
+                fleet.FleetTask?.EndTask();
+            }
 
-            fleet.FleetTask?.DisbandTaskForce(fleet);
-            fleet.FleetTask?.EndTask();
             return goalStep;
         }
 
