@@ -345,4 +345,8 @@
       <Filter>spatial</Filter>
     </Natvis>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
+    <None Include="..\Ship_Game\AI\Tasks\MilitaryTask.cs" />
+  </ItemGroup>
 </Project>

@@ -143,7 +143,6 @@ namespace Ship_Game
                         case OrderType.Explore:            ship.AI.OrderExplore();                                 break;
                         case OrderType.OrderResupply:      ship.Supply.ResupplyFromButton();                       break;
                         case OrderType.Scrap:              ship.AI.OrderScrapShip();                               break;
-                        case OrderType.EmpireDefense:      ToggleEmpireDefenseFor(ship);                           break;
                         case OrderType.FighterRecall:      ship.Carrier.SetRecallFightersBeforeFTL(!input.RightMouseClick); break;
                         case OrderType.SendTroops:         ship.Carrier.SetSendTroopsToShip(!input.RightMouseClick);        break;
                     }
@@ -169,17 +168,6 @@ namespace Ship_Game
                 return true;
             }
             return Hovering;
-        }
-
-        void ToggleEmpireDefenseFor(Ship ship)
-        {
-            var pool = ship.Universe.Player.AI.DefensiveCoordinator;
-            if (ship.Pool != pool)
-                pool.Add(ship);
-            else
-                ship.RemoveFromPool();
-
-            ship.AI.ClearOrders();
         }
     }
 }

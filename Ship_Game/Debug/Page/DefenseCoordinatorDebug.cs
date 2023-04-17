@@ -24,11 +24,6 @@ public class DefenseCoordinatorDebug : DebugPage
                 Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.IdealShipStrength * 10, e.EmpireColor, 3);
                 Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.TroopsWanted * 100, e.EmpireColor, 4);
             }
-            foreach(Ship ship in defco.DefensiveForcePool)
-                Screen.DrawCircleProjectedZ(ship.Position, 50f, e.EmpireColor, 6);
-
-            foreach(AO ao in e.AI.AreasOfOperations)
-                Screen.DrawCircleProjectedZ(ao.Center, ao.Radius, e.EmpireColor, 16);
         }
 
         base.Draw(batch, elapsed);

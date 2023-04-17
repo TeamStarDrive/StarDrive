@@ -167,7 +167,7 @@ namespace Ship_Game
             int minStr                = (int)(Universe.P.GalaxySize + 1) * 5000;
             float currentEnemyStr     = currentWarInformation.Sum(i => i.OffensiveStrength);
             float currentEnemyBuild   = currentWarInformation.Sum(i => i.EconomicStrength);
-            float ourCurrentStrength  = AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
+            float ourCurrentStrength  = ShipsReadyForFleet.AccumulatedStrength;
             float theirKnownStrength  = (rel.KnownInformation.AllianceTotalStrength + currentEnemyStr).LowerBound(minStr);
             float theirBuildCapacity  = (rel.KnownInformation.AllianceEconomicStrength + currentEnemyBuild).LowerBound(10);
             float ourBuildCapacity    = AI.BuildCapacity;
