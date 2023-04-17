@@ -191,9 +191,6 @@ namespace Ship_Game.Ships
         public bool IsPrimaryCarrier   => DesignRole == RoleName.carrier;
         public bool IsSecondaryCarrier => !IsPrimaryCarrier && Carrier.HasFighterBays;
 
-        // Current pool that this ship is assigned to
-        public IShipPool Pool;
-
         [StarData] public Array<Rectangle> AreaOfOperation = new();
         
         /// <summary>
@@ -204,16 +201,7 @@ namespace Ship_Game.Ships
         {
             if (clearOrders)
                 AI?.ClearOrders();
-            Pool?.Remove(this);
             ClearFleet(returnToManagedPools: false, clearOrders: clearOrders);
-        }
-
-        /// <summary>
-        /// Removes this ship from its assigned ShipPool
-        /// </summary>
-        public void RemoveFromPool()
-        {
-            Pool?.Remove(this);
         }
 
         /// <summary>
@@ -666,23 +654,6 @@ namespace Ship_Game.Ships
         {
             get => AI.State == AIState.Resupply;
             set => Supply.ResupplyFromButton();
-        }
-
-        public bool DoingSystemDefense
-        {
-            get => Loyalty.AI.DefensiveCoordinator.DefensiveForcePool.Contains(this);
-            set
-            {
-                //added by gremlin Toggle Ship System Defense.
-                if (Universe.Player.AI.DefensiveCoordinator.DefensiveForcePool.Contains(this))
-                {
-                    Universe.Player.AI.DefensiveCoordinator.Remove(this);
-                    AI.ClearOrders();
-                    return;
-                }
-                Universe.Player.AI.DefensiveCoordinator.Add(this);
-                AI.ChangeAIState(AIState.SystemDefender);
-            }
         }
 
         public bool DoingScrap
@@ -1644,7 +1615,6 @@ namespace Ship_Game.Ships
             Active = false;
             TetheredTo?.RemoveFromOrbitalStations(this);
             AI.ClearOrdersAndWayPoints(); // This calls immediate Dispose() on Orders that require cleanup
-            Pool?.Remove(this);
         }
 
         public void RemoveFromUniverseUnsafe()

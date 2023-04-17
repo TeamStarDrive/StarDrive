@@ -138,7 +138,6 @@ public sealed partial class DebugInfoScreen : GameScreen
             DebugModes.Influence => new InfluenceDebug(this),
             DebugModes.Solar => new SolarDebug(this),
             DebugModes.War => new WarDebug(this),
-            DebugModes.AO => new AODebug(this),
             DebugModes.SpatialManager => new SpatialDebug(this),
             DebugModes.StoryAndEvents => new StoryAndEventsDebug(this),
             DebugModes.Particles => new ParticleDebug(this),

@@ -37,14 +37,6 @@ namespace Ship_Game
             s.AI.OrderExplore();
         }
 
-        public void DoDefense(Ship s)
-        {
-            if (s == null || Player.AI.DefensiveCoordinator.DefensiveForcePool.Contains(s))
-                return;
-            Player.AI.DefensiveCoordinator.DefensiveForcePool.Add(s);
-            s.AI.ClearOrders(AIState.SystemDefender);
-        }
-
         void MarkForColonization(Planet p)
         {
             Player.AI.AddGoalAndEvaluate(new MarkForColonization(p, Player, isManual:true));
