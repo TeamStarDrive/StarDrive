@@ -96,9 +96,15 @@ namespace Ship_Game.Ships
                 if (!Loyalty.isPlayer
                     && killerShip.Fleet == null
                     && System?.HasPlanetsOwnedBy(Loyalty) == true
+                    && Loyalty.IsEmpireHostile(killerShip.Loyalty)
+                    && (killerShip.Loyalty.IsFaction || killerShip.Loyalty.isPlayer)
                     && !Loyalty.HasWarTaskTargetingSystem(System))
                 {
-                    Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System));
+                    Ship_Game.AI.Tasks.MilitaryTaskImportance importance = killerShip.Loyalty.isPlayer
+                        ? Ship_Game.AI.Tasks.MilitaryTaskImportance.Important
+                        : Ship_Game.AI.Tasks.MilitaryTaskImportance.Normal;
+
+                    Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System), importance);
                 }
             }
 

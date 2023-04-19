@@ -94,7 +94,7 @@ namespace Ship_Game
 
         public void CreateStageFleetTask(Planet targetPlanet, Empire enemy, Goal goal)
         {
-            MilitaryTask task = new MilitaryTask(targetPlanet, this)
+            MilitaryTask task = new MilitaryTask(targetPlanet, this, MilitaryTaskImportance.Normal)
             {
                 Type     = MilitaryTask.TaskType.StageFleet,
                 Goal     = goal
@@ -107,6 +107,7 @@ namespace Ship_Game
         {
             // todo advanced mission types per personality or prepare for war strategy
             MilitaryTask.TaskType taskType = MilitaryTask.TaskType.StrikeForce;
+            MilitaryTaskImportance importance = MilitaryTaskImportance.Normal;
             if (IsAlreadyStriking())
             {
                 if (CanBuildBombers
@@ -115,14 +116,16 @@ namespace Ship_Game
                          || targetPlanet.ColonyPotentialValue(enemy) / targetPlanet.ColonyPotentialValue(this) > PersonalityModifiers.DoomFleetThreshold))
                 {
                     taskType = MilitaryTask.TaskType.GlassPlanet;
+                    importance = MilitaryTaskImportance.Normal;
                 }
                 else
                 {
                     taskType = MilitaryTask.TaskType.AssaultPlanet;
+                    importance = MilitaryTaskImportance.Normal;
                 }
             }
 
-            var task = new MilitaryTask(targetPlanet, this)
+            var task = new MilitaryTask(targetPlanet, this, importance)
             {
                 Goal = goal,
                 Type = taskType,
@@ -212,9 +215,9 @@ namespace Ship_Game
             return !AI.HasGoal(g => g.Type == GoalType.EmpireDefense);
         }
 
-        public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, int fleetCount = 1)
+        public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, MilitaryTaskImportance importance, int fleetCount = 1)
         {
-            AI.AddGoal(new DefendSystem(this, system, strengthWanted, fleetCount));
+            AI.AddGoal(new DefendSystem(this, system, strengthWanted, fleetCount, importance));
         }
 
         public bool HasWarTaskTargetingSystem(SolarSystem system)

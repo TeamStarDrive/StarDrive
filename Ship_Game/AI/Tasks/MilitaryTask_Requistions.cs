@@ -353,22 +353,36 @@ namespace Ship_Game.AI.Tasks
 
             MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound);
             float multiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
-            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier)
-                .UpperBound(Owner.OffensiveStrength / GetBuildCapacityDivisor());
+            MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound) *  Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
+            MinimumTaskForceStrength = MinimumTaskForceStrength.UpperBound(MinimumStrengthUpperBoundByImportance());
 
             float lifeTimeMax = IsWarTask ? Owner.PersonalityModifiers.WarTasksLifeTime : 10;
             float goalLifeTime = Goal?.LifeTime ?? 0;
-                MinimumTaskForceStrength *= (lifeTimeMax - goalLifeTime).LowerBound(lifeTimeMax*0.5f) / lifeTimeMax;
+            MinimumTaskForceStrength *= (lifeTimeMax - goalLifeTime).LowerBound(lifeTimeMax*0.5f) / lifeTimeMax;
         }
-        
-        float GetBuildCapacityDivisor()
+
+        float MinimumStrengthUpperBoundByImportance()
+        {
+            float minStr;
+            switch (Importance)
+            {
+                default:
+                case MilitaryTaskImportance.Normal:    minStr = MinimumTaskForceStrength; break;
+                case MilitaryTaskImportance.Important: minStr = Owner.OffensiveStrength;  break;
+            }
+
+            return minStr * GetBuildCapacityMultiplier();
+        }
+
+        // If our build capacity is better, limit the minimum str needed so we will have some left for more fleets
+        float GetBuildCapacityMultiplier()
         {
             if (TargetEmpire == null || TargetEmpire.IsFaction)
                 return 1f;
 
             float ownerBuildCapacity = Owner.AI.BuildCapacity;
             float enemyBuildCapacity = TargetEmpire.AI.BuildCapacity;
-            return (ownerBuildCapacity / enemyBuildCapacity).LowerBound(2);
+            return (enemyBuildCapacity / ownerBuildCapacity).UpperBound(1);
         }
 
         string GetFleetName()

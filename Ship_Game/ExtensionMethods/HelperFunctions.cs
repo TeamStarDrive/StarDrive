@@ -254,11 +254,13 @@ namespace Ship_Game
             return system != null;
         }
 
-        public static bool GetUnownedSystems(UniverseState u, out SolarSystem[] systems)
+        // This also Filters Researchable systems (but not planets)
+        public static bool GetUnownedNormalSystems(UniverseState u, out SolarSystem[] systems)
         {
             systems = u.Systems.Filter(s => s.OwnerList.Count == 0
                                          && s.RingList.Count > 0
                                          && !s.PiratePresence
+                                         && !s.PlanetList.Any(p => p.IsResearchable)
                                          && !s.ShipList.Any(g => g.IsGuardian));
             return systems.Length > 0;
         }
