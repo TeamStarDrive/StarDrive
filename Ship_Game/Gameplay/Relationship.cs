@@ -541,6 +541,8 @@ namespace Ship_Game.Gameplay
             {
                 IsHostile = IsEmpireHostileToUs(us, them);
                 bool canAttack = CanWeAttackThem(us, them);
+                if (canAttack) // We are now hostile as well
+                    IsHostile = true;
                 if (CanAttack != canAttack)
                 {
                     CanAttack = canAttack;
