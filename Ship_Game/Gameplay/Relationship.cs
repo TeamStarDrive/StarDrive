@@ -537,12 +537,18 @@ namespace Ship_Game.Gameplay
             Risk.UpdateRiskAssessment(us);
 
             bool noAttackPlayer = GlobalStats.RestrictAIPlayerInteraction && them.isPlayer;
-            if (!noAttackPlayer)
+            if (noAttackPlayer)
+            {
+                IsHostile = false;
+                CanAttack = false;
+            }
+            else
             {
                 IsHostile = IsEmpireHostileToUs(us, them);
                 bool canAttack = CanWeAttackThem(us, them);
                 if (canAttack) // We are now hostile as well
                     IsHostile = true;
+
                 if (CanAttack != canAttack)
                 {
                     CanAttack = canAttack;
@@ -620,11 +626,11 @@ namespace Ship_Game.Gameplay
             {
                 float trustworthiness = them.data.DiplomaticPersonality?.Trustworthiness ?? 100;
                 float peacefulness    = 1.0f - them.Research.Strategy.MilitaryRatio;
-                if (TotalAnger < trustworthiness * peacefulness)
-                    return false;
+                if (TotalAnger > trustworthiness * peacefulness)
+                    return true;
             }
 
-            return true;
+            return false;
         }
 
         bool IsEmpireHostileToUs(Empire us, Empire them)

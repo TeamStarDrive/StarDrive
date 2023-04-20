@@ -143,8 +143,8 @@ public partial class StarDriveTest : IDisposable
         Empire.SetRelationsAsKnown(Player, Enemy);
         Player.AI.DeclareWarOn(Enemy, WarType.BorderConflict);
 
-        if (!Player.IsEmpireHostile(Enemy) || !Enemy.IsEmpireHostile(Player))
-            throw new("Failed to declare war from Player to Enemy. IsEmpireHostile=false");
+        if (!Player.IsAtWarWith(Enemy) || !Enemy.IsAtWarWith(Player))
+            throw new("Failed to declare war from Player to Enemy.");
             
         Log.Info($"CreateUniverseAndPlayerEmpire elapsed: {sw.Elapsed.TotalMilliseconds}ms");
     }
