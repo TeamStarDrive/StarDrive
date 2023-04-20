@@ -82,7 +82,6 @@ namespace Ship_Game.Ships.Components
             if (type != Type.Spawn)
                 ship.AI.ClearOrdersAndWayPoints();
 
-            ship.Loyalty.AddShipToManagedPools(ship);
             return true;
         }
 

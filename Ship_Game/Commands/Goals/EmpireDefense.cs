@@ -46,8 +46,9 @@ namespace Ship_Game.Commands.Goals
                 if (threatenedSystem.Enemies.Length > 0)
                     minStr *= Owner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(Owner.OffensiveStrength / 5);
 
-                Owner.AddDefenseSystemGoal(threatenedSystem.TargetSystem, 
-                    minStr, 5 - threatenedSystem.TargetSystem.DefenseTaskPriority(Owner));
+                Owner.AddDefenseSystemGoal(threatenedSystem.TargetSystem,
+                    minStr, MilitaryTaskImportance.Important, 5 - threatenedSystem.
+                    TargetSystem.DefenseTaskPriority(Owner, MilitaryTaskImportance.Important));
             }
 
             return GoalStep.GoToNextStep;
@@ -63,11 +64,8 @@ namespace Ship_Game.Commands.Goals
 
                 foreach (MilitaryTask possibleTask in Owner.AI.GetPotentialTasksToCompare())
                 {
-                    if (possibleTask != defendSystem)
-                    {
-                        if (DefenseTaskHasHigherPriority(defendSystem, possibleTask))
-                            possibleTask.EndTask();
-                    }
+                    if (possibleTask != defendSystem && DefenseTaskHasHigherPriority(defendSystem, possibleTask))
+                        possibleTask.EndTask();
                 }
             }
             return GoalStep.RestartGoal;
@@ -75,15 +73,15 @@ namespace Ship_Game.Commands.Goals
 
         bool DefenseTaskHasHigherPriority(MilitaryTask defenseTask, MilitaryTask possibleTask)
         {
+            if (defenseTask.Importance == MilitaryTaskImportance.Normal)
+                return false;
+
             SolarSystem system = defenseTask.TargetSystem ?? defenseTask.TargetPlanet.System;
             if (system.PlanetList.Any(p => p.Owner == Owner && p.HasCapital)
                 && !possibleTask.TargetSystem?.PlanetList.Any(p => p.Owner == Owner && p.HasCapital) == true)
             {
                 return true; // Defend our home systems at all costs (unless the other task also has a home system)!
             }
-
-            if (possibleTask.Type == MilitaryTask.TaskType.ClearAreaOfEnemies)
-                return false;
 
             Planet target            = possibleTask.TargetPlanet;
             SolarSystem targetSystem = target?.System ?? possibleTask.TargetSystem;
@@ -98,13 +96,15 @@ namespace Ship_Game.Commands.Goals
                 return true; // Cancel idle post invasion fleets if we need to defend
             }
 
-            float defenseValue  = system.PotentialValueFor(Owner) * Owner.PersonalityModifiers.DefenseTaskWeight;
-            float possibleValue = targetSystem?.PotentialValueFor(Owner) ?? 0;
+            float defenseValue  = (int)defenseTask.Importance * system.PotentialValueFor(Owner) * Owner.PersonalityModifiers.DefenseTaskWeight;
+            float possibleValue = (int)possibleTask.Importance * targetSystem?.PotentialValueFor(Owner) ?? 0;
+            if (possibleTask.Type == MilitaryTask.TaskType.ClearAreaOfEnemies)
+                possibleValue *= Owner.PersonalityModifiers.DefenseTaskWeight;
 
             if (possibleTask.Fleet != null) // compare fleet distances
             {
                 float defenseDist = possibleTask.Fleet.AveragePosition().Distance(system.Position) / 10000;
-                float expansionDist = possibleTask.Fleet.AveragePosition().Distance(target.Position) / 10000;
+                float expansionDist = possibleTask.Fleet.AveragePosition().Distance(target?.Position ?? targetSystem.Position) / 10000;
                 defenseValue /= defenseDist.LowerBound(1);
                 possibleValue /= expansionDist.LowerBound(1);
             }

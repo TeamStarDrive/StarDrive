@@ -478,7 +478,7 @@ namespace Ship_Game
             position   = Vector2.Zero;
             system     = null;
 
-            if (!GetUnownedSystems(u, out SolarSystem[] systems))
+            if (!GetUnownedNormalSystems(u, out SolarSystem[] systems))
                 return false;
 
             SolarSystem selectedSystem = Random.ItemFilter(systems,
@@ -499,7 +499,7 @@ namespace Ship_Game
         bool GetBasePlanet(UniverseState u, NewBaseSpot spot, out Planet selectedPlanet)
         {
             selectedPlanet = null;
-            if (!GetUnownedSystems(u, out SolarSystem[] systems))
+            if (!GetUnownedNormalSystems(u, out SolarSystem[] systems))
                 return false;
 
             Array<Planet> planets = new Array<Planet>();
@@ -511,12 +511,11 @@ namespace Ship_Game
                     case NewBaseSpot.Habitable: 
                         planets.AddRange(system.PlanetList.Filter(p => p.Habitable 
                                          && p.InSafeDistanceFromRadiation())); 
-
                         break;
                     case NewBaseSpot.GasGiant: 
                         planets.AddRange(system.PlanetList.Filter(p => p.Category == PlanetCategory.GasGiant
+                                         && !p.IsResearchable
                                          && p.InSafeDistanceFromRadiation())); 
-
                         break;
                 }
             }

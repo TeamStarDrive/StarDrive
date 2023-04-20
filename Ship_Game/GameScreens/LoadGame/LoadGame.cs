@@ -145,8 +145,6 @@ namespace Ship_Game.GameScreens.LoadGame
             step.NextStep().Start(1); // This last step is a mess, using arbitrary count
 
             GameBase.Base.ResetElapsedTime();
-            FinalizeShips(us);
-
             us.Screen.LoadContent();
             us.Objects.UpdateLists(removeInactiveObjects: false);
 
@@ -156,25 +154,6 @@ namespace Ship_Game.GameScreens.LoadGame
             Log.Info(ConsoleColor.Blue, $"    ## MarkShipDesignsUnlockable elapsed: {step[0].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue, $"    ## AllSystemsLoaded          elapsed: {step[1].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue, $"    ## LoadContent               elapsed: {step[2].ElapsedMillis}ms");
-        }
-
-        static void FinalizeShips(UniverseState us)
-        {
-            foreach (Ship ship in us.Ships)
-            {
-                if (!ship.Active)
-                    continue;
-
-                if (ship.Loyalty != us.Player && !ship.Loyalty.IsFaction && ship.Fleet == null)
-                {
-                    if (ship.Pool != null)
-                        ship.Loyalty.AddShipToManagedPools(ship);
-                }
-                else if (ship.AI.State == AIState.SystemDefender)
-                {
-                    ship.Loyalty.AI.DefensiveCoordinator.Add(ship);
-                }
-            }
         }
 
         void AllSystemsLoaded(UniverseState us, ProgressCounter step)

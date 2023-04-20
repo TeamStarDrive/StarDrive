@@ -102,7 +102,7 @@ public class EmpireInfoDebug : DebugPage
         Text.String("Gross Food: "+ e.GetGrossFoodPerTurn().String());
         Text.String("Military Str: "+ (int)e.CurrentMilitaryStrength);
         Text.String("Offensive Str: " + (int)e.OffensiveStrength);
-        Text.String($"Fleets: Str: {(int)e.AIManagedShips.InitialStrength} Avail: {e.AIManagedShips.InitialReadyFleets}");
+        Text.String($"Fleets: Str: {(int)e.ShipsReadyForFleet.AccumulatedStrength} Avail: {e.ShipsReadyForFleet.InitialUsableFleets}");
         
         for (int x = 0; x < e.AI.Goals.Count; x++)
         {

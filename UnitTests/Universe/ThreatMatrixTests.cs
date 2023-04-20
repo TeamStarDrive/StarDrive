@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
 using UnitTests.Serialization;
+using Ship_Game.Gameplay;
 #pragma warning disable CA2213
 
 namespace UnitTests.Universe;
@@ -33,6 +34,21 @@ public class ThreatMatrixTests : StarDriveTest
         // set up two solar systems
         PlayerPlanet = AddDummyPlanetToEmpire(new(200_000, 200_000), Player);
         EnemyPlanet = AddDummyPlanetToEmpire(new(-200_000, -200_000), Enemy);
+        //ThirdMajor.SignTreatyWith(Enemy, TreatyType.NonAggression);
+        //ThirdMajor.SignTreatyWith(Player, TreatyType.NonAggression);
+
+        ThirdMajor.GetRelations(Enemy, out Relationship thirdToEnemy);
+        Enemy.GetRelations(ThirdMajor, out Relationship enemyToThird);
+        ThirdMajor.GetRelations(Player, out Relationship thirdToPlayer);
+        Player.GetRelations(ThirdMajor, out Relationship playerToThird);
+        ThirdMajor.SetRelationsAsKnown(thirdToEnemy, Enemy);
+        ThirdMajor.SetRelationsAsKnown(thirdToPlayer, Player);
+        Player.SetRelationsAsKnown(playerToThird, ThirdMajor);
+        Enemy.SetRelationsAsKnown(enemyToThird, ThirdMajor);
+
+        Enemy.UpdateRelationships(false); 
+        Player.UpdateRelationships(false);
+        ThirdMajor.UpdateRelationships(false);
     }
     
     protected void DebugVisualizeThreats(Empire owner)
@@ -81,9 +97,9 @@ public class ThreatMatrixTests : StarDriveTest
     public void FindClusters_OfASingleEmpire()
     {
         Vector2 pos = PlayerPlanet.Position;
-        float str1 = CreateShipsAt(pos, 5000, Player, 40);
-        float str2 = CreateShipsAt(pos, 5000, Enemy, 20);
-        float str3 = CreateShipsAt(pos, 5000, ThirdMajor, 10);
+        float str1 = CreateShipsAt(pos, 4000, Player, 40);
+        float str2 = CreateShipsAt(pos, 4000, Enemy, 20);
+        float str3 = CreateShipsAt(pos, 4000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player);
 
         AssertEqual(str1, Str(Player.Threats.FindClusters(Player, pos, 6000)));
@@ -95,7 +111,7 @@ public class ThreatMatrixTests : StarDriveTest
         AssertEqual(1, Player.Threats.FindClusters(ThirdMajor, pos, 6000).Length);
 
         // make sure we can find multiple clusters
-        float str4 = CreateShipsAt(pos + new Vector2(20000), 5000, Enemy, 15);
+        float str4 = CreateShipsAt(pos + new Vector2(20000), 4000, Enemy, 15);
         ScanAndUpdateThreats(Player);
 
         //DebugVisualizeThreats(Player);
@@ -266,7 +282,10 @@ public class ThreatMatrixTests : StarDriveTest
 
         AssertEqual(str2, Player.Threats.GetHostileStrengthAt(Enemy, pos, 5000));
         AssertEqual(str1, Enemy.Threats.GetHostileStrengthAt(Player, pos, 5000));
-
+        if (ThirdMajor.IsEmpireHostile(Player))
+            Log.Info("F");
+        if (Player.IsEmpireHostile(ThirdMajor))
+            Log.Info("F");
         // neutrals shouldn't be reported
         AssertEqual(0, Player.Threats.GetHostileStrengthAt(ThirdMajor, pos, 5000),
             "GetHostileStrengthAt(NeutralFaction) should always give 0");
@@ -282,7 +301,6 @@ public class ThreatMatrixTests : StarDriveTest
         float str2 = CreateShipsAt(pos, 6000, Enemy, 20);
         CreateShipsAt(pos, 7000, ThirdMajor, 10);
         ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
-
         AssertEqual(str2, Player.Threats.GetHostileStrengthAt(pos, 5000));
         AssertEqual(str1, Enemy.Threats.GetHostileStrengthAt(pos, 5000));
     }

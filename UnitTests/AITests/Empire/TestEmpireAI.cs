@@ -241,20 +241,6 @@ namespace UnitTests.AITests.Empire
         public void ShipListConcurrencyStressTest()
         {
             AssertEqual(0, Enemy.OwnedShips.Count);
-
-            // create areas of operation among empires
-            foreach(var empire in UState.Empires)
-            {
-                foreach(var planet in UState.Planets)
-                {
-                    if (UState.Random.RollDice(50))
-                    {
-                        planet.SetOwner(empire);
-                        empire.AI.AreasOfOperations.Add(new AO(UState, Enemy.Capital, Enemy, 10));
-                    }
-                }
-            }
-
             string shipName = "Fang Strafer";
 
             // create a base number of ships.

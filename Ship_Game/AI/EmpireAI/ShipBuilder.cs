@@ -357,7 +357,7 @@ namespace Ship_Game.AI
         public static IShipDesign BestShipWeCanBuild(RoleName role, Empire empire)
         {
             IShipDesign bestShip = PickFromCandidates(role, empire);
-            if (bestShip == null || bestShip.IsShipyard || bestShip.IsSubspaceProjector) 
+            if (bestShip == null || bestShip.IsShipyard || bestShip.IsSubspaceProjector || bestShip.IsResearchStation) 
                 return null;
             return bestShip;
         }

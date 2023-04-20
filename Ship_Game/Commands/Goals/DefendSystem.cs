@@ -11,6 +11,7 @@ namespace Ship_Game.Commands.Goals
     public class DefendSystem : FleetGoal
     {
         [StarData] public SolarSystem TargetSystem;
+        [StarData] MilitaryTaskImportance Importance;
 
         [StarDataConstructor]
         public DefendSystem(Empire owner) : base(GoalType.DefendSystem, owner)
@@ -22,15 +23,17 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public DefendSystem(Empire owner, SolarSystem system, float strengthWanted, int fleetCount)
-            : this(owner)
+        public DefendSystem(Empire owner, SolarSystem system, float strengthWanted, int fleetCount
+            , MilitaryTaskImportance importance): this(owner)
         {
             StarDateAdded  = owner.Universe.StarDate;
             TargetSystem   = system;
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;
+            Importance     = importance;
 
-            var task = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, owner, center, radius, system, strengthWanted)
+            var task = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, owner, center, radius,
+                system, strengthWanted, importance)
             {
                 Goal = this,
                 FleetCount = fleetCount,
