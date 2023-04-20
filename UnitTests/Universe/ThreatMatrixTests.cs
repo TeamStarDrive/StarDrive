@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
 using UnitTests.Serialization;
+using Ship_Game.Gameplay;
 #pragma warning disable CA2213
 
 namespace UnitTests.Universe;
@@ -33,6 +34,27 @@ public class ThreatMatrixTests : StarDriveTest
         // set up two solar systems
         PlayerPlanet = AddDummyPlanetToEmpire(new(200_000, 200_000), Player);
         EnemyPlanet = AddDummyPlanetToEmpire(new(-200_000, -200_000), Enemy);
+        //ThirdMajor.SignTreatyWith(Enemy, TreatyType.NonAggression);
+        //ThirdMajor.SignTreatyWith(Player, TreatyType.NonAggression);
+
+        ThirdMajor.GetRelations(Enemy, out Relationship thirdToEnemy);
+        Enemy.GetRelations(ThirdMajor, out Relationship enemyToThird);
+        ThirdMajor.GetRelations(Player, out Relationship thirdToPlayer);
+        Player.GetRelations(ThirdMajor, out Relationship playerToThird);
+        ThirdMajor.SetRelationsAsKnown(thirdToEnemy, Enemy);
+        ThirdMajor.SetRelationsAsKnown(thirdToPlayer, Player);
+        Player.SetRelationsAsKnown(playerToThird, ThirdMajor);
+        Enemy.SetRelationsAsKnown(enemyToThird, ThirdMajor);
+
+        Enemy.UpdateRelationships(false); 
+        Player.UpdateRelationships(false);
+        ThirdMajor.UpdateRelationships(false);
+
+        if (ThirdMajor.IsEmpireHostile(Player))
+            Log.Info("F");
+        if (Player.IsEmpireHostile(ThirdMajor))
+            Log.Info("F");
+
     }
     
     protected void DebugVisualizeThreats(Empire owner)
@@ -266,7 +288,10 @@ public class ThreatMatrixTests : StarDriveTest
 
         AssertEqual(str2, Player.Threats.GetHostileStrengthAt(Enemy, pos, 5000));
         AssertEqual(str1, Enemy.Threats.GetHostileStrengthAt(Player, pos, 5000));
-
+        if (ThirdMajor.IsEmpireHostile(Player))
+            Log.Info("F");
+        if (Player.IsEmpireHostile(ThirdMajor))
+            Log.Info("F");
         // neutrals shouldn't be reported
         AssertEqual(0, Player.Threats.GetHostileStrengthAt(ThirdMajor, pos, 5000),
             "GetHostileStrengthAt(NeutralFaction) should always give 0");
@@ -281,8 +306,11 @@ public class ThreatMatrixTests : StarDriveTest
         float str1 = CreateShipsAt(pos, 5000, Player, 40);
         float str2 = CreateShipsAt(pos, 6000, Enemy, 20);
         CreateShipsAt(pos, 7000, ThirdMajor, 10);
+        if (ThirdMajor.IsEmpireHostile(Player))
+            Log.Info("F");
+        if (Player.IsEmpireHostile(ThirdMajor))
+            Log.Info("F");
         ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
-
         AssertEqual(str2, Player.Threats.GetHostileStrengthAt(pos, 5000));
         AssertEqual(str1, Enemy.Threats.GetHostileStrengthAt(pos, 5000));
     }

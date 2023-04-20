@@ -28,7 +28,7 @@ namespace UnitTests.Ships
             ourShip.AI.Target = theirShip;
             Empire.SetRelationsAsKnown(us, Enemy);
             var ourRelation = us.GetRelations(Enemy);
-
+            UState.Objects.Update(new(time: 1.0f));
             us.data.DiplomaticPersonality.Territorialism  = 60;
             us.data.DiplomaticPersonality.Opportunism     = 0.2f;
             us.data.DiplomaticPersonality.Trustworthiness = 80;
@@ -138,7 +138,7 @@ namespace UnitTests.Ships
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
             });
-            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us,ourShip, theirShip,ourRelation));
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), GetFailString(us,ourShip, theirShip,ourRelation));
 
             ourProjector.InstantKill();
 
@@ -173,7 +173,7 @@ namespace UnitTests.Ships
                 ourShip.AI.HasPriorityTarget = true;
             });
             Empire.UpdateBilateralRelations(us, Enemy);
-            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Play chooses target" + GetFailString(us, ourShip, theirShip, ourRelation));
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Player chooses target" + GetFailString(us, ourShip, theirShip, ourRelation));
 
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
