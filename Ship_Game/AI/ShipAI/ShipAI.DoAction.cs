@@ -53,6 +53,9 @@ namespace Ship_Game.AI
             if (ship == null)
                 return false;
 
+            if (Owner.IsResearchStation && !Owner.Loyalty.IsAtWarWith(ship.Loyalty))
+                return false; // prevent neutral research station from shooting at eachother
+
             if (ship.Active && !ship.Dying && !ship.IsInWarp &&
                 Owner.Loyalty.IsEmpireAttackable(ship.Loyalty, ship))
                 return true;
