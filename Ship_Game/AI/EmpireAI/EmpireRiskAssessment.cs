@@ -61,7 +61,7 @@ namespace Ship_Game.AI
 
                     if (strengthNeeded > 0)
                     {
-                        float currentStrength = us.AIManagedShips.EmpireReadyFleets?.AccumulatedStrength ?? 1;
+                        float currentStrength = us.ShipsReadyForFleet?.AccumulatedStrength ?? 1;
                         float currentThreat = us.AI.ThreatLevel;
                         float possibleStrength = currentStrength / currentThreat;
                         if (possibleStrength > strengthNeeded)
@@ -106,7 +106,7 @@ namespace Ship_Game.AI
             // size is only the positive half of the universe. so double it.
             float space = us.Universe.Size * 2;
             float distanceThreat = (space - distanceToNearest) / space;
-            float threat = (float)Them.TotalScore / us.TotalScore;
+            float threat = (float)Them.TotalScore / us.TotalScore.LowerBound(1);
             float risk = (threat * distanceThreat - 0.5f).LowerBound(0);
 
             risk = Math.Max(risk, ourOffensiveRatio);

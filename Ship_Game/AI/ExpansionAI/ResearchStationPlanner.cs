@@ -45,13 +45,16 @@ namespace Ship_Game.AI.ExpansionAI
                 return; // Leave killing research stations to war logic
 
             SolarSystem system = solarBody.System ?? solarBody as SolarSystem;
+            if (!system.HasPlanetsOwnedBy(Owner) && system.HasPlanetsOwnedByHostiles(Owner))
+                return;
+
             Planet planet = solarBody as Planet;
             if (planet != null && !planet.System.InSafeDistanceFromRadiation(planet.Position))
                 return;
 
             if (Owner.KnownEnemyStrengthIn(system) > 0)
             {
-                TryClearArea(system, influense);
+                TryClearArea(system, influense, Owner.AI.ThreatMatrix.GetStrongestHostileAt(system));
             }
             else
             {
@@ -62,16 +65,17 @@ namespace Ship_Game.AI.ExpansionAI
             }
         }
 
-        void TryClearArea(SolarSystem system, InfluenceStatus influense)
+        void TryClearArea(SolarSystem system, InfluenceStatus influense, Empire enemy)
         {
             if (Owner.isPlayer)
                 return; 
 
             bool shouldClearArea = !Owner.PersonalityModifiers.ClearNeutralExoticSystems && influense == InfluenceStatus.Friendly
-                || Owner.PersonalityModifiers.ClearNeutralExoticSystems && influense <= InfluenceStatus.Friendly;
+                || Owner.PersonalityModifiers.ClearNeutralExoticSystems && influense <= InfluenceStatus.Friendly
+                || enemy.IsFaction;
 
             if (shouldClearArea && !Owner.HasWarTaskTargetingSystem(system))
-                Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system));
+                Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system), Tasks.MilitaryTaskImportance.Normal);
         }
 
         bool ShouldRunResearchMananger()

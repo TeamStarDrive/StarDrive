@@ -255,11 +255,13 @@ namespace Ship_Game.Commands.Goals
         void CallForHelpIfNeeded()
         {
             SolarSystem system = TargetPlanet?.System ?? TargetSystem;
-            float enemyStr = Owner.KnownEnemyStrengthIn(system);
-            if (enemyStr > 0) 
+            if (ResearchStation.HealthPercent < 0.95f 
+                && ResearchStation.AI.BadGuysNear
+                && Owner.KnownEnemyStrengthIn(system) > 0
+                && (system.OwnerList.Count == 0 || system.HasPlanetsOwnedBy(Owner))
+                && !Owner.HasWarTaskTargetingSystem(system))
             {
-                if (!Owner.HasWarTaskTargetingSystem(system))
-                     Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system));
+                Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system), AI.Tasks.MilitaryTaskImportance.Normal);
             }
         }
 

@@ -13,6 +13,7 @@ using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.AI.Tasks;
 
 namespace Ship_Game
 {
@@ -194,6 +195,11 @@ namespace Ship_Game
             return HasPlanetsOwnedBy(empire) && OwnerList.Count == 1;
         }
 
+        public bool HasPlanetsOwnedByHostiles(Empire us)
+        {
+            return OwnerList.Any(e => e.IsEmpireHostile(us));
+        }
+
         public void UpdateOwnerList()
         {
             OwnerList.Clear();
@@ -302,9 +308,9 @@ namespace Ship_Game
         /// </summary>
         /// <param name="empire"></param>
         /// <returns>priority between 0 to 4 (0 is the highest)</returns>
-        public int DefenseTaskPriority(Empire empire)
+        public int DefenseTaskPriority(Empire empire, MilitaryTaskImportance importance = MilitaryTaskImportance.Normal)
         {
-            int priority = 3;
+            int priority = 4 - (int)importance;
             var planetsToCheck = PlanetList.Filter(p => p.Owner == empire);
             if (planetsToCheck.Length == 0)
             {
@@ -331,7 +337,8 @@ namespace Ship_Game
 
         public float PotentialValueFor(Empire e)
         {
-            return PlanetList.Sum(p => p.ColonyPotentialValue(e));
+            float baseValue = IsResearchable ? 30 : 0;
+            return baseValue + PlanetList.Sum(p => p.IsResearchable ? 30 : p.ColonyPotentialValue(e));
         }
 
         public float WarValueTo(Empire empire)

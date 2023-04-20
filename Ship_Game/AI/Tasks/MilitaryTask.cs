@@ -29,6 +29,7 @@ namespace Ship_Game.AI.Tasks
         [StarData] public int Priority = 5;
         [StarData] public int NeededTroopStrength;
         [StarData] public int TaskBombTimeNeeded;
+        [StarData] public MilitaryTaskImportance Importance { get; private set; }
 
         [StarData] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
 
@@ -58,24 +59,27 @@ namespace Ship_Game.AI.Tasks
             Owner = owner;
             AO = ao;
             AORadius = aoRadius;
-
             TargetPlanet = targetPlanet;
         }
 
         public static MilitaryTask CreateClaimTask(Empire owner, Planet tgtPlanet, float minStrength,
                                                    Empire targetEmpire, int fleetCount)
         {
+            MilitaryTaskImportance importance = targetEmpire == null || targetEmpire.WeAreRemnants
+                ? MilitaryTaskImportance.Normal 
+                : MilitaryTaskImportance.Important;
+
             return new(TaskType.DefendClaim, owner, tgtPlanet.Position, tgtPlanet.System.Radius, tgtPlanet)
             {
                 TargetEmpire = targetEmpire,
                 FleetCount = fleetCount,
                 MinimumTaskForceStrength = minStrength,
+                Importance = importance
             };
         }
 
         public static MilitaryTask CreateExploration(Planet tgtPlanet, Empire owner)
         {
-            SolarSystem s = tgtPlanet.System;
             Empire dominant = owner.AI.ThreatMatrix.GetStrongestHostileAt(tgtPlanet.System);
             return new(TaskType.Exploration, owner, tgtPlanet.Position, aoRadius: 50000f, tgtPlanet)
             {
@@ -85,10 +89,12 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateGuardTask(Empire owner, Planet tgtPlanet)
         {
-            return new(TaskType.GuardBeforeColonize, owner, tgtPlanet.Position, tgtPlanet.System.Radius, tgtPlanet)
+            return new(TaskType.GuardBeforeColonize, owner, tgtPlanet.Position, 
+                tgtPlanet.System.Radius,tgtPlanet)
             {
                 Priority = 0,
                 MinimumTaskForceStrength = (owner.CurrentMilitaryStrength / 1000).LowerBound(50),
+                Importance = MilitaryTaskImportance.Important
             };
         }
 
@@ -97,7 +103,8 @@ namespace Ship_Game.AI.Tasks
             return new(TaskType.ReclaimPlanet, owner, targetPlanet.Position, targetPlanet.System.Radius, targetPlanet)
             {
                 Fleet = fleet,
-                NeedEvaluation = false // We have ships
+                NeedEvaluation = false, // We have ships
+                Importance = MilitaryTaskImportance.Important
             };
         }
 
@@ -136,31 +143,33 @@ namespace Ship_Game.AI.Tasks
                 Priority = 0,
                 EnemyStrength = str,
                 MinimumTaskForceStrength = str * strMulti,
+                Importance = MilitaryTaskImportance.Important
             };
         }
 
-        public MilitaryTask(TaskType type, Empire owner, Vector2 center, float radius, SolarSystem system,
-                            float strengthWanted) : this(type, owner, center, radius)
+        public MilitaryTask(TaskType type, Empire owner, Vector2 center, float radius, SolarSystem system, 
+            float strengthWanted, MilitaryTaskImportance importance) : this(type, owner, center, radius)
         {
             Empire dominant = owner.AI.ThreatMatrix.GetStrongestHostileAt(system.Position, system.Radius);
             TargetSystem = system;
             TargetEmpire = dominant;
             EnemyStrength = MinimumTaskForceStrength;
             MinimumTaskForceStrength = strengthWanted.LowerBound(500) * owner.GetFleetStrEmpireMultiplier(dominant);
+            Importance= importance;
         }
 
-        public MilitaryTask(Planet target, Empire owner)
+        public MilitaryTask(Planet target, Empire owner, MilitaryTaskImportance importance)
             : this(TaskType.AssaultPlanet, owner, target.Position, 5000f, target)
         {
             TargetEmpire = target.Owner;
-
+            Importance= importance;
             float strWanted = target.BuildingGeodeticOffense + GetKnownEnemyStrInClosestSystems(target.System, owner, target.Owner);
             MinimumTaskForceStrength = strWanted.LowerBound(owner.KnownEmpireStrength(target.Owner) / 10) 
                                        * owner.GetFleetStrEmpireMultiplier(target.Owner);
         }
 
-        public MilitaryTask(Planet target, Empire owner, Fleet fleet)
-            : this(target, owner)
+        public MilitaryTask(Planet target, Empire owner, Fleet fleet, MilitaryTaskImportance importance)
+            : this(target, owner, importance)
         {
             Fleet = fleet;
         }
@@ -213,16 +222,7 @@ namespace Ship_Game.AI.Tasks
 
             if (Fleet == null)
             {
-                DisbandTaskForce(Fleet);
-                return;
-            }
-
-            if (FindClosestAO() == null)
-            {
-                if (Fleet.IsCoreFleet || Owner.isPlayer)
-                    return;
-
-                DisbandTaskForce(Fleet);
+                DisbandTaskForce();
                 return;
             }
 
@@ -236,7 +236,7 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             if (!FleetNeededForNextTask)
-                DisbandTaskForce(Fleet);
+                DisbandTaskForce();
 
             if (Type == TaskType.Exploration && TargetPlanet != null)
                 RemoveTaskTroopsFromPlanet();
@@ -271,31 +271,22 @@ namespace Ship_Game.AI.Tasks
         /// Fleets will add back to the force pool when they are reset.
         /// Non fleet ships need to be manually sent back
         /// </summary>
-        /// <param name="fleet"></param>
-        public void DisbandTaskForce(Fleet fleet)
+        public void DisbandTaskForce()
         {
-            for (int i = 0; i < TaskForce.Count; i++)
-            {
-                var ship = TaskForce[i];
-                if (ship.Fleet == null)
-                    Owner.AddShipToManagedPools(ship);
-            }
-
             Fleet?.Reset();
             TaskForce.Clear();
         }
 
         bool RoomForMoreFleets()
         {
-            float divisor = 0;
-            if (Type == TaskType.ClearAreaOfEnemies)
-                divisor = 1;
-            else if (GetTaskCategory() == TaskCategory.War)
-                divisor = 5;
-            else if (Owner.IsAtWarWithMajorEmpire)
-                divisor = 10;
-            float availableFleets = Owner.AIManagedShips.CurrentUseableFleets.LowerBound(1);
-            float fleets = Owner.AIManagedShips.InitialReadyFleets.LowerBound(1);
+            float divisor;
+            if (Type is TaskType.ClearAreaOfEnemies or TaskType.GuardBeforeColonize) divisor = 1;
+            else if (GetTaskCategory() == TaskCategory.War)                          divisor = 5;
+            else if (Owner.IsAtWarWithMajorEmpire)                                   divisor = 10;
+            else                                                                     return true;
+
+            float availableFleets = Owner.ShipsReadyForFleet.CurrentUseableFleets.LowerBound(1);
+            float fleets = Owner.ShipsReadyForFleet.InitialUsableFleets.LowerBound(1);
             float usedFleets = fleets - availableFleets;
             return  fleets / divisor > usedFleets;
         }
@@ -390,19 +381,18 @@ namespace Ship_Game.AI.Tasks
             int priority;
             switch (Type)
             {
-                case TaskType.CohesiveClearAreaOfEnemies:
-                case TaskType.ClearAreaOfEnemies:  priority = TargetSystem.DefenseTaskPriority(Owner); break;
-                case TaskType.StageFleet:          priority = 2 * (numWars * 2).LowerBound(1);         break;
-                case TaskType.GuardBeforeColonize: priority = 3 + numWars;                             break;
-                case TaskType.DefendVsRemnants:    priority = 0;                                       break;
-                case TaskType.StrikeForce:         priority = 2;                                       break;
+                default:
                 case TaskType.ReclaimPlanet:
-                case TaskType.AssaultPlanet:       priority = 5;                                       break;
-                case TaskType.GlassPlanet:         priority = 5;                                       break;
-                case TaskType.Exploration:         priority = GetExplorationPriority();                break;
-                case TaskType.DefendClaim:         priority = 5 + numWars * 2;                         break;
-                case TaskType.AssaultPirateBase:   priority = GetAssaultPirateBasePriority();          break;
-                default:                           priority = 5;                                       break;
+                case TaskType.GlassPlanet:
+                case TaskType.AssaultPlanet:       priority = 5;                                                   break;
+                case TaskType.ClearAreaOfEnemies:  priority = TargetSystem.DefenseTaskPriority(Owner, Importance); break;
+                case TaskType.StageFleet:          priority = 2 * (numWars * 2).LowerBound(1);                     break;
+                case TaskType.GuardBeforeColonize: priority = 3 + numWars;                                         break;
+                case TaskType.DefendVsRemnants:    priority = 0;                                                   break;
+                case TaskType.StrikeForce:         priority = 2;                                                   break;
+                case TaskType.Exploration:         priority = GetExplorationPriority();                            break;
+                case TaskType.DefendClaim:         priority = 5 + numWars * 2;                                     break;
+                case TaskType.AssaultPirateBase:   priority = GetAssaultPirateBasePriority();                      break;
             }
 
             if (TargetEmpire == Owner.Universe.Player && Owner.Universe.Player.AllActiveWars.Length <= Owner.DifficultyModifiers.WarTaskPriorityMod)
@@ -441,7 +431,6 @@ namespace Ship_Game.AI.Tasks
             Resupply,
             AssaultPlanet,
             CorsairRaid,
-            CohesiveClearAreaOfEnemies,
             Exploration,
             DefendClaim,
             DefendPostInvasion,
@@ -478,8 +467,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.DefendPostInvasion:
                 case TaskType.GlassPlanet:
                 case TaskType.CorsairRaid:
-                case TaskType.ClearAreaOfEnemies:
-                case TaskType.CohesiveClearAreaOfEnemies: taskCat |= TaskCategory.War; break;
+                case TaskType.ClearAreaOfEnemies: taskCat |= TaskCategory.War; break;
                 case TaskType.AssaultPirateBase:
                 case TaskType.Patrol:
                 case TaskType.DefendVsRemnants:
@@ -504,5 +492,11 @@ namespace Ship_Game.AI.Tasks
             debug.AddLine($"({Priority}) -- {Type}, {target}, {fleet}", color);
             debug.AddLine($" Str Needed: ({MinimumTaskForceStrength})", color);
         }
+    }
+
+    public enum MilitaryTaskImportance
+    {
+        Normal    = 1, // Str needed upperbound will not be changed
+        Important = 2  // Str needed upperbound will be lower so the fleet could form
     }
 }

@@ -29,13 +29,15 @@ namespace Ship_Game.AI
         public int InvasionTroops { get; private set; }
         public float InvasionTroopStrength { get; private set; }
         public int BombSecsAvailable { get; private set; }
+        public int CurrentUseableFleets { get; private set; }
+        public readonly int InitialUsableFleets; 
 
         readonly int[] RoleCount;
         readonly float[] RoleStrength;
         public int ShipSetsExtracted;
         public int TotalShips => Ships.Count;
 
-        public FleetShips(Empire ownerEmpire)
+        FleetShips(Empire ownerEmpire)
         {
             OwnerEmpire  = ownerEmpire;
             Ratios = new FleetRatios(OwnerEmpire);
@@ -47,13 +49,18 @@ namespace Ship_Game.AI
 
         public FleetShips(Empire ownerEmpire, Array<Ship> ships) : this(ownerEmpire)
         {
-            AddShips(ships);
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                AddShip(ship);
+            }
+
+            CurrentUseableFleets = InitialUsableFleets = CountFleets(out float initialStrength);
         }
 
-        void AddShips(Array<Ship> ships)
+        public void RemoveUsableFleets(int howMany)
         {
-            foreach (Ship ship in ships)
-                AddShip(ship);
+            CurrentUseableFleets = (CurrentUseableFleets - howMany).LowerBound(0);
         }
 
         public bool AddShip(Ship ship)
@@ -67,19 +74,7 @@ namespace Ship_Game.AI
                 ship.ClearFleet(returnToManagedPools: false, clearOrders: false);
             }
 
-            if (ship.IsPlatformOrStation
-                || ship.Fleet != null
-                || ship.IsHangarShip
-                || ship.AI.State == AIState.Scrap
-                || ship.AI.State == AIState.Resupply
-                || ship.AI.State == AIState.Refit
-                || ship.IsHomeDefense)
-            {
-                return false;
-            }
-
             Ships.Add(ship);
-
             int roleIndex = (int)EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
             RoleCount[roleIndex] += 1;
             RoleStrength[roleIndex] += ship.GetStrength();
@@ -119,8 +114,12 @@ namespace Ship_Game.AI
         public Array<Ship> ExtractShips(HashSet<Ship> shipsToExtract)
         {
             var results = new Array<Ship>((ICollection<Ship>)shipsToExtract);
-            foreach (Ship ship in results)
+            for (int i = 0; i < results.Count; i++)
+            {
+                Ship ship = results[i];
                 RemoveShip(ship);
+            }
+
             return results;
         }
 
@@ -294,15 +293,17 @@ namespace Ship_Game.AI
         /// <param name="planetTroops">Troops still on planets</param>
         /// <param name="wantedFleetCount">Attempt to get this many fleets</param>
         /// <returns></returns>
-        public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int wantedFleetCount, MilitaryTask task)
+        public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int wantedFleetCount,
+            MilitaryTask task, out int fleetCount)
         {
+            fleetCount = 0;
             if (BombSecsAvailable < task.TaskBombTimeNeeded)
                 return new Array<Ship>();
 
             SortShipsByDistanceToPoint(task.AO);
 
             var ships = new HashSet<Ship>();
-            int fleetCount = GetFleetShipsUpToStrength(ships, minStrength, wantedFleetCount);
+            fleetCount = GetFleetShipsUpToStrength(ships, minStrength, wantedFleetCount);
             if (fleetCount == 0 || ships.Count == 0)
                 return new Array<Ship>();
             
@@ -314,7 +315,6 @@ namespace Ship_Game.AI
             }
 
             GetBombers(ships, task.TaskBombTimeNeeded, fleetCount);
-
             return ExtractShips(ships);
         }
 
@@ -337,8 +337,11 @@ namespace Ship_Game.AI
                     && t.Loyalty != null
                     && t.CanLaunch // save some iterations to find tiles for irrelevant troops
                     && !t.HostPlanet.RecentCombat
-                    && !t.HostPlanet.System.DangerousForcesPresent(t.Loyalty)) 
+                    && !t.HostPlanet.System.DangerousForcesPresent(t.Loyalty))
+                {
                     return true;
+                }
+
                 return false;
             }))
             {
