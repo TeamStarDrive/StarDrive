@@ -565,7 +565,7 @@ namespace Ship_Game.Fleets
         void EvaluateTask(MilitaryTask task)
         {
             if (Owner.Universe.Screen.SelectedFleet == this)
-                Owner.Universe.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, task.AORadius, Color.AntiqueWhite);
+                Owner.Universe.DebugWin?.DrawCircle(DebugModes.Tasks, FinalPosition, task.AORadius, Color.AntiqueWhite);
 
             if (task.RallyPlanet == null)
                 task.GetRallyPlanet(AveragePosition(force: true));
