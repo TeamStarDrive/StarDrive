@@ -680,10 +680,10 @@ namespace Ship_Game.Gameplay
             float trustToAdd = 0;
             switch (Posture)
             {
-                case Posture.Friendly:                      trustToAdd += personality.TrustGainedAtPeace;     break;
-                case Posture.Neutral when !us.IsXenophobic: trustToAdd += personality.TrustGainedAtPeace / 2; break;
-                case Posture.Hostile when !us.IsXenophobic: trustToAdd += personality.TrustGainedAtPeace / 5; break;
-                case Posture.Hostile:                                                                         return;
+                case Posture.Friendly:                      trustToAdd += personality.TrustGainedAtPeace * 2;    break;
+                case Posture.Neutral when !us.IsXenophobic: trustToAdd += personality.TrustGainedAtPeace;        break;
+                case Posture.Hostile when !us.IsXenophobic: trustToAdd += personality.TrustGainedAtPeace * 0.2f; break;
+                case Posture.Hostile:                                                                            return;
             }
 
             float trustGain = GetTrustGain();
@@ -731,10 +731,18 @@ namespace Ship_Game.Gameplay
                     case PersonalityType.Pacifist:                          gain *= 1.25f; break;
                     case PersonalityType.Honorable:                         gain *= 1.1f;  break;
                 }
+
+
  
                 if (them.isPlayer)
                 {
                     gain /= ((int)us.Universe.P.Difficulty).LowerBound(1);
+                }
+                else
+                {
+                    Relationship themToUs = them.GetRelationsOrNull(us);
+                    if (themToUs != null && themToUs.Posture == Posture.Friendly)
+                        gain *= 2;
                 }
 
                 return gain;

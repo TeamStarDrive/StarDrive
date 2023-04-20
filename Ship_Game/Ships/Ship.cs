@@ -519,6 +519,9 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
+            if (IsResearchStation && !attackerToUs.AtWar)
+                return false; 
+
             if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
             {
                 if (System != null && System.HasPlanetsOwnedBy(Loyalty))
