@@ -139,33 +139,6 @@ namespace Ship_Game.AI.Tasks
             return bombTime;
         }
 
-        AO FindClosestAO(float strWanted = 100)
-        {
-            var aos =  Owner.AI.AreasOfOperations;
-            if (aos.Count == 0)
-            {
-                Log.Info($"{Owner.Name} has no areas of operation");
-                return null;
-            }
-
-            AO closestAO = aos.FindMin(ao => ao.Center.SqDist(AO));
-            return closestAO;
-        }
-
-        Fleet FindClosestCoreFleet(float strWanted = 100)
-        {
-            Array<AO> aos = Owner.AI.AreasOfOperations;
-            if (aos.Count == 0)
-            {
-                Log.Error($"{Owner.Name} has no areas of operation");
-                return null;
-            }
-
-            AO closestAo = aos.FindMinFiltered(ao => ao.CoreFleet.GetStrength() > strWanted,
-                                               ao => ao.Center.SqDist(AO));
-            return closestAo?.CoreFleet;
-        }
-
         void RequisitionDefenseForce()
         {
             if (!Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == TargetSystem)
@@ -200,7 +173,7 @@ namespace Ship_Game.AI.Tasks
             if (AO.AlmostZero())
                 throw new Exception("AO cannot be empty");
 
-            if (Owner.AIManagedShips.CurrentUseableFleets < 0) 
+            if (Owner.ShipsReadyForFleet.CurrentUseableFleets < 0)
                 return;
 
             int requiredTroopStrength = 0;
@@ -234,10 +207,6 @@ namespace Ship_Game.AI.Tasks
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {Type}");
 
-            AO closestAO = FindClosestAO(EnemyStrength);
-            if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
-                return;
-
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
             if (CreateTaskFleet(0.1f) == RequisitionStatus.Complete)
                 NeedEvaluation = false;
@@ -253,10 +222,6 @@ namespace Ship_Game.AI.Tasks
                 EndTask();
                 return;
             }
-
-            AO closestAO = FindClosestAO(EnemyStrength);
-            if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
-                return;
 
             EnemyStrength = GetHostileStrengthAt(TargetShip.Position, 40000).LowerBound(100);
 
@@ -388,22 +353,36 @@ namespace Ship_Game.AI.Tasks
 
             MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound);
             float multiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
-            MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier)
-                .UpperBound(Owner.OffensiveStrength / GetBuildCapacityDivisor());
+            MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound) *  Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
+            MinimumTaskForceStrength = MinimumTaskForceStrength.UpperBound(MinimumStrengthUpperBoundByImportance());
 
             float lifeTimeMax = IsWarTask ? Owner.PersonalityModifiers.WarTasksLifeTime : 10;
             float goalLifeTime = Goal?.LifeTime ?? 0;
-                MinimumTaskForceStrength *= (lifeTimeMax - goalLifeTime).LowerBound(lifeTimeMax*0.5f) / lifeTimeMax;
+            MinimumTaskForceStrength *= (lifeTimeMax - goalLifeTime).LowerBound(lifeTimeMax*0.5f) / lifeTimeMax;
         }
-        
-        float GetBuildCapacityDivisor()
+
+        float MinimumStrengthUpperBoundByImportance()
+        {
+            float minStr;
+            switch (Importance)
+            {
+                default:
+                case MilitaryTaskImportance.Normal:    minStr = MinimumTaskForceStrength; break;
+                case MilitaryTaskImportance.Important: minStr = Owner.OffensiveStrength;  break;
+            }
+
+            return minStr * GetBuildCapacityMultiplier();
+        }
+
+        // If our build capacity is better, limit the minimum str needed so we will have some left for more fleets
+        float GetBuildCapacityMultiplier()
         {
             if (TargetEmpire == null || TargetEmpire.IsFaction)
                 return 1f;
 
             float ownerBuildCapacity = Owner.AI.BuildCapacity;
             float enemyBuildCapacity = TargetEmpire.AI.BuildCapacity;
-            return (ownerBuildCapacity / enemyBuildCapacity).LowerBound(2);
+            return (enemyBuildCapacity / ownerBuildCapacity).UpperBound(1);
         }
 
         string GetFleetName()
@@ -444,16 +423,6 @@ namespace Ship_Game.AI.Tasks
                 return ReqStatus;
             }
 
-            // this determines what core fleet to send if the enemy is strong. 
-            // its also an easy out for an empire in a bad state. 
-            AO closestAO = FindClosestAO(MinimumTaskForceStrength);
-
-            if (closestAO == null)
-            {
-                ReqStatus = RequisitionStatus.NoEmpireAreasOfOperation;
-                return ReqStatus;
-            }
-
             // where the fleet will gather after requisition before moving to target AO.
             Planet rallyPoint = TargetPlanet ?? Owner.FindNearestRallyPoint(AO); 
             if (rallyPoint == null)
@@ -464,7 +433,7 @@ namespace Ship_Game.AI.Tasks
 
             var troopsOnPlanets = new Array<Troop>();
 
-            FleetShips fleetShips = Owner.AIManagedShips.EmpireReadyFleets;
+            FleetShips fleetShips = Owner.ShipsReadyForFleet;
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
 
             if (NeededTroopStrength > 0)
@@ -493,7 +462,7 @@ namespace Ship_Game.AI.Tasks
 
             int wantedNumberOfFleets = WantedNumberOfFleets();
             // All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, this);
+            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, this, out int fleetSetsGot);
             if (TaskForce.IsEmpty)
             {
                 ReqStatus = RequisitionStatus.FailedToCreateAFleet;
@@ -501,20 +470,17 @@ namespace Ship_Game.AI.Tasks
             }
 
             Log.Info($"{Owner.Name} Formed TaskForce {GetFleetName()} NumShips={TaskForce.Count} Strength={GetTaskForceStrength()} MinStrength={MinimumTaskForceStrength}");
-
             CreateFleet(TaskForce, GetFleetName());
-            Owner.AIManagedShips.CurrentUseableFleets -= fleetShips.ShipSetsExtracted.LowerBound(1);
-            {
-                ReqStatus = RequisitionStatus.Complete;
-                return ReqStatus;
-            }
+            Owner.ShipsReadyForFleet.RemoveUsableFleets(fleetSetsGot);
+            ReqStatus = RequisitionStatus.Complete;
+            return ReqStatus;
         }
 
         float GetTaskForceStrength()
         {
             return TaskForce.Sum(s => s.GetStrength());
         }
-
+            
         public bool GetMoreTroops(Planet p, out Array<Ship> moreTroops)
         {
             moreTroops = new Array<Ship>();
@@ -522,12 +488,11 @@ namespace Ship_Game.AI.Tasks
                 return false;
 
             TargetPlanet = p;
-            FleetShips fleetShips = Owner.AIManagedShips.EmpireReadyFleets;
             NeededTroopStrength = (int)(GetTargetPlanetGroundStrength(40) * Owner.DifficultyModifiers.EnemyTroopStrength);
-            if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out _, TargetPlanet.Position, true))
+            if (!AreThereEnoughTroopsToInvade(Owner.ShipsReadyForFleet.InvasionTroopStrength, out _, TargetPlanet.Position, true))
                 return false;
 
-            moreTroops = fleetShips.ExtractTroops(NeededTroopStrength);
+            moreTroops = Owner.ShipsReadyForFleet.ExtractTroops(NeededTroopStrength);
             float troopStr = moreTroops.Count == 0 ? 0 : moreTroops.Sum(s => s.GetOurTroopStrength(maxTroops: 500));
 
             while (troopStr < NeededTroopStrength)
@@ -547,7 +512,7 @@ namespace Ship_Game.AI.Tasks
 
         int WantedNumberOfFleets()
         {
-            int maxFleets = Owner.AIManagedShips.CurrentUseableFleets;
+            int maxFleets = Owner.ShipsReadyForFleet.CurrentUseableFleets;
             int wantedNumberOfFleets = FleetCount;
             if (TargetPlanet?.Owner != null)
             {

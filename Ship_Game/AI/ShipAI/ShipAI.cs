@@ -25,7 +25,7 @@ namespace Ship_Game.AI
         [Pure] public RandomBase Random => Owner.Loyalty.Random;
         [StarData] public AIState State = AIState.AwaitingOrders;
         [StarData] public Planet ResupplyTarget;
-        [StarData] public SolarSystem SystemToDefend;
+        [StarData] public SolarSystem SystemToDefend; // FB - check if this is needed, since we are not using systemdefender for now
         [StarData] public SolarSystem ExplorationTarget;
         [StarData] public AIState DefaultAIState = AIState.AwaitingOrders;
 
@@ -452,7 +452,6 @@ namespace Ship_Game.AI
                 if (Owner.Fleet != null)
                     OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, State);
 
-                Owner.Loyalty.AddShipToManagedPools(Owner);
                 Owner.Supply.ResetIncomingOrdnance(supplyType);
             }
         }

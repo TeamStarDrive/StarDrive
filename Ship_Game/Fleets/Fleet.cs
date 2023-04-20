@@ -117,7 +117,6 @@ namespace Ship_Game.Fleets
                 return true;
             }
 
-            Owner.AIManagedShips.Remove(newShip);
             UpdateOurFleetShip(newShip);
 
             SortIntoFlanks(newShip, TotalFleetAttributes.GetAveragedValues());
@@ -566,7 +565,7 @@ namespace Ship_Game.Fleets
         void EvaluateTask(MilitaryTask task)
         {
             if (Owner.Universe.Screen.SelectedFleet == this)
-                Owner.Universe.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, task.AORadius, Color.AntiqueWhite);
+                Owner.Universe.DebugWin?.DrawCircle(DebugModes.Tasks, FinalPosition, task.AORadius, Color.AntiqueWhite);
 
             if (task.RallyPlanet == null)
                 task.GetRallyPlanet(AveragePosition(force: true));
@@ -579,7 +578,6 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.ReclaimPlanet:
                 case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(task);              break;
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(task);         break;
-                case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(task); break;
                 case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(task);              break;
                 case MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(task);               break;
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(task);        break;
@@ -747,7 +745,7 @@ namespace Ship_Game.Fleets
         {
             task.FlagFleetNeededForAnotherTask();
             fleet.TaskStep = 2;
-            var strikeFleet = new MilitaryTask(task.TargetPlanet, owner, fleet)
+            var strikeFleet = new MilitaryTask(task.TargetPlanet, owner, fleet, MilitaryTaskImportance.Normal)
             {
                 Goal = goal,
                 Type = MilitaryTask.TaskType.StrikeForce,
@@ -762,7 +760,7 @@ namespace Ship_Game.Fleets
 
         bool ShouldGatherAtRallyFirst(MilitaryTask task)
         {
-            Vector2 enemySystemPos = task.TargetPlanet.System.Position;
+            Vector2 enemySystemPos = task.TargetSystem?.Position ?? task.TargetPlanet.System.Position;
             Vector2 rallySystemPos = task.RallyPlanet.System.Position;
             Vector2 fleetPos       = AveragePosition(force: true);
 
@@ -1173,6 +1171,7 @@ namespace Ship_Game.Fleets
                 case 8: // Go back to portal, this step is set from the Remnant goal
                     ClearOrders();
                     task.SetTargetPlanet(null);
+                    AutoArrange();
                     GatherAtAO(task, 500);
                     TaskStep = 9;  // Tasks steps below 9 are a signal that the remnant fleet still on target (GetRemnantEngagementsGoalsFor)
                     break;
@@ -1316,41 +1315,6 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void DoCohesiveClearAreaOfEnemies(MilitaryTask task)
-        {
-            if (CoreFleetSubTask == null) TaskStep = 1;
-
-            switch (TaskStep)
-            {
-                case 1:
-                    if (EndInvalidTask(!MoveFleetToNearestCluster(task)))
-                    {
-                        CoreFleetSubTask = null;
-                        break;
-                    }
-                    TaskStep = 2;
-                    break;
-                case 2:
-                    if (!ArrivedAtCombatRally(CoreFleetSubTask.AO)) break;
-                    TaskStep = 3;
-                    break;
-                case 3:
-                    if (!AttackEnemyStrengthClumpsInAO(CoreFleetSubTask))
-                    {
-                        TaskStep = 1;
-                        CoreFleetSubTask = null;
-                        break;
-                    }
-                    CancelFleetMoveInArea(task.AO, task.AORadius);
-                    TaskStep = 4;
-                    break;
-                case 4:
-                    if (ShipsOffMission(CoreFleetSubTask))
-                        TaskStep = 3;
-                    break;
-            }
-        }
-
         void DoGlassPlanet(MilitaryTask task)
         {
             if (task.TargetPlanet.Owner == null)
@@ -1468,31 +1432,49 @@ namespace Ship_Game.Fleets
 
             switch (TaskStep)
             {
+                // Find a rally planet closest to fleel average pos and move there first
                 case 0:
                     if (AveragePos.InRadius(task.TargetSystem?.Position ?? task.AO, Owner.GetProjectorRadius()))
+                    {
                         GatherAtAO(task, distanceFromAO: 30000);
+                        TaskStep = 2;
+                    }
+                    else if (ShouldGatherAtRallyFirst(task))
+                    {
+                        FleetTaskGatherAtRally(task);
+                        TaskStep = 1;
+                    }
                     else
+                    {
                         GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius());
-
-                    TaskStep = 1;
+                        TaskStep = 2;
+                    }
                     break;
                 case 1:
+                    MoveStatus moveStatus = FleetMoveStatus(task.RallyPlanet.System.Radius);
+                    if (moveStatus.IsSet(MoveStatus.MajorityAssembled) && !task.RallyPlanet.System.HostileForcesPresent(Owner))
+                    {
+                        GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius());
+                        TaskStep = 2;
+                    }
+                    break;
+                case 2:
                     if (!ArrivedAtCombatRally(FinalPosition))
                     {
                         ClearPriorityOrderForShipsInAO(Ships, task.AO, Owner.GetProjectorRadius());
                         break;
                     }
 
-                    TaskStep = 2;
+                    TaskStep = 3;
                     break;
-                case 2:
+                case 3:
                     ClearPriorityOrderForShipsInAO(Ships, task.AO, Owner.GetProjectorRadius());
                     if (AttackEnemyStrengthClumpsInAO(task, Ships))
                         break;
 
-                    TaskStep = 3;
+                    TaskStep = 4;
                     break;
-                case 3:
+                case 4:
                     if (task.TargetPlanet == null)
                         task.SetTargetPlanet(task.TargetSystem.PlanetList.FindMax(p => p.ColonyBaseValue(Owner) + p.ColonyPotentialValue(Owner)));
 
@@ -1504,18 +1486,18 @@ namespace Ship_Game.Fleets
                     if (threatIncoming)
                     {
                         if (enemyStrength < 1)
-                            TaskStep = 5; // search and destroy the threat, which is parked somewhere, doing nothing
+                            TaskStep = 6; // search and destroy the threat, which is parked somewhere, doing nothing
                     }
                     else if (enemyStrength < 1) // No threats and no enemies
                     {
-                        TaskStep = 4;
+                        TaskStep = 5;
                     }
                     else
                     {
-                        TaskStep = 2; // Attack in system again
+                        TaskStep = 3; // Attack in system again
                     }
                     break;
-                case 4:
+                case 5:
                     SolarSystem  system = task.TargetSystem;
                     if (!system.PlanetList.Any(p => p.Owner != null && Owner.IsAtWarWith(p.Owner)))
                     {
@@ -1544,18 +1526,18 @@ namespace Ship_Game.Fleets
                     }
 
                     break;
-                case 5:
+                case 6:
                     var threat = Owner.SystemsWithThreat.Find(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
                     if (threat?.NearestFleet == null)
                     {
-                        TaskStep = 4;
+                        TaskStep = 5;
                         break;
                     }
 
                     Vector2 enemyFleetPos = threat.NearestFleet.FinalPosition;
                     task.AO = enemyFleetPos;
                     GatherAtAO(task, distanceFromAO: 20000);
-                    TaskStep = 1;
+                    TaskStep = 2;
                     break;
             }
         }
@@ -2203,10 +2185,6 @@ namespace Ship_Game.Fleets
                     {
                         ship.AI.ClearOrders();
                         ship.HyperspaceReturn(); // only exit hyperspace if we are clearing orders
-                    }
-                    if (returnToEmpireAI)
-                    {
-                        ship.Loyalty.AddShipToManagedPools(ship);
                     }
                 }
             }

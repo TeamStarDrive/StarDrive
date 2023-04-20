@@ -42,7 +42,7 @@ namespace Ship_Game
             {
                 var orders = new PieMenuNode(GameText.Orders2, ResourceManager.Texture("UI/OrdersIcon"), null);
                 orders.Add(new(GameText.GoExploring, ResourceManager.Texture("UI/marketIcon"), () => DoExplore(s)));
-                orders.Add(new("Empire Defense", ResourceManager.Texture("UI/PatrolIcon"), () => DoDefense(s)));
+                //orders.Add(new("Empire Defense", ResourceManager.Texture("UI/PatrolIcon"), () => DoDefense(s)));
                 shipMenu.Add(orders);
 
                 var followIcon = ResourceManager.Texture("UI/FollowIcon");
