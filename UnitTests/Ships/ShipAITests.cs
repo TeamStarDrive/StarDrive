@@ -22,9 +22,9 @@ namespace UnitTests.Ships
         public void IsTargetValidTest()
         {
             Empire us = Player;
-            Ship ourShip = SpawnShip("Heavy Carrier mk5-b", us, Vector2.Zero);
+            Ship ourShip = SpawnShip("Heavy Carrier mk5-b", us, new Vector2(0,0.1f));
             
-            Ship theirShip = SpawnShip("Owlwok Freighter S", Enemy, Vector2.Zero);
+            Ship theirShip = SpawnShip("Owlwok Freighter S", Enemy, new Vector2(0, 0.1f));
             ourShip.AI.Target = theirShip;
             Empire.SetRelationsAsKnown(us, Enemy);
             var ourRelation = us.GetRelations(Enemy);
