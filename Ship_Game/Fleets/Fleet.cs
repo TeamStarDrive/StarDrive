@@ -546,6 +546,7 @@ namespace Ship_Game.Fleets
                     tallestSquad = 0;
                 }
             }
+
             return GetLargestSquad(squads);
         }
 
