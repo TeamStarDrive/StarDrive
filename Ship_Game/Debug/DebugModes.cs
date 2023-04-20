@@ -9,7 +9,6 @@ public enum DebugModes
     DefenseCo,
     Trade,
     Planets,
-    AO,
     ThreatMatrix,
     SpatialManager,
     Input,
