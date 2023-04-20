@@ -928,7 +928,7 @@ namespace Ship_Game.Gameplay
                 || !Treaty_Trade
                 || Treaty_OpenBorders
                 || AvailableTrust < us.data.DiplomaticPersonality.Territorialism / 2f
-                || Anger_TerritorialConflict + Anger_FromShipsInOurBorders < 0.75f * territorialism)
+                || Anger_TerritorialConflict + Anger_FromShipsInOurBorders > 0.75f * territorialism)
             {
                 return;
             }

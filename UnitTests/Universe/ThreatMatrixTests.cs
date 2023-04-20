@@ -49,12 +49,6 @@ public class ThreatMatrixTests : StarDriveTest
         Enemy.UpdateRelationships(false); 
         Player.UpdateRelationships(false);
         ThirdMajor.UpdateRelationships(false);
-
-        if (ThirdMajor.IsEmpireHostile(Player))
-            Log.Info("F");
-        if (Player.IsEmpireHostile(ThirdMajor))
-            Log.Info("F");
-
     }
     
     protected void DebugVisualizeThreats(Empire owner)
@@ -306,10 +300,6 @@ public class ThreatMatrixTests : StarDriveTest
         float str1 = CreateShipsAt(pos, 5000, Player, 40);
         float str2 = CreateShipsAt(pos, 6000, Enemy, 20);
         CreateShipsAt(pos, 7000, ThirdMajor, 10);
-        if (ThirdMajor.IsEmpireHostile(Player))
-            Log.Info("F");
-        if (Player.IsEmpireHostile(ThirdMajor))
-            Log.Info("F");
         ScanAndUpdateThreats(Player, Enemy, ThirdMajor);
         AssertEqual(str2, Player.Threats.GetHostileStrengthAt(pos, 5000));
         AssertEqual(str1, Enemy.Threats.GetHostileStrengthAt(pos, 5000));
