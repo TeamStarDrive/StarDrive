@@ -130,7 +130,7 @@ namespace Ship_Game.AI
 
         public MilitaryTask[] GetDeepSpaceInvestigateTasks() 
         {
-            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DeepSpaceInvestigate);
+            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.InhibitorInvestigate);
         }
 
         public float GetAvgStrengthNeededByExpansionTasks(Empire targetEmpire)

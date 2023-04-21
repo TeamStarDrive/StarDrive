@@ -406,7 +406,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.GuardBeforeColonize:  return "Pre-Colonization Force";
                 case TaskType.DefendClaim:          return "Scout Fleet";
                 case TaskType.ClearAreaOfEnemies:   return "Defensive Fleet";
-                case TaskType.DeepSpaceInvestigate: return "Investigation Fleet";
+                case TaskType.InhibitorInvestigate: return "Investigation Fleet";
             }
         }
 

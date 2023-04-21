@@ -588,7 +588,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.DefendVsRemnants:     DoDefendVsRemnant(task);      break;
                 case MilitaryTask.TaskType.GuardBeforeColonize:  DoPreColonizationGuard(task); break;
                 case MilitaryTask.TaskType.StageFleet:           DoStagingFleet(task);         break;
-                case MilitaryTask.TaskType.DeepSpaceInvestigate: DoDeepSpaceInvestigate(task); break;
+                case MilitaryTask.TaskType.InhibitorInvestigate: DoDeepSpaceInvestigate(task); break;
             }
         }
 
@@ -957,28 +957,39 @@ namespace Ship_Game.Fleets
                 case 1:
                     if (HasArrivedAtRallySafely())
                     {
-                        GatherAtAO(task, distanceFromAO: 1000);
+                        GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 2f);
                         TaskStep= 2;
                     }
                     break;
                 case 2:
                     if (ArrivedAtCombatRally(FinalPosition))
                     {
-                        CancelFleetMoveInArea(task.AO, task.AORadius * 2);
-                        AttackEnemyStrengthClumpsInAO(task);
+                        FinalPosition = task.AO;
+                        FleetMoveToPosition(FinalPosition, 0, MoveOrder.Aggressive);
+                        TaskStep= 3;
                         TaskStep = 3;
                     }
                     break;
                 case 3:
+                    if (ArrivedAtCombatRally(FinalPosition))
+                    {
+                        CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                        AttackEnemyStrengthClumpsInAO(task);
+                        TaskStep = 4;
+                    }
+                    break;
+                case 4:
                     float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, 30_000);
                     task.TargetEmpire = Owner.Threats.GetStrongestHostileAt(task.AO, 30_000);
                     if (EndInvalidTask(!CanTakeThisFight(enemyStr, task)))
                         return;
 
+                    if (enemyStr == 0)
+                        task.EndTask();
+
                     break;
             }
         }
-
 
         bool ShipsUnderAttackInAo(Array<Ship> ships, Vector2 ao, float radius, out Ship shipBeingTargeted)
         {
