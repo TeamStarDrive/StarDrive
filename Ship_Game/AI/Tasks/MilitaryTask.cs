@@ -120,10 +120,10 @@ namespace Ship_Game.AI.Tasks
             };
         }
 
-        public static MilitaryTask CreateDeepSpaceInvestigateTask(Empire empire, Vector2 ao, float AOradius, 
+        public static MilitaryTask InhibitorInvestigateTask(Empire empire, Vector2 ao, float AOradius, 
             float neededStr, Empire enemy)
         {
-            return new(TaskType.DeepSpaceInvestigate, empire, ao, AOradius)
+            return new(TaskType.InhibitorInvestigate, empire, ao, AOradius)
             {
                 EnemyStrength = neededStr,
                 TargetEmpire = enemy
@@ -333,7 +333,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.Exploration:          RequisitionExplorationForce();    break;
                 case TaskType.DefendClaim:          RequisitionClaimForce();          break;
                 case TaskType.GlassPlanet:          RequisitionGlassForce();          break;
-                case TaskType.DeepSpaceInvestigate: RequisitionInvestigation();       break;
+                case TaskType.InhibitorInvestigate: RequisitionInvestigation();       break;
             }
 
             return true;
@@ -404,7 +404,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.Exploration:          priority = GetExplorationPriority();                            break;
                 case TaskType.DefendClaim:          priority = 5 + numWars * 2;                                     break;
                 case TaskType.AssaultPirateBase:    priority = GetAssaultPirateBasePriority();                      break;
-                case TaskType.DeepSpaceInvestigate: priority = 3;                                                   break;
+                case TaskType.InhibitorInvestigate: priority = 3;                                                   break;
             }
 
             if (TargetEmpire == Owner.Universe.Player && Owner.Universe.Player.AllActiveWars.Length <= Owner.DifficultyModifiers.WarTaskPriorityMod)
@@ -454,7 +454,7 @@ namespace Ship_Game.AI.Tasks
             StrikeForce,
             StageFleet,
             ReclaimPlanet,
-            DeepSpaceInvestigate
+            InhibitorInvestigate
         }
 
         [Flags]
@@ -482,7 +482,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.ClearAreaOfEnemies: taskCat |= TaskCategory.War; break;
                 case TaskType.AssaultPirateBase:
                 case TaskType.Patrol:
-                case TaskType.DeepSpaceInvestigate:
+                case TaskType.InhibitorInvestigate:
                 case TaskType.DefendVsRemnants:
                 case TaskType.RemnantEngagement:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
