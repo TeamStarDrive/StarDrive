@@ -120,6 +120,16 @@ namespace Ship_Game.AI.Tasks
             };
         }
 
+        public static MilitaryTask CreateDeepSpaceInvestigateTask(Empire empire, Vector2 ao, float AOradius, 
+            float neededStr, Empire enemy)
+        {
+            return new(TaskType.DeepSpaceInvestigate, empire, ao, AOradius)
+            {
+                EnemyStrength = neededStr,
+                TargetEmpire = enemy
+            };
+        }
+
         public static MilitaryTask CreatePostInvasion(Planet planet, Fleet fleet, Empire owner)
         {
             return new(TaskType.DefendPostInvasion, owner, planet.Position, aoRadius: 10000f, planet)
@@ -315,14 +325,15 @@ namespace Ship_Game.AI.Tasks
             {
                 case TaskType.StrikeForce:
                 case TaskType.StageFleet:
-                case TaskType.AssaultPlanet:       RequisitionAssaultForces();       break;
-                case TaskType.GuardBeforeColonize: RequisitionGuardBeforeColonize(); break;
-                case TaskType.AssaultPirateBase:   RequisitionAssaultPirateBase();   break;
-                case TaskType.DefendVsRemnants:    RequisitionDefendVsRemnants();    break;
-                case TaskType.ClearAreaOfEnemies:  RequisitionDefenseForce();        break;
-                case TaskType.Exploration:         RequisitionExplorationForce();    break;
-                case TaskType.DefendClaim:         RequisitionClaimForce();          break;
-                case TaskType.GlassPlanet:         RequisitionGlassForce();          break;
+                case TaskType.AssaultPlanet:        RequisitionAssaultForces();       break;
+                case TaskType.GuardBeforeColonize:  RequisitionGuardBeforeColonize(); break;
+                case TaskType.AssaultPirateBase:    RequisitionAssaultPirateBase();   break;
+                case TaskType.DefendVsRemnants:     RequisitionDefendVsRemnants();    break;
+                case TaskType.ClearAreaOfEnemies:   RequisitionDefenseForce();        break;
+                case TaskType.Exploration:          RequisitionExplorationForce();    break;
+                case TaskType.DefendClaim:          RequisitionClaimForce();          break;
+                case TaskType.GlassPlanet:          RequisitionGlassForce();          break;
+                case TaskType.DeepSpaceInvestigate: RequisitionInvestigation();       break;
             }
 
             return true;
@@ -384,15 +395,16 @@ namespace Ship_Game.AI.Tasks
                 default:
                 case TaskType.ReclaimPlanet:
                 case TaskType.GlassPlanet:
-                case TaskType.AssaultPlanet:       priority = 5;                                                   break;
-                case TaskType.ClearAreaOfEnemies:  priority = TargetSystem.DefenseTaskPriority(Owner, Importance); break;
-                case TaskType.StageFleet:          priority = 2 * (numWars * 2).LowerBound(1);                     break;
-                case TaskType.GuardBeforeColonize: priority = 3 + numWars;                                         break;
-                case TaskType.DefendVsRemnants:    priority = 0;                                                   break;
-                case TaskType.StrikeForce:         priority = 2;                                                   break;
-                case TaskType.Exploration:         priority = GetExplorationPriority();                            break;
-                case TaskType.DefendClaim:         priority = 5 + numWars * 2;                                     break;
-                case TaskType.AssaultPirateBase:   priority = GetAssaultPirateBasePriority();                      break;
+                case TaskType.AssaultPlanet:        priority = 5;                                                   break;
+                case TaskType.ClearAreaOfEnemies:   priority = TargetSystem.DefenseTaskPriority(Owner, Importance); break;
+                case TaskType.StageFleet:           priority = 2 * (numWars * 2).LowerBound(1);                     break;
+                case TaskType.GuardBeforeColonize:  priority = 3 + numWars;                                         break;
+                case TaskType.DefendVsRemnants:     priority = 0;                                                   break;
+                case TaskType.StrikeForce:          priority = 2;                                                   break;
+                case TaskType.Exploration:          priority = GetExplorationPriority();                            break;
+                case TaskType.DefendClaim:          priority = 5 + numWars * 2;                                     break;
+                case TaskType.AssaultPirateBase:    priority = GetAssaultPirateBasePriority();                      break;
+                case TaskType.DeepSpaceInvestigate: priority = 3;                                                   break;
             }
 
             if (TargetEmpire == Owner.Universe.Player && Owner.Universe.Player.AllActiveWars.Length <= Owner.DifficultyModifiers.WarTaskPriorityMod)
@@ -400,7 +412,6 @@ namespace Ship_Game.AI.Tasks
 
             Priority = priority;
 
-            // Local Function
             int GetAssaultPirateBasePriority()
             {
                 Empire enemy = TargetEmpire;
@@ -442,7 +453,8 @@ namespace Ship_Game.AI.Tasks
             GuardBeforeColonize,
             StrikeForce,
             StageFleet,
-            ReclaimPlanet
+            ReclaimPlanet,
+            DeepSpaceInvestigate
         }
 
         [Flags]
@@ -470,6 +482,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.ClearAreaOfEnemies: taskCat |= TaskCategory.War; break;
                 case TaskType.AssaultPirateBase:
                 case TaskType.Patrol:
+                case TaskType.DeepSpaceInvestigate:
                 case TaskType.DefendVsRemnants:
                 case TaskType.RemnantEngagement:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;

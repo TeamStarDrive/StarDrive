@@ -1,6 +1,9 @@
-﻿using Ship_Game.AI;
+﻿using SDGraphics;
+using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
+using System.Threading.Tasks;
 
 namespace Ship_Game.Ships
 {
@@ -100,12 +103,25 @@ namespace Ship_Game.Ships
                     && (killerShip.Loyalty.IsFaction || killerShip.Loyalty.isPlayer)
                     && !Loyalty.HasWarTaskTargetingSystem(System))
                 {
-                    Ship_Game.AI.Tasks.MilitaryTaskImportance importance = killerShip.Loyalty.isPlayer
-                        ? Ship_Game.AI.Tasks.MilitaryTaskImportance.Important
-                        : Ship_Game.AI.Tasks.MilitaryTaskImportance.Normal;
+                    MilitaryTaskImportance importance = killerShip.Loyalty.isPlayer
+                        ? MilitaryTaskImportance.Important
+                        : MilitaryTaskImportance.Normal;
 
                     Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System), importance);
                 }
+            }
+
+            if (!Loyalty.isPlayer
+                && !IsSubspaceProjector
+                && InhibitionSource == InhibitionType.EnemyShip
+                && System == null
+                && (IsFreighter || IsConstructor)
+                && !Loyalty.AI.GetDeepSpaceInvestigateTasks().Any(t => t.AO.InRadius(Position, 50_000)))
+            {
+                float strNeeded = Loyalty.Threats.GetHostileStrengthAt(Position, 30_000).LowerBound(1000);
+                Empire enemy = Loyalty.Threats.GetStrongestHostileAt(Position, 30_000);
+                Loyalty.AI.AddPendingTask(
+                    MilitaryTask.CreateDeepSpaceInvestigateTask(Loyalty, Position, 30_000, strNeeded, enemy));
             }
 
             if (IsSubspaceProjector)

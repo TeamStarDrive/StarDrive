@@ -1584,7 +1584,7 @@ namespace Ship_Game.Ships
 
         void DamageRelationsOnDeath(Projectile pSource)
         {
-            if (pSource?.Owner != null)
+            if (pSource?.Owner != null && !pSource.Owner.Loyalty.IsAlliedWith(Loyalty))
             {
                 float amount = 1f;
                 if (ResourceManager.ShipRoles.ContainsKey(ShipData.Role))

@@ -337,6 +337,14 @@ namespace Ship_Game.AI.Tasks
                 NeedEvaluation = false;
         }
 
+        void RequisitionInvestigation()
+        {
+            UpdateMinimumTaskForceStrength();
+            InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
+            if (CreateTaskFleet(Completeness) == RequisitionStatus.Complete)
+                NeedEvaluation = false;
+        }
+
         float GetMinimumStrLowerBound(float geodeticOffense, Empire enemy)
         {
             float initialStr     = geodeticOffense + Owner.KnownEmpireStrength(enemy) / 10;
@@ -351,8 +359,6 @@ namespace Ship_Game.AI.Tasks
             if (EnemyStrength.AlmostEqual(100) && TargetShip != null)
                 EnemyStrength += TargetShip.BaseStrength;
 
-            MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound);
-            float multiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
             MinimumTaskForceStrength = EnemyStrength.LowerBound(lowerBound) *  Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
             MinimumTaskForceStrength = MinimumTaskForceStrength.UpperBound(MinimumStrengthUpperBoundByImportance());
 
@@ -389,17 +395,18 @@ namespace Ship_Game.AI.Tasks
         {
             switch (Type)
             {
-                default:                           return "General Fleet";
-                case TaskType.StageFleet:          return "Stage Fleet";
-                case TaskType.StrikeForce:         return "Strike Fleet";
-                case TaskType.AssaultPlanet:       return "Invasion Fleet";
-                case TaskType.GlassPlanet:         return "Doom Fleet";
-                case TaskType.Exploration:         return $"Exploration Force - {TargetPlanet.Name}";
-                case TaskType.DefendVsRemnants:    return "Defense Task Force";
-                case TaskType.AssaultPirateBase:   return "Assault Fleet";
-                case TaskType.GuardBeforeColonize: return "Pre-Colonization Force";
-                case TaskType.DefendClaim:         return "Scout Fleet";
-                case TaskType.ClearAreaOfEnemies:  return "Defensive Fleet";
+                default:                            return "General Fleet";
+                case TaskType.StageFleet:           return "Stage Fleet";
+                case TaskType.StrikeForce:          return "Strike Fleet";
+                case TaskType.AssaultPlanet:        return "Invasion Fleet";
+                case TaskType.GlassPlanet:          return "Doom Fleet";
+                case TaskType.Exploration:          return $"Exploration Force - {TargetPlanet.Name}";
+                case TaskType.DefendVsRemnants:     return "Defense Task Force";
+                case TaskType.AssaultPirateBase:    return "Assault Fleet";
+                case TaskType.GuardBeforeColonize:  return "Pre-Colonization Force";
+                case TaskType.DefendClaim:          return "Scout Fleet";
+                case TaskType.ClearAreaOfEnemies:   return "Defensive Fleet";
+                case TaskType.DeepSpaceInvestigate: return "Investigation Fleet";
             }
         }
 
