@@ -50,7 +50,8 @@ namespace Ship_Game.AI
         PrepareForWar,
         ProjectorBridge,
         ProcessResearchStation,
-        SupplyGoodsToStation
+        SupplyGoodsToStation,
+        InhibitorInvestigate
     }
 
     public enum GoalStep
@@ -137,6 +138,8 @@ namespace Ship_Game.AI
         public virtual bool IsWarMissionTarget(Planet planet) => false;
         /** @return True if this is a WarMission goal targeting this empire */
         public virtual bool IsWarMissionTarget(Empire empire) => false;
+        /** @return True if this is an Inhibitor Invesgitation in the area */
+        public virtual bool IsInvsestigationHere(Vector2 pos) => false;
 
         /////////////////////////////////////////////////////
 
