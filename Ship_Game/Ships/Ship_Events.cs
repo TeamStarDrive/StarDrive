@@ -111,13 +111,15 @@ namespace Ship_Game.Ships
             }
 
             if (!Loyalty.isPlayer
+                && !Loyalty.IsFaction
                 && !IsSubspaceProjector
                 && InhibitionSource == InhibitionType.EnemyShip
                 && (IsFreighter || IsConstructor)
-                && System == null || !Loyalty.HasWarTaskTargetingSystem(System))
-            {
-                    float strNeeded = Loyalty.Threats.GetHostileStrengthAt(Position, 30_000).LowerBound(1000);
-                    Empire enemy = Loyalty.Threats.GetStrongestHostileAt(Position, 30_000);
+                && (System == null || !Loyalty.HasWarTaskTargetingSystem(System))
+                && !Loyalty.AI.HasGoal(g =>  g.IsInvsestigationHere(Position)))
+             {
+                float strNeeded = Loyalty.Threats.GetHostileStrengthAt(Position, 30_000).LowerBound(1000);
+                Empire enemy = Loyalty.Threats.GetStrongestHostileAt(Position, 30_000);
                 if (enemy == null || !enemy.WeAreRemnants)
                     Loyalty.AI.AddGoalAndEvaluate(new InhibitorInvestigate(Loyalty, enemy, strNeeded, Position));
             }
