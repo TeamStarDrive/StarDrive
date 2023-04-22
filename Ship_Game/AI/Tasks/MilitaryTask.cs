@@ -126,6 +126,7 @@ namespace Ship_Game.AI.Tasks
             return new(TaskType.InhibitorInvestigate, empire, ao, AOradius)
             {
                 EnemyStrength = neededStr,
+                MinimumTaskForceStrength = neededStr,
                 TargetEmpire = enemy
             };
         }

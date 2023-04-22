@@ -114,13 +114,12 @@ namespace Ship_Game.Ships
                 && !IsSubspaceProjector
                 && InhibitionSource == InhibitionType.EnemyShip
                 && (IsFreighter || IsConstructor)
-                && System == null || !Loyalty.HasWarTaskTargetingSystem(System)
-                && !Loyalty.AI.GetDeepSpaceInvestigateTasks().Any(t => t.AO.InRadius(Position, 50_000)))
+                && System == null || !Loyalty.HasWarTaskTargetingSystem(System))
             {
-                float strNeeded = Loyalty.Threats.GetHostileStrengthAt(Position, 30_000).LowerBound(1000);
-                Empire enemy = Loyalty.Threats.GetStrongestHostileAt(Position, 30_000);
+                    float strNeeded = Loyalty.Threats.GetHostileStrengthAt(Position, 30_000).LowerBound(1000);
+                    Empire enemy = Loyalty.Threats.GetStrongestHostileAt(Position, 30_000);
                 if (enemy == null || !enemy.WeAreRemnants)
-                    Loyalty.AI.AddPendingTask( MilitaryTask.InhibitorInvestigateTask(Loyalty, Position, 30_000, strNeeded, enemy));
+                    Loyalty.AI.AddGoalAndEvaluate(new InhibitorInvestigate(Loyalty, enemy, strNeeded, Position));
             }
 
             if (IsSubspaceProjector)

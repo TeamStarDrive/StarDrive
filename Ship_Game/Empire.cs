@@ -150,6 +150,7 @@ namespace Ship_Game
         public float TotalColonyPotentialValues { get; private set; }
         public IShipDesign BestPlatformWeCanBuild { get; private set; }
         public IShipDesign BestStationWeCanBuild { get; private set; }
+        public IShipDesign BestInhibitorStationWeCanBuild { get; private set; }
         public IShipDesign BestResearchStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new();
         [StarData] public Vector2 WeightedCenter;
@@ -1119,10 +1120,11 @@ namespace Ship_Game
 
         private void UpdateBestOrbitals()
         {
-            // FB - this is done here for more performance. having set values here prevents calling shipbuilder by every planet every turn
+            // FB - this is done here for more performance. Cached values here prevents calling shipbuilder by every planet every turn
             BestPlatformWeCanBuild = BestShipWeCanBuild(RoleName.platform, this);
             BestStationWeCanBuild  = BestShipWeCanBuild(RoleName.station, this);
             BestResearchStationWeCanBuild = PickResearchStation(this);
+            BestInhibitorStationWeCanBuild = PickInhibitorOrbital(this);
         }
 
         public void UpdateDefenseShipBuildingOffense()
