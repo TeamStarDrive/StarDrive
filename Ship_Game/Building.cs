@@ -521,15 +521,16 @@ namespace Ship_Game
                 text += $"{BuildShortDescString(Infrastructure, GameText.Infrastructure, ref comma)}";
 
             if (ShipRepair.NotZero())
-            {
                 text += $"{BuildShortDescString(ActualShipRepair(p), GameText.ShipRepair, ref comma)}";
-            }
 
             if (StorageAdded != 0)
                 text += $"{BuildShortDescString(StorageAdded, GameText.MaxStorage, ref comma)}";
 
             if (PlanetaryShieldStrengthAdded.NotZero())
                 text += $"{BuildShortDescString(PlanetaryShieldStrengthAdded, GameText.PlanetaryShieldStrengthAdded, ref comma)}";
+
+            if (Income > 0 )
+                text += $"{BuildShortDescString(Income, GameText.CreditsPerTurn, ref comma)}";
 
             return text;
         }
