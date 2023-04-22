@@ -40,9 +40,6 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateTask()
         {
-            if (Owner.AI.Goals.Any(g => g != this && g.IsInvsestigationHere(InvestigatePos)))
-                return GoalStep.GoalComplete;
-
             Task =  MilitaryTask.InhibitorInvestigateTask(Owner, InvestigatePos, 30_000, StrNeeded, TargetEmpire);
             Owner.AI.AddPendingTask(Task);
             return GoalStep.GoToNextStep;
