@@ -91,7 +91,7 @@ namespace Ship_Game.Ships
         {
             Stats = new(this);
             KnownByEmpires = new(us);
-            HasSeenEmpires = new(us);
+            PlayerProjectorHasSeenEmpires = new(us);
         }
 
         protected static Ship GetShipTemplate(string shipName)
