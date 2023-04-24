@@ -246,6 +246,7 @@ public sealed partial class Empire
                 || ship.IsFreighter
                 || ship.IsPlatformOrStation
                 || ship.IsHomeDefense
+                || ship.IsConstructor
                 || ship.IsHangarShip)
             {
                 continue;
