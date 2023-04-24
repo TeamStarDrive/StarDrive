@@ -59,10 +59,10 @@ namespace Ship_Game.Ships.Components
         /// Sets if the ship has been seen by an empire;
         /// </summary>
         /// <param name="empire">The empire.</param>
-        public void SetSeen(Empire empire)
+        public void SetSeen(Empire empire, float timer = EmpireConstants.KnownContactTimer)
         {
             float[] seenById = GetSeenByID(empire.Universe);
-            seenById[empire.Id-1] = EmpireConstants.KnownContactTimer;
+            seenById[empire.Id-1] = timer;
         }
 
         /// <summary>

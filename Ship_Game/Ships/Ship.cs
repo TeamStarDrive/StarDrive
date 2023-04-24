@@ -1157,7 +1157,8 @@ namespace Ship_Game.Ships
 
             // update our knowledge of the surrounding universe
             KnownByEmpires.Update(timeStep, Loyalty);
-            HasSeenEmpires.Update(timeStep, Loyalty);
+            if (IsSubspaceProjector)
+                HasSeenEmpires.Update(timeStep, Loyalty);
 
             // scan universe and make decisions for combat
             AI.ScanForTargets(timeStep);
