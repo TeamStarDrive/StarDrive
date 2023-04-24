@@ -877,7 +877,7 @@ namespace Ship_Game.AI
                 if (!enemy.Active || enemy.Dying || enemy.BaseStrength == 0)
                     continue;
 
-                projector.HasSeenEmpires.SetSeen(enemy.Loyalty, time);
+                projector.PlayerProjectorHasSeenEmpires.SetSeen(enemy.Loyalty, time);
             }
         }
 
