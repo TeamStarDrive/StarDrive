@@ -55,7 +55,7 @@ public class IncomingThreatDetector
             for (int i = 0; i < systems.Count; i++)
             {
                 var s = systems[i];
-                var fleetsInSys = GetFleetsInSys(s, knownFleets);
+                var fleetsInSys = GetFleetsInSys(s, knownFleets, s.Radius*2.2f);
                 
                 IncomingThreat threat = Threats.Find(t => t.TargetSystem == s);
                 if (threat != null)
@@ -74,11 +74,11 @@ public class IncomingThreatDetector
             SystemsWithThreat = Threats.ToArr();
     }
 
-    Fleet[] GetFleetsInSys(SolarSystem s, Array<Fleet> knownFleets)
+    Fleet[] GetFleetsInSys(SolarSystem s, Array<Fleet> knownFleets, float radiusToCheck)
     {
         if (knownFleets.IsEmpty)
             return Empty<Fleet>.Array;
-        return knownFleets.Filter(f => f.FinalPosition.InRadius(s.Position, s.Radius * (f.Owner.isPlayer ? 3 : 2)));
+        return knownFleets.Filter(f => f.FinalPosition.InRadius(s.Position, radiusToCheck * (f.Owner.isPlayer ? 1.5f : 1f)));
     }
 
     // only for player
