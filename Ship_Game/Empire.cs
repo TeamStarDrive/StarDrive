@@ -1724,13 +1724,23 @@ namespace Ship_Game
                     }
                 }
 
-                foreach (Planet planet in OwnedPlanets)
+                for (int i = 0; i < OwnedPlanets.Count; i++)
                 {
+                    Planet planet = OwnedPlanets[i];
                     if (planet.HasWinBuilding)
                     {
                         Universe.Screen.OnPlayerWon(GameText.AsTheRemnantExterminatorsSweep);
                         return;
                     }
+                }
+
+                var playerProjectors = OwnedProjectors;
+                float scanRadius = GetProjectorRadius();
+                float timer = Universe.P.TurnTimer;
+                for (int i = 0; i < playerProjectors.Count; i++)
+                {
+                    Ship projector = playerProjectors[i];
+                    projector.AI.ProjectorScan(scanRadius, timer);
                 }
             }
 

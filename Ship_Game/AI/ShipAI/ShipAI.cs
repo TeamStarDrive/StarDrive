@@ -10,6 +10,7 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Spatial;
 #pragma warning disable CA2213
 
 namespace Ship_Game.AI
@@ -853,6 +854,30 @@ namespace Ship_Game.AI
             {
                 Owner.AI.SetPriorityOrder(true);
                 Orbit.Orbit(escortTarget, timeStep);
+            }
+        }
+
+
+        // This is done for player projectors to visualize empires in projection radius
+        public void ProjectorScan(float sensorRadius, float time)
+        {
+            Ship projector = Owner;
+            Empire us = projector.Loyalty;
+            var findEnemies = new SearchOptions(projector.Position, sensorRadius, GameObjectType.Ship)
+            {
+                MaxResults = 32,
+                Exclude = projector,
+                ExcludeLoyalty = us,
+            };
+
+            SpatialObjectBase[] enemies = projector.Universe.Spatial.FindNearby(ref findEnemies);
+            for (int i = 0; i < enemies.Length; ++i)
+            {
+                var enemy = (Ship)enemies[i];
+                if (!enemy.Active || enemy.Dying || enemy.BaseStrength == 0)
+                    continue;
+
+                projector.HasSeenEmpires.SetSeen(enemy.Loyalty, time);
             }
         }
 
