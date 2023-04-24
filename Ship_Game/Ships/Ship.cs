@@ -117,7 +117,7 @@ namespace Ship_Game.Ships
         public float BonusEMPProtection;
         public bool InPlayerSensorRange => KnownByEmpires.KnownByPlayer(Universe);
         public KnownByEmpire KnownByEmpires;
-        public KnownByEmpire HasSeenEmpires;
+        public KnownByEmpire PlayerProjectorHasSeenEmpires;
         public bool EMPDisabled;
         public float TractorDamage { get; private set; }
         private bool BeingTractored;
@@ -1157,8 +1157,8 @@ namespace Ship_Game.Ships
 
             // update our knowledge of the surrounding universe
             KnownByEmpires.Update(timeStep, Loyalty);
-            if (IsSubspaceProjector)
-                HasSeenEmpires.Update(timeStep, Loyalty);
+            if (Loyalty.isPlayer && IsSubspaceProjector)
+                PlayerProjectorHasSeenEmpires.Update(timeStep, Loyalty);
 
             // scan universe and make decisions for combat
             AI.ScanForTargets(timeStep);
@@ -1684,7 +1684,7 @@ namespace Ship_Game.Ships
             Mothership = null;
             JumpSfx?.Destroy();
             KnownByEmpires = null;
-            HasSeenEmpires = null;
+            PlayerProjectorHasSeenEmpires = null;
             PlanetCrash = null;
             HomePlanet = null;
             RemoveSceneObject();
