@@ -835,7 +835,7 @@ namespace Ship_Game.Fleets
                         break;
 
                     SetOrdersRadius(Ships, 5000);
-                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 2f);
+                    GatherAtAO(task, distanceFromAO: task.TargetPlanet.System.Radius * 2);
                     TaskStep = 3;
                     break;
                 case 3:
@@ -957,7 +957,7 @@ namespace Ship_Game.Fleets
                 case 1:
                     if (HasArrivedAtRallySafely())
                     {
-                        GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 2f);
+                        GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius());
                         TaskStep= 2;
                     }
                     break;
@@ -1165,7 +1165,7 @@ namespace Ship_Game.Fleets
                     if (FleetInAreaInCombat(AveragePos, 50000) == CombatStatus.InCombat)
                         break;
 
-                    GatherAtAO(task, target.System.Radius);
+                    GatherAtAO(task, target.System.Radius*2);
                     if (TryCalcEtaToPlanet(task, target.Owner, out float eta))
                         Owner.Remnants.InitTargetEmpireDefenseActions(target, eta, GetStrength());
 
@@ -1476,6 +1476,8 @@ namespace Ship_Game.Fleets
             if (threatIncoming && EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
                 return; // If no threat is incoming, stay put to clear remaining lone ships
 
+            float aoRadius = task.TargetSystem?.Radius * 2 ?? task.RallyPlanet.System.Radius * 2;
+
             switch (TaskStep)
             {
                 // Find a rally planet closest to fleel average pos and move there first
@@ -1492,7 +1494,7 @@ namespace Ship_Game.Fleets
                     }
                     else
                     {
-                        GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius());
+                        GatherAtAO(task, distanceFromAO: aoRadius);
                         TaskStep = 2;
                     }
                     break;
@@ -1500,21 +1502,21 @@ namespace Ship_Game.Fleets
                     MoveStatus moveStatus = FleetMoveStatus(task.RallyPlanet.System.Radius);
                     if (moveStatus.IsSet(MoveStatus.MajorityAssembled) && !task.RallyPlanet.System.HostileForcesPresent(Owner))
                     {
-                        GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius());
+                        GatherAtAO(task, distanceFromAO: aoRadius);
                         TaskStep = 2;
                     }
                     break;
                 case 2:
                     if (!ArrivedAtCombatRally(FinalPosition))
                     {
-                        ClearPriorityOrderForShipsInAO(Ships, task.AO, Owner.GetProjectorRadius());
+                        ClearPriorityOrderForShipsInAO(Ships, task.AO, aoRadius);
                         break;
                     }
 
                     TaskStep = 3;
                     break;
                 case 3:
-                    ClearPriorityOrderForShipsInAO(Ships, task.AO, Owner.GetProjectorRadius());
+                    ClearPriorityOrderForShipsInAO(Ships, task.AO, aoRadius);
                     if (AttackEnemyStrengthClumpsInAO(task, Ships))
                         break;
 
@@ -1710,6 +1712,9 @@ namespace Ship_Game.Fleets
             return !status.IsSet(MoveStatus.Dispersed);
         }
 
+        // Note - distance from AO is important to IncomingThreatDetector 
+        // Fleet final position is checked against the system radius * 2~
+        // Beyond that, the threat wont be registered.
         void GatherAtAO(MilitaryTask task, float distanceFromAO)
         {
             FleetMoveToPosition(task.AO, distanceFromAO, MoveOrder.Regular);
