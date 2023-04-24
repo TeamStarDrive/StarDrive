@@ -1,4 +1,6 @@
-﻿using Ship_Game.AI;
+﻿using SDGraphics;
+using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 
@@ -87,26 +89,12 @@ namespace Ship_Game.Ships
         // note that pSource can be null
         public virtual void OnShipDie(Projectile pSource)
         {
-            if (pSource?.Module != null) 
-            {
-                Ship killerShip = pSource.Module.GetParent();
-                killerShip.UpdateEmpiresOnKill(this);
-                killerShip.AddKill(this);
-                // Defend vs lone ships, like remnants or cunning players
-                if (!Loyalty.isPlayer
-                    && killerShip.Fleet == null
-                    && System?.HasPlanetsOwnedBy(Loyalty) == true
-                    && Loyalty.IsEmpireHostile(killerShip.Loyalty)
-                    && (killerShip.Loyalty.IsFaction || killerShip.Loyalty.isPlayer)
-                    && !Loyalty.HasWarTaskTargetingSystem(System))
-                {
-                    Ship_Game.AI.Tasks.MilitaryTaskImportance importance = killerShip.Loyalty.isPlayer
-                        ? Ship_Game.AI.Tasks.MilitaryTaskImportance.Important
-                        : Ship_Game.AI.Tasks.MilitaryTaskImportance.Normal;
-
-                    Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System), importance);
-                }
-            }
+            bool shouldCheckInvestigateInhibition = true;
+            if (pSource?.Module != null)
+                UpdateKillAndDefenseTasks(pSource.Module, ref shouldCheckInvestigateInhibition);
+            
+            if (shouldCheckInvestigateInhibition)
+                AddInhibitionInvestigationIfNeeded();
 
             if (IsSubspaceProjector)
                 Loyalty.AI.SpaceRoadsManager.RemoveProjectorFromRoadList(this);
@@ -118,27 +106,71 @@ namespace Ship_Game.Ships
             }
 
             if (IsResearchStation)
-            {
-                // must use the goal planet/system, since tether was removed when the ship died and no way to know
-                // if it was researching  a planet or a star
-                Goal researchGoal = Loyalty.AI.FindGoal(g => g is ProcessResearchStation && g.TargetShip == this);
-                if (researchGoal != null)
-                {
-                    if (researchGoal.TargetPlanet != null)
-                        Universe.RemoveEmpireFromResearchableList(Loyalty, researchGoal.TargetPlanet);
-                    else if (System != null)
-                        Universe.RemoveEmpireFromResearchableList(Loyalty, System);
-                    else
-                        Log.Error($"On Ship die - research station {Name} System was null!");
-                }
-                else
-                {
-                    Log.Error($"On Ship die - research station {Name} no goal found!");
-                }
-            }
+                OnResearchStationDeath();
 
             DamageRelationsOnDeath(pSource);
             CreateEventOnDeath();
+        }
+
+        void UpdateKillAndDefenseTasks(ShipModule module, ref bool shouldCheckInvestigateInhibition)
+        {
+            Ship killerShip = module.GetParent();
+            killerShip.UpdateEmpiresOnKill(this);
+            killerShip.AddKill(this);
+            // Defend vs lone ships, like remnants or cunning players
+            if (!Loyalty.isPlayer
+                && killerShip.Fleet == null
+                && System?.HasPlanetsOwnedBy(Loyalty) == true
+                && Loyalty.IsEmpireHostile(killerShip.Loyalty)
+                && (killerShip.Loyalty.IsFaction || killerShip.Loyalty.isPlayer))
+            {
+                shouldCheckInvestigateInhibition = false; // We are dealing with it with defense tasks or going to deal with it now
+                if (!Loyalty.HasWarTaskTargetingSystem(System))
+                {
+                    MilitaryTaskImportance importance = killerShip.Loyalty.isPlayer
+                        ? MilitaryTaskImportance.Important
+                        : MilitaryTaskImportance.Normal;
+
+                    Loyalty.AddDefenseSystemGoal(System, Loyalty.KnownEnemyStrengthIn(System), importance);
+                }
+            }
+        }
+
+        void OnResearchStationDeath()
+        {
+            // must use the goal planet/system, since tether was removed when the ship died and no way to know
+            // if it was researching  a planet or a star
+            Goal researchGoal = Loyalty.AI.FindGoal(g => g is ProcessResearchStation && g.TargetShip == this);
+            if (researchGoal != null)
+            {
+                if (researchGoal.TargetPlanet != null)
+                    Universe.RemoveEmpireFromResearchableList(Loyalty, researchGoal.TargetPlanet);
+                else if (System != null)
+                    Universe.RemoveEmpireFromResearchableList(Loyalty, System);
+                else
+                    Log.Error($"On Ship die - research station {Name} System was null!");
+            }
+            else
+            {
+                Log.Error($"On Ship die - research station {Name} no goal found!");
+            }
+        }
+
+        void AddInhibitionInvestigationIfNeeded()
+        {
+            if (!Loyalty.isPlayer
+                && !Loyalty.IsFaction
+                && !IsSubspaceProjector
+                && InhibitionSource == InhibitionType.EnemyShip
+                && (IsFreighter || IsConstructor)
+                && (System == null || !Loyalty.HasWarTaskTargetingSystem(System))
+                && !Loyalty.AI.HasGoal(g => g.IsInvsestigationHere(Position)))
+            {
+                float strNeeded = Loyalty.Threats.GetHostileStrengthAt(Position, 30_000).LowerBound(1000);
+                Empire enemy = Loyalty.Threats.GetStrongestHostileAt(Position, 30_000);
+                if (enemy == null || !enemy.WeAreRemnants)
+                    Loyalty.AI.AddGoalAndEvaluate(new InhibitorInvestigate(Loyalty, enemy, strNeeded, Position));
+            }
         }
     }
 }

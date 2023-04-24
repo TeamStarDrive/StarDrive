@@ -577,17 +577,18 @@ namespace Ship_Game.Fleets
             {
                 case MilitaryTask.TaskType.StrikeForce:
                 case MilitaryTask.TaskType.ReclaimPlanet:
-                case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(task);              break;
-                case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(task);         break;
-                case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(task);              break;
-                case MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(task);               break;
-                case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(task);        break;
-                case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(task);                break;
-                case MilitaryTask.TaskType.AssaultPirateBase:          DoAssaultPirateBase(task);          break;
-                case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(task);          break;
-                case MilitaryTask.TaskType.DefendVsRemnants:           DoDefendVsRemnant(task);            break;
-                case MilitaryTask.TaskType.GuardBeforeColonize:        DoPreColonizationGuard(task);       break;
-                case MilitaryTask.TaskType.StageFleet:                 DoStagingFleet(task);               break;
+                case MilitaryTask.TaskType.AssaultPlanet:        DoAssaultPlanet(task);        break;
+                case MilitaryTask.TaskType.ClearAreaOfEnemies:   DoClearAreaOfEnemies(task);   break;
+                case MilitaryTask.TaskType.Exploration:          DoExplorePlanet(task);        break;
+                case MilitaryTask.TaskType.DefendClaim:          DoClaimDefense(task);         break;
+                case MilitaryTask.TaskType.DefendPostInvasion:   DoPostInvasionDefense(task);  break;
+                case MilitaryTask.TaskType.GlassPlanet:          DoGlassPlanet(task);          break;
+                case MilitaryTask.TaskType.AssaultPirateBase:    DoAssaultPirateBase(task);    break;
+                case MilitaryTask.TaskType.RemnantEngagement:    DoRemnantEngagement(task);    break;
+                case MilitaryTask.TaskType.DefendVsRemnants:     DoDefendVsRemnant(task);      break;
+                case MilitaryTask.TaskType.GuardBeforeColonize:  DoPreColonizationGuard(task); break;
+                case MilitaryTask.TaskType.StageFleet:           DoStagingFleet(task);         break;
+                case MilitaryTask.TaskType.InhibitorInvestigate: DoDeepSpaceInvestigate(task); break;
             }
         }
 
@@ -945,6 +946,50 @@ namespace Ship_Game.Fleets
                            || !MajorityTroopShipsAreInWell(task.TargetPlanet) && (!invasionEffective || !combatEffective));
         }
 
+        void DoDeepSpaceInvestigate(MilitaryTask task)
+        {
+            switch (TaskStep)
+            {
+                case 0:
+                    FleetTaskGatherAtRally(task);
+                    TaskStep = 1;
+                    break;
+                case 1:
+                    if (HasArrivedAtRallySafely())
+                    {
+                        GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 2f);
+                        TaskStep= 2;
+                    }
+                    break;
+                case 2:
+                    if (ArrivedAtCombatRally(FinalPosition))
+                    {
+                        FinalPosition = task.AO;
+                        FleetMoveToPosition(FinalPosition, 0, MoveOrder.Aggressive);
+                        TaskStep= 3;
+                        TaskStep = 3;
+                    }
+                    break;
+                case 3:
+                    if (ArrivedAtCombatRally(FinalPosition))
+                    {
+                        CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                        AttackEnemyStrengthClumpsInAO(task);
+                        TaskStep = 4;
+                    }
+                    break;
+                case 4:
+                    float enemyStr = Owner.Threats.GetHostileStrengthAt(task.AO, 30_000);
+                    task.TargetEmpire = Owner.Threats.GetStrongestHostileAt(task.AO, 30_000);
+                    if (EndInvalidTask(!CanTakeThisFight(enemyStr, task)))
+                        return;
+
+                    if (enemyStr == 0)
+                        task.EndTask();
+
+                    break;
+            }
+        }
 
         bool ShipsUnderAttackInAo(Array<Ship> ships, Vector2 ao, float radius, out Ship shipBeingTargeted)
         {

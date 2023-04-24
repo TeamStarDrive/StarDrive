@@ -620,7 +620,7 @@ namespace Ship_Game.Gameplay
                 return false;
 
             if (us.IsFaction || them.IsFaction || them.WeAreRemnants)
-                return true;
+                return true; // Factions are below treatires since factions can have NA pact with empires
 
             if (!us.isPlayer)
             {

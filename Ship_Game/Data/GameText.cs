@@ -4400,7 +4400,7 @@ namespace Ship_Game
         MaxStorage = 4377,
         /// <summary>Flat Population</summary>
         PlusFlatPop = 4378,
-        /// <summary>Flat Population</summary>
+        /// <summary>Infrastructre</summary>
         Infrastructure = 4379,
         /// <summary>Max Population (Billion)</summary>
         PopMax = 4380,
@@ -4497,7 +4497,6 @@ namespace Ship_Game
         ResearchStationBuiltPlanetNotify = 4434,
         /// <summary>Research Station was deployed in system</summary>
         ResearchStationBuiltSystemNotify = 4435,
-
 
 
 
