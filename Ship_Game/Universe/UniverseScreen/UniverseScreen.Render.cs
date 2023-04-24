@@ -157,7 +157,7 @@ namespace Ship_Game
                 for (int j = 0; j < enemies.Count; j++)
                 {
                     var enemy = enemies[j];
-                    if (projector.HasSeenEmpires.KnownBy(enemy))
+                    if (projector.PlayerProjectorHasSeenEmpires.KnownBy(enemy))
                     {
                         var screenPos = ProjectToScreenPosition(projector.Position);
                         var flag = enemy.data.Traits.FlagIndex;
