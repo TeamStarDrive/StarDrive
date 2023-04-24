@@ -1119,7 +1119,7 @@ namespace Ship_Game
 
         private void UpdateBestOrbitals()
         {
-            // FB - this is done here for more performance. having set values here prevents calling shipbuilder by every planet every turn
+            // FB - this is done here for more performance. Cached values here prevents calling shipbuilder by every planet every turn
             BestPlatformWeCanBuild = BestShipWeCanBuild(RoleName.platform, this);
             BestStationWeCanBuild  = BestShipWeCanBuild(RoleName.station, this);
             BestResearchStationWeCanBuild = PickResearchStation(this);
