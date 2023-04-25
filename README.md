@@ -12,8 +12,11 @@ Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and t
 
 # Downloads
 Currently downloadable Releases contain Major and Patch versions. Major versions are big, 700-800MB installs. Patches are relatively small and are always cumulative, which means you only need to install the Major version (1.41) and latest patch (1.41-patch).
+Note that the game now has an auto update logic; You can install the Major Release and the game will prompt and install the latest patch for you. Hover over the prompt message to see change log.
 
-[Go To Downloads](https://github.com/TeamStarDrive/StarDrive/releases)
+[Current Major Release Link (read the instructions!)](https://github.com/TeamStarDrive/StarDrive/releases/tag/mars-1.41.14664)
+
+[Go To Downloads](https://github.com/TeamStarDrive/StarDrive/releases) (for reference)
 
 # Mods
 The only mod which currently supports Blackbox is Combined Arms, which is a huge content mod.
