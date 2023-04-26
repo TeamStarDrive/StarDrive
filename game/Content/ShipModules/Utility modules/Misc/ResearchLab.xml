@@ -32,7 +32,7 @@
   <energyreq>0</energyreq>
   
   <PowerDraw>450</PowerDraw>
-  <ResearchPerTurn>0.75</ResearchPerTurn>
+  <ResearchPerTurn>0.4</ResearchPerTurn>
   <NameIndex>4989</NameIndex>
   <DescriptionIndex>4990</DescriptionIndex>
 </ShipModule>

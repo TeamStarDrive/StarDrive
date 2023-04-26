@@ -383,9 +383,9 @@ namespace Ship_Game
             float limit = 0; // it is a multiplier
             switch (goods)
             {
-                case Goods.Food:       limit = Storage.Max / NumFreightersPickingUpFood.LowerBound(1); break;
-                case Goods.Production: limit = Storage.Max / NumFreightersPickingUpProd.LowerBound(1); break;
-                case Goods.Colonists:  limit = Population * 0.2f;                                      break;
+                case Goods.Food:       limit = (Storage.Max / NumFreightersPickingUpFood.LowerBound(1)).UpperBound(FoodHere); break;
+                case Goods.Production: limit = (Storage.Max / NumFreightersPickingUpProd.LowerBound(1)).UpperBound(ProdHere); break;
+                case Goods.Colonists:  limit = Population * 0.2f;                                                             break;
             }
 
             return limit;
