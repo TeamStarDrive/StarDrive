@@ -11,6 +11,7 @@ namespace Ship_Game
         public readonly AggregatePerfTimer ResetBordersPerf  = new();
         public readonly AggregatePerfTimer ScanFromPlanetsPerf = new();
         public readonly AggregatePerfTimer ThreatMatrixPerf  = new();
+        public readonly AggregatePerfTimer PlayerProjectorScanPerf= new();
 
         public readonly AggregatePerfTimer EmpireUpdatePerf = new();
         public readonly AggregatePerfTimer EmpireMiscPerf   = new();
