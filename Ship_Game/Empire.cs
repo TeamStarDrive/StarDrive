@@ -1733,15 +1733,6 @@ namespace Ship_Game
                         return;
                     }
                 }
-
-                var playerProjectors = OwnedProjectors;
-                float scanRadius = GetProjectorRadius();
-                float timer = Universe.P.TurnTimer;
-                for (int i = 0; i < playerProjectors.Count; i++)
-                {
-                    Ship projector = playerProjectors[i];
-                    projector.AI.ProjectorScan(scanRadius, timer);
-                }
             }
 
             if (!data.IsRebelFaction)

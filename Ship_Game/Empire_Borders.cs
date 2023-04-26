@@ -28,6 +28,7 @@ public sealed partial class Empire
     }
 
     float ThreatMatrixUpdateTimer;
+    float PlayerProjectorScanTimer;
 
     /// <summary>
     /// How often the ThreatMatrix is updated.
@@ -35,6 +36,8 @@ public sealed partial class Empire
     /// Somewhere around 0.5 - 1.0 seconds should be good enough
     /// </summary>
     const float ResetThreatMatrixSeconds = 1.0f;
+
+    const float ResetPlayerProjectorScanSeconds = 5.0f;
         
     public EmpireFirstContact FirstContact = new();
 
@@ -93,6 +96,31 @@ public sealed partial class Empire
             us.ThreatMatrixPerf.Start();
             AI.ThreatMatrix.Update(new(time:ResetThreatMatrixSeconds));
             us.ThreatMatrixPerf.Stop();
+        }
+
+        if (isPlayer)
+        {
+            PlayerProjectorScanTimer -= timeStep.FixedTime;
+            if (PlayerProjectorScanTimer <= 0)
+            {
+                PlayerProjectorScanTimer = ResetPlayerProjectorScanSeconds;
+
+                us.PlayerProjectorScanPerf.Start();
+                UpdatePlayerProjectorScan();
+                us.PlayerProjectorScanPerf.Stop();
+            }
+        }
+    }
+
+    // For Player Projectors to display enemy empire flags if found in projection radius
+    void UpdatePlayerProjectorScan()
+    {
+        var playerProjectors = OwnedProjectors;
+        float scanRadius = GetProjectorRadius();
+        for (int i = 0; i < playerProjectors.Count; i++)
+        {
+            Ship projector = playerProjectors[i];
+            projector.AI.ProjectorScan(scanRadius, ResetPlayerProjectorScanSeconds);
         }
     }
 
