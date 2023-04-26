@@ -18,7 +18,7 @@ Globals:
   GravityWellRange: 8000 # sets the default gravity well range, 0 means disabled
   StartingPlanetRichnessBonus: 1 # bonus richness for empire capitals (default is 1 for richness of 2)
   ShipMaintenanceMultiplier: 1 # default 1
-  ResearchStationProductionPerResearch: 1.5 # default 1.5
+  ResearchStationProductionPerResearch: 2 # default 2
   RushCostPercentage: 1 # default 1, How much rushing costs in percentage of production cost
   MinAcceptableShipWarpRange: 600000 # minimum ship warp range which is accepted as good
   # gameplay: repair
