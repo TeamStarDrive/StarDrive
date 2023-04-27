@@ -62,6 +62,7 @@ Globals:
   # auto-update is supported for: GitHub Releases
   DownloadSite: "https://github.com/TeamStarDrive/StarDrive/releases"
 
+
   # # mod information
   # Mod:
   #   Name: "Example Mod"
