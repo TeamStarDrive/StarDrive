@@ -44,7 +44,6 @@ namespace Ship_Game.Fleets
 
         int DefenseTurns = 50;
         [StarData] public MilitaryTask FleetTask;
-        [StarData] MilitaryTask CoreFleetSubTask;
         [StarData] public CombatStatus TaskCombatStatus = CombatStatus.InCombat;
 
         [StarData] public int FleetIconIndex;
@@ -696,13 +695,10 @@ namespace Ship_Game.Fleets
                     TaskStep     = 1;
                     break;
                 case 1:
-                    if (!DoOrbitTaskArea(task))
-                        AttackEnemyStrengthClumpsInAO(task);
-                    else
+                    if (!DoOrbitTaskArea(task) || !AttackEnemyStrengthClumpsInAO(task))
                         EndInvalidTask(--DefenseTurns <= 0 
                                        && !Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut 
                                                                          && t.TargetSystem == task.TargetPlanet.System));
-
                     break;
             }
         }
