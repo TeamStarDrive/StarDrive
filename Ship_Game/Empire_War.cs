@@ -103,7 +103,7 @@ namespace Ship_Game
             AI.AddPendingTask(task);
         }
 
-        public void CreateWarTask(Planet targetPlanet, Empire enemy, Goal goal)
+        public void CreateWarTask(Planet targetPlanet, Empire enemy, Goal goal, out MilitaryTask task)
         {
             // todo advanced mission types per personality or prepare for war strategy
             MilitaryTask.TaskType taskType = MilitaryTask.TaskType.StrikeForce;
@@ -125,7 +125,7 @@ namespace Ship_Game
                 }
             }
 
-            var task = new MilitaryTask(targetPlanet, this, importance)
+            task = new MilitaryTask(targetPlanet, this, importance)
             {
                 Goal = goal,
                 Type = taskType,
