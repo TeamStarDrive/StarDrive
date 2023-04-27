@@ -11,7 +11,6 @@ namespace Ship_Game.Commands.Goals
     public class DefendSystem : FleetGoal
     {
         [StarData] public SolarSystem TargetSystem;
-        [StarData] MilitaryTaskImportance Importance;
 
         [StarDataConstructor]
         public DefendSystem(Empire owner) : base(GoalType.DefendSystem, owner)
@@ -30,9 +29,8 @@ namespace Ship_Game.Commands.Goals
             TargetSystem   = system;
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;
-            Importance     = importance;
 
-            var task = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, owner, center, radius,
+            Task = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, owner, center, radius,
                 system, strengthWanted, importance)
             {
                 Goal = this,
@@ -40,30 +38,25 @@ namespace Ship_Game.Commands.Goals
                 MinimumTaskForceStrength = strengthWanted
             };
 
-            owner.AI.AddPendingTask(task);
-        }
-
-        bool  TryGetDefenseTask(out MilitaryTask task)
-        {
-            return (task = Owner.AI.GetDefendSystemTasks().Find(t => t.TargetSystem == TargetSystem)) != null;
+            owner.AI.AddPendingTask(Task);
         }
 
         GoalStep WaitForFleet()
         {
-            if (!TryGetDefenseTask(out MilitaryTask task))
+            if (Task == null)
                 return GoalStep.GoalFailed;
 
-            if (task.Fleet == null)
+            if (Task.Fleet == null)
             {
                 if (LifeTime > 10 && !Owner.SystemsWithThreat.Any(ts => !ts.ThreatTimedOut && ts.TargetSystem == TargetSystem))
                 {
-                    task.EndTask(); // Timeout
+                    Task.EndTask(); // Timeout
                     return GoalStep.GoalFailed;
                 }
             }
             else
             {
-                Fleet = task.Fleet;
+                Fleet = Task.Fleet;
                 return GoalStep.GoToNextStep;
             }
 
@@ -72,7 +65,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep AssessDefense()
         {
-            return TryGetDefenseTask(out _) ? GoalStep.TryAgain : GoalStep.GoalComplete;
+            return Task != null ? GoalStep.TryAgain : GoalStep.GoalComplete;
         }
     }
 }
