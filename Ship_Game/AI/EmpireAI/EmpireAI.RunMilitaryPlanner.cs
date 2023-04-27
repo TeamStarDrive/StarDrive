@@ -213,22 +213,6 @@ namespace Ship_Game.AI
             return militaryTask != null;
         }
 
-        public bool GetDefendClaimTaskFor(Planet planet, out MilitaryTask militaryTask)
-        {
-            militaryTask = null;
-            var filteredTasks = TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendClaim
-                                                     && task.TargetPlanet == planet);
-
-            if (filteredTasks.Length > 0f)
-            {
-                militaryTask = filteredTasks.First();
-                if (filteredTasks.Length > 1)
-                    Log.Warning($"{OwnerEmpire.Name} Defend Claim Tasks: Found more than one task for {planet.Name}. Using the first one.");
-            }
-
-            return militaryTask != null;
-        }
-
         public void SendExplorationFleet(Planet p)
         {
             if (!TaskList.Any(t => t.Type == MilitaryTask.TaskType.Exploration && t.TargetPlanet == p))

@@ -38,6 +38,7 @@ public class PerfDebug : DebugPage
         turn.AddSubItem(new DebugStatItem(" ResetBorders", s.ResetBordersPerf, s.EmpireInfluPerf));
         turn.AddSubItem(new DebugStatItem(" PlanetScans", s.ScanFromPlanetsPerf, s.EmpireInfluPerf));
         turn.AddSubItem(new DebugStatItem(" ThreatMatrix", s.ThreatMatrixPerf, s.EmpireInfluPerf));
+        turn.AddSubItem(new DebugStatItem(" PlayerSSPScan", s.PlayerProjectorScanPerf, s.EmpireInfluPerf));
         turn.AddSubItem(new DebugStatItem("Objects", o.TotalTime, s.TurnTimePerf));
         turn.AddSubItem(new DebugStatItem("Misc", s.EmpireMiscPerf, s.TurnTimePerf));
         turn.AddSubItem(new DebugStatItem("PostEmp", s.PostEmpirePerf, s.TurnTimePerf));
