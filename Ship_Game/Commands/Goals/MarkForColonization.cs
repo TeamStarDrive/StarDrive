@@ -107,16 +107,16 @@ namespace Ship_Game.Commands.Goals
                 EmpireAI empireAi = Owner.AI;
                 TargetEmpire = empireAi.ThreatMatrix.GetStrongestHostileAt(TargetPlanet.System);
                 float strMultiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
-                var task            = MilitaryTask.CreateClaimTask(Owner, TargetPlanet, 
-                                       (spaceStrength * strMultiplier).LowerBound(20), TargetEmpire, (int)strMultiplier);
+                Task = MilitaryTask.CreateClaimTask(Owner, TargetPlanet, 
+                    (spaceStrength * strMultiplier).LowerBound(20), TargetEmpire, (int)strMultiplier);
 
-                empireAi.AddPendingTask(task);
+                empireAi.AddPendingTask(Task);
                 empireAi.AddGoal(new StandbyColonyShip(Owner));
             }
             else if (!Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.System))
             {
-                var task = MilitaryTask.CreateGuardTask(Owner, TargetPlanet);
-                Owner.AI.AddPendingTask(task);
+                // This task is independent and not related to this goal Task var
+                Owner.AI.AddPendingTask(MilitaryTask.CreateGuardTask(Owner, TargetPlanet));
             }
 
             return GoalStep.GoToNextStep;
@@ -127,14 +127,13 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            if (TryGetClaimTask(out MilitaryTask task))
+            if (Task != null)
             {
-                if (!PositiveEnemyPresence(out float enemyStr) || task.Fleet != null && task.Fleet.TaskStep == 9)
+                if (!PositiveEnemyPresence(out float enemyStr) || Task.Fleet != null && Task.Fleet.TaskStep == 9)
                 {
                     if (TargetPlanet.Owner != null && TargetPlanet.GetGroundStrength(Owner) == 0) // ground invasion failed
                     {
-                        task.Fleet?.FleetTask?.EndTask();
-                        task.EndTask();
+                        Task.EndTask();
                         return GoalStep.GoalFailed;
                     }
 
@@ -142,8 +141,7 @@ namespace Ship_Game.Commands.Goals
                 }
                 if (enemyStr > Owner.OffensiveStrength)
                 {
-                    task.Fleet?.FleetTask?.EndTask();
-                    task.EndTask();
+                    Task.EndTask();
                     return GoalStep.GoalFailed;
                 }
 
@@ -177,7 +175,7 @@ namespace Ship_Game.Commands.Goals
 
             PlanetBuildingAt = planet;
             planet.Construction.Enqueue(ship: colonyShip, 
-                                        type: TryGetClaimTask(out _) ?  QueueItemType.ColonyShipClaim : QueueItemType.ColonyShip, 
+                                        type: Task != null ? QueueItemType.ColonyShipClaim : QueueItemType.ColonyShip, 
                                         goal: this, 
                                         notifyOnEmpty:Owner.isPlayer, 
                                         displayName: $"{colonyShip.Name} ({TargetPlanet.Name})");
@@ -189,9 +187,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
             {
-                if (TryGetClaimTask(out MilitaryTask task))
-                    task.EndTask();
-
+                Task?.EndTask();
                 PlanetBuildingAt?.Construction.Cancel(this);
                 return GoalStep.GoalFailed;
             }
@@ -218,9 +214,7 @@ namespace Ship_Game.Commands.Goals
 
             if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
             {
-                if (TryGetClaimTask(out MilitaryTask task))
-                    task.EndTask();
-
+                Task?.EndTask();
                 return GoalStep.GoalFailed;
             }
 
@@ -235,10 +229,10 @@ namespace Ship_Game.Commands.Goals
 
             if (AIControlsColonization
                 && Owner.KnownEnemyStrengthIn(TargetPlanet.System) > 10
-                && ClaimTaskInvalid(out MilitaryTask possibleTask))
+                && ClaimTaskInvalid())
             {
                 ReleaseShipFromGoal();
-                possibleTask?.EndTask();
+                Task?.EndTask();
                 return GoalStep.GoalFailed;
             }
 
@@ -252,9 +246,7 @@ namespace Ship_Game.Commands.Goals
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
                 || goal.TargetPlanet != TargetPlanet)
             {
-                if (TryGetClaimTask(out MilitaryTask claimTask))
-                    claimTask.EndTask();
-
+                Task?.EndTask();
                 return GoalStep.GoalFailed;
             }
 
@@ -310,22 +302,16 @@ namespace Ship_Game.Commands.Goals
 
         bool AIControlsColonization => !Owner.isPlayer || (Owner.isPlayer && Owner.AutoColonize && !IsManualColonizationOrder);
 
-        bool TryGetClaimTask(out MilitaryTask task)
-        {
-            return Owner.AI.GetDefendClaimTaskFor(TargetPlanet, out task);
-        }
-
         // Checks if the ship is not taken by another colonization goal
         bool NotAssignedToColonizationGoal(Ship colonyShip)
         {
             return !colonyShip.Loyalty.AI.HasGoal(g => g.Type == GoalType.MarkForColonization && g.FinishedShip == colonyShip);
         }
 
-        bool ClaimTaskInvalid(out MilitaryTask possibleTask)
+        bool ClaimTaskInvalid()
         {
-            return !TryGetClaimTask(out possibleTask) 
-                || possibleTask.Fleet != null && LifeTime > 5 // Timeout
-                || possibleTask.Fleet?.TaskStep != 7; // we lost
+            return Task?.Fleet != null && LifeTime > 5 // Timeout
+                || Task?.Fleet?.TaskStep != 7; // we lost
         }
     }
 }

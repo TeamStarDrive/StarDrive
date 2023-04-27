@@ -8,7 +8,7 @@ using Ship_Game.Fleets;
 namespace Ship_Game.Commands.Goals
 {
     [StarDataType]
-    public class WarMission : Goal
+    public class WarMission : FleetGoal
     {
         [StarData] public sealed override Empire TargetEmpire { get; set; }
         [StarData] public sealed override Planet TargetPlanet { get; set; }
@@ -42,46 +42,40 @@ namespace Ship_Game.Commands.Goals
         public override bool IsWarMissionTarget(Planet planet) => TargetPlanet == planet;
         public override bool IsWarMissionTarget(Empire empire) => TargetEmpire == empire;
 
-        bool TryGetTask(out MilitaryTask task)
-        {
-            task      = null;
-            var tasks = Owner.AI.GetTasks().Filter(t => t.Goal == this);
-            if (tasks.Length > 0)
-            {
-                if (tasks.Length > 1)
-                    Log.Warning($"Found multiple tasks for WarMission Goal. Owner: {Owner.Name}, Target Empire: {TargetEmpire.Name}");
-
-                task = tasks[0];
-            }
-
-            return tasks.Length > 0;
-        }
-
         GoalStep CreateTask()
         {
-            Owner.CreateWarTask(TargetPlanet, TargetEmpire, this);
+            Owner.CreateWarTask(TargetPlanet, TargetEmpire, this, out Task);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep Process()
         {
-            if (!TryGetTask(out MilitaryTask task))
+            // Updating task since some war fleet have dynamic tasks
+            // like post invasion or reclaim after succssesful defense
+            if (Fleet != null)
+                Task = Fleet.FleetTask; 
+
+            if (Task == null)
                 return GoalStep.GoalFailed;
 
             // Update task targets since some of them can be dynamic
-            TargetPlanet = task.TargetPlanet;
-            TargetEmpire = task.TargetEmpire;
+            TargetPlanet = Task.TargetPlanet;
+            TargetEmpire = Task.TargetEmpire;
+            Fleet        = Task.Fleet;
+
+            if (TargetEmpire == null)
+                return GoalStep.GoalComplete;
 
             if (!TargetEmpire.IsAtWarWith(Owner))
             {
-                task.EndTask();
+                Task.EndTask();
                 return GoalStep.GoalComplete;
             }
 
-            if (LifeTime > Owner.PersonalityModifiers.WarTasksLifeTime && task.Fleet == null) // check for timeout
+            if (LifeTime > Owner.PersonalityModifiers.WarTasksLifeTime && Task.Fleet == null) // check for timeout
             {
-                task.EndTask();
-                Log.Info(ConsoleColor.Green, $"---- WarMission: Timed out {task.Type} vs. {TargetEmpire.Name} ----");
+                Task.EndTask();
+                Log.Info(ConsoleColor.Green, $"---- WarMission: Timed out {Task.Type} vs. {TargetEmpire.Name} ----");
                 return GoalStep.GoalFailed;
             }
 

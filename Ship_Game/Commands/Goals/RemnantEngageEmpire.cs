@@ -67,17 +67,6 @@ namespace Ship_Game.Commands.Goals
             return TargetPlanet != null;
         }
 
-        void ChangeTaskTargetPlanet()
-        {
-            var tasks = Owner.AI.GetTasks().Filter(t => t.Fleet == Fleet);
-            switch (tasks.Length)
-            {
-                case 0:                                                                                  return;
-                case 1:  tasks[0].ChangeTargetPlanet(TargetPlanet);                                      break;
-                default: Log.Warning($"Found multiple Remnant tasks with the same fleet: {Fleet.Name}"); break;
-            }
-        }
-
         float RequiredFleetStr()
         {
             float strDiv = TargetEmpire.TotalPopBillion / (TargetEmpire.isPlayer ? 150 : 60);
@@ -127,9 +116,9 @@ namespace Ship_Game.Commands.Goals
                 Ship ship = ships[i];
                 if (i == 0)
                 {
-                    var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, Owner);
-                    Owner.AI.AddPendingTask(task);
-                    task.CreateRemnantFleet(Owner, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
+                    Task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, Owner);
+                    Owner.AI.AddPendingTask(Task);
+                    Task.CreateRemnantFleet(Owner, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
                     continue;
                 }
 
@@ -254,13 +243,12 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.TargetNextPlanet(TargetEmpire, TargetPlanet, Remnants.NumBombersInFleet(Fleet), out Planet nextPlanet))
                 return ReturnToPortal();
 
-            Fleet.FleetTask.ChangeTargetPlanet(nextPlanet);
             Fleet.ClearOrders();
             int changeToStep = TargetPlanet.System == nextPlanet.System ? 5 : 1;
             TargetPlanet     = nextPlanet;
             Fleet.Name       = $"Ancient Fleet - {TargetPlanet.Name}";
             Fleet.TaskStep   = changeToStep;
-            ChangeTaskTargetPlanet();
+            Task.ChangeTargetPlanet(TargetPlanet);
             return GoalStep.TryAgain;
         }
     }
