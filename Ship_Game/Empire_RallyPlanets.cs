@@ -5,6 +5,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using static Ship_Game.Planet;
 
 namespace Ship_Game;
 
@@ -244,13 +245,30 @@ public sealed partial class Empire
     {
         bestPorts = null;
         // If all the ports are research colonies, do not filter them
-        bool filterResearchPorts = ports.Any(p => p.CType != Planet.ColonyType.Research);
+        bool filterResearchPorts = ports.Any(p => p.CType != ColonyType.Research);
         if (ports.Count > 0)
         {
-            float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
+            float averageMaxProd = ports.Average(ModifiedNetMaxProductionPotential);
             bestPorts = ports.Filter(p => !p.IsCrippled
-                                     && (p.CType != Planet.ColonyType.Research || !filterResearchPorts)
+                                     && (p.CType != ColonyType.Research || !filterResearchPorts)
                                      && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
+        }
+
+
+        float ModifiedNetMaxProductionPotential(Planet planet)
+        {
+            float maxPotential = planet.Prod.NetMaxPotential;
+            switch (planet.CType)
+            {
+                case ColonyType.TradeHub:
+                case ColonyType.Core:         maxPotential *= 0.5f;                  break;
+                case ColonyType.Agricultural: maxPotential *= 0.25f;                 break;
+                case ColonyType.Military:     maxPotential *= 0.75f;                 break;
+                case ColonyType.Research:     maxPotential *= 0.1f;                  break;
+                case ColonyType.Colony:       maxPotential  = planet.Prod.NetIncome; break;
+            }
+
+            return maxPotential;
         }
 
         return bestPorts?.Length > 0;
