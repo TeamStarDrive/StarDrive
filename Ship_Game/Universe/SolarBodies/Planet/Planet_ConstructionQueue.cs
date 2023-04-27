@@ -114,7 +114,26 @@ public partial class Planet
             totalTurnsToCompleteQueue += turnsToCompleteItem;
         }
 
-        return (int)totalTurnsToCompleteQueue;
+        return (int)(totalTurnsToCompleteQueue * ModifiedTotalTurnsToComplete());
+
+        // This is to consider food production flactuations
+        float ModifiedTotalTurnsToComplete()
+        {
+            if (IsCybernetic)   
+                return 1;
+
+            switch (CType)
+            {
+                default:                      
+                case ColonyType.Colony:
+                case ColonyType.TradeHub:
+                case ColonyType.Industrial:   return 1f;
+                case ColonyType.Military:     return 1.25f;
+                case ColonyType.Core:         return 1.5f;
+                case ColonyType.Research:     return 2f;
+                case ColonyType.Agricultural: return 2.5f;
+            }
+        }
     }
 
     // @return Total numbers before ship will be finished if
