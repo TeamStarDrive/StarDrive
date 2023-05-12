@@ -835,7 +835,7 @@ namespace Ship_Game.Gameplay
 
             if (isTrader)
             {
-                if (Treaty_Trade)
+                if (Treaty_NAPact || Treaty_Trade)
                     return false;
 
                 if (DoWeShareATradePartner(targetEmpire, attackingEmpire))
@@ -958,7 +958,7 @@ namespace Ship_Game.Gameplay
 
         void OfferAlliance(Empire us)
         {
-            if (TurnsAbove95 < 100
+            if (TurnsAbove95 < us.PersonalityModifiers.TurnsAbove95AllianceTreshold
                 || turnsSinceLastContact < 100
                 || Treaty_Alliance
                 || !Treaty_Trade

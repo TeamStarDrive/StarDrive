@@ -547,12 +547,8 @@ namespace Ship_Game.Ships
                 if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
                     return true;
 
-                //if (LastDamagedBy?.GetLoyalty() == attacker)
-                  //  return true;
                 if (AI.Target?.GetLoyalty() == attacker)
                     return true;
-                //if (attacker.isPlayer && !attackerToUs.Treaty_NAPact) 
-                //    return true;
             }
 
             if (attackerToUs.Treaty_Trade && IsFreighter && AI.State == AIState.SystemTrader)
