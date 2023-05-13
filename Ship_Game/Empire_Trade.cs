@@ -76,7 +76,7 @@ namespace Ship_Game
             AllTimeTradeIncome      += (int)taxedGoods;
         }
 
-        // once per turn
+        // once per turn 
         void DispatchBuildAndScrapFreighters()
         {
             UpdateTradeTreaties();
