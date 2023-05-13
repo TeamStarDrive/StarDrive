@@ -70,7 +70,7 @@ namespace Ship_Game
 
             // Finally, add Inter Empire Trade Tariff
             if (this != planet.Owner) 
-                taxedGoods += goods * 0.5f;
+                taxedGoods += goods * 2f;
 
             TradeMoneyAddedThisTurn += taxedGoods;
             AllTimeTradeIncome      += (int)taxedGoods;
@@ -98,14 +98,17 @@ namespace Ship_Game
                 DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false);
             }
 
-            var interTradePlanets = TradingEmpiresPlanetList();
-            if (interTradePlanets.Count > 0)
+            if (!isPlayer || Universe.P.AllowPlayerInterTrade)
             {
-                // export stuff to Empires which have trade treaties with us
-                if (NonCybernetic)
-                    DispatchOrBuildFreighters(Goods.Food, interTradePlanets, true);
+                var interTradePlanets = TradingEmpiresPlanetList();
+                if (interTradePlanets.Count > 0)
+                {
+                    // export stuff to Empires which have trade treaties with us
+                    if (NonCybernetic)
+                        DispatchOrBuildFreighters(Goods.Food, interTradePlanets, true);
 
-                DispatchOrBuildFreighters(Goods.Production, interTradePlanets, true);
+                    DispatchOrBuildFreighters(Goods.Production, interTradePlanets, true);
+                }
             }
 
             UpdateFreighterTimersAndScrap();
