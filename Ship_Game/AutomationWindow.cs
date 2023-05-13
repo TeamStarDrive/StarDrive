@@ -27,7 +27,7 @@ namespace Ship_Game
         {
             Screen = screen;
             const int windowWidth = 220;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 540);
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 565);
         }
 
         class CheckedDropdown : UIElementV2
@@ -79,6 +79,7 @@ namespace Ship_Game
                 rest.AddCheckbox(() => UState.Player.AutoPickBestResearchStation, title: GameText.AutoPickResearchStation, tooltip: GameText.AutoPickResearchStationTip);
 
             rest.AddCheckbox(() => RushConstruction,                      title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
+            rest.AddCheckbox(() => UState.P.AllowPlayerInterTrade,        title: GameText.AllowPlayerInterTradeTitle, tooltip: GameText.AllowPlayerInterTradeTip);
             rest.AddCheckbox(() => UState.P.SuppressOnBuildNotifications, title: GameText.DisableBuildingAlerts, tooltip: GameText.NormallyWhenYouManuallyAdd);
             rest.AddCheckbox(() => UState.P.DisableInhibitionWarning,     title: GameText.DisableInhibitionAlerts, tooltip: GameText.InhibitionAlertsAreDisplayedWhen);
             rest.AddCheckbox(() => UState.P.DisableVolcanoWarning,        title: GameText.DisableVolcanoAlerts, tooltip: GameText.DisableVolcanoActivationOrDeactivation);

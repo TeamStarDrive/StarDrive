@@ -4497,7 +4497,10 @@ namespace Ship_Game
         ResearchStationBuiltPlanetNotify = 4434,
         /// <summary>Research Station was deployed in system</summary>
         ResearchStationBuiltSystemNotify = 4435,
-
+        /// <summary>Allow Empire Inter Trade</summary>
+        AllowPlayerInterTradeTitle = 4436,
+        /// <summary>Allows your idle freighters to transfer</summary>
+        AllowPlayerInterTradeTip = 4437,
 
 
 

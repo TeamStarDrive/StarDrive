@@ -12,6 +12,7 @@ namespace Ship_Game
         public readonly float AllianceValueAlliedWithEnemy;
         public readonly float WantedAgentMissionMultiplier;
         public readonly int TurnsAbove95FederationNeeded;
+        public readonly int TurnsAbove95AllianceTreshold; // how many turns we need above trust 95 to offer alliance
         public readonly float FederationPopRatioWar;
         public readonly float PlanetStoleTrustMultiplier;
         public readonly float WarGradeThresholdForPeace; // How bad should our total wars grade be to request peace
@@ -38,6 +39,7 @@ namespace Ship_Game
                     ColonizationClaimRatioWarningThreshold = 1;
                     AddAngerAlliedWithEnemies3RdParty      = 25;
                     TurnsAbove95FederationNeeded = 250;
+                    TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.1f;
                     PlanetStoleTrustMultiplier   = 0.75f;
@@ -65,6 +67,7 @@ namespace Ship_Game
                     ColonizationClaimRatioWarningThreshold = 0.7f;
                     AddAngerAlliedWithEnemies3RdParty      = 75;
                     TurnsAbove95FederationNeeded = 350;
+                    TurnsAbove95AllianceTreshold = 300;
                     AllianceValueAlliedWithEnemy = 0.4f;
                     WantedAgentMissionMultiplier = 0.115f;
                     WarGradeThresholdForPeace    = 0.3f * War.MaxWarGrade;
@@ -92,6 +95,7 @@ namespace Ship_Game
                     ColonizationClaimRatioWarningThreshold = 0.6f;
                     AddAngerAlliedWithEnemies3RdParty      = 75;
                     TurnsAbove95FederationNeeded = 420;
+                    TurnsAbove95AllianceTreshold = 250;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.115f;
                     WarGradeThresholdForPeace    = 0.3f * War.MaxWarGrade;
@@ -119,6 +123,7 @@ namespace Ship_Game
                     ColonizationClaimRatioWarningThreshold = 0;
                     AddAngerAlliedWithEnemies3RdParty      = 100;
                     TurnsAbove95FederationNeeded = 600;
+                    TurnsAbove95AllianceTreshold = 200;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.13f;
                     PlanetStoleTrustMultiplier   = 0.1f;
@@ -146,6 +151,7 @@ namespace Ship_Game
                     ColonizationClaimRatioWarningThreshold = 1;
                     AddAngerAlliedWithEnemies3RdParty      = 50;
                     TurnsAbove95FederationNeeded = 320;
+                    TurnsAbove95AllianceTreshold = 150;
                     AllianceValueAlliedWithEnemy = 0.6f;
                     WantedAgentMissionMultiplier = 0.13f;
                     PlanetStoleTrustMultiplier   = 0.7f;
@@ -173,6 +179,7 @@ namespace Ship_Game
                     ColonizationClaimRatioWarningThreshold = 1;
                     AddAngerAlliedWithEnemies3RdParty      = 100;
                     TurnsAbove95FederationNeeded = 250;
+                    TurnsAbove95AllianceTreshold = 125;
                     AllianceValueAlliedWithEnemy = 0.5f;
                     WantedAgentMissionMultiplier = 0.1f;
                     PlanetStoleTrustMultiplier   = 0.4f;
@@ -200,6 +207,7 @@ namespace Ship_Game
                     ColonizationClaimRatioWarningThreshold = 1.25f;
                     AddAngerAlliedWithEnemies3RdParty      = 25;
                     TurnsAbove95FederationNeeded = 300;
+                    TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.8f;
                     WantedAgentMissionMultiplier = 0.1f;
                     WarGradeThresholdForPeace    = 0.75f * War.MaxWarGrade;

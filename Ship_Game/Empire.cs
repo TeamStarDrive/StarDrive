@@ -193,6 +193,7 @@ namespace Ship_Game
         public bool IsGeneralists                => data.EconomicPersonality?.Name == "Generalists";
         public bool IsMilitarists                => data.EconomicPersonality?.Name == "Militarists";
         public bool IsTechnologists              => data.EconomicPersonality?.Name == "Technologists";
+        public float HomeDefenseShipCostMultiplier => DifficultyModifiers.CreditsMultiplier;
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -2399,7 +2400,7 @@ namespace Ship_Game
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
-        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this) * 0.2f);
+        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this) * DifficultyModifiers.CreditsMultiplier);
 
         public void ChargeCreditsOnProduction(QueueItem q, float spentProduction)
         {
