@@ -634,15 +634,17 @@ namespace Ship_Game.AI
                 }
             }
 
+            if (Owner.InCombat)
+                ClearOrders();
+
             ThrustOrWarpToPos(Owner.HomePlanet.Position, timeStep);
-            if (Owner.Position.InRadius(Owner.HomePlanet.Position, Owner.HomePlanet.Radius + 150f))
+            if (Owner.SecondsAlive > 5
+                && !Owner.OnHighAlert
+                && Owner.Position.InRadius(Owner.HomePlanet.Position, Owner.HomePlanet.Radius + 150f))
             {
                 Owner.HomePlanet.LandDefenseShip(Owner);
                 Owner.QueueTotalRemoval();
             }
-
-            if (Owner.InCombat)
-                ClearOrders();
         }
 
         void DoRebaseToShip(FixedSimTime timeStep)
