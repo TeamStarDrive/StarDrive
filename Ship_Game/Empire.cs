@@ -193,7 +193,7 @@ namespace Ship_Game
         public bool IsGeneralists                => data.EconomicPersonality?.Name == "Generalists";
         public bool IsMilitarists                => data.EconomicPersonality?.Name == "Militarists";
         public bool IsTechnologists              => data.EconomicPersonality?.Name == "Technologists";
-        public float HomeDefenseShipCostMultiplier => DifficultyModifiers.CreditsMultiplier
+        public float HomeDefenseShipCostMultiplier => DifficultyModifiers.CreditsMultiplier;
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 

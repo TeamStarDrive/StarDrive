@@ -10415,6 +10415,12 @@ ResearchStationBuiltPlanetNotify:
 ResearchStationBuiltSystemNotify: 
  Id: 4435
  ENG: "(Research Station) was\ndeployed in system"      
+AllowPlayerInterTradeTitle:
+ Id: 4436
+ ENG: "Allow Empire Inter Trade"      
+AllowPlayerInterTradeTip:
+ Id: 4437
+ ENG: "Allows your idle freighters to transfer goods to empires you have trade treaties with them if internal demand is satisfied. You can still disable this for specific freighters. Transferring goods to other empires yields large credit bonus of 2 credits per good along with any other yields of a normal trade"      
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"
