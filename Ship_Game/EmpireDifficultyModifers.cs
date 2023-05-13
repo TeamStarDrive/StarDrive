@@ -162,7 +162,7 @@
                     ShipLevel            = 3;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
-                    CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
+                    CreditsMultiplier    = empire.isPlayer ? 0.4f : 0.075f;
                     EnemyTroopStrength   = 1.8f;
                     MineralDecayDivider  = 40;
                     PiratePayModifier    = 1.5f;
