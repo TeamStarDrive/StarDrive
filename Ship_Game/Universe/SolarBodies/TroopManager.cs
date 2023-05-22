@@ -88,6 +88,8 @@ namespace Ship_Game
                     UpdateFactionTroopsPresentHere(troop.Loyalty);
                     return true;
                 }
+
+                Log.Error($"Could not remove troop {troop} on planet {Ground.Name}");
                 return false;
             }
         }
@@ -481,8 +483,16 @@ namespace Ship_Game
             }
 
             if (Owner != null)
-                Ground.ChangeOwnerByInvasion(newOwner, Ground.Level);
+            {
+                if (FactionTroopsPresentHere.IsSet(Owner.Id))
+                {
+                    // work around since sometimes this is not unset and  it looks like the planet is under invasion forever
+                    FactionTroopsPresentHere.Unset(Owner.Id);
+                    Log.Error($"{Ground.Name} - {Owner.Name} is still set in FactionTroopsPresentHere");
+                }
 
+                Ground.ChangeOwnerByInvasion(newOwner, Ground.Level);
+            }
             IncreaseTrustAlliesWon(newOwner, empires);
         }
 

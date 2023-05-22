@@ -10421,6 +10421,9 @@ AllowPlayerInterTradeTitle:
 AllowPlayerInterTradeTip:
  Id: 4437
  ENG: "Allows your idle freighters to transfer goods to empires you have trade treaties with them if internal demand is satisfied. You can still disable this for specific freighters. Transferring goods to other empires yields large credit bonus of 2 credits per good along with any other yields of a normal trade"      
+LavaPoolTerraformable:
+  Id: 4438
+  ENG: "Hot Lava surrounds this tile, making habitation impossible. This natural pool can be Terraformed when we have the right technology."
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"

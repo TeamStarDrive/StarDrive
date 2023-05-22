@@ -28,6 +28,14 @@ namespace Ship_Game.Commands.Goals
         {
             Initialize(platformUid, buildPos, system);
             Build.Rush = rush;
+            var projecors = owner.OwnedProjectors;
+            // try catch multipler projector build on same place
+            if (platformUid == "Subspace Projector")
+            {
+                foreach (Ship projector in projecors)
+                    if (projector.Position.InRadius(buildPos, 100))
+                        Log.Error($"Build pos of projector is near {buildPos}");
+            }
         }
 
         public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, Planet tetherPlanet, Vector2 tetherOffset)
