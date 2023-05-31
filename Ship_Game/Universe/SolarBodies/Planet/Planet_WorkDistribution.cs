@@ -186,14 +186,9 @@ namespace Ship_Game
             return 1f - Food.WorkersNeededForEquilibrium();
         }
 
-        float LeftoverWorkerBillions()
-        {
-            return LeftoverWorkers() * MaxPopulationBillion;
-        }
-
         float EvaluateProductionQueue(QueueItem qi = null)
         {
-            if (IsCybernetic || Owner.Research.NoTopic)
+            if (IsCybernetic || Owner.Research.NoTopic || CType == ColonyType.Industrial)
                 return 1;
 
             var item = qi ?? ConstructionQueue.FirstOrDefault();
