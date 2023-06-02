@@ -36,7 +36,7 @@ namespace Ship_Game.Ships
         // WARNING: do not use during constants initialization!
         public float ChangeOrdnance(float amount)
         {
-            if (amount.AlmostZero() || (amount > 0f && OrdnancePercent.AlmostEqual(1)))
+            if (amount.AlmostZero() || (amount > 0f && Ordinance >= OrdinanceMax))
                 return amount; // no ordnance was used to refill
 
             float ordnanceLeft = (amount - (OrdinanceMax - Ordinance)).Clamped(0, amount);
