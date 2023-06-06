@@ -546,15 +546,14 @@ namespace Ship_Game.Gameplay
             {
                 IsHostile = IsEmpireHostileToUs(us, them);
                 bool canAttack = CanWeAttackThem(us, them);
+
+                if (CanTheyAttackUs(them, us))
+                    canAttack = true; // make sure we can also attack them
+
                 if (canAttack) // We are now hostile as well
                     IsHostile = true;
-
-                if (CanAttack != canAttack)
-                {
-                    CanAttack = canAttack;
-                    if (canAttack) // make sure enemy can also attack us
-                        them.GetRelations(us).CanAttack = true;
-                }
+                CanAttack = canAttack;
+                // add unit test when anger is high and then when anger is low
             }
         }
 
@@ -610,10 +609,11 @@ namespace Ship_Game.Gameplay
                 us.Universe.Notifications?.AddPeaceTreatyExpiredNotification(them);
             }
         }
-        
+
+        public bool CanTheyAttackUs(Empire them, Empire us) => CanWeAttackThem(them, us);
         bool CanWeAttackThem(Empire us, Empire them)
         {
-            if (!Known || AtWar)
+            if (AtWar)
                 return true;
 
             if (Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
@@ -624,7 +624,7 @@ namespace Ship_Game.Gameplay
 
             if (!us.isPlayer)
             {
-                float trustworthiness = them.data.DiplomaticPersonality?.Trustworthiness ?? 100;
+                float trustworthiness = them.isPlayer ? 50 : them.data.DiplomaticPersonality?.Trustworthiness ?? 100;
                 float peacefulness    = 1.0f - them.Research.Strategy.MilitaryRatio;
                 if (TotalAnger > trustworthiness * peacefulness)
                     return true;
