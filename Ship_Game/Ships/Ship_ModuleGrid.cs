@@ -225,14 +225,13 @@ namespace Ship_Game.Ships
         //    ↑ ↑ 1 ↓ ↓
         //    ↑ ← ← ← ↓
         //    ← ← ← ← ←
-        IEnumerable<ShipModule> EnumModulesRadially(Vector2 worldPos, float radius, bool checkShields)
+        IEnumerable<ModuleQuardrant> EnumModulesQuadrants(Vector2 worldPos, float radius, bool checkShields)
         {
             // Create an optimized integer rectangle
             // a---+
             // |   |
             // +---b
             Vector2 localPos = WorldToGridLocal(worldPos);
-
             // TODO: find a way to speed up this part
             Point c = GridLocalToPoint(localPos);
             Point a = Grid.GridLocalToPoint(new Vector2(localPos.X - radius, localPos.Y - radius));
@@ -258,53 +257,199 @@ namespace Ship_Game.Ships
             // check the first center module
             // this will keep returning shields first, and then underlying module
             foreach (ShipModule m in GetModulesAt(c, checkShields))
-                yield return m;
+                yield return new ModuleQuardrant(m, DamageTransfer.Root, distance: 1, quardrant: 1);
 
             // special case: radius is very small and could only ever hit 1 slot
             if (firstX == lastX && firstY == lastY)
                 yield break;
 
-            // set the initial search bounds
-            int curMinX = c.X, curMinY = c.Y;
-            int curMaxX = c.X, curMaxY = c.Y;
-            for (;;)
+            int curX, curY;
+            
+            // Check Northwest Quardrant
+            int counter = 0;
+            for (int nw = c.X; nw >= firstX; nw--)
             {
-                bool didExpand = false;
-                if (curMinY > firstY) // test all top modules
+                bool diagonalModule = true;
+                int distance = counter + 1 ;
+                curX = c.X - counter;
+                if (curX >= firstX)
                 {
-                    didExpand = true;
-                    for (var p = new Point(curMinX, --curMinY); p.X <= curMaxX; ++p.X)
+                    for (curY = c.Y - counter; curY >= firstY; curY--)
+                    {
+                        var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return m;
+                        {
+                            if (diagonalModule)
+                            {
+                                diagonalModule = false;
+                                yield return new ModuleQuardrant(m, DamageTransfer.Diagonal, distance, 1);
+                            }
+                            else
+                            {
+                                yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 1);
+                            }
+                        }
+                        diagonalModule = false;
+                        distance++;
+                    }
                 }
-                if (curMinX > firstX) // test all modules to the left
+
+                distance = counter + 2;
+                curY = c.Y - counter;
+                if (curY >= firstY)
                 {
-                    didExpand = true;
-                    ;
-                    for (var p = new Point(--curMinX, curMinY); p.Y <= curMaxY; ++p.Y)
+                    for (curX = c.X - counter - 1; curX >= firstX; curX--)
+                    {
+                        var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return m;
+                            yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 1);
+
+                        distance++;
+                    }
                 }
-                if (curMaxX < lastX) // test all modules to the right
+
+                counter++;
+            }
+            
+            // Check Northweast Quardrant
+            counter = 0;
+            for (int ne = c.X + 1; ne <= lastX; ne++)
+            {
+                bool diagonalModule = true;
+                int distance = counter + 1;
+                curX = c.X + 1 + counter;
+                if (curX <= lastX)
                 {
-                    didExpand = true;
-                    for (var p = new Point(++curMaxX, curMinY); p.Y <= curMaxY; ++p.Y)
+                    for (curY = c.Y - counter; curY >= firstY; curY--)
+                    {
+                        var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return m;
+                        {
+                            if (diagonalModule)
+                            {
+                                diagonalModule = false;
+                                yield return new ModuleQuardrant(m, DamageTransfer.Diagonal, distance, 2);
+                            }
+                            else
+                            {
+                                yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 2);
+                            }
+                        }
+                        diagonalModule = false;
+                        distance++;
+                    }
                 }
-                if (curMaxY < lastY) // test all bottom modules
+
+                distance = counter + 2;
+                curY = c.Y - counter;
+                if (curY >= firstY)
                 {
-                    didExpand = true;
-                    for (var p = new Point(curMinX, ++curMaxY); p.X <= curMaxX; ++p.X)
+                    for (curX = c.X + 2 + counter; curX <= lastX; curX++)
+                    {
+                        var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return m;
+                            yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 2);
+
+                        distance++;
+                    }
                 }
-                // we could no longer expand
-                if (!didExpand)
-                    yield break;
+
+                counter++;
+            }
+
+            // Check Southeast Quardrant
+            counter = 0;
+            for (int se = c.X + 1; se <= lastX; se++)
+            {
+                bool diagonalModule = true;
+                int distance = counter + 1;
+                curX = c.X + 1 + counter;
+                if (curX <= lastX)
+                {
+                    for (curY = c.Y + 1 + counter; curY <= lastY; curY++)
+                    {
+                        var p = new Point(curX, curY);
+                        foreach (ShipModule m in GetModulesAt(p, checkShields))
+                        {
+                            if (diagonalModule)
+                            {
+                                diagonalModule = false;
+                                yield return new ModuleQuardrant(m, DamageTransfer.Diagonal, distance, 3);
+                            }
+                            else
+                            {
+                                yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 3);
+                            }
+                        }
+                        diagonalModule = false;
+                        distance++;
+                    }
+                }
+
+                distance = counter + 2;
+                curY = c.Y + 1 + counter;
+                if (curY <= lastY)
+                {
+                    for (curX = c.X + 2 + counter; curX <= lastX; curX++)
+                    {
+                        var p = new Point(curX, curY);
+                        foreach (ShipModule m in GetModulesAt(p, checkShields))
+                            yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 3);
+
+                        distance++;
+                    }
+                }
+
+                counter++;
+            }
+
+            // Check Southwest Quardrant
+            counter = 0;
+            for (int sw = c.X; sw >= firstX; sw--)
+            {
+                bool diagonalModule = true;
+                int distance = counter + 1;
+                curX = c.X - counter;
+                if (curX >= firstX)
+                {
+                    for (curY = c.Y + 1 + counter; curY <= lastY; curY++)
+                    {
+                        var p = new Point(curX, curY);
+                        foreach (ShipModule m in GetModulesAt(p, checkShields))
+                        {
+                            if (diagonalModule)
+                            {
+                                diagonalModule = false;
+                                yield return new ModuleQuardrant(m, DamageTransfer.Diagonal, distance, 4);
+                            }
+                            else
+                            {
+                                yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 4);
+                            }
+                        }
+                        diagonalModule = false;
+                        distance++;
+                    }
+                }
+
+                distance = counter + 2;
+                curY = c.Y + 1 + counter;
+                if (curY <= lastY)
+                {
+                    for (curX = c.X - counter - 1; curX >= firstX; curX--)
+                    {
+                        var p = new Point(curX, curY);
+                        foreach (ShipModule m in GetModulesAt(p, checkShields))
+                            yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 4);
+
+                        distance++;
+                    }
+                }
+
+                counter++;
             }
         }
-
+        
         // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
@@ -312,8 +457,8 @@ namespace Ship_Game.Ships
         public ShipModule FindClosestModule(Vector2 worldPos)
         {
             if (!Active) return null;
-            foreach (ShipModule m in EnumModulesRadially(worldPos, Radius, checkShields:false))
-                return m;
+            foreach (ModuleQuardrant mq in EnumModulesQuadrants(worldPos, Radius, checkShields:false))
+                return mq.Module;
             return null;
         }
 
@@ -321,8 +466,8 @@ namespace Ship_Game.Ships
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields)
         {
             if (!Active) return null;
-            foreach (ShipModule m in EnumModulesRadially(worldHitPos, hitRadius, !ignoreShields))
-                return m;
+            foreach (ModuleQuardrant mq in EnumModulesQuadrants(worldHitPos, hitRadius, !ignoreShields))
+                return mq.Module;
             return null;
         }
 
@@ -337,10 +482,44 @@ namespace Ship_Game.Ships
             if (Loyalty.data.ExplosiveRadiusReduction > 0f)
                 hitRadius *= 1f - Loyalty.data.ExplosiveRadiusReduction;
 
-            foreach (ShipModule m in EnumModulesRadially(worldHitPos, hitRadius, !ignoreShields))
+            /*var lala = EnumModulesQuadrants(worldHitPos, hitRadius, !ignoreShields);
+            var lala2 = lala.ToArray();*/
+
+            float remainingDamage = damageAmount;
+            float diagonalDamage = damageAmount;
+            bool rootModuleWasDamaged = false;
+            int currentQuardrant = 1;
+            int currentDistance = 0;
+
+            foreach (ModuleQuardrant mq in EnumModulesQuadrants(worldHitPos, hitRadius, !ignoreShields))
             {
-                if (m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))
-                    return; // all damage was absorbed
+                if (mq.Qaurdrant != currentQuardrant)
+                {
+                    // starting a new quardrant, reset the damage to the initial damage
+                    currentQuardrant = mq.Qaurdrant;
+                    remainingDamage = damageAmount;
+                    diagonalDamage = damageAmount;
+                }
+                else if (mq.Distance < currentDistance)
+                {
+                    remainingDamage = diagonalDamage; // start checking from diagonal module
+                }
+
+                if (mq.Type != DamageTransfer.Root || !rootModuleWasDamaged)
+                {
+                    if (mq.Module.DamageExplosive(damageSource, ref remainingDamage, mq.Distance))
+                    {
+                        if (mq.Type == DamageTransfer.Root)
+                            return; // Root module absorbed all the explosion
+                    }
+
+                    if (mq.Type == DamageTransfer.Root)
+                        rootModuleWasDamaged|= true;
+
+                    if (mq.Type is DamageTransfer.Diagonal or DamageTransfer.Root)
+                        diagonalDamage = remainingDamage;
+                }
+                currentDistance = mq.Distance;
             }
         }
 
@@ -577,5 +756,26 @@ namespace Ship_Game.Ships
             float searchRange = projPos.SqDist(Position) + 48*48; // only pick modules that are "visible" to the projectile
             return TargetRandomInternalModule(projPos, level, searchRange);
         }
+    }
+
+    public struct ModuleQuardrant
+    {
+        public ShipModule Module;
+        public DamageTransfer Type;
+        public int Distance;
+        public int Qaurdrant;
+        public ModuleQuardrant(ShipModule module, DamageTransfer type, int distance, int quardrant)
+        {
+            Module = module;
+            Type   = type;
+            Distance = distance;
+            Qaurdrant = quardrant;
+        }
+    }
+    public enum DamageTransfer
+    {
+        Excess,
+        Diagonal,
+        Root
     }
 }
