@@ -487,7 +487,6 @@ namespace Ship_Game.Ships
 
             float remainingDamage = damageAmount;
             float diagonalDamage = damageAmount;
-            bool rootModuleWasDamaged = false;
             int currentQuardrant = 1;
             int currentDistance = 0;
 
@@ -505,20 +504,20 @@ namespace Ship_Game.Ships
                     remainingDamage = diagonalDamage; // start checking from diagonal module
                 }
 
-                if (mq.Type != DamageTransfer.Root || !rootModuleWasDamaged)
+                if (mq.Module.DamageExplosive(damageSource, ref remainingDamage, mq.Distance)
+                    && mq.Type == DamageTransfer.Root)
                 {
-                    if (mq.Module.DamageExplosive(damageSource, ref remainingDamage, mq.Distance))
-                    {
-                        if (mq.Type == DamageTransfer.Root)
-                            return; // Root module absorbed all the explosion
-                    }
-
-                    if (mq.Type == DamageTransfer.Root)
-                        rootModuleWasDamaged|= true;
-
-                    if (mq.Type is DamageTransfer.Diagonal or DamageTransfer.Root)
-                        diagonalDamage = remainingDamage;
+                    return; // Root module absorbed all the explosion
                 }
+
+                if (mq.Type == DamageTransfer.Root)
+                {
+                    // explosion damage will now be whats left after root module exploded
+                    damageAmount = remainingDamage; 
+                }
+                if (mq.Type is DamageTransfer.Diagonal or DamageTransfer.Root)
+                    diagonalDamage = remainingDamage;
+                
                 currentDistance = mq.Distance;
             }
         }
