@@ -113,7 +113,7 @@ public partial class Ship
     /// <param name="repairLevel">Level which improves repair decisions</param>
     public void ApplyAllRepair(float repairAmount, float repairInterval, int repairLevel)
     {
-        if (HealthPercent > 0.999f || repairAmount.AlmostEqual(0))
+        if (HealthPercent > 0.9999999f || repairAmount.AlmostEqual(0))
         {
             CurrentRepairPerSecond = 0;
             return;
