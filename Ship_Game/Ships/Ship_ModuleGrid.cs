@@ -218,13 +218,26 @@ namespace Ship_Game.Ships
             return Grid.GetModulesAt(ModuleSlotList, gridPos, checkShields);
         }
 
-        // Enumerates all ShipModules under (worldPoint, radius) circle
-        // Starting from the center, moving outwards in the following pattern
-        //    3 → → → →
-        //    ↑ 2 → → ↓
-        //    ↑ ↑ 1 ↓ ↓
-        //    ↑ ← ← ← ↓
-        //    ← ← ← ← ←
+        // Enumarates all Shipmodules under (worldPoint, radius) divided to quardrant.
+        // starting from the center and in an order for explotion spread. The sturct returns
+        // also contains damage divider instead of damage fall off function
+        //    NW (1) NE (2)
+        //    ← ↑ ↑  ↑ ↑ →
+        //    ← ↑ ↑  ↑ ↑ → 
+        //    ← ← C  C → →
+
+        //    ← ← C  C → →      
+        //    ← ↓ ↓  ↓ ↓ →
+        //    ← ↓ ↓  ↓ ↓ →
+        //    SW (4) SE (3)
+
+        // damage dividers (distance from explosion)
+        //    3 3 3 3 3 3
+        //    3 2 2 2 2 3 
+        //    3 2 1 1 2 3
+        //    3 2 1 1 2 3      
+        //    3 2 2 2 2 3
+        //    3 3 3 3 3 3
         IEnumerable<ModuleQuardrant> EnumModulesQuadrants(Vector2 worldPos, float radius, bool checkShields)
         {
             // Create an optimized integer rectangle
@@ -286,7 +299,7 @@ namespace Ship_Game.Ships
                             }
                             else
                             {
-                                yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 1);
+                                yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 1);
                             }
                         }
                         diagonalModule = false;
@@ -302,7 +315,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 1);
+                            yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 1);
 
                         distance++;
                     }
@@ -332,7 +345,7 @@ namespace Ship_Game.Ships
                             }
                             else
                             {
-                                yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 2);
+                                yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 2);
                             }
                         }
                         diagonalModule = false;
@@ -348,7 +361,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 2);
+                            yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 2);
 
                         distance++;
                     }
@@ -378,7 +391,7 @@ namespace Ship_Game.Ships
                             }
                             else
                             {
-                                yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 3);
+                                yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 3);
                             }
                         }
                         diagonalModule = false;
@@ -394,7 +407,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 3);
+                            yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 3);
 
                         distance++;
                     }
@@ -424,7 +437,7 @@ namespace Ship_Game.Ships
                             }
                             else
                             {
-                                yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 4);
+                                yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 4);
                             }
                         }
                         diagonalModule = false;
@@ -440,7 +453,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuardrant(m, DamageTransfer.Excess, distance, 4);
+                            yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 4);
 
                         distance++;
                     }
@@ -490,6 +503,17 @@ namespace Ship_Game.Ships
             int currentQuardrant = 1;
             int currentDistance = 0;
 
+            // Logic for each quardrant - example here is the nw quardrant
+            //    3   3   3 
+            //      D ↑   ↑   
+            //    3 ← 2   2 
+            //          D ↑
+            //    3 ← 2 ← 1 
+
+            // If point 1 absorbs the damage it wont spread to other points.  
+            // Damage is spread from point 1 to point 3 upwards, then from point 1 to point 3 backwords.
+            // Then it will stard from module 2 Diagonaly and repeat the logic. 
+            // These number are also divider for any excess damage transfered to the next module in the generator
             foreach (ModuleQuardrant mq in EnumModulesQuadrants(worldHitPos, hitRadius, !ignoreShields))
             {
                 if (mq.Qaurdrant != currentQuardrant)
@@ -723,6 +747,8 @@ namespace Ship_Game.Ships
         // -- Higher crew level means the missile will pick the most optimal target module ;) --
         ShipModule TargetRandomInternalModule(Vector2 projPos, int level, float sqSearchRange)
         {
+            if (projPos.InRadius(Position, Radius+50))
+                return null;
             ShipModule[] modules = ModuleSlotList.Filter(m => m.Active && projPos.SqDist(m.Position) < sqSearchRange);
             if (modules.Length == 0)
                 return null;
@@ -773,7 +799,7 @@ namespace Ship_Game.Ships
     }
     public enum DamageTransfer
     {
-        Excess,
+        Orthogonal,
         Diagonal,
         Root
     }
