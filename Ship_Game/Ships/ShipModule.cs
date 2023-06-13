@@ -1017,7 +1017,8 @@ namespace Ship_Game.Ships
                 if (Explodes)
                 {
                     // ShipModule has died and will now explode internally
-                    Parent.DamageExplosive(source, ExplosionDamage, Position - new  Vector2(1,1), ExplosionRadius, true);
+                    // the 1,1 vector substruction ensures the Northwest quardrant is hit (floating point issues)
+                    Parent.DamageExplosive(source, ExplosionDamage, Position - new Vector2(1,1), ExplosionRadius, true);
                 }
             }
         }
