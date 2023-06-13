@@ -741,22 +741,13 @@ namespace Ship_Game.Ships
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
-        public bool DamageExplosive(GameObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
+        public bool DamageExplosive(GameObject source, ref float damageInOut, int damageDivider = 1)
         {
-            float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageInOut);
-            if (damage <= 0.1f)
+            if (damageInOut <= 0f)
                 return true;
-
             //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
-
-            Damage(source, damageInOut, out damageInOut);
+            Damage(source, damageInOut / damageDivider, out damageInOut);
             return damageInOut <= 0f;
-        }
-
-        float GetExplosiveDamage(Vector2 worldHitPos, float damageRadius, float damageAmount)
-        {
-            float moduleRadius = ShieldsAreActive ? ShieldHitRadius : Radius;
-            return damageAmount * DamageFalloff(worldHitPos, Position, damageRadius, moduleRadius);
         }
 
         void EvtDamageInflicted(GameObject source, float amount)
@@ -1026,7 +1017,8 @@ namespace Ship_Game.Ships
                 if (Explodes)
                 {
                     // ShipModule has died and will now explode internally
-                    Parent.DamageExplosive(source, ExplosionDamage, Position, ExplosionRadius, true);
+                    // the 1,1 vector substruction ensures the Northwest quadrant is hit (floating point issues)
+                    Parent.DamageExplosive(source, ExplosionDamage, Position - new Vector2(1,1), ExplosionRadius, true);
                 }
             }
         }

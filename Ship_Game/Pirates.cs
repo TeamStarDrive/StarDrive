@@ -290,9 +290,9 @@ namespace Ship_Game
                 case NewBaseSpot.GasGiant:
                 case NewBaseSpot.Habitable:    success = BuildBaseOrbitingPlanet(u, spotType, level); break;
                 case NewBaseSpot.AsteroidBelt: success = BuildBaseInAsteroids(u, level);              break;
-                case NewBaseSpot.DeepSpace:    success = BuildBaseInDeepSpace(level);              break;
+                case NewBaseSpot.DeepSpace:    success = BuildBaseInDeepSpace(level);                 break;
                 case NewBaseSpot.LoneSystem:   success = BuildBaseInLoneSystem(u, level);             break;
-                default:                       success = false;                                    break;
+                default:                       success = false;                                       break;
             }
 
             if (success)
@@ -321,7 +321,7 @@ namespace Ship_Game
             {
                 Ship pirateBase = Random.Item(planetBases);
                 Planet planet   = pirateBase.GetTether();
-                if (SpawnShip(PirateShipType.FlagShip, planet.Position, out Ship flagShip))
+                if (SpawnShip(PirateShipType.FlagShip, planet.Position, level, out Ship flagShip))
                 {
                     flagShip.OrderToOrbit(planet, clearOrders:true);
                     AlertPlayerAboutPirateOps(PirateOpsWarning.Flagship);
@@ -331,7 +331,7 @@ namespace Ship_Game
             {
                 Ship pirateBase = Random.Item(bases);
                 Vector2 pos     = pirateBase.Position.GenerateRandomPointOnCircle(2000, Random);
-                if (SpawnShip(PirateShipType.FlagShip, pos, out Ship flagShip))
+                if (SpawnShip(PirateShipType.FlagShip, pos, level, out Ship flagShip))
                 {
                     flagShip.AI.AddEscortGoal(pirateBase);
                     AlertPlayerAboutPirateOps(PirateOpsWarning.Flagship);
@@ -355,7 +355,7 @@ namespace Ship_Game
                 Vector2 pos       = planet?.Position ?? selectedBase.Position;
 
                 Vector2 stationPos = pos.GenerateRandomPointOnCircle(2000, Random);
-                if (SpawnShip(PirateShipType.Station, stationPos, out Ship station, level) && planet != null)
+                if (SpawnShip(PirateShipType.Station, stationPos, level, out Ship station) && planet != null)
                     station.TetherToPlanet(planet);
             }
         }
@@ -378,7 +378,7 @@ namespace Ship_Game
             if (!GetBaseSpotDeepSpace(out Vector2 pos))
                 return false;
 
-            if (!SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level)) 
+            if (!SpawnShip(PirateShipType.Base, pos, level, out Ship pirateBase)) 
                 return false;
 
             AddGoalBase(pirateBase, pirateBase.SystemName); // SystemName is "Deep Space"
@@ -388,7 +388,7 @@ namespace Ship_Game
         bool BuildBaseInAsteroids(UniverseState u, int level)
         {
             if (GetBaseAsteroidsSpot(u, out Vector2 pos, out SolarSystem system)
-                && SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
+                && SpawnShip(PirateShipType.Base, pos, level, out Ship pirateBase))
             {
                 AddGoalBase(pirateBase, system.Name);
                 system.SetPiratePresence(true);
@@ -403,7 +403,7 @@ namespace Ship_Game
             if (GetLoneSystem(u, out SolarSystem system))
             {
                 Vector2 pos = system.Position.GenerateRandomPointOnCircle((system.Radius * 0.75f).LowerBound(10000), Random);
-                if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
+                if (SpawnShip(PirateShipType.Base, pos, level, out Ship pirateBase))
                 {
                     AddGoalBase(pirateBase, system.Name);
                     system.SetPiratePresence(true);
@@ -419,7 +419,7 @@ namespace Ship_Game
             if (GetBasePlanet(u, spot, out Planet planet))
             {
                 Vector2 pos = planet.Position.GenerateRandomPointOnCircle(planet.Radius + 2000, Random);
-                if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
+                if (SpawnShip(PirateShipType.Base, pos, level, out Ship pirateBase))
                 {
                     pirateBase.TetherToPlanet(planet);
                     AddGoalBase(pirateBase, planet.System.Name);
@@ -610,40 +610,40 @@ namespace Ship_Game
             public readonly string FlagShip;
             public readonly string Random;
 
-            public PirateForces(Empire pirates, int effectiveLevel) : this()
+            public PirateForces(Empire pirates, int level) : this()
             {
                 FlagShip = pirates.data.PirateFlagShip;
-                int levelDivider = 1; 
-
+                float levelMultiplier = 1; 
                 switch (pirates.Universe.P.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
                 {
-                    case GameDifficulty.Normal: levelDivider = 3; break;
-                    case GameDifficulty.Hard:   levelDivider = 2; break;
+                    case GameDifficulty.Normal: levelMultiplier = 0.7f; break;
+                    case GameDifficulty.Hard:   levelMultiplier = 0.8f; break;
                 }
 
-                switch (effectiveLevel / levelDivider)
+                float effectiveLevel = level * levelMultiplier;
+                if (effectiveLevel <= 4)
                 {
-                    case 0: case 1: case 2: case 3: case 4:
-                        Fighter      = pirates.data.PirateFighterBasic;
-                        Frigate      = pirates.data.PirateFrigateBasic;
-                        BoardingShip = pirates.data.PirateSlaverBasic;
-                        Base         = pirates.data.PirateBaseBasic;
-                        Station      = pirates.data.PirateStationBasic;
-                        break;
-                    case 5: case 6: case 7: case 8: case 9:
-                        Fighter      = pirates.data.PirateFighterImproved;
-                        Frigate      = pirates.data.PirateFrigateImproved;
-                        BoardingShip = pirates.data.PirateSlaverImproved;
-                        Base         = pirates.data.PirateBaseImproved;
-                        Station      = pirates.data.PirateStationImproved;
-                        break;
-                    default:
-                        Fighter      = pirates.data.PirateFighterAdvanced;
-                        Frigate      = pirates.data.PirateFrigateAdvanced;
-                        BoardingShip = pirates.data.PirateSlaverAdvanced;
-                        Base         = pirates.data.PirateBaseAdvanced;
-                        Station      = pirates.data.PirateStationAdvanced;
-                        break;
+                    Fighter      = pirates.data.PirateFighterBasic;
+                    Frigate      = pirates.data.PirateFrigateBasic;
+                    BoardingShip = pirates.data.PirateSlaverBasic;
+                    Base         = pirates.data.PirateBaseBasic;
+                    Station      = pirates.data.PirateStationBasic;
+                }
+                else if (effectiveLevel <= 9)
+                {
+                    Fighter      = pirates.data.PirateFighterImproved;
+                    Frigate      = pirates.data.PirateFrigateImproved;
+                    BoardingShip = pirates.data.PirateSlaverImproved;
+                    Base         = pirates.data.PirateBaseImproved;
+                    Station      = pirates.data.PirateStationImproved;
+                }
+                else
+                {
+                    Fighter      = pirates.data.PirateFighterAdvanced;
+                    Frigate      = pirates.data.PirateFrigateAdvanced;
+                    BoardingShip = pirates.data.PirateSlaverAdvanced;
+                    Base         = pirates.data.PirateBaseAdvanced;
+                    Station      = pirates.data.PirateStationAdvanced;
                 }
 
                 Random = GetRandomShipFromSpawnList(pirates, out string shipName)
@@ -659,7 +659,7 @@ namespace Ship_Game
                 return shipName.NotEmpty();
             }
 
-            string GetRandomDefaultShip(Empire empire) => empire.Random.RollDice(80) ? Fighter : Frigate;
+            string GetRandomDefaultShip(Empire empire) => empire.Random.RollDice(75) ? Fighter : Frigate;
         }
 
         public bool GetTarget(Empire victim, TargetType type, out Ship target)
@@ -730,7 +730,7 @@ namespace Ship_Game
 
         public bool SpawnBoardingShip(Ship targetShip, Vector2 where, out Ship boardingShip)
         {
-            if (SpawnShip(PirateShipType.Boarding, where, out boardingShip))
+            if (SpawnShip(PirateShipType.Boarding, where, Level, out boardingShip))
                 boardingShip.AI.OrderAttackSpecificTarget(targetShip);
 
             return boardingShip != null;
@@ -743,10 +743,10 @@ namespace Ship_Game
 
             float enemyStr = targetShip.AI.FriendliesNearby.Sum(s => s.BaseStrength);
 
-            float maxStrModifier       = ((int)Universe.P.Difficulty + 1) * 0.15f; // easy will be 15%
+            float maxStrModifier       = ((int)Universe.P.Difficulty + 1) * 0.25f; // easy will be 25%
             float availableStrModifier = (float)Level / MaxLevel;
 
-            return (enemyStr * maxStrModifier * availableStrModifier).LowerBound(Level * 500);
+            return (enemyStr * maxStrModifier * availableStrModifier).LowerBound(Level * 1000);
         }
 
         public bool SpawnForce(Ship targetShip, Vector2 pos, float radius, out Array<Ship> force)
@@ -756,7 +756,7 @@ namespace Ship_Game
             while (currentStr.Greater(0) && force.Count <= Level * 10) 
             {
                 Vector2 finalPos = pos.GenerateRandomPointOnCircle(radius, Random);
-                if (SpawnShip(PirateShipType.Random, finalPos, out Ship ship))
+                if (SpawnShip(PirateShipType.Random, finalPos, Level, out Ship ship))
                 {
                     force.Add(ship);
                     currentStr -= ship.BaseStrength;
@@ -769,7 +769,7 @@ namespace Ship_Game
             return force.Count > 0;
         }
 
-        bool SpawnShip(PirateShipType shipType, Vector2 where, out Ship pirateShip, int level = 0)
+        bool SpawnShip(PirateShipType shipType, Vector2 where, int level, out Ship pirateShip)
         {
             PirateForces forces = new PirateForces(Owner, level);
             string shipName = "";
