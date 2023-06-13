@@ -270,7 +270,7 @@ namespace Ship_Game.Ships
             // check the first center module
             // this will keep returning shields first, and then underlying module
             foreach (ShipModule m in GetModulesAt(c, checkShields))
-                yield return new ModuleQuadrant(m, DamageTransfer.Root, distance: 1, quardrant: 1);
+                yield return new ModuleQuadrant(m, DamageTransfer.Root, distance: 1, quadrant: 1);
 
             // special case: radius is very small and could only ever hit 1 slot
             if (firstX == lastX && firstY == lastY)
@@ -516,7 +516,7 @@ namespace Ship_Game.Ships
             {
                 if (mq.Quadrant != currentQuadrant)
                 {
-                    // starting a new quardrant, reset the damage to the initial damage
+                    // starting a new quadrant, reset the damage to the initial damage
                     currentQuadrant = mq.Quadrant;
                     remainingDamage = damageAmount;
                     diagonalDamage = damageAmount;
