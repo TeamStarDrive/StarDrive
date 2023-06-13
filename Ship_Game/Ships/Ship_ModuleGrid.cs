@@ -748,7 +748,8 @@ namespace Ship_Game.Ships
         ShipModule TargetRandomInternalModule(Vector2 projPos, int level, float sqSearchRange)
         {
             if (projPos.InRadius(Position, Radius+50))
-                return null;
+                return null; // Dont shoot on top of us!
+
             ShipModule[] modules = ModuleSlotList.Filter(m => m.Active && projPos.SqDist(m.Position) < sqSearchRange);
             if (modules.Length == 0)
                 return null;
