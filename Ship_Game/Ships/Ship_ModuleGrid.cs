@@ -218,7 +218,7 @@ namespace Ship_Game.Ships
             return Grid.GetModulesAt(ModuleSlotList, gridPos, checkShields);
         }
 
-        // Enumarates all Shipmodules under (worldPoint, radius) divided to quardrant.
+        // Enumarates all Shipmodules under (worldPoint, radius) divided to quadrant.
         // starting from the center and in an order for explotion spread. The sturct returns
         // also contains damage divider instead of damage fall off function
         //    NW (1) NE (2)
@@ -238,7 +238,7 @@ namespace Ship_Game.Ships
         //    3 2 1 1 2 3      
         //    3 2 2 2 2 3
         //    3 3 3 3 3 3
-        IEnumerable<ModuleQuardrant> EnumModulesQuadrants(Vector2 worldPos, float radius, bool checkShields)
+        IEnumerable<ModuleQuadrant> EnumModulesQuadrants(Vector2 worldPos, float radius, bool checkShields)
         {
             // Create an optimized integer rectangle
             // a---+
@@ -270,15 +270,15 @@ namespace Ship_Game.Ships
             // check the first center module
             // this will keep returning shields first, and then underlying module
             foreach (ShipModule m in GetModulesAt(c, checkShields))
-                yield return new ModuleQuardrant(m, DamageTransfer.Root, distance: 1, quardrant: 1);
+                yield return new ModuleQuadrant(m, DamageTransfer.Root, distance: 1, quardrant: 1);
 
             // special case: radius is very small and could only ever hit 1 slot
             if (firstX == lastX && firstY == lastY)
                 yield break;
 
             int curX, curY;
-            
-            // Check Northwest Quardrant
+
+            // Check Northwest quadrant
             int counter = 0;
             for (int nw = c.X; nw >= firstX; nw--)
             {
@@ -295,11 +295,11 @@ namespace Ship_Game.Ships
                             if (diagonalModule)
                             {
                                 diagonalModule = false;
-                                yield return new ModuleQuardrant(m, DamageTransfer.Diagonal, distance, 1);
+                                yield return new ModuleQuadrant(m, DamageTransfer.Diagonal, distance, 1);
                             }
                             else
                             {
-                                yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 1);
+                                yield return new ModuleQuadrant(m, DamageTransfer.Orthogonal, distance, 1);
                             }
                         }
                         diagonalModule = false;
@@ -315,7 +315,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 1);
+                            yield return new ModuleQuadrant(m, DamageTransfer.Orthogonal, distance, 1);
 
                         distance++;
                     }
@@ -323,8 +323,8 @@ namespace Ship_Game.Ships
 
                 counter++;
             }
-            
-            // Check Northweast Quardrant
+
+            // Check Northweast quadrant
             counter = 0;
             for (int ne = c.X + 1; ne <= lastX; ne++)
             {
@@ -341,11 +341,11 @@ namespace Ship_Game.Ships
                             if (diagonalModule)
                             {
                                 diagonalModule = false;
-                                yield return new ModuleQuardrant(m, DamageTransfer.Diagonal, distance, 2);
+                                yield return new ModuleQuadrant(m, DamageTransfer.Diagonal, distance, 2);
                             }
                             else
                             {
-                                yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 2);
+                                yield return new ModuleQuadrant(m, DamageTransfer.Orthogonal, distance, 2);
                             }
                         }
                         diagonalModule = false;
@@ -361,7 +361,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 2);
+                            yield return new ModuleQuadrant(m, DamageTransfer.Orthogonal, distance, 2);
 
                         distance++;
                     }
@@ -370,7 +370,7 @@ namespace Ship_Game.Ships
                 counter++;
             }
 
-            // Check Southeast Quardrant
+            // Check Southeast quadrant
             counter = 0;
             for (int se = c.X + 1; se <= lastX; se++)
             {
@@ -387,11 +387,11 @@ namespace Ship_Game.Ships
                             if (diagonalModule)
                             {
                                 diagonalModule = false;
-                                yield return new ModuleQuardrant(m, DamageTransfer.Diagonal, distance, 3);
+                                yield return new ModuleQuadrant(m, DamageTransfer.Diagonal, distance, 3);
                             }
                             else
                             {
-                                yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 3);
+                                yield return new ModuleQuadrant(m, DamageTransfer.Orthogonal, distance, 3);
                             }
                         }
                         diagonalModule = false;
@@ -407,7 +407,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 3);
+                            yield return new ModuleQuadrant(m, DamageTransfer.Orthogonal, distance, 3);
 
                         distance++;
                     }
@@ -416,7 +416,7 @@ namespace Ship_Game.Ships
                 counter++;
             }
 
-            // Check Southwest Quardrant
+            // Check Southwest quadrant
             counter = 0;
             for (int sw = c.X; sw >= firstX; sw--)
             {
@@ -433,11 +433,11 @@ namespace Ship_Game.Ships
                             if (diagonalModule)
                             {
                                 diagonalModule = false;
-                                yield return new ModuleQuardrant(m, DamageTransfer.Diagonal, distance, 4);
+                                yield return new ModuleQuadrant(m, DamageTransfer.Diagonal, distance, 4);
                             }
                             else
                             {
-                                yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 4);
+                                yield return new ModuleQuadrant(m, DamageTransfer.Orthogonal, distance, 4);
                             }
                         }
                         diagonalModule = false;
@@ -453,7 +453,7 @@ namespace Ship_Game.Ships
                     {
                         var p = new Point(curX, curY);
                         foreach (ShipModule m in GetModulesAt(p, checkShields))
-                            yield return new ModuleQuardrant(m, DamageTransfer.Orthogonal, distance, 4);
+                            yield return new ModuleQuadrant(m, DamageTransfer.Orthogonal, distance, 4);
 
                         distance++;
                     }
@@ -470,7 +470,7 @@ namespace Ship_Game.Ships
         public ShipModule FindClosestModule(Vector2 worldPos)
         {
             if (!Active) return null;
-            foreach (ModuleQuardrant mq in EnumModulesQuadrants(worldPos, Radius, checkShields:false))
+            foreach (ModuleQuadrant mq in EnumModulesQuadrants(worldPos, Radius, checkShields:false))
                 return mq.Module;
             return null;
         }
@@ -479,7 +479,7 @@ namespace Ship_Game.Ships
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields)
         {
             if (!Active) return null;
-            foreach (ModuleQuardrant mq in EnumModulesQuadrants(worldHitPos, hitRadius, !ignoreShields))
+            foreach (ModuleQuadrant mq in EnumModulesQuadrants(worldHitPos, hitRadius, !ignoreShields))
                 return mq.Module;
             return null;
         }
@@ -497,10 +497,10 @@ namespace Ship_Game.Ships
 
             float remainingDamage = damageAmount;
             float diagonalDamage = damageAmount;
-            int currentQuardrant = 1;
+            int currentQuadrant = 1;
             int currentDistance = 0;
 
-            // Logic for each quardrant - example here is the nw quardrant
+            // Logic for each quadrant - example here is the nw quadrant
             //    3   3   3 
             //      D ↑   ↑   
             //    3 ← 2   2 
@@ -512,12 +512,12 @@ namespace Ship_Game.Ships
             // Then it will start from module 2 Diagonaly and repeat the logic. 
             // These numbers are also divider for any excess damage transfered to the next module in the generator
             // Excess damage is transferred diagonally as well.
-            foreach (ModuleQuardrant mq in EnumModulesQuadrants(worldHitPos, hitRadius, !ignoreShields))
+            foreach (ModuleQuadrant mq in EnumModulesQuadrants(worldHitPos, hitRadius, !ignoreShields))
             {
-                if (mq.Qaurdrant != currentQuardrant)
+                if (mq.Quadrant != currentQuadrant)
                 {
                     // starting a new quardrant, reset the damage to the initial damage
-                    currentQuardrant = mq.Qaurdrant;
+                    currentQuadrant = mq.Quadrant;
                     remainingDamage = damageAmount;
                     diagonalDamage = damageAmount;
                 }
@@ -782,18 +782,18 @@ namespace Ship_Game.Ships
         }
     }
 
-    public struct ModuleQuardrant
+    public struct ModuleQuadrant
     {
         public ShipModule Module;
         public DamageTransfer Type;
         public int Distance;
-        public int Qaurdrant;
-        public ModuleQuardrant(ShipModule module, DamageTransfer type, int distance, int quardrant)
+        public int Quadrant;
+        public ModuleQuadrant(ShipModule module, DamageTransfer type, int distance, int quadrant)
         {
             Module = module;
             Type   = type;
             Distance = distance;
-            Qaurdrant = quardrant;
+            Quadrant = quadrant;
         }
     }
     public enum DamageTransfer
