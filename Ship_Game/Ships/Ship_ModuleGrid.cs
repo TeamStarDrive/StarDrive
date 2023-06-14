@@ -526,7 +526,6 @@ namespace Ship_Game.Ships
                     remainingDamage = diagonalDamage; // start checking from diagonal module
                 }
 
-
                 if (mq.Type == DamageTransfer.Root)
                 {
                     if (mq.Module.DamageExplosive(damageSource, ref rootDamage))
