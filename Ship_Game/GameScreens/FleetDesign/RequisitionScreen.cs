@@ -134,7 +134,7 @@ namespace Ship_Game
             {
                 foreach (FleetDataNode node in F.DataNodes)
                 {
-                    if (node.ShipName != ship.Name || node.Ship!= null)
+                    if (node.ShipName != ship.Name || node.Ship != null)
                         continue;
 
                     F.AddExistingShip(ship, node);
@@ -168,12 +168,15 @@ namespace Ship_Game
         {
             foreach (FleetDataNode node in F.DataNodes)
             {
-                if (node.Ship != null || node.Goal != null)
-                    continue;
-
-                var g = new FleetRequisition(node.ShipName, F.Owner, F, rush);
-                node.Goal = g;
-                F.Owner.AI.AddGoalAndEvaluate(g);
+                if (node.Ship == null
+                    && node.Goal == null
+                    && ResourceManager.Ships.GetDesign(node.ShipName, out IShipDesign ship)
+                    && F.Owner.CanBuildShip(ship))
+                {
+                    var g = new FleetRequisition(node.ShipName, F.Owner, F, rush);
+                    node.Goal = g;
+                    F.Owner.AI.AddGoalAndEvaluate(g);
+                }
             }
         }
 
