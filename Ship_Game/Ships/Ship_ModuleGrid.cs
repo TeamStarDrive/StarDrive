@@ -219,8 +219,7 @@ namespace Ship_Game.Ships
         }
 
         // Enumarates all Shipmodules under (worldPoint, radius) divided to quadrant.
-        // starting from the center and in an order for explotion spread. The sturct returns
-        // also contains damage divider instead of damage fall off function
+        // starting from the center and in an order for explotion spread.
         //    NW (1) NE (2)
         //    ← ↑ ↑  ↑ ↑ →
         //    ← ↑ ↑  ↑ ↑ → 
@@ -495,6 +494,8 @@ namespace Ship_Game.Ships
             if (Loyalty.data.ExplosiveRadiusReduction > 0f)
                 hitRadius *= 1f - Loyalty.data.ExplosiveRadiusReduction;
 
+            float rootDamage = damageAmount; // damage to the initial module hit
+            damageAmount *= 0.25f; // 1/4 damage to each quadrant
             float remainingDamage = damageAmount;
             float diagonalDamage = damageAmount;
             int currentQuadrant = 1;
@@ -510,7 +511,6 @@ namespace Ship_Game.Ships
             // If point 1 absorbs the damage it wont spread to other points.  
             // Damage is spread from point 1 to point 3 upwards, then from point 1 to point 3 backwards.
             // Then it will start from module 2 Diagonaly and repeat the logic. 
-            // These numbers are also divider for any excess damage transfered to the next module in the generator
             // Excess damage is transferred diagonally as well.
             foreach (ModuleQuadrant mq in EnumModulesQuadrants(worldHitPos, hitRadius, !ignoreShields))
             {
@@ -526,17 +526,19 @@ namespace Ship_Game.Ships
                     remainingDamage = diagonalDamage; // start checking from diagonal module
                 }
 
-                if (mq.Module.DamageExplosive(damageSource, ref remainingDamage, mq.Distance)
-                    && mq.Type == DamageTransfer.Root)
-                {
-                    return; // Root module absorbed all the explosion
-                }
 
                 if (mq.Type == DamageTransfer.Root)
                 {
-                    // explosion damage will now be whats left after root module exploded
-                    damageAmount = remainingDamage; 
+                    if (mq.Module.DamageExplosive(damageSource, ref rootDamage))
+                        return; // Root module absorbed all the explosion
+                    else
+                        damageAmount = remainingDamage = diagonalDamage = rootDamage; // This is the new damage after root module exploded
                 }
+                else
+                {
+                    mq.Module.DamageExplosive(damageSource, ref remainingDamage);
+                }
+            
                 if (mq.Type is DamageTransfer.Diagonal or DamageTransfer.Root)
                     diagonalDamage = remainingDamage;
                 

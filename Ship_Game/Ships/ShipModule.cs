@@ -741,12 +741,12 @@ namespace Ship_Game.Ships
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
-        public bool DamageExplosive(GameObject source, ref float damageInOut, int damageDivider = 1)
+        public bool DamageExplosive(GameObject source, ref float damageInOut)
         {
             if (damageInOut <= 0f)
                 return true;
             //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
-            Damage(source, damageInOut / damageDivider, out damageInOut);
+            Damage(source, damageInOut, out damageInOut);
             return damageInOut <= 0f;
         }
 
