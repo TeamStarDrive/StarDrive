@@ -329,13 +329,18 @@ namespace Ship_Game.Ships
         {
             Ship ship = null;
             if (parent.Carrier.PrepHangarShip(owner, hangar, out string shipName))
-                ship = CreateShipAtPoint(us, shipName, owner, p);
+            {  
+                Ship template = GetShipTemplate(shipName);
+                if (parent.Ordinance >= template?.ShipOrdLaunchCost)
+                    ship = CreateShipAtPoint(us, template, owner, p);
+            }
 
             if (ship == null)
                 return null;
 
             ship.Mothership = parent;
             ship.Velocity   = parent.Velocity;
+            ship.Direction  = parent.AI.Target != null ? parent.Position.DirectionToTarget(parent.AI.Target.Position) : parent.Direction;
 
             if (hangar.IsSupplyBay)
             {
