@@ -531,7 +531,7 @@ namespace Ship_Game.Ships
                     if (mq.Module.DamageExplosive(damageSource, ref rootDamage))
                         return; // Root module absorbed all the explosion
                     else
-                        damageAmount = remainingDamage = diagonalDamage = rootDamage; // This is the new damage after root module exploded
+                        damageAmount = remainingDamage = diagonalDamage = rootDamage * 0.25f; // This is the new damage after root module exploded
                 }
                 else
                 {
