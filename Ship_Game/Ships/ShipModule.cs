@@ -1111,7 +1111,7 @@ namespace Ship_Game.Ships
 
             if (HangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
-                SetHangarShip(Ship. CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
+                SetHangarShip(Ship.CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
 
                 if (HangarShip == null)
                 {

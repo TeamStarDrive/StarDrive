@@ -1139,7 +1139,7 @@ namespace Ship_Game.Ships
         }
         void ScrambleFightersIfInCombat()
         {
-            if (Carrier.HasFighterBays && AI.Target != null && InCombat && !IsSpoolingOrInWarp)
+            if (Ordinance > 0 && Carrier.HasFighterBays && AI.Target != null && InCombat && !IsSpoolingOrInWarp)
             {
                 float distanceToTarget = AI.Target.Position.Distance(Position);
                 if (Carrier.IsInHangarLaunchRange(distanceToTarget))
