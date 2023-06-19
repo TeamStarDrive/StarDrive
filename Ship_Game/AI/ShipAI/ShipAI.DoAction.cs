@@ -205,6 +205,12 @@ namespace Ship_Game.AI
                 }
             }
 
+            if (g.Goal is RefitOrbital && g.Goal.OldShip?.Active == false)
+            {
+                OrderScrapShip();
+                return;
+            }
+
             ThrustOrWarpToPos(g.Goal.BuildPosition, timeStep);
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
@@ -250,6 +256,12 @@ namespace Ship_Game.AI
 
             Planet target = bg.TetherPlanet;
             if (target == null || target.Owner != Owner.Loyalty) // FB - Planet owner has changed
+            {
+                OrderScrapShip();
+                return;
+            }
+
+            if (g.Goal is RefitOrbital && g.Goal.OldShip?.Active == false)
             {
                 OrderScrapShip();
                 return;
