@@ -6,7 +6,7 @@
   <FrigateModule>false</FrigateModule>
   <DestroyerModule>false</DestroyerModule>
   <CruiserModule>false</CruiserModule>
-  <CarrierModule>false</CarrierModule>
+  <BattleshipModule>false</BattleshipModule>
   <CapitalModule>false</CapitalModule>
   <FreighterModule>false</FreighterModule>
   <PlatformModule>true</PlatformModule>
