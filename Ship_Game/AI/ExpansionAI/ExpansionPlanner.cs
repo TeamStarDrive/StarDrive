@@ -185,7 +185,7 @@ namespace Ship_Game.AI.ExpansionAI
             return s.IsExploredBy(Owner)
                 && !s.HasPlanetsOwnedBy(Owner)
                 && s.PlanetList.Any(p => p.Habitable)
-                && Owner.KnownEnemyStrengthIn(s).LessOrEqual(Owner.OffensiveStrength/3)
+                && Owner.KnownEnemyStrengthIn(s) <= Owner.OffensiveStrength * 0.334f
                 && !s.OwnerList.Any(o=> !o.IsFaction && Owner.IsAtWarWith(o));
         }
 
