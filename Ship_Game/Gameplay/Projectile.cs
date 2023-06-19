@@ -235,7 +235,7 @@ namespace Ship_Game.Gameplay
             DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
             DamageRadius          = Weapon.ExplosionRadius;
             ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
-            Health                = Weapon.HitPoints;
+            Health                = Weapon.HitPoints * GlobalStats.Defaults.ProjectileHitpointsMultiplier;
             Speed                 = Weapon.ProjectileSpeed;
             TrailOffset           = Weapon.TrailOffset;
             WeaponType            = Weapon.WeaponType;

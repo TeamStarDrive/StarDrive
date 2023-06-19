@@ -59,7 +59,8 @@ public class GamePlayGlobals
     [StarData] public float InCombatSelfRepairModifier = 0.2f;
     // Shield power multiply
     [StarData] public float ShieldPowerMultiplier = 1f;
-
+    // Projectile Hit Points Multiplier
+    [StarData] public float ProjectileHitpointsMultiplier = 1f;
 
     // feature flags
     [StarData] public bool UseHullBonuses;
