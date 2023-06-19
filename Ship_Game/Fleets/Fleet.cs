@@ -1774,7 +1774,7 @@ namespace Ship_Game.Fleets
             ThreatCluster[] clusters = Owner.AI.ThreatMatrix.FindHostileClustersByDist(task.AO, task.AORadius);
             if (clusters.Length == 0)
                 return false;
-            
+
             var availableShips = new Array<Ship>(ships);
             while (availableShips.Count > 0)
             {

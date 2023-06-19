@@ -85,6 +85,11 @@ public sealed class ThreatCluster : SpatialObjectBase
     {
         // Important to check `threatMatrixOwner` hostileTo `Loyalty`,
         // because that is the correct way from ThreatMatrix perspective
-        return Loyalty != threatMatrixOwner && threatMatrixOwner.IsEmpireHostile(Loyalty);
+        if (threatMatrixOwner.WeAreRemnants || Ships.Any(s => !s.IsResearchStation))
+            return Loyalty != threatMatrixOwner && threatMatrixOwner.IsEmpireHostile(Loyalty);
+
+        // If the matrix has only research stations, we are hostiles only at war
+        return threatMatrixOwner.IsAtWarWith(Loyalty);  
+
     }
 }

@@ -519,7 +519,7 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (IsResearchStation && !attackerToUs.AtWar)
+            if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar)
                 return false; 
 
             if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
