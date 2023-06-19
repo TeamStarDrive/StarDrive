@@ -8,7 +8,7 @@
   <FrigateModule>true</FrigateModule>
   <DestroyerModule>true</DestroyerModule>
   <CruiserModule>true</CruiserModule>
-  <CarrierModule>true</CarrierModule>
+  <BattleshipModule>true</BattleshipModule>
   <CapitalModule>true</CapitalModule>
   
   <FreighterModule>true</FreighterModule>

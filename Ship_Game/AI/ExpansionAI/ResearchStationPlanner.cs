@@ -52,9 +52,10 @@ namespace Ship_Game.AI.ExpansionAI
             if (planet != null && !planet.System.InSafeDistanceFromRadiation(planet.Position))
                 return;
 
-            if (Owner.KnownEnemyStrengthIn(system) > 0)
+            float str = Owner.KnownEnemyStrengthIn(system);
+            if (str > 0)
             {
-                TryClearArea(system, influense, Owner.AI.ThreatMatrix.GetStrongestHostileAt(system));
+                TryClearArea(system, influense, Owner.AI.ThreatMatrix.GetStrongestHostileAt(system), str);
             }
             else
             {
@@ -65,9 +66,9 @@ namespace Ship_Game.AI.ExpansionAI
             }
         }
 
-        void TryClearArea(SolarSystem system, InfluenceStatus influense, Empire enemy)
+        void TryClearArea(SolarSystem system, InfluenceStatus influense, Empire enemy, float knownStr)
         {
-            if (Owner.isPlayer)
+            if (Owner.isPlayer || knownStr > Owner.OffensiveStrength * 0.334f)
                 return; 
 
             bool shouldClearArea = !Owner.PersonalityModifiers.ClearNeutralExoticSystems && influense == InfluenceStatus.Friendly

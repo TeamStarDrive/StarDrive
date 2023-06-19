@@ -39,7 +39,7 @@ namespace Ship_Game.Commands.Goals
             ProjectorBridgeEndCondition endCondition) : this(e)
         {
             TargetSystem = targetSystem;
-            float distanceToDeploy = Owner.GetProjectorRadius() * 0.5f;
+            float distanceToDeploy = Owner.GetProjectorRadius() * 0.6f;
             Vector2 dir = targetSystem.Position.DirectionToTarget(originPos);
             StaticBuildPosition = TargetSystem.Position + dir * distanceToDeploy;
             BuildGoal = new BuildConstructionShip(StaticBuildPosition, "Subspace Projector", Owner, rush: true);
