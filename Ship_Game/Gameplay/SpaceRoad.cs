@@ -16,7 +16,17 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly Vector2 Position;
         [StarData] public Ship Projector { get; private set; }
         [StarData] public bool Overlapping { get; private set; }
+        [StarData] byte DelayByTries;
         public bool ProjectorExists => Projector is { Active: true };
+        public bool OkToBuild(Empire owner)
+        {
+            if (owner.KnownEnemyStrengthNoResearchStationsIn(Position, 50_000) > 0.1f)
+                DelayByTries = 50;
+            else if (DelayByTries > 0) // Even if no hostile forces found, take some more time before approving build
+                DelayByTries--;
+
+            return DelayByTries == 0;
+        }
 
         [StarDataConstructor]
         public RoadNode() {}
@@ -156,10 +166,14 @@ namespace Ship_Game.Gameplay
                 RoadNode node = RoadNodesList[i];
                 if (!node.ProjectorExists 
                     && !node.Overlapping 
-                    && !Owner.AI.SpaceRoadsManager.NodeGoalAlreadyExistsFor(node.Position))
+                    && !Owner.AI.SpaceRoadsManager.NodeGoalAlreadyExistsFor(node.Position)
+                    )
                 {
-                    Log.Info($"BuildProjector - {Owner.Name} - fill gap at {node.Position}");
-                    Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
+                    if (node.OkToBuild(Owner))
+                    {
+                        Log.Info($"BuildProjector - {Owner.Name} - fill gap at {node.Position}");
+                        Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
+                    }
                 }
             }
         }
