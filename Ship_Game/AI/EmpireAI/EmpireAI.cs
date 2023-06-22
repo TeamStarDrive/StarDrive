@@ -216,7 +216,6 @@ namespace Ship_Game.AI
             // Xenophobic empires will warn about claims
             // even if they decided to colonize a planet after another empire did so
             bool warnAnyway       = OwnerEmpire.IsXenophobic && usToThem.Posture != Posture.Friendly;
-            float detectionChance = OwnerEmpire.ColonizationDetectionChance(usToThem, them);
             Relationship themToUs = them.GetRelations(OwnerEmpire);
             foreach (MarkForColonization ourGoal in ourColonizationGoals)
             {
@@ -257,11 +256,9 @@ namespace Ship_Game.AI
                 return planetList.Length > 0;
             }
 
-            // Local method
             bool DetectAndWarn(Goal goal, bool warnExclusive)
             {
-                if (OwnerEmpire.Random.RollDice(detectionChance)
-                    || goal.FinishedShip != null && goal.FinishedShip.KnownByEmpires.KnownBy(OwnerEmpire))
+                if (goal.FinishedShip?.KnownByEmpires.KnownBy(OwnerEmpire) == true)
                 {
                     // Detected their colonization efforts
                     if (warnExclusive || warnAnyway)
@@ -271,17 +268,28 @@ namespace Ship_Game.AI
                         return false; // They warned us, so no need to warn them
 
                     // If they stole planets from us, we will value our targets more.
-                    // If we have more pop then them, we will cut them some slack.
+                    // If we have more pop then them, we will cut them some slack and vice versa
+                    // If we have nice relations, we will cut them some slack as well
                     Planet p = goal.TargetPlanet;
-                    float popRatio = OwnerEmpire.MaxPopBillion / them.MaxPopBillion.LowerBound(1);
-                    float valueToUs = p.ColonyPotentialValue(OwnerEmpire) * (usToThem.NumberStolenClaims + 1);
-                    float valueToThem = p.ColonyPotentialValue(them) * popRatio;
+                    float popRatio = them.MaxPopBillion / OwnerEmpire.MaxPopBillion.LowerBound(1);
+                    float valueToUs = p.ColonyPotentialValue(OwnerEmpire) * (usToThem.NumberStolenClaims + 1)
+                        * popRatio * ValueToUsMultiplerByRelations();
+                    float valueToThem = p.ColonyPotentialValue(them);
                     float ratio = valueToUs / valueToThem.LowerBound(1);
 
                     return ratio > OwnerEmpire.PersonalityModifiers.ColonizationClaimRatioWarningThreshold;
                 }
 
                 return false;
+            }
+
+            float ValueToUsMultiplerByRelations()
+            {
+                float multiplier = 1;
+                if      (usToThem.Treaty_Alliance)    multiplier = 0.25f;
+                else if (usToThem.Treaty_OpenBorders) multiplier = 0.5f;
+                else if (usToThem.Treaty_Trade)       multiplier = 0.75f;
+                return multiplier;
             }
         }
 
