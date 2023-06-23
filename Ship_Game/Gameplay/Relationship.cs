@@ -1008,35 +1008,36 @@ namespace Ship_Game.Gameplay
         void Federate(Empire us, Empire them)
         {
             if (them.isPlayer
+                || them.IsXenophobic
                 || TurnsAbove95 < TurnsAbove95Federation(us)
                 || turnsSinceLastContact < 100
                 || !Treaty_Alliance
                 || TotalAnger > 0
-                || Trust < 150
-                || us.TotalScore * 1.5f < them.TotalScore)
+                || Trust < 100
+                || them.TotalScore < us.TotalScore * 1.5f)
             {
                 return;
             }
 
             turnsSinceLastContact = 0; // Try again after 100 turns
-            Relationship themToUs = us.GetRelations(them);
-            if ((themToUs.Trust >= 150 || themToUs.Trust >= 100 && them.TotalPopBillion < us.TotalPopBillion / 3)
+            if ((Trust >= 150 && us.TotalPopBillion < them.TotalPopBillion
+                || Trust >= 100 && us.TotalPopBillion < them.TotalPopBillion / 3)
                 && Is3RdPartyBiggerThenUs())
             {
                 us.Universe.Notifications.AddPeacefulMergerNotification(us, them);
-                us.AbsorbEmpire(them);
+                them.AbsorbEmpire(us);
             }
 
-            // Local Method
             bool Is3RdPartyBiggerThenUs()
             {
                 float popRatioWar = us.PersonalityModifiers.FederationPopRatioWar;
+                float averageWarsGrade = us.GetAverageWarGrade();
                 foreach (Empire e in us.Universe.ActiveMajorEmpires)
                 {
                     if (e == us || e == them)
                         continue;
 
-                    float ratio = us.IsAtWarWith(e) ? popRatioWar : 3f;
+                    float ratio = us.IsAtWarWith(e) && averageWarsGrade < 2.5f ? popRatioWar : 3f;
                     if (e.TotalPopBillion / us.TotalPopBillion > ratio) // 3rd party is a potential risk
                         return true;
                 }
@@ -1563,6 +1564,7 @@ namespace Ship_Game.Gameplay
                     OfferTrade(us);
                     TradeTech(us);
                     ChangeToNeutralIfPossible(us);
+                    Federate(us, them);
                     break;
                 case Posture.Neutral:
                     if (them.isPlayer)
