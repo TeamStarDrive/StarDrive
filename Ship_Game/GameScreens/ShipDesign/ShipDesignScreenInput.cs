@@ -414,8 +414,8 @@ namespace Ship_Game
 
         void OnSymmetricDesignToggle()
         {
-            IsSymmetricDesignMode    = !IsSymmetricDesignMode;
-            BtnSymmetricDesign.Style = SymmetricDesignBtnStyle;
+            Player.SymmetricDesignMode = !Player.SymmetricDesignMode;
+            BtnSymmetricDesign.Style   = SymmetricDesignBtnStyle;
         }
 
         void OnFilterModuleToggle()

@@ -113,6 +113,14 @@ public sealed partial class ThreatMatrix
         return strength;
     }
 
+    static float GetStrengthNoResearchStations(ThreatCluster[] clusters)
+    {
+        float strength = 0f;
+        for (int i = 0; i < clusters.Length; ++i) // PERF: using for loop instead of lambdas
+            strength += clusters[i].StrengthNoResearchStations;
+        return strength;
+    }
+
     /// <summary> Get all strength of a specific empire (can be this.Owner) in a system</summary>
     public float GetStrengthAt(Empire empire, Vector2 pos, float radius)
     {
@@ -131,6 +139,12 @@ public sealed partial class ThreatMatrix
     public float GetHostileStrengthAt(Vector2 pos, float radius)
     {
         return GetStrength(FindHostileClusters(pos, radius));
+    }
+
+    /// <summary> Get all strength of all hostiles in a system without Research Stations Strength</summary>
+    public float GetHostileStrengthNoResearchStationsAt(Vector2 pos, float radius)
+    {
+        return GetStrengthNoResearchStations(FindHostileClusters(pos, radius));
     }
 
     record struct ThreatAggregate(Empire Loyalty, float Strength);
