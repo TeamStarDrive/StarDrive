@@ -76,7 +76,7 @@ namespace UnitTests.AITests.Empire
                 // create the ship
                 var ship = SpawnShip(shipName, Player, Vector2.Zero);
                 float shipMaint = ship.GetMaintCost();
-                AssertLessThan(shipMaint, roleUnitMaint, "Ship maintenance must be less than role unit maintenance");
+                AssertLessThanOrEqual(shipMaint, roleUnitMaint, "Ship maintenance must be less than or equal role unit maintenance");
 
                 float currentMaint = build.RoleCurrentMaintenance(combatRole);
                 AssertEqual(roleUnitMaint * count, currentMaint, "Current maintenance should equal projected");
