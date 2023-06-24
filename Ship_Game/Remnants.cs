@@ -177,7 +177,7 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientExterminators: return 1.2f;
-                case RemnantStory.AncientRaidersRandom: return 0.9f;
+                case RemnantStory.AncientRaidersRandom: return 0.8f;
                 default:                                return 1;
             }
         }
@@ -377,7 +377,8 @@ namespace Ship_Game
                                                                     && s.Loyalty == Owner 
                                                                     && s.IsGuardian
                                                                     && !s.IsPlatformOrStation
-                                                                    && !s.InCombat);
+                                                                    && !s.InCombat
+                                                                    && s.AI.State != AIState.Resupply);
             if (availableShips.Length == 0)
                 return false;
 
@@ -1026,15 +1027,13 @@ namespace Ship_Game
             if (Universe.P.DisableRemnantStory)
                 return RemnantStory.None;
 
-            switch (Random.RollDie(5))
-            {
-                default:
-                case 1: return RemnantStory.AncientBalancers;
-                case 2: return RemnantStory.AncientExterminators;
-                case 3: return RemnantStory.AncientRaidersRandom;
-                case 4: return RemnantStory.AncientWarMongers;
-                case 5: return RemnantStory.AncientPeaceKeepers;
-            }
+            float roll = Random.RollDie(100);
+            if (roll <= 10)  return RemnantStory.AncientPeaceKeepers;
+            if (roll <= 20)  return RemnantStory.AncientWarMongers;
+            if (roll <= 40)  return RemnantStory.AncientExterminators;
+            if (roll <= 60)  return RemnantStory.AncientRaidersRandom;
+
+            return RemnantStory.AncientBalancers;
         }
 
         public enum RemnantStory
