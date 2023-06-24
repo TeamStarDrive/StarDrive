@@ -401,7 +401,7 @@ namespace Ship_Game.AI
             if (dps == 0f) // not all ships have DPS, so equate them with a weak ship
                 dps = 100f;
 
-            float value = (10000f * dps) / (tgt.Health + tgt.ShieldPower);
+            float value = (10000f * dps) / (tgt.Health + tgt.ShieldPower).LowerBound(1);
             value *= 1f + tgt.Carrier.AllFighterHangars.Length*0.75f;
             value *= 1 + tgt.TroopCapacity*0.5f;
             value *= 1 + (tgt.HasBombs ? tgt.BombBays.Count*2 : tgt.BombBays.Count*0.5f);

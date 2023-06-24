@@ -268,12 +268,16 @@ namespace Ship_Game.AI
                         return false; // They warned us, so no need to warn them
 
                     // If they stole planets from us, we will value our targets more.
-                    // If we have more pop then them, we will cut them some slack and vice versa
+                    // If we have more max pop then them, we will cut them some slack and vice versa
                     // If we have nice relations, we will cut them some slack as well
+                    // If the planet is closer to them, consider that as well
                     Planet p = goal.TargetPlanet;
+                    float sqDistToUs = p.System.Position.SqDist(OwnerEmpire.WeightedCenter);
+                    float sqDistToThem = p.System.Position.SqDist(them.WeightedCenter);
+                    float distRatio = (sqDistToThem / sqDistToUs.LowerBound(1)).Clamped(0.1f, 3);
                     float popRatio = them.MaxPopBillion / OwnerEmpire.MaxPopBillion.LowerBound(1);
                     float valueToUs = p.ColonyPotentialValue(OwnerEmpire) * (usToThem.NumberStolenClaims + 1)
-                        * popRatio * ValueToUsMultiplerByRelations();
+                        * popRatio * distRatio * ValueToUsMultiplerByRelations();
                     float valueToThem = p.ColonyPotentialValue(them);
                     float ratio = valueToUs / valueToThem.LowerBound(1);
 
