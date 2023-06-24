@@ -167,6 +167,7 @@ namespace Ship_Game
         [StarData] public bool AutoPickBestColonizer;
         [StarData] public bool AutoBuildTerraformers;
         [StarData] public bool AutoPickBestResearchStation;
+        [StarData] public bool SymmetricDesignMode = true;
         [StarData] public Array<string> ObsoletePlayerShipModules;
 
         public int AtWarCount;
