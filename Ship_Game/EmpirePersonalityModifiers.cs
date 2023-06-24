@@ -64,7 +64,7 @@ namespace Ship_Game
                     WarSneakiness         = 0;
                     break;
                 case PersonalityType.Aggressive:
-                    ColonizationClaimRatioWarningThreshold = 0.7f;
+                    ColonizationClaimRatioWarningThreshold = 0.9f;
                     AddAngerAlliedWithEnemies3RdParty      = 75;
                     TurnsAbove95FederationNeeded = 350;
                     TurnsAbove95AllianceTreshold = 300;
@@ -92,7 +92,7 @@ namespace Ship_Game
                     WarSneakiness         = 5;
                     break;
                 case PersonalityType.Ruthless:
-                    ColonizationClaimRatioWarningThreshold = 0.6f;
+                    ColonizationClaimRatioWarningThreshold = 0.8f;
                     AddAngerAlliedWithEnemies3RdParty      = 75;
                     TurnsAbove95FederationNeeded = 420;
                     TurnsAbove95AllianceTreshold = 250;
@@ -120,7 +120,7 @@ namespace Ship_Game
                     WarSneakiness         = 0;
                     break;
                 case PersonalityType.Xenophobic:
-                    ColonizationClaimRatioWarningThreshold = 0;
+                    ColonizationClaimRatioWarningThreshold = 0.6f;
                     AddAngerAlliedWithEnemies3RdParty      = 100;
                     TurnsAbove95FederationNeeded = 600;
                     TurnsAbove95AllianceTreshold = 200;

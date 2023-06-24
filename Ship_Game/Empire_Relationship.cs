@@ -506,17 +506,6 @@ namespace Ship_Game
             DiplomacyContactQueue.Add(new DiplomacyQueueItem{ EmpireId = empire.Id, Dialog = dialog});
         }
 
-        public float ColonizationDetectionChance(Relationship usToThem, Empire them)
-        {
-            float chance = 0;
-            if (usToThem.Treaty_NAPact)      chance = 0.25f;
-            if (usToThem.Treaty_Trade)       chance = 0.5f;
-            if (usToThem.Treaty_OpenBorders) chance = 0.75f;
-            if (usToThem.Treaty_Alliance)    chance = 1;
-
-            return IsCunning ? chance * 2 : chance;
-        }
-
         public bool TryGetActiveWars(out Array<War> activeWars)
         {
             activeWars = new Array<War>();
@@ -639,12 +628,12 @@ namespace Ship_Game
             }
         }
 
-        // Aggressive AIs will surrender to the enemy if the enemy is aggressive.
+        // Aggressive AIs will surrender to the enemy if the enemy is aggressive or is the player.
         // If not, they will try to merge with the strongest allied empire or
-        // the strongets empire which is at war.
+        // the strongest empire which is at war.
         bool TryMergeOrSurrenderAggressive(Empire enemy, Empire[] potentialEmpires)
         {
-            if (enemy.IsAggressive)
+            if (enemy.IsAggressive || enemy.isPlayer)
                 return MergeWith(enemy, enemy);
             
             var strongest = potentialEmpires.FindMax(e => e.CurrentMilitaryStrength);
@@ -688,8 +677,8 @@ namespace Ship_Game
             return false;
         }
 
-        // Pacifist AIs will try to merge with the closest empires which are not at war
-        // or with closest Pacifist empire.
+        // Pacifist AIs will try to merge with the closest empire which is not at war with someone
+        // or with closest Pacifist/Player empire.
         bool TryMergeOrSurrenderPacifist(Empire enemy, Empire[] potentialEmpires)
         {
             var closestNotAtWar = potentialEmpires
@@ -698,7 +687,7 @@ namespace Ship_Game
             if (closestNotAtWar == null)
             {
                 var closestPacifist = potentialEmpires
-                    .FindMinFiltered(e => e.IsPacifist, e => e.WeightedCenter.SqDist(WeightedCenter));
+                    .FindMinFiltered(e => e.IsPacifist || e.isPlayer, e => e.WeightedCenter.SqDist(WeightedCenter));
 
                 if (closestPacifist != null)
                     return MergeWith(closestPacifist, enemy);
@@ -711,10 +700,10 @@ namespace Ship_Game
             return false;
         }
 
-        // Cunning AIs will try to merge with the biggest empire around
+        // Cunning AIs will try to merge with the best empire around (including the enemies)
         bool TryMergeOrSurrenderCunning(Empire enemy, Empire[] potentialEmpires)
         {
-            var biggest = potentialEmpires.FindMax(e => e.TotalPopBillion);
+            var biggest = potentialEmpires.FindMax(e => e.TotalScore);
             if (biggest != null)
                 return MergeWith(biggest, enemy);
             return false;

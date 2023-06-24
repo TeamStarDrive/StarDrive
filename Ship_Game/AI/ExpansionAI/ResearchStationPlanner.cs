@@ -52,7 +52,7 @@ namespace Ship_Game.AI.ExpansionAI
             if (planet != null && !planet.System.InSafeDistanceFromRadiation(planet.Position))
                 return;
 
-            float str = Owner.KnownEnemyStrengthIn(system);
+            float str = Owner.KnownEnemyStrengthNoResearchStationsIn(system);
             if (str > 0)
             {
                 TryClearArea(system, influense, Owner.AI.ThreatMatrix.GetStrongestHostileAt(system), str);

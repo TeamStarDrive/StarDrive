@@ -145,6 +145,7 @@ public sealed class ClusterUpdate
         bool inBorders = false;
         bool hasStarBases = false;
         float strength = 0f;
+        float researchStationsStrength = 0f;
         SolarSystem system = null;
 
         for (int i = 0; i < ships.Length; ++i)
@@ -153,6 +154,9 @@ public sealed class ClusterUpdate
             strength += s.GetStrength();
             if (s.IsStation)
                 hasStarBases = true;
+
+            if (s.IsResearchStation)
+                researchStationsStrength += s.GetStrength();
 
             if (!inBorders && s.IsInBordersOf(owner))
                 inBorders = true;
@@ -179,6 +183,7 @@ public sealed class ClusterUpdate
         //bool inBorders = owner.Universe.Influence.IsInInfluenceOf(owner, AveragePos);
 
         Cluster.Strength = strength;
+        Cluster.StrengthNoResearchStations = strength - researchStationsStrength;
         Cluster.Ships = ships;
         Cluster.HasStarBases = hasStarBases;
         Cluster.InBorders = inBorders;
