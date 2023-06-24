@@ -167,6 +167,7 @@ namespace Ship_Game
         [StarData] public bool AutoPickBestColonizer;
         [StarData] public bool AutoBuildTerraformers;
         [StarData] public bool AutoPickBestResearchStation;
+        [StarData] public bool SymmetricDesignMode = true;
         [StarData] public Array<string> ObsoletePlayerShipModules;
 
         public int AtWarCount;
@@ -343,6 +344,11 @@ namespace Ship_Game
 
         public float KnownEnemyStrengthIn(SolarSystem s, Empire e) => AI.ThreatMatrix.GetHostileStrengthAt(e, s.Position, s.Radius);
         public float KnownEnemyStrengthIn(SolarSystem s) => AI.ThreatMatrix.GetHostileStrengthAt(s.Position, s.Radius);
+        public float KnownEnemyStrengthNoResearchStationsIn(Vector2 pos, float radius) 
+            => AI.ThreatMatrix.GetHostileStrengthNoResearchStationsAt(pos, radius);
+
+        public float KnownEnemyStrengthNoResearchStationsIn(SolarSystem s) 
+            => AI.ThreatMatrix.GetHostileStrengthNoResearchStationsAt(s.Position, s.Radius);
         public float KnownEmpireStrength(Empire e) => AI.ThreatMatrix.KnownEmpireStrength(e);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];

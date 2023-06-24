@@ -271,8 +271,18 @@ public partial class StarDriveTest
             throw new AssertFailedException($"Greater Than failed: {actual} > {greaterThan}  {message}");
     }
 
+    /// <summary>
+    /// Asserts that `actual` value is less than or equals the provided value
+    /// e.g. AssertLessThanOrEqual(healthPercent, 0.5f);
+    /// </summary>
+    public static void AssertLessThanOrEqual<T>(T actual, T lessThan, string message = "") where T : IComparable<T>
+    {
+        if (actual.CompareTo(lessThan) > 0)
+            throw new AssertFailedException($"LessThanOrEqual failed: {actual} < {lessThan}  {message}");
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////
-            
+
     static string Msg(string message, object expected, object actual)
     {
         string expectedString = Stringify(expected);

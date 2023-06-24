@@ -177,7 +177,7 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientExterminators: return 1.2f;
-                case RemnantStory.AncientRaidersRandom: return 0.9f;
+                case RemnantStory.AncientRaidersRandom: return 0.8f;
                 default:                                return 1;
             }
         }
@@ -377,7 +377,8 @@ namespace Ship_Game
                                                                     && s.Loyalty == Owner 
                                                                     && s.IsGuardian
                                                                     && !s.IsPlatformOrStation
-                                                                    && !s.InCombat);
+                                                                    && !s.InCombat
+                                                                    && s.AI.State != AIState.Resupply);
             if (availableShips.Length == 0)
                 return false;
 
@@ -1007,7 +1008,7 @@ namespace Ship_Game
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
         {
-            int divider = 7 * ((int)Universe.P.Difficulty).LowerBound(1); // harder game = earlier activation
+            int divider = 8 * ((int)Universe.P.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
                 Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2, Random);
@@ -1026,15 +1027,13 @@ namespace Ship_Game
             if (Universe.P.DisableRemnantStory)
                 return RemnantStory.None;
 
-            switch (Random.RollDie(5))
-            {
-                default:
-                case 1: return RemnantStory.AncientBalancers;
-                case 2: return RemnantStory.AncientExterminators;
-                case 3: return RemnantStory.AncientRaidersRandom;
-                case 4: return RemnantStory.AncientWarMongers;
-                case 5: return RemnantStory.AncientPeaceKeepers;
-            }
+            float roll = Random.RollDie(100);
+            if (roll <= 10)  return RemnantStory.AncientPeaceKeepers;
+            if (roll <= 20)  return RemnantStory.AncientWarMongers;
+            if (roll <= 40)  return RemnantStory.AncientExterminators;
+            if (roll <= 60)  return RemnantStory.AncientRaidersRandom;
+
+            return RemnantStory.AncientBalancers;
         }
 
         public enum RemnantStory
@@ -1047,29 +1046,6 @@ namespace Ship_Game
             AncientPeaceKeepers
         }
     }
-
-    /*
-    public void CheckArmageddon()
-    {
-        if (Armageddon)
-        {
-            if (!Paused) ArmageddonTimer -= elapsedTime;
-            if (ArmageddonTimer < 0.0)
-            {
-                ArmageddonTimer = 300f;
-                ++ArmageddonCounter;
-                if (ArmageddonCounter > 5)
-                    ArmageddonCounter = 5;
-                for (int i = 0; i < ArmageddonCounter; ++i)
-                {
-                    Ship exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
-                            player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
-                                RandomMath.RandomBetween(-500000f, 500000f)));
-                    exterminator.AI.DefaultAIState = AIState.Exterminate;
-                }
-            }
-        }
-    }*/
 
     public enum RemnantShipType
     {

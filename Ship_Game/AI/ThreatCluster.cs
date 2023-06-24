@@ -17,6 +17,9 @@ public sealed class ThreatCluster : SpatialObjectBase
     // If the cluster is within a solarsystem
     [StarData] public SolarSystem System;
 
+    // Strength of all known ships in this threat cluster minus research stations
+    [StarData] public float StrengthNoResearchStations;
+
     // Strength of all known ships in this threat cluster
     [StarData] public float Strength;
 
