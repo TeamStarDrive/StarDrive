@@ -88,7 +88,7 @@ namespace Ship_Game
 
         public HangarOptions HangarDesignation => HangarOptionsList.ActiveValue;
 
-        public bool IsSymmetricDesignMode { get; set; } = true; // start with enabled by default
+        public bool IsSymmetricDesignMode => Player.SymmetricDesignMode; // start with enabled by default
 
         public bool IsFilterOldModulesMode
         {
