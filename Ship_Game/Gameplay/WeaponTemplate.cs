@@ -284,53 +284,53 @@ namespace Ship_Game.Gameplay
             }
 
             //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
-            off *= t.Tag_Guided ? 3f : 1f;
+            off *= t.Tag_Guided ? 2.5f : 1f;
 
             off *= 1 + t.ArmorPen * 0.2f;
             // FB: simpler calcs for these.
-            off *= t.EffectVsArmor > 1 ? 1f + (t.EffectVsArmor - 1f) / 2f : 1f;
-            off *= t.EffectVsArmor < 1 ? 1f - (1f - t.EffectVsArmor) / 2f : 1f;
-            off *= t.EffectVsShields > 1 ? 1f + (t.EffectVsShields - 1f) / 2f : 1f;
-            off *= t.EffectVsShields < 1 ? 1f - (1f - t.EffectVsShields) / 2f : 1f;
+            off *= t.EffectVsArmor > 1 ? 1f + (t.EffectVsArmor - 1f) * 0.5f : 1f;
+            off *= t.EffectVsArmor < 1 ? 1f - (1f - t.EffectVsArmor) * 0.5f : 1f;
+            off *= t.EffectVsShields > 1 ? 1f + (t.EffectVsShields - 1f) * 0.5f : 1f;
+            off *= t.EffectVsShields < 1 ? 1f - (1f - t.EffectVsShields) * 0.5f : 1f;
 
             off *= t.TruePD ? 0.2f : 1f;
             off *= t.Tag_Intercept && (t.Tag_Missile || t.Tag_Torpedo) ? 0.8f : 1f;
             off *= t.ProjectileSpeed > 1 ? t.ProjectileSpeed / t.BaseRange : 1f;
 
             // FB: Missiles which can be intercepted might get str modifiers
-            off *= t.Tag_Intercept && t.RotationRadsPerSecond > 1 ? 1 + t.HitPoints / 50 / t.ProjectileRadius.LowerBound(2) : 1;
+            off *= t.Tag_Intercept && t.RotationRadsPerSecond > 1 ? 1 + t.HitPoints * 0.02f / t.ProjectileRadius.LowerBound(2) : 1;
 
             // FB: offense calcs for damage radius
-            off *= t.ExplosionRadius > 16 && !t.TruePD ? t.ExplosionRadius / 16 : 1f;
+            off *= t.ExplosionRadius > 16 && !t.TruePD ? t.ExplosionRadius * 0.0625f : 1f;
 
             // FB: Added shield pen chance
-            off *= 1 + t.ShieldPenChance / 100;
+            off *= 1 + t.ShieldPenChance * 0.01f;
 
             if (t.TerminalPhaseAttack)
             {
                 if (t.TerminalPhaseSpeedMod > 1)
-                    off *= 1 + t.TerminalPhaseDistance * t.TerminalPhaseSpeedMod / 50000;
+                    off *= 1 + t.TerminalPhaseDistance * t.TerminalPhaseSpeedMod * 0.00002f;
                 else
-                    off *= t.TerminalPhaseSpeedMod / 2;
+                    off *= t.TerminalPhaseSpeedMod * 0.5f;
             }
 
             if (t.DelayedIgnition.Greater(0))
-                off *= 1 - (t.DelayedIgnition / 10).UpperBound(0.95f);
+                off *= 1 - (t.DelayedIgnition * 0.1f).UpperBound(0.95f);
 
 
             // FB: Added correct exclusion offense calcs
             float exclusionMultiplier = 1;
-            if (t.ExcludesFighters) exclusionMultiplier -= 0.15f;
+            if (t.ExcludesFighters)  exclusionMultiplier -= 0.15f;
             if (t.ExcludesCorvettes) exclusionMultiplier -= 0.15f;
-            if (t.ExcludesCapitals) exclusionMultiplier -= 0.45f;
-            if (t.ExcludesStations) exclusionMultiplier -= 0.25f;
+            if (t.ExcludesCapitals)  exclusionMultiplier -= 0.45f;
+            if (t.ExcludesStations)  exclusionMultiplier -= 0.25f;
             off *= exclusionMultiplier;
 
             // Imprecision gets worse when range gets higher
-            off *= !t.Tag_Guided ? (1 - t.FireImprecisionAngle * 0.01f * (t.BaseRange / 2000)).LowerBound(0.1f) : 1f;
+            off *= !t.Tag_Guided ? (1 - t.FireImprecisionAngle * 0.01f * (t.BaseRange * 0.0005f)).LowerBound(0.1f) : 1f;
 
             // FB: Range margins are less steep for missiles
-            off *= (!t.Tag_Guided ? (t.BaseRange / 4000) * (t.BaseRange / 4000) : (t.BaseRange / 4000));
+            off *= (!t.Tag_Guided ? (t.BaseRange * 0.00025f) * (t.BaseRange * 0.00025f) : (t.BaseRange * 0.00025f));
 
             // Multiple warheads
             if (t.IsMirv)
@@ -353,7 +353,7 @@ namespace Ship_Game.Gameplay
 
             // FB: Field of Fire is also important
             if (!t.IsMirv) // Only for non Mirv since this should be calculated once
-                off *= (m.FieldOfFire / (RadMath.PI / 3)).Clamped(1,4);
+                off *= (m.FieldOfFire / (RadMath.PI * 0.34f)).Clamped(1,4);
 
             // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             return off * t.OffPowerMod;

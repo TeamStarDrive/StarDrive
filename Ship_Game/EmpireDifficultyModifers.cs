@@ -91,7 +91,7 @@
                     ExpansionCheckInterval = 7; // every 7 turns
                     MinStartingColonies  = 3;
                     ExpandSearchTurns    = 50;
-                    RemnantTurnsLevelUp  = 400;
+                    RemnantTurnsLevelUp  = 350;
                     RemnantResourceMod   = 0.35f;
                     RemnantNumBombers    = 0.75f;
                     BaseColonyGoals      = 2;
@@ -128,7 +128,7 @@
                     ExpansionCheckInterval = 5; // every 5 turns
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 30;
-                    RemnantTurnsLevelUp  = 350;
+                    RemnantTurnsLevelUp  = 325;
                     RemnantResourceMod   = 0.45f;
                     RemnantNumBombers    = 1f;
                     BaseColonyGoals      = 4;
@@ -212,7 +212,7 @@
                     ExpansionCheckInterval = 1; // every turn, there is no limit!
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 20;
-                    RemnantTurnsLevelUp  = 300;
+                    RemnantTurnsLevelUp  = 275;
                     RemnantResourceMod   = 0.7f;
                     RemnantNumBombers    = 1.5f;
                     BaseColonyGoals      = 6;
