@@ -1008,7 +1008,7 @@ namespace Ship_Game
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
         {
-            int divider = 7 * ((int)Universe.P.Difficulty).LowerBound(1); // harder game = earlier activation
+            int divider = 8 * ((int)Universe.P.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
                 Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2, Random);
@@ -1046,29 +1046,6 @@ namespace Ship_Game
             AncientPeaceKeepers
         }
     }
-
-    /*
-    public void CheckArmageddon()
-    {
-        if (Armageddon)
-        {
-            if (!Paused) ArmageddonTimer -= elapsedTime;
-            if (ArmageddonTimer < 0.0)
-            {
-                ArmageddonTimer = 300f;
-                ++ArmageddonCounter;
-                if (ArmageddonCounter > 5)
-                    ArmageddonCounter = 5;
-                for (int i = 0; i < ArmageddonCounter; ++i)
-                {
-                    Ship exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
-                            player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
-                                RandomMath.RandomBetween(-500000f, 500000f)));
-                    exterminator.AI.DefaultAIState = AIState.Exterminate;
-                }
-            }
-        }
-    }*/
 
     public enum RemnantShipType
     {
