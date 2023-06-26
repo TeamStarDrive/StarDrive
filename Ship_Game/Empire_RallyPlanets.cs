@@ -182,7 +182,7 @@ public sealed partial class Empire
     {
         if (ports.Count != 0)
         {
-            float cost = troop.ActualCost;
+            float cost = troop.ActualCost(this);
             chosen = FindPlanetToBuildAt(ports, cost, sData: null, 0.2f, priority);
             return chosen != null;
         }

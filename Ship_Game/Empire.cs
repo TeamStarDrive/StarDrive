@@ -2061,16 +2061,22 @@ namespace Ship_Game
             TotalScore = (int)(MilitaryScore + IndustrialScore + TechScore + ExpansionScore);
         }
 
-        private void AbsorbAllEnvPreferences(Empire target)
+        void AbsorbAllEnvPreferences(Empire target)
         {
-            data.EnvTerran  = Math.Max(data.EnvTerran, target.data.EnvTerran);
-            data.EnvOceanic = Math.Max(data.EnvOceanic, target.data.EnvOceanic);
-            data.EnvSteppe  = Math.Max(data.EnvSteppe, target.data.EnvSteppe);
-            data.EnvTundra  = Math.Max(data.EnvTundra, target.data.EnvTundra);
-            data.EnvSwamp   = Math.Max(data.EnvSwamp, target.data.EnvSwamp);
-            data.EnvDesert  = Math.Max(data.EnvDesert, target.data.EnvDesert);
-            data.EnvIce     = Math.Max(data.EnvIce, target.data.EnvIce);
-            data.EnvBarren  = Math.Max(data.EnvBarren, target.data.EnvBarren);
+            data.EnvTerran  = GetBonus(target.data.EnvTerran, data.EnvTerran);
+            data.EnvOceanic = GetBonus(target.data.EnvOceanic, data.EnvOceanic);
+            data.EnvSteppe  = GetBonus(target.data.EnvSteppe, data.EnvSteppe);
+            data.EnvTundra  = GetBonus(target.data.EnvTundra, data.EnvTundra);
+            data.EnvSwamp   = GetBonus(target.data.EnvSwamp, data.EnvSwamp);    
+            data.EnvDesert  = GetBonus(target.data.EnvDesert, data.EnvDesert);
+            data.EnvIce     = GetBonus(target.data.EnvIce, data.EnvIce);
+            data.EnvBarren  = GetBonus(target.data.EnvBarren, data.EnvBarren);
+
+            float GetBonus(float theirBonus, float ourBonus)
+            {
+                float bonusDiff = theirBonus - ourBonus;
+                return bonusDiff > 0 ? ourBonus + bonusDiff*0.5f : ourBonus;
+            }
         }
 
         public void AbsorbEmpire(Empire target)
