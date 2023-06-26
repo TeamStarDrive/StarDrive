@@ -237,7 +237,7 @@ namespace Ship_Game
                         Ship portal = Owner.Random.Item(portals);
                         for (int i = 0; i < ((int)Universe.P.Difficulty + 1) * 3; i++)
                         {
-                            if (!SpawnShip(RemnantShipType.Exterminator, portal.Position, out _))
+                            if (!SpawnShip(RemnantShipType.Behemoth, portal.Position, out _))
                                 break;
                         }
                     }
@@ -633,6 +633,7 @@ namespace Ship_Game
             AddShipCost(Owner.data.RemnantFrigate,        RemnantShipType.Frigate);
             AddShipCost(Owner.data.RemnantBomberLight,    RemnantShipType.BomberLight);
             AddShipCost(Owner.data.RemnantBomberMedium,   RemnantShipType.BomberMedium);
+            AddShipCost(Owner.data.RemnantBehemoth,       RemnantShipType.Behemoth);
         }
 
         void AddShipCost(string shipName, RemnantShipType type)
@@ -672,7 +673,8 @@ namespace Ship_Game
                 case 16: return RemnantShipType.Carrier;
                 case 17:
                 case 18: return RemnantShipType.Mothership;
-                default: return RemnantShipType.Exterminator;
+                case 19: return RemnantShipType.Exterminator;
+                default: return RemnantShipType.Behemoth;
             }
         }
 
@@ -698,6 +700,7 @@ namespace Ship_Game
                 case RemnantShipType.BomberMedium:   shipName = Owner.data.RemnantBomberMedium;   break;
                 case RemnantShipType.Cruiser:        shipName = Owner.data.RemnantCruiser;        break;
                 case RemnantShipType.TorpedoCruiser: shipName = Owner.data.RemnantTorpedoCruiser; break;
+                case RemnantShipType.Behemoth:       shipName = Owner.data.RemnantBehemoth;       break;
             }
 
             if (shipName.NotEmpty())
@@ -1063,6 +1066,7 @@ namespace Ship_Game
         Frigate,
         BomberLight,
         BomberMedium,
-        Cruiser
+        Cruiser,
+        Behemoth
     }
 }
