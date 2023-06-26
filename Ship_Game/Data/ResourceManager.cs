@@ -651,7 +651,7 @@ namespace Ship_Game
         public static IReadOnlyList<string> TroopTypes => TroopsDictKeys;
 
         public static Troop[] GetTroopTemplatesFor(Empire e)
-            => TroopsList.Filter(t => e.WeCanBuildTroop(t.Name)).Sorted(t => t.ActualCost);
+            => TroopsList.Filter(t => e.WeCanBuildTroop(t.Name)).Sorted(t => t.ActualCost(e));
         
         public static bool GetTroopTemplate(string troopType, out Troop troop)
         {
@@ -665,15 +665,6 @@ namespace Ship_Game
 
             Log.WarningWithCallStack($"Troop {troopType} Template Not found");
             return TroopsList.First;
-        }
-
-        public static float GetTroopCost(string troopType)
-        {
-            if (GetTroopTemplate(troopType, out Troop troop))
-                return troop.ActualCost;
-
-            Log.WarningWithCallStack($"Troop {troopType} Template Not found");
-            return 1;
         }
 
         public static Troop CreateTroop(string troopType, Empire forOwner)

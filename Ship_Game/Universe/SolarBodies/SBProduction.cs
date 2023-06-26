@@ -370,7 +370,7 @@ namespace Ship_Game.Universe.SolarBodies
                     Troop troopTemplate = Owner.GetUnlockedTroops().FindMax(troop => troop.SoftAttack);
                     if (troopTemplate != null)
                     {
-                        return troopTemplate.ActualCost;
+                        return troopTemplate.ActualCost(P.Owner);
                     }
                     else
                     {
@@ -391,7 +391,7 @@ namespace Ship_Game.Universe.SolarBodies
                 isTroop     = true,
                 TroopType   = template.Name,
                 Goal        = goal,
-                Cost        = template.ActualCost,
+                Cost        = template.ActualCost(P.Owner),
                 Rush        = P.Owner.RushAllConstruction,
                 QType       = type
             };
