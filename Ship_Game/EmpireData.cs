@@ -307,6 +307,7 @@ namespace Ship_Game
         [StarData] public string RemnantBomberLight;
         [StarData] public string RemnantBomberMedium;
         [StarData] public string RemnantCruiser;
+        [StarData] public string RemnantBehemoth;
 
         [StarData] public string SpacePortModel;
         [StarData] public float BombEnvironmentDamageMultiplier = 1;
