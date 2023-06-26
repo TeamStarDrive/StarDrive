@@ -111,7 +111,7 @@ namespace Ship_Game.Commands.Goals
             {
                 float production = Owner.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
                 if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
-                    production /= 2;
+                    production *= 0.5f;
 
                 production *= Owner.DifficultyModifiers.RemnantResourceMod;
                 production *= (int)(UState.P.GalaxySize + 1) * 2 * UState.P.StarsModifier / UState.MajorEmpires.Length;
