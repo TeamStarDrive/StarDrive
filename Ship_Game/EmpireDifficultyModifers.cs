@@ -43,6 +43,7 @@
         public readonly float ResearchMod;
         public readonly float TaxMod;
         public readonly float ShipCostMod;
+        public readonly float TroopCostMod;
         public readonly float ResearchTaxMultiplier;
         public readonly float ModHpModifier;
 
@@ -69,6 +70,7 @@
             ResearchMod            = 0;
             TaxMod                 = 0;
             ShipCostMod            = 0;
+            TroopCostMod           = 0;
             ResearchTaxMultiplier  = 0;
             ModHpModifier          = 0;
             PlayerWarPriorityLimit = 10;
@@ -149,6 +151,7 @@
                         ResearchMod    = 0.5f;
                         TaxMod         = 0.5f;
                         ShipCostMod    = -0.2f;
+                        TroopCostMod   = -0.2f;
                         ResearchTaxMultiplier  = 0.7f;
                         PlayerWarPriorityLimit = 5;
                     }
@@ -191,6 +194,7 @@
                         ResearchMod    = 1.2f;
                         TaxMod         = 1f;
                         ShipCostMod    = -0.4f;
+                        TroopCostMod   = -0.4f;
                         ResearchTaxMultiplier  = 0.5f;
                         PlayerWarPriorityLimit = 3;
                     }
@@ -233,6 +237,7 @@
                         ResearchMod            = 2f;
                         TaxMod                 = 1.5f;
                         ShipCostMod            = -0.6f;
+                        TroopCostMod           = -0.6f;
                         ResearchTaxMultiplier  = 0.3f;
                         PlayerWarPriorityLimit = 2;
                     }
