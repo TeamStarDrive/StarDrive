@@ -608,25 +608,20 @@ namespace Ship_Game
             return numTroops + numCombatBuildings;
         }
 
-        public bool CanLaunch(Troop troop, Empire owner)
-        {
-            return troop.CanLaunch && troop.Loyalty == owner;
-        }
-
         // tries to take up to N Launchable troops
-        public IEnumerable<Troop> GetLaunchableTroops(Empire of, int maxToTake = int.MaxValue)
+        public IEnumerable<Troop> GetLaunchableTroops(Empire of, int maxToTake = int.MaxValue, bool forceLaunch = false)
         {
-            for (int i = 0; i < TroopsHere.Count; ++i)
+            for (int i = TroopsHere.Count - 1; i >= 0; --i)
             {
                 Troop troop = TroopsHere[i];
-                if (CanLaunch(troop, of) && maxToTake-- > 0)
+                if (troop.Loyalty == of && (troop.CanLaunch || forceLaunch) && maxToTake-- > 0)
                     yield return troop;
             }
         }
 
         public IEnumerable<Troop> GetTroopsOf(Empire of)
         {
-            for (int i = 0; i < TroopsHere.Count; ++i)
+            for (int i = TroopsHere.Count - 1; i >= 0; --i)
             {
                 Troop troop = TroopsHere[i];
                 if (troop.Loyalty == of)
@@ -636,7 +631,7 @@ namespace Ship_Game
 
         public IEnumerable<Troop> GetTroopsNotOf(Empire notOf)
         {
-            for (int i = 0; i < TroopsHere.Count; ++i)
+            for (int i = TroopsHere.Count - 1; i >= 0; --i)
             {
                 Troop troop = TroopsHere[i];
                 if (troop.Loyalty != notOf)
