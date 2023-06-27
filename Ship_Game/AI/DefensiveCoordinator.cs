@@ -50,24 +50,24 @@ namespace Ship_Game.AI
 
         void ClearEmptyPlanetsOfTroops()
         {
-            foreach (Planet p in Us.Universe.Planets)
-                //@TODO move this to planet.
-                // FB - This code is crappy. And it launches troops into space combat zones as well
-                // and it doesnt only clear empty planets but also adds the planet to defense dict. very misleading
+            //@TODO move this to planet.
+            // FB - This code is crappy. And it launches troops into space combat zones as well
+            // and it doesnt only clear empty planets but also adds the planet to defense dict. very misleading
+            // also why are we running this for the player at all, why do we need to add to defense dict for players?
+            for (int i = 0; i < Us.Universe.Planets.Count; i++)
             {
-                if (Us != Player 
+                Planet p = Us.Universe.Planets[i];
+                if (p.Habitable
+                    && Us != Player 
                     && p.Owner != Us 
                     && !p.EventsOnTiles() 
                     && !p.RecentCombat
                     && !p.TroopsHereAreEnemies(Us))
                 {
-                    p.LaunchAllTroops(Us);
+                    p.ForceLaunchAllTroops(Us);
                 }
-                else if (p.Owner == Us) //This should stay here.
+                else if (p.Owner == Us && p.System != null && !DefenseDict.ContainsKey(p.System)) // This should stay here.
                 {
-                    if (p.System == null || DefenseDict.ContainsKey(p.System))
-                        continue;
-
                     DefenseDict.Add(p.System, new SystemCommander(this, p.System, Us));
                 }
             }
