@@ -370,7 +370,7 @@ namespace Ship_Game.AI.Tasks
 
                 if (Type == TaskType.Exploration)
                 {
-                    TargetPlanet.LaunchAllTroops(Owner, orderRebase: true);
+                    TargetPlanet.ForceLaunchAllTroops(Owner, orderRebase: true);
                 }
             }
             Owner.AI.QueueForRemoval(this);
