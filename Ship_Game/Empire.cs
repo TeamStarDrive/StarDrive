@@ -1852,9 +1852,7 @@ namespace Ship_Game
                         for (int index = 0; index < planet.PopulationBillion * 2; ++index)
                         {
                             Troop troop = Universe.CreateRebelTroop(rebels);
-
                             var chance = (planet.TileArea - planet.GetFreeTiles(this)) / planet.TileArea;
-
                             if (planet.Troops.Count > 0 && Random.Roll3DiceAvg(chance * 50))
                             {
                                 // convert some random troops to rebels
