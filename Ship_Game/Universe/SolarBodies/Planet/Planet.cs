@@ -365,11 +365,12 @@ namespace Ship_Game
         }
 
         // This will launch troops without having issues with modifying it's own TroopsHere
-        public void LaunchAllTroops(Empire of, bool orderRebase = false)
+        // We are using force launch since these toops are needed out of the planet regardless of their stats
+        public void ForceLaunchAllTroops(Empire of, bool orderRebase = false)
         {
-            foreach (Troop troop in Troops.GetLaunchableTroops(of))
+            foreach (Troop troop in Troops.GetLaunchableTroops(of, forceLaunch: true))
             {
-                Ship troopTransport = troop.Launch();
+                Ship troopTransport = troop.Launch(forceLaunch: true);
                 if (orderRebase)
                     troopTransport?.AI.OrderRebaseToNearest();
             }
@@ -377,7 +378,7 @@ namespace Ship_Game
 
         public void ForceLaunchInvadingTroops(Empire loyaltyToLaunch)
         {
-            foreach (Troop t in Troops.GetLaunchableTroops(loyaltyToLaunch))
+            foreach (Troop t in Troops.GetLaunchableTroops(loyaltyToLaunch, forceLaunch: true))
             {
                 Ship troopTransport = t.Launch(forceLaunch: true);
                 troopTransport?.AI.OrderRebaseToNearest();
