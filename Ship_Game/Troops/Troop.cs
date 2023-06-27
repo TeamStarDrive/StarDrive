@@ -70,7 +70,6 @@ namespace Ship_Game
 
         [XmlIgnore] float UpdateTimer;
         [XmlIgnore] public string DisplayName   => DisplayNameEmpire(Loyalty);
-        [XmlIgnore] public float ActualCost     => Cost * UniverseState.DummyProductionPacePlaceholder;
         [XmlIgnore] public bool CanMove         => AvailableMoveActions > 0;
         [XmlIgnore] public bool CanAttack       => AvailableAttackActions > 0;
         [XmlIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);
@@ -89,6 +88,9 @@ namespace Ship_Game
         /// </summary>
         [XmlIgnore] public bool CanLaunch =>
                 HostPlanet?.Owner == null || Loyalty.isPlayer ? CanMove : CanMove && IsHealthFull;
+
+        public float ActualCost(Empire e) => Cost * (1 + e.DifficultyModifiers.TroopCostMod) 
+            * UniverseState.DummyProductionPacePlaceholder;
 
         SpriteSystem.TextureAtlas TroopAnim;
 
