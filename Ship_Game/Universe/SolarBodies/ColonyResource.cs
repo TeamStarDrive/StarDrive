@@ -229,8 +229,8 @@ namespace Ship_Game.Universe.SolarBodies
 
             // We allow negative flat bonus per building to offset other efforts.
             // But net bonus cannot be negative - so negative flat research buildings are an offset
-            FlatBonus         = FlatBonus.LowerBound(0); 
             float researchMod = Planet.Owner.data.Traits.ResearchMod;
+            FlatBonus         = FlatBonus.LowerBound(0) * (1 + researchMod);
             // @note Research only comes from buildings
             // Outposts and Capital Cities always grant a small bonus
             YieldPerColonist = plusPerColonist * (1 + researchMod);
