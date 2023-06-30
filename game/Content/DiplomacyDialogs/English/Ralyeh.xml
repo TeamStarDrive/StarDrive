@@ -627,7 +627,7 @@
       <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
       <Default>What abomination is this?! You are going behind our back, trying to sign treaties with our mutual enemies?</Default>
       <DL_Agg>Our Alliance is canceled.</DL_Agg>
-      <DL_Ruth>Our relations are off. Soon you will feel our wraith, SING.</DL_Ruth>
+      <DL_Ruth>Our relations are off. Soon you will feel our wrath, SING.</DL_Ruth>
       <DL_Xeno>This is expected, yet not acceptable. We are cutting off our relations with you.</DL_Xeno>
       <DL_Cunn>The Elder God is not pleased.</DL_Cunn>
       <DL_Pac>The Elder God welcomes peaceful solutions, but you should wait until we are not at war with them as well.</DL_Pac>
@@ -652,5 +652,26 @@
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>The Elder God is not pleased.</Default>
     </DialogLine>                        
+
+    <!-- Player war contribution -->
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING</DialogType>
+      <DL_Agg>You are insulting the Elder God by not putting effort in our joint war. Get better, SING!</DL_Agg>
+      <DL_Ruth>The Elder God sees your lack in contribution to our joint war. The Elder God sees all.</DL_Ruth>
+      <DL_Xeno>Ralyeh are the chosen. The chosen agreed to fight with you, SING. You should fight this war as well.</DL_Xeno>
+      <DL_Cunn>You cannot escape the Elder God's gaze. You should fight better in our joint war.</DL_Cunn>
+      <DL_Pac>We agreed to help you in your war and the Elder God dislikes it. You should contribute more to this effort if he is to be pleased.</DL_Pac>
+      <DL_Hon>You disgrace the Elder God by not fighting with us. Get better!</DL_Hon>
+    </DialogLine>  
+	
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION</DialogType>
+      <DL_Agg>The Elder God has deemed you abomination, SING. You did not invest enough in our joint war.</DL_Agg>
+      <DL_Ruth>You did not fight well enough in our joint war, PLURAL. It is time to make some changes.</DL_Ruth>
+      <DL_Xeno>Abominations! The Elder God has seen your lack of participation in our joint war.</DL_Xeno>
+      <DL_Cunn>The Elder God sees all. It has seen your lack of effort in our joint war. Maybe it is time for a change.</DL_Cunn>
+      <DL_Pac>The Elder God dislikes violence, we will not fight your battles for you anymore.</DL_Pac>
+      <DL_Hon>The Eldar God, in it's wisdom, deemed you dishonorable. You did not fight well enough in our joint war. We will now fix this.</DL_Hon>
+    </DialogLine> 	
   </Dialogs>
 </DiplomacyDialog>

@@ -109,6 +109,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 case "Compliment Military":
                 case "Compliment Military Better":
                 case "Insult Military":
+                case "CUTTING_DEALS_WITH_ENEMY":
+                case "TRIED_CUTTING_DEALS_WITH_ENEMY":
+                case "PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING":
+                case "PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION":
                     SetDialogText(GetDialogueByName(whichDialog), DialogState.End);
                     break;
                 default:
@@ -1025,7 +1029,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     if (Them.ProcessAllyCallToWar(Us, EmpireToDiscuss, out string dialog))
                     {
                         text += GetDialogueByName(dialog);
-                        Them.AI.DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
+                        Them.AI.DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar, Us.isPlayer);
                         EmpireToDiscuss.AI.GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
                     }
                     else
@@ -1048,7 +1052,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 else if (ThemAndUs.GetStrength() > 60f && Us.OffensiveStrength > Us.KnownEmpireStrength(EmpireToDiscuss))
                 {
                     text += GetDialogueByName("JoinWar_OK");
-                    Them.AI.DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
+                    Them.AI.DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar, Us.isPlayer);
                     EmpireToDiscuss.AI.GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
                 }
                 else

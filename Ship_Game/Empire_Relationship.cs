@@ -437,6 +437,8 @@ namespace Ship_Game
                             SignPeaceWithEmpireTheySignedWith();
 
                         them.AddToDiplomacyContactView(this, "DECLAREWAR");
+                        if (!PersonalityModifiers.CanWeSurrenderToPlayerAfterBetrayal)
+                            rel.DoNotSurrenderToThem = true;
                         return;
                 }
             }
@@ -499,7 +501,7 @@ namespace Ship_Game
             }
         }
 
-        void AddToDiplomacyContactView(Empire empire, string dialog)
+        public void AddToDiplomacyContactView(Empire empire, string dialog)
         {
             if (dialog == "DECLAREWAR" && IsAtWarWith(empire))
                 return;
@@ -516,6 +518,15 @@ namespace Ship_Game
             }
 
             return activeWars.Count > 0;
+        }
+
+        public bool TryGetActiveWarWithPlayer(out War war)
+        {
+            war = null;
+            if (TryGetActiveWars(out Array<War> activeWars))
+                war = activeWars.Find(war => war.Them == Universe.Player);
+
+            return war != null;
         }
 
         /// <summary>
@@ -612,7 +623,7 @@ namespace Ship_Game
                 ? Universe.ActiveNonPlayerMajorEmpires
                 : Universe.ActiveMajorEmpires;
 
-            potentialEmpires = potentialEmpires.Filter(e => e != this && !GetRelationsOrNull(e)?.RefusedMerge == true);
+            potentialEmpires = potentialEmpires.Filter(e => e != this && GetRelationsOrNull(e)?.CanMergeWithThem == true);
             if (potentialEmpires.Length == 0)
                 return false; // in some cases, all empires will reject the merge
 
