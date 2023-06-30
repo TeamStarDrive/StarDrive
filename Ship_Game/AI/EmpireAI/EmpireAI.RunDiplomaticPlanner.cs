@@ -28,7 +28,10 @@ namespace Ship_Game.AI
             foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
                 if (!rel.Them.IsFaction && !OwnerEmpire.IsFaction && !rel.Them.IsDefeated)
+                {
                     CheckColonizationClaims(rel.Them, rel);
+                    rel.ActiveWar?.MonitorPlayerContribution();
+                }
             }
         }
 

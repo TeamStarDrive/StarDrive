@@ -642,5 +642,26 @@
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>Merge requset declined. Will request a different reviewer.</Default>
     </DialogLine>                        
+	
+  <!-- Player war contribution -->
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING</DialogType>
+      <DL_Agg>Warning: contribution expected in joint war.</DL_Agg>
+      <DL_Ruth>Warning: contribution expected in joint war.</DL_Ruth>
+      <DL_Xeno>Warning: PLURAL might be using allied Opteris as bait in joint war.</DL_Xeno>
+      <DL_Cunn>Theory: PLURAL expect Opteris friends to fight PLURAL wars for them.</DL_Cunn>
+      <DL_Pac>Opteris fight joint war because PLURAL asked them. PLURAL are not doing enough in this war.</DL_Pac>
+      <DL_Hon>Opteris respects PLURAL friends and agreed to fight with them. PLURAL should be more active in eliminating mutual enemies.</DL_Hon>
+    </DialogLine>  
+	
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION</DialogType>
+      <DL_Agg>Error: PLURAL did not do enough in join war. Recalibrating.</DL_Agg>
+      <DL_Ruth>Error: low effort in joint war was detected after warning. Recalibrating.</DL_Ruth>
+      <DL_Xeno>Error: PLURAL are not fighting with us. PLURAL are not to be trusted anymore.Recalibrating.</DL_Xeno>
+      <DL_Cunn>Error: PLURAL are manipulating Opteris in a joint war. PLURAL are not doing enough. Recalibrating.</DL_Cunn>
+      <DL_Pac>Error: Opteris do not want to fight joint war anymore. Opteris want peace. PLURAL are not fighting. Recalibrating.</DL_Pac>
+      <DL_Hon>Error: Dishonor detected. PLURAL are not fighting in our joint war. Recalibrating.</DL_Hon>
+    </DialogLine> 	
   </Dialogs>
 </DiplomacyDialog>

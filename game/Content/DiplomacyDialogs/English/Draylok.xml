@@ -670,5 +670,26 @@
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>We will try to survive, then.</Default>
     </DialogLine>
+	
+  <!-- Player war contribution -->
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING</DialogType>
+      <DL_Agg>You are not doing your share in our war, SING.</DL_Agg>
+      <DL_Ruth>The Council is not pleased with your lack of contribution to our joint war.</DL_Ruth>
+      <DL_Xeno>The Council is worried aboult your contribution to our joint war.</DL_Xeno>
+      <DL_Cunn>Are you trying to backstab us, SING, by letting us do the fighting for you?</DL_Cunn>
+      <DL_Pac>You asked us to fight in a war we were reluctant to commit to, yet we agreed and now we see you are not contributing to this war.</DL_Pac>
+      <DL_Hon>SING, we rescpected our alliance and joined your war, please make sure you contribute yor part.</DL_Hon>
+    </DialogLine>  
+	
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION</DialogType>
+      <DL_Agg>The Council decided you are not doing your part in this war. If you are too weak to proceed, we might as well fight you.</DL_Agg>
+      <DL_Ruth>The Council came to a conclusion you are too weak or too lazy to continue this war. You are not a worthy ally.</DL_Ruth>
+      <DL_Xeno>The Council now realize you should not have been trusted. You have failed to do your part in our joint war.</DL_Xeno>
+      <DL_Cunn>We are not willing to be a pawn in your grand plan, SING, you failed to contribute to a war you wanted our help with.</DL_Cunn>
+      <DL_Pac>PLURAL, we refuse to continue a war that has no point and such low contribution from your side. This is not our way.</DL_Pac>
+      <DL_Hon>The Council decided you are not worthy of our respcet. We honored our alliance and join your war, yet you and avoiding it. We've had enough.</DL_Hon>
+    </DialogLine>  
   </Dialogs>
 </DiplomacyDialog>
