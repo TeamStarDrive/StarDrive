@@ -180,8 +180,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (Them.TryGetActiveWarWithPlayer(out War theirWarWithPlayer))
                 {
                     float strRatioBySize = (OurStartingStrength + Us.OffensiveStrength) * 0.5f 
-                        / ((theirWarWithPlayer.TheirStartingStrength + player.OffensiveStrength) * 0.5f).LowerBound(1);
-                    float contributiopnRatio = StrengthKilled / (theirWarWithPlayer.StrengthLost*strRatioBySize).LowerBound(1);
+                        / ((theirWarWithPlayer.TheirStartingStrength + player.OffensiveStrength) * 0.5f).LowerBound(100);
+                    float contributiopnRatio = StrengthKilled / (theirWarWithPlayer.StrengthLost*strRatioBySize).LowerBound(100);
                     if (contributiopnRatio > Us.PersonalityModifiers.PlayerWarContributionRatioThreshold)
                     {
                         // we are contributing more net effort than the player
