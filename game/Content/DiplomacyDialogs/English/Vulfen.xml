@@ -655,5 +655,25 @@
       <Default>Grrr? Grrrrr!</Default>
     </DialogLine>                            
     
+    <!-- Player war contribution -->
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING</DialogType>
+      <DL_Agg>Grr! You think you can let us fight our own wars? You better join us, or die!</DL_Agg>
+      <DL_Ruth>Grrrr! Fight more in our war, SING!</DL_Ruth>
+      <DL_Xeno>Grr! We want to see you fight more in our joint war, SING.</DL_Xeno>
+      <DL_Cunn>Grrmmm. We are not fighting together as a pack. You rae hiding in your cave!</DL_Cunn>
+      <DL_Pac>You need to fight in ur joint war. We don't like this.</DL_Pac>
+      <DL_Hon>We are friends. We need to fight together! You are resting too much, SING.</DL_Hon>
+    </DialogLine>  
+	
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION</DialogType>
+      <DL_Agg>Grrr! You don't fight your wars, we will now fight you!</DL_Agg>
+      <DL_Ruth>Grrr. You are weak and don't fight in our joint war. Too bad.</DL_Ruth>
+      <DL_Xeno>Grrrr! We are not your friends anymore. Friends fight together.</DL_Xeno>
+      <DL_Cunn>Grrrrr! You think Vulfar are stupid and not see you let us do the fights for you? It's over!</DL_Cunn>
+      <DL_Pac>We will not fight your wars for you, SING!</DL_Pac>
+      <DL_Hon>Grrrr! You dishonor us with your lack of fighting, PLURAL!</DL_Hon>
+    </DialogLine> 		
   </Dialogs>
 </DiplomacyDialog>

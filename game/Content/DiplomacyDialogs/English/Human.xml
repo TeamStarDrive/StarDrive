@@ -639,7 +639,7 @@
       <Default>Sneaking around and trying to sign treaties with our enemies now, aren't you?</Default>
       <DL_Agg>We decided to revoke our alliance. Find other friends and pray we will not become foes.</DL_Agg>
       <DL_Ruth>We decided to revoke our diplomatic relations.</DL_Ruth>
-      <DL_Xeno>We decided to revoke our diplomatic relations, We knew you will betray us, Sing. Beware!</DL_Xeno>
+      <DL_Xeno>We decided to revoke our diplomatic relations, We knew you will betray us, SING. Beware!</DL_Xeno>
       <DL_Cunn>But if you wish to start a backstabbing contest, so it shall be.</DL_Cunn>
       <DL_Pac>It is preferable you thrive to improve relations with our allies, though.</DL_Pac>
       <DL_Hon>'Semper Fi' is a strange term for you. We are deeply disappointed.</DL_Hon>
@@ -664,4 +664,26 @@
       <Default>This is unfortunate. We will try to come up with something else.</Default>
     </DialogLine>
   </Dialogs>
+  
+  <!-- Player war contribution -->
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING</DialogType>
+      <DL_Agg>Contribute more to our joint war, PLURAL, or die!</DL_Agg>
+      <DL_Ruth>We expect you to help more in our joiny effort. This is the final warning.</DL_Ruth>
+      <DL_Xeno>Why are you not contributing to our joint war?</DL_Xeno>
+      <DL_Cunn>Ah, SING, are you trying to use us as cannon fodders in our allied war? Please contribute more.</DL_Cunn>
+      <DL_Pac>Dear PLURAL, we are fighting a war together and is seems you are not into this war. Maybe we could end this war?</DL_Pac>
+      <DL_Hon>You are not honoring our allied war. We are deeply disappointed.</DL_Hon>
+    </DialogLine>  
+	
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION</DialogType>
+      <DL_Agg>This is not acceptable. You are doing nothing in our mutual war!</DL_Agg>
+      <DL_Ruth>Your contribusion to our war is too low. We are not interested anymore.</DL_Ruth>
+      <DL_Xeno>You betrayed us! We will not fight with a trator!</DL_Xeno>
+      <DL_Cunn>Interesting, you have requested us to help you in your war, but you are keeping your end of the bargain.</DL_Cunn>
+      <DL_Pac>PLURAL, you dragged us into this war although you know we dislike fighting. Since you are doing nothing, perhaps we should end our war with them and our friendship with you.</DL_Pac>
+      <DL_Hon>We did not know PLURAL are honorless. You failed to help with a war you requested our aid.</DL_Hon>
+    </DialogLine>  	
+  
 </DiplomacyDialog>

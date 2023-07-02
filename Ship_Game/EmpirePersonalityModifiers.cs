@@ -30,6 +30,9 @@ namespace Ship_Game
         public readonly float PopRatioBeforeMerge; // If enemy has pop bigger then this ratio, consider merge with other empires or surrender
         public readonly float CloserToUsClaimWarn; // Multiplier for distance of new system colonized from empire center, for warning
         public readonly bool ClearNeutralExoticSystems; // Will try to clear neutral exotic systems and deploy research stations and the likes
+        public readonly float PlayerWarContributionRatioThreshold; // How much player sub-contribution ratio the AI can tolerate for allied wars
+        public readonly int PlayerWarContributionMaxWarnings; // How many warning of lesser player requested war is needed by AI to do something about it
+        public readonly bool CanWeSurrenderToPlayerAfterBetrayal; // Will the AI be able to surrender to player after s/he betrayed them in allied war
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -38,6 +41,8 @@ namespace Ship_Game
                 default:
                     ColonizationClaimRatioWarningThreshold = 1;
                     AddAngerAlliedWithEnemies3RdParty      = 25;
+                    PlayerWarContributionRatioThreshold    = 1f;
+                    PlayerWarContributionMaxWarnings       = 2;
                     TurnsAbove95FederationNeeded = 250;
                     TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -66,6 +71,8 @@ namespace Ship_Game
                 case PersonalityType.Aggressive:
                     ColonizationClaimRatioWarningThreshold = 0.9f;
                     AddAngerAlliedWithEnemies3RdParty      = 75;
+                    PlayerWarContributionRatioThreshold    = 1f;
+                    PlayerWarContributionMaxWarnings       = 1;
                     TurnsAbove95FederationNeeded = 350;
                     TurnsAbove95AllianceTreshold = 300;
                     AllianceValueAlliedWithEnemy = 0.4f;
@@ -94,6 +101,8 @@ namespace Ship_Game
                 case PersonalityType.Ruthless:
                     ColonizationClaimRatioWarningThreshold = 0.8f;
                     AddAngerAlliedWithEnemies3RdParty      = 75;
+                    PlayerWarContributionRatioThreshold    = 1.1f;
+                    PlayerWarContributionMaxWarnings       = 1;
                     TurnsAbove95FederationNeeded = 420;
                     TurnsAbove95AllianceTreshold = 250;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -122,6 +131,8 @@ namespace Ship_Game
                 case PersonalityType.Xenophobic:
                     ColonizationClaimRatioWarningThreshold = 0.6f;
                     AddAngerAlliedWithEnemies3RdParty      = 100;
+                    PlayerWarContributionRatioThreshold    = 1.15f;
+                    PlayerWarContributionMaxWarnings       = 1;
                     TurnsAbove95FederationNeeded = 600;
                     TurnsAbove95AllianceTreshold = 200;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -149,7 +160,10 @@ namespace Ship_Game
                     break;
                 case PersonalityType.Cunning:
                     ColonizationClaimRatioWarningThreshold = 1;
+                    CanWeSurrenderToPlayerAfterBetrayal    = true;
                     AddAngerAlliedWithEnemies3RdParty      = 50;
+                    PlayerWarContributionRatioThreshold    = 1.15f;
+                    PlayerWarContributionMaxWarnings       = 2;
                     TurnsAbove95FederationNeeded = 320;
                     TurnsAbove95AllianceTreshold = 150;
                     AllianceValueAlliedWithEnemy = 0.6f;
@@ -178,6 +192,8 @@ namespace Ship_Game
                 case PersonalityType.Honorable:
                     ColonizationClaimRatioWarningThreshold = 1;
                     AddAngerAlliedWithEnemies3RdParty      = 100;
+                    PlayerWarContributionRatioThreshold    = 1.1f;
+                    PlayerWarContributionMaxWarnings       = 1;
                     TurnsAbove95FederationNeeded = 250;
                     TurnsAbove95AllianceTreshold = 125;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -206,6 +222,8 @@ namespace Ship_Game
                 case PersonalityType.Pacifist:
                     ColonizationClaimRatioWarningThreshold = 1.25f;
                     AddAngerAlliedWithEnemies3RdParty      = 25;
+                    PlayerWarContributionRatioThreshold    = 1.1f;
+                    PlayerWarContributionMaxWarnings       = 2;
                     TurnsAbove95FederationNeeded = 300;
                     TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.8f;

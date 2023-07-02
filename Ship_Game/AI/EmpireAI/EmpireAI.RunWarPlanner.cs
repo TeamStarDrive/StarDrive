@@ -82,7 +82,7 @@ namespace Ship_Game.AI
                 them.Pirates.ResetPaymentTimerFor(OwnerEmpire);
         }
 
-        public void DeclareWarOn(Empire them, WarType warType)
+        public void DeclareWarOn(Empire them, WarType warType, bool playerAskedUsToJoin = false)
         {
             Empire us = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
@@ -120,7 +120,7 @@ namespace Ship_Game.AI
 
             usToThem.AtWar     = true;
             usToThem.ChangeToHostile();
-            usToThem.ActiveWar = War.CreateInstance(us, them, warType);
+            usToThem.ActiveWar = War.CreateInstance(us, them, warType, playerAskedUsToJoin);
             usToThem.Trust     = 0f;
             us.BreakAllTreatiesWith(them, includingPeace: true);
 
