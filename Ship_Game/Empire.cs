@@ -2383,6 +2383,19 @@ namespace Ship_Game
             return rel?.IsHostile == true;
         }
 
+        public IEnumerable<IncomingThreat> AlliedSystemsWithThreat()
+        {
+            foreach (Empire e in Universe.MajorEmpires.Filter(e => e.IsAlliedWith(this)))
+            {
+                for (int i = e.SystemsWithThreat.Length - 1; i >= 0; i--)
+                {
+                    IncomingThreat threat = e.SystemsWithThreat[i];
+                    if (!threat.TargetSystem.HasPlanetsOwnedBy(this))
+                        yield return threat;
+                }
+            }
+        }
+
         public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);
 
         public Planet FindPlanet(int planetId)
