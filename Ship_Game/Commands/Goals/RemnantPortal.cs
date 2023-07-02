@@ -91,7 +91,7 @@ namespace Ship_Game.Commands.Goals
 
         void FocusOnEmpireIfUnderAttack()
         {
-            if (Remnants.Story == Remnants.RemnantStory.AncientRaidersRandom
+            if (Remnants.Story != Remnants.RemnantStory.AncientRaidersRandom
                 && Remnants.FocusOnEmpire == null
                 && Portal.HealthPercent < 0.9f)
             {
