@@ -51,7 +51,8 @@ namespace Ship_Game.AI
         ProjectorBridge,
         ProcessResearchStation,
         SupplyGoodsToStation,
-        InhibitorInvestigate
+        InhibitorInvestigate,
+        RemnantDefendPortal
     }
 
     public enum GoalStep
@@ -133,6 +134,9 @@ namespace Ship_Game.AI
         public virtual bool IsBuildingOrbitalFor(SolarSystem system) => false;
         /** @return True if this goal is Remnants targeting this planet */
         public virtual bool IsRemnantEngageAtPlanet(Planet planet) => false;
+
+        /** @return True if this goal is Remnants defending this portal */
+        public virtual bool IsRemnantDefendingPortal(Ship portal) => false;
 
         /** @return True if this is a WarMission goal targeting this planet */
         public virtual bool IsWarMissionTarget(Planet planet) => false;
