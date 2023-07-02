@@ -34,6 +34,7 @@ public class RemnantsDebug : DebugPage
         Text.String($"Activated: {activatedString}");
         Text.String($"Level: {e.Remnants.Level}");
         Text.String($"Resources: {e.Remnants.Production.String()}");
+        Text.String($"Defense Resources: {e.Remnants.DefenseProduction.String()}");
         Text.NewLine();
         Text.String("Empires Population and Strength:");
         for (int i = 0; i < Universe.MajorEmpires.Length; i++)
@@ -80,6 +81,16 @@ public class RemnantsDebug : DebugPage
             }
         }
 
+
+        if (e.Remnants.FocusOnEmpire != null)
+        {
+            Color color = e.Remnants.FocusOnEmpire.EmpireColor;
+            Text.NewLine();
+            Text.String(color,"--------------------");
+            Text.String(color, $"Focusing on Empire: {e.Remnants.FocusOnEmpire.Name}");
+            Text.String(color,"--------------------");
+        }
+
         Text.NewLine();
         Text.String("Fleets:");
         foreach (Fleet fleet in e.ActiveFleets)
@@ -88,8 +99,9 @@ public class RemnantsDebug : DebugPage
                 continue;
 
             Color color = fleet.FleetTask.TargetPlanet?.Owner?.EmpireColor ?? e.EmpireColor;
+            float wantedStr = fleet.FleetTask.TargetPlanet?.Owner != null ? e.Remnants.RequiredAttackFleetStr(fleet.FleetTask.TargetPlanet.Owner) : 0f;
             Text.String(color,$"Target Planet: {fleet.FleetTask.TargetPlanet?.Name ?? ""}, Ships: {fleet.Ships.Count}" +
-                              $", str: {fleet.GetStrength().String()}, Task Step: {fleet.TaskStep}");
+                              $", str/wanted: {fleet.GetStrength().String()}/{wantedStr.String()}, Task Step: {fleet.TaskStep}");
         }
 
         base.Draw(batch, elapsed);

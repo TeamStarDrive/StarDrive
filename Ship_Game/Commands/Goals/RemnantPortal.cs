@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
@@ -88,6 +89,22 @@ namespace Ship_Game.Commands.Goals
             Portal.EmergeFromPortal();
         }
 
+        void FocusOnEmpireIfUnderAttack()
+        {
+            if (Remnants.Story == Remnants.RemnantStory.AncientRaidersRandom
+                && Remnants.FocusOnEmpire == null
+                && Portal.HealthPercent < 0.9f)
+            {
+                Remnants.SetFocusOnEmpire(Remnants.Owner.Threats.GetStrongestHostileAt(Portal.System));
+            }
+        }
+
+        void ScrambleDefense()
+        {
+            if (Portal.HealthPercent < 0.95f && !Owner.AI.Goals.Any(g => g.IsRemnantDefendingPortal(Portal)))
+                Owner.AI.AddGoalAndEvaluate(new RemnantDefendPortal(Owner, Portal));
+        }
+
         GoalStep CallGuardians()
         {
             Remnants.CallGuardians(Portal);
@@ -107,6 +124,8 @@ namespace Ship_Game.Commands.Goals
 
             Remnants.OrderEscortPortal(Portal);
             UpdatePosition();
+            ScrambleDefense();
+            FocusOnEmpireIfUnderAttack();
             if (Portal.System != null)
             {
                 float production = Owner.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
