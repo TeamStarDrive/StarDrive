@@ -110,7 +110,7 @@ namespace Ship_Game.Gameplay
         [StarData] public float FearUsed;
         [StarData] public int TurnsAtWar;
         [StarData] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
-        [StarData] public bool CanAttack ; // New: Bilateral condition if these two empires can attack each other
+        [StarData] public bool CanAttack; // New: Bilateral condition if these two empires can attack each other
         [StarData] public bool IsHostile = true; // New: If target empire is hostile and might attack us
         [StarData] public int NumTechsWeGave; // number of tech they have given us, through tech trade or demands.
         [StarData] public EmpireInformation.InformationLevel IntelligenceLevel = EmpireInformation.InformationLevel.Full;
@@ -119,7 +119,11 @@ namespace Ship_Game.Gameplay
         [StarData] public EmpireRiskAssessment Risk;
         [StarData] public EmpireInformation KnownInformation;
 
+        [StarData] public bool DoNotSurrenderToThem;
+
         [XmlIgnore] public float AvailableTrust => Trust - TrustUsed;
+
+        [XmlIgnore] public bool CanMergeWithThem => !RefusedMerge && !DoNotSurrenderToThem;
         [XmlIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
 
         private readonly int FirstDemand   = 50;
@@ -255,6 +259,7 @@ namespace Ship_Game.Gameplay
                 {
                     CancelPrepareForWar();
                     WarnedSystemsList.Clear();
+                    DoNotSurrenderToThem = false;
                 }
             }
         }

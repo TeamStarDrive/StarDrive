@@ -588,6 +588,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.GuardBeforeColonize:  DoPreColonizationGuard(task); break;
                 case MilitaryTask.TaskType.StageFleet:           DoStagingFleet(task);         break;
                 case MilitaryTask.TaskType.InhibitorInvestigate: DoDeepSpaceInvestigate(task); break;
+                case MilitaryTask.TaskType.RemnantPortalDefense: DoRemnantPortalDefense(task); break;
             }
         }
 
@@ -1223,6 +1224,38 @@ namespace Ship_Game.Fleets
 
                     TaskStep = 10; // Goal will wait for fleet to be in this task to disband it.
                     break;
+            }
+        }
+
+        void DoRemnantPortalDefense(MilitaryTask task)
+        {
+            switch (TaskStep)
+            {
+                case 1:
+                    if (task.TargetShip == null)
+                        CombatMoveToAO(task, 10_000);
+                    else if (FleetInAreaInCombat(AveragePos, 100_000) != CombatStatus.InCombat)
+                        FleetMoveToPosition(task.TargetShip.Position, 20_000, MoveOrder.Aggressive);
+
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    AttackEnemyStrengthClumpsInAO(task);
+                    break;
+                case 3:
+                    CombatMoveToAO(task, 10_000);
+                    TaskStep = 4;
+                    break;
+                case 4:
+                    if (!ArrivedAtCombatRally(FinalPosition))
+                        break;
+                    TaskStep = 5;
+                    break;
+                case 5:
+                    Owner.Remnants.DisbandDefenseFleet(this);
+                    FleetTask.EndTask();
+                    break;
+
             }
         }
 

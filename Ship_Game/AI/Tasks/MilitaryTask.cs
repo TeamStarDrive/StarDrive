@@ -145,6 +145,13 @@ namespace Ship_Game.AI.Tasks
             return new(TaskType.RemnantEngagement, owner, planet.Position, aoRadius: 50000f, planet);
         }
 
+        public static MilitaryTask CreateRemnantDefendPortal(Empire owner, Ship portal)
+        {   
+            MilitaryTask task = new(TaskType.RemnantPortalDefense, owner, portal.Position, aoRadius: 150000f);
+            task.TargetShip = portal;
+            return task;
+        }
+
         public static MilitaryTask CreateDefendVsRemnant(Planet planet, Empire owner, float str)
         {
             float strMulti = owner.GetFleetStrEmpireMultiplier(owner.Universe.Remnants);
@@ -351,8 +358,9 @@ namespace Ship_Game.AI.Tasks
             {
                 if (!IsCoreFleetTask)
                 {
-                    foreach (Ship ship in Fleet.Ships)
+                    for (int i = Fleet.Ships.Count - 1; i >= 0; i--)
                     {
+                        Ship ship = Fleet.Ships[i];
                         ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
 
                         if (ship.ShipData.Role != RoleName.troop)
@@ -455,7 +463,8 @@ namespace Ship_Game.AI.Tasks
             StrikeForce,
             StageFleet,
             ReclaimPlanet,
-            InhibitorInvestigate
+            InhibitorInvestigate,
+            RemnantPortalDefense
         }
 
         [Flags]

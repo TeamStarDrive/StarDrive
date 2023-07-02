@@ -1,5 +1,6 @@
 ﻿using System;
 using Ship_Game.AI;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Commands.Goals
@@ -27,6 +28,7 @@ namespace Ship_Game.Commands.Goals
         }
 
         WarType GetWarType() => Owner.GetRelations(TargetEmpire).ActiveWar.WarType;
+        War ActiveWar => Owner.GetRelations(TargetEmpire).ActiveWar;
 
         GoalStep SelectTargetSystems()
         {
