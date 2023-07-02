@@ -658,5 +658,27 @@ Heed well our warrior-poets, SING, and anger not the mighty Kulrathi</Neutral>
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>Then we shall part our ways.</Default>
     </DialogLine>                    
+	
+  <!-- Player war contribution -->
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING</DialogType>
+      <DL_Agg>You should use your blades in our joint war, SING</DL_Agg>
+      <DL_Ruth>Why are your blades lowered in our joint war? You asked us to join you.</DL_Ruth>
+      <DL_Xeno>The Kulrathi is worried aboult your contribution to our joint war.</DL_Xeno>
+      <DL_Cunn>Are you trying to backstab us, SING, by letting us do the fighting for you?</DL_Cunn>
+      <DL_Pac>We are fighting this war because you asked us to join you, yet you barely use your blades.</DL_Pac>
+      <DL_Hon>We are fighting this war because we honored our alliance. You should fight too.</DL_Hon>
+    </DialogLine>  
+	
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION</DialogType>
+      <DL_Agg>You did not do you job in a war you requested our aid. Perhaps you are the one to fight with.</DL_Agg>
+      <DL_Ruth>Your lack of success in our joint war proves you are a pup.</DL_Ruth>
+      <DL_Xeno>The Kulrathi should not have trust a pup, SING. Your lack of contribution to our joint war will not be tolerated.</DL_Xeno>
+      <DL_Cunn>The Kulrathi will not be pawns in your games, SING, you failed to contribute to a war you wanted our help with.</DL_Cunn>
+      <DL_Pac>PLURAL, our joint war is not something we want to continue, after we witnessed your weak contribution to the effort.</DL_Pac>
+      <DL_Hon>You have no honor. We joined this war to support you, yet you do not contribute your share. The Kulrathi will not tolerate dishonor!</DL_Hon>
+    </DialogLine> 
+	
   </Dialogs>
 </DiplomacyDialog>

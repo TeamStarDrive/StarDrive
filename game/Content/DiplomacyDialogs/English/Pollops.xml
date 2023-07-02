@@ -656,6 +656,27 @@
     <DialogLine>
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>This is sad. There is no joy in darkness.</Default>
-    </DialogLine>                        
+    </DialogLine>      
+
+    <!-- Player war contribution -->
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING</DialogType>
+      <DL_Agg>Dark skies upon us. PLURAL are too weak to fight in our joint war.</DL_Agg>
+      <DL_Ruth>Dark skies upon us. PLURAL are not fighting in our joint war.</DL_Ruth>
+      <DL_Xeno>PLURAL are not fighting in our joint war. please do not become pests.</DL_Xeno>
+      <DL_Cunn>Cloudy day. It seems our good PLURAL friends forgot to fight our joint war. Please remember to fight next sunrize.</DL_Cunn>
+      <DL_Pac>PLURAL good friends, please make sure you participate in our joint war. It is hard for us to fight alone.</DL_Pac>
+      <DL_Hon>What a stormy day. PLURAL allies, please start honoring our agreement and put more energy in fighting our joint war.</DL_Hon>
+    </DialogLine>  
+	
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION</DialogType>
+      <DL_Agg>You are not our friends anymore, PLURAL. You did not do enough in our joint war and should now be made fertilizer.</DL_Agg>
+      <DL_Ruth>Darkness upon you, SING. You did not fight hard enough in a joint war you requseted our help with.</DL_Ruth>
+      <DL_Xeno>You are nothing but parasites, PLURAL. You let us fight your own wars!</DL_Xeno>
+      <DL_Cunn>You are manipulating poor Pollps in a joint war. You are not doing enough. We don't like it.</DL_Cunn>
+      <DL_Pac>We do not want to fight your wars for you. We like peace and tranquility.</DL_Pac>
+      <DL_Hon>Shadows cast over our alliance, PLURAL. You did not do enough in a war you requested us to join.</DL_Hon>
+    </DialogLine> 
   </Dialogs>
 </DiplomacyDialog>

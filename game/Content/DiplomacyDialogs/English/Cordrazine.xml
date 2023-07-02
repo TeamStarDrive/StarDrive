@@ -641,7 +641,7 @@
       <DL_Xeno>Master said he knew you would betray Cordrazine and we should not trust aliens. We do not want anything with you.</DL_Xeno>
       <DL_Cunn>Master says you are sneaky sneaky. But Cordrazine are more sneaky.</DL_Cunn>
       <DL_Pac>Master says next time sign treaties with our friends and not our enemies.</DL_Pac>
-      <DL_Hon>master is very very angry. Having sneaky sneaky friends is not good. You are jerky jerky friends.</DL_Hon>
+      <DL_Hon>Master is very very angry. Having sneaky sneaky friends is not good. You are jerky jerky friends.</DL_Hon>
     </DialogLine>
     
     <!-- Merge and Surrender -->
@@ -662,5 +662,26 @@
       <DialogType>OFFER_MERGE_REJECTED</DialogType>
       <Default>Oh nooo! Master will beat us bad for this!</Default>
     </DialogLine>
+	
+  <!-- Player war contribution -->
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_WARNING</DialogType>
+      <DL_Agg>Master says you need to kill more enemies in our war.</DL_Agg>
+      <DL_Ruth>PLURAL are crazy. You asked us to joib you but you don't kill enemies. Master is angry.</DL_Ruth>
+      <DL_Xeno>Master says we are allies but you don't help with fighting.</DL_Xeno>
+      <DL_Cunn>Master says you are using Cordrazine as bait in war. Master is worried.</DL_Cunn>
+      <DL_Pac>Master says you asked us to fight with you even though we don't like fighting. Now you are not doing much in this war. Master does not like this war.</DL_Pac>
+      <DL_Hon>Master is sad. You are not honoring our agreement on the joint war. Master says you need to kill more enemies.</DL_Hon>
+    </DialogLine>  
+	
+    <DialogLine>
+      <DialogType>PLAYER_ALLIED_WAR_CONTRIBUTION_ACTION</DialogType>
+      <DL_Agg>Ohwhahaha! Master says we are killing more enemies than you in our war. PLURAL are weak.</DL_Agg>
+      <DL_Ruth>Ohwhahaha! Master says we don't like you anymore. PLURAL don't kill enough ships in our war.</DL_Ruth>
+      <DL_Xeno>Ohwhahaha! Master is angry. Master is saying you are not good alien friends because you don't kill ships in our war.</DL_Xeno>
+      <DL_Cunn>Master says Cordrazine is being used by PLURAL in our war. PLURAL do nothing.</DL_Cunn>
+      <DL_Pac>PLURAL, you dragged us into this war although you know we dislike fighting. Since you are doing nothing, perhaps we should end our war with them and our friendship with you.</DL_Pac>
+      <DL_Hon>Oh nooo! PLURAL did not do enough in our war. Master is angry.</DL_Hon>
+    </DialogLine>  		
   </Dialogs>
 </DiplomacyDialog>
