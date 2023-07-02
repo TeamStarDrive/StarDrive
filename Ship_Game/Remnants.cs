@@ -12,6 +12,7 @@ using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Utils;
+using System.Collections.Generic;
 #pragma warning disable CA1065
 
 namespace Ship_Game
@@ -32,12 +33,14 @@ namespace Ship_Game
         [StarData] public bool Activated { get; private set; }
         [StarData] public RemnantStory Story { get; private set; }
         [StarData] public float Production { get; private set; }
+        [StarData] public float DefenseProduction { get; private set; }
         [StarData] public int Level { get; private set; } = 1;
         [StarData] public Map<RemnantShipType, float> ShipCosts { get; private set; } = new();
         [StarData] public int StoryStep { get; private set; } = 1;
         [StarData] public bool OnlyRemnantLeft { get; private set; }
         [StarData] public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
         [StarData] public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
+        [StarData] public Empire FocusOnEmpire { get; private set; }
 
         // whether to display verbose state logs
         public bool Verbose;
@@ -83,6 +86,7 @@ namespace Ship_Game
         }
 
         float StepXpTrigger => (ShipRole.GetMaxExpValue() * StoryStep * StoryStep * 0.5f).UpperBound(ActivationXpNeeded);
+        float ProductionLimit => 200 * Level * Level * ((int)Universe.P.Difficulty + 1);  // Level 20 - 320K 
 
         void Activate()
         {
@@ -104,6 +108,12 @@ namespace Ship_Game
                     break;
             }
 
+        }
+
+        public void SetFocusOnEmpire(Empire e)
+        {
+            if (!e.WeArePirates)
+                FocusOnEmpire = e;
         }
 
         void NotifyPlayerOnLevelUp()
@@ -279,6 +289,12 @@ namespace Ship_Game
 
         public bool FindValidTarget(out Empire target)
         {
+            if (FocusOnEmpire != null)
+            {
+                target= FocusOnEmpire;
+                return true;
+            }
+
             var empiresList = GlobalStats.RestrictAIPlayerInteraction 
                                  ? Universe.ActiveNonPlayerMajorEmpires
                                  : Universe.ActiveMajorEmpires;
@@ -335,13 +351,13 @@ namespace Ship_Game
                 return empiresList.First();
 
             var averagePop    = empiresList.Average(e => e.TotalPopBillion);
-            var averageStr    = empiresList.Average(e => e.CurrentMilitaryStrength);
+            var averageStr    = empiresList.Average(e => e.OffensiveStrength);
             Empire bestEmpire = null;
             float ratioOverAverage = 0;
             foreach (Empire empire in empiresList)
             {
                 float ratio = (empire.TotalPopBillion / averagePop +
-                               empire.CurrentMilitaryStrength / averageStr) * 0.5f;
+                               empire.OffensiveStrength / averageStr) * 0.5f;
                 if (ratio > ratioOverAverage)
                 {
                     ratioOverAverage = ratio;
@@ -364,7 +380,7 @@ namespace Ship_Game
                 return planets.Count > 1 || planets.Count == 1 && Level > planets[0].Level + 1;
             });
 
-            return potentialTargets.Length == 0 ? null : potentialTargets.FindMin(e => e.CurrentMilitaryStrength);
+            return potentialTargets.Length == 0 ? null : potentialTargets.FindMin(e => e.OffensiveStrength);
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, float neededStr, out Array<Ship> ships)
@@ -445,7 +461,11 @@ namespace Ship_Game
             {
                 Ship ship = portal.System.ShipList[i];
                 if (!ship.IsPlatformOrStation && ship.IsGuardian && !ship.InCombat && ship.AI.EscortTarget == null && ship.Fleet == null)
+                {
                     ship.AI.AddEscortGoal(portal);
+                    if (ship.OrdnancePercent < 1)
+                        ship.ChangeOrdnance(2);
+                }
             }
         }
 
@@ -526,6 +546,15 @@ namespace Ship_Game
             return Owner.Random.Item(planets);
         }
 
+        public float RequiredAttackFleetStr(Empire targetEmpire)
+        {
+            float empireMultiplier = targetEmpire.isPlayer ? 1f : 0.4f;
+            float strMultiplier = 1 + (int)Owner.Universe.P.Difficulty*0.4f; // 1, 1.4, 1.8, 2.2
+            float str = targetEmpire.OffensiveStrength * strMultiplier * empireMultiplier;
+            return str.Clamped(min: Level * Level * 1000 * strMultiplier,
+                               max: str * Level / MaxLevel);
+        }
+
         public void CallGuardians(Ship portal) // One guarding from each relevant system
         {
             foreach (SolarSystem system in portal.Universe.Systems)
@@ -574,6 +603,19 @@ namespace Ship_Game
             return RemnantShipType.Bomber;
         }
 
+        public void DisbandDefenseFleet(Fleet fleet)
+        {
+            float totalCost = 0;
+            foreach (Ship ship in fleet.Ships)
+            {
+                totalCost += ship.GetCost() * ship.HealthPercent;
+                ship.EmergeFromPortal();
+                ship.QueueTotalRemoval();
+            }
+
+            AddToDefenseProduction(totalCost * 0.5f);
+        }
+
         public bool CreatePortal()
         {
             if (CreatePortal(Universe, out Ship portal, out string systemName))
@@ -605,16 +647,44 @@ namespace Ship_Game
         public bool CreateShip(Ship portal, bool needBomber, int numShips, out Ship ship)
         {
             ship = null;
-            RemnantShipType type = needBomber ? GetBomberType(out _) : SelectShipForCreation(numShips);
+            RemnantShipType type = needBomber ? GetBomberType(out _) : SelectShipForCreation(Level, numShips);
             if (!ShipCosts.TryGetValue(type, out float cost) || Production < cost)
                 return false;
 
             if (!SpawnShip(type, portal.Position, out ship))
                 return false;
 
-            GenerateProduction(-cost);
+            Production -= cost;
             ship.EmergeFromPortal();
             return true;
+        }
+
+        public bool CreateDefenseShips(Vector2 pos, out Array<Ship> ships)
+        {
+            ships = new();
+            int level = Level * 2;
+            int numShips = 0;
+            while (DefenseProduction > 0)
+            {
+                RemnantShipType type = SelectShipForCreation(level, numShips);
+                if (!ShipCosts.TryGetValue(type, out float cost) || DefenseProduction < cost)
+                {
+                    if (--level == 0)
+                        break;
+
+                    continue;
+                }
+
+                if (SpawnShip(type, pos.GenerateRandomPointInsideCircle(15_000, Owner.Random), out Ship ship))
+                {
+                    numShips += 1;
+                    AddToDefenseProduction(-cost);
+                    ships.Add(ship);
+                    continue;
+                }
+            }
+
+            return ships.Count > 0;
         }
 
         void CalculateShipCosts()
@@ -647,12 +717,12 @@ namespace Ship_Game
             ShipCosts.Add(type, ship.ShipData.BaseCost);
         }
 
-        RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
+        RemnantShipType SelectShipForCreation(int level, int shipsInFleet) // Note Bombers are created exclusively 
         {
             int fleetModifier  = shipsInFleet / 12;
-            int effectiveLevel = Level + (int)Universe.P.Difficulty + fleetModifier;
-            effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
-            int roll           = Random.RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
+            int effectiveLevel = level + (int)Universe.P.Difficulty + fleetModifier;
+            effectiveLevel     = effectiveLevel.UpperBound(level * 2);
+            int roll           = Random.RollDie(effectiveLevel, (fleetModifier + level / 2).LowerBound(1));
             switch (roll)
             {
                 case 1:
@@ -741,7 +811,7 @@ namespace Ship_Game
             if (Hibernating)
             {
                 HibernationTurns -= 1;
-                amount /= 5;
+                amount *= 0.2f;
             }
 
             GenerateProduction(amount);
@@ -749,9 +819,19 @@ namespace Ship_Game
 
         void GenerateProduction(float amount)
         {
-            int limit = 200 * ((int)Universe.P.Difficulty).LowerBound(1);
-            Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 240K 
+            Production += amount;
+            float excess = Production - ProductionLimit;
+            if (excess > 0)
+                AddToDefenseProduction(excess);
+            
+            Production = Production.UpperBound(ProductionLimit);
         }
+
+        void AddToDefenseProduction(float amount)
+        {
+            DefenseProduction = (DefenseProduction + amount).UpperBound(ProductionLimit);
+        }
+
 
         public int NumPortals()
         {
@@ -1011,7 +1091,7 @@ namespace Ship_Game
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
         {
-            int divider = 8 * ((int)Universe.P.Difficulty).LowerBound(1); // harder game = earlier activation
+            int divider = 20 + (10 * (int)Universe.P.Difficulty);  // harder game = earlier activation (20,30,40,50)
             for (int i = 0; i < numShips; ++i)
             {
                 Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2, Random);

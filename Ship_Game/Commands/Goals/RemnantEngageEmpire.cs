@@ -67,16 +67,6 @@ namespace Ship_Game.Commands.Goals
             return TargetPlanet != null;
         }
 
-        float RequiredFleetStr()
-        {
-            float strDiv = TargetEmpire.TotalPopBillion / (TargetEmpire.isPlayer ? 150 : 60);
-            float strMultiplier = ((int)UState.P.Difficulty + 1) * 0.4f;
-            float str = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv.LowerBound(1);
-            str = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
-
-            return str.LowerBound(Remnants.Level * Remnants.Level * 200 * strMultiplier);
-        }
-
         float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
 
         GoalStep ReturnToPortal()
@@ -165,7 +155,7 @@ namespace Ship_Game.Commands.Goals
             int numShipsNoBombers = Remnants.NumShipsInFleet(Fleet) - numBombersInFleet;
             Ship singleShip       = null;
 
-            if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, RequiredFleetStr(), out Array<Ship> ships))
+            if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, Remnants.RequiredAttackFleetStr(TargetEmpire), out Array<Ship> ships))
                 if (!Remnants.CreateShip(Portal, missingBombers > 0 && !Portal.InCombat, numShipsNoBombers, out singleShip))
                     return GoalStep.TryAgain;
 
@@ -179,7 +169,7 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < ships.Count; i++)
                 ships[i].AI.AddEscortGoal(Portal);
 
-            if (FleetStrNoBombers < RequiredFleetStr())
+            if (FleetStrNoBombers < Remnants.RequiredAttackFleetStr(TargetEmpire))
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();
@@ -225,7 +215,7 @@ namespace Ship_Game.Commands.Goals
                 TargetEmpire = newVictim;
 
                 // New target is too strong, need to get a new fleet
-                if (RequiredFleetStr() > Fleet.GetStrength())
+                if (Remnants.RequiredAttackFleetStr(TargetEmpire) > Fleet.GetStrength())
                     return ReturnToPortal();
             }
 
