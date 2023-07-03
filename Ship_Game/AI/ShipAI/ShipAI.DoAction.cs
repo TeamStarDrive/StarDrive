@@ -324,9 +324,10 @@ namespace Ship_Game.AI
 
         bool DoExploreSystem(FixedSimTime timeStep)
         {
-            if (Owner.System == ExplorationTarget 
+            if (Owner.System != null 
                 && BadGuysNear 
-                && ExplorationTarget.ShipList.Any(s => s.AI.Target == Owner))
+                && Owner.System.ShipList.Any(s => s.AI.Target == Owner)
+                && !Owner.IsInWarp)
             {
                 ClearOrders();
                 if (Owner.TryGetScoutFleeVector(out Vector2 escapePos))
