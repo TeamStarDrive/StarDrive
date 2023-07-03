@@ -327,8 +327,10 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool TryGetScoutFleeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 100000, true);
-        public bool TryGetEscapeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 20000, false);
+        public bool TryGetScoutFleeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 100000, 
+            ignoreNonCombat: true, reverseIfInWell: true);
+        public bool TryGetEscapeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 20000,
+            ignoreNonCombat: false, reverseIfInWell: false);
 
         /// <summary>
         /// Calculates an escape jump position to disengage from combat
@@ -337,9 +339,10 @@ namespace Ship_Game.Ships
         /// <param name="desiredDistance"></param>
         /// <param name="ignoreNonCombat"></param>
         /// <returns>TRUE if an escape vector was found, FALSE if ship should go straight to resupply target</returns>
-        public bool GetEscapeJumpPosition(out Vector2 escapePos, float desiredDistance, bool ignoreNonCombat)
+        public bool GetEscapeJumpPosition(out Vector2 escapePos, float desiredDistance,
+            bool ignoreNonCombat, bool reverseIfInWell)
         {
-            escapePos = Position + Direction * desiredDistance; // default position - straight through
+            escapePos = Position + Direction*desiredDistance; // default position - straight through
             if (!InCombat && !ignoreNonCombat) // No need for escape position if not in combat - turn around
                 return false;
 
@@ -356,7 +359,8 @@ namespace Ship_Game.Ships
             Planet gravityWell = System.IdentifyGravityWell(this);
             if (gravityWell != null)
             {
-                escapePos = GetEscapePosInGravityWell(gravityWell, desiredDistance);
+                escapePos = reverseIfInWell ? Position - Direction*desiredDistance
+                                            : GetEscapePosInGravityWell(gravityWell, desiredDistance);
                 return true;
             }
 
