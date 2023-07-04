@@ -230,7 +230,7 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             Owner.AI.QueueForRemoval(this);
-
+            Owner.AI.RemoveTaskFromGoals(this);
 
             if (Owner.IsFaction)
             {
