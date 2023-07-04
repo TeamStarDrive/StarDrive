@@ -327,8 +327,12 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool TryGetScoutFleeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 100000, 
-            ignoreNonCombat: true, reverseIfInWell: true);
+        public bool TryGetScoutFleeVector(out Vector2 escapePos)
+        {
+            TryAddResearchableStarNotification();
+            System.SetExploredBy(Loyalty);
+            return GetEscapeJumpPosition(out escapePos, 100000, ignoreNonCombat: true, reverseIfInWell: true);
+        }
         public bool TryGetEscapeVector(out Vector2 escapePos) => GetEscapeJumpPosition(out escapePos, 20000,
             ignoreNonCombat: false, reverseIfInWell: false);
 

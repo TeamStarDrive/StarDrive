@@ -175,9 +175,7 @@ namespace Ship_Game.Ships
             {
                 if (!System.IsExploredBy(Loyalty) && Position.InRadius(System.Position, ExploreSystemDistance))
                 {
-                    if (Loyalty.isPlayer && System.IsResearchable) 
-                        Universe.Screen.NotificationManager?.AddReseachableStar(System);
-
+                    TryAddResearchableStarNotification();
                     System.SetExploredBy(Loyalty); // Arrived to a system for the first time
                 }
 
@@ -212,15 +210,16 @@ namespace Ship_Game.Ships
                         Universe.Screen.NotificationManager?.AddReseachablePlanet(p);
 
                     p.SetExploredBy(Loyalty);
-
-                    if (!System.IsExploredBy(Loyalty) && Loyalty.isPlayer && System.IsResearchable)
-                        Universe.Screen.NotificationManager.AddReseachableStar(System);
-
-
                     System.SetExploredBy(Loyalty); // in case no one was on sensor range from the Star itself
                     System.UpdateFullyExploredBy(Loyalty);
                 }
             }
+        }
+        
+        public void TryAddResearchableStarNotification()
+        {
+            if (System != null && Loyalty.isPlayer && System.IsResearchable && !System.IsExploredBy(Loyalty))
+                Universe.Screen.NotificationManager?.AddReseachableStar(System);
         }
 
         public void UpdateThrusters(FixedSimTime timeStep)
