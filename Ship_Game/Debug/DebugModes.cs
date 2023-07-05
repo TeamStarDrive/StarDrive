@@ -25,6 +25,7 @@ public enum DebugModes
     Tasks,
     Particles,
     SpaceRoads,
+    Goals,
 
 
     // this should always be the last valid page

@@ -158,12 +158,12 @@ namespace Ship_Game
             float ringRad = 0.023f * pulseTime;
             foreach (IncomingThreat threat in Player.SystemsWithThreat)
             {
-                var system = threat.TargetSystem;
-                Vector2 miniSystemPos = WorldToMiniPos(system.Position);
-                float pulseRad = radius + ringRad;
-                batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, pulseRad + 0.009f, SpriteEffects.None, 0f);
-                batch.Draw(Node1, miniSystemPos, Color.Black, 0f, Node.CenterF, pulseRad + 0.002f, SpriteEffects.None, 0f);
-                batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, radius , SpriteEffects.None, 0f);
+                DrawThreats(Color.Red, threat);
+            }
+
+            foreach (IncomingThreat threat in Player.AlliedSystemsWithThreat())
+            {
+                DrawThreats(Color.Orange, threat);
             }
 
             foreach (var system in Player.AI.ThreatMatrix.GetAllSystemsWithFactions())
@@ -184,6 +184,16 @@ namespace Ship_Game
                 batch.Draw(Node1, point, warningColor, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.005f, SpriteEffects.None, 1f);
                 batch.Draw(Node1, point, c.Loyalty.EmpireColor, 0f, Node.CenterF, 0.012f, SpriteEffects.None, 1f);
+            }
+
+            void DrawThreats(Color color, IncomingThreat threat)
+            {
+                var system = threat.TargetSystem;
+                Vector2 miniSystemPos = WorldToMiniPos(system.Position);
+                float pulseRad = radius + ringRad;
+                batch.Draw(Node1, miniSystemPos, color, 0f, Node.CenterF, pulseRad + 0.009f, SpriteEffects.None, 0f);
+                batch.Draw(Node1, miniSystemPos, Color.Black, 0f, Node.CenterF, pulseRad + 0.002f, SpriteEffects.None, 0f);
+                batch.Draw(Node1, miniSystemPos, color, 0f, Node.CenterF, radius, SpriteEffects.None, 0f);
             }
         }
 

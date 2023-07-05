@@ -83,6 +83,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.RestartGoal;
 
             if (FinishedShip.AI.BadGuysNear
+                && !FinishedShip.IsInWarp
                 && FinishedShip.System == FinishedShip.AI.ExplorationTarget
                 && FinishedShip.System.ShipList.Any(s => s.AI.Target == FinishedShip))
             {
