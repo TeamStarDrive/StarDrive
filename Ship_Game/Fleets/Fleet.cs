@@ -698,8 +698,7 @@ namespace Ship_Game.Fleets
                 case 1:
                     if (!DoOrbitTaskArea(task) || !AttackEnemyStrengthClumpsInAO(task))
                         EndInvalidTask(--DefenseTurns <= 0 
-                                       && !Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut 
-                                                                         && t.TargetSystem == task.TargetPlanet.System));
+                            && !Owner.IsSystemUnderThreatForUs(task.TargetPlanet.System));
                     break;
             }
         }
@@ -1501,7 +1500,9 @@ namespace Ship_Game.Fleets
                 task.TargetEmpire = Owner.AI.ThreatMatrix.GetStrongestHostileAt(FleetTask.TargetSystem);
 
             float enemyStrength = Owner.AI.ThreatMatrix.GetHostileStrengthAt(task.AO, task.AORadius);
-            bool threatIncoming = Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
+            bool threatIncoming = Owner.IsSystemUnderThreatForUs(FleetTask.TargetSystem)
+                || Owner.IsSystemUnderThreatForAllies(FleetTask.TargetSystem);
+
             if (threatIncoming && EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
                 return; // If no threat is incoming, stay put to clear remaining lone ships
 

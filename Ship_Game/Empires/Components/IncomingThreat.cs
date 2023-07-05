@@ -11,7 +11,7 @@ namespace Ship_Game.Empires.Components;
 [StarDataType]
 public class IncomingThreat
 {
-    [StarData] readonly Empire Owner;
+    [StarData] public readonly Empire Owner;
     [StarData] public readonly SolarSystem TargetSystem;
 
     [StarData] public float ThreatTimer { get; private set; }
