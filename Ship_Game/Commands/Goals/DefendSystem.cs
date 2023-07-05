@@ -12,6 +12,9 @@ namespace Ship_Game.Commands.Goals
     {
         [StarData] public SolarSystem TargetSystem;
 
+        // For defending allied empires. If it's null - we are defending ourselves
+        [StarData] public sealed override Empire TargetEmpire { get; set; } 
+
         [StarDataConstructor]
         public DefendSystem(Empire owner) : base(GoalType.DefendSystem, owner)
         {
@@ -23,10 +26,11 @@ namespace Ship_Game.Commands.Goals
         }
 
         public DefendSystem(Empire owner, SolarSystem system, float strengthWanted, int fleetCount
-            , MilitaryTaskImportance importance): this(owner)
+            , MilitaryTaskImportance importance, Empire targetEmpire): this(owner)
         {
             StarDateAdded  = owner.Universe.StarDate;
             TargetSystem   = system;
+            TargetEmpire   = targetEmpire;
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;
 
@@ -48,9 +52,12 @@ namespace Ship_Game.Commands.Goals
 
             if (Task.Fleet == null)
             {
-                if (LifeTime > 10 && !Owner.SystemsWithThreat.Any(ts => !ts.ThreatTimedOut && ts.TargetSystem == TargetSystem))
+                if (!AlliedWithTargetEmpire
+                    || LifeTime > 10
+                       && !Owner.IsSystemUnderThreatForUs(TargetSystem) 
+                       && !Owner.IsSystemUnderThreatForAllies(TargetSystem))
                 {
-                    Task.EndTask(); // Timeout
+                    Task.EndTask(); // Timeout or we are not allied with target empire anymore
                     return GoalStep.GoalFailed;
                 }
             }
@@ -67,5 +74,8 @@ namespace Ship_Game.Commands.Goals
         {
             return Task != null ? GoalStep.TryAgain : GoalStep.GoalComplete;
         }
+
+        bool AlliedWithTargetEmpire => TargetEmpire == null  // If its null, that we need to return true here.
+                                       || TargetEmpire.IsAlliedWith(Owner) == true;
     }
 }

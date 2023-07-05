@@ -28,27 +28,41 @@ namespace Ship_Game.Commands.Goals
             var systems = new Array<IncomingThreat>();
             foreach (IncomingThreat threatenedSystem in Owner.SystemsWithThreat)
             {
-                if (!threatenedSystem.ThreatTimedOut && threatenedSystem.HighPriority)
+                if (!threatenedSystem.ThreatTimedOut
+                    && threatenedSystem.HighPriority
+                    && !Owner.HasWarTaskTargetingSystem(threatenedSystem.TargetSystem))
+                {
                     systems.Add(threatenedSystem);
+                }
             }
 
-            systems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
+            foreach (IncomingThreat threatenedSystem in Owner.AlliedSystemsWithThreat(checkAttackable: true))
+            {
+                if (!threatenedSystem.ThreatTimedOut
+                    && threatenedSystem.HighPriority
+                    && !Owner.HasWarTaskTargetingSystem(threatenedSystem.TargetSystem)
+                    && ShouldConsiderDefendingAlly(threatenedSystem.TargetSystem, threatenedSystem.Owner))
+                {
+                    systems.Add(threatenedSystem);
+                }
+            }
+                    
+            systems.Sort(ts => ts.TargetSystem.WarValueTo(ts.Owner));
             for (int i = 0; i < systems.Count; i++)
             {
                 var threatenedSystem = systems[i];
-                if (!threatenedSystem.TargetSystem.HasPlanetsOwnedBy(Owner)
-                    || Owner.HasWarTaskTargetingSystem(threatenedSystem.TargetSystem))
+                Empire systemOwner = threatenedSystem.Owner;
+                SolarSystem targetSys = threatenedSystem.TargetSystem;
+                if (targetSys.HasPlanetsOwnedBy(systemOwner))
                 {
-                    continue;
+                    float minStr = threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength : 1000;
+                    if (threatenedSystem.Enemies.Length > 0)
+                        minStr *= Owner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(Owner.OffensiveStrength / 5);
+
+                    var importance = systemOwner == Owner ? MilitaryTaskImportance.Important : MilitaryTaskImportance.Normal;
+                    int fleetswanted = 5 - targetSys.DefenseTaskPriority(systemOwner, importance);
+                    Owner.AddDefenseSystemGoal(targetSys, minStr, importance, fleetswanted, systemOwner);
                 }
-
-                float minStr = threatenedSystem.Strength.Greater(500) ? threatenedSystem.Strength : 1000;
-                if (threatenedSystem.Enemies.Length > 0)
-                    minStr *= Owner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(Owner.OffensiveStrength / 5);
-
-                Owner.AddDefenseSystemGoal(threatenedSystem.TargetSystem,
-                    minStr, MilitaryTaskImportance.Important, 5 - threatenedSystem.
-                    TargetSystem.DefenseTaskPriority(Owner, MilitaryTaskImportance.Important));
             }
 
             return GoalStep.GoToNextStep;
@@ -90,7 +104,7 @@ namespace Ship_Game.Commands.Goals
                 return false; // The checked task has the same target system, no need to cancel it
 
             if (possibleTask.Type == MilitaryTask.TaskType.DefendPostInvasion
-                && !Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == targetSystem)
+                && !Owner.IsSystemUnderThreatForUs(targetSystem)
                 && !targetSystem?.DangerousForcesPresent(Owner) == true)
             {
                 return true; // Cancel idle post invasion fleets if we need to defend
@@ -117,6 +131,15 @@ namespace Ship_Game.Commands.Goals
             }
 
             return defenseValue > possibleValue;
+        }
+
+        bool ShouldConsiderDefendingAlly(SolarSystem system, Empire ally)
+        {
+            float  priority = (system.DefenseTaskPriority(ally) * 0.2f).Clamped(0.2f, 1f);  // lower is more important
+            float distanceToThem = system.Position.Distance(ally.WeightedCenter);
+            float distanceToUs   = system.Position.Distance(Owner.WeightedCenter) * priority;
+            float ratio = distanceToUs / distanceToThem.LowerBound(1);
+            return ratio <= Owner.PersonalityModifiers.DistanceToDefendAllyThreshold;
         }
     }
 }
