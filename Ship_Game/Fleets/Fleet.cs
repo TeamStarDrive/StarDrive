@@ -2292,6 +2292,7 @@ namespace Ship_Game.Fleets
         public void Reset(bool returnShipsToEmpireAI = true, bool clearOrders = true)
         {
             RemoveAllShips(returnShipsToEmpireAI, clearOrders: clearOrders);
+            Owner.AI?.RemoveFleetFromGoals(this);
             TaskStep = 0;
             FleetTask = null;
             Key = 0;
