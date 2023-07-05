@@ -60,7 +60,7 @@ namespace Ship_Game.Commands.Goals
                         minStr *= Owner.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(Owner.OffensiveStrength / 5);
 
                     var importance = systemOwner == Owner ? MilitaryTaskImportance.Important : MilitaryTaskImportance.Normal;
-                    int fleetswanted = 5 - targetSys.DefenseTaskPriority(systemOwner, importance);
+                    int fleetswanted = 3 - (int)importance;
                     Owner.AddDefenseSystemGoal(targetSys, minStr, importance, fleetswanted, systemOwner);
                 }
             }
@@ -135,7 +135,7 @@ namespace Ship_Game.Commands.Goals
 
         bool ShouldConsiderDefendingAlly(SolarSystem system, Empire ally)
         {
-            float  priority = (system.DefenseTaskPriority(ally) * 0.2f).Clamped(0.2f, 1f);  // lower is more important
+            float  priority = (system.DefenseTaskPriority() * 0.2f).Clamped(0.1f, 1f);  // lower is more important
             float distanceToThem = system.Position.Distance(ally.WeightedCenter);
             float distanceToUs   = system.Position.Distance(Owner.WeightedCenter) * priority;
             float ratio = distanceToUs / distanceToThem.LowerBound(1);
