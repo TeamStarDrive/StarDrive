@@ -146,6 +146,7 @@ public sealed partial class DebugInfoScreen : GameScreen
             DebugModes.Tasks => new TasksDebug(this),
             DebugModes.Perf => new PerfDebug(this),
             DebugModes.SpaceRoads=> new SpaceRoadsDebug(this),
+            DebugModes.Goals => new EmpireGoalsDebug(this),
             _ => null
         };
     }

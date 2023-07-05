@@ -307,32 +307,18 @@ namespace Ship_Game
         /// Checks the priority of this system for defense tasks
         /// </summary>
         /// <param name="empire"></param>
-        /// <returns>priority between 0 to 4 (0 is the highest)</returns>
-        public int DefenseTaskPriority(Empire empire, MilitaryTaskImportance importance = MilitaryTaskImportance.Normal)
+        /// <returns>priority between 0 to 10 (0 is the highest)</returns>
+        public int DefenseTaskPriority(MilitaryTaskImportance importance = MilitaryTaskImportance.Normal)
         {
-            int priority = 4 - (int)importance;
-            var planetsToCheck = PlanetList.Filter(p => p.Owner == empire);
-            if (planetsToCheck.Length == 0)
+            int priority = 5 - (int)importance; // For sysyems with no owner (like researchable)
+            if (OwnerList.Count > 0)
             {
-                if (OwnerList.Any(empire.IsAtWarWith))
-                    planetsToCheck = PlanetList.Filter(p => p.Owner != null);
-            }
-
-            if (planetsToCheck.Length > 0)
-            {
-                int totalLevels = 0;
-                int totalWeights = 0;
                 // Using weighted level here
-                foreach (Planet p in planetsToCheck)
-                {
-                    totalLevels += p.Level;
-                    totalWeights += p.Level*p.Level;
-                }
-
-                priority = 5 - totalWeights / totalLevels.LowerBound(1);
+                int totalWeights = PlanetList.Sum(p => p.Level * p.Level * (p.HasCapital ? 2 : 1)).LowerBound(1);
+                priority = 60 / totalWeights;
             }
 
-            return priority;
+            return priority.UpperBound(10);
         }
 
         public float PotentialValueFor(Empire e)

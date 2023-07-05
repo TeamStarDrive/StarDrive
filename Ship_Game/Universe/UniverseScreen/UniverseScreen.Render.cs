@@ -172,18 +172,29 @@ namespace Ship_Game
 
         void DrawSystemThreatCirclesAnimation(SpriteBatch batch)
         {
-            var red = new Color(Color.Red, 40);
+            var red = new Color(Color.Red, 80);
+            var orange = new Color(Color.Orange, 80);
             var black = new Color(Color.Black, 40);
 
             foreach (IncomingThreat threat in Player.SystemsWithThreat)
             {
+                DrawThreat(red, threat);
+            }
+
+            foreach (IncomingThreat threat in Player.AlliedSystemsWithThreat())
+            {
+                DrawThreat(orange, threat);
+            }
+
+            void DrawThreat(Color color, IncomingThreat threat)
+            {
                 var system = threat.TargetSystem;
-                float pulseRad = PulseTimer * (threat.TargetSystem.Radius * 1.5f);
+                float pulseRad = PulseTimer * (system.Radius * 1.5f);
 
                 Vector2d posOnScreen = ProjectToScreenPosition(system.Position);
-                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad), red, 10);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad), color, 10);
                 batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.001f), black, 5);
-                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.3f), red, 10);
+                batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.3f), color, 10);
                 batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.301f), black, 5);
             }
         }

@@ -230,7 +230,7 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             Owner.AI.QueueForRemoval(this);
-
+            Owner.AI.RemoveTaskFromGoals(this);
 
             if (Owner.IsFaction)
             {
@@ -404,16 +404,16 @@ namespace Ship_Game.AI.Tasks
                 default:
                 case TaskType.ReclaimPlanet:
                 case TaskType.GlassPlanet:
-                case TaskType.AssaultPlanet:        priority = 5;                                                   break;
-                case TaskType.ClearAreaOfEnemies:   priority = TargetSystem.DefenseTaskPriority(Owner, Importance); break;
-                case TaskType.StageFleet:           priority = 2 * (numWars * 2).LowerBound(1);                     break;
-                case TaskType.GuardBeforeColonize:  priority = 3 + numWars;                                         break;
-                case TaskType.DefendVsRemnants:     priority = 0;                                                   break;
-                case TaskType.StrikeForce:          priority = 2;                                                   break;
-                case TaskType.Exploration:          priority = GetExplorationPriority();                            break;
-                case TaskType.DefendClaim:          priority = 5 + numWars * 2;                                     break;
-                case TaskType.AssaultPirateBase:    priority = GetAssaultPirateBasePriority();                      break;
-                case TaskType.InhibitorInvestigate: priority = 3;                                                   break;
+                case TaskType.AssaultPlanet:        priority = 5;                                            break;
+                case TaskType.ClearAreaOfEnemies:   priority = TargetSystem.DefenseTaskPriority(Importance); break;
+                case TaskType.StageFleet:           priority = 2 * (numWars * 2).LowerBound(1);              break;
+                case TaskType.GuardBeforeColonize:  priority = 3 + numWars;                                  break;
+                case TaskType.DefendVsRemnants:     priority = 0;                                            break;
+                case TaskType.StrikeForce:          priority = 2;                                            break;
+                case TaskType.Exploration:          priority = GetExplorationPriority();                     break;
+                case TaskType.DefendClaim:          priority = 5 + numWars * 2;                              break;
+                case TaskType.AssaultPirateBase:    priority = GetAssaultPirateBasePriority();               break;
+                case TaskType.InhibitorInvestigate: priority = 3;                                            break;
             }
 
             if (TargetEmpire == Owner.Universe.Player && Owner.Universe.Player.AllActiveWars.Length <= Owner.DifficultyModifiers.WarTaskPriorityMod)

@@ -74,8 +74,8 @@ namespace Ship_Game.Commands.Goals
 
             if (LifeTime > Owner.PersonalityModifiers.WarTasksLifeTime && Task.Fleet == null) // check for timeout
             {
-                Task.EndTask();
                 Log.Info(ConsoleColor.Green, $"---- WarMission: Timed out {Task.Type} vs. {TargetEmpire.Name} ----");
+                Task.EndTask();
                 return GoalStep.GoalFailed;
             }
 
