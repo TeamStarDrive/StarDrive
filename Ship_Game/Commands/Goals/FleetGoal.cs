@@ -21,5 +21,11 @@ namespace Ship_Game.Commands.Goals
             if (Task == task)
                 Task = null;    
         }
+
+        public override void RemoveFleet(Fleet fleet)
+        {
+            if (Fleet == fleet)
+                Fleet = null;
+        }
     }
 }
