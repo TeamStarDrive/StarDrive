@@ -141,7 +141,8 @@ namespace Ship_Game.AI.Tasks
 
         void RequisitionDefenseForce()
         {
-            if (!Owner.SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == TargetSystem)
+            if (!Owner.IsSystemUnderThreatForUs(TargetSystem) 
+                && !Owner.IsSystemUnderThreatForAllies(TargetSystem)
                 && !TargetSystem.DangerousForcesPresent(Owner))
             {
                 EndTask();
@@ -373,8 +374,8 @@ namespace Ship_Game.AI.Tasks
             switch (Importance)
             {
                 default:
-                case MilitaryTaskImportance.Normal:    minStr = MinimumTaskForceStrength; break;
-                case MilitaryTaskImportance.Important: minStr = Owner.OffensiveStrength;  break;
+                case MilitaryTaskImportance.Normal:    minStr = MinimumTaskForceStrength;       break;
+                case MilitaryTaskImportance.Important: minStr = Owner.OffensiveStrength * 0.5f; break;
             }
 
             return minStr * GetBuildCapacityMultiplier();

@@ -6,6 +6,8 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Commands.Goals;
+using Ship_Game.AI.Tasks;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.AI
 {
@@ -145,6 +147,11 @@ namespace Ship_Game.AI
         /** @return True if this is an Inhibitor Invesgitation in the area */
         public virtual bool IsInvsestigationHere(Vector2 pos) => false;
 
+        public virtual void RemoveTask(MilitaryTask task)
+        { }
+
+        public virtual void RemoveFleet(Fleet fleet)
+        { }
         /////////////////////////////////////////////////////
 
         public string TypeName => GetType().GetTypeName();

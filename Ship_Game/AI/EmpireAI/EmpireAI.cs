@@ -168,6 +168,18 @@ namespace Ship_Game.AI
             TasksToRemove.Clear();
         }
 
+        public void RemoveTaskFromGoals(MilitaryTask task)
+        {
+            foreach (Goal goal in Goals)
+                goal.RemoveTask(task);
+        }
+
+        public void RemoveFleetFromGoals(Fleet fleet)
+        {
+            foreach (Goal goal in Goals)
+                goal.RemoveFleet(fleet);
+        }
+
         public void DebugRunResearchPlanner()
         {
             // unlock 5 techs with a focus on ship tech
