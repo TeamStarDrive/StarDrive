@@ -2383,18 +2383,27 @@ namespace Ship_Game
             return rel?.IsHostile == true;
         }
 
-        public IEnumerable<IncomingThreat> AlliedSystemsWithThreat()
+        public IEnumerable<IncomingThreat> AlliedSystemsWithThreat(bool checkAttackable = false)
         {
             foreach (Empire e in Universe.MajorEmpires.Filter(e => e.IsAlliedWith(this)))
             {
                 for (int i = e.SystemsWithThreat.Length - 1; i >= 0; i--)
                 {
                     IncomingThreat threat = e.SystemsWithThreat[i];
-                    if (!threat.TargetSystem.HasPlanetsOwnedBy(this))
+                    if (!threat.TargetSystem.HasPlanetsOwnedBy(this)
+                        && (!checkAttackable || threat.Enemies.Any(e => IsEmpireAttackable(e))))
+                    {
                         yield return threat;
+                    }
                 }
             }
         }
+
+        public bool IsSystemUnderThreatForUs(SolarSystem system)
+            => SystemsWithThreat.Any(t => !t.ThreatTimedOut && t.TargetSystem == system);
+
+        public bool IsSystemUnderThreatForAllies(SolarSystem system) 
+            => AlliedSystemsWithThreat().Any(t => !t.ThreatTimedOut && t.TargetSystem == system);
 
         public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);
 

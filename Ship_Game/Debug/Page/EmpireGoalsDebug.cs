@@ -14,7 +14,7 @@ public class EmpireGoalsDebug : DebugPage
     bool ShowGoalStep = false;
     public EmpireGoalsDebug(DebugInfoScreen parent) : base(parent, DebugModes.Goals)
     {
-        var list = AddList(50, 160);
+        var list = AddList(550, 130);
         list.AddCheckbox(() => ShowGoalStep, "Show Goalsteps", "Show Goalsteps");
     }
 
@@ -37,7 +37,7 @@ public class EmpireGoalsDebug : DebugPage
 
     void DrawEmpireGoals(Empire e, int column)
     {
-        Text.SetCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 95, e.EmpireColor);
+        Text.SetCursor(Parent.Win.X + 10 + 255 * column, Parent.Win.Y + 65, e.EmpireColor);
         Text.String(e.data.Traits.Name);
         Text.String(e.EmpireColor, "----------------------");
         Text.String(e.EmpireColor, $"Total Goals: {e.AI.Goals.Count.String()}");

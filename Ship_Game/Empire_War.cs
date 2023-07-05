@@ -215,9 +215,10 @@ namespace Ship_Game
             return !AI.HasGoal(g => g.Type == GoalType.EmpireDefense);
         }
 
-        public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, MilitaryTaskImportance importance, int fleetCount = 1)
+        public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, MilitaryTaskImportance importance, 
+            int fleetCount = 1, Empire targetEmpire = null)
         {
-            AI.AddGoal(new DefendSystem(this, system, strengthWanted, fleetCount, importance));
+            AI.AddGoal(new DefendSystem(this, system, strengthWanted, fleetCount, importance, targetEmpire));
         }
 
         public bool HasWarTaskTargetingSystem(SolarSystem system)
