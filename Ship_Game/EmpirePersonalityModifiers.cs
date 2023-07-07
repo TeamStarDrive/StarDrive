@@ -34,6 +34,7 @@ namespace Ship_Game
         public readonly int PlayerWarContributionMaxWarnings; // How many warning of lesser player requested war is needed by AI to do something about it
         public readonly bool CanWeSurrenderToPlayerAfterBetrayal; // Will the AI be able to surrender to player after s/he betrayed them in allied war
         public readonly float DistanceToDefendAllyThreshold; // Defend Allies' systems if they are closer to us, basaed on this threshold lower is closer
+        public readonly float ImperialistWarPlanetsToTakeMult; // multiplier for how many planets to take from available enemy planets if we have better score
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -44,7 +45,8 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemies3RdParty      = 25;
                     PlayerWarContributionRatioThreshold    = 1f;
                     PlayerWarContributionMaxWarnings       = 2;
-                    DistanceToDefendAllyThreshold = 1f;
+                    ImperialistWarPlanetsToTakeMult = 0.4f;
+                    DistanceToDefendAllyThreshold   = 1f;
                     TurnsAbove95FederationNeeded = 250;
                     TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -75,7 +77,8 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemies3RdParty      = 75;
                     PlayerWarContributionRatioThreshold    = 1f;
                     PlayerWarContributionMaxWarnings       = 1;
-                    DistanceToDefendAllyThreshold = 0.8f;
+                    ImperialistWarPlanetsToTakeMult = 0.6f;
+                    DistanceToDefendAllyThreshold   = 0.8f;
                     TurnsAbove95FederationNeeded = 350;
                     TurnsAbove95AllianceTreshold = 300;
                     AllianceValueAlliedWithEnemy = 0.4f;
@@ -106,7 +109,8 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemies3RdParty      = 75;
                     PlayerWarContributionRatioThreshold    = 1.1f;
                     PlayerWarContributionMaxWarnings       = 1;
-                    DistanceToDefendAllyThreshold = 0.6f;
+                    ImperialistWarPlanetsToTakeMult = 0.8f;
+                    DistanceToDefendAllyThreshold   = 0.6f;
                     TurnsAbove95FederationNeeded = 420;
                     TurnsAbove95AllianceTreshold = 250;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -137,7 +141,8 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemies3RdParty      = 100;
                     PlayerWarContributionRatioThreshold    = 1.15f;
                     PlayerWarContributionMaxWarnings       = 1;
-                    DistanceToDefendAllyThreshold = 0.7f;
+                    ImperialistWarPlanetsToTakeMult = 0.5f;
+                    DistanceToDefendAllyThreshold   = 0.7f;
                     TurnsAbove95FederationNeeded = 600;
                     TurnsAbove95AllianceTreshold = 200;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -169,7 +174,8 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemies3RdParty      = 50;
                     PlayerWarContributionRatioThreshold    = 1.15f;
                     PlayerWarContributionMaxWarnings       = 2;
-                    DistanceToDefendAllyThreshold = 0.9f;
+                    ImperialistWarPlanetsToTakeMult = 0.7f;
+                    DistanceToDefendAllyThreshold   = 0.9f;
                     TurnsAbove95FederationNeeded = 320;
                     TurnsAbove95AllianceTreshold = 150;
                     AllianceValueAlliedWithEnemy = 0.6f;
@@ -200,7 +206,8 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemies3RdParty      = 100;
                     PlayerWarContributionRatioThreshold    = 1.1f;
                     PlayerWarContributionMaxWarnings       = 1;
-                    DistanceToDefendAllyThreshold = 1.25f;
+                    ImperialistWarPlanetsToTakeMult = 0.5f;
+                    DistanceToDefendAllyThreshold   = 1.25f;
                     TurnsAbove95FederationNeeded = 250;
                     TurnsAbove95AllianceTreshold = 125;
                     AllianceValueAlliedWithEnemy = 0.5f;
@@ -231,7 +238,8 @@ namespace Ship_Game
                     AddAngerAlliedWithEnemies3RdParty      = 25;
                     PlayerWarContributionRatioThreshold    = 1.1f;
                     PlayerWarContributionMaxWarnings       = 2;
-                    DistanceToDefendAllyThreshold = 1.4f;
+                    ImperialistWarPlanetsToTakeMult = 0.4f;
+                    DistanceToDefendAllyThreshold   = 1.4f;
                     TurnsAbove95FederationNeeded = 300;
                     TurnsAbove95AllianceTreshold = 100;
                     AllianceValueAlliedWithEnemy = 0.8f;

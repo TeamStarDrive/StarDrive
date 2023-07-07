@@ -433,7 +433,7 @@ namespace Ship_Game
         {
             // exponential moving average
             float newRatio = 0.1f;
-            float score = currentStr / 1000;
+            float score = currentStr *= 0.001f;
             MilitaryScoreAverage = MilitaryScoreAverage*(1f-newRatio) + score*newRatio;
             return MilitaryScoreAverage;
         }
