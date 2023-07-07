@@ -105,8 +105,11 @@ namespace Ship_Game.AI
                     }
                     if (!us.isPlayer)
                     {
-                        float cost = p.ColonyDiplomaticValueTo(us);
-                        usToThem.AddTrustEntry(attitude, TrustEntryType.Colony, cost, turnTimer:40);
+                        float ourValue = p.ColonyDiplomaticValueTo(us);
+                        float theirValue = p.ColonyDiplomaticValueTo(them);
+                        float trust = (ourValue + theirValue) * 0.5f;
+
+                        usToThem.AddTrustEntry(attitude, TrustEntryType.Colony, trust.Clamped(5,50), turnTimer:40);
                     }
                 }
 
@@ -353,7 +356,7 @@ namespace Ship_Game.AI
 
                     float worth = p.ColonyDiplomaticValueTo(us);
                     worth += p.HasCapital ? 200 : 0;
-                    float multiplier = 1.25f * p.System.PlanetList.Count(other => other.Owner == p.Owner);
+                    float multiplier = 1 + (p.System.PlanetList.Count(other => other.Owner == us)*0.25f);
                     worth *= multiplier;
                     valueToThem += worth;
                 }
@@ -367,7 +370,7 @@ namespace Ship_Game.AI
                         continue;
                     }
                     float worth = p.ColonyDiplomaticValueTo(us);
-                    int multiplier = 1 + p.System.PlanetList.Count(other => other.Owner == p.Owner);
+                    float multiplier = 1 + (p.System.PlanetList.Count(other => other.Owner == them)*0.25f);
                     worth *= multiplier;
                     valueToUs += worth;
                 }
@@ -377,13 +380,13 @@ namespace Ship_Game.AI
 
             if (valueToThem.AlmostZero() && valueToUs > 0f)
             {
-                usToThem.ImproveRelations(valueToUs, valueToUs);
+                usToThem.ImproveRelations(valueToUs.UpperBound(25), valueToUs.UpperBound(50));
                 AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                 ourOffer.AcceptDL = "OfferResponse_Accept_Gift";
                 return "OfferResponse_Accept_Gift";
             }
 
-            float angerMultiplier = them.isPlayer ? usToThem.TotalAnger / 100 : usToThem.Anger_DiplomaticConflict / 100;
+            float angerMultiplier = them.isPlayer ? usToThem.TotalAnger / 200 : usToThem.Anger_DiplomaticConflict / 200;
             valueToUs -= valueToUs * angerMultiplier;
             valueToUs += 1 * them.data.OngoingDiplomaticModifier;
             OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem, out float offerDifferential);
