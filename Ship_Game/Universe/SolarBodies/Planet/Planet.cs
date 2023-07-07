@@ -424,16 +424,15 @@ namespace Ship_Game
             return GravityWellRadius;
         }
 
-        // this is calculating colonyRawValue twice.
         public float ColonyDiplomaticValueTo(Empire empire)
         {
-            float worth = ColonyBaseValue(empire) + ColonyRawValue(empire);
+            float worth = ColonyBaseValue(empire);
             if (empire.NonCybernetic)
                 worth += (FoodHere / 50f) + (ProdHere / 50f);
             else 
                 worth += (ProdHere / 25f);
 
-            return worth.LowerBound(15);
+            return worth.LowerBound(5);
         }
 
         public void SetInGroundCombat(Empire empire, bool notify = false)

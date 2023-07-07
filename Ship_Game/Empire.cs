@@ -2036,11 +2036,7 @@ namespace Ship_Game
 
         void CalculateScore(bool fromSave = false)
         {
-            TechScore = 0;
-            foreach (TechEntry entry in TechEntries)
-                if (entry.Unlocked) TechScore += entry.TechCost;
-            TechScore /= 100;
-
+            TechScore = TechEntries.Sum(e => e.Unlocked ? e.TechCost : 0) * 0.01f;
             IndustrialScore = 0;
             ExpansionScore  = 0;
             for (int i = 0; i < OwnedPlanets.Count; i++)
@@ -2049,7 +2045,7 @@ namespace Ship_Game
                 ExpansionScore  += p.Fertility*10 + p.MineralRichness*10 + p.PopulationBillion;
                 IndustrialScore += p.SumBuildings(b => b.ActualCost);
             }
-            IndustrialScore /= 20;
+            IndustrialScore *= 0.05f;
 
             if (fromSave)
                 MilitaryScore = data.MilitaryScoreAverage;

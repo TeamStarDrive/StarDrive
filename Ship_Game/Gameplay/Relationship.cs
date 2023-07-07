@@ -550,9 +550,9 @@ namespace Ship_Game.Gameplay
             else
             {
                 IsHostile = IsEmpireHostileToUs(us, them);
-                bool canAttack = CanWeAttackThem(us, them);
-
-                if (CanTheyAttackUs(them, us))
+                bool canAttack = CanWeAttackThem(us, them, TotalAnger);
+                float TheirAnger = them.GetRelationsOrNull(us).TotalAnger;
+                if (CanTheyAttackUs(them, us, TheirAnger))
                     canAttack = true; // make sure we can also attack them
 
                 if (canAttack) // We are now hostile as well
@@ -615,8 +615,8 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public bool CanTheyAttackUs(Empire them, Empire us) => CanWeAttackThem(them, us);
-        bool CanWeAttackThem(Empire us, Empire them)
+        public bool CanTheyAttackUs(Empire them, Empire us, float theirAnger) => CanWeAttackThem(them, us, theirAnger);
+        bool CanWeAttackThem(Empire us, Empire them, float ourAnger)
         {
             if (AtWar)
                 return true;
@@ -631,7 +631,7 @@ namespace Ship_Game.Gameplay
             {
                 float trustworthiness = them.isPlayer ? 50 : them.data.DiplomaticPersonality?.Trustworthiness ?? 100;
                 float peacefulness    = 1.0f - them.Research.Strategy.MilitaryRatio;
-                if (TotalAnger > trustworthiness * peacefulness)
+                if (ourAnger > trustworthiness * peacefulness)
                     return true;
             }
 
