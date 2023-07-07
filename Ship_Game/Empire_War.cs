@@ -21,12 +21,25 @@ namespace Ship_Game
             switch (warType)
             {
                 case WarType.GenocidalWar:
-                case WarType.ImperialistWar: targetPlanets = enemy.GetPlanets().Filter(p => !HasWarMissionTargeting(p)); break;
-                case WarType.BorderConflict: targetPlanets = PotentialPlanetTargetsBorderWar(enemy);                     break;
-                case WarType.DefensiveWar:   targetPlanets = PotentialPlanetTargetsDefensiveWar(enemy);                  break;
+                case WarType.ImperialistWar: targetPlanets = PotentialPlanetTargetsImperialistWar(enemy); break;
+                case WarType.BorderConflict: targetPlanets = PotentialPlanetTargetsBorderWar(enemy);      break;
+                case WarType.DefensiveWar:   targetPlanets = PotentialPlanetTargetsDefensiveWar(enemy);   break;
             }
 
             return targetPlanets?.Length > 0;
+        }
+
+        Planet[] PotentialPlanetTargetsImperialistWar(Empire enemy)
+        {
+            float ratio = (float)TotalScore / enemy.TotalScore;
+            int NumClosestPlaetToTake = 3;
+            float finalRatio = (ratio < 1
+                ? ratio * 0.3f
+                : ratio * PersonalityModifiers.ImperialistWarPlanetsToTakeMult).UpperBound(1);
+
+            NumClosestPlaetToTake = (int)(finalRatio * enemy.GetPlanets().Count).LowerBound(3);
+            var potentialPlanets = enemy.GetPlanets().Filter(p => !HasWarMissionTargeting(p));
+            return potentialPlanets.Sorted(p => p.System.Position.SqDist(WeightedCenter)).Take(NumClosestPlaetToTake).ToArray();
         }
 
         Planet[] PotentialPlanetTargetsBorderWar(Empire enemy)

@@ -128,7 +128,7 @@ public class IncomingThreatDetector
 
     static bool IsShipAThreat(Ship s)
     {
-        return s.InPlayerSensorRange && !s.IsInWarp && s.BaseStrength > 0 && !s.IsFreighter;
+        return s.InPlayerSensorRange && !s.IsInWarp && s.BaseStrength > 0 && !s.IsFreighter && !s.IsResearchStation;
     }
 
     bool IsHostilesPresent(Empire owner, SolarSystem s)
