@@ -21,9 +21,16 @@ namespace Ship_Game
         public bool IsHonorable  => Personality == PersonalityType.Honorable;
         public bool IsPacifist   => Personality == PersonalityType.Pacifist;
 
+        [StarData] public bool AlliedWithPlayer { get; private set; } // Used for player UI visability of allied ships
+
         [StarData] public War[] AllActiveWars { get; private set; } = Array.Empty<War>();
         [StarData] public int ActiveWarPreparations { get; private set; }
 
+
+        public void SetAlliedWithPlayer(bool value)
+        {
+            AlliedWithPlayer = value;
+        }
 
         void SignBilateralTreaty(Empire them, TreatyType type, bool value)
         {
@@ -87,6 +94,7 @@ namespace Ship_Game
 
         public void SignAllianceWith(Empire them)
         {
+
             SignTreatyWith(them, TreatyType.Alliance);
             SignTreatyWith(them, TreatyType.OpenBorders);
             SignTreatyWith(them, TreatyType.NonAggression);
