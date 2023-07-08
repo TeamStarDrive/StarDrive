@@ -237,7 +237,6 @@ namespace Ship_Game.Gameplay
                 case TreatyType.Trade:         Treaty_Trade       = value; Treaty_Trade_TurnsExisted = 0; break;
             }
 
-            // Local Method
             void HandlePeace()
             {
                 if (value)
@@ -252,7 +251,6 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            // Local Method
             void HandleAlliance()
             {
                 if (value) // If treaty is signed
@@ -261,6 +259,9 @@ namespace Ship_Game.Gameplay
                     WarnedSystemsList.Clear();
                     DoNotSurrenderToThem = false;
                 }
+
+                if (Them.isPlayer)
+                    us.SetAlliedWithPlayer(value);
             }
         }
 
