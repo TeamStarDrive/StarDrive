@@ -177,6 +177,9 @@ namespace Ship_Game.AI
                 // enemy is known by our Empire - this information is used by our Empire later
                 // the enemy itself does not care about it
                 us.AI.ThreatMatrix.SetSeen(enemy, fromBackgroundThread:true);
+                if (us.AlliedWithPlayer)
+                    enemy.KnownByEmpires.SetSeen(us.Universe.Player);
+
                 if (!us.IsKnown(other))
                 {
                     us.FirstContact.SetReadyForContact(other);

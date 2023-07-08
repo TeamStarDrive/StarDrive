@@ -2324,9 +2324,6 @@ namespace Ship_Game.Fleets
 
             ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
             Vector2 nextWayPoint = goal?.MovePosition ?? FinalPosition;
-            //Vector2 formationDir = goal?.Direction ?? FinalDirection;
-            //float travel = formationDir.Dot(ship.Direction);
-
             float distToWP = ship.Position.Distance(nextWayPoint);
             float distToSquadPos = ship.Position.Distance(desiredFormationPos);
             float distSquadPosToWP = desiredFormationPos.Distance(nextWayPoint);
