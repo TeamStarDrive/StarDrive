@@ -251,6 +251,22 @@ namespace Ship_Game
             return (float)(180 - Atan2(target.X - origin.X, target.Y - origin.Y) * 180.0 / PI);
         }
 
+        public static float AngleToTargetWithFacing(this Vector2 origin, Vector2 target, float facingDegrees)
+        {
+            float angleDiff = origin.AngleToTarget(target) - facingDegrees;
+            // Normalize the angle difference to be between -180 and 180 degrees
+            if (angleDiff > 180)
+                angleDiff -= 360;
+            else if (angleDiff < -180)
+                angleDiff += 360;
+
+            // If the angle difference is negative, convert it to positive
+            if (angleDiff < 0)
+                angleDiff = Math.Abs(angleDiff);
+
+            return angleDiff;
+        }
+
         // result between [0, +2PI), so always positive
         public static float RadiansToTarget(this Vector2 origin, Vector2 target)
         {
