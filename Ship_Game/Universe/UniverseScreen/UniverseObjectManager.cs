@@ -388,10 +388,13 @@ namespace Ship_Game
                     Ship ship = allShips[i];
                     ship.Update(timeStep);
                     ship.UpdateModulePositions(timeStep, isSystemView);
-
                     // make sure dying ships can be seen. and show all ships in DEBUG
-                    if ((ship.Dying && ship.KnownByEmpires.KnownByPlayer(UState)) || debug)
+                    if ((ship.Loyalty.AlliedWithPlayer ||
+                        ship.Dying && ship.KnownByEmpires.KnownByPlayer(UState))
+                        || debug)
+                    {
                         ship.KnownByEmpires.SetSeen(UState.Player);
+                    }
                 }
             }
 
