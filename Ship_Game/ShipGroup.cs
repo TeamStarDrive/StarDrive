@@ -636,10 +636,12 @@ namespace Ship_Game
                     // from its final target position, see UpdateWarpThrust() for more details on SetWarpPercent
                     speedCapSTL = speedCapSTL != 0f ? Math.Min(speedCapSTL, ship.MaxSTLSpeed) : ship.MaxSTLSpeed;
                     speedCapFTL = speedCapFTL != 0f ? Math.Min(speedCapFTL, ship.MaxFTLSpeed) : ship.MaxFTLSpeed;
-
-                    // this ship can take orders, but it's straggling really far
-                    if (!IsShipInFormation(ship, 30000f))
-                        gotCapableStragglers = true;
+                    if (!gotCapableStragglers && !IsShipInFormation(ship, 30000f))
+                    {
+                        float angleDiff = AveragePos.AngleToTargetWithFacing(ship.Position, ship.RotationDegrees);
+                        if (angleDiff > 100)
+                            gotCapableStragglers = true;
+                    }
                 }
             }
 
