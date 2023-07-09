@@ -161,8 +161,7 @@ namespace Ship_Game.GameScreens
 
             if (empire.data.MusicCue != null && Player.State != MediaState.Playing)
             {                
-                string effectId = "Stardrive_Combat 1c_114BPM";
-                ExtraMusic = GameAudio.PlayMusic(warMusic ? effectId : empire.data.MusicCue);
+                ExtraMusic = GameAudio.PlayMusic(warMusic ? "CombatMusic" : empire.data.MusicCue);
                 GameAudio.SwitchToRacialMusic();
             }
         }

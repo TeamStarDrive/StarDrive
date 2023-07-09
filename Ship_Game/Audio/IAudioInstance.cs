@@ -28,6 +28,11 @@ internal interface IAudioInstance : IDisposable
     bool IsDisposed { get; }
 
     /// <summary>
+    /// Returns TRUE if the audio system is allowed to dispose this instance
+    /// </summary>
+    bool CanBeDisposed { get; }
+
+    /// <summary>
     /// Pauses the audio instance. Only works if audio is playing.
     /// </summary>
     void Pause();

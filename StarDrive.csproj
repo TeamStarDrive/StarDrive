@@ -175,7 +175,7 @@
     <Compile Include="Ship_Game\Audio\AudioConfig.cs" />
     <Compile Include="Ship_Game\Audio\AudioEmitter.cs" />
     <Compile Include="Ship_Game\Audio\AudioPlaybackEngine.cs" />
-    <Compile Include="Ship_Game\Audio\AutoDisposeFileReader.cs" />
+    <Compile Include="Ship_Game\Audio\NAudioSampleInstance.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MiningOps.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantDefendPortal.cs" />

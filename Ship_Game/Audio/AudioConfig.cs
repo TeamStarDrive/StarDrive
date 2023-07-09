@@ -1,4 +1,5 @@
 ﻿using System;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Data.Serialization;
@@ -44,10 +45,10 @@ public class AudioConfig : IDisposable
     /// <summary>
     /// Perform updates on all audio categories
     /// </summary>
-    public void Update()
+    public void Update(in Vector3 listenerPosition)
     {
         foreach (AudioCategory category in Categories)
-            category.Update();
+            category.Update(listenerPosition);
     }
 
     public SoundEffect GetSoundEffect(string id)
@@ -92,6 +93,17 @@ public class AudioCategory : IDisposable
     /// </summary>
     [StarData] public readonly float FadeOutTime = 0.0f;
 
+
+    /// <summary>
+    /// Sound effects in this category can be cached to memory to speed up the audio playback
+    /// </summary>
+    [StarData] public readonly bool MemoryCache;
+
+    /// <summary>
+    /// The maximum number of sounds that can be played at the same time, 0 for unlimited
+    /// </summary>
+    [StarData] public readonly int MaxConcurrentSounds;
+
     /// <summary>
     /// List of sound effects in this category
     /// </summary>
@@ -102,6 +114,11 @@ public class AudioCategory : IDisposable
     /// They are automatically removed when they stop playing
     /// </summary>
     readonly Array<TrackedHandle> TrackedInstances = new();
+
+    /// <summary>
+    /// Can another sound be played in this category?
+    /// </summary>
+    public bool IsQueueFull => MaxConcurrentSounds != 0 && TrackedInstances.Count >= MaxConcurrentSounds;
 
     public void Dispose()
     {
@@ -116,15 +133,21 @@ public class AudioCategory : IDisposable
         }
     }
 
-    public void Update()
+    public void Update(in Vector3 listenerPosition)
     {
         // remove disposed handles
         lock (TrackedInstances)
         {
             for (int i = 0; i < TrackedInstances.Count; i++)
             {
-                if (TrackedInstances[i].Instance.IsDisposed)
+                TrackedHandle tracked = TrackedInstances[i];
+                if (tracked.Instance.IsDisposed)
                 {
+                    TrackedInstances.RemoveAtSwapLast(i--);
+                }
+                else if (tracked.Instance.CanBeDisposed)
+                {
+                    tracked.Dispose();
                     TrackedInstances.RemoveAtSwapLast(i--);
                 }
             }
