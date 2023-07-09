@@ -1,19 +1,23 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using SDUtils;
 using System;
 
-namespace Ship_Game.Audio;
+namespace Ship_Game.Audio.NAudio;
 
-internal class AudioPlaybackEngine : IDisposable
+internal class NAudioPlaybackEngine : IDisposable
 {
-    readonly IWavePlayer OutputDevice;
-    readonly MixingSampleProvider Mixer;
-
     public static readonly int SampleRate = 48000;
     public static readonly int Channels = 2;
 
-    public AudioPlaybackEngine(MMDevice device)
+    readonly IWavePlayer OutputDevice;
+    readonly MixingSampleProvider Mixer;
+
+    // pre-sampled cache for Weapon and Warp effects
+    readonly Map<string, CachedSoundEffect> SfxCache = new();
+
+    public NAudioPlaybackEngine(MMDevice device)
     {
         OutputDevice = new WasapiOut(device, AudioClientShareMode.Shared, useEventSync: true, latency: 100);
 
@@ -27,6 +31,7 @@ internal class AudioPlaybackEngine : IDisposable
         {
             ReadFully = true
         };
+
         OutputDevice.Init(Mixer);
         OutputDevice.Play();
     }
@@ -49,11 +54,50 @@ internal class AudioPlaybackEngine : IDisposable
     /// Adds a new sound to the mixer
     /// The sound is automatically removed when it finishes playing
     /// </summary>
-    public void AddMixerInput(ISampleProvider input)
+    public IAudioInstance Play(AudioCategory category, AudioEmitter emitter, string audioFile, float volume)
     {
-        ISampleProvider sampler = GetResamplingProvider(input);
+        try
+        {
+            ISampleProvider provider;
+
+            if (category.MemoryCache)
+            {
+                CachedSoundEffect cached;
+                lock (SfxCache)
+                {
+                    SfxCache.TryGetValue(audioFile, out cached);
+                }
+
+                if (cached == null)
+                {
+                    cached = new(this, audioFile);
+                    lock (SfxCache)
+                        SfxCache.Add(audioFile, cached);
+                }
+
+                provider = cached.CreateReader();
+            }
+            else
+            {
+                provider = new NAudioFileReader(this, audioFile);
+            }
+
+            NAudioSampleInstance instance = new(category, emitter, provider, volume);
+            Mixer.AddMixerInput(instance);
+            return instance;
+        }
+        catch (Exception ex)
+        {
+            Log.Warning($"Failed to play audio file: {ex}");
+            return null;
+        }
+    }
+
+    public ISampleProvider GetCompatibleSampleProvider(ISampleProvider provider)
+    {
+        ISampleProvider sampler = GetResamplingProvider(provider);
         ISampleProvider stereo = GetStereoSampleProvider(sampler);
-        Mixer.AddMixerInput(stereo);
+        return stereo;
     }
 
     ISampleProvider GetStereoSampleProvider(ISampleProvider input)
