@@ -27,9 +27,10 @@ public static class GameAudio
     static AudioCategory RacialMusic;
 
     static readonly RandomBase Random = new ThreadSafeRandom();
+    
+    static Vector3 ListenerPos;
 
     static readonly object SfxQueueLock = new();
-
     static int ThisFrameSfxCount; // Limit the number of Cues that can be loaded per frame. 
 
     struct AsyncSfx
@@ -121,8 +122,14 @@ public static class GameAudio
 
         Mem.Dispose(ref AudioEngine);
         Mem.Dispose(ref Devices);
+
+        ListenerPos = Vector3.Zero;
     }
 
+    public static void Update3DSound(in Vector3 listenerPosition)
+    {
+        ListenerPos = AudioEngineGood ? listenerPosition : Vector3.Zero;
+    }
 
     // this is called from Game1.Update() every frame
     public static void Update()
@@ -137,16 +144,7 @@ public static class GameAudio
             return;
         }
 
-        Config?.Update();
-    }
-
-    /// <summary>
-    /// TODO: NAudio does not support 3D sound, so this is a no-op for now
-    /// </summary>
-    public static void Update3DSound(in Vector3 listenerPosition)
-    {
-        //if (AudioEngineGood)
-        //    Listener.Position = listenerPosition;
+        Config?.Update(ListenerPos);
     }
 
     // Configures GameAudio from GlobalStats MusicVolume and EffectsVolume
@@ -254,26 +252,21 @@ public static class GameAudio
         }
     }
 
-    // TODO: 3D positional audio emitter
     static void PlaySfx(string effectId, AudioEmitter emitter, AudioHandle handle)
     {
         SoundEffect effect = Config.GetSoundEffect(effectId);
-        IAudioInstance instance = StartAudioFromEffect(effect);
+        IAudioInstance instance = StartAudioFromEffect(effect, emitter);
         if (instance != null)
         {
             effect.Category.TrackInstance(instance, handle);
-            // if (emitter != null)
-            // {
-            //     // TODO: 3D positional audio
-            // }
         }
     }
 
-    static IAudioInstance StartAudioFromEffect(SoundEffect effect)
+    static IAudioInstance StartAudioFromEffect(SoundEffect effect, AudioEmitter emitter)
     {
-        if (effect == null)
+        if (effect == null || effect.Category.IsQueueFull)
             return null;
-            
+
         float volume = effect.Category.Volume * effect.Volume;
         if (volume <= 0.0001f)
             return null; // this effect is muted
@@ -285,7 +278,7 @@ public static class GameAudio
             Log.Warning($"Could not find SFX file: {sfxFile} for SoundEffect: {effect.Id}");
             return null;
         }
-        return StartAudio(effect.Category, file.FullName, volume);
+        return StartAudio(effect.Category, emitter, file.FullName, volume);
     }
 
     static IAudioInstance StartAudioFromFile(AudioCategory category, string audioFile)
@@ -296,14 +289,14 @@ public static class GameAudio
             Log.Warning($"Could not find audio file: {audioFile}");
             return null;
         }
-        return StartAudio(category, file.FullName, category.Volume);
+        return StartAudio(category, null, file.FullName, category.Volume);
     }
 
-    static IAudioInstance StartAudio(AudioCategory category, string audioFile, float volume)
+    static IAudioInstance StartAudio(AudioCategory category, AudioEmitter emitter, string audioFile, float volume)
     {
         try
         {
-            AutoDisposeFileReader reader = new(category, audioFile, volume);
+            NAudioSampleInstance reader = new(category, emitter, audioFile, volume);
             AudioEngine.AddMixerInput(reader);
             return reader;
         }
@@ -326,7 +319,6 @@ public static class GameAudio
             return;
 
         ++ThisFrameSfxCount;
-        // AGGRESSIVE DISPOSE: ? SfxQueue goes null
         lock (SfxQueueLock)
         {
             AsyncSfxQueue.Add(new()
@@ -367,7 +359,7 @@ public static class GameAudio
             return AudioHandle.DoNotPlay;
         
         SoundEffect effect = Config.GetSoundEffect(effectId);
-        IAudioInstance instance = StartAudioFromEffect(effect);
+        IAudioInstance instance = StartAudioFromEffect(effect, emitter: null);
         if (instance == null)
             return AudioHandle.DoNotPlay;
 
