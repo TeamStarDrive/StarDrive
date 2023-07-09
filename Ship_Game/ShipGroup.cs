@@ -630,7 +630,7 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
+                if (ship.AI.State == AIState.FormationMoveTo && ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
                     // the MaxFTLSpeed is often limited by WarpPercent, because the ship direction drifts too much
                     // from its final target position, see UpdateWarpThrust() for more details on SetWarpPercent
