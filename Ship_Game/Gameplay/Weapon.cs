@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework.Audio;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
@@ -59,12 +58,12 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void PlayToggleAndFireSfx(AudioEmitter emitter = null)
+        public void PlayToggleAndFireSfx(Audio.AudioEmitter emitter = null)
         {
             if (ToggleCue.IsPlaying)
                 return;
 
-            AudioEmitter soundEmitter = emitter ?? Owner?.SoundEmitter;
+            Audio.AudioEmitter soundEmitter = emitter ?? Owner?.SoundEmitter;
             GameAudio.PlaySfxAsync(FireCueName, soundEmitter);
             ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);
         }

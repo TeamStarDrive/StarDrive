@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDGraphics.Input;
@@ -7,7 +6,6 @@ using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector3 = SDGraphics.Vector3;
 using Vector2 = SDGraphics.Vector2;
@@ -220,7 +218,7 @@ namespace Ship_Game.GameScreens.Scene
             return random.Item(empireShips); // whatever!
         }
 
-        readonly AudioEmitter SoundEmitter = new AudioEmitter();
+        readonly Audio.AudioEmitter SoundEmitter = new();
 
         public void PlaySfx(string sfx)
         {
