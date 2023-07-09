@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
@@ -31,7 +30,7 @@ namespace Ship_Game.Ships
 
         public Array<Weapon> Weapons = new();
         [StarData] float JumpTimer = 3f;
-        public AudioEmitter SoundEmitter = new();
+        public Audio.AudioEmitter SoundEmitter = new();
         [StarData] public float ScuttleTimer = -1f;
         
         [StarData] public Fleet Fleet;

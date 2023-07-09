@@ -1,26 +1,50 @@
 using System;
-using Microsoft.Xna.Framework.Audio;
 
 namespace Ship_Game.Audio
 {
-    internal interface IAudioHandle
+    internal readonly struct TrackedHandle
     {
-        void OnLoaded(IAudioInstance audio);
-        void Destroy();
-        bool IsPlaying { get; }
-        bool IsPaused  { get; }
-        bool IsStopped { get; }
+        public readonly AudioHandle Handle;
+        public readonly IAudioInstance Instance;
+
+        public TrackedHandle(IAudioInstance instance)
+        {
+            Instance = instance;
+        }
+        public TrackedHandle(IAudioInstance instance, AudioHandle handle)
+        {
+            Instance = instance;
+            Handle = handle;
+        }
+        
+        public bool IsDisposed => Instance.IsDisposed;
+        public bool IsPlaying => Handle?.IsPlaying ?? Instance.IsPlaying;
+        public bool IsPaused => Handle?.IsPaused ?? Instance.IsPaused;
+        public bool IsStopped => Handle?.IsStopped ?? Instance.IsStopped;
+
+        public void Stop(bool fadeout)
+        {
+            if (Handle != null) Handle.Stop(fadeout);
+            else Instance.Stop(fadeout);
+        }
+        public void Dispose()
+        {
+            if (Handle != null) Handle.Destroy();
+            else Instance.Dispose();
+        }
     }
 
-    public class AudioHandle : IAudioHandle
+    public class AudioHandle
     {
         DateTime StartedAt;
         float ReplayTimeout;
         bool Loading;
+
+        // NOTE: no need to dispose the instance, the Audio engine will do it for us
         IAudioInstance Audio;
 
         // This is a special AudioHandle which can never be played and is always stopped
-        public static readonly AudioHandle DoNotPlay = new AudioHandle();
+        public static readonly AudioHandle DoNotPlay = new();
 
         public AudioHandle() {}
         internal AudioHandle(IAudioInstance audio) => Audio = audio;
@@ -52,23 +76,24 @@ namespace Ship_Game.Audio
         public void Resume() => Audio?.Resume();
 
         // Stops the Audio Cue and resets replay timeout
-        public void Stop()
+        public void Stop(bool fadeout = true)
         {
             StartedAt = default;
             ReplayTimeout = 0f;
             IAudioInstance audio = Audio; // flimsy thread safety
-            if (audio != null) { Audio = null; audio.Stop(); }
+            if (audio != null) { Audio = null; audio.Stop(fadeout); }
         }
 
+        // Signals that this audio handle is being destroyed, so all sounds should be stopped
         public void Destroy()
         {
             StartedAt = default;
             ReplayTimeout = 0f;
             IAudioInstance audio = Audio; // flimsy thread safety
-            if (audio != null) { Audio = null; audio.Dispose(); }
+            if (audio != null) { Audio = null; audio.Stop(fadeout: false); }
         }
 
-        void IAudioHandle.OnLoaded(IAudioInstance audio)
+        internal void OnLoaded(IAudioInstance audio)
         {
             Audio = audio;
             Loading = false;

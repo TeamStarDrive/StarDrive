@@ -148,7 +148,7 @@ namespace Ship_Game.GameScreens.LoadGame
             us.Screen.LoadContent();
             us.Objects.UpdateLists(removeInactiveObjects: false);
 
-            GameAudio.StopGenericMusic(immediate: false);
+            GameAudio.StopGenericMusic(fadeout: true);
 
             step.Finish(); // finish everything
             Log.Info(ConsoleColor.Blue, $"    ## MarkShipDesignsUnlockable elapsed: {step[0].ElapsedMillis}ms");

@@ -119,7 +119,7 @@ namespace Ship_Game.GameScreens.MainMenu
         public void ResetMusic()
         {
             GameAudio.ConfigureAudioSettings();
-            GameAudio.StopGenericMusic();
+            GameAudio.StopGenericMusic(fadeout: false);
             ScreenManager.Music.Stop();
 
             if (Type == MainMenuType.Victory)
@@ -133,7 +133,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             else if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
             {
-                ScreenManager.Music = GameAudio.PlayMp3(GlobalStats.ModPath + GlobalStats.Defaults.CustomMenuMusic);
+                ScreenManager.Music = GameAudio.PlayMusicFile(GlobalStats.Defaults.CustomMenuMusic);
             }
             else if (ScreenManager.Music.IsStopped)
             {
