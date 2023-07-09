@@ -403,7 +403,7 @@ namespace Ship_Game.Ships
 
         int HitTestGravityWells(Array<Planet> wells, Vector2 dir, float distance)
         {
-            Vector2 end = dir.Normalized() * distance;
+            Vector2 end = Position + dir.Normalized() * distance;
             int wellHits = 0;
             foreach (Planet planet in wells)
                 if (planet.Position.RayHitTestCircle(planet.GravityWellRadius, Position, end, rayRadius:Radius))
