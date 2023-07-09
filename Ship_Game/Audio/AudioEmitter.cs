@@ -5,13 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ship_Game.Audio
+namespace Ship_Game.Audio;
+
+/// <summary>
+/// TODO: Placeholder for now, necessary for 3D positional Audio
+/// </summary>
+public class AudioEmitter
 {
-    /// <summary>
-    /// TODO: Placeholder for now, necessary for 3D positional Audio
-    /// </summary>
-    public class AudioEmitter
-    {
-        public Vector3 Position;
-    }
+    public Vector3 Position;
 }
