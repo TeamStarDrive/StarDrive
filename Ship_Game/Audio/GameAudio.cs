@@ -5,6 +5,7 @@ using SDUtils;
 using System.IO;
 using Ship_Game.Utils;
 using NAudio.CoreAudioApi;
+using Ship_Game.Audio.NAudio;
 
 namespace Ship_Game.Audio;
 
@@ -18,7 +19,7 @@ public static class GameAudio
     static bool MusicDisabled;
     static bool AudioEngineGood;
     
-    static AudioPlaybackEngine AudioEngine;
+    static NAudioPlaybackEngine AudioEngine;
     static string ConfigFile;
     static AudioConfig Config;
     static AudioCategory Default;
@@ -247,22 +248,17 @@ public static class GameAudio
 
             for (int i = 0; i < items.Length; ++i)
             {
-                PlaySfx(items[i].EffectId, items[i].Emitter, items[i].Handle);
+                SoundEffect effect = Config.GetSoundEffect(items[i].EffectId);
+                IAudioInstance instance = PlayEffect(effect, items[i].Emitter);
+                if (instance != null)
+                {
+                    effect.Category.TrackInstance(instance, items[i].Handle);
+                }
             }
         }
     }
 
-    static void PlaySfx(string effectId, AudioEmitter emitter, AudioHandle handle)
-    {
-        SoundEffect effect = Config.GetSoundEffect(effectId);
-        IAudioInstance instance = StartAudioFromEffect(effect, emitter);
-        if (instance != null)
-        {
-            effect.Category.TrackInstance(instance, handle);
-        }
-    }
-
-    static IAudioInstance StartAudioFromEffect(SoundEffect effect, AudioEmitter emitter)
+    static IAudioInstance PlayEffect(SoundEffect effect, AudioEmitter emitter)
     {
         if (effect == null || effect.Category.IsQueueFull)
             return null;
@@ -278,10 +274,10 @@ public static class GameAudio
             Log.Warning($"Could not find SFX file: {sfxFile} for SoundEffect: {effect.Id}");
             return null;
         }
-        return StartAudio(effect.Category, emitter, file.FullName, volume);
+        return AudioEngine.Play(effect.Category, emitter, file.FullName, volume);
     }
 
-    static IAudioInstance StartAudioFromFile(AudioCategory category, string audioFile)
+    static IAudioInstance PlayFromFile(AudioCategory category, string audioFile)
     {
         FileInfo file = ResourceManager.GetModOrVanillaFile(audioFile);
         if (file == null)
@@ -289,22 +285,7 @@ public static class GameAudio
             Log.Warning($"Could not find audio file: {audioFile}");
             return null;
         }
-        return StartAudio(category, null, file.FullName, category.Volume);
-    }
-
-    static IAudioInstance StartAudio(AudioCategory category, AudioEmitter emitter, string audioFile, float volume)
-    {
-        try
-        {
-            NAudioSampleInstance reader = new(category, emitter, audioFile, volume);
-            AudioEngine.AddMixerInput(reader);
-            return reader;
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"Failed to play audio file: {ex}");
-            return null;
-        }
+        return AudioEngine.Play(category, null, file.FullName, category.Volume);
     }
 
     public static bool CantPlaySfx(string cueName)
@@ -359,7 +340,7 @@ public static class GameAudio
             return AudioHandle.DoNotPlay;
         
         SoundEffect effect = Config.GetSoundEffect(effectId);
-        IAudioInstance instance = StartAudioFromEffect(effect, emitter: null);
+        IAudioInstance instance = PlayEffect(effect, emitter: null);
         if (instance == null)
             return AudioHandle.DoNotPlay;
 
@@ -376,7 +357,7 @@ public static class GameAudio
         if (CantPlayMusic(audioFile)) // returns true if music is muted
             return AudioHandle.DoNotPlay;
 
-        IAudioInstance instance = StartAudioFromFile(Music, audioFile);
+        IAudioInstance instance = PlayFromFile(Music, audioFile);
         if (instance == null)
             return AudioHandle.DoNotPlay;
             

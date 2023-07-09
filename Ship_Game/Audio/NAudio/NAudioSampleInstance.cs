@@ -1,14 +1,15 @@
 ﻿using System;
 using NAudio.Wave;
 
-namespace Ship_Game.Audio;
+namespace Ship_Game.Audio.NAudio;
 
 internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposable
 {
     readonly AudioCategory Category;
     readonly AudioEmitter Emitter;
-    readonly AudioFileReader Reader;
-    public WaveFormat WaveFormat => Reader.WaveFormat;
+    readonly ISampleProvider Provider;
+    public float Volume { get; set; }
+    public WaveFormat WaveFormat => Provider.WaveFormat;
 
     PlaybackState State;
     float FadeOutTimer;
@@ -19,11 +20,12 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
     public bool IsDisposed { get; private set; }
     public bool CanBeDisposed => State == PlaybackState.Stopped && FadeOutTimer <= 0f;
 
-    public NAudioSampleInstance(AudioCategory category, AudioEmitter emitter, string fileName, float volume)
+    public NAudioSampleInstance(AudioCategory category, AudioEmitter emitter, ISampleProvider provider, float volume)
     {
         Category = category;
         Emitter = emitter;
-        Reader = new(fileName) { Volume = volume };
+        Provider = provider;
+        Volume = volume;
         State = PlaybackState.Playing;
     }
 
@@ -33,7 +35,8 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
         if (!IsDisposed)
         {
             IsDisposed = true;
-            Reader.Dispose();
+            if (Provider is IDisposable disposableProvider)
+                disposableProvider.Dispose();
         }
     }
     
@@ -82,18 +85,30 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
             return 0;
         }
 
-        int read = Reader.Read(buffer, offset, count);
+        int read = Provider.Read(buffer, offset, count);
         if (read <= 0 || read < count)
         {
             Dispose();
             return 0;
         }
-        return read;
+
+        return ApplyVolume(buffer, offset, read);
+    }
+
+    int ApplyVolume(float[] buffer, int offset, int count)
+    {
+        float volume = Volume;
+        if (volume != 1.0f)
+        {
+            for (int index = 0; index < count; ++index)
+                buffer[offset + index] *= volume;
+        }
+        return count;
     }
 
     int FadeOut(float[] buffer, int offset, int count)
     {
-        int read = Reader.Read(buffer, offset, count);
+        int read = Provider.Read(buffer, offset, count);
 
         // we're out of buffers so we can dispose this instance
         if (read < count)
@@ -106,7 +121,7 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
         // fade goes from 1.0 to 0.0
         float fade = 1f - (FadeOutTimer / Category.FadeOutTime);
         // step is how much to decrease volume per sample
-        float step = 1f / AudioPlaybackEngine.SampleRate;
+        float step = 1f / NAudioPlaybackEngine.SampleRate;
         
         for (int i = 0; i < read; ++i)
         {
@@ -114,7 +129,7 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
             fade -= step;
             FadeOutTimer -= step;
         }
-
-        return read;
+        
+        return ApplyVolume(buffer, offset, read);
     }
 }
