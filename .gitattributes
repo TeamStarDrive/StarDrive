@@ -1,7 +1,6 @@
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
 * text=auto
-
 # setup these content files to only use NewLines on checkout
 *.xml text=lf
 *.hull text=lf
@@ -62,5 +61,9 @@
 *.fbx filter=lfs diff=lfs merge=lfs -text
 *.xwb filter=lfs diff=lfs merge=lfs -text
 *.wmv filter=lfs diff=lfs merge=lfs -text
+*.m4a filter=lfs diff=lfs merge=lfs -text
+*.wav filter=lfs diff=lfs merge=lfs -text
+*.mp3 filter=lfs diff=lfs merge=lfs -text
+*.aac filter=lfs diff=lfs merge=lfs -text
 . !text !filter !merge !diff
 * !text !filter !merge !diff

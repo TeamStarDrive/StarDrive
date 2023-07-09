@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Audio;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
@@ -177,7 +176,7 @@ namespace Ship_Game
         public int NumConstructing => Construction.Count;
         [StarData] public Array<Ship> OrbitalStations = new();
 
-        protected AudioEmitter Emit = new();
+        protected Audio.AudioEmitter Emit = new();
 
         // this is only here for SaveGame backwards compatibility
         [StarData] public SolarSystem ParentSystem
@@ -204,7 +203,7 @@ namespace Ship_Game
         public float Zrotate;
         public bool UniqueHab = false;
         public int UniqueHabPercent;
-        protected AudioEmitter Emitter;
+        protected Audio.AudioEmitter Emitter;
         public float GravityWellRadius { get; protected set; }
 
         // TODO: replace TilesList with a raw array
@@ -232,7 +231,7 @@ namespace Ship_Game
 
         public void PlayPlanetSfx(string sfx, Vector3 position)
         {
-            Emitter ??= new AudioEmitter();
+            Emitter ??= new();
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }

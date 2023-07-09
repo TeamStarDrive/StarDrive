@@ -57,7 +57,7 @@ namespace Ship_Game
                 return false;
 
             UniverseScreen us = BackgroundTask.Result ?? throw new NullReferenceException("CreatingNewGameScreen background task returned null", BackgroundTask.Error);
-            GameAudio.StopGenericMusic(immediate: false);
+            GameAudio.StopGenericMusic(fadeout: true);
             ScreenManager.AddScreenAndLoadContent(us);
 
             Log.Info("CreatingNewGameScreen.Objects.Update(0.01)");
