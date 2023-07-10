@@ -227,9 +227,10 @@ namespace Ship_Game
         public int TileMaxX { get; private set; } = 7; // FB foundations to variable planet tiles
         public int TileMaxY { get; private set; } = 5; // FB foundations to variable planet tiles
 
+        // bomb impacts, shield impacts
         public void PlayPlanetSfx(string sfx, Vector3 position)
         {
-            Emitter ??= new(maxDistance: 50_000);
+            Emitter ??= new(maxDistance: GameAudio.PlanetSfxDistance);
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }

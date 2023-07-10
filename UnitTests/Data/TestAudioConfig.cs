@@ -24,7 +24,7 @@ namespace UnitTests.Data
         public void CanParseMultipleSoundCategories()
         {
             AudioConfig config = new();
-            AssertEqual(7, config.Categories.Length);
+            AssertEqual(8, config.Categories.Length);
             foreach (AudioCategory category in config.Categories)
             {
                 AssertTrue(category.Name.NotEmpty(), "Category name cannot be empty");
@@ -60,6 +60,10 @@ namespace UnitTests.Data
             return fullPath;
         }
 
+        /// <summary>
+        /// This is an interesting unit test approach for the main release build.
+        /// It ensures that all audio files referenced in AudioConfig actually exist before installer is packaged.
+        /// </summary>
         [TestMethod]
         public void EnsureAllAudioFilesExist()
         {
