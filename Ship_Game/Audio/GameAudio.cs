@@ -164,6 +164,23 @@ public static class GameAudio
     public static void MuteRacialMusic()    { if(!IsMusicDisabled) RacialMusic.Volume = 0f;}
     public static void UnMuteRacialMusic()  { if (!IsMusicDisabled) RacialMusic.Volume = GlobalStats.MusicVolume; }
 
+    /// <summary>
+    /// Audio distance for projectile sound effects. This uses linear falloff.
+    /// </summary>
+    public const float ProjectileSfxDistance = 35_000f;
+
+    /// <summary>
+    /// Audio distance for all ship sound effects. This uses linear falloff.
+    /// Explosion, Detonation, Warp, DieSfx, ShieldImpact
+    /// </summary>
+    public const float ShipSfxDistance = 35_000f;
+
+    /// <summary>
+    /// Audio distance for all planet sound effects. This uses linear falloff.
+    /// Planetary bomb impacts, 
+    /// </summary>
+    public const float PlanetSfxDistance = 50_000f;
+
     public static void NegativeClick()    => PlaySfxAsync("UI_Misc20"); // "eek-eek"
     public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1"); // soft "bubble" affirm
     public static void MouseOver()        => PlaySfxAsync("mouse_over4");  // very soft "bumble"

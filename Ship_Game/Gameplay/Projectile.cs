@@ -80,7 +80,7 @@ namespace Ship_Game.Gameplay
         SceneObject ProjSO; // this is null for sprite based projectiles
         public Matrix WorldMatrix { get; private set; }
         public string InFlightCue = "";
-        public AudioEmitter Emitter = new(maxDistance: 50_000);
+        public AudioEmitter Emitter = new(maxDistance: GameAudio.ProjectileSfxDistance);
         public bool Miss;
         float InitialDuration;
         public float RotationRadsPerSecond;
