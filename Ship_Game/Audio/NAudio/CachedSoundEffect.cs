@@ -18,7 +18,7 @@ internal class CachedSoundEffect
         WaveFormat = reader.WaveFormat;
 
         // TODO: maybe there's a more efficient way than using a resizable array?
-        Array<float> data = new(reader.Length / 4);
+        Array<float> data = new((int)reader.Length / 4);
 
         float[] buffer = new float[WaveFormat.SampleRate * WaveFormat.Channels];
         int samplesRead;
