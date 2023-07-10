@@ -36,7 +36,7 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
 
     public void Dispose()
     {
-        Log.Write(ConsoleColor.Magenta, $"Disposed {this}");
+        //Log.Write(ConsoleColor.Magenta, $"Disposed {this}");
         State = PlaybackState.Stopped;
         if (!IsDisposed)
         {

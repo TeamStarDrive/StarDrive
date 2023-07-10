@@ -53,6 +53,17 @@ public class AudioConfig : IDisposable
     }
 
     /// <summary>
+    /// Sets volume for Music-like and Other(effects) categories
+    /// </summary>
+    public void SetVolume(float music, float effects)
+    {
+        foreach (AudioCategory category in Categories)
+        {
+            category.Volume = category.Name.IndexOf("Music", StringComparison.OrdinalIgnoreCase) >= 0 ? music : effects;
+        }
+    }
+
+    /// <summary>
     /// Perform updates on all audio categories
     /// </summary>
     public void Update()

@@ -24,7 +24,7 @@ namespace UnitTests.Data
         public void CanParseMultipleSoundCategories()
         {
             AudioConfig config = new();
-            AssertEqual(config.Categories.Length, 4);
+            AssertEqual(7, config.Categories.Length);
             foreach (AudioCategory category in config.Categories)
             {
                 AssertTrue(category.Name.NotEmpty(), "Category name cannot be empty");
@@ -64,7 +64,6 @@ namespace UnitTests.Data
         public void EnsureAllAudioFilesExist()
         {
             AudioConfig config = new();
-            AssertEqual(config.Categories.Length, 4);
             foreach (AudioCategory category in config.Categories)
             {
                 foreach (SoundEffect effect in category.SoundEffects)
@@ -81,7 +80,7 @@ namespace UnitTests.Data
         [TestMethod]
         public void CanCacheAudioData()
         {
-            FileInfo fullPath = GetAudioPath("Weapons/sd_ui_notification_research_01.m4a");
+            FileInfo fullPath = GetAudioPath("UI/sd_ui_notification_research_01.m4a");
             WaveFormat format = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
             CachedSoundEffect cached = new(format, fullPath.FullName);
             AssertEqual(cached.AudioData.Length, 292864);
