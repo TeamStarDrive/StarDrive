@@ -60,6 +60,10 @@ internal class NAudioPlaybackEngine : IDisposable
     {
         try
         {
+            float? effectiveVolume = emitter?.GetEffectiveVolume(category, volume);
+            if (effectiveVolume < 0.0001f)
+                return null; // this sound can't be heard anyway, ignore it
+
             ISampleProvider provider;
 
             if (category.MemoryCache)
@@ -69,24 +73,19 @@ internal class NAudioPlaybackEngine : IDisposable
                 {
                     SfxCache.TryGetValue(audioFile, out cached);
                 }
-
                 if (cached == null)
                 {
+                    // generating the cache will be sloooow
                     cached = new(this, audioFile);
                     lock (SfxCache)
                         SfxCache.Add(audioFile, cached);
                 }
-
                 provider = cached.CreateReader();
             }
             else
             {
                 provider = new NAudioFileReader(this, audioFile);
             }
-
-            float? effectiveVolume = emitter?.GetEffectiveVolume(category, volume);
-            if (effectiveVolume < 0.0001f)
-                return null; // this sound can't be heard anyway, ignore it
 
             NAudioSampleInstance instance = new(category, emitter, provider, volume);
             Mixer.AddMixerInput(instance);

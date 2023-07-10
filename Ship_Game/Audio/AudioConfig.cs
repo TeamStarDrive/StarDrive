@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Yaml;
@@ -114,6 +115,16 @@ public class AudioCategory : IDisposable
     [StarData] public readonly int MaxConcurrentSounds;
 
     /// <summary>
+    /// The maximum number of sounds that can be played at the same time for each sound effect, 0 for unlimited
+    /// </summary>
+    [StarData] public readonly int MaxConcurrentSoundsPerEffect;
+
+    /// <summary>
+    /// The maximum number of sounds that can be played per frame, 0 for unlimited
+    /// </summary>
+    [StarData] public readonly int MaxSoundsPerFrame;
+
+    /// <summary>
     /// List of sound effects in this category
     /// </summary>
     [StarData] public readonly SoundEffect[] SoundEffects;
@@ -124,23 +135,65 @@ public class AudioCategory : IDisposable
     /// </summary>
     readonly Array<TrackedHandle> TrackedInstances = new();
 
+    readonly struct TrackedHandle
+    {
+        public readonly SoundEffect Effect;
+        public readonly IAudioInstance Instance; // can be NAudioSampleInstance or AudioHandle
+        public TrackedHandle(SoundEffect effect, IAudioInstance instance)
+        {
+            Effect = effect;
+            Instance = instance;
+        }
+    }
+
+
     public Vector3 ListenerPosition;
+    int CurrentSoundsPerFrame;
 
     /// <summary>
-    /// Can another sound be played in this category?
+    /// Can this category play the following effect right now?
+    /// It can be rejected because of maximum concurrent sounds or max concurrent sound effects limits
     /// </summary>
-    public bool IsQueueFull => MaxConcurrentSounds != 0 && TrackedInstances.Count >= MaxConcurrentSounds;
+    public bool CanPlayEffect(SoundEffect effect)
+    {
+        if (MaxSoundsPerFrame != 0 && CurrentSoundsPerFrame >= MaxSoundsPerFrame)
+            return false;
+        if (MaxConcurrentSounds != 0 && TrackedInstances.Count >= MaxConcurrentSounds)
+            return false;
+        if (MaxConcurrentSoundsPerEffect != 0 && effect.NumActiveInstances >= MaxConcurrentSoundsPerEffect)
+            return false;
+        return true;
+    }
+
+    static void RemoveTrackedInstance(ref TrackedHandle tracked)
+    {
+        if (tracked.Effect != null)
+        {
+            Interlocked.Decrement(ref tracked.Effect.NumActiveInstances);
+        }
+        if (!tracked.Instance.IsDisposed)
+        {
+            tracked.Instance.Dispose();
+        }
+    }
 
     public void Dispose()
     {
         lock (TrackedInstances)
         {
-            for (int i = 0; i < TrackedInstances.Count; i++)
+            foreach (ref TrackedHandle tracked in TrackedInstances.AsSpan())
             {
-                if (!TrackedInstances[i].IsDisposed)
-                    TrackedInstances[i].Dispose();
+                RemoveTrackedInstance(ref tracked);
             }
             TrackedInstances.Clear();
+        }
+
+        // add some error checking here for debugging purposes
+        foreach (SoundEffect effect in SoundEffects)
+        {
+            if (effect.NumActiveInstances != 0)
+                Log.Error($"AudioCategory {Name}.{effect.Id} has {effect.NumActiveInstances} instances - this is a tracking bug");
+            effect.NumActiveInstances = 0;
         }
     }
 
@@ -151,19 +204,17 @@ public class AudioCategory : IDisposable
 
     public void Update()
     {
+        CurrentSoundsPerFrame = 0;
+
         // remove disposed handles
         lock (TrackedInstances)
         {
             for (int i = 0; i < TrackedInstances.Count; i++)
             {
                 TrackedHandle tracked = TrackedInstances[i];
-                if (tracked.Instance.IsDisposed)
+                if (tracked.Instance.IsDisposed || tracked.Instance.CanBeDisposed)
                 {
-                    TrackedInstances.RemoveAtSwapLast(i--);
-                }
-                else if (tracked.Instance.CanBeDisposed)
-                {
-                    tracked.Dispose();
+                    RemoveTrackedInstance(ref tracked);
                     TrackedInstances.RemoveAtSwapLast(i--);
                 }
             }
@@ -177,11 +228,10 @@ public class AudioCategory : IDisposable
     {
         lock (TrackedInstances)
         {
-            for (int i = 0; i < TrackedInstances.Count; ++i)
+            foreach (ref TrackedHandle tracked in TrackedInstances.AsSpan())
             {
-                TrackedHandle tracked = TrackedInstances[i];
-                if (!tracked.IsStopped)
-                    tracked.Stop(fadeout);
+                if (!tracked.Instance.IsStopped)
+                    tracked.Instance.Stop(fadeout);
             }
         }
     }
@@ -193,10 +243,9 @@ public class AudioCategory : IDisposable
     {
         lock (TrackedInstances)
         {
-            for (int i = 0; i < TrackedInstances.Count; ++i)
+            foreach (ref TrackedHandle tracked in TrackedInstances.AsSpan())
             {
-                TrackedHandle tracked = TrackedInstances[i];
-                if (tracked.IsPlaying)
+                if (tracked.Instance.IsPlaying)
                     tracked.Instance.Pause();
             }
         }
@@ -210,26 +259,32 @@ public class AudioCategory : IDisposable
     {
         lock (TrackedInstances)
         {
-            for (int i = 0; i < TrackedInstances.Count; ++i)
+            foreach (ref TrackedHandle tracked in TrackedInstances.AsSpan())
             {
-                TrackedHandle tracked = TrackedInstances[i];
-                if (tracked.IsPaused)
+                if (tracked.Instance.IsPaused)
                     tracked.Instance.Resume();
             }
         }
     }
 
-    internal void TrackInstance(IAudioInstance instance, AudioHandle handle)
+    internal void TrackInstance(SoundEffect effect, IAudioInstance instance, AudioHandle handle)
     {
+        ++CurrentSoundsPerFrame;
+
         TrackedHandle tracked;
         if (handle != null)
         {
             handle.OnLoaded(instance);
-            tracked = new(instance, handle);
+            tracked = new(effect, handle);
         }
         else
         {
-            tracked = new(instance);
+            tracked = new(effect, instance);
+        }
+
+        if (effect != null)
+        {
+            Interlocked.Increment(ref effect.NumActiveInstances);
         }
 
         lock (TrackedInstances)
@@ -255,17 +310,16 @@ public class SoundEffect
     /// <summary>
     /// A single sound effect
     /// </summary>
-    [StarData]
-    public readonly string Sound;
+    [StarData] public readonly string Sound;
 
     /// <summary>
     /// Multiple sound effects.
     /// The effect to play is chosen randomly.
     /// </summary>
-    [StarData]
-    public readonly string[] Sounds;
+    [StarData] public readonly string[] Sounds;
 
     public AudioCategory Category;
+    public int NumActiveInstances;
 
     /// <summary>
     /// Selects the next sound file to play

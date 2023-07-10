@@ -245,7 +245,7 @@ public static class GameAudio
                 IAudioInstance instance = PlayEffect(effect, items[i].Emitter);
                 if (instance != null)
                 {
-                    effect.Category.TrackInstance(instance, items[i].Handle);
+                    effect.Category.TrackInstance(effect,instance, items[i].Handle);
                 }
             }
         }
@@ -253,7 +253,7 @@ public static class GameAudio
 
     static IAudioInstance PlayEffect(SoundEffect effect, AudioEmitter emitter)
     {
-        if (effect == null || effect.Category.IsQueueFull)
+        if (effect == null || !effect.Category.CanPlayEffect(effect))
             return null;
 
         float volume = effect.Category.Volume * effect.Volume;
@@ -334,7 +334,7 @@ public static class GameAudio
             return AudioHandle.DoNotPlay;
 
         AudioHandle handle = new();
-        effect.Category.TrackInstance(instance, handle);
+        effect.Category.TrackInstance(effect,instance, handle);
         return handle;
     }
 
@@ -351,7 +351,7 @@ public static class GameAudio
             return AudioHandle.DoNotPlay;
             
         AudioHandle handle = new();
-        Music.TrackInstance(instance, handle);
+        Music.TrackInstance(null, instance, handle);
         return handle;
     }
 }

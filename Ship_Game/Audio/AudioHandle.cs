@@ -2,39 +2,7 @@ using System;
 
 namespace Ship_Game.Audio;
 
-internal readonly struct TrackedHandle
-{
-    public readonly AudioHandle Handle;
-    public readonly IAudioInstance Instance;
-
-    public TrackedHandle(IAudioInstance instance)
-    {
-        Instance = instance;
-    }
-    public TrackedHandle(IAudioInstance instance, AudioHandle handle)
-    {
-        Instance = instance;
-        Handle = handle;
-    }
-        
-    public bool IsDisposed => Instance.IsDisposed;
-    public bool IsPlaying => Handle?.IsPlaying ?? Instance.IsPlaying;
-    public bool IsPaused => Handle?.IsPaused ?? Instance.IsPaused;
-    public bool IsStopped => Handle?.IsStopped ?? Instance.IsStopped;
-
-    public void Stop(bool fadeout)
-    {
-        if (Handle != null) Handle.Stop(fadeout);
-        else Instance.Stop(fadeout);
-    }
-    public void Dispose()
-    {
-        if (Handle != null) Handle.Destroy();
-        else Instance.Dispose();
-    }
-}
-
-public class AudioHandle
+public class AudioHandle : IAudioInstance
 {
     DateTime StartedAt;
     float ReplayTimeout;
@@ -48,7 +16,9 @@ public class AudioHandle
 
     public AudioHandle() {}
     internal AudioHandle(IAudioInstance audio) => Audio = audio;
-     
+    ~AudioHandle() => Destroy();
+    public void Dispose() => Destroy();
+
     public bool IsPlaying => Loading || Audio?.IsPlaying == true;
     public bool IsPaused  => Audio?.IsPaused == true;
 
@@ -72,6 +42,10 @@ public class AudioHandle
     public bool IsReadyToReplay => ReplayTimeout < 0.0001f // almost 0?
                                    || (DateTime.UtcNow-StartedAt).TotalMilliseconds >= ReplayTimeout;
 
+    public bool IsDisposed => Audio == null;
+
+    public bool CanBeDisposed => Audio?.CanBeDisposed ?? false;
+
     public void Pause() => Audio?.Pause();
     public void Resume() => Audio?.Resume();
 
@@ -85,7 +59,7 @@ public class AudioHandle
     }
 
     // Signals that this audio handle is being destroyed, so all sounds should be stopped
-    public void Destroy()
+    void Destroy()
     {
         StartedAt = default;
         ReplayTimeout = 0f;
