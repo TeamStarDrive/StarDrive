@@ -176,8 +176,6 @@ namespace Ship_Game
         public int NumConstructing => Construction.Count;
         [StarData] public Array<Ship> OrbitalStations = new();
 
-        protected Audio.AudioEmitter Emit = new();
-
         // this is only here for SaveGame backwards compatibility
         [StarData] public SolarSystem ParentSystem
         {
@@ -231,7 +229,7 @@ namespace Ship_Game
 
         public void PlayPlanetSfx(string sfx, Vector3 position)
         {
-            Emitter ??= new();
+            Emitter ??= new(maxDistance: 50_000);
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
