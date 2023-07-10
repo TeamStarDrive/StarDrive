@@ -11,7 +11,7 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
     readonly AudioCategory Category;
     readonly AudioEmitter Emitter;
     readonly ISampleProvider Provider;
-    public float Volume { get; set; }
+    readonly float Volume;
     public WaveFormat WaveFormat => Provider.WaveFormat;
 
     PlaybackState State;
@@ -21,7 +21,7 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
     public bool IsPaused  => State == PlaybackState.Paused;
     public bool IsStopped => IsDisposed || (!IsPaused && !IsPlaying);
     public bool IsDisposed { get; private set; }
-    public bool CanBeDisposed => State == PlaybackState.Stopped && FadeOutTimer <= 0f;
+    public bool CanBeDisposed => State == PlaybackState.Stopped && FadeOutTimer < 0.0001f;
 
     public override string ToString() => $"NAudioSampleInstance {Provider}";
 
@@ -36,6 +36,7 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
 
     public void Dispose()
     {
+        Log.Write(ConsoleColor.Magenta, $"Disposed {this}");
         State = PlaybackState.Stopped;
         if (!IsDisposed)
         {
@@ -75,7 +76,7 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
         float volume = Emitter?.GetEffectiveVolume(Category, Volume) ?? Volume;
         if (volume <= 0.0001f)
         {
-            Dispose();
+            Stop(fadeout: false);
             return 0;
         }
 
@@ -83,7 +84,9 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
         if (FadeOutTimer > 0f)
         {
             int read2 = ReadSamples(buffer, offset, count);
-            return read2 <= 0 ? 0 : FadeOut(volume, buffer, offset, read2);
+            if (read2 <= 0)
+                return 0;
+            return FadeOut(volume, buffer, offset, read2);
         }
 
         // pausing is very easy, we simply generate empty (0.0) samples
@@ -95,23 +98,25 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
 
         if (State == PlaybackState.Stopped)
         {
-            Dispose();
+            Stop(fadeout: false);
             return 0;
         }
 
         int read = ReadSamples(buffer, offset, count);
+        if (read <= 0)
+            return 0;
         return ApplyVolume(volume, buffer, offset, read);
     }
 
     int ReadSamples(float[] buffer, int offset, int count)
     {
         int read = Provider.Read(buffer, offset, count);
-        // we're out of buffers so we can dispose this instance
-        if (read < count)
+        if (read <= 0)
         {
-            Dispose();
+            Stop(fadeout: false);
+            return 0;
         }
-        return read <= 0 ? 0 : read;
+        return read;
     }
 
     int FadeOut(float volume, float[] buffer, int offset, int count)
@@ -142,8 +147,8 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
     {
         if (volume != 1.0f)
         {
-            for (int index = 0; index < count; ++index)
-                buffer[offset + index] *= volume;
+            for (int i = 0; i < count; ++i)
+                buffer[offset + i] *= volume;
         }
         return count;
     }

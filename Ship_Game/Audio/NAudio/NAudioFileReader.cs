@@ -1,6 +1,7 @@
 ﻿using System;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using SDUtils;
 
 namespace Ship_Game.Audio.NAudio;
 
@@ -14,18 +15,145 @@ internal class NAudioFileReader : WaveStream, ISampleProvider, IDisposable
     readonly int SrcBytesPerSample;
     readonly object Sync = new();
     
-    public NAudioFileReader(NAudioPlaybackEngine engine, string audioFile)
+    /// <summary>
+    /// Creates a new NAudioFileReader, converting the input file into the desired outFormat
+    /// </summary>
+    public NAudioFileReader(WaveFormat outFormat, string audioFile)
     {
-        Name = audioFile;
+        Name = FileSystemExtensions.GetAppRootRelPath(audioFile);
 
-        Reader = CreateReaderStream(audioFile);
-        Provider = engine.GetCompatibleSampleProvider(ConvertWaveProviderIntoSampleProvider(Reader));
+        Reader = CreateReaderStream(outFormat, audioFile);
+        Provider = GetCompatibleSampleProvider(outFormat, Reader);
 
         SrcBytesPerSample = (Reader.WaveFormat.BitsPerSample / 8) * Reader.WaveFormat.Channels;
-        DstBytesPerSample = 4*Provider.WaveFormat.Channels;
+        DstBytesPerSample = (Provider.WaveFormat.BitsPerSample / 8) * Provider.WaveFormat.Channels;
 
         WaveFormat = Provider.WaveFormat;
         Length = SourceToDest(Reader.Length);
+    }
+
+    static WaveStream CreateMFReader(WaveFormat outFormat, string fileName)
+    {
+        return new NAudioMFReader(fileName, new()
+        {
+            RequestFloatOutput = outFormat.Encoding == WaveFormatEncoding.IeeeFloat,
+        });
+    }
+
+    static WaveStream CreateReaderStream(WaveFormat outFormat, string fileName)
+    {
+        if (fileName.EndsWith(".m4a", StringComparison.OrdinalIgnoreCase) ||
+            fileName.EndsWith(".aac", StringComparison.OrdinalIgnoreCase) ||
+            fileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
+        {
+            return CreateMFReader(outFormat, fileName);
+        }
+        if (fileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+        {
+            WaveStream stream = new WaveFileReader(fileName);
+            if (stream.WaveFormat.Encoding != WaveFormatEncoding.Pcm && 
+                stream.WaveFormat.Encoding != WaveFormatEncoding.IeeeFloat)
+            {
+                stream = WaveFormatConversionStream.CreatePcmStream(stream);
+                stream = new BlockAlignReductionStream(stream);
+            }
+            return stream;
+        }
+        if (fileName.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+        {
+            if (Environment.OSVersion.Version.Major < 6)
+                return new Mp3FileReader(fileName);
+            else // make MediaFoundationReader the default for MP3 going forwards
+                return CreateMFReader(outFormat, fileName);
+        }
+        if (fileName.EndsWith(".aiff", StringComparison.OrdinalIgnoreCase) || 
+            fileName.EndsWith(".aif", StringComparison.OrdinalIgnoreCase))
+        {
+            return new AiffFileReader(fileName);
+        }
+
+        // fall back to media foundation reader, see if that can play it
+        return CreateMFReader(outFormat, fileName);
+    }
+
+    ISampleProvider GetCompatibleSampleProvider(WaveFormat desired, IWaveProvider reader)
+    {
+        WaveFormat readerFmt = reader.WaveFormat;
+        ISampleProvider output;
+
+        if (reader.WaveFormat.Encoding == WaveFormatEncoding.Pcm)
+        {
+            if      (readerFmt.BitsPerSample == 8)  output = new Pcm8BitToSampleProvider(reader);
+            else if (readerFmt.BitsPerSample == 16) output = new Pcm16BitToSampleProvider(reader);
+            else if (readerFmt.BitsPerSample == 24) output = new Pcm24BitToSampleProvider(reader);
+            else if (readerFmt.BitsPerSample == 32) output = new Pcm32BitToSampleProvider(reader);
+            else throw new InvalidOperationException("Unsupported bit depth");
+        }
+        else if (readerFmt.Encoding == WaveFormatEncoding.IeeeFloat)
+        {
+            if (readerFmt.BitsPerSample == 64) output = new WaveToSampleProvider64(reader);
+            else                               output = new WaveToSampleProvider(reader);
+        }
+        else
+        {
+            throw new ArgumentException("Unsupported source encoding");
+        }
+
+        if (output.WaveFormat.SampleRate != desired.SampleRate)
+        {
+            Log.Write(ConsoleColor.DarkYellow, $"Resampling {Name} {output.WaveFormat.SampleRate}Hz => {desired.SampleRate}Hz");
+            output = new WdlResamplingSampleProvider(output, desired.SampleRate);
+        }
+
+        // this is super rare, so no need to worry about it
+        if (output.WaveFormat.Channels == 1 && desired.Channels == 2)
+        {
+            Log.Write(ConsoleColor.DarkYellow, $"MonoToStereo {Name}");
+            output = new MonoToStereoSampleProvider(output);
+        }
+
+        return output;
+    }
+
+    /// <summary>
+    /// Helper class turning an already 32 bit floating point IWaveProvider
+    /// into an ISampleProvider - hopefully not needed for most applications
+    /// </summary>
+    public class WaveToSampleProvider : SampleProviderConverterBase
+    {
+        /// <summary>
+        /// Initializes a new instance of the WaveToSampleProvider class
+        /// </summary>
+        /// <param name="source">Source wave provider, must be IEEE float</param>
+        public WaveToSampleProvider(IWaveProvider source) : base(source)
+        {
+            if (source.WaveFormat.Encoding != WaveFormatEncoding.IeeeFloat)
+                throw new ArgumentException("Must be already floating point");
+        }
+
+        /// <summary>
+        /// Reads from this provider
+        /// </summary>
+        public override int Read(float[] buffer, int offset, int count)
+        {
+            int bytesNeeded = count * 4;
+            EnsureSourceBuffer(bytesNeeded);
+            int bytesRead = source.Read(sourceBuffer, 0, bytesNeeded);
+            int samplesRead = bytesRead / 4;
+            int outputIndex = offset;
+            unsafe
+            {
+                fixed(byte* pBytes = &sourceBuffer[0])
+                {
+                    float* pFloat = (float*)pBytes;
+                    for (int n = 0, i = 0; n < bytesRead; n += 4, i++)
+                    {
+                        buffer[outputIndex++] = *(pFloat + i);
+                    }
+                }
+            }
+            return samplesRead;
+        }
     }
 
     public override string ToString() => $"NAudioFileReader {Name}";
@@ -47,59 +175,6 @@ internal class NAudioFileReader : WaveStream, ISampleProvider, IDisposable
     {
         get => SourceToDest(Reader.Position);
         set { lock (Sync) { Reader.Position = DestToSource(value); }  }
-    }
-
-    /// <summary>
-    /// Creates the reader stream, supporting all file types in the core NAudio library,
-    /// and ensuring we are in PCM format
-    /// </summary>
-    static WaveStream CreateReaderStream(string fileName)
-    {
-        if (fileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-        {
-            WaveStream stream = new WaveFileReader(fileName);
-            if (stream.WaveFormat.Encoding != WaveFormatEncoding.Pcm && stream.WaveFormat.Encoding != WaveFormatEncoding.IeeeFloat)
-            {
-                stream = WaveFormatConversionStream.CreatePcmStream(stream);
-                stream = new BlockAlignReductionStream(stream);
-            }
-            return stream;
-        }
-        else if (fileName.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
-        {
-            if (Environment.OSVersion.Version.Major < 6)
-                return new Mp3FileReader(fileName);
-            else // make MediaFoundationReader the default for MP3 going forwards
-                return new MediaFoundationReader(fileName);
-        }
-        else if (fileName.EndsWith(".aiff", StringComparison.OrdinalIgnoreCase) || 
-                 fileName.EndsWith(".aif", StringComparison.OrdinalIgnoreCase))
-        {
-            return new AiffFileReader(fileName);
-        }
-        else
-        {
-            // fall back to media foundation reader, see if that can play it
-            return new MediaFoundationReader(fileName);
-        }
-    }
-
-
-    static ISampleProvider ConvertWaveProviderIntoSampleProvider(IWaveProvider provider)
-    {
-        if (provider.WaveFormat.Encoding == WaveFormatEncoding.Pcm)
-        {
-            if (provider.WaveFormat.BitsPerSample == 8) return new Pcm8BitToSampleProvider(provider);
-            if (provider.WaveFormat.BitsPerSample == 16) return new Pcm16BitToSampleProvider(provider);
-            if (provider.WaveFormat.BitsPerSample == 24) return new Pcm24BitToSampleProvider(provider);
-            if (provider.WaveFormat.BitsPerSample == 32) return new Pcm32BitToSampleProvider(provider);
-            throw new InvalidOperationException("Unsupported bit depth");
-        }
-        if (provider.WaveFormat.Encoding != WaveFormatEncoding.IeeeFloat)
-            throw new ArgumentException("Unsupported source encoding");
-
-        if (provider.WaveFormat.BitsPerSample == 64) return new WaveToSampleProvider64(provider);
-        return new WaveToSampleProvider(provider);
     }
 
     /// <summary>

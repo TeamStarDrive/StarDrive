@@ -2,8 +2,8 @@
 # This file is used to configure audio settings for the game.
 # You can put this into your mod folder to override the default settings.
 # 
-# Supported audio formats: .wav, .mp3, .m4a, .aac
-# When possible, prefer compressed formats (.m4a/.mp3) to reduce memory impact.
+# Supported audio formats: .m4a, .m4a, .m4a, .aac
+# When possible, prefer compressed formats (.m4a/.m4a) to reduce memory impact.
 
 Category:
   Name: Music

@@ -1,19 +1,23 @@
 ﻿using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NAudio.Wave;
 using Ship_Game.Audio;
 using Ship_Game;
+using Ship_Game.Audio.NAudio;
 
 namespace UnitTests.Data
 {
     [TestClass]
-    public class AudioYamlParse : StarDriveTest
+    public class TestAudioConfig : StarDriveTest
     {
         static bool IsSupportedFileExtension(string fileName)
         {
             return fileName.EndsWith(".m4a")
-                || fileName.EndsWith(".wav")
-                || fileName.EndsWith(".mp3");
+                || fileName.EndsWith(".aac")
+                || fileName.EndsWith(".mp4")
+                || fileName.EndsWith(".mp3")
+                || fileName.EndsWith(".wav");
         }
 
         [TestMethod]
@@ -47,6 +51,15 @@ namespace UnitTests.Data
             }
         }
 
+        static FileInfo GetAudioPath(string soundPath)
+        {
+            string relPath = "Audio/" + soundPath;
+            FileInfo fullPath = ResourceManager.GetModOrVanillaFile(relPath);
+            if (fullPath is not { Exists: true })
+                throw new FileNotFoundException($"Sound file does not exist: {relPath}");
+            return fullPath;
+        }
+
         [TestMethod]
         public void EnsureAllAudioFilesExist()
         {
@@ -57,24 +70,21 @@ namespace UnitTests.Data
                 foreach (SoundEffect effect in category.SoundEffects)
                 {
                     if (effect.Sound.NotEmpty())
-                    {
-                        string relPath = "Audio/" + effect.Sound;
-                        FileInfo fullPath = ResourceManager.GetModOrVanillaFile(relPath);
-                        if (fullPath is not { Exists: true })
-                            throw new FileNotFoundException($"Effect={effect.Id} Sound file does not exist: {relPath}");
-                    }
+                        GetAudioPath(effect.Sound);
                     else if (effect.Sounds is { Length: > 0 })
-                    {
                         foreach (string sound in effect.Sounds)
-                        {
-                            string relPath = "Audio/" + sound;
-                            FileInfo fullPath = ResourceManager.GetModOrVanillaFile(relPath);
-                            if (fullPath is not { Exists: true })
-                                throw new FileNotFoundException($"Effect={effect.Id} Sound file does not exist: {relPath}");
-                        }
-                    }
+                            GetAudioPath(sound);
                 }
             }
+        }
+
+        [TestMethod]
+        public void CanCacheAudioData()
+        {
+            FileInfo fullPath = GetAudioPath("Weapons/sd_ui_notification_research_01.m4a");
+            WaveFormat format = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
+            CachedSoundEffect cached = new(format, fullPath.FullName);
+            AssertEqual(cached.AudioData.Length, 292864);
         }
     }
 }
