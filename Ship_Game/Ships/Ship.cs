@@ -30,7 +30,7 @@ namespace Ship_Game.Ships
 
         public Array<Weapon> Weapons = new();
         [StarData] float JumpTimer = 3f;
-        public Audio.AudioEmitter SoundEmitter = new();
+        public AudioEmitter SoundEmitter = new(maxDistance: 50_000f);
         [StarData] public float ScuttleTimer = -1f;
         
         [StarData] public Fleet Fleet;

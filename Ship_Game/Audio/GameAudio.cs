@@ -29,10 +29,7 @@ public static class GameAudio
 
     static readonly RandomBase Random = new ThreadSafeRandom();
     
-    static Vector3 ListenerPos;
-
     static readonly object SfxQueueLock = new();
-    static int ThisFrameSfxCount; // Limit the number of Cues that can be loaded per frame. 
 
     struct AsyncSfx
     {
@@ -90,7 +87,7 @@ public static class GameAudio
 
             AudioEngine = new(device);
 
-            AsyncSfxQueue  = new(16);
+            AsyncSfxQueue = new(16);
             SfxThread = new(SfxEnqueueThread) { Name = "GameAudioSfx" };
             SfxThread.Start();
         }
@@ -123,20 +120,16 @@ public static class GameAudio
 
         Mem.Dispose(ref AudioEngine);
         Mem.Dispose(ref Devices);
-
-        ListenerPos = Vector3.Zero;
     }
 
-    public static void Update3DSound(in Vector3 listenerPosition)
+    public static void Update3DSound(in Vector3 listenerPos)
     {
-        ListenerPos = AudioEngineGood ? listenerPosition : Vector3.Zero;
+        Config?.SetListenerPos(listenerPos);
     }
 
     // this is called from Game1.Update() every frame
     public static void Update()
     {
-        ThisFrameSfxCount = 0;
-
         Devices.HandleEvents();
 
         if (Devices.ShouldReloadAudioDevice)
@@ -145,7 +138,7 @@ public static class GameAudio
             return;
         }
 
-        Config?.Update(ListenerPos);
+        Config?.Update();
     }
 
     // Configures GameAudio from GlobalStats MusicVolume and EffectsVolume
@@ -290,16 +283,13 @@ public static class GameAudio
 
     public static bool CantPlaySfx(string cueName)
     {
-        const int frameSfxLimit = 1; // @ 60fps, this is max 60 SFX per second
-        return !AudioEngineGood || AudioDisabled || EffectsDisabled || ThisFrameSfxCount > frameSfxLimit || cueName.IsEmpty();
+        return !AudioEngineGood || AudioDisabled || EffectsDisabled || cueName.IsEmpty();
     }
 
     public static void PlaySfxAsync(string effectId, AudioEmitter emitter = null)
     {
         if (CantPlaySfx(effectId))
             return;
-
-        ++ThisFrameSfxCount;
         lock (SfxQueueLock)
         {
             AsyncSfxQueue.Add(new()
@@ -312,7 +302,6 @@ public static class GameAudio
 
     internal static void PlaySfxAsync(string effectId, AudioEmitter emitter, AudioHandle handle)
     {
-        ++ThisFrameSfxCount;
         lock (SfxQueueLock)
         {
             AsyncSfxQueue.Add(new()
@@ -326,7 +315,7 @@ public static class GameAudio
         
     public static bool IsMusicDisabled => !AudioEngineGood || AudioDisabled || MusicDisabled;
 
-    static bool CantPlayMusic(string music)
+    static bool CantPlayMusic(string music) // returns true if music is muted
     {
         return IsMusicDisabled || music.IsEmpty();
     }
@@ -336,7 +325,7 @@ public static class GameAudio
     /// </summary>
     public static AudioHandle PlayMusic(string effectId)
     {
-        if (CantPlayMusic(effectId)) // returns true if music is muted
+        if (CantPlayMusic(effectId))
             return AudioHandle.DoNotPlay;
         
         SoundEffect effect = Config.GetSoundEffect(effectId);
@@ -354,7 +343,7 @@ public static class GameAudio
     /// </summary>
     public static AudioHandle PlayMusicFile(string audioFile)
     {
-        if (CantPlayMusic(audioFile)) // returns true if music is muted
+        if (CantPlayMusic(audioFile))
             return AudioHandle.DoNotPlay;
 
         IAudioInstance instance = PlayFromFile(Music, audioFile);
