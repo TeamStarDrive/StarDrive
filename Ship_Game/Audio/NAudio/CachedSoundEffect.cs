@@ -4,17 +4,18 @@ using SDUtils;
 
 namespace Ship_Game.Audio.NAudio;
 
-internal class CachedSoundEffect
+public class CachedSoundEffect
 {
     public float[] AudioData { get; }
     public WaveFormat WaveFormat { get; }
     public readonly string Name;
     public override string ToString() => $"Cached {Name}";
 
-    public CachedSoundEffect(NAudioPlaybackEngine engine, string audioFile)
+    public CachedSoundEffect(WaveFormat outFormat, string audioFile)
     {
-        Name = audioFile;
-        using NAudioFileReader reader = new(engine, audioFile);
+        Name = FileSystemExtensions.GetAppRootRelPath(audioFile);
+
+        using NAudioFileReader reader = new(outFormat, audioFile);
         WaveFormat = reader.WaveFormat;
 
         // TODO: maybe there's a more efficient way than using a resizable array?
@@ -24,7 +25,7 @@ internal class CachedSoundEffect
         int samplesRead;
         while ((samplesRead = reader.Read(buffer, 0, buffer.Length)) > 0)
         {
-            data.AddSpan(buffer.AsSpan(0, samplesRead));
+            data.AddRange(buffer, samplesRead);
         }
 
         AudioData = data.ToArr();
@@ -35,7 +36,7 @@ internal class CachedSoundEffect
     class CachedSoundSampleProvider : ISampleProvider
     {
         readonly CachedSoundEffect Sound;
-        long Position;
+        int Position;
         public WaveFormat WaveFormat => Sound.WaveFormat;
         public override string ToString() => $"CachedSampler {Sound.Name}";
 
@@ -45,11 +46,14 @@ internal class CachedSoundEffect
         }
         public int Read(float[] buffer, int offset, int count)
         {
-            long availableSamples = Sound.AudioData.Length - Position;
-            long samplesToCopy = Math.Min(availableSamples, count);
+            int availableSamples = Sound.AudioData.Length - Position;
+            if (availableSamples <= 0)
+                return 0;
+
+            int samplesToCopy = Math.Min(availableSamples, count);
             Array.Copy(Sound.AudioData, Position, buffer, offset, samplesToCopy);
             Position += samplesToCopy;
-            return (int)samplesToCopy;
+            return samplesToCopy;
         }
     }
 }

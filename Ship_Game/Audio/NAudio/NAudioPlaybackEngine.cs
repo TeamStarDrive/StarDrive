@@ -10,29 +10,22 @@ namespace Ship_Game.Audio.NAudio;
 
 internal class NAudioPlaybackEngine : IDisposable
 {
-    public static readonly int SampleRate = 48000;
+    public static readonly int SampleRate = 44100;
     public static readonly int Channels = 2;
 
     readonly IWavePlayer OutputDevice;
-    readonly MixingSampleProvider Mixer;
+    readonly NAudioSampleMixer Mixer;
 
     // pre-sampled cache for Weapon and Warp effects
     readonly Map<string, CachedSoundEffect> SfxCache = new();
 
+    public WaveFormat WaveFormat { get; }
+
     public NAudioPlaybackEngine(MMDevice device)
     {
         OutputDevice = new WasapiOut(device, AudioClientShareMode.Shared, useEventSync: true, latency: 100);
-
-        //OutputDevice = new WaveOutEvent()
-        //{
-        //    DesiredLatency = 200,
-        //    NumberOfBuffers = 3,
-        //};
-
-        Mixer = new(WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, Channels))
-        {
-            ReadFully = true
-        };
+        WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, Channels);
+        Mixer = new(WaveFormat) { ReadFully = true };
 
         OutputDevice.Init(Mixer);
         OutputDevice.Play();
@@ -40,6 +33,7 @@ internal class NAudioPlaybackEngine : IDisposable
 
     public void Dispose()
     {
+        Mixer.Dispose();
         OutputDevice.Dispose(); // automatically calls Stop()
     }
 
@@ -75,8 +69,12 @@ internal class NAudioPlaybackEngine : IDisposable
                 }
                 if (cached == null)
                 {
-                    // generating the cache will be sloooow
-                    cached = new(this, audioFile);
+                    // generating the cache will be sloooow, even on a very fast system it can take 300ms+
+                    PerfTimer t = new();
+                    cached = new(WaveFormat, audioFile);
+                    double elapsedMs = t.ElapsedMillis;
+                    Log.Write(ConsoleColor.Green, $"Caching {audioFile} elapsed:{elapsedMs:0.1}ms");
+
                     lock (SfxCache)
                         SfxCache.Add(audioFile, cached);
                 }
@@ -84,9 +82,10 @@ internal class NAudioPlaybackEngine : IDisposable
             }
             else
             {
-                provider = new NAudioFileReader(this, audioFile);
+                provider = new NAudioFileReader(WaveFormat, audioFile);
             }
 
+            Log.Write(ConsoleColor.Green, $"Start {audioFile} volume={volume}");
             NAudioSampleInstance instance = new(category, emitter, provider, volume);
             Mixer.AddMixerInput(instance);
             return instance;
@@ -96,28 +95,5 @@ internal class NAudioPlaybackEngine : IDisposable
             Log.Warning($"Failed to play audio file: {ex}");
             return null;
         }
-    }
-
-    public ISampleProvider GetCompatibleSampleProvider(ISampleProvider provider)
-    {
-        ISampleProvider sampler = GetResamplingProvider(provider);
-        ISampleProvider stereo = GetStereoSampleProvider(sampler);
-        return stereo;
-    }
-
-    ISampleProvider GetStereoSampleProvider(ISampleProvider input)
-    {
-        if (input.WaveFormat.Channels == Mixer.WaveFormat.Channels)
-            return input;
-        if (input.WaveFormat.Channels == 1 && Mixer.WaveFormat.Channels == 2)
-            return new MonoToStereoSampleProvider(input);
-        throw new NotImplementedException("SampleProvider not implemented");
-    }
-
-    ISampleProvider GetResamplingProvider(ISampleProvider input)
-    {
-        if (input.WaveFormat.SampleRate == SampleRate)
-            return input;
-        return new WdlResamplingSampleProvider(input, SampleRate);
     }
 }

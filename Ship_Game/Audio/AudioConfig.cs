@@ -146,8 +146,7 @@ public class AudioCategory : IDisposable
         }
     }
 
-
-    public Vector3 ListenerPosition;
+    public Vector3 ListenerPos;
     int CurrentSoundsPerFrame;
 
     /// <summary>
@@ -156,8 +155,8 @@ public class AudioCategory : IDisposable
     /// </summary>
     public bool CanPlayEffect(SoundEffect effect)
     {
-        if (MaxSoundsPerFrame != 0 && CurrentSoundsPerFrame >= MaxSoundsPerFrame)
-            return false;
+        //if (MaxSoundsPerFrame != 0 && CurrentSoundsPerFrame >= MaxSoundsPerFrame)
+        //    return false;
         if (MaxConcurrentSounds != 0 && TrackedInstances.Count >= MaxConcurrentSounds)
             return false;
         if (MaxConcurrentSoundsPerEffect != 0 && effect.NumActiveInstances >= MaxConcurrentSoundsPerEffect)
@@ -199,7 +198,7 @@ public class AudioCategory : IDisposable
 
     public void SetListenerPos(in Vector3 listenerPos)
     {
-        ListenerPosition = listenerPos;
+        ListenerPos = listenerPos;
     }
 
     public void Update()

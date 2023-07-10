@@ -27,9 +27,9 @@ public class AudioEmitter
     /// calculates the effective volume of this emitter.
     /// </summary>
     /// <returns>Reduced `volume` based on linear falloff</returns>
-    public float GetEffectiveVolume(AudioCategory c, float volume)
+    public float GetEffectiveVolume(AudioCategory category, float volume)
     {
-        float distance = Position.Distance(c.ListenerPosition);
+        float distance = Position.Distance(category.ListenerPos);
         if (distance >= MaxDistance)
             return 0f;
 
