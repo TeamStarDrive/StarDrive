@@ -83,7 +83,22 @@ namespace UnitTests.Data
             FileInfo fullPath = GetAudioPath("UI/sd_ui_notification_research_01.m4a");
             WaveFormat format = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
             CachedSoundEffect cached = new(format, fullPath.FullName);
-            AssertEqual(cached.AudioData.Length, 292864);
+            AssertEqual(292864, cached.NumSamples);
+
+            // test that we can read the cached data
+            // create an inconveniently sized buffer to guarantee multiple cross-chunk reads
+            float[] buffer1 = new float[(int)(format.SampleRate * format.Channels * 0.66f)];
+            ISampleProvider reader1 = cached.CreateReader();
+            int totalSamples1 = 0;
+            for (int n; (n = reader1.Read(buffer1, 0, buffer1.Length)) > 0; totalSamples1 += n) {}
+            AssertEqual(292864, totalSamples1);
+
+            // read again, but this time with a much bigger buffer
+            float[] buffer2 = new float[(int)(format.SampleRate * format.Channels * 2.66f)];
+            ISampleProvider reader2 = cached.CreateReader();
+            int totalSamples2 = 0;
+            for (int n; (n = reader2.Read(buffer2, 0, buffer2.Length)) > 0; totalSamples2 += n) {}
+            AssertEqual(292864, totalSamples2);
         }
     }
 }

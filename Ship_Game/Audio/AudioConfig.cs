@@ -166,8 +166,8 @@ public class AudioCategory : IDisposable
     /// </summary>
     public bool CanPlayEffect(SoundEffect effect)
     {
-        //if (MaxSoundsPerFrame != 0 && CurrentSoundsPerFrame >= MaxSoundsPerFrame)
-        //    return false;
+        if (MaxSoundsPerFrame != 0 && CurrentSoundsPerFrame >= MaxSoundsPerFrame)
+            return false;
         if (MaxConcurrentSounds != 0 && TrackedInstances.Count >= MaxConcurrentSounds)
             return false;
         if (MaxConcurrentSoundsPerEffect != 0 && effect.NumActiveInstances >= MaxConcurrentSoundsPerEffect)
