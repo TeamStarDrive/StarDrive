@@ -435,7 +435,7 @@ namespace Ship_Game
         {
             if (base.HandleInput(input))
             {
-                GameAudio.ConfigureAudioSettings();
+                GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
                 return true;
             }
             return false;

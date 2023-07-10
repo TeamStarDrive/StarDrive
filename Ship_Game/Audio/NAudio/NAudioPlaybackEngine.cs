@@ -70,10 +70,10 @@ internal class NAudioPlaybackEngine : IDisposable
                 if (cached == null)
                 {
                     // generating the cache will be sloooow, even on a very fast system it can take 300ms+
-                    PerfTimer t = new();
+                    //PerfTimer t = new();
                     cached = new(WaveFormat, audioFile);
-                    double elapsedMs = t.ElapsedMillis;
-                    Log.Write(ConsoleColor.Green, $"Caching {audioFile} elapsed:{elapsedMs:0.1}ms");
+                    //double elapsedMs = t.ElapsedMillis;
+                    //Log.Write(ConsoleColor.Green, $"Caching {audioFile} elapsed:{elapsedMs:0.1}ms");
 
                     lock (SfxCache)
                         SfxCache.Add(audioFile, cached);
@@ -85,7 +85,7 @@ internal class NAudioPlaybackEngine : IDisposable
                 provider = new NAudioFileReader(WaveFormat, audioFile);
             }
 
-            Log.Write(ConsoleColor.Green, $"Start {audioFile} volume={volume}");
+            //Log.Write(ConsoleColor.Green, $"Start {audioFile} volume={volume}");
             NAudioSampleInstance instance = new(category, emitter, provider, volume);
             Mixer.AddMixerInput(instance);
             return instance;

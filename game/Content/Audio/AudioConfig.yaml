@@ -72,7 +72,40 @@ Category:
       Sound: "RacialMusic/Female_02_loop.m4a"
 
 Category:
-  Name: Default
+  Name: PlanetAmbient
+  Volume: 1.00
+  FadeOutTime: 0.1
+  MaxConcurrentSounds: 4
+  MaxConcurrentSoundsPerEffect: 1
+  MaxSoundsPerFrame: 1
+  SoundEffects:
+    - SoundEffect:
+      Id: sd_planet_barren_01
+      Volume: 1.76
+      Sound: "PlanetAmbient/sd_planet_barren_01.m4a"
+    - SoundEffect:
+      Id: sd_planet_colonized_01
+      Volume: 1.76
+      Sound: "PlanetAmbient/sd_planet_colonized_01.m4a"
+    - SoundEffect:
+      Id: sd_planet_forest_01
+      Volume: 1.04
+      Sound: "PlanetAmbient/sd_planet_forest_01.m4a"
+    - SoundEffect:
+      Id: sd_planet_gasgiant_01
+      Volume: 1.76
+      Sound: "PlanetAmbient/sd_planet_gasgiant_01.m4a"
+    - SoundEffect:
+      Id: sd_planet_volcanic_01
+      Volume: 1.76
+      Sound: "PlanetAmbient/sd_planet_volcanic_01.m4a"
+    - SoundEffect:
+      Id: sd_planet_water_01
+      Volume: 1.76
+      Sound: "PlanetAmbient/sd_planet_water_01.m4a"
+
+Category:
+  Name: Warp
   Volume: 1.00
   FadeOutTime: 0.0 # The warp sounds shouldn't fade out because they are always one-shot anyways
   MemoryCache: true # Sound effects in this category can be cached to memory to speed up the audio playback
@@ -81,65 +114,349 @@ Category:
   MaxSoundsPerFrame: 1 # The maximum number of sounds that can be played per frame, 0 for unlimited
   SoundEffects:
     - SoundEffect:
-      Id: sd_battle_ambient
-      Volume: 0.25
-      Sound: "Default/sd_battle_ambient.m4a"
-    - SoundEffect:
       Id: sd_warp_start_cordrazine_01
       Volume: 0.25
-      Sound: "Default/sd_warp_start_cordrazine_01.m4a"
+      Sound: "Warp/sd_warp_start_cordrazine_01.m4a"
     - SoundEffect:
       Id: sd_warp_start_draylok_01
       Volume: 0.25
-      Sound: "Default/sd_warp_start_draylok_01.m4a"
+      Sound: "Warp/sd_warp_start_draylok_01.m4a"
     - SoundEffect:
       Id: sd_warp_start_kulrathi_01
       Volume: 0.25
-      Sound: "Default/sd_warp_start_kulrathi_01.m4a"
+      Sound: "Warp/sd_warp_start_kulrathi_01.m4a"
     - SoundEffect:
       Id: sd_warp_start_opteris_01
       Volume: 0.25
-      Sound: "Default/sd_warp_start_opteris_01.m4a"
+      Sound: "Warp/sd_warp_start_opteris_01.m4a"
     - SoundEffect:
       Id: sd_warp_start_pollops_01
       Volume: 0.25
-      Sound: "Default/sd_warp_start_pollops_01.m4a"
+      Sound: "Warp/sd_warp_start_pollops_01.m4a"
     - SoundEffect:
       Id: sd_warp_start_ralyeh_01
       Volume: 0.25
-      Sound: "Default/sd_warp_start_ralyeh_01.m4a"
+      Sound: "Warp/sd_warp_start_ralyeh_01.m4a"
     - SoundEffect:
       Id: sd_warp_start_vulfen_01
       Volume: 0.25
-      Sound: "Default/sd_warp_start_vulfen_01.m4a"
+      Sound: "Warp/sd_warp_start_vulfen_01.m4a"
     - SoundEffect:
       Id: sd_warp_stop_cordrazine_01
       Volume: 0.25
-      Sound: "Default/sd_warp_stop_cordrazine_01.m4a"
+      Sound: "Warp/sd_warp_stop_cordrazine_01.m4a"
     - SoundEffect:
       Id: sd_warp_stop_draylok_01
       Volume: 0.25
-      Sound: "Default/sd_warp_stop_draylok_01.m4a"
+      Sound: "Warp/sd_warp_stop_draylok_01.m4a"
     - SoundEffect:
       Id: sd_warp_stop_kulrathi_01
       Volume: 0.25
-      Sound: "Default/sd_warp_stop_kulrathi_01.m4a"
+      Sound: "Warp/sd_warp_stop_kulrathi_01.m4a"
     - SoundEffect:
       Id: sd_warp_stop_opteris_01
       Volume: 0.25
-      Sound: "Default/sd_warp_stop_opteris_01.m4a"
+      Sound: "Warp/sd_warp_stop_opteris_01.m4a"
     - SoundEffect:
       Id: sd_warp_stop_pollops_01
       Volume: 0.25
-      Sound: "Default/sd_warp_stop_pollops_01.m4a"
+      Sound: "Warp/sd_warp_stop_pollops_01.m4a"
     - SoundEffect:
       Id: sd_warp_stop_ralyeh_01
       Volume: 0.25
-      Sound: "Default/sd_warp_stop_ralyeh_01.m4a"
+      Sound: "Warp/sd_warp_stop_ralyeh_01.m4a"
     - SoundEffect:
       Id: sd_warp_stop_vulfen_01
       Volume: 0.25
-      Sound: "Default/sd_warp_stop_vulfen_01.m4a"
+      Sound: "Warp/sd_warp_stop_vulfen_01.m4a"
+    - SoundEffect:
+      Id: sd_warp_flight_loop
+      Volume: 0.25
+      Sound: "Warp/sd_warp_flight_loop.m4a"
+    - SoundEffect:
+      Id: sd_warp_start_02
+      Volume: 0.25
+      Sound: "Warp/sd_warp_start_02.m4a"
+    - SoundEffect:
+      Id: sd_warp_stop
+      Volume: 0.25
+      Sound: "Warp/sd_warp_stop.m4a"
+    - SoundEffect:
+      Id: sd_warp_flight
+      Volume: 0.25
+      Sound: "Warp/sd_warp_flight.m4a"
+    - SoundEffect:
+      Id: sd_warp_start_large
+      Volume: 0.25
+      Sound: "Warp/sd_warp_start_large.m4a"
+    - SoundEffect:
+      Id: sd_warp_stop_large
+      Volume: 0.25
+      Sound: "Warp/sd_warp_stop_large.m4a"
+    - SoundEffect:
+      Id: sd_warp_stop_small
+      Volume: 0.25
+      Sound: "Warp/sd_warp_stop_small.m4a"
+    - SoundEffect:
+      Id: sd_warp_start_small
+      Volume: 0.25
+      Sound: "Warp/sd_warp_start_small.m4a"
+
+Category:
+  Name: UI
+  Volume: 1.00
+  MemoryCache: true # Sound effects in this category can be cached to memory to speed up the audio playback
+  MaxConcurrentSounds: 16 # Maximum number of sounds that can be played at once in this category
+  MaxConcurrentSoundsPerEffect: 8 # The maximum number of sounds that can be played at the same time for each sound effect, 0 for unlimited
+  MaxSoundsPerFrame: 2
+  SoundEffects:
+    - SoundEffect:
+      Id: sd_ui_tactical_pause
+      Volume: 0.25
+      Sound: "UI/sd_ui_tactical_pause.m4a"
+    - SoundEffect:
+      Id: sd_ui_colonize_01
+      Volume: 0.25
+      Sound: "UI/sd_ui_colonize_01.m4a"
+    - SoundEffect:
+      Id: sd_ui_notification_colonized_01
+      Volume: 0.25
+      Sound: "UI/sd_ui_notification_colonized_01.m4a"
+    - SoundEffect:
+      Id: sd_ui_mouseover
+      Volume: 0.25
+      Sound: "UI/sd_ui_mouseover.m4a"
+    - SoundEffect:
+      Id: sd_ui_notification_encounter
+      Volume: 0.25
+      Sound: "UI/sd_ui_notification_encounter.m4a"
+    - SoundEffect:
+      Id: sd_ui_research_select
+      Volume: 0.25
+      Sound: "UI/sd_ui_research_select.m4a"
+    - SoundEffect:
+      Id: sd_ui_notification_research_01
+      Volume: 0.25
+      Sound: "UI/sd_ui_notification_research_01.m4a"
+    - SoundEffect:
+      Id: sd_ui_notification_startgame
+      Volume: 0.25
+      Sound: "UI/sd_ui_notification_startgame.m4a"
+    - SoundEffect:
+      Id: sd_ui_notification_technology_bad
+      Volume: 0.25
+      Sound: "UI/sd_ui_notification_technology_bad.m4a"
+    - SoundEffect:
+      Id: sd_ui_notification_warning
+      Volume: 0.25
+      Sound: "UI/sd_ui_notification_warning.m4a"
+    - SoundEffect:
+      Id: sd_ui_notification_conquer_01
+      Volume: 0.25
+      Sound: "UI/sd_ui_notification_conquer_01.m4a"
+    - SoundEffect:
+      Id: sd_ui_spy_fail_02
+      Volume: 0.25
+      Sound: "UI/sd_ui_spy_fail_02.m4a"
+    - SoundEffect:
+      Id: sd_ui_spy_win_02
+      Volume: 0.25
+      Sound: "UI/sd_ui_spy_win_02.m4a"
+    - SoundEffect:
+      Id: sd_ui_accept_alt3
+      Volume: 0.25
+      Sound: "UI/sd_ui_accept_alt3.m4a"
+    - SoundEffect:
+      Id: UI_Misc20
+      Volume: 0.25
+      Sound: "UI/UI_Misc20.m4a"
+
+    - SoundEffect:
+      Id: alarm
+      Volume: 0.25
+      Sound: "UI/alarm.m4a"
+    - SoundEffect:
+      Id: analogue_click2
+      Volume: 0.25
+      Sound: "UI/analogue_click2.m4a"
+    - SoundEffect:
+      Id: blip_click
+      Volume: 0.25
+      Sound: "UI/blip_click.m4a"
+    - SoundEffect:
+      Id: echo_affirm
+      Volume: 0.25
+      Sound: "UI/echo_affirm.m4a"
+    - SoundEffect:
+      Id: echo_affirm1
+      Volume: 0.25
+      Sound: "UI/echo_affirm1.m4a"
+    - SoundEffect:
+      Id: Money
+      Volume: 0.25
+      Sound: "UI/Money.m4a"
+    - SoundEffect:
+      Id: sd_trade_01
+      Volume: 0.25
+      Sound: "UI/sd_trade_01.m4a"
+    - SoundEffect:
+      Id: mouse_over4
+      Volume: 0.25
+      Sound: "UI/mouse_over4.m4a"
+    - SoundEffect:
+      Id: sd_notify_alert
+      Volume: 0.25
+      Sound: "UI/sd_notify_alert.m4a"
+    - SoundEffect:
+      Id: short_whoosh1
+      Volume: 0.25
+      Sounds:
+        - "UI/short_whoosh1.0.m4a"
+        - "UI/short_whoosh1.1.m4a"
+    - SoundEffect:
+      Id: simple_beep
+      Volume: 0.25
+      Sound: "UI/simple_beep.m4a"
+    - SoundEffect:
+      Id: smallservo
+      Volume: 0.25
+      Sound: "UI/smallservo.m4a"
+    - SoundEffect:
+      Id: sub_bass_mouseover
+      Volume: 0.25
+      Sound: "UI/sub_bass_mouseover.m4a"
+    - SoundEffect:
+      Id: sub_bass_whoosh
+      Volume: 0.25
+      Sound: "UI/sub_bass_whoosh.m4a"
+    - SoundEffect:
+      Id: xylophone_affirm1
+      Volume: 0.25
+      Sound: "UI/xylophone_affirm1.m4a"
+
+Category:
+  Name: Ground
+  Volume: 1.00
+  MemoryCache: true # Sound effects in this category can be cached to memory to speed up the audio playback
+  MaxConcurrentSounds: 16 # The maximum number of sounds that can be played at the same time, 0 for unlimited
+  MaxConcurrentSoundsPerEffect: 8 # The maximum number of sounds that can be played at the same time for each sound effect, 0 for unlimited
+  MaxSoundsPerFrame: 2 # The maximum number of sounds that can be played per frame, 0 for unlimited
+  SoundEffects:
+    - SoundEffect:
+      Id: sd_troop_kulrathi
+      Volume: 0.25
+      Sound: "Ground/sd_troop_kulrathi.m4a"
+    - SoundEffect:
+      Id: sd_troop_attack_miss
+      Volume: 0.25
+      Sound: "Ground/sd_troop_attack_miss.m4a"
+    - SoundEffect:
+      Id: sd_troop_attack_hit
+      Volume: 0.25
+      Sound: "Ground/sd_troop_attack_hit.m4a"
+    - SoundEffect:
+      Id: sd_troop_land
+      Volume: 0.25
+      Sound: "Ground/sd_troop_land.m4a"
+    - SoundEffect:
+      Id: sd_troop_takeoff
+      Volume: 0.25
+      Sound: "Ground/sd_troop_takeoff.m4a"
+    - SoundEffect:
+      Id: sd_troop_attack_01
+      Volume: 0.25
+      Sounds:
+        - "Ground/sd_troop_attack_01.0.m4a"
+        - "Ground/sd_troop_attack_01.1.m4a"
+        - "Ground/sd_troop_attack_01.2.m4a"
+    - SoundEffect:
+      Id: sd_troop_march_01
+      Volume: 0.25
+      Sounds:
+        - "Ground/sd_troop_march_01.0.m4a"
+        - "Ground/sd_troop_march_01.1.m4a"
+        - "Ground/sd_troop_march_01.2.m4a"
+
+    - SoundEffect:
+      Id: sd_bomb_impact_01
+      Volume: 0.25
+      Sounds:
+        - "Ground/sd_bomb_impact_01.0.m4a"
+        - "Ground/sd_bomb_impact_01.1.m4a"
+        - "Ground/sd_bomb_impact_01.2.m4a"
+        - "Ground/sd_bomb_impact_01.3.m4a"
+    - SoundEffect:
+      Id: sd_tank_march_01
+      Volume: 0.25
+      Sounds:
+        - "Ground/sd_tank_march_01.0.m4a"
+        - "Ground/sd_tank_march_01.1.m4a"
+        - "Ground/sd_tank_march_01.2.m4a"
+    - SoundEffect:
+      Id: sd_mech_march_03
+      Volume: 0.25
+      Sound: "Ground/sd_mech_march_03.m4a"
+      
+    - SoundEffect:
+      Id: sd_mech_attack_01
+      Volume: 0.25
+      Sounds:
+        - "Ground/sd_mech_attack_01.m4a"
+        - "Ground/sd_mech_attack_03.m4a"
+        - "Ground/sd_mech_attack_02.m4a"
+
+    - SoundEffect:
+      Id: sd_bomb_release
+      Volume: 0.25
+      Sound: "Ground/sd_bomb_release.m4a"
+    - SoundEffect:
+      Id: sd_ground_bugs_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_bugs_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_cordrazine_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_cordrazine_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_pollup_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_pollup_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_wulv_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_wulv_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_drayloktrooper_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_drayloktrooper_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_humantrooper_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_humantrooper_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_kulrathigunner_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_kulrathigunner_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_ralyeh_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_ralyeh_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_remenantdefender_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_remenantdefender_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_skeleton_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_skeleton_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_spidertank_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_spidertank_01.m4a"
+    - SoundEffect:
+      Id: sd_ground_vulfargrunt_01
+      Volume: 0.25
+      Sound: "Ground/sd_ground_vulfargrunt_01.m4a"
 
 Category:
   Name: Weapons
@@ -150,53 +467,17 @@ Category:
   MaxSoundsPerFrame: 2 # The maximum number of sounds that can be played per frame, 0 for unlimited
   SoundEffects:
     - SoundEffect:
-      Id: alarm
+      Id: ship_critical_fastalarm
       Volume: 0.25
-      Sound: "Weapons/alarm.m4a"
-    - SoundEffect:
-      Id: simple_beep
-      Volume: 0.25
-      Sound: "Weapons/simple_beep.m4a"
-    - SoundEffect:
-      Id: fastalarm
-      Volume: 0.25
-      Sound: "Weapons/fastalarm.m4a"
+      Sound: "Weapons/ship_critical_fastalarm.m4a"
     - SoundEffect:
       Id: cloaksound
       Volume: 0.25
       Sound: "Weapons/cloaksound.m4a"
     - SoundEffect:
-      Id: echo_affirm1
-      Volume: 0.25
-      Sound: "Weapons/echo_affirm1.m4a"
-    - SoundEffect:
-      Id: sub_bass_whoosh
-      Volume: 0.25
-      Sound: "Weapons/sub_bass_whoosh.m4a"
-    - SoundEffect:
-      Id: blip_click
-      Volume: 0.25
-      Sound: "Weapons/blip_click.m4a"
-    - SoundEffect:
-      Id: xylophone_affirm1
-      Volume: 0.25
-      Sound: "Weapons/xylophone_affirm1.m4a"
-    - SoundEffect:
       Id: weak laser
       Volume: 0.25
       Sound: "Weapons/weak laser.m4a"
-    - SoundEffect:
-      Id: analogue_click2
-      Volume: 0.25
-      Sound: "Weapons/analogue_click2.m4a"
-    - SoundEffect:
-      Id: Money
-      Volume: 0.25
-      Sound: "Weapons/Money.m4a"
-    - SoundEffect:
-      Id: echo_affirm
-      Volume: 0.25
-      Sound: "Weapons/echo_affirm.m4a"
     - SoundEffect:
       Id: disruptor
       Volume: 0.25
@@ -210,57 +491,21 @@ Category:
       Volume: 0.03
       Sound: "Weapons/ShipSlow.m4a"
     - SoundEffect:
-      Id: starcruiser_drone01
-      Volume: 0.81
-      Sound: "Weapons/starcruiser_drone01.m4a"
-    - SoundEffect:
       Id: short muffle impact
       Volume: 0.25
       Sound: "Weapons/short muffle impact.m4a"
-    - SoundEffect:
-      Id: hyperspace
-      Volume: 0.25
-      Sound: "Weapons/hyperspace.m4a"
-    - SoundEffect:
-      Id: smallservo
-      Volume: 0.25
-      Sound: "Weapons/smallservo.m4a"
-    - SoundEffect:
-      Id: roid_destroy
-      Volume: 0.25
-      Sound: "Weapons/roid_destroy.m4a"
-    - SoundEffect:
-      Id: roid_impact
-      Volume: 0.25
-      Sound: "Weapons/roid_impact.m4a"
     - SoundEffect:
       Id: stone_smallimpact11
       Volume: 0.25
       Sound: "Weapons/stone_smallimpact11.m4a"
     - SoundEffect:
-      Id: missile01
-      Volume: 0.25
-      Sound: "Weapons/missile01.m4a"
-    - SoundEffect:
       Id: mediumAfterburner
       Volume: 0.25
       Sound: "Weapons/mediumAfterburner.m4a"
     - SoundEffect:
-      Id: hyperspace_return
-      Volume: 0.25
-      Sound: "Weapons/hyperspace_return.m4a"
-    - SoundEffect:
-      Id: sub_bass_mouseover
-      Volume: 0.25
-      Sound: "Weapons/sub_bass_mouseover.m4a"
-    - SoundEffect:
       Id: torpedo
       Volume: 0.25
       Sound: "Weapons/torpedo.m4a"
-    - SoundEffect:
-      Id: mouse_over4
-      Volume: 0.25
-      Sound: "Weapons/mouse_over4.m4a"
     - SoundEffect:
       Id: plasmathrower
       Volume: 0.25
@@ -274,34 +519,6 @@ Category:
       Volume: 0.25
       Sound: "Weapons/sd_weapon_vulcan_spinloop_01.m4a"
     - SoundEffect:
-      Id: sd_ui_mouseover
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_mouseover.m4a"
-    - SoundEffect:
-      Id: sd_planet_barren_01
-      Volume: 1.76
-      Sound: "Weapons/sd_planet_barren_01.m4a"
-    - SoundEffect:
-      Id: sd_planet_colonized_01
-      Volume: 1.76
-      Sound: "Weapons/sd_planet_colonized_01.m4a"
-    - SoundEffect:
-      Id: sd_planet_forest_01
-      Volume: 1.04
-      Sound: "Weapons/sd_planet_forest_01.m4a"
-    - SoundEffect:
-      Id: sd_planet_gasgiant_01
-      Volume: 1.76
-      Sound: "Weapons/sd_planet_gasgiant_01.m4a"
-    - SoundEffect:
-      Id: sd_planet_volcanic_01
-      Volume: 1.76
-      Sound: "Weapons/sd_planet_volcanic_01.m4a"
-    - SoundEffect:
-      Id: sd_planet_water_01
-      Volume: 1.76
-      Sound: "Weapons/sd_planet_water_01.m4a"
-    - SoundEffect:
       Id: sd_explosion_ship_warpdet_small
       Volume: 1.19
       Sound: "Weapons/sd_explosion_ship_warpdet_small.m4a"
@@ -309,10 +526,6 @@ Category:
       Id: sd_explosion_ship_warpdet_medium
       Volume: 1.16
       Sound: "Weapons/sd_explosion_ship_warpdet_medium.m4a"
-    - SoundEffect:
-      Id: sd_ui_notification_colonized_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_notification_colonized_01.m4a"
     - SoundEffect:
       Id: uzi_loop
       Volume: 0.25
@@ -322,97 +535,21 @@ Category:
       Volume: 0.25
       Sound: "Weapons/sd_weapon_flame_loop_01.m4a"
     - SoundEffect:
-      Id: sd_ui_colonize_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_colonize_01.m4a"
-    - SoundEffect:
       Id: sd_shield_static_1
       Volume: 0.25
       Sound: "Weapons/sd_shield_static_1.m4a"
-    - SoundEffect:
-      Id: sd_weapon_beam_02
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_beam_02.m4a"
-    - SoundEffect:
-      Id: sd_weapon_beam_01_loop
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_beam_01_loop.m4a"
     - SoundEffect:
       Id: sd_weapon_pulse_alt14_01
       Volume: 0.25
       Sound: "Weapons/sd_weapon_pulse_alt14_01.m4a"
     - SoundEffect:
-      Id: sd_ui_tactical_pause
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_tactical_pause.m4a"
-    - SoundEffect:
-      Id: sd_troop_kulrathi
-      Volume: 0.25
-      Sound: "Weapons/sd_troop_kulrathi.m4a"
-    - SoundEffect:
-      Id: sd_troop_attack_miss
-      Volume: 0.25
-      Sound: "Weapons/sd_troop_attack_miss.m4a"
-    - SoundEffect:
-      Id: sd_troop_attack_hit
-      Volume: 0.25
-      Sound: "Weapons/sd_troop_attack_hit.m4a"
-    - SoundEffect:
-      Id: sd_weapon_missile_heavy_flight
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_missile_heavy_flight.m4a"
-    - SoundEffect:
-      Id: sd_troop_land
-      Volume: 0.25
-      Sound: "Weapons/sd_troop_land.m4a"
-    - SoundEffect:
-      Id: sd_troop_takeoff
-      Volume: 0.25
-      Sound: "Weapons/sd_troop_takeoff.m4a"
-    - SoundEffect:
-      Id: sd_planet_barren_01 2
-      Volume: 0.25
-      Sound: "Weapons/sd_planet_barren_01 2.m4a"
-    - SoundEffect:
-      Id: sd_planet_colonized_01 2
-      Volume: 0.25
-      Sound: "Weapons/sd_planet_colonized_01 2.m4a"
-    - SoundEffect:
-      Id: sd_planet_forest_01 2
-      Volume: 0.25
-      Sound: "Weapons/sd_planet_forest_01 2.m4a"
-    - SoundEffect:
-      Id: sd_planet_gasgiant_01 2
-      Volume: 0.25
-      Sound: "Weapons/sd_planet_gasgiant_01 2.m4a"
-    - SoundEffect:
-      Id: sd_planet_volcanic_01 2
-      Volume: 0.25
-      Sound: "Weapons/sd_planet_volcanic_01 2.m4a"
-    - SoundEffect:
-      Id: sd_planet_water_01 2
-      Volume: 0.25
-      Sound: "Weapons/sd_planet_water_01 2.m4a"
-    - SoundEffect:
       Id: sd_weapon_pulse_alt3_01
       Volume: 0.25
       Sound: "Weapons/sd_weapon_pulse_alt3_01.m4a"
     - SoundEffect:
-      Id: sd_notify_alert
-      Volume: 0.25
-      Sound: "Weapons/sd_notify_alert.m4a"
-    - SoundEffect:
       Id: sd_weapon_pulse_alt15_01
       Volume: 0.25
       Sound: "Weapons/sd_weapon_pulse_alt15_01.m4a"
-    - SoundEffect:
-      Id: sd_ui_notification_encounter
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_notification_encounter.m4a"
-    - SoundEffect:
-      Id: sd_ui_research_select
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_research_select.m4a"
     - SoundEffect:
       Id: sd_weapon_railgun_01
       Volume: 0.25
@@ -426,14 +563,6 @@ Category:
       Volume: 0.25
       Sound: "Weapons/sd_explosion_ship_det_small.m4a"
     - SoundEffect:
-      Id: sd_ui_notification_research_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_notification_research_01.m4a"
-    - SoundEffect:
-      Id: sd_ui_notification_startgame
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_notification_startgame.m4a"
-    - SoundEffect:
       Id: sd_explosion_ship_det_large
       Volume: 0.25
       Sound: "Weapons/sd_explosion_ship_det_large.m4a"
@@ -446,109 +575,9 @@ Category:
       Volume: 0.25
       Sound: "Weapons/sd_explosion_ship_det_medium.m4a"
     - SoundEffect:
-      Id: sd_warp_flight_loop
-      Volume: 0.25
-      Sound: "Weapons/sd_warp_flight_loop.m4a"
-    - SoundEffect:
       Id: sd_weapon_vulcan_alt03_03
       Volume: 0.25
       Sound: "Weapons/sd_weapon_vulcan_alt03_03.m4a"
-    - SoundEffect:
-      Id: sd_ui_notification_technology_bad
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_notification_technology_bad.m4a"
-    - SoundEffect:
-      Id: sd_ui_notification_warning
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_notification_warning.m4a"
-    - SoundEffect:
-      Id: sd_trade_01
-      Volume: 0.25
-      Sound: "Weapons/sd_trade_01.m4a"
-    - SoundEffect:
-      Id: sd_ui_notification_conquer_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_notification_conquer_01.m4a"
-    - SoundEffect:
-      Id: sd_weapon_beam_ion_med
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_beam_ion_med.m4a"
-    - SoundEffect:
-      Id: sd_mech_march_03
-      Volume: 0.25
-      Sound: "Weapons/sd_mech_march_03.m4a"
-    - SoundEffect:
-      Id: sd_mech_attack_02
-      Volume: 0.25
-      Sound: "Weapons/sd_mech_attack_02.m4a"
-    - SoundEffect:
-      Id: sd_mech_attack_03
-      Volume: 0.25
-      Sound: "Weapons/sd_mech_attack_03.m4a"
-    - SoundEffect:
-      Id: sd_mech_attack_01
-      Volume: 0.25
-      Sound: "Weapons/sd_mech_attack_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_bugs_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_bugs_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_cordrazine_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_cordrazine_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_pollup_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_pollup_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_wulv_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_wulv_01.m4a"
-    - SoundEffect:
-      Id: sd_ui_spy_fail_02
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_spy_fail_02.m4a"
-    - SoundEffect:
-      Id: sd_ui_spy_win_02
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_spy_win_02.m4a"
-    - SoundEffect:
-      Id: sd_weapon_beam_electric_med
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_beam_electric_med.m4a"
-    - SoundEffect:
-      Id: sd_ground_drayloktrooper_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_drayloktrooper_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_humantrooper_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_humantrooper_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_kulrathigunner_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_kulrathigunner_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_ralyeh_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_ralyeh_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_remenantdefender_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_remenantdefender_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_skeleton_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_skeleton_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_spidertank_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_spidertank_01.m4a"
-    - SoundEffect:
-      Id: sd_ground_vulfargrunt_01
-      Volume: 0.25
-      Sound: "Weapons/sd_ground_vulfargrunt_01.m4a"
     - SoundEffect:
       Id: sd_weapon_vulcan_burst_01
       Volume: 0.25
@@ -561,18 +590,6 @@ Category:
       Id: sd_weapon_laser_burst_01
       Volume: 0.25
       Sound: "Weapons/sd_weapon_laser_burst_01.m4a"
-    - SoundEffect:
-      Id: sd_weapon_beam_plasma_small
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_beam_plasma_small.m4a"
-    - SoundEffect:
-      Id: sd_weapon_beam_neutron_med
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_beam_neutron_med.m4a"
-    - SoundEffect:
-      Id: sd_bomb_release
-      Volume: 0.25
-      Sound: "Weapons/sd_bomb_release.m4a"
     - SoundEffect:
       Id: explosionMedium
       Volume: 0.25
@@ -593,12 +610,6 @@ Category:
         - "Weapons/Explo1.1.m4a"
         - "Weapons/Explo1.2.m4a"
         - "Weapons/Explo1.3.m4a"
-    - SoundEffect:
-      Id: short_whoosh1
-      Volume: 0.25
-      Sounds:
-        - "Weapons/short_whoosh1.0.m4a"
-        - "Weapons/short_whoosh1.1.m4a"
     - SoundEffect:
       Id: mining_laser
       Volume: 0.08
@@ -695,18 +706,6 @@ Category:
       Volume: 0.25
       Sound: "Weapons/sd_weapon_laser_small_alt_01.m4a"
     - SoundEffect:
-      Id: sd_warp_start_02
-      Volume: 0.25
-      Sound: "Weapons/sd_warp_start_02.m4a"
-    - SoundEffect:
-      Id: sd_warp_stop
-      Volume: 0.25
-      Sound: "Weapons/sd_warp_stop.m4a"
-    - SoundEffect:
-      Id: sd_warp_flight
-      Volume: 0.25
-      Sound: "Weapons/sd_warp_flight.m4a"
-    - SoundEffect:
       Id: sd_weapon_laser_small_alt5_01
       Volume: 0.25
       Sound: "Weapons/sd_weapon_laser_small_alt5_01.m4a"
@@ -731,10 +730,6 @@ Category:
         - "Weapons/sd_impact_shield_01.0.m4a"
         - "Weapons/sd_impact_shield_01.1.m4a"
         - "Weapons/sd_impact_shield_01.2.m4a"
-    - SoundEffect:
-      Id: sd_ui_accept_alt3
-      Volume: 0.25
-      Sound: "Weapons/sd_ui_accept_alt3.m4a"
     - SoundEffect:
       Id: sd_weapon_bigcannon_01
       Volume: 0.50
@@ -768,32 +763,13 @@ Category:
         - "Weapons/sd_weapon_laser_large_alt_04.0.m4a"
         - "Weapons/sd_weapon_laser_large_alt_04.1.m4a"
     - SoundEffect:
-      Id: sd_weapon_BeamPulse_alt2_01
-      Volume: 0.25
-      Sounds:
-        - "Weapons/sd_weapon_BeamPulse_alt2_01.0.m4a"
-        - "Weapons/sd_weapon_BeamPulse_alt2_01.1.m4a"
-        - "Weapons/sd_weapon_BeamPulse_alt2_01.2.m4a"
-        - "Weapons/sd_weapon_BeamPulse_alt2_01.3.m4a"
-    - SoundEffect:
       Id: sd_weapon_emptorpedo
       Volume: 0.06
       Sound: "Weapons/sd_weapon_emptorpedo.m4a"
     - SoundEffect:
-      Id: sd_bomb_impact_01
+      Id: missile01
       Volume: 0.25
-      Sounds:
-        - "Weapons/sd_bomb_impact_01.0.m4a"
-        - "Weapons/sd_bomb_impact_01.1.m4a"
-        - "Weapons/sd_bomb_impact_01.2.m4a"
-        - "Weapons/sd_bomb_impact_01.3.m4a"
-    - SoundEffect:
-      Id: sd_troop_attack_01
-      Volume: 0.25
-      Sounds:
-        - "Weapons/sd_troop_attack_01.0.m4a"
-        - "Weapons/sd_troop_attack_01.1.m4a"
-        - "Weapons/sd_troop_attack_01.2.m4a"
+      Sound: "Weapons/missile01.m4a"
     - SoundEffect:
       Id: sd_weapon_missile_heavy_01
       Volume: 0.25
@@ -804,12 +780,53 @@ Category:
         - "Weapons/sd_weapon_missile_heavy_01.3.m4a"
         - "Weapons/sd_weapon_missile_heavy_01.4.m4a"
     - SoundEffect:
-      Id: sd_troop_march_01
+      Id: sd_weapon_missile_heavy_flight
+      Volume: 0.25
+      Sound: "Weapons/sd_weapon_missile_heavy_flight.m4a"
+
+    - SoundEffect:
+      Id: sd_weapon_Turretgun_001
+      Volume: 0.08
+      Sounds:
+        - "Weapons/sd_weapon_Turretgun_001.0.m4a"
+        - "Weapons/sd_weapon_Turretgun_001.1.m4a"
+        - "Weapons/sd_weapon_Turretgun_001.2.m4a"
+        - "Weapons/sd_weapon_Turretgun_001.3.m4a"
+        - "Weapons/sd_weapon_Turretgun_001.4.m4a"
+        - "Weapons/sd_weapon_Turretgun_001.5.m4a"
+
+    - SoundEffect:
+      Id: sd_weapon_BeamPulse_alt2_01
       Volume: 0.25
       Sounds:
-        - "Weapons/sd_troop_march_01.0.m4a"
-        - "Weapons/sd_troop_march_01.1.m4a"
-        - "Weapons/sd_troop_march_01.2.m4a"
+        - "Weapons/sd_weapon_BeamPulse_alt2_01.0.m4a"
+        - "Weapons/sd_weapon_BeamPulse_alt2_01.1.m4a"
+        - "Weapons/sd_weapon_BeamPulse_alt2_01.2.m4a"
+        - "Weapons/sd_weapon_BeamPulse_alt2_01.3.m4a"
+    - SoundEffect:
+      Id: sd_weapon_beam_02
+      Volume: 0.25
+      Sound: "Weapons/sd_weapon_beam_02.m4a"
+    - SoundEffect:
+      Id: sd_weapon_beam_01_loop
+      Volume: 0.25
+      Sound: "Weapons/sd_weapon_beam_01_loop.m4a"
+    - SoundEffect:
+      Id: sd_weapon_beam_electric_med
+      Volume: 0.25
+      Sound: "Weapons/sd_weapon_beam_electric_med.m4a"
+    - SoundEffect:
+      Id: sd_weapon_beam_ion_med
+      Volume: 0.25
+      Sound: "Weapons/sd_weapon_beam_ion_med.m4a"
+    - SoundEffect:
+      Id: sd_weapon_beam_plasma_small
+      Volume: 0.25
+      Sound: "Weapons/sd_weapon_beam_plasma_small.m4a"
+    - SoundEffect:
+      Id: sd_weapon_beam_neutron_med
+      Volume: 0.25
+      Sound: "Weapons/sd_weapon_beam_neutron_med.m4a"
     - SoundEffect:
       Id: sd_weapon_beam_fusion_small
       Volume: 0.25
@@ -822,41 +839,4 @@ Category:
       Id: sd_weapon_beam_fusion_med
       Volume: 0.25
       Sound: "Weapons/sd_weapon_beam_fusion_med.m4a"
-    - SoundEffect:
-      Id: sd_tank_march_01
-      Volume: 0.25
-      Sounds:
-        - "Weapons/sd_tank_march_01.0.m4a"
-        - "Weapons/sd_tank_march_01.1.m4a"
-        - "Weapons/sd_tank_march_01.2.m4a"
-    - SoundEffect:
-      Id: sd_warp_start_large
-      Volume: 0.25
-      Sound: "Weapons/sd_warp_start_large.m4a"
-    - SoundEffect:
-      Id: sd_warp_stop_large
-      Volume: 0.25
-      Sound: "Weapons/sd_warp_stop_large.m4a"
-    - SoundEffect:
-      Id: sd_warp_stop_small
-      Volume: 0.25
-      Sound: "Weapons/sd_warp_stop_small.m4a"
-    - SoundEffect:
-      Id: sd_warp_start_small
-      Volume: 0.25
-      Sound: "Weapons/sd_warp_start_small.m4a"
-    - SoundEffect:
-      Id: sd_weapon_Turretgun_001
-      Volume: 0.08
-      Sounds:
-        - "Weapons/sd_weapon_Turretgun_001.0.m4a"
-        - "Weapons/sd_weapon_Turretgun_001.1.m4a"
-        - "Weapons/sd_weapon_Turretgun_001.2.m4a"
-        - "Weapons/sd_weapon_Turretgun_001.3.m4a"
-        - "Weapons/sd_weapon_Turretgun_001.4.m4a"
-        - "Weapons/sd_weapon_Turretgun_001.5.m4a"
-    - SoundEffect:
-      Id: UI_Misc20
-      Volume: 0.25
-      Sound: "Weapons/UI_Misc20.m4a"
 
