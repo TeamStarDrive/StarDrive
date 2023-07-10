@@ -22,8 +22,6 @@ public static class GameAudio
     static NAudioPlaybackEngine AudioEngine;
     static string ConfigFile;
     static AudioConfig Config;
-    static AudioCategory Default;
-    static AudioCategory Weapons;
     static AudioCategory Music;
     static AudioCategory RacialMusic;
 
@@ -80,8 +78,6 @@ public static class GameAudio
 
             ConfigFile = configFile;
             Config = new(configFile);
-            Default = Config.GetCategory("Default");
-            Weapons = Config.GetCategory("Weapons");
             Music = Config.GetCategory("Music");
             RacialMusic = Config.GetCategory("RacialMusic");
 
@@ -113,8 +109,6 @@ public static class GameAudio
         }
 
         Mem.Dispose(ref Config);
-        Default = null;
-        Weapons = null;
         Music = null;
         RacialMusic = null;
 
@@ -142,23 +136,15 @@ public static class GameAudio
     }
 
     // Configures GameAudio from GlobalStats MusicVolume and EffectsVolume
-    public static void ConfigureAudioSettings()
+    public static void ConfigureAudioSettings(float music, float effects)
     {
-        // TODO: we can add a global volume control for all audio too
-        float music   = GlobalStats.MusicVolume;
-        float effects = GlobalStats.EffectsVolume;
-
         MusicDisabled = music <= 0.001f;
         EffectsDisabled = effects <= 0.001f;
         AudioDisabled = AudioEngineGood && MusicDisabled && EffectsDisabled;
-        if (!AudioEngineGood)
-            return;
-
-        Default.Volume = AudioDisabled ? 0.0f : 1.0f;
-        Music.Volume = music;
-        RacialMusic.Volume = music;
-        Weapons.Volume = effects;
-        Default.Volume = effects;
+        if (AudioEngineGood)
+        {
+            Config.SetVolume(music, effects);
+        }
     }
 
     /// <summary>

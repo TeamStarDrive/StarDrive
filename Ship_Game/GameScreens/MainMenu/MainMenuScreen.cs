@@ -118,7 +118,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public void ResetMusic()
         {
-            GameAudio.ConfigureAudioSettings();
+            GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
             GameAudio.StopGenericMusic(fadeout: false);
             ScreenManager.Music.Stop();
 
