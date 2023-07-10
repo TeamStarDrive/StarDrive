@@ -1698,7 +1698,7 @@ namespace Ship_Game.Ships
             Fleet = null;
             ShipData = null;
             Mothership = null;
-            JumpSfx?.Destroy();
+            JumpSfx.Dispose();
             KnownByEmpires = null;
             PlayerProjectorHasSeenEmpires = null;
             PlanetCrash = null;
