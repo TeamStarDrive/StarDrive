@@ -4,6 +4,8 @@ using NAudio.Wave.SampleProviders;
 using SDUtils;
 using System;
 
+#nullable enable
+
 namespace Ship_Game.Audio.NAudio;
 
 internal class NAudioPlaybackEngine : IDisposable
@@ -54,7 +56,7 @@ internal class NAudioPlaybackEngine : IDisposable
     /// Adds a new sound to the mixer
     /// The sound is automatically removed when it finishes playing
     /// </summary>
-    public IAudioInstance Play(AudioCategory category, AudioEmitter emitter, string audioFile, float volume)
+    public IAudioInstance? Play(AudioCategory category, AudioEmitter? emitter, string audioFile, float volume)
     {
         try
         {
@@ -81,6 +83,10 @@ internal class NAudioPlaybackEngine : IDisposable
             {
                 provider = new NAudioFileReader(this, audioFile);
             }
+
+            float? effectiveVolume = emitter?.GetEffectiveVolume(category, volume);
+            if (effectiveVolume < 0.0001f)
+                return null; // this sound can't be heard anyway, ignore it
 
             NAudioSampleInstance instance = new(category, emitter, provider, volume);
             Mixer.AddMixerInput(instance);

@@ -43,12 +43,21 @@ public class AudioConfig : IDisposable
     }
 
     /// <summary>
-    /// Perform updates on all audio categories
+    /// Sets the 3D audio listener position
     /// </summary>
-    public void Update(in Vector3 listenerPosition)
+    public void SetListenerPos(in Vector3 listenerPos)
     {
         foreach (AudioCategory category in Categories)
-            category.Update(listenerPosition);
+            category.SetListenerPos(listenerPos);
+    }
+
+    /// <summary>
+    /// Perform updates on all audio categories
+    /// </summary>
+    public void Update()
+    {
+        foreach (AudioCategory category in Categories)
+            category.Update();
     }
 
     public SoundEffect GetSoundEffect(string id)
@@ -115,6 +124,8 @@ public class AudioCategory : IDisposable
     /// </summary>
     readonly Array<TrackedHandle> TrackedInstances = new();
 
+    public Vector3 ListenerPosition;
+
     /// <summary>
     /// Can another sound be played in this category?
     /// </summary>
@@ -133,7 +144,12 @@ public class AudioCategory : IDisposable
         }
     }
 
-    public void Update(in Vector3 listenerPosition)
+    public void SetListenerPos(in Vector3 listenerPos)
+    {
+        ListenerPosition = listenerPos;
+    }
+
+    public void Update()
     {
         // remove disposed handles
         lock (TrackedInstances)

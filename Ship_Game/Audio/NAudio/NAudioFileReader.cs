@@ -8,9 +8,12 @@ internal class NAudioFileReader : ISampleProvider, IDisposable
     readonly AudioFileReader Reader;
     readonly ISampleProvider Provider;
     public WaveFormat WaveFormat { get; }
+    public readonly string Name;
+    public override string ToString() => $"NAudioFileReader {Name}";
 
     public NAudioFileReader(NAudioPlaybackEngine engine, string audioFile)
     {
+        Name = audioFile;
         Reader = new(audioFile);
         Provider = engine.GetCompatibleSampleProvider(Reader);
         WaveFormat = Provider.WaveFormat;

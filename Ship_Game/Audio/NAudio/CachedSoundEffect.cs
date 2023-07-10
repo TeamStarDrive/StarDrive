@@ -8,9 +8,12 @@ internal class CachedSoundEffect
 {
     public float[] AudioData { get; }
     public WaveFormat WaveFormat { get; }
+    public readonly string Name;
+    public override string ToString() => $"Cached {Name}";
 
     public CachedSoundEffect(NAudioPlaybackEngine engine, string audioFile)
     {
+        Name = audioFile;
         using NAudioFileReader reader = new(engine, audioFile);
         WaveFormat = reader.WaveFormat;
 
@@ -34,6 +37,7 @@ internal class CachedSoundEffect
         readonly CachedSoundEffect Sound;
         long Position;
         public WaveFormat WaveFormat => Sound.WaveFormat;
+        public override string ToString() => $"CachedSampler {Sound.Name}";
 
         public CachedSoundSampleProvider(CachedSoundEffect cachedSound)
         {

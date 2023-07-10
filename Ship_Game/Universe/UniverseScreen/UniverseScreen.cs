@@ -570,7 +570,7 @@ namespace Ship_Game
 
             NotificationManager.Update(fixedDeltaTime);
 
-            GameAudio.Update3DSound(new Vector3((float)CamPos.X, (float)CamPos.Y, 0.0f));
+            GameAudio.Update3DSound(new Vector3((float)CamPos.X, (float)CamPos.Y, (float)CamPos.Z));
 
             ScreenManager.UpdateSceneObjects(fixedDeltaTime);
             EmpireUI.Update(fixedDeltaTime);
