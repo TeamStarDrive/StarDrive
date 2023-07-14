@@ -61,10 +61,11 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
+            if (Remnants.TryLevelUpByDate(out int newLevel) 
+                && newLevel % Owner.DifficultyModifiers.RemnantPortalCreationMod == 0
+                && Remnants.CreatePortal())
             {
-                if (Remnants.CreatePortal()) // Second portal at level 10
-                    Owner.Universe.Notifications.AddRemnantsNewPortal(Owner);
+                Owner.Universe.Notifications.AddRemnantsNewPortal(Owner);
             }
 
             EngageEmpire(portals);
