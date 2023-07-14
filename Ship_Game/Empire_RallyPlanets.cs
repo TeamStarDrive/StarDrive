@@ -276,12 +276,9 @@ public sealed partial class Empire
 
     public Planet GetOrbitPlanetAfterBuild(Planet builtAt)
     {
-        if (GetBestPorts(SafeSpacePorts, out Planet[] bestPorts, portQuality: 1) && !bestPorts.Contains(builtAt))
-        {
-            return bestPorts.Sorted(p => p.Position.Distance(builtAt.Position)).First();
-        }
-
-        return builtAt;
+        Planet[] bestPlanets = SafeSpacePorts.SortedDescending(p => p.ColonyValue).Take(5).ToArray();
+        return bestPlanets.Length > 0 ? bestPlanets.FindMin(p => p.Position.SqDist(builtAt.Position))
+                                      : builtAt;
     }
 
     public bool FindPlanetToScrapIn(Ship ship, out Planet planet)
