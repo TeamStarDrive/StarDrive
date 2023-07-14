@@ -24,6 +24,7 @@
         public readonly int RemnantTurnsLevelUp; // How many turns should pass before Remnants level up
         public readonly float RemnantResourceMod; // Multiplier to Remnant Prod generation
         public readonly float RemnantNumBombers; // Multiplier to Remnant bombers wanted
+        public readonly int RemnantPortalCreationMod; // Determines portal creation on a new remnant level
         public readonly int StandByColonyShips;
         public readonly int TrustLostStoleColony; // Vs players
         public readonly float FleetStrModifier; // AI increase/decrease str of fleets needs, when they win or lose vs another empire
@@ -94,7 +95,7 @@
                     MinStartingColonies  = 3;
                     ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 350;
-                    RemnantResourceMod   = 0.35f;
+                    RemnantResourceMod   = 0.5f;
                     RemnantNumBombers    = 0.75f;
                     BaseColonyGoals      = 2;
                     ColonyGoalMultiplier = 0.5f;
@@ -107,6 +108,7 @@
                     RemnantStrModifier   = remnantGeneralStr + 0.5f;
                     WarSneakiness        = 0;
                     HullTechMultiplier   = 1f;
+                    RemnantPortalCreationMod = 10;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 3;
@@ -131,7 +133,7 @@
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 30;
                     RemnantTurnsLevelUp  = 325;
-                    RemnantResourceMod   = 0.45f;
+                    RemnantResourceMod   = 0.6f;
                     RemnantNumBombers    = 1f;
                     BaseColonyGoals      = 4;
                     ColonyGoalMultiplier = 0.75f;
@@ -144,6 +146,7 @@
                     RemnantStrModifier   = remnantGeneralStr + 1;
                     WarSneakiness        = 10;
                     HullTechMultiplier   = 0.85f;
+                    RemnantPortalCreationMod = 6;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus = 10;
@@ -174,7 +177,7 @@
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 20;
                     RemnantTurnsLevelUp  = 300;
-                    RemnantResourceMod   = 0.6f;
+                    RemnantResourceMod   = 0.75f;
                     RemnantNumBombers    = 1.25f;
                     BaseColonyGoals      = 5;
                     ColonyGoalMultiplier = 1;
@@ -187,6 +190,7 @@
                     RemnantStrModifier   = remnantGeneralStr + 1.5f;
                     WarSneakiness        = 25;
                     HullTechMultiplier   = 0.7f;
+                    RemnantPortalCreationMod = 5;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus = 20;
@@ -217,7 +221,7 @@
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 20;
                     RemnantTurnsLevelUp  = 275;
-                    RemnantResourceMod   = 0.7f;
+                    RemnantResourceMod   = 1f;
                     RemnantNumBombers    = 1.5f;
                     BaseColonyGoals      = 6;
                     ColonyGoalMultiplier = 1;
@@ -230,6 +234,7 @@
                     RemnantStrModifier   = remnantGeneralStr + 2f;
                     WarSneakiness        = 40;
                     HullTechMultiplier   = 0.6f;
+                    RemnantPortalCreationMod = 4;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 30;

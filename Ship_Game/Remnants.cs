@@ -86,7 +86,7 @@ namespace Ship_Game
         }
 
         float StepXpTrigger => (ShipRole.GetMaxExpValue() * StoryStep * StoryStep * 0.5f).UpperBound(ActivationXpNeeded);
-        float ProductionLimit => 200 * Level * Level * ((int)Universe.P.Difficulty + 1);  // Level 20 - 320K 
+        float ProductionLimit => 300 * Level * Level * ((int)Universe.P.Difficulty + 1);  // Level 20 - 480K 
 
         void Activate()
         {
@@ -160,10 +160,10 @@ namespace Ship_Game
             if (Level % 4 == 0)
                 Owner.data.Traits.ModHpModifier += 0.1f;
 
-            if (Level % 6 == 0)
+            if (Level % 5 == 0)
                 Owner.data.ArmorPiercingBonus += 1;
 
-            if (Level % 8 == 0)
+            if (Level % 6 == 0)
                 Owner.data.ExplosiveRadiusReduction += 0.15f;
 
             Owner.data.BaseShipLevel = Level / 3;
@@ -549,10 +549,11 @@ namespace Ship_Game
         public float RequiredAttackFleetStr(Empire targetEmpire)
         {
             float empireMultiplier = targetEmpire.isPlayer ? 1f : 0.4f;
-            float strMultiplier = 1 + (int)Owner.Universe.P.Difficulty*0.4f; // 1, 1.4, 1.8, 2.2
+            float strMultiplier = 1 + (int)Owner.Universe.P.Difficulty*0.5f; // 1, 1.5, 2, 2.5
             float str = targetEmpire.OffensiveStrength * strMultiplier * empireMultiplier;
+            float effectiveLevel = Level * strMultiplier;
             return str.Clamped(min: Level * Level * 1000 * strMultiplier,
-                               max: str * Level / MaxLevel);
+                               max: str * effectiveLevel / MaxLevel);
         }
 
         public void CallGuardians(Ship portal) // One guarding from each relevant system
@@ -719,31 +720,32 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int level, int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int fleetModifier  = shipsInFleet / 12;
-            int effectiveLevel = level + (int)Universe.P.Difficulty + fleetModifier;
+            int fleetModifier  = shipsInFleet / (12 - (Level/2).LowerBound(3));
+            int effectiveLevel = (level + (int)Universe.P.Difficulty + fleetModifier).UpperBound(level *2);
             effectiveLevel     = effectiveLevel.UpperBound(level * 2);
             int roll           = Random.RollDie(effectiveLevel, (fleetModifier + level / 2).LowerBound(1));
-            switch (roll)
+            switch (roll + fleetModifier)
             {
                 case 1:
                 case 2:  return RemnantShipType.Fighter;
-                case 3:
-                case 4:  return RemnantShipType.SmallSupport;
-                case 5:
-                case 6:  return RemnantShipType.Corvette;
-                case 7:
-                case 8:  return RemnantShipType.Frigate;
-                case 9:
-                case 10: return RemnantShipType.Cruiser;
-                case 11:
-                case 12: return RemnantShipType.TorpedoCruiser;
-                case 13:
-                case 14: return RemnantShipType.Inhibitor;
-                case 15:
-                case 16: return RemnantShipType.Carrier;
-                case 17:
-                case 18: return RemnantShipType.Mothership;
+                case 3:  return RemnantShipType.SmallSupport;
+                case 4:  
+                case 5:  return RemnantShipType.Corvette;
+                case 6:  
+                case 7:  return RemnantShipType.Frigate;
+                case 8:  
+                case 9:  return RemnantShipType.Cruiser;
+                case 10: 
+                case 11: return RemnantShipType.TorpedoCruiser;
+                case 12: 
+                case 13: return RemnantShipType.Inhibitor;
+                case 14: 
+                case 15: return RemnantShipType.Carrier;
+                case 16: 
+                case 17: return RemnantShipType.Mothership;
+                case 18:
                 case 19: return RemnantShipType.Exterminator;
+                case 20: 
                 default: return RemnantShipType.Behemoth;
             }
         }
@@ -829,7 +831,8 @@ namespace Ship_Game
 
         void AddToDefenseProduction(float amount)
         {
-            DefenseProduction = (DefenseProduction + amount).UpperBound(ProductionLimit);
+            float max = ProductionLimit * (2 + (int)Universe.P.Difficulty);
+            DefenseProduction = (DefenseProduction + amount).UpperBound(max);
         }
 
 
