@@ -578,10 +578,10 @@ namespace Ship_Game.Universe
         float CalcRemnantPace()
         {
             float stars = P.StarsModifier * 4; // 1-8
-            float size = (int)P.GalaxySize + 1; // 1-7
+            int size = (int)P.GalaxySize + 1; // 1-7
             int extra = P.ExtraPlanets; // 1-3
             int numMajorEmpires = EmpireList.Count(e => !e.IsFaction);
-            float numEmpires = numMajorEmpires / 2f; // 1-4.5
+            int numEmpires = numMajorEmpires / 2; // 1-4
 
             float pace = 20 - stars - size - extra - numEmpires;
             return pace.LowerBound(1);

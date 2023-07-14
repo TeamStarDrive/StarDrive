@@ -118,7 +118,7 @@ namespace Ship_Game.Commands.Goals
 
         bool IsPortalValidOrRerouted()
         {
-            if (Portal != null)
+            if (Portal != null && Portal.Active)
                 return true;
 
             if (Remnants.RerouteGoalPortals(out Ship newPortal))
