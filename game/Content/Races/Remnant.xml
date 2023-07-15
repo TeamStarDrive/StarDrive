@@ -10,6 +10,8 @@
   <StartingShip>Xeno Fighter</StartingShip>
   <RemnantFighter>Xeno Fighter</RemnantFighter>
   <RemnantCorvette>Heavy Drone</RemnantCorvette>
+  <RemnantBeamCorvette>Beam Drone</RemnantBeamCorvette>
+  <RemnantBattleCorvette>Battle Drone</RemnantBattleCorvette>  
   <RemnantSupportSmall>Support Drone</RemnantSupportSmall>
   <RemnantCarrier>Ancient Carrier</RemnantCarrier>
   <RemnantAssimilator>Ancient Assimilator</RemnantAssimilator>
@@ -19,6 +21,7 @@
   <RemnantMotherShip>Remnant Mothership</RemnantMotherShip>
   <RemnantExterminator>Remnant Exterminator</RemnantExterminator>
   <RemnantInhibitor>Remnant Inhibitor</RemnantInhibitor>
+  <RemnantBattleship>Ancient Battleship</RemnantBattleship>  
   <RemnantPortal>Remnant Portal</RemnantPortal>
   <RemnantFrigate>Ancient Frigate</RemnantFrigate>
   <RemnantBomberLight>Light Ancient Bomber</RemnantBomberLight>

@@ -93,7 +93,8 @@ namespace Ship_Game.Commands.Goals
         {
             if (Remnants.Story != Remnants.RemnantStory.AncientRaidersRandom
                 && Remnants.FocusOnEmpire == null
-                && Portal.HealthPercent < 0.9f)
+                && Portal.HealthPercent < 0.9f
+                && Portal.InCombat)
             {
                 Remnants.SetFocusOnEmpire(Remnants.Owner.Threats.GetStrongestHostileAt(Portal.System));
             }

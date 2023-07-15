@@ -294,6 +294,8 @@ namespace Ship_Game
         [StarData] public bool IsRemnantFaction;
         [StarData] public string RemnantFighter;
         [StarData] public string RemnantCorvette;
+        [StarData] public string RemnantBeamCorvette;
+        [StarData] public string RemnantBattleCorvette;
         [StarData] public string RemnantSupportSmall;
         [StarData] public string RemnantCarrier;
         [StarData] public string RemnantAssimilator;
@@ -303,6 +305,7 @@ namespace Ship_Game
         [StarData] public string RemnantPortal;
         [StarData] public string RemnantBomber;
         [StarData] public string RemnantInhibitor;
+        [StarData] public string RemnantBattleship;
         [StarData] public string RemnantFrigate;
         [StarData] public string RemnantBomberLight;
         [StarData] public string RemnantBomberMedium;

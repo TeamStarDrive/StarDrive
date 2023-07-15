@@ -408,9 +408,10 @@ namespace Ship_Game
             {
                 float totalStr = 0;
                 var nonBombers = availableShips.Filter(s => s.DesignRole != RoleName.bomber);
-                for (int i = 0; i < nonBombers.Length; i++)
+                var sortedNonbombers = nonBombers.Sorted(s => s.BaseStrength);
+                for (int i = 0; i < sortedNonbombers.Length; i++)
                 {
-                    Ship s = nonBombers[i];
+                    Ship s = sortedNonbombers[i];
                     ships.Add(s);
                     totalStr += s.BaseStrength;
                     if (totalStr > neededStr)
@@ -692,6 +693,8 @@ namespace Ship_Game
         {
             AddShipCost(Owner.data.RemnantFighter,        RemnantShipType.Fighter);
             AddShipCost(Owner.data.RemnantCorvette,       RemnantShipType.Corvette);
+            AddShipCost(Owner.data.RemnantBeamCorvette,   RemnantShipType.BeamCorvette);
+            AddShipCost(Owner.data.RemnantBattleCorvette, RemnantShipType.BattleCorvette);
             AddShipCost(Owner.data.RemnantSupportSmall,   RemnantShipType.SmallSupport);
             AddShipCost(Owner.data.RemnantAssimilator,    RemnantShipType.Assimilator);
             AddShipCost(Owner.data.RemnantTorpedoCruiser, RemnantShipType.TorpedoCruiser);
@@ -700,6 +703,7 @@ namespace Ship_Game
             AddShipCost(Owner.data.RemnantMotherShip,     RemnantShipType.Mothership);
             AddShipCost(Owner.data.RemnantExterminator,   RemnantShipType.Exterminator);
             AddShipCost(Owner.data.RemnantInhibitor,      RemnantShipType.Inhibitor);
+            AddShipCost(Owner.data.RemnantBattleship,     RemnantShipType.BattleShip);
             AddShipCost(Owner.data.RemnantBomber,         RemnantShipType.Bomber);
             AddShipCost(Owner.data.RemnantFrigate,        RemnantShipType.Frigate);
             AddShipCost(Owner.data.RemnantBomberLight,    RemnantShipType.BomberLight);
@@ -720,31 +724,62 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int level, int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int fleetModifier  = shipsInFleet / (12 - (Level/2).LowerBound(3));
+            int shipGroupSize  = 12 - (Level / 2).LowerBound(3);
+            int fleetModifier  = shipsInFleet / shipGroupSize;
             int effectiveLevel = (level + (int)Universe.P.Difficulty + fleetModifier).UpperBound(level *2);
-            effectiveLevel     = effectiveLevel.UpperBound(level * 2);
-            int roll           = Random.RollDie(effectiveLevel, (fleetModifier + level / 2).LowerBound(1));
-            switch (roll + fleetModifier)
+            int roll           = shipsInFleet.LowerBound(1) % shipGroupSize != 0 
+                ? Random.RollDie(effectiveLevel, (fleetModifier + level / 2).LowerBound(1))
+                : effectiveLevel; // get the biggest we can per complete group
+
+            switch (roll)
             {
                 case 1:
                 case 2:  return RemnantShipType.Fighter;
-                case 3:  return RemnantShipType.SmallSupport;
+                case 3:  
                 case 4:  
-                case 5:  return RemnantShipType.Corvette;
+                case 5:
+                    switch (Random.RollDie(4))
+                    {
+                        default:
+                        case 1: return RemnantShipType.SmallSupport;
+                        case 2: return RemnantShipType.Corvette;
+                        case 3: return RemnantShipType.BeamCorvette;
+                        case 4: return RemnantShipType.BattleCorvette;
+                    }
                 case 6:  
                 case 7:  return RemnantShipType.Frigate;
                 case 8:  
-                case 9:  return RemnantShipType.Cruiser;
+                case 9:  
                 case 10: 
-                case 11: return RemnantShipType.TorpedoCruiser;
-                case 12: 
-                case 13: return RemnantShipType.Inhibitor;
+                case 11: 
+                    switch (Random.RollDie(3))
+                    {
+                        default:
+                        case 1: return RemnantShipType.Cruiser;
+                        case 2: return RemnantShipType.TorpedoCruiser;
+                        case 3: return RemnantShipType.Assimilator;
+                    }
+                case 12:
+                case 13:
+                    switch (Random.RollDie(2))
+                    {
+                        default:
+                        case 1: return RemnantShipType.Inhibitor;
+                        case 2: return RemnantShipType.BattleShip;
+                    }
                 case 14: 
-                case 15: return RemnantShipType.Carrier;
+                case 15: 
                 case 16: 
-                case 17: return RemnantShipType.Mothership;
+                case 17: 
                 case 18:
-                case 19: return RemnantShipType.Exterminator;
+                case 19: 
+                    switch (Random.RollDie(3))
+                    {
+                        default:
+                        case 1: return RemnantShipType.Mothership;
+                        case 2: return RemnantShipType.Exterminator;
+                        case 3: return RemnantShipType.Carrier;
+                    }
                 case 20: 
                 default: return RemnantShipType.Behemoth;
             }
@@ -759,6 +794,8 @@ namespace Ship_Game
                 default:
                 case RemnantShipType.Fighter:        shipName = Owner.data.RemnantFighter;        break;
                 case RemnantShipType.Corvette:       shipName = Owner.data.RemnantCorvette;       break;
+                case RemnantShipType.BeamCorvette:   shipName = Owner.data.RemnantBeamCorvette;   break;
+                case RemnantShipType.BattleCorvette: shipName = Owner.data.RemnantBattleCorvette; break;
                 case RemnantShipType.SmallSupport:   shipName = Owner.data.RemnantSupportSmall;   break;
                 case RemnantShipType.Assimilator:    shipName = Owner.data.RemnantAssimilator;    break;
                 case RemnantShipType.Carrier:        shipName = Owner.data.RemnantCarrier;        break;
@@ -767,6 +804,7 @@ namespace Ship_Game
                 case RemnantShipType.Portal:         shipName = Owner.data.RemnantPortal;         break;
                 case RemnantShipType.Bomber:         shipName = Owner.data.RemnantBomber;         break;
                 case RemnantShipType.Inhibitor:      shipName = Owner.data.RemnantInhibitor;      break;
+                case RemnantShipType.BattleShip:     shipName = Owner.data.RemnantBattleship;     break;
                 case RemnantShipType.Frigate:        shipName = Owner.data.RemnantFrigate;        break;
                 case RemnantShipType.BomberLight:    shipName = Owner.data.RemnantBomberLight;    break;
                 case RemnantShipType.BomberMedium:   shipName = Owner.data.RemnantBomberMedium;   break;
@@ -922,14 +960,14 @@ namespace Ship_Game
                 if (d100 >= 10) AddMajorFleet(p);
                 if (d100 >= 30) AddSupportShips(p);
                 if (d100 >= 50) AddMajorFleet(p);
-                if (d100 >= 70) AddFrigate(p);
+                if (d100 >= 70) AddFrigates(p);
             }
             if (quality > 15f)
             {
                 if (d100 >= 20) AddMinorFleet(p);
                 if (d100 >= 40) AddMajorFleet(p);
                 if (d100 >= 60) AddSupportShips(p);
-                if (d100 >= 80) AddFrigate(p);
+                if (d100 >= 80) AddFrigates(p);
             }
             else if (quality > 10f)
             {
@@ -976,7 +1014,7 @@ namespace Ship_Game
                 if (d100 > 10) AddMinorFleet(p);
                 if (d100 > 20) AddSupportShips(p);
                 if (d100 > 75) AddCarriers(p);
-                if (d100 > 90) AddFrigate(p);
+                if (d100 > 90) AddFrigates(p);
             }
             else if (quality >= 12f)
             {
@@ -1007,7 +1045,7 @@ namespace Ship_Game
                 AddMinorFleet(p);
                 AddSupportShips(p);
                 if (d100 >= 50) AddCarriers(p);
-                if (d100 >= 70) AddFrigate(p);
+                if (d100 >= 70) AddFrigates(p);
                 if (d100 >= 90) AddCarriers(p);
             }
             else if (quality >= 15f)
@@ -1015,7 +1053,7 @@ namespace Ship_Game
                 AddMajorFleet(p);
                 if (d100 >= 40) AddSupportShips(p);
                 if (d100 >= 60) AddCarriers(p);
-                if (d100 >= 80) AddFrigate(p);
+                if (d100 >= 80) AddFrigates(p);
                 if (d100 >= 95) AddCarriers(p);
             }
             else if (quality >= 12f)
@@ -1048,11 +1086,24 @@ namespace Ship_Game
             if (Random.RollDice(25))
                 AddMinorFleet(p);
 
+            if (Random.RollDice(15))
+                AddCorvetteScreen(p);
+
             if (Random.RollDice(10))
-                AddFrigate(p);
+                AddFrigates(p);
 
             if (Random.RollDice(5))
                 AddGuardians(1, RemnantShipType.Assimilator, p);
+        }
+
+        void AddCorvetteScreen(Planet p) 
+        {
+            AddGuardians(Random.RollDie(5), RemnantShipType.Corvette, p);
+            if (Random.RollDice(25))
+                AddGuardians(Random.RollDie(3), RemnantShipType.BeamCorvette, p);
+
+            if (Random.RollDice(25))
+                AddGuardians(Random.RollDie(3), RemnantShipType.BattleCorvette, p);
         }
 
         void AddMinorFleet(Planet p)
@@ -1062,6 +1113,10 @@ namespace Ship_Game
 
             AddGuardians(numXenoFighters, RemnantShipType.Fighter, p);
             AddGuardians(numDrones, RemnantShipType.Corvette, p);
+            if (Random.RollDice(10))
+                AddGuardians(1, RemnantShipType.BattleCorvette, p);
+            if (Random.RollDice(10))
+                AddGuardians(1, RemnantShipType.BeamCorvette, p);
         }
 
         void AddMiniFleet(Planet p)  //Added by Gretman
@@ -1069,13 +1124,18 @@ namespace Ship_Game
             int numXenoFighters = Random.RollDie(3);
 
             AddGuardians(numXenoFighters, RemnantShipType.Fighter, p);
-            AddGuardians(1, RemnantShipType.Corvette, p);
+            if (Random.RollDice(10)) 
+                AddGuardians(1, RemnantShipType.BeamCorvette, p);
+            else
+                AddGuardians(1, RemnantShipType.Corvette, p);
         }
 
         void AddSupportShips(Planet p)  //Added by Gretman
         {
             int numSupportDrones = Random.RollDie(4);
             AddGuardians(numSupportDrones, RemnantShipType.SmallSupport, p);
+            if (Random.RollDice(10))
+                AddGuardians(1, RemnantShipType.BattleCorvette, p);
         }
 
         void AddCarriers(Planet p)  //Added by Gretman
@@ -1085,10 +1145,12 @@ namespace Ship_Game
                 AddGuardians(1, RemnantShipType.Carrier, p);
         }
 
-        void AddFrigate(Planet p)  //Added by Gretman
+        void AddFrigates(Planet p)  //Added by Gretman
         {
-            AddGuardians(1, RemnantShipType.Frigate, p);
-            if (Random.RollDice(10)) // 10% chance a torpedo cruiser
+            AddGuardians(Random.RollDie(2), RemnantShipType.Frigate, p);
+            if (Random.RollDice(25))
+                AddCorvetteScreen(p);
+            if (Random.RollDice(10)) 
                 AddGuardians(1, RemnantShipType.TorpedoCruiser, p);
         }
 
@@ -1139,7 +1201,7 @@ namespace Ship_Game
         Corvette,
         SmallSupport,
         Carrier,
-        Assimilator, // Assimilators are Guardians which are created at game start only
+        Assimilator,
         TorpedoCruiser,
         Mothership,
         Exterminator,
@@ -1150,6 +1212,9 @@ namespace Ship_Game
         BomberLight,
         BomberMedium,
         Cruiser,
-        Behemoth
+        Behemoth,
+        BeamCorvette,
+        BattleCorvette,
+        BattleShip
     }
 }

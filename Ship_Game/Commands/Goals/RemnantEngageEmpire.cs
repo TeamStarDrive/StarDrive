@@ -169,7 +169,7 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < ships.Count; i++)
                 ships[i].AI.AddEscortGoal(Portal);
 
-            if (FleetStrNoBombers < Remnants.RequiredAttackFleetStr(TargetEmpire))
+            if (numShipsNoBombers < numBombersInFleet || FleetStrNoBombers < Remnants.RequiredAttackFleetStr(TargetEmpire))
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();
