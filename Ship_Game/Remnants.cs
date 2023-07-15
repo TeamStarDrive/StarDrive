@@ -408,9 +408,10 @@ namespace Ship_Game
             {
                 float totalStr = 0;
                 var nonBombers = availableShips.Filter(s => s.DesignRole != RoleName.bomber);
-                for (int i = 0; i < nonBombers.Length; i++)
+                var sortedNonbombers = nonBombers.Sorted(s => s.BaseStrength);
+                for (int i = 0; i < sortedNonbombers.Length; i++)
                 {
-                    Ship s = nonBombers[i];
+                    Ship s = sortedNonbombers[i];
                     ships.Add(s);
                     totalStr += s.BaseStrength;
                     if (totalStr > neededStr)
@@ -692,6 +693,8 @@ namespace Ship_Game
         {
             AddShipCost(Owner.data.RemnantFighter,        RemnantShipType.Fighter);
             AddShipCost(Owner.data.RemnantCorvette,       RemnantShipType.Corvette);
+            AddShipCost(Owner.data.RemnantBeamCorvette,   RemnantShipType.BeamCorvette);
+            AddShipCost(Owner.data.RemnantBattleCorvette, RemnantShipType.BattleCorvette);
             AddShipCost(Owner.data.RemnantSupportSmall,   RemnantShipType.SmallSupport);
             AddShipCost(Owner.data.RemnantAssimilator,    RemnantShipType.Assimilator);
             AddShipCost(Owner.data.RemnantTorpedoCruiser, RemnantShipType.TorpedoCruiser);
@@ -700,6 +703,7 @@ namespace Ship_Game
             AddShipCost(Owner.data.RemnantMotherShip,     RemnantShipType.Mothership);
             AddShipCost(Owner.data.RemnantExterminator,   RemnantShipType.Exterminator);
             AddShipCost(Owner.data.RemnantInhibitor,      RemnantShipType.Inhibitor);
+            AddShipCost(Owner.data.RemnantBattleship,     RemnantShipType.BattleShip);
             AddShipCost(Owner.data.RemnantBomber,         RemnantShipType.Bomber);
             AddShipCost(Owner.data.RemnantFrigate,        RemnantShipType.Frigate);
             AddShipCost(Owner.data.RemnantBomberLight,    RemnantShipType.BomberLight);
