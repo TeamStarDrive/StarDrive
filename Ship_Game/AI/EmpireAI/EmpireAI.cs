@@ -270,7 +270,7 @@ namespace Ship_Game.AI
 
             bool DetectAndWarn(Goal goal, bool warnExclusive)
             {
-                if (goal.FinishedShip?.KnownByEmpires.KnownBy(OwnerEmpire) == true)
+                if (goal.FinishedShip?.KnownByEmpires.KnownBy(OwnerEmpire) == true || OwnerEmpire.Random.RollDice(DetectChanceByTreaty()))
                 {
                     // Detected their colonization efforts
                     if (warnExclusive || warnAnyway)
@@ -306,6 +306,17 @@ namespace Ship_Game.AI
                 else if (usToThem.Treaty_OpenBorders) multiplier = 0.5f;
                 else if (usToThem.Treaty_Trade)       multiplier = 0.75f;
                 return multiplier;
+            }
+
+            float DetectChanceByTreaty()
+            {
+                float chance = 0.075f;
+                if      (usToThem.Treaty_Alliance)    chance = 0.75f;
+                else if (usToThem.Treaty_OpenBorders) chance = 0.5f;
+                else if (usToThem.Treaty_Trade)       chance = 0.25f;
+                else if (usToThem.Treaty_NAPact)      chance = 0.15f;
+                return chance;
+
             }
         }
 
