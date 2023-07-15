@@ -1,5 +1,5 @@
 Version=1
-Name=Heavy Drone
+Name=Battle Drone
 Hull=Remnant/XenoGunship
 Role=corvette
 Style=Remnant
@@ -12,23 +12,21 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=PlaSteelArmorSmall;Amplifier;Cockpit;RemnantHV2x3;AncientShield2kw;AncientReactorMed;RemnantEngine1;RemnantEngine2
-Modules=25
+ModuleUIDs=AncientArmor_1x1;RemnantDrisruptor_2x2;Amplifier;Cockpit;AncientShield2kw;AncientReactorMed;RemnantEngine1;RemnantEngine2
+Modules=23
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 3,0;0
 4,0;0
-1,1;0
-2,1;0
-3,1;1
-4,1;2
-5,1;0
-6,1;0
+1,1;1;2,2;285
+3,1;2
+4,1;3
+5,1;1;2,2;75
 0,2;0
-1,2;3;2,3
 3,2;4;2,2
-5,2;3;2,3
 7,2;0
 0,3;0
+1,3;1;2,2;285
+5,3;1;2,2;75
 7,3;0
 3,4;5;2,2
 2,5;0
