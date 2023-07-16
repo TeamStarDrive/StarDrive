@@ -102,7 +102,7 @@ namespace Ship_Game.Commands.Goals
 
         void ScrambleDefense()
         {
-            if (Portal.HealthPercent < 0.95f && !Owner.AI.Goals.Any(g => g.IsRemnantDefendingPortal(Portal)))
+            if (Portal.InCombat && Portal.HealthPercent < 0.95f && !Owner.AI.Goals.Any(g => g.IsRemnantDefendingPortal(Portal)))
                 Owner.AI.AddGoalAndEvaluate(new RemnantDefendPortal(Owner, Portal));
         }
 
