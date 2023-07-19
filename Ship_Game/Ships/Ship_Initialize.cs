@@ -333,10 +333,15 @@ namespace Ship_Game.Ships
                 Ship template = GetShipTemplate(shipName);
                 if (parent.Ordinance >= template?.ShipOrdLaunchCost)
                     ship = CreateShipAtPoint(us, template, owner, p);
+                else
+                    return null;
             }
 
             if (ship == null)
+            {
+                Log.Warning($"Could not create ship from hangar, UID = {hangar.HangarShipUID}");
                 return null;
+            }
 
             ship.Mothership = parent;
             ship.Velocity   = parent.Velocity;
