@@ -1,25 +1,24 @@
 ﻿using System;
-using System.Windows.Forms;
 using NAudio.Wave;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
-using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
 {
     [StarDataType]
     public struct ShipResupply // Created by Fat Bastard to centralize all ship supply logic
     {
-        public const float OrdnanceThresholdCombat             = 0.1f;
-        public const float OrdnanceThresholdNonCombat          = 0.35f;
-        public const float OrdnanceThresholdNonCombatOrbital   = 0.85f;
-        public const float KineticToEnergyRatio                = 0.6f;
+        public const float OrdnanceThresholdCombat            = 0.1f;
+        public const float OrdnanceThresholdNonCombat         = 0.35f;
+        public const float OrdnanceThresholdNonCombatOrbital  = 0.85f;
+        public const float KineticRatioThreshold              = 0.75f;
         public const int OrdnanceProductionThresholdPriority  = 400;
         public const int OrdnanceProductionThresholdNonCombat = 150;
         public const int OrdnanceProductionThresholdCombat    = 75;
-        public const float ResupplyShuttleOrdnanceThreshold    = 0.4f;
+        public const float ResupplyShuttleOrdnanceThreshold   = 0.4f;
 
         public const float RepairDroneThreshold = 0.9f;
         public const float RepairDoneThreshold  = 0.99f;
@@ -184,15 +183,28 @@ namespace Ship_Game.Ships
             if (!InCombat)
                 return true; // ships not in combat will want to resupply if they have Ordnance storage from this method point of view
 
-            int numWeapons        = Ship.Weapons.Count(weapon => !weapon.TruePD && weapon.Module is { Active: true });
-            int numKineticWeapons = Ship.Weapons.Count(weapon => !weapon.TruePD && weapon.Module is { Active: true }
-                                                              && weapon.OrdinanceRequiredToFire > 0);
-
-            if (Ship.AI.HasPriorityTarget && numKineticWeapons < numWeapons)
+            float kineticAreaRatio = KineticAreaRatio(Ship.Weapons);
+            if (Ship.Loyalty.isPlayer && Ship.AI.HasPriorityTarget && kineticAreaRatio.Less(1))
                 return false; // if player ordered a specific attack and the ship has energy weapons, continue to fight
 
-            float ratio = (float)numKineticWeapons / numWeapons;
-            return ratio.GreaterOrEqual(KineticToEnergyRatio); 
+            return kineticAreaRatio > KineticRatioThreshold; 
+
+            float KineticAreaRatio(Array<Weapon> weapons)
+            {
+                float kineticArea = 0;
+                float totalArea = 0;
+                foreach (Weapon w in weapons)
+                {
+                    if (!w.TruePD && w.Module is { Active: true })
+                    {
+                        totalArea += w.Module.Area;
+                        if (w.OrdinanceRequiredToFire > 0)
+                            kineticArea += w.Module.Area;
+                    }
+                }
+
+                return kineticArea / totalArea;
+            }
         }
 
         bool InsufficientOrdnanceProduction()
