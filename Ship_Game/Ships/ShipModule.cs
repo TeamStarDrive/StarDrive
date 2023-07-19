@@ -1112,20 +1112,20 @@ namespace Ship_Game.Ships
             if (HangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
                 SetHangarShip(Ship.CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
-
-                if (HangarShip == null)
+                if (HangarShip != null)
                 {
-                    Log.Warning($"Could not create ship from hangar, UID = {HangarShipUID}");
-                    return;
+                    HangarShip.DoEscort(Parent);
+                    HangarShip.Velocity = carrier.Velocity + Random.Direction2D() * HangarShip.STLSpeedLimit;
+                    HangarShip.Mothership = carrier;
+                    HangarTimer = HangarTimerConstant;
+                    CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
+                    carrier.ChangeOrdnance(-HangarShip.ShipOrdLaunchCost);
+                    carrier.OnShipLaunched(HangarShip);
                 }
-
-                HangarShip.DoEscort(Parent);
-                HangarShip.Velocity = carrier.Velocity + Random.Direction2D() * HangarShip.STLSpeedLimit;
-                HangarShip.Mothership = carrier;
-                HangarTimer = HangarTimerConstant;
-                CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
-                carrier.ChangeOrdnance(-HangarShip.ShipOrdLaunchCost);
-                carrier.OnShipLaunched(HangarShip);
+                else
+                {
+                    HangarTimer = 1; // try again in 1 secondd
+                }
             }
         }
 
