@@ -7997,8 +7997,8 @@ NoAmmoResupplyInCombat:
  RUS: "Без пополнения боезапаса в бою"
 DueToHighRatioOf:
  Id: 2551
- ENG: "Due to high ratio of Energy to Ordnance requiring weapons, the ship will not go to resupply if it's ammo reserves are low during combat."
- RUS: "Из-за высокого соотношения энергии и боеприпасов, требующих для оружия, корабль не пойдет на пополнение запасов, если во время боя у него мало боеприпасов, он будет вести огонь с энергет.вооружения."
+ ENG: "Due to high ratio of Energy to Ordnance requiring weapon areas, the ship will not go to resupply if it's ammo reserves are low during combat."
+ RUS: "Из-за высокого отношения энергии к артиллерийскому оружию, требующему площади вооружения, корабль не пойдет на пополнение запасов, если во время боя у него мало боеприпасов."
 GenerallyTheShipWillStay:
  Id: 2552
  ENG: "Generally, the ship will stay in combat with slightly reduced combat effectiveness, but it will be able to fight. It is up to you if you want to reduce the number of Energy weapons."
