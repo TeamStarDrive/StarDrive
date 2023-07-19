@@ -226,8 +226,8 @@ namespace Ship_Game.AI
 
             float fastVsBigWeight = fastVsBig * 10;
             float costWeight     = s.GetCost(empire) * 0.2f;
-            float movementWeight = (maxKFTL + maxDSTL + turnRate) * fastVsBig;
-            float cargoWeight    = cargo * (10 - fastVsBig);
+            float movementWeight = (maxKFTL + maxDSTL + turnRate) * fastVsBigWeight;
+            float cargoWeight    = cargo * (10 - fastVsBigWeight);
             float score          = movementWeight + cargoWeight - costWeight;
 
             // For faster , cheaper ships vs big and maybe slower ships
@@ -261,7 +261,7 @@ namespace Ship_Game.AI
             freighter = freighters.FindMax(ship => FreighterValue(ship, empire, fastVsBig));
 
             if (empire.Universe?.Debug == true)
-                Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter?.Name ?? "null"}");
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter?.Name ?? "null"} (fast vs big: {fastVsBig.String()}/{(1-fastVsBig).String()})");
 
             return freighter;
         }
