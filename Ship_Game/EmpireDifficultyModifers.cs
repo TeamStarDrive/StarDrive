@@ -128,7 +128,7 @@
                     EnemyTroopStrength   = 1.6f;
                     MineralDecayDivider  = 60;
                     PiratePayModifier    = 1f;
-                    ExpansionMultiplier  = 0.7f; // 30% lower, makes the AI expand a bit more easily, but not too much
+                    ExpansionMultiplier  = 0.5f;
                     ExpansionCheckInterval = 5; // every 5 turns
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 30;
@@ -172,7 +172,7 @@
                     EnemyTroopStrength   = 1.8f;
                     MineralDecayDivider  = 40;
                     PiratePayModifier    = 1.5f;
-                    ExpansionMultiplier  = 0.4f; // 60% lower threshold, basically makes every Empire a super Expansionist
+                    ExpansionMultiplier  = 0.25f; 
                     ExpansionCheckInterval = 3; // every 3 turns
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 20;
