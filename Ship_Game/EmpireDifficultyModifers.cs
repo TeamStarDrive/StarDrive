@@ -261,7 +261,7 @@
                 ShipBuildStrMax    = 1f;
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
-                ExpansionCheckInterval = 4;
+                ExpansionCheckInterval = 2;
 
                 if (empire.Universe.P.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
                     CreditsMultiplier = 0.2f;
