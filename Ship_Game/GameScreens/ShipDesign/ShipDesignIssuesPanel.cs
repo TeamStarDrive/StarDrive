@@ -100,7 +100,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckWeaponPowerTime(ds.HasEnergyWeapons, ds.PowerConsumed > 0, ds.EnergyDuration);
                 Issues.CheckCombatEfficiency(ds.PowerConsumed, ds.EnergyDuration, ds.PowerRecharge, ds.NumWeapons, ds.NumOrdWeapons);
                 Issues.CheckBurstPowerTime(ds.BeamPeakPowerNeeded > 0, ds.BurstEnergyDuration, ds.BeamAverageDuration);
-                Issues.CheckOrdnanceVsEnergyWeapons(ds.NumWeapons, ds.NumOrdWeapons, ds.AvgOrdnanceUsed, S.OrdAddedPerSecond);
+                Issues.CheckOrdnanceVsEnergyWeapons(ds.WeaponsArea, ds.KineticWeaponsArea, ds.AvgOrdnanceUsed, S.OrdAddedPerSecond);
                 Issues.CheckTroopsVsBays(S.TroopCapacity, ds.NumTroopBays);
                 Issues.CheckTroops(S.TroopCapacity, S.SurfaceArea);
                 Issues.CheckAccuracy(ds.WeaponAccuracies);

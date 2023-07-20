@@ -483,16 +483,16 @@ namespace Ship_Game.GameScreens.ShipDesign
                 AddDesignIssue(DesignIssueType.LowBurstPowerTime, severity);
         }
 
-        public void CheckOrdnanceVsEnergyWeapons(int numWeapons, int numOrdnanceWeapons, float ordnanceUsed, float ordnanceRecovered)
+        public void CheckOrdnanceVsEnergyWeapons(float weaponsArea, float kineticWeaponsArea, float ordnanceUsed, float ordnanceRecovered)
         {
-            if (Stationary || numWeapons == 0 || numOrdnanceWeapons == 0)
+            if (Stationary || weaponsArea == 0 || kineticWeaponsArea == 0)
                 return;
 
-            if (numOrdnanceWeapons < numWeapons && ordnanceUsed > ordnanceRecovered)
+            if (kineticWeaponsArea < weaponsArea && ordnanceUsed > ordnanceRecovered)
                 AddDesignIssue(DesignIssueType.NoOrdnanceResupplyPlayerOrder, WarningLevel.Informative);
 
-            float ordnanceToEnergyRatio = (float)numOrdnanceWeapons / numWeapons;
-            if (ordnanceToEnergyRatio.LessOrEqual(ShipResupply.KineticToEnergyRatio))
+            float ordnanceToEnergyRatio = kineticWeaponsArea / weaponsArea;
+            if (ordnanceToEnergyRatio.LessOrEqual(ShipResupply.KineticRatioThreshold))
                 AddDesignIssue(DesignIssueType.NoOrdnanceResupplyCombat, WarningLevel.Informative);
         }
 

@@ -646,6 +646,13 @@ namespace Ship_Game
             return SpawnShip(RemnantShipType.Portal, pos, out portal);
         }
 
+        public float GetHostileStrInPortalSystem(Ship portal)
+        {
+            return portal.System != null 
+                ? Owner.Threats.GetHostileStrengthAt(portal.System.Position, portal.System.Radius)
+                : Owner.Threats.GetHostileStrengthAt(portal.Position, portal.SensorRange);
+        }
+
         public bool CreateShip(Ship portal, bool needBomber, int numShips, out Ship ship)
         {
             ship = null;

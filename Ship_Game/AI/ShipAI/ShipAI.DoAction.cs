@@ -722,7 +722,10 @@ namespace Ship_Game.AI
                 Owner.ChangeOrdnance(-ordnanceDelivered);
                 EscortTarget.AI.TerminateResupplyIfDone(SupplyType.Rearm, terminateIfEnemiesNear: true);
                 DequeueCurrentOrder();
-                ChangeAIState(AIState.AwaitingOrders);
+                if (Owner.Ordinance < 1)
+                    OrderReturnToHangar();
+                else
+                    ChangeAIState(AIState.AwaitingOrders);
             }
         }
 

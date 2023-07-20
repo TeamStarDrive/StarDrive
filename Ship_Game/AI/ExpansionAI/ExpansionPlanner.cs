@@ -121,6 +121,13 @@ namespace Ship_Game.AI.ExpansionAI
             if (!CanConsiderExpanding(popRatio, ourPlanetsNum))
                 return;
 
+            if (!Owner.isPlayer)
+            {
+                var goals = Owner.AI.CountGoals(g => g.Type == GoalType.StandbyColonyShip);
+                if (goals < Owner.DifficultyModifiers.StandByColonyShips.UpperBound(ourPlanetsNum-1))
+                    Owner.AI.AddGoal(new StandbyColonyShip(Owner));
+            }
+
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
             int desiredGoals = DesiredColonyGoals();
 

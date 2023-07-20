@@ -111,7 +111,6 @@ namespace Ship_Game.Commands.Goals
                     (spaceStrength * strMultiplier).LowerBound(20), TargetEmpire, (int)strMultiplier);
 
                 empireAi.AddPendingTask(Task);
-                empireAi.AddGoal(new StandbyColonyShip(Owner));
             }
             else if (!Owner.AnyActiveFleetsTargetingSystem(TargetPlanet.System))
             {
