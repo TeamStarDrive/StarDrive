@@ -59,6 +59,7 @@ namespace Ship_Game.Ships
             }
         }
 
+
         bool LaunchShipSupplyShuttle(ShipModule hangar, Ship supplyTarget)
         {
             if (!hangar.Active || hangar.HangarTimer > 0f)
