@@ -85,7 +85,7 @@ namespace Ship_Game.AI
             Owner.Loyalty.UpdateAverageFreightFTL(Owner.MaxFTLSpeed);
             Owner.Loyalty.UpdateAverageFreightCargoCap(Owner.CargoSpaceMax);
             // If we did not unload all cargo, its better to build faster smaller cheaper freighters
-            FreighterPriority freighterPriority = fullBeforeUnload && Owner.CargoSpaceUsed.AlmostZero()
+            FreighterPriority freighterPriority = fullBeforeUnload && Owner.CargoSpaceUsed < 1
                                                   ? FreighterPriority.UnloadedAllCargo
                                                   : FreighterPriority.ExcessCargoLeft;
 

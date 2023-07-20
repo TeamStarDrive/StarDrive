@@ -141,8 +141,8 @@ namespace Ship_Game
                 case QueueItemType.ColonyShipClaim: priority = 0;                                                                               break;
                 case QueueItemType.Building:        priority = planet.PrioritizeColonyBuilding(Building);                                       break;
                 case QueueItemType.Troop:           priority = 0.2f + owner.AI.DefensiveCoordinator.TroopsToTroopsWantedRatio * 5;              break;
-                case QueueItemType.Scout:           priority = owner.GetPlanets().Count * 0.05f;                                                break;
-                case QueueItemType.ColonyShip:      priority = (owner.GetPlanets().Count * (owner.IsExpansionists ? 0.01f : 0.03f));            break;
+                case QueueItemType.Scout:           priority = owner.GetPlanets().Count * 0.02f;                                                break;
+                case QueueItemType.ColonyShip:      priority = (owner.GetPlanets().Count * (owner.IsExpansionists ? 0.005f : 0.01f));           break;
                 case QueueItemType.Orbital:         priority = 1 + (owner.TotalOrbitalMaintenance / owner.AI.DefenseBudget.LowerBound(1) * 10); break;
                 case QueueItemType.RoadNode:        priority = 0.5f + owner.AI.SpaceRoadsManager.NumOnlineSpaceRoads * 0.1f;                    break;
                 case QueueItemType.Freighter: 

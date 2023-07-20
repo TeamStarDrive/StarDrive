@@ -45,7 +45,7 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 DistanceMod = (planet.Position.Distance(empireCenter) / longestDistance * 10).Clamped(1, 10);
                 EnemyStrMod = ((empire.KnownEnemyStrengthIn(planet.System) / (empire.OffensiveStrength+10)) * 10).Clamped(1, 10);
-                CanColonize = !moralityBlock && (rawValue > 30 || empire.IsCybernetic && planet.MineralRichness > 1.5f);
+                CanColonize = !moralityBlock && (rawValue > 20 || empire.IsCybernetic && planet.MineralRichness > 1.5f);
                 Value = rawValue / DistanceMod / EnemyStrMod;
             }
         }
