@@ -16,19 +16,10 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
-                CheckIfStandbyShipNeeded,
                 BuildColonyShip,
                 EnsureBuildingColonyShip,
                 KeepOnStandBy
             };
-        }
-
-        GoalStep CheckIfStandbyShipNeeded()
-        {
-            var goals = Owner.AI.CountGoals(g => g.Type == GoalType.StandbyColonyShip);
-            return goals > Owner.DifficultyModifiers.StandByColonyShips.UpperBound(Owner.GetPlanets().Count) 
-                ? GoalStep.GoalFailed  // reached standby colony ship limit
-                : GoalStep.GoToNextStep;
         }
 
         GoalStep BuildColonyShip()

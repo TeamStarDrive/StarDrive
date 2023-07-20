@@ -17,6 +17,8 @@ public class ShipDesignStats
     public int NumWeaponSlots;
     public int NumWeapons;
     public int NumOrdWeapons;
+    public float WeaponsArea;
+    public float KineticWeaponsArea;
     public int NumTroopBays;
 
     public float WeaponPowerNeeded;
@@ -73,6 +75,8 @@ public class ShipDesignStats
         NumWeaponSlots = S.Weapons.Sum(w => w.Module.Area);
         NumWeapons    = weapons.Count(w => !w.TruePD);
         NumOrdWeapons = weapons.Count(w => !w.TruePD && w.OrdinanceRequiredToFire > 0);
+        WeaponsArea   = weapons.Sum(w => !w.TruePD ? w.Module.Area : 0f);
+        KineticWeaponsArea = weapons.Sum(w => !w.TruePD && w.OrdinanceRequiredToFire > 0 ? w.Module.Area : 0);
         NumTroopBays  = modules.Count(m => m.IsTroopBay);
 
         WeaponPowerNeeded = weapons.Sum(w => w.PowerFireUsagePerSecond);

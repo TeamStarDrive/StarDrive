@@ -218,20 +218,20 @@ namespace Ship_Game.AI
 
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)
         {
-            float maxFTL = ShipStats.GetFTLSpeed(s, empire);
-            float maxSTL = ShipStats.GetSTLSpeed(s, empire);
-            float cargo = ShipStats.GetCargoSpace(s.BaseCargoSpace, s);
-            float turnRate = ShipStats.GetTurnRadsPerSec(s);
-            float area = s.SurfaceArea;
+            float maxKFTL  = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
+            float maxDSTL  = ShipStats.GetSTLSpeed(s, empire) * 0.1f;
+            float cargo    = ShipStats.GetCargoSpace(s.BaseCargoSpace, s);
+            float turnRate = ShipStats.GetTurnRadsPerSec(s).ToDegrees();
+            float area     = s.SurfaceArea;
 
-            float warpK           = maxFTL / 1000;
-            float movementWeight  = warpK + maxSTL / 10 + turnRate.ToDegrees() - s.GetCost(empire) / 5;
-            float cargoWeight     = cargo.Clamped(0, 80) - area / 25;
-            float lowCargoPenalty = cargo < area * 0.5f ? cargo / area : 1;
-            float score           = movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
+            float fastVsBigWeight = fastVsBig * 10;
+            float costWeight     = s.GetCost(empire) * 0.2f;
+            float movementWeight = (maxKFTL + maxDSTL + turnRate) * fastVsBigWeight;
+            float cargoWeight    = cargo * (10 - fastVsBigWeight);
+            float score          = movementWeight + cargoWeight - costWeight;
 
             // For faster , cheaper ships vs big and maybe slower ships
-            return score * lowCargoPenalty;
+            return score;
         }
 
 
@@ -261,7 +261,7 @@ namespace Ship_Game.AI
             freighter = freighters.FindMax(ship => FreighterValue(ship, empire, fastVsBig));
 
             if (empire.Universe?.Debug == true)
-                Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter?.Name ?? "null"}");
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter?.Name ?? "null"} (fast vs big: {fastVsBig.String()}/{(1-fastVsBig).String()})");
 
             return freighter;
         }
@@ -319,7 +319,7 @@ namespace Ship_Game.AI
             float modifiedStrength;
 
             if (defense > offense && offenseRatio < 0.1f)
-                modifiedStrength = offense * 2;
+                modifiedStrength = offense + offense + defense*0.1f;
             else
                 modifiedStrength = offense + defense;
 

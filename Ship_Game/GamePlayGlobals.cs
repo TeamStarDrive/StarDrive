@@ -29,7 +29,7 @@ public class GamePlayGlobals
     [StarData] public float ResearchStationProductionPerResearch = 2f; // Production consumed per 1 Research point
 
     // required empire pop ratio before expansion is considered
-    [StarData] public float RequiredExpansionPopRatio = 0.4f;
+    [StarData] public float RequiredExpansionPopRatio = 0.2f;
     [StarData] public float ShipyardBonus;
     [StarData] public float CustomMineralDecay = 1;
     [StarData] public float VolcanicActivity = 1;
