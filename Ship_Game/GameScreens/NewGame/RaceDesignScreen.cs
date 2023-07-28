@@ -408,9 +408,9 @@ namespace Ship_Game
 
         void OnPacingClicked(UIButton b)
         {
-            P.Pace += OptionIncrement*0.25f;
-            if (P.Pace > 4f) P.Pace = 1f;
-            if (P.Pace < 1f) P.Pace = 4f;
+            P.Pace += OptionIncrement*0.5f;
+            if (P.Pace > 10f) P.Pace = 1f;
+            if (P.Pace < 1f) P.Pace = 10f;
         }
         
         void OnDifficultyClicked(UIButton b)
