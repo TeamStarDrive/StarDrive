@@ -11,6 +11,7 @@ namespace Ship_Game
         {
             Empire oldOwner = Owner;
             Owner = newOwner;
+            Food.ResetAveragePercentage();
 
             if (oldOwner != null)
             {
