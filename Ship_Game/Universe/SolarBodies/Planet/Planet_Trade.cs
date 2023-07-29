@@ -103,6 +103,16 @@ namespace Ship_Game
             NumFreightersPickingUpProd = NumOutgoingFreightersPickUp(outgoingFreighters, Goods.Production);
         }
 
+        void IncreaseOutgoingFreighters(Goods goods)
+        {
+            switch (goods) 
+            {
+                case Goods.Food:       OutgoingFoodFreighters++;      break;
+                case Goods.Production: OutgoingProdFreighters++;      break;
+                case Goods.Colonists:  OutGoingColonistsFreighters++; break;
+            }
+        }
+
         int GetFoodExportSlots()
         {
             if (TradeBlocked || !ExportFood)
@@ -263,8 +273,9 @@ namespace Ship_Game
                 IncomingFreighters.AddUniqueRef(ship);
         }
 
-        public void AddToOutgoingFreighterList(Ship ship)
+        public void AddToOutgoingFreighterList(Ship ship, Goods goods)
         {
+            IncreaseOutgoingFreighters(goods);
             lock (OutgoingFreighters)
                 OutgoingFreighters.AddUniqueRef(ship);
         }

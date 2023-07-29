@@ -141,16 +141,16 @@ namespace Ship_Game
             UniverseState us = universeState ?? throw new NullReferenceException(nameof(universeState));
 
             if (!GlobalStats.Defaults.ChangeResearchCostBasedOnSize)
-                return us.ProductionPace * Cost;
+                return us.P.Pace * Cost;
 
             float settingResearchMultiplier = us.SettingsResearchModifier;
             if (settingResearchMultiplier < 1f)
-                return us.ProductionPace * (Cost * settingResearchMultiplier.LowerBound(0.5f)).RoundTo10();
+                return us.P.Pace * (Cost * settingResearchMultiplier.LowerBound(0.5f)).RoundTo10();
 
             float costRatio = GetCostRatio(settingResearchMultiplier);
             float multiplierToUse = 1 + settingResearchMultiplier * costRatio;
 
-            return us.ProductionPace * (Cost * multiplierToUse.Clamped(1, 25)).RoundDownTo10();
+            return us.P.Pace * (Cost * multiplierToUse.Clamped(1, 25)).RoundDownTo10();
         }
         
         float GetCostRatio(float settingResearchMultiplier)

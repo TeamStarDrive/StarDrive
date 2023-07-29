@@ -458,7 +458,7 @@ namespace Ship_Game.AI
                 StardateAdded = exportPlanet.Universe.StarDate;
                 TargetStation = targetStation;
 
-                ExportFrom.AddToOutgoingFreighterList(freighter);
+                ExportFrom.AddToOutgoingFreighterList(freighter, goodsType);
             }
 
             public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer)
@@ -470,7 +470,7 @@ namespace Ship_Game.AI
                 Freighter     = freighter;
                 StardateAdded = exportPlanet.Universe.StarDate;
 
-                ExportFrom.AddToOutgoingFreighterList(freighter);
+                ExportFrom.AddToOutgoingFreighterList(freighter, goodsType);
                 ImportTo.AddToIncomingFreighterList(freighter);
             }
 
