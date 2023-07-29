@@ -45,7 +45,7 @@ namespace Ship_Game.GameScreens.LoadGame
         public UniverseScreen Load(bool noErrorDialogs = false, bool startSimThread = true)
         {
             StartSimThread = startSimThread;
-            Log.LogEventStats(Log.GameEvent.LoadGame);
+            // Log.LogEventStats(Log.GameEvent.LoadGame); - disabled to save some error limit
             try
             {
                 Log.Write(ConsoleColor.Blue, $"LoadGame {SaveFile.Name}");

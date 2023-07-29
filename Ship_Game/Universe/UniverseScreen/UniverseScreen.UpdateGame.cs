@@ -324,54 +324,6 @@ namespace Ship_Game
             return updated;
         }
 
-        // TODO: This needs to be reimplemented
-        void HandleArmageddon()
-        {
-            // todo figure what to do with this
-            /*
-            if (GlobalStats.RemnantArmageddon)
-            {
-                ArmageddonCountdown(timeStep);
-            }
-                ArmageddonTimer -= timeStep.FixedTime;
-                if (ArmageddonTimer < 0f)
-                {
-                    ArmageddonTimer = 300f;
-                    ++ArmageddonCounter;
-                    if (ArmageddonCounter > 5)
-                        ArmageddonCounter = 5;
-                    for (int i = 0; i < ArmageddonCounter; ++i)
-                    {
-                        Ship exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
-                                player.WeightedCenter + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
-                                    RandomMath.RandomBetween(-500000f, 500000f)));
-                        exterminator.AI.DefaultAIState = AIState.Exterminate;
-                    }
-                }
-            }
-            ArmageddonCountdown(timeStep);
-            */
-        }
-        
-        /*
-        void ArmageddonCountdown(FixedSimTime timeStep)
-        {
-            ArmageddonTimer -= timeStep.FixedTime;
-            if (ArmageddonTimer < 0f)
-            {
-                ArmageddonTimer = 300f;
-                ++ArmageddonCounter;
-                if (ArmageddonCounter > 5)
-                    ArmageddonCounter = 5;
-                for (int i = 0; i < ArmageddonCounter; ++i)
-                {
-                    var exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
-                                                              player.WeightedCenter + RandomMath.Vector2D(500_000f));
-                    exterminator.AI.DefaultAIState = AIState.Exterminate;
-                }
-            }
-        }*/
-
         void HandleGameSpeedChange(InputState input)
         {
             if (input.SpeedReset)
@@ -380,7 +332,7 @@ namespace Ship_Game
             {
                 bool unlimited = Debug || Debugger.IsAttached;
                 float speedMin = unlimited ? 0.0625f : 0.25f;
-                float speedMax = unlimited ? 128f    : 6f;
+                float speedMax = unlimited ? 128f    : 10f;
                 UState.GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);
             }
         }

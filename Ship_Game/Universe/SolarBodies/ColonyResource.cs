@@ -9,6 +9,7 @@ namespace Ship_Game.Universe.SolarBodies
     public abstract class ColonyResource
     {
         [StarData] protected readonly Planet Planet;
+        [StarData] float AveragePercent;
         public bool Initialized { get; private set; }
 
         float PercentValue;
@@ -83,6 +84,23 @@ namespace Ship_Game.Universe.SolarBodies
         public float ColonistIncome(float yieldPerColonist)
         {
             return Percent * yieldPerColonist * Planet.PopulationBillion;
+        }
+
+        public void CalculateAveragePercentage()
+        {
+            AveragePercent = HelperFunctions.ExponentialMovingAverage(AveragePercent, Percent);
+        }
+
+        public void ResetAveragePercentage()
+        {
+            AveragePercent = 0;
+        }
+
+        public float GetAveragePercent()
+        {
+            if (AveragePercent < 0.05) return 0;
+            else if (AveragePercent > 0.95) return 1;
+            else return AveragePercent;
         }
 
         // Nominal workers needed to neither gain nor lose storage
