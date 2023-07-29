@@ -89,7 +89,7 @@ public partial class Planet
         // Modify the number of turns that can use all production.
         turnsWithInfra *= priority.Clamped(0, 1);
         // Percentage of the pop allocated to production
-        float workPercentage = IsCybernetic ? 1 : 1 - Food.Percent;
+        float workPercentage = IsCybernetic ? 1 : 1 - Food.GetAveragePercent();
 
         // Getting the queue copied and inserting the new items into it to check time to finish
         // This is needed since the planet has dynamic production allocation based on queue items
@@ -102,7 +102,7 @@ public partial class Planet
         {
             QueueItem qi = modifiedQueue[i];
             // How much production will be created for this item (since some will be diverted to research)
-            float productionOutputForItem = workPercentage * EvaluateProductionQueue(qi) * PopulationBillion;
+            float productionOutputForItem = Prod.FlatBonus + workPercentage * EvaluateProductionQueue(qi) * PopulationBillion;
             // How much net production will be applied to the queue item after checking planet's trade state
             float netProdPerTurn = LimitedProductionExpenditure(turnsWithInfra <= 0 ? productionOutputForItem 
                 : productionOutputForItem + InfraStructure);
