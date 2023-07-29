@@ -90,6 +90,7 @@ namespace Ship_Game
         void AssignOtherWorldsWorkers(float percentFood, float percentProd, float wantedFoodIncome, float wantedProdIncome)
         {
             Food.Percent        = FarmToPercentage(percentFood, wantedFoodIncome);
+            Food.CalculateAveragePercentage();
             float remainingWork = 1 - Food.Percent;
             Prod.Percent        = WorkToPercentage(percentProd, wantedProdIncome).UpperBound(remainingWork);
             if (NonCybernetic)
@@ -163,6 +164,7 @@ namespace Ship_Game
                 farmers = 0.1f; // avoid crazy small percentage of labor
 
             Food.Percent = farmers * labor;
+            Food.CalculateAveragePercentage();
         }
 
         void AssignCoreWorldProduction(float labor)
