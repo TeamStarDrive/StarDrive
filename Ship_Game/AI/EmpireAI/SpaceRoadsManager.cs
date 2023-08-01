@@ -25,6 +25,9 @@ namespace Ship_Game.AI
         [StarData] public readonly Array<SpaceRoad> SpaceRoads = new();
         [StarData] public readonly Empire Owner;
 
+        bool ShouldManageRoads => Owner.CanBuildPlatforms
+                                  && (!Owner.isPlayer || Owner.isPlayer && Owner.AutoBuildSpaceRoads);
+
         [StarDataConstructor]
         SpaceRoadsManager() {}
 
@@ -36,7 +39,7 @@ namespace Ship_Game.AI
         // Adds heat to an existing road or set ups a new road is it does not exist
         public void AddSpaceRoadHeat(SolarSystem origin, SolarSystem destination, float extraHeat)
         {
-            if (origin == destination)
+            if (origin == destination || !ShouldManageRoads)
                 return;
 
             string name = SpaceRoad.GetSpaceRoadName(origin, destination);
@@ -72,7 +75,7 @@ namespace Ship_Game.AI
 
         public void Update()
         {
-            if (!Owner.CanBuildPlatforms || Owner.isPlayer && !Owner.AutoBuildSpaceRoads)
+            if (!ShouldManageRoads)
                 return;
 
             if (Owner.Universe.StarDate % 1 == 0)
@@ -138,6 +141,19 @@ namespace Ship_Game.AI
             }
 
             return false;
+        }
+
+        public void RemoveRoadIfNeeded(SolarSystem system)
+        {
+            if (system.HasPlanetsOwnedBy(Owner) || system.IsResearchStationDeployedBy(Owner))
+                return;
+
+            for (int i = SpaceRoads.Count - 1; i >= 0; i--)
+            {
+                SpaceRoad road = SpaceRoads[i];
+                if (road.HasSystem(system))
+                    RemoveRoad(road, fillGapsInOtherRoads: true);
+            }
         }
 
         // Dealing with one road till its completed
