@@ -565,11 +565,12 @@ namespace Ship_Game
             OwnedPlanets.Remove(planet);
             Universe.OnPlanetOwnerRemoved(this, planet);
 
-            if (OwnedPlanets.All(p => p.System != planet.System)) // system no more in owned planets?
+            if (!planet.System.HasPlanetsOwnedBy(this)) // system no more in owned planets?
                 OwnedSolarSystems.Remove(planet.System);
 
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
+            AI.SpaceRoadsManager.RemoveRoadIfNeeded(planet.System);
         }
 
         public void ClearAllPlanets()

@@ -68,6 +68,7 @@ namespace Ship_Game.Gameplay
         public bool IsHot => Heat >= NumProjectors*2;
         public bool IsCold => Heat <= -(NumProjectors+2);
         public float Maintenance => Status == SpaceRoadStatus.Down ? 0 : OperationalMaintenance;
+        public bool HasSystem(SolarSystem s) => System1 == s || System2== s;
 
         [StarDataConstructor]
         public SpaceRoad()
