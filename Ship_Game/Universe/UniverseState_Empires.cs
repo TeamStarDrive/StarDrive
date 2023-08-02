@@ -121,6 +121,10 @@ public partial class UniverseState
                 throw new InvalidOperationException($"Duplicate Player empire! previous={Player}  new={e}");
             Player = e;
         }
+        else
+        {
+            e.AI?.ExpansionAI.InitExpansionIntervalTimer(e.Id);
+        }
 
         switch (e.data.Traits.Name)
         {

@@ -16,6 +16,8 @@ namespace UnitTests.ExoticSystems
         readonly Planet NewPlanet;
         readonly Planet EnemyHome;
 
+        void RunResearchStationPlanner() => Player.AI.ResearchStationsAI.RunResearchStationPlanner(ignoreDistance: true);
+
         public ResearchStations()
         {
             CreateUniverseAndPlayerEmpire();
@@ -40,17 +42,17 @@ namespace UnitTests.ExoticSystems
             AssertEqual(true, Player.CanBuildPlatforms);
             AssertEqual(true, Player.CanBuildResearchStations);
 
-            Player.AI.ResearchStationsAI.RunResearchStationPlanner();
+            RunResearchStationPlanner();
             // Not explored yet
             AssertEqual(false, Player.AI.HasGoal(g => g.IsResearchStationGoal(NewPlanet)));
 
             NewPlanet.SetExploredBy(Player);
-            Player.AI.ResearchStationsAI.RunResearchStationPlanner();
+            RunResearchStationPlanner();
             // No automation activated
             AssertEqual(false, Player.AI.HasGoal(g => g.IsResearchStationGoal(NewPlanet)));
 
             Player.AutoBuildResearchStations = true;
-            Player.AI.ResearchStationsAI.RunResearchStationPlanner();
+            RunResearchStationPlanner();
             AssertEqual(true, Player.AI.HasGoal(g => g.IsResearchStationGoal(NewPlanet)));
             AssertEqual(true, Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(NewPlanet)));
 
@@ -59,13 +61,13 @@ namespace UnitTests.ExoticSystems
             AssertEqual(false, system.IsExploredBy(Player));
 
             // system not explored yet
-            Player.AI.ResearchStationsAI.RunResearchStationPlanner();
+            RunResearchStationPlanner();
             AssertEqual(false, Player.AI.HasGoal(g => g.IsResearchStationGoal(system)));
 
             system.SetExploredBy(Player);
-            Player.AI.ResearchStationsAI.RunResearchStationPlanner();
-            Player.AI.ResearchStationsAI.RunResearchStationPlanner();
-            Player.AI.ResearchStationsAI.RunResearchStationPlanner();
+            RunResearchStationPlanner();
+            RunResearchStationPlanner();
+            RunResearchStationPlanner();
             AssertEqual(true, Player.AI.HasGoal(g => g.IsResearchStationGoal(system)));
             AssertEqual(true, Player.AI.HasGoal(g => g.IsBuildingOrbitalFor(system)));
         }

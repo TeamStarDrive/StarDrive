@@ -28,6 +28,11 @@ namespace Ship_Game.AI.ExpansionAI
             ResetExpandSearchTimer();
         }
 
+        public void InitExpansionIntervalTimer(int id)
+        {
+            ExpansionIntervalTimer = Owner.DifficultyModifiers.ExpansionCheckInterval - id + 1;
+        }
+
         public Planet[] GetColonizationGoalPlanets()
         {
             return Owner.AI.SelectFromGoals((MarkForColonization c) => c.TargetPlanet);
