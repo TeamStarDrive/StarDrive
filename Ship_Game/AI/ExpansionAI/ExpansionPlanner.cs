@@ -323,19 +323,14 @@ namespace Ship_Game.AI.ExpansionAI
                 MarkedForExploration.Remove(system);
         }
 
-        public void SetExpandSearchTimer(int value)
-        {
-            ExpandSearchTimer = value;
-        }
-
         public void SetMaxSystemsToCheckedDiv(int value)
         {
             MaxSystemsToCheckedDiv = value;
         }
 
-        public void ResetExpandSearchTimer()
+        void ResetExpandSearchTimer()
         {
-            SetExpandSearchTimer(Owner.DifficultyModifiers.ExpandSearchTurns);
+            ExpandSearchTimer = Owner.DifficultyModifiers.ExpandSearchTurns;
         }
     }
 }
