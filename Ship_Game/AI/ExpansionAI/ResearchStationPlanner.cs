@@ -96,8 +96,10 @@ namespace Ship_Game.AI.ExpansionAI
             Array<ExplorableGameObject> solarBodies = new();
             foreach (ExplorableGameObject solarBody in  Universe.ResearchableSolarBodies.Keys)
             {
-                if (solarBody.IsExploredBy(Owner)
+                SolarSystem system = solarBody.System ?? solarBody as SolarSystem;
+                if (solarBody.IsExploredBy(Owner) 
                     && !solarBody.IsResearchStationDeployedBy(Owner) // this bit is for performance - faster than HasGoal
+                    && system.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(Owner))
                     && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody))
                     && (Owner.Universe.Remnants == null 
                         || !Owner.Universe.Remnants.AI.HasGoal(g => g is RemnantPortal && g.TargetShip.System == solarBody)))
