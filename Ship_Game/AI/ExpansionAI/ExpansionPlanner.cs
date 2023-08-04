@@ -28,6 +28,11 @@ namespace Ship_Game.AI.ExpansionAI
             ResetExpandSearchTimer();
         }
 
+        public void InitExpansionIntervalTimer(int id)
+        {
+            ExpansionIntervalTimer = Owner.DifficultyModifiers.ExpansionCheckInterval - id + 1;
+        }
+
         public Planet[] GetColonizationGoalPlanets()
         {
             return Owner.AI.SelectFromGoals((MarkForColonization c) => c.TargetPlanet);
@@ -280,7 +285,7 @@ namespace Ship_Game.AI.ExpansionAI
             targetSystem = Owner.Random.ItemFilter(
                 ship.Universe.Systems,
                 sys => ship.System != sys && sys.IsFullyExploredBy(Owner)
-                    && Owner.KnownEnemyStrengthIn(sys) > 10 && sys.ShipList.Any(s => s.IsGuardian));
+                    && Owner.KnownEnemyStrengthIn(sys) > 10 && sys.ShipList.Any(s => s.IsGuardian || s.Loyalty.WeArePirates));
 
             return targetSystem != null;
         }
@@ -323,19 +328,14 @@ namespace Ship_Game.AI.ExpansionAI
                 MarkedForExploration.Remove(system);
         }
 
-        public void SetExpandSearchTimer(int value)
-        {
-            ExpandSearchTimer = value;
-        }
-
         public void SetMaxSystemsToCheckedDiv(int value)
         {
             MaxSystemsToCheckedDiv = value;
         }
 
-        public void ResetExpandSearchTimer()
+        void ResetExpandSearchTimer()
         {
-            SetExpandSearchTimer(Owner.DifficultyModifiers.ExpandSearchTurns);
+            ExpandSearchTimer = Owner.DifficultyModifiers.ExpandSearchTurns;
         }
     }
 }
