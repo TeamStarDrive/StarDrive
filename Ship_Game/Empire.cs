@@ -490,6 +490,8 @@ namespace Ship_Game
         public bool CanTerraformPlanetTiles => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 2;
         public bool CanFullTerraformPlanets => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 3;
 
+        public float AverageSystemsSqdistFromCenter => OwnedSolarSystems.Average(s => s.Position.SqDist(WeightedCenter));
+
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 
         public Map<string, TechEntry>.ValueCollection TechEntries => TechnologyDict.Values;
@@ -565,11 +567,12 @@ namespace Ship_Game
             OwnedPlanets.Remove(planet);
             Universe.OnPlanetOwnerRemoved(this, planet);
 
-            if (OwnedPlanets.All(p => p.System != planet.System)) // system no more in owned planets?
+            if (!planet.System.HasPlanetsOwnedBy(this)) // system no more in owned planets?
                 OwnedSolarSystems.Remove(planet.System);
 
             CalcWeightedCenter(calcNow: true);
             UpdateRallyPoints(); // update rally points every time OwnedPlanets changes
+            AI.SpaceRoadsManager.RemoveRoadIfNeeded(planet.System);
         }
 
         public void ClearAllPlanets()
@@ -2100,6 +2103,10 @@ namespace Ship_Game
             {
                 Ship ship = ships[i];
                 ship.LoyaltyChangeByGift(this, addNotification: false);
+                if (ship.IsConstructor)
+                    ship.AI.OrderScrapShip();
+                if (ship.IsResearchStation)
+                    ship.AI.OrderScuttleShip();
             }
 
             AssimilateTech(target);
