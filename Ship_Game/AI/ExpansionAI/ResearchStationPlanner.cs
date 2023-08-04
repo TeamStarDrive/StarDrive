@@ -9,7 +9,6 @@ namespace Ship_Game.AI.ExpansionAI
     [StarDataType]
     public class ResearchStationPlanner
     {
-        [StarData] int ExpansionIntervalTimer = 100_000; // how often to check for expansion?
         [StarData] readonly Empire Owner;
 
 
@@ -82,13 +81,13 @@ namespace Ship_Game.AI.ExpansionAI
 
         bool ShouldRunResearchMananger()
         {
-            if (!Owner.CanBuildResearchStations || Owner.isPlayer && !Owner.AutoBuildResearchStations)
+            if ((Owner.Universe.StarDate % 1).Greater(0)
+                || !Owner.CanBuildResearchStations
+                || Owner.isPlayer && !Owner.AutoBuildResearchStations)
+            {
                 return false;
+            }
 
-            if (++ExpansionIntervalTimer < Owner.DifficultyModifiers.ExpansionCheckInterval)
-                return false;
-
-            ExpansionIntervalTimer = 0;
             return true;
         }
 
@@ -98,9 +97,10 @@ namespace Ship_Game.AI.ExpansionAI
             foreach (ExplorableGameObject solarBody in Universe.ResearchableSolarBodies.Keys)
             {
                 SolarSystem system = solarBody.System ?? solarBody as SolarSystem;
+                float averageDist = Owner.AverageSystemsSqdistFromCenter;
                 if (solarBody.IsExploredBy(Owner) 
                     && !solarBody.IsResearchStationDeployedBy(Owner) // this bit is for performance - faster than HasGoal
-                    && ignoreDistance || system.HasPlanetsOwnedBy(Owner) || system.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(Owner))
+                    && (ignoreDistance || InGoodDistance(system, averageDist))
                     && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody))
                     && (Owner.Universe.Remnants == null 
                         || !Owner.Universe.Remnants.AI.HasGoal(g => g is RemnantPortal && g.TargetShip.System == solarBody)))
@@ -108,8 +108,16 @@ namespace Ship_Game.AI.ExpansionAI
                     solarBodies.Add(solarBody);
                 }
             }
-
+            //|| Owner.GetOwnedSystems().Any(s => s.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(Owner)))
             return solarBodies.ToArray();
+
+            bool InGoodDistance(SolarSystem system, float averageDist)
+            {
+                return system.HasPlanetsOwnedBy(Owner)
+                       || system.Position.SqDist(Owner.WeightedCenter) < averageDist * 1.5f
+                       || system.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(Owner))
+                       || Influense(system.Position) == InfluenceStatus.Friendly;
+            }
         }
     }
 }

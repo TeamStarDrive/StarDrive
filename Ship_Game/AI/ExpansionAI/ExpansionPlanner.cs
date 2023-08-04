@@ -285,7 +285,7 @@ namespace Ship_Game.AI.ExpansionAI
             targetSystem = Owner.Random.ItemFilter(
                 ship.Universe.Systems,
                 sys => ship.System != sys && sys.IsFullyExploredBy(Owner)
-                    && Owner.KnownEnemyStrengthIn(sys) > 10 && sys.ShipList.Any(s => s.IsGuardian));
+                    && Owner.KnownEnemyStrengthIn(sys) > 10 && sys.ShipList.Any(s => s.IsGuardian || s.Loyalty.WeArePirates));
 
             return targetSystem != null;
         }

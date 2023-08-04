@@ -1772,13 +1772,17 @@ namespace Ship_Game.Ships
                 }
             }
 
+            int offensiveArea = weaponArea + hangarArea;
+            if (offensiveArea == 0 && (IsDefaultTroopShip || IsSupplyShuttle || DesignRole == RoleName.scout))
+                return 0;
+
             if (IsPlatformOrStation) 
                 offense /= 2;
 
             if (!Carrier.HasFighterBays && !hasWeapons) 
                 offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea, weaponArea + hangarArea, offense, defense);
+            return ShipBuilder.GetModifiedStrength(SurfaceArea, offensiveArea, offense, defense);
         }
 
         // UI statistics, show average repair per second
