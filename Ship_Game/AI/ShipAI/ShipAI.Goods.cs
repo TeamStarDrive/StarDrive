@@ -179,7 +179,7 @@ namespace Ship_Game.AI
             if (targetStation.System != null)
             {
                 Owner.Loyalty.AI.SpaceRoadsManager.AddSpaceRoadHeat(exportPlanet.System, 
-                    targetStation.System, Owner.CargoSpaceMax * 0.1f);
+                    targetStation.System, Owner.CargoSpaceMax * 1f);
             }
             Plan plan = Plan.PickupGoodsForStation;
             SetTradePlan(plan, exportPlanet, targetStation, goods);

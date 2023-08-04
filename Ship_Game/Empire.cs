@@ -490,6 +490,8 @@ namespace Ship_Game
         public bool CanTerraformPlanetTiles => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 2;
         public bool CanFullTerraformPlanets => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 3;
 
+        public float AverageSystemsSqdistFromCenter => OwnedSolarSystems.Average(s => s.Position.SqDist(WeightedCenter));
+
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 
         public Map<string, TechEntry>.ValueCollection TechEntries => TechnologyDict.Values;
@@ -2101,6 +2103,10 @@ namespace Ship_Game
             {
                 Ship ship = ships[i];
                 ship.LoyaltyChangeByGift(this, addNotification: false);
+                if (ship.IsConstructor)
+                    ship.AI.OrderScrapShip();
+                if (ship.IsResearchStation)
+                    ship.AI.OrderScuttleShip();
             }
 
             AssimilateTech(target);
