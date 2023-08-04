@@ -514,9 +514,9 @@ namespace Ship_Game
                 ? Level.UpperBound(10)  // Increase distance spread of checks by level
                 : (MaxLevel - Level).Clamped(2, 10); // Decrease spread to focus on quality targets
 
-            if (Level <= 5) // Level 5 or below will go for closest planets to the portal
+            if (Level < 10) // Level 9 or below will go for closest planets to the portal
                 nextPlanet = GetTargetPlanetByDistance(potentialPlanets, currentPlanet.Position, numPlanetsToTake);
-            else // Remnants higher than level 5 will go after high level planets
+            else // Remnants higher than level 9 will go after high level planets
                 nextPlanet = GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
 
             return nextPlanet != null;
@@ -549,9 +549,8 @@ namespace Ship_Game
 
         public float RequiredAttackFleetStr(Empire targetEmpire)
         {
-            float empireMultiplier = targetEmpire.isPlayer ? 1f : 0.4f;
             float strMultiplier = 1 + (int)Owner.Universe.P.Difficulty*0.5f; // 1, 1.5, 2, 2.5
-            float str = targetEmpire.OffensiveStrength * strMultiplier * empireMultiplier;
+            float str = targetEmpire.OffensiveStrength * strMultiplier;
             float effectiveLevel = Level * strMultiplier;
             return str.Clamped(min: Level * Level * 1000 * strMultiplier,
                                max: str * effectiveLevel / MaxLevel);

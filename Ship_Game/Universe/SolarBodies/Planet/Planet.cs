@@ -520,11 +520,11 @@ namespace Ship_Game
         public void ApplyBombEnvEffects(float popKilled, float fertilityDamage, Empire attacker) // added by Fat Bastard
         {
             if (fertilityDamage.AlmostZero())
-                fertilityDamage = popKilled / 4; // Old bomb support
+                fertilityDamage = popKilled * 0.25f; // Old bomb support
 
             fertilityDamage *= attacker.data.BombEnvironmentDamageMultiplier;
-            float netPopKill = PopulationRatio > 0.1f ? popKilled * PopulationRatio.LowerBound(0.2f)  // Harder to kill sparse pop
-                                                      : popKilled; // Unless very small pop left
+            float netPopKill = PopulationRatio > 0.25f ? popKilled * PopulationRatio.LowerBound(0.5f) // Harder to kill sparse pop
+                                                       : popKilled; // Unless very small pop left
 
             Population -= 1000f * netPopKill;
             AddBaseFertility(-fertilityDamage); // environment suffers temp damage
