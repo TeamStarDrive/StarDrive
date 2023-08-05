@@ -197,6 +197,7 @@ namespace Ship_Game
         public float HomeDefenseShipCostMultiplier => DifficultyModifiers.CreditsMultiplier;
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
+        public float MoneySpendOnProductionNow { get; private set; }
 
         [StarData] public readonly EmpireResearch Research;
         public float TotalPopBillion { get; private set; }
@@ -1256,12 +1257,13 @@ namespace Ship_Game
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             UpdateAveragePlanetStorage();
-            Money += NetIncome;
+            AddMoney(NetIncome);
         }
 
         void ResetMoneySpentOnProduction()
         {
             MoneySpendOnProductionThisTurn = 0; // reset for next turn
+            MoneySpendOnProductionNow = 0;
         }
 
         public void UpdateNetPlanetIncomes()
@@ -1377,7 +1379,7 @@ namespace Ship_Game
         public float EstimateNetIncomeAtTaxRate(float rate)
         {
             float plusNetIncome = (rate-data.TaxRate) * NetPlanetIncomes;
-            return GrossIncome + plusNetIncome - AllSpending;
+            return GrossIncome + plusNetIncome - AllSpending - MoneySpendOnProductionNow;
         }
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;
@@ -2435,12 +2437,12 @@ namespace Ship_Game
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
-        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this) * DifficultyModifiers.CreditsMultiplier);
+        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this) * DifficultyModifiers.CreditsMultiplier, spendNow: true);
 
         public void ChargeCreditsOnProduction(QueueItem q, float spentProduction)
         {
             if (q.IsMilitary || q.isShip)
-                ChargeCredits(spentProduction);
+                ChargeCredits(spentProduction, spendNow: false);
         }
 
         public void RefundCreditsPostRemoval(Ship ship, float percentOfAmount = 0.5f)
@@ -2455,23 +2457,31 @@ namespace Ship_Game
                 RefundCredits(b.ActualCost, 0.5f);
         }
 
-        public void ChargeRushFees(float productionCost)
+        public void ChargeRushFees(float productionCost, bool immediate)
         {
-            ChargeCredits(productionCost, rush: true);
+            ChargeCredits(productionCost, immediate, rush: true);
         }
 
-        void ChargeCredits(float cost, bool rush = false)
+        void ChargeCredits(float cost, bool spendNow, bool rush = false)
         {
             float creditsToCharge = rush ? cost  * GlobalStats.Defaults.RushCostPercentage : ProductionCreditCost(cost);
-            MoneySpendOnProductionThisTurn += creditsToCharge;
-            AddMoney(-creditsToCharge);
+            if (spendNow)
+            {
+                MoneySpendOnProductionNow += creditsToCharge;
+                AddMoney(-creditsToCharge);
+            }
+            else
+            {
+                MoneySpendOnProductionThisTurn += creditsToCharge;
+            }
+
             //Log.Info($"Charging Credits from {Name}: {creditsToCharge}, Rush: {rush}"); // For testing
         }
 
         void RefundCredits(float cost, float percentOfAmount)
         {
             float creditsToRefund = cost * DifficultyModifiers.CreditsMultiplier * percentOfAmount;
-            MoneySpendOnProductionThisTurn -= creditsToRefund;
+            MoneySpendOnProductionNow -= creditsToRefund;
             AddMoney(creditsToRefund);
         }
 

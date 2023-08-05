@@ -105,7 +105,7 @@ namespace Ship_Game.GameScreens
                                     text:GameText.NetGain, Fonts.Arial20Bold);
             EmpireNetIncome.DropShadow  = true;
             EmpireNetIncome.DynamicText = DynamicText(
-                ()   => Player.NetIncome,
+                ()   => Player.NetIncome-Player.MoneySpendOnProductionNow,
                 (f) => $"{( f >= 0f ? Localizer.Token(GameText.NetGain) : Localizer.Token(GameText.NetLoss) )} : {f.MoneyString()}");
 
             base.LoadContent();
@@ -158,8 +158,8 @@ namespace Ship_Game.GameScreens
             costs.AddItem(GameText.BuildingMaint, () => -Player.TotalBuildingMaintenance); // "Building Maint."
             costs.AddItem(GameText.ShipMaint, () => -Player.TotalShipMaintenance); // "Ship Maint."
             costs.AddItem(GameText.TroopMaint, () => -Player.GetTroopMaintThisTurn()); // "Troop Maint."
-            costs.AddItem(GameText.ProductionFees, () => -Player.MoneySpendOnProductionThisTurn); // "production costs."
-            costs.SetTotalFooter(() => -Player.AllSpending); // "Total"
+            costs.AddItem(GameText.ProductionFees, () => -(Player.MoneySpendOnProductionThisTurn+Player.MoneySpendOnProductionNow)); // "production costs."
+            costs.SetTotalFooter(() => -(Player.AllSpending+Player.MoneySpendOnProductionNow)); // "Total"
         }
 
         private void IncomesTab(Rectangle incomeRect)
