@@ -144,10 +144,10 @@ namespace Ship_Game.GameScreens.NewGame
 
             foreach (Empire e in UState.Empires)
             {
+                e.InitFleetEmpireStrMultiplier();
                 if (e.IsFaction)
                     continue;
 
-                e.InitFleetEmpireStrMultiplier();
                 Planet homeWorld = e.GetPlanets()[0];
                 SolarSystem[] closestSystems = UState.Systems.Sorted(system => homeWorld.Position.SqDist(system.Position));
 
