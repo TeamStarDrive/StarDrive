@@ -183,7 +183,7 @@
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 3;
                     TrustLostStoleColony = 15;
-                    FleetStrModifier     = 0.5f;
+                    FleetStrModifier     = 0.4f;
                     NumSystemsToSniff    = 4;
                     NumWarTasksPerWar    = 4;
                     WarTaskPriorityMod   = 2;
@@ -265,6 +265,11 @@
 
                 if (empire.Universe.P.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
                     CreditsMultiplier = 0.2f;
+            }
+
+            if (empire.WeAreRemnants)
+            {
+                TaskForceStrength = 1f;
             }
         }
     }
