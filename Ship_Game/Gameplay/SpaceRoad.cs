@@ -160,8 +160,9 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void FillProjectorGaps()
+        public bool FillProjectorGaps()
         {
+            bool requestedFill = false;
             for (int i = 0; i < RoadNodesList.Count; i++)
             {
                 RoadNode node = RoadNodesList[i];
@@ -174,9 +175,12 @@ namespace Ship_Game.Gameplay
                     {
                         Log.Info($"BuildProjector - {Owner.Name} - fill gap at {node.Position}");
                         Owner.AI.AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", Owner));
+                        requestedFill = true;
                     }
                 }
             }
+
+            return requestedFill;
         }
 
         // Need to check that all nodes are needed, since roads are dynamic and there
