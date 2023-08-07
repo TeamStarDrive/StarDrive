@@ -109,6 +109,8 @@ public sealed partial class Empire
 
         foreach (IShipDesign sd in ResourceManager.Ships.Designs)
         {
+            if (sd.Name == "Target Dummy")
+                continue;
             if (hulls != null && !hulls.Contains(sd.Hull))
                 continue;
 

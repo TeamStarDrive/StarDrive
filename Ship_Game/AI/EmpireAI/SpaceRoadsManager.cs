@@ -174,8 +174,10 @@ namespace Ship_Game.AI
                             road.DeployAllProjectors(GetNonDownEmpireRoadNodes());
                             return;
                         case SpaceRoad.SpaceRoadStatus.InProgress: // This is tagged as some projectors are missing
-                            road.FillProjectorGaps();
-                            return;
+                            if (road.FillProjectorGaps())
+                                return;
+
+                            break;
                     }
                 }
             }
