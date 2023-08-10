@@ -333,7 +333,8 @@ namespace Ship_Game.AI
                     || ship.AI.HasPriorityOrder
                     || ship.AI.HasPriorityTarget
                     || !ship.CanBeRefitted
-                    || ship.IsResearchStation)
+                    || ship.IsResearchStation
+                    || ship.ShipData.IsColonyShip)
                 {
                     continue;
                 }
