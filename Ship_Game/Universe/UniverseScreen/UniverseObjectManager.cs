@@ -240,8 +240,8 @@ namespace Ship_Game
                 var objects = Objects.GetItems();
                 Spatial.Update(objects);
             }
-            UpdateAllEmpireContactsAndBorders(FixedSimTime.Zero);
             UpdateAllSensors(FixedSimTime.Zero);
+            UpdateAllEmpireContactsAndBorders(FixedSimTime.Zero);
             UpdateVisibleObjects();
         }
 

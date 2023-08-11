@@ -50,9 +50,9 @@ namespace Ship_Game
                 float currentValue  = FleetStrEmpireMultiplier[targetEmpire.Id];
                 float newValue      = currentValue + value;
                 if (newValue > maxMultiplier)
-                    newValue /= 2; // reached upper limit, restart at lower value
+                    newValue *= 0.5f; // reached upper limit, restart at lower value
 
-                FleetStrEmpireMultiplier[targetEmpire.Id] = newValue.LowerBound(0.5f);
+                FleetStrEmpireMultiplier[targetEmpire.Id] = newValue.LowerBound(WeAreRemnants ? 1 : 0.5f);
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Ship_Game
 
         public void InitFleetEmpireStrMultiplier()
         {
-            if (isPlayer || IsFaction)
+            if (isPlayer || IsFaction && !WeAreRemnants)
                 return;
 
             foreach (Empire e in Universe.MajorEmpires.Filter(e => e != this))

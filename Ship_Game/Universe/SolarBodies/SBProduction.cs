@@ -64,12 +64,12 @@ namespace Ship_Game.Universe.SolarBodies
             if (P.Universe.Debug && rushButton)
                 amount = SurplusThisTurn = 1000;
 
-            return ApplyProductionToQueue(maxAmount: amount, itemIndex, rushFees);
+            return ApplyProductionToQueue(maxAmount: amount, itemIndex, rushFees, immediate: rushButton);
         }
 
         // Spend up to `max` production for QueueItem
         // @return TRUE if QueueItem is complete
-        bool SpendProduction(QueueItem q, float max)
+        bool SpendProduction(QueueItem q, float max, bool chargeFees)
         {
             float needed = q.ProductionNeeded;
             if (needed <= 0f) return true; // complete!
@@ -82,7 +82,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             float netSpend     = spendMax - spend;
             q.ProductionSpent += netSpend; // apply it
-            if (!P.Universe.Debug)
+            if (chargeFees && (!P.Owner.isPlayer || !P.Universe.Debug))
                 Owner.ChargeCreditsOnProduction(q, netSpend);
 
             // if we spent everything, this QueueItem is complete
@@ -92,7 +92,7 @@ namespace Ship_Game.Universe.SolarBodies
         // @note `maxProduction` is a max limit, this method will attempt
         //       to consume no more than `maxAmount` from local production
         // @return true if at least some production was applied
-        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool rushFees)
+        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool rushFees, bool immediate)
         {
             if (maxAmount <= 0.0f || ConstructionQueue.IsEmpty)
                 return false;
@@ -101,11 +101,14 @@ namespace Ship_Game.Universe.SolarBodies
             if (ConstructionQueue.Count > itemIndex)
             {
                 QueueItem item = ConstructionQueue[itemIndex];
-                SpendProduction(item, maxAmount);
-
                 if (rushFees && (!P.OwnerIsPlayer || !P.Universe.Debug))
                 {
-                    Owner.ChargeRushFees(maxAmount);
+                    SpendProduction(item, maxAmount, chargeFees: false);
+                    Owner.ChargeRushFees(maxAmount, immediate);
+                }
+                else
+                {
+                    SpendProduction(item, maxAmount, chargeFees: true);
                 }
             }
 
@@ -239,7 +242,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             float percentToApply = P.RecentCombat ? 0.1f : 1f; // Ongoing combat is hindering logistics
             float limitSpentProd = P.LimitedProductionExpenditure(P.CurrentProductionToQueue);
-            ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0, rushFees: false);
+            ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0, rushFees: false, immediate: false);
             TryPlayerRush();
         }
 

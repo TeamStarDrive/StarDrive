@@ -33,13 +33,9 @@ namespace Ship_Game.AI
                 return;
 
             RunGroundPlanner();
-
-            int buildPlanets = OwnerEmpire.GetBestPortsForShipBuilding(portQuality: 1.00f)?.Count ?? 0;
-
-            NumberOfShipGoals = buildPlanets * 2;
-
-            var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
-
+            int buildPlanets   = OwnerEmpire.GetBestPortsForShipBuilding(portQuality: 1.00f)?.Count ?? 0;
+            NumberOfShipGoals  = buildPlanets * OwnerEmpire.DifficultyModifiers.CombatShipGoalsPerPlanet;
+            var offensiveGoals = SearchForGoals(GoalType.BuildOffensiveShips);
             BuildWarShips(offensiveGoals.Count);
             PrioritizeTasks();
             int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
