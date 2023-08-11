@@ -111,9 +111,15 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 AllowInterEmpireTrade  = OldShip.AllowInterEmpireTrade
             };
 
-            PlanetBuildingAt.Construction.EnqueueRefitShip(qi);
+            if (PlanetBuildingAt.Owner == null || PlanetBuildingAt.Owner != Owner)
+            {
+                OldShip.AI.OrderAwaitOrders();
+                return GoalStep.GoalFailed;
+            }
+
             OldShip.QueueTotalRemoval();
             OldShip = null; // clean up dangling reference to avoid serializing it
+            PlanetBuildingAt.Construction.EnqueueRefitShip(qi);
             return GoalStep.GoToNextStep;
         }
 
