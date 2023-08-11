@@ -51,8 +51,8 @@ public class EmpireInfoDebug : DebugPage
         Text.String($"Threat : av:{eAI.ThreatLevel:#0.00} $:{eAI.EconomicThreat:#0.00} " +
                     $"b:{eAI.BorderThreat:#0.00} e:{eAI.EnemyThreat:#0.00}");
         Text.String("Tax Rate:     "+taxRate.ToString("#.0")+"%");
-        Text.String($"War Maint:  ({(int)e.AI.BuildCapacity}) Shp:{(int)e.TotalWarShipMaintenance} " +
-                    $"Trp:{(int)(e.TotalTroopShipMaintenance + e.TroopCostOnPlanets)}");
+        Text.String($"Shp Maint:  {e.TotalWarShipMaintenance.String(1)}/{e.AI.BuildCapacity.String(1)}" +
+                    $" Trp:{(int)(e.TotalTroopShipMaintenance + e.TroopCostOnPlanets)}");
 
         var warShips = ships.Filter(s => s.DesignRoleType is RoleType.Warship 
                                     or RoleType.WarSupport

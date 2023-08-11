@@ -149,7 +149,7 @@ namespace Ship_Game
                     priority =  totalFreighters < owner.GetPlanets().Count ? 0 : 0.9f * totalFreighters / owner.FreighterCap;
                     break;
                 case QueueItemType.CombatShip:      
-                    priority = (owner.TotalWarShipMaintenance / owner.AI.BuildCapacity.LowerBound(1) * 5);
+                    priority = (owner.TotalWarShipMaintenance / owner.AI.BuildCapacity.LowerBound(1));
                     if (owner.IsMilitarists)
                         priority *= 0.5f;
                     break;
