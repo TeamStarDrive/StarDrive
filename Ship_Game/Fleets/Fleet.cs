@@ -1058,7 +1058,7 @@ namespace Ship_Game.Fleets
 
         Planet TryGetNewTargetPlanetStrike(SolarSystem system, Empire enemy)
         {
-            var planets = enemy.GetPlanets();
+            var planets = enemy?.GetPlanets() ?? new Array<Planet>();
             return planets.Count == 0 ? null : planets.FindMin(p => p.Position.Distance(system.Position));
         }
 
