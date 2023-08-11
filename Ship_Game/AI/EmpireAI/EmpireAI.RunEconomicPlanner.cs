@@ -294,7 +294,7 @@ namespace Ship_Game.AI
             foreach (Relationship rel in OwnerEmpire.AllRelations
                          .Filter(rel => !rel.Them.IsDefeated && rel.Known && rel.Risk.Risk > 0))
             {
-                maxRisk    = Math.Max(maxRisk, rel.Risk.Risk);
+                maxRisk    += rel.Risk.Risk;
                 econRisk   = Math.Max(econRisk, rel.Risk.Expansion);
                 borderRisk = Math.Max(borderRisk, rel.Risk.Border);
                 enemyRisk  = Math.Max(enemyRisk, rel.Risk.KnownThreat);
