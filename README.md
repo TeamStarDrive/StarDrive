@@ -20,7 +20,7 @@ Note that the game now has an auto update logic; You can install the Major Relea
 
 # Mods
 The only mod which currently supports Blackbox is Combined Arms, which is a huge content mod.
-[Combined Arms](https://www.moddb.com/mods/combined-arms)
+[Combined Arms](https://github.com/TeamStarDrive/CombinedArms)
 
 # Community
 Feel free to drop in for questions, bug reports, requests and what not. 
