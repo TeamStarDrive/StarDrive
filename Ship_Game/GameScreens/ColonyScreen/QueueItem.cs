@@ -149,7 +149,7 @@ namespace Ship_Game
                     priority =  totalFreighters < owner.GetPlanets().Count ? 0 : 0.9f * totalFreighters / owner.FreighterCap;
                     break;
                 case QueueItemType.CombatShip:      
-                    priority = (owner.TotalWarShipMaintenance / owner.AI.BuildCapacity.LowerBound(1) * 10);
+                    priority = (owner.TotalWarShipMaintenance / owner.AI.BuildCapacity.LowerBound(1) * 5);
                     if (owner.IsMilitarists)
                         priority *= 0.5f;
                     break;
@@ -160,7 +160,7 @@ namespace Ship_Game
                 switch (QType)
                 {
                     case QueueItemType.Troop:
-                    case QueueItemType.CombatShip: priority *= 0.5f;  break;
+                    case QueueItemType.CombatShip: priority *= 0.25f; PriorityBonus += 0.2f;  break;
                     case QueueItemType.Orbital:    priority *= 0.66f; break;
                 }
             }
@@ -177,6 +177,7 @@ namespace Ship_Game
             if (DisplayText.Contains("Subspace Projector") || Rush)
                 PriorityBonus += 1f;
 
+            PriorityBonus += ProductionSpent / Cost.LowerBound(1);
             return (priority - PriorityBonus);
         }
 

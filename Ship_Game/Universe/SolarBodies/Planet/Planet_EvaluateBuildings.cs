@@ -884,7 +884,7 @@ namespace Ship_Game
                 case ColonyType.Industrial   when b.ProducesProduction:
                 case ColonyType.Research     when b.ProducesResearch:
                 case ColonyType.Military     when b.IsMilitary:  return 0;
-                case ColonyType.Core         when !b.IsMilitary: return NumBuildings * 0.01f;
+                case ColonyType.Core         when !b.IsMilitary: return NumBuildings * 0.05f;
             }
 
             return NumBuildings * 0.1f;
