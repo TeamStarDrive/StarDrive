@@ -150,7 +150,7 @@ namespace Ship_Game.AI
 
         float DetermineBuildCapacity(float treasuryGoal, float risk, float percentOfMoney)
         {
-            float buildBudget    = SetBudgetForArea(percentOfMoney, treasuryGoal, risk);
+            float buildBudget = SetBudgetForArea(percentOfMoney, treasuryGoal, risk);
             return buildBudget;
         }
 

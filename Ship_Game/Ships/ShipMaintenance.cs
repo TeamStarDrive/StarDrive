@@ -74,13 +74,14 @@ namespace Ship_Game.Ships
             }
 
             maint += maint * empire.data.Traits.MaintMod + numTroops * TroopMaint;
-            maint *= empire.Universe.P.ShipMaintenanceMultiplier;
 
             // Projectors do not get any more modifiers
             if (ship.IsSubspaceProjector)
                  return maint;
 
-            // Reduced maintenance for shipyards (sitting ducks, no offense) Shipyards are limited to 3.
+            maint *= empire.Universe.P.ShipMaintenanceMultiplier;
+
+            // Reduced maintenance for shipyards (sitting ducks, no offense) Shipyards are limited to 2.
             if (ship.IsShipyard)
                 maint *= 0.4f;
 
