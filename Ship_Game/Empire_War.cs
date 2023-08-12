@@ -129,12 +129,12 @@ namespace Ship_Game
                          || targetPlanet.ColonyPotentialValue(enemy) / targetPlanet.ColonyPotentialValue(this) > PersonalityModifiers.DoomFleetThreshold))
                 {
                     taskType = MilitaryTask.TaskType.GlassPlanet;
-                    importance = MilitaryTaskImportance.Normal;
+                    importance = MilitaryTaskImportance.Important;
                 }
                 else
                 {
                     taskType = MilitaryTask.TaskType.AssaultPlanet;
-                    importance = MilitaryTaskImportance.Normal;
+                    importance = MilitaryTaskImportance.Important;
                 }
             }
 
