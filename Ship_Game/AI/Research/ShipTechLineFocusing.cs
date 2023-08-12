@@ -239,11 +239,8 @@ namespace Ship_Game.AI.Research
             {
                 if (OwnerEmpire.TryGetTechEntry(shipTech, out TechEntry test))
                 {
-                    // repeater compensator. This needs some deeper logic.
-                    // I current just say if you research one level.
-                    // Dont research any more.
-                    if (test.MaxLevel > 1 && test.Level > 1) continue;
-                    bestShipTechs.Add(test);
+                    if (test.MaxLevel <= 1 || test.Level < test.MaxLevel) 
+                        bestShipTechs.Add(test);
                 }
             }
             return bestShipTechs;
