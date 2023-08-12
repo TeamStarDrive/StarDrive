@@ -6847,9 +6847,9 @@ GameMode:
  SPA: "Modo de juego"
 InTheSandboxGameMode:
  Id: 2106
- ENG: "In the Sandbox game mode, you may win the game by conquering all of your enemies or by uniting the galaxy in alliance. "
+ ENG: "Sandbox game mode is very similar to Random game mode, but starting positions are balanced so each Empire has some room to expand before encountering other Empires."
  RUS: "В режиме \"Песочница\" вы можете выиграть, завоевав всех ваших противников или объединив всю галактику в альянс."
- SPA: "En el modo Espacio cerrado, se gana al conquistar el territorio de todos los enemigos o al unir la galaxia en una única alianza. "
+ SPA: "Режим игры «Песочница» очень похож на режим «Случайная игра», но стартовые позиции сбалансированы, поэтому у каждой Империи есть место для расширения перед встречей с другими Империями."
 InTheAscensionGameMode:
  Id: 2107
  ENG: "In the Ascension game mode, the goal is to be the first race to ascend to Godhood by capturing the Remnant homeworld at the center of the galaxy."
@@ -10424,6 +10424,16 @@ AllowPlayerInterTradeTip:
 LavaPoolTerraformable:
   Id: 4438
   ENG: "Hot Lava surrounds this tile, making habitation impossible. This natural pool can be Terraformed when we have the right technology."
+RandomGameMode:
+ Id: 4439
+ ENG: "Random"
+ RUS: "случайный"
+ SPA: "Aleatorio"    
+InRandomGameMode:
+ Id: 4440
+ ENG: "In Random game mode, you may win the game by conquering all of your enemies or by uniting the galaxy in alliance. Starting positions are randomized."
+ RUS: "В режиме \"Песочница\" вы можете выиграть, завоевав всех ваших противников или объединив всю галактику в альянс. Начальные позиции рандомизированы."
+ SPA: "En el modo Espacio cerrado, se gana al conquistar el territorio de todos los enemigos o al unir la galaxia en una única alianza. Las posiciones iniciales son aleatorias."  
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"
