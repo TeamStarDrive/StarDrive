@@ -44,11 +44,8 @@ namespace Ship_Game.Commands.Goals
             // Fast track to colonize if planet is safe and we have a ready Colony Ship
             FinishedShip = FindIdleColonyShip();
             if (FinishedShip != null)
-            {
                 ChangeToStep(OrderShipToColonize);
-            }
-
-            if (!AIControlsColonization) // Fast track for player colonization
+            else if (!AIControlsColonization) // skip check safe colonization for player colonization
                 ChangeToStep(OrderShipForColonization);
         }
 
@@ -162,7 +159,9 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            FinishedShip = FindIdleColonyShip();
+            if (FinishedShip == null) 
+                FinishedShip = FindIdleColonyShip();
+
             if (FinishedShip != null)
                 return GoalStep.GoToNextStep;
 
@@ -191,8 +190,21 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (FinishedShip != null) // we already have a ship
+            if (FinishedShip == null)
+            {
+                FinishedShip = FindIdleColonyShip();
+                if (FinishedShip != null)
+                {
+                    PlanetBuildingAt?.Construction.Cancel(this);
+                    FinishedShip.DoColonize(TargetPlanet, this);
+                    ChangeToStep(WaitForColonizationComplete);
+                    return GoalStep.GoToNextStep;
+                }
+            }
+            else // we have a ship
+            {
                 return GoalStep.GoToNextStep;
+            }
 
             if (!IsPlanetBuildingColonyShip())
             {
@@ -283,9 +295,6 @@ namespace Ship_Game.Commands.Goals
 
         Ship FindIdleColonyShip()
         {
-            if (FinishedShip != null)
-                return FinishedShip;
-
             foreach (Ship ship in Owner.OwnedShips)
             {
                 if (ship.ShipData.IsColonyShip && !ship.DoingRefit

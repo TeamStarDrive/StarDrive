@@ -6832,13 +6832,13 @@ Opponents:
  SPA: "Rivales"
 Sandbox:
  Id: 2103
- ENG: "Sandbox"
+ ENG: "Balanced Sandbox"
  RUS: "Песочница"
- SPA: "Espacio cerrado"
+ SPA: "Caja de arena equilibrada"
 Ascension:
  Id: 2104
  ENG: "Ascension"
- RUS: "Вознесение"
+ RUS: "Сбалансированная песочница"
  SPA: "Ascensión"
 GameMode:
  Id: 2105
@@ -6847,9 +6847,9 @@ GameMode:
  SPA: "Modo de juego"
 InTheSandboxGameMode:
  Id: 2106
- ENG: "Sandbox game mode is very similar to Random game mode, but starting positions are balanced so each Empire has some room to expand before encountering other Empires."
- RUS: "В режиме \"Песочница\" вы можете выиграть, завоевав всех ваших противников или объединив всю галактику в альянс."
- SPA: "Режим игры «Песочница» очень похож на режим «Случайная игра», но стартовые позиции сбалансированы, поэтому у каждой Империи есть место для расширения перед встречей с другими Империями."
+ ENG: "Balanced Sandbox game mode is very similar to Random Sandbox game mode, but starting positions are balanced so each Empire has some room to expand before encountering other Empires."
+ RUS: "Игровой режим «Сбалансированная песочница» очень похож на игровой режим «Случайная песочница», но стартовые позиции сбалансированы, поэтому у каждой Империи есть пространство для расширения, прежде чем столкнуться с другими Империями."
+ SPA: "El modo de juego Balanced Sandbox es muy similar al modo de juego Random Sandbox, pero las posiciones iniciales están equilibradas para que cada imperio tenga espacio para expandirse antes de encontrarse con otros imperios."
 InTheAscensionGameMode:
  Id: 2107
  ENG: "In the Ascension game mode, the goal is to be the first race to ascend to Godhood by capturing the Remnant homeworld at the center of the galaxy."
@@ -10426,14 +10426,14 @@ LavaPoolTerraformable:
   ENG: "Hot Lava surrounds this tile, making habitation impossible. This natural pool can be Terraformed when we have the right technology."
 RandomGameMode:
  Id: 4439
- ENG: "Random"
- RUS: "случайный"
- SPA: "Aleatorio"    
+ ENG: "Random Sandbox"
+ RUS: "Случайная песочница"
+ SPA: "Caja de arena aleatoria"    
 InRandomGameMode:
  Id: 4440
- ENG: "In Random game mode, you may win the game by conquering all of your enemies or by uniting the galaxy in alliance. Starting positions are randomized."
- RUS: "В режиме \"Песочница\" вы можете выиграть, завоевав всех ваших противников или объединив всю галактику в альянс. Начальные позиции рандомизированы."
- SPA: "En el modo Espacio cerrado, se gana al conquistar el territorio de todos los enemigos o al unir la galaxia en una única alianza. Las posiciones iniciales son aleatorias."  
+ ENG: "In Random Sandbox game mode, you may win the game by conquering all of your enemies or by uniting the galaxy in alliance. Starting positions are randomized."
+ RUS: "В режиме случайной песочницы вы можете выиграть игру, победив всех своих врагов или объединив галактику в альянс. Начальные позиции рандомизированы."
+ SPA: "En el modo de juego Random Sandbox, puedes ganar el juego conquistando a todos tus enemigos o uniendo la galaxia en una alianza. Las posiciones iniciales son aleatorias."  
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"
