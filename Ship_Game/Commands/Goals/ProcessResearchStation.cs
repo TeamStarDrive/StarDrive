@@ -255,8 +255,7 @@ namespace Ship_Game.Commands.Goals
         void CallForHelpIfNeeded()
         {
             SolarSystem system = TargetPlanet?.System ?? TargetSystem;
-            if (ResearchStation.HealthPercent < 0.95f 
-                && ResearchStation.AI.BadGuysNear
+            if (ResearchStation.AI.BadGuysNear
                 && Owner.KnownEnemyStrengthIn(system) > 0
                 && (system.OwnerList.Count == 0 || system.HasPlanetsOwnedBy(Owner))
                 && !Owner.HasWarTaskTargetingSystem(system))
