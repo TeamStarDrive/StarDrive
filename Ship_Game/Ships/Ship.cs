@@ -1773,8 +1773,12 @@ namespace Ship_Game.Ships
             }
 
             int offensiveArea = weaponArea + hangarArea;
-            if (offensiveArea == 0 && (IsDefaultTroopShip || IsSupplyShuttle || DesignRole == RoleName.scout))
+            if (offensiveArea == 0
+                && (IsDefaultTroopShip || IsSupplyShuttle || DesignRole == RoleName.scout
+                    || IsSubspaceProjector || IsFreighter))
+            {
                 return 0;
+            }
 
             if (IsPlatformOrStation) 
                 offense /= 2;
