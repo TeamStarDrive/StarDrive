@@ -6497,7 +6497,7 @@ BB_Tech_Shipyards_Name:
  SPA: "Astilleros"
 BB_Tech_Shipyards_Desc:
  Id: 2036
- ENG: "Dedicated orbital shipbuilding facilities will allow us to streamline our production process and provide large efficiency bonuses to our efforts. When built at a colony, a station will be placed in geosynchronous orbit (limited to 2 Shipyards per colony, 27 total orbital stytuctures). Stations may also be built in deep space. See the help menu for details."
+ ENG: "Dedicated orbital shipbuilding facilities will allow us to streamline our production process and provide large efficiency bonuses to our efforts. When built at a colony, a station will be placed in geosynchronous orbit (limited to 3 Shipyards per colony, 27 total orbital structures). Stations may also be built in deep space. See the help menu for details."
  RUS: "Орбитальные судостроительные верфи позволят нам поставить производственный процесс на поток и значительно повысить его эффективность. При строительстве в колонии станция будет размещена на геостационарной орбите. Также станции можно строить в глубоком космосе. Подробнее см. в меню справки."
  SPA: "Son instalaciones orbitales dedicadas a la construcción de naves que nos permiten racionalizar nuestros procesos de producción y aportan grandes bonificaciones. Si se construyen en una colonia, se situarán en órbita geosincrónica. Estas estaciones también pueden edificarse en el espacio profundo. Encontrarás más detalles en el menú de ayuda."
 BB_Tech_Shipyards_Bonus:

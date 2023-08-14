@@ -56,7 +56,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             PlanetBuildingAt = planetBuildingAt;
             IShipDesign constructor = BuildableShip.GetConstructor(Owner);
 
-            PlanetBuildingAt.Construction.Enqueue(ToBuild.IsResearchStation ? QueueItemType.OrbitalUrgent : QueueItemType.Orbital,
+            PlanetBuildingAt.Construction.Enqueue(ToBuild.IsResearchStation || ToBuild.IsShipyard 
+                ? QueueItemType.OrbitalUrgent : QueueItemType.Orbital,
                 ToBuild, constructor, rush: false, this);
         }
 

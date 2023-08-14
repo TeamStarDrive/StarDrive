@@ -87,6 +87,31 @@ namespace Ship_Game
 
         float StepXpTrigger => (ShipRole.GetMaxExpValue() * StoryStep * StoryStep * 0.5f).UpperBound(ActivationXpNeeded);
         float ProductionLimit => 300 * Level * Level * ((int)Universe.P.Difficulty + 1);  // Level 20 - 480K 
+        public float ExpansionRisk => 0; // Might change this based on future story
+        public float BorderRisk(Empire empire)
+        {
+            if (!Activated || Owner.IsDefeated || !GetPortals(out Ship[] portals))
+                return 0;
+
+            int numCloseSystems = portals.Sum(p => p.System.FiveClosestSystems.Sum(s => s.HasPlanetsOwnedBy(empire) ? 1 : 0));
+            return numCloseSystems * 0.05f;
+        }
+
+        public float ThreatRisk(Empire empire)
+        {
+            if (!Activated || Owner.IsDefeated)
+                return 0;
+
+            float risk = Level * 0.025f * ((int)Universe.P.Difficulty + 1);
+            if (Story == RemnantStory.AncientRaidersRandom)
+                return risk;
+
+            if (FindValidTarget(out Empire target) && target == empire)
+                return risk * 2;
+
+            return risk;
+        }
+
 
         void Activate()
         {
