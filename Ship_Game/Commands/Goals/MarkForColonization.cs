@@ -198,7 +198,7 @@ namespace Ship_Game.Commands.Goals
                     PlanetBuildingAt?.Construction.Cancel(this);
                     FinishedShip.DoColonize(TargetPlanet, this);
                     ChangeToStep(WaitForColonizationComplete);
-                    return GoalStep.GoToNextStep;
+                    return GoalStep.TryAgain;
                 }
             }
             else // we have a ship

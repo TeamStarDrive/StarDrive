@@ -634,7 +634,7 @@ namespace Ship_Game
             systemName         = "";
 
             if (!GetRadiatingStars(u, out SolarSystem[] systems)) // Prefer stars which emit radiation
-                if (!GetLoneSystem(u, out system)) // Try a lone system
+                if (!GetLoneSystem(u, out system, includeReseachable: true)) // Try a lone system
                     if (!GetUnownedNormalSystems(u, out systems)) // Fallback to any unowned system
                         return false; // Could not find a spot
 
