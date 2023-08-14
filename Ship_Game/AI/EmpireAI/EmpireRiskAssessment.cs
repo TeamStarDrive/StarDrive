@@ -29,10 +29,13 @@ namespace Ship_Game.AI
 
         public void UpdateRiskAssessment(Empire us)
         {
+            if (Them == us.Universe.Unknown)
+                return;
+
             Expansion   = ExpansionRiskAssessment(us);
             Border      = BorderRiskAssessment(us);
             KnownThreat = RiskAssessment(us);
-            Risk        = (Expansion + Border + KnownThreat) / 3;
+            Risk        = (Expansion + Border + KnownThreat) * 0.334f;
             MaxRisk     = MathExt.Max3(Expansion, Border, KnownThreat);
 
             if (float.IsNaN(Risk))
@@ -51,28 +54,15 @@ namespace Ship_Game.AI
             if (Relation.Treaty_OpenBorders)
                 return 0;
 
-            float expansion = us.GetExpansionRatio() / 4;
+            if (Them.WeArePirates)
+                return Them.Pirates.Level * 0.1f;
 
-            if (Them.IsFaction || us.IsFaction)
-            {
-                if (us.AI.CreditRating > 0.75f && (Relation.AtWar || Relation.IsHostile))
-                {
-                    float strengthNeeded = us.AI.GetAvgStrengthNeededByExpansionTasks(Them);
+            if (Them.WeArePirates)
+                return Them.Remnants.ExpansionRisk;
 
-                    if (strengthNeeded > 0)
-                    {
-                        float currentStrength = us.ShipsReadyForFleet?.AccumulatedStrength ?? 1;
-                        float currentThreat = us.AI.ThreatLevel;
-                        float possibleStrength = currentStrength / currentThreat;
-                        if (possibleStrength > strengthNeeded)
-                            return 10;
-                    }
-                }
-                return 0;
-            }
-
+            float expansion = us.GetExpansionRatio() * 0.25f;
             float expansionRatio = Them.ExpansionScore / us.ExpansionScore.LowerBound(1);
-            float risk = (expansionRatio).LowerBound(0);
+            float risk = expansionRatio.LowerBound(0);
             return (risk + expansion) / 2;
         }
 
@@ -83,12 +73,18 @@ namespace Ship_Game.AI
         /// </summary>
         private float BorderRiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.IsDefeated || us.NumSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == us.Universe.Unknown)
+            if (!Relation.Known
+                || Them.WeArePirates
+                || Relation.Treaty_OpenBorders
+                || Them.IsDefeated
+                || us.NumSystems < 1
+                || Them.GetOwnedSystems().Count == 0 || Them == us.Universe.Unknown)
+            {
                 return 0;
+            }
 
-            // if we have an open borders treaty or they are a faction return 0
-            if (Relation.Treaty_OpenBorders || Them.IsFaction)
-                return 0;
+            if (Them.WeAreRemnants)
+                return Them.Remnants.BorderRisk(us);
 
             float ourOffensiveRatio = us.GetWarOffensiveRatio();
             float distanceToNearest = float.MaxValue;
@@ -119,26 +115,30 @@ namespace Ship_Game.AI
 
         private float RiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.IsDefeated || Them == us.Universe.Unknown)
+            if (!Relation.Known || Them.IsDefeated || Relation.Treaty_Alliance)
                 return 0;
-            if (Them.IsFaction || Relation.Treaty_Alliance)
+
+            if (Them.WeAreRemnants && Them.Remnants.Activated)
+                return Them.Remnants.ThreatRisk(us);
+
+            if (Them.IsFaction)
                 return 0;
 
             var riskBase = us.GetWarOffensiveRatio();
             float ourScore = us.TotalScore;
             float theirScore = Them.TotalScore;
-            float risk = 0;
-            if (ourScore != 0f) // avoid Div by zero
-                risk = theirScore / ourScore;
-            risk = (riskBase + risk) / 2;
+            float risk = theirScore / ourScore.LowerBound(1);
+            risk = (riskBase + risk) * 0.5f;
             if (!Relation.PreparingForWar && !Relation.AtWar)
             {
                 risk = (risk - 0.5f).LowerBound(0);
                 risk = (risk - Relation.Trust * 0.01f).LowerBound(0);
-                risk /= (!Relation.PreparingForWar && Relation.Treaty_NAPact) ? 2 : 1;
+                risk *= (!Relation.PreparingForWar && Relation.Treaty_NAPact) ? 0.5f : 1;
             }
             else
+            {
                 risk = 10;
+            }
 
             return risk; 
         }
