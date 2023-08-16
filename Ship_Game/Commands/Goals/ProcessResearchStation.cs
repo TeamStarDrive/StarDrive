@@ -17,9 +17,10 @@ namespace Ship_Game.Commands.Goals
         [StarData] public Vector2 StaticBuildPos { get; set; }
         [StarData] IShipDesign StationToBuild; // specific station to build by player from deep space build menu
         [StarData] readonly Vector2 DynamicBuildPos;
-
+        [StarData] bool InSupplyChain; // This station started getting production
+        [StarData] int NumSupplyGoals = 1;
+        [StarData] float SupplyDificit;
         Ship ResearchStation => TargetShip;
-
 
         public override bool IsResearchStationGoal(ExplorableGameObject body) 
             => body != null && (TargetPlanet == body || TargetSystem == body);
@@ -144,10 +145,10 @@ namespace Ship_Game.Commands.Goals
             // Factions do not research and pirate owners will set scuttle (see PiratePostChangeLoyalty)
             if (!Owner.IsFaction)
             {
+                AddResearch(ResearchStation.GetProduction());
                 CreateSupplyGoalIfNeeded();
                 RefitifNeeded();
                 CallForHelpIfNeeded();
-                AddResearch(ResearchStation.GetProduction());
             }
 
             return GoalStep.TryAgain;
@@ -158,6 +159,7 @@ namespace Ship_Game.Commands.Goals
             if (availableProduction <= 0)
             {
                 AddResearchStationPlan(Plan.ResearchStationNoSupply);
+                AddSupplyDeficit(TotalProductionConsumedPerTurn);
                 return;
             }
 
@@ -169,8 +171,11 @@ namespace Ship_Game.Commands.Goals
 
             float upperbound = availableProduction / ProductionPerResearch;
             float researchToAdd = ResearchStation.ResearchPerTurn.UpperBound(upperbound);
-            ResearchStation.UnloadProduction(researchToAdd * ProductionPerResearch);
+            float prodToConsume = researchToAdd * ProductionPerResearch;
+            InSupplyChain = true;
+            ResearchStation.UnloadProduction(prodToConsume);
             Owner.Research.AddResearchStationResearchPerTurn(researchToAdd);
+            AddSupplyDeficit(-prodToConsume);
             if (ResearchStation.AI.OrderQueue.PeekFirst?.Plan != Plan.ResearchStationResearching)
                 AddResearchStationPlan(Plan.ResearchStationResearching);
         }
@@ -180,8 +185,11 @@ namespace Ship_Game.Commands.Goals
             if (ResearchStation.Supply.InTradeBlockade)
                 return;
 
-            if (NeedsProduction && !Owner.AI.HasGoal(g => g.IsSupplyingGoodsToStationStationGoal(ResearchStation)))
+            if (NeedsProduction
+                && Owner.AI.CountGoals(g => g.IsSupplyingGoodsToStationStationGoal(ResearchStation)) < NumSupplyGoals)
+            {
                 Owner.AI.AddGoal(new SupplyGoodsToStation(Owner, ResearchStation, Goods.Production));
+            }
         }
 
         void RefitifNeeded()
@@ -264,7 +272,20 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
+        void AddSupplyDeficit(float value)
+        {
+            if (value < 0)
+                InSupplyChain = true;
+
+            if (InSupplyChain)
+            {
+                SupplyDificit = (SupplyDificit + value).LowerBound(0);
+                NumSupplyGoals = ((int)Math.Ceiling(SupplyDificit / Owner.AverageFreighterCargoCap)).Clamped(1,10);
+            }
+        }
+
         float ProductionPerResearch => GlobalStats.Defaults.ResearchStationProductionPerResearch;
+        float TotalProductionConsumedPerTurn => ResearchStation.ResearchPerTurn * ProductionPerResearch;
         bool ResearchingStar => TargetPlanet == null;
         bool ResearchingPlanet => !ResearchingStar;
         bool NeedsProduction => (ResearchStation.CargoSpaceFree > Owner.AverageFreighterCargoCap 
