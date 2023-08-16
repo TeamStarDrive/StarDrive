@@ -182,6 +182,17 @@ public sealed partial class ThreatMatrix
     }
 
     /// <summary>
+    /// Gets all Rival Specific Faction clusters with a station
+    /// </summary>
+    public ThreatCluster[] GetPirateBases(Empire pirates)
+    {
+        if (pirates.WeArePirates)
+            return RivalClusters.Filter(c => c.HasStarBases && c.Loyalty == pirates);
+
+        return new ThreatCluster[0];
+    }
+
+    /// <summary>
     /// Gets all systems where rival hostile factions exist
     /// </summary>
     public ICollection<SolarSystem> GetAllSystemsWithFactions()

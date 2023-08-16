@@ -363,6 +363,7 @@ namespace Ship_Game
             switch (P.Mode)
             {
                 default:
+                case GameMode.Random:        return GameText.RandomGameMode;
                 case GameMode.Sandbox:       return GameText.Sandbox;
                 case GameMode.Elimination:   return GameText.CapitalElimination;
                 case GameMode.Corners:       return GameText.Corners;
@@ -377,6 +378,7 @@ namespace Ship_Game
             switch (P.Mode)
             {
                 default:
+                case GameMode.Random:        return GameText.InRandomGameMode;
                 case GameMode.Sandbox:       return GameText.InTheSandboxGameMode;
                 case GameMode.Elimination:   return GameText.InTheCapitalEliminationGame;
                 case GameMode.Corners:       return GameText.CornersIsARaceMatch;
@@ -637,7 +639,7 @@ namespace Ship_Game
         
         public enum GameMode
         {
-            Sandbox, SmallClusters, BigClusters, Corners, Elimination, Ring
+            Random, Sandbox, SmallClusters, BigClusters, Corners, Elimination, Ring
         }
 
         public enum StarsAbundance

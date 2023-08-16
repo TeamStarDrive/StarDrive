@@ -184,7 +184,7 @@
                     RemnantNumBombers    = 1.25f;
                     BaseColonyGoals      = 5;
                     ColonyGoalMultiplier = 1;
-                    StandByColonyShips   = 3;
+                    StandByColonyShips   = 4;
                     TrustLostStoleColony = 15;
                     FleetStrModifier     = 0.4f;
                     NumSystemsToSniff    = 4;
@@ -229,7 +229,7 @@
                     RemnantNumBombers    = 1.5f;
                     BaseColonyGoals      = 6;
                     ColonyGoalMultiplier = 1;
-                    StandByColonyShips   = 3;
+                    StandByColonyShips   = 5;
                     TrustLostStoleColony = 20;
                     FleetStrModifier     = 0.5f;
                     NumSystemsToSniff    = 5;

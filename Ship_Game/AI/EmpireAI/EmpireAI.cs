@@ -330,11 +330,13 @@ namespace Ship_Game.AI
             {
                 Ship ship = offPool[i];
                 if (ship.AI.BadGuysNear
+                    || ship.IsFreighter
                     || ship.AI.HasPriorityOrder
                     || ship.AI.HasPriorityTarget
                     || !ship.CanBeRefitted
                     || ship.IsResearchStation
-                    || ship.ShipData.IsColonyShip)
+                    || ship.ShipData.IsColonyShip
+                    || ship.IsConstructor)
                 {
                     continue;
                 }

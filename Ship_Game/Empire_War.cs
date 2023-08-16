@@ -120,7 +120,7 @@ namespace Ship_Game
         {
             // todo advanced mission types per personality or prepare for war strategy
             MilitaryTask.TaskType taskType = MilitaryTask.TaskType.StrikeForce;
-            MilitaryTaskImportance importance = MilitaryTaskImportance.Normal;
+            MilitaryTaskImportance importance = MilitaryTaskImportance.Important;
             if (IsAlreadyStriking())
             {
                 if (CanBuildBombers

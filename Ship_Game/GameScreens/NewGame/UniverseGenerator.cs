@@ -277,11 +277,12 @@ namespace Ship_Game.GameScreens.NewGame
             step.Start(Systems.Count);
             switch (Mode)
             {
-                case RaceDesignScreen.GameMode.Corners:       GenerateCornersGameMode(step); break;
-                case RaceDesignScreen.GameMode.BigClusters:   GenerateBigClusters(step);     break;
-                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters(step);   break;
-                case RaceDesignScreen.GameMode.Ring:          GenerateRingMap(step);         break;
-                default:                                      GenerateRandomMap(step);       break;
+                case RaceDesignScreen.GameMode.Corners:       GenerateCornersGameMode(step);  break;
+                case RaceDesignScreen.GameMode.BigClusters:   GenerateBigClusters(step);      break;
+                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters(step);    break;
+                case RaceDesignScreen.GameMode.Ring:          GenerateRingMap(step);          break;
+                case RaceDesignScreen.GameMode.Sandbox:       GenerateRandomMap(step, false); break;
+                default:                                      GenerateRandomMap(step, true);  break;
             }
         }
 
@@ -329,12 +330,12 @@ namespace Ship_Game.GameScreens.NewGame
             }
         }
 
-        void SolarSystemSpacing(ProgressCounter step)
+        void SolarSystemSpacing(ProgressCounter step, bool randomStartingPos)
         {
             foreach (SystemPlaceHolder sys in Systems)
             {
                 float spacing = 350000f;
-                if (sys.IsStartingSystem)
+                if (sys.IsStartingSystem && !randomStartingPos)
                     continue; // We created starting systems before
 
                 if (sys.DontStartNearPlayer)
@@ -463,13 +464,17 @@ namespace Ship_Game.GameScreens.NewGame
             return sysPos;
         }
 
-        void GenerateRandomMap(ProgressCounter step)
+        void GenerateRandomMap(ProgressCounter step, bool randomStartingPos)
         {
-            // FB - we are using the sector creation only for starting systems here. the rest will be created randomly
-            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors((NumOpponents + 1).LowerBound(9));
-            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
-            GenerateClustersStartingSystems(step, sectors);
-            SolarSystemSpacing(step);
+            if (!randomStartingPos)
+            {
+                // FB - we are using the sector creation only for starting systems here. the rest will be created randomly
+                (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors((NumOpponents + 1).LowerBound(9));
+                Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
+                GenerateClustersStartingSystems(step, sectors);
+            }
+
+            SolarSystemSpacing(step, randomStartingPos);
         }
 
         void GenerateRingMap(ProgressCounter step)
