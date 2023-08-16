@@ -248,17 +248,20 @@ namespace Ship_Game
             return empire.DifficultyModifiers.DataVisibleToPlayer;
         }
 
-        public static bool GetLoneSystem(UniverseState u, out SolarSystem system)
+        public static bool GetLoneSystem(UniverseState u, out SolarSystem system, bool includeReseachable)
         {
-            system = u.Random.ItemFilter(u.Systems, s => s.RingList.Count == 0 && !s.PiratePresence);
+            system = u.Random.ItemFilter(u.Systems, s => s.RingList.Count == 0 
+                                                         && !s.PiratePresence
+                                                         && includeReseachable || !s.IsResearchable);
             return system != null;
         }
 
-        // This also Filters Researchable systems (but not planets)
+        // This also Filters Researchable systems
         public static bool GetUnownedNormalSystems(UniverseState u, out SolarSystem[] systems)
         {
             systems = u.Systems.Filter(s => s.OwnerList.Count == 0
                                          && s.RingList.Count > 0
+                                         && !s.IsResearchable
                                          && !s.PiratePresence
                                          && !s.PlanetList.Any(p => p.IsResearchable)
                                          && !s.ShipList.Any(g => g.IsGuardian));

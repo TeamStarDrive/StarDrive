@@ -130,12 +130,13 @@ namespace Ship_Game.Commands.Goals
                 possibleValue /= Owner.WeightedCenter.Distance(possiblePos).LowerBound(1);
             }
 
+            possibleValue *= (int)possibleTask.Importance;
             return defenseValue > possibleValue;
         }
 
         bool ShouldConsiderDefendingAlly(SolarSystem system, Empire ally)
         {
-            float  priority = (system.DefenseTaskPriority() * 0.2f).Clamped(0.1f, 1f);  // lower is more important
+            float priority = (system.DefenseTaskPriority() * 0.2f).Clamped(0.1f, 1f);  // lower is more important
             float distanceToThem = system.Position.Distance(ally.WeightedCenter);
             float distanceToUs   = system.Position.Distance(Owner.WeightedCenter) * priority;
             float ratio = distanceToUs / distanceToThem.LowerBound(1);

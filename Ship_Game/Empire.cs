@@ -439,6 +439,9 @@ namespace Ship_Game
 
             foreach (Ship s in OwnedShips)
             {
+                if (s.IsResearchStation)
+                    s.QueueTotalRemoval();
+
                 s.LoyaltyChangeFromBoarding(rebels, false);
             }
             EmpireShips.Clear();

@@ -315,7 +315,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship idleFreighter = ships[i];
-                CheckForRefitFreighter(idleFreighter, 20, betterFreighter);
+                CheckForRefitFreighter(idleFreighter, 25, betterFreighter);
             }
         }
 

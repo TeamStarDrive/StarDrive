@@ -2330,6 +2330,7 @@ namespace Ship_Game.Fleets
             float speedSTL = STLSpeedLimit; // if these are 0, there is no cap
             float speedFTL = FTLSpeedLimit;
             float relevantSpeedLimit = ship.IsInWarp ? FTLSpeedLimit : STLSpeedLimit;
+            float angleDiff = desiredFormationPos.AngleToTargetWithFacing(ship.Position, ship.RotationDegrees);
 
             // Outside of fleet formation
             if (distToWP > distSquadPosToWP + ship.CurrentVelocity + 75f)
@@ -2343,36 +2344,32 @@ namespace Ship_Game.Fleets
             {
                 (speedSTL, speedFTL) = (STLSpeedLimit*2, FTLSpeedLimit*2);
             }
-            // formation is behind us? We are going way too fast
+            // We are close to formation
+            else if (distToSquadPos + ship.CurrentVelocity < relevantSpeedLimit*2)
+            {
+                if (distToSquadPos > relevantSpeedLimit * 0.5)
+                {
+                    int speedAjustDir = distToWP < distSquadPosToWP ? -1 : 1;
+                    speedSTL = (STLSpeedLimit + speedAjustDir * distToSquadPos).LowerBound(50);
+                    speedFTL = (FTLSpeedLimit + speedAjustDir * distToSquadPos).LowerBound(Ship.LightSpeedConstant);
+                }
+            }
+            // We are far from formation
             else if (distToWP < distSquadPosToWP)
             {
-                // SLOW DOWN MAN! but never slower than 25% of fleet speed
-                speedSTL = Math.Max(STLSpeedLimit - distToSquadPos*2, STLSpeedLimit * 0.25f);
-                speedFTL = Math.Max(FTLSpeedLimit - distToSquadPos*2, FTLSpeedLimit * 0.25f);
-            }
-            // CLOSER TO FORMATION: we are too far from desired position
-            else if (distToSquadPos > relevantSpeedLimit)
-            {
-                // hurry up! set a really high speed
-                // but at least fleet speed, not less in case we get really close
-                speedSTL = Math.Max(distToSquadPos - STLSpeedLimit, STLSpeedLimit);
-                speedFTL = Math.Max(distToSquadPos - FTLSpeedLimit, FTLSpeedLimit);
-            }
-            // getting close to our formation pos
-            else if (distToSquadPos < relevantSpeedLimit * 0.5f)
-            {
-                // we are in formation, CRUISING SPEED
-                if (distToSquadPos < 25f)
+                if (distToSquadPos > 100_000 && angleDiff > 45)
                 {
-                    (speedSTL, speedFTL) = (STLSpeedLimit, FTLSpeedLimit);
+                    // We are ahead, but at a wide angle that allows us to continue full speed
+                    (speedSTL, speedFTL) = (ship.MaxSTLSpeed, ship.MaxFTLSpeed);
                 }
-                // try to slowly reach final pos
                 else
                 {
-                    speedSTL = STLSpeedLimit + distToSquadPos;
-                    speedFTL = FTLSpeedLimit + distToSquadPos;
+                    // SLOW DOWN MAN! but never slower than 25% of fleet speed
+                    speedSTL = Math.Max(STLSpeedLimit - distToSquadPos * 2, STLSpeedLimit * 0.25f);
+                    speedFTL = Math.Max(FTLSpeedLimit - distToSquadPos * 2, FTLSpeedLimit * 0.25f);
                 }
             }
+
             return (speedSTL, speedFTL);
         }
 

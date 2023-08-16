@@ -87,6 +87,31 @@ namespace Ship_Game
 
         float StepXpTrigger => (ShipRole.GetMaxExpValue() * StoryStep * StoryStep * 0.5f).UpperBound(ActivationXpNeeded);
         float ProductionLimit => 300 * Level * Level * ((int)Universe.P.Difficulty + 1);  // Level 20 - 480K 
+        public float ExpansionRisk => 0; // Might change this based on future story
+        public float BorderRisk(Empire empire)
+        {
+            if (!Activated || Owner.IsDefeated || !GetPortals(out Ship[] portals))
+                return 0;
+
+            int numCloseSystems = portals.Sum(p => p.System.FiveClosestSystems.Sum(s => s.HasPlanetsOwnedBy(empire) ? 1 : 0));
+            return numCloseSystems * 0.05f;
+        }
+
+        public float ThreatRisk(Empire empire)
+        {
+            if (!Activated || Owner.IsDefeated)
+                return 0;
+
+            float risk = Level * 0.025f * ((int)Universe.P.Difficulty + 1);
+            if (Story == RemnantStory.AncientRaidersRandom)
+                return risk;
+
+            if (FindValidTarget(out Empire target) && target == empire)
+                return risk * 2;
+
+            return risk;
+        }
+
 
         void Activate()
         {
@@ -308,8 +333,8 @@ namespace Ship_Game
                 case RemnantStory.AncientBalancers:     target = FindStrongestByAveragePopAndStr(empiresList, 1.25f); break;
                 case RemnantStory.AncientExterminators: target = FindWeakestEmpire(empiresList);                      break;
                 case RemnantStory.AncientRaidersRandom: target = Owner.Random.Item(empiresList);                      break;
-                case RemnantStory.AncientPeaceKeepers:  target = FindStrongestEmpireAtWar(empiresList);               break;
-                case RemnantStory.AncientWarMongers:    target = FindStrongestEmpireAtPeace(empiresList);             break;
+                case RemnantStory.AncientPeaceKeepers:  target = FindRandomEmpireAtWar(empiresList);                  break;
+                case RemnantStory.AncientWarMongers:    target = FindRandomEmpireAtPeace(empiresList);                break;
             }
 
             return target != null;
@@ -327,22 +352,22 @@ namespace Ship_Game
             return expectedTarget == currentTarget;
         }
 
-        Empire FindStrongestEmpireAtPeace(Empire[] empiresList)
+        Empire FindRandomEmpireAtPeace(Empire[] empiresList)
         {
             var potentialTargets = empiresList.Filter(e => !e.IsAtWarWithMajorEmpire);
             if (potentialTargets.Length == 0)
-                return Universe.Player;
+                return null;
 
-            return FindStrongestByAveragePopAndStr(potentialTargets);
+            return Owner.Random.Item(potentialTargets); ;
         }
 
-        Empire FindStrongestEmpireAtWar(Empire[] empiresList)
+        Empire FindRandomEmpireAtWar(Empire[] empiresList)
         {
             var potentialTargets = empiresList.Filter(e => e.IsAtWarWithMajorEmpire);
             if (potentialTargets.Length == 0)
-                return null;
+                return Universe.Player;
 
-            return FindStrongestByAveragePopAndStr(potentialTargets);
+            return Owner.Random.Item(potentialTargets); ;
         }
 
         Empire FindStrongestByAveragePopAndStr(Empire[] empiresList, float ratioOverAverageThreshold = 1f)
@@ -634,7 +659,7 @@ namespace Ship_Game
             systemName         = "";
 
             if (!GetRadiatingStars(u, out SolarSystem[] systems)) // Prefer stars which emit radiation
-                if (!GetLoneSystem(u, out system)) // Try a lone system
+                if (!GetLoneSystem(u, out system, includeReseachable: true)) // Try a lone system
                     if (!GetUnownedNormalSystems(u, out systems)) // Fallback to any unowned system
                         return false; // Could not find a spot
 

@@ -540,7 +540,8 @@ namespace Ship_Game.Gameplay
             if (us.IsDefeated)
                 return;
 
-            Risk.UpdateRiskAssessment(us);
+            if (!us.IsFaction)
+                Risk.UpdateRiskAssessment(us);
 
             bool noAttackPlayer = GlobalStats.RestrictAIPlayerInteraction && them.isPlayer;
             if (noAttackPlayer)
