@@ -28,6 +28,10 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
+        /// <summary>
+        /// Assault a pirate base. If no base is provided (null), it will use the closest 
+        /// pirate base to empire center.
+        /// </summary>
         public AssaultPirateBase(Empire e, Empire pirateEmpire, Ship targetBase = null) : this(e)
         {
             TargetEmpire = pirateEmpire;
@@ -44,9 +48,7 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.GetBases(out Array<Ship> bases))
                 return GoalStep.GoalFailed;
 
-            EmpireAI ai = Owner.AI;
-            var filteredBases = bases.Filter(s => !ai.HasAssaultPirateBaseTask(s, out _));
-
+            var filteredBases = bases.Filter(s => !Owner.AI.HasAssaultPirateBaseTask(s, out _));
             if (!GetClosestBaseToCenter(filteredBases, out Ship closestPirateBase))
                 return GoalStep.GoalFailed;
 
@@ -84,7 +86,7 @@ namespace Ship_Game.Commands.Goals
         bool GetClosestBaseToCenter(Ship[] basesList, out Ship closestPirateBase)
         {
             Vector2 empireCenter = Owner.WeightedCenter;
-            closestPirateBase = basesList.FindMin(b => b.Position.Distance(empireCenter));
+            closestPirateBase = basesList.FindMin(b => b.Position.SqDist(empireCenter));
             return closestPirateBase != null;
         }
     }

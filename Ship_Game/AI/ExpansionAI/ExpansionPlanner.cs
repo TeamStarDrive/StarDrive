@@ -121,17 +121,17 @@ namespace Ship_Game.AI.ExpansionAI
             if (Owner.isPlayer && !Owner.AutoColonize)
                 return;
 
-            float popRatio = Owner.TotalPopBillion / Owner.MaxPopBillion.LowerBound(1);
             int ourPlanetsNum = Owner.GetPlanets().Count;
-            if (!CanConsiderExpanding(popRatio, ourPlanetsNum))
-                return;
-
             if (!Owner.isPlayer)
             {
                 var goals = Owner.AI.CountGoals(g => g.Type == GoalType.StandbyColonyShip);
-                if (goals < Owner.DifficultyModifiers.StandByColonyShips.UpperBound(ourPlanetsNum-1))
+                if (goals < Owner.DifficultyModifiers.StandByColonyShips.UpperBound(ourPlanetsNum - 1))
                     Owner.AI.AddGoal(new StandbyColonyShip(Owner));
             }
+
+            float popRatio = Owner.TotalPopBillion / Owner.MaxPopBillion.LowerBound(1);
+            if (!CanConsiderExpanding(popRatio, ourPlanetsNum))
+                return;
 
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
             int desiredGoals = DesiredColonyGoals();
@@ -197,8 +197,8 @@ namespace Ship_Game.AI.ExpansionAI
             return s.IsExploredBy(Owner)
                 && !s.HasPlanetsOwnedBy(Owner)
                 && s.PlanetList.Any(p => p.Habitable)
-                && Owner.KnownEnemyStrengthIn(s) <= Owner.OffensiveStrength * 0.334f
-                && !s.OwnerList.Any(o=> !o.IsFaction && Owner.IsAtWarWith(o));
+                && !s.OwnerList.Any(o => !o.IsFaction && Owner.IsAtWarWith(o))
+                && StrongEnoughToClaim(s);
         }
 
         bool CanBeColonized(Planet p)
@@ -225,10 +225,17 @@ namespace Ship_Game.AI.ExpansionAI
             foreach (SolarSystem system in ownedSystems)
             {
                 foreach (Planet p in system.PlanetList)
-                    if (CanBeColonized(p) && Owner.KnownEnemyStrengthIn(p.System) <= Owner.OffensiveStrength)
+                    if (CanBeColonized(p) && StrongEnoughToClaim(p.System))
                         potentialPlanets.Add(p);
             }
             return potentialPlanets;
+        }
+
+        bool StrongEnoughToClaim(SolarSystem s)
+        {
+            return Owner.KnownEnemyStrengthIn(s) 
+                * Owner.GetFleetStrEmpireMultiplier(Owner.AI.ThreatMatrix.GetStrongestHostileAt(s))
+                            <= Owner.OffensiveStrength;
         }
 
         /// Go through the filtered planet list and rank them.

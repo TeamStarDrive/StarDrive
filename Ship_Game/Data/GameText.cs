@@ -4501,6 +4501,13 @@ namespace Ship_Game
         AllowPlayerInterTradeTitle = 4436,
         /// <summary>Allows your idle freighters to transfer</summary>
         AllowPlayerInterTradeTip = 4437,
+        /// <summary>Hot Lava surrounds this tile</summary>
+        LavaPoolTerraformable = 4438,
+        /// <summary>Random</summary>
+        RandomGameMode = 4439,
+        /// <summary>in Random game mode, you may win the</summary>
+        InRandomGameMode = 4440,
+
 
 
 

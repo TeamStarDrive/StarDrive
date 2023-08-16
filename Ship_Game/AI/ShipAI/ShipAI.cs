@@ -874,7 +874,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < enemies.Length; ++i)
             {
                 var enemy = (Ship)enemies[i];
-                if (!enemy.Active || enemy.Dying || enemy.BaseStrength == 0)
+                if (!enemy.Active || enemy.Dying || enemy.BaseStrength == 0 || enemy.IsFreighter)
                     continue;
 
                 projector.PlayerProjectorHasSeenEmpires.SetSeen(enemy.Loyalty, time);

@@ -25,7 +25,7 @@ public class UniverseParams
     
     [StarData] public int NumSystems;
     [StarData] public int NumOpponents;
-    [StarData] public GameMode Mode = GameMode.Sandbox;
+    [StarData] public GameMode Mode = GameMode.Random;
     [StarData(DefaultValue=1f)] public float Pace = 1f;
     [StarData(DefaultValue=1f)] public float StarsModifier = 1f;
 

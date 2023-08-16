@@ -66,6 +66,8 @@ namespace Ship_Game
         int PaymentPeriodTurns                 => Owner.data.PiratePaymentPeriodTurns;
         public bool PaidBy(Empire victim)      => !Owner.IsAtWarWith(victim);
 
+        float PirateBaseDetectionChance => Level * 4 + ((Owner.Universe.StarDate - 1000) * 0.025f);
+
         public void AddGoalDirectorPayment(Empire victim) => 
             AddGoal(victim, GoalType.PirateDirectorPayment, null);
 
@@ -400,7 +402,7 @@ namespace Ship_Game
 
         bool BuildBaseInLoneSystem(UniverseState u, int level)
         {
-            if (GetLoneSystem(u, out SolarSystem system))
+            if (GetLoneSystem(u, out SolarSystem system, includeReseachable: false))
             {
                 Vector2 pos = system.Position.GenerateRandomPointOnCircle((system.Radius * 0.75f).LowerBound(10000), Random);
                 if (SpawnShip(PirateShipType.Base, pos, level, out Ship pirateBase))
@@ -905,13 +907,12 @@ namespace Ship_Game
             if (victim.isPlayer || !victim.CanBuildFrigates)
                 return; // Players should attack pirate bases themselves and Ai should attack them only if they have frigates
 
-            EmpireAI ai             = victim.AI;
-            int currentAssaultGoals = ai.SearchForGoals(GoalType.AssaultPirateBase).Count;
+            int currentAssaultGoals = victim.AI.SearchForGoals(GoalType.AssaultPirateBase).Count;
             int maxAssaultGoals     = ((int)(Universe.P.Difficulty + 1)).UpperBound(3);
             if (currentAssaultGoals >= maxAssaultGoals || victim.data.TaxRate > 0.8f) 
                 return;
 
-            if (FoundPirateBaseInSystemOf(victim, out Ship pirateBase) || Random.RollDice(Level * 4))
+            if (FoundClosestKnownPirateBase(victim, out Ship pirateBase) || Random.RollDice(PirateBaseDetectionChance))
             {
                 Goal goal = new AssaultPirateBase(victim, Owner, pirateBase);
                 victim.AI.AddGoal(goal);
@@ -933,18 +934,18 @@ namespace Ship_Game
                 Owner.Universe.Notifications.AddDestroyedPirateBase(killedShip, reward);
         }
 
-        bool FoundPirateBaseInSystemOf(Empire victim, out Ship pirateBase)
+        bool FoundClosestKnownPirateBase(Empire victim, out Ship pirateBase)
         {
             pirateBase = null;
-            var victimSystems = victim.GetOwnedSystems();
-            if (!GetBases(out Array<Ship> bases))
-                return false;
-
-            for (int i = 0; i < bases.Count; i++)
+            if (GetBases(out Array<Ship> bases))
             {
-                pirateBase = bases[i];
-                if (victimSystems.Contains(pirateBase.System))
-                    return true;
+                var potentialClusters = victim.AI.ThreatMatrix.GetPirateBases(Owner);
+                if (potentialClusters.Length > 0)
+                {
+                    var closestCluster = potentialClusters.FindMin(c => c.Position.SqDist(victim.WeightedCenter));
+                    pirateBase = closestCluster.Ships.Find(s => bases.Any(b => b == s));
+                    return pirateBase != null;
+                }
             }
 
             return false;
