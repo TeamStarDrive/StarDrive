@@ -141,6 +141,7 @@ namespace Ship_Game.Universe
 
         public ShieldManager Shields => Screen.Shields;
 
+        public float ResearchablePlanetDivisor => (P.ExtraPlanets * 0.8f).LowerBound(1);
         public float DefaultProjectorRadius;
 
         public readonly RandomBase Random = new ThreadSafeRandom();
