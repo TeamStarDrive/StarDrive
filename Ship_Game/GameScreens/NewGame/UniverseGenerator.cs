@@ -289,15 +289,16 @@ namespace Ship_Game.GameScreens.NewGame
         void GenerateSystems(ProgressCounter step)
         {
             step.Start(Systems.Count);
+            float researchableMultiplier = (100f / Systems.Count).UpperBound(1);
             foreach (SystemPlaceHolder placeHolder in Systems)
             {
                 Empire e = placeHolder.Owner;
                 var sys = new SolarSystem(UState, placeHolder.Position);
 
                 if (placeHolder.Data != null)
-                    sys.GenerateFromData(UState, Random, placeHolder.Data, e);
+                    sys.GenerateFromData(UState, Random, placeHolder.Data, e, researchableMultiplier);
                 else
-                    sys.GenerateRandomSystem(UState, Random, placeHolder.SystemName, e);
+                    sys.GenerateRandomSystem(UState, Random, placeHolder.SystemName, e, researchableMultiplier);
 
                 if (e != null && e.GetOwnedSystems().Count == 0)
                 {
