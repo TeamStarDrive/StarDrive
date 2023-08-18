@@ -452,8 +452,22 @@ namespace Ship_Game.AI
                 Owner.AI.IgnoreCombat = false;
                 if (Owner.Fleet != null)
                     OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, State);
+                else if (ShouldNotReturnToLastPos())
+                    ClearOrders();
 
                 Owner.Supply.ResetIncomingOrdnance(supplyType);
+
+                bool ShouldNotReturnToLastPos()
+                {
+                    if (OrderQueue.TryPeekFirst(out ShipGoal nextGoal) && nextGoal.MovePosition != Vector2.Zero)
+                    {
+                        Vector2 movePos = nextGoal.MovePosition;
+                        return Owner.Universe.Influence.GetInfluenceStatus(Owner.Loyalty, MovePosition) == Universe.InfluenceStatus.Enemy
+                                || Owner.Loyalty.AI.ThreatMatrix.GetHostileStrengthAt(movePos, Owner.SensorRange * 2) > Owner.GetStrength();
+                    }
+
+                    return false;
+                }
             }
         }
 

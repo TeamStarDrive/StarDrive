@@ -278,18 +278,32 @@ namespace Ship_Game
         public static (int NumStars, float StarNumModifier)
             GetNumStars(StarsAbundance abundance, GalSize galaxySize, int numOpponents)
         {
-            float starNumModifier = ((int)abundance + 1) * 0.25f;
+            float starNumModifier;
+            switch (abundance)
+            {
+                case StarsAbundance.VeryRare:    starNumModifier = 0.3f;  break;
+                case StarsAbundance.Rare:        starNumModifier = 0.5f;  break;
+                case StarsAbundance.Uncommon:    starNumModifier = 0.8f;  break;
+                default:
+                case StarsAbundance.Normal:      starNumModifier = 1f;    break;
+                case StarsAbundance.Abundant:    starNumModifier = 1.1f;  break;
+                case StarsAbundance.Crowded:     starNumModifier = 1.25f; break;
+                case StarsAbundance.Packed:      starNumModifier = 1.5f;  break;
+                case StarsAbundance.SuperPacked: starNumModifier = 1.8f;  break;
+            }
+
+
             int numSystemsFromSize;
             switch (galaxySize)
             {
                 default:
-                case GalSize.Tiny: numSystemsFromSize = 16; break;
-                case GalSize.Small: numSystemsFromSize = 36; break;
-                case GalSize.Medium: numSystemsFromSize = 60; break;
-                case GalSize.Large: numSystemsFromSize = 80; break;
-                case GalSize.Huge: numSystemsFromSize = 96; break;
-                case GalSize.Epic: numSystemsFromSize = 112; break;
-                case GalSize.TrulyEpic: numSystemsFromSize = 124; break;
+                case GalSize.Tiny:      numSystemsFromSize = 16;  break;
+                case GalSize.Small:     numSystemsFromSize = 36;  break;
+                case GalSize.Medium:    numSystemsFromSize = 60;  break;
+                case GalSize.Large:     numSystemsFromSize = 80;  break;
+                case GalSize.Huge:      numSystemsFromSize = 100; break;
+                case GalSize.Epic:      numSystemsFromSize = 120; break;
+                case GalSize.TrulyEpic: numSystemsFromSize = 150; break;
             }
 
             int numStars = (int)(numSystemsFromSize * starNumModifier)
@@ -639,7 +653,7 @@ namespace Ship_Game
         
         public enum GameMode
         {
-            Sandbox, Random, SmallClusters, BigClusters, Corners, Elimination, Ring
+            Sandbox, Random, Ring, SmallClusters, BigClusters, Elimination, Corners
         }
 
         public enum StarsAbundance
