@@ -1745,6 +1745,9 @@ namespace Ship_Game.Ships
 
         public float CalculateShipStrength()
         {
+            if (IsMeteor)
+                return 0;
+
             float offense   = 0;
             float defense   = 0;
             int weaponArea  = 0;
