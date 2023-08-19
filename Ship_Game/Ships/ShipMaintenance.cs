@@ -73,8 +73,7 @@ namespace Ship_Game.Ships
                     maint *= 0.5f;
             }
 
-            maint += maint * empire.data.Traits.MaintMod + numTroops * TroopMaint;
-
+            maint = maint * (1 + empire.data.Traits.MaintMod) * empire.data.Traits.ShipMaintMultiplier + numTroops * TroopMaint;
             // Projectors do not get any more modifiers
             if (ship.IsSubspaceProjector)
                  return maint;

@@ -2355,12 +2355,14 @@ namespace Ship_Game.Fleets
                 }
             }
             // We are far from formation
-            else if (distToWP < distSquadPosToWP)
+            else if (distToWP < distSquadPosToWP) // anglediff will be below 90
             {
-                if (distToSquadPos > 100_000 && angleDiff > 45)
+                if (distToSquadPos > 100_000 && angleDiff > 25)
                 {
+                    float limit = (angleDiff+10) * 0.01f;
                     // We are ahead, but at a wide angle that allows us to continue full speed
-                    (speedSTL, speedFTL) = (ship.MaxSTLSpeed, ship.MaxFTLSpeed);
+                    speedSTL = Math.Max(ship.MaxSTLSpeed * limit, STLSpeedLimit * 0.25f);
+                    speedFTL = Math.Max(ship.MaxFTLSpeed * limit, FTLSpeedLimit * 0.25f);
                 }
                 else
                 {

@@ -187,7 +187,7 @@ namespace Ship_Game
     public enum QueueItemType
     {
         ColonyShip,
-        ColonyShipClaim,
+        ColonyShipClaim, // change to ColonyShipPriority when spinning a savegame version
         Freighter,
         Scout,
         Troop,

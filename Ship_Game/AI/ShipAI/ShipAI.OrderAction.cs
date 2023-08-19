@@ -561,11 +561,12 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             ClearWayPoints();
 
+            /* // FB - traying again without it after code changes
             if (!Owner.Loyalty.isPlayer)
             {
                 // bugfix: Avoid lingering fleets for the AI
                 Owner.Fleet?.RemoveShip(Owner, returnToEmpireAI: false, clearOrders: clearOrders);
-            }
+            }*/
 
             Target = null;
             SetOrbitTarget(toOrbit);

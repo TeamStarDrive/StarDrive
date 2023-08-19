@@ -583,8 +583,15 @@ namespace Ship_Game
                     DrawStat(Localizer.Token(GameText.ShipMassModifier), SelectedEmpire.data.MassModifier - 1f, ref textCursor, true);
                 if (SelectedEmpire.data.Traits.TaxMod != 0)
                     DrawStat(Localizer.Token(GameText.TaxIncomeModifier), SelectedEmpire.data.Traits.TaxMod, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.MaintMod != 0)
-                    DrawStat(Localizer.Token(GameText.MaintenanceModifier), SelectedEmpire.data.Traits.MaintMod, ref textCursor, true);
+                if (SelectedEmpire.data.Traits.MaintMod != 0 || SelectedEmpire.data.Traits.ShipMaintMultiplier < 1)
+                {
+                    if (SelectedEmpire.data.Traits.MaintMod != 0 )
+                        DrawStat(Localizer.Token(GameText.MaintenanceModifier), SelectedEmpire.data.Traits.MaintMod, ref textCursor, true);
+
+                    float shipMaintTotal = ((1 + SelectedEmpire.data.Traits.MaintMod) * SelectedEmpire.data.Traits.ShipMaintMultiplier) - 1;
+                    DrawStat(Localizer.Token(GameText.ShipMaintenanceModifier), shipMaintTotal, ref textCursor, true);
+                }
+
                 DrawStat(Localizer.Token(GameText.InbordersFtlBonus), SelectedEmpire.data.Traits.InBordersSpeedBonus, ref textCursor, false);
                 if (Universe.UState.P.FTLModifier != 1f)
                 {

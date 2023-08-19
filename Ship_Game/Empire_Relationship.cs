@@ -762,7 +762,7 @@ namespace Ship_Game
                       $"\n{Localizer.Token(GameText.DueToLosingWarUS)}";
 
             // AI A merged with AI B due to a losing war with AI C
-            return $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber}" +
+            return $"{Name} {Localizer.Token(GameText.HasMergedWith)} {absorber.Name}" +
                       $"\n{Localizer.Token(GameText.DueToLosingWarThem)} {enemy.Name}";
         }
     }

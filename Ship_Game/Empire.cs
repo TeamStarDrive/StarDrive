@@ -2318,6 +2318,17 @@ namespace Ship_Game
                 AI.AddGoal(new BuildScout(this));
         }
 
+        public bool TryFindClosestScoutTo(Vector2 pos, out Ship scout)
+        {
+            scout = null;
+            var ships = OwnedShips;
+            var potentialScouts = OwnedShips.Filter(s => s.IsGoodScout());
+            if (potentialScouts.Length > 0)
+                scout = potentialScouts.FindMin(s => s.Position.SqDist(pos));
+
+            return scout != null;
+        }
+
         private void ApplyFertilityChange(float amount)
         {
             if (amount.AlmostEqual(0)) return;
