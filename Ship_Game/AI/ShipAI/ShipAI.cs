@@ -4,7 +4,6 @@ using Ship_Game.Ships;
 using Ship_Game.Utils;
 using System;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -239,6 +238,12 @@ namespace Ship_Game.AI
         public bool IsExploring => State == AIState.Explore
                                 || ExplorationTarget != null
                                 || OrderQueue.Any(g => g.Plan == Plan.Explore);
+
+
+        void DoStandByColonize(FixedSimTime timeStep)
+        {
+            ReverseThrustUntilStopped(timeStep);
+        }
 
         void DoColonize(ShipGoal shipGoal)
         {
@@ -501,6 +506,8 @@ namespace Ship_Game.AI
 
         void EvaluateShipGoal(FixedSimTime timeStep, ShipGoal goal)
         {
+            if (Owner.Name == "LALA")
+                Log.Info("d");
             switch (goal.Plan)
             {
                 case Plan.AwaitOrders:              DoAwaitOrders(timeStep, goal);            break;
@@ -517,6 +524,7 @@ namespace Ship_Game.AI
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
                 case Plan.Colonize:                 DoColonize(goal);                         break;
+                case Plan.StandByColonize:          DoStandByColonize(timeStep);              break;
                 case Plan.Explore:                  DoExplore(timeStep);                      break;
                 case Plan.Rebase:                   DoRebase(timeStep, goal);                 break;
                 case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;
