@@ -506,8 +506,6 @@ namespace Ship_Game.AI
 
         void EvaluateShipGoal(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (Owner.Name == "LALA")
-                Log.Info("d");
             switch (goal.Plan)
             {
                 case Plan.AwaitOrders:              DoAwaitOrders(timeStep, goal);            break;
