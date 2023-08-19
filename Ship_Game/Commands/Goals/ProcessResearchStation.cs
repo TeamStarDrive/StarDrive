@@ -280,7 +280,7 @@ namespace Ship_Game.Commands.Goals
             if (InSupplyChain)
             {
                 SupplyDificit = (SupplyDificit + value).LowerBound(0);
-                NumSupplyGoals = ((int)Math.Ceiling(SupplyDificit / Owner.AverageFreighterCargoCap)).Clamped(1,10);
+                NumSupplyGoals = ((int)Math.Ceiling(SupplyDificit / Owner.AverageFreighterCargoCap)).Clamped(1, 5);
             }
         }
 

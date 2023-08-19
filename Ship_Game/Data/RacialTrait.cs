@@ -104,6 +104,7 @@ namespace Ship_Game
         [StarData] public int Miners;
         [StarData] public float ProductionMod;
         [StarData] public float MaintMod; // ex: -0.25
+        [StarData] public float ShipMaintMultiplier = 1; // ex: 0.75
         [StarData] public float InBordersSpeedBonus = 0.5f;
         [StarData] public float TaxMod; // bonus tax modifier
         [StarData] public float ShipCostMod;

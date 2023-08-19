@@ -6832,9 +6832,9 @@ Opponents:
  SPA: "Rivales"
 Sandbox:
  Id: 2103
- ENG: "Balanced Sandbox"
+ ENG: "Sandbox"
  RUS: "Песочница"
- SPA: "Caja de arena equilibrada"
+ SPA: "Salvadera"
 Ascension:
  Id: 2104
  ENG: "Ascension"
@@ -6847,9 +6847,9 @@ GameMode:
  SPA: "Modo de juego"
 InTheSandboxGameMode:
  Id: 2106
- ENG: "Balanced Sandbox game mode is very similar to Random Sandbox game mode, but starting positions are balanced so each Empire has some room to expand before encountering other Empires."
- RUS: "Игровой режим «Сбалансированная песочница» очень похож на игровой режим «Случайная песочница», но стартовые позиции сбалансированы, поэтому у каждой Империи есть пространство для расширения, прежде чем столкнуться с другими Империями."
- SPA: "El modo de juego Balanced Sandbox es muy similar al modo de juego Random Sandbox, pero las posiciones iniciales están equilibradas para que cada imperio tenga espacio para expandirse antes de encontrarse con otros imperios."
+ ENG: "In Sandbox game mode you may win the game by conquering all of your enemies or by uniting the galaxy in alliance. Starting positions are balanced so each Empire has some room to expand before encountering other Empires."
+ RUS: "В режиме игры «Песочница» вы можете выиграть игру, победив всех своих врагов или объединив галактику в альянс. Стартовые позиции сбалансированы, поэтому у каждой Империи есть пространство для расширения перед столкновением с другими Империями."
+ SPA: "En el modo de juego Sandbox, puedes ganar el juego conquistando a todos tus enemigos o uniendo la galaxia en una alianza. Las posiciones iniciales están equilibradas para que cada Imperio tenga algo de espacio para expandirse antes de encontrarse con otros Imperios."
 InTheAscensionGameMode:
  Id: 2107
  ENG: "In the Ascension game mode, the goal is to be the first race to ascend to Godhood by capturing the Remnant homeworld at the center of the galaxy."
@@ -8888,9 +8888,9 @@ ShipMassModifier:
  SPA: "Modificador de la masa de las naves"
 MaintenanceModifier:
  Id: 4037
- ENG: "Maintenance Modifier"
- RUS: "Модификатор обслуживания"
- SPA: "Modificador del mantenimiento"
+ ENG: "Buildings Maintenance Modifier"
+ RUS: "Модификатор технического обслуживания зданий"
+ SPA: "Modificador de mantenimiento de edificios"
 InsystemFtlSpeed:
  Id: 4038
  ENG: "In-system FTL speed"
@@ -10426,14 +10426,19 @@ LavaPoolTerraformable:
   ENG: "Hot Lava surrounds this tile, making habitation impossible. This natural pool can be Terraformed when we have the right technology."
 RandomGameMode:
  Id: 4439
- ENG: "Random Sandbox"
- RUS: "Случайная песочница"
- SPA: "Caja de arena aleatoria"    
+ ENG: "Random"
+ RUS: "Случайный"
+ SPA: "Aleatorio"    
 InRandomGameMode:
  Id: 4440
- ENG: "In Random Sandbox game mode, you may win the game by conquering all of your enemies or by uniting the galaxy in alliance. Starting positions are randomized."
- RUS: "В режиме случайной песочницы вы можете выиграть игру, победив всех своих врагов или объединив галактику в альянс. Начальные позиции рандомизированы."
- SPA: "En el modo de juego Random Sandbox, puedes ganar el juego conquistando a todos tus enemigos o uniendo la galaxia en una alianza. Las posiciones iniciales son aleatorias."  
+ ENG: "Random game mode is very similar to Sandbox Game Mode but starting positions are randomized. Some empires might start very close to eachother and some may have a lot of space to expand."
+ RUS: "Случайный режим игры очень похож на режим песочницы, но стартовые позиции случайны. Некоторые империи могут начинаться очень близко друг к другу, а у некоторых может быть много места для расширения."
+ SPA: "El modo de juego aleatorio es muy similar al modo de juego Sandbox, pero las posiciones iniciales son aleatorias. Algunos imperios pueden comenzar muy cerca uno del otro y otros pueden tener mucho espacio para expandirse."  
+ShipMaintenanceMultiplier:
+ Id: 4988
+ ENG: "Ship Maintenance Multiplier"
+ RUS: "Модификатор технического обслуживания корабля"
+ SPA: "Modificador de mantenimiento de barcos" 
 ResearchLabName:
  Id: 4989
  ENG: "Research Lab"

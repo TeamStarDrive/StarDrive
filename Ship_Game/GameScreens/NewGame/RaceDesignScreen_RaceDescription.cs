@@ -230,6 +230,8 @@ namespace Ship_Game
                     || tEnt.HomeworldSizeMod < 0f && (traits.HomeworldSizeMod < 0f || traits.HistoryTraitSmallHomeWorld)
                     || tEnt.HomeworldFertMod < 0f && (traits.HomeworldFertMod < 0f || traits.HistoryTraitPollutedHomeWorld) && tEnt.HomeworldRichMod == 0f
                     || tEnt.HomeworldFertMod < 0f && (traits.HomeworldRichMod > 0f || traits.HistoryTraitIndustrializedHomeWorld) && tEnt.HomeworldRichMod != 0f
+                    || tEnt.HomeworldRichMod > 0 && (traits.HomeworldRichMod > 0f)
+                    || tEnt.HomeworldFertMod > 0 && (traits.HomeworldFertMod > 0f)
                     || (traits.Militaristic > 0 || traits.HistoryTraitMilitaristic) && tEnt.Militaristic > 0 
                     || (traits.PassengerModifier > 1 || traits.HistoryTraitManifestDestiny) && tEnt.PassengerModifier > 1
                     || (traits.PassengerBonus > 0 || traits.HistoryTraitManifestDestiny) && tEnt.PassengerBonus > 0
