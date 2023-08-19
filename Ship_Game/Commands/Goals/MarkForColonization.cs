@@ -125,19 +125,43 @@ namespace Ship_Game.Commands.Goals
 
             if (Task != null)
             {
+                if (Task.Fleet != null && FinishedShip == null)
+                {
+                    FinishedShip = FindIdleColonyShip();
+                    if (FinishedShip != null)
+                    {
+                        FinishedShip.AI.OrderMoveAndStandByColonize(TargetPlanet, this);
+                        // send a scout (even scouts on other missions) to verify str in system before timers run out
+                        if (!TargetPlanet.System.HasPlanetsOwnedBy(Owner)
+                            && Owner.TryFindClosestScoutTo(TargetPlanet.Position, out Ship scout))
+                        {
+                            scout.AI.OrderScout(TargetPlanet.System, this);
+                        }
+                    }
+                }
+                 
                 if (!PositiveEnemyPresence(out float enemyStr) || Task.Fleet != null && Task.Fleet.TaskStep == 9)
                 {
                     if (TargetPlanet.Owner != null && TargetPlanet.GetGroundStrength(Owner) == 0) // ground invasion failed
                     {
                         Task.EndTask();
+                        ReleaseShipFromGoal();
                         return GoalStep.GoalFailed;
+                    }
+
+                     if (FinishedShip?.Active == true)
+                    {
+                        ChangeToStep(OrderShipToColonize);
+                        return GoalStep.TryAgain;
                     }
 
                     return GoalStep.GoToNextStep;
                 }
+
                 if (enemyStr > Owner.OffensiveStrength)
                 {
                     Task.EndTask();
+                    ReleaseShipFromGoal();
                     return GoalStep.GoalFailed;
                 }
 
@@ -298,7 +322,7 @@ namespace Ship_Game.Commands.Goals
             foreach (Ship ship in Owner.OwnedShips)
             {
                 if (ship.ShipData.IsColonyShip && !ship.DoingRefit
-                    && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
+                    && ship.AI != null && ship.Active && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
                     && NotAssignedToColonizationGoal(ship))
                 {
                     return ship;
