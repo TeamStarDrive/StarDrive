@@ -122,12 +122,14 @@ namespace Ship_Game.AI
                 SSP                += budgetBalance;
             }
 
-            DefenseBudget   = ExponentialMovingAverage(DefenseBudget, DetermineDefenseBudget(treasuryGoal, defense, ThreatLevel));
-            SSPBudget       = ExponentialMovingAverage(SSPBudget, DetermineSSPBudget(treasuryGoal, SSP));
-            BuildCapacity   = ExponentialMovingAverage(BuildCapacity, DetermineBuildCapacity(treasuryGoal, ThreatLevel, build));
-            SpyBudget       = ExponentialMovingAverage(SpyBudget, DetermineSpyBudget(treasuryGoal, spy));
-            ColonyBudget    = ExponentialMovingAverage(ColonyBudget, DetermineColonyBudget(treasuryGoal, colony));
-            TerraformBudget = ExponentialMovingAverage(TerraformBudget, DetermineColonyBudget(treasuryGoal, terraform));
+            float moneyStrategy = treasuryGoal.LowerBound(money);
+
+            DefenseBudget   = ExponentialMovingAverage(DefenseBudget, DetermineDefenseBudget(moneyStrategy, defense, ThreatLevel));
+            SSPBudget       = ExponentialMovingAverage(SSPBudget, DetermineSSPBudget(moneyStrategy, SSP));
+            BuildCapacity   = ExponentialMovingAverage(BuildCapacity, DetermineBuildCapacity(moneyStrategy, ThreatLevel, build));
+            SpyBudget       = ExponentialMovingAverage(SpyBudget, DetermineSpyBudget(moneyStrategy, spy));
+            ColonyBudget    = ExponentialMovingAverage(ColonyBudget, DetermineColonyBudget(moneyStrategy, colony));
+            TerraformBudget = ExponentialMovingAverage(TerraformBudget, DetermineColonyBudget(moneyStrategy, terraform));
 
             PlanetBudgetDebugInfo();
             float allianceBudget = 0;

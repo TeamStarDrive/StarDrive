@@ -4,7 +4,6 @@ using Ship_Game.Ships;
 using Ship_Game.Utils;
 using System;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -240,6 +239,12 @@ namespace Ship_Game.AI
                                 || ExplorationTarget != null
                                 || OrderQueue.Any(g => g.Plan == Plan.Explore);
 
+
+        void DoStandByColonize(FixedSimTime timeStep)
+        {
+            ReverseThrustUntilStopped(timeStep);
+        }
+
         void DoColonize(ShipGoal shipGoal)
         {
             Planet targetPlanet = shipGoal.TargetPlanet;
@@ -452,8 +457,22 @@ namespace Ship_Game.AI
                 Owner.AI.IgnoreCombat = false;
                 if (Owner.Fleet != null)
                     OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, State);
+                else if (ShouldNotReturnToLastPos())
+                    ClearOrders();
 
                 Owner.Supply.ResetIncomingOrdnance(supplyType);
+
+                bool ShouldNotReturnToLastPos()
+                {
+                    if (OrderQueue.TryPeekFirst(out ShipGoal nextGoal) && nextGoal.MovePosition != Vector2.Zero)
+                    {
+                        Vector2 movePos = nextGoal.MovePosition;
+                        return Owner.Universe.Influence.GetInfluenceStatus(Owner.Loyalty, MovePosition) == Universe.InfluenceStatus.Enemy
+                                || Owner.Loyalty.AI.ThreatMatrix.GetHostileStrengthAt(movePos, Owner.SensorRange * 2) > Owner.GetStrength();
+                    }
+
+                    return false;
+                }
             }
         }
 
@@ -503,6 +522,7 @@ namespace Ship_Game.AI
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
                 case Plan.Colonize:                 DoColonize(goal);                         break;
+                case Plan.StandByColonize:          DoStandByColonize(timeStep);              break;
                 case Plan.Explore:                  DoExplore(timeStep);                      break;
                 case Plan.Rebase:                   DoRebase(timeStep, goal);                 break;
                 case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;

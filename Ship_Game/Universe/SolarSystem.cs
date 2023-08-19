@@ -393,7 +393,7 @@ namespace Ship_Game
             return null;
         }
 
-        public void GenerateRandomSystem(UniverseState us, RandomBase random, string name, Empire owner)
+        public void GenerateRandomSystem(UniverseState us, RandomBase random, string name, Empire owner, float researchableMultiplier = 1)
         {
             // Changed by RedFox: 3% chance to get a tri-sun "star_binary"
             Sun = random.RollDice(percent:3)
@@ -430,7 +430,7 @@ namespace Ship_Game
                 float randomAngle = random.Float(0f, 360f);
                 string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(ringNum);
                 var p = new Planet(us.CreateId(), random, this, randomAngle, ringRadius, planetName,
-                                   sysMaxRingRadius, owner, null);
+                                   sysMaxRingRadius, owner, null, researchableMultiplier / us.ResearchablePlanetDivisor);
                 PlanetList.Add(p);
                 var ring = new Ring
                 {
@@ -474,13 +474,13 @@ namespace Ship_Game
                 Sun = SunType.RandomBarrenSun(random);
                 researchableChance = Sun.ResearchableChance;
             }
-            else if (PlanetList.Count == 0 + us.P.ExtraPlanets)
+            else if (PlanetList.Count == us.P.ExtraPlanets)
             {
                 // Allow some Lone Stars to be Researchable
                 researchableChance += 50;
             }
 
-            if (random.RollDice(percent: researchableChance))
+            if (random.RollDice(percent: researchableChance * researchableMultiplier / us.ResearchablePlanetDivisor))
             {
                 SetResearchable(true, Universe);
                 // Log.Info($"{Name} can be researched");
@@ -489,7 +489,8 @@ namespace Ship_Game
             FinalizeGeneratedSystem();
         }
 
-        public void GenerateFromData(UniverseState us, RandomBase random, SolarSystemData data, Empire owner)
+        public void GenerateFromData(UniverseState us, RandomBase random, SolarSystemData data, 
+            Empire owner, float researchableMultiplier = 1)
         {
             Name = data.Name;
             Sun = SunType.FindSun(data.SunPath);
@@ -522,7 +523,7 @@ namespace Ship_Game
 
                 float randomAngle = random.Float(0f, 360f);
                 var p = new Planet(us.CreateId(), random, this, randomAngle, orbitalDist, ringData.Planet,
-                                   sysMaxRingRadius, owner, ringData);
+                                   sysMaxRingRadius, owner, ringData, researchableMultiplier / us.ResearchablePlanetDivisor);
                 PlanetList.Add(p);
                 RingList.Add(new Ring
                 {

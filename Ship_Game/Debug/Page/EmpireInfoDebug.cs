@@ -123,17 +123,16 @@ public class EmpireInfoDebug : DebugPage
         {
             string plural = rel.Them.data.Traits.Plural;
             Text.Color = rel.Them.EmpireColor;
-            if (rel.Treaty_NAPact)
-                Text.String(15f, "NA Pact with " + plural);
-
-            if (rel.Treaty_Trade)
-                Text.String(15f, "Trade Pact with " + plural);
-
-            if (rel.Treaty_OpenBorders)
-                Text.String(15f, "Open Borders with " + plural);
-
             if (rel.AtWar)
                 Text.String(15f, $"War with {plural} ({rel.ActiveWar?.WarType})");
+            else if (rel.Treaty_Alliance)
+                Text.String(15f, "Alliance with " + plural);
+            else if (rel.Treaty_OpenBorders)
+                Text.String(15f, "Open Borders with " + plural);
+            else if (rel.Treaty_Trade)
+                Text.String(15f, "Trade Pact with " + plural);
+            else if (rel.Treaty_NAPact)
+                Text.String(15f, "NA Pact with " + plural);
         }
 
         if (Screen.SelectedSystem != null)

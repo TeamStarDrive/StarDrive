@@ -57,7 +57,7 @@ namespace Ship_Game.AI
             if (Them.WeArePirates)
                 return Them.Pirates.Level * 0.1f;
 
-            if (Them.WeArePirates)
+            if (Them.WeAreRemnants)
                 return Them.Remnants.ExpansionRisk;
 
             float expansion = us.GetExpansionRatio() * 0.25f;

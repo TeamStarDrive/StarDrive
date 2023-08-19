@@ -276,7 +276,7 @@ namespace Ship_Game
         }
 
         public Planet(int id, RandomBase random, SolarSystem system, float randomAngle, float ringRadius, string name,
-                      float sysMaxRingRadius, Empire owner, SolarSystemData.Ring data) : this(id)
+                      float sysMaxRingRadius, Empire owner, SolarSystemData.Ring data, float researchableMultiplier = 1) : this(id)
         {
             SetSystem(system);
             OrbitalAngle = randomAngle;
@@ -308,7 +308,7 @@ namespace Ship_Game
                 if (type.Category == PlanetCategory.GasGiant)
                     scale += 1f;
 
-                if (random.RollDice(percent: type.Habitable ? -1 : type.ResearchableChance))
+                if (!type.Habitable && random.RollDice(type.ResearchableChance * researchableMultiplier))
                 {
                     SetResearchable(true, Universe);
                     //Log.Info($"{Name} can be researched");

@@ -141,6 +141,7 @@ namespace Ship_Game.Universe
 
         public ShieldManager Shields => Screen.Shields;
 
+        public float ResearchablePlanetDivisor => (P.ExtraPlanets * 0.8f).LowerBound(1);
         public float DefaultProjectorRadius;
 
         public readonly RandomBase Random = new ThreadSafeRandom();
@@ -593,11 +594,20 @@ namespace Ship_Game.Universe
                 return 1f;
 
             int idealNumPlayers   = (int)P.GalaxySize + 3;
-            float galSizeModifier = P.GalaxySize <= GalSize.Medium 
-                ? ((int)P.GalaxySize / 2f).LowerBound(0.25f) // 0.25, 0.5 or 1
-                : 1 + ((int)P.GalaxySize - (int)GalSize.Medium) * 0.25f; // 1.25, 1.5, 1.75, 2
+            float galSizeModifier;
+            switch (P.GalaxySize)
+            {
+                case GalSize.Tiny:      galSizeModifier = 0.5f;  break;
+                case GalSize.Small:     galSizeModifier = 0.75f; break;
+                default:
+                case GalSize.Medium:    galSizeModifier = 1f;    break;
+                case GalSize.Large:     galSizeModifier = 1.15f; break;
+                case GalSize.Huge:      galSizeModifier = 1.35f; break;
+                case GalSize.Epic:      galSizeModifier = 1.6f;  break;
+                case GalSize.TrulyEpic: galSizeModifier = 1.9f;  break;
+            }
 
-            float extraPlanetsMod = 1 + P.ExtraPlanets * 0.25f;
+            float extraPlanetsMod = 1 + P.ExtraPlanets*0.25f;
             int numMajorEmpires = EmpireList.Count(e => !e.IsFaction);
             float playerRatio     = (float)idealNumPlayers / numMajorEmpires;
             float settingsRatio   = galSizeModifier * extraPlanetsMod * playerRatio * P.StarsModifier;
