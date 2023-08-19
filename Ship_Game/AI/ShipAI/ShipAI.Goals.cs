@@ -238,6 +238,15 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.Colonize, planet.Position, Vectors.Up, planet, g, AIState.Colonize);
         }
 
+        public void OrderMoveAndStandByColonize(Planet planet, Goal g)
+        {
+            float distanceToWait = Owner.Loyalty.GetProjectorRadius() * 1.2f;
+            Vector2 dir = planet.Position.DirectionToTarget(Owner.Position);
+            Vector2 pos = planet.Position + dir * distanceToWait;
+            OrderMoveToNoStop(pos, -dir, AIState.Colonize, MoveOrder.AddWayPoint, goal: g);
+            AddShipGoal(Plan.StandByColonize, AIState.Colonize);
+        }
+
         public void OrderMoveAndRebase(Planet p)
         {
             Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
@@ -528,7 +537,8 @@ namespace Ship_Game.AI
             DropOffGoodsForStation = 37,
             ResearchStationResearching = 38, // for shipUIinfo display only
             ResearchStationIdle = 39, // for shipUIinfo display only
-            ResearchStationNoSupply = 40 // for shipUIinfo display only
+            ResearchStationNoSupply = 40, // for shipUIinfo display only
+            StandByColonize = 41
         }
     }
 }

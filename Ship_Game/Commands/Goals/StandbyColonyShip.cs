@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             PlanetBuildingAt = planet;
-            planet.Construction.Enqueue(colonyShip, QueueItemType.ColonyShip, this);
+            planet.Construction.Enqueue(colonyShip, QueueItemType.ColonyShipClaim, this);
             return GoalStep.GoToNextStep;
         }
 
