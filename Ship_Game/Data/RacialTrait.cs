@@ -3,6 +3,9 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Data;
+using System;
+using SDUtils;
 
 namespace Ship_Game
 {
@@ -23,7 +26,7 @@ namespace Ship_Game
         [StarData] public string ShipType = "";
         [StarData] public string Singular;
         [StarData] public string Plural;
-        [StarData] public bool Pack;
+
         [StarData] public string Adj1;
         [StarData] public string Adj2;
         [StarData] public string HomeSystemName;
@@ -74,8 +77,9 @@ namespace Ship_Game
 
 
         // RacialTraits.xml
-        [StarData] public int TraitName;
-        [XmlIgnore] public LocalizedText LocalizedName => new(TraitName);
+        [StarData] public int TraitIndex;
+        [StarData] public string TraitName;
+        [XmlIgnore] public LocalizedText LocalizedName => new(TraitIndex);
         [StarData] public string Category;
         [StarData] public int Cost;
         [StarData] public int Description;
@@ -101,7 +105,6 @@ namespace Ship_Game
         [StarData] public float EnergyDamageMod;
         [StarData] public float ResearchMod;
         [StarData] public float Mercantile;
-        [StarData] public int Miners;
         [StarData] public float ProductionMod;
         [StarData] public float MaintMod; // ex: -0.25
         [StarData] public float ShipMaintMultiplier = 1; // ex: 0.75
@@ -109,14 +112,12 @@ namespace Ship_Game
         [StarData] public float TaxMod; // bonus tax modifier
         [StarData] public float ShipCostMod;
         [StarData] public float ModHpModifier;
-        [StarData] public int SmallSize;
-        [StarData] public float PassengerModifier = 1f;
         [StarData] public float PassengerBonus;
-        [StarData] public bool Assimilators;
         [StarData] public float GroundCombatModifier;
         [StarData] public float RepairMod;
         [StarData] public int Cybernetic;
         [StarData] public float SpyModifier;
+        [StarData] public int Pack;
 
         // for flavor text: is this species aquatic?
         [StarData] public int Aquatic;
@@ -126,11 +127,16 @@ namespace Ship_Game
         [StarData] public bool SmartMissiles; // unlocked by tech
         [StarData] public int TerraformingLevel;  // unlocked by tech, FB from 0 to 3
         [StarData] public float EnemyPlanetInhibitionPercentCounter;  // unlocked by tech, FB - from 0 to 0.75
+        [StarData] public bool Assimilators;
+        [StarData] public float PassengerModifier = 1f;
+
+        [StarData] public Array<string> TraitOptions;
 
         // MISC wrappers
 
         public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
         public float MaintMultiplier => 1f + MaintMod; // Ex: 1.25
+
 
         public RacialTrait GetClone()
         {
@@ -175,118 +181,42 @@ namespace Ship_Game
             var traits = ResourceManager.RaceTraits;
             if (traits.TraitList == null)
                 return;
-            foreach (RacialTrait trait in traits.TraitList)
+
+            foreach (RacialTraitOption trait in traits.TraitList)
             {
-                if (PhysicalTraitAlluring && trait.DiplomacyMod > 0
-                    || PhysicalTraitRepulsive && trait.DiplomacyMod < 0)
-                {
-                    DiplomacyMod = trait.DiplomacyMod;
-                }
-                if (PhysicalTraitEagleEyed && trait.EnergyDamageMod > 0
-                    || PhysicalTraitBlind && trait.EnergyDamageMod < 0)
-                {
-                    EnergyDamageMod = trait.EnergyDamageMod;
-                }
-                if (PhysicalTraitEfficientMetabolism && trait.ConsumptionModifier < 0
-                    || PhysicalTraitGluttonous && trait.ConsumptionModifier > 0)
-                {
-                    ConsumptionModifier = trait.ConsumptionModifier;
-                }
-                if (PhysicalTraitFertile && trait.PopGrowthMin > 0)
-                {
-                    PopGrowthMin = trait.PopGrowthMin;
-                }
-                else if (PhysicalTraitLessFertile && trait.PopGrowthMax > 0)
-                {
-                    PopGrowthMax = trait.PopGrowthMax;
-                }
-                if (PhysicalTraitSmart && trait.ResearchMod > 0 || PhysicalTraitDumb && trait.ResearchMod < 0)
-                {
-                    ResearchMod = trait.ResearchMod;
-                }
-                if (PhysicalTraitReflexes && trait.DodgeMod > 0 || PhysicalTraitPonderous && trait.DodgeMod < 0)
-                {
-                    DodgeMod = trait.DodgeMod;
-                }
-                if ((PhysicalTraitSavage && trait.GroundCombatModifier > 0) || (PhysicalTraitTimid && trait.GroundCombatModifier < 0))
-                {
-                    GroundCombatModifier = trait.GroundCombatModifier;
-                }
-                if ((SociologicalTraitEfficient && trait.MaintMod < 0) || (SociologicalTraitWasteful && trait.MaintMod > 0))
-                {
-                    MaintMod = trait.MaintMod;
-                }
-                if ((SociologicalTraitIndustrious && trait.ProductionMod > 0) || (SociologicalTraitLazy && trait.ProductionMod < 0))
-                {
-                    ProductionMod = trait.ProductionMod;
-                }
-                if ((SociologicalTraitMeticulous && trait.TaxMod > 0) || (SociologicalTraitCorrupt && trait.TaxMod < 0))
-                {
-                    TaxMod = trait.TaxMod;
-                }
-                if ((SociologicalTraitSkilledEngineers && trait.ModHpModifier > 0) || (SociologicalTraitHaphazardEngineers && trait.ModHpModifier < 0))
-                {
-                    ModHpModifier = trait.ModHpModifier;
-                }
-                if (SociologicalTraitMercantile && trait.Mercantile > 0)
-                {
-                    Mercantile = trait.Mercantile;
-                }
-                if ((HistoryTraitDuplicitous && trait.SpyMultiplier > 0) || (HistoryTraitHonest && trait.SpyMultiplier < 0))
-                {
-                    SpyMultiplier = trait.SpyMultiplier;
-                }
-                if ((HistoryTraitHugeHomeWorld && trait.HomeworldSizeMod > 0) || (HistoryTraitSmallHomeWorld && trait.HomeworldSizeMod < 0))
-                {
-                    HomeworldSizeMod = trait.HomeworldSizeMod;
-                }
-                if (HistoryTraitAstronomers && trait.BonusExplored > 0)
-                {
-                    BonusExplored = trait.BonusExplored;
-                }
-                if (HistoryTraitCybernetic)                
-                    Cybernetic = 1;
-                if (trait.RepairMod > 0)          
-                    RepairMod = trait.RepairMod;
-                if (HistoryTraitManifestDestiny && trait.PassengerBonus > 0)
-                {
-                    PassengerBonus = trait.PassengerBonus;
-                }
-                if (HistoryTraitManifestDestiny && trait.PassengerModifier > 1)
-                {
-                    PassengerModifier = trait.PassengerModifier;
-                }
-                if (HistoryTraitNavalTraditions && trait.ShipCostMod < 0)
-                {
-                    ShipCostMod = trait.ShipCostMod;
-                }
-                if (HistoryTraitSpiritual && trait.Spiritual > 0)
-                {
-                    Spiritual = trait.Spiritual;
-                }
-                if (HistoryTraitPollutedHomeWorld && trait.HomeworldFertMod < 0 && trait.HomeworldRichMod == 0)
-                {
-                    HomeworldFertMod -= trait.HomeworldFertMod;
-                }
-                if (HistoryTraitIndustrializedHomeWorld && trait.HomeworldFertMod < 0 && trait.HomeworldRichMod > 0)
-                {
-                    HomeworldFertMod -= trait.HomeworldFertMod;
-                    HomeworldRichMod = trait.HomeworldRichMod;
-                }
+                DiplomacyMod += trait.DiplomacyMod;
+                EnergyDamageMod += trait.EnergyDamageMod;
+                ConsumptionModifier += trait.ConsumptionModifier;
+                PopGrowthMin += trait.PopGrowthMin;
+                PopGrowthMax += trait.PopGrowthMax;
+                ResearchMod += trait.ResearchMod;
+                DodgeMod += trait.DodgeMod;
+                GroundCombatModifier += trait.GroundCombatModifier;
+                MaintMod += trait.MaintMod;
+                ProductionMod += trait.ProductionMod;
+                TaxMod += trait.TaxMod;
+                ModHpModifier += trait.ModHpModifier;
+                Mercantile += trait.Mercantile;
+                SpyMultiplier += trait.SpyMultiplier;
+                HomeworldSizeMod += trait.HomeworldSizeMod;
+                BonusExplored += trait.BonusExplored;
+                Cybernetic += trait.Cybernetic;
+                RepairMod += trait.RepairMod;
+                PassengerBonus += trait.PassengerBonus;
+                ShipCostMod += trait.ShipCostMod;
+                Spiritual += trait.Spiritual;
+                HomeworldFertMod = trait.HomeworldFertMod;
+                HomeworldFertMod += trait.HomeworldFertMod;
+                HomeworldRichMod += trait.HomeworldRichMod;
+                Militaristic += trait.Militaristic;
+                Pack += trait.Pack;
+                Prototype += trait.Prototype;
             }
-            if (HistoryTraitMilitaristic)
-                Militaristic = 1;
-
-            if (HistoryTraitPackMentality)
-                Pack = true;
-
-            if (HistoryTraitPrototypeFlagship)
-                Prototype = 1;
         }
 
         public void ApplyTraitToShip(Ship ship)
         {
-            if (Pack) ship.UpdatePackDamageModifier();
+            if (Pack > 0) ship.UpdatePackDamageModifier();
         }
     }
 }

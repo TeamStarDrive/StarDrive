@@ -10,6 +10,8 @@ using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
+using Ship_Game.Data;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -58,8 +60,8 @@ namespace Ship_Game
             MainMenu = mainMenu;
             TransitionOnTime = 0.75f;
             TransitionOffTime = 0.25f;
-            foreach (RacialTrait t in ResourceManager.RaceTraits.TraitList)
-                AllTraits.Add(new TraitEntry { trait = t });
+            foreach (RacialTraitOption t in ResourceManager.RaceTraits.TraitList)
+                AllTraits.Add(new TraitEntry { Trait = t });
         }
 
         RacialTrait GetRacialTraits()
@@ -322,7 +324,7 @@ namespace Ship_Game
                 case 2: category = "Special";  break;
             }
 
-            TraitsListItem[] traits = AllTraits.FilterSelect(t => t.trait.Category == category,
+            TraitsListItem[] traits = AllTraits.FilterSelect(t => t.Trait.Category == category,
                                                              t => new TraitsListItem(this, t));
             TraitsList.SetItems(traits);
         }
@@ -476,16 +478,16 @@ namespace Ship_Game
         void OnTraitsListItemClicked(TraitsListItem item)
         {
             TraitEntry t = item.Trait;
-            if (t.Selected && TotalPointsUsed + t.trait.Cost >= 0)
+            if (t.Selected && TotalPointsUsed + t.Trait.Cost >= 0)
             {
                 t.Selected = !t.Selected;
-                TotalPointsUsed += t.trait.Cost;
+                TotalPointsUsed += t.Trait.Cost;
                 GameAudio.BlipClick();
                 foreach (TraitEntry ex in AllTraits)
-                    if (t.trait.Excludes == ex.trait.TraitName)
+                    if (t.Trait.Excludes == ex.Trait.TraitIndex)
                         ex.Excluded = false;
             }
-            else if (TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
+            else if (TotalPointsUsed - t.Trait.Cost < 0 || t.Selected)
             {
                 GameAudio.NegativeClick();
             }
@@ -494,17 +496,17 @@ namespace Ship_Game
                 bool ok = true;
                 foreach (TraitEntry ex in AllTraits)
                 {
-                    if (t.trait.Excludes == ex.trait.TraitName && ex.Selected)
+                    if (t.Trait.Excludes == ex.Trait.TraitIndex && ex.Selected)
                         ok = false;
                 }
                 if (ok)
                 {
                     t.Selected = true;
-                    TotalPointsUsed -= t.trait.Cost;
+                    TotalPointsUsed -= t.Trait.Cost;
                     GameAudio.BlipClick();
                     foreach (TraitEntry ex in AllTraits)
                     {
-                        if (t.trait.Excludes == ex.trait.TraitName)
+                        if (t.Trait.Excludes == ex.Trait.TraitIndex)
                             ex.Excluded = true;
                     }
                 }
@@ -610,7 +612,7 @@ namespace Ship_Game
             public SelectedTraitsSummary(RaceDesignScreen screen)
             {
                 Screen = screen;
-                Font = screen.LowRes ? Fonts.Arial10 : Fonts.Arial14Bold;
+                Font = screen.LowRes ? Fonts.Arial10 : Fonts.Arial12Bold;
             }
 
             public override bool HandleInput(InputState input)
@@ -632,18 +634,21 @@ namespace Ship_Game
 
                 int line = 0;
                 int maxLines = Screen.LowRes ? 7 : 9;
-                foreach (TraitEntry t in Screen.AllTraits)
+                bool switchedToNegative = false;
+                foreach (TraitEntry t in Screen.AllTraits.OrderByDescending(t => t.Trait.Cost))
                 {
-                    if (line == maxLines)
+                    if (t.Trait.Cost < 0 && !switchedToNegative)
                     {
+                        switchedToNegative = true;
                         line = 0;
                         cursor.Y = r.Y;
-                        cursor.X += Font.TextWidth(title) + 8;
+                        cursor.X += Font.TextWidth(title) + (Screen.LowRes ? 50 : 100);
                     }
+
                     if (t.Selected)
                     {
-                        batch.DrawString(Font, $"{t.trait.LocalizedName.Text} {t.trait.Cost}", cursor,
-                                               (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                        batch.DrawString(Font, $"({t.Trait.Cost}) {t.Trait.LocalizedName.Text}", cursor,
+                                               (t.Trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
                         cursor.Y += (Font.LineSpacing + 2);
                         line++;
                     }

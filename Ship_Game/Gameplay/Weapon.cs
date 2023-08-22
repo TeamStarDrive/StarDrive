@@ -578,7 +578,7 @@ namespace Ship_Game.Gameplay
             if (Owner == null)
                 return;
 
-            if (Owner.Loyalty.data.Traits.Pack)
+            if (Owner.Loyalty.HavePackMentality)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
             float actualShieldPenChance = Module?.GetParent().Loyalty.data.ShieldPenBonusChance * 100 ?? 0;
