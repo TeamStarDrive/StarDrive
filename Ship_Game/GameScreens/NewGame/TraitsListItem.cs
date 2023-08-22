@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Gameplay;
 using Vector2 = SDGraphics.Vector2;
 
@@ -42,7 +43,7 @@ namespace Ship_Game
             }
             if (Trait.Selected)
             {
-                drawColor = (cost > 0 ? Color.ForestGreen : Color.Crimson);
+                drawColor = (cost > 0 ? Color.ForestGreen : Color.Red);
             }
             else if (Trait.Excluded)
             {
