@@ -57,36 +57,17 @@
     <B>0</B>
     <RaceDescription>KWAK!</RaceDescription>
     <Cost>0</Cost>
-    <ConsumptionModifier>-.2</ConsumptionModifier>
-    <PopGrowthMax>.02</PopGrowthMax>
-    <DiplomacyMod>.2</DiplomacyMod>
-    <GenericMaxPopMod>0</GenericMaxPopMod>
-    <Aquatic>0</Aquatic>
-    <Burrowers>0</Burrowers>
-    <Blind>0</Blind>
-    <BonusExplored>0</BonusExplored>
-    <Pioneers>0</Pioneers>
-    <Militaristic>0</Militaristic>
-    <HomeworldSizeMod>.25</HomeworldSizeMod>
-    <Prewarp>0</Prewarp>
-    <Spiritual>0</Spiritual>
-    <HomeworldFertMod>0</HomeworldFertMod>
-    <DodgeMod>-.25</DodgeMod>
-    <EnergyDamageMod>0</EnergyDamageMod>
-    <ResearchMod>0</ResearchMod>
-    <Mercantile>0</Mercantile>
-    <Miners>0</Miners>
-    <ProductionMod>0</ProductionMod>
-    <MaintMod>-.25</MaintMod>
-    <TaxMod>0</TaxMod>
-    <ShipCostMod>0</ShipCostMod>
-    <ModHpModifier>.2</ModHpModifier>
-    <SmallSize>0</SmallSize>
-    <HugeSize>0</HugeSize>
-    <GroundCombatModifier>-.20</GroundCombatModifier>
-    <RepairRateMod>0</RepairRateMod>
-    <Cybernetic>0</Cybernetic>
-    <Prototype>1</Prototype>
+	<TraitOptions>
+		<string>Huge Homeworld</string>
+		<string>Alluring</string>
+		<string>Less Fertile</string>
+		<string>Efficient Metabolism</string>
+		<string>Timid</string>
+		<string>Prototype Flagship</string>
+		<string>Skilled Engineers</string>		
+		<string>Ponderous</string>
+		<string>Efficient</string>
+	</TraitOptions>	
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

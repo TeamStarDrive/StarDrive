@@ -66,36 +66,15 @@
     <B>0</B>
     <RaceDescription>Pollops are a peculiar race of mobile plant-like organisms. Though physically weak, they grow at a rapid pace and have long lifespans. Pollops tend to be quite friendly.</RaceDescription>
     <Cost>0</Cost>
-    <ConsumptionModifier>-.25</ConsumptionModifier>
-    <PopGrowthMin>.005</PopGrowthMin>
-    <DiplomacyMod>0</DiplomacyMod>
-    <GenericMaxPopMod>0</GenericMaxPopMod>
-    <Aquatic>0</Aquatic>
-    <Burrowers>0</Burrowers>
-    <Blind>0</Blind>
-    <BonusExplored>0</BonusExplored>
-    <Pioneers>0</Pioneers>
-    <Militaristic>0</Militaristic>
-    <Prewarp>0</Prewarp>
-    <Spiritual>0</Spiritual>
-    <HomeworldFertMod>0</HomeworldFertMod>
-    <DodgeMod>0.25</DodgeMod>
-    <EnergyDamageMod>0</EnergyDamageMod>
-    <ResearchMod>0</ResearchMod>
-    <Mercantile>0</Mercantile>
-    <Miners>0</Miners>
-    <ProductionMod>-0.15</ProductionMod>
-    <MaintMod>-.25</MaintMod>
-    <TaxMod>0</TaxMod>
-    <ShipCostMod>0</ShipCostMod>
-    <ModHpModifier>0</ModHpModifier>
-    <SmallSize>0</SmallSize>
-    <HugeSize>0</HugeSize>
-    <GroundCombatModifier>-.20</GroundCombatModifier>
-    <RepairRateMod>0</RepairRateMod>
-    <Cybernetic>0</Cybernetic>
-    <HomeworldSizeMod>0</HomeworldSizeMod>
-    <PassengerBonus>2</PassengerBonus>
+	<TraitOptions>
+		<string>Manifest Destiny</string>
+		<string>Timid</string>
+		<string>Efficient</string>
+		<string>Fertile</string>
+		<string>Efficient Metabolism</string>
+		<string>Reflexes</string>
+		<string>Lazy</string>
+	</TraitOptions>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

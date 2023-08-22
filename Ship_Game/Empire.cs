@@ -181,6 +181,8 @@ namespace Ship_Game
         public bool WeArePirates  => Pirates != null; // Use this to figure out if this empire is pirate faction
         public bool WeAreRemnants => Remnants != null; // Use this to figure out if this empire is pirate faction
 
+        public bool HavePackMentality => data.Traits.Pack > 0;
+
         public float MaximumIncome       => PotentialIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus; // + AverageTradeIncome + data.FlatMoneyBonus;
         public float MaximumStableIncome => PotentialIncome + AverageTradeIncome + data.FlatMoneyBonus;
         // Income this turn before deducting ship maintenance
