@@ -47,7 +47,7 @@
     <Description>39</Description>
     <PopGrowthMax>0.015</PopGrowthMax>
     <Excludes>
-		<string>Less Fertile</string>
+		<string>Fertile</string>
 	</Excludes>
   </RacialTraitOption>
   <RacialTraitOption>
