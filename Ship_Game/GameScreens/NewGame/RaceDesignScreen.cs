@@ -76,6 +76,7 @@ namespace Ship_Game
             t.Name      = RaceName;
             t.ShipType  = SelectedData.ShipType;
             t.VideoPath = SelectedData.VideoPath;
+            t.TraitOptions = AllTraits.FilterSelect(trait => trait.Selected, trait => trait.Trait.TraitName).ToArrayList();
             return t;
         }
         
@@ -484,7 +485,7 @@ namespace Ship_Game
                 TotalPointsUsed += t.Trait.Cost;
                 GameAudio.BlipClick();
             }
-            else if (TotalPointsUsed - t.Trait.Cost < 0 || t.Selected)
+            else if (TotalPointsUsed - t.Trait.Cost < 0 || t.Selected || t.Excluded)
             {
                 GameAudio.NegativeClick();
             }
@@ -642,7 +643,7 @@ namespace Ship_Game
                     if (t.Selected)
                     {
                         batch.DrawString(Font, $"({t.Trait.Cost}) {t.Trait.LocalizedName.Text}", cursor,
-                                               (t.Trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                                               (t.Trait.Cost > 0 ? Color.ForestGreen: Color.Red));
                         cursor.Y += (Font.LineSpacing + 2);
                         line++;
                     }

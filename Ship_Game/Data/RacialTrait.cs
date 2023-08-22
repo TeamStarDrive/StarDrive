@@ -36,47 +36,7 @@ namespace Ship_Game
         [StarData] public float G;
         [StarData] public float B;
         
-        // Default Trait flags, set in Races/MyRace.xml
-        [StarData] public bool PhysicalTraitAlluring;
-        [StarData] public bool PhysicalTraitRepulsive;
-        [StarData] public bool PhysicalTraitEagleEyed;
-        [StarData] public bool PhysicalTraitBlind;
-        [StarData] public bool PhysicalTraitEfficientMetabolism;
-        [StarData] public bool PhysicalTraitGluttonous;
-        [StarData] public bool PhysicalTraitFertile;
-        [StarData] public bool PhysicalTraitLessFertile;
-        [StarData] public bool PhysicalTraitSmart;
-        [StarData] public bool PhysicalTraitDumb;
-        [StarData] public bool PhysicalTraitReflexes;
-        [StarData] public bool PhysicalTraitPonderous;
-        [StarData] public bool PhysicalTraitSavage;
-        [StarData] public bool PhysicalTraitTimid;
-        [StarData] public bool SociologicalTraitEfficient;
-        [StarData] public bool SociologicalTraitWasteful;
-        [StarData] public bool SociologicalTraitIndustrious;
-        [StarData] public bool SociologicalTraitLazy;
-        [StarData] public bool SociologicalTraitMercantile;
-        [StarData] public bool SociologicalTraitMeticulous;
-        [StarData] public bool SociologicalTraitCorrupt;
-        [StarData] public bool SociologicalTraitSkilledEngineers;
-        [StarData] public bool SociologicalTraitHaphazardEngineers;
-        [StarData] public bool HistoryTraitAstronomers;
-        [StarData] public bool HistoryTraitCybernetic;
-        [StarData] public bool HistoryTraitManifestDestiny;
-        [StarData] public bool HistoryTraitMilitaristic;
-        [StarData] public bool HistoryTraitNavalTraditions;
-        [StarData] public bool HistoryTraitPackMentality;
-        [StarData] public bool HistoryTraitPrototypeFlagship;
-        [StarData] public bool HistoryTraitSpiritual;
-        [StarData] public bool HistoryTraitPollutedHomeWorld;
-        [StarData] public bool HistoryTraitIndustrializedHomeWorld;
-        [StarData] public bool HistoryTraitDuplicitous;
-        [StarData] public bool HistoryTraitHonest;
-        [StarData] public bool HistoryTraitHugeHomeWorld;
-        [StarData] public bool HistoryTraitSmallHomeWorld;
-
-
-        // RacialTraits.xml
+            // RacialTraits.xml
         [StarData] public int TraitIndex;
         [StarData] public string TraitName;
         [XmlIgnore] public LocalizedText LocalizedName => new(TraitIndex);
