@@ -483,9 +483,6 @@ namespace Ship_Game
                 t.Selected = !t.Selected;
                 TotalPointsUsed += t.Trait.Cost;
                 GameAudio.BlipClick();
-                foreach (TraitEntry ex in AllTraits)
-                    if (t.Trait.Excludes == ex.Trait.TraitIndex)
-                        ex.Excluded = false;
             }
             else if (TotalPointsUsed - t.Trait.Cost < 0 || t.Selected)
             {
@@ -496,7 +493,7 @@ namespace Ship_Game
                 bool ok = true;
                 foreach (TraitEntry ex in AllTraits)
                 {
-                    if (t.Trait.Excludes == ex.Trait.TraitIndex && ex.Selected)
+                    if (t.Trait.Excludes.Contains(ex.Trait.TraitName) && ex.Selected)
                         ok = false;
                 }
                 if (ok)
@@ -504,13 +501,10 @@ namespace Ship_Game
                     t.Selected = true;
                     TotalPointsUsed -= t.Trait.Cost;
                     GameAudio.BlipClick();
-                    foreach (TraitEntry ex in AllTraits)
-                    {
-                        if (t.Trait.Excludes == ex.Trait.TraitIndex)
-                            ex.Excluded = true;
-                    }
                 }
             }
+
+            UpdateTraits();
             DoRaceDescription();
         }
 

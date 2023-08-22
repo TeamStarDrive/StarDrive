@@ -183,6 +183,11 @@ namespace Ship_Game
 
         void SetRacialTraits(RacialTrait traits)
         {
+            foreach (TraitEntry traitEntry in AllTraits)
+            {
+                traitEntry.Excluded= false;
+            }
+
             RaceSummary.ShipType = traits.ShipType;
             Picker.CurrentColor  = traits.Color;
             FlagIndex = traits.FlagIndex;
@@ -203,17 +208,27 @@ namespace Ship_Game
                     TotalPointsUsed -= tEnt.Cost;
                     SetExclusions(traitEntry);
                 }
-
-                /*if (traitEntry.Selected)
-                    SetExclusions(traitEntry);*/
             }
             DoRaceDescription();
+        }
+
+        void UpdateTraits()
+        {
+            foreach (TraitEntry traitEntry in AllTraits)
+                traitEntry.Excluded = false;
+
+            TotalPointsUsed = 8;
+            foreach (TraitEntry traitEntry in AllTraits.Filter(t => t.Selected))
+            {
+                TotalPointsUsed -= traitEntry.Trait.Cost;
+                SetExclusions(traitEntry);
+            }
         }
 
         void SetExclusions(TraitEntry t)
         {
             foreach (TraitEntry ex in AllTraits)
-                if (t.Trait.Excludes == ex.Trait.TraitIndex)
+                if (t.Trait.Excludes.Contains(ex.Trait.TraitName))
                     ex.Excluded = true;
         }
         
