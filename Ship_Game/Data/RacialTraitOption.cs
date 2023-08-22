@@ -1,4 +1,4 @@
-﻿using Ship_Game.Data.Serialization;
+﻿using SDUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace Ship_Game.Data
         public string Category;
         public int Cost;
         public int Description;
-        public int Excludes;
+        public Array<string> Excludes;
 
         [XmlIgnore] public LocalizedText LocalizedName => new(TraitIndex);
 
