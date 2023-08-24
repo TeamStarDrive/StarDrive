@@ -174,7 +174,7 @@
     <!-- Cybernetic -->
 	<TraitName>Cybernetic</TraitName>
     <TraitIndex>60</TraitIndex>
-    <Category>Special</Category>
+    <Category>HistoryAndTradition</Category>
     <Cost>7</Cost>
     <Description>61</Description>
     <Cybernetic>1</Cybernetic>
@@ -184,7 +184,7 @@
     <!--Industrious -->
 	<TraitName>Industrious</TraitName>
     <TraitIndex>62</TraitIndex>
-    <Category>Industry</Category>
+    <Category>Sociological</Category>
     <Cost>3</Cost>
     <Description>63</Description>
     <ProductionMod>0.25</ProductionMod>
@@ -196,7 +196,7 @@
     <!--Lazy -->
 	<TraitName>Lazy</TraitName>
     <TraitIndex>64</TraitIndex>
-    <Category>Industry</Category>
+    <Category>Sociological</Category>
     <Cost>-2</Cost>
     <Description>65</Description>
     <ProductionMod>-0.15</ProductionMod>
@@ -208,7 +208,7 @@
     <!--Mercantile-->
 	<TraitName>Mercantile</TraitName>
     <TraitIndex>66</TraitIndex>
-    <Category>Industry</Category>
+    <Category>Sociological</Category>
     <Cost>2</Cost>
     <Description>67</Description>
     <Mercantile>0.5</Mercantile>
@@ -217,7 +217,7 @@
     <!-- Efficient-->
 	<TraitName>Efficient</TraitName>
     <TraitIndex>70</TraitIndex>
-    <Category>Industry</Category>
+    <Category>Sociological</Category>
     <Cost>4</Cost>
     <Description>71</Description>
     <MaintMod>-0.25</MaintMod>
@@ -229,7 +229,7 @@
     <!-- Wasteful -->
 	<TraitName>Wasteful</TraitName>
     <TraitIndex>68</TraitIndex>
-    <Category>Industry</Category>
+    <Category>Sociological</Category>
     <Cost>-4</Cost>
     <Description>69</Description>
     <MaintMod>0.25</MaintMod>
@@ -241,7 +241,7 @@
     <!-- Meticulous -->
 	<TraitName>Meticulous</TraitName>
     <TraitIndex>74</TraitIndex>
-    <Category>Industry</Category>
+    <Category>Sociological</Category>
     <Cost>1</Cost>
     <Description>75</Description>
     <TaxMod>0.25</TaxMod>
@@ -253,7 +253,7 @@
     <!-- Corrupt -->
 	<TraitName>Corrupt</TraitName>
     <TraitIndex>72</TraitIndex>
-    <Category>Industry</Category>
+    <Category>Sociological</Category>
     <Cost>-1</Cost>
     <Description>73</Description>
     <TaxMod>-0.25</TaxMod>
@@ -265,7 +265,7 @@
     <!-- Skilled Engineers -->
 	<TraitName>Skilled Engineers</TraitName>
     <TraitIndex>76</TraitIndex>
-    <Category>Industry</Category>
+    <Category>Sociological</Category>
     <Cost>2</Cost>
     <Description>77</Description>
     <ModHpModifier>0.2</ModHpModifier>
@@ -277,7 +277,7 @@
     <!-- Haphazard Engineers -->
 	<TraitName>Haphazard Engineers</TraitName>
     <TraitIndex>78</TraitIndex>
-    <Category>Industry</Category>
+    <Category>Sociological</Category>
     <Cost>-2</Cost>
     <Description>79</Description>
     <ModHpModifier>-0.2</ModHpModifier>
@@ -289,7 +289,7 @@
       <!-- Astronomers -->
 	  <TraitName>Astronomers</TraitName>
       <TraitIndex>80</TraitIndex>
-      <Category>Special</Category>
+      <Category>HistoryAndTradition</Category>
       <Cost>2</Cost>
       <Description>81</Description>
       <BonusExplored>15</BonusExplored>
@@ -298,7 +298,7 @@
       <!-- Naval Tradition-->
 	  <TraitName>Naval Tradition</TraitName>
       <TraitIndex>82</TraitIndex>
-      <Category>Special</Category>
+      <Category>HistoryAndTradition</Category>
       <Cost>2</Cost>
       <Description>83</Description>
       <ShipCostMod>-0.2</ShipCostMod>
@@ -307,7 +307,7 @@
       <!-- Militaristic -->
 	  <TraitName>Militaristic</TraitName>
       <TraitIndex>84</TraitIndex>
-      <Category>Special</Category>
+      <Category>HistoryAndTradition</Category>
       <Cost>2</Cost>
       <Description>85</Description>
       <Militaristic>1</Militaristic>
@@ -316,7 +316,7 @@
       <!-- Pack -->
 	  <TraitName>Pack</TraitName>
       <TraitIndex>2243</TraitIndex>
-      <Category>Special</Category>
+      <Category>HistoryAndTradition</Category>
       <Cost>2</Cost>
       <Description>2244</Description>
       <Pack>1</Pack>
@@ -325,7 +325,7 @@
       <!-- Polluted Homeworld -->
 	  <TraitName>Polluted Homeworld</TraitName>
       <TraitIndex>86</TraitIndex>
-      <Category>Special</Category>
+      <Category>Environment</Category>
       <Cost>-2</Cost>
       <Description>87</Description>
       <HomeworldFertMod>-0.5</HomeworldFertMod>
@@ -334,7 +334,7 @@
       <!-- Industrialized Homeworld -->
 	  <TraitName>Industrialized Homeworld</TraitName>
       <TraitIndex>5081</TraitIndex>
-      <Category>Special</Category>
+      <Category>Environment</Category>
       <Cost>2</Cost>
       <Description>5082</Description>
       <HomeworldFertMod>-1.0</HomeworldFertMod>
@@ -344,7 +344,7 @@
       <!-- Huge Homeworld -->
 	  <TraitName>Huge Homeworld</TraitName>
       <TraitIndex>88</TraitIndex>
-      <Category>Special</Category>
+      <Category>Environment</Category>
       <Cost>3</Cost>
       <Description>89</Description>
       <HomeworldSizeMod>0.25</HomeworldSizeMod>
@@ -356,7 +356,7 @@
       <!-- Small homeworld -->
 	  <TraitName>Small Homeworld</TraitName>
       <TraitIndex>90</TraitIndex>
-      <Category>Special</Category>
+      <Category>Environment</Category>
       <Cost>-3</Cost>
       <Description>91</Description>
       <HomeworldSizeMod>-0.15</HomeworldSizeMod>
@@ -368,7 +368,7 @@
       <!-- Prototype Flagship -->
 	  <TraitName>Prototype Flagship</TraitName>
       <TraitIndex>92</TraitIndex>
-      <Category>Special</Category>
+      <Category>HistoryAndTradition</Category>
       <Cost>1</Cost>
       <Description>93</Description>
       <Prototype>1</Prototype>
@@ -377,7 +377,7 @@
       <!-- Manifest Destiny -->
 	  <TraitName>Manifest Destiny</TraitName>
       <TraitIndex>96</TraitIndex>
-      <Category>Special</Category>
+      <Category>HistoryAndTradition</Category>
       <Cost>1</Cost>
       <Description>97</Description>
       <PassengerBonus>2</PassengerBonus>
@@ -386,7 +386,7 @@
       <!-- Duplicitous -->
 	  <TraitName>Duplicitous</TraitName>
       <TraitIndex>1436</TraitIndex>
-      <Category>Special</Category>
+      <Category>HistoryAndTradition</Category>
       <Cost>2</Cost>
       <Description>1437</Description>
       <SpyMultiplier>10</SpyMultiplier>
@@ -398,7 +398,7 @@
       <!-- Honest -->
 	  <TraitName>Honest</TraitName>
       <TraitIndex>1438</TraitIndex>
-      <Category>Special</Category>
+      <Category>HistoryAndTradition</Category>
       <Cost>-2</Cost>
       <Description>1439</Description>
       <Excludes>
@@ -410,11 +410,27 @@
       <!-- Spiritual -->
 	  <TraitName>Spiritual</TraitName>
       <TraitIndex>1440</TraitIndex>
-      <Category>Special</Category>
+      <Category>HistoryAndTradition</Category>
       <Cost>1</Cost>
       <Description>1441</Description>
       <Spiritual>0.5</Spiritual>
     </RacialTraitOption>
+    <RacialTraitOption>
+      <!-- Aquatic -->
+	  <TraitName>Environment</TraitName>
+      <TraitIndex>4986</TraitIndex>
+      <Category>Environment</Category>
+      <Cost>2</Cost>
+      <Description>4987</Description>
+	  <Aquatic>1</Aquatic>
+	  <EnvTerranMultiplier>1.5</EnvTerranMultiplier>
+   	  <EnvOceanicMultiplier>2</EnvOceanicMultiplier>
+	  <EnvSteppeMultiplier>1</EnvSteppeMultiplier>
+	  <EnvTundraMultiplier>1</EnvTundraMultiplier>
+	  <EnvSwampMultiplier>1.75</EnvSwampMultiplier>
+	  <EnvDesertMultiplier>0.5</EnvDesertMultiplier>
+	  <EnvIceMultiplier>0.75</EnvIceMultiplier>
+    </RacialTraitOption>	
 	
     <!-- Adventure Mode Traits
     <RacialTraitOption>

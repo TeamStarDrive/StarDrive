@@ -78,9 +78,19 @@ namespace Ship_Game
         [StarData] public int Cybernetic;
         [StarData] public float SpyModifier;
         [StarData] public int Pack;
-
-        // for flavor text: is this species aquatic?
         [StarData] public int Aquatic;
+
+        // FB - Environment
+        [StarData] public PlanetCategory PreferredEnv;
+        [StarData] public float EnvTerran = 1;
+        [StarData] public float EnvOceanic = 1;
+        [StarData] public float EnvSteppe = 1;
+        [StarData] public float EnvTundra = 1;
+        [StarData] public float EnvSwamp = 1;
+        [StarData] public float EnvDesert = 1;
+        [StarData] public float EnvIce = 1;
+        [StarData] public float EnvBarren = 1;
+        [StarData] public float EnvVolcanic = 1;
 
         [StarData] public float ResearchTaxMultiplier = 1; // set by difficulty
         [StarData] public bool TaxGoods; // unlocked by tech
@@ -170,7 +180,19 @@ namespace Ship_Game
                 HomeworldRichMod += trait.HomeworldRichMod;
                 Militaristic += trait.Militaristic;
                 Pack += trait.Pack;
+                Aquatic += trait.Aquatic;
                 Prototype += trait.Prototype;
+                EnvTerran *= trait.EnvTerranMultiplier > 0 ? trait.EnvTerranMultiplier : 1;
+                EnvOceanic *= trait.EnvOceanicMultiplier > 0 ? trait.EnvOceanicMultiplier : 1;
+                EnvSteppe *= trait.EnvSteppeMultiplier > 0 ? trait.EnvSteppeMultiplier : 1;
+                EnvTundra *= trait.EnvTundraMultiplier > 0 ? trait.EnvTundraMultiplier : 1;
+                EnvSwamp *= trait.EnvSwampMultiplier > 0 ? trait.EnvSwampMultiplier : 1;
+                EnvDesert *= trait.EnvDesertMultiplier > 0 ? trait.EnvDesertMultiplier: 1;
+                EnvIce *= trait.EnvIceMultiplier > 0 ? trait.EnvIceMultiplier : 1;
+                EnvBarren *= trait.EnvBarrenMultiplier > 0 ? trait.EnvBarrenMultiplier : 1;
+                EnvVolcanic *= trait.EnvVolcanicMultiplier > 0 ? trait.EnvVolcanicMultiplier : 1;
+                if (trait.PreferredEnv != PlanetCategory.Terran)
+                    PreferredEnv = trait.PreferredEnv;
             }
         }
 
