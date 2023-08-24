@@ -148,8 +148,8 @@ namespace Ship_Game
 
         static PlanetType GetPlanetType(Empire owner, SolarSystemData.Ring data = null)
         {
-            PlanetCategory preferred = owner.data.PreferredEnv == PlanetCategory.Other
-                                     ? PlanetCategory.Terran : owner.data.PreferredEnv;
+            PlanetCategory preferred = owner.data.PreferredEnvPlanet == PlanetCategory.Other
+                                     ? PlanetCategory.Terran : owner.data.PreferredEnvPlanet;
             return ResourceManager.Planets.PlanetOrRandom(data?.WhichPlanet ?? -1, preferred);
         }
 
@@ -294,7 +294,7 @@ namespace Ship_Game
 
         void TerraformPlanet()
         {
-            if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformedMaxFertility))
+            if (Category == Owner.data.PreferredEnvPlanet && BaseMaxFertility.GreaterOrEqual(TerraformedMaxFertility))
                 return;
 
             if (TerraformPoints.AlmostZero()) // Starting terraform
@@ -345,7 +345,7 @@ namespace Ship_Game
 
         void CompletePlanetTerraform()
         {
-            Terraform(Owner.data.PreferredEnv);
+            Terraform(Owner.data.PreferredEnvPlanet);
             TerraformPoints = 0;
             if (TerraformedMaxFertility.Greater(BaseMaxFertility))
             {
@@ -380,7 +380,7 @@ namespace Ship_Game
                     || terraLevel >= 2 && HasTilesToTerraform
                     || terraLevel == 3 && BioSpheresToTerraform
                     || terraLevel == 3 &&
-                        (Category != Owner.data.PreferredEnv || BaseMaxFertility.Less(TerraformedMaxFertility));
+                        (Category != Owner.data.PreferredEnvPlanet || BaseMaxFertility.Less(TerraformedMaxFertility));
             }
         }
 

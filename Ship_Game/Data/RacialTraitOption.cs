@@ -1,4 +1,5 @@
 ﻿using SDUtils;
+using Ship_Game.Data.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,5 +54,18 @@ namespace Ship_Game.Data
         public int Cybernetic;
         public float SpyModifier;
         public int Pack;
+        public int Aquatic;
+
+        // FB - Environment
+        public PlanetCategory PreferredEnv;
+        public float EnvTerranMultiplier;
+        public float EnvOceanicMultiplier;
+        public float EnvSteppeMultiplier;
+        public float EnvTundraMultiplier;
+        public float EnvSwampMultiplier;
+        public float EnvDesertMultiplier;
+        public float EnvIceMultiplier;
+        public float EnvBarrenMultiplier;
+        public float EnvVolcanicMultiplier;
     }
 }

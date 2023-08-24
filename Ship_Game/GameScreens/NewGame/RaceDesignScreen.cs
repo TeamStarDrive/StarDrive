@@ -40,7 +40,7 @@ namespace Ship_Game
         UILabel ExtraPlanetsLabel;
         UILabel PerformanceWarning;
         int FlagIndex;
-        public int TotalPointsUsed { get; private set; } = 8;
+        public int TotalPointsUsed { get; private set; }
 
         public IEmpireData SelectedData { get; private set; }
 
@@ -122,7 +122,7 @@ namespace Ship_Game
             if (traitsList.H > 580)
                 traitsList.H = 580;
 
-            LocalizedText[] traitNames = { GameText.Physical, GameText.Sociological, GameText.HistoryAndTradition };
+            LocalizedText[] traitNames = { GameText.Physical, GameText.Sociological, GameText.HistoryAndTradition, "Environment" };
             Traits = Add(new SubmenuScrollList<TraitsListItem>(traitsList.Bevel(-20), traitNames));
             Traits.OnTabChange = OnTraitsTabChanged;
             Traits.SetBackground(new Menu1(traitsList));
@@ -216,9 +216,9 @@ namespace Ship_Game
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
 
-            var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width + 5, 150);
+            var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width, 150);
             EnvMenu = Add(new EnvPreferencesPanel(this, envRect));
-            EnvMenu.Visible = GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign;
+            EnvMenu.Visible = true; // GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign;
 
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
                 .SetLocalPos(ChooseRaceList.Width / 2 - 142, ChooseRaceList.Height + 10);
@@ -321,8 +321,9 @@ namespace Ship_Game
             {
                 default:
                 case 0: category = "Physical"; break;
-                case 1: category = "Industry"; break;
-                case 2: category = "Special";  break;
+                case 1: category = "Sociological"; break;
+                case 2: category = "HistoryAndTradition";  break;
+                case 3: category = "Environment"; break;
             }
 
             TraitsListItem[] traits = AllTraits.FilterSelect(t => t.Trait.Category == category,
@@ -344,7 +345,7 @@ namespace Ship_Game
         {
             foreach (TraitEntry trait in AllTraits)
                 trait.Selected = false;
-            TotalPointsUsed = 8;
+            TotalPointsUsed = P.RacialTraitPoints;
         }
 
         void OnLoadRaceClicked(UIButton b)
@@ -507,6 +508,7 @@ namespace Ship_Game
 
             UpdateTraits();
             DoRaceDescription();
+            EnvMenu.UpdatePreferences(RaceSummary);
         }
 
         void OnRaceArchetypeItemClicked(RaceArchetypeListItem item)
@@ -514,7 +516,7 @@ namespace Ship_Game
             SelectedData = item.EmpireData;
             SetRacialTraits(SelectedData.Traits);
 
-            if (GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign)
+            //if (GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign)
             {
                 EnvMenu.UpdateArchetype(SelectedData);
             }
