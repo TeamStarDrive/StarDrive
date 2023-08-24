@@ -57,7 +57,7 @@ namespace Ship_Game.Data
         public int Aquatic;
 
         // FB - Environment
-        public PlanetCategory PreferredEnv;
+        public PlanetCategory PreferredEnv = PlanetCategory.Terran;
         public float EnvTerranMultiplier;
         public float EnvOceanicMultiplier;
         public float EnvSteppeMultiplier;

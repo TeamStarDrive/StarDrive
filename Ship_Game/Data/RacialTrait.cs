@@ -81,7 +81,7 @@ namespace Ship_Game
         [StarData] public int Aquatic;
 
         // FB - Environment
-        [StarData] public PlanetCategory PreferredEnv;
+        [StarData] public PlanetCategory PreferredEnv = PlanetCategory.Terran;
         [StarData] public float EnvTerran = 1;
         [StarData] public float EnvOceanic = 1;
         [StarData] public float EnvSteppe = 1;
@@ -154,6 +154,9 @@ namespace Ship_Game
 
             foreach (RacialTraitOption trait in traits.TraitList)
             {
+                if (!TraitOptions.Contains(trait.TraitName))
+                    continue;
+                    
                 DiplomacyMod += trait.DiplomacyMod;
                 EnergyDamageMod += trait.EnergyDamageMod;
                 ConsumptionModifier += trait.ConsumptionModifier;

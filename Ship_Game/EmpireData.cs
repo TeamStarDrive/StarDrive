@@ -119,16 +119,6 @@ namespace Ship_Game
         string Adj1 { get; }
         string Adj2 { get; }
 
-        float EnvPerfTerran { get; }
-        float EnvPerfOceanic { get; }
-        float EnvPerfSteppe { get; }
-        float EnvPerfTundra { get; }
-        float EnvPerfSwamp { get; }
-        float EnvPerfDesert { get; }
-        float EnvPerfIce { get; }
-        float EnvPerfBarren { get; }
-        PlanetCategory PreferredEnvPlanet { get; }
-
         string WarpStart { get; }
         string WarpEnd { get; }
     }
