@@ -882,7 +882,7 @@ namespace Ship_Game
                 NumMaxTerraformers     = P.TerraformerLimit;
                 NeedLevel1Terraform    = P.HasTerrainToTerraform;
                 NeedLevel2Terraform    = P.HasTilesToTerraform;
-                NeedLevel3Terraform    = P.Category != P.Owner.data.PreferredEnv || P.BaseMaxFertility.Less(P.TerraformedMaxFertility);
+                NeedLevel3Terraform    = P.Category != P.Owner.data.PreferredEnvPlanet || P.BaseMaxFertility.Less(P.TerraformedMaxFertility);
                 NumTerrain             = P.CountBuildings(b => b.CanBeTerraformed);
                 NumTerraformableTiles  = P.TilesList.Count(t => t.CanTerraform);
                 TerraformLevel         = P.ContainsEventTerraformers ? 3 : P.Owner.data.Traits.TerraformingLevel;

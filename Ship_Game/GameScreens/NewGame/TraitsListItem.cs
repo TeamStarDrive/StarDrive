@@ -16,7 +16,7 @@ namespace Ship_Game
         readonly Graphics.Font TitleFont;
         readonly Graphics.Font DescrFont;
         public TraitEntry Trait;
-        Color grayedoutColor = new Color(100, 100, 100);
+        Color GrayedoutColor = new Color(100, 100, 100);
 
         public TraitsListItem(RaceDesignScreen screen, TraitEntry trait)
         {
@@ -36,10 +36,10 @@ namespace Ship_Game
             string name = PaddedWithDots(TitleFont, Trait.Trait.LocalizedName.Text, textAreaWidth);
             int cost = Trait.Trait.Cost;
 
-            var drawColor = grayedoutColor;
+            var drawColor = GrayedoutColor;
             if (!Trait.Selected)
             {
-                drawColor = grayedoutColor;
+                drawColor = GrayedoutColor;
             }
             if (Trait.Selected)
             {
@@ -47,7 +47,7 @@ namespace Ship_Game
             }
             else if (Trait.Excluded)
             {
-                drawColor = grayedoutColor;
+                drawColor = (cost > 0 ? Color.MediumSeaGreen.Alpha(0.4f) : Color.LightCoral.Alpha(0.4f));
             }
             else if (Screen.TotalPointsUsed >= 0 && Screen.TotalPointsUsed - cost >= 0 || cost < 0)
             {

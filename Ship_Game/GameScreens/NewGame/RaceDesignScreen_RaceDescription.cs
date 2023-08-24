@@ -196,7 +196,7 @@ namespace Ship_Game
             Plural = traits.Plural;
             HomeSysName = traits.HomeSystemName;
             HomeWorldName = traits.HomeworldName;
-            TotalPointsUsed = 8;
+            TotalPointsUsed = P.RacialTraitPoints;
 
             foreach (TraitEntry traitEntry in AllTraits)
             {
@@ -217,7 +217,7 @@ namespace Ship_Game
             foreach (TraitEntry traitEntry in AllTraits)
                 traitEntry.Excluded = false;
 
-            TotalPointsUsed = 8;
+            TotalPointsUsed = P.RacialTraitPoints;
             foreach (TraitEntry traitEntry in AllTraits.Filter(t => t.Selected))
             {
                 TotalPointsUsed -= traitEntry.Trait.Cost;
@@ -270,6 +270,19 @@ namespace Ship_Game
                 RaceSummary.RepairMod              += trait.RepairMod;
                 RaceSummary.PassengerModifier      += trait.PassengerBonus;
                 RaceSummary.Pack                   += trait.Pack;
+                RaceSummary.Aquatic                += trait.Aquatic;
+                RaceSummary.EnvTerran   *= trait.EnvTerranMultiplier > 0   ? trait.EnvTerranMultiplier   : 1;
+                RaceSummary.EnvOceanic  *= trait.EnvOceanicMultiplier > 0  ? trait.EnvOceanicMultiplier  : 1;
+                RaceSummary.EnvSteppe   *= trait.EnvSteppeMultiplier > 0   ? trait.EnvSteppeMultiplier   : 1;
+                RaceSummary.EnvTundra   *= trait.EnvTundraMultiplier > 0   ? trait.EnvTundraMultiplier   : 1;
+                RaceSummary.EnvSwamp    *= trait.EnvSwampMultiplier > 0    ? trait.EnvSwampMultiplier    : 1;
+                RaceSummary.EnvDesert   *= trait.EnvDesertMultiplier > 0   ? trait.EnvDesertMultiplier   : 1;
+                RaceSummary.EnvIce      *= trait.EnvIceMultiplier > 0      ? trait.EnvIceMultiplier      : 1;
+                RaceSummary.EnvBarren   *= trait.EnvBarrenMultiplier > 0   ? trait.EnvBarrenMultiplier   : 1;
+                RaceSummary.EnvVolcanic *= trait.EnvVolcanicMultiplier > 0 ? trait.EnvVolcanicMultiplier : 1;
+                if (trait.PreferredEnv != PlanetCategory.Terran)
+                    RaceSummary.PreferredEnv = trait.PreferredEnv;
+
             }
         }
     }
