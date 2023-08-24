@@ -32,17 +32,6 @@
   <ThrustColor1G>0</ThrustColor1G>
   <ThrustColor1B>128</ThrustColor1B>      
   
-  <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
-  <EnvTerran>1</EnvTerran>
-  <EnvOceanic>1</EnvOceanic>
-  <EnvSteppe>1</EnvSteppe>
-  <EnvTundra>1</EnvTundra>
-  <EnvSwamp>1</EnvSwamp>
-  <EnvDesert>1</EnvDesert>
-  <EnvIce>1</EnvIce>
-  <EnvBarren>1</EnvBarren>
-  <EnvVolcanic>1</EnvVolcanic>
-  <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
   
   <ExcludedDTraits>
     <string>Pacifist</string>
