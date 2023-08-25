@@ -129,7 +129,7 @@
     <Category>Physical</Category>
     <Cost>2</Cost>
     <Description>53</Description>
-    <EnergyDamageMod>0.2</EnergyDamageMod>
+    <TargetingModifier>0.2</TargetingModifier>
     <Excludes>
 		<string>Blind</string>
 	</Excludes>
@@ -141,7 +141,7 @@
     <Category>Physical</Category>
     <Cost>-2</Cost>
     <Description>55</Description>
-    <EnergyDamageMod>-0.2</EnergyDamageMod>
+    <TargetingModifier>-0.2</TargetingModifier>
     <Excludes>
 		<string>Eagle Eyed</string>
 	</Excludes>
@@ -423,6 +423,7 @@
       <Cost>2</Cost>
       <Description>4987</Description>
 	  <Aquatic>1</Aquatic> <!-- This only changes the race description -->
+	  <PreferredEnv>Oceanic</PreferredEnv>  
 	  <EnvTerranMultiplier>1.5</EnvTerranMultiplier>
    	  <EnvOceanicMultiplier>2</EnvOceanicMultiplier>
 	  <EnvSteppeMultiplier>1</EnvSteppeMultiplier>
@@ -431,6 +432,16 @@
 	  <EnvDesertMultiplier>0.5</EnvDesertMultiplier>
 	  <EnvIceMultiplier>0.75</EnvIceMultiplier>
     </RacialTraitOption>	
+    <RacialTraitOption>
+      <!-- Explorers -->
+	  <TraitName>Explorers</TraitName>
+      <TraitIndex>4984</TraitIndex>
+      <Category>Sociological</Category>
+      <Cost>1</Cost>
+      <Description>4985</Description>
+	  <ExploreDistanceMultiplier>2</ExploreDistanceMultiplier>
+    </RacialTraitOption>
+
 	
     <!-- Adventure Mode Traits
     <RacialTraitOption>

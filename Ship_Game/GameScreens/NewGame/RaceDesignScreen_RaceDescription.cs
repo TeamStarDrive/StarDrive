@@ -185,7 +185,7 @@ namespace Ship_Game
         {
             foreach (TraitEntry traitEntry in AllTraits)
             {
-                traitEntry.Excluded= false;
+                traitEntry.ExcludedBy = new();
             }
 
             RaceSummary.ShipType = traits.ShipType;
@@ -215,7 +215,7 @@ namespace Ship_Game
         void UpdateTraits()
         {
             foreach (TraitEntry traitEntry in AllTraits)
-                traitEntry.Excluded = false;
+                traitEntry.ExcludedBy = new();
 
             TotalPointsUsed = P.RacialTraitPoints;
             foreach (TraitEntry traitEntry in AllTraits.Filter(t => t.Selected))
@@ -229,7 +229,7 @@ namespace Ship_Game
         {
             foreach (TraitEntry ex in AllTraits)
                 if (t.Trait.Excludes.Contains(ex.Trait.TraitName))
-                    ex.Excluded = true;
+                    ex.ExcludedBy.Add(t.Trait.LocalizedName.Text);
         }
         
         void CreateRaceSummary()
@@ -244,7 +244,7 @@ namespace Ship_Game
                 RacialTraitOption trait = t.Trait;
                 RaceSummary.ConsumptionModifier    += trait.ConsumptionModifier;
                 RaceSummary.DiplomacyMod           += trait.DiplomacyMod;
-                RaceSummary.EnergyDamageMod        += trait.EnergyDamageMod;
+                RaceSummary.TargetingModifier        += trait.EnergyDamageMod;
                 RaceSummary.MaintMod               += trait.MaintMod;
                 RaceSummary.ReproductionMod        += trait.ReproductionMod;
                 RaceSummary.PopGrowthMax           += trait.PopGrowthMax;
@@ -271,18 +271,19 @@ namespace Ship_Game
                 RaceSummary.PassengerModifier      += trait.PassengerBonus;
                 RaceSummary.Pack                   += trait.Pack;
                 RaceSummary.Aquatic                += trait.Aquatic;
-                RaceSummary.EnvTerran   *= trait.EnvTerranMultiplier > 0   ? trait.EnvTerranMultiplier   : 1;
-                RaceSummary.EnvOceanic  *= trait.EnvOceanicMultiplier > 0  ? trait.EnvOceanicMultiplier  : 1;
-                RaceSummary.EnvSteppe   *= trait.EnvSteppeMultiplier > 0   ? trait.EnvSteppeMultiplier   : 1;
-                RaceSummary.EnvTundra   *= trait.EnvTundraMultiplier > 0   ? trait.EnvTundraMultiplier   : 1;
-                RaceSummary.EnvSwamp    *= trait.EnvSwampMultiplier > 0    ? trait.EnvSwampMultiplier    : 1;
-                RaceSummary.EnvDesert   *= trait.EnvDesertMultiplier > 0   ? trait.EnvDesertMultiplier   : 1;
-                RaceSummary.EnvIce      *= trait.EnvIceMultiplier > 0      ? trait.EnvIceMultiplier      : 1;
-                RaceSummary.EnvBarren   *= trait.EnvBarrenMultiplier > 0   ? trait.EnvBarrenMultiplier   : 1;
-                RaceSummary.EnvVolcanic *= trait.EnvVolcanicMultiplier > 0 ? trait.EnvVolcanicMultiplier : 1;
+
+                RaceSummary.ExploreDistanceMultiplier *= trait.ExploreDistanceMultiplier;
+                RaceSummary.EnvTerran   *= trait.EnvTerranMultiplier;
+                RaceSummary.EnvOceanic  *= trait.EnvOceanicMultiplier;
+                RaceSummary.EnvSteppe   *= trait.EnvSteppeMultiplier;
+                RaceSummary.EnvTundra   *= trait.EnvTundraMultiplier;
+                RaceSummary.EnvSwamp    *= trait.EnvSwampMultiplier;
+                RaceSummary.EnvDesert   *= trait.EnvDesertMultiplier;
+                RaceSummary.EnvIce      *= trait.EnvIceMultiplier;
+                RaceSummary.EnvBarren   *= trait.EnvBarrenMultiplier;
+                RaceSummary.EnvVolcanic *= trait.EnvVolcanicMultiplier;
                 if (trait.PreferredEnv != PlanetCategory.Terran)
                     RaceSummary.PreferredEnv = trait.PreferredEnv;
-
             }
         }
     }

@@ -15,6 +15,7 @@ namespace Ship_Game
         readonly RaceDesignScreen Screen;
         readonly Graphics.Font TitleFont;
         readonly Graphics.Font DescrFont;
+        string Description;
         public TraitEntry Trait;
         Color GrayedoutColor = new Color(100, 100, 100);
 
@@ -24,9 +25,10 @@ namespace Ship_Game
             Trait = trait;
             TitleFont = screen.LowRes ? Fonts.Arial11Bold : Fonts.Arial14Bold;
             DescrFont = screen.LowRes ? Fonts.Arial10 : Fonts.Arial12;
+            Description = new LocalizedText(Trait.Trait.Description).Text;
         }
 
-        public override int ItemHeight => TitleFont.LineSpacing * 2 + DescrFont.LineSpacing;
+        public override int ItemHeight => TitleFont.LineSpacing * 3 + DescrFont.LineSpacing;
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
@@ -62,7 +64,7 @@ namespace Ship_Game
             batch.DrawString(TitleFont, costText, curs, drawColor);
 
             pos.Y += TitleFont.LineSpacing;
-            batch.DrawString(DescrFont, DescrFont.ParseText(new LocalizedText(Trait.Trait.Description), textAreaWidth), pos, drawColor);
+            batch.DrawString(DescrFont, DescrFont.ParseText(GetDescrption(), textAreaWidth), pos, drawColor);
         }
 
         static float DotSpaceWidth;
@@ -81,6 +83,28 @@ namespace Ship_Game
                 sb.Append(" .");
 
             return sb.ToString();
+        }
+
+        string GetDescrption()
+        {
+            if (Trait.Selected)
+                return Description;
+
+            string extraDescription = string.Empty;
+            if (Trait.Excluded)
+            {
+                string excludedText = Trait.ExcludedBy[0];
+                for (int i = 1; i < Trait.ExcludedBy.Count; i++)
+                    excludedText = $"{excludedText}, {Trait.ExcludedBy[i]}";
+
+                extraDescription = $"(excluded by {excludedText}).";
+            }
+            else if (Screen.TotalPointsUsed - Trait.Trait.Cost < 0)
+            {
+                extraDescription = "(not enough points to spend).";
+            }
+
+            return $"{Description} {extraDescription}";
         }
     }
 }
