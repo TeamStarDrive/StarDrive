@@ -148,8 +148,8 @@ namespace Ship_Game
             set => TaxRateValue = value.NaNChecked(0.25f, "EmpireData.TaxRate");
         }
 
-        [StarData] public Array<string> ExcludedDTraits = new();
-        [StarData] public Array<string> ExcludedETraits = new();
+        [StarData] public Array<string> PersonalityTraitsWeights = new();
+        [StarData] public Array<string> EconomicTraitsWeights = new();
         [StarData] public Array<Agent> AgentList = new();
         [StarData] public string AbsorbedBy;
         [StarData] public string StartingShip;

@@ -30,14 +30,36 @@
   <ThrustColor1G>134</ThrustColor1G>
   <ThrustColor1B>11</ThrustColor1B>
 
-  <ExcludedDTraits>
-    <string>Pacifist</string>
-    <string>Honorable</string>
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
     <string>Cunning</string>
-  </ExcludedDTraits>
-  <ExcludedETraits>
+    <string>Honorable</string>	
+    <string>Pacifist</string>
+  </PersonalityTraitsWeights>
+  
+  <EconomicTraitsWeights>
     <string>Technologists</string>
-  </ExcludedETraits>
+	<string>Industrialists</string>
+	<string>Industrialists</string>
+	<string>Generalists</string>
+	<string>Generalists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+  </EconomicTraitsWeights>  
+  
   <Traits>
     <Name>The Vulfen Imperium</Name>
     <Singular>Vulfar</Singular>
