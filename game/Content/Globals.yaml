@@ -5,6 +5,7 @@ Globals:
   MaxOpponents: 7
   DefaultNumOpponents: 5
   TurnTimer: 5 # default time in seconds for a single turn
+  
 
   # gameplay modifiers
   ShipDestroyThreshold: 0.5 # ships with internal slots below this ratio will Die

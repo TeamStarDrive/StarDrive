@@ -146,33 +146,22 @@ namespace Ship_Game
             InitNewMinorPlanet(random, type, scale, data.MaxPopDefined);
         }
 
-        static PlanetType GetPlanetType(Empire owner, SolarSystemData.Ring data = null)
-        {
-            PlanetCategory preferred = owner.data.PreferredEnvPlanet == PlanetCategory.Other
-                                     ? PlanetCategory.Terran : owner.data.PreferredEnvPlanet;
-            return ResourceManager.Planets.PlanetOrRandom(data?.WhichPlanet ?? -1, preferred);
-        }
-
         public void GenerateNewHomeWorld(RandomBase random, Empire owner, SolarSystemData.Ring data = null)
         {
-            PlanetType type = GetPlanetType(owner, data);
+            PlanetType type = ResourceManager.Planets.RandomPlanet(owner.data.PreferredEnvPlanet);
             float scale = 1f * owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
 
             InitPlanetType(type, scale, fromSave: false);
-
             SetOwner(owner);
             IsHomeworld = true;
             Owner.SetCapital(this);
             SetTileHabitability(random, 0, out _); // Create the homeworld's tiles without making them habitable yet
             SetHomeworldTiles(random);
-
             ResetGarrisonSize();
-
             if (OwnerIsPlayer)
                 CType = ColonyType.Colony;
 
             CreateHomeWorldFertilityAndRichness();
-
             int numHabitableTiles = TilesList.Count(t => t.Habitable);
             float preDefinedPop = data?.MaxPopDefined ?? 0f;
             CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);

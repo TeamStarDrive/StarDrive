@@ -417,12 +417,12 @@
     </RacialTraitOption>
     <RacialTraitOption>
       <!-- Aquatic -->
-	  <TraitName>Environment</TraitName>
+	  <TraitName>Aquatic</TraitName>
       <TraitIndex>4986</TraitIndex>
       <Category>Environment</Category>
       <Cost>2</Cost>
       <Description>4987</Description>
-	  <Aquatic>1</Aquatic>
+	  <Aquatic>1</Aquatic> <!-- This only changes the race description -->
 	  <EnvTerranMultiplier>1.5</EnvTerranMultiplier>
    	  <EnvOceanicMultiplier>2</EnvOceanicMultiplier>
 	  <EnvSteppeMultiplier>1</EnvSteppeMultiplier>
