@@ -244,7 +244,7 @@ namespace Ship_Game
                 RacialTraitOption trait = t.Trait;
                 RaceSummary.ConsumptionModifier    += trait.ConsumptionModifier;
                 RaceSummary.DiplomacyMod           += trait.DiplomacyMod;
-                RaceSummary.TargetingModifier        += trait.EnergyDamageMod;
+                RaceSummary.TargetingModifier      += trait.TargetingModifier;
                 RaceSummary.MaintMod               += trait.MaintMod;
                 RaceSummary.ReproductionMod        += trait.ReproductionMod;
                 RaceSummary.PopGrowthMax           += trait.PopGrowthMax;
