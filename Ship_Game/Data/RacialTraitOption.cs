@@ -38,7 +38,7 @@ namespace Ship_Game.Data
         public float HomeworldFertMod;
         public float HomeworldRichMod;
         public float DodgeMod;
-        public float EnergyDamageMod;
+        public float TargetingModifier;
         public float ResearchMod;
         public float Mercantile;
         public float ProductionMod;
@@ -55,17 +55,18 @@ namespace Ship_Game.Data
         public float SpyModifier;
         public int Pack;
         public int Aquatic;
+        public float ExploreDistanceMultiplier = 1;
 
         // FB - Environment
         public PlanetCategory PreferredEnv = PlanetCategory.Terran;
-        public float EnvTerranMultiplier;
-        public float EnvOceanicMultiplier;
-        public float EnvSteppeMultiplier;
-        public float EnvTundraMultiplier;
-        public float EnvSwampMultiplier;
-        public float EnvDesertMultiplier;
-        public float EnvIceMultiplier;
-        public float EnvBarrenMultiplier;
-        public float EnvVolcanicMultiplier;
+        public float EnvTerranMultiplier = 1;
+        public float EnvOceanicMultiplier = 1;
+        public float EnvSteppeMultiplier = 1;
+        public float EnvTundraMultiplier = 1;
+        public float EnvSwampMultiplier = 1;
+        public float EnvDesertMultiplier = 1;
+        public float EnvIceMultiplier = 1;
+        public float EnvBarrenMultiplier = 1;
+        public float EnvVolcanicMultiplier = 1;
     }
 }

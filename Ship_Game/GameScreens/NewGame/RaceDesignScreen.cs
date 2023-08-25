@@ -216,10 +216,10 @@ namespace Ship_Game
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
 
-            var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width, 150);
-            EnvMenu = Add(new EnvPreferencesPanel(this, envRect));
-            EnvMenu.Visible = true; // GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign;
 
+            var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width, 150);
+            EnvMenu = Add(new EnvPreferencesPanel(this, RaceSummary, envRect));
+            EnvMenu.Visible = true; // GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign;
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
                 .SetLocalPos(ChooseRaceList.Width / 2 - 142, ChooseRaceList.Height + 10);
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked)
@@ -518,7 +518,9 @@ namespace Ship_Game
 
             //if (GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign)
             {
-                EnvMenu.UpdateArchetype(SelectedData);
+                UpdateTraits();
+                DoRaceDescription();
+                EnvMenu.UpdateArchetype(SelectedData, RaceSummary);
             }
         }
 

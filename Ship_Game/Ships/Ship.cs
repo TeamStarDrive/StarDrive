@@ -130,8 +130,8 @@ namespace Ship_Game.Ships
         public void SetHighAlertStatus() => HighAlertTimer = HighAlertSeconds;
         public float GetHighAlertTimer() => HighAlertTimer;
 
-        public float ExplorePlanetDistance => (SensorRange * 0.1f).LowerBound(500);
-        public float ExploreSystemDistance => SensorRange;
+        public float ExplorePlanetDistance => (SensorRange * 0.1f).LowerBound(500) * Loyalty.data.Traits.ExploreDistanceMultiplier;
+        public float ExploreSystemDistance => SensorRange * Loyalty.data.Traits.ExploreDistanceMultiplier;
 
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
         Vector3 DieRotation;
