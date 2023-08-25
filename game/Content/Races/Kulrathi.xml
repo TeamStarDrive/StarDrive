@@ -32,11 +32,20 @@
   <ThrustColor1G>0</ThrustColor1G>
   <ThrustColor1B>128</ThrustColor1B>      
   
-  
-  <ExcludedDTraits>
-    <string>Pacifist</string>
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
     <string>Ruthless</string>
-  </ExcludedDTraits>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+    <string>Honorable</string>	
+	<string>Honorable</string>	
+	<string>Honorable</string>	
+    <string>Pacifist</string>
+  </PersonalityTraitsWeights>    
+  
   <Traits>
     <Name>The Kulrathi Shogunate</Name>
     <Singular>Kulrathi</Singular>

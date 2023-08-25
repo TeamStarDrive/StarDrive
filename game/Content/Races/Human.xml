@@ -20,9 +20,23 @@
   <ThrustColor1G>196</ThrustColor1G>
   <ThrustColor1B>222</ThrustColor1B>
   
-  <ExcludedDTraits>
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+	<string>Cunning</string>
+    <string>Honorable</string>	
+	<string>Honorable</string>	
+	<string>Honorable</string>	
     <string>Pacifist</string>
-  </ExcludedDTraits>
+  </PersonalityTraitsWeights>  
   
   <!-- Rebel Faction data.-->
   <RebelName>Confederate Rebels</RebelName>
