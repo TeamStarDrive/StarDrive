@@ -159,7 +159,7 @@ namespace Ship_Game
                     continue;
                     
                 DiplomacyMod += trait.DiplomacyMod;
-                TargetingModifier += trait.EnergyDamageMod;
+                TargetingModifier += trait.TargetingModifier;
                 ConsumptionModifier += trait.ConsumptionModifier;
                 PopGrowthMin += trait.PopGrowthMin;
                 PopGrowthMax += trait.PopGrowthMax;
