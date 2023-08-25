@@ -31,13 +31,38 @@
   <ThrustColor1G>255</ThrustColor1G>
   <ThrustColor1B>0</ThrustColor1B>    
 
-  <ExcludedDTraits>
-    <string>Ruthless</string>
-    <string>Aggressive</string>
-  </ExcludedDTraits>
-  <ExcludedETraits>
-    <string>Militarists</string>
-  </ExcludedETraits>
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+	<string>Cunning</string>
+    <string>Honorable</string>	
+	<string>Honorable</string>	
+	<string>Honorable</string>	
+    <string>Pacifist</string>
+	<string>Pacifist</string>
+	<string>Pacifist</string>
+	<string>Pacifist</string>
+  </PersonalityTraitsWeights>  
+
+  <EconomicTraitsWeights>
+    <string>Technologists</string>
+	<string>Technologists</string>
+	<string>Technologists</string>
+	<string>Industrialists</string>
+	<string>Industrialists</string>
+	<string>Generalists</string>
+	<string>Generalists</string>
+	<string>Generalists</string>
+	<string>Militarists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+  </EconomicTraitsWeights>
+
   <Traits>
     <Name>Pollops</Name>
     <Singular>Pollop</Singular>

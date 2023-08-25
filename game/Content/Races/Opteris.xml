@@ -29,14 +29,38 @@
   <ThrustColor1G>0</ThrustColor1G>
   <ThrustColor1B>255</ThrustColor1B>    
 
-  <ExcludedDTraits>
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+	<string>Cunning</string>
+    <string>Honorable</string>	
     <string>Pacifist</string>
-    <string>Honorable</string>
-    <string>Xenophobic</string>
-  </ExcludedDTraits>
-  <ExcludedETraits>
-    <string>Generalists</string>
-  </ExcludedETraits>
+  </PersonalityTraitsWeights>  
+
+  <EconomicTraitsWeights>
+    <string>Technologists</string>
+	<string>Technologists</string>
+	<string>Technologists</string>
+	<string>Industrialists</string>
+	<string>Industrialists</string>
+	<string>Industrialists</string>
+	<string>Generalists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+  </EconomicTraitsWeights>
+  
   <Traits>
     <Name>Opteris</Name>
     <Singular>Opteris</Singular>
