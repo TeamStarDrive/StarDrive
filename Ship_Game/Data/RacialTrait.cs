@@ -62,7 +62,7 @@ namespace Ship_Game
         [StarData] public float HomeworldFertMod;
         [StarData] public float HomeworldRichMod;
         [StarData] public float DodgeMod;
-        [StarData] public float EnergyDamageMod;
+        [StarData] public float TargetingModifier;
         [StarData] public float ResearchMod;
         [StarData] public float Mercantile;
         [StarData] public float ProductionMod;
@@ -79,6 +79,7 @@ namespace Ship_Game
         [StarData] public float SpyModifier;
         [StarData] public int Pack;
         [StarData] public int Aquatic;
+        [StarData] public float ExploreDistanceMultiplier = 1;
 
         // FB - Environment
         [StarData] public PlanetCategory PreferredEnv = PlanetCategory.Terran;
@@ -158,7 +159,7 @@ namespace Ship_Game
                     continue;
                     
                 DiplomacyMod += trait.DiplomacyMod;
-                EnergyDamageMod += trait.EnergyDamageMod;
+                TargetingModifier += trait.EnergyDamageMod;
                 ConsumptionModifier += trait.ConsumptionModifier;
                 PopGrowthMin += trait.PopGrowthMin;
                 PopGrowthMax += trait.PopGrowthMax;
@@ -184,16 +185,17 @@ namespace Ship_Game
                 Militaristic += trait.Militaristic;
                 Pack += trait.Pack;
                 Aquatic += trait.Aquatic;
+                ExploreDistanceMultiplier *= trait.ExploreDistanceMultiplier;
                 Prototype += trait.Prototype;
-                EnvTerran *= trait.EnvTerranMultiplier > 0 ? trait.EnvTerranMultiplier : 1;
-                EnvOceanic *= trait.EnvOceanicMultiplier > 0 ? trait.EnvOceanicMultiplier : 1;
-                EnvSteppe *= trait.EnvSteppeMultiplier > 0 ? trait.EnvSteppeMultiplier : 1;
-                EnvTundra *= trait.EnvTundraMultiplier > 0 ? trait.EnvTundraMultiplier : 1;
-                EnvSwamp *= trait.EnvSwampMultiplier > 0 ? trait.EnvSwampMultiplier : 1;
-                EnvDesert *= trait.EnvDesertMultiplier > 0 ? trait.EnvDesertMultiplier: 1;
-                EnvIce *= trait.EnvIceMultiplier > 0 ? trait.EnvIceMultiplier : 1;
-                EnvBarren *= trait.EnvBarrenMultiplier > 0 ? trait.EnvBarrenMultiplier : 1;
-                EnvVolcanic *= trait.EnvVolcanicMultiplier > 0 ? trait.EnvVolcanicMultiplier : 1;
+                EnvTerran *= trait.EnvTerranMultiplier;
+                EnvOceanic *= trait.EnvOceanicMultiplier;
+                EnvSteppe *= trait.EnvSteppeMultiplier;
+                EnvTundra *= trait.EnvTundraMultiplier;
+                EnvSwamp *= trait.EnvSwampMultiplier;
+                EnvDesert *= trait.EnvDesertMultiplier;
+                EnvIce *= trait.EnvIceMultiplier;
+                EnvBarren *= trait.EnvBarrenMultiplier;
+                EnvVolcanic *= trait.EnvVolcanicMultiplier;
                 if (trait.PreferredEnv != PlanetCategory.Terran)
                     PreferredEnv = trait.PreferredEnv;
             }

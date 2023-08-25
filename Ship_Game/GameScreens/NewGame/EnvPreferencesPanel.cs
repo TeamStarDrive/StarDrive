@@ -15,7 +15,7 @@ namespace Ship_Game.GameScreens.NewGame
         readonly UILabel BestType;
         UIPanel PlanetIcon;
 
-        public PlanetCategory PreferredEnv;
+        public PlanetCategory PreferredEnv = PlanetCategory.Terran;
         public float EnvTerran = 1;
         public float EnvOceanic = 1;
         public float EnvSteppe = 1;
@@ -28,7 +28,7 @@ namespace Ship_Game.GameScreens.NewGame
 
         IEmpireData Data;
 
-        public EnvPreferencesPanel(RaceDesignScreen parent, in Rectangle rect) : base(rect)
+        public EnvPreferencesPanel(RaceDesignScreen parent, RacialTrait raceSummary, in Rectangle rect) : base(rect)
         {
             Screen = parent;
             Data = Screen.SelectedData;
@@ -78,14 +78,14 @@ namespace Ship_Game.GameScreens.NewGame
             AddEnvSplitter(column2, "{Ice}: ",    () => EnvIce);
             AddEnvSplitter(column2, "{Desert}: ", () => EnvDesert);
             AddEnvSplitter(column2, "{Barren}: ", () => EnvBarren);
-
-            UpdatePlanetIcon();
+            UpdatePreferences(raceSummary);
         }
 
-        public void UpdateArchetype(IEmpireData data)
+        public void UpdateArchetype(IEmpireData data, RacialTrait raceSummary)
         {
             Data = data;
             UpdatePlanetIcon();
+            UpdatePreferences(raceSummary);
         }
 
         public void UpdatePreferences(RacialTrait raceSummary)
@@ -100,6 +100,7 @@ namespace Ship_Game.GameScreens.NewGame
             EnvIce = raceSummary.EnvIce;
             EnvBarren = raceSummary.EnvBarren;
             EnvVolcanic = raceSummary.EnvVolcanic;
+            UpdatePlanetIcon();
         }
 
         void UpdatePlanetIcon()
