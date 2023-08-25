@@ -31,7 +31,6 @@ namespace Ship_Game
 
     public enum PlanetCategory
     {
-        Other,
         Barren,
         Desert,
         Steppe,

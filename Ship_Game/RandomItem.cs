@@ -42,12 +42,11 @@ namespace Ship_Game
             switch (category)
             {
                 default:
-                case PlanetCategory.Other:
+                case PlanetCategory.Terran:   return (TerranChance,   TerranInstanceMin,   TerranInstanceMax);
                 case PlanetCategory.Barren:   return (BarrenChance,   BarrenInstanceMin,   BarrenInstanceMax);
                 case PlanetCategory.Desert:   return (DesertChance,   DesertInstanceMin,   DesertInstanceMax);
                 case PlanetCategory.Steppe:   return (SteppeChance,   SteppeInstanceMin,   SteppeInstanceMax);
                 case PlanetCategory.Tundra:   return (TundraChance,   TundraInstanceMin,   TundraInstanceMax);
-                case PlanetCategory.Terran:   return (TerranChance,   TerranInstanceMin,   TerranInstanceMax);
                 case PlanetCategory.Volcanic: return (VolcanicChance, VolcanicInstanceMin, VolcanicInstanceMax);
                 case PlanetCategory.Ice:      return (IceChance,      IceInstanceMin,      IceInstanceMax);
                 case PlanetCategory.Swamp:    return (SwampChance,    SwampInstanceMin,    SwampInstanceMax);
