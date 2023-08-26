@@ -17,6 +17,7 @@ public sealed class ModInformation
 
     [StarData] public string Version;
     [StarData] public string SupportedBlackBoxVersions;
+    [StarData] public int FormatVersion; // make sure this mode can be loaded regarding data format
 
     // TRUE by default, but if set false, no vanilla designs will be loaded
     // from StarDrive/Content/ShipDesigns and the mod is responsible to provide all required designs

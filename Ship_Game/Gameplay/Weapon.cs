@@ -293,12 +293,11 @@ namespace Ship_Game.Gameplay
             
             // reduce or increase error based on weapon and trait characteristics.
             // this could be pre-calculated in the flyweight
-            if (Tag_Cannon) adjust  *= (1f - (Owner?.Loyalty?.data.Traits.EnergyDamageMod ?? 0));
             if (Tag_Kinetic) adjust *= (1f - (Owner?.Loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
             if (IsTurret) adjust    *= 0.5f;
             if (Tag_PD) adjust      *= 0.5f;
             if (TruePD) adjust      *= 0.5f;
-            return adjust;
+            return adjust * (1f - (Owner?.Loyalty?.data.Traits.TargetingModifier ?? 0));
         }
 
         // @note This is used for debugging
@@ -578,7 +577,7 @@ namespace Ship_Game.Gameplay
             if (Owner == null)
                 return;
 
-            if (Owner.Loyalty.data.Traits.Pack)
+            if (Owner.Loyalty.HavePackMentality)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
             float actualShieldPenChance = Module?.GetParent().Loyalty.data.ShieldPenBonusChance * 100 ?? 0;

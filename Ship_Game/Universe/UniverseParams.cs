@@ -25,6 +25,7 @@ public class UniverseParams
     
     [StarData] public int NumSystems;
     [StarData] public int NumOpponents;
+    [StarData] public int RacialTraitPoints;
     [StarData] public GameMode Mode = GameMode.Sandbox;
     [StarData(DefaultValue=1f)] public float Pace = 1f;
     [StarData(DefaultValue=1f)] public float StarsModifier = 1f;
@@ -84,6 +85,7 @@ public class UniverseParams
         var s = GlobalStats.Defaults;
 
         NumOpponents = s.DefaultNumOpponents.UpperBound(ResourceManager.MajorRaces.Count - 1);
+        RacialTraitPoints = s.TraitPoints;
         MinAcceptableShipWarpRange = s.MinAcceptableShipWarpRange;
         TurnTimer = s.TurnTimer;
         CustomMineralDecay = s.CustomMineralDecay;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Gameplay;
 using Vector2 = SDGraphics.Vector2;
 
@@ -14,37 +15,41 @@ namespace Ship_Game
         readonly RaceDesignScreen Screen;
         readonly Graphics.Font TitleFont;
         readonly Graphics.Font DescrFont;
+        string Description;
         public TraitEntry Trait;
+        Color GrayedoutColor = new Color(100, 100, 100);
+
         public TraitsListItem(RaceDesignScreen screen, TraitEntry trait)
         {
             Screen = screen;
             Trait = trait;
             TitleFont = screen.LowRes ? Fonts.Arial11Bold : Fonts.Arial14Bold;
             DescrFont = screen.LowRes ? Fonts.Arial10 : Fonts.Arial12;
+            Description = new LocalizedText(Trait.Trait.Description).Text;
         }
 
-        public override int ItemHeight => TitleFont.LineSpacing * 2 + DescrFont.LineSpacing;
+        public override int ItemHeight => TitleFont.LineSpacing * 3 + DescrFont.LineSpacing;
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             base.Draw(batch, elapsed);
 
             float textAreaWidth = Width - 40;
-            string name = PaddedWithDots(TitleFont, Trait.trait.LocalizedName.Text, textAreaWidth);
-            int cost = Trait.trait.Cost;
+            string name = PaddedWithDots(TitleFont, Trait.Trait.LocalizedName.Text, textAreaWidth);
+            int cost = Trait.Trait.Cost;
 
-            var drawColor = new Color(95, 95, 95, 95);
+            var drawColor = GrayedoutColor;
             if (!Trait.Selected)
             {
-                drawColor = new Color(95, 95, 95, 95);
+                drawColor = GrayedoutColor;
             }
             if (Trait.Selected)
             {
-                drawColor = (cost > 0 ? Color.ForestGreen : Color.Crimson);
+                drawColor = (cost > 0 ? Color.ForestGreen : Color.Red);
             }
             else if (Trait.Excluded)
             {
-                drawColor = new Color(95, 95, 95, 95);
+                drawColor = (cost > 0 ? Color.MediumSeaGreen.Alpha(0.4f) : Color.LightCoral.Alpha(0.4f));
             }
             else if (Screen.TotalPointsUsed >= 0 && Screen.TotalPointsUsed - cost >= 0 || cost < 0)
             {
@@ -59,7 +64,7 @@ namespace Ship_Game
             batch.DrawString(TitleFont, costText, curs, drawColor);
 
             pos.Y += TitleFont.LineSpacing;
-            batch.DrawString(DescrFont, DescrFont.ParseText(new LocalizedText(Trait.trait.Description), textAreaWidth), pos, drawColor);
+            batch.DrawString(DescrFont, DescrFont.ParseText(GetDescrption(), textAreaWidth), pos, drawColor);
         }
 
         static float DotSpaceWidth;
@@ -78,6 +83,28 @@ namespace Ship_Game
                 sb.Append(" .");
 
             return sb.ToString();
+        }
+
+        string GetDescrption()
+        {
+            if (Trait.Selected)
+                return Description;
+
+            string extraDescription = string.Empty;
+            if (Trait.Excluded)
+            {
+                string excludedText = Trait.ExcludedBy[0];
+                for (int i = 1; i < Trait.ExcludedBy.Count; i++)
+                    excludedText = $"{excludedText}, {Trait.ExcludedBy[i]}";
+
+                extraDescription = $"(excluded by {excludedText}).";
+            }
+            else if (Screen.TotalPointsUsed - Trait.Trait.Cost < 0)
+            {
+                extraDescription = "(not enough points to spend).";
+            }
+
+            return $"{Description} {extraDescription}";
         }
     }
 }

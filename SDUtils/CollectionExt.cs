@@ -179,6 +179,9 @@ namespace SDUtils
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Array<T> ToArrayList<T>(this IEnumerable<T> source) => new Array<T>(source);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Array<T> ToArrayList<T>(this T[] source) => new Array<T>(source);
+
         public static T[] ToArr<T>(this ICollection<T> source)
         {
             int count = source.Count;

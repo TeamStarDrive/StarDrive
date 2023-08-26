@@ -181,6 +181,8 @@ namespace Ship_Game
         public bool WeArePirates  => Pirates != null; // Use this to figure out if this empire is pirate faction
         public bool WeAreRemnants => Remnants != null; // Use this to figure out if this empire is pirate faction
 
+        public bool HavePackMentality => data.Traits.Pack > 0;
+
         public float MaximumIncome       => PotentialIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus; // + AverageTradeIncome + data.FlatMoneyBonus;
         public float MaximumStableIncome => PotentialIncome + AverageTradeIncome + data.FlatMoneyBonus;
         // Income this turn before deducting ship maintenance
@@ -371,14 +373,14 @@ namespace Ship_Game
         /// Returns the Player's Preferred Environment Modifier.
         /// </summary>
         public float PlayerPreferredEnvModifier
-            => RacialEnvModifer(Universe.Player.data.PreferredEnv, Universe.Player);
+            => RacialEnvModifer(Universe.Player.data.PreferredEnvPlanet, Universe.Player);
 
 
         /// <summary>
         /// Returns the preferred Environment Modifier of a given empire.This is null Safe.
         /// </summary>
         public static float PreferredEnvModifier(Empire empire)
-            => empire == null ? 1 : RacialEnvModifer(empire.data.PreferredEnv, empire);
+            => empire == null ? 1 : RacialEnvModifer(empire.data.PreferredEnvPlanet, empire);
 
 
         /// <summary>
@@ -392,15 +394,15 @@ namespace Ship_Game
 
             switch (category)
             {
-                case PlanetCategory.Terran:   modifer = empire.data.EnvTerran;   break;
-                case PlanetCategory.Oceanic:  modifer = empire.data.EnvOceanic;  break;
-                case PlanetCategory.Steppe:   modifer = empire.data.EnvSteppe;   break;
-                case PlanetCategory.Tundra:   modifer = empire.data.EnvTundra;   break;
-                case PlanetCategory.Swamp:    modifer = empire.data.EnvSwamp;    break;
-                case PlanetCategory.Desert:   modifer = empire.data.EnvDesert;   break;
-                case PlanetCategory.Ice:      modifer = empire.data.EnvIce;      break;
-                case PlanetCategory.Barren:   modifer = empire.data.EnvBarren;   break;
-                case PlanetCategory.Volcanic: modifer = empire.data.EnvVolcanic; break;
+                case PlanetCategory.Terran:   modifer = empire.data.Traits.EnvTerran;   break;
+                case PlanetCategory.Oceanic:  modifer = empire.data.Traits.EnvOceanic;  break;
+                case PlanetCategory.Steppe:   modifer = empire.data.Traits.EnvSteppe;   break;
+                case PlanetCategory.Tundra:   modifer = empire.data.Traits.EnvTundra;   break;
+                case PlanetCategory.Swamp:    modifer = empire.data.Traits.EnvSwamp;    break;
+                case PlanetCategory.Desert:   modifer = empire.data.Traits.EnvDesert;   break;
+                case PlanetCategory.Ice:      modifer = empire.data.Traits.EnvIce;      break;
+                case PlanetCategory.Barren:   modifer = empire.data.Traits.EnvBarren;   break;
+                case PlanetCategory.Volcanic: modifer = empire.data.Traits.EnvVolcanic; break;
             }
 
             return modifer;
@@ -2065,14 +2067,14 @@ namespace Ship_Game
 
         void AbsorbAllEnvPreferences(Empire target)
         {
-            data.EnvTerran  = GetBonus(target.data.EnvTerran, data.EnvTerran);
-            data.EnvOceanic = GetBonus(target.data.EnvOceanic, data.EnvOceanic);
-            data.EnvSteppe  = GetBonus(target.data.EnvSteppe, data.EnvSteppe);
-            data.EnvTundra  = GetBonus(target.data.EnvTundra, data.EnvTundra);
-            data.EnvSwamp   = GetBonus(target.data.EnvSwamp, data.EnvSwamp);    
-            data.EnvDesert  = GetBonus(target.data.EnvDesert, data.EnvDesert);
-            data.EnvIce     = GetBonus(target.data.EnvIce, data.EnvIce);
-            data.EnvBarren  = GetBonus(target.data.EnvBarren, data.EnvBarren);
+            data.Traits.EnvTerran  = GetBonus(target.data.Traits.EnvTerran,  data.Traits.EnvTerran);
+            data.Traits.EnvOceanic = GetBonus(target.data.Traits.EnvOceanic, data.Traits.EnvOceanic);
+            data.Traits.EnvSteppe  = GetBonus(target.data.Traits.EnvSteppe,  data.Traits.EnvSteppe);
+            data.Traits.EnvTundra  = GetBonus(target.data.Traits.EnvTundra,  data.Traits.EnvTundra);
+            data.Traits.EnvSwamp   = GetBonus(target.data.Traits.EnvSwamp,   data.Traits.EnvSwamp);    
+            data.Traits.EnvDesert  = GetBonus(target.data.Traits.EnvDesert,  data.Traits.EnvDesert);
+            data.Traits.EnvIce     = GetBonus(target.data.Traits.EnvIce,     data.Traits.EnvIce);
+            data.Traits.EnvBarren  = GetBonus(target.data.Traits.EnvBarren,  data.Traits.EnvBarren);
 
             float GetBonus(float theirBonus, float ourBonus)
             {
@@ -2237,6 +2239,7 @@ namespace Ship_Game
 
         public void TheyKilledOurShip(Empire they, Ship killedShip)
         {
+            AddMoney(data.Traits.PenaltyPerKilledSlot * killedShip.SurfaceArea * -1);
             if (KillsForRemnantStory(they, killedShip))
                 return;
 
@@ -2246,6 +2249,7 @@ namespace Ship_Game
 
         public void WeKilledTheirShip(Empire they, Ship killedShip)
         {
+            AddMoney(data.Traits.CreditsPerKilledSlot * killedShip.SurfaceArea);
             if (!GetRelations(they, out Relationship rel))
                 return;
             rel.KilledAShip(killedShip);
