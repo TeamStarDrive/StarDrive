@@ -70,7 +70,6 @@ public class GamePlayGlobals
     [StarData] public bool UseDestroyers;
     [StarData] public bool UsePlanetaryProjection;
     [StarData] public bool ReconDropDown;
-    [StarData] public bool DisplayEnvPreferenceInRaceDesign;
     // Research costs will be increased based on map size to balance the increased capacity of larger maps
     [StarData] public bool ChangeResearchCostBasedOnSize;
     // Use short term researchable techs with no best ship
