@@ -29,26 +29,37 @@
   <ThrustColor1R>184</ThrustColor1R>
   <ThrustColor1G>134</ThrustColor1G>
   <ThrustColor1B>11</ThrustColor1B>
-  <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
-  <EnvTerran>1</EnvTerran>
-  <EnvOceanic>1</EnvOceanic>
-  <EnvSteppe>1</EnvSteppe>
-  <EnvTundra>1</EnvTundra>
-  <EnvSwamp>1</EnvSwamp>
-  <EnvDesert>1</EnvDesert>
-  <EnvIce>1</EnvIce>
-  <EnvBarren>1</EnvBarren>
-  <EnvVolcanic>1</EnvVolcanic>
-  <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
 
-  <ExcludedDTraits>
-    <string>Pacifist</string>
-    <string>Honorable</string>
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+	<string>Aggressive</string>
+    <string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
     <string>Cunning</string>
-  </ExcludedDTraits>
-  <ExcludedETraits>
+    <string>Honorable</string>	
+    <string>Pacifist</string>
+  </PersonalityTraitsWeights>
+  
+  <EconomicTraitsWeights>
     <string>Technologists</string>
-  </ExcludedETraits>
+	<string>Industrialists</string>
+	<string>Industrialists</string>
+	<string>Generalists</string>
+	<string>Generalists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Militarists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+  </EconomicTraitsWeights>  
+  
   <Traits>
     <Name>The Vulfen Imperium</Name>
     <Singular>Vulfar</Singular>
@@ -65,38 +76,19 @@
     <B>0</B>
     <RaceDescription>The Vulfen Imperium believes in the superiority of the Vulfen race. They are an aggressive an industrialist race preferring strength through numbers in their many and varied conflicts. </RaceDescription>
     <Cost>0</Cost>
-    <ConsumptionModifier>0</ConsumptionModifier>
-    <PopGrowthMin>0</PopGrowthMin>
-    <DiplomacyMod>-.2</DiplomacyMod>
-    <GenericMaxPopMod>0</GenericMaxPopMod>
-    <Aquatic>0</Aquatic>
-    <Burrowers>0</Burrowers>
-    <Blind>0</Blind>
-    <BonusExplored>0</BonusExplored>
-    <Pioneers>0</Pioneers>
-    <Militaristic>1</Militaristic>
-    <HomeworldSizeMod>0</HomeworldSizeMod>
-    <Prewarp>0</Prewarp>
-    <Spiritual>0</Spiritual>
-    <HomeworldFertMod>0</HomeworldFertMod>
-    <DodgeMod>-0.25</DodgeMod>
-    <EnergyDamageMod>0.2</EnergyDamageMod>
-    <ResearchMod>-.35</ResearchMod>
-    <Mercantile>0</Mercantile>
-    <Miners>0</Miners>
-    <ProductionMod>.35</ProductionMod>
-    <MaintMod>-0.30</MaintMod>
-    <TaxMod>0</TaxMod>
-    <ShipCostMod>-.35</ShipCostMod>
-    <ModHpModifier>-.2</ModHpModifier>
-    <SmallSize>0</SmallSize>
-    <HugeSize>0</HugeSize>
-    <GroundCombatModifier>0</GroundCombatModifier>
-    <RepairRateMod>0</RepairRateMod>
-    <Pack>true</Pack>
-    <Cybernetic>0</Cybernetic>
-    <PassengerBonus>0</PassengerBonus>
-    <Prototype>1</Prototype>
+	<TraitOptions>
+		<string>Pack</string>
+		<string>Prototype Flagship</string>
+		<string>Militaristic</string>
+    	<string>Haphazard Engineers</string>
+		<string>Naval Tradition</string>
+		<string>Efficient</string>
+		<string>Dumb</string>
+		<string>Ponderous</string>
+		<string>Repulsive</string>
+		<string>Eagle Eyed</string>
+		<string>Industrious</string>		
+	</TraitOptions>	
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

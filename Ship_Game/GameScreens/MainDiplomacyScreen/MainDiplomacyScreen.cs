@@ -614,8 +614,8 @@ namespace Ship_Game
                     DrawBadStat(Localizer.Token(GameText.SpyEffectivenessModifier), "-"+SelectedEmpire.data.SpyModifier.ToString("#"), ref textCursor);
                 if (SelectedEmpire.data.Traits.Spiritual != 0)
                     DrawStat(Localizer.Token(GameText.ArtifactBonusModifier), SelectedEmpire.data.Traits.Spiritual, ref textCursor, false);
-                if (SelectedEmpire.data.Traits.EnergyDamageMod != 0)
-                    DrawStat(Localizer.Token(GameText.CannonAccuracyModifier), SelectedEmpire.data.Traits.EnergyDamageMod, ref textCursor, false);
+                if (SelectedEmpire.data.Traits.TargetingModifier != 0)
+                    DrawStat(Localizer.Token(GameText.CannonAccuracyModifier), SelectedEmpire.data.Traits.TargetingModifier, ref textCursor, false);
                 if (SelectedEmpire.data.Traits.DodgeMod > 0)
                     DrawStat(Localizer.Token(GameText.DodgeModifier), SelectedEmpire.data.Traits.DodgeMod , ref textCursor, false);
                 if (SelectedEmpire.data.OrdnanceEffectivenessBonus != 0)

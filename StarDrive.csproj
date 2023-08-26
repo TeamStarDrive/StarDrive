@@ -190,6 +190,7 @@
     <Compile Include="Ship_Game\Data\Binary\Writer.cs" />
     <Compile Include="Ship_Game\Data\Binary\FieldInfo.cs" />
     <Compile Include="Ship_Game\Data\Binary\TypeInfo.cs" />
+    <Compile Include="Ship_Game\Data\RacialTraitOption.cs" />
     <Compile Include="Ship_Game\Data\Serialization\CollectionSerializer.cs" />
     <Compile Include="Ship_Game\Data\Binary\EventContextOnDeserialized.cs" />
     <Compile Include="Ship_Game\Data\Serialization\SerializerCategory.cs" />

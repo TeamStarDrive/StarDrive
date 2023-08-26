@@ -15,9 +15,20 @@ namespace Ship_Game.GameScreens.NewGame
         readonly UILabel BestType;
         UIPanel PlanetIcon;
 
+        public PlanetCategory PreferredEnv = PlanetCategory.Terran;
+        public float EnvTerran = 1;
+        public float EnvOceanic = 1;
+        public float EnvSteppe = 1;
+        public float EnvTundra = 1;
+        public float EnvSwamp = 1;
+        public float EnvDesert = 1;
+        public float EnvIce = 1;
+        public float EnvBarren = 1;
+        public float EnvVolcanic = 1;
+
         IEmpireData Data;
 
-        public EnvPreferencesPanel(RaceDesignScreen parent, in Rectangle rect) : base(rect)
+        public EnvPreferencesPanel(RaceDesignScreen parent, RacialTrait raceSummary, in Rectangle rect) : base(rect)
         {
             Screen = parent;
             Data = Screen.SelectedData;
@@ -37,8 +48,8 @@ namespace Ship_Game.GameScreens.NewGame
 
             UIList column1 = Add(new UIList(ListLayoutStyle.ResizeList));
             UIList column2 = Add(new UIList(ListLayoutStyle.ResizeList));
-            column1.SetLocalPos(15, 45);
-            column2.SetLocalPos(15 + (lo ? 60 : 140), 45);
+            column1.SetLocalPos(15, 35);
+            column2.SetLocalPos(15 + (lo ? 60 : 140), 35);
             column1.Padding = column2.Padding = new Vector2(4, 4);
 
             UILabel AddEnvSplitter(UIList list, string title, Func<float> getValue)
@@ -57,42 +68,73 @@ namespace Ship_Game.GameScreens.NewGame
                 return val;
             }
 
-            AddEnvSplitter(column1, "{Terran}: ", () => Data.EnvPerfTerran);
-            AddEnvSplitter(column1, "{Steppe}: ", () => Data.EnvPerfSteppe);
-            AddEnvSplitter(column1, "{Oceanic}: ",() => Data.EnvPerfOceanic);
-            AddEnvSplitter(column1, "{Swamp}: ",  () => Data.EnvPerfSwamp);
+            AddEnvSplitter(column1, "{Terran}: ", () => EnvTerran);
+            AddEnvSplitter(column1, "{Steppe}: ", () => EnvSteppe);
+            AddEnvSplitter(column1, "{Oceanic}: ",() => EnvOceanic);
+            AddEnvSplitter(column1, "{Swamp}: ",  () => EnvSwamp);
+            AddEnvSplitter(column1, "{Volcanic}: ", () => EnvVolcanic);
 
-            AddEnvSplitter(column2, "{Tundra}: ", () => Data.EnvPerfTundra);
-            AddEnvSplitter(column2, "{Ice}: ",    () => Data.EnvPerfIce);
-            AddEnvSplitter(column2, "{Desert}: ", () => Data.EnvPerfDesert);
-            AddEnvSplitter(column2, "{Barren}: ", () => Data.EnvPerfBarren);
-
-            UpdatePlanetIcon(Data);
+            AddEnvSplitter(column2, "{Tundra}: ", () => EnvTundra);
+            AddEnvSplitter(column2, "{Ice}: ",    () => EnvIce);
+            AddEnvSplitter(column2, "{Desert}: ", () => EnvDesert);
+            AddEnvSplitter(column2, "{Barren}: ", () => EnvBarren);
+            UpdatePreferences(raceSummary);
         }
 
-        public void UpdateArchetype(IEmpireData data)
+        public void UpdateArchetype(IEmpireData data, RacialTrait raceSummary)
         {
             Data = data;
-            UpdatePlanetIcon(data);
+            UpdatePlanetIcon();
+            UpdatePreferences(raceSummary);
         }
 
-        void UpdatePlanetIcon(IEmpireData data)
+        public void UpdatePreferences(RacialTrait raceSummary)
+        {
+            PreferredEnv = raceSummary.PreferredEnv;
+            EnvTerran = raceSummary.EnvTerran;
+            EnvOceanic = raceSummary.EnvOceanic;
+            EnvSteppe = raceSummary.EnvSteppe;
+            EnvTundra = raceSummary.EnvTundra;
+            EnvSwamp = raceSummary.EnvSwamp;
+            EnvDesert = raceSummary.EnvDesert;
+            EnvIce = raceSummary.EnvIce;
+            EnvBarren = raceSummary.EnvBarren;
+            EnvVolcanic = raceSummary.EnvVolcanic;
+            UpdatePlanetIcon();
+            UpdateVisibility();
+        }
+
+        void UpdateVisibility()
+        {
+            Visible = PreferredEnv != PlanetCategory.Terran
+                || EnvTerran != 1
+                || EnvOceanic != 1
+                || EnvSteppe != 1
+                || EnvTundra != 1
+                || EnvSwamp != 1
+                || EnvDesert != 1
+                || EnvIce != 1
+                || EnvBarren != 1
+                || EnvVolcanic != 1;
+        }
+
+        void UpdatePlanetIcon()
         {
             PlanetIcon?.RemoveFromParent(true);
 
             int size = Screen.LowRes ? 80 : 100;
             PlanetIcon = Add(new UIPanel(BestType.LocalPos.Add(0, 20), new Vector2(size),
-                                         GetPlanetIcon(data))
+                                         GetPlanetIcon())
             {
                 Name = "EnvPref.PlanetIcon",
-                Tooltip = Planet.TextCategory(data.PreferredEnvPlanet)
+                Tooltip = Planet.TextCategory(PreferredEnv)
             });
         }
 
-        static SubTexture GetPlanetIcon(IEmpireData data)
+        SubTexture GetPlanetIcon()
         {
             string path;
-            switch (data.PreferredEnvPlanet)
+            switch (PreferredEnv)
             {
                 default:
                 case PlanetCategory.Terran:  path = "Planets/25"; break;

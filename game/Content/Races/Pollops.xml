@@ -30,26 +30,39 @@
   <ThrustColor1R>255</ThrustColor1R> <!-- Yellow -->
   <ThrustColor1G>255</ThrustColor1G>
   <ThrustColor1B>0</ThrustColor1B>    
-  
-  <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
-  <EnvTerran>1</EnvTerran>
-  <EnvOceanic>1</EnvOceanic>
-  <EnvSteppe>1</EnvSteppe>
-  <EnvTundra>1</EnvTundra>
-  <EnvSwamp>1</EnvSwamp>
-  <EnvDesert>1</EnvDesert>
-  <EnvIce>1</EnvIce>
-  <EnvBarren>1</EnvBarren>
-  <EnvVolcanic>1</EnvVolcanic>
-  <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
 
-  <ExcludedDTraits>
-    <string>Ruthless</string>
-    <string>Aggressive</string>
-  </ExcludedDTraits>
-  <ExcludedETraits>
-    <string>Militarists</string>
-  </ExcludedETraits>
+  <PersonalityTraitsWeights>
+	<string>Aggressive</string>
+	<string>Ruthless</string>
+	<string>Xenophobic</string>
+	<string>Xenophobic</string>
+    <string>Cunning</string>
+	<string>Cunning</string>
+	<string>Cunning</string>
+    <string>Honorable</string>	
+	<string>Honorable</string>	
+	<string>Honorable</string>	
+    <string>Pacifist</string>
+	<string>Pacifist</string>
+	<string>Pacifist</string>
+	<string>Pacifist</string>
+  </PersonalityTraitsWeights>  
+
+  <EconomicTraitsWeights>
+    <string>Technologists</string>
+	<string>Technologists</string>
+	<string>Technologists</string>
+	<string>Industrialists</string>
+	<string>Industrialists</string>
+	<string>Generalists</string>
+	<string>Generalists</string>
+	<string>Generalists</string>
+	<string>Militarists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+	<string>Expansionists</string>
+  </EconomicTraitsWeights>
+
   <Traits>
     <Name>Pollops</Name>
     <Singular>Pollop</Singular>
@@ -66,36 +79,15 @@
     <B>0</B>
     <RaceDescription>Pollops are a peculiar race of mobile plant-like organisms. Though physically weak, they grow at a rapid pace and have long lifespans. Pollops tend to be quite friendly.</RaceDescription>
     <Cost>0</Cost>
-    <ConsumptionModifier>-.25</ConsumptionModifier>
-    <PopGrowthMin>.005</PopGrowthMin>
-    <DiplomacyMod>0</DiplomacyMod>
-    <GenericMaxPopMod>0</GenericMaxPopMod>
-    <Aquatic>0</Aquatic>
-    <Burrowers>0</Burrowers>
-    <Blind>0</Blind>
-    <BonusExplored>0</BonusExplored>
-    <Pioneers>0</Pioneers>
-    <Militaristic>0</Militaristic>
-    <Prewarp>0</Prewarp>
-    <Spiritual>0</Spiritual>
-    <HomeworldFertMod>0</HomeworldFertMod>
-    <DodgeMod>0.25</DodgeMod>
-    <EnergyDamageMod>0</EnergyDamageMod>
-    <ResearchMod>0</ResearchMod>
-    <Mercantile>0</Mercantile>
-    <Miners>0</Miners>
-    <ProductionMod>-0.15</ProductionMod>
-    <MaintMod>-.25</MaintMod>
-    <TaxMod>0</TaxMod>
-    <ShipCostMod>0</ShipCostMod>
-    <ModHpModifier>0</ModHpModifier>
-    <SmallSize>0</SmallSize>
-    <HugeSize>0</HugeSize>
-    <GroundCombatModifier>-.20</GroundCombatModifier>
-    <RepairRateMod>0</RepairRateMod>
-    <Cybernetic>0</Cybernetic>
-    <HomeworldSizeMod>0</HomeworldSizeMod>
-    <PassengerBonus>2</PassengerBonus>
+	<TraitOptions>
+		<string>Manifest Destiny</string>
+		<string>Timid</string>
+		<string>Efficient</string>
+		<string>Fertile</string>
+		<string>Efficient Metabolism</string>
+		<string>Reflexes</string>
+		<string>Lazy</string>
+	</TraitOptions>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>
