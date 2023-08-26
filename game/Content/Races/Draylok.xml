@@ -31,17 +31,6 @@
   <ThrustColor1G>245</ThrustColor1G>
   <ThrustColor1B>245</ThrustColor1B>     
 
-  <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
-  <EnvTerran>1</EnvTerran>
-  <EnvOceanic>1</EnvOceanic>
-  <EnvSteppe>1</EnvSteppe>
-  <EnvTundra>1</EnvTundra>
-  <EnvSwamp>1</EnvSwamp>
-  <EnvDesert>1</EnvDesert>
-  <EnvIce>1</EnvIce>
-  <EnvBarren>1</EnvBarren>
-  <EnvVolcanic>1</EnvVolcanic>
-  <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
 
   <Traits>
     <Name>The Draylok Council</Name>
@@ -59,37 +48,13 @@
     <B>143</B>
     <RaceDescription>Deprecated </RaceDescription>
     <Cost>0</Cost>
-    <ConsumptionModifier>0</ConsumptionModifier>
-    <ReproductionMod>0</ReproductionMod>
-    <DiplomacyMod>.2</DiplomacyMod>
-    <GenericMaxPopMod>0</GenericMaxPopMod>
-    <Aquatic>0</Aquatic>
-    <Burrowers>0</Burrowers>
-    <Blind>0</Blind>
-    <BonusExplored>0</BonusExplored>
-    <Pioneers>0</Pioneers>
-    <Militaristic>0</Militaristic>
-    <Prewarp>0</Prewarp>
-    <Spiritual>0</Spiritual>
-    <HomeworldFertMod>0</HomeworldFertMod>
-    <DodgeMod>0</DodgeMod>
-    <EnergyDamageMod>0</EnergyDamageMod>
-    <ResearchMod>.35</ResearchMod>
-    <Mercantile>0.5</Mercantile>
-    <Miners>0</Miners>
-    <ProductionMod>0</ProductionMod>
-    <MaintMod>0.25</MaintMod>
-    <TaxMod>0</TaxMod>
-    <ShipCostMod>0.25</ShipCostMod>
-    <ModHpModifier>0</ModHpModifier>
-    <SmallSize>0</SmallSize>
-    <HugeSize>0</HugeSize>
-    <HomeworldSizeMod>0.25</HomeworldSizeMod>
-    <GroundCombatModifier>0</GroundCombatModifier>
-    <RepairRateMod>0</RepairRateMod>
-    <Cybernetic>0</Cybernetic>
-    <SpyMultiplier>10</SpyMultiplier>
-    <PassengerBonus>0</PassengerBonus>
+	<TraitOptions>
+		<string>Smart</string>
+		<string>Corrupt</string>
+		<string>Mercantile</string>
+		<string>Alluring</string>
+		<string>Duplicitous</string>
+	</TraitOptions>	
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

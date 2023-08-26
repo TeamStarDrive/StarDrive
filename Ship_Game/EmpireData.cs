@@ -119,16 +119,6 @@ namespace Ship_Game
         string Adj1 { get; }
         string Adj2 { get; }
 
-        float EnvPerfTerran { get; }
-        float EnvPerfOceanic { get; }
-        float EnvPerfSteppe { get; }
-        float EnvPerfTundra { get; }
-        float EnvPerfSwamp { get; }
-        float EnvPerfDesert { get; }
-        float EnvPerfIce { get; }
-        float EnvPerfBarren { get; }
-        PlanetCategory PreferredEnvPlanet { get; }
-
         string WarpStart { get; }
         string WarpEnd { get; }
     }
@@ -158,8 +148,8 @@ namespace Ship_Game
             set => TaxRateValue = value.NaNChecked(0.25f, "EmpireData.TaxRate");
         }
 
-        [StarData] public Array<string> ExcludedDTraits = new();
-        [StarData] public Array<string> ExcludedETraits = new();
+        [StarData] public Array<string> PersonalityTraitsWeights = new();
+        [StarData] public Array<string> EconomicTraitsWeights = new();
         [StarData] public Array<Agent> AgentList = new();
         [StarData] public string AbsorbedBy;
         [StarData] public string StartingShip;
@@ -253,17 +243,7 @@ namespace Ship_Game
         [StarData] public byte ThrustColor1G;
         [StarData] public byte ThrustColor1B;
 
-        // FB - Environment
-        [StarData] public float EnvTerran;
-        [StarData] public float EnvOceanic;
-        [StarData] public float EnvSteppe;
-        [StarData] public float EnvTundra;
-        [StarData] public float EnvSwamp;
-        [StarData] public float EnvDesert;
-        [StarData] public float EnvIce;
-        [StarData] public float EnvBarren;
-        [StarData] public float EnvVolcanic;
-        [StarData] public PlanetCategory PreferredEnv;
+
 
         // FB - Minimum Troop Level
         [StarData] public int MinimumTroopLevel;
@@ -357,15 +337,15 @@ namespace Ship_Game
         [XmlIgnore]
         public bool IsFactionOrMinorRace => Faction > 0 || MinorRace;
 
-        [XmlIgnore]  public float EnvPerfTerran  => EnvTerran;
-        [XmlIgnore]  public float EnvPerfOceanic => EnvOceanic;
-        [XmlIgnore]  public float EnvPerfSteppe  => EnvSteppe;
-        [XmlIgnore]  public float EnvPerfTundra  => EnvTundra;
-        [XmlIgnore]  public float EnvPerfSwamp   => EnvSwamp;
-        [XmlIgnore]  public float EnvPerfDesert  => EnvDesert;
-        [XmlIgnore]  public float EnvPerfIce     => EnvIce;
-        [XmlIgnore]  public float EnvPerfBarren  => EnvBarren;
-        [XmlIgnore]  public PlanetCategory PreferredEnvPlanet => PreferredEnv;
+        [XmlIgnore]  public float EnvPerfTerran  => Traits.EnvTerran;
+        [XmlIgnore]  public float EnvPerfOceanic => Traits.EnvOceanic;
+        [XmlIgnore]  public float EnvPerfSteppe  => Traits.EnvSteppe;
+        [XmlIgnore]  public float EnvPerfTundra  => Traits.EnvTundra;
+        [XmlIgnore]  public float EnvPerfSwamp   => Traits.EnvSwamp;
+        [XmlIgnore]  public float EnvPerfDesert  => Traits.EnvDesert;
+        [XmlIgnore]  public float EnvPerfIce     => Traits.EnvIce;
+        [XmlIgnore]  public float EnvPerfBarren  => Traits.EnvBarren;
+        [XmlIgnore]  public PlanetCategory PreferredEnvPlanet => Traits.PreferredEnv;
 
         [XmlIgnore]  public string ShipType  => Traits.ShipType;
         [XmlIgnore]  public string VideoPath => Traits.VideoPath;

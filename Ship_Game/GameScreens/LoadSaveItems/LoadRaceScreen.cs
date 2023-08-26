@@ -36,7 +36,7 @@ public sealed class LoadRaceScreen : GenericLoadSaveScreen
             try
             {
                 RaceSave data = SaveRaceScreen.Load(file);
-                if (data.Name.IsEmpty())
+                if (data.Name.IsEmpty() || data.Version < SavedGame.SaveGameVersion)
                     continue;
 
                 string info = "Race Name: " + data.Traits.Name;
