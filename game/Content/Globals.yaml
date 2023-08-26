@@ -36,7 +36,6 @@ Globals:
   # feature flags
   DisableShipPicker: true
   ChangeResearchCostBasedOnSize: true
-  DisplayEnvPreferenceInRaceDesign: false
   EnableShipTechLineFocusing: true
   UseHullBonuses: false
   UseDestroyers: false
