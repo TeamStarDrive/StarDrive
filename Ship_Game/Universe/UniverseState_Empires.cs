@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -283,13 +284,8 @@ public partial class UniverseState
         else if (data.MinorRace) Log.Info($"Creating MinorRace {data.Traits.Name}");
         else                     Log.Info($"Creating MajorEmpire {data.Traits.Name}");
 
-        DTrait[] dipTraits = dt.DiplomaticTraitsList.Filter(
-            dip => !data.ExcludedDTraits.Any(trait => trait == dip.Name));
-        data.DiplomaticPersonality = empire.Random.Item(dipTraits);
-
-        ETrait[] ecoTraits = dt.EconomicTraitsList.Filter(
-            eco => !data.ExcludedETraits.Any(trait => trait == eco.Name));
-        data.EconomicPersonality = empire.Random.Item(ecoTraits);
+        data.DiplomaticPersonality = CreateDiplomaticTrait();
+        data.EconomicPersonality = CreateEconimicTrait();
 
         // Added by McShooterz: set values for alternate race file structure
         data.Traits.LoadTraitConstraints();
@@ -301,6 +297,46 @@ public partial class UniverseState
         empire.EmpireColor = data.Traits.Color;
         empire.Initialize();
         return empire;
+
+        DTrait CreateDiplomaticTrait()
+        {
+            if (data.PersonalityTraitsWeights.Count > 0)
+            {
+                string dTrait = empire.Random.Item(data.PersonalityTraitsWeights);
+                var selectedDt = dt.DiplomaticTraitsList.Filter(t => dTrait == t.Name);
+                if (selectedDt != null)
+                {
+                    return selectedDt.First();
+                }
+                else
+                {
+                    Log.Warning($"Selected Diplomatic Trait failed - {dTrait} was not " +
+                        "found in DiplomaticTraits.xml. Reverting to random.");
+                }
+            }
+            
+            return empire.Random.Item(dt.DiplomaticTraitsList);
+        }
+
+        ETrait CreateEconimicTrait()
+        {
+            if (data.EconomicTraitsWeights.Count > 0)
+            {
+                string eTrait = empire.Random.Item(data.EconomicTraitsWeights);
+                var selectedEt = dt.EconomicTraitsList.Filter(t => eTrait == t.Name);
+                if (selectedEt != null)
+                {
+                    return selectedEt.First();
+                }
+                else
+                {
+                    Log.Warning($"Selected Economic Trait failed - {eTrait} was not " +
+                        "found in DiplomaticTraits.xml. Reverting to random.");
+                }
+            }
+
+            return empire.Random.Item(dt.EconomicTraitsList);
+        }
     }
 
     public Empire CreateRebelsFromEmpireData(IEmpireData readOnlyData, Empire parent)

@@ -17,8 +17,9 @@ public class GamePlayGlobals
     [StarData] public int MaxOpponents = 7;
     [StarData] public int DefaultNumOpponents = 5; // Default AIs to start on default settings
     [StarData] public int TurnTimer = 5; // default time in seconds for a single turn
+    [StarData] public int TraitPoints = 8; // How many points each race has to spend on racial traits
 
-    
+
     // GamePlay modifiers
     // How easy ships are to destroy. Ships which have active internal slots below this ratio, will Die()
     [StarData] public float ShipDestroyThreshold = 0.5f;
@@ -69,7 +70,6 @@ public class GamePlayGlobals
     [StarData] public bool UseDestroyers;
     [StarData] public bool UsePlanetaryProjection;
     [StarData] public bool ReconDropDown;
-    [StarData] public bool DisplayEnvPreferenceInRaceDesign;
     // Research costs will be increased based on map size to balance the increased capacity of larger maps
     [StarData] public bool ChangeResearchCostBasedOnSize;
     // Use short term researchable techs with no best ship
