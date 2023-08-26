@@ -2239,6 +2239,7 @@ namespace Ship_Game
 
         public void TheyKilledOurShip(Empire they, Ship killedShip)
         {
+            AddMoney(data.Traits.PenaltyPerKilledSlot * killedShip.SurfaceArea * -1);
             if (KillsForRemnantStory(they, killedShip))
                 return;
 
@@ -2248,6 +2249,7 @@ namespace Ship_Game
 
         public void WeKilledTheirShip(Empire they, Ship killedShip)
         {
+            AddMoney(data.Traits.CreditsPerKilledSlot * killedShip.SurfaceArea);
             if (!GetRelations(they, out Relationship rel))
                 return;
             rel.KilledAShip(killedShip);

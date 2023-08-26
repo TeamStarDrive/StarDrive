@@ -10434,6 +10434,18 @@ InRandomGameMode:
  ENG: "Random game mode is very similar to Sandbox Game Mode but starting positions are randomized. Some empires might start very close to eachother and some may have a lot of space to expand."
  RUS: "Случайный режим игры очень похож на режим песочницы, но стартовые позиции случайны. Некоторые империи могут начинаться очень близко друг к другу, а у некоторых может быть много места для расширения."
  SPA: "El modo de juego aleatorio es muy similar al modo de juego Sandbox, pero las posiciones iniciales son aleatorias. Algunos imperios pueden comenzar muy cerca uno del otro y otros pueden tener mucho espacio para expandirse."  
+TraitSalvagersName:
+  Id: 4966
+  ENG: "Salvagers"   
+TraitSalvagersDesc:
+  Id: 4967
+  ENG: "Your empire will get 1 credit per 20 slots of enemiy ships killed."       
+TraitCompensationName:
+  Id: 4968
+  ENG: "Crew Compensation Plan"   
+TraitCompensationDesc:
+  Id: 4969
+  ENG: "Your empire will compansate the families of battle casualties at a rate of 1 credit per 20 slots of ships killed by enemies."         
 TraitTerranHomeworldName:
   Id: 4970
   ENG: "Terran Homeworld"   

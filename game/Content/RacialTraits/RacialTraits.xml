@@ -584,6 +584,30 @@
 		<string>Aquatic</string>	  
 	  </Excludes>
 	</RacialTraitOption> 		
+    <RacialTraitOption>
+	  <!-- Salvagers -->
+	  <TraitName>Salvagers</TraitName>
+	  <TraitIndex>4966</TraitIndex>
+	  <Category>HistoryAndTradition</Category>
+	  <Cost>1</Cost>
+	  <Description>4967</Description>
+	  <CreditsPerKilledSlot>0.05</CreditsPerKilledSlot>
+	  <Excludes>
+		<string>Compensation Plan</string>
+	  </Excludes>
+	</RacialTraitOption> 			
+    <RacialTraitOption>
+	  <!-- Battle Casualty Compensation Plan -->
+	  <TraitName>Compensation Plan</TraitName>
+	  <TraitIndex>4968</TraitIndex>
+	  <Category>HistoryAndTradition</Category>
+	  <Cost>-1</Cost>
+	  <Description>4969</Description>
+	  <PenaltyPerKilledSlot>0.05</PenaltyPerKilledSlot>
+	  <Excludes>
+		<string>Salvagers</string>
+	  </Excludes>
+	</RacialTraitOption>			
 
 	
     <!-- Adventure Mode Traits
