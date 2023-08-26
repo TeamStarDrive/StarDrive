@@ -10439,7 +10439,7 @@ TraitSalvagersName:
   ENG: "Salvagers"   
 TraitSalvagersDesc:
   Id: 4967
-  ENG: "Your empire will get 1 credit per 20 slots of enemiy ships killed."       
+  ENG: "salvagers like to collect scrap matel and upgrades. Your empire will get 1 credit per 20 slots of enemy ships killed."       
 TraitCompensationName:
   Id: 4968
   ENG: "Crew Compensation Plan"   
