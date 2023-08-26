@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 using Ship_Game.Data;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.NewGame;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Ship_Game
@@ -179,6 +180,7 @@ namespace Ship_Game
 
             ChooseRaceList.OnItemClicked(archetype); // click on the archetype faction
             SetRacialTraits(traits);
+            EnvMenu.UpdatePreferences(RaceSummary);
         }
 
         void SetRacialTraits(RacialTrait traits)
