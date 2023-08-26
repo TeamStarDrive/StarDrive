@@ -219,7 +219,6 @@ namespace Ship_Game
 
             var envRect = new Rectangle(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width, 150);
             EnvMenu = Add(new EnvPreferencesPanel(this, RaceSummary, envRect));
-            EnvMenu.Visible = true; // GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign;
             ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked)
                 .SetLocalPos(ChooseRaceList.Width / 2 - 142, ChooseRaceList.Height + 10);
             ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked)
@@ -515,13 +514,9 @@ namespace Ship_Game
         {
             SelectedData = item.EmpireData;
             SetRacialTraits(SelectedData.Traits);
-
-            //if (GlobalStats.Defaults.DisplayEnvPreferenceInRaceDesign)
-            {
-                UpdateTraits();
-                DoRaceDescription();
-                EnvMenu.UpdateArchetype(SelectedData, RaceSummary);
-            }
+            UpdateTraits();
+            DoRaceDescription();
+            EnvMenu.UpdateArchetype(SelectedData, RaceSummary);
         }
 
         void OnEngageClicked(UIButton b)
