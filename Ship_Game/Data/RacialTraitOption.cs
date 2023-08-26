@@ -56,6 +56,8 @@ namespace Ship_Game.Data
         public int Pack;
         public int Aquatic;
         public float ExploreDistanceMultiplier = 1;
+        public float CreditsPerKilledSlot;
+        public float PenaltyPerKilledSlot;
 
         // FB - Environment
         public PlanetCategory PreferredEnv = PlanetCategory.Terran;
