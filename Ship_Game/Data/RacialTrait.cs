@@ -80,6 +80,8 @@ namespace Ship_Game
         [StarData] public int Pack;
         [StarData] public int Aquatic;
         [StarData] public float ExploreDistanceMultiplier = 1;
+        [StarData] public float CreditsPerKilledSlot;
+        [StarData] public float PenaltyPerKilledSlot;
 
         // FB - Environment
         [StarData] public PlanetCategory PreferredEnv = PlanetCategory.Terran;
@@ -185,6 +187,9 @@ namespace Ship_Game
                 Militaristic += trait.Militaristic;
                 Pack += trait.Pack;
                 Aquatic += trait.Aquatic;
+                CreditsPerKilledSlot += trait.CreditsPerKilledSlot;
+                PenaltyPerKilledSlot += trait.PenaltyPerKilledSlot;
+
                 ExploreDistanceMultiplier *= trait.ExploreDistanceMultiplier;
                 Prototype += trait.Prototype;
                 EnvTerran *= trait.EnvTerranMultiplier;
@@ -196,6 +201,7 @@ namespace Ship_Game
                 EnvIce *= trait.EnvIceMultiplier;
                 EnvBarren *= trait.EnvBarrenMultiplier;
                 EnvVolcanic *= trait.EnvVolcanicMultiplier;
+
                 if (trait.PreferredEnv != PlanetCategory.Terran)
                     PreferredEnv = trait.PreferredEnv;
             }

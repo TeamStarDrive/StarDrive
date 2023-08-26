@@ -273,6 +273,8 @@ namespace Ship_Game
                 RaceSummary.PassengerModifier      += trait.PassengerBonus;
                 RaceSummary.Pack                   += trait.Pack;
                 RaceSummary.Aquatic                += trait.Aquatic;
+                RaceSummary.CreditsPerKilledSlot   += trait.CreditsPerKilledSlot;
+                RaceSummary.PenaltyPerKilledSlot   += trait.PenaltyPerKilledSlot;
 
                 RaceSummary.ExploreDistanceMultiplier *= trait.ExploreDistanceMultiplier;
                 RaceSummary.EnvTerran   *= trait.EnvTerranMultiplier;
