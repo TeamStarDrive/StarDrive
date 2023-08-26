@@ -12,10 +12,14 @@ namespace Ship_Game
         public bool IsSupported { get; }
         public SubTexture PortraitTex;
 
+        // Make sure this mode can be loaded regarding data format. If this is spinned up,
+        // the mod will not be loaded and the modde will have to check the changes.
+        public const int FormatVersion = 1; 
+
         public ModEntry(GamePlayGlobals settings)
         {
             Settings = settings;
-            IsSupported = CheckSupport(Mod.SupportedBlackBoxVersions);
+            IsSupported = CheckSupport(Mod.SupportedBlackBoxVersions, Mod.FormatVersion);
         }
 
         public SubTexture LoadPortrait(GameScreen screen)
@@ -44,7 +48,7 @@ namespace Ship_Game
 
             if (!IsSupported)
             {
-                batch.DrawString(Fonts.Arial12Bold, "Not supported on This BlackBox Version", titlePos, Color.Red);
+                batch.DrawString(Fonts.Arial12Bold, "Not supported on This BlackBox Version, try update this mod.", titlePos, Color.Red);
                 titlePos.Y += Fonts.Arial12Bold.LineSpacing + 1;
             }
 
@@ -64,9 +68,9 @@ namespace Ship_Game
             batch.DrawRectangle(portrait, Color.White);
         }
 
-        bool CheckSupport(string supportedBbVers)
+        public bool CheckSupport(string supportedBbVers, int formatVersion)
         {
-            if (supportedBbVers.IsEmpty())
+            if (supportedBbVers.IsEmpty() || formatVersion != FormatVersion)
                 return false;
 
             foreach (string version in supportedBbVers.Split(',')) 

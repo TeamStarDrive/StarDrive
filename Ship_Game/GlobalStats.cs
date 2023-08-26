@@ -388,7 +388,7 @@ public static class GlobalStats
 
     public static void SetActiveModNoSave(ModEntry me)
     {
-        if (me != null)
+        if (me != null && me.CheckSupport(me.Mod.SupportedBlackBoxVersions, me.Mod.FormatVersion))
         {
             ModName = me.Mod.Name;
             ModPath = me.Mod.Path;
