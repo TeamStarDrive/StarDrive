@@ -31,7 +31,6 @@ namespace Ship_Game
 
     public enum PlanetCategory
     {
-        Other,
         Barren,
         Desert,
         Steppe,
@@ -549,7 +548,7 @@ namespace Ship_Game
                 newOwner.data.Traits.ShipMaintMultiplier  = GetTraitMin(newOwner.data.Traits.ShipMaintMultiplier, ownerTraits.ShipMaintMultiplier);
                 newOwner.data.Traits.DiplomacyMod         = GetTraitMax(newOwner.data.Traits.DiplomacyMod, ownerTraits.DiplomacyMod);
                 newOwner.data.Traits.DodgeMod             = GetTraitMax(newOwner.data.Traits.DodgeMod, ownerTraits.DodgeMod);
-                newOwner.data.Traits.EnergyDamageMod      = GetTraitMax(newOwner.data.Traits.EnergyDamageMod, ownerTraits.EnergyDamageMod);
+                newOwner.data.Traits.TargetingModifier    = GetTraitMax(newOwner.data.Traits.TargetingModifier, ownerTraits.TargetingModifier);
                 newOwner.data.Traits.GroundCombatModifier = GetTraitMax(newOwner.data.Traits.GroundCombatModifier, ownerTraits.GroundCombatModifier);
                 newOwner.data.Traits.Mercantile           = GetTraitMax(newOwner.data.Traits.Mercantile, ownerTraits.Mercantile);
                 newOwner.data.Traits.PassengerModifier    = GetTraitMax(newOwner.data.Traits.PassengerModifier, ownerTraits.PassengerModifier);
