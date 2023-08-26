@@ -101,6 +101,21 @@ namespace Ship_Game.GameScreens.NewGame
             EnvBarren = raceSummary.EnvBarren;
             EnvVolcanic = raceSummary.EnvVolcanic;
             UpdatePlanetIcon();
+            UpdateVisibility();
+        }
+
+        void UpdateVisibility()
+        {
+            Visible = PreferredEnv != PlanetCategory.Terran
+                || EnvTerran != 1
+                || EnvOceanic != 1
+                || EnvSteppe != 1
+                || EnvTundra != 1
+                || EnvSwamp != 1
+                || EnvDesert != 1
+                || EnvIce != 1
+                || EnvBarren != 1
+                || EnvVolcanic != 1;
         }
 
         void UpdatePlanetIcon()

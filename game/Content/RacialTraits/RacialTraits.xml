@@ -431,6 +431,16 @@
 	  <EnvSwampMultiplier>1.75</EnvSwampMultiplier>
 	  <EnvDesertMultiplier>0.5</EnvDesertMultiplier>
 	  <EnvIceMultiplier>0.75</EnvIceMultiplier>
+	  <Excludes>
+		<string>Terran Homeworld</string>
+		<string>Oceanic Homeworld</string>
+		<string>Steppe Homeworld</string>
+		<string>Tundra Homeworld</string>
+		<string>Swamp Homeworld</string>
+		<string>Desert Homeworld</string>
+		<string>Ice Homeworld</string>
+		<string>Terran Homeworld</string>
+	  </Excludes>
     </RacialTraitOption>	
     <RacialTraitOption>
       <!-- Explorers -->
@@ -441,6 +451,139 @@
       <Description>4985</Description>
 	  <ExploreDistanceMultiplier>2</ExploreDistanceMultiplier>
     </RacialTraitOption>
+    <RacialTraitOption>
+	  <!-- Terran Homeworld -->
+	  <TraitName>Terran Homeworld</TraitName>
+	  <TraitIndex>4970</TraitIndex>
+	  <Category>Environment</Category>
+	  <Cost>2</Cost>
+	  <Description>4971</Description>
+	  <PreferredEnv>Terran</PreferredEnv>  
+	  <EnvTerranMultiplier>1.25</EnvTerranMultiplier>
+	  <Excludes>
+		<string>Oceanic Homeworld</string>
+		<string>Steppe Homeworld</string>
+		<string>Tundra Homeworld</string>
+		<string>Swamp Homeworld</string>
+		<string>Desert Homeworld</string>
+		<string>Ice Homeworld</string>
+		<string>Aquatic</string>
+	  </Excludes>
+	</RacialTraitOption>  	  	
+    <RacialTraitOption>
+	  <!-- Oceanic Homeworld -->
+	  <TraitName>Oceanic Homeworld</TraitName>
+	  <TraitIndex>4972</TraitIndex>
+	  <Category>Environment</Category>
+	  <Cost>2</Cost>
+	  <Description>4973</Description>
+	  <PreferredEnv>Oceanic</PreferredEnv>  
+	  <EnvOceanicMultiplier>1.25</EnvOceanicMultiplier>
+	  <Excludes>
+		<string>Terran Homeworld</string>
+		<string>Steppe Homeworld</string>
+		<string>Tundra Homeworld</string>
+		<string>Swamp Homeworld</string>
+		<string>Desert Homeworld</string>
+		<string>Ice Homeworld</string>
+		<string>Aquatic</string>	  
+	  </Excludes>
+	</RacialTraitOption>  	  		
+    <RacialTraitOption>
+	  <!-- Steppe Homeworld -->
+	  <TraitName>Steppe Homeworld</TraitName>
+	  <TraitIndex>4974</TraitIndex>
+	  <Category>Environment</Category>
+	  <Cost>2</Cost>
+	  <Description>4975</Description>
+	  <PreferredEnv>Steppe</PreferredEnv>  
+	  <EnvSteppeMultiplier>1.25</EnvSteppeMultiplier>
+	  <Excludes>
+		<string>Terran Homeworld</string>
+		<string>Oceanic Homeworld</string>
+		<string>Tundra Homeworld</string>
+		<string>Swamp Homeworld</string>
+		<string>Desert Homeworld</string>
+		<string>Ice Homeworld</string>
+		<string>Aquatic</string>	  
+	  </Excludes>
+	</RacialTraitOption>  		
+    <RacialTraitOption>
+	  <!-- Tundra Homeworld -->
+	  <TraitName>Tundra Homeworld</TraitName>
+	  <TraitIndex>4976</TraitIndex>
+	  <Category>Environment</Category>
+	  <Cost>2</Cost>
+	  <Description>4977</Description>
+	  <PreferredEnv>Tundra</PreferredEnv>  
+	  <EnvTundraMultiplier>1.25</EnvTundraMultiplier>
+	  <Excludes>
+		<string>Terran Homeworld</string>
+		<string>Oceanic Homeworld</string>
+		<string>Steppe Homeworld</string>
+		<string>Swamp Homeworld</string>
+		<string>Desert Homeworld</string>
+		<string>Ice Homeworld</string>
+		<string>Aquatic</string>	  
+	  </Excludes>
+	</RacialTraitOption>  			
+    <RacialTraitOption>
+	  <!-- Swamp Homeworld -->
+	  <TraitName>Swamp Homeworld</TraitName>
+	  <TraitIndex>4978</TraitIndex>
+	  <Category>Environment</Category>
+	  <Cost>2</Cost>
+	  <Description>4979</Description>
+	  <PreferredEnv>Swamp</PreferredEnv>  
+	  <EnvSwampMultiplier>1.25</EnvSwampMultiplier>
+	  <Excludes>
+		<string>Terran Homeworld</string>
+		<string>Oceanic Homeworld</string>
+		<string>Steppe Homeworld</string>
+		<string>Tundra Homeworld</string>
+		<string>Desert Homeworld</string>
+		<string>Ice Homeworld</string>
+		<string>Aquatic</string>	  
+	  </Excludes>
+	</RacialTraitOption> 	
+    <RacialTraitOption>
+	  <!-- Desert Homeworld -->
+	  <TraitName>Desert Homeworld</TraitName>
+	  <TraitIndex>4980</TraitIndex>
+	  <Category>Environment</Category>
+	  <Cost>2</Cost>
+	  <Description>4981</Description>
+	  <PreferredEnv>Desert</PreferredEnv>  
+	  <EnvDesertMultiplier>1.25</EnvDesertMultiplier>
+	  <Excludes>
+		<string>Terran Homeworld</string>
+		<string>Oceanic Homeworld</string>
+		<string>Steppe Homeworld</string>
+		<string>Tundra Homeworld</string>
+		<string>Swamp Homeworld</string>
+		<string>Ice Homeworld</string>
+		<string>Aquatic</string>	  
+	  </Excludes>
+	</RacialTraitOption> 		
+    <RacialTraitOption>
+	  <!-- Ice Homeworld -->
+	  <TraitName>Ice Homeworld</TraitName>
+	  <TraitIndex>4982</TraitIndex>
+	  <Category>Environment</Category>
+	  <Cost>2</Cost>
+	  <Description>4983</Description>
+	  <PreferredEnv>Ice</PreferredEnv>  
+	  <EnvIceMultiplier>1.25</EnvIceMultiplier>
+	  <Excludes>
+		<string>Terran Homeworld</string>
+		<string>Oceanic Homeworld</string>
+		<string>Steppe Homeworld</string>
+		<string>Tundra Homeworld</string>
+		<string>Swamp Homeworld</string>
+		<string>Desert Homeworld</string>
+		<string>Aquatic</string>	  
+	  </Excludes>
+	</RacialTraitOption> 		
 
 	
     <!-- Adventure Mode Traits

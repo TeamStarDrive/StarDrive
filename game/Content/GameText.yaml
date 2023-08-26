@@ -10434,6 +10434,48 @@ InRandomGameMode:
  ENG: "Random game mode is very similar to Sandbox Game Mode but starting positions are randomized. Some empires might start very close to eachother and some may have a lot of space to expand."
  RUS: "Случайный режим игры очень похож на режим песочницы, но стартовые позиции случайны. Некоторые империи могут начинаться очень близко друг к другу, а у некоторых может быть много места для расширения."
  SPA: "El modo de juego aleatorio es muy similar al modo de juego Sandbox, pero las posiciones iniciales son aleatorias. Algunos imperios pueden comenzar muy cerca uno del otro y otros pueden tener mucho espacio para expandirse."  
+TraitTerranHomeworldName:
+  Id: 4970
+  ENG: "Terran Homeworld"   
+TraitTerranHomeworldDesc:
+  Id: 4971
+  ENG: "Your empire starts in a Terran homeworld and gets +25% Fertility and Max Population for other Terran worlds."      
+TraitOceanicHomeworldName:
+  Id: 4972
+  ENG: "Oceanic Homeworld"   
+TraitOceanicHomeworldDesc:
+  Id: 4973
+  ENG: "Your empire starts in an Oceanic homeworld and gets +25% Fertility and Max Population for other Oceanic worlds."      
+TraitSteppeHomeworldName:
+  Id: 4974
+  ENG: "Steppe Homeworld"   
+TraitSteppeHomeworldDesc:
+  Id: 4975
+  ENG: "Your empire starts in a Steppe homeworld and gets +25% Fertility and Max Population for other Steppe worlds."      
+TraitTundraHomeworldName:
+  Id: 4976
+  ENG: "Tundra Homeworld"   
+TraitTundraHomeworldDesc:
+  Id: 4977
+  ENG: "Your empire starts in a Tuntra homeworld and gets +25% Fertility and Max Population for other Tundra worlds."      
+TraitSwampHomeworldName:
+  Id: 4978
+  ENG: "Swamp Homeworld"   
+TraitSwampHomeworldDesc:
+  Id: 4979
+  ENG: "Your empire starts in a Swamp homeworld and gets +25% Fertility and Max Population for other Swamp worlds."      
+TraitDesertHomeworldName:
+  Id: 4980
+  ENG: "Desert Homeworld"   
+TraitDesertHomeworldDesc:
+  Id: 4981
+  ENG: "Your empire starts in a Desert homeworld and gets +25% Fertility and Max Population for other Desert worlds."      
+TraitIceHomeworldName:
+  Id: 4982
+  ENG: "Ice Homeworld"   
+TraitIceHomeworldDesc:
+  Id: 4983
+  ENG: "Your empire starts in an Ice homeworld and gets +25% Fertility and Max Population for other Ice worlds."      
 TraitExplorers_Name: 
  Id: 4984
  ENG: "Explorers"
@@ -10445,7 +10487,7 @@ TraitAquaticName:
   ENG: "Aquatic"   
 TraitAquaticDesc:
   Id: 4987
-  ENG: "This Race prefers to reproduce and live in water. It can swim well and breath underwater."     
+  ENG: "This Race prefers to reproduce and live in water. It can swim well and breath underwater. It starts with Oceanic Homeworld and has different preferences for other planet types."     
 ShipMaintenanceMultiplier:
  Id: 4988
  ENG: "Ship Maintenance Multiplier"
