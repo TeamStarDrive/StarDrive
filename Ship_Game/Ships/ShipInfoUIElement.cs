@@ -200,7 +200,7 @@ namespace Ship_Game.Ships
         {
             SubTexture iconPack = ResourceManager.Texture("StatusIcons/icon_pack");
 
-            if (!ship.Loyalty.data.Traits.Pack)
+            if (!ship.Loyalty.HavePackMentality)
                 return;
 
             var packRect = new Rectangle((int)StatusArea.X, (int)StatusArea.Y, 48, 32);

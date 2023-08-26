@@ -698,7 +698,7 @@ namespace Ship_Game
 
                 if (TilesList.Any(t => t.CanTerraform)
                     || TilesList.Any(t => t.BioCanTerraform || t.VolcanoHere)
-                    || Category != Owner.data.PreferredEnv
+                    || Category != Owner.data.PreferredEnvPlanet
                     || NonCybernetic && BaseMaxFertility.Less(1 / Empire.RacialEnvModifer(Category, Owner)))
                 {
                     return true;
