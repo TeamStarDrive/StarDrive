@@ -77,17 +77,18 @@
     <R>0</R>
     <G>175</G>
     <B>0</B>
-    <RaceDescription>Pollops are a peculiar race of mobile plant-like organisms. Though physically weak, they grow at a rapid pace and have long lifespans. Pollops tend to be quite friendly.</RaceDescription>
-    <Cost>0</Cost>
-	<TraitOptions>
-		<string>Manifest Destiny</string>
-		<string>Timid</string>
-		<string>Efficient</string>
-		<string>Fertile</string>
-		<string>Efficient Metabolism</string>
-		<string>Reflexes</string>
-		<string>Lazy</string>
-	</TraitOptions>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Manifest Destiny</string>
+				<string>Timid</string>
+				<string>Efficient</string>
+				<string>Fertile</string>
+				<string>Efficient Metabolism</string>
+				<string>Reflexes</string>
+				<string>Lazy</string>
+			</TraitOptions>
+		</TraitSet>
+	</TraitSets>	
   </Traits>
-  <Faction>0</Faction>
 </EmpireData>
