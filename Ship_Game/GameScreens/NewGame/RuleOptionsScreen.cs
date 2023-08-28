@@ -67,7 +67,8 @@ public sealed class RuleOptionsScreen : GameScreen
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*2, () => P.AIUsesPlayerDesigns, title: GameText.UsePlayerDesignsTitle, tooltip: GameText.UsePlayerDesignsTip);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*3, () => P.DisablePirates, title: GameText.DisablePirates, tooltip: GameText.DisablesAllPirateFactionsFor);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*4, () => P.DisableRemnantStory, title: GameText.DisableRemnantStory, tooltip: GameText.IfCheckedRemnantForcesIn);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*5, () => P.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*5, () => P.DisableAlternateAITraits, title: GameText.DisableAlternateTraits, tooltip: GameText.DisableAlternateTraitsTip);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*6, () => P.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
 
         var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 230, 270, 50);
         CustomMineralDecay = SliderDecimal1(mdRect, GameText.MineralDecayRate, 0.2f, 3, P.CustomMineralDecay);

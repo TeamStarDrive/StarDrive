@@ -10434,6 +10434,12 @@ InRandomGameMode:
  ENG: "Random game mode is very similar to Sandbox Game Mode but starting positions are randomized. Some empires might start very close to eachother and some may have a lot of space to expand."
  RUS: "Случайный режим игры очень похож на режим песочницы, но стартовые позиции случайны. Некоторые империи могут начинаться очень близко друг к другу, а у некоторых может быть много места для расширения."
  SPA: "El modo de juego aleatorio es muy similar al modo de juego Sandbox, pero las posiciones iniciales son aleatorias. Algunos imperios pueden comenzar muy cerca uno del otro y otros pueden tener mucho espacio para expandirse."  
+DisableAlternateTraits:
+ Id: 4441
+ ENG: "Disable Alternate AI Trait Sets"
+DisableAlternateTraitsTip:
+ Id: 4442
+ ENG: "Disable the ability to create alternate traits sets for AI empires. The AI empires will start with the traits you see when you cycle the races during in the Race Design Screen. Using alternate AI trait sets will create slightly diffrent empires each new game, increasing replayability."
 TraitSalvagersName:
   Id: 4966
   ENG: "Salvagers"   

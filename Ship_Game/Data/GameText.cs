@@ -4507,6 +4507,13 @@ namespace Ship_Game
         RandomGameMode = 4439,
         /// <summary>in Random game mode, you may win the</summary>
         InRandomGameMode = 4440,
+        /// <summary>Disable Alternate AI trait sets</summary>
+        DisableAlternateTraits = 4441,
+        /// <summary>Disable Alternate AI trait sets</summary>
+        DisableAlternateTraitsTip = 4442,
+
+
+
 
 
 
