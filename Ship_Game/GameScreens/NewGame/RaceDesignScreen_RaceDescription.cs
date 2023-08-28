@@ -204,7 +204,7 @@ namespace Ship_Game
             {
                 traitEntry.Selected = false;
                 RacialTraitOption tEnt = traitEntry.Trait;
-                if (traits.TraitOptions.Contains(tEnt.TraitName))
+                if (traits.PlayerTraitOptions.Contains(tEnt.TraitName))
                 {
                     traitEntry.Selected = true;
                     TotalPointsUsed -= tEnt.Cost;

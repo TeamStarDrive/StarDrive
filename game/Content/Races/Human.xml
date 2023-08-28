@@ -59,16 +59,18 @@
     <R>68</R>
     <G>140</G>
     <B>203</B>
-    <RaceDescription>The United Federation is an expasionist republic with a strong emphasis on scientific and military power.  Humans are somewhat xenophobic, and they can be slow to trust other empires while also being quick to make war.    </RaceDescription>
-	<TraitOptions>
-		<string>Prototype Flagship</string>
-		<string>Militaristic</string>
-		<string>Astronomers</string>
-		<string>Huge Homeworld</string>
-		<string>Polluted Homeworld</string>
-		<string>Corrupt</string>
-		<string>Industrious</string>
-	</TraitOptions>		
+	<TraitSets>
+		<TraitSet>
+			<TraitOptions>
+				<string>Prototype Flagship</string>
+				<string>Militaristic</string>
+				<string>Astronomers</string>
+				<string>Huge Homeworld</string>
+				<string>Polluted Homeworld</string>
+				<string>Corrupt</string>
+				<string>Industrious</string>
+			</TraitOptions>		
+		</TraitSet>
+	</TraitSets>	
   </Traits>
-  <Faction>0</Faction>
 </EmpireData>

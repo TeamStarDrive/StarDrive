@@ -30,8 +30,6 @@
   <ThrustColor1R>245</ThrustColor1R>
   <ThrustColor1G>245</ThrustColor1G>
   <ThrustColor1B>245</ThrustColor1B>     
-
-
   <Traits>
     <Name>The Draylok Council</Name>
     <Singular>Draylok</Singular>
@@ -46,15 +44,16 @@
     <R>146</R>
     <G>39</G>
     <B>143</B>
-    <RaceDescription>Deprecated </RaceDescription>
-    <Cost>0</Cost>
-	<TraitOptions>
-		<string>Smart</string>
-		<string>Corrupt</string>
-		<string>Mercantile</string>
-		<string>Alluring</string>
-		<string>Duplicitous</string>
-	</TraitOptions>	
+	<TraitSets>
+		<TraitSet>
+			<TraitOptions>
+				<string>Smart</string>
+				<string>Corrupt</string>
+				<string>Mercantile</string>
+				<string>Alluring</string>
+				<string>Duplicitous</string>
+			</TraitOptions>			
+		</TraitSet>
+	</TraitSets>	
   </Traits>
-  <Faction>0</Faction>
 </EmpireData>
