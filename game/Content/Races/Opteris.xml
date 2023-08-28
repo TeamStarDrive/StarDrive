@@ -75,7 +75,7 @@
     <R>90</R>
     <G>87</G>
     <B>51</B>
-	<TraitSets>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
 		<TraitSet>
 			<TraitOptions>
 				<string>Efficient Metabolism</string>

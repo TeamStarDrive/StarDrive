@@ -59,7 +59,7 @@
     <R>68</R>
     <G>140</G>
     <B>203</B>
-	<TraitSets>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
 		<TraitSet>
 			<TraitOptions>
 				<string>Prototype Flagship</string>

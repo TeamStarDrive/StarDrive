@@ -1,5 +1,4 @@
 ﻿using System;
-using Ship_Game.UI;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -106,6 +105,7 @@ namespace Ship_Game.GameScreens.NewGame
 
         void UpdateVisibility()
         {
+            bool wasVisibile = Visible;
             Visible = PreferredEnv != PlanetCategory.Terran
                 || EnvTerran != 1
                 || EnvOceanic != 1
@@ -116,6 +116,9 @@ namespace Ship_Game.GameScreens.NewGame
                 || EnvIce != 1
                 || EnvBarren != 1
                 || EnvVolcanic != 1;
+
+            if (!wasVisibile && Visible)
+                SlideInFromOffset(offset: new(-Width, 0), Screen.TransitionOffTime);
         }
 
         void UpdatePlanetIcon()
