@@ -15,7 +15,6 @@ using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Rectangle = SDGraphics.Rectangle;
-using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.Ships
 {
@@ -569,10 +568,12 @@ namespace Ship_Game.Ships
             if (ECMValue > 0)
                 error += Loyalty.Random.Vector2D(ECMValue * 80f);
 
-            if (Loyalty.data.Traits.DodgeMod > 0)
-                error += Loyalty.Random.Vector2D(Loyalty.data.Traits.DodgeMod * 80f);
-
             return error;
+        }
+
+        public override float DodgeMultiplier()
+        {
+            return 1 + Loyalty.data.Traits.DodgeMod;
         }
 
         public bool IsHangarShip   => Mothership != null;

@@ -136,6 +136,11 @@ namespace Ship_Game
             return Vector2.Zero;
         }
 
+        public virtual float DodgeMultiplier()
+        {
+            return 1;
+        }
+
         public virtual void OnDamageInflicted(ShipModule victim, float damage)
         {
         }
