@@ -42,7 +42,7 @@
     <R>255</R>
     <G>242</G>
     <B>0</B>
-	<TraitSets>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
 		<TraitSet>
 			<TraitOptions>
 				<string>Huge Homeworld</string>

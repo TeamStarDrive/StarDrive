@@ -77,7 +77,7 @@
     <R>0</R>
     <G>175</G>
     <B>0</B>
-	<TraitSets>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
 		<TraitSet>
 			<TraitOptions>
 				<string>Manifest Destiny</string>

@@ -44,7 +44,7 @@
     <R>146</R>
     <G>39</G>
     <B>143</B>
-	<TraitSets>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
 		<TraitSet>
 			<TraitOptions>
 				<string>Smart</string>
