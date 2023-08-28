@@ -459,7 +459,7 @@
 	  <Cost>2</Cost>
 	  <Description>4971</Description>
 	  <PreferredEnv>Terran</PreferredEnv>  
-	  <EnvTerranMultiplier>1.25</EnvTerranMultiplier>
+	  <EnvTerranMultiplier>1.5</EnvTerranMultiplier>
 	  <Excludes>
 		<string>Oceanic Homeworld</string>
 		<string>Steppe Homeworld</string>
@@ -478,7 +478,7 @@
 	  <Cost>2</Cost>
 	  <Description>4973</Description>
 	  <PreferredEnv>Oceanic</PreferredEnv>  
-	  <EnvOceanicMultiplier>1.25</EnvOceanicMultiplier>
+	  <EnvOceanicMultiplier>1.5</EnvOceanicMultiplier>
 	  <Excludes>
 		<string>Terran Homeworld</string>
 		<string>Steppe Homeworld</string>
@@ -497,7 +497,7 @@
 	  <Cost>2</Cost>
 	  <Description>4975</Description>
 	  <PreferredEnv>Steppe</PreferredEnv>  
-	  <EnvSteppeMultiplier>1.25</EnvSteppeMultiplier>
+	  <EnvSteppeMultiplier>1.5</EnvSteppeMultiplier>
 	  <Excludes>
 		<string>Terran Homeworld</string>
 		<string>Oceanic Homeworld</string>
@@ -516,7 +516,7 @@
 	  <Cost>2</Cost>
 	  <Description>4977</Description>
 	  <PreferredEnv>Tundra</PreferredEnv>  
-	  <EnvTundraMultiplier>1.25</EnvTundraMultiplier>
+	  <EnvTundraMultiplier>1.5</EnvTundraMultiplier>
 	  <Excludes>
 		<string>Terran Homeworld</string>
 		<string>Oceanic Homeworld</string>
@@ -535,7 +535,7 @@
 	  <Cost>2</Cost>
 	  <Description>4979</Description>
 	  <PreferredEnv>Swamp</PreferredEnv>  
-	  <EnvSwampMultiplier>1.25</EnvSwampMultiplier>
+	  <EnvSwampMultiplier>1.5</EnvSwampMultiplier>
 	  <Excludes>
 		<string>Terran Homeworld</string>
 		<string>Oceanic Homeworld</string>
@@ -554,7 +554,7 @@
 	  <Cost>2</Cost>
 	  <Description>4981</Description>
 	  <PreferredEnv>Desert</PreferredEnv>  
-	  <EnvDesertMultiplier>1.25</EnvDesertMultiplier>
+	  <EnvDesertMultiplier>1.5</EnvDesertMultiplier>
 	  <Excludes>
 		<string>Terran Homeworld</string>
 		<string>Oceanic Homeworld</string>
@@ -573,7 +573,7 @@
 	  <Cost>2</Cost>
 	  <Description>4983</Description>
 	  <PreferredEnv>Ice</PreferredEnv>  
-	  <EnvIceMultiplier>1.25</EnvIceMultiplier>
+	  <EnvIceMultiplier>1.5</EnvIceMultiplier>
 	  <Excludes>
 		<string>Terran Homeworld</string>
 		<string>Oceanic Homeworld</string>
