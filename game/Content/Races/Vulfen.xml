@@ -74,21 +74,22 @@
     <R>255</R>
     <G>0</G>
     <B>0</B>
-    <RaceDescription>The Vulfen Imperium believes in the superiority of the Vulfen race. They are an aggressive an industrialist race preferring strength through numbers in their many and varied conflicts. </RaceDescription>
-    <Cost>0</Cost>
-	<TraitOptions>
-		<string>Pack</string>
-		<string>Prototype Flagship</string>
-		<string>Militaristic</string>
-    	<string>Haphazard Engineers</string>
-		<string>Naval Tradition</string>
-		<string>Efficient</string>
-		<string>Dumb</string>
-		<string>Ponderous</string>
-		<string>Repulsive</string>
-		<string>Eagle Eyed</string>
-		<string>Industrious</string>		
-	</TraitOptions>	
+	<TraitSets>
+		<TraitSet>
+			<TraitOptions>
+				<string>Pack</string>
+				<string>Prototype Flagship</string>
+				<string>Militaristic</string>
+				<string>Haphazard Engineers</string>
+				<string>Naval Tradition</string>
+				<string>Efficient</string>
+				<string>Dumb</string>
+				<string>Ponderous</string>
+				<string>Repulsive</string>
+				<string>Eagle Eyed</string>
+				<string>Industrious</string>		
+			</TraitOptions>	
+		</TraitSet>
+	</TraitSets>	
   </Traits>
-  <Faction>0</Faction>
 </EmpireData>

@@ -76,7 +76,12 @@ namespace Ship_Game
             t.Name      = RaceName;
             t.ShipType  = SelectedData.ShipType;
             t.VideoPath = SelectedData.VideoPath;
-            t.TraitOptions = AllTraits.FilterSelect(trait => trait.Selected, trait => trait.Trait.TraitName).ToArrayList();
+
+            Array<string> traitOptions = AllTraits.FilterSelect(trait => trait.Selected, trait => trait.Trait.TraitName).ToArrayList();
+            TraitSet traitset = new TraitSet();
+            traitset.TraitOptions = traitOptions;
+            t.TraitSets.Add(traitset);
+            t.TraitSets[0].TraitOptions = AllTraits.FilterSelect(trait => trait.Selected, trait => trait.Trait.TraitName).ToArrayList();
             return t;
         }
         

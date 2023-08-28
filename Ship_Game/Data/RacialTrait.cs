@@ -6,6 +6,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Data;
 using System;
 using SDUtils;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -35,8 +36,8 @@ namespace Ship_Game
         [StarData] public float R;
         [StarData] public float G;
         [StarData] public float B;
-        
-            // RacialTraits.xml
+
+        // RacialTraits.xml
         [StarData] public int TraitIndex;
         [StarData] public string TraitName;
         [XmlIgnore] public LocalizedText LocalizedName => new(TraitIndex);
@@ -103,7 +104,8 @@ namespace Ship_Game
         [StarData] public bool Assimilators;
         [StarData] public float PassengerModifier = 1f;
 
-        [StarData] public Array<string> TraitOptions;
+        [StarData] public Array<TraitSet> TraitSets = new();
+        public Array<string> PlayerTraitOptions => TraitSets.Count > 0 ? TraitSets[0].TraitOptions : new Array<string>();
 
         // MISC wrappers
 
@@ -149,17 +151,21 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: set old values from new bools
-        public void LoadTraitConstraints()
+        public void LoadTraitConstraints(bool isPlayer, RandomBase random)
         {
+            if (TraitSets.Count == 0)
+                return;
+
+            Array<string> traitOptions = isPlayer ? PlayerTraitOptions : random.Item(TraitSets).TraitOptions; 
             var traits = ResourceManager.RaceTraits;
             if (traits.TraitList == null)
                 return;
 
             foreach (RacialTraitOption trait in traits.TraitList)
             {
-                if (!TraitOptions.Contains(trait.TraitName))
+                if (!traitOptions.Contains(trait.TraitName))
                     continue;
-                    
+
                 DiplomacyMod += trait.DiplomacyMod;
                 TargetingModifier += trait.TargetingModifier;
                 ConsumptionModifier += trait.ConsumptionModifier;
@@ -211,5 +217,13 @@ namespace Ship_Game
         {
             if (Pack > 0) ship.UpdatePackDamageModifier();
         }
+
     }
+
+    [StarDataType]
+    public class TraitSet
+    {
+        [StarData] public Array<string> TraitOptions;
+    }
+
 }

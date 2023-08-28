@@ -24,19 +24,6 @@
   <PirateStationImproved>Draug Station-Mk2</PirateStationImproved>
   <PirateStationAdvanced>Draug Station-Mk3</PirateStationAdvanced>
   <PirateFlagShip>Draug Flagship</PirateFlagShip>
-  <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
-  <EnvTerran>1</EnvTerran>
-  <EnvOceanic>1</EnvOceanic>
-  <EnvSteppe>1</EnvSteppe>
-  <EnvTundra>1</EnvTundra>
-  <EnvSwamp>1</EnvSwamp>
-  <EnvDesert>1</EnvDesert>
-  <EnvIce>1</EnvIce>
-  <EnvBarren>1</EnvBarren>
-  <EnvVolcanic>1</EnvVolcanic>
-  <PreferredEnv>Terran</PreferredEnv>
-  <!-- Terraformers will terraform a planet to this environment -->
-
   <Traits>
     <Name>Draugar</Name>
     <Singular>Draug</Singular>
@@ -48,8 +35,5 @@
     <R>4</R>
     <G>0</G>
     <B>253</B>
-    <RaceDescription>Deadly Pirates</RaceDescription>
-    <Cost>0</Cost>
-	<TraitOptions></TraitOptions>
   </Traits>
 </EmpireData>
