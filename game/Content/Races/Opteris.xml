@@ -75,23 +75,24 @@
     <R>90</R>
     <G>87</G>
     <B>51</B>
-    <RaceDescription>bzzz!</RaceDescription>
-    <Cost>0</Cost>
-	<TraitOptions>
-		<string>Efficient Metabolism</string>
-		<string>Fertile</string>
-		<string>Timid</string>
-		<string>Militaristic</string>
-		<string>Small Homeworld</string>
-		<string>Polluted Homeworld</string>
-		<string>Blind</string>
-		<string>Industrious</string>
-		<string>Corrupt</string>
-		<string>Industrialized Homeworld</string>
-		<string>Cybernetic</string>
-		<string>Prototype Flagship</string>
-		<string>Honest</string>
-	</TraitOptions>	
+	<TraitSets>
+		<TraitSet>
+			<TraitOptions>
+				<string>Efficient Metabolism</string>
+				<string>Fertile</string>
+				<string>Timid</string>
+				<string>Militaristic</string>
+				<string>Small Homeworld</string>
+				<string>Polluted Homeworld</string>
+				<string>Blind</string>
+				<string>Industrious</string>
+				<string>Corrupt</string>
+				<string>Industrialized Homeworld</string>
+				<string>Cybernetic</string>
+				<string>Prototype Flagship</string>
+				<string>Honest</string>
+			</TraitOptions>	
+		</TraitSet>
+	</TraitSets>	
   </Traits>
-  <Faction>0</Faction>
 </EmpireData>
