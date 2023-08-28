@@ -28,7 +28,6 @@
   <ThrustColor1R>34</ThrustColor1R>
   <ThrustColor1G>139</ThrustColor1G>
   <ThrustColor1B>34</ThrustColor1B>      
-
   <Traits>
     <Name>Cordrazine Collective</Name>
     <Singular>Cordrazine</Singular>
@@ -43,19 +42,20 @@
     <R>255</R>
     <G>242</G>
     <B>0</B>
-    <RaceDescription>KWAK!</RaceDescription>
-    <Cost>0</Cost>
-	<TraitOptions>
-		<string>Huge Homeworld</string>
-		<string>Alluring</string>
-		<string>Less Fertile</string>
-		<string>Efficient Metabolism</string>
-		<string>Timid</string>
-		<string>Prototype Flagship</string>
-		<string>Skilled Engineers</string>		
-		<string>Ponderous</string>
-		<string>Efficient</string>
-	</TraitOptions>	
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Huge Homeworld</string>
+				<string>Alluring</string>
+				<string>Less Fertile</string>
+				<string>Efficient Metabolism</string>
+				<string>Timid</string>
+				<string>Prototype Flagship</string>
+				<string>Skilled Engineers</string>		
+				<string>Ponderous</string>
+				<string>Efficient</string>
+			</TraitOptions>	
+		</TraitSet>
+	</TraitSets>			
   </Traits>
-  <Faction>0</Faction>
 </EmpireData>

@@ -53,19 +53,20 @@
     <R>255</R>
     <G>242</G>
     <B>253</B>
-    <RaceDescription>KWAK!</RaceDescription>
-    <Cost>0</Cost>
-	<TraitOptions>
-		<string>Gluttonous</string>
-		<string>Fertile</string>
-		<string>Huge Homeworld</string>
-		<string>Lazy</string>
-		<string>Skilled Engineers</string>
-		<string>Spiritual</string>
-		<string>Manifest Destiny</string>
-		<string>Prototype Flagship</string>
-		<string>Astronomers</string>
-	</TraitOptions>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Gluttonous</string>
+				<string>Fertile</string>
+				<string>Huge Homeworld</string>
+				<string>Lazy</string>
+				<string>Skilled Engineers</string>
+				<string>Spiritual</string>
+				<string>Manifest Destiny</string>
+				<string>Prototype Flagship</string>
+				<string>Astronomers</string>
+			</TraitOptions>
+		</TraitSet>
+	</TraitSets>	
   </Traits>
-  <Faction>0</Faction>
 </EmpireData>

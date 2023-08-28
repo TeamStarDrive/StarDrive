@@ -60,18 +60,18 @@
     <R>201</R>
     <G>75</G>
     <B>96</B>
-    <RaceDescription>The Kulrathi are a noble and proud race who value beauty, honor, and battle. They are fiercely territorial race and they prefer personal, hand-to-hand engagements over modern weaponry. The Kulrathi make great allies and terrible enemies. </RaceDescription>
-    <Cost>0</Cost>
-	<TraitOptions>
-		<string>Prototype Flagship</string>
-		<string>Honest</string>
-		<string>Meticulous</string>
-		<string>Militaristic</string>
-		<string>Skilled Engineers</string>
-		<string>Savage</string>
-		<string>Naval Tradition</string>
-	</TraitOptions>	
-    <ShipCostMod>-0.35</ShipCostMod>
+	<TraitSets> <!-- The first trait set is what the player sees. Other sets are extra sets randomized for the AI -->
+		<TraitSet>
+			<TraitOptions>
+				<string>Prototype Flagship</string>
+				<string>Honest</string>
+				<string>Meticulous</string>
+				<string>Militaristic</string>
+				<string>Skilled Engineers</string>
+				<string>Savage</string>
+				<string>Naval Tradition</string>
+			</TraitOptions>	
+			</TraitSet>
+	</TraitSets>
   </Traits>
-  <Faction>0</Faction>
 </EmpireData>

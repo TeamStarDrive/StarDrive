@@ -312,6 +312,7 @@ namespace Ship_Game.Gameplay
             if (target != null)
             {
                 error += target.JammingError(); // if target has ECM, they can scramble their position
+                error *= target.DodgeMultiplier();
             }
             return error;
         }
