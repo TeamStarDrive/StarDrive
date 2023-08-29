@@ -100,7 +100,7 @@
                     RemnantNumBombers    = 0.75f;
                     BaseColonyGoals      = 2;
                     ColonyGoalMultiplier = 0.5f;
-                    StandByColonyShips   = 2;
+                    StandByColonyShips   = 0;
                     TrustLostStoleColony = 5;
                     FleetStrModifier     = 0.2f;
                     NumSystemsToSniff    = 2;
@@ -111,12 +111,6 @@
                     HullTechMultiplier   = 1f;
                     RemnantPortalCreationMod = 10;
                     CombatShipGoalsPerPlanet = 3;
-                    if (!empire.isPlayer)
-                    {
-                        FlatMoneyBonus         = 3;
-                        PlayerWarPriorityLimit = 7;
-                    }
-
                     break;
                 case GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
