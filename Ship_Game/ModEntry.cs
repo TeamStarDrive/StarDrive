@@ -19,7 +19,7 @@ namespace Ship_Game
         public ModEntry(GamePlayGlobals settings)
         {
             Settings = settings;
-            IsSupported = CheckSupport(Mod.SupportedBlackBoxVersions, Mod.FormatVersion);
+            IsSupported = CheckSupport(Mod.SupportedBlackBoxVersions);
         }
 
         public SubTexture LoadPortrait(GameScreen screen)
@@ -48,7 +48,7 @@ namespace Ship_Game
 
             if (!IsSupported)
             {
-                batch.DrawString(Fonts.Arial12Bold, "Not supported on This BlackBox Version, try update this mod.", titlePos, Color.Red);
+                batch.DrawString(Fonts.Arial12Bold, "Not supported on This BlackBox Version, try updating this mod.", titlePos, Color.Red);
                 titlePos.Y += Fonts.Arial12Bold.LineSpacing + 1;
             }
 
@@ -68,9 +68,9 @@ namespace Ship_Game
             batch.DrawRectangle(portrait, Color.White);
         }
 
-        public bool CheckSupport(string supportedBbVers, int formatVersion)
+        static public bool CheckSupport(string supportedBbVers)
         {
-            if (supportedBbVers.IsEmpty() || formatVersion != FormatVersion)
+            if (supportedBbVers.IsEmpty())
                 return false;
 
             foreach (string version in supportedBbVers.Split(',')) 

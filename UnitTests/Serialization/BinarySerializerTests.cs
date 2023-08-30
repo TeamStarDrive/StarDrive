@@ -1128,6 +1128,7 @@ namespace UnitTests.Serialization
             AssertEqual(instance.ShowAllDesigns, result.ShowAllDesigns);
             AssertEqual(instance.FilterOldModules, result.FilterOldModules);
             AssertEqual(instance.DisableRemnantStory, result.DisableRemnantStory);
+            AssertEqual(instance.DisableAlternateAITraits, result.DisableAlternateAITraits);
             AssertEqual(instance.DisablePirates, result.DisablePirates);
             AssertEqual(instance.FixedPlayerCreditCharge, result.FixedPlayerCreditCharge);
         }
