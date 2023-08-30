@@ -191,7 +191,8 @@ namespace Ship_Game.AI
 
         void DoDeploy(ShipGoal g, FixedSimTime timeStep)
         {
-            if (g.Goal is not DeepSpaceBuildGoal bg)
+            Goal goal = g.Goal;
+            if (goal is not DeepSpaceBuildGoal bg)
                 return;
 
             Planet target = g.TargetPlanet;
@@ -205,28 +206,28 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (g.Goal is RefitOrbital && g.Goal.OldShip?.Active == false)
+            if (goal is RefitOrbital && goal.OldShip?.Active == false)
             {
                 OrderScrapShip();
                 return;
             }
 
-            ThrustOrWarpToPos(g.Goal.BuildPosition, timeStep);
-            if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
+            ThrustOrWarpToPos(goal.BuildPosition, timeStep);
+            if (goal.BuildPosition.InRadius(Owner.Position, 50) || !Owner.Construction.ConsturctionCompleted)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, goal.BuildPosition);
             if (orbital == null)
                 return;
 
             if (orbital.IsSubspaceProjector)
-                Owner.Loyalty.AI.SpaceRoadsManager.AddProjectorToRoadList(orbital, g.Goal.BuildPosition);
+                Owner.Loyalty.AI.SpaceRoadsManager.AddProjectorToRoadList(orbital, goal.BuildPosition);
 
             Owner.QueueTotalRemoval();
-            if (g.Goal.OldShip?.Active == true) // we are refitting something
+            if (goal.OldShip?.Active == true) // we are refitting something
             {
-                g.Goal.OldShip.TransferCargoUponRefit(orbital);
-                g.Goal.OldShip.QueueTotalRemoval();
+                goal.OldShip.TransferCargoUponRefit(orbital);
+                goal.OldShip.QueueTotalRemoval();
             }
 
             if (bg.TetherPlanet != null)
@@ -247,7 +248,8 @@ namespace Ship_Game.AI
 
         void DoDeployOrbital(ShipGoal g, FixedSimTime timeStep)
         {
-            if (g.Goal is not DeepSpaceBuildGoal bg)
+            Goal goal = g.Goal;
+            if (goal is not DeepSpaceBuildGoal bg)
             {
                 Log.Info("There was no goal for Construction ship deploying orbital");
                 OrderScrapShip();
@@ -261,27 +263,27 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (g.Goal is RefitOrbital && g.Goal.OldShip?.Active == false)
+            if (goal is RefitOrbital && goal.OldShip?.Active == false)
             {
                 OrderScrapShip();
                 return;
             }
 
-            ThrustOrWarpToPos(g.Goal.BuildPosition, timeStep);
-            if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
+            ThrustOrWarpToPos(goal.BuildPosition, timeStep);
+            if (goal.BuildPosition.InRadius(Owner.Position, 50) || !Owner.Construction.ConsturctionCompleted)
                 return;
-
-            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, g.Goal.BuildPosition);
+                
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, goal.BuildPosition);
             if (orbital != null)
             {
-                orbital.Position = g.Goal.BuildPosition;
+                orbital.Position = goal.BuildPosition;
                 orbital.TetherToPlanet(target);
                 target.OrbitalStations.Add(orbital);
                 Owner.QueueTotalRemoval();
-                if (g.Goal.OldShip?.Active == true) // we are refitting something
+                if (goal.OldShip?.Active == true) // we are refitting something
                 {
-                    g.Goal.OldShip.TransferCargoUponRefit(orbital);
-                    g.Goal.OldShip.QueueTotalRemoval();
+                    goal.OldShip.TransferCargoUponRefit(orbital);
+                    goal.OldShip.QueueTotalRemoval();
                 }
                 else
                 {
