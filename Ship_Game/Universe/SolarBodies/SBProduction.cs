@@ -301,6 +301,9 @@ namespace Ship_Game.Universe.SolarBodies
             if (goal != null && goal.PlanetBuildingAt == null)
                 throw new InvalidOperationException($"CQ.Enqueue not allowed if Goal.PlanetBuildingAt is null!");
 
+            float constructorCost = (constructor.GetCost(Owner)
+                - GlobalStats.Defaults.ConstructionShipOrbitalDiscount).LowerBound(0);
+
             var qi = new QueueItem(P)
             {
                 isShip        = true,
@@ -309,10 +312,11 @@ namespace Ship_Game.Universe.SolarBodies
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({orbital.Name})",
                 ShipData      = constructor,
-                Cost          = orbital.GetCost(Owner),
+                Cost          = orbital.GetCost(Owner) + constructorCost,
                 Rush          = P.Owner.RushAllConstruction || rush,
                 QType         = type
             };
+
             if (goal != null) 
                 goal.PlanetBuildingAt = P;
 

@@ -63,20 +63,25 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep OrderDeployOrbital()
         {
-            if (FinishedShip == null)
+            if (!ConstructionShipOk)
                 return GoalStep.GoalFailed; // Ship was removed or destroyed
 
             if (StaticBuildPos == Vector2.Zero && TetherOffset == Vector2.Zero)
                 StaticBuildPos = FindNewOrbitalLocation();
-            FinishedShip.AI.OrderDeepSpaceBuild(this);
+            FinishedShip.AI.OrderDeepSpaceBuild(this, ToBuild.GetCost(Owner));
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitForDeployment()
         {
-            // FB - must keep this goal until the ship deployed it's structure.
-            // If the goal is not kept, load game construction ships lose the empire goal and get stuck
-            return FinishedShip == null ? GoalStep.GoalComplete : GoalStep.TryAgain;
+            if (!ConstructionShipOk)
+                return GoalStep.GoalComplete;
+
+            FinishedShip.Construction.Construct(BuildPosition);
+            /*
+            Launch supply ships to aid in constrcution if the system has planet owned by owner.
+            */
+            return GoalStep.TryAgain;
         }
 
         Vector2 FindNewOrbitalLocation()
@@ -139,5 +144,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             return false;
         }
+
+        bool ConstructionShipOk => FinishedShip?.Active == true;
     }
 }

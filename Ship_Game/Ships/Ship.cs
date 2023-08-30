@@ -47,6 +47,7 @@ namespace Ship_Game.Ships
 
         public Array<ShipModule> BombBays = new();
         [StarData] public CarrierBays Carrier;
+        [StarData] public ConstructionShip Construction;
         [StarData] public ShipResupply Supply;
         public bool ShipStatusChanged;
         public bool IsMeteor { get; private set; }
@@ -1631,6 +1632,7 @@ namespace Ship_Game.Ships
             }
             
             Carrier?.Dispose();
+            Construction?.Dispose();
 
             var slots = ModuleSlotList;
             ModuleSlotList = Empty<ShipModule>.Array;
