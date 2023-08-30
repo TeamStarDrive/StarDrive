@@ -45,7 +45,6 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial20Bold, Mod.Name, titlePos, Color.Gold);
             batch.DrawString(Fonts.Arial12Bold, Mod.Path, new(titlePos.X + titleWidth + 8, titlePos.Y+4), Color.Gray);
             titlePos.Y += Fonts.Arial20Bold.LineSpacing + 2;
-
             if (!IsSupported)
             {
                 batch.DrawString(Fonts.Arial12Bold, "Not supported on This BlackBox Version, try updating this mod.", titlePos, Color.Red);
