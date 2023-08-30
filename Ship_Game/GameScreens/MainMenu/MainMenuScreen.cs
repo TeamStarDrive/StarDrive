@@ -141,9 +141,29 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
-        void NewGame_Clicked(UIButton button)   => ScreenManager.AddScreen(new RaceDesignScreen(this));
+        void NewGame_Clicked(UIButton button) 
+        {
+            if (GlobalStats.HasMod && !GlobalStats.Defaults.Mod.ModFormatSupported)
+            {
+                ScreenManager.AddScreen(new MessageBoxScreen(this, "Mod format version mismatch. " +
+                    "Please update Blackbox and this mod to latest vessions", MessageBoxButtons.Ok, 275));
+                return;
+            }
+
+            ScreenManager.AddScreen(new RaceDesignScreen(this)); 
+        }
         void Tutorials_Clicked(UIButton button) => ScreenManager.AddScreen(new TutorialScreen(this));
-        void LoadGame_Clicked(UIButton button)  => ScreenManager.AddScreen(new LoadSaveScreen(this));
+        void LoadGame_Clicked(UIButton button)
+        {
+            if (GlobalStats.HasMod && !GlobalStats.Defaults.Mod.ModFormatSupported)
+            {
+                ScreenManager.AddScreen(new MessageBoxScreen(this, "Mod format version mismatch. " +
+                    "Please update Blackbox and this mod to latest vessions", MessageBoxButtons.Ok, 275));
+                return;
+            }
+
+            ScreenManager.AddScreen(new LoadSaveScreen(this));
+        }
         void Options_Clicked(UIButton button)   => ScreenManager.AddScreen(new OptionsScreen(this));
         void Mods_Clicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
         void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
