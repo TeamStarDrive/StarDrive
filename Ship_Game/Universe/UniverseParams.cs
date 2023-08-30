@@ -75,6 +75,7 @@ public class UniverseParams
     [StarData] public bool FilterOldModules;
 
     [StarData] public bool DisableRemnantStory;
+    [StarData] public bool DisableAlternateAITraits;
     [StarData] public bool DisablePirates;
     [StarData] public bool FixedPlayerCreditCharge;
 

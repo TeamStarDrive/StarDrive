@@ -5,6 +5,7 @@ Globals:
   MaxOpponents: 7
   DefaultNumOpponents: 5
   TurnTimer: 5 # default time in seconds for a single turn
+  TraitPoints: 8 # initial number of trait points. Default is 8
   
 
   # gameplay modifiers
