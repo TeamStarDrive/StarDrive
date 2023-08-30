@@ -89,7 +89,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 StaticBuildPos = OldShip.Position;
             }
 
-            FinishedShip.AI.OrderDeepSpaceBuild(this);
+            FinishedShip.AI.OrderDeepSpaceBuild(this, OldShip.RefitCost(ToBuild));
             return GoalStep.GoToNextStep;
         }
 

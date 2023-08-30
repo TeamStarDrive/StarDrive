@@ -62,6 +62,8 @@ public class GamePlayGlobals
     [StarData] public float ShieldPowerMultiplier = 1f;
     // Projectile Hit Points Multiplier
     [StarData] public float ProjectileHitpointsMultiplier = 1f;
+    // Construction Ship Discount for Orbitals build cost
+    [StarData] public float ConstructionShipOrbitalDiscount = 100f;
 
     // feature flags
     [StarData] public bool UseHullBonuses;
