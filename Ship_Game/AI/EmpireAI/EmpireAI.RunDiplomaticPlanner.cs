@@ -39,8 +39,7 @@ namespace Ship_Game.AI
         {
             float ratio = OwnerEmpire.PersonalityModifiers.PopRatioBeforeMerge;
             var enemies =  OwnerEmpire.Universe.MajorEmpiresAtWarWith(OwnerEmpire)
-                .Filter(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion 
-                             || e.OffensiveStrength * ratio > OwnerEmpire.CurrentMilitaryStrength);
+                .Filter(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion);
 
             if (enemies.Length > 0)
             {

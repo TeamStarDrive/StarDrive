@@ -32,4 +32,7 @@ public sealed class ModInformation
     [StarData] public bool ClearVanillaTechs;
     [StarData] public bool ClearVanillaWeapons;
     [StarData] public bool DisableDefaultRaces;
+
+    public bool ModFormatSupported => FormatVersion == ModEntry.FormatVersion;
 }
+
