@@ -33,6 +33,8 @@ Globals:
   InCombatSelfRepairModifier: 0.2 # repair rate modifier for command/engineering self repair when in combat
   ShieldPowerMultiplier: 1.0 # Global multiplier for Shields
   ProjectileHitpointsMultiplier: 1.0 # Global multiplier for Projectile Hit Points (mainly affects missiles)
+  ConstructionShipOrbitalDiscount: 100 # When building orbitals, constructor ship cost over this threshold will be added to the gross orbital cost
+  ConstructionModuleBuildRate: 100 # How much production the construction module can process per turn   
 
   # feature flags
   DisableShipPicker: true

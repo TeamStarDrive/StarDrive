@@ -7,7 +7,7 @@ namespace Ship_Game.Ships
     [StarDataType]
     public class ConstructionShip  // Created by Fat Bastard in to better deal with consturction ships
     {
-        const float DistanceToStartConstructing = 50;
+        public const float ConstructingDistance = 50;
 
         [StarData] public readonly float ConstructionNeeded;
         [StarData] public float ConstructionAdded { get; private set; }
@@ -51,7 +51,7 @@ namespace Ship_Game.Ships
 
             if (ConstructionStarted)
             {
-                ConstructionAdded += Owner.RepairRate;
+                ConstructionAdded += GlobalStats.Defaults.ConstructionModuleBuildRate;
             }
             else // Initial Construction
             {
@@ -62,10 +62,20 @@ namespace Ship_Game.Ships
             ConstructionAdded = ConstructionAdded.UpperBound(ConstructionNeeded);
         }
 
-        public void Construct(Vector2 buildPos)
+        /// <summary>
+        /// Will retrun false is not close enough or construction is completed
+        /// </summary>
+        /// <param name="buildPos"></param>
+        /// <returns></returns>
+        public bool TryConstruct(Vector2 buildPos)
         {
-            if (Owner.Position.InRadius(buildPos, DistanceToStartConstructing))
+            if (Owner.Position.InRadius(buildPos, ConstructingDistance))
+            {
                 AddConstruction();
+                return !ConsturctionCompleted;
+            }
+
+            return false;
         }
 
         public bool ConsturctionCompleted => ConstructionNeeded == 0 ? true : ConstructionAdded / ConstructionNeeded == 1;
