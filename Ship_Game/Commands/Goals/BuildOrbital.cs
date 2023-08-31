@@ -77,10 +77,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!ConstructionShipOk)
                 return GoalStep.GoalComplete;
 
-            FinishedShip.Construction.Construct(BuildPosition);
-            /*
-            Launch supply ships to aid in constrcution if the system has planet owned by owner.
-            */
+            if (FinishedShip.Construction.TryConstruct(BuildPosition) && FinishedShip.System != null)
+                FinishedShip.System.TryLaunchBuilderShip(FinishedShip, Owner);
+
             return GoalStep.TryAgain;
         }
 

@@ -62,7 +62,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep OrderDeepSpaceBuild()
         {
-            if (FinishedShip == null) 
+            if (!ConstructionShipOk) 
                 return GoalStep.GoalFailed;
 
             FinishedShip.AI.OrderDeepSpaceBuild(this, ToBuild.GetCost(Owner));
@@ -71,9 +71,15 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep WaitForDeployment()
         {
-            // FB - must keep this goal until the ship deployed it's structure. 
-            // If the goal is not kept, load game construction ships loses the empire goal and get stuck
-            return FinishedShip == null ? GoalStep.GoalComplete : GoalStep.TryAgain;
+            if (!ConstructionShipOk)
+                return GoalStep.GoalComplete;
+
+            if (FinishedShip.Construction.TryConstruct(BuildPosition) && FinishedShip.System != null)
+                FinishedShip.System.TryLaunchBuilderShip(FinishedShip, Owner);
+
+            return GoalStep.TryAgain;
         }
+
+        bool ConstructionShipOk => FinishedShip?.Active == true;
     }
 }

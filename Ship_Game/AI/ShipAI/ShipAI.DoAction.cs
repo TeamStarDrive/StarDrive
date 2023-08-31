@@ -212,8 +212,14 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPos(goal.BuildPosition, timeStep);
-            if (goal.BuildPosition.InRadius(Owner.Position, 50) || !Owner.Construction.ConsturctionCompleted)
+            if (goal.BuildPosition.OutsideRadius(Owner.Position, Owner.CurrentVelocity*2))
+            {
+                ThrustOrWarpToPos(goal.BuildPosition, timeStep);
+                return;
+            }
+
+            ReverseThrustUntilStopped(timeStep);
+            if (!Owner.Construction.ConsturctionCompleted)
                 return;
 
             Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, goal.BuildPosition);
@@ -269,10 +275,17 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPos(goal.BuildPosition, timeStep);
-            if (goal.BuildPosition.InRadius(Owner.Position, 50) || !Owner.Construction.ConsturctionCompleted)
+            if (goal.BuildPosition.OutsideRadius(Owner.Position, Owner.CurrentVelocity * 2))
+            {
+                ThrustOrWarpToPos(goal.BuildPosition, timeStep);
                 return;
-                
+            }
+
+            ReverseThrustUntilStopped(timeStep);
+            if (!Owner.Construction.ConsturctionCompleted)
+                return;
+
+
             Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, goal.BuildPosition);
             if (orbital != null)
             {
@@ -685,9 +698,28 @@ namespace Ship_Game.AI
             }
         }
 
+        void DoBuildOrbital(FixedSimTime timeStep, ShipGoal goal)
+        {
+            if (EscortTarget == null || !EscortTarget.Active)
+            {
+                OrderSupplyShipLand(goal.TargetPlanet);
+                return;
+            }
+
+            if (!Owner.Position.InRadius(EscortTarget.Position, EscortTarget.Radius + ConstructionShip.ConstructingDistance))
+            {
+                ThrustOrWarpToPos(EscortTarget.Position, timeStep);
+            }
+            else
+            {
+                EscortTarget.Construction.AddConstruction(Owner.OrdinanceMax);
+                OrderSupplyShipLand(goal.TargetPlanet);
+            }
+        }
+
         void DoRearmShip(FixedSimTime timeStep)
         {
-            if (EscortTarget == null)
+            if (EscortTarget == null || !EscortTarget.Active)
             {
                 ClearOrders();
                 return;
@@ -696,7 +728,7 @@ namespace Ship_Game.AI
             if (!Owner.Position.InRadius(EscortTarget.Position, EscortTarget.Radius + 300f))
                 ThrustOrWarpToPos(EscortTarget.Position, timeStep);
             else
-                ReverseThrustUntilStopped(timeStep);
+                ReverseThrustUntilStopped(timeStep); // the empire goal takes care of the rearm
         }
 
         void DoSupplyShip(FixedSimTime timeStep)
