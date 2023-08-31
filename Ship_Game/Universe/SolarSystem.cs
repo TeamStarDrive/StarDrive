@@ -182,6 +182,20 @@ namespace Ship_Game
             PiratePresence = value;
         }
 
+        public void TryLaunchBuilderShip(Ship targetConstructor, Empire empire)
+        {
+            var potentialPlanets = PlanetList.Filter(p => p.Owner == empire || p.Owner?.IsAlliedWith(empire) == true);
+            if (potentialPlanets.Length == 0)
+                return;
+
+            potentialPlanets.SortByDistance(targetConstructor.Position);
+            foreach (Planet planet in potentialPlanets)
+            {
+                if (planet.CanLaunchBuilderShips)
+                    planet.LaunchBuilderShip(targetConstructor, empire);
+            }
+        }
+
         /// <summary>
         /// Checks if the empire has planets owned in this system. It might be the only owner here as well.
         /// </summary>

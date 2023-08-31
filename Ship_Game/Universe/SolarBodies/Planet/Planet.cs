@@ -15,6 +15,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI.Budget;
+using Ship_Game.ExtensionMethods;
 
 namespace Ship_Game
 {
@@ -48,6 +49,8 @@ namespace Ship_Game
         [StarData] public int CrippledTurns;
         public int TotalDefensiveStrength { get; private set; }
         public float TotalTroopConsumption { get; private set; }
+        [StarData] int NumBuildShipsCanLaunch; // How many builder ships (for orbital) this planet can launch
+        [StarData] int NumBuildShipsLaunched;
 
         public bool HasWinBuilding;
 
@@ -117,6 +120,7 @@ namespace Ship_Game
         public bool HasCommodities => HasBuilding(b => b.IsCommodity || b.IsVolcano || b.IsCrater);
         public bool Governor => CType != ColonyType.Colony;
         public bool IsCrippled => CrippledTurns > 0 || RecentCombat;
+        public bool CanLaunchBuilderShips => !SpaceCombatNearPlanet && NumBuildShipsLaunched < NumBuildShipsCanLaunch;
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
             => Troops.GroundStrengthOther(allButThisEmpire);
@@ -746,6 +750,32 @@ namespace Ship_Game
             CallForHelp();
             UpdatePlanetShields();
             TotalTroopConsumption = GetTotalTroopConsumption();
+            UpdateNumBuilderShipsCanLaunch();
+        }
+
+        void UpdateNumBuilderShipsCanLaunch()
+        {
+            NumBuildShipsCanLaunch = Level + NumShipyards*3 + (HasSpacePort ? 2 : 0);
+            if (Universe.StarDate % 1 == 0) // slowly regenerate if some ships did not make it back
+                NumBuildShipsLaunched = (NumBuildShipsLaunched - 1).LowerBound(0);
+        }
+
+        public void UpdateBuilderShipLaunched(int value)
+        {
+            NumBuildShipsLaunched = (NumBuildShipsLaunched + value).Clamped(0, NumBuildShipsCanLaunch);
+        }
+
+        public void LaunchBuilderShip(Ship targetConstructor, Empire empire)
+        {
+            string supplyShipName = Owner.GetSupplyShuttleName();
+            var at = Position.GenerateRandomPointInsideCircle(Radius + 500, Owner.Random);
+            Ship builderShip = Ship.CreateShipAtPoint(Universe, supplyShipName, Owner, at);
+
+            if (builderShip != null)
+            {
+                UpdateBuilderShipLaunched(1);
+                builderShip.AI.AddBuildOrbitalGoal(this, targetConstructor);
+            }
         }
 
         void UpdatePlanetShields()
