@@ -547,6 +547,7 @@ namespace Ship_Game.AI
                 case Plan.HoldPosition:             DoHoldPositionPlan(goal);                 break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
                 case Plan.Meteor:                   DoMeteor(goal);                           break;
+                case Plan.BuilderReturnHome:        DoBuilderReturnHome(timeStep, goal);      break;
             }
         }
 

@@ -145,6 +145,12 @@ namespace Ship_Game.AI
             EnqueueOrPush(new ShipGoal(plan, targetPlanet, wantedState, targetShip), pushToFront: true);
         }
 
+        void AddShipGoal(Plan plan, AIState wantedState, Vector2 pos, Planet planet, bool pushToFront = false)
+        {
+            var goal = new ShipGoal(plan, pos, Vectors.Up, planet, null, 0f, "", 0f, wantedState, null);
+            EnqueueOrPush(goal, pushToFront);
+        }
+
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal,
                          string variableString, float variableNumber, AIState wantedState, bool pushToFront = false)
         {
@@ -333,9 +339,9 @@ namespace Ship_Game.AI
                     if (Goal != null)
                         return Goal.MovePosition;
 
-                    // for Orbit plans we don't use Planet.Center
+                    // for Orbit plans we don't use Planet.Position
                     // TODO: There is a mismatch here after save load
-                    if (TargetPlanet != null && Plan != Plan.Orbit)
+                    if (TargetPlanet != null && Plan is not Plan.Orbit and not Plan.BuilderReturnHome)
                         return TargetPlanet.Position;
 
                     return StaticMovePosition;
@@ -383,7 +389,7 @@ namespace Ship_Game.AI
                 WantedState = wantedState;
             }
 
-            public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal,
+             public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal,
                             float speedLimit, string variableString, float variableNumber, AIState wantedState, Ship targetShip)
             {
                 Plan           = plan;
@@ -553,7 +559,8 @@ namespace Ship_Game.AI
             ResearchStationIdle = 39, // for shipUIinfo display only
             ResearchStationNoSupply = 40, // for shipUIinfo display only
             StandByColonize = 41,
-            BuildOrbital = 42
+            BuildOrbital = 42,
+            BuilderReturnHome
         }
     }
 }

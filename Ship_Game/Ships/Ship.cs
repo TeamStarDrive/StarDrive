@@ -215,6 +215,7 @@ namespace Ship_Game.Ships
         }
 
         public bool IsConstructor => ShipData.IsConstructor;
+        public bool IsConstructing => ShipData.IsConstructor && Construction != null;
 
         /// <summary>
         /// Where this is true the force pool add will reject these ships.
