@@ -6053,8 +6053,8 @@ WasRemovedAsPartOf:
  RUS: "Строительный массив"
 ConstructionModule:
  Id: 1931
- ENG: "This Construction module provides the infrastructure required for building Platforms and Stations in orbit or in deep space."
- RUS: "Этот строительный модуль обеспечивает инфраструктуру, необходимую для создания платформ и станций на орбите или в глубоком космосе."
+ ENG: "This Construction module provides the infrastructure required for building Platforms and Stations in orbit or in deep space. When the construction ship reach the build position, it starts transferring the production needed to build the structure, adding consturction per turn. Several construction arrays will increase the build pace."
+ RUS: "Этот модуль строительства предоставляет инфраструктуру, необходимую для строительства платформ и станций на орбите или в глубоком космосе. Когда строительный корабль достигает позиции сборки, он начинает передавать продукцию, необходимую для строительства конструкции, добавляя строительство за ход. Несколько строительных массивов увеличат темпы строительства."
 ReverseEngineered:
  Id: 1932
  ENG: " was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!"
@@ -10440,6 +10440,9 @@ DisableAlternateTraits:
 DisableAlternateTraitsTip:
  Id: 4442
  ENG: "Disable the ability to create alternate traits sets for AI empires. The AI empires will start with the traits you see when you cycle the races during in the Race Design Screen. Using alternate AI trait sets will create slightly diffrent empires each new game, increasing replayability."
+ConstructionProgressTip:
+ Id: 4443
+ ENG: "Amount of Completed Consturction. The contructor adds construction every turn and if the structure position in in a friendly system, the colonies will launch builder ships to aid the construction efforts. The builder ships do not require more production." 
 TraitSalvagersName:
   Id: 4966
   ENG: "Salvagers"   

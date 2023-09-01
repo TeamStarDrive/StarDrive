@@ -68,7 +68,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep OrderDeployOrbital()
         {
-            if (FinishedShip == null || !FinishedShip.Active)
+            if (!ConstructionShipOk)
                 return GoalStep.GoalFailed; // Ship was removed or destroyed
 
             if (!OldShipOnPlan)
@@ -89,19 +89,27 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 StaticBuildPos = OldShip.Position;
             }
 
-            FinishedShip.AI.OrderDeepSpaceBuild(this, OldShip.RefitCost(ToBuild));
+            FinishedShip.AI.OrderDeepSpaceBuild(this, OldShip.RefitCost(ToBuild), ToBuild.Grid.Radius);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitForDeployment()
         {
-            if (FinishedShip != null)
-                return GoalStep.TryAgain;
+            if (!ConstructionShipOk)
+            {
+                if (OldShip is { Active: true })
+                {
+                    OldShip.AI.ClearOrders(); // Constructor was maybe destroyed
+                    return GoalStep.GoalFailed;
+                }
 
-            if (OldShip is { Active: true })
-                OldShip.AI.ClearOrders(); // Constructor was maybe destroyed
+                return GoalStep.GoalComplete;
+            }
 
-            return GoalStep.GoalComplete;
+            if (FinishedShip.Construction.TryConstruct(BuildPosition) && FinishedShip.System != null)
+                FinishedShip.System.TryLaunchBuilderShip(FinishedShip, Owner);
+
+            return GoalStep.TryAgain;
         }
 
         bool OldShipOnPlan
@@ -120,5 +128,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (OldShip.AI.FindGoal(ShipAI.Plan.Refit, out _))
                 OldShip.Loyalty.AI.FindAndRemoveGoal(GoalType.Refit, g => g.OldShip == OldShip);
         }
+
+        bool ConstructionShipOk => FinishedShip?.Active == true;
     }
 }
