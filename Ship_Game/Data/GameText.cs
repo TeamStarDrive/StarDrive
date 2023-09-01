@@ -4511,6 +4511,8 @@ namespace Ship_Game
         DisableAlternateTraits = 4441,
         /// <summary>Disable Alternate AI trait sets</summary>
         DisableAlternateTraitsTip = 4442,
+        /// <summary>Amount of Completed Consturction.</summary>
+        ConstructionProgressTip = 4443,
 
 
 

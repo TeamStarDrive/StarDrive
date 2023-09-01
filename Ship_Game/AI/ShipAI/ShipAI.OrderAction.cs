@@ -145,12 +145,12 @@ namespace Ship_Game.AI
             OrderMoveAndColonize(toColonize, g);
         }
 
-        public void OrderDeepSpaceBuild(DeepSpaceBuildGoal bg, float constructionNeeded)
+        public void OrderDeepSpaceBuild(DeepSpaceBuildGoal bg, float constructionNeeded, float buildRadius)
         {
             ClearOrders(State, priority:true);
             Vector2 pos = bg.BuildPosition;
             Vector2 dir = Owner.Position.DirectionToTarget(pos);
-            Owner.Construction = ConstructionShip.Create(Owner, constructionNeeded);
+            Owner.Construction = ConstructionShip.Create(Owner, constructionNeeded, Owner.Modules, buildRadius);
             if (bg.IsBuildingOrbitalFor(bg.TargetPlanet)) // orbitals for planet defense or research stations
                 AddShipGoal(Plan.DeployOrbital, pos, dir, bg, bg.ToBuild.Name, 0f, AIState.MoveTo);
             else // deep space structures

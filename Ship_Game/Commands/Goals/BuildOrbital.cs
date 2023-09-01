@@ -68,7 +68,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             if (StaticBuildPos == Vector2.Zero && TetherOffset == Vector2.Zero)
                 StaticBuildPos = FindNewOrbitalLocation();
-            FinishedShip.AI.OrderDeepSpaceBuild(this, ToBuild.GetCost(Owner));
+            FinishedShip.AI.OrderDeepSpaceBuild(this, ToBuild.GetCost(Owner), ToBuild.Grid.Radius);
             return GoalStep.GoToNextStep;
         }
 

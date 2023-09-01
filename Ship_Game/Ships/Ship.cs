@@ -515,7 +515,6 @@ namespace Ship_Game.Ships
                 }
             }
         }
-
         public bool IsOrbiting(Planet p) => AI.IsOrbiting(p);
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
