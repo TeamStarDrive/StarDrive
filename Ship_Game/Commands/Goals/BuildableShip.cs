@@ -30,9 +30,12 @@ namespace Ship_Game.Commands.Goals
             return $"{category} failed for {owner.Name}. This is a FATAL bug in data files, where Empire is unable to build this required ship!";
         }
 
-        public static IShipDesign GetConstructor(Empire owner)
+        public static IShipDesign GetConstructor(Empire owner, SolarSystem system, float structureCost)
         {
-            IShipDesign constructor = ShipBuilder.PickConstructor(owner);
+            bool getCheapest = structureCost < GlobalStats.Defaults.ConstructionModuleBuildRate 
+                || system?.PlanetList.Any(p => p.Owner == owner || p.Owner?.IsAlliedWith(owner) == true) == true;
+
+            IShipDesign constructor = ShipBuilder.PickConstructor(owner, getCheapest);
             if (constructor == null)
                 throw new(ErrMsg(owner, "PickConstructor"));
             return constructor;

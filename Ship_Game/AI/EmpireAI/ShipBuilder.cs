@@ -282,15 +282,15 @@ namespace Ship_Game.AI
             float maxFTLValue = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
             float maxSTLValue = ShipStats.GetSTLSpeed(s, empire) * 0.1f;
             float turnRate = ShipStats.GetTurnRadsPerSec(s);
-            float score = maxFTLValue + maxSTLValue + turnRate.ToDegrees();
+            float score = maxFTLValue + maxSTLValue + turnRate.ToDegrees() + s.NumConstructionModules*50;
             
             return score;
         }
 
-        public static IShipDesign PickConstructor(Empire empire)
+        public static IShipDesign PickConstructor(Empire empire, bool GetCheapest)
         {
             IShipDesign constructor = null;
-            if (empire.isPlayer)
+            if (empire.isPlayer && !empire.AutoPickConstructors)
             {
                 string constructorId = empire.data.ConstructorShip;
                 if (!ResourceManager.Ships.GetDesign(constructorId, out constructor))
@@ -317,7 +317,7 @@ namespace Ship_Game.AI
                     return null;
                 }
 
-                constructor = constructors.FindMax(s => GetConstructorValue(s, empire, false));
+                constructor = constructors.FindMax(s => GetConstructorValue(s, empire, GetCheapest));
             }
 
             return constructor;

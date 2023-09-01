@@ -61,8 +61,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipOnPlan)
                 return GoalStep.GoalFailed;
 
-            IShipDesign constructor = BuildableShip.GetConstructor(Owner);
-            PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, OldShip.RefitCost(ToBuild), this, Rush);
+            float refitCost = OldShip.RefitCost(ToBuild);
+            IShipDesign constructor = BuildableShip.GetConstructor(Owner, OldShip.System, refitCost);
+            PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, refitCost, this, Rush);
             return GoalStep.GoToNextStep;
         }
 
