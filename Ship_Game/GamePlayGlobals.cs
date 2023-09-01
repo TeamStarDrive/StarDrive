@@ -64,8 +64,10 @@ public class GamePlayGlobals
     [StarData] public float ProjectileHitpointsMultiplier = 1f;
     // Construction Ship Discount for Orbitals build cost
     [StarData] public float ConstructionShipOrbitalDiscount = 100f;
-    // How much production the construction module can process per turn 
+    // How much construction the construction module can process per turn 
     [StarData] public int ConstructionModuleBuildRate = 100;
+    // How much construction Builder ships add when they reach the contructor
+    [StarData] public int BuilderShipConstructionAdded = 100;
 
     // feature flags
     [StarData] public bool UseHullBonuses;

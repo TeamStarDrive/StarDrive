@@ -675,6 +675,24 @@ namespace Ship_Game.AI
             }
         }
 
+        void DoBuilderReturnHome(FixedSimTime timeStep, ShipGoal goal)
+        {
+            if (goal.TargetPlanet.Owner != Owner.Loyalty)
+            {
+                // Nowhere to land, bye bye.
+                ClearOrders(AIState.Scuttle);
+                Owner.ScuttleTimer = 1;
+                // find another friendly planet to land at
+            }
+
+            ThrustOrWarpToPos(goal.MovePosition, timeStep);
+            if (Owner.Position.InRadius(goal.MovePosition, 200))
+            {
+                goal.TargetPlanet.LandBuilderShip();
+                Owner.QueueTotalRemoval();
+            }
+        }
+
         void DoRebaseToShip(FixedSimTime timeStep)
         {
             if (EscortTarget == null || !EscortTarget.Active
@@ -700,20 +718,23 @@ namespace Ship_Game.AI
 
         void DoBuildOrbital(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (EscortTarget == null || !EscortTarget.Active)
+            Ship constructor = goal.TargetShip;
+            if (constructor == null 
+                || !constructor.Active 
+                || constructor.Loyalty != Owner.Loyalty && !Owner.Loyalty.IsAlliedWith(constructor.Loyalty))
             {
-                OrderSupplyShipLand(goal.TargetPlanet);
+                OrderBuilderReturnHome(goal.TargetPlanet);
                 return;
             }
 
-            if (!Owner.Position.InRadius(EscortTarget.Position, EscortTarget.Radius + ConstructionShip.ConstructingDistance))
+            if (!Owner.Position.InRadius(constructor.Position, constructor.Radius + ConstructionShip.ConstructingDistance))
             {
-                ThrustOrWarpToPos(EscortTarget.Position, timeStep);
+                ThrustOrWarpToPos(constructor.Position, timeStep);
             }
             else
             {
-                EscortTarget.Construction.AddConstruction(Owner.OrdinanceMax);
-                OrderSupplyShipLand(goal.TargetPlanet);
+                constructor.Construction.AddConstructionFromBuilder();
+                OrderBuilderReturnHome(goal.TargetPlanet);
             }
         }
 

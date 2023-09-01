@@ -34,7 +34,8 @@ Globals:
   ShieldPowerMultiplier: 1.0 # Global multiplier for Shields
   ProjectileHitpointsMultiplier: 1.0 # Global multiplier for Projectile Hit Points (mainly affects missiles)
   ConstructionShipOrbitalDiscount: 100 # When building orbitals, constructor ship cost over this threshold will be added to the gross orbital cost
-  ConstructionModuleBuildRate: 100 # How much production the construction module can process per turn   
+  ConstructionModuleBuildRate: 100 # How much consturction the construction module can process per turn   
+  BuilderShipConstructionAdded: 100 # How much consturction Builder ships add when they reach the contructor
 
   # feature flags
   DisableShipPicker: true
