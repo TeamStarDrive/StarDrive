@@ -53,12 +53,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         void Setup(Planet planetBuildingAt)
         {
+            float structureCost = ToBuild.GetCost(Owner);
             PlanetBuildingAt = planetBuildingAt;
-            IShipDesign constructor = BuildableShip.GetConstructor(Owner);
-
+            IShipDesign constructor = BuildableShip.GetConstructor(Owner, TetherPlanet?.System ?? TargetSystem, ToBuild.GetCost(Owner));
             PlanetBuildingAt.Construction.Enqueue(ToBuild.IsResearchStation || ToBuild.IsShipyard 
                 ? QueueItemType.OrbitalUrgent : QueueItemType.Orbital,
-                ToBuild, constructor, rush: false, this);
+                ToBuild, constructor, structureCost, rush: false, this);
         }
 
         GoalStep OrderDeployOrbital()

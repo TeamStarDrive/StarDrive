@@ -27,7 +27,7 @@ namespace Ship_Game
         {
             Screen = screen;
             const int windowWidth = 220;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 565);
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 575);
         }
 
         class CheckedDropdown : UIElementV2
@@ -69,6 +69,7 @@ namespace Ship_Game
 
             UIList rest = AddList(new(win.X + 10f, win.Y + 250f));
             rest.Padding = new(2f, 10f);
+            rest.AddCheckbox(() => UState.Player.AutoPickConstructors,  title: GameText.AutoPickConstructorsName, tooltip: GameText.AutoPickConstructorsTip);
             rest.AddCheckbox(() => UState.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
             rest.AddCheckbox(() => UState.Player.AutoPickBestFreighter, title: GameText.AutoPickFreighter, tooltip: GameText.IfAutoTradeIsChecked);
             rest.AddCheckbox(() => UState.Player.AutoResearch,          title: GameText.AutoResearch, tooltip: GameText.YourEmpireWillAutomaticallySelect);
@@ -129,6 +130,7 @@ namespace Ship_Game
             sel.Draw(batch, elapsed);
             ConstructionSubMenu.Draw(batch, elapsed);
 
+            ConstructorDropDown.Visible = !Screen.Player.AutoPickConstructors;
             FreighterDropDown.Visible  = !Screen.Player.AutoPickBestFreighter;
             ColonyShipDropDown.Visible = !Screen.Player.AutoPickBestColonizer;
             ResearchStationDropDown.Visible = !Screen.Player.AutoPickBestResearchStation

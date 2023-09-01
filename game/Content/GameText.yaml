@@ -10443,6 +10443,12 @@ DisableAlternateTraitsTip:
 ConstructionProgressTip:
  Id: 4443
  ENG: "Amount of Completed Consturction. The contructor adds construction every turn and if the structure position in in a friendly system, the colonies will launch builder ships to aid the construction efforts. The builder ships do not require more production." 
+AutoPickConstructorsName:
+ Id: 4444
+ ENG: "Auto Pick Constructors"  
+AutoPickConstructorsTip:
+ Id: 4445
+ ENG: "Best constructors for the job will be selected automatically. Generally, if a build job localtion is in a system with friendly colonies, cheaper constructors will be selected since cheap constructors do not add extra production cost to the structure being built in a planet and the colonies can launch Builder Ships to aid the construction efforts."   
 TraitSalvagersName:
   Id: 4966
   ENG: "Salvagers"   

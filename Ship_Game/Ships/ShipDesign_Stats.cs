@@ -41,6 +41,7 @@ public partial class ShipDesign
     public float BaseMass       { get; private set; }
     public float BaseCargoSpace { get; private set; }
     public float BaseResearchPerTurn { get; private set; }
+    public byte NumConstructionModules { get; private set; }
 
     public Power NetPower;
 
@@ -80,6 +81,7 @@ public partial class ShipDesign
         float startingColonyGoods = 0f;
         int numBuildingsDeployed = 0;
         float baseResearchPerTurn = 0;
+        byte numConstructionModules = 0;
 
         var mTemplates = new Array<ShipModule>();
         var hangars = new Array<ShipModule>();
@@ -104,6 +106,9 @@ public partial class ShipDesign
             baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
             baseCargoSpace += m.CargoCapacity;
             baseResearchPerTurn += m.ResearchPerTurn;
+
+            if (m.ModuleType == ShipModuleType.Construction)
+                numConstructionModules++;
 
             if (m.Is(ShipModuleType.Hangar))
                 hangars.Add(m);
@@ -145,6 +150,7 @@ public partial class ShipDesign
 
         StartingColonyGoods = startingColonyGoods;
         NumBuildingsDeployed = numBuildingsDeployed;
+        NumConstructionModules= numConstructionModules;
 
         Hangars = hangars.ToArray();
         AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);

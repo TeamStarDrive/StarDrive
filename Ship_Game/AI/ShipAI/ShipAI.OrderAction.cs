@@ -150,7 +150,7 @@ namespace Ship_Game.AI
             ClearOrders(State, priority:true);
             Vector2 pos = bg.BuildPosition;
             Vector2 dir = Owner.Position.DirectionToTarget(pos);
-            Owner.Construction = ConstructionShip.Create(Owner, constructionNeeded, Owner.Modules, buildRadius);
+            Owner.Construction = ConstructionShip.Create(Owner, constructionNeeded, buildRadius);
             if (bg.IsBuildingOrbitalFor(bg.TargetPlanet)) // orbitals for planet defense or research stations
                 AddShipGoal(Plan.DeployOrbital, pos, dir, bg, bg.ToBuild.Name, 0f, AIState.MoveTo);
             else // deep space structures
