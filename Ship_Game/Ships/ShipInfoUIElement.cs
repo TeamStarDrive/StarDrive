@@ -7,6 +7,7 @@ using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.PathFinder;
 
 namespace Ship_Game.Ships
 {
@@ -182,7 +183,7 @@ namespace Ship_Game.Ships
             // FB - limit data display to non player ships
             if (HelperFunctions.DataVisibleToPlayer(s.Loyalty))
             {
-                DrawConstructionStatus(batch);
+                DrawConstructionStatus(batch, mousePos);
                 DrawCarrierStatus(mousePos, s);
                 DrawResupplyReason(batch, s);
                 DrawRadiationDamageWarning(s);
@@ -423,7 +424,7 @@ namespace Ship_Game.Ships
                 DrawHorizontalValues(s.Carrier.AvailableAssaultShuttles, Color.CadetBlue, ref troopPos);
         }
 
-        void DrawConstructionStatus(SpriteBatch batch)
+        void DrawConstructionStatus(SpriteBatch batch,Vector2 mousePos)
         {
             if (Ship.IsConstructing)
             {
@@ -431,6 +432,8 @@ namespace Ship_Game.Ships
                 ConstructionBar.Progress = Ship.Construction.ConstructionAdded;
                 ConstructionBar.Draw(batch);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_production"), ConstructionRect, Color.White);
+                if (ConstructionRect.HitTest(mousePos))
+                    ToolTip.CreateTooltip(GameText.ConstructionProgressTip);
             }
         }
 

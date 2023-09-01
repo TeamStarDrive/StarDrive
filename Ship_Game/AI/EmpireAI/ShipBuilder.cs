@@ -266,14 +266,24 @@ namespace Ship_Game.AI
             return freighter;
         }
 
-        static float GetConstructorValue(IShipDesign s, Empire empire)
+        static float GetConstructorValue(IShipDesign s, Empire empire, bool belowDiscountThreshold)
         {
             if (!s.IsConstructor)
-                return 0;
-            float maxFTL = ShipStats.GetFTLSpeed(s, empire);
-            float warpK = maxFTL / 1000;
+                return float.MinValue;
+
+            if (belowDiscountThreshold)  
+            {
+                float cost = s.GetCost(empire);
+                if (cost > GlobalStats.Defaults.ConstructionShipOrbitalDiscount)
+                    return -cost;
+
+            }
+
+            float maxFTLValue = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
+            float maxSTLValue = ShipStats.GetSTLSpeed(s, empire) * 0.1f;
             float turnRate = ShipStats.GetTurnRadsPerSec(s);
-            float score = warpK + maxFTL / 10 + turnRate.ToDegrees();
+            float score = maxFTLValue + maxSTLValue + turnRate.ToDegrees();
+            
             return score;
         }
 
@@ -307,7 +317,7 @@ namespace Ship_Game.AI
                     return null;
                 }
 
-                constructor = constructors.FindMax(s => GetConstructorValue(s, empire));
+                constructor = constructors.FindMax(s => GetConstructorValue(s, empire, false));
             }
 
             return constructor;

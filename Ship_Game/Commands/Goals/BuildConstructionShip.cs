@@ -65,7 +65,7 @@ namespace Ship_Game.Commands.Goals
             if (!ConstructionShipOk) 
                 return GoalStep.GoalFailed;
 
-            FinishedShip.AI.OrderDeepSpaceBuild(this, ToBuild.GetCost(Owner));
+            FinishedShip.AI.OrderDeepSpaceBuild(this, ToBuild.GetCost(Owner), ToBuild.Grid.Radius);
             return GoalStep.GoToNextStep;
         }
 
