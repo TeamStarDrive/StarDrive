@@ -4513,6 +4513,11 @@ namespace Ship_Game
         DisableAlternateTraitsTip = 4442,
         /// <summary>Amount of Completed Consturction.</summary>
         ConstructionProgressTip = 4443,
+        /// <summary>Auto Pick Constructors</summary>
+        AutoPickConstructorsName = 4444,
+        /// <summary>Best constructors for the job will be selected automatically</summary>
+        AutoPickConstructorsTip = 4445,
+
 
 
 

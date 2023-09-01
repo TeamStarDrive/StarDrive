@@ -22,13 +22,12 @@ namespace Ship_Game.Ships
         {
         }
 
-        ConstructionShip(Ship owner, float constructionNeeded, ShipModule[] slots, float buildRadius)
+        ConstructionShip(Ship owner, float constructionNeeded, float buildRadius)
         {
             Owner = owner;
             ConstructionNeeded = constructionNeeded;
-            int NumConstructionModules = slots.Filter(s => s.ModuleType == ShipModuleType.Construction).Count();
             int buildRate = GlobalStats.Defaults.ConstructionModuleBuildRate;
-            ConstructionPerTurn = (buildRate * NumConstructionModules).LowerBound(buildRate);
+            ConstructionPerTurn = (buildRate * owner?.ShipData.NumConstructionModules ?? 0).LowerBound(buildRate);
             BuildRadius = buildRadius;
         }
 
@@ -37,12 +36,11 @@ namespace Ship_Game.Ships
         {
         }
 
-        static readonly ConstructionShip None = new(null, 0, Empty<ShipModule>.Array, 0); // NIL object pattern
+        static readonly ConstructionShip None = new(null, 0, 0); // NIL object pattern
 
-        public static ConstructionShip Create(Ship owner, float constructionNeeded, ShipModule[] slots, 
-            float buildRadius)
+        public static ConstructionShip Create(Ship owner, float constructionNeeded, float buildRadius)
         {
-            return owner.IsConstructor ? new ConstructionShip(owner, constructionNeeded, slots, buildRadius) : None;
+            return owner.IsConstructor ? new ConstructionShip(owner, constructionNeeded,  buildRadius) : None;
         }
 
         public bool NeedBuilders => ConstructionNeeded - ConstructionAdded > GlobalStats.Defaults.BuilderShipConstructionAdded * 3;
@@ -103,13 +101,13 @@ namespace Ship_Game.Ships
             {
                 // visualize construction efforts
                 Vector3 center = RandomPoint();
-                for (int j = 0; j < percentCompleted * 0.5; j++)
+                for (int j = 0; j < percentCompleted; j++)
                     universe.Screen.Particles.BlueSparks.AddParticle(center);
 
                 if (percentCompleted > 25)
                 {
                     center = RandomPoint();
-                    for (int j = 0; j < percentCompleted * 0.1; j++)
+                    for (int j = 0; j < percentCompleted * 0.2; j++)
                         universe.Screen.Particles.Sparks.AddParticle(center);
                 }
 
