@@ -600,6 +600,12 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.ReturnHome, AIState.ReturnHome);
         }
 
+        public void OrderBuilderReturnHome(Planet planet)
+        {
+            ClearOrders(priority: true);
+            AddShipGoal(Plan.BuilderReturnHome, AIState.SupplyReturnHome, planet.GetBuilderShipTargetVector(), planet, true);
+        }
+
         // Move to closest colony and get back some resources
         public void OrderScrapShip()
         {
@@ -625,7 +631,6 @@ namespace Ship_Game.AI
         {
             ClearOrders();
             IgnoreCombat = true;
-            EscortTarget = targetConstructor;
             AddShipGoal(Plan.BuildOrbital, targetPlanet, AIState.Ferrying, targetConstructor);
         }
 

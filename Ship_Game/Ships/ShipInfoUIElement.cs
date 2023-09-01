@@ -28,9 +28,11 @@ namespace Ship_Game.Ships
         public Rectangle Power;
         public Rectangle Shields;
         public Rectangle Ordnance;
+        public Rectangle ConstructionRect;
         private readonly ProgressBar PBar;
         private readonly ProgressBar SBar;
         private readonly ProgressBar OBar;
+        private readonly ProgressBar ConstructionBar;
         UITextEntry ShipNameArea;
         private readonly SlidingElement SlidingElement;
         private readonly Rectangle DefenseRect;
@@ -73,6 +75,9 @@ namespace Ship_Game.Ships
             Ordnance = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing + 20 + spacing, 20, 20);
             OBar = new ProgressBar(Ordnance.X + Ordnance.Width + 15, Ordnance.Y, 150, 18);
             ToolTipItems.Add(new TippedItem(Ordnance, GameText.IndicatesThisShipsCurrentStores));
+
+            ConstructionRect = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing*3 + 60, 20, 20);
+            ConstructionBar = new ProgressBar(ConstructionRect.X + ConstructionRect.Width + 15, ConstructionRect.Y, 150, 18);
 
             DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
             ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisShipsCurrentDefense));
@@ -177,6 +182,7 @@ namespace Ship_Game.Ships
             // FB - limit data display to non player ships
             if (HelperFunctions.DataVisibleToPlayer(s.Loyalty))
             {
+                DrawConstructionStatus(batch);
                 DrawCarrierStatus(mousePos, s);
                 DrawResupplyReason(batch, s);
                 DrawRadiationDamageWarning(s);
@@ -415,6 +421,17 @@ namespace Ship_Game.Ships
             DrawHorizontalValues(s.TroopCapacity, Color.White, ref troopPos);
             if (s.Carrier.HasActiveTroopBays)
                 DrawHorizontalValues(s.Carrier.AvailableAssaultShuttles, Color.CadetBlue, ref troopPos);
+        }
+
+        void DrawConstructionStatus(SpriteBatch batch)
+        {
+            if (Ship.IsConstructing)
+            {
+                ConstructionBar.Max = Ship.Construction.ConstructionNeeded;
+                ConstructionBar.Progress = Ship.Construction.ConstructionAdded;
+                ConstructionBar.Draw(batch);
+                batch.Draw(ResourceManager.Texture("NewUI/icon_production"), ConstructionRect, Color.White);
+            }
         }
 
         void DrawCarrierStatus(Vector2 mousePos, Ship ship)  // Added by Fat Bastard - display hangar status

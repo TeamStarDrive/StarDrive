@@ -184,6 +184,9 @@ namespace Ship_Game
 
         public void TryLaunchBuilderShip(Ship targetConstructor, Empire empire)
         {
+            if (!targetConstructor.Construction.NeedBuilders)
+                return;
+
             var potentialPlanets = PlanetList.Filter(p => p.Owner == empire || p.Owner?.IsAlliedWith(empire) == true);
             if (potentialPlanets.Length == 0)
                 return;

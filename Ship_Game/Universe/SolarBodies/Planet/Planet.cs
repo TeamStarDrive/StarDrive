@@ -717,6 +717,11 @@ namespace Ship_Game
             Owner?.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
+        public void LandBuilderShip()
+        {
+            UpdateBuilderShipLaunched(-1);
+        }
+
         public bool InSafeDistanceFromRadiation()
         {
             return System.InSafeDistanceFromRadiation(Position);
@@ -756,7 +761,7 @@ namespace Ship_Game
         void UpdateNumBuilderShipsCanLaunch()
         {
             NumBuildShipsCanLaunch = Level + NumShipyards*3 + (HasSpacePort ? 2 : 0);
-            if (Universe.StarDate % 1 == 0) // slowly regenerate if some ships did not make it back
+            if (Universe.StarDate % 2 == 0) // slowly regenerate if some ships did not make it back
                 NumBuildShipsLaunched = (NumBuildShipsLaunched - 1).LowerBound(0);
         }
 
@@ -767,15 +772,24 @@ namespace Ship_Game
 
         public void LaunchBuilderShip(Ship targetConstructor, Empire empire)
         {
-            string supplyShipName = Owner.GetSupplyShuttleName();
-            var at = Position.GenerateRandomPointInsideCircle(Radius + 500, Owner.Random);
-            Ship builderShip = Ship.CreateShipAtPoint(Universe, supplyShipName, Owner, at);
-
+            string builderShipName = Owner.GetSupplyShuttleName();
+            Vector2 launchFrom = GetBuilderShipTargetVector();
+            Ship builderShip = Ship.CreateShipAtPoint(Universe, builderShipName, Owner, launchFrom);
             if (builderShip != null)
             {
+                builderShip.Direction = launchFrom.DirectionToTarget(targetConstructor.Position);
                 UpdateBuilderShipLaunched(1);
                 builderShip.AI.AddBuildOrbitalGoal(this, targetConstructor);
             }
+        }
+
+        public Vector2 GetBuilderShipTargetVector()
+        {
+            var potentialShipyards = OrbitalStations.Filter(s => s.IsShipyard);
+            if (potentialShipyards.Length > 0)
+                return Random.Item(potentialShipyards).Position;
+            
+            return this.Position.GenerateRandomPointInsideCircle(Radius + 200, Owner.Random);
         }
 
         void UpdatePlanetShields()

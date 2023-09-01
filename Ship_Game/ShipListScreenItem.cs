@@ -320,7 +320,10 @@ namespace Ship_Game
                     return string.Concat(Localizer.Token(GameText.Bombarding), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
                 case AIState.Boarding:         return Localizer.Token(GameText.ExecutingBoardingAssaultAction);
                 case AIState.ReturnToHangar:   return Localizer.Token(GameText.ReturningToHangar);
-                case AIState.Ferrying:         return Localizer.Token(GameText.FerryingOrdnance);
+                case AIState.Ferrying:
+                    if (!ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) || goal.Plan != ShipAI.Plan.BuildOrbital)
+                        return Localizer.Token(GameText.FerryingOrdnance);
+                    return "Building Structure";
                 case AIState.Refit:            return ship.IsPlatformOrStation ? Localizer.Token(GameText.WaitingForRefitShip) : Localizer.Token(GameText.MovingToShipyardForRefit);
                 case AIState.FormationMoveTo:    return "Moving in Formation";
                 case AIState.Scuttle:          return "Self Destruct: " + ship.ScuttleTimer.ToString("#");

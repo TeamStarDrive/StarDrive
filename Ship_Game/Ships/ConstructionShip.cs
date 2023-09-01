@@ -36,12 +36,14 @@ namespace Ship_Game.Ships
             return owner.IsConstructor ? new ConstructionShip(owner, constructionNeeded) : None;
         }
 
-        public void AddConstruction(float toAdd)
+        public bool NeedBuilders => ConstructionNeeded - ConstructionAdded > GlobalStats.Defaults.BuilderShipConstructionAdded * 3;
+
+        public void AddConstructionFromBuilder()
         {
             if (Owner == null)
                 return;
 
-            ConstructionAdded = (ConstructionAdded + toAdd).UpperBound(ConstructionNeeded);
+            ConstructionAdded = (ConstructionAdded + GlobalStats.Defaults.BuilderShipConstructionAdded).UpperBound(ConstructionNeeded);
         }
 
         void AddConstruction()
