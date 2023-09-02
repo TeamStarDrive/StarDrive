@@ -10449,6 +10449,21 @@ AutoPickConstructorsName:
 AutoPickConstructorsTip:
  Id: 4445
  ENG: "Best constructors for the job will be selected automatically. Generally, if a build job localtion is in a system with friendly colonies, cheaper constructors will be selected since cheap constructors do not add extra production cost to the structure being built in a planet and the colonies can launch Builder Ships to aid the construction efforts."   
+Tech_BuilderShipEfficiency:
+ Id: 4961
+ ENG: "Better construction tools alow Builder ships to increase its build rate by 50%"     
+Trait_OrbitalAversion_Name:
+ Id: 4962
+ ENG: "Orbital Aversion"    
+Trait_OrbitalAversion_Desc:
+ Id: 4963
+ ENG: "Your people dislike stationary Space structures and believe they litter their colonies' skies although they do acknowledge their necessity . Their Constructors build orbital structures 50% slower."      
+Trait_OrbitalConstructors_Name:
+ Id: 4964
+ ENG: "Orbital Constructors"    
+Trait_OrbitalConstructors_Desc:
+ Id: 4965
+ ENG: "Orbital Constructors enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
 TraitSalvagersName:
   Id: 4966
   ENG: "Salvagers"   
