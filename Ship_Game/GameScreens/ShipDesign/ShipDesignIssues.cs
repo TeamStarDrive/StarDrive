@@ -639,6 +639,15 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + fireArcs);
         }
 
+        public void CheckConstructorCost(bool isConstructor, float cost)
+        {
+            if (!isConstructor || cost <= GlobalStats.Defaults.ConstructionShipOrbitalDiscount) 
+                return;
+
+            float excessCost = cost - GlobalStats.Defaults.ConstructionShipOrbitalDiscount;
+            AddDesignIssue(DesignIssueType.ConstructorCost, WarningLevel.Minor, $" {excessCost}.");
+        }
+
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
 
         public static Color IssueColor(WarningLevel severity)
@@ -688,7 +697,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         DedicatedCarrier,
         SecondaryCarrier,
         OrbitalCarrierHoldPosition,
-        LowResearchTime
+        LowResearchTime,
+        ConstructorCost
     }
 
     public enum WarningLevel
@@ -911,6 +921,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem     = GameText.DesignIssueLowResaerchTimeProblem;
                     Remediation = GameText.DesignIssueLowResaerchTimeRemidiation;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowResearchTime");
+                    break;
+                case DesignIssueType.ConstructorCost:
+                    Title       = GameText.DesignIssueConstructorCostTitle;
+                    Problem     = GameText.DesignIssueConstructorCostProblem;
+                    Remediation = GameText.DesignIssueConstructorCostRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueConstructorCost");
                     break;
             }
         }

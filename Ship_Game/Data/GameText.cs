@@ -4517,7 +4517,12 @@ namespace Ship_Game
         AutoPickConstructorsName = 4444,
         /// <summary>Best constructors for the job will be selected automatically</summary>
         AutoPickConstructorsTip = 4445,
-
+        /// <summary>Low Research Time</summary>
+        DesignIssueConstructorCostTitle = 4446,
+        /// <summary>This Research Station does not</summary>
+        DesignIssueConstructorCostProblem = 4447,
+        /// <summary>Add Storage or lower the amount</summary>
+        DesignIssueConstructorCostRemidiation = 4448,
 
 
 
