@@ -10449,6 +10449,15 @@ AutoPickConstructorsName:
 AutoPickConstructorsTip:
  Id: 4445
  ENG: "Best constructors for the job will be selected automatically. Generally, if a build job localtion is in a system with friendly colonies, cheaper constructors will be selected since cheap constructors do not add extra production cost to the structure being built in a planet and the colonies can launch Builder Ships to aid the construction efforts."   
+DesignIssueConstructorCostTitle:
+ Id: 4446
+ ENG: "High Constructor Cost"    
+DesignIssueConstructorCostProblem:
+ Id: 4447
+ ENG: "Some of this constructor's cost will be added to the orbital construction production cost. Note: 50% of the constructor production cost will be recycled to the orbital construction on site to speed up constrcution time."    
+DesignIssueConstructorCostRemidiation:
+ Id: 4448
+ ENG: "You my want to lower the cost of this constructor. Excess production cost added to any orbital production cost when this constructor is selected:"     
 Tech_BuilderShipEfficiency:
  Id: 4961
  ENG: "Better construction tools alow Builder ships to increase its build rate by 50%"     
