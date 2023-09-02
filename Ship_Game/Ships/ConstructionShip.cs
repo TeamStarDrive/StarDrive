@@ -2,6 +2,7 @@
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
+using System;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships
@@ -12,11 +13,12 @@ namespace Ship_Game.Ships
         public const float ConstructingDistance = 50;
 
         [StarData] public readonly float ConstructionNeeded;
+        [StarData] public float ConstructionAdded { get; private set; }
         [StarData] readonly float  ConstructionPerTurn;
         [StarData] readonly float BuildRadius; // Approximate radius if the structre to be built
-        [StarData] public float ConstructionAdded { get; private set; }
         [StarData] bool ConstructionStarted;
         [StarData] Ship Owner;
+
         ConstructionShip()
         {
         }
@@ -27,7 +29,7 @@ namespace Ship_Game.Ships
             ConstructionNeeded = constructionNeeded;
             int buildRate = GlobalStats.Defaults.ConstructionModuleBuildRate;
             ConstructionPerTurn = (buildRate * owner?.ShipData.NumConstructionModules ?? 0).LowerBound(buildRate);
-            BuildRadius = buildRadius;
+            BuildRadius = buildRadius*0.5f;
         }
 
         [StarDataDeserialized]
@@ -42,7 +44,7 @@ namespace Ship_Game.Ships
             return owner.IsConstructor ? new ConstructionShip(owner, constructionNeeded,  buildRadius) : None;
         }
 
-        public bool NeedBuilders => ConstructionNeeded - ConstructionAdded > BuilderShipConstructionAdded * 3;
+        public bool NeedBuilders => ConstructionNeeded - ConstructionAdded > ActualConstructionPerTurn * 3;
         public float ActualConstructionPerTurn => ConstructionPerTurn * Owner?.Loyalty.data.Traits.ConstructionRateMultiplier ?? 1;
         int BuilderShipConstructionAdded => (int)(GlobalStats.Defaults.BuilderShipConstructionAdded 
                                             * Owner?.Loyalty.data.Traits.BuilderShipConstructionMultiplier ?? 1);
@@ -92,6 +94,12 @@ namespace Ship_Game.Ships
             return false;
         }
 
+        public void Complete()
+        {
+            if (Owner?.InFrustum == true   && Owner.Universe.IsShipViewOrCloser)
+                Owner.Universe.Screen.ResetConstructionParts(Owner.Id);
+        }
+
         public void AddConstructionEffects()
         {
             if (Owner == null || !ConstructionStarted)
@@ -103,20 +111,20 @@ namespace Ship_Game.Ships
             {
                 // visualize construction efforts
                 Vector3 center = RandomPoint();
-                for (int j = 0; j < percentCompleted; j++)
+                for (int j = 0; j < 120 - percentCompleted; j++)
                     universe.Screen.Particles.BlueSparks.AddParticle(center);
 
-                if (percentCompleted > 25)
+                if (percentCompleted > 25 && universe.Random.RollDice(90 - percentCompleted))
                 {
                     center = RandomPoint();
-                    for (int j = 0; j < percentCompleted * 0.2; j++)
+                    for (int j = 0; j < 90 - percentCompleted; j++)
                         universe.Screen.Particles.Sparks.AddParticle(center);
                 }
 
-                if (percentCompleted > 50 && universe.Random.RollDice(percentCompleted))
+                if (percentCompleted > 50 && universe.Random.RollDice(80 - percentCompleted))
                 {
                     center = RandomPoint();
-                    for (int j = 0; j < percentCompleted * 0.01; j++)
+                    for (int j = 0; j < 80 - percentCompleted * 0.1; j++)
                         universe.Screen.Particles.Lightning.AddParticle(center);
                 }
 
@@ -126,10 +134,11 @@ namespace Ship_Game.Ships
                     universe.Screen.Particles.Flash.AddParticle(center);
                 }
 
-                if (percentCompleted > 90 && universe.Random.RollDice(10))
+                if (percentCompleted > 5 && universe.Random.RollDice(percentCompleted*1.2f))
                 {
-                    SpaceJunk.SpawnJunk(universe, 1, Owner.Position, Vector2.Zero, Owner,
-                        maxSize: percentCompleted*0.5f, ignite: false);
+                    center = RandomPoint();
+                    SpaceJunk.SpawnJunk(universe, 1, center.ToVec2(), Owner.Velocity, Owner,
+                        maxSize: percentCompleted, ignite: false, constructorId: Owner.Id);
                 }
             }
 
