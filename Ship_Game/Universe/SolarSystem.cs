@@ -194,8 +194,11 @@ namespace Ship_Game
             potentialPlanets.SortByDistance(targetConstructor.Position);
             foreach (Planet planet in potentialPlanets)
             {
-                if (planet.CanLaunchBuilderShips)
-                    planet.LaunchBuilderShip(targetConstructor, empire);
+                for (int i = 0; i < planet.NumBuildShipsCanLaunchperTurn; i++)
+                {
+                    if (planet.CanLaunchBuilderShips)
+                        planet.LaunchBuilderShip(targetConstructor, empire);
+                }
             }
         }
 
