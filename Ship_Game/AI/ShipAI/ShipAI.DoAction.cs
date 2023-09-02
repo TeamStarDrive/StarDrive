@@ -223,6 +223,7 @@ namespace Ship_Game.AI
             if (!Owner.Construction.ConsturctionCompleted)
                 return;
 
+            Owner.Construction.Complete();
             Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, goal.BuildPosition);
             if (orbital == null)
                 return;
@@ -287,7 +288,7 @@ namespace Ship_Game.AI
             if (!Owner.Construction.ConsturctionCompleted)
                 return;
 
-
+            Owner.Construction.Complete();
             Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, goal.BuildPosition);
             if (orbital != null)
             {

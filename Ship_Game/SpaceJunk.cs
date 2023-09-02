@@ -21,20 +21,24 @@ namespace Ship_Game
         float MaxDuration;
         ParticleEmitter FlameTrail;
         ParticleEmitter ProjTrail;
+        int ConstructionPartId;
 
         public SpaceJunk()
         {
         }
 
         public SpaceJunk(UniverseState universe, Vector2 parentPos, Vector2 parentVel,
-                         float maxSize, bool ignite)
+                         float maxSize, bool ignite, int constructorId)
         {
             Universe = universe;
             float spawnInRadius = maxSize + 25f;
             Position.X = Universe.Random.Float(parentPos.X - spawnInRadius, parentPos.X + spawnInRadius);
             Position.Y = Universe.Random.Float(parentPos.Y - spawnInRadius, parentPos.Y + spawnInRadius);
             Position.Z = Universe.Random.Float(-spawnInRadius*0.5f, spawnInRadius*0.5f);
-            CreateSceneObject(universe.Screen.Particles, parentPos, maxSize, ignite);
+            if (constructorId > 0)
+                CreateSceneObjectConstruction(parentPos, maxSize, constructorId);
+            else
+                CreateSceneObject(universe.Screen.Particles, parentPos, maxSize, ignite);
 
             // inherit extra velocity from parent
             Velocity.X += parentVel.X;
@@ -55,7 +59,7 @@ namespace Ship_Game
         {
             RotationRadians = Universe.Random.Vector3D(0.01f, 1.02f);
             MaxDuration = Universe.Random.Float(4f, 8f);
-            Duration = MaxDuration;
+            Duration = MaxDuration = 5;
 
             float flameParticles = 0f;
             float trailParticles = 0f;
@@ -116,12 +120,29 @@ namespace Ship_Game
             So.AffineTransform(Position, RotationRadians, Scale);
         }
 
+        void CreateSceneObjectConstruction(Vector2 pos, float maxSize, int constructorId)
+        {
+            ConstructionPartId = constructorId;
+            Duration = MaxDuration = 3;
+
+            int junkIndex = Universe.Random.InRange(ResourceManager.NumJunkModels);
+            var model = ResourceManager.GetJunkModel(junkIndex);
+            float meshDiameter = 2f * ResourceManager.GetJunkModelRadius(junkIndex);
+
+            // set lower bound to max size, otherwise we can't even see the junk
+            float maxAllowedSize = maxSize.LowerBound(8f);
+            float scale = (maxAllowedSize / meshDiameter);
+            Scale = Universe.Random.Float(0.5f * scale, scale);
+            So = model.CreateSceneObject();
+            So.AffineTransform(Position, RotationRadians, Scale);
+        }
+
         /**
          * @param spawnRadius Spawned junk is spread around the given radius
          * @param scaleMod Applies additional scale modifier on the spawned junk
          */
         public static void SpawnJunk(UniverseState universe, int howMuchJunk, Vector2 position, Vector2 velocity,
-                                     GameObject source, float maxSize, bool ignite)
+                                     GameObject source, float maxSize, bool ignite, int constructorId = 0)
         {
             if (universe == null)
             {
@@ -138,13 +159,24 @@ namespace Ship_Game
             var junk = new SpaceJunk[howMuchJunk];
             for (int i = 0; i < howMuchJunk; i++)
             {
-                junk[i] = new SpaceJunk(universe, position, velocity, maxSize, ignite);
+                junk[i] = new SpaceJunk(universe, position, velocity, maxSize, ignite, constructorId);
             }
 
             // now add to scene
             foreach (SpaceJunk j in junk)
                 universe.Screen.AddObject(j.So);
             universe.JunkList.AddRange(junk);
+        }
+
+        public void TryReset(int id)
+        {
+            if (id == ConstructionPartId)
+            {
+                lock (this)
+                {
+                    Duration = 0;
+                }
+            }
         }
 
         public void Update(FixedSimTime timeStep)
