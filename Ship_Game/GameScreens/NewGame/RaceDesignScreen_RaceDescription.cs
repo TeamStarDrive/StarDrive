@@ -277,6 +277,9 @@ namespace Ship_Game
                 RaceSummary.PenaltyPerKilledSlot   += trait.PenaltyPerKilledSlot;
 
                 RaceSummary.ExploreDistanceMultiplier *= trait.ExploreDistanceMultiplier;
+                RaceSummary.ConstructionRateMultiplier *= trait.ConstructionRateMultiplier;
+                RaceSummary.BuilderShipConstructionMultiplier *= trait.BuilderShipConstructionMultiplier;
+
                 RaceSummary.EnvTerran   *= trait.EnvTerranMultiplier;
                 RaceSummary.EnvOceanic  *= trait.EnvOceanicMultiplier;
                 RaceSummary.EnvSteppe   *= trait.EnvSteppeMultiplier;

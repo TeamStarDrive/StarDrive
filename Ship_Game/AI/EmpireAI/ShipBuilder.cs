@@ -282,7 +282,8 @@ namespace Ship_Game.AI
             float maxFTLValue = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
             float maxSTLValue = ShipStats.GetSTLSpeed(s, empire) * 0.1f;
             float turnRate = ShipStats.GetTurnRadsPerSec(s);
-            float score = maxFTLValue + maxSTLValue + turnRate.ToDegrees() + s.NumConstructionModules*50;
+            float score = maxFTLValue + maxSTLValue + turnRate.ToDegrees() 
+                + s.NumConstructionModules*GlobalStats.Defaults.ConstructionModuleBuildRate;
             
             return score;
         }

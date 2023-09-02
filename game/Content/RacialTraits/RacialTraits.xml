@@ -607,7 +607,32 @@
 	  <Excludes>
 		<string>Salvagers</string>
 	  </Excludes>
-	</RacialTraitOption>			
+	</RacialTraitOption>
+	
+    <RacialTraitOption>
+	  <!-- Orbital Constructors -->
+  	  <TraitName>Orbital Constructors</TraitName>
+	  <TraitIndex>4964</TraitIndex>
+	  <Category>Sociological</Category>
+	  <Cost>1</Cost>
+	  <Description>4965</Description>
+	  <ConstructionRateMultiplier>1.5</ConstructionRateMultiplier>
+	  <Excludes>
+	  	  <string>Orbital Aversion</string>
+	  </Excludes>
+    </RacialTraitOption>	
+    <RacialTraitOption>
+	  <!-- Orbital Aversion -->
+  	  <TraitName>Orbital Aversion</TraitName>
+	  <TraitIndex>4962</TraitIndex>
+	  <Category>Sociological</Category>
+	  <Cost>-1</Cost>
+	  <Description>4963</Description>
+	  <ConstructionRateMultiplier>0.5</ConstructionRateMultiplier>
+	  <Excludes>
+	  	  <string>Orbital Constructors</string>
+	  </Excludes>
+    </RacialTraitOption>		
 
 	
     <!-- Adventure Mode Traits
