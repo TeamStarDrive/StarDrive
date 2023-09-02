@@ -17,7 +17,6 @@ namespace Ship_Game.Ships
         [StarData] public float ConstructionAdded { get; private set; }
         [StarData] bool ConstructionStarted;
         [StarData] Ship Owner;
-
         ConstructionShip()
         {
         }
@@ -43,14 +42,17 @@ namespace Ship_Game.Ships
             return owner.IsConstructor ? new ConstructionShip(owner, constructionNeeded,  buildRadius) : None;
         }
 
-        public bool NeedBuilders => ConstructionNeeded - ConstructionAdded > GlobalStats.Defaults.BuilderShipConstructionAdded * 3;
+        public bool NeedBuilders => ConstructionNeeded - ConstructionAdded > BuilderShipConstructionAdded * 3;
+        public float ActualConstructionPerTurn => ConstructionPerTurn * Owner?.Loyalty.data.Traits.ConstructionRateMultiplier ?? 1;
+        int BuilderShipConstructionAdded => (int)(GlobalStats.Defaults.BuilderShipConstructionAdded 
+                                            * Owner?.Loyalty.data.Traits.BuilderShipConstructionMultiplier ?? 1);
 
         public void AddConstructionFromBuilder()
         {
             if (Owner == null)
                 return;
 
-            ConstructionAdded = (ConstructionAdded + GlobalStats.Defaults.BuilderShipConstructionAdded).UpperBound(ConstructionNeeded);
+            ConstructionAdded = (ConstructionAdded + BuilderShipConstructionAdded).UpperBound(ConstructionNeeded);
         }
 
         void AddConstruction()
@@ -60,7 +62,7 @@ namespace Ship_Game.Ships
 
             if (ConstructionStarted)
             {
-                ConstructionAdded += ConstructionPerTurn;
+                ConstructionAdded += ActualConstructionPerTurn;
             }
             else // Initial Construction
             {
@@ -133,7 +135,7 @@ namespace Ship_Game.Ships
 
             Vector3 RandomPoint()
             {
-                return Owner.Position.GenerateRandomPointInsideCircle(BuildRadius, Owner.Universe.Random).ToVec3();
+                return Owner.Position.GenerateRandomPointInsideCircle(BuildRadius * percentCompleted * 0.01f, Owner.Universe.Random).ToVec3();
             }
         }
 
