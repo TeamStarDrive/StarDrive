@@ -7,7 +7,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
-
+using System.Linq;
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
@@ -118,7 +118,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 Owner.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                     orbital.Position, 1000, Color.LightCyan, 10.0f);
-                if (position.InRadius(orbital.Position, 1000))
+                if (position.InRadius(orbital.Position, 500))
                     return true;
             }
 
@@ -128,7 +128,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         // Checks if a Construction Ship is due to deploy a structure at a point
         bool IsOrbitalPlannedAt(Vector2 position)
         {
-            var ships = Owner.OwnedShips;
+            return Owner.AI.Goals.Any(g => g != this 
+                                           && g is BuildOrbital bo && bo.TetherPlanet == TetherPlanet 
+                                           && g.BuildPosition.InRadius(position, 500));
+
+            /*var ships = Owner.OwnedShips;
             foreach (Ship ship in ships.Filter(s => s.IsConstructor))
             {
                 if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) &&
@@ -141,7 +145,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 }
             }
 
-            return false;
+            return false;*/
         }
 
         bool ConstructionShipOk => FinishedShip?.Active == true;
