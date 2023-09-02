@@ -22,6 +22,7 @@ namespace Ship_Game
         ParticleEmitter FlameTrail;
         ParticleEmitter ProjTrail;
         int ConstructionPartId;
+        const float ConstructionPartDuration = 10;
 
         public SpaceJunk()
         {
@@ -59,7 +60,7 @@ namespace Ship_Game
         {
             RotationRadians = Universe.Random.Vector3D(0.01f, 1.02f);
             MaxDuration = Universe.Random.Float(4f, 8f);
-            Duration = MaxDuration = 5;
+            Duration = MaxDuration;
 
             float flameParticles = 0f;
             float trailParticles = 0f;
@@ -123,7 +124,7 @@ namespace Ship_Game
         void CreateSceneObjectConstruction(Vector2 pos, float maxSize, int constructorId)
         {
             ConstructionPartId = constructorId;
-            Duration = MaxDuration = 3;
+            Duration = MaxDuration = ConstructionPartDuration;
 
             int junkIndex = Universe.Random.InRange(ResourceManager.NumJunkModels);
             var model = ResourceManager.GetJunkModel(junkIndex);
@@ -174,7 +175,7 @@ namespace Ship_Game
             {
                 lock (this)
                 {
-                    Duration = 0;
+                    Duration -= ConstructionPartDuration - 1;
                 }
             }
         }

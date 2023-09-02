@@ -44,7 +44,7 @@ namespace Ship_Game.Ships
             return owner.IsConstructor ? new ConstructionShip(owner, constructionNeeded,  buildRadius) : None;
         }
 
-        public bool NeedBuilders => ConstructionNeeded - ConstructionAdded > ActualConstructionPerTurn * 3;
+        public bool NeedBuilders => ConstructionNeeded - ConstructionAdded > ActualConstructionPerTurn * 2;
         public float ActualConstructionPerTurn => ConstructionPerTurn * Owner?.Loyalty.data.Traits.ConstructionRateMultiplier ?? 1;
         int BuilderShipConstructionAdded => (int)(GlobalStats.Defaults.BuilderShipConstructionAdded 
                                             * Owner?.Loyalty.data.Traits.BuilderShipConstructionMultiplier ?? 1);

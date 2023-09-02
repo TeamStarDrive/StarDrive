@@ -121,6 +121,7 @@ namespace Ship_Game
         public bool Governor => CType != ColonyType.Colony;
         public bool IsCrippled => CrippledTurns > 0 || RecentCombat;
         public bool CanLaunchBuilderShips => !SpaceCombatNearPlanet && NumBuildShipsLaunched < NumBuildShipsCanLaunch;
+        public int NumBuildShipsCanLaunchperTurn => NumBuildShipsCanLaunch / 4;
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
             => Troops.GroundStrengthOther(allButThisEmpire);
@@ -785,11 +786,14 @@ namespace Ship_Game
 
         public Vector2 GetBuilderShipTargetVector()
         {
-            var potentialShipyards = OrbitalStations.Filter(s => s.IsShipyard);
-            if (potentialShipyards.Length > 0)
-                return Random.Item(potentialShipyards).Position;
-            
-            return this.Position.GenerateRandomPointInsideCircle(Radius + 200, Owner.Random);
+            if (Owner.Random.RollDice(75))
+            {
+                var potentialShipyards = OrbitalStations.Filter(s => s.IsShipyard);
+                if (potentialShipyards.Length > 0)
+                    return Random.Item(potentialShipyards).Position;
+            }
+
+            return Position.GenerateRandomPointInsideCircle(Radius + 200, Owner.Random);
         }
 
         void UpdatePlanetShields()
