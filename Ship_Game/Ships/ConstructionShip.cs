@@ -137,8 +137,7 @@ namespace Ship_Game.Ships
                 if (percentCompleted > 5 && universe.Random.RollDice(percentCompleted*1.2f))
                 {
                     center = RandomPoint();
-                    SpaceJunk.SpawnJunk(universe, 1, center.ToVec2(), Owner.Velocity, Owner,
-                        maxSize: percentCompleted, ignite: false, constructorId: Owner.Id);
+                    SpaceJunk.ConstructionPart(universe, center.ToVec2(), Owner.Velocity, Owner, percentCompleted);
                 }
             }
 
