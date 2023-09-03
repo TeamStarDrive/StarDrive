@@ -10532,7 +10532,7 @@ TraitExplorers_Name:
  ENG: "Explorers"
 TraitExplorers_Desc:
  Id: 4985
- ENG: "Explorer races are very curious and like exploring their surroundings. As a result, the minimum exploration distance required to explore new solar systems and planets is doubled."
+ ENG: "Explorer races are very curious and like exploring their surroundings. As a result, the minimum exploration distance required to explore new solar systems and planets is trippled and you start with 2 extra Scouts."
 TraitAquaticName:
   Id: 4986
   ENG: "Aquatic"   
