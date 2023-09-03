@@ -35,7 +35,7 @@ namespace Ship_Game.Commands.Goals
             bool getCheapest = structureCost < GlobalStats.Defaults.ConstructionModuleBuildRate 
                 || system?.PlanetList.Any(p => p.Owner == owner || p.Owner?.IsAlliedWith(owner) == true) == true;
 
-            IShipDesign constructor = ShipBuilder.PickConstructor(owner, getCheapest);
+            IShipDesign constructor = ShipBuilder.PickConstructor(owner, structureCost, getCheapest);
             if (constructor == null)
                 throw new(ErrMsg(owner, "PickConstructor"));
             return constructor;

@@ -138,6 +138,11 @@ namespace Ship_Game
             So.AffineTransform(Position, RotationRadians, Scale);
         }
 
+
+        public static void ConstructionPart(UniverseState universe, Vector2 position, Vector2 velocity,
+            GameObject source, float maxSize) => SpawnJunk(universe, 1, position, velocity, source, maxSize, 
+                                                    ignite: false, constructorId: source.Id);
+        
         /**
          * @param spawnRadius Spawned junk is spread around the given radius
          * @param scaleMod Applies additional scale modifier on the spawned junk

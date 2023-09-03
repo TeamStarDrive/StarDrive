@@ -288,7 +288,7 @@ namespace Ship_Game.AI
             return score;
         }
 
-        public static IShipDesign PickConstructor(Empire empire, bool GetCheapest)
+        public static IShipDesign PickConstructor(Empire empire, float buildCost, bool GetCheapest)
         {
             IShipDesign constructor = null;
             if (empire.isPlayer && !empire.AutoPickConstructors)
@@ -309,7 +309,7 @@ namespace Ship_Game.AI
             {
                 var constructors = new Array<IShipDesign>();
                 foreach (IShipDesign design in empire.ShipsWeCanBuild)
-                    if (design.IsConstructor)
+                    if (design.IsConstructor && buildCost > design.GetCost(empire)*2f)
                         constructors.Add(design);
 
                 if (constructors.Count == 0)
