@@ -774,7 +774,7 @@ namespace Ship_Game
         public void LaunchBuilderShip(Ship targetConstructor, Empire empire)
         {
             string builderShipName = Owner.GetSupplyShuttleName();
-            Vector2 launchFrom = GetBuilderShipTargetVector();
+            Vector2 launchFrom = GetBuilderShipTargetVector(launch: true);
             Ship builderShip = Ship.CreateShipAtPoint(Universe, builderShipName, Owner, launchFrom);
             if (builderShip != null)
             {
@@ -784,16 +784,17 @@ namespace Ship_Game
             }
         }
 
-        public Vector2 GetBuilderShipTargetVector()
+        public Vector2 GetBuilderShipTargetVector(bool launch)
         {
+            Vector2 pos = Position;
             if (Owner.Random.RollDice(75))
             {
                 var potentialShipyards = OrbitalStations.Filter(s => s.IsShipyard);
                 if (potentialShipyards.Length > 0)
-                    return Random.Item(potentialShipyards).Position;
+                    pos = Random.Item(potentialShipyards).Position;
             }
 
-            return Position.GenerateRandomPointInsideCircle(Radius + 200, Owner.Random);
+            return launch ? pos.GenerateRandomPointInsideCircle(Radius + 50, Owner.Random) : pos;
         }
 
         void UpdatePlanetShields()
