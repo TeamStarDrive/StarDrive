@@ -603,7 +603,8 @@ namespace Ship_Game.AI
         public void OrderBuilderReturnHome(Planet planet)
         {
             ClearOrders(priority: true);
-            AddShipGoal(Plan.BuilderReturnHome, AIState.SupplyReturnHome, planet.GetBuilderShipTargetVector(), planet, true);
+            AddShipGoal(Plan.BuilderReturnHome, AIState.SupplyReturnHome, 
+                planet.GetBuilderShipTargetVector(launch: false), planet, true);
         }
 
         // Move to closest colony and get back some resources
