@@ -845,7 +845,7 @@ namespace Ship_Game
             if (ship.OnLowAlert || ship.AI.HasPriorityOrder)
             {
                 Color color = Colors.Orders(alpha);
-                if (ship.AI.State == AIState.Ferrying)
+                if (ship.AI.State == AIState.Ferrying && ship.AI.EscortTarget != null)
                 {
                     DrawLineProjected(start, ship.AI.EscortTarget.Position, color);
                     return;
