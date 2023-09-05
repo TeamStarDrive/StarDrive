@@ -431,9 +431,9 @@ PollutedHomeworld:
  SPA: "Mundo natal contaminado"
 RacesThatHaveBeenFoolish:
  Id: 87
- ENG: "Races that have been foolish enough to heavily pollute their own homeworld have a -0.5 Fertility penalty on their homeworld, making quick colonization a top priority"
- RUS: "Расы, по недомыслию загрязнившие свой родной мир получают -0,5 к плодородию на родной планете, что вынуждает ставить колонизацию на первое место в списке приоритетов развития."
- SPA: "Las razas que han sido tan necias como para contaminar indiscriminadamente sus mundos de origen sufren una penalización de -0,5 en su planeta natal, por lo que la colonización exprés será para ellos una prioridad"
+ ENG: "Races that have been foolish enough to heavily pollute their own homeworld have a -0.35 Fertility penalty on their homeworld, making quick colonization a top priority"
+ RUS: "Расы, по недомыслию загрязнившие свой родной мир получают -0.35 к плодородию на родной планете, что вынуждает ставить колонизацию на первое место в списке приоритетов развития."
+ SPA: "Las razas que han sido tan necias como para contaminar indiscriminadamente sus mundos de origen sufren una penalización de -0.35 en su planeta natal, por lo que la colonización exprés será para ellos una prioridad"
 HugeHomeworld:
  Id: 88
  ENG: "Huge Homeworld"

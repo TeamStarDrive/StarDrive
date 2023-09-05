@@ -277,7 +277,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (goal.BuildPosition.OutsideRadius(Owner.Position, Owner.CurrentVelocity * 2))
+            if (goal.BuildPosition.OutsideRadius(Owner.Position, Owner.CurrentVelocity*2))
             {
                 ThrustOrWarpToPos(goal.BuildPosition, timeStep);
                 return;
