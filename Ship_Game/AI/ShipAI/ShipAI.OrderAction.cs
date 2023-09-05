@@ -632,6 +632,7 @@ namespace Ship_Game.AI
         {
             ClearOrders();
             IgnoreCombat = true;
+            EscortTarget = targetConstructor;
             AddShipGoal(Plan.BuildOrbital, targetPlanet, AIState.Ferrying, targetConstructor);
         }
 

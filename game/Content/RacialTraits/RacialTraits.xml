@@ -328,7 +328,7 @@
       <Category>Environment</Category>
       <Cost>-2</Cost>
       <Description>87</Description>
-      <HomeworldFertMod>-0.5</HomeworldFertMod>
+      <HomeworldFertMod>-0.35</HomeworldFertMod>
     </RacialTraitOption>
     <RacialTraitOption>
       <!-- Industrialized Homeworld -->
