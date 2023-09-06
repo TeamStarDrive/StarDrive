@@ -725,6 +725,12 @@ namespace Ship_Game.AI
 
         public float GetSensorRadius(out Ship sensorShip)
         {
+            if (Owner.IsLaunching)
+            {
+                sensorShip = Owner;
+                return 0;
+            }
+
             if (Owner.IsHangarShip)
             {
                 // get the motherships sensor status.
@@ -734,6 +740,7 @@ namespace Ship_Game.AI
                 if (Owner.Position.InRadius(sensorShip.Position, motherRange - Owner.SensorRange))
                     return motherRange;
             }
+
             sensorShip = Owner;
             float sensorRange = Owner.SensorRange + (Owner.IsInFriendlyProjectorRange ? 10000 : 0);
             return sensorRange;
