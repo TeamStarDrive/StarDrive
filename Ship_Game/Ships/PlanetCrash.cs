@@ -1,6 +1,8 @@
 ﻿using SDGraphics;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Graphics.Particles;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 
@@ -11,18 +13,16 @@ namespace Ship_Game.Ships
         readonly Planet P;
         readonly float Distance;
         readonly Vector2 CrashPos;
-        readonly float Thrust;
         readonly Ship Owner;
         public float Scale = 2;
-        private ParticleEmitter TrailEmitter;
-        private ParticleEmitter FireTrailEmitter;
-        private ParticleEmitter FlameTrail;
+        ParticleEmitter TrailEmitter;
+        ParticleEmitter FireTrailEmitter;
+        ParticleEmitter FlameTrail;
 
-        public PlanetCrash(Planet p, Ship owner, float thrust)
+        public PlanetCrash(Planet p, Ship owner)
         {
             P        = p;
             Owner    = owner;
-            Thrust   = thrust.LowerBound(owner.IsPlatformOrStation ? 100 : 200);
             CrashPos = P.Position.GenerateRandomPointInsideCircle(P.Radius, p.Random);
             Distance = Owner.Position.Distance(CrashPos).LowerBound(1);
 
@@ -44,6 +44,7 @@ namespace Ship_Game.Ships
             {
                 P.TryCrashOn(Owner);
                 Owner.SetReallyDie();
+                Owner.Velocity = Vector2.Zero;
                 Owner.Die(Owner.LastDamagedBy, true);
                 return;
             }
