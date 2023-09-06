@@ -451,7 +451,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if (ship.Active && ship.ShieldMax > 0f && ship.IsVisibleToPlayerInMap)
+                if (ship.Active && ship.ShieldMax > 0f && ship.IsVisibleToPlayerInMap && !ship.IsLaunching)
                 {
                     shields.AddRange(ship.GetActiveShields().Select(s => s.Shield));
                 }
