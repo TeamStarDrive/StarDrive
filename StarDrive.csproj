@@ -332,6 +332,7 @@
     <Compile Include="Ship_Game\Graphics\Particles\ParticleVertexBufferShared.cs" />
     <Compile Include="Ship_Game\Graphics\RenderStates.cs" />
     <Compile Include="Ship_Game\Graphics\RenderTargets.cs" />
+    <Compile Include="Ship_Game\Ships\LaunchShip.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\EngineTrail.cs" />
     <Compile Include="Ship_Game\Ships\ExternalSlotGrid.cs" />

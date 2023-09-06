@@ -53,7 +53,8 @@ namespace Ship_Game.Ships
             if (!ShipData.LoadModel(out ShipSO, Universe.Screen.ContentManager))
                 return; // loading Ship SO failed
 
-            ShipSO.World = Matrix.CreateTranslation(new(Position + ShipData.BaseHull.MeshOffset, 0f));
+            if (!IsLaunching) // launch update will create the SO to avoid flickering
+                ShipSO.World = Matrix.CreateTranslation(new(Position + ShipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
             UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
@@ -143,8 +144,15 @@ namespace Ship_Game.Ships
                 UpdateShipStatus(timeStep);
                 UpdateEnginesAndVelocity(timeStep);
             }
+            bool visibleToPlayer = IsVisibleToPlayer;
+            if (IsLaunching)
+            {
+                LaunchShip.Update(visibleToPlayer, timeStep);
+                if (LaunchShip.Scale >= 1)
+                    LaunchShip = null;
+            }
 
-            if (IsVisibleToPlayer)
+            else if (visibleToPlayer)
             {
                 if (ShipSO != null)
                 {
