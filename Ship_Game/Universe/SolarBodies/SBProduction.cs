@@ -202,9 +202,6 @@ namespace Ship_Game.Universe.SolarBodies
                 return false;
 
             Ship shipAt = Ship.CreateShipNearPlanet(P.Universe, q.ShipData.Name, Owner, P, true);
-            if (!shipAt.IsPlatformOrStation)
-                shipAt.LaunchShip = new LaunchShip(shipAt, true);
-
             q.Goal?.ReportShipComplete(shipAt);
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {

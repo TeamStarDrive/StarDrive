@@ -13,38 +13,66 @@ namespace Ship_Game.Ships
     {
         [StarData] readonly Ship Owner;
         [StarData] public float Scale;
-        [StarData] float RotationDegX = 75;
+        [StarData] float RotationDegX;
         [StarData] float RotationRadZ;
         [StarData] float StartingScale;
-        [StarData] readonly float SecondsToZeroX;
-        [StarData] readonly float SecondsHalfScale;
-        [StarData] readonly float TotalDuration;
+        [StarData] float SecondsToZeroX;
+        [StarData] float SecondsHalfScale;
+        [StarData] float TotalDuration;
+        [StarData] readonly LaunchPlan LaunchPlan;
         const int DistanceMovementUp = 1000;
         const int MinSecondsToHalfScale = 2;
         const int MaxSecondsToHalfScale = 10;
+        const int PlanetPlanRotationDegX = 75;
+        const int HangarPlanRotationDegX = 45;
 
 
         [StarDataConstructor]
-        public LaunchShip(Ship owner, bool dynamicRotationZ)
+        public LaunchShip(Ship owner, LaunchPlan launchPlan, float startingRotationDegrees = -1f)
         {
             Owner = owner;
-            SecondsHalfScale = (DistanceMovementUp / owner.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
-            SecondsToZeroX = RotationDegX / owner.RotationRadsPerSecond.ToDegrees().LowerBound(5);
-            TotalDuration = SecondsHalfScale + SecondsToZeroX;
-            RotationRadZ = (45f * ((int)(owner.Universe.StarDate*10) % 10 % 8)).ToRadians();
-            int lala = (int)(owner.Universe.StarDate * 10);
-            int lala2 = lala % 10;
-            int lala3 = lala2 % 8;
+            LaunchPlan = launchPlan;
+            switch (LaunchPlan)
+            {
+                case LaunchPlan.Planet: SetupPlanetLaunch(); break;
+                case LaunchPlan.Hangar: SetupHangarLaunch(); break;
+            }
+
+            Scale = StartingScale;
+            if (startingRotationDegrees.Equals(-1f))
+                RotationRadZ = (45f * ((int)(owner.Universe.StarDate*10) % 10 % 8)).ToRadians();
+            else
+                RotationRadZ = (startingRotationDegrees + Owner.Universe.Random.Float(-10,10)).ToRadians();
+
+            float velRandom = owner.Universe.Random.Float(0.7f, 1f);
+            Owner.Velocity = RotationRadZ.RadiansToDirection() * Owner.MaxSTLSpeed * velRandom;
         }
+
+        void SetupPlanetLaunch()
+        {
+            StartingScale = 0;
+            RotationDegX = PlanetPlanRotationDegX;
+            SecondsHalfScale = (DistanceMovementUp / Owner.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
+            SecondsToZeroX = RotationDegX / Owner.RotationRadsPerSecond.ToDegrees().LowerBound(5);
+            TotalDuration = SecondsHalfScale + SecondsToZeroX;
+        }
+
+        void SetupHangarLaunch()
+        {
+            StartingScale = 0.3f;
+            RotationDegX = HangarPlanRotationDegX;
+            TotalDuration = (RotationDegX / Owner.RotationRadsPerSecond.ToDegrees()).Clamped(2,5);
+        }
+
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
             Owner.AI.IgnoreCombat = true;
-            Owner.YRotation = 0;
-            Owner.Rotation = RotationRadZ;
-            Scale += timeStep.FixedTime / TotalDuration;
-            if (Scale >= 0.5f)
-                RotationDegX = 75 - ((Scale - 0.5f)/0.5f * 75);
+            switch (LaunchPlan)
+            {
+                case LaunchPlan.Planet: UpdatePlanetLaunch(timeStep); break;
+                case LaunchPlan.Hangar: UpdateHangarLaunch(timeStep); break;
+            }
 
             if (Scale >= 1 && !Owner.IsConstructor && !Owner.IsSupplyShuttle)
                 Owner.AI.IgnoreCombat = false;
@@ -71,16 +99,32 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void Complete()
+        void UpdatePlanetLaunch(FixedSimTime timeStep)
         {
-            Owner.AI.IgnoreCombat= false;
+            Owner.YRotation = 0;
+            Owner.Rotation = RotationRadZ;
+            Scale += timeStep.FixedTime / TotalDuration;
+            if (Scale >= 0.5f)
+                RotationDegX = PlanetPlanRotationDegX - ((Scale - 0.5f) / 0.5f * PlanetPlanRotationDegX);
+
+            if (Scale >= 0.9f)
+                Owner.UpdateThrusters(timeStep, Scale);
+        }
+
+        void UpdateHangarLaunch(FixedSimTime timeStep)
+        {
+            Owner.YRotation = 0;
+            Owner.Rotation = RotationRadZ;
+            Scale += timeStep.FixedTime / TotalDuration;
+            RotationDegX = HangarPlanRotationDegX - (Scale * HangarPlanRotationDegX);
+            Owner.UpdateThrusters(timeStep, Scale);
         }
     }
 
     public enum LaunchPlan
     {
         Planet,
-        Hanger,
+        Hangar,
         Shipyard
     }
 

@@ -29,6 +29,7 @@ namespace UnitTests.Ships
             UnlockAllShipsFor(Player);
             Carrier = SpawnShip("TEST_Heavy Carrier mk1", Player, Vector2.Zero);
             UState.Objects.Update(TestSimStep);
+            UState.P.DebugDisableShipLaunch = true;
         }
 
         void SpawnEnemyShip()
@@ -53,7 +54,7 @@ namespace UnitTests.Ships
 
         void MoveFightersBy(Vector2 offset)
         {
-            foreach (Ship fighter in  Carrier.Carrier.GetActiveFighters())
+            foreach (Ship fighter in Carrier.Carrier.GetActiveFighters())
                 fighter.Position += offset;
         }
 
