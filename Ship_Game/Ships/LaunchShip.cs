@@ -1,9 +1,5 @@
 ﻿using SDGraphics;
-using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
-using Ship_Game.ExtensionMethods;
-using Ship_Game.Graphics.Particles;
-using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Ships
@@ -26,8 +22,6 @@ namespace Ship_Game.Ships
         const int PlanetPlanRotationDegX = 75;
         const int HangarPlanRotationDegX = 45;
 
-
-        [StarDataConstructor]
         public LaunchShip(Ship owner, LaunchPlan launchPlan, float startingRotationDegrees = -1f)
         {
             Owner = owner;
@@ -46,6 +40,10 @@ namespace Ship_Game.Ships
 
             float velRandom = owner.Universe.Random.Float(0.7f, 1f);
             Owner.Velocity = RotationRadZ.RadiansToDirection() * Owner.MaxSTLSpeed * velRandom;
+        }
+
+        public LaunchShip()
+        {
         }
 
         void SetupPlanetLaunch()

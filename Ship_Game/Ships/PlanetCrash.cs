@@ -2,19 +2,19 @@
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Graphics.Particles;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Ships
 {
+    [StarDataType]
     public class PlanetCrash
     {
-        readonly Planet P;
-        readonly float Distance;
-        readonly Vector2 CrashPos;
-        readonly Ship Owner;
-        public float Scale = 2;
+        [StarData] readonly Planet P;
+        [StarData] readonly float Distance;
+        [StarData] readonly Vector2 CrashPos;
+        [StarData] readonly Ship Owner;
+        [StarData] public float Scale { get; private set; } = 2;
         ParticleEmitter TrailEmitter;
         ParticleEmitter FireTrailEmitter;
         ParticleEmitter FlameTrail;
@@ -34,8 +34,13 @@ namespace Ship_Game.Ships
             }
         }
 
+        public PlanetCrash()
+        {
+        }
+
         public void Update(ParticleManager particles, FixedSimTime timeStep)
         {
+            Owner.Dying = true;
             Vector2 dir = Owner.Position.DirectionToTarget(CrashPos);
             Owner.Velocity = dir * (Owner.MaxSTLSpeed * 0.8f).LowerBound(200);
             Scale = Owner.Position.Distance(CrashPos) / Distance;
@@ -56,7 +61,7 @@ namespace Ship_Game.Ships
             if (!P.PType.Clouds || !Owner.Position.InRadius(P.Position, P.Radius + 1000f))
                 return;
 
-            float z = Owner.GetSO().World.Translation.Z - 20;
+            float z = Owner.GetSO()?.World.Translation.Z - 20 ?? 0;
             Vector3 trailPos = (Owner.Position + dir * Owner.Radius * Scale * 0.5f).ToVec3(z);
 
             if (Owner.Position.InRadius(P.Position, P.Radius + 1000f) &&
