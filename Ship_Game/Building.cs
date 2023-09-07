@@ -88,7 +88,7 @@ namespace Ship_Game
         [XmlIgnore] public Weapon TheWeapon { get; private set; }
         [XmlIgnore] [StarData] public float Offense { get; private set; }
         [XmlIgnore] [StarData] public float MilitaryStrength { get; private set; }
-        [XmlIgnore] public int CurrentNumDefenseShips { get; private set; }
+        [XmlIgnore] [StarData] public int CurrentNumDefenseShips { get; private set; }
         [XmlIgnore] public float ActualCost => Cost * UniverseState.DummyProductionPacePlaceholder;
         [XmlIgnore] public bool IsBadCacheResourceBuilding => 
             FoodCache > 0 && PlusFlatFoodAmount == 0 && PlusFoodPerColonist == 0 
@@ -205,8 +205,7 @@ namespace Ship_Game
             }
             else
             {
-                defenseShip.Level = 3;
-                defenseShip.Velocity = empire.Random.Direction2D() * defenseShip.MaxSTLSpeed;
+                defenseShip.Level = empire.data.BonusFighterLevels.LowerBound(3);
                 UpdateCurrentDefenseShips(-1);
                 empire.ChargeCreditsHomeDefense(defenseShip);
             }
