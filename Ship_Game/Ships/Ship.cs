@@ -134,9 +134,9 @@ namespace Ship_Game.Ships
 
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
         Vector3 DieRotation;
-        private float DieTimer;
+        [StarData] private float DieTimer;
         [StarData] public float BaseStrength;
-        public bool Dying;
+        [StarData] public bool Dying;
 
         /// TRUE if this ship has been completely destroyed, or is displaying its Dying animation
         public bool IsDeadOrDying => !Active || Dying;
@@ -144,7 +144,7 @@ namespace Ship_Game.Ships
         /// TRUE if this ship is Active and not displaying its Dying animation
         public bool IsAlive => Active && !Dying;
 
-        public PlanetCrash PlanetCrash;
+        [StarData] public PlanetCrash PlanetCrash;
         [StarData] public LaunchShip LaunchShip;
         private bool ReallyDie;
         private bool HasExploded;
