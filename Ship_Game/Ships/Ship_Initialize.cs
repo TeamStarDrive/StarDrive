@@ -321,7 +321,11 @@ namespace Ship_Game.Ships
         // Refactored by RedFox
         public static Ship CreateShipNearPlanet(UniverseState us, string shipName, Empire owner, Planet p, bool doOrbit)
         {
-            return CreateShipAt(us, shipName, owner, p, owner.Random.Vector2D(300), doOrbit);
+            Ship ship = CreateShipAt(us, shipName, owner, p, owner.Random.Vector2D(300), doOrbit);
+            if (ship != null && !ship.IsPlatformOrStation)
+                ship.InitLaunch(LaunchPlan.Planet);
+
+            return ship;
         }
 
         // Hangar Ship Creation
@@ -344,9 +348,7 @@ namespace Ship_Game.Ships
             }
 
             ship.Mothership = parent;
-            ship.Velocity   = parent.Velocity;
-            ship.Direction  = parent.AI.Target != null ? parent.Position.DirectionToTarget(parent.AI.Target.Position) : parent.Direction;
-
+            ship.InitLaunch(LaunchPlan.Hangar, parent.RotationDegrees);
             if (hangar.IsSupplyBay)
             {
                 if (!ship.IsSupplyShuttle)
@@ -368,14 +370,17 @@ namespace Ship_Game.Ships
             ship.VanityName = "Home Defense";
             ship.UpdateHomePlanet(planet);
             ship.HomePlanet = planet;
+            ship.InitLaunch(LaunchPlan.Planet);
             return ship;
         }
 
-        public static Ship CreateTroopShipAtPoint(UniverseState us, string shipName, Empire owner, Vector2 point, Troop troop)
+        public static Ship CreateTroopShipAtPoint(UniverseState us, string shipName, Empire owner, 
+            Vector2 point, Troop troop, LaunchPlan launchPlan, float rotationDeg = -1f)
         {
             Ship ship = CreateShipAtPoint(us, shipName, owner, point);
             ship.VanityName = troop.DisplayName;
             troop.LandOnShip(ship);
+            ship.InitLaunch(launchPlan, rotationDeg);
             return ship;
         }
 

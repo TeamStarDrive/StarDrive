@@ -686,6 +686,14 @@ namespace Ship_Game.Ships
             }
         }
 
+        // Note - ship with launch plan cannot enter combat until plan is finished.
+        // For testing we have Universe.P.DebugDisableShipLaunch
+        public void InitLaunch(LaunchPlan launchPlan, float startingRotationDegrees = -1f)
+        {
+            if (!Universe.P.DebugDisableShipLaunch) 
+                LaunchShip = new(this, launchPlan, startingRotationDegrees);
+        }
+
         // Calculates estimated trip time by turns
         public float GetAstrogateTimeTo(Planet destination)
         {

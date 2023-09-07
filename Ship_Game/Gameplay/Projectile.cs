@@ -763,7 +763,7 @@ namespace Ship_Game.Gameplay
                     }
 
                     if (showFx)
-                        ShowExplosionEffect(flashFx);
+                        ShowExplosionEffect(flashFx, victim);
 
                     // the most typical case: projectile has hit a victim module and will now explode
                     if (victim != null)
@@ -771,16 +771,17 @@ namespace Ship_Game.Gameplay
                 }
                 else if (showFx) // FakeExplode
                 {
-                    ShowExplosionEffect(flashFx);
+                    ShowExplosionEffect(flashFx, victim);
                 }
             }
         }
 
-        void ShowExplosionEffect(bool flashFx)
+        void ShowExplosionEffect(bool flashFx, ShipModule module)
         {
             var origin = new Vector3(Position, -50f);
             float radius = DamageRadius * ExplosionRadiusMod;
-            ExplosionManager.AddExplosion(Universe.Screen, origin, Velocity*0.1f, radius, 2.5f, Weapon.ExplosionType);
+            Vector2 explostionVelocity = module?.GetParent()?.Velocity * 1.1f ?? Velocity * 0.1f;
+            ExplosionManager.AddExplosion(Universe.Screen, origin, explostionVelocity, radius, 2.5f, Weapon.ExplosionType);
             if (flashFx)
             {
                 GameAudio.PlaySfxAsync(DieCueName, Emitter);

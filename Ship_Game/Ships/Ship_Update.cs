@@ -230,7 +230,7 @@ namespace Ship_Game.Ships
                 Universe.Screen.NotificationManager?.AddReseachableStar(System);
         }
 
-        public void UpdateThrusters(FixedSimTime timeStep)
+        public void UpdateThrusters(FixedSimTime timeStep, float shipScale = 1f)
         {
             Color thrust0 = Loyalty.ThrustColor0;
             Color thrust1 = Loyalty.ThrustColor1;
@@ -246,7 +246,7 @@ namespace Ship_Game.Ships
                 Thruster thruster = ThrusterList[i];
                 thruster.UpdatePosition(Position, YRotation, direction3d);
 
-                bool enginesOn = ThrustThisFrame == Ships.Thrust.Forward || ThrustThisFrame == Ships.Thrust.Reverse;
+                bool enginesOn = ThrustThisFrame == Thrust.Forward || ThrustThisFrame == Thrust.Reverse;
                 if (enginesOn)
                 {
                     if (notPaused && thruster.heat < velocityPercent)
@@ -273,7 +273,7 @@ namespace Ship_Game.Ships
                 if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused)
                 {
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
-                    float thrustScale = thruster.Scale / 32f;
+                    float thrustScale = thruster.Scale * shipScale / 32f;
                     float thrustPower = (thruster.heat * (Stats.Thrust / 32f)).Clamped(64, 320) * thrustScale;
                     EngineTrail.Update(Universe.Screen.Particles, thruster.WorldPos, direction3d, 
                                        thrustScale, thrustPower, thrust1, thrust2);
