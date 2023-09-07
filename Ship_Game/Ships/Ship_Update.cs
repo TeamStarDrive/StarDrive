@@ -306,9 +306,6 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (ShipSO == null)
-                return;
-
             // for a cool death effect, make the ship accelerate out of control:
             SubLightAccelerate(100f);
             UpdateVelocityAndPosition(timeStep);
@@ -319,7 +316,7 @@ namespace Ship_Game.Ships
             float scale = PlanetCrash?.Scale ?? 1;
             float scaledRadius = Radius * scale;
 
-            if (visibleAndNotPaused)
+            if (visibleAndNotPaused && ShipSO != null)
             {
                 ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
                              * Matrix.CreateScale(scale)
