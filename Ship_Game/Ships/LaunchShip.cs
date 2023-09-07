@@ -90,8 +90,6 @@ namespace Ship_Game.Ships
                              * Matrix.CreateRotationZ(Owner.Rotation)
                              * Matrix.CreateTranslation(new Vector3(Owner.Position, 0f));
                 SO.UpdateAnimation(timeStep.FixedTime);
-
-                //UpdateThrusters(timeStep);
             }
             else // auto-create scene objects if possible
             {
