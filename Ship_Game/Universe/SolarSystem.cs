@@ -197,7 +197,7 @@ namespace Ship_Game
                 for (int i = 0; i < planet.NumBuildShipsCanLaunchperTurn; i++)
                 {
                     if (planet.CanLaunchBuilderShips)
-                        planet.LaunchBuilderShip(targetConstructor, empire);
+                        planet.LaunchBuilderShip(targetConstructor);
                 }
             }
         }
