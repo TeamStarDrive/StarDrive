@@ -266,17 +266,16 @@ namespace Ship_Game.AI
             return freighter;
         }
 
-        static float GetConstructorValue(IShipDesign s, Empire empire, bool belowDiscountThreshold)
+        static float GetConstructorValue(IShipDesign s, Empire empire, float buildCost, bool belowDiscountThreshold)
         {
             if (!s.IsConstructor)
                 return float.MinValue;
 
-            if (belowDiscountThreshold)  
+            float cost = s.GetCost(empire);
+            if (buildCost < cost *2
+                ||  belowDiscountThreshold && cost > GlobalStats.Defaults.ConstructionShipOrbitalDiscount)  
             {
-                float cost = s.GetCost(empire);
-                if (cost > GlobalStats.Defaults.ConstructionShipOrbitalDiscount)
-                    return -cost;
-
+                return -cost;
             }
 
             float maxFTLValue = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
@@ -301,7 +300,7 @@ namespace Ship_Game.AI
                     if (!ResourceManager.Ships.GetDesign(constructorId, out constructor))
                     {
                         Log.Warning($"PickConstructor: no construction ship with uid={constructorId}");
-                        return null;
+                        return null;    
                     }
                 }
             }
@@ -309,7 +308,7 @@ namespace Ship_Game.AI
             {
                 var constructors = new Array<IShipDesign>();
                 foreach (IShipDesign design in empire.ShipsWeCanBuild)
-                    if (design.IsConstructor && buildCost > design.GetCost(empire)*2f)
+                    if (design.IsConstructor)
                         constructors.Add(design);
 
                 if (constructors.Count == 0)
@@ -318,7 +317,7 @@ namespace Ship_Game.AI
                     return null;
                 }
 
-                constructor = constructors.FindMax(s => GetConstructorValue(s, empire, GetCheapest));
+                constructor = constructors.FindMax(s => GetConstructorValue(s, empire, buildCost, GetCheapest));
             }
 
             return constructor;
