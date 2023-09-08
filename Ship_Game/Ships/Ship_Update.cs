@@ -53,7 +53,8 @@ namespace Ship_Game.Ships
             if (!ShipData.LoadModel(out ShipSO, Universe.Screen.ContentManager))
                 return; // loading Ship SO failed
 
-            ShipSO.World = Matrix.CreateTranslation(new(Position + ShipData.BaseHull.MeshOffset, 0f));
+            if (!IsLaunching) // launch update will create the SO to avoid flickering
+                ShipSO.World = Matrix.CreateTranslation(new(Position + ShipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
             UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
@@ -143,8 +144,15 @@ namespace Ship_Game.Ships
                 UpdateShipStatus(timeStep);
                 UpdateEnginesAndVelocity(timeStep);
             }
+            bool visibleToPlayer = IsVisibleToPlayer;
+            if (IsLaunching)
+            {
+                LaunchShip.Update(visibleToPlayer, timeStep);
+                if (LaunchShip.PosZ <= 0)
+                    LaunchShip = null;
+            }
 
-            if (IsVisibleToPlayer)
+            else if (visibleToPlayer)
             {
                 if (ShipSO != null)
                 {
@@ -222,7 +230,7 @@ namespace Ship_Game.Ships
                 Universe.Screen.NotificationManager?.AddReseachableStar(System);
         }
 
-        public void UpdateThrusters(FixedSimTime timeStep)
+        public void UpdateThrusters(FixedSimTime timeStep, float shipScale = 1f, float deltaZ = 0)
         {
             Color thrust0 = Loyalty.ThrustColor0;
             Color thrust1 = Loyalty.ThrustColor1;
@@ -236,9 +244,9 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
                 Thruster thruster = ThrusterList[i];
-                thruster.UpdatePosition(Position, YRotation, direction3d);
+                thruster.UpdatePosition(Position, YRotation, direction3d, deltaZ);
 
-                bool enginesOn = ThrustThisFrame == Ships.Thrust.Forward || ThrustThisFrame == Ships.Thrust.Reverse;
+                bool enginesOn = ThrustThisFrame == Thrust.Forward || ThrustThisFrame == Thrust.Reverse;
                 if (enginesOn)
                 {
                     if (notPaused && thruster.heat < velocityPercent)
@@ -265,7 +273,7 @@ namespace Ship_Game.Ships
                 if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused)
                 {
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
-                    float thrustScale = thruster.Scale / 32f;
+                    float thrustScale = thruster.Scale * shipScale / 32f;
                     float thrustPower = (thruster.heat * (Stats.Thrust / 32f)).Clamped(64, 320) * thrustScale;
                     EngineTrail.Update(Universe.Screen.Particles, thruster.WorldPos, direction3d, 
                                        thrustScale, thrustPower, thrust1, thrust2);
@@ -298,9 +306,6 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (ShipSO == null)
-                return;
-
             // for a cool death effect, make the ship accelerate out of control:
             SubLightAccelerate(100f);
             UpdateVelocityAndPosition(timeStep);
@@ -311,7 +316,7 @@ namespace Ship_Game.Ships
             float scale = PlanetCrash?.Scale ?? 1;
             float scaledRadius = Radius * scale;
 
-            if (visibleAndNotPaused)
+            if (visibleAndNotPaused && ShipSO != null)
             {
                 ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
                              * Matrix.CreateScale(scale)
