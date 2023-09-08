@@ -390,10 +390,9 @@ namespace Ship_Game
                                    ? empire.data.StartingShip
                                    : empire.data.PrototypeShip;
 
-                Ship.CreateShipNearPlanet(UState, starterShip, empire, homePlanet, true);
-                Ship.CreateShipNearPlanet(UState, colonyShip, empire, homePlanet, true);
-                Ship.CreateShipNearPlanet(UState, startingScout, empire, homePlanet, true);
-                Ship startingFrieghter = Ship.CreateShipNearPlanet(UState, freighter, empire, homePlanet, true);
+                Ship.CreateShipNearPlanet(UState, starterShip, empire, homePlanet, true, initLaunch: false);
+                Ship.CreateShipNearPlanet(UState, colonyShip, empire, homePlanet, true, initLaunch: false);
+                Ship startingFrieghter = Ship.CreateShipNearPlanet(UState, freighter, empire, homePlanet, true, initLaunch: false);
                 if (startingFrieghter != null) // FB - wa for new frieghter since this is done onShipComplete in sbproduction
                 {
                     startingFrieghter.TransportingProduction = true;
@@ -403,7 +402,7 @@ namespace Ship_Game
                 }
 
                 for (int i = 0; i < 1 + empire.data.Traits.ExtraStartingScouts; i++)
-                    Ship.CreateShipAt(UState, startingScout, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 3), true);
+                    Ship.CreateShipNearPlanet(UState, startingScout, empire, homePlanet, true, initLaunch: false);
             }
         }
 
