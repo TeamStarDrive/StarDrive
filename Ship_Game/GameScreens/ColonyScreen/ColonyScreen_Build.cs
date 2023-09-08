@@ -119,10 +119,18 @@ namespace Ship_Game
 
             // enable all ships in the sandbox
             if (Universe.Debug && Universe.Screen is DeveloperUniverse)
+            {
                 buildableShips = ResourceManager.Ships.Designs.ToArr();
+            }
             else if (P.Owner != null)
-                buildableShips = P.Owner.ShipsWeCanBuild.Filter(ship => ship.IsBuildableByPlayer(Universe.Player) && !ship.IsResearchStation);
-            
+            {
+                buildableShips = P.Owner.ShipsWeCanBuild
+                    .Filter(ship => ship.IsBuildableByPlayer(Universe.Player)
+                                    && Universe.Screen.Player.WeCanBuildThis(ship)
+                                    && !ship.IsResearchStation
+                                    && !ship.IsConstructor);
+            }
+
             string filter = FilterBuildableItems.Text.ToLower();
             if (filter.IsEmpty() && FilterItemsText.NotEmpty())
             {

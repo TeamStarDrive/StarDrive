@@ -98,7 +98,6 @@ namespace Ship_Game.Ships
         void CreateShuttle(ShipModule hangar, out Ship supplyShuttle)
         {
             supplyShuttle = Ship.CreateShipFromHangar(Owner.Universe, hangar, Owner.Loyalty, Owner.Position, Owner);
-            supplyShuttle.Velocity = Owner.Velocity + hangar.Random.Direction2D() * supplyShuttle.MaxSTLSpeed;
             Owner.ChangeOrdnance(-supplyShuttle.ShipOrdLaunchCost);
             hangar.SetHangarShip(supplyShuttle);
         }

@@ -777,7 +777,7 @@ namespace Ship_Game.AI
 
             if (Owner.Position.InRadius(g.TargetPlanet.Position, g.TargetPlanet.GravityWellRadius * 0.5f))
             {
-                Owner.PlanetCrash = new PlanetCrash(g.TargetPlanet, Owner, g.SpeedLimit*0.85f);
+                Owner.PlanetCrash = new PlanetCrash(g.TargetPlanet, Owner);
                 Owner.Dying       = true;
             }
         }
