@@ -1,4 +1,5 @@
-﻿using SDGraphics;
+﻿using NAudio.Wave;
+using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Vector3 = SDGraphics.Vector3;
 
@@ -8,7 +9,7 @@ namespace Ship_Game.Ships
     public class LaunchShip
     {
         [StarData] readonly Ship Owner;
-        [StarData] public float Scale;
+        [StarData] public float PosZ;
         [StarData] readonly LaunchPlan LaunchPlan;
         [StarData] LaunchFromPlanet PlanetLaunch;
         [StarData] LaunchFromHangar HangarLaunch;
@@ -17,41 +18,39 @@ namespace Ship_Game.Ships
         {
             Owner = owner;
             LaunchPlan = launchPlan;
-
             float rotationDegZ = startingRotationDegrees.Equals(-1f) 
                 ? (45f * ((int)(owner.Universe.StarDate * 10) % 10 % 8)) 
                 : (startingRotationDegrees + Owner.Universe.Random.Float(-10, 10)); 
 
             switch (LaunchPlan)
             {
-                case LaunchPlan.Planet: PlanetLaunch = new(owner, rotationDegZ, out Scale); break;
-                case LaunchPlan.Hangar: HangarLaunch = new(owner, rotationDegZ, out Scale); break;
+                case LaunchPlan.Planet: PlanetLaunch = new(owner, rotationDegZ); break;
+                case LaunchPlan.Hangar: HangarLaunch = new(owner, rotationDegZ); break;
             }
-
-            float velRandom = owner.Universe.Random.Float(0.75f, 1.25f);
-            Owner.Velocity = rotationDegZ.AngleToDirection() * Owner.MaxSTLSpeed * velRandom;
         }
         
         public LaunchShip()
         {
         }
 
-        public static Vector3 FlashPos(Ship ship, float scale)
-            => new Vector2(-ship.Direction * ship.Radius * scale * 0.5f + ship.Position).ToVec3();
+        public static Vector3 FlashPos(Ship ship, float scale, float posZ)
+            => new Vector2(-ship.Direction * ship.Radius * scale * 0.5f + ship.Position).ToVec3(posZ);
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
             Owner.AI.IgnoreCombat = true;
+            float scale = 1;
             switch (LaunchPlan)
             {
-                case LaunchPlan.Planet: PlanetLaunch.Update(timeStep, visibleToPlayer, ref Scale); break;
-                case LaunchPlan.Hangar: HangarLaunch.Update(timeStep, visibleToPlayer, ref Scale); break;
+                case LaunchPlan.Planet: PlanetLaunch.Update(timeStep, visibleToPlayer, ref PosZ, out scale); break;
+                case LaunchPlan.Hangar: HangarLaunch.Update(timeStep, visibleToPlayer, ref PosZ); break;
             }
 
-            if (Scale >= 1 && !Owner.IsConstructor && !Owner.IsSupplyShuttle)
+            if (PosZ <= 0)
             {
                 Owner.XRotation = 0;
-                Owner.AI.IgnoreCombat = false;
+                if (!Owner.IsConstructor && !Owner.IsSupplyShuttle)
+                    Owner.AI.IgnoreCombat = false;
             }
 
             if (!visibleToPlayer)
@@ -61,11 +60,11 @@ namespace Ship_Game.Ships
             if (Owner.GetSO() != null)
             {
                 SO.World = Matrix.CreateTranslation(new Vector3(Owner.ShipData.BaseHull.MeshOffset, 0f))
-                             * Matrix.CreateScale(Scale)
                              * Matrix.CreateRotationY(Owner.YRotation)
                              * Matrix.CreateRotationX(Owner.XRotation)
                              * Matrix.CreateRotationZ(Owner.Rotation)
-                             * Matrix.CreateTranslation(new Vector3(Owner.Position, 0f));
+                             * Matrix.CreateScale(scale)
+                             * Matrix.CreateTranslation(new Vector3(Owner.Position, PosZ));
                 SO.UpdateAnimation(timeStep.FixedTime);
             }
             else // auto-create scene objects if possible
@@ -77,65 +76,78 @@ namespace Ship_Game.Ships
         [StarDataType]
         struct LaunchFromPlanet
         {
+            [StarData] float Progress; // between 0 to 1
             [StarData] readonly Ship Owner;
-            [StarData] readonly float SecondsHalfScale;
+            [StarData] readonly float SecondsHalfPosZ;
             [StarData] readonly float SecondsToZeroX;
             [StarData] readonly float TotalDuration;
             [StarData] readonly float RotationDegZ;
-            const int MinSecondsToHalfScale = 2;
+            [StarData] readonly Vector2 Velocity;
+            const int MinSecondsToHalfScale = 5;
             const int MaxSecondsToHalfScale = 10;
-            const int DistanceMovementUp = 1000;
+            const int StartingPosZ = 1000;
             const float PlanetPlanRotationDegX = 75;
-            const float InitialScale = 0;
 
-            public LaunchFromPlanet(Ship ship, float rotation, out float initialScale)
+            public LaunchFromPlanet(Ship ship, float rotation)
             {
-                Owner = ship;
+                Owner            = ship;
+                Progress         = 0;
                 RotationDegZ     = rotation;
-                initialScale     = InitialScale;
-                SecondsHalfScale = (DistanceMovementUp / ship.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
+                SecondsHalfPosZ = (StartingPosZ / ship.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
                 SecondsToZeroX   = PlanetPlanRotationDegX / ship.RotationRadsPerSecond.ToDegrees().LowerBound(5);
-                TotalDuration    = SecondsHalfScale + SecondsToZeroX;
+                TotalDuration    = SecondsHalfPosZ + SecondsToZeroX;
+
+                float velRandom = ship.Universe.Random.Float(0.5f, 0.75f);
+                Velocity = RotationDegZ.AngleToDirection() * Owner.MaxSTLSpeed * velRandom;
             }
 
-            public void Update(FixedSimTime timeStep, bool visible, ref float scale)
+            public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
             {
+                Owner.Velocity = Velocity;
                 Owner.YRotation = 0;
                 Owner.RotationDegrees = RotationDegZ;
-                scale += timeStep.FixedTime / TotalDuration;
+                Progress += timeStep.FixedTime / TotalDuration;
+                scale = (Progress * 2).UpperBound(1);
+                posZ = StartingPosZ * (1 - Progress);
 
-                Owner.XRotation = scale >= 0.5f 
-                    ? (PlanetPlanRotationDegX - ((scale - 0.5f) / 0.5f * PlanetPlanRotationDegX)).ToRadians() 
+                Owner.XRotation = Progress >= 0.5f 
+                    ? (PlanetPlanRotationDegX - ((Progress - 0.5f) / 0.5f * PlanetPlanRotationDegX)).ToRadians() 
                     : PlanetPlanRotationDegX.ToRadians();
 
-                if (visible && scale.InRange(0f, 0.25f))
-                    Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale), scale);
+                if (visible && Progress.InRange(0f, 0.25f))
+                    Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), Progress);
 
-                if (scale >= 0.9f)
-                    Owner.UpdateThrusters(timeStep, scale);
+                if (Progress >= 0.9f)
+                    Owner.UpdateThrusters(timeStep, Progress);
             }
         }
 
         [StarDataType]
         struct LaunchFromHangar
         {
+            [StarData] float Progress; // between 0 to 1
             [StarData] readonly bool DoBarrelRoll;
             [StarData] readonly Ship Owner;
             [StarData] readonly float TotalDuration;
             [StarData] readonly float RelativeDegForBarrel;
             [StarData] readonly float RotationDegZ;
-            const float InitialScale = 0.3f;
+            [StarData] readonly Vector2 Velocity;
+            const float InitialProgress = 0.3f;
             const int HangarPlanRotationDegX = 45;
+            const int StartingPosZ = 200;
 
 
-            public LaunchFromHangar(Ship ship, float rotation, out float initialScale)
+            public LaunchFromHangar(Ship ship, float rotation)
             {
-                Owner = ship;
+                Owner         = ship;
                 RotationDegZ  = rotation;
                 DoBarrelRoll  = ShouldBarrelRoll();
-                initialScale  = InitialScale;
+                Progress      = InitialProgress;
                 TotalDuration = (HangarPlanRotationDegX / ship.RotationRadsPerSecond.ToDegrees()).Clamped(2, 5);
-                RelativeDegForBarrel = 3.6f / (1 - initialScale);
+                RelativeDegForBarrel = 3.6f / (1 - Progress);
+
+                float velRandom = ship.Universe.Random.Float(1f, 2f);
+                Velocity = RotationDegZ.AngleToDirection() * Owner.MaxSTLSpeed * velRandom;
             }
 
             bool ShouldBarrelRoll()
@@ -144,18 +156,20 @@ namespace Ship_Game.Ships
                     || Owner.DesignRole == RoleName.corvette && Owner.Universe.Random.RollDice(25);
             }
 
-            public void Update(FixedSimTime timeStep, bool visible, ref float scale)
+            public void Update(FixedSimTime timeStep, bool visible, ref float posZ)
             {
-                scale += timeStep.FixedTime / TotalDuration;
-                Owner.YRotation = DoBarrelRoll ? ((scale - InitialScale) * RelativeDegForBarrel * 100).ToRadians() : 0;
+                Owner.Velocity = Velocity;
+                Progress += timeStep.FixedTime / TotalDuration;
+                Owner.YRotation = DoBarrelRoll ? ((Progress - InitialProgress) * RelativeDegForBarrel * 100).ToRadians() : 0;
                 Owner.RotationDegrees = RotationDegZ;
-                Owner.XRotation = (HangarPlanRotationDegX - (scale * HangarPlanRotationDegX)).ToRadians();
+                Owner.XRotation = (HangarPlanRotationDegX - (Progress * HangarPlanRotationDegX)).ToRadians();
+                posZ = StartingPosZ * (1 - Progress);
 
-                if (Owner.DesignRole is RoleName.fighter or RoleName.colony || scale >= 0.9f)
-                    Owner.UpdateThrusters(timeStep, scale);
+                if (Owner.DesignRole is RoleName.fighter or RoleName.colony || Progress >= 0.9f)
+                    Owner.UpdateThrusters(timeStep, 1);
 
-                if (visible && scale.InRange(InitialScale, InitialScale + 0.1f))
-                    Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale), scale);
+                if (visible && Progress.InRange(InitialProgress, InitialProgress + 0.1f))
+                    Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, 1, posZ), Progress);
             }
         }
     }

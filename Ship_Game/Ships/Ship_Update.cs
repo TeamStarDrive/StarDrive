@@ -148,7 +148,7 @@ namespace Ship_Game.Ships
             if (IsLaunching)
             {
                 LaunchShip.Update(visibleToPlayer, timeStep);
-                if (LaunchShip.Scale >= 1)
+                if (LaunchShip.PosZ <= 0)
                     LaunchShip = null;
             }
 
@@ -230,7 +230,7 @@ namespace Ship_Game.Ships
                 Universe.Screen.NotificationManager?.AddReseachableStar(System);
         }
 
-        public void UpdateThrusters(FixedSimTime timeStep, float shipScale = 1f)
+        public void UpdateThrusters(FixedSimTime timeStep, float shipScale = 1f, float deltaZ = 0)
         {
             Color thrust0 = Loyalty.ThrustColor0;
             Color thrust1 = Loyalty.ThrustColor1;
@@ -244,7 +244,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
                 Thruster thruster = ThrusterList[i];
-                thruster.UpdatePosition(Position, YRotation, direction3d);
+                thruster.UpdatePosition(Position, YRotation, direction3d, deltaZ);
 
                 bool enginesOn = ThrustThisFrame == Thrust.Forward || ThrustThisFrame == Thrust.Reverse;
                 if (enginesOn)
