@@ -84,7 +84,7 @@ namespace Ship_Game.Ships
             [StarData] readonly float RotationDegZ;
             [StarData] readonly Vector2 Velocity;
             const int MinSecondsToHalfScale = 5;
-            const int MaxSecondsToHalfScale = 10;
+            const int MaxSecondsToHalfScale = 20;
             const int StartingPosZ = 1000;
             const float PlanetPlanRotationDegX = 75;
 

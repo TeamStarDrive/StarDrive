@@ -16,6 +16,7 @@ using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI.Budget;
 using Ship_Game.ExtensionMethods;
+using System.Windows.Forms;
 
 namespace Ship_Game
 {
@@ -771,30 +772,44 @@ namespace Ship_Game
             NumBuildShipsLaunched = (NumBuildShipsLaunched + value).Clamped(0, NumBuildShipsCanLaunch);
         }
 
-        public void LaunchBuilderShip(Ship targetConstructor, Empire empire)
+        public void LaunchBuilderShip(Ship targetConstructor)
         {
             string builderShipName = Owner.GetSupplyShuttleName();
-            Vector2 launchFrom = GetBuilderShipTargetVector(launch: true);
-            Ship builderShip = Ship.CreateShipAtPoint(Universe, builderShipName, Owner, launchFrom);
+            Vector2 launchFrom = GetBuilderShipTargetVector(launch: true, out bool fromShipyard);
+            Ship builderShip;
+            if (fromShipyard)
+            {
+                float startingRotationZ = launchFrom.DirectionToTarget(targetConstructor.Position).ToDegrees();
+                builderShip = Ship.CreateShipAtPoint(Universe, builderShipName, Owner, launchFrom);
+                builderShip?.InitLaunch(LaunchPlan.Hangar, startingRotationZ);
+            }
+            else
+            {
+                builderShip = Ship.CreateShipNearPlanet(Universe, builderShipName, Owner, this, doOrbit: false);
+            }
+
             if (builderShip != null)
             {
-                builderShip.Direction = launchFrom.DirectionToTarget(targetConstructor.Position);
                 UpdateBuilderShipLaunched(1);
                 builderShip.AI.AddBuildOrbitalGoal(this, targetConstructor);
             }
         }
 
-        public Vector2 GetBuilderShipTargetVector(bool launch)
+        public Vector2 GetBuilderShipTargetVector(bool launch, out bool fromShipyard)
         {
-            Vector2 pos = Position;
+            fromShipyard= false;
             if (Owner.Random.RollDice(75))
             {
                 var potentialShipyards = OrbitalStations.Filter(s => s.IsShipyard);
                 if (potentialShipyards.Length > 0)
-                    pos = Random.Item(potentialShipyards).Position;
+                {
+                    fromShipyard = true;
+                    Vector2 pos = Random.Item(potentialShipyards).Position;
+                    return launch ? pos.GenerateRandomPointInsideCircle(Radius + 50, Owner.Random) : pos;
+                }
             }
 
-            return launch ? pos.GenerateRandomPointInsideCircle(Radius + 50, Owner.Random) : pos;
+            return Position;
         }
 
         void UpdatePlanetShields()

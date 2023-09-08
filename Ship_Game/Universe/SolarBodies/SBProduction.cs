@@ -201,7 +201,11 @@ namespace Ship_Game.Universe.SolarBodies
             if (!ResourceManager.ShipTemplateExists(q.ShipData.Name))
                 return false;
 
-            Ship shipAt = Ship.CreateShipNearPlanet(P.Universe, q.ShipData.Name, Owner, P, true);
+            Vector2 launchPos = P.GetBuilderShipTargetVector(launch: true, out bool fromShipyard);
+
+            Ship shipAt = fromShipyard ? Ship.CreateShipAtShipyard(P.Universe, q.ShipData.Name, Owner, launchPos)
+                                       : Ship.CreateShipNearPlanet(P.Universe, q.ShipData.Name, Owner, P, true);
+
             q.Goal?.ReportShipComplete(shipAt);
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {

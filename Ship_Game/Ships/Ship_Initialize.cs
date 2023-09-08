@@ -273,6 +273,15 @@ namespace Ship_Game.Ships
             SetOrdnance(Ordinance);
         }
 
+        public static Ship CreateShipAtShipyard(UniverseState us, string shipName, Empire owner, Vector2 position)
+        {
+            Ship ship = CreateShipAtPoint(us, shipName, owner, position);
+            if (ship != null)
+                ship.InitLaunch(LaunchPlan.Hangar);
+
+            return ship;
+        }
+
         public static Ship CreateShipAtPoint(UniverseState us, string shipName, Empire owner, Vector2 position)
         {
             Ship template = GetShipTemplate(shipName);
@@ -325,10 +334,7 @@ namespace Ship_Game.Ships
             float randomRadius = owner.Random.Float(p.Radius - 100, p.Radius + 100);
             Ship ship = CreateShipAt(us, shipName, owner, p, p.Position.GenerateRandomPointOnCircle(randomRadius, owner.Random), doOrbit);
             if (initLaunch && ship != null && !ship.IsPlatformOrStation)
-            {
-                float startingRotationZ = (ship.Position.DirectionToTarget(p.Position) * -1).ToDegrees();
-                ship.InitLaunch(LaunchPlan.Planet, startingRotationZ);
-            }
+                ship.InitLaunch(LaunchPlan.Planet, p);
 
             return ship;
         }
@@ -351,8 +357,10 @@ namespace Ship_Game.Ships
                 Log.Warning($"Could not create ship from hangar, UID = {hangar.HangarShipUID}");
                 return null;
             }
+
             ship.Mothership = parent;
             ship.InitLaunch(LaunchPlan.Hangar, hangar.ActualRotationDegrees);
+
             if (hangar.IsSupplyBay)
             {
                 if (!ship.IsSupplyShuttle)
@@ -376,8 +384,7 @@ namespace Ship_Game.Ships
             ship.VanityName = "Home Defense";
             ship.UpdateHomePlanet(planet);
             ship.HomePlanet = planet;
-            float startingRotationZ = (ship.Position.DirectionToTarget(planet.Position) * -1).ToDegrees();
-            ship.InitLaunch(LaunchPlan.Planet, startingRotationZ);
+            ship.InitLaunch(LaunchPlan.Planet, planet);
             return ship;
         }
 
@@ -389,6 +396,23 @@ namespace Ship_Game.Ships
             troop.LandOnShip(ship);
             ship.InitLaunch(launchPlan, rotationDeg);
             return ship;
+        }
+
+        // Note - ship with launch plan cannot enter combat until plan is finished.
+        // For testing we have Universe.P.DebugDisableShipLaunch
+        public void InitLaunch(LaunchPlan launchPlan, float startingRotationDegrees = -1f)
+        {
+            if (!Universe.P.DebugDisableShipLaunch)
+                LaunchShip = new(this, launchPlan, startingRotationDegrees);
+        }
+
+        void InitLaunch(LaunchPlan launchPlan, Planet planet)
+        {
+            if (!Universe.P.DebugDisableShipLaunch)
+            {
+                float startingRotationZ = (Position.DirectionToTarget(planet.Position) * -1).ToDegrees();
+                LaunchShip = new(this, launchPlan, startingRotationZ);
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
