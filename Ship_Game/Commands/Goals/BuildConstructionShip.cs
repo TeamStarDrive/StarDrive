@@ -23,14 +23,14 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, bool rush = false, SolarSystem system = null)
+        public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, bool rush = false)
             : this(owner)
         {
-            Initialize(platformUid, buildPos, system);
+            Initialize(platformUid, buildPos, null);
             Build.Rush = rush;
             var projecors = owner.OwnedProjectors;
             // try catch multipler projector build on same place
-            if (platformUid == "Subspace Projector")
+            if (ToBuild.IsSubspaceProjector)
             {
                 foreach (Ship projector in projecors)
                     if (projector.Position.InRadius(buildPos, 100))
@@ -46,8 +46,8 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            IShipDesign constructor = BuildableShip.GetConstructor(Owner);
-
+            float structureCost = ToBuild.GetCost(Owner);
+            IShipDesign constructor = BuildableShip.GetConstructor(Owner, TetherPlanet?.System ?? TargetSystem, structureCost);
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, ToBuild, out Planet planet, priority: 0.25f))
                 return GoalStep.TryAgain;
 
@@ -56,24 +56,30 @@ namespace Ship_Game.Commands.Goals
             if (Build.Rush)
                 itemType = QueueItemType.OrbitalUrgent;
             
-            planet.Construction.Enqueue(itemType, ToBuild, constructor, Build.Rush, this);
+            planet.Construction.Enqueue(itemType, ToBuild, constructor, structureCost, Build.Rush, this);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep OrderDeepSpaceBuild()
         {
-            if (FinishedShip == null) 
+            if (!ConstructionShipOk) 
                 return GoalStep.GoalFailed;
 
-            FinishedShip.AI.OrderDeepSpaceBuild(this);
+            FinishedShip.AI.OrderDeepSpaceBuild(this, ToBuild.GetCost(Owner), ToBuild.Grid.Radius);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitForDeployment()
         {
-            // FB - must keep this goal until the ship deployed it's structure. 
-            // If the goal is not kept, load game construction ships loses the empire goal and get stuck
-            return FinishedShip == null ? GoalStep.GoalComplete : GoalStep.TryAgain;
+            if (!ConstructionShipOk)
+                return GoalStep.GoalComplete;
+
+            if (FinishedShip.Construction.TryConstruct(BuildPosition) && FinishedShip.System != null)
+                FinishedShip.System.TryLaunchBuilderShip(FinishedShip, Owner);
+
+            return GoalStep.TryAgain;
         }
+
+        bool ConstructionShipOk => FinishedShip?.Active == true;
     }
 }

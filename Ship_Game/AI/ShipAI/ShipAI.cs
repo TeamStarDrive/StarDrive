@@ -538,6 +538,7 @@ namespace Ship_Game.AI
                 case Plan.BoardShip:                DoBoardShip(timeStep);                    break;
                 case Plan.SupplyShip:               DoSupplyShip(timeStep);                   break;
                 case Plan.RearmShipFromPlanet:      DoRearmShip(timeStep);                    break;
+                case Plan.BuildOrbital:             DoBuildOrbital(timeStep, goal);           break;
                 case Plan.Refit:                    DoRefit(goal);                            break;
                 case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
@@ -546,6 +547,7 @@ namespace Ship_Game.AI
                 case Plan.HoldPosition:             DoHoldPositionPlan(goal);                 break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
                 case Plan.Meteor:                   DoMeteor(goal);                           break;
+                case Plan.BuilderReturnHome:        DoBuilderReturnHome(timeStep, goal);      break;
             }
         }
 

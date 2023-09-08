@@ -328,7 +328,7 @@
       <Category>Environment</Category>
       <Cost>-2</Cost>
       <Description>87</Description>
-      <HomeworldFertMod>-0.5</HomeworldFertMod>
+      <HomeworldFertMod>-0.35</HomeworldFertMod>
     </RacialTraitOption>
     <RacialTraitOption>
       <!-- Industrialized Homeworld -->
@@ -449,7 +449,8 @@
       <Category>Sociological</Category>
       <Cost>1</Cost>
       <Description>4985</Description>
-	  <ExploreDistanceMultiplier>2</ExploreDistanceMultiplier>
+	    <ExploreDistanceMultiplier>3</ExploreDistanceMultiplier>
+	    <ExtraStartingScouts>2</ExtraStartingScouts>
     </RacialTraitOption>
     <RacialTraitOption>
 	  <!-- Terran Homeworld -->
@@ -607,7 +608,32 @@
 	  <Excludes>
 		<string>Salvagers</string>
 	  </Excludes>
-	</RacialTraitOption>			
+	</RacialTraitOption>
+	
+    <RacialTraitOption>
+	  <!-- Orbital Constructors -->
+  	  <TraitName>Orbital Constructors</TraitName>
+	  <TraitIndex>4964</TraitIndex>
+	  <Category>Sociological</Category>
+	  <Cost>1</Cost>
+	  <Description>4965</Description>
+	  <ConstructionRateMultiplier>1.5</ConstructionRateMultiplier>
+	  <Excludes>
+	  	  <string>Orbital Aversion</string>
+	  </Excludes>
+    </RacialTraitOption>	
+    <RacialTraitOption>
+	  <!-- Orbital Aversion -->
+  	  <TraitName>Orbital Aversion</TraitName>
+	  <TraitIndex>4962</TraitIndex>
+	  <Category>Sociological</Category>
+	  <Cost>-1</Cost>
+	  <Description>4963</Description>
+	  <ConstructionRateMultiplier>0.5</ConstructionRateMultiplier>
+	  <Excludes>
+	  	  <string>Orbital Constructors</string>
+	  </Excludes>
+    </RacialTraitOption>		
 
 	
     <!-- Adventure Mode Traits

@@ -996,6 +996,8 @@ namespace Ship_Game
                 case "Repair Bonus": data.Traits.RepairMod += unlockedBonus.Bonus; break;
                 case "Maintenance Bonus": data.Traits.MaintMod -= unlockedBonus.Bonus; break;
                 case "Ship Maintenance Bonus": data.Traits.ShipMaintMultiplier -= unlockedBonus.Bonus; break;
+                case "Construction Ships Build Rate": data.Traits.ConstructionRateMultiplier += unlockedBonus.Bonus; break;
+                case "Builder Ships Build Rate": data.Traits.BuilderShipConstructionMultiplier += unlockedBonus.Bonus; break;
                 case "Power Flow Bonus": data.PowerFlowMod += unlockedBonus.Bonus; break;
                 case "Shield Power Bonus": data.ShieldPowerMod += unlockedBonus.Bonus; break;
                 case "Ship Experience Bonus": data.ExperienceMod += unlockedBonus.Bonus; break;
