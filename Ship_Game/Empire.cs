@@ -165,6 +165,7 @@ namespace Ship_Game
         // Empire IDs, for player only
         [StarData] public Array<DiplomacyQueueItem> DiplomacyContactQueue { get; private set; }
         [StarData] public bool AutoPickBestColonizer;
+        [StarData] public bool AutoPickConstructors;
         [StarData] public bool AutoBuildTerraformers;
         [StarData] public bool AutoPickBestResearchStation;
         [StarData] public bool SymmetricDesignMode = true;

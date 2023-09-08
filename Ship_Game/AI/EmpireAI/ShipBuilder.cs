@@ -266,21 +266,31 @@ namespace Ship_Game.AI
             return freighter;
         }
 
-        static float GetConstructorValue(IShipDesign s, Empire empire)
+        static float GetConstructorValue(IShipDesign s, Empire empire, float buildCost, bool belowDiscountThreshold)
         {
             if (!s.IsConstructor)
-                return 0;
-            float maxFTL = ShipStats.GetFTLSpeed(s, empire);
-            float warpK = maxFTL / 1000;
+                return float.MinValue;
+
+            float cost = s.GetCost(empire);
+            if (buildCost < cost *2
+                ||  belowDiscountThreshold && cost > GlobalStats.Defaults.ConstructionShipOrbitalDiscount)  
+            {
+                return -cost;
+            }
+
+            float maxFTLValue = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
+            float maxSTLValue = ShipStats.GetSTLSpeed(s, empire) * 0.1f;
             float turnRate = ShipStats.GetTurnRadsPerSec(s);
-            float score = warpK + maxFTL / 10 + turnRate.ToDegrees();
+            float score = maxFTLValue + maxSTLValue + turnRate.ToDegrees() 
+                + s.NumConstructionModules*GlobalStats.Defaults.ConstructionModuleBuildRate;
+            
             return score;
         }
 
-        public static IShipDesign PickConstructor(Empire empire)
+        public static IShipDesign PickConstructor(Empire empire, float buildCost, bool GetCheapest)
         {
             IShipDesign constructor = null;
-            if (empire.isPlayer)
+            if (empire.isPlayer && !empire.AutoPickConstructors)
             {
                 string constructorId = empire.data.ConstructorShip;
                 if (!ResourceManager.Ships.GetDesign(constructorId, out constructor))
@@ -290,7 +300,7 @@ namespace Ship_Game.AI
                     if (!ResourceManager.Ships.GetDesign(constructorId, out constructor))
                     {
                         Log.Warning($"PickConstructor: no construction ship with uid={constructorId}");
-                        return null;
+                        return null;    
                     }
                 }
             }
@@ -307,7 +317,7 @@ namespace Ship_Game.AI
                     return null;
                 }
 
-                constructor = constructors.FindMax(s => GetConstructorValue(s, empire));
+                constructor = constructors.FindMax(s => GetConstructorValue(s, empire, buildCost, GetCheapest));
             }
 
             return constructor;

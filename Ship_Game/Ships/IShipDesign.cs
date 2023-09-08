@@ -118,6 +118,7 @@ public interface IShipDesign
     // specific ship type stats
     float StartingColonyGoods { get; }
     int NumBuildingsDeployed { get; }
+    byte NumConstructionModules { get; }
 
     // Hangar Templates
     ShipModule[] Hangars { get; }
