@@ -79,6 +79,7 @@ public class UniverseParams
     [StarData] public bool DisablePirates;
     [StarData] public bool FixedPlayerCreditCharge;
 
+    public bool DebugDisableShipLaunch; // Only for testing
 
     public UniverseParams()
     {

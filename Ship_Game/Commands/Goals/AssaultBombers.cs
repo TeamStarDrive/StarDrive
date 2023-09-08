@@ -70,6 +70,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                             float distance = ship.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 1500) ? 300 : 600;
                             troopShip.Position = ship.Position.GenerateRandomPointOnCircle(distance, Owner.Random);
                             troopShip.Rotation = troopShip.Position.DirectionToTarget(ship.Position).ToRadians();
+                            troopShip.InitLaunch(LaunchPlan.Hangar, troopShip.RotationDegrees);
                             troopShip.AI.OrderTroopToBoardShip(ship);
                             if (numTroopsWanted == 0)
                                 return GoalStep.GoToNextStep;

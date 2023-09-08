@@ -456,8 +456,8 @@ namespace Ship_Game
             if (Loyalty.data.DefaultTroopShip.IsEmpty())
                 Log.Error($"{Loyalty.Name} has no DefaultTroopShip !");
             
-            Vector2 createAt = planet.Position + planet.Random.Vector2D(planet.Radius * 2);
-            return Ship.CreateTroopShipAtPoint(planet.Universe, Loyalty.data.DefaultTroopShip, Loyalty, createAt, this);
+            Vector2 createAt = planet.Position + planet.Random.Vector2D(planet.Radius * 0.75f);
+            return Ship.CreateTroopShipAtPoint(planet.Universe, Loyalty.data.DefaultTroopShip, Loyalty, createAt, this, LaunchPlan.Planet);
         }
 
         // FB - this is the main logic for land troops
