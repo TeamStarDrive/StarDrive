@@ -8,6 +8,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
+using Ship_Game.ExtensionMethods;
 
 namespace Ship_Game.Ships
 {
@@ -300,9 +301,9 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        public static Ship CreateShipAt(UniverseState us, string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
+        public static Ship CreateShipAt(UniverseState us, string shipName, Empire owner, Planet p, Vector2 pos, bool doOrbit)
         {
-            Ship ship = CreateShipAtPoint(us, shipName, owner, p.Position + deltaPos);
+            Ship ship = CreateShipAtPoint(us, shipName, owner, pos);
             if (ship != null)
             {
                 if (ship.IsPlatformOrStation || ship.IsShipyard)
@@ -321,9 +322,13 @@ namespace Ship_Game.Ships
         // Refactored by RedFox
         public static Ship CreateShipNearPlanet(UniverseState us, string shipName, Empire owner, Planet p, bool doOrbit)
         {
-            Ship ship = CreateShipAt(us, shipName, owner, p, owner.Random.Vector2D(300), doOrbit);
+            float randomRadius = owner.Random.Float(p.Radius - 100, p.Radius + 100);
+            Ship ship = CreateShipAt(us, shipName, owner, p, p.Position.GenerateRandomPointOnCircle(randomRadius, owner.Random), doOrbit);
             if (ship != null && !ship.IsPlatformOrStation)
-                ship.InitLaunch(LaunchPlan.Planet);
+            {
+                float startingRotationZ = (ship.Position.DirectionToTarget(p.Position) * -1).ToDegrees();
+                ship.InitLaunch(LaunchPlan.Planet, startingRotationZ);
+            }
 
             return ship;
         }

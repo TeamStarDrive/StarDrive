@@ -229,7 +229,7 @@ public partial class StarDriveTest : IDisposable
                 for (int i = 0; i < numExtraShipsPerEmpire; ++i)
                 {
                     Ship.CreateShipAt(UState, e.data.PrototypeShip, e, 
-                        e.Capital, u.Random.Vector2D(e.Capital.Radius * 3), true);
+                        e.Capital, e.Capital.Position + u.Random.Vector2D(e.Capital.Radius * 3), true);
                 }
             }
         }
