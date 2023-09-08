@@ -47,6 +47,7 @@ namespace Ship_Game.Ships
 
         public Array<ShipModule> BombBays = new();
         [StarData] public CarrierBays Carrier;
+        [StarData] public ConstructionShip Construction;
         [StarData] public ShipResupply Supply;
         public bool ShipStatusChanged;
         public bool IsMeteor { get; private set; }
@@ -217,6 +218,7 @@ namespace Ship_Game.Ships
         }
 
         public bool IsConstructor => ShipData.IsConstructor;
+        public bool IsConstructing => ShipData.IsConstructor && Construction != null;
 
         /// <summary>
         /// Where this is true the force pool add will reject these ships.
@@ -516,7 +518,6 @@ namespace Ship_Game.Ships
                 }
             }
         }
-
         public bool IsOrbiting(Planet p) => AI.IsOrbiting(p);
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
@@ -1642,6 +1643,7 @@ namespace Ship_Game.Ships
             }
             
             Carrier?.Dispose();
+            Construction?.Dispose();
 
             var slots = ModuleSlotList;
             ModuleSlotList = Empty<ShipModule>.Array;

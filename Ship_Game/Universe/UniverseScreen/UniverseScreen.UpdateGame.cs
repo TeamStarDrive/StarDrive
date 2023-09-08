@@ -268,6 +268,13 @@ namespace Ship_Game
             EmpireMiscPerf.Stop();
         }
 
+        // We are just setting the duration to 0 so update will remove them
+        public void ResetConstructionParts(int id)
+        {
+            for (int i = UState.JunkList.Count - 1; i >= 0; --i)
+                UState.JunkList[i]?.TryReset(id);
+        }
+
         /// <summary>Returns list of updated Empires</summary>
         Array<Empire> ProcessTurnEmpires(FixedSimTime timeStep)
         {
