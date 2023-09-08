@@ -346,9 +346,8 @@ namespace Ship_Game.Ships
                 Log.Warning($"Could not create ship from hangar, UID = {hangar.HangarShipUID}");
                 return null;
             }
-
             ship.Mothership = parent;
-            ship.InitLaunch(LaunchPlan.Hangar, parent.RotationDegrees);
+            ship.InitLaunch(LaunchPlan.Hangar, hangar.ActualRotationDegrees);
             if (hangar.IsSupplyBay)
             {
                 if (!ship.IsSupplyShuttle)
@@ -363,6 +362,8 @@ namespace Ship_Game.Ships
             }
             return ship;
         }
+
+
 
         public static Ship CreateDefenseShip(UniverseState us, string shipName, Empire owner, Vector2 p, Planet planet)
         {
