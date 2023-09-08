@@ -17,7 +17,14 @@
       <Name>Deep Core Mine</Name>
     </UnlockedBuilding>
   </BuildingsUnlocked>
-  <BonusUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Builder Ship Efficiency</Name>
+      <BonusType>Builder Ships Build Rate</BonusType>
+      <Bonus>0.5</Bonus>
+      <BonusIndex>4961</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
   <TroopsUnlocked />
   <HullsUnlocked />
 </Technology>

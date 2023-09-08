@@ -401,6 +401,9 @@ namespace Ship_Game
                     startingFrieghter.TransportingColonists  = true;
                     startingFrieghter.AllowInterEmpireTrade  = true;
                 }
+
+                for (int i = 0; i < 1 + empire.data.Traits.ExtraStartingScouts; i++)
+                    Ship.CreateShipAt(UState, startingScout, empire, homePlanet, empire.Random.Vector2D(homePlanet.Radius * 3), true);
             }
         }
 
