@@ -379,6 +379,22 @@ namespace Ship_Game.Ships
             TargetValue += IsWeapon                             ? 1 : 0;
         }
 
+        public float ActualRotationDegrees 
+        {
+            get
+            {
+                float parentRotation = Parent.RotationDegrees;
+                switch (ModuleRot)
+                {
+                    default:
+                    case ModuleOrientation.Normal: return parentRotation;
+                    case ModuleOrientation.Left: return parentRotation - 90;
+                    case ModuleOrientation.Right: return parentRotation + 90;
+                    case ModuleOrientation.Rear: return parentRotation + 180;
+                }
+            }
+        }
+
         public static ShipModule CreateTemplate(UniverseState us, ShipModule_XMLTemplate template)
         {
             return new ShipModule(us, template);
@@ -1069,7 +1085,7 @@ namespace Ship_Game.Ships
             {
                 string assaultShuttle = Parent.Loyalty.GetAssaultShuttleName();
                 ship = Ship.CreateTroopShipAtPoint(Parent.Universe, assaultShuttle, Parent.Loyalty, 
-                    Position, troop, LaunchPlan.Hangar);
+                    Position, troop, LaunchPlan.Hangar, rotationDeg: ActualRotationDegrees);
 
                 SetHangarShip(ship);
                 HangarShip.Mothership = Parent;

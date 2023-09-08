@@ -15,6 +15,7 @@ namespace Ship_Game.Ships
         [StarData] float SecondsToZeroX;
         [StarData] float SecondsHalfScale;
         [StarData] float TotalDuration;
+        [StarData] bool DoBarrelRoll;
         [StarData] readonly LaunchPlan LaunchPlan;
         const int DistanceMovementUp = 1000;
         const int MinSecondsToHalfScale = 2;
@@ -57,23 +58,34 @@ namespace Ship_Game.Ships
 
         void SetupHangarLaunch()
         {
+            DoBarrelRoll = ShouldBarrelRoll();
             StartingScale = 0.3f;
             RotationDegX = HangarPlanRotationDegX;
             TotalDuration = (RotationDegX / Owner.RotationRadsPerSecond.ToDegrees()).Clamped(2,5);
         }
 
+        bool ShouldBarrelRoll()
+        {
+            return Owner.DesignRole == RoleName.fighter && Owner.Universe.Random.RollDice(25)
+                || Owner.DesignRole == RoleName.corvette && Owner.Universe.Random.RollDice(10);
+        }
+
+        Vector3 FlashPos => new Vector2(-Owner.Direction * Owner.Radius * Scale * 0.5f + Owner.Position).ToVec3();
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
             Owner.AI.IgnoreCombat = true;
             switch (LaunchPlan)
             {
-                case LaunchPlan.Planet: UpdatePlanetLaunch(timeStep); break;
-                case LaunchPlan.Hangar: UpdateHangarLaunch(timeStep); break;
+                case LaunchPlan.Planet: UpdatePlanetLaunch(timeStep, visibleToPlayer); break;
+                case LaunchPlan.Hangar: UpdateHangarLaunch(timeStep, visibleToPlayer); break;
             }
 
             if (Scale >= 1 && !Owner.IsConstructor && !Owner.IsSupplyShuttle)
+            {
+                Owner.XRotation = 0;
                 Owner.AI.IgnoreCombat = false;
+            }
 
             if (!visibleToPlayer)
                 return;
@@ -95,7 +107,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        void UpdatePlanetLaunch(FixedSimTime timeStep)
+        void UpdatePlanetLaunch(FixedSimTime timeStep, bool visible)
         {
             Owner.YRotation = 0;
             Owner.Rotation = RotationRadZ;
@@ -103,17 +115,26 @@ namespace Ship_Game.Ships
             if (Scale >= 0.5f)
                 RotationDegX = PlanetPlanRotationDegX - ((Scale - 0.5f) / 0.5f * PlanetPlanRotationDegX);
 
+            if (visible && Scale.InRange(0f, 0.25f))
+                Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos, Scale);
+
             if (Scale >= 0.9f)
                 Owner.UpdateThrusters(timeStep, Scale);
         }
 
-        void UpdateHangarLaunch(FixedSimTime timeStep)
+        void UpdateHangarLaunch(FixedSimTime timeStep, bool visible)
         {
-            Owner.YRotation = 0;
+            float relativeDeg = 3.6f / (1-StartingScale);
+            Owner.YRotation = DoBarrelRoll ? ((Scale-StartingScale) * relativeDeg*100).ToRadians() : 0;
             Owner.Rotation = RotationRadZ;
             Scale += timeStep.FixedTime / TotalDuration;
             RotationDegX = HangarPlanRotationDegX - (Scale * HangarPlanRotationDegX);
-            Owner.UpdateThrusters(timeStep, Scale);
+
+            if (Owner.DesignRole is RoleName.fighter or RoleName.colony || Scale >= 0.9f)
+                Owner.UpdateThrusters(timeStep, Scale);
+
+            if (visible && Scale.InRange(StartingScale, StartingScale+0.1f))
+                Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos, Scale);
         }
     }
 
