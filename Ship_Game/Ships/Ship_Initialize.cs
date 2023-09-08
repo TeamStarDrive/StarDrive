@@ -320,11 +320,11 @@ namespace Ship_Game.Ships
         }
 
         // Refactored by RedFox
-        public static Ship CreateShipNearPlanet(UniverseState us, string shipName, Empire owner, Planet p, bool doOrbit)
+        public static Ship CreateShipNearPlanet(UniverseState us, string shipName, Empire owner, Planet p, bool doOrbit, bool initLaunch = true)
         {
             float randomRadius = owner.Random.Float(p.Radius - 100, p.Radius + 100);
             Ship ship = CreateShipAt(us, shipName, owner, p, p.Position.GenerateRandomPointOnCircle(randomRadius, owner.Random), doOrbit);
-            if (ship != null && !ship.IsPlatformOrStation)
+            if (initLaunch && ship != null && !ship.IsPlatformOrStation)
             {
                 float startingRotationZ = (ship.Position.DirectionToTarget(p.Position) * -1).ToDegrees();
                 ship.InitLaunch(LaunchPlan.Planet, startingRotationZ);
@@ -376,7 +376,8 @@ namespace Ship_Game.Ships
             ship.VanityName = "Home Defense";
             ship.UpdateHomePlanet(planet);
             ship.HomePlanet = planet;
-            ship.InitLaunch(LaunchPlan.Planet);
+            float startingRotationZ = (ship.Position.DirectionToTarget(planet.Position) * -1).ToDegrees();
+            ship.InitLaunch(LaunchPlan.Planet, startingRotationZ);
             return ship;
         }
 
