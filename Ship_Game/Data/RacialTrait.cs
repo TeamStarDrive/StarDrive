@@ -83,6 +83,9 @@ namespace Ship_Game
         [StarData] public float ExploreDistanceMultiplier = 1;
         [StarData] public float CreditsPerKilledSlot;
         [StarData] public float PenaltyPerKilledSlot;
+        [StarData] public float ConstructionRateMultiplier = 1; // for constructors
+        [StarData] public float BuilderShipConstructionMultiplier = 1; // for builder ships
+        [StarData] public int ExtraStartingScouts;
 
         // FB - Environment
         [StarData] public PlanetCategory PreferredEnv = PlanetCategory.Terran;
@@ -199,7 +202,6 @@ namespace Ship_Game
                 PassengerBonus += trait.PassengerBonus;
                 ShipCostMod += trait.ShipCostMod;
                 Spiritual += trait.Spiritual;
-                HomeworldFertMod = trait.HomeworldFertMod;
                 HomeworldFertMod += trait.HomeworldFertMod;
                 HomeworldRichMod += trait.HomeworldRichMod;
                 Militaristic += trait.Militaristic;
@@ -207,8 +209,12 @@ namespace Ship_Game
                 Aquatic += trait.Aquatic;
                 CreditsPerKilledSlot += trait.CreditsPerKilledSlot;
                 PenaltyPerKilledSlot += trait.PenaltyPerKilledSlot;
+                ExtraStartingScouts += trait.ExtraStartingScouts; 
 
                 ExploreDistanceMultiplier *= trait.ExploreDistanceMultiplier;
+                ConstructionRateMultiplier *= trait.ConstructionRateMultiplier;
+                BuilderShipConstructionMultiplier *= trait.BuilderShipConstructionMultiplier;
+
                 Prototype += trait.Prototype;
                 EnvTerran *= trait.EnvTerranMultiplier;
                 EnvOceanic *= trait.EnvOceanicMultiplier;

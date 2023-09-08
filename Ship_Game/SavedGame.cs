@@ -24,7 +24,7 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 16;
+        public const int SaveGameVersion = 17;
 
         public bool Verbose;
 

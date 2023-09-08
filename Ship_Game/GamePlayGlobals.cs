@@ -53,7 +53,7 @@ public class GamePlayGlobals
     // multiplier of EMP damage removed from shipyard repair when orbiting a colony
     [StarData] public float BonusColonyEMPRecovery = 5.0f;
     // base repair rate from ship command/engineering modules per SECOND
-    [StarData] public float SelfRepairMultiplier = 1f;
+    [StarData] public float SelfRepairMultiplier = 1f;  
     // +bonus rate based on crew level, 0.2 would be +20% increase per each crew level
     [StarData] public float BonusRepairPerCrewLevel = 0.2f;
     // repair rate modifier for command/engineering self repair when in combat
@@ -62,6 +62,12 @@ public class GamePlayGlobals
     [StarData] public float ShieldPowerMultiplier = 1f;
     // Projectile Hit Points Multiplier
     [StarData] public float ProjectileHitpointsMultiplier = 1f;
+    // Construction Ship Discount for Orbitals build cost
+    [StarData] public float ConstructionShipOrbitalDiscount = 100f;
+    // How much construction the construction module can process per turn 
+    [StarData] public int ConstructionModuleBuildRate = 100;
+    // How much construction Builder ships add when they reach the contructor
+    [StarData] public int BuilderShipConstructionAdded = 100;
 
     // feature flags
     [StarData] public bool UseHullBonuses;
