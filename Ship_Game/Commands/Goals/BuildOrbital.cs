@@ -7,7 +7,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
-
+using System.Linq;
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
@@ -53,30 +53,34 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         void Setup(Planet planetBuildingAt)
         {
+            float structureCost = ToBuild.GetCost(Owner);
             PlanetBuildingAt = planetBuildingAt;
-            IShipDesign constructor = BuildableShip.GetConstructor(Owner);
-
+            IShipDesign constructor = BuildableShip.GetConstructor(Owner, TetherPlanet?.System ?? TargetSystem, ToBuild.GetCost(Owner));
             PlanetBuildingAt.Construction.Enqueue(ToBuild.IsResearchStation || ToBuild.IsShipyard 
                 ? QueueItemType.OrbitalUrgent : QueueItemType.Orbital,
-                ToBuild, constructor, rush: false, this);
+                ToBuild, constructor, structureCost, rush: false, this);
         }
 
         GoalStep OrderDeployOrbital()
         {
-            if (FinishedShip == null)
+            if (!ConstructionShipOk)
                 return GoalStep.GoalFailed; // Ship was removed or destroyed
 
             if (StaticBuildPos == Vector2.Zero && TetherOffset == Vector2.Zero)
                 StaticBuildPos = FindNewOrbitalLocation();
-            FinishedShip.AI.OrderDeepSpaceBuild(this);
+            FinishedShip.AI.OrderDeepSpaceBuild(this, ToBuild.GetCost(Owner), ToBuild.Grid.Radius);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitForDeployment()
         {
-            // FB - must keep this goal until the ship deployed it's structure.
-            // If the goal is not kept, load game construction ships lose the empire goal and get stuck
-            return FinishedShip == null ? GoalStep.GoalComplete : GoalStep.TryAgain;
+            if (!ConstructionShipOk)
+                return GoalStep.GoalComplete;
+
+            if (FinishedShip.Construction.TryConstruct(BuildPosition) && FinishedShip.System != null)
+                FinishedShip.System.TryLaunchBuilderShip(FinishedShip, Owner);
+
+            return GoalStep.TryAgain;
         }
 
         Vector2 FindNewOrbitalLocation()
@@ -114,7 +118,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 Owner.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                     orbital.Position, 1000, Color.LightCyan, 10.0f);
-                if (position.InRadius(orbital.Position, 1000))
+                if (position.InRadius(orbital.Position, 500))
                     return true;
             }
 
@@ -124,7 +128,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         // Checks if a Construction Ship is due to deploy a structure at a point
         bool IsOrbitalPlannedAt(Vector2 position)
         {
-            var ships = Owner.OwnedShips;
+            return Owner.AI.Goals.Any(g => g != this 
+                                           && g is BuildOrbital bo && bo.TetherPlanet == TetherPlanet 
+                                           && g.BuildPosition.InRadius(position, 500));
+
+            /*var ships = Owner.OwnedShips;
             foreach (Ship ship in ships.Filter(s => s.IsConstructor))
             {
                 if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) &&
@@ -137,7 +145,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 }
             }
 
-            return false;
+            return false;*/
         }
+
+        bool ConstructionShipOk => FinishedShip?.Active == true;
     }
 }

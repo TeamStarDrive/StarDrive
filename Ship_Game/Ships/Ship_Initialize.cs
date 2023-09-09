@@ -8,6 +8,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
+using Ship_Game.ExtensionMethods;
 
 namespace Ship_Game.Ships
 {
@@ -272,6 +273,17 @@ namespace Ship_Game.Ships
             SetOrdnance(Ordinance);
         }
 
+        public static Ship CreateShipAtShipyard(UniverseState us, string shipName, Empire owner, Vector2 position)
+        {
+            Ship ship = CreateShipAtPoint(us, shipName, owner, position);
+            if (ship != null)
+            {
+                float facing = owner.Random.RollDice(50) ? 135 : 315;
+                ship.InitLaunch(LaunchPlan.ShipyardBig, facing);
+            }
+            return ship;
+        }
+
         public static Ship CreateShipAtPoint(UniverseState us, string shipName, Empire owner, Vector2 position)
         {
             Ship template = GetShipTemplate(shipName);
@@ -300,9 +312,9 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        public static Ship CreateShipAt(UniverseState us, string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
+        public static Ship CreateShipAt(UniverseState us, string shipName, Empire owner, Planet p, Vector2 pos, bool doOrbit)
         {
-            Ship ship = CreateShipAtPoint(us, shipName, owner, p.Position + deltaPos);
+            Ship ship = CreateShipAtPoint(us, shipName, owner, pos);
             if (ship != null)
             {
                 if (ship.IsPlatformOrStation || ship.IsShipyard)
@@ -319,9 +331,14 @@ namespace Ship_Game.Ships
         }
 
         // Refactored by RedFox
-        public static Ship CreateShipNearPlanet(UniverseState us, string shipName, Empire owner, Planet p, bool doOrbit)
+        public static Ship CreateShipNearPlanet(UniverseState us, string shipName, Empire owner, Planet p, bool doOrbit, bool initLaunch = true)
         {
-            return CreateShipAt(us, shipName, owner, p, owner.Random.Vector2D(300), doOrbit);
+            float randomRadius = owner.Random.Float(p.Radius - 100, p.Radius + 100);
+            Ship ship = CreateShipAt(us, shipName, owner, p, p.Position.GenerateRandomPointOnCircle(randomRadius, owner.Random), doOrbit);
+            if (initLaunch && ship != null && !ship.IsPlatformOrStation)
+                ship.InitLaunch(LaunchPlan.Planet, p);
+
+            return ship;
         }
 
         // Hangar Ship Creation
@@ -344,8 +361,7 @@ namespace Ship_Game.Ships
             }
 
             ship.Mothership = parent;
-            ship.Velocity   = parent.Velocity;
-            ship.Direction  = parent.AI.Target != null ? parent.Position.DirectionToTarget(parent.AI.Target.Position) : parent.Direction;
+            ship.InitLaunch(LaunchPlan.Hangar, hangar.ActualRotationDegrees);
 
             if (hangar.IsSupplyBay)
             {
@@ -362,21 +378,43 @@ namespace Ship_Game.Ships
             return ship;
         }
 
+
+
         public static Ship CreateDefenseShip(UniverseState us, string shipName, Empire owner, Vector2 p, Planet planet)
         {
             Ship ship = CreateShipAtPoint(us, shipName, owner, p);
             ship.VanityName = "Home Defense";
             ship.UpdateHomePlanet(planet);
             ship.HomePlanet = planet;
+            ship.InitLaunch(LaunchPlan.Planet, planet);
             return ship;
         }
 
-        public static Ship CreateTroopShipAtPoint(UniverseState us, string shipName, Empire owner, Vector2 point, Troop troop)
+        public static Ship CreateTroopShipAtPoint(UniverseState us, string shipName, Empire owner, 
+            Vector2 point, Troop troop, LaunchPlan launchPlan, float rotationDeg = -1f)
         {
             Ship ship = CreateShipAtPoint(us, shipName, owner, point);
             ship.VanityName = troop.DisplayName;
             troop.LandOnShip(ship);
+            ship.InitLaunch(launchPlan, rotationDeg);
             return ship;
+        }
+
+        // Note - ship with launch plan cannot enter combat until plan is finished.
+        // For testing we have Universe.P.DebugDisableShipLaunch
+        public void InitLaunch(LaunchPlan launchPlan, float startingRotationDegrees = -1f)
+        {
+            if (!Universe.P.DebugDisableShipLaunch)
+                LaunchShip = new(this, launchPlan, startingRotationDegrees);
+        }
+
+        void InitLaunch(LaunchPlan launchPlan, Planet planet)
+        {
+            if (!Universe.P.DebugDisableShipLaunch)
+            {
+                float startingRotationZ = (Position.DirectionToTarget(planet.Position) * -1).ToDegrees();
+                LaunchShip = new(this, launchPlan, startingRotationZ);
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////

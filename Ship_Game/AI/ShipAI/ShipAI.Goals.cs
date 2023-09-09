@@ -8,6 +8,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships.AI;
 using Ship_Game.Universe;
+using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.AI
 {
@@ -137,6 +138,17 @@ namespace Ship_Game.AI
         void AddShipGoal(Plan plan, AIState wantedState, bool pushToFront = false)
         {
             EnqueueOrPush(new ShipGoal(plan, wantedState), pushToFront);
+        }
+
+        void AddShipGoal(Plan plan, Planet targetPlanet, AIState wantedState, Ship targetShip)
+        {
+            EnqueueOrPush(new ShipGoal(plan, targetPlanet, wantedState, targetShip), pushToFront: true);
+        }
+
+        void AddShipGoal(Plan plan, AIState wantedState, Vector2 pos, Planet planet, bool pushToFront = false)
+        {
+            var goal = new ShipGoal(plan, pos, Vectors.Up, planet, null, 0f, "", 0f, wantedState, null);
+            EnqueueOrPush(goal, pushToFront);
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal,
@@ -327,9 +339,9 @@ namespace Ship_Game.AI
                     if (Goal != null)
                         return Goal.MovePosition;
 
-                    // for Orbit plans we don't use Planet.Center
+                    // for Orbit plans we don't use Planet.Position
                     // TODO: There is a mismatch here after save load
-                    if (TargetPlanet != null && Plan != Plan.Orbit)
+                    if (TargetPlanet != null && Plan is not Plan.Orbit and not Plan.BuilderReturnHome)
                         return TargetPlanet.Position;
 
                     return StaticMovePosition;
@@ -377,7 +389,7 @@ namespace Ship_Game.AI
                 WantedState = wantedState;
             }
 
-            public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal,
+             public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal,
                             float speedLimit, string variableString, float variableNumber, AIState wantedState, Ship targetShip)
             {
                 Plan           = plan;
@@ -390,6 +402,14 @@ namespace Ship_Game.AI
                 VariableNumber = variableNumber;
                 WantedState    = wantedState;
                 TargetShip     = targetShip;
+            }
+
+            public ShipGoal(Plan plan, Planet targetPlanet, AIState wantedState, Ship targetShip)
+            {
+                Plan         = plan;
+                TargetPlanet = targetPlanet;
+                WantedState  = wantedState;
+                TargetShip   = targetShip;
             }
 
             public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, 
@@ -538,7 +558,9 @@ namespace Ship_Game.AI
             ResearchStationResearching = 38, // for shipUIinfo display only
             ResearchStationIdle = 39, // for shipUIinfo display only
             ResearchStationNoSupply = 40, // for shipUIinfo display only
-            StandByColonize = 41
+            StandByColonize = 41,
+            BuildOrbital = 42,
+            BuilderReturnHome
         }
     }
 }

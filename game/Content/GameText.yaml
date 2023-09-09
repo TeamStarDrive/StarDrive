@@ -431,9 +431,9 @@ PollutedHomeworld:
  SPA: "Mundo natal contaminado"
 RacesThatHaveBeenFoolish:
  Id: 87
- ENG: "Races that have been foolish enough to heavily pollute their own homeworld have a -0.5 Fertility penalty on their homeworld, making quick colonization a top priority"
- RUS: "Расы, по недомыслию загрязнившие свой родной мир получают -0,5 к плодородию на родной планете, что вынуждает ставить колонизацию на первое место в списке приоритетов развития."
- SPA: "Las razas que han sido tan necias como para contaminar indiscriminadamente sus mundos de origen sufren una penalización de -0,5 en su planeta natal, por lo que la colonización exprés será para ellos una prioridad"
+ ENG: "Races that have been foolish enough to heavily pollute their own homeworld have a -0.35 Fertility penalty on their homeworld, making quick colonization a top priority"
+ RUS: "Расы, по недомыслию загрязнившие свой родной мир получают -0.35 к плодородию на родной планете, что вынуждает ставить колонизацию на первое место в списке приоритетов развития."
+ SPA: "Las razas que han sido tan necias como para contaminar indiscriminadamente sus mundos de origen sufren una penalización de -0.35 en su planeta natal, por lo que la colonización exprés será para ellos una prioridad"
 HugeHomeworld:
  Id: 88
  ENG: "Huge Homeworld"
@@ -6053,8 +6053,8 @@ WasRemovedAsPartOf:
  RUS: "Строительный массив"
 ConstructionModule:
  Id: 1931
- ENG: "This Construction module provides the infrastructure required for building Platforms and Stations in orbit or in deep space."
- RUS: "Этот строительный модуль обеспечивает инфраструктуру, необходимую для создания платформ и станций на орбите или в глубоком космосе."
+ ENG: "This Construction module provides the infrastructure required for building Platforms and Stations in orbit or in deep space. When the construction ship reach the build position, it starts transferring the production needed to build the structure, adding consturction per turn. Several construction arrays will increase the build pace."
+ RUS: "Этот модуль строительства предоставляет инфраструктуру, необходимую для строительства платформ и станций на орбите или в глубоком космосе. Когда строительный корабль достигает позиции сборки, он начинает передавать продукцию, необходимую для строительства конструкции, добавляя строительство за ход. Несколько строительных массивов увеличат темпы строительства."
 ReverseEngineered:
  Id: 1932
  ENG: " was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!"
@@ -10440,6 +10440,39 @@ DisableAlternateTraits:
 DisableAlternateTraitsTip:
  Id: 4442
  ENG: "Disable the ability to create alternate traits sets for AI empires. The AI empires will start with the traits you see when you cycle the races during in the Race Design Screen. Using alternate AI trait sets will create slightly diffrent empires each new game, increasing replayability."
+ConstructionProgressTip:
+ Id: 4443
+ ENG: "Amount of Completed Consturction. The contructor adds construction every turn and if the structure position in in a friendly system, the colonies will launch builder ships to aid the construction efforts. The builder ships do not require more production." 
+AutoPickConstructorsName:
+ Id: 4444
+ ENG: "Auto Pick Constructors"  
+AutoPickConstructorsTip:
+ Id: 4445
+ ENG: "Best constructors for the job will be selected automatically. Generally, if a build job localtion is in a system with friendly colonies, cheaper constructors will be selected since cheap constructors do not add extra production cost to the structure being built in a planet and the colonies can launch Builder Ships to aid the construction efforts."   
+DesignIssueConstructorCostTitle:
+ Id: 4446
+ ENG: "High Constructor Cost"    
+DesignIssueConstructorCostProblem:
+ Id: 4447
+ ENG: "Some of this constructor's cost will be added to the orbital construction production cost. Note: 50% of the constructor production cost will be recycled to the orbital construction on site to speed up constrcution time."    
+DesignIssueConstructorCostRemidiation:
+ Id: 4448
+ ENG: "You my want to lower the cost of this constructor. Excess production cost added to any orbital production cost when this constructor is selected:"     
+Tech_BuilderShipEfficiency:
+ Id: 4961
+ ENG: "Better construction tools alow Builder ships to increase its build rate by 50%"     
+Trait_OrbitalAversion_Name:
+ Id: 4962
+ ENG: "Orbital Aversion"    
+Trait_OrbitalAversion_Desc:
+ Id: 4963
+ ENG: "Your people dislike stationary Space structures and believe they litter their colonies' skies although they do acknowledge their necessity . Their Constructors build orbital structures 50% slower."      
+Trait_OrbitalConstructors_Name:
+ Id: 4964
+ ENG: "Orbital Constructors"    
+Trait_OrbitalConstructors_Desc:
+ Id: 4965
+ ENG: "Orbital Constructors enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
 TraitSalvagersName:
   Id: 4966
   ENG: "Salvagers"   
@@ -10499,7 +10532,7 @@ TraitExplorers_Name:
  ENG: "Explorers"
 TraitExplorers_Desc:
  Id: 4985
- ENG: "Explorer races are very curious and like exploring their surroundings. As a result, the minimum exploration distance required to explore new solar systems and planets is doubled."
+ ENG: "Explorer races are very curious and like exploring their surroundings. As a result, the minimum exploration distance required to explore new solar systems and planets is trippled and you start with 2 extra Scouts."
 TraitAquaticName:
   Id: 4986
   ENG: "Aquatic"   

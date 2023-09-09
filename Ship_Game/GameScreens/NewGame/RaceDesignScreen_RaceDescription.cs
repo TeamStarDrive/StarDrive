@@ -275,8 +275,12 @@ namespace Ship_Game
                 RaceSummary.Aquatic                += trait.Aquatic;
                 RaceSummary.CreditsPerKilledSlot   += trait.CreditsPerKilledSlot;
                 RaceSummary.PenaltyPerKilledSlot   += trait.PenaltyPerKilledSlot;
+                RaceSummary.ExtraStartingScouts    += trait.ExtraStartingScouts;
 
                 RaceSummary.ExploreDistanceMultiplier *= trait.ExploreDistanceMultiplier;
+                RaceSummary.ConstructionRateMultiplier *= trait.ConstructionRateMultiplier;
+                RaceSummary.BuilderShipConstructionMultiplier *= trait.BuilderShipConstructionMultiplier;
+
                 RaceSummary.EnvTerran   *= trait.EnvTerranMultiplier;
                 RaceSummary.EnvOceanic  *= trait.EnvOceanicMultiplier;
                 RaceSummary.EnvSteppe   *= trait.EnvSteppeMultiplier;
