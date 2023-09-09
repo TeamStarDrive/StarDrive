@@ -4511,6 +4511,18 @@ namespace Ship_Game
         DisableAlternateTraits = 4441,
         /// <summary>Disable Alternate AI trait sets</summary>
         DisableAlternateTraitsTip = 4442,
+        /// <summary>Amount of Completed Consturction.</summary>
+        ConstructionProgressTip = 4443,
+        /// <summary>Auto Pick Constructors</summary>
+        AutoPickConstructorsName = 4444,
+        /// <summary>Best constructors for the job will be selected automatically</summary>
+        AutoPickConstructorsTip = 4445,
+        /// <summary>Low Research Time</summary>
+        DesignIssueConstructorCostTitle = 4446,
+        /// <summary>This Research Station does not</summary>
+        DesignIssueConstructorCostProblem = 4447,
+        /// <summary>Add Storage or lower the amount</summary>
+        DesignIssueConstructorCostRemidiation = 4448,
 
 
 

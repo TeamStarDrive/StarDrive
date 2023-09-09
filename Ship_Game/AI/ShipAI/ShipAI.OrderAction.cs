@@ -5,6 +5,7 @@ using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
+using static Ship_Game.AI.ShipAI;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
@@ -144,11 +145,12 @@ namespace Ship_Game.AI
             OrderMoveAndColonize(toColonize, g);
         }
 
-        public void OrderDeepSpaceBuild(DeepSpaceBuildGoal bg)
+        public void OrderDeepSpaceBuild(DeepSpaceBuildGoal bg, float constructionNeeded, float buildRadius)
         {
             ClearOrders(State, priority:true);
             Vector2 pos = bg.BuildPosition;
             Vector2 dir = Owner.Position.DirectionToTarget(pos);
+            Owner.Construction = ConstructionShip.Create(Owner, constructionNeeded, buildRadius);
             if (bg.IsBuildingOrbitalFor(bg.TargetPlanet)) // orbitals for planet defense or research stations
                 AddShipGoal(Plan.DeployOrbital, pos, dir, bg, bg.ToBuild.Name, 0f, AIState.MoveTo);
             else // deep space structures
@@ -598,6 +600,13 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.ReturnHome, AIState.ReturnHome);
         }
 
+        public void OrderBuilderReturnHome(Planet planet)
+        {
+            ClearOrders(priority: true);
+            AddShipGoal(Plan.BuilderReturnHome, AIState.SupplyReturnHome, 
+                planet.GetBuilderShipTargetVector(launch: false, out _), planet, true);
+        }
+
         // Move to closest colony and get back some resources
         public void OrderScrapShip()
         {
@@ -617,6 +626,14 @@ namespace Ship_Game.AI
             //Clearorders wipes stored ordnance data if state is ferrying.
             EscortTarget = supplyTarget;
             AddShipGoal(plan, AIState.Ferrying);
+        }
+
+        public void AddBuildOrbitalGoal(Planet targetPlanet, Ship targetConstructor)
+        {
+            ClearOrders();
+            IgnoreCombat = true;
+            EscortTarget = targetConstructor;
+            AddShipGoal(Plan.BuildOrbital, targetPlanet, AIState.Ferrying, targetConstructor);
         }
 
         public void OrderSystemDefense(SolarSystem system)

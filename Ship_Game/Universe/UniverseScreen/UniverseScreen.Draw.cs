@@ -746,10 +746,13 @@ namespace Ship_Game
                 Ship ship = ships[i];
                 if (ship.InFrustum && ship.InPlayerSensorRange)
                 {
-                    if (!IsCinematicModeEnabled)
-                        DrawTacticalIcon(ship);
+                    if (!ship.IsLaunching)
+                    {
+                        if (!IsCinematicModeEnabled)
+                            DrawTacticalIcon(ship);
 
-                    DrawOverlay(ship);
+                        DrawOverlay(ship);
+                    }
 
                     if (SelectedShip == ship || SelectedShips.Contains(ship))
                     {
@@ -845,7 +848,7 @@ namespace Ship_Game
             if (ship.OnLowAlert || ship.AI.HasPriorityOrder)
             {
                 Color color = Colors.Orders(alpha);
-                if (ship.AI.State == AIState.Ferrying)
+                if (ship.AI.State == AIState.Ferrying && ship.AI.EscortTarget != null)
                 {
                     DrawLineProjected(start, ship.AI.EscortTarget.Position, color);
                     return;

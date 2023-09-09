@@ -47,6 +47,7 @@ namespace Ship_Game.Ships
 
         public Array<ShipModule> BombBays = new();
         [StarData] public CarrierBays Carrier;
+        [StarData] public ConstructionShip Construction;
         [StarData] public ShipResupply Supply;
         public bool ShipStatusChanged;
         public bool IsMeteor { get; private set; }
@@ -134,9 +135,9 @@ namespace Ship_Game.Ships
 
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
         Vector3 DieRotation;
-        private float DieTimer;
+        [StarData] private float DieTimer;
         [StarData] public float BaseStrength;
-        public bool Dying;
+        [StarData] public bool Dying;
 
         /// TRUE if this ship has been completely destroyed, or is displaying its Dying animation
         public bool IsDeadOrDying => !Active || Dying;
@@ -144,7 +145,8 @@ namespace Ship_Game.Ships
         /// TRUE if this ship is Active and not displaying its Dying animation
         public bool IsAlive => Active && !Dying;
 
-        public PlanetCrash PlanetCrash;
+        [StarData] public PlanetCrash PlanetCrash;
+        [StarData] public LaunchShip LaunchShip;
         private bool ReallyDie;
         private bool HasExploded;
         public float TotalDps { get; private set; }
@@ -164,6 +166,8 @@ namespace Ship_Game.Ships
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
         public float MaxWeaponError = 0;
+
+        public bool IsLaunching => LaunchShip != null;
 
         public bool IsDefaultAssaultShuttle => Loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (Loyalty.data.DefaultTroopShip == Name || DesignRole == RoleName.troop);
@@ -214,6 +218,7 @@ namespace Ship_Game.Ships
         }
 
         public bool IsConstructor => ShipData.IsConstructor;
+        public bool IsConstructing => ShipData.IsConstructor && Construction != null;
 
         /// <summary>
         /// Where this is true the force pool add will reject these ships.
@@ -513,12 +518,11 @@ namespace Ship_Game.Ships
                 }
             }
         }
-
         public bool IsOrbiting(Planet p) => AI.IsOrbiting(p);
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar)
+            if (IsResearchStation && !attacker.WeAreRemnants && !attackerToUs.AtWar || IsLaunching)
                 return false; 
 
             if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
@@ -1515,7 +1519,7 @@ namespace Ship_Game.Ships
                 if (PlanetCrash.GetPlanetToCrashOn(this, out Planet planet))
                 {
                     Dying = true;
-                    PlanetCrash = new PlanetCrash(planet, this, Stats.Thrust);
+                    PlanetCrash = new PlanetCrash(planet, this);
                 }
 
                 if (InFrustum)
@@ -1631,6 +1635,7 @@ namespace Ship_Game.Ships
             }
             
             Carrier?.Dispose();
+            Construction?.Dispose();
 
             var slots = ModuleSlotList;
             ModuleSlotList = Empty<ShipModule>.Array;
