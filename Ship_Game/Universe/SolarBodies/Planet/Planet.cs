@@ -779,9 +779,7 @@ namespace Ship_Game
             Ship builderShip;
             if (fromShipyard)
             {
-                float startingRotationZ = launchFrom.DirectionToTarget(targetConstructor.Position).ToDegrees();
-                builderShip = Ship.CreateShipAtPoint(Universe, builderShipName, Owner, launchFrom);
-                builderShip?.InitLaunch(LaunchPlan.Hangar, startingRotationZ);
+                builderShip = Ship.CreateShipAtShipyard(Universe, builderShipName, Owner, launchFrom);
             }
             else
             {
@@ -797,15 +795,16 @@ namespace Ship_Game
 
         public Vector2 GetBuilderShipTargetVector(bool launch, out bool fromShipyard)
         {
+
             fromShipyard= false;
-            if (Owner.Random.RollDice(75))
+            if (Owner.Random.RollDie(1+NumShipyards) > 1)
             {
                 var potentialShipyards = OrbitalStations.Filter(s => s.IsShipyard);
                 if (potentialShipyards.Length > 0)
                 {
                     fromShipyard = true;
                     Vector2 pos = Random.Item(potentialShipyards).Position;
-                    return launch ? pos.GenerateRandomPointInsideCircle(Radius + 50, Owner.Random) : pos;
+                    return launch ? pos.GenerateRandomPointInsideCircle(50, Owner.Random) : pos;
                 }
             }
 
