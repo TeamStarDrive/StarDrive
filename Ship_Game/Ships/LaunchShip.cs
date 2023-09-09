@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
         }
 
         public static Vector3 FlashPos(Ship ship, float scale, float posZ)
-            => new Vector2(-ship.Direction * ship.Radius * scale * 0.3f + ship.Position).ToVec3(posZ+20);
+            => new Vector2(-ship.Direction * ship.Radius * scale * 0.5f + ship.Position).ToVec3(posZ+20);
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
@@ -85,7 +85,7 @@ namespace Ship_Game.Ships
             [StarData] readonly Vector2 Velocity;
             const int MinSecondsToHalfScale = 5;
             const int MaxSecondsToHalfScale = 20;
-            const int StartingPosZ = 1000;
+            const int StartingPosZ = 2000;
             const float PlanetPlanRotationDegX = 75;
 
             public LaunchFromPlanet(Ship ship, float rotation)
@@ -107,7 +107,7 @@ namespace Ship_Game.Ships
                 Owner.YRotation = 0;
                 Owner.RotationDegrees = RotationDegZ;
                 Progress += timeStep.FixedTime / TotalDuration;
-                scale = (Progress * 2).UpperBound(1);
+                scale = Progress.UpperBound(1);
                 posZ = StartingPosZ * (1 - Progress);
 
                 Owner.XRotation = Progress >= 0.5f 
@@ -115,7 +115,7 @@ namespace Ship_Game.Ships
                     : PlanetPlanRotationDegX.ToRadians();
 
                 if (visible && (Progress.InRange(0f, 0.25f) || Progress.InRange(0.48f, 0.52f)))
-                    Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), Progress);
+                    Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), scale);
 
                 if (Progress >= 0.9f)
                     Owner.UpdateThrusters(timeStep, Progress);
