@@ -201,7 +201,11 @@ namespace Ship_Game.Universe.SolarBodies
             if (!ResourceManager.ShipTemplateExists(q.ShipData.Name))
                 return false;
 
-            Ship shipAt = Ship.CreateShipNearPlanet(P.Universe, q.ShipData.Name, Owner, P, true);
+            Vector2 launchPos = P.GetBuilderShipTargetVector(launch: true, out bool fromShipyard);
+
+            Ship shipAt = fromShipyard ? Ship.CreateShipAtShipyard(P.Universe, q.ShipData.Name, Owner, launchPos)
+                                       : Ship.CreateShipNearPlanet(P.Universe, q.ShipData.Name, Owner, P, true);
+
             q.Goal?.ReportShipComplete(shipAt);
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {
@@ -296,10 +300,14 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void Enqueue(QueueItemType type, IShipDesign orbital, IShipDesign constructor, bool rush, Goal goal = null)
+        public void Enqueue(QueueItemType type, IShipDesign orbital, IShipDesign constructor, 
+            float orbitalCost, bool rush, Goal goal = null)
         {
             if (goal != null && goal.PlanetBuildingAt == null)
                 throw new InvalidOperationException($"CQ.Enqueue not allowed if Goal.PlanetBuildingAt is null!");
+
+            float constructorCost = (constructor.GetCost(Owner)
+                - GlobalStats.Defaults.ConstructionShipOrbitalDiscount).LowerBound(0);
 
             var qi = new QueueItem(P)
             {
@@ -309,10 +317,11 @@ namespace Ship_Game.Universe.SolarBodies
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({orbital.Name})",
                 ShipData      = constructor,
-                Cost          = orbital.GetCost(Owner),
+                Cost          = orbitalCost + constructorCost,
                 Rush          = P.Owner.RushAllConstruction || rush,
                 QType         = type
             };
+
             if (goal != null) 
                 goal.PlanetBuildingAt = P;
 
@@ -321,6 +330,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Enqueue(IShipDesign orbitalRefit, IShipDesign constructor, float refitCost, Goal goal, bool rush)
         {
+            float constructorCost = (constructor.GetCost(Owner)
+                - GlobalStats.Defaults.ConstructionShipOrbitalDiscount).LowerBound(0);
+
             var qi = new QueueItem(P)
             {
                 isShip        = true,
@@ -329,7 +341,7 @@ namespace Ship_Game.Universe.SolarBodies
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({orbitalRefit.Name})",
                 ShipData      = constructor,
-                Cost          = refitCost,
+                Cost          = refitCost + constructorCost,
                 Rush          = rush || P.Owner.RushAllConstruction,
                 QType         = QueueItemType.CombatShip
             };

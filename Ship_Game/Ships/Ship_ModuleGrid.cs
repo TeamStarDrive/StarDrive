@@ -255,7 +255,7 @@ namespace Ship_Game.Ships
 
             // does the hit test rectangle overlap the grid at all?
             bool overlapsGrid = firstX < w && lastX >= 0 && firstY < h && lastY >= 0;
-            if (!overlapsGrid)
+            if (!overlapsGrid && !checkShields)
                 yield break;
 
             // clip the rectangle to grid bounds
