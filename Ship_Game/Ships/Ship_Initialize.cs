@@ -277,8 +277,10 @@ namespace Ship_Game.Ships
         {
             Ship ship = CreateShipAtPoint(us, shipName, owner, position);
             if (ship != null)
-                ship.InitLaunch(LaunchPlan.Hangar);
-
+            {
+                float facing = owner.Random.RollDice(50) ? 135 : 315;
+                ship.InitLaunch(LaunchPlan.ShipyardBig, facing);
+            }
             return ship;
         }
 
