@@ -8,8 +8,9 @@ namespace Ship_Game.Ships
     [StarDataType]
     public class LaunchShip
     {
+        [StarData] public bool Done { get; private set; }
         [StarData] readonly Ship Owner;
-        [StarData] public float PosZ;
+        [StarData] float PosZ;
         [StarData] readonly LaunchPlan LaunchPlan;
         [StarData] LaunchFromPlanet PlanetLaunch;
         [StarData] LaunchFromHangar HangarLaunch;
@@ -46,7 +47,13 @@ namespace Ship_Game.Ships
                 case LaunchPlan.Hangar: HangarLaunch.Update(timeStep, visibleToPlayer, ref PosZ); break;
             }
 
-            if (PosZ <= 0)
+            switch (LaunchPlan)
+            {
+                case LaunchPlan.Planet when PlanetLaunch.Done: Done = true; break;
+                case LaunchPlan.Hangar when HangarLaunch.Done: Done = true; break;
+            }
+
+            if (Done)
             {
                 Owner.XRotation = 0;
                 if (!Owner.IsConstructor && !Owner.IsSupplyShuttle)
@@ -120,6 +127,8 @@ namespace Ship_Game.Ships
                 if (Progress >= 0.9f)
                     Owner.UpdateThrusters(timeStep, Progress);
             }
+
+            public bool Done => Progress >= 1f;
         }
 
         [StarDataType]
@@ -152,7 +161,8 @@ namespace Ship_Game.Ships
 
             bool ShouldBarrelRoll()
             {
-                return Owner.DesignRole == RoleName.fighter && Owner.Universe.Random.RollDice(50)
+                return Owner.DesignRole == RoleName.drone && Owner.Universe.Random.RollDice(75)
+                    || Owner.DesignRole == RoleName.fighter && Owner.Universe.Random.RollDice(50)
                     || Owner.DesignRole == RoleName.corvette && Owner.Universe.Random.RollDice(25);
             }
 
@@ -171,6 +181,8 @@ namespace Ship_Game.Ships
                 if (visible && Progress.InRange(InitialProgress, InitialProgress + 0.1f))
                     Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, 1, posZ), Progress);
             }
+
+            public bool Done => Progress >= 1f;
         }
     }
 

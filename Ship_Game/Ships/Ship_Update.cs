@@ -117,7 +117,7 @@ namespace Ship_Game.Ships
                 VelocityMax = 0;
             }
 
-            if (IsHangarShip && !Mothership.Active) //Problematic for drones...
+            if (IsHangarShip && !Mothership.Active) // Hangar ships are scuttled if cannot find a host in die event
                 Mothership = null;
 
             if (!Dying) UpdateAlive(timeStep);
@@ -148,8 +148,12 @@ namespace Ship_Game.Ships
             if (IsLaunching)
             {
                 LaunchShip.Update(visibleToPlayer, timeStep);
-                if (LaunchShip.PosZ <= 0)
+                if (LaunchShip.Done)
+                {
                     LaunchShip = null;
+                    if (IsHangarShip && !Mothership.InCombat)
+                        AI.BackToCarrier();
+                }
             }
 
             else if (visibleToPlayer)
