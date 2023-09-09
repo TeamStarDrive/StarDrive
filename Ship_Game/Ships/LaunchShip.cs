@@ -1,5 +1,4 @@
-﻿using NAudio.Wave;
-using SDGraphics;
+﻿using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Vector3 = SDGraphics.Vector3;
 
