@@ -21,7 +21,7 @@ namespace Ship_Game.Ships
             Owner = owner;
             LaunchPlan = launchPlan;
             float rotationDegZ = startingRotationDegrees.Equals(-1f)
-                ? (45f * ((int)(owner.Universe.StarDate * 10) % 10 % 8))
+                ? owner.Universe.Random.RollDie(360)
                 : (startingRotationDegrees + Owner.Universe.Random.Float(-10, 10));
 
             switch (LaunchPlan)
@@ -115,8 +115,6 @@ namespace Ship_Game.Ships
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
             {
                 Owner.Velocity = Velocity;
-                Owner.YRotation = 0;
-                Owner.RotationDegrees = RotationDegZ;
                 Progress += timeStep.FixedTime / TotalDuration;
                 scale = Progress.UpperBound(1);
                 posZ = StartingPosZ * (1 - Progress);
@@ -129,7 +127,14 @@ namespace Ship_Game.Ships
                     Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), scale);
 
                 if (Progress >= 0.9f)
+                {
                     Owner.UpdateThrusters(timeStep, Progress);
+                }
+                else
+                {
+                    Owner.YRotation = 0;
+                    Owner.RotationDegrees = RotationDegZ;
+                }
             }
 
             public bool Done => Progress >= 1f;
