@@ -778,13 +778,9 @@ namespace Ship_Game
             Vector2 launchFrom = GetBuilderShipTargetVector(launch: true, out bool fromShipyard);
             Ship builderShip;
             if (fromShipyard)
-            {
                 builderShip = Ship.CreateShipAtShipyard(Universe, builderShipName, Owner, launchFrom);
-            }
             else
-            {
                 builderShip = Ship.CreateShipNearPlanet(Universe, builderShipName, Owner, this, doOrbit: false);
-            }
 
             if (builderShip != null)
             {
