@@ -952,7 +952,9 @@ namespace Ship_Game.Gameplay
         void ArmorPiercingTouch(ShipModule victim, Ship parent, Vector2 hitPos)
         {
             // for visual consistency we want to show Projectile at hitPos
-            Position = hitPos;
+            // if the radius is big - adjust the pos accordingly, since if the explosion radius is smaller than
+            // the projectile radius - it will explode with no affect
+            Position = Radius <= 8 ? hitPos : hitPos + hitPos.DirectionToTarget(victim.Position)*Radius;
             Universe.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Color.LightCyan, lifeTime:0.25f);
 
             if (!TryPhaseThroughModule(victim) && Damage(victim))
