@@ -39,6 +39,10 @@ namespace Ship_Game.Ships
         public static Vector3 FlashPos(Ship ship, float scale, float posZ)
             => new Vector2(-ship.Direction * ship.Radius * scale * 0.5f + ship.Position).ToVec3(posZ + 20);
 
+        public static Vector2 StartingVelocity(Ship ship, float rotationDegZ, float randomModifier) 
+            => rotationDegZ.AngleToDirection() * (ship.MaxSTLSpeed * randomModifier).UpperBound(500);
+
+
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
         {
             Owner.AI.IgnoreCombat = true;
@@ -107,9 +111,7 @@ namespace Ship_Game.Ships
                 SecondsHalfPosZ = (StartingPosZ / ship.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
                 SecondsToZeroX = PlanetPlanRotationDegX / ship.RotationRadsPerSecond.ToDegrees().LowerBound(5);
                 TotalDuration = SecondsHalfPosZ + SecondsToZeroX;
-
-                float velRandom = ship.Universe.Random.Float(0.5f, 0.75f);
-                Velocity = RotationDegZ.AngleToDirection() * Owner.MaxSTLSpeed * velRandom;
+                Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(0.5f, 0.75f));
             }
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
@@ -163,9 +165,7 @@ namespace Ship_Game.Ships
                 Progress = InitialProgress;
                 TotalDuration = (InitialRotationDegX / ship.RotationRadsPerSecond.ToDegrees()).Clamped(2, 5);
                 RelativeDegForBarrel = 3.6f / (1 - Progress);
-
-                float velRandom = ship.Universe.Random.Float(1f, 2f);
-                Velocity = RotationDegZ.AngleToDirection() * Owner.MaxSTLSpeed * velRandom;
+                Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(1f, 1.2f));
             }
 
             bool ShouldBarrelRoll()
@@ -212,7 +212,7 @@ namespace Ship_Game.Ships
                 RotationDegZ = rotation;
                 Progress = InitialProgress;
                 float velRandom = ship.Universe.Random.Float(0.5f, 0.8f);
-                Velocity = RotationDegZ.AngleToDirection() * Owner.MaxSTLSpeed * velRandom;
+                Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(0.5f, 0.8f));
                 switch (ship.ShipData.HullRole)
                 {
                     case RoleName.fighter:
