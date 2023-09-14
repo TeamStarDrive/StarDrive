@@ -71,11 +71,10 @@
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <LanguageStandard>stdcpp20</LanguageStandard>
       <DisableSpecificWarnings>4244;4275;4251;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
-      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib;libpng16_static.lib;zlibstatic.lib</AdditionalDependencies>
@@ -98,7 +97,7 @@
       <StringPooling>true</StringPooling>
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <DisableSpecificWarnings>4244;4275;4251;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
