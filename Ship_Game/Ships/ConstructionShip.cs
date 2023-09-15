@@ -10,7 +10,7 @@ namespace Ship_Game.Ships
     [StarDataType]
     public class ConstructionShip  // Created by Fat Bastard in to better deal with consturction ships
     {
-        public const float ConstructingDistance = 50;
+        public const float ConstructingDistance = 200;
 
         [StarData] public readonly float ConstructionNeeded;
         [StarData] public float ConstructionAdded { get; private set; }
