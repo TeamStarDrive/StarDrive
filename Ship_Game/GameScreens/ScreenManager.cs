@@ -378,7 +378,7 @@ namespace Ship_Game
             for (int i = 0; i < screens.Length; ++i)
             {
                 GameScreen screen = screens[i];
-                if (screen.Visible && !screen.IsDisposed)
+                if (screen.Visible && !screen.IsDisposed && screen.DidRunUpdate)
                 {
                     try
                     {

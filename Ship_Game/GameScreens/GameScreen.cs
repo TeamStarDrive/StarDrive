@@ -59,6 +59,9 @@ namespace Ship_Game
         // @return TRUE if content was loaded this frame
         public bool DidLoadContent { get; private set; }
 
+        // TRUE if Update() has been run at least once on this GameScreen
+        public bool DidRunUpdate { get; private set; }
+
         public Viewport Viewport { get; private set; }
         public ScreenManager ScreenManager { get; internal set; }
         public GraphicsDevice Device => ScreenManager.GraphicsDevice;
@@ -378,6 +381,7 @@ namespace Ship_Game
                 GameCursors.SetCurrentCursor(GetCurrentCursor());
             }
 
+            DidRunUpdate = true;
             Update(elapsed.RealTime.Seconds); // Update UIElementV2
         }
 
