@@ -276,6 +276,7 @@ namespace Ship_Game
                 RaceSummary.CreditsPerKilledSlot   += trait.CreditsPerKilledSlot;
                 RaceSummary.PenaltyPerKilledSlot   += trait.PenaltyPerKilledSlot;
                 RaceSummary.ExtraStartingScouts    += trait.ExtraStartingScouts;
+                RaceSummary.ResearchBenefitFromAlliance += trait.ResearchBenefitFromAlliance;
 
                 RaceSummary.ExploreDistanceMultiplier *= trait.ExploreDistanceMultiplier;
                 RaceSummary.ConstructionRateMultiplier *= trait.ConstructionRateMultiplier;

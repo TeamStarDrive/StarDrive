@@ -10458,6 +10458,18 @@ DesignIssueConstructorCostProblem:
 DesignIssueConstructorCostRemidiation:
  Id: 4448
  ENG: "You my want to lower the cost of this constructor. Excess production cost added to any orbital production cost when this constructor is selected:"     
+Trait_Research_Collaborators_Name: 
+ Id: 4957
+ ENG: "Research Collaborators"     
+Trait_Research_Collaborators_Desc: 
+ Id: 4958
+ ENG: "Your Scientists are known for their desire to collaborate and share Research. 15% Research Benefit from each Alliance instead of the normal 10%."       
+Trait_Research_Adversaries_Name: 
+ Id: 4959
+ ENG: "Research Adversaries"     
+Trait_Research_Adversaries_Desc: 
+ Id: 4960
+ ENG: "Your Scientists are known for their ego when collaborating with allies, which disrupts alliance research benefits. 5% Research Benefit from each Alliance instead of the normal 10%."      
 Tech_BuilderShipEfficiency:
  Id: 4961
  ENG: "Better construction tools alow Builder ships to increase its build rate by 50%"     
