@@ -609,7 +609,6 @@
 		<string>Salvagers</string>
 	  </Excludes>
 	</RacialTraitOption>
-	
     <RacialTraitOption>
 	  <!-- Orbital Constructors -->
   	  <TraitName>Orbital Constructors</TraitName>
@@ -634,6 +633,30 @@
 	  	  <string>Orbital Constructors</string>
 	  </Excludes>
     </RacialTraitOption>		
+	  <RacialTraitOption>
+		<!-- Research Collaborators -->
+		<TraitName>Research Collaborators</TraitName>
+		<TraitIndex>4957</TraitIndex>
+		<Category>Sociological</Category>
+		<Cost>2</Cost>
+		<Description>4958</Description>
+		<ResearchBenefitFromAlliance>0.05</ResearchBenefitFromAlliance>
+		<Excludes>
+			<string>Research Adversaries</string>
+		</Excludes>
+	  </RacialTraitOption>	
+	  <RacialTraitOption>
+		<!-- Research Adversaries -->
+		<TraitName>Research Adversaries</TraitName>
+		<TraitIndex>4959</TraitIndex>
+		<Category>Sociological</Category>
+		<Cost>-2</Cost>
+		<Description>4960</Description>
+		<ResearchBenefitFromAlliance>-0.05</ResearchBenefitFromAlliance>
+		<Excludes>
+			<string>Research Collaborators</string>
+		</Excludes>
+	  </RacialTraitOption>		
 
 	
     <!-- Adventure Mode Traits

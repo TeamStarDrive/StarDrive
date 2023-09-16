@@ -86,6 +86,7 @@ namespace Ship_Game
         [StarData] public float ConstructionRateMultiplier = 1; // for constructors
         [StarData] public float BuilderShipConstructionMultiplier = 1; // for builder ships
         [StarData] public int ExtraStartingScouts;
+        [StarData] public float ResearchBenefitFromAlliance;
 
         // FB - Environment
         [StarData] public PlanetCategory PreferredEnv = PlanetCategory.Terran;
@@ -209,7 +210,8 @@ namespace Ship_Game
                 Aquatic += trait.Aquatic;
                 CreditsPerKilledSlot += trait.CreditsPerKilledSlot;
                 PenaltyPerKilledSlot += trait.PenaltyPerKilledSlot;
-                ExtraStartingScouts += trait.ExtraStartingScouts; 
+                ExtraStartingScouts += trait.ExtraStartingScouts;
+                ResearchBenefitFromAlliance += trait.ResearchBenefitFromAlliance;
 
                 ExploreDistanceMultiplier *= trait.ExploreDistanceMultiplier;
                 ConstructionRateMultiplier *= trait.ConstructionRateMultiplier;

@@ -36,6 +36,7 @@ Globals:
   ConstructionShipOrbitalDiscount: 100 # When building orbitals, constructor ship cost over this threshold will be added to the gross orbital cost
   ConstructionModuleBuildRate: 100 # How much consturction the construction module can process per turn   
   BuilderShipConstructionAdded: 100 # How much consturction Builder ships add when they reach the contructor
+  ResearchBenefitFromAlliance: 0.1 # How much research each alliance is giving you (from other party research)  
 
   # feature flags
   DisableShipPicker: true
