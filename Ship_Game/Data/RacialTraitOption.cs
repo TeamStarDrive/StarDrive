@@ -61,6 +61,7 @@ namespace Ship_Game.Data
         public float ConstructionRateMultiplier = 1; // for constructors
         public float BuilderShipConstructionMultiplier = 1; // for builder ships
         public int ExtraStartingScouts;
+        public float ResearchBenefitFromAlliance;
 
         // FB - Environment
         public PlanetCategory PreferredEnv = PlanetCategory.Terran;

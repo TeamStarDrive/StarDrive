@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 
@@ -87,6 +88,25 @@ namespace Ship_Game
                 NetResearch          += planet.Res.NetIncome;
                 MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
+
+            float ResearchFromAlliances = 0;
+            foreach (Empire ally in Empire.Universe.GetAllies(Empire))
+            {
+                if (Empire.isPlayer && ally.DifficultyModifiers.ResearchMod.NotZero())
+                {
+                    float grossResearch = ally.Research.NetResearch / ally.DifficultyModifiers.ResearchMod;
+                    float netMultiplier = ally.data.Traits.ResearchMod / ally.DifficultyModifiers.ResearchMod;
+                    ResearchFromAlliances += grossResearch * netMultiplier;
+                }
+                else
+                {
+                    ResearchFromAlliances += ally.Research.NetResearch;
+                }
+            }
+
+            ResearchFromAlliances *= GlobalStats.Defaults.ResearchBenefitFromAlliance + Empire.data.Traits.ResearchBenefitFromAlliance;
+            NetResearch += ResearchFromAlliances;
+            MaxResearchPotential += ResearchFromAlliances;
         }
 
         public void AddResearchStationResearchPerTurn(float value)
