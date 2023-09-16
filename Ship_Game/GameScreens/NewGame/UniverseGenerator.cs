@@ -213,13 +213,18 @@ namespace Ship_Game.GameScreens.NewGame
             {
                 Empire e = UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);
                 RacialTrait t = e.data.Traits;
-
                 e.data.FlatMoneyBonus += e.DifficultyModifiers.FlatMoneyBonus;
-                t.ProductionMod += e.DifficultyModifiers.ProductionMod;
-                t.ResearchMod += e.DifficultyModifiers.ResearchMod;
-                t.TaxMod += e.DifficultyModifiers.TaxMod;
-                t.ModHpModifier += e.DifficultyModifiers.ModHpModifier;
                 t.ShipCostMod += e.DifficultyModifiers.ShipCostMod;
+
+                if (e.DifficultyModifiers.ProductionMod.NotZero())
+                    t.ProductionMod = (1 + t.ProductionMod) * e.DifficultyModifiers.ProductionMod;
+                if (e.DifficultyModifiers.ResearchMod.NotZero())
+                    t.ResearchMod = (1 + t.ResearchMod) * e.DifficultyModifiers.ResearchMod;
+                if (e.DifficultyModifiers.TaxMod.NotZero())
+                    t.TaxMod = (1 + t.TaxMod) * e.DifficultyModifiers.TaxMod;
+
+                t.ModHpModifier += e.DifficultyModifiers.ModHpModifier;
+
                 t.ResearchTaxMultiplier = e.DifficultyModifiers.ResearchTaxMultiplier; // the "=" here is intended
 
                 step.Advance();

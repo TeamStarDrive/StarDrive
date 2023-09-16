@@ -73,8 +73,8 @@
             TaxMod                 = 0;
             ShipCostMod            = 0;
             TroopCostMod           = 0;
-            ResearchTaxMultiplier  = 0;
             ModHpModifier          = 0;
+            ResearchTaxMultiplier  = 1;
             PlayerWarPriorityLimit = 10;
             switch (difficulty)
             {
@@ -196,6 +196,7 @@
                         ResearchMod    = 1.2f;
                         TaxMod         = 1f;
                         ShipCostMod    = -0.4f;
+                        ModHpModifier  = 0.1f;
                         TroopCostMod   = -0.4f;
                         ResearchTaxMultiplier  = 0.5f;
                         PlayerWarPriorityLimit = 3;
@@ -242,6 +243,7 @@
                         TaxMod                 = 1.5f;
                         ShipCostMod            = -0.6f;
                         TroopCostMod           = -0.6f;
+                        ModHpModifier          = 0.25f;
                         ResearchTaxMultiplier  = 0.3f;
                         PlayerWarPriorityLimit = 2;
                     }

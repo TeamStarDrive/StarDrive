@@ -68,6 +68,8 @@ public class GamePlayGlobals
     [StarData] public int ConstructionModuleBuildRate = 100;
     // How much construction Builder ships add when they reach the contructor
     [StarData] public int BuilderShipConstructionAdded = 100;
+    // How much extra research the empire gets from allies
+    [StarData] public float ResearchBenefitFromAlliance = 0.1f;
 
     // feature flags
     [StarData] public bool UseHullBonuses;
