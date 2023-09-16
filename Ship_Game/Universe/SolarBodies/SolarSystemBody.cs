@@ -562,11 +562,21 @@ namespace Ship_Game
                     GetTraitMax(newOwner.data.Traits.EnemyPlanetInhibitionPercentCounter, ownerTraits.EnemyPlanetInhibitionPercentCounter);
 
                 // Do not add AI difficulty modifiers for the below
-                float realProductionMod = ownerTraits.ProductionMod - oldOwner.DifficultyModifiers.ProductionMod;
-                float realResearchMod   = ownerTraits.ResearchMod - oldOwner.DifficultyModifiers.ResearchMod;
-                float realShipCostMod   = ownerTraits.ShipCostMod - oldOwner.DifficultyModifiers.ShipCostMod;
-                float realModHpModifer  = ownerTraits.ModHpModifier - oldOwner.DifficultyModifiers.ModHpModifier;
-                float realTaxMod        = ownerTraits.TaxMod - oldOwner.DifficultyModifiers.TaxMod;
+                float realProductionMod = Owner.isPlayer && oldOwner.DifficultyModifiers.ProductionMod.NotZero()
+                    ? ownerTraits.ProductionMod/oldOwner.DifficultyModifiers.ProductionMod - 1
+                    : ownerTraits.ProductionMod;
+
+                float realResearchMod = newOwner.isPlayer && oldOwner.DifficultyModifiers.ResearchMod.NotZero()
+                    ? ownerTraits.ResearchMod/oldOwner.DifficultyModifiers.ResearchMod - 1
+                    : ownerTraits.ResearchMod;
+
+                float realTaxMod = newOwner.isPlayer && oldOwner.DifficultyModifiers.TaxMod.NotZero()
+                    ? ownerTraits.TaxMod/oldOwner.DifficultyModifiers.TaxMod - 1 
+                    : ownerTraits.TaxMod;
+
+                float realShipCostMod   = newOwner.isPlayer ? ownerTraits.ShipCostMod - oldOwner.DifficultyModifiers.ShipCostMod : ownerTraits.ShipCostMod;
+                float realModHpModifer  = newOwner.isPlayer ? ownerTraits.ModHpModifier - oldOwner.DifficultyModifiers.ModHpModifier : ownerTraits.ModHpModifier;
+
 
                 newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod); // min
                 newOwner.data.Traits.ProductionMod = GetTraitMax(newOwner.data.Traits.ProductionMod, realProductionMod);
