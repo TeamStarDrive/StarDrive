@@ -58,7 +58,7 @@ namespace Ship_Game
                     CloserToUsClaimWarn   = 0.3f;
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1;
-                    FederationPopRatioWar = 2f;
+                    FederationPopRatioWar = 4f;
                     PopRatioBeforeMerge   = 0.15f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.5f;
@@ -90,7 +90,7 @@ namespace Ship_Game
                     CloserToUsClaimWarn   = 0.5f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.15f;
-                    FederationPopRatioWar = 1.6f;
+                    FederationPopRatioWar = 3.5f;
                     PopRatioBeforeMerge   = 0.15f;
                     DoomFleetThreshold    = 1.5f;
                     AssaultBomberRatio    = 0.75f;
@@ -122,7 +122,7 @@ namespace Ship_Game
                     CloserToUsClaimWarn   = 0.4f;
                     DefenseTaskWeight     = 1;
                     FleetStrMultiplier    = 1.1f;
-                    FederationPopRatioWar = 1.5f;
+                    FederationPopRatioWar = 3.2f;
                     PopRatioBeforeMerge   = 0.125f;
                     DoomFleetThreshold    = 1f;
                     AssaultBomberRatio    = 1;
@@ -154,7 +154,7 @@ namespace Ship_Game
                     CloserToUsClaimWarn   = 0.6f;
                     DefenseTaskWeight     = 1.2f;
                     FleetStrMultiplier    = 1.05f;
-                    FederationPopRatioWar = 1.7f;
+                    FederationPopRatioWar = 4f;
                     PopRatioBeforeMerge   = 0.03f;
                     DoomFleetThreshold    = 1.75f;
                     AllyCallToWarRatio    = 1.1f;
@@ -187,7 +187,7 @@ namespace Ship_Game
                     CloserToUsClaimWarn   = 0.3f;
                     DefenseTaskWeight     = 1.3f;
                     FleetStrMultiplier    = 0.95f;
-                    FederationPopRatioWar = 1.3f;
+                    FederationPopRatioWar = 3f;
                     PopRatioBeforeMerge   = 0.2f;
                     DoomFleetThreshold    = 2;
                     AssaultBomberRatio    = 0.8f;
@@ -219,7 +219,7 @@ namespace Ship_Game
                     CloserToUsClaimWarn   = 0.4f;
                     DefenseTaskWeight     = 1.5f;
                     FleetStrMultiplier    = 1f;
-                    FederationPopRatioWar = 1.45f;
+                    FederationPopRatioWar = 2.5f;
                     PopRatioBeforeMerge   = 0.15f;
                     HullTechMultiplier    = 0.9f;
                     DoomFleetThreshold    = 2.5f;
@@ -251,7 +251,7 @@ namespace Ship_Game
                     CloserToUsClaimWarn   = 0.2f;
                     DefenseTaskWeight     = 2;
                     FleetStrMultiplier    = 0.9f;
-                    FederationPopRatioWar = 1.4f;
+                    FederationPopRatioWar = 2f;
                     PopRatioBeforeMerge   = 0.2f;
                     HullTechMultiplier    = 1f;
                     DoomFleetThreshold    = 3;
