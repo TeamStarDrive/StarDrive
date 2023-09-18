@@ -344,6 +344,7 @@ namespace Ship_Game
         public float PotentialValueFor(Empire e)
         {
             float baseValue = IsResearchable ? 30 : 0;
+            // todo - add mining value
             return baseValue + PlanetList.Sum(p => p.IsResearchable ? 30 : p.ColonyPotentialValue(e));
         }
 
@@ -661,6 +662,11 @@ namespace Ship_Game
         public bool IsAnyKnownPlanetCanBeResearched(Empire player)
         {
             return PlanetList.Any(p => p.IsExploredBy(player) && p.IsResearchable && !p.IsResearchStationDeployedBy(player));
+        }
+
+        public bool IsAnyKnownPlanetCanBeMined(Empire player)
+        {
+            return PlanetList.Any(p => p.IsExploredBy(player) && p.IsMineable && p.Mining.Owner == null);
         }
 
         public Array<Empire> GetKnownOwners(Empire player)

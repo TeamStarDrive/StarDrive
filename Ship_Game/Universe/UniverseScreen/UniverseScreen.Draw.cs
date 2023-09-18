@@ -1034,13 +1034,28 @@ namespace Ship_Game
                     if (planet.RecentCombat)
                     {
                         DrawTextureWithToolTip(icon_fighting_small, Color.White, GameText.IndicatesThatAnAnomalyWas, mousePos,
-                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                               (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
+
                     if (planet.IsResearchable && !planet.IsResearchStationDeployedBy(Player))
                     {
                         DrawTextureWithToolTip(icon_research, Color.White, GameText.ResearchStationCanBePlaced, mousePos,
-                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                               (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
+                        ++drawLocationOffset;
+                    }
+
+                    if (planet.IsMineable)
+                    {
+                        if (!planet.Mining.AreMiningOpsPresent())
+                        {
+                            DrawTextureWithToolTip(Mineable.Icon, Color.White, GameText.MiningStationsCanBePlaced, mousePos,
+                                                   (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
+                            ++drawLocationOffset;
+                        }
+
+                        DrawTextureWithToolTip(planet.Mining.ExoticResourceIcon, Color.White, planet.Mining.ResourceText, mousePos,
+                                               (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
 

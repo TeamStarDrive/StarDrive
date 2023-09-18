@@ -293,6 +293,17 @@ namespace Ship_Game
                                                               : GameText.ResearchStationCanBePlaced);
             }
 
+            if (sys.IsAnyKnownPlanetCanBeMined(Player))
+            {
+                var mining_icon = Mineable.Icon;
+                var miningRect = new RectF(sysPos.X, sysPos.Y, mining_icon.Width, mining_icon.Height);
+                sysPos.X += 20f;
+
+                batch.Draw(mining_icon, miningRect, CurrentFlashColor);
+                if (miningRect.HitTest(Input.CursorPosition))
+                    ToolTip.CreateTooltip(GameText.MiningStationsCanBePlaced);
+            }
+
             if (Player.KnownEnemyStrengthIn(sys) > 0f)
             {
                 var enemyHere = ResourceManager.Texture("Ground_UI/EnemyHere");
