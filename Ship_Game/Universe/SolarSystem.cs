@@ -450,7 +450,7 @@ namespace Ship_Game
                 float randomAngle = random.Float(0f, 360f);
                 string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(ringNum);
                 var p = new Planet(us.CreateId(), random, this, randomAngle, ringRadius, planetName,
-                                   sysMaxRingRadius, owner, null, researchableMultiplier / us.ResearchablePlanetDivisor);
+                                   sysMaxRingRadius, owner, null, researchableMultiplier / us.ExoticPlanetDivisor);
                 PlanetList.Add(p);
                 var ring = new Ring
                 {
@@ -500,7 +500,7 @@ namespace Ship_Game
                 researchableChance += 50;
             }
 
-            if (random.RollDice(percent: researchableChance * researchableMultiplier / us.ResearchablePlanetDivisor))
+            if (random.RollDice(percent: researchableChance * researchableMultiplier / us.ExoticPlanetDivisor))
             {
                 SetResearchable(true, Universe);
                 // Log.Info($"{Name} can be researched");
@@ -543,7 +543,7 @@ namespace Ship_Game
 
                 float randomAngle = random.Float(0f, 360f);
                 var p = new Planet(us.CreateId(), random, this, randomAngle, orbitalDist, ringData.Planet,
-                                   sysMaxRingRadius, owner, ringData, researchableMultiplier / us.ResearchablePlanetDivisor);
+                                   sysMaxRingRadius, owner, ringData, researchableMultiplier / us.ExoticPlanetDivisor);
                 PlanetList.Add(p);
                 RingList.Add(new Ring
                 {

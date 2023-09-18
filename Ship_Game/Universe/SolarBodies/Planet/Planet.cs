@@ -16,6 +16,7 @@ using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI.Budget;
 using Ship_Game.ExtensionMethods;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -74,6 +75,7 @@ namespace Ship_Game
 
         public float TotalRepair; // Total Repair points a planet gives
 
+        [StarData] public Mineable Mining;
         [StarData] public float SensorRange { get; private set; }
         public float ProjectorRange { get; private set; }
         public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
@@ -122,6 +124,7 @@ namespace Ship_Game
         public bool IsCrippled => CrippledTurns > 0 || RecentCombat;
         public bool CanLaunchBuilderShips => !SpaceCombatNearPlanet && NumBuildShipsLaunched < NumBuildShipsCanLaunch;
         public int NumBuildShipsCanLaunchperTurn => NumBuildShipsCanLaunch / 4;
+        public bool IsMineable => Mining != null;
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
             => Troops.GroundStrengthOther(allButThisEmpire);
@@ -317,6 +320,11 @@ namespace Ship_Game
                 {
                     SetResearchable(true, Universe);
                     //Log.Info($"{Name} can be researched");
+                }
+                else if (type.Category == PlanetCategory.GasGiant && random.RollDice(type.MiningChance * researchableMultiplier))
+                {
+                    Mining = new(this);
+                    Log.Info($"{Name} can be mined");
                 }
 
                 InitNewMinorPlanet(random, type, scale);

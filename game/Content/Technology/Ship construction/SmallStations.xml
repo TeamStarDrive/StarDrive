@@ -18,6 +18,9 @@
     <UnlockedMod>
       <ModuleUID>ResearchLab</ModuleUID>
     </UnlockedMod>				
+    <UnlockedMod>
+      <ModuleUID>ProcessingUnit</ModuleUID>
+    </UnlockedMod>		
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />
