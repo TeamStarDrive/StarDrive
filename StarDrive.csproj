@@ -380,6 +380,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetRenderer.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\AtmosphereType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetTypes.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Mineable.cs" />
     <Compile Include="Ship_Game\Universe\UniverseParams.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\BorderNodeCache.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Events.cs" />
