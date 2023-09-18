@@ -10458,6 +10458,27 @@ DesignIssueConstructorCostProblem:
 DesignIssueConstructorCostRemidiation:
  Id: 4448
  ENG: "You my want to lower the cost of this constructor. Excess production cost added to any orbital production cost when this constructor is selected:"     
+ProcessingPerTurnStat:
+ Id: 4449
+ ENG: "Processing Per Turn"      
+ProcessingPerTurnStatTip:
+ Id: 4450
+ ENG: "Most Exotic resources are processed at a ratio of 1 to 1. Some Exotic resources are easier or harder to process."       
+MiningStationProcessingTimeStat:
+ Id: 4451 
+ ENG: "Processing Turns"   
+MiningStationProcessingTimeStatTip:
+ Id: 4452
+ ENG: "Number of turns this Station can process raw exotic resources until Food stocks are depleted."   
+ProcessingModule:
+ Id: 4453
+ ENG: "Processing"    
+ProcessingUnitName:
+ Id: 4955 
+ ENG: "Processing Unit"   
+ProcessingUnitDesc:
+ Id: 4956
+ ENG: "Processing Unit can transfer raw Exotic Resources to refined products which gives empire wide benefits. It also contains a hangar bay for a mining ship which delivers the raw resource to the processing unit."    
 Trait_Research_Collaborators_Name: 
  Id: 4957
  ENG: "Research Collaborators"     

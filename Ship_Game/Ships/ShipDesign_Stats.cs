@@ -25,6 +25,7 @@ public partial class ShipDesign
     public bool IsSupplyShuttle     { get; private set; }
     public bool IsFreighter         { get; private set; }
     public bool IsResearchStation   { get; private set; }
+    public bool IsMiningStation { get; private set; }
     public bool IsCandidateForTradingBuild { get; private set; }
     public bool IsUnitTestShip      { get; private set; }
 
@@ -41,6 +42,7 @@ public partial class ShipDesign
     public float BaseMass       { get; private set; }
     public float BaseCargoSpace { get; private set; }
     public float BaseResearchPerTurn { get; private set; }
+    public float BaseProcessingPerTurn { get; private set; }
     public byte NumConstructionModules { get; private set; }
 
     public Power NetPower;
@@ -81,6 +83,7 @@ public partial class ShipDesign
         float startingColonyGoods = 0f;
         int numBuildingsDeployed = 0;
         float baseResearchPerTurn = 0;
+        float baseProcessingPerTurn = 0;
         byte numConstructionModules = 0;
 
         var mTemplates = new Array<ShipModule>();
@@ -106,6 +109,7 @@ public partial class ShipDesign
             baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
             baseCargoSpace += m.CargoCapacity;
             baseResearchPerTurn += m.ResearchPerTurn;
+            baseProcessingPerTurn += m.ProcessingPerTurn;
 
             if (m.ModuleType == ShipModuleType.Construction)
                 numConstructionModules++;
@@ -147,10 +151,11 @@ public partial class ShipDesign
         BaseMass = baseMass;
         BaseCargoSpace = baseCargoSpace;
         BaseResearchPerTurn = baseResearchPerTurn;
+        BaseProcessingPerTurn = baseProcessingPerTurn;
 
         StartingColonyGoods = startingColonyGoods;
         NumBuildingsDeployed = numBuildingsDeployed;
-        NumConstructionModules= numConstructionModules;
+        NumConstructionModules = numConstructionModules;
 
         Hangars = hangars.ToArray();
         AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
@@ -179,6 +184,7 @@ public partial class ShipDesign
         IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
+        IsMiningStation = IsPlatformOrStation && BaseProcessingPerTurn > 0;
 
         // only enable this flag for non-testing environment
         IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");

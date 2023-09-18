@@ -1,0 +1,35 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FrigateModule>false</FrigateModule>
+  <DestroyerModule>false</DestroyerModule>
+  <CruiserModule>false</CruiserModule>
+  <BattleshipModule>false</BattleshipModule>
+  <CapitalModule>false</CapitalModule>
+  <FreighterModule>false</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  <Cost>150</Cost>
+  <TechLevel>4</TechLevel>
+  <XSize>4</XSize>
+  <YSize>4</YSize>
+  <ModuleType>Special</ModuleType>
+  <Name>Processing unit</Name>
+  <Restrictions>I</Restrictions>
+  <UID>ProcessingUnit</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/Processing_Unit</IconTexturePath>
+  <Mass>150</Mass>
+  <HealthMax>2000</HealthMax>
+  <RepairDifficulty>2</RepairDifficulty>
+  
+  <PowerDraw>75</PowerDraw>
+  <ProcessingPerTurn>2</ProcessingPerTurn>
+  <NameIndex>4955</NameIndex>
+  <DescriptionIndex>4956</DescriptionIndex>
+</ShipModule>

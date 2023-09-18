@@ -110,7 +110,7 @@ namespace Ship_Game.Universe
         [StarData] readonly Array<SolarSystem> SolarSystemList = new();
         [StarData] readonly Array<Planet> AllPlanetsList = new();
         [StarData] public readonly Map<ExplorableGameObject, HashSet<int>> ResearchableSolarBodies = new();
-        //[StarData] public readonly Map<SolarSystem, HashSet<int>> ResearchableStars = new();
+        [StarData] public readonly Array<Planet> MineablePlanets = new();
 
         // TODO: remove PlanetsDict
         [StarData] readonly Map<int, Planet> PlanetsDict = new();
@@ -141,7 +141,7 @@ namespace Ship_Game.Universe
 
         public ShieldManager Shields => Screen.Shields;
 
-        public float ResearchablePlanetDivisor => (P.ExtraPlanets * 0.8f).LowerBound(1);
+        public float ExoticPlanetDivisor => (P.ExtraPlanets * 0.8f).LowerBound(1);
         public float DefaultProjectorRadius;
 
         public readonly RandomBase Random = new ThreadSafeRandom();
@@ -434,6 +434,11 @@ namespace Ship_Game.Universe
                 AllPlanetsList.Add(planet);
                 PlanetsTree.Insert(planet);
             }
+        }
+
+        public void AddMineablePlanet(Planet planet)
+        {
+            MineablePlanets.Add(planet);
         }
 
         public void AddResearchableSolarBody(ExplorableGameObject solarBody)
