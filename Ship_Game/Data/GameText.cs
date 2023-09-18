@@ -4533,6 +4533,8 @@ namespace Ship_Game
         MiningStationProcessingTimeStatTip = 4452,
         /// <summary>Processing</summary>
         ProcessingModule = 4453,
+        /// <summary>Indicates that Mining Stations can</summary>
+        MiningStationsCanBePlaced = 4454,
 
 
 
