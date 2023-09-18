@@ -139,6 +139,7 @@ namespace Ship_Game
         public bool CanBuildStations { get; private set; }
         public bool CanBuildShipyards { get; private set; }
         public bool CanBuildResearchStations { get; private set; }
+        public bool CanBuildMiningStations { get; private set; }
         public float CurrentMilitaryStrength;
         public float OffensiveStrength; // No Orbitals
         [StarData] public LoyaltyLists EmpireShips;
@@ -1172,6 +1173,9 @@ namespace Ship_Game
 
             if (s.IsResearchStation)
                 CanBuildResearchStations= true;
+
+            if (s.IsMiningStation)
+                CanBuildMiningStations= true;
         }
 
         public void ApplyModuleHealthTechBonus(float bonus)
