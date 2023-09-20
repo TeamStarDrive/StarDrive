@@ -144,11 +144,11 @@ public class ShipDesignStats
     public bool HasOrdFinite() => HasOrdnance() && NetOrdnanceUsePerSec > 0;
     public bool HasOrdInfinite() => HasOrdnance() && NetOrdnanceUsePerSec < 0;
     public bool ProducesResearch() => S.ResearchPerTurn> 0;
-    public bool ProcessesResources() => S.ProcessingPerTurn > 0;
+    public bool RefinesResources() => S.TotalRefining > 0;
     public float ResearchTime() => ProducesResearch() 
         ? S.CargoSpaceMax / (S.ResearchPerTurn*GlobalStats.Defaults.ResearchStationProductionPerResearch) : 0;
-    public float ProcessingTime() => ProcessesResources()
-        ? S.CargoSpaceMax / (S.ProcessingPerTurn * GlobalStats.Defaults.MiningStationFoodPerProcess) : 0;
+    public float RefiningTime() => RefinesResources()
+        ? S.CargoSpaceMax*0.5f / (S.TotalRefining * GlobalStats.Defaults.MiningStationFoodPerOneRefining) : 0;
 
     public int CompletionPercent => S?.ShipData.GetCompletionPercent() ?? 0;
 }

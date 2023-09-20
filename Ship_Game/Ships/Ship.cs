@@ -158,7 +158,7 @@ namespace Ship_Game.Ships
         public int TrackingPower;
         public int TargetingAccuracy;
         public float ResearchPerTurn;
-        public float ProcessingPerTurn;
+        public float TotalRefining;
 
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 

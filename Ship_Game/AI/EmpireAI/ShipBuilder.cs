@@ -234,8 +234,8 @@ namespace Ship_Game.AI
                 if (design.IsMiningStation)
                 {
                     potentialMiningStations.Add(design);
-                    if (design.BaseProcessingPerTurn > maxProcessingPerTurn)
-                        maxProcessingPerTurn = design.BaseProcessingPerTurn;
+                    if (design.BaseRefiningPerTurn > maxProcessingPerTurn)
+                        maxProcessingPerTurn = design.BaseRefiningPerTurn;
                 }
             }
 
@@ -243,9 +243,9 @@ namespace Ship_Game.AI
             if (potentialMiningStations.Count > 0)
             {
                 var miningStations = potentialMiningStations.
-                    Filter(s => s.BaseProcessingPerTurn.InRange(maxProcessingPerTurn * 0.8f, maxProcessingPerTurn));
+                    Filter(s => s.BaseRefiningPerTurn.InRange(maxProcessingPerTurn * 0.8f, maxProcessingPerTurn));
 
-                bestMiningStation = miningStations.FindMax(s => s.BaseCargoSpace / s.BaseProcessingPerTurn);
+                bestMiningStation = miningStations.FindMax(s => s.BaseCargoSpace / s.BaseRefiningPerTurn);
             }
 
             if (empire.Universe?.Debug == true)
