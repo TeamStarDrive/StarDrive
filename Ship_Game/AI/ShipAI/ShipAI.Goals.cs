@@ -318,6 +318,12 @@ namespace Ship_Game.AI
             AddShipGoal(plan, AIState.Research);
         }
 
+        public void AddMiningStationPlan(Plan plan)
+        {
+            ClearOrders();
+            AddShipGoal(plan, AIState.Mining);
+        }
+
         Vector2 GetPositionOnPlanet(Planet p)
         {
             return NewMathExt.RandomOffsetAndDistance(p.Position, p.Radius, p.Random);
@@ -557,10 +563,12 @@ namespace Ship_Game.AI
             DropOffGoodsForStation = 37,
             ResearchStationResearching = 38, // for shipUIinfo display only
             ResearchStationIdle = 39, // for shipUIinfo display only
-            ResearchStationNoSupply = 40, // for shipUIinfo display only
+            ExoticStationNoSupply = 40, // for shipUIinfo display only
             StandByColonize = 41,
             BuildOrbital = 42,
-            BuilderReturnHome
+            BuilderReturnHome = 43,
+            MiningStationIdle = 44, // for shipUIinfo display only
+            MiningStationRefining = 45 // for shipUIinfo display only
         }
     }
 }

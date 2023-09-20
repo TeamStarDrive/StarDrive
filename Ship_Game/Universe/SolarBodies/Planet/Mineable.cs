@@ -19,8 +19,8 @@ namespace Ship_Game
         [StarData] public readonly ExoticResource ResourceType;
 
         [StarData] public Empire Owner { get; private set; }
-        [StarData] public float ProcessingRatio { get; private set; }
-        [StarData] public float Richness { get; private set; }
+        [StarData] public float ProcessingRatio { get; private set; } // how much  of the resource is processed per turn
+        [StarData] public float Richness { get; private set; } // how much of the resource is exctracted per turn
 
 
         public LocalizedText ResourceName => new(NameTranslationIndex);
