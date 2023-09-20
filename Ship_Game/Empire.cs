@@ -113,6 +113,7 @@ namespace Ship_Game
         [StarData] public bool AutoColonize;
         [StarData] public bool AutoResearch;
         [StarData] public bool AutoBuildResearchStations;
+        [StarData] public bool AutoBuildMiningStations;
         public int TotalScore;
         public float TechScore;
         public float ExpansionScore;
@@ -152,6 +153,7 @@ namespace Ship_Game
         public IShipDesign BestPlatformWeCanBuild { get; private set; }
         public IShipDesign BestStationWeCanBuild { get; private set; }
         public IShipDesign BestResearchStationWeCanBuild { get; private set; }
+        public IShipDesign BestMiningStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new();
         [StarData] public Vector2 WeightedCenter;
         [StarData] public bool RushAllConstruction;
@@ -169,6 +171,7 @@ namespace Ship_Game
         [StarData] public bool AutoPickConstructors;
         [StarData] public bool AutoBuildTerraformers;
         [StarData] public bool AutoPickBestResearchStation;
+        [StarData] public bool AutoPickBestMiningStation;
         [StarData] public bool SymmetricDesignMode = true;
         [StarData] public Array<string> ObsoletePlayerShipModules;
 
@@ -1141,6 +1144,7 @@ namespace Ship_Game
             BestPlatformWeCanBuild = BestShipWeCanBuild(RoleName.platform, this);
             BestStationWeCanBuild  = BestShipWeCanBuild(RoleName.station, this);
             BestResearchStationWeCanBuild = PickResearchStation(this);
+            BestMiningStationWeCanBuild = PickMiningStation(this);
         }
 
         public void UpdateDefenseShipBuildingOffense()

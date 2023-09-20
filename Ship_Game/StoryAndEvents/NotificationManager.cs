@@ -739,6 +739,17 @@ namespace Ship_Game
             }, "smallservo");
         }
 
+        public void AddMiningStationBuiltNotification(Ship s, Planet planet)
+        {
+            AddNotification(new Notification
+            {
+                Message = $"{planet.System.Name}: {s.Name}" + $" {Localizer.Token(GameText.ResearchStationBuiltPlanetNotify)} {planet.Name}",
+                Action = "SnapToShip",
+                ReferencedItem1 = s,
+                IconPath = s.ShipData.IconPath
+            }, "smallservo");
+        }
+
         public void AddAbortLandNotification(Planet planet, Ship s)
         {
             string message = $"{planet.Name}: {Localizer.Token(GameText.AbortLandPlayerTroopsNoFleet)} {planet.Owner.Name}";

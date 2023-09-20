@@ -133,6 +133,7 @@ namespace Ship_Game
         [StarData] public string CurrentAutoColony    = "";
         [StarData] public string CurrentAutoScout     = "";
         [StarData] public string CurrentConstructor   = "";
+        [StarData] public string CurrentMiningStation = "";
         [StarData] public string CurrentResearchStation = "";
         [StarData] public string DiplomacyDialogPath;
         [StarData] public DTrait DiplomaticPersonality;
@@ -234,6 +235,7 @@ namespace Ship_Game
         [StarData] public string DefaultSupplyShuttle;
 
         [StarData] public string DefaultResearchStation;
+        [StarData] public string DefaultMiningStation;
 
         // FB - Thruster Colors
         [StarData] public byte ThrustColor0R;
@@ -329,6 +331,11 @@ namespace Ship_Game
         public string ResearchStation => CurrentResearchStation.NotEmpty() ? CurrentResearchStation
                                        : DefaultResearchStation.NotEmpty() ? DefaultResearchStation
                                        : "Basic Research Station";
+
+        [XmlIgnore]
+        public string MiningStation => CurrentMiningStation.NotEmpty() ? CurrentMiningStation
+                                       : DefaultMiningStation.NotEmpty() ? DefaultMiningStation
+                                       : "Basic Mining Station";
 
         [XmlIgnore]
         public bool IsCybernetic => Traits.Cybernetic > 0;

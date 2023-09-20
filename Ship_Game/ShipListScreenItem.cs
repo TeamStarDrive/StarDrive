@@ -245,9 +245,23 @@ namespace Ship_Game
                             default:
                             case ShipAI.Plan.ResearchStationResearching: researchStatus = GameText.ResearchPlanResearching; break;
                             case ShipAI.Plan.ResearchStationIdle:        researchStatus = GameText.ResearchPlanIdle;        break;
-                            case ShipAI.Plan.ResearchStationNoSupply:    researchStatus = GameText.ResearchPlanNoSupply;    break;
+                            case ShipAI.Plan.ExoticStationNoSupply:      researchStatus = GameText.ExoticPlanNoSupply;      break;
                         }
                         return Localizer.Token(researchStatus);
+                    }
+                    return "";
+                case AIState.Mining:
+                    if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal mineOrder))
+                    {
+                        GameText miningStatus;
+                        switch (mineOrder.Plan)
+                        {
+                            default:
+                            case ShipAI.Plan.MiningStationRefining: miningStatus = GameText.MiningPlanRefining; break;
+                            case ShipAI.Plan.MiningStationIdle:     miningStatus = GameText.MiningPlanIdle; break;
+                            case ShipAI.Plan.ExoticStationNoSupply: miningStatus = GameText.ExoticPlanNoSupply; break;
+                        }
+                        return Localizer.Token(miningStatus);
                     }
                     return "";
                 case AIState.AttackRunner:

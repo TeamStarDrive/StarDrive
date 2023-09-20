@@ -4482,7 +4482,7 @@ namespace Ship_Game
         /// <summary>Offline - no Research topic</summary>
         ResearchPlanIdle = 4427,
         /// <summary>Offline - waiting for supplies</summary>
-        ResearchPlanNoSupply = 4428,
+        ExoticPlanNoSupply = 4428,
         /// <summary>Research Station Deployed</summary>
         ResearchStationDeployed = 4429,
         /// <summary>Exotic Systems Array</summary>
@@ -4535,6 +4535,12 @@ namespace Ship_Game
         ProcessingModule = 4453,
         /// <summary>Indicates that Mining Stations can</summary>
         MiningStationsCanBePlaced = 4454,
+        /// <summary>Mining Station was deployed in orbit</summary>
+        MiningStationBuiltPlanetNotify = 4455,
+        /// <summary>Offline - waiting for mining ships</summary>
+        MiningPlanIdle = 4456,
+        /// <summary>Refining Exotic Resource</summary>
+        MiningPlanRefining = 4457,
 
 
 

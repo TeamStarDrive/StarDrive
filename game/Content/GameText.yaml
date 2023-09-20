@@ -10391,7 +10391,7 @@ ResearchPlanResearching:
 ResearchPlanIdle:
  Id: 4427
  ENG: "Offline - no Research topic" 
-ResearchPlanNoSupply:
+ExoticPlanNoSupply:
  Id: 4428
  ENG: "Offline - waiting for supplies" 
 ResearchStationDeployed:
@@ -10476,6 +10476,15 @@ ProcessingModule:
 MiningStationsCanBePlaced:
  Id: 4454
  ENG: "Indicates that Mining Stations can be deployed in orbit of this planet."   
+MiningStationBuiltPlanetNotify: 
+ Id: 4455
+ ENG: "(Mining Station) was\ndeployed in orbit of"  
+MiningPlanIdle:
+ Id: 4456
+ ENG: "Offline - waiting for mining ships"  
+MiningPlanRefining:
+ Id: 4457
+ ENG: "Refining Exotic Resource"  
 ProcessingUnitName:
  Id: 4955 
  ENG: "Processing Unit"   

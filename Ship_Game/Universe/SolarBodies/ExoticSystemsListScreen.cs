@@ -77,7 +77,7 @@ namespace Ship_Game
 
                 foreach (Planet p in system.PlanetList)
                 {
-                    if (p.IsResearchable && p.IsExploredBy(Player))
+                    if (p.IsResearchable || p.IsMineable && p.IsExploredBy(Player))
                         ExploredSolarBodies.Add(p);
                 }
             }
