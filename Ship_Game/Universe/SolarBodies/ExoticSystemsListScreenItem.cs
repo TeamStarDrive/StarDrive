@@ -36,6 +36,7 @@ namespace Ship_Game
         UIButton Research;
         readonly float Distance;
         bool MarkedForResearch;
+        bool MarkedForMining;
         readonly UniverseState Universe;
 
         UITextEntry ResearchTextInfo;
@@ -60,14 +61,22 @@ namespace Ship_Game
             }
 
             Distance = distance / 1000; // Distance from nearest player colony
-            foreach (Goal g in Player.AI.Goals)
+
+
+            if (solarBody.IsResearchable && !solarBody.IsResearchStationDeployedBy(Player))
             {
-                if (solarBody.IsResearchable 
-                    && !solarBody.IsResearchStationDeployedBy(Player)
-                    && g.IsResearchStationGoal(solarBody))
+                foreach (Goal g in Player.AI.Goals)
                 {
-                    MarkedForResearch = true;
+                    if (g.IsResearchStationGoal(solarBody))
+                    {
+                        MarkedForResearch = true;
+                        break;
+                    }
                 }
+            }
+            else if (Planet?.IsMineable == true) // TODO also if not deployed over station limit (5) including ongoing goals
+            {
+                MarkedForMining = true;
             }
         }
 

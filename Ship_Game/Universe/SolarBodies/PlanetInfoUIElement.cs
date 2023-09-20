@@ -225,7 +225,7 @@ namespace Ship_Game
                 Vector2 cursor = new Vector2(Housing.X + 20, Housing.Y + 110);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
                 if (P.IsResearchable)
-                    DrawResearchStaion(batch, mousePos);
+                    DrawResearchStation(batch, mousePos);
 
                 return true;
             }
@@ -349,7 +349,7 @@ namespace Ship_Game
                                                                                     : ButtonHoverColor);
         }
 
-        void DrawResearchStaion(SpriteBatch batch, Vector2 mousePos)
+        void DrawResearchStation(SpriteBatch batch, Vector2 mousePos)
         {
             if (P.IsResearchStationDeployedBy(Player))
                 return;

@@ -54,7 +54,8 @@ namespace Ship_Game.AI
         ProcessResearchStation,
         SupplyGoodsToStation,
         InhibitorInvestigate,
-        RemnantDefendPortal
+        RemnantDefendPortal,
+        MiningOps
     }
 
     public enum GoalStep
@@ -128,6 +129,8 @@ namespace Ship_Game.AI
         public virtual bool IsColonizationGoal(Planet planet) => false;
         /** @return True if this goal is targeting the given solar body for research station */
         public virtual bool IsResearchStationGoal(ExplorableGameObject body) => false;
+        /** @return True if this goal is targeting the given planet for mining station */
+        public virtual bool IsMiningOpsGoal(Planet planet) => false;
         /** @return True if this goal is supplying goods to a station */
         public virtual bool IsSupplyingGoodsToStationStationGoal(Ship ship) => false;
         /** @return True if this goal is building an orbital for this planet */

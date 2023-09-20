@@ -40,6 +40,7 @@ namespace Ship_Game.AI
         ResupplyEscort = 32,
         ReturnHome = 33,
         SupplyReturnHome = 34,
-        Research = 35
+        Research = 35,
+        Mining = 36
     }
 }

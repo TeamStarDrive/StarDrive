@@ -158,7 +158,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (availableProduction <= 0)
             {
-                AddResearchStationPlan(Plan.ResearchStationNoSupply);
+                AddResearchStationPlan(Plan.ExoticStationNoSupply);
                 AddSupplyDeficit(TotalProductionConsumedPerTurn);
                 return;
             }

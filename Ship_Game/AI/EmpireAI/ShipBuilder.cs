@@ -216,6 +216,44 @@ namespace Ship_Game.AI
             return bestResearchStation ?? ResourceManager.Ships.GetDesign(empire.data.ResearchStation, throwIfError: true);
         }
 
+        public static IShipDesign PickMiningStation(Empire empire)
+        {
+            if (empire.isPlayer && !empire.AutoPickBestMiningStation)
+            {
+                if (!empire.CanBuildMiningStations)
+                    return null;
+
+                ResourceManager.Ships.GetDesign(empire.data.CurrentMiningStation, out IShipDesign miningStation);
+                return miningStation;
+            }
+
+            var potentialMiningStations = new Array<IShipDesign>();
+            float maxProcessingPerTurn = 0;
+            foreach (IShipDesign design in empire.ShipsWeCanBuild)
+            {
+                if (design.IsMiningStation)
+                {
+                    potentialMiningStations.Add(design);
+                    if (design.BaseProcessingPerTurn > maxProcessingPerTurn)
+                        maxProcessingPerTurn = design.BaseProcessingPerTurn;
+                }
+            }
+
+            IShipDesign bestMiningStation = null;
+            if (potentialMiningStations.Count > 0)
+            {
+                var miningStations = potentialMiningStations.
+                    Filter(s => s.BaseProcessingPerTurn.InRange(maxProcessingPerTurn * 0.8f, maxProcessingPerTurn));
+
+                bestMiningStation = miningStations.FindMax(s => s.BaseCargoSpace / s.BaseProcessingPerTurn);
+            }
+
+            if (empire.Universe?.Debug == true)
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {bestMiningStation?.Name ?? empire.data.ResearchStation}");
+
+            return bestMiningStation ?? ResourceManager.Ships.GetDesign(empire.data.ResearchStation, throwIfError: true);
+        }
+
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)
         {
             float maxKFTL  = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
