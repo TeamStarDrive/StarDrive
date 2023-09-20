@@ -188,7 +188,7 @@ namespace Ship_Game.Ships
         public bool DisableRotation              => Flyweight.DisableRotation;
         public float AmplifyShields              => Flyweight.AmplifyShields;
         public float ResearchPerTurn             => Flyweight.ResearchPerTurn;
-        public float ProcessingPerTurn           => Flyweight.ProcessingPerTurn;
+        public float Refining                    => Flyweight.Refining;
 
         /// <summary>
         /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>

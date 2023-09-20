@@ -29,7 +29,7 @@
   <RepairDifficulty>2</RepairDifficulty>
   
   <PowerDraw>75</PowerDraw>
-  <ProcessingPerTurn>1</ProcessingPerTurn>
+  <Refining>1</Refining>
   <NameIndex>4955</NameIndex>
   <DescriptionIndex>4956</DescriptionIndex>
 </ShipModule>

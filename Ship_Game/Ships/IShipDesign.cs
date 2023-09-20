@@ -115,7 +115,7 @@ public interface IShipDesign
     float BaseMass       { get; }
     float BaseCargoSpace { get; }
     float BaseResearchPerTurn { get; }
-    float BaseProcessingPerTurn { get; }
+    float BaseRefiningPerTurn { get; }
 
     // specific ship type stats
     float StartingColonyGoods { get; }

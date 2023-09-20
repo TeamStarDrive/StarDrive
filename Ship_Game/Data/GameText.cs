@@ -4524,15 +4524,15 @@ namespace Ship_Game
         /// <summary>Add Storage or lower the amount</summary>
         DesignIssueConstructorCostRemidiation = 4448,
         /// <summary>Processing Per Trun</summary>
-        ProcessingPerTurnStat = 4449,
+        RefinningPerTurnStat = 4449,
         /// <summary>Most Exotic resources are processed at</summary>
-        ProcessingPerTurnStatTip = 4450,
+        RefiningPerTurnStatTip = 4450,
         /// <summary>Processing Time (turns)t</summary>
-        MiningStationProcessingTimeStat = 4451,
+        MiningStationRefiningTimeStat = 4451,
         /// <summary>Number of turns this Station can process raw</summary>
-        MiningStationProcessingTimeStatTip = 4452,
+        MiningStationRefiningTimeStatTip = 4452,
         /// <summary>Processing</summary>
-        ProcessingModule = 4453,
+        RefiningModule = 4453,
         /// <summary>Indicates that Mining Stations can</summary>
         MiningStationsCanBePlaced = 4454,
         /// <summary>Mining Station was deployed in orbit</summary>

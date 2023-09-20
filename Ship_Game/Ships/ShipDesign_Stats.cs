@@ -42,7 +42,7 @@ public partial class ShipDesign
     public float BaseMass       { get; private set; }
     public float BaseCargoSpace { get; private set; }
     public float BaseResearchPerTurn { get; private set; }
-    public float BaseProcessingPerTurn { get; private set; }
+    public float BaseRefiningPerTurn { get; private set; }
     public byte NumConstructionModules { get; private set; }
 
     public Power NetPower;
@@ -109,7 +109,7 @@ public partial class ShipDesign
             baseMass += m.Mass; // WARNING: this is the unmodified mass, without any bonuses
             baseCargoSpace += m.CargoCapacity;
             baseResearchPerTurn += m.ResearchPerTurn;
-            baseProcessingPerTurn += m.ProcessingPerTurn;
+            baseProcessingPerTurn += m.Refining;
 
             if (m.ModuleType == ShipModuleType.Construction)
                 numConstructionModules++;
@@ -151,7 +151,7 @@ public partial class ShipDesign
         BaseMass = baseMass;
         BaseCargoSpace = baseCargoSpace;
         BaseResearchPerTurn = baseResearchPerTurn;
-        BaseProcessingPerTurn = baseProcessingPerTurn;
+        BaseRefiningPerTurn = baseProcessingPerTurn;
 
         StartingColonyGoods = startingColonyGoods;
         NumBuildingsDeployed = numBuildingsDeployed;
@@ -184,7 +184,7 @@ public partial class ShipDesign
         IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
         IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
         IsResearchStation = IsPlatformOrStation && BaseResearchPerTurn > 0;
-        IsMiningStation = IsPlatformOrStation && BaseProcessingPerTurn > 0;
+        IsMiningStation = IsPlatformOrStation && BaseRefiningPerTurn > 0;
 
         // only enable this flag for non-testing environment
         IsUnitTestShip = !GlobalStats.IsUnitTest && Name.StartsWith("TEST_");
@@ -246,6 +246,14 @@ public partial class ShipDesign
         { 
             if (Name == e.data.DefaultResearchStation)
                 Log.Error($"{e.Name}: Default Research Station ({Name}) does not have enough cargo of acceptable research time!");
+
+            return false;
+        }
+
+        if (!ShipResupply.HasGoodTotalSupplyForRefining(this))
+        {
+            if (Name == e.data.DefaultMiningStation)
+                Log.Error($"{e.Name}: Default Mining Station ({Name}) does not have enough cargo of acceptable refining time!");
 
             return false;
         }

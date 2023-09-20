@@ -1,9 +1,8 @@
-﻿using System;
-using SDGraphics;
+﻿using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
+using System;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Commands.Goals
@@ -110,7 +109,7 @@ namespace Ship_Game.Commands.Goals
             if (availableConsumables <= 0)
             {
                 AddMiningStationPlan(Plan.ExoticStationNoSupply);
-                AddSupplyDeficit(MiningStation.ProcessingPerTurn);
+                AddSupplyDeficit(MiningStation.TotalRefining);
                 return;
             }
 
@@ -122,15 +121,24 @@ namespace Ship_Game.Commands.Goals
                 return;
             }
 
-            float maximumToRefineByFood = MiningStation.ProcessingPerTurn.UpperBound(availableConsumables);
-            float totalRefined = (maximumToRefineByFood * TargetPlanet.Mining.ProcessingRatio).UpperBound(numRawResources);
+            float maximumRawResources = MiningStation.TotalRefining.UpperBound(numRawResources);
+            float consumablesNeeded = maximumRawResources * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
+            float consumeableRatio = availableConsumables / consumablesNeeded;
+            float rawResourcesToRefine = maximumRawResources * consumeableRatio.UpperBound(1);
+            float consumablesToConsume = rawResourcesToRefine * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
+            float refinedResources = rawResourcesToRefine * TargetPlanet.Mining.RefiningRatio;
+
             InSupplyChain = true;
-            MiningStation.UnloadFood(maximumToRefineByFood);
-            MiningStation.UnloadCargo(RawExotic, totalRefined / TargetPlanet.Mining.ProcessingRatio);
+            if (Owner.NonCybernetic)
+                MiningStation.UnloadFood(consumablesToConsume);
+            else
+                MiningStation.UnloadProduction(consumablesToConsume);
 
-            // TODO - add the totalRefined to the empire exotic resource class
+            MiningStation.UnloadCargo(RawExotic, rawResourcesToRefine);
 
-            AddSupplyDeficit(-maximumToRefineByFood);
+            // TODO - add the refinedResources to the empire exotic resource class
+
+            AddSupplyDeficit(-consumablesToConsume);
             if (MiningStation.AI.OrderQueue.PeekFirst?.Plan != Plan.MiningStationRefining)
                 AddMiningStationPlan(Plan.MiningStationRefining);
         }
