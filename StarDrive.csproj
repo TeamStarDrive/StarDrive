@@ -170,6 +170,7 @@
     <Compile Include="Ship_Game\AI\ThreatMatrix_ClustersGenerator.cs" />
     <Compile Include="Ship_Game\AI\ThreatMatrix_Update.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\MiningOps.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantDefendPortal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\InhibitorInvestigate.cs" />
     <Compile Include="Ship_Game\Commands\Goals\SupplyGoodsToStation.cs" />

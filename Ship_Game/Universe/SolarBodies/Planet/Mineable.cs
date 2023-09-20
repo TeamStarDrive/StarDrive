@@ -19,7 +19,7 @@ namespace Ship_Game
         [StarData] public readonly ExoticResource ResourceType;
 
         [StarData] public Empire Owner { get; private set; }
-        [StarData] public float ProcessingRatio { get; private set; } // how much  of the resource is processed per turn
+        [StarData] public float RefiningRatio { get; private set; } // how much  of the resource is processed per turn
         [StarData] public float Richness { get; private set; } // how much of the resource is exctracted per turn
 
 
@@ -44,7 +44,7 @@ namespace Ship_Game
             planet.Universe.AddMineablePlanet(planet);
             ResourceType = GetRandomResourceType(planet.Universe);
             ExoticResourceStats stats = new ExoticResourceStats(ResourceType);
-            ProcessingRatio = stats.ProcessingRatio;
+            RefiningRatio = stats.RefiningRatio;
             Richness = planet.Universe.Random.RollDie(stats.MaxRichness);
             NameTranslationIndex = stats.NameIndex;
             DescriptionIndex = stats.DescriptionIndex;
@@ -57,7 +57,7 @@ namespace Ship_Game
 
         struct ExoticResourceStats
         {
-            public readonly float ProcessingRatio; // How much is processed per 1 foot in the processing unit module
+            public readonly float RefiningRatio; // How much is processed per 1 foot in the processing unit module
             public readonly byte MaxRichness; // Speed of mining per turn
             public readonly int NameIndex;
             public readonly int DescriptionIndex;
@@ -70,7 +70,7 @@ namespace Ship_Game
                 {
                     default:
                     case ExoticResource.Pulsefield: 
-                        ProcessingRatio = 1;
+                        RefiningRatio = 1;
                         MaxRichness = 10;
                         NameIndex = 4440;
                         DescriptionIndex = 4441;

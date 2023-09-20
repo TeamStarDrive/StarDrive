@@ -24,7 +24,7 @@ namespace Ship_Game.Ships
         public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
         public const int NumTurnsForGoodResearchSupply = 30;
-        public const int NumTurnsForGoodProcessingSupply = 30;
+        public const int NumTurnsForGoodRefiningSupply = 30;
 
         [StarData] readonly Ship Ship;
         [StarData] float IncomingOrdnance;
@@ -47,13 +47,13 @@ namespace Ship_Game.Ships
             return ship.BaseCargoSpace / totalResearchPerTurn >= NumTurnsForGoodResearchSupply;
         }
 
-        public static bool HasGoodTotalSupplyForProcessing(IShipDesign ship)
+        public static bool HasGoodTotalSupplyForRefining(IShipDesign ship)
         {
             if (!ship.IsMiningStation)
                 return true;
 
-            float totalProcessingPerTurn = ship.BaseProcessingPerTurn * GlobalStats.Defaults.MiningStationFoodPerProcess;
-            return ship.BaseCargoSpace / totalProcessingPerTurn >= NumTurnsForGoodProcessingSupply;
+            float totalRefiningPerTurn = ship.BaseRefiningPerTurn * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
+            return ship.BaseCargoSpace*0.5f / totalRefiningPerTurn >= NumTurnsForGoodRefiningSupply;
         }
 
         public static float DamageThreshold(ShipCategory category)
