@@ -4541,6 +4541,14 @@ namespace Ship_Game
         MiningPlanIdle = 4456,
         /// <summary>Refining Exotic Resource</summary>
         MiningPlanRefining = 4457,
+        /// <summary>Deploy Mining Station</summary>
+        DeployMiningStation = 4458,
+        /// <summary>Deploy Mining Station in this planet's</summary>
+        DeployMiningStationTip = 4459,
+        /// <summary>You do not have the required technology to start Mining</summary>
+        CannotBuildMiningStationTip = 4460,
+        /// <summary>Deploy Mining Station in this planet's</summary>
+        CannotDeployMiningStationNotOwnerTip = 4461,
 
 
 
