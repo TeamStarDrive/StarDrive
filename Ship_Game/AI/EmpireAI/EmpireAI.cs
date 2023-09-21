@@ -394,7 +394,7 @@ namespace Ship_Game.AI
             if (stationGoal != null)
                 RemoveGoal(stationGoal);
 
-            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(p));
+            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(p) && g.Build.Template.IsResearchStation);
             if (constructionGoal != null)
             {
                 constructionGoal.FinishedShip?.AI.OrderScrapShip();
