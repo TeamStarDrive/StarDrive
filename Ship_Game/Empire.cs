@@ -2061,7 +2061,7 @@ namespace Ship_Game
             if (fromSave)
                 MilitaryScore = data.MilitaryScoreAverage;
             else
-                MilitaryScore = data.NormalizeMilitaryScore(CurrentMilitaryStrength); // Avoid fluctuations
+                MilitaryScore = HelperFunctions.ExponentialMovingAverage(MilitaryScore, CurrentMilitaryStrength);
 
             TotalScore = (int)(MilitaryScore + IndustrialScore + TechScore + ExpansionScore);
         }
