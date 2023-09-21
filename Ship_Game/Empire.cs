@@ -1809,7 +1809,7 @@ namespace Ship_Game
 
         void CheckFederationVsPlayer(UniverseState us)
         {
-            if (us.P.PreventFederations || us.StarDate < 1100f || (us.StarDate % 1).NotZero())
+            if (us.P.PreventFederations || us.StarDate < 1100f || us.StarDate % 1 > 0)
                 return;
 
             float playerScore    = TotalScore;
@@ -2061,7 +2061,7 @@ namespace Ship_Game
             if (fromSave)
                 MilitaryScore = data.MilitaryScoreAverage;
             else
-                MilitaryScore = data.NormalizeMilitaryScore(CurrentMilitaryStrength); // Avoid fluctuations
+                MilitaryScore = HelperFunctions.ExponentialMovingAverage(MilitaryScore, CurrentMilitaryStrength);
 
             TotalScore = (int)(MilitaryScore + IndustrialScore + TechScore + ExpansionScore);
         }

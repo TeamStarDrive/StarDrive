@@ -41,7 +41,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         GenericButton Trust;
         GenericButton Anger;
-        GenericButton Fear;
+        GenericButton Threat;
 
         GenericButton OurAttitudeBtn_Pleading;
         GenericButton OurAttitudeBtn_Respectful;
@@ -54,7 +54,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         Rectangle TrustRect;
         Rectangle AngerRect;
-        Rectangle FearRect;
+        Rectangle ThreatRect;
         ScreenMediaPlayer RacialVideo;
 
         readonly Empire Them;
@@ -294,11 +294,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             Trust = TAFButton(ref cursor, GameText.Trust, toggleOn: true);
             Anger = TAFButton(ref cursor, GameText.Anger, toggleOn: true);
-            Fear  = TAFButton(ref cursor, GameText.Fear, toggleOn: true);
+            Threat  = TAFButton(ref cursor, GameText.Threat, toggleOn: true);
 
             TrustRect  = new RectF(Portrait.X + 125, Trust.Y + 2, 100, Trust.Height);
             AngerRect  = new RectF(Portrait.X + 125, Anger.Y + 2, 100, Anger.Height);
-            FearRect   = new RectF(Portrait.X + 125, Fear.Y + 2, 100, Fear.Height);
+            ThreatRect   = new RectF(Portrait.X + 125, Threat.Y + 2, 100, Threat.Height);
             DialogRect = new RectF(Portrait.X + 175, Portrait.Bottom - 175, Portrait.Width - 350, 150);
 
             if (ScreenHeight < 820)
@@ -446,13 +446,13 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             DrawBackground(batch);
 
-            // draw Trust/Anger/Fear bar graph
+            // draw Trust/Anger/Threat bar graph
             TrustRect.Width = (int)ThemAndUs.Trust.Clamped(1, 100);
             batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), TrustRect, Color.Green);
             AngerRect.Width = (int)ThemAndUs.TotalAnger.Clamped(1, 100);
             batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), AngerRect, Color.Yellow);
-            FearRect.Width = (int)ThemAndUs.Threat.Clamped(1, 100);
-            batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), FearRect, Color.Red);
+            ThreatRect.Width = (int)ThemAndUs.Threat.Clamped(1, 100);
+            batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), ThreatRect, Color.Red);
 
             DrawAlliesAndWars(batch);
 
@@ -534,7 +534,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         void DrawAlliesAndWars(SpriteBatch batch)
         {
             Font font = Fonts.Arial12Bold;
-            Vector2 cursor = new Vector2(Portrait.X + 40,  FearRect.Y + 50);
+            Vector2 cursor = new Vector2(Portrait.X + 40,  ThreatRect.Y + 50);
             foreach (Empire empire in AlliedEmpiresAtWar)
             {
                 batch.DrawDropShadowText($"They are at war with your ally, {empire.Name}", cursor, font, empire.EmpireColor, 1);
@@ -768,10 +768,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             if (!Visible || !Enabled)
                 return false;
 
-            // tooltips for Trust/Anger/Fear bar graphs
+            // tooltips for Trust/Anger/Threat bar graphs
             if (TrustRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ThisIndicatesHowMuchA);
             if (AngerRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GameText.ThisIndicatesHowAngryA);
-            if (FearRect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(GameText.ThisIndicatesHowMuchA2);
+            if (ThreatRect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(GameText.ThisIndicatesHowMuchA2);
 
             return base.HandleInput(input);
         }
@@ -935,7 +935,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             if (!ThemAndUs.Treaty_Alliance)
             {
-                if (ThemAndUs.TurnsKnown < 50)
+                if (ThemAndUs.TurnsKnown < 50 * Them.Universe.P.Pace)
                     text += GetDialogueByName("Federation_JustMet");
                 else if (ThemAndUs.GetStrength() >= 75f)
                     text += GetDialogueByName("Federation_NoAlliance");
@@ -946,65 +946,59 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             {
                 text += GetDialogueByName("Federation_AllianceTooYoung");
             }
-            else
+            else if (Them.TotalScore > Us.TotalScore * 1.5f && Relationship.Is3RdPartyBiggerThenUs(Us, Them))
             {
-                if (ThemAndUs.TurnsAllied >= ThemAndUs.GetTurnsForFederationWithPlayer(Them))
-                {
-                    if (Them.TotalScore <= Us.TotalScore * 0.75f && ThemAndUs.Threat >= 0f)
+                    var theirWarTargets = new Array<Empire>();
+                    var ourWarTargets = new Array<Empire>();
+
+                    foreach (Relationship rel in Them.AllRelations)
                     {
-                        var theirWarTargets = new Array<Empire>();
-                        var ourWarTargets = new Array<Empire>();
+                        if (!rel.Them.IsFaction && rel.AtWar)
+                            theirWarTargets.Add(rel.Them);
 
-                        foreach (Relationship rel in Them.AllRelations)
+                        if (!rel.Them.IsFaction && rel.GetStrength() > 75f && Us.IsAtWarWith(rel.Them))
                         {
-                            if (!rel.Them.IsFaction && rel.AtWar)
-                                theirWarTargets.Add(rel.Them);
-
-                            if (!rel.Them.IsFaction && rel.GetStrength() > 75f && Us.IsAtWarWith(rel.Them))
-                            {
-                                ourWarTargets.Add(rel.Them);
-                            }
+                            ourWarTargets.Add(rel.Them);
                         }
+                    }
 
-                        if (theirWarTargets.Count > 0)
+                    if (theirWarTargets.Count > 0)
+                    {
+                        // enemy of my enemy is a friend
+                        EmpireToDiscuss = theirWarTargets.FindMax(e => e.TotalScore);
+
+                        if (EmpireToDiscuss != null)
                         {
-                            // enemy of my enemy is a friend
-                            EmpireToDiscuss = theirWarTargets.FindMax(e => e.TotalScore);
-
-                            if (EmpireToDiscuss != null)
+                            text += GetDialogueByName("Federation_Quest_DestroyEnemy");
+                            ThemAndUs.FedQuest = new FederationQuest
                             {
-                                text += GetDialogueByName("Federation_Quest_DestroyEnemy");
-                                ThemAndUs.FedQuest = new FederationQuest
-                                {
-                                    EnemyName = EmpireToDiscuss.data.Traits.Name
-                                };
-                            }
+                                EnemyName = EmpireToDiscuss.data.Traits.Name
+                            };
                         }
-                        else if (ourWarTargets.Count > 0)
-                        {
-                            EmpireToDiscuss = ourWarTargets.FindMax(e => Them.GetRelations(e).GetStrength());
+                    }
+                    else if (ourWarTargets.Count > 0)
+                    {
+                        EmpireToDiscuss = ourWarTargets.FindMax(e => Them.GetRelations(e).GetStrength());
 
-                            if (EmpireToDiscuss != null)
-                            {
-                                text += GetDialogueByName("Federation_Quest_AllyFriend");
-                                ThemAndUs.FedQuest = new FederationQuest
-                                {
-                                    type = QuestType.AllyFriend,
-                                    EnemyName = EmpireToDiscuss.data.Traits.Name
-                                };
-                            }
-                        }
-                        else
+                        if (EmpireToDiscuss != null)
                         {
-                            text += GetDialogueByName("Federation_Accept");
-                            Us.AbsorbEmpire(Them);
+                            text += GetDialogueByName("Federation_Quest_AllyFriend");
+                            ThemAndUs.FedQuest = new FederationQuest
+                            {
+                                type = QuestType.AllyFriend,
+                                EnemyName = EmpireToDiscuss.data.Traits.Name
+                            };
                         }
                     }
                     else
                     {
-                        text += GetDialogueByName("Federation_WeAreTooStrong");
+                        text += GetDialogueByName("Federation_Accept");
+                        Us.AbsorbEmpire(Them);
                     }
-                }
+            }
+            else
+            {
+                text += GetDialogueByName("Federation_WeAreTooStrong");
             }
 
             SetDialogText(text, DialogState.Them);

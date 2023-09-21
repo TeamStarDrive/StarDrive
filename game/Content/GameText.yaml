@@ -1218,9 +1218,9 @@ ThisIndicatesHowAngryA:
  SPA: "Esto indica el nivel de enojo de una raza hacia ti. Se enfadarán si los atacas o les haces demandas poco razonables. También pueden enfadarse si haces amistad con sus enemigos o simplemente porque son una raza enojadiza. "
 ThisIndicatesHowMuchA2:
  Id: 247
- ENG: "This indicates how much a race fears you based on the strength of your military and your deeds. Races that fear you may be willing to give concessions in trade that they may not otherwise give."
- RUS: "Указывает, насколько раса опасается вас, в зависимости от вашей военной мощи и определенных дел. Расы, которые боятся вас, могут пойти на уступки в торговле, которых они бы вам иначе не сделали."
- SPA: "Indica cuánto te teme una raza por tu fuerza militar y tus actuaciones. Las razas que te teman estarán dispuestas, normalmente, a hacer concesiones comerciales que de otra forma no harían."
+ ENG: "This indicates how much your military is stronger than them (in their opinion). High threat might convince races to give concessions in trade that they may not otherwise give."
+ RUS: "Это указывает на то, насколько ваша армия сильнее их (по их мнению). Высокая угроза может убедить расы пойти на уступки в торговле, на которые в противном случае они не могли бы пойти."
+ SPA: "Esto indica cuánto más fuerte es tu ejército que ellos (en su opinión). Una alta amenaza podría convencer a las razas a hacer concesiones en el comercio que de otro modo no harían."
 AddThisItemToThe:
  Id: 249
  ENG: "Add this item to the colony's build queue. Holding Shift will add it 5 times. Holding Ctrl will add it 10 times. The credits cost listed is the final credit cost of this item. The cost will be charged partially, as production progresses."
@@ -3950,11 +3950,11 @@ Anger:
  ENG: "Anger"
  RUS: "Гнев"
  SPA: "Enojo"
-Fear:
+Threat:
  Id: 1206
- ENG: "Fear"
- RUS: "Страх"
- SPA: "Miedo"
+ ENG: "Threat"
+ RUS: "Угроза"
+ SPA: "Amenaza"
 Pleading:
  Id: 1207
  ENG: "Pleading"
@@ -10482,8 +10482,8 @@ Trait_OrbitalAversion_Desc:
 Trait_OrbitalConstructors_Name:
  Id: 4964
  ENG: "Orbital Constructors"    
-Trait_OrbitalConstructors_Desc:
  Id: 4965
+Trait_OrbitalConstructors_Desc:
  ENG: "Orbital Constructors enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
 TraitSalvagersName:
   Id: 4966
