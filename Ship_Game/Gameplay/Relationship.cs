@@ -126,9 +126,9 @@ namespace Ship_Game.Gameplay
         [XmlIgnore] public bool CanMergeWithThem => !RefusedMerge && !DoNotSurrenderToThem;
         [XmlIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
 
-        private readonly int FirstDemand   = 50;
-        public readonly int SecondDemand   = 75;
-        public readonly int TechTradeTurns = 100;
+        private float FirstDemand   => 50 * Them.Universe.P.Pace;
+        public float SecondDemand   =>  75 * Them.Universe.P.Pace;
+        public float TechTradeTurns => 100 * Them.Universe.P.Pace;
 
         /// <summary>
         /// Tech transfer restriction.
@@ -223,8 +223,8 @@ namespace Ship_Game.Gameplay
 
         public float GetTurnsForFederationWithPlayer(Empire us) => TurnsAbove95Federation(us);
 
-        int TurnsAbove95Federation(Empire us) => us.PersonalityModifiers.TurnsAbove95FederationNeeded 
-                                                 * (int)(us.Universe.P.GalaxySize + 1);
+        int TurnsAbove95Federation(Empire us) => (int)(us.PersonalityModifiers.TurnsAbove95FederationNeeded 
+                                                 * (int)(us.Universe.P.GalaxySize + 1) * us.Universe.P.Pace);
         
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
@@ -828,9 +828,10 @@ namespace Ship_Game.Gameplay
 
         void UpdateThreat(Empire us, Empire them)
         {
-            float ourMilScore   = 10 + us.MilitaryScore; // The 2.3 is to reduce fluctuations for small numbers
-            float theirMilScore = 10 + them.MilitaryScore;
-            Threat = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
+            float ourMilScore   = (us.CurrentMilitaryStrength*0.001f).LowerBound(50); 
+            float theirMilScore = (them.CurrentMilitaryStrength*0.001f).LowerBound(50);
+            float newThreat     = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
+            Threat = HelperFunctions.ExponentialMovingAverage(Threat, newThreat, 0.98f);
         }
 
         public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader)
@@ -965,7 +966,7 @@ namespace Ship_Game.Gameplay
 
         void OfferAlliance(Empire us)
         {
-            if (TurnsAbove95 < us.PersonalityModifiers.TurnsAbove95AllianceTreshold
+            if (TurnsAbove95 < us.PersonalityModifiers.TurnsAbove95AllianceTreshold * Them.Universe.P.Pace
                 || turnsSinceLastContact < 100
                 || Treaty_Alliance
                 || !Treaty_Trade
@@ -1029,28 +1030,28 @@ namespace Ship_Game.Gameplay
             turnsSinceLastContact = 0; // Try again after 100 turns
             if ((Trust >= 150 && us.TotalPopBillion < them.TotalPopBillion
                 || Trust >= 100 && us.TotalPopBillion < them.TotalPopBillion / 3)
-                && Is3RdPartyBiggerThenUs())
+                && Is3RdPartyBiggerThenUs(us, them))
             {
                 us.Universe.Notifications.AddPeacefulMergerNotification(us, them);
                 them.AbsorbEmpire(us);
             }
+        }
 
-            bool Is3RdPartyBiggerThenUs()
+        static public bool Is3RdPartyBiggerThenUs(Empire us, Empire them)
+        {
+            float popRatioWar = us.PersonalityModifiers.FederationPopRatioWar;
+            float averageWarsGrade = us.GetAverageWarGrade();
+            foreach (Empire e in us.Universe.ActiveMajorEmpires)
             {
-                float popRatioWar = us.PersonalityModifiers.FederationPopRatioWar;
-                float averageWarsGrade = us.GetAverageWarGrade();
-                foreach (Empire e in us.Universe.ActiveMajorEmpires)
-                {
-                    if (e == us || e == them)
-                        continue;
+                if (e == us || e == them)
+                    continue;
 
-                    float ratio = us.IsAtWarWith(e) && averageWarsGrade < 2.5f ? popRatioWar : 3f;
-                    if (e.TotalPopBillion / us.TotalPopBillion > ratio) // 3rd party is a potential risk
-                        return true;
-                }
-
-                return false;
+                float ratio = us.IsAtWarWith(e) && averageWarsGrade < 2.5f ? popRatioWar : 10f;
+                if (e.TotalPopBillion / us.TotalPopBillion > ratio) // 3rd party is a potential risk
+                    return true;
             }
+
+            return false;
         }
 
         public void OfferMergeOrSurrenderToPlayer(Empire us, string dialogue)
@@ -1486,7 +1487,7 @@ namespace Ship_Game.Gameplay
                     if (us.GetAverageWarGrade() <= us.PersonalityModifiers.WarGradeThresholdForPeace)
                         RequestPeace(us);
 
-                    RequestHelpFromAllies(us, them, FirstDemand);
+                    RequestHelpFromAllies(us, them, 50);
                     break;
                 case Posture.Hostile:
                     AssessDiplomaticAnger(us);
@@ -1516,7 +1517,7 @@ namespace Ship_Game.Gameplay
                     ReferToMilitary(us, threatForInsult: -20, compliment: false);
                     break;
                 case Posture.Hostile when ActiveWar != null:
-                    RequestHelpFromAllies(us, them, FirstDemand);
+                    RequestHelpFromAllies(us, them, 50);
                     break;
                 case
                     Posture.Hostile:
@@ -1554,7 +1555,7 @@ namespace Ship_Game.Gameplay
                     break;
                 case Posture.Hostile when ActiveWar != null:
                     RequestPeace(us);
-                    RequestHelpFromAllies(us, them, FirstDemand);
+                    RequestHelpFromAllies(us, them, 50);
                     break;
                 case Posture.Hostile:
                     theyArePotentialTargets = TheyArePotentialTargetAggressive(us, them);

@@ -412,15 +412,6 @@ namespace Ship_Game
             }
         }
 
-        public float NormalizeMilitaryScore(float currentStr)
-        {
-            // exponential moving average
-            float newRatio = 0.1f;
-            float score = currentStr *= 0.001f;
-            MilitaryScoreAverage = MilitaryScoreAverage*(1f-newRatio) + score*newRatio;
-            return MilitaryScoreAverage;
-        }
-
         void SetTechModifierDefaults()
         {
             // get the original Archetype and create an instance with original defaults
