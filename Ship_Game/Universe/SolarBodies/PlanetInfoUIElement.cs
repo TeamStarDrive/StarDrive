@@ -11,6 +11,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using System.Windows.Forms;
 
 namespace Ship_Game
 {
@@ -25,7 +26,8 @@ namespace Ship_Game
         readonly Rectangle SendTroops;
         readonly Rectangle MarkedRect;
         readonly Rectangle CancelInvasionRect;
-        readonly Rectangle ResearchStationRect;
+        readonly Rectangle ExoticRect;
+        readonly Rectangle ExoticResourceIconRect;
         Rectangle PopRect;
         string PlanetTypeRichness;
         Vector2 PlanetTypeCursor;
@@ -92,7 +94,8 @@ namespace Ship_Game
             SendTroops = new Rectangle(RightRect.X - 17, Housing.Y + 130, 182, 25);
             MarkedRect = new Rectangle(RightRect.X - 17, Housing.Y + 160, 182, 25);
             CancelInvasionRect = MarkedRect; // Replaces the colonization rect when invading
-            ResearchStationRect = SendTroops;
+            ExoticRect = new Rectangle(leftRect.X + 15, Housing.Y + 140, 182, 25);
+            ExoticResourceIconRect = new Rectangle(leftRect.X + 15, Housing.Y + 180, 20, 20);
         }
 
         public override void Update(UpdateTimes elapsed)
@@ -129,6 +132,7 @@ namespace Ship_Game
             }
 
             AddExploredTips();
+            //Empire ownerforPlanetOrMining = 
             batch.DrawString(font, P.Name, namePos, P.Owner?.EmpireColor ?? tColor);
             batch.Draw(ResourceManager.Flag(P.Owner), FlagRect, P.Owner.EmpireColor);
             var cursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65, namePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
@@ -226,6 +230,8 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
                 if (P.IsResearchable)
                     DrawResearchStation(batch, mousePos);
+                else if (P.IsMineable)
+                    DrawMiningOps(namePos, batch, mousePos);
 
                 return true;
             }
@@ -354,9 +360,9 @@ namespace Ship_Game
             if (P.IsResearchStationDeployedBy(Player))
                 return;
 
-            Vector2 textPos = new Vector2(RightRect.X -10, ResearchStationRect.Y + 13 - Font12.LineSpacing / 2 - 2);
+            Vector2 textPos = new Vector2(ExoticRect.X + 13, ExoticRect.Y + 13 - Font12.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture(Player.CanBuildResearchStations ? "NewUI/dan_button_blue_clear" 
-                : "NewUI/dan_button_disabled"), ResearchStationRect, Color.White);
+                : "NewUI/dan_button_disabled"), ExoticRect, Color.White);
 
             LocalizedText tip = Player.CanBuildResearchStations ? GameText.DeployResearchStationTip : GameText.CannotBuildResearchStationTip;
             LocalizedText tipText = GameText.DeployResearchStation;
@@ -366,9 +372,38 @@ namespace Ship_Game
                 tipText = GameText.CancelDeployResearchStation;
             }
 
-            ToolTipItems.Add(new TippedItem(ResearchStationRect, tip));
-            batch.DrawString(Font12, tipText, textPos, Player.CanBuildResearchStations ? ResearchStationRect.HitTest(mousePos) ? ButtonTextColor : ButtonHoverColor
+            ToolTipItems.Add(new TippedItem(ExoticRect, tip));
+            batch.DrawString(Font12, tipText, textPos, Player.CanBuildResearchStations ? ExoticRect.HitTest(mousePos) ? ButtonTextColor : ButtonHoverColor
                                                                                        : Color.Gray);
+        }
+
+        void DrawMiningOps(Vector2 namePos, SpriteBatch batch, Vector2 mousePos)
+        {
+            if (P.Mining.Owner != null)
+            {
+                batch.DrawString(Fonts.Arial8Bold, P.Name, namePos, P.Mining.Owner.EmpireColor);
+                batch.Draw(ResourceManager.Flag(P.Mining.Owner), FlagRect, P.Mining.Owner.EmpireColor);
+            }
+
+            batch.Draw(P.Mining.ExoticResourceIcon, ExoticResourceIconRect);
+            Vector2 resourceStatPos = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y);
+            string stats = $"{P.Mining.ResourceName.Text}: Richness {P.Mining.Richness}, Refine Ratio: {P.Mining.RefiningRatio}";
+            batch.DrawString(Font12, stats, resourceStatPos, Color.White);
+            ToolTipItems.Add(new TippedItem(ExoticResourceIconRect, P.Mining.ResourceDescription));
+            if (P.Mining.Owner != null && P.Mining.Owner != Player)
+                return;
+
+            Vector2 textPos = new Vector2(ExoticRect.X + 13, ExoticRect.Y + 13 - Font12.LineSpacing / 2 - 2);
+            batch.Draw(ResourceManager.Texture(Player.CanBuildMiningStations ? "NewUI/dan_button_clear"
+                : "NewUI/dan_button_disabled"), ExoticRect, Color.White);
+
+            LocalizedText tip = Player.CanBuildMiningStations ? GameText.DeployMiningStationTip : GameText.CannotBuildMiningStationTip;
+            LocalizedText tipText = GameText.DeployMiningStation;
+
+
+            ToolTipItems.Add(new TippedItem(ExoticRect, tip));
+            batch.DrawString(Font12, tipText, textPos, Player.CanBuildMiningStations ? ExoticRect.HitTest(mousePos) ? ButtonTextColor : ButtonHoverColor
+                                                                                     : Color.Gray);
         }
 
         void DrawFertProdStats(SpriteBatch batch)
@@ -462,7 +497,7 @@ namespace Ship_Game
                 else
                     GameAudio.BlipClick();
             }
-            if (P.IsResearchable && ResearchStationRect.HitTest(input.CursorPosition) && input.InGameSelect)
+            if (P.IsResearchable && ExoticRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 if      (Player.AI.HasGoal(g => g.IsResearchStationGoal(P))) Player.AI.CancelResearchStation(P);
                 else if (Player.CanBuildResearchStations)                    Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, P));
@@ -470,10 +505,18 @@ namespace Ship_Game
 
                 GameAudio.EchoAffirmative();
             }
+            else if (P.IsMineable && ExoticRect.HitTest(input.CursorPosition) && input.InGameSelect)
+            {
+                if (P.Mining.CanAddMiningStationFor(Player)) Player.AI.AddGoalAndEvaluate(new MiningOps(Player));
+                else                                         GameAudio.NegativeClick();
+            }
 
-            if (P.Owner != null && P.Owner != Player 
-                                && CancelInvasionRect.HitTest(input.CursorPosition) 
-                                && input.InGameSelect)
+            if (P.Owner != null 
+                && !P.IsResearchable
+                && !P.IsMineable
+                && P.Owner != Player 
+                && CancelInvasionRect.HitTest(input.CursorPosition) 
+                && input.InGameSelect)
             {
                 var shipList = Player.OwnedShips;
                 foreach (Ship ship in shipList)
