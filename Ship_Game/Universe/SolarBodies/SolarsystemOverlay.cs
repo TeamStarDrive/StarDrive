@@ -181,7 +181,7 @@ namespace Ship_Game
                             RectF resourceRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);
                             batch.Draw(p.Mining.ExoticResourceIcon, resourceRect, Universe.CurrentFlashColor);
                             if (resourceRect.HitTest(Universe.Input.CursorPosition))
-                                ToolTip.CreateTooltip(p.Mining.ResourceText);
+                                ToolTip.CreateTooltip(p.Mining.ResourceDescription);
                         }
 
                         if (p.Owner == null)

@@ -1054,7 +1054,7 @@ namespace Ship_Game
                             ++drawLocationOffset;
                         }
 
-                        DrawTextureWithToolTip(planet.Mining.ExoticResourceIcon, Color.White, planet.Mining.ResourceText, mousePos,
+                        DrawTextureWithToolTip(planet.Mining.ExoticResourceIcon, Color.White, planet.Mining.ResourceDescription, mousePos,
                                                (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }

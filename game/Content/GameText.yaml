@@ -10460,16 +10460,16 @@ DesignIssueConstructorCostRemidiation:
  ENG: "You my want to lower the cost of this constructor. Excess production cost added to any orbital production cost when this constructor is selected:"     
 RefinningPerTurnStat:
  Id: 4449
- ENG: "Processing Per Turn"      
+ ENG: "Refining Per Turn"      
 RefiningPerTurnStatTip:
  Id: 4450
- ENG: "Most Exotic resources are refined at a ratio of 1 to 1. Some Exotic resources are easier or harder to refine."       
+ ENG: "Inticates how much Refining this station can handle per turn. Some Exotic resources are easier or harder to refine. You will see this Refine Ration in the Planet Info Screen of Mineable planets."       
 MiningStationRefiningTimeStat:
  Id: 4451 
  ENG: "Processing Turns"   
 MiningStationRefiningTimeStatTip:
  Id: 4452
- ENG: "Number of turns this Station can process raw exotic resources until Food stocks are depleted."   
+ ENG: "Number of turns this Station can refine raw exotic resources until Food stocks are depleted."   
 RefiningModule:
  Id: 4453
  ENG: "Refining"    
@@ -10485,6 +10485,24 @@ MiningPlanIdle:
 MiningPlanRefining:
  Id: 4457
  ENG: "Refining Exotic Resource"  
+DeployMiningStation:
+ Id: 4458 
+ ENG: "Deploy Mining Station"  
+DeployMiningStationTip:
+ Id: 4459 
+ ENG: "Deploy Mining Station in this planet's orbit. Up to 4 Mining Stations can be deployed And there can be only one owner of the Mining Ops per planet."         
+CannotBuildMiningStationTip:
+ Id: 4460 
+ ENG: "You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics."   
+CannotDeployMiningStationNotOwnerTip:
+ Id: 4461 
+ ENG: "You Cannot start Mining Operations here since there is already an owner for these ops."    
+ExoticResourcePulseFieldName:
+ Id: 4953 
+ ENG: "Pulsefield Gas"    
+ExoticResourcePulseFieldDesc:
+ Id: 4954 
+ ENG: "Refined Pulsefield Gas can enhance the recharge if your shields by up to 50%"     
 ProcessingUnitName:
  Id: 4955 
  ENG: "Processing Unit"   

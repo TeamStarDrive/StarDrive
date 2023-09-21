@@ -1,5 +1,6 @@
 ﻿using SDGraphics;
 using SDUtils;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using System;
@@ -12,6 +13,7 @@ namespace Ship_Game
     [StarDataType]
     public class Mineable
     {
+        public const int MaximumMiningStations = 4;
         [StarData] readonly int NameTranslationIndex;
         [StarData] readonly int DescriptionIndex;
         [StarData] readonly string IconName;
@@ -24,9 +26,15 @@ namespace Ship_Game
 
 
         public LocalizedText ResourceName => new(NameTranslationIndex);
-        public LocalizedText ResourceText => new(DescriptionIndex);
+        public LocalizedText ResourceDescription => new(DescriptionIndex);
         public SubTexture ExoticResourceIcon => ResourceManager.Texture($"NewUI/{IconName}");
         public static SubTexture Icon => ResourceManager.Texture($"NewUI/icon_exotic_resource");
+
+        public bool CanAddMiningStationFor(Empire empire) => (Owner == empire || Owner == null) && MiningOpsSize < MaximumMiningStations;
+
+        public bool MiningOpsExistFor(Empire empire) => Owner == empire && MiningOpsSize > 0;
+        int MiningOpsSize => Owner != null ? Owner.AI.CountGoals(g => g.IsMiningOpsGoal(P)) : 0;
+
 
         public bool AreMiningOpsPresentBy(Empire empire)
         {
@@ -72,8 +80,8 @@ namespace Ship_Game
                     case ExoticResource.Pulsefield: 
                         RefiningRatio = 1;
                         MaxRichness = 10;
-                        NameIndex = 4440;
-                        DescriptionIndex = 4441;
+                        NameIndex = 4953;
+                        DescriptionIndex = 4954;
                         Weight = 5;
                         IconName = "Exotic_Pulsefield";
                         return;
