@@ -402,7 +402,7 @@ namespace Ship_Game
 
 
             ToolTipItems.Add(new TippedItem(ExoticRect, tip));
-            batch.DrawString(Font12, tipText, textPos, Player.CanBuildMiningStations ? ExoticRect.HitTest(mousePos) ? ButtonTextColor : ButtonHoverColor
+            batch.DrawString(Font12, tipText, textPos, Player.CanBuildMiningStations ? ExoticRect.HitTest(mousePos) ? Color.Gold : Color.LightYellow
                                                                                      : Color.Gray);
         }
 
@@ -507,8 +507,8 @@ namespace Ship_Game
             }
             else if (P.IsMineable && ExoticRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (P.Mining.CanAddMiningStationFor(Player)) Player.AI.AddGoalAndEvaluate(new MiningOps(Player));
-                else                                         GameAudio.NegativeClick();
+                if (P.Mining.CanAddMiningStationFor(Player)) Player.AI.AddGoalAndEvaluate(new MiningOps(Player, P));
+                else GameAudio.NegativeClick();
             }
 
             if (P.Owner != null 
