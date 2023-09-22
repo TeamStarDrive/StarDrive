@@ -35,6 +35,15 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
+        public MiningOps(Empire owner, Planet planet)
+            : this(owner)
+        {
+            StarDateAdded = owner.Universe.StarDate;
+            TargetPlanet = planet;
+            Owner = owner;
+        }
+
+        // Deep space build orbiting a planet
         public MiningOps(Empire owner, Planet planet, IShipDesign stationToBuild, Vector2 tetherOffset)
             : this(owner)
         {
@@ -51,7 +60,7 @@ namespace Ship_Game.Commands.Goals
             {
                 StationToBuild = !Owner.isPlayer || Owner.AutoPickBestMiningStation
                     ? ShipBuilder.PickResearchStation(Owner) // TODO - create mining station picker
-                    : ResourceManager.Ships.GetDesign(Owner.data.ResearchStation, throwIfError: true); // TODO - do this for mining
+                    : ResourceManager.Ships.GetDesign(Owner.data.MiningStation, throwIfError: true); // TODO - do this for mining
             }
 
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, StationToBuild, out Planet planetToBuildAt, portQuality: 1f))

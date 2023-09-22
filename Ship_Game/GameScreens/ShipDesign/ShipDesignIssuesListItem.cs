@@ -22,8 +22,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             IssueTexture      = Add(new UIPanel(Pos, IssueDetails.Texture));
             IssueTexture.Size = new Vector2(60, 60);
             TitleLabel        = AddIssueLabel(IssueDetails.Title, 150, 65, NormalFont, TextAlign.VerticalCenter, IssueDetails.Color);
-            ProblemLabel      = AddIssueLabel(IssueDetails.Problem, 370, 200, NormalFont, TextAlign.VerticalCenter, White);
-            RemediationLabel  = AddIssueLabel(IssueDetails.Remediation, 370, 560, NormalFont,
+            ProblemLabel      = AddIssueLabel(IssueDetails.Problem, 470, 200, NormalFont, TextAlign.VerticalCenter, White);
+            RemediationLabel  = AddIssueLabel(IssueDetails.Remediation, 470, 660, NormalFont,
                 TextAlign.VerticalCenter, White, IssueDetails.AdditionalText);
         }
 
@@ -48,8 +48,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             int bot            = Rect.Y + Rect.Height;
             var problemTop     = new Vector2(Rect.X + 190, top);
             var problemBot     = new Vector2(Rect.X + 190, bot);
-            var descriptionTop = new Vector2(Rect.X + 550, top);
-            var descriptionBot = new Vector2(Rect.X + 550, bot);
+            var descriptionTop = new Vector2(Rect.X + 650, top);
+            var descriptionBot = new Vector2(Rect.X + 650, bot);
 
             batch.DrawLine(problemTop, problemBot, borderColor);
             batch.DrawLine(descriptionTop, descriptionBot, borderColor);

@@ -253,7 +253,18 @@ namespace Ship_Game.Ships
         public void TransferCargoUponRefit(Ship newship)
         {
             if (IsResearchStation)
+            {
                 newship.LoadProduction(GetProduction());
+            }
+            else if (IsMiningStation)
+            {
+                if (Loyalty.NonCybernetic)
+                    newship.LoadFood(GetFood());
+                else
+                    newship.LoadProduction(GetProduction());
+
+                // TODO - need to transfer raw exotic resource as well
+            }
         }
     }
 }
