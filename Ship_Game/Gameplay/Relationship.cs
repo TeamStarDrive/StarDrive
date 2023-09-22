@@ -828,9 +828,10 @@ namespace Ship_Game.Gameplay
 
         void UpdateThreat(Empire us, Empire them)
         {
-            float ourMilScore   = 10 + us.MilitaryScore; // The 2.3 is to reduce fluctuations for small numbers
-            float theirMilScore = 10 + them.MilitaryScore;
-            Threat = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
+            float ourMilScore   = (us.CurrentMilitaryStrength*0.001f).LowerBound(50); 
+            float theirMilScore = (them.CurrentMilitaryStrength*0.001f).LowerBound(50);
+            float newThreat     = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
+            Threat = HelperFunctions.ExponentialMovingAverage(Threat, newThreat, 0.98f);
         }
 
         public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader)

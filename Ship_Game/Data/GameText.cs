@@ -1629,7 +1629,7 @@ namespace Ship_Game
         /// <summary>Anger</summary>
         Anger = 1205,
         /// <summary>Fear</summary>
-        Fear = 1206,
+        Threat = 1206,
         /// <summary>Pleading</summary>
         Pleading = 1207,
         /// <summary>Threatening</summary>
