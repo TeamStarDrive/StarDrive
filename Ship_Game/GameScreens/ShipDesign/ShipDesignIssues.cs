@@ -538,7 +538,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.SecondaryCarrier, WarningLevel.Informative, rangeText);
         }
 
-        public void CheckLowRsearchTime(float researchTime)
+        public void CheckLowResearchTime(float researchTime)
         {
             if (!Hull.IsResearchStation)
                 return;
@@ -552,7 +552,24 @@ namespace Ship_Game.GameScreens.ShipDesign
             else if (researchTime < minimum * 1.3f)  severity = WarningLevel.Minor;
 
             AddDesignIssue(DesignIssueType.LowResearchTime, severity, 
-                severity == WarningLevel.Critical ? $" {Localizer.Token(GameText.DesignIssueLowResaerchTimeNotGood)}" : "");
+                severity == WarningLevel.Critical ? $" {Localizer.Token(GameText.DesignIssueLowResearchTimeNotGood)}" : "");
+        }
+
+        public void CheckLowRefiningTime(float refiningTime)
+        {
+            if (!Hull.IsMiningStation)
+                return;
+
+            float minimum = ShipResupply.NumTurnsForGoodRefiningSupply;
+            WarningLevel severity = WarningLevel.Informative;
+
+            if (refiningTime > minimum * 1.5) return;
+            else if (refiningTime < minimum) severity = WarningLevel.Critical;
+            else if (refiningTime < minimum * 1.15f) severity = WarningLevel.Major;
+            else if (refiningTime < minimum * 1.3f) severity = WarningLevel.Minor;
+
+            AddDesignIssue(DesignIssueType.LowRefiningTime, severity,
+                severity == WarningLevel.Critical ? $" {Localizer.Token(GameText.DesignIssueLowRefiningTimeNotGood)}" : "");
         }
 
         string GetRangeLaunchText(int maxWeaponRange, out int minLaunchRangeWeapons, out bool usingMinimumCarrierRange)
@@ -698,7 +715,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         SecondaryCarrier,
         OrbitalCarrierHoldPosition,
         LowResearchTime,
-        ConstructorCost
+        ConstructorCost,
+        LowRefiningTime
     }
 
     public enum WarningLevel
@@ -917,9 +935,9 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Texture     = ResourceManager.Texture("NewUI/IssueOrbitalHangarHold");
                     break;
                 case DesignIssueType.LowResearchTime:
-                    Title       = GameText.DesignIssueLowResaerchTimeTitle;
-                    Problem     = GameText.DesignIssueLowResaerchTimeProblem;
-                    Remediation = GameText.DesignIssueLowResaerchTimeRemidiation;
+                    Title       = GameText.DesignIssueLowResearchTimeTitle;
+                    Problem     = GameText.DesignIssueLowResearchTimeProblem;
+                    Remediation = GameText.DesignIssueLowResearchTimeRemidiation;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowResearchTime");
                     break;
                 case DesignIssueType.ConstructorCost:
@@ -927,6 +945,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem     = GameText.DesignIssueConstructorCostProblem;
                     Remediation = GameText.DesignIssueConstructorCostRemidiation;
                     Texture     = ResourceManager.Texture("NewUI/IssueConstructorCost");
+                    break;
+                case DesignIssueType.LowRefiningTime:
+                    Title = GameText.DesignIssueLowRefiningTimeTitle;
+                    Problem = GameText.DesignIssueLowRefiningTimeProblem;
+                    Remediation = GameText.DesignIssueLowRefiningTimeRemidiation;
+                    Texture = ResourceManager.Texture("NewUI/IssueLowRefiingTime");
                     break;
             }
         }

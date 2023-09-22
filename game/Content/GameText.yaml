@@ -10361,16 +10361,16 @@ ResearchStationResearchTimeStatTip:
 ResearchPerTurnModule:
  Id: 4417
  ENG: "Research p/turn"
-DesignIssueLowResaerchTimeTitle:
+DesignIssueLowResearchTimeTitle:
  Id: 4418
  ENG: "Low Research Time"
-DesignIssueLowResaerchTimeProblem:
+DesignIssueLowResearchTimeProblem:
  Id: 4419
  ENG: "This Research Station does not have enough production storage to produce Research for long periods. This might increase traffic of freighters to this Station."
-DesignIssueLowResaerchTimeRemidiation:
+DesignIssueLowResearchTimeRemidiation:
  Id: 4420
  ENG: "Add Storage or lower the amount of Research modules."
-DesignIssueLowResaerchTimeNotGood:
+DesignIssueLowResearchTimeNotGood:
  Id: 4421
  ENG: "Note that if you elected to automate Research Stations picking, this Station would not be used. It is too inefficient." 
 ResearchStationCanBePlaced:
@@ -10496,7 +10496,25 @@ CannotBuildMiningStationTip:
  ENG: "You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics."   
 CannotDeployMiningStationNotOwnerTip:
  Id: 4461 
- ENG: "You Cannot start Mining Operations here since there is already an owner for these ops."    
+ ENG: "You Cannot start Mining Operations here since there is already an owner for these ops."   
+DesignIssueLowRefiningTimeTitle:
+ Id: 4462
+ ENG: "Low Refining Time"
+DesignIssueLowRefiningTimeProblem:
+ Id: 4463
+ ENG: "This Mining Station does not have enough consumption storage to refine exotic resources for long periods. Freighters traffic to this Station might increase. Mining Stations use 50% of the storage for consumption and the rest for storing raw exotic resources."
+DesignIssueLowRefiningTimeRemidiation:
+ Id: 4464
+ ENG: "Add Storage or lower the amount of Refining modules."
+DesignIssueLowRefiningTimeNotGood:
+ Id: 4465
+ ENG: "Note that if you elected to automate mining Stations picking, this Station would not be used. It is too inefficient." 
+
+
+
+
+
+ 
 ExoticResourcePulseFieldName:
  Id: 4953 
  ENG: "Pulsefield Gas"    

@@ -4462,13 +4462,13 @@ namespace Ship_Game
         /// <summary>Research p/turn</summary>
         ResearchPerTurnModule = 4417,
         /// <summary>Low Research Time</summary>
-        DesignIssueLowResaerchTimeTitle = 4418,
+        DesignIssueLowResearchTimeTitle = 4418,
         /// <summary>This Research Station does not</summary>
-        DesignIssueLowResaerchTimeProblem = 4419,
+        DesignIssueLowResearchTimeProblem = 4419,
         /// <summary>Add Storage or lower the amount</summary>
-        DesignIssueLowResaerchTimeRemidiation = 4420,
+        DesignIssueLowResearchTimeRemidiation = 4420,
         /// <summary>Note that if you elected to automate Research</summary>
-        DesignIssueLowResaerchTimeNotGood = 4421,
+        DesignIssueLowResearchTimeNotGood = 4421,
         /// <summary>Indicates that a Research Station can be</summary>
         ResearchStationCanBePlaced = 4422,
         /// <summary>Star - Indicates that a Research Station can be</summary>
@@ -4549,8 +4549,14 @@ namespace Ship_Game
         CannotBuildMiningStationTip = 4460,
         /// <summary>Deploy Mining Station in this planet's</summary>
         CannotDeployMiningStationNotOwnerTip = 4461,
-
-
+        /// <summary>Low Refining Time</summary>
+        DesignIssueLowRefiningTimeTitle = 4462,
+        /// <summary>This Mining Station does not have </summary>
+        DesignIssueLowRefiningTimeProblem = 4463,
+        /// <summary>Add Storage or lower the amount of Refining </summary>
+        DesignIssueLowRefiningTimeRemidiation = 4464,
+        /// <summary>Note that if you elected to automate mining </summary>
+        DesignIssueLowRefiningTimeNotGood = 4465,
 
 
 

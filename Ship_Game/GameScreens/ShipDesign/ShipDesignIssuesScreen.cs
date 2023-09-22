@@ -24,7 +24,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
 
-            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 500, ScreenHeight / 2 - 300, 1000, 540)));
+            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 600, ScreenHeight / 2 - 300, 1200, 540)));
             int x  = (int)Window.X + 20;
             int y  = (int)Window.Y + 70;
             int w  = (int)Window.Width - 30;
@@ -39,11 +39,11 @@ namespace Ship_Game.GameScreens.ShipDesign
             UILabel descriptionLabel = Add(new UILabel("Issue Description", LargeFont, Cream));
             UILabel remediationLabel = Add(new UILabel("Remediation", LargeFont, Cream));
             designIssueLabel.Size    = new Vector2(230, 20);
-            descriptionLabel.Size    = new Vector2(370, 20);
-            remediationLabel.Size    = new Vector2(370, 20);
+            descriptionLabel.Size    = new Vector2(470, 20);
+            remediationLabel.Size    = new Vector2(470, 20);
             designIssueLabel.Pos     = new Vector2(x, y - 10);
             descriptionLabel.Pos     = new Vector2(x + 180, y - 10);
-            remediationLabel.Pos     = new Vector2(x + 550, y - 10);
+            remediationLabel.Pos     = new Vector2(x + 650, y - 10);
             designIssueLabel.TextAlign   = TextAlign.HorizontalCenter;
             descriptionLabel.TextAlign   = TextAlign.HorizontalCenter;
             remediationLabel.TextAlign   = TextAlign.HorizontalCenter;

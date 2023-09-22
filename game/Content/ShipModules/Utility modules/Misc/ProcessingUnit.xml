@@ -28,7 +28,7 @@
   <HealthMax>2000</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
   
-  <PowerDraw>75</PowerDraw>
+  <PowerDraw>500</PowerDraw>
   <Refining>1</Refining>
   <NameIndex>4955</NameIndex>
   <DescriptionIndex>4956</DescriptionIndex>
