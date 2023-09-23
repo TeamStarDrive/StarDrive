@@ -208,6 +208,8 @@ namespace Ship_Game.Ships
 
         public bool Explodes => ExplosionDamage > 0;
 
+        public bool IsMiningBay => Refining > 0;
+
         // used in module selection category
         public bool IsPowerArmor => Is(ShipModuleType.Armor) && !IsBulkhead && (PowerDraw > 0 || PowerFlowMax > 0);
 
@@ -478,6 +480,8 @@ namespace Ship_Game.Ships
             // Also, supply bays get the default supply shuttle
             if (m.IsSupplyBay)
                 m.HangarShipUID = us.Player.GetSupplyShuttleName();
+            else if (m.IsMiningBay)
+                m.HangarShipUID = us.Player.GetMiningShipName();
             else if (m.ModuleType == ShipModuleType.Hangar)
                 m.HangarShipUID = m.IsTroopBay ? us.Player.GetAssaultShuttleName() : hangarShipUID;
 

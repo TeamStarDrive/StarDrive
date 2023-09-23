@@ -39,6 +39,7 @@ namespace Ship_Game.Ships
 
         public const float DefaultHangarRange = 7500;
         public SupplyShuttles SupplyShuttles;
+        [StarData] public MiningBays MiningBays { get; private set; }
         public float HangarRange => HasActiveHangars ? DefaultHangarRange : 0;
         public bool IsPrimaryCarrierRoleForLaunchRange => 
                                             HasActiveHangars &&
@@ -84,6 +85,9 @@ namespace Ship_Game.Ships
             Owner                   = owner;
             SupplyShuttles          = new SupplyShuttles(Owner);
             TroopTactics            = new AssaultShipCombat(owner);
+
+            if (owner?.IsMiningStation == true)
+                MiningBays = new MiningBays(Owner, slots);
         }
 
         [StarDataDeserialized]
@@ -123,9 +127,11 @@ namespace Ship_Game.Ships
             AllSupplyBays = Empty<ShipModule>.Array;
             AllFighterHangars = Empty<ShipModule>.Array;
             AllTransporters = Empty<ShipModule>.Array;
+            MiningBays?.Dispose();
             SupplyShuttles?.Dispose();
             SupplyShuttles = null;
             TroopTactics   = null;
+            MiningBays     = null;
         }
 
         // aggressive dispose looks to cause a crash here. 
@@ -601,7 +607,7 @@ namespace Ship_Game.Ships
             if (hangar.TryGetHangarShip(out _))
                 return false;
 
-            if (hangar.IsSupplyBay || hangar.IsTroopBay ||
+            if (hangar.IsSupplyBay || hangar.IsTroopBay || hangar.IsMiningBay ||
                 hangar.DynamicHangar == DynamicHangarOptions.Static &&
                 empire.CanBuildShip(hangar.HangarShipUID))
             {

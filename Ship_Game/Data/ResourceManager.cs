@@ -2087,6 +2087,7 @@ namespace Ship_Game
                 Assert(e, e.DefaultAssaultShuttle, "DefaultAssaultShuttle");
                 Assert(e, e.DefaultSupplyShuttle,  "DefaultSupplyShuttle", s => s.IsSupplyShuttle, "IsSupplyShuttle");
                 Assert(e, e.DefaultResearchStation, "DefaultResearchStation", s => s.IsResearchStation, "IsResearchStation");
+                Assert(e, e.DefaultMiningShip, "DefaultMiningShip", s => s.BaseCargoSpace > 0, "BaseCargoSpace");
             }
 
             string[] requiredShips =

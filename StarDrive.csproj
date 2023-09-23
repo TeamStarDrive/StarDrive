@@ -345,6 +345,7 @@
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData_LegacyParser.cs" />
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData_WriterParser.cs" />
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipGridInfo.cs" />
+    <Compile Include="Ship_Game\Ships\MiningBays.cs" />
     <Compile Include="Ship_Game\Ships\ModuleGridFlyweight.cs" />
     <Compile Include="Ship_Game\Ships\ModuleGridState.cs" />
     <Compile Include="Ship_Game\Ships\RoleName.cs" />

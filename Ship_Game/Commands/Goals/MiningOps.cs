@@ -19,7 +19,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] int NumSupplyGoals = 1;
         [StarData] float SupplyDificit;
         Ship MiningStation => TargetShip;
-        string RawExotic => TargetPlanet.Mining.ResourceName.Text;
+        string ResourceCargeName => TargetPlanet.Mining.CargoName;
         float RemainingConsumables => Owner.NonCybernetic ? MiningStation.GetFood() : MiningStation.GetProduction();
 
         public override bool IsMiningOpsGoal(Planet planet) => planet != null && TargetPlanet == planet;
@@ -122,14 +122,14 @@ namespace Ship_Game.Commands.Goals
                 return;
             }
 
-            float numRawResources = MiningStation.GetOtherCargo(RawExotic);
+            float numRawResources = MiningStation.GetOtherCargo(ResourceCargeName);
             if (numRawResources <= 0)
             {
                 AddMiningStationPlan(Plan.MiningStationIdle);
-                // TODO launch mining ships - maybe use carrierbays class
                 return;
             }
 
+            MiningStation.Carrier.MiningBays.ProcessMiningBays(numRawResources);
             float maximumRawResources = MiningStation.TotalRefining.UpperBound(numRawResources);
             float consumablesNeeded = maximumRawResources * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
             float consumeableRatio = availableConsumables / consumablesNeeded;
@@ -143,7 +143,7 @@ namespace Ship_Game.Commands.Goals
             else
                 MiningStation.UnloadProduction(consumablesToConsume);
 
-            MiningStation.UnloadCargo(RawExotic, rawResourcesToRefine);
+            MiningStation.UnloadCargo(ResourceCargeName, rawResourcesToRefine);
 
             // TODO - add the refinedResources to the empire exotic resource class
 

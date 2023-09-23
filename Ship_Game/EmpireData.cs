@@ -233,6 +233,7 @@ namespace Ship_Game
         //FB: default assault and supply shuttles - it is not mandatory since we have a default boarding / supply shuttles in the game
         [StarData] public string DefaultAssaultShuttle;
         [StarData] public string DefaultSupplyShuttle;
+        [StarData] public string DefaultMiningShip;
 
         [StarData] public string DefaultResearchStation;
         [StarData] public string DefaultMiningStation;
