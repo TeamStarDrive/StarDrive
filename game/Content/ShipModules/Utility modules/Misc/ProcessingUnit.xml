@@ -30,6 +30,11 @@
   
   <PowerDraw>500</PowerDraw>
   <Refining>1</Refining>
+  <!-- for Hangar items -->
+  <hangarShipUID>Doesnt Matter</hangarShipUID>
+  <hangerTimerConstant>30</hangerTimerConstant>
+-
+  
   <NameIndex>4955</NameIndex>
   <DescriptionIndex>4956</DescriptionIndex>
 </ShipModule>
