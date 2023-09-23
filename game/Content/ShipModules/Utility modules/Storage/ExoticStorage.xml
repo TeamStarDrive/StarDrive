@@ -1,0 +1,61 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FrigateModule>false</FrigateModule>
+  <DestroyerModule>false</DestroyerModule>
+  <CruiserModule>false</CruiserModule>
+  <BattleshipModule>false</BattleshipModule>
+  <CapitalModule>false</CapitalModule>
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>false</PlatformModule>
+  <StationModule>false</StationModule>
+  
+  <!-- Tech Level -->
+  <TechLevel>0</TechLevel>
+  <TechBranch>Storage</TechBranch>
+  <Cost>2</Cost>
+
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Storage</ModuleType>
+  <UID>ExoticStorage</UID> 
+  <Version>2</Version>
+
+  <Restrictions>IO</Restrictions>
+  <Name>Small Cargo Hold</Name>
+  <IconTexturePath>Modules/ExoticStorage</IconTexturePath>
+  <Mass>6</Mass>
+  <HealthMax>10</HealthMax>
+  
+  <Description>A basic cargo hold with rudimentary life support capabilities.  This particular hold can store 1 unit of food, production, or other goods.  </Description>
+
+  <NameIndex>908</NameIndex>
+  <DescriptionIndex>909</DescriptionIndex>
+
+  <!-- for shield items -->
+  
+  <ShieldPowerMax>0</ShieldPowerMax>
+  <ShieldRechargeDelay>0</ShieldRechargeDelay>
+  <ShieldRechargeRate>0</ShieldRechargeRate>
+  <ShieldRadius>0</ShieldRadius>
+
+
+  <!-- for PowerPlant Items -->
+  
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  
+  
+  <!-- for Engines -->
+  <Thrust>0</Thrust>
+
+  <!-- for Storage -->
+  <CargoCapacity>2</CargoCapacity>
+  
+  
+
+</ShipModule>

@@ -381,13 +381,13 @@ namespace Ship_Game
         {
             if (P.Mining.Owner != null)
             {
-                batch.DrawString(Fonts.Arial8Bold, P.Name, namePos, P.Mining.Owner.EmpireColor);
+                batch.DrawString(Fonts.Arial20Bold, P.Name, namePos, P.Mining.Owner.EmpireColor);
                 batch.Draw(ResourceManager.Flag(P.Mining.Owner), FlagRect, P.Mining.Owner.EmpireColor);
             }
 
             batch.Draw(P.Mining.ExoticResourceIcon, ExoticResourceIconRect);
             Vector2 resourceStatPos = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y);
-            string stats = $"{P.Mining.ResourceName.Text}: Richness {P.Mining.Richness}, Refine Ratio: {P.Mining.RefiningRatio}";
+            string stats = $"{P.Mining.TranslatedResourceName.Text}: Richness {P.Mining.Richness}, Refine Ratio: {P.Mining.RefiningRatio}";
             batch.DrawString(Font12, stats, resourceStatPos, Color.White);
             ToolTipItems.Add(new TippedItem(ExoticResourceIconRect, P.Mining.ResourceDescription));
             if (P.Mining.Owner != null && P.Mining.Owner != Player)

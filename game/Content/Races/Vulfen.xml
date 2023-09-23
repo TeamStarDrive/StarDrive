@@ -14,6 +14,7 @@
   <DefaultSupplyShuttle>Vulfar-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Vulfen/Vulfar_Station</SpacePortModel>
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningShip>Vulfar Mining Ship</DefaultMiningShip>
   
   
   <RebelName>Vulfar Technocrats</RebelName>

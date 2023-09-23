@@ -179,6 +179,7 @@ namespace Ship_Game
 
         public const string DefaultBoardingShuttleName = "Assault Shuttle";
         public const string DefaultSupplyShuttleName   = "Supply Shuttle";
+        public const string DefaultMiningShipName      = "Mining Ship";
         public Ship BoardingShuttle => ResourceManager.GetShipTemplate(DefaultBoardingShuttleName, false);
         public Ship SupplyShuttle   => ResourceManager.GetShipTemplate(DefaultSupplyShuttleName);
         public bool IsCybernetic  => data.Traits.Cybernetic != 0;
@@ -348,6 +349,17 @@ namespace Ship_Game
                 return data.DefaultSupplyShuttle;
             }
             return DefaultSupplyShuttleName;
+        }
+
+        // this will get the name of a Mining Ship if defined in race.xml or use default one
+        public string GetMiningShipName()
+        {
+            if (data.DefaultMiningShip.NotEmpty() &&
+                ResourceManager.ShipTemplateExists(data.DefaultMiningShip))
+            {
+                return data.DefaultMiningShip;
+            }
+            return DefaultMiningShipName;
         }
 
         public float KnownEnemyStrengthIn(SolarSystem s, Empire e) => AI.ThreatMatrix.GetHostileStrengthAt(e, s.Position, s.Radius);
@@ -609,6 +621,11 @@ namespace Ship_Game
 
             OwnedPlanets.Add(planet);
             Universe.OnPlanetOwnerAdded(this, planet);
+            if (planet.System.IsExclusivelyOwnedBy(this) || planet.System.OwnerList.Count == 0)
+            {
+                foreach (Planet mineable in planet.System.PlanetList.Filter(p => p.IsMineable))
+                    mineable.Mining.ChangeOwner(this);
+            }
 
             OwnedSolarSystems.AddUniqueRef(planet.System);
             CalcWeightedCenter(calcNow: true);

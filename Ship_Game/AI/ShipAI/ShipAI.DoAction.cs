@@ -199,7 +199,8 @@ namespace Ship_Game.AI
             if (target == null && bg.TetherPlanet != null)
             {
                 target = bg.TetherPlanet;
-                if (target == null) 
+                if (target == null 
+                    || target.IsMineable && target.Mining.Owner != null && target.Mining.Owner != Owner.Loyalty) 
                 {
                     OrderScrapShip();
                     return;
@@ -266,9 +267,11 @@ namespace Ship_Game.AI
             }
 
             Planet target = bg.TetherPlanet;
-            if (target == null || target.Owner != Owner.Loyalty) // FB - Planet owner has changed
+            if (target == null 
+                || target.Owner != Owner.Loyalty
+                || target.IsMineable && target.Mining.Owner != null && target.Mining.Owner != Owner.Loyalty)
             {
-                OrderScrapShip();
+                OrderScrapShip(); // Planet or Mining ops owner was changed
                 return;
             }
 
@@ -333,6 +336,9 @@ namespace Ship_Game.AI
             Goal goal = Owner.Loyalty.AI.FindGoal(g => g.IsMiningOpsGoal(planet) && g.StepName == "WaitForConstructor");
             if (goal != null)
                 goal.TargetShip = orbital;
+
+            if (planet.Mining.Owner == null)
+                planet.Mining.ChangeOwner(Owner.Loyalty);
         }
 
         public void DoExplore(FixedSimTime timeStep)

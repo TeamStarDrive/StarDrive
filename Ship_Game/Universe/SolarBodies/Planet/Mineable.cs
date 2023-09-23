@@ -24,8 +24,8 @@ namespace Ship_Game
         [StarData] public float RefiningRatio { get; private set; } // how much  of the resource is processed per turn
         [StarData] public float Richness { get; private set; } // how much of the resource is exctracted per turn
 
-
-        public LocalizedText ResourceName => new(NameTranslationIndex);
+        public string CargoName => Enum.GetName(typeof(ExoticResource), ResourceType);
+        public LocalizedText TranslatedResourceName => new(NameTranslationIndex);
         public LocalizedText ResourceDescription => new(DescriptionIndex);
         public SubTexture ExoticResourceIcon => ResourceManager.Texture($"NewUI/{IconName}");
         public static SubTexture Icon => ResourceManager.Texture($"NewUI/icon_exotic_resource");
@@ -45,6 +45,12 @@ namespace Ship_Game
         {
             return P.OrbitalStations.Any(o => o.IsMiningStation);
         }
+
+        public void ChangeOwner(Empire empire)
+        {
+            Owner = empire;
+        }
+
 
         public Mineable(Planet planet)
         {

@@ -10509,12 +10509,6 @@ DesignIssueLowRefiningTimeRemidiation:
 DesignIssueLowRefiningTimeNotGood:
  Id: 4465
  ENG: "Note that if you elected to automate mining Stations picking, this Station would not be used. It is too inefficient." 
-
-
-
-
-
- 
 ExoticResourcePulseFieldName:
  Id: 4953 
  ENG: "Pulsefield Gas"    
