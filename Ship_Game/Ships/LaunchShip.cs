@@ -1,5 +1,7 @@
 ﻿using SDGraphics;
+using SDUtils;
 using Ship_Game.Data.Serialization;
+using Ship_Game.ExtensionMethods;
 using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Ships
@@ -13,7 +15,9 @@ namespace Ship_Game.Ships
         [StarData] readonly LaunchPlan LaunchPlan;
         [StarData] LaunchFromPlanet PlanetLaunch;
         [StarData] LaunchFromHangar HangarLaunch;
-        [StarData] LaunchFromShipyardBig ShipyardBigLaunch;
+        [StarData] LaunchFromShipyard ShipyardLaunch;
+        [StarData] MinePlanet Mining;
+        [StarData] MinerReturnToHangar ReturnMiner;
 
         public LaunchShip(Ship owner, LaunchPlan launchPlan, float startingRotationDegrees = -1f)
         {
@@ -21,13 +25,17 @@ namespace Ship_Game.Ships
             LaunchPlan = launchPlan;
             float rotationDegZ = startingRotationDegrees.Equals(-1f)
                 ? owner.Universe.Random.RollDie(360)
-                : (startingRotationDegrees + Owner.Universe.Random.Float(-10, 10));
+                : launchPlan != LaunchPlan.MinerReturn 
+                    ? (startingRotationDegrees + Owner.Universe.Random.Float(-10, 10))
+                    : startingRotationDegrees;
 
             switch (LaunchPlan)
             {
-                case LaunchPlan.Planet:      PlanetLaunch      = new(owner, rotationDegZ); break;
-                case LaunchPlan.Hangar:      HangarLaunch      = new(owner, rotationDegZ); break;
-                case LaunchPlan.ShipyardBig: ShipyardBigLaunch = new(owner, rotationDegZ); break;
+                case LaunchPlan.Planet:      PlanetLaunch   = new(owner, rotationDegZ); break;
+                case LaunchPlan.Hangar:      HangarLaunch   = new(owner, rotationDegZ); break;
+                case LaunchPlan.Mining:      Mining         = new(owner, rotationDegZ); break;
+                case LaunchPlan.Shipyard:    ShipyardLaunch = new(owner, rotationDegZ); break;
+                case LaunchPlan.MinerReturn: ReturnMiner    = new(owner, rotationDegZ); break;
             }
         }
 
@@ -48,22 +56,26 @@ namespace Ship_Game.Ships
             float scale = 1;
             switch (LaunchPlan)
             {
-                case LaunchPlan.Planet:      PlanetLaunch.Update(timeStep, visibleToPlayer, ref PosZ, out scale);      break;
-                case LaunchPlan.Hangar:      HangarLaunch.Update(timeStep, visibleToPlayer, ref PosZ);                 break;
-                case LaunchPlan.ShipyardBig: ShipyardBigLaunch.Update(timeStep, visibleToPlayer, ref PosZ, out scale); break;
+                case LaunchPlan.Shipyard:    ShipyardLaunch.Update(timeStep, visibleToPlayer, ref PosZ, out scale); break;
+                case LaunchPlan.Planet:      PlanetLaunch.Update(timeStep, visibleToPlayer, ref PosZ, out scale);   break;
+                case LaunchPlan.MinerReturn: ReturnMiner.Update(timeStep, visibleToPlayer, ref PosZ, out scale);    break;
+                case LaunchPlan.Mining:      Mining.Update(timeStep, visibleToPlayer, ref PosZ, out scale);         break;
+                case LaunchPlan.Hangar:      HangarLaunch.Update(timeStep, visibleToPlayer, ref PosZ);              break;
             }
 
             switch (LaunchPlan)
             {
-                case LaunchPlan.Planet:      Done = PlanetLaunch.Done;      break;
-                case LaunchPlan.Hangar:      Done = HangarLaunch.Done;      break;
-                case LaunchPlan.ShipyardBig: Done = ShipyardBigLaunch.Done; break;
+                case LaunchPlan.Shipyard:    Done = ShipyardLaunch.Done; break;
+                case LaunchPlan.Planet:      Done = PlanetLaunch.Done;   break;
+                case LaunchPlan.Hangar:      Done = HangarLaunch.Done;   break;
+                case LaunchPlan.Mining:      Done = Mining.Done;         break;
+                case LaunchPlan.MinerReturn: Done = ReturnMiner.Done;    break;
             }
 
             if (Done)
             {
                 Owner.XRotation = 0;
-                if (!Owner.IsConstructor && !Owner.IsSupplyShuttle)
+                if (!Owner.IsConstructor && !Owner.IsSupplyShuttle && Owner.IsMiningShip)
                     Owner.AI.IgnoreCombat = false;
             }
 
@@ -194,7 +206,7 @@ namespace Ship_Game.Ships
         }
 
         [StarDataType]
-        struct LaunchFromShipyardBig
+        struct LaunchFromShipyard
         {
             [StarData] float Progress; // between 0 to 1
             [StarData] readonly Ship Owner;
@@ -205,12 +217,11 @@ namespace Ship_Game.Ships
             const float InitialProgress = 0.1f;
             const int StartingPosZ = 400;
 
-            public LaunchFromShipyardBig(Ship ship, float rotation)
+            public LaunchFromShipyard(Ship ship, float rotation)
             {
                 Owner = ship;
                 RotationDegZ = rotation;
                 Progress = InitialProgress;
-                float velRandom = ship.Universe.Random.Float(0.5f, 0.8f);
                 Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(0.5f, 0.8f));
                 switch (ship.ShipData.HullRole)
                 {
@@ -227,7 +238,9 @@ namespace Ship_Game.Ships
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
             {
-                Owner.Velocity = Velocity;
+                if (Velocity != Vector2.Zero)
+                    Owner.Velocity = Velocity;
+
                 Progress += timeStep.FixedTime / TotalDuration;
                 scale = Progress.UpperBound(1);
                 posZ = StartingPosZ * (1 - Progress);
@@ -251,13 +264,115 @@ namespace Ship_Game.Ships
             public bool Done => Progress >= 1f;
         }
 
+        [StarDataType]
+        struct MinePlanet
+        {
+            [StarData] float Progress; // between 0 to 1
+            [StarData] readonly Ship Owner;
+            [StarData] readonly float TotalDuration;
+            [StarData] readonly float RotationDegZ;
+            [StarData] readonly Vector2 Velocity;
+            ParticleEmitter FlameTrail;
+            const int InitialRotationDegX = -60;
+            const int EndPosZ = 200;
+
+
+            public MinePlanet(Ship ship, float rotation)
+            {
+                Owner = ship;
+                RotationDegZ = rotation;
+                TotalDuration = 7;
+                Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(1f, 1.5f));
+            }
+
+
+            public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
+            {
+                Progress = (Progress + timeStep.FixedTime/TotalDuration).UpperBound(1);
+                scale = (1 - (Progress * TotalDuration / TotalDuration) * 0.7f).LowerBound(0.3f);
+                posZ = EndPosZ * Progress;
+                Owner.XRotation = (InitialRotationDegX - (Progress * InitialRotationDegX)).ToRadians();
+                if (Progress <= 0.2)
+                {
+                    Owner.Velocity = Velocity;
+                    Owner.RotationDegrees = RotationDegZ;
+                    if (visible)
+                        Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), scale);
+                }
+                else if (Progress == 1 && visible && Owner.CargoSpaceUsed > 0)
+                {
+                    Vector2 trailPos2d = Owner.Position;
+                    Vector3 trailPos = trailPos2d.GenerateRandomPointInsideCircle(Owner.Radius * scale, Owner.Universe.Random).ToVec3(posZ-5);
+                    if (FlameTrail == null)
+                    {
+                        float intensity = Owner.Mothership?.GetTether()?.Mining?.Richness * 100 ?? 500;
+                        FlameTrail = Owner.Universe.Screen.Particles.FireTrail.NewEmitter(intensity, trailPos);
+                    }
+                    else
+                    {
+                        float completion = Owner.CargoSpaceUsed / Owner.CargoSpaceMax;
+                        bool update = Owner.Universe.Random.RollDice(110 - completion*100);
+                        if (update) 
+                            FlameTrail.Update(timeStep.FixedTime, trailPos);
+                    }
+                }
+            }
+
+            public bool Done => false;
+        }
+
+        [StarDataType]
+        struct MinerReturnToHangar
+        {
+            [StarData] float Progress; // between 0 to 1
+            [StarData] readonly Ship Owner;
+            [StarData] readonly float TotalDuration;
+            [StarData] readonly float RotationDegZ;
+            [StarData] readonly Vector2 Velocity;
+            const int MaxRotationDegX = 75;
+            const int StartingPosZ = 200;
+
+            public MinerReturnToHangar(Ship ship, float rotation)
+            {
+                Owner = ship;
+                RotationDegZ = rotation;
+                TotalDuration = (MaxRotationDegX / (ship.RotationRadsPerSecond.ToDegrees() * 0.25f)).Clamped(5, 15);
+            }
+
+            public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
+            {
+                Progress += timeStep.FixedTime / TotalDuration;
+                scale = Progress.Clamped(0.3f, 1);
+                posZ = StartingPosZ * (1 - Progress);
+                float rotationXRatio = MaxRotationDegX * 2f; // progress is multiplied by 100 since its 0-1 so that why no div by 50
+                Owner.XRotation = Progress <= 0.5 ? (Progress * rotationXRatio).ToRadians() : ((1 - Progress) * rotationXRatio).ToRadians();
+
+                if (visible && (Progress.InRange(0, 0.25f) || Progress.InRange(0.49f, 0.51f)))
+                    Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), scale);
+
+                if (Progress < 0.5f)
+                {
+                    Owner.YRotation = 0;
+                    Owner.RotationDegrees = RotationDegZ;
+                }
+                else if (Progress > 0.8f)
+                {
+                    Owner.UpdateThrusters(timeStep, scale);
+                }
+            }
+
+            public bool Done => Progress >= 1f;
+        }
+
     }
     
     public enum LaunchPlan
     {
         Planet,
         Hangar,
-        ShipyardBig
+        Shipyard,
+        Mining,
+        MinerReturn
     }
 
 }

@@ -33,7 +33,8 @@
   <!-- for Hangar items -->
   <hangarShipUID>Doesnt Matter</hangarShipUID>
   <hangerTimerConstant>30</hangerTimerConstant>
--
+  
+  <OrdinanceCapacity>60</OrdinanceCapacity>
   
   <NameIndex>4955</NameIndex>
   <DescriptionIndex>4956</DescriptionIndex>
