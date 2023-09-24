@@ -37,6 +37,7 @@ Globals:
   ConstructionModuleBuildRate: 100 # How much consturction the construction module can process per turn   
   BuilderShipConstructionAdded: 100 # How much consturction Builder ships add when they reach the contructor
   ResearchBenefitFromAlliance: 0.1 # How much research each alliance is giving you (from other party research)  
+  MiningStationFoodPerOneRefining: 0.5 # How much Food is consumed per 1 refining point
 
   # feature flags
   DisableShipPicker: true

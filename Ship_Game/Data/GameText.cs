@@ -4557,6 +4557,17 @@ namespace Ship_Game
         DesignIssueLowRefiningTimeRemidiation = 4464,
         /// <summary>Note that if you elected to automate mining </summary>
         DesignIssueLowRefiningTimeNotGood = 4465,
+        /// <summary>Auto Build Mining Stations</summary>
+        AutoBuildMiningStation = 4466,
+        /// <summary>This will auto build Mining stations </summary>
+        AutoBuildMiningStationTip = 4467,
+        /// <summary>Auto Pick Mining Stations</summary>
+        AutoPickMiningStation = 4468,
+        /// <summary>This will pick the best Mining Station</summary>
+        AutoPickMiningStationTip = 4469,
+        /// <summary>Mining Exotic Resource</summary>
+        MiningPlanetStatus = 4470,
+
 
 
 

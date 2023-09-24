@@ -1179,7 +1179,7 @@ namespace Ship_Game.Ships
                 ResurrectModule();
             }
 
-            if (Active && ModuleType == ShipModuleType.Hangar)
+            if (Active && (ModuleType == ShipModuleType.Hangar || IsMiningBay))
                 HangarTimer -= timeStep.FixedTime;
 
             // Shield Recharge / Discharge

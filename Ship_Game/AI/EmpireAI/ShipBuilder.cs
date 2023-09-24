@@ -228,14 +228,14 @@ namespace Ship_Game.AI
             }
 
             var potentialMiningStations = new Array<IShipDesign>();
-            float maxProcessingPerTurn = 0;
+            float maxRefiningPerTurn = 0;
             foreach (IShipDesign design in empire.ShipsWeCanBuild)
             {
                 if (design.IsMiningStation)
                 {
                     potentialMiningStations.Add(design);
-                    if (design.BaseRefiningPerTurn > maxProcessingPerTurn)
-                        maxProcessingPerTurn = design.BaseRefiningPerTurn;
+                    if (design.BaseRefiningPerTurn > maxRefiningPerTurn)
+                        maxRefiningPerTurn = design.BaseRefiningPerTurn;
                 }
             }
 
@@ -243,15 +243,15 @@ namespace Ship_Game.AI
             if (potentialMiningStations.Count > 0)
             {
                 var miningStations = potentialMiningStations.
-                    Filter(s => s.BaseRefiningPerTurn.InRange(maxProcessingPerTurn * 0.8f, maxProcessingPerTurn));
+                    Filter(s => s.BaseRefiningPerTurn.InRange(maxRefiningPerTurn * 0.8f, maxRefiningPerTurn));
 
                 bestMiningStation = miningStations.FindMax(s => s.BaseCargoSpace / s.BaseRefiningPerTurn);
             }
 
             if (empire.Universe?.Debug == true)
-                Log.Info(ConsoleColor.Cyan, $"----- Picked {bestMiningStation?.Name ?? empire.data.ResearchStation}");
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {bestMiningStation?.Name ?? empire.data.MiningStation}");
 
-            return bestMiningStation ?? ResourceManager.Ships.GetDesign(empire.data.ResearchStation, throwIfError: true);
+            return bestMiningStation ?? ResourceManager.Ships.GetDesign(empire.data.MiningStation, throwIfError: true);
         }
 
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)

@@ -258,8 +258,9 @@ namespace Ship_Game
                         {
                             default:
                             case ShipAI.Plan.MiningStationRefining: miningStatus = GameText.MiningPlanRefining; break;
-                            case ShipAI.Plan.MiningStationIdle:     miningStatus = GameText.MiningPlanIdle; break;
+                            case ShipAI.Plan.MiningStationIdle:     miningStatus = GameText.MiningPlanIdle;     break;
                             case ShipAI.Plan.ExoticStationNoSupply: miningStatus = GameText.ExoticPlanNoSupply; break;
+                            case ShipAI.Plan.MinePlanet:            miningStatus = GameText.MiningPlanetStatus; break;
                         }
                         return Localizer.Token(miningStatus);
                     }

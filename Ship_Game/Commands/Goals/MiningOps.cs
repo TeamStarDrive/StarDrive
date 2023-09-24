@@ -123,13 +123,13 @@ namespace Ship_Game.Commands.Goals
             }
 
             float numRawResources = MiningStation.GetOtherCargo(ResourceCargeName);
-            if (numRawResources <= 0)
+            MiningStation.Carrier.MiningBays.ProcessMiningBays(numRawResources);
+            if (numRawResources <= 0 || MiningStation.Loyalty != TargetPlanet.Mining.Owner)
             {
                 AddMiningStationPlan(Plan.MiningStationIdle);
                 return;
             }
 
-            MiningStation.Carrier.MiningBays.ProcessMiningBays(numRawResources);
             float maximumRawResources = MiningStation.TotalRefining.UpperBound(numRawResources);
             float consumablesNeeded = maximumRawResources * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
             float consumeableRatio = availableConsumables / consumablesNeeded;

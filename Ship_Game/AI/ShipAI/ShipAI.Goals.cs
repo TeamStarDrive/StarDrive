@@ -347,7 +347,7 @@ namespace Ship_Game.AI
 
                     // for Orbit plans we don't use Planet.Position
                     // TODO: There is a mismatch here after save load
-                    if (TargetPlanet != null && Plan is not Plan.Orbit and not Plan.BuilderReturnHome)
+                    if (TargetPlanet != null && Plan is not Plan.Orbit and not Plan.BuilderReturnHome and not Plan.MinePlanet)
                         return TargetPlanet.Position;
 
                     return StaticMovePosition;
@@ -568,7 +568,9 @@ namespace Ship_Game.AI
             BuildOrbital = 42,
             BuilderReturnHome = 43,
             MiningStationIdle = 44, // for shipUIinfo display only
-            MiningStationRefining = 45 // for shipUIinfo display only
+            MiningStationRefining = 45, // for shipUIinfo display only
+            MinePlanet = 46,
+            MiningShipReturn = 47
         }
     }
 }

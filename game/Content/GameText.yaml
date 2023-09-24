@@ -10345,7 +10345,7 @@ AutoPickResearchStation:
  ENG: "Auto Pick Research Station"          
 AutoPickResearchStationTip:
  Id: 4412 
- ENG: "This will pick the best Research Station with most Research generated and will upgrade to them whenever possible, if the auto build Research Stations checkbox is checked." 
+ ENG: "This will pick the best Research Station with most Research generated and will upgrade them whenever possible, if the auto build Research Stations checkbox is checked." 
 CannotBuildResearchStationTip:
  Id: 4413 
  ENG: "You do not have the required technology to build a Research Station, research relevant tech to gain Research Station schematics."  
@@ -10509,6 +10509,21 @@ DesignIssueLowRefiningTimeRemidiation:
 DesignIssueLowRefiningTimeNotGood:
  Id: 4465
  ENG: "Note that if you elected to automate mining Stations picking, this Station would not be used. It is too inefficient." 
+AutoBuildMiningStation:
+ Id: 4466 
+ ENG: "Auto Build Mining Stations"          
+AutoBuildMiningStationTip:
+ Id: 4467 
+ ENG: "This will auto build Mining stations for you around relevant planets. It will use whatever Mining Station you pick in the dropdown list below (visible if your empire has access to Mining station technology). This will also upgrade already existing Stations to the new station you have selected."
+AutoPickMiningStation:
+ Id: 4468 
+ ENG: "Auto Pick Mining Stations"          
+AutoPickMiningStationTip:
+ Id: 4469 
+ ENG: "This will pick the best Mining Station with most Refining generated and will upgrade them whenever possible, if the auto build Mining Stations checkbox is checked."   
+MiningPlanetStatus:
+ Id: 4470 
+ ENG: "Mining Exotic Resource"    
 ExoticResourcePulseFieldName:
  Id: 4953 
  ENG: "Pulsefield Gas"    
@@ -10545,8 +10560,8 @@ Trait_OrbitalAversion_Desc:
 Trait_OrbitalConstructors_Name:
  Id: 4964
  ENG: "Orbital Constructors"    
- Id: 4965
 Trait_OrbitalConstructors_Desc:
+ Id: 4965
  ENG: "Orbital Constructors enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
 TraitSalvagersName:
   Id: 4966
