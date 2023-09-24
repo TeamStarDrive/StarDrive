@@ -69,7 +69,7 @@ namespace Ship_Game.Ships
 
         CarrierBays(Ship owner, ShipModule[] slots)
         {
-            AllHangars        = slots.Filter(module => module.Is(ShipModuleType.Hangar));
+            AllHangars        = slots.Filter(module => module.Is(ShipModuleType.Hangar) || module.IsMiningBay);
             AllTroopBays      = AllHangars.Filter(module => module.IsTroopBay);
             AllSupplyBays     = AllHangars.Filter(module => module.IsSupplyBay);
             AllTransporters   = AllHangars.Filter(module => module.TransporterOrdnance > 0 || module.TransporterTroopAssault > 0);
@@ -101,8 +101,9 @@ namespace Ship_Game.Ships
         {
             RoleName role = owner.ShipData.Role;
             if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
-                            || m.ModuleType == ShipModuleType.Transporter)
-                            || role == RoleName.troop)
+                          || m.ModuleType == ShipModuleType.Transporter
+                          || m.IsMiningBay)
+                          || role == RoleName.troop)
             {
                 return new CarrierBays(owner, slots);
             }
@@ -607,14 +608,18 @@ namespace Ship_Game.Ships
             if (hangar.TryGetHangarShip(out _))
                 return false;
 
-            if (hangar.IsSupplyBay || hangar.IsTroopBay || hangar.IsMiningBay ||
-                hangar.DynamicHangar == DynamicHangarOptions.Static &&
-                empire.CanBuildShip(hangar.HangarShipUID))
-            {
+            if (hangar.IsSupplyBay)
+                shipName = empire.GetSupplyShuttleName();
+            else if (hangar.IsTroopBay)
+                shipName = empire.GetAssaultShuttleName();
+            else if  (hangar.IsMiningBay)
+                shipName = empire.GetMiningShipName();
+            else if (hangar.DynamicHangar == DynamicHangarOptions.Static && empire.CanBuildShip(hangar.HangarShipUID))
                 shipName = hangar.HangarShipUID;
-                return true;
-            }
 
+            if (shipName.NotEmpty())
+                return true;
+            
             // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
             shipName = GetDynamicShipName(hangar, empire);
             if (shipName.NotEmpty())

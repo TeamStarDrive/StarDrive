@@ -22,12 +22,13 @@ namespace Ship_Game
         DropOptions<int> ScoutDropDown;
         DropOptions<int> ConstructorDropDown;
         DropOptions<int> ResearchStationDropDown;
+        DropOptions<int> MiningStationDropDown;
 
         public AutomationWindow(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
             const int windowWidth = 220;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 585);
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 660);
         }
 
         class CheckedDropdown : UIElementV2
@@ -67,7 +68,7 @@ namespace Ship_Game
             RectF win = new(Rect);
             ConstructionSubMenu = new(win, GameText.Automation);
 
-            UIList rest = AddList(new(win.X + 10f, win.Y + 250f));
+            UIList rest = AddList(new(win.X + 10f, win.Y + 290));
             rest.Padding = new(2f, 10f);
             rest.AddCheckbox(() => UState.Player.AutoPickConstructors,  title: GameText.AutoPickConstructorsName, tooltip: GameText.AutoPickConstructorsTip);
             rest.AddCheckbox(() => UState.Player.AutoPickBestColonizer, title: GameText.AutoPickColonyShip, tooltip: GameText.TheBestColonyShipWill);
@@ -78,6 +79,9 @@ namespace Ship_Game
 
             if (Screen.Player.CanBuildResearchStations)
                 rest.AddCheckbox(() => UState.Player.AutoPickBestResearchStation, title: GameText.AutoPickResearchStation, tooltip: GameText.AutoPickResearchStationTip);
+
+            if (Screen.Player.CanBuildMiningStations)
+                rest.AddCheckbox(() => UState.Player.AutoPickBestMiningStation, title: GameText.AutoPickMiningStation, tooltip: GameText.AutoPickMiningStationTip);
 
             rest.AddCheckbox(() => RushConstruction,                      title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
             rest.AddCheckbox(() => UState.P.AllowPlayerInterTrade,        title: GameText.AllowPlayerInterTradeTitle, tooltip: GameText.AllowPlayerInterTradeTip);
@@ -103,7 +107,10 @@ namespace Ship_Game
 
             ResearchStationDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => Screen.Player.AutoBuildResearchStations, title: GameText.AutoBuildResearchStation, tooltip: GameText.AutoBuildResearchStationTip);
-            
+
+            MiningStationDropDown = ticks.Add(new CheckedDropdown())
+                .Create(() => Screen.Player.AutoBuildMiningStations, title: GameText.AutoBuildMiningStation, tooltip: GameText.AutoBuildMiningStationTip);
+
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
@@ -135,6 +142,8 @@ namespace Ship_Game
             ColonyShipDropDown.Visible = !Screen.Player.AutoPickBestColonizer;
             ResearchStationDropDown.Visible = !Screen.Player.AutoPickBestResearchStation
                 && Screen.Player.CanBuildResearchStations;
+            MiningStationDropDown.Visible = !Screen.Player.AutoPickBestMiningStation
+                && Screen.Player.CanBuildMiningStations;
 
 
             base.Draw(batch, elapsed);
@@ -159,6 +168,7 @@ namespace Ship_Game
                 playerData.CurrentConstructor     = ConstructorDropDown.ActiveName;
                 playerData.CurrentAutoScout       = ScoutDropDown.ActiveName;
                 playerData.CurrentResearchStation = ResearchStationDropDown.ActiveName;
+                playerData.CurrentMiningStation   = MiningStationDropDown.ActiveName;
                 return true;
             }
             return false;
@@ -205,6 +215,9 @@ namespace Ship_Game
         public void UpdateDropDowns()
         {
             EmpireData playerData = Screen.Player.data;
+
+            InitDropOptions(MiningStationDropDown, ref playerData.CurrentMiningStation, playerData.DefaultMiningStation,
+                ship => ship.IsShipGoodToBuild(Screen.Player) && ship.IsMiningStation);
 
             InitDropOptions(ResearchStationDropDown, ref playerData.CurrentResearchStation, playerData.DefaultResearchStation,
                 ship => ship.IsShipGoodToBuild(Screen.Player) && ship.IsResearchStation);

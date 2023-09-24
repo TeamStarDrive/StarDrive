@@ -390,7 +390,8 @@ namespace Ship_Game
 
             // create new fleet
             Fleet fleet = CreateNewFleet(index, SelectedShipList);
-            SetSelectedFleet(fleet);
+            if (fleet != null) 
+                SetSelectedFleet(fleet);
         }
 
         void AddShipsToExistingFleet(Fleet selectedFleet, int index)
@@ -405,7 +406,7 @@ namespace Ship_Game
             if (selectedFleet?.Ships.Count > 0)
             {
                 // create a list of ships that are not part of the target fleet.
-                var newShips = SelectedShipList.Filter(s => s.Fleet != selectedFleet);
+                var newShips = SelectedShipList.Filter(s => s.Fleet != selectedFleet && s.CanBeAddedToFleets());
                 if (newShips.Length == 0) // nothing to add
                 {
                     GameAudio.NegativeClick();
@@ -1056,7 +1057,7 @@ namespace Ship_Game
 
         Fleet CreateNewFleet(int fleetId, IReadOnlyList<Ship> ships)
         {
-            if (ships.Count == 0)
+            if (ships.Count == 0 || !ships.Any(s => s.CanBeAddedToFleets()))
                 return null;
 
             Fleet newFleet = Player.CreateFleet(fleetId, null);
@@ -1086,7 +1087,7 @@ namespace Ship_Game
         // during reassignment
         void ClearShipFleetsWithDataNodes(IReadOnlyList<Ship> ships)
         {
-            foreach (Ship ship in ships)
+            foreach (Ship ship in ships.Filter(s => s.CanBeAddedToFleets()))
             {
                 // remove the DataNode
                 ship.Fleet?.DataNodes.RemoveFirst(n => n.Ship == ship);

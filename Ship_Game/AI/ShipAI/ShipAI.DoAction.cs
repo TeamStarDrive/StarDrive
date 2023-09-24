@@ -189,6 +189,32 @@ namespace Ship_Game.AI
             }
         }
 
+        void DoMinePlanet(FixedSimTime timeStep, ShipGoal g)
+        {
+            if (Owner.Mothership == null || !Owner.Mothership.Active)
+            {
+                OrderScuttleShip();
+                return;
+            }
+
+            Planet planet = g.TargetPlanet;
+            Vector2 wantedPos = g.MovePosition;
+            if (wantedPos.OutsideRadius(Owner.Position, (Owner.CurrentVelocity * 2).UpperBound(500)))
+            {
+                ThrustOrWarpToPos(wantedPos, timeStep);
+                return;
+            }
+
+            ReverseThrustUntilStopped(timeStep);
+            Owner.LoadCargo(planet.Mining.CargoName, planet.Mining.Richness * timeStep.FixedTime / Owner.Universe.P.TurnTimer);
+            if (Owner.CargoSpaceFree == 0)
+            {
+                ClearOrders();
+                Owner.InitLaunch(LaunchPlan.MinerReturn, Owner.Rotation.ToDegrees());
+                OrderReturnToHangar();
+            }
+        }
+
         void DoDeploy(ShipGoal g, FixedSimTime timeStep)
         {
             Goal goal = g.Goal;
@@ -617,10 +643,9 @@ namespace Ship_Game.AI
             if (!Owner.IsHangarShip || !Owner.Mothership.Active)
             {
                 ClearOrders(State);
-                if (Owner.ShipData.Role == RoleName.supply)
-                    OrderScrapShip();
-                else
-                    GoOrbitNearestPlanetAndResupply(true);
+                if (Owner.IsMiningShip)                          OrderScuttleShip();
+                else if (Owner.ShipData.Role == RoleName.supply) OrderScrapShip();
+                else                                             GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
 
@@ -643,11 +668,21 @@ namespace Ship_Game.AI
                 if (Owner.IsSupplyShuttle) // fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
 
+                if (Owner.IsMiningShip)
+                {
+                    string cargoId = Owner.Mothership.GetTether()?.Mining.CargoName ?? "";
+                    if (cargoId.NotEmpty())
+                    {
+                        float maxToload = (Owner.Mothership.CargoSpaceMax*0.5f - Owner.Mothership.GetOtherCargo(cargoId)).LowerBound(0);
+                        Owner.Mothership.LoadCargo(cargoId, Owner.GetOtherCargo(cargoId).UpperBound(maxToload));
+                    }
+                }
+
                 Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
                 Owner.QueueTotalRemoval();
                 
                 // find which hangar is the owner of this ship
-                ShipModule owningHangar = Owner.Mothership.Carrier.AllActiveHangars.Find(
+                ShipModule owningHangar = Owner.Mothership.Carrier.AllHangars.Find(
                                         h => h.TryGetHangarShip(out Ship hs) && hs == Owner);
                 if (owningHangar != null)
                 {
