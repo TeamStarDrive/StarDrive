@@ -1050,9 +1050,16 @@ namespace Ship_Game
                         if (!planet.Mining.AreMiningOpsPresent())
                         {
                             DrawTextureWithToolTip(Mineable.Icon, Color.White, GameText.MiningStationsCanBePlaced, mousePos,
-                                                   (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
-                            ++drawLocationOffset;
+                                (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
                         }
+                        else
+                        {
+                            var flag = planet.Mining.Owner.data.Traits.FlagIndex;
+                            DrawTextureWithToolTip(ResourceManager.Flag(flag), planet.Mining.Owner.EmpireColor, 
+                                GameText.MiningStationsOpsOwned, mousePos, (int)posOffSet.X + 18 * drawLocationOffset, (int)posOffSet.Y, 14, 14);
+                        }
+
+                        ++drawLocationOffset;
 
                         DrawTextureWithToolTip(planet.Mining.ExoticResourceIcon, Color.White, planet.Mining.ResourceDescription, mousePos,
                                                (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);

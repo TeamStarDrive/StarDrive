@@ -1,7 +1,7 @@
 # This file is a list of all cargo which can be transported in freighters / mining ships / mining station etc.
 # UID - this is also the texture file name in the Goods folder (textures directory)
 # RefiningRatio - how much net resource is refined per refining point
-# Weight - this is how common it is to find this rsource - relevant for mining ops
+# Weight - this is how common it is to find this resource - relevant for mining ops
 # IsGasGiantMineable - this determines if this resource can be found on gas giants. At least 1 of the resources should be true else the game will throw exception
 Good:
   UID: Production

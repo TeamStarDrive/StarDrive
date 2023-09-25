@@ -119,6 +119,7 @@ namespace Ship_Game.Commands.Goals
             {
                 AddMiningStationPlan(Plan.ExoticStationNoSupply);
                 AddSupplyDeficit(MiningStation.TotalRefining);
+                MiningStation.Carrier.MiningBays.DestroyEmmiters();
                 return;
             }
 
@@ -127,6 +128,7 @@ namespace Ship_Game.Commands.Goals
             if (numRawResources <= 0 || MiningStation.Loyalty != TargetPlanet.Mining.Owner)
             {
                 AddMiningStationPlan(Plan.MiningStationIdle);
+                MiningStation.Carrier.MiningBays.DestroyEmmiters();
                 return;
             }
 
@@ -217,8 +219,8 @@ namespace Ship_Game.Commands.Goals
         }
 
         bool NeedsConsumables(float availableConsumables) =>
-            MiningStation.RefiningCargoSpaceMax - availableConsumables > Owner.AverageFreighterCargoCap
-            || availableConsumables / MiningStation.CargoSpaceMax < 0.25f;
+            (MiningStation.CargoSpaceMax - MiningStation.RefiningCargoSpaceMax) - availableConsumables > Owner.AverageFreighterCargoCap
+            || availableConsumables / (MiningStation.CargoSpaceMax - MiningStation.RefiningCargoSpaceMax) < 0.5f;
 
         bool ConstructionGoalInProgress => Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetPlanet));
     }
