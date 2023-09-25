@@ -39,7 +39,7 @@ namespace Ship_Game.Ships
 
         public const float DefaultHangarRange = 7500;
         public SupplyShuttles SupplyShuttles;
-        [StarData] public MiningBays MiningBays { get; private set; }
+        public MiningBays MiningBays { get; private set; }
         public float HangarRange => HasActiveHangars ? DefaultHangarRange : 0;
         public bool IsPrimaryCarrierRoleForLaunchRange => 
                                             HasActiveHangars &&

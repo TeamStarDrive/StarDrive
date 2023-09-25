@@ -1235,8 +1235,7 @@ namespace Ship_Game.Ships
                     var vis = DamageVisualizer;
                     if (vis == null)
                     {
-
-                            DamageVisualizer = vis = new ShipModuleDamageVisualization(this, p);
+                        DamageVisualizer = vis = new ShipModuleDamageVisualization(this, p);
                     }
                     vis.Update(timeStep, Center3D, scale, Active);
                 }

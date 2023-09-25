@@ -1206,6 +1206,9 @@ namespace Ship_Game.Ships
                         m.UpdateEveryFrame(a);
                         if (enableVisualizeDamage && m.CanVisualizeDamage)
                             m.UpdateDamageVisualization(timeStep, a.ParentScale, visible);
+
+                        if (visible && IsMiningStation)
+                            Carrier.MiningBays.UpdateMiningVisuals(timeStep);
                     }
                 }
                 else

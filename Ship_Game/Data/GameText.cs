@@ -4567,6 +4567,9 @@ namespace Ship_Game
         AutoPickMiningStationTip = 4469,
         /// <summary>Mining Exotic Resource</summary>
         MiningPlanetStatus = 4470,
+        /// <summary>Mining Station Ops around this planet</summary>
+        MiningStationsOpsOwned = 4471,
+
 
 
 

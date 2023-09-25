@@ -67,8 +67,6 @@ namespace Ship_Game
                 int weight = good.Weight;
                 for (int i = 0; i < weight; i++)
                     resources.Add(good);
-
-
             }
 
             if (resources.Count == 0)

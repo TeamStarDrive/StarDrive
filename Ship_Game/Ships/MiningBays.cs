@@ -5,20 +5,20 @@ using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
 {
-    [StarDataType]
     public class MiningBays
     {
         Ship Owner;
-        public ShipModule[] AllMiningBays { get; private set; }
+        readonly ShipModule[] AllMiningBays;
+        readonly ParticleEmitter[] FireEmitters;
+        readonly ParticleEmitter[] SmokeEmitters;
+        bool EmittersStarted;
 
         public MiningBays(Ship ship, ShipModule[] slots)
         {
             Owner = ship;
             AllMiningBays = slots.Filter(module => module.IsMiningBay);
-        }
-
-        public MiningBays() 
-        {
+            FireEmitters = new ParticleEmitter[AllMiningBays.Length];
+            SmokeEmitters = new ParticleEmitter[AllMiningBays.Length];
         }
 
         public void Dispose()
@@ -65,6 +65,46 @@ namespace Ship_Game.Ships
             miningShip = Ship.CreateShipFromHangar(Owner.Universe, hangar, Owner.Loyalty, Owner.Position, Owner);
             Owner.ChangeOrdnance(-miningShip.ShipOrdLaunchCost);
             hangar.SetHangarShip(miningShip);
+        }
+
+        public void UpdateMiningVisuals(FixedSimTime timeStep)
+        {
+            string cargoId = Owner.GetTether()?.Mining?.CargoId ?? "";
+            float numConsumables = Owner.Loyalty.IsCybernetic ? Owner.GetProduction() : Owner.GetFood();
+            if (cargoId.IsEmpty() || Owner.GetOtherCargo(cargoId) == 0 || numConsumables == 0)
+                return;
+            
+            for (int i = 0; i < AllMiningBays.Length; i++)
+            {
+                EmittersStarted = true;
+                ShipModule miningBay = AllMiningBays[i];
+                if (miningBay.Active && miningBay.Powered)
+                {
+                    if (FireEmitters[i] == null)
+                        FireEmitters[i] = Owner.Universe.Screen.Particles.PhotonExplosion.NewEmitter(0.2f, miningBay.Position, 0.5f);
+                    else
+                        FireEmitters[i].Update(timeStep.FixedTime, miningBay.Position.ToVec3(-100));
+
+                    if (SmokeEmitters[i] == null)
+                        SmokeEmitters[i] = Owner.Universe.Screen.Particles.SmokePlume.NewEmitter(0.3f, miningBay.Position, 0.75f);
+                    else
+                        SmokeEmitters[i].Update(timeStep.FixedTime, miningBay.Position.ToVec3(-50));
+                }
+            }
+        }
+
+        public void DestroyEmmiters()
+        {
+            if (!EmittersStarted)
+                return;
+
+            for (int i = 0; i < AllMiningBays.Length; i++)
+            {
+                FireEmitters[i] = null;
+                SmokeEmitters[i] = null;
+            }
+
+            EmittersStarted = false;
         }
     }
 }

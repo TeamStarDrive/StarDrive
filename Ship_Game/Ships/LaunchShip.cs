@@ -328,7 +328,6 @@ namespace Ship_Game.Ships
             [StarData] readonly Ship Owner;
             [StarData] readonly float TotalDuration;
             [StarData] readonly float RotationDegZ;
-            [StarData] readonly Vector2 Velocity;
             const int MaxRotationDegX = 75;
             const int StartingPosZ = 200;
 
