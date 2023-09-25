@@ -186,7 +186,7 @@ namespace Ship_Game.Ships
 
         bool HighKineticToEnergyRatio()
         {
-            if (Ship.OrdinanceMax < 1 || Ship.Weapons.IsEmpty && Ship.BombBays.IsEmpty)
+            if (Ship.OrdinanceMax < 1 || Ship.Weapons.IsEmpty && Ship.BombBays.IsEmpty && Ship.Carrier.AllHangars.Length == 0)
                 return false;
 
             if (!InCombat)

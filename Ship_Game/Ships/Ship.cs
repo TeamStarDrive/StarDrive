@@ -1292,8 +1292,7 @@ namespace Ship_Game.Ships
                 return;
             
             Carrier.SupplyShuttles.ProcessSupplyShuttles(AI.GetSensorRadius());
-
-            ResupplyReason resupplyReason = Supply.Resupply();
+                ResupplyReason resupplyReason = Supply.Resupply();
             if (resupplyReason != ResupplyReason.NotNeeded)
             {
                 if (Mothership?.Active == true)
