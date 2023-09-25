@@ -19,7 +19,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] int NumSupplyGoals = 1;
         [StarData] float SupplyDificit;
         Ship MiningStation => TargetShip;
-        string ResourceCargeName => TargetPlanet.Mining.CargoName;
+        string ResourceCargeName => TargetPlanet.Mining.CargoId;
         float RemainingConsumables => Owner.NonCybernetic ? MiningStation.GetFood() : MiningStation.GetProduction();
 
         public override bool IsMiningOpsGoal(Planet planet) => planet != null && TargetPlanet == planet;
@@ -217,7 +217,7 @@ namespace Ship_Game.Commands.Goals
         }
 
         bool NeedsConsumables(float availableConsumables) =>
-            MiningStation.CargoSpaceMax*0.5f - availableConsumables > Owner.AverageFreighterCargoCap
+            MiningStation.RefiningCargoSpaceMax - availableConsumables > Owner.AverageFreighterCargoCap
             || availableConsumables / MiningStation.CargoSpaceMax < 0.25f;
 
         bool ConstructionGoalInProgress => Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetPlanet));

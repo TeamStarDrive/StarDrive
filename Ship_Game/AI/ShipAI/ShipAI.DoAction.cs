@@ -206,7 +206,7 @@ namespace Ship_Game.AI
             }
 
             ReverseThrustUntilStopped(timeStep);
-            Owner.LoadCargo(planet.Mining.CargoName, planet.Mining.Richness * timeStep.FixedTime / Owner.Universe.P.TurnTimer);
+            Owner.LoadCargo(planet.Mining.CargoId, planet.Mining.Richness * timeStep.FixedTime / Owner.Universe.P.TurnTimer);
             if (Owner.CargoSpaceFree == 0)
             {
                 ClearOrders();
@@ -670,10 +670,10 @@ namespace Ship_Game.AI
 
                 if (Owner.IsMiningShip)
                 {
-                    string cargoId = Owner.Mothership.GetTether()?.Mining.CargoName ?? "";
+                    string cargoId = Owner.Mothership.GetTether()?.Mining.CargoId ?? "";
                     if (cargoId.NotEmpty())
                     {
-                        float maxToload = (Owner.Mothership.CargoSpaceMax*0.5f - Owner.Mothership.GetOtherCargo(cargoId)).LowerBound(0);
+                        float maxToload = (Owner.Mothership.RefiningCargoSpaceMax - Owner.Mothership.GetOtherCargo(cargoId)).LowerBound(0);
                         Owner.Mothership.LoadCargo(cargoId, Owner.GetOtherCargo(cargoId).UpperBound(maxToload));
                     }
                 }
