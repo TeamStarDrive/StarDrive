@@ -95,7 +95,7 @@ namespace Ship_Game
             MarkedRect = new Rectangle(RightRect.X - 17, Housing.Y + 160, 182, 25);
             CancelInvasionRect = MarkedRect; // Replaces the colonization rect when invading
             ExoticRect = new Rectangle(leftRect.X + 15, Housing.Y + 140, 182, 25);
-            ExoticResourceIconRect = new Rectangle(leftRect.X + 15, Housing.Y + 180, 20, 20);
+            ExoticResourceIconRect = new Rectangle(leftRect.X + 15, Housing.Y + 170, 20, 20);
         }
 
         public override void Update(UpdateTimes elapsed)
@@ -387,14 +387,27 @@ namespace Ship_Game
 
             batch.Draw(P.Mining.ExoticResourceIcon, ExoticResourceIconRect);
             Vector2 resourceStatPos = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y);
+            Vector2 resourceStatDeployed = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y + 15);
+            Vector2 resourceStatInProgress = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y + 30);
             string stats = $"{P.Mining.TranslatedResourceName.Text}: Richness {P.Mining.Richness}, Refine Ratio: {P.Mining.RefiningRatio}";
             batch.DrawString(Font12, stats, resourceStatPos, Color.White);
+
+            int numDeployed = P.OrbitalStations.Filter(s => s.IsMiningStation && s.Loyalty == Player).Length;
+            int numInProgress = Player.AI.CountGoals(g => g.IsMiningOpsGoal(P) && g.TargetShip == null);
+            string statsDeployed = $"{numDeployed}/{Mineable.MaximumMiningStations} Deployed    ";
+            batch.DrawString(Font12, statsDeployed, resourceStatDeployed, numDeployed > 0 ? Color.Green : Color.Gray);
+            if (numInProgress > 0)
+            {
+                string statsInProgress = $"{numInProgress} In Progress";
+                batch.DrawString(Font12, statsInProgress, resourceStatInProgress, Color.Gold);
+            }
             ToolTipItems.Add(new TippedItem(ExoticResourceIconRect, P.Mining.ResourceDescription));
             if (P.Mining.Owner != null && P.Mining.Owner != Player)
                 return;
 
             Vector2 textPos = new Vector2(ExoticRect.X + 13, ExoticRect.Y + 13 - Font12.LineSpacing / 2 - 2);
-            batch.Draw(ResourceManager.Texture(Player.CanBuildMiningStations ? "NewUI/dan_button_clear"
+            batch.Draw(ResourceManager.Texture(Player.CanBuildMiningStations && P.Mining.CanAddMiningStationFor(Player) 
+                ? "NewUI/dan_button_clear"
                 : "NewUI/dan_button_disabled"), ExoticRect, Color.White);
 
             LocalizedText tip = Player.CanBuildMiningStations ? GameText.DeployMiningStationTip : GameText.CannotBuildMiningStationTip;
