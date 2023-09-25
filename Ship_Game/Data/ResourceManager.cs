@@ -58,7 +58,7 @@ namespace Ship_Game
         static readonly Map<string, ShipModule> ModuleTemplates = new();
         public static Array<Encounter> Encounters = new();
         public static Map<string, Building> BuildingsDict = new();
-        public static Map<string, Good> GoodsDict = new();
+        public static Array<Good> TransportableGoods = new();
         public static Map<string, Texture2D> ProjTextDict = new();
 
         public static RandomItem[] RandomItemsList = Empty<RandomItem>.Array;
@@ -370,7 +370,7 @@ namespace Ship_Game
 
             TechTree.Clear();
             ArtifactsDict.Clear();
-            GoodsDict.Clear();
+            TransportableGoods.Clear();
             Encounters.Clear();
             EventsDict.Clear();
             RandomItemsList = Empty<RandomItem>.Array;
@@ -1217,14 +1217,10 @@ namespace Ship_Game
             return Texture("FleetIcons/"+index);
         }
 
-        static void LoadGoods() // Refactored by RedFox
+        static void LoadGoods()
         {
-            foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
-            {
-                Good good           = pair.Entity;
-                good.UID            = string.Intern(pair.Info.NameNoExt());
-                GoodsDict[good.UID] = good;
-            }
+            GameLoadingScreen.SetStatus("Goods");
+            TransportableGoods = YamlParser.DeserializeArray<Good>("/Goods/Goods.yaml");
         }
 
         // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer

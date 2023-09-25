@@ -29,6 +29,8 @@ namespace Ship_Game.Ships
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => Loyalty.data.Traits.PassengerModifier;
+
+        public float RefiningCargoSpaceMax => CargoSpaceMax*0.5f;
         
         public bool OrdnanceChanged { get; private set; }
         public float OrdnancePercent { get; private set; }

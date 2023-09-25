@@ -10524,6 +10524,18 @@ AutoPickMiningStationTip:
 MiningPlanetStatus:
  Id: 4470 
  ENG: "Mining Exotic Resource"    
+ColonistsCargName:
+ Id: 4949 
+ ENG: "Colonists"      
+ProductionCargoDesc:
+ Id: 4950 
+ ENG: "Parts, tools, machinery, prefabs, and other widgets that are critical to the infrastructure of the galaxy."     
+FoodCargoDesc:
+ Id: 4951 
+ ENG: "This food is stored in a manner that makes it essentially non-perishable. It may not be the most palatable, but it will provide all of the basic nutrition needed to survive."       
+ColonistsCargoDesc:
+ Id: 4952 
+ ENG: "These desperate souls are neatly packed and stacked in their stasis pods for their long journey through space. Because individuals in stasis do not require sustenance, room to move about, or other life support, this is the preferred method of travel for the budget-minded traveler. They are, for all intents and purposes, just another piece of cargo rather than an additional mouth to feed.  This makes stasis travel very affordable."       
 ExoticResourcePulseFieldName:
  Id: 4953 
  ENG: "Pulsefield Gas"    

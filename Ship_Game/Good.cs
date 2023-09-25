@@ -1,5 +1,5 @@
-using System;
-using Ship_Game.AI;
+using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
@@ -11,14 +11,15 @@ namespace Ship_Game
         Colonists
     }
 
-    public sealed class Good
+    [StarDataType]
+    public class Good
     {
-        public string UID;
-        public bool IsCargo = true;
-        public string Name;
-        public string Description;
-        public float Cost;
-        public float Mass;
-        public string IconTexturePath;
+        [StarData] public readonly float RefiningRatio; // How much is processed per 1 food in the refining module
+        [StarData] public readonly byte MaxRichness; // Speed of mining per turn (1-10 are logical numbers)
+        [StarData] public readonly int NameIndex;
+        [StarData] public readonly int DescriptionIndex;
+        [StarData] public readonly int Weight;
+        [StarData] public readonly string UID;
+        [StarData] public readonly bool IsGasGiantMineable;
     }
 }
