@@ -166,18 +166,25 @@ namespace Ship_Game
 
                         if (p.IsMineable)
                         {
+                            sideSpacing += 4;
+                            RectF flashRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);
                             if (!p.Mining.AreMiningOpsPresent()) 
                             {
-                                sideSpacing += 4;
-                                RectF flashRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);
                                 batch.Draw(Mineable.Icon, flashRect, Universe.CurrentFlashColor);
                                 if (flashRect.HitTest(Universe.Input.CursorPosition))
                                     ToolTip.CreateTooltip(GameText.MiningStationsCanBePlaced);
-                                
-                                sideSpacing += flashRect.W;
+
+
+                            }
+                            else
+                            {
+                                var flag = p.Mining.Owner.data.Traits.FlagIndex;
+                                batch.Draw(ResourceManager.Flag(flag), flashRect, p.Mining.Owner.EmpireColor);
+                                if (flashRect.HitTest(Universe.Input.CursorPosition))
+                                    ToolTip.CreateTooltip(GameText.MiningStationsOpsOwned);
                             }
 
-                            sideSpacing += 4;
+                            sideSpacing += flashRect.W + 4;
                             RectF resourceRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);
                             batch.Draw(p.Mining.ExoticResourceIcon, resourceRect, Universe.CurrentFlashColor);
                             if (resourceRect.HitTest(Universe.Input.CursorPosition))

@@ -10524,6 +10524,9 @@ AutoPickMiningStationTip:
 MiningPlanetStatus:
  Id: 4470 
  ENG: "Mining Exotic Resource"    
+MiningStationsOpsOwned:
+ Id: 4471 
+ ENG: "Mining Station operations here are owned by this empire"     
 ColonistsCargName:
  Id: 4949 
  ENG: "Colonists"      
