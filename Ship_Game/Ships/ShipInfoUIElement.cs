@@ -26,14 +26,16 @@ namespace Ship_Game.Ships
         public Rectangle Housing;
         public Rectangle ShipInfoRect;
         public ToggleButton GridButton;
-        public Rectangle Power;
-        public Rectangle Shields;
-        public Rectangle Ordnance;
-        public Rectangle ConstructionRect;
-        private readonly ProgressBar PBar;
-        private readonly ProgressBar SBar;
-        private readonly ProgressBar OBar;
-        private readonly ProgressBar ConstructionBar;
+        Rectangle Power;
+        Rectangle Shields;
+        Rectangle Ordnance;
+        Rectangle ConstructionRect;
+        Rectangle MiningRect;
+        readonly ProgressBar PBar;
+        readonly ProgressBar SBar;
+        readonly ProgressBar OBar;
+        readonly ProgressBar ConstructionBar;
+        readonly ProgressBar MiningBar;
         UITextEntry ShipNameArea;
         private readonly SlidingElement SlidingElement;
         private readonly Rectangle DefenseRect;
@@ -77,8 +79,11 @@ namespace Ship_Game.Ships
             OBar = new ProgressBar(Ordnance.X + Ordnance.Width + 15, Ordnance.Y, 150, 18);
             ToolTipItems.Add(new TippedItem(Ordnance, GameText.IndicatesThisShipsCurrentStores));
 
-            ConstructionRect = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing*3 + 60, 20, 20);
-            ConstructionBar = new ProgressBar(ConstructionRect.X + ConstructionRect.Width + 15, ConstructionRect.Y, 150, 18);
+            ConstructionRect = new Rectangle(Housing.X + 187, Housing.Y + 110 + 20 + spacing*3 + 40, 20, 20);
+            ConstructionBar = new ProgressBar(ConstructionRect.X + ConstructionRect.Width + 15, ConstructionRect.Y, 150, 18) { color = "yellow" };
+
+            MiningRect = ConstructionRect;
+            MiningBar = new ProgressBar(MiningRect.X + MiningRect.Width + 15, MiningRect.Y, 150, 18) { color = "red" };
 
             DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
             ToolTipItems.Add(new TippedItem(DefenseRect, GameText.IndicatesThisShipsCurrentDefense));
@@ -184,6 +189,7 @@ namespace Ship_Game.Ships
             if (HelperFunctions.DataVisibleToPlayer(s.Loyalty))
             {
                 DrawConstructionStatus(batch, mousePos);
+                DrawMiningStatus(batch, mousePos);
                 DrawCarrierStatus(mousePos, s);
                 DrawResupplyReason(batch, s);
                 DrawRadiationDamageWarning(s);
@@ -345,8 +351,9 @@ namespace Ship_Game.Ships
 
                 if (goodRect.HitTest(mousePos))
                 {
-                    Good good = ResourceManager.GoodsDict[cargo.CargoId];
-                    ToolTip.CreateTooltip($"{good.Name}\n\n{good.Description}");
+                    Good good = ResourceManager.TransportableGoods.Find(g => g.UID == cargo.CargoId);
+                    if (good != null) 
+                        ToolTip.CreateTooltip($"{new LocalizedText(good.NameIndex).Text}\n\n{new LocalizedText(good.DescriptionIndex).Text}");
                 }
                 numStatus++;
             }
@@ -434,6 +441,26 @@ namespace Ship_Game.Ships
                 batch.Draw(ResourceManager.Texture("NewUI/icon_production"), ConstructionRect, Color.White);
                 if (ConstructionRect.HitTest(mousePos))
                     ToolTip.CreateTooltip(GameText.ConstructionProgressTip);
+            }
+        }
+
+
+        void DrawMiningStatus(SpriteBatch batch, Vector2 mousePos)
+        {
+            if (Ship.IsMiningShip)
+            {
+                Mineable mining = Ship.Mothership?.GetTether()?.Mining;
+                if (mining != null) 
+                {
+                    string cargoId = mining.CargoId;
+                    MiningBar.Max = Ship.CargoSpaceMax;
+                    MiningBar.Progress = Ship.GetOtherCargo(cargoId);
+                    MiningBar.Draw(batch);
+                    batch.Draw(mining.ExoticResourceIcon, MiningRect, Color.White);
+                    if (MiningRect.HitTest(mousePos))
+                        ToolTip.CreateTooltip(mining.TranslatedResourceName);
+                }
+
             }
         }
 
