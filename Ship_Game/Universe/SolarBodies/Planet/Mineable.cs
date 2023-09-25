@@ -25,7 +25,6 @@ namespace Ship_Game
 
 
         public bool CanAddMiningStationFor(Empire empire) => (Owner == empire || Owner == null) && MiningOpsSize < MaximumMiningStations;
-
         public bool MiningOpsExistFor(Empire empire) => Owner == empire && MiningOpsSize > 0;
         int MiningOpsSize => Owner != null ? Owner.AI.CountGoals(g => g.IsMiningOpsGoal(P)) : 0;
 
