@@ -44,6 +44,7 @@ namespace Ship_Game.Ships
                     CreateMiningShip(miningBay, out Ship miningShip);
                     miningBay.HangarTimer = miningBay.HangarTimerConstant;
                     miningShip.AI.OrderMinePlanet(Owner.GetTether());
+                    Owner.OnShipLaunched(miningShip);
                     return;
                 }
             }

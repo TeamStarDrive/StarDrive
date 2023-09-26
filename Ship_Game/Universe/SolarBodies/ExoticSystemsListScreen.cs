@@ -236,7 +236,7 @@ namespace Ship_Game
             HandleButton(input, Sb_Sys, sb => sb is Planet p ? p.System.Name : sb is SolarSystem s ? s.Name : "");
             HandleButton(input, Sb_Name, sb => sb is Planet p ? p.Name : "");
             HandleButton(input, Sb_Distance, DistancesToClosestColony);
-            HandleButton(input, Sb_Resource, sb => sb is Planet p ? p?.Mining?.TranslatedResourceName  ?? "Research": "");
+            HandleButton(input, Sb_Resource, sb => sb is Planet p ? (p?.Mining?.TranslatedResourceName.Text ?? ""): "");
 
             if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
             {
