@@ -4573,6 +4573,8 @@ namespace Ship_Game
         ResourceName = 4472,
         /// <summary>Cancel Mining Station</summary>
         CancelDeployMiningStation = 4473,
+        /// <summary>Mining Ops around this planet are owned by</summary>
+        MiningOpsOwnedByAnother = 4474,
 
 
 
