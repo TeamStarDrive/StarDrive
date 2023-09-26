@@ -1,7 +1,4 @@
 ﻿using SDUtils;
-using SDGraphics;
-using Ship_Game.AI;
-using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
 {
