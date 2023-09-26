@@ -108,6 +108,9 @@ namespace Ship_Game.Ships
             if (IsResearchStation)
                 OnResearchStationDeath();
 
+            if (IsMiningStation)
+                OnMiningStationDeath();
+
             DamageRelationsOnDeath(pSource);
             CreateEventOnDeath();
         }
@@ -153,6 +156,26 @@ namespace Ship_Game.Ships
             else
             {
                 Log.Error($"On Ship die - research station {Name} no goal found!");
+            }
+
+            Loyalty.AI.SpaceRoadsManager.RemoveRoadIfNeeded(System);
+        }
+
+        void OnMiningStationDeath()
+        {
+            Goal miningGoal = Loyalty.AI.FindGoal(g => g is MiningOps && g.TargetShip == this);
+            if (miningGoal != null && miningGoal.TargetPlanet.IsMineable)
+            {
+                Planet planet = miningGoal.TargetPlanet;
+                if (!planet.System.IsExclusivelyOwnedBy(Loyalty) 
+                    && !planet.OrbitalStations.Any(s => s.IsMiningStation && s.Loyalty == Loyalty))
+                {
+                    planet.Mining.ChangeOwner(null);
+                }
+            }
+            else
+            {
+                Log.Error($"On Ship die - mining station {Name} no goal found!");
             }
 
             Loyalty.AI.SpaceRoadsManager.RemoveRoadIfNeeded(System);

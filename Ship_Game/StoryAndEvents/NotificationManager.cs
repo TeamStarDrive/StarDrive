@@ -743,7 +743,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message = $"{planet.System.Name}: {s.Name}" + $" {Localizer.Token(GameText.ResearchStationBuiltPlanetNotify)} {planet.Name}",
+                Message = $"{planet.System.Name}: {s.Name}" + $" {Localizer.Token(GameText.MiningStationBuiltPlanetNotify)} {planet.Name}",
                 Action = "SnapToShip",
                 ReferencedItem1 = s,
                 IconPath = s.ShipData.IconPath
