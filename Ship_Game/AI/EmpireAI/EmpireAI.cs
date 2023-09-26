@@ -403,6 +403,21 @@ namespace Ship_Game.AI
             }
         }
 
+        public void CancelMiningStation(Planet p)
+        {
+            Goal stationGoal = FindGoal(g => g.IsMiningOpsGoal(p) && g.TargetShip == null);
+            if (stationGoal != null)
+                RemoveGoal(stationGoal);
+
+            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(p) && g.Build.Template.IsMiningStation);
+            if (constructionGoal != null)
+            {
+                constructionGoal.FinishedShip?.AI.OrderScrapShip();
+                constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
+                RemoveGoal(constructionGoal);
+            }
+        }
+
         public IReadOnlyList<Goal> SearchForGoals(GoalType type)
         {
             var goals = new Array<Goal>();
