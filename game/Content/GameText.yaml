@@ -10533,6 +10533,9 @@ ResourceName:
 CancelDeployMiningStation:
  Id: 4473 
  ENG: "Cancel Mining Station"       
+MiningOpsOwnedByAnother:
+ Id: 4474 
+ ENG: "Mining Ops around this planet are owned by"        
 ColonistsCargName:
  Id: 4949 
  ENG: "Colonists"      
