@@ -29,6 +29,7 @@ namespace Ship_Game
         readonly SortButton Sb_Sys;
         readonly SortButton Sb_Name;
         readonly SortButton Sb_Distance;
+        readonly SortButton Sb_Resource;
         readonly Array<ExplorableGameObject> ExploredSolarBodies = new();
         UIButton PlanetArrayListButton;
 
@@ -54,13 +55,14 @@ namespace Ship_Game
             {
                 //LowRes = true;
             }
-            Rectangle titleRect = new Rectangle(ScreenWidth / 6 + 2, 44, ScreenWidth * 2 / 3, 80);
+
+            Rectangle titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.ExoticSystemsArray)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-            Rectangle leftRect = new Rectangle(titleRect.X, titleRect.Y + titleRect.Height + 5, ScreenWidth * 2/3, ScreenHeight - titleRect.Bottom - 7);
+            Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
             EMenu = new Menu2(leftRect);
             Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
-            ERect = new(leftRect.X + 20, titleRect.Bottom + 50, ScreenWidth * 2/3 - 30,
+            ERect = new(leftRect.X + 20, titleRect.Bottom + 50, ScreenWidth - 40,
                         leftRect.Bottom - (titleRect.Bottom + 46) - 31);
             RectF slRect = new(ERect.X, ERect.Y - 10, ERect.W, ERect.H + 10);
             ExoticSL = Add(new ScrollList<ExoticSystemsListScreenItem>(slRect));
@@ -69,6 +71,7 @@ namespace Ship_Game
             Sb_Sys = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.System));
             Sb_Name = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.StarOrPlanet));
             Sb_Distance = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.Proximity));
+            Sb_Resource = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.ResourceName));
 
             foreach (SolarSystem system in Universe.UState.Systems.OrderBy(s => s.Position.Distance(Universe.Player.WeightedCenter)))
             {
@@ -77,7 +80,7 @@ namespace Ship_Game
 
                 foreach (Planet p in system.PlanetList)
                 {
-                    if (p.IsResearchable || p.IsMineable && p.IsExploredBy(Player))
+                    if (p.IsExploredBy(Player)&& (p.IsResearchable || p.IsMineable))
                         ExploredSolarBodies.Add(p);
                 }
             }
@@ -142,6 +145,10 @@ namespace Ship_Game
                 Sb_Distance.Update(textCursor);
                 Sb_Distance.Draw(ScreenManager);
 
+                textCursor = GetCenteredTextOffset(e1.ResourceRect, GameText.ResourceName);
+                Sb_Resource.Update(textCursor);
+                Sb_Resource.Draw(ScreenManager);
+
                 Color lineColor = new Color(118, 102, 67, 255);
                 float columnTop = ERect.Y + 15;
                 float columnBot = ERect.Y + ERect.H - 20;
@@ -149,6 +156,9 @@ namespace Ship_Game
                 Vector2 botSL = new(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((e1.DistanceRect.X), columnTop);
+                botSL = new Vector2(topLeftSL.X, columnBot);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
+                topLeftSL = new Vector2((e1.ResourceRect.X), columnTop);
                 botSL = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((e1.OrdersRect.X), columnTop);
@@ -226,6 +236,7 @@ namespace Ship_Game
             HandleButton(input, Sb_Sys, sb => sb is Planet p ? p.System.Name : sb is SolarSystem s ? s.Name : "");
             HandleButton(input, Sb_Name, sb => sb is Planet p ? p.Name : "");
             HandleButton(input, Sb_Distance, DistancesToClosestColony);
+            HandleButton(input, Sb_Resource, sb => sb is Planet p ? p?.Mining?.TranslatedResourceName  ?? "Research": "");
 
             if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
             {
@@ -270,6 +281,7 @@ namespace Ship_Game
                 ResetButton(Sb_Sys, sb => sb is Planet p ? p.System.Name : sb is SolarSystem s ? s.Name : "");
                 ResetButton(Sb_Name, sb => sb is Planet p ? p.Name : "");
                 ResetButton(Sb_Distance, DistancesToClosestColony);
+                ResetButton(Sb_Resource, sb => sb is Planet p ? p?.Mining?.TranslatedResourceName ?? "Research" : "");
             }
 
             SelectedPlanet = ExoticSL.NumEntries > 0 ? ExoticSL.AllEntries[0].Planet : null;

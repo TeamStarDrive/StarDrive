@@ -265,7 +265,9 @@ namespace Ship_Game.Ships
                 else
                     newship.LoadProduction(GetProduction());
 
-                // TODO - need to transfer raw exotic resource as well
+                string cargoId = TetheredTo?.Mining?.CargoId ?? "";
+                if (cargoId.NotEmpty())
+                    newship.LoadCargo(cargoId, GetOtherCargo(cargoId));
             }
         }
     }

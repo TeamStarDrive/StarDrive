@@ -314,11 +314,32 @@ namespace Ship_Game
         {
             get
             {
-                if (MineralRichness > 2.5) return Localizer.Token(GameText.UltraRich);
-                if (MineralRichness > 1.5) return Localizer.Token(GameText.Rich);
-                if (MineralRichness > 0.75) return Localizer.Token(GameText.Average);
-                if (MineralRichness > 0.25) return Localizer.Token(GameText.Poor);
-                return Localizer.Token(GameText.UltraPoor);
+                if (this is Planet p && p.Category == PlanetCategory.GasGiant)
+                {
+                    if (p.IsMineable) 
+                    {
+                        float richness = p.Mining.Richness;
+                        string text;
+                        if (richness > 7.5)      text = $"{Localizer.Token(GameText.UltraRich)} ({richness})";
+                        else if (richness > 5)   text = $"{Localizer.Token(GameText.Rich)} ({richness})";
+                        else if (richness > 2.5) text = $"{Localizer.Token(GameText.Average)} ({richness})";
+                        else                     text = $"{Localizer.Token(GameText.Poor)} ({richness})";
+
+                        return text;
+                    }
+                    else
+                    {
+                        return Localizer.Token(GameText.UltraPoor);
+                    }
+                }
+                else
+                {
+                    if (MineralRichness > 2.5)  return Localizer.Token(GameText.UltraRich);
+                    if (MineralRichness > 1.5)  return Localizer.Token(GameText.Rich);
+                    if (MineralRichness > 0.75) return Localizer.Token(GameText.Average);
+                    if (MineralRichness > 0.25) return Localizer.Token(GameText.Poor);
+                    return Localizer.Token(GameText.UltraPoor);
+                }
             }
         }
 

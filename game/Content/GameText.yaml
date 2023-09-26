@@ -10527,6 +10527,12 @@ MiningPlanetStatus:
 MiningStationsOpsOwned:
  Id: 4471 
  ENG: "Mining Station operations here are owned by this empire"     
+ResourceName:
+ Id: 4472 
+ ENG: "Resource"      
+CancelDeployMiningStation:
+ Id: 4473 
+ ENG: "Cancel Mining Station"       
 ColonistsCargName:
  Id: 4949 
  ENG: "Colonists"      
