@@ -460,7 +460,6 @@ namespace Ship_Game.Ships
                     if (MiningRect.HitTest(mousePos))
                         ToolTip.CreateTooltip(mining.TranslatedResourceName);
                 }
-
             }
         }
 

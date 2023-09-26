@@ -158,6 +158,10 @@ namespace Ship_Game
                     if (TargetPlanet != null)      Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetPlanet, ShipToBuild, worldPos));
                     else if (TargetSystem != null) Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, TargetSystem, worldPos, ShipToBuild));
                 }
+                else if (ShipToBuild.IsMiningStation)
+                {
+                    Player.AI.AddGoalAndEvaluate(new MiningOps(Player, TargetPlanet));
+                }
                 else
                 {
                     if (TargetPlanet != null)
@@ -181,9 +185,13 @@ namespace Ship_Game
             if (ShipToBuild == null)
                 return false;
 
-            if (targetSystem != null 
-                && (Screen.CursorWorldPosition2D.InRadius(targetSystem.Position, MinimumBuildDistanceFromSun) 
-                   ||!targetSystem.InSafeDistanceFromRadiation(Screen.CursorWorldPosition2D)))
+            if (targetSystem != null && (Screen.CursorWorldPosition2D.InRadius(targetSystem.Position, MinimumBuildDistanceFromSun) 
+                                         || !targetSystem.InSafeDistanceFromRadiation(Screen.CursorWorldPosition2D)))
+            {
+                return false;
+            }
+
+            if (targetSystem != null && targetPlanet == null && ShipToBuild.IsMiningStation)
                 return false;
 
             if (targetPlanet != null)
@@ -193,10 +201,13 @@ namespace Ship_Game
 
                 if (ShipToBuild.IsResearchStation && !targetPlanet.CanBeResearchedBy(Player))
                     return false;
+
+                if (ShipToBuild.IsMiningStation && (!targetPlanet.IsMineable || !targetPlanet.Mining.CanAddMiningStationFor(Player)))
+                    return false;
             }
-            else
+            else // There is no target planet
             {
-                if (ShipToBuild.IsShipyard)
+                if (ShipToBuild.IsShipyard || ShipToBuild.IsMiningStation)
                     return false;
 
                 if (targetSystem != null && ShipToBuild.IsResearchStation)
