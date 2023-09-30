@@ -10536,6 +10536,21 @@ CancelDeployMiningStation:
 MiningOpsOwnedByAnother:
  Id: 4474 
  ENG: "Mining Ops around this planet are owned by"        
+CannotBuildMiningStationTip2:
+ Id: 4475
+ ENG: "Mining Station Tech not available yet."    
+ExoticResourceFortifumeName:
+ Id: 4945 
+ ENG: "Fortifume Gas"    
+ExoticResourceFortifumeDesc:
+ Id: 4946 
+ ENG: "Refined Fortifume can decrease damage dealt to your ship modules by up to 50%, the damage reduction is applied if the module was actually hit (projectile was not deflected)."       
+ExoticResourceLuxariumName:
+ Id: 4947 
+ ENG: "Luxarium Gas"    
+ExoticResourceLuxariumDesc:
+ Id: 4948 
+ ENG: "Refined Luxarium can increase the rate of Credits added to your empire per turn by 50%"      
 ColonistsCargName:
  Id: 4949 
  ENG: "Colonists"      
@@ -10553,7 +10568,7 @@ ExoticResourcePulseFieldName:
  ENG: "Pulsefield Gas"    
 ExoticResourcePulseFieldDesc:
  Id: 4954 
- ENG: "Refined Pulsefield Gas can enhance the recharge if your shields by up to 50%"     
+ ENG: "Refined Pulsefield Gas can enhance the recharge of ship and planetary shields by up to 50%"     
 ProcessingUnitName:
  Id: 4955 
  ENG: "Processing Unit"   

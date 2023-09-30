@@ -21,5 +21,16 @@ namespace Ship_Game
         [StarData] public readonly int Weight;
         [StarData] public readonly string UID;
         [StarData] public readonly bool IsGasGiantMineable;
+        [StarData] public readonly ExoticBonusType ExoticBonusType;
+        [StarData] public readonly float MaxBonus;
+        [StarData] public readonly float ConsumptionMultiplier = 1;
+    }
+
+    public enum ExoticBonusType
+    {
+        None = 0,
+        Credits = 1,
+        ShieldRecharge = 2,
+        DamageReduction = 3
     }
 }

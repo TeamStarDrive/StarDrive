@@ -222,9 +222,11 @@
     <Compile Include="Ship_Game\Debug\ShipDebugInfoPanel.cs" />
     <Compile Include="Ship_Game\Debug\ShipModuleInfoPanel.cs" />
     <Compile Include="Ship_Game\Debug\TextDrawerComponent.cs" />
+    <Compile Include="Ship_Game\EmpireExoticBonuses.cs" />
     <Compile Include="Ship_Game\Empires\Components\EmpireFirstContact.cs" />
     <Compile Include="Ship_Game\Empires\Components\IncomingThreatDetector.cs" />
     <Compile Include="Ship_Game\Empire_Borders.cs" />
+    <Compile Include="Ship_Game\Empire_ExoticResources.cs" />
     <Compile Include="Ship_Game\Empire_Fleets.cs" />
     <Compile Include="Ship_Game\Empire_RallyPlanets.cs" />
     <Compile Include="Ship_Game\Empire_ShipsWeCanBuild.cs" />

@@ -853,7 +853,9 @@ namespace Ship_Game
 
             float maxRechargeRate = ShieldStrengthMax / (SpaceCombatNearPlanet ? 100 : 30);
             float rechargeRate    = (ShieldStrengthCurrent * 100 / ShieldStrengthMax).Clamped(1, maxRechargeRate);
-            ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate).Clamped(0, ShieldStrengthMax);
+            Owner.AddExoticConsumption(ExoticBonusType.ShieldRecharge, rechargeRate);
+            float rechargeExoticBonus = Owner.GetExoticBonusMuliplier(ExoticBonusType.ShieldRecharge);
+            ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate*rechargeExoticBonus).Clamped(0, ShieldStrengthMax);
         }
 
         private void UpdateColonyValue() => ColonyValue = Owner != null ? ColonyBaseValue(Owner) : 0;
