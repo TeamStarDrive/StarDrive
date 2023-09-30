@@ -410,7 +410,7 @@ namespace Ship_Game
                 : "NewUI/dan_button_disabled"), ExoticRect, Color.White);
 
             LocalizedText tip = Player.CanBuildMiningStations ? GameText.DeployMiningStationTip : GameText.CannotBuildMiningStationTip;
-            LocalizedText tipText = GameText.DeployMiningStation;
+            LocalizedText tipText = P.Mining.Owner != null && P.Mining.Owner != Player ? GameText.CannotDeployMiningStationNotOwnerTip : GameText.DeployMiningStation;
 
 
             ToolTipItems.Add(new TippedItem(ExoticRect, tip));

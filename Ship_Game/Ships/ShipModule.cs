@@ -261,6 +261,7 @@ namespace Ship_Game.Ships
                 case ShipModuleType.Shield:     return ShieldPowerMax >= 1f;
                 case ShipModuleType.Armor:      return ModuleType == type || APResist > 0;
                 case ShipModuleType.Ordnance:   return ModuleType == type && OrdinanceCapacity > 0;
+                case ShipModuleType.Hangar:     return ModuleType == type || IsMiningBay;
                 default:                        return ModuleType == type;
             }
         }
@@ -899,6 +900,8 @@ namespace Ship_Game.Ships
             {
                 CauseSpecialBeamDamageNoShield(beam, beamModifier);
                 float healthBefore = Health;
+                float exoticDamageReduction = 2 - Parent.Loyalty.GetExoticBonusMuliplier(ExoticBonusType.DamageReduction);
+                modifiedDamage *= exoticDamageReduction;
                 SetHealth(Health - modifiedDamage, source);
                 remainder = modifiedDamage - healthBefore;
 
@@ -1179,7 +1182,7 @@ namespace Ship_Game.Ships
                 ResurrectModule();
             }
 
-            if (Active && (ModuleType == ShipModuleType.Hangar || IsMiningBay))
+            if (Active && Is(ShipModuleType.Hangar))
                 HangarTimer -= timeStep.FixedTime;
 
             // Shield Recharge / Discharge
@@ -1198,11 +1201,13 @@ namespace Ship_Game.Ships
             if (!Active || !Powered || shieldPower >= ActualShieldPowerMax)
                 return shieldPower;
 
-            if (Parent.ShieldRechargeTimer > ShieldRechargeDelay)
-                shieldPower += ShieldRechargeRate * timeStep.FixedTime;
-            else 
-                shieldPower += ShieldRechargeCombatRate * timeStep.FixedTime;
-            return shieldPower.Clamped(0, shieldMax);
+            float rechargeRate = timeStep.FixedTime * (Parent.ShieldRechargeTimer > ShieldRechargeDelay 
+                                                        ? ShieldRechargeRate 
+                                                        : ShieldRechargeCombatRate);
+
+            Parent.Loyalty.AddExoticConsumption(ExoticBonusType.ShieldRecharge, rechargeRate);
+            float rechargeExoticBonus = Parent.Loyalty.GetExoticBonusMuliplier(ExoticBonusType.ShieldRecharge);
+            return (shieldPower + rechargeRate*rechargeExoticBonus).Clamped(0, shieldMax);
         }
 
         public float GetActualMass(Empire loyalty, float ordnancePercent, bool useMassModifier = true)

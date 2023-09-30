@@ -102,6 +102,7 @@ namespace Ship_Game.AI
                 RemoveFactionEndedTasks();
 
             UpdateFleetsPosAndSpeed();
+
             for (int i = GoalsList.Count - 1; i >= 0; i--)
             {
                 GoalsList[i].Evaluate();

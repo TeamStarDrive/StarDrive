@@ -23,6 +23,8 @@ namespace Ship_Game
         public SubTexture ExoticResourceIcon => ResourceManager.Texture($"Goods/{CargoId}");
         public float RefiningRatio => ResourceType.RefiningRatio; // How much  of the resource is processed per turn
 
+        public ExoticBonusType ExoticBonusType => ResourceType.ExoticBonusType;
+
 
         public bool CanAddMiningStationFor(Empire empire) => (Owner == empire || Owner == null) && MiningOpsSize < MaximumMiningStations;
         public bool MiningOpsExistFor(Empire empire) => Owner == empire && MiningOpsSize > 0;

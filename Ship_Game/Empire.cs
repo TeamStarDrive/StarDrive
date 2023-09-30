@@ -98,7 +98,6 @@ namespace Ship_Game
         public float TotalOrbitalMaintenance { get; private set; }
         public float TotalMaintenanceInScrap { get; private set; }
         public float TotalTroopShipMaintenance { get; private set; }
-
         public float NetPlanetIncomes { get; private set; }
         public float TroopCostOnPlanets { get; private set; } // Maintenance in all Owned planets
         public float TroopInSpaceFoodNeeds { get; private set; }
@@ -259,6 +258,10 @@ namespace Ship_Game
 
             DiplomacyContactQueue = new();
             ObsoletePlayerShipModules = new();
+
+            ExoticBonuses = new();
+            foreach (Good good in ResourceManager.TransportableGoods.Filter(g => g.IsGasGiantMineable))
+                ExoticBonuses.Add(good.ExoticBonusType, new EmpireExoticBonuses(this, good));
         }
 
         // Create REBELS
@@ -271,6 +274,10 @@ namespace Ship_Game
             // clone the entire tech tree
             foreach (var tech in parentEmpire.TechnologyDict)
                 TechnologyDict[tech.Key] = new TechEntry(clone: tech.Value, newOwner:this);
+
+            ExoticBonuses = new();
+            foreach (Good good in ResourceManager.TransportableGoods.Filter(g => g.IsGasGiantMineable))
+                ExoticBonuses.Add(good.ExoticBonusType, new EmpireExoticBonuses(this, good));
 
             Initialize();
             UpdatePopulation();
@@ -990,9 +997,12 @@ namespace Ship_Game
                 AssignNewHomeWorldIfNeeded();
 
                 ShipsReadyForFleet = new FleetShips(this, AllFleetReadyShips());
+                UpdateExoticConsumpsions();
                 AI.Update(); // Must be done before DoMoney and Take turn
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
+                CalculateExoticBonuses();
+                ResetDynamicExoticData();
                 TakeTurn(us);
 
                 didUpdate = true;
@@ -1288,7 +1298,7 @@ namespace Ship_Game
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             UpdateAveragePlanetStorage();
-            AddMoney(NetIncome);
+            AddMoney(NetIncome * GetExoticBonusMuliplier(ExoticBonusType.Credits));
         }
 
         void ResetMoneySpentOnProduction()
@@ -1368,43 +1378,57 @@ namespace Ship_Game
 
         private void UpdateShipMaintenance()
         {
-            TotalShipMaintenance          = 0.0f;
-            TotalWarShipMaintenance       = 0f;
-            TotalCivShipMaintenance       = 0f;
-            TotalOrbitalMaintenance       = 0;
-            TotalEmpireSupportMaintenance = 0;
-            TotalMaintenanceInScrap       = 0f;
-            TotalTroopShipMaintenance     = 0;
+            float totalShipMaintenance          = 0;
+            float totalWarShipMaintenance       = 0;
+            float totalCivShipMaintenance       = 0;
+            float totalOrbitalMaintenance       = 0;
+            float totalEmpireSupportMaintenance = 0;
+            float totalMaintenanceInScrap       = 0;
+            float totalTroopShipMaintenance     = 0;
+            float totalShipSurfaceArea          = 0;
+
             foreach (Ship ship in OwnedShips)
             {
                 float maintenance = ship.GetMaintCost();
                 if (!ship.Active || ship.AI.State == AIState.Scrap)
                 {
-                    TotalMaintenanceInScrap += maintenance;
+                    totalMaintenanceInScrap += maintenance;
                     continue;
                 }
 
                 switch (ship.DesignRoleType)
                 {
                     case RoleType.WarSupport:
-                    case RoleType.Warship: TotalWarShipMaintenance             += maintenance; break;
-                    case RoleType.Civilian: TotalCivShipMaintenance            += maintenance; break;
-                    case RoleType.EmpireSupport: TotalEmpireSupportMaintenance += maintenance; break;
-                    case RoleType.Orbital: TotalOrbitalMaintenance             += maintenance; break;
-                    case RoleType.Troop: TotalTroopShipMaintenance             += maintenance; break;
+                    case RoleType.Warship:       totalWarShipMaintenance       += maintenance; break;
+                    case RoleType.Civilian:      totalCivShipMaintenance       += maintenance; break;
+                    case RoleType.EmpireSupport: totalEmpireSupportMaintenance += maintenance; break;
+                    case RoleType.Orbital:       totalOrbitalMaintenance       += maintenance; break;
+                    case RoleType.Troop:         totalTroopShipMaintenance     += maintenance; break;
                     case RoleType.NotApplicable: break;
                     default:
                         Log.Warning($"Type not included in maintenance and not in notapplicable {ship.DesignRoleType}\n    {ship} ");
                         break;
                 }
-                TotalShipMaintenance += maintenance;
+
+                totalShipMaintenance += maintenance;
+                totalShipSurfaceArea += ship.SurfaceArea;
             }
 
             for (int i = 0; i < OwnedProjectors.Count; i++)
             {
                 Ship ship = OwnedProjectors[i];
-                TotalShipMaintenance += ship.GetMaintCost();
+                totalShipMaintenance += ship.GetMaintCost();
+                totalShipSurfaceArea += ship.SurfaceArea;
             }
+
+            TotalShipMaintenance          = totalShipMaintenance;
+            TotalWarShipMaintenance       = totalWarShipMaintenance;
+            TotalCivShipMaintenance       = totalCivShipMaintenance;
+            TotalOrbitalMaintenance       = totalOrbitalMaintenance;
+            TotalEmpireSupportMaintenance = totalEmpireSupportMaintenance;
+            TotalMaintenanceInScrap       = totalMaintenanceInScrap;
+            TotalTroopShipMaintenance     = totalTroopShipMaintenance;
+            TotalShipSurfaceArea          = totalShipSurfaceArea;
         }
 
         public float EstimateNetIncomeAtTaxRate(float rate)

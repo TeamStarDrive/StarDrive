@@ -4547,7 +4547,7 @@ namespace Ship_Game
         DeployMiningStationTip = 4459,
         /// <summary>You do not have the required technology to start Mining</summary>
         CannotBuildMiningStationTip = 4460,
-        /// <summary>Deploy Mining Station in this planet's</summary>
+        /// <summary>You Cannot start Mining Operations here since</summary>
         CannotDeployMiningStationNotOwnerTip = 4461,
         /// <summary>Low Refining Time</summary>
         DesignIssueLowRefiningTimeTitle = 4462,
@@ -4575,7 +4575,8 @@ namespace Ship_Game
         CancelDeployMiningStation = 4473,
         /// <summary>Mining Ops around this planet are owned by</summary>
         MiningOpsOwnedByAnother = 4474,
-
+        /// <summary>Mining Ops Tech not available yet.</summary>
+        CannotBuildMiningStationTip2 = 4475,
 
 
 
