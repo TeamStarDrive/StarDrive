@@ -69,7 +69,7 @@ namespace Ship_Game.Ships
 
         CarrierBays(Ship owner, ShipModule[] slots)
         {
-            AllHangars        = slots.Filter(module => module.Is(ShipModuleType.Hangar) || module.IsMiningBay);
+            AllHangars        = slots.Filter(module => module.Is(ShipModuleType.Hangar));
             AllTroopBays      = AllHangars.Filter(module => module.IsTroopBay);
             AllSupplyBays     = AllHangars.Filter(module => module.IsSupplyBay);
             AllTransporters   = AllHangars.Filter(module => module.TransporterOrdnance > 0 || module.TransporterTroopAssault > 0);
@@ -100,9 +100,8 @@ namespace Ship_Game.Ships
         public static CarrierBays Create(Ship owner, ShipModule[] slots)
         {
             RoleName role = owner.ShipData.Role;
-            if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
-                          || m.ModuleType == ShipModuleType.Transporter
-                          || m.IsMiningBay)
+            if (slots.Any(m => m.Is(ShipModuleType.Hangar)
+                          || m.ModuleType == ShipModuleType.Transporter)
                           || role == RoleName.troop)
             {
                 return new CarrierBays(owner, slots);

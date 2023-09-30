@@ -3,6 +3,8 @@
 # RefiningRatio - how much net resource is refined per refining point
 # Weight - this is how common it is to find this resource - relevant for mining ops
 # IsGasGiantMineable - this determines if this resource can be found on gas giants. At least 1 of the resources should be true else the game will throw exception
+# MaxBonus - max empire bonus modifier given for the empire (0.25 will be C x 1.25)
+# ConsumptionMultiplier - adjust calculations of the empire consumption of this resource (default is 1)
 Good:
   UID: Production
   RefiningRatio: 1
@@ -10,6 +12,7 @@ Good:
   NameIndex: 162
   DescriptionIndex: 4950
   Weight: 1
+  ExoticBonusType: None
   IsGasGiantMineable: false
 Good:
   UID: Food
@@ -18,6 +21,7 @@ Good:
   NameIndex: 161
   DescriptionIndex: 4951
   Weight: 1
+  ExoticBonusType: None
   IsGasGiantMineable: false  
 Good:
   UID: Colonists_1000
@@ -26,6 +30,7 @@ Good:
   NameIndex: 4949
   DescriptionIndex: 4952
   Weight: 1
+  ExoticBonusType: None
   IsGasGiantMineable: false    
 Good:
   UID: Pulsefield
@@ -35,3 +40,27 @@ Good:
   DescriptionIndex: 4954
   Weight: 5
   IsGasGiantMineable: true  
+  ExoticBonusType: ShieldRecharge
+  MaxBonus: 0.5
+  ConsumptionMultiplier: 0.01
+Good:
+  UID: Luxarium
+  RefiningRatio: 1
+  MaxRichness: 10
+  NameIndex: 4947
+  DescriptionIndex: 4948
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: Credits  
+  MaxBonus: 0.5
+Good:
+  UID: Fortifume
+  RefiningRatio: 1
+  MaxRichness: 10
+  NameIndex: 4947
+  DescriptionIndex: 4948
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: DamageReduction  
+  MaxBonus: 0.5  
+  ConsumptionMultiplier: 0.01

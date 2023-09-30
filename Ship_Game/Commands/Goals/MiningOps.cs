@@ -22,6 +22,8 @@ namespace Ship_Game.Commands.Goals
         string ResourceCargeName => TargetPlanet.Mining.CargoId;
         float RemainingConsumables => Owner.NonCybernetic ? MiningStation.GetFood() : MiningStation.GetProduction();
 
+        ExoticBonusType ExoticBonusType => TargetPlanet.Mining.ExoticBonusType;
+
         public override bool IsMiningOpsGoal(Planet planet) => planet != null && TargetPlanet == planet;
 
         [StarDataConstructor]
@@ -138,6 +140,7 @@ namespace Ship_Game.Commands.Goals
             float rawResourcesToRefine = maximumRawResources * consumeableRatio.UpperBound(1);
             float consumablesToConsume = rawResourcesToRefine * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
             float refinedResources = rawResourcesToRefine * TargetPlanet.Mining.RefiningRatio;
+            Owner.AddRefinedResource(ExoticBonusType, refinedResources);
 
             InSupplyChain = true;
             if (Owner.NonCybernetic)
@@ -147,7 +150,6 @@ namespace Ship_Game.Commands.Goals
 
             MiningStation.UnloadCargo(ResourceCargeName, rawResourcesToRefine);
 
-            // TODO - add the refinedResources to the empire exotic resource class
 
             AddSupplyDeficit(-consumablesToConsume);
             if (MiningStation.AI.OrderQueue.PeekFirst?.Plan != Plan.MiningStationRefining)

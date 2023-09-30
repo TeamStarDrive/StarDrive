@@ -193,25 +193,28 @@ namespace Ship_Game
 
             if (!Player.CanBuildMiningStations)
             {
-                DeployTextInfo.Text = Localizer.Token(GameText.CannotBuildMiningStationTip);
+                DeployTextInfo.Text = Localizer.Token(GameText.CannotBuildMiningStationTip2);
                 return;
             }
 
             int numDeployed = Planet.OrbitalStations.Count(s => s.Loyalty.isPlayer && s.IsMiningStation);
             Vector2 miningDeployed = new Vector2(DeployButton.Rect.X + DeployButton.Rect.Width + 5, DeployButton.Rect.Y + 4);
-            MiningDeployedTextInfo = Add(new UITextEntry(miningDeployed, SmallFont, $"{numDeployed} Deployed. "));
+            MiningDeployedTextInfo = Add(new UITextEntry(miningDeployed, SmallFont, $"{numDeployed} Mining Stations Deployed. "));
             MiningDeployedTextInfo.Color = Color.Green;
             MiningDeployedTextInfo.Visible = numDeployed > 0;
 
             int numInProgress = Player.AI.CountGoals(g => g.IsMiningOpsGoal(Planet) && g.TargetShip == null);
-            Vector2 miningInProgress = new Vector2(MiningDeployedTextInfo.Rect.X + MiningDeployedTextInfo.Rect.Width + 5, DeployButton.Rect.Y + 4);
-            MiningInProgressTextInfo = Add(new UITextEntry(miningInProgress, SmallFont, $"{numInProgress} In Progress."));
+            Vector2 miningInProgress = new Vector2(MiningDeployedTextInfo.Rect.X + 
+                (MiningDeployedTextInfo.Visible ? MiningDeployedTextInfo.Rect.Width : 0) , DeployButton.Rect.Y + 4);
+            string miningInProgressMsg = MiningDeployedTextInfo.Visible ? $"{numInProgress} In Progress." : $"{numInProgress} Mining Stations In Progress.";
+            MiningInProgressTextInfo = Add(new UITextEntry(miningInProgress, SmallFont, miningInProgressMsg));
             MiningInProgressTextInfo.Color = Color.Goldenrod;
             MiningInProgressTextInfo.Visible = numInProgress > 0;
 
             if (numDeployed >= Mineable.MaximumMiningStations)
             {
                 DeployTextInfo.Visible = false;
+                MiningDeployedTextInfo.SetPos(DeployButton.Rect.X, DeployButton.Rect.Y + 4);
             }
             else
             {

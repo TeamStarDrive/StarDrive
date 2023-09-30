@@ -71,6 +71,8 @@ public class GamePlayGlobals
     [StarData] public int BuilderShipConstructionAdded = 100;
     // How much extra research the empire gets from allies
     [StarData] public float ResearchBenefitFromAlliance = 0.1f;
+    // How much exotic resource storage an empire has per resource based on all planet normal storage
+    [StarData] public float ExoticRatioStorage = 0.1f;
 
     // feature flags
     [StarData] public bool UseHullBonuses;
