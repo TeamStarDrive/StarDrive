@@ -59,6 +59,7 @@ namespace Ship_Game
                 case ExoticBonusType.None:            consumption = 0;                          break;
                 case ExoticBonusType.Credits:         consumption = Owner.TotalPopBillion;      break;
                 case ExoticBonusType.DamageReduction: consumption = Owner.TotalShipSurfaceArea; break;
+                case ExoticBonusType.Production:      consumption = Owner.GetGrossProduction(); break;
                 case ExoticBonusType.ShieldRecharge:  return; // updated dynamically
             }
 

@@ -31,6 +31,7 @@ namespace Ship_Game
         None = 0,
         Credits = 1,
         ShieldRecharge = 2,
-        DamageReduction = 3
+        DamageReduction = 3,
+        Production = 4
     }
 }

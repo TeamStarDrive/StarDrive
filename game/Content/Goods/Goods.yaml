@@ -57,10 +57,21 @@ Good:
   UID: Fortifume
   RefiningRatio: 1
   MaxRichness: 10
-  NameIndex: 4947
-  DescriptionIndex: 4948
+  NameIndex: 4945
+  DescriptionIndex: 4946
   Weight: 5
   IsGasGiantMineable: true  
   ExoticBonusType: DamageReduction  
   MaxBonus: 0.5  
   ConsumptionMultiplier: 0.01
+Good:
+  UID: Energon
+  RefiningRatio: 1
+  MaxRichness: 10
+  NameIndex: 4943
+  DescriptionIndex: 4944
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: Production  
+  MaxBonus: 0.25  
+  ConsumptionMultiplier: 0.1  
