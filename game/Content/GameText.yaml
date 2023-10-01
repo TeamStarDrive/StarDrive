@@ -10539,6 +10539,12 @@ MiningOpsOwnedByAnother:
 CannotBuildMiningStationTip2:
  Id: 4475
  ENG: "Mining Station Tech not available yet."    
+ExoticResourceEnergonName:
+ Id: 4943 
+ ENG: "Energon Gas"    
+ExoticResourceEnergonDesc:
+ Id: 4944 
+ ENG: "Refined Energon can decrease Production output by up to 25%."        
 ExoticResourceFortifumeName:
  Id: 4945 
  ENG: "Fortifume Gas"    

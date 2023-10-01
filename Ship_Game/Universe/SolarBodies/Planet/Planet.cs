@@ -16,7 +16,6 @@ using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI.Budget;
 using Ship_Game.ExtensionMethods;
-using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -1039,7 +1038,6 @@ namespace Ship_Game
         }
 
         // FB: note that this can be called multiple times in a turn - especially when selecting the planet or in colony screen
-        // FB: @todo - this needs refactoring - its too long
         public void UpdateIncomes()
         {
             if (Owner == null)
