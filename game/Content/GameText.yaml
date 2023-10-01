@@ -10539,12 +10539,24 @@ MiningOpsOwnedByAnother:
 CannotBuildMiningStationTip2:
  Id: 4475
  ENG: "Mining Station Tech not available yet."    
+ExoticResourceAetheriumName:
+ Id: 4939 
+ ENG: "Aetherium Gas"    
+ExoticResourceAetheriumDesc:
+ Id: 4940 
+ ENG: "Refined Aetherium can increase Warp Speeds by up to 50%."          
+ExoticResourceNanoGasName:
+ Id: 4941 
+ ENG: "Nano Gas"    
+ExoticResourceNanoGasDesc:
+ Id: 4942 
+ ENG: "Refined Nano Gas can increase Repair rate by up to 100%."         
 ExoticResourceEnergonName:
  Id: 4943 
  ENG: "Energon Gas"    
 ExoticResourceEnergonDesc:
  Id: 4944 
- ENG: "Refined Energon can decrease Production output by up to 25%."        
+ ENG: "Refined Energon can increase Production output by up to 25%."        
 ExoticResourceFortifumeName:
  Id: 4945 
  ENG: "Fortifume Gas"    
@@ -10604,10 +10616,10 @@ Trait_OrbitalAversion_Desc:
  ENG: "Your people dislike stationary Space structures and believe they litter their colonies' skies although they do acknowledge their necessity . Their Constructors build orbital structures 50% slower."      
 Trait_OrbitalConstructors_Name:
  Id: 4964
- ENG: "Orbital Constructors"    
+ ENG: "Orbital Builders"    
 Trait_OrbitalConstructors_Desc:
  Id: 4965
- ENG: "Orbital Constructors enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
+ ENG: "Orbital Builders enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
 TraitSalvagersName:
   Id: 4966
   ENG: "Salvagers"   

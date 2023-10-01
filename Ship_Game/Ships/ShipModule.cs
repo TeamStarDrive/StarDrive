@@ -900,7 +900,7 @@ namespace Ship_Game.Ships
             {
                 CauseSpecialBeamDamageNoShield(beam, beamModifier);
                 float healthBefore = Health;
-                float exoticDamageReduction = 2 - Parent.Loyalty.GetExoticBonusMuliplier(ExoticBonusType.DamageReduction);
+                float exoticDamageReduction = 2 - Parent.Loyalty.GetStaticExoticBonusMuliplier(ExoticBonusType.DamageReduction);
                 modifiedDamage *= exoticDamageReduction;
                 SetHealth(Health - modifiedDamage, source);
                 remainder = modifiedDamage - healthBefore;
@@ -1206,7 +1206,7 @@ namespace Ship_Game.Ships
                                                         : ShieldRechargeCombatRate);
 
             Parent.Loyalty.AddExoticConsumption(ExoticBonusType.ShieldRecharge, rechargeRate);
-            float rechargeExoticBonus = Parent.Loyalty.GetExoticBonusMuliplier(ExoticBonusType.ShieldRecharge);
+            float rechargeExoticBonus = Parent.Loyalty.GetDynamicExoticBonusMuliplier(ExoticBonusType.ShieldRecharge);
             return (shieldPower + rechargeRate*rechargeExoticBonus).Clamped(0, shieldMax);
         }
 

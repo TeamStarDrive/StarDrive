@@ -56,11 +56,13 @@ namespace Ship_Game
             switch (Good.ExoticBonusType)
             {
                 default:
-                case ExoticBonusType.None:            consumption = 0;                          break;
+                case ExoticBonusType.RepairRate:      // consumption is calculated dynamically 
+                case ExoticBonusType.ShieldRecharge:  // consumption is calculated dynamically
+                case ExoticBonusType.None:            consumption = 0;                          break; 
                 case ExoticBonusType.Credits:         consumption = Owner.TotalPopBillion;      break;
                 case ExoticBonusType.DamageReduction: consumption = Owner.TotalShipSurfaceArea; break;
                 case ExoticBonusType.Production:      consumption = Owner.GetGrossProduction(); break;
-                case ExoticBonusType.ShieldRecharge:  return; // updated dynamically
+                case ExoticBonusType.WarpSpeed:       consumption = Owner.TotalShipWarpThrustK; break;
             }
 
             Consumption = consumption * Good.ConsumptionMultiplier;
