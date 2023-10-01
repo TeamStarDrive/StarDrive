@@ -32,6 +32,8 @@ namespace Ship_Game
         Credits = 1,
         ShieldRecharge = 2,
         DamageReduction = 3,
-        Production = 4
+        Production = 4,
+        RepairRate = 5,
+        WarpSpeed = 6
     }
 }

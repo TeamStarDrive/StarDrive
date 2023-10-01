@@ -16,7 +16,7 @@ namespace Ship_Game
     {
         [StarData] public readonly Map<ExoticBonusType, EmpireExoticBonuses> ExoticBonuses;
         public float TotalShipSurfaceArea { get; private set; }
-        public float TotalShieldRechargeRate { get; private set; }
+        public float TotalShipWarpThrustK { get; private set; }
 
         public void AddRefinedResource(ExoticBonusType type, float amount) 
         {
@@ -41,16 +41,16 @@ namespace Ship_Game
                 exoticBonus.CalcCurrentBonus();
         }
 
-        // This is for Exotic Bonus Data which is calculated in ship update per second (so not perturn)
-        void ResetDynamicExoticData()
-        {
-            TotalShieldRechargeRate = 0;
-        }
-
-        public float GetExoticBonusMuliplier(ExoticBonusType type)
+        public float GetDynamicExoticBonusMuliplier(ExoticBonusType type)
         {
             // if disabled return 1
             return ExoticBonuses.Get(type, out EmpireExoticBonuses exoticBonus) ? exoticBonus.DynamicBonusMultiplier : 1;
+        }
+
+        public float GetStaticExoticBonusMuliplier(ExoticBonusType type)
+        {
+            // if disabled return 1
+            return ExoticBonuses.Get(type, out EmpireExoticBonuses exoticBonus) ? exoticBonus.CurrentBonusMultiplier : 1;
         }
 
         public float GetGrossProduction()

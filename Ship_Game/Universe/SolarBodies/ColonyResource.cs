@@ -211,7 +211,7 @@ namespace Ship_Game.Universe.SolarBodies
                 FlatBonus       += b.PlusFlatProductionAmount;
             }
 
-            float exoticProduction = Planet.Owner.GetExoticBonusMuliplier(ExoticBonusType.Production);
+            float exoticProduction = Planet.Owner.GetStaticExoticBonusMuliplier(ExoticBonusType.Production);
             YieldPerColonist = ProdYieldFormula(richness, plusPerColonist) * exoticProduction;
             FlatBonus *= exoticProduction;
 

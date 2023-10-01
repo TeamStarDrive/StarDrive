@@ -2,6 +2,7 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace Ship_Game.Ships;
 
@@ -68,7 +69,9 @@ public partial class Ship
             }
 
             float totalRepair = repair + planetRepair;
-            ApplyAllRepair(totalRepair, repairInterval: timeSinceLastUpdate.FixedTime, repairLevel);
+            Loyalty.AddExoticConsumption(ExoticBonusType.RepairRate, totalRepair);
+            float repairExoticBonus = Loyalty.GetDynamicExoticBonusMuliplier(ExoticBonusType.RepairRate);
+            ApplyAllRepair(totalRepair * repairExoticBonus, repairInterval: timeSinceLastUpdate.FixedTime, repairLevel);
 
             if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(ShipData.ShipCategory))
                 AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
