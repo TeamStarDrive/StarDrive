@@ -42,9 +42,9 @@ namespace Ship_Game
         bool MarkedForMining;
         readonly UniverseState Universe;
 
-        UITextEntry DeployTextInfo;
-        UITextEntry MiningDeployedTextInfo;
-        UITextEntry MiningInProgressTextInfo;
+        UILabel DeployTextInfo;
+        UILabel MiningDeployedTextInfo;
+        UILabel MiningInProgressTextInfo;
         bool IsPlanet => Planet != null;
         public bool IsStar => Planet == null;
         public bool IsForResearch => IsStar || Planet.IsResearchable;
@@ -151,7 +151,7 @@ namespace Ship_Game
                 return;
 
             Vector2 researchTextBox = new Vector2(DeployButton.Rect.X, DeployButton.Rect.Y + 4);
-            DeployTextInfo = Add(new UITextEntry(researchTextBox, SmallFont, GameText.CannotBuildResearchStationTip2));
+            DeployTextInfo = Add(new UILabel(researchTextBox, GameText.CannotBuildResearchStationTip2, SmallFont));
             DeployTextInfo.Color = Color.Gray;
 
             if (!Player.CanBuildResearchStations) 
@@ -179,7 +179,7 @@ namespace Ship_Game
                 return;
 
             Vector2 miningTextBox = new Vector2(DeployButton.Rect.X, DeployButton.Rect.Y + 4);
-            DeployTextInfo = Add(new UITextEntry(miningTextBox, SmallFont, GameText.CannotBuildMiningStationTip));
+            DeployTextInfo = Add(new UILabel(miningTextBox, GameText.CannotBuildMiningStationTip, SmallFont));
             DeployTextInfo.Color = Color.Gray;
             DeployButton.Visible = false;
             DeployTextInfo.Visible = true;
@@ -199,7 +199,7 @@ namespace Ship_Game
 
             int numDeployed = Planet.OrbitalStations.Count(s => s.Loyalty.isPlayer && s.IsMiningStation);
             Vector2 miningDeployed = new Vector2(DeployButton.Rect.X + DeployButton.Rect.Width + 5, DeployButton.Rect.Y + 4);
-            MiningDeployedTextInfo = Add(new UITextEntry(miningDeployed, SmallFont, $"{numDeployed} Mining Stations Deployed. "));
+            MiningDeployedTextInfo = Add(new UILabel(miningDeployed, $"{numDeployed} Mining Stations Deployed. ", SmallFont));
             MiningDeployedTextInfo.Color = Color.Green;
             MiningDeployedTextInfo.Visible = numDeployed > 0;
 
@@ -207,14 +207,14 @@ namespace Ship_Game
             Vector2 miningInProgress = new Vector2(MiningDeployedTextInfo.Rect.X + 
                 (MiningDeployedTextInfo.Visible ? MiningDeployedTextInfo.Rect.Width : 0) , DeployButton.Rect.Y + 4);
             string miningInProgressMsg = MiningDeployedTextInfo.Visible ? $"{numInProgress} In Progress." : $"{numInProgress} Mining Stations In Progress.";
-            MiningInProgressTextInfo = Add(new UITextEntry(miningInProgress, SmallFont, miningInProgressMsg));
+            MiningInProgressTextInfo = Add(new UILabel(miningInProgress,miningInProgressMsg, SmallFont));
             MiningInProgressTextInfo.Color = Color.Goldenrod;
             MiningInProgressTextInfo.Visible = numInProgress > 0;
 
             if (numDeployed >= Mineable.MaximumMiningStations)
             {
                 DeployTextInfo.Visible = false;
-                MiningDeployedTextInfo.SetPos(DeployButton.Rect.X, DeployButton.Rect.Y + 4);
+                MiningDeployedTextInfo.SetRelPos(DeployButton.Rect.X, DeployButton.Rect.Y + 4);
             }
             else
             {

@@ -52,5 +52,10 @@ namespace Ship_Game
             // if disabled return 1
             return ExoticBonuses.Get(type, out EmpireExoticBonuses exoticBonus) ? exoticBonus.DynamicBonusMultiplier : 1;
         }
+
+        public float GetGrossProduction()
+        {
+            return OwnedPlanets.Sum(p => p.Prod.GrossIncome);
+        }
     }
 }
