@@ -73,6 +73,7 @@ namespace Ship_Game.Ships
 
         public void EngageStarDrive()
         {
+            UpdateVelocityMax();
             // Check warp status for Fighter recall
             WarpStatus warpStatus = ShipEngines.ReadyForFormationWarp;
             if (warpStatus != WarpStatus.ReadyToWarp)

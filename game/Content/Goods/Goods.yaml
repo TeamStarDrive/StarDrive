@@ -75,3 +75,25 @@ Good:
   ExoticBonusType: Production  
   MaxBonus: 0.25  
   ConsumptionMultiplier: 0.1  
+Good:
+  UID: NanoGas
+  RefiningRatio: 1
+  MaxRichness: 10
+  NameIndex: 4941
+  DescriptionIndex: 4942
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: RepairRate  
+  MaxBonus: 1  
+  ConsumptionMultiplier: 0.001    
+Good:
+  UID: Aetherium
+  RefiningRatio: 1
+  MaxRichness: 10
+  NameIndex: 4939
+  DescriptionIndex: 4940
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: WarpSpeed  
+  MaxBonus: 1  
+  ConsumptionMultiplier: 0.001    

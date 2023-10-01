@@ -1002,7 +1002,6 @@ namespace Ship_Game
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
                 CalculateExoticBonuses();
-                ResetDynamicExoticData();
                 TakeTurn(us);
 
                 didUpdate = true;
@@ -1298,7 +1297,7 @@ namespace Ship_Game
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             UpdateAveragePlanetStorage();
-            AddMoney(NetIncome * GetExoticBonusMuliplier(ExoticBonusType.Credits));
+            AddMoney(NetIncome * GetStaticExoticBonusMuliplier(ExoticBonusType.Credits));
         }
 
         void ResetMoneySpentOnProduction()
@@ -1386,6 +1385,7 @@ namespace Ship_Game
             float totalMaintenanceInScrap       = 0;
             float totalTroopShipMaintenance     = 0;
             float totalShipSurfaceArea          = 0;
+            float totalShipWarpThrustK          = 0;
 
             foreach (Ship ship in OwnedShips)
             {
@@ -1412,6 +1412,7 @@ namespace Ship_Game
 
                 totalShipMaintenance += maintenance;
                 totalShipSurfaceArea += ship.SurfaceArea;
+                totalShipWarpThrustK += ship.Stats.WarpThrust;
             }
 
             for (int i = 0; i < OwnedProjectors.Count; i++)
@@ -1429,6 +1430,7 @@ namespace Ship_Game
             TotalMaintenanceInScrap       = totalMaintenanceInScrap;
             TotalTroopShipMaintenance     = totalTroopShipMaintenance;
             TotalShipSurfaceArea          = totalShipSurfaceArea;
+            TotalShipWarpThrustK          = totalShipWarpThrustK * 0.001f;
         }
 
         public float EstimateNetIncomeAtTaxRate(float rate)
