@@ -238,7 +238,7 @@ namespace Ship_Game
             HandleButton(input, Sb_Distance, DistancesToClosestColony);
             HandleButton(input, Sb_Resource, sb => sb is Planet p ? (p?.Mining?.TranslatedResourceName.Text ?? ""): "");
 
-            if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
+            if (input.KeyPressed(Keys.G) && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();

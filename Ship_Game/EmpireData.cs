@@ -206,6 +206,9 @@ namespace Ship_Game
         [StarData] public float MissileHPModifier = 1f;
         [StarData] public bool Inhibitors;
         [StarData] public float BaseReproductiveRate = 0.01f;
+        [StarData] public float ExoticStorageMultiplier = 1;
+        [StarData] public float MiningSpeedMultiplier = 1;
+        [StarData] public float RefiningRatioMultiplier = 1;
 
         // Added by McShooterz: power bonus
         [StarData] public float PowerFlowMod   = 0f;

@@ -108,7 +108,7 @@ namespace Ship_Game
             Folder   = "Minimap/",
             Active   = ResourceManager.Texture("Minimap/button_C_normal"),
             Inactive = ResourceManager.Texture("Minimap/button_C_normal"),
-            Hover    = ResourceManager.Texture("Minimap/button_hover"),
+            Hover    = ResourceManager.Texture("Minimap/button_C_hover"),
             Press    = ResourceManager.Texture("Minimap/button_C_normal")
         };
 

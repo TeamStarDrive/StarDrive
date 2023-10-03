@@ -78,6 +78,7 @@ namespace Ship_Game
             if (input.RangeOverlay)     ToggleUIComponent("sd_ui_accept_alt3", ref ShowingRangeOverlay);
             if (input.AutomationWindow && !Debug) aw.ToggleVisibility();
             if (input.PlanetListScreen)  ScreenManager.AddScreen(new PlanetListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
+            if (input.ExoticListScreen)  ScreenManager.AddScreen(new ExoticSystemsListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.ShipListScreen)    ScreenManager.AddScreen(new ShipListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.FleetDesignScreen) ScreenManager.AddScreen(new FleetDesignScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.ZoomToShip) InputZoomToShip();

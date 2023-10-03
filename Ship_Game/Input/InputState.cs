@@ -99,6 +99,7 @@ namespace Ship_Game
         public bool ZoomOut              => KeyPressed(Keys.PageDown);
         public bool DeepSpaceBuildWindow => KeyPressed(Keys.B);
         public bool PlanetListScreen     => KeyPressed(Keys.L);
+        public bool ExoticListScreen     => KeyPressed(Keys.G);
         public bool FTLOverlay           => KeyPressed(Keys.F1);
         public bool RangeOverlay         => KeyPressed(Keys.F2);
         public bool ShipListScreen       => KeyPressed(Keys.K);
