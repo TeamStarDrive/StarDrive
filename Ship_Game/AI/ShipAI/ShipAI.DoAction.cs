@@ -206,7 +206,10 @@ namespace Ship_Game.AI
             }
 
             ReverseThrustUntilStopped(timeStep);
-            Owner.LoadCargo(planet.Mining.CargoId, planet.Mining.Richness * timeStep.FixedTime / Owner.Universe.P.TurnTimer);
+            float miningRate = planet.Mining.Richness * timeStep.FixedTime 
+                                                      * Owner.Loyalty.data.MiningSpeedMultiplier 
+                                                      / Owner.Universe.P.TurnTimer;
+            Owner.LoadCargo(planet.Mining.CargoId, miningRate);
             if (Owner.CargoSpaceFree == 0)
             {
                 ClearOrders();

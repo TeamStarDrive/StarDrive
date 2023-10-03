@@ -4577,6 +4577,10 @@ namespace Ship_Game
         MiningOpsOwnedByAnother = 4474,
         /// <summary>Mining Ops Tech not available yet.</summary>
         CannotBuildMiningStationTip2 = 4475,
+        /// <summary>Opens Exotic Systems/Planets</summary>
+        OpensExoticPlanetsPanel = 4476,
+
+
 
 
 

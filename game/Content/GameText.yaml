@@ -1248,9 +1248,7 @@ OpensTheShipsListWhich:
  SPA: "Abre la lista de naves de tu imperio"
 OpensPlanetReconnaissancePanel:
  Id: 254
- ENG: "Opens Planet Reconnaissance Panel"
- RUS: "Открывает список всех известных планет"
- SPA: "Abre una lista de todos los planetas conocidos"
+ ENG: "Opens Planet Array"
 ZoomsToYourCurrentlySelected:
  Id: 255
  ENG: "Zooms to your currently selected ship"
@@ -10539,6 +10537,9 @@ MiningOpsOwnedByAnother:
 CannotBuildMiningStationTip2:
  Id: 4475
  ENG: "Mining Station Tech not available yet."    
+OpensExoticPlanetsPanel:
+ Id: 4476
+ ENG: "Opens Exotic Systems Array" 
 ExoticResourceAetheriumName:
  Id: 4939 
  ENG: "Aetherium Gas"    

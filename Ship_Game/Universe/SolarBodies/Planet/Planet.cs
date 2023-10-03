@@ -315,15 +315,19 @@ namespace Ship_Game
                 if (type.Category == PlanetCategory.GasGiant)
                     scale += 1f;
 
-                if (!type.Habitable && random.RollDice(type.ResearchableChance * exoticPlanetMultiplier))
+                if (!Universe.P.DisableResearchStations 
+                    && !type.Habitable 
+                    && random.RollDice(type.ResearchableChance * exoticPlanetMultiplier))
                 {
                     SetResearchable(true, Universe);
                     //Log.Info($"{Name} can be researched");
                 }
-                else if (type.Category == PlanetCategory.GasGiant && random.RollDice(type.MiningChance * exoticPlanetMultiplier))
+                else if (!Universe.P.DisableMiningOps 
+                    && type.Category == PlanetCategory.GasGiant 
+                    && random.RollDice(type.MiningChance * exoticPlanetMultiplier))
                 {
                     Mining = new(this);
-                    Log.Info($"{Name} can be mined");
+                    //Log.Info($"{Name} can be mined");
                 }
 
                 InitNewMinorPlanet(random, type, scale);

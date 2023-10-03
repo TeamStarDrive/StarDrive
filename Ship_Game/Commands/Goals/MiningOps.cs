@@ -139,7 +139,7 @@ namespace Ship_Game.Commands.Goals
             float consumeableRatio = availableConsumables / consumablesNeeded;
             float rawResourcesToRefine = maximumRawResources * consumeableRatio.UpperBound(1);
             float consumablesToConsume = rawResourcesToRefine * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
-            float refinedResources = rawResourcesToRefine * TargetPlanet.Mining.RefiningRatio;
+            float refinedResources = rawResourcesToRefine * TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier;
             Owner.AddRefinedResource(ExoticBonusType, refinedResources);
 
             InSupplyChain = true;

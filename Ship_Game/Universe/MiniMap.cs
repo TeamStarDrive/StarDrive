@@ -27,6 +27,7 @@ namespace Ship_Game
         readonly ToggleButton ZoomOut;
         readonly ToggleButton ZoomToShip;
         readonly ToggleButton PlanetScreen;
+        readonly ToggleButton ExoticScreen;
         readonly ToggleButton ShipScreen;
         readonly ToggleButton AIScreen;
         readonly ToggleButton DeepSpaceBuild;
@@ -50,15 +51,19 @@ namespace Ship_Game
             Node1          = ResourceManager.Texture("UI/node1");
             ActualMap      = new Rectangle(housing.X + 61 + 20, housing.Y + 33, 200, 210);
 
-            UIList list = AddList(new Vector2(Housing.X + 14, Housing.Y + 70));
-            list.Name = "MiniMapButtons";
-            ZoomToShip     = list.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick));
-            ZoomOut        = list.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
-            PlanetScreen   = list.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick));
-            ShipScreen     = list.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_ftloverlay", ShipScreen_OnClick));
-            Fleets         = list.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_rangeoverlay", Fleets_OnClick));
-            DeepSpaceBuild = list.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_dsbw", DeepSpaceBuild_OnClick));
-            AIScreen       = list.Add(new ToggleButton(ToggleButtonStyle.ButtonDown, "AI", AIScreen_OnClick));
+            UIList listL = AddList(new Vector2(Housing.X + 10, Housing.Y + 70));
+            listL.Name = "MiniMapButtons";
+            ZoomToShip     = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick));
+            PlanetScreen   = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick));
+            ShipScreen     = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_ftloverlay", ShipScreen_OnClick));
+            Fleets         = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_rangeoverlay", Fleets_OnClick));
+            DeepSpaceBuild = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_dsbw", DeepSpaceBuild_OnClick));
+            AIScreen       = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonDown, "AI", AIScreen_OnClick));
+
+            UIList listR = AddList(new Vector2(Housing.X + 38, Housing.Y + 70));
+            listR.Name = "MiniMapButtonsRight";
+            ZoomOut      = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
+            ExoticScreen = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_exotic_systems", ExoticScreen_OnClick));
 
             Scale = ActualMap.Width / (Universe.UState.Size * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
@@ -331,7 +336,15 @@ namespace Ship_Game
         public void PlanetScreen_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
+            PlanetScreen.IsToggled = false;
             Universe.ScreenManager.AddScreen(new PlanetListScreen(Universe, Universe.EmpireUI));
+        }
+
+        public void ExoticScreen_OnClick(ToggleButton toggleButton)
+        {
+            GameAudio.AcceptClick();
+            ExoticScreen.IsToggled = false;
+            Universe.ScreenManager.AddScreen(new ExoticSystemsListScreen(Universe, Universe.EmpireUI));
         }
 
         public void ShipScreen_OnClick(ToggleButton toggleButton)
@@ -367,6 +380,9 @@ namespace Ship_Game
 
             if (PlanetScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.OpensPlanetReconnaissancePanel, "L");
+
+            if (ExoticScreen.Rect.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(GameText.OpensExoticPlanetsPanel, "G");
 
             if (ShipScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.FtlOverlayVisualisesSubspaceProjection, "F1");
