@@ -81,7 +81,8 @@ namespace Ship_Game.AI.ExpansionAI
 
         bool ShouldRunResearchMananger()
         {
-            if ((Owner.Universe.StarDate % 1).Greater(0)
+            if (Universe.P.DisableResearchStations
+                ||(Owner.Universe.StarDate % 1).Greater(0)
                 || !Owner.CanBuildResearchStations
                 || Owner.isPlayer && !Owner.AutoBuildResearchStations)
             {

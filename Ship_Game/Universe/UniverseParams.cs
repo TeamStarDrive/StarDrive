@@ -78,6 +78,8 @@ public class UniverseParams
     [StarData] public bool DisableAlternateAITraits;
     [StarData] public bool DisablePirates;
     [StarData] public bool FixedPlayerCreditCharge;
+    [StarData] public bool DisableResearchStations;
+    [StarData] public bool DisableMiningOps;
 
     public bool DebugDisableShipLaunch; // Only for testing
 

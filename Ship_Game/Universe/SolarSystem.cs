@@ -501,7 +501,8 @@ namespace Ship_Game
                 researchableChance += 50;
             }
 
-            if (random.RollDice(percent: researchableChance * exoticPlanetMultiplier / us.ExoticPlanetDivisor))
+            if (!Universe.P.DisableResearchStations
+                && random.RollDice(percent: researchableChance * exoticPlanetMultiplier / us.ExoticPlanetDivisor))
             {
                 SetResearchable(true, Universe);
                 // Log.Info($"{Name} can be researched");

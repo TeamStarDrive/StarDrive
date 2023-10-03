@@ -92,6 +92,9 @@ namespace Ship_Game
 
         public float DynamicBonusMultiplier => 1 + DynamicBonus;
 
-        public float MaxStorage => Owner.AveragePlanetStorage * Owner.GetPlanets().Count * GlobalStats.Defaults.ExoticRatioStorage;
+        public float MaxStorage => Owner.AveragePlanetStorage 
+                                    * Owner.GetPlanets().Count 
+                                    * GlobalStats.Defaults.ExoticRatioStorage
+                                    * Owner.data.ExoticStorageMultiplier;
     }
 }
