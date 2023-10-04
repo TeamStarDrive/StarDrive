@@ -16,7 +16,7 @@ public sealed class ProgressBar
     public string color = "brown";
     public bool DrawProgressText = true; // draw "50%" or "50/100"
     public bool DrawPercentage = false;
-    public bool Faction10Values = false;
+    public bool Fraction10Values = false;
     private Rectangle Left;
     private Rectangle Right;
     private Rectangle Middle;
@@ -89,7 +89,7 @@ public sealed class ProgressBar
         if (DrawProgressText)
         {
             var textPos = new Vector2(Left.X + 7, Left.Y + Left.Height / 2 - Fonts.TahomaBold9.LineSpacing / 2);
-            batch.DrawString(Fonts.TahomaBold9, Faction10Values ? Values10 : Values, textPos, Colors.Cream);
+            batch.DrawString(Fonts.TahomaBold9, Fraction10Values ? Values10 : Values, textPos, Colors.Cream);
         }
     }
 
@@ -125,7 +125,7 @@ public sealed class ProgressBar
             batch.Draw(ResourceManager.Texture("NewUI/progressbar_container_right"), Right, Color.DarkGray);
         }
         var textPos = new Vector2(Left.X + 7, Left.Y + Left.Height / 2 - Fonts.TahomaBold9.LineSpacing / 2);
-        batch.DrawString(Fonts.TahomaBold9, Faction10Values ? Values10 : Values, textPos, Color.DarkGray);
+        batch.DrawString(Fonts.TahomaBold9, Fraction10Values ? Values10 : Values, textPos, Color.DarkGray);
     }
 
     string Values10 => DrawPercentage ? $"{Progress.String(1)}%" : $"{Progress.String(1)}/{Max.String(1)}";

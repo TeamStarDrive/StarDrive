@@ -1581,6 +1581,8 @@ namespace Ship_Game
             }
         }
 
+        public static int GetNumExoticGoods() => TransportableGoods.Filter(g => g.IsGasGiantMineable).Length;
+
         public static readonly ShipsManager Ships = new();
 
         public static bool AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)

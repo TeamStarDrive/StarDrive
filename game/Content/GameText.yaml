@@ -10540,6 +10540,27 @@ CannotBuildMiningStationTip2:
 OpensExoticPlanetsPanel:
  Id: 4476
  ENG: "Opens Exotic Systems Array" 
+ExoticResourcesMenu:
+ Id: 4477
+ ENG: "Exotic Resources"  
+ExoticResourceRefinedPulsefieldName:
+ Id: 4933 
+ ENG: "Pulsefield"    
+ExoticResourceRefinedLuxariumName:
+ Id: 4934 
+ ENG: "Luxarium"    
+ExoticResourceRefinedFortifumeName:
+ Id: 4935 
+ ENG: "Fortifume"    
+ExoticResourceRefinedEnergonName:
+ Id: 4936 
+ ENG: "Energon"    
+ExoticResourceRefinedNanoName:
+ Id: 4937 
+ ENG: "Nano"    
+ExoticResourceRefinedAetheriumName:
+ Id: 4938 
+ ENG: "Aetherium"     
 ExoticResourceAetheriumName:
  Id: 4939 
  ENG: "Aetherium Gas"    
