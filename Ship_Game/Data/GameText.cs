@@ -4579,7 +4579,8 @@ namespace Ship_Game
         CannotBuildMiningStationTip2 = 4475,
         /// <summary>Opens Exotic Systems/Planets</summary>
         OpensExoticPlanetsPanel = 4476,
-
+        /// <summary>Exotic Resources</summary>
+        ExoticResourcesMenu = 4477,
 
 
 

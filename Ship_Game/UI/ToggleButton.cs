@@ -94,7 +94,7 @@ namespace Ship_Game
             Height = 22,
             ContentId = ResourceManager.ContentId,
             Folder   = "Minimap/",
-            Active   = ResourceManager.Texture("Minimap/button_B_normal"),
+            Active   = ResourceManager.Texture("Minimap/button_B_active"),
             Inactive = ResourceManager.Texture("Minimap/button_B_normal"),
             Hover    = ResourceManager.Texture("Minimap/button_B_hover"),
             Press    = ResourceManager.Texture("Minimap/button_B_normal")
