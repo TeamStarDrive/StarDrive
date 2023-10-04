@@ -337,8 +337,9 @@ namespace Ship_Game
             // In general, a much saner way than the old cluster-f*ck of IF statements :)
             PlanetsInCombat.Visible = ShipsInCombat.Visible = showGeneralUI && !LookingAtPlanet;
             aw.Visible = showGeneralUI && aw.IsOpen && !LookingAtPlanet;
+            ExoticBonusesWindow.Visible = showGeneralUI && ExoticBonusesWindow.IsOpen && !LookingAtPlanet;
 
-            minimap.Visible = showGeneralUI && (!LookingAtPlanet ||
+            Minimap.Visible = showGeneralUI && (!LookingAtPlanet ||
                               LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
                               LookingAtPlanet && workersPanel is UnownedPlanetScreen);
 

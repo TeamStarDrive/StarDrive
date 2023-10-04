@@ -10,14 +10,15 @@ using System.Threading.Tasks;
 namespace Ship_Game
 {
     [StarDataType]
-    public struct EmpireExoticBonuses
+    public class EmpireExoticBonuses
     {
         [StarData] readonly Empire Owner;
-        [StarData] readonly Good Good;
+        [StarData] public readonly Good Good;
         [StarData] public readonly float MaxBonus;
         [StarData] public float Consumption { get; private set; }
         [StarData] public float CurrentStorage { get; private set; }
         [StarData] public float TotalRefinedPerTurn { get; private set; }
+        [StarData] public float ExcessRefinedPerTurn { get; private set; }
         [StarData] public float CurrentBonus { get; private set; }
 
         public EmpireExoticBonuses(Empire owner, Good good)
@@ -35,6 +36,7 @@ namespace Ship_Game
             TotalRefinedPerTurn += amount;
             float excessRefined = (TotalRefinedPerTurn - Consumption).LowerBound(0);
             TotalRefinedPerTurn = TotalRefinedPerTurn.UpperBound(Consumption);
+            ExcessRefinedPerTurn = excessRefined;
             if (excessRefined > 0)
                 AddToStorage(excessRefined);
         }
@@ -70,7 +72,7 @@ namespace Ship_Game
 
         public void AddConsumption(float amount)
         {
-            Consumption += amount * Good.ConsumptionMultiplier;
+            Consumption = (Consumption + amount * Good.ConsumptionMultiplier).LowerBound(0);
         }
 
         public void CalcCurrentBonus()
@@ -88,6 +90,7 @@ namespace Ship_Game
             }
         }
 
+        public string DynamicBonusString => $"{(DynamicBonus * 100).String(1)}%";
         public float CurrentBonusMultiplier => 1 + CurrentBonus;
 
         public float DynamicBonusMultiplier => 1 + DynamicBonus;

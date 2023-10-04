@@ -39,8 +39,8 @@ namespace Ship_Game
             DropOptions<int> Options;
             public DropOptions<int> Create(Expression<Func<bool>> binding, LocalizedText title, LocalizedText tooltip)
             {
-                Check = new UICheckBox(0f, 0f, binding, Fonts.Arial12Bold, title, tooltip);
-                Options = new DropOptions<int>(new Vector2(0f, 25f), 190, 18);
+                Check = new UICheckBox(-200f, -200f, binding, Fonts.Arial12Bold, title, tooltip);
+                Options = new DropOptions<int>(new Vector2(-200f, -200f), 190, 18);
                 return Options;
             }
             public override void PerformLayout()

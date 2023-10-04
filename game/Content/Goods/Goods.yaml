@@ -37,6 +37,7 @@ Good:
   RefiningRatio: 1
   MaxRichness: 10
   NameIndex: 4953
+  RefinedNameIndex: 4933
   DescriptionIndex: 4954
   Weight: 5
   IsGasGiantMineable: true  
@@ -48,6 +49,7 @@ Good:
   RefiningRatio: 1
   MaxRichness: 10
   NameIndex: 4947
+  RefinedNameIndex: 4934  
   DescriptionIndex: 4948
   Weight: 5
   IsGasGiantMineable: true  
@@ -58,6 +60,7 @@ Good:
   RefiningRatio: 1
   MaxRichness: 10
   NameIndex: 4945
+  RefinedNameIndex: 4935  
   DescriptionIndex: 4946
   Weight: 5
   IsGasGiantMineable: true  
@@ -69,6 +72,7 @@ Good:
   RefiningRatio: 1
   MaxRichness: 10
   NameIndex: 4943
+  RefinedNameIndex: 4936
   DescriptionIndex: 4944
   Weight: 5
   IsGasGiantMineable: true  
@@ -80,6 +84,7 @@ Good:
   RefiningRatio: 1
   MaxRichness: 10
   NameIndex: 4941
+  RefinedNameIndex: 4937  
   DescriptionIndex: 4942
   Weight: 5
   IsGasGiantMineable: true  
@@ -91,9 +96,10 @@ Good:
   RefiningRatio: 1
   MaxRichness: 10
   NameIndex: 4939
+  RefinedNameIndex: 4938
   DescriptionIndex: 4940
   Weight: 5
   IsGasGiantMineable: true  
   ExoticBonusType: WarpSpeed  
   MaxBonus: 1  
-  ConsumptionMultiplier: 0.001    
+  ConsumptionMultiplier: 0.0001    
