@@ -9,6 +9,7 @@ namespace Ship_Game.Ships
         readonly ParticleEmitter[] FireEmitters;
         readonly ParticleEmitter[] SmokeEmitters;
         bool EmittersStarted;
+        public byte RefiningOutput { get; private set; } // 0-100
 
         public MiningBays(Ship ship, ShipModule[] slots)
         {
@@ -67,9 +68,7 @@ namespace Ship_Game.Ships
 
         public void UpdateMiningVisuals(FixedSimTime timeStep)
         {
-            string cargoId = Owner.GetTether()?.Mining?.CargoId ?? "";
-            float numConsumables = Owner.Loyalty.IsCybernetic ? Owner.GetProduction() : Owner.GetFood();
-            if (cargoId.IsEmpty() || Owner.GetOtherCargo(cargoId) == 0 || numConsumables == 0)
+            if (RefiningOutput == 0)
                 return;
             
             for (int i = 0; i < AllMiningBays.Length; i++)
@@ -78,10 +77,13 @@ namespace Ship_Game.Ships
                 ShipModule miningBay = AllMiningBays[i];
                 if (miningBay.Active && miningBay.Powered)
                 {
-                    if (FireEmitters[i] == null)
-                        FireEmitters[i] = Owner.Universe.Screen.Particles.PhotonExplosion.NewEmitter(0.2f, miningBay.Position, 0.5f);
-                    else
-                        FireEmitters[i].Update(timeStep.FixedTime, miningBay.Position.ToVec3(-100));
+                    if (RefiningOutput > 50)
+                    {
+                        if (FireEmitters[i] == null)
+                            FireEmitters[i] = Owner.Universe.Screen.Particles.PhotonExplosion.NewEmitter(0.2f, miningBay.Position, 0.5f);
+                        else
+                            FireEmitters[i].Update(timeStep.FixedTime, miningBay.Position.ToVec3(-100));
+                    }
 
                     if (SmokeEmitters[i] == null)
                         SmokeEmitters[i] = Owner.Universe.Screen.Particles.SmokePlume.NewEmitter(0.3f, miningBay.Position, 0.75f);
@@ -103,6 +105,11 @@ namespace Ship_Game.Ships
             }
 
             EmittersStarted = false;
+        }
+
+        public void UpdateIsRefining(float ratio)
+        {
+            RefiningOutput = (byte)(ratio * 100);
         }
     }
 }

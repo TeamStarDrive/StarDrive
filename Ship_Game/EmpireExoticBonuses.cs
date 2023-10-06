@@ -13,30 +13,35 @@ namespace Ship_Game
     public class EmpireExoticBonuses
     {
         [StarData] readonly Empire Owner;
+        [StarData] float OutputThisTurn;
+        [StarData] float TotalRefinedPerTurn;
+
         [StarData] public readonly Good Good;
         [StarData] public readonly float MaxBonus;
         [StarData] public float Consumption { get; private set; }
         [StarData] public float CurrentStorage { get; private set; }
-        [StarData] public float TotalRefinedPerTurn { get; private set; }
-        [StarData] public float ExcessRefinedPerTurn { get; private set; }
         [StarData] public float CurrentBonus { get; private set; }
+        [StarData] public float RefinedPerTurnForConsumption { get; private set; }
+        [StarData] public int TotalMningOps { get; private set; }
+        [StarData] public int ActiveMiningOps { get; private set; }
+        [StarData] public float MaxPotentialRefinedPerTurn { get; private set; }
 
         public EmpireExoticBonuses(Empire owner, Good good)
         {
             Owner = owner;
-            Consumption = 0;
-            CurrentStorage = 0;
             MaxBonus = good.MaxBonus;
             Good = good;
-            TotalRefinedPerTurn = 0;
+        }
+
+        public EmpireExoticBonuses()
+        {
         }
 
         public void AddRefined(float amount)
         {
             TotalRefinedPerTurn += amount;
             float excessRefined = (TotalRefinedPerTurn - Consumption).LowerBound(0);
-            TotalRefinedPerTurn = TotalRefinedPerTurn.UpperBound(Consumption);
-            ExcessRefinedPerTurn = excessRefined;
+            RefinedPerTurnForConsumption = TotalRefinedPerTurn.UpperBound(Consumption);
             if (excessRefined > 0)
                 AddToStorage(excessRefined);
         }
@@ -48,7 +53,11 @@ namespace Ship_Game
 
         public void Update()
         {
+            TotalMningOps = 0;
+            ActiveMiningOps = 0;
             TotalRefinedPerTurn = 0;
+            MaxPotentialRefinedPerTurn = 0;
+            RefinedPerTurnForConsumption = 0;
             UpdateConsumption();
         }
 
@@ -75,8 +84,24 @@ namespace Ship_Game
             Consumption = (Consumption + amount * Good.ConsumptionMultiplier).LowerBound(0);
         }
 
+        public void AddToMaxRefiningPoterntial(float amount) 
+        {
+            MaxPotentialRefinedPerTurn += amount;
+        }
+
+        public void AddMiningsStation()
+        {
+            TotalMningOps += 1; 
+        }
+
+        public void AddActiveMiningsStation()
+        {
+            ActiveMiningOps += 1;
+        }
+
         public void CalcCurrentBonus()
         {
+            OutputThisTurn = MaxPotentialRefinedPerTurn > 0 ? TotalRefinedPerTurn / MaxPotentialRefinedPerTurn : 0;
             CurrentBonus = DynamicBonus;
         }
 
@@ -90,14 +115,15 @@ namespace Ship_Game
             }
         }
 
+        public string CurrentPercentageOutput => $"{(OutputThisTurn * 100).String(0)}%";
         public string DynamicBonusString => $"{(DynamicBonus * 100).String(1)}%";
         public float CurrentBonusMultiplier => 1 + CurrentBonus;
-
         public float DynamicBonusMultiplier => 1 + DynamicBonus;
-
         public float MaxStorage => Owner.AveragePlanetStorage 
                                     * Owner.GetPlanets().Count 
                                     * GlobalStats.Defaults.ExoticRatioStorage
                                     * Owner.data.ExoticStorageMultiplier;
+        public float RefiningNeeded => (MaxStorage + Consumption - CurrentStorage - TotalRefinedPerTurn).LowerBound(0);
+        public string ActiveVsTotalOps => $"{ActiveMiningOps}/{TotalMningOps}";
     }
 }
