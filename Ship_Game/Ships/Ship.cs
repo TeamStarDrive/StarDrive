@@ -1114,9 +1114,6 @@ namespace Ship_Game.Ships
             if (UpdateTimer <= 0f)
             {
                 UpdateTimer += 1f;
-                if (IsInWarp)
-                    SetMaxFTLSpeed();
-
                 UpdateModulesAndStatus(FixedSimTime.One);
                 ExploreCurrentSystem(timeStep);
                 ScrambleFightersIfInCombat();

@@ -10479,7 +10479,7 @@ MiningStationBuiltPlanetNotify:
  ENG: "(Mining Station) was\ndeployed in orbit of"  
 MiningPlanIdle:
  Id: 4456
- ENG: "Offline - waiting for mining ships"  
+ ENG: "Offline - waiting for mining ships or Empire storage full"  
 MiningPlanRefining:
  Id: 4457
  ENG: "Refining Exotic Resource"  
