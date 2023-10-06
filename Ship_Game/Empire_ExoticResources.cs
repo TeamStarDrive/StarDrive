@@ -11,16 +11,45 @@ using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
-    using static HelperFunctions;
     public partial class Empire
     {
-        [StarData] public readonly Map<ExoticBonusType, EmpireExoticBonuses> ExoticBonuses;
+        [StarData] readonly Map<ExoticBonusType, EmpireExoticBonuses> ExoticBonuses;
         public float TotalShipSurfaceArea { get; private set; }
         public float TotalShipWarpThrustK { get; private set; }
+
+        public Map<ExoticBonusType, EmpireExoticBonuses> GetExoticBonuses()
+        {
+            return ExoticBonuses;
+        }
+
+        public EmpireExoticBonuses GetExoticResource(ExoticBonusType type)
+        {
+            return ExoticBonuses[type];
+        }
 
         public void AddRefinedResource(ExoticBonusType type, float amount) 
         {
             ExoticBonuses[type].AddRefined(amount);
+        }
+
+        public void AddMaxPotentialRefining(ExoticBonusType type, float amount)
+        {
+            ExoticBonuses[type].AddToMaxRefiningPoterntial(amount);
+        }
+
+        public void AddMiningStation(ExoticBonusType type)
+        {
+            ExoticBonuses[type].AddMiningsStation();
+        }
+
+        public void AddActiveMiningStation(ExoticBonusType type)
+        {
+            ExoticBonuses[type].AddActiveMiningsStation();
+        }
+
+        public float GetRefiningNeeded(ExoticBonusType type)
+        {
+            return ExoticBonuses[type].RefiningNeeded;
         }
 
         public void AddExoticConsumption(ExoticBonusType type, float amount)

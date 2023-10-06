@@ -29,8 +29,8 @@ namespace Ship_Game
         public ExoticBonusesWindow(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
-            const int windowWidth = 600;
-            int windowHeight = (ResourceManager.GetNumExoticGoods() * (Fonts.Arial12Bold.LineSpacing+20));
+            const int windowWidth = 650;
+            int windowHeight = (ResourceManager.GetNumExoticGoods() * (Fonts.Arial12Bold.LineSpacing+18));
             Rect = new Rectangle((int)Screen.Minimap.X - 5 - windowWidth, (int)Screen.Minimap.Y + 
                 (int)Screen.Minimap.Height - windowHeight - 10, windowWidth, windowHeight);
         }
@@ -42,20 +42,28 @@ namespace Ship_Game
             readonly UILabel BonusInfo;
             readonly UILabel ResourceName;
             readonly UIPanel Icon;
+            readonly UILabel OutputInfo;
             readonly ProgressBar ConsumptionBar;
             readonly ProgressBar StorageBar;
+            readonly EmpireExoticBonuses ExoticResource;
+            readonly UILabel PotentialInfo;
+            readonly UILabel ActiveVsTotalOps;
             public ExoticStats(Empire owner, EmpireExoticBonuses bonus)
             {
                 Owner = owner;
                 ExoticBonusType = bonus.Good.ExoticBonusType;
+                ExoticResource = Owner.GetExoticResource(ExoticBonusType);
                 BonusInfo = new UILabel(new Vector2(-100, -100), GameText.HullBonus, Fonts.Arial12Bold, Color.White);
                 Icon = new UIPanel(new Rectangle(-100, -100, 20, 20), ResourceManager.Texture($"Goods/{bonus.Good.UID}"));
                 ResourceName = new UILabel(new Vector2(-100, -100), new LocalizedText(bonus.Good.RefinedNameIndex), Fonts.Arial12Bold, Color.Wheat);
+                OutputInfo = new UILabel(new Vector2(-100, -100), GameText.HullBonus, Fonts.Arial12Bold, Color.Wheat);
                 ConsumptionBar = new ProgressBar(new Rectangle(-100, -100, 150, 18), 0, 0);
-                StorageBar = new ProgressBar(new Rectangle(-100, -100, 150, 18), 0, 0) { color = "blue"} ;
-                ConsumptionBar.Fraction10Values = true;
-                StorageBar.Fraction10Values = true;
+                StorageBar = new ProgressBar(new Rectangle(-100, -100, 150, 18), 0, 0) { color = "blue", Max = 100, DrawPercentage = true };
                 StorageBar.DrawPercentage = true;
+                ConsumptionBar.Fraction10Values = true;
+                PotentialInfo = new UILabel(new Vector2(-100, -100), GameText.HullBonus, Fonts.Arial12Bold, Color.Wheat);
+                ActiveVsTotalOps = new UILabel(new Vector2(-100, -100), GameText.HullBonus, Fonts.Arial12Bold, Color.Wheat);
+
             }
             public override void PerformLayout()
             {
@@ -63,14 +71,19 @@ namespace Ship_Game
                 BonusInfo.PerformLayout();
                 Icon.Pos = new Vector2(Pos.X+50, Pos.Y);
                 Icon.PerformLayout();
-                ResourceName.Pos = new Vector2(Pos.X+80, Pos.Y+2);
+                ResourceName.Pos = new Vector2(Pos.X+ 80, Pos.Y+2);
                 ResourceName.PerformLayout();
-                ConsumptionBar.SetRect(new Rectangle((int)Pos.X + 180, (int)Pos.Y + 2, 150, 18));
-                StorageBar.SetRect(new Rectangle((int)Pos.X + 335, (int)Pos.Y + 2, 150, 18));
+                OutputInfo.Pos = new Vector2(Pos.X + 180, Pos.Y);
+                OutputInfo.PerformLayout();
+                ConsumptionBar.SetRect(new Rectangle((int)Pos.X + 230, (int)Pos.Y, 150, 18));
+                StorageBar.SetRect(new Rectangle((int)Pos.X + 385, (int)Pos.Y, 150, 18));
+                PotentialInfo.Pos = new Vector2(Pos.X + 550, Pos.Y);
+                PotentialInfo.PerformLayout();
+                ActiveVsTotalOps.Pos = new Vector2(Pos.X + 600, Pos.Y);
+                ActiveVsTotalOps.PerformLayout();
             }
             public override bool HandleInput(InputState input)
             {
-                /*return Check.HandleInput(input) || Options.HandleInput(input);*/
                 return false;
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -78,18 +91,23 @@ namespace Ship_Game
                 BonusInfo.Draw(batch, elapsed);
                 Icon.Draw(batch, elapsed);
                 ResourceName.Draw(batch, elapsed);
+                OutputInfo.Draw(batch, elapsed);
                 ConsumptionBar.Draw(batch);
                 StorageBar.Draw(batch);
+                PotentialInfo.Draw(batch, elapsed);
+                ActiveVsTotalOps.Draw(batch, elapsed);
             }
 
             public override void Update(float fixedDeltaTime)
             {
-                var exoticBonus = Owner.ExoticBonuses[ExoticBonusType];
-                BonusInfo.Text = exoticBonus.DynamicBonusString;
-                ConsumptionBar.Max = exoticBonus.Consumption;
-                ConsumptionBar.Progress = exoticBonus.TotalRefinedPerTurn;
-                StorageBar.Max = exoticBonus.MaxStorage;
-                StorageBar.Progress = exoticBonus.CurrentStorage;
+                var exoticResource = ExoticResource;
+                BonusInfo.Text = exoticResource.DynamicBonusString;
+                OutputInfo.Text = exoticResource.CurrentPercentageOutput;
+                ConsumptionBar.Max = exoticResource.Consumption;
+                ConsumptionBar.Progress = exoticResource.RefinedPerTurnForConsumption;
+                StorageBar.Progress = exoticResource.CurrentStorage/exoticResource.MaxStorage * 100;
+                PotentialInfo.Text = exoticResource.MaxPotentialRefinedPerTurn.String(1);
+                ActiveVsTotalOps.Text = exoticResource.ActiveVsTotalOps;
                // base.Update(fixedDeltaTime);
             }
         }
@@ -99,7 +117,7 @@ namespace Ship_Game
         {
             base.LoadContent();
             RemoveAll();
-            ExoticBonuses = Player.ExoticBonuses;
+            ExoticBonuses = Player.GetExoticBonuses();
 
             RectF win = new(Rect);
             ConstructionSubMenu = new(win, GameText.ExoticResourcesMenu);

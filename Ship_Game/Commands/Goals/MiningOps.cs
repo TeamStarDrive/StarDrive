@@ -117,6 +117,11 @@ namespace Ship_Game.Commands.Goals
 
         void RefineResources(float availableConsumables)
         {
+            MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
+            Owner.AddMiningStation(ExoticBonusType);
+            float maxRefiningPotential = MiningStation.TotalRefining * TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier;
+            Owner.AddMaxPotentialRefining(ExoticBonusType, maxRefiningPotential);
+
             if (availableConsumables <= 0)
             {
                 AddMiningStationPlan(Plan.ExoticStationNoSupply);
@@ -126,32 +131,35 @@ namespace Ship_Game.Commands.Goals
             }
 
             float numRawResources = MiningStation.GetOtherCargo(ResourceCargeName);
+            float numRefiningNeeded = Owner.GetRefiningNeeded(ExoticBonusType);
             MiningStation.Carrier.MiningBays.ProcessMiningBays(numRawResources);
-            if (numRawResources <= 0 || MiningStation.Loyalty != TargetPlanet.Mining.Owner)
+
+            if (numRefiningNeeded <= 0 || numRawResources <= 0 || MiningStation.Loyalty != TargetPlanet.Mining.Owner)
             {
                 AddMiningStationPlan(Plan.MiningStationIdle);
                 MiningStation.Carrier.MiningBays.DestroyEmmiters();
                 return;
             }
 
+            Owner.AddActiveMiningStation(ExoticBonusType);
+            InSupplyChain = true;
             float maximumRawResources = MiningStation.TotalRefining.UpperBound(numRawResources);
             float consumablesNeeded = maximumRawResources * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
             float consumeableRatio = availableConsumables / consumablesNeeded;
-            float rawResourcesToRefine = maximumRawResources * consumeableRatio.UpperBound(1);
-            float consumablesToConsume = rawResourcesToRefine * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
-            float refinedResources = rawResourcesToRefine * TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier;
-            Owner.AddRefinedResource(ExoticBonusType, refinedResources);
+            float maxRawResourcesToRefine = maximumRawResources * consumeableRatio.UpperBound(1);
+            float maxConsumablesToConsume = maxRawResourcesToRefine * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
+            float maxRefinedResources = maxRawResourcesToRefine * TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier;
+            float protuctionRatio = (numRefiningNeeded / maxRefinedResources).UpperBound(1);
+            Owner.AddRefinedResource(ExoticBonusType, maxRefinedResources * protuctionRatio);
+            MiningStation.Carrier.MiningBays.UpdateIsRefining(protuctionRatio);
 
-            InSupplyChain = true;
             if (Owner.NonCybernetic)
-                MiningStation.UnloadFood(consumablesToConsume);
+                MiningStation.UnloadFood(maxConsumablesToConsume * protuctionRatio);
             else
-                MiningStation.UnloadProduction(consumablesToConsume);
+                MiningStation.UnloadProduction(maxConsumablesToConsume * protuctionRatio);
 
-            MiningStation.UnloadCargo(ResourceCargeName, rawResourcesToRefine);
-
-
-            AddSupplyDeficit(-consumablesToConsume);
+            MiningStation.UnloadCargo(ResourceCargeName, maxRawResourcesToRefine * protuctionRatio);
+            AddSupplyDeficit(-maxConsumablesToConsume * protuctionRatio);
             if (MiningStation.AI.OrderQueue.PeekFirst?.Plan != Plan.MiningStationRefining)
                 AddMiningStationPlan(Plan.MiningStationRefining);
         }

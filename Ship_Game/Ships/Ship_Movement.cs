@@ -114,9 +114,9 @@ namespace Ship_Game.Ships
             }
 
             FTLModifier = ftlModifier;
-            float maxFTLSpeed = Stats.MaxFTLSpeed * ftlModifier * WarpPercent;
             float warpExoticBonus = Loyalty.GetStaticExoticBonusMuliplier(ExoticBonusType.WarpSpeed);
-            MaxFTLSpeed = maxFTLSpeed * warpExoticBonus;
+            float maxFTLSpeed = Stats.MaxFTLSpeed * ftlModifier * warpExoticBonus * WarpPercent;
+            MaxFTLSpeed = maxFTLSpeed;
             return maxFTLSpeed;
         }
 
