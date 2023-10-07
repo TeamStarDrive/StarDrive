@@ -10543,6 +10543,24 @@ OpensExoticPlanetsPanel:
 ExoticResourcesMenu:
  Id: 4477
  ENG: "Exotic Resources"  
+ExoticResourcesBonus:
+ Id: 4478
+ ENG: "Bonus"  
+ExoticResourcesName:
+ Id: 4479
+ ENG: "Resource Name"   
+ExoticResourcesOutput:
+ Id: 4480
+ ENG: "Output"    
+ExoticRefiningVsConsumption:
+ Id: 4481
+ ENG: "Refining/Consumption"     
+ExoticRefiningMaxPotential:
+ Id: 4482
+ ENG: "Max"      
+ExoticNumOps:
+ Id: 4483
+ ENG: "Ops"       
 ExoticResourceRefinedPulsefieldName:
  Id: 4933 
  ENG: "Pulsefield"    
