@@ -13,7 +13,6 @@ namespace Ship_Game
     public class EmpireExoticBonuses
     {
         [StarData] readonly Empire Owner;
-        [StarData] float OutputThisTurn;
         [StarData] float TotalRefinedPerTurn;
 
         [StarData] public readonly Good Good;
@@ -22,9 +21,10 @@ namespace Ship_Game
         [StarData] public float CurrentStorage { get; private set; }
         [StarData] public float CurrentBonus { get; private set; }
         [StarData] public float RefinedPerTurnForConsumption { get; private set; }
-        [StarData] public int TotalMningOps { get; private set; }
+        [StarData] public int TotalMiningOps { get; private set; }
         [StarData] public int ActiveMiningOps { get; private set; }
         [StarData] public float MaxPotentialRefinedPerTurn { get; private set; }
+        [StarData] public float OutputThisTurn { get; private set; }
 
         public EmpireExoticBonuses(Empire owner, Good good)
         {
@@ -53,7 +53,7 @@ namespace Ship_Game
 
         public void Update()
         {
-            TotalMningOps = 0;
+            TotalMiningOps = 0;
             ActiveMiningOps = 0;
             TotalRefinedPerTurn = 0;
             MaxPotentialRefinedPerTurn = 0;
@@ -91,7 +91,7 @@ namespace Ship_Game
 
         public void AddMiningsStation()
         {
-            TotalMningOps += 1; 
+            TotalMiningOps += 1; 
         }
 
         public void AddActiveMiningsStation()
@@ -124,6 +124,6 @@ namespace Ship_Game
                                     * GlobalStats.Defaults.ExoticRatioStorage
                                     * Owner.data.ExoticStorageMultiplier;
         public float RefiningNeeded => (MaxStorage + Consumption - CurrentStorage - TotalRefinedPerTurn).LowerBound(0);
-        public string ActiveVsTotalOps => $"{ActiveMiningOps}/{TotalMningOps}";
+        public string ActiveVsTotalOps => $"{ActiveMiningOps}/{TotalMiningOps}";
     }
 }

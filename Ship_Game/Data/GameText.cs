@@ -4581,6 +4581,19 @@ namespace Ship_Game
         OpensExoticPlanetsPanel = 4476,
         /// <summary>Exotic Resources</summary>
         ExoticResourcesMenu = 4477,
+        /// <summary>Bonus</summary>
+        ExoticResourcesBonus = 4478,
+        /// <summary>Resource Name</summary>
+        ExoticResourcesName = 4479,
+        /// <summary>Output</summary>
+        ExoticResourcesOutput = 4480,
+        /// <summary>Refining</summary>
+        ExoticRefiningVsConsumption = 4481,
+        /// <summary>Max</summary>
+        ExoticRefiningMaxPotential = 4482,
+        /// <summary>Ops</summary>
+        ExoticNumOps = 4483,
+
 
 
 
