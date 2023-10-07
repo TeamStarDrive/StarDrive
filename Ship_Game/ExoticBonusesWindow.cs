@@ -92,15 +92,14 @@ namespace Ship_Game
                 OutputInfo.Draw(batch, elapsed);
 
                 if (ActiveVsTotalOps.Text == "0/0" && StorageBar.Progress == 0)
-                {
-                    ConsumptionBar.DrawGrayed(batch);
                     StorageBar.DrawGrayed(batch);
-                }
                 else
-                {
-                    ConsumptionBar.Draw(batch);
                     StorageBar.Draw(batch);
-                }
+
+                if (ActiveVsTotalOps.Text == "0/0" && ConsumptionBar.Progress == 0)
+                    ConsumptionBar.DrawGrayed(batch);
+                else
+                    ConsumptionBar.Draw(batch);
 
                 PotentialInfo.Draw(batch, elapsed);
                 ActiveVsTotalOps.Draw(batch, elapsed);
@@ -109,15 +108,45 @@ namespace Ship_Game
             public override void Update(float fixedDeltaTime)
             {
                 var exoticResource = ExoticResource;
-                BonusInfo.Text = exoticResource.DynamicBonusString;
-                OutputInfo.Text = exoticResource.CurrentPercentageOutput;
-                ConsumptionBar.Max = exoticResource.Consumption;
-                ConsumptionBar.Progress = exoticResource.RefinedPerTurnForConsumption;
+                UpdateBonus(exoticResource.DynamicBonus, exoticResource.PreviousBonus, exoticResource.DynamicBonusString, exoticResource.TotalMiningOps);
+                UpdateOutput(exoticResource.OutputThisTurn, exoticResource.TotalMiningOps,
+                    exoticResource.CurrentPercentageOutput, exoticResource.Consumption, exoticResource.RefinedPerTurnForConsumption);
+
+                UpdateConsumptionBar(exoticResource.Consumption, exoticResource.RefinedPerTurnForConsumption, exoticResource.TotalMiningOps);
                 UpdateStorage(exoticResource.CurrentStorage, exoticResource.MaxStorage, exoticResource.ActiveMiningOps);
                 UpdatePotential(exoticResource.MaxPotentialRefinedPerTurn, exoticResource.Consumption);
                 UpdateOps(exoticResource.ActiveMiningOps, exoticResource.TotalMiningOps, exoticResource.ActiveVsTotalOps);
 
                // base.Update(fixedDeltaTime);
+            }
+
+            void UpdateBonus(float currentBonus, float previousBonus, string bonusString, int miningOps)
+            {
+                BonusInfo.Text = bonusString;
+                if      (currentBonus > previousBonus)       BonusInfo.Color = Color.Green;
+                else if (currentBonus < previousBonus)       BonusInfo.Color = Color.Red;
+                else if (currentBonus == 0 && miningOps > 0) BonusInfo.Color = Color.Yellow;
+                else                                         BonusInfo.Color = Color.White;
+            }
+
+            void UpdateConsumptionBar(float consumption, float refining, float totalMiningOps)
+            {
+                ConsumptionBar.Max = consumption;
+                ConsumptionBar.Progress = refining;
+                float ratio = consumption > 0 ? refining / consumption : 0;
+                if      (ratio > 0.95f)      ConsumptionBar.color = "green";
+                else if (ratio > 0)          ConsumptionBar.color = "yellow";
+                else if (totalMiningOps > 0) ConsumptionBar.color = "red";
+                else                         ConsumptionBar.color = "brown";
+            }
+
+            void UpdateOutput(float output, int activeOps, string outputPercent, float consumption, float refining)
+            {
+                OutputInfo.Text = outputPercent;
+                if      (output == 0 && activeOps == 0) OutputInfo.Color = Color.Gray;
+                else if (output == 0 && activeOps > 0)  OutputInfo.Color = Color.Red;
+                else if (refining < consumption*0.95f)  OutputInfo.Color = Color.Yellow;
+                else                                    OutputInfo.Color = Color.Wheat;
             }
 
             void UpdatePotential(float maxPotentialRefinedPerTurn, float consumption)

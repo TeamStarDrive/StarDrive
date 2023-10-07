@@ -20,7 +20,8 @@ namespace Ship_Game
         [StarData] public float Consumption { get; private set; }
         [StarData] public float CurrentStorage { get; private set; }
         [StarData] public float CurrentBonus { get; private set; }
-        [StarData] public float RefinedPerTurnForConsumption { get; private set; }
+        [StarData] public float PreviousBonus { get; private set; }
+        [StarData] public float RefinedPerTurnForConsumption { get; private set; } // so it wont be over consumption for change calculations
         [StarData] public int TotalMiningOps { get; private set; }
         [StarData] public int ActiveMiningOps { get; private set; }
         [StarData] public float MaxPotentialRefinedPerTurn { get; private set; }
@@ -82,6 +83,7 @@ namespace Ship_Game
         public void AddConsumption(float amount)
         {
             Consumption = (Consumption + amount * Good.ConsumptionMultiplier).LowerBound(0);
+            // TODO transfer deficit from storage ?
         }
 
         public void AddToMaxRefiningPoterntial(float amount) 
@@ -101,6 +103,11 @@ namespace Ship_Game
 
         public void CalcCurrentBonus()
         {
+            PreviousBonus = CurrentBonus;
+            float deficit = (Consumption - TotalRefinedPerTurn).LowerBound(0);
+            float deficitToMove = deficit.UpperBound(CurrentStorage);
+            CurrentStorage -= deficitToMove;
+            RefinedPerTurnForConsumption += deficitToMove;
             OutputThisTurn = MaxPotentialRefinedPerTurn > 0 ? TotalRefinedPerTurn / MaxPotentialRefinedPerTurn : 0;
             CurrentBonus = DynamicBonus;
         }
@@ -110,8 +117,8 @@ namespace Ship_Game
             get
             {
                 return Consumption == 0
-                        ? TotalRefinedPerTurn > 0 || CurrentStorage > 0 ? MaxBonus : 0f
-                        : ((TotalRefinedPerTurn + CurrentStorage) / Consumption * MaxBonus).UpperBound(MaxBonus);
+                        ? RefinedPerTurnForConsumption > 0 || CurrentStorage > 0 ? MaxBonus : 0f
+                        : ((RefinedPerTurnForConsumption + CurrentStorage) / Consumption * MaxBonus).UpperBound(MaxBonus);
             }
         }
 
