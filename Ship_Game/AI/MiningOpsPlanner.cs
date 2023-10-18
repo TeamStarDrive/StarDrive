@@ -7,35 +7,35 @@ using Ship_Game.Universe;
 namespace Ship_Game.AI.ExpansionAI
 {
     [StarDataType]
-    public class ResearchStationPlanner
+    public class MiningOpsPlanner
     {
         [StarData] readonly Empire Owner;
 
 
         UniverseState Universe => Owner.Universe;
-        [StarDataConstructor] ResearchStationPlanner() { }
+        [StarDataConstructor] MiningOpsPlanner() { }
 
-        public ResearchStationPlanner(Empire empire)
+        public MiningOpsPlanner(Empire empire)
         {
             Owner = empire;
         }
         InfluenceStatus Influense(Vector2 pos) => Owner.Universe.Influence.GetInfluenceStatus(Owner, pos);
 
         /// <summary>
-        /// This will check relevant researchable planets/stars and set goals to deploy
-        /// research stations, based on diplomacy situation and personality
+        /// This will check relevant mineable planets and set goals to deploy
+        /// Mining Stations, based on diplomacy situation and personality
         /// ignoreDistance is used for testing
         /// </summary>
         /// 
-        public void RunResearchStationPlanner(bool ignoreDistance = false)
+        public void RunMiningOpsPlanner(bool ignoreDistance = false)
         {
-            if (!ShouldRunResearchManager())
+            if (!ShouldRunMiningOpsPlanner())
                 return;
 
-            ExplorableGameObject[] potentialExplorables = GetPotentialResearchableSolarBodies(ignoreDistance);
-            foreach (ExplorableGameObject researchable in potentialExplorables) 
+            Planet[] potentialPlanets = GetPotentialMineablePlanets(ignoreDistance);
+            foreach (Planet mineable in potentialPlanets)
             {
-                ProcessReserchable(researchable, Influense(researchable.Position));
+                ProcessReserchable(mineable, Influense(mineable.Position));
             }
         }
 
@@ -69,7 +69,7 @@ namespace Ship_Game.AI.ExpansionAI
         void TryClearArea(SolarSystem system, InfluenceStatus influense, Empire enemy, float knownStr)
         {
             if (Owner.isPlayer || knownStr > Owner.OffensiveStrength * 0.334f)
-                return; 
+                return;
 
             bool shouldClearArea = !Owner.PersonalityModifiers.ClearNeutralExoticSystems && influense == InfluenceStatus.Friendly
                 || Owner.PersonalityModifiers.ClearNeutralExoticSystems && influense <= InfluenceStatus.Friendly
@@ -79,12 +79,12 @@ namespace Ship_Game.AI.ExpansionAI
                 Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system), Tasks.MilitaryTaskImportance.Normal);
         }
 
-        bool ShouldRunResearchManager()
+        bool ShouldRunMiningOpsPlanner()
         {
-            if (Universe.P.DisableResearchStations
-                ||(Owner.Universe.StarDate % 1).Greater(0)
-                || !Owner.CanBuildResearchStations
-                || Owner.isPlayer && !Owner.AutoBuildResearchStations)
+            if (Universe.P.DisableMiningOps
+                || (Owner.Universe.StarDate % 1).Greater(0)
+                || !Owner.CanBuildMiningStations
+                || Owner.isPlayer && !Owner.AutoBuildMiningStations)
             {
                 return false;
             }
@@ -92,25 +92,23 @@ namespace Ship_Game.AI.ExpansionAI
             return true;
         }
 
-        ExplorableGameObject[] GetPotentialResearchableSolarBodies(bool ignoreDistance)
+        Planet[] GetPotentialMineablePlanets(bool ignoreDistance)
         {
-            Array<ExplorableGameObject> solarBodies = new();
+            Array<Planet> mineables = new();
             float averageDist = Owner.AverageSystemsSqdistFromCenter;
-            foreach (ExplorableGameObject solarBody in Universe.ResearchableSolarBodies.Keys)
+            foreach (Planet planet in Universe.MineablePlanets)
             {
-                SolarSystem system = solarBody.System ?? solarBody as SolarSystem;
-                if (solarBody.IsExploredBy(Owner) 
-                    && !solarBody.IsResearchStationDeployedBy(Owner) // this bit is for performance - faster than HasGoal
-                    && (ignoreDistance || InGoodDistance(system, averageDist))
-                    && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody))
-                    && (Owner.Universe.Remnants == null 
-                        || !Owner.Universe.Remnants.AI.HasGoal(g => g is RemnantPortal && g.TargetShip.System == solarBody)))
+                if (planet.IsExploredBy(Owner)
+                    && planet.Mining.Owner == null || planet.Mining.Owner == Owner
+                    && (ignoreDistance || InGoodDistance(planet.System, averageDist))
+                    && (Owner.Universe.Remnants == null
+                        || !Owner.Universe.Remnants.AI.HasGoal(g => g is RemnantPortal && g.TargetShip.System == planet.System)))
                 {
-                    solarBodies.Add(solarBody);
+                    mineables.Add(planet);
                 }
             }
-
-            return solarBodies.ToArray();
+            //|| Owner.GetOwnedSystems().Any(s => s.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(Owner)))
+            return mineables.ToArray();
 
             bool InGoodDistance(SolarSystem system, float averageDist)
             {
@@ -122,3 +120,4 @@ namespace Ship_Game.AI.ExpansionAI
         }
     }
 }
+
