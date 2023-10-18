@@ -10543,7 +10543,7 @@ OpensExoticPlanetsPanel:
 ExoticResourcesMenu:
  Id: 4477
  ENG: "Exotic Resources"  
-ExoticResourcesBonus:
+ExoticResourcesBonus:   
  Id: 4478
  ENG: "Bonus"  
 ExoticResourcesName:

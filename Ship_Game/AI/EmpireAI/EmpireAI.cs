@@ -36,6 +36,7 @@ namespace Ship_Game.AI
         [StarData] public ThreatMatrix ThreatMatrix;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
         [StarData] public ExpansionAI.ResearchStationPlanner ResearchStationsAI;
+        [StarData] public ExpansionAI.MiningOpsPlanner MiningOpsAI;
         [StarData] public SpaceRoadsManager SpaceRoadsManager;
         BudgetPriorities BudgetSettings;
 
@@ -51,6 +52,7 @@ namespace Ship_Game.AI
             ThreatMatrix = new(e);
             ExpansionAI = new(OwnerEmpire);
             ResearchStationsAI = new(OwnerEmpire);
+            MiningOpsAI = new(OwnerEmpire);
             GoalsList = new();
 
             InitializeManagers(e);
@@ -131,6 +133,7 @@ namespace Ship_Game.AI
                 RunEconomicPlanner();
                 ExpansionAI.RunExpansionPlanner();
                 ResearchStationsAI?.RunResearchStationPlanner(); // the null check here is for save competability
+                MiningOpsAI?.RunMiningOpsPlanner(); // the null check here is for save competability
                 SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
