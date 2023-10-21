@@ -163,6 +163,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Components\BudgetPriorities.cs" />
+	<Compile Include="Ship_Game\AI\ExpansionAI\MiningOpsPlanner.cs" />
     <Compile Include="Ship_Game\AI\ExpansionAI\ResearchStationPlanner.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI_Trade.cs" />
     <Compile Include="Ship_Game\AI\ThreatCluster.cs" />
