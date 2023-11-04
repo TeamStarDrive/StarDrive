@@ -129,6 +129,7 @@ namespace Ship_Game.Gameplay
         private float FirstDemand   => 50 * Them.Universe.P.Pace;
         public float SecondDemand   =>  75 * Them.Universe.P.Pace;
         public float TechTradeTurns => 100 * Them.Universe.P.Pace;
+        public float TryPlayerSurrenderTimer => RefusedMerge ? SecondDemand * 2 : SecondDemand;
 
         /// <summary>
         /// Tech transfer restriction.
