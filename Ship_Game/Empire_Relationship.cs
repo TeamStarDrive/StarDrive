@@ -740,7 +740,10 @@ namespace Ship_Game
             {
                 string dialogue = enemy.isPlayer ? "SURRENDER" : "OFFER_MERGE";
                 Relationship rel = GetRelationsOrNull(Universe.Player);
-                rel?. OfferMergeOrSurrenderToPlayer(this, dialogue);
+                if (rel != null && rel.turnsSinceLastContact > rel.TryPlayerSurrenderTimer)
+                    rel.OfferMergeOrSurrenderToPlayer(this, dialogue);
+                else
+                    return false;
             }
             else
             {
