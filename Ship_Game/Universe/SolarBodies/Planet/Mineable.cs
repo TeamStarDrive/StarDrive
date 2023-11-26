@@ -17,18 +17,20 @@ namespace Ship_Game
 
         public static SubTexture Icon => ResourceManager.Texture($"NewUI/icon_exotic_resource");
 
+        public bool HasOpsOwner => Owner != null;
+        public bool OpsOwnedBySomeoneElseThan(Empire empire) => HasOpsOwner && Owner != empire;
+        public bool OpsOwnedByEmpire(Empire empire) => Owner == empire;
         public string CargoId => ResourceType.UID;
         public LocalizedText TranslatedResourceName => new(ResourceType.NameIndex);
         public LocalizedText ResourceDescription => new(ResourceType.DescriptionIndex);
         public SubTexture ExoticResourceIcon => ResourceManager.Texture($"Goods/{CargoId}");
         public float RefiningRatio => ResourceType.RefiningRatio; // How much  of the resource is processed per turn
-
         public ExoticBonusType ExoticBonusType => ResourceType.ExoticBonusType;
 
 
-        public bool CanAddMiningStationFor(Empire empire) => (Owner == empire || Owner == null) && MiningOpsSize < MaximumMiningStations;
+        public bool CanAddMiningStationFor(Empire empire) => (Owner == empire || !HasOpsOwner) && MiningOpsSize < MaximumMiningStations;
         public bool MiningOpsExistFor(Empire empire) => Owner == empire && MiningOpsSize > 0;
-        int MiningOpsSize => Owner != null ? Owner.AI.CountGoals(g => g.IsMiningOpsGoal(P)) : 0;
+        int MiningOpsSize => HasOpsOwner ? Owner.AI.CountGoals(g => g.IsMiningOpsGoal(P)) : 0;
 
 
         public bool AreMiningOpsPresentBy(Empire empire)
