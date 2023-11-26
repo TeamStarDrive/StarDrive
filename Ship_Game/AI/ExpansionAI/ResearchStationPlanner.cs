@@ -101,7 +101,7 @@ namespace Ship_Game.AI.ExpansionAI
                 SolarSystem system = solarBody.System ?? solarBody as SolarSystem;
                 if (solarBody.IsExploredBy(Owner) 
                     && !solarBody.IsResearchStationDeployedBy(Owner) // this bit is for performance - faster than HasGoal
-                    && (ignoreDistance || InGoodDistance(system, averageDist))
+                    && (ignoreDistance || HelperFunctions.InGoodDistanceForReseachOrMiningOps(Owner, system, averageDist, Influense(system.Position)))
                     && !Owner.AI.HasGoal(g => g.IsResearchStationGoal(solarBody))
                     && (Owner.Universe.Remnants == null 
                         || !Owner.Universe.Remnants.AI.HasGoal(g => g is RemnantPortal && g.TargetShip.System == solarBody)))
@@ -111,14 +111,6 @@ namespace Ship_Game.AI.ExpansionAI
             }
 
             return solarBodies.ToArray();
-
-            bool InGoodDistance(SolarSystem system, float averageDist)
-            {
-                return system.HasPlanetsOwnedBy(Owner)
-                       || system.Position.SqDist(Owner.WeightedCenter) < averageDist * 1.5f
-                       || system.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(Owner))
-                       || Influense(system.Position) == InfluenceStatus.Friendly;
-            }
         }
     }
 }
