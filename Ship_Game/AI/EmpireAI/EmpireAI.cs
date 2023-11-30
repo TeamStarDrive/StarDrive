@@ -104,7 +104,7 @@ namespace Ship_Game.AI
                 RemoveFactionEndedTasks();
 
             UpdateFleetsPosAndSpeed();
-
+            OwnerEmpire.UpdateExoticConsumpsions();
             for (int i = GoalsList.Count - 1; i >= 0; i--)
             {
                 GoalsList[i].Evaluate();
@@ -132,8 +132,16 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
                 ExpansionAI.RunExpansionPlanner();
+
+                if (ResearchStationsAI == null)
+                    ResearchStationsAI = new(OwnerEmpire);
+
                 ResearchStationsAI?.RunResearchStationPlanner(); // the null check here is for save competability
-                MiningOpsAI?.RunMiningOpsPlanner(); // the null check here is for save competability
+
+                if (MiningOpsAI == null)
+                    MiningOpsAI = new(OwnerEmpire);
+
+                MiningOpsAI.RunMiningOpsPlanner(); // the null check here is for save competability
                 SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();

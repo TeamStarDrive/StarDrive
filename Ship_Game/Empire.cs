@@ -997,7 +997,6 @@ namespace Ship_Game
                 AssignNewHomeWorldIfNeeded();
 
                 ShipsReadyForFleet = new FleetShips(this, AllFleetReadyShips());
-                UpdateExoticConsumpsions();
                 AI.Update(); // Must be done before DoMoney and Take turn
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
