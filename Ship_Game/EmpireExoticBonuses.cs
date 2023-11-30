@@ -22,7 +22,8 @@ namespace Ship_Game
         [StarData] public float CurrentBonus { get; private set; }
         [StarData] public float PreviousBonus { get; private set; }
         [StarData] public float RefinedPerTurnForConsumption { get; private set; } // so it wont be over consumption for change calculations
-        [StarData] public int TotalMiningOps { get; private set; }
+        [StarData] public int TotalBuiltMiningOps { get; private set; }
+        [StarData] public int InProgressMiningOps { get; private set; }
         [StarData] public int ActiveMiningOps { get; private set; }
         [StarData] public float MaxPotentialRefinedPerTurn { get; private set; }
         [StarData] public float OutputThisTurn { get; private set; }
@@ -54,7 +55,8 @@ namespace Ship_Game
 
         public void Update()
         {
-            TotalMiningOps = 0;
+            TotalBuiltMiningOps = 0;
+            InProgressMiningOps = 0;
             ActiveMiningOps = 0;
             TotalRefinedPerTurn = 0;
             MaxPotentialRefinedPerTurn = 0;
@@ -91,9 +93,14 @@ namespace Ship_Game
             MaxPotentialRefinedPerTurn += amount;
         }
 
-        public void AddMiningsStation()
+        public void AddBuiltMiningsStation()
         {
-            TotalMiningOps += 1; 
+            TotalBuiltMiningOps += 1; 
+        }
+
+        public void AddInProgressMiningsStation()
+        {
+            InProgressMiningOps += 1;
         }
 
         public void AddActiveMiningsStation()
@@ -122,6 +129,10 @@ namespace Ship_Game
             }
         }
 
+        public bool NeedMoreOps => CurrentStorage < MaxStorage * 0.5f 
+                                   && Consumption - TotalRefinedPerTurn > 0
+                                   && TotalBuiltMiningOps == ActiveMiningOps
+                                   && InProgressMiningOps == 0;
         public string CurrentPercentageOutput => $"{(OutputThisTurn * 100).String(0)}%";
         public string DynamicBonusString => $"{(DynamicBonus * 100).String(1)}%";
         public float CurrentBonusMultiplier => 1 + CurrentBonus;
@@ -131,6 +142,6 @@ namespace Ship_Game
                                     * GlobalStats.Defaults.ExoticRatioStorage
                                     * Owner.data.ExoticStorageMultiplier;
         public float RefiningNeeded => (MaxStorage + Consumption - CurrentStorage - TotalRefinedPerTurn).LowerBound(0);
-        public string ActiveVsTotalOps => $"{ActiveMiningOps}/{TotalMiningOps}";
+        public string ActiveVsTotalOps => $"{ActiveMiningOps}/{TotalBuiltMiningOps}";
     }
 }

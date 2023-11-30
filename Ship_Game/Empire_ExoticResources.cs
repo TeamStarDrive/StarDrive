@@ -37,14 +37,24 @@ namespace Ship_Game
             ExoticBonuses[type].AddToMaxRefiningPoterntial(amount);
         }
 
-        public void AddMiningStation(ExoticBonusType type)
+        public void AddBuiltMiningStation(ExoticBonusType type)
         {
-            ExoticBonuses[type].AddMiningsStation();
+            ExoticBonuses[type].AddBuiltMiningsStation();
+        }
+
+        public void AddInProgressMiningsStation(ExoticBonusType type)
+        {
+            ExoticBonuses[type].AddInProgressMiningsStation();
         }
 
         public void AddActiveMiningStation(ExoticBonusType type)
         {
             ExoticBonuses[type].AddActiveMiningsStation();
+        }
+
+        public bool NeedMoreMiningOpsOfThis(ExoticBonusType type)
+        {
+            return ExoticBonuses[type].NeedMoreOps;
         }
 
         public float GetRefiningNeeded(ExoticBonusType type)
@@ -58,7 +68,7 @@ namespace Ship_Game
                 ExoticBonuses[type].AddConsumption(amount);
         }
 
-        void UpdateExoticConsumpsions() // This will be done before empire goals update
+        public void UpdateExoticConsumpsions() // This will be done before empire goals update
         {
             foreach (EmpireExoticBonuses exoticBonus in ExoticBonuses.Values)
                 exoticBonus.Update();

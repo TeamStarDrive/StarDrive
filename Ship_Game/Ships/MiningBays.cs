@@ -37,9 +37,9 @@ namespace Ship_Game.Ships
             {
                 if (miningBay.Active 
                     && miningBay.HangarTimer <= 0
-                    && !miningBay.TryGetHangarShipActive(out _))
+                    && !miningBay.TryGetHangarShipActive(out _)
+                    && CreateMiningShip(miningBay, out Ship miningShip))
                 {
-                    CreateMiningShip(miningBay, out Ship miningShip);
                     miningBay.HangarTimer = miningBay.HangarTimerConstant;
                     miningShip.AI.OrderMinePlanet(Owner.GetTether());
                     Owner.OnShipLaunched(miningShip);
@@ -59,11 +59,16 @@ namespace Ship_Game.Ships
             return miningShipTemplate.ShipOrdLaunchCost < Owner.Ordinance;
         }
 
-        void CreateMiningShip(ShipModule hangar, out Ship miningShip)
+        bool CreateMiningShip(ShipModule hangar, out Ship miningShip)
         {
             miningShip = Ship.CreateShipFromHangar(Owner.Universe, hangar, Owner.Loyalty, Owner.Position, Owner);
-            Owner.ChangeOrdnance(-miningShip.ShipOrdLaunchCost);
-            hangar.SetHangarShip(miningShip);
+            if (miningShip != null)
+            {
+                Owner.ChangeOrdnance(-miningShip.ShipOrdLaunchCost);
+                hangar.SetHangarShip(miningShip);
+            }
+
+            return miningShip != null;
         }
 
         public void UpdateMiningVisuals(FixedSimTime timeStep)

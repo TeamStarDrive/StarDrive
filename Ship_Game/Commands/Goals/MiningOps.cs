@@ -65,6 +65,7 @@ namespace Ship_Game.Commands.Goals
                     : ResourceManager.Ships.GetDesign(Owner.data.MiningStation, throwIfError: true); // TODO - do this for mining
             }
 
+            Owner.AddInProgressMiningsStation(ExoticBonusType);
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, StationToBuild, out Planet planetToBuildAt, portQuality: 1f))
                 return GoalStep.TryAgain;
 
@@ -81,6 +82,7 @@ namespace Ship_Game.Commands.Goals
                     if (Owner.isPlayer)
                         Owner.Universe.Notifications.AddMiningStationBuiltNotification(MiningStation,TargetPlanet);
 
+                    Owner.AddBuiltMiningStation(ExoticBonusType);
                     return GoalStep.GoToNextStep; // consturction ship managed to deploy the orbital
                 }
 
@@ -89,6 +91,7 @@ namespace Ship_Game.Commands.Goals
             }
             else if (ConstructionGoalInProgress)
             {
+                Owner.AddInProgressMiningsStation(ExoticBonusType);
                 return GoalStep.TryAgain;
             }
 
@@ -118,7 +121,7 @@ namespace Ship_Game.Commands.Goals
         void RefineResources(float availableConsumables)
         {
             MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
-            Owner.AddMiningStation(ExoticBonusType);
+            Owner.AddBuiltMiningStation(ExoticBonusType);
             float maxRefiningPotential = MiningStation.TotalRefining * TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier;
             Owner.AddMaxPotentialRefining(ExoticBonusType, maxRefiningPotential);
 

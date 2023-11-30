@@ -108,14 +108,14 @@ namespace Ship_Game
             public override void Update(float fixedDeltaTime)
             {
                 var exoticResource = ExoticResource;
-                UpdateBonus(exoticResource.DynamicBonus, exoticResource.PreviousBonus, exoticResource.DynamicBonusString, exoticResource.TotalMiningOps);
-                UpdateOutput(exoticResource.OutputThisTurn, exoticResource.TotalMiningOps,
+                UpdateBonus(exoticResource.DynamicBonus, exoticResource.PreviousBonus, exoticResource.DynamicBonusString, exoticResource.TotalBuiltMiningOps);
+                UpdateOutput(exoticResource.OutputThisTurn, exoticResource.TotalBuiltMiningOps,
                     exoticResource.CurrentPercentageOutput, exoticResource.Consumption, exoticResource.RefinedPerTurnForConsumption);
 
-                UpdateConsumptionBar(exoticResource.Consumption, exoticResource.RefinedPerTurnForConsumption, exoticResource.TotalMiningOps);
+                UpdateConsumptionBar(exoticResource.Consumption, exoticResource.RefinedPerTurnForConsumption, exoticResource.TotalBuiltMiningOps);
                 UpdateStorage(exoticResource.CurrentStorage, exoticResource.MaxStorage, exoticResource.ActiveMiningOps);
                 UpdatePotential(exoticResource.MaxPotentialRefinedPerTurn, exoticResource.Consumption);
-                UpdateOps(exoticResource.ActiveMiningOps, exoticResource.TotalMiningOps, exoticResource.ActiveVsTotalOps);
+                UpdateOps(exoticResource.ActiveMiningOps, exoticResource.TotalBuiltMiningOps, exoticResource.ActiveVsTotalOps);
 
                // base.Update(fixedDeltaTime);
             }
