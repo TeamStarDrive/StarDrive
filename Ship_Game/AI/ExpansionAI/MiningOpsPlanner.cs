@@ -31,28 +31,40 @@ namespace Ship_Game.AI.ExpansionAI
         /// 
         public void RunMiningOpsPlanner(bool ignoreDistance = false)
         {
+            if (!Owner.isPlayer)
+                return;
+
             if (!ShouldRunMiningOpsPlanner())
                 return;
 
             Planet[] potentialPlanets = GetPotentialMineablePlanets(ignoreDistance);
-            Goal[] MiningGoals = Owner.AI.FindGoals(g => g is MiningOps);
+            Goal[] miningGoals = Owner.AI.FindGoals(g => g is MiningOps);
             foreach (Planet mineable in potentialPlanets)
             {
-                ProcessMinables(mineable, Influense(mineable.Position));
+                if (ProcessMinables(mineable, Influense(mineable.Position), miningGoals))
+                    return;
             }
         }
 
-        void ProcessMinables(Planet planet, InfluenceStatus influense)
+        bool ProcessMinables(Planet planet, InfluenceStatus influense, Goal[] miningGoals)
         {
             if (influense == InfluenceStatus.Enemy
                 || !planet.System.InSafeDistanceFromRadiation(planet.Position)
                 || planet.Mining.OpsOwnedBySomeoneElseThan(Owner))
             {
-                return;
+                return false;
             }
 
-            if (!planet.Mining.HasOpsOwner)
-                Owner.AI.AddGoalAndEvaluate(new MiningOps(Owner));
+
+            int numPlanetMiningGoals = miningGoals.Count(g => g.IsMiningOpsGoal(planet));
+            if (!planet.Mining.HasOpsOwner && numPlanetMiningGoals == 0 
+                || Owner.NeedMoreMiningOpsOfThis(planet.Mining.ExoticBonusType) && numPlanetMiningGoals < Mineable.MaximumMiningStations)
+            {
+                Owner.AI.AddGoalAndEvaluate(new MiningOps(Owner, planet));
+                return true;
+            }
+
+            return false;
         }
 
         bool ShouldRunMiningOpsPlanner()

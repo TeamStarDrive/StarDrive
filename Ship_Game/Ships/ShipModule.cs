@@ -78,7 +78,7 @@ namespace Ship_Game.Ships
         public Shield Shield { get; private set; }
         public string HangarShipUID;
         [StarData] public Ship HangarShip;
-        public float HangarTimer;
+        [StarData] public float HangarTimer;
         public bool IsWeapon;
         public Weapon InstalledWeapon;
         int Strength = -1;
