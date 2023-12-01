@@ -112,7 +112,7 @@ namespace Ship_Game.Commands.Goals
                 RefineResources(RemainingConsumables);
                 CreateSupplyGoalIfNeeded();
                 RefitifNeeded();
-                CallForHelpIfNeeded();
+                AiCallForHelpIfNeeded();
             }
 
             return GoalStep.TryAgain;
@@ -201,22 +201,25 @@ namespace Ship_Game.Commands.Goals
                 ? Owner.data.CurrentMiningStation
                 : Owner.BestMiningStationWeCanBuild.Name;
 
-            if (MiningStation.Name != bestRefit && !Owner.AI.HasGoal(g => g is RefitOrbital && g.OldShip == MiningStation))
+            // Refit only one station of this resource type on this planet per refit
+            if (MiningStation.Name != bestRefit
+                && Owner.NeedMoreMiningOpsOfThis(ExoticBonusType)
+                && !Owner.AI.HasGoal(g => g is RefitOrbital && g.ToBuild.IsMiningStation && g.OldShip == MiningStation))
+            {
                 betterStation = ResourceManager.Ships.GetDesign(bestRefit);
+            }
 
             return betterStation != null;
         }
 
-        void CallForHelpIfNeeded()
+        void AiCallForHelpIfNeeded()
         {
-            SolarSystem system = TargetPlanet?.System ?? TargetSystem;
-            if ((system.OwnerList.Count == 0 || system.HasPlanetsOwnedBy(Owner))
-                && (MiningStation.HealthPercent < 0.95
-                   || system.ShipList.Any(s => s.IsMiningStation && s.Loyalty.IsAtWarWith(MiningStation.Loyalty)))
-                && !Owner.HasWarTaskTargetingSystem(system))
-            {
+            if (Owner.isPlayer)
+                return;
+            SolarSystem system = TargetPlanet.System;
+            float enemyStr     = Owner.KnownEnemyStrengthNoResearchStationsIn(system);
+            if (enemyStr > 0 && !Owner.HasWarTaskTargetingSystem(system))
                 Owner.AddDefenseSystemGoal(system, Owner.KnownEnemyStrengthIn(system), AI.Tasks.MilitaryTaskImportance.Normal);
-            }
         }
 
         void AddSupplyDeficit(float value)
@@ -235,6 +238,8 @@ namespace Ship_Game.Commands.Goals
             (MiningStation.CargoSpaceMax - MiningStation.RefiningCargoSpaceMax) - availableConsumables > Owner.AverageFreighterCargoCap
             || availableConsumables / (MiningStation.CargoSpaceMax - MiningStation.RefiningCargoSpaceMax) < 0.5f;
 
-        bool ConstructionGoalInProgress => Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetPlanet));
+        // Note we do not allow a planet to have more than one mining ship construction goal
+        // Otherwize this wont work
+        bool ConstructionGoalInProgress => Owner.AI.HasGoal(g => g.IsBuildingOrbitalFor(TargetPlanet) && g.ToBuild.IsMiningStation);
     }
 }

@@ -298,7 +298,7 @@ namespace Ship_Game.AI
             Planet target = bg.TetherPlanet;
             if (target == null 
                 || target.Owner != Owner.Loyalty
-                || target.IsMineable && target.Mining.Owner != null && target.Mining.Owner != Owner.Loyalty)
+                || target.IsMineable && target.Mining.OpsOwnedBySomeoneElseThan(Owner.Loyalty))
             {
                 OrderScrapShip(); // Planet or Mining ops owner was changed
                 return;
@@ -366,7 +366,7 @@ namespace Ship_Game.AI
             if (goal != null)
                 goal.TargetShip = orbital;
 
-            if (planet.Mining.Owner == null)
+            if (!planet.Mining.HasOpsOwner)
                 planet.Mining.ChangeOwner(Owner.Loyalty);
         }
 

@@ -1169,7 +1169,7 @@ namespace Ship_Game
             BestPlatformWeCanBuild = BestShipWeCanBuild(RoleName.platform, this);
             BestStationWeCanBuild  = BestShipWeCanBuild(RoleName.station, this);
             BestResearchStationWeCanBuild = PickResearchStation(this);
-            BestMiningStationWeCanBuild = PickMiningStation(this);
+            BestMiningStationWeCanBuild   = PickMiningStation(this);
         }
 
         public void UpdateDefenseShipBuildingOffense()
