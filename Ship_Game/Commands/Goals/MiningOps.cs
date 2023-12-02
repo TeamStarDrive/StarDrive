@@ -21,6 +21,7 @@ namespace Ship_Game.Commands.Goals
         Ship MiningStation => TargetShip;
         string ResourceCargeName => TargetPlanet.Mining.CargoId;
         float RemainingConsumables => Owner.NonCybernetic ? MiningStation.GetFood() : MiningStation.GetProduction();
+        float ActualRefiningRatio => (TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier).UpperBound(1);
 
         ExoticBonusType ExoticBonusType => TargetPlanet.Mining.ExoticBonusType;
 
@@ -122,7 +123,7 @@ namespace Ship_Game.Commands.Goals
         {
             MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
             Owner.AddBuiltMiningStation(ExoticBonusType);
-            float maxRefiningPotential = MiningStation.TotalRefining * TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier;
+            float maxRefiningPotential = MiningStation.TotalRefining * ActualRefiningRatio;
             Owner.AddMaxPotentialRefining(ExoticBonusType, maxRefiningPotential);
 
             if (availableConsumables <= 0)
@@ -151,7 +152,7 @@ namespace Ship_Game.Commands.Goals
             float consumeableRatio = availableConsumables / consumablesNeeded;
             float maxRawResourcesToRefine = maximumRawResources * consumeableRatio.UpperBound(1);
             float maxConsumablesToConsume = maxRawResourcesToRefine * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
-            float maxRefinedResources = maxRawResourcesToRefine * TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier;
+            float maxRefinedResources = maxRawResourcesToRefine * ActualRefiningRatio;
             float protuctionRatio = (numRefiningNeeded / maxRefinedResources).UpperBound(1);
             Owner.AddRefinedResource(ExoticBonusType, maxRefinedResources * protuctionRatio);
             MiningStation.Carrier.MiningBays.UpdateIsRefining(protuctionRatio);
