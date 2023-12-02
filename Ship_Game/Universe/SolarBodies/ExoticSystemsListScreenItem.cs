@@ -24,6 +24,7 @@ namespace Ship_Game
         public Rectangle OrdersRect;
         public Rectangle DistanceRect;
         public Rectangle ResourceRect;
+        public Rectangle RichnessRect;
 
         Empire Player => Universe.Player;
         readonly Color Cream = Colors.Cream;
@@ -121,6 +122,7 @@ namespace Ship_Game
             PlanetNameRect = NextRect(w * 0.25f);
             DistanceRect = NextRect(150);
             ResourceRect = NextRect(150);
+            RichnessRect = NextRect(100);
             OrdersRect = NextRect(100);
 
             PlanetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
@@ -142,6 +144,7 @@ namespace Ship_Game
             AddDistanceStats();
             AddPlanetName();
             AddResourceName();
+            AddRichnessStat();
             base.PerformLayout();
         }
 
@@ -269,6 +272,14 @@ namespace Ship_Game
             Panel(ResourceIconRect, researchable 
                 ? ResourceManager.Texture("NewUI/icon_science") 
                 : Planet.Mining.ExoticResourceIcon);
+        }
+
+        void AddRichnessStat()
+        {
+            string richness = IsStar || Planet.IsResearchable ? "" : Planet.Mining.Richness.String(0);
+            var sysNameCursor = new Vector2(RichnessRect.X + 30, RichnessRect.Y + RichnessRect.Height / 2 - SmallFont.LineSpacing / 2);
+
+            Label(sysNameCursor, richness, SmallFont, Cream);
         }
 
         void AddHostileWarning()
