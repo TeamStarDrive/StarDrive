@@ -388,7 +388,8 @@ namespace Ship_Game
             Vector2 resourceStatPos = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y);
             Vector2 resourceStatDeployed = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y + 15);
             Vector2 resourceStatInProgress = new Vector2(ExoticResourceIconRect.X + 23, ExoticResourceIconRect.Y + 30);
-            string stats = $"{P.Mining.TranslatedResourceName.Text}: Richness {P.Mining.Richness}, Refine Ratio: {P.Mining.RefiningRatio}";
+            string stats = $"{P.Mining.TranslatedResourceName.Text}: Richness " +
+                $"{P.Mining.Richness}, Refine Ratio: {(P.Mining.RefiningRatio * Player.data.RefiningRatioMultiplier).UpperBound(1)}";
             batch.DrawString(Font12, stats, resourceStatPos, Color.White);
 
             int numDeployed = P.OrbitalStations.Filter(s => s.IsMiningStation && s.Loyalty == Player).Length;

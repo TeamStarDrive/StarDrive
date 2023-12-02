@@ -68,8 +68,8 @@ public sealed class RuleOptionsScreen : GameScreen
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*3, () => P.DisablePirates, title: GameText.DisablePirates, tooltip: GameText.DisablesAllPirateFactionsFor);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*4, () => P.DisableRemnantStory, title: GameText.DisableRemnantStory, tooltip: GameText.IfCheckedRemnantForcesIn);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*5, () => P.DisableAlternateAITraits, title: GameText.DisableAlternateTraits, tooltip: GameText.DisableAlternateTraitsTip);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*6, () => P.DisableResearchStations, title: GameText.DisableAlternateTraits, tooltip: GameText.DisableAlternateTraitsTip);
-        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*7, () => P.DisableMiningOps, title: GameText.DisableAlternateTraits, tooltip: GameText.DisableAlternateTraitsTip);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*6, () => P.DisableResearchStations, title: GameText.DisableResearchStationsName, tooltip: GameText.DisableResearchStationsTip);
+        Checkbox(ftlRect.X + indent, ftlRect.Y + 25*7, () => P.DisableMiningOps, title: GameText.DisableMiningOpsName, tooltip: GameText.DisableMiningOpsTip);
         Checkbox(ftlRect.X + indent, ftlRect.Y + 25*8, () => P.UseUpkeepByHullSize, title: GameText.RuleOptionsUseHullUpkeepName, tooltip: GameText.RuleOptionsUseHullUpkeepTip);
 
         var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 230, 270, 50);

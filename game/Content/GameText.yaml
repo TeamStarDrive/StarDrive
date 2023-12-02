@@ -10561,6 +10561,54 @@ ExoticRefiningMaxPotential:
 ExoticNumOps:
  Id: 4483
  ENG: "Ops"       
+EmpireExoticStorage:
+ Id: 4484
+ ENG: "Empire Exotic Storage Modifier"
+EmpireMiningSpeed:
+ Id: 4485
+ ENG: "Mining Speed Modifier"
+EmpireRefiningEfficiency:
+ Id: 4486
+ ENG: "Refining Efficiency Modifier" 
+DisableResearchStationsName: 
+ Id: 4487
+ ENG: "Disable Research Stations" 
+DisableResearchStationsTip: 
+ Id: 4488
+ ENG: "The game will not have researchable planets and therefore, no research stations."  
+DisableMiningOpsName: 
+ Id: 4489
+ ENG: "Disable Mining Ops" 
+DisableMiningOpsTip: 
+ Id: 4490
+ ENG: "The game will not have mineable planets and therefore, no Mining Ops."   
+BB_MiningSpeedTech:
+ Id: 4924
+ ENG: "Mining Ships Speed"
+BB_MiningSpeedTechDescr:
+ Id: 4925
+ ENG: "Increase our Mining Ships mining speed"
+BB_MiningSpeedTechDescrBonus:
+ Id: 4926
+ ENG: "20% Empire-wide increase in mining speeds" 
+BB_RefiningEfficiencyTech:
+ Id: 4927
+ ENG: "Refining Efficiency"
+BB_RefiningEfficiencyTechDescr:
+ Id: 4928
+ ENG: "Increase our Exotic Resources Refining Efficiency"
+BB_RefiningEfficiencyTechDescrBonus:
+ Id: 4929
+ ENG: "20% Empire-wide increase in Refining Efficiency"  
+BB_ExoticStorageTech:
+ Id: 4930
+ ENG: "Exotic Storage"
+BB_ExoticStorageTechDescr:
+ Id: 4931
+ ENG: "Increase our empire storage capacity for each exotic resource"
+BB_ExoticStorageTechDescrBonus:
+ Id: 4932
+ ENG: "20% Empire-wide increase in Exotic Storage" 
 ExoticResourceRefinedPulsefieldName:
  Id: 4933 
  ENG: "Pulsefield"    

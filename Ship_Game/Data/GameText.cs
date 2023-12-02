@@ -4593,6 +4593,27 @@ namespace Ship_Game
         ExoticRefiningMaxPotential = 4482,
         /// <summary>Ops</summary>
         ExoticNumOps = 4483,
+        /// <summary>Empire Exotic Sotrarge</summary>
+        EmpireExoticStorage = 4484,
+        /// <summary>Mining Speed</summary>
+        EmpireMiningSpeed = 4485,
+        /// <summary>Refining Efficiency</summary>
+        EmpireRefiningEfficiency = 4486,
+        /// <summary>Disable Research Stations</summary>
+        DisableResearchStationsName = 4487,
+        /// <summary>The game will not have researchable planets</summary>
+        DisableResearchStationsTip = 4488,
+        /// <summary>Disable Mining Ops</summary>
+        DisableMiningOpsName = 4489,
+        /// <summary>The game will not have mineable planets</summary>
+        DisableMiningOpsTip = 4490, 
+
+
+
+
+
+
+
 
 
 

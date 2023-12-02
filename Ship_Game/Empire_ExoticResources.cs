@@ -16,6 +16,10 @@ namespace Ship_Game
         [StarData] readonly Map<ExoticBonusType, EmpireExoticBonuses> ExoticBonuses;
         public float TotalShipSurfaceArea { get; private set; }
         public float TotalShipWarpThrustK { get; private set; }
+        public float MaxExoticStorage => AveragePlanetStorage 
+                                            * OwnedPlanets.Count
+                                            * GlobalStats.Defaults.ExoticRatioStorage
+                                            * data.ExoticStorageMultiplier;
 
         public Map<ExoticBonusType, EmpireExoticBonuses> GetExoticBonuses()
         {

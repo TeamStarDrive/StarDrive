@@ -19,7 +19,7 @@ namespace Ship_Game.AI.ExpansionAI
         public MiningOpsPlanner(Empire empire)
         {
             Owner = empire;
-            TurnTimer = 5 + empire.Id;
+            TurnTimer = empire.DifficultyModifiers.MiningOpsTurnsPerRun + empire.Id;
         }
         InfluenceStatus Influense(Vector2 pos) => Owner.Universe.Influence.GetInfluenceStatus(Owner, pos);
 
@@ -76,7 +76,7 @@ namespace Ship_Game.AI.ExpansionAI
             if (--TurnTimer > 0 )
                 return false;
 
-            TurnTimer = 5;
+            TurnTimer = Owner.DifficultyModifiers.MiningOpsTurnsPerRun;
             return true;
         }
 
