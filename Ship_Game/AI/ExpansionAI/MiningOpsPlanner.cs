@@ -31,9 +31,6 @@ namespace Ship_Game.AI.ExpansionAI
         /// 
         public void RunMiningOpsPlanner(bool ignoreDistance = false)
         {
-            if (!Owner.isPlayer)
-                return;
-
             if (!ShouldRunMiningOpsPlanner())
                 return;
 

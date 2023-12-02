@@ -55,7 +55,6 @@ namespace Ship_Game
             planet.Universe.AddMineablePlanet(planet);
             ResourceType = GetRandomResourceType(planet.Universe);
             Richness = planet.Universe.Random.RollDie(ResourceType.MaxRichness);
-
         }
 
         public Mineable()

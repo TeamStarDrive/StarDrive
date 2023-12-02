@@ -320,6 +320,8 @@ namespace Ship_Game.GameScreens.NewGame
                 system.FiveClosestSystems = UState.GetFiveClosestSystems(system);
             }
 
+            UState.MineablePlanets.Sort(p => -p.Mining.Richness);
+
             step.Finish();
         }
 

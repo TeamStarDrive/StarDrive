@@ -687,6 +687,12 @@ namespace Ship_Game
         {
             if (this == None) // this is a None technology, and should never unlock
                 return true;
+            if (Tech.RequiresMiningOps && empire.Universe.P.DisableMiningOps
+                || Tech.RequiresResearchStations && empire.Universe.P.DisableResearchStations)
+            {
+                return true;
+            }
+
             if (IsUnlockedAtGameStart(empire))
                 return false;
             if (Tech.HiddenFrom.Count > 0 && InRaceRequirementsArray(empire, Tech.HiddenFrom))
