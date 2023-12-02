@@ -137,11 +137,8 @@ namespace Ship_Game
         public string DynamicBonusString => $"{(DynamicBonus * 100).String(1)}%";
         public float CurrentBonusMultiplier => 1 + CurrentBonus;
         public float DynamicBonusMultiplier => 1 + DynamicBonus;
-        public float MaxStorage => Owner.AveragePlanetStorage 
-                                    * Owner.GetPlanets().Count 
-                                    * GlobalStats.Defaults.ExoticRatioStorage
-                                    * Owner.data.ExoticStorageMultiplier;
         public float RefiningNeeded => (MaxStorage + Consumption - CurrentStorage - TotalRefinedPerTurn).LowerBound(0);
         public string ActiveVsTotalOps => $"{ActiveMiningOps}/{TotalBuiltMiningOps}";
+        float MaxStorage => Owner.MaxExoticStorage;
     }
 }
