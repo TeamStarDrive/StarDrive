@@ -27,8 +27,8 @@ namespace Ship_Game
         readonly ToggleButton ZoomOut;
         readonly ToggleButton ZoomToShip;
         readonly ToggleButton PlanetScreen;
-        readonly ToggleButton ExoticBonusesBig;
-        readonly ToggleButton ExoticBonusesSmall;
+        readonly ToggleButton ExoticBonuses;
+        //readonly ToggleButton ExoticBonusesSmall;
         readonly ToggleButton ExoticScreen;
         readonly ToggleButton ShipScreen;
         readonly ToggleButton AIScreen;
@@ -55,19 +55,20 @@ namespace Ship_Game
 
             UIList listL = AddList(new Vector2(Housing.X + 10, Housing.Y + 70));
             listL.Name = "MiniMapButtons";
-            ZoomToShip       = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick));
-            PlanetScreen     = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick));
-            ExoticBonusesBig = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_big", ExoticBonusScreen_OnClick));
-            ShipScreen       = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_ftloverlay", ShipScreen_OnClick));
-            Fleets           = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_rangeoverlay", Fleets_OnClick));
-            DeepSpaceBuild   = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_dsbw", DeepSpaceBuild_OnClick));
-            AIScreen         = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonDown, "AI", AIScreen_OnClick));
+            ZoomToShip     = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick));
+            PlanetScreen   = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick));
+            ExoticBonuses  = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_big", ExoticBonusScreen_OnClick));
+            ShipScreen     = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_ftloverlay", ShipScreen_OnClick));
+            Fleets         = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_rangeoverlay", Fleets_OnClick));
+            DeepSpaceBuild = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_dsbw", DeepSpaceBuild_OnClick));
+            AIScreen       = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonDown, "AI", AIScreen_OnClick));
 
             UIList listR = AddList(new Vector2(Housing.X + 38, Housing.Y + 70));
             listR.Name = "MiniMapButtonsRight";
             ZoomOut            = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
             ExoticScreen       = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_exotic_systems", ExoticScreen_OnClick));
-            ExoticBonusesSmall = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_small", PlanetScreen_OnClick));
+            // will use the below for freighters screen
+            //ExoticBonusesSmall = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_small", ExoticBonusScreen_OnClick));
 
             Scale = ActualMap.Width / (Universe.UState.Size * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
@@ -153,11 +154,11 @@ namespace Ship_Game
             batch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
             batch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
-            ShipScreen.IsToggled       = Universe.ShowingFTLOverlay;
-            DeepSpaceBuild.IsToggled   = Universe.DeepSpaceBuildWindow.Visible;
-            AIScreen.IsToggled         = Universe.aw.IsOpen;
-            ExoticBonusesBig.IsToggled = Universe.ExoticBonusesWindow.IsOpen;
-            Fleets.IsToggled           = Universe.ShowingRangeOverlay;
+            ShipScreen.IsToggled     = Universe.ShowingFTLOverlay;
+            DeepSpaceBuild.IsToggled = Universe.DeepSpaceBuildWindow.Visible;
+            AIScreen.IsToggled       = Universe.aw.IsOpen;
+            ExoticBonuses.IsToggled  = Universe.ExoticBonusesWindow.IsOpen;
+            Fleets.IsToggled         = Universe.ShowingRangeOverlay;
             
             base.Draw(batch, elapsed);
         }

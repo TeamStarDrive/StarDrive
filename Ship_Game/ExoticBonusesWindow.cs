@@ -9,8 +9,6 @@ using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
 using SDUtils;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
-using System.Windows.Forms;
 
 namespace Ship_Game
 {
@@ -18,11 +16,9 @@ namespace Ship_Game
     {
         public bool IsOpen { get; private set; }
         readonly UniverseScreen Screen;
-        UniverseState UState => Screen.UState;
         Submenu ConstructionSubMenu;
-        bool ResearchStationsEnabled;
-        bool MiningOpsEnabled;
         Map<ExoticBonusType, EmpireExoticBonuses> ExoticBonuses;
+        bool CompactMode;
 
         Empire Player => Screen.Player;
 
@@ -55,7 +51,8 @@ namespace Ship_Game
                 ExoticResource = Owner.GetExoticResource(ExoticBonusType);
                 BonusInfo = new UILabel(new Vector2(-100, -100), GameText.HullBonus, Fonts.Arial12Bold, Color.White) { Tooltip = new LocalizedText(bonus.Good.DescriptionIndex) };
                 Icon = new UIPanel(new Rectangle(-100, -100, 20, 20), ResourceManager.Texture($"Goods/{bonus.Good.UID}"));
-                ResourceName = new UILabel(new Vector2(-100, -100), new LocalizedText(bonus.Good.RefinedNameIndex), Fonts.Arial12Bold, Color.Wheat);
+                Icon.Tooltip = new LocalizedText(bonus.Good.DescriptionIndex);
+                ResourceName = new UILabel(new Vector2(-100, -100), new LocalizedText(bonus.Good.RefinedNameIndex), Fonts.Arial12Bold, Color.Wheat, new LocalizedText(bonus.Good.DescriptionIndex));
                 OutputInfo = new UILabel(new Vector2(-100, -100), GameText.HullBonus, Fonts.Arial12Bold, Color.Wheat);
                 ConsumptionBar = new ProgressBar(new Rectangle(-100, -100, 150, 18), 0, 0) { Fraction10Values = true };
                 StorageBar = new ProgressBar(new Rectangle(-100, -100, 150, 18), 0, 0) { color = "blue", Fraction10Values = true };
@@ -82,6 +79,8 @@ namespace Ship_Game
             }
             public override bool HandleInput(InputState input)
             {
+                Icon.HandleInput(input);
+                ResourceName.HandleInput(input);
                 return false;
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -190,13 +189,13 @@ namespace Ship_Game
             ConstructionSubMenu = new(win, GameText.ExoticResourcesMenu);
 
             float titleOffset = win.Y + 40;
-            Add(new UILabel(new Vector2(win.X+5, titleOffset), GameText.ExoticResourcesBonus, Fonts.Arial12Bold, Color.Gold));
-            Add(new UILabel(new Vector2(win.X+60, titleOffset), GameText.ExoticResourcesName, Fonts.Arial12Bold, Color.White));
-            Add(new UILabel(new Vector2(win.X+170, titleOffset), GameText.ExoticResourcesOutput, Fonts.Arial12Bold, Color.White));
-            Add(new UILabel(new Vector2(win.X+240, titleOffset), GameText.ExoticRefiningVsConsumption, Fonts.Arial12Bold, Color.White));
-            Add(new UILabel(new Vector2(win.X+430, titleOffset), GameText.Storage, Fonts.Arial12Bold, Color.White));
-            Add(new UILabel(new Vector2(win.X+550, titleOffset), GameText.ExoticRefiningMaxPotential, Fonts.Arial12Bold, Color.White));
-            Add(new UILabel(new Vector2(win.X+600, titleOffset), GameText.ExoticNumOps, Fonts.Arial12Bold, Color.White));
+            Add(new UILabel(new Vector2(win.X+5,   titleOffset), GameText.ExoticResourcesBonus, Fonts.Arial12Bold, Color.Gold, GameText.ExoticResourceBonusTip));
+            Add(new UILabel(new Vector2(win.X+60,  titleOffset), GameText.ExoticResourcesName, Fonts.Arial12Bold, Color.White));
+            Add(new UILabel(new Vector2(win.X+170, titleOffset), GameText.ExoticResourcesOutput, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceOutputTip));
+            Add(new UILabel(new Vector2(win.X+240, titleOffset), GameText.ExoticRefiningVsConsumption, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceRefineConsumeTip));
+            Add(new UILabel(new Vector2(win.X+430, titleOffset), GameText.Storage, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceStorageTip));
+            Add(new UILabel(new Vector2(win.X+550, titleOffset), GameText.ExoticRefiningMaxPotential, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceMaxRefineTip));
+            Add(new UILabel(new Vector2(win.X+600, titleOffset), GameText.ExoticNumOps, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceOpsTip));
 
             UIList bonusData = AddList(new(win.X + 5f, win.Y + 40));
             bonusData.Padding = new(2f, 25f);
@@ -237,6 +236,7 @@ namespace Ship_Game
                 return false;
             }
 
+            base.HandleInput(input);
             return false;
         }
     }

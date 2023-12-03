@@ -8,7 +8,7 @@
 Good:
   UID: Production
   RefiningRatio: 1
-  MaxRichness: 10
+  MaxRichness: 6
   NameIndex: 162
   DescriptionIndex: 4950
   Weight: 1
@@ -17,7 +17,7 @@ Good:
 Good:
   UID: Food
   RefiningRatio: 1
-  MaxRichness: 10
+  MaxRichness: 6
   NameIndex: 161
   DescriptionIndex: 4951
   Weight: 1
@@ -26,7 +26,7 @@ Good:
 Good:
   UID: Colonists_1000
   RefiningRatio: 1
-  MaxRichness: 10
+  MaxRichness: 6
   NameIndex: 4949
   DescriptionIndex: 4952
   Weight: 1
@@ -34,8 +34,8 @@ Good:
   IsGasGiantMineable: false    
 Good:
   UID: Pulsefield
-  RefiningRatio: 1
-  MaxRichness: 10
+  RefiningRatio: 0.5
+  MaxRichness: 6
   NameIndex: 4953
   RefinedNameIndex: 4933
   DescriptionIndex: 4954
@@ -46,8 +46,8 @@ Good:
   ConsumptionMultiplier: 0.01
 Good:
   UID: Luxarium
-  RefiningRatio: 1
-  MaxRichness: 10
+  RefiningRatio: 0.5
+  MaxRichness: 6
   NameIndex: 4947
   RefinedNameIndex: 4934  
   DescriptionIndex: 4948
@@ -58,8 +58,8 @@ Good:
   ConsumptionMultiplier: 0.1
 Good:
   UID: Fortifume
-  RefiningRatio: 1
-  MaxRichness: 10
+  RefiningRatio: 0.5
+  MaxRichness: 6
   NameIndex: 4945
   RefinedNameIndex: 4935  
   DescriptionIndex: 4946
@@ -70,8 +70,8 @@ Good:
   ConsumptionMultiplier: 0.01
 Good:
   UID: Energon
-  RefiningRatio: 1
-  MaxRichness: 10
+  RefiningRatio: 0.5
+  MaxRichness: 6
   NameIndex: 4943
   RefinedNameIndex: 4936
   DescriptionIndex: 4944
@@ -82,8 +82,8 @@ Good:
   ConsumptionMultiplier: 0.1  
 Good:
   UID: NanoGas
-  RefiningRatio: 1
-  MaxRichness: 10
+  RefiningRatio: 0.5
+  MaxRichness: 6
   NameIndex: 4941
   RefinedNameIndex: 4937  
   DescriptionIndex: 4942
@@ -94,8 +94,8 @@ Good:
   ConsumptionMultiplier: 0.001    
 Good:
   UID: Aetherium
-  RefiningRatio: 1
-  MaxRichness: 10
+  RefiningRatio: 0.5
+  MaxRichness: 6
   NameIndex: 4939
   RefinedNameIndex: 4938
   DescriptionIndex: 4940

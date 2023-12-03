@@ -72,11 +72,11 @@ namespace Ship_Game
                 default:
                 case ExoticBonusType.RepairRate:      // consumption is calculated dynamically 
                 case ExoticBonusType.ShieldRecharge:  // consumption is calculated dynamically
-                case ExoticBonusType.None:            consumption = 0;                          break; 
-                case ExoticBonusType.Credits:         consumption = Owner.TotalPopBillion;      break;
-                case ExoticBonusType.DamageReduction: consumption = Owner.TotalShipSurfaceArea; break;
-                case ExoticBonusType.Production:      consumption = Owner.GetGrossProduction(); break;
-                case ExoticBonusType.WarpSpeed:       consumption = Owner.TotalShipWarpThrustK; break;
+                case ExoticBonusType.None:            consumption = 0;                                  break; 
+                case ExoticBonusType.Credits:         consumption = Owner.TotalPopBillion;              break;
+                case ExoticBonusType.DamageReduction: consumption = Owner.TotalShipSurfaceArea;         break;
+                case ExoticBonusType.Production:      consumption = Owner.GetGrossProductionNoExotic(); break;
+                case ExoticBonusType.WarpSpeed:       consumption = Owner.TotalShipWarpThrustK;         break;
             }
 
             Consumption = consumption * Good.ConsumptionMultiplier;

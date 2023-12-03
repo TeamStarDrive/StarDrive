@@ -4606,11 +4606,19 @@ namespace Ship_Game
         /// <summary>Disable Mining Ops</summary>
         DisableMiningOpsName = 4489,
         /// <summary>The game will not have mineable planets</summary>
-        DisableMiningOpsTip = 4490, 
-
-
-
-
+        DisableMiningOpsTip = 4490,
+        /// <summary>This shows the bonus your empire gets</summary>
+        ExoticResourceBonusTip = 4491,
+        /// <summary>This shows the usage of the Empire's current</summary>
+        ExoticResourceOutputTip = 4492,
+        /// <summary>This shows the Refining rate vs. consumption</summary>
+        ExoticResourceRefineConsumeTip = 4493,
+        /// <summary>This shows the maximum refining rate of the Exotic</summary>
+        ExoticResourceMaxRefineTip = 4494,
+        /// <summary>This shows the active Mining stations vs. total</summary>
+        ExoticResourceOpsTip = 4495,
+        /// <summary>This shows the storage usage for this resource type</summary>
+        ExoticResourceStorageTip,
 
 
 
