@@ -176,6 +176,13 @@ namespace Ship_Game
             Color = color;
         }
 
+        public UILabel(Vector2 pos, in LocalizedText text, Graphics.Font font, Color color, LocalizedText tooltip)
+            : this(pos, text, font)
+        {
+            Color = color;
+            Tooltip = tooltip;
+        }
+
         public UILabel(Vector2 pos, in LocalizedText text, Graphics.Font font)
             : base(pos)
         {

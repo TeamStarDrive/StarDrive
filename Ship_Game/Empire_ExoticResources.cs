@@ -96,9 +96,11 @@ namespace Ship_Game
             return ExoticBonuses.Get(type, out EmpireExoticBonuses exoticBonus) ? exoticBonus.CurrentBonusMultiplier : 1;
         }
 
-        public float GetGrossProduction()
+        public float GetGrossProductionNoExotic()
         {
-            return OwnedPlanets.Sum(p => p.Prod.GrossIncome);
+            float exoticBonus = GetStaticExoticBonusMuliplier(ExoticBonusType.Production);
+            float totalGrossProd = OwnedPlanets.Sum(p => p.Prod.GrossIncome);
+            return exoticBonus == 0 ? totalGrossProd : totalGrossProd / exoticBonus; 
         }
     }
 }

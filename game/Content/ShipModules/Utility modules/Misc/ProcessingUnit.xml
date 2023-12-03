@@ -10,13 +10,13 @@
   <BattleshipModule>false</BattleshipModule>
   <CapitalModule>false</CapitalModule>
   <FreighterModule>false</FreighterModule>
-  <PlatformModule>true</PlatformModule>
+  <PlatformModule>false</PlatformModule>
   <StationModule>true</StationModule>
   
-  <Cost>150</Cost>
+  <Cost>200</Cost>
   <TechLevel>4</TechLevel>
-  <XSize>4</XSize>
-  <YSize>4</YSize>
+  <XSize>6</XSize>
+  <YSize>6</YSize>
   <ModuleType>Special</ModuleType>
   <Name>Processing unit</Name>
   <Restrictions>I</Restrictions>
@@ -24,12 +24,12 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/Processing_Unit</IconTexturePath>
-  <Mass>150</Mass>
-  <HealthMax>2000</HealthMax>
+  <Mass>200</Mass>
+  <HealthMax>3000</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
   
-  <PowerDraw>500</PowerDraw>
-  <Refining>1</Refining>
+  <PowerDraw>1000</PowerDraw>
+  <Refining>2</Refining>
   <!-- for Hangar items -->
   <hangarShipUID>Doesnt Matter</hangarShipUID>
   <hangerTimerConstant>30</hangerTimerConstant>
