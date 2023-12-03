@@ -24,7 +24,7 @@ namespace Ship_Game.Ships
         public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
         public const int NumTurnsForGoodResearchSupply = 30;
-        public const int NumTurnsForGoodRefiningSupply = 30;
+        public const int NumTurnsForGoodRefiningSupply = 40;
 
         [StarData] readonly Ship Ship;
         [StarData] float IncomingOrdnance;
