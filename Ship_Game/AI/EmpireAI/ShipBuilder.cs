@@ -228,22 +228,27 @@ namespace Ship_Game.AI
             }
 
             var potentialMiningStations = new Array<IShipDesign>();
-            float maxRefiningPerTurn = 0;
+            float highestScore = 0;
+            float minimumRefiningTurns = ShipResupply.NumTurnsForGoodRefiningSupply;
             foreach (IShipDesign design in empire.ShipsWeCanBuild)
             {
                 if (design.IsMiningStation)
                 {
-                    potentialMiningStations.Add(design);
-                    if (design.BaseRefiningPerTurn > maxRefiningPerTurn)
-                        maxRefiningPerTurn = design.BaseRefiningPerTurn;
+                    float score = GetRefiningScore(design);
+                    if (score >= highestScore)
+                    {
+                        highestScore = score;
+                        potentialMiningStations.Add(design);
+                    }
                 }
             }
 
             IShipDesign bestMiningStation = null;
             if (potentialMiningStations.Count > 0)
             {
+                // Get the best of the stations (since some stations can have the same score)
                 var miningStations = potentialMiningStations.
-                    Filter(s => s.BaseRefiningPerTurn.InRange(maxRefiningPerTurn * 0.8f, maxRefiningPerTurn));
+                    Filter(s => GetRefiningScore(s).InRange(highestScore * 0.98f, highestScore));
 
                 bestMiningStation = miningStations.FindMax(s => s.BaseCargoSpace / s.BaseRefiningPerTurn);
             }
@@ -252,6 +257,12 @@ namespace Ship_Game.AI
                 Log.Info(ConsoleColor.Cyan, $"----- Picked {bestMiningStation?.Name ?? empire.data.MiningStation}");
 
             return bestMiningStation ?? ResourceManager.Ships.GetDesign(empire.data.MiningStation, throwIfError: true);
+
+            float GetRefiningScore(IShipDesign design)
+            {
+                float refiningRatio = design.BaseCargoSpace*0.5f / minimumRefiningTurns;
+                return design.BaseRefiningPerTurn * (refiningRatio * refiningRatio).UpperBound(1f);
+            }
         }
 
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)
