@@ -53,7 +53,7 @@ namespace Ship_Game.Ships
                 return true;
 
             float totalRefiningPerTurn = ship.BaseRefiningPerTurn * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
-            return ship.BaseCargoSpace*0.5f / totalRefiningPerTurn >= NumTurnsForGoodRefiningSupply;
+            return ship.BaseCargoSpace*0.5f / totalRefiningPerTurn >= NumTurnsForGoodRefiningSupply*0.8f;
         }
 
         public static float DamageThreshold(ShipCategory category)

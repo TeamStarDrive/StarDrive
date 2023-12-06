@@ -62,8 +62,8 @@ namespace Ship_Game.Commands.Goals
             if (StationToBuild == null)
             {
                 StationToBuild = !Owner.isPlayer || Owner.AutoPickBestMiningStation
-                    ? ShipBuilder.PickResearchStation(Owner) // TODO - create mining station picker
-                    : ResourceManager.Ships.GetDesign(Owner.data.MiningStation, throwIfError: true); // TODO - do this for mining
+                    ? ShipBuilder.PickMiningStation(Owner)
+                    : ResourceManager.Ships.GetDesign(Owner.data.MiningStation, throwIfError: true);
             }
 
             Owner.AddInProgressMiningsStation(ExoticBonusType);
