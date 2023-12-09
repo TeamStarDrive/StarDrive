@@ -367,7 +367,7 @@ namespace Ship_Game.AI
                 goal.TargetShip = orbital;
 
             if (!planet.Mining.HasOpsOwner)
-                planet.Mining.ChangeOwner(Owner.Loyalty);
+                planet.Mining.ChangeOwnershipIfNeeded(Owner.Loyalty);
         }
 
         public void DoExplore(FixedSimTime timeStep)

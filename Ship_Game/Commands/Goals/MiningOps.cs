@@ -41,20 +41,37 @@ namespace Ship_Game.Commands.Goals
         public MiningOps(Empire owner, Planet planet)
             : this(owner)
         {
-            StarDateAdded = owner.Universe.StarDate;
-            TargetPlanet = planet;
-            Owner = owner;
+            Setup(owner, planet);
         }
 
         // Deep space build orbiting a planet
         public MiningOps(Empire owner, Planet planet, IShipDesign stationToBuild, Vector2 tetherOffset)
             : this(owner)
         {
+            Setup(owner, planet);
+            StationToBuild = stationToBuild;
+            DynamicBuildPos = tetherOffset;
+        }
+
+        // After boarding
+        public MiningOps(Empire owner, Planet planet, Ship miningStation)
+            : this(owner)
+        {
+            Setup(owner, planet);
+            TargetShip = miningStation;
+            ChangeToStep(Mine);
+        }
+
+        void Setup(Empire owner, Planet planet)
+        {
             StarDateAdded = owner.Universe.StarDate;
             TargetPlanet = planet;
             Owner = owner;
-            StationToBuild = stationToBuild;
-            DynamicBuildPos = tetherOffset;
+
+            if (owner.IsCybernetic && MiningStation.GetFood() > 0)
+                MiningStation.UnloadFood();
+            if (owner.NonCybernetic && MiningStation.GetProduction() > 0)
+                MiningStation.UnloadProduction();
         }
 
         GoalStep BuildStationConstructor()
@@ -104,8 +121,18 @@ namespace Ship_Game.Commands.Goals
             if (MiningStation == null || !MiningStation.Active)
                 return GoalStep.GoalFailed;
 
-            //if (WasOwnerChanged(out GoalStep ownerChanged))
-                //return ownerChanged;
+            if (MiningStation.Loyalty != Owner) // Was probably boarded
+            {
+                TargetPlanet.Mining.ChangeOpsOwnerIfAllStationsBoarded(MiningStation.Loyalty);
+                MiningStation.Loyalty.AI.AddGoalAndEvaluate(new MiningOps(MiningStation.Loyalty, TargetPlanet, MiningStation));
+                return GoalStep.GoalComplete;
+            }
+
+            if (TargetPlanet.Mining.Owner != Owner) // We are not the owners of this mining Ops yet
+            {
+                AddMiningStationPlan(Plan.MiningStationNotOpsOwner);
+                return GoalStep.TryAgain;
+            }
 
             // Factions do not mine (for now) and pirate owners will set scuttle (see PiratePostChangeLoyalty)
             if (!Owner.IsFaction)

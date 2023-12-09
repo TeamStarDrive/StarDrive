@@ -10600,6 +10600,9 @@ ExoticResourceOpsTip:
 ExoticResourceStorageTip: 
  Id: 4496
  ENG: "This shows the storage usage for this resource type. Imperial Storage is based on the average storage capacity of your colonies."          
+MiningStationNotOpsOwner: 
+ Id: 4497
+ ENG: "Ops Disrupted. We are not Owners if this Mining Ops"           
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"

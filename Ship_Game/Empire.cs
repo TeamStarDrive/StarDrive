@@ -628,10 +628,10 @@ namespace Ship_Game
 
             OwnedPlanets.Add(planet);
             Universe.OnPlanetOwnerAdded(this, planet);
-            if (planet.System.IsExclusivelyOwnedBy(this) || planet.System.OwnerList.Count == 0)
+            if (planet.System.GetPotentialOpsOwner(out Empire potentialMiningOpsOwner))
             {
                 foreach (Planet mineable in planet.System.PlanetList.Filter(p => p.IsMineable))
-                    mineable.Mining.ChangeOwner(this);
+                    mineable.Mining.ChangeOwnershipIfNeeded(potentialMiningOpsOwner);
             }
 
             OwnedSolarSystems.AddUniqueRef(planet.System);

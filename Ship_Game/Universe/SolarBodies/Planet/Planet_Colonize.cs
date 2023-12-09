@@ -12,6 +12,7 @@ namespace Ship_Game
             Empire oldOwner = Owner;
             Owner = newOwner;
             Food.ResetAveragePercentage();
+            System.UpdateOwnerList();
 
             if (oldOwner != null)
             {
@@ -31,8 +32,6 @@ namespace Ship_Game
                 if (attacker != null && attacker.isPlayer && oldOwner == newOwner.Universe.Cordrazine)
                     attacker.IncrementCordrazineCapture();
             }
-
-            System.UpdateOwnerList();
         }
 
         public void Colonize(Ship colonyShip)

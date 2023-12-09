@@ -43,7 +43,7 @@ namespace Ship_Game
             return P.OrbitalStations.Any(o => o.IsMiningStation);
         }
 
-        public void ChangeOwner(Empire empire)
+        void ChangeOwner(Empire empire)
         {
             Owner = empire;
         }
@@ -78,6 +78,21 @@ namespace Ship_Game
             }
 
             return universe.Random.Item(resources);
+        }
+
+        public void ChangeOpsOwnerIfAllStationsBoarded(Empire potentialNewOwner)
+        {
+            if (!P.OrbitalStations.Any(s => s.IsMiningStation && s.Loyalty != potentialNewOwner))
+                ChangeOwner(potentialNewOwner);
+        }
+
+        /// <summary>
+        /// potentialOwner can be null
+        /// </summary>
+        public void ChangeOwnershipIfNeeded(Empire potentialOwner)
+        {
+            if (!P.OrbitalStations.Any(p => p.IsMiningStation && p.Loyalty == Owner))
+                ChangeOwner(potentialOwner);
         }
     }
 }
