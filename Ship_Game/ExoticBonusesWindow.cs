@@ -34,7 +34,6 @@ namespace Ship_Game
         class ExoticStats : UIElementV2
         {
             readonly Empire Owner;
-            readonly ExoticBonusType ExoticBonusType;
             readonly UILabel BonusInfo;
             readonly UILabel ResourceName;
             readonly UIPanel Icon;
@@ -47,8 +46,7 @@ namespace Ship_Game
             public ExoticStats(Empire owner, EmpireExoticBonuses bonus)
             {
                 Owner = owner;
-                ExoticBonusType = bonus.Good.ExoticBonusType;
-                ExoticResource = Owner.GetExoticResource(ExoticBonusType);
+                ExoticResource = Owner.GetExoticResource(bonus.Good.ExoticBonusType);
                 BonusInfo = new UILabel(new Vector2(-100, -100), GameText.HullBonus, Fonts.Arial12Bold, Color.White) { Tooltip = new LocalizedText(bonus.Good.DescriptionIndex) };
                 Icon = new UIPanel(new Rectangle(-100, -100, 20, 20), ResourceManager.Texture($"Goods/{bonus.Good.UID}"));
                 Icon.Tooltip = new LocalizedText(bonus.Good.DescriptionIndex);

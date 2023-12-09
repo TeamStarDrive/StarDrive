@@ -36,10 +36,11 @@ public class TextDrawerComponent
         NewLine(text.Count(c => c == '\n') + 1);
     }
 
-    public void String(float offsetX, string text)
+    public void String(float offsetX, string text, bool newLine = true)
     {
         Batch.DrawString(Font, text, new(Cursor.X+offsetX,Cursor.Y), Color);
-        NewLine(text.Count(c => c == '\n') + 1);
+        if (newLine)
+            NewLine(text.Count(c => c == '\n') + 1);
     }
     public void String(Color color, string text)
     {
@@ -51,5 +52,10 @@ public class TextDrawerComponent
     {
         int spacing = Font == Fonts.Arial12Bold ? Font.LineSpacing : Font.LineSpacing + 2;
         Cursor.Y += spacing * lines;
+    }
+
+    public void NewColumn(int offset)
+    {
+        Cursor.X += offset;
     }
 }
