@@ -78,7 +78,8 @@ namespace UnitTests
             string[] designs = { "TEST_Vulcan Scout", "Vulcan Scout", "Rocket Scout", "Vingscout",
                                  "Fang Strafer", "Terran-Prototype", "Colony Ship",
                                  "Small Transport", "Supply Shuttle", "Subspace Projector", "Basic Research Station",
-                                 "Terran Constructor", "Wisp Scout", "Basic Mining Station"};
+                                 "Terran Constructor", "Wisp Scout", "Basic Mining Station", "Cordrazine Basic Mining Station",
+                                 "Kulrathi Basic Mining Station", "Draylok Basic Mining Station"};
             ResourceManager.LoadStarterShipsForTesting(designs, clearAll: true);
         }
 
