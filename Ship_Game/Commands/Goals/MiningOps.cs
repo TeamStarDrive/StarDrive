@@ -19,10 +19,9 @@ namespace Ship_Game.Commands.Goals
         [StarData] int NumSupplyGoals = 1;
         [StarData] float SupplyDificit;
         Ship MiningStation => TargetShip;
-        string ResourceCargeName => TargetPlanet.Mining.CargoId;
+        string ResourceCargoName => TargetPlanet.Mining.CargoId;
         float RemainingConsumables => Owner.NonCybernetic ? MiningStation.GetFood() : MiningStation.GetProduction();
         float ActualRefiningRatio => (TargetPlanet.Mining.RefiningRatio * Owner.data.RefiningRatioMultiplier).UpperBound(1);
-
         ExoticBonusType ExoticBonusType => TargetPlanet.Mining.ExoticBonusType;
 
         public override bool IsMiningOpsGoal(Planet planet) => planet != null && TargetPlanet == planet;
@@ -38,8 +37,7 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public MiningOps(Empire owner, Planet planet)
-            : this(owner)
+        public MiningOps(Empire owner, Planet planet): this(owner)
         {
             Setup(owner, planet);
         }
@@ -59,6 +57,12 @@ namespace Ship_Game.Commands.Goals
         {
             Setup(owner, planet);
             TargetShip = miningStation;
+
+            if (owner.IsCybernetic && miningStation.GetFood() > 0)
+                miningStation.UnloadFood();
+            if (owner.NonCybernetic && miningStation.GetProduction() > 0)
+                miningStation.UnloadProduction();
+
             ChangeToStep(Mine);
         }
 
@@ -67,11 +71,6 @@ namespace Ship_Game.Commands.Goals
             StarDateAdded = owner.Universe.StarDate;
             TargetPlanet = planet;
             Owner = owner;
-
-            if (owner.IsCybernetic && MiningStation.GetFood() > 0)
-                MiningStation.UnloadFood();
-            if (owner.NonCybernetic && MiningStation.GetProduction() > 0)
-                MiningStation.UnloadProduction();
         }
 
         GoalStep BuildStationConstructor()
@@ -161,7 +160,7 @@ namespace Ship_Game.Commands.Goals
                 return;
             }
 
-            float numRawResources = MiningStation.GetOtherCargo(ResourceCargeName);
+            float numRawResources = MiningStation.GetOtherCargo(ResourceCargoName);
             float numRefiningNeeded = Owner.GetRefiningNeeded(ExoticBonusType);
             MiningStation.Carrier.MiningBays.ProcessMiningBays(numRawResources);
 
@@ -189,7 +188,7 @@ namespace Ship_Game.Commands.Goals
             else
                 MiningStation.UnloadProduction(maxConsumablesToConsume * protuctionRatio);
 
-            MiningStation.UnloadCargo(ResourceCargeName, maxRawResourcesToRefine * protuctionRatio);
+            MiningStation.UnloadCargo(ResourceCargoName, maxRawResourcesToRefine * protuctionRatio);
             AddSupplyDeficit(-maxConsumablesToConsume * protuctionRatio);
             if (MiningStation.AI.OrderQueue.PeekFirst?.Plan != Plan.MiningStationRefining)
                 AddMiningStationPlan(Plan.MiningStationRefining);
