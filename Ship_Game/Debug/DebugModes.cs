@@ -26,6 +26,7 @@ public enum DebugModes
     Particles,
     SpaceRoads,
     Goals,
+    MiningOps,
 
 
     // this should always be the last valid page

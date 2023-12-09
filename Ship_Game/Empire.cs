@@ -1295,7 +1295,7 @@ namespace Ship_Game
             UpdateTradeIncome();
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
-            UpdateAveragePlanetStorage();
+            UpdatePlanetStorageStats();
             AddMoney(NetIncome * GetStaticExoticBonusMuliplier(ExoticBonusType.Credits));
         }
 
