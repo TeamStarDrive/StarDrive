@@ -16,10 +16,8 @@ namespace Ship_Game
         [StarData] readonly Map<ExoticBonusType, EmpireExoticBonuses> ExoticBonuses;
         public float TotalShipSurfaceArea { get; private set; }
         public float TotalShipWarpThrustK { get; private set; }
-        public float MaxExoticStorage => AveragePlanetStorage 
-                                            * OwnedPlanets.Count
-                                            * GlobalStats.Defaults.ExoticRatioStorage
-                                            * data.ExoticStorageMultiplier;
+        public float MaxExoticStorage 
+            => TotalPlanetStorage * GlobalStats.Defaults.ExoticRatioStorage * data.ExoticStorageMultiplier;
 
         public Map<ExoticBonusType, EmpireExoticBonuses> GetExoticBonuses()
         {
@@ -68,31 +66,44 @@ namespace Ship_Game
 
         public void AddExoticConsumption(ExoticBonusType type, float amount)
         {
+            if (Universe.P.DisableMiningOps)
+                return;
+
             if (ExoticBonuses.ContainsKey(type)) 
                 ExoticBonuses[type].AddConsumption(amount);
         }
 
         public void UpdateExoticConsumpsions() // This will be done before empire goals update
         {
+            if (Universe.P.DisableMiningOps)
+                return;
+
             foreach (EmpireExoticBonuses exoticBonus in ExoticBonuses.Values)
                 exoticBonus.Update();
         }
 
         void CalculateExoticBonuses() // This will be done after empire goals update and DoMoney
         {
+            if (Universe.P.DisableMiningOps)
+                return;
+
             foreach (EmpireExoticBonuses exoticBonus in ExoticBonuses.Values)
                 exoticBonus.CalcCurrentBonus();
         }
 
         public float GetDynamicExoticBonusMuliplier(ExoticBonusType type)
         {
-            // if disabled return 1
+            if (Universe.P.DisableMiningOps)
+                return 1;
+
             return ExoticBonuses.Get(type, out EmpireExoticBonuses exoticBonus) ? exoticBonus.DynamicBonusMultiplier : 1;
         }
 
         public float GetStaticExoticBonusMuliplier(ExoticBonusType type)
         {
-            // if disabled return 1
+            if (Universe?.P.DisableMiningOps == true)
+                return 1;
+
             return ExoticBonuses.Get(type, out EmpireExoticBonuses exoticBonus) ? exoticBonus.CurrentBonusMultiplier : 1;
         }
 

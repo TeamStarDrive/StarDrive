@@ -21,7 +21,9 @@ namespace Ship_Game
         public float TotalTradeMoneyAddedThisTurn { get; private set; }
         [StarData] public float AverageFreighterCargoCap { get; private set; } = 20;
         [StarData] public int AverageFreighterFTLSpeed { get; private set; } = 20000;
+        [StarData] public float TotalPlanetStorage { get; private set; }
         [StarData] public float AveragePlanetStorage { get; private set; } = 100;
+
         public int  TotalProdExportSlots { get; private set; }
 
         int FreighterCapUpperBound => OwnedPlanets.Count * (IsCybernetic ? 2 : 3);
@@ -342,13 +344,23 @@ namespace Ship_Game
             AverageFreighterCargoCap = ExponentialMovingAverage(AverageFreighterCargoCap, value).RoundToFractionOf10();
         }
 
-        public void UpdateAveragePlanetStorage()
+        void UpdatePlanetStorageStats()
         {
-            if (OwnedPlanets.Count > 0)
-            {
-                float average = OwnedPlanets.Average(p => p.Storage.Max);
-                AveragePlanetStorage = ExponentialMovingAverage(AveragePlanetStorage, average);
-            }
+            UpdateTotalPlanetStorage();
+            UpdateAveragePlanetStorage(TotalPlanetStorage);
+
+        }
+
+        void UpdateTotalPlanetStorage()
+        {
+            TotalPlanetStorage = OwnedPlanets.Sum(p => p.Storage.Max);
+        }
+
+        void UpdateAveragePlanetStorage(float totalStorage)
+        {
+            AveragePlanetStorage = OwnedPlanets.Count > 0 
+                ? ExponentialMovingAverage(AveragePlanetStorage, totalStorage / OwnedPlanets.Count) 
+                : 0;
         }
 
         public float TotalPlanetsTradeValue => OwnedPlanets.Sum(p => p.Level).LowerBound(1);
