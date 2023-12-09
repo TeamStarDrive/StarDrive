@@ -16,6 +16,7 @@
   <SpacePortModel>Model/Ships/Draylok/Draylok_Station</SpacePortModel>
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   <DefaultMiningShip>Draylok Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Draylok Basic Mining Station</DefaultMiningStation>  
   
   <RebelName>Draylok Democrats</RebelName>
   <RebelSing>Democractic Rebel</RebelSing>

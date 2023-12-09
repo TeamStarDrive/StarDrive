@@ -15,7 +15,7 @@
   <SpacePortModel>Model/Ships/Vulfen/Vulfar_Station</SpacePortModel>
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   <DefaultMiningShip>Vulfar Mining Ship</DefaultMiningShip>
-  
+  <DefaultMiningStation>Vulfar Basic Mining Station</DefaultMiningStation>  
   
   <RebelName>Vulfar Technocrats</RebelName>
   <RebelSing>Technocrat</RebelSing>

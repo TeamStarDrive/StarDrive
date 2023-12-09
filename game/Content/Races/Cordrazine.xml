@@ -15,6 +15,7 @@
   <SpacePortModel>Model/Ships/Cordrazine/Cordrazine_Station</SpacePortModel>
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   <DefaultMiningShip>Owlwok Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Cordrazine Basic Mining Station</DefaultMiningStation>  
   
   <RebelName>Free Owlwok Nation</RebelName>
   <RebelSing>Free Owlwok</RebelSing>

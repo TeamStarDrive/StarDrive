@@ -15,6 +15,7 @@
   <SpacePortModel>Model/Ships/Pollops/Pollops_Station</SpacePortModel>
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
   <DefaultMiningShip>Pollops Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Pollops Basic Mining Station</DefaultMiningStation>  
 
 
   <RebelName>Pollop Vegetarians</RebelName>
