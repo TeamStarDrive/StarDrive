@@ -2056,6 +2056,8 @@ namespace Ship_Game
         static void Assert(IEmpireData e, string shipName, string usage, Func<IShipDesign, bool> flag, string flagName)
         {
             IShipDesign design = Assert(e, shipName, usage);
+            if (design == null && !e.IsFactionOrMinorRace)
+                Log.Error($"Assert ship={usage} not defined for empire={e.Name,-20}");
             if (design != null && !flag(design))
                 Log.Error($"Assert Ship.{flagName} failed! {usage,-20}  ship={design.Name,-20}  role={design.Role,-12}  empire={e.Name,-20}");
         }
@@ -2086,6 +2088,7 @@ namespace Ship_Game
                 Assert(e, e.DefaultSupplyShuttle,  "DefaultSupplyShuttle", s => s.IsSupplyShuttle, "IsSupplyShuttle");
                 Assert(e, e.DefaultResearchStation, "DefaultResearchStation", s => s.IsResearchStation, "IsResearchStation");
                 Assert(e, e.DefaultMiningShip, "DefaultMiningShip", s => s.BaseCargoSpace > 0, "BaseCargoSpace");
+                Assert(e, e.DefaultMiningStation, "DefaultMiningStation", s => s.IsMiningStation, "IsMiningStation");
             }
 
             string[] requiredShips =
