@@ -142,7 +142,7 @@ public class ShipDesignStats
 
     public bool HasOrdnance() => S.OrdinanceMax > 0;
     public bool HasOrdFinite() => HasOrdnance() && NetOrdnanceUsePerSec > 0;
-    public bool HasOrdInfinite() => HasOrdnance() && NetOrdnanceUsePerSec < 0;
+    public bool HasOrdInfinite() => HasOrdnance() && NetOrdnanceUsePerSec <= 0;
     public bool ProducesResearch() => S.ResearchPerTurn> 0;
     public bool RefinesResources() => S.TotalRefining > 0;
     public float ResearchTime() => ProducesResearch() 

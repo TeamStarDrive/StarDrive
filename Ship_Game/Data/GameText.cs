@@ -4618,7 +4618,11 @@ namespace Ship_Game
         /// <summary>This shows the active Mining stations vs. total</summary>
         ExoticResourceOpsTip = 4495,
         /// <summary>This shows the storage usage for this resource type</summary>
-        ExoticResourceStorageTip,
+        ExoticResourceStorageTip = 4496,
+        /// <summary>Ops Disrupted. We are not</summary>
+        MiningStationNotOpsOwner = 4497,
+
+
 
 
 

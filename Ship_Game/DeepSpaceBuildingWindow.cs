@@ -160,7 +160,7 @@ namespace Ship_Game
                 }
                 else if (ShipToBuild.IsMiningStation)
                 {
-                    Player.AI.AddGoalAndEvaluate(new MiningOps(Player, TargetPlanet));
+                    Player.AI.AddGoalAndEvaluate(new MiningOps(Player, TargetPlanet, ShipToBuild, TetherOffset));
                 }
                 else
                 {

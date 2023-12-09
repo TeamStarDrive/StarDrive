@@ -64,7 +64,8 @@ namespace Ship_Game.AI
                                           && s.GetMaintenanceCost(empire).Less(maintBudget)
                                           && !s.IsShipyard
                                           && !s.IsSubspaceProjector
-                                          && !s.IsResearchStation);
+                                          && !s.IsResearchStation
+                                          && !s.IsMiningStation);
 
             if (potentialShips.Count == 0)
             {
@@ -271,8 +272,6 @@ namespace Ship_Game.AI
             float maxDSTL  = ShipStats.GetSTLSpeed(s, empire) * 0.1f;
             float cargo    = ShipStats.GetCargoSpace(s.BaseCargoSpace, s);
             float turnRate = ShipStats.GetTurnRadsPerSec(s).ToDegrees();
-            float area     = s.SurfaceArea;
-
             float fastVsBigWeight = fastVsBig * 10;
             float costWeight     = s.GetCost(empire) * 0.2f;
             float movementWeight = (maxKFTL + maxDSTL + turnRate) * fastVsBigWeight;
@@ -416,7 +415,7 @@ namespace Ship_Game.AI
         public static IShipDesign BestShipWeCanBuild(RoleName role, Empire empire)
         {
             IShipDesign bestShip = PickFromCandidates(role, empire);
-            if (bestShip == null || bestShip.IsShipyard || bestShip.IsSubspaceProjector || bestShip.IsResearchStation) 
+            if (bestShip == null || bestShip.IsShipyard || bestShip.IsSubspaceProjector || bestShip.IsResearchStation || bestShip.IsMiningStation) 
                 return null;
             return bestShip;
         }

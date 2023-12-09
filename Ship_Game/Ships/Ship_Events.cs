@@ -166,12 +166,8 @@ namespace Ship_Game.Ships
             Goal miningGoal = Loyalty.AI.FindGoal(g => g is MiningOps && g.TargetShip == this);
             if (miningGoal != null && miningGoal.TargetPlanet.IsMineable)
             {
-                Planet planet = miningGoal.TargetPlanet;
-                if (!planet.System.IsExclusivelyOwnedBy(Loyalty) 
-                    && !planet.OrbitalStations.Any(s => s.IsMiningStation && s.Loyalty == Loyalty))
-                {
-                    planet.Mining.ChangeOwner(null);
-                }
+                miningGoal.TargetPlanet.System.GetPotentialOpsOwner(out Empire potentialOwner);
+                miningGoal.TargetPlanet.Mining.ChangeOwnershipIfNeeded(potentialOwner);
             }
             else
             {
