@@ -340,7 +340,7 @@ namespace Ship_Game.Ships
         {
             if (Loyalty.WeArePirates)
             {
-                if (IsSubspaceProjector || IsResearchStation)
+                if (IsSubspaceProjector || IsResearchStation || IsMiningStation)
                     ScuttleTimer = 20;
                 else
                     AI.OrderPirateFleeHome();
@@ -1507,9 +1507,9 @@ namespace Ship_Game.Ships
             if (Dying && !ReallyDie)
                 return; // planet crash or tumble
 
+            QueueTotalRemoval(); // sets Active=false, remove thether and from orbital stations
             OnShipDie(pSource);
             Mothership?.OnLaunchedShipDie(this);
-            QueueTotalRemoval(); // sets Active=false
             
             bool visible = IsVisibleToPlayer;
             Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);

@@ -14,6 +14,7 @@ using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI.Tasks;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -229,6 +230,35 @@ namespace Ship_Game
                     OwnerList.Add(planet.Owner);
             }
         }
+
+        /// <summary>
+        /// This will return the potential owner of mining ops based on number of 
+        /// owned planets or pop comparison of same number of planets owned is the same
+        /// </summary>
+        public bool GetPotentialOpsOwner(out Empire potentialOwner)
+        {
+            potentialOwner = null;
+            if (!PlanetList.Any(p => p.IsMineable))
+                return false;
+
+            int maxPlanetsOwned = 0;
+            foreach (Empire owner in OwnerList)
+            {
+                int numOwnedPlanets = PlanetList.Count(p => p.Owner == owner);
+                if (numOwnedPlanets > 0 
+                    && (numOwnedPlanets > maxPlanetsOwned 
+                        || numOwnedPlanets == maxPlanetsOwned && PopulationBillionFor(owner) > PopulationBillionFor(potentialOwner)))
+                {
+                    potentialOwner = owner;
+                    maxPlanetsOwned = numOwnedPlanets;
+                }
+            }
+
+            return potentialOwner != null;
+        }
+
+        float PopulationBillionFor(Empire empire) 
+            => OwnerList.Contains(empire) ? PlanetList.Filter(p => p.Owner == empire).Sum(p => p.PopulationBillion) : 0;
 
         float RadiationTimer;
         const float RadiationInterval = 0.5f;

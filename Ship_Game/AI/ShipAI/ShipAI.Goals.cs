@@ -570,7 +570,8 @@ namespace Ship_Game.AI
             MiningStationIdle = 44, // for shipUIinfo display only
             MiningStationRefining = 45, // for shipUIinfo display only
             MinePlanet = 46,
-            MiningShipReturn = 47
+            MiningShipReturn = 47,
+            MiningStationNotOpsOwner = 48
         }
     }
 }
