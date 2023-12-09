@@ -2093,7 +2093,7 @@ namespace Ship_Game
                 /*meteors*/"Meteor A", "Meteor B", "Meteor C", "Meteor D", "Meteor E", "Meteor F", "Meteor G",
                 /*debug*/"Bondage-Class Mk IIIa Cruiser", "Target Dummy",
                 /*hangarhack*/"DynamicAntiShip", "DynamicInterceptor", "DynamicLaunch",
-                /*defaults*/"Subspace Projector", "Supply Shuttle", "Assault Shuttle", "Terran Constructor", "Basic Research Station"
+                /*defaults*/"Subspace Projector", "Supply Shuttle", "Assault Shuttle", "Terran Constructor", "Basic Research Station", "Basic Mining Station"
             };
 
             foreach (string requiredShip in requiredShips)

@@ -53,9 +53,4 @@ public class TextDrawerComponent
         int spacing = Font == Fonts.Arial12Bold ? Font.LineSpacing : Font.LineSpacing + 2;
         Cursor.Y += spacing * lines;
     }
-
-    public void NewColumn(int offset)
-    {
-        Cursor.X += offset;
-    }
 }

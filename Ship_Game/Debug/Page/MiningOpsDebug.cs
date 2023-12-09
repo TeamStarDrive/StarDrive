@@ -25,7 +25,6 @@ public class MiningOpsDebug : DebugPage
             return;
         }
 
-
         int column = 0;
         int row = 50;
         foreach (Empire e in Universe.ActiveMajorEmpires)
@@ -36,7 +35,6 @@ public class MiningOpsDebug : DebugPage
                 row = 50;
             else 
                 row += 180;
-
         }
 
         base.Draw(batch, elapsed);
@@ -48,8 +46,6 @@ public class MiningOpsDebug : DebugPage
         float cursorRow = Parent.Win.Y + row;
         float columnOffset = 100;
         float rowOffset = 100;
-
-
 
         Text.SetCursor(cursorColumn, cursorRow, e.EmpireColor);
         Text.String($"--------------------------------------------------------------{e.Name}--------------------------------------------------------------");
