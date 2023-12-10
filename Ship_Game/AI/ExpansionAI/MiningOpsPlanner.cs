@@ -31,6 +31,7 @@ namespace Ship_Game.AI.ExpansionAI
         /// 
         public void RunMiningOpsPlanner(bool ignoreDistance = false)
         {
+            Universe.P.DisableMiningOps = false;
             if (!ShouldRunMiningOpsPlanner())
                 return;
 
@@ -52,6 +53,15 @@ namespace Ship_Game.AI.ExpansionAI
                 return false;
             }
 
+            float enemyStr = Owner.KnownEnemyStrengthNoResearchStationsIn(planet.System);
+            if (enemyStr > 0)
+            {
+                if (Owner.isPlayer || Owner.HasWarTaskTargetingSystem(planet.System))
+                    return false;
+
+                Owner.AddDefenseSystemGoal(planet.System, Owner.KnownEnemyStrengthIn(planet.System), AI.Tasks.MilitaryTaskImportance.Normal);
+                return false;
+            }
 
             int numPlanetMiningGoals = miningGoals.Count(g => g.IsMiningOpsGoal(planet));
             if (!planet.Mining.HasOpsOwner && numPlanetMiningGoals == 0 

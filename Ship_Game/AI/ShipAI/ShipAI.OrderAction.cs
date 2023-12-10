@@ -584,6 +584,8 @@ namespace Ship_Game.AI
         // Thread-Safe: orders the ship to return to Hangar during next ship AI update
         public void OrderReturnToHangarDeferred()
         {
+            if (Owner.Name == "LALA")
+                Log.Info("DD");
             ReturnToHangarSoon = true;
         }
 
