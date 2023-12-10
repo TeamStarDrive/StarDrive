@@ -1141,7 +1141,7 @@ namespace Ship_Game.Ships
 
         void RecallHangarShipIfTooFarFromCarrier()
         {
-            if (IsHangarShip && !InCombat && Position.OutsideRadius(Mothership.Position, Mothership.SensorRange))
+            if (IsHangarShip && !InCombat && !IsMiningShip && Position.OutsideRadius(Mothership.Position, Mothership.SensorRange))
                 AI.BackToCarrier();
         }
 

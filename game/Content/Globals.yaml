@@ -38,7 +38,7 @@ Globals:
   BuilderShipConstructionAdded: 100 # How much consturction Builder ships add when they reach the contructor
   ResearchBenefitFromAlliance: 0.1 # How much research each alliance is giving you (from other party research)  
   MiningStationFoodPerOneRefining: 1 # How much Food is consumed per 1 refining point
-  ExoticRatioStorage: 0.1 #  How much exotic resource storage an empire has per resource based on all planet normal storage  
+  ExoticRatioStorage: 0.02 #  How much exotic resource storage an empire has per resource based on all planet normal storage  
 
   # feature flags
   DisableShipPicker: true

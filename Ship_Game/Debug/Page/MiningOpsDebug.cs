@@ -62,7 +62,7 @@ public class MiningOpsDebug : DebugPage
             Text.String(0, $"{new LocalizedText(bonus.Good.RefinedNameIndex).Text}", false);
             Text.String(1*rowOffset, $"{resource.DynamicBonusString}", false);
             Text.String(2*rowOffset, $"{resource.CurrentPercentageOutput}", false);
-            Text.String(3*rowOffset, $"{resource.RefinedPerTurnForConsumption.String(2)}/{resource.Consumption.String(2)}", false);
+            Text.String(3*rowOffset, $"{resource.TotalRefinedPerTurn.String(2)}/{resource.Consumption.String(2)}", false);
             Text.String(4*rowOffset, $"{resource.CurrentStorage.String(1)}/{e.MaxExoticStorage.String(1)}", false);
             Text.String(5*rowOffset, $"{resource.MaxPotentialRefinedPerTurn}", false);
             Text.String(6*rowOffset, $"{resource.ActiveVsTotalOps}");
