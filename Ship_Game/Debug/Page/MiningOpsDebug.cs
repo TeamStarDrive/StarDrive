@@ -44,7 +44,6 @@ public class MiningOpsDebug : DebugPage
     {
         float cursorColumn = Parent.Win.X + 10 + 800 * column;
         float cursorRow = Parent.Win.Y + row;
-        float columnOffset = 100;
         float rowOffset = 100;
 
         Text.SetCursor(cursorColumn, cursorRow, e.EmpireColor);

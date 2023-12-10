@@ -10603,6 +10603,15 @@ ExoticResourceStorageTip:
 MiningStationNotOpsOwner: 
  Id: 4497
  ENG: "Ops Disrupted. We are not Owners if this Mining Ops"           
+OpensExoticPlanetsPanelDisabled: 
+ Id: 4498
+ ENG: "Opens Exotic Systems/Planets, but these features are disabled in this game."            
+OpensEmpireExoticBonuses:
+ Id: 4499
+ ENG: "The Empire Exotic Bonuses panel specifies all Exotic Resources bonuses and Mining Ops status"            
+OpensEmpireExoticBonusesDisabled: 
+ Id: 4500
+ ENG: "Mining Ops are disabled in this game.\nThe Empire Exotic Bonuses panel specifies all Exotic Resources bonuses and Mining Ops status"            
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"

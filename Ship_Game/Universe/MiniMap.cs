@@ -348,9 +348,16 @@ namespace Ship_Game
 
         public void ExoticScreen_OnClick(ToggleButton toggleButton)
         {
-            GameAudio.AcceptClick();
-            ExoticScreen.IsToggled = false;
-            Universe.ScreenManager.AddScreen(new ExoticSystemsListScreen(Universe, Universe.EmpireUI));
+            if (Player.Universe.ExoticFeaturesDisabled)
+            {
+                GameAudio.NegativeClick();
+            }
+            else
+            {
+                GameAudio.AcceptClick();
+                ExoticScreen.IsToggled = false;
+                Universe.ScreenManager.AddScreen(new ExoticSystemsListScreen(Universe, Universe.EmpireUI));
+            }
         }
 
         public void ShipScreen_OnClick(ToggleButton toggleButton)
@@ -372,7 +379,15 @@ namespace Ship_Game
 
         public void ExoticBonusScreen_OnClick(ToggleButton toggleButton)
         {
-            Universe.ExoticBonusesWindow.ToggleVisibility();
+            if (Player.Universe.P.DisableMiningOps)
+            {
+                GameAudio.NegativeClick();
+            }
+            else
+            {
+                GameAudio.AcceptClick();
+                Universe.ExoticBonusesWindow.ToggleVisibility();
+            }
         }
 
         public override bool HandleInput(InputState input)
@@ -393,17 +408,23 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(GameText.OpensPlanetReconnaissancePanel, "L");
 
             if (ExoticScreen.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(GameText.OpensExoticPlanetsPanel, "G");
-
+            {
+                ToolTip.CreateTooltip(Player.Universe.ExoticFeaturesDisabled ? GameText.OpensExoticPlanetsPanelDisabled 
+                                                                             : GameText.OpensExoticPlanetsPanel, "G");
+            }
             if (ShipScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.FtlOverlayVisualisesSubspaceProjection, "F1");
 
             if (Fleets.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.WeaponsRangeOverlayVisualisesShips, "F2");
-
             if (AIScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.OpensTheAutomationPanelWhich, "H");
 
+            if (ExoticBonuses.Rect.HitTest(input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(Player.Universe.P.DisableMiningOps ? GameText.OpensEmpireExoticBonusesDisabled
+                                                                         : GameText.OpensEmpireExoticBonuses, "G");
+            }
             return base.HandleInput(input);
         }
     }

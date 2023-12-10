@@ -45,6 +45,7 @@ namespace Ship_Game.Universe
         public bool IsSystemViewOrCloser => ViewState <= UnivScreenState.SystemView;
         public bool IsPlanetViewOrCloser => ViewState <= UnivScreenState.PlanetView;
         public bool IsShipViewOrCloser   => ViewState <= UnivScreenState.ShipView;
+        public bool ExoticFeaturesDisabled => P.DisableMiningOps && P.DisableResearchStations;
 
         // TODO: This was too hard to fix, so added this placeholder until code is fixed
         public static float DummyProductionPacePlaceholder = 1f;
