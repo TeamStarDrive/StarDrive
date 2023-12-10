@@ -4621,6 +4621,12 @@ namespace Ship_Game
         ExoticResourceStorageTip = 4496,
         /// <summary>Ops Disrupted. We are not</summary>
         MiningStationNotOpsOwner = 4497,
+        /// <summary>Opens Exotic Systems/Planets but</summary>
+        OpensExoticPlanetsPanelDisabled = 4498,
+        /// <summary>The Empire Exotic Bonuses panel specifies </summary>
+        OpensEmpireExoticBonuses = 4499,
+        /// <summary>Mining Ops are disabled in this game.\nThe Empire Exotic</summary>
+        OpensEmpireExoticBonusesDisabled = 4500,
 
 
 
