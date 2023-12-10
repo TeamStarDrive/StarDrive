@@ -109,7 +109,7 @@ namespace Ship_Game
                 UpdateOutput(exoticResource.OutputThisTurn, exoticResource.TotalBuiltMiningOps,
                     exoticResource.CurrentPercentageOutput, exoticResource.Consumption, exoticResource.RefinedPerTurnForConsumption);
 
-                UpdateConsumptionBar(exoticResource.Consumption, exoticResource.RefinedPerTurnForConsumption, exoticResource.TotalBuiltMiningOps);
+                UpdateConsumptionBar(exoticResource.Consumption, exoticResource.TotalRefinedPerTurn, exoticResource.TotalBuiltMiningOps);
                 UpdateStorage(exoticResource.CurrentStorage, Owner.MaxExoticStorage, exoticResource.ActiveMiningOps);
                 UpdatePotential(exoticResource.MaxPotentialRefinedPerTurn, exoticResource.Consumption);
                 UpdateOps(exoticResource.ActiveMiningOps, exoticResource.TotalBuiltMiningOps, exoticResource.ActiveVsTotalOps);
