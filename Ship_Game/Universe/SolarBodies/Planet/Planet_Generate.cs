@@ -434,6 +434,8 @@ namespace Ship_Game
             PType = ResourceManager.Planets.RandomPlanet(newCategory);
             RecreateSceneObject();
             UpdateDescription();
+            if (BasePopPerTile <= 200)
+                BasePopPerTile = (BasePopPerTile * 2).LowerBound(200);
             UpdateMaxPopulation();
             RemoveTerraformers();
         }
