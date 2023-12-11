@@ -163,7 +163,8 @@ namespace Ship_Game
             {
                 if (mod == null)
                     throw; // vanilla load failed, fatally
-                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", 0);
+                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla, " +
+                    $"make sure you have the latest Blackbox release installed and updated to the latest patch.", 0);
                 WaitForExit();
                 GlobalStats.ClearActiveMod();
                 UnloadAllData(manager);
