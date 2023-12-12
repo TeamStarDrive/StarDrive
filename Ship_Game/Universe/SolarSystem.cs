@@ -697,7 +697,12 @@ namespace Ship_Game
 
         public bool IsAnyKnownPlanetCanBeMined(Empire player)
         {
-            return PlanetList.Any(p => p.IsExploredBy(player) && p.IsMineable && p.Mining.Owner == null);
+            return PlanetList.Any(p => p.IsExploredBy(player) && p.IsMineable && !p.Mining.HasOpsOwner);
+        }
+
+        public bool HasMinables()
+        {
+            return PlanetList.Any(p => p.IsMineable);
         }
 
         public Array<Empire> GetKnownOwners(Empire player)
