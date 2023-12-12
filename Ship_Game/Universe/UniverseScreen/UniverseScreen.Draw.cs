@@ -1051,7 +1051,7 @@ namespace Ship_Game
                         if (!planet.Mining.AreMiningOpsPresent())
                         {
                             DrawTextureWithToolTip(Mineable.Icon, Color.White, GameText.MiningStationsCanBePlaced, mousePos,
-                                (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
+                                (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 17, 14);
                         }
                         else
                         {
