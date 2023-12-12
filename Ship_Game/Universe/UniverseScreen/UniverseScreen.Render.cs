@@ -269,6 +269,31 @@ namespace Ship_Game
             sysPos.Y -= 3f;
             sysPos.X += SolarsystemOverlay.SysFont.TextWidth(sys.Name) + 6f;
 
+            if (Player.KnownEnemyStrengthIn(sys) > 0f)
+            {
+                var enemyHere = ResourceManager.Texture("Ground_UI/EnemyHere");
+                var enemyRect = new RectF(sysPos.X, sysPos.Y, enemyHere.Width, enemyHere.Height);
+                sysPos.X += 20f;
+
+                batch.Draw(enemyHere, enemyRect, CurrentFlashColor);
+                if (enemyRect.HitTest(Input.CursorPosition))
+                    ToolTip.CreateTooltip(GameText.IndicatesThatHostileForcesWere);
+
+                if (sys.HasPlanetsOwnedBy(Player) && sys.PlanetList.Any(p => p.SpaceCombatNearPlanet))
+                {
+                    var battleHere = ResourceManager.Texture("Ground_UI/Ground_Attack");
+                    var battleRect = new RectF(sysPos.X, sysPos.Y, battleHere.Width, battleHere.Height);
+                    sysPos.X += 20f;
+
+                    batch.Draw(battleHere, battleRect, CurrentFlashColor);
+                    if (battleRect.HitTest(Input.CursorPosition))
+                        ToolTip.CreateTooltip(GameText.IndicatesThatSpaceCombatIs);
+                }
+            }
+
+            if (Player.Universe.IsSectorViewOrCloser)
+                return;
+
             bool isAnomalyHere = sys.IsAnomalyOnAnyKnownPlanets(Player);
             if (isAnomalyHere)
             {
@@ -304,25 +329,19 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(GameText.MiningStationsCanBePlaced);
             }
 
-            if (Player.KnownEnemyStrengthIn(sys) > 0f)
+            if (sys.HasMinables())
             {
-                var enemyHere = ResourceManager.Texture("Ground_UI/EnemyHere");
-                var enemyRect = new RectF(sysPos.X, sysPos.Y, enemyHere.Width, enemyHere.Height);
-                sysPos.X += 20f;
-
-                batch.Draw(enemyHere, enemyRect, CurrentFlashColor);
-                if (enemyRect.HitTest(Input.CursorPosition))
-                    ToolTip.CreateTooltip(GameText.IndicatesThatHostileForcesWere);
-
-                if (sys.HasPlanetsOwnedBy(Player) && sys.PlanetList.Any(p => p.SpaceCombatNearPlanet))
+                foreach (Planet planet in sys.PlanetList)
                 {
-                    var battleHere = ResourceManager.Texture("Ground_UI/Ground_Attack");
-                    var battleRect = new RectF(sysPos.X, sysPos.Y, battleHere.Width, battleHere.Height);
-                    sysPos.X += 20f;
-
-                    batch.Draw(battleHere, battleRect, CurrentFlashColor);
-                    if (battleRect.HitTest(Input.CursorPosition))
-                        ToolTip.CreateTooltip(GameText.IndicatesThatSpaceCombatIs);
+                    if (planet.IsMineable && planet.IsExploredBy(Player))
+                    {
+                        sysPos.X += 2f;
+                        var resourceRect = new RectF(sysPos.X, sysPos.Y, 20, 20);
+                        sysPos.X += 20f;
+                        batch.Draw(planet.Mining.ExoticResourceIcon, resourceRect, CurrentFlashColor);
+                        if (resourceRect.HitTest(Input.CursorPosition))
+                            ToolTip.CreateTooltip(planet.Mining.ResourceDescription);
+                    }
                 }
             }
         }

@@ -167,14 +167,12 @@ namespace Ship_Game
                         if (p.IsMineable)
                         {
                             sideSpacing += 4;
-                            RectF flashRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 14, 14);
+                            RectF flashRect = new(planetR.X + planetR.W + sideSpacing, planetR.Y + planetR.H / 2 - 7, 17, 14);
                             if (!p.Mining.AreMiningOpsPresent()) 
                             {
                                 batch.Draw(Mineable.Icon, flashRect, Universe.CurrentFlashColor);
                                 if (flashRect.HitTest(Universe.Input.CursorPosition))
                                     ToolTip.CreateTooltip(GameText.MiningStationsCanBePlaced);
-
-
                             }
                             else
                             {
