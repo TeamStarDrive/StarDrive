@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -30,7 +31,8 @@ namespace Ship_Game.Ships
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => Loyalty.data.Traits.PassengerModifier;
 
-        public float RefiningCargoSpaceMax => CargoSpaceMax*0.5f;
+        public float MiningShipCargoSpaceMax => CargoSpaceMax*0.5f;
+        public float MaxSupplyForMiningStation => MiningShipCargoSpaceMax - (Loyalty.IsCybernetic ?  GetProduction() : GetFood());
         
         public bool OrdnanceChanged { get; private set; }
         public float OrdnancePercent { get; private set; }
