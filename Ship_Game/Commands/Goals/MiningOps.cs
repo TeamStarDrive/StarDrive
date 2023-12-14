@@ -262,8 +262,8 @@ namespace Ship_Game.Commands.Goals
         }
 
         bool NeedsConsumables(float availableConsumables) =>
-            (MiningStation.CargoSpaceMax - MiningStation.RefiningCargoSpaceMax) - availableConsumables > Owner.AverageFreighterCargoCap
-            || availableConsumables / (MiningStation.CargoSpaceMax - MiningStation.RefiningCargoSpaceMax) < 0.5f;
+            (MiningStation.CargoSpaceMax - MiningStation.MiningShipCargoSpaceMax) - availableConsumables > Owner.AverageFreighterCargoCap
+            || availableConsumables / (MiningStation.CargoSpaceMax - MiningStation.MiningShipCargoSpaceMax) < 0.5f;
 
         // Note we do not allow a planet to have more than one mining ship construction goal
         // Otherwize this wont work

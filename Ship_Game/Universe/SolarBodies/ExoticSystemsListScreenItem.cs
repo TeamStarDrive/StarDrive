@@ -25,6 +25,7 @@ namespace Ship_Game
         public Rectangle DistanceRect;
         public Rectangle ResourceRect;
         public Rectangle RichnessRect;
+        public Rectangle OwnerRect;
 
         Empire Player => Universe.Player;
         readonly Color Cream = Colors.Cream;
@@ -105,7 +106,7 @@ namespace Ship_Game
             else // Mineable
             {
                 ButtonStyle mineableStyle = MarkedForMining ? ButtonStyle.Military : ButtonStyle.Default;
-                LocalizedText miningText = !MarkedForMining ? GameText.DeployMiningStation : GameText.CancelDeployResearchStation;
+                LocalizedText miningText = !MarkedForMining ? GameText.DeployMiningStation : GameText.CancelDeployMiningStation;
                 DeployButton = Button(mineableStyle, miningText, OnMiningClicked);
             }
 
@@ -118,12 +119,13 @@ namespace Ship_Game
                 return new Rectangle(next, y, (int)width, h);
             }
 
-            SysNameRect = NextRect(w * 0.12f);
-            PlanetNameRect = NextRect(w * 0.25f);
-            DistanceRect = NextRect(150);
-            ResourceRect = NextRect(150);
-            RichnessRect = NextRect(100);
-            OrdersRect = NextRect(100);
+            SysNameRect    = NextRect(w * 0.12f);
+            PlanetNameRect = NextRect(w * 0.20f);
+            DistanceRect   = NextRect(150);
+            ResourceRect   = NextRect(150);
+            RichnessRect   = NextRect(100);
+            OwnerRect      = NextRect(100);
+            OrdersRect     = NextRect(100);
 
             PlanetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
             PlanetNameEntry.Text = IsStar ? "" : Planet.Name;
@@ -145,6 +147,7 @@ namespace Ship_Game
             AddPlanetName();
             AddResourceName();
             AddRichnessStat();
+            AddOwner();
             base.PerformLayout();
         }
 
@@ -187,10 +190,10 @@ namespace Ship_Game
             DeployButton.Visible = false;
             DeployTextInfo.Visible = true;
 
+            
             if (Planet.Mining.Owner != null && Planet.Mining.Owner != Player)
             {
-                DeployTextInfo.Text = $"{Localizer.Token(GameText.MiningOpsOwnedByAnother)} {Planet.Mining.Owner.data.Name}";
-                DeployTextInfo.Color = Planet.Mining.Owner.EmpireColor;
+                DeployTextInfo.Text = "";
                 return;
             }
 
@@ -280,6 +283,16 @@ namespace Ship_Game
             var sysNameCursor = new Vector2(RichnessRect.X + 30, RichnessRect.Y + RichnessRect.Height / 2 - SmallFont.LineSpacing / 2);
 
             Label(sysNameCursor, richness, SmallFont, Cream);
+        }
+
+        void AddOwner()
+        {
+            if (IsStar || !Planet.IsMineable)
+                return;
+
+            string owner = Planet.Mining.HasOpsOwner ? Planet.Mining.Owner.data.Traits.Singular : "None";
+            var ownerNameCursor = new Vector2(OwnerRect.X + 25, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
+            Label(ownerNameCursor, owner, SmallFont, owner == "None" ? Cream : Planet.Mining.Owner.EmpireColor);
         }
 
         void AddHostileWarning()

@@ -1296,7 +1296,18 @@ namespace Ship_Game
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             UpdatePlanetStorageStats();
-            AddMoney(NetIncome * GetStaticExoticBonusMuliplier(ExoticBonusType.Credits));
+            float incomeFromExoticBonus = GetIncomeFromExoticBonus();
+            AddMoney(NetIncome + incomeFromExoticBonus);
+        }
+
+        float GetIncomeFromExoticBonus()
+        {
+            float exoticBonus = GetStaticExoticBonusMuliplier(ExoticBonusType.Credits);
+            exoticBonus = NetPlanetIncomes < 0 ? 1 / exoticBonus : exoticBonus;
+            float planetIncomeWithBonus = NetPlanetIncomes > 0 
+                ? NetPlanetIncomes*exoticBonus - NetPlanetIncomes
+                : NetPlanetIncomes * exoticBonus;
+            return planetIncomeWithBonus;
         }
 
         void ResetMoneySpentOnProduction()
