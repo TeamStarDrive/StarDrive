@@ -104,7 +104,8 @@ namespace Ship_Game.AI
                 RemoveFactionEndedTasks();
 
             UpdateFleetsPosAndSpeed();
-            OwnerEmpire.UpdateExoticConsumpsions();
+            OwnerEmpire.UpdateExoticConsumpsions(); // must be done after RunManager since
+                                                    // this resets data needed or managers (like mining ops num)
             for (int i = GoalsList.Count - 1; i >= 0; i--)
             {
                 GoalsList[i].Evaluate();

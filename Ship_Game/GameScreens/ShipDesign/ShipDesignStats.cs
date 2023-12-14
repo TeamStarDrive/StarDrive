@@ -148,7 +148,7 @@ public class ShipDesignStats
     public float ResearchTime() => ProducesResearch() 
         ? S.CargoSpaceMax / (S.ResearchPerTurn*GlobalStats.Defaults.ResearchStationProductionPerResearch) : 0;
     public float RefiningTime() => RefinesResources()
-        ? (S.CargoSpaceMax - S.RefiningCargoSpaceMax) / (S.TotalRefining * GlobalStats.Defaults.MiningStationFoodPerOneRefining) : 0;
+        ? (S.CargoSpaceMax - S.MiningShipCargoSpaceMax) / (S.TotalRefining * GlobalStats.Defaults.MiningStationFoodPerOneRefining) : 0;
 
     public int CompletionPercent => S?.ShipData.GetCompletionPercent() ?? 0;
 }

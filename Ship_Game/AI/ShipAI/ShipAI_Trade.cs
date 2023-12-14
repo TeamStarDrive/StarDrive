@@ -75,7 +75,7 @@ namespace Ship_Game.AI
                 return;
 
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
-            float maxUnload = targetStation.CargoSpaceFree;
+            float maxUnload = targetStation.IsMiningStation ? targetStation.MaxSupplyForMiningStation : targetStation.CargoSpaceFree;
             switch (g.Trade.Goods)
             {
                 case Goods.Food:       targetStation.LoadFood(Owner.UnloadFood(maxUnload));             break;

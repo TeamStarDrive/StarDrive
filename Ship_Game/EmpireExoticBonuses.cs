@@ -142,7 +142,7 @@ namespace Ship_Game
         public float CurrentBonusMultiplier => 1 + CurrentBonus;
         public float DynamicBonusMultiplier => 1 + DynamicBonus;
         public float RefiningNeeded => (MaxStorage + Consumption - CurrentStorage - TotalRefinedPerTurn).LowerBound(0);
-        public string ActiveVsTotalOps => $"{ActiveMiningOps}/{TotalBuiltMiningOps}";
+        public string ActiveVsTotalOps => $"{ActiveMiningOps}/{TotalBuiltMiningOps}/{InProgressMiningOps}";
         float MaxStorage => Owner.MaxExoticStorage;
     }
 }
