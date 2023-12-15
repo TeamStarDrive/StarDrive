@@ -299,7 +299,7 @@ namespace Ship_Game.Ships
                     if (visible)
                         Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), scale);
                 }
-                else if (Progress == 1 && visible && Owner.CargoSpaceUsed > 0)
+                else if (Progress == 1 && visible && Owner.Velocity.AlmostEqual(Vector2.Zero))
                 {
                     Vector2 trailPos2d = Owner.Position;
                     Vector3 trailPos = trailPos2d.GenerateRandomPointInsideCircle(Owner.Radius * scale, Owner.Universe.Random).ToVec3(posZ-5);
@@ -346,7 +346,7 @@ namespace Ship_Game.Ships
                 float rotationXRatio = MaxRotationDegX * 2f; // progress is multiplied by 100 since its 0-1 so that why no div by 50
                 Owner.XRotation = Progress <= 0.5 ? (Progress * rotationXRatio).ToRadians() : ((1 - Progress) * rotationXRatio).ToRadians();
 
-                if (visible && (Progress.InRange(0, 0.25f) || Progress.InRange(0.49f, 0.51f)))
+                if (visible && Progress.InRange(0, 0.55f))
                     Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), scale);
 
                 if (Progress < 0.5f)
