@@ -70,8 +70,8 @@ public partial class Ship
 
             float totalRepair = repair + planetRepair;
             Loyalty.AddExoticConsumption(ExoticBonusType.RepairRate, totalRepair);
-            float repairExoticBonus = Loyalty.GetDynamicExoticBonusMuliplier(ExoticBonusType.RepairRate);
-            ApplyAllRepair(totalRepair * repairExoticBonus, repairInterval: timeSinceLastUpdate.FixedTime, repairLevel);
+            float exoticBonusMultiplier = Loyalty.GetDynamicExoticBonusMuliplier(ExoticBonusType.RepairRate);
+            ApplyAllRepair(totalRepair * exoticBonusMultiplier, repairInterval: timeSinceLastUpdate.FixedTime, repairLevel);
 
             if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(ShipData.ShipCategory))
                 AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
@@ -102,15 +102,6 @@ public partial class Ship
         LastDamagedTime = GameBase.Base.TotalElapsed;
     }
 
-    void ApplyRepairToShields(float repairPool)
-    {
-        float shieldRepair = 0.2f * repairPool;
-        if (ShieldMax - ShieldPower > shieldRepair)
-            ShieldPower += shieldRepair;
-        else
-            ShieldPower = ShieldMax;
-    }
-
     /// <param name="repairAmount">How many HP-s to repair</param>
     /// <param name="repairInterval">This repair event interval in seconds, important for correct UI estimation</param>
     /// <param name="repairLevel">Level which improves repair decisions</param>
@@ -123,17 +114,15 @@ public partial class Ship
         }
 
         CurrentRepairPerSecond = repairAmount / repairInterval;
-
         int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
+        if (damagedModules == 0)
+            Health = HealthMax;
+
         for (int i = 0; repairAmount > 0 && i < damagedModules; ++i)
         {
             ShipModule moduleToRepair = GetModuleToRepair(repairLevel);
             repairAmount = moduleToRepair.Repair(repairAmount);
         }
-
-        ApplyRepairToShields(repairAmount);
-        if (HealthPercent > 0.999f)
-            RefreshMechanicalBoardingDefense();
     }
 
     public ShipModule GetModuleToRepair(int repairLevel)

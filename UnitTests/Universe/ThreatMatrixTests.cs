@@ -282,10 +282,6 @@ public class ThreatMatrixTests : StarDriveTest
 
         AssertEqual(str2, Player.Threats.GetHostileStrengthAt(Enemy, pos, 5000));
         AssertEqual(str1, Enemy.Threats.GetHostileStrengthAt(Player, pos, 5000));
-        if (ThirdMajor.IsEmpireHostile(Player))
-            Log.Info("F");
-        if (Player.IsEmpireHostile(ThirdMajor))
-            Log.Info("F");
         // neutrals shouldn't be reported
         AssertEqual(0, Player.Threats.GetHostileStrengthAt(ThirdMajor, pos, 5000),
             "GetHostileStrengthAt(NeutralFaction) should always give 0");

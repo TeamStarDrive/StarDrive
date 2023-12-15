@@ -214,11 +214,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        void RefreshMechanicalBoardingDefense()
-        {
-            MechanicalBoardingDefense =  ModuleSlotList.Sum(module => module.MechanicalBoardingDefense);
-        }
-
         public void DisengageExcessTroops(int troopsToRemove) // excess troops will leave the ship, usually after successful boarding
         {
             Troop[] toRemove = OurTroops.ToArray();

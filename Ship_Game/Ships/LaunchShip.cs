@@ -281,7 +281,8 @@ namespace Ship_Game.Ships
             public MinePlanet(Ship ship, float rotation)
             {
                 Owner = ship;
-                RotationDegZ = rotation;
+                Planet planet = ship.Mothership?.GetTether() ?? null;
+                RotationDegZ = planet != null ? ship.Position.AngleToTarget(planet.Position) : rotation;
                 TotalDuration = 7;
                 Velocity = StartingVelocity(ship, RotationDegZ, MaxSpeedMultiplier);
             }
