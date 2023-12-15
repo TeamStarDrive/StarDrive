@@ -681,7 +681,7 @@ namespace Ship_Game.AI
                     string cargoId = Owner.Mothership.GetTether()?.Mining.CargoId ?? "";
                     if (cargoId.NotEmpty())
                     {
-                        float maxToload = (Owner.Mothership.MiningShipCargoSpaceMax - Owner.Mothership.GetOtherCargo(cargoId)).LowerBound(0);
+                        float maxToload = (Owner.Mothership.MiningStationCargoSpaceMax - Owner.Mothership.GetOtherCargo(cargoId)).LowerBound(0);
                         Owner.Mothership.LoadCargo(cargoId, Owner.GetOtherCargo(cargoId).UpperBound(maxToload));
                     }
                 }

@@ -63,7 +63,7 @@ namespace Ship_Game.AI.ExpansionAI
             }
 
             int numPlanetMiningGoals = miningGoals.Count(g => g.IsMiningOpsGoal(planet));
-            if (!planet.Mining.HasOpsOwner && numPlanetMiningGoals == 0 
+            if ((!planet.Mining.HasOpsOwner || planet.Mining.Owner == Owner) && numPlanetMiningGoals == 0 
                 || Owner.NeedMoreMiningOpsOfThis(planet.Mining.ExoticBonusType) && numPlanetMiningGoals < Mineable.MaximumMiningStations)
             {
                 Owner.AI.AddGoalAndEvaluate(new MiningOps(Owner, planet));
