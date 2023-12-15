@@ -1143,8 +1143,8 @@ namespace Ship_Game.Ships
                     HangarShip.Mothership = carrier;
                     HangarTimer = HangarTimerConstant;
                     CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
-                    carrier.ChangeOrdnance(-HangarShip.ShipOrdLaunchCost);
                     carrier.OnShipLaunched(HangarShip);
+                    carrier.ChangeOrdnance(-HangarShip.ShipOrdLaunchCost);
                 }
                 else
                 {

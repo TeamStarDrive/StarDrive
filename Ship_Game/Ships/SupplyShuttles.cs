@@ -75,8 +75,8 @@ namespace Ship_Game.Ships
                 if (!SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax))
                 {
                     float supplyToLoad = supplyShuttle.OrdinanceMax.UpperBound(Owner.Ordinance);
-                    Owner.ChangeOrdnance(-supplyToLoad);
                     Owner.OnShipLaunched(supplyShuttle);
+                    Owner.ChangeOrdnance(-supplyToLoad);
                     supplyShuttle.ChangeOrdnance(supplyToLoad);
                     SetSupplyTarget(supplyShuttle, supplyTarget);
                 }
