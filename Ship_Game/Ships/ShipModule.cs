@@ -266,7 +266,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsFighterHangar => !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
+        public bool IsFighterHangar => !IsMiningBay && !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
 
         /// <summary> Actually health ratio [0.0 ... 1.0] </summary>
         public float HealthPercent => Health / ActualMaxHealth;
