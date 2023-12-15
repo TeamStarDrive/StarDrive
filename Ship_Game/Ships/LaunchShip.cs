@@ -275,6 +275,7 @@ namespace Ship_Game.Ships
             ParticleEmitter FlameTrail;
             const int InitialRotationDegX = -60;
             const int EndPosZ = 200;
+            const float MaxSpeedMultiplier = 0.8f;
 
 
             public MinePlanet(Ship ship, float rotation)
@@ -282,7 +283,7 @@ namespace Ship_Game.Ships
                 Owner = ship;
                 RotationDegZ = rotation;
                 TotalDuration = 7;
-                Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(1f, 1.5f));
+                Velocity = StartingVelocity(ship, RotationDegZ, MaxSpeedMultiplier);
             }
 
 
@@ -292,6 +293,8 @@ namespace Ship_Game.Ships
                 scale = (1 - (Progress * TotalDuration / TotalDuration) * 0.7f).LowerBound(0.3f);
                 posZ = EndPosZ * Progress;
                 Owner.XRotation = (InitialRotationDegX - (Progress * InitialRotationDegX)).ToRadians();
+                float speedLimitFactor = ((1 - Progress) * 2).Clamped(0.25f, MaxSpeedMultiplier);
+                Owner.SetSTLSpeedLimit(Owner.MaxSTLSpeed * speedLimitFactor);
                 if (Progress <= 0.2)
                 {
                     Owner.Velocity = Velocity;
@@ -299,7 +302,7 @@ namespace Ship_Game.Ships
                     if (visible)
                         Owner.Universe.Screen.Particles.Flash.AddParticle(FlashPos(Owner, scale, posZ), scale);
                 }
-                else if (Progress == 1 && visible && Owner.Velocity.AlmostEqual(Vector2.Zero))
+                else if (Progress == 1 && visible && Owner.Velocity.AlmostEqual(Vector2.Zero, 10))
                 {
                     Vector2 trailPos2d = Owner.Position;
                     Vector3 trailPos = trailPos2d.GenerateRandomPointInsideCircle(Owner.Radius * scale, Owner.Universe.Random).ToVec3(posZ-5);
@@ -330,6 +333,7 @@ namespace Ship_Game.Ships
             [StarData] readonly float RotationDegZ;
             const int MaxRotationDegX = 75;
             const int StartingPosZ = 200;
+            const float MaxSpeedMultiplier = 0.8f;
 
             public MinerReturnToHangar(Ship ship, float rotation)
             {
@@ -357,6 +361,11 @@ namespace Ship_Game.Ships
                 else if (Progress > 0.8f)
                 {
                     Owner.UpdateThrusters(timeStep, scale);
+                }
+                else
+                {
+                    float speedLimitFactor = Progress.Clamped(0.25f, MaxSpeedMultiplier);
+                    Owner.SetSTLSpeedLimit(Owner.MaxSTLSpeed * speedLimitFactor);
                 }
             }
 
