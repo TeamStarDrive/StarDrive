@@ -640,7 +640,7 @@ namespace Ship_Game.AI
         {
             ClearOrders();
             IgnoreCombat = true;
-            float distance = targetPlanet.Random.Float(targetPlanet.Mining.MinMiningRadius, 
+            float distance = targetPlanet.Random.Float(targetPlanet.Mining.MinMiningRadius,
                                                        targetPlanet.Mining.MaxMiningRadius);
 
             Vector2 pos = targetPlanet.Position.GenerateRandomPointOnCircle(distance, targetPlanet.Random);
