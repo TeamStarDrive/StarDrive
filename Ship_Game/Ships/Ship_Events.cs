@@ -71,6 +71,7 @@ namespace Ship_Game.Ships
         public virtual void OnLaunchedShipDie(Ship ship)
         {
             Carrier.AddToOrdnanceInSpace(-ship.ShipOrdLaunchCost);
+            UpdateOrdnancePercentage();
         }
 
         // EVT: when a ShipModule installs a new weapon
