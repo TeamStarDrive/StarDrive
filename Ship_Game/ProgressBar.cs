@@ -54,6 +54,17 @@ public sealed class ProgressBar
 
     public float Percent => Progress / Max;
 
+    float PercentForFill
+    {
+        get
+        {
+            if (Max == 0)
+                return Progress == 0 ? 0 : 1;
+            else
+                return Percent;
+        }
+    }
+
     public void Draw(SpriteBatch batch)
     {
         if (Vertical)
@@ -63,13 +74,14 @@ public sealed class ProgressBar
             batch.Draw(ResourceManager.Texture("NewUI/progressbar_container_bot"), Bot, Color.White);
             return;
         }
-        if (Max > 0f)
+        if (Max >= 0f)
         {
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_left"), gLeft, Color.White);
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_mid"), gMiddle, Color.White);
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_right"), gRight, Color.White);
-            int maskX = (int)(Percent * pBar.Width + pBar.X);
-            int maskW = pBar.Width - (int)(Percent * pBar.Width);
+            float percent = PercentForFill;
+            int maskX = (int)(percent * pBar.Width + pBar.X);
+            int maskW = pBar.Width - (int)(percent * pBar.Width);
             var mask = new Rectangle(maskX, pBar.Y, maskW, 18);
             batch.FillRectangle(mask, Color.Black);
         }
@@ -102,13 +114,14 @@ public sealed class ProgressBar
             batch.Draw(ResourceManager.Texture("NewUI/progressbar_container_bot"), Bot, Color.DarkGray);
             return;
         }
-        if (Max > 0f)
+        if (Max >= 0f)
         {
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_left"), gLeft, Color.DarkGray);
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_mid"), gMiddle, Color.DarkGray);
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_right"), gRight, Color.DarkGray);
-            int maskX = (int)(Progress / Max * pBar.Width + pBar.X);
-            int maskW = pBar.Width - (int)(Progress / Max * pBar.Width);
+            float percent = PercentForFill;
+            int maskX = (int)(percent * pBar.Width + pBar.X);
+            int maskW = pBar.Width - (int)(percent * pBar.Width);
             var mask = new Rectangle(maskX, pBar.Y, maskW, 18);
             batch.FillRectangle(mask, Color.Black);
         }

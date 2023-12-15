@@ -25,6 +25,9 @@ namespace Ship_Game
         // how fast a tip fades in/out
         const float TipFadeInOutTime = 0.35f;
 
+        // default width of a tool tip
+        public const float DefaultWidth = 200;
+
         static readonly Array<TipItem> ActiveTips = new();
 
         public static void ShipYardArcTip()
@@ -46,7 +49,7 @@ namespace Ship_Game
         /// <param name="minShowTime">Minimum time to show this Tooltip, regardless of being hovered</param>
         /// <param name="maxWidth">Maximum width for the tooltip</param>
         public static void CreateTooltip(in LocalizedText tip, string hotKey, Vector2? position,
-                                         float minShowTime = 0, float maxWidth = 200)
+                                         float minShowTime = 0, float maxWidth = DefaultWidth)
         {
             string rawText = tip.Text;
             if (rawText.IsEmpty())
@@ -86,8 +89,8 @@ namespace Ship_Game
             tipItem.Rect = tipRect;
         }
 
-        public static void CreateTooltip(in LocalizedText tip, string hotKey) => CreateTooltip(tip, hotKey, null);
-        public static void CreateTooltip(in LocalizedText tip) => CreateTooltip(tip, "", null);
+        public static void CreateTooltip(in LocalizedText tip, string hotKey, float maxWidth = DefaultWidth) => CreateTooltip(tip, hotKey, null, maxWidth: maxWidth);
+        public static void CreateTooltip(in LocalizedText tip, float maxWidth = DefaultWidth) => CreateTooltip(tip, "", null, maxWidth: maxWidth);
         
         // Clears the current tooltip (if any)
         public static void Clear()

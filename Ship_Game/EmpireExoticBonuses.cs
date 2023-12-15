@@ -1,11 +1,6 @@
 ﻿using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -13,10 +8,11 @@ namespace Ship_Game
     public class EmpireExoticBonuses
     {
         [StarData] readonly Empire Owner;
-
+        [StarData] float DynamicConsumption;
         [StarData] public readonly Good Good;
         [StarData] public readonly float MaxBonus;
-        [StarData] public float TotalRefinedPerTurn;
+
+        [StarData] public float TotalRefinedPerTurn { get; private set; }
         [StarData] public float Consumption { get; private set; }
         [StarData] public float CurrentStorage { get; private set; }
         [StarData] public float CurrentBonus { get; private set; }
@@ -66,21 +62,22 @@ namespace Ship_Game
             float consumption = 0;
             switch (Good.ExoticBonusType)
             {
-                case ExoticBonusType.RepairRate:      // consumption is calculated dynamically 
-                case ExoticBonusType.ShieldRecharge:  // consumption is calculated dynamically
-                case ExoticBonusType.None:            return;
+                case ExoticBonusType.RepairRate:      
+                case ExoticBonusType.ShieldRecharge:  consumption = DynamicConsumption;                 break;
                 case ExoticBonusType.Credits:         consumption = Owner.TotalPopBillion;              break;
                 case ExoticBonusType.DamageReduction: consumption = Owner.TotalShipSurfaceArea;         break;
                 case ExoticBonusType.Production:      consumption = Owner.GetGrossProductionNoExotic(); break;
                 case ExoticBonusType.WarpSpeed:       consumption = Owner.TotalShipWarpThrustK;         break;
+                case ExoticBonusType.None:
+                default: break;
             }
 
             Consumption = consumption * Good.ConsumptionMultiplier;
         }
 
-        public void AddConsumption(float amount)
+        public void AddDynamicConsumption(float amount)
         {
-            Consumption = (Consumption + amount * Good.ConsumptionMultiplier).LowerBound(0);
+            DynamicConsumption += amount;
         }
 
         public void AddToMaxRefiningPoterntial(float amount) 
@@ -105,22 +102,12 @@ namespace Ship_Game
 
         public void CalcCurrentBonus()
         {
-            PreviousBonus = CurrentBonus;
+            PreviousBonus   = CurrentBonus;
             float remainder = (Consumption - TotalRefinedPerTurn).UpperBound(CurrentStorage); // can be positive or negative
             RemoveFromStorage(remainder);
-            OutputThisTurn = MaxPotentialRefinedPerTurn > 0 ? TotalRefinedPerTurn / MaxPotentialRefinedPerTurn : 0;
-            CurrentBonus = DynamicBonus;
-            ResetDynamicConsumption();
-        }
-
-        public void ResetDynamicConsumption()
-        {
-            switch (Good.ExoticBonusType)
-            {
-                case ExoticBonusType.RepairRate:      // consumption is calculated dynamically 
-                case ExoticBonusType.ShieldRecharge:  // consumption is calculated dynamically
-                case ExoticBonusType.None: Consumption = 0; break;
-            }
+            OutputThisTurn  = MaxPotentialRefinedPerTurn > 0 ? TotalRefinedPerTurn / MaxPotentialRefinedPerTurn : 0;
+            CurrentBonus    = DynamicBonus;
+            DynamicConsumption = 0;
         }
 
         public float DynamicBonus
