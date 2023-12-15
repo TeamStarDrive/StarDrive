@@ -216,6 +216,10 @@ namespace Ship_Game.AI
                 Owner.InitLaunch(LaunchPlan.MinerReturn, Owner.Rotation.ToDegrees());
                 OrderReturnToHangar();
             }
+            else if (Owner.Position.OutsideRadius(planet.Position, planet.Mining.MaxMiningRadius*1.1f))
+            {
+                OrderMinePlanet(planet);
+            }
         }
 
         void DoDeploy(ShipGoal g, FixedSimTime timeStep)

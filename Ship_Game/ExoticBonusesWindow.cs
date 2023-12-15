@@ -61,11 +61,11 @@ namespace Ship_Game
             }
             public override void PerformLayout()
             {
-                BonusInfo.Pos = new Vector2(Pos.X, Pos.Y+2);
+                BonusInfo.Pos = new Vector2(Pos.X, Pos.Y);
                 BonusInfo.PerformLayout();
-                Icon.Pos = new Vector2(Pos.X+50, Pos.Y);
+                Icon.Pos = new Vector2(Pos.X+50, Pos.Y-3);
                 Icon.PerformLayout();
-                ResourceName.Pos = new Vector2(Pos.X+ 80, Pos.Y+2);
+                ResourceName.Pos = new Vector2(Pos.X+ 80, Pos.Y);
                 ResourceName.PerformLayout();
                 OutputInfo.Pos = new Vector2(Pos.X + 170, Pos.Y);
                 OutputInfo.PerformLayout();
@@ -117,9 +117,8 @@ namespace Ship_Game
                     exoticResource.CurrentPercentageOutput, exoticResource.Consumption, exoticResource.RefinedPerTurnForConsumption, storagefull);
 
                 UpdateConsumptionBar(exoticResource.Consumption, exoticResource.TotalRefinedPerTurn, exoticResource.TotalBuiltMiningOps, storagefull);
-                UpdateStorage(exoticResource.CurrentStorage, Owner.MaxExoticStorage, exoticResource.TotalBuiltMiningOps, 
-                    exoticResource.TotalRefinedPerTurn >= exoticResource.Consumption);
-                UpdatePotential(exoticResource.MaxPotentialRefinedPerTurn, exoticResource.Consumption);
+                UpdateStorage(exoticResource.CurrentStorage, Owner.MaxExoticStorage, exoticResource.TotalBuiltMiningOps);
+                UpdatePotential(exoticResource.MaxPotentialRefinedPerTurn);
                 UpdateOps(exoticResource.ActiveMiningOps, exoticResource.TotalBuiltMiningOps, exoticResource.ActiveVsTotalOps, storagefull);
 
                // base.Update(fixedDeltaTime);
@@ -127,52 +126,57 @@ namespace Ship_Game
 
             void UpdateBonus(float currentBonus, float previousBonus, string bonusString, int miningOps, float maxBonus)
             {
-                currentBonus = currentBonus.RoundToFractionOf10();
-                previousBonus = previousBonus.RoundToFractionOf10();
+                currentBonus   = currentBonus.RoundToFractionOf10();
+                previousBonus  = previousBonus.RoundToFractionOf10();
                 BonusInfo.Text = bonusString;
-                if (currentBonus == maxBonus)                BonusInfo.Color = Color.Gold;
-                else if (currentBonus > previousBonus)       BonusInfo.Color = Color.Green;
-                else if (currentBonus < previousBonus)       BonusInfo.Color = Color.Red;
-                else if (miningOps > 0)                      BonusInfo.Color = Color.White;
-                else                                         BonusInfo.Color = Color.Gray;
+                Color color    = Color.Gray;
+
+                if (currentBonus == maxBonus)          color = Color.Gold;
+                else if (currentBonus > previousBonus) color = Color.Green;
+                else if (currentBonus < previousBonus) color = Color.Red;
+                else if (miningOps > 0)                color = Color.White;
+
+                BonusInfo.Color = color;
             }
 
             void UpdateConsumptionBar(float consumption, float refining, float totalMiningOps, bool storageFull)
             {
-                ConsumptionBar.Max = consumption;
+                ConsumptionBar.Max      = consumption;
                 ConsumptionBar.Progress = refining;
-                float ratio = consumption > 0 ? refining / consumption 
-                                              : refining > consumption ? 1 
-                                                                       : 0;
-                if      (storageFull)        ConsumptionBar.color = "brown";
-                else if (ratio > 0.95f)      ConsumptionBar.color = "green";
-                else if (ratio > 0)          ConsumptionBar.color = "yellow";
-                else if (totalMiningOps > 0) ConsumptionBar.color = "red";
-                else                         ConsumptionBar.color = "brown";
+                string color = "brown";
+                float ratio  = consumption > 0 ? refining / consumption 
+                                               : refining >= consumption ? 1 : 0;
+
+                if      (storageFull || ratio >= 1f) color = "green";
+                else if (ratio > 0)                  color = "yellow";
+                else if (totalMiningOps > 0)         color = "red";
+
+                ConsumptionBar.color = color;
             }
 
             void UpdateOutput(float output, int activeOps, string outputPercent, float consumption, float refining, bool storageFull)
             {
                 OutputInfo.Text = outputPercent;
-                if      (storageFull)                   OutputInfo.Color = Color.Wheat;
-                else if (output == 0 && activeOps == 0) OutputInfo.Color = Color.Gray;
-                else if (output == 0 && activeOps > 0)  OutputInfo.Color = Color.Red;
-                else if (refining < consumption*0.95f)  OutputInfo.Color = Color.Yellow;
-                else                                    OutputInfo.Color = Color.Wheat;
+                Color color     = Color.Wheat;
+
+                if      (storageFull)                   color = Color.Wheat;
+                else if (output == 0 && activeOps == 0) color = Color.Gray;
+                else if (output == 0 && activeOps > 0)  color = Color.Red;
+                else if (refining < consumption*0.95f)  color = Color.Yellow;
+
+                OutputInfo.Color = color;
             }
 
-            void UpdatePotential(float maxPotentialRefinedPerTurn, float consumption)
+            void UpdatePotential(float maxPotentialRefinedPerTurn)
             {
-                PotentialInfo.Text = maxPotentialRefinedPerTurn.String(1);
-                if      (maxPotentialRefinedPerTurn == 0)          PotentialInfo.Color = Color.Gray;
-                else if (consumption > maxPotentialRefinedPerTurn) PotentialInfo.Color = Color.Red;
-                else                                               PotentialInfo.Color = Color.Wheat;
+                PotentialInfo.Text  = maxPotentialRefinedPerTurn.String(1);
+                PotentialInfo.Color = maxPotentialRefinedPerTurn == 0 ? Color.Gray : Color.Wheat;
             }
 
             void UpdateOps(int activeMiningOps, int totalMiningOps, string activeVsTotalOps, bool storageFull)
             {
                 ActiveVsTotalOps.Text = activeVsTotalOps;
-                Color color = Color.Yellow;
+                Color color           = Color.Yellow;
 
                 if      (storageFull)                       color = Color.Wheat;
                 else if (totalMiningOps == 0)               color = Color.Gray;
@@ -182,13 +186,11 @@ namespace Ship_Game
                 ActiveVsTotalOps.Color = color;
             }
 
-            void UpdateStorage(float currentStorage, float maxStorage, int totalOps, bool positiveRefinning) 
+            void UpdateStorage(float currentStorage, float maxStorage, int totalOps) 
             {
-                StorageBar.Max = maxStorage;
+                StorageBar.Max      = maxStorage;
                 StorageBar.Progress = currentStorage;
-                if      (positiveRefinning)                   StorageBar.color = "green";
-                else if (totalOps > 0 && currentStorage == 0) StorageBar.color = "red";
-                else                                          StorageBar.color = "blue";
+                StorageBar.color    = totalOps > 0 && currentStorage == 0 ? "red" : "blue";
             }
         }
 

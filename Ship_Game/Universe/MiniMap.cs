@@ -423,7 +423,7 @@ namespace Ship_Game
             if (ExoticBonuses.Rect.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(Player.Universe.P.DisableMiningOps ? GameText.OpensEmpireExoticBonusesDisabled
-                                                                         : GameText.OpensEmpireExoticBonuses, "G");
+                                                                         : GameText.OpensEmpireExoticBonuses, "M");
             }
             return base.HandleInput(input);
         }

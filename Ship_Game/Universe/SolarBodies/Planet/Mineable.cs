@@ -27,6 +27,9 @@ namespace Ship_Game
         public float RefiningRatio => ResourceType.RefiningRatio; // How much of the resource is processed per turn
         public ExoticBonusType ExoticBonusType => ResourceType.ExoticBonusType;
 
+        public float MinMiningRadius => P.Radius * 0.55f;
+        public float MaxMiningRadius => P.Radius * 0.75f;
+
 
         public bool CanAddMiningStationFor(Empire empire) => (Owner == empire || !HasOpsOwner) && MiningOpsSize < MaximumMiningStations;
         public bool MiningOpsExistFor(Empire empire) => Owner == empire && MiningOpsSize > 0;
