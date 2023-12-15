@@ -70,7 +70,7 @@ namespace Ship_Game
                 return;
 
             if (ExoticBonuses.ContainsKey(type)) 
-                ExoticBonuses[type].AddConsumption(amount);
+                ExoticBonuses[type].AddDynamicConsumption(amount);
         }
 
         public void UpdateExoticConsumpsions() // This will be done before empire goals update

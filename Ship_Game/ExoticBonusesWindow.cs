@@ -204,7 +204,7 @@ namespace Ship_Game
             ConstructionSubMenu = new(win, GameText.ExoticResourcesMenu);
 
             float titleOffset = win.Y + 40;
-            Add(new UILabel(new Vector2(win.X+5,   titleOffset), GameText.ExoticResourcesBonus, Fonts.Arial12Bold, Color.Gold, GameText.ExoticResourceBonusTip));
+            Add(new UILabel(new Vector2(win.X+5,   titleOffset), GameText.ExoticResourcesBonus, Fonts.Arial12Bold, Color.Gold, GameText.ExoticResourceBonusTip) { ToolTipWidth = Screen.LowRes ? 300 : 450 });
             Add(new UILabel(new Vector2(win.X+60,  titleOffset), GameText.ExoticResourcesName, Fonts.Arial12Bold, Color.White));
             Add(new UILabel(new Vector2(win.X+170, titleOffset), GameText.ExoticResourcesOutput, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceOutputTip));
             Add(new UILabel(new Vector2(win.X+240, titleOffset), GameText.ExoticRefiningVsConsumption, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceRefineConsumeTip));

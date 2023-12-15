@@ -73,18 +73,18 @@ namespace Ship_Game
 
         bool HandleInputNotLookingAtPlanet(InputState input)
         {
-            if (input.DeepSpaceBuildWindow) InputOpenDeepSpaceBuildWindow();
-            if (input.FTLOverlay)       ToggleUIComponent("sd_ui_accept_alt3", ref ShowingFTLOverlay);
-            if (input.RangeOverlay)     ToggleUIComponent("sd_ui_accept_alt3", ref ShowingRangeOverlay);
+            if (input.DeepSpaceBuildWindow)       InputOpenDeepSpaceBuildWindow();
+            if (input.FTLOverlay)                 ToggleUIComponent("sd_ui_accept_alt3", ref ShowingFTLOverlay);
+            if (input.RangeOverlay)               ToggleUIComponent("sd_ui_accept_alt3", ref ShowingRangeOverlay);
             if (input.AutomationWindow && !Debug) aw.ToggleVisibility();
-            if (input.ExoticBonusesWindow) ExoticBonusesWindow.ToggleVisibility();
+            if (input.ExoticBonusesWindow)        ExoticBonusesWindow.ToggleVisibility();
             if (input.PlanetListScreen)  ScreenManager.AddScreen(new PlanetListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.ExoticListScreen)  ScreenManager.AddScreen(new ExoticSystemsListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.ShipListScreen)    ScreenManager.AddScreen(new ShipListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.FleetDesignScreen) ScreenManager.AddScreen(new FleetDesignScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.ZoomToShip) InputZoomToShip();
-            if (input.ZoomOut) InputZoomOut();
-            if (input.Escaped) DefaultZoomPoints();
+            if (input.ZoomOut)    InputZoomOut();
+            if (input.Escaped)    DefaultZoomPoints();
             if (input.Tab && !input.LeftCtrlShift) ShowShipNames = !ShowShipNames;
 
             HandleCameraZoomScrolling(input);

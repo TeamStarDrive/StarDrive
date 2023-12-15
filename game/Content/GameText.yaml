@@ -10584,19 +10584,19 @@ DisableMiningOpsTip:
  ENG: "The game will not have mineable planets and therefore, no Mining Ops."   
 ExoticResourceBonusTip: 
  Id: 4491
- ENG: "This shows the current bonus your empire gets per exotic resource."    
+ ENG: "Current bonus your empire gets per exotic resource with colosr coding:\nGold: The maximum bonus was reached.\nGreen: The bonus rate increased from last turn.\nRed: The bonus rate decreased from last turn.\nWhite: Unchanged bonus from last turn.\nGray: bonus is not yet possible to achieve."    
 ExoticResourceOutputTip: 
  Id: 4492
- ENG: "This shows the usage of the Empire's current Mining Ops. Usually the output becomes lower when storages are full and your Mining Station can refine more resources than are actually needed."     
+ ENG: "Usage of the Empire's current Mining Ops. Usually the output becomes lower when storages are full and your Mining Station can refine more resources than are actually needed."     
 ExoticResourceRefineConsumeTip: 
  Id: 4493
- ENG: "This shows the Refining rate vs. consumption rate of the Exotic resource. Excess Refining is transferred to storage and when the storage is full, output decreases until it matches the needed consumption."       
+ ENG: "Refining rate vs. Consumption rate of the Exotic resource. Excess Refining is transferred to storage and when the storage is full, output decreases until it matches the needed consumption."       
 ExoticResourceMaxRefineTip: 
  Id: 4494
- ENG: "This shows the maximum refining rate of the Exotic resource per turn. When more Mining Stations are added, the maximum rate is increased."        
+ ENG: "Maximum refining rate of the Exotic resource per turn. When more Mining Stations are added, the maximum rate is increased."        
 ExoticResourceOpsTip: 
  Id: 4495
- ENG: "This shows the active Mining stations vs. total Mining stations. Mining Stations become inactive if there is no food for the miners or if no raw resource is yet brought by the mining ships to the station."         
+ ENG: "Active Mining stations vs. total Mining stations vs. Mining stations being under construction / enroute to deployement. Mining Stations become inactive if there is no food for the miners or if no raw resource is yet brought by the mining ships to the station."         
 ExoticResourceStorageTip: 
  Id: 4496
  ENG: "This shows the storage usage for this resource type. Imperial Storage is based on the average storage capacity of your colonies."          
