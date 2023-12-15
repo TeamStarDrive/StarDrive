@@ -147,7 +147,6 @@ namespace Ship_Game.Commands.Goals
 
         void RefineResources(float availableConsumables)
         {
-            MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
             Owner.AddBuiltMiningStation(ExoticBonusType);
             float maxRefiningPotential = MiningStation.TotalRefining * ActualRefiningRatio;
             Owner.AddMaxPotentialRefining(ExoticBonusType, maxRefiningPotential);
@@ -157,12 +156,14 @@ namespace Ship_Game.Commands.Goals
                 AddMiningStationPlan(Plan.ExoticStationNoSupply);
                 AddSupplyDeficit(MiningStation.TotalRefining);
                 MiningStation.Carrier.MiningBays.DestroyEmmiters();
+                MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
                 return;
             }
 
             float numRawResources = MiningStation.GetOtherCargo(ResourceCargoName);
             float numRefiningNeeded = Owner.GetRefiningNeeded(ExoticBonusType);
             MiningStation.Carrier.MiningBays.ProcessMiningBays(numRawResources);
+            MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
 
             if (numRefiningNeeded <= 0 || numRawResources <= 0 || MiningStation.Loyalty != TargetPlanet.Mining.Owner)
             {
@@ -262,8 +263,9 @@ namespace Ship_Game.Commands.Goals
         }
 
         bool NeedsConsumables(float availableConsumables) =>
-            (MiningStation.CargoSpaceMax - MiningStation.MiningShipCargoSpaceMax) - availableConsumables > Owner.AverageFreighterCargoCap
-            || availableConsumables / (MiningStation.CargoSpaceMax - MiningStation.MiningShipCargoSpaceMax) < 0.5f;
+            MiningStation.MiningStationCargoSpaceMax - availableConsumables > Owner.AverageFreighterCargoCap
+            || availableConsumables / MiningStation.MiningStationCargoSpaceMax < 0.75f
+            || availableConsumables < MiningStation.MiningStationCargoSpaceMax && MiningStation.Carrier.MiningBays.RefiningOutput == 0;
 
         // Note we do not allow a planet to have more than one mining ship construction goal
         // Otherwize this wont work

@@ -31,8 +31,8 @@ namespace Ship_Game.Ships
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => Loyalty.data.Traits.PassengerModifier;
 
-        public float MiningShipCargoSpaceMax => CargoSpaceMax*0.5f;
-        public float MaxSupplyForMiningStation => MiningShipCargoSpaceMax - (Loyalty.IsCybernetic ?  GetProduction() : GetFood());
+        public float MiningStationCargoSpaceMax => CargoSpaceMax*0.5f; // Divided for exotic raw resources and food/production
+        public float MaxSupplyForMiningStation => MiningStationCargoSpaceMax - (Loyalty.IsCybernetic ?  GetProduction() : GetFood());
         
         public bool OrdnanceChanged { get; private set; }
         public float OrdnancePercent { get; private set; }

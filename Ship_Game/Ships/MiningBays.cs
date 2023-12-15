@@ -1,4 +1,5 @@
-﻿using SDUtils;
+﻿using SDGraphics;
+using SDUtils;
 
 namespace Ship_Game.Ships
 {
@@ -27,26 +28,57 @@ namespace Ship_Game.Ships
         public void ProcessMiningBays(float rawResourcesStored)
         {
             if (Owner == null
-                || rawResourcesStored / (Owner.CargoSpaceMax*0.5) > 0.5f
-                || !HasOrdnanceToLaunch())
+                || !HasOrdnanceToLaunch()
+                || rawResourcesStored >= Owner.MiningStationCargoSpaceMax && RefiningOutput == 0)
             {
                 return;
             }
 
-            foreach (ShipModule miningBay in AllMiningBays)
+            float resourcesNeeded = RefiningOutput > 0 ? Owner.MiningStationCargoSpaceMax 
+                                                       : Owner.MiningStationCargoSpaceMax - rawResourcesStored;
+
+            if (TryGetCandidateBayAndReturnExceesMiners(resourcesNeeded, out ShipModule candidateBay)
+                && CreateMiningShip(candidateBay, out Ship miningShip)) 
             {
-                if (miningBay.Active 
-                    && miningBay.HangarTimer <= 0
-                    && !miningBay.TryGetHangarShipActive(out _)
-                    && CreateMiningShip(miningBay, out Ship miningShip))
-                {
-                    miningBay.HangarTimer = miningBay.HangarTimerConstant;
-                    miningShip.AI.OrderMinePlanet(Owner.GetTether());
-                    return;
-                }
+                candidateBay.HangarTimer = candidateBay.HangarTimerConstant;
+                miningShip.AI.OrderMinePlanet(Owner.GetTether());
+                return;
             }
         }
 
+        bool TryGetCandidateBayAndReturnExceesMiners(float resourcesNeeded, out ShipModule candidateBay)
+        {
+            candidateBay = null;
+            float miningShipsCapacityAlreadyMining = 0;
+            foreach (ShipModule miningBay in AllMiningBays)
+            {
+                if (miningBay.Active)
+                {
+                    if (miningBay.TryGetHangarShipActive(out Ship activeMiningShip))
+                    {
+                        miningShipsCapacityAlreadyMining += activeMiningShip.CargoSpaceMax;
+                        if (activeMiningShip.CargoSpaceUsed > resourcesNeeded && activeMiningShip.AI.State == Ship_Game.AI.AIState.Mining)
+                        {
+                            activeMiningShip.InitLaunch(LaunchPlan.MinerReturn, activeMiningShip.RotationDegrees);
+                            activeMiningShip.AI.OrderReturnToHangarDeferred();
+                            continue;
+                        }
+
+                        if (miningShipsCapacityAlreadyMining >= resourcesNeeded)
+                            return false;
+                    }
+                    else if (candidateBay == null
+                        && miningShipsCapacityAlreadyMining < resourcesNeeded  
+                        && miningBay.HangarTimer <= 0)
+                    {
+                        candidateBay = miningBay;
+                    }
+                }
+            }
+
+            return candidateBay != null;
+        }
+            
         bool HasOrdnanceToLaunch()
         {
             if (AllMiningBays.Length == 0)
