@@ -91,7 +91,8 @@ namespace Ship_Game
                 if ((design.Hull == ShipToRefit.ShipData.Hull || ShipToRefit.IsResearchStation) 
                     && design != ShipToRefit.ShipData 
                     && !design.ShipRole.Protected
-                    && ShipToRefit.IsResearchStation == design.IsResearchStation)
+                    && ShipToRefit.IsResearchStation == design.IsResearchStation
+                    && ShipToRefit.IsMiningStation == design.IsMiningStation)
                 {
                     RefitShipList.AddItem(new RefitShipListItem(this, design));
                 }

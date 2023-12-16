@@ -145,8 +145,12 @@ namespace Ship_Game.AI
 
         public void RemoveRoadIfNeeded(SolarSystem system)
         {
-            if (system.HasPlanetsOwnedBy(Owner) || system.IsResearchStationDeployedBy(Owner))
+            if (system.HasPlanetsOwnedBy(Owner)
+                || system.IsResearchStationDeployedBy(Owner)
+                || system.PlanetList.Any(p => p.Mining?.Owner == Owner))
+            {
                 return;
+            }
 
             for (int i = SpaceRoads.Count - 1; i >= 0; i--)
             {

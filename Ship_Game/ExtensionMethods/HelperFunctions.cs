@@ -297,5 +297,13 @@ namespace Ship_Game
         {
             return (oldValue * oldWeight) + (newValue * (1 - oldWeight));
         }
+
+        static public bool InGoodDistanceForReseachOrMiningOps(Empire owner, SolarSystem system, float averageDist, InfluenceStatus influence)
+        {
+            return system.HasPlanetsOwnedBy(owner)
+                   || system.Position.SqDist(owner.WeightedCenter) < averageDist * 1.5f
+                   || system.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(owner))
+                   || influence == InfluenceStatus.Friendly;
+        }
     }
 }

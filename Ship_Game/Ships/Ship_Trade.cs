@@ -18,7 +18,7 @@ namespace Ship_Game.Ships
         [StarData] public Array<int> TradeRoutes      { get; private set; } = new();
 
         public bool IsCandidateForTradingBuild => ShipData.IsCandidateForTradingBuild;
-        public bool IsFreighter => ShipData.IsFreighter;
+        public bool IsFreighter => ShipData.IsFreighter && !IsMiningShip;
 
         public bool IsIdleFreighter => IsFreighter
                                        && AI != null
@@ -28,7 +28,8 @@ namespace Ship_Game.Ships
                                        && AI.State != AIState.Refit
                                        && AI.State != AIState.Scrap
                                        && AI.State != AIState.Scuttle
-                                       && AI.State != AIState.Resupply;
+                                       && AI.State != AIState.Resupply
+                                       && AI.State != AIState.Mining;
 
         public bool AddTradeRoute(Planet planet)
         {

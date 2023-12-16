@@ -15,6 +15,8 @@
   <DefaultSupplyShuttle>Kulrathi-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Kulrathi/Kulrathi_Station</SpacePortModel>
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningShip>Kulrathi Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Kulrathi Basic Mining Station</DefaultMiningStation>  
 
   <TechTree>Kulrathi</TechTree>
   <RebelName>Kulrathi Warlords</RebelName>

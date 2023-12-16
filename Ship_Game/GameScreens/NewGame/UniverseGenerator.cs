@@ -294,16 +294,16 @@ namespace Ship_Game.GameScreens.NewGame
         void GenerateSystems(ProgressCounter step)
         {
             step.Start(Systems.Count);
-            float researchableMultiplier = (100f / Systems.Count).UpperBound(1);
+            float exoticPlanetMultiplier = (100f / Systems.Count).UpperBound(1);
             foreach (SystemPlaceHolder placeHolder in Systems)
             {
                 Empire e = placeHolder.Owner;
                 var sys = new SolarSystem(UState, placeHolder.Position);
 
                 if (placeHolder.Data != null)
-                    sys.GenerateFromData(UState, Random, placeHolder.Data, e, researchableMultiplier);
+                    sys.GenerateFromData(UState, Random, placeHolder.Data, e, exoticPlanetMultiplier);
                 else
-                    sys.GenerateRandomSystem(UState, Random, placeHolder.SystemName, e, researchableMultiplier);
+                    sys.GenerateRandomSystem(UState, Random, placeHolder.SystemName, e, exoticPlanetMultiplier);
 
                 if (e != null && e.GetOwnedSystems().Count == 0)
                 {
@@ -319,6 +319,8 @@ namespace Ship_Game.GameScreens.NewGame
             {
                 system.FiveClosestSystems = UState.GetFiveClosestSystems(system);
             }
+
+            UState.MineablePlanets.Sort(p => -p.Mining.Richness);
 
             step.Finish();
         }
