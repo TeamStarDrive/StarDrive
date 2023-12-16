@@ -1,15 +1,9 @@
-﻿using System;
-using System.Linq.Expressions;
-using System.Text;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Audio;
-using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
-using Ship_Game.Universe;
 using SDUtils;
-using System.Runtime.InteropServices;
 
 namespace Ship_Game
 {
@@ -30,6 +24,7 @@ namespace Ship_Game
             int windowHeight = (ResourceManager.GetNumExoticGoods() * (Fonts.Arial12Bold.LineSpacing+20));
             Rect = new Rectangle((int)Screen.Minimap.X - 5 - windowWidth, (int)Screen.Minimap.Y + 
                 (int)Screen.Minimap.Height - windowHeight - 10, windowWidth, windowHeight);
+            CanEscapeFromScreen = false;
         }
 
         class ExoticStats : UIElementV2
@@ -57,7 +52,6 @@ namespace Ship_Game
                 StorageBar = new ProgressBar(new Rectangle(-100, -100, 150, 18), 0, 0) { color = "blue", Fraction10Values = true };
                 PotentialInfo = new UILabel(new Vector2(-100, -100), GameText.HullBonus, Fonts.Arial12Bold, Color.Wheat);
                 ActiveVsTotalOps = new UILabel(new Vector2(-100, -100), GameText.HullBonus, Fonts.Arial12Bold, Color.Gray);
-
             }
             public override void PerformLayout()
             {
