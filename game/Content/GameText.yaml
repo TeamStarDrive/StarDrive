@@ -6500,7 +6500,7 @@ BB_Tech_Shipyards_Desc:
  SPA: "Son instalaciones orbitales dedicadas a la construcción de naves que nos permiten racionalizar nuestros procesos de producción y aportan grandes bonificaciones. Si se construyen en una colonia, se situarán en órbita geosincrónica. Estas estaciones también pueden edificarse en el espacio profundo. Encontrarás más detalles en el menú de ayuda."
 BB_Tech_Shipyards_Bonus:
  Id: 2037
- ENG: "This technology unlocks a unique \"Shipyard\" space station that boosts ship production by 25% at the planet where it is constructed. Each colony can support up to 2 Shipyards"
+ ENG: "This technology unlocks a unique \"Shipyard\" space station that boosts ship production by 25% at the planet where it is constructed. Each colony can support up to 3 Shipyards"
  RUS: "Эта технология разблокирует уникальную космическую станцию \"Верфь\", дающую 25% бонус к строительству кораблей на своей планете.  "
  SPA: "Esta tecnología desbloquea una estación espacial de tipo \"Astillero\" exclusiva que mejora la producción de naves en un 25% en el planeta donde se construya.  "
 BB_Tech_ShipboardMedicine_Name:
@@ -10612,6 +10612,12 @@ OpensEmpireExoticBonuses:
 OpensEmpireExoticBonusesDisabled: 
  Id: 4500
  ENG: "Mining Ops are disabled in this game.\nThe Empire Exotic Bonuses panel specifies all Exotic Resources bonuses and Mining Ops status"            
+MineablePlanetNotification: 
+ Id: 4501
+ ENG: "contains an exotic substance which can be mined,\nproviding we have a proper space mining tech researched."             
+MineableRichnessTip: 
+ Id: 4502
+ ENG: "Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace might be improved with new tech."              
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"
