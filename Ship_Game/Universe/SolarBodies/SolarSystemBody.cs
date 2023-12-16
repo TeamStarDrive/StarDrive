@@ -213,7 +213,7 @@ namespace Ship_Game
         [StarData] public float BaseFertility { get; protected set; } // This is clamped to a minimum of 0, cannot be negative
         [StarData] public float BaseMaxFertility { get; protected set; } // Natural Fertility, this is clamped to a minimum of 0, cannot be negative
         [StarData] public float BuildingsFertility { get; protected set; }  // Fertility change by all relevant buildings. Can be negative
-        [StarData] public float MineralRichness;
+        [StarData] public float MineralRichness; // Mineable Gas giants get the richness of the exotic resource
 
         [StarData] protected Array<Building> BuildingList = new();
         public int NumBuildings => BuildingList.Count;

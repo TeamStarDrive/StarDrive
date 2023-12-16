@@ -71,6 +71,7 @@ namespace Ship_Game
 
         // this applies to any randomly generated planet
         // which is newly created and is not a HomeWorld
+        // it is done after mineable class (for gas giants) was created
         void InitNewMinorPlanet(RandomBase random, PlanetType type, float scale, float preDefinedPop = 0)
         {
             GenerateNewFromPlanetType(random, type, scale, preDefinedPop);
@@ -120,11 +121,13 @@ namespace Ship_Game
                 else
                     BasePopPerTile = ((int)(type.PopPerTile.Generate(random) * scale)).RoundUpToMultipleOf(10);
 
-                BaseFertility    = type.BaseFertility.Generate(random).Clamped(type.MinBaseFertility, 100.0f);
+                BaseFertility = type.BaseFertility.Generate(random).Clamped(type.MinBaseFertility, 100.0f);
                 BaseMaxFertility = BaseFertility;
             }
             else
-                MineralRichness = 0.0f;
+            {
+                MineralRichness = IsMineable ? Mining.Richness : 0.0f;
+            }
         }
 
         void GeneratePlanetFromSystemData(RandomBase random, SolarSystemData.Ring data)
