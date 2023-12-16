@@ -69,6 +69,8 @@ namespace Ship_Game
         //This unlocks the tech at game start for the races in the RaceRequirements list.
         //This will override the other two restrictors.
         public Array<RaceRequirements> UnlockedAtGameStart = new();
+        public bool RequiresResearchStations;
+        public bool RequiresMiningOps;
 
         //This is used with the tech restrictors above to list races or traits that will create
         //rules for the restriction

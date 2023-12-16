@@ -218,13 +218,22 @@ namespace Ship_Game.Ships
                         }
                     }
 
-                    if (p.IsResearchable && Loyalty.isPlayer)
-                        Universe.Screen.NotificationManager?.AddReseachablePlanet(p);
-
+                    AddExoticFoundNotification(p);
                     p.SetExploredBy(Loyalty);
                     System.SetExploredBy(Loyalty); // in case no one was on sensor range from the Star itself
                     System.UpdateFullyExploredBy(Loyalty);
                 }
+            }
+        }
+
+        public void AddExoticFoundNotification(Planet p)
+        {
+            if (Loyalty.isPlayer)
+            {
+                if (p.IsResearchable)
+                    Universe.Screen.NotificationManager?.AddReseachablePlanet(p);
+                else if (p.IsMineable)
+                    Universe.Screen.NotificationManager?.AddMineablePlanet(p);
             }
         }
         

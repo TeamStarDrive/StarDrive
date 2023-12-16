@@ -377,6 +377,7 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, GameText.Ordnance, mod.OrdinanceCapacity, GameText.IndicatesTheAmountOfOrdnance2);
             DrawStat(ref modTitlePos, GameText.CargoSpace,  mod.CargoCapacity, GameText.TT_CargoSpace);
             DrawStat(ref modTitlePos, GameText.ResearchPerTurnModule, mod.ResearchPerTurn, GameText.ResearchPerTurnStatTip);
+            DrawStat(ref modTitlePos, GameText.RefiningModule, mod.Refining, GameText.RefiningPerTurnStatTip);
             DrawStat(ref modTitlePos, GameText.Ordnances, mod.OrdnanceAddedPerSecond, GameText.TT_OrdnanceCreated);
             DrawStat(ref modTitlePos, GameText.Inhibition, mod.InhibitionRadius, GameText.IndicatesTheWarpInhibitionRange);
             DrawStat(ref modTitlePos, GameText.Troops,  mod.TroopCapacity, GameText.IndicatesTheNumberOfTroops3);
@@ -422,7 +423,7 @@ namespace Ship_Game
             if (mod.NumberOfColonists.Greater(0))
                 DrawStat(ref modTitlePos, "Colonists", mod.NumberOfColonists, GameText.ProsperInTerranWorldsAnd); // Number of Colonists
 
-            if (mod.PermittedHangarRoles.Length == 0 && !mod.IsSupplyBay && !mod.IsTroopBay)
+            if (mod.PermittedHangarRoles.Length == 0 && !mod.IsSupplyBay && !mod.IsTroopBay && !mod.IsMiningBay)
                 return;
 
             var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.HangarShipUID);

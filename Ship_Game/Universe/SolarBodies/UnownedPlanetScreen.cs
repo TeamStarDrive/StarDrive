@@ -69,13 +69,25 @@ namespace Ship_Game
 				}
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
 				infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
-				batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Richness) + ":", pNameCursor, Color.Orange);
-				batch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), infoCursor, Colors.Cream);
+                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Richness) + ":", pNameCursor, P.IsMineable ? Color.Gold : Colors.Cream);
+                batch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), infoCursor, Colors.Cream);
 				hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Richness) + ":").X, Fonts.Arial12Bold.LineSpacing);
 				if (hoverRect.HitTest(Input.CursorPosition))
 				{
-					ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
-				}
+                    ToolTip.CreateTooltip(P.IsMineable ? GameText.MineableRichnessTip : GameText.APlanetsMineralRichnessDirectly);
+                }
+				if (P.IsMineable)
+				{
+                    pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                    infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
+                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.ResourceName) + ":", pNameCursor, Color.Gold);
+                    batch.DrawString(Fonts.Arial12Bold, P.Mining.TranslatedResourceName.Text, infoCursor, Colors.Cream);
+                    hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Richness) + ":").X, Fonts.Arial12Bold.LineSpacing);
+                    if (hoverRect.HitTest(Input.CursorPosition))
+                    {
+                        ToolTip.CreateTooltip(P.Mining.ResourceDescription.Text);
+                    }
+                }
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
 				batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(P.Description, PlanetInfo.Width - 40), pNameCursor, Colors.Cream);
 			}

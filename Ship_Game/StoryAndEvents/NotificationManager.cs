@@ -478,6 +478,18 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
+        public void AddMineablePlanet(Planet p)
+        {
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = $"{p.Name} {Localizer.Token(GameText.MineablePlanetNotification)}",
+                ReferencedItem1 = p,
+                IconPath        = p.IconPath,
+                Action          = "SnapToPlanet"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddReseachablePlanet(Planet p)
         {
             GameText text;
@@ -492,8 +504,7 @@ namespace Ship_Game
             {
                 Pause           = false,
                 Message         = $"{p.Name} { Localizer.Token(text)}",
-                ReferencedItem1 = p.System,
-                ReferencedItem2 = p,
+                ReferencedItem1 = p,
                 IconPath        = p.IconPath,
                 Action          = "SnapToPlanet"
             }, "sd_ui_notification_encounter");
@@ -736,6 +747,17 @@ namespace Ship_Game
                 Action          = "SnapToShip",
                 ReferencedItem1 = s,
                 IconPath        = s.ShipData.IconPath
+            }, "smallservo");
+        }
+
+        public void AddMiningStationBuiltNotification(Ship s, Planet planet)
+        {
+            AddNotification(new Notification
+            {
+                Message = $"{planet.System.Name}: {s.Name}" + $" {Localizer.Token(GameText.MiningStationBuiltPlanetNotify)} {planet.Name}",
+                Action = "SnapToShip",
+                ReferencedItem1 = s,
+                IconPath = s.ShipData.IconPath
             }, "smallservo");
         }
 

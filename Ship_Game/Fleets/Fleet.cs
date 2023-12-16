@@ -84,11 +84,12 @@ namespace Ship_Game.Fleets
         public void AddShips(IReadOnlyList<Ship> ships)
         {
             for (int i = 0; i < ships.Count; i++)
-                AddShip(ships[i]);
+                if (ships[i].CanBeAddedToFleets())
+                    AddShip(ships[i]);
         }
 
         /// @return TRUE if ship was added to the Fleet,
-        /// FALSE if ship cannot be assigned to a fleet (already in fleet, or a platform/station)
+        /// FALSE if ship cannot be assigned to a fleet (already in fleet)
         public override bool AddShip(Ship newShip)
         {
             if (newShip == null) // Added ship should never be null
@@ -98,9 +99,6 @@ namespace Ship_Game.Fleets
             }
             if (newShip.Loyalty != Owner)
                 Log.Warning("ship loyalty incorrect");
-
-            if (newShip.IsPlatformOrStation)
-                return false;
 
             // This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
             // This should likely be two different checks. There is also the possibility that the ship is in another

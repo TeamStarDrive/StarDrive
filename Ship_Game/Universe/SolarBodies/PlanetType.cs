@@ -40,6 +40,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float MinBaseFertility; // Clamp(MinFertility, float.Max)
         [StarData] public readonly float Scale = 1f; // warning: this may not be the final scale of the planet! modifiers apply
         [StarData] public readonly float ResearchableChance = 0;
+        [StarData] public readonly float MiningChance = 0;
 
         // Allowed moon types for this planet
         [StarData] public readonly PlanetCategory[] MoonTypes = Empty<PlanetCategory>.Array;

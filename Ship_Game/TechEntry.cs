@@ -687,6 +687,12 @@ namespace Ship_Game
         {
             if (this == None) // this is a None technology, and should never unlock
                 return true;
+            if (Tech.RequiresMiningOps && empire.Universe.P.DisableMiningOps
+                || Tech.RequiresResearchStations && empire.Universe.P.DisableResearchStations)
+            {
+                return true;
+            }
+
             if (IsUnlockedAtGameStart(empire))
                 return false;
             if (Tech.HiddenFrom.Count > 0 && InRaceRequirementsArray(empire, Tech.HiddenFrom))
@@ -973,6 +979,9 @@ namespace Ship_Game
                 case "Set Population Growth Max": data.Traits.PopGrowthMax = unlockedBonus.Bonus; break;
                 case "Xenolinguistic Nuance":
                 case "Diplomacy Bonus": data.OngoingDiplomaticModifier += unlockedBonus.Bonus; break;
+                case "Exotic Storage Bonus": data.ExoticStorageMultiplier += unlockedBonus.Bonus; break;
+                case "Mining Speed Bonus": data.MiningSpeedMultiplier += unlockedBonus.Bonus; break;
+                case "Refining Ratio Bonus": data.RefiningRatioMultiplier += unlockedBonus.Bonus; break;
                 case "Ordnance Effectiveness":
                 case "Ordnance Effectiveness Bonus": data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;
                 case "Tachyons":

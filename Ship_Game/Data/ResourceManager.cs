@@ -58,7 +58,7 @@ namespace Ship_Game
         static readonly Map<string, ShipModule> ModuleTemplates = new();
         public static Array<Encounter> Encounters = new();
         public static Map<string, Building> BuildingsDict = new();
-        public static Map<string, Good> GoodsDict = new();
+        public static Array<Good> TransportableGoods = new();
         public static Map<string, Texture2D> ProjTextDict = new();
 
         public static RandomItem[] RandomItemsList = Empty<RandomItem>.Array;
@@ -163,7 +163,8 @@ namespace Ship_Game
             {
                 if (mod == null)
                     throw; // vanilla load failed, fatally
-                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", 0);
+                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla, " +
+                    $"make sure you have the latest Blackbox release installed and updated to the latest patch.", 0);
                 WaitForExit();
                 GlobalStats.ClearActiveMod();
                 UnloadAllData(manager);
@@ -370,7 +371,7 @@ namespace Ship_Game
 
             TechTree.Clear();
             ArtifactsDict.Clear();
-            GoodsDict.Clear();
+            TransportableGoods.Clear();
             Encounters.Clear();
             EventsDict.Clear();
             RandomItemsList = Empty<RandomItem>.Array;
@@ -1217,14 +1218,10 @@ namespace Ship_Game
             return Texture("FleetIcons/"+index);
         }
 
-        static void LoadGoods() // Refactored by RedFox
+        static void LoadGoods()
         {
-            foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
-            {
-                Good good           = pair.Entity;
-                good.UID            = string.Intern(pair.Info.NameNoExt());
-                GoodsDict[good.UID] = good;
-            }
+            GameLoadingScreen.SetStatus("Goods");
+            TransportableGoods = YamlParser.DeserializeArray<Good>("/Goods/Goods.yaml");
         }
 
         // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
@@ -1584,6 +1581,8 @@ namespace Ship_Game
                 AddHull(hull);
             }
         }
+
+        public static int GetNumExoticGoods() => TransportableGoods.Filter(g => g.IsGasGiantMineable).Length;
 
         public static readonly ShipsManager Ships = new();
 
@@ -2058,6 +2057,8 @@ namespace Ship_Game
         static void Assert(IEmpireData e, string shipName, string usage, Func<IShipDesign, bool> flag, string flagName)
         {
             IShipDesign design = Assert(e, shipName, usage);
+            if (design == null && !e.IsFactionOrMinorRace)
+                Log.Error($"Assert ship={usage} not defined for empire={e.Name,-20}");
             if (design != null && !flag(design))
                 Log.Error($"Assert Ship.{flagName} failed! {usage,-20}  ship={design.Name,-20}  role={design.Role,-12}  empire={e.Name,-20}");
         }
@@ -2087,6 +2088,8 @@ namespace Ship_Game
                 Assert(e, e.DefaultAssaultShuttle, "DefaultAssaultShuttle");
                 Assert(e, e.DefaultSupplyShuttle,  "DefaultSupplyShuttle", s => s.IsSupplyShuttle, "IsSupplyShuttle");
                 Assert(e, e.DefaultResearchStation, "DefaultResearchStation", s => s.IsResearchStation, "IsResearchStation");
+                Assert(e, e.DefaultMiningShip, "DefaultMiningShip", s => s.BaseCargoSpace > 0, "BaseCargoSpace");
+                Assert(e, e.DefaultMiningStation, "DefaultMiningStation", s => s.IsMiningStation, "IsMiningStation");
             }
 
             string[] requiredShips =
@@ -2094,7 +2097,7 @@ namespace Ship_Game
                 /*meteors*/"Meteor A", "Meteor B", "Meteor C", "Meteor D", "Meteor E", "Meteor F", "Meteor G",
                 /*debug*/"Bondage-Class Mk IIIa Cruiser", "Target Dummy",
                 /*hangarhack*/"DynamicAntiShip", "DynamicInterceptor", "DynamicLaunch",
-                /*defaults*/"Subspace Projector", "Supply Shuttle", "Assault Shuttle", "Terran Constructor", "Basic Research Station"
+                /*defaults*/"Subspace Projector", "Supply Shuttle", "Assault Shuttle", "Terran Constructor", "Basic Research Station", "Basic Mining Station"
             };
 
             foreach (string requiredShip in requiredShips)

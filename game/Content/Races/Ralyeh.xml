@@ -14,6 +14,8 @@
   <DefaultSupplyShuttle>Ralyeh-Supply</DefaultSupplyShuttle>  
   <SpacePortModel>Model/Ships/Ralyeh/Ralyeh_Station</SpacePortModel>
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningShip>Ralyeh Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Ralyeh Basic Mining Station</DefaultMiningStation>  
   
   <RebelName>Ralyeh Apostates</RebelName>
   <RebelSing>Apostate</RebelSing>
