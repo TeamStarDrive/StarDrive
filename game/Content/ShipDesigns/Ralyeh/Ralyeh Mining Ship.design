@@ -1,0 +1,43 @@
+Version=1
+Name=Ralyeh Mining Ship
+Hull=Ralyeh/Vessel S
+Role=supply
+Style=Ralyeh
+Size=4,10
+GridCenter=2,5
+DefaultCombatState=Evade
+ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=ExoticStorage;Maneuvering_Thruster_1x1;NuclearReactorSmall;Cockpit;PowerConduit;Engine
+Modules=26
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+1,0;0
+2,0;0
+0,1;0
+1,1;0
+2,1;0
+3,1;0
+0,2;0
+1,2;0
+2,2;0
+3,2;0
+1,3;0
+2,3;0
+0,4;1
+1,4;2
+2,4;2
+3,4;1
+1,5;0
+2,5;0
+1,6;3
+2,6;2
+1,7;0
+2,7;4
+1,8;5
+2,8;5
+1,9;5
+2,9;5

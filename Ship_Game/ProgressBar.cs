@@ -16,7 +16,7 @@ public sealed class ProgressBar
     public string color = "brown";
     public bool DrawProgressText = true; // draw "50%" or "50/100"
     public bool DrawPercentage = false;
-    public bool Faction10Values = false;
+    public bool Fraction10Values = false;
     private Rectangle Left;
     private Rectangle Right;
     private Rectangle Middle;
@@ -54,6 +54,17 @@ public sealed class ProgressBar
 
     public float Percent => Progress / Max;
 
+    float PercentForFill
+    {
+        get
+        {
+            if (Max == 0)
+                return Progress == 0 ? 0 : 1;
+            else
+                return Percent;
+        }
+    }
+
     public void Draw(SpriteBatch batch)
     {
         if (Vertical)
@@ -63,13 +74,14 @@ public sealed class ProgressBar
             batch.Draw(ResourceManager.Texture("NewUI/progressbar_container_bot"), Bot, Color.White);
             return;
         }
-        if (Max > 0f)
+        if (Max >= 0f)
         {
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_left"), gLeft, Color.White);
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_mid"), gMiddle, Color.White);
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_right"), gRight, Color.White);
-            int maskX = (int)(Percent * pBar.Width + pBar.X);
-            int maskW = pBar.Width - (int)(Percent * pBar.Width);
+            float percent = PercentForFill;
+            int maskX = (int)(percent * pBar.Width + pBar.X);
+            int maskW = pBar.Width - (int)(percent * pBar.Width);
             var mask = new Rectangle(maskX, pBar.Y, maskW, 18);
             batch.FillRectangle(mask, Color.Black);
         }
@@ -89,7 +101,7 @@ public sealed class ProgressBar
         if (DrawProgressText)
         {
             var textPos = new Vector2(Left.X + 7, Left.Y + Left.Height / 2 - Fonts.TahomaBold9.LineSpacing / 2);
-            batch.DrawString(Fonts.TahomaBold9, Faction10Values ? Values10 : Values, textPos, Colors.Cream);
+            batch.DrawString(Fonts.TahomaBold9, Fraction10Values ? Values10 : Values, textPos, Colors.Cream);
         }
     }
 
@@ -102,13 +114,14 @@ public sealed class ProgressBar
             batch.Draw(ResourceManager.Texture("NewUI/progressbar_container_bot"), Bot, Color.DarkGray);
             return;
         }
-        if (Max > 0f)
+        if (Max >= 0f)
         {
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_left"), gLeft, Color.DarkGray);
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_mid"), gMiddle, Color.DarkGray);
             batch.Draw(ResourceManager.Texture($"NewUI/progressbar_grd_{color}_right"), gRight, Color.DarkGray);
-            int maskX = (int)(Progress / Max * pBar.Width + pBar.X);
-            int maskW = pBar.Width - (int)(Progress / Max * pBar.Width);
+            float percent = PercentForFill;
+            int maskX = (int)(percent * pBar.Width + pBar.X);
+            int maskW = pBar.Width - (int)(percent * pBar.Width);
             var mask = new Rectangle(maskX, pBar.Y, maskW, 18);
             batch.FillRectangle(mask, Color.Black);
         }
@@ -125,7 +138,7 @@ public sealed class ProgressBar
             batch.Draw(ResourceManager.Texture("NewUI/progressbar_container_right"), Right, Color.DarkGray);
         }
         var textPos = new Vector2(Left.X + 7, Left.Y + Left.Height / 2 - Fonts.TahomaBold9.LineSpacing / 2);
-        batch.DrawString(Fonts.TahomaBold9, Faction10Values ? Values10 : Values, textPos, Color.DarkGray);
+        batch.DrawString(Fonts.TahomaBold9, Fraction10Values ? Values10 : Values, textPos, Color.DarkGray);
     }
 
     string Values10 => DrawPercentage ? $"{Progress.String(1)}%" : $"{Progress.String(1)}/{Max.String(1)}";

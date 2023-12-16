@@ -2,7 +2,7 @@
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
   <Version>2</Version>
   <UID>LargePlanetStockpile</UID>
-  <TechnologyType>ShipGeneral</TechnologyType>
+  <TechnologyType>General</TechnologyType>
   <Cost>400</Cost>
   <NameIndex>17568</NameIndex>
   <DescriptionIndex>17569</DescriptionIndex>

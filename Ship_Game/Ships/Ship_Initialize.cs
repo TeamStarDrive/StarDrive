@@ -279,7 +279,7 @@ namespace Ship_Game.Ships
             if (ship != null)
             {
                 float facing = owner.Random.RollDice(50) ? 135 : 315;
-                ship.InitLaunch(LaunchPlan.ShipyardBig, facing);
+                ship.InitLaunch(LaunchPlan.Shipyard, facing);
             }
             return ship;
         }
@@ -361,7 +361,10 @@ namespace Ship_Game.Ships
             }
 
             ship.Mothership = parent;
-            ship.InitLaunch(LaunchPlan.Hangar, hangar.ActualRotationDegrees);
+            if (ship.IsMiningShip)
+                ship.InitLaunch(LaunchPlan.Mining);
+            else
+                ship.InitLaunch(LaunchPlan.Hangar, hangar.ActualRotationDegrees);
 
             if (hangar.IsSupplyBay)
             {

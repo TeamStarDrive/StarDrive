@@ -307,7 +307,9 @@ namespace Ship_Game
             if (!ExportFood)
                 return 0;
 
-            float maxFoodLoad = targetStation.CargoSpaceMax; // update for future tourists stations
+            float foodConsumption = targetStation.TotalRefining * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
+            float foodLeftUntilEta = (targetStation.GetFood() - foodConsumption*eta).LowerBound(0);
+            float maxFoodLoad = (targetStation.IsMiningStation ? targetStation.MiningStationCargoSpaceMax : targetStation.CargoSpaceMax) - foodLeftUntilEta;
             float foodLoadLimit = exportPlanet.ExportGoodsLimit(Goods.Food);
 
             return maxFoodLoad.Clamped(0, foodLoadLimit);
@@ -340,9 +342,12 @@ namespace Ship_Game
             if (!ExportProd)
                 return 0;
 
-            float prodConsumpsion = targetStation.ResearchPerTurn * GlobalStats.Defaults.ResearchStationProductionPerResearch;
-            float prodLeftUntilEta = (targetStation.CargoSpaceUsed - prodConsumpsion*eta).LowerBound(0);
-            float maxProdLoad = targetStation.CargoSpaceMax - prodLeftUntilEta;
+            float prodConsumpsion = targetStation.IsResearchStation
+                ? targetStation.ResearchPerTurn * GlobalStats.Defaults.ResearchStationProductionPerResearch
+                : targetStation.TotalRefining * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
+
+            float prodLeftUntilEta = (targetStation.GetProduction() - prodConsumpsion*eta).LowerBound(0);
+            float maxProdLoad = (targetStation.IsMiningStation ? targetStation.MiningStationCargoSpaceMax : targetStation.CargoSpaceMax) - prodLeftUntilEta;
             float prodLoadLimit = exportPlanet.ExportGoodsLimit(Goods.Production);
             return maxProdLoad.Clamped(0f, prodLoadLimit);
         }

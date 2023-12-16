@@ -121,7 +121,7 @@ namespace Ship_Game
 
             Garrison        = Slider(200, 200, 160, 40, GameText.GarrisonSize, 0, 25,Planet.GarrisonSize);
             ManualPlatforms = Slider(200, 200, 120, 40, GameText.ManualLimit, 0, 15, Planet.WantedPlatforms);
-            ManualShipyards = Slider(200, 200, 120, 40, "", 0, 2, Planet.WantedShipyards);
+            ManualShipyards = Slider(200, 200, 120, 40, "", 0, 3, Planet.WantedShipyards);
             ManualStations  = Slider(200, 200, 120, 40, "", 0, 10, Planet.WantedStations);
 
             Garrison.Tip        = GameText.GarrisonSizeEnsuresANumber;
@@ -179,9 +179,9 @@ namespace Ship_Game
             GrdBudgetBar = new ProgressBar(GrdBudgetRect);
             SpcBudgetBar = new ProgressBar(SpcBudgetRect);
 
-            CivBudgetBar.Faction10Values = true;
-            GrdBudgetBar.Faction10Values = true;
-            SpcBudgetBar.Faction10Values = true;
+            CivBudgetBar.Fraction10Values = true;
+            GrdBudgetBar.Fraction10Values = true;
+            SpcBudgetBar.Fraction10Values = true;
             CivBudgetBar.color = "green";
             SpcBudgetBar.color = "blue";
 

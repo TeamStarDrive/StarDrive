@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -29,6 +30,9 @@ namespace Ship_Game.Ships
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => Loyalty.data.Traits.PassengerModifier;
+
+        public float MiningStationCargoSpaceMax => CargoSpaceMax*0.5f; // Divided for exotic raw resources and food/production
+        public float MaxSupplyForMiningStation => MiningStationCargoSpaceMax - (Loyalty.IsCybernetic ?  GetProduction() : GetFood());
         
         public bool OrdnanceChanged { get; private set; }
         public float OrdnancePercent { get; private set; }
@@ -177,6 +181,7 @@ namespace Ship_Game.Ships
         public float GetColonists()  => Cargo?.Colonists * PassengerModifier ?? 0f;
         public float GetProduction() => Cargo?.Production ?? 0f;
         public float GetFood()       => Cargo?.Food       ?? 0f;
+        public float GetOtherCargo(string cargoId) => Cargo?.GetOther(cargoId) ?? 0;
         
         // Lazy Init cargo module, only when we actually LoadCargo
         CargoContainer CargoCont => Cargo ?? (Cargo = new CargoContainer(CargoSpaceMax));
@@ -252,7 +257,20 @@ namespace Ship_Game.Ships
         public void TransferCargoUponRefit(Ship newship)
         {
             if (IsResearchStation)
+            {
                 newship.LoadProduction(GetProduction());
+            }
+            else if (IsMiningStation)
+            {
+                if (Loyalty.NonCybernetic)
+                    newship.LoadFood(GetFood());
+                else
+                    newship.LoadProduction(GetProduction());
+
+                string cargoId = TetheredTo?.Mining?.CargoId ?? "";
+                if (cargoId.NotEmpty())
+                    newship.LoadCargo(cargoId, GetOtherCargo(cargoId));
+            }
         }
     }
 }

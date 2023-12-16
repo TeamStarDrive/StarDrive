@@ -1131,6 +1131,8 @@ namespace UnitTests.Serialization
             AssertEqual(instance.DisableAlternateAITraits, result.DisableAlternateAITraits);
             AssertEqual(instance.DisablePirates, result.DisablePirates);
             AssertEqual(instance.FixedPlayerCreditCharge, result.FixedPlayerCreditCharge);
+            AssertEqual(instance.DisableResearchStations, result.DisableResearchStations);
+            AssertEqual(instance.DisableMiningOps, result.DisableMiningOps);
         }
 
         [TestMethod]

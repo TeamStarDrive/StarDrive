@@ -23,6 +23,9 @@ namespace Ship_Game
         public Rectangle PlanetNameRect;
         public Rectangle OrdersRect;
         public Rectangle DistanceRect;
+        public Rectangle ResourceRect;
+        public Rectangle RichnessRect;
+        public Rectangle OwnerRect;
 
         Empire Player => Universe.Player;
         readonly Color Cream = Colors.Cream;
@@ -32,15 +35,22 @@ namespace Ship_Game
         readonly Color TextColor = new Color(255, 239, 208);
 
         Rectangle PlanetIconRect;
+        Rectangle ResourceIconRect;
         readonly UITextEntry PlanetNameEntry = new UITextEntry();
-        UIButton Research;
+        readonly UITextEntry ResourceNameEntry = new UITextEntry();
+        UIButton DeployButton;
         readonly float Distance;
         bool MarkedForResearch;
+        bool MarkedForMining;
         readonly UniverseState Universe;
 
-        UITextEntry ResearchTextInfo;
+        UILabel DeployTextInfo;
+        UILabel MiningDeployedTextInfo;
+        UILabel MiningInProgressTextInfo;
         bool IsPlanet => Planet != null;
         public bool IsStar => Planet == null;
+        public bool IsForResearch => IsStar || Planet.IsResearchable;
+        public bool IsForMining => !IsForResearch;
         ExplorableGameObject SolarBody;
 
         public ExoticSystemsListScreenItem(ExplorableGameObject solarBody, float distance)
@@ -60,14 +70,22 @@ namespace Ship_Game
             }
 
             Distance = distance / 1000; // Distance from nearest player colony
-            foreach (Goal g in Player.AI.Goals)
+
+
+            if (solarBody.IsResearchable && !solarBody.IsResearchStationDeployedBy(Player))
             {
-                if (solarBody.IsResearchable 
-                    && !solarBody.IsResearchStationDeployedBy(Player)
-                    && g.IsResearchStationGoal(solarBody))
+                foreach (Goal g in Player.AI.Goals)
                 {
-                    MarkedForResearch = true;
+                    if (g.IsResearchStationGoal(solarBody))
+                    {
+                        MarkedForResearch = true;
+                        break;
+                    }
                 }
+            }
+            else if (Planet?.IsMineable == true && Player.AI.Goals.Any(g => g.IsMiningOpsGoal(Planet) && g.TargetShip == null))
+            {
+                MarkedForMining = true;
             }
         }
 
@@ -79,10 +97,20 @@ namespace Ship_Game
             int h = (int)Height;
             RemoveAll();
 
-            ButtonStyle researchStyle = MarkedForResearch ? ButtonStyle.Default : ButtonStyle.BigDip;
-            LocalizedText researchText = !MarkedForResearch ? GameText.DeployResearchStation : GameText.CancelDeployResearchStation;
-            Research = Button(researchStyle, researchText, OnResearchClicked);
-            Research.Font = Fonts.TahomaBold9;
+            if (Planet?.IsResearchable == true || System.IsResearchable)
+            {
+                ButtonStyle researchStyle = MarkedForResearch ? ButtonStyle.Military : ButtonStyle.BigDip;
+                LocalizedText researchText = !MarkedForResearch ? GameText.DeployResearchStation : GameText.AbortDeployent;
+                DeployButton = Button(researchStyle, researchText, OnResearchClicked);
+            }
+            else // Mineable
+            {
+                ButtonStyle mineableStyle = MarkedForMining ? ButtonStyle.Military : ButtonStyle.Default;
+                LocalizedText miningText = !MarkedForMining ? GameText.DeployMiningStation : GameText.AbortDeployent;
+                DeployButton = Button(mineableStyle, miningText, OnMiningClicked);
+            }
+
+            DeployButton.Font = Fonts.TahomaBold9;
             int nextX = x;
             Rectangle NextRect(float width)
             {
@@ -91,51 +119,113 @@ namespace Ship_Game
                 return new Rectangle(next, y, (int)width, h);
             }
 
-            SysNameRect = NextRect(w * 0.12f);
-            PlanetNameRect = NextRect(w * 0.25f);
-
-            DistanceRect = NextRect(100);
-            OrdersRect = NextRect(100);
+            SysNameRect    = NextRect(w * 0.12f);
+            PlanetNameRect = NextRect(w * 0.20f);
+            DistanceRect   = NextRect(150);
+            ResourceRect   = NextRect(150);
+            RichnessRect   = NextRect(100);
+            OwnerRect      = NextRect(100);
+            OrdersRect     = NextRect(100);
 
             PlanetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
             PlanetNameEntry.Text = IsStar ? "" : Planet.Name;
-
             PlanetNameEntry.SetPos(PlanetIconRect.Right + 10, y);
 
+            ResourceIconRect = new Rectangle(ResourceRect.X + 5, ResourceRect.Y + 10, 20, 20);
+            ResourceNameEntry.Text = IsForResearch ? "Research" : Planet.Mining.TranslatedResourceName.Text;
+            ResourceNameEntry.SetPos(ResourceIconRect.Right + 10, y);
+
             var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
-            Research.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
+            DeployButton.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
 
             AddSystemName();
             AddHostileWarning();
             SetResearchVisibility();
+            SetMiningVisibility();
             AddTextureAndStatus();
             AddDistanceStats();
             AddPlanetName();
+            AddResourceName();
+            AddRichnessStat();
+            AddOwner();
             base.PerformLayout();
         }
 
         void SetResearchVisibility()
         {
-            Vector2 researchTextBox = new Vector2(Research.Rect.X, Research.Rect.Y + 4);
-            ResearchTextInfo = Add(new UITextEntry(researchTextBox, SmallFont, GameText.CannotBuildResearchStationTip2));
-            ResearchTextInfo.Color = Color.Gray;
+            if (!IsForResearch)
+                return;
+
+            Vector2 researchTextBox = new Vector2(DeployButton.Rect.X, DeployButton.Rect.Y + 4);
+            DeployTextInfo = Add(new UILabel(researchTextBox, GameText.CannotBuildResearchStationTip2, SmallFont));
+            DeployTextInfo.Color = Color.Gray;
 
             if (!Player.CanBuildResearchStations) 
             {
-                Research.Visible = false;
+                DeployButton.Visible = false;
                 return;
             }
 
             if (SolarBody.IsResearchStationDeployedBy(Player))
             {
-                Research.Visible = false;
-                ResearchTextInfo.Text = Localizer.Token(GameText.ResearchStationDeployed);
-                ResearchTextInfo.Color = Player.EmpireColor;
+                DeployButton.Visible = false;
+                DeployTextInfo.Text = Localizer.Token(GameText.ResearchStationDeployed);
+                DeployTextInfo.Color = Player.EmpireColor;
             }
             else
             {
-                Research.Visible = true;
-                ResearchTextInfo.Visible= false;
+                DeployButton.Visible = true;
+                DeployTextInfo.Visible= false;
+            }
+        }
+
+        void SetMiningVisibility()
+        {
+            if (!IsForMining)
+                return;
+
+            Vector2 miningTextBox = new Vector2(DeployButton.Rect.X, DeployButton.Rect.Y + 4);
+            DeployTextInfo = Add(new UILabel(miningTextBox, GameText.CannotBuildMiningStationTip, SmallFont));
+            DeployTextInfo.Color = Color.Gray;
+            DeployButton.Visible = false;
+            DeployTextInfo.Visible = true;
+
+            
+            if (Planet.Mining.Owner != null && Planet.Mining.Owner != Player)
+            {
+                DeployTextInfo.Text = "";
+                return;
+            }
+
+            if (!Player.CanBuildMiningStations)
+            {
+                DeployTextInfo.Text = Localizer.Token(GameText.CannotBuildMiningStationTip2);
+                return;
+            }
+
+            int numDeployed = Planet.OrbitalStations.Count(s => s.Loyalty.isPlayer && s.IsMiningStation);
+            Vector2 miningDeployed = new Vector2(DeployButton.Rect.X + DeployButton.Rect.Width + 5, DeployButton.Rect.Y + 4);
+            MiningDeployedTextInfo = Add(new UILabel(miningDeployed, $"Deployed: {numDeployed} ", SmallFont));
+            MiningDeployedTextInfo.Color = Player.EmpireColor;
+            MiningDeployedTextInfo.Visible = numDeployed > 0;
+
+            int numInProgress = Player.AI.CountGoals(g => g.IsMiningOpsGoal(Planet) && g.TargetShip == null);
+            Vector2 miningInProgress = new Vector2(MiningDeployedTextInfo.Rect.X + 
+                (MiningDeployedTextInfo.Visible ? MiningDeployedTextInfo.Rect.Width + 10 : 0), DeployButton.Rect.Y + 4);
+            string miningInProgressMsg = $"In Progress: {numInProgress}";
+            MiningInProgressTextInfo = Add(new UILabel(miningInProgress,miningInProgressMsg, SmallFont));
+            MiningInProgressTextInfo.Color = Color.Wheat;
+            MiningInProgressTextInfo.Visible = numInProgress > 0;
+
+            if (numDeployed >= Mineable.MaximumMiningStations)
+            {
+                DeployTextInfo.Visible = false;
+                MiningDeployedTextInfo.SetRelPos(DeployButton.Rect.X, DeployButton.Rect.Y + 4);
+            }
+            else
+            {
+                DeployButton.Visible = true;
+                DeployTextInfo.Visible = false;
             }
         }
 
@@ -146,7 +236,7 @@ namespace Ship_Game
 
         void AddSystemName()
         {
-            string systemName = IsStar ? System.Name : System.Name;
+            string systemName = System.Name;
             Graphics.Font systemFont = NormalFont.MeasureString(systemName).X <= SysNameRect.Width ? NormalFont : SmallFont;
             var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - systemFont.MeasureString(systemName).X / 2f,
                                         2 + SysNameRect.Y + SysNameRect.Height / 2 - systemFont.LineSpacing / 2);
@@ -169,8 +259,40 @@ namespace Ship_Game
 
         void AddDistanceStats()
         {
-            var distancePos = new Vector2(DistanceRect.X + 35, DistanceRect.Y + DistanceRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var distancePos = new Vector2(DistanceRect.X + 45, DistanceRect.Y + DistanceRect.Height / 2 - SmallFont.LineSpacing / 2);
             DrawDistance(Distance, distancePos, SmallFont);
+        }
+
+        void AddResourceName()
+        {
+            bool researchable = IsForResearch;
+            var namePos = new Vector2(ResourceRect.X + 30, ResourceRect.Y + ResourceRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var resourceName = Label(namePos, researchable ? "Research" : Planet.Mining.TranslatedResourceName.Text, 
+                SmallFont, researchable ? Color.CornflowerBlue : Color.LightGoldenrodYellow);
+
+            resourceName.Tooltip = researchable ? new LocalizedText(GameText.ResearchPointsAreAddedInto) : Planet.Mining.ResourceDescription;
+
+            Panel(ResourceIconRect, researchable 
+                ? ResourceManager.Texture("NewUI/icon_science") 
+                : Planet.Mining.ExoticResourceIcon);
+        }
+
+        void AddRichnessStat()
+        {
+            string richness = IsStar || Planet.IsResearchable ? "" : Planet.Mining.Richness.String(0);
+            var sysNameCursor = new Vector2(RichnessRect.X + 30, RichnessRect.Y + RichnessRect.Height / 2 - SmallFont.LineSpacing / 2);
+
+            Label(sysNameCursor, richness, SmallFont, Cream);
+        }
+
+        void AddOwner()
+        {
+            if (IsStar || !Planet.IsMineable)
+                return;
+
+            string owner = Planet.Mining.HasOpsOwner ? Planet.Mining.Owner.data.Traits.Singular : "None";
+            var ownerNameCursor = new Vector2(OwnerRect.X + 25, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
+            Label(ownerNameCursor, owner, SmallFont, owner == "None" ? Cream : Planet.Mining.Owner.EmpireColor);
         }
 
         void AddHostileWarning()
@@ -210,16 +332,42 @@ namespace Ship_Game
                 else
                     Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, Planet));
 
-                Research.Text = GameText.CancelDeployResearchStation;
-                Research.Style = ButtonStyle.Default;
+                DeployButton.Text = GameText.AbortDeployent;
+                DeployButton.Style = ButtonStyle.Military;
                 MarkedForResearch = true;
             }
             else
             {
                 Player.AI.CancelResearchStation(Planet);
-                Research.Text = GameText.DeployResearchStation;
-                Research.Style = ButtonStyle.BigDip;
+                DeployButton.Text = GameText.DeployResearchStation;
+                DeployButton.Style = ButtonStyle.BigDip;
             }
+        }
+
+        void OnMiningClicked(UIButton b)
+        {
+            if (!MarkedForMining) 
+            { 
+                Player.AI.AddGoalAndEvaluate(new MiningOps(Player, Planet));
+                if (!Planet.Mining.CanAddMiningStationFor(Player))
+                {
+                    DeployButton.Text = GameText.AbortDeployent;
+                    DeployButton.Style = ButtonStyle.Military;
+                    MarkedForMining = true;
+                }
+            }
+            else
+            {
+                Player.AI.CancelMiningStation(Planet);
+                if (Planet.Mining.CanAddMiningStationFor(Player))
+                {
+                    DeployButton.Text = GameText.DeployMiningStation;
+                    DeployButton.Style = ButtonStyle.Default;
+                    MarkedForMining = false;
+                }
+            }
+
+            SetMiningVisibility();
         }
     }
 }

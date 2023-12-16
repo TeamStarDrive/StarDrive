@@ -74,6 +74,7 @@ namespace Ship_Game
 
         public float TotalRepair; // Total Repair points a planet gives
 
+        [StarData] public Mineable Mining;
         [StarData] public float SensorRange { get; private set; }
         public float ProjectorRange { get; private set; }
         public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
@@ -122,6 +123,7 @@ namespace Ship_Game
         public bool IsCrippled => CrippledTurns > 0 || RecentCombat;
         public bool CanLaunchBuilderShips => !SpaceCombatNearPlanet && NumBuildShipsLaunched < NumBuildShipsCanLaunch;
         public int NumBuildShipsCanLaunchperTurn => NumBuildShipsCanLaunch / 4;
+        public bool IsMineable => Mining != null;
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
             => Troops.GroundStrengthOther(allButThisEmpire);
@@ -281,7 +283,7 @@ namespace Ship_Game
         }
 
         public Planet(int id, RandomBase random, SolarSystem system, float randomAngle, float ringRadius, string name,
-                      float sysMaxRingRadius, Empire owner, SolarSystemData.Ring data, float researchableMultiplier = 1) : this(id)
+                      float sysMaxRingRadius, Empire owner, SolarSystemData.Ring data, float exoticPlanetMultiplier = 1) : this(id)
         {
             SetSystem(system);
             OrbitalAngle = randomAngle;
@@ -313,10 +315,19 @@ namespace Ship_Game
                 if (type.Category == PlanetCategory.GasGiant)
                     scale += 1f;
 
-                if (!type.Habitable && random.RollDice(type.ResearchableChance * researchableMultiplier))
+                if (!Universe.P.DisableResearchStations 
+                    && !type.Habitable 
+                    && random.RollDice(type.ResearchableChance * exoticPlanetMultiplier))
                 {
                     SetResearchable(true, Universe);
                     //Log.Info($"{Name} can be researched");
+                }
+                else if (!Universe.P.DisableMiningOps 
+                    && type.Category == PlanetCategory.GasGiant 
+                    && random.RollDice(type.MiningChance * exoticPlanetMultiplier))
+                {
+                    Mining = new(this);
+                    //Log.Info($"{Name} can be mined");
                 }
 
                 InitNewMinorPlanet(random, type, scale);
@@ -845,7 +856,9 @@ namespace Ship_Game
 
             float maxRechargeRate = ShieldStrengthMax / (SpaceCombatNearPlanet ? 100 : 30);
             float rechargeRate    = (ShieldStrengthCurrent * 100 / ShieldStrengthMax).Clamped(1, maxRechargeRate);
-            ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate).Clamped(0, ShieldStrengthMax);
+            Owner.AddExoticConsumption(ExoticBonusType.ShieldRecharge, rechargeRate);
+            float rechargeExoticBonus = Owner.GetDynamicExoticBonusMuliplier(ExoticBonusType.ShieldRecharge);
+            ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate*rechargeExoticBonus).Clamped(0, ShieldStrengthMax);
         }
 
         private void UpdateColonyValue() => ColonyValue = Owner != null ? ColonyBaseValue(Owner) : 0;
@@ -1029,7 +1042,6 @@ namespace Ship_Game
         }
 
         // FB: note that this can be called multiple times in a turn - especially when selecting the planet or in colony screen
-        // FB: @todo - this needs refactoring - its too long
         public void UpdateIncomes()
         {
             if (Owner == null)

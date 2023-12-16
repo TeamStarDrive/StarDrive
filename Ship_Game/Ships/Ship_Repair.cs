@@ -2,6 +2,7 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace Ship_Game.Ships;
 
@@ -68,7 +69,9 @@ public partial class Ship
             }
 
             float totalRepair = repair + planetRepair;
-            ApplyAllRepair(totalRepair, repairInterval: timeSinceLastUpdate.FixedTime, repairLevel);
+            Loyalty.AddExoticConsumption(ExoticBonusType.RepairRate, totalRepair);
+            float exoticBonusMultiplier = Loyalty.GetDynamicExoticBonusMuliplier(ExoticBonusType.RepairRate);
+            ApplyAllRepair(totalRepair * exoticBonusMultiplier, repairInterval: timeSinceLastUpdate.FixedTime, repairLevel);
 
             if (AI.State == AIState.Flee && HealthPercent > ShipResupply.DamageThreshold(ShipData.ShipCategory))
                 AI.OrderAwaitOrders(); // Stop fleeing and get back into combat if needed
@@ -99,38 +102,27 @@ public partial class Ship
         LastDamagedTime = GameBase.Base.TotalElapsed;
     }
 
-    void ApplyRepairToShields(float repairPool)
-    {
-        float shieldRepair = 0.2f * repairPool;
-        if (ShieldMax - ShieldPower > shieldRepair)
-            ShieldPower += shieldRepair;
-        else
-            ShieldPower = ShieldMax;
-    }
-
     /// <param name="repairAmount">How many HP-s to repair</param>
     /// <param name="repairInterval">This repair event interval in seconds, important for correct UI estimation</param>
     /// <param name="repairLevel">Level which improves repair decisions</param>
     public void ApplyAllRepair(float repairAmount, float repairInterval, int repairLevel)
     {
-        if (HealthPercent > 0.9999999f || repairAmount.AlmostEqual(0))
+        if (HealthPercent >= 1)
         {
             CurrentRepairPerSecond = 0;
             return;
         }
 
         CurrentRepairPerSecond = repairAmount / repairInterval;
-
         int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
+        if (damagedModules == 0)
+            Health = HealthMax; // Align small diffs.
+
         for (int i = 0; repairAmount > 0 && i < damagedModules; ++i)
         {
             ShipModule moduleToRepair = GetModuleToRepair(repairLevel);
             repairAmount = moduleToRepair.Repair(repairAmount);
         }
-
-        ApplyRepairToShields(repairAmount);
-        if (HealthPercent > 0.999f)
-            RefreshMechanicalBoardingDefense();
     }
 
     public ShipModule GetModuleToRepair(int repairLevel)

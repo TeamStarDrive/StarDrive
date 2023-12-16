@@ -39,7 +39,10 @@ namespace Ship_Game
 
         bool ShouldBeFiltered(ShipModule m)
         {
-            return CanNeverFitModuleGrid(m) || m.IsObsolete(Player) && Screen.IsFilterOldModulesMode;
+            return CanNeverFitModuleGrid(m) 
+                || m.IsObsolete(Player) && Screen.IsFilterOldModulesMode
+                || m.IsMiningBay && Player.Universe.P.DisableMiningOps
+                || m.ResearchPerTurn > 0 && Player.Universe.P.DisableResearchStations;
         }
 
         readonly Map<int, ModuleSelectListItem> Categories = new Map<int, ModuleSelectListItem>();

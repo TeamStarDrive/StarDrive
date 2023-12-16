@@ -1248,9 +1248,7 @@ OpensTheShipsListWhich:
  SPA: "Abre la lista de naves de tu imperio"
 OpensPlanetReconnaissancePanel:
  Id: 254
- ENG: "Opens Planet Reconnaissance Panel"
- RUS: "Открывает список всех известных планет"
- SPA: "Abre una lista de todos los planetas conocidos"
+ ENG: "Opens Planet Array"
 ZoomsToYourCurrentlySelected:
  Id: 255
  ENG: "Zooms to your currently selected ship"
@@ -6502,7 +6500,7 @@ BB_Tech_Shipyards_Desc:
  SPA: "Son instalaciones orbitales dedicadas a la construcción de naves que nos permiten racionalizar nuestros procesos de producción y aportan grandes bonificaciones. Si se construyen en una colonia, se situarán en órbita geosincrónica. Estas estaciones también pueden edificarse en el espacio profundo. Encontrarás más detalles en el menú de ayuda."
 BB_Tech_Shipyards_Bonus:
  Id: 2037
- ENG: "This technology unlocks a unique \"Shipyard\" space station that boosts ship production by 25% at the planet where it is constructed. Each colony can support up to 2 Shipyards"
+ ENG: "This technology unlocks a unique \"Shipyard\" space station that boosts ship production by 25% at the planet where it is constructed. Each colony can support up to 3 Shipyards"
  RUS: "Эта технология разблокирует уникальную космическую станцию \"Верфь\", дающую 25% бонус к строительству кораблей на своей планете.  "
  SPA: "Esta tecnología desbloquea una estación espacial de tipo \"Astillero\" exclusiva que mejora la producción de naves en un 25% en el planeta donde se construya.  "
 BB_Tech_ShipboardMedicine_Name:
@@ -10345,7 +10343,7 @@ AutoPickResearchStation:
  ENG: "Auto Pick Research Station"          
 AutoPickResearchStationTip:
  Id: 4412 
- ENG: "This will pick the best Research Station with most Research generated and will upgrade to them whenever possible, if the auto build Research Stations checkbox is checked." 
+ ENG: "This will pick the best Research Station with most Research generated and will upgrade them whenever possible, if the auto build Research Stations checkbox is checked." 
 CannotBuildResearchStationTip:
  Id: 4413 
  ENG: "You do not have the required technology to build a Research Station, research relevant tech to gain Research Station schematics."  
@@ -10361,16 +10359,16 @@ ResearchStationResearchTimeStatTip:
 ResearchPerTurnModule:
  Id: 4417
  ENG: "Research p/turn"
-DesignIssueLowResaerchTimeTitle:
+DesignIssueLowResearchTimeTitle:
  Id: 4418
  ENG: "Low Research Time"
-DesignIssueLowResaerchTimeProblem:
+DesignIssueLowResearchTimeProblem:
  Id: 4419
  ENG: "This Research Station does not have enough production storage to produce Research for long periods. This might increase traffic of freighters to this Station."
-DesignIssueLowResaerchTimeRemidiation:
+DesignIssueLowResearchTimeRemidiation:
  Id: 4420
  ENG: "Add Storage or lower the amount of Research modules."
-DesignIssueLowResaerchTimeNotGood:
+DesignIssueLowResearchTimeNotGood:
  Id: 4421
  ENG: "Note that if you elected to automate Research Stations picking, this Station would not be used. It is too inefficient." 
 ResearchStationCanBePlaced:
@@ -10391,7 +10389,7 @@ ResearchPlanResearching:
 ResearchPlanIdle:
  Id: 4427
  ENG: "Offline - no Research topic" 
-ResearchPlanNoSupply:
+ExoticPlanNoSupply:
  Id: 4428
  ENG: "Offline - waiting for supplies" 
 ResearchStationDeployed:
@@ -10458,6 +10456,267 @@ DesignIssueConstructorCostProblem:
 DesignIssueConstructorCostRemidiation:
  Id: 4448
  ENG: "You my want to lower the cost of this constructor. Excess production cost added to any orbital production cost when this constructor is selected:"     
+RefinningPerTurnStat:
+ Id: 4449
+ ENG: "Refining Per Turn"      
+RefiningPerTurnStatTip:
+ Id: 4450
+ ENG: "Inticates how much Refining this station can handle per turn. Some Exotic resources are easier or harder to refine. You will see this Refine Ration in the Planet Info Screen of Mineable planets."       
+MiningStationRefiningTimeStat:
+ Id: 4451 
+ ENG: "Processing Turns"   
+MiningStationRefiningTimeStatTip:
+ Id: 4452
+ ENG: "Number of turns this Station can refine raw exotic resources until Food stocks are depleted."   
+RefiningModule:
+ Id: 4453
+ ENG: "Refining"    
+MiningStationsCanBePlaced:
+ Id: 4454
+ ENG: "Indicates that Mining Stations can be deployed in orbit of this planet."   
+MiningStationBuiltPlanetNotify: 
+ Id: 4455
+ ENG: "(Mining Station) was\ndeployed in orbit of"  
+MiningPlanIdle:
+ Id: 4456
+ ENG: "Offline - waiting for mining ships or Empire storage full"  
+MiningPlanRefining:
+ Id: 4457
+ ENG: "Refining Exotic Resource"  
+DeployMiningStation:
+ Id: 4458 
+ ENG: "Deploy Mining Station"  
+DeployMiningStationTip:
+ Id: 4459 
+ ENG: "Deploy Mining Station in this planet's orbit. Up to 4 Mining Stations can be deployed And there can be only one owner of the Mining Ops per planet."         
+CannotBuildMiningStationTip:
+ Id: 4460 
+ ENG: "You do not have the required technology to start Mining Operations, research relevant tech to gain Mining Station schematics."   
+CannotDeployMiningStationNotOwnerTip:
+ Id: 4461 
+ ENG: "You Cannot start Mining Operations here since there is already an owner for these ops."   
+DesignIssueLowRefiningTimeTitle:
+ Id: 4462
+ ENG: "Low Refining Time"
+DesignIssueLowRefiningTimeProblem:
+ Id: 4463
+ ENG: "This Mining Station does not have enough consumption storage to refine exotic resources for long periods. Freighters traffic to this Station might increase. Mining Stations use 50% of the storage for consumption and the rest for storing raw exotic resources."
+DesignIssueLowRefiningTimeRemidiation:
+ Id: 4464
+ ENG: "Add Storage or lower the amount of Refining modules."
+DesignIssueLowRefiningTimeNotGood:
+ Id: 4465
+ ENG: "Note that if you elected to automate mining Stations picking, this Station would not be used. It is too inefficient." 
+AutoBuildMiningStation:
+ Id: 4466 
+ ENG: "Auto Build Mining Stations"          
+AutoBuildMiningStationTip:
+ Id: 4467 
+ ENG: "This will auto build Mining stations for you around relevant planets. It will use whatever Mining Station you pick in the dropdown list below (visible if your empire has access to Mining station technology). This will also upgrade already existing Stations to the new station you have selected."
+AutoPickMiningStation:
+ Id: 4468 
+ ENG: "Auto Pick Mining Stations"          
+AutoPickMiningStationTip:
+ Id: 4469 
+ ENG: "This will pick the best Mining Station with most Refining generated and will upgrade them whenever possible, if the auto build Mining Stations checkbox is checked."   
+MiningPlanetStatus:
+ Id: 4470 
+ ENG: "Mining Exotic Resource"    
+MiningStationsOpsOwned:
+ Id: 4471 
+ ENG: "Mining Station operations here are owned by this empire"     
+ResourceName:
+ Id: 4472 
+ ENG: "Resource"      
+AbortDeployent:
+ Id: 4473 
+ ENG: "Abort Deployment"       
+MiningOpsOwnedByAnother:
+ Id: 4474 
+ ENG: "Mining Ops around this planet are owned by"        
+CannotBuildMiningStationTip2:
+ Id: 4475
+ ENG: "Mining Station Tech not available yet."    
+OpensExoticPlanetsPanel:
+ Id: 4476
+ ENG: "Opens Exotic Systems Array" 
+ExoticResourcesMenu:
+ Id: 4477
+ ENG: "Exotic Resources"  
+ExoticResourcesBonus:   
+ Id: 4478
+ ENG: "Bonus"  
+ExoticResourcesName:
+ Id: 4479
+ ENG: "Resource Name"   
+ExoticResourcesOutput:
+ Id: 4480
+ ENG: "Output"    
+ExoticRefiningVsConsumption:
+ Id: 4481
+ ENG: "Refining/Consumption"     
+ExoticRefiningMaxPotential:
+ Id: 4482
+ ENG: "Max"      
+ExoticNumOps:
+ Id: 4483
+ ENG: "Ops"       
+EmpireExoticStorage:
+ Id: 4484
+ ENG: "Empire Exotic Storage Modifier"
+EmpireMiningSpeed:
+ Id: 4485
+ ENG: "Mining Speed Modifier"
+EmpireRefiningEfficiency:
+ Id: 4486
+ ENG: "Refining Efficiency Modifier" 
+DisableResearchStationsName: 
+ Id: 4487
+ ENG: "Disable Research Stations" 
+DisableResearchStationsTip: 
+ Id: 4488
+ ENG: "The game will not have researchable planets and therefore, no research stations."  
+DisableMiningOpsName: 
+ Id: 4489
+ ENG: "Disable Mining Ops" 
+DisableMiningOpsTip: 
+ Id: 4490
+ ENG: "The game will not have mineable planets and therefore, no Mining Ops."   
+ExoticResourceBonusTip: 
+ Id: 4491
+ ENG: "Current bonus your empire gets per exotic resource with colosr coding:\nGold: The maximum bonus was reached.\nGreen: The bonus rate increased from last turn.\nRed: The bonus rate decreased from last turn.\nWhite: Unchanged bonus from last turn.\nGray: bonus is not yet possible to achieve."    
+ExoticResourceOutputTip: 
+ Id: 4492
+ ENG: "Usage of the Empire's current Mining Ops. Usually the output becomes lower when storages are full and your Mining Station can refine more resources than are actually needed."     
+ExoticResourceRefineConsumeTip: 
+ Id: 4493
+ ENG: "Refining rate vs. Consumption rate of the Exotic resource. Excess Refining is transferred to storage and when the storage is full, output decreases until it matches the needed consumption."       
+ExoticResourceMaxRefineTip: 
+ Id: 4494
+ ENG: "Maximum refining rate of the Exotic resource per turn. When more Mining Stations are added, the maximum rate is increased."        
+ExoticResourceOpsTip: 
+ Id: 4495
+ ENG: "Active Mining stations vs. total Mining stations vs. Mining stations being under construction / enroute to deployement. Mining Stations become inactive if there is no food for the miners or if no raw resource is yet brought by the mining ships to the station."         
+ExoticResourceStorageTip: 
+ Id: 4496
+ ENG: "This shows the storage usage for this resource type. Imperial Storage is based on the average storage capacity of your colonies."          
+MiningStationNotOpsOwner: 
+ Id: 4497
+ ENG: "Ops Disrupted. We are not Owners if this Mining Ops"           
+OpensExoticPlanetsPanelDisabled: 
+ Id: 4498
+ ENG: "Opens Exotic Systems/Planets, but these features are disabled in this game."            
+OpensEmpireExoticBonuses:
+ Id: 4499
+ ENG: "The Empire Exotic Bonuses panel specifies all Exotic Resources bonuses and Mining Ops status"            
+OpensEmpireExoticBonusesDisabled: 
+ Id: 4500
+ ENG: "Mining Ops are disabled in this game.\nThe Empire Exotic Bonuses panel specifies all Exotic Resources bonuses and Mining Ops status"            
+MineablePlanetNotification: 
+ Id: 4501
+ ENG: "contains an exotic substance which can be mined,\nproviding we have a proper space mining tech researched."             
+MineableRichnessTip: 
+ Id: 4502
+ ENG: "Exotic Richness indicates how easily mining ships can harvest the gas. The number is the amount of resource a mining ship mines per turn. The mining pace might be improved with new tech."              
+BB_MiningSpeedTech:
+ Id: 4924
+ ENG: "Mining Ships Speed"
+BB_MiningSpeedTechDescr:
+ Id: 4925
+ ENG: "Increase our Mining Ships mining speed"
+BB_MiningSpeedTechDescrBonus:
+ Id: 4926
+ ENG: "20% Empire-wide increase in mining speeds" 
+BB_RefiningEfficiencyTech:
+ Id: 4927
+ ENG: "Refining Efficiency"
+BB_RefiningEfficiencyTechDescr:
+ Id: 4928
+ ENG: "Increase our Exotic Resources Refining Efficiency"
+BB_RefiningEfficiencyTechDescrBonus:
+ Id: 4929
+ ENG: "20% Empire-wide increase in Refining Efficiency"  
+BB_ExoticStorageTech:
+ Id: 4930
+ ENG: "Exotic Storage"
+BB_ExoticStorageTechDescr:
+ Id: 4931
+ ENG: "Increase our empire storage capacity for each exotic resource"
+BB_ExoticStorageTechDescrBonus:
+ Id: 4932
+ ENG: "20% Empire-wide increase in Exotic Storage" 
+ExoticResourceRefinedPulsefieldName:
+ Id: 4933 
+ ENG: "Pulsefield"    
+ExoticResourceRefinedLuxariumName:
+ Id: 4934 
+ ENG: "Luxarium"    
+ExoticResourceRefinedFortifumeName:
+ Id: 4935 
+ ENG: "Fortifume"    
+ExoticResourceRefinedEnergonName:
+ Id: 4936 
+ ENG: "Energon"    
+ExoticResourceRefinedNanoName:
+ Id: 4937 
+ ENG: "Nano"    
+ExoticResourceRefinedAetheriumName:
+ Id: 4938 
+ ENG: "Aetherium"     
+ExoticResourceAetheriumName:
+ Id: 4939 
+ ENG: "Aetherium Gas"    
+ExoticResourceAetheriumDesc:
+ Id: 4940 
+ ENG: "Refined Aetherium can increase Warp Speeds by up to 50%."          
+ExoticResourceNanoGasName:
+ Id: 4941 
+ ENG: "Nano Gas"    
+ExoticResourceNanoGasDesc:
+ Id: 4942 
+ ENG: "Refined Nano Gas can increase Repair rate by up to 100%."         
+ExoticResourceEnergonName:
+ Id: 4943 
+ ENG: "Energon Gas"    
+ExoticResourceEnergonDesc:
+ Id: 4944 
+ ENG: "Refined Energon can increase Production output by up to 25%."        
+ExoticResourceFortifumeName:
+ Id: 4945 
+ ENG: "Fortifume Gas"    
+ExoticResourceFortifumeDesc:
+ Id: 4946 
+ ENG: "Refined Fortifume can decrease damage dealt to your ship modules by up to 50%, the damage reduction is applied if the module was actually hit (projectile was not deflected)."       
+ExoticResourceLuxariumName:
+ Id: 4947 
+ ENG: "Luxarium Gas"    
+ExoticResourceLuxariumDesc:
+ Id: 4948 
+ ENG: "Refined Luxarium can increase the rate of Credits added to your empire per turn by 50%"      
+ColonistsCargName:
+ Id: 4949 
+ ENG: "Colonists"      
+ProductionCargoDesc:
+ Id: 4950 
+ ENG: "Parts, tools, machinery, prefabs, and other widgets that are critical to the infrastructure of the galaxy."     
+FoodCargoDesc:
+ Id: 4951 
+ ENG: "This food is stored in a manner that makes it essentially non-perishable. It may not be the most palatable, but it will provide all of the basic nutrition needed to survive."       
+ColonistsCargoDesc:
+ Id: 4952 
+ ENG: "These desperate souls are neatly packed and stacked in their stasis pods for their long journey through space. Because individuals in stasis do not require sustenance, room to move about, or other life support, this is the preferred method of travel for the budget-minded traveler. They are, for all intents and purposes, just another piece of cargo rather than an additional mouth to feed.  This makes stasis travel very affordable."       
+ExoticResourcePulseFieldName:
+ Id: 4953 
+ ENG: "Pulsefield Gas"    
+ExoticResourcePulseFieldDesc:
+ Id: 4954 
+ ENG: "Refined Pulsefield Gas can enhance the recharge of ship and planetary shields by up to 50%"     
+ProcessingUnitName:
+ Id: 4955 
+ ENG: "Processing Unit"   
+ProcessingUnitDesc:
+ Id: 4956
+ ENG: "Processing Unit can transfer raw Exotic Resources to refined products which gives empire wide benefits. It also contains a hangar bay for a mining ship which delivers the raw resource to the processing unit."    
 Trait_Research_Collaborators_Name: 
  Id: 4957
  ENG: "Research Collaborators"     
@@ -10481,10 +10740,10 @@ Trait_OrbitalAversion_Desc:
  ENG: "Your people dislike stationary Space structures and believe they litter their colonies' skies although they do acknowledge their necessity . Their Constructors build orbital structures 50% slower."      
 Trait_OrbitalConstructors_Name:
  Id: 4964
- ENG: "Orbital Constructors"    
- Id: 4965
+ ENG: "Orbital Builders"    
 Trait_OrbitalConstructors_Desc:
- ENG: "Orbital Constructors enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
+ Id: 4965
+ ENG: "Orbital Builders enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
 TraitSalvagersName:
   Id: 4966
   ENG: "Salvagers"   

@@ -741,6 +741,7 @@ Types:
     Scale: 2.5
     MoonTypes: [Barren,Desert,Volcanic,Ice]
     ResearchableChance: 5 # This only works on non habitable planets
+    MiningChance: 20 # This only works for gas giants
 
   - PlanetType:
     Id: 6 # Blood Red Giant
@@ -757,6 +758,7 @@ Types:
     Scale: 2.5
     MoonTypes: [Barren,Desert,Volcanic,Ice]
     ResearchableChance: 5 # This only works on non habitable planets
+    MiningChance: 20 # This only works for gas giants
 
   - PlanetType:
     Id: 10 # Yellow Giant
@@ -773,6 +775,7 @@ Types:
     Scale: 2.5
     MoonTypes: [Barren,Desert,Volcanic,Ice]
     ResearchableChance: 5 # This only works on non habitable planets
+    MiningChance: 20 # This only works for gas giants
 
   - PlanetType:
     Id: 12 # Pink Giant
@@ -789,6 +792,7 @@ Types:
     Scale: 2.5
     MoonTypes: [Barren,Desert,Volcanic,Ice]
     ResearchableChance: 5 # This only works on non habitable planets
+    MiningChance: 20 # This only works for gas giants
 
   - PlanetType:
     Id: 15 # Polyphemus, Uranus, Cyan/LightBlue giant
@@ -805,6 +809,7 @@ Types:
     Scale: 2.5
     MoonTypes: [Barren,Desert,Volcanic,Ice]
     ResearchableChance: 5 # This only works on non habitable planets
+    MiningChance: 20 # This only works for gas giants
 
   - PlanetType:
     Id: 26 # Neptune, Blue giant
@@ -821,6 +826,7 @@ Types:
     Scale: 2.5
     MoonTypes: [Barren,Desert,Volcanic,Ice]
     ResearchableChance: 5 # This only works on non habitable planets
+    MiningChance: 20 # This only works for gas giants
 
   - PlanetType:
     Id: 28 # Jupiter, striped beige giant
@@ -837,3 +843,4 @@ Types:
     Scale: 2.5
     MoonTypes: [Barren,Desert,Volcanic,Ice]
     ResearchableChance: 5 # This only works on non habitable planets
+    MiningChance: 20 # This only works for gas giants

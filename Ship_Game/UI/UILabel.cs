@@ -79,6 +79,7 @@ namespace Ship_Game
         public TextAlign TextAlign = TextAlign.Default;
 
         public LocalizedText Tooltip;
+        public float ToolTipWidth = ToolTip.DefaultWidth;
 
         public LocalizedText Text
         {
@@ -174,6 +175,13 @@ namespace Ship_Game
             : this(pos, text, font)
         {
             Color = color;
+        }
+
+        public UILabel(Vector2 pos, in LocalizedText text, Graphics.Font font, Color color, LocalizedText tooltip)
+            : this(pos, text, font)
+        {
+            Color = color;
+            Tooltip = tooltip;
         }
 
         public UILabel(Vector2 pos, in LocalizedText text, Graphics.Font font)
@@ -310,7 +318,7 @@ namespace Ship_Game
         {
             bool hit = HitTest(input.CursorPosition);
             if (hit && Tooltip.IsValid)
-                ToolTip.CreateTooltip(Tooltip);
+                ToolTip.CreateTooltip(Tooltip, ToolTipWidth);
 
             if (hit && OnClick != null)
             {

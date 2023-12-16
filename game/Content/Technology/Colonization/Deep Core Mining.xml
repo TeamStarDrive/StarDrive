@@ -10,6 +10,12 @@
     <LeadsToTech>
       <UID>AdvancedXenoMine</UID>
     </LeadsToTech>
+    <LeadsToTech>
+      <UID>MiningSpeed</UID>
+    </LeadsToTech>	
+    <LeadsToTech>
+      <UID>RefiningEfficiency</UID>
+    </LeadsToTech>		
   </LeadsTo>
   <ModulesUnlocked />
   <BuildingsUnlocked>

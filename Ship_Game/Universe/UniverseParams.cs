@@ -63,7 +63,7 @@ public class UniverseParams
     [StarData(DefaultValue=true)] public bool PlanetsScreenHideInhospitable = true;
     [StarData(DefaultValue=true)] public bool DisableInhibitionWarning = true;
     [StarData(DefaultValue=false)] public bool EnableStarvationWarning = false;
-    [StarData(DefaultValue = true)] public bool AllowPlayerInterTrade  = true;
+    [StarData(DefaultValue=true)] public bool AllowPlayerInterTrade  = true;
     [StarData] public bool SuppressOnBuildNotifications;
     [StarData] public bool PlanetScreenHideOwned;
     [StarData] public bool ShipListFilterPlayerShipsOnly;
@@ -78,6 +78,8 @@ public class UniverseParams
     [StarData] public bool DisableAlternateAITraits;
     [StarData] public bool DisablePirates;
     [StarData] public bool FixedPlayerCreditCharge;
+    [StarData] public bool DisableResearchStations;
+    [StarData] public bool DisableMiningOps;
 
     public bool DebugDisableShipLaunch; // Only for testing
 

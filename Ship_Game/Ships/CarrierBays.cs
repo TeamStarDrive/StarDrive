@@ -39,6 +39,7 @@ namespace Ship_Game.Ships
 
         public const float DefaultHangarRange = 7500;
         public SupplyShuttles SupplyShuttles;
+        public MiningBays MiningBays { get; private set; }
         public float HangarRange => HasActiveHangars ? DefaultHangarRange : 0;
         public bool IsPrimaryCarrierRoleForLaunchRange => 
                                             HasActiveHangars &&
@@ -84,6 +85,9 @@ namespace Ship_Game.Ships
             Owner                   = owner;
             SupplyShuttles          = new SupplyShuttles(Owner);
             TroopTactics            = new AssaultShipCombat(owner);
+
+            if (owner?.IsMiningStation == true)
+                MiningBays = new MiningBays(Owner, slots);
         }
 
         [StarDataDeserialized]
@@ -96,9 +100,9 @@ namespace Ship_Game.Ships
         public static CarrierBays Create(Ship owner, ShipModule[] slots)
         {
             RoleName role = owner.ShipData.Role;
-            if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
-                            || m.ModuleType == ShipModuleType.Transporter)
-                            || role == RoleName.troop)
+            if (slots.Any(m => m.Is(ShipModuleType.Hangar)
+                          || m.ModuleType == ShipModuleType.Transporter)
+                          || role == RoleName.troop)
             {
                 return new CarrierBays(owner, slots);
             }
@@ -123,9 +127,11 @@ namespace Ship_Game.Ships
             AllSupplyBays = Empty<ShipModule>.Array;
             AllFighterHangars = Empty<ShipModule>.Array;
             AllTransporters = Empty<ShipModule>.Array;
+            MiningBays?.Dispose();
             SupplyShuttles?.Dispose();
             SupplyShuttles = null;
             TroopTactics   = null;
+            MiningBays     = null;
         }
 
         // aggressive dispose looks to cause a crash here. 
@@ -601,14 +607,18 @@ namespace Ship_Game.Ships
             if (hangar.TryGetHangarShip(out _))
                 return false;
 
-            if (hangar.IsSupplyBay || hangar.IsTroopBay ||
-                hangar.DynamicHangar == DynamicHangarOptions.Static &&
-                empire.CanBuildShip(hangar.HangarShipUID))
-            {
+            if (hangar.IsSupplyBay)
+                shipName = empire.GetSupplyShuttleName();
+            else if (hangar.IsTroopBay)
+                shipName = empire.GetAssaultShuttleName();
+            else if  (hangar.IsMiningBay)
+                shipName = empire.GetMiningShipName();
+            else if (hangar.DynamicHangar == DynamicHangarOptions.Static && empire.CanBuildShip(hangar.HangarShipUID))
                 shipName = hangar.HangarShipUID;
-                return true;
-            }
 
+            if (shipName.NotEmpty())
+                return true;
+            
             // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
             shipName = GetDynamicShipName(hangar, empire);
             if (shipName.NotEmpty())
