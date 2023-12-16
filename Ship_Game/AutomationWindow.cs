@@ -31,6 +31,7 @@ namespace Ship_Game
             Screen = screen;
             const int windowWidth = 220;
             Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 660);
+            CanEscapeFromScreen = false;
         }
 
         class CheckedDropdown : UIElementV2
