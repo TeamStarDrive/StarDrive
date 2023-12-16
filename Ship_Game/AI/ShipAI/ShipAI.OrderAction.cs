@@ -636,6 +636,17 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.BuildOrbital, targetPlanet, AIState.Ferrying, targetConstructor);
         }
 
+        public void OrderMinePlanet(Planet targetPlanet)
+        {
+            ClearOrders();
+            IgnoreCombat = true;
+            float distance = targetPlanet.Random.Float(targetPlanet.Mining.MinMiningRadius,
+                                                       targetPlanet.Mining.MaxMiningRadius);
+
+            Vector2 pos = targetPlanet.Position.GenerateRandomPointOnCircle(distance, targetPlanet.Random);
+            AddShipGoal(Plan.MinePlanet, AIState.Mining, pos, targetPlanet, true);
+        }
+
         public void OrderSystemDefense(SolarSystem system)
         {
             ShipGoal goal = OrderQueue.PeekLast;

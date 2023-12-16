@@ -73,16 +73,18 @@ namespace Ship_Game
 
         bool HandleInputNotLookingAtPlanet(InputState input)
         {
-            if (input.DeepSpaceBuildWindow) InputOpenDeepSpaceBuildWindow();
-            if (input.FTLOverlay)       ToggleUIComponent("sd_ui_accept_alt3", ref ShowingFTLOverlay);
-            if (input.RangeOverlay)     ToggleUIComponent("sd_ui_accept_alt3", ref ShowingRangeOverlay);
+            if (input.DeepSpaceBuildWindow)       InputOpenDeepSpaceBuildWindow();
+            if (input.FTLOverlay)                 ToggleUIComponent("sd_ui_accept_alt3", ref ShowingFTLOverlay);
+            if (input.RangeOverlay)               ToggleUIComponent("sd_ui_accept_alt3", ref ShowingRangeOverlay);
             if (input.AutomationWindow && !Debug) aw.ToggleVisibility();
+            if (input.ExoticBonusesWindow)        ExoticBonusesWindow.ToggleVisibility();
             if (input.PlanetListScreen)  ScreenManager.AddScreen(new PlanetListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
+            if (input.ExoticListScreen)  ScreenManager.AddScreen(new ExoticSystemsListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.ShipListScreen)    ScreenManager.AddScreen(new ShipListScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.FleetDesignScreen) ScreenManager.AddScreen(new FleetDesignScreen(this, EmpireUI, "sd_ui_accept_alt3"));
             if (input.ZoomToShip) InputZoomToShip();
-            if (input.ZoomOut) InputZoomOut();
-            if (input.Escaped) DefaultZoomPoints();
+            if (input.ZoomOut)    InputZoomOut();
+            if (input.Escaped)    DefaultZoomPoints();
             if (input.Tab && !input.LeftCtrlShift) ShowShipNames = !ShowShipNames;
 
             HandleCameraZoomScrolling(input);
@@ -390,7 +392,8 @@ namespace Ship_Game
 
             // create new fleet
             Fleet fleet = CreateNewFleet(index, SelectedShipList);
-            SetSelectedFleet(fleet);
+            if (fleet != null) 
+                SetSelectedFleet(fleet);
         }
 
         void AddShipsToExistingFleet(Fleet selectedFleet, int index)
@@ -405,7 +408,7 @@ namespace Ship_Game
             if (selectedFleet?.Ships.Count > 0)
             {
                 // create a list of ships that are not part of the target fleet.
-                var newShips = SelectedShipList.Filter(s => s.Fleet != selectedFleet);
+                var newShips = SelectedShipList.Filter(s => s.Fleet != selectedFleet && s.CanBeAddedToFleets());
                 if (newShips.Length == 0) // nothing to add
                 {
                     GameAudio.NegativeClick();
@@ -1056,7 +1059,7 @@ namespace Ship_Game
 
         Fleet CreateNewFleet(int fleetId, IReadOnlyList<Ship> ships)
         {
-            if (ships.Count == 0)
+            if (ships.Count == 0 || !ships.Any(s => s.CanBeAddedToFleets()))
                 return null;
 
             Fleet newFleet = Player.CreateFleet(fleetId, null);
@@ -1086,7 +1089,7 @@ namespace Ship_Game
         // during reassignment
         void ClearShipFleetsWithDataNodes(IReadOnlyList<Ship> ships)
         {
-            foreach (Ship ship in ships)
+            foreach (Ship ship in ships.Filter(s => s.CanBeAddedToFleets()))
             {
                 // remove the DataNode
                 ship.Fleet?.DataNodes.RemoveFirst(n => n.Ship == ship);

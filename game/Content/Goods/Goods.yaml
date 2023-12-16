@@ -1,0 +1,106 @@
+# This file is a list of all cargo which can be transported in freighters / mining ships / mining station etc.
+# UID - this is also the texture file name in the Goods folder (textures directory)
+# RefiningRatio - how much net resource is refined per refining point
+# Weight - this is how common it is to find this resource - relevant for mining ops
+# IsGasGiantMineable - this determines if this resource can be found on gas giants. At least 1 of the resources should be true else the game will throw exception
+# MaxBonus - max empire bonus modifier given for the empire (0.25 will be C x 1.25)
+# ConsumptionMultiplier - adjust calculations of the empire consumption of this resource (default is 1)
+Good:
+  UID: Production
+  RefiningRatio: 1
+  MaxRichness: 6
+  NameIndex: 162
+  DescriptionIndex: 4950
+  Weight: 1
+  ExoticBonusType: None
+  IsGasGiantMineable: false
+Good:
+  UID: Food
+  RefiningRatio: 1
+  MaxRichness: 6
+  NameIndex: 161
+  DescriptionIndex: 4951
+  Weight: 1
+  ExoticBonusType: None
+  IsGasGiantMineable: false  
+Good:
+  UID: Colonists_1000
+  RefiningRatio: 1
+  MaxRichness: 6
+  NameIndex: 4949
+  DescriptionIndex: 4952
+  Weight: 1
+  ExoticBonusType: None
+  IsGasGiantMineable: false    
+Good:
+  UID: Pulsefield
+  RefiningRatio: 0.5
+  MaxRichness: 6
+  NameIndex: 4953
+  RefinedNameIndex: 4933
+  DescriptionIndex: 4954
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: ShieldRecharge
+  MaxBonus: 0.5
+  ConsumptionMultiplier: 0.01
+Good:
+  UID: Luxarium
+  RefiningRatio: 0.5
+  MaxRichness: 6
+  NameIndex: 4947
+  RefinedNameIndex: 4934  
+  DescriptionIndex: 4948
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: Credits  
+  MaxBonus: 0.5
+  ConsumptionMultiplier: 0.1
+Good:
+  UID: Fortifume
+  RefiningRatio: 0.5
+  MaxRichness: 6
+  NameIndex: 4945
+  RefinedNameIndex: 4935  
+  DescriptionIndex: 4946
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: DamageReduction  
+  MaxBonus: 0.5  
+  ConsumptionMultiplier: 0.001
+Good:
+  UID: Energon
+  RefiningRatio: 0.5
+  MaxRichness: 6
+  NameIndex: 4943
+  RefinedNameIndex: 4936
+  DescriptionIndex: 4944
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: Production  
+  MaxBonus: 0.25  
+  ConsumptionMultiplier: 0.1  
+Good:
+  UID: NanoGas
+  RefiningRatio: 0.5
+  MaxRichness: 6
+  NameIndex: 4941
+  RefinedNameIndex: 4937  
+  DescriptionIndex: 4942
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: RepairRate  
+  MaxBonus: 1  
+  ConsumptionMultiplier: 0.001    
+Good:
+  UID: Aetherium
+  RefiningRatio: 0.5
+  MaxRichness: 6
+  NameIndex: 4939
+  RefinedNameIndex: 4938
+  DescriptionIndex: 4940
+  Weight: 5
+  IsGasGiantMineable: true  
+  ExoticBonusType: WarpSpeed  
+  MaxBonus: 1  
+  ConsumptionMultiplier: 0.0001    

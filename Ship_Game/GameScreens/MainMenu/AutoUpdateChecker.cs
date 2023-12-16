@@ -66,11 +66,15 @@ public class AutoUpdateChecker : UIElementContainer
             Info = info;
             IsMod = isMod;
 
-            string text = "New Version\n" + info.Name;
+            string text = "New Version!\n" + info.Name;
             UILabel textLabel = base.Add(new UILabel(text, Fonts.Pirulen16));
             textLabel.TextAlign = TextAlign.HorizontalCenter;
             textLabel.AxisAlign = Align.CenterLeft;
-            textLabel.SetLocalPos(132, 0);
+            textLabel.SetLocalPos(125, 0);
+            UILabel textLabelClick = base.Add(new UILabel("(click to update)", Fonts.Pirulen12));
+            textLabelClick.TextAlign = TextAlign.HorizontalCenter;
+            textLabelClick.AxisAlign = Align.CenterLeft;
+            textLabelClick.SetLocalPos(125, 30);
 
             SubTexture portraitTex = isMod 
                 ? GlobalStats.ActiveMod?.LoadPortrait(Screen)

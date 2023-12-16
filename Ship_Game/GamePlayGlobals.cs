@@ -28,6 +28,7 @@ public class GamePlayGlobals
     [StarData] public int CostBasedOnSizeThreshold = 2500;  // Allow tuning the change up/down
     [StarData] public float HangarCombatShipCostMultiplier = 1;
     [StarData] public float ResearchStationProductionPerResearch = 2f; // Production consumed per 1 Research point
+    [StarData] public float MiningStationFoodPerOneRefining = 1; // Food consumed per 1 refining point
 
     // required empire pop ratio before expansion is considered
     [StarData] public float RequiredExpansionPopRatio = 0.2f;
@@ -70,6 +71,8 @@ public class GamePlayGlobals
     [StarData] public int BuilderShipConstructionAdded = 100;
     // How much extra research the empire gets from allies
     [StarData] public float ResearchBenefitFromAlliance = 0.1f;
+    // How much exotic resource storage an empire has per resource based on all planet normal storage
+    [StarData] public float ExoticRatioStorage = 0.1f;
 
     // feature flags
     [StarData] public bool UseHullBonuses;

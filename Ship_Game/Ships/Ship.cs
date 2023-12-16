@@ -158,6 +158,7 @@ namespace Ship_Game.Ships
         public int TrackingPower;
         public int TargetingAccuracy;
         public float ResearchPerTurn;
+        public float TotalRefining;
 
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
@@ -169,6 +170,7 @@ namespace Ship_Game.Ships
 
         public bool IsLaunching => LaunchShip != null;
 
+        public bool IsMiningShip            => Loyalty.data.DefaultMiningShip == Name || Empire.DefaultMiningShipName == Name;
         public bool IsDefaultAssaultShuttle => Loyalty.data.DefaultAssaultShuttle == Name || Empire.DefaultBoardingShuttleName == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (Loyalty.data.DefaultTroopShip == Name || DesignRole == RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
@@ -177,6 +179,8 @@ namespace Ship_Game.Ships
         public bool IsBomber                => ShipData.IsBomber;
         public bool IsSubspaceProjector     => ShipData.IsSubspaceProjector;
         public bool IsResearchStation       => ShipData.IsResearchStation;
+        public bool IsMiningStation         => ShipData.IsMiningStation;
+
         public bool HasBombs                => BombBays.Count > 0;
         public bool IsEmpireSupport         => DesignRoleType == RoleType.EmpireSupport;
         public bool Resupplying             => AI.State == AIState.Resupply || AI.State == AIState.ResupplyEscort;
@@ -295,6 +299,15 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool CanBeAddedToFleets()
+        {
+            return !IsPlatformOrStation 
+                   && !IsSupplyShuttle 
+                   && !IsMiningShip 
+                   && !IsConstructor 
+                   && DesignRole != RoleName.drone;
+        }
+
         public bool InsideAreaOfOperation(Vector2 pos)
         {
             if (AreaOfOperation.IsEmpty)
@@ -327,7 +340,7 @@ namespace Ship_Game.Ships
         {
             if (Loyalty.WeArePirates)
             {
-                if (IsSubspaceProjector || IsResearchStation)
+                if (IsSubspaceProjector || IsResearchStation || IsMiningStation)
                     ScuttleTimer = 20;
                 else
                     AI.OrderPirateFleeHome();
@@ -1128,7 +1141,7 @@ namespace Ship_Game.Ships
 
         void RecallHangarShipIfTooFarFromCarrier()
         {
-            if (IsHangarShip && !InCombat && Position.OutsideRadius(Mothership.Position, Mothership.SensorRange))
+            if (IsHangarShip && !InCombat && !IsMiningShip && Position.OutsideRadius(Mothership.Position, Mothership.SensorRange))
                 AI.BackToCarrier();
         }
 
@@ -1193,6 +1206,9 @@ namespace Ship_Game.Ships
                         m.UpdateEveryFrame(a);
                         if (enableVisualizeDamage && m.CanVisualizeDamage)
                             m.UpdateDamageVisualization(timeStep, a.ParentScale, visible);
+
+                        if (visible && IsMiningStation)
+                            Carrier.MiningBays.UpdateMiningVisuals(timeStep);
                     }
                 }
                 else
@@ -1257,7 +1273,7 @@ namespace Ship_Game.Ships
                 ReturnHome();
 
             // Ship Repair
-            if (HealthPercent < 0.9999999f)
+            if (HealthPercent < 1)
                 Repair(timeSinceLastUpdate);
 
             UpdateResupply();
@@ -1276,8 +1292,7 @@ namespace Ship_Game.Ships
                 return;
             
             Carrier.SupplyShuttles.ProcessSupplyShuttles(AI.GetSensorRadius());
-
-            ResupplyReason resupplyReason = Supply.Resupply();
+                ResupplyReason resupplyReason = Supply.Resupply();
             if (resupplyReason != ResupplyReason.NotNeeded)
             {
                 if (Mothership?.Active == true)
@@ -1492,9 +1507,9 @@ namespace Ship_Game.Ships
             if (Dying && !ReallyDie)
                 return; // planet crash or tumble
 
+            QueueTotalRemoval(); // sets Active=false, remove thether and from orbital stations
             OnShipDie(pSource);
             Mothership?.OnLaunchedShipDie(this);
-            QueueTotalRemoval(); // sets Active=false
             
             bool visible = IsVisibleToPlayer;
             Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);
@@ -1784,7 +1799,7 @@ namespace Ship_Game.Ships
             int offensiveArea = weaponArea + hangarArea;
             if (offensiveArea == 0
                 && (IsDefaultTroopShip || IsSupplyShuttle || DesignRole == RoleName.scout
-                    || IsSubspaceProjector || IsFreighter || IsConstructor))
+                    || IsSubspaceProjector || IsFreighter || IsConstructor || IsMiningShip))
             {
                 return 0;
             }

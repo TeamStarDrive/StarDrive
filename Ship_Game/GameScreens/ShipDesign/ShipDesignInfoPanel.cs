@@ -120,6 +120,10 @@ namespace Ship_Game.GameScreens.ShipDesign
             Val(Ds.ResearchTime, GT.ResearchStationResearchTimeStat, GT.ResearchStationResearchTimeStatTip, 
                 Tint.No, Color.White, vis: Ds.ProducesResearch, col: ColGreater(ShipResupply.NumTurnsForGoodResearchSupply));
 
+            ValNZ(() => S.TotalRefining, GT.RefinningPerTurnStat, GT.RefiningPerTurnStatTip);
+            Val(Ds.RefiningTime, GT.MiningStationRefiningTimeStat, GT.MiningStationRefiningTimeStatTip,
+                Tint.No, Color.White, vis: Ds.RefinesResources, col: ColGreater(ShipResupply.NumTurnsForGoodRefiningSupply-0.01f));
+
             ValNZ(() => Ds.Strength, GT.ShipOffense, GT.TT_ShipOffense);
             ValNZ(() => Ds.RelativeStrength, GT.RelativeStrength, GT.TT_RelativeStrength);
         }
