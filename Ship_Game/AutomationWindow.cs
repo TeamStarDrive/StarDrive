@@ -166,12 +166,6 @@ namespace Ship_Game
             if (!IsOpen)
                 return false;
 
-            if (input.RightMouseClick || input.Escaped)
-            {
-                IsOpen = false;
-                return false;
-            }
-
             if (base.HandleInput(input))
             {
                 EmpireData playerData = Screen.Player.data;

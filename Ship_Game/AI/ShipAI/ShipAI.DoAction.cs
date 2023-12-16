@@ -433,10 +433,8 @@ namespace Ship_Game.AI
                 ThrustOrWarpToPos(MovePosition, timeStep);
                 if (Owner.Position.InRadius(MovePosition, Owner.ExplorePlanetDistance))
                 {
-                    if (PatrolTarget.IsResearchable && Owner.Loyalty.isPlayer)
-                        Owner.Universe.Screen.NotificationManager?.AddReseachablePlanet(PatrolTarget);
-
                     PatrolTarget.SetExploredBy(Owner.Loyalty);
+                    Owner.AddExoticFoundNotification(PatrolTarget);
                 }
             }
 

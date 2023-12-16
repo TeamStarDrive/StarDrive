@@ -4627,8 +4627,10 @@ namespace Ship_Game
         OpensEmpireExoticBonuses = 4499,
         /// <summary>Mining Ops are disabled in this game.\nThe Empire Exotic</summary>
         OpensEmpireExoticBonusesDisabled = 4500,
-
-
+        /// <summary>contains an exotic substance which can be mined</summary>
+        MineablePlanetNotification = 4501,
+        /// <summary>Exotic Richness indicates how easily mining</summary>
+        MineableRichnessTip = 4502,
 
 
 

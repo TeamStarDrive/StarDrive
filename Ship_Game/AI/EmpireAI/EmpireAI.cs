@@ -348,6 +348,8 @@ namespace Ship_Game.AI
                     || ship.AI.HasPriorityTarget
                     || !ship.CanBeRefitted
                     || ship.IsResearchStation
+                    || ship.IsMiningStation
+                    || ship.IsMiningShip
                     || ship.ShipData.IsColonyShip
                     || ship.IsConstructor)
                 {

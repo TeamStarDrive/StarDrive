@@ -245,12 +245,6 @@ namespace Ship_Game
             if (!IsOpen)
                 return false;
 
-            if (input.RightMouseClick || input.Escaped)
-            {
-                IsOpen = false;
-                return false;
-            }
-
             base.HandleInput(input);
             return false;
         }
