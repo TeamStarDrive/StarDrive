@@ -295,7 +295,7 @@ namespace Ship_Game.AI
             var freighters = new Array<IShipDesign>();
             foreach (IShipDesign design in empire.ShipsWeCanBuild)
             {
-                if (!design.IsCandidateForTradingBuild)
+                if (!design.IsCandidateForTradingBuild && design.Name != empire.data.DefaultMiningShip)
                     continue;
 
                 freighters.Add(design);

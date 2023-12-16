@@ -100,13 +100,13 @@ namespace Ship_Game
             if (Planet?.IsResearchable == true || System.IsResearchable)
             {
                 ButtonStyle researchStyle = MarkedForResearch ? ButtonStyle.Military : ButtonStyle.BigDip;
-                LocalizedText researchText = !MarkedForResearch ? GameText.DeployResearchStation : GameText.CancelDeployResearchStation;
+                LocalizedText researchText = !MarkedForResearch ? GameText.DeployResearchStation : GameText.AbortDeployent;
                 DeployButton = Button(researchStyle, researchText, OnResearchClicked);
             }
             else // Mineable
             {
                 ButtonStyle mineableStyle = MarkedForMining ? ButtonStyle.Military : ButtonStyle.Default;
-                LocalizedText miningText = !MarkedForMining ? GameText.DeployMiningStation : GameText.CancelDeployMiningStation;
+                LocalizedText miningText = !MarkedForMining ? GameText.DeployMiningStation : GameText.AbortDeployent;
                 DeployButton = Button(mineableStyle, miningText, OnMiningClicked);
             }
 
@@ -205,16 +205,16 @@ namespace Ship_Game
 
             int numDeployed = Planet.OrbitalStations.Count(s => s.Loyalty.isPlayer && s.IsMiningStation);
             Vector2 miningDeployed = new Vector2(DeployButton.Rect.X + DeployButton.Rect.Width + 5, DeployButton.Rect.Y + 4);
-            MiningDeployedTextInfo = Add(new UILabel(miningDeployed, $"{numDeployed} Mining Stations Deployed. ", SmallFont));
-            MiningDeployedTextInfo.Color = Color.Green;
+            MiningDeployedTextInfo = Add(new UILabel(miningDeployed, $"Deployed: {numDeployed} ", SmallFont));
+            MiningDeployedTextInfo.Color = Player.EmpireColor;
             MiningDeployedTextInfo.Visible = numDeployed > 0;
 
             int numInProgress = Player.AI.CountGoals(g => g.IsMiningOpsGoal(Planet) && g.TargetShip == null);
             Vector2 miningInProgress = new Vector2(MiningDeployedTextInfo.Rect.X + 
-                (MiningDeployedTextInfo.Visible ? MiningDeployedTextInfo.Rect.Width : 0) , DeployButton.Rect.Y + 4);
-            string miningInProgressMsg = MiningDeployedTextInfo.Visible ? $"{numInProgress} In Progress." : $"{numInProgress} Mining Stations In Progress.";
+                (MiningDeployedTextInfo.Visible ? MiningDeployedTextInfo.Rect.Width + 10 : 0), DeployButton.Rect.Y + 4);
+            string miningInProgressMsg = $"In Progress: {numInProgress}";
             MiningInProgressTextInfo = Add(new UILabel(miningInProgress,miningInProgressMsg, SmallFont));
-            MiningInProgressTextInfo.Color = Color.Goldenrod;
+            MiningInProgressTextInfo.Color = Color.Wheat;
             MiningInProgressTextInfo.Visible = numInProgress > 0;
 
             if (numDeployed >= Mineable.MaximumMiningStations)
@@ -332,7 +332,7 @@ namespace Ship_Game
                 else
                     Player.AI.AddGoalAndEvaluate(new ProcessResearchStation(Player, Planet));
 
-                DeployButton.Text = GameText.CancelDeployResearchStation;
+                DeployButton.Text = GameText.AbortDeployent;
                 DeployButton.Style = ButtonStyle.Military;
                 MarkedForResearch = true;
             }
@@ -351,7 +351,7 @@ namespace Ship_Game
                 Player.AI.AddGoalAndEvaluate(new MiningOps(Player, Planet));
                 if (!Planet.Mining.CanAddMiningStationFor(Player))
                 {
-                    DeployButton.Text = GameText.CancelDeployMiningStation;
+                    DeployButton.Text = GameText.AbortDeployent;
                     DeployButton.Style = ButtonStyle.Military;
                     MarkedForMining = true;
                 }

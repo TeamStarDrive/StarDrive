@@ -4440,8 +4440,7 @@ namespace Ship_Game
         /// <summary>Deploy Research Station in this</summary>
         DeployResearchStationTip = 4406,
         /// <summary>Cancel Research Station</summary>
-        CancelDeployResearchStation = 4407,
-        /// <summary>Cancel ongoing deployment mission of research</summary>
+        // --------------------------------------------------------- PLACE HOLDER --------------------------------------------------------------
         CancelDeployResearchStationTip = 4408,
         /// <summary>Auto Build Research Stations</summary>
         AutoBuildResearchStation = 4409,
@@ -4571,8 +4570,8 @@ namespace Ship_Game
         MiningStationsOpsOwned = 4471,
         /// <summary>Resource</summary>
         ResourceName = 4472,
-        /// <summary>Cancel Mining Station</summary>
-        CancelDeployMiningStation = 4473,
+        /// <summary>Abort Deployent</summary>
+        AbortDeployent = 4473,
         /// <summary>Mining Ops around this planet are owned by</summary>
         MiningOpsOwnedByAnother = 4474,
         /// <summary>Mining Ops Tech not available yet.</summary>

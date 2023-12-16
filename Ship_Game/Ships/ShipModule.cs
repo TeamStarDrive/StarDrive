@@ -446,7 +446,7 @@ namespace Ship_Game.Ships
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
             ShipModule m = CreateNoParent(us, template, parent.Loyalty, parent.BaseHull);
 
-            if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay)
+            if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay && !m.IsMiningBay)
                 m.HangarShipUID = slot.HangarShipUID;
 
             m.SetModuleSizeRotAngle(slot.Size, slot.ModuleRot, slot.TurretAngle);
