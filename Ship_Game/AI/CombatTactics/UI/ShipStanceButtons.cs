@@ -16,7 +16,7 @@ namespace Ship_Game.AI.CombatTactics.UI
         public void ResetButtons(Array<Ship> ships)
         {
             // filter out ships where the order buttons should not be shown.
-            SelectedShips = ships.Filter(s => s.Active && s.Loyalty.isPlayer && !s.IsConstructor
+            SelectedShips = ships.Filter(s => s.Active && s.Loyalty.isPlayer && !s.IsConstructor && !s.IsMiningShip && !s.IsSupplyShuttle
                                               && s.DesignRole != RoleName.ssp);
             if (SelectedShips.Length == 0)
                 Reset(new CombatState[0]);

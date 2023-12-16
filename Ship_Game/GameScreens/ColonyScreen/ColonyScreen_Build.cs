@@ -128,6 +128,7 @@ namespace Ship_Game
                     .Filter(ship => ship.IsBuildableByPlayer(Universe.Player)
                                     && Universe.Screen.Player.WeCanBuildThis(ship)
                                     && !ship.IsResearchStation
+                                    && !ship.IsMiningStation
                                     && !ship.IsConstructor);
             }
 

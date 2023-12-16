@@ -271,7 +271,7 @@ namespace Ship_Game
         void CalcFertilityPriorities()
         {
             float fertility = NonCybernetic ? 5 - MaxFertility : 0;
-            fertility       = ApplyGovernorBonus(fertility, 1.5f, 0.5f, 1f, 5f, 1f);
+            fertility       = ApplyGovernorBonus(fertility, 3f, 0.5f, 1f, 5f, 1f);
             Priorities[ColonyPriority.Fertility] = fertility;
         }
 
@@ -608,8 +608,6 @@ namespace Ship_Game
             if (b.MaxFertilityOnBuild < 0 && CType == ColonyType.Agricultural)
                 return 0; // Never build fertility reducers on Agricultural colonies
 
-            float projectedMaxFertility = (MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category)).LowerBound(0);
-
             if (CType == ColonyType.Industrial)
             {
                 if (MaxFertility > 1) return 0.5f;
@@ -617,9 +615,23 @@ namespace Ship_Game
             }
 
             // Multiplier will be smaller in direct relation to its effect if not Core or not homeworld
-            int threshold = IsHomeworld ? 2 : 1;
-            if (projectedMaxFertility < threshold)
-                return CType == ColonyType.Core || IsHomeworld ? 0 : projectedMaxFertility;
+            if (b.MaxFertilityOnBuild < 0)
+            {
+                float threshold;
+                switch (CType)
+                {
+                    case ColonyType.Agricultural: threshold = 3; break;
+                    case ColonyType.Core:         threshold = 2; break;
+                    default:                      threshold = 1; break;
+                }
+
+                if (IsHomeworld)
+                    threshold *= 2;
+
+                float projectedMaxFertility = (MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category)).LowerBound(0);
+                if (projectedMaxFertility < threshold)
+                    return CType == ColonyType.Core || IsHomeworld ? 0 : projectedMaxFertility;
+            }
 
             return 1;
         }
@@ -880,7 +892,7 @@ namespace Ship_Game
 
             switch (CType)
             {
-                case ColonyType.Agricultural when b.ProducesFood:
+                case ColonyType.Agricultural when b.ProducesFood && b.MaxFertilityOnBuild > 0:
                 case ColonyType.Industrial   when b.ProducesProduction:
                 case ColonyType.Research     when b.ProducesResearch:
                 case ColonyType.Military     when b.IsMilitary:  return 0;

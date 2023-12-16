@@ -624,6 +624,12 @@ namespace Ship_Game
                     DrawStat(Localizer.Token(GameText.MissileHitpointsBonus), SelectedEmpire.data.MissileHPModifier - 1f, ref textCursor, false);
                 if (SelectedEmpire.data.MissileDodgeChance != 0)
                     DrawStat(Localizer.Token(GameText.MissileDodgeChance), SelectedEmpire.data.MissileDodgeChance, ref textCursor, false); 
+                if (SelectedEmpire.data.ExoticStorageMultiplier != 1)
+                    DrawStat(Localizer.Token(GameText.EmpireExoticStorage), SelectedEmpire.data.ExoticStorageMultiplier-1, ref textCursor, false);
+                if (SelectedEmpire.data.MiningSpeedMultiplier != 1)
+                    DrawStat(Localizer.Token(GameText.EmpireMiningSpeed), SelectedEmpire.data.MiningSpeedMultiplier-1, ref textCursor, false);
+                if (SelectedEmpire.data.RefiningRatioMultiplier != 1)
+                    DrawStat(Localizer.Token(GameText.EmpireRefiningEfficiency), SelectedEmpire.data.RefiningRatioMultiplier-1, ref textCursor, false);
             }
             base.Draw(batch, elapsed);
             batch.SafeEnd();

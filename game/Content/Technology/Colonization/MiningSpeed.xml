@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+  <Version>2</Version>
+  <UID>MiningSpeed</UID>
+  <TechnologyType>General</TechnologyType>
+  <MultiLevelCostMultiplier>1.5</MultiLevelCostMultiplier>
+  <RequiresMiningOps>true</RequiresMiningOps>
+  <Cost>1000</Cost>
+  <MaxLevel>5</MaxLevel>
+  <NameIndex>4924</NameIndex>
+  <DescriptionIndex>4925</DescriptionIndex>
+  <LeadsTo />
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Mining Speed Bonus</Name>
+      <Bonus>0.2</Bonus>
+      <BonusIndex>4926</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

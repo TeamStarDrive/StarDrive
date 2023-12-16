@@ -26,6 +26,9 @@
     <UnlockedMod>
       <ModuleUID>ConstructionArray</ModuleUID>
     </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>ExoticStorage</ModuleUID>
+    </UnlockedMod>	
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked>

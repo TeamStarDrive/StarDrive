@@ -2,11 +2,15 @@
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
   <Version>2</Version>
   <UID>NanoStorage</UID>
-  <TechnologyType>ShipGeneral</TechnologyType>
+  <TechnologyType>General</TechnologyType>
   <Cost>800</Cost>
   <NameIndex>17573</NameIndex>
   <DescriptionIndex>17574</DescriptionIndex>
-  <LeadsTo />
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>ExoticStorage</UID>
+    </LeadsToTech>
+  </LeadsTo>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>

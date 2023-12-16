@@ -36,6 +36,7 @@ namespace Ship_Game.AI
         [StarData] public ThreatMatrix ThreatMatrix;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
         [StarData] public ExpansionAI.ResearchStationPlanner ResearchStationsAI;
+        [StarData] public ExpansionAI.MiningOpsPlanner MiningOpsAI;
         [StarData] public SpaceRoadsManager SpaceRoadsManager;
         BudgetPriorities BudgetSettings;
 
@@ -51,6 +52,7 @@ namespace Ship_Game.AI
             ThreatMatrix = new(e);
             ExpansionAI = new(OwnerEmpire);
             ResearchStationsAI = new(OwnerEmpire);
+            MiningOpsAI = new(OwnerEmpire);
             GoalsList = new();
 
             InitializeManagers(e);
@@ -102,6 +104,8 @@ namespace Ship_Game.AI
                 RemoveFactionEndedTasks();
 
             UpdateFleetsPosAndSpeed();
+            OwnerEmpire.UpdateExoticConsumpsions(); // must be done after RunManager since
+                                                    // this resets data needed or managers (like mining ops num)
             for (int i = GoalsList.Count - 1; i >= 0; i--)
             {
                 GoalsList[i].Evaluate();
@@ -129,7 +133,16 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
                 ExpansionAI.RunExpansionPlanner();
+
+                if (ResearchStationsAI == null)
+                    ResearchStationsAI = new(OwnerEmpire);
+
                 ResearchStationsAI?.RunResearchStationPlanner(); // the null check here is for save competability
+
+                if (MiningOpsAI == null)
+                    MiningOpsAI = new(OwnerEmpire);
+
+                MiningOpsAI.RunMiningOpsPlanner(); // the null check here is for save competability
                 SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
@@ -335,6 +348,8 @@ namespace Ship_Game.AI
                     || ship.AI.HasPriorityTarget
                     || !ship.CanBeRefitted
                     || ship.IsResearchStation
+                    || ship.IsMiningStation
+                    || ship.IsMiningShip
                     || ship.ShipData.IsColonyShip
                     || ship.IsConstructor)
                 {
@@ -395,6 +410,21 @@ namespace Ship_Game.AI
                 RemoveGoal(stationGoal);
 
             Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(p) && g.Build.Template.IsResearchStation);
+            if (constructionGoal != null)
+            {
+                constructionGoal.FinishedShip?.AI.OrderScrapShip();
+                constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
+                RemoveGoal(constructionGoal);
+            }
+        }
+
+        public void CancelMiningStation(Planet p)
+        {
+            Goal stationGoal = FindGoal(g => g.IsMiningOpsGoal(p) && g.TargetShip == null);
+            if (stationGoal != null)
+                RemoveGoal(stationGoal);
+
+            Goal constructionGoal = FindGoal(g => g.IsBuildingOrbitalFor(p) && g.Build.Template.IsMiningStation);
             if (constructionGoal != null)
             {
                 constructionGoal.FinishedShip?.AI.OrderScrapShip();

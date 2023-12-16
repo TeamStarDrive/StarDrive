@@ -4440,8 +4440,7 @@ namespace Ship_Game
         /// <summary>Deploy Research Station in this</summary>
         DeployResearchStationTip = 4406,
         /// <summary>Cancel Research Station</summary>
-        CancelDeployResearchStation = 4407,
-        /// <summary>Cancel ongoing deployment mission of research</summary>
+        // --------------------------------------------------------- PLACE HOLDER --------------------------------------------------------------
         CancelDeployResearchStationTip = 4408,
         /// <summary>Auto Build Research Stations</summary>
         AutoBuildResearchStation = 4409,
@@ -4462,13 +4461,13 @@ namespace Ship_Game
         /// <summary>Research p/turn</summary>
         ResearchPerTurnModule = 4417,
         /// <summary>Low Research Time</summary>
-        DesignIssueLowResaerchTimeTitle = 4418,
+        DesignIssueLowResearchTimeTitle = 4418,
         /// <summary>This Research Station does not</summary>
-        DesignIssueLowResaerchTimeProblem = 4419,
+        DesignIssueLowResearchTimeProblem = 4419,
         /// <summary>Add Storage or lower the amount</summary>
-        DesignIssueLowResaerchTimeRemidiation = 4420,
+        DesignIssueLowResearchTimeRemidiation = 4420,
         /// <summary>Note that if you elected to automate Research</summary>
-        DesignIssueLowResaerchTimeNotGood = 4421,
+        DesignIssueLowResearchTimeNotGood = 4421,
         /// <summary>Indicates that a Research Station can be</summary>
         ResearchStationCanBePlaced = 4422,
         /// <summary>Star - Indicates that a Research Station can be</summary>
@@ -4482,7 +4481,7 @@ namespace Ship_Game
         /// <summary>Offline - no Research topic</summary>
         ResearchPlanIdle = 4427,
         /// <summary>Offline - waiting for supplies</summary>
-        ResearchPlanNoSupply = 4428,
+        ExoticPlanNoSupply = 4428,
         /// <summary>Research Station Deployed</summary>
         ResearchStationDeployed = 4429,
         /// <summary>Exotic Systems Array</summary>
@@ -4523,6 +4522,116 @@ namespace Ship_Game
         DesignIssueConstructorCostProblem = 4447,
         /// <summary>Add Storage or lower the amount</summary>
         DesignIssueConstructorCostRemidiation = 4448,
+        /// <summary>Processing Per Trun</summary>
+        RefinningPerTurnStat = 4449,
+        /// <summary>Most Exotic resources are processed at</summary>
+        RefiningPerTurnStatTip = 4450,
+        /// <summary>Processing Time (turns)t</summary>
+        MiningStationRefiningTimeStat = 4451,
+        /// <summary>Number of turns this Station can process raw</summary>
+        MiningStationRefiningTimeStatTip = 4452,
+        /// <summary>Processing</summary>
+        RefiningModule = 4453,
+        /// <summary>Indicates that Mining Stations can</summary>
+        MiningStationsCanBePlaced = 4454,
+        /// <summary>Mining Station was deployed in orbit</summary>
+        MiningStationBuiltPlanetNotify = 4455,
+        /// <summary>Offline - waiting for mining ships</summary>
+        MiningPlanIdle = 4456,
+        /// <summary>Refining Exotic Resource</summary>
+        MiningPlanRefining = 4457,
+        /// <summary>Deploy Mining Station</summary>
+        DeployMiningStation = 4458,
+        /// <summary>Deploy Mining Station in this planet's</summary>
+        DeployMiningStationTip = 4459,
+        /// <summary>You do not have the required technology to start Mining</summary>
+        CannotBuildMiningStationTip = 4460,
+        /// <summary>You Cannot start Mining Operations here since</summary>
+        CannotDeployMiningStationNotOwnerTip = 4461,
+        /// <summary>Low Refining Time</summary>
+        DesignIssueLowRefiningTimeTitle = 4462,
+        /// <summary>This Mining Station does not have </summary>
+        DesignIssueLowRefiningTimeProblem = 4463,
+        /// <summary>Add Storage or lower the amount of Refining </summary>
+        DesignIssueLowRefiningTimeRemidiation = 4464,
+        /// <summary>Note that if you elected to automate mining </summary>
+        DesignIssueLowRefiningTimeNotGood = 4465,
+        /// <summary>Auto Build Mining Stations</summary>
+        AutoBuildMiningStation = 4466,
+        /// <summary>This will auto build Mining stations </summary>
+        AutoBuildMiningStationTip = 4467,
+        /// <summary>Auto Pick Mining Stations</summary>
+        AutoPickMiningStation = 4468,
+        /// <summary>This will pick the best Mining Station</summary>
+        AutoPickMiningStationTip = 4469,
+        /// <summary>Mining Exotic Resource</summary>
+        MiningPlanetStatus = 4470,
+        /// <summary>Mining Station Ops around this planet</summary>
+        MiningStationsOpsOwned = 4471,
+        /// <summary>Resource</summary>
+        ResourceName = 4472,
+        /// <summary>Abort Deployent</summary>
+        AbortDeployent = 4473,
+        /// <summary>Mining Ops around this planet are owned by</summary>
+        MiningOpsOwnedByAnother = 4474,
+        /// <summary>Mining Ops Tech not available yet.</summary>
+        CannotBuildMiningStationTip2 = 4475,
+        /// <summary>Opens Exotic Systems/Planets</summary>
+        OpensExoticPlanetsPanel = 4476,
+        /// <summary>Exotic Resources</summary>
+        ExoticResourcesMenu = 4477,
+        /// <summary>Bonus</summary>
+        ExoticResourcesBonus = 4478,
+        /// <summary>Resource Name</summary>
+        ExoticResourcesName = 4479,
+        /// <summary>Output</summary>
+        ExoticResourcesOutput = 4480,
+        /// <summary>Refining</summary>
+        ExoticRefiningVsConsumption = 4481,
+        /// <summary>Max</summary>
+        ExoticRefiningMaxPotential = 4482,
+        /// <summary>Ops</summary>
+        ExoticNumOps = 4483,
+        /// <summary>Empire Exotic Sotrarge</summary>
+        EmpireExoticStorage = 4484,
+        /// <summary>Mining Speed</summary>
+        EmpireMiningSpeed = 4485,
+        /// <summary>Refining Efficiency</summary>
+        EmpireRefiningEfficiency = 4486,
+        /// <summary>Disable Research Stations</summary>
+        DisableResearchStationsName = 4487,
+        /// <summary>The game will not have researchable planets</summary>
+        DisableResearchStationsTip = 4488,
+        /// <summary>Disable Mining Ops</summary>
+        DisableMiningOpsName = 4489,
+        /// <summary>The game will not have mineable planets</summary>
+        DisableMiningOpsTip = 4490,
+        /// <summary>This shows the bonus your empire gets</summary>
+        ExoticResourceBonusTip = 4491,
+        /// <summary>This shows the usage of the Empire's current</summary>
+        ExoticResourceOutputTip = 4492,
+        /// <summary>This shows the Refining rate vs. consumption</summary>
+        ExoticResourceRefineConsumeTip = 4493,
+        /// <summary>This shows the maximum refining rate of the Exotic</summary>
+        ExoticResourceMaxRefineTip = 4494,
+        /// <summary>This shows the active Mining stations vs. total</summary>
+        ExoticResourceOpsTip = 4495,
+        /// <summary>This shows the storage usage for this resource type</summary>
+        ExoticResourceStorageTip = 4496,
+        /// <summary>Ops Disrupted. We are not</summary>
+        MiningStationNotOpsOwner = 4497,
+        /// <summary>Opens Exotic Systems/Planets but</summary>
+        OpensExoticPlanetsPanelDisabled = 4498,
+        /// <summary>The Empire Exotic Bonuses panel specifies </summary>
+        OpensEmpireExoticBonuses = 4499,
+        /// <summary>Mining Ops are disabled in this game.\nThe Empire Exotic</summary>
+        OpensEmpireExoticBonusesDisabled = 4500,
+        /// <summary>contains an exotic substance which can be mined</summary>
+        MineablePlanetNotification = 4501,
+        /// <summary>Exotic Richness indicates how easily mining</summary>
+        MineableRichnessTip = 4502,
+
+
 
 
 
