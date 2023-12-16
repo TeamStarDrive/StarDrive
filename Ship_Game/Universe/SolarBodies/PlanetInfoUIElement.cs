@@ -368,7 +368,7 @@ namespace Ship_Game
             if (Player.AI.HasGoal(g => g.IsResearchStationGoal(P)))
             {
                 tip = GameText.CancelDeployResearchStationTip;
-                tipText = GameText.CancelDeployResearchStation;
+                tipText = GameText.AbortDeployent;
             }
 
             ToolTipItems.Add(new TippedItem(ExoticRect, tip));
