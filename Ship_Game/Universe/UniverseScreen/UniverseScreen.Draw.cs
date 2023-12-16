@@ -337,8 +337,9 @@ namespace Ship_Game
             // In general, a much saner way than the old cluster-f*ck of IF statements :)
             PlanetsInCombat.Visible = ShipsInCombat.Visible = showGeneralUI && !LookingAtPlanet;
             aw.Visible = showGeneralUI && aw.IsOpen && !LookingAtPlanet;
+            ExoticBonusesWindow.Visible = showGeneralUI && ExoticBonusesWindow.IsOpen && !LookingAtPlanet;
 
-            minimap.Visible = showGeneralUI && (!LookingAtPlanet ||
+            Minimap.Visible = showGeneralUI && (!LookingAtPlanet ||
                               LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
                               LookingAtPlanet && workersPanel is UnownedPlanetScreen);
 
@@ -1034,13 +1035,35 @@ namespace Ship_Game
                     if (planet.RecentCombat)
                     {
                         DrawTextureWithToolTip(icon_fighting_small, Color.White, GameText.IndicatesThatAnAnomalyWas, mousePos,
-                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                               (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
+
                     if (planet.IsResearchable && !planet.IsResearchStationDeployedBy(Player))
                     {
                         DrawTextureWithToolTip(icon_research, Color.White, GameText.ResearchStationCanBePlaced, mousePos,
-                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                                               (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
+                        ++drawLocationOffset;
+                    }
+
+                    if (planet.IsMineable)
+                    {
+                        if (!planet.Mining.AreMiningOpsPresent())
+                        {
+                            DrawTextureWithToolTip(Mineable.Icon, Color.White, GameText.MiningStationsCanBePlaced, mousePos,
+                                (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 17, 14);
+                        }
+                        else
+                        {
+                            var flag = planet.Mining.Owner.data.Traits.FlagIndex;
+                            DrawTextureWithToolTip(ResourceManager.Flag(flag), planet.Mining.Owner.EmpireColor, 
+                                GameText.MiningStationsOpsOwned, mousePos, (int)posOffSet.X + 18 * drawLocationOffset, (int)posOffSet.Y, 14, 14);
+                        }
+
+                        ++drawLocationOffset;
+
+                        DrawTextureWithToolTip(planet.Mining.ExoticResourceIcon, Color.White, planet.Mining.ResourceDescription, mousePos,
+                                               (int)posOffSet.X + 18*drawLocationOffset, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
 

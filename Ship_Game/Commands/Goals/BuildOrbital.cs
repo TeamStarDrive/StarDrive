@@ -56,7 +56,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             float structureCost = ToBuild.GetCost(Owner);
             PlanetBuildingAt = planetBuildingAt;
             IShipDesign constructor = BuildableShip.GetConstructor(Owner, TetherPlanet?.System ?? TargetSystem, ToBuild.GetCost(Owner));
-            PlanetBuildingAt.Construction.Enqueue(ToBuild.IsResearchStation || ToBuild.IsShipyard 
+            PlanetBuildingAt.Construction.Enqueue(ToBuild.IsResearchStation || ToBuild.IsShipyard || ToBuild.IsMiningStation
                 ? QueueItemType.OrbitalUrgent : QueueItemType.Orbital,
                 ToBuild, constructor, structureCost, rush: false, this);
         }

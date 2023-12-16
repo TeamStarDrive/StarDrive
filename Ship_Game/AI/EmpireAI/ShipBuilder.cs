@@ -64,7 +64,8 @@ namespace Ship_Game.AI
                                           && s.GetMaintenanceCost(empire).Less(maintBudget)
                                           && !s.IsShipyard
                                           && !s.IsSubspaceProjector
-                                          && !s.IsResearchStation);
+                                          && !s.IsResearchStation
+                                          && !s.IsMiningStation);
 
             if (potentialShips.Count == 0)
             {
@@ -216,14 +217,61 @@ namespace Ship_Game.AI
             return bestResearchStation ?? ResourceManager.Ships.GetDesign(empire.data.ResearchStation, throwIfError: true);
         }
 
+        public static IShipDesign PickMiningStation(Empire empire)
+        {
+            if (empire.isPlayer && !empire.AutoPickBestMiningStation)
+            {
+                if (!empire.CanBuildMiningStations)
+                    return null;
+
+                ResourceManager.Ships.GetDesign(empire.data.CurrentMiningStation, out IShipDesign miningStation);
+                return miningStation;
+            }
+
+            var potentialMiningStations = new Array<IShipDesign>();
+            float highestScore = 0;
+            float minimumRefiningTurns = ShipResupply.NumTurnsForGoodRefiningSupply;
+            foreach (IShipDesign design in empire.ShipsWeCanBuild)
+            {
+                if (design.IsMiningStation)
+                {
+                    float score = GetRefiningScore(design);
+                    if (score >= highestScore)
+                    {
+                        highestScore = score;
+                        potentialMiningStations.Add(design);
+                    }
+                }
+            }
+
+            IShipDesign bestMiningStation = null;
+            if (potentialMiningStations.Count > 0)
+            {
+                // Get the best of the stations (since some stations can have the same score)
+                var miningStations = potentialMiningStations.
+                    Filter(s => GetRefiningScore(s).InRange(highestScore * 0.98f, highestScore));
+
+                bestMiningStation = miningStations.FindMax(s => s.BaseCargoSpace / s.BaseRefiningPerTurn);
+            }
+
+            if (empire.Universe?.Debug == true)
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {bestMiningStation?.Name ?? empire.data.MiningStation}");
+
+            return bestMiningStation ?? ResourceManager.Ships.GetDesign(empire.data.MiningStation, throwIfError: true);
+
+            float GetRefiningScore(IShipDesign design)
+            {
+                float refiningRatio = design.BaseCargoSpace*0.5f / minimumRefiningTurns;
+                return design.BaseRefiningPerTurn * (refiningRatio * refiningRatio).UpperBound(1f);
+            }
+        }
+
         static float FreighterValue(IShipDesign s, Empire empire, float fastVsBig)
         {
             float maxKFTL  = ShipStats.GetFTLSpeed(s, empire) * 0.001f;
             float maxDSTL  = ShipStats.GetSTLSpeed(s, empire) * 0.1f;
             float cargo    = ShipStats.GetCargoSpace(s.BaseCargoSpace, s);
             float turnRate = ShipStats.GetTurnRadsPerSec(s).ToDegrees();
-            float area     = s.SurfaceArea;
-
             float fastVsBigWeight = fastVsBig * 10;
             float costWeight     = s.GetCost(empire) * 0.2f;
             float movementWeight = (maxKFTL + maxDSTL + turnRate) * fastVsBigWeight;
@@ -247,7 +295,7 @@ namespace Ship_Game.AI
             var freighters = new Array<IShipDesign>();
             foreach (IShipDesign design in empire.ShipsWeCanBuild)
             {
-                if (!design.IsCandidateForTradingBuild)
+                if (!design.IsCandidateForTradingBuild && design.Name != empire.data.DefaultMiningShip)
                     continue;
 
                 freighters.Add(design);
@@ -367,7 +415,7 @@ namespace Ship_Game.AI
         public static IShipDesign BestShipWeCanBuild(RoleName role, Empire empire)
         {
             IShipDesign bestShip = PickFromCandidates(role, empire);
-            if (bestShip == null || bestShip.IsShipyard || bestShip.IsSubspaceProjector || bestShip.IsResearchStation) 
+            if (bestShip == null || bestShip.IsShipyard || bestShip.IsSubspaceProjector || bestShip.IsResearchStation || bestShip.IsMiningStation) 
                 return null;
             return bestShip;
         }

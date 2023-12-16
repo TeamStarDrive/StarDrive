@@ -78,7 +78,7 @@ namespace Ship_Game.Ships
         public Shield Shield { get; private set; }
         public string HangarShipUID;
         [StarData] public Ship HangarShip;
-        public float HangarTimer;
+        [StarData] public float HangarTimer;
         public bool IsWeapon;
         public Weapon InstalledWeapon;
         int Strength = -1;
@@ -188,6 +188,7 @@ namespace Ship_Game.Ships
         public bool DisableRotation              => Flyweight.DisableRotation;
         public float AmplifyShields              => Flyweight.AmplifyShields;
         public float ResearchPerTurn             => Flyweight.ResearchPerTurn;
+        public float Refining                    => Flyweight.Refining;
 
         /// <summary>
         /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
@@ -206,6 +207,8 @@ namespace Ship_Game.Ships
         public float WeaponInaccuracyBase => Flyweight?.WeaponInaccuracyBase ?? 1;
 
         public bool Explodes => ExplosionDamage > 0;
+
+        public bool IsMiningBay => Refining > 0;
 
         // used in module selection category
         public bool IsPowerArmor => Is(ShipModuleType.Armor) && !IsBulkhead && (PowerDraw > 0 || PowerFlowMax > 0);
@@ -258,11 +261,12 @@ namespace Ship_Game.Ships
                 case ShipModuleType.Shield:     return ShieldPowerMax >= 1f;
                 case ShipModuleType.Armor:      return ModuleType == type || APResist > 0;
                 case ShipModuleType.Ordnance:   return ModuleType == type && OrdinanceCapacity > 0;
+                case ShipModuleType.Hangar:     return ModuleType == type || IsMiningBay;
                 default:                        return ModuleType == type;
             }
         }
 
-        public bool IsFighterHangar => !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
+        public bool IsFighterHangar => !IsMiningBay && !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
 
         /// <summary> Actually health ratio [0.0 ... 1.0] </summary>
         public float HealthPercent => Health / ActualMaxHealth;
@@ -442,7 +446,7 @@ namespace Ship_Game.Ships
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
             ShipModule m = CreateNoParent(us, template, parent.Loyalty, parent.BaseHull);
 
-            if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay)
+            if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay && !m.IsMiningBay)
                 m.HangarShipUID = slot.HangarShipUID;
 
             m.SetModuleSizeRotAngle(slot.Size, slot.ModuleRot, slot.TurretAngle);
@@ -477,6 +481,8 @@ namespace Ship_Game.Ships
             // Also, supply bays get the default supply shuttle
             if (m.IsSupplyBay)
                 m.HangarShipUID = us.Player.GetSupplyShuttleName();
+            else if (m.IsMiningBay)
+                m.HangarShipUID = us.Player.GetMiningShipName();
             else if (m.ModuleType == ShipModuleType.Hangar)
                 m.HangarShipUID = m.IsTroopBay ? us.Player.GetAssaultShuttleName() : hangarShipUID;
 
@@ -894,6 +900,8 @@ namespace Ship_Game.Ships
             {
                 CauseSpecialBeamDamageNoShield(beam, beamModifier);
                 float healthBefore = Health;
+                float exoticDamageReduction = 2 - Parent.Loyalty.GetStaticExoticBonusMuliplier(ExoticBonusType.DamageReduction);
+                modifiedDamage *= exoticDamageReduction;
                 SetHealth(Health - modifiedDamage, source);
                 remainder = modifiedDamage - healthBefore;
 
@@ -1135,8 +1143,8 @@ namespace Ship_Game.Ships
                     HangarShip.Mothership = carrier;
                     HangarTimer = HangarTimerConstant;
                     CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
-                    carrier.ChangeOrdnance(-HangarShip.ShipOrdLaunchCost);
                     carrier.OnShipLaunched(HangarShip);
+                    carrier.ChangeOrdnance(-HangarShip.ShipOrdLaunchCost);
                 }
                 else
                 {
@@ -1174,7 +1182,7 @@ namespace Ship_Game.Ships
                 ResurrectModule();
             }
 
-            if (Active && ModuleType == ShipModuleType.Hangar)
+            if (Active && Is(ShipModuleType.Hangar))
                 HangarTimer -= timeStep.FixedTime;
 
             // Shield Recharge / Discharge
@@ -1193,11 +1201,13 @@ namespace Ship_Game.Ships
             if (!Active || !Powered || shieldPower >= ActualShieldPowerMax)
                 return shieldPower;
 
-            if (Parent.ShieldRechargeTimer > ShieldRechargeDelay)
-                shieldPower += ShieldRechargeRate * timeStep.FixedTime;
-            else 
-                shieldPower += ShieldRechargeCombatRate * timeStep.FixedTime;
-            return shieldPower.Clamped(0, shieldMax);
+            float rechargeRate = timeStep.FixedTime * (Parent.ShieldRechargeTimer > ShieldRechargeDelay 
+                                                        ? ShieldRechargeRate 
+                                                        : ShieldRechargeCombatRate);
+
+            Parent.Loyalty.AddExoticConsumption(ExoticBonusType.ShieldRecharge, rechargeRate);
+            float rechargeExoticBonus = Parent.Loyalty.GetDynamicExoticBonusMuliplier(ExoticBonusType.ShieldRecharge);
+            return (shieldPower + rechargeRate*rechargeExoticBonus).Clamped(0, shieldMax);
         }
 
         public float GetActualMass(Empire loyalty, float ordnancePercent, bool useMassModifier = true)
@@ -1230,8 +1240,7 @@ namespace Ship_Game.Ships
                     var vis = DamageVisualizer;
                     if (vis == null)
                     {
-
-                            DamageVisualizer = vis = new ShipModuleDamageVisualization(this, p);
+                        DamageVisualizer = vis = new ShipModuleDamageVisualization(this, p);
                     }
                     vis.Update(timeStep, Center3D, scale, Active);
                 }

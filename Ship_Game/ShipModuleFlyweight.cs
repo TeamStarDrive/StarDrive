@@ -109,6 +109,7 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly float WeaponInaccuracyBase;
         [StarData] public readonly string UID = string.Empty;
         [StarData] public float ResearchPerTurn;
+        [StarData] public float Refining;
 
         public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
 
@@ -212,6 +213,7 @@ namespace Ship_Game.Gameplay
             UID                         = s.UID;
             AccuracyPercent             = s.AccuracyPercent;
             ResearchPerTurn             = s.ResearchPerTurn;
+            Refining           = s.Refining;
             WeaponInaccuracyBase        = WeaponTemplate.GetWeaponInaccuracyBase(s.XSize * s.YSize, s.AccuracyPercent);
 
             if (s.ExplosionDamage > 0)
@@ -343,5 +345,6 @@ namespace Ship_Game.Gameplay
         public float Regenerate;
         public float AccuracyPercent = -1;
         public float ResearchPerTurn;
+        public float Refining;
     }
 }

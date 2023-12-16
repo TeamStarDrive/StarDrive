@@ -211,7 +211,9 @@ namespace Ship_Game.Universe.SolarBodies
                 FlatBonus       += b.PlusFlatProductionAmount;
             }
 
-            YieldPerColonist = ProdYieldFormula(richness, plusPerColonist);
+            float exoticProduction = Planet.Owner.GetStaticExoticBonusMuliplier(ExoticBonusType.Production);
+            YieldPerColonist = ProdYieldFormula(richness, plusPerColonist) * exoticProduction;
+            FlatBonus *= exoticProduction;
 
             // Cybernetics consume production and will starve at 100% tax, so ease up on them
             Tax = Planet.NonCybernetic || Planet.OwnerIsPlayer ? Planet.Owner.data.TaxRate : Planet.Owner.data.TaxRate  * 0.5f;

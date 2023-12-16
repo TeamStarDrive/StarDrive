@@ -13,6 +13,10 @@
   <DefaultAssaultShuttle>Terran Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Terran-Supply</DefaultSupplyShuttle>
   <DefaultResearchStation>Basic Research Station</DefaultResearchStation>
+  <DefaultMiningStation>Basic Mining Station</DefaultMiningStation>
+  <DefaultMiningShip>Terran Mining Ship</DefaultMiningShip>
+  <DefaultMiningStation>Basic Mining Station</DefaultMiningStation>  
+  
   <ThrustColor0R>95</ThrustColor0R>
   <ThrustColor0G>158</ThrustColor0G>
   <ThrustColor0B>160</ThrustColor0B>

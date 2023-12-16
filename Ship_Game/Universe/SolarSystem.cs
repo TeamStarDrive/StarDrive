@@ -14,6 +14,7 @@ using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.AI.Tasks;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -230,6 +231,35 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// This will return the potential owner of mining ops based on number of 
+        /// owned planets or pop comparison of same number of planets owned is the same
+        /// </summary>
+        public bool GetPotentialOpsOwner(out Empire potentialOwner)
+        {
+            potentialOwner = null;
+            if (!PlanetList.Any(p => p.IsMineable))
+                return false;
+
+            int maxPlanetsOwned = 0;
+            foreach (Empire owner in OwnerList)
+            {
+                int numOwnedPlanets = PlanetList.Count(p => p.Owner == owner);
+                if (numOwnedPlanets > 0 
+                    && (numOwnedPlanets > maxPlanetsOwned 
+                        || numOwnedPlanets == maxPlanetsOwned && PopulationBillionFor(owner) > PopulationBillionFor(potentialOwner)))
+                {
+                    potentialOwner = owner;
+                    maxPlanetsOwned = numOwnedPlanets;
+                }
+            }
+
+            return potentialOwner != null;
+        }
+
+        float PopulationBillionFor(Empire empire) 
+            => OwnerList.Contains(empire) ? PlanetList.Filter(p => p.Owner == empire).Sum(p => p.PopulationBillion) : 0;
+
         float RadiationTimer;
         const float RadiationInterval = 0.5f;
 
@@ -344,6 +374,7 @@ namespace Ship_Game
         public float PotentialValueFor(Empire e)
         {
             float baseValue = IsResearchable ? 30 : 0;
+            // todo - add mining value
             return baseValue + PlanetList.Sum(p => p.IsResearchable ? 30 : p.ColonyPotentialValue(e));
         }
 
@@ -413,7 +444,7 @@ namespace Ship_Game
             return null;
         }
 
-        public void GenerateRandomSystem(UniverseState us, RandomBase random, string name, Empire owner, float researchableMultiplier = 1)
+        public void GenerateRandomSystem(UniverseState us, RandomBase random, string name, Empire owner, float exoticPlanetMultiplier = 1)
         {
             // Changed by RedFox: 3% chance to get a tri-sun "star_binary"
             Sun = random.RollDice(percent:3)
@@ -450,7 +481,7 @@ namespace Ship_Game
                 float randomAngle = random.Float(0f, 360f);
                 string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(ringNum);
                 var p = new Planet(us.CreateId(), random, this, randomAngle, ringRadius, planetName,
-                                   sysMaxRingRadius, owner, null, researchableMultiplier / us.ResearchablePlanetDivisor);
+                                   sysMaxRingRadius, owner, null, exoticPlanetMultiplier / us.ExoticPlanetDivisor);
                 PlanetList.Add(p);
                 var ring = new Ring
                 {
@@ -500,7 +531,8 @@ namespace Ship_Game
                 researchableChance += 50;
             }
 
-            if (random.RollDice(percent: researchableChance * researchableMultiplier / us.ResearchablePlanetDivisor))
+            if (!Universe.P.DisableResearchStations
+                && random.RollDice(percent: researchableChance * exoticPlanetMultiplier / us.ExoticPlanetDivisor))
             {
                 SetResearchable(true, Universe);
                 // Log.Info($"{Name} can be researched");
@@ -510,7 +542,7 @@ namespace Ship_Game
         }
 
         public void GenerateFromData(UniverseState us, RandomBase random, SolarSystemData data, 
-            Empire owner, float researchableMultiplier = 1)
+            Empire owner, float exoticPlanetMultiplier = 1)
         {
             Name = data.Name;
             Sun = SunType.FindSun(data.SunPath);
@@ -543,7 +575,7 @@ namespace Ship_Game
 
                 float randomAngle = random.Float(0f, 360f);
                 var p = new Planet(us.CreateId(), random, this, randomAngle, orbitalDist, ringData.Planet,
-                                   sysMaxRingRadius, owner, ringData, researchableMultiplier / us.ResearchablePlanetDivisor);
+                                   sysMaxRingRadius, owner, ringData, exoticPlanetMultiplier / us.ExoticPlanetDivisor);
                 PlanetList.Add(p);
                 RingList.Add(new Ring
                 {
@@ -661,6 +693,16 @@ namespace Ship_Game
         public bool IsAnyKnownPlanetCanBeResearched(Empire player)
         {
             return PlanetList.Any(p => p.IsExploredBy(player) && p.IsResearchable && !p.IsResearchStationDeployedBy(player));
+        }
+
+        public bool IsAnyKnownPlanetCanBeMined(Empire player)
+        {
+            return PlanetList.Any(p => p.IsExploredBy(player) && p.IsMineable && !p.Mining.HasOpsOwner);
+        }
+
+        public bool HasMinables()
+        {
+            return PlanetList.Any(p => p.IsMineable);
         }
 
         public Array<Empire> GetKnownOwners(Empire player)

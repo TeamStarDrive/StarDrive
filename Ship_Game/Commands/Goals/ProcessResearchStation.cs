@@ -148,7 +148,7 @@ namespace Ship_Game.Commands.Goals
                 AddResearch(ResearchStation.GetProduction());
                 CreateSupplyGoalIfNeeded();
                 RefitifNeeded();
-                CallForHelpIfNeeded();
+                AiCallForHelpIfNeeded();
             }
 
             return GoalStep.TryAgain;
@@ -158,7 +158,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (availableProduction <= 0)
             {
-                AddResearchStationPlan(Plan.ResearchStationNoSupply);
+                AddResearchStationPlan(Plan.ExoticStationNoSupply);
                 AddSupplyDeficit(TotalProductionConsumedPerTurn);
                 return;
             }
@@ -260,11 +260,14 @@ namespace Ship_Game.Commands.Goals
             return betterStation != null;
         }
 
-        void CallForHelpIfNeeded()
+        void AiCallForHelpIfNeeded()
         {
+            if (Owner.isPlayer)
+                return;
+
             SolarSystem system = TargetPlanet?.System ?? TargetSystem;
             if ((system.OwnerList.Count == 0 || system.HasPlanetsOwnedBy(Owner))
-                && (ResearchStation.HealthPercent < 0.95
+                && (ResearchStation.HealthPercent < 0.95 && ResearchStation.AI.BadGuysNear
                    || system.ShipList.Any(s => s.IsResearchStation && s.Loyalty.IsAtWarWith(ResearchStation.Loyalty)))
                 && !Owner.HasWarTaskTargetingSystem(system))
             {

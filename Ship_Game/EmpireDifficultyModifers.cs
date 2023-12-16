@@ -35,6 +35,7 @@
         public readonly int WarSneakiness; // modifier to prepare for war detection by the player (player will need better spy network to detect war plot)
         public readonly float HullTechMultiplier; // used in ship progression to modify hull tech cost if needed
         public readonly int CombatShipGoalsPerPlanet;
+        public readonly int MiningOpsTurnsPerRun; // Mining Ops planner turn timer
 
         // A mod can set the general str of remnant designs. Default is 2 an this is a multiplier for starting fleet multiplier
         public readonly float RemnantStrModifier; 
@@ -109,6 +110,7 @@
                     RemnantStrModifier   = remnantGeneralStr + 0.5f;
                     WarSneakiness        = 0;
                     HullTechMultiplier   = 1f;
+                    MiningOpsTurnsPerRun = 10;
                     RemnantPortalCreationMod = 10;
                     CombatShipGoalsPerPlanet = 3;
                     break;
@@ -142,6 +144,7 @@
                     RemnantStrModifier   = remnantGeneralStr + 1;
                     WarSneakiness        = 10;
                     HullTechMultiplier   = 0.85f;
+                    MiningOpsTurnsPerRun = 7;
                     RemnantPortalCreationMod = 6;
                     CombatShipGoalsPerPlanet = 4;
                     if (!empire.isPlayer)
@@ -187,6 +190,7 @@
                     RemnantStrModifier   = remnantGeneralStr + 1.5f;
                     WarSneakiness        = 25;
                     HullTechMultiplier   = 0.7f;
+                    MiningOpsTurnsPerRun = 5;
                     RemnantPortalCreationMod = 5;
                     CombatShipGoalsPerPlanet = 5;
                     if (!empire.isPlayer)
@@ -233,6 +237,7 @@
                     RemnantStrModifier   = remnantGeneralStr + 2f;
                     WarSneakiness        = 40;
                     HullTechMultiplier   = 0.6f;
+                    MiningOpsTurnsPerRun = 3;
                     RemnantPortalCreationMod = 4;
                     CombatShipGoalsPerPlanet = 6;
                     if (!empire.isPlayer)
@@ -262,8 +267,8 @@
                 ShipBuildStrMax    = 1f;
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
+                MiningOpsTurnsPerRun = 3;
                 ExpansionCheckInterval = 2;
-
                 if (empire.Universe.P.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
                     CreditsMultiplier = 0.2f;
             }

@@ -24,6 +24,7 @@ namespace Ship_Game.Ships
         public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
         public const int NumTurnsForGoodResearchSupply = 30;
+        public const int NumTurnsForGoodRefiningSupply = 40;
 
         [StarData] readonly Ship Ship;
         [StarData] float IncomingOrdnance;
@@ -43,13 +44,21 @@ namespace Ship_Game.Ships
                 return true;
 
             float totalResearchPerTurn = ship.BaseResearchPerTurn * GlobalStats.Defaults.ResearchStationProductionPerResearch;
-            float lala = ship.BaseCargoSpace / totalResearchPerTurn;
             return ship.BaseCargoSpace / totalResearchPerTurn >= NumTurnsForGoodResearchSupply;
+        }
+
+        public static bool HasGoodTotalSupplyForRefining(IShipDesign ship)
+        {
+            if (!ship.IsMiningStation)
+                return true;
+
+            float totalRefiningPerTurn = ship.BaseRefiningPerTurn * GlobalStats.Defaults.MiningStationFoodPerOneRefining;
+            return ship.BaseCargoSpace*0.5f / totalRefiningPerTurn >= NumTurnsForGoodRefiningSupply*0.5f;
         }
 
         public static float DamageThreshold(ShipCategory category)
         {
-            float threshold;
+            float threshold;    
             switch (category)
             {
                 default:
@@ -177,7 +186,7 @@ namespace Ship_Game.Ships
 
         bool HighKineticToEnergyRatio()
         {
-            if (Ship.OrdinanceMax < 1 || Ship.Weapons.IsEmpty && Ship.BombBays.IsEmpty)
+            if (Ship.OrdinanceMax < 1 || Ship.Weapons.IsEmpty && Ship.BombBays.IsEmpty && Ship.Carrier.AllHangars.Length == 0)
                 return false;
 
             if (!InCombat)

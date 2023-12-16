@@ -96,7 +96,7 @@ namespace Ship_Game.Ships
             FTLSpeedLimit = Math.Min(value, MaxFTLSpeed);
         }
 
-        float SetMaxFTLSpeed()
+        public float SetMaxFTLSpeed()
         {
             // the default modifier is 1, but in systems we use the In-System FTL Modifier
             float ftlModifier = System != null ? Universe.P.FTLModifier : 1f;
@@ -114,7 +114,8 @@ namespace Ship_Game.Ships
             }
 
             FTLModifier = ftlModifier;
-            float maxFTLSpeed = Stats.MaxFTLSpeed * ftlModifier * WarpPercent;
+            float warpExoticBonus = Loyalty.GetStaticExoticBonusMuliplier(ExoticBonusType.WarpSpeed);
+            float maxFTLSpeed = Stats.MaxFTLSpeed * ftlModifier * warpExoticBonus * WarpPercent;
             MaxFTLSpeed = maxFTLSpeed;
             return maxFTLSpeed;
         }
