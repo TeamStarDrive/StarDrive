@@ -107,7 +107,7 @@ public partial class Ship
     /// <param name="repairLevel">Level which improves repair decisions</param>
     public void ApplyAllRepair(float repairAmount, float repairInterval, int repairLevel)
     {
-        if (HealthPercent > 0.9999999f || repairAmount.AlmostEqual(0))
+        if (HealthPercent >= 1)
         {
             CurrentRepairPerSecond = 0;
             return;
@@ -116,7 +116,7 @@ public partial class Ship
         CurrentRepairPerSecond = repairAmount / repairInterval;
         int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
         if (damagedModules == 0)
-            Health = HealthMax;
+            Health = HealthMax; // Align small diffs.
 
         for (int i = 0; repairAmount > 0 && i < damagedModules; ++i)
         {

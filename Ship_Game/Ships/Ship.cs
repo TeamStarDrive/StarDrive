@@ -1273,7 +1273,7 @@ namespace Ship_Game.Ships
                 ReturnHome();
 
             // Ship Repair
-            if (HealthPercent < 0.9999999f)
+            if (HealthPercent < 1)
                 Repair(timeSinceLastUpdate);
 
             UpdateResupply();

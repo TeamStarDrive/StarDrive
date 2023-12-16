@@ -10528,9 +10528,9 @@ MiningStationsOpsOwned:
 ResourceName:
  Id: 4472 
  ENG: "Resource"      
-CancelDeployMiningStation:
+AbortDeployent:
  Id: 4473 
- ENG: "Cancel Mining Station"       
+ ENG: "Abort Deployment"       
 MiningOpsOwnedByAnother:
  Id: 4474 
  ENG: "Mining Ops around this planet are owned by"        
