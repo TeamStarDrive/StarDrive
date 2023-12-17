@@ -14,7 +14,6 @@ namespace Ship_Game
         Submenu ConstructionSubMenu;
         Map<ExoticBonusType, EmpireExoticBonuses> ExoticBonuses;
         bool CompactMode;
-
         Empire Player => Screen.Player;
 
         public ExoticBonusesWindow(UniverseScreen screen) : base(screen, toPause: null)
