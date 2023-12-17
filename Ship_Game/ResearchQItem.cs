@@ -36,8 +36,8 @@ namespace Ship_Game
             Node.SetPos(Pos + new Vector2(100f, 20f));
             BtnUp.Rect = new RectF(X + 15, CenterY - 33, 30, 30);
             BtnDown.Rect = new RectF(X + 15, CenterY + 3, 30, 30);
-            BtnCancel.Rect = new RectF(X + 57, CenterY - 15 - 7, 30, 30);
-            BtnToTop.Rect = new RectF(X + 57, CenterY - 15 - 7 + 30 + 6, 30, 30);
+            BtnCancel.Rect = new RectF(X + 57, CenterY - 16 + 30, 30, 30);
+            BtnToTop.Rect = new RectF(X + 57, CenterY - 22, 30, 30);
             base.PerformLayout();
         }
 
