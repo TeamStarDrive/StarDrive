@@ -13,6 +13,7 @@ namespace Ship_Game
         readonly UIButton BtnUp;
         readonly UIButton BtnDown;
         readonly UIButton BtnCancel;
+        readonly UIButton BtnToTop;
 
         public override string ToString() => $"ResearchQItem \"{Tech.UID}\" {ElementDescr}";
 
@@ -21,9 +22,10 @@ namespace Ship_Game
             Screen = screen;
             Tech = tech;
             Pos = pos;
-            BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
-            BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
+            BtnUp = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
+            BtnDown = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
             BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
+            BtnToTop = Button(ButtonStyle.ResearchQueueToTop, OnBtnToTopPressed);
             Node = new TreeNode(Pos + new Vector2(100f, 20f), Tech, Screen);
             PerformLayout();
         }
@@ -32,9 +34,10 @@ namespace Ship_Game
         {
             Size = new Vector2(320, 110);
             Node.SetPos(Pos + new Vector2(100f, 20f));
-            BtnUp.Rect     = new RectF(X+15, CenterY - 33, 30, 30);
-            BtnDown.Rect   = new RectF(X+15, CenterY +  3, 30, 30);
-            BtnCancel.Rect = new RectF(X+57, CenterY - 15, 30, 30);
+            BtnUp.Rect = new RectF(X + 15, CenterY - 33, 30, 30);
+            BtnDown.Rect = new RectF(X + 15, CenterY + 3, 30, 30);
+            BtnCancel.Rect = new RectF(X + 57, CenterY - 15 - 7, 30, 30);
+            BtnToTop.Rect = new RectF(X + 57, CenterY - 15 - 7 + 30 + 6, 30, 30);
             base.PerformLayout();
         }
 
@@ -59,15 +62,19 @@ namespace Ship_Game
             Screen.Player.data.ResearchQueue[second] = tmp;
         }
 
+        private bool CanMoveUp(int index)
+        {
+            return index != -1 && index >= 1 && !AboveIsPreReq(index);
+        }
+
         void OnBtnUpPressed(UIButton up)
         {
             int index = Screen.Player.Research.IndexInQueue(Tech.UID);
-            if (index == -1 || index < 1 || AboveIsPreReq(index))
+            if (!CanMoveUp(index))
             {
                 GameAudio.NegativeClick();
                 return;
             }
-
             SwapQueueItems(index - 1, index);
             Screen.Queue.ReloadResearchQueue();
         }
@@ -88,6 +95,24 @@ namespace Ship_Game
         void OnBtnCancelPressed(UIButton cancel)
         {
             RemoveTech(Tech.UID);
+        }
+
+        void OnBtnToTopPressed(UIButton toTop)
+        {
+            int index = Screen.Player.Research.IndexInQueue(Tech.UID);
+            if (!CanMoveUp(index))
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
+            while (CanMoveUp(index))
+            {
+                SwapQueueItems(index - 1, index);
+                index--;
+            }
+
+            Screen.Queue.ReloadResearchQueue();
         }
 
         string ResearchUidAt(int index) => Screen.Player.data.ResearchQueue[index];
