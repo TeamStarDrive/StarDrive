@@ -108,7 +108,12 @@ namespace Ship_Game
                 return;
             }
             
-            Research.MoveToTopWithPreReqs(index);
+            int moved = Research.MoveToTopWithPreReqs(index);
+            if (moved == 0)
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
 
             Screen.Queue.ReloadResearchQueue();
         }

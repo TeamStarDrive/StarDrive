@@ -367,7 +367,11 @@ namespace Ship_Game
             if(GameBase.ScreenManager.input != null && GameBase.ScreenManager.input.IsCtrlKeyDown)
             {
                 int index = Player.Research.IndexInQueue(tech.UID);
-                Player.Research.MoveToTopWithPreReqs(index);
+                int moved = Player.Research.MoveToTopWithPreReqs(index);
+                if (moved == 0)
+                {
+                    GameAudio.NegativeClick();
+                }
             }
             
             // if CTRL was not held down, and tech is in queue (but not added right now), remove it
