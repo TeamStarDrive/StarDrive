@@ -274,20 +274,27 @@ namespace Ship_Game
         /// <summary>
         /// This will move the item at the given index to the top of the queue, or until it hits a PreReq.
         /// </summary>
-        public void MoveToTopOrPreReq(int index)
+        /// <returns>The amount of research that was skipped over.</returns>
+        public int MoveToTopOrPreReq(int index)
         {
+            int skipped = 0;
             while (ResearchCanMoveUp(index))
             {
                 SwapQueueItems(index - 1, index);
                 index--;
+                skipped++;
             }
+            return skipped;
         }
         
         /// <summary>
         /// If the item at the given index has any enqueued PreReqs, they will be moved to the top of the queue.
         /// </summary>
-        public void MovePreReqsToTop(int index)
+        /// <returns>The amount of research that has moved in the queue.</returns>
+        public int MovePreReqsToTop(int index)
         {
+            int preReqsThatMovedUp = 0;
+            
             Technology current = ResearchTechnologyAt(index);
             
             foreach (string researchUid in Queue)
@@ -300,16 +307,32 @@ namespace Ship_Game
                 {
                     if (descendant.UID == current.UID)
                     {
-                        MoveToTopOrPreReq(indexOfResearch);
+                        int movedPositions = MoveToTopOrPreReq(indexOfResearch);
+                        if (movedPositions > 0)
+                            preReqsThatMovedUp++;
                     }
                 }
             }
+            
+            return preReqsThatMovedUp;
         }
         
-        public void MoveToTopWithPreReqs(int index)
+        /// <summary>
+        /// Moves the item at the given index to the top of the queue, and all of its PreReqs as well.
+        /// </summary>
+        /// <returns>How many items in total have moved in the queue</returns>
+        public int MoveToTopWithPreReqs(int index)
         {
-            MovePreReqsToTop(index);
-            MoveToTopOrPreReq(index);
+            int movedResearchItems = 0;
+            
+            int movedPreReqs = MovePreReqsToTop(index);
+            movedResearchItems = movedPreReqs;
+            
+            int movedPositions = MoveToTopOrPreReq(index);
+            if (movedPositions > 0)
+                movedResearchItems++;
+            
+            return movedResearchItems;
         }
     }
 }
