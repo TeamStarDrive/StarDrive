@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 
@@ -68,7 +69,7 @@ namespace Ship_Game
         }
         
         /// <summary>
-        /// This will move the item at given starting index to the top of the queue, or until it hits a PreReq.
+        /// This will move the item at the given index to the top of the queue, or until it hits a PreReq.
         /// </summary>
         private void MoveToTopOrPreReq(int index)
         {
@@ -77,6 +78,35 @@ namespace Ship_Game
                 SwapQueueItems(index - 1, index);
                 index--;
             }
+        }
+        
+        /// <summary>
+        /// If the item at the given index has any enqueued PreReqs, they will be moved to the top of the queue.
+        /// </summary>
+        private void MovePreReqsToTop(int index)
+        {
+            Technology current = PlayerResearchAt(index);
+            
+            foreach (string researchUid in Screen.Player.data.ResearchQueue)
+            { 
+                int indexOfResearch = Screen.Player.Research.IndexInQueue(researchUid);
+                
+                Array<Technology> descendantTechs = ResourceManager.Tech(researchUid).DescendantTechs();
+                
+                foreach (Technology descendant in descendantTechs)
+                {
+                    if (descendant.UID == current.UID)
+                    {
+                        MoveToTopOrPreReq(indexOfResearch);
+                    }
+                }
+            }
+        }
+        
+        private void MoveToTopWithPreReqs(int index)
+        {
+            MovePreReqsToTop(index);
+            MoveToTopOrPreReq(index);
         }
         
 
@@ -122,13 +152,14 @@ namespace Ship_Game
         void OnBtnToTopPressed(UIButton toTop)
         {
             int index = Screen.Player.Research.IndexInQueue(Tech.UID);
-            if (!CanMoveUp(index))
+            
+            if (index == -1 || index == 0)
             {
                 GameAudio.NegativeClick();
                 return;
             }
             
-            MoveToTopOrPreReq(index);
+            MoveToTopWithPreReqs(index);
 
             Screen.Queue.ReloadResearchQueue();
         }
