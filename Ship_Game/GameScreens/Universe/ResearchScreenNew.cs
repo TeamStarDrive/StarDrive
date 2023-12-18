@@ -351,24 +351,36 @@ namespace Ship_Game
             {
                 // this tech cannot be researched
                 GameAudio.NegativeClick();
+                return;
             }
-            else if (tech.HasPreReq(Player))
+            
+            
+            if(Player.Research.IsQueued(tech.UID))
             {
-                // we already have all pre-requisites, so add it directly to queue
-                Queue.AddToResearchQueue(tech);
-                GameAudio.ResearchSelect();
+                Log.Warning($"QueuedItems already contains {tech.UID}");
+                Player.Research.RemoveTechFromQueue(tech.UID);
+                Queue.ReloadResearchQueue();
             }
             else
             {
-                // we need to research required techs before doing this one
-                GameAudio.ResearchSelect();
-
-                // figure out the list of techs to add
-                var techsToAdd = GetRequiredTechEntriesToResearch(tech);
-                foreach (TechEntry toAdd in techsToAdd)
+                if (tech.HasPreReq(Player))
                 {
-                    if (toAdd.Discovered)
-                        Queue.AddToResearchQueue(toAdd);
+                    // we already have all pre-requisites, so add it directly to queue
+                    Queue.AddToResearchQueue(tech);
+                    GameAudio.ResearchSelect();
+                }
+                else
+                {
+                    // we need to research required techs before doing this one
+                    GameAudio.ResearchSelect();
+
+                    // figure out the list of techs to add
+                    var techsToAdd = GetRequiredTechEntriesToResearch(tech);
+                    foreach (TechEntry toAdd in techsToAdd)
+                    {
+                        if (toAdd.Discovered)
+                            Queue.AddToResearchQueue(toAdd);
+                    }
                 }
             }
         }
