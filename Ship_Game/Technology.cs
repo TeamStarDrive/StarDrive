@@ -138,6 +138,13 @@ namespace Ship_Game
             public string Type;
         }
         
+        // NOTE: technically the research 'tree' isn't a tree because node can have multiple parents
+        //       but this will work anyway
+        /// <summary>
+        /// Performs a depth-first search of the tech 'tree' graph, starting at this tech
+        /// and continuing to 'leafs'.
+        /// </summary>
+        /// <returns>Array of all Technologies that are descendants of this one</returns>
         public Array<Technology> DescendantTechs()
         {
             var descendants = new Array<Technology>();
@@ -147,6 +154,27 @@ namespace Ship_Game
                 descendants.AddRange(child.DescendantTechs());
             }
             return descendants;
+        }
+        
+        /// <summary>
+        /// Performs a depth-first search of the tech 'tree' graph, starting at this tech
+        /// and continuing to 'root'.
+        /// </summary>
+        /// <returns>Array of all Technologies that lead from root to this one</returns>
+        public Array<Technology> PredecessorTechs()
+        {
+            var predecessors = new Array<Technology>();
+            foreach (Technology parent in Parents)
+            {
+                predecessors.Add(parent);
+                predecessors.AddRange(parent.PredecessorTechs());
+            }
+            
+            // reverse the order so that the technologies are in order from root to this
+            var reversed = new Array<Technology>(predecessors.Count);
+            for (int i = predecessors.Count - 1; i >= 0; --i)
+                reversed.Add(predecessors[i]);
+            return reversed;
         }
         
         public float ActualCost(UniverseState universeState)
