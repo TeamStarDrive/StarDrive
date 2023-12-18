@@ -183,6 +183,10 @@ namespace Ship_Game
             Queue.Reorder(oldIndex, newIndex);
         }
         
+        
+        /// <summary>
+        /// Removes the given tech from the queue, and all techs that depend on it.
+        /// </summary>
         public void RemoveTechFromQueue(string techUid)
         {
             void RemoveLeadsToRecursive(string tech)
@@ -193,6 +197,100 @@ namespace Ship_Game
             }
 
             RemoveLeadsToRecursive(techUid);
+        }
+        
+        
+        string ResearchUidAt(int index) => Queue[index];
+        Technology ResearchTechnologyAt(int index) => ResourceManager.Tech(ResearchUidAt(index));
+        public bool AboveIsPreReq(int currentIndex)
+        {
+            var currentTech = ResearchTechnologyAt(currentIndex);
+            foreach (Technology.LeadsToTech dependent in ResourceManager.Tech(ResearchUidAt(currentIndex - 1)).LeadsTo)
+                if (dependent.UID == currentTech.UID)
+                    return true;
+            return false;
+        }
+        
+        public bool IsPreReqOfBellow(int currentIndex)
+        {
+            Technology current = ResearchTechnologyAt(currentIndex);
+            string next = ResearchUidAt(currentIndex + 1);
+            foreach (Technology.LeadsToTech dependent in current.LeadsTo)
+                if (dependent.UID == next)
+                    return true;
+            return false;
+        }
+        
+        private void SwapQueueItems(int first, int second)
+        {
+            (Queue[first], Queue[second]) = (Queue[second], Queue[first]);
+        }
+        
+        public void MoveUp(int index)
+        {
+            if (ResearchCanMoveUp(index))
+            {
+                SwapQueueItems(index - 1, index);
+            }
+        }
+        
+        public void MoveDown(int index)
+        {
+            if (ResearchCanMoveDown(index))
+            {
+                SwapQueueItems(index + 1, index);
+            }
+        }
+        
+        public bool ResearchCanMoveUp(int index)
+        {
+            return index != -1 && index >= 1 && !AboveIsPreReq(index);
+        }
+        
+        public bool ResearchCanMoveDown(int index)
+        {
+            return index != -1 && index != Queue.Count - 1 && !IsPreReqOfBellow(index);
+        }
+        
+        /// <summary>
+        /// This will move the item at the given index to the top of the queue, or until it hits a PreReq.
+        /// </summary>
+        public void MoveToTopOrPreReq(int index)
+        {
+            while (ResearchCanMoveUp(index))
+            {
+                SwapQueueItems(index - 1, index);
+                index--;
+            }
+        }
+        
+        /// <summary>
+        /// If the item at the given index has any enqueued PreReqs, they will be moved to the top of the queue.
+        /// </summary>
+        public void MovePreReqsToTop(int index)
+        {
+            Technology current = ResearchTechnologyAt(index);
+            
+            foreach (string researchUid in Queue)
+            { 
+                int indexOfResearch = IndexInQueue(researchUid);
+                
+                Array<Technology> descendantTechs = ResourceManager.Tech(researchUid).DescendantTechs();
+                
+                foreach (Technology descendant in descendantTechs)
+                {
+                    if (descendant.UID == current.UID)
+                    {
+                        MoveToTopOrPreReq(indexOfResearch);
+                    }
+                }
+            }
+        }
+        
+        public void MoveToTopWithPreReqs(int index)
+        {
+            MovePreReqsToTop(index);
+            MoveToTopOrPreReq(index);
         }
     }
 }
