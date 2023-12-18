@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -197,6 +196,26 @@ namespace Ship_Game
             }
 
             RemoveLeadsToRecursive(techUid);
+        }
+        
+        
+        /// <summary>
+        /// Adds the given tech to the queue, and all of its PreReqs.
+        /// It checks if the tech (and PreReqs) have been discovered and not finished yet and not already enqueued.
+        /// </summary>
+        public void AddTechToQueue(string techUid)
+        {
+            var technology = ResourceManager.Tech(techUid);
+            var predecessorTechs = technology.PredecessorTechs();
+            foreach (Technology predecessor in predecessorTechs)
+            {
+                var techEntry = Empire.GetTechEntry(predecessor.UID);
+                if (techEntry.Discovered && !techEntry.Unlocked && !IsQueued(predecessor.UID))
+                {
+                    AddToQueue(predecessor.UID);
+                }
+            }
+            AddToQueue(techUid);
         }
         
         
