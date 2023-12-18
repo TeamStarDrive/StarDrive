@@ -171,10 +171,8 @@ namespace Ship_Game
             }
             
             // reverse the order so that the technologies are in order from root to this
-            var reversed = new Array<Technology>(predecessors.Count);
-            for (int i = predecessors.Count - 1; i >= 0; --i)
-                reversed.Add(predecessors[i]);
-            return reversed;
+            predecessors.Reverse();
+            return predecessors;
         }
         
         public float ActualCost(UniverseState universeState)
