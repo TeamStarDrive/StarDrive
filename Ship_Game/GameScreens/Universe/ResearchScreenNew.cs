@@ -311,13 +311,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.ResearchExitScreen)
-            {
-                GameAudio.EchoAffirmative();
-                ExitScreen();
-                return true;
-            }
-
             if (input.RightMouseHeldDown)
                 camera.MoveClamped(input.CursorVelocity, ScreenCenter, new Vector2(3200));
 
@@ -342,6 +335,15 @@ namespace Ship_Game
                     return true; // input captured
                 }
             }
+
+            if (input.ResearchExitScreen || input.RightMouseClick)
+            {
+                GameAudio.EchoAffirmative();
+                ExitScreen();
+                return true;
+            }
+
+
             return base.HandleInput(input);
         }
 
