@@ -66,6 +66,19 @@ namespace Ship_Game
         {
             return index != -1 && index >= 1 && !AboveIsPreReq(index);
         }
+        
+        /// <summary>
+        /// This will move the item at given starting index to the top of the queue, or until it hits a PreReq.
+        /// </summary>
+        private void MoveToTopOrPreReq(int index)
+        {
+            while (CanMoveUp(index))
+            {
+                SwapQueueItems(index - 1, index);
+                index--;
+            }
+        }
+        
 
         void OnBtnUpPressed(UIButton up)
         {
@@ -75,7 +88,16 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
                 return;
             }
-            SwapQueueItems(index - 1, index);
+            
+            InputState input = GameBase.ScreenManager.input;
+            if (input.IsCtrlKeyDown)
+            {
+                MoveToTopOrPreReq(index);
+            }
+            else
+            {
+                SwapQueueItems(index - 1, index);
+            }
             Screen.Queue.ReloadResearchQueue();
         }
 
@@ -105,12 +127,8 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
                 return;
             }
-
-            while (CanMoveUp(index))
-            {
-                SwapQueueItems(index - 1, index);
-                index--;
-            }
+            
+            MoveToTopOrPreReq(index);
 
             Screen.Queue.ReloadResearchQueue();
         }
