@@ -138,6 +138,17 @@ namespace Ship_Game
             public string Type;
         }
         
+        public Array<Technology> DescendantTechs()
+        {
+            var descendants = new Array<Technology>();
+            foreach (Technology child in Children)
+            {
+                descendants.Add(child);
+                descendants.AddRange(child.DescendantTechs());
+            }
+            return descendants;
+        }
+        
         public float ActualCost(UniverseState universeState)
         {
             UniverseState us = universeState ?? throw new NullReferenceException(nameof(universeState));
