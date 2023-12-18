@@ -354,55 +354,32 @@ namespace Ship_Game
                 return;
             }
             
+            bool added = false;
             
-            if(Player.Research.IsQueued(tech.UID))
+            if (!Player.Research.IsQueued(tech.UID))
             {
-                Log.Warning($"QueuedItems already contains {tech.UID}");
-                Player.Research.RemoveTechFromQueue(tech.UID);
-                Queue.ReloadResearchQueue();
+                GameAudio.ResearchSelect();
+                Player.Research.AddTechToQueue(tech.UID);
+                added = true;
             }
+            
+            // if ctrl is held down, move tech to top of queue ALWAYS, even if it was already in queue (imo good UX)
+            if(GameBase.ScreenManager.input != null && GameBase.ScreenManager.input.IsCtrlKeyDown)
+            {
+                int index = Player.Research.IndexInQueue(tech.UID);
+                Player.Research.MoveToTopWithPreReqs(index);
+            }
+            
+            // if CTRL was not held down, and tech is in queue (but not added right now), remove it
             else
             {
-                if (tech.HasPreReq(Player))
+                if (!added)
                 {
-                    // we already have all pre-requisites, so add it directly to queue
-                    Queue.AddToResearchQueue(tech);
-                    GameAudio.ResearchSelect();
-                }
-                else
-                {
-                    // we need to research required techs before doing this one
-                    GameAudio.ResearchSelect();
-
-                    // figure out the list of techs to add
-                    var techsToAdd = GetRequiredTechEntriesToResearch(tech);
-                    foreach (TechEntry toAdd in techsToAdd)
-                    {
-                        if (toAdd.Discovered)
-                            Queue.AddToResearchQueue(toAdd);
-                    }
+                    Player.Research.RemoveTechFromQueue(tech.UID);
                 }
             }
-        }
-
-        Array<TechEntry> GetRequiredTechEntriesToResearch(TechEntry toResearch)
-        {
-            TechEntry techEntry = toResearch;
-            var techs = new Array<TechEntry>{ techEntry };
-            if (!techEntry.Tech.IsRootNode)
-            {
-                while (!techEntry.Unlocked)
-                {
-                    TechEntry preReq = techEntry.GetPreReq(Player);
-                    if (preReq == null)
-                        break; // done!
-                    if (!preReq.Unlocked)
-                        techs.Add(preReq);
-                    techEntry = preReq;
-                }
-            }
-            techs.Reverse();
-            return techs;
+            
+            Queue.ReloadResearchQueue();
         }
 
         Vector2 GridSize => new(GridWidth, GridHeight);
