@@ -169,8 +169,9 @@ namespace Ship_Game
 
         bool AboveIsPreReq(int indexOfThis)
         {
+            var thisTech = PlayerResearchAt(indexOfThis);
             foreach (Technology.LeadsToTech dependent in PlayerResearchAt(indexOfThis - 1).LeadsTo)
-                if (dependent.UID == Tech.UID)
+                if (dependent.UID == thisTech.UID)
                     return true;
             return false;
         }
