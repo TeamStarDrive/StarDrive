@@ -182,5 +182,17 @@ namespace Ship_Game
         {
             Queue.Reorder(oldIndex, newIndex);
         }
+        
+        public void RemoveTechFromQueue(string techUid)
+        {
+            void RemoveLeadsToRecursive(string tech)
+            {
+                Queue.Remove(tech);
+                foreach (Technology.LeadsToTech dependent in ResourceManager.Tech(tech).LeadsTo)
+                    RemoveLeadsToRecursive(dependent.UID);
+            }
+
+            RemoveLeadsToRecursive(techUid);
+        }
     }
 }
