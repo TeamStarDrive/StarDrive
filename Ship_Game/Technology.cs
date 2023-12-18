@@ -47,7 +47,9 @@ namespace Ship_Game
             return $"Tech {UID} Name={Name.Text} Root={IsRootNode} Cost={Cost} Parents={Parents.Length}";
         }
 
+        /// LeadsTo is array of only direct children
         public Array<LeadsToTech> LeadsTo                = new();
+        
         public Array<LeadsToTech> ComesFrom              = new();
         public Array<UnlockedMod> ModulesUnlocked        = new();
         public Array<UnlockedBuilding> BuildingsUnlocked = new();
