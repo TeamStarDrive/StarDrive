@@ -188,14 +188,7 @@ namespace Ship_Game
 
         void RemoveTech(string uid)
         {
-            void RemoveLeadsToRecursive(string tech)
-            {
-                Screen.Player.Research.RemoveFromQueue(tech);
-                foreach (Technology.LeadsToTech dependent in ResourceManager.Tech(tech).LeadsTo)
-                    RemoveLeadsToRecursive(dependent.UID);
-            }
-
-            RemoveLeadsToRecursive(uid);
+            Screen.Player.Research.RemoveTechFromQueue(uid);
             Screen.Queue.ReloadResearchQueue();
         }
     }
