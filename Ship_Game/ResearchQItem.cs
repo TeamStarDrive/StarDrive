@@ -58,9 +58,9 @@ namespace Ship_Game
 
         void SwapQueueItems(int first, int second)
         {
-            string tmp = Screen.Player.data.ResearchQueue[first];
-            Screen.Player.data.ResearchQueue[first] = Tech.UID;
-            Screen.Player.data.ResearchQueue[second] = tmp;
+            (Screen.Player.data.ResearchQueue[first], Screen.Player.data.ResearchQueue[second])
+            = 
+            (Screen.Player.data.ResearchQueue[second], Screen.Player.data.ResearchQueue[first]);
         }
 
         private bool CanMoveUp(int index)
