@@ -58,6 +58,13 @@ namespace Ship_Game
             
             var pos = new Vector2(X + 4, Y);
             batch.DrawString(TitleFont, name, pos, drawColor);
+            
+            if (Trait.Selected) 
+            {
+                var linePos = new Vector2 (X + 4, Y + TitleFont.LineSpacing-1);
+                var linePosEnd = new Vector2(X + 4 + TitleFont.TextWidth(Trait.Trait.LocalizedName.Text), Y + TitleFont.LineSpacing-1);
+                batch.DrawLine(linePos, linePosEnd, drawColor, 2);
+            }
 
             string costText = cost.ToString();
             var curs = new Vector2(pos.X + 30 + textAreaWidth - TitleFont.TextWidth(costText), Y);
