@@ -280,7 +280,7 @@ namespace Ship_Game
             int skipped = 0;
             while (ResearchCanMoveUp(index))
             {
-                SwapQueueItems(index - 1, index);
+                MoveUp(index);
                 index--;
                 skipped++;
             }
