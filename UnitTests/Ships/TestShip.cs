@@ -89,13 +89,13 @@ namespace UnitTests.Ships
         
         public int NumShipsLaunched; // TEST: # of times a hangar ship has launched
         
-        public override void OnShipLaunched(Ship ship)
+        public override void OnShipLaunched(Ship ship, ShipModule hangar)
         {
             if (EnableDebugLogging)
                 Log.Write($"Carrier.OnShipLaunched {this} {ship}");
 
             ++NumShipsLaunched;
-            base.OnShipLaunched(ship);
+            base.OnShipLaunched(ship, hangar);
         }
 
         public int NumShipsReturned; // TEST: # of ships that have returned to hangar

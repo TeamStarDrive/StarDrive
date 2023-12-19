@@ -94,11 +94,7 @@ namespace Ship_Game.Ships
         {
             miningShip = Ship.CreateShipFromHangar(Owner.Universe, hangar, Owner.Loyalty, Owner.Position, Owner);
             if (miningShip != null)
-            {
-                Owner.OnShipLaunched(miningShip);
-                Owner.ChangeOrdnance(-miningShip.ShipOrdLaunchCost);
-                hangar.SetHangarShip(miningShip);
-            }
+                Owner.OnShipLaunched(miningShip, hangar);
 
             return miningShip != null;
         }
