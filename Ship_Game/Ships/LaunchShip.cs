@@ -160,7 +160,7 @@ namespace Ship_Game.Ships
             {
                 Owner = ship;
                 RotationDegZ = rotation;
-                DoBarrelRoll = false; //ShouldBarrelRoll();
+                DoBarrelRoll = ShouldBarrelRoll();
                 Progress = InitialProgress;
                 TotalDuration = (InitialRotationDegX / ship.RotationRadsPerSecond.ToDegrees()).Clamped(2, 5);
                 RelativeDegForBarrel = 3.6f / (1 - Progress);
