@@ -34,8 +34,7 @@ namespace Ship_Game.Ships
                 || Owner.Carrier.HasSupplyShuttlesInSpace)
             {
                 int shipInNeedIndex = 0;
-                bool canLaunchShuttle = true;
-
+                bool canLaunchAnotherShuttle = true;
                 foreach (ShipModule hangar in Owner.Carrier.SupplyHangarsAlive)
                 {
                     hangar.TryGetHangarShipActive(out Ship supplyShipInSpace);
@@ -44,8 +43,8 @@ namespace Ship_Game.Ships
                         Ship supplyTarget = shipsNeedingSupply[shipInNeedIndex];
                         if (supplyShipInSpace != null)
                             OrderIdleSupplyShips(supplyShipInSpace, supplyTarget);
-                        else if (canLaunchShuttle)
-                            canLaunchShuttle = LaunchShipSupplyShuttle(hangar, supplyTarget);
+                        else if (canLaunchAnotherShuttle)
+                            canLaunchAnotherShuttle = LaunchShipSupplyShuttle(hangar, supplyTarget);
 
                         if (!ShipNeedsMoreOrdnance(supplyTarget))
                             shipInNeedIndex++;
@@ -63,46 +62,42 @@ namespace Ship_Game.Ships
         bool LaunchShipSupplyShuttle(ShipModule hangar, Ship supplyTarget)
         {
             if (!hangar.Active || hangar.HangarTimer > 0f)
-                return true;
+                return true; // This hangar cant launch, but others might
 
             if (!CarrierHasSupplyToLaunch(hangar))
                 return false;
 
-            if (!SupplyShipNeedsResupply(10))
+            Ship supplyShuttle = Ship.CreateShipFromHangar(Owner.Universe, hangar, Owner.Loyalty, Owner.Position, Owner);
+            if (supplyShuttle != null)
             {
-                CreateShuttle(hangar, out Ship supplyShuttle);
-                supplyShuttle.ChangeOrdnance(-supplyShuttle.OrdinanceMax);
-                if (!SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax))
-                {
-                    float supplyToLoad = supplyShuttle.OrdinanceMax.UpperBound(Owner.Ordinance);
-                    Owner.OnShipLaunched(supplyShuttle);
-                    Owner.ChangeOrdnance(-supplyToLoad);
-                    supplyShuttle.ChangeOrdnance(supplyToLoad);
-                    SetSupplyTarget(supplyShuttle, supplyTarget);
-                }
-                else
+                supplyShuttle.ChangeOrdnance(-supplyShuttle.OrdinanceMax); // setting to 0 so it could load from mothership
+                if (SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax))
                 {
                     return false;
                 }
+                else
+                {
+                    float supplyToLoad = supplyShuttle.OrdinanceMax.UpperBound(Owner.Ordinance);
+                    Owner.OnShipLaunched(supplyShuttle, hangar);
+                    supplyShuttle.ChangeOrdnance(supplyToLoad);
+                    SetSupplyTarget(supplyShuttle, supplyTarget);
+                    return true;
+                }
             }
-            return true;
+            else
+            {
+                return false;
+            }
         }
 
         bool CarrierHasSupplyToLaunch(ShipModule hangar)
         {
             hangar.HangarShipUID = Owner.Loyalty.GetSupplyShuttleName();
             Ship supplyShuttleTemplate = ResourceManager.GetShipTemplate(hangar.HangarShipUID);
-
-            return supplyShuttleTemplate.ShipOrdLaunchCost < Owner.Ordinance;
+            return supplyShuttleTemplate.ShipOrdLaunchCost + 5 < Owner.Ordinance;
         }
 
         bool SupplyShipNeedsResupply(float shuttleStorage) => shuttleStorage * 0.25f > Owner.Ordinance;
-        void CreateShuttle(ShipModule hangar, out Ship supplyShuttle)
-        {
-            supplyShuttle = Ship.CreateShipFromHangar(Owner.Universe, hangar, Owner.Loyalty, Owner.Position, Owner);
-            Owner.ChangeOrdnance(-supplyShuttle.ShipOrdLaunchCost);
-            hangar.SetHangarShip(supplyShuttle);
-        }
 
         void SetSupplyTarget(Ship supplySource, Ship supplyTarget)
         {

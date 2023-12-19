@@ -1095,14 +1095,9 @@ namespace Ship_Game.Ships
                 ship = Ship.CreateTroopShipAtPoint(Parent.Universe, assaultShuttle, Parent.Loyalty, 
                     Position, troop, LaunchPlan.Hangar, rotationDeg: ActualRotationDegrees);
 
-                SetHangarShip(ship);
-                HangarShip.Mothership = Parent;
+                Parent.OnShipLaunched(ship, this);
                 HangarShip.DoEscort(Parent);
-                HangarTimer = HangarTimerConstant;
-                // transfer our troop onto the shuttle we just spawned
-                troop.LandOnShip(HangarShip);
-
-                Parent.OnShipLaunched(HangarShip);
+                troop.LandOnShip(HangarShip); // Transfer our troop onto the shuttle we just spawned
                 return true;
             }
 
@@ -1139,12 +1134,9 @@ namespace Ship_Game.Ships
                 SetHangarShip(Ship.CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
                 if (HangarShip != null)
                 {
-                    HangarShip.DoEscort(Parent);
-                    HangarShip.Mothership = carrier;
-                    HangarTimer = HangarTimerConstant;
                     CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
-                    carrier.OnShipLaunched(HangarShip);
-                    carrier.ChangeOrdnance(-HangarShip.ShipOrdLaunchCost);
+                    carrier.OnShipLaunched(HangarShip, this);
+                    HangarShip.DoEscort(carrier);
                 }
                 else
                 {

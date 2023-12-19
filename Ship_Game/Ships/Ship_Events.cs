@@ -56,9 +56,13 @@ namespace Ship_Game.Ships
 
         // EVT: when a fighter of this carrier is launched
         //      or when a boarding party shuttle launches
-        public virtual void OnShipLaunched(Ship ship)
+        public virtual void OnShipLaunched(Ship launchedShip, ShipModule hangar)
         {
-            Carrier.AddToOrdnanceInSpace(ship.ShipOrdLaunchCost);
+            Carrier.AddToOrdnanceInSpace(launchedShip.ShipOrdLaunchCost);
+            ChangeOrdnance(-launchedShip.ShipOrdLaunchCost);
+            hangar.SetHangarShip(launchedShip);
+            launchedShip.Mothership = this;
+            hangar.HangarTimer = hangar.HangarTimerConstant;
         }
 
         // EVT: when a fighter of this carrier returns to hangar
