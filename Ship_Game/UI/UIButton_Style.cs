@@ -37,13 +37,13 @@ namespace Ship_Game
 
             // Text Colors
             public Color DefaultTextColor = new Color(255, 240, 189);
-            public Color HoverTextColor = new Color(255, 240, 189);
-            public Color PressTextColor = new Color(255, 240, 189);
+            public Color HoverTextColor   = new Color(255, 240, 189);
+            public Color PressTextColor   = new Color(255, 240, 189);
 
             // Fallback background colors if texture is null
             public Color DefaultColor = new Color(96, 81, 49);
-            public Color HoverColor = new Color(106, 91, 59);
-            public Color PressColor = new Color(86, 71, 39);
+            public Color HoverColor   = new Color(106, 91, 59);
+            public Color PressColor   = new Color(86, 71, 39);
 
             public bool DrawBackground = true;
 
@@ -53,15 +53,15 @@ namespace Ship_Game
 
             public StyleTextures(string normal)
             {
-                Normal = ResourceManager.Texture(normal);
-                Hover = ResourceManager.Texture(normal + "_hover");
+                Normal  = ResourceManager.Texture(normal);
+                Hover   = ResourceManager.Texture(normal + "_hover");
                 Pressed = ResourceManager.Texture(normal + "_pressed");
             }
 
             public StyleTextures(string normal, string hover)
             {
-                Normal = ResourceManager.Texture(normal);
-                Hover = ResourceManager.Texture(hover);
+                Normal  = ResourceManager.Texture(normal);
+                Hover   = ResourceManager.Texture(hover);
                 Pressed = Hover;
             }
 
@@ -84,13 +84,13 @@ namespace Ship_Game
                         break;
                     case ButtonStyle.DanButtonBlue:
                         DefaultTextColor = new Color(205, 229, 255);
-                        HoverTextColor = new Color(174, 202, 255);
-                        PressTextColor = new Color(174, 202, 255);
+                        HoverTextColor   = new Color(174, 202, 255);
+                        PressTextColor   = new Color(174, 202, 255);
                         break;
                     case ButtonStyle.DanButtonRed:
                         DefaultTextColor = Color.Red;
-                        HoverTextColor = Color.White;
-                        PressTextColor = Color.Green;
+                        HoverTextColor   = Color.White;
+                        PressTextColor   = Color.Green;
                         break;
                 }
             }
@@ -126,7 +126,7 @@ namespace Ship_Game
                 new StyleTextures("UI/btn_event_confirm_big"),
                 new StyleTextures() { DrawBackground = false },
             };
-            return Styling[(int)style];
+            return Styling[(int) style];
         }
 
         void SetStyle(ButtonStyle style)
@@ -158,13 +158,13 @@ namespace Ship_Game
                 return Normal.SizeF;
             return new Vector2(2, 2);
         }
-
+        
         SubTexture ButtonTexture()
         {
             switch (State)
             {
-                default: return Normal;
-                case PressState.Hover: return Hover;
+                default:                 return Normal;
+                case PressState.Hover:   return Hover;
                 case PressState.Pressed: return Pressed;
             }
         }
@@ -173,8 +173,8 @@ namespace Ship_Game
         {
             switch (State)
             {
-                default: return DefaultColor;
-                case PressState.Hover: return HoverColor;
+                default:                 return DefaultColor;
+                case PressState.Hover:   return HoverColor;
                 case PressState.Pressed: return PressColor;
             }
         }
@@ -183,8 +183,8 @@ namespace Ship_Game
         {
             switch (State)
             {
-                default: return DefaultTextColor;
-                case PressState.Hover: return HoverTextColor;
+                default:                 return DefaultTextColor;
+                case PressState.Hover:   return HoverTextColor;
                 case PressState.Pressed: return PressTextColor;
             }
         }

@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using SDUtils;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 
@@ -16,7 +15,7 @@ namespace Ship_Game
         readonly UIButton BtnCancel;
         readonly UIButton BtnToTop;
 
-        private EmpireResearch Research => Screen.Player.Research;
+        EmpireResearch Research => Screen.Player.Research;
 
         public override string ToString() => $"ResearchQItem \"{Tech.UID}\" {ElementDescr}";
 
@@ -25,10 +24,10 @@ namespace Ship_Game
             Screen = screen;
             Tech = tech;
             Pos = pos;
-            BtnUp = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
-            BtnDown = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
+            BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
+            BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
             BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
-            BtnToTop = Button(ButtonStyle.ResearchQueueToTop, OnBtnToTopPressed);
+            BtnToTop  = Button(ButtonStyle.ResearchQueueToTop, OnBtnToTopPressed);
             Node = new TreeNode(Pos + new Vector2(100f, 20f), Tech, Screen);
             PerformLayout();
         }
@@ -37,10 +36,10 @@ namespace Ship_Game
         {
             Size = new Vector2(320, 110);
             Node.SetPos(Pos + new Vector2(100f, 20f));
-            BtnUp.Rect = new RectF(X + 15, CenterY - 33, 30, 30);
-            BtnDown.Rect = new RectF(X + 15, CenterY + 3, 30, 30);
+            BtnUp.Rect     = new RectF(X + 15, CenterY - 33, 30, 30);
+            BtnDown.Rect   = new RectF(X + 15, CenterY + 3, 30, 30);
             BtnCancel.Rect = new RectF(X + 57, CenterY - 16 + 30, 30, 30);
-            BtnToTop.Rect = new RectF(X + 57, CenterY - 22, 30, 30);
+            BtnToTop.Rect  = new RectF(X + 57, CenterY - 22, 30, 30);
             base.PerformLayout();
         }
 
