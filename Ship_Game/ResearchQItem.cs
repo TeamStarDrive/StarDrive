@@ -26,8 +26,8 @@ namespace Ship_Game
             Pos = pos;
             BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
             BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
-            BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
             BtnToTop  = Button(ButtonStyle.ResearchQueueToTop, OnBtnToTopPressed);
+            BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
             Node = new TreeNode(Pos + new Vector2(100f, 20f), Tech, Screen);
             PerformLayout();
         }
@@ -38,8 +38,8 @@ namespace Ship_Game
             Node.SetPos(Pos + new Vector2(100f, 20f));
             BtnUp.Rect     = new RectF(X + 15, CenterY - 33, 30, 30);
             BtnDown.Rect   = new RectF(X + 15, CenterY + 3, 30, 30);
-            BtnCancel.Rect = new RectF(X + 57, CenterY - 16 + 30, 30, 30);
-            BtnToTop.Rect  = new RectF(X + 57, CenterY - 22, 30, 30);
+            BtnToTop.Rect  = new RectF(X + 57, CenterY -33, 30, 30);
+            BtnCancel.Rect = new RectF(X + 57, CenterY + 3, 30, 30);
             base.PerformLayout();
         }
 
