@@ -154,31 +154,24 @@ namespace Ship_Game
         }
 
         public bool UnlocksFoodBuilding => GoodsBuildingUnlocked(Goods.Food);
+        public bool UnlocksProdBuilding => GoodsBuildingUnlocked(Goods.Production);
         bool GoodsBuildingUnlocked(Goods good)
         {
             foreach (Building building in Tech.GetBuildings())
             {
                 switch (good)
                 {
-                    case Goods.None:
-                        break;
+                    case Goods.None: break;
+                    case Goods.Production when building.ProducesProduction:
+                    case Goods.Food       when building.ProducesFood || building.PlusTerraformPoints > 0 || building.MaxFertilityOnBuild > 0:
+                    case Goods.Colonists  when building.ProducesPopulation: return true;
                     case Goods.Production:
-                        break;
                     case Goods.Food:
-                    {
-                        if (building.PlusFlatFoodAmount > 0
-                            || building.PlusFoodPerColonist > 0
-                            || building.PlusTerraformPoints > 0
-                            || building.MaxFertilityOnBuild > 0)
-                            return true;
-                        break;
-                    }
-                    case Goods.Colonists:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(good), good, null);
+                    case Goods.Colonists: break; 
+                    default: throw new ArgumentOutOfRangeException(nameof(good), good, null);
                 }
             }
+
             return false;
         }
 
