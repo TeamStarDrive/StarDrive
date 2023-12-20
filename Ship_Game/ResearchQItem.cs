@@ -60,7 +60,7 @@ namespace Ship_Game
         void OnBtnUpPressed(UIButton up)
         {
             int index = Research.IndexInQueue(Tech.UID);
-            if (!Research.ResearchCanMoveUp(index))
+            if (!Research.CanMoveUp(index))
             {
                 GameAudio.NegativeClick();
                 return;
@@ -81,7 +81,7 @@ namespace Ship_Game
         void OnBtnDownPressed(UIButton down)
         {
             int index = Screen.Player.Research.IndexInQueue(Tech.UID);
-            if (!Research.ResearchCanMoveDown(index))
+            if (!Research.CanMoveDown(index))
             {
                 GameAudio.NegativeClick();
                 return;
