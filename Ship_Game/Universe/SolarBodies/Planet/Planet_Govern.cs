@@ -42,10 +42,7 @@ namespace Ship_Game
             Prod.Percent = 0;
             Res.Percent  = 0;
 
-            if (Budget == null || Owner != Budget.Owner)
-                CreatePlanetBudget(Owner);
-
-            Budget.Update();
+            CreateAndOrUpdateBudget();
             switch (CType) // New resource management by Gretman
             {
                 case ColonyType.TradeHub:
@@ -198,6 +195,24 @@ namespace Ship_Game
                 prodToSpend = ProdHere;
 
             return prodToSpend.UpperBound(availableProductionToQueue);
+        }
+
+        void CreateAndOrUpdateBudget()
+        {
+            if (Budget == null || Owner != Budget.Owner)
+                CreatePlanetBudget(Owner);
+
+            Budget.Update();
+        }
+
+        public bool BestCivilianBuildingToBuildDifferentThen(Building queuedBuilding)
+        {
+            CreateAndOrUpdateBudget();
+            Array<Building> buildings = GetBuildingsWeCanBuildHere();
+            buildings.Add(queuedBuilding);
+            float civilianBudget = Budget.RemainingCivilian + queuedBuilding.ActualMaintenance(this);
+            ChooseBestBuilding(buildings, civilianBudget, replacing: false, out Building bestBuilding);
+            return bestBuilding != null && bestBuilding.Name != queuedBuilding.Name;
         }
     }
 }

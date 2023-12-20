@@ -934,7 +934,9 @@ namespace Ship_Game
                 case TechUnlockType.Diplomacy when techEntry.UnlockFromDiplomacy(this, otherEmpire):
                 case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire):
                 case TechUnlockType.Scrap     when techEntry.UnlockFromScrap(this, otherEmpire):
-                    UpdateForNewTech(); break;
+                    UpdateForNewTech();
+                    TriggerRemoveGovernorQueuedBuildingsTechUnlock(techEntry);
+                    break;
             }
         }
 
@@ -944,6 +946,15 @@ namespace Ship_Game
             AI.SpaceRoadsManager.UpdateAllRoadsMaintenance();
             AI.TriggerRefit();
             TriggerFreightersRefit();
+        }
+
+        void TriggerRemoveGovernorQueuedBuildingsTechUnlock(TechEntry techEntry)
+        {
+            if (NonCybernetic && techEntry.UnlocksFoodBuilding || techEntry.UnlocksProdBuilding)
+            {
+                foreach (Planet p in OwnedPlanets)
+                    p.Construction.RemoveGovernorQueuedBuildingsTechnUnlock();
+            }
         }
 
         public void AssimilateTech(Empire conqueredEmpire)
