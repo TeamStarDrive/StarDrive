@@ -182,7 +182,6 @@ namespace Ship_Game
             Queue.Reorder(oldIndex, newIndex);
         }
         
-        
         /// <summary>
         /// Removes the given tech from the queue, and all techs that depend on it.
         /// </summary>
@@ -198,7 +197,6 @@ namespace Ship_Game
             RemoveLeadsToRecursive(techUid);
         }
         
-        
         /// <summary>
         /// Adds the given tech to the queue, and all of its PreReqs.
         /// It checks if the tech (and PreReqs) have been discovered and not finished yet and not already enqueued.
@@ -211,13 +209,10 @@ namespace Ship_Game
             {
                 var techEntry = Empire.GetTechEntry(predecessor.UID);
                 if (techEntry.Discovered && !techEntry.Unlocked && !IsQueued(predecessor.UID))
-                {
                     AddToQueue(predecessor.UID);
-                }
             }
             AddToQueue(techUid);
         }
-        
         
         string ResearchUidAt(int index) => Queue[index];
         Technology ResearchTechnologyAt(int index) => ResourceManager.Tech(ResearchUidAt(index));
@@ -247,26 +242,22 @@ namespace Ship_Game
         
         public void MoveUp(int index)
         {
-            if (ResearchCanMoveUp(index))
-            {
+            if (CanMoveUp(index))
                 SwapQueueItems(index - 1, index);
-            }
         }
         
         public void MoveDown(int index)
         {
-            if (ResearchCanMoveDown(index))
-            {
+            if (CanMoveDown(index))
                 SwapQueueItems(index + 1, index);
-            }
         }
         
-        public bool ResearchCanMoveUp(int index)
+        public bool CanMoveUp(int index)
         {
             return index != -1 && index >= 1 && !AboveIsPreReq(index);
         }
         
-        public bool ResearchCanMoveDown(int index)
+        public bool CanMoveDown(int index)
         {
             return index != -1 && index != Queue.Count - 1 && !IsPreReqOfBellow(index);
         }
@@ -278,7 +269,7 @@ namespace Ship_Game
         public int MoveToTopOrPreReq(int index)
         {
             int skipped = 0;
-            while (ResearchCanMoveUp(index))
+            while (CanMoveUp(index))
             {
                 MoveUp(index);
                 index--;
