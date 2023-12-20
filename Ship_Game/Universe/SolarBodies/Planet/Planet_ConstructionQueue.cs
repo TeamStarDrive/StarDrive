@@ -9,12 +9,11 @@ namespace Ship_Game;
 
 public partial class Planet
 {
-    public void RefreshBuildingsWeCanBuildHere()
+    Array<Building>GetBuildingsWeCanBuildHere()
     {
+        Array<Building> canBuild = [];
         if (Owner == null)
-            return;
-
-        var canBuild = new Array<Building>();
+            return canBuild;
 
         // See if it already has a command building or not.
         bool needCommandBuilding = BuildingList.All(b => !b.IsCapitalOrOutpost);
@@ -43,7 +42,13 @@ public partial class Planet
             // If the building is still a candidate after all that, then add it to the list!
             canBuild.Add(b);
         }
-        BuildingsCanBuild = canBuild;
+
+        return canBuild;
+    }
+
+    public void RefreshBuildingsWeCanBuildHere()
+    {
+        BuildingsCanBuild = GetBuildingsWeCanBuildHere();
     }
 
     public bool IsBuiltOrQueuedWithinEmpire(Building b)
