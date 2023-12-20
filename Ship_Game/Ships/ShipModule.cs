@@ -1131,12 +1131,12 @@ namespace Ship_Game.Ships
 
             if (HangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
-                SetHangarShip(Ship.CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
-                if (HangarShip != null)
+                Ship hangarShip = Ship.CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier);
+                if (hangarShip != null)
                 {
                     CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
-                    carrier.OnShipLaunched(HangarShip, this);
-                    HangarShip.DoEscort(carrier);
+                    carrier.OnShipLaunched(hangarShip, this);
+                    hangarShip.DoEscort(carrier);
                 }
                 else
                 {
