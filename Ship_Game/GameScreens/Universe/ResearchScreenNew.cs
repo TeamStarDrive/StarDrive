@@ -352,46 +352,39 @@ namespace Ship_Game
             {
                 // this tech cannot be researched
                 GameAudio.NegativeClick();
+                return;
             }
-            else if (tech.HasPreReq(Player))
+            
+            bool added = false;
+            
+            if (!Player.Research.IsQueued(tech.UID))
             {
-                // we already have all pre-requisites, so add it directly to queue
-                Queue.AddToResearchQueue(tech);
                 GameAudio.ResearchSelect();
+                Player.Research.AddTechToQueue(tech.UID);
+                added = true;
             }
+            
+            // if ctrl is held down, move tech to top of queue ALWAYS, even if it was already in queue (imo good UX)
+            if(GameBase.ScreenManager.input != null && GameBase.ScreenManager.input.IsCtrlKeyDown)
+            {
+                int index = Player.Research.IndexInQueue(tech.UID);
+                int moved = Player.Research.MoveToTopWithPreReqs(index);
+                if (moved == 0)
+                {
+                    GameAudio.NegativeClick();
+                }
+            }
+            
+            // if CTRL was not held down, and tech is in queue (but not added right now), remove it
             else
             {
-                // we need to research required techs before doing this one
-                GameAudio.ResearchSelect();
-
-                // figure out the list of techs to add
-                var techsToAdd = GetRequiredTechEntriesToResearch(tech);
-                foreach (TechEntry toAdd in techsToAdd)
+                if (!added)
                 {
-                    if (toAdd.Discovered)
-                        Queue.AddToResearchQueue(toAdd);
+                    Player.Research.RemoveTechFromQueue(tech.UID);
                 }
             }
-        }
-
-        Array<TechEntry> GetRequiredTechEntriesToResearch(TechEntry toResearch)
-        {
-            TechEntry techEntry = toResearch;
-            var techs = new Array<TechEntry>{ techEntry };
-            if (!techEntry.Tech.IsRootNode)
-            {
-                while (!techEntry.Unlocked)
-                {
-                    TechEntry preReq = techEntry.GetPreReq(Player);
-                    if (preReq == null)
-                        break; // done!
-                    if (!preReq.Unlocked)
-                        techs.Add(preReq);
-                    techEntry = preReq;
-                }
-            }
-            techs.Reverse();
-            return techs;
+            
+            Queue.ReloadResearchQueue();
         }
 
         Vector2 GridSize => new(GridWidth, GridHeight);
