@@ -13,6 +13,9 @@ namespace Ship_Game
         readonly UIButton BtnUp;
         readonly UIButton BtnDown;
         readonly UIButton BtnCancel;
+        readonly UIButton BtnToTop;
+
+        EmpireResearch Research => Screen.Player.Research;
 
         public override string ToString() => $"ResearchQItem \"{Tech.UID}\" {ElementDescr}";
 
@@ -23,6 +26,7 @@ namespace Ship_Game
             Pos = pos;
             BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
             BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
+            BtnToTop  = Button(ButtonStyle.ResearchQueueToTop, OnBtnToTopPressed);
             BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
             Node = new TreeNode(Pos + new Vector2(100f, 20f), Tech, Screen);
             PerformLayout();
@@ -32,9 +36,10 @@ namespace Ship_Game
         {
             Size = new Vector2(320, 110);
             Node.SetPos(Pos + new Vector2(100f, 20f));
-            BtnUp.Rect     = new RectF(X+15, CenterY - 33, 30, 30);
-            BtnDown.Rect   = new RectF(X+15, CenterY +  3, 30, 30);
-            BtnCancel.Rect = new RectF(X+57, CenterY - 15, 30, 30);
+            BtnUp.Rect     = new RectF(X + 15, CenterY - 33, 30, 30);
+            BtnDown.Rect   = new RectF(X + 15, CenterY + 3, 30, 30);
+            BtnToTop.Rect  = new RectF(X + 57, CenterY -33, 30, 30);
+            BtnCancel.Rect = new RectF(X + 57, CenterY + 3, 30, 30);
             base.PerformLayout();
         }
 
@@ -52,75 +57,63 @@ namespace Ship_Game
             Node.Draw(batch);
         }
 
-        void SwapQueueItems(int first, int second)
-        {
-            string tmp = Screen.Player.data.ResearchQueue[first];
-            Screen.Player.data.ResearchQueue[first] = Tech.UID;
-            Screen.Player.data.ResearchQueue[second] = tmp;
-        }
-
         void OnBtnUpPressed(UIButton up)
         {
-            int index = Screen.Player.Research.IndexInQueue(Tech.UID);
-            if (index == -1 || index < 1 || AboveIsPreReq(index))
+            int index = Research.IndexInQueue(Tech.UID);
+            if (!Research.CanMoveUp(index))
             {
                 GameAudio.NegativeClick();
                 return;
             }
-
-            SwapQueueItems(index - 1, index);
+            
+            InputState input = GameBase.ScreenManager.input;
+            if (input.IsCtrlKeyDown)
+            {
+                Research.MoveToTopOrPreReq(index);
+            }
+            else
+            {
+                Research.MoveUp(index);
+            }
             Screen.Queue.ReloadResearchQueue();
         }
 
         void OnBtnDownPressed(UIButton down)
         {
             int index = Screen.Player.Research.IndexInQueue(Tech.UID);
-            if (index == -1 || index == Screen.Player.data.ResearchQueue.Count - 1 || ThisIsPreReq(index))
+            if (!Research.CanMoveDown(index))
             {
                 GameAudio.NegativeClick();
                 return;
             }
 
-            SwapQueueItems(index + 1, index);
+            Research.MoveDown(index);
             Screen.Queue.ReloadResearchQueue();
         }
 
         void OnBtnCancelPressed(UIButton cancel)
         {
-            RemoveTech(Tech.UID);
+            Research.RemoveTechFromQueue(Tech.UID);
+            Screen.Queue.ReloadResearchQueue();
         }
 
-        string ResearchUidAt(int index) => Screen.Player.data.ResearchQueue[index];
-        Technology PlayerResearchAt(int index) => ResourceManager.Tech(ResearchUidAt(index));
-
-        bool AboveIsPreReq(int indexOfThis)
+        void OnBtnToTopPressed(UIButton toTop)
         {
-            foreach (Technology.LeadsToTech dependent in PlayerResearchAt(indexOfThis - 1).LeadsTo)
-                if (dependent.UID == Tech.UID)
-                    return true;
-            return false;
-        }
-
-        bool ThisIsPreReq(int indexOfThis)
-        {
-            Technology current = PlayerResearchAt(indexOfThis);
-            string next = ResearchUidAt(indexOfThis + 1);
-            foreach (Technology.LeadsToTech dependent in current.LeadsTo)
-                if (dependent.UID == next)
-                    return true;
-            return false;
-        }
-
-        void RemoveTech(string uid)
-        {
-            void RemoveLeadsToRecursive(string tech)
+            int index = Screen.Player.Research.IndexInQueue(Tech.UID);
+            
+            if (index == -1 || index == 0)
             {
-                Screen.Player.Research.RemoveFromQueue(tech);
-                foreach (Technology.LeadsToTech dependent in ResourceManager.Tech(tech).LeadsTo)
-                    RemoveLeadsToRecursive(dependent.UID);
+                GameAudio.NegativeClick();
+                return;
+            }
+            
+            int moved = Research.MoveToTopWithPreReqs(index);
+            if (moved == 0)
+            {
+                GameAudio.NegativeClick();
+                return;
             }
 
-            RemoveLeadsToRecursive(uid);
             Screen.Queue.ReloadResearchQueue();
         }
     }

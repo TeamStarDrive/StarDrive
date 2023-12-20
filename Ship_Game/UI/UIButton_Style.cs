@@ -19,6 +19,7 @@ namespace Ship_Game
         ResearchQueueUp, // "ResearchMenu/button_queue_up"
         ResearchQueueDown, // "ResearchMenu/button_queue_down"
         ResearchQueueCancel, // "ResearchMenu/button_queue_cancel"
+        ResearchQueueToTop, // "ResearchMenu/button_queue_to_top"
         DanButton,     // UI/dan_button  -- wide brown button
         DanButtonBlue, // UI/dan_button_blue -- blue version of dan_button
         DanButtonRed, // UI/dan_button_red -- red version of dan_button
@@ -118,6 +119,7 @@ namespace Ship_Game
                 new StyleTextures("ResearchMenu/button_queue_up", "ResearchMenu/button_queue_up_hover"),
                 new StyleTextures("ResearchMenu/button_queue_down", "ResearchMenu/button_queue_down_hover"),
                 new StyleTextures("ResearchMenu/button_queue_cancel", "ResearchMenu/button_queue_cancel_hover"),
+                new StyleTextures("ResearchMenu/button_queue_to_top", "ResearchMenu/button_queue_to_top_hover"),
                 new StyleTextures("UI/dan_button", ButtonStyle.DanButton),
                 new StyleTextures("UI/dan_button_blue", ButtonStyle.DanButtonBlue),
                 new StyleTextures("UI/dan_button_red", ButtonStyle.DanButtonRed),
