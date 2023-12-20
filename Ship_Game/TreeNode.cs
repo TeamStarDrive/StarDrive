@@ -274,7 +274,7 @@ namespace Ship_Game
             }
             else
             {
-                string text = $"Right Click to Expand \n\n{Entry.Tech.Description.Text}";
+                string text = $"Right Click to Expand\nCtrl Left Click to move or insert at topmost possible place in queue.\n\n{Entry.Tech.Description.Text}";
                 if (Complete && !Entry.MultiLevelComplete && !Screen.Player.Research.IsQueued(Entry.UID))
                     text = $"Left Click to research level {Entry.Level+1} of this tech.\n\n{text}";
 

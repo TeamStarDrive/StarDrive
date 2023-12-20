@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -181,6 +180,150 @@ namespace Ship_Game
         public void ReorderTech(int oldIndex, int newIndex)
         {
             Queue.Reorder(oldIndex, newIndex);
+        }
+        
+        /// <summary>
+        /// Removes the given tech from the queue, and all techs that depend on it.
+        /// </summary>
+        public void RemoveTechFromQueue(string techUid)
+        {
+            void RemoveLeadsToRecursive(string tech)
+            {
+                Queue.Remove(tech);
+                foreach (Technology.LeadsToTech dependent in ResourceManager.Tech(tech).LeadsTo)
+                    RemoveLeadsToRecursive(dependent.UID);
+            }
+
+            RemoveLeadsToRecursive(techUid);
+        }
+        
+        /// <summary>
+        /// Adds the given tech to the queue, and all of its PreReqs.
+        /// It checks if the tech (and PreReqs) have been discovered and not finished yet and not already enqueued.
+        /// </summary>
+        public void AddTechToQueue(string techUid)
+        {
+            var technology = ResourceManager.Tech(techUid);
+            var predecessorTechs = technology.PredecessorTechs();
+            foreach (Technology predecessor in predecessorTechs)
+            {
+                var techEntry = Empire.GetTechEntry(predecessor.UID);
+                if (techEntry.Discovered && !techEntry.Unlocked && !IsQueued(predecessor.UID))
+                    AddToQueue(predecessor.UID);
+            }
+            AddToQueue(techUid);
+        }
+        
+        string ResearchUidAt(int index) => Queue[index];
+        Technology ResearchTechnologyAt(int index) => ResourceManager.Tech(ResearchUidAt(index));
+        public bool AboveIsPreReq(int currentIndex)
+        {
+            var currentTech = ResearchTechnologyAt(currentIndex);
+            foreach (Technology.LeadsToTech dependent in ResourceManager.Tech(ResearchUidAt(currentIndex - 1)).LeadsTo)
+                if (dependent.UID == currentTech.UID)
+                    return true;
+            return false;
+        }
+        
+        public bool IsPreReqOfBellow(int currentIndex)
+        {
+            Technology current = ResearchTechnologyAt(currentIndex);
+            string next = ResearchUidAt(currentIndex + 1);
+            foreach (Technology.LeadsToTech dependent in current.LeadsTo)
+                if (dependent.UID == next)
+                    return true;
+            return false;
+        }
+        
+        private void SwapQueueItems(int first, int second)
+        {
+            (Queue[first], Queue[second]) = (Queue[second], Queue[first]);
+        }
+        
+        public void MoveUp(int index)
+        {
+            if (CanMoveUp(index))
+                SwapQueueItems(index - 1, index);
+        }
+        
+        public void MoveDown(int index)
+        {
+            if (CanMoveDown(index))
+                SwapQueueItems(index + 1, index);
+        }
+        
+        public bool CanMoveUp(int index)
+        {
+            return index != -1 && index >= 1 && !AboveIsPreReq(index);
+        }
+        
+        public bool CanMoveDown(int index)
+        {
+            return index != -1 && index != Queue.Count - 1 && !IsPreReqOfBellow(index);
+        }
+        
+        /// <summary>
+        /// This will move the item at the given index to the top of the queue, or until it hits a PreReq.
+        /// </summary>
+        /// <returns>The amount of research that was skipped over.</returns>
+        public int MoveToTopOrPreReq(int index)
+        {
+            int skipped = 0;
+            while (CanMoveUp(index))
+            {
+                MoveUp(index);
+                index--;
+                skipped++;
+            }
+            return skipped;
+        }
+        
+        /// <summary>
+        /// If the item at the given index has any enqueued PreReqs, they will be moved to the top of the queue.
+        /// </summary>
+        /// <returns>The amount of research that has moved in the queue.</returns>
+        public int MovePreReqsToTop(int index)
+        {
+            int preReqsThatMovedUp = 0;
+            
+            Technology current = ResearchTechnologyAt(index);
+            
+            foreach (string researchUid in Queue)
+            { 
+                int indexOfResearch = IndexInQueue(researchUid);
+                
+                Array<Technology> descendantTechs = ResourceManager.Tech(researchUid).DescendantTechs();
+                
+                foreach (Technology descendant in descendantTechs)
+                {
+                    if (descendant.UID == current.UID)
+                    {
+                        int movedPositions = MoveToTopOrPreReq(indexOfResearch);
+                        if (movedPositions > 0)
+                            preReqsThatMovedUp++;
+                    }
+                }
+            }
+            
+            return preReqsThatMovedUp;
+        }
+        
+        /// <summary>
+        /// Moves the item at the given index to the top of the queue, and all of its PreReqs as well.
+        /// </summary>
+        /// <returns>How many items in total have moved in the queue</returns>
+        public int MoveToTopWithPreReqs(int index)
+        {
+            int movedResearchItems = 0;
+            
+            int movedPreReqs = MovePreReqsToTop(index);
+            movedResearchItems = movedPreReqs;
+            
+            int movedPositions = MoveToTopOrPreReq(index);
+            if (movedPositions > 0)
+                movedResearchItems++;
+            
+            return movedResearchItems;
         }
     }
 }

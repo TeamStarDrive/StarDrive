@@ -75,7 +75,7 @@ namespace Ship_Game.Ships
             if (Done)
             {
                 Owner.XRotation = 0;
-                if (!Owner.IsConstructor && !Owner.IsSupplyShuttle && Owner.IsMiningShip)
+                if (!Owner.IsConstructor && !Owner.IsSupplyShuttle && !Owner.IsMiningShip)
                     Owner.AI.IgnoreCombat = false;
             }
 

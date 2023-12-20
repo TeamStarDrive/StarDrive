@@ -513,6 +513,26 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
+        // Make sure Governors prioritize buildings again after a new relevant building was unlocked
+        public void RemoveGovernorQueuedBuildingsTechnUnlock()
+        {
+            if (P.GovernorOff)
+                return;
+
+            for (int i = ConstructionQueue.Count - 1; i >= 0; --i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.IsCivilianBuilding 
+                    && !q.IsPlayerAdded 
+                    && q.ProductionSpent < q.ProductionNeeded * 0.95f
+                    && P.BestCivilianBuildingToBuildDifferentThen(q.Building))
+                {
+                    lock (ConstructionQueue)
+                        ConstructionQueue.Remove(q);
+                }
+            }
+        }
+
         public void RefitShipsBeingBuilt(Ship oldShip, IShipDesign newShip)
         {
             float refitCost = oldShip.RefitCost(newShip);
