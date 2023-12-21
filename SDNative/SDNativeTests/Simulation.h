@@ -3,7 +3,7 @@
 #include "SpatialSimUtils.h"
 #include "DebugGfxWindow.h"
 #include <spatial/SpatialDebug.h>
-#include <rpp/timer.h>
+#include <src/rpp/timer.h>
 #include <algorithm> // std::max
 #include "LoyaltyFilterType.h"
 
