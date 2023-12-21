@@ -15,7 +15,7 @@
 
 #include <cstdio>
 #include <memory>
-#include <src/rpp/debugging.h>
+#include <rpp/debugging.h>
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 using byte = unsigned char;

@@ -1,6 +1,6 @@
 #pragma once
 #include <spatial/Spatial.h>
-#include <src/rpp/vec.h>
+#include <rpp/vec.h>
 
 struct SimParams
 {

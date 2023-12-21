@@ -1,6 +1,6 @@
 #pragma once
 #include <rapidxml/rapidxml.hpp>
-#include <src/rpp/strview.h>
+#include <rpp/strview.h>
 
 namespace SDNative
 {

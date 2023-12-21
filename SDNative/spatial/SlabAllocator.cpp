@@ -1,6 +1,6 @@
 #include "SlabAllocator.h"
 #include <stdexcept>
-#include <src/rpp/debugging.h>
+#include <rpp/debugging.h>
 
 namespace spatial
 {

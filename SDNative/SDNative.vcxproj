@@ -47,14 +47,14 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\game\</OutDir>
-    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ReCpp/src;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\game\</OutDir>
-    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ReCpp/src;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
