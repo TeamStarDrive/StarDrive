@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <cstring>
-#include <rpp/strview.h>
+#include <src/rpp/strview.h>
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 #define STDCALL(ret) DLLEXPORT ret __stdcall
