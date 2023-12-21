@@ -1,5 +1,5 @@
 #include <spatial/ObjectCollection.h>
-#include <rpp/tests.h>
+#include <src/rpp/tests.h>
 
 TestImpl(ObjectCollection)
 {

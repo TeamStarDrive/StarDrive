@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
-#include <rpp/strview.h>
-#include <rpp/file_io.h>
+#include <src/rpp/strview.h>
+#include <src/rpp/file_io.h>
 
 namespace SDNative
 {

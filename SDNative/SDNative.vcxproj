@@ -127,14 +127,14 @@
     <ClInclude Include="3rdparty\stb\stb_image_write.h" />
     <ClInclude Include="NanoMesh\include\Nano\Mesh.h" />
     <ClInclude Include="NanoMesh\include\Nano\MeshLoader.h" />
-    <ClInclude Include="ReCpp\rpp\collections.h" />
-    <ClInclude Include="ReCpp\rpp\config.h" />
-    <ClInclude Include="ReCpp\rpp\debugging.h" />
-    <ClInclude Include="ReCpp\rpp\file_io.h" />
-    <ClInclude Include="ReCpp\rpp\paths.h" />
-    <ClInclude Include="ReCpp\rpp\sprint.h" />
-    <ClInclude Include="ReCpp\rpp\strview.h" />
-    <ClInclude Include="ReCpp\rpp\vec.h" />
+    <ClInclude Include="ReCpp\src\rpp\collections.h" />
+    <ClInclude Include="ReCpp\src\rpp\config.h" />
+    <ClInclude Include="ReCpp\src\rpp\debugging.h" />
+    <ClInclude Include="ReCpp\src\rpp\file_io.h" />
+    <ClInclude Include="ReCpp\src\rpp\paths.h" />
+    <ClInclude Include="ReCpp\src\rpp\sprint.h" />
+    <ClInclude Include="ReCpp\src\rpp\strview.h" />
+    <ClInclude Include="ReCpp\src\rpp\vec.h" />
     <ClInclude Include="SdMesh\SdAnimation.h" />
     <ClInclude Include="SdMesh\SdMaterial.h" />
     <ClInclude Include="SdMesh\SdMesh.h" />
@@ -177,12 +177,12 @@
     <ClCompile Include="NanoMesh\src\Mesh_Fbx.cpp" />
     <ClCompile Include="NanoMesh\src\Mesh_Obj.cpp" />
     <ClCompile Include="NanoMesh\src\Mesh_Txt.cpp" />
-    <ClCompile Include="ReCpp\rpp\debugging.cpp" />
-    <ClCompile Include="ReCpp\rpp\file_io.cpp" />
-    <ClCompile Include="ReCpp\rpp\paths.cpp" />
-    <ClCompile Include="ReCpp\rpp\sprint.cpp" />
-    <ClCompile Include="ReCpp\rpp\strview.cpp" />
-    <ClCompile Include="ReCpp\rpp\vec.cpp" />
+    <ClCompile Include="ReCpp\src\rpp\debugging.cpp" />
+    <ClCompile Include="ReCpp\src\rpp\file_io.cpp" />
+    <ClCompile Include="ReCpp\src\rpp\paths.cpp" />
+    <ClCompile Include="ReCpp\src\rpp\sprint.cpp" />
+    <ClCompile Include="ReCpp\src\rpp\strview.cpp" />
+    <ClCompile Include="ReCpp\src\rpp\vec.cpp" />
     <ClCompile Include="SdMesh\SdAnimation.cpp" />
     <ClCompile Include="SdMesh\SdMaterial.cpp" />
     <ClCompile Include="SdMesh\SdMesh.cpp" />
@@ -206,8 +206,8 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis" />
-    <Natvis Include="ReCpp\rpp\strview.natvis" />
-    <Natvis Include="ReCpp\rpp\vec.natvis" />
+    <Natvis Include="ReCpp\src\rpp\strview.natvis" />
+    <Natvis Include="ReCpp\src\rpp\vec.natvis" />
     <Natvis Include="SDNative.natvis" />
     <Natvis Include="spatial\qtree\Spatial.natvis" />
   </ItemGroup>

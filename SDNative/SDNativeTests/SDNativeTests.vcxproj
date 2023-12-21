@@ -112,14 +112,14 @@
     <ClCompile Include="..\3rdparty\imgui\imgui_impl_dx11.cpp" />
     <ClCompile Include="..\3rdparty\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="..\3rdparty\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="..\ReCpp\rpp\debugging.cpp" />
-    <ClCompile Include="..\ReCpp\rpp\file_io.cpp" />
-    <ClCompile Include="..\ReCpp\rpp\paths.cpp" />
-    <ClCompile Include="..\ReCpp\rpp\sprint.cpp" />
-    <ClCompile Include="..\ReCpp\rpp\strview.cpp" />
-    <ClCompile Include="..\ReCpp\rpp\tests.cpp" />
-    <ClCompile Include="..\ReCpp\rpp\timer.cpp" />
-    <ClCompile Include="..\ReCpp\rpp\vec.cpp" />
+    <ClCompile Include="..\ReCpp\src\rpp\debugging.cpp" />
+    <ClCompile Include="..\ReCpp\src\rpp\file_io.cpp" />
+    <ClCompile Include="..\ReCpp\src\rpp\paths.cpp" />
+    <ClCompile Include="..\ReCpp\src\rpp\sprint.cpp" />
+    <ClCompile Include="..\ReCpp\src\rpp\strview.cpp" />
+    <ClCompile Include="..\ReCpp\src\rpp\tests.cpp" />
+    <ClCompile Include="..\ReCpp\src\rpp\timer.cpp" />
+    <ClCompile Include="..\ReCpp\src\rpp\vec.cpp" />
     <ClCompile Include="DebugGfxWindow.cpp" />
     <ClCompile Include="Simulation.cpp" />
     <ClCompile Include="TestCellLoyalty.cpp" />
@@ -139,16 +139,16 @@
     <ClInclude Include="..\3rdparty\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\3rdparty\imgui\imstb_textedit.h" />
     <ClInclude Include="..\3rdparty\imgui\imstb_truetype.h" />
-    <ClInclude Include="..\ReCpp\rpp\collections.h" />
-    <ClInclude Include="..\ReCpp\rpp\config.h" />
-    <ClInclude Include="..\ReCpp\rpp\debugging.h" />
-    <ClInclude Include="..\ReCpp\rpp\file_io.h" />
-    <ClInclude Include="..\ReCpp\rpp\paths.h" />
-    <ClInclude Include="..\ReCpp\rpp\sprint.h" />
-    <ClInclude Include="..\ReCpp\rpp\strview.h" />
-    <ClInclude Include="..\ReCpp\rpp\tests.h" />
-    <ClInclude Include="..\ReCpp\rpp\timer.h" />
-    <ClInclude Include="..\ReCpp\rpp\vec.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\collections.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\config.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\debugging.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\file_io.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\paths.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\sprint.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\strview.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\tests.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\timer.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\vec.h" />
     <ClInclude Include="DebugGfxWindow.h" />
     <ClInclude Include="LoyaltyFilterType.h" />
     <ClInclude Include="SimParams.h" />
@@ -157,8 +157,8 @@
     <ClInclude Include="SpatialSimUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="..\ReCpp\rpp\strview.natvis" />
-    <Natvis Include="..\ReCpp\rpp\vec.natvis" />
+    <Natvis Include="..\ReCpp\src\rpp\strview.natvis" />
+    <Natvis Include="..\ReCpp\src\rpp\vec.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

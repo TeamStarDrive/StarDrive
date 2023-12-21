@@ -1,6 +1,6 @@
 #pragma once
 #include <libpng/png.h>
-#include <rpp/file_io.h>
+#include <src/rpp/file_io.h>
 #include <string>
 #include <stdarg.h>
 #include "shared_image_utils.h"

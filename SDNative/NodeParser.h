@@ -1,6 +1,6 @@
 #pragma once
 #include <rapidxml/rapidxml.hpp>
-#include <rpp/strview.h>
+#include <src/rpp/strview.h>
 
 namespace SDNative
 {
@@ -16,8 +16,8 @@ namespace SDNative
         FINLINE NodeParser(xml_node<>* parentNode)
         {
             if (parentNode && (node = parentNode->m_first_node) != nullptr) {
-                name  = { node->m_name,  node->m_name_size  };
-                value = { node->m_value, node->m_value_size };
+                name  = rpp::strview(node->m_name,  node->m_name_size);
+                value = rpp::strview( node->m_value, node->m_value_size);
             }
         }
         FINLINE NodeParser(const NodeParser& parser) : NodeParser(parser.node) { }
@@ -35,8 +35,8 @@ namespace SDNative
             {
                 if (node->m_type != node_element)
                     continue; // keep trying until we get an element node
-                name  = { node->m_name,  node->m_name_size  };
-                value = { node->m_value, node->m_value_size };
+                name  = rpp::strview(node->m_name,  node->m_name_size);
+                value = rpp::strview(node->m_value, node->m_value_size);
                 return;
             }
             name.clear(), value.clear();

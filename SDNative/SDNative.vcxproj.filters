@@ -61,19 +61,19 @@
     <ClCompile Include="util\apex_memmove.cpp">
       <Filter>util</Filter>
     </ClCompile>
-    <ClCompile Include="ReCpp\rpp\debugging.cpp">
+    <ClCompile Include="ReCpp\src\rpp\debugging.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
-    <ClCompile Include="ReCpp\rpp\file_io.cpp">
+    <ClCompile Include="ReCpp\src\rpp\file_io.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
-    <ClCompile Include="ReCpp\rpp\strview.cpp">
+    <ClCompile Include="ReCpp\src\rpp\strview.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
-    <ClCompile Include="ReCpp\rpp\vec.cpp">
+    <ClCompile Include="ReCpp\src\rpp\vec.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
-    <ClCompile Include="ReCpp\rpp\sprint.cpp">
+    <ClCompile Include="ReCpp\src\rpp\sprint.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
     <ClCompile Include="util\image_utils.cpp">
@@ -154,7 +154,7 @@
     <ClCompile Include="util\byte_buffer.cpp">
       <Filter>util</Filter>
     </ClCompile>
-    <ClCompile Include="ReCpp\rpp\paths.cpp">
+    <ClCompile Include="ReCpp\src\rpp\paths.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
   </ItemGroup>
@@ -168,22 +168,22 @@
     <ClInclude Include="NodeParser.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="ReCpp\rpp\debugging.h">
+    <ClInclude Include="ReCpp\src\rpp\debugging.h">
       <Filter>rpp</Filter>
     </ClInclude>
-    <ClInclude Include="ReCpp\rpp\file_io.h">
+    <ClInclude Include="ReCpp\src\rpp\file_io.h">
       <Filter>rpp</Filter>
     </ClInclude>
-    <ClInclude Include="ReCpp\rpp\strview.h">
+    <ClInclude Include="ReCpp\src\rpp\strview.h">
       <Filter>rpp</Filter>
     </ClInclude>
-    <ClInclude Include="ReCpp\rpp\vec.h">
+    <ClInclude Include="ReCpp\src\rpp\vec.h">
       <Filter>rpp</Filter>
     </ClInclude>
-    <ClInclude Include="ReCpp\rpp\sprint.h">
+    <ClInclude Include="ReCpp\src\rpp\sprint.h">
       <Filter>rpp</Filter>
     </ClInclude>
-    <ClInclude Include="ReCpp\rpp\collections.h">
+    <ClInclude Include="ReCpp\src\rpp\collections.h">
       <Filter>rpp</Filter>
     </ClInclude>
     <ClInclude Include="3rdparty\soil2\image_DXT.h">
@@ -219,7 +219,7 @@
     <ClInclude Include="NanoMesh\include\Nano\MeshLoader.h">
       <Filter>3rdparty\nano</Filter>
     </ClInclude>
-    <ClInclude Include="ReCpp\rpp\config.h">
+    <ClInclude Include="ReCpp\src\rpp\config.h">
       <Filter>rpp</Filter>
     </ClInclude>
     <ClInclude Include="SdMesh\SdMesh.h">
@@ -324,7 +324,7 @@
     <ClInclude Include="util\shared_image_utils.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="ReCpp\rpp\paths.h">
+    <ClInclude Include="ReCpp\src\rpp\paths.h">
       <Filter>rpp</Filter>
     </ClInclude>
   </ItemGroup>
@@ -332,10 +332,10 @@
     <Natvis Include="SDNative.natvis">
       <Filter>src</Filter>
     </Natvis>
-    <Natvis Include="ReCpp\rpp\strview.natvis">
+    <Natvis Include="ReCpp\src\rpp\strview.natvis">
       <Filter>rpp</Filter>
     </Natvis>
-    <Natvis Include="ReCpp\rpp\vec.natvis">
+    <Natvis Include="ReCpp\src\rpp\vec.natvis">
       <Filter>rpp</Filter>
     </Natvis>
     <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis">
