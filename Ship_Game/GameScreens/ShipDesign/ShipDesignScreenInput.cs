@@ -19,6 +19,7 @@ namespace Ship_Game
         Vector2 ClassifCursor;
         UICheckBox CarrierOnlyCheckBox;
         bool DisplayedBulkReplacementHint;
+        const float ClickThresholdSeconds = 0.1f;
 
         void UpdateCarrierShip()
         {
@@ -256,14 +257,15 @@ namespace Ship_Game
                 // we clicked on empty space
                 if (input.LeftMouseReleased)
                 {
-                    if (!input.LeftMouseWasHeldDown || input.LeftMouseHoldDuration < 0.1f)
+                    if (!input.LeftMouseWasHeldDown || input.LeftMouseHoldDuration < ClickThresholdSeconds)
                         HighlightedModule = null;
                 }
+
                 return false;
             }
 
             // mouse was released and we weren't performing ARC drag with left mouse down
-            if (input.LeftMouseReleased && !input.LeftMouseHeldDown)
+            if (input.LeftMouseReleased && input.LeftMouseHoldDuration < ClickThresholdSeconds)
             {
                 GameAudio.DesignSoftBeep();
 
@@ -282,7 +284,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (ActiveModule == null && !input.LeftMouseHeld(0.1f))
+            if (ActiveModule == null && !input.LeftMouseHeld(ClickThresholdSeconds))
             {
                 ShipModule highlighted = slotUnderCursor.Module ?? slotUnderCursor.Parent?.Module;
                 // RedFox: ARC ROTATE issue fix; prevents clearing highlighted module
