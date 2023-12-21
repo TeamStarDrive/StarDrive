@@ -1,7 +1,7 @@
 #pragma once
 #include "SimParams.h"
 #include "SpatialSimObject.h"
-#include <src/rpp/timer.h>
+#include <rpp/timer.h>
 
 //! @return Random float between [-1.0; +1.0]
 static float randFloat()

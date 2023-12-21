@@ -1,5 +1,5 @@
-#include <src/rpp/timer.h>
-#include <src/rpp/tests.h>
+#include <rpp/timer.h>
+#include <rpp/tests.h>
 #include "Simulation.h"
 
 TestImpl(TestSimulation)

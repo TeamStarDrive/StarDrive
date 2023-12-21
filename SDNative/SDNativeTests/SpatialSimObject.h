@@ -1,5 +1,5 @@
 #pragma once
-#include <src/rpp/vec.h>
+#include <rpp/vec.h>
 
 enum ObjectType : uint8_t
 {

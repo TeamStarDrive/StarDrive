@@ -1,6 +1,6 @@
 #pragma once
-#include <src/rpp/file_io.h>
-#include <src/rpp/debugging.h>
+#include <rpp/file_io.h>
+#include <rpp/debugging.h>
 #include "shared_image_utils.h"
 
 
