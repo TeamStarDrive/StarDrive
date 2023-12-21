@@ -119,6 +119,18 @@ namespace UnitTests.AITests.Empire
             AssertGreaterThan(budget, terraformerMaint * 2,
                 $"Terraformer budget form empire {budget} is lower than terraformer maintenance {terraformerMaint}");
 
+            int numTerraformableTiles = homeworld.TilesList.Count(t => t.CanTerraform);
+            if (numTerraformableTiles == 0)
+            {
+                Log.Info($"Tiles which can be terraformed was 0, adding one terraformable tile");
+                PlanetGridSquare tile = homeworld.TilesList.Find(t => !t.Habitable);
+                tile.Terraformable = true;
+            }
+            else
+            {
+                Log.Info($"Terraformable tiles: {numTerraformableTiles}");
+            }
+
             Player.GovernPlanets();
             Player.AutoBuildTerraformers = true;
             Player.UnlockEmpireBuilding(terraformer.Name);
@@ -127,7 +139,6 @@ namespace UnitTests.AITests.Empire
 
             // We need 2 Terraformers for this test and it should get a minimum of 2
             AssertGreaterThan(homeworld.TerraformerLimit, 1);
-
             // The budget the planet gets must be like the maint of the terraformer
             // It will be increased differentially when terraformers are built
             AssertEqual(homeworld.TerraformBudget, terraformerMaint);
