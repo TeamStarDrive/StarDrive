@@ -1,6 +1,6 @@
 #include "ShipDataSerializer.h"
 #include "NodeParser.h"
-#include <src/rpp/sprint.h>
+#include <rpp/sprint.h>
 
 namespace SDNative
 {

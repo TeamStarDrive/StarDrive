@@ -1,4 +1,4 @@
-#include <src/rpp/tests.h>
+#include <rpp/tests.h>
 
 int main(int argc, char** argv)
 {

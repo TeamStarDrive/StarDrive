@@ -16,29 +16,8 @@
     <ClCompile Include="tests_main.cpp">
       <Filter>tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\ReCpp\rpp\debugging.cpp">
-      <Filter>rpp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ReCpp\rpp\file_io.cpp">
-      <Filter>rpp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ReCpp\rpp\sprint.cpp">
-      <Filter>rpp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ReCpp\rpp\strview.cpp">
-      <Filter>rpp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ReCpp\rpp\vec.cpp">
-      <Filter>rpp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ReCpp\rpp\tests.cpp">
-      <Filter>rpp</Filter>
-    </ClCompile>
     <ClCompile Include="TestQuadTree.cpp">
       <Filter>tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ReCpp\rpp\timer.cpp">
-      <Filter>rpp</Filter>
     </ClCompile>
     <ClCompile Include="..\3rdparty\imgui\imgui.cpp">
       <Filter>imgui</Filter>
@@ -82,38 +61,32 @@
     <ClCompile Include="TestFindNearby.cpp">
       <Filter>tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\ReCpp\rpp\paths.cpp">
-      <Filter>rpp</Filter>
+    <ClCompile Include="..\ReCpp\src\rpp\debugging.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\src\rpp\file_io.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\src\rpp\paths.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\src\rpp\sprint.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\src\rpp\strview.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\src\rpp\tests.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\src\rpp\timer.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\src\rpp\vec.cpp">
+      <Filter>tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\ReCpp\rpp\collections.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ReCpp\rpp\config.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ReCpp\rpp\debugging.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ReCpp\rpp\file_io.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ReCpp\rpp\sprint.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ReCpp\rpp\strview.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ReCpp\rpp\vec.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ReCpp\rpp\tests.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ReCpp\rpp\timer.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
     <ClInclude Include="..\3rdparty\imgui\imgui.h">
       <Filter>imgui</Filter>
     </ClInclude>
@@ -153,16 +126,19 @@
     <ClInclude Include="LoyaltyFilterType.h">
       <Filter>tests</Filter>
     </ClInclude>
-    <ClInclude Include="..\ReCpp\rpp\paths.h">
-      <Filter>rpp</Filter>
-    </ClInclude>
+    <ClInclude Include="..\ReCpp\src\rpp\collections.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\config.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\debugging.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\file_io.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\paths.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\sprint.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\strview.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\tests.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\timer.h" />
+    <ClInclude Include="..\ReCpp\src\rpp\vec.h" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="..\ReCpp\rpp\strview.natvis">
-      <Filter>rpp</Filter>
-    </Natvis>
-    <Natvis Include="..\ReCpp\rpp\vec.natvis">
-      <Filter>rpp</Filter>
-    </Natvis>
+    <Natvis Include="..\ReCpp\src\rpp\strview.natvis" />
+    <Natvis Include="..\ReCpp\src\rpp\vec.natvis" />
   </ItemGroup>
 </Project>

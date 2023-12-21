@@ -1,6 +1,6 @@
 #include <spatial/Search.h>
 #include <spatial/CellLoyalty.h>
-#include <src/rpp/tests.h>
+#include <rpp/tests.h>
 
 using spatial::getLoyaltyMask;
 

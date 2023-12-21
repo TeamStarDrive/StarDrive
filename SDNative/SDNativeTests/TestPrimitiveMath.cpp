@@ -1,4 +1,4 @@
-#include <src/rpp/tests.h>
+#include <rpp/tests.h>
 #include <spatial/Primitives.h>
 using spatial::Rect;
 using spatial::CircleF;

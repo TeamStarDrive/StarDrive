@@ -1,6 +1,6 @@
 #include <spatial/Search.h>
 #include <spatial/ObjectCollection.h>
-#include <src/rpp/tests.h>
+#include <rpp/tests.h>
 
 using spatial::Rect;
 using spatial::Point;
