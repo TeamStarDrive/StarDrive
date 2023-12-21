@@ -19,7 +19,6 @@ namespace Ship_Game
         // If the original Capital of the race is taken by this race, the Capital will be
         // moved from its current planet to the original one (If the planet is not a capital by origin.
         // The `Planet Capital` var is used for this)
-
         [StarData] public bool IsHomeworld { get; private set; } 
 
         public void SetHomeworld(bool value)
