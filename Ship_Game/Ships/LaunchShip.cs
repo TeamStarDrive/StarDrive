@@ -47,7 +47,7 @@ namespace Ship_Game.Ships
             => new Vector2(-ship.Direction * ship.Radius * scale * 0.5f + ship.Position).ToVec3(posZ + 20);
 
         public static Vector2 StartingVelocity(Ship ship, float rotationDegZ, float randomModifier) 
-            => rotationDegZ.AngleToDirection() * (ship.MaxSTLSpeed * randomModifier).UpperBound(500);
+            => rotationDegZ.AngleToDirection() * (ship.MaxSTLSpeed * randomModifier).UpperBound(300);
 
 
         public void Update(bool visibleToPlayer, FixedSimTime timeStep)
@@ -122,7 +122,7 @@ namespace Ship_Game.Ships
                 SecondsHalfPosZ = (StartingPosZ / ship.MaxSTLSpeed.LowerBound(100)).Clamped(MinSecondsToHalfScale, MaxSecondsToHalfScale);
                 SecondsToZeroX = PlanetPlanRotationDegX / ship.RotationRadsPerSecond.ToDegrees().LowerBound(5);
                 TotalDuration = SecondsHalfPosZ + SecondsToZeroX;
-                Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(0.5f, 0.75f));
+                Velocity = StartingVelocity(ship, RotationDegZ, ship.Universe.Random.Float(0.2f, 0.5f));
             }
 
             public void Update(FixedSimTime timeStep, bool visible, ref float posZ, out float scale)
