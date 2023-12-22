@@ -19,8 +19,9 @@ Note that the game now has an auto update logic; You can install the Major Relea
 [Go To Downloads](https://github.com/TeamStarDrive/StarDrive/releases) (for reference)
 
 # Mods
-The only mod which currently supports Blackbox is Combined Arms, which is a huge content mod.
-[Combined Arms](https://github.com/TeamStarDrive/CombinedArms)
+The only mods which currently supports Blackbox are 
+* [Combined Arms] (https://github.com/TeamStarDrive/CombinedArms), which is a huge content mod. 
+* [Star Trek] (https://github.com/TeamStarDrive/StarTrekShatteredAlliance), which uses Vanilla races with addtion of Star Trek races and ships.
 
 # Community
 Feel free to drop in for questions, bug reports, requests and what not. 
@@ -35,16 +36,16 @@ What we achieved in Mars so far:
 * Huge performance improvements
 * Huge stability improvements - especially got rid of most OutOfMemory errors
 * Racial planet preferences
+* Research Stations
+* Mining Ops
+* Multi Level Research for bonuses/upgrades
 * New mesh, texture and shader loading system
+* Auto Update for Blackbox versions and mods.
 
 # BlackBox - Hyperion
 The future goals of BlackBox - Hyperion are:
-* Automatic updater
 * New graphics engine - XNA is extremely limiting
 * 64-bit engine - will remove a lot of memory limitations
-* Gas Giant mining operations
-* Asteroid mining operations
-* Tradable resources
 * Upgraded graphics - a sort of next-gen update would be great
 * Steam release - release a remastered version on Steam to reach more players
 
