@@ -54,7 +54,16 @@ namespace Ship_Game
             GameAudio.AcceptClick();
             IsOpen = !IsOpen;
             if (IsOpen)
+            {
+                Screen.FreighterUtilizationWindow.CloseWindow();
                 LoadContent();
+            }
+        }
+
+        public void CloseWindow()
+        {
+            IsOpen = false;
+            Visible = false;
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

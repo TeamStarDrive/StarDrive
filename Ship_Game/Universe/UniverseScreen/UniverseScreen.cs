@@ -101,6 +101,7 @@ namespace Ship_Game
         public float AdjustCamTimer;
         public AutomationWindow aw;
         public ExoticBonusesWindow ExoticBonusesWindow;
+        public FreighterUtilizationWindow FreighterUtilizationWindow;
         public bool DefiningAO; // are we defining a new AO?
         public bool DefiningTradeRoutes; // are we defining  trade routes for a freighter?
         public Rectangle AORect; // used for showing current AO Rect definition
@@ -431,6 +432,7 @@ namespace Ship_Game
             mmHousing = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             Minimap = Add(new MiniMap(this, mmHousing));
             ExoticBonusesWindow = Add(new ExoticBonusesWindow(this));
+            FreighterUtilizationWindow = Add(new FreighterUtilizationWindow(this));
 
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
             mmShowBorders = new Rectangle(MinimapDisplayRect.X, MinimapDisplayRect.Y - 25, 32, 32);
@@ -636,6 +638,7 @@ namespace Ship_Game
             Mem.Dispose(ref Shields);
             Mem.Dispose(ref aw);
             Mem.Dispose(ref ExoticBonusesWindow);
+            Mem.Dispose(ref FreighterUtilizationWindow);
             Mem.Dispose(ref DebugWin);
             Mem.Dispose(ref workersPanel);
         }
