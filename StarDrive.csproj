@@ -237,6 +237,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExtGameObj.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NewMathExt.cs" />
+    <Compile Include="Ship_Game\FreighterUtilizationWindow.cs" />
     <Compile Include="Ship_Game\GamePlayGlobals.cs" />
     <Compile Include="Ship_Game\Gameplay\GameDifficulty.cs" />
     <Compile Include="Ship_Game\Gameplay\WeaponTag.cs" />

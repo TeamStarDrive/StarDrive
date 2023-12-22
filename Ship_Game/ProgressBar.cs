@@ -52,16 +52,19 @@ public sealed class ProgressBar
         gMiddle = new Rectangle(Middle.X, Middle.Y + 3, Middle.Width, 12);
     }
 
-    public float Percent => Progress / Max;
+    public float Percent => DrawPercentage ? Progress / 100 : Progress / Max;
 
     float PercentForFill
     {
         get
         {
             if (Max == 0)
-                return Progress == 0 ? 0 : 1;
-            else
-                return Percent;
+            {
+                return Progress == 0 ? 0
+                                     : DrawPercentage ? Percent : 1;
+            }
+
+            return Percent;
         }
     }
 

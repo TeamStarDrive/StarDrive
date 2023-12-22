@@ -4630,6 +4630,20 @@ namespace Ship_Game
         MineablePlanetNotification = 4501,
         /// <summary>Exotic Richness indicates how easily mining</summary>
         MineableRichnessTip = 4502,
+        /// <summary>Freighter Utilization</summary>
+        FreighterUtilization = 4503,
+        /// <summary>Total Utilization</summary>
+        TotalFreighterUtilization = 4504,
+        /// <summary>Cargo Distribution</summary>
+        CargoDistribution = 4505,
+        /// <summary>Freighters</summary>
+        Freighters = 4506,
+        /// <summary>Importing</summary>
+        ImportingPlanets = 4507,
+        /// <summary>Exporting</summary>
+        ExportingPlanets = 4508,
+
+
 
 
 

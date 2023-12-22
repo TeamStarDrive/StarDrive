@@ -28,7 +28,7 @@ namespace Ship_Game
         readonly ToggleButton ZoomToShip;
         readonly ToggleButton PlanetScreen;
         readonly ToggleButton ExoticBonuses;
-        //readonly ToggleButton ExoticBonusesSmall;
+        readonly ToggleButton FreighterUtil;
         readonly ToggleButton ExoticScreen;
         readonly ToggleButton ShipScreen;
         readonly ToggleButton AIScreen;
@@ -67,6 +67,7 @@ namespace Ship_Game
             listR.Name = "MiniMapButtonsRight";
             ZoomOut            = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
             ExoticScreen       = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_exotic_systems", ExoticScreen_OnClick));
+            FreighterUtil      = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_exotic_systems", FreighterUtilizationScreen_OnClick));
             // will use the below for freighters screen
             //ExoticBonusesSmall = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_small", ExoticBonusScreen_OnClick));
 
@@ -158,6 +159,7 @@ namespace Ship_Game
             DeepSpaceBuild.IsToggled = Universe.DeepSpaceBuildWindow.Visible;
             AIScreen.IsToggled       = Universe.aw.IsOpen;
             ExoticBonuses.IsToggled  = Universe.ExoticBonusesWindow.IsOpen;
+
             Fleets.IsToggled         = Universe.ShowingRangeOverlay;
             
             base.Draw(batch, elapsed);
@@ -357,6 +359,7 @@ namespace Ship_Game
                 GameAudio.AcceptClick();
                 ExoticScreen.IsToggled = false;
                 Universe.ScreenManager.AddScreen(new ExoticSystemsListScreen(Universe, Universe.EmpireUI));
+                ExoticScreen.IsToggled = Universe.FreighterUtilizationWindow.IsOpen;
             }
         }
 
@@ -387,7 +390,15 @@ namespace Ship_Game
             {
                 GameAudio.AcceptClick();
                 Universe.ExoticBonusesWindow.ToggleVisibility();
+                FreighterUtil.IsToggled = Universe.FreighterUtilizationWindow.IsOpen;
             }
+        }
+
+        public void FreighterUtilizationScreen_OnClick(ToggleButton toggleButton)
+        {
+                GameAudio.AcceptClick();
+                Universe.FreighterUtilizationWindow.ToggleVisibility();
+                ExoticBonuses.IsToggled = Universe.ExoticBonusesWindow.IsOpen;
         }
 
         public override bool HandleInput(InputState input)
