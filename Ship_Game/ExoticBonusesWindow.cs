@@ -13,7 +13,6 @@ namespace Ship_Game
         readonly UniverseScreen Screen;
         Submenu ConstructionSubMenu;
         Map<ExoticBonusType, EmpireExoticBonuses> ExoticBonuses;
-        bool CompactMode;
         Empire Player => Screen.Player;
 
         public ExoticBonusesWindow(UniverseScreen screen) : base(screen, toPause: null)
@@ -24,6 +23,70 @@ namespace Ship_Game
             Rect = new Rectangle((int)Screen.Minimap.X - 5 - windowWidth, (int)Screen.Minimap.Y + 
                 (int)Screen.Minimap.Height - windowHeight - 10, windowWidth, windowHeight);
             CanEscapeFromScreen = false;
+        }
+
+        public override void LoadContent()
+        {
+            base.LoadContent();
+            RemoveAll();
+            ExoticBonuses = Player.GetExoticBonuses();
+
+            RectF win = new(Rect);
+            ConstructionSubMenu = new(win, GameText.ExoticResourcesMenu);
+
+            float titleOffset = win.Y + 40;
+            Add(new UILabel(new Vector2(win.X + 5,   titleOffset), GameText.ExoticResourcesBonus, Fonts.Arial12Bold, Color.Gold, GameText.ExoticResourceBonusTip) { ToolTipWidth = Screen.LowRes ? 300 : 450 });
+            Add(new UILabel(new Vector2(win.X + 60,  titleOffset), GameText.ExoticResourcesName, Fonts.Arial12Bold, Color.White));
+            Add(new UILabel(new Vector2(win.X + 170, titleOffset), GameText.ExoticResourcesOutput, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceOutputTip));
+            Add(new UILabel(new Vector2(win.X + 240, titleOffset), GameText.ExoticRefiningVsConsumption, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceRefineConsumeTip));
+            Add(new UILabel(new Vector2(win.X + 430, titleOffset), GameText.Storage, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceStorageTip));
+            Add(new UILabel(new Vector2(win.X + 550, titleOffset), GameText.ExoticRefiningMaxPotential, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceMaxRefineTip));
+            Add(new UILabel(new Vector2(win.X + 595, titleOffset), GameText.ExoticNumOps, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceOpsTip));
+
+            UIList bonusData = AddList(new(win.X + 5f, win.Y + 40));
+            bonusData.Padding = new(2f, 25f);
+            foreach (EmpireExoticBonuses type in ExoticBonuses.Values)
+                bonusData.Add(new ExoticStats(Player, type));
+        }
+
+        public void ToggleVisibility()
+        {
+            GameAudio.AcceptClick();
+            IsOpen = !IsOpen;
+            if (IsOpen)
+            {
+                Screen.FreighterUtilizationWindow.CloseWindow();
+                LoadContent();
+            }
+        }
+
+        public void CloseWindow()
+        {
+            IsOpen = false;
+            Visible = false;
+        }
+
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
+        {
+            if (!Visible)
+                return;
+
+            Rectangle r = ConstructionSubMenu.Rect;
+            r.Y += 25;
+            r.Height -= 25;
+            var sel = new Selector(r, new Color(0, 0, 0, 210));
+            sel.Draw(batch, elapsed);
+            ConstructionSubMenu.Draw(batch, elapsed);
+            base.Draw(batch, elapsed);
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (!IsOpen)
+                return false;
+
+            base.HandleInput(input);
+            return false;
         }
 
         class ExoticStats : UIElementV2
@@ -185,61 +248,6 @@ namespace Ship_Game
                 StorageBar.Progress = currentStorage;
                 StorageBar.color    = totalOps > 0 && currentStorage == 0 ? "red" : "blue";
             }
-        }
-
-        public override void LoadContent()
-        {
-            base.LoadContent();
-            RemoveAll();
-            ExoticBonuses = Player.GetExoticBonuses();
-
-            RectF win = new(Rect);
-            ConstructionSubMenu = new(win, GameText.ExoticResourcesMenu);
-
-            float titleOffset = win.Y + 40;
-            Add(new UILabel(new Vector2(win.X+5,   titleOffset), GameText.ExoticResourcesBonus, Fonts.Arial12Bold, Color.Gold, GameText.ExoticResourceBonusTip) { ToolTipWidth = Screen.LowRes ? 300 : 450 });
-            Add(new UILabel(new Vector2(win.X+60,  titleOffset), GameText.ExoticResourcesName, Fonts.Arial12Bold, Color.White));
-            Add(new UILabel(new Vector2(win.X+170, titleOffset), GameText.ExoticResourcesOutput, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceOutputTip));
-            Add(new UILabel(new Vector2(win.X+240, titleOffset), GameText.ExoticRefiningVsConsumption, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceRefineConsumeTip));
-            Add(new UILabel(new Vector2(win.X+430, titleOffset), GameText.Storage, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceStorageTip));
-            Add(new UILabel(new Vector2(win.X+550, titleOffset), GameText.ExoticRefiningMaxPotential, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceMaxRefineTip));
-            Add(new UILabel(new Vector2(win.X+595, titleOffset), GameText.ExoticNumOps, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceOpsTip));
-
-            UIList bonusData = AddList(new(win.X + 5f, win.Y + 40));
-            bonusData.Padding = new(2f, 25f);
-            foreach (EmpireExoticBonuses type in ExoticBonuses.Values)
-                bonusData.Add(new ExoticStats(Player, type));
-        }
-
-        public void ToggleVisibility()
-        {
-            GameAudio.AcceptClick();
-            IsOpen = !IsOpen;
-            if (IsOpen)
-                LoadContent();
-        }
-
-        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
-        {
-            if (!Visible)
-                return;
-
-            Rectangle r = ConstructionSubMenu.Rect;
-            r.Y += 25;
-            r.Height -= 25;
-            var sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(batch, elapsed);
-            ConstructionSubMenu.Draw(batch, elapsed);
-            base.Draw(batch, elapsed);
-        }
-
-        public override bool HandleInput(InputState input)
-        {
-            if (!IsOpen)
-                return false;
-
-            base.HandleInput(input);
-            return false;
         }
     }
 }
