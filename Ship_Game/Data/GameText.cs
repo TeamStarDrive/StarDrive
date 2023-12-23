@@ -4642,6 +4642,11 @@ namespace Ship_Game
         ImportingPlanets = 4507,
         /// <summary>Exporting</summary>
         ExportingPlanets = 4508,
+        /// <summary>Opens the freighter utilization window.</summary>
+        OpenFreighterUtilWindow = 4509,
+
+
+
 
 
 
