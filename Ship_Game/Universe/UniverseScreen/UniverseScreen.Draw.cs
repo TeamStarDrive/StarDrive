@@ -338,6 +338,7 @@ namespace Ship_Game
             PlanetsInCombat.Visible = ShipsInCombat.Visible = showGeneralUI && !LookingAtPlanet;
             aw.Visible = showGeneralUI && aw.IsOpen && !LookingAtPlanet;
             ExoticBonusesWindow.Visible = showGeneralUI && ExoticBonusesWindow.IsOpen && !LookingAtPlanet;
+            FreighterUtilizationWindow.Visible = showGeneralUI && FreighterUtilizationWindow.IsOpen && !LookingAtPlanet;
 
             Minimap.Visible = showGeneralUI && (!LookingAtPlanet ||
                               LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
