@@ -4630,6 +4630,34 @@ namespace Ship_Game
         MineablePlanetNotification = 4501,
         /// <summary>Exotic Richness indicates how easily mining</summary>
         MineableRichnessTip = 4502,
+        /// <summary>Freighter Utilization</summary>
+        FreighterUtilization = 4503,
+        /// <summary>Total Utilization</summary>
+        TotalFreighterUtilization = 4504,
+        /// <summary>Cargo Distribution</summary>
+        CargoDistribution = 4505,
+        /// <summary>Freighters</summary>
+        Freighters = 4506,
+        /// <summary>Importing</summary>
+        ImportingPlanets = 4507,
+        /// <summary>Exporting</summary>
+        ExportingPlanets = 4508,
+        /// <summary>Opens the freighter utilization window.</summary>
+        OpenFreighterUtilWindow = 4509,
+        /// <summary>Shows the perentage of freighters in your</summary>
+        TotalUtilizationTip = 4510,
+        /// <summary>Shows the cargo distribution of utilized</summary>
+        CargoDistributionTip = 4511,
+        /// <summary>How many frieghters are currently assigned</summary>
+        NumberOfFreightersTip = 4512,
+        /// <summary>Idle Freighters:</summary>
+        IdleFrieghters = 4513,
+        /// <summary>Under Construction:</summary>
+        FreightersUnderConstruction = 4514,
+        /// <summary>Build Freighter</summary>
+        BuildFrieghter = 4515,
+
+
 
 
 
