@@ -247,7 +247,7 @@ namespace Ship_Game
 
             int beingBuilt = FreightersBeingBuilt;
             if (beingBuilt < MaxFreightersInQueue && (TotalFreighters + beingBuilt) < FreighterCap)
-                AI.AddGoal(new IncreaseFreighters(this));
+                AI.AddGoalAndEvaluate(new IncreaseFreighters(this));
         }
 
         int NumFreightersTrading(Goods goods)

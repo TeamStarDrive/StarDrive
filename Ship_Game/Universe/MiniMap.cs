@@ -17,18 +17,16 @@ namespace Ship_Game
 {
     public sealed class MiniMap : UIElementContainer
     {
+        public readonly ToggleButton ExoticBonuses;
+        public readonly ToggleButton FreighterUtil;
+
         readonly UniverseScreen Universe;
-
         readonly Rectangle Housing;
-
         Rectangle ActualMap;
-
         //to get rid of these I need to find a solution for hover and the setting of the active setting
         readonly ToggleButton ZoomOut;
         readonly ToggleButton ZoomToShip;
         readonly ToggleButton PlanetScreen;
-        readonly ToggleButton ExoticBonuses;
-        //readonly ToggleButton ExoticBonusesSmall;
         readonly ToggleButton ExoticScreen;
         readonly ToggleButton ShipScreen;
         readonly ToggleButton AIScreen;
@@ -57,7 +55,7 @@ namespace Ship_Game
             listL.Name = "MiniMapButtons";
             ZoomToShip     = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick));
             PlanetScreen   = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick));
-            ExoticBonuses  = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_big", ExoticBonusScreen_OnClick));
+            FreighterUtil  = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_freighter_util", FreighterUtilizationScreen_OnClick));
             ShipScreen     = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_ftloverlay", ShipScreen_OnClick));
             Fleets         = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_rangeoverlay", Fleets_OnClick));
             DeepSpaceBuild = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_dsbw", DeepSpaceBuild_OnClick));
@@ -67,9 +65,7 @@ namespace Ship_Game
             listR.Name = "MiniMapButtonsRight";
             ZoomOut            = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
             ExoticScreen       = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_exotic_systems", ExoticScreen_OnClick));
-            // will use the below for freighters screen
-            //ExoticBonusesSmall = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_small", ExoticBonusScreen_OnClick));
-
+            ExoticBonuses      = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_big", ExoticBonusScreen_OnClick));
             Scale = ActualMap.Width / (Universe.UState.Size * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
 
@@ -158,6 +154,8 @@ namespace Ship_Game
             DeepSpaceBuild.IsToggled = Universe.DeepSpaceBuildWindow.Visible;
             AIScreen.IsToggled       = Universe.aw.IsOpen;
             ExoticBonuses.IsToggled  = Universe.ExoticBonusesWindow.IsOpen;
+            FreighterUtil.IsToggled =  Universe.FreighterUtilizationWindow.IsOpen;
+
             Fleets.IsToggled         = Universe.ShowingRangeOverlay;
             
             base.Draw(batch, elapsed);
@@ -357,6 +355,7 @@ namespace Ship_Game
                 GameAudio.AcceptClick();
                 ExoticScreen.IsToggled = false;
                 Universe.ScreenManager.AddScreen(new ExoticSystemsListScreen(Universe, Universe.EmpireUI));
+                ExoticScreen.IsToggled = Universe.FreighterUtilizationWindow.IsOpen;
             }
         }
 
@@ -387,7 +386,15 @@ namespace Ship_Game
             {
                 GameAudio.AcceptClick();
                 Universe.ExoticBonusesWindow.ToggleVisibility();
+                FreighterUtil.IsToggled = Universe.FreighterUtilizationWindow.IsOpen;
             }
+        }
+
+        public void FreighterUtilizationScreen_OnClick(ToggleButton toggleButton)
+        {
+                GameAudio.AcceptClick();
+                Universe.FreighterUtilizationWindow.ToggleVisibility();
+                ExoticBonuses.IsToggled = Universe.ExoticBonusesWindow.IsOpen;
         }
 
         public override bool HandleInput(InputState input)
@@ -424,6 +431,11 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(Player.Universe.P.DisableMiningOps ? GameText.OpensEmpireExoticBonusesDisabled
                                                                          : GameText.OpensEmpireExoticBonuses, "M");
+            }
+
+            if (FreighterUtil.Rect.HitTest(input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(GameText.OpenFreighterUtilWindow, "N");
             }
             return base.HandleInput(input);
         }
