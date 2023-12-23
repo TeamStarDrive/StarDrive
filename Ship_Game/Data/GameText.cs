@@ -4644,9 +4644,18 @@ namespace Ship_Game
         ExportingPlanets = 4508,
         /// <summary>Opens the freighter utilization window.</summary>
         OpenFreighterUtilWindow = 4509,
-
-
-
+        /// <summary>Shows the perentage of freighters in your</summary>
+        TotalUtilizationTip = 4510,
+        /// <summary>Shows the cargo distribution of utilized</summary>
+        CargoDistributionTip = 4511,
+        /// <summary>How many frieghters are currently assigned</summary>
+        NumberOfFreightersTip = 4512,
+        /// <summary>Idle Freighters:</summary>
+        IdleFrieghters = 4513,
+        /// <summary>Under Construction:</summary>
+        FreightersUnderConstruction = 4514,
+        /// <summary>Build Freighter</summary>
+        BuildFrieghter = 4515,
 
 
 

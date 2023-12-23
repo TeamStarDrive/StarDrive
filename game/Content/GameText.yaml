@@ -10638,7 +10638,25 @@ ExportingPlanets:
  ENG: "Exporting"
 OpenFreighterUtilWindow: 
  Id: 4509 
- ENG: "Opens the freighter utilization window."
+ ENG: "Opens the Freighter Utilization Window."
+TotalUtilizationTip: 
+ Id: 4510 
+ ENG: "Shows the perentage of freighters in your empire which are transferring goods." 
+CargoDistributionTip: 
+ Id: 4511 
+ ENG: "Shows the cargo distribution of utilized freighters."  
+NumberOfFreightersTip: 
+ Id: 4512 
+ ENG: "How many frieghters are currently assigned to transfer goods."   
+IdleFrieghters: 
+ Id: 4513 
+ ENG: "Idle Freighters:"    
+FreightersUnderConstruction: 
+ Id: 4514 
+ ENG: "Under Construction:"     
+BuildFrieghter: 
+ Id: 4515 
+ ENG: "Build Freighter"      
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"

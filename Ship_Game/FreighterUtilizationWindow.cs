@@ -6,6 +6,7 @@ using Rectangle = SDGraphics.Rectangle;
 using SDUtils;
 using Ship_Game.Ships;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game
 {
@@ -17,17 +18,19 @@ namespace Ship_Game
         Submenu ConstructionSubMenu;
         ProgressBar UtilizationBar;
         Map<Goods, GoodsUtilization> GoodsUtilizationMap = new Map<Goods, GoodsUtilization>();
+        UIButton BuildFreighter;
         Empire Player => Screen.Player;
         float UpdateTimer;
         int TotalFreighters;
         int NumUtilizedFreighters;
-        int FreighterConstructing;
+        UILabel FreighterConstructingLabel;
+        UILabel NumIdleFreightersLabel;
 
         public FreighterUtilizationWindow(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
             const int windowWidth = 650;
-            int windowHeight = 4 * (Fonts.Arial12Bold.LineSpacing + 20);
+            int windowHeight = 4 * (Fonts.Arial12Bold.LineSpacing + 25);
             Rect = new Rectangle((int)Screen.Minimap.X - 5 - windowWidth, (int)Screen.Minimap.Y +
                 (int)Screen.Minimap.Height - windowHeight - 10, windowWidth, windowHeight);
             CanEscapeFromScreen = false;
@@ -35,6 +38,7 @@ namespace Ship_Game
             GoodsUtilizationMap.Add(Goods.Production, new GoodsUtilization(Goods.Production, this));
             GoodsUtilizationMap.Add(Goods.Colonists, new GoodsUtilization(Goods.Colonists, this));
             UtilizationBar = new ProgressBar(new Rectangle(-100, -100, 150, 18), 0, 0) { DrawPercentage = true };
+            BuildFreighter = Button(ButtonStyle.BigDip, GameText.BuildFrieghter, OnBuildFreighterClick);
         }
 
         public override void LoadContent()
@@ -45,11 +49,16 @@ namespace Ship_Game
             RectF win = new(Rect);
             ConstructionSubMenu = new(win, GameText.FreighterUtilization);
             float titleOffset = win.Y + 40;
-            Add(new UILabel(new Vector2(win.X + 25, titleOffset), GameText.TotalFreighterUtilization, Fonts.Arial12Bold, Color.Gold, GameText.ExoticResourceBonusTip));
-            Add(new UILabel(new Vector2(win.X + 210, titleOffset), GameText.CargoDistribution, Fonts.Arial12Bold, Color.White));
-            Add(new UILabel(new Vector2(win.X + 370, titleOffset), GameText.Freighters, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceOutputTip));
-            Add(new UILabel(new Vector2(win.X + 470, titleOffset), GameText.ImportingPlanets, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceRefineConsumeTip));
-            Add(new UILabel(new Vector2(win.X + 570, titleOffset), GameText.ExportingPlanets, Fonts.Arial12Bold, Color.White, GameText.ExoticResourceStorageTip));
+            Add(new UILabel(new Vector2(win.X + 15, titleOffset), GameText.TotalFreighterUtilization, Fonts.Arial12Bold, Color.Gold, GameText.TotalUtilizationTip));
+            Add(new UILabel(new Vector2(win.X + 210, titleOffset), GameText.CargoDistribution, Fonts.Arial12Bold, Color.White, GameText.CargoDistributionTip));
+            Add(new UILabel(new Vector2(win.X + 370, titleOffset), GameText.Freighters, Fonts.Arial12Bold, Color.White, GameText.NumberOfFreightersTip));
+            Add(new UILabel(new Vector2(win.X + 470, titleOffset), GameText.ImportingPlanets, Fonts.Arial12Bold, Color.White));
+            Add(new UILabel(new Vector2(win.X + 570, titleOffset), GameText.ExportingPlanets, Fonts.Arial12Bold, Color.White));
+            Add(new UILabel(new Vector2(win.X + 15, titleOffset + 50), GameText.IdleFrieghters, Fonts.Arial12Bold, Color.Wheat));
+            Add(new UILabel(new Vector2(win.X + 15, titleOffset + 70), GameText.FreightersUnderConstruction, Fonts.Arial12Bold, Color.Wheat));
+
+            NumIdleFreightersLabel     = new UILabel(new Vector2(win.X + 150, titleOffset + 50), "", Fonts.Arial12Bold, Color.White);
+            FreighterConstructingLabel = new UILabel(new Vector2(win.X + 150, titleOffset + 70), "", Fonts.Arial12Bold, Color.White);
 
             UIList utilizationData = AddList(new(win.X + 5f, win.Y + 40));
             utilizationData.Padding = new(2f, 25f);
@@ -60,6 +69,7 @@ namespace Ship_Game
         public override void PerformLayout()
         {
             UtilizationBar.SetRect(new Rectangle((int)Pos.X + 10, (int)Pos.Y+65, 150, 18));
+            BuildFreighter.Pos = new Vector2(Pos.X + 5, Pos.Y + 135);
             base.PerformLayout();
         }
 
@@ -93,13 +103,19 @@ namespace Ship_Game
             ConstructionSubMenu.Draw(batch, elapsed);
             base.Draw(batch, elapsed);
             UtilizationBar.Draw(batch);
-            DrawLine(new Vector2(Pos.X + 175, Pos.Y + 35), new Vector2(Pos.X + 175, Pos.Y + Height - 10), Color.Wheat, 2);
+            BuildFreighter.Draw(batch, elapsed);
+            FreighterConstructingLabel.Draw(batch, elapsed);
+            NumIdleFreightersLabel.Draw(batch, elapsed);
+            DrawLine(new Vector2(Pos.X + 180, Pos.Y + 35), new Vector2(Pos.X + 180, Pos.Y + Height - 10), Color.Wheat, 2);
         }
 
         public override bool HandleInput(InputState input)
         {
             if (!IsOpen)
                 return false;
+
+            if (BuildFreighter.HandleInput(input))
+                return true;
 
             base.HandleInput(input);
             return false;
@@ -115,7 +131,6 @@ namespace Ship_Game
             {
                 UpdateTimer = 1;
                 TotalFreighters = Player.TotalFreighters;
-                FreighterConstructing = Player.FreightersBeingBuilt;
                 float totalUtilizedCargo = 0;
                 foreach (GoodsUtilization goodsUtilization in GoodsUtilizationMap.Values)
                     goodsUtilization.Reset();
@@ -142,9 +157,17 @@ namespace Ship_Game
 
                 TotalUtilizedCargo = totalUtilizedCargo;
                 UtilizationBar.Progress = TotalFreighters == 0 ? 0 : (float)NumUtilizedFreighters/TotalFreighters*100;
+                FreighterConstructingLabel.Text = Player.FreightersBeingBuilt.String();
+                NumIdleFreightersLabel.Text = (TotalFreighters - NumUtilizedFreighters).String();
             }
 
             base.Update(fixedDeltaTime);
+        }
+
+        void OnBuildFreighterClick(UIButton b)
+        {
+            Player.AI.AddGoalAndEvaluate(new IncreaseFreighters(Player));
+            FreighterConstructingLabel.Text = Player.FreightersBeingBuilt.String();
         }
 
         class GoodsUtilization : UIElementV2
@@ -189,7 +212,7 @@ namespace Ship_Game
 
             public override void PerformLayout()
             {
-                IconPanel.Pos = new Vector2(Pos.X + 170, Pos.Y - 5);
+                IconPanel.Pos = new Vector2(Pos.X + 175, Pos.Y - 5);
                 IconPanel.PerformLayout();
                 UtilizationBar.SetRect(new Rectangle((int)Pos.X + 200, (int)Pos.Y, 150, 18));
                 NumFreightersLabel.Pos = new Vector2(Pos.X + 390, Pos.Y);
@@ -203,8 +226,6 @@ namespace Ship_Game
 
             public override bool HandleInput(InputState input)
             {
-                //Icon.HandleInput(input);
-                //ResourceName.HandleInput(input);
                 return false;
             }
 
