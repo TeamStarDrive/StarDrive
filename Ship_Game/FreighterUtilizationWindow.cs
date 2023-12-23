@@ -34,7 +34,9 @@ namespace Ship_Game
             Rect = new Rectangle((int)Screen.Minimap.X - 5 - windowWidth, (int)Screen.Minimap.Y +
                 (int)Screen.Minimap.Height - windowHeight - 10, windowWidth, windowHeight);
             CanEscapeFromScreen = false;
-            GoodsUtilizationMap.Add(Goods.Food, new GoodsUtilization(Goods.Food, this));
+            if (Player.NonCybernetic)
+                GoodsUtilizationMap.Add(Goods.Food, new GoodsUtilization(Goods.Food, this));
+
             GoodsUtilizationMap.Add(Goods.Production, new GoodsUtilization(Goods.Production, this));
             GoodsUtilizationMap.Add(Goods.Colonists, new GoodsUtilization(Goods.Colonists, this));
             UtilizationBar = new ProgressBar(new Rectangle(-100, -100, 150, 18), 0, 0) { DrawPercentage = true };
@@ -138,8 +140,12 @@ namespace Ship_Game
 
                 foreach (Planet planet in Player.GetPlanets())
                 {
-                    if (planet.FoodImportSlots > 0)      GoodsUtilizationMap[Goods.Food].IncreaseNumImportingPlanets();
-                    if (planet.FoodExportSlots > 0)      GoodsUtilizationMap[Goods.Food].IncreaseNumExportingPlanets();
+                    if (Player.NonCybernetic)
+                    {
+                        if (planet.FoodImportSlots > 0) GoodsUtilizationMap[Goods.Food].IncreaseNumImportingPlanets();
+                        if (planet.FoodExportSlots > 0) GoodsUtilizationMap[Goods.Food].IncreaseNumExportingPlanets();
+                    }
+
                     if (planet.ProdImportSlots > 0)      GoodsUtilizationMap[Goods.Production].IncreaseNumImportingPlanets();
                     if (planet.ProdExportSlots > 0)      GoodsUtilizationMap[Goods.Production].IncreaseNumExportingPlanets();
                     if (planet.ColonistsImportSlots > 0) GoodsUtilizationMap[Goods.Colonists].IncreaseNumImportingPlanets();
@@ -150,7 +156,9 @@ namespace Ship_Game
                 NumUtilizedFreighters = allUtilizedFreightesr.Length;
                 foreach (Ship freighter in allUtilizedFreightesr)
                 {
-                    GoodsUtilizationMap[Goods.Food].AddGoodsTransported(freighter, ref totalUtilizedCargo);
+                    if (Player.NonCybernetic)
+                        GoodsUtilizationMap[Goods.Food].AddGoodsTransported(freighter, ref totalUtilizedCargo);
+
                     GoodsUtilizationMap[Goods.Production].AddGoodsTransported(freighter, ref totalUtilizedCargo);
                     GoodsUtilizationMap[Goods.Colonists].AddGoodsTransported(freighter, ref totalUtilizedCargo);
                 }
