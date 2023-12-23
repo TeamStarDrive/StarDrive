@@ -10636,6 +10636,9 @@ ImportingPlanets:
 ExportingPlanets: 
  Id: 4508 
  ENG: "Exporting"
+OpenFreighterUtilWindow: 
+ Id: 4509 
+ ENG: "Opens the freighter utilization window."
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"

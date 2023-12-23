@@ -227,6 +227,11 @@ namespace Ship_Game
                     NumExportingLabel.Color = Color.Yellow;
                     NumImportingLabel.Color = Color.Yellow;
                 }
+
+                if (NumImportingPlanets > 0 && NumFreighters < NumImportingPlanets)
+                    NumFreightersLabel.Color = NumFreighters == 0 ? Color.Red : Color.Yellow;
+                else
+                    NumFreightersLabel.Color = NumFreighters > 0 ? Color.White : Color.Wheat;
             }
 
             public override void Update(float fixedDeltaTime)
