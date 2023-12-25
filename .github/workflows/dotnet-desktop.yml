@@ -66,12 +66,13 @@ jobs:
     #   run: dotnet test $env:Test_Project_Path --configuration Release --no-build --no-restore --verbosity normal
 
     - name: Run Unit Tests
-      uses: microsoft/vstest-action
+      uses: microsoft/vstest-action@v1.0.0
       with:
         testAssembly: UnitTests.dll
-        searchFolder: UnitTests\bin\Release
+        searchFolder: ./UnitTests/bin/Release/
         runInParallel: false
         runTestsInIsolation: false
+        runSettingsFile: .github/vstest.runsettings
         ifNoFilesFound: error
         platform: x86
       # run: |
