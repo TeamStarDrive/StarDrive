@@ -22,7 +22,7 @@ name: StarDrive BlackBox Build and Test
 
 on:
   push:
-    branches: [ "develop", "patches-1.41", "feature/**" ]
+    branches: [ "develop", "patches-1.41" ]
   pull_request:
     branches: [ "develop", "patches-1.41", "feature/**" ]
 
@@ -50,24 +50,17 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 5.0.x
+        #cache: true # requires packages.lock.json
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Restore NuGet packages
-      run: nuget restore $env:Solution_Name
+      run: dotnet restore $env:Solution_Name
 
     - name: Build solution
-      run: msbuild $env:Solution_Name /p:Configuration=Release /p:Platform="x86"
+      run: msbuild $env:Solution_Name /p:Configuration=Release
 
-    # Execute all unit tests in the solution
-    # - name: Run unit tests
-    #   run: dotnet test
-
-    - name: Run vstests
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-        testAssembly: UnitTests.dll
-        searchFolder: .\UnitTests\bin\Release\
-        runInParallel: false
+    - name: Run Unit Tests
+      run: dotnet test $env:Test_Project_Path --configuration Release --no-restore --verbosity normal

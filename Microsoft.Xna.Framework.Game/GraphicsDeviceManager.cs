@@ -299,20 +299,20 @@ namespace Microsoft.Xna.Framework
     {
       if (this.device != null && !this.isDeviceDirty)
         return;
-      this.ChangeDevice(false);
+      this.ChangeDevice(true);
     }
 
     public void ToggleFullScreen()
     {
       this.IsFullScreen = !this.IsFullScreen;
-      this.ChangeDevice(false);
+      this.ChangeDevice(true);
     }
 
     private void GameWindowScreenDeviceNameChanged(object sender, EventArgs e)
     {
       if (this.inDeviceTransition)
         return;
-      this.ChangeDevice(false);
+      this.ChangeDevice(true);
     }
 
     private void GameWindowClientSizeChanged(object sender, EventArgs e)
@@ -322,7 +322,7 @@ namespace Microsoft.Xna.Framework
       this.resizedBackBufferWidth = this.game.Window.ClientBounds.Width;
       this.resizedBackBufferHeight = this.game.Window.ClientBounds.Height;
       this.useResizedBackBuffer = true;
-      this.ChangeDevice(false);
+      this.ChangeDevice(true);
     }
 
     private bool EnsureDevice()
