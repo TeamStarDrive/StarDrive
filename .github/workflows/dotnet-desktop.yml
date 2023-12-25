@@ -65,16 +65,18 @@ jobs:
     # - name: Run Unit Tests
     #   run: dotnet test $env:Test_Project_Path --configuration Release --no-build --no-restore --verbosity normal
 
+    - name: Setup VSTest.exe
+      uses: Malcolmnixon/Setup-VSTest@v4
+
     - name: Run Unit Tests
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-        testAssembly: UnitTests.dll
-        searchFolder: ./UnitTests/bin/Release/
-        runInParallel: false
-        runTestsInIsolation: false
-        runSettingsFile: .github/vstest.runsettings
-        ifNoFilesFound: error
-        platform: x86
-      # run: |
-      #   & "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow\\vstest.console.exe" UnitTests\bin\Release\UnitTests.dll /Platform:x86 /blame
+      # uses: microsoft/vstest-action@v1.0.0
+      # with:
+      #   testAssembly: UnitTests.dll
+      #   searchFolder: ./UnitTests/bin/Release/
+      #   runInParallel: false
+      #   runTestsInIsolation: false
+      #   runSettingsFile: .github/vstest.runsettings
+      #   ifNoFilesFound: error
+      #   platform: x86
+      run: vstest.console UnitTests\bin\Release\UnitTests.dll /Settings:.github/vstest.runsettings
       #run: dotnet run --project UnitTests/SDUnitTests.csproj --configuration Release --arch x86 --runtime win-x86 --no-build --no-restore
