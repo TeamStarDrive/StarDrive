@@ -35,7 +35,6 @@ jobs:
     env:
       Solution_Name: StarDrive.sln
       Test_Project_Path: UnitTests/SDUnitTests.csproj
-      #PATH: 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170'
 
     steps:
     - name: Checkout
@@ -45,8 +44,7 @@ jobs:
         lfs: true
         submodules: true
 
-    # Install the .NET Core workload
-    - name: Install .NET Core
+    - name: Install .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 5.0.x
@@ -57,10 +55,25 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Restore NuGet packages
-      run: dotnet restore $env:Solution_Name
+      run: dotnet restore $env:Solution_Name --runtime win-x86
 
     - name: Build solution
-      run: msbuild $env:Solution_Name /p:Configuration=Release
+      #run: msbuild $env:Solution_Name /p:Configuration=Release
+      run: |
+        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Msbuild\Current\Bin\MSBuild.exe" $env:Solution_Name /p:Configuration=Release
+
+    # - name: Run Unit Tests
+    #   run: dotnet test $env:Test_Project_Path --configuration Release --no-build --no-restore --verbosity normal
 
     - name: Run Unit Tests
-      run: dotnet test $env:Test_Project_Path --configuration Release --no-restore --verbosity normal
+      uses: microsoft/vstest-action
+      with:
+        testAssembly: UnitTests.dll
+        searchFolder: UnitTests\bin\Release
+        runInParallel: false
+        runTestsInIsolation: false
+        ifNoFilesFound: error
+        platform: x86
+      # run: |
+      #   & "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow\\vstest.console.exe" UnitTests\bin\Release\UnitTests.dll /Platform:x86 /blame
+      #run: dotnet run --project UnitTests/SDUnitTests.csproj --configuration Release --arch x86 --runtime win-x86 --no-build --no-restore
