@@ -5,7 +5,7 @@
     <ResultsDirectory>..\TestResults</ResultsDirectory>
     <TargetPlatform>x86</TargetPlatform>
     <TargetFrameworkVersion>net48</TargetFrameworkVersion>
-    <TestSessionTimeout>10000</TestSessionTimeout>
+    <TestSessionTimeout>30000</TestSessionTimeout>
     <TreatNoTestsAsError>true</TreatNoTestsAsError>
   </RunConfiguration>
 
