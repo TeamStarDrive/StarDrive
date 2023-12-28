@@ -150,12 +150,11 @@
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus = 10;
-                        ProductionMod  = 0.3f;
+                        ProductionMod  = 0.25f;
                         ResearchMod    = 0.5f;
                         TaxMod         = 0.5f;
                         ShipCostMod    = -0.2f;
                         TroopCostMod   = -0.2f;
-                        ResearchTaxMultiplier  = 0.7f;
                         PlayerWarPriorityLimit = 5;
                     }
 
@@ -202,7 +201,7 @@
                         ShipCostMod    = -0.4f;
                         ModHpModifier  = 0.1f;
                         TroopCostMod   = -0.4f;
-                        ResearchTaxMultiplier  = 0.5f;
+                        ResearchTaxMultiplier  = 0.75f;
                         PlayerWarPriorityLimit = 3;
                     }
 
