@@ -545,7 +545,7 @@ namespace Ship_Game
 
         public void ProcessShip(Ship ship, Ship pirateBase)
         {
-            if (SpawnedShips.Contains(ship.Id))
+            if (ship.IsDefaultAssaultShuttle || SpawnedShips.Contains(ship.Id))
             {
                 // We cannot salvage ships that we spawned
                 // remove it with no benefits
