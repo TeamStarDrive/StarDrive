@@ -217,8 +217,20 @@ namespace Ship_Game
             }
         }
 
-        int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-        int ExtraLevelUpEffort            => (int)((Level-1) * Universe.RemnantPaceModifier + NeededHibernationTurns);
+        int TurnsLevelUp
+        {
+            get
+            {
+                int numturns = Owner.DifficultyModifiers.RemnantTurnsLevelUp;
+                switch (Universe.P.ExtraRemnant)
+                {
+                    case ExtraRemnantPresence.VeryRare: return numturns / 2;
+                    case ExtraRemnantPresence.Rare:     return (int)(numturns / 1.5f);
+                    default:                            return numturns;
+                }
+            }
+        }
+        int ExtraLevelUpEffort => (int)((Level-1)*Universe.RemnantPaceModifier + NeededHibernationTurns);
         public int NeededHibernationTurns => TurnsLevelUp / ((int)Universe.P.Difficulty + 2);
 
         void SetInitialLevelUpDate()
@@ -615,16 +627,16 @@ namespace Ship_Game
         {
             numBombers = (int)(Level * Owner.DifficultyModifiers.RemnantNumBombers);
 
-            if (Level <= 6)
+            if (Level <= 5)
             {
-                numBombers *= 2;
+                numBombers *= (Level-1).LowerBound(1);
                 return RemnantShipType.BomberLight;
             }
 
-            if (Level <= 11)
+            if (Level <= 9)
                 return RemnantShipType.BomberMedium;
 
-            // Level 12 and above
+            // Level 10 and above
             numBombers /= 2;
             return RemnantShipType.Bomber;
         }
