@@ -279,7 +279,7 @@ namespace Ship_Game.AI
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = bg.TetherOffset;
                 UpdateResearchStationGoal(orbital, bg.TetherPlanet);
-                UpdateMiningOpsGoal(orbital, bg.TetherPlanet);
+                UpdateMiningOpsGoal(orbital, bg.TetherPlanet, goal.OldShip);
                 planetToTether.OrbitalStations.Add(orbital);
                 if (planetToTether.IsOverOrbitalsLimit(orbital.ShipData))
                     planetToTether.TryRemoveExcessOrbital(orbital);
@@ -345,7 +345,7 @@ namespace Ship_Game.AI
                 }
 
                 UpdateResearchStationGoal(orbital, target);
-                UpdateMiningOpsGoal(orbital, target);
+                UpdateMiningOpsGoal(orbital, target, goal.OldShip);
             }
         }
 
@@ -362,12 +362,15 @@ namespace Ship_Game.AI
             }
         }
 
-        void UpdateMiningOpsGoal(Ship orbital, Planet planet)
+        void UpdateMiningOpsGoal(Ship orbital, Planet planet, Ship oldShipToRefit)
         {
             if (!orbital.IsMiningStation)
                 return;
 
-            Goal goal = Owner.Loyalty.AI.FindGoal(g => g.IsMiningOpsGoal(planet) && g.StepName == "WaitForConstructor");
+            Goal goal = Owner.Loyalty.AI.FindGoal(g => g.IsMiningOpsGoal(planet) 
+                                                  && (oldShipToRefit == null ? g.StepName == "WaitForConstructor"
+                                                                             : g.TargetShip == oldShipToRefit));
+
             if (goal != null)
                 goal.TargetShip = orbital;
 

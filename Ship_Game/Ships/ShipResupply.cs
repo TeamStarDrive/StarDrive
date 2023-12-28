@@ -37,7 +37,7 @@ namespace Ship_Game.Ships
             IncomingOrdnance = 0;
         }
 
-        public bool InTradeBlockade => Ship.IsResearchStation && Ship.HealthPercent < DamageThreshold(ShipCategory.Civilian);
+        public bool InTradeBlockade => (Ship.IsResearchStation || Ship.IsMiningStation) && Ship.HealthPercent < DamageThreshold(ShipCategory.Civilian);
         public static bool HasGoodTotalSupplyForResearch(IShipDesign ship)
         {
             if (!ship.IsResearchStation) 
