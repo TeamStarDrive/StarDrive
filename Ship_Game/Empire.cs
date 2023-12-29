@@ -26,8 +26,7 @@ namespace Ship_Game
         Normal,
         Spy,
         Diplomacy,
-        Event,
-        Scrap
+        Event
     }
 
     [StarDataType]
@@ -933,11 +932,16 @@ namespace Ship_Game
                 case TechUnlockType.Event     when techEntry.Unlock(this):
                 case TechUnlockType.Diplomacy when techEntry.UnlockFromDiplomacy(this, otherEmpire):
                 case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire):
-                case TechUnlockType.Scrap     when techEntry.UnlockFromScrap(this, otherEmpire):
                     UpdateForNewTech();
                     TriggerRemoveGovernorQueuedBuildingsTechUnlock(techEntry);
                     break;
             }
+        }
+
+        public void UnLockHullReverseEngineered(TechEntry techEntry, Empire otherEmpire, string hullName)
+        {
+            if (techEntry.UnlockFromScrap(this, otherEmpire, hullName))
+                UpdateForNewTech();
         }
 
         public void UpdateForNewTech()
@@ -1930,7 +1934,7 @@ namespace Ship_Game
                     if (OwnedPlanets.FindMax(out Planet planet, p => WeightedCenter.SqDist(p.Position)))
                     {
                         if (isPlayer)
-                            Universe.Notifications.AddRebellionNotification(planet, rebels);
+                            Universe.Notifications.AddRebellionNotification(planet);
 
                         for (int index = 0; index < planet.PopulationBillion * 2; ++index)
                         {
@@ -2002,25 +2006,24 @@ namespace Ship_Game
             if (IsHullUnlocked(hullName) || ship.ShipData.Role == RoleName.prototype)
                 return; // It's ours or we got it elsewhere
 
-
             if (!TryReverseEngineer(ship, out TechEntry hullTech, out Empire empire))
                 return; // We could not reverse engineer this, too bad
 
-            UnlockTech(hullTech, TechUnlockType.Scrap, empire);
+            UnLockHullReverseEngineered(hullTech, empire, hullName);
 
             if (isPlayer)
             {
                 string modelIcon  = ship.BaseHull.IconPath;
-                string hullString = ship.BaseHull.ToString();
+                string hullString = ship.BaseHull.VisibleName;
                 if (hullTech.Unlocked)
                 {
                     string message = $"{hullString}{Localizer.Token(GameText.ReverseEngineered)}";
-                    Universe.Notifications.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
+                    Universe.Notifications.AddScrapUnlockNotification(message, modelIcon);
                 }
                 else
                 {
                     string message = $"{hullString}{Localizer.Token(GameText.HullScrappedAdvancingResearch)}";
-                    Universe.Notifications.AddScrapProgressNotification(message, modelIcon, "ResearchScreen", hullTech.UID);
+                    Universe.Notifications.AddScrapProgressNotification(message, modelIcon, hullTech.UID);
                 }
             }
         }
@@ -2042,7 +2045,7 @@ namespace Ship_Game
                 case RoleName.cruiser:    unlockChance = 40; break;
                 case RoleName.battleship: unlockChance = 30; break;
                 case RoleName.capital:    unlockChance = 20; break;
-                default:                           unlockChance = 50; break;
+                default:                  unlockChance = 50; break;
             }
 
             unlockChance *= 1 + data.Traits.ModHpModifier; // skilled or bad engineers
