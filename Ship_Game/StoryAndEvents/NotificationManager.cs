@@ -705,12 +705,12 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddScrapUnlockNotification(string message, string iconPath, string action)
+        public void AddScrapUnlockNotification(string message, string iconPath)
         {
             AddNotification(new Notification
             {
                 Message  = message,
-                Action   = action,
+                Action   = "ShipDesign",
                 IconPath = iconPath ?? "ResearchMenu/icon_event_science_bad"
             }, "sd_ui_notification_encounter");
         }
@@ -801,18 +801,18 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddScrapProgressNotification(string message, string iconPath, string action, string techName)
+        public void AddScrapProgressNotification(string message, string iconPath, string techName)
         {
             AddNotification(new Notification
             {
                 Message = message,
-                Action = action,
+                Action = "ResearchScreen",
                 ReferencedItem1 = techName,
                 IconPath = iconPath ?? "ResearchMenu/icon_event_science_bad"
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddRebellionNotification(Planet beingInvaded, Empire invader)
+        public void AddRebellionNotification(Planet beingInvaded)
         {
             string message = "Rebellion on " + beingInvaded.Name + "!";
             if (IsNotificationPresent(message))

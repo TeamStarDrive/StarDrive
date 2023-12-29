@@ -6055,8 +6055,8 @@ ConstructionModule:
  RUS: "Этот модуль строительства предоставляет инфраструктуру, необходимую для строительства платформ и станций на орбите или в глубоком космосе. Когда строительный корабль достигает позиции сборки, он начинает передавать продукцию, необходимую для строительства конструкции, добавляя строительство за ход. Несколько строительных массивов увеличат темпы строительства."
 ReverseEngineered:
  Id: 1932
- ENG: " was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!"
- RUS: " был реконструирован в процессе утилизации.\nТеперь этот корпус можно использовать для постройки собственных кораблей!"
+ ENG: " hull was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!"
+ RUS: " Корпус был реконструирован во время процесса утилизации.\nТеперь этот корпус можно использовать для постройки наших собственных кораблей!"
 HullScrappedAdvancingResearch:
  Id: 1933
  ENG: " was scrapped, helping us advance in our own research\ntoward this hull type."

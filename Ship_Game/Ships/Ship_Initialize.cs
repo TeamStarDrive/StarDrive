@@ -356,10 +356,10 @@ namespace Ship_Game.Ships
 
             if (ship == null)
             {
-                Log.Warning($"Could not create ship from hangar, UID = {hangar.HangarShipUID}");
+                Log.Warning($"Carrier {parent.Name} ({parent.Id}): Could not create ship from hangar, UID = {hangar.HangarShipUID}");
                 return null;
             }
-
+            
             ship.Mothership = parent;
             if (ship.IsMiningShip)
                 ship.InitLaunch(LaunchPlan.Mining);

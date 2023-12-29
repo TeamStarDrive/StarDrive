@@ -25,7 +25,7 @@ namespace Ship_Game.Ships
             Owner = null;
         }
 
-        public void ProcessMiningBays(float rawResourcesStored)
+        public void ProcessMiningBays(float rawResourcesStored, Planet planet)
         {
             if (Owner == null
                 || !HasOrdnanceToLaunch()
@@ -37,16 +37,16 @@ namespace Ship_Game.Ships
             float resourcesNeeded = RefiningOutput > 0 ? Owner.MiningStationCargoSpaceMax 
                                                        : Owner.MiningStationCargoSpaceMax - rawResourcesStored;
 
-            if (TryGetCandidateBayAndReturnExceesMiners(resourcesNeeded, out ShipModule candidateBay)
+            if (TryGetCandidateBayAndReturnExcessMiners(resourcesNeeded, out ShipModule candidateBay)
                 && CreateMiningShip(candidateBay, out Ship miningShip)) 
             {
                 candidateBay.HangarTimer = candidateBay.HangarTimerConstant;
-                miningShip.AI.OrderMinePlanet(Owner.GetTether());
+                miningShip.AI.OrderMinePlanet(planet);
                 return;
             }
         }
 
-        bool TryGetCandidateBayAndReturnExceesMiners(float resourcesNeeded, out ShipModule candidateBay)
+        bool TryGetCandidateBayAndReturnExcessMiners(float resourcesNeeded, out ShipModule candidateBay)
         {
             candidateBay = null;
             float miningShipsCapacityAlreadyMining = 0;
