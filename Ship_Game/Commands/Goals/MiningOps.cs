@@ -162,7 +162,7 @@ namespace Ship_Game.Commands.Goals
 
             float numRawResources = MiningStation.GetOtherCargo(ResourceCargoName);
             float numRefiningNeeded = Owner.GetRefiningNeeded(ExoticBonusType);
-            MiningStation.Carrier.MiningBays.ProcessMiningBays(numRawResources);
+            MiningStation.Carrier.MiningBays.ProcessMiningBays(numRawResources, TargetPlanet);
             MiningStation.Carrier.MiningBays.UpdateIsRefining(0);
 
             if (numRefiningNeeded <= 0 || numRawResources <= 0 || MiningStation.Loyalty != TargetPlanet.Mining.Owner)

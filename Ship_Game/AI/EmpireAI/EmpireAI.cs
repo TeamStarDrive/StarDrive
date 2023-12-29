@@ -137,12 +137,11 @@ namespace Ship_Game.AI
                 if (ResearchStationsAI == null)
                     ResearchStationsAI = new(OwnerEmpire);
 
-                ResearchStationsAI?.RunResearchStationPlanner(); // the null check here is for save competability
-
                 if (MiningOpsAI == null)
                     MiningOpsAI = new(OwnerEmpire);
 
-                MiningOpsAI.RunMiningOpsPlanner(); // the null check here is for save competability
+                ResearchStationsAI.RunResearchStationPlanner();
+                MiningOpsAI.RunMiningOpsPlanner();
                 SpaceRoadsManager.Update();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();

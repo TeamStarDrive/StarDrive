@@ -76,6 +76,7 @@ namespace Ship_Game.Ships
         {
             Carrier.AddToOrdnanceInSpace(-ship.ShipOrdLaunchCost);
             UpdateOrdnancePercentage();
+            Carrier.DisposeHangarShip(ship);
         }
 
         // EVT: when a ShipModule installs a new weapon
