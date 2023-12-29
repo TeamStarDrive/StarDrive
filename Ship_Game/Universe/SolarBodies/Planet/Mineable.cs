@@ -46,7 +46,7 @@ namespace Ship_Game
             return P.OrbitalStations.Any(o => o.IsMiningStation);
         }
 
-        void ChangeOwner(Empire empire)
+        public void ChangeOwner(Empire empire)
         {
             Owner = empire;
         }
