@@ -465,10 +465,10 @@ namespace Ship_Game
 
             foreach (Ship s in OwnedShips)
             {
-                if (s.IsResearchStation)
+                if (s.IsResearchStation|| s.IsMiningStation)
                     s.QueueTotalRemoval();
-
-                s.LoyaltyChangeFromBoarding(rebels, false);
+                else
+                    s.LoyaltyChangeFromBoarding(rebels, false);
             }
             EmpireShips.Clear();
             data.AgentList.Clear();
@@ -1956,18 +1956,6 @@ namespace Ship_Game
                             troop.TryLandTroop(planet);
                         }
                     }
-
-                    Ship pirate = null;
-                    var ships = OwnedShips;
-                        foreach (Ship pirateChoice in ships)
-                        {
-                            if (pirateChoice == null || !pirateChoice.Active)
-                                continue;
-                            pirate = pirateChoice;
-                            break;
-                        }
-
-                    pirate?.LoyaltyChangeByGift(rebels);
                 }
                 else Log.Error($"Rebellion failed: {data.RebelName}");
 
@@ -2183,9 +2171,25 @@ namespace Ship_Game
             {
                 Ship ship = ships[i];
                 ship.LoyaltyChangeByGift(this, addNotification: false);
-                if (ship.IsConstructor)
+                if (ship.IsMiningStation)
+                {
+                    Planet planet = ship.GetTether();
+                    if (planet?.IsMineable == true)
+                    {
+                        AI.AddGoal(new MiningOps(this, planet, ship));
+                        planet.Mining.ChangeOwner(this);
+                    }
+                    else
+                    {
+                        ship.AI.OrderScuttleShip();
+                    }
+                }
+
+                if (ship.IsConstructor || ship.IsSupplyShuttle && !ship.IsHangarShip)
                     ship.AI.OrderScrapShip();
-                if (ship.IsResearchStation)
+
+                ship.AI.ClearOrders();
+                if (ship.IsResearchStation || ship.IsMiningShip)
                     ship.AI.OrderScuttleShip();
             }
 
