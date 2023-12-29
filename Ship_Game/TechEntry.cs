@@ -513,9 +513,8 @@ namespace Ship_Game
         {
             DoRevealedTechs(us);
             if (bonusUnlock)
-            {
                 UnlockBonus(us);
-            }
+
             UnlockModules(us, them);
             UnlockTroops(us, them);
             UnLockHulls(us, them);
@@ -524,6 +523,11 @@ namespace Ship_Game
             // Finally, remove this tech from our ResearchQueue
             if (removeFromQueue)
                 us.Research.RemoveFromQueue(UID);
+        }
+
+        void UnlockHullReverseEngineer(Empire us, string hullname)
+        {
+            us.UnlockEmpireHull(hullname, UID);
         }
 
         public bool UnlockFromSpy(Empire us, Empire them)
@@ -553,7 +557,7 @@ namespace Ship_Game
             return false;
         }
 
-        public bool UnlockFromScrap(Empire us, Empire them)
+        public bool UnlockFromScrap(Empire us, Empire them, string hullname)
         {
             if (Locked)
             {
@@ -567,7 +571,7 @@ namespace Ship_Game
 
             if (WasAcquiredFrom.AddUnique(them.data.Traits.ShipType))
             {
-                UnlockTechContentOnly(us, them);
+                us.UnlockEmpireHull(hullname, UID);
                 return true;
             }
 
