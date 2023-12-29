@@ -44,6 +44,11 @@ namespace Ship_Game
         void RemoveFromStorage(float amount)
         {
             CurrentStorage = (CurrentStorage - amount).Clamped(0, MaxStorage);
+            if (float.IsNaN(CurrentStorage)) 
+            {
+                Log.Error($"Current storage was nan for {Owner.Name}!");
+                CurrentStorage = 0;
+            }
         }
 
         public void Update()

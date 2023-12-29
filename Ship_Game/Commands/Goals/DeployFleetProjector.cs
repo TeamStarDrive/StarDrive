@@ -39,7 +39,19 @@ namespace Ship_Game.Commands.Goals
 
             float distanceToDeploy = Owner.GetProjectorRadius() * 0.8f;
             Vector2 dir = TargetPlanet.Position.DirectionToTarget(Fleet.AveragePosition());
-            BuildGoal = new(TargetPlanet.Position + dir * distanceToDeploy, "Subspace Projector", Owner, rush: true);
+            Vector2 deployPos = TargetPlanet.Position + dir * distanceToDeploy;
+
+            var projecors = Owner.OwnedProjectors;
+            foreach (Ship projector in projecors)
+            {
+                if (projector.Position.InRadius(deployPos, 100))
+                {
+                    Log.Info($"Build pos of fleet projector is near {deployPos}");
+                    return GoalStep.GoalComplete;
+                }
+            }
+
+            BuildGoal = new(deployPos, "Subspace Projector", Owner, rush: true);
             Owner.AI.AddGoalAndEvaluate(BuildGoal);
             return GoalStep.GoToNextStep;
         }
