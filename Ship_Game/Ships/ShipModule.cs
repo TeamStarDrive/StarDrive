@@ -77,7 +77,7 @@ namespace Ship_Game.Ships
         public Restrictions Restrictions;
         public Shield Shield { get; private set; }
         public string HangarShipUID;
-        [StarData] public Ship HangarShip;
+        [StarData] public Ship HangarShip { get; private set; }
         [StarData] public float HangarTimer;
         public bool IsWeapon;
         public Weapon InstalledWeapon;

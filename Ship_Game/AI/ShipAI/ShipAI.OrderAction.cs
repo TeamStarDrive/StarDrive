@@ -640,11 +640,7 @@ namespace Ship_Game.AI
         {
             ClearOrders();
             IgnoreCombat = true;
-            float distance = targetPlanet.Random.Float(targetPlanet.Mining.MinMiningRadius,
-                                                       targetPlanet.Mining.MaxMiningRadius);
-
-            Vector2 pos = targetPlanet.Position.GenerateRandomPointOnCircle(distance, targetPlanet.Random);
-            AddShipGoal(Plan.MinePlanet, AIState.Mining, pos, targetPlanet, true);
+            AddShipGoal(Plan.MinePlanet, AIState.Mining, targetPlanet.Mining.GetMinePos(), targetPlanet, true);
         }
 
         public void OrderSystemDefense(SolarSystem system)

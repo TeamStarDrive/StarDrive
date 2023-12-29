@@ -134,6 +134,19 @@ namespace Ship_Game.Ships
             MiningBays     = null;
         }
 
+        public void DisposeHangarShip(Ship hangarShip)
+        {
+            for (int i = 0; i < AllHangars.Length; i++)
+            {
+                ShipModule hangar = AllHangars[i];
+                if (hangar.HangarShip == hangarShip)
+                {
+                    hangar.SetHangarShip(null);
+                    return;
+                }
+            }
+        }
+
         // aggressive dispose looks to cause a crash here. 
         public ShipModule[] AllActiveHangars   => AllHangars?.Filter(module => module.Active);
         public bool HasActiveHangars           => AllHangars.Any(module => module.Active); // FB: this changes dynamically
@@ -604,7 +617,7 @@ namespace Ship_Game.Ships
             if (Owner == null || empire.Id == -1)
                 return false;
 
-            if (hangar.TryGetHangarShip(out _))
+            if (hangar.TryGetHangarShipActive(out _))
                 return false;
 
             if (hangar.IsSupplyBay)

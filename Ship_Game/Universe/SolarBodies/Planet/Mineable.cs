@@ -1,5 +1,6 @@
 ﻿using SDGraphics;
 using SDUtils;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 
@@ -27,7 +28,7 @@ namespace Ship_Game
         public float RefiningRatio => ResourceType.RefiningRatio; // How much of the resource is processed per turn
         public ExoticBonusType ExoticBonusType => ResourceType.ExoticBonusType;
 
-        public float MinMiningRadius => P.Radius * 0.5f;
+        float MinMiningRadius => P.Radius * 0.5f;
         public float MaxMiningRadius => P.Radius * 0.7f;
 
 
@@ -35,6 +36,11 @@ namespace Ship_Game
         public bool MiningOpsExistFor(Empire empire) => Owner == empire && MiningOpsSize > 0;
         int MiningOpsSize => HasOpsOwner ? Owner.AI.CountGoals(g => g.IsMiningOpsGoal(P)) : 0;
 
+        public Vector2 GetMinePos()
+        {
+            float distance = P.Random.Float(MinMiningRadius, MaxMiningRadius);
+            return P.Position.GenerateRandomPointOnCircle(distance, P.Random);
+        }
 
         public bool AreMiningOpsPresentBy(Empire empire)
         {
