@@ -57,25 +57,21 @@ namespace Ship_Game.AI.Tasks
                 for (int i = 0; i < system.PlanetList.Count; i++)
                 {
                     Planet planet = system.PlanetList[i];
-                    if (planet.Owner != Owner || planet.RecentCombat) 
+                    if (planet.Owner != Owner || planet.RecentCombat || planet.SpaceCombatNearPlanet) 
                         continue;
 
                     float planetMinStr                 = sysCom.PlanetTroopMin(planet);
                     float planetDefendingTroopStrength = planet.GetDefendingTroopCount();
-                    float maxCanTake                   = troopPriorityHigh && !planet.RecentCombat && !planet.System.HostileForcesPresent(Owner)
+                    float maxCanTake                   = troopPriorityHigh && !planet.System.HostileForcesPresent(Owner)
                         ? 5 
                         : (planetDefendingTroopStrength - (planetMinStr - 3)).LowerBound(0);
 
                     if (maxCanTake > 0)
                     {
                         potentialTroops.AddRange(planet.GetEmpireTroops(Owner, (int)maxCanTake));
-
                         totalStrength = potentialTroops.Sum(t => t.ActualStrengthMax);
-
                         if (strengthNeeded <= totalStrength)
-                        {
                             break;
-                        }
                     }
                 }
 
