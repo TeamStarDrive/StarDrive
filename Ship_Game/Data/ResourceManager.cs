@@ -401,8 +401,9 @@ namespace Ship_Game
         static FileInfo ModInfo(string file) => new FileInfo( ModContentDirectory + file );
         public static FileInfo ContentInfo(string file) => new FileInfo( ContentDirectory + file );
 
-        // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
-        // Example relativePath: "Textures/myAtlas.xml"
+        /// <summary>Gets FileInfo for Mod or Vanilla file. Mod file is checked first.</summary>
+        /// <param name="relativePath">Example relativePath: "Audio/AudioConfig.yaml"</param>
+        /// <returns>FileInfo or null if file does not exist</returns>
         public static FileInfo GetModOrVanillaFile(string relativePath)
         {
             FileInfo info;
@@ -413,6 +414,29 @@ namespace Ship_Game
                     return info;
             }
             info = ContentInfo(relativePath);
+            return info.Exists ? info : null;
+        }
+
+        /// <summary>Gets FileInfo from Mod content directory only.</summary>
+        /// <param name="relativePath">Example relativePath: "Audio/AudioConfig.yaml"</param>
+        /// <returns>FileInfo or null if file does not exist</returns>
+        public static FileInfo GetModFile(string relativePath)
+        {
+            if (GlobalStats.HasMod)
+            {
+                FileInfo info = ModInfo(relativePath);
+                if (info.Exists)
+                    return info;
+            }
+            return null;
+        }
+
+        /// <summary>Gets FileInfo from Vanilla content directory only.</summary>
+        /// <param name="relativePath">Example relativePath: "Audio/AudioConfig.yaml"</param>
+        /// <returns>FileInfo or null if file does not exist</returns>
+        public static FileInfo GetVanillaFile(string relativePath)
+        {
+            FileInfo info = ContentInfo(relativePath);
             return info.Exists ? info : null;
         }
 
