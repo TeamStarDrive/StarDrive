@@ -1,11 +1,12 @@
 # AudioConfig for StarDrive 1.50 by RedFox
 # This file is used to configure audio settings for the game.
-# You can put this into your mod folder to override the default settings.
+# You can create a minimal version of this file in your mod to override the default settings.
+# Only include the categories and properties you want to change, the rest will be inherited from the vanilla file.
 # 
-# Supported audio formats: .m4a, .m4a, .m4a, .aac
-# When possible, prefer compressed formats (.m4a/.m4a) to reduce memory impact.
+# Supported audio formats: .m4a, .mp3, .aac, .wav, .aif
+# When possible, prefer compressed formats (.m4a/.mp3/.aac) to reduce memory impact.
 
-Category:
+- Category:
   Name: Music
   Volume: 1.00 # Default volume multiplier for this category
   FadeOutTime: 1.0 # Time in seconds to fade out when prematurely stopping a sound effect
@@ -25,7 +26,7 @@ Category:
         - "Music/AmbientMusic.4.m4a"
         - "Music/AmbientMusic.5.m4a"
 
-Category:
+- Category:
   Name: RacialMusic
   Volume: 0.5
   FadeOutTime: 0.5
@@ -71,7 +72,7 @@ Category:
       Volume: 1.0
       Sound: "RacialMusic/Female_02_loop.m4a"
 
-Category:
+- Category:
   Name: PlanetAmbient
   Volume: 1.00
   FadeOutTime: 0.1
@@ -104,7 +105,7 @@ Category:
       Volume: 1.76
       Sound: "PlanetAmbient/sd_planet_water_01.m4a"
 
-Category:
+- Category:
   Name: Warp
   Volume: 0.75
   FadeOutTime: 0.0 # The warp sounds shouldn't fade out because they are always one-shot anyways
@@ -203,7 +204,7 @@ Category:
       Sound: "Warp/sd_warp_start_small.m4a"
 
 
-Category: # UI
+- Category: # UI
   Name: UI
   Volume: 1.00
   MemoryCache: true # Sound effects in this category can be cached to memory to speed up the audio playback
@@ -339,7 +340,7 @@ Category: # UI
       Volume: 1.0
       Sound: "UI/xylophone_affirm1.m4a"
 
-Category: # Ground
+- Category: # Ground
   Name: Ground
   Volume: 0.8
   MemoryCache: true # Sound effects in this category can be cached to memory to speed up the audio playback
@@ -463,7 +464,7 @@ Category: # Ground
       Volume: 1.0
       Sound: "Ground/sd_ground_vulfargrunt_01.m4a"
 
-Category: # Explosions
+- Category: # Explosions
   Name: Explosions
   Volume: 1.00
   MemoryCache: true # Sound effects in this category can be cached to memory to speed up the audio playback
@@ -522,7 +523,7 @@ Category: # Explosions
       Volume: 0.5
       Sound: "Explosions/sd_explosion_impact_small.m4a"
 
-Category: # Weapons
+- Category: # Weapons
   Name: Weapons
   Volume: 1.00
   MemoryCache: true # Sound effects in this category can be cached to memory to speed up the audio playback

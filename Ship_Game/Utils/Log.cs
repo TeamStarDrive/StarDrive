@@ -214,8 +214,16 @@ namespace Ship_Game
         {
             if (force || CurrentColor != color)
             {
-                CurrentColor = color;
-                Console.ForegroundColor = color;
+                try
+                {
+                    Console.ForegroundColor = color;
+                    CurrentColor = color;
+                }
+                catch
+                {
+                    HasActiveConsole = false;
+                    CurrentColor = DefaultColor;
+                }
             }
         }
 
@@ -293,10 +301,17 @@ namespace Ship_Game
                 LogFile?.Write(sb.Characters, 0, sb.Length);
             }
 
-            if ((log.Target & LogTarget.Console) != 0)
+            if ((log.Target & LogTarget.Console) != 0 && HasActiveConsole)
             {
-                SetConsoleColor(log.Color, force: false);
-                Console.Write(sb.Characters, 0, sb.Length);
+                try
+                {
+                    SetConsoleColor(log.Color, force: false);
+                    Console.Write(sb.Characters, 0, sb.Length);
+                }
+                catch // Console handle invalid
+                {
+                    HasActiveConsole = false;
+                }
             }
         }
 
@@ -860,8 +875,8 @@ namespace Ship_Game
 
         public static void HideConsoleWindow()
         {
-            ShowWindow(GetConsoleWindow(), 0/*SW_HIDE*/);
             HasActiveConsole = false;
+            ShowWindow(GetConsoleWindow(), 0/*SW_HIDE*/);
         }
     }
 }

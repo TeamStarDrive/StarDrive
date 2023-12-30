@@ -26,7 +26,10 @@ public class AudioConfig : IDisposable
 
     public AudioConfig(string configFile = "Audio/AudioConfig.yaml")
     {
-        using YamlParser parser = new(configFile);
+        using YamlParser parser = new([
+            ResourceManager.GetVanillaFile(configFile),
+            ResourceManager.GetModFile(configFile)
+        ]);
         Categories = parser.DeserializeArray<AudioCategory>().ToArr();
 
         // create a mapping of Id to SoundEffect
