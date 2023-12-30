@@ -226,7 +226,7 @@ namespace Ship_Game.Commands.Goals
                 return false;
 
             string bestRefit = Owner.isPlayer && !Owner.AutoPickBestMiningStation
-                ? Owner.data.CurrentMiningStation
+                ? Owner.data.MiningStation
                 : Owner.BestMiningStationWeCanBuild.Name;
 
             // Refit only one station of this resource type on this planet per refit
