@@ -72,6 +72,12 @@ namespace Ship_Game
                 default: break;
             }
 
+            if (float.IsNaN(consumption))
+            {
+                Log.Error($"consumption was nan for {Owner.Name}, {Good.ExoticBonusType}!");
+                return;
+            }
+
             Consumption = consumption * Good.ConsumptionMultiplier;
         }
 

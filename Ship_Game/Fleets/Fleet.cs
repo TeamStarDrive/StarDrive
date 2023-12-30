@@ -1134,7 +1134,7 @@ namespace Ship_Game.Fleets
 
                     break;
                 case 8:
-                    if (StillInvasionEffective(task))
+                    if (StillInvasionEffective(task) && task.TargetPlanet.Owner != null && task.TargetPlanet.Owner != Owner)
                     {
                         OrderShipsToInvade(Ships, task, false);
                         break;
