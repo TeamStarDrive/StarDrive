@@ -61,39 +61,6 @@ namespace Ship_Game.Commands.Goals
             ChangeToStep(WaitForColonizationComplete);
         }
 
-        GoalStep TargetPlanetStatus()
-        {
-            if (!Owner.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.System, Owner))
-            {
-                ReleaseShipFromGoal();
-                return GoalStep.GoalFailed;
-            }
-
-            if (TargetPlanet.System.OwnerList.Count > 0
-                && !TargetPlanet.System.IsExclusivelyOwnedBy(Owner))
-            {
-                // Someone got planets in that system, need to check if we warned them
-                foreach (Relationship rel in Owner.AllRelations)
-                    Owner.AI.ExpansionAI.CheckClaim(rel.Them, rel, TargetPlanet);
-            }
-
-            if (TargetPlanet.Owner != null)
-            {
-                if (TargetPlanet.Owner == Owner)
-                    return GoalStep.GoalComplete;
-
-                // If the owner is a faction, fail the goal so next time we also get a claim fleet to invade
-                if (TargetPlanet.Owner.IsFaction) 
-                    return FinishedShip != null ? GoalStep.GoalFailed : GoalStep.GoToNextStep;
-
-                ReleaseShipFromGoal();
-                Log.Info($"Colonize: {TargetPlanet.Owner.Name} got there first");
-                return GoalStep.GoalFailed;
-            }
-
-            return GoalStep.GoToNextStep;
-        }
-
         GoalStep CreateClaimTask()
         {
             if (Owner.isPlayer)
@@ -120,8 +87,11 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CheckIfColonizationIsSafe()
         {
-            if (TargetPlanetStatus() == GoalStep.GoalFailed)
+            if (!PlanetCanBeColonized())
+            {
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalFailed;
+            }
 
             if (Task != null)
             {
@@ -144,8 +114,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     if (TargetPlanet.Owner != null && TargetPlanet.GetGroundStrength(Owner) == 0) // ground invasion failed
                     {
-                        Task.EndTask();
-                        ReleaseShipFromGoal();
+                        ReleaseColonyShipAndTask();
                         return GoalStep.GoalFailed;
                     }
 
@@ -160,8 +129,7 @@ namespace Ship_Game.Commands.Goals
 
                 if (enemyStr > Owner.OffensiveStrength)
                 {
-                    Task.EndTask();
-                    ReleaseShipFromGoal();
+                    ReleaseColonyShipAndTask();
                     return GoalStep.GoalFailed;
                 }
 
@@ -171,7 +139,7 @@ namespace Ship_Game.Commands.Goals
             // Check if there is enemy presence without a claim task
             if (PositiveEnemyPresence(out _) && AIControlsColonization)
             {
-                ReleaseShipFromGoal();
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalFailed;
             }
 
@@ -180,8 +148,11 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep OrderShipForColonization()
         {
-            if (TargetPlanetStatus() == GoalStep.GoalFailed)
+            if (!PlanetCanBeColonized())
+            {
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalFailed;
+            }
 
             if (FinishedShip == null) 
                 FinishedShip = FindIdleColonyShip();
@@ -190,7 +161,10 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoToNextStep;
 
             if (!ShipBuilder.PickColonyShip(Owner, out IShipDesign colonyShip))
+            {
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalFailed;
+            }
 
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet, portQuality: 1f))
                 return GoalStep.TryAgain;
@@ -207,10 +181,10 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep EnsureBuildingColonyShip()
         {
-            if (TargetPlanetStatus() == GoalStep.GoalFailed)
+            if (!PlanetCanBeColonized())
             {
-                Task?.EndTask();
                 PlanetBuildingAt?.Construction.Cancel(this);
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalFailed;
             }
 
@@ -220,7 +194,7 @@ namespace Ship_Game.Commands.Goals
                 if (FinishedShip != null)
                 {
                     PlanetBuildingAt?.Construction.Cancel(this);
-                    FinishedShip.DoColonize(TargetPlanet, this);
+                    FinishedShip.OrderColonization(TargetPlanet, this);
                     ChangeToStep(WaitForColonizationComplete);
                     return GoalStep.TryAgain;
                 }
@@ -239,41 +213,48 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanet.Owner == null)
                 return GoalStep.TryAgain;
 
+            ReleaseColonyShipAndTask();
             return GoalStep.GoalComplete;
         }
 
         GoalStep OrderShipToColonize()
         {
-            if (TargetPlanetStatus() == GoalStep.GoalFailed)
-                return GoalStep.GoalFailed;
-
-            if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
+            if (!PlanetCanBeColonized())
             {
-                Task?.EndTask();
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalFailed;
             }
 
-            FinishedShip.DoColonize(TargetPlanet, this);
+            if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
+            {
+                ReleaseColonyShipAndTask();
+                return GoalStep.GoalFailed;
+            }
+
+            FinishedShip.OrderColonization(TargetPlanet, this);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitForColonizationComplete()
         {
-            if (TargetPlanetStatus() == GoalStep.GoalFailed)
+            if (!PlanetCanBeColonized())
+            {
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalFailed;
+            }
 
             if (AIControlsColonization
                 && Owner.KnownEnemyStrengthIn(TargetPlanet.System) > 10
                 && ClaimTaskInvalid())
             {
-                ReleaseShipFromGoal();
-                Task?.EndTask();
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalFailed;
             }
 
             if (TargetPlanet.Owner == Owner)
             {
                 Owner.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalComplete;
             }
 
@@ -281,11 +262,36 @@ namespace Ship_Game.Commands.Goals
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
                 || goal.TargetPlanet != TargetPlanet)
             {
-                Task?.EndTask();
+                ReleaseColonyShipAndTask();
                 return GoalStep.GoalFailed;
             }
 
             return GoalStep.TryAgain;
+        }
+
+        bool PlanetCanBeColonized()
+        {
+            if (!Owner.isPlayer && PlanetRanker.IsColonizeBlockedByMorals(TargetPlanet.System, Owner))
+                return false;
+
+            if (TargetPlanet.System.OwnerList.Count > 0
+                && !TargetPlanet.System.IsExclusivelyOwnedBy(Owner))
+            {
+                // Someone got planets in that system, need to check if we warned them
+                foreach (Relationship rel in Owner.AllRelations)
+                    Owner.AI.ExpansionAI.CheckClaim(rel.Them, rel, TargetPlanet);
+            }
+
+            if (TargetPlanet.Owner != null && TargetPlanet.Owner != Owner)
+            {
+                if (TargetPlanet.Owner.IsFaction)
+                    return true;
+
+                Log.Info($"Colonize: {TargetPlanet.Owner.Name} got there first");
+                return false;
+            }
+
+            return true;
         }
 
         void ReleaseShipFromGoal()
@@ -330,6 +336,12 @@ namespace Ship_Game.Commands.Goals
             }
 
             return null;
+        }
+
+        void ReleaseColonyShipAndTask()
+        {
+            Task?.EndTask();
+            ReleaseShipFromGoal();
         }
 
         bool AIControlsColonization => !Owner.isPlayer || (Owner.isPlayer && Owner.AutoColonize && !IsManualColonizationOrder);

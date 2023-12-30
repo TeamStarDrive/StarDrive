@@ -880,7 +880,7 @@ namespace Ship_Game.Ships
             AI.OrderExplore();
         }
 
-        public void DoColonize(Planet p, Goal g)
+        public void OrderColonization(Planet p, Goal g)
         {
             AI.OrderColonization(p, g);
         }

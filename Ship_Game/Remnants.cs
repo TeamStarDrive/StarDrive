@@ -224,8 +224,8 @@ namespace Ship_Game
                 int numturns = Owner.DifficultyModifiers.RemnantTurnsLevelUp;
                 switch (Universe.P.ExtraRemnant)
                 {
-                    case ExtraRemnantPresence.VeryRare: return numturns / 2;
-                    case ExtraRemnantPresence.Rare:     return (int)(numturns / 1.5f);
+                    case ExtraRemnantPresence.VeryRare: return (int)(numturns * 0.66f);
+                    case ExtraRemnantPresence.Rare:     return (int)(numturns * 0.8f);
                     default:                            return numturns;
                 }
             }

@@ -99,6 +99,9 @@ public class ShipEngines
 
     WarpStatus GetFormationWarpReadyStatus(Ship owner)
     {
+        if (owner.IsLaunching)
+            return Status(WarpStatus.WaitingOrRecalling, "Launching"); // tell everyone to plz wait
+
         if (owner.engineState == Ship.MoveState.Warp || !owner.CanTakeFleetMoveOrders())
             return Status(ReadyForWarp, "");
 

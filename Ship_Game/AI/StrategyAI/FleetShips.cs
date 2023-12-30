@@ -310,7 +310,7 @@ namespace Ship_Game.AI
             if (task.NeededTroopStrength > 0)
             {
                 if (InvasionTroopStrength < task.NeededTroopStrength)
-                    LaunchTroopsAndAddToShipList(task.NeededTroopStrength, planetTroops);
+                    LaunchTroopsAndAddToShipList(planetTroops);
                 GetTroops(ships, task.NeededTroopStrength);
             }
 
@@ -329,25 +329,10 @@ namespace Ship_Game.AI
             });
         }
 
-        private void LaunchTroopsAndAddToShipList(int wantedTroopStrength, Array<Troop> planetTroops)
+        private void LaunchTroopsAndAddToShipList(Array<Troop> launchablePlanetTroops)
         {
-            foreach (Troop troop in planetTroops.Filter(delegate(Troop t)
+            foreach (Troop troop in launchablePlanetTroops)
             {
-                if (t.HostPlanet != null
-                    && t.Loyalty != null
-                    && t.CanLaunch // save some iterations to find tiles for irrelevant troops
-                    && !t.HostPlanet.RecentCombat
-                    && !t.HostPlanet.System.DangerousForcesPresent(t.Loyalty))
-                {
-                    return true;
-                }
-
-                return false;
-            }))
-            {
-                if (InvasionTroopStrength > wantedTroopStrength)
-                    break;
-
                 Ship launched = troop.Launch();
                 if (launched != null)
                     AddShip(launched);

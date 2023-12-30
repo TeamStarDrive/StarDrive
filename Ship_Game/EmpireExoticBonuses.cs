@@ -44,11 +44,6 @@ namespace Ship_Game
         void RemoveFromStorage(float amount)
         {
             CurrentStorage = (CurrentStorage - amount).Clamped(0, MaxStorage);
-            if (float.IsNaN(CurrentStorage)) 
-            {
-                Log.Error($"Current storage was nan for {Owner.Name}!");
-                CurrentStorage = 0;
-            }
         }
 
         public void Update()
@@ -75,6 +70,12 @@ namespace Ship_Game
                 case ExoticBonusType.WarpSpeed:       consumption = Owner.TotalShipWarpThrustK;         break;
                 case ExoticBonusType.None:
                 default: break;
+            }
+
+            if (float.IsNaN(consumption))
+            {
+                Log.Error($"consumption was nan for {Owner.Name}, {Good.ExoticBonusType}!");
+                return;
             }
 
             Consumption = consumption * Good.ConsumptionMultiplier;
