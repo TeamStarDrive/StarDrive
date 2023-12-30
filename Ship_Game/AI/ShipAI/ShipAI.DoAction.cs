@@ -652,7 +652,7 @@ namespace Ship_Game.AI
             if (!Owner.IsHangarShip || !Owner.Mothership.Active)
             {
                 ClearOrders(State);
-                if (Owner.IsMiningShip)                          OrderScuttleShip();
+                if      (Owner.IsMiningShip)                     Owner.Die(null, true);
                 else if (Owner.ShipData.Role == RoleName.supply) OrderScrapShip();
                 else                                             GoOrbitNearestPlanetAndResupply(true);
                 return;
