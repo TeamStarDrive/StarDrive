@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
@@ -269,8 +270,10 @@ namespace Ship_Game.Universe
 
         public Vector2 GetCorrectedMovePosWithAudio(Array<Ship> ships, Ship[] enemyShips, Vector2 pos)
         {
-            var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(pos) <= 7500);
-            if (ships.All(s => s.Position.Distance(pos) < 5000 || enemyShipsTooClose.Length == 0))
+            float minimumDistance = (ships.Count * 100).LowerBound(5000);
+            float minimumDistanceInBattle = (minimumDistance * 2).LowerBound(5000);
+            var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(pos) <= minimumDistance);
+            if (ships.All(s => s.Position.Distance(pos) < minimumDistanceInBattle) || enemyShipsTooClose.Length == 0)
             {
                 GameAudio.AffirmativeClick();
                 return pos;
@@ -279,7 +282,7 @@ namespace Ship_Game.Universe
             GameAudio.SmallServo(); // Notify player that order was not exactly followed 
             Ship closestEnemy = enemyShipsTooClose.FindMin(s => s.Position.Distance(pos));
             Vector2 closestEnemySPos = closestEnemy.Position;
-            float distanceNeeded = 5000 - closestEnemySPos.Distance(pos);
+            float distanceNeeded = minimumDistance - closestEnemySPos.Distance(pos);
             Vector2 directionToProjectedPos = closestEnemySPos.DirectionToTarget(pos);
             Vector2 corrected = pos + directionToProjectedPos*distanceNeeded;
             return corrected;
