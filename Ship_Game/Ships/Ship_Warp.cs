@@ -183,7 +183,7 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (JumpTimer <= 4.0f)
+            if (JumpTimer <= 3.0f)
             {
                 if (IsVisibleToPlayer && !Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
                 {

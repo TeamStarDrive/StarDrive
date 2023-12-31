@@ -498,6 +498,12 @@ namespace Ship_Game
             return UState.Spatial.FindNearby(ref opt).FastCast<SpatialObjectBase, Ship>();
         }
 
+        public Ship[] GetVisibleEnemyShipsInScreen()
+        {
+            Ship[] Ships = GetVisibleShipsInScreenRect(new RectF(0,0, new Vector2(ScreenArea.X, ScreenArea.Y)));
+            return Ships.Filter(s => !s.IsInWarp && Player.IsEmpireAttackable(s.Loyalty, s));
+        }
+
         Ship FindClickedShip(InputState input)
         {
             const float ClickRadius = 5f;
