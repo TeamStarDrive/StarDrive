@@ -21,7 +21,6 @@ namespace Ship_Game.AI.Tasks
 
         [StarData] public Goal Goal;
 
-        [StarData] public bool IsCoreFleetTask;
         [StarData] public bool NeedEvaluation = true;
 
         [StarData] public float EnemyStrength;
@@ -244,12 +243,6 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            if (IsCoreFleetTask)
-            {
-                ClearCoreFleetTask();
-                return;
-            }
-
             if (Fleet.IsCoreFleet || Owner.isPlayer)
                 return;
 
@@ -270,19 +263,6 @@ namespace Ship_Game.AI.Tasks
                 Ship troopship = t.Launch(); // returns null on failure
                 troopship?.AI.OrderRebaseToNearest();
             }
-        }
-
-        private void ClearCoreFleetTask()
-        {
-            for (int i = 0; i < Fleet.Ships.Count; i++)
-            {
-                Ship ship = Fleet.Ships[i];
-                ship.AI.CombatState = ship.ShipData.DefaultCombatState;
-                ship.AI.ClearOrders();
-                ship.HyperspaceReturn();
-            }
-
-            Fleet.FleetTask = null;
         }
 
         /// <summary>
@@ -356,31 +336,29 @@ namespace Ship_Game.AI.Tasks
         {
             if (Fleet != null)
             {
-                if (!IsCoreFleetTask)
+                for (int i = Fleet.Ships.Count - 1; i >= 0; i--)
                 {
-                    for (int i = Fleet.Ships.Count - 1; i >= 0; i--)
-                    {
-                        Ship ship = Fleet.Ships[i];
-                        ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
+                    Ship ship = Fleet.Ships[i];
+                    ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
 
-                        if (ship.ShipData.Role != RoleName.troop)
-                        {
-                            ship.AI.GoOrbitNearestPlanetAndResupply(false);
-                        }
-                        else
-                        {
-                            ship.AI.OrderRebaseToNearest();
-                        }
+                    if (ship.ShipData.Role != RoleName.troop)
+                    {
+                        ship.AI.GoOrbitNearestPlanetAndResupply(false);
                     }
-                    TaskForce.Clear();
-                    Fleet.Reset();
+                    else
+                    {
+                        ship.AI.OrderRebaseToNearest();
+                    }
                 }
+                TaskForce.Clear();
+                Fleet.Reset();
 
                 if (Type == TaskType.Exploration)
                 {
                     TargetPlanet.ForceLaunchAllTroops(Owner, orderRebase: true);
                 }
             }
+
             Owner.AI.QueueForRemoval(this);
         }
 

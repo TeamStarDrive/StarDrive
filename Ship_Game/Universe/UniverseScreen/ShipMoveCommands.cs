@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Linq;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
@@ -225,12 +226,11 @@ namespace Ship_Game.Universe
             return false;
         }
 
-        public void MoveFleetToLocation(Ship shipClicked, Planet planetClicked,
+        public void MoveFleetToLocation(Ship[] enemyShips, Ship shipClicked, Planet planetClicked,
             Vector2 movePosition, Vector2 facingDir, ShipGroup fleet = null)
         {
             fleet = fleet ?? Universe.SelectedFleet;
             GameAudio.AffirmativeClick();
-
             foreach (Ship ship in fleet.Ships)
             {
                 ship.AI.Target = null;
@@ -251,10 +251,11 @@ namespace Ship_Game.Universe
                 if (ship.PlayerShipCanTakeFleetOrders())
                     ship.AI.ClearOrders();
 
-            fleet.MoveTo(movePosition, facingDir, GetMoveOrderType());
+            Vector2 correctedPos = GetCorrectedMovePosWithAudio(fleet.Ships, enemyShips, movePosition);
+            fleet.MoveTo(correctedPos, facingDir, GetMoveOrderType());
         }
 
-        public void MoveShipToLocation(Vector2 pos, Vector2 direction, Ship ship)
+        public void MoveShipToLocation(Ship[] enemyShips, Vector2 pos, Vector2 direction, Ship ship)
         {
             if (ship.IsPlatformOrStation)
             {
@@ -262,8 +263,26 @@ namespace Ship_Game.Universe
                 return;
             }
 
-            GameAudio.AffirmativeClick();
-            ship.AI.OrderMoveTo(pos, direction, GetMoveOrderType());
+            Vector2 correctedPos = GetCorrectedMovePosWithAudio([ship], enemyShips, pos);
+            ship.AI.OrderMoveTo(correctedPos, direction, GetMoveOrderType());
+        }
+
+        public Vector2 GetCorrectedMovePosWithAudio(Array<Ship> ships, Ship[] enemyShips, Vector2 pos)
+        {
+            var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(pos) <= 7500);
+            if (ships.All(s => s.Position.Distance(pos) < 5000 || enemyShipsTooClose.Length == 0))
+            {
+                GameAudio.AffirmativeClick();
+                return pos;
+            }
+
+            GameAudio.SmallServo(); // Notify player that order was not exactly followed 
+            Ship closestEnemy = enemyShipsTooClose.FindMin(s => s.Position.Distance(pos));
+            Vector2 closestEnemySPos = closestEnemy.Position;
+            float distanceNeeded = 5000 - closestEnemySPos.Distance(pos);
+            Vector2 directionToProjectedPos = closestEnemySPos.DirectionToTarget(pos);
+            Vector2 corrected = pos + directionToProjectedPos*distanceNeeded;
+            return corrected;
         }
     }
 }
