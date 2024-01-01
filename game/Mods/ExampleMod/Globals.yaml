@@ -58,7 +58,7 @@ Globals:
     Name: "ExampleMod" # this is the unique name id of this mod, don't change it after releasing the mod
     Version: "0.1"
     FormatVersion: 1
-    SupportedBlackBoxVersions: "develop,mars-1.50"
+    SupportedBlackBoxVersions: "mars-1.41,mars-1.50"
     IconPath: mod_icon.png
     Description: "Example Mod Setup"
     Author: "The StarDrive Team"

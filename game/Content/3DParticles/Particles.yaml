@@ -1,7 +1,7 @@
 ####
 # This file contains all particle types in the game
 # It is hotloaded whenever this file changes
-# For latest docs see: https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/Graphics/Particles/ParticleSettings.cs
+# For latest docs see: https://github.com/TeamStarDrive/StarDrive/tree/develop/Ship_Game/Graphics/Particles/ParticleSettings.cs
 
 ##### Brief Syntax with default values
 ##

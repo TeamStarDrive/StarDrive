@@ -59,7 +59,7 @@ The future goals of BlackBox - Hyperion are:
     * Configure SourceTree: Tools->Options->Git: [v] Perform submodule actions recursively _(Important!!!)_
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
     * Advanced Options When cloning: [v] Recurse submodules _(Important!!!)_
-* Switch to `develop` branch, which is our main branch for latest ongoing development.
+* Switch to `mars-1.50` branch, which is our main branch for latest ongoing development.
 * Launch Visual Studio, any required DLL references should be in `BlackBox/game` directory.
 * Launch a full build (Build -> Build Solution) in `Release` configuration to produce the BlackBox StarDrive executable.
     * If you get this build error: "Windows 10 SDK is not installed", then you need to go back to Visual Studio installer and enable Desktop development with C++
@@ -99,10 +99,10 @@ contact us in [Discord](https://discord.gg/dfvnfH4) for more information on modd
 
 # Development Cycle
 ## For new features, refactors, old bug fixes  (feature)
-* Create a new branch from develop.
+* Create a new feature branch from `mars-1.50`.
 * Always add NEW feature unit tests and playtest your changes.
 * Create a pull request and wait for review. Be ready to make a few tweaks! It is easy to create unintentional bugs in this legacy codebase.
-## If bugs are found in develop branch (hotfix)
+## If bugs are found in main branch (hotfix)
 * Create an issue or mark existing issue as a "Blocker" for current release.
 * Post the issue in the dev channel of discord. 
 * If you can quickly fix it, help us by creating a hotfix pull request.
@@ -115,7 +115,7 @@ C:\Projects\BlackBox\game>StarDrive.exe --help
 13:50:43.698ms: Loaded App Settings
 13:50:43.768ms:
  ======================================================
- ==== Mars : 1.30.13000 develop-latest             ====
+ ==== Mars : 1.50.15000 develop-latest             ====
  ==== UTC: 12/13/2021 13:50:43                     ====
  ======================================================
 

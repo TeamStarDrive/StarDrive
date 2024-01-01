@@ -20,7 +20,7 @@ BUILD_VERSION = env('APPVEYOR_BUILD_VERSION', default='1.50.15000')
 
 os.chdir(args.root_dir)
 
-# if this is a remote build on AppVeyor CI, then only build `develop` or `release` branch
+# if this is a remote build on AppVeyor CI, then only create installer for specific branches
 if is_appveyor_build() and not should_deploy():
     exit_with_message(f'Not creating installer for this branch: {appveyor_branch()}')
 

@@ -25,7 +25,7 @@
  # Decreases or increases the tech cost of ship
  # making it more or less likely to be choosen.
  # to verify these options for changes check here
- # https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/AI/Research/ResearchOptions.cs#lines-26
+ # https://github.com/TeamStarDrive/StarDrive/tree/main/Ship_Game/AI/Research/ResearchOptions.cs#lines-26
  ShipCostModifiers: 
     Carrier:        0.95
     Bomber:         0.95
@@ -55,7 +55,7 @@
  # The base percentage of 1 means 1-100%
  # these values can be seen in the debug info "tech" screen.
  # To verify these values for changes check here
- # https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/AI/Research/ResearchOptions.cs#lines-53
+ # https://github.com/TeamStarDrive/StarDrive/tree/main/Ship_Game/AI/Research/ResearchOptions.cs#lines-53
  ResearchAreaModifiers: 
   Colonization:     1.00
   Economic:         1.00
@@ -67,7 +67,7 @@
   
  #WeaponModifiers are used to modify the cost of a ship based on the kind of weapons it has on board.   
  # we dont currently have a description of these tags. if its not clear ask in the discord chat. 
- #https://bitbucket.org/codegremlins/stardrive-blackbox/src/5bb3a64dc86413c2c1add1ab41504d51d3acbd5d/Ship_Game/Gameplay/Weapon.cs?at=develop#Weapon.cs-18  
+ # https://github.com/TeamStarDrive/StarDrive/tree/main/Ship_Game/Gameplay/Weapon.cs
  WeaponModifiers:
     Kinetic:  1.00
     Energy:   1.00

@@ -8,7 +8,7 @@ def exit_with_message(msg): print(msg, flush=True); sys.exit(0) # not an error
 # allowed CI auto-deploy branches:
 def should_deploy():
     branch = appveyor_branch()
-    return branch == "develop"
+    return branch == "main" or branch == "develop"
 
 def env(env_var_name, default=None, fatal=False):
     var = os.getenv(env_var_name, default=default)
