@@ -11,10 +11,10 @@ Do not use this for immoral or personal financial gain, donation requests are ok
 Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam.
 
 # Downloads
-Currently downloadable Releases contain Major and Patch versions. Major versions are big, 700-800MB installs. Patches are relatively small and are always cumulative, which means you only need to install the Major version (1.41) and latest patch (1.41-patch).
+Currently downloadable Releases contain Major and Patch versions. Major versions are big, 700-800MB installs. Patches are relatively small and are always cumulative, which means you only need to install the Major version (1.50) and latest patch (1.50-patch).
 Note that the game now has an auto update logic; You can install the Major Release and the game will prompt and install the latest patch for you. Hover over the prompt message to see change log.
 
-[Current Major Release Link (read the instructions!)](https://github.com/TeamStarDrive/StarDrive/releases/tag/mars-1.41.14664)
+[Current Major Release Link (read the instructions!)](https://github.com/TeamStarDrive/StarDrive/releases/)
 
 [Go To Downloads](https://github.com/TeamStarDrive/StarDrive/releases) (for reference)
 
