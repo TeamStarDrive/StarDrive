@@ -118,8 +118,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public void ResetMusic()
         {
-            GameAudio.ConfigureAudioSettings();
-            GameAudio.StopGenericMusic();
+            GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
+            GameAudio.StopGenericMusic(fadeout: false);
             ScreenManager.Music.Stop();
 
             if (Type == MainMenuType.Victory)
@@ -133,7 +133,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             else if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
             {
-                ScreenManager.Music = GameAudio.PlayMp3(GlobalStats.ModPath + GlobalStats.Defaults.CustomMenuMusic);
+                ScreenManager.Music = GameAudio.PlayMusicFile(GlobalStats.Defaults.CustomMenuMusic);
             }
             else if (ScreenManager.Music.IsStopped)
             {
@@ -208,18 +208,14 @@ namespace Ship_Game.GameScreens.MainMenu
         // We need a simulation time accumulator in order to run sim at arbitrary X fps while UI runs at smooth 60 fps
         float SimTimeSink;
 
-        // 24x distance is currently the maximum, seems like 25,000 distance is the cutoff for sound
-        const float SoundDistanceMultiplier = 24;
-
         public override void Update(float fixedDeltaTime)
         {
             if (Scene != null)
             {
-                // We set the listener pos further away, this is the only way to reduce SFX volume currently
-                var listenerPos = new Vector3(Scene.CameraPos.X, Scene.CameraPos.Y, Scene.CameraPos.Z * SoundDistanceMultiplier);
+                Vector3 listenerPos = new(Scene.CameraPos.X, Scene.CameraPos.Y, Scene.CameraPos.Z);
                 GameAudio.Update3DSound(listenerPos);
 
-                var simTime = new FixedSimTime(GlobalStats.SimulationFramesPerSecond);
+                FixedSimTime simTime = new(GlobalStats.SimulationFramesPerSecond);
 
                 SimTimeSink += fixedDeltaTime;
                 while (SimTimeSink >= simTime.FixedTime)
@@ -235,7 +231,7 @@ namespace Ship_Game.GameScreens.MainMenu
             if (Scene != null && Scene.Random.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {
                 Comet c = Add(new Comet(this, Scene.Random));
-                c.SetDirection(new Vector2(Scene.Random.Float(-1f, 1f), 1f));
+                c.SetDirection(new(Scene.Random.Float(-1f, 1f), 1f));
             }
 
             if (!IsExiting && ScreenManager.Music.IsStopped)

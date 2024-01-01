@@ -203,7 +203,7 @@ namespace Ship_Game
 
         public void InitializeAudio()
         {
-            GameAudio.Initialize(null, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
+            GameAudio.Initialize(null, "Audio/AudioConfig.yaml");
         }
 
         protected void UpdateGame(float deltaTime)

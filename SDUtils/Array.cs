@@ -645,6 +645,32 @@ namespace SDUtils
             collection.CopyTo(Items, i);
         }
 
+        public void AddRange(T[] buffer, int count)
+        {
+            if (count == 0)
+                return;
+
+            int i = Count;
+            Resize(i + count);
+
+            Span<T> src = new(buffer, 0, count);
+            Span<T> dst = new(Items, i, count);
+            src.CopyTo(dst);
+        }
+
+        public void AddSpan(Span<T> span)
+        {
+            int n = span.Length;
+            if (n == 0)
+                return;
+
+            int i = Count;
+            Resize(i + n);
+
+            Span<T> dst = new(Items, i, n);
+            span.CopyTo(dst);
+        }
+
         public void AddRange(IEnumerable<T> collection)
         {
             foreach (T item in collection)

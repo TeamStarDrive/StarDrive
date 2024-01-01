@@ -1,10 +1,11 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
 using SDUtils;
 
 namespace Ship_Game.Data.Yaml;
@@ -14,15 +15,16 @@ public class YamlNode : IEnumerable<YamlNode>
 {
     static readonly IReadOnlyList<YamlNode> EmptyNodes = new ReadOnlyCollection<YamlNode>(Empty<YamlNode>.Array);
 
-    public object Key, Value;
+    public object? Key;
+    public object? Value;
 
     // SubNode tree,  ie. This: { SubNode1: Value1, SubNode2: Value2 }
     public IReadOnlyList<YamlNode> Nodes => SubNodes ?? EmptyNodes;
-    Array<YamlNode> SubNodes;
+    Array<YamlNode>? SubNodes;
 
     // Sequence list, ie. This: [ Element1, Element2, Element3 ]
     public IReadOnlyList<YamlNode> Sequence => SeqNodes ?? EmptyNodes;
-    Array<YamlNode> SeqNodes;
+    Array<YamlNode>? SeqNodes;
 
     public override string ToString() => SerializedText();
 
@@ -32,7 +34,7 @@ public class YamlNode : IEnumerable<YamlNode>
 
     // Prefers sequence, but if it's empty,
     // chooses subnodes instead
-    public Array<YamlNode> SequenceOrSubNodes => SeqNodes ?? SubNodes;
+    public Array<YamlNode>? SequenceOrSubNodes => SeqNodes ?? SubNodes;
 
     // SubNode or SeqNode indexing (depends which one is available)
     // ThisNode:
@@ -49,11 +51,9 @@ public class YamlNode : IEnumerable<YamlNode>
         get
         {
             var container = SubNodes ?? SeqNodes;
-            if (container == null || (uint)subNodeIndex >= SubNodes.Count)
-            {
+            if (container == null || (uint)subNodeIndex >= container.Count)
                 ThrowSubNodeIndexOutOfBounds(subNodeIndex);
-            }
-            return container[subNodeIndex];
+            return container![subNodeIndex];
         }
     }
 
@@ -77,9 +77,10 @@ public class YamlNode : IEnumerable<YamlNode>
     // this.GetElement(0) => YamlNode Key=Element0 Value=Value0
     public YamlNode GetElement(int index)
     {
-        if (SeqNodes == null || (uint)index > (uint)SeqNodes.Count)
+        var container = SeqNodes;
+        if (container == null || (uint)index > (uint)container.Count)
             ThrowSequenceIndexOutOfBounds(index);
-        return SeqNodes[index];
+        return container![index];
     }
 
     // Separated throw from this[] to enable MSIL inlining
@@ -90,10 +91,10 @@ public class YamlNode : IEnumerable<YamlNode>
     }
 
     // Name: ...
-    public string Name => Key as string;
-        
+    public string? Name => Key as string;
+
     // Key: ValueText
-    public string ValueText => Value as string;
+    public string? ValueText => Value as string;
 
     // Key: true
     public bool ValueBool => Value is bool b && b;
@@ -105,40 +106,74 @@ public class YamlNode : IEnumerable<YamlNode>
     public float ValueFloat => Value is float f ? f : float.NaN;
 
     // Key: [Elem1, Elem2, Elem3]
-    public object[] ValueArray => Value as object[];
+    public object[]? ValueArray => Value as object[];
+
+    // Key:
+    //   - Elem1
+    //   - Elem2
+    public object?[]? SequenceArray
+    {
+        get
+        {
+            if (SeqNodes == null) return null;
+            object?[] values = new object[SeqNodes.Count];
+            for (int i = 0; i < SeqNodes.Count; ++i)
+                values[i] = SeqNodes[i].Value;
+            return values;
+        }
+    }
+
+    // Gets the value or sequence as an array, or null
+    public object?[]? Array => ValueArray ?? SequenceArray;
 
     public void AddSubNode(YamlNode item)
     {
-        if (SubNodes == null)
-            SubNodes = new Array<YamlNode>();
+        SubNodes ??= new();
         SubNodes.Add(item);
     }
 
     public void AddSequenceElement(YamlNode element)
     {
-        if (SeqNodes == null)
-            SeqNodes = new Array<YamlNode>();
+        SeqNodes ??= new();
         SeqNodes.Add(element);
+    }
+
+    public void SetSequence(IReadOnlyList<YamlNode> elements)
+    {
+        SeqNodes ??= new();
+        SeqNodes.Clear();
+        SeqNodes.AddRange(elements);
+    }
+
+    public void AddSeqElements(IReadOnlyList<YamlNode> elements)
+    {
+        SeqNodes ??= new();
+        SeqNodes.AddRange(elements);
+    }
+
+    public void ClearSequence()
+    {
+        SeqNodes = null;
     }
 
     public YamlNode GetSubNode(string subNodeKey)
     {
-        if (!FindSubNode(subNodeKey, out YamlNode found))
-            throw new KeyNotFoundException($"YamlNode '{subNodeKey}' not found in node '{Name}'!");
-        return found;
+        if (FindSubNode(subNodeKey, out YamlNode? found))
+            return found!;
+        throw new KeyNotFoundException($"YamlNode '{subNodeKey}' not found in node '{Name}'!");
     }
 
     // finds a direct child element
-    public bool FindSubNode(string subNodeKey, out YamlNode found)
+    public bool FindSubNode(object? subNodeKey, out YamlNode? found)
     {
-        if (SubNodes != null)
+        if (SubNodes != null && subNodeKey != null)
         {
             int count = SubNodes.Count;
             YamlNode[] fast = SubNodes.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
                 YamlNode node = fast[i];
-                if (node.Name == subNodeKey)
+                if (subNodeKey.Equals(node.Key))
                 {
                     found = node;
                     return true;
@@ -151,7 +186,7 @@ public class YamlNode : IEnumerable<YamlNode>
 
     // recursively searches child elements
     // this can be quite slow if Node tree has hundreds of elements
-    public bool FindSubNodeRecursive(string subNodeKey, out YamlNode found)
+    public bool FindSubNodeRecursive(string subNodeKey, out YamlNode? found)
     {
         // first check direct children
         if (FindSubNode(subNodeKey, out found))
@@ -168,7 +203,85 @@ public class YamlNode : IEnumerable<YamlNode>
         }
         return false;
     }
-        
+
+    // finds the first sequence item with a matching key
+    public bool FindSeqItemByKey(object? itemKey, out YamlNode? found)
+    {
+        if (SeqNodes != null && itemKey != null)
+        {
+            foreach (YamlNode node in SeqNodes)
+            {
+                if (itemKey.Equals(node.Key))
+                {
+                    found = node;
+                    return true;
+                }
+            }
+        }
+        found = null;
+        return false;
+    }
+
+    // finds the first sequence item with a matching value
+    public bool FindSeqItemByValue(object? itemValue, out YamlNode? found)
+    {
+        if (SeqNodes != null && itemValue != null)
+        {
+            foreach (YamlNode node in SeqNodes)
+            {
+                if (itemValue.Equals(node.Value))
+                {
+                    found = node;
+                    return true;
+                }
+            }
+        }
+        found = null;
+        return false;
+    }
+
+    // finds a sequence item filtered by type and matching a unique id
+    // type can be null
+    // Example:
+    //   - TYPE: { Id: item1, Data: 0 }
+    //   - TYPE: { Id: item2, Data: 1 }
+    //   FindSeqItemTypeById("TYPE", { Key: "Id", Value: "item2" }, out YamlNode found);
+    public bool FindSeqItemByIdAndType(YamlNode idNode, object? type, out YamlNode? found)
+    {
+        if (SeqNodes != null && idNode.Value != null)
+        {
+            foreach (YamlNode match in SeqNodes)
+            {
+                if (type == null || type.Equals(match.Key)) // TYPE matches
+                {
+                    // find the node's Id item
+                    if (match.FindSubNode(idNode.Key, out YamlNode? idItem))
+                    {
+                        // check if Id values match
+                        if (idNode.Value.Equals(idItem!.Value))
+                        {
+                            found = match;
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        found = null;
+        return false;
+    }
+
+    // gets a SubNode used to identify this YAML object
+    // "Id" or "Name"
+    public YamlNode? GetIdNode()
+    {
+        if (SubNodes != null)
+            foreach (YamlNode node in SubNodes)
+                if ("Id".Equals(node.Key) || "Name".Equals(node.Key))
+                    return node;
+        return null;
+    }
+
     // Safe SubNode enumerator
     public IEnumerator<YamlNode> GetEnumerator()
     {
@@ -243,7 +356,7 @@ public class YamlNode : IEnumerable<YamlNode>
         return tw;
     }
 
-    static TextWriter Write(TextWriter tw, object o)
+    static TextWriter Write(TextWriter tw, object? o)
     {
         switch (o)
         {

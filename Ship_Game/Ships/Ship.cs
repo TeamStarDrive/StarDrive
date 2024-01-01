@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
@@ -31,7 +30,7 @@ namespace Ship_Game.Ships
 
         public Array<Weapon> Weapons = new();
         [StarData] float JumpTimer = 3f;
-        public AudioEmitter SoundEmitter = new();
+        public AudioEmitter SoundEmitter = new(maxDistance: GameAudio.ShipSfxDistance);
         [StarData] public float ScuttleTimer = -1f;
         
         [StarData] public Fleet Fleet;
@@ -1524,8 +1523,11 @@ namespace Ship_Game.Ships
             if (Dying) // already dying, no need to calc explosion chances again
                 return false;
 
-            if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
+            // will ship instantly explode?
+            if (proj is { Explodes: true } && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
+            {
                 return true;
+            }
 
             if (Loyalty.Random.RollDice(35))
             {
@@ -1534,7 +1536,7 @@ namespace Ship_Game.Ships
                 if (PlanetCrash.GetPlanetToCrashOn(this, out Planet planet))
                 {
                     Dying = true;
-                    PlanetCrash = new PlanetCrash(planet, this);
+                    PlanetCrash = new(planet, this);
                 }
 
                 if (InFrustum)
@@ -1543,8 +1545,11 @@ namespace Ship_Game.Ships
                     DieTimer = Loyalty.Random.Int(4, 8);
                 }
 
+                // the ship is entering tumbling death mode
                 if (Dying)
                 {
+                    GameAudio.PlaySfxAsync("sd_ship_alarm", SoundEmitter); // critical alarm sound
+
                     DieRotation.X = Loyalty.Random.Float(-1f, 1f) * 50f / SurfaceArea;
                     DieRotation.Y = Loyalty.Random.Float(-1f, 1f) * 50f / SurfaceArea;
                     DieRotation.Z = Loyalty.Random.Float(-1f, 1f) * 50f / SurfaceArea;
@@ -1560,7 +1565,7 @@ namespace Ship_Game.Ships
             if (!cleanupOnly && visible)
             {
                 string dieSoundEffect;
-                if      (SurfaceArea < 80)  dieSoundEffect ="sd_explosion_ship_det_small";
+                if      (SurfaceArea < 80)  dieSoundEffect = "sd_explosion_ship_det_small";
                 else if (SurfaceArea < 250) dieSoundEffect = "sd_explosion_ship_det_medium";
                 else                        dieSoundEffect = "sd_explosion_ship_det_large";
 
@@ -1699,7 +1704,7 @@ namespace Ship_Game.Ships
             Fleet = null;
             ShipData = null;
             Mothership = null;
-            JumpSfx?.Destroy();
+            JumpSfx.Dispose();
             KnownByEmpires = null;
             PlayerProjectorHasSeenEmpires = null;
             PlanetCrash = null;

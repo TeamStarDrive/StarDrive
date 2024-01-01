@@ -73,6 +73,7 @@
     <Compile Include="Collections\StableCollectionTests.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="Collections\TestEnumFlatMap.cs" />
+    <Compile Include="Data\TestAudioConfig.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="Empires\IncomingThreatDetectorTests.cs" />
@@ -140,7 +141,7 @@
     <Compile Include="TestThreadExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestTextureAtlas.cs" />
-    <Compile Include="Serialization\TestYamlParser.cs" />
+    <Compile Include="Serialization\YamlParserTests.cs" />
     <Compile Include="TestProgressCounter.cs" />
     <Compile Include="LinearAlgebra\TestVectorMath.cs" />
     <Compile Include="TestImpactPredictor.cs" />

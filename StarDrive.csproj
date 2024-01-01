@@ -172,6 +172,14 @@
     <Compile Include="Ship_Game\AI\ThreatMatrix_Update.cs" />
     <Compile Include="Ship_Game\Debug\Page\MiningOpsDebug.cs" />
     <Compile Include="Ship_Game\ExoticBonusesWindow.cs" />
+    <Compile Include="Ship_Game\Audio\AudioConfig.cs" />
+    <Compile Include="Ship_Game\Audio\AudioEmitter.cs" />
+    <Compile Include="Ship_Game\Audio\NAudio\NAudioFileReader.cs" />
+    <Compile Include="Ship_Game\Audio\NAudio\NAudioMFReader.cs" />
+    <Compile Include="Ship_Game\Audio\NAudio\NAudioPlaybackEngine.cs" />
+    <Compile Include="Ship_Game\Audio\NAudio\CachedSoundEffect.cs" />
+    <Compile Include="Ship_Game\Audio\NAudio\NAudioSampleInstance.cs" />
+    <Compile Include="Ship_Game\Audio\NAudio\NAudioSampleMixer.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildableShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MiningOps.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantDefendPortal.cs" />
@@ -317,7 +325,7 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderAction.cs" />
     <Compile Include="Ship_Game\Audio\AudioDevices.cs" />
     <Compile Include="Ship_Game\Audio\AudioHandle.cs" />
-    <Compile Include="Ship_Game\Audio\AudioInstance.cs" />
+    <Compile Include="Ship_Game\Audio\IAudioInstance.cs" />
     <Compile Include="Ship_Game\BuildingCategory.cs" />
     <Compile Include="Ship_Game\Commands\Goals\AssaultBombers.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DefendSystem.cs" />

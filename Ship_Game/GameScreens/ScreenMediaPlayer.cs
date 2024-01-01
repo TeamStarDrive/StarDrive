@@ -33,7 +33,7 @@ namespace Ship_Game.GameScreens
 
         // Extra music associated with the video.
         // For example, diplomacy screen uses WAR music if WarDeclared
-        AudioHandle Music = AudioHandle.DoNotPlay;
+        AudioHandle ExtraMusic = AudioHandle.DoNotPlay;
 
         // If TRUE, the video becomes interactive with a Play button
         public bool EnableInteraction = false;
@@ -77,10 +77,10 @@ namespace Ship_Game.GameScreens
             OnPlayStatusChange = null;
             Frame = null;
 
-            if (Music is { IsPlaying: true })
+            if (ExtraMusic is { IsPlaying: true })
             {
-                Music.Stop();
-                Music = null;
+                ExtraMusic.Stop();
+                ExtraMusic = null;
             }
 
             if (Video != null) // avoid double dispose issue
@@ -161,8 +161,7 @@ namespace Ship_Game.GameScreens
 
             if (empire.data.MusicCue != null && Player.State != MediaState.Playing)
             {                
-                string warCue = "Stardrive_Combat 1c_114BPM";
-                Music = GameAudio.PlayMusic(warMusic ? warCue : empire.data.MusicCue);
+                ExtraMusic = GameAudio.PlayMusic(warMusic ? "CombatMusic" : empire.data.MusicCue);
                 GameAudio.SwitchToRacialMusic();
             }
         }
@@ -185,9 +184,9 @@ namespace Ship_Game.GameScreens
                 OnPlayStatusChange?.Invoke();
             }
 
-            if (Music.IsPlaying)
+            if (ExtraMusic.IsPlaying)
             {
-                Music.Stop();
+                ExtraMusic.Stop();
                 GameAudio.SwitchBackToGenericMusic();
             }
         }
@@ -203,9 +202,9 @@ namespace Ship_Game.GameScreens
                 OnPlayStatusChange?.Invoke();
             }
             
-            if (Music.IsPaused)
+            if (ExtraMusic.IsPaused)
             {
-                Music.Resume();
+                ExtraMusic.Resume();
                 GameAudio.PauseGenericMusic();
             }
         }
@@ -221,17 +220,11 @@ namespace Ship_Game.GameScreens
                 OnPlayStatusChange?.Invoke();
             }
             
-            if (Music.IsPlaying)
+            if (ExtraMusic.IsPlaying)
             {
-                Music.Pause();
+                ExtraMusic.Pause();
                 GameAudio.SwitchBackToGenericMusic();
             }
-        }
-
-        public void TogglePlay()
-        {
-            if       (IsPaused) Resume();
-            else if (IsPlaying) Pause();
         }
 
         public bool HandleInput(InputState input)
@@ -277,13 +270,13 @@ namespace Ship_Game.GameScreens
                     Player.Pause();
             }
 
-            if (!Music.IsStopped)
+            if (!ExtraMusic.IsStopped)
             {
                 // pause music if needed
-                if (screen.IsActive && Music.IsPaused)
-                    Music.Resume();
-                else if (!screen.IsActive && Music.IsPlaying)
-                    Music.Pause();
+                if (screen.IsActive && ExtraMusic.IsPaused)
+                    ExtraMusic.Resume();
+                else if (!screen.IsActive && ExtraMusic.IsPlaying)
+                    ExtraMusic.Pause();
             }
         }
 

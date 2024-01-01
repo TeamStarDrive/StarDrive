@@ -5,7 +5,6 @@ using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
 using Ship_Game.Audio;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
@@ -81,7 +80,7 @@ namespace Ship_Game.Gameplay
         SceneObject ProjSO; // this is null for sprite based projectiles
         public Matrix WorldMatrix { get; private set; }
         public string InFlightCue = "";
-        public AudioEmitter Emitter = new AudioEmitter();
+        public AudioEmitter Emitter = new(maxDistance: GameAudio.ProjectileSfxDistance);
         public bool Miss;
         float InitialDuration;
         public float RotationRadsPerSecond;
@@ -93,7 +92,7 @@ namespace Ship_Game.Gameplay
         SpriteAnimation Animation;
         SubTexture ProjectileTexture;
 
-        readonly AudioHandle InFlightSfx = new AudioHandle();
+        readonly AudioHandle InFlightSfx = new();
         public string DieCueName = "";
         bool LightWasAddedToSceneGraph;
         bool UsesVisibleMesh;
