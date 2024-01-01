@@ -28,7 +28,7 @@ def create_nsis_commands(new_files:Iterable[FileInfo], deleted_files:Iterable[Fi
         folder = os.path.dirname(new.filename)
         if folder and not folder in created_paths:
             created_paths.add(folder)
-            lines.append(f'CreateDirectory "$INSTDIR\{folder}"\n')
+            lines.append(f'CreateDirectory "$INSTDIR\\{folder}"\n')
         lines.append(f'File "/oname={new.filename}" "${{SOURCE_DIR}}\\game\\{new.filename}"\n')
     return lines
 
