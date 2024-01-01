@@ -76,17 +76,17 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // fleet is dead
 
 
-            if (Fleet.IsAnyShipInCombat()) 
+            if (Fleet.TaskStep != 3) 
                 return GoalStep.TryAgain;
 
             Fleet.FleetTask.ChangeAO(EmergePos);
-            Fleet.TaskStep = 3;
+            Fleet.TaskStep = 4;
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitForFleetRemoval()
         {
-            if (Fleet?.Ships.Count == 0)
+            if (Fleet == null || Fleet.Ships.Count == 0)
             {
                 Fleet = null;
                 return GoalStep.GoalComplete;

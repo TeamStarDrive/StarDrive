@@ -1231,24 +1231,32 @@ namespace Ship_Game.Fleets
                 case 1:
                     if (task.TargetShip == null)
                         CombatMoveToAO(task, 10_000);
-                    else if (FleetInAreaInCombat(AveragePos, 100_000) != CombatStatus.InCombat)
+                    else 
                         FleetMoveToPosition(task.TargetShip.Position, 20_000, MoveOrder.Aggressive);
 
                     TaskStep = 2;
                     break;
                 case 2:
-                    AttackEnemyStrengthClumpsInAO(task);
+                    if (task.TargetShip == null || AveragePos.Distance(task.TargetShip.Position) < 50_000)
+                    {
+                        if (AttackEnemyStrengthClumpsInAO(task))
+                            break;
+                        else
+                            TaskStep = 3;
+                    }
                     break;
-                case 3:
-                    CombatMoveToAO(task, 10_000);
-                    TaskStep = 4;
+                case 3:// Waiting for AO change from RemnandDefendPortal Goal
                     break;
                 case 4:
-                    if (!ArrivedAtCombatRally(FinalPosition))
-                        break;
+                    CombatMoveToAO(task, 10_000);
                     TaskStep = 5;
                     break;
                 case 5:
+                    if (!ArrivedAtCombatRally(FinalPosition))
+                        break;
+                    TaskStep = 6;
+                    break;
+                case 6:
                     Owner.Remnants.DisbandDefenseFleet(this);
                     FleetTask.EndTask();
                     break;

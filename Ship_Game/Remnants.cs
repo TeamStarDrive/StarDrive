@@ -651,7 +651,7 @@ namespace Ship_Game
                 ship.QueueTotalRemoval();
             }
 
-            AddToDefenseProduction(totalCost * 0.5f);
+            AddToDefenseProduction(totalCost * 0.95f);
         }
 
         public bool CreatePortal()
@@ -707,13 +707,14 @@ namespace Ship_Game
         public bool CreateDefenseShips(Vector2 pos, out Array<Ship> ships)
         {
             ships = new();
-            int level = Level * 2;
+            int level = (Level * 4).UpperBound(40);
             int numShips = 0;
             while (DefenseProduction > 0)
             {
                 RemnantShipType type = SelectShipForCreation(level, numShips);
                 if (!ShipCosts.TryGetValue(type, out float cost) || DefenseProduction < cost)
                 {
+                    // reduce level if we dont have enough Defense Production to spawn ship
                     if (--level == 0)
                         break;
 
@@ -902,6 +903,12 @@ namespace Ship_Game
 
         void GenerateProduction(float amount)
         {
+            if (DefenseProduction < MaxDefenseProduction)
+            {
+                AddToDefenseProduction(amount * 0.1f);
+                amount *= 0.9f;
+            }
+
             Production += amount;
             float excess = Production - ProductionLimit;
             if (excess > 0)
@@ -912,10 +919,9 @@ namespace Ship_Game
 
         void AddToDefenseProduction(float amount)
         {
-            float max = ProductionLimit * (2 + (int)Universe.P.Difficulty);
-            DefenseProduction = (DefenseProduction + amount).UpperBound(max);
+            DefenseProduction = (DefenseProduction + amount).Clamped(0, MaxDefenseProduction);
         }
-
+        float MaxDefenseProduction => ProductionLimit * (2 + (int)Universe.P.Difficulty);
 
         public int NumPortals()
         {
