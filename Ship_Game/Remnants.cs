@@ -86,7 +86,8 @@ namespace Ship_Game
         }
 
         float StepXpTrigger => (ShipRole.GetMaxExpValue() * StoryStep * StoryStep * 0.5f).UpperBound(ActivationXpNeeded);
-        float ProductionLimit => 300 * Level * Level * ((int)Universe.P.Difficulty + 1);  // Level 20 - 480K 
+        public float ProductionLimit => 300 * Level * Level * ((int)Universe.P.Difficulty + 1);  // Level 20 - 480K 
+        public float MaxDefenseProduction => ProductionLimit * (1 + (int)Universe.P.Difficulty);
         public float ExpansionRisk => 0; // Might change this based on future story
         public float BorderRisk(Empire empire)
         {
@@ -921,7 +922,6 @@ namespace Ship_Game
         {
             DefenseProduction = (DefenseProduction + amount).Clamped(0, MaxDefenseProduction);
         }
-        float MaxDefenseProduction => ProductionLimit * (2 + (int)Universe.P.Difficulty);
 
         public int NumPortals()
         {

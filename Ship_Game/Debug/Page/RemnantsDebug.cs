@@ -33,8 +33,8 @@ public class RemnantsDebug : DebugPage
         activatedString        = e.IsDefeated ? "Defeated" : activatedString;
         Text.String($"Activated: {activatedString}");
         Text.String($"Level: {e.Remnants.Level}");
-        Text.String($"Resources: {e.Remnants.Production.String()}");
-        Text.String($"Defense Resources: {e.Remnants.DefenseProduction.String()}");
+        Text.String($"Resources: {e.Remnants.Production.String()}/{e.Remnants.ProductionLimit.String()}");
+        Text.String($"Defense Resources: {e.Remnants.DefenseProduction.String()}/ {e.Remnants.MaxDefenseProduction.String()}");
         Text.NewLine();
         Text.String("Empires Population and Strength:");
         for (int i = 0; i < Universe.MajorEmpires.Length; i++)
