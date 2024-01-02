@@ -265,13 +265,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
+        public static float ScaleIconSize(float screenRadius, float minSize, float maxSize)
         {            
-            float size = screenRadius * 2 ;
-            if (size < minSize && minSize != 0)
-                size = minSize;
-            else if (maxSize > 0f && size > maxSize)
-                size = maxSize ;
+            float size = (screenRadius * 2).Clamped(minSize, maxSize);
             return size + GlobalStats.IconSize;
         }
 
