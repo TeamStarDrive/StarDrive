@@ -78,13 +78,11 @@ namespace Ship_Game.Commands.Goals
             if (EndConditionConfirmed())
             {
                 FinishedShip?.AI.OrderScrapShip();
-                var projectors = Owner.OwnedProjectors;
-                for (int i = 0; i < projectors.Count; i++)
-                {
-                    Ship ship = projectors[i];
-                    if (ship.Position.InRadius(StaticBuildPosition, 1000))
-                        ship.ScuttleTimer = 10;
-                }
+
+                // scuttle all projectors at location
+                var projectors = Owner.FindProjectorsAt(StaticBuildPosition, 1000);
+                foreach (Ship projector in projectors)
+                    projector.ScuttleTimer = 10;
 
                 return GoalStep.GoalComplete;
             }

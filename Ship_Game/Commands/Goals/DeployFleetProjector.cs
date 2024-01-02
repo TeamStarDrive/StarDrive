@@ -41,14 +41,11 @@ namespace Ship_Game.Commands.Goals
             Vector2 dir = TargetPlanet.Position.DirectionToTarget(Fleet.AveragePosition());
             Vector2 deployPos = TargetPlanet.Position + dir * distanceToDeploy;
 
-            var projecors = Owner.OwnedProjectors;
-            foreach (Ship projector in projecors)
+            // did another projector already take the spot?
+            if (Owner.FindProjectorAt(deployPos, 100, out Ship _))
             {
-                if (projector.Position.InRadius(deployPos, 100))
-                {
-                    Log.Info($"Build pos of fleet projector is near {deployPos}");
-                    return GoalStep.GoalComplete;
-                }
+                Log.Info($"Build pos of fleet projector is near {deployPos}");
+                return GoalStep.GoalComplete;
             }
 
             BuildGoal = new(deployPos, "Subspace Projector", Owner, rush: true);
@@ -89,25 +86,21 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
+            // TODO: this logic is really convoluted, it needs to be redesigned
             if (FinishedShip == null || !FinishedShip.Active)
             {
-                var projectors = Owner.OwnedProjectors;
-                for (int i = 0; i < projectors.Count; i++)
+                // check if we had a duplicate projector at that location?
+                if (Owner.FindProjectorAt(BuildGoal.BuildPosition, 200, out Ship projector))
                 {
-                    Ship projector = projectors[i];
-                    if (projector.Position.InRadius(BuildGoal.BuildPosition, 200))
-                    {
-                        FinishedShip = projector; // Projector is deployed and now assigned to this goal
-                        return GoalStep.GoToNextStep;
-                    }
+                    FinishedShip = projector; // Projector is deployed and now assigned to this goal
+                    return GoalStep.GoToNextStep;
                 }
+                return GoalStep.GoalFailed; // constructor died without deploying the projector
             }
             else
             {
-                return GoalStep.TryAgain; // Consturctor still enroute
+                return GoalStep.TryAgain; // constructo still en route
             }
-
-            return GoalStep.GoalFailed; // construcor died without deploying the projector
         }
 
         GoalStep RemoveProjectorWhenCompleted()

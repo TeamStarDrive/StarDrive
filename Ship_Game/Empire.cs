@@ -2402,17 +2402,6 @@ namespace Ship_Game
                 AI.AddGoal(new BuildScout(this));
         }
 
-        public bool TryFindClosestScoutTo(Vector2 pos, out Ship scout)
-        {
-            scout = null;
-            var ships = OwnedShips;
-            var potentialScouts = OwnedShips.Filter(s => s.IsGoodScout());
-            if (potentialScouts.Length > 0)
-                scout = potentialScouts.FindMin(s => s.Position.SqDist(pos));
-
-            return scout != null;
-        }
-
         private void ApplyFertilityChange(float amount)
         {
             if (amount.AlmostEqual(0)) return;
@@ -2509,22 +2498,6 @@ namespace Ship_Game
             => AlliedSystemsWithThreat().Any(t => !t.ThreatTimedOut && t.TargetSystem == system);
 
         public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);
-
-        public Planet FindPlanet(int planetId)
-        {
-            foreach (Planet p in OwnedPlanets)
-                if (p.Id == planetId)
-                    return p;
-            return null;
-        }
-
-        public Planet FindPlanet(string planetName)
-        {
-            foreach (Planet p in OwnedPlanets)
-                if (p.Name == planetName)
-                    return p;
-            return null;
-        }
 
         public void IncrementCordrazineCapture()
         {

@@ -1414,19 +1414,9 @@ namespace Ship_Game
 
         public bool OurShipsCanScanSurface(Empire us)
         {
-            // this is one of the reasons i want to change the way sensors are done to have a class containing sensor information.
-            // so we dont have to do this scan more than once. 
-            // todo: Build common sensor container class. 
-            // this scan should only need to be done once.
-            
-            var ships      = us.OwnedShips;
-            var projectors = us.OwnedProjectors;
-
-            bool scanned = ships.Any(s => s.Active && s.Position.InRadius(Position, s.SensorRange));
-            if (!scanned)
-                scanned = projectors.Any(s => s.Active && s.Position.InRadius(Position, s.SensorRange));
-
-            return scanned;
+            // find the nearest ship of ours that is within sensor range
+            return us.FindShipAt(Position, 100_000f, out Ship _, 
+                s => s.Position.InRadius(Position, s.SensorRange));
         }
 
         private void GrowPopulation()
