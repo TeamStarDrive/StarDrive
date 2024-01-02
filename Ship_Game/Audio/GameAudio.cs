@@ -259,7 +259,7 @@ public static class GameAudio
         if (effect == null || !effect.Category.CanPlayEffect(effect))
             return null;
 
-        float volume = effect.Category.Volume * effect.Volume;
+        float volume = effect.GetEffectiveVolume();
         if (volume <= 0.0001f)
             return null; // this effect is muted
 

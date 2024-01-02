@@ -47,4 +47,17 @@ internal interface IAudioInstance : IDisposable
     /// </summary>
     /// <param name="fadeout">if true, then SoundEffect.FadeOutTime or Category.FadeOutTime is used</param>
     void Stop(bool fadeout);
+
+    /// <summary>
+    /// Gets the current volume multiplier
+    /// </summary>
+    float Volume { get; }
+
+    /// <summary>
+    /// Adjusts the volume multiplier of this sound effect.
+    /// Setting the Volume to 0 will stop the sound effect.
+    /// Anything above 1.0 will run into potential clipping issues.
+    /// </summary>
+    void SetVolume(float volume);
+
 }

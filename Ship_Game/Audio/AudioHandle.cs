@@ -36,6 +36,9 @@ public class AudioHandle : IAudioInstance
             return audio == null || audio.IsStopped;
         }
     }
+    
+    public float Volume => Audio?.Volume ?? 0f;
+    public void SetVolume(float volume) => Audio?.SetVolume(volume);
 
     // This prevents SFX from instantly replaying after being forcefully stopped
     // Used to circumvent CUE limit issue, where AudioEngine force stops oldest CUE's.

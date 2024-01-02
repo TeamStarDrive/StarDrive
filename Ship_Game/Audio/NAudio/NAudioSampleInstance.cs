@@ -11,7 +11,7 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
     readonly AudioCategory Category;
     readonly AudioEmitter Emitter;
     readonly ISampleProvider Provider;
-    readonly float Volume;
+    public float Volume { get; private set; }
     public WaveFormat WaveFormat => Provider.WaveFormat;
 
     PlaybackState State;
@@ -65,6 +65,11 @@ internal class NAudioSampleInstance : ISampleProvider, IAudioInstance, IDisposab
     {
         State = PlaybackState.Stopped;
         FadeOutTimer = fadeout ? Category.FadeOutTime : 0f;
+    }
+
+    public void SetVolume(float volume)
+    {
+        Volume = volume;
     }
 
     public int Read(float[] buffer, int offset, int count)

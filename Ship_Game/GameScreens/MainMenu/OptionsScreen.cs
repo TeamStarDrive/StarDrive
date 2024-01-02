@@ -381,6 +381,7 @@ namespace Ship_Game
         {
             try
             {
+                GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
                 New.Width  = ResolutionDropDown.ActiveValue.Width;
                 New.Height = ResolutionDropDown.ActiveValue.Height;
                 New.ApplyChanges();
