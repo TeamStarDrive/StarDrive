@@ -579,15 +579,14 @@
       Id: sd_shield_static_1
       Volume: 0.25
       Sound: "Weapons/sd_shield_static_1.m4a"
-    # - SoundEffect:
-    #   Id: sd_weapon_railgun_01
-    #   Volume: 0.25
-    #   Sound: "Weapons/sd_weapon_railgun_01.m4a"
-    # - SoundEffect:
-    #   Id: sd_weapon_railgun_massive_01
-    #   Volume: 0.25
-    #   Sound: "Weapons/sd_weapon_railgun_massive_01.m4a"
-
+    - SoundEffect:
+      Id: sd_weapon_railgun_01
+      Volume: 1.0
+      Sound: "Weapons/sd_weapon_railgun_01.m4a"
+    - SoundEffect:
+      Id: sd_weapon_railgun_massive_01
+      Volume: 1.0
+      Sound: "Weapons/sd_weapon_railgun_massive_01.m4a"
     # - SoundEffect:
     #   Id: sd_weapon_vulcan_spinloop_01
     #   Volume: 0.25
@@ -596,6 +595,7 @@
     #   Id: sd_weapon_vulcan_spinloop_02
     #   Volume: 0.25
     #   Sound: "Weapons/sd_weapon_vulcan_spinloop_02.m4a"
+    
     - SoundEffect:
       Id: sd_weapon_vulcan_alt03_03
       Volume: 0.25
@@ -692,18 +692,18 @@
     #   Id: sd_weapon_pulse_alt14_01
     #   Volume: 0.25
     #   Sound: "Weapons/sd_weapon_pulse_alt14_01.m4a"
-    # - SoundEffect:
-    #   Id: sd_weapon_pulse_alt3_01
-    #   Volume: 0.25
-    #   Sound: "Weapons/sd_weapon_pulse_alt3_01.m4a"
-    # - SoundEffect:
-    #   Id: sd_weapon_pulse_alt15_01
-    #   Volume: 0.25
-    #   Sound: "Weapons/sd_weapon_pulse_alt15_01.m4a"
-    # - SoundEffect:
-    #   Id: sd_weapon_photon_flight_01
-    #   Volume: 0.5
-    #   Sound: "Weapons/sd_weapon_photon_flight_01.m4a"
+    - SoundEffect:
+      Id: sd_weapon_pulse_alt3_01
+      Volume: 3.0
+      Sound: "Weapons/sd_weapon_pulse_alt3_01.m4a"
+    - SoundEffect:
+      Id: sd_weapon_pulse_alt15_01
+      Volume: 2.0
+      Sound: "Weapons/sd_weapon_pulse_alt15_01.m4a"
+    - SoundEffect:
+      Id: sd_weapon_photon_flight_01
+      Volume: 1.0
+      Sound: "Weapons/sd_weapon_photon_flight_01.m4a"
     - SoundEffect:
       Id: sd_impact_shield_01
       Volume: 1.0
@@ -722,10 +722,10 @@
       Id: sd_weapon_photonmedium_alt1_01
       Volume: 0.25
       Sound: "Weapons/sd_weapon_photonmedium_alt1_01.m4a"
-    # - SoundEffect:
-    #   Id: sd_weapon_torpedo_01
-    #   Volume: 0.25
-    #   Sound: "Weapons/sd_weapon_torpedo_01.m4a"
+    - SoundEffect:
+      Id: sd_weapon_torpedo_01
+      Volume: 2.0
+      Sound: "Weapons/sd_weapon_torpedo_01.m4a"
     - SoundEffect:
       Id: sd_weapon_flame_start_01
       Volume: 0.25
@@ -743,11 +743,10 @@
       Sounds:
         - "Weapons/sd_weapon_laser_large_alt_04.0.m4a"
         - "Weapons/sd_weapon_laser_large_alt_04.1.m4a"
-    # TODO: MISSING SOUND
-    # - SoundEffect:
-    #   Id: sd_weapon_emptorpedo
-    #   Volume: 0.06
-    #   Sound: "Weapons/sd_weapon_emptorpedo.m4a"
+    - SoundEffect:
+      Id: sd_weapon_emptorpedo
+      Volume: 1.5
+      Sound: "Weapons/sd_weapon_emptorpedo.m4a"
 
     - SoundEffect:
       Id: sd_weapon_rocket_01
