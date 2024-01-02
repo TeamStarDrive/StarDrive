@@ -4656,6 +4656,12 @@ namespace Ship_Game
         FreightersUnderConstruction = 4514,
         /// <summary>Build Freighter</summary>
         BuildFrieghter = 4515,
+        /// <summary>Right Click to Expand\nCtrl Left Click to move or insert at topmost possible place in queue.\n\n</summary>
+        ResearchQueuePositionOptions = 4516,
+        /// <summary>Left Click to research level {Entry.Level+1} of this tech.\n\n{text}</summary>
+        ResearchMultiLevelTech = 4517,
+        /// <summary>This Technology unlocks more than 4 items. Right Click on the title to Expand</summary>
+        ResearchUnlocksMoreThanFourItems = 4518,
 
 
 
@@ -5429,8 +5435,6 @@ namespace Ship_Game
         TT_SensorRange3 = 7090,
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         TT_RepairRate = 7091,
-        /// <summary>Right Click to Expand\nCtrl Left Click to move or insert at topmost possible place in queue.\n\n</summary>
-        ResearchQueuePositionOptions = 7092, 
         /// <summary>Dearest SING friends, We are delighted to see your empire's</summary>
         EncCorsairs000_Msg0 = -11,
         /// <summary>Agree to pay this upstanding gentleman.</summary>
