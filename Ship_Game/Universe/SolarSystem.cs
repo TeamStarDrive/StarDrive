@@ -596,6 +596,15 @@ namespace Ship_Game
                 int enclosingRadius = ((int)RingList.Last.OrbitalDistance + 10000).RoundUpToMultipleOf(10000);
                 Radius = Math.Max(MinRadius, enclosingRadius);
             }
+
+            if (IsStartingSystem && GetPotentialOpsOwner(out Empire startingOwner))
+            {
+                foreach (Planet p in PlanetList)
+                {
+                    if (p.IsMineable)
+                        p.Mining.ChangeOwner(startingOwner);
+                }
+            }
         }
 
         public void AddSystemExploreSuccessMessage(Empire empire)

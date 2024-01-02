@@ -520,8 +520,16 @@ namespace Ship_Game
             }
             else if (P.IsMineable && ExoticRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (P.Mining.CanAddMiningStationFor(Player)) Player.AI.AddGoalAndEvaluate(new MiningOps(Player, P));
-                else GameAudio.NegativeClick();
+                if (P.Mining.CanAddMiningStationFor(Player))
+                {
+                    Player.AI.AddGoalAndEvaluate(new MiningOps(Player, P));
+                    GameAudio.EchoAffirmative();
+                }
+                else
+                { 
+                    GameAudio.NegativeClick(); 
+                }
+                return true;
             }
 
             if (P.Owner != null 
@@ -544,7 +552,7 @@ namespace Ship_Game
                 }
             }
 
-            if (Inspect.Hover)
+            if (Inspect.Hover && P.Habitable)
             {
                 if (P.Owner == null || P.Owner != Player)
                 {
@@ -555,7 +563,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(GameText.OpensColonyOverviewScreen);
                 }
             }
-            if (Invade.Hover)
+            if (Invade.Hover && P.Habitable)
             {
                 ToolTip.CreateTooltip(GameText.OpenTheGroundAssaultView);
             }
