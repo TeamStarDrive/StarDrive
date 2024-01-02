@@ -111,6 +111,7 @@ namespace Ship_Game
 
         FloatSlider MusicVolumeSlider;
         FloatSlider EffectsVolumeSlider;
+        AudioHandle EffectSound = new();
 
         FloatSlider IconSize;
         FloatSlider AutoSaveFreq;
@@ -258,12 +259,12 @@ namespace Ship_Game
             botRight.Padding = new Vector2(2f, 8f);
             botRight.LayoutStyle = ListLayoutStyle.Clip;
             MaxDynamicLightSources = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.MaxDynamicLightSources, 0, 1000, GlobalStats.MaxDynamicLightSources));
-            IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.IconSizes, 0,  30, GlobalStats.IconSize));
+            IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.IconSizes, 1,  30, GlobalStats.IconSize));
             AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.AutosaveFrequency, 60, 540, GlobalStats.AutoSaveFreq));
             SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, GameText.SimulationFps, 10, 120, GlobalStats.SimulationFramesPerSecond));
             
             MusicVolumeSlider.OnChange = (s) => GlobalStats.MusicVolume = s.AbsoluteValue;
-            EffectsVolumeSlider.OnChange = (s) => GlobalStats.EffectsVolume = s.AbsoluteValue;
+            EffectsVolumeSlider.OnChange = (s) => SetEffectsVolume(s.AbsoluteValue);
             MaxDynamicLightSources.OnChange = (s) => GlobalStats.MaxDynamicLightSources = (int)s.AbsoluteValue;
             IconSize.OnChange = (s) => GlobalStats.IconSize = (int)s.AbsoluteValue;
             AutoSaveFreq.OnChange = (s) => GlobalStats.AutoSaveFreq = (int)s.AbsoluteValue;
@@ -440,6 +441,12 @@ namespace Ship_Game
                 return true;
             }
             return false;
+        }
+
+        public void SetEffectsVolume(float volume)
+        {
+            GlobalStats.EffectsVolume = volume;
+            EffectSound.PlaySfxAsync("Explo1", emitter: null, replayTimeout: 0.5f);
         }
     }
 }

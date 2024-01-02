@@ -300,7 +300,7 @@ public class AudioCategory : IDisposable
         TrackedHandle tracked;
         if (handle != null)
         {
-            handle.OnLoaded(instance);
+            handle.OnInstanceLoaded(instance);
             tracked = new(effect, handle);
         }
         else
