@@ -162,10 +162,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                Owner.AI.AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
         }
 
-        public void AffectNearbyShips(FixedSimTime elapsedTurnTime) // Refactored by Fat Bastard - 23, July 2018
+        public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
             RepairRatePerSecond = GetPlanetRepairRatePerSecond();
-
             ChanceToLaunchTroopsVsBombers = 0; // Reset
             AssignPlanetarySupply();
             bool spaceCombat = P.SpaceCombatNearPlanet;

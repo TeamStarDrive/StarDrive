@@ -740,14 +740,14 @@ namespace Ship_Game
         }
 
         // this is done once per turn
-        public void UpdateOwnedPlanet(FixedSimTime elapsedTurnTime, RandomBase random)
+        public void UpdateOwnedPlanet(RandomBase random)
         {
             TurnsSinceTurnover += 1;
             CrippledTurns = (CrippledTurns - 1).LowerBound(0);
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
 
-            GeodeticManager.AffectNearbyShips(elapsedTurnTime);
+            GeodeticManager.AffectNearbyShips();
             ApplyTerraforming(random);
 
             UpdateColonyValue();

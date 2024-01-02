@@ -2,7 +2,6 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace Ship_Game.Ships;
 
@@ -69,6 +68,12 @@ public partial class Ship
             }
 
             float totalRepair = repair + planetRepair;
+            if (float.IsNaN(totalRepair))
+            {
+                Log.Error($"totalRepair was nan for {Name}, {Loyalty.Name}!");
+                totalRepair = 0;
+            }
+
             Loyalty.AddExoticConsumption(ExoticBonusType.RepairRate, totalRepair);
             float exoticBonusMultiplier = Loyalty.GetDynamicExoticBonusMuliplier(ExoticBonusType.RepairRate);
             ApplyAllRepair(totalRepair * exoticBonusMultiplier, repairInterval: timeSinceLastUpdate.FixedTime, repairLevel);

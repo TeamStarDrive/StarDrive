@@ -1005,7 +1005,7 @@ namespace Ship_Game
                 }
 
                 UpdateInhibitors(EmpireShips.OwnedShips);
-                UpdateEmpirePlanets(elapsedTurnTime);
+                UpdateEmpirePlanets();
                 UpdatePopulation();
                 UpdateTroopsInSpaceConsumption();
                 UpdateRallyPoints(); // rally points must exist before AI Update
@@ -1118,8 +1118,7 @@ namespace Ship_Game
             EmpireShips.UpdatePublicLists();
             Research.UpdateNetResearch();
 
-            UpdateEmpirePlanets(FixedSimTime.Zero);
-
+            UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
             UpdateMilitaryStrengths();
             CalculateScore(fromSave: true);
@@ -1355,7 +1354,7 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateEmpirePlanets(FixedSimTime elapsedTurnTime)
+        public void UpdateEmpirePlanets()
         {
             var random = new SeededRandom();
 
@@ -1367,7 +1366,7 @@ namespace Ship_Game
             for (int i = 0; i < planetsToUpdate.Length; i++)
             {
                 Planet planet = OwnedPlanets[i];
-                planet.UpdateOwnedPlanet(elapsedTurnTime, random);
+                planet.UpdateOwnedPlanet(random);
             }
         }
 

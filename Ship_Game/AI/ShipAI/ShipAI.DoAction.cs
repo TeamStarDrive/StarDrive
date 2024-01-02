@@ -111,11 +111,11 @@ namespace Ship_Game.AI
             else // we are in range:
             {
                 // Disengage from warp if we get close enough to the target
-                // For big ships this can be 70% of DesiredCombatRange,
+                // For big ships this can be 110% of DesiredCombatRange,
                 // but also ensure we are far enough to prevent warping on top of enemy fleets
                 //   which can be a detriment and also an exploit by players
                 if (Owner.engineState == Ship.MoveState.Warp &&
-                    (distanceToTarget < 5000f || distanceToTarget < Owner.DesiredCombatRange*0.7f))
+                    (distanceToTarget < 7500f || distanceToTarget < Owner.DesiredCombatRange * 1.1f))
                 {
                     Owner.HyperspaceReturn();
                 }
