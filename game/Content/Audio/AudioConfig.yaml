@@ -836,4 +836,24 @@
       Id: sd_weapon_beam_fusion_med
       Volume: 0.5
       Sound: "Weapons/sd_weapon_beam_fusion_med.m4a"
-
+    #new sfx not used yet
+    # - SoundEffect:
+    #   Id: energy_light_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/energy_light_1.m4a"
+    # - SoundEffect:
+    #   Id: energy_wepon_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/energy_wepon_1.m4a"
+    # - SoundEffect:
+    #   Id: heavy_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/heavy_1.m4a"
+    # - SoundEffect:
+    #   Id: kinetic_light_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/kinetic_light_1.m4a"
+    # - SoundEffect:
+    #   Id: plasma_proj_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/plasma_proj_1.m4a"
