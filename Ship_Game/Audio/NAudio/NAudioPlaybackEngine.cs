@@ -23,7 +23,9 @@ internal class NAudioPlaybackEngine : IDisposable
 
     public NAudioPlaybackEngine(MMDevice device)
     {
-        OutputDevice = new WasapiOut(device, AudioClientShareMode.Shared, useEventSync: true, latency: 100);
+        // useEventSync: if true, waits for Wasapi signal, otherwise sleeps for (latency/2) ms
+        // latency: buffer duration in ms
+        OutputDevice = new WasapiOut(device, AudioClientShareMode.Shared, useEventSync: false, latency: 50);
         WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, Channels);
         Mixer = new(WaveFormat) { ReadFully = true };
 

@@ -244,12 +244,18 @@ public static class GameAudio
 
             for (int i = 0; i < items.Length; ++i)
             {
-                SoundEffect effect = Config.GetSoundEffect(items[i].EffectId);
-                IAudioInstance instance = PlayEffect(effect, items[i].Emitter);
+                ref AsyncSfx sfx = ref items[i];
+                SoundEffect effect = Config.GetSoundEffect(sfx.EffectId);
+                IAudioInstance instance = PlayEffect(effect, sfx.Emitter);
                 if (instance != null)
                 {
-                    effect.Category.TrackInstance(effect,instance, items[i].Handle);
+                    effect.Category.TrackInstance(effect, instance, sfx.Handle);
                 }
+
+                // notify AudioHandle that the operation is complete
+                AudioHandle handle = sfx.Handle;
+                if (handle != null && handle.AsyncPlayStarted)
+                    handle.OnAsyncPlayComplete();
             }
         }
     }
@@ -259,7 +265,7 @@ public static class GameAudio
         if (effect == null || !effect.Category.CanPlayEffect(effect))
             return null;
 
-        float volume = effect.Category.Volume * effect.Volume;
+        float volume = effect.GetEffectiveVolume();
         if (volume <= 0.0001f)
             return null; // this effect is muted
 

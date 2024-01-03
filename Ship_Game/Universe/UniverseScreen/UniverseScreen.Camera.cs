@@ -98,7 +98,9 @@ namespace Ship_Game
 
                 if (p.Owner == Player || flag || Debug)
                 {
-                    if (p.Owner != null)
+                    if (Debug && (p.IsResearchable || p.IsMineable))
+                        workersPanel = new UnownedPlanetScreen(this, p);
+                    else if (p.Owner != null)
                         workersPanel = new ColonyScreen(this, p, EmpireUI);
                     else
                         workersPanel = new UnexploredPlanetScreen(this, p);

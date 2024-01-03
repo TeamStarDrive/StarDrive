@@ -16,7 +16,7 @@ namespace Ship_Game
 
         public void DoGoverning()
         {
-            NumShipyards = OrbitalStations.Count(s => s.Active && s.ShipData.IsShipyard);
+            UpdateShipyards(); // FB: this can be removed later (lets say Feb 2024) - only for save support
             RefreshBuildingsWeCanBuildHere();
             if (RecentCombat)
                 return; // Cant Build stuff when there is combat on the planet

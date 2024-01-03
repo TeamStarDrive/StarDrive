@@ -28,13 +28,12 @@ namespace Ship_Game.Commands.Goals
         {
             Initialize(platformUid, buildPos, null);
             Build.Rush = rush;
-            var projecors = owner.OwnedProjectors;
+
             // try catch multipler projector build on same place
             if (ToBuild.IsSubspaceProjector)
             {
-                foreach (Ship projector in projecors)
-                    if (projector.Position.InRadius(buildPos, 100))
-                        Log.Error($"Build pos of projector is near {buildPos}");
+                if (owner.FindProjectorAt(buildPos, 100, out Ship _))
+                    Log.Error($"Build pos of projector is near {buildPos}");
             }
         }
 

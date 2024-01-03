@@ -6,7 +6,7 @@ public class AudioHandle : IAudioInstance
 {
     DateTime StartedAt;
     float ReplayTimeout;
-    bool Loading;
+    internal bool AsyncPlayStarted;
 
     // NOTE: no need to dispose the instance, the Audio engine will do it for us
     IAudioInstance Audio;
@@ -19,7 +19,7 @@ public class AudioHandle : IAudioInstance
     ~AudioHandle() => Destroy();
     public void Dispose() => Destroy();
 
-    public bool IsPlaying => Loading || Audio?.IsPlaying == true;
+    public bool IsPlaying => AsyncPlayStarted || Audio?.IsPlaying == true;
     public bool IsPaused  => Audio?.IsPaused == true;
 
     // Returns TRUE if audio is not loading &&
@@ -30,12 +30,15 @@ public class AudioHandle : IAudioInstance
     {
         get
         {
-            if (Loading)
+            if (AsyncPlayStarted)
                 return false;
             IAudioInstance audio = Audio; // flimsy thread safety
             return audio == null || audio.IsStopped;
         }
     }
+    
+    public float Volume => Audio?.Volume ?? 0f;
+    public void SetVolume(float volume) => Audio?.SetVolume(volume);
 
     // This prevents SFX from instantly replaying after being forcefully stopped
     // Used to circumvent CUE limit issue, where AudioEngine force stops oldest CUE's.
@@ -67,10 +70,17 @@ public class AudioHandle : IAudioInstance
         if (audio != null) { Audio = null; audio.Stop(fadeout: false); }
     }
 
-    internal void OnLoaded(IAudioInstance audio)
+    // triggered when an audio instance is prepared and tracked by audio engine
+    internal void OnInstanceLoaded(IAudioInstance audio)
     {
         Audio = audio;
-        Loading = false;
+    }
+
+    // triggered when a PlaySfxAsync() operation finishes
+    // if `Audio` is null, then audio instance did not load or was ignored by audio system
+    internal void OnAsyncPlayComplete()
+    {
+        AsyncPlayStarted = false;
     }
 
     /// <summary>
@@ -84,7 +94,7 @@ public class AudioHandle : IAudioInstance
     /// <param name="replayTimeout">Minimum seconds before this SFX can be played again. 0: disabled</param>
     public void PlaySfxAsync(string cueName, AudioEmitter emitter, float replayTimeout = 0f)
     {
-        if (this == DoNotPlay || Loading || GameAudio.CantPlaySfx(cueName))
+        if (this == DoNotPlay || AsyncPlayStarted || GameAudio.CantPlaySfx(cueName))
             return;
 
         // prevent SFX from playing before X amount of seconds has elapsed since last start
@@ -97,8 +107,9 @@ public class AudioHandle : IAudioInstance
             StartedAt = now;
             ReplayTimeout = replayTimeout;
         }
+        
+        AsyncPlayStarted = true;
 
-        Loading = true;
         GameAudio.PlaySfxAsync(cueName, emitter, this);
     }
 }

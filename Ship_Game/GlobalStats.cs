@@ -135,7 +135,7 @@ public static class GlobalStats
         
     // USER_EXPERIENCE
     // global option for Icon size
-    public static int IconSize;
+    public static int IconSize = 1;
 
     // USER_EXPERIENCE
     // autosave frequency in seconds
@@ -320,6 +320,7 @@ public static class GlobalStats
         GetSetting(config, "NotifyEmptyPlanetQueue", ref NotifyEmptyPlanetQueue);
         GetSetting(config, "PauseOnNotification", ref PauseOnNotification);
         GetSetting(config, "IconSize", ref IconSize);
+        IconSize = Math.Max(1, IconSize); // BUGFIX: must be at least 1
         GetSetting(config, "ZoomTracking", ref ZoomTracking);
         GetSetting(config, "CameraPanSpeed", ref CameraPanSpeed);
         GetSetting(config, "AltArcControl", ref AltArcControl);

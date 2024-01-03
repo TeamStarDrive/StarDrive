@@ -103,6 +103,32 @@ namespace Ship_Game.Gameplay
         }
 
         /// <summary>
+        /// Counts the number of nearby objects that match the search criteria
+        /// </summary>
+        public int CountNearby(ref SearchOptions opt)
+        {
+            var results = Spatial?.FindNearby(ref opt) ?? Empty<SpatialObjectBase>.Array;
+            return results.Length;
+        }
+
+        /// <summary>
+        /// Returns TRUE if any objects that match the search criteria are found
+        /// </summary>
+        public bool FindAnyNearby(ref SearchOptions opt)
+        {
+            return Spatial?.FindOne(ref opt) != null;
+        }
+
+        /// <summary>
+        /// Returns the first object that matches the search criteria.
+        /// Use the search options to configure sorting by distance.
+        /// </summary>
+        public SpatialObjectBase FindOne(ref SearchOptions opt)
+        {
+            return Spatial?.FindOne(ref opt);
+        }
+
+        /// <summary>
         /// Finds nearby objects by GameObjectType and additional excludeLoyalty or onlyLoyalty filters
         /// </summary>
         /// <param name="type"></param>

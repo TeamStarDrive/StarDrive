@@ -1005,7 +1005,7 @@ namespace Ship_Game
                 }
 
                 UpdateInhibitors(EmpireShips.OwnedShips);
-                UpdateEmpirePlanets(elapsedTurnTime);
+                UpdateEmpirePlanets();
                 UpdatePopulation();
                 UpdateTroopsInSpaceConsumption();
                 UpdateRallyPoints(); // rally points must exist before AI Update
@@ -1118,8 +1118,7 @@ namespace Ship_Game
             EmpireShips.UpdatePublicLists();
             Research.UpdateNetResearch();
 
-            UpdateEmpirePlanets(FixedSimTime.Zero);
-
+            UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
             UpdateMilitaryStrengths();
             CalculateScore(fromSave: true);
@@ -1355,7 +1354,7 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateEmpirePlanets(FixedSimTime elapsedTurnTime)
+        public void UpdateEmpirePlanets()
         {
             var random = new SeededRandom();
 
@@ -1367,7 +1366,7 @@ namespace Ship_Game
             for (int i = 0; i < planetsToUpdate.Length; i++)
             {
                 Planet planet = OwnedPlanets[i];
-                planet.UpdateOwnedPlanet(elapsedTurnTime, random);
+                planet.UpdateOwnedPlanet(random);
             }
         }
 
@@ -2402,17 +2401,6 @@ namespace Ship_Game
                 AI.AddGoal(new BuildScout(this));
         }
 
-        public bool TryFindClosestScoutTo(Vector2 pos, out Ship scout)
-        {
-            scout = null;
-            var ships = OwnedShips;
-            var potentialScouts = OwnedShips.Filter(s => s.IsGoodScout());
-            if (potentialScouts.Length > 0)
-                scout = potentialScouts.FindMin(s => s.Position.SqDist(pos));
-
-            return scout != null;
-        }
-
         private void ApplyFertilityChange(float amount)
         {
             if (amount.AlmostEqual(0)) return;
@@ -2509,22 +2497,6 @@ namespace Ship_Game
             => AlliedSystemsWithThreat().Any(t => !t.ThreatTimedOut && t.TargetSystem == system);
 
         public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);
-
-        public Planet FindPlanet(int planetId)
-        {
-            foreach (Planet p in OwnedPlanets)
-                if (p.Id == planetId)
-                    return p;
-            return null;
-        }
-
-        public Planet FindPlanet(string planetName)
-        {
-            foreach (Planet p in OwnedPlanets)
-                if (p.Name == planetName)
-                    return p;
-            return null;
-        }
 
         public void IncrementCordrazineCapture()
         {

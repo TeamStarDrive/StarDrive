@@ -254,7 +254,7 @@ namespace Ship_Game
             RectF moddedPlusRect = new(camera.GetScreenSpaceFromWorldSpace(PlusRect.Pos), PlusRect.Size);
             if (moddedPlusRect.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip("This Technology unlocks more than 4 items. Right Click on the title to Expand");
+                ToolTip.CreateTooltip(new LocalizedText(GameText.ResearchUnlocksMoreThanFourItems).Text);
                 return false;
             }
 
@@ -274,9 +274,9 @@ namespace Ship_Game
             }
             else
             {
-                string text = $"Right Click to Expand\nCtrl Left Click to move or insert at topmost possible place in queue.\n\n{Entry.Tech.Description.Text}";
+                string text = new LocalizedText(GameText.ResearchQueuePositionOptions).Text + Entry.Tech.Description.Text;
                 if (Complete && !Entry.MultiLevelComplete && !Screen.Player.Research.IsQueued(Entry.UID))
-                    text = $"Left Click to research level {Entry.Level+1} of this tech.\n\n{text}";
+                    text = string.Format(new LocalizedText(GameText.ResearchMultiLevelTech).Text, Entry.Level + 1, text);
 
                 ToolTip.CreateTooltip(text);
             }

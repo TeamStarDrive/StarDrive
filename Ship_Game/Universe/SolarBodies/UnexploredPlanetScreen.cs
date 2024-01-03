@@ -58,7 +58,7 @@ namespace Ship_Game
             Graphics.Font font = Fonts.Arial12Bold;
             if (!P.Habitable)
             {
-                batch.DrawString(font, Localizer.Token(GameText.Uninhabitable), x, y + 32, Color.Orange);
+                batch.DrawString(font, Localizer.Token(GameText.Uninhabitable), x, y + 57, Color.Pink);
             }
             else
             {

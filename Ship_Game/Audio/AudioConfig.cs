@@ -62,7 +62,13 @@ public class AudioConfig : IDisposable
     {
         foreach (AudioCategory category in Categories)
         {
-            category.Volume = category.Name.IndexOf("Music", StringComparison.OrdinalIgnoreCase) >= 0 ? music : effects;
+            float volume = category.Name.IndexOf("Music", StringComparison.OrdinalIgnoreCase) >= 0 ? music : effects;
+            float oldVol = category.Volume;
+            category.Volume = volume;
+
+            // is it a significant change?
+            if (!oldVol.AlmostEqual(volume))
+                category.UpdateVolumes = true;
         }
     }
 
@@ -149,19 +155,15 @@ public class AudioCategory : IDisposable
     /// </summary>
     readonly Array<TrackedHandle> TrackedInstances = new();
 
-    readonly struct TrackedHandle
+    readonly struct TrackedHandle(SoundEffect effect, IAudioInstance instance)
     {
-        public readonly SoundEffect Effect;
-        public readonly IAudioInstance Instance; // can be NAudioSampleInstance or AudioHandle
-        public TrackedHandle(SoundEffect effect, IAudioInstance instance)
-        {
-            Effect = effect;
-            Instance = instance;
-        }
+        public readonly SoundEffect Effect = effect;
+        public readonly IAudioInstance Instance = instance; // can be NAudioSampleInstance or AudioHandle
     }
 
     public Vector3 ListenerPos;
     int CurrentSoundsPerFrame;
+    public bool UpdateVolumes;
 
     /// <summary>
     /// Can this category play the following effect right now?
@@ -222,13 +224,24 @@ public class AudioCategory : IDisposable
         // remove disposed handles
         lock (TrackedInstances)
         {
-            for (int i = 0; i < TrackedInstances.Count; i++)
+            for (int i = 0; i < TrackedInstances.Count; ++i)
             {
                 TrackedHandle tracked = TrackedInstances[i];
                 if (tracked.Instance.IsDisposed || tracked.Instance.CanBeDisposed)
                 {
                     RemoveTrackedInstance(ref tracked);
                     TrackedInstances.RemoveAtSwapLast(i--);
+                }
+            }
+
+            if (UpdateVolumes)
+            {
+                UpdateVolumes = false;
+                for (int i = 0; i < TrackedInstances.Count; ++i)
+                {
+                    TrackedHandle tracked = TrackedInstances[i];
+                    float volume = tracked.Effect.GetEffectiveVolume();
+                    tracked.Instance.SetVolume(volume);
                 }
             }
         }
@@ -287,7 +300,7 @@ public class AudioCategory : IDisposable
         TrackedHandle tracked;
         if (handle != null)
         {
-            handle.OnLoaded(instance);
+            handle.OnInstanceLoaded(instance);
             tracked = new(effect, handle);
         }
         else
@@ -342,5 +355,13 @@ public class SoundEffect
         if (Sound != null)
             return Sound;
         return Sounds.Length == 1 ? Sounds[0] : random.Item(Sounds);
+    }
+
+    /// <summary>
+    /// Gets the current default starting volume of this sound effect
+    /// </summary>
+    public float GetEffectiveVolume()
+    {
+        return Volume * Category.Volume;
     }
 }

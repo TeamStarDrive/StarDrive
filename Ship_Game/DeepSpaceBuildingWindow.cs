@@ -337,7 +337,7 @@ namespace Ship_Game
                 {
                     Screen.ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2d posOnScreen, out double size);
 
-                    float scale = ScaleIconSize((float)size, 0.2f, 0.4f);
+                    float scale = Ship.ScaleIconSize((float)size, 0.2f, 0.4f);
                     Screen.DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
                                             platform.Height * scale, new Color(0, 255, 0, 100));
 
@@ -358,16 +358,6 @@ namespace Ship_Game
                 CurrentRadiusSmoothed = CurrentRadiusSmoothed.SmoothStep(screenRadius, 0.3);
                 Screen.DrawCircle(center, CurrentRadiusSmoothed, Color.Orange, 2f);
             }
-        }
-
-        float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
-        {
-            float size = screenRadius * 2;
-            if (size < minSize && minSize != 0)
-                size = minSize;
-            else if (maxSize > 0f && size > maxSize)
-                size = maxSize;
-            return size + GlobalStats.IconSize;
         }
     }
 }

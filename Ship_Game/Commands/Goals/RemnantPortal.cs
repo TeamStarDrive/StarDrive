@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
 
         void UpdatePosition()
         {
-            if (Portal.HealthPercent < 0.9f && LureEnemy())
+            if (Portal.HealthPercent < 0.95f && LureEnemy())
                 return;
 
             int roll = Portal.AI.Target?.System == Portal.System ? 35 : 5;
@@ -49,7 +49,7 @@ namespace Ship_Game.Commands.Goals
 
         bool LureEnemy()
         {
-            if (Owner.Random.RollDice((Portal.HealthPercent * 100).Clamped(25, 75)))
+            if (Owner.Random.RollDice((Portal.HealthPercent * 50).Clamped(15, 50)))
                 return false;
 
             if (Portal.System == null)

@@ -273,7 +273,7 @@ namespace Ship_Game.Universe
             float minimumDistance = (ships.Count * 100).LowerBound(5000);
             float minimumDistanceInBattle = (minimumDistance * 2).LowerBound(5000);
             var enemyShipsTooClose = enemyShips.Filter(s => s.Position.Distance(pos) <= minimumDistance);
-            if (ships.All(s => s.Position.Distance(pos) < minimumDistanceInBattle) || enemyShipsTooClose.Length == 0)
+            if (ships.All(s => s.InFrustum && s.Position.Distance(pos) < minimumDistanceInBattle) || enemyShipsTooClose.Length == 0)
             {
                 GameAudio.AffirmativeClick();
                 return pos;
