@@ -748,6 +748,9 @@ namespace Ship_Game.Ships
         {
             TetheredTo = p;
             TetherOffset = Position - p.Position;
+            p.OrbitalStations.Add(this);
+            if (IsShipyard)
+                p.UpdateShipyards();
         }
 
         public Planet GetTether()

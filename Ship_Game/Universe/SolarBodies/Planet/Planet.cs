@@ -54,14 +54,7 @@ namespace Ship_Game
 
         public bool HasWinBuilding;
 
-        float ShipCostModifierValue;
-
-        // modifier which reduces ship costs
-        public float ShipCostModifier
-        {
-            get => ShipCostModifierValue;
-            private set => ShipCostModifierValue = value.Clamped(0.001f, 1);
-        }
+        [StarData] public float ShipCostModifier { get; private set; } = 1f; // modifier which reduces ship costs
 
         // Timers
         float PlanetUpdatePerTurnTimer;
@@ -611,6 +604,8 @@ namespace Ship_Game
         public void RemoveFromOrbitalStations(Ship orbital)
         {
             OrbitalStations.RemoveSwapLast(orbital);
+            if (orbital.IsShipyard)
+                UpdateShipyards();
         }
 
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
@@ -1048,9 +1043,6 @@ namespace Ship_Game
                 return;
 
             UpdateMaxPopulation();
-
-            // NumShipyards is either calculated before or loaded from a save
-            ShipCostModifier = GetShipCostModifier(NumShipyards);
             TotalDefensiveStrength = (int)Troops.GroundStrength(Owner);
 
             // greedy bastards
@@ -1073,18 +1065,27 @@ namespace Ship_Game
             return GetProjectorRadius(Owner);
         }
 
-        static float GetShipCostModifier(int numShipyards)
+        public void UpdateShipyards()
+        {
+            if (!Habitable)
+                return;
+
+            NumShipyards = OrbitalStations.Count(s => s.Active && s.ShipData.IsShipyard);
+            CalcShipCostModifier(NumShipyards);
+        }
+
+        void CalcShipCostModifier(int numShipyards)
         {
             float shipyardDiminishedReturn = 1;
-            float shipBuildingModifier = 1;
+            float shipCostModifier = 1;
 
             for (int i = 0; i < numShipyards; ++i)
             {
-                shipBuildingModifier *= 1 - (GlobalStats.Defaults.ShipyardBonus / shipyardDiminishedReturn);
+                shipCostModifier *= 1 - (GlobalStats.Defaults.ShipyardBonus / shipyardDiminishedReturn);
                 shipyardDiminishedReturn += 0.2f;
             }
 
-            return shipBuildingModifier;
+            ShipCostModifier = shipCostModifier;
         }
 
         /// <summary>

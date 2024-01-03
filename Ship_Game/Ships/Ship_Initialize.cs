@@ -318,14 +318,9 @@ namespace Ship_Game.Ships
             if (ship != null)
             {
                 if (ship.IsPlatformOrStation || ship.IsShipyard)
-                {
                     ship.TetherToPlanet(p);
-                    p.OrbitalStations.Add(ship);
-                }
                 else if (doOrbit)
-                {
                     ship.OrderToOrbit(p, clearOrders: true);
-                }
             }
             return ship;
         }

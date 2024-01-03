@@ -280,7 +280,6 @@ namespace Ship_Game.AI
                 orbital.TetherOffset = bg.TetherOffset;
                 UpdateResearchStationGoal(orbital, bg.TetherPlanet);
                 UpdateMiningOpsGoal(orbital, bg.TetherPlanet, goal.OldShip);
-                planetToTether.OrbitalStations.Add(orbital);
                 if (planetToTether.IsOverOrbitalsLimit(orbital.ShipData))
                     planetToTether.TryRemoveExcessOrbital(orbital);
             }
@@ -332,7 +331,6 @@ namespace Ship_Game.AI
             {
                 orbital.Position = goal.BuildPosition;
                 orbital.TetherToPlanet(target);
-                target.OrbitalStations.Add(orbital);
                 Owner.QueueTotalRemoval();
                 if (goal.OldShip?.Active == true) // we are refitting something
                 {
