@@ -4656,11 +4656,11 @@ namespace Ship_Game
         FreightersUnderConstruction = 4514,
         /// <summary>Build Freighter</summary>
         BuildFrieghter = 4515,
-        /// <summary>Right Click to Expand\nCtrl Left Click to move or insert at topmost possible place in queue.\n\n</summary>
+        /// <summary>Right Click to Expand\nCtrl Left Click to move or insert</summary>
         ResearchQueuePositionOptions = 4516,
-        /// <summary>Left Click to research level {Entry.Level+1} of this tech.\n\n{text}</summary>
+        /// <summary>Left Click to research level {0} of this tech</summary>
         ResearchMultiLevelTech = 4517,
-        /// <summary>This Technology unlocks more than 4 items. Right Click on the title to Expand</summary>
+        /// <summary>This Technology unlocks more than 4 items</summary>
         ResearchUnlocksMoreThanFourItems = 4518,
 
 
