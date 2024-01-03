@@ -10657,6 +10657,15 @@ FreightersUnderConstruction:
 BuildFrieghter: 
  Id: 4515 
  ENG: "Build Freighter"      
+ResearchQueuePositionOptions:
+ Id: 4516 
+ ENG: "Right Click to Expand\nCtrl Left Click to move or insert at topmost possible place in queue.\n\n" 
+ResearchMultiLevelTech:
+ Id: 4517
+ ENG: "Left Click to research level {0} of this tech.\n\n{1}"
+ResearchUnlocksMoreThanFourItems:
+ Id: 4518
+ ENG: "This Technology unlocks more than 4 items. Right Click on the title to Expand"
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"
