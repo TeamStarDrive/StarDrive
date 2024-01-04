@@ -659,7 +659,7 @@ namespace Ship_Game
             }
             if (ScreenManager.Music.IsStopped)
             {
-                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
+                ScreenManager.Music = GameAudio.PlayMusic("ShipyardTheme");
             }
         }
     }
