@@ -8,6 +8,7 @@ using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
@@ -413,6 +414,11 @@ namespace Ship_Game
             DesignedShip.Velocity = new Vector2(0, 100);
             DesignedShip.UpdateThrusters(simTime);
 
+            if (!IsExiting && ScreenManager.Music.IsStopped)
+            {
+                ResetMusic();
+            }
+
             base.Update(fixedDeltaTime);
         }
 
@@ -423,6 +429,7 @@ namespace Ship_Game
             UpdateAvailableHulls();
             CreateGUI();
             InitializeCamera();
+            ResetMusic();
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
 
             ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad(Player);
@@ -638,6 +645,22 @@ namespace Ship_Game
                         categoryItem.AddSubItem(new ShipHullListItem(Player, hull));
                     }
                 }
+            }
+        }
+
+        public void ResetMusic()
+        {
+            GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
+            GameAudio.StopGenericMusic(fadeout: false);
+            ScreenManager.Music.Stop();
+      
+            if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
+            {
+                ScreenManager.Music = GameAudio.PlayMusicFile(GlobalStats.Defaults.CustomMenuMusic);
+            }
+            if (ScreenManager.Music.IsStopped)
+            {
+                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
             }
         }
     }
