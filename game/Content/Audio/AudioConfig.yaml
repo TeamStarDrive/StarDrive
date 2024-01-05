@@ -28,7 +28,7 @@
     - SoundEffect:
       Id: ShipyardTheme
       Volume: 1.0
-      Sound: "RacialMusic/TitleTheme.m4a"
+      Sound: "Music/Ponder.m4a"
 
 - Category:
   Name: RacialMusic
