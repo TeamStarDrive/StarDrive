@@ -414,9 +414,7 @@ namespace Ship_Game
             DesignedShip.UpdateThrusters(simTime);
 
             if (!IsExiting && ScreenManager.Music.IsStopped)
-            {
                 ResetMusic();
-            }
 
             base.Update(fixedDeltaTime);
         }
