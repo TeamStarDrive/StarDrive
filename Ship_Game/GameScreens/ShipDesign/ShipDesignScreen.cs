@@ -654,13 +654,10 @@ namespace Ship_Game
             ScreenManager.Music.Stop();
       
             if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
-            {
                 ScreenManager.Music = GameAudio.PlayMusicFile(GlobalStats.Defaults.CustomMenuMusic);
-            }
+                
             if (ScreenManager.Music.IsStopped)
-            {
                 ScreenManager.Music = GameAudio.PlayMusic("ShipyardTheme");
-            }
         }
     }
 }
