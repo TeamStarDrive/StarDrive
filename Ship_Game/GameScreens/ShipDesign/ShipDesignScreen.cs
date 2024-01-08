@@ -645,7 +645,7 @@ namespace Ship_Game
             }
         }
 
-        public void ResetMusic()
+        private void ResetMusic()
         {
             GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
             GameAudio.StopGenericMusic(fadeout: false);
