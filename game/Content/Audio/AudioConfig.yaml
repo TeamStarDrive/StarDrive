@@ -25,6 +25,10 @@
         - "Music/AmbientMusic.3.m4a"
         - "Music/AmbientMusic.4.m4a"
         - "Music/AmbientMusic.5.m4a"
+        - "Music/sd2-1.m4a"
+        - "Music/sd2-2.m4a"
+        - "Music/sd2-3.m4a"
+        - "Music/sd2-4.m4a"
     - SoundEffect:
       Id: ShipyardTheme
       Volume: 1.0
