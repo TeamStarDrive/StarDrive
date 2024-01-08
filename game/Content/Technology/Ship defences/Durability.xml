@@ -4,7 +4,7 @@
   <UID>Durability</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>400</Cost>
-  <MaxLevel>10</MaxLevel>
+  <MaxLevel>12</MaxLevel>
   <NameIndex>17645</NameIndex>
   <DescriptionIndex>17646</DescriptionIndex>
   <LeadsTo />
@@ -14,7 +14,7 @@
     <UnlockedBonus>
       <Name>Nano-structure</Name>
       <BonusType>Module HP Bonus</BonusType>
-      <Bonus>0.10</Bonus>
+      <Bonus>0.14</Bonus>
       <BonusIndex>17647</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

@@ -28,7 +28,7 @@
   <DescriptionIndex>917</DescriptionIndex>
 
   <!-- for shield items -->
-  <ShieldPowerMax>25000</ShieldPowerMax>
+  <ShieldPowerMax>32000</ShieldPowerMax>
   <ShieldRechargeDelay>30</ShieldRechargeDelay>
   <ShieldRechargeRate>1200</ShieldRechargeRate>
   <ShieldRadius>400</ShieldRadius>
