@@ -645,16 +645,14 @@ namespace Ship_Game
             }
         }
 
-        private void ResetMusic()
+        protected override void ResetMusic()
         {
-            GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
-            GameAudio.StopGenericMusic(fadeout: false);
-            ScreenManager.Music.Stop();
+
+            base.ResetMusic();
       
             if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
-                ScreenManager.Music = GameAudio.PlayMusicFile(GlobalStats.Defaults.CustomMenuMusic);
-                
-            if (ScreenManager.Music.IsStopped)
+                ScreenManager.Music = GameAudio.PlayMusicFile(GlobalStats.Defaults.CustomMenuMusic); 
+            else if (ScreenManager.Music.IsStopped)
                 ScreenManager.Music = GameAudio.PlayMusic("ShipyardTheme");
         }
     }

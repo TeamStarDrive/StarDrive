@@ -116,11 +116,9 @@ namespace Ship_Game.GameScreens.MainMenu
                 VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 38, modTitle) { Name = "mod_title" });
         }
 
-        public void ResetMusic()
+        protected override void ResetMusic()
         {
-            GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
-            GameAudio.StopGenericMusic(fadeout: false);
-            ScreenManager.Music.Stop();
+            base.ResetMusic();
 
             if (Type == MainMenuType.Victory)
             {

@@ -189,6 +189,13 @@ namespace Ship_Game
         public void AddLight(ILight light, bool dynamic) => ScreenManager.AddLight(light, dynamic);
         public void RemoveLight(ILight light, bool dynamic) => ScreenManager.RemoveLight(light, dynamic);
 
+        protected virtual void ResetMusic()
+        {
+            GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
+            GameAudio.StopGenericMusic(fadeout: true);
+            ScreenManager.Music.Stop();
+        }
+        
         public void AssignLightRig(LightRigIdentity identity, string rigContentPath)
         {
             var lightRig = TransientContent.Load<LightRig>(rigContentPath);
