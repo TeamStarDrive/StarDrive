@@ -51,7 +51,7 @@ namespace Ship_Game.GameScreens.MainMenu
         public override void LoadContent()
         {
             ScreenManager.ClearScene();
-            ResetMusic();
+            SelectMusic();
 
             FileInfo menusDesc = ScreenManager.AddHotLoadTarget(this, "MainMenus.yaml");
             MainMenuDesc menu = YamlParser.Deserialize<MainMenusDescr>(menusDesc).GetDefault();
@@ -116,26 +116,20 @@ namespace Ship_Game.GameScreens.MainMenu
                 VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 38, modTitle) { Name = "mod_title" });
         }
 
-        protected override void ResetMusic()
+        private void SelectMusic()
         {
-            base.ResetMusic();
-
             if (Type == MainMenuType.Victory)
             {
+                ScreenManager.StartMusic("TitleTheme");
                 GameAudio.SwitchToRacialMusic();
-                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
             }
             else if (Type == MainMenuType.Defeat)
             {
-                ScreenManager.Music = GameAudio.PlayMusic("Female_02_loop");
+                ScreenManager.StartMusic("Female_02_loop");
             }
-            else if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
+            else if (!ScreenManager.Music.IsPlaying)
             {
-                ScreenManager.Music = GameAudio.PlayMusicFile(GlobalStats.Defaults.CustomMenuMusic);
-            }
-            else if (ScreenManager.Music.IsStopped)
-            {
-                ScreenManager.Music = GameAudio.PlayMusic("SD_Theme_Reprise_06");
+                ScreenManager.StartMusic("SD_Theme_Reprise_06");
             }
         }
 
@@ -232,14 +226,11 @@ namespace Ship_Game.GameScreens.MainMenu
                 c.SetDirection(new(Scene.Random.Float(-1f, 1f), 1f));
             }
 
-            if (!IsExiting && ScreenManager.Music.IsStopped)
-            {
-                ResetMusic();
-            }
+            SelectMusic();
 
             if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
             {
-                ScreenManager.Music.Stop();
+                ScreenManager.StopMusic();
             }
 
             base.Update(fixedDeltaTime);

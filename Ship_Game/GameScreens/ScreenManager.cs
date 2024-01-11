@@ -35,6 +35,7 @@ namespace Ship_Game
         public SceneEnvironment Environment;
         public InputState input;
         public AudioHandle Music = new();
+        public string CurrentMusic { get; private set; }
 
         public GraphicsDeviceManager Graphics;
         public GraphicsDevice GraphicsDevice;
@@ -653,6 +654,22 @@ namespace Ship_Game
             }
         }
 
+        public void StartMusic(string musicName)
+        {
+            GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
+            if (!Music.IsStopped && CurrentMusic != musicName)
+            {
+                StopMusic();
+                CurrentMusic = musicName;
+                Music = GameAudio.PlayMusic(musicName);
+            }
+        }
+
+        public void StopMusic()
+        {           
+            GameAudio.StopGenericMusic(fadeout: false);
+            CurrentMusic = null;
+        }
         public void Update(UpdateTimes elapsed)
         {
             PerformHotLoadTasks(elapsed);

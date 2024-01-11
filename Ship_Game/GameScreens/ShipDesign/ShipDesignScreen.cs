@@ -413,8 +413,7 @@ namespace Ship_Game
             DesignedShip.Velocity = new Vector2(0, 100);
             DesignedShip.UpdateThrusters(simTime);
 
-            if (!IsExiting && ScreenManager.Music.IsStopped)
-                ResetMusic();
+            ScreenManager.StartMusic("ShipyardTheme");
 
             base.Update(fixedDeltaTime);
         }
@@ -426,7 +425,7 @@ namespace Ship_Game
             UpdateAvailableHulls();
             CreateGUI();
             InitializeCamera();
-            ResetMusic();
+            ScreenManager.StartMusic("ShipyardTheme");
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
 
             ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad(Player);
@@ -643,17 +642,6 @@ namespace Ship_Game
                     }
                 }
             }
-        }
-
-        protected override void ResetMusic()
-        {
-
-            base.ResetMusic();
-      
-            if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
-                ScreenManager.Music = GameAudio.PlayMusicFile(GlobalStats.Defaults.CustomMenuMusic); 
-            else if (ScreenManager.Music.IsStopped)
-                ScreenManager.Music = GameAudio.PlayMusic("ShipyardTheme");
         }
     }
 }
