@@ -188,6 +188,7 @@ namespace Ship_Game
         public void RemoveObject(ISceneObject so) => ScreenManager.RemoveObject(so);
         public void AddLight(ILight light, bool dynamic) => ScreenManager.AddLight(light, dynamic);
         public void RemoveLight(ILight light, bool dynamic) => ScreenManager.RemoveLight(light, dynamic);
+
         public void AssignLightRig(LightRigIdentity identity, string rigContentPath)
         {
             var lightRig = TransientContent.Load<LightRig>(rigContentPath);
