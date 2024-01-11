@@ -120,17 +120,17 @@ namespace Ship_Game
 
         void PlayWinTheme()
         {
-            if (ScreenManager.Music.IsStopped && !GameAudio.IsMusicDisabled)
+            if (!GameAudio.IsMusicDisabled)
             {
                 Log.Write("Play Win Theme");
-                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
+                ScreenManager.StartMusic("TitleTheme");
             }
             MusicCheckTimer = 5f;
         }
 
         public override void LoadContent()
         {
-            ScreenManager.Music.Stop();
+            ScreenManager.StopMusic();
             GameAudio.SwitchToRacialMusic();
             GameAudio.MuteGenericMusic();
             PlayWinTheme();

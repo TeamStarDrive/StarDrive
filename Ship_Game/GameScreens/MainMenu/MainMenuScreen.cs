@@ -127,7 +127,7 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 ScreenManager.StartMusic("Female_02_loop");
             }
-            else if (!ScreenManager.Music.IsPlaying)
+            else
             {
                 ScreenManager.StartMusic("SD_Theme_Reprise_06");
             }

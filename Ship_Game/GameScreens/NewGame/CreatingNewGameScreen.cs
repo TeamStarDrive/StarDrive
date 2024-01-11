@@ -63,7 +63,7 @@ namespace Ship_Game
             Log.Info("CreatingNewGameScreen.Objects.Update(0.01)");
             us.UState.Objects.Update(new FixedSimTime(0.01f));
 
-            ScreenManager.Music.Stop();
+            ScreenManager.StopMusic();
             ScreenManager.RemoveScreen(MainMenu);
 
             ExitScreen();
