@@ -5,577 +5,692 @@ NewGame:
  ENG: "New Game"
  RUS: "Новая игра"
  SPA: "Nueva partida"
+ UKR: "Нова гра"
 LoadGame:
  Id: 2
  ENG: "Load Game"
  RUS: "Загрузить игру"
  SPA: "Cargar partida"
+ UKR: "Завантажити гру"
 Tutorials:
  Id: 3
  ENG: "Tutorials"
  RUS: "Обучение"
  SPA: "Tutoriales"
+ UKR: "Навчання"
 Options:
  Id: 4
  ENG: "Options"
  RUS: "Настройки"
  SPA: "Opciones"
+ UKR: "Налаштування"
 Exit:
  Id: 5
  ENG: "Exit"
  RUS: "Выход"
  SPA: "Salir"
+ UKR: "Вихід"
 LoadSavedGame:
  Id: 6
  ENG: "Load Saved Game..."
  RUS: "Загрузка сохраненной игры"
  SPA: "Cargar partida guardada..."
+ UKR: "Завантаження збереження..."
 AllSaves:
  Id: 7
  ENG: "All Saves"
  RUS: "Все сохранения"
  SPA: "Todas las partidas guardadas"
+ UKR: "Всі збереження"
 Load:
  Id: 8
  ENG: "Load"
  RUS: "Загрузить"
  SPA: "Cargar"
+ UKR: "Завантажити"
 Resolution:
  Id: 9
  ENG: "Resolution"
  RUS: "Разрешение"
  SPA: "Resolución"
+ UKR: "Роздільна здатність"
 ScreenMode:
  Id: 10
  ENG: "Screen Mode"
  RUS: "Режим экрана"
  SPA: "Modo de pantalla"
+ UKR: "Екранний режим"
 Windowed:
  Id: 11
  ENG: "Windowed"
  RUS: "Оконный режим"
  SPA: "En ventana"
+ UKR: "Віконний режим" 
 FullScreen:
  Id: 12
  ENG: "Full Screen"
  RUS: "Полный экран"
  SPA: "Pantalla completa"
+ UKR: "Повний екран"
 ApplySettings:
  Id: 13
  ENG: "Apply Settings"
  RUS: "Применить настройки"
  SPA: "Aplicar ajustes"
+ UKR: "Застосувати Налаштування"
 KeepChangesRevertingIn:
  Id: 14
  ENG: "Keep Changes? Reverting in..."
  RUS: "Сохранить изменения? Возврат через..."
  SPA: "¿Mantener cambios? Revirtiendo en..."
+ UKR: "Зберегти зміни? Скасування через..."
 Ok:
  Id: 15
  ENG: "OK"
  RUS: "OK"
  SPA: "Aceptar"
+ UKR: "ОК"
 Cancel:
  Id: 16
  ENG: "Cancel"
  RUS: "Отмена"
  SPA: "Cancelar"
+ UKR: "Відмінити"
 Seconds:
  Id: 17
  ENG: "seconds"
  RUS: "сек."
  SPA: "segundos"
+ UKR: "секунд"
 DesignYourRace:
  Id: 18
  ENG: "Design Your Race"
  RUS: "Создайте свою расу"
  SPA: "Diseña tu raza"
+ UKR: "Створіть своб расу"
 Physical:
  Id: 19
  ENG: "Physical"
  RUS: "Физиология"
  SPA: "Físico"
+ UKR: "Фізіологія"
 Sociological:
  Id: 20
  ENG: "Sociological"
  RUS: "Социология"
  SPA: "Sociología"
+ UKR: "Соціологія"
 HistoryAndTradition:
  Id: 21
  ENG: "History and Tradition"
  RUS: "История и традиции"
  SPA: "Historia y tradición"
+ UKR: "Історії та традиції"
 Engage:
  Id: 22
  ENG: "Engage"
  RUS: "Активировать"
  SPA: "Listo"
+ UKR: "Запустити"
 Abort:
  Id: 23
  ENG: "Abort"
  RUS: "Прервать"
  SPA: "Anular"
+ UKR: "Перервати"
 GalaxySize:
  Id: 24
  ENG: "Galaxy Size"
  RUS: "Размер галактики"
  SPA: "Tamaño de galaxia"
+ UKR: "Розмір Галактики"
 SolarSystems:
  Id: 25
  ENG: "Solar Systems"
  RUS: "Солнечные системы"
  SPA: "Sistemas solares"
+ UKR: "Зоряні системи"
 RaceNameSingular:
  Id: 26
  ENG: "Race Name Singular"
  RUS: "Назв. расы-ед. ч."
  SPA: "Nombre de raza en singular"
+ UKR: "Назва раси в однині"
 RaceNamePlural:
  Id: 27
  ENG: "Race Name Plural"
  RUS: "Назв. расы-мн. ч."
  SPA: "Nombre de raza en plural"
+ UKR: "Назва раси в множині"
 HomeSystemName:
  Id: 28
  ENG: "Home System Name"
  RUS: "Назв. родной сис."
  SPA: "Nombre de sistema de origen"
+ UKR: "Назва Рідної системи"
 FlagColor:
  Id: 29
  ENG: "Flag + Color"
  RUS: "Флаг и цвет"
  SPA: "Bandera + color"
+ UKR: "Прапор та колір"
 PointsToSpend:
  Id: 30
  ENG: "Points to Spend"
  RUS: "Доступные очки"
  SPA: "Puntos para gastar"
+ UKR: "Доступні бали"
 EmpireName:
  Id: 31
  ENG: "Empire Name"
  RUS: "Название империи"
  SPA: "Nombre del imperio"
+ UKR: "Назва Імперії"
 EfficientMetabolism:
  Id: 32
  ENG: "Efficient Metabolism"
  RUS: "Эффективный метаболизм"
  SPA: "Metabolismo eficiente"
+ UKR: "Ефективний метаболізм"
 RacesWithHighlyEfficientMetabolisms:
  Id: 33
  ENG: "Races with highly efficient metabolisms require 15% less food each turn"
  RUS: "Расы с высокоэффективным метаболизмом каждый ход потребляют на 15% меньше еды."
  SPA: "Las razas con metabolismos muy eficientes necesitan un 15% menos de comida por turno"
+ UKR: "Раси з високоефективним метаболізмом потребують на 15% менше їжі кожен хід"
 Gluttonous:
  Id: 34
  ENG: "Gluttonous"
  RUS: "Прожорливые"
  SPA: "Glotona"
+ UKR: "Ненажерливі"
 GluttonousRacesWillGorgeThemselves:
  Id: 35
  ENG: "Gluttonous races will gorge themselves at every opportunity, eating 10% more food every turn"
  RUS: "Прожорливые расы едят очень много, потребляя на 10% больше еды каждый ход."
  SPA: "Las razas glotonas se ceban en cuanto pueden y comen un 10% más de comida en cada turno"
+ UKR: "Ненажерливі раси будуть наїдатися при кожній нагоді, з’їдаючи на 10% більше їжі кожен хід"
 Fertile:
  Id: 36
  ENG: "Fertile"
  RUS: "Плодородные"
  SPA: "Fértil"
+ UKR: "Плодовиті"
 PromiscuousNaturesShortGestationPeriods:
  Id: 37
  ENG: "Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is 0.05 (5 Million) per turn. "
  RUS: "Склонность к беспорядочным связям, короткие сроки беременности и большое количество детенышей в приплоде очень благоприятно влияют на скорость воспроизводства этой расы естественным путем. Минимальный естественный прирост населения - .005 в ход."
  SPA: "La promiscuidad, los periodos de gestación breves y las grandes camadas incrementan considerablemente la tasa de reproducción de una raza. El crecimiento demográfico mínimo es de 0,005 por turno. "
+ UKR: "Безладне статеве життя, короткий період вагітності та велика кількість дітей значно підвищують швидкість відтворення раси. Мінімальний приріст населення становить 0,05 (5 мільйонів) за хід."
 LessFertile:
  Id: 38
  ENG: "Less Fertile"
  RUS: "Менее плодородные"
  SPA: "Menos fértil"
+ UKR: "Менш плодовиті"
 LongGestationPeriodsAndDifficult:
  Id: 39
  ENG: "Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is 0.15 (15 Million) per turn."
  RUS: "Долгие сроки беременности и сложность репродуктивного процесса в целом значительно ограничивают воспроизводство этой расы естественным путем. Максимальный естественный прирост населения - .015 в ход."
  SPA: "Los periodos de gestación largos y los procesos reproductivos complejos reducen sustancialmente la tasa de reproducción natural de esta raza. El crecimiento demográfico máximo es de 0,02 por turno."
+ UKR: "Довгі терміни вагітності і важкі репродуктивні процеси істотно знижують швидкість природного розмноження цієї раси. Максимальний природний приріст населення становить 0,15 (15 мільйонів) за хід."
 Savage:
  Id: 40
  ENG: "Savage"
  RUS: "Дикие"
  SPA: "Salvaje"
+ UKR: "Дикуни"
 SavageRacesGainABonus:
  Id: 41
  ENG: "Savage races gain a +30% bonus in ground combat due to a ferocious temperament and various lethal physical characteristics"
  RUS: "Дикие расы получают 30% бонус в наземном бою за счет агрессивного темперамента и физиологических особенностей."
  SPA: "Las razas salvajes obtienen una bonificación del 30% en combate terrestre debido a su ferocidad y varias características físicas letales"
+ UKR: "Дикі раси отримують бонус +30% у наземному бою завдяки лютому темпераменту та різноманітним смертоносним фізичним характеристикам"
 Timid:
  Id: 42
  ENG: "Timid"
  RUS: "Боязливые"
  SPA: "Tímida"
+ UKR: "Боязкі"
 TimidRacesAreInstinctivelyTerrified:
  Id: 43
  ENG: "Timid races are instinctively terrified by combat and suffer a 20% penalty to ground combat rolls"
  RUS: "Боязливые расы инстинктивно страшатся сражений и получают 20% штраф в наземном бою."
  SPA: "A las razas tímidas, por instinto, les aterroriza el combate y sufren una penalización del 20% en los combates terrestres"
+ UKR: "Боязкі раси інстинктивно бояться бою та отримують штраф 20% до кидків кубика в наземному бою"
 Alluring:
  Id: 44
  ENG: "Alluring"
  RUS: "Привлекательные"
  SPA: "Seductora"
+ UKR: "Привабливі"
 AlluringRacesGainAOut:
  Id: 45
  ENG: "Alluring races gain a +20 (out of 100) starting relationship with other races due to their majestic and charismatic natures"
  RUS: "Привлекательные расы получают +20 (из 100) к стартовым отношениям с другими расами за счет привлекательности и обаяния."
  SPA: "Las razas seductoras empiezan con +20 (de 100) de relaciones con otras razas gracias a su carácter augusto y carismático"
+ UKR: "Привабливі раси отримують +20 (зі 100) початкових стосунків з іншими расами завдяки своїй величній і харизматичній природі"
 Repulsive:
  Id: 46
  ENG: "Repulsive"
  RUS: "Отталкивающие"
  SPA: "Repulsiva"
+ UKR: "Відразливі"
 OffensiveSmellsAndRevoltingCountenances:
  Id: 47
  ENG: "Offensive smells and revolting countenances earn repulsive races a -20 penalty (out of 100) to initial relationships with other races"
  RUS: "Отталкивающие расы получают -20 (из 100) к стартовым отношениям с другими расами вследствие неприятного запаха и отвратительного внешнего вида."
  SPA: "Por sus olores ofensivos y rostros repugnantes, las razas repulsivas sufren una penalización de -20 (de 100) al entablar relaciones por primera vez con otras razas"
+ UKR: "Образливі запахи та відразливі обличчя приносять відразливі расам штраф -20 (зі 100) за початкові стосунки з іншими расами"
 Smart:
  Id: 48
  ENG: "Smart"
  RUS: "Умные"
  SPA: "Inteligente"
+ UKR: "Розумні"
 IntelligentRacesGainABonus:
  Id: 49
  ENG: "Intelligent races gain a 20% bonus to research efforts"
  RUS: "Умные расы получают 20% бонус к исследованиям."
  SPA: "Las razas inteligentes cuentan con una bonificación del 20% al investigar tecnologías"
+ UKR: "Розумні раси отримують 20% бонус до досліджень"
 Dumb:
  Id: 50
  ENG: "Dumb"
  RUS: "Тупые"
  SPA: "Tontas"
+ UKR: "Недалекі"
 DumbRacesSufferAPenalty:
  Id: 51
  ENG: "Dumb races suffer a 10% penalty to research efforts due to their slow grasp of complex ideas"
  RUS: "Тупые расы получают 10% штраф к исследованиям вследствие плохого понимания сложных концепций."
  SPA: "Las razas tontas sufren una penalización del 10% al investigar tecnologías porque tardan mucho en asimilar las ideas complejas"
+ UKR: "Недалекі раси страждають від 10% штрафу до досліджень через важкість розуміння складних ідей"
 Eagleeyed:
  Id: 52
  ENG: "Eagle-Eyed"
  RUS: "Остроглазые"
  SPA: "Ojo de halcón"
+ UKR: "Гостроокі"
 IncredibleEyesightGivesPilotsFrom:
  Id: 53
  ENG: "Incredible eyesight gives pilots from this race a 20% accuracy bonus to projectiles fired from cannon weapons"
  RUS: "Исключительно острое зрение дает пилотам этой расы 20% бонус к урону от пушек"
  SPA: "Su increíble vista da a los pilotos de esta raza una bonificación de artillería del 20% sobre el daño infligido con cañones"
+ UKR: "Неймовірний зір дає пілотам цієї гонки 20% бонус до точності снарядів, випущених із гарматної зброї"
 Blind:
  Id: 54
  ENG: "Blind"
  RUS: "Слепые"
  SPA: "Ciega"
+ UKR: "Близорукі"
 RacesThatEvolveWeakOptical:
  Id: 55
  ENG: "Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles have 20% accuracy penalty"
  RUS: "Расы, зрительные органы которых развиты слабо, получают в космическом бою штрафы к стрельбе. Снаряды, выпущенные из пушек, наносят на 20% меньше урона"
  SPA: "Las razas que desarrollan órganos sensoriales ópticos sufren una penalización en el combate espacial. Los proyectiles hacen un 20% menos de daño"
+ UKR: "Раси, які розвинули слабкі оптичні органи чуття, зазнають штрафів у космічних боях. Гарматні снаряди мають 20% штраф в точності"
 Reflexes:
  Id: 56
  ENG: "Reflexes"
  RUS: "Рефлексы"
  SPA: "Reflejos"
+ UKR: "Швидкі"
 UltrafastReflexesGrantShipPilots:
  Id: 57
  ENG: "Ultra-fast reflexes grant ship pilots from this race a 25% bonus chance to dodge projectiles that otherwise would be hits"
  RUS: "Молниеносные рефлексы дают пилотам истребителей дополнительно 25% вероятности уклониться от вражеских снарядов."
  SPA: "Los reflejos ultrarrápidos confieren a los pilotos de caza de esa raza un 25% más de posibilidades de esquivar proyectiles certeros"
+ UKR: "Надшвидкі рефлекси дають пілотам кораблів цієї раси 25% можливість уникнути снаряду"
 Ponderous:
  Id: 58
  ENG: "Ponderous"
  RUS: "Медлительные"
  SPA: "Pesada"
+ UKR: "Повільні"
 RacesWithPonderousAndDeliberate:
  Id: 59
  ENG: "Races with ponderous and deliberate natures make terrible pilots. As a result, their ships suffer 25% dodge penalty"
  RUS: "Расы, склонные к долгим раздумьям, не могут эффективно пилотировать истребители. Как следствие, их истребители получают на 25% больше урона."
  SPA: "Las razas con un carácter pesado y lánguido tienen pésimos pilotos de cazas. Por ello, sus cazas reciben un 25% más de daño de lo normal"
+ UKR: "З роздумливих та повільних рас виходять погані пілоти. Як результат їх кораблі мають 25% штраф до уникання снарядів"
 Cybernetic:
  Id: 60
  ENG: "Cybernetic"
  RUS: "Кибернетические"
  SPA: "Cibernética"
+ UKR: "Кібернетичні"
 CyberneticRacesHaveInorganicBodies:
  Id: 61
  ENG: "Cybernetic races have inorganic bodies and do not eat food, instead eating production. Production is a limited resource which slowly decays upon consumption. Cybernetic races are more mindful of production managements and needs."
  RUS: "Кибернетические расы не имеют органического тела и не питаются в обычном понимании, вместо этого потребляя продукцию."
  SPA: "Las razas cibernéticas tienen cuerpos no orgánicos y no consumen comida, sino producción. "
+ UKR: "Кібернетичні раси мають неорганічні тіла та не споживають їжу, натомість споживають виробництво. Виробництво це обмежений ресурс який повільно розкладається при споживанні. Кібернетичні раси більш розважливі при виробництві."
 Industrious:
  Id: 62
  ENG: "Industrious"
  RUS: "Работящие"
  SPA: "Industriosa"
+ UKR: "Працьовиті"
 IndustriousRacesEnjoyABonus:
  Id: 63
  ENG: "Industrious races enjoy a 25% bonus to Production efforts due to their tireless and efficient natures"
  RUS: "Работящие расы получают 25% бонус к производству за счет эффективного производства и усердия."
  SPA: "La producción de las razas industriosas cuenta con una bonificación del 25% gracias a su carácter eficiente e incansable"
+ UKR: "Працьовиті раси отримують бонус у 25% до виробничих зусиль завдяки їхній невтомній та ефективній натурі"
 Lazy:
  Id: 64
  ENG: "Lazy"
  RUS: "Ленивые"
  SPA: "Perezosa"
+ UKR: "Нероби"
 LazyRacesJustDontLike:
  Id: 65
  ENG: "Lazy races just don't like to work, and as a result suffer a 15% penalty to Production efforts"
  RUS: "Ленивые расы, как следует из названия, просто не любят работать, как следствие получая 15% штраф к производству."
  SPA: "A las razas perezosas no les gusta trabajar y, por tanto, sufren una penalización del 15% en sus esfuerzos de producción"
+ UKR: "Нероби просто не люблять працювати, і в результаті отримують 15% штрафу за зусилля виробництва"
 Mercantile:
  Id: 66
  ENG: "Mercantile"
  RUS: "Меркантильные"
  SPA: "Mercantil"
+ UKR: "Меркантильні"
 MercantileRacesAreNaturalTraders:
  Id: 67
  ENG: "Mercantile races are natural traders, and gain 0.5 Credits for each unit of food or production moved via freighter within the empire, they also have improved supply chains for trade agreements which can help supply the demand of larger empires having trade agreements with them."
-
+ UKR: "Меркантильні раси є природними торговцями та отримують 0,5 кредиту за кожну одиницю їжі чи продукції, що переміщується через вантажне судно в межах імперії, вони також мають покращені ланцюжки постачання для торгових угод, які можуть допомогти задовольнити попит великих імперій, які мають з ними торгові угоди."
 Wasteful:
  Id: 68
  ENG: "Wasteful"
  RUS: "Расточительные"
  SPA: "Derrochadora"
+ UKR: "Марнотратні"
 WastefulRacesLeadLivesOf:
  Id: 69
  ENG: "Wasteful races lead lives of excess and care little for concepts like recycling or austerity.  Ship and building maintenance costs 25% more"
  RUS: "Расточительные расы живут в свое удовольствие; такие понятия, как умеренность и переработка отходов, им совершенно чужды. Содержание кораблей и построек обходится на 25% дороже обычного."
  SPA: "Las razas derrochadoras llevan una vida de exceso y se preocupan poco por conceptos como reciclaje o austeridad.  El mantenimiento de naves y edificios les cuesta un 25% más"
+ UKR: "Марнотратні раси ведуть надмірне життя і мало піклуються про такі поняття, як переробка чи жорстка економія. Утримання кораблів і будівель коштує на 25% більше"
 Efficient:
  Id: 70
  ENG: "Efficient"
  RUS: "Эффективные"
  SPA: "Eficiente"
+ UKR: "Ощадливі"
 EfficientRacesEarnAReduction:
  Id: 71
  ENG: "Efficient races earn a 25% reduction on ship and building maintenance costs due to their conservative and intelligent use of resources"
  RUS: "Эффективные расы получают 25% снижение расходов на содержание кораблей и построек благодаря консервативным подходам и разумному использованию ресурсов."
  SPA: "Las razas eficientes ahorran un 25% en gastos de mantenimiento de sus naves y edificios por su uso racional y moderado de los recursos"
+ UKR: "Ощадливі раси отримують 25% зниження витрат на обслуговування кораблів і будівель завдяки їх консервативному та розумному використанню ресурсів"
 Corrupt:
  Id: 72
  ENG: "Corrupt"
  RUS: "Коррумпированные"
  SPA: "Corrupta"
+ UKR: "Корумповані"
 RacesWithAStrongTradition:
  Id: 73
  ENG: "Races with a strong tradition of political corruption have a 25% corruption penalty to tax income "
  RUS: "Расы, склонные к коррупции в государственном аппарате, получают 25% штраф к собираемым налогам."
  SPA: "Las razas con una sólida tradición de corrupción política sufren una penalización del 25% al recaudar impuestos "
+ UKR: "Раси з сильною традицією політичної корупції мають 25% корупційний штраф для прибутку з податків"
 Meticulous:
  Id: 74
  ENG: "Meticulous"
  RUS: "Педантичные"
  SPA: "Meticulosa"
+ UKR: "Педантичні"
 MeticulousRacesHonorTheActuarial:
  Id: 75
  ENG: "Meticulous races honor the actuarial professions, earning a 25% bonus to tax income for their attention to details"
  RUS: "У педантичных рас государственный аппарат более эффективен, что позволяет собирать на 25% больше налогов."
  SPA: "Las razas meticulosas respetan las profesiones administrativas y recaudan un 25% más de impuestos por su atención a los detalles"
+ UKR: "Прискіпливі раси шанують професію управлінців, заробляючи 25% бонус доходів з податків за їх увагу до деталей"
 SkilledEngineers:
  Id: 76
  ENG: "Skilled Engineers"
  RUS: "Опытные инженеры"
  SPA: "Ingenieros hábiles"
+ UKR: "Досвідчені Інженери"
 RacesWithANaturalEngineering:
  Id: 77
  ENG: "Races with a natural engineering inclination build sturdier ship components, resulting in a 20% overall increase to ship module hit points"
  RUS: "Расы с природной склонностью к инженерному делу создают более надежные корабельные модули, что в итоге дает 20% бонус к их очкам прочности."
  SPA: "Las razas con una inclinación natural por la ingeniería construyen componentes de naves más resistentes, por lo que sus módulos tienen en general un 20% más de puntos de vida"
+ UKR: "Раси з природними інженерними нахилами створюють міцніші компоненти корабля, що призводить до загального збільшення очок здоров’я корабельних модулів на 20%."
 HaphazardEngineers:
  Id: 78
  ENG: "Haphazard Engineers"
  RUS: "Горе-инженеры"
  SPA: "Ingenieros descuidados"
+ UKR: "Безсистемні інженери"
 RacesWhoFollowHaphazardShip:
  Id: 79
  ENG: "Races who follow haphazard ship construction techniques have shoddier equipment overall, earning a 20% penalty to module hit points"
  RUS: "Расы, совершенно не имеющие склонности к инженерному делу, производят низкокачественные корабельные модули, что ведет к 20% штрафу к их очкам прочности."
  SPA: "Las razas que usan técnicas descuidadas para construir sus naves cuentan, en general, con equipos más chapuceros y sus módulos tienen un 20% menos de puntos de vida"
+ UKR: "Раси, які дотримуються хаотичних методів будівництва кораблів, загалом мають погане обладнання, одержуючи 20% штрафу до очок здоров’я модуля"
 Astronomers:
  Id: 80
  ENG: "Astronomers"
  RUS: "Астрономы"
  SPA: "Astrónomos"
+ UKR: "Астрономи"
 RacesThatHaveExtensivelyStudied:
  Id: 81
  ENG: "Races that have extensively studied the stars. Start the game with the closest 15 star systems fully explored."
  RUS: "Расы, активно изучавшие космос, начинают игру с 15 полностью исследованными звездными системами."
  SPA: "Las razas que han estudiado a fondo las estrellas empiezan el juego con los 15 sistemas estelares más cercanos totalmente explorados"
+ UKR: "Раси, які ретельно вивчали зірки. Почніть гру з 15 найближих зіркових систем повністю дослідженими."
 NavalTradition:
  Id: 82
  ENG: "Naval Tradition"
  RUS: "Флотские традиции"
  SPA: "Tradición naval"
+ UKR: "Корабельні традиції"
 RacesWithStrongNavalTraditions:
  Id: 83
  ENG: "Races with strong naval traditions gain a 35% reduction to ship building costs due to having well developed economic practices concerning ship construction"
  RUS: "Расы с сильными флотскими традициями получают 35% скидку к стоимости производства кораблей вследствие адаптации экономики под их строительство."
  SPA: "A las razas con una sólida tradición naval les cuesta un 35% menos la fabricación de naves porque disponen de prácticas económicas muy desarrolladas en lo que a la construcción naval se refiere"
+ UKR: "Раси з сильними корабельними традиціями отримують 35% зниження витрат на будівництво кораблів завдяки добре розвиненим економічним практикам щодо будівництва кораблів"
 Militaristic:
  Id: 84
  ENG: "Militaristic"
  RUS: "Милитаристы"
  SPA: "Militarista"
+ UKR: "Войовничі"
 RacesWithStrongMilitaryTraditions:
  Id: 85
  ENG: "Races with strong military traditions are prepped and ready to meet alien threats. As a result, they begin the game with the Military Outpost, Armor Theory, and Corvette Hull technologies."
  RUS: "Расы с сильными военными традициями всегда готовы отразить любую инопланетную угрозу. Как следствие, они начинают игру с технологиями Военный аванпост, Теория брони и Корвет."
  SPA: "Las razas con tradiciones militares sólidas están preparadas y dispuestas a combatir las amenazas alienígenas. Por ello empiezan el juego con las tecnologías de Base militar, Teoría del blindaje y Casco de corbeta."
+ UKR: "Раси з міцними військовими традиціями підготовлені та готові протистояти інопланетним загрозам. У результаті вони починають гру з технологіями Військова застава, Теорія Броні і Корвет."
 PollutedHomeworld:
  Id: 86
  ENG: "Polluted Homeworld"
  RUS: "Загрязненный родной мир"
  SPA: "Mundo natal contaminado"
+ UKR: "Забруднений рідний світ"
 RacesThatHaveBeenFoolish:
  Id: 87
  ENG: "Races that have been foolish enough to heavily pollute their own homeworld have a -0.35 Fertility penalty on their homeworld, making quick colonization a top priority"
  RUS: "Расы, по недомыслию загрязнившие свой родной мир получают -0.35 к плодородию на родной планете, что вынуждает ставить колонизацию на первое место в списке приоритетов развития."
  SPA: "Las razas que han sido tan necias como para contaminar indiscriminadamente sus mundos de origen sufren una penalización de -0.35 en su planeta natal, por lo que la colonización exprés será para ellos una prioridad"
+ UKR: "Раси, які були достатньо дурними, щоб сильно забруднити власний рідний світ, мають -0,35 штрафу за народжуваність на своєму рідному світі, що робить швидку колонізацію головним пріоритетом"
 HugeHomeworld:
  Id: 88
  ENG: "Huge Homeworld"
  RUS: "Огромный родной мир"
  SPA: "Mundo natal enorme"
+ UKR: "Величезний рідний світ"
 TheRacialHomeworldIsMuch:
  Id: 89
  ENG: "The racial homeworld is much larger than the average planet, allowing 25% more population maximum"
  RUS: "Родной мир расы значительно больше средней планеты по размерам, что позволяет разместить на ней на 25% больше населения."
  SPA: "El planeta de origen de la raza es mucho más grande que un planeta normal, por lo que puede albergar un 25% más de población máxima"
+ UKR: "Расовий рідний світ набагато більший, ніж середня планета, що дозволяє максимально збільшити максимум населення на 25%."
 SmallHomeworld:
  Id: 90
  ENG: "Small Homeworld"
  RUS: "Маленький родной мир"
  SPA: "Mundo natal pequeño"
+ UKR: "Маленький рідний світ"
 TheRacialHomeworldIsMuch2:
  Id: 91
  ENG: "The racial homeworld is much smaller than the average planet, allowing 25% less population maximum"
  RUS: "Родной мир расы значительно меньше средней планеты по размерам, из-за чего она вмещает на 25% меньше населения."
  SPA: "El planeta de origen de la raza es mucho más pequeño que un planeta normal, por lo que puede albergar un 25% menos de población máxima"
+ UKR: "Расовий рідний світ набагато менший за середню планету, допускаючи максимум населення на 25% менше"
 PrototypeFlagship:
  Id: 92
  ENG: "Prototype Flagship"
  RUS: "Прототип флагмана"
  SPA: "Prototipo de nave almirante"
+ UKR: "Прототип флагмана"
 BeginTheGameWithAn:
  Id: 93
  ENG: "Begin the game with an advanced prototype flagship equipped with technologies that otherwise would not be available at the game's start"
  RUS: "Начать игру с мощным флагманским кораблем, оснащенным технологиями, в ином случае не доступными в начале игры."
  SPA: "Comienzas la partida con un prototipo avanzado de nave almirante con tecnologías que, de otra forma, no estarían disponibles al principio del juego"
+ UKR: "Почніть гру з передового прототипу флагмана, оснащеного технологіями, які інакше були б недоступні на початку гри"
 Prewarp:
  Id: 94
  ENG: "Pre-Warp"
  RUS: "Пре-варп"
  SPA: "Velocidad presupraluminal"
+ UKR: "Пре-варп"
 PrewarpRacesDiscoveredAnAncient:
  Id: 95
  ENG: "Pre-Warp races discovered an ancient alien vessel buried in the polar ice of their homeworld.  They begin the game with a powerful alien cruiser, but possess no star faring technologies and no starbase for ship construction"
  RUS: "Расы в пре-варпе находят в своем родном мире древний инопланетный корабль. Они начинают игру с мощным инопланетным крейсером, но не имеют технологий путешествия в космосе и звездной базы для строительства кораблей."
  SPA: "Las razas con velocidad presupraluminal descubrieron una antigua nave alienígena sepultada en el hielo polar de su planeta natal.  Comienzan el juego con un poderoso crucero alienígena, pero no poseen tecnologías para viajes interestelares ni bases estelares para la construcción de naves"
+ UKR: "Раса пре-Варпу виявила стародавній інопланетний корабель, похований у полярних льодах їхнього рідного світу. Вони починають гру з потужного інопланетного крейсера, але не володіють зоряними технологіями та зоряною базою для будівництва кораблів"
 ManifestDestiny:
  Id: 96
  ENG: "Manifest Destiny"
  RUS: "Ведомые предназначением"
  SPA: "Destino manifiesto"
+ UKR: "Маніфест долі"
 RacesPossessingAPioneeringSpirit:
  Id: 97
  ENG: "Races possessing a pioneering spirit believe that their destiny lies out among the stars.  As a result, your passenger transports carry three times as many colonists to new planets"
  RUS: "Эти расы свято верят в то, что их предназначение - путешествовать по Вселенной. Как следствие, пассажирские транспорты перевозят к новым планетам втрое больше колонистов, чем обычно."
  SPA: "Las razas que poseen un espíritu pionero creen que su destino está entre las estrellas.  En consecuencia, sus transportes de pasajeros llevan el triple de colonos a nuevos planetas"
+ UKR: "Раси з новаторським духом вірять, що їхня доля лежить серед зірок. У результаті ваші пасажирські транспорти перевозять на нові планети втричі більше колоністів"
 Shipyard:
  Id: 98
  ENG: "Shipyard"
  RUS: "Верфь"
  SPA: "Astillero"
+ UKR: "Верф"
 Empire:
  Id: 99
  ENG: "Empire"
  RUS: "Империя"
  SPA: "Imperio"
+ UKR: "Імперія"
 Diplomacy:
  Id: 100
  ENG: "Diplomacy"
  RUS: "Дипломатия"
  SPA: "Diplomacia"
+ UKR: "Дипломатія"
 MainMenu:
  Id: 101
  ENG: "Main Menu"
  RUS: "Главное меню"
  SPA: "Menú principal"
+ UKR: "Головне меню"
 Choose:
  Id: 102
  ENG: "Choose"
  RUS: "Выбрать"
  SPA: "Elegir"
+ UKR: "Обрати"
 Fleets:
  Id: 103
  ENG: "Fleets"
  RUS: "Флоты"
  SPA: "Flotas"
+ UKR: "Завантажити"
 ShipsArray:
  Id: 104
  ENG: "Ships Array"
  RUS: "Список кораблей"
  SPA: "Lista de naves"
+ UKR: "Список кораблів"
 SaveAs:
  Id: 105
  ENG: "Save As"
  RUS: "Сохранить как"
  SPA: "Guardar como"
+ UKR: "Зберегти як"
 Saving:
  ENG: "Saving..."
+ UKR: "Збереження..."
 ToggleOverlay:
  Id: 106
  ENG: "Toggle Overlay"
  RUS: "Переключить"
  SPA: "Alternar sobreimpresión"
+ UKR: "Перемкнути накладання"
 SelectHull:
  Id: 107
  ENG: "Select Hull"
  RUS: "Выбрать корпус"
  SPA: "Seleccionar casco"
+ UKR: "Оберіть корпус"
 ShipStats:
  Id: 108
  ENG: "Ship Stats"
  RUS: "Параметры корабля"
  SPA: "Estadísticas de nave"
+ UKR: "Статистика корабля"
 ProductionCost:
  Id: 109
  ENG: "Production Cost"
  RUS: "Цена производства"
  SPA: "Coste de producción"
+ UKR: "Ціна виробницітва"
 PowerCapacity:
  Id: 110
  ENG: "Power Capacity"
  RUS: "Энергоемкость"
  SPA: "Capacidad de energía"
+ UKR: "Потужність"
 PowerRecharge:
  Id: 111
  ENG: "Power Recharge"
  RUS: "Перезарядка"
  SPA: "Recarga de energía"
+ UKR: "Перезарядка"
 RechargeAtWarp:
  Id: 112
  ENG: "Recharge at Warp"
  RUS: "Перезарядка в варпе"
  SPA: "Recarga a velocidad supraluminal"
+ UKR: "Перезарядка у варпі"
 TotalHitpoints:
  Id: 113
  ENG: "Total Hitpoints"
  RUS: "Всего ОП"
  SPA: "Puntos de vida totales"
+ UKR: "Всього очок життя"
 ShieldPower:
  Id: 114
  ENG: "Shield Power"
  RUS: "Мощность щита"
  SPA: "Energía de escudos"
+ UKR: "Міцність щита"
 Mass:
  Id: 115
  ENG: "Mass"
  RUS: "Масса"
  SPA: "Masa"
+ UKR: "Маса"
 SublightSpeed:
  Id: 116
  ENG: "Sub-light Speed"
