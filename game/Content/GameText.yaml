@@ -53,7 +53,7 @@ Resolution:
  ENG: "Resolution"
  RUS: "Разрешение"
  SPA: "Resolución"
- UKR: "Роздільна здатність"
+ UKR: "Розподільність"
 ScreenMode:
  Id: 10
  ENG: "Screen Mode"
@@ -615,7 +615,7 @@ Fleets:
  ENG: "Fleets"
  RUS: "Флоты"
  SPA: "Flotas"
- UKR: "Завантажити"
+ UKR: "Флоти"
 ShipsArray:
  Id: 104
  ENG: "Ships Array"
