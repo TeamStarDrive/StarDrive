@@ -123,7 +123,7 @@ namespace Ship_Game
             if (!GameAudio.IsMusicDisabled)
             {
                 Log.Write("Play Win Theme");
-                ScreenManager.StartMusic("TitleTheme");
+                ScreenManager.StartMusic("VictoryMusic");
             }
             MusicCheckTimer = 5f;
         }

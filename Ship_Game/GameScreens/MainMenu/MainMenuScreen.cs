@@ -120,16 +120,16 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             if (Type == MainMenuType.Victory)
             {
-                ScreenManager.StartMusic("TitleTheme");
+                ScreenManager.StartMusic("VictoryMusic");
                 GameAudio.SwitchToRacialMusic();
             }
             else if (Type == MainMenuType.Defeat)
             {
-                ScreenManager.StartMusic("Female_02_loop");
+                ScreenManager.StartMusic("DefeatMusic");
             }
             else
             {
-                ScreenManager.StartMusic("SD_Theme_Reprise_06");
+                ScreenManager.StartMusic("MainMenuMusic");
             }
         }
 

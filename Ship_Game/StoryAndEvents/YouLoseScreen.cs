@@ -115,7 +115,7 @@ namespace Ship_Game
             GameAudio.SwitchToRacialMusic();
 
             Log.Write("Play Lose Theme");
-            ScreenManager.StartMusic("Female_02_loop");
+            ScreenManager.StartMusic("DefeatMusic");
             Ambient = GameAudio.PlayMusic("sd_battle_ambient");
             base.LoadContent();
         }
