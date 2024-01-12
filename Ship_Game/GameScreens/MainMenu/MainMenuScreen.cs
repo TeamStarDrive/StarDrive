@@ -227,8 +227,8 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             SelectMusic();
-
-            if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
+            //TransitionPosition is used to track state of loading screen, if remove it, next line will be called multiple times  
+            if (IsExiting && TransitionPosition >= 0.99f)
             {
                 ScreenManager.StopMusic();
             }
