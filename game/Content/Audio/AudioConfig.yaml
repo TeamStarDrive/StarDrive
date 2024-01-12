@@ -31,7 +31,7 @@
         - "Music/sd2-4.m4a"
     - SoundEffect:
       Id: ShipyardTheme
-      Volume: 0.5
+      Volume: 0.75
       Sound: "Music/Ponder.m4a"
 
 - Category:
