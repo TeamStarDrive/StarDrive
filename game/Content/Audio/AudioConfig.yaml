@@ -697,6 +697,11 @@
         - "Weapons/sd_weapon_pulse_alt2_01.3.m4a"
         - "Weapons/sd_weapon_pulse_alt2_01.4.m4a"
         - "Weapons/sd_weapon_pulse_alt2_01.5.m4a"
+    # TODO: missing sounds
+    # - SoundEffect:
+    #   Id: sd_weapon_pulse_alt14_01
+    #   Volume: 0.25
+    #   Sound: "Weapons/sd_weapon_pulse_alt14_01.m4a"
     - SoundEffect:
       Id: sd_weapon_pulse_alt3_01
       Volume: 3.0
