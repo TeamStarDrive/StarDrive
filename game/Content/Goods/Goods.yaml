@@ -67,7 +67,7 @@ Good:
   IsGasGiantMineable: true  
   ExoticBonusType: DamageReduction  
   MaxBonus: 0.5  
-  ConsumptionMultiplier: 0.001
+  ConsumptionMultiplier: 0.0005
 Good:
   UID: Energon
   RefiningRatio: 0.5
@@ -79,7 +79,7 @@ Good:
   IsGasGiantMineable: true  
   ExoticBonusType: Production  
   MaxBonus: 0.25  
-  ConsumptionMultiplier: 0.1  
+  ConsumptionMultiplier: 0.05  
 Good:
   UID: NanoGas
   RefiningRatio: 0.5

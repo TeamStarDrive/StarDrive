@@ -10716,7 +10716,7 @@ ExoticResourceAetheriumName:
  ENG: "Aetherium Gas"    
 ExoticResourceAetheriumDesc:
  Id: 4940 
- ENG: "Refined Aetherium can increase Warp Speeds by up to 50%."          
+ ENG: "Refined Aetherium can increase Warp Speeds by up to 100%."          
 ExoticResourceNanoGasName:
  Id: 4941 
  ENG: "Nano Gas"    
