@@ -409,7 +409,7 @@ namespace UnitTests.Serialization
                   FadeOutTime: 1.0
                   SoundEffects:
                     - SoundEffect:
-                      Id: SD_Theme_Reprise_06
+                      Id: MainMenuMusic
                       Volume: 0.5
                       Sound: ""Music/SD_Theme_Reprise_06.m4a""
                 - Category: # Weapons
@@ -447,7 +447,7 @@ namespace UnitTests.Serialization
                   Volume: 0.8
                   SoundEffects:
                     - SoundEffect:
-                      Id: SD_Theme_Reprise_06
+                      Id: MainMenuMusic
                       Sound: ""Music/SD_Theme_Reprise_01.m4a""
                 - Category: # Weapons
                   Name: Weapons
@@ -471,7 +471,7 @@ namespace UnitTests.Serialization
             AssertEqual(0.8, music["Volume"].ValueFloat);
             var musicEffects = music["SoundEffects"].Sequence;
             AssertEqual(1, musicEffects.Count);
-            AssertEqual("SD_Theme_Reprise_06", musicEffects[0]["Id"].Value);
+            AssertEqual("MainMenuMusic", musicEffects[0]["Id"].Value);
             AssertEqual("Music/SD_Theme_Reprise_01.m4a", musicEffects[0]["Sound"].Value, "SD_Theme_Reprise_01 should have overriden");
 
             var weapons = parser.Root.Sequence[1];

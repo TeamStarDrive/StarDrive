@@ -12,7 +12,7 @@
   FadeOutTime: 1.0 # Time in seconds to fade out when prematurely stopping a sound effect
   SoundEffects:
     - SoundEffect:
-      Id: SD_Theme_Reprise_06 # unique ID referenced by the game engine
+      Id: MainMenuMusic # unique ID referenced by the game engine
       Volume: 0.5 # individual volume multiplier for this sound effect
       Sound: "Music/SD_Theme_Reprise_06.m4a" # single `Sound` file to play, this will be automatically cached
     - SoundEffect:
@@ -25,6 +25,14 @@
         - "Music/AmbientMusic.3.m4a"
         - "Music/AmbientMusic.4.m4a"
         - "Music/AmbientMusic.5.m4a"
+        - "Music/sd2-1.m4a"
+        - "Music/sd2-2.m4a"
+        - "Music/sd2-3.m4a"
+        - "Music/sd2-4.m4a"
+    - SoundEffect:
+      Id: ShipyardTheme
+      Volume: 0.75
+      Sound: "Music/Ponder.m4a"
 
 - Category:
   Name: RacialMusic
@@ -40,7 +48,7 @@
       Volume: 1.0
       Sound: "RacialMusic/sd_races_Terran.m4a"
     - SoundEffect:
-      Id: TitleTheme
+      Id: VictoryMusic
       Volume: 1.0
       Sound: "RacialMusic/TitleTheme.m4a"
     - SoundEffect:
@@ -68,7 +76,7 @@
       Volume: 1.0
       Sound: "RacialMusic/Bug_02_loop.m4a"
     - SoundEffect:
-      Id: Female_02_loop
+      Id: DefeatMusic
       Volume: 1.0
       Sound: "RacialMusic/Female_02_loop.m4a"
 

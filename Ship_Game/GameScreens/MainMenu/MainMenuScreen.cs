@@ -51,7 +51,7 @@ namespace Ship_Game.GameScreens.MainMenu
         public override void LoadContent()
         {
             ScreenManager.ClearScene();
-            ResetMusic();
+            SelectMusic();
 
             FileInfo menusDesc = ScreenManager.AddHotLoadTarget(this, "MainMenus.yaml");
             MainMenuDesc menu = YamlParser.Deserialize<MainMenusDescr>(menusDesc).GetDefault();
@@ -116,28 +116,20 @@ namespace Ship_Game.GameScreens.MainMenu
                 VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 38, modTitle) { Name = "mod_title" });
         }
 
-        public void ResetMusic()
+        private void SelectMusic()
         {
-            GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
-            GameAudio.StopGenericMusic(fadeout: false);
-            ScreenManager.Music.Stop();
-
             if (Type == MainMenuType.Victory)
             {
+                ScreenManager.StartMusic("VictoryMusic");
                 GameAudio.SwitchToRacialMusic();
-                ScreenManager.Music = GameAudio.PlayMusic("TitleTheme");
             }
             else if (Type == MainMenuType.Defeat)
             {
-                ScreenManager.Music = GameAudio.PlayMusic("Female_02_loop");
+                ScreenManager.StartMusic("DefeatMusic");
             }
-            else if (GlobalStats.Defaults.CustomMenuMusic.NotEmpty())
+            else
             {
-                ScreenManager.Music = GameAudio.PlayMusicFile(GlobalStats.Defaults.CustomMenuMusic);
-            }
-            else if (ScreenManager.Music.IsStopped)
-            {
-                ScreenManager.Music = GameAudio.PlayMusic("SD_Theme_Reprise_06");
+                ScreenManager.StartMusic("MainMenuMusic");
             }
         }
 
@@ -234,14 +226,11 @@ namespace Ship_Game.GameScreens.MainMenu
                 c.SetDirection(new(Scene.Random.Float(-1f, 1f), 1f));
             }
 
-            if (!IsExiting && ScreenManager.Music.IsStopped)
+            SelectMusic();
+            //TransitionPosition is used to track state of loading screen, if remove it, next line will be called multiple times  
+            if (IsExiting && TransitionPosition >= 0.99f)
             {
-                ResetMusic();
-            }
-
-            if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
-            {
-                ScreenManager.Music.Stop();
+                ScreenManager.StopMusic();
             }
 
             base.Update(fixedDeltaTime);

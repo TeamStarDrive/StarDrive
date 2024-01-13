@@ -560,14 +560,7 @@ namespace Ship_Game
             if (++SelectorFrame > 299)
                 SelectorFrame = 0;
 
-            MusicCheckTimer -= fixedDeltaTime;
-            if (MusicCheckTimer <= 0f)
-            {
-                MusicCheckTimer = 2f;
-                if (ScreenManager.Music.IsStopped)
-                    ScreenManager.Music = GameAudio.PlayMusic("AmbientMusic");
-            }
-
+            ScreenManager.StartMusic("AmbientMusic");
             NotificationManager.Update(fixedDeltaTime);
 
             GameAudio.Update3DSound(new Vector3((float)CamPos.X, (float)CamPos.Y, (float)CamPos.Z));
@@ -673,7 +666,7 @@ namespace Ship_Game
             processTurnsThread?.Join(250);
 
             RemoveLighting();
-            ScreenManager.Music.Stop();
+            ScreenManager.StopMusic();
 
             ClearSelectedItems();
             ShipToView = null;

@@ -30,9 +30,9 @@
   <ExplosiveResist>0.25</ExplosiveResist>
 
   <!-- for shield items -->
-  <ShieldPowerMax>22000</ShieldPowerMax>
+  <ShieldPowerMax>28000</ShieldPowerMax>
   <ShieldRechargeDelay>30</ShieldRechargeDelay>
-  <ShieldRechargeRate>440</ShieldRechargeRate>
+  <ShieldRechargeRate>560</ShieldRechargeRate>
   <ShieldRadius>250</ShieldRadius>
   <ShieldRechargeCombatRate>100</ShieldRechargeCombatRate>
   <ShieldEnergyResist>0.34</ShieldEnergyResist>

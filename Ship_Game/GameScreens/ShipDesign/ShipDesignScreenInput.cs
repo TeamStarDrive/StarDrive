@@ -552,7 +552,7 @@ namespace Ship_Game
         void ReallyExit()
         {
             RemoveVisibleMesh();
-
+            ScreenManager.StopMusic();
             // this should go some where else, need to find it a home
             ScreenManager.RemoveScreen(this);
             base.ExitScreen();

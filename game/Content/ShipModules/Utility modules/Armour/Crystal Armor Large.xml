@@ -20,8 +20,8 @@
     <DescriptionIndex>6583</DescriptionIndex>
     <!-- Mass and Health -->
     <Mass>72</Mass>
-    <Health>85530</Health>
-    <HealthMax>85530</HealthMax>
+    <Health>99000</Health>
+    <HealthMax>99000</HealthMax>
     <RepairDifficulty>1.5</RepairDifficulty>
     <Deflection>0</Deflection>                  
     <!-- Armor resistance -->
