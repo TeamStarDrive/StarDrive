@@ -696,101 +696,121 @@ SublightSpeed:
  ENG: "Sub-light Speed"
  RUS: "Субсветовая скорость"
  SPA: "Velocidad infraluminal"
+ UKR: "Субсвітлова швидкість"
 TurnRate:
  Id: 117
  ENG: "Turn Rate"
  RUS: "Скорость поворота"
  SPA: "Velocidad de giro"
+ UKR: "Швидкість повороту"
 OrdnanceCapacity:
  Id: 118
  ENG: "Ordnance Capacity"
  RUS: "Боекомплект"
  SPA: "Capacidad de munición"
+ UKR: "Боєкомплект"
 CargoSpace:
  Id: 119
  ENG: "Cargo Space"
  RUS: "Вместимость трюма"
  SPA: "Espacio de carga"
+ UKR: "Вантажний простір"
 PoweredCommand:
  Id: 120
  ENG: "Powered Command"
  RUS: "Мостик/Кокпит/КИЦ"
  SPA: "Puente/Cabina/CIC"
+ UKR: "Місток"
 NoEmptySlots:
  Id: 121
  ENG: "Design Completion"
  RUS: "Занято слотов"
  SPA: "No hay ranuras vacías"
+ UKR: "Завершенність"
 Restrictions:
  Id: 122
  ENG: "Restrictions"
  RUS: "Ограничения"
  SPA: "Restricciones"
+ UKR: "Обмеження"
 Mass2:
  Id: 123
  ENG: "Mass"
  RUS: "Масса"
  SPA: "Masa"
+ UKR: "Маса"
 Health:
  Id: 124
  ENG: "Health"
  RUS: "ХП"
  SPA: "Salud"
+ UKR: "Здоров'я"
 Power:
  Id: 125
  ENG: "Power"
  RUS: "Мощь"
  SPA: "Potencia"
+ UKR: "Потужність"
 Range:
  Id: 126
  ENG: "Range"
  RUS: "Дистан."
  SPA: "Distancia"
+ UKR: "Діапазон"
 Damage:
  Id: 127
  ENG: "Damage"
  RUS: "Урон"
  SPA: "Daño"
+ UKR: "Урон"
 Cost:
  Id: 128
  ENG: "Cost"
  RUS: "Цена"
  SPA: "Coste"
+ UKR: "Ціна"
 Speed:
  Id: 129
  ENG: "Speed"
  RUS: "Скор.Снар."
  SPA: "Velocidad"
+ UKR: "Швидкість"
 FireArc:
  Id: 130
  ENG: "Fire Arc"
  RUS: "Угол обстрела"
  SPA: "Arco de disparo"
+ UKR: "Кут обстрілу"
 Thrust:
  Id: 131
  ENG: "Thrust"
  RUS: "Субсвет"
  SPA: "Impulso"
+ UKR: "Тяга"
 ShldStr:
  Id: 132
  ENG: "Shld Str"
  RUS: "Сила щита"
  SPA: "Res. esc."
+ UKR: "Сила щита"
 ShldSize:
  Id: 133
  ENG: "Shld Size"
  RUS: "Рад.щита"
  SPA: "Tam. esc."
+ UKR: "Рад. щита"
 Recharge:
  Id: 134
  ENG: "Recharge"
  RUS: "Перезаряд."
  SPA: "Recargar"
+ UKR: "Перезарядка"
 Repair:
  Id: 135
  ENG: "Repair"
  RUS: "Ремонт"
  SPA: "Reparar"
+ UKR: "Ремонт"
 SpawnTimer:
  Id: 136
  ENG: "Spawn Timer"
