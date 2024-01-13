@@ -12,7 +12,7 @@
   FadeOutTime: 1.0 # Time in seconds to fade out when prematurely stopping a sound effect
   SoundEffects:
     - SoundEffect:
-      Id: SD_Theme_Reprise_06 # unique ID referenced by the game engine
+      Id: MainMenuMusic # unique ID referenced by the game engine
       Volume: 0.5 # individual volume multiplier for this sound effect
       Sound: "Music/SD_Theme_Reprise_06.m4a" # single `Sound` file to play, this will be automatically cached
     - SoundEffect:
@@ -25,6 +25,14 @@
         - "Music/AmbientMusic.3.m4a"
         - "Music/AmbientMusic.4.m4a"
         - "Music/AmbientMusic.5.m4a"
+        - "Music/sd2-1.m4a"
+        - "Music/sd2-2.m4a"
+        - "Music/sd2-3.m4a"
+        - "Music/sd2-4.m4a"
+    - SoundEffect:
+      Id: ShipyardTheme
+      Volume: 0.75
+      Sound: "Music/Ponder.m4a"
 
 - Category:
   Name: RacialMusic
@@ -40,7 +48,7 @@
       Volume: 1.0
       Sound: "RacialMusic/sd_races_Terran.m4a"
     - SoundEffect:
-      Id: TitleTheme
+      Id: VictoryMusic
       Volume: 1.0
       Sound: "RacialMusic/TitleTheme.m4a"
     - SoundEffect:
@@ -68,7 +76,7 @@
       Volume: 1.0
       Sound: "RacialMusic/Bug_02_loop.m4a"
     - SoundEffect:
-      Id: Female_02_loop
+      Id: DefeatMusic
       Volume: 1.0
       Sound: "RacialMusic/Female_02_loop.m4a"
 
@@ -531,10 +539,10 @@
   MaxConcurrentSoundsPerEffect: 32 # The maximum number of sounds that can be played at the same time for each sound effect, 0 for unlimited
   MaxSoundsPerFrame: 2 # The maximum number of sounds that can be played per frame, 0 for unlimited
   SoundEffects:
-    # - SoundEffect:
-    #   Id: cloaksound
-    #   Volume: 1.0
-    #   Sound: "Weapons/cloaksound.m4a"
+    - SoundEffect:
+      Id: cloaksound
+      Volume: 1.0
+      Sound: "Weapons/cloaksound.m4a"
     - SoundEffect:
       Id: "weak laser"
       Volume: 0.25
@@ -595,7 +603,10 @@
     #   Id: sd_weapon_vulcan_spinloop_02
     #   Volume: 0.25
     #   Sound: "Weapons/sd_weapon_vulcan_spinloop_02.m4a"
-    
+    - SoundEffect:
+      Id: sd_weapon_vulcan_alt02_01
+      Volume: 0.25
+      Sound: "Weapons/sd_weapon_vulcan_alt02_01.m4a"    
     - SoundEffect:
       Id: sd_weapon_vulcan_alt03_03
       Volume: 0.25
@@ -624,13 +635,12 @@
         - "Weapons/mining_laser.0.m4a"
         - "Weapons/mining_laser.1.m4a"
         - "Weapons/mining_laser.2.m4a"
-    # - SoundEffect:
-    #   Id: autocannon
-    #   Volume: 0.14
-    #   Sounds:
-    #     - "Weapons/autocannon.0.m4a"
-    #     - "Weapons/autocannon.1.m4a"
-    #     - "Weapons/autocannon.2.m4a"
+    - SoundEffect:
+      Id: autocannon
+      Volume: 0.14
+      Sounds:
+        - "Weapons/autocannon.0.m4a"
+        - "Weapons/autocannon.1.m4a"
     - SoundEffect:
       Id: heavylaser1
       Volume: 0.25
@@ -839,4 +849,24 @@
       Id: sd_weapon_beam_fusion_med
       Volume: 0.5
       Sound: "Weapons/sd_weapon_beam_fusion_med.m4a"
-
+    #new sfx not used yet
+    # - SoundEffect:
+    #   Id: energy_light_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/energy_light_1.m4a"
+    # - SoundEffect:
+    #   Id: energy_wepon_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/energy_wepon_1.m4a"
+    # - SoundEffect:
+    #   Id: heavy_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/heavy_1.m4a"
+    # - SoundEffect:
+    #   Id: kinetic_light_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/kinetic_light_1.m4a"
+    # - SoundEffect:
+    #   Id: plasma_proj_1
+    #   Volume: 0.25
+    #   Sound: "Weapons/plasma_proj_1.m4a"

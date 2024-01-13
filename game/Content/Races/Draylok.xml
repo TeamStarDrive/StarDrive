@@ -2,7 +2,7 @@
 <EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <PortraitName>Draylok</PortraitName>
   <!--if true, it will look for the video file in Mods/Video-->
-  <MusicCue>Female_02_loop</MusicCue>
+  <MusicCue>DefeatMusic</MusicCue>
   <DiplomacyDialogPath>Draylok</DiplomacyDialogPath>
   <StartingShip>Wisp Fighter</StartingShip>
   <StartingScout>Wisp Scout</StartingScout>

@@ -413,6 +413,8 @@ namespace Ship_Game
             DesignedShip.Velocity = new Vector2(0, 100);
             DesignedShip.UpdateThrusters(simTime);
 
+            ScreenManager.StartMusic("ShipyardTheme");
+
             base.Update(fixedDeltaTime);
         }
 
@@ -423,6 +425,7 @@ namespace Ship_Game
             UpdateAvailableHulls();
             CreateGUI();
             InitializeCamera();
+            ScreenManager.StartMusic("ShipyardTheme");
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
 
             ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad(Player);

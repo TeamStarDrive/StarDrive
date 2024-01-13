@@ -37,8 +37,8 @@
 
   <!-- Mass and Health -->
   <Mass>7</Mass>
-  <Health>4700</Health>
-  <HealthMax>4700</HealthMax>
+  <Health>5400</Health>
+  <HealthMax>5400</HealthMax>
   <RepairDifficulty>1.25</RepairDifficulty>
   <Deflection>0</Deflection>              
   <!-- Armor resistance -->
