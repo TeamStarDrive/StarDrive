@@ -222,96 +222,96 @@
   SoundEffects:
     - SoundEffect:
       Id: sd_ui_tactical_pause
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_tactical_pause.m4a"
     - SoundEffect:
       Id: sd_ui_colonize_01
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_colonize_01.m4a"
     - SoundEffect:
+      Volume: 0.5
       Id: sd_ui_notification_colonized_01
-      Volume: 1.0
       Sound: "UI/sd_ui_notification_colonized_01.m4a"
     - SoundEffect:
       Id: sd_ui_mouseover
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_mouseover.m4a"
     - SoundEffect:
       Id: sd_ui_notification_encounter
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_notification_encounter.m4a"
     - SoundEffect:
       Id: sd_ui_research_select
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_research_select.m4a"
     - SoundEffect:
       Id: sd_ui_notification_research_01
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_notification_research_01.m4a"
     - SoundEffect:
       Id: sd_ui_notification_startgame
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_notification_startgame.m4a"
     - SoundEffect:
       Id: sd_ui_notification_technology_bad
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_notification_technology_bad.m4a"
     - SoundEffect:
       Id: sd_ui_notification_warning
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_notification_warning.m4a"
     - SoundEffect:
       Id: sd_ui_notification_conquer_01
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_notification_conquer_01.m4a"
     - SoundEffect:
       Id: sd_ui_spy_fail_02
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_spy_fail_02.m4a"
     - SoundEffect:
       Id: sd_ui_spy_win_02
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_spy_win_02.m4a"
     - SoundEffect:
       Id: sd_ui_accept_alt3
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_ui_accept_alt3.m4a"
     - SoundEffect:
       Id: UI_Misc20
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/UI_Misc20.m4a"
 
     - SoundEffect:
       Id: alarm
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/alarm.m4a"
     - SoundEffect:
       Id: analogue_click2
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/analogue_click2.m4a"
     - SoundEffect:
       Id: blip_click
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/blip_click.m4a"
     - SoundEffect:
       Id: echo_affirm
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/echo_affirm.m4a"
     - SoundEffect:
       Id: echo_affirm1
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/echo_affirm1.m4a"
     - SoundEffect:
       Id: techy_affirm1
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/techy_affirm1.m4a"
     - SoundEffect:
       Id: Money
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/Money.m4a"
     - SoundEffect:
       Id: sd_trade_01
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_trade_01.m4a"
     - SoundEffect:
       Id: mouse_over4
@@ -319,7 +319,7 @@
       Sound: "UI/mouse_over4.m4a"
     - SoundEffect:
       Id: sd_notify_alert
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/sd_notify_alert.m4a"
     - SoundEffect:
       Id: short_whoosh1
@@ -333,7 +333,7 @@
       Sound: "UI/simple_beep.m4a"
     - SoundEffect:
       Id: smallservo
-      Volume: 1.0
+      Volume: 0.4
       Sound: "UI/smallservo.m4a"
     - SoundEffect:
       Id: sub_bass_mouseover
@@ -345,7 +345,7 @@
       Sound: "UI/sub_bass_whoosh.m4a"
     - SoundEffect:
       Id: xylophone_affirm1
-      Volume: 1.0
+      Volume: 0.5
       Sound: "UI/xylophone_affirm1.m4a"
 
 - Category: # Ground
