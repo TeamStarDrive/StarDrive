@@ -389,7 +389,7 @@ namespace Ship_Game
             }
 
             // else: we have selected some ships, delete old fleet
-            selectedFleet?.Reset(returnShipsToEmpireAI: true, clearOrders: false);
+            selectedFleet?.Reset(clearOrders: false);
 
             // create new fleet
             Fleet fleet = CreateNewFleet(index, SelectedShipList);

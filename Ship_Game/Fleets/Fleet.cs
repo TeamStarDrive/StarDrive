@@ -708,7 +708,7 @@ namespace Ship_Game.Fleets
                 Ship ship = Ships[i];
                 if (ship.DesignRole == RoleName.troop)
                 {
-                    RemoveShip(ship, returnToEmpireAI: true, clearOrders: true);
+                    RemoveShip(ship, clearOrders: true);
                 }
             }
         }
@@ -2247,12 +2247,9 @@ namespace Ship_Game.Fleets
         /// Removes the ship from this Fleet, performing error checks.
         /// If the ship does not belong to this fleet, its orders are not cleared nor returned to empire AI
         /// </summary>
-        /// <param name="returnToEmpireAI">
-        /// Whether the ship should be assigned to Empire's ShipPools
-        /// for new AI controlled assignments</param>
         /// <param name="clearOrders">Clear any standing orders?</param>
         /// <returns>TRUE if this ship was actually removed from this Fleet</returns>
-        public bool RemoveShip(Ship ship, bool returnToEmpireAI, bool clearOrders)
+        public bool RemoveShip(Ship ship, bool clearOrders)
         {
             if (ship == null)
             {
@@ -2296,9 +2293,9 @@ namespace Ship_Game.Fleets
         /// <summary>
         /// Resets this entire fleet by removing all ships and clearing fleet tasks & goals
         /// </summary>
-        public void Reset(bool returnShipsToEmpireAI = true, bool clearOrders = true)
+        public void Reset(bool clearOrders = true)
         {
-            RemoveAllShips(returnShipsToEmpireAI, clearOrders: clearOrders);
+            RemoveAllShips(clearOrders: clearOrders);
             Owner.AI?.RemoveFleetFromGoals(this);
             TaskStep = 0;
             FleetTask = null;
@@ -2308,12 +2305,12 @@ namespace Ship_Game.Fleets
         /// <summary>
         /// Removes all ships from this fleet, without resetting fleet goals
         /// </summary>
-        public void RemoveAllShips(bool returnShipsToEmpireAI, bool clearOrders)
+        public void RemoveAllShips(bool clearOrders)
         {
             while (Ships.Count > 0)
             {
                 var ship = Ships.PopLast();
-                RemoveShip(ship, returnToEmpireAI: returnShipsToEmpireAI, clearOrders: clearOrders);
+                RemoveShip(ship, clearOrders: clearOrders);
             }
         }
 
@@ -2443,12 +2440,12 @@ namespace Ship_Game.Fleets
 
                 if (!ship.Active)
                 {
-                    RemoveShip(ship, returnToEmpireAI: false, clearOrders: false);
+                    RemoveShip(ship, clearOrders: false);
                     continue;
                 }
                 if (ship.Fleet != this)
                 {
-                    RemoveShip(ship, returnToEmpireAI: true, clearOrders: true);
+                    RemoveShip(ship, clearOrders: true);
                     Log.Warning("Fleet.Update: Removing invalid ship: ship.Fleet != this");
                     continue;
                 }

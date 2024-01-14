@@ -217,7 +217,7 @@ namespace Ship_Game.Ships
         /// <param name="clearOrders">if true, AI orders are cleared upon successful removal</param>
         public void ClearFleet(bool returnToManagedPools, bool clearOrders)
         {
-            Fleet?.RemoveShip(this, returnToEmpireAI: returnToManagedPools, clearOrders: clearOrders);
+            Fleet?.RemoveShip(this, clearOrders: clearOrders);
         }
 
         public bool IsConstructor => ShipData.IsConstructor;

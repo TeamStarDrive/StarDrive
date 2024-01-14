@@ -151,7 +151,6 @@ namespace Ship_Game
         
         public void SetActiveModule(string moduleUID, ModuleOrientation moduleRot, int turretAngle, string hangarShipUID)
         {
-            GameAudio.SmallServo();
             SpawnActiveModule(moduleUID, moduleRot, turretAngle, hangarShipUID);
             HighlightedModule = null;
         }
@@ -256,7 +255,6 @@ namespace Ship_Game
             }
             ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
             OnDesignChanged();
-            GameAudio.SubBassWhoosh();
         }
 
         void StripModules()
@@ -369,11 +367,11 @@ namespace Ship_Game
 
             ModuleGrid.SaveDebugGrid();
 
-            OnDesignChanged(false);
+            OnDesignChanged(showRoleChangeTip: false, playSound: false);
             ResetActiveModule();
         }
 
-        public void OnDesignChanged(bool showRoleChangeTip = true)
+        public void OnDesignChanged(bool showRoleChangeTip = true, bool playSound = true)
         {
             var oldRole = Role;
             UpdateDesignedShip(forceUpdate:false);
@@ -383,8 +381,11 @@ namespace Ship_Game
 
             ShipSaved = false;
             BtnSaveAs.Text = Localizer.Token(HullEditMode || IsGoodDesign() || IsEmptyHull 
-                ? GameText.SaveAs 
+                ? GameText.SaveAs
                 : GameText.SaveWIP);
+
+            if (playSound)
+                GameAudio.SmallServo();
         }
 
         bool IsEmptyHull => CurrentDesign.UniqueModuleUIDs.Length == 0;

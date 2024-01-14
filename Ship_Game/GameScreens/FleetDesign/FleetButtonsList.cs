@@ -57,17 +57,28 @@ public class FleetButtonsList : UIList
 
     bool IsInputDisabled => (IsUniverse && Us.pieMenu.Visible);
 
-    static int InputFleetSelection(InputState input)
+    static int InputFleetSelection(InputState input, int screenHeight)
     {
-        if (input.Fleet1) return 1;
-        if (input.Fleet2) return 2;
-        if (input.Fleet3) return 3;
-        if (input.Fleet4) return 4;
-        if (input.Fleet5) return 5;
-        if (input.Fleet6) return 6;
-        if (input.Fleet7) return 7;
-        if (input.Fleet8) return 8;
-        if (input.Fleet9) return 9;
+        if (input.Fleet1)  return 1;
+        if (input.Fleet2)  return 2;
+        if (input.Fleet3)  return 3;
+        if (input.Fleet4)  return 4;
+        if (input.Fleet5)  return 5;
+        if (input.Fleet6)  return 6;
+        if (input.Fleet7)  return 7;
+        if (input.Fleet8)  return 8;
+        if (input.Fleet9)  return 9;
+
+        if (screenHeight >= 1024)
+        {
+            if (input.Fleet10) return 10;
+            if (input.Fleet11) return 11;
+            if (input.Fleet12) return 12;
+            if (input.Fleet13) return 13;
+            if (input.Fleet14) return 14;
+            if (input.Fleet15) return 15;
+        }
+
         return -1;
     }
 
@@ -79,7 +90,7 @@ public class FleetButtonsList : UIList
         foreach (FleetButton b in Buttons)
         {
             // always handle hotkeys, since they can be used to create new fleets
-            if (InputFleetSelection(input) == b.FleetKey)
+            if (InputFleetSelection(input, Us.ScreenHeight) == b.FleetKey)
             {
                 b.OnHotKey?.Invoke(b);
                 return true;
