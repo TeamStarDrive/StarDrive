@@ -271,7 +271,6 @@ namespace Ship_Game
             ResetLighting(forceReset: false);
 
             HandleEdgeDetection(input);
-
             UpdateVisibleShields();
 
             if (HandleDragAORect(input))
