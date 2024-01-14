@@ -21,7 +21,7 @@ public sealed partial class Empire
     public const int FirstFleetKey = 1;
 
     // The last player-addressable key, but AI is not limited by this
-    public const int LastFleetKey = 9;
+    public const int LastFleetKey = 15;
 
     // Refactored how fleets are stored, now only valid fleets exist in this list
     // This list is no longer sorted by Fleet.Key

@@ -280,8 +280,8 @@ namespace Ship_Game
         {
             FleetDesign data = YamlParser.Deserialize<FleetDesign>(file);
             RemoveSceneObjects(SelectedFleet);
-
-            SelectedFleet.Reset(returnShipsToEmpireAI: true, clearOrders: true);
+            int currentFleetKey = SelectedFleet.Key;
+            SelectedFleet.Reset(clearOrders: true);
             SelectedFleet.DataNodes.Clear();
             ClickableNodes.Clear();
             SelectedFleet.AllFlanks.ForEach(f => f.Clear());
@@ -292,6 +292,7 @@ namespace Ship_Game
             {
                 SelectedFleet.DataNodes.Add(new FleetDataNode(node));
             }
+            SelectedFleet.Key = currentFleetKey;
         }
 
         public void ResetLists()
