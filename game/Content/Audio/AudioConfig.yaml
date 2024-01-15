@@ -608,10 +608,6 @@
       Volume: 0.25
       Sound: "Weapons/sd_weapon_vulcan_alt02_01.m4a"    
     - SoundEffect:
-      Id: sd_weapon_vulcan_alt02_01
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_vulcan_alt02_01.m4a"    
-    - SoundEffect:
       Id: sd_weapon_vulcan_alt03_03
       Volume: 0.25
       Sound: "Weapons/sd_weapon_vulcan_alt03_03.m4a"
