@@ -314,7 +314,6 @@ namespace Ship_Game
                 return;
 
             RemoveVisibleMesh();
-
             ShipDesign cloned = shipDesignTemplate.GetClone(shipDesignTemplate.Name);
             ModuleGrid = new DesignModuleGrid(this, cloned);
             CurrentDesign = cloned;
