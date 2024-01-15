@@ -603,6 +603,7 @@
     #   Id: sd_weapon_vulcan_spinloop_02
     #   Volume: 0.25
     #   Sound: "Weapons/sd_weapon_vulcan_spinloop_02.m4a"
+    
     - SoundEffect:
       Id: sd_weapon_vulcan_alt02_01
       Volume: 0.25
