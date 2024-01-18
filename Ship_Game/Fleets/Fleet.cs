@@ -1276,17 +1276,24 @@ namespace Ship_Game.Fleets
                     }
                     break;
                 case 3:// Waiting for AO change from RemnandDefendPortal Goal
+                    RetaskFleetIfNoPortals();
                     break;
                 case 4:
+                    if (RetaskFleetIfNoPortals())
+                        break;
+
                     CombatMoveToAO(task, 10_000);
                     TaskStep = 5;
                     break;
                 case 5:
-                    if (ArrivedAtCombatRally(FinalPosition))
+                    if (!RetaskFleetIfNoPortals() && ArrivedAtCombatRally(FinalPosition))
                         TaskStep = 6;
 
                     break;
                 case 6:
+                    if (RetaskFleetIfNoPortals())
+                        break;
+                    
                     Owner.Remnants.DisbandDefenseFleet(this);
                     FleetTask.EndTask();
                     break;
