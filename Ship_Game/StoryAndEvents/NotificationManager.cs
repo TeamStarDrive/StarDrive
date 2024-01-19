@@ -259,12 +259,16 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
-        public void AddEmpireDiedNotification(Empire thatDied)
+        public void AddEmpireDiedNotification(Empire thatDied, bool IsRemnant = false)
         {
+            string message = $"{thatDied.data.Traits.Name} {Localizer.Token(GameText.HasBeenDefeated)}";
+            if (IsRemnant)
+                message += $"\n{Localizer.Token(GameText.RemnantsDefeatedFleetsMayAttack)}";
+
             AddNotification(new Notification
             {
                 RelevantEmpire  = thatDied,
-                Message         = $"{thatDied.data.Traits.Name} {Localizer.Token(GameText.HasBeenDefeated)}",
+                Message         = message,
                 IconPath        = "NewUI/icon_planet_terran_01_mid",
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect

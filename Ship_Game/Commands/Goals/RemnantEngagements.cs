@@ -56,7 +56,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (!Remnants.GetPortals(out Ship[] portals))
             {
-                Owner.Universe.Notifications.AddEmpireDiedNotification(Owner);
+                Owner.Universe.Notifications.AddEmpireDiedNotification(Owner, IsRemnant: true);
                 return GoalStep.GoalFailed;
             }
 
