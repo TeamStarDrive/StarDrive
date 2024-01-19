@@ -73,7 +73,7 @@ namespace Ship_Game.Tools.Localization
                 {
                     db.AddModLocalizations(GetGameText("ENG", $"{modContent}\\Localization\\English\\GameText_EN.xml"));
                     db.AddModLocalizations(GetGameText("RUS", $"{modContent}\\Localization\\Russian\\GameText_RU.xml"));
-                    //db.AddModLocalizations(GetGameText("UKR", $"{modContent}\\Localization\\Russian\\GameText_UKR.xml"));
+                    db.AddModLocalizations(GetGameText("UKR", $"{modContent}\\Localization\\Ukrainian\\GameText_UKR.xml"));
                 }
                 db.FinalizeModLocalization();
                 db.ExportModYaml($"{modContent}\\GameText.yaml");

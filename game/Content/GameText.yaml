@@ -816,343 +816,415 @@ SpawnTimer:
  ENG: "Spawn Timer"
  RUS: "Перез.Ангара"
  SPA: "Tiempo para reaparición"
+ UKR: "Час спавну"
 Fighter:
  Id: 137
  ENG: "Fighter"
  RUS: "Истребитель"
  SPA: "Caza"
+ UKR: "Винищувач"
 Carrier:
  Id: 138
  ENG: "Carrier"
  RUS: "Носитель"
  SPA: "Portaaeronaves"
+ UKR: "Носій"
 Scout:
  Id: 139
  ENG: "Scout"
  RUS: "Разведчик"
  SPA: "Nave exploradora"
+ UKR: "Розвідник"
 Freighter:
  Id: 140
  ENG: "Freighter"
  RUS: "Транспорт"
  SPA: "Carguero"
+ UKR: "Торгівельне судно"
 Frigate:
  Id: 141
  ENG: "Frigate"
  RUS: "Фрегат"
  SPA: "Fragata"
+ UKR: "Фрегат"
 Troop:
  Id: 142
  ENG: "Troop"
  RUS: "Отряд"
  SPA: "Tropa"
+ UKR: "Фрегат"
 Construction:
  Id: 143
  ENG: "Construction"
  RUS: "Конструкция"
  SPA: "Construcción"
+ UKR: "Будівництво"
 Cruiser:
  Id: 144
  ENG: "Cruiser"
  RUS: "Крейсер"
  SPA: "Crucero"
+ UKR: "Крейсер"
 Capital:
  Id: 145
  ENG: "Capital"
  RUS: "Столица"
  SPA: "Capital"
+ UKR: "Столиця"
 Supply:
  Id: 146
  ENG: "Supply"
  RUS: "Снабжение"
  SPA: "Suministro"
+ UKR: "Постачання"
 Platform:
  Id: 147
  ENG: "Platform"
  RUS: "Платформа"
  SPA: "Plataforma"
+ UKR: "Платформа"
 Scrap:
  Id: 148
  ENG: "Scrap"
  RUS: "Утиль"
  SPA: "Desguace"
+ UKR: "Лом"
 CancelScrap:
  Id: 149
  ENG: "Cancel Scrap"
  RUS: "Отменить утилизацию"
  SPA: "Cancelar desguace"
+ UKR: "Відмінити "
 DeepSpace:
  Id: 150
  ENG: "Deep Space"
  RUS: "Глубокий космос"
  SPA: "Espacio profundo"
+ UKR: "Глибокий космос"
 Upkeep:
  Id: 151
  ENG: "Upkeep"
  RUS: "Содержание"
  SPA: "Mantenimiento"
+ UKR: "Утримання"
 UpkeepCost:
  ENG: "Upkeep Cost"
+ UKR: "вартість утримання"
 TotalModuleSlots:
  ENG: "Total Module Slots"
+ UKR: "Загальна кількість слотів"
 ExcessWpnPwrDrain:
  ENG: "Excess Wpn Pwr Drain"
+ UKR: "Надлишкова витр. енерг."
 WpnFirePowerTime:
  ENG: "Wpn Fire Power Time"
+ UKR: "Час безперервної стрільби"
 BurstWpnPwrDrain:
  ENG: "Burst Wpn Pwr Drain"
+ UKR: "спожив. енерг. збр."
 BurstWpnPwrTime:
  ENG: "Burst Wpn Pwr Time"
+ UKR: "час підтр. енерг. постр."
 Kills:
  Id: 152
  ENG: "Kills"
  RUS: "Убийств"
  SPA: "Bajas"
+ UKR: "Вбивств"
 AwaitingOrders:
  Id: 153
  ENG: "Awaiting Orders"
  RUS: "Ожидает приказов"
  SPA: "Esperando órdenes"
+ UKR: "Очікуж наказів"
 Attacking:
  Id: 154
  ENG: "Attacking"
  RUS: "Атакует"
  SPA: "Atacando"
+ UKR: "Атакує"
 InCombat:
  Id: 155
  ENG: "In combat"
  RUS: "В бою"
  SPA: "En combate"
+ UKR: "В бою"
 SearchingForTargets:
  Id: 156
  ENG: "Searching for targets"
  RUS: "Идет поиск целей"
  SPA: "Buscando objetivos"
+ UKR: "Шукає цілі"
 Intercepting:
  Id: 157
  ENG: "Intercepting"
  RUS: "Перехват"
  SPA: "Interceptando"
+ UKR: "Перехоплює"
 InCombatWith:
  Id: 158
  ENG: "In combat with"
  RUS: "В бою с"
  SPA: "En combate con"
+ UKR: "В бою з"
 EnRouteTo:
  Id: 159
  ENG: "En Route to"
  RUS: "В пути до"
  SPA: "Rumbo a"
+ UKR: "На шляху до"
 PickingUp:
  Id: 160
  ENG: "Picking up"
  RUS: "Подбор"
  SPA: "Recogiendo"
+ UKR: "Збір"
 Food:
  Id: 161
  ENG: "Food"
  RUS: "Еда"
  SPA: "Alimentos"
+ UKR: "Їжа"
 Production:
  Id: 162
  ENG: "Production"
  RUS: "Промышленность"
  SPA: "Producción"
+ UKR: "Виробництво"
 Delivering:
  Id: 163
  ENG: "Delivering"
  RUS: "Доставка"
  SPA: "Enviando"
+ UKR: "Доставка"
 TradingGoods:
  Id: 164
  ENG: "Trading Goods"
  RUS: "Торговля"
  SPA: "Negociando bienes"
+ UKR: "Торгівля"
 SeekingRoute:
  Id: 165
  ENG: "Seeking route"
  RUS: "Поиск маршрута"
  SPA: "Buscando ruta"
+ UKR: "Пошук шляху"
 PickingUpColonists:
  Id: 166
  ENG: "Picking up Colonists"
  RUS: "Подбор колонистов"
  SPA: "Recogiendo colonos"
+ UKR: "Підбір колонистів"
 DeliveringColonists:
  Id: 167
  ENG: "Delivering Colonists"
  RUS: "Доставка колонистов"
  SPA: "Dejando colonos"
+ UKR: "Доставка колонистів"
 ColonistTransport:
  Id: 168
  ENG: "Colonist Transport"
  RUS: "Колониальный транспорт"
  SPA: "Transporte de colonos"
+ UKR: "Перевозка колонистів"
 EnRouteToColonize:
  Id: 169
  ENG: "En route to colonize"
  RUS: "Колонизирует"
  SPA: "Rumbo a colonizar"
+ UKR: "Колонізує"
 SystemDefenseDuty:
  Id: 170
  ENG: "System Defense Duty"
  RUS: "Оборона системы"
  SPA: "Servicio de defensa de sistema"
+ UKR: "На захисті системи"
 UnderDirectPlayerControl:
  Id: 171
  ENG: "Under direct player control"
  RUS: "Под непосредственным контролем игрока"
  SPA: "Bajo control directo del jugador"
+ UKR: "Під керівництвом гравця"
 ResupplyingAt:
  Id: 172
  ENG: "Resupplying at"
  RUS: "Дозаправка в"
  SPA: "Reabasteciéndose en"
+ UKR: "Дозаправка на"
 ReturningToBaseForResupply:
  Id: 173
  ENG: "Returning to base for resupply"
  RUS: "Возврат для дозаправки"
  SPA: "Regresando a base para reabastecerse"
+ UKR: "Повернення на базу для дозаправки"
 ExploringTheGalaxy:
  Id: 174
  ENG: "Exploring the galaxy"
  RUS: "Исследование галактики"
  SPA: "Explorando la galaxia"
+ UKR: "Досліджує галактику"
 Bombarding:
  Id: 175
  ENG: "Bombarding"
  RUS: "Бомбардировка"
  SPA: "Bombardeando"
+ UKR: "Бомбардування"
 EnRouteToBombard:
  Id: 176
  ENG: "En route to bombard"
  RUS: "В пути к бомбометанию"
  SPA: "Rumbo a bombardear"
+ UKR: "На шляху до бомбардування"
 ExecutingBoardingAssaultAction:
  Id: 177
  ENG: "Executing boarding assault action"
  RUS: "Осуществление абордажа"
  SPA: "Ejecutando asalto de abordaje"
+ UKR: "Здійснює абордаж"
 TransferringTroops:
  Id: 178
  ENG: "Transferring Troops"
  RUS: "Смена базы"
  SPA: "Cambiando de base"
+ UKR: "Перекидання солдат"
 Escorting:
  Id: 179
  ENG: "Escorting"
  RUS: "Сопровождение"
  SPA: "Escoltando"
+ UKR: "Супровід"
 HoldingPosition:
  Id: 180
  ENG: "Holding Position"
  RUS: "Удержание позиции"
  SPA: "Manteniendo posición"
+ UKR: "Утримання позиції"
 ReturningToHangar:
  Id: 181
  ENG: "Returning to Hangar"
  RUS: "Возврат в ангар"
  SPA: "Regresando a hangar"
+ UKR: "Повернення до ангару"
 Orbiting:
  Id: 182
  ENG: "Orbiting"
  RUS: "На орбите"
  SPA: "Orbitando"
+ UKR: "На орбіті"
 AwaitingOrders2:
  Id: 183
  ENG: "Awaiting Orders"
  RUS: "Ожидает приказов"
  SPA: "Esperando órdenes"
+ UKR: "Очікує наказів"
 MovingToShipyardForRefit:
  Id: 184
  ENG: "Moving to shipyard for refit"
  RUS: "Отправить на верфь для модернизации"
  SPA: "Rumbo a astillero para reequiparse"
+ UKR: "Рухається на верф для переозброєння"
 FerryingOrdnance:
  Id: 185
  ENG: "Ferrying Ordnance"
  RUS: "Перевоз боеприпасов"
  SPA: "Trasladando munición"
+ UKR: "Переправка боєприпасів"
 ScrappingShip:
  Id: 186
  ENG: "Scrapping Ship"
  RUS: "Утилизация корабля"
  SPA: "Desguazando nave"
+ UKR: "Розбір корабля"
 MovingTo:
  Id: 187
  ENG: "Moving to"
  RUS: "Летит к"
  SPA: "Camino a"
+ UKR: "Рухається до"
 Deploy:
  Id: 188
  ENG: "deploy"
  RUS: "Разместить"
  SPA: "desplegarse"
+ UKR: "Розгорнути"
 DeepSpaceNear:
  Id: 189
  ENG: "Deep Space near"
  RUS: "Глубокий космос"
  SPA: "Espacio profundo cerca de"
+ UKR: "Глибокий космос поруч"
 ShipArray:
  Id: 190
  ENG: "Ship Array"
  RUS: "Список кораблей"
  SPA: "Lista de naves"
+ UKR: "Список кораблів"
 PlayerDesignsOnly:
  Id: 191
  ENG: "Player Designs Only"
  RUS: "Скрыть платформы"
  SPA: "Ocultar plataformas"
+ UKR: "Лише дизайни гравця"
 System:
  Id: 192
  ENG: "System"
  RUS: "Система"
  SPA: "Sistema"
+ UKR: "Система"
 Ship:
  Id: 193
  ENG: "Ship"
  RUS: "Корабль"
  SPA: "Nave"
+ UKR: "Корабель"
 Role:
  Id: 194
  ENG: "Role"
  RUS: "Роль"
  SPA: "Rol"
+ UKR: "Роль"
 Orders:
  Id: 195
  ENG: "Orders"
  RUS: "Приказы"
  SPA: "Órdenes"
+ UKR: "Накази"
 RefitScrap:
  Id: 196
  ENG: "Refit / Scrap"
  RUS: "Модерн./Утиль"
  SPA: "Reequipar/Desguazar"
+ UKR: "Переозбр / Розбір"
 Statistics:
  Id: 197
  ENG: "Statistics"
  RUS: "Статистика"
  SPA: "Estadísticas"
+ UKR: "Статистика"
 AvailableDesigns:
  Id: 198
  ENG: "Available Designs"
  RUS: "Доступные дизайны"
  SPA: "Diseños disponibles"
+ UKR: "Доступні дизайні"
 ChooseAShipToLoad:
  Id: 199
  ENG: "Choose a Ship to Load"
  RUS: "Выберите корабль для загрузки"
  SPA: "Elegir una nave para cargar"
+ UKR: "Оберіть корабель для завантаження"
 ShipWillMakeHeadonAttack:
  Id: 200
  ENG: "Attack Runs: \n\nShip will make head-on attack runs on its target"
  RUS: "Корабль атакует цель в лоб"
  SPA: "La nave hará pasadas de ataque frontal sobre su objetivo"
+ UKR: "Атака в лоб: \n\Корабель здійснить лобову атаку на свою ціль"
 ShipWillRotateSoThat:
  Id: 201
  ENG: "Maximum Range: \n\nShip will rotate so that forward-firing weapons are facing its target. \nIf in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within maximum weapons range. \nIf a carrier the ship will use the Carrier Hangar range."
  RUS: "Корабль будет разворачиваться таким образом, чтобы носовые оружия смотрели на цель. В составе флота корабль будет пытаться сохранять построение.В остальных случаях корабль будет маневрировать на максимальной дистанции стрельбы"
  SPA: "La nave girará de modo que las armas frontales sigan apuntando al objetivo. Si está en una flota, intentará mantener la formación. Si no lo está, maniobrará para que el radio de alcance de las armas sea el máximo"
+ UKR: "Максимальна дальність: \n\nКорабель буде обертатись щоб фронтальна зброя була направлена на ціль \n Якщо у флоті, буде підтримувати формацію. Якщо ж ні - буде маневрувати на максимальній дальності зброїю \nЯкщо носій - корабель буде використовувати дальність ангарів"
 ShipWillManeuverToKeep:
  Id: 202
  ENG: "Ship will maneuver to keep its target on the port side"
