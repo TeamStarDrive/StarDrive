@@ -658,6 +658,7 @@ namespace Ship_Game
         {
             if (CurrentMusic != musicName || Music.IsStopped)
             {
+                GameAudio.ConfigureAudioSettings(GlobalStats.MusicVolume, GlobalStats.EffectsVolume);
                 StopMusic();
                 CurrentMusic = musicName;
                 Music = GameAudio.PlayMusic(musicName);
