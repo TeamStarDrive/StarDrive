@@ -51,7 +51,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     var task = MilitaryTask.CreateRemnantDefendPortal(Owner, Portal);
                     Owner.AI.AddPendingTask(task);
-                    task.CreateRemnantFleet(Owner, ship, $"Ancient Fleet", out Fleet);
+                    task.CreateRemnantFleet(Owner, ship, $"Ancient Defense Fleet", out Fleet);
                     continue;
                 }
 
@@ -72,7 +72,7 @@ namespace Ship_Game.Commands.Goals
         }
         GoalStep ManageCombat()
         {
-            if (Fleet.Ships.Count == 0)
+            if (Fleet == null || Fleet.Ships.Count == 0 || Remnants.NoPortals)
                 return GoalStep.GoalFailed; // fleet is dead
 
 
