@@ -20,6 +20,7 @@ public class RemnantsDebug : DebugPage
 
         Empire e = Universe.Remnants;
         Text.SetCursor(Parent.Win.X + 10 + 255, Parent.Win.Y + 250, e.EmpireColor);
+        Text.String($"Difficulty: {e.Universe.P.Difficulty}");
         Text.String($"Remnant Story: {e.Remnants.Story}");
         Text.String(!e.Remnants.Activated
             ? $"Trigger Progress: {e.Remnants.StoryTriggerKillsXp}/{e.Remnants.ActivationXpNeeded.String()}"

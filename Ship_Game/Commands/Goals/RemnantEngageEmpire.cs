@@ -124,7 +124,7 @@ namespace Ship_Game.Commands.Goals
             if (Remnants.RerouteGoalPortals(out Ship newPortal))
                 Portal = newPortal;
 
-            return Portal != null;
+            return Portal != null && Portal.Active;
         }
 
         GoalStep SelectFirstTargetPlanet()

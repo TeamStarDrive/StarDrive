@@ -12,7 +12,6 @@ using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Utils;
-using System.Collections.Generic;
 #pragma warning disable CA1065
 
 namespace Ship_Game
@@ -89,6 +88,8 @@ namespace Ship_Game
         public float ProductionLimit => 300 * Level * Level * ((int)Universe.P.Difficulty + 1);  // Level 20 - 480K 
         public float MaxDefenseProduction => ProductionLimit * (1 + (int)Universe.P.Difficulty);
         public float ExpansionRisk => 0; // Might change this based on future story
+        public bool NoPortals => !GetPortals(out _);
+
         public float BorderRisk(Empire empire)
         {
             if (!Activated || Owner.IsDefeated || !GetPortals(out Ship[] portals))
@@ -295,14 +296,19 @@ namespace Ship_Game
                     {
                         Ship portal = Owner.Random.Item(remnantPortals);
                         int saturation = (5 - (int)Universe.P.Difficulty).LowerBound(2);
+                        int behomothChance = (int)Universe.P.Difficulty * 25;
                         var planets = Universe.Player.GetPlanets();
                         for (int i = 0; i < planets.Count; i++)
                         {
+                            RemnantShipType shipType = Owner.Random.RollDice(behomothChance)
+                                ? RemnantShipType.Behemoth
+                                : RemnantShipType.Exterminator;
+
                             Planet targetPlanet = planets[i];
                             if (i % saturation == 0 
-                                && SpawnShip(RemnantShipType.Exterminator, portal.Position, out Ship exterminator))
+                                && SpawnShip(shipType, portal.Position, out Ship remnantShip))
                             {
-                                exterminator.OrderToOrbit(targetPlanet, true);
+                                remnantShip.OrderToOrbit(targetPlanet, true);
                             }
                         }
                     }
@@ -351,6 +357,15 @@ namespace Ship_Game
             }
 
             return target != null;
+        }
+
+        public Planet GetTargetPlanetForFleetTaskWhenNoPortals(Vector2 fleetPos)
+        {
+            Empire targetEmpire = Owner.Remnants.FocusOnEmpire?.IsDefeated == true
+                ? Owner.Remnants.FocusOnEmpire
+                : Owner.Universe.Player;
+
+            return targetEmpire.GetPlanets().FindMin(p => p.Position.SqDist(fleetPos));
         }
 
         public bool TargetEmpireStillValid(Empire currentTarget, Ship portal, bool checkOnlyDefeated = false)
@@ -895,7 +910,7 @@ namespace Ship_Game
         {
             if (Hibernating)
             {
-                HibernationTurns -= 1;
+                HibernationTurns -= 1; // FB - there is a bug here that multiple portal will end hibernation faster
                 amount *= 0.2f;
             }
 

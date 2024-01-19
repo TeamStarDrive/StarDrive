@@ -4662,6 +4662,8 @@ namespace Ship_Game
         ResearchMultiLevelTech = 4517,
         /// <summary>This Technology unlocks more than 4 items</summary>
         ResearchUnlocksMoreThanFourItems = 4518,
+        /// <summary>However, remaining Remnant fleets in this sector</summary>
+        RemnantsDefeatedFleetsMayAttack = 4519,
 
 
 

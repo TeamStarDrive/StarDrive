@@ -1806,7 +1806,9 @@ namespace Ship_Game
                     if (allEmpiresDead)
                     {
                         Empire remnants = Universe.Remnants;
-                        if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.IsDefeated || !remnants.Remnants.Activated)
+                        if (remnants.Remnants.Story == Remnants.RemnantStory.None 
+                            || remnants.Remnants.NoPortals 
+                            || !remnants.Remnants.Activated)
                         {
                             Universe.Screen.OnPlayerWon();
                         }

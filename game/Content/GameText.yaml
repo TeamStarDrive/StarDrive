@@ -10666,6 +10666,9 @@ ResearchMultiLevelTech:
 ResearchUnlocksMoreThanFourItems:
  Id: 4518
  ENG: "This Technology unlocks more than 4 items. Right Click on the title to Expand"
+RemnantsDefeatedFleetsMayAttack:
+ Id: 4519
+ ENG: "However, remaining Remnant fleets in this sector might still\npose an active threat until destroyed." 
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"

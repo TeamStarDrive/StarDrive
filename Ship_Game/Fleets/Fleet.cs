@@ -12,6 +12,8 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.Universe;
+using Microsoft.Xna.Framework;
+using System.Threading.Tasks;
 
 namespace Ship_Game.Fleets
 {
@@ -754,6 +756,17 @@ namespace Ship_Game.Fleets
             owner.AI.AddPendingTask(strikeFleet);
         }
 
+        public static void CreateRemnantEngagementFromPortalDefenseFleet(Fleet fleet, MilitaryTask task, Empire owner)
+        {
+            task.FlagFleetNeededForAnotherTask();
+            fleet.TaskStep = 1;
+            var remnantEngagement = MilitaryTask.CreateRemnantEngagement(task.TargetPlanet, owner);
+            fleet.Name = $"Ancient Extermination Fleet";
+            fleet.FleetTask = remnantEngagement;
+            owner.AI.QueueForRemoval(task);
+            owner.AI.AddPendingTask(remnantEngagement);
+        }
+
         bool ShouldGatherAtRallyFirst(MilitaryTask task)
         {
             Vector2 enemySystemPos = task.TargetSystem?.Position ?? task.TargetPlanet.System.Position;
@@ -1216,28 +1229,45 @@ namespace Ship_Game.Fleets
                     TaskStep = 9;  // Tasks steps below 9 are a signal that the remnant fleet still on target (GetRemnantEngagementsGoalsFor)
                     break;
                 case 9:
-                    if (!ArrivedAtCombatRally(FinalPosition, radiusMultiplier: 10))
-                        break;
+                    // Find other targets automatically for this fleet since Remnant were defeated.
+                    // Fight till death
+                    if (Owner.Remnants.NoPortals)
+                    {
+                        Name = $"Ancient Extermination Fleet";
+                        task.SetTargetPlanet(Owner.Remnants.GetTargetPlanetForFleetTaskWhenNoPortals(AveragePos));
+                        task.ChangeAO(task.TargetPlanet.Position);
+                        TaskStep = 1;
+                    }
 
-                    TaskStep = 10; // Goal will wait for fleet to be in this task to disband it.
+                    if (ArrivedAtCombatRally(FinalPosition, radiusMultiplier: 10))
+                        TaskStep = 10;
+
+                    break;
+                case 10: // Goal will wait for fleet to be in this task to disband it.
+                    if (Owner.Remnants.NoPortals)
+                        TaskStep = 9;
+
                     break;
             }
         }
 
         void DoRemnantPortalDefense(MilitaryTask task)
         {
+            if (RetaskFleetIfNoPortals())
+                return;
+
             switch (TaskStep)
             {
                 case 1:
-                    if (task.TargetShip == null)
-                        CombatMoveToAO(task, 10_000);
-                    else 
+                    if (task.TargetShip?.Active == true)
                         FleetMoveToPosition(task.TargetShip.Position, 20_000, MoveOrder.Aggressive);
+                    else 
+                        CombatMoveToAO(task, 10_000);
 
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (task.TargetShip == null || AveragePos.Distance(task.TargetShip.Position) < 50_000)
+                    if (task.TargetShip?.Active == true ||  AveragePos.Distance(task.TargetShip.Position) < 50_000)
                     {
                         if (AttackEnemyStrengthClumpsInAO(task))
                             break;
@@ -1252,15 +1282,28 @@ namespace Ship_Game.Fleets
                     TaskStep = 5;
                     break;
                 case 5:
-                    if (!ArrivedAtCombatRally(FinalPosition))
-                        break;
-                    TaskStep = 6;
+                    if (ArrivedAtCombatRally(FinalPosition))
+                        TaskStep = 6;
+
                     break;
                 case 6:
                     Owner.Remnants.DisbandDefenseFleet(this);
                     FleetTask.EndTask();
                     break;
+            }
 
+            bool RetaskFleetIfNoPortals()
+            {
+                if (Owner.Remnants.NoPortals)
+                {
+                    Name = $"Ancient Extermination Fleet";
+                    task.SetTargetPlanet(Owner.Remnants.GetTargetPlanetForFleetTaskWhenNoPortals(AveragePos));
+                    task.ChangeAO(task.TargetPlanet.Position);
+                    CreateRemnantEngagementFromPortalDefenseFleet(this, task, Owner);
+                    return true;
+                }
+
+                return false;
             }
         }
 
