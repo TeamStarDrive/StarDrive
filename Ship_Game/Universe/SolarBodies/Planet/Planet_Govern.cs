@@ -2,6 +2,8 @@
 using Ship_Game.AI.Budget;
 using System.Linq;
 using SDUtils;
+using Ship_Game.Data.Serialization;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -13,6 +15,10 @@ namespace Ship_Game
         public float CurrentProductionToQueue => Prod.NetIncome + InfraStructure;
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / (IsCybernetic ? 2 : 3)).LowerBound(0.1f);
         float EstimatedAverageFood => (Food.NetMaxPotential / 3).LowerBound(0.1f);
+
+        [StarData] ColonyBlueprints Blueprints;
+
+        bool HasBlueprints => Blueprints != null;
 
         public void DoGoverning()
         {

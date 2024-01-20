@@ -514,6 +514,7 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         // Make sure Governors prioritize buildings again after a new relevant building was unlocked
+        // TODO - adjust this for ColonyBlueprints
         public void RemoveGovernorQueuedBuildingsTechnUnlock()
         {
             if (P.GovernorOff)

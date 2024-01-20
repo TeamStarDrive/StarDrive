@@ -49,6 +49,7 @@ public partial class Planet
     public void RefreshBuildingsWeCanBuildHere()
     {
         BuildingsCanBuild = GetBuildingsWeCanBuildHere();
+        Blueprints?.RefreshPlannedBuildingsWeCanBuild(BuildingsCanBuild);
     }
 
     public bool IsBuiltOrQueuedWithinEmpire(Building b)
@@ -376,7 +377,9 @@ public partial class Planet
 
         if (b.SensorRange > 0 && Owner != null)
             Owner.ForceUpdateSensorRadiuses = true;
+
         b.UpdateOffense(this);
+        Blueprints?.UpdateCompletion();
     }
 
     void UpdatePlanetStatsFromRemovedBuilding(Building b)
@@ -406,6 +409,7 @@ public partial class Planet
         // environment buildings can be scrapped and the planet will slowly recover
         BuildingsFertility -= b.MaxFertilityOnBuild;
         MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
+        Blueprints?.UpdateCompletion();
     }
 
     // path where full recalculation is done
