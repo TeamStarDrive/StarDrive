@@ -14,19 +14,25 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly string Name;
         [StarData] readonly Empire Owner;
         [StarData] readonly Planet P;
+        [StarData] readonly string LinkedBlueprintName = ""; // Switch to the linked blueprints when this is completed
+        [StarData] public readonly bool Exclusive; // Build only these buildings and remove the rest
         [StarData] readonly HashSet<string> PlannedBuildings;
-        [StarData] public HashSet<string> PlannedBuildingsWeCanBuild { get; private set; }
+        [StarData] public Array<Building> PlannedBuildingsWeCanBuild { get; private set; }
         [StarData] int PercentCompleted;
 
         public bool Completed => PercentCompleted == 100;
+        public bool IsRequired(Building b) => PlannedBuildings.Contains(b.Name);
 
-        public ColonyBlueprints(string name, Empire owner, Planet planet, HashSet<string> plannedBuildings)
+        public ColonyBlueprints(string name, Empire owner, Planet planet,
+            HashSet<string> plannedBuildings, string linkedBlueprintName, bool exclusive)
         {
             Name = name;
             Owner = owner;
             P = planet;
             PlannedBuildings = plannedBuildings;
             UpdateCompletion();
+            LinkedBlueprintName = linkedBlueprintName;
+            Exclusive = exclusive;
         }
 
         public void UpdateCompletion()
@@ -48,7 +54,7 @@ namespace Ship_Game.Universe.SolarBodies
             PercentCompleted = (int)(completion * 100);
         }
 
-        public void RefreshPlannedBuildingsWeCanBuild(Array<Building> buildingCanBuild)
+        public void RefreshPlannedBuildingsWeCanBuild(IReadOnlyList<Building> buildingCanBuild)
         {
             PlannedBuildingsWeCanBuild.Clear();
             if (!P.HasOutpost && !P.HasCapital)
@@ -58,8 +64,15 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 Building building = buildingCanBuild[i];
                 if (PlannedBuildings.Contains(building.Name))
-                    PlannedBuildingsWeCanBuild.Add(building.Name);
+                    PlannedBuildingsWeCanBuild.Add(building);
             }
         }
+
+        public bool BuildingSuitableForScrap(Building b)
+        {
+            return Exclusive && Completed && !IsRequired(b);
+        }
+
+        public bool IsNotRequired(Building b) => !IsRequired(b);
     }
 }

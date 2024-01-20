@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using SDGraphics;
@@ -305,13 +306,13 @@ namespace Ship_Game
             if (CivilianBuildingInTheWorks)
                 return false;
 
-            ChooseBestBuilding(BuildingsCanBuild, budget, replacing: false, out Building bestBuilding);
+            ChooseBestBuilding(GetBuildingsListToChooseFrom(BuildingsCanBuild), budget, replacing: false, out Building bestBuilding);
             return bestBuilding != null && Construction.Enqueue(bestBuilding);
         }
 
         bool TryScrapBuilding(bool scrapZeroMaintenance = false, bool terraformerOverride = false)
         {
-            if (GovernorShouldNotScrapBuilding && !terraformerOverride)
+            if (GovernorShouldNotScrapBuilding && Blueprints?.Exclusive == false && !terraformerOverride)
                 return false;  // Player decided not to allow governors to scrap buildings and not terraform related
 
             ChooseWorstBuilding(scrapZeroMaintenance, false, out Building toScrap);
@@ -335,7 +336,9 @@ namespace Ship_Game
                 return;
 
             float replacementBudget = budget + worstBuilding.ActualMaintenance(this);
-            float bestBuildingScore = ChooseBestBuilding(BuildingsCanBuild, replacementBudget, replacing: true, out Building bestBuilding);
+            float bestBuildingScore = ChooseBestBuilding(GetBuildingsListToChooseFrom(BuildingsCanBuild), 
+                replacementBudget, replacing: true, out Building bestBuilding);
+
             if (bestBuilding == null)
                 return;
 
@@ -366,7 +369,10 @@ namespace Ship_Game
                     return true;
                 }
 
-                if (qi.IsCivilianBuilding && !qi.Building.IsTerraformer && qi.Building.ActualMaintenance(this) > budget)
+                if (qi.IsCivilianBuilding 
+                    && !qi.Building.IsTerraformer 
+                    && !RequiredInBlueprints(qi.Building) 
+                    && qi.Building.ActualMaintenance(this) > budget)
                 {
                     Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} CANCELED {qi.Building.Name}" +
                         $" on planet {Name} since maint. ({qi.Building.ActualMaintenance(this)}) was higher than budget ({budget})");
@@ -378,7 +384,7 @@ namespace Ship_Game
             return false;
         }
 
-        float ChooseBestBuilding(Array<Building> buildings, float budget, bool replacing, out Building best)
+        float ChooseBestBuilding(IReadOnlyList<Building> buildings, float budget, bool replacing, out Building best)
         {
             best = null;
             if (buildings.Count == 0)
@@ -394,7 +400,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (SuitableForBuild(b, budget))
+                if (SuitableForBuild(b, budget, buildings))
                 {
                     float buildingScore = EvaluateBuilding(b, totalProd, !replacing);
                     if (buildingScore > highestScore)
@@ -445,7 +451,7 @@ namespace Ship_Game
             return lowestScore;
         }
 
-        bool SuitableForBuild(Building b, float budget)
+        bool SuitableForBuild(Building b, float budget, IReadOnlyList<Building> buildingsCanBuild)
         {
             if (b.IsMilitary
                 || b.IsTerraformer
@@ -454,7 +460,7 @@ namespace Ship_Game
                 || !OwnerIsPlayer && b.BuildOnlyOnce && Level < (int)DevelopmentLevel.MegaWorld
                 // If starving and dont have low prod potential and this building does not produce
                 // food while we have food buildings available for build, filter it
-                || NonCybernetic && IsStarving && !LowProdPotential && !b.ProducesFood && BuildingsCanBuild.Any(f => f.ProducesFood))
+                || NonCybernetic && IsStarving && !LowProdPotential && !b.ProducesFood && buildingsCanBuild.Any(f => f.ProducesFood))
             {
                 return false;
             }
@@ -472,7 +478,8 @@ namespace Ship_Game
                 || b.IsMilitary
                 || b.BuildOnlyOnce
                 || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
-                || !WillMaintainPositiveFoodOutput(b) 
+                || !WillMaintainPositiveFoodOutput(b)
+                || HasBlueprints && !Blueprints.BuildingSuitableForScrap(b)
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
                 || !IsBuildingOnHabitableTile(b) && replacing)  // Dont allow buildings on non habitable tiles to be scrapped when replacing
             {
@@ -535,7 +542,7 @@ namespace Ship_Game
         float EvaluateBuilding(Building b, float totalProd, bool chooseBest)
         {
             float score = 0;
-            if (IsLimitedByPerCol(b))
+            if (IsLimitedByPerCol(b) && (!HasBlueprints || Blueprints.IsNotRequired(b)))
             {
                 if (chooseBest && IsPlanetExtraDebugTarget())
                 {

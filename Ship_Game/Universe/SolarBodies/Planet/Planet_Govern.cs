@@ -4,6 +4,7 @@ using System.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe.SolarBodies;
+using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -16,9 +17,12 @@ namespace Ship_Game
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / (IsCybernetic ? 2 : 3)).LowerBound(0.1f);
         float EstimatedAverageFood => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
-        [StarData] ColonyBlueprints Blueprints;
+        [StarData] public ColonyBlueprints Blueprints {get; private set;}
 
         bool HasBlueprints => Blueprints != null;
+        bool RequiredInBlueprints(Building b) => Blueprints?.IsRequired(b) == true;
+
+
 
         public void DoGoverning()
         {
@@ -123,9 +127,6 @@ namespace Ship_Game
         //New Build Logic by Gretman, modified by Fat Bastard
         void BuildAndScrapBuildings(PlanetBudget colonyBudget)
         {
-            if (RecentCombat)
-                return; // Do not build or scrap when in combat
-
             BuildAndScrapCivilianBuildings(colonyBudget.RemainingCivilian);
             BuildAndScrapMilitaryBuildings(colonyBudget.RemainingGroundDef);
         }
@@ -211,14 +212,26 @@ namespace Ship_Game
             Budget.Update();
         }
 
-        public bool BestCivilianBuildingToBuildDifferentThen(Building queuedBuilding)
+        public bool BestCivilianBuildingToBuildDifferentThen(IReadOnlyList<Building> buildings, Building queuedBuilding)
         {
             CreateAndOrUpdateBudget();
-            Array<Building> buildings = GetBuildingsWeCanBuildHere();
-            buildings.Add(queuedBuilding);
+            Array<Building> updatedBuildings = GetBuildingsListToChooseFrom(buildings).ToArrayList();
+            updatedBuildings.Add(queuedBuilding);
             float civilianBudget = Budget.RemainingCivilian + queuedBuilding.ActualMaintenance(this);
-            ChooseBestBuilding(buildings, civilianBudget, replacing: false, out Building bestBuilding);
+            ChooseBestBuilding(updatedBuildings, civilianBudget, replacing: false, out Building bestBuilding);
             return bestBuilding != null && bestBuilding.Name != queuedBuilding.Name;
+        }
+
+        IReadOnlyList<Building> GetBuildingsListToChooseFrom(IReadOnlyList<Building> buildingsCanBuild)
+        {
+            return HasBlueprints && (Blueprints.Exclusive || !Blueprints.Completed)
+                ? Blueprints.PlannedBuildingsWeCanBuild
+                : buildingsCanBuild;
+        }
+
+        public void RemoveBlueprints()
+        {
+            Blueprints = null;
         }
     }
 }

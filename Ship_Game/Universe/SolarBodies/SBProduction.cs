@@ -520,13 +520,14 @@ namespace Ship_Game.Universe.SolarBodies
             if (P.GovernorOff)
                 return;
 
+            bool hasExclusiveBlueprints = P.Blueprints?.Exclusive == true;
             for (int i = ConstructionQueue.Count - 1; i >= 0; --i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.IsCivilianBuilding 
-                    && !q.IsPlayerAdded 
+                    && (!q.IsPlayerAdded || hasExclusiveBlueprints)
                     && q.ProductionSpent < q.ProductionNeeded * 0.95f
-                    && P.BestCivilianBuildingToBuildDifferentThen(q.Building))
+                    && P.BestCivilianBuildingToBuildDifferentThen(P.GetBuildingsCanBuild(), q.Building))
                 {
                     lock (ConstructionQueue)
                         ConstructionQueue.Remove(q);
