@@ -379,7 +379,21 @@ public partial class Planet
             Owner.ForceUpdateSensorRadiuses = true;
 
         b.UpdateOffense(this);
-        Blueprints?.UpdateCompletion();
+        UpdateBlueprintsCompletionAndChangeBlueplans();
+    }
+
+    public void UpdateBlueprintsCompletionAndChangeBlueplans()
+    {
+        if (HasBlueprints)
+        {
+            Blueprints.UpdateCompletion();
+            if (Blueprints.Completed && Blueprints.LinkedBlueprintsName.NotEmpty()) 
+            {
+                // TODO - need to create the new linked blueprints
+                UpdateBlueprintsCompletionAndChangeBlueplans();
+                // need to verify non cyclic plan links
+            }
+        }
     }
 
     void UpdatePlanetStatsFromRemovedBuilding(Building b)
@@ -409,7 +423,7 @@ public partial class Planet
         // environment buildings can be scrapped and the planet will slowly recover
         BuildingsFertility -= b.MaxFertilityOnBuild;
         MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
-        Blueprints?.UpdateCompletion();
+        UpdateBlueprintsCompletionAndChangeBlueplans();
     }
 
     // path where full recalculation is done

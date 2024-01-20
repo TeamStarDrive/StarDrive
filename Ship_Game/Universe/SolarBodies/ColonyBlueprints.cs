@@ -14,14 +14,16 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly string Name;
         [StarData] readonly Empire Owner;
         [StarData] readonly Planet P;
-        [StarData] readonly string LinkedBlueprintName = ""; // Switch to the linked blueprints when this is completed
+        [StarData] public readonly string LinkedBlueprintsName = ""; // Switch to the linked blueprints when this is completed
         [StarData] public readonly bool Exclusive; // Build only these buildings and remove the rest
         [StarData] readonly HashSet<string> PlannedBuildings;
         [StarData] public Array<Building> PlannedBuildingsWeCanBuild { get; private set; }
         [StarData] int PercentCompleted;
 
         public bool Completed => PercentCompleted == 100;
+
         public bool IsRequired(Building b) => PlannedBuildings.Contains(b.Name);
+        public bool IsNotRequired(Building b) => !IsRequired(b);
 
         public ColonyBlueprints(string name, Empire owner, Planet planet,
             HashSet<string> plannedBuildings, string linkedBlueprintName, bool exclusive)
@@ -31,7 +33,7 @@ namespace Ship_Game.Universe.SolarBodies
             P = planet;
             PlannedBuildings = plannedBuildings;
             UpdateCompletion();
-            LinkedBlueprintName = linkedBlueprintName;
+            LinkedBlueprintsName = linkedBlueprintName;
             Exclusive = exclusive;
         }
 
@@ -73,6 +75,18 @@ namespace Ship_Game.Universe.SolarBodies
             return Exclusive && Completed && !IsRequired(b);
         }
 
-        public bool IsNotRequired(Building b) => !IsRequired(b);
+        public bool ShouldScrapNonRequiredBuilding()
+        {
+            if (Exclusive && (Completed || PlannedBuildings.Count > 0))
+            {
+                foreach (Building b in P.Buildings)
+                {
+                    if (b.IsSuitableForBlueprints && IsNotRequired(b))
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

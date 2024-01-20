@@ -128,6 +128,13 @@ namespace Ship_Game
         [XmlIgnore] private float DefenseShipStrength;
         [XmlIgnore] public float SpaceRange = 20000f;
 
+        [XmlIgnore] public bool IsSuitableForBlueprints => !IsCapitalOrOutpost
+            && !IsBiospheres
+            && !IsDynamicUpdate 
+            && !IsTerraformer
+            && Scrappable;
+
+
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
 

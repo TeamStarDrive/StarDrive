@@ -49,7 +49,7 @@ namespace Ship_Game
         void BuildAndScrapCivilianBuildings(float budget)
         {
             UpdateGovernorPriorities();
-            if (budget < -0.0499f)
+            if (budget < -0.0499f || Blueprints?.ShouldScrapNonRequiredBuilding() == true)
             {
                 TryScrapBuilding(); // We must scrap something to bring us above of our debt tolerance
             }
@@ -542,7 +542,9 @@ namespace Ship_Game
         float EvaluateBuilding(Building b, float totalProd, bool chooseBest)
         {
             float score = 0;
-            if (IsLimitedByPerCol(b) && (!HasBlueprints || Blueprints.IsNotRequired(b)))
+            if (IsLimitedByPerCol(b) 
+                && (!HasBlueprints ||
+                    b.IsSuitableForBlueprints && Blueprints.IsNotRequired(b)))
             {
                 if (chooseBest && IsPlanetExtraDebugTarget())
                 {
@@ -561,6 +563,16 @@ namespace Ship_Game
         float CalcBuildingScore(Building b, float totalProd, bool chooseBest)
         {
             float score = 0;
+            if (Blueprints?.Exclusive == true && b.IsSuitableForBlueprints && Blueprints.IsNotRequired(b))
+            {
+                if (IsPlanetExtraDebugTarget())
+                {
+                    Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-33}  {"SUITABLE",-10} " +
+                                                $"{score.SignString()} {"",3} {"Not required in exclusive blueprints",-13}");
+                }
+
+                return score;
+            }
 
             score += EvalTraits(Priorities[ColonyPriority.FoodFlat],        b.PlusFlatFoodAmount);
             score += EvalTraits(Priorities[ColonyPriority.FoodPerCol],      b.PlusFoodPerColonist * 3);
