@@ -12613,19 +12613,19 @@ IndicatesResistanceToArmourPiercing:
  SPA: "Indica la resistencia a los efectos de pentracion de blindaje, donde cada punto de resistencia significa -1 de pentetración a los proyeciles enemigos."
 IndicatesShieldBubblesResistanceTo:
  Id: 7066
- ENG: "Indicates shield bubble's resistance to kinetic weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that this Shield Resistance superecedes Explosive Shield Resistance."
- RUS: "Указывает на устойчивость пузыря щита к кинетическому урону оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что это сопротивление щита превосходит сопротивление взрывному щиту."
- SPA: "Indica la resistencia de la burbuja del escudo al daño kinetico. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que estas Resistencias de Escudo reemplazan a la Resistencia de Escudo Explosivo."
+ ENG: "Indicates shield bubble's resistance to kinetic weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that Explosive Shield Resistance supercedes this shield resistance."
+ RUS: "Указывает на устойчивость пузыря щита к кинетическому урону оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что сопротивление взрывному щиту превосходит это сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja del escudo al daño kinetico. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia del escudo explosivo reemplaza esta resistencia del escudo."
 IndicatesShieldBubblesResistanceTo2:
  Id: 7067
- ENG: "Indicates shield bubble's resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that this Shield Resistance superecedes Explosive Shield Resistance."
- RUS: "Указывает на устойчивость пузыря щита к урону энергетическим оружием, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что это сопротивление щита превосходит сопротивление взрывному щиту."
- SPA: "Indica la resistencia de la burbuja del escudo al daño de energia. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que estas Resistencias de Escudo reemplazan a la Resistencia de Escudo Explosivo."
+ ENG: "Indicates shield bubble's resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that Explosive Shield Resistance supercedes this shield resistance."
+ RUS: "Указывает на устойчивость пузыря щита к урону энергетическим оружием, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что сопротивление взрывному щиту превосходит это сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja del escudo al daño de energia. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia del escudo explosivo reemplaza esta resistencia del escudo."
 IndicatesShieldBubblesResistanceTo3:
  Id: 7068
- ENG: "Indicates shield bubble's resistance to explosive damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that other Shield Resistances superecede this resistance."
- RUS: "Указывает на устойчивость пузыря щита к взрывному урону, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что другие сопротивления щита превосходят это сопротивление."
- SPA: "Indica la resistencia de la burbuja del escudo al daño explosiva. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que otras resistencias de escudo reemplazan esta resistencia."
+ ENG: "Indicates shield bubble's resistance to explosive damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that this Shield Resistance superecedes any other Shield Resistance."
+ RUS: "Указывает на устойчивость пузыря щита к взрывному урону, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что это сопротивление щита превосходит любое другое сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja del escudo al daño explosiva. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que esta Resistencia de Escudo reemplaza cualquier otra Resistencia de Escudo."
 IndicatesShieldBubblesResistanceTo4:
  Id: 7069
  ENG: "Indicates shield bubble's resistance to missile weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
@@ -12638,9 +12638,9 @@ IndicatesShieldBubblesResistanceTo5:
  SPA: "Indica la resistencia de la burbuja del escudo al daño Flak. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
 IndicatesShieldBubblesResistanceTo6:
  Id: 7071
- ENG: "Indicates shield bubble's resistance to Plasma weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that this Shield Resistance superecedes Explosive Shield Resistance."
- RUS: "Указывает на сопротивление пузыря щита урону плазменного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что это сопротивление щита превосходит сопротивление взрывному щиту."
- SPA: "Indica la resistencia de la burbuja de escudo al daño del arma de plasma, donde el 100% es inmunidad total. Los porcentajes negativos significan que el escudo recibe daño adicional de esa fuente. Tenga en cuenta que estas Resistencias de Escudo reemplazan a la Resistencia de Escudo Explosivo."
+ ENG: "Indicates shield bubble's resistance to Plasma weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that Explosive Shield Resistance supercedes this shield resistance."
+ RUS: "Указывает на сопротивление пузыря щита урону плазменного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что сопротивление взрывному щиту превосходит это сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja de escudo al daño del arma de plasma, donde el 100% es inmunidad total. Los porcentajes negativos significan que el escudo recibe daño adicional de esa fuente. Tenga en cuenta que la resistencia del escudo explosivo reemplaza esta resistencia del escudo."
 IndicatesShieldBubblesResistanceTo7:
  Id: 7072
  ENG: "Indicates shield bubble's resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
@@ -12658,9 +12658,9 @@ IndicatesShieldBubblesResistanceTo9:
  SPA: "Indica la resistencia de la burbuja del escudo al daño de armas de desformación. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
 IndicatesShieldBubblesResistanceTo10:
  Id: 7075
- ENG: "Indicates shield bubble's resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that this Shield Resistance superecedes Explosive Shield Resistance."
- RUS: "Указывает на сопротивление пузыря щита урону лучевого оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что это сопротивление щита превосходит сопротивление взрывному щиту."
- SPA: "Indica la resistencia de la burbuja del escudo al daño de haz. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que estas Resistencias de Escudo reemplazan a la Resistencia de Escudo Explosivo."
+ ENG: "Indicates shield bubble's resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that Explosive Shield Resistance supercedes this shield resistance."
+ RUS: "Указывает на сопротивление пузыря щита урону лучевого оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что сопротивление взрывному щиту превосходит это сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja del escudo al daño de haz. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia del escudo explosivo reemplaza esta resistencia del escudo."
 IndicatesTheAmountOfEmp2:
  Id: 7076
  ENG: "Indicates the amount of EMP protection that this module adds to the vessel."
