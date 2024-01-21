@@ -31,9 +31,6 @@ namespace Ship_Game.Gameplay
         public bool Tag_Beam => T.Tag_Beam;
         public bool Tag_Intercept => T.Tag_Intercept;
         public bool Tag_Bomb => T.Tag_Bomb;
-        public bool Tag_SpaceBomb => T.Tag_SpaceBomb;
-        public bool Tag_BioWeapon => T.Tag_BioWeapon;
-        public bool Tag_Drone => T.Tag_Drone;
         public bool Tag_Torpedo => T.Tag_Torpedo;
         public bool Tag_Cannon => T.Tag_Cannon;
         public virtual bool Tag_PD => T.Tag_PD;

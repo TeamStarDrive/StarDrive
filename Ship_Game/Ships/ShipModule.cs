@@ -138,7 +138,6 @@ namespace Ship_Game.Ships
         public float ShieldKineticResist         => Flyweight.ShieldKineticResist;
         public float ShieldEnergyResist          => Flyweight.ShieldEnergyResist;
         public float ShieldExplosiveResist       => Flyweight.ShieldExplosiveResist;
-        public float ShieldMissileResist         => Flyweight.ShieldMissileResist;
         public float ShieldPlasmaResist          => Flyweight.ShieldPlasmaResist;
         public float ShieldBeamResist            => Flyweight.ShieldBeamResist;
         public float NumberOfColonists           => Flyweight.NumberOfColonists; // In Millions!
@@ -170,11 +169,9 @@ namespace Ship_Game.Ships
         public int TransporterTroopAssault       => Flyweight.TransporterTroopAssault;
         public float KineticResist               => Flyweight.KineticResist;
         public float EnergyResist                => Flyweight.EnergyResist;
-        public float MissileResist               => Flyweight.MissileResist;
         public float PlasmaResist                => Flyweight.PlasmaResist;
         public float BeamResist                  => Flyweight.BeamResist;
         public float ExplosiveResist             => Flyweight.ExplosiveResist;
-        public float TorpedoResist               => Flyweight.TorpedoResist;
         public float Deflection                  => Flyweight.Deflection;
         public int APResist                      => Flyweight.APResist;
         public bool AlwaysPowered                => Flyweight.IndirectPower;
@@ -1404,53 +1401,51 @@ namespace Ship_Game.Ships
 
             float def = 0f;
 
-            def += ActualMaxHealth / 200;
+            def += ActualMaxHealth * 0.005f; // Div 200
 
             // FB: Added Shield related calcs
             float shieldsMax = ActualShieldPowerMax;
             if (shieldsMax > 0)
             {
-                float shieldDef      = shieldsMax / 50;
+                float shieldDef      = shieldsMax * 0.02f; // div 50
                 float shieldCoverage = ((ShieldRadius + 8f) * (ShieldRadius + 8f) * 3.14159f) / 256f / slotCount;
 
                 shieldDef *= shieldCoverage < 1 ? shieldCoverage : 1f;
-                shieldDef *= 1 + ShieldKineticResist / 5;
-                shieldDef *= 1 + ShieldEnergyResist / 5;
-                shieldDef *= 1 + ShieldBeamResist / 5;
-                shieldDef *= 1 + ShieldMissileResist / 5;
-                shieldDef *= 1 + ShieldExplosiveResist / 5;
+                shieldDef *= 1 + ShieldKineticResist * 0.2f;
+                shieldDef *= 1 + ShieldEnergyResist * 0.2f;
+                shieldDef *= 1 + ShieldBeamResist * 0.2f;
+                shieldDef *= 1 + ShieldExplosiveResist * 0.2f;
+                shieldDef *= 1 + ShieldPlasmaResist * 0.2f;
 
-                shieldDef *= ShieldRechargeRate > 0 ? ShieldRechargeRate / (shieldsMax / 100) : 1f;
+                shieldDef *= ShieldRechargeRate > 0 ? ShieldRechargeRate / (shieldsMax * 0.01f) : 1f;
                 shieldDef *= ShieldRechargeDelay > 0 ? 1f / ShieldRechargeDelay : 1f;
-                shieldDef *= ShieldRechargeCombatRate > 0 ? 1 + ShieldRechargeCombatRate / (shieldsMax / 25) : 1f;
+                shieldDef *= ShieldRechargeCombatRate > 0 ? 1 + ShieldRechargeCombatRate / (shieldsMax * 0.04f) : 1f;
 
                 shieldDef *= 1 + ShieldDeflection / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
                 def       += shieldDef;
             }
 
-            // FB: all resists are divided by 5 since there are 5-6 weapon types
-            def *= 1 + BeamResist / 5;
-            def *= 1 + KineticResist / 5 ;
-            def *= 1 + EnergyResist / 5;
-            def *= 1 + MissileResist / 5;
-            def *= 1 + PlasmaResist / 5;
-            def *= 1 + ExplosiveResist / 5;
-            def *= 1 + TorpedoResist / 5;
+            // FB: All resists are divided by 5 since there are 5 weapon types
+            def *= 1 + BeamResist * 0.2f;
+            def *= 1 + KineticResist * 0.2f;
+            def *= 1 + EnergyResist * 0.2f;
+            def *= 1 + PlasmaResist * 0.2f;
+            def *= 1 + ExplosiveResist * 0.2f;
 
-            def *= 1 + Deflection / 100f;
-            def *= ModuleType == ShipModuleType.Armor ? 1 + APResist / 2 : 1f;
+            def *= 1 + Deflection * 0.01f;
+            def *= ModuleType == ShipModuleType.Armor ? 1 + APResist * 0.5f : 1f;
 
             def += ECM;
-            def *= 1 + EMPProtection / 500;
+            def *= 1 + EMPProtection * 0.002f; // div 500
 
             // Engines
             def += (TurnThrust + WarpThrust + Thrust) / 15000f;
 
-            def += ActualPowerFlowMax / 50;
-            def += PowerStoreMax / 500;
+            def += ActualPowerFlowMax * 0.02f; // div 50
+            def += PowerStoreMax * 0.002f; // div 500
             def += TroopCapacity * 50;
-            def += ActualBonusRepairRate / 2f;
-            def += AmplifyShields / 20f;
+            def += ActualBonusRepairRate * 0.5f;
+            def += AmplifyShields * 0.05f; // div 20
             def += Regenerate / (10 * RepairDifficulty).LowerBound(0.1f);
 
             return def;
