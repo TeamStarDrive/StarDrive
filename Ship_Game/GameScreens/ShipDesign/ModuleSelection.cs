@@ -274,9 +274,6 @@ namespace Ship_Game
                 if (t.Tag_Beam)      sb.Append("BEAM ");
                 if (t.Tag_Torpedo)   sb.Append("TORPEDO ");
                 if (t.Tag_Bomb)      sb.Append("BOMB ");
-                if (t.Tag_BioWeapon) sb.Append("BIOWEAPON ");
-                if (t.Tag_SpaceBomb) sb.Append("SPACEBOMB ");
-                if (t.Tag_Drone)     sb.Append("DRONE ");
                 if (t.Tag_Cannon)    sb.Append("CANNON ");
 
                 DrawString(batch, ref modTitlePos, sb.ToString(), Fonts.Arial8Bold);
@@ -359,7 +356,6 @@ namespace Ship_Game
             DrawStatCustomColor(ref modTitlePos, GameText.KineticSr, mod.ShieldKineticResist, GameText.IndicatesShieldBubblesResistanceTo, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.EnergySr, mod.ShieldEnergyResist, GameText.IndicatesShieldBubblesResistanceTo2, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.ExplSr, mod.ShieldExplosiveResist, GameText.IndicatesShieldBubblesResistanceTo3, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.MissileSr, mod.ShieldMissileResist, GameText.IndicatesShieldBubblesResistanceTo4, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.HybridSr, mod.ShieldPlasmaResist, GameText.IndicatesShieldBubblesResistanceTo6, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.BeamSr, mod.ShieldBeamResist, GameText.IndicatesShieldBubblesResistanceTo10, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.SdDeflect, mod.ShieldDeflection, GameText.WeaponsWhichDoLessDamage2, shieldResistColor, isPercent: false);
@@ -406,11 +402,9 @@ namespace Ship_Game
 
             DrawStat(ref modTitlePos, GameText.KineticRes, mod.KineticResist, GameText.IndicatesResistanceToKinetictypeDamage, true);
             DrawStat(ref modTitlePos, GameText.EnergyRes, mod.EnergyResist, GameText.IndicatesResistanceToEnergyWeapon,  true);
-            DrawStat(ref modTitlePos, GameText.MissileRes, mod.MissileResist, GameText.IndicatesResistanceToMissileWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.HybridRes, mod.PlasmaResist, GameText.IndicatesResistanceToHybridWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.BeamRes, mod.BeamResist, GameText.IndicatesResistanceToBeamWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.ExplRes, mod.ExplosiveResist, GameText.IndicatesResistanceToExplosiveDamage, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.TorpRes, mod.TorpedoResist, GameText.IndicatesResistanceToTorpedoWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.ApRes, mod.APResist, GameText.IndicatesResistanceToArmourPiercing);
             DrawStat(ref modTitlePos, GameText.Deflection, mod.Deflection, GameText.WeaponsWhichDoLessDamage);
             DrawStat(ref modTitlePos, GameText.EmpProt, mod.EMPProtection, GameText.IndicatesTheAmountOfEmp2);

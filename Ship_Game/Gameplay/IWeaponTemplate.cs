@@ -20,9 +20,6 @@ namespace Ship_Game.Gameplay
         bool Tag_Beam { get; }
         bool Tag_Intercept { get; }
         bool Tag_Bomb { get; }
-        bool Tag_SpaceBomb { get; }
-        bool Tag_BioWeapon { get; }
-        bool Tag_Drone { get; }
         bool Tag_Torpedo { get; }
         bool Tag_Cannon { get; }
         bool Tag_PD { get; }

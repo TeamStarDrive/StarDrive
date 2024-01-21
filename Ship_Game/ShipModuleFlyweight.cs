@@ -52,7 +52,6 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly float ShieldKineticResist;
         [StarData] public readonly float ShieldEnergyResist;
         [StarData] public readonly float ShieldExplosiveResist;
-        [StarData] public readonly float ShieldMissileResist;
         [StarData] public readonly float ShieldPlasmaResist;
         [StarData] public readonly float ShieldBeamResist;
         [StarData] public readonly float NumberOfColonists;
@@ -87,12 +86,9 @@ namespace Ship_Game.Gameplay
         //Likewise, DamageThreshold is a set damage amount which armour disregards damage value under - immediately broke as a byte as some armours had values higher than 255.
         [StarData] public readonly float KineticResist;
         [StarData] public readonly float EnergyResist;
-        [StarData] public readonly float GuidedResist;
-        [StarData] public readonly float MissileResist;
         [StarData] public readonly float PlasmaResist;
         [StarData] public readonly float BeamResist;
         [StarData] public readonly float ExplosiveResist;
-        [StarData] public readonly float TorpedoResist;
         [StarData] public readonly float Deflection;
         [StarData] public readonly int APResist;
         [StarData] public readonly bool IndirectPower;
@@ -161,7 +157,6 @@ namespace Ship_Game.Gameplay
             ShieldKineticResist         = s.ShieldKineticResist;
             ShieldEnergyResist          = s.ShieldEnergyResist;
             ShieldExplosiveResist       = s.ShieldExplosiveResist;
-            ShieldMissileResist         = s.ShieldMissileResist;
             ShieldPlasmaResist          = s.ShieldPlasmaResist;
             ShieldBeamResist            = s.ShieldBeamResist;
             NumberOfColonists           = s.NumberOfColonists;
@@ -193,12 +188,9 @@ namespace Ship_Game.Gameplay
             TransporterTroopAssault     = s.TransporterTroopAssault;
             KineticResist               = s.KineticResist;
             EnergyResist                = s.EnergyResist;
-            GuidedResist                = s.GuidedResist;
-            MissileResist               = s.MissileResist;
             PlasmaResist                = s.PlasmaResist;
             BeamResist                  = s.BeamResist;
             ExplosiveResist             = s.ExplosiveResist;
-            TorpedoResist               = s.TorpedoResist;
             Deflection                  = s.Deflection;
             APResist                    = s.APResist;
             ExplosionDamage             = s.ExplosionDamage;
@@ -283,7 +275,6 @@ namespace Ship_Game.Gameplay
         public float ShieldKineticResist;
         public float ShieldEnergyResist;
         public float ShieldExplosiveResist;
-        public float ShieldMissileResist;
         public float ShieldPlasmaResist;
         public float ShieldBeamResist;
         public float NumberOfColonists;
@@ -325,12 +316,9 @@ namespace Ship_Game.Gameplay
         public int TargetValue;
         public float KineticResist;
         public float EnergyResist;
-        public float GuidedResist;
-        public float MissileResist;
         public float PlasmaResist;
         public float BeamResist;
         public float ExplosiveResist;
-        public float TorpedoResist;
         public float Deflection;
         public int APResist;
         public bool IndirectPower;

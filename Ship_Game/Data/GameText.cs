@@ -5350,39 +5350,39 @@ namespace Ship_Game
         /// <summary>Indicates resistance to energy weapon damage, where 100% is total</summary>
         IndicatesResistanceToEnergyWeapon = 7047,
         /// <summary>Indicates resistance to guided weapon damage, where 100% is total</summary>
-        IndicatesResistanceToGuidedWeapon = 7048,
+        IndicatesResistanceToGuidedWeapon = 7048, // unused
         /// <summary>Indicates resistance to missile weapon damage, where 100% is total</summary>
-        IndicatesResistanceToMissileWeapon = 7049,
-        /// <summary>Indicates resistance to hybrid weapon damage, where 100% is total</summary>
+        IndicatesResistanceToMissileWeapon = 7049, // unused
+        /// <summary>Indicates resistance to plasma weapon damage, where 100% is total</summary>
         IndicatesResistanceToHybridWeapon = 7050,
         /// <summary>Indicates resistance to beam weapon damage, where 100% is total</summary>
         IndicatesResistanceToBeamWeapon = 7051,
         /// <summary>Indicates resistance to explosive damage, where 100% is total immunity.</summary>
         IndicatesResistanceToExplosiveDamage = 7052,
         /// <summary>Indicates resistance to interceptable weapon damage, where 100% is total</summary>
-        IndicatesResistanceToInterceptableWeapon = 7053,
+        IndicatesResistanceToInterceptableWeapon = 7053, // unused
         /// <summary>Indicates resistance to railgun weapon damage, where 100% is total</summary>
-        IndicatesResistanceToRailgunWeapon = 7054,
+        IndicatesResistanceToRailgunWeapon = 7054,  // unused
         /// <summary>Indicates resistance to spatial bomb weapon damage, where 100% is</summary>
-        IndicatesResistanceToSpatialBomb = 7055,
+        IndicatesResistanceToSpatialBomb = 7055,  // unused
         /// <summary>Indicates resistance to bombardment weapon damage, where 100% is total</summary>
-        IndicatesResistanceToBombardmentWeapon = 7056,
+        IndicatesResistanceToBombardmentWeapon = 7056,  // unused
         /// <summary>Indicates resistance to biological weapon damage, where 100% is total</summary>
-        IndicatesResistanceToBiologicalWeapon = 7057,
+        IndicatesResistanceToBiologicalWeapon = 7057,  // unused
         /// <summary>Indicates resistance to drone weapon damage, where 100% is total</summary>
-        IndicatesResistanceToDroneWeapon = 7058,
+        IndicatesResistanceToDroneWeapon = 7058,  // unused
         /// <summary>Indicates resistance to warp weapon damage, where 100% is total</summary>
-        IndicatesResistanceToWarpWeapon = 7059,
+        IndicatesResistanceToWarpWeapon = 7059,  // unused
         /// <summary>Indicates resistance to torpedo weapon damage, where 100% is total</summary>
-        IndicatesResistanceToTorpedoWeapon = 7060,
+        IndicatesResistanceToTorpedoWeapon = 7060,  // unused
         /// <summary>Indicates resistance to cannon weapon damage, where 100% is total</summary>
-        IndicatesResistanceToCannonWeapon = 7061,
+        IndicatesResistanceToCannonWeapon = 7061,  // unused
         /// <summary>Indicates resistance to subspace weapon damage, where 100% is total</summary>
-        IndicatesResistanceToSubspaceWeapon = 7062,
+        IndicatesResistanceToSubspaceWeapon = 7062,  // unused
         /// <summary>Indicates resistance to PD weapon damage, where 100% is total</summary>
-        IndicatesResistanceToPdWeapon = 7063,
+        IndicatesResistanceToPdWeapon = 7063,  // unused
         /// <summary>Indicates resistance to flak weapon damage, where 100% is total</summary>
-        IndicatesResistanceToFlakWeapon = 7064,
+        IndicatesResistanceToFlakWeapon = 7064,  // unused
         /// <summary>Indicates resistance to Armor Piercing effects - each point of</summary>
         IndicatesResistanceToArmourPiercing = 7065,
         /// <summary>Indicates shield bubble's resistance to kinetic weapon damage, where 100%</summary>
@@ -5392,17 +5392,17 @@ namespace Ship_Game
         /// <summary>Indicates shield bubble's resistance to explosive damage, where 100% is</summary>
         IndicatesShieldBubblesResistanceTo3 = 7068,
         /// <summary>Indicates shield bubble's resistance to missile weapon damage, where 100%</summary>
-        IndicatesShieldBubblesResistanceTo4 = 7069,
+        IndicatesShieldBubblesResistanceTo4 = 7069,  // unused
         /// <summary>Indicates shield bubble's resistance to flak weapon damage, where 100%</summary>
-        IndicatesShieldBubblesResistanceTo5 = 7070,
-        /// <summary>Indicates shield bubble's resistance to hybrid weapon damage, where 100%</summary>
+        IndicatesShieldBubblesResistanceTo5 = 7070, // unused
+        /// <summary>Indicates shield bubble's resistance to plasma weapon damage, where 100%</summary>
         IndicatesShieldBubblesResistanceTo6 = 7071,
         /// <summary>Indicates shield bubble's resistance to railgun weapon damage, where 100%</summary>
-        IndicatesShieldBubblesResistanceTo7 = 7072,
+        IndicatesShieldBubblesResistanceTo7 = 7072, // unused
         /// <summary>Indicates shield bubble's resistance to subspace weapon damage, where 100%</summary>
-        IndicatesShieldBubblesResistanceTo8 = 7073,
+        IndicatesShieldBubblesResistanceTo8 = 7073, // unused
         /// <summary>Indicates shield bubble's resistance to warp weapon damage, where 100%</summary>
-        IndicatesShieldBubblesResistanceTo9 = 7074,
+        IndicatesShieldBubblesResistanceTo9 = 7074, // unused
         /// <summary>Indicates shield bubble's resistance to beam weapon damage, where 100%</summary>
         IndicatesShieldBubblesResistanceTo10 = 7075,
         /// <summary>Indicates the amount of EMP protection that this module adds</summary>
