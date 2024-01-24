@@ -332,6 +332,7 @@ namespace Ship_Game.Ships
             Ship ship = CreateShipAt(us, shipName, owner, p, p.Position.GenerateRandomPointOnCircle(randomRadius, owner.Random), doOrbit);
             if (initLaunch && ship != null && !ship.IsPlatformOrStation)
                 ship.InitLaunch(LaunchPlan.Planet, p);
+
             return ship;
         }
 
