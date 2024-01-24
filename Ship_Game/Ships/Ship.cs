@@ -436,9 +436,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsPlatformOrStation => ShipData.IsPlatformOrStation || MaxFTLSpeed < 1 || MaxSTLSpeed < 1;
-        public bool IsShipyard => ShipData.IsShipyard || MaxFTLSpeed < 1 || MaxSTLSpeed < 1;
-        public bool IsStation => ShipData.IsStation || MaxFTLSpeed < 1 || MaxSTLSpeed < 1;
+        public bool IsPlatformOrStation => ShipData.IsPlatformOrStation || MaxFTLSpeed == 0 || MaxSTLSpeed == 0 ;
+        public bool IsShipyard => ShipData.IsShipyard || MaxFTLSpeed == 0 || MaxSTLSpeed == 0;
+        public bool IsStation => ShipData.IsStation || MaxFTLSpeed == 0 || MaxSTLSpeed == 0;
 
         public void CauseEmpDamage(float empDamage) // FB - also used for recover EMP
         {
