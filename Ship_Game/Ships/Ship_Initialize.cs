@@ -330,7 +330,8 @@ namespace Ship_Game.Ships
         {
             float randomRadius = owner.Random.Float(p.Radius - 100, p.Radius + 100);
             Ship ship = CreateShipAt(us, shipName, owner, p, p.Position.GenerateRandomPointOnCircle(randomRadius, owner.Random), doOrbit);
-            if (initLaunch && ship != null && !ship.IsPlatformOrStation && !(ship.MaxFTLSpeed == 0 || ship.MaxSTLSpeed == 0))
+            if (initLaunch && ship != null && !ship.IsPlatformOrStation && (ship.MaxFTLSpeed > 0 || ship.MaxSTLSpeed > 0))
+
                 ship.InitLaunch(LaunchPlan.Planet, p);
             else if (initLaunch && ship != null && (ship.MaxFTLSpeed == 0 || ship.MaxSTLSpeed == 0))
             {
