@@ -392,9 +392,7 @@ namespace Ship_Game
                                    ? empire.data.StartingShip
                                    : empire.data.PrototypeShip;
 
-                Ship createdStartingShip = Ship.CreateShipNearPlanet(UState, starterShip, empire, homePlanet, true);
-                if (createdStartingShip != null && (createdStartingShip.MaxSTLSpeed == 0 || createdStartingShip.MaxSTLSpeed == 0))
-                    createdStartingShip.TetherToPlanet(homePlanet);
+                Ship.CreateShipNearPlanet(UState, starterShip, empire, homePlanet, true);
                 Ship.CreateShipNearPlanet(UState, colonyShip, empire, homePlanet, true);
                 Ship startingFrieghter = Ship.CreateShipNearPlanet(UState, freighter, empire, homePlanet, true);
                 if (startingFrieghter != null) // FB - wa for new frieghter since this is done onShipComplete in sbproduction
