@@ -21,6 +21,7 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Rectangle = SDGraphics.Rectangle;
 using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
+using Ship_Game.ExtensionMethods;
 
 namespace Ship_Game
 {
@@ -392,7 +393,13 @@ namespace Ship_Game
                                    ? empire.data.StartingShip
                                    : empire.data.PrototypeShip;
 
-                Ship.CreateShipNearPlanet(UState, starterShip, empire, homePlanet, true);
+                //if starting ship is a station - make it orbit the planet
+                Ship createdStartingShip = Ship.CreateShipNearPlanet(UState, starterShip, empire, homePlanet, true);
+                if (createdStartingShip != null && (createdStartingShip.MaxFTLSpeed == 0 || createdStartingShip.MaxSTLSpeed == 0))
+                {
+                    createdStartingShip.Position = homePlanet.Position.GenerateRandomPointOnCircle(500 + homePlanet.Radius, UState.Random);
+                    createdStartingShip.TetherToPlanet(homePlanet);
+                }
                 Ship.CreateShipNearPlanet(UState, colonyShip, empire, homePlanet, true);
                 Ship startingFrieghter = Ship.CreateShipNearPlanet(UState, freighter, empire, homePlanet, true);
                 if (startingFrieghter != null) // FB - wa for new frieghter since this is done onShipComplete in sbproduction
