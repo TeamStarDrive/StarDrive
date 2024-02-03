@@ -77,7 +77,7 @@ ApplySettings:
  ENG: "Apply Settings"
  RUS: "Применить настройки"
  SPA: "Aplicar ajustes"
- UKR: "Застосувати Налаштування"
+ UKR: "Застосувати"
 KeepChangesRevertingIn:
  Id: 14
  ENG: "Keep Changes? Reverting in..."
@@ -1230,79 +1230,95 @@ ShipWillManeuverToKeep:
  ENG: "Ship will maneuver to keep its target on the port side"
  RUS: "Корабль будет пытаться развернуться к цели левым бортом"
  SPA: "La nave maniobrará para mantener el objetivo a babor"
+ UKR: "Корабель маневруватиме щоб тримати ціль по лівому борту"
 ShipWillManeuverToKeep2:
  Id: 203
  ENG: "Ship will maneuver to keep its target on the starboard side"
  RUS: "Корабль будет пытаться развернуться к цели правым бортом"
  SPA: "La nave maniobrará para mantener el objetivo a estribor"
+ UKR: "Корабель маневруватиме щоб тримати ціль по правому борту"
 ShipWillAttemptToMaintain:
  Id: 204
  ENG: "Ship will attempt to maintain formation and facing at all times"
  RUS: "Корабль всегда будет стараться сохранять построение  и направление на цель"
  SPA: "La nave intentará mantener la formación y la orientación en todo momento"
+ UKR: "Корабель намагатиметься зберігати стрій та напрямок руху весь час"
 AMeasureOfHowCooperative:
  Id: 206
  ENG: "A measure of how cooperative a ship is; the weight given to targeting ships that are being targeted by allies"
  RUS: "Показатель того, насколько синергично корабль действует в составе флота; вес выбора целями вражеских кораблей, атакуемых союзниками"
  SPA: "Medida de lo cooperativa que es una nave; valor específico dado para apuntar a las naves que disparan a los aliados"
+ UKR: "Показник того, наскільки корабель готовий до співпраці; вага, яка надається націленню на кораблі, які є ціллю союзників"
 AMeasureOfHowProtective:
  Id: 207
  ENG: "A measure of how protective a ship is; the weight given to targeting ships that are targeting friendly ships"
  RUS: "Показатель того, насколько оборонительно действует корабль.Вес выбора целями вражеских кораблей, атакующих союзников"
  SPA: "Medida de lo protectora que es una nave; valor específico dado para apuntar a las naves que están disparando a naves amigas"
+ UKR: "Показник того, наскільки захисним є судно; вага, яка надається націлюванням на кораблі, які атакують союзні кораблі"
 AMeasureOfHowOpportunistic:
  Id: 208
  ENG: "A measure of how opportunistic a ship is; the weight given to targeting ships that are damaged"
  RUS: "Показатель того, насколько корабль нацелен на добивание.Вес выбора целями вражеских кораблей, получивших повреждения"
  SPA: "Medida de lo oportunista que es una nave; valor específico dado parar apuntar a las naves que están dañadas"
+ UKR: "Показник того, наскільки судно є опортуністичним; вага, надана націлюванню на пошкоджені кораблі"
 TheWeightGivenToTargeting:
  Id: 209
  ENG: "The weight given to targeting ships that are heavily armored"
  RUS: "Вес выбора целями тяжелобронированных кораблей"
  SPA: "Valor específico dado por apuntar a naves que tienen mucho blindaje"
+ UKR: "Вага, яку надають націленню на важкоброньовані кораблі"
 TheWeightGivenToTargeting2:
  Id: 210
  ENG: "The weight given to targeting ships that are heavily shielded"
  RUS: "Вес выбора целями кораблей с мощными щитами"
  SPA: "Valor específico dado por apuntar a naves que tienen escudos fuertes"
+ UKR: "Вага, яку надають націленню на кораблі, сильно захищені щитами"
 TheWeightGivenToTargeting3:
  Id: 211
  ENG: "The weight given to targeting ships that have a high Damage Per Second output"
  RUS: "Вес выбора целями кораблей, наносящих большой урон"
  SPA: "Valor específico dado por apuntar a naves que provocan mucho daño por segundo"
+ UKR: "Вага, яку надають націленню на кораблі з високим уроном за секунду"
 DefinesTheAreaInWhich:
  Id: 212
  ENG: "Defines the area in which a ship will seek targets to attack or defend"
  RUS: "Задает область, в которой корабль будет искать цели для атаки или защиты"
  SPA: "Define la zona donde una nave buscará objetivos para atacar o defender"
+ UKR: "Визначає зону, в якій корабель шукатиме цілі для нападу або захисту"
 DeterminesWhetherAShipPrefers:
  Id: 213
  ENG: "Determines whether a ship prefers targets smaller, similar, or larger than itself"
  RUS: "Определяет, какие цели преимущественно будет выбирать корабль - меньшие, своего класса или более крупные"
  SPA: "Determina si una nave prefiere objetivos de tamaño menor, similar o mayor al suyo"
+ UKR: "Визначає, чи корабель віддає перевагу цілям, меншим, схожим чи більшим за нього"
 AllowsYouToCustomizeAn:
  Id: 214
  ENG: "Allows you to customize an \"Area of Operations\" or \"AO\" for a freighter. Freighters will only trade within their AO (both Manual and Auto Trade), allowing you to define custom trade areas. Drag a selection box around the area of the galaxy you want to define as the AO. You can define more than one AO per ship. Right click the AO to delete it. Esc key or right clicking on this button will exit AO creation mode."
  RUS: "Позволяет вам задать для корабля область операций. Грузовые корабли будут осуществлять перевозку товаров только внутри своей области операций, что позволит вам создавать пользовательские торговые маршруты. Боевые корабли будут патрулировать свои области и атаковать вражеские корабли, вторгшиеся туда.\nОчертите прямоугольник для определения области операций. Вы можете задать для одного корабля более одной ОО. Для удаления ОО щелкните по ней ПКМ."
  SPA: "Permite personalizar una \"zona de operaciones\" o \"ZO\" para una nave. Los cargueros solo comerciarán dentro de la ZO, por lo que puedes personalizar rutas comerciales. Las naves de combate patrullarán su ZO y atacarán a los enemigos presentes en ella.\n\nArrastra el puntero para dibujar un cuadro de selección alrededor de la zona de la galaxia que quieras definir como ZO. Puedes definir más de una zona por nave. Haz clic con el botón derecho en la ZO para eliminarla.\n      "
+ UKR: "Дозволяє налаштувати \"Зону операцій\" або \"ЗО\" для вантажного судна. Вантажники торгуватимуть лише в межах свого ЗО (як ручної, так і автоматичної торгівлі), що дозволяє вам визначати власні торгові зони. Перетягніть рамку вибору навколо області галактики, яку потрібно визначити як ЗО. Ви можете визначити більше одного ЗО на судно. Клацніть ЗО правою кнопкою миші, щоб видалити його. Клавіша Esc або клацання правою кнопкою миші на цій кнопці призведе до виходу з режиму створення AO."
 SendTroopsToThisShip:
  Id: 217
  ENG: "Send Troops to this ship if it's troop number is less than the maximum or less than 25% if in combat. If you toggle this off, the ship will go to resupply when it has no troops left. A ship set to Kamikaze will not retreat to resupply, but will request troops if the button is on."
  RUS: "Отправляет войска на этот корабль, если его количество меньше максимального или меньше 25% в бою. Если вы выключите эту кнопку, корабль отправится на пополнение запасов, когда на нем не останется войск. Корабль, установленный как Камикадзе, не будет отступать для пополнения запасов, но запросит войска, если кнопка включена."
  SPA: "Activa o desactiva los escudos de la nave. Los escudos desactivados no consumen energía"
+ UKR: "Надішліть війська на цей корабель, якщо його кількість менша за максимальну або менша за 25%, якщо в бою. Якщо вимкнути цю функцію, корабель піде на поповнення запасів, коли на ньому не залишиться військ. Корабель, налаштований на Камікадзе, не відступить для поповнення запасів, але запитає війська, якщо кнопку увімкнено."
 WhenActiveAllAvailableFighters:
  Id: 218
  ENG: "When active, all available fighters will launch and escort the carrier. If not active, fighters will launch only for combat and return to their hangars for resupply when combat ends."
  RUS: "Когда кнопка активена, все доступные истребители запускаются и сопровождают авианосец. Если не активен, истребители будут запускаться только для боя и возвратяться в свои ангары для пополнения запасов по окончании боя."
  SPA: "Determina si los cazas de la nave deben salir o regresar a los hangares"
+ UKR: "Коли активне, усі доступні винищувачі запускаються та супроводжують носій. Якщо не активно, винищувачі запускатимуться лише для бою та повертатимуться до своїх ангарів для поповнення запасів після завершення бою."
 IndicatesHowMuchFoodThis:
  Id: 219
  ENG: "Indicates how much food this planet will produce per assigned colonist per turn (a turn is 0.1 StarDate). Some buildings or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time. The number in parentheses indicates the fertility modifier of this colony, based on your empire's suitable environments. Buildings which grant food per assigned colonist are greatly affected by Fertility, as Fertiliy is a multiplier. Non Cybernetic Races consume food."
+ UKR: "Вказує, скільки їжі ця планета вироблятиме на одного призначеного колоніста за хід (хід становить 0,1 StarDate). Деякі будівлі або вплив навколишнього середовища можуть збільшити або зменшити максимальне значення, і в цьому випадку поточне значення поступово збігатиметься з максимальним значенням з часом. Число в дужках вказує на модифікатор родючості цієї колонії на основі відповідного середовища вашої імперії. На будівлі, які дають їжу кожному призначеному колоністу, сильно впливає родючість, оскільки родючість є множником. Некібернетичні раси споживають їжу."
 IndicatesHowMuchResearchThis:
  Id: 221
  ENG: "Indicates how much research this planet will produce per assigned colonist per turn (a turn is .1 StarDate)"
  RUS: "Указывает, сколько исследований на выделенного колониста колония произведет за ход (ход - 0,1 ЗД)"
  SPA: "Indica cuánta investigación producirá este planeta por colono asignado y por turno (un turno es 0,1 en la fecha estelar)"
+ UKR: "Вказує, скільки досліджень ця планета вироблятиме на одного призначеного колоніста за хід (хід становить .1 StarDate)"
 MarkThisPlanetForColonization:
  Id: 222
  ENG: "Mark this planet for colonization. If you own a colony ship that has no current mission then it will be assigned to colonize this planet. Otherwise, a new colony ship will be constructed at your best available shipyard and dispatched to this planet upon completion"
