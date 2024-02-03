@@ -45,7 +45,8 @@ namespace Ship_Game
 
             // modify nominal farmers by overage or underage
             farmers += CalculateMod(percent, Storage.FoodRatioWithIncoming).UpperBound(0.5f);
-            return farmers.Clamped(0f, 0.9f);
+            float maxPercentage = IsStarving || ConstructionQueue.Count == 0 ? 1f : 0.9f;
+            return farmers.Clamped(0f, maxPercentage);
         }
 
         float WorkToPercentage(float percent, float wantedIncome) // Production
