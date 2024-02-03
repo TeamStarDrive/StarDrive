@@ -68,7 +68,7 @@ namespace Ship_Game
 
         public static void LoadFonts(GameContentManager c, Language language)
         {
-            bool russian = language == Language.Russian;
+            bool slavic = language == Language.Russian || language == Language.Ukrainian;
             bool notEnglish = language != Language.English;
             GameLoadingScreen.SetStatus("LoadFonts");
             FontsLookup.Clear();
@@ -83,14 +83,14 @@ namespace Ship_Game
             Arial8Bold  = LoadFont(c, "Arial8Bold");
             Arial12     = LoadFont(c, "Arial12");
             Laserian14  = LoadFont(c, "Laserian14");
-            Pirulen12   = LoadFont(c, "Pirulen12",   fontName: (russian ? "Arial12Bold" : "Pirulen12a"));
+            Pirulen12   = LoadFont(c, "Pirulen12",   fontName: (slavic ? "Arial12Bold" : "Pirulen12a"));
             Pirulen16   = LoadFont(c, "Pirulen16");
             Pirulen20   = LoadFont(c, "Pirulen20");
             Consolas18  = LoadFont(c, "consolas18");
             Tahoma10    = LoadFont(c, "Tahoma10");
-            Tahoma11    = LoadFont(c, "Tahoma11",    fontName: (russian ? "Tahoma10" : "Tahoma11"));
-            TahomaBold9 = LoadFont(c, "TahomaBold9", fontName: (russian ? "Tahoma10" : "TahomaBold9"));
-            Visitor10   = LoadFont(c, "Visitor10",   fontName: (russian ? "Arial10" : "Visitor10"), 1f);
+            Tahoma11    = LoadFont(c, "Tahoma11",    fontName: (slavic ? "Tahoma10" : "Tahoma11"));
+            TahomaBold9 = LoadFont(c, "TahomaBold9", fontName: (slavic ? "Tahoma10" : "TahomaBold9"));
+            Visitor10   = LoadFont(c, "Visitor10",   fontName: (slavic ? "Arial10" : "Visitor10"), 1f);
 
             Verdana14Bold = LoadFont(c, "Verdana14Bold");
             Verdana12     = LoadFont(c, "Verdana12");
