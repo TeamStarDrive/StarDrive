@@ -455,7 +455,7 @@ namespace Ship_Game
             ToolTipItems.Add(new TippedItem(InjuryRect, GameText.EveryTroopInvadingThisPlanet));
             ToolTipItems.Add(new TippedItem(OffenseRect, GameText.ThePlanetsSpaceOffenseVs));
             ToolTipItems.Add(new TippedItem(ShieldRect, GameText.IndicatesTheCurrentStrengthOf));
-            ToolTipItems.Add(new TippedItem(DefenseShipsRect, GameText.IndicatesTheTileRangeThis));
+            ToolTipItems.Add(new TippedItem(DefenseShipsRect, GameText.PLanetInfoNumberOfDefenseShips));
         }
 
         void AddUnExploredTips()

@@ -10892,6 +10892,9 @@ ResearchUnlocksMoreThanFourItems:
 RemnantsDefeatedFleetsMayAttack:
  Id: 4519
  ENG: "However, remaining Remnant fleets in this sector might still\npose an active threat until destroyed." 
+PLanetInfoNumberOfDefenseShips:
+ Id: 4520
+ ENG: "Number of Defense ships in Air Bases on this planet." 
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"
@@ -11019,59 +11022,59 @@ Trait_OrbitalConstructors_Desc:
  Id: 4965
  ENG: "Orbital Builders enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
 TraitSalvagersName:
-  Id: 4966
-  ENG: "Salvagers"   
+ Id: 4966
+ ENG: "Salvagers"   
 TraitSalvagersDesc:
-  Id: 4967
-  ENG: "salvagers like to collect scrap matel and upgrades. Your empire will get 1 credit per 20 slots of enemy ships killed."       
+ Id: 4967
+ ENG: "salvagers like to collect scrap matel and upgrades. Your empire will get 1 credit per 20 slots of enemy ships killed."       
 TraitCompensationName:
-  Id: 4968
-  ENG: "Crew Compensation Plan"   
+ Id: 4968
+ ENG: "Crew Compensation Plan"   
 TraitCompensationDesc:
-  Id: 4969
-  ENG: "Your empire will compansate the families of battle casualties at a rate of 1 credit per 20 slots of ships killed by enemies."         
+ Id: 4969
+ ENG: "Your empire will compansate the families of battle casualties at a rate of 1 credit per 20 slots of ships killed by enemies."         
 TraitTerranHomeworldName:
-  Id: 4970
-  ENG: "Terran Homeworld"   
+ Id: 4970
+ ENG: "Terran Homeworld"   
 TraitTerranHomeworldDesc:
-  Id: 4971
-  ENG: "Your empire starts in a Terran homeworld and gets +50% Fertility and Max Population for other Terran worlds."      
+ Id: 4971
+ ENG: "Your empire starts in a Terran homeworld and gets +50% Fertility and Max Population for other Terran worlds."      
 TraitOceanicHomeworldName:
-  Id: 4972
-  ENG: "Oceanic Homeworld"   
+ Id: 4972
+ ENG: "Oceanic Homeworld"   
 TraitOceanicHomeworldDesc:
-  Id: 4973
-  ENG: "Your empire starts in an Oceanic homeworld and gets +50% Fertility and Max Population for other Oceanic worlds."      
+ Id: 4973
+ ENG: "Your empire starts in an Oceanic homeworld and gets +50% Fertility and Max Population for other Oceanic worlds."      
 TraitSteppeHomeworldName:
-  Id: 4974
-  ENG: "Steppe Homeworld"   
+ Id: 4974
+ ENG: "Steppe Homeworld"   
 TraitSteppeHomeworldDesc:
-  Id: 4975
-  ENG: "Your empire starts in a Steppe homeworld and gets +50% Fertility and Max Population for other Steppe worlds."      
+ Id: 4975
+ ENG: "Your empire starts in a Steppe homeworld and gets +50% Fertility and Max Population for other Steppe worlds."      
 TraitTundraHomeworldName:
-  Id: 4976
-  ENG: "Tundra Homeworld"   
+ Id: 4976
+ ENG: "Tundra Homeworld"   
 TraitTundraHomeworldDesc:
-  Id: 4977
-  ENG: "Your empire starts in a Tuntra homeworld and gets +50% Fertility and Max Population for other Tundra worlds."      
+ Id: 4977
+ ENG: "Your empire starts in a Tuntra homeworld and gets +50% Fertility and Max Population for other Tundra worlds."      
 TraitSwampHomeworldName:
-  Id: 4978
-  ENG: "Swamp Homeworld"   
+ Id: 4978
+ ENG: "Swamp Homeworld"   
 TraitSwampHomeworldDesc:
-  Id: 4979
-  ENG: "Your empire starts in a Swamp homeworld and gets +50% Fertility and Max Population for other Swamp worlds."      
+ Id: 4979
+ ENG: "Your empire starts in a Swamp homeworld and gets +50% Fertility and Max Population for other Swamp worlds."      
 TraitDesertHomeworldName:
-  Id: 4980
-  ENG: "Desert Homeworld"   
+ Id: 4980
+ ENG: "Desert Homeworld"   
 TraitDesertHomeworldDesc:
-  Id: 4981
-  ENG: "Your empire starts in a Desert homeworld and gets +50% Fertility and Max Population for other Desert worlds."      
+ Id: 4981
+ ENG: "Your empire starts in a Desert homeworld and gets +50% Fertility and Max Population for other Desert worlds."      
 TraitIceHomeworldName:
-  Id: 4982
-  ENG: "Ice Homeworld"   
+ Id: 4982
+ ENG: "Ice Homeworld"   
 TraitIceHomeworldDesc:
-  Id: 4983
-  ENG: "Your empire starts in an Ice homeworld and gets +50% Fertility and Max Population for other Ice worlds."      
+ Id: 4983
+ ENG: "Your empire starts in an Ice homeworld and gets +50% Fertility and Max Population for other Ice worlds."      
 TraitExplorers_Name: 
  Id: 4984
  ENG: "Explorers"
@@ -11079,11 +11082,11 @@ TraitExplorers_Desc:
  Id: 4985
  ENG: "Explorer races are very curious and like exploring their surroundings. As a result, the minimum exploration distance required to explore new solar systems and planets is trippled and you start with 2 extra Scouts."
 TraitAquaticName:
-  Id: 4986
-  ENG: "Aquatic"   
+ Id: 4986
+ ENG: "Aquatic"   
 TraitAquaticDesc:
-  Id: 4987
-  ENG: "This Race prefers to reproduce and live in water. It can swim well and breath underwater. It starts with Oceanic Homeworld and has different preferences for other planet types."     
+ Id: 4987
+ ENG: "This Race prefers to reproduce and live in water. It can swim well and breath underwater. It starts with Oceanic Homeworld and has different preferences for other planet types."     
 ShipMaintenanceMultiplier:
  Id: 4988
  ENG: "Ship Maintenance Multiplier"

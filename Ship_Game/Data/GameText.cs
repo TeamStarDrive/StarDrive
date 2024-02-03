@@ -4664,6 +4664,11 @@ namespace Ship_Game
         ResearchUnlocksMoreThanFourItems = 4518,
         /// <summary>However, remaining Remnant fleets in this sector</summary>
         RemnantsDefeatedFleetsMayAttack = 4519,
+        /// <summary>Number of Defense ships in Air Bases</summary>
+        PLanetInfoNumberOfDefenseShips = 4520,
+
+
+
 
 
 
