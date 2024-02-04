@@ -636,26 +636,38 @@ namespace Ship_Game.Gameplay
         public float GetShieldDamageMod(ShipModule module)
         {
             float damageModifier = EffectVsShields;
-            if (Tag_Kinetic) damageModifier *= (1f - module.ShieldKineticResist);
-            if (Tag_Energy)  damageModifier *= (1f - module.ShieldEnergyResist);
-            if (Tag_Beam)    damageModifier *= (1f - module.ShieldBeamResist);
-            if (Tag_Missile) damageModifier *= (1f - module.ShieldMissileResist);
-            if (Tag_Plasma)  damageModifier *= (1f - module.ShieldPlasmaResist);
-
+            if (Explodes) // Exploding projectiles supercede any other resistances 
+            {
+                damageModifier *= 1f - module.ShieldExplosiveResist;
+            }
+            else
+            {
+                if (Tag_Plasma)  damageModifier *= 1f - module.ShieldPlasmaResist;
+                if (Tag_Kinetic) damageModifier *= 1f - module.ShieldKineticResist;
+                if (Tag_Beam)    damageModifier *= 1f - module.ShieldBeamResist;
+                if (Tag_Energy)  damageModifier *= 1f - module.ShieldEnergyResist;
+            }
+            
             return damageModifier;
         }
 
         public float GetArmorDamageMod(ShipModule module)
         {
             float damageModifier = 1f;
-            if (module.Is(ShipModuleType.Armor)) damageModifier *= EffectVsArmor;
-            if (Explodes)                        damageModifier *= 1f - module.ExplosiveResist;
-            if (Tag_Plasma)                      damageModifier *= 1f - module.PlasmaResist;
-            if (Tag_Kinetic)                     damageModifier *= 1f - module.KineticResist;
-            if (Tag_Beam)                        damageModifier *= 1f - module.BeamResist;
-            if (Tag_Energy)                      damageModifier *= 1f - module.EnergyResist;
-            if (Tag_Missile)                     damageModifier *= 1f - module.MissileResist;
-            if (Tag_Torpedo)                     damageModifier *= 1f - module.TorpedoResist;
+            if (module.Is(ShipModuleType.Armor)) 
+                damageModifier *= EffectVsArmor;
+
+            if (Explodes) // Exploding projectiles supercede any other resistances        
+            {
+                damageModifier *= 1f - module.ExplosiveResist;
+            }
+            else 
+            {
+                if (Tag_Plasma)  damageModifier *= 1f - module.PlasmaResist;
+                if (Tag_Kinetic) damageModifier *= 1f - module.KineticResist;
+                if (Tag_Beam)    damageModifier *= 1f - module.BeamResist;
+                if (Tag_Energy)  damageModifier *= 1f - module.EnergyResist;
+            }
 
             return damageModifier;
         }

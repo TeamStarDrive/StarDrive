@@ -5,1097 +5,1320 @@ NewGame:
  ENG: "New Game"
  RUS: "Новая игра"
  SPA: "Nueva partida"
+ UKR: "Нова гра"
 LoadGame:
  Id: 2
  ENG: "Load Game"
  RUS: "Загрузить игру"
  SPA: "Cargar partida"
+ UKR: "Завантажити гру"
 Tutorials:
  Id: 3
  ENG: "Tutorials"
  RUS: "Обучение"
  SPA: "Tutoriales"
+ UKR: "Навчання"
 Options:
  Id: 4
  ENG: "Options"
  RUS: "Настройки"
  SPA: "Opciones"
+ UKR: "Налаштування"
 Exit:
  Id: 5
  ENG: "Exit"
  RUS: "Выход"
  SPA: "Salir"
+ UKR: "Вихід"
 LoadSavedGame:
  Id: 6
  ENG: "Load Saved Game..."
  RUS: "Загрузка сохраненной игры"
  SPA: "Cargar partida guardada..."
+ UKR: "Завантаження збереження..."
 AllSaves:
  Id: 7
  ENG: "All Saves"
  RUS: "Все сохранения"
  SPA: "Todas las partidas guardadas"
+ UKR: "Всі збереження"
 Load:
  Id: 8
  ENG: "Load"
  RUS: "Загрузить"
  SPA: "Cargar"
+ UKR: "Завантажити"
 Resolution:
  Id: 9
  ENG: "Resolution"
  RUS: "Разрешение"
  SPA: "Resolución"
+ UKR: "Розподільність"
 ScreenMode:
  Id: 10
  ENG: "Screen Mode"
  RUS: "Режим экрана"
  SPA: "Modo de pantalla"
+ UKR: "Екранний режим"
 Windowed:
  Id: 11
  ENG: "Windowed"
  RUS: "Оконный режим"
  SPA: "En ventana"
+ UKR: "Віконний режим" 
 FullScreen:
  Id: 12
  ENG: "Full Screen"
  RUS: "Полный экран"
  SPA: "Pantalla completa"
+ UKR: "Повний екран"
 ApplySettings:
  Id: 13
  ENG: "Apply Settings"
  RUS: "Применить настройки"
  SPA: "Aplicar ajustes"
+ UKR: "Застосувати"
 KeepChangesRevertingIn:
  Id: 14
  ENG: "Keep Changes? Reverting in..."
  RUS: "Сохранить изменения? Возврат через..."
  SPA: "¿Mantener cambios? Revirtiendo en..."
+ UKR: "Зберегти зміни? Скасування через..."
 Ok:
  Id: 15
  ENG: "OK"
  RUS: "OK"
  SPA: "Aceptar"
+ UKR: "ОК"
 Cancel:
  Id: 16
  ENG: "Cancel"
  RUS: "Отмена"
  SPA: "Cancelar"
+ UKR: "Відмінити"
 Seconds:
  Id: 17
  ENG: "seconds"
  RUS: "сек."
  SPA: "segundos"
+ UKR: "секунд"
 DesignYourRace:
  Id: 18
  ENG: "Design Your Race"
  RUS: "Создайте свою расу"
  SPA: "Diseña tu raza"
+ UKR: "Створіть своб расу"
 Physical:
  Id: 19
  ENG: "Physical"
  RUS: "Физиология"
  SPA: "Físico"
+ UKR: "Фізіологія"
 Sociological:
  Id: 20
  ENG: "Sociological"
  RUS: "Социология"
  SPA: "Sociología"
+ UKR: "Соціологія"
 HistoryAndTradition:
  Id: 21
  ENG: "History and Tradition"
  RUS: "История и традиции"
  SPA: "Historia y tradición"
+ UKR: "Історії та традиції"
 Engage:
  Id: 22
  ENG: "Engage"
  RUS: "Активировать"
  SPA: "Listo"
+ UKR: "Запустити"
 Abort:
  Id: 23
  ENG: "Abort"
  RUS: "Прервать"
  SPA: "Anular"
+ UKR: "Перервати"
 GalaxySize:
  Id: 24
  ENG: "Galaxy Size"
  RUS: "Размер галактики"
  SPA: "Tamaño de galaxia"
+ UKR: "Розмір Галактики"
 SolarSystems:
  Id: 25
  ENG: "Solar Systems"
  RUS: "Солнечные системы"
  SPA: "Sistemas solares"
+ UKR: "Зоряні системи"
 RaceNameSingular:
  Id: 26
  ENG: "Race Name Singular"
  RUS: "Назв. расы-ед. ч."
  SPA: "Nombre de raza en singular"
+ UKR: "Назва раси в однині"
 RaceNamePlural:
  Id: 27
  ENG: "Race Name Plural"
  RUS: "Назв. расы-мн. ч."
  SPA: "Nombre de raza en plural"
+ UKR: "Назва раси в множині"
 HomeSystemName:
  Id: 28
  ENG: "Home System Name"
  RUS: "Назв. родной сис."
  SPA: "Nombre de sistema de origen"
+ UKR: "Назва Рідної системи"
 FlagColor:
  Id: 29
  ENG: "Flag + Color"
  RUS: "Флаг и цвет"
  SPA: "Bandera + color"
+ UKR: "Прапор та колір"
 PointsToSpend:
  Id: 30
  ENG: "Points to Spend"
  RUS: "Доступные очки"
  SPA: "Puntos para gastar"
+ UKR: "Доступні бали"
 EmpireName:
  Id: 31
  ENG: "Empire Name"
  RUS: "Название империи"
  SPA: "Nombre del imperio"
+ UKR: "Назва Імперії"
 EfficientMetabolism:
  Id: 32
  ENG: "Efficient Metabolism"
  RUS: "Эффективный метаболизм"
  SPA: "Metabolismo eficiente"
+ UKR: "Ефективний метаболізм"
 RacesWithHighlyEfficientMetabolisms:
  Id: 33
  ENG: "Races with highly efficient metabolisms require 15% less food each turn"
  RUS: "Расы с высокоэффективным метаболизмом каждый ход потребляют на 15% меньше еды."
  SPA: "Las razas con metabolismos muy eficientes necesitan un 15% menos de comida por turno"
+ UKR: "Раси з високоефективним метаболізмом потребують на 15% менше їжі кожен хід"
 Gluttonous:
  Id: 34
  ENG: "Gluttonous"
  RUS: "Прожорливые"
  SPA: "Glotona"
+ UKR: "Ненажерливі"
 GluttonousRacesWillGorgeThemselves:
  Id: 35
  ENG: "Gluttonous races will gorge themselves at every opportunity, eating 10% more food every turn"
  RUS: "Прожорливые расы едят очень много, потребляя на 10% больше еды каждый ход."
  SPA: "Las razas glotonas se ceban en cuanto pueden y comen un 10% más de comida en cada turno"
+ UKR: "Ненажерливі раси будуть наїдатися при кожній нагоді, з’їдаючи на 10% більше їжі кожен хід"
 Fertile:
  Id: 36
  ENG: "Fertile"
  RUS: "Плодородные"
  SPA: "Fértil"
+ UKR: "Плодовиті"
 PromiscuousNaturesShortGestationPeriods:
  Id: 37
  ENG: "Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is 0.05 (5 Million) per turn. "
  RUS: "Склонность к беспорядочным связям, короткие сроки беременности и большое количество детенышей в приплоде очень благоприятно влияют на скорость воспроизводства этой расы естественным путем. Минимальный естественный прирост населения - .005 в ход."
  SPA: "La promiscuidad, los periodos de gestación breves y las grandes camadas incrementan considerablemente la tasa de reproducción de una raza. El crecimiento demográfico mínimo es de 0,005 por turno. "
+ UKR: "Безладне статеве життя, короткий період вагітності та велика кількість дітей значно підвищують швидкість відтворення раси. Мінімальний приріст населення становить 0,05 (5 мільйонів) за хід."
 LessFertile:
  Id: 38
  ENG: "Less Fertile"
  RUS: "Менее плодородные"
  SPA: "Menos fértil"
+ UKR: "Менш плодовиті"
 LongGestationPeriodsAndDifficult:
  Id: 39
  ENG: "Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is 0.15 (15 Million) per turn."
  RUS: "Долгие сроки беременности и сложность репродуктивного процесса в целом значительно ограничивают воспроизводство этой расы естественным путем. Максимальный естественный прирост населения - .015 в ход."
  SPA: "Los periodos de gestación largos y los procesos reproductivos complejos reducen sustancialmente la tasa de reproducción natural de esta raza. El crecimiento demográfico máximo es de 0,02 por turno."
+ UKR: "Довгі терміни вагітності і важкі репродуктивні процеси істотно знижують швидкість природного розмноження цієї раси. Максимальний природний приріст населення становить 0,15 (15 мільйонів) за хід."
 Savage:
  Id: 40
  ENG: "Savage"
  RUS: "Дикие"
  SPA: "Salvaje"
+ UKR: "Дикуни"
 SavageRacesGainABonus:
  Id: 41
  ENG: "Savage races gain a +30% bonus in ground combat due to a ferocious temperament and various lethal physical characteristics"
  RUS: "Дикие расы получают 30% бонус в наземном бою за счет агрессивного темперамента и физиологических особенностей."
  SPA: "Las razas salvajes obtienen una bonificación del 30% en combate terrestre debido a su ferocidad y varias características físicas letales"
+ UKR: "Дикі раси отримують бонус +30% у наземному бою завдяки лютому темпераменту та різноманітним смертоносним фізичним характеристикам"
 Timid:
  Id: 42
  ENG: "Timid"
  RUS: "Боязливые"
  SPA: "Tímida"
+ UKR: "Боязкі"
 TimidRacesAreInstinctivelyTerrified:
  Id: 43
  ENG: "Timid races are instinctively terrified by combat and suffer a 20% penalty to ground combat rolls"
  RUS: "Боязливые расы инстинктивно страшатся сражений и получают 20% штраф в наземном бою."
  SPA: "A las razas tímidas, por instinto, les aterroriza el combate y sufren una penalización del 20% en los combates terrestres"
+ UKR: "Боязкі раси інстинктивно бояться бою та отримують штраф 20% до кидків кубика в наземному бою"
 Alluring:
  Id: 44
  ENG: "Alluring"
  RUS: "Привлекательные"
  SPA: "Seductora"
+ UKR: "Привабливі"
 AlluringRacesGainAOut:
  Id: 45
  ENG: "Alluring races gain a +20 (out of 100) starting relationship with other races due to their majestic and charismatic natures"
  RUS: "Привлекательные расы получают +20 (из 100) к стартовым отношениям с другими расами за счет привлекательности и обаяния."
  SPA: "Las razas seductoras empiezan con +20 (de 100) de relaciones con otras razas gracias a su carácter augusto y carismático"
+ UKR: "Привабливі раси отримують +20 (зі 100) початкових стосунків з іншими расами завдяки своїй величній і харизматичній природі"
 Repulsive:
  Id: 46
  ENG: "Repulsive"
  RUS: "Отталкивающие"
  SPA: "Repulsiva"
+ UKR: "Відразливі"
 OffensiveSmellsAndRevoltingCountenances:
  Id: 47
  ENG: "Offensive smells and revolting countenances earn repulsive races a -20 penalty (out of 100) to initial relationships with other races"
  RUS: "Отталкивающие расы получают -20 (из 100) к стартовым отношениям с другими расами вследствие неприятного запаха и отвратительного внешнего вида."
  SPA: "Por sus olores ofensivos y rostros repugnantes, las razas repulsivas sufren una penalización de -20 (de 100) al entablar relaciones por primera vez con otras razas"
+ UKR: "Образливі запахи та відразливі обличчя приносять відразливі расам штраф -20 (зі 100) за початкові стосунки з іншими расами"
 Smart:
  Id: 48
  ENG: "Smart"
  RUS: "Умные"
  SPA: "Inteligente"
+ UKR: "Розумні"
 IntelligentRacesGainABonus:
  Id: 49
  ENG: "Intelligent races gain a 20% bonus to research efforts"
  RUS: "Умные расы получают 20% бонус к исследованиям."
  SPA: "Las razas inteligentes cuentan con una bonificación del 20% al investigar tecnologías"
+ UKR: "Розумні раси отримують 20% бонус до досліджень"
 Dumb:
  Id: 50
  ENG: "Dumb"
  RUS: "Тупые"
  SPA: "Tontas"
+ UKR: "Недалекі"
 DumbRacesSufferAPenalty:
  Id: 51
  ENG: "Dumb races suffer a 10% penalty to research efforts due to their slow grasp of complex ideas"
  RUS: "Тупые расы получают 10% штраф к исследованиям вследствие плохого понимания сложных концепций."
  SPA: "Las razas tontas sufren una penalización del 10% al investigar tecnologías porque tardan mucho en asimilar las ideas complejas"
+ UKR: "Недалекі раси страждають від 10% штрафу до досліджень через важкість розуміння складних ідей"
 Eagleeyed:
  Id: 52
  ENG: "Eagle-Eyed"
  RUS: "Остроглазые"
  SPA: "Ojo de halcón"
+ UKR: "Гостроокі"
 IncredibleEyesightGivesPilotsFrom:
  Id: 53
  ENG: "Incredible eyesight gives pilots from this race a 20% accuracy bonus to projectiles fired from cannon weapons"
  RUS: "Исключительно острое зрение дает пилотам этой расы 20% бонус к урону от пушек"
  SPA: "Su increíble vista da a los pilotos de esta raza una bonificación de artillería del 20% sobre el daño infligido con cañones"
+ UKR: "Неймовірний зір дає пілотам цієї гонки 20% бонус до точності снарядів, випущених із гарматної зброї"
 Blind:
  Id: 54
  ENG: "Blind"
  RUS: "Слепые"
  SPA: "Ciega"
+ UKR: "Близорукі"
 RacesThatEvolveWeakOptical:
  Id: 55
  ENG: "Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles have 20% accuracy penalty"
  RUS: "Расы, зрительные органы которых развиты слабо, получают в космическом бою штрафы к стрельбе. Снаряды, выпущенные из пушек, наносят на 20% меньше урона"
  SPA: "Las razas que desarrollan órganos sensoriales ópticos sufren una penalización en el combate espacial. Los proyectiles hacen un 20% menos de daño"
+ UKR: "Раси, які розвинули слабкі оптичні органи чуття, зазнають штрафів у космічних боях. Гарматні снаряди мають 20% штраф в точності"
 Reflexes:
  Id: 56
  ENG: "Reflexes"
  RUS: "Рефлексы"
  SPA: "Reflejos"
+ UKR: "Швидкі"
 UltrafastReflexesGrantShipPilots:
  Id: 57
  ENG: "Ultra-fast reflexes grant ship pilots from this race a 25% bonus chance to dodge projectiles that otherwise would be hits"
  RUS: "Молниеносные рефлексы дают пилотам истребителей дополнительно 25% вероятности уклониться от вражеских снарядов."
  SPA: "Los reflejos ultrarrápidos confieren a los pilotos de caza de esa raza un 25% más de posibilidades de esquivar proyectiles certeros"
+ UKR: "Надшвидкі рефлекси дають пілотам кораблів цієї раси 25% можливість уникнути снаряду"
 Ponderous:
  Id: 58
  ENG: "Ponderous"
  RUS: "Медлительные"
  SPA: "Pesada"
+ UKR: "Повільні"
 RacesWithPonderousAndDeliberate:
  Id: 59
  ENG: "Races with ponderous and deliberate natures make terrible pilots. As a result, their ships suffer 25% dodge penalty"
  RUS: "Расы, склонные к долгим раздумьям, не могут эффективно пилотировать истребители. Как следствие, их истребители получают на 25% больше урона."
  SPA: "Las razas con un carácter pesado y lánguido tienen pésimos pilotos de cazas. Por ello, sus cazas reciben un 25% más de daño de lo normal"
+ UKR: "З роздумливих та повільних рас виходять погані пілоти. Як результат їх кораблі мають 25% штраф до уникання снарядів"
 Cybernetic:
  Id: 60
  ENG: "Cybernetic"
  RUS: "Кибернетические"
  SPA: "Cibernética"
+ UKR: "Кібернетичні"
 CyberneticRacesHaveInorganicBodies:
  Id: 61
  ENG: "Cybernetic races have inorganic bodies and do not eat food, instead eating production. Production is a limited resource which slowly decays upon consumption. Cybernetic races are more mindful of production managements and needs."
  RUS: "Кибернетические расы не имеют органического тела и не питаются в обычном понимании, вместо этого потребляя продукцию."
  SPA: "Las razas cibernéticas tienen cuerpos no orgánicos y no consumen comida, sino producción. "
+ UKR: "Кібернетичні раси мають неорганічні тіла та не споживають їжу, натомість споживають виробництво. Виробництво це обмежений ресурс який повільно розкладається при споживанні. Кібернетичні раси більш розважливі при виробництві."
 Industrious:
  Id: 62
  ENG: "Industrious"
  RUS: "Работящие"
  SPA: "Industriosa"
+ UKR: "Працьовиті"
 IndustriousRacesEnjoyABonus:
  Id: 63
  ENG: "Industrious races enjoy a 25% bonus to Production efforts due to their tireless and efficient natures"
  RUS: "Работящие расы получают 25% бонус к производству за счет эффективного производства и усердия."
  SPA: "La producción de las razas industriosas cuenta con una bonificación del 25% gracias a su carácter eficiente e incansable"
+ UKR: "Працьовиті раси отримують бонус у 25% до виробничих зусиль завдяки їхній невтомній та ефективній натурі"
 Lazy:
  Id: 64
  ENG: "Lazy"
  RUS: "Ленивые"
  SPA: "Perezosa"
+ UKR: "Нероби"
 LazyRacesJustDontLike:
  Id: 65
  ENG: "Lazy races just don't like to work, and as a result suffer a 15% penalty to Production efforts"
  RUS: "Ленивые расы, как следует из названия, просто не любят работать, как следствие получая 15% штраф к производству."
  SPA: "A las razas perezosas no les gusta trabajar y, por tanto, sufren una penalización del 15% en sus esfuerzos de producción"
+ UKR: "Нероби просто не люблять працювати, і в результаті отримують 15% штрафу за зусилля виробництва"
 Mercantile:
  Id: 66
  ENG: "Mercantile"
  RUS: "Меркантильные"
  SPA: "Mercantil"
+ UKR: "Меркантильні"
 MercantileRacesAreNaturalTraders:
  Id: 67
  ENG: "Mercantile races are natural traders, and gain 0.5 Credits for each unit of food or production moved via freighter within the empire, they also have improved supply chains for trade agreements which can help supply the demand of larger empires having trade agreements with them."
-
+ UKR: "Меркантильні раси є природними торговцями та отримують 0,5 кредиту за кожну одиницю їжі чи продукції, що переміщується через вантажне судно в межах імперії, вони також мають покращені ланцюжки постачання для торгових угод, які можуть допомогти задовольнити попит великих імперій, які мають з ними торгові угоди."
 Wasteful:
  Id: 68
  ENG: "Wasteful"
  RUS: "Расточительные"
  SPA: "Derrochadora"
+ UKR: "Марнотратні"
 WastefulRacesLeadLivesOf:
  Id: 69
  ENG: "Wasteful races lead lives of excess and care little for concepts like recycling or austerity.  Ship and building maintenance costs 25% more"
  RUS: "Расточительные расы живут в свое удовольствие; такие понятия, как умеренность и переработка отходов, им совершенно чужды. Содержание кораблей и построек обходится на 25% дороже обычного."
  SPA: "Las razas derrochadoras llevan una vida de exceso y se preocupan poco por conceptos como reciclaje o austeridad.  El mantenimiento de naves y edificios les cuesta un 25% más"
+ UKR: "Марнотратні раси ведуть надмірне життя і мало піклуються про такі поняття, як переробка чи жорстка економія. Утримання кораблів і будівель коштує на 25% більше"
 Efficient:
  Id: 70
  ENG: "Efficient"
  RUS: "Эффективные"
  SPA: "Eficiente"
+ UKR: "Ощадливі"
 EfficientRacesEarnAReduction:
  Id: 71
  ENG: "Efficient races earn a 25% reduction on ship and building maintenance costs due to their conservative and intelligent use of resources"
  RUS: "Эффективные расы получают 25% снижение расходов на содержание кораблей и построек благодаря консервативным подходам и разумному использованию ресурсов."
  SPA: "Las razas eficientes ahorran un 25% en gastos de mantenimiento de sus naves y edificios por su uso racional y moderado de los recursos"
+ UKR: "Ощадливі раси отримують 25% зниження витрат на обслуговування кораблів і будівель завдяки їх консервативному та розумному використанню ресурсів"
 Corrupt:
  Id: 72
  ENG: "Corrupt"
  RUS: "Коррумпированные"
  SPA: "Corrupta"
+ UKR: "Корумповані"
 RacesWithAStrongTradition:
  Id: 73
  ENG: "Races with a strong tradition of political corruption have a 25% corruption penalty to tax income "
  RUS: "Расы, склонные к коррупции в государственном аппарате, получают 25% штраф к собираемым налогам."
  SPA: "Las razas con una sólida tradición de corrupción política sufren una penalización del 25% al recaudar impuestos "
+ UKR: "Раси з сильною традицією політичної корупції мають 25% корупційний штраф для прибутку з податків"
 Meticulous:
  Id: 74
  ENG: "Meticulous"
  RUS: "Педантичные"
  SPA: "Meticulosa"
+ UKR: "Педантичні"
 MeticulousRacesHonorTheActuarial:
  Id: 75
  ENG: "Meticulous races honor the actuarial professions, earning a 25% bonus to tax income for their attention to details"
  RUS: "У педантичных рас государственный аппарат более эффективен, что позволяет собирать на 25% больше налогов."
  SPA: "Las razas meticulosas respetan las profesiones administrativas y recaudan un 25% más de impuestos por su atención a los detalles"
+ UKR: "Прискіпливі раси шанують професію управлінців, заробляючи 25% бонус доходів з податків за їх увагу до деталей"
 SkilledEngineers:
  Id: 76
  ENG: "Skilled Engineers"
  RUS: "Опытные инженеры"
  SPA: "Ingenieros hábiles"
+ UKR: "Досвідчені Інженери"
 RacesWithANaturalEngineering:
  Id: 77
  ENG: "Races with a natural engineering inclination build sturdier ship components, resulting in a 20% overall increase to ship module hit points"
  RUS: "Расы с природной склонностью к инженерному делу создают более надежные корабельные модули, что в итоге дает 20% бонус к их очкам прочности."
  SPA: "Las razas con una inclinación natural por la ingeniería construyen componentes de naves más resistentes, por lo que sus módulos tienen en general un 20% más de puntos de vida"
+ UKR: "Раси з природними інженерними нахилами створюють міцніші компоненти корабля, що призводить до загального збільшення очок здоров’я корабельних модулів на 20%."
 HaphazardEngineers:
  Id: 78
  ENG: "Haphazard Engineers"
  RUS: "Горе-инженеры"
  SPA: "Ingenieros descuidados"
+ UKR: "Безсистемні інженери"
 RacesWhoFollowHaphazardShip:
  Id: 79
  ENG: "Races who follow haphazard ship construction techniques have shoddier equipment overall, earning a 20% penalty to module hit points"
  RUS: "Расы, совершенно не имеющие склонности к инженерному делу, производят низкокачественные корабельные модули, что ведет к 20% штрафу к их очкам прочности."
  SPA: "Las razas que usan técnicas descuidadas para construir sus naves cuentan, en general, con equipos más chapuceros y sus módulos tienen un 20% menos de puntos de vida"
+ UKR: "Раси, які дотримуються хаотичних методів будівництва кораблів, загалом мають погане обладнання, одержуючи 20% штрафу до очок здоров’я модуля"
 Astronomers:
  Id: 80
  ENG: "Astronomers"
  RUS: "Астрономы"
  SPA: "Astrónomos"
+ UKR: "Астрономи"
 RacesThatHaveExtensivelyStudied:
  Id: 81
  ENG: "Races that have extensively studied the stars. Start the game with the closest 15 star systems fully explored."
  RUS: "Расы, активно изучавшие космос, начинают игру с 15 полностью исследованными звездными системами."
  SPA: "Las razas que han estudiado a fondo las estrellas empiezan el juego con los 15 sistemas estelares más cercanos totalmente explorados"
+ UKR: "Раси, які ретельно вивчали зірки. Почніть гру з 15 найближих зіркових систем повністю дослідженими."
 NavalTradition:
  Id: 82
  ENG: "Naval Tradition"
  RUS: "Флотские традиции"
  SPA: "Tradición naval"
+ UKR: "Корабельні традиції"
 RacesWithStrongNavalTraditions:
  Id: 83
  ENG: "Races with strong naval traditions gain a 35% reduction to ship building costs due to having well developed economic practices concerning ship construction"
  RUS: "Расы с сильными флотскими традициями получают 35% скидку к стоимости производства кораблей вследствие адаптации экономики под их строительство."
  SPA: "A las razas con una sólida tradición naval les cuesta un 35% menos la fabricación de naves porque disponen de prácticas económicas muy desarrolladas en lo que a la construcción naval se refiere"
+ UKR: "Раси з сильними корабельними традиціями отримують 35% зниження витрат на будівництво кораблів завдяки добре розвиненим економічним практикам щодо будівництва кораблів"
 Militaristic:
  Id: 84
  ENG: "Militaristic"
  RUS: "Милитаристы"
  SPA: "Militarista"
+ UKR: "Войовничі"
 RacesWithStrongMilitaryTraditions:
  Id: 85
  ENG: "Races with strong military traditions are prepped and ready to meet alien threats. As a result, they begin the game with the Military Outpost, Armor Theory, and Corvette Hull technologies."
  RUS: "Расы с сильными военными традициями всегда готовы отразить любую инопланетную угрозу. Как следствие, они начинают игру с технологиями Военный аванпост, Теория брони и Корвет."
  SPA: "Las razas con tradiciones militares sólidas están preparadas y dispuestas a combatir las amenazas alienígenas. Por ello empiezan el juego con las tecnologías de Base militar, Teoría del blindaje y Casco de corbeta."
+ UKR: "Раси з міцними військовими традиціями підготовлені та готові протистояти інопланетним загрозам. У результаті вони починають гру з технологіями Військова застава, Теорія Броні і Корвет."
 PollutedHomeworld:
  Id: 86
  ENG: "Polluted Homeworld"
  RUS: "Загрязненный родной мир"
  SPA: "Mundo natal contaminado"
+ UKR: "Забруднений рідний світ"
 RacesThatHaveBeenFoolish:
  Id: 87
  ENG: "Races that have been foolish enough to heavily pollute their own homeworld have a -0.35 Fertility penalty on their homeworld, making quick colonization a top priority"
  RUS: "Расы, по недомыслию загрязнившие свой родной мир получают -0.35 к плодородию на родной планете, что вынуждает ставить колонизацию на первое место в списке приоритетов развития."
  SPA: "Las razas que han sido tan necias como para contaminar indiscriminadamente sus mundos de origen sufren una penalización de -0.35 en su planeta natal, por lo que la colonización exprés será para ellos una prioridad"
+ UKR: "Раси, які були достатньо дурними, щоб сильно забруднити власний рідний світ, мають -0,35 штрафу за народжуваність на своєму рідному світі, що робить швидку колонізацію головним пріоритетом"
 HugeHomeworld:
  Id: 88
  ENG: "Huge Homeworld"
  RUS: "Огромный родной мир"
  SPA: "Mundo natal enorme"
+ UKR: "Величезний рідний світ"
 TheRacialHomeworldIsMuch:
  Id: 89
  ENG: "The racial homeworld is much larger than the average planet, allowing 25% more population maximum"
  RUS: "Родной мир расы значительно больше средней планеты по размерам, что позволяет разместить на ней на 25% больше населения."
  SPA: "El planeta de origen de la raza es mucho más grande que un planeta normal, por lo que puede albergar un 25% más de población máxima"
+ UKR: "Расовий рідний світ набагато більший, ніж середня планета, що дозволяє максимально збільшити максимум населення на 25%."
 SmallHomeworld:
  Id: 90
  ENG: "Small Homeworld"
  RUS: "Маленький родной мир"
  SPA: "Mundo natal pequeño"
+ UKR: "Маленький рідний світ"
 TheRacialHomeworldIsMuch2:
  Id: 91
  ENG: "The racial homeworld is much smaller than the average planet, allowing 25% less population maximum"
  RUS: "Родной мир расы значительно меньше средней планеты по размерам, из-за чего она вмещает на 25% меньше населения."
  SPA: "El planeta de origen de la raza es mucho más pequeño que un planeta normal, por lo que puede albergar un 25% menos de población máxima"
+ UKR: "Расовий рідний світ набагато менший за середню планету, допускаючи максимум населення на 25% менше"
 PrototypeFlagship:
  Id: 92
  ENG: "Prototype Flagship"
  RUS: "Прототип флагмана"
  SPA: "Prototipo de nave almirante"
+ UKR: "Прототип флагмана"
 BeginTheGameWithAn:
  Id: 93
  ENG: "Begin the game with an advanced prototype flagship equipped with technologies that otherwise would not be available at the game's start"
  RUS: "Начать игру с мощным флагманским кораблем, оснащенным технологиями, в ином случае не доступными в начале игры."
  SPA: "Comienzas la partida con un prototipo avanzado de nave almirante con tecnologías que, de otra forma, no estarían disponibles al principio del juego"
+ UKR: "Почніть гру з передового прототипу флагмана, оснащеного технологіями, які інакше були б недоступні на початку гри"
 Prewarp:
  Id: 94
  ENG: "Pre-Warp"
  RUS: "Пре-варп"
  SPA: "Velocidad presupraluminal"
+ UKR: "Пре-варп"
 PrewarpRacesDiscoveredAnAncient:
  Id: 95
  ENG: "Pre-Warp races discovered an ancient alien vessel buried in the polar ice of their homeworld.  They begin the game with a powerful alien cruiser, but possess no star faring technologies and no starbase for ship construction"
  RUS: "Расы в пре-варпе находят в своем родном мире древний инопланетный корабль. Они начинают игру с мощным инопланетным крейсером, но не имеют технологий путешествия в космосе и звездной базы для строительства кораблей."
  SPA: "Las razas con velocidad presupraluminal descubrieron una antigua nave alienígena sepultada en el hielo polar de su planeta natal.  Comienzan el juego con un poderoso crucero alienígena, pero no poseen tecnologías para viajes interestelares ni bases estelares para la construcción de naves"
+ UKR: "Раса пре-Варпу виявила стародавній інопланетний корабель, похований у полярних льодах їхнього рідного світу. Вони починають гру з потужного інопланетного крейсера, але не володіють зоряними технологіями та зоряною базою для будівництва кораблів"
 ManifestDestiny:
  Id: 96
  ENG: "Manifest Destiny"
  RUS: "Ведомые предназначением"
  SPA: "Destino manifiesto"
+ UKR: "Маніфест долі"
 RacesPossessingAPioneeringSpirit:
  Id: 97
  ENG: "Races possessing a pioneering spirit believe that their destiny lies out among the stars.  As a result, your passenger transports carry three times as many colonists to new planets"
  RUS: "Эти расы свято верят в то, что их предназначение - путешествовать по Вселенной. Как следствие, пассажирские транспорты перевозят к новым планетам втрое больше колонистов, чем обычно."
  SPA: "Las razas que poseen un espíritu pionero creen que su destino está entre las estrellas.  En consecuencia, sus transportes de pasajeros llevan el triple de colonos a nuevos planetas"
+ UKR: "Раси з новаторським духом вірять, що їхня доля лежить серед зірок. У результаті ваші пасажирські транспорти перевозять на нові планети втричі більше колоністів"
 Shipyard:
  Id: 98
  ENG: "Shipyard"
  RUS: "Верфь"
  SPA: "Astillero"
+ UKR: "Верф"
 Empire:
  Id: 99
  ENG: "Empire"
  RUS: "Империя"
  SPA: "Imperio"
+ UKR: "Імперія"
 Diplomacy:
  Id: 100
  ENG: "Diplomacy"
  RUS: "Дипломатия"
  SPA: "Diplomacia"
+ UKR: "Дипломатія"
 MainMenu:
  Id: 101
  ENG: "Main Menu"
  RUS: "Главное меню"
  SPA: "Menú principal"
+ UKR: "Головне меню"
 Choose:
  Id: 102
  ENG: "Choose"
  RUS: "Выбрать"
  SPA: "Elegir"
+ UKR: "Обрати"
 Fleets:
  Id: 103
  ENG: "Fleets"
  RUS: "Флоты"
  SPA: "Flotas"
+ UKR: "Флоти"
 ShipsArray:
  Id: 104
  ENG: "Ships Array"
  RUS: "Список кораблей"
  SPA: "Lista de naves"
+ UKR: "Список кораблів"
 SaveAs:
  Id: 105
  ENG: "Save As"
  RUS: "Сохранить как"
  SPA: "Guardar como"
+ UKR: "Зберегти як"
 Saving:
  ENG: "Saving..."
+ UKR: "Збереження..."
 ToggleOverlay:
  Id: 106
  ENG: "Toggle Overlay"
  RUS: "Переключить"
  SPA: "Alternar sobreimpresión"
+ UKR: "Перемкнути накладання"
 SelectHull:
  Id: 107
  ENG: "Select Hull"
  RUS: "Выбрать корпус"
  SPA: "Seleccionar casco"
+ UKR: "Оберіть корпус"
 ShipStats:
  Id: 108
  ENG: "Ship Stats"
  RUS: "Параметры корабля"
  SPA: "Estadísticas de nave"
+ UKR: "Статистика корабля"
 ProductionCost:
  Id: 109
  ENG: "Production Cost"
  RUS: "Цена производства"
  SPA: "Coste de producción"
+ UKR: "Ціна виробницітва"
 PowerCapacity:
  Id: 110
  ENG: "Power Capacity"
  RUS: "Энергоемкость"
  SPA: "Capacidad de energía"
+ UKR: "Потужність"
 PowerRecharge:
  Id: 111
  ENG: "Power Recharge"
  RUS: "Перезарядка"
  SPA: "Recarga de energía"
+ UKR: "Перезарядка"
 RechargeAtWarp:
  Id: 112
  ENG: "Recharge at Warp"
  RUS: "Перезарядка в варпе"
  SPA: "Recarga a velocidad supraluminal"
+ UKR: "Перезарядка у варпі"
 TotalHitpoints:
  Id: 113
  ENG: "Total Hitpoints"
  RUS: "Всего ОП"
  SPA: "Puntos de vida totales"
+ UKR: "Всього очок життя"
 ShieldPower:
  Id: 114
  ENG: "Shield Power"
  RUS: "Мощность щита"
  SPA: "Energía de escudos"
+ UKR: "Міцність щита"
 Mass:
  Id: 115
  ENG: "Mass"
  RUS: "Масса"
  SPA: "Masa"
+ UKR: "Маса"
 SublightSpeed:
  Id: 116
  ENG: "Sub-light Speed"
  RUS: "Субсветовая скорость"
  SPA: "Velocidad infraluminal"
+ UKR: "Субсвітлова швидкість"
 TurnRate:
  Id: 117
  ENG: "Turn Rate"
  RUS: "Скорость поворота"
  SPA: "Velocidad de giro"
+ UKR: "Швидкість повороту"
 OrdnanceCapacity:
  Id: 118
  ENG: "Ordnance Capacity"
  RUS: "Боекомплект"
  SPA: "Capacidad de munición"
+ UKR: "Боєкомплект"
 CargoSpace:
  Id: 119
  ENG: "Cargo Space"
  RUS: "Вместимость трюма"
  SPA: "Espacio de carga"
+ UKR: "Вантажний простір"
 PoweredCommand:
  Id: 120
  ENG: "Powered Command"
  RUS: "Мостик/Кокпит/КИЦ"
  SPA: "Puente/Cabina/CIC"
+ UKR: "Місток"
 NoEmptySlots:
  Id: 121
  ENG: "Design Completion"
  RUS: "Занято слотов"
  SPA: "No hay ranuras vacías"
+ UKR: "Завершенність"
 Restrictions:
  Id: 122
  ENG: "Restrictions"
  RUS: "Ограничения"
  SPA: "Restricciones"
+ UKR: "Обмеження"
 Mass2:
  Id: 123
  ENG: "Mass"
  RUS: "Масса"
  SPA: "Masa"
+ UKR: "Маса"
 Health:
  Id: 124
  ENG: "Health"
  RUS: "ХП"
  SPA: "Salud"
+ UKR: "Здоров'я"
 Power:
  Id: 125
  ENG: "Power"
  RUS: "Мощь"
  SPA: "Potencia"
+ UKR: "Потужність"
 Range:
  Id: 126
  ENG: "Range"
  RUS: "Дистан."
  SPA: "Distancia"
+ UKR: "Діапазон"
 Damage:
  Id: 127
  ENG: "Damage"
  RUS: "Урон"
  SPA: "Daño"
+ UKR: "Урон"
 Cost:
  Id: 128
  ENG: "Cost"
  RUS: "Цена"
  SPA: "Coste"
+ UKR: "Ціна"
 Speed:
  Id: 129
  ENG: "Speed"
  RUS: "Скор.Снар."
  SPA: "Velocidad"
+ UKR: "Швидкість"
 FireArc:
  Id: 130
  ENG: "Fire Arc"
  RUS: "Угол обстрела"
  SPA: "Arco de disparo"
+ UKR: "Кут обстрілу"
 Thrust:
  Id: 131
  ENG: "Thrust"
  RUS: "Субсвет"
  SPA: "Impulso"
+ UKR: "Тяга"
 ShldStr:
  Id: 132
  ENG: "Shld Str"
  RUS: "Сила щита"
  SPA: "Res. esc."
+ UKR: "Сила щита"
 ShldSize:
  Id: 133
  ENG: "Shld Size"
  RUS: "Рад.щита"
  SPA: "Tam. esc."
+ UKR: "Рад. щита"
 Recharge:
  Id: 134
  ENG: "Recharge"
  RUS: "Перезаряд."
  SPA: "Recargar"
+ UKR: "Перезарядка"
 Repair:
  Id: 135
  ENG: "Repair"
  RUS: "Ремонт"
  SPA: "Reparar"
+ UKR: "Ремонт"
 SpawnTimer:
  Id: 136
  ENG: "Spawn Timer"
  RUS: "Перез.Ангара"
  SPA: "Tiempo para reaparición"
+ UKR: "Час спавну"
 Fighter:
  Id: 137
  ENG: "Fighter"
  RUS: "Истребитель"
  SPA: "Caza"
+ UKR: "Винищувач"
 Carrier:
  Id: 138
  ENG: "Carrier"
  RUS: "Носитель"
  SPA: "Portaaeronaves"
+ UKR: "Носій"
 Scout:
  Id: 139
  ENG: "Scout"
  RUS: "Разведчик"
  SPA: "Nave exploradora"
+ UKR: "Розвідник"
 Freighter:
  Id: 140
  ENG: "Freighter"
  RUS: "Транспорт"
  SPA: "Carguero"
+ UKR: "Торгівельне судно"
 Frigate:
  Id: 141
  ENG: "Frigate"
  RUS: "Фрегат"
  SPA: "Fragata"
+ UKR: "Фрегат"
 Troop:
  Id: 142
  ENG: "Troop"
  RUS: "Отряд"
  SPA: "Tropa"
+ UKR: "Фрегат"
 Construction:
  Id: 143
  ENG: "Construction"
  RUS: "Конструкция"
  SPA: "Construcción"
+ UKR: "Будівництво"
 Cruiser:
  Id: 144
  ENG: "Cruiser"
  RUS: "Крейсер"
  SPA: "Crucero"
+ UKR: "Крейсер"
 Capital:
  Id: 145
  ENG: "Capital"
  RUS: "Столица"
  SPA: "Capital"
+ UKR: "Столиця"
 Supply:
  Id: 146
  ENG: "Supply"
  RUS: "Снабжение"
  SPA: "Suministro"
+ UKR: "Постачання"
 Platform:
  Id: 147
  ENG: "Platform"
  RUS: "Платформа"
  SPA: "Plataforma"
+ UKR: "Платформа"
 Scrap:
  Id: 148
  ENG: "Scrap"
  RUS: "Утиль"
  SPA: "Desguace"
+ UKR: "Лом"
 CancelScrap:
  Id: 149
  ENG: "Cancel Scrap"
  RUS: "Отменить утилизацию"
  SPA: "Cancelar desguace"
+ UKR: "Відмінити "
 DeepSpace:
  Id: 150
  ENG: "Deep Space"
  RUS: "Глубокий космос"
  SPA: "Espacio profundo"
+ UKR: "Глибокий космос"
 Upkeep:
  Id: 151
  ENG: "Upkeep"
  RUS: "Содержание"
  SPA: "Mantenimiento"
+ UKR: "Утримання"
 UpkeepCost:
  ENG: "Upkeep Cost"
+ UKR: "вартість утримання"
 TotalModuleSlots:
  ENG: "Total Module Slots"
+ UKR: "Загальна кількість слотів"
 ExcessWpnPwrDrain:
  ENG: "Excess Wpn Pwr Drain"
+ UKR: "Надлишкова витр. енерг."
 WpnFirePowerTime:
  ENG: "Wpn Fire Power Time"
+ UKR: "Час безперервної стрільби"
 BurstWpnPwrDrain:
  ENG: "Burst Wpn Pwr Drain"
+ UKR: "спожив. енерг. збр."
 BurstWpnPwrTime:
  ENG: "Burst Wpn Pwr Time"
+ UKR: "час підтр. енерг. постр."
 Kills:
  Id: 152
  ENG: "Kills"
  RUS: "Убийств"
  SPA: "Bajas"
+ UKR: "Вбивств"
 AwaitingOrders:
  Id: 153
  ENG: "Awaiting Orders"
  RUS: "Ожидает приказов"
  SPA: "Esperando órdenes"
+ UKR: "Очікуж наказів"
 Attacking:
  Id: 154
  ENG: "Attacking"
  RUS: "Атакует"
  SPA: "Atacando"
+ UKR: "Атакує"
 InCombat:
  Id: 155
  ENG: "In combat"
  RUS: "В бою"
  SPA: "En combate"
+ UKR: "В бою"
 SearchingForTargets:
  Id: 156
  ENG: "Searching for targets"
  RUS: "Идет поиск целей"
  SPA: "Buscando objetivos"
+ UKR: "Шукає цілі"
 Intercepting:
  Id: 157
  ENG: "Intercepting"
  RUS: "Перехват"
  SPA: "Interceptando"
+ UKR: "Перехоплює"
 InCombatWith:
  Id: 158
  ENG: "In combat with"
  RUS: "В бою с"
  SPA: "En combate con"
+ UKR: "В бою з"
 EnRouteTo:
  Id: 159
  ENG: "En Route to"
  RUS: "В пути до"
  SPA: "Rumbo a"
+ UKR: "На шляху до"
 PickingUp:
  Id: 160
  ENG: "Picking up"
  RUS: "Подбор"
  SPA: "Recogiendo"
+ UKR: "Збір"
 Food:
  Id: 161
  ENG: "Food"
  RUS: "Еда"
  SPA: "Alimentos"
+ UKR: "Їжа"
 Production:
  Id: 162
  ENG: "Production"
  RUS: "Промышленность"
  SPA: "Producción"
+ UKR: "Виробництво"
 Delivering:
  Id: 163
  ENG: "Delivering"
  RUS: "Доставка"
  SPA: "Enviando"
+ UKR: "Доставка"
 TradingGoods:
  Id: 164
  ENG: "Trading Goods"
  RUS: "Торговля"
  SPA: "Negociando bienes"
+ UKR: "Торгівля"
 SeekingRoute:
  Id: 165
  ENG: "Seeking route"
  RUS: "Поиск маршрута"
  SPA: "Buscando ruta"
+ UKR: "Пошук шляху"
 PickingUpColonists:
  Id: 166
  ENG: "Picking up Colonists"
  RUS: "Подбор колонистов"
  SPA: "Recogiendo colonos"
+ UKR: "Підбір колонистів"
 DeliveringColonists:
  Id: 167
  ENG: "Delivering Colonists"
  RUS: "Доставка колонистов"
  SPA: "Dejando colonos"
+ UKR: "Доставка колонистів"
 ColonistTransport:
  Id: 168
  ENG: "Colonist Transport"
  RUS: "Колониальный транспорт"
  SPA: "Transporte de colonos"
+ UKR: "Перевозка колонистів"
 EnRouteToColonize:
  Id: 169
  ENG: "En route to colonize"
  RUS: "Колонизирует"
  SPA: "Rumbo a colonizar"
+ UKR: "Колонізує"
 SystemDefenseDuty:
  Id: 170
  ENG: "System Defense Duty"
  RUS: "Оборона системы"
  SPA: "Servicio de defensa de sistema"
+ UKR: "На захисті системи"
 UnderDirectPlayerControl:
  Id: 171
  ENG: "Under direct player control"
  RUS: "Под непосредственным контролем игрока"
  SPA: "Bajo control directo del jugador"
+ UKR: "Під керівництвом гравця"
 ResupplyingAt:
  Id: 172
  ENG: "Resupplying at"
  RUS: "Дозаправка в"
  SPA: "Reabasteciéndose en"
+ UKR: "Дозаправка на"
 ReturningToBaseForResupply:
  Id: 173
  ENG: "Returning to base for resupply"
  RUS: "Возврат для дозаправки"
  SPA: "Regresando a base para reabastecerse"
+ UKR: "Повернення на базу для дозаправки"
 ExploringTheGalaxy:
  Id: 174
  ENG: "Exploring the galaxy"
  RUS: "Исследование галактики"
  SPA: "Explorando la galaxia"
+ UKR: "Досліджує галактику"
 Bombarding:
  Id: 175
  ENG: "Bombarding"
  RUS: "Бомбардировка"
  SPA: "Bombardeando"
+ UKR: "Бомбардування"
 EnRouteToBombard:
  Id: 176
  ENG: "En route to bombard"
  RUS: "В пути к бомбометанию"
  SPA: "Rumbo a bombardear"
+ UKR: "На шляху до бомбардування"
 ExecutingBoardingAssaultAction:
  Id: 177
  ENG: "Executing boarding assault action"
  RUS: "Осуществление абордажа"
  SPA: "Ejecutando asalto de abordaje"
+ UKR: "Здійснює абордаж"
 TransferringTroops:
  Id: 178
  ENG: "Transferring Troops"
  RUS: "Смена базы"
  SPA: "Cambiando de base"
+ UKR: "Перекидання солдат"
 Escorting:
  Id: 179
  ENG: "Escorting"
  RUS: "Сопровождение"
  SPA: "Escoltando"
+ UKR: "Супровід"
 HoldingPosition:
  Id: 180
  ENG: "Holding Position"
  RUS: "Удержание позиции"
  SPA: "Manteniendo posición"
+ UKR: "Утримання позиції"
 ReturningToHangar:
  Id: 181
  ENG: "Returning to Hangar"
  RUS: "Возврат в ангар"
  SPA: "Regresando a hangar"
+ UKR: "Повернення до ангару"
 Orbiting:
  Id: 182
  ENG: "Orbiting"
  RUS: "На орбите"
  SPA: "Orbitando"
+ UKR: "На орбіті"
 AwaitingOrders2:
  Id: 183
  ENG: "Awaiting Orders"
  RUS: "Ожидает приказов"
  SPA: "Esperando órdenes"
+ UKR: "Очікує наказів"
 MovingToShipyardForRefit:
  Id: 184
  ENG: "Moving to shipyard for refit"
  RUS: "Отправить на верфь для модернизации"
  SPA: "Rumbo a astillero para reequiparse"
+ UKR: "Рухається на верф для переозброєння"
 FerryingOrdnance:
  Id: 185
  ENG: "Ferrying Ordnance"
  RUS: "Перевоз боеприпасов"
  SPA: "Trasladando munición"
+ UKR: "Переправка боєприпасів"
 ScrappingShip:
  Id: 186
  ENG: "Scrapping Ship"
  RUS: "Утилизация корабля"
  SPA: "Desguazando nave"
+ UKR: "Розбір корабля"
 MovingTo:
  Id: 187
  ENG: "Moving to"
  RUS: "Летит к"
  SPA: "Camino a"
+ UKR: "Рухається до"
 Deploy:
  Id: 188
  ENG: "deploy"
  RUS: "Разместить"
  SPA: "desplegarse"
+ UKR: "Розгорнути"
 DeepSpaceNear:
  Id: 189
  ENG: "Deep Space near"
  RUS: "Глубокий космос"
  SPA: "Espacio profundo cerca de"
+ UKR: "Глибокий космос поруч"
 ShipArray:
  Id: 190
  ENG: "Ship Array"
  RUS: "Список кораблей"
  SPA: "Lista de naves"
+ UKR: "Список кораблів"
 PlayerDesignsOnly:
  Id: 191
  ENG: "Player Designs Only"
  RUS: "Скрыть платформы"
  SPA: "Ocultar plataformas"
+ UKR: "Лише дизайни гравця"
 System:
  Id: 192
  ENG: "System"
  RUS: "Система"
  SPA: "Sistema"
+ UKR: "Система"
 Ship:
  Id: 193
  ENG: "Ship"
  RUS: "Корабль"
  SPA: "Nave"
+ UKR: "Корабель"
 Role:
  Id: 194
  ENG: "Role"
  RUS: "Роль"
  SPA: "Rol"
+ UKR: "Роль"
 Orders:
  Id: 195
  ENG: "Orders"
  RUS: "Приказы"
  SPA: "Órdenes"
+ UKR: "Накази"
 RefitScrap:
  Id: 196
  ENG: "Refit / Scrap"
  RUS: "Модерн./Утиль"
  SPA: "Reequipar/Desguazar"
+ UKR: "Переозбр / Розбір"
 Statistics:
  Id: 197
  ENG: "Statistics"
  RUS: "Статистика"
  SPA: "Estadísticas"
+ UKR: "Статистика"
 AvailableDesigns:
  Id: 198
  ENG: "Available Designs"
  RUS: "Доступные дизайны"
  SPA: "Diseños disponibles"
+ UKR: "Доступні дизайні"
 ChooseAShipToLoad:
  Id: 199
  ENG: "Choose a Ship to Load"
  RUS: "Выберите корабль для загрузки"
  SPA: "Elegir una nave para cargar"
+ UKR: "Оберіть корабель для завантаження"
 ShipWillMakeHeadonAttack:
  Id: 200
  ENG: "Attack Runs: \n\nShip will make head-on attack runs on its target"
  RUS: "Корабль атакует цель в лоб"
  SPA: "La nave hará pasadas de ataque frontal sobre su objetivo"
+ UKR: "Атака в лоб: \n\Корабель здійснить лобову атаку на свою ціль"
 ShipWillRotateSoThat:
  Id: 201
  ENG: "Maximum Range: \n\nShip will rotate so that forward-firing weapons are facing its target. \nIf in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within maximum weapons range. \nIf a carrier the ship will use the Carrier Hangar range."
  RUS: "Корабль будет разворачиваться таким образом, чтобы носовые оружия смотрели на цель. В составе флота корабль будет пытаться сохранять построение.В остальных случаях корабль будет маневрировать на максимальной дистанции стрельбы"
  SPA: "La nave girará de modo que las armas frontales sigan apuntando al objetivo. Si está en una flota, intentará mantener la formación. Si no lo está, maniobrará para que el radio de alcance de las armas sea el máximo"
+ UKR: "Максимальна дальність: \n\nКорабель буде обертатись щоб фронтальна зброя була направлена на ціль \n Якщо у флоті, буде підтримувати формацію. Якщо ж ні - буде маневрувати на максимальній дальності зброїю \nЯкщо носій - корабель буде використовувати дальність ангарів"
 ShipWillManeuverToKeep:
  Id: 202
  ENG: "Ship will maneuver to keep its target on the port side"
  RUS: "Корабль будет пытаться развернуться к цели левым бортом"
  SPA: "La nave maniobrará para mantener el objetivo a babor"
+ UKR: "Корабель маневруватиме щоб тримати ціль по лівому борту"
 ShipWillManeuverToKeep2:
  Id: 203
  ENG: "Ship will maneuver to keep its target on the starboard side"
  RUS: "Корабль будет пытаться развернуться к цели правым бортом"
  SPA: "La nave maniobrará para mantener el objetivo a estribor"
+ UKR: "Корабель маневруватиме щоб тримати ціль по правому борту"
 ShipWillAttemptToMaintain:
  Id: 204
  ENG: "Ship will attempt to maintain formation and facing at all times"
  RUS: "Корабль всегда будет стараться сохранять построение  и направление на цель"
  SPA: "La nave intentará mantener la formación y la orientación en todo momento"
+ UKR: "Корабель намагатиметься зберігати стрій та напрямок руху весь час"
 AMeasureOfHowCooperative:
  Id: 206
  ENG: "A measure of how cooperative a ship is; the weight given to targeting ships that are being targeted by allies"
  RUS: "Показатель того, насколько синергично корабль действует в составе флота; вес выбора целями вражеских кораблей, атакуемых союзниками"
  SPA: "Medida de lo cooperativa que es una nave; valor específico dado para apuntar a las naves que disparan a los aliados"
+ UKR: "Показник того, наскільки корабель готовий до співпраці; вага, яка надається націленню на кораблі, які є ціллю союзників"
 AMeasureOfHowProtective:
  Id: 207
  ENG: "A measure of how protective a ship is; the weight given to targeting ships that are targeting friendly ships"
  RUS: "Показатель того, насколько оборонительно действует корабль.Вес выбора целями вражеских кораблей, атакующих союзников"
  SPA: "Medida de lo protectora que es una nave; valor específico dado para apuntar a las naves que están disparando a naves amigas"
+ UKR: "Показник того, наскільки захисним є судно; вага, яка надається націлюванням на кораблі, які атакують союзні кораблі"
 AMeasureOfHowOpportunistic:
  Id: 208
  ENG: "A measure of how opportunistic a ship is; the weight given to targeting ships that are damaged"
  RUS: "Показатель того, насколько корабль нацелен на добивание.Вес выбора целями вражеских кораблей, получивших повреждения"
  SPA: "Medida de lo oportunista que es una nave; valor específico dado parar apuntar a las naves que están dañadas"
+ UKR: "Показник того, наскільки судно є опортуністичним; вага, надана націлюванню на пошкоджені кораблі"
 TheWeightGivenToTargeting:
  Id: 209
  ENG: "The weight given to targeting ships that are heavily armored"
  RUS: "Вес выбора целями тяжелобронированных кораблей"
  SPA: "Valor específico dado por apuntar a naves que tienen mucho blindaje"
+ UKR: "Вага, яку надають націленню на важкоброньовані кораблі"
 TheWeightGivenToTargeting2:
  Id: 210
  ENG: "The weight given to targeting ships that are heavily shielded"
  RUS: "Вес выбора целями кораблей с мощными щитами"
  SPA: "Valor específico dado por apuntar a naves que tienen escudos fuertes"
+ UKR: "Вага, яку надають націленню на кораблі, сильно захищені щитами"
 TheWeightGivenToTargeting3:
  Id: 211
  ENG: "The weight given to targeting ships that have a high Damage Per Second output"
  RUS: "Вес выбора целями кораблей, наносящих большой урон"
  SPA: "Valor específico dado por apuntar a naves que provocan mucho daño por segundo"
+ UKR: "Вага, яку надають націленню на кораблі з високим уроном за секунду"
 DefinesTheAreaInWhich:
  Id: 212
  ENG: "Defines the area in which a ship will seek targets to attack or defend"
  RUS: "Задает область, в которой корабль будет искать цели для атаки или защиты"
  SPA: "Define la zona donde una nave buscará objetivos para atacar o defender"
+ UKR: "Визначає зону, в якій корабель шукатиме цілі для нападу або захисту"
 DeterminesWhetherAShipPrefers:
  Id: 213
  ENG: "Determines whether a ship prefers targets smaller, similar, or larger than itself"
  RUS: "Определяет, какие цели преимущественно будет выбирать корабль - меньшие, своего класса или более крупные"
  SPA: "Determina si una nave prefiere objetivos de tamaño menor, similar o mayor al suyo"
+ UKR: "Визначає, чи корабель віддає перевагу цілям, меншим, схожим чи більшим за нього"
 AllowsYouToCustomizeAn:
  Id: 214
  ENG: "Allows you to customize an \"Area of Operations\" or \"AO\" for a freighter. Freighters will only trade within their AO (both Manual and Auto Trade), allowing you to define custom trade areas. Drag a selection box around the area of the galaxy you want to define as the AO. You can define more than one AO per ship. Right click the AO to delete it. Esc key or right clicking on this button will exit AO creation mode."
  RUS: "Позволяет вам задать для корабля область операций. Грузовые корабли будут осуществлять перевозку товаров только внутри своей области операций, что позволит вам создавать пользовательские торговые маршруты. Боевые корабли будут патрулировать свои области и атаковать вражеские корабли, вторгшиеся туда.\nОчертите прямоугольник для определения области операций. Вы можете задать для одного корабля более одной ОО. Для удаления ОО щелкните по ней ПКМ."
  SPA: "Permite personalizar una \"zona de operaciones\" o \"ZO\" para una nave. Los cargueros solo comerciarán dentro de la ZO, por lo que puedes personalizar rutas comerciales. Las naves de combate patrullarán su ZO y atacarán a los enemigos presentes en ella.\n\nArrastra el puntero para dibujar un cuadro de selección alrededor de la zona de la galaxia que quieras definir como ZO. Puedes definir más de una zona por nave. Haz clic con el botón derecho en la ZO para eliminarla.\n      "
+ UKR: "Дозволяє налаштувати \"Зону операцій\" або \"ЗО\" для вантажного судна. Вантажники торгуватимуть лише в межах свого ЗО (як ручної, так і автоматичної торгівлі), що дозволяє вам визначати власні торгові зони. Перетягніть рамку вибору навколо області галактики, яку потрібно визначити як ЗО. Ви можете визначити більше одного ЗО на судно. Клацніть ЗО правою кнопкою миші, щоб видалити його. Клавіша Esc або клацання правою кнопкою миші на цій кнопці призведе до виходу з режиму створення AO."
 SendTroopsToThisShip:
  Id: 217
  ENG: "Send Troops to this ship if it's troop number is less than the maximum or less than 25% if in combat. If you toggle this off, the ship will go to resupply when it has no troops left. A ship set to Kamikaze will not retreat to resupply, but will request troops if the button is on."
  RUS: "Отправляет войска на этот корабль, если его количество меньше максимального или меньше 25% в бою. Если вы выключите эту кнопку, корабль отправится на пополнение запасов, когда на нем не останется войск. Корабль, установленный как Камикадзе, не будет отступать для пополнения запасов, но запросит войска, если кнопка включена."
  SPA: "Activa o desactiva los escudos de la nave. Los escudos desactivados no consumen energía"
+ UKR: "Надішліть війська на цей корабель, якщо його кількість менша за максимальну або менша за 25%, якщо в бою. Якщо вимкнути цю функцію, корабель піде на поповнення запасів, коли на ньому не залишиться військ. Корабель, налаштований на Камікадзе, не відступить для поповнення запасів, але запитає війська, якщо кнопку увімкнено."
 WhenActiveAllAvailableFighters:
  Id: 218
  ENG: "When active, all available fighters will launch and escort the carrier. If not active, fighters will launch only for combat and return to their hangars for resupply when combat ends."
  RUS: "Когда кнопка активена, все доступные истребители запускаются и сопровождают авианосец. Если не активен, истребители будут запускаться только для боя и возвратяться в свои ангары для пополнения запасов по окончании боя."
  SPA: "Determina si los cazas de la nave deben salir o regresar a los hangares"
+ UKR: "Коли активне, усі доступні винищувачі запускаються та супроводжують носій. Якщо не активно, винищувачі запускатимуться лише для бою та повертатимуться до своїх ангарів для поповнення запасів після завершення бою."
 IndicatesHowMuchFoodThis:
  Id: 219
  ENG: "Indicates how much food this planet will produce per assigned colonist per turn (a turn is 0.1 StarDate). Some buildings or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time. The number in parentheses indicates the fertility modifier of this colony, based on your empire's suitable environments. Buildings which grant food per assigned colonist are greatly affected by Fertility, as Fertiliy is a multiplier. Non Cybernetic Races consume food."
+ UKR: "Вказує, скільки їжі ця планета вироблятиме на одного призначеного колоніста за хід (хід становить 0,1 StarDate). Деякі будівлі або вплив навколишнього середовища можуть збільшити або зменшити максимальне значення, і в цьому випадку поточне значення поступово збігатиметься з максимальним значенням з часом. Число в дужках вказує на модифікатор родючості цієї колонії на основі відповідного середовища вашої імперії. На будівлі, які дають їжу кожному призначеному колоністу, сильно впливає родючість, оскільки родючість є множником. Некібернетичні раси споживають їжу."
 IndicatesHowMuchResearchThis:
  Id: 221
  ENG: "Indicates how much research this planet will produce per assigned colonist per turn (a turn is .1 StarDate)"
  RUS: "Указывает, сколько исследований на выделенного колониста колония произведет за ход (ход - 0,1 ЗД)"
  SPA: "Indica cuánta investigación producirá este planeta por colono asignado y por turno (un turno es 0,1 en la fecha estelar)"
+ UKR: "Вказує, скільки досліджень ця планета вироблятиме на одного призначеного колоніста за хід (хід становить .1 StarDate)"
 MarkThisPlanetForColonization:
  Id: 222
  ENG: "Mark this planet for colonization. If you own a colony ship that has no current mission then it will be assigned to colonize this planet. Otherwise, a new colony ship will be constructed at your best available shipyard and dispatched to this planet upon completion"
@@ -10669,6 +10892,9 @@ ResearchUnlocksMoreThanFourItems:
 RemnantsDefeatedFleetsMayAttack:
  Id: 4519
  ENG: "However, remaining Remnant fleets in this sector might still\npose an active threat until destroyed." 
+PLanetInfoNumberOfDefenseShips:
+ Id: 4520
+ ENG: "Number of Defense ships in Air Bases on this planet." 
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"
@@ -10796,59 +11022,59 @@ Trait_OrbitalConstructors_Desc:
  Id: 4965
  ENG: "Orbital Builders enjoy building Space structures. Their Constructors build orbital structures 50% faster."     
 TraitSalvagersName:
-  Id: 4966
-  ENG: "Salvagers"   
+ Id: 4966
+ ENG: "Salvagers"   
 TraitSalvagersDesc:
-  Id: 4967
-  ENG: "salvagers like to collect scrap matel and upgrades. Your empire will get 1 credit per 20 slots of enemy ships killed."       
+ Id: 4967
+ ENG: "salvagers like to collect scrap matel and upgrades. Your empire will get 1 credit per 20 slots of enemy ships killed."       
 TraitCompensationName:
-  Id: 4968
-  ENG: "Crew Compensation Plan"   
+ Id: 4968
+ ENG: "Crew Compensation Plan"   
 TraitCompensationDesc:
-  Id: 4969
-  ENG: "Your empire will compansate the families of battle casualties at a rate of 1 credit per 20 slots of ships killed by enemies."         
+ Id: 4969
+ ENG: "Your empire will compansate the families of battle casualties at a rate of 1 credit per 20 slots of ships killed by enemies."         
 TraitTerranHomeworldName:
-  Id: 4970
-  ENG: "Terran Homeworld"   
+ Id: 4970
+ ENG: "Terran Homeworld"   
 TraitTerranHomeworldDesc:
-  Id: 4971
-  ENG: "Your empire starts in a Terran homeworld and gets +50% Fertility and Max Population for other Terran worlds."      
+ Id: 4971
+ ENG: "Your empire starts in a Terran homeworld and gets +50% Fertility and Max Population for other Terran worlds."      
 TraitOceanicHomeworldName:
-  Id: 4972
-  ENG: "Oceanic Homeworld"   
+ Id: 4972
+ ENG: "Oceanic Homeworld"   
 TraitOceanicHomeworldDesc:
-  Id: 4973
-  ENG: "Your empire starts in an Oceanic homeworld and gets +50% Fertility and Max Population for other Oceanic worlds."      
+ Id: 4973
+ ENG: "Your empire starts in an Oceanic homeworld and gets +50% Fertility and Max Population for other Oceanic worlds."      
 TraitSteppeHomeworldName:
-  Id: 4974
-  ENG: "Steppe Homeworld"   
+ Id: 4974
+ ENG: "Steppe Homeworld"   
 TraitSteppeHomeworldDesc:
-  Id: 4975
-  ENG: "Your empire starts in a Steppe homeworld and gets +50% Fertility and Max Population for other Steppe worlds."      
+ Id: 4975
+ ENG: "Your empire starts in a Steppe homeworld and gets +50% Fertility and Max Population for other Steppe worlds."      
 TraitTundraHomeworldName:
-  Id: 4976
-  ENG: "Tundra Homeworld"   
+ Id: 4976
+ ENG: "Tundra Homeworld"   
 TraitTundraHomeworldDesc:
-  Id: 4977
-  ENG: "Your empire starts in a Tuntra homeworld and gets +50% Fertility and Max Population for other Tundra worlds."      
+ Id: 4977
+ ENG: "Your empire starts in a Tuntra homeworld and gets +50% Fertility and Max Population for other Tundra worlds."      
 TraitSwampHomeworldName:
-  Id: 4978
-  ENG: "Swamp Homeworld"   
+ Id: 4978
+ ENG: "Swamp Homeworld"   
 TraitSwampHomeworldDesc:
-  Id: 4979
-  ENG: "Your empire starts in a Swamp homeworld and gets +50% Fertility and Max Population for other Swamp worlds."      
+ Id: 4979
+ ENG: "Your empire starts in a Swamp homeworld and gets +50% Fertility and Max Population for other Swamp worlds."      
 TraitDesertHomeworldName:
-  Id: 4980
-  ENG: "Desert Homeworld"   
+ Id: 4980
+ ENG: "Desert Homeworld"   
 TraitDesertHomeworldDesc:
-  Id: 4981
-  ENG: "Your empire starts in a Desert homeworld and gets +50% Fertility and Max Population for other Desert worlds."      
+ Id: 4981
+ ENG: "Your empire starts in a Desert homeworld and gets +50% Fertility and Max Population for other Desert worlds."      
 TraitIceHomeworldName:
-  Id: 4982
-  ENG: "Ice Homeworld"   
+ Id: 4982
+ ENG: "Ice Homeworld"   
 TraitIceHomeworldDesc:
-  Id: 4983
-  ENG: "Your empire starts in an Ice homeworld and gets +50% Fertility and Max Population for other Ice worlds."      
+ Id: 4983
+ ENG: "Your empire starts in an Ice homeworld and gets +50% Fertility and Max Population for other Ice worlds."      
 TraitExplorers_Name: 
  Id: 4984
  ENG: "Explorers"
@@ -10856,11 +11082,11 @@ TraitExplorers_Desc:
  Id: 4985
  ENG: "Explorer races are very curious and like exploring their surroundings. As a result, the minimum exploration distance required to explore new solar systems and planets is trippled and you start with 2 extra Scouts."
 TraitAquaticName:
-  Id: 4986
-  ENG: "Aquatic"   
+ Id: 4986
+ ENG: "Aquatic"   
 TraitAquaticDesc:
-  Id: 4987
-  ENG: "This Race prefers to reproduce and live in water. It can swim well and breath underwater. It starts with Oceanic Homeworld and has different preferences for other planet types."     
+ Id: 4987
+ ENG: "This Race prefers to reproduce and live in water. It can swim well and breath underwater. It starts with Oceanic Homeworld and has different preferences for other planet types."     
 ShipMaintenanceMultiplier:
  Id: 4988
  ENG: "Ship Maintenance Multiplier"
@@ -12513,14 +12739,14 @@ OpensTheFleetManager:
  SPA: "Abre el administrador de flotas"
 IndicatesResistanceToKinetictypeDamage:
  Id: 7046
- ENG: "Indicates resistance to kinetic-type damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
- RUS: "Указывает на устойчивость к урону кинетического типа, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia al daño kinetico, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates resistance to kinetic-type damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source. Note that Module Explosive Resistance supercedes this Module Resistance."
+ RUS: "Указывает на устойчивость к урону кинетического типа, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника. Обратите внимание, что модуль сопротивления взрыву заменяет этот модуль сопротивления."
+ SPA: "Indica la resistencia al daño kinetico, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia explosiva del módulo reemplaza esta resistencia del módulo."
 IndicatesResistanceToEnergyWeapon:
  Id: 7047
- ENG: "Indicates resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
- RUS: "Указывает на устойчивость к урону энергетического оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia al daño energetico, donde un 100% significa inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source. Note that Module Explosive Resistance supercedes this Module Resistance."
+ RUS: "Указывает на устойчивость к урону энергетического оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника. Обратите внимание, что модуль сопротивления взрыву заменяет этот модуль сопротивления."
+ SPA: "Indica la resistencia al daño energetico, donde un 100% significa inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia explosiva del módulo reemplaza esta resistencia del módulo."
 IndicatesResistanceToGuidedWeapon:
  Id: 7048
  ENG: "Indicates resistance to guided weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
@@ -12533,19 +12759,19 @@ IndicatesResistanceToMissileWeapon:
  SPA: "Indica la resistencia a los misiles, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
 IndicatesResistanceToHybridWeapon:
  Id: 7050
- ENG: "Indicates resistance to Plasma weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
- RUS: "Указывает на устойчивость к урону плазменного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia al daño del arma de plasma, donde el 100% es inmunidad total. Los porcentajes negativos significan que este módulo recibe un daño adicional de esa fuente."
+ ENG: "Indicates resistance to Plasma weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source. Note that Module Explosive Resistance supercedes this Module Resistance."
+ RUS: "Указывает на устойчивость к урону плазменного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника. Обратите внимание, что модуль сопротивления взрыву заменяет этот модуль сопротивления."
+ SPA: "Indica la resistencia al daño del arma de plasma, donde el 100% es inmunidad total. Los porcentajes negativos significan que este módulo recibe un daño adicional de esa fuente. Tenga en cuenta que la resistencia explosiva del módulo reemplaza esta resistencia del módulo."
 IndicatesResistanceToBeamWeapon:
  Id: 7051
- ENG: "Indicates resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
- RUS: "Указывает на устойчивость к урону лучевого оружия, где 100% - общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia al daño de haz, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source. Note that Module Explosive Resistance supercedes this Module Resistance."
+ RUS: "Указывает на устойчивость к урону лучевого оружия, где 100% - общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника. Обратите внимание, что модуль сопротивления взрыву заменяет этот модуль сопротивления."
+ SPA: "Indica la resistencia al daño de haz, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia explosiva del módulo reemplaza esta resistencia del módulo."
 IndicatesResistanceToExplosiveDamage:
  Id: 7052
- ENG: "Indicates resistance to explosive damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
- RUS: "Указывает на устойчивость к взрывному урону, где 100% - общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia al daño explosivo, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates resistance to explosive damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source. Note that Module Explosive Resistance supercedes other Module Resistances."
+ RUS: "Указывает на устойчивость к взрывному урону, где 100% - общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника. Обратите внимание, что модуль сопротивления взрыву заменяет этот модуль сопротивления."
+ SPA: "Indica la resistencia al daño explosivo, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia explosiva del módulo reemplaza esta resistencia del módulo."
 IndicatesResistanceToInterceptableWeapon:
  Id: 7053
  ENG: "Indicates resistance to interceptable weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
@@ -12613,19 +12839,19 @@ IndicatesResistanceToArmourPiercing:
  SPA: "Indica la resistencia a los efectos de pentracion de blindaje, donde cada punto de resistencia significa -1 de pentetración a los proyeciles enemigos."
 IndicatesShieldBubblesResistanceTo:
  Id: 7066
- ENG: "Indicates shield bubble's resistance to kinetic weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
- RUS: "Указывает на устойчивость пузыря щита к кинетическому урону оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia de la burbuja del escudo al daño kinetico. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates shield bubble's resistance to kinetic weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that Explosive Shield Resistance supercedes this shield resistance."
+ RUS: "Указывает на устойчивость пузыря щита к кинетическому урону оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что сопротивление взрывному щиту превосходит это сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja del escudo al daño kinetico. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia del escudo explosivo reemplaza esta resistencia del escudo."
 IndicatesShieldBubblesResistanceTo2:
  Id: 7067
- ENG: "Indicates shield bubble's resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
- RUS: "Указывает на устойчивость пузыря щита к урону энергетическим оружием, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia de la burbuja del escudo al daño de energia. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates shield bubble's resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that Explosive Shield Resistance supercedes this shield resistance."
+ RUS: "Указывает на устойчивость пузыря щита к урону энергетическим оружием, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что сопротивление взрывному щиту превосходит это сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja del escudo al daño de energia. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia del escudo explosivo reemplaza esta resistencia del escudo."
 IndicatesShieldBubblesResistanceTo3:
  Id: 7068
- ENG: "Indicates shield bubble's resistance to explosive damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
- RUS: "Указывает на устойчивость пузыря щита к взрывному урону, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia de la burbuja del escudo al daño explosiva. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates shield bubble's resistance to explosive damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that this Shield Resistance superecedes any other Shield Resistance."
+ RUS: "Указывает на устойчивость пузыря щита к взрывному урону, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что это сопротивление щита превосходит любое другое сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja del escudo al daño explosiva. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que esta Resistencia de Escudo reemplaza cualquier otra Resistencia de Escudo."
 IndicatesShieldBubblesResistanceTo4:
  Id: 7069
  ENG: "Indicates shield bubble's resistance to missile weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
@@ -12638,9 +12864,9 @@ IndicatesShieldBubblesResistanceTo5:
  SPA: "Indica la resistencia de la burbuja del escudo al daño Flak. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
 IndicatesShieldBubblesResistanceTo6:
  Id: 7071
- ENG: "Indicates shield bubble's resistance to Plasma weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
- RUS: "Указывает на сопротивление пузыря щита урону плазменного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia de la burbuja de escudo al daño del arma de plasma, donde el 100% es inmunidad total. Los porcentajes negativos significan que el escudo recibe daño adicional de esa fuente."
+ ENG: "Indicates shield bubble's resistance to Plasma weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that Explosive Shield Resistance supercedes this shield resistance."
+ RUS: "Указывает на сопротивление пузыря щита урону плазменного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что сопротивление взрывному щиту превосходит это сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja de escudo al daño del arma de plasma, donde el 100% es inmunidad total. Los porcentajes negativos significan que el escudo recibe daño adicional de esa fuente. Tenga en cuenta que la resistencia del escudo explosivo reemplaza esta resistencia del escudo."
 IndicatesShieldBubblesResistanceTo7:
  Id: 7072
  ENG: "Indicates shield bubble's resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
@@ -12658,9 +12884,9 @@ IndicatesShieldBubblesResistanceTo9:
  SPA: "Indica la resistencia de la burbuja del escudo al daño de armas de desformación. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
 IndicatesShieldBubblesResistanceTo10:
  Id: 7075
- ENG: "Indicates shield bubble's resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
- RUS: "Указывает на сопротивление пузыря щита урону лучевого оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia de la burbuja del escudo al daño de haz. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates shield bubble's resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source. Note that Explosive Shield Resistance supercedes this shield resistance."
+ RUS: "Указывает на сопротивление пузыря щита урону лучевого оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника. Обратите внимание, что сопротивление взрывному щиту превосходит это сопротивление щита."
+ SPA: "Indica la resistencia de la burbuja del escudo al daño de haz. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño. Tenga en cuenta que la resistencia del escudo explosivo reemplaza esta resistencia del escudo."
 IndicatesTheAmountOfEmp2:
  Id: 7076
  ENG: "Indicates the amount of EMP protection that this module adds to the vessel."
