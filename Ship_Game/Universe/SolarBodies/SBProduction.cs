@@ -514,18 +514,20 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         // Make sure Governors prioritize buildings again after a new relevant building was unlocked
+        // TODO - adjust this for ColonyBlueprints
         public void RemoveGovernorQueuedBuildingsTechnUnlock()
         {
             if (P.GovernorOff)
                 return;
 
+            bool hasExclusiveBlueprints = P.Blueprints?.Exclusive == true;
             for (int i = ConstructionQueue.Count - 1; i >= 0; --i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.IsCivilianBuilding 
-                    && !q.IsPlayerAdded 
+                    && (!q.IsPlayerAdded || hasExclusiveBlueprints)
                     && q.ProductionSpent < q.ProductionNeeded * 0.95f
-                    && P.BestCivilianBuildingToBuildDifferentThen(q.Building))
+                    && P.BestCivilianBuildingToBuildDifferentThen(P.GetBuildingsCanBuild(), q.Building))
                 {
                     lock (ConstructionQueue)
                         ConstructionQueue.Remove(q);
