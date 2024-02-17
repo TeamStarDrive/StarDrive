@@ -391,6 +391,7 @@
     <Compile Include="Ship_Game\UI\UILine.cs" />
     <Compile Include="Ship_Game\Universe\ExplorableGameObject.cs" />
     <Compile Include="Ship_Game\Universe\InfluenceTree.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\ColonyBlueprints.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\DistanceDisplay.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ExoticSystemsListScreenItem.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ExoticSystemsListScreen.cs" />

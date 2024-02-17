@@ -626,6 +626,7 @@ namespace Ship_Game
                 throw new ArgumentNullException(nameof(planet.System));
 
             OwnedPlanets.Add(planet);
+            planet.RemoveBlueprints();
             Universe.OnPlanetOwnerAdded(this, planet);
             if (planet.System.GetPotentialOpsOwner(out Empire potentialMiningOpsOwner))
             {

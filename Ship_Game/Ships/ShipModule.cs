@@ -776,7 +776,7 @@ namespace Ship_Game.Ships
             source?.OnDamageInflicted(this, amount);
         }
 
-        public void Damage(GameObject source, float damageAmount, out float damageRemainder, float beamModifier = 1f)
+        public void Damage(GameObject source, float damageAmount, out float damageRemainder)
         {
             float damageModifier = 1f;
             if (source != null)
@@ -861,7 +861,7 @@ namespace Ship_Game.Ships
 
         public override void Damage(GameObject source, float damageAmount, float beamModifier = 1f)
         {
-            Damage(source, damageAmount, out float _, beamModifier);
+            Damage(source, damageAmount, out float _);
         }
 
         // Note - this assumes that projectile effect of ignore shield was taken into account. 
