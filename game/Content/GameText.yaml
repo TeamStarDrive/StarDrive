@@ -1724,7 +1724,7 @@ NetGain:
  RUS: "Общ.доход"
  SPA: "Beneficio neto"
  UKR: "Чист. прибуток"
-NetLoss:  
+NetLoss:
  Id: 325
  ENG: "Net Loss"
  RUS: "Общ.убыток"
