@@ -672,7 +672,7 @@ RechargeAtWarp:
  ENG: "Recharge at Warp"
  RUS: "Перезарядка в варпе"
  SPA: "Recarga a velocidad supraluminal"
- UKR: "Перезарядка у викривлення"
+ UKR: "Перез. у викривленні"
 TotalHitpoints:
  Id: 113
  ENG: "Total Hitpoints"
@@ -912,7 +912,7 @@ UpkeepCost:
  UKR: "вартість утримання"
 TotalModuleSlots:
  ENG: "Total Module Slots"
- UKR: "Загальна кількість слотів"
+ UKR: "Заг. кількість слотів"
 ExcessWpnPwrDrain:
  ENG: "Excess Wpn Pwr Drain"
  UKR: "Надлишкова витр. енерг."
@@ -1675,19 +1675,19 @@ BuildingMaint:
  ENG: "Building Maint."
  RUS: "Содерж. зданий"
  SPA: "Mant. edificios"
- UKR: "Технічне обслуговування будівлі."
+ UKR: "Обслугов. будівель"
 ShipMaint:
  Id: 317
  ENG: "Ship Maint."
  RUS: "Содерж. кораблей"
  SPA: "Mant. naves"
- UKR: "Корабельна обслуга."
+ UKR: "Утр. кораблів"
 Espionage:
  Id: 318
  ENG: "Espionage"
  RUS: "Шпионаж"
  SPA: "Espionaje"
- UKR: "Шпигунство."
+ UKR: "Шпигунство"
 Counterespionage:
  Id: 319
  ENG: "Counter-Espionage"
@@ -1711,25 +1711,25 @@ MercantilismAvg:
  ENG: "Mercantilism (Avg)"
  RUS: "Меркант.(Ср.)"
  SPA: "Mercantilismo (promedio)"
- UKR: "Меркантилізм (середнє значення)"
+ UKR: "Меркантилізм (сер. знач.)"
 TradeTreaties:
  Id: 323
  ENG: "Trade Treaties"
  RUS: "Торг.договоры"
  SPA: "Tratados comerciales"
- UKR: "Торговельні договори"
+ UKR: "Торг. договори"
 NetGain:
  Id: 324
  ENG: "Net Gain"
  RUS: "Общ.доход"
  SPA: "Beneficio neto"
- UKR: "Чистий прибуток"
-NetLoss:
+ UKR: "Чист. прибуток"
+NetLoss:  
  Id: 325
  ENG: "Net Loss"
  RUS: "Общ.убыток"
  SPA: "Pérdida neta"
- UKR: "Чистий збиток"
+ UKR: "Чист. збиток"
 PlanetInfo:
  Id: 326
  ENG: "Planet Info"
@@ -2775,7 +2775,7 @@ BB_Tech_EMPCannons_Name:
  ENG: "EMP Cannons"
  RUS: "ЭМИ-орудия"
  SPA: "Cañones PEM"
- UKR: "ЕМП гармати"
+ UKR: "ЕМІ гармати"
 BB_Tech_EMPCannons_Desc:
  Id: 551
  ENG: "EMP Cannons are used to disable targeted ships by overloading their power grids with random energy. All ships have a natural EMP defense based on their size.  EMP weapons are ineffective against shielded targets. "
@@ -3087,7 +3087,7 @@ BB_Tech_Logistics_Name:
  ENG: "Socio-Logistics"
  RUS: "Социологистика"
  SPA: "Sociologística"
- UKR: "Соціально-логістичні послуги"
+ UKR: "Соціо-логістика"
 BB_Tech_Logistics_Desc:
  Id: 604
  ENG: "Socio-Logistics is a broad term for studies that increase the social and economic efficiency of our empire and fleets"
@@ -3855,7 +3855,7 @@ AncientDisruptor:
  ENG: "Ancient Disruptor"
  RUS: "Древний разрушитель"
  SPA: "Disruptor antiguo"
- UKR: "Древній дизраптор"
+ UKR: "Дизраптор Древніх"
 DisruptorsFireFastmovingHighenergyProjectiles:
  Id: 933
  ENG: "Disruptors fire fast-moving, high-energy projectiles.  "
@@ -12989,7 +12989,7 @@ PLanetInfoNumberOfDefenseShips:
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"
- UKR: "Швидкість видобувних кораблів"
+ UKR: "Швидкість вид. кораблів"
 BB_MiningSpeedTechDescr:
  Id: 4925
  ENG: "Increase our Mining Ships mining speed"
@@ -14879,7 +14879,7 @@ EmpProtection:
  ENG: "EMP Protection"
  RUS: "Защита от ЭМИ"
  SPA: "Proteccion EMP"
- UKR: "Захист від електромагнітних хвиль"
+ UKR: "Захист від ЕМІ"
 FtlSpeedReducedInThis:
  Id: 6179
  ENG: "FTL Speed reduced in this system by "
@@ -15022,9 +15022,10 @@ TT_WpnFirePowerTime:
  ENG: "Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing. Red value indicates insufficient power to maintain fire more than 2 seconds."
  RUS: "Указывает максимальное время в секундах, в течение которого этот корабль может непрерывно стрелять из всех орудий, прежде чем исчерпать запасы энергии, на основе использования мощности всего оружия при стрельбе. Красное значение указывает на недостаточную мощность для поддержания огня более 2 секунд."
  SPA: "Indica el tiempo máximo en segundos en la cual una nave disparara todas sus armas antes de gastar sus reservas de energia, basada en el consumo energetico de todas sus armas al disparar"
+ UKR: "Показує максимальний час у секундах, протягом якого корабель може безперервно вести вогонь з усіх видів озброєння до вичерпання запасів енергії, виходячи з енергоспоживання всіх видів озброєння під час стрільби. Червоне значення вказує на недостатню потужність для підтримання вогню більше 2 секунд."
 AmmoTime:
  ENG: "Ammo Time"
- UKR: "Показує максимальний час у секундах, протягом якого корабель може безперервно вести вогонь з усіх видів озброєння до вичерпання запасів енергії, виходячи з енергоспоживання всіх видів озброєння під час стрільби. Червоне значення вказує на недостатню потужність для підтримання вогню більше 2 секунд."
+ UKR: "Бойовий час"
 TT_AmmoTime:
  Id: 7013
  ENG: "Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting ordnance supplies"
@@ -15033,6 +15034,7 @@ TT_AmmoTime:
  UKR: "Вказує максимальний час у секундах, протягом якого корабель може безперервно вести вогонь з усіх видів озброєння до вичерпання боєприпасів"
 OrdnanceCreated:
  ENG: "Ordnance Created / s"
+ UKR: "Створено боєпр. / с"
 TT_OrdnanceCreated:
  Id: 7014
  ENG: "Indicates the amount of ordnance this ship is capable of fabricating per second"
@@ -15997,7 +15999,7 @@ AnAncientRingWhichWhen:
  Id: 18101
  ENG: "An ancient ring, which when calibrated and provided enough power can instantly move most things to any location on the planet."
  RUS: "Древнее строение, которое при достаточной мощности и калибровке может мгновенно перемещать большинство вещей в любое место на планете."
- UKR: "Старовинний перстень, який, якщо його відкалібрувати і забезпечити достатньою енергією, може миттєво перемістити більшість речей у будь-яку точку планети."
+ UKR: "Кільце Древніх, який, якщо його відкалібрувати і забезпечити достатньою енергією, може миттєво перемістити більшість речей у будь-яку точку планети."
 TeleportationRingIncreasingInfrastructureBy:
  Id: 18102
  ENG: "Teleportation Ring increasing infrastructure by 8"
@@ -16007,7 +16009,7 @@ AncientTemple:
  Id: 18159
  ENG: "Ancient Temple"
  RUS: "Древний храм"
- UKR: "Стародавній храм"
+ UKR: "Храм Древніх"
 EnormousInSizeAndResembling:
  Id: 18160
  ENG: "Enormous in size and resembling pyramids. A large old temple. What kinds of secrets might it hold?"
@@ -16164,7 +16166,7 @@ Tech_InvasiveMining_Name:
  Id: 8075
  ENG: "Invasive Mining"
  RUS: "Инвазивная добыча"
- UKR: "Інвазивний видобуток корисних копалин"
+ UKR: "Інвазивний видобуток"
 Tech_InvasiveMining_Desc:
  Id: 8076
  ENG: "Developing efficient automation is a crucial step required to push a higher production output from our colonies, at a cost of environmental damage."
@@ -16803,7 +16805,7 @@ Tech_SlipStreams_Name:
 Tech_SlipStreams_Desc:
  Id: 18271
  ENG: "Using ancient navigation data, our scientists discovered a way to gain access to subspace tunneling between our subspace projectors"
- UKR: "Використовуючи давні навігаційні дані, наші вчені відкрили спосіб отримати доступ до підпросторового тунелю між нашими підпросторовими проекторами"
+ UKR: "Використовуючи навігаційні Древніх дані, наші вчені відкрили спосіб отримати доступ до підпросторового тунелю між нашими підпросторовими проекторами"
 Tech_SlipStreams_Bonus:
  Id: 18272
  ENG: "Ships traveling within your own empire's borders gain 30% bonus to their FTL speeds."
@@ -17049,7 +17051,7 @@ QuadMissileTurrettechDescr:
 QuadMissileTurretwep:
  Id: 17510
  ENG: "Quad Missile Turret."
- UKR: "Четырехствольная ракетная установка."
+ UKR: "Четверна ракетна башта."
 QuadMissileTurretWepDescr:
  Id: 17511
  ENG: "This turret can shoot four advanced highly maneuverable missiles at high speeds that can evade and overwhelm PD systems."
@@ -17237,7 +17239,7 @@ ArmoredShieldDescr:
 RapidFirePDTech:
  Id: 17557
  ENG: "Rapid Fire PD"
- UKR: "Поліція швидкого реагування"
+ UKR: "Швидка зентіна гармата"
 RapidFirePDTechdescr:
  Id: 17558
  ENG: "Rapid Fire Point deference was designed to counter fast moving maneuverable missiles that are usually fired in salvos. Those turrets exchange fast reloads over damage thus making them less effective against torpedoes."
@@ -17559,7 +17561,7 @@ BB_ConherencTechDescrBonus:
 BB_EnergizationTech:
  Id: 17639
  ENG: "Energization"
- UKR: "Підключення до електромережі"
+ UKR: "Енергізація"
 BB_EnergizationTechDescr:
  Id: 17640
  ENG: "Advancements in more tightly and intensely packaged energy projectiles have improved their damage output. Can be researched multiple times, each time tech costs is increased."
@@ -17644,32 +17646,32 @@ Tech_AncientArmor_Name:
  Id: 17953
  ENG: "Ancient Armors"
  RUS: "Броня Древних"
- UKR: "Старовинні обладунки"
+ UKR: "Броня Древніх"
 SmallAncientArmor:
  Id: 17954
  ENG: "Small Ancient Armor"
  RUS: "Малая Броня Древних"
- UKR: "Малий античний обладунок"
+ UKR: "Мала Броня Древніх"
 MediumAncientArmor:
  Id: 17955
  ENG: "Medium Ancient Armor"
  RUS: "Средняя Броня Древних"
- UKR: "Середній античний обладунок"
+ UKR: "Середня Броня Древніх"
 LargeAncientArmor:
  Id: 17956
  ENG: "Large Ancient Armor"
  RUS: "Большая Броня Древних"
- UKR: "Великі стародавні обладунки"
+ UKR: "Велика Броня Древніх"
 Tech_AncientArmor_Desc:
  Id: 17957
  ENG: "A very durable piece of Ancient Armor. Can be used both as an internal bulkhead, or as external armor."
  RUS: "Очень прочный кусок древней брони. Может использоваться как внутренняя переборка или как внешняя броня."
- UKR: "Дуже міцний елемент Древніх обладунків. Може використовуватися як внутрішня перегородка, або як зовнішня броня."
+ UKR: "Дуже міцний елемент Броні Древніх. Може використовуватися як внутрішня перегородка, або як зовнішня броня."
 AncientArmorIsCoveredIn:
  Id: 17958
  ENG: "Ancient armor is covered in a gold-like coating. Each armor module is made of smaller pieces that tear off when struck."
  RUS: "Древняя броня покрыта золотым напылением. Каждый модуль брони состоит из более мелких частей, которые отрываются при ударе."
- UKR: "Старовинні обладунки вкриті покриттям, схожим на золото. Кожен модуль обладунку зроблений з маленьких шматочків, які відриваються при ударі."
+ UKR: "Броня Древніх вкрита покриттям, схожим на золото. Кожен модуль броні зроблений з маленьких шматочків, які відриваються при ударі."
 Structure:
  Id: 18048
  ENG: "Structure"
