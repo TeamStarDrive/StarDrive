@@ -4,6 +4,7 @@ using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using SDGraphics;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -355,8 +356,7 @@ namespace Ship_Game
                 RequisitionForces.Visible = true;
                 SaveDesign.Visible = true;
                 LoadDesign.Visible = true;
-                if (f.Ships.Count > 0 )
-                    AutoArrange.Visible = true;
+                AutoArrange.Visible = f.DataNodes.Where(n => n.Ship == null && n.Goal == null).Count() == 0;
             }
         }
     }
