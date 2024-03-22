@@ -269,6 +269,7 @@ namespace Ship_Game
             Profiled("PlanetTypes", () => PlanetTypes.LoadPlanetTypes(RootContent));
             Profiled(LoadSunZoneData);
             Profiled(LoadBuildRatios);
+            Profiled(LoadBuildRatiosRandomization);
             Profiled(LoadEcoResearchStrats);
             Profiled(LoadBlackboxSpecific);
         }
@@ -382,6 +383,7 @@ namespace Ship_Game
             EconStrategies.Clear();
             ZoneDistribution.Clear();
             BuildRatios.Clear();
+            BuildRatiosRandomization.Clear();
 
             Mem.Dispose(ref Planets);
 
@@ -2005,10 +2007,19 @@ namespace Ship_Game
         }
 
         static readonly Map<BuildRatio, int[]> BuildRatios = new Map<BuildRatio, int[]>();
+        static readonly Map<BuildRatio, int[]> BuildRatiosRandomization = new Map<BuildRatio, int[]>();
+        static readonly Random random = new Random();
 
         public static int[] GetFleetRatios(BuildRatio canBuild)
         {
-            return BuildRatios[canBuild];
+            int[] fleetSize = new int[BuildRatios[canBuild].Length];
+
+            for (int i = 0; i < BuildRatios[canBuild].Length; i++)
+            {
+                fleetSize[i] = BuildRatios[canBuild][i] + random.Next(0, BuildRatiosRandomization[canBuild][i]);
+            }
+
+            return fleetSize;
         }
 
         static void LoadBuildRatios()
@@ -2019,6 +2030,17 @@ namespace Ship_Game
             foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
             {
                 BuildRatios[canBuild] = FleetBuildRatios.GetRatiosFor(ratios, canBuild);
+            }
+        }
+
+        static void LoadBuildRatiosRandomization()
+        {
+            GameLoadingScreen.SetStatus("FleetRandomizationRatios");
+            BuildRatiosRandomization.Clear();
+            var ratiosToAddRandomazie = YamlParser.DeserializeArray<FleetBuildRatios>("FleetBuildRatiosRandomization.yaml");
+            foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
+            {
+                BuildRatiosRandomization[canBuild] = FleetBuildRatios.GetRatiosFor(ratiosToAddRandomazie, canBuild);                
             }
         }
 
