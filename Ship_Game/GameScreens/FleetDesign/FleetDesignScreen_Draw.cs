@@ -356,7 +356,7 @@ namespace Ship_Game
                 RequisitionForces.Visible = true;
                 SaveDesign.Visible = true;
                 LoadDesign.Visible = true;
-                AutoArrange.Visible = f.DataNodes.Where(n => n.Ship == null && n.Goal == null).Count() == 0;
+     AutoArrange.Visible = !f.DataNodes.Any(n => n.Ship == null && n.Goal == null);
             }
         }
     }
