@@ -146,8 +146,7 @@ namespace Ship_Game.Commands.Goals
             if (Portal.InCombat && Portal.AI.Target?.System == Portal.System && Portal.HealthPercent > 0.75f)
                 return GoalStep.TryAgain;
 
-            bool checkOnlyDefeated = Remnants.Story == Remnants.RemnantStory.AncientRaidersRandom;
-            if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal, checkOnlyDefeated))
+            if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
                 return Remnants.Hibernating ? GoalStep.TryAgain : Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
             int numBombersInFleet = Remnants.NumBombersInFleet(Fleet);
