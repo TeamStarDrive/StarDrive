@@ -1,0 +1,83 @@
+# This will set the Fleet Randomized Ratios for the AI ship build logic. 
+#Adds random number from 0 to line value to exising fleet templates
+#Example - BuilldRatios[CanBuildFighters] + BuilldRatiosRandomization[CanBuildFighters]
+# Fighters: 24 + 0..15
+# Bombers: 2 + 0..2
+# You should use only the below 5 containers and every one should have the 9 role types.
+- FleetBuildRatios:
+  CanBuild: CanBuildFighters
+  Fighters: 15
+  Corvettes: 0
+  Frigates: 0
+  Cruisers: 0
+  Battleships: 0
+  Capitals: 0
+  TroopShips: 1
+  Bombers: 2
+  Carriers: 0
+  Support: 1
+
+- FleetBuildRatios:
+  CanBuild: CanBuildCorvettes
+  Fighters: 6
+  Corvettes: 6
+  Frigates: 0
+  Cruisers: 0
+  Battleships: 0
+  Capitals: 0
+  TroopShips: 1
+  Bombers: 1
+  Carriers: 0
+  Support: 1
+
+- FleetBuildRatios:
+  CanBuild: CanBuildFrigates
+  Fighters: 6
+  Corvettes: 6
+  Frigates: 4
+  Cruisers: 0
+  Battleships: 0
+  Capitals: 0
+  TroopShips: 1
+  Bombers: 1
+  Carriers: 0
+  Support: 1
+
+- FleetBuildRatios:
+  CanBuild: CanBuildCruisers
+  Fighters: 3
+  Corvettes: 5
+  Frigates: 3
+  Cruisers: 2
+  Battleships: 0
+  Capitals: 0
+  TroopShips: 1
+  Bombers: 1
+  Carriers: 2
+  Support: 1
+
+- FleetBuildRatios:
+  CanBuild: CanBuildBattleships
+  Fighters: 2
+  Corvettes: 4
+  Frigates: 3
+  Cruisers: 2
+  Battleships: 1
+  Capitals: 0
+  TroopShips: 1
+  Bombers: 1
+  Carriers: 2
+  Support: 1
+
+- FleetBuildRatios:
+  CanBuild: CanBuildCapitals
+  Fighters: 1
+  Corvettes: 2
+  Frigates: 3
+  Cruisers: 4
+  Battleships: 4
+  Capitals: 2
+  TroopShips: 1
+  Bombers: 1
+  Carriers: 2
+  Support: 1
