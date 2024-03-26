@@ -37,7 +37,7 @@ namespace Ship_Game
         [StarData] public Map<RemnantShipType, float> ShipCosts { get; private set; } = new();
         [StarData] public int StoryStep { get; private set; } = 1;
         [StarData] public bool OnlyRemnantLeft { get; private set; }
-        [StarData] public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
+        [StarData] public int HibernationTurns { get; private set; } // Remnants will not attack and gain 20% of normal production if above 0
         [StarData] public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
         [StarData] public Empire FocusOnEmpire { get; private set; }
 
@@ -105,7 +105,7 @@ namespace Ship_Game
                 return 0;
 
             float risk = Level * 0.025f * ((int)Universe.P.Difficulty + 1);
-            if (Story == RemnantStory.AncientRaidersRandom)
+            if (UsingRandomTargets())
                 return risk;
 
             if (FindValidTarget(out Empire target) && target == empire)
@@ -152,34 +152,26 @@ namespace Ship_Game
             Universe.Notifications.AddRemnantsAreGettingStronger(Owner);
         }
 
-        public bool TryLevelUpByDate(out int newLevel)
+        public void TryLevelUpByDate()
         {
-            newLevel = 0;
+            if (Level >= MaxLevel) 
+                return;
+
             if (Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
             {
                 int turnsLevelUp = TurnsLevelUp + ExtraLevelUpEffort;
                 turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * Universe.ProductionPace);
                 HibernationTurns = 0;
                 NextLevelUpDate += turnsLevelUp / 10f;
-
-                if (Level < MaxLevel)
-                {
-                    Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level+1}. Next level up in Stardate {NextLevelUpDate} ----");
-                    if (Universe.StarDate.Less(NextLevelUpDate)) // do not notify on multiple initial level ups
-                        NotifyPlayerOnLevelUp();
-                }
-
                 SetLevel(Level + 1);
-                newLevel = Level;
-                Upgrade();
-                return true;
+                UpgradeAfterLevelUp();
+                Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level+1}. Next level up in Stardate {NextLevelUpDate} ----");
+                if (Universe.StarDate.Less(NextLevelUpDate)) // do not notify on multiple initial level ups
+                    NotifyPlayerOnLevelUp();
             }
-
-            CheckHibernation();
-            return false;
         }
 
-        void Upgrade()
+        void UpgradeAfterLevelUp()
         {
             if (Level % 2 == 0)
                 Owner.data.ShieldPowerMod += 0.1f;
@@ -195,11 +187,16 @@ namespace Ship_Game
 
             Owner.data.BaseShipLevel = Level / 3;
             EmpireHullBonuses.RefreshBonuses(Owner);
+            if (Level % Owner.DifficultyModifiers.RemnantPortalCreationMod == 0 && TryCreatePortal())
+                Owner.Universe.Notifications.AddRemnantsNewPortal(Owner);
         }
 
-        void CheckHibernation() // Start Hibernation some time before leveling up
+        public void CheckHibernation() // Start Hibernation some time before leveling up
         {
-            float hibernationDate = (NextLevelUpDate - NeededHibernationTurns / 10f).RoundToFractionOf10();
+            if (Hibernating)
+                HibernationTurns -= 1;
+
+            float hibernationDate = (NextLevelUpDate - NeededHibernationTurns/10f).RoundToFractionOf10();
             if (Universe.StarDate.AlmostEqual(hibernationDate))
                 HibernationTurns = NeededHibernationTurns;
         }
@@ -278,7 +275,7 @@ namespace Ship_Game
             {
                 case RemnantStory.AncientBalancers:
                     for (int i = 0; i <= (int)Universe.P.Difficulty; i++)
-                        CreatePortal();
+                        TryCreatePortal();
                     break;
                 case RemnantStory.AncientExterminators:
                     if (GetPortals(out Ship[] portals))
@@ -368,16 +365,28 @@ namespace Ship_Game
             return targetEmpire.GetPlanets().FindMin(p => p.Position.SqDist(fleetPos));
         }
 
-        public bool TargetEmpireStillValid(Empire currentTarget, Ship portal, bool checkOnlyDefeated = false)
+        public bool TargetEmpireStillValid(Empire currentTarget, Ship portal)
         {
             if (Hibernating)
                 return false;
 
-            if (checkOnlyDefeated && !currentTarget.IsDefeated)
+            if (UsingRandomTargets() && !currentTarget.IsDefeated)
                 return true;
 
             FindValidTarget(out Empire expectedTarget);
             return expectedTarget == currentTarget;
+        }
+
+        bool UsingRandomTargets()
+        {
+            switch (Story)
+            {
+                case RemnantStory.AncientRaidersRandom:
+                case RemnantStory.AncientPeaceKeepers:
+                case RemnantStory.AncientWarMongers: return true;
+            }
+
+            return false;
         }
 
         Empire FindRandomEmpireAtPeace(Empire[] empiresList)
@@ -670,13 +679,14 @@ namespace Ship_Game
             AddToDefenseProduction(totalCost * 0.95f);
         }
 
-        public bool CreatePortal()
+        public bool TryCreatePortal()
         {
             if (CreatePortal(Universe, out Ship portal, out string systemName))
             {
                 Owner.AI.AddGoal(new RemnantPortal(Owner, portal, systemName));
                 return true;
             }
+
             return false;
         }
 
@@ -906,19 +916,11 @@ namespace Ship_Game
 
         public bool Hibernating => HibernationTurns > 0;
 
-        public void TryGenerateProduction(float amount)
+        public void GenerateProduction(float amount)
         {
             if (Hibernating)
-            {
-                HibernationTurns -= 1; // FB - there is a bug here that multiple portal will end hibernation faster
                 amount *= 0.2f;
-            }
 
-            GenerateProduction(amount);
-        }
-
-        void GenerateProduction(float amount)
-        {
             if (DefenseProduction < MaxDefenseProduction)
             {
                 AddToDefenseProduction(amount * 0.1f);

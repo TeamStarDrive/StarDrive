@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateFirstPortal()
         {
-            if (!Remnants.CreatePortal())
+            if (!Remnants.TryCreatePortal())
             {
                 Log.Warning($"Could not create a portal for {Owner.data.Name}, they will not be activated!");
                 return GoalStep.GoalFailed;
@@ -60,13 +60,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (Remnants.TryLevelUpByDate(out int newLevel) 
-                && newLevel % Owner.DifficultyModifiers.RemnantPortalCreationMod == 0
-                && Remnants.CreatePortal())
-            {
-                Owner.Universe.Notifications.AddRemnantsNewPortal(Owner);
-            }
-
+            Remnants.TryLevelUpByDate();
+            Remnants.CheckHibernation();
             EngageEmpire(portals);
             return GoalStep.TryAgain;
         }
