@@ -4,7 +4,6 @@ using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using SDGraphics;
-using System.Linq;
 
 namespace Ship_Game
 {
