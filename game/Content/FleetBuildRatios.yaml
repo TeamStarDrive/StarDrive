@@ -2,78 +2,78 @@
 # You should use only the below 5 containers and every one should have the 9 role types.
 - FleetBuildRatios:
   CanBuild: CanBuildFighters
-  Fighters: 24
-  Corvettes: 0
-  Frigates: 0
-  Cruisers: 0
-  Battleships: 0
-  Capitals: 0
-  TroopShips: 1
-  Bombers: 2
-  Carriers: 1
-  Support: 1
+  Fighters: [24, 36]
+  Corvettes: [0, 0]
+  Frigates: [0, 0]
+  Cruisers: [0, 0]
+  Battleships: [0, 0]
+  Capitals: [0, 0]
+  TroopShips: [1, 1]
+  Bombers: [2, 3]
+  Carriers: [1, 1]
+  Support: [1, 2]
 
 - FleetBuildRatios:
   CanBuild: CanBuildCorvettes
-  Fighters: 12
-  Corvettes: 6
-  Frigates: 0
-  Cruisers: 0
-  Battleships: 0
-  Capitals: 0
-  TroopShips: 1
-  Bombers: 1
-  Carriers: 1
-  Support: 1
+  Fighters: [12, 16]
+  Corvettes: [6, 9]
+  Frigates: [0, 0]
+  Cruisers: [0, 0]
+  Battleships: [0, 0]
+  Capitals: [0, 0]
+  TroopShips: [1, 1]
+  Bombers: [1, 2]
+  Carriers: [1, 1]
+  Support: [1, 2]
 
 - FleetBuildRatios:
   CanBuild: CanBuildFrigates
-  Fighters: 6
-  Corvettes: 6
-  Frigates: 4
-  Cruisers: 0
-  Battleships: 0
-  Capitals: 0
-  TroopShips: 1
-  Bombers: 1
-  Carriers: 1
-  Support: 1
+  Fighters: [6, 9]
+  Corvettes: [6, 9]
+  Frigates: [4, 6]
+  Cruisers: [0, 0]
+  Battleships: [0, 0]
+  Capitals: [0, 0]
+  TroopShips: [1, 2]
+  Bombers: [1, 2]
+  Carriers: [1, 1]
+  Support: [1, 2]
 
 - FleetBuildRatios:
   CanBuild: CanBuildCruisers
-  Fighters: 3
-  Corvettes: 9
-  Frigates: 6
-  Cruisers: 3
-  Battleships: 0
-  Capitals: 0
-  TroopShips: 1
-  Bombers: 1
-  Carriers: 3
-  Support: 1
+  Fighters: [3, 9]
+  Corvettes: [9, 15]
+  Frigates: [6, 9]
+  Cruisers: [3, 5]
+  Battleships: [0, 0]
+  Capitals: [0, 0]
+  TroopShips: [1, 2]
+  Bombers: [1, 3]
+  Carriers: [3, 5]
+  Support: [1, 2]
 
 - FleetBuildRatios:
   CanBuild: CanBuildBattleships
-  Fighters: 2
-  Corvettes: 8
-  Frigates: 6
-  Cruisers: 3
-  Battleships: 2
-  Capitals: 0
-  TroopShips: 1
-  Bombers: 1
-  Carriers: 3
-  Support: 1
+  Fighters: [2, 4]
+  Corvettes: [8, 12]
+  Frigates: [6, 9]
+  Cruisers: [3, 4]
+  Battleships: [2, 3]
+  Capitals: [0, 0]
+  TroopShips: [1, 2]
+  Bombers: [1, 3]
+  Carriers: [3, 5]
+  Support: [1, 2]
 
 - FleetBuildRatios:
   CanBuild: CanBuildCapitals
-  Fighters: 1
-  Corvettes: 4
-  Frigates: 6
-  Cruisers: 8
-  Battleships: 8
-  Capitals: 4
-  TroopShips: 1
-  Bombers: 1
-  Carriers: 2
-  Support: 1
+  Fighters: [1, 4]
+  Corvettes: [4, 6]
+  Frigates: [6, 9]
+  Cruisers: [8, 12]
+  Battleships: [8, 12]
+  Capitals: [4, 6]
+  TroopShips: [1, 1]
+  Bombers: [1, 2]
+  Carriers: [2, 3]
+  Support: [1, 2]

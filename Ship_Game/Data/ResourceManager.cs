@@ -20,6 +20,7 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.Legacy;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
+using Ship_Game.ExtensionMethods;
 
 #pragma warning disable CA2237, RCS1194 // Mark ISerializable types with serializable
 
@@ -269,7 +270,6 @@ namespace Ship_Game
             Profiled("PlanetTypes", () => PlanetTypes.LoadPlanetTypes(RootContent));
             Profiled(LoadSunZoneData);
             Profiled(LoadBuildRatios);
-            Profiled(LoadBuildRatiosRandomization);
             Profiled(LoadEcoResearchStrats);
             Profiled(LoadBlackboxSpecific);
         }
@@ -383,7 +383,6 @@ namespace Ship_Game
             EconStrategies.Clear();
             ZoneDistribution.Clear();
             BuildRatios.Clear();
-            BuildRatiosRandomization.Clear();
 
             Mem.Dispose(ref Planets);
 
@@ -2006,17 +2005,17 @@ namespace Ship_Game
             ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
         }
 
-        static readonly Map<BuildRatio, int[]> BuildRatios = new Map<BuildRatio, int[]>();
-        static readonly Map<BuildRatio, int[]> BuildRatiosRandomization = new Map<BuildRatio, int[]>();
+        static readonly Map<BuildRatio, Range[]> BuildRatios = new Map<BuildRatio, Range[]>();
         static readonly Random random = new Random();
 
         public static int[] GetFleetRatios(BuildRatio canBuild)
         {
             int[] fleetSize = new int[BuildRatios[canBuild].Length];
+            SeededRandom seededRandom = new SeededRandom();
 
             for (int i = 0; i < BuildRatios[canBuild].Length; i++)
             {
-                fleetSize[i] = BuildRatios[canBuild][i] + random.Next(0, BuildRatiosRandomization[canBuild][i]);
+                fleetSize[i] = (int) Math.Floor(BuildRatios[canBuild][i].Generate(seededRandom));
             }
 
             return fleetSize;
@@ -2030,17 +2029,6 @@ namespace Ship_Game
             foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
             {
                 BuildRatios[canBuild] = FleetBuildRatios.GetRatiosFor(ratios, canBuild);
-            }
-        }
-
-        static void LoadBuildRatiosRandomization()
-        {
-            GameLoadingScreen.SetStatus("FleetRandomizationRatios");
-            BuildRatiosRandomization.Clear();
-            var ratiosToAddRandomazie = YamlParser.DeserializeArray<FleetBuildRatios>("FleetBuildRatiosRandomization.yaml");
-            foreach (BuildRatio canBuild in Enum.GetValues(typeof(BuildRatio)))
-            {
-                BuildRatiosRandomization[canBuild] = FleetBuildRatios.GetRatiosFor(ratiosToAddRandomazie, canBuild);                
             }
         }
 
