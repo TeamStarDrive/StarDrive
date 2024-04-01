@@ -48,23 +48,23 @@ namespace Ship_Game.AI
             MinCarriers    = 0;
             MinSupport     = 0;
             MinCombatFleet = 0;
-            SetFleetRatios();
+            SetFleetRatios(empire.IRandomizedAiFleetSizesEnabled());
 
 
         }
 
-        public void SetFleetRatios()
+        public void SetFleetRatios(bool IsRandomizedAIFleetSizes)
         {
             // fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
 
             int[] counts;
 
-            if      (OwnerEmpire.CanBuildCapitals)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals);
-            else if (OwnerEmpire.CanBuildBattleships) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildBattleships);
-            else if (OwnerEmpire.CanBuildCruisers)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers);
-            else if (OwnerEmpire.CanBuildFrigates)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates);
-            else if (OwnerEmpire.CanBuildCorvettes)   counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes);
-            else                                      counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters);
+            if      (OwnerEmpire.CanBuildCapitals)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals, IsRandomizedAIFleetSizes);
+            else if (OwnerEmpire.CanBuildBattleships) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildBattleships, IsRandomizedAIFleetSizes);
+            else if (OwnerEmpire.CanBuildCruisers)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers, IsRandomizedAIFleetSizes);
+            else if (OwnerEmpire.CanBuildFrigates)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates, IsRandomizedAIFleetSizes);
+            else if (OwnerEmpire.CanBuildCorvettes)   counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes, IsRandomizedAIFleetSizes);
+            else                                      counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters, IsRandomizedAIFleetSizes);
 
             SetCounts(counts);
             CountIndexed = counts;

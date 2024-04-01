@@ -2008,14 +2008,16 @@ namespace Ship_Game
         static readonly Map<BuildRatio, Range[]> BuildRatios = new Map<BuildRatio, Range[]>();
         static readonly Random random = new Random();
 
-        public static int[] GetFleetRatios(BuildRatio canBuild)
+        public static int[] GetFleetRatios(BuildRatio canBuild, bool IsRandomizedAIFleetSizes)
         {
             int[] fleetSize = new int[BuildRatios[canBuild].Length];
             SeededRandom seededRandom = new SeededRandom();
 
             for (int i = 0; i < BuildRatios[canBuild].Length; i++)
             {
-                fleetSize[i] = (int) Math.Floor(BuildRatios[canBuild][i].Generate(seededRandom));
+                fleetSize[i] = IsRandomizedAIFleetSizes 
+                    ? (int) Math.Floor(BuildRatios[canBuild][i].Generate(seededRandom))
+                    : (int) BuildRatios[canBuild][i].Min;
             }
 
             return fleetSize;
