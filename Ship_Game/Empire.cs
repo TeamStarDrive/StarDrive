@@ -2350,7 +2350,7 @@ namespace Ship_Game
             return true;
         }
 
-        public bool IRandomizedAiFleetSizesEnabled()
+        public bool IsRandomizedAiFleetSizesEnabled()
         {
             return Universe.P.EnableRandomizedAIFleetSizes;
         }
