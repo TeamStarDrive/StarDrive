@@ -52,6 +52,7 @@ Globals:
   DisableRemnantStory: false
   DisablePirates: false
   AIUsesPlayerDesigns: true
+  EnableRandomizedAIFleetSizes: true
 
   # visuals modifiers
   SpaceportScale: 0.5

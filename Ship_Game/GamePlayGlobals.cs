@@ -95,7 +95,7 @@ public class GamePlayGlobals
     // changes how upkeep is calculated, default:false means upkeep depends on ship cost
     // setting this to true means upkeep depends on number of hull design slots
     [StarData] public bool UseUpkeepByHullSize;
-
+    [StarData] public bool EnableRandomizedAIFleetSizes;
 
     // visual modifiers
     [StarData] public float SpaceportScale = 0.5f;
