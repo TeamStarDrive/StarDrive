@@ -10895,14 +10895,6 @@ RemnantsDefeatedFleetsMayAttack:
 PLanetInfoNumberOfDefenseShips:
  Id: 4520
  ENG: "Number of Defense ships in Air Bases on this planet." 
-EnableRandomizedAIFleetSizes:
- Id: 4521
- ENG: "Enable Random Fleet Sizes"
- UKR: "Дозволити випадковий розмір флоту"
-EnableRandomizedAIFleetSizesTip:
- Id: 4522
- ENG: "Allow Ai fleets to have slightly randomized ranges of different ship-classes\n ex: fighters: [24, 36] will return number between 24 and 36, which allows a bit more variation in fleet builds"
- UKR: "Дозволити флотам Ші мати дещо рандомізовані діапазони різних класів кораблів\n наприклад: винищувачі: [24, 36] поверне число від 24 до 36, що дозволяє трохи більше варіацій у розмірах флоту"
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"
