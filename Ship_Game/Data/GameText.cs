@@ -4666,10 +4666,6 @@ namespace Ship_Game
         RemnantsDefeatedFleetsMayAttack = 4519,
         /// <summary>Number of Defense ships in Air Bases</summary>
         PLanetInfoNumberOfDefenseShips = 4520,
-        /// <summary>Allow slight fleet sizes randomization</summary>
-        EnableRandomizedAIFleetSizes = 4521,
-        /// <summary>Allow slight fleet sizes randomization tips</summary>
-        EnableRandomizedAIFleetSizesTip = 4522,
 
 
 
