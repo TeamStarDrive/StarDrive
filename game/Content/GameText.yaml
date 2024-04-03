@@ -894,7 +894,7 @@ CancelScrap:
  ENG: "Cancel Scrap"
  RUS: "Отменить утилизацию"
  SPA: "Cancelar desguace"
- UKR: "Відмінити"
+ UKR: "Відмінити списання"
 DeepSpace:
  Id: 150
  ENG: "Deep Space"
@@ -909,16 +909,16 @@ Upkeep:
  UKR: "Утримання"
 UpkeepCost:
  ENG: "Upkeep Cost"
- UKR: "вартість утримання"
+ UKR: "ціна утрим."
 TotalModuleSlots:
  ENG: "Total Module Slots"
  UKR: "Заг. кількість слотів"
 ExcessWpnPwrDrain:
  ENG: "Excess Wpn Pwr Drain"
- UKR: "Надлишкова витр. енерг."
+ UKR: "Надлишкові витр. енерг."
 WpnFirePowerTime:
  ENG: "Wpn Fire Power Time"
- UKR: "Час безперервної стрільби"
+ UKR: "Час безпер. стрільби"
 BurstWpnPwrDrain:
  ENG: "Burst Wpn Pwr Drain"
  UKR: "спожив. енерг. збр."
@@ -2895,7 +2895,7 @@ BB_Tech_FuelCell1_Name:
  ENG: "Deuterium Power Cells"
  RUS: "Дейтериевые энергоблоки"
  SPA: "Celdas de energía de deuterio"
- UKR: "Дейтерієві елементи живлення"
+ UKR: "Дейтерієві елем. живлення"
 BB_Tech_FuelCell1_Desc:
  Id: 571
  ENG: "This technology will switch all of your ships' dedicated power cells over to the newer Deuterium standard.  Deuterium cells can hold 15% more power than a standard cell, which translates into longer effective range for ships as well as greater energy pools available for combat systems. "
@@ -2913,7 +2913,7 @@ BB_Tech_FuelCell2_Name:
  ENG: "Iridium Power Cells"
  RUS: "Иридиевые энергоблоки"
  SPA: "Celdas de energía de iridio"
- UKR: "Іридієві силові елементи"
+ UKR: "Іридієві елем. живлення"
 BB_Tech_FuelCell2_Desc:
  Id: 574
  ENG: "Iridium has proven itself the superior element for power storage purposes.  This technology switches all of your empire's dedicated power cells to the Iridium standard, increasing dedicated power cell efficiency by a total of 30%. "
@@ -2949,7 +2949,7 @@ BB_Tech_GeneticManipulation_TroopStrengthModifierBonus_Bonus:
  ENG: "Gain a 25% super solider bonus to all troop strengths"
  RUS: "Дает 25% бонус суперсолдата всем параметрам войск"
  SPA: "Añade una bonificación del 25% de supersoldado a todas las cualidades de las tropas"
- UKR: "Отримуйте 25% бонус супер-солдата до всіх характеристик війська"
+ UKR: "Отримуйте 25% бонус супер-солдата до всіх характеристик військ"
 BB_Tech_GuidedMissiles_Name:
  Id: 581
  ENG: "Anti-Frigate Missiles"
@@ -5240,7 +5240,7 @@ ButTheirEngineersAndShipwrights:
  ENG: "but their engineers and shipwrights are generally competent. "
  RUS: "и их инженеры и кораблестроители в целом достаточно компетентны. "
  SPA: "pero sus ingenieros y constructores navales son bastante competentes en general. "
- UKR: "але їхні інженери та судноводії, як правило, компетентні."
+ UKR: "але їхні інженери та суднобудівники, як правило, компетентні."
 AreNeitherParticularlyIndustriousNor:
  Id: 1366
  ENG: " are neither particularly industrious nor particularly lazy"
@@ -5366,25 +5366,25 @@ PlanetArray:
  ENG: "Planet Array"
  RUS: "Список планет"
  SPA: "Lista de planetas"
- UKR: "Планетарний масив"
+ UKR: "Список Планет"
 MaxPopulation:
  Id: 1403
  ENG: "Max Population"
  RUS: "Макс. население"
  SPA: "Población máxima"
- UKR: "Максимальна кількість населення"
+ UKR: "Макс. населення"
 ResearchQueue:
  Id: 1404
  ENG: "Research Queue"
  RUS: "Очередь исследований"
  SPA: "Cola de investigación"
- UKR: "Черга на дослідження"
+ UKR: "Черга досліджень"
 CurrentResearch:
  Id: 1405
  ENG: "Current Research"
  RUS: "Текущее исследование"
  SPA: "Investigación actual"
- UKR: "Поточні дослідження"
+ UKR: "Поточнє дослідження"
 Technologies:
  Id: 1406
  ENG: "Technologies"
@@ -5396,7 +5396,7 @@ HideFreighters:
  ENG: "Hide Freighters"
  RUS: "Скрыть транспорты"
  SPA: "Ocultar cargueros"
- UKR: "Приховати вантажні судна"
+ UKR: "Приховати транспорти"
 UnexploredPlanet:
  Id: 1408
  ENG: "Unexplored Planet"
@@ -5414,7 +5414,7 @@ UnderConstructionAt:
  ENG: "Under Construction at "
  RUS: "В процессе постройки на:"
  SPA: "En construcción en "
- UKR: "Будується за адресою"
+ UKR: "Будується на"
 AssignAreaOfOperation:
  Id: 1411
  ENG: "Assign Area of Operation"
@@ -5462,19 +5462,19 @@ RefitTo:
  ENG: "Refit To..."
  RUS: "Переоборудовать в..."
  SPA: "Reequipar con..."
- UKR: "Повернутись до..."
+ UKR: "Переобладнати до..."
 OrderScrap:
  Id: 1419
  ENG: "Order Scrap"
  RUS: "Утилизировать"
  SPA: "Ordenar desguace"
- UKR: "Замовити лом"
+ UKR: "Утилізувати"
 ContactLeader:
  Id: 1420
  ENG: "Contact Leader"
  RUS: "Связаться с лидером"
  SPA: "Contactar con líder"
- UKR: "Зв'яжіться з лідером"
+ UKR: "Зв'язатись з лідером"
 ViewPlanet:
  Id: 1421
  ENG: "View Planet"
@@ -5486,7 +5486,7 @@ MarkForColonization:
  ENG: "Mark for Colonization"
  RUS: "Отметить для колонизации"
  SPA: "Marcar para colonización"
- UKR: "Знак колонізації"
+ UKR: "Позначити для колонізації"
 TacticalView:
  Id: 1423
  ENG: "Tactical View"
@@ -5498,7 +5498,7 @@ PopulationMax:
  ENG: "Population Max: "
  RUS: "Макс. население: "
  SPA: "Población máxima: "
- UKR: "Максимальна чисельність населення:"
+ UKR: "Макс. населення: "
 Colonize:
  Id: 1425
  ENG: "Colonize"
@@ -5522,13 +5522,13 @@ Uninhabitable:
  ENG: "Uninhabitable "
  RUS: "Непригодная для жизни"
  SPA: "Inhabitable "
- UKR: "Непридатний для проживання"
+ UKR: "Непридатна для життя"
 Unexplored:
  Id: 1429
  ENG: "Unexplored "
  RUS: "Неисследованная"
  SPA: "Sin explorar "
- UKR: "Недосліджений"
+ UKR: "Недосліджена "
 SendAShipToThis:
  Id: 1430
  ENG: "Send a ship to this planet to reveal its properties"
@@ -5540,7 +5540,7 @@ Bombard:
  ENG: "Bombard"
  RUS: "Бомбить"
  SPA: "Bombardear"
- UKR: "Бомбардування"
+ UKR: "Бомбардувати"
 Troops2:
  Id: 1432
  ENG: "Troops..."
@@ -5576,7 +5576,7 @@ DuplicitousRacesAreNaturalDeceivers:
  ENG: "Duplicitous races are natural deceivers and gain a +10 bonus to all Agent rolls"
  RUS: "Двуличные расы - прирожденные обманщики. Их агенты получают бонус +10 ко всем проверкам действий."
  SPA: "Las razas embaucadoras son embusteros natos y sus agentes tienen +10 de probabilidades de éxito"
- UKR: "Дволикі раси є природженими брехунами і отримують бонус +10 до всіх кидків на агентів"
+ UKR: "Дволикі раси є природженими брехунами і отримують бонус +10 до всіх кидків агентів"
 Honest:
  Id: 1438
  ENG: "Honest"
@@ -5618,7 +5618,7 @@ Average:
  ENG: "Average"
  RUS: "Средняя"
  SPA: "Normal"
- UKR: "Середній показник"
+ UKR: "Середня"
 Poor:
  Id: 1445
  ENG: "Poor"
@@ -5642,7 +5642,7 @@ Barren:
  ENG: "Barren"
  RUS: "Бесплод."
  SPA: "Árido"
- UKR: "Безплідний."
+ UKR: "Безплідна"
 GasGiant:
  Id: 1449
  ENG: "Gas Giant"
@@ -5654,7 +5654,7 @@ Volcanic:
  ENG: "Volcanic"
  RUS: "Вулканическая"
  SPA: "Volcánico"
- UKR: "Вулканічний"
+ UKR: "Вулканічна"
 Tundra:
  Id: 1451
  ENG: "Tundra"
@@ -5695,27 +5695,27 @@ Tracking:
  Id: 1457
  ENG: "FCS Tracking"
  RUS: "Сис.Наведения огня"
- UKR: "Відстеження FCS"
+ UKR: "Система керування вогнем"
 LowTracking:
  Id: 1458
  ENG: "Low Target Tracking"
  RUS: "Низкий поиск целей"
- UKR: "Відстеження низьких цілей"
+ UKR: "низька СКВ"
 TrackingTargets:
  Id: 1459
  ENG: "FCS Target Tracking: having less tracking than weapon facings can leave the ship unable to fire simultaneously on targets in multiple directions."
  RUS: "Система наведения огнем по целям:наличие меньшей дистанцией, чем прицеливание орудий,может привести к тому, что корабль не сможет одновременно вести огонь по целям в нескольких направлениях."
- UKR: "Відстеження цілі FCS: менший рівень відстеження, ніж наведення зброї, може призвести до того, що корабель не зможе одночасно вести вогонь по цілям у декількох напрямках."
+ UKR: "Відстеження цілі СКВ: менший рівень відстеження, ніж наведення зброї, може призвести до того, що корабель не зможе одночасно вести вогонь по цілям у декількох напрямках."
 ImproveTracking:
  Id: 1460
  ENG: "Improve target tracking by adding more systems with FCS Target Tracking power such as control systems, or try to group your weapons to face similar directions."
  RUS: "Улучшеное отслеживание целей, добавляет больше Сис.Наведения огня, таких как системы управления огнем.Групирует оружие так что оно сосредоточено в одном направлении."
- UKR: "Покращіть відстеження цілей, додавши більше систем з функцією відстеження цілей FCS, наприклад, системи керування, або спробуйте згрупувати зброю так, щоб вона була спрямована у схожих напрямках."
+ UKR: "Покращіть відстеження цілей, додавши більше систем з функцією відстеження цілей СКВ, наприклад, системи керування, або спробуйте згрупувати зброю так, щоб вона була спрямована у схожих напрямках."
 OrbitalTracking:
  Id: 1461
  ENG: "Bases placed in orbit also use planet FCS."
  RUS: "Базы, выведенные на орбиту, также используют планетарную Сис.наведения огня."
- UKR: "Бази, розміщені на орбіті, також використовують планетарну FCS."
+ UKR: "Бази, розміщені на орбіті використовують планетарну Систему Керування Вогню."
 LongRechargeTime:
  Id: 1462
  ENG: "Long Recharge Time"
@@ -5740,12 +5740,12 @@ TheShipsPowerCapacityIt:
  Id: 1466
  ENG: "The ship's Power Capacity is too low to support all of it's installed energy weaponry. The ship might have enough power output, but it must also have sufficient capacity to store it."
  RUS: "Уровень энергии корабля слишком мал,чтобы поддерживать все установленное на нем энергетическое вооружение. Корабль может иметь достаточную производительность реактора, но он также должен иметь достаточно энергетических ячеек для хранения энергии."
- UKR: "Потужність корабля занадто низька, щоб підтримувати всю встановлену на ньому енергетичну зброю. Корабель може мати достатню потужність, але він також повинен мати достатню ємність для її зберігання."
+ UKR: "Потужність корабля занадто низька, щоб підтримувати всю встановлену на ньому енергетичну зброю. Корабель може мати достатню потужність, але він також повинен мати достатню енергоємність для її зберігання."
 AddPowerCellsToThe:
  Id: 1467
  ENG: "Add Power Cells to the ship."
  RUS: "Добавляет энерг.ячейки корабль."
- UKR: "Додайте на корабель Елементи живлення."
+ UKR: "Додайте на корабель елементи живлення."
 OfTheShipssEnergyWeapons:
  Id: 1468
  ENG: "of the ships's energy weapons cannot fire a single shot."
@@ -5775,12 +5775,12 @@ DedicatedCarrier:
  Id: 1473
  ENG: "Dedicated Carrier"
  RUS: "Выделенный Носитель"
- UKR: "Виділений перевізник"
+ UKR: "Спеціалізований носій"
 ThisShipIsADedicated:
  Id: 1474
  ENG: "This ship is a dedicated Carrier. The fighter launch range will be determined by the Combat Stance you select for it. Short Range or Attack Runs Stances will set fighters to launch from Max Weapon Range (minimum 7500). Anything else - Sensor Range."
  RUS: "Этот корабль является специализированным Носителем. Дальность пуска истребителей будет определяться выбранной вами боевой стойкой.Стойки для коротких дистанций или атак позволяют истребителям стартовать с максимальной дальности стрельбы (минимум 7500).Дальность сенсоров можно увеличить."
- UKR: "Цей корабель є спеціалізованим авіаносцем. Дальність запуску винищувача буде визначатися бойовою позицією, яку ви для нього виберете. Бойові позиції \"Ближній бій\" або \"Атакуючий запуск\" дозволять винищувачам запускатися з максимальної дальності зброї (мінімум 7500). Все інше - з дальності сенсора."
+ UKR: "Цей корабель є спеціалізованим носієм. Дальність запуску винищувача буде визначатися бойовою позицією, яку ви для нього виберете. Бойові позиції \"Ближній бій\" або \"Атакуючий запуск\" дозволять винищувачам запускатися з максимальної дальності зброї (мінімум 7500). Все інше - з дальності сенсора."
 CurrentSelectedFighterLaunchRange:
  Id: 1475
  ENG: "Current Selected Fighter Launch Range is: \n "
@@ -5790,7 +5790,7 @@ SensorRangeOf:
  Id: 1476
  ENG: "Sensor Range of"
  RUS: "Диапазон сенсоров"
- UKR: "Діапазон датчика"
+ UKR: "Діапазон сенсорів"
 MaximumWeaponRangeOf:
  Id: 1477
  ENG: "Maximum Weapon Range of "
@@ -5805,7 +5805,7 @@ ThisShipHasSomeFighter:
  Id: 1479
  ENG: "This ship has some Fighter Hangars. However, it is not a Dedicated Carrier. The fighter launch range will be the Maximum weapon range of this ship (minimum of 7500)."
  RUS: "На этом корабле есть несколько ангаров для истребителей. Однако,это не выделенный Носитель. Дальность пуска истребителей будет соответствовать максимальной дальности вооружения этого корабля (минимум 7500)."
- UKR: "На цьому кораблі є кілька ангарів для винищувачів. Однак, він не є спеціалізованим авіаносцем. Дальність запуску винищувача буде дорівнювати максимальній дальності озброєння цього корабля (мінімум 7500)."
+ UKR: "На цьому кораблі є кілька ангарів для винищувачів. Однак, він не є спеціалізованим носієм. Дальність запуску винищувача буде дорівнювати максимальній дальності озброєння цього корабля (мінімум 7500)."
 MinimumLaunchRangeOf:
  Id: 1480
  ENG: "Minimum Launch Range of "
@@ -5833,7 +5833,7 @@ System2:
  ENG: " system!"
  RUS: " системе!"
  SPA: " sistema."
- UKR: " система!"
+ UKR: " системі!"
 Captured:
  Id: 1503
  ENG: " captured "
@@ -5851,7 +5851,7 @@ ScansOf:
  ENG: "Scans of "
  RUS: "Сканирование системы "
  SPA: "Al escanear "
- UKR: "Скани"
+ UKR: "Сканування "
 RevealedAnAnomaly:
  Id: 1506
  ENG: " revealed an anomaly."
@@ -5869,7 +5869,7 @@ No:
  ENG: "No"
  RUS: "Не обнаружено агентов расы"
  SPA: "No"
- UKR: "Ні."
+ UKR: "Немає "
 AgentsAreInOurEmpirennrefunding:
  Id: 1509
  ENG: " agents are in our empire!\n\nRefunding 10 Intelligence Penetration"
@@ -5893,7 +5893,7 @@ HasBeenKilled:
  ENG: " has been killed"
  RUS: " был убит"
  SPA: " ha sido asesinado"
- UKR: " було вбито."
+ UKR: " був вбитий."
 WasColonizednclickForColonyScreen:
  Id: 1513
  ENG: " was Colonized\nClick for Colony Screen"
@@ -5929,13 +5929,13 @@ CurrentlyResearching:
  ENG: "Currently Researching:"
  RUS: "Текущее исследование:"
  SPA: "Investigando:"
- UKR: "Наразі досліджую:"
+ UKR: "Наразі досліджується:"
 None2:
  Id: 1604
  ENG: "None"
  RUS: "Нет"
  SPA: "Nada"
- UKR: "Ні."
+ UKR: "Ні"
 MilitaryStrength:
  Id: 1605
  ENG: "Military Strength:"
@@ -5947,13 +5947,13 @@ OwnedArtifacts:
  ENG: "Owned Artifacts:"
  RUS: "Артефакты:"
  SPA: "Artefactos:"
- UKR: "Власні артефакти:"
+ UKR: "Артефакти:"
 AtWar:
  Id: 1608
  ENG: "At War"
  RUS: "Война"
  SPA: "En guerra"
- UKR: "На війні"
+ UKR: "У війні"
 OpenBorders:
  Id: 1609
  ENG: "Open Borders"
@@ -6073,7 +6073,7 @@ CounterespionageBonus:
  ENG: "Counter-Espionage Bonus"
  RUS: "Бонус контрразведки"
  SPA: "Bonificación de contraespionaje"
- UKR: "Бонус за боротьбу зі шпигунством"
+ UKR: "Бонус на контр-розвідку"
 SensorNetworkHacked:
  Id: 1629
  ENG: "Sensor Network Hacked"
@@ -6115,13 +6115,13 @@ EmpirewideCounterEspionageBudget:
  ENG: "Empire-wide Counter Espionage Budget"
  RUS: "Бюджет контрразведки по всей империи"
  SPA: "Presupuesto de contraespionaje de todo el imperio"
- UKR: "Загальноімперський бюджет на боротьбу зі шпигунством"
+ UKR: "Загальноімперський бюджет на контр-розвідку"
 ReducingEnemyPenetrationBy:
  Id: 1636
  ENG: "Reducing Enemy Penetration by "
  RUS: "Снижение эффективности вражеских агентов на "
  SPA: "Reduciendo infiltración del enemigo mediante "
- UKR: "Зменшення проникнення противника за рахунок"
+ UKR: "Зменшення проникнення противника на"
 OffensiveSpiesBudget2:
  Id: 1637
  ENG: "Offensive Spies Budget"
@@ -6133,25 +6133,25 @@ DiscoverPlot:
  ENG: "Discover Plot"
  RUS: "Раскрыть замысел"
  SPA: "Descubrir complot"
- UKR: "Відкрийте для себе сюжет"
+ UKR: "Розкрити задум"
 DamageRelations:
  Id: 1640
  ENG: "Damage Relations"
  RUS: "Ухудшить отношения"
  SPA: "Dañar relaciones"
- UKR: "Відшкодування збитків"
+ UKR: "Зашкодити відносинам"
 PlantSaboteur:
  Id: 1641
  ENG: "Plant Saboteur"
  RUS: "Отправить диверсанта"
  SPA: "Infiltrar saboteador"
- UKR: "Диверсант на заводі"
+ UKR: "Відправити диверсанта"
 PlantSaboteur2:
  Id: 1642
  ENG: "Plant Saboteur"
  RUS: "Отправить диверсанта"
  SPA: "Infiltrar saboteador"
- UKR: "Диверсант на заводі"
+ UKR: "Відправити диверсанта"
 StealTechnology:
  Id: 1643
  ENG: "Steal Technology"
@@ -6271,7 +6271,7 @@ IsATerranPlanetBoasting:
  ENG: "is a terran planet boasting several large continents and a nitrogen-oxygen atmosphere  "
  RUS: "представляет собой планету земного типа с атмосферой из азота и кислорода и несколькими большими континентами"
  SPA: "es un planeta terrícola con varios continentes grandes y una atmósfera de oxígeno y nitrógeno  "
- UKR: "це планета землян, яка має кілька великих континентів і азотно-кисневу атмосферу."
+ UKR: "це планета земного типу, яка має кілька великих континентів і азотно-кисневу атмосферу."
 IsVolcanicAndHighlyActive:
  Id: 1718
  ENG: "is volcanic and highly active"
@@ -6301,7 +6301,7 @@ IsATerranPlanetWith2:
  ENG: "is a terran planet with several large continents and oceans"
  RUS: "представляет собой планету земного типа с несколькими большими континентами и океанами"
  SPA: "es un planeta terrícola con océanos y continentes grandes\""
- UKR: "це планета землян з кількома великими континентами та океанами"
+ UKR: "це планета земного типу з кількома великими континентами та океанами"
 HasBeenTerraformedToPossess:
  Id: 1723
  ENG: "has been terraformed to possess a nitrogen-oxygen atmosphere suitable for plant and animal life of many varieties"
@@ -6379,7 +6379,7 @@ ItHasAmpleNaturalResources:
  ENG: "It has ample natural resources and can easily sustain a large population. Its soil is adequate for agricultural purposes and the climate allows a suitable growing season. "
  RUS: "На этой планете достаточно природных ресурсов; кроме того, она вполне способна вместить и прокормить большое население. Почвы вполне пригодны для земледелия, и климат ему также вполне благоприятствует. "
  SPA: "Dispone de cuantiosos recursos naturales y puede mantener fácilmente a una población grande. El suelo es apto para fines agrícolas y el clima permite periodos de cultivo fructífero. "
- UKR: "Країна має достатньо природних ресурсів і може легко утримувати велику кількість населення. Ґрунти придатні для сільськогосподарських цілей, а клімат забезпечує відповідний вегетаційний період."
+ UKR: "Планета має достатньо природних ресурсів і може легко утримувати велику кількість населення. Ґрунти придатні для сільськогосподарських цілей, а клімат забезпечує відповідний вегетаційний період."
 DunesOfSunscorchedSandRise:
  Id: 1736
  ENG: "Dunes of sun-scorched sand rise and fall over the landscape like ocean waves. From orbit, you can see dozens of frenzied storms whirling the sands around at lethal speeds. There are no sources of liquid water exposed to the sky. Life on this planet would be possible, but it would be harsh. "
@@ -6666,7 +6666,7 @@ ASadWreck:
  ENG: "A sad wreck"
  RUS: "Печальная находка"
  SPA: "Un triste naufragio"
- UKR: "Сумний крах"
+ UKR: "сумний уламок"
 YourForcesExamineTheWreckage:
  Id: 1803
  ENG: "Your forces examine the wreckage of what is clearly a very, very ancient shipwreck. Time and nature have taken their toll on the wreckage. Even so, there are some curiosities among the wreckage that will have some value on the open market."
@@ -6678,7 +6678,7 @@ AwesomeFind:
  ENG: "Awesome find"
  RUS: "Изумительная находка"
  SPA: "Hallazgo asombroso"
- UKR: "Чудова знахідка."
+ UKR: "Чудова знахідка"
 HereYouHaveMadeA:
  Id: 1805
  ENG: "Here you have made a truly awesome discovery - what appeared from orbit to be a shipwreck was in fact not a wreck at all but a completely intact cruiser! What's more, it appears to be spaceworthy and your forces are taking it into orbit now."
@@ -6690,7 +6690,7 @@ ExcellentFind:
  ENG: "Excellent find"
  RUS: "Прекрасная находка"
  SPA: "Excelente hallazgo"
- UKR: "Чудова знахідка."
+ UKR: "Чудова знахідка"
 HereYouHaveMadeAn:
  Id: 1807
  ENG: "Here you have made an excellent discovery - what appeared from orbit to be a shipwreck was in fact not a wreck at all but a completely intact alien light frigate! What's more, it appears to be spaceworthy and your forces are taking it into orbit now."
@@ -6771,12 +6771,12 @@ WaitingForRefitShip:
  Id: 1820
  ENG: "Waiting for Refit Ship"
  RUS: "Ожидание переоснащения корабля"
- UKR: "В очікуванні ремонту корабля"
+ UKR: "Очікує переобладннання корабля"
 MutinyAverted:
  Id: 1821
  ENG: "Mutiny On a ship was averted\n The mutiny was incited by"
  RUS: "Мятеж на корабле был предотвращен\n Мятеж был спровоцирован"
- UKR: "Бунт на кораблі було попереджено\n Бунт підбурювали"
+ UKR: "Заколот на кораблі було попереджено\n Заколот підбурювали"
 MutinySucceeded:
  Id: 1822
  ENG: "One of your ships was lost during a mutiny\n The mutiny was incited by"
@@ -6796,7 +6796,7 @@ RushAllConstructionTip:
  Id: 1825
  ENG: "Signals Continuous Construction rush of all items in your empire, including existing and future items.\n \nWARNING: This will quickly spend your treasury and may cause high tax rates if Auto Tax is enabled."
  RUS: "Строительства всех предметов в вашей империи,можно ускорить,включая существующие и те которые в очереди .\n \nПРЕДУПРЕЖДЕНИЕ:это быстро потратит вашу казну и может привести к высоким налоговым ставкам, если включен автоматический налог."
- UKR: "Сигналізує про безперервне будівництво всіх об'єктів у вашій імперії, включаючи існуючі та майбутні об'єкти.\n \nПОПЕРЕДЖЕННЯ: Це швидко витрачає вашу скарбницю і може призвести до високих податкових ставок, якщо увімкнено автоподаток."
+ UKR: "Сигналізує про безперервне будівництво всіх об'єктів у вашій імперії, включаючи існуючі та майбутні об'єкти.\n \nПОПЕРЕДЖЕННЯ: Це швидко витратить вашу скарбницю і може призвести до високих податкових ставок, якщо увімкнено автоподаток."
 BuildAllShipsNowPrioritize:
  Id: 1826
  ENG: "build all ships now, prioritize them to be first in queue and apply continuous rush.\n \nWARNING: This might drain your Treasury in an alarming rate."
@@ -6806,7 +6806,7 @@ YouCanUseShiftClick:
  Id: 1827
  ENG: "Use Shift + Click to bulk replace all similar modules. It is useful if you are upgrading your ship. It will also keep your old weapons' facing when bulk replacing weapons."
  RUS: "Используйте Shift + Click, чтобы массово заменить все похожие модули. Это полезно, если вы улучшаете свой корабль.Также сохраняется внешний вид вашего старого оружия при массовой замене оружия."
- UKR: "Використовуйте Shift + Клацніть, щоб замінити всі подібні модулі. Це корисно, якщо ви модернізуєте свій корабель. Це також збереже вигляд вашої старої зброї при груповій заміні зброї."
+ UKR: "Використовуйте Shift + Клік, щоб замінити всі подібні модулі. Це корисно, якщо ви модернізуєте свій корабель. Це також збереже вигляд вашої старої зброї при груповій заміні зброї."
 ShieldPen:
  Id: 1828
  ENG: "Shield Pen"
@@ -6826,7 +6826,7 @@ BlastSize:
  Id: 1831
  ENG: "Blast Size"
  RUS: "Радиус взрыва"
- UKR: "Розмір вибуху"
+ UKR: "Радіус вибуху"
 TheRadiusOfTheProjectiles:
  Id: 1832
  ENG: "The radius of the projectile's explosion. The number given is in slots. So 3 means 3 slots in every direction might be affected by the blast."
@@ -6836,7 +6836,7 @@ AutomaticRequisition:
  Id: 1833
  ENG: "Automatic Requisition"
  RUS: "Автомат. заявка"
- UKR: "Автоматична заявка"
+ UKR: "Автоматичнний запит"
 IfCheckedEveryTimeA:
  Id: 1834
  ENG: "If checked, every time a ship in the fleet is destroyed, a new one will be created to fill the lines. The ship must be able to be built by your empire."
@@ -6856,7 +6856,7 @@ AutoPickColonyShip:
  Id: 1837
  ENG: "Auto Pick Colony Ship"
  RUS: "Ав.выбор Колон.корабля"
- UKR: "Корабель колонії з автоматичним вибором"
+ UKR: "Автовибір колон. корабля"
 TheBestColonyShipWill:
  Id: 1838
  ENG: "The best Colony Ship will be selected for construction if you have enable Auto Colonize or when you click on any Colonize buttons."
@@ -6876,12 +6876,12 @@ ThisShipIsInhibitedAnd:
  Id: 1841
  ENG: "This ship is inhibited and cannot engage warp. Check The red status symbol below for more details. You can disable this text and circle alerts in the Automation Screen. You can also enable gravity well display in the related button next to the Mini-map."
  RUS: "Этот корабль не может запустить варп-прыжок. Для получения дополнительной информации проверьте красный символ состояния ниже. Вы можете отключить этот текст и предупреждения на экране автоматизации. Вы также можете включить отображение гравитационных скважин с помощью соответствующей кнопки рядом с мини-картой.."
- UKR: "Цей корабель заблоковано і він не може увійти у варп. Дивіться червоний символ стану нижче для більш детальної інформації. Ви можете вимкнути ці текстові та кругові сповіщення на екрані автоматизації. Ви також можете увімкнути відображення гравітаційної свердловини за допомогою відповідної кнопки поруч з міні-мапою."
+ UKR: "Цей корабель заблоковано і він не може увійти у варп. Дивіться червоний символ стану нижче для більш детальної інформації. Ви можете вимкнути ці текстові та кругові сповіщення на екрані автоматизації. Ви також можете увімкнути відображення гравітаційного колодязя за допомогою відповідної кнопки поруч з міні-мапою."
 DisableInhibitionAlerts:
  Id: 1842
  ENG: "Disable Inhibition Alerts"
  RUS: "Отк. предупр. о запрете"
- UKR: "Вимкнути сповіщення про гальмування"
+ UKR: "Вимкнути спов. блок. варпу"
 InhibitionAlertsAreDisplayedWhen:
  Id: 1843
  ENG: "Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default when starting a game on Hard and above."
@@ -6997,7 +6997,7 @@ NoteInOrderToSee:
  Id: 1863
  ENG: "NOTE: In order to see more details regarding this planet, you need to have troops on it, a colony on another planet in this system which can observe the planet, or ships within scan range (Sensor range)."
  RUS: "ПРИМЕЧАНИЕ: Чтобы увидеть более подробную информацию об этой планете, вам необходимо иметь на ней войска,колонию на другой планете в этой системе, которая может наблюдать за планетой, или корабли в пределах диапазона сканирования (дальности сенсоров)"
- UKR: "ПРИМІТКА: Щоб побачити більш детальну інформацію про цю планету, вам потрібно мати на ній війська, колонію на іншій планеті в цій системі, яка може спостерігати за планетою, або кораблі в межах діапазону сканування (діапазон сенсора)."
+ UKR: "ПРИМІТКА: Щоб побачити більш детальну інформацію про цю планету, вам потрібно мати на ній війська, колонію на іншій планеті в цій системі, яка може спостерігати за планетою, або кораблі в межах діапазону сканування (дальність сенсора)."
 HangarSize:
  Id: 1864
  ENG: "Hangar Size"
@@ -7007,7 +7007,7 @@ ThisIsTheMaximumNumber:
  Id: 1865
  ENG: "This is the maximum number of ship slot size this hanger can store."
  RUS: "Это максимальное количество ячеек корабля, которое может вмещать этот ангар."
- UKR: "Це максимальна кількість слотів для кораблів, яку може зберігати цей вішак."
+ UKR: "Це максимальна кількість слотів для кораблів, яку може зберігати цей ангар."
 MineralRichnessHasGoneDown:
  Id: 1866
  ENG: " Mineral Richness has gone down below 1."
@@ -7032,7 +7032,7 @@ ClearBuildableItemsFilter:
  Id: 1870
  ENG: "Clears the buildable items filter."
  RUS: "Очищает фильтр строящихся предметов."
- UKR: "Очищає фільтр створюваних елементів."
+ UKR: "Очищає фільтр створюваних предметів."
 DestroyedPirateBase:
  Id: 1871
  ENG: "We Managed to destroy a pirate base!\n We found equipment worth"
@@ -7067,27 +7067,27 @@ NetFlatFoodGeneratedPer:
  Id: 1877
  ENG: "Net flat food generated per turn"
  RUS: "Чистая еда, генерируемая за ход"
- UKR: "Чиста плоска їжа, згенерована за хід"
+ UKR: "Чисте виробництво їжі за хід"
 NetProductionPerColonistAllocated:
  Id: 1878
  ENG: "Net production per colonist allocated to Industry"
  RUS: "Чистая продукция на одного колониста, выделенного на промышленность"
- UKR: "Чисте виробництво на одного колоніста, розподілене на промисловість"
+ UKR: "Чисте виробництво на одного колоніста, розподіленого на промисловість"
 NetFlatProductionGeneratedPer:
  Id: 1879
  ENG: "Net flat production generated per turn"
  RUS: "Чистая продукция, генерируемая за ход"
- UKR: "Чисте виробництво плоского прокату за один оборот"
+ UKR: "Чисте виробництво продукції за хід"
 NetResearchPerColonistAllocated:
  Id: 1880
  ENG: "Net research per colonist allocated to Science"
  RUS: "Чистые исследования,генерируемые колонистом выделеного на науку"
- UKR: "Чисті дослідження на одного колоніста, виділені на науку"
+ UKR: "Чисті дослідження на одного колоніста, виділеного на науку"
 NetFlatResearchGeneratedPer:
  Id: 1881
  ENG: "Net flat research generated per turn"
  RUS: "Чистые исследования, генерируемые за ход"
- UKR: "Чисті плоскі дослідження, згенеровані за хід"
+ UKR: "Чисті дослідження, згенеровані за хід"
 ThisMissileHasTerminalPhase:
  Id: 1882
  ENG: "This Missile has Terminal Phase. This means that at the specified range, the missile will increase speed and will fly straight to the target. This makes it's interception harder."
@@ -7112,7 +7112,7 @@ QuarantinePlanet:
  Id: 1888
  ENG: "Quarantine Planet"
  RUS: "Планета на карантине"
- UKR: "Карантинна планета"
+ UKR: "Ізолювати планету"
 TheGalaxyWillBeConsisted:
  Id: 1889
  ENG: "The Galaxy will be consisted of many small clusters, each empire will start in one of these clusters."
@@ -7192,7 +7192,7 @@ ThisIndicatesHowManyTiles:
  Id: 1904
  ENG: "This indicates how many tiles are habitable on this planet"
  RUS: "Показывает, сколько клеток пригодно для жилья на этой планете."
- UKR: "Це вказує на те, скільки плиток придатні для життя на нашій планеті"
+ UKR: "Це вказує на те, скільки клітинок придатні для життя на нашій планеті"
 ThisIndicatesHowMuchPopulation:
  Id: 1905
  ENG: "This indicates how much population is available per tile in millions, after any racial modifiers for that planet's environment. There is a minimum default population for the planet."
@@ -7296,17 +7296,17 @@ ReverseEngineered:
  Id: 1932
  ENG: " hull was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!"
  RUS: " Корпус был реконструирован во время процесса утилизации.\nТеперь этот корпус можно использовать для постройки наших собственных кораблей!"
- UKR: " Корпус був реінжинірингований під час утилізації брухту.\nЦей корпус тепер може бути використаний для будівництва наших власних кораблів!"
+ UKR: " Корпус був реінжинірингований під час утилізації.\nЦей корпус тепер може бути використаний для будівництва наших власних кораблів!"
 HullScrappedAdvancingResearch:
  Id: 1933
  ENG: " was scrapped, helping us advance in our own research\ntoward this hull type."
  RUS: " был списан, что помогло нам продвинуться в наших собственных исследованиях \nк этому типу корпуса."
- UKR: " був відправлений на металобрухт, що допомогло нам просунутись у власних дослідженнях\n цього типу корпусу."
+ UKR: " був відправлений на утилізацію, що допомогло нам просунутись у власних дослідженнях\n цього типу корпусу."
 ShipCapturedByYou:
  Id: 1934
  ENG: "You have managed to capture a ship! You can scrap it\nto get some research point towards your own hull\nresearch of that type, or maybe even unlock this specific\nhull, if you already able to build this type."
  RUS: "Вам удалось захватить корабль! Вы можете задейстововать это \n чтобы получить точку для исследования вашего собственного корпуса \nисследования этого типа или, может быть, даже разблокировать этот конкретный \nкорпус, если вы уже можете построить этот тип."
- UKR: "Вам вдалося захопити корабель! Ви можете здати його на металобрухт,\n щоб отримати очки досліджень для власного корпусу цього типу,\n або навіть розблокувати цей конкретний\n корпус, якщо ви вже вмієте будувати цей тип."
+ UKR: "Вам вдалося захопити корабель! Ви можете здати його на утилізацію,\n щоб отримати очки досліджень для власного корпусу цього типу,\n або навіть розблокувати цей конкретний\n корпус, якщо ви вже вмієте будувати цей тип."
 YourShipWasCaptured:
  Id: 1935
  ENG: "One of your ships was boarded by"
@@ -7411,7 +7411,7 @@ AutoPickFreighter:
  Id: 1958
  ENG: "Auto Pick Freighter"
  RUS: "Авто выбор груз. судна"
- UKR: "Автопідбір вантажів"
+ UKR: "Автопідбір транспорту"
 IfAutoTradeIsChecked:
  Id: 1959
  ENG: "If Auto Trade is checked, the Best freighters available for your Empire will be built for import/export needs."
@@ -11352,7 +11352,7 @@ TextureFiltering:
  Id: 4149
  ENG: "Texture Filtering"
  RUS: "Кач. фильтра"
- UKR: "Фільтрація текстур"
+ UKR: "Фільтр. текстур"
 ShadowQuality:
  Id: 4150
  ENG: "Shadow Quality"
