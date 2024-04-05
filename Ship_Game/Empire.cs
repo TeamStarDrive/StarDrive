@@ -2350,11 +2350,6 @@ namespace Ship_Game
             return true;
         }
 
-        public bool IsRandomizedAiFleetSizesEnabled()
-        {
-            return Universe.P.EnableRandomizedAIFleetSizes;
-        }
-
         void AssignSniffingTasks()
         {
             if (!isPlayer && AI.CountGoals(g => g.Type == GoalType.ScoutSystem) < DifficultyModifiers.NumSystemsToSniff)
