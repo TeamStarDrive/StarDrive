@@ -63,5 +63,6 @@ Globals:
     Author: "The StarDrive Team"
     UseVanillaShips: true
     ClearVanillaTechs: false
+    EnableRandomizedAIFleetSizes: true
 
 
