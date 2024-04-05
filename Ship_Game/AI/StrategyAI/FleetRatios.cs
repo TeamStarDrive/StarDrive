@@ -48,7 +48,7 @@ namespace Ship_Game.AI
             MinCarriers    = 0;
             MinSupport     = 0;
             MinCombatFleet = 0;
-            SetFleetRatios(empire.IsRandomizedAiFleetSizesEnabled());
+            SetFleetRatios(empire.Universe.P.UseRandomRatios);
 
 
         }
