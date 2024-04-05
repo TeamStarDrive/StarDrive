@@ -75,7 +75,7 @@ public class UniverseParams
     [StarData] public bool FilterOldModules;
 
     [StarData] public bool DisableRemnantStory;
-    [StarData] public bool EnableRandomizedAIFleetSizes;
+    [StarData] public bool UseRandomRatios;
     [StarData] public bool DisableAlternateAITraits;
     [StarData] public bool DisablePirates;
     [StarData] public bool FixedPlayerCreditCharge;
@@ -101,7 +101,7 @@ public class UniverseParams
         StartingPlanetRichnessBonus = s.StartingPlanetRichnessBonus;
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;
-        EnableRandomizedAIFleetSizes = s.EnableRandomizedAIFleetSizes;
+        UseRandomRatios = s.EnableRandomizedAIFleetSizes;
     }
 
     [StarDataDeserialized]
