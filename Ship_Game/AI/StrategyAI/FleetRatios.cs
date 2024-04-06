@@ -62,12 +62,12 @@ namespace Ship_Game.AI
 
             Range[] counts;
 
-            if      (OwnerEmpire.CanBuildCapitals)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals, useRandomFleetSizes);
-            else if (OwnerEmpire.CanBuildBattleships) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildBattleships, useRandomFleetSizes);
-            else if (OwnerEmpire.CanBuildCruisers)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers, useRandomFleetSizes);
-            else if (OwnerEmpire.CanBuildFrigates)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates, useRandomFleetSizes);
-            else if (OwnerEmpire.CanBuildCorvettes)   counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes, useRandomFleetSizes);
-            else                                      counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters, useRandomFleetSizes);
+            if      (OwnerEmpire.CanBuildCapitals)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals);
+            else if (OwnerEmpire.CanBuildBattleships) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildBattleships);
+            else if (OwnerEmpire.CanBuildCruisers)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers);
+            else if (OwnerEmpire.CanBuildFrigates)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates);
+            else if (OwnerEmpire.CanBuildCorvettes)   counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes);
+            else                                      counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters);
 
 
             SetCounts(counts, useRandomFleetSizes);            
