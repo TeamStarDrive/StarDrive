@@ -18,7 +18,7 @@
       <Title>Release DownLoad Link</Title>
       <ShortDescription>Link to BitBucket Downloads</ShortDescription>
       <Text>Check the file name for the release version</Text>
-      <Link>http://www.moddb.com/mods/deveks-mod/downloads/blackbox-radicalelements-release</Link>
+      <Link>https://github.com/TeamStarDrive/StarDrive</Link>
     </HelpTopic>
     <HelpTopic>
       <Category>BlackBox</Category>
