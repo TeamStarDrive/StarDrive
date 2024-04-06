@@ -16,7 +16,7 @@
     <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Release DownLoad Link</Title>
-      <ShortDescription>Link to BitBucket Downloads</ShortDescription>
+      <ShortDescription>Link to Github Downloads</ShortDescription>
       <Text>Check the file name for the release version</Text>
       <Link>https://github.com/TeamStarDrive/StarDrive</Link>
     </HelpTopic>
