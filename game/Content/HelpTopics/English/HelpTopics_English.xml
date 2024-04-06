@@ -9,14 +9,14 @@
     <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Test DownLoad Link</Title>
-      <ShortDescription>Link to BitBucket Downloads</ShortDescription>
+      <ShortDescription>Link to Github Downloads</ShortDescription>
       <Text>Check the downloads for a version newer than yours</Text>
-      <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/downloads/</Link>
+      <Link>https://github.com/TeamStarDrive/CombinedArms/releases</Link>
     </HelpTopic>
     <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Release DownLoad Link</Title>
-      <ShortDescription>Link to BitBucket Downloads</ShortDescription>
+      <ShortDescription>Link to Github Downloads</ShortDescription>
       <Text>Check the file name for the release version</Text>
       <Link>http://www.moddb.com/mods/deveks-mod/downloads/blackbox-radicalelements-release</Link>
     </HelpTopic>
@@ -25,7 +25,7 @@
       <Title>Discord Link</Title>
       <ShortDescription>Link To BlackBox Chat</ShortDescription>
       <Text>Drop in and tell us how things are going or ask a question. This is by far the fastest way to contact us.</Text>
-      <Link>https://discord.gg/nrMKaWr</Link>
+      <Link>https://discord.gg/dfvnfH4</Link>
     </HelpTopic>
     <HelpTopic>
       <Category>BlackBox</Category>
@@ -51,9 +51,9 @@
     <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Report An Issue</Title>
-      <ShortDescription>BitBucket Issue</ShortDescription>
-      <Text>https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new</Text>
-      <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new</Link>
+      <ShortDescription>Github Issue</ShortDescription>
+      <Text>https://github.com/TeamStarDrive/CombinedArms/issues/new</Text>
+      <Link>https://github.com/TeamStarDrive/CombinedArms/issues/new</Link>
     </HelpTopic>
     <HelpTopic>
       <Category>BlackBox</Category>
@@ -65,9 +65,9 @@
     <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Want To Help?</Title>
-      <ShortDescription>BitBucket Issue</ShortDescription>
-      <Text>https://bitbucket.org/CrunchyGremlin/sd-blackbox/overview</Text>
-      <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/overview</Link>
+      <ShortDescription>Github link</ShortDescription>
+      <Text>https://github.com/TeamStarDrive/StarDrive</Text>
+      <Link>https://github.com/TeamStarDrive/StarDrive</Link>
     </HelpTopic>
     
     <HelpTopic>
