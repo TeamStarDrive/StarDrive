@@ -51,7 +51,7 @@
     <HelpTopic>
       <Category>BlackBox</Category>
       <Title>Report An Issue</Title>
-      <ShortDescription>BitBucket Issue</ShortDescription>
+      <ShortDescription>Github Issue</ShortDescription>
       <Text>https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new</Text>
       <Link>https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new</Link>
     </HelpTopic>
