@@ -2007,7 +2007,7 @@ namespace Ship_Game
         static readonly Map<BuildRatio, Range[]> BuildRatios = new Map<BuildRatio, Range[]>();
         static readonly Random random = new Random();
 
-        public static Range[] GetFleetRatios(BuildRatio canBuild, bool IsRandomizedAIFleetSizes)
+        public static Range[] GetFleetRatios(BuildRatio canBuild)
         {
             return BuildRatios[canBuild];
         }
