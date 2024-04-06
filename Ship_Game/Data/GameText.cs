@@ -4439,8 +4439,9 @@ namespace Ship_Game
         DeployResearchStation = 4405,
         /// <summary>Deploy Research Station in this</summary>
         DeployResearchStationTip = 4406,
+        /// <summary>Note that Shipyard hulls are not editable</summary>
+        ShipyardHullNotEditible = 4407,
         /// <summary>Cancel Research Station</summary>
-        // --------------------------------------------------------- PLACE HOLDER --------------------------------------------------------------
         CancelDeployResearchStationTip = 4408,
         /// <summary>Auto Build Research Stations</summary>
         AutoBuildResearchStation = 4409,

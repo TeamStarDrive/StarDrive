@@ -32,8 +32,9 @@
     - SoundEffect:
       Id: ShipyardTheme
       Volume: 0.75
-      Sound: "Music/Ponder.m4a"
-
+      Sounds: # array of `Sounds` to randomly select from
+        - "Music/AmbientMusic.0.m4a"       
+        - "Music/Ponder.m4a"
 - Category:
   Name: RacialMusic
   Volume: 0.5
