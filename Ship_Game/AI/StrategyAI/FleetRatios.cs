@@ -53,7 +53,7 @@ namespace Ship_Game.AI
 
         }
 
-        public void SetFleetRatios(bool IsRandomizedAIFleetSizes)
+        public void SetFleetRatios(bool useRandomFleetSizes)
         {
             // fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
 
