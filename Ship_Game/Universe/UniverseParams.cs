@@ -101,7 +101,7 @@ public class UniverseParams
         StartingPlanetRichnessBonus = s.StartingPlanetRichnessBonus;
         GravityWellRange = s.GravityWellRange;
         DisableRemnantStory = s.DisableRemnantStory;
-        UseRandomRatios = s.EnableRandomizedAIFleetSizes;
+        EnableRandomizedAIFleetSizes = s.EnableRandomizedAIFleetSizes;
     }
 
     [StarDataDeserialized]
