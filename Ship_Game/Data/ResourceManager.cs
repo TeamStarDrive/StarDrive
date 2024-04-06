@@ -20,7 +20,6 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.Legacy;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
-using Ship_Game.ExtensionMethods;
 
 #pragma warning disable CA2237, RCS1194 // Mark ISerializable types with serializable
 
@@ -2008,19 +2007,9 @@ namespace Ship_Game
         static readonly Map<BuildRatio, Range[]> BuildRatios = new Map<BuildRatio, Range[]>();
         static readonly Random random = new Random();
 
-        public static int[] GetFleetRatios(BuildRatio canBuild, bool IsRandomizedAIFleetSizes)
+        public static Range[] GetFleetRatios(BuildRatio canBuild, bool IsRandomizedAIFleetSizes)
         {
-            int[] fleetSize = new int[BuildRatios[canBuild].Length];
-            SeededRandom seededRandom = new SeededRandom();
-
-            for (int i = 0; i < BuildRatios[canBuild].Length; i++)
-            {
-                fleetSize[i] = IsRandomizedAIFleetSizes 
-                    ? (int) Math.Floor(BuildRatios[canBuild][i].Generate(seededRandom))
-                    : (int) BuildRatios[canBuild][i].Min;
-            }
-
-            return fleetSize;
+            return BuildRatios[canBuild];
         }
 
         static void LoadBuildRatios()
