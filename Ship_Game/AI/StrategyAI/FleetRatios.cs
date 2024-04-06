@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
+using SDGraphics;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 
 namespace Ship_Game.AI
 {
@@ -48,7 +51,7 @@ namespace Ship_Game.AI
             MinCarriers    = 0;
             MinSupport     = 0;
             MinCombatFleet = 0;
-            SetFleetRatios(empire.Universe.P.UseRandomRatios);
+            SetFleetRatios(empire.Universe.P.EnableRandomizedAIFleetSizes);
 
 
         }
@@ -57,31 +60,49 @@ namespace Ship_Game.AI
         {
             // fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
 
-            int[] counts;
+            Range[] counts;
 
-            if      (OwnerEmpire.CanBuildCapitals)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals, IsRandomizedAIFleetSizes);
-            else if (OwnerEmpire.CanBuildBattleships) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildBattleships, IsRandomizedAIFleetSizes);
-            else if (OwnerEmpire.CanBuildCruisers)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers, IsRandomizedAIFleetSizes);
-            else if (OwnerEmpire.CanBuildFrigates)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates, IsRandomizedAIFleetSizes);
-            else if (OwnerEmpire.CanBuildCorvettes)   counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes, IsRandomizedAIFleetSizes);
-            else                                      counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters, IsRandomizedAIFleetSizes);
+            if      (OwnerEmpire.CanBuildCapitals)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals, useRandomFleetSizes);
+            else if (OwnerEmpire.CanBuildBattleships) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildBattleships, useRandomFleetSizes);
+            else if (OwnerEmpire.CanBuildCruisers)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers, useRandomFleetSizes);
+            else if (OwnerEmpire.CanBuildFrigates)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates, useRandomFleetSizes);
+            else if (OwnerEmpire.CanBuildCorvettes)   counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes, useRandomFleetSizes);
+            else                                      counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters, useRandomFleetSizes);
 
-            SetCounts(counts);
-            CountIndexed = counts;
+
+            SetCounts(counts, useRandomFleetSizes);            
         }
 
-        private void SetCounts(int[] counts)
+        private void SetCounts(Range[] counts, bool IsRandomFleetSize)
         {
-            MinFighters    = counts[0];
-            MinCorvettes   = counts[1];
-            MinFrigates    = counts[2];
-            MinCruisers    = counts[3];
-            MinBattleships = counts[4];
-            MinCapitals    = counts[5];
-            MinTroopShip   = counts[6];
-            MinBombers     = counts[7];
-            MinCarriers    = counts[8];
-            MinSupport     = counts[9];
+            if(IsRandomFleetSize) 
+            {
+                SeededRandom seededRandom = new SeededRandom();
+
+                MinFighters    = CountIndexed[0] = (int) counts[0].Generate(seededRandom);
+                MinCorvettes   = CountIndexed[1] = (int) counts[1].Generate(seededRandom);
+                MinFrigates    = CountIndexed[2] = (int) counts[2].Generate(seededRandom);
+                MinCruisers    = CountIndexed[3] = (int) counts[3].Generate(seededRandom);
+                MinBattleships = CountIndexed[4] = (int) counts[4].Generate(seededRandom);
+                MinCapitals    = CountIndexed[5] = (int) counts[5].Generate(seededRandom);
+                MinTroopShip   = CountIndexed[6] = (int) counts[6].Generate(seededRandom);
+                MinBombers     = CountIndexed[7] = (int) counts[7].Generate(seededRandom);
+                MinCarriers    = CountIndexed[8] = (int) counts[8].Generate(seededRandom);
+                MinSupport     = CountIndexed[9] = (int) counts[9].Generate(seededRandom);
+            }
+            else
+            {
+                MinFighters    = CountIndexed[0] = (int) counts[0].Min;
+                MinCorvettes   = CountIndexed[1] = (int) counts[1].Min;
+                MinFrigates    = CountIndexed[2] = (int) counts[2].Min;
+                MinCruisers    = CountIndexed[3] = (int) counts[3].Min;
+                MinBattleships = CountIndexed[4] = (int) counts[4].Min;
+                MinCapitals    = CountIndexed[5] = (int) counts[5].Min;
+                MinTroopShip   = CountIndexed[6] = (int) counts[6].Min;
+                MinBombers     = CountIndexed[7] = (int) counts[7].Min;
+                MinCarriers    = CountIndexed[8] = (int) counts[8].Min;
+                MinSupport     = CountIndexed[9] = (int) counts[9].Min;
+            }
 
             if (!OwnerEmpire.CanBuildTroopShips)
                 MinTroopShip = 0;
@@ -98,7 +119,6 @@ namespace Ship_Game.AI
             MinCombatFleet = (int)(MinFighters + MinCorvettes + MinFrigates + MinCruisers
                                + MinBattleships + MinCapitals);
             TotalCount = MinCombatFleet + MinBombers + MinTroopShip + MinSupport + MinCarriers;
-
         }
 
         public float GetWanted(RoleName role) => GetWanted(EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(role));
