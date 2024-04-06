@@ -599,7 +599,7 @@ namespace Ship_Game
                 {
                     if (ResourceManager.Hull(hull, out ShipHull hullData))
                     {
-                        if ((!hullData.IsShipyard || ParentUniverse.Debug))
+                        if (!hullData.IsShipyard || ParentUniverse.Debug)
                         {
                             hullData.ReloadIfNeeded();
                             AvailableHulls.Add(hullData);
