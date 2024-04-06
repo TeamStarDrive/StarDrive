@@ -8645,6 +8645,7 @@ FtlSpeed:
  UKR: "Надсвітлова швидкість"
 FtlTime:
  ENG: "FTL Time"
+ UKR: "Надсв. час"
 OrdersThisShipToExplore:
  Id: 2171
  ENG: "Orders this ship to explore the galaxy"
@@ -10508,7 +10509,7 @@ LaunchesCorvetteClassVesselsAs:
  ENG: "Launches corvette class vessels as well as frigates sized 60 or less"
  RUS: "Выпускает корабли класса корвет и фрегат размером 60 или менее"
  SPA: "Lanza naves de clase corbeta y también fragatas de tamaño 60 o inferior."
- UKR: "Спускає на воду судна класу корвет, а також фрегати розміром 60 і менше"
+ UKR: "Запускає судна класу корвет, а також фрегати розміром 60 і менше"
 QuantaniumArmor:
  Id: 4002
  ENG: "Quantanium Armor"
@@ -10520,7 +10521,7 @@ QuantaniumArmorPlatingHasA:
  ENG: "Quantanium Armor plating has a density 10 times that of steel, making it incredibly strong but also incredibly massive. It is expensive to produce."
  RUS: "Покрытие из квантовой брони имеет плотность в 10 раз больше, чем сталь, что делает еге невероятно прочной,но при этом невероятно массивной. Производство стоит дорого."
  SPA: "El blindaje de cuantanio posee una densidad 10 veces mayor que la del acero, por lo que es increíblemente duro, pero también muy macizo. Su producción es muy cara."
- UKR: "Покриття Quantanium Armor має щільність у 10 разів більшу, ніж у сталі, що робить його неймовірно міцним, але й неймовірно масивним. Його виробництво є дорогим."
+ UKR: "Покриття з квантової броні має щільність у 10 разів більшу, ніж у сталі, що робить його неймовірно міцним, але й неймовірно масивним. Його виробництво є дорогим."
 ChangeAudioVideoAndGameplay:
  Id: 4004
  ENG: "Change audio, video, and gameplay settings. Changes do not require restart."
@@ -10532,7 +10533,7 @@ Paused:
  ENG: "PAUSED"
  RUS: "ПАУЗА"
  SPA: "EN PAUSA"
- UKR: "ПРИЗУПИНИВСЯ"
+ UKR: "ПАУЗА"
 RuleOptions:
  Id: 4006
  ENG: "Rule Options"
@@ -10772,43 +10773,43 @@ Tiny:
  ENG: "Tiny"
  RUS: "Крошечная"
  SPA: "Minúsculo"
- UKR: "Крихітна."
+ UKR: "Крихітна"
 Normal:
  Id: 4046
  ENG: "Normal"
  RUS: "Нормальная"
  SPA: "Normal"
- UKR: "Нормально."
+ UKR: "Нормальна"
 Large:
  Id: 4047
  ENG: "Large"
  RUS: "Большая"
  SPA: "Grande"
- UKR: "Великий"
+ UKR: "Велика"
 Epic:
  Id: 4048
  ENG: "Epic"
  RUS: "Епическая"
  SPA: "Épico"
- UKR: "Епічний"
+ UKR: "Епічна"
 Easy:
  Id: 4049
  ENG: "Easy"
  RUS: "Легкий"
  SPA: "Fácil"
- UKR: "Легко."
+ UKR: "Легко"
 Hard:
  Id: 4050
  ENG: "Hard"
  RUS: "Тяжелый"
  SPA: "Difícil"
- UKR: "Жорстко."
+ UKR: "Важкий"
 Brutal:
  Id: 4051
  ENG: "Brutal"
  RUS: "Брутальный"
  SPA: "Brutal"
- UKR: "Жорстоко."
+ UKR: "Жорстокий"
 RightClickToExpand:
  Id: 4052
  ENG: "Right Click to Expand"
@@ -10820,13 +10821,13 @@ Turns2:
  ENG: "turns"
  RUS: "Ходов"
  SPA: "turnos"
- UKR: "повороти"
+ UKR: "Ходів"
 NoFleetSelected:
  Id: 4054
  ENG: "No Fleet Selected"
  RUS: "Флот не выбран"
  SPA: "No has seleccionado ninguna flota"
- UKR: "Автопарк не вибрано"
+ UKR: "Фліт не вибрано"
 YouAreNotCurrentlyEditing:
  Id: 4055
  ENG: "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet.\n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future."
@@ -10862,7 +10863,7 @@ CapitalsOnly:
  ENG: "Capitals Only"
  RUS: "Только Столицы"
  SPA: "Solo naves capitanas"
- UKR: "Тільки для великих міст"
+ UKR: "Тільки для капіталів"
 FleetsOnly:
  Id: 4062
  ENG: "Fleets Only"
@@ -10874,7 +10875,7 @@ PlayerDesignsOnly2:
  ENG: "Player Designs Only"
  RUS: "Только дизайн игрока"
  SPA: "Solo diseños personalizados"
- UKR: "Тільки для гравців"
+ UKR: "Тільки дизайни гравців"
 Core:
  Id: 4064
  ENG: "Core"
@@ -10928,7 +10929,7 @@ SpyOffense:
  ENG: "Spy Offense"
  RUS: "Нападение шпионов"
  SPA: "Espionaje ofensivo"
- UKR: "Шпигунський злочин"
+ UKR: "Шпигунський напад"
 SpyDefense:
  Id: 4073
  ENG: "Spy Defense"
@@ -11012,7 +11013,7 @@ EcmBonus:
  ENG: "ECM Bonus"
  RUS: "Бонус электронных контрмер"
  SPA: "Bonificación de MCE"
- UKR: "ECM Бонус"
+ UKR: "РЕП Бонус"
 MissileArmor2:
  Id: 4087
  ENG: "Missile Armor"
@@ -13849,7 +13850,7 @@ EcmResist:
  ENG: "ECM Resist"
  RUS: "сопротивление эл.контрмерам"
  SPA: "Resistencias a las contramedidas electrónicas"
- UKR: "Протидія Радіоелектронній протидії"
+ UKR: "Опір Радіоелектронній протидії"
 BeamDur:
  Id: 6006
  ENG: "Beam Dur"
@@ -13885,7 +13886,7 @@ PowerWarp:
  ENG: "Power Warp"
  RUS: "Мощ.вВарпе"
  SPA: "Poder en modo de curvatura"
- UKR: "Енергетичний викривлення"
+ UKR: "Енергія у викривленні"
 RepairRateModifier:
  Id: 6012
  ENG: "Repair Rate Modifier"
@@ -13909,7 +13910,7 @@ HullBonus:
  ENG: "Hull Bonus: "
  RUS: "Бонус корпуса: "
  SPA: "Bonificación al casco: "
- UKR: "Бонус до страховки:"
+ UKR: "Бонус корпуса: "
 ArmorProtection:
  Id: 6016
  ENG: "Armor Protection"
@@ -13921,7 +13922,7 @@ SensorRange2:
  ENG: "Sensor Range"
  RUS: "Дальность сенсоров"
  SPA: "Rango del sensor"
- UKR: "Діапазон датчика"
+ UKR: "Діапазон сенсорів"
 MaxSpeed:
  Id: 6018
  ENG: "Max Speed"
@@ -14539,7 +14540,7 @@ Ordnances:
  ENG: "Ordnance/s"
  RUS: "Боеприпасы/с"
  SPA: "Municion/es"
- UKR: "Боєприпаси/боєприпаси"
+ UKR: "Боєприпаси/с"
 Range3:
  Id: 6121
  ENG: "Range+"
@@ -14557,13 +14558,13 @@ TransPw:
  ENG: "Trans Pw"
  RUS: "Трансп.Энерг."
  SPA: "Trans P."
- UKR: "Trans Pw"
+ UKR: "Трансп.Енерг."
 TransOrd:
  Id: 6124
  ENG: "Trans Ord"
  RUS: "Трансп.Боепр."
  SPA: "Trans Mn."
- UKR: "Trans Ord"
+ UKR: "Перед.Боєпр."
 GrossIncome:
  Id: 6125
  ENG: "Gross Income"
@@ -14765,13 +14766,13 @@ SubRes:
  ENG: "Sub Res"
  RUS: "Суб.Сопр."
  SPA: "Resistencia Subesp."
- UKR: "Sub Res"
+ UKR: "Підпр.Опір"
 PdRes:
  Id: 6159
  ENG: "PD Res"
  RUS: "ТЗ Сопр."
  SPA: "Resistencia D.Puntual"
- UKR: "PD Res"
+ UKR: "ТЗ Опір"
 FlakRes:
  Id: 6160
  ENG: "Flak Res"
@@ -14783,31 +14784,31 @@ ApRes:
  ENG: "AP Res"
  RUS: "Соп.Пробою"
  SPA: "Resistencia Antiblindaje"
- UKR: "AP Res"
+ UKR: "Опір Бронеб."
 KineticSr:
  Id: 6162
  ENG: "Kinetic SR"
  RUS: "Кин.Соп.Щ."
  SPA: "Kinética SR"
- UKR: "Kinetic SR"
+ UKR: "Кін.Опір.Щ."
 EnergySr:
  Id: 6163
  ENG: "Energy SR"
  RUS: "Энер.Соп.Щ"
  SPA: "Energía SR"
- UKR: "Energy SR"
+ UKR: "Енерг.Оп.Щ"
 ExplSr:
  Id: 6164
  ENG: "Expl SR"
  RUS: "Соп.Щ.Взр."
  SPA: "Expl SR"
- UKR: "Expl SR"
+ UKR: "Оп.Виб.Щ"
 MissileSr:
  Id: 6165
  ENG: "Missile SR"
  RUS: "Соп.Щ.Рак."
  SPA: "Misil SR"
- UKR: "Ракета SR"
+ UKR: "Оп.Рак.Щ"
 FlakSr:
  Id: 6166
  ENG: "Flak SR"
@@ -14819,7 +14820,7 @@ HybridSr:
  ENG: "Hybrid SR"
  RUS: "Гиб.Соп.Щ."
  SPA: "HÍbrida SR"
- UKR: "Гібридний SR"
+ UKR: "Гібридн.Оп.Щ"
 RailSr:
  Id: 6168
  ENG: "Rail SR"
@@ -14861,7 +14862,7 @@ EmpProt:
  ENG: "EMP Prot"
  RUS: "ЭМИ защ."
  SPA: "Proteccion EMP"
- UKR: "EMP Prot"
+ UKR: "ЕМІ Зах."
 Deflection:
  Id: 6175
  ENG: "Deflection"
@@ -14873,7 +14874,7 @@ SdDeflect:
  ENG: "SD Deflect"
  RUS: "Отраж.Щита"
  SPA: "Defleción SD"
- UKR: "SD Deflect (Відхилення)"
+ UKR: "Відхил.Щита"
 EmpProtection:
  Id: 6177
  ENG: "EMP Protection"
@@ -14939,13 +14940,13 @@ FcsPower:
  ENG: "FCS Tracking"
  RUS: "СУО Слеж."
  SPA: "Poder del FCS"
- UKR: "Відстеження FCS"
+ UKR: "Відстеж. СКВ"
 Ecm3:
  Id: 6189
  ENG: "ECM"
  RUS: "Электронные контрмеры"
  SPA: "ECM"
- UKR: "ECM"
+ UKR: "Радіоелектронна протидія"
 ShipOffense:
  Id: 6190
  ENG: "Ship Offense"
@@ -14962,13 +14963,13 @@ IndicatesTheChanceOfEcm:
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."
  RUS: "Указывает на % вероятности нарушения работы Электронных контрмер против поступающего управляемого вооружения до того, как будет вычтено сопротивление Электронных контрмер. Успешное разрушение Электронных контрмер блокирует цель и предотвращает попадание боеприпаса."
  SPA: "Indica el % de una disrupción ECM satisfactoria en contra de armas guiadas, antes de que la resistencia ECM del arma es reducida. Una disrupción ECM satisfactoria interfiere con los sitemas de guia del arma y prevee que la municion de en su objetivo."
- UKR: "Показує ймовірність у % збою ECM проти керованої зброї, що налітає, до вирахування опору ECM зброї. Успішна дезінтеграція ECM перешкоджає наведенню на ціль і запобігає влученню боєприпасу."
+ UKR: "Показує ймовірність у % збою Радіоелектр. протидія проти керованої зброї, що налітає, до вирахування опору Радіоелектр. протидія зброї. Успішна дезінтеграція Радіоелектр. протидія перешкоджає наведенню на ціль і запобігає влученню боєприпасу."
 IndicatesTheResistanceOfThis:
  Id: 7002
  ENG: "Indicates the resistance of this weapon's guidance against targets' ECM countermeasures. This is deducted from the target's ECM % when trying to maintain guidance."
  RUS: "Указывает на устойчивость наведения этого оружия к средствам Электронных контрмер противодействия  цели. Это вычитается из % Электронных контрмер цели при попытке сохранить управление."
  SPA: "Indica la resistencia de esta arma guiada en contra de contramedidas ECM del objetivo. Esto es reducido del % del ECM objetivo mientras se intenta mantener la guia."
- UKR: "Показує стійкість наведення цієї зброї до контрзаходів ECM цілі. Він віднімається від % ECM цілі при спробі зберегти наведення."
+ UKR: "Показує стійкість наведення цієї зброї до контрзаходів Радіоелектр. протидія цілі. Він віднімається від % Радіоелектр. протидія цілі при спробі зберегти наведення."
 IndicatesTheMaximumDurationFor:
  Id: 7003
  ENG: "Indicates the maximum duration for which this weapon may maintain its beam each time it fires."
@@ -17247,7 +17248,7 @@ RapidFirePDTechdescr:
 HeavyPDTech:
  Id: 17559
  ENG: "Heavy PD"
- UKR: "Важкий ПД"
+ UKR: "Важкі ТЗ"
 HeavyPDTechDescr:
  Id: 17560
  ENG: "Heavy Point Defense were specially designed to counter the threat of massive torpedoes that can withstand several hits of smaller caliber bullets, all tho with more massive projectiles they suffer in fire rate department making them less effective against swarm of missiles."
@@ -17351,7 +17352,7 @@ BB_AeroponicsShortDescr:
 CoreExtracttech:
  Id: 17586
  ENG: "Core Siphoning"
- UKR: "Сифонізація керна"
+ UKR: "Сифонізація ядра"
 CoreExtracttechdesc:
  Id: 17587
  ENG: "By taping into the planets core we are able to extract huge amounts precious and rare elements, minerals and metals, unfortunately afterwards they need to go over a complex refinement process that creates heavy pollution"
