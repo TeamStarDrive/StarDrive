@@ -290,7 +290,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (b.AssignBuildingToTile(b, ref where, P))
             {
-                where.QItem = qi;
+                where.SetQItem(qi);
                 qi.pgs = where; // reset PGS if we got a new one
                 AddToQueueAndPrioritize(qi);
                 P.RefreshBuildingsWeCanBuildHere();
@@ -472,10 +472,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (refund)
                 P.ProdHere += q.ProductionSpent / 2;
 
-            if (q.pgs != null)
-            {
-                q.pgs.QItem = null;
-            }
+            q.pgs?.RemoveQueueItem();
             if (q.Goal != null)
             {
                 if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
@@ -632,7 +629,7 @@ namespace Ship_Game.Universe.SolarBodies
             lock (ConstructionQueue)
                 ConstructionQueue.Clear();
             foreach (PlanetGridSquare tile in P.TilesList)
-                tile.QItem = null; // Clear all planned buildings from tiles
+                tile.RemoveQueueItem(); // Clear all planned buildings from tiles
         }
 
         public bool FirstItemCanFeedUs()

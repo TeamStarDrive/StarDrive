@@ -169,8 +169,7 @@ namespace Ship_Game
 
                         var bioRect = new Rectangle(pgs.ClickRect.X,pgs.ClickRect.Y, 20, 20);
                         if (pgs.Biosphere 
-                            && (pgs.NoBuildingOnTile || pgs.BuildingOnTile)
-                            && bioRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
+                            && bioRect.HitTest(input.CursorPosition) && (Input.RightMouseClick|| Input.LeftMouseClick))
                         {
                             BioToScrap     = pgs;
                             string message = Localizer.Token(GameText.DoYouWishToScrap);
