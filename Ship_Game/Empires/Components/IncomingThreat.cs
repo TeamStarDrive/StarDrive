@@ -54,9 +54,10 @@ public class IncomingThreat
     // the update now happens in ~5sec intervals
     public void UpdateThreats(Fleet[] fleets)
     {
-        ThreatTimer = ThreatResetTime;
         Fleets = fleets;
         Strength = fleets.Sum(f => f.GetStrength() * Owner.GetFleetStrEmpireMultiplier(f.Owner));
+        if (Strength > 0)
+            ThreatTimer = ThreatResetTime;
     }
 
     void ProcessFleetThreat()
