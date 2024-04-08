@@ -12987,6 +12987,18 @@ PLanetInfoNumberOfDefenseShips:
  Id: 4520
  ENG: "Number of Defense ships in Air Bases on this planet." 
  UKR: "Кількість кораблів оборони на авіабазах на цій планеті."
+ThisTileCanBeTerraformedHarder:
+ Id: 4521
+ ENG: "This tile can be terraformed as part of terraforming operations. The process will take more time due to Biosphere Terraforming complexity." 
+ UKR: "Ця плитка може бути терраформована в рамках операцій терраформування. Процес займе більше часу через складність тераформування біосфери."
+BioshperesAreBuiltHere:
+ Id: 4522
+ ENG: "Biospheres are built here. Right Click if you wish to scrap these Bioshperes."
+ UKR: "Тут побудовані біосфери. Клацніть правою кнопкою миші, якщо ви бажаєте скасувати ці Bioshperes." 
+ThisTileCanBeTerraformed:
+ Id: 4523
+ ENG: "This tile can be terraformed as part of terraforming operations.
+ UKR: "Ця плитка може бути терраформована в рамках операцій терраформування." 
 BB_MiningSpeedTech:
  Id: 4924
  ENG: "Mining Ships Speed"

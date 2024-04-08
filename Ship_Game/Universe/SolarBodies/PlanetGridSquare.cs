@@ -23,7 +23,7 @@ namespace Ship_Game
         [StarData] public bool Terraformable; // This tile can be habitable if terraformed
         [StarData] public Building Building { get; private set; }
         [StarData] public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
-        [StarData] public QueueItem QItem;
+        [StarData] public QueueItem QItem { get; private set; }
         public Rectangle ClickRect = new();
         [StarData] public short EventOutcomeNum { get; private set; }
         public bool Highlighted;
@@ -90,6 +90,16 @@ namespace Ship_Game
 
             return true;
         } 
+
+        public void RemoveQueueItem()
+        {
+            QItem = null;
+        }
+
+        public void SetQItem(QueueItem qItem)
+        {
+            QItem = qItem;
+        }
 
         // Get a troop that is not ours
         public bool LockOnEnemyTroop(Empire us, out Troop troop)
@@ -170,13 +180,11 @@ namespace Ship_Game
 
         public void PlaceBuilding(Building b, Planet p)
         {
+            RemoveQueueItem();
             if (b.IsBiospheres)
             {
                 if (Habitable)
-                {
-                    QItem = null;
                     return; // Tile was Habitable when Biospheres completed. Probably due to Terraforming
-                }
 
                 Habitable = true;
                 Biosphere = true;
@@ -191,7 +199,6 @@ namespace Ship_Game
                 Building = b;
             }
 
-            QItem = null;
             p.PlaceBuildingAt(b);
         }
 

@@ -84,17 +84,28 @@ namespace Ship_Game
             if (pgs.Biosphere)
             {
                 var biosphere = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y, 20, 20);
-                batch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, Color.White);
+                bool hoveringOverBio = biosphere.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive;
+                batch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, hoveringOverBio ? Color.Red : Color.White);
+                if (hoveringOverBio) 
+                    ToolTip.CreateTooltip(GameText.BioshperesAreBuiltHere);
             }
 
             if (pgs.CanTerraform || pgs.BioCanTerraform)
             {
                 var terraform = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 20, pgs.ClickRect.Y, 20, 20);
-                batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, Color.White);
+                var terraformHarder = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 30, pgs.ClickRect.Y, 20, 20);
+                bool hoveringOverTerra = terraform.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive;
+                batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, hoveringOverTerra ? Color.Orange : Color.White);
                 if (pgs.BioCanTerraform)
                 {
-                    var terraformHarder = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 30, pgs.ClickRect.Y, 20, 20);
-                    batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraformHarder, Color.White);
+                    bool hoveringOverTerraHard = terraformHarder.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive || hoveringOverTerra;
+                    batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraformHarder, hoveringOverTerraHard ? Color.Red : Color.White);
+                    if (hoveringOverTerraHard)
+                        ToolTip.CreateTooltip(GameText.ThisTileCanBeTerraformedHarder);
+                }
+                else if (hoveringOverTerra)
+                {
+                    ToolTip.CreateTooltip(GameText.ThisTileCanBeTerraformed);
                 }
             }
 
@@ -704,10 +715,7 @@ namespace Ship_Game
                 cursor.Y += Font20.LineSpacing;
                 if (tile.BioCanTerraform)
                 {
-                    batch.DrawString(TextFont, MultiLineFormat("This tile can be terraformed " +
-                            "as part of terraforming operations. The process will take more time due to " +
-                            "Biosphere Terraforming complexity."), cursor, Player.EmpireColor);
-
+                    batch.DrawString(TextFont, MultiLineFormat(GameText.ThisTileCanBeTerraformed), cursor, Player.EmpireColor);
                     cursor.Y += Font20.LineSpacing * 2;
                 }
             }

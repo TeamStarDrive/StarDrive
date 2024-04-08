@@ -4667,6 +4667,14 @@ namespace Ship_Game
         RemnantsDefeatedFleetsMayAttack = 4519,
         /// <summary>Number of Defense ships in Air Bases</summary>
         PLanetInfoNumberOfDefenseShips = 4520,
+        /// <summary>This tile can be Terraformed. Harder</summary>
+        ThisTileCanBeTerraformedHarder = 4521,
+        /// <summary>Biospheres are buit here</summary>
+        BioshperesAreBuiltHere = 4522,
+        /// <summary>This tile can be Terraformed</summary>
+        ThisTileCanBeTerraformed = 4523,
+
+
 
 
 

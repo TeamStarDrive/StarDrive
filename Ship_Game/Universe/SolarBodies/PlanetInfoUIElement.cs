@@ -131,7 +131,6 @@ namespace Ship_Game
             }
 
             AddExploredTips();
-            //Empire ownerforPlanetOrMining = 
             batch.DrawString(font, P.Name, namePos, P.Owner?.EmpireColor ?? tColor);
             batch.Draw(ResourceManager.Flag(P.Owner), FlagRect, P.Owner.EmpireColor);
             var cursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65, namePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);

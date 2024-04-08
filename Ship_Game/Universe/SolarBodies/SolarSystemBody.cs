@@ -548,9 +548,6 @@ namespace Ship_Game
             thisPlanet.Construction.ClearQueue();
             thisPlanet.TerraformPoints = 0;
             thisPlanet.SetHomeworld(false);
-            foreach (PlanetGridSquare planetGridSquare in TilesList)
-                planetGridSquare.QItem = null;
-
             thisPlanet.SetOwner(newOwner, newOwner);
 
             if (IsExploredBy(Universe.Player) && oldOwner != null)

@@ -55,9 +55,11 @@ public class IncomingThreat
     public void UpdateThreats(Fleet[] fleets)
     {
         Fleets = fleets;
-        Strength = fleets.Sum(f => f.GetStrength() * Owner.GetFleetStrEmpireMultiplier(f.Owner));
-        if (Strength > 0)
+        if (fleets.Length > 0)
+        {
             ThreatTimer = ThreatResetTime;
+            Strength = fleets.Sum(f => f.GetStrength() * Owner.GetFleetStrEmpireMultiplier(f.Owner));
+        }
     }
 
     void ProcessFleetThreat()
