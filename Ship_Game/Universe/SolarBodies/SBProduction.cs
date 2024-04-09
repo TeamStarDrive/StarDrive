@@ -290,7 +290,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (b.AssignBuildingToTile(b, ref where, P))
             {
-                where.SetQItem(qi);
+                where.SetQueueItem(qi);
                 qi.pgs = where; // reset PGS if we got a new one
                 AddToQueueAndPrioritize(qi);
                 P.RefreshBuildingsWeCanBuildHere();
