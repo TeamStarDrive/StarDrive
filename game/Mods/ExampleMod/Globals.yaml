@@ -33,6 +33,7 @@ Globals:
   DisableRemnantStory: false
   DisablePirates: false
   AIUsesPlayerDesigns: true
+  EnableRandomizedAIFleetSizes: true  
 
   # visuals modifiers
   SpaceportScale: 0.5
@@ -63,6 +64,4 @@ Globals:
     Author: "The StarDrive Team"
     UseVanillaShips: true
     ClearVanillaTechs: false
-    EnableRandomizedAIFleetSizes: true
-
 
