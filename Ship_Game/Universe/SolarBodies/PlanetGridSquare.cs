@@ -96,7 +96,7 @@ namespace Ship_Game
             QItem = null;
         }
 
-        public void SetQItem(QueueItem qItem)
+        public void SetQueueItem(QueueItem qItem)
         {
             QItem = qItem;
         }
