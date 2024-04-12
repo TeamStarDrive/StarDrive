@@ -24,6 +24,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         /// <summary>
         /// The Construction queue should be protected
+        /// If you want to remove items from this array, use the Cancel method!
         /// </summary>
         [StarData] readonly Array<QueueItem> ConstructionQueue = new();
 
@@ -523,11 +524,10 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueItem q = ConstructionQueue[i];
                 if (q.IsCivilianBuilding 
                     && (!q.IsPlayerAdded || hasExclusiveBlueprints)
-                    && q.ProductionSpent < q.ProductionNeeded * 0.95f
+                    && q.ProductionSpent < q.ProductionNeeded * 0.9f
                     && P.BestCivilianBuildingToBuildDifferentThen(P.GetBuildingsCanBuild(), q.Building))
                 {
-                    lock (ConstructionQueue)
-                        ConstructionQueue.Remove(q);
+                    Cancel(q.Building);
                 }
             }
         }
