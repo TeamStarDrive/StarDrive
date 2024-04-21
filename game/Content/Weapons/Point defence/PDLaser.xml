@@ -30,7 +30,7 @@
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <FireCueName>sd_weapon_laser_small_alt5_01</FireCueName>
+  <FireCueName>sd_weapon_weak_laser_01</FireCueName>
 
   <!-- Projectile Information -->
   <DamageAmount>1</DamageAmount>

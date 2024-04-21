@@ -379,7 +379,7 @@
       Sound: "Ground/sd_troop_takeoff.m4a"
     - SoundEffect:
       Id: sd_troop_attack_01
-      Volume: 1.0
+      Volume: 0.3
       Sounds:
         - "Ground/sd_troop_attack_01.0.m4a"
         - "Ground/sd_troop_attack_01.1.m4a"
@@ -454,7 +454,7 @@
       Sound: "Ground/sd_ground_kulrathigunner_01.m4a"
     - SoundEffect:
       Id: sd_ground_ralyeh_01
-      Volume: 1.0
+      Volume: 0.6
       Sound: "Ground/sd_ground_ralyeh_01.m4a"
     - SoundEffect:
       Id: sd_ground_remenantdefender_01
@@ -502,7 +502,7 @@
 
     - SoundEffect:
       Id: Explo1
-      Volume: 1.0
+      Volume: 2
       Sounds:
         - "Explosions/Explo1.0.m4a"
         - "Explosions/Explo1.1.m4a"
@@ -546,7 +546,7 @@
       Sound: "Weapons/cloaksound.m4a"
     - SoundEffect:
       Id: "weak laser"
-      Volume: 0.25
+      Volume: 0.20
       Sound: "Weapons/sd_weapon_weak_laser_01.m4a"
     - SoundEffect:
       Id: disruptor
@@ -661,12 +661,12 @@
         - "Weapons/sd_weapon_flakcannon_01.2.m4a"
     - SoundEffect:
       Id: sd_weapon_flakcannon_explode_01
-      Volume: 1.0
+      Volume: 1.3
       Sound: "Weapons/sd_weapon_flakcannon_explode_01.m4a"
 
     - SoundEffect:
       Id: sd_impact_bullet_small_01
-      Volume: 0.25
+      Volume: 0.4
       Sounds:
         - "Weapons/sd_impact_bullet_small_01.0.m4a"
         - "Weapons/sd_impact_bullet_small_01.1.m4a"
@@ -680,14 +680,6 @@
         - "Weapons/sd_impact_bullet_small_01.9.m4a"
         - "Weapons/sd_impact_bullet_small_01.10.m4a"
         - "Weapons/sd_impact_bullet_small_01.11.m4a"
-    - SoundEffect:
-      Id: sd_weapon_laser_small_alt_01
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_laser_small_alt_01.m4a"
-    - SoundEffect:
-      Id: sd_weapon_laser_small_alt5_01
-      Volume: 0.25
-      Sound: "Weapons/sd_weapon_laser_small_alt5_01.m4a"
     - SoundEffect:
       Id: sd_weapon_pulse_alt2_01
       Volume: 0.25
@@ -756,12 +748,12 @@
         - "Weapons/sd_weapon_laser_large_alt_04.1.m4a"
     - SoundEffect:
       Id: sd_weapon_emptorpedo
-      Volume: 1.5
+      Volume: 0.9
       Sound: "Weapons/sd_weapon_emptorpedo.m4a"
 
     - SoundEffect:
       Id: sd_weapon_rocket_01
-      Volume: 0.5
+      Volume: 0.30
       Sounds:
         - "Weapons/sd_weapon_rocket_01.0.m4a"
         - "Weapons/sd_weapon_rocket_01.1.m4a"
@@ -783,7 +775,7 @@
       Sound: "Weapons/missile01.m4a"
     - SoundEffect:
       Id: sd_weapon_missile_heavy_01
-      Volume: 0.5
+      Volume: 0.35
       Sounds:
         - "Weapons/sd_weapon_missile_heavy_01.0.m4a"
         - "Weapons/sd_weapon_missile_heavy_01.1.m4a"
@@ -851,18 +843,18 @@
       Volume: 0.5
       Sound: "Weapons/sd_weapon_beam_fusion_med.m4a"
     #new sfx not used yet
-    # - SoundEffect:
-    #   Id: energy_light_1
-    #   Volume: 0.25
-    #   Sound: "Weapons/energy_light_1.m4a"
+    - SoundEffect:
+       Id: energy_light_1
+       Volume: 0.5
+       Sound: "Weapons/energy_light_1.m4a"
     # - SoundEffect:
     #   Id: energy_wepon_1
     #   Volume: 0.25
     #   Sound: "Weapons/energy_wepon_1.m4a"
-    # - SoundEffect:
-    #   Id: heavy_1
-    #   Volume: 0.25
-    #   Sound: "Weapons/heavy_1.m4a"
+    - SoundEffect:
+       Id: heavy_1
+       Volume: 0.8
+       Sound: "Weapons/heavy_1.m4a"
     # - SoundEffect:
     #   Id: kinetic_light_1
     #   Volume: 0.25
