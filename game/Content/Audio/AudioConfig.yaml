@@ -668,18 +668,18 @@
       Id: sd_impact_bullet_small_01
       Volume: 0.4
       Sounds:
-        - "Weapons/sd_impact_bullet_small_01.0.m4a"
-        - "Weapons/sd_impact_bullet_small_01.1.m4a"
-        - "Weapons/sd_impact_bullet_small_01.2.m4a"
+#        - "Weapons/sd_impact_bullet_small_01.0.m4a"
+#        - "Weapons/sd_impact_bullet_small_01.1.m4a"
+#        - "Weapons/sd_impact_bullet_small_01.2.m4a"
         - "Weapons/sd_impact_bullet_small_01.3.m4a"
         - "Weapons/sd_impact_bullet_small_01.4.m4a"
-        - "Weapons/sd_impact_bullet_small_01.5.m4a"
-        - "Weapons/sd_impact_bullet_small_01.6.m4a"
+#        - "Weapons/sd_impact_bullet_small_01.5.m4a"
+#        - "Weapons/sd_impact_bullet_small_01.6.m4a"
         - "Weapons/sd_impact_bullet_small_01.7.m4a"
         - "Weapons/sd_impact_bullet_small_01.8.m4a"
         - "Weapons/sd_impact_bullet_small_01.9.m4a"
-        - "Weapons/sd_impact_bullet_small_01.10.m4a"
-        - "Weapons/sd_impact_bullet_small_01.11.m4a"
+#        - "Weapons/sd_impact_bullet_small_01.10.m4a"
+#        - "Weapons/sd_impact_bullet_small_01.11.m4a"
     - SoundEffect:
       Id: sd_weapon_pulse_alt2_01
       Volume: 0.25
@@ -853,7 +853,7 @@
     #   Sound: "Weapons/energy_wepon_1.m4a"
     - SoundEffect:
        Id: heavy_1
-       Volume: 0.8
+       Volume: 1.1
        Sound: "Weapons/heavy_1.m4a"
     # - SoundEffect:
     #   Id: kinetic_light_1
