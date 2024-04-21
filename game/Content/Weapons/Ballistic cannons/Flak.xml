@@ -22,10 +22,10 @@
   <Range>4500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.57</OrdinanceRequiredToFire>
-  <SalvoCount>3</SalvoCount>
+  <SalvoCount>1</SalvoCount>
   <SalvoTimer>0.3</SalvoTimer>
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <FireCueName>Flak</FireCueName>
+  <FireCueName>sd_weapon_flakcannon_01</FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
   <DamageAmount>191</DamageAmount>

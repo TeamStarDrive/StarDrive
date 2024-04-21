@@ -16,7 +16,7 @@
   <PlaySoundOncePerSalvo>true</PlaySoundOncePerSalvo>
   <!-- name of XACT audio cue to play on firing this weapon 
   <FireCueName>sd_weapon_laser_burst_01</FireCueName> -->
-  <FireCueName>sd_weapon_laser_small_alt5_01</FireCueName>
+  <FireCueName>energy_light_1</FireCueName>
   <!-- Projectile Information -->
   <DamageAmount>3</DamageAmount>
   <SalvoCount>9</SalvoCount>

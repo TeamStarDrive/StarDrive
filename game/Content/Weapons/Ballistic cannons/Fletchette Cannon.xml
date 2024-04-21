@@ -28,7 +28,7 @@
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>sd_weapon_vulcan_shotgun_01</FireCueName>
-
+  <DieCue>sd_impact_bullet_small_01</DieCue>
   <EffectVsArmor>.7</EffectVsArmor>
   <EffectVsShields>1</EffectVsShields>
   <ShieldPenChance>20</ShieldPenChance>
