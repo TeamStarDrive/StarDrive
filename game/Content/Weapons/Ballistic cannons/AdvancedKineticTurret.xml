@@ -24,7 +24,7 @@
   <OrdinanceRequiredToFire>0.64</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <FireCueName>sd_weapon_Turretgun_001</FireCueName>
+  <FireCueName>heavy_1</FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
   <DamageAmount>260</DamageAmount>
