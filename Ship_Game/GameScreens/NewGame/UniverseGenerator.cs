@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using SDGraphics;
+﻿using SDGraphics;
 using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
+using System;
+using System.Collections.Generic;
 using Vector2 = SDGraphics.Vector2;
+
 #pragma warning disable CA1001
 
 namespace Ship_Game.GameScreens.NewGame
@@ -16,15 +17,16 @@ namespace Ship_Game.GameScreens.NewGame
     /// </summary>
     public sealed class UniverseGenerator
     {
-        readonly int NumSystems;
-        readonly Array<Vector2> ClaimedSpots = new();
-        readonly RaceDesignScreen.GameMode Mode;
-        readonly GameDifficulty Difficulty;
-        readonly int NumOpponents;
+        private readonly int NumSystems;
+        private readonly Array<Vector2> ClaimedSpots = new();
+        private readonly RaceDesignScreen.GameMode Mode;
+        private readonly GameDifficulty Difficulty;
+        private readonly int NumOpponents;
 
-        readonly Empire Player;
-        readonly UniverseScreen us;
-        readonly UniverseState UState;
+        private readonly Empire Player;
+        private readonly Array<IEmpireData> FoeList;
+        private readonly UniverseScreen us;
+        private readonly UniverseState UState;
 
         readonly Array<SystemPlaceHolder> Systems = new();
 
@@ -42,6 +44,7 @@ namespace Ship_Game.GameScreens.NewGame
             Mode = p.Mode;
             NumOpponents = p.NumOpponents;
             NumSystems = p.NumSystems;
+            FoeList = p.SelectedFoes;
             ResourceManager.LoadEncounters();
 
             float uSize;
@@ -199,17 +202,17 @@ namespace Ship_Game.GameScreens.NewGame
 
         void CreateOpponents(ProgressCounter step)
         {
-            IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
-                                data => data.ArchetypeName != Player.data.ArchetypeName);
+            //IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
+            //                    data => data.ArchetypeName != Player.data.ArchetypeName);
 
             // create a randomly shuffled list of opponents
-            var opponents = new Array<IEmpireData>(majorRaces);
-            opponents.Shuffle();
-            opponents.Resize(Math.Min(opponents.Count, NumOpponents)); // truncate
+            //var opponents = new Array<IEmpireData>(majorRaces);
+            //opponents.Shuffle();
+            //opponents.Resize(Math.Min(opponents.Count, NumOpponents)); // truncate
 
-            step.Start(opponents.Count + ResourceManager.MinorRaces.Count);
+            step.Start(FoeList.Count + ResourceManager.MinorRaces.Count);
 
-            foreach (IEmpireData readOnlyData in opponents)
+            foreach (IEmpireData readOnlyData in FoeList)
             {
                 Empire e = UState.CreateEmpire(readOnlyData, isPlayer: false, difficulty: Difficulty);
                 RacialTrait t = e.data.Traits;

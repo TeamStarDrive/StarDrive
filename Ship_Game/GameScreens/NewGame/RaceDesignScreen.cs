@@ -547,9 +547,10 @@ namespace Ship_Game
             P.PlayerData.DiplomaticPersonality = new DTrait();
 
             (P.NumSystems, P.StarsModifier) = GetNumStars(P.StarsCount, P.GalaxySize, P.NumOpponents);
-            var ng = new CreatingNewGameScreen(MainMenu, P);
+            var nextScreen = new FoeSelectionScreen(MainMenu, P);
+            //var ng = new CreatingNewGameScreen(MainMenu, P);
 
-            ScreenManager.GoToScreen(ng, clear3DObjects:true);
+            ScreenManager.GoToScreen(nextScreen, clear3DObjects:true);
         }
 
         public override void Update(float fixedDeltaTime)
