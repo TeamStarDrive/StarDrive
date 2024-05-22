@@ -434,8 +434,9 @@ namespace Ship_Game
                 shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
                 DrawStat(ref shipSelectionPos, "Ord. Cost", hs.ShipOrdLaunchCost, "");
                 DrawStat(ref shipSelectionPos, "Weapons", hs.Weapons.Count, "");
-                DrawStat(ref shipSelectionPos, "Health", hs.HealthMax, "");
-                DrawStat(ref shipSelectionPos, "FTL", hs.MaxFTLSpeed, "");
+                DrawStat(ref shipSelectionPos, "Health", hs.HealthMax * (1+Player.data.Traits.ModHpModifier), "");
+                float mass = hs.Stats.InitializeMass(hs.Modules, Player, hs.SurfaceArea, 1);
+                DrawStat(ref shipSelectionPos, "FTL", hs.Stats.GetFTLSpeed(mass, Player), "");
 
                 if (hangarOption != DynamicHangarOptions.Static)
                 {
