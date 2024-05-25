@@ -14970,6 +14970,16 @@ PowerCell:
  ENG: "Power Cell"
  RUS: "Энерго-ячейка"
  UKR: "Елемент живлення"
+RightClickToRemove:
+ Id: 6192
+ ENG: "Right Click to remove this building from current Blueprints." 
+ RUS: "Щелкните правой кнопкой мыши, чтобы удалить это здание из текущих чертежей."
+ UKR: "Клацніть правою кнопкою миші, щоб видалити цю будівлю з поточних креслень." 
+ColonyBlueprintsTitle:
+ Id: 6193
+ ENG: "Colony Blueprints" 
+ RUS: "Чертежи колоний"
+ UKR: "Чертежі колонії"  
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

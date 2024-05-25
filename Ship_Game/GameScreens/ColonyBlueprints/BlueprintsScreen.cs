@@ -12,32 +12,31 @@ using System.Drawing;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 using Font = Ship_Game.Graphics.Font;
 using Ship_Game.Ships;
+using Ship_Game.Audio;
 
 namespace Ship_Game
 {
     public partial class BlueprintsScreen : GameScreen
     {
+        readonly Array<BlueprintsTile> TilesList = new(35);
         readonly string BuildingsTabText = Localizer.Token(GameText.Buildings); // BUILDINGS
 
-        readonly Menu2 TitleBar;
-        readonly Vector2 TitlePos;
         readonly Menu1 LeftMenu;
         readonly Menu1 RightMenu;
         readonly Submenu PlanetInfo;
-        readonly Submenu PStorage;
-        readonly Submenu PFacilities;
+        readonly Submenu PlanStats;
         readonly UITextEntry PlanetName;
-        readonly Rectangle PlanetIcon;
         public EmpireUIOverlay Eui;
-        readonly Rectangle GridPos;
-        readonly Submenu SubColonyGrid;
+        readonly Submenu SubPlanArea;
+        bool PlanAreaHovered;
         readonly Rectangle PlanetShieldIconRect;
         readonly ProgressBar PlanetShieldBar;
         readonly UILabel FilterBuildableItemsLabel;
+        readonly Planet planetTemplate;
 
         readonly ScrollList<BlueprintsBuildableListItem> BuildableList;
 
-        object DetailInfo;
+        Building HoveredBuilding;
         Building ToScrap;
         PlanetGridSquare BioToScrap;
 
@@ -54,12 +53,12 @@ namespace Ship_Game
             Player = player;
             Eui = empUI;
             TextFont = LowRes ? Font8 : Font12;
-
-            var titleBar = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
-            TitleBar = new Menu2(titleBar);
-            TitlePos = new Vector2(titleBar.X + titleBar.Width / 2 - Fonts.Laserian14.MeasureString("Colony Blueprints").X / 2f, titleBar.Y + titleBar.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            LeftMenu = new Menu1(2, titleBar.Y + titleBar.Height + 5, titleBar.Width, ScreenHeight - (titleBar.Y + titleBar.Height) - 7);
-            RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
+            var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
+            base.Add(new Menu2(titleRect));
+            Vector2 titlePos = new(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.ColonyBlueprintsTitle)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+            base.Add(new UILabel(titlePos, GameText.ColonyBlueprintsTitle, Fonts.Laserian14));
+            LeftMenu = base.Add(new Menu1(2, titleRect.Y + titleRect.Height + 5, titleRect.Width, ScreenHeight - (titleRect.Y + titleRect.Height) - 7));
+            RightMenu = base.Add(new Menu1(titleRect.Right + 10, titleRect.Y, ScreenWidth / 3 - 15, ScreenHeight - titleRect.Y - 2));
             Add(new CloseButton(RightMenu.Right - 52, RightMenu.Y + 22));
 
             RectF planetInfoR = new(LeftMenu.X + 20, LeftMenu.Y + 20,
@@ -67,55 +66,45 @@ namespace Ship_Game
                                     (int)(0.23f * (LeftMenu.Height - 80)));
             PlanetInfo = new(planetInfoR, GameText.PlanetInfo);
             Submenu pDescription = new(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
-            RectF subColonyR = new(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y,
+
+            RectF planAreaR = new(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y,
                                    LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
-            SubColonyGrid = new(subColonyR, GameText.Colony);
 
-            RectF pFacilitiesR = new(LeftMenu.X + 20 + PlanetInfo.Width + 20,
-                                     SubColonyGrid.Bottom + 20,
-                                     LeftMenu.Width - 60 - PlanetInfo.Width,
-                                     LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
-
-            Array<LocalizedText> pFacTabs = new()
-            {
-                GameText.Statistics2,
-                GameText.Description,
-                GameText.Trade2,
-            };
+            SubPlanArea = base.Add(new Submenu(planAreaR, GameText.Colony));
 
 
-            RectF buildableR = new(RightMenu.X + 20, RightMenu.Y + 40,
+
+
+            RectF planetStatsRect = new(LeftMenu.X + 20 + PlanetInfo.Width + 20,
+                                        SubPlanArea.Bottom + 20,
+                                        LeftMenu.Width - 60 - PlanetInfo.Width,
+                                        LeftMenu.Height - 20 - SubPlanArea.Height - 40);
+
+            base.Add(new Submenu(planetStatsRect, GameText.Statistics2));
+
+
+
+            RectF buildableMenuR = new(RightMenu.X + 20, RightMenu.Y + 20,
                                    RightMenu.Width - 40, 0.5f * (RightMenu.Height - 40));
+
+            RectF buildableR = new(buildableMenuR.X, buildableMenuR.Y+20, buildableMenuR.W, buildableMenuR.H -20);
             BuildableList = base.Add(new ScrollList<BlueprintsBuildableListItem>(buildableR, 40));
             BuildableList.EnableItemHighlight = true;
-            //BuildableList.OnDoubleClick = OnBuildableItemDoubleClicked;
-            //BuildableList.OnHovered = OnBuildableHoverChange;
-            //BuildableList.EnableDragOutEvents = true;
-
-            //if (p.OwnerIsPlayer || p.Universe.Debug)
-            //    BuildableList.OnDragOut = OnBuildableListDrag;
+            BuildableList.OnDoubleClick = OnBuildableItemDoubleClicked;
+            BuildableList.EnableDragOutEvents = true;
+            BuildableList.OnDragOut = OnBuildableListDrag;
 
             int iconSize = LowRes ? 80 : 128;
             int iconOffsetX = LowRes ? 100 : 148;
             int iconOffsetY = LowRes ? 0 : 25;
 
-            PlanetIcon = new Rectangle((int)PlanetInfo.Right - iconOffsetX,
-                (int)PlanetInfo.Y + ((int)PlanetInfo.Height - iconOffsetY) / 2 - iconSize / 2 + (LowRes ? 0 : 25), iconSize, iconSize);
-
-            Rectangle planetShieldBarRect = new Rectangle(PlanetIcon.X, PlanetInfo.Rect.Y + 4, PlanetIcon.Width, 20);
+            /*Rectangle planetShieldBarRect = new Rectangle(PlanetIcon.X, PlanetInfo.Rect.Y + 4, PlanetIcon.Width, 20);
             PlanetShieldBar = new ProgressBar(planetShieldBarRect)
             {
                 color = "blue"
             };
 
-            PlanetShieldIconRect = new Rectangle(planetShieldBarRect.X - 30, planetShieldBarRect.Y - 2, 20, 20);
-
-            GridPos = new Rectangle(SubColonyGrid.Rect.X + 10, SubColonyGrid.Rect.Y + 30, SubColonyGrid.Rect.Width - 20, SubColonyGrid.Rect.Height - 35);
-            int width = GridPos.Width / 7;
-            int height = GridPos.Height / 5;
-            //foreach (PlanetGridSquare planetGridSquare in p.TilesList)
-            //    planetGridSquare.ClickRect = new Rectangle(GridPos.X + planetGridSquare.X * width, GridPos.Y + planetGridSquare.Y * height, width, height);
-
+            PlanetShieldIconRect = new Rectangle(planetShieldBarRect.X - 30, planetShieldBarRect.Y - 2, 20, 20); */
             //PlanetName = Add(new UITextEntry(p.Name));
             //PlanetName.Color = Colors.Cream;
             //PlanetName.MaxCharacters = 20;
@@ -132,35 +121,80 @@ namespace Ship_Game
 
             //P.RefreshBuildingsWeCanBuildHere();
             // Vector2 detailsVector = new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35);
+
+            Rectangle gridPos = new Rectangle(SubPlanArea.Rect.X + 10, SubPlanArea.Rect.Y + 30, 
+                                              SubPlanArea.Rect.Width - 20, SubPlanArea.Rect.Height - 35);
+            CreateBlueprintsTiles(gridPos);
             RefreshBuildableList();
         }
 
-        void AddLabel(ref UILabel uiLabel, Vector2 pos, LocalizedText text, Font font, Color color)
+        void CreateBlueprintsTiles(Rectangle gridPos)
         {
-            if (uiLabel == null)
-                uiLabel = Add(new UILabel(pos, text, font, color));
+            int width = gridPos.Width / SolarSystemBody.TileMaxX;
+            int height = gridPos.Height / SolarSystemBody.TileMaxY;
 
-            uiLabel.Visible = false;
+            for (int y = 0; y < SolarSystemBody.TileMaxY; y++)
+                for (int x = 0; x < SolarSystemBody.TileMaxX; x++)
+                {
+                    UIPanel panel = base.Add(new UIPanel(new Rectangle(gridPos.X + x * width, gridPos.Y + y * height, width, height), Color.White));
+                    panel.Tooltip = GameText.RightClickToRemove;
+                    TilesList.Add(new BlueprintsTile(panel));
+                }
+        }
+
+        void OnBuildableItemDoubleClicked(BlueprintsBuildableListItem item)
+        {
+            BlueprintsTile tile = TilesList.Find(t => t.IsFree);
+            if (tile != null)
+            {
+                tile.AddBuilding(item.Building);
+                RefreshBuildableList();
+            }
+            else
+            {
+                GameAudio.NegativeClick();
+            }
+
         }
 
         void RefreshBuildableList()
         {
             BuildableList.Reset();
+            AddOutpost();
             foreach (Building b in Player.GetUnlockedBuildings())
             {
-                var item = new BlueprintsBuildableListItem(this, b);
-                BuildableList.AddItem(item);
+                if (b.IsSuitableForBlueprints && !TilesList.Any(t => t.BuildingNameExists(b.Name)))
+                {
+                    var item = new BlueprintsBuildableListItem(this, b);
+                    BuildableList.AddItem(item);
+                }
+            }
+        }
+
+        void AddOutpost()
+        {
+            Building outpost = ResourceManager.GetBuildingTemplate(Building.OutpostId);
+            if (outpost != null)
+            {
+                TilesList[0].AddBuilding(outpost);
+                TilesList[0].Panel.Tooltip = null;
+            }
+            else
+            {
+                Log.Error($"Blueprints Screen - Outpost building template not found! " +
+                    "Check that the correct building exists in the buildings directory");
             }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             batch.SafeBegin();
-            TitleBar.Draw(batch, elapsed);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(GameText.ColonyOverview), TitlePos, Colors.Cream);
-            LeftMenu.Draw(batch, elapsed);
-            RightMenu.Draw(batch, elapsed);
-            batch.DrawRectangle(BuildableList.ItemsHousing, Color.Red); // items housing border
+            if (PlanAreaHovered)
+            {
+                Rectangle areaHoverRect = new((int)SubPlanArea.X+2, (int)SubPlanArea.Y+2, (int)SubPlanArea.Width-4, (int)SubPlanArea.Height-4);
+                batch.DrawRectangle(areaHoverRect, Color.White, 2f);
+            }
+
             base.Draw(batch, elapsed);
             batch.SafeEnd();
         }
@@ -168,6 +202,82 @@ namespace Ship_Game
         public override void Update(float elapsedTime)
         {
             base.Update(elapsedTime);
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            HoveredBuilding = GetHoveredBuildingFromBuildableList(input);
+            foreach (BlueprintsTile tile in TilesList)
+            {
+                if (tile.HasBuilding && tile.Panel.HitTest(input.CursorPosition))
+                {
+                    HoveredBuilding = tile.Building;
+                    tile.Panel.Color = tile.Building.IsCapitalOrOutpost ? Color.Red : Color.Orange;
+                    if (Input.RightMouseClick)
+                    {
+                        if (!tile.Building.IsCapitalOrOutpost)
+                        {
+                            tile.RemoveBuilding();
+                            RefreshBuildableList();
+                            GameAudio.AffirmativeClick();
+                        }
+                        else
+                        {
+                            GameAudio.NegativeClick();
+                        }
+                    }
+                }
+                else
+                {
+                    tile.Panel.Color = Color.White;
+                }
+            }
+
+            return base.HandleInput(input);
+        }
+
+        void OnBuildableListDrag(BlueprintsBuildableListItem item, DragEvent evt, bool outside)
+        {
+            bool inPlanArea = SubPlanArea.HitTest(Input.CursorPosition);
+            if (inPlanArea)
+            {
+                PlanAreaHovered = inPlanArea;
+            }
+
+            if (evt != DragEvent.End)
+                return;
+
+            if (outside && item != null) // TODO: somehow `item` can be null, not sure how it happens
+            {
+                if (inPlanArea)
+                    OnBuildableItemDoubleClicked(item);
+                else
+                    GameAudio.NegativeClick();
+
+                return;
+            }
+
+            GameAudio.NegativeClick();
+        }
+
+        Building GetHoveredBuildingFromBuildableList(InputState input)
+        {
+            if (BuildableList.HitTest(input.CursorPosition))
+            {
+                foreach (BlueprintsBuildableListItem e in BuildableList.AllEntries)
+                {
+                    if (e.Hovered && e.Building != null)
+                        return e.Building;
+                }
+            }
+
+            return null; // default: use Plan Statistics
+        }
+
+        public override void ExitScreen()
+        {
+            TilesList.Clear();
+            base.ExitScreen();
         }
     }
 }

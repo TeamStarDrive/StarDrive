@@ -77,12 +77,12 @@ namespace Ship_Game
 
         void DrawBuilding(SpriteBatch batch, Building b)
         {
-            Color buildColor = Hovered ? Color.White : Color.Green;
+            Color buildColor = Hovered ? Color.Gold : Color.Gray;
             if (BuildingDescr == null)
                 BuildingDescr = Font8.ParseText(BuildingShortDescription(b), TextWidth);
 
-            batch.Draw(b.IconTex, new Vector2(X, Y - 2), new Vector2(IconSize), buildColor); // Icon
-            batch.DrawString(Font12, b.TranslatedName.Text, TextX + 2, Y + 2, buildColor); // Title
+            batch.Draw(b.IconTex, new Vector2(X, Y - 2), new Vector2(IconSize), Color.White); // Icon
+            batch.DrawString(Font12, b.TranslatedName.Text, TextX + 2, Y + 2, Color.White); // Title
             batch.DrawString(Font8, BuildingDescr, TextX + 4, Y + 16, buildColor); // Description
             int creditCost = b.IsMilitary ? GetCreditCharge((int)b.ActualCost) : 0;
             DrawProductionInfo(batch, GetMaintenance(b), b.ActualCost, creditCost);
