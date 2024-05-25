@@ -224,8 +224,8 @@ namespace Ship_Game
         [StarData] public float BaseFertilityTerraformRatio { get; protected set; } // A value to add to base fertility during Terraform. 
         public float TerraformToAdd { get; protected set; }  //  FB - a sum of all terraformer efforts
         [StarData] public Planet.ColonyType CType;
-        public int TileMaxX { get; private set; } = 7; // FB foundations to variable planet tiles
-        public int TileMaxY { get; private set; } = 5; // FB foundations to variable planet tiles
+        public static int TileMaxX { get; private set; } = 7; // FB foundations to variable planet tiles
+        public static int TileMaxY { get; private set; } = 5; // FB foundations to variable planet tiles
 
         // bomb impacts, shield impacts
         public void PlayPlanetSfx(string sfx, Vector3 position)

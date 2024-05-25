@@ -518,7 +518,7 @@ namespace Ship_Game
         {
             planet.AddTroop(this, tile);
             RemoveTroopFromHostShip();
-            facingRight = tile.X < planet.TileMaxX / 2;
+            facingRight = tile.X < SolarSystemBody.TileMaxX / 2;
             if (resetMove)
             {
                 UpdateMoveActions(-1);
@@ -605,10 +605,10 @@ namespace Ship_Game
             public Ping(PlanetGridSquare tile, Planet planet, int pingSize)
             {
                 Left   = (tile.X - pingSize).LowerBound(0);
-                Right  = (tile.X + pingSize).UpperBound(planet.TileMaxX - 1);
+                Right  = (tile.X + pingSize).UpperBound(SolarSystemBody.TileMaxX - 1);
                 Top    = (tile.Y - pingSize).LowerBound(0);
-                Bottom = (tile.Y + pingSize).UpperBound(planet.TileMaxY - 1);
-                Width  = planet.TileMaxX;
+                Bottom = (tile.Y + pingSize).UpperBound(SolarSystemBody.TileMaxY - 1);
+                Width  = SolarSystemBody.TileMaxX;
             }
         }
 

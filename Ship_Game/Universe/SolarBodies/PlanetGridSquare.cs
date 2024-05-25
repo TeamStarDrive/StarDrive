@@ -5,6 +5,7 @@ using Ship_Game.Universe.SolarBodies;
 using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 using Point = SDGraphics.Point;
+using System.Windows.Forms;
 
 namespace Ship_Game
 {
@@ -381,4 +382,38 @@ namespace Ship_Game
         NorthWest,
         None
     }
+
+    public sealed class BlueprintsTile
+    {
+        public readonly UIPanel Panel;
+        public Building Building { get; private set; }
+        public bool IsFree => Building == null;
+        public bool HasBuilding => !IsFree;
+
+        public BlueprintsTile(UIPanel uiPanel)
+        {
+            Panel = uiPanel;
+            Panel.Visible = false;
+        }
+
+        public void AddBuilding(Building b)
+        {
+            Building = b;
+            Panel.Sprite = new SpriteSystem.DrawableSprite(ResourceManager.Texture("Buildings/icon_" + b.Icon + "_64x64"));
+            Panel.Visible = true;
+        }
+
+        public void RemoveBuilding()
+        {
+            Building = null;
+            Panel.Sprite = null;
+            Panel.Visible = false;
+        }
+
+        public bool BuildingNameExists(string name)
+        {
+            return HasBuilding && Building.Name == name;
+        }
+    }
+
 }
