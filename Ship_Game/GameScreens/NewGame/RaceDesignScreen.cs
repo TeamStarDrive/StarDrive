@@ -12,6 +12,8 @@ using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
 using Ship_Game.Data;
 using System.Linq;
+using System.Windows.Forms;
+using NAudio.Wave;
 
 namespace Ship_Game
 {
@@ -20,7 +22,7 @@ namespace Ship_Game
         readonly MainMenuScreen MainMenu;
         readonly Array<TraitEntry> AllTraits = new();
         RacialTrait RaceSummary = new();
-        UniverseParams P = new();
+        UniverseParams P;
 
         Rectangle FlagLeft;
         Rectangle FlagRight;
@@ -57,9 +59,12 @@ namespace Ship_Game
         public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu, toPause: null)
         {
             IsPopup = true; // it has to be a popup, otherwise the MainMenuScreen will not be drawn
+            //P = new UniverseParams();
             MainMenu = mainMenu;
             TransitionOnTime = 0.75f;
             TransitionOffTime = 0.25f;
+
+            P = new UniverseParams();
             foreach (RacialTraitOption t in ResourceManager.RaceTraits.TraitList)
                 AllTraits.Add(new TraitEntry { Trait = t });
         }
@@ -233,6 +238,7 @@ namespace Ship_Game
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
             Button(pos.X, pos.Y, text: GameText.RuleOptions, click: OnRuleOptionsClicked);
+            Button(pos.X, pos.Y + 40, text: "Select opponents", click: OnFoeSelectionClicked);
 
             ChooseRaceList.SlideInFromOffset(offset:new(-ChooseRaceList.Width, 0), TransitionOnTime);
             DescriptionTextList.SlideInFromOffset(offset:new(DescriptionTextList.Width, 0), TransitionOnTime);
@@ -338,6 +344,11 @@ namespace Ship_Game
         void OnRuleOptionsClicked(UIButton b)
         {
             ScreenManager.AddScreen(new RuleOptionsScreen(this, P));
+        }
+
+        void OnFoeSelectionClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new FoeSelectionScreen(this, P, SelectedData));
         }
 
         void OnAbortClicked(UIButton b)
@@ -547,10 +558,23 @@ namespace Ship_Game
             P.PlayerData.DiplomaticPersonality = new DTrait();
 
             (P.NumSystems, P.StarsModifier) = GetNumStars(P.StarsCount, P.GalaxySize, P.NumOpponents);
-            var nextScreen = new FoeSelectionScreen(MainMenu, P);
-            //var ng = new CreatingNewGameScreen(MainMenu, P);
 
-            ScreenManager.GoToScreen(nextScreen, clear3DObjects:true);
+            //set selected opponents or choose random ones
+            if (P.SelectedFoes.Count <= P.NumOpponents)
+            {
+                var majorRacesLeft = ResourceManager.MajorRaces.Filter(
+                                data => (data.ArchetypeName != P.PlayerData.ArchetypeName) && !P.SelectedFoes.Any(i => i.ArchetypeName == data.ArchetypeName));
+
+                majorRacesLeft.Shuffle();
+                for (int i = 0; i <= P.NumOpponents - P.SelectedFoes.Count; i++)
+                {
+                    P.SelectedFoes.Add(majorRacesLeft[i]);
+                }
+            }
+
+            var ng = new CreatingNewGameScreen(MainMenu, P);
+
+            ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
 
         public override void Update(float fixedDeltaTime)

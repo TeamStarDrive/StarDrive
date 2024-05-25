@@ -15,43 +15,49 @@ namespace Ship_Game.GameScreens.NewGame
 {
     public class FoeSelectionScreen : GameScreen
     {
-        readonly MainMenuScreen MainMenu;
-        readonly UniverseParams P;
 
-        Menu2 TitleBar;
+        public readonly UniverseParams P;
         ScrollList<RaceArchetypeListItem> ChooseRaceList;
-        public Array<IEmpireData> FoeList;
+        IEmpireData SelectedData;
 
-        public FoeSelectionScreen(MainMenuScreen mainMenu, UniverseParams p) : base(mainMenu, toPause: null)
+        public FoeSelectionScreen(GameScreen parent, UniverseParams p, IEmpireData selectedData) : base(parent, toPause: null)
         {
             IsPopup = true;
-            MainMenu = mainMenu;
             TransitionOnTime = 0.75f;
             TransitionOffTime = 0.25f;
             P = p;
-            FoeList = new Array<IEmpireData>(P.NumOpponents);
+            SelectedData = selectedData;
+            p.SelectedFoes = p.SelectedFoes == null ? new Array<IEmpireData>(P.NumOpponents) : p.SelectedFoes;
         }
         public override void LoadContent()
         {
-            TitleBar = Add(new Menu2(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80));
-            var titlePos = new Vector2(TitleBar.CenterX - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.DesignYourRace)).X / 2f,
-                                       TitleBar.CenterY - Fonts.Laserian14.LineSpacing / 4);
-            Add(new UILabel(titlePos, "Select other empires", Fonts.Laserian14, Colors.Cream));
+            //TitleBar = Add(new Menu2(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80));
+            //var titlePos = new Vector2(TitleBar.CenterX - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.DesignYourRace)).X / 2f,
+            //                           TitleBar.CenterY - Fonts.Laserian14.LineSpacing / 4);
+            //Add(new UILabel(titlePos, "Select other empires", Fonts.Laserian14, Colors.Cream));
+            var TitleBar = new Rectangle(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
+            RectF chooseRace = new(ScreenWidth / 2,
+                                  (int)TitleBar.Bottom + 15,
+                                  (int)(ScreenWidth * 0.3f),
+                                  (int)(ScreenHeight - TitleBar.Bottom));
+            if (chooseRace.H > 780)
+                chooseRace.H = 780;
 
-            RectF chooseRace = new(5,
-                                  (int)TitleBar.Bottom + 5,
-                                  (int)(ScreenWidth * 0.4f),
-                                  (int)(ScreenHeight - TitleBar.Bottom - 0.18f * ScreenHeight));
             ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
             ChooseRaceList.SetBackground(new Menu1(chooseRace));
             ChooseRaceList.OnClick = OnRaceItemSelected;
 
             IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
-                                data => data.ArchetypeName != P.PlayerData.ArchetypeName);
+                                data => data.ArchetypeName != SelectedData.ArchetypeName);
             foreach (IEmpireData e in majorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text: GameText.Engage, click: OnEngageClicked);
+            OnExit += () =>
+            {
+                ChooseRaceList.SlideOutToOffset(offset: new(-ChooseRaceList.Width, 0), TransitionOffTime);
+                //DescriptionTextList.SlideOutToOffset(offset: new(DescriptionTextList.Width, 0), TransitionOffTime);
+                //EnvMenu.SlideOutToOffset(offset: new(-EnvMenu.Width, 0), TransitionOffTime);
+            };
 
             base.LoadContent();
         }
@@ -67,40 +73,19 @@ namespace Ship_Game.GameScreens.NewGame
         }
         void OnRaceItemSelected(RaceArchetypeListItem item)
         {
-            if (FoeList.Contains(item.EmpireData))
+            if (P.SelectedFoes.Contains(item.EmpireData))
             {
-                FoeList.Remove(item.EmpireData);
+                P.SelectedFoes.Remove(item.EmpireData);
                 return;
             }
 
-            if (FoeList.Count >= P.NumOpponents)
+            if (P.SelectedFoes.Count >= P.NumOpponents)
             {
                 GameAudio.NegativeClick();
                 return;
             }
 
-            FoeList.Add(item.EmpireData);
-        }
-
-        void OnEngageClicked(UIButton b)
-        {
-            if (FoeList.Count <= P.NumOpponents)
-            {
-                var majorRacesLeft = ResourceManager.MajorRaces.Filter(
-                                data => (data.ArchetypeName != P.PlayerData.ArchetypeName) && !FoeList.Select(i => i.ArchetypeName).Contains(data.ArchetypeName));
-
-                majorRacesLeft.Shuffle();
-                for (int i = 0; i <= P.NumOpponents - FoeList.Count; i++)
-                {
-                    FoeList.Add(majorRacesLeft[i]);
-                }
-            }
-
-            P.SelectedFoes = FoeList;
-
-            var ng = new CreatingNewGameScreen(MainMenu, P);
-
-            ScreenManager.GoToScreen(ng, clear3DObjects: true);
+            P.SelectedFoes.Add(item.EmpireData);
         }
     }
-}
+} 
