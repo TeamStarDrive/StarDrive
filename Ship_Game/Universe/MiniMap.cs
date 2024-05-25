@@ -11,14 +11,16 @@ using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe.SolarBodies;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
     public sealed class MiniMap : UIElementContainer
     {
-        public readonly ToggleButton ExoticBonuses;
-        public readonly ToggleButton FreighterUtil;
+        readonly ToggleButton ExoticBonuses;
+        readonly ToggleButton FreighterUtil;
+        readonly ToggleButton ColonyBlueprints;
 
         readonly UniverseScreen Universe;
         readonly Rectangle Housing;
@@ -28,10 +30,10 @@ namespace Ship_Game
         readonly ToggleButton ZoomToShip;
         readonly ToggleButton PlanetScreen;
         readonly ToggleButton ExoticScreen;
-        readonly ToggleButton ShipScreen;
+        readonly ToggleButton GravityWells;
         readonly ToggleButton AIScreen;
         readonly ToggleButton DeepSpaceBuild;
-        readonly ToggleButton Fleets;
+        readonly ToggleButton RangeOverley;
 
         readonly SubTexture MiniMapHousing;
         readonly SubTexture Node;
@@ -56,8 +58,8 @@ namespace Ship_Game
             ZoomToShip     = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick));
             PlanetScreen   = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick));
             FreighterUtil  = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_freighter_util", FreighterUtilizationScreen_OnClick));
-            ShipScreen     = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_ftloverlay", ShipScreen_OnClick));
-            Fleets         = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_rangeoverlay", Fleets_OnClick));
+            GravityWells   = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_ftloverlay", GravityWells_OnClick));
+            RangeOverley   = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_rangeoverlay", RangeOverly_OnClick));
             DeepSpaceBuild = listL.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_dsbw", DeepSpaceBuild_OnClick));
             AIScreen       = listL.Add(new ToggleButton(ToggleButtonStyle.ButtonDown, "AI", AIScreen_OnClick));
 
@@ -66,6 +68,8 @@ namespace Ship_Game
             ZoomOut            = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
             ExoticScreen       = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_exotic_systems", ExoticScreen_OnClick));
             ExoticBonuses      = listR.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "NewUI/icon_exotic_Bonuses_big", ExoticBonusScreen_OnClick));
+            ColonyBlueprints   = listR.Add(new ToggleButton(ToggleButtonStyle.Button, "AI", ColonyBlueprints_OnClick));
+
             Scale = ActualMap.Width / (Universe.UState.Size * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
 
@@ -150,13 +154,13 @@ namespace Ship_Game
             batch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
             batch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
-            ShipScreen.IsToggled     = Universe.ShowingFTLOverlay;
+            GravityWells.IsToggled     = Universe.ShowingFTLOverlay;
             DeepSpaceBuild.IsToggled = Universe.DeepSpaceBuildWindow.Visible;
             AIScreen.IsToggled       = Universe.aw.IsOpen;
             ExoticBonuses.IsToggled  = Universe.ExoticBonusesWindow.IsOpen;
             FreighterUtil.IsToggled =  Universe.FreighterUtilizationWindow.IsOpen;
 
-            Fleets.IsToggled         = Universe.ShowingRangeOverlay;
+            RangeOverley.IsToggled         = Universe.ShowingRangeOverlay;
             
             base.Draw(batch, elapsed);
         }
@@ -344,6 +348,13 @@ namespace Ship_Game
             Universe.ScreenManager.AddScreen(new PlanetListScreen(Universe, Universe.EmpireUI));
         }
 
+        public void ColonyBlueprints_OnClick(ToggleButton toggleButton)
+        {
+            GameAudio.AcceptClick();
+            ColonyBlueprints.IsToggled = false;
+            Universe.ScreenManager.AddScreen(new BlueprintsScreen(Universe, Universe.EmpireUI, Universe.Player));
+        }
+
         public void ExoticScreen_OnClick(ToggleButton toggleButton)
         {
             if (Player.Universe.ExoticFeaturesDisabled)
@@ -359,13 +370,13 @@ namespace Ship_Game
             }
         }
 
-        public void ShipScreen_OnClick(ToggleButton toggleButton)
+        public void GravityWells_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
             Universe.ShowingFTLOverlay = !Universe.ShowingFTLOverlay;
         }
 
-        public void Fleets_OnClick(ToggleButton toggleButton)
+        public void RangeOverly_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
             Universe.ShowingRangeOverlay = !Universe.ShowingRangeOverlay;            
@@ -419,12 +430,15 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(Player.Universe.ExoticFeaturesDisabled ? GameText.OpensExoticPlanetsPanelDisabled 
                                                                              : GameText.OpensExoticPlanetsPanel, "G");
             }
-            if (ShipScreen.Rect.HitTest(input.CursorPosition))
+            if (GravityWells.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.FtlOverlayVisualisesSubspaceProjection, "F1");
 
-            if (Fleets.Rect.HitTest(input.CursorPosition))
+            if (RangeOverley.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.WeaponsRangeOverlayVisualisesShips, "F2");
             if (AIScreen.Rect.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(GameText.OpensTheAutomationPanelWhich, "H");
+
+            if (ColonyBlueprints.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.OpensTheAutomationPanelWhich, "H");
 
             if (ExoticBonuses.Rect.HitTest(input.CursorPosition))

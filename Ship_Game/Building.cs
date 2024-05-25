@@ -303,7 +303,8 @@ namespace Ship_Game
             => Empire.RacialEnvModifer(category, empire) * MaxFertilityOnBuild;
 
         public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
-        
+        public float ActualMaintenance(Empire e) => Maintenance * e.data.Traits.MaintMultiplier;
+
         [XmlIgnore]
         public bool EventHere => !string.IsNullOrEmpty(EventTriggerUID) || Name == "Dynamic Crash Site";
         [XmlIgnore]
