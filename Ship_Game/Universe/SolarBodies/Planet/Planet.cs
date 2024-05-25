@@ -275,6 +275,17 @@ namespace Ship_Game
             Radius = PType.Types.BasePlanetRadius;
         }
 
+        // Dummy planet for blueprints
+        public Planet(int id, Empire player) : this(id)
+        {
+            BaseFertility = 1;
+            MineralRichness = 1;
+            BasePopPerTileVal = 200;
+            PType = ResourceManager.Planets.RandomPlanet(player.data.Traits.PreferredEnv);
+            Scale = 1f;
+            Radius = PType.Types.BasePlanetRadius;
+        }
+
         public Planet(int id, RandomBase random, SolarSystem system, float randomAngle, float ringRadius, string name,
                       float sysMaxRingRadius, Empire owner, SolarSystemData.Ring data, float exoticPlanetMultiplier = 1) : this(id)
         {

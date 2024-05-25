@@ -5262,6 +5262,10 @@ namespace Ship_Game
         ShipOffense = 6190,
         /// <summary>Power Cell</summary>
         PowerCell = 6191,
+        /// <summary>Right Click to remove</summary>
+        RightClickToRemove = 6192,
+        /// <summary>Colony Blueprints</summary>
+        ColonyBlueprintsTitle = 6193,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
