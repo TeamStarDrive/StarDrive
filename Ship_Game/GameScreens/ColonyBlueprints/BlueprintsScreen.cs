@@ -14,6 +14,8 @@ using Ship_Game.Ships;
 using Ship_Game.Audio;
 using static System.Net.Mime.MediaTypeNames;
 using Font = Ship_Game.Graphics.Font;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace Ship_Game
 {
@@ -23,24 +25,25 @@ namespace Ship_Game
 
         readonly Menu1 LeftMenu;
         readonly Menu1 RightMenu;
-        readonly Submenu PlanetInfo;
+        readonly Submenu SubBlueprintsOptions;
         readonly Submenu PlanStats;
-        readonly UITextEntry PlanetName;
-        public EmpireUIOverlay Eui;
+        readonly Submenu SubExperimentalParameters;
+        readonly UILabel BlueprintsName;
+        readonly UICheckBox ExclusiveCheckbox;
+        public bool Exclusive;
         readonly Submenu SubPlanArea;
         public bool PlanAreaHovered { get; private set; }
         readonly Rectangle PlanetShieldIconRect;
         readonly ProgressBar PlanetShieldBar;
         readonly UILabel FilterBuildableItemsLabel;
-        readonly Planet planetTemplate;
+        readonly FloatSlider InitPopulationSlider;
+        float InitPopulationBillion = 5;
 
         readonly ScrollList<BlueprintsBuildableListItem> BuildableList;
+        readonly DropOptions<Planet.ColonyType> SwitchColonyType;
+        readonly DropOptions<string> LinkBlueprints;
 
         Building HoveredBuilding;
-        Building ToScrap;
-        PlanetGridSquare BioToScrap;
-
-        Rectangle EditNameButton;
         readonly Font Font8 = Fonts.Arial8Bold;
         readonly Font Font12 = Fonts.Arial12Bold;
         readonly Font Font14 = Fonts.Arial14Bold;
@@ -48,10 +51,9 @@ namespace Ship_Game
         readonly Font TextFont;
         public readonly Empire Player;
 
-        public BlueprintsScreen(UniverseScreen parent, EmpireUIOverlay empUI, Empire player) : base(parent, toPause: parent)
+        public BlueprintsScreen(UniverseScreen parent, Empire player) : base(parent, toPause: parent)
         {
             Player = player;
-            Eui = empUI;
             TextFont = LowRes ? Font8 : Font12;
             var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             base.Add(new Menu2(titleRect));
@@ -61,32 +63,57 @@ namespace Ship_Game
             RightMenu = base.Add(new Menu1(titleRect.Right + 10, titleRect.Y, ScreenWidth / 3 - 15, ScreenHeight - titleRect.Y - 2));
             Add(new CloseButton(RightMenu.Right - 52, RightMenu.Y + 22));
 
-            RectF planetInfoR = new(LeftMenu.X + 20, LeftMenu.Y + 20,
-                                    (int)(0.4f * LeftMenu.Width),
-                                    (int)(0.23f * (LeftMenu.Height - 80)));
-            PlanetInfo = new(planetInfoR, GameText.PlanetInfo);
-            Submenu pDescription = new(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            RectF blueprintsStatsR = new(LeftMenu.X + 20, LeftMenu.Y + 20,
+                                        (int)(0.4f * LeftMenu.Width),
+                                        (int)(0.23f * (LeftMenu.Height - 80)));
+            SubBlueprintsOptions = base.Add(new Submenu(blueprintsStatsR, GameText.BlueprintsOptions));
 
-            RectF planAreaR = new(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y,
-                                   LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
+            RectF planAreaR = new(LeftMenu.X + 20 + SubBlueprintsOptions.Width + 20, SubBlueprintsOptions.Y,
+                                   LeftMenu.Width - 60 - SubBlueprintsOptions.Width, LeftMenu.Height * 0.5f);
+            SubPlanArea = base.Add(new Submenu(planAreaR, GameText.CurrentBlueprintsSubMenu));
 
-            SubPlanArea = base.Add(new Submenu(planAreaR, GameText.Colony));
-
-
-
-
-
-            RectF planetStatsRect = new(LeftMenu.X + 20 + PlanetInfo.Width + 20,
+            RectF blueprintsStatsRect = new(LeftMenu.X + 20 + SubBlueprintsOptions.Width + 20,
                                         SubPlanArea.Bottom + 20,
-                                        LeftMenu.Width - 60 - PlanetInfo.Width,
+                                        LeftMenu.Width - 60 - SubBlueprintsOptions.Width,
                                         LeftMenu.Height - 20 - SubPlanArea.Height - 40);
-
-            PlanStats = base.Add(new Submenu(planetStatsRect, GameText.Statistics2));
+            PlanStats = base.Add(new Submenu(blueprintsStatsRect, GameText.Statistics2));
 
 
             RectF buildableMenuR = new(RightMenu.X + 20, RightMenu.Y + 20,
                                    RightMenu.Width - 40, 0.5f * (RightMenu.Height - 40));
             base.Add(new Submenu(buildableMenuR, GameText.Buildings));
+
+            RectF experimentalR = new(LeftMenu.X + 20, LeftMenu.Y + 40 + SubBlueprintsOptions.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            base.Add(new Submenu(experimentalR, GameText.Buildings));
+
+
+            float blueprintsOptionsX = SubBlueprintsOptions.X + 10;
+            BlueprintsName = base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 45), 
+                "New Bluebrints", Font14, Color.Gold));
+            ExclusiveCheckbox = base.Add(new UICheckBox(blueprintsOptionsX, SubBlueprintsOptions.Y + 65 + Font14.LineSpacing,
+                () => Exclusive, TextFont, GameText.ExclusiveBlueprints, GameText.ExclusiveBlueprintsTip));
+            ExclusiveCheckbox.TextColor = Color.Wheat;
+
+            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3),
+                "Link Blueprints to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
+            LinkBlueprints = base.Add(Add(new DropOptions<string>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3, 200, 18)));
+            LinkBlueprints.AddOption(option: "--", "");
+
+            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 70 + Font14.LineSpacing * 2), 
+                "Switch Governor to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
+            SwitchColonyType = base.Add(Add(new DropOptions<Planet.ColonyType>(blueprintsOptionsX+150, SubBlueprintsOptions.Y + 70 + Font14.LineSpacing*2, 100, 18)));
+            SwitchColonyType.AddOption(option: "--", Planet.ColonyType.Colony);
+            SwitchColonyType.AddOption(option: GameText.Core, Planet.ColonyType.Core);
+            SwitchColonyType.AddOption(option: GameText.Industrial, Planet.ColonyType.Industrial);
+            SwitchColonyType.AddOption(option: GameText.Agricultural, Planet.ColonyType.Agricultural);
+            SwitchColonyType.AddOption(option: GameText.Research, Planet.ColonyType.Research);
+            SwitchColonyType.AddOption(option: GameText.Military, Planet.ColonyType.Military);
+            SwitchColonyType.ActiveValue = Planet.ColonyType.Colony;
+
+            RectF initPopR = new(blueprintsOptionsX, experimentalR.Y + 20, 270, 50);
+            InitPopulationSlider = SliderDecimal1(initPopR, GameText.Population, 0, 20, InitPopulationBillion);
+            InitPopulationSlider.OnChange = (s) => InitPopulationBillion = (s.AbsoluteValue).RoundToFractionOf10();
+
 
             RectF buildableR = new(buildableMenuR.X, buildableMenuR.Y+20, buildableMenuR.W, buildableMenuR.H -20);
             BuildableList = base.Add(new ScrollList<BlueprintsBuildableListItem>(buildableR, 40));
@@ -94,6 +121,12 @@ namespace Ship_Game
             BuildableList.OnDoubleClick = OnBuildableItemDoubleClicked;
             BuildableList.EnableDragOutEvents = true;
             BuildableList.OnDragOut = OnBuildableListDrag;
+
+
+
+
+
+
 
             int iconSize = LowRes ? 80 : 128;
             int iconOffsetX = LowRes ? 100 : 148;

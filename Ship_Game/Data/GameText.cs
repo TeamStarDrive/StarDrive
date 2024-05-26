@@ -5266,6 +5266,14 @@ namespace Ship_Game
         RightClickToRemove = 6192,
         /// <summary>Colony Blueprints</summary>
         ColonyBlueprintsTitle = 6193,
+        /// <summary>Current Blueprints</summary>
+        CurrentBlueprintsSubMenu = 6194,
+        /// <summary>Blueprints Options</summary>
+        BlueprintsOptions = 6195,
+        /// <summary>Exclusive Bluprints</summary>
+        ExclusiveBlueprints = 6196,
+        /// <summary>When an exclusive Blueprints are loaded, the governor will only build the exact buildings of the Blueprints</summary>
+        ExclusiveBlueprintsTip = 6197,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
