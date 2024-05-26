@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -507,8 +508,8 @@ namespace Ship_Game
 
             float pop80          = PopulationBillion * 0.8f;
             float buildingOutput = NonCybernetic 
-                ? Food.AfterTax(b.PlusFlatFoodAmount + pop80*Food.FoodYieldFormula(Fertility, b.PlusFoodPerColonist-1))
-                : Prod.AfterTax(b.PlusFlatProductionAmount + pop80 * Prod.ProdYieldFormula(MineralRichness, b.PlusProdPerColonist-1));
+                ? Food.AfterTax(b.PlusFlatFoodAmount + pop80*ColonyResource.FoodYieldFormula(Fertility, b.PlusFoodPerColonist-1))
+                : Prod.AfterTax(b.PlusFlatProductionAmount + pop80 * ColonyResource.ProdYieldFormula(MineralRichness, b.PlusProdPerColonist-1, Owner));
 
             return potential - buildingOutput > 0;
         }

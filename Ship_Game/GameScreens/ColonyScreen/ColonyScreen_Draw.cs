@@ -4,6 +4,8 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -37,13 +39,13 @@ namespace Ship_Game
         float TerraMaxPopBillion; // After terraforming
         float TerraTargetFertility; // After terraforming
 
-        void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
+        public static void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, Font font, float value, string texture,
             LocalizedText summary, bool percent = false, bool signs = true, int digits = 2)
         {
-            DrawBuildingInfo(ref cursor, batch, value, ResourceManager.Texture(texture), summary.Text, digits, percent, signs);
+            DrawBuildingInfo(ref cursor, batch, font, value, ResourceManager.Texture(texture), summary.Text, digits, percent, signs);
         }
 
-        void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, SubTexture texture,
+        static void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, Font font, float value, SubTexture texture,
             LocalizedText summary, int digits, bool percent = false, bool signs = true)
         {
             if (value.AlmostEqual(0))
@@ -62,13 +64,13 @@ namespace Ship_Game
             batch.Draw(texture, fIcon, Color.White);
             string suffix = percent ? "% " : " ";
             string text = string.Concat(plusOrMinus, Math.Abs(value).String(digits), suffix, summary.Text);
-            batch.DrawString(TextFont, text, tCursor, color);
-            cursor.Y += TextFont.LineSpacing + 5;
+            batch.DrawString(font, text, tCursor, color);
+            cursor.Y += font.LineSpacing + 5;
         }
 
         void DrawTroopLevel(Troop troop)
         {
-            Graphics.Font font = Font12;
+            Font font = Font12;
             Rectangle rect = troop.ClickRect;
             var levelRect = new Rectangle(rect.X + 30, rect.Y + 22, font.LineSpacing, font.LineSpacing + 5);
             var pos = new Vector2((rect.X + 15 + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
@@ -494,7 +496,7 @@ namespace Ship_Game
             if (IsStatTabSelected)
             {
                 DrawMoney(ref bCursor, batch);
-                DrawPlanetStat(ref bCursor, batch);
+                DrawPlanetStat(ref bCursor, batch, TextFont);
                 //DrawCommoditiesArea(bCursor);
                 return;
             }
@@ -585,7 +587,7 @@ namespace Ship_Game
             string buildingDescription = MultiLineFormat(pgs.Building.DescriptionText);
             batch.DrawString(TextFont, buildingDescription, bCursor, color);
             bCursor.Y += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
-            DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building, pgs);
+            DrawSelectedBuildingInfo(ref bCursor, batch, TextFont, P.Owner, P.Fertility, P.MineralRichness, P.Category, P.Level, pgs.Building, pgs);
             DrawTilePopInfo(ref bCursor, batch, pgs, 2);
             if (!pgs.Building.Scrappable)
                 return;
@@ -607,7 +609,7 @@ namespace Ship_Game
             if (selectedBuilding.IsWeapon)
                 selectedBuilding.CalcMilitaryStrength(P); // So the building will have TheWeapon for stats
 
-            DrawSelectedBuildingInfo(ref bCursor, batch, selectedBuilding);
+            DrawSelectedBuildingInfo(ref bCursor, batch, TextFont, P.Owner, P.Fertility, P.MineralRichness, P.Category, P.Level, selectedBuilding);
         }
 
         // TODO: extracted method, needs refactor/clean
@@ -675,7 +677,7 @@ namespace Ship_Game
             float grossUpkeep = P.Money.Maintenance + P.SpaceDefMaintenance;
             float netIncome   = P.Money.NetRevenue;
 
-            Graphics.Font font = LowRes ? Font8 : Font14;
+            Font font = LowRes ? Font8 : Font14;
 
             batch.DrawString(font, $"{gIncome}: ", cursor, Color.LightGray);
             batch.DrawString(font, $"{grossIncome.String(2)} BC/Y", new Vector2(cursor.X + 150, cursor.Y), Color.LightGreen);
@@ -737,65 +739,71 @@ namespace Ship_Game
             }
         }
 
-        void DrawPlanetStat(ref Vector2 cursor, SpriteBatch batch)
+        void DrawPlanetStat(ref Vector2 cursor, SpriteBatch batch, Font font)
         {
-            DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", GameText.ColonistsPerHabitableTileBillions);
-            DrawBuildingInfo(ref cursor, batch, P.PopPerBiosphere(Player) / 1000, "UI/icon_pop_22", GameText.ColonistsPerBiosphereBillions);
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist - P.FoodConsumptionPerColonist, "NewUI/icon_food", Localizer.Token(GameText.NetFoodPerColonistAllocated), digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", GameText.NetFlatFoodGeneratedPer, digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist - P.ProdConsumptionPerColonist, "NewUI/icon_production", GameText.NetProductionPerColonistAllocated, digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", GameText.NetFlatProductionGeneratedPer, digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", GameText.NetResearchPerColonistAllocated, digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", GameText.NetFlatResearchGeneratedPer, digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.CurrentProductionToQueue, "NewUI/icon_queue_rushconstruction",
+            DrawBuildingInfo(ref cursor, batch, font, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", GameText.ColonistsPerHabitableTileBillions);
+            DrawBuildingInfo(ref cursor, batch, font, P.PopPerBiosphere(Player) / 1000, "UI/icon_pop_22", GameText.ColonistsPerBiosphereBillions);
+            DrawBuildingInfo(ref cursor, batch, font, P.Food.NetYieldPerColonist - P.FoodConsumptionPerColonist, "NewUI/icon_food", Localizer.Token(GameText.NetFoodPerColonistAllocated), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, font, P.Food.NetFlatBonus, "NewUI/icon_food", GameText.NetFlatFoodGeneratedPer, digits: 1);
+            DrawBuildingInfo(ref cursor, batch, font, P.Prod.NetYieldPerColonist - P.ProdConsumptionPerColonist, "NewUI/icon_production", GameText.NetProductionPerColonistAllocated, digits: 1);
+            DrawBuildingInfo(ref cursor, batch, font, P.Prod.NetFlatBonus, "NewUI/icon_production", GameText.NetFlatProductionGeneratedPer, digits: 1);
+            DrawBuildingInfo(ref cursor, batch, font, P.Res.NetYieldPerColonist, "NewUI/icon_science", GameText.NetResearchPerColonistAllocated, digits: 1);
+            DrawBuildingInfo(ref cursor, batch, font, P.Res.NetFlatBonus, "NewUI/icon_science", GameText.NetFlatResearchGeneratedPer, digits: 1);
+            DrawBuildingInfo(ref cursor, batch, font, P.CurrentProductionToQueue, "NewUI/icon_queue_rushconstruction",
                 $"{new LocalizedText(GameText.MaximumProductionToQueuePer).Text} ({P.InfraStructure} taken from Storage)", digits: 1);
 
             string combat = P.SpaceCombatNearPlanet ? " (reduced due to space combat)" : "";
-            DrawBuildingInfo(ref cursor, batch, P.GeodeticManager.GetPlanetRepairRatePerSecond(), "NewUI/icon_queue_rushconstruction",
+            DrawBuildingInfo(ref cursor, batch, font, P.GeodeticManager.GetPlanetRepairRatePerSecond(), "NewUI/icon_queue_rushconstruction",
                 $"{new LocalizedText(GameText.ShipRepair).Text} Per Second{combat}", digits: 1);
 
-            DrawBuildingInfo(ref cursor, batch, -P.Money.TroopMaint, "UI/icon_troop_shipUI", Localizer.Token(GameText.CreditsPerTurnForTroop), digits: 2);
-            DrawBuildingInfo(ref cursor, batch, -TroopConsumption, "UI/icon_troop_shipUI", GetTroopsConsumptionText(), digits: 2);
+            DrawBuildingInfo(ref cursor, batch, font, -P.Money.TroopMaint, "UI/icon_troop_shipUI", Localizer.Token(GameText.CreditsPerTurnForTroop), digits: 2);
+            DrawBuildingInfo(ref cursor, batch, font, -TroopConsumption, "UI/icon_troop_shipUI", GetTroopsConsumptionText(), digits: 2);
         }
 
-        void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b, PlanetGridSquare tile = null)
+        void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Font font, Empire owner,
+            float fertility, float richness, PlanetCategory category, int planetLevel, Building b, PlanetGridSquare tile = null)
         {
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatFoodAmount, "NewUI/icon_food", GameText.FoodPerTurn);
-            DrawBuildingInfo(ref bCursor, batch, b.FoodCache, "NewUI/icon_food", GameText.FoodRemainingHereThisBuilding, signs: false, digits: 0);
-            DrawBuildingInfo(ref bCursor, batch, P.Food.FoodYieldFormula(P.Fertility, b.PlusFoodPerColonist-1), "NewUI/icon_food", GameText.FoodPerTurnPerAssigned);
-            DrawBuildingInfo(ref bCursor, batch, b.SensorRange, "NewUI/icon_sensors", GameText.SensorRange, signs: false);
-            DrawBuildingInfo(ref bCursor, batch, b.ProjectorRange, "NewUI/icon_projection", GameText.SubspaceProjectionArea, signs: false);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatProductionAmount, "NewUI/icon_production", GameText.ProductionPerTurn);
-            DrawBuildingInfo(ref bCursor, batch, P.Prod.ProdYieldFormula(P.MineralRichness, b.PlusProdPerColonist-1), "NewUI/icon_production", GameText.ProductionPerTurnPerAssigned);
-            DrawBuildingInfo(ref bCursor, batch, b.ProdCache, "NewUI/icon_production", GameText.ProductionRemainingHereThisBuilding, signs: false, digits: 0);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatPopulation / 1000, "NewUI/icon_population", GameText.ColonistsPerTurn, digits: 3);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatResearchAmount, "NewUI/icon_science", GameText.ResearchPerTurn);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusResearchPerColonist, "NewUI/icon_science", GameText.ResearchPerTurnPerAssigned);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusTaxPercentage * 100, "NewUI/icon_money", GameText.IncreaseToTaxIncomes, percent: true);
-            DrawBuildingInfo(ref bCursor, batch, b.MaxFertilityOnBuildFor(Player, P.Category), "NewUI/icon_food", GameText.MaxFertilityChangeOnBuild);
-            DrawBuildingInfo(ref bCursor, batch, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", GameText.PlanetaryShieldStrengthAdded);
-            DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", GameText.CreditsAddedPerColonist);
-            DrawBuildingInfo(ref bCursor, batch, b.Income, "NewUI/icon_money", GameText.FlatIncomePerTurn);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", GameText.ProductionPerRichness);
-            DrawBuildingInfo(ref bCursor, batch, b.ActualShipRepair(P), "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
-            DrawBuildingInfo(ref bCursor, batch, b.Infrastructure, "NewUI/icon_queue_rushconstruction", GameText.ProductionInfrastructure);
-            DrawBuildingInfo(ref bCursor, batch, b.StorageAdded, "NewUI/icon_storage_production", GameText.Storage);
-            DrawBuildingInfo(ref bCursor, batch, b.CombatStrength, "Ground_UI/Ground_Attack", GameText.CombatStrength);
-            DrawBuildingInfo(ref bCursor, batch, b.Defense, "UI/icon_shield", GameText.Defense);
-            DrawBuildingInfo(ref bCursor, batch, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
+            DrawBuildingStaticInfo(ref bCursor, batch, font, owner, fertility, richness, category, b);
+            DrawBuildingInfo(ref bCursor, batch, font, b.ActualShipRepair(P), "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
+            DrawBuildingWeaponStats(ref bCursor, batch, font, b, planetLevel);
 
-            float maintenance = -b.ActualMaintenance(P);
-            DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", 
-                Localizer.Token(maintenance >  0 ? GameText.CreditsPerTurn : GameText.CreditsPerTurnInMaintenance));
-
-            DrawBuildingWeaponStats(ref bCursor, batch, b);
             DrawFertilityOnBuildWarning(ref bCursor, batch, b);
 
             if (tile?.VolcanoHere == true)
                 DrawVolcanoChance(ref bCursor, batch, tile.Volcano.ActivationChanceText(out Color color), color);
         }
 
-        string GetTroopsConsumptionText()
+        public static void DrawBuildingStaticInfo(ref Vector2 bCursor, SpriteBatch batch, Font font, Empire owner,
+            float fertility, float richness, PlanetCategory category, Building b)
+        {
+            DrawBuildingInfo(ref bCursor, batch, font, b.PlusFlatFoodAmount, "NewUI/icon_food", GameText.FoodPerTurn);
+            DrawBuildingInfo(ref bCursor, batch, font, b.FoodCache, "NewUI/icon_food", GameText.FoodRemainingHereThisBuilding, signs: false, digits: 0);
+            DrawBuildingInfo(ref bCursor, batch, font, ColonyResource.FoodYieldFormula(fertility, b.PlusFoodPerColonist - 1), "NewUI/icon_food", GameText.FoodPerTurnPerAssigned);
+            DrawBuildingInfo(ref bCursor, batch, font, b.SensorRange, "NewUI/icon_sensors", GameText.SensorRange, signs: false);
+            DrawBuildingInfo(ref bCursor, batch, font, b.ProjectorRange, "NewUI/icon_projection", GameText.SubspaceProjectionArea, signs: false);
+            DrawBuildingInfo(ref bCursor, batch, font, b.PlusFlatProductionAmount, "NewUI/icon_production", GameText.ProductionPerTurn);
+            DrawBuildingInfo(ref bCursor, batch, font, ColonyResource.ProdYieldFormula(richness, b.PlusProdPerColonist - 1, owner), "NewUI/icon_production", GameText.ProductionPerTurnPerAssigned);
+            DrawBuildingInfo(ref bCursor, batch, font, b.ProdCache, "NewUI/icon_production", GameText.ProductionRemainingHereThisBuilding, signs: false, digits: 0);
+            DrawBuildingInfo(ref bCursor, batch, font, b.PlusFlatPopulation / 1000, "NewUI/icon_population", GameText.ColonistsPerTurn, digits: 3);
+            DrawBuildingInfo(ref bCursor, batch, font, b.PlusFlatResearchAmount, "NewUI/icon_science", GameText.ResearchPerTurn);
+            DrawBuildingInfo(ref bCursor, batch, font, b.PlusResearchPerColonist, "NewUI/icon_science", GameText.ResearchPerTurnPerAssigned);
+            DrawBuildingInfo(ref bCursor, batch, font, b.PlusTaxPercentage * 100, "NewUI/icon_money", GameText.IncreaseToTaxIncomes, percent: true);
+            DrawBuildingInfo(ref bCursor, batch, font, b.MaxFertilityOnBuildFor(owner, category), "NewUI/icon_food", GameText.MaxFertilityChangeOnBuild);
+            DrawBuildingInfo(ref bCursor, batch, font, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", GameText.PlanetaryShieldStrengthAdded);
+            DrawBuildingInfo(ref bCursor, batch, font, b.CreditsPerColonist, "NewUI/icon_money", GameText.CreditsAddedPerColonist);
+            DrawBuildingInfo(ref bCursor, batch, font, b.Income, "NewUI/icon_money", GameText.FlatIncomePerTurn);
+            DrawBuildingInfo(ref bCursor, batch, font, b.PlusProdPerRichness, "NewUI/icon_production", GameText.ProductionPerRichness);
+            DrawBuildingInfo(ref bCursor, batch, font, b.Infrastructure, "NewUI/icon_queue_rushconstruction", GameText.ProductionInfrastructure);
+            DrawBuildingInfo(ref bCursor, batch, font, b.StorageAdded, "NewUI/icon_storage_production", GameText.Storage);
+            DrawBuildingInfo(ref bCursor, batch, font, b.CombatStrength, "Ground_UI/Ground_Attack", GameText.CombatStrength);
+            DrawBuildingInfo(ref bCursor, batch, font, b.Defense, "UI/icon_shield", GameText.Defense);
+            DrawBuildingInfo(ref bCursor, batch, font, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
+            float maintenance = -b.ActualMaintenance(owner);
+            DrawBuildingInfo(ref bCursor, batch, font, maintenance, "NewUI/icon_money",
+                Localizer.Token(maintenance > 0 ? GameText.CreditsPerTurn : GameText.CreditsPerTurnInMaintenance));
+        }
+
+            string GetTroopsConsumptionText()
         {
             string text = P.IsCybernetic
                 ? Localizer.Token(GameText.ProductionConsumptionPerTurnFor) // Prod consumption for cybernetic troops
@@ -832,15 +840,15 @@ namespace Ship_Game
             }
         }
 
-        void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Building b)
+        public static void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Font font, Building b, int planetLevel)
         {
             if (b.TheWeapon == null)
                 return;
 
-            DrawBuildingInfo(ref cursor, batch, b.TheWeapon.BaseRange, "UI/icon_offense", "Range", signs: false);
-            DrawBuildingInfo(ref cursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
-            DrawBuildingInfo(ref cursor, batch, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
-            DrawBuildingInfo(ref cursor, batch, b.ActualFireDelay(P), "UI/icon_offense", "Fire Delay", signs: false);
+            DrawBuildingInfo(ref cursor, batch, font,b.TheWeapon.BaseRange, "UI/icon_offense", "Range", signs: false);
+            DrawBuildingInfo(ref cursor, batch, font, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
+            DrawBuildingInfo(ref cursor, batch, font, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
+            DrawBuildingInfo(ref cursor, batch, font, b.ActualFireDelay(planetLevel), "UI/icon_offense", "Fire Delay", signs: false);
         }
 
         string GetTargetFertilityText(out Color color)
