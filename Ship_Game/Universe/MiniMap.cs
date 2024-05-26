@@ -352,7 +352,7 @@ namespace Ship_Game
         {
             GameAudio.AcceptClick();
             ColonyBlueprints.IsToggled = false;
-            Universe.ScreenManager.AddScreen(new BlueprintsScreen(Universe, Universe.EmpireUI, Universe.Player));
+            Universe.ScreenManager.AddScreen(new BlueprintsScreen(Universe, Universe.Player));
         }
 
         public void ExoticScreen_OnClick(ToggleButton toggleButton)
