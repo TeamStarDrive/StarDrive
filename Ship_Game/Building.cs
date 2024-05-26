@@ -6,6 +6,7 @@ using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
+using Ship_Game.Universe.SolarBodies;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -187,7 +188,7 @@ namespace Ship_Game
             AttackTimer = 10;
         }
 
-        public float ActualFireDelay(Planet p) => TheWeapon != null ? TheWeapon.FireDelay / (p.Level.LowerBound(1)) : 1;
+        public float ActualFireDelay(int planetLevel) => TheWeapon != null ? TheWeapon.FireDelay / (planetLevel.LowerBound(1)) : 1;
 
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100;
 
@@ -275,7 +276,7 @@ namespace Ship_Game
                     if (canFireWeapon)
                     {
                         TheWeapon.FireFromPlanet(p, target);
-                        WeaponTimer = ActualFireDelay(p);
+                        WeaponTimer = ActualFireDelay(p.Level);
                     }
                     if (canLaunchShips)
                     {
@@ -456,6 +457,13 @@ namespace Ship_Game
             return baseRepairRate * levelBonus;
         }
 
+        public float ActualShipRepairBlueprints(int planetLevel)
+        {
+            float baseRepairRate = ShipRepair * GlobalStats.Defaults.BaseShipyardRepair;
+            float levelBonus = planetLevel * GlobalStats.Defaults.BonusRepairPerColonyLevel;
+            return baseRepairRate * levelBonus;
+        }
+
         public bool MoneyBuildingAndProfitable(float maintenance, float populationBillion)
         {
             if (!IsMoneyBuilding)
@@ -484,7 +492,7 @@ namespace Ship_Game
             {
                 text += p?.Owner == null 
                     ? $"{BuildShortDescString(PlusFoodPerColonist, GameText.FoodPerColonist, ref comma)}" 
-                    : $"{BuildShortDescString(p.Food.FoodYieldFormula(p.Fertility, PlusFoodPerColonist-1), GameText.FoodPerColonist, ref comma)}";
+                    : $"{BuildShortDescString(ColonyResource.FoodYieldFormula(p.Fertility, PlusFoodPerColonist-1), GameText.FoodPerColonist, ref comma)}";
             }
 
             if (PlusFlatFoodAmount.NotZero())
@@ -497,7 +505,7 @@ namespace Ship_Game
             {
                 text += p?.Owner == null
                     ? $"{BuildShortDescString(PlusProdPerColonist, GameText.ProdPerColonist, ref comma)}"
-                    : $"{BuildShortDescString(p.Prod.ProdYieldFormula(p.MineralRichness, PlusProdPerColonist - 1), GameText.ProdPerColonist, ref comma)}";
+                    : $"{BuildShortDescString(ColonyResource.ProdYieldFormula(p.MineralRichness, PlusProdPerColonist - 1, p.Owner), GameText.ProdPerColonist, ref comma)}";
             }
 
             if (PlusFlatProductionAmount.NotZero())
