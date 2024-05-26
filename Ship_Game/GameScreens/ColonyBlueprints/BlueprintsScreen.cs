@@ -10,16 +10,16 @@ using System;
 using SDUtils;
 using System.Drawing;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
-using Font = Ship_Game.Graphics.Font;
 using Ship_Game.Ships;
 using Ship_Game.Audio;
+using static System.Net.Mime.MediaTypeNames;
+using Font = Ship_Game.Graphics.Font;
 
 namespace Ship_Game
 {
     public partial class BlueprintsScreen : GameScreen
     {
         readonly Array<BlueprintsTile> TilesList = new(35);
-        readonly string BuildingsTabText = Localizer.Token(GameText.Buildings); // BUILDINGS
 
         readonly Menu1 LeftMenu;
         readonly Menu1 RightMenu;
@@ -28,7 +28,7 @@ namespace Ship_Game
         readonly UITextEntry PlanetName;
         public EmpireUIOverlay Eui;
         readonly Submenu SubPlanArea;
-        bool PlanAreaHovered;
+        public bool PlanAreaHovered { get; private set; }
         readonly Rectangle PlanetShieldIconRect;
         readonly ProgressBar PlanetShieldBar;
         readonly UILabel FilterBuildableItemsLabel;
@@ -75,17 +75,18 @@ namespace Ship_Game
 
 
 
+
             RectF planetStatsRect = new(LeftMenu.X + 20 + PlanetInfo.Width + 20,
                                         SubPlanArea.Bottom + 20,
                                         LeftMenu.Width - 60 - PlanetInfo.Width,
                                         LeftMenu.Height - 20 - SubPlanArea.Height - 40);
 
-            base.Add(new Submenu(planetStatsRect, GameText.Statistics2));
-
+            PlanStats = base.Add(new Submenu(planetStatsRect, GameText.Statistics2));
 
 
             RectF buildableMenuR = new(RightMenu.X + 20, RightMenu.Y + 20,
                                    RightMenu.Width - 40, 0.5f * (RightMenu.Height - 40));
+            base.Add(new Submenu(buildableMenuR, GameText.Buildings));
 
             RectF buildableR = new(buildableMenuR.X, buildableMenuR.Y+20, buildableMenuR.W, buildableMenuR.H -20);
             BuildableList = base.Add(new ScrollList<BlueprintsBuildableListItem>(buildableR, 40));
@@ -189,14 +190,31 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             batch.SafeBegin();
-            if (PlanAreaHovered)
-            {
-                Rectangle areaHoverRect = new((int)SubPlanArea.X+2, (int)SubPlanArea.Y+2, (int)SubPlanArea.Width-4, (int)SubPlanArea.Height-4);
-                batch.DrawRectangle(areaHoverRect, Color.White, 2f);
-            }
-
             base.Draw(batch, elapsed);
+            DrawHoveredBuildListBuildingInfo(batch);
             batch.SafeEnd();
+        }
+
+        void DrawHoveredBuildListBuildingInfo(SpriteBatch batch)
+        {
+            if (HoveredBuilding == null)
+                   return;
+
+            Vector2 bCursor = new Vector2(PlanStats.X + 15, PlanStats.Y + 35);
+            Color color = Color.Wheat;
+            batch.DrawString(Font20, HoveredBuilding.TranslatedName, bCursor, color);
+            bCursor.Y += Font20.LineSpacing + 5;
+            string selectionText = TextFont.ParseText(HoveredBuilding.DescriptionText.Text, PlanStats.Width - 40);
+            batch.DrawString(TextFont, selectionText, bCursor, color);
+            bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
+            ColonyScreen.DrawBuildingStaticInfo(ref bCursor, batch, TextFont, Player, fertility: 1, richness: 1, Player.data.Traits.PreferredEnv, HoveredBuilding);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, TextFont, HoveredBuilding.ActualShipRepairBlueprints(3), "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
+
+            //DrawBuildingInfo(ref bCursor, batch, font, b.ActualShipRepair(P), "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
+            //if (selectedBuilding.IsWeapon)
+            //    selectedBuilding.CalcMilitaryStrength(P); // So the building will have TheWeapon for stats
+
+            ColonyScreen.DrawBuildingWeaponStats(ref bCursor, batch, TextFont, HoveredBuilding, planetLevel: 3);
         }
 
         public override void Update(float elapsedTime)
@@ -206,13 +224,16 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            PlanAreaHovered = BuildableList.IsDragging && SubPlanArea.HitTest(Input.CursorPosition);
             HoveredBuilding = GetHoveredBuildingFromBuildableList(input);
             foreach (BlueprintsTile tile in TilesList)
             {
                 if (tile.HasBuilding && tile.Panel.HitTest(input.CursorPosition))
                 {
-                    HoveredBuilding = tile.Building;
-                    tile.Panel.Color = tile.Building.IsCapitalOrOutpost ? Color.Red : Color.Orange;
+                    HoveredBuilding = BuildableList.IsDragging ? null : tile.Building;
+                    if (HoveredBuilding != null)
+                        tile.Panel.Color = tile.Building.IsCapitalOrOutpost ? Color.Red : Color.Orange;
+
                     if (Input.RightMouseClick)
                     {
                         if (!tile.Building.IsCapitalOrOutpost)
@@ -238,18 +259,12 @@ namespace Ship_Game
 
         void OnBuildableListDrag(BlueprintsBuildableListItem item, DragEvent evt, bool outside)
         {
-            bool inPlanArea = SubPlanArea.HitTest(Input.CursorPosition);
-            if (inPlanArea)
-            {
-                PlanAreaHovered = inPlanArea;
-            }
-
             if (evt != DragEvent.End)
                 return;
 
             if (outside && item != null) // TODO: somehow `item` can be null, not sure how it happens
             {
-                if (inPlanArea)
+                if (PlanAreaHovered)
                     OnBuildableItemDoubleClicked(item);
                 else
                     GameAudio.NegativeClick();
