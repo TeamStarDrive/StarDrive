@@ -69,7 +69,7 @@ namespace Ship_Game
         float PlannedProdPerCol;
         float PlannedFlatResearch;
         float PlannedResearchPerCol;
-        float PlannnedInfraStructure;
+        float PlannnedInfrastructure;
         float PlannedRepairPerTurn;
         float PlannedStorage;
         /*
@@ -317,6 +317,20 @@ namespace Ship_Game
                 "UI/icon_money_22", GameText.Expenditure2);
             ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedNetIncome,
                 "UI/icon_money_22", GameText.NetIncome);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedFoodPerCol,
+                "NewUI/icon_food", GameText.NetFoodPerColonistAllocated);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedFlatFood,
+                "NewUI/icon_food", GameText.NetFlatFoodGeneratedPer);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedProdPerCol,
+                "NewUI/icon_production", GameText.NetProductionPerColonistAllocated);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedFlatProd,
+                "NewUI/icon_production", GameText.NetFlatProductionGeneratedPer);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedFlatResearch,
+                "NewUI/icon_science", GameText.NetResearchPerColonistAllocated);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedResearchPerCol,
+                "NewUI/icon_science", GameText.NetFlatResearchGeneratedPer);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannnedInfrastructure,
+                "NewUI/icon_queue_rushconstruction", GameText.MaximumProductionToQueuePer);
         }
 
 
@@ -338,7 +352,7 @@ namespace Ship_Game
             PlannedProdPerCol      = 0;
             PlannedFlatResearch    = 0;
             PlannedResearchPerCol  = 0;
-            PlannnedInfraStructure = 1;
+            PlannnedInfrastructure = 1;
             PlannedRepairPerTurn   = 0;
             PlannedStorage         = 0;
 
@@ -355,7 +369,7 @@ namespace Ship_Game
                 PlannedProdPerCol += b.PlusProdPerColonist;
                 PlannedFlatResearch += b.PlusFlatResearchAmount;
                 PlannedResearchPerCol += b.PlusResearchPerColonist;
-                PlannnedInfraStructure += b.Infrastructure;
+                PlannnedInfrastructure += b.Infrastructure;
                 PlannedStorage += b.StorageAdded;
                 PlannedRepairPerTurn += b.ShipRepair;
             }
