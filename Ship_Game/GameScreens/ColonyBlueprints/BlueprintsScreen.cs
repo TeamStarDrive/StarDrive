@@ -16,6 +16,7 @@ using static System.Net.Mime.MediaTypeNames;
 using Font = Ship_Game.Graphics.Font;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -37,7 +38,13 @@ namespace Ship_Game
         readonly ProgressBar PlanetShieldBar;
         readonly UILabel FilterBuildableItemsLabel;
         readonly FloatSlider InitPopulationSlider;
+        readonly FloatSlider InitFertilitySlider;
+        readonly FloatSlider InitRichnessSlider;
+        readonly FloatSlider TaxSlider;
         float InitPopulationBillion = 5;
+        float InitFertility = 1;
+        float InitRichness = 1;
+        float InitTax = 25;
 
         readonly ScrollList<BlueprintsBuildableListItem> BuildableList;
         readonly DropOptions<Planet.ColonyType> SwitchColonyType;
@@ -50,6 +57,36 @@ namespace Ship_Game
         readonly Font Font20 = Fonts.Arial20Bold;
         readonly Font TextFont;
         public readonly Empire Player;
+
+        float PlannedGrossMoney;
+        float PlannedMaintenance;
+        float PlannedNetIncome;
+        float PlannedFertility;
+        float PlannedPopulation;
+        float PlannedFlatFood;
+        float PlannedFoodPerCol;
+        float PlannedFlatProd;
+        float PlannedProdPerCol;
+        float PlannedFlatResearch;
+        float PlannedResearchPerCol;
+        float PlannnedInfraStructure;
+        float PlannedRepairPerTurn;
+        float PlannedStorage;
+        /*
+        UILabel LblPlannedGrossMoney;
+        UILabel LblPlannedMaintenance;
+        UILabel LblPlannedNetIncome;
+        UILabel LblPlannedFertility;
+        UILabel LblPlannedPopulation;
+        UILabel LblPlannedFoodPerTurn;
+        UILabel LblPlannedProdPerTurn;
+        UILabel LblPlannedResPerTurn;
+        UILabel LblPlannnedInfraStructure;
+        UILabel LblPlannedRepairPerTurn;
+        UILabel LblPlannedStorage;*/
+
+
+
 
         public BlueprintsScreen(UniverseScreen parent, Empire player) : base(parent, toPause: parent)
         {
@@ -83,7 +120,7 @@ namespace Ship_Game
                                    RightMenu.Width - 40, 0.5f * (RightMenu.Height - 40));
             base.Add(new Submenu(buildableMenuR, GameText.Buildings));
 
-            RectF experimentalR = new(LeftMenu.X + 20, LeftMenu.Y + 40 + SubBlueprintsOptions.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            RectF experimentalR = new(LeftMenu.X + 20, LeftMenu.Y + 40 + SubBlueprintsOptions.Height, 0.4f * LeftMenu.Width, 0.294f * (LeftMenu.Height - 80));
             base.Add(new Submenu(experimentalR, GameText.Buildings));
 
 
@@ -110,9 +147,21 @@ namespace Ship_Game
             SwitchColonyType.AddOption(option: GameText.Military, Planet.ColonyType.Military);
             SwitchColonyType.ActiveValue = Planet.ColonyType.Colony;
 
-            RectF initPopR = new(blueprintsOptionsX, experimentalR.Y + 20, 270, 50);
+            RectF initPopR = new(blueprintsOptionsX, experimentalR.Y + 40, SubBlueprintsOptions.Width*0.6, 50);
             InitPopulationSlider = SliderDecimal1(initPopR, GameText.Population, 0, 20, InitPopulationBillion);
-            InitPopulationSlider.OnChange = (s) => InitPopulationBillion = (s.AbsoluteValue).RoundToFractionOf10();
+            InitPopulationSlider.OnChange = (s) => { InitPopulationBillion = s.AbsoluteValue.RoundToFractionOf10(); RecalculateGeneralStats(); };
+
+            RectF initFertR = new(blueprintsOptionsX, experimentalR.Y + 90, SubBlueprintsOptions.Width * 0.6, 50);
+            InitFertilitySlider = SliderDecimal1(initFertR, GameText.Fertility, 0, 3, InitFertility);
+            InitFertilitySlider.OnChange = (s) => { InitFertility = s.AbsoluteValue.RoundToFractionOf10(); RecalculateGeneralStats(); };
+
+            RectF initRichR = new(blueprintsOptionsX, experimentalR.Y + 140, SubBlueprintsOptions.Width * 0.6, 50);
+            InitRichnessSlider = SliderDecimal1(initRichR, GameText.MineralRichness, 0, 5, InitRichness);
+            InitRichnessSlider.OnChange = (s) => { InitRichness = s.AbsoluteValue.RoundToFractionOf10(); RecalculateGeneralStats(); };
+
+            RectF initTaxR = new(blueprintsOptionsX, experimentalR.Y + 190, SubBlueprintsOptions.Width * 0.6, 50);
+            InitRichnessSlider = Slider(initTaxR, GameText.TaxRate, 0, 100, InitTax);
+            InitRichnessSlider.OnChange =(s) => { InitTax = s.AbsoluteValue.RoundUpTo(1); RecalculateGeneralStats(); };
 
 
             RectF buildableR = new(buildableMenuR.X, buildableMenuR.Y+20, buildableMenuR.W, buildableMenuR.H -20);
@@ -203,6 +252,8 @@ namespace Ship_Game
                     BuildableList.AddItem(item);
                 }
             }
+
+            RecalculateGeneralStats();
         }
 
         void AddOutpost()
@@ -225,13 +276,14 @@ namespace Ship_Game
             batch.SafeBegin();
             base.Draw(batch, elapsed);
             DrawHoveredBuildListBuildingInfo(batch);
+            DrawPlanStatistics(batch);
             batch.SafeEnd();
         }
 
         void DrawHoveredBuildListBuildingInfo(SpriteBatch batch)
         {
             if (HoveredBuilding == null)
-                   return;
+                return;
 
             Vector2 bCursor = new Vector2(PlanStats.X + 15, PlanStats.Y + 35);
             Color color = Color.Wheat;
@@ -240,14 +292,99 @@ namespace Ship_Game
             string selectionText = TextFont.ParseText(HoveredBuilding.DescriptionText.Text, PlanStats.Width - 40);
             batch.DrawString(TextFont, selectionText, bCursor, color);
             bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
-            ColonyScreen.DrawBuildingStaticInfo(ref bCursor, batch, TextFont, Player, fertility: 1, richness: 1, Player.data.Traits.PreferredEnv, HoveredBuilding);
-            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, TextFont, HoveredBuilding.ActualShipRepairBlueprints(3), "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
+            ColonyScreen.DrawBuildingStaticInfo(ref bCursor, batch, TextFont, Player, PlannedFertility, 
+                InitRichness, Player.data.Traits.PreferredEnv, HoveredBuilding);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, TextFont, HoveredBuilding.ActualShipRepairBlueprints(3), 
+                "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
 
             //DrawBuildingInfo(ref bCursor, batch, font, b.ActualShipRepair(P), "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
             //if (selectedBuilding.IsWeapon)
             //    selectedBuilding.CalcMilitaryStrength(P); // So the building will have TheWeapon for stats
 
             ColonyScreen.DrawBuildingWeaponStats(ref bCursor, batch, TextFont, HoveredBuilding, planetLevel: 3);
+        }
+
+        void DrawPlanStatistics(SpriteBatch batch)
+        {
+            if (HoveredBuilding != null)
+                return;
+
+            Font textFont = LowRes ? Font12 : Font14;
+            Vector2 bCursor = new Vector2(PlanStats.X + 15, PlanStats.Y + 35);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedGrossMoney,
+                "UI/icon_money_22", GameText.GrossIncome);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, -PlannedMaintenance,
+                "UI/icon_money_22", GameText.Expenditure2);
+            ColonyScreen.DrawBuildingInfo(ref bCursor, batch, textFont, PlannedNetIncome,
+                "UI/icon_money_22", GameText.NetIncome);
+        }
+
+
+        void RecalculateGeneralStats()
+        {
+            float tax = InitTax * 0.01f;
+            float taxInverted = 1 - tax;
+
+            float taxRateMultiplier = 1f + Player.data.Traits.TaxMod;
+            Building[] PlannedBuildings = TilesList.FilterSelect(t => t.HasBuilding, t => t.Building);
+            PlannedMaintenance = 0;
+            PlannedNetIncome   = 0;
+            PlannedFertility   = InitFertility;
+            PlannedPopulation  = InitPopulationBillion + PlannedBuildings.Sum(b => b.PlusFlatPopulation)*0.001f;
+            PlannedGrossMoney  = PlannedPopulation;
+            PlannedFlatFood        = 0;
+            PlannedFoodPerCol      = 0;
+            PlannedFlatProd        = 0;
+            PlannedProdPerCol      = 0;
+            PlannedFlatResearch    = 0;
+            PlannedResearchPerCol  = 0;
+            PlannnedInfraStructure = 1;
+            PlannedRepairPerTurn   = 0;
+            PlannedStorage         = 0;
+
+
+            foreach (Building b in PlannedBuildings)
+            {
+                PlannedGrossMoney += b.Income + b.CreditsPerColonist*PlannedPopulation;
+                taxRateMultiplier += b.PlusTaxPercentage;
+                PlannedMaintenance = b.Maintenance;
+                PlannedFertility += b.MaxFertilityOnBuildFor(Player, Player.data.PreferredEnvPlanet);
+                PlannedFlatFood += b.PlusFlatFoodAmount;
+                PlannedFoodPerCol += b.PlusFoodPerColonist;
+                PlannedFlatProd += b.PlusFlatProductionAmount + b.PlusProdPerRichness*InitRichness;
+                PlannedProdPerCol += b.PlusProdPerColonist;
+                PlannedFlatResearch += b.PlusFlatResearchAmount;
+                PlannedResearchPerCol += b.PlusResearchPerColonist;
+                PlannnedInfraStructure += b.Infrastructure;
+                PlannedStorage += b.StorageAdded;
+                PlannedRepairPerTurn += b.ShipRepair;
+            }
+
+            PlannedGrossMoney  *= tax * taxRateMultiplier;
+            PlannedMaintenance *= Player.data.Traits.MaintMultiplier;
+            PlannedNetIncome = PlannedGrossMoney - PlannedMaintenance;
+
+
+
+            
+            float foodConsumptionPerColonist = Player.NonCybernetic ? 1 + Player.data.Traits.ConsumptionModifier : 0;
+            PlannedFoodPerCol = ColonyResource.FoodYieldFormula(PlannedFertility, PlannedFoodPerCol) - foodConsumptionPerColonist;
+            float productionTax = Player.IsCybernetic ? tax * 0.5f : tax;
+
+            float ProdConsumptionPerColonist = Player.IsCybernetic ? 1 + Player.data.Traits.ConsumptionModifier : 0;
+            PlannedFlatProd *= (1 - productionTax);
+            PlannedProdPerCol = ColonyResource.ProdYieldFormula(InitRichness, PlannedProdPerCol, Player) 
+                * (1 - productionTax) - ProdConsumptionPerColonist;
+
+            float researchMultiplier = 1 + Player.data.Traits.ResearchMod;
+            PlannedFlatResearch = PlannedFlatResearch.LowerBound(0) * researchMultiplier * taxInverted * Player.data.Traits.ResearchTaxMultiplier;
+            PlannedResearchPerCol *= researchMultiplier * taxInverted * Player.data.Traits.ResearchTaxMultiplier;
+
+
+
+
+
+
         }
 
         public override void Update(float elapsedTime)
