@@ -23,7 +23,7 @@ public sealed class BlueprintsTemplate
     [StarData] public HashSet<string> PlannedBuildings;
     [StarData] public ColonyType ColonyType;
 
-    public BlueprintsTemplate() { }
+    [StarDataConstructor] public BlueprintsTemplate() { }
     public BlueprintsTemplate(string name, bool exclusive, string linkTo, HashSet<string>plannedBuildings, ColonyType cType) 
     {
         Name = name;

@@ -14,7 +14,8 @@ public sealed class SaveBlueprintsScreen : GenericLoadSaveScreen
     BlueprintsScreen Screen;
 
     public SaveBlueprintsScreen(BlueprintsScreen parent, BlueprintsTemplate blueprints)
-        : base(parent, SLMode.Save, blueprints.Name, "Save Blueprints As...", "Colony Blueprints", "Saved Blueprints exists.  Overwrite?", 40)
+        : base(parent, SLMode.Save, blueprints.Name, "Save Blueprints As...", "Colony Blueprints", "Saved Blueprints exists. " +
+            "If you choose to overwrite, planets with these Blueprints will be reloaded with the new version. Overwrite?", 40)
     {
         Blueprints = blueprints;
         Path = Dir.StarDriveAppData + "/Colony Blueprints/";
@@ -27,10 +28,15 @@ public sealed class SaveBlueprintsScreen : GenericLoadSaveScreen
     {
         try
         {
-            string path = Path + EnterNameArea.Text + ".yaml";
-            Blueprints.Name = EnterNameArea.Text;
-            YamlSerializer.SerializeRoot(path, Blueprints);
-            Screen.LoadBlueprintsTemplate(Blueprints);
+            string name = EnterNameArea.Text;
+            string path = Path + name + ".yaml";
+            Blueprints.Name = name;
+            if (Blueprints.LinkTo == name)
+                Blueprints.LinkTo = ""; // avoid cyclic link for new blueprints
+
+            YamlSerializer.SerializeOne(path, Blueprints);
+            ResourceManager.AddBlueprintsTemplate(Blueprints);
+            Screen.AfterBluprintsSave(EnterNameArea.Text);
         }
         catch (Exception e)
         {
@@ -52,7 +58,7 @@ public sealed class SaveBlueprintsScreen : GenericLoadSaveScreen
         Array<FileData> items = new();
         foreach (FileInfo info in Dir.GetFiles(Path, "yaml"))
         {
-            var blueprints = YamlParser.Deserialize<BlueprintsTemplate>(info);
+            var blueprints = YamlParser.DeserializeOne<BlueprintsTemplate>(info);
             items.Add(CreateBlueprintsSaveItem(info, blueprints));
         }
 
