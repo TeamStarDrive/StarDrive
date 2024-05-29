@@ -2570,6 +2570,21 @@ namespace Ship_Game
             Capital = planet;
         }
 
+        public void RefreshPlanetsBlueprints(BlueprintsTemplate template, bool delete)
+        {
+            foreach (Planet planet in OwnedPlanets)
+            {
+                if (planet.HasBlueprints && planet.Blueprints.Name == template.Name)
+                {
+                    if (delete)
+                        planet.RemoveBlueprints();
+                    else
+                        planet.Blueprints.RefreshTemplate(template);
+                }
+                
+            }
+        }
+
         public void ResetAllTechsAndBonuses()
         // FB - There is a bug here. Some tech bonuses are not reset after they are unlocked
         // For instance - pop growth is not reset

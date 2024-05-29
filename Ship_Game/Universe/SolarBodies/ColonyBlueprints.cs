@@ -18,7 +18,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] int PercentCompleted;
         [StarData] BlueprintsTemplate Template;
 
-        string Name => Template.Name;
+        public string Name => Template.Name;
         public string LinkedBlueprintsName => Template.LinkTo;
         public bool Exclusive => Template.Exclusive; // Build only these buildings and remove the rest
         HashSet<string> PlannedBuildings => Template.PlannedBuildings;
@@ -87,6 +87,11 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             return false;
+        }
+
+        public void RefreshTemplate(BlueprintsTemplate template)
+        {
+            Template = template;
         }
     }
 }

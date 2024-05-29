@@ -19,7 +19,7 @@ namespace Ship_Game
 
         [StarData] public ColonyBlueprints Blueprints {get; private set;}
 
-        bool HasBlueprints => Blueprints != null;
+        public bool HasBlueprints => Blueprints != null;
         bool RequiredInBlueprints(Building b) => Blueprints?.IsRequired(b) == true;
 
 
