@@ -5,36 +5,36 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
+using static Ship_Game.Planet;
 
 namespace Ship_Game.Universe.SolarBodies
 {
     [StarDataType]
     public class ColonyBlueprints
     {
-        [StarData] public readonly string Name;
         [StarData] readonly Empire Owner;
         [StarData] readonly Planet P;
-        [StarData] public readonly string LinkedBlueprintsName = ""; // Switch to the linked blueprints when this is completed
-        [StarData] public readonly bool Exclusive; // Build only these buildings and remove the rest
-        [StarData] readonly HashSet<string> PlannedBuildings;
         [StarData] public Array<Building> PlannedBuildingsWeCanBuild { get; private set; }
         [StarData] int PercentCompleted;
+        [StarData] BlueprintsTemplate Template;
 
+        string Name => Template.Name;
+        public string LinkedBlueprintsName => Template.LinkTo;
+        public bool Exclusive => Template.Exclusive; // Build only these buildings and remove the rest
+        HashSet<string> PlannedBuildings => Template.PlannedBuildings;
+        ColonyType CtColonyType => Template.ColonyType;
         public bool Completed => PercentCompleted == 100;
+
 
         public bool IsRequired(Building b) => PlannedBuildings.Contains(b.Name);
         public bool IsNotRequired(Building b) => !IsRequired(b);
 
-        public ColonyBlueprints(string name, Empire owner, Planet planet,
-            HashSet<string> plannedBuildings, string linkedBlueprintName, bool exclusive)
+        public ColonyBlueprints(BlueprintsTemplate template, Planet planet, Empire owner)
         {
-            Name = name;
+            Template = template;
             Owner = owner;
             P = planet;
-            PlannedBuildings = plannedBuildings;
             UpdateCompletion();
-            LinkedBlueprintsName = linkedBlueprintName;
-            Exclusive = exclusive;
         }
 
         public void UpdateCompletion()

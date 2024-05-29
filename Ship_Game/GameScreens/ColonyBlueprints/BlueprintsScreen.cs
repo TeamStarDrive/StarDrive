@@ -120,7 +120,6 @@ namespace Ship_Game
             base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3),
                 "Link Blueprints to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
             LinkBlueprints = base.Add(Add(new DropOptions<string>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3, 200, 18)));
-            LinkBlueprints.AddOption(option: "--", "");
 
             base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 70 + Font14.LineSpacing * 2), 
                 "Switch Governor to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
@@ -201,6 +200,7 @@ namespace Ship_Game
             Rectangle gridPos = new Rectangle(SubPlanArea.Rect.X + 10, SubPlanArea.Rect.Y + 30, 
                                               SubPlanArea.Rect.Width - 20, SubPlanArea.Rect.Height - 35);
             CreateBlueprintsTiles(gridPos);
+            RefreshLinkToOptions();
             RefreshBuildableList();
         }
 
@@ -213,24 +213,27 @@ namespace Ship_Game
                 for (int x = 0; x < SolarSystemBody.TileMaxX; x++)
                 {
                     UIPanel panel = base.Add(new UIPanel(new Rectangle(gridPos.X + x * width, gridPos.Y + y * height, width, height), Color.White));
-                    panel.Tooltip = GameText.RightClickToRemove;
                     TilesList.Add(new BlueprintsTile(panel));
                 }
         }
 
         void OnBuildableItemDoubleClicked(BlueprintsBuildableListItem item)
         {
+            if (!TryAddBuilding(item.Building, true))
+                GameAudio.NegativeClick();
+        }
+
+        bool TryAddBuilding(Building b, bool unlocked)
+        {
             BlueprintsTile tile = TilesList.Find(t => t.IsFree);
             if (tile != null)
             {
-                tile.AddBuilding(item.Building);
+                tile.AddBuilding(b, unlocked);
                 RefreshBuildableList();
-            }
-            else
-            {
-                GameAudio.NegativeClick();
+                return true;
             }
 
+            return false;
         }
 
         void RefreshBuildableList()
@@ -239,11 +242,8 @@ namespace Ship_Game
             AddOutpost();
             foreach (Building b in Player.GetUnlockedBuildings())
             {
-                if (b.IsSuitableForBlueprints && !TilesList.Any(t => t.BuildingNameExists(b.Name)))
-                {
-                    var item = new BlueprintsBuildableListItem(this, b);
-                    BuildableList.AddItem(item);
-                }
+                if (b.IsSuitableForBlueprints && !TilesList.Any(t => t.BuildingNameHereIS(b.Name)))
+                    BuildableList.AddItem(new BlueprintsBuildableListItem(this, b));
             }
 
             RecalculateGeneralStats();
@@ -255,7 +255,6 @@ namespace Ship_Game
             if (outpost != null)
             {
                 TilesList[0].AddBuilding(outpost);
-                TilesList[0].Panel.Tooltip = null;
             }
             else
             {
@@ -410,13 +409,15 @@ namespace Ship_Game
                 {
                     HoveredBuilding = BuildableList.IsDragging ? null : tile.Building;
                     if (HoveredBuilding != null)
-                        tile.Panel.Color = tile.Building.IsCapitalOrOutpost ? Color.Red : Color.Orange;
+                        tile.UpdatePanelColor(true);
 
                     if (Input.RightMouseClick)
                     {
                         if (!tile.Building.IsCapitalOrOutpost)
                         {
                             tile.RemoveBuilding();
+                            BlueprintsTemplate AfterRemove = CreateBlueprintsTemplate(); // rearrange building list in UI
+                            LoadBlueprintsTemplate(AfterRemove);
                             RefreshBuildableList();
                             GameAudio.AffirmativeClick();
                         }
@@ -428,23 +429,66 @@ namespace Ship_Game
                 }
                 else
                 {
-                    tile.Panel.Color = Color.White;
+                    tile.UpdatePanelColor(false);
                 }
             }
 
             return base.HandleInput(input);
         }
 
-        void OnSaveBlueprintsClick()
+        BlueprintsTemplate CreateBlueprintsTemplate()
         {
-            HashSet<string> plannedBuildings = TilesList.FilterSelect(t => t.HasBuilding, t => t.Building.Name).ToHashSet();
-            BlueprintsTemplate template = new BlueprintsTemplate(BlueprintsName.Text.Text, Exclusive, LinkBlueprints.ActiveValue, plannedBuildings, SwitchColonyType.ActiveValue);
-            ScreenManager.AddScreen(new SaveBlueprintsScreen(this, template));
+            HashSet<string> plannedBuildings = TilesList.FilterSelect(t => t.HasBuilding && !t.Building.IsOutpost, t => t.Building.Name).ToHashSet();
+            return new BlueprintsTemplate(BlueprintsName.Text.Text, Exclusive, LinkBlueprints.ActiveValue, plannedBuildings, SwitchColonyType.ActiveValue);
         }
 
-        public void LoadBlueprintsTemplate(BlueprintsTemplate template)
+        void OnSaveBlueprintsClick()
         {
+            ScreenManager.AddScreen(new SaveBlueprintsScreen(this, CreateBlueprintsTemplate()));
+        }
 
+        public void AfterBluprintsSave(string templateName)
+        {
+            BlueprintsName.Text = templateName;
+        }
+
+        void LoadBlueprintsTemplate(BlueprintsTemplate template)
+        {
+            ClearPlannedBuildings();
+            BlueprintsName.Text = template.Name;
+            Exclusive = template.Exclusive;
+            SwitchColonyType.ActiveValue = template.ColonyType;
+            RefreshLinkToOptions();
+            if (ResourceManager.TryGetBlueprints(template.LinkTo, out _)) 
+            {
+                LinkBlueprints.ActiveValue = template.LinkTo;
+            }
+            else
+            {
+                // message that the linked plans do not exist
+            }
+
+            AddOutpost();
+            foreach (string name in template.PlannedBuildings) 
+            {
+                var b = ResourceManager.GetBuildingTemplate(name);
+                if (b != null) 
+                    TryAddBuilding(b, Player.IsBuildingUnlocked(name));
+            }
+        }
+
+        void RefreshLinkToOptions()
+        {
+            LinkBlueprints.Reset();
+            LinkBlueprints.AddOption(option: "--", "");
+            foreach (BlueprintsTemplate template in ResourceManager.GetAllBlueprints().Filter(bp => bp.Name != BlueprintsName.Text))
+                LinkBlueprints.AddOption(option: template.Name, template.Name);
+        }
+
+        void ClearPlannedBuildings()
+        {
+            foreach (BlueprintsTile tile in TilesList)
+                tile.RemoveBuilding();
         }
 
         void OnBuildableListDrag(BlueprintsBuildableListItem item, DragEvent evt, bool outside)

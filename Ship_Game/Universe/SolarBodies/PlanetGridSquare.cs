@@ -5,7 +5,9 @@ using Ship_Game.Universe.SolarBodies;
 using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 using Point = SDGraphics.Point;
+using Color = Microsoft.Xna.Framework.Graphics.Color;
 using System.Windows.Forms;
+using System.Drawing.Drawing2D;
 
 namespace Ship_Game
 {
@@ -387,8 +389,19 @@ namespace Ship_Game
     {
         public readonly UIPanel Panel;
         public Building Building { get; private set; }
+
+        public bool Unlocked { get; private set; }
         public bool IsFree => Building == null;
         public bool HasBuilding => !IsFree;
+
+        public void UpdatePanelColor(bool isHovered)
+        {
+            if      (!HasBuilding)       Panel.Color = Color.White;
+            else if (Building.IsOutpost) Panel.Color = Color.Gray;
+            else if (isHovered)          Panel.Color = Color.Red;
+            else                         Panel.Color = Unlocked ? Color.White : Color.Orange;
+        }
+
 
         public BlueprintsTile(UIPanel uiPanel)
         {
@@ -396,11 +409,16 @@ namespace Ship_Game
             Panel.Visible = false;
         }
 
-        public void AddBuilding(Building b)
+        public void AddBuilding(Building b, bool unlocked = false)
         {
             Building = b;
             Panel.Sprite = new SpriteSystem.DrawableSprite(ResourceManager.Texture("Buildings/icon_" + b.Icon + "_64x64"));
             Panel.Visible = true;
+            Unlocked = unlocked;
+            if (b.IsOutpost)
+                Panel.Tooltip = GameText.RightClickToRemove;
+            else 
+                Panel.Tooltip = unlocked ? GameText.RightClickToRemove : GameText.RightClickToRemove;
         }
 
         public void RemoveBuilding()
@@ -408,9 +426,10 @@ namespace Ship_Game
             Building = null;
             Panel.Sprite = null;
             Panel.Visible = false;
+            Unlocked = false;
         }
 
-        public bool BuildingNameExists(string name)
+        public bool BuildingNameHereIS(string name)
         {
             return HasBuilding && Building.Name == name;
         }
