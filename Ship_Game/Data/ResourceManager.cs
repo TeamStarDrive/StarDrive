@@ -1005,13 +1005,8 @@ namespace Ship_Game
             return BuildingsById[buildingId];
         }
 
-        public static bool TryGetBlueprints(string BlueprintsName, out BlueprintsTemplate blueprintsTemplate) 
-            =>  BlueprintsTemplatesDict.TryGetValue(BlueprintsName, out blueprintsTemplate);
-        
-
         public static Building CreateBuilding(Planet p, string whichBuilding) => CreateBuilding(p, GetBuildingTemplate(whichBuilding));
         public static Building CreateBuilding(Planet p, int buildingId) => CreateBuilding(p, GetBuildingTemplate(buildingId));
-
         public static bool GetBuilding(string whichBuilding, out Building b) => BuildingsDict.Get(whichBuilding, out b);
         public static bool GetBuilding(int buildingId, out Building b)
         {
@@ -1019,15 +1014,31 @@ namespace Ship_Game
             else { b = BuildingsById[buildingId]; return true; }
         }
 
+        public static bool TryGetBlueprints(string BlueprintsName, out BlueprintsTemplate blueprintsTemplate) 
+            => BlueprintsTemplatesDict.TryGetValue(BlueprintsName, out blueprintsTemplate);
+
         static void LoadBlueprintsTemplates()
         {
-            string modName = GlobalStats.ModName;
+            string modName = GlobalStats.HasMod ? GlobalStats.ModName : null;
             foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/Colony Blueprints", "yaml"))
             {
-                BlueprintsTemplate newBlueprintsTemplate = YamlParser.Deserialize<BlueprintsTemplate>(info);
-                if (newBlueprintsTemplate.ModName == modName) // Vanilla modname is ""
+                BlueprintsTemplate newBlueprintsTemplate = YamlParser.DeserializeOne<BlueprintsTemplate>(info);
+                if (newBlueprintsTemplate.ModName == modName) // Vanilla modname is null
                     BlueprintsTemplatesDict.Add(newBlueprintsTemplate.Name, newBlueprintsTemplate);
             }
+        }
+
+        public static void AddBlueprintsTemplate(BlueprintsTemplate template)
+        {
+            if (TryGetBlueprints(template.Name, out _))
+                BlueprintsTemplatesDict[template.Name] = template;
+            else
+                BlueprintsTemplatesDict.Add(template.Name, template);
+        }
+
+        public static BlueprintsTemplate[] GetAllBlueprints()
+        {
+            return BlueprintsTemplatesDict.Values.Sorted(bp => bp.Name);
         }
 
         static void LoadBuildings() // Refactored by RedFox
