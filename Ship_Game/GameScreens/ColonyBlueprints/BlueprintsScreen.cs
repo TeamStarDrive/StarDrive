@@ -12,11 +12,10 @@ using System.Drawing;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 using Ship_Game.Ships;
 using Ship_Game.Audio;
-using static System.Net.Mime.MediaTypeNames;
 using Font = Ship_Game.Graphics.Font;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 using Ship_Game.Universe.SolarBodies;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -40,7 +39,9 @@ namespace Ship_Game
         readonly FloatSlider InitPopulationSlider;
         readonly FloatSlider InitFertilitySlider;
         readonly FloatSlider InitRichnessSlider;
-        readonly FloatSlider TaxSlider;
+        readonly FloatSlider InitTaxSlider;
+        readonly UIButton SaveBlueprints;
+        readonly UIButton LoadBlueprints;
         float InitPopulationBillion = 5;
         float InitFertility = 1;
         float InitRichness = 1;
@@ -72,21 +73,6 @@ namespace Ship_Game
         float PlannnedInfrastructure;
         float PlannedRepairPerTurn;
         float PlannedStorage;
-        /*
-        UILabel LblPlannedGrossMoney;
-        UILabel LblPlannedMaintenance;
-        UILabel LblPlannedNetIncome;
-        UILabel LblPlannedFertility;
-        UILabel LblPlannedPopulation;
-        UILabel LblPlannedFoodPerTurn;
-        UILabel LblPlannedProdPerTurn;
-        UILabel LblPlannedResPerTurn;
-        UILabel LblPlannnedInfraStructure;
-        UILabel LblPlannedRepairPerTurn;
-        UILabel LblPlannedStorage;*/
-
-
-
 
         public BlueprintsScreen(UniverseScreen parent, Empire player) : base(parent, toPause: parent)
         {
@@ -147,6 +133,13 @@ namespace Ship_Game
             SwitchColonyType.AddOption(option: GameText.Military, Planet.ColonyType.Military);
             SwitchColonyType.ActiveValue = Planet.ColonyType.Colony;
 
+            Vector2 savePos = new(blueprintsOptionsX, SubBlueprintsOptions.Y + 170);
+            SaveBlueprints = base.Add(new UIButton(ButtonStyle.Small, savePos, GameText.Save));
+            SaveBlueprints.OnClick = (b) => OnSaveBlueprintsClick();
+            Vector2 loadPos = new(blueprintsOptionsX + SubBlueprintsOptions.Width - 90, SubBlueprintsOptions.Y + 170);
+            LoadBlueprints = base.Add(new UIButton(ButtonStyle.Small, loadPos, GameText.Load));
+            //LoadBlueprints.OnClick = (b) => ScreenManager.AddScreen(new Load)
+
             RectF initPopR = new(blueprintsOptionsX, experimentalR.Y + 40, SubBlueprintsOptions.Width*0.6, 50);
             InitPopulationSlider = SliderDecimal1(initPopR, GameText.Population, 0, 20, InitPopulationBillion);
             InitPopulationSlider.OnChange = (s) => { InitPopulationBillion = s.AbsoluteValue.RoundToFractionOf10(); RecalculateGeneralStats(); };
@@ -160,8 +153,8 @@ namespace Ship_Game
             InitRichnessSlider.OnChange = (s) => { InitRichness = s.AbsoluteValue.RoundToFractionOf10(); RecalculateGeneralStats(); };
 
             RectF initTaxR = new(blueprintsOptionsX, experimentalR.Y + 190, SubBlueprintsOptions.Width * 0.6, 50);
-            InitRichnessSlider = Slider(initTaxR, GameText.TaxRate, 0, 100, InitTax);
-            InitRichnessSlider.OnChange =(s) => { InitTax = s.AbsoluteValue.RoundUpTo(1); RecalculateGeneralStats(); };
+            InitTaxSlider = Slider(initTaxR, GameText.TaxRate, 0, 100, InitTax);
+            InitTaxSlider.OnChange =(s) => { InitTax = s.AbsoluteValue.RoundUpTo(1); RecalculateGeneralStats(); };
 
 
             RectF buildableR = new(buildableMenuR.X, buildableMenuR.Y+20, buildableMenuR.W, buildableMenuR.H -20);
@@ -173,7 +166,7 @@ namespace Ship_Game
 
 
 
-
+            
 
 
 
@@ -403,6 +396,7 @@ namespace Ship_Game
 
         public override void Update(float elapsedTime)
         {
+            SaveBlueprints.Enabled = TilesList.Count(t => t.HasBuilding) > 1;
             base.Update(elapsedTime);
         }
 
@@ -439,6 +433,18 @@ namespace Ship_Game
             }
 
             return base.HandleInput(input);
+        }
+
+        void OnSaveBlueprintsClick()
+        {
+            HashSet<string> plannedBuildings = TilesList.FilterSelect(t => t.HasBuilding, t => t.Building.Name).ToHashSet();
+            BlueprintsTemplate template = new BlueprintsTemplate(BlueprintsName.Text.Text, Exclusive, LinkBlueprints.ActiveValue, plannedBuildings, SwitchColonyType.ActiveValue);
+            ScreenManager.AddScreen(new SaveBlueprintsScreen(this, template));
+        }
+
+        public void LoadBlueprintsTemplate(BlueprintsTemplate template)
+        {
+
         }
 
         void OnBuildableListDrag(BlueprintsBuildableListItem item, DragEvent evt, bool outside)

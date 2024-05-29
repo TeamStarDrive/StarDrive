@@ -20,6 +20,7 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.Legacy;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
+using System.Windows.Forms;
 
 #pragma warning disable CA2237, RCS1194 // Mark ISerializable types with serializable
 
@@ -58,6 +59,7 @@ namespace Ship_Game
         static readonly Map<string, ShipModule> ModuleTemplates = new();
         public static Array<Encounter> Encounters = new();
         public static Map<string, Building> BuildingsDict = new();
+        public static Map<string, BlueprintsTemplate> BlueprintsTemplatesDict = new();
         public static Array<Good> TransportableGoods = new();
         public static Map<string, Texture2D> ProjTextDict = new();
 
@@ -271,6 +273,7 @@ namespace Ship_Game
             Profiled(LoadBuildRatios);
             Profiled(LoadEcoResearchStrats);
             Profiled(LoadBlackboxSpecific);
+            Profiled(LoadBlueprintsTemplates);
         }
 
         public static void LoadGraphicsResources(ScreenManager manager)
@@ -358,6 +361,8 @@ namespace Ship_Game
 
             BuildingsDict.Clear();
             BuildingsById.Clear();
+
+            BlueprintsTemplatesDict.Clear();
 
             UnloadShipDesigns();
 
@@ -1000,6 +1005,10 @@ namespace Ship_Game
             return BuildingsById[buildingId];
         }
 
+        public static bool TryGetBlueprints(string BlueprintsName, out BlueprintsTemplate blueprintsTemplate) 
+            =>  BlueprintsTemplatesDict.TryGetValue(BlueprintsName, out blueprintsTemplate);
+        
+
         public static Building CreateBuilding(Planet p, string whichBuilding) => CreateBuilding(p, GetBuildingTemplate(whichBuilding));
         public static Building CreateBuilding(Planet p, int buildingId) => CreateBuilding(p, GetBuildingTemplate(buildingId));
 
@@ -1008,6 +1017,17 @@ namespace Ship_Game
         {
             if (!BuildingExists(buildingId)) { b = null; return false; }
             else { b = BuildingsById[buildingId]; return true; }
+        }
+
+        static void LoadBlueprintsTemplates()
+        {
+            string modName = GlobalStats.ModName;
+            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/Colony Blueprints", "yaml"))
+            {
+                BlueprintsTemplate newBlueprintsTemplate = YamlParser.Deserialize<BlueprintsTemplate>(info);
+                if (newBlueprintsTemplate.ModName == modName) // Vanilla modname is ""
+                    BlueprintsTemplatesDict.Add(newBlueprintsTemplate.Name, newBlueprintsTemplate);
+            }
         }
 
         static void LoadBuildings() // Refactored by RedFox
