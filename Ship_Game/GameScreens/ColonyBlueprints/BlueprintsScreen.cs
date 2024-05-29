@@ -117,27 +117,12 @@ namespace Ship_Game
                 () => Exclusive, TextFont, GameText.ExclusiveBlueprints, GameText.ExclusiveBlueprintsTip));
             ExclusiveCheckbox.TextColor = Color.Wheat;
 
-            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3),
-                "Link Blueprints to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
-            LinkBlueprints = base.Add(Add(new DropOptions<string>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3, 200, 18)));
-
-            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 70 + Font14.LineSpacing * 2), 
-                "Switch Governor to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
-            SwitchColonyType = base.Add(Add(new DropOptions<Planet.ColonyType>(blueprintsOptionsX+150, SubBlueprintsOptions.Y + 70 + Font14.LineSpacing*2, 100, 18)));
-            SwitchColonyType.AddOption(option: "--", Planet.ColonyType.Colony);
-            SwitchColonyType.AddOption(option: GameText.Core, Planet.ColonyType.Core);
-            SwitchColonyType.AddOption(option: GameText.Industrial, Planet.ColonyType.Industrial);
-            SwitchColonyType.AddOption(option: GameText.Agricultural, Planet.ColonyType.Agricultural);
-            SwitchColonyType.AddOption(option: GameText.Research, Planet.ColonyType.Research);
-            SwitchColonyType.AddOption(option: GameText.Military, Planet.ColonyType.Military);
-            SwitchColonyType.ActiveValue = Planet.ColonyType.Colony;
-
             Vector2 savePos = new(blueprintsOptionsX, SubBlueprintsOptions.Y + 170);
             SaveBlueprints = base.Add(new UIButton(ButtonStyle.Small, savePos, GameText.Save));
             SaveBlueprints.OnClick = (b) => OnSaveBlueprintsClick();
             Vector2 loadPos = new(blueprintsOptionsX + SubBlueprintsOptions.Width - 90, SubBlueprintsOptions.Y + 170);
             LoadBlueprints = base.Add(new UIButton(ButtonStyle.Small, loadPos, GameText.Load));
-            //LoadBlueprints.OnClick = (b) => ScreenManager.AddScreen(new Load)
+            LoadBlueprints.OnClick = (b) => OnLoadBlueprintsClick();
 
             RectF initPopR = new(blueprintsOptionsX, experimentalR.Y + 40, SubBlueprintsOptions.Width*0.6, 50);
             InitPopulationSlider = SliderDecimal1(initPopR, GameText.Population, 0, 20, InitPopulationBillion);
@@ -164,8 +149,21 @@ namespace Ship_Game
             BuildableList.OnDragOut = OnBuildableListDrag;
 
 
+            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3),
+                "Link Blueprints to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
+            LinkBlueprints = base.Add(Add(new DropOptions<string>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3, 200, 18)));
 
-            
+            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 70 + Font14.LineSpacing * 2),
+                "Switch Governor to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
+            SwitchColonyType = base.Add(Add(new DropOptions<Planet.ColonyType>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 70 + Font14.LineSpacing * 2, 100, 18)));
+            SwitchColonyType.AddOption(option: "--", Planet.ColonyType.Colony);
+            SwitchColonyType.AddOption(option: GameText.Core, Planet.ColonyType.Core);
+            SwitchColonyType.AddOption(option: GameText.Industrial, Planet.ColonyType.Industrial);
+            SwitchColonyType.AddOption(option: GameText.Agricultural, Planet.ColonyType.Agricultural);
+            SwitchColonyType.AddOption(option: GameText.Research, Planet.ColonyType.Research);
+            SwitchColonyType.AddOption(option: GameText.Military, Planet.ColonyType.Military);
+            SwitchColonyType.ActiveValue = Planet.ColonyType.Colony;
+
 
 
 
@@ -447,12 +445,18 @@ namespace Ship_Game
             ScreenManager.AddScreen(new SaveBlueprintsScreen(this, CreateBlueprintsTemplate()));
         }
 
-        public void AfterBluprintsSave(string templateName)
+        void OnLoadBlueprintsClick()
         {
-            BlueprintsName.Text = templateName;
+            ScreenManager.AddScreen(new LoadBlueprintsScreen(this));
         }
 
-        void LoadBlueprintsTemplate(BlueprintsTemplate template)
+    public void AfterBluprintsSave(BlueprintsTemplate template)
+        {
+            BlueprintsName.Text = template.Name;
+            Player.Universe.RefreshEmpiresPlanetsBlueprints(template, delete: false);
+        }
+
+        public void LoadBlueprintsTemplate(BlueprintsTemplate template)
         {
             ClearPlannedBuildings();
             BlueprintsName.Text = template.Name;
@@ -479,7 +483,7 @@ namespace Ship_Game
 
         void RefreshLinkToOptions()
         {
-            LinkBlueprints.Reset();
+            LinkBlueprints.Clear();
             LinkBlueprints.AddOption(option: "--", "");
             foreach (BlueprintsTemplate template in ResourceManager.GetAllBlueprints().Filter(bp => bp.Name != BlueprintsName.Text))
                 LinkBlueprints.AddOption(option: template.Name, template.Name);
