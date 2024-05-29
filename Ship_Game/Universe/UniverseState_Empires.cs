@@ -370,5 +370,12 @@ public partial class UniverseState
 
         return empire;
     }
+
+    // Doing it for all major empires in case of future usage of Blueprints by AI
+    public void RefreshEmpiresPlanetsBlueprints(BlueprintsTemplate template, bool delete)
+    {
+        foreach (Empire empire in MajorEmpires)
+            empire.RefreshPlanetsBlueprints(template, delete);
+    }
 }
 

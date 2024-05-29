@@ -11,7 +11,7 @@ namespace Ship_Game;
 public sealed class SaveBlueprintsScreen : GenericLoadSaveScreen
 {
     readonly BlueprintsTemplate Blueprints;
-    BlueprintsScreen Screen;
+    readonly BlueprintsScreen Screen;
 
     public SaveBlueprintsScreen(BlueprintsScreen parent, BlueprintsTemplate blueprints)
         : base(parent, SLMode.Save, blueprints.Name, "Save Blueprints As...", "Colony Blueprints", "Saved Blueprints exists. " +
@@ -36,7 +36,7 @@ public sealed class SaveBlueprintsScreen : GenericLoadSaveScreen
 
             YamlSerializer.SerializeOne(path, Blueprints);
             ResourceManager.AddBlueprintsTemplate(Blueprints);
-            Screen.AfterBluprintsSave(EnterNameArea.Text);
+            Screen.AfterBluprintsSave(Blueprints);
         }
         catch (Exception e)
         {
@@ -56,10 +56,12 @@ public sealed class SaveBlueprintsScreen : GenericLoadSaveScreen
     protected override void InitSaveList()
     {
         Array<FileData> items = new();
+        string modName = GlobalStats.HasMod ? GlobalStats.ModName : null;
         foreach (FileInfo info in Dir.GetFiles(Path, "yaml"))
         {
             var blueprints = YamlParser.DeserializeOne<BlueprintsTemplate>(info);
-            items.Add(CreateBlueprintsSaveItem(info, blueprints));
+            if (modName == blueprints.ModName)
+                items.Add(CreateBlueprintsSaveItem(info, blueprints));
         }
 
         AddItemsToSaveSL(items);
