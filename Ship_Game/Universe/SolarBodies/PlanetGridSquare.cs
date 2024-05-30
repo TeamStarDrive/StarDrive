@@ -399,7 +399,7 @@ namespace Ship_Game
             if      (!HasBuilding)       Panel.Color = Color.White;
             else if (Building.IsOutpost) Panel.Color = Color.Gray;
             else if (isHovered)          Panel.Color = Color.Red;
-            else                         Panel.Color = Unlocked ? Color.White : Color.Orange;
+            else                         Panel.Color = Unlocked ? Color.White : Color.Yellow;
         }
 
 

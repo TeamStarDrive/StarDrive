@@ -305,5 +305,18 @@ namespace Ship_Game
                    || system.FiveClosestSystems.Any(s => s.HasPlanetsOwnedBy(owner))
                    || influence == InfluenceStatus.Friendly;
         }
+
+        static public Color GetBlueprintsIconColor(BlueprintsTemplate template) 
+        {
+            switch (template.ColonyType)
+            {
+                case Planet.ColonyType.Research:     return Color.CornflowerBlue;
+                case Planet.ColonyType.Industrial:   return Color.Orange;
+                case Planet.ColonyType.Agricultural: return Color.Green;
+                case Planet.ColonyType.Military:     return Color.Red;
+                case Planet.ColonyType.Core:         return Color.Gold;
+                default:                             return Color.White;
+            }
+        }
     }
 }

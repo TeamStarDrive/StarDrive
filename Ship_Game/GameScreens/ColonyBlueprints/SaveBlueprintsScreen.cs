@@ -12,13 +12,16 @@ public sealed class SaveBlueprintsScreen : GenericLoadSaveScreen
 {
     readonly BlueprintsTemplate Blueprints;
     readonly BlueprintsScreen Screen;
+    readonly string ModName;
+    static SubTexture BlueprintsIcon = ResourceManager.Texture("NewUI/blueprints");
 
     public SaveBlueprintsScreen(BlueprintsScreen parent, BlueprintsTemplate blueprints)
         : base(parent, SLMode.Save, blueprints.Name, "Save Blueprints As...", "Colony Blueprints", "Saved Blueprints exists. " +
             "If you choose to overwrite, planets with these Blueprints will be reloaded with the new version. Overwrite?", 40)
     {
+        ModName = BlueprintsTemplate.CurrentModName;
         Blueprints = blueprints;
-        Path = Dir.StarDriveAppData + "/Colony Blueprints/";
+        Path = Dir.StarDriveAppData + "/Colony Blueprints/" + ModName + "/";
         Screen = parent;
         if (!Directory.Exists(Path))
             Directory.CreateDirectory(Path);
@@ -50,13 +53,14 @@ public sealed class SaveBlueprintsScreen : GenericLoadSaveScreen
 
     FileData CreateBlueprintsSaveItem(FileInfo info, BlueprintsTemplate blueprints)
     {
-        return new(info, info, blueprints.Name, "", "", "", null, Color.White);
+        return new(info, info, blueprints.Name, "", "", "", BlueprintsIcon, HelperFunctions.GetBlueprintsIconColor(blueprints)) 
+        { Enabled = blueprints.Validated };
     }
 
     protected override void InitSaveList()
     {
         Array<FileData> items = new();
-        string modName = GlobalStats.HasMod ? GlobalStats.ModName : null;
+        string modName = BlueprintsTemplate.CurrentModName;
         foreach (FileInfo info in Dir.GetFiles(Path, "yaml"))
         {
             var blueprints = YamlParser.DeserializeOne<BlueprintsTemplate>(info);

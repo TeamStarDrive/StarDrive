@@ -463,7 +463,7 @@ namespace Ship_Game
             Exclusive = template.Exclusive;
             SwitchColonyType.ActiveValue = template.ColonyType;
             RefreshLinkToOptions();
-            if (ResourceManager.TryGetBlueprints(template.LinkTo, out _)) 
+            if (template.LinkTo!= null && ResourceManager.TryGetBlueprints(template.LinkTo, out _)) 
             {
                 LinkBlueprints.ActiveValue = template.LinkTo;
             }
