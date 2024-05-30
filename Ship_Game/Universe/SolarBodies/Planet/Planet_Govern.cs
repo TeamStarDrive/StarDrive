@@ -224,9 +224,16 @@ namespace Ship_Game
 
         IReadOnlyList<Building> GetBuildingsListToChooseFrom(IReadOnlyList<Building> buildingsCanBuild)
         {
-            return HasBlueprints && (Blueprints.Exclusive || !Blueprints.Completed)
-                ? Blueprints.PlannedBuildingsWeCanBuild
-                : buildingsCanBuild;
+            if (!HasBlueprints)
+                return buildingsCanBuild;
+
+            if (Blueprints.Exclusive) // build only blueprints buildings, even if nothing can be built
+                return Blueprints.PlannedBuildingsWeCanBuild;
+
+            if (Blueprints.PlannedBuildingsWeCanBuild.Count == 0)
+                return buildingsCanBuild; // build whatever we can if no blueprints building available
+            else 
+                return Blueprints.PlannedBuildingsWeCanBuild; // priorizite blueprints buildings
         }
 
         public void RemoveBlueprints()

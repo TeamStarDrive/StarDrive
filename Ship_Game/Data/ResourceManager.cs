@@ -20,7 +20,7 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.Legacy;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
-using System.Windows.Forms;
+using System.Linq;
 
 #pragma warning disable CA2237, RCS1194 // Mark ISerializable types with serializable
 
@@ -989,7 +989,9 @@ namespace Ship_Game
 
         static readonly Array<Building> BuildingsById = new();
 
-        public static bool BuildingExists(int buildingId) => 0 < buildingId && buildingId < BuildingsById.Count;
+        static bool BuildingExists(int buildingId) => 0 < buildingId && buildingId < BuildingsById.Count;
+
+        static bool BuildingExists(string buildingName) => BuildingsDict.TryGetValue(buildingName, out Building _);
 
         public static Building GetBuildingTemplate(string whichBuilding)
         {
@@ -1019,13 +1021,32 @@ namespace Ship_Game
 
         static void LoadBlueprintsTemplates()
         {
-            string modName = GlobalStats.HasMod ? GlobalStats.ModName : null;
-            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/Colony Blueprints", "yaml"))
+            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/Colony Blueprints/" + BlueprintsTemplate.CurrentModName, "yaml"))
             {
                 BlueprintsTemplate newBlueprintsTemplate = YamlParser.DeserializeOne<BlueprintsTemplate>(info);
-                if (newBlueprintsTemplate.ModName == modName) // Vanilla modname is null
-                    BlueprintsTemplatesDict.Add(newBlueprintsTemplate.Name, newBlueprintsTemplate);
+                if (newBlueprintsTemplate.ModName == BlueprintsTemplate.CurrentModName)
+                {
+                    if (BlueprintsValid(newBlueprintsTemplate, out string noBuilding))
+                        BlueprintsTemplatesDict.Add(newBlueprintsTemplate.Name, newBlueprintsTemplate);
+                    else
+                        Log.Warning($"Building name {noBuilding} was not found. Blueprints '{newBlueprintsTemplate.Name}' are not valid.");
+                }
             }
+        }
+
+        static public bool BlueprintsValid(BlueprintsTemplate template, out string invalidated)
+        {
+            invalidated = null;
+            foreach (string name in template.PlannedBuildings)
+            {
+                if (!BuildingExists(name))
+                {
+                    invalidated += name;
+                    break;
+                }
+            }
+
+            return invalidated == null;
         }
 
         public static void AddBlueprintsTemplate(BlueprintsTemplate template)

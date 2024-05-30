@@ -22,15 +22,18 @@ public sealed class BlueprintsTemplate
     [StarData] public string LinkTo;
     [StarData] public HashSet<string> PlannedBuildings;
     [StarData] public ColonyType ColonyType;
+    public static string CurrentModName =>  GlobalStats.HasMod ? GlobalStats.ModName : "BBplus";
 
     [StarDataConstructor] public BlueprintsTemplate() { }
     public BlueprintsTemplate(string name, bool exclusive, string linkTo, HashSet<string>plannedBuildings, ColonyType cType) 
     {
         Name = name;
-        ModName = GlobalStats.ModName;
+        ModName = CurrentModName;
         Exclusive = exclusive;
         LinkTo = linkTo;
         PlannedBuildings = plannedBuildings;
         ColonyType = cType;
     }
+
+    public bool Validated => ResourceManager.BlueprintsValid(this, out _);
 }

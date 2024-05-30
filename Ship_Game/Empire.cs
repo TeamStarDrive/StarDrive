@@ -935,6 +935,7 @@ namespace Ship_Game
                 case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire):
                     UpdateForNewTech();
                     TriggerRemoveGovernorQueuedBuildingsTechUnlock(techEntry);
+                    UpdateBlueprintsAchivablePercentage();
                     break;
             }
         }
@@ -959,6 +960,15 @@ namespace Ship_Game
             {
                 foreach (Planet p in OwnedPlanets)
                     p.Construction.RemoveGovernorQueuedBuildingsTechnUnlock();
+            }
+        }
+
+        void UpdateBlueprintsAchivablePercentage()
+        {
+            for (int i = 0; i < OwnedPlanets.Count; i++)
+            {
+                Planet p = OwnedPlanets[i];
+                p.Blueprints?.UpdatePercentAchivable();
             }
         }
 
@@ -2579,7 +2589,7 @@ namespace Ship_Game
                     if (delete)
                         planet.RemoveBlueprints();
                     else
-                        planet.Blueprints.RefreshTemplate(template);
+                        planet.Blueprints.ChangeTemplate(template);
                 }
                 
             }
