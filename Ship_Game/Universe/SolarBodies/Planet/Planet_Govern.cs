@@ -20,6 +20,7 @@ namespace Ship_Game
         [StarData] public ColonyBlueprints Blueprints {get; private set;}
 
         public bool HasBlueprints => Blueprints != null;
+        public bool HasExclusiveBlueprints => Blueprints?.Exclusive == true;
         bool RequiredInBlueprints(Building b) => Blueprints?.IsRequired(b) == true;
 
 
@@ -239,6 +240,11 @@ namespace Ship_Game
         public void RemoveBlueprints()
         {
             Blueprints = null;
+        }
+
+        public void AddBlueprints(BlueprintsTemplate template, Empire owner)
+        {
+            Blueprints = new ColonyBlueprints(template, this, Owner);
         }
     }
 }
