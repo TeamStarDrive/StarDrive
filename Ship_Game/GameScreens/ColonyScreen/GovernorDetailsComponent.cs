@@ -10,6 +10,7 @@ using Ship_Game.Ships;
 using Ship_Game.SpriteSystem;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -22,7 +23,9 @@ namespace Ship_Game
         private DrawableSprite PortraitSprite;
         private UIPanel Portrait;
         private UILabel WorldType, WorldDescription;
+        private UILabel ColonyBlueprints;
         private DropOptions<Planet.ColonyType> ColonyTypeList;
+        private DropOptions<string> BlueprintsType;
         private UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine, ManualOrbitals, GovGround;
         private UICheckBox OverrideCiv, OverrideGrd, OverrideSpc;
         private FloatSlider Garrison;
@@ -101,8 +104,9 @@ namespace Ship_Game
             PortraitSprite = DrawableSprite.SubTex(ResourceManager.RootContent, $"Portraits/{Planet.Owner.data.PortraitName}");
 
             Portrait         = Add(new UIPanel(PortraitSprite));
-            WorldType        = Add(new UILabel(Planet.WorldType, Fonts.Arial12Bold));
-            WorldDescription = Add(new UILabel(Fonts.Arial12Bold));
+            WorldType        = Add(new UILabel(Planet.WorldType, Font12));
+            WorldDescription = Add(new UILabel(Font12));
+            ColonyBlueprints = Add(new UILabel(Font12));
 
             Font    = Font12;
             FontBig = Font14;
@@ -129,7 +133,10 @@ namespace Ship_Game
             ManualShipyards.Tip = GameText.ManuallyAdjustTheNumberOf2;
             ManualStations.Tip  = GameText.ManuallyAdjustTheNumberOf3;
 
-            // Dropdown will go on top of everything else
+            // Dropdowns will go on top of everything else
+
+            BlueprintsType = Add(new DropOptions<string>(200, 18));
+
             ColonyTypeList = Add(new DropOptions<Planet.ColonyType>(100, 18));
             ColonyTypeList.AddOption(option:"--", Planet.ColonyType.Colony);
             ColonyTypeList.AddOption(option:GameText.Core, Planet.ColonyType.Core);
@@ -227,6 +234,9 @@ namespace Ship_Game
             ColonyTypeList.Pos     = new Vector2(WorldType.X, Portrait.Y + 16);
             WorldDescription.Pos   = new Vector2(WorldType.X, Portrait.Y + 40);
             WorldDescription.Text  = GetParsedDescription();
+            ColonyBlueprints.Pos   = new Vector2(WorldType.X, Portrait.Y + 100);
+            ColonyBlueprints.Text  = GameText.ColonyBlueprintsTitle;
+            BlueprintsType.Pos     = new Vector2(WorldType.X + Font12.MeasureString(Localizer.Token(GameText.ColonyBlueprintsTitle)).X+5, Portrait.Y + 100);
             Quarantine.Pos         = new Vector2(Portrait.X, Bottom - 24);
             GovNoScrap.Pos         = new Vector2(TopRight.X - 250, Bottom - 24);
             BudgetLimitReached.Pos = new Vector2(ColonyTypeList.Right + 10, ColonyTypeList.Pos.Y);
@@ -294,6 +304,7 @@ namespace Ship_Game
             UpdateButtons();
             UpdateGovOrbitalStats();
             UpdateBudgets();
+            LoadColonyBlueprintsOptions();
 
 
             base.PerformLayout(); // update all the sub-elements, like checkbox rects
@@ -305,11 +316,50 @@ namespace Ship_Game
             return Fonts.Arial12Bold.ParseText(Planet.ColonyTypeInfoText, maxWidth);
         }
 
+        void LoadColonyBlueprintsOptions()
+        {
+            BlueprintsType.Clear();
+            BlueprintsType.AddOption(option: "--", "");
+            foreach (BlueprintsTemplate template in ResourceManager.GetAllBlueprints())
+            {
+                BlueprintsType.AddOption(option: template.Name, template.Name);
+            }
+
+            BlueprintsType.ActiveValue = Planet.HasBlueprints ? Planet.Blueprints.Name : "";
+            BlueprintsType.OnValueChange = OnBlueprintsChanged;
+        }
+
         void OnColonyTypeChanged(Planet.ColonyType type)
         {
             Planet.CType = type;
             WorldType.Text = Planet.WorldType;
             WorldDescription.Text = GetParsedDescription();
+            if (type is Planet.ColonyType.Colony or Planet.ColonyType.TradeHub)
+            {
+                BlueprintsType.ActiveValue = "";
+                Planet.RemoveBlueprints();
+            }
+        }
+
+        void OnBlueprintsChanged(string name)
+        {
+            if (!Planet.HasBlueprints && name == "" || Planet.HasBlueprints && name == Planet.Blueprints.Name)
+                return;
+
+            if (Planet.HasBlueprints && name == "")
+            {
+                Planet.RemoveBlueprints();
+            }
+            else if (ResourceManager.TryGetBlueprints(name, out BlueprintsTemplate blueprints))
+            {
+                Planet.AddBlueprints(blueprints, Player);
+                ColonyTypeList.ActiveValue = Planet.CType;
+                Planet.DontScrapBuildings = false;
+            }
+            else
+            {
+                Log.Error($"Could not find blueprints '{name}' in resouce manager");
+            }
         }
 
         public override void Update(float fixedDeltaTime)
@@ -317,6 +367,8 @@ namespace Ship_Game
             if (Planet.Owner != null)
             {
                 WorldDescription.Visible   = GovernorTabView && Planet.OwnerIsPlayer;
+                ColonyBlueprints.Visible   = GovernorTabView && Planet.OwnerIsPlayer && Planet.GovernorOn && Planet.CType != Planet.ColonyType.TradeHub;
+                BlueprintsType.Visible     = ColonyBlueprints.Visible;
                 ColonyTypeList.Visible     = GovernorTabView && Planet.OwnerIsPlayer;
                 Portrait.Visible           = GovernorTabView;
                 WorldType.Visible          = GovernorTabView;
@@ -332,7 +384,7 @@ namespace Ship_Game
                     BuildCapital.Visible = false; // This is for old save support. It can be removed post Mars.
 
                 // Not for trade hubs, which do not build structures anyway
-                GovNoScrap.Visible = GovernorTabView && Planet.CType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer;
+                GovNoScrap.Visible = GovernorTabView && Planet.CType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer && !Planet.HasBlueprints;
 
                 int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(Planet.Universe.Player);
                 Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
@@ -363,6 +415,7 @@ namespace Ship_Game
                 OverrideCiv.TextColor     = OverrideCivBudget ? Color.White : Color.Gray;
                 OverrideGrd.TextColor     = OverrideGrdBudget ? Color.White : Color.Gray;
                 OverrideSpc.TextColor     = OverrideSpcBudget ? Color.White : Color.Gray;
+                ColonyBlueprints.Color     = Planet.HasBlueprints ? Color.Gold : Color.Wheat;
 
                 if (ManualOrbitals.Visible && Planet.ManualOrbitals)
                 {

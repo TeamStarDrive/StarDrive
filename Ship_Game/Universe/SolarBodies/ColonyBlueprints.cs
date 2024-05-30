@@ -30,10 +30,14 @@ namespace Ship_Game.Universe.SolarBodies
         public bool IsRequired(Building b) => PlannedBuildings.Contains(b.Name);
         public bool IsNotRequired(Building b) => !IsRequired(b);
 
+        [StarDataConstructor]
+        public ColonyBlueprints() { }
+
         public ColonyBlueprints(BlueprintsTemplate template, Planet planet, Empire owner)
         {
             Owner = owner;
             P = planet;
+            PlannedBuildingsWeCanBuild = new();
             ChangeTemplate(template);
         }
 
@@ -59,20 +63,8 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void UpdateCompletion()
         {
-            int totalBuiltBuildings = P.Buildings.Length;
-            float completion = 0;
-            if (totalBuiltBuildings > 0)
-            {
-                int numBuildingsbuilt = 0;
-                foreach (Building b in P.Buildings)
-                {
-                    if (IsRequired(b))
-                        numBuildingsbuilt++;
-                }
-
-                completion = numBuildingsbuilt / totalBuiltBuildings;
-            }
-
+            int totalRequiredBuilt = P.Buildings.ToArray().Count(IsRequired);
+            float completion = (float)totalRequiredBuilt / PlannedBuildings.Count;
             PercentCompleted = (int)(completion * 100);
 
             if (Completed)
@@ -113,12 +105,12 @@ namespace Ship_Game.Universe.SolarBodies
 
         public bool BuildingSuitableForScrap(Building b)
         {
-            return Exclusive && Completed && !IsRequired(b);
+            return !IsRequired(b);
         }
 
         public bool ShouldScrapNonRequiredBuilding()
         {
-            if (Exclusive && (Completed || PlannedBuildings.Count > 0))
+            if (Exclusive)
             {
                 foreach (Building b in P.Buildings)
                 {
