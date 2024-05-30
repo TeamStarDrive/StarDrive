@@ -413,16 +413,28 @@ namespace Ship_Game
 
         void BuildAndScrapMilitaryBuildings(float budget)
         {
-            if (OwnerIsPlayer && !GovGroundDefense)
+            if (OwnerIsPlayer && !GovGroundDefense && !HasBlueprints
+                || MilitaryBuildingInTheWorks)
+            {
                 return;
+            }
 
-            if (MilitaryBuildingInTheWorks)
-                return;
-
-            if (budget < -0.0499f)
+            bool lowBudget = budget < -0.0499f;
+            if (lowBudget && (HasBlueprints || GovGroundDefense || !OwnerIsPlayer))
+            {
                 TryScrapMilitaryBuilding();
-            else
+                return;
+            }
+
+            if (HasExclusiveBlueprints && BuildingList.Any(b => b.IsMilitary && !RequiredInBlueprints(b))
+                || HasBlueprints && FreeHabitableTiles == 0 && !Blueprints.Completed)
+            {
+                TryScrapMilitaryBuilding();
+            }
+            else if (GovGroundDefense || !OwnerIsPlayer || HasBlueprints)
+            {
                 TryBuildMilitaryBuilding(budget);
+            }
         }
 
         void TryBuildMilitaryBuilding(float budget)
@@ -430,17 +442,37 @@ namespace Ship_Game
             if (FreeHabitableTiles == 0)
                 return;
 
-            Building building =  BuildingsCanBuild.FindMaxFiltered(b => b.IsMilitary && b.ActualMaintenance(this) < budget
-                                 , b => b.CostEffectiveness);
+            Building best = null;
+            if (HasBlueprints)
+            {
+                best = BuildingsCanBuild.FindMaxFiltered(b => b.IsMilitary && RequiredInBlueprints(b) && b.ActualMaintenance(this) <= budget,
+                                                         b => b.CostEffectiveness);
+            }
 
-            if (building != null)
-                Construction.Enqueue(building);
+            if (best == null)
+            {
+                if (!HasExclusiveBlueprints && (!OwnerIsPlayer || GovGroundDefense))
+                    best = BuildingsCanBuild.FindMaxFiltered(b => b.IsMilitary && b.ActualMaintenance(this) <= budget,
+                                                             b => b.CostEffectiveness);
+            }
+
+            if (best != null)
+                Construction.Enqueue(best);
         }
         
         void TryScrapMilitaryBuilding()
         {
-            Building weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !b.IsPlayerAdded,
-                                                            b => b.CostEffectiveness);
+            Building weakest = null;
+            if (HasBlueprints)
+            {
+                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !RequiredInBlueprints(b),
+                                                       b => b.CostEffectiveness);
+            }
+
+            if (weakest == null)
+                weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.Scrappable && !b.IsPlayerAdded,
+                                                       b => b.CostEffectiveness);
+
             if (weakest != null)
                 ScrapBuilding(weakest);
         }
