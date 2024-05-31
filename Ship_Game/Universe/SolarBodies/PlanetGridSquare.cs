@@ -416,9 +416,9 @@ namespace Ship_Game
             Panel.Visible = true;
             Unlocked = unlocked;
             if (b.IsOutpost)
-                Panel.Tooltip = GameText.RightClickToRemove;
+                Panel.Tooltip = GameText.OutpostsCannotBeRemoved;
             else 
-                Panel.Tooltip = unlocked ? GameText.RightClickToRemove : GameText.RightClickToRemove;
+                Panel.Tooltip = unlocked ? GameText.RightClickToRemove : GameText.LockedRightClickToRemove;
         }
 
         public void RemoveBuilding()

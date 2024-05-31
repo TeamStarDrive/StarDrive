@@ -5282,6 +5282,16 @@ namespace Ship_Game
         Achievable = 6200,
         /// <summary>maximum completion percentage</summary>
         AchievableTip = 6201,
+        /// <summary>new Blueprints</summary>
+        NewBlueprints = 6202,
+        /// <summary>Cannot Build Ships</summary>
+        BlueprintsCannotBuildShips = 6203,
+        /// <summary>Cannot Build Troops</summary>
+        BlueprintsCannotBuildTroops = 6204,
+        /// <summary>The Outpost cannot be removed</summary>
+        OutpostsCannotBeRemoved = 6205,
+        /// <summary>The Outpost cannot be removed</summary>
+        LockedRightClickToRemove = 6206,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
