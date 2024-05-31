@@ -14996,6 +14996,18 @@ ExclusiveBlueprints:
 ExclusiveBlueprintsTip:
  Id: 6197
  ENG: "When Exclusive Blueprints are loaded, the Governor will only build the exact buildings of these Blueprints and will scrap all other non player built buildings. In non exclusive Blueprints, the governor will fill the rest of the planet with buildings according to its logic and also used its build logic if it cannot yet complete the Blueprints loaded."  
+Completion:
+ Id: 6198
+ ENG: "Completion:"   
+CompletionTip:
+ Id: 6199
+ ENG: "Percentage of the blueprints completed."    
+Achievable:
+ Id: 6200
+ ENG: "achievable"    
+AchievableTip:
+ Id: 6201
+ ENG: "Maximum completion percent of Blueprints for current technology level."     
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."

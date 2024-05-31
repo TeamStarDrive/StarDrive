@@ -139,6 +139,7 @@ namespace Ship_Game.GameScreens.Universe.Debug
                 }
             }
             empire.UpdateShipsWeCanBuild();
+            empire.UpdateForNewTech();
         }
 
         public static void UnlockCurrentTechTree(Empire empire, bool unlockBonuses)
@@ -165,6 +166,7 @@ namespace Ship_Game.GameScreens.Universe.Debug
             {
                 empire.Research.Current.Unlock(empire.Universe.Player);
                 empire.UpdateShipsWeCanBuild();
+                empire.UpdateForNewTech();
             }
             else
             {

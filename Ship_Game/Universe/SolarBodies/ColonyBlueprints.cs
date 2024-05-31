@@ -15,8 +15,8 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] readonly Empire Owner;
         [StarData] readonly Planet P;
         [StarData] public Array<Building> PlannedBuildingsWeCanBuild { get; private set; }
-        [StarData] int PercentCompleted;
-        [StarData] int PercentAchivable;
+        [StarData] public int PercentCompleted { get; private set; }
+        [StarData] public int PercentAchivable { get; private set; }
         [StarData] BlueprintsTemplate Template;
 
         public string Name => Template.Name;
@@ -52,7 +52,7 @@ namespace Ship_Game.Universe.SolarBodies
             ChangeColonyType();
             RefreshPlannedBuildingsWeCanBuild(P.GetBuildingsCanBuild());
             UpdateCompletion();
-            UpdatePercentAchivable();
+            UpdatePercentAchievable();
         }
 
         void ChangeColonyType()
@@ -71,7 +71,7 @@ namespace Ship_Game.Universe.SolarBodies
                 ChangeTemplateIfLinked();
         }
 
-        public void UpdatePercentAchivable()
+        public void UpdatePercentAchievable()
         {
             var unlockedBuildings = Owner.GetUnlockedBuildings();
             int totalPlannedBuildings = PlannedBuildings.Count;
