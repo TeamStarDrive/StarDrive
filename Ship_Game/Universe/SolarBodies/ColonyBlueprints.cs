@@ -103,11 +103,6 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public bool BuildingSuitableForScrap(Building b)
-        {
-            return !IsRequired(b);
-        }
-
         public bool ShouldScrapNonRequiredBuilding()
         {
             if (Exclusive)

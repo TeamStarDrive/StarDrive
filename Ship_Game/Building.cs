@@ -133,6 +133,7 @@ namespace Ship_Game
             && !IsBiospheres
             && !IsDynamicUpdate 
             && !IsTerraformer
+            && !IsCommodity
             && Scrappable;
 
 
