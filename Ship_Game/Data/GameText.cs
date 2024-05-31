@@ -5274,6 +5274,14 @@ namespace Ship_Game
         ExclusiveBlueprints = 6196,
         /// <summary>When an exclusive Blueprints are loaded, the governor will only build the exact buildings of the Blueprints</summary>
         ExclusiveBlueprintsTip = 6197,
+        /// <summary>Completion</summary>
+        Completion = 6198,
+        /// <summary>percentage of the Blueppints completed</summary>
+        CompletionTip = 6199,
+        /// <summary>achivable</summary>
+        Achievable = 6200,
+        /// <summary>maximum completion percentage</summary>
+        AchievableTip = 6201,
         /// <summary>Indicates the % chance of ECM disruption against incoming guided</summary>
         IndicatesTheChanceOfEcm = 7001,
         /// <summary>Indicates the resistance of this weapon's guidance against targets' ECM</summary>
