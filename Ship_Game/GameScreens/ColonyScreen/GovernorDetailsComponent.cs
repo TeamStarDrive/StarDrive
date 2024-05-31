@@ -363,28 +363,6 @@ namespace Ship_Game
             ColonyTypeList.ActiveValue = Planet.CType;
         }
 
-        /*
-        public void OnBlueprintsChanged(string name)
-        {
-            if (!Planet.HasBlueprints && name == "" || Planet.HasBlueprints && name == Planet.Blueprints.Name)
-                return;
-
-            if (Planet.HasBlueprints && name == "")
-            {
-                Planet.RemoveBlueprints();
-            }
-            else if (ResourceManager.TryGetBlueprints(name, out BlueprintsTemplate blueprints))
-            {
-                Planet.AddBlueprints(blueprints, Player);
-                ColonyTypeList.ActiveValue = Planet.CType;
-                Planet.DontScrapBuildings = false;
-            }
-            else
-            {
-                Log.Error($"Could not find blueprints '{name}' in resouce manager");
-            }
-        }*/
-
         public override void Update(float fixedDeltaTime)
         {
             if (Planet.Owner != null)
