@@ -259,6 +259,7 @@
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\BlueprintsScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\BlueprintsTemplate.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\LoadBlueprintsScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\LoadBlueprintsToColonyScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyBlueprints\SaveBlueprintsScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetButton.cs" />

@@ -77,7 +77,7 @@ namespace Ship_Game
         bool CanBuildTroops;
         bool CanBuildShips;
 
-        public BlueprintsScreen(UniverseScreen parent, Empire player) : base(parent, toPause: parent)
+        public BlueprintsScreen(UniverseScreen parent, Empire player, BlueprintsTemplate template = null) : base(parent, toPause: parent)
         {
             Player = player;
             TextFont = LowRes ? Font8 : Font12;
@@ -210,6 +210,12 @@ namespace Ship_Game
             CreateBlueprintsTiles(gridPos);
             RefreshLinkToOptions();
             RefreshBuildableList();
+            if (template != null)
+            {
+                LoadBlueprintsTemplate(template);
+                LoadBlueprints.Visible = false;
+                BlueprintsName.Text = template.Name;
+            }
         }
 
         void CreateBlueprintsTiles(Rectangle gridPos)
