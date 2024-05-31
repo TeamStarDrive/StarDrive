@@ -151,6 +151,7 @@ namespace Ship_Game.GameScreens.Universe.Debug
                     techEntry.Unlocked = false;
             }
             empire.UpdateShipsWeCanBuild();
+            empire.UpdateForNewTech();
         }
 
         public static void RunAIResearchPlanner(Empire empire)

@@ -12,7 +12,7 @@ public sealed class LoadBlueprintsScreen : GenericLoadSaveScreen
     readonly BlueprintsScreen Screen;
     static SubTexture BlueprintsIcon = ResourceManager.Texture("NewUI/blueprints");
 
-    public LoadBlueprintsScreen(BlueprintsScreen caller) : base(caller, SLMode.Load, "", "Load Blueprints", "Saved Blueprints", 40)
+    public LoadBlueprintsScreen(BlueprintsScreen caller) : base(caller, SLMode.Load, "", "Load Blueprints", "Saved Blueprints", 60)
     {
         Screen = caller;
         Path = Dir.StarDriveAppData + "/Colony Blueprints/" + BlueprintsTemplate.CurrentModName + "/";
@@ -36,7 +36,21 @@ public sealed class LoadBlueprintsScreen : GenericLoadSaveScreen
 
     FileData CreateBlueprintsSaveItem(FileInfo info, BlueprintsTemplate blueprints)
     {
-        return new(info, info, blueprints.Name, "", "", "", BlueprintsIcon, HelperFunctions.GetBlueprintsIconColor(blueprints)) 
+        string title1;
+        if (blueprints.Validated)
+        {
+            title1 = blueprints.Exclusive ? Localizer.Token(GameText.ExclusiveBlueprints) : "";
+            if (blueprints.ColonyType != Planet.ColonyType.Colony)
+                title1 = title1.NotEmpty() ? $"{title1} | Switch to: {blueprints.ColonyType}"
+                                           : $"Switch to: {blueprints.ColonyType}";
+        }
+        else
+        {
+            title1 = "These Blueprints have some missing buildings and cannot be loaded.";
+        }
+
+        string title2 = blueprints.Validated && blueprints.LinkTo.NotEmpty() ? $"Linked to: {blueprints.LinkTo}" : "";
+        return new(info, info, blueprints.Name, title1, title2, "", BlueprintsIcon, HelperFunctions.GetBlueprintsIconColor(blueprints)) 
         { Enabled = blueprints.Validated };
     }
 

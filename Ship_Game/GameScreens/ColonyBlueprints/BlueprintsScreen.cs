@@ -29,13 +29,13 @@ namespace Ship_Game
         readonly Submenu PlanStats;
         readonly Submenu SubExperimentalParameters;
         readonly UILabel BlueprintsName;
+        readonly UILabel CannotBuildTroopsWarning, CannotBuildShipsWarning;
         readonly UICheckBox ExclusiveCheckbox;
         public bool Exclusive;
         readonly Submenu SubPlanArea;
         public bool PlanAreaHovered { get; private set; }
         readonly Rectangle PlanetShieldIconRect;
         readonly ProgressBar PlanetShieldBar;
-        readonly UILabel FilterBuildableItemsLabel;
         readonly FloatSlider InitPopulationSlider;
         readonly FloatSlider InitFertilitySlider;
         readonly FloatSlider InitRichnessSlider;
@@ -74,13 +74,18 @@ namespace Ship_Game
         float PlannedRepairPerTurn;
         float PlannedStorage;
 
+        bool CanBuildTroops;
+        bool CanBuildShips;
+
         public BlueprintsScreen(UniverseScreen parent, Empire player) : base(parent, toPause: parent)
         {
             Player = player;
             TextFont = LowRes ? Font8 : Font12;
             var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             base.Add(new Menu2(titleRect));
-            Vector2 titlePos = new(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(GameText.ColonyBlueprintsTitle)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+            Vector2 titlePos = new(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString
+                (Localizer.Token(GameText.ColonyBlueprintsTitle)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+
             base.Add(new UILabel(titlePos, GameText.ColonyBlueprintsTitle, Fonts.Laserian14));
             LeftMenu = base.Add(new Menu1(2, titleRect.Y + titleRect.Height + 5, titleRect.Width, ScreenHeight - (titleRect.Y + titleRect.Height) - 7));
             RightMenu = base.Add(new Menu1(titleRect.Right + 10, titleRect.Y, ScreenWidth / 3 - 15, ScreenHeight - titleRect.Y - 2));
@@ -111,11 +116,16 @@ namespace Ship_Game
 
 
             float blueprintsOptionsX = SubBlueprintsOptions.X + 10;
-            BlueprintsName = base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 45), 
-                "New Bluebrints", Font14, Color.Gold));
-            ExclusiveCheckbox = base.Add(new UICheckBox(blueprintsOptionsX, SubBlueprintsOptions.Y + 65 + Font14.LineSpacing,
+            BlueprintsName = base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 30), 
+                GameText.NewBlueprints, Font14, Color.Gold));
+            ExclusiveCheckbox = base.Add(new UICheckBox(blueprintsOptionsX, SubBlueprintsOptions.Y + 40 + Font14.LineSpacing,
                 () => Exclusive, TextFont, GameText.ExclusiveBlueprints, GameText.ExclusiveBlueprintsTip));
+
             ExclusiveCheckbox.TextColor = Color.Wheat;
+            CannotBuildShipsWarning = base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 35 + Font14.LineSpacing*5),
+                GameText.BlueprintsCannotBuildShips, Font12, Color.Pink));
+            CannotBuildTroopsWarning = base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 35 + Font14.LineSpacing * 6),
+                GameText.BlueprintsCannotBuildTroops, Font12, Color.Pink));
 
             Vector2 savePos = new(blueprintsOptionsX, SubBlueprintsOptions.Y + 170);
             SaveBlueprints = base.Add(new UIButton(ButtonStyle.Small, savePos, GameText.Save));
@@ -149,13 +159,13 @@ namespace Ship_Game
             BuildableList.OnDragOut = OnBuildableListDrag;
 
 
-            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3),
+            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 50 + Font14.LineSpacing * 3),
                 "Link Blueprints to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
-            LinkBlueprints = base.Add(Add(new DropOptions<string>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 75 + Font14.LineSpacing * 3, 200, 18)));
+            LinkBlueprints = base.Add(Add(new DropOptions<string>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 50 + Font14.LineSpacing * 3, 200, 18)));
 
-            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 70 + Font14.LineSpacing * 2),
+            base.Add(new UILabel(new Vector2(blueprintsOptionsX, SubBlueprintsOptions.Y + 45 + Font14.LineSpacing * 2),
                 "Switch Governor to:", TextFont, Color.Wheat, GameText.ExclusiveBlueprintsTip));
-            SwitchColonyType = base.Add(Add(new DropOptions<Planet.ColonyType>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 70 + Font14.LineSpacing * 2, 100, 18)));
+            SwitchColonyType = base.Add(Add(new DropOptions<Planet.ColonyType>(blueprintsOptionsX + 150, SubBlueprintsOptions.Y + 45 + Font14.LineSpacing * 2, 100, 18)));
             SwitchColonyType.AddOption(option: "--", Planet.ColonyType.Colony);
             SwitchColonyType.AddOption(option: GameText.Core, Planet.ColonyType.Core);
             SwitchColonyType.AddOption(option: GameText.Industrial, Planet.ColonyType.Industrial);
@@ -330,11 +340,11 @@ namespace Ship_Game
             float taxInverted = 1 - tax;
 
             float taxRateMultiplier = 1f + Player.data.Traits.TaxMod;
-            Building[] PlannedBuildings = TilesList.FilterSelect(t => t.HasBuilding, t => t.Building);
+            Building[] plannedBuildings = TilesList.FilterSelect(t => t.HasBuilding, t => t.Building);
             PlannedMaintenance = 0;
             PlannedNetIncome   = 0;
             PlannedFertility   = InitFertility;
-            PlannedPopulation  = InitPopulationBillion + PlannedBuildings.Sum(b => b.PlusFlatPopulation)*0.001f;
+            PlannedPopulation  = InitPopulationBillion + plannedBuildings.Sum(b => b.PlusFlatPopulation)*0.001f;
             PlannedGrossMoney  = PlannedPopulation;
             PlannedFlatFood        = 0;
             PlannedFoodPerCol      = 0;
@@ -345,9 +355,11 @@ namespace Ship_Game
             PlannnedInfrastructure = 1;
             PlannedRepairPerTurn   = 0;
             PlannedStorage         = 0;
+            CanBuildShips = false;
+            CanBuildTroops = false;
 
 
-            foreach (Building b in PlannedBuildings)
+            foreach (Building b in plannedBuildings)
             {
                 PlannedGrossMoney += b.Income + b.CreditsPerColonist*PlannedPopulation;
                 taxRateMultiplier += b.PlusTaxPercentage;
@@ -362,15 +374,14 @@ namespace Ship_Game
                 PlannnedInfrastructure += b.Infrastructure;
                 PlannedStorage += b.StorageAdded;
                 PlannedRepairPerTurn += b.ShipRepair;
+                CanBuildTroops |= b.AllowInfantry;
+                CanBuildShips |= b.AllowShipBuilding;
             }
 
             PlannedGrossMoney  *= tax * taxRateMultiplier;
             PlannedMaintenance *= Player.data.Traits.MaintMultiplier;
             PlannedNetIncome = PlannedGrossMoney - PlannedMaintenance;
 
-
-
-            
             float foodConsumptionPerColonist = Player.NonCybernetic ? 1 + Player.data.Traits.ConsumptionModifier : 0;
             PlannedFoodPerCol = ColonyResource.FoodYieldFormula(PlannedFertility, PlannedFoodPerCol) - foodConsumptionPerColonist;
             float productionTax = Player.IsCybernetic ? tax * 0.5f : tax;
@@ -384,11 +395,12 @@ namespace Ship_Game
             PlannedFlatResearch = PlannedFlatResearch.LowerBound(0) * researchMultiplier * taxInverted * Player.data.Traits.ResearchTaxMultiplier;
             PlannedResearchPerCol *= researchMultiplier * taxInverted * Player.data.Traits.ResearchTaxMultiplier;
 
-
-
-
-
-
+            CannotBuildShipsWarning.Visible = !CanBuildShips && plannedBuildings.Length > 1;
+            CannotBuildTroopsWarning.Visible = !CanBuildTroops && plannedBuildings.Length > 1;
+            if (Exclusive)
+                CannotBuildShipsWarning.Color = CannotBuildTroopsWarning.Color = Color.Red;
+            else
+                CannotBuildShipsWarning.Color = CannotBuildTroopsWarning.Color = Color.Yellow;
         }
 
         public override void Update(float elapsedTime)

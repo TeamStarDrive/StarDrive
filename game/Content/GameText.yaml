@@ -14995,7 +14995,7 @@ ExclusiveBlueprints:
  ENG: "Exclusive Blueprints"   
 ExclusiveBlueprintsTip:
  Id: 6197
- ENG: "When Exclusive Blueprints are loaded, the Governor will only build the exact buildings of these Blueprints and will scrap all other non player built buildings. In non exclusive Blueprints, the governor will fill the rest of the planet with buildings according to its logic and also used its build logic if it cannot yet complete the Blueprints loaded."  
+ ENG: "When Exclusive Blueprints are loaded, the Governor will only build the exact buildings of these Blueprints and will scrap all other buildings, including player built ones. In non exclusive Blueprints, the governor will fill the rest of the planet with buildings according to its logic and also used its build logic if it cannot yet complete the Blueprints loaded."  
 Completion:
  Id: 6198
  ENG: "Completion:"   
@@ -15008,6 +15008,21 @@ Achievable:
 AchievableTip:
  Id: 6201
  ENG: "Maximum completion percent of Blueprints for current technology level."     
+NewBlueprints:
+ Id: 6202
+ ENG: "New Blueprints"      
+BlueprintsCannotBuildShips:
+ Id: 6203
+ ENG: "Cannot Build Ships"       
+BlueprintsCannotBuildTroops:
+ Id: 6204
+ ENG: "Cannot Build Troops"        
+OutpostsCannotBeRemoved:
+ Id: 6205
+ ENG: "The Outpost cannot be removed from the Blueprints."        
+LockedRightClickToRemove:
+ Id: 6206
+ ENG: "This Building is not yet research. Right Click to remove this building from current Blueprints. You will not be able to drag it back, though."         
 IndicatesTheChanceOfEcm:
  Id: 7001
  ENG: "Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting."
