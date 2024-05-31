@@ -14,9 +14,6 @@ namespace Ship_Game;
 public sealed class BlueprintsTemplate
 {
     [StarData] public string Name;
-    //[StarData] public string Description;
-    //[StarData] public subTexture Icon;
-    //[StarData] public Color Color;
     [StarData] public string ModName;
     [StarData] public bool Exclusive;
     [StarData] public string LinkTo;
