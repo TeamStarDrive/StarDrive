@@ -42,7 +42,7 @@ namespace Ship_Game
         UIButton BuildPlatform;
         UIButton BuildStation;
         UIButton BuildShipyard;
-        UIButton EditBlueprints;
+        UIButton LoadBlueprints;
         private float ButtonUpdateTimer;   // updates buttons once per second
         UILabel PlatformsText;
         UILabel StationsText;
@@ -153,6 +153,7 @@ namespace Ship_Game
             ColonyTypeList.ActiveValue = Planet.CType;
             ColonyTypeList.OnValueChange = OnColonyTypeChanged;
 
+            //LoadBlueprints = Button(ButtonStyle.Small, GameText.ButtonBuildCapitalName, OnBuildCapitalClicked);
             ButtonUpdateTimer    = 1;
             BuildCapital         = Button(ButtonStyle.BigDip, GameText.ButtonBuildCapitalName, OnBuildCapitalClicked);
             BuildCapital.Tooltip = GameText.ButtonBuildCapitalTip;
@@ -219,7 +220,7 @@ namespace Ship_Game
 
             Tabs = Add(new Submenu(rect, new LocalizedText[]
             {
-                GameText.Governor, GameText.Defense2, GameText.Budget
+                GameText.Governor, GameText.Defense2, GameText.Budget, "Blueprints"
             }));
 
             if (selectedIndex < Tabs.NumTabs)

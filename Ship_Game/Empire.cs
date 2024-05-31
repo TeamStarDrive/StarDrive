@@ -935,7 +935,6 @@ namespace Ship_Game
                 case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire):
                     UpdateForNewTech();
                     TriggerRemoveGovernorQueuedBuildingsTechUnlock(techEntry);
-                    UpdateBlueprintsAchievablePercentage();
                     break;
             }
         }
@@ -952,6 +951,7 @@ namespace Ship_Game
             AI.SpaceRoadsManager.UpdateAllRoadsMaintenance();
             AI.TriggerRefit();
             TriggerFreightersRefit();
+            UpdateBlueprintsAchievablePercentage();
         }
 
         void TriggerRemoveGovernorQueuedBuildingsTechUnlock(TechEntry techEntry)
