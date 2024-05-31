@@ -11,6 +11,7 @@ using Ship_Game.SpriteSystem;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe.SolarBodies;
+using System.Windows.Forms;
 
 namespace Ship_Game
 {
@@ -23,7 +24,7 @@ namespace Ship_Game
         private DrawableSprite PortraitSprite;
         private UIPanel Portrait;
         private UILabel WorldType, WorldDescription;
-        private UILabel ColonyBlueprints;
+        private UILabel ColonyBlueprints, BlueprintsCompletion, BlueprintsCompletionVal, BlueprintsAchiveable;
         private DropOptions<Planet.ColonyType> ColonyTypeList;
         private DropOptions<string> BlueprintsType;
         private UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine, ManualOrbitals, GovGround;
@@ -41,6 +42,7 @@ namespace Ship_Game
         UIButton BuildPlatform;
         UIButton BuildStation;
         UIButton BuildShipyard;
+        UIButton EditBlueprints;
         private float ButtonUpdateTimer;   // updates buttons once per second
         UILabel PlatformsText;
         UILabel StationsText;
@@ -107,6 +109,9 @@ namespace Ship_Game
             WorldType        = Add(new UILabel(Planet.WorldType, Font12));
             WorldDescription = Add(new UILabel(Font12));
             ColonyBlueprints = Add(new UILabel(Font12));
+            BlueprintsCompletion    = Add(new UILabel(GameText.Completion, Font12, Color.Wheat));
+            BlueprintsCompletionVal = Add(new UILabel(Font12));
+            BlueprintsAchiveable    = Add(new UILabel(GameText.Achievable, Font12, Color.Gray));
 
             Font    = Font12;
             FontBig = Font14;
@@ -234,9 +239,18 @@ namespace Ship_Game
             ColonyTypeList.Pos     = new Vector2(WorldType.X, Portrait.Y + 16);
             WorldDescription.Pos   = new Vector2(WorldType.X, Portrait.Y + 40);
             WorldDescription.Text  = GetParsedDescription();
-            ColonyBlueprints.Pos   = new Vector2(WorldType.X, Portrait.Y + 100);
+            ColonyBlueprints.Pos   = new Vector2(WorldType.X, Portrait.Y + 95);
             ColonyBlueprints.Text  = GameText.ColonyBlueprintsTitle;
-            BlueprintsType.Pos     = new Vector2(WorldType.X + Font12.MeasureString(Localizer.Token(GameText.ColonyBlueprintsTitle)).X+5, Portrait.Y + 100);
+
+            BlueprintsCompletion.Pos     = new Vector2(WorldType.X, Portrait.Y + 115);
+            BlueprintsCompletion.Text    = GameText.Completion;
+            BlueprintsCompletion.Tooltip = GameText.CompletionTip;
+            BlueprintsCompletionVal.Pos  = new Vector2(WorldType.X+85, Portrait.Y + 115);
+            BlueprintsAchiveable.Pos     = new Vector2(WorldType.X+120, Portrait.Y + 115);
+            BlueprintsAchiveable.Tooltip = GameText.AchievableTip;
+
+
+            BlueprintsType.Pos     = new Vector2(WorldType.X + Font12.MeasureString(Localizer.Token(GameText.ColonyBlueprintsTitle)).X+5, Portrait.Y + 95);
             Quarantine.Pos         = new Vector2(Portrait.X, Bottom - 24);
             GovNoScrap.Pos         = new Vector2(TopRight.X - 250, Bottom - 24);
             BudgetLimitReached.Pos = new Vector2(ColonyTypeList.Right + 10, ColonyTypeList.Pos.Y);
@@ -304,6 +318,7 @@ namespace Ship_Game
             UpdateButtons();
             UpdateGovOrbitalStats();
             UpdateBudgets();
+            UpdateBlueprintsStats();
             LoadColonyBlueprintsOptions();
 
 
@@ -369,6 +384,9 @@ namespace Ship_Game
                 WorldDescription.Visible   = GovernorTabView && Planet.OwnerIsPlayer;
                 ColonyBlueprints.Visible   = GovernorTabView && Planet.OwnerIsPlayer && Planet.GovernorOn && Planet.CType != Planet.ColonyType.TradeHub;
                 BlueprintsType.Visible     = ColonyBlueprints.Visible;
+                BlueprintsCompletion.Visible    = ColonyBlueprints.Visible && Planet.HasBlueprints;
+                BlueprintsCompletionVal.Visible = BlueprintsCompletion.Visible;
+                BlueprintsAchiveable.Visible    = BlueprintsCompletion.Visible && Planet.Blueprints.PercentAchivable < 100;
                 ColonyTypeList.Visible     = GovernorTabView && Planet.OwnerIsPlayer;
                 Portrait.Visible           = GovernorTabView;
                 WorldType.Visible          = GovernorTabView;
@@ -458,6 +476,7 @@ namespace Ship_Game
             UpdateButtons();
             UpdateGovOrbitalStats();
             UpdateBudgets();
+            UpdateBlueprintsStats();
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -701,6 +720,25 @@ namespace Ship_Game
             else
             {
                 ManualSpcBudget.Text = budget.SpcDefAlloc.String(2);
+            }
+        }
+
+        void UpdateBlueprintsStats()
+        {
+            if (!Planet.HasBlueprints || !Planet.OwnerIsPlayer)
+                return;
+
+            BlueprintsCompletionVal.Text = $"{Planet.Blueprints.PercentCompleted.String()}%";
+            BlueprintsAchiveable.Text = $"({Planet.Blueprints.PercentAchivable.String()}% {Localizer.Token(GameText.Achievable)})";
+            BlueprintsCompletionVal.Color = getColor(Planet.Blueprints.PercentCompleted);
+
+            Color getColor(int percent)
+            {
+                if (percent == 100) return Color.Green;
+                if (percent > 80)   return Color.YellowGreen;
+                if (percent > 50)   return Color.Yellow;
+                if (percent > 0)    return Color.Orange;
+                return Color.Red;
             }
         }
 
