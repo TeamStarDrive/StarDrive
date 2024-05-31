@@ -69,7 +69,7 @@ namespace Ship_Game
             var planets = Universe.Player.GetPlanets();
             int sidePanelWidths = (int)(ScreenWidth * 0.3f);
             GovernorRect = new RectF(ColoniesList.Right - sidePanelWidths - 23, ColoniesList.Bottom - 5, sidePanelWidths, ScreenHeight - ColoniesList.Bottom - 22);
-            GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], GovernorRect));
+            GovernorDetails = Add(new GovernorDetailsComponent(this, Universe,  planets[0], GovernorRect));
             ResetColoniesList(planets);
             int totalTroops = Universe.Player.TotalTroops();
             string troopText = $"Total Troops: {totalTroops}";

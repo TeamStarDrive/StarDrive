@@ -32,7 +32,7 @@ public sealed class BlueprintsTemplate
         Exclusive = exclusive;
         LinkTo = linkTo;
         PlannedBuildings = plannedBuildings;
-        ColonyType = cType;
+        ColonyType = cType == ColonyType.TradeHub ? ColonyType.Colony : cType;
     }
 
     public bool Validated => ResourceManager.BlueprintsValid(this, out _);
