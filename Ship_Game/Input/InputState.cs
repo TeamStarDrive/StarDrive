@@ -236,6 +236,8 @@ namespace Ship_Game
         public bool XButtonHeld => GamepadHeld(Buttons.X);
         public bool YButtonHeld => GamepadHeld(Buttons.Y);
 
+        public bool OpenScreenSaveMenu => IsCtrlKeyDown && IsKeyDown(Keys.S);
+
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
         public InputState()
